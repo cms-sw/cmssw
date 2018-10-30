@@ -124,28 +124,28 @@ CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
    if (read_Ascii_RCT && read_Ascii_Compression) {
 	 edm::LogInfo("Level1") << "Using " << hfilename1_.fullPath() << " & " << hfilename2_.fullPath()
 			  << " for CaloTPGTranscoderULUTs HCAL initialization";
-	 //std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(hfilename1_.fullPath(), hfilename2_.fullPath()));
+	 //std::unique_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(hfilename1_.fullPath(), hfilename2_.fullPath()));
 	 //return pTCoder;
        file1 = hfilename1_.fullPath();
        file2 = hfilename2_.fullPath();
    } else if (read_Ascii_RCT && !read_Ascii_Compression) {
 	 edm::LogInfo("Level1") << "Using analytical compression and " << hfilename2_.fullPath()
 			  << " RCT decompression for CaloTPGTranscoderULUTs HCAL initialization";
-	 //std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT("", hfilename2_.fullPath()));
+	 //std::unique_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT("", hfilename2_.fullPath()));
 	 //return pTCoder;
        file2 = hfilename2_.fullPath();
    } else if (read_Ascii_Compression && !read_Ascii_RCT) {
 	 edm::LogInfo("Level1") << "Using ASCII compression tables " << hfilename1_.fullPath()
 			  << " and automatic RCT decompression for CaloTPGTranscoderULUTs HCAL initialization";
-	 //std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(hfilename1_.fullPath(),""));
+	 //std::unique_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(hfilename1_.fullPath(),""));
      //return pTCoder;
        file1 = hfilename1_.fullPath();
    } else {
 	 edm::LogInfo("Level1") << "Using analytical compression and RCT decompression for CaloTPGTranscoderULUTs HCAL initialization";
-	 //std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT());
+	 //std::unique_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT());
 	 //return pTCoder;
    }
-   //std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(ietal, ietah, ZS, LUTfactor, RCTLSB, nominal_gain, file1, file2));
+   //std::unique_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(ietal, ietah, ZS, LUTfactor, RCTLSB, nominal_gain, file1, file2));
    
    edm::ESHandle<HcalLutMetadata> lutMetadata;
    iRecord.getRecord<HcalLutMetadataRcd>().get(lutMetadata);
@@ -158,9 +158,9 @@ CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
    HcalLutMetadata fullLut{ *lutMetadata };
    fullLut.setTopo(htopo.product());
 
-   std::auto_ptr<CaloTPGTranscoderULUT> pTCoder(new CaloTPGTranscoderULUT(file1, file2));
+   std::unique_ptr<CaloTPGTranscoderULUT> pTCoder(new CaloTPGTranscoderULUT(file1, file2));
    pTCoder->setup(fullLut, *theTrigTowerGeometry, NCTScaleShift, RCTScaleShift, lsbQIE8, lsbQIE11, linearLUTs_);
-   return std::auto_ptr<CaloTPGTranscoder>( pTCoder );
+   return std::unique_ptr<CaloTPGTranscoder>( std::move(pTCoder) );
 }
 
 //define this as a plug-in

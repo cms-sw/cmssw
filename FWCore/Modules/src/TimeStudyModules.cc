@@ -29,6 +29,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
@@ -84,17 +85,18 @@ class SleepingProducer : public edm::global::EDProducer<> {
 public:
   explicit SleepingProducer(edm::ParameterSet const& p) :
   value_(p.getParameter<int>("ivalue")),
-  sleeper_(p, consumesCollector())
+  sleeper_(p, consumesCollector()),
+  token_{produces<int>()}
   {
-    produces<int>();
   }
   void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
-  int value_;
+  const int value_;
   Sleeper sleeper_;
+  const edm::EDPutTokenT<int> token_;
 };
 
 void
@@ -102,7 +104,7 @@ SleepingProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) 
   // EventSetup is not used.
   sleeper_.getAndSleep(e);
   
-  e.put(std::make_unique<int>(value_));
+  e.emplace(token_,value_);
 }
   
 void
@@ -119,9 +121,9 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
   public:
     explicit OneSleepingProducer(edm::ParameterSet const& p) :
     value_(p.getParameter<int>("ivalue")),
-    sleeper_(p, consumesCollector())
+    sleeper_(p, consumesCollector()),
+    token_{produces<int>()}
     {
-      produces<int>();
       usesResource(p.getParameter<std::string>("resource"));
     }
     void produce( edm::Event& e, edm::EventSetup const& c) override;
@@ -129,8 +131,9 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     
   private:
-    int value_;
+    const int value_;
     Sleeper sleeper_;
+    const edm::EDPutTokenT<int> token_;
   };
   
   void
@@ -138,7 +141,7 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
     // EventSetup is not used.
     sleeper_.getAndSleep(e);
     
-    e.put(std::make_unique<int>(value_));
+    e.emplace(token_,value_);
   }
   
   void
@@ -163,7 +166,6 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     
   private:
-    int value_;
     Sleeper sleeper_;
   };
   
@@ -296,7 +298,8 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
   public:
     explicit ExternalWorkSleepingProducer(edm::ParameterSet const& p) :
     value_(p.getParameter<int>("ivalue")),
-    sleeper_(p, consumesCollector())
+    sleeper_(p, consumesCollector()),
+    token_{produces<int>()}
     {
       {
         auto const& tv = p.getParameter<std::vector<double>>("serviceInitTimes");
@@ -321,8 +324,6 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
       }
       assert(finishTimes_.size() == initTimes_.size());
       assert(workTimes_.size() == initTimes_.size());
-
-      produces<int>();
     }
     void acquire(edm::StreamID, edm::Event const & e, edm::EventSetup const& c, edm::WaitingTaskWithArenaHolder holder) const override;
 
@@ -334,8 +335,9 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
     std::vector<long> initTimes_;
     std::vector<long> workTimes_;
     std::vector<long> finishTimes_;
-    int value_;
+    const int value_;
     Sleeper sleeper_;
+    const edm::EDPutTokenT<int> token_;
   };
 
   void
@@ -349,7 +351,7 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
 
   void
   ExternalWorkSleepingProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
-    e.put(std::make_unique<int>(value_));
+    e.emplace(token_,value_);
   }
   
   void

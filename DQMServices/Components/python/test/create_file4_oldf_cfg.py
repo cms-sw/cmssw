@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import DQMServices.Components.test.checkBooking as booking
 import DQMServices.Components.test.createElements as c
@@ -50,7 +51,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 
 
 if b.forceReset():
-    print "Forcing Reset of histograms at every Run Transition."
+    print("Forcing Reset of histograms at every Run Transition.")
     process.DQMStore.forceResetOnBeginRun = cms.untracked.bool(True)
 
 

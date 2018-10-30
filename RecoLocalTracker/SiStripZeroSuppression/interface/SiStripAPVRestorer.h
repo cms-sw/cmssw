@@ -22,121 +22,107 @@
 #include <vector>
 #include <cstdint>
 
-typedef std::map<uint16_t, int16_t> DigiMap;
-typedef std::map<uint16_t, std::vector < int16_t> > RawDigiMap;
-typedef std::map<uint16_t, int16_t>::iterator DigiMapIter;
-typedef std::map<uint32_t, std::vector<float> > CMMap;  //detId, Vector of MeanCM per detId
-
-
 class SiStripAPVRestorer {
-
  friend class SiStripRawProcessingFactory;
-
- public:
-  
+protected:
+  SiStripAPVRestorer(const edm::ParameterSet& conf);
+public:
   virtual ~SiStripAPVRestorer() {};
 
-  void     init(const edm::EventSetup& es);
-  int16_t  inspect(const uint32_t&, const uint16_t&, std::vector<int16_t>&, const std::vector< std::pair<short,float> >&);
-  void     restore(const uint16_t&, std::vector<int16_t>&);
-  int16_t  InspectAndRestore(const uint32_t&, const uint16_t&, std::vector<int16_t>&,  std::vector<int16_t>&, const std::vector< std::pair<short,float> >&);
-  //void     fixAPVsCM(edm::DetSet<SiStripProcessedRawDigi>& );
-  void     LoadMeanCMMap(const edm::Event&);
-  
-   RawDigiMap& GetBaselineMap(){return BaselineMap_;}
-  //std::vector< DigiMap >& GetSmoothedPoints(){return SmoothedMaps_;}
-   std::map< uint16_t, DigiMap >& GetSmoothedPoints(){return SmoothedMaps_;}
-   std::vector<bool>& GetAPVFlags();
+  using digi_t = int16_t;
+  using digivector_t = std::vector<digi_t>;
+  using digimap_t = std::map<uint16_t, digi_t>;
+  using medians_t = std::vector<std::pair<short,float>>;
+  using baselinemap_t = std::map<uint16_t, digivector_t>;
 
- protected:
+  void init(const edm::EventSetup& es);
 
-  SiStripAPVRestorer(const edm::ParameterSet& conf);
+  uint16_t inspect(uint32_t detId, uint16_t firstAPV, const digivector_t& digis, const medians_t& vmedians);
+  void restore(uint16_t firstAPV, digivector_t& digis);
 
- private:
-  
-  //template<typename T>float median( std::vector<T>& );
-  //template<typename T>void IterativeMedian(std::vector<T>&, uint16_t); 
-  
-  template<typename T >int16_t NullInspect(const uint16_t&, std::vector<T>&);
-  template<typename T >int16_t AbnormalBaselineInspect(const uint16_t&, std::vector<T>&);
-  template<typename T >int16_t BaselineFollowerInspect(const uint16_t&, std::vector<T>&);  
-  template<typename T >int16_t BaselineAndSaturationInspect(const uint16_t&, std::vector<T>&);
+  uint16_t inspectAndRestore(uint32_t detId, uint16_t firstAPV, const digivector_t& rawDigisPedSubtracted, digivector_t& processedRawDigi, const medians_t& vmedians);
 
-  void FlatRestore(const uint16_t&, const uint16_t&, std::vector<int16_t>& );
-  bool CheckBaseline(const std::vector<int16_t> &) const;
-  void BaselineFollowerRestore(const uint16_t&, const uint16_t&, const float&, std::vector<int16_t>& );
-  
-  void BaselineFollower(DigiMap&, std::vector<int16_t>&, const float&);
-  bool FlatRegionsFinder(const std::vector<int16_t>&, DigiMap&, const uint16_t&);
+  void loadMeanCMMap(const edm::Event&);
 
-  void BaselineCleaner(const std::vector<int16_t>&, DigiMap&, const uint16_t& );
-  void Cleaner_MonotonyChecker(DigiMap&);
-  void Cleaner_HighSlopeChecker(DigiMap&);
-  void Cleaner_LocalMinimumAdder(const std::vector<int16_t>&, DigiMap&, const uint16_t& );
+  const baselinemap_t& getBaselineMap() const { return baselineMap_; }
+  const std::map<uint16_t, digimap_t>& getSmoothedPoints() const { return smoothedMaps_; }
+  const std::vector<bool>& getAPVFlags() const { return apvFlagsBool_; }
 
+private:
+  using CMMap = std::map<uint32_t, std::vector<float>>;  //detId, Vector of MeanCM per detId
+  constexpr static uint16_t nTotStripsPerAPV = 128;
 
-  void CreateCMMapRealPed(const edm::DetSetVector<SiStripRawDigi>& );
-  void CreateCMMapCMstored(const edm::DetSetVector<SiStripProcessedRawDigi>& );
- 
-  float pairMedian( std::vector<std::pair<float,float> >&); 
-  
-  
-  edm::ESHandle<SiStripQuality> qualityHandle;
-  uint32_t  quality_cache_id;
-  
-  edm::ESHandle<SiStripNoises> noiseHandle;
-  uint32_t noise_cache_id;
-  
+  uint16_t nullInspect(uint16_t firstAPV, const digivector_t& digis);
+  uint16_t abnormalBaselineInspect(uint16_t firstAPV, const digivector_t& digis);
+  uint16_t baselineFollowerInspect(uint16_t firstAPV, const digivector_t& digis);
+  uint16_t baselineAndSaturationInspect(uint16_t firstAPV, const digivector_t& digis);
+  uint16_t forceRestoreInspect(uint16_t firstAPV, const digivector_t& digis);
+  uint16_t hybridFormatInspect(uint16_t firstAPV, const digivector_t& digis);
+  uint16_t hybridEmulationInspect(uint16_t firstAPV, const digivector_t& digis);
+
+  void flatRestore(uint16_t apvN, uint16_t firstAPV, digivector_t& digis);
+  bool checkBaseline(const std::vector<int16_t> & baseline) const;
+  void baselineFollowerRestore(uint16_t apvN, uint16_t firstAPV, float median, digivector_t& digis);
+  void derivativeFollowerRestore(uint16_t apvN, uint16_t firstAPV, digivector_t& digis);
+
+  void baselineFollower(const digimap_t&, digivector_t& baseline, float median);
+  bool flatRegionsFinder(const digivector_t& adcs, digimap_t& smoothedpoints, uint16_t apvN);
+
+  void baselineCleaner(const digivector_t& adcs, digimap_t& smoothedpoints, uint16_t apvN);
+  void cleaner_MonotonyChecker(digimap_t& smoothedpoints);
+  void cleaner_HighSlopeChecker(digimap_t& smoothedpoints);
+  void cleaner_LocalMinimumAdder(const digivector_t& adcs, digimap_t& smoothedpoints, uint16_t apvN);
+
+  void createCMMapRealPed(const edm::DetSetVector<SiStripRawDigi>& input);
+  void createCMMapCMstored(const edm::DetSetVector<SiStripProcessedRawDigi>& input);
+
+private: // members
+  edm::ESHandle<SiStripQuality>   qualityHandle;
+  edm::ESHandle<SiStripNoises>    noiseHandle;
   edm::ESHandle<SiStripPedestals> pedestalHandle;
-  uint32_t pedestal_cache_id;
-  
+  uint32_t quality_cache_id, noise_cache_id, pedestal_cache_id;
+
+  // event state
+  CMMap meanCMmap_;
+  // state
+  uint32_t detId_;
   std::vector<std::string> apvFlags_;
   std::vector<bool> apvFlagsBool_;
   std::vector<bool> apvFlagsBoolOverride_;
   std::vector<float> median_;
   std::vector<bool> badAPVs_;
-  std::map<uint16_t, DigiMap> SmoothedMaps_;
-  RawDigiMap BaselineMap_;
-  
-  
-  uint32_t detId_;
-  
-  CMMap MeanCMmap_;
-  edm::InputTag inputTag_;
-  
-  
-  bool ForceNoRestore_;
-  bool SelfSelectRestoreAlgo_;
-  std::string InspectAlgo_;
-  std::string RestoreAlgo_;
-  bool useRealMeanCM_;
-  
+  std::map<uint16_t, digimap_t> smoothedMaps_;
+  baselinemap_t baselineMap_;
+
   //--------------------------------------------------
   // Configurable Parameters of Algorithm
   //--------------------------------------------------
-
+  bool forceNoRestore_;
+  std::string inspectAlgo_;
+  std::string restoreAlgo_;
+  bool     useRealMeanCM_;
+  int32_t  meanCM_;
+  uint32_t deltaCMThreshold_;          // for BaselineFollower inspect
   double   fraction_;                  // fraction of strips deviating from nominal baseline
-  uint32_t deviation_;                 // ADC value of deviation from nominal baseline 
+  uint32_t deviation_;                 // ADC value of deviation from nominal baseline
   double   restoreThreshold_;          // for Null inspect (fraction of adc=0 channels)
-  uint32_t DeltaCMThreshold_;          // for BaselineFollower inspect
-  
+  uint32_t nSaturatedStrip_;           // for BaselineAndSaturation inspect
   uint32_t nSigmaNoiseDerTh_;          // threshold for rejecting hits strips
   uint32_t consecThreshold_;           // minimum length of flat region
-  uint32_t hitStripThreshold_;         // height above median when strip is definitely a hit
   uint32_t nSmooth_;                   // for smoothing and local minimum determination (odd number)
-  uint32_t minStripsToFit_;            // minimum strips to try spline algo (otherwise default to median)
   uint32_t distortionThreshold_;       // (max-min) of flat regions to trigger baseline follower
-  double   CutToAvoidSignal_;	       // for iterative median implementation internal to APV restorer
-  uint32_t nSaturatedStrip_;           // for BaselineAndSaturation inspect
-  bool ApplyBaselineCleaner_;
-  int32_t slopeX_;
-  int32_t slopeY_;
-  uint32_t CleaningSequence_;
-  bool ApplyBaselineRejection_;
-  int32_t MeanCM_;
+  bool     applyBaselineCleaner_;
+  uint32_t cleaningSequence_;
+  int32_t  slopeX_;
+  int32_t  slopeY_;
+  uint32_t hitStripThreshold_;         // height above median when strip is definitely a hit
+  uint32_t minStripsToFit_;            // minimum strips to try spline algo (otherwise default to median)
+  bool    applyBaselineRejection_;
   double  filteredBaselineMax_;
-  double filteredBaselineDerivativeSumSquare_;
-                    
+  double  filteredBaselineDerivativeSumSquare_;
+  int gradient_threshold_;
+  int last_gradient_;
+  int size_window_;
+  int width_cluster_;
 };
-
 #endif

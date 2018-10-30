@@ -309,8 +309,9 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if ( addTauID_ ) {
       std::string missingDiscriminators;
       std::vector<pat::Tau::IdPair> ids(tauIDSrcs_.size());
+      auto const& tausDeref = *tausRef;
       for ( size_t i = 0; i < tauIDSrcs_.size(); ++i ) {
-	if ( typeid(*tausRef) == typeid(reco::PFTau) ) {
+	if ( typeid(tausDeref) == typeid(reco::PFTau) ) {
 	  //std::cout << "filling PFTauDiscriminator '" << tauIDSrcs_[i].first << "' into pat::Tau object..." << std::endl;
 	  edm::Handle<reco::PFTauCollection> pfTauCollection;
 	  iEvent.getByToken(pfTauToken_, pfTauCollection);
@@ -327,7 +328,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	  }
 	  ids[i].first = tauIDSrcs_[i].first;
 	  ids[i].second = getTauIdDiscriminator(pfTauCollection, idx, pfTauIdDiscr);
-	} else if ( typeid(*tausRef) == typeid(reco::CaloTau) ) {
+	} else if ( typeid(tausDeref) == typeid(reco::CaloTau) ) {
 	  //std::cout << "filling CaloTauDiscriminator '" << tauIDSrcs_[i].first << "' into pat::Tau object..." << std::endl;
 	  edm::Handle<reco::CaloTauCollection> caloTauCollection;
 	  iEvent.getByToken(caloTauToken_, caloTauCollection);
@@ -346,7 +347,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	  ids[i].second = getTauIdDiscriminator(caloTauCollection, idx, caloTauIdDiscr);
 	} else {
 	  throw cms::Exception("Type Mismatch") <<
-	    "PATTauProducer: unsupported datatype '" << typeid(*tausRef).name() << "' for tauSource\n";
+	    "PATTauProducer: unsupported datatype '" << typeid(tausDeref).name() << "' for tauSource\n";
 	}
       }
       if(!missingDiscriminators.empty() && firstOccurence_){
@@ -446,7 +447,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       aTauPFEssential.ecalEnergyLeadChargedHadrCand_ = ecalEnergyLeadChargedHadrCand;
       aTauPFEssential.hcalEnergyLeadChargedHadrCand_ = hcalEnergyLeadChargedHadrCand; 	
       // extraction of tau lifetime information
-      if( tauTransverseImpactParameterSrc_.label() != "" ) {
+      if( !tauTransverseImpactParameterSrc_.label().empty() ) {
         edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
         iEvent.getByToken(tauTransverseImpactParameterToken_, tauLifetimeInfos);
         const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[pfTauRef];

@@ -49,50 +49,6 @@ process.dependsOnThingToBeDropped1 = cms.EDProducer("ThingWithMergeProducer",
 
 process.test = cms.EDAnalyzer("TestMergeResults",
 
-    #   These values below are just arbitrary and meaningless
-    #   We are checking to see that the value we get out matches what
-    #   was put in.
-    #   expected values listed below come in sets of three
-    #      value expected in Thing
-    #      value expected in ThingWithMerge
-    #      value expected in ThingWithIsEqual
-    #   This set of 3 is repeated below at each point it might change
-    #   When the sequence of parameter values is exhausted it stops checking
-    #   0's are just placeholders, if the value is a "0" the check is not made
-    #   and it indicates the product does not exist at that point.
-    #   *'s indicate lines where the checks are actually run by the test module.
-    expectedBeginRunProd = cms.untracked.vint32(
-        0,           0,      0,  # start
-        0,           0,      0,  # begin file
-        10001,   10002,  10003,  # * begin run
-        10001,   10002,  10003,  # * events
-        10001,   10002,  10003   # end run
-    ),
-
-    expectedEndRunProd = cms.untracked.vint32(
-        0,           0,      0,  # start
-        0,           0,      0,  # begin file
-        0,           0,      0,  # begin run
-        0,           0,      0,  # * events
-        100001, 100002, 100003   # * end run
-    ),
-
-    expectedBeginLumiProd = cms.untracked.vint32(
-        0,           0,      0,  # start
-        0,           0,      0,  # begin file
-        101,       102,    103,  # * begin lumi
-        101,       102,    103,  # * events
-        101,       102,    103   # end lumi
-    ),
-
-    expectedEndLumiProd = cms.untracked.vint32(
-        0,           0,      0,  # start
-        0,           0,      0,  # begin file
-        0,           0,      0,  # begin lumi
-        0,           0,      0,  # * events
-        1001,     1002,   1003   # * end lumi
-    ),
-
     verbose = cms.untracked.bool(False),
 
     expectedParents = cms.untracked.vstring(

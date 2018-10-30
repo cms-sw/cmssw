@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import time, os, sys, math, re, gzip
 import tempfile as tmp
 import optparse as opt
@@ -100,7 +101,7 @@ def getParameters():
     if os.path.exists(path1) and os.path.exists(path2):
         return (path1, path2, options.startevt, options.reporttype, options.igprofmem)
     else:
-        print "Error: one of the paths does not exist"
+        print("Error: one of the paths does not exist")
         sys.exit()
 
 ###########
@@ -206,9 +207,9 @@ def getSimpleMemLogData(logfile_name,startevt, candle):
     found=stepreg.search(logfile_name)
     if found:
         step=found.groups()[0]
-        print "Determined step from log filename to be %s"%step
+        print("Determined step from log filename to be %s"%step)
     else:
-        print "Could not determine step from log filename"
+        print("Could not determine step from log filename")
         
     #steps.append((step,data))
 
@@ -516,7 +517,7 @@ def getNpoints(data):
     try:
         #This was necessary due to a bug in the getSimpleMemLogData parsing!!! no more necessary!
         if data[0][0]==data[1][0]:
-            print 'Two modules seem to have some output.\nCollapsing ...'
+            print('Two modules seem to have some output.\nCollapsing ...')
             i=0
             while True:
                 dataline1=data[i]
@@ -536,7 +537,7 @@ def getNpoints(data):
                 if i==len(data): break
 
             data=new_data
-            print 'Collapsing: Done!'        
+            print('Collapsing: Done!')        
     except IndexError:
         pass
 
@@ -730,9 +731,9 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
         setBatch()
     # the fundamental structure: the key is the evt number the value is a list containing
     # VSIZE deltaVSIZE RSS deltaRSS
-    print "#####LOGFILES in cmsPErfRegress:"
-    print oldLogfile
-    print newLogfile
+    print("#####LOGFILES in cmsPErfRegress:")
+    print(oldLogfile)
+    print(newLogfile)
     try:
         info1 = getSimpleMemLogData(oldLogfile,startevt, candle)
         if len(info1) == 0:
@@ -888,7 +889,7 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
         elif logcandle in CandFname:
             candFilename = CandFname[logcandle]
         else:
-            print "%s is an unknown candle!"%candle
+            print("%s is an unknown candle!"%candle)
             candFilename = "Unknown-candle"
             
         outputdir = "%s_%s_SimpleMemReport" % (candFilename,stepname1)
@@ -1039,9 +1040,9 @@ def rmtree(path):
                 for d in dirs:
                     rmtree(os.path.join(path,d))
             except OSError as detail:
-                print detail
+                print(detail)
             except IOError as detail:
-                print detail
+                print(detail)
             os.remove(path)
 
 def perfreport(perftype,file1,file2,outdir,IgProfMemopt=""):
@@ -1049,7 +1050,7 @@ def perfreport(perftype,file1,file2,outdir,IgProfMemopt=""):
     try:
         src = os.environ["CMSSW_SEARCH_PATH"]
     except KeyError as detail:
-        print "ERROR: scramv1 environment could not be located", detail 
+        print("ERROR: scramv1 environment could not be located", detail) 
 
     vars = src.split(":")
     loc  = vars[0]
@@ -1098,13 +1099,13 @@ def perfreport(perftype,file1,file2,outdir,IgProfMemopt=""):
         rmtree(tmpdir)        #Brute force solution rm -RF tmpdir done in rmtree()
         #os.rmdir(tmpdir)
     except IOError as detail:
-        print "WARNING: Could not remove dir because IO%s" % detail                
+        print("WARNING: Could not remove dir because IO%s" % detail)                
     except OSError as detail:
-        print "WARNING: Could not remove dir because %s" % detail                
+        print("WARNING: Could not remove dir because %s" % detail)                
 
     if True:
-        print cmd
-        print cmdout
+        print(cmd)
+        print(cmdout)
 
     if not exitstat == None:
         sig     = exitstat >> 16    # Get the top 16 bits
@@ -1117,11 +1118,11 @@ def cmpEdmSizeReport(outdir,file1,file2):
 
 def ungzip(inf,outh):
     gzf = gzip.open(inf,"r")
-    print "ungzipping"
+    print("ungzipping")
     for char in gzf:
         os.write(outh,char)
     os.close(outh)
-    print "finish ungzipping"
+    print("finish ungzipping")
     gzf.close()
 
 def ungzip2(inf,out):
@@ -1180,15 +1181,15 @@ def _main():
         elif reporttype == "igprof":
             cmpIgProfReport(outdir,file1,file2,IgProfMemOptions)            
     except TimingParseErr as detail:
-        print "WARNING: Could not parse data from Timing report file %s; not performing regression" % detail.message
+        print("WARNING: Could not parse data from Timing report file %s; not performing regression" % detail.message)
     except SimpMemParseErr as detail:
-        print "WARNING: Could not parse data from Memory report file %s; not performing regression" % detail.message
+        print("WARNING: Could not parse data from Memory report file %s; not performing regression" % detail.message)
     except PerfReportErr as detail:
-        print "WARNING: Could not parse data from Edm file %s; not performing regression" % detail.message
+        print("WARNING: Could not parse data from Edm file %s; not performing regression" % detail.message)
     except IOError as detail:
-        print detail
+        print(detail)
     except OSError as detail:
-        print detail
+        print(detail)
 
 if __name__ == "__main__":
     _main()

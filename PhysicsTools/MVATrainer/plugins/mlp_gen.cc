@@ -352,7 +352,7 @@ L20:
 	}
 	
 /* cas npat impair */	
-	for(ipat=ipat; ipat<npat; ipat++)
+	for(/*'ipat' set above*/; ipat<npat; ipat++)
 		{
 		MLP_MatrixVector(NET.vWeights[1],
 				&(PAT.vRin[ifile][ipat*(nin+1)]),tmp,
@@ -584,7 +584,7 @@ L1:				NET.Delta[il][in] = a1*deriv1;
 				NET.Delta[il][in+2] = a3*deriv3;
 				NET.Delta[il][in+3] = a4*deriv4;
 				} 
-			for(in=in; in<NET.Nneur[il]; in++) 
+			for(/*'in' set above*/; in<NET.Nneur[il]; in++) 
 				{
 				deriv = NET.Deriv1[il][in]; 
 				itest2 = (NET.Nneur[il+1]==1);
@@ -639,7 +639,7 @@ L2:				NET.Delta[il][in] = a*deriv;
 			        	*pw4 += a4 * *pout;
 					}
 				}
-			for(in=in; in<NET.Nneur[il]; in++)
+			for(/*'in' set above*/; in<NET.Nneur[il]; in++)
 				{ 
 				a1 = NET.Delta[il][in];
 				pout = &(NET.Outn[il-1][0]);
@@ -3339,26 +3339,27 @@ int MLP_PrintInputStat()
 	sigma = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
 	minimum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
 	maximum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
+    int returnCode = -111; // to return if any malloc failed
 
-	if(mean == nullptr || sigma == nullptr || minimum == nullptr
-	   || maximum == nullptr) return -111;
+    if(mean && sigma && minimum && maximum) {
 
-	MLP_StatInputs(PAT.Npat[0],NET.Nneur[0],PAT.Rin[0],
-			mean,sigma,minimum,maximum);
+        MLP_StatInputs(PAT.Npat[0],NET.Nneur[0],PAT.Rin[0],mean,sigma,minimum,maximum);
 
-	printf("\t mean \t\t RMS \t\t min \t\t max\n");
-	for(j=0;j<NET.Nneur[0];j++)
-		{
-	 	printf("var%d \t %e \t %e \t %e \t %e\n",j+1,
-					mean[j],sigma[j],minimum[j],maximum[j]);
-		}
-	
+        printf("\t mean \t\t RMS \t\t min \t\t max\n");
+        for(j=0;j<NET.Nneur[0];j++)
+        {
+            printf("var%d \t %e \t %e \t %e \t %e\n",j+1,
+            mean[j],sigma[j],minimum[j],maximum[j]);
+        }
+        returnCode = 0; // everything went fine
+    }
+
 	free(mean);
 	free(sigma);
 	free(minimum);
 	free(maximum);	
 	printf("\n");
-	return 0;
+	return returnCode;
 }
 
 
@@ -3382,53 +3383,51 @@ int MLP_PrintInputStat()
 
 /* allocate memory */
 	mean = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (mean == nullptr) return -111;
 	sigma = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (sigma == nullptr) return -111;
 	STAT.mean = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (STAT.mean == nullptr) return -111;
 	STAT.sigma = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (STAT.sigma == nullptr) return -111;
 	minimum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (minimum == nullptr) return -111;
 	maximum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (maximum == nullptr) return -111;
-	
-	MLP_StatInputs(PAT.Npat[0],NET.Nneur[0],PAT.Rin[0],
-			mean,sigma,minimum,maximum);
+    int returnCode = -111; // to return if any malloc failed
 
-	if(NET.Debug>=1) printf("\t mean \t\t RMS \t\t min \t\t max\n");
-	for(j=0;j<NET.Nneur[0];j++)
-		{
-		if(NET.Debug>=1)
-	 		printf("var%d \t %e \t %e \t %e \t %e\n",j+1,
-					mean[j],sigma[j],minimum[j],maximum[j]);
-		
-/* store mean and sigma for output function */		
-		STAT.mean[j] = mean[j];			
-		STAT.sigma[j] = sigma[j];
-					
-/* finally apply the normalization */
-		for(ipat=0;ipat<PAT.Npat[0];ipat++)
-			{
-			PAT.Rin[0][ipat][j] =
-			(PAT.Rin[0][ipat][j]-(float) mean[j])/
-			(float) sigma[j];
-			}	
-		for(ipat=0;ipat<PAT.Npat[1];ipat++)
-			{
-			PAT.Rin[1][ipat][j] =
-			(PAT.Rin[1][ipat][j]-(float) mean[j])/
-			(float) sigma[j];
-			}	
-		}
+    if(mean && sigma && minimum && maximum && STAT.mean && STAT.sigma) {
+
+        MLP_StatInputs(PAT.Npat[0],NET.Nneur[0],PAT.Rin[0],mean,sigma,minimum,maximum);
+
+        if(NET.Debug>=1) printf("\t mean \t\t RMS \t\t min \t\t max\n");
+        for(j=0;j<NET.Nneur[0];j++)
+        {
+            if(NET.Debug>=1)
+                printf("var%d \t %e \t %e \t %e \t %e\n",j+1,
+                    mean[j],sigma[j],minimum[j],maximum[j]);
+
+            /* store mean and sigma for output function */
+            STAT.mean[j] = mean[j];
+            STAT.sigma[j] = sigma[j];
+
+            /* finally apply the normalization */
+            for(ipat=0;ipat<PAT.Npat[0];ipat++)
+            {
+                PAT.Rin[0][ipat][j] =
+                (PAT.Rin[0][ipat][j]-(float) mean[j])/
+                (float) sigma[j];
+            }
+            for(ipat=0;ipat<PAT.Npat[1];ipat++)
+            {
+                PAT.Rin[1][ipat][j] =
+                (PAT.Rin[1][ipat][j]-(float) mean[j])/
+                (float) sigma[j];
+            }
+        }
+        returnCode = 0; // everything went fine
+    }
 	
 	free(mean);
 	free(sigma);
 	free(minimum);
 	free(maximum);	
 	if(NET.Debug>=1) printf("\n");
-	return 0;
+	return returnCode;
 }
 
 
@@ -3708,7 +3707,7 @@ void MLP_MatrixVectorBias(dbl *M, dbl *v, dbl *r, int n, int m)
 			a3 = a3 + *pM3 * c + *(pM3+1) * d;
 			a4 = a4 + *pM4 * c + *(pM4+1) * d; 
 			}
-		for(j=j; j<m; j++, pM1++, pM2++, pM3++, pM4++)
+		for(/*j set above*/; j<m; j++, pM1++, pM2++, pM3++, pM4++)
 			{
 			c = v[j];
 			a1 = a1 + *pM1 * c;
@@ -3718,7 +3717,7 @@ void MLP_MatrixVectorBias(dbl *M, dbl *v, dbl *r, int n, int m)
 			}	
 		*pr = a1; *(pr+1) = a2; *(pr+2) = a3; *(pr+3) = a4;
 		}
-	for(i=i; i<n; i++)
+	for(/*i set above*/; i<n; i++)
 		{
 		pM1 = &(M[i*(m+1)]);
 		a1 = *pM1;
@@ -3773,7 +3772,7 @@ void MLP_MatrixVector(dbl *M, type_pat *v, dbl *r, int n, int m)
 			a3 = a3 + *pM3 * c + *(pM3+1) * d;
 			a4 = a4 + *pM4 * c + *(pM4+1) * d; 
 			}
-		for(j=j; j<m; j++, pM1++, pM2++, pM3++, pM4++)
+		for(/*j set above*/; j<m; j++, pM1++, pM2++, pM3++, pM4++)
 			{
 			c = v[j];
 			a1 = a1 + *pM1 * c;
@@ -3783,7 +3782,7 @@ void MLP_MatrixVector(dbl *M, type_pat *v, dbl *r, int n, int m)
 			}	
 		*pr = a1; *(pr+1) = a2; *(pr+2) = a3; *(pr+3) = a4;
 		}
-	for(i=i; i<n; i++)
+	for(/*i set above*/; i<n; i++)
 		{
 		pM1 = &(M[i*m]);
 		a1 = 0;
@@ -3846,7 +3845,7 @@ dbl *pb0,*pb1,*pc0,*pc1;
      }
     *pc0 = s00; *(pc0+1) = s01; *pc1 = s10; *(pc1+1) = s11;
    }
-  for (j=j; j<Nj; j++)
+  for (/*j set above*/; j<Nj; j++)
    {
     pc0 = c+j;
     pc1 = c+j+Nj;

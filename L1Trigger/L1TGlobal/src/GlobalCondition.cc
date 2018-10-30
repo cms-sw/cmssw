@@ -83,6 +83,17 @@ const int GlobalCondition::nrObjects() const
             }
 
             break;
+        case l1t::TypeCent0:
+        case l1t::TypeCent1:
+        case l1t::TypeCent2:
+        case l1t::TypeCent3:
+        case l1t::TypeCent4:
+        case l1t::TypeCent5:
+        case l1t::TypeCent6:
+	case l1t::TypeCent7: {
+                return 0;
+            }
+
         case l1t::Type1s: {
                 return 1;
             }
@@ -119,7 +130,11 @@ const int GlobalCondition::nrObjects() const
 	case l1t::TypeMinBiasHFP0:
 	case l1t::TypeMinBiasHFM0:
 	case l1t::TypeMinBiasHFP1:
-	case l1t::TypeMinBiasHFM1: {
+	case l1t::TypeMinBiasHFM1:
+	case l1t::TypeAsymEt:
+	case l1t::TypeAsymHt:
+	case l1t::TypeAsymEtHF:
+        case l1t::TypeAsymHtHF: {
                 return 1;
             }
 
@@ -309,6 +324,66 @@ void GlobalCondition::print(std::ostream& myCout) const
             }
 
             break;
+        case l1t::TypeAsymEt: {
+                myCout << "  Condition type:     " << "TypeAsymEt"  << std::endl;
+            }
+
+            break;
+        case l1t::TypeAsymHt: {
+                myCout << "  Condition type:     " << "TypeAsymHt"  << std::endl;
+            }
+
+            break;
+        case l1t::TypeAsymEtHF: {
+                myCout << "  Condition type:     " << "TypeAsymEtHF"  << std::endl;
+            }
+
+            break;
+        case l1t::TypeAsymHtHF: {
+                myCout << "  Condition type:     " << "TypeAsymHtHF"  << std::endl;
+            }
+
+            break;
+        case l1t::TypeCent0: {
+                myCout << "  Condition type:     " << "TypeCent0"  << std::endl;
+            }
+
+            break;
+        case l1t::TypeCent1: {
+                myCout << "  Condition type:     " << "TypeCent1"  << std::endl;
+            }
+
+            break;
+        case l1t::TypeCent2: {
+                myCout << "  Condition type:     " << "TypeCent2"  << std::endl;
+            }
+
+            break;
+        case l1t::TypeCent3: {
+                myCout << "  Condition type:     " << "TypeCent3"  << std::endl;
+            }
+
+            break;
+        case l1t::TypeCent4: {
+                myCout << "  Condition type:     " << "TypeCent4"  << std::endl;
+            }
+
+            break;
+        case l1t::TypeCent5: {
+                myCout << "  Condition type:     " << "TypeCent5"  << std::endl;
+            }
+
+            break;
+        case l1t::TypeCent6: {
+                myCout << "  Condition type:     " << "TypeCent6"  << std::endl;
+            }
+
+            break;
+        case l1t::TypeCent7: {
+                myCout << "  Condition type:     " << "TypeCent7"  << std::endl;
+            }
+
+            break;
         case l1t::TypeExternal: {
                 myCout << "  Condition type:     " << "TypeExternal"  << std::endl;
             }
@@ -406,6 +481,67 @@ void GlobalCondition::print(std::ostream& myCout) const
                 }
 
                 break;
+            case l1t::gtAsymmetryEt: {
+                    myCout << " AsymmetryEt ";
+                }
+
+                break;
+            case l1t::gtAsymmetryHt: {
+                    myCout << " AsymmetryHt ";
+                }
+
+                break;
+            case l1t::gtAsymmetryEtHF: {
+                    myCout << " AsymmetryEtHF ";
+                }
+
+                break;
+            case l1t::gtAsymmetryHtHF: {
+                    myCout << " AsymmetryHtHF ";
+                }
+
+                break;
+            case l1t::gtCentrality0: {
+                    myCout << " Centrality0 ";
+                }
+
+                break;
+            case l1t::gtCentrality1: {
+                    myCout << " Centrality1 ";
+                }
+
+                break;
+            case l1t::gtCentrality2: {
+                    myCout << " Centrality2 ";
+                }
+
+                break;
+            case l1t::gtCentrality3: {
+                    myCout << " Centrality3 ";
+                }
+
+                break;
+            case l1t::gtCentrality4: {
+                    myCout << " Centrality4 ";
+                }
+
+                break;
+            case l1t::gtCentrality5: {
+                    myCout << " Centrality5 ";
+                }
+
+                break;
+            case l1t::gtCentrality6: {
+                    myCout << " Centrality6 ";
+                }
+
+                break;
+            case l1t::gtCentrality7: {
+                    myCout << " Centrality7 ";
+                }
+
+                break;
+
             case l1t::gtExternal: {
                     myCout << " External ";
                 }

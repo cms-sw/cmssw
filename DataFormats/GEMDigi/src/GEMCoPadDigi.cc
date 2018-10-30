@@ -60,5 +60,5 @@ void GEMCoPadDigi::print() const
 
 std::ostream & operator<<(std::ostream & o, const GEMCoPadDigi& digi)
 {
-  return o << "Roll: " << digi.roll() << " 1:" << digi.first() << ", 2:" << digi.second();
+  return o << "Roll: " << digi.roll() << " layer1:" << digi.first() << ", layer2:" << digi.second();
 }

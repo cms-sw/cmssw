@@ -41,7 +41,7 @@ private:
   //Will be called at every event
   void algoAnalyze(const edm::Event&, const edm::EventSetup&) override;
 
-  SiStripBadStrip* getNewObject() override;
+  std::unique_ptr<SiStripBadStrip> getNewObject() override;
 
 
   void bookHistos();

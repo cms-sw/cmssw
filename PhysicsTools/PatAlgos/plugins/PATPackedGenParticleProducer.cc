@@ -71,7 +71,6 @@ void pat::PATPackedGenParticleProducer::produce(edm::StreamID, edm::Event& iEven
 
     edm::Handle<reco::GenParticleCollection> cands;
     iEvent.getByToken( Cands_, cands );
-    std::vector<reco::Candidate>::const_iterator cand;
 
     //from prunedGenParticlesWithStatusOne to prunedGenParticles
     edm::Handle<edm::Association<reco::GenParticleCollection> > asso;

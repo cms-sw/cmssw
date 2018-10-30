@@ -186,9 +186,6 @@ def customiseForEcalTestPR22254thresholdC(process):
     return process
 
 
-
-
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 

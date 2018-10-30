@@ -160,5 +160,7 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
   PhotonEnergyCorrector* thePhotonEnergyCorrector_;
   std::string  candidateP4type_;
 
+  bool checkHcalStatus_;
+
 };
 #endif

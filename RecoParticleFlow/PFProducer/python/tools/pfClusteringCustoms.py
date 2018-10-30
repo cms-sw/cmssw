@@ -1,11 +1,12 @@
+from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 
 
 
 def usePFWithMethodOne(process):
-    print '-------------PF with method I -------------'
-    print 'Assumes that HCAL reco is tuned to method I '
+    print('-------------PF with method I -------------')
+    print('Assumes that HCAL reco is tuned to method I ')
     process.particleFlowRecHitHBHE.navigator = cms.PSet(
         name = cms.string("PFRecHitHCALNavigator")
     )
@@ -14,8 +15,8 @@ def usePFWithMethodOne(process):
 
 
 def usePFWithMethodOnePointFive(process):
-    print '-------------PF with method I.5-------------'
-    print 'Independent of which HCAL reco was used since it reads the time samples from the rechit '
+    print('-------------PF with method I.5-------------')
+    print('Independent of which HCAL reco was used since it reads the time samples from the rechit ')
 
 
     from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHEMaxSampleTimeSelected_cfi import particleFlowClusterHBHETimeSelected as timeSelector

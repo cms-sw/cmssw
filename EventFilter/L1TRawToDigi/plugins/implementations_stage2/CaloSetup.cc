@@ -63,46 +63,53 @@ namespace l1t {
       UnpackerMap
       CaloSetup::getUnpackers(int fed, int board, int amc, unsigned int fw)
       {
-         auto tower_unp = UnpackerFactory::get()->make("stage2::CaloTowerUnpacker");
-         auto egamma_unp = UnpackerFactory::get()->make("stage2::EGammaUnpacker");
-         auto etsum_unp = UnpackerFactory::get()->make("stage2::EtSumUnpacker");
-         auto jet_unp = UnpackerFactory::get()->make("stage2::JetUnpacker");
-         auto tau_unp = UnpackerFactory::get()->make("stage2::TauUnpacker");
 
-         auto mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker");
-         if (fw >= 0x1001000b) {
+	UnpackerMap res;
+	if (fed == 1366 || (fed == 1360 && board == 0x221B)) {
+
+	  auto egamma_unp = UnpackerFactory::get()->make("stage2::EGammaUnpacker");
+	  auto etsum_unp = UnpackerFactory::get()->make("stage2::EtSumUnpacker");
+	  auto jet_unp = UnpackerFactory::get()->make("stage2::JetUnpacker");
+	  auto tau_unp = UnpackerFactory::get()->make("stage2::TauUnpacker");
+
+	  if (fw >= 0x10010057) {
+	    etsum_unp = UnpackerFactory::get()->make("stage2::EtSumUnpacker_0x10010057");
+	  }
+
+	  res[9]  = egamma_unp;
+	  res[11] = egamma_unp;
+	  res[13] = jet_unp;
+	  res[15] = jet_unp;
+	  res[17] = tau_unp;
+	  res[19] = tau_unp;
+	  res[21] = etsum_unp;
+
+	} else if (fed == 1360 && board != 0x221B) {
+
+	  auto tower_unp = UnpackerFactory::get()->make("stage2::CaloTowerUnpacker");
+	  auto mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker");
+	  if (fw >= 0x1001000b) {
             mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker_0x1001000b");
-         }
-         if (fw >= 0x10010010) {
+	  }
+	  if (fw >= 0x10010010) {
             mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker_0x10010010");
-         }
-         if (fw >= 0x10010033) {
+	  }
+	  if (fw >= 0x10010033) {
             mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker_0x10010033");
-         }
+	  }
 
+	  res[121] = mp_unp;
+	  res[123] = mp_unp;
+	  res[125] = mp_unp;
+	  res[127] = mp_unp;
+	  res[129] = mp_unp;
+	  res[131] = mp_unp;
 
-         UnpackerMap res;
-         if (fed == 1366 || (fed == 1360 && board == 0x221B)) {
-            res[9]  = egamma_unp;
-            res[11] = egamma_unp;
-            res[13] = jet_unp;
-            res[15] = jet_unp;
-            res[17] = tau_unp;
-            res[19] = tau_unp;
-            res[21] = etsum_unp;
-         } else if (fed == 1360 && board != 0x221B) {
-            res[121] = mp_unp;
-            res[123] = mp_unp;
-            res[125] = mp_unp;
-            res[127] = mp_unp;
-            res[129] = mp_unp;
-            res[131] = mp_unp;
+	  for (int link = 0; link < 144; link += 2)
+	    res[link] = tower_unp;
+	}
 
-            for (int link = 0; link < 144; link += 2)
-               res[link] = tower_unp;
-         }
-
-         return res;
+	return res;
       }
    }
 }

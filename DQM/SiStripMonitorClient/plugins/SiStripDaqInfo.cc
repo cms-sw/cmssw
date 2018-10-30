@@ -133,11 +133,10 @@ void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
   const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
   const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
 
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if( eSetup.find( recordKey ) != nullptr) {
+  if(auto runInfoRec = eSetup.tryToGet<RunInfoRcd>()) {
 
     edm::ESHandle<RunInfo> sumFED;
-    eSetup.get<RunInfoRcd>().get(sumFED);    
+    runInfoRec->get(sumFED);
     
     if ( sumFED.isValid() ) {
       std::vector<int> FedsInIds= sumFED->m_fed_in;   

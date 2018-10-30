@@ -141,8 +141,10 @@ void DTReadOutMappingHandler::getNewObjects() {
   cond::Time_t snc = runNumber;
   if ( runNumber > last )
        m_to_transfer.push_back( std::make_pair( ro_map, snc ) );
-  else
+  else {
        std::cout << "More recent data already present - skipped" << std::endl;
+       delete ro_map;
+  }
 
   return;
 

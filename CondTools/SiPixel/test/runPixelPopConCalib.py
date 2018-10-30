@@ -6,12 +6,13 @@ Python script to run PixelPopConCalibAnalyzer application
 
 Initial version: M. Eads, Sep 2008
 """
+from __future__ import print_function
 
 import os, sys, getopt, shutil
 from socket import getfqdn
 
 def usage():
-    print """
+    print("""
 runPixelPopConCalib.py usage:
     
 This script runs the pixel popcon application for the calibration
@@ -31,12 +32,12 @@ configuration object. It accepts the following arguments
 -w (or --writeOnly) Only write the cfg.py file, don't run it
 -q (or --writeChecker) Also write a PixelPopConCalibChecker cfg.py file
 -Q XXX (or --writeCheckerTemplate=XXX) Template cfg.py for PixelPopConCalibChecker 
-"""
+""")
 
 def main(argv):
     # check that CMSSW environment has been set up
     if 'CMSSW_BASE' not in os.environ:
-        print 'CMMSW is not set up! Please run "cmsenv"'
+        print('CMMSW is not set up! Please run "cmsenv"')
         sys.exit(2)
     
     # get the options from the command line
@@ -52,7 +53,7 @@ def main(argv):
         
     # if no options given, print usage and exit
     if not opts:
-        print 'runPixelPopConCalib.py: No options given'
+        print('runPixelPopConCalib.py: No options given')
         usage()
         sys.exit(2)
     
@@ -91,7 +92,7 @@ def main(argv):
         elif opt in ['-r', '--runnumber']:
             # check that it's an integer
             if not value.isdigit():
-                print 'Run number given was', value, ', which is not an integer'
+                print('Run number given was', value, ', which is not an integer')
                 sys.exit(2)
             runNumber = value
         elif opt in ['-c', '--cfgtemplate']:
@@ -105,7 +106,7 @@ def main(argv):
         elif opt in ['-p', '--point5']:
             atPoint5 = True
             if debugMode:
-                print '** forcing point5 mode'
+                print('** forcing point5 mode')
         elif opt in ['-o', '--outputFilename']:
             writeFilename = value
         elif opt in ['-w', '--writeOnly']:
@@ -117,39 +118,39 @@ def main(argv):
             
     
     if debugMode:
-        print '** debugMode activated'
+        print('** debugMode activated')
         
     # check that calib filename was provided
     if not calibFilename:
-        print 'You must provide a path to the calib.dat file with the -f (or ---filename) option'
+        print('You must provide a path to the calib.dat file with the -f (or ---filename) option')
         sys.exit(2)
     if debugMode:
-        print '** calib.dat filename set to', calibFilename
+        print('** calib.dat filename set to', calibFilename)
     
     # set the tagname if not provided
     if not tagName:
     	tagName = getTagNameFromFile(calibFilename, debugMode)
     	if not tagName:
-        	print 'Unknown calibration type from calib.dat file!'
+        	print('Unknown calibration type from calib.dat file!')
         	sys.exit(2)
     if debugMode:
-        print '** tag name set to', tagName
+        print('** tag name set to', tagName)
         
     # check that the run number was provided
     if not runNumber:
-        print 'You must provide a run number to set the IOV'
+        print('You must provide a run number to set the IOV')
         sys.exit(2)
     if debugMode:
-        print '** run number for IOV set to', runNumber
+        print('** run number for IOV set to', runNumber)
         
     # set cfg template to default if not given
     if not cfgTemplate:
         cfgTemplate = os.environ['CMSSW_BASE'] + '/src/CondTools/SiPixel/test/testPixelPopConCalibAnalyzer_cfg.py'
     if debugMode:
-        print '** Using cfg file template:', cfgTemplate
+        print('** Using cfg file template:', cfgTemplate)
         
     if atPoint5:
-        print '** point 5 mode is set'
+        print('** point 5 mode is set')
         
     # set database connect string if not given
     if not databaseConnect:
@@ -158,7 +159,7 @@ def main(argv):
         else:
             databaseConnect = 'sqlite_file:testExample.db'
     if debugMode:
-        print '** database connect string:', databaseConnect
+        print('** database connect string:', databaseConnect)
         
     # set the logging database connect string if not given
     if not logdbConnect:
@@ -167,7 +168,7 @@ def main(argv):
         else:
             logdbConnect = 'sqlite_file:logtestExample.db'
     if debugMode:
-        print '** logging db connect string:', logdbConnect
+        print('** logging db connect string:', logdbConnect)
         
     if not authenticationPath:
         if atPoint5:
@@ -176,12 +177,12 @@ def main(argv):
             authenticationPath = '/afs/cern.ch/cms/DB/conddb'
         
     if writeOnly and debugMode:
-        print '** PixelPopConCalib cfg file will only be written, not run'
+        print('** PixelPopConCalib cfg file will only be written, not run')
         
     if not writeFilename:
         writeFilename = 'PixelPopConCalib_' + tagName + '_' + runNumber + '_cfg.py'
     if debugMode:
-        print '** PixelPopConCalib cfg file will be named ', writeFilename
+        print('** PixelPopConCalib cfg file will be named ', writeFilename)
         
     if writeChecker:
         if not writeCheckerFilename:
@@ -189,8 +190,8 @@ def main(argv):
         if not writeCheckerTemplate:
             writeCheckerTemplate = os.environ['CMSSW_BASE'] + '/src/CondTools/SiPixel/test/PixelPopConCalibChecker_cfg.py'
         if debugMode:
-            print '** PixelPopConCalibChecker cfg file will be written from template', writeCheckerTemplate
-            print '   with filename', writeCheckerFilename
+            print('** PixelPopConCalibChecker cfg file will be written from template', writeCheckerTemplate)
+            print('   with filename', writeCheckerFilename)
     
             
     # write the cfg.py file
@@ -218,14 +219,14 @@ def main(argv):
     # run the popcon calib job
     if not writeOnly:
         if debugMode:
-            print '** running the cfg file ', writeFilename
+            print('** running the cfg file ', writeFilename)
         os.system('cmsRun ' + writeFilename)
     else:
-        print 'PixelPopConCalib cfg.py written as', writeFilename
+        print('PixelPopConCalib cfg.py written as', writeFilename)
         
     if writeChecker:
-        print 'PixelPopConCalibChecker cfg written as', writeCheckerFilename
-        print 'To check if the popcon transfer was successful, run "cmsRun "' + writeCheckerFilename
+        print('PixelPopConCalibChecker cfg written as', writeCheckerFilename)
+        print('To check if the popcon transfer was successful, run "cmsRun "' + writeCheckerFilename)
             
 def getTagNameFromFile(filename, debugMode = False):
     """
@@ -233,13 +234,13 @@ def getTagNameFromFile(filename, debugMode = False):
     """
     # open the calib.dat file and find the Mode: line
     if debugMode:
-        print '** getting tag name from calib.dat file'
-        print '   calib.dat filename:', filename 
+        print('** getting tag name from calib.dat file')
+        print('   calib.dat filename:', filename) 
     f = open(filename)
     for line in f:
         if line.find('Mode:') == 0:
             if debugMode:
-                print '   using line:', line
+                print('   using line:', line)
             if line.find('GainCalibration') != -1:
                 return 'GainCalibration_default'
             elif line.find('SCurve') != -1:

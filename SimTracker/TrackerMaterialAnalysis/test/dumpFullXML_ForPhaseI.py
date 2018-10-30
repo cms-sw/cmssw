@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import argparse
 import os, sys
 import pprint
@@ -25,7 +26,7 @@ TRAILER = """
 
 def checkEnvironment():
     if not 'CMSSW_RELEASE_BASE' in os.environ.keys():
-        print 'CMSSW Environments not setup, quitting\n'
+        print('CMSSW Environments not setup, quitting\n')
         sys.exit(CMSSW_NOT_SET)
 
 def getTrackerRecoMaterialCopy(filename):
@@ -35,7 +36,7 @@ def getTrackerRecoMaterialCopy(filename):
       tracker_reco_material = os.path.join(os.environ['CMSSW_RELEASE_BASE'],
                                            'src/Geometry/TrackerRecoData/data/PhaseI/pixfwd/trackerRecoMaterial.xml')
       if not os.path.exists(tracker_reco_material):
-          print 'Something is wrong with the CMSSW installation. The file %s is missing. Quitting.\n' % tracker_reco_material
+          print('Something is wrong with the CMSSW installation. The file %s is missing. Quitting.\n' % tracker_reco_material)
           sys.exit(TRACKER_MATERIAL_FILE_MISSING)
     copy2(tracker_reco_material, filename)
                                                 
@@ -63,21 +64,21 @@ def produceXMLFromParameterFile():
     root_updated = tree_updated.getroot()
     sections = root.getchildren()
     for child in sections[0]:
-        print child.attrib['name']
+        print(child.attrib['name'])
 
     for spec_par in root.iter('%sSpecPar' % TAG_PREFIX):
         current_detector = spec_par.attrib['name']
         for parameter in spec_par.iter('%sParameter' % TAG_PREFIX):
-            print current_detector, parameter.attrib['name'], parameter.attrib['value']
+            print(current_detector, parameter.attrib['name'], parameter.attrib['value'])
             updated_current_detector_node = root_updated.find(".//Group[@name='%s']" % current_detector)
             if updated_current_detector_node:
               for child in updated_current_detector_node:
                   if child.attrib['name'] == parameter.attrib['name']:
                       parameter.set('name', child.attrib['name'])
                       parameter.set('value', child.attrib['value'])
-                      print current_detector, parameter.attrib['name'], parameter.attrib['value']
+                      print(current_detector, parameter.attrib['name'], parameter.attrib['value'])
             else:
-              print "Missing group: %s" % current_detector
+              print("Missing group: %s" % current_detector)
     tree.write('trackerRecoMaterial.xml', encoding='UTF-8', xml_declaration=True)
 
 def compareNewXMLWithOld(format_for_twiki):
@@ -134,7 +135,7 @@ def compareNewXMLWithOld(format_for_twiki):
                                                                                        /float(parameter.attrib['value'])*100.)]
                                                                                 )
             else:
-                print 'Element not found: %s' % current_detector
+                print('Element not found: %s' % current_detector)
     for group in differences.keys():
         header.write('  m_diff["%s"] = std::make_pair<float, float>(%f, %f);\n' % (group,
                                                                                    differences[group]['TrackerRadLength'][2],
@@ -147,23 +148,23 @@ def compareNewXMLWithOld(format_for_twiki):
     for i in xrange(len(ordered_keys)):
         key = ordered_keys[i]
         if format_for_twiki:
-            print "| %s | %f | %f | %f%% | %f | %f | %f%% |" % (key,
+            print("| %s | %f | %f | %f%% | %f | %f | %f%% |" % (key,
                                                                 differences[key]['TrackerRadLength'][0],
                                                                 differences[key]['TrackerRadLength'][1],
                                                                 differences[key]['TrackerRadLength'][2],
                                                                 differences[key]['TrackerXi'][0],
                                                                 differences[key]['TrackerXi'][1],
                                                                 differences[key]['TrackerXi'][2]
-                                                                )
+                                                                ))
         else:
-            print "%s %f %f %f%% %f %f %f%%" % (key,
+            print("%s %f %f %f%% %f %f %f%%" % (key,
                                                 differences[key]['TrackerRadLength'][0],
                                                 differences[key]['TrackerRadLength'][1],
                                                 differences[key]['TrackerRadLength'][2],
                                                 differences[key]['TrackerXi'][0],
                                                 differences[key]['TrackerXi'][1],
                                                 differences[key]['TrackerXi'][2]
-                                                )
+                                                ))
     header.write(TRAILER)
     header.close
     

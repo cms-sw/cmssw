@@ -10,12 +10,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2HFBitCountAlgorithmImp.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
-l1t::Stage1Layer2HFMinimumBias::Stage1Layer2HFMinimumBias(CaloParamsHelper* params)
-  : params_(params)
-{}
-
-
-l1t::Stage1Layer2HFMinimumBias::~Stage1Layer2HFMinimumBias()
+l1t::Stage1Layer2HFMinimumBias::Stage1Layer2HFMinimumBias(CaloParamsHelper const * )
 {}
 
 

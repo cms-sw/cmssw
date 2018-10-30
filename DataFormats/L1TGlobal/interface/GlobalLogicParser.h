@@ -34,7 +34,8 @@ public:
         OP_NOT=16,
         OP_OPERAND=32,
         OP_OPENBRACKET=64,
-        OP_CLOSEBRACKET=128
+        OP_CLOSEBRACKET=128,
+        OP_XOR=256
     };
 
     struct TokenRPN

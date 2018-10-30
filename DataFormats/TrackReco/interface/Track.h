@@ -39,7 +39,9 @@ public:
     /// constructor from fit parameters and error matrix
     Track(double chi2, double ndof, const Point & referencePoint,
           const Vector & momentum, int charge, const CovarianceMatrix &,
-          TrackAlgorithm = undefAlgorithm, TrackQuality quality = undefQuality);
+          TrackAlgorithm = undefAlgorithm, TrackQuality quality = undefQuality,
+	  float t0 = 0, float beta = 0, 
+	  float covt0t0 = -1., float covbetabeta = -1.);
 
     /// return true if the outermost hit is valid
     bool outerOk() const {
@@ -50,7 +52,7 @@ public:
     bool innerOk() const {
         return extra_->innerOk();
     }
-   
+
     /// position of the innermost hit
     const math::XYZPoint & innerPosition()  const {
         return extra_->innerPosition();

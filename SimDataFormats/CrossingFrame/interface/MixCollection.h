@@ -264,8 +264,7 @@ const typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
   ok=this->getNewPileups(pMixItr_,pMixItrEnd_);
   if (ok) {
     // debug print start
-    typename std::vector<const T *>::const_iterator dbIt;
-    //    for (dbIt=pMixItr_;dbIt!=pMixItrEnd_;++dbIt)  printf("Found pointer %p\n",(*dbIt));fflush(stdout);
+    //    for (auto dbIt=pMixItr_;dbIt!=pMixItrEnd_;++dbIt)  printf("Found pointer %p\n",(*dbIt));fflush(stdout);
     // debug print end
     internalCtr_=0;
   }

@@ -39,12 +39,13 @@ public:
   int                       getDepthEta16M(const int& det) const;
   int                       getDepthEta29(const int& phi, const int& zside, const int& i) const;
   int                       getDepthEta29M(const int& i, const bool& planOne) const;
-  std::pair<int,double>     getDetEta(const double& eta, const int& depth);
-  int                       getEta(const int& det, const int& lay, const double& hetaR);
-  std::pair<int,int>        getEtaDepth(const int& det, int etaR, const int& phi,
-					const int& zside, int depth, const int& lay);
-  double                    getEtaHO(const double& etaR, const double& x, const double& y, 
-				     const double& z) const;
+  std::pair<int,double>     getDetEta(const double& eta, const int& depth) const;
+  int                       getEta(const int& det, const int& lay, const double& hetaR) const;
+  std::pair<int,int>        getEtaDepth(const int& det, int etaR, 
+					const int& phi,	const int& zside, 
+					int depth, const int& lay) const;
+  double                    getEtaHO(const double& etaR, const double& x, 
+				     const double& y, const double& z) const;
   std::pair<int,int>        getiEtaRange(const int& i) const {return std::pair<int,int>(hpar->etaMin[i],hpar->etaMax[i]);}
   const std::vector<double> &  getEtaTableHF() const {return hpar->etaTableHF;}
   const std::vector<double> &  getGparHF() const {return hpar->gparHF;}

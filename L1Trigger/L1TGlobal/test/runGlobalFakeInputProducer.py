@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 """
@@ -276,7 +277,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                 dumpTrigResults= cms.bool(False),
 		dumpVectors    = cms.bool(True),
 		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
-		tvVersion      = cms.int32(2),
+		tvVersion      = cms.int32(3),
                 ReadPrescalesFromFile = cms.bool(True),
                 psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
                 psColumn       = cms.int32(1),
@@ -404,5 +405,5 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 if dump:
     outfile = open('dump_runGlobalFakeInputProducer_'+repr(job)+'.py','w')
-    print >> outfile,process.dumpPython()
+    print(process.dumpPython(), file=outfile)
     outfile.close()

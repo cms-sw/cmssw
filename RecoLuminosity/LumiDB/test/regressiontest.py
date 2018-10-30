@@ -1,3 +1,4 @@
+from __future__ import print_function
 import commands,sys
 
 datatag='--datatag v9'
@@ -51,17 +52,17 @@ for action in actionobj:
     cmmd.append(action)
     cmmd.append(runnumfilter)
     cmmdStr=' '.join(cmmd)
-    print cmmdStr
+    print(cmmdStr)
     (status,output1) = commands.getstatusoutput(cmmdStr)
 
     cmmd.append(datatag)
     cmmd.append(normtag)
     cmmdStr=' '.join(cmmd)
-    print cmmdStr
+    print(cmmdStr)
     (status,output2) = commands.getstatusoutput(cmmdStr)
 
     if output1[output1.index('='):]==output2[output2.index('='):]:
-        print '    OK'
+        print('    OK')
 
 actionobj=['recorded','lumibyls']
 for action in actionobj:
@@ -71,22 +72,22 @@ for action in actionobj:
     cmmd.append(runnumfilter)
     cmmd.append(hltpathfilter)
     cmmdStr=' '.join(cmmd)
-    print cmmdStr
+    print(cmmdStr)
     (status,output1) = commands.getstatusoutput(cmmdStr)
     
     cmmd.append(datatag)
     cmmd.append(normtag)
     cmmdStr=' '.join(cmmd)
-    print cmmdStr
+    print(cmmdStr)
     (status,output2) = commands.getstatusoutput(cmmdStr)
 
     if output1[output1.index('='):]==output2[output2.index('='):]:
-        print '    OK'
+        print('    OK')
     else:
         sys.exit(-1)
 
 actionobj=['overview','lumibyls']
-print '========check overlapping -r -i========'
+print('========check overlapping -r -i========')
 for action in actionobj:
     cmmd=[]
     cmmd.append(cmmdbase)
@@ -94,21 +95,21 @@ for action in actionobj:
     cmmd.append(runnumfilter)
     cmmd.append(filefilter)
     cmmdStr=' '.join(cmmd)
-    print cmmdStr
+    print(cmmdStr)
     (status,output) = commands.getstatusoutput(cmmdStr)
-    print output
+    print(output)
     if action=='overview':
         if '198049:' not in output:
-            print 'OK'
+            print('OK')
         else:
             sys.exit(-1)
     if action=='lumibyls':
         if '92:92' not in output:
-            print 'OK'
+            print('OK')
         else:
             sys.exit(-1)
 actionobj=['delivered','lumibyls']    
-print '========check overlapping -f -i========='
+print('========check overlapping -f -i=========')
 for action in actionobj:
     cmmd=[]
     cmmd.append(cmmdbase)
@@ -116,9 +117,9 @@ for action in actionobj:
     cmmd.append(fillnumfilter)
     cmmd.append(filefilter)
     cmmdStr=' '.join(cmmd)
-    print cmmdStr
+    print(cmmdStr)
     (status,output) = commands.getstatusoutput(cmmdStr)
-    print output
+    print(output)
 
 #actionobj=['delivered','lumibyls']    
 #print 'check overlapping -f -i --begin time --end time'

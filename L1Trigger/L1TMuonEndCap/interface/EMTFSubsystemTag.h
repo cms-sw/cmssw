@@ -5,6 +5,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/ME0PadDigi.h"
@@ -22,6 +23,11 @@ namespace emtf {
   struct RPCTag {
     typedef RPCDigi           digi_type;
     typedef RPCDigiCollection digi_collection;
+  };
+
+  struct CPPFTag {
+    typedef l1t::CPPFDigi           digi_type;
+    typedef l1t::CPPFDigiCollection digi_collection;
   };
 
   struct GEMTag {

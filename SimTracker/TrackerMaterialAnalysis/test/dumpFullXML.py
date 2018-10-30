@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import argparse
 import os, sys
 import pprint
@@ -29,7 +30,7 @@ def checkEnvironment():
     Check if the CMSSW environment is set. If not, quit the program.
     """
     if not 'CMSSW_RELEASE_BASE' in os.environ.keys():
-        print 'CMSSW Environments not setup, quitting\n'
+        print('CMSSW Environments not setup, quitting\n')
         sys.exit(CMSSW_NOT_SET)
 
 def checkFileInRelease(filename):
@@ -57,7 +58,7 @@ def getTrackerRecoMaterialCopy(source_xml, filename):
       tracker_reco_material = os.path.join(os.environ['CMSSW_RELEASE_BASE'],
                                            source_xml)
       if not os.path.exists(tracker_reco_material):
-          print 'Something is wrong with the CMSSW installation. The file %s is missing. Quitting.\n' % source_xml
+          print('Something is wrong with the CMSSW installation. The file %s is missing. Quitting.\n' % source_xml)
           sys.exit(TRACKER_MATERIAL_FILE_MISSING)
     copy2(tracker_reco_material, filename)
 
@@ -87,15 +88,15 @@ def produceXMLFromParameterFile(args):
     sections = root.getchildren()
     if args.verbose:
         for child in sections[0]:
-            print child.attrib['name']
+            print(child.attrib['name'])
 
     for spec_par in root.iter('%sSpecPar' % TAG_PREFIX):
         current_detector = spec_par.attrib['name']
         for parameter in spec_par.iter('%sParameter' % TAG_PREFIX):
             if args.verbose:
-                print "Current Detector: %r, name=%s, value=%s" % (current_detector,
+                print("Current Detector: %r, name=%s, value=%s" % (current_detector,
                                                                    parameter.attrib['name'],
-                                                                   parameter.attrib['value'])
+                                                                   parameter.attrib['value']))
             updated_current_detector_node = root_updated.find(".//Group[@name='%s']" % current_detector)
             if updated_current_detector_node is not None:
               for child in updated_current_detector_node:
@@ -103,11 +104,11 @@ def produceXMLFromParameterFile(args):
                       parameter.set('name', child.attrib['name'])
                       parameter.set('value', child.attrib['value'])
                       if args.verbose:
-                          print "Updated Detector: %r, name=%s, value=%s\n" % (child.attrib['name'],
+                          print("Updated Detector: %r, name=%s, value=%s\n" % (child.attrib['name'],
                                                                                parameter.attrib['name'],
-                                                                               parameter.attrib['value'])
+                                                                               parameter.attrib['value']))
             else:
-              print "Missing group: %s" % current_detector
+              print("Missing group: %s" % current_detector)
     tree.write('trackerRecoMaterial.xml', encoding='UTF-8', xml_declaration=True)
 
 def compareNewXMLWithOld(args):
@@ -166,7 +167,7 @@ def compareNewXMLWithOld(args):
                                                                                        /float(parameter.attrib['value'])*100.)]
                                                                                 )
             else:
-                print 'Element not found: %s' % current_detector
+                print('Element not found: %s' % current_detector)
     for group in differences.keys():
         header.write('  m_diff["%s"] = std::make_pair<float, float>(%f, %f);\n' % (group,
                                                                                    differences[group]['TrackerRadLength'][2],
@@ -179,23 +180,23 @@ def compareNewXMLWithOld(args):
     for i in xrange(len(ordered_keys)):
         key = ordered_keys[i]
         if args.twiki:
-            print "| %s | %f | %f | %f%% | %f | %f | %f%% |" % (key,
+            print("| %s | %f | %f | %f%% | %f | %f | %f%% |" % (key,
                                                                 differences[key]['TrackerRadLength'][0],
                                                                 differences[key]['TrackerRadLength'][1],
                                                                 differences[key]['TrackerRadLength'][2],
                                                                 differences[key]['TrackerXi'][0],
                                                                 differences[key]['TrackerXi'][1],
                                                                 differences[key]['TrackerXi'][2]
-                                                                )
+                                                                ))
         else:
-            print "%s %f %f %f%% %f %f %f%%" % (key,
+            print("%s %f %f %f%% %f %f %f%%" % (key,
                                                 differences[key]['TrackerRadLength'][0],
                                                 differences[key]['TrackerRadLength'][1],
                                                 differences[key]['TrackerRadLength'][2],
                                                 differences[key]['TrackerXi'][0],
                                                 differences[key]['TrackerXi'][1],
                                                 differences[key]['TrackerXi'][2]
-                                                )
+                                                ))
     header.write(TRAILER)
     header.close
 
@@ -209,7 +210,7 @@ def createTMGFromRelease(args):
     """
     tracker_reco_material = checkFileInRelease(args.createTMG)
     if not tracker_reco_material:
-      print "Input file not found in release, quitting"
+      print("Input file not found in release, quitting")
       sys.exit(1)
     ET.register_namespace('', "http://www.cern.ch/cms/DDL")
     tree = ET.parse(tracker_reco_material)

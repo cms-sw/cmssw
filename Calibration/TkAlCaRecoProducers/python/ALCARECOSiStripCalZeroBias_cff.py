@@ -38,7 +38,6 @@ siStripQualityESProducerUnbiased.ListOfRecordToMerge = cms.VPSet(
 # Clusterizer #
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
 
-
 calZeroBiasClusters = siStripClusters.clone()
 calZeroBiasClusters.Clusterizer.QualityLabel = 'unbiased'
 
@@ -55,3 +54,23 @@ qualityStatistics = DQMEDAnalyzer("SiStripQualityStatistics",
 
 # Sequence #
 seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)
+
+## customizations for the pp_on_AA eras
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(ALCARECOSiStripCalZeroBiasHLT,
+                                           eventSetupPathsKey='SiStripCalZeroBiasHI'
+                                           )
+
+# Select pp-like events based on the pixel cluster multiplicity
+import HLTrigger.special.hltPixelActivityFilter_cfi
+HLTPixelActivityFilterForSiStripCalZeroBias = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone()
+HLTPixelActivityFilterForSiStripCalZeroBias.maxClusters = 500
+HLTPixelActivityFilterForSiStripCalZeroBias.inputTag    = 'siPixelClusters'
+
+seqALCARECOSiStripCalZeroBiasHI = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)
+
+#Specify we want to use our other sequence 
+(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(seqALCARECOSiStripCalZeroBias,
+                                                seqALCARECOSiStripCalZeroBiasHI
+                                                )

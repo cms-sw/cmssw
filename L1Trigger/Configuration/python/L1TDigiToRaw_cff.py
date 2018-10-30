@@ -20,10 +20,6 @@ stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list
 stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gmtStage2Raw")) )
 stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gtStage2Raw")) )
 
-# no L1 DigiToRaw in first PreMixing step
-from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
-premix_stage1.toModify(rawDataCollector, RawCollectionList = _RawCollectionListOrig)
-
 #
 # Legacy Trigger:
 #

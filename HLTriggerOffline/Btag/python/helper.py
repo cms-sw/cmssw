@@ -3,6 +3,7 @@
 http://wiki.python.org/moin/ConfigParserExamples
 http://stackoverflow.com/questions/3220670/read-all-the-contents-in-ini-file-into-dictionary-with-python
 """
+from __future__ import print_function
 
 import ConfigParser as cp 
 

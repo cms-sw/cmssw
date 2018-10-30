@@ -8,11 +8,10 @@ def loadEgmIdSequence(process, dataFormat):
 
     # Load the producer module to build full 5x5 cluster shapes and whatever 
     # else is needed for IDs
-    process.load("RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi")
+    process.load("RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff")
 
     # Load the producer for MVA IDs. Make sure it is also added to the sequence!
     process.load("RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi")
-    process.load("RecoEgamma.PhotonIdentification.PhotonRegressionValueMapProducer_cfi")
 
     # Load tasks for isolations computed with CITK for both AOD and miniAOD cases
     process.egmPhotonIDTask = cms.Task()
@@ -37,6 +36,5 @@ def loadEgmIdSequence(process, dataFormat):
     # Add everything else other then isolation
     process.egmPhotonIDTask.add(process.photonIDValueMapProducer,
                                 process.photonMVAValueMapProducer,
-                                process.egmPhotonIDs,
-                                process.photonRegressionValueMapProducer)
+                                process.egmPhotonIDs)
     process.egmPhotonIDSequence = cms.Sequence(process.egmPhotonIDTask)

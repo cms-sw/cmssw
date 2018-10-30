@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import os
 import json
 
@@ -30,15 +31,15 @@ if __name__ == "__main__":
         
         if '--- record' in line:
             recordname = line.split()[2]
-            print '-----------------------------------------------------------------'
-            print 'record: ',recordname
+            print('-----------------------------------------------------------------')
+            print('record: ',recordname)
             
         if 'prepMetaData' in line:
             dict_text = line.split('value: ')[1]
             prep_metadata = json.loads(dict_text.replace('&quot;','"'))
             prep_metadata_dump = json.dumps(prep_metadata, sort_keys = True, indent = 4)
-            print '----- prepMetaData:'
-            print prep_metadata_dump
+            print('----- prepMetaData:')
+            print(prep_metadata_dump)
             outFilePrep = open('%s/%s_prep.json'%(dirnameoutput,recordname), 'w')
             outFilePrep.write(prep_metadata_dump+'\n')
             outFilePrep.close()
@@ -47,8 +48,8 @@ if __name__ == "__main__":
             dict_text = line.split('value: ')[1]
             prod_metadata = json.loads(dict_text.replace('&quot;','"'))
             prod_metadata_dump = json.dumps(prod_metadata, sort_keys = True, indent = 4)
-            print '----- prodMetaData:'
-            print prod_metadata_dump
+            print('----- prodMetaData:')
+            print(prod_metadata_dump)
             outFileProd = open('%s/%s_prod.json'%(dirnameoutput,recordname), 'w')
             outFileProd.write(prod_metadata_dump+'\n')
             outFileProd.close()

@@ -6,20 +6,8 @@
 using namespace std;
 
 
-SRBlockFormatter::SRBlockFormatter() {
+SRBlockFormatter::SRBlockFormatter(Config const& iC, Params const& iP): BlockFormatter(iC,iP) {
 
-}
-
-SRBlockFormatter::~SRBlockFormatter() {
-
-}
-
-
-void SRBlockFormatter::StartEvent() {
-  if (debug_) cout << "enter in StartEvent. header_ size is  " << header_.size() << endl;
-  header_ .clear() ;
-  if (debug_) cout << "after empty : header_ size is  " << header_.size() << endl;
-  return;
 }
 
 void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawData& rawdata)
@@ -28,8 +16,8 @@ void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawDat
   if (debug_) cout << "enter in SRBlockFormatter::DigiToRaw " << endl;
   if (debug_) print(rawdata);
 
-  int bx = *pbx_;
-  int lv1 = *plv1_;
+  int bx = bx_;
+  int lv1 = lv1_;
 
   int Nrows_SRP = 5;   // Both for Barrel and EndCap (without the header row)
   int SRid = (dccid -1) / 3 +1;

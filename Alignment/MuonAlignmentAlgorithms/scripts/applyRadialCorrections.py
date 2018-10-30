@@ -1,3 +1,4 @@
+from __future__ import print_function
 mep11angle = 0.002  # guess
 mep12angle = 0.002  # guess
 mep13angle = 0.002  # guess
@@ -43,7 +44,7 @@ for endcap, station, ring, angle in (1, 1, 1, mep11angle), (1, 1, 4, mep11angle)
                 radial_correction *= -1.
                 angle_correction *= -1.
 
-            print """<operation>
+            print("""<operation>
     <CSCChamber endcap="%(endcap)d" station="%(station)d" ring="%(ring)d" chamber="%(cham)d" />
     <movelocal x="0." y="%(radial_correction)g" z="0." />
 </operation>
@@ -52,4 +53,4 @@ for endcap, station, ring, angle in (1, 1, 1, mep11angle), (1, 1, 4, mep11angle)
     <CSCChamber endcap="%(endcap)d" station="%(station)d" ring="%(ring)d" chamber="%(cham)d" />
     <rotatelocal axisx="1." axisy="0." axisz="0." angle="%(angle_correction)g" />
 </operation>
-""" % vars()
+""" % vars())

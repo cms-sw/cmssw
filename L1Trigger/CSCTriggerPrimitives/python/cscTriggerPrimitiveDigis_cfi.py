@@ -19,24 +19,13 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
     # Parameters common for all boards
     commonParam = cms.PSet(
-        isTMB07 = cms.bool(True),
-        isMTCC = cms.bool(False),
-
         # Flag for SLHC studies (upgraded ME11, MPC)
-        # (if true, isTMB07 should be true as well)
         isSLHC = cms.bool(False),
 
-        # ME1a configuration:
-        # smartME1aME1b=f, gangedME1a=t
-        #   default logic for current HW
-        # smartME1aME1b=t, gangedME1a=f
-        #   realistic upgrade scenario:
-        #   one ALCT finder and two CLCT finders per ME11
-        #   with additional logic for A/CLCT matching with ME1a unganged
-        # smartME1aME1b=t, gangedME1a=t
-        #   the previous case with ME1a still being ganged
-        # Note: gangedME1a has effect only if smartME1aME1b=t
-        smartME1aME1b = cms.bool(False),
+        ## During Run-1, ME1a strips were triple-ganged
+        ## Effectively, this means there were only 16 strips
+        ## As of Run-2, ME1a strips are unganged,
+        ## which increased the number of strips to 48
         gangedME1a = cms.bool(True),
 
         # flags to optionally disable finding stubs in ME42 or ME1a
@@ -45,36 +34,6 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         # offset between the ALCT and CLCT central BX in simulation
         alctClctOffset = cms.uint32(1),
-    ),
-
-    # Parameters for ALCT processors: old MC studies
-    alctParamOldMC = cms.PSet(
-        alctFifoTbins   = cms.uint32(16),
-        alctFifoPretrig = cms.uint32(10),
-        alctDriftDelay  = cms.uint32(3),
-        alctNplanesHitPretrig = cms.uint32(2),
-        alctNplanesHitPattern = cms.uint32(4),
-        alctNplanesHitAccelPretrig = cms.uint32(2),
-        alctNplanesHitAccelPattern = cms.uint32(4),
-        alctTrigMode       = cms.uint32(3),
-        alctAccelMode      = cms.uint32(1),
-        alctL1aWindowWidth = cms.uint32(5),
-        verbosity = cms.int32(0)
-    ),
-
-    # Parameters for ALCT processors: MTCC-II
-    alctParamMTCC = cms.PSet(
-        alctFifoTbins   = cms.uint32(16),
-        alctFifoPretrig = cms.uint32(10),
-        alctDriftDelay  = cms.uint32(3),
-        alctNplanesHitPretrig = cms.uint32(2),
-        alctNplanesHitPattern = cms.uint32(4),
-        alctNplanesHitAccelPretrig = cms.uint32(2),
-        alctNplanesHitAccelPattern = cms.uint32(4),
-        alctTrigMode       = cms.uint32(2),
-        alctAccelMode      = cms.uint32(0),
-        alctL1aWindowWidth = cms.uint32(3),
-        verbosity = cms.int32(0)
     ),
 
     # Parameters for ALCT processors: 2007 and later
@@ -158,35 +117,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # whether to store the "corrected" ALCT stub time
         # (currently it is median time of particular hits in a pattern) into the ASCCLCTDigi bx,
         # and temporary store the regular "key layer hit" time into the CSCCLCTDigi fullBX:
-        alctUseCorrectedBx = cms.bool(True)
-    ),
-
-    # Parameters for CLCT processors: old MC studies
-    clctParamOldMC = cms.PSet(
-        clctFifoTbins   = cms.uint32(12),
-        clctFifoPretrig = cms.uint32(7),
-        clctHitPersist  = cms.uint32(6),
-        clctDriftDelay  = cms.uint32(2),
-        clctNplanesHitPretrig = cms.uint32(2),
-        clctNplanesHitPattern = cms.uint32(4),
-        clctPidThreshPretrig  = cms.uint32(2),
-        clctMinSeparation     = cms.uint32(10),
-        # Debug
-        verbosity = cms.int32(0)
-    ),
-
-    # Parameters for CLCT processors: MTCC-II
-    clctParamMTCC = cms.PSet(
-        clctFifoTbins   = cms.uint32(12),
-        clctFifoPretrig = cms.uint32(7),
-        clctHitPersist  = cms.uint32(6),
-        clctDriftDelay  = cms.uint32(2),
-        clctNplanesHitPretrig = cms.uint32(4),
-        clctNplanesHitPattern = cms.uint32(1),
-        clctPidThreshPretrig  = cms.uint32(2),
-        clctMinSeparation     = cms.uint32(10),
-        # Debug
-        verbosity = cms.int32(0)
+        alctUseCorrectedBx = cms.bool(True),
     ),
 
     # Parameters for CLCT processors: 2007 and later
@@ -277,7 +208,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         #         take CLCTs in BX look for matching ALCTs in window)
         #  False = ALCT-centric matching (recommended for SLHC,
         #         take ALCTs in BX look for matching CLCTs in window)
-        clctToAlct = cms.bool(True),
+        clctToAlct = cms.bool(False),
     ),
 
     # to be used by ME11 chambers with upgraded TMB and ALCT
@@ -318,11 +249,11 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         # For CLCT-centric matching in ME11, break after finding
         # the first BX with matching ALCT
-        matchEarliestAlctME11Only = cms.bool(False),
+        matchEarliestAlctOnly = cms.bool(False),
 
         # For ALCT-centric matching in ME11, break after finding
         # the first BX with matching CLCT
-        matchEarliestClctME11Only = cms.bool(False),
+        matchEarliestClctOnly = cms.bool(False),
 
         # 0 = default "non-X-BX" sorting algorithm,
         #     where the first BX with match goes first
@@ -333,7 +264,17 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         # How many maximum LCTs per whole chamber per BX to keep
         # (supposedly, 1b and 1a can have max 2 each)
-        maxME11LCTs = cms.uint32(2)
+        maxLCTs = cms.uint32(2),
+
+        # True: allow construction of unphysical LCTs
+        # in ME11 for which WG and HS do not intersect
+        # False: do not build unphysical LCTs
+        ignoreAlctCrossClct = cms.bool(True),
+
+        ## run in debug mode
+        debugLUTs = cms.bool(False),
+        debugMatching = cms.bool(False),
+
     ),
 
     # MPC sorter config for Run2 and beyond
@@ -492,8 +433,7 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( cscTriggerPrimitiveDigis,
                    GEMPadDigiProducer = cms.InputTag("simMuonGEMPadDigis"),
                    GEMPadDigiClusterProducer = cms.InputTag("simMuonGEMPadDigiClusters"),
-                   commonParam = dict(isSLHC = cms.bool(True),
-                                      smartME1aME1b = cms.bool(True),
+                   commonParam = dict(isSLHC = True,
                                       runME11ILT = cms.bool(True),
                                       useClusters = cms.bool(False)),
                    clctSLHC = dict(clctNplanesHitPattern = 3),

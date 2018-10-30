@@ -178,14 +178,6 @@ void PixelCPEBase::fillDetParams()
          p.detTemplateId = templateDBobject_->getTemplateID(p.theDet->geographicalId());
       }
       
-      // &&& PM: I'm not sure what this does. Ask around.
-      // just for testing
-      //int i1 = 0;
-      //if(theFlag_==0) i1 = genErrorDBObject_->getGenErrorID(p.theDet->geographicalId().rawId());
-      //int i2= templateDBobject_->getTemplateID(p.theDet->geographicalId().rawId());
-      //int i3= templateDBobject_->getTemplateID(p.theDet->geographicalId());
-      //if(i2!=i3) cout<<i2<<" != "<<i3<<endl;
-      //cout<<i<<" "<<p.detTemplateId<<" "<<i1<<" "<<i2<<" "<<i3<<endl;
       
       auto topol = &(p.theDet->specificTopology());
       p.theTopol=topol;
@@ -201,7 +193,6 @@ void PixelCPEBase::fillDetParams()
       p.thePitchX = pitchxy.first;	     // pitch along x
       p.thePitchY = pitchxy.second;	     // pitch along y
       
-      //p.theSign = isFlipped(&p) ? -1 : 1; //Not used, AH.  PM: leave commented out.
       
       LocalVector Bfield = p.theDet->surface().toLocal(magfield_->inTesla(p.theDet->surface().position()));
       p.bz = Bfield.z();
@@ -277,21 +268,6 @@ void PixelCPEBase::
 computeAnglesFromTrajectory( DetParam const & theDetParam, ClusterParam & theClusterParam,
                             const LocalTrajectoryParameters & ltp) const
 {
-  // &&& PM: this comment is a candidate for deletion, but ask around first.
-   //cout<<" in PixelCPEBase:computeAnglesFromTrajectory - "<<endl; //dk
-   /*
-   //theClusterParam.loc_traj_param = ltp;   
-   LocalVector localDir = ltp.momentum();
-   float locx = localDir.x();
-   float locy = localDir.y();
-   float locz = localDir.z();
-    // Danek's definition
-    alpha_ = acos(locx/sqrt(locx*locx+locz*locz));
-    if ( isFlipped() )                    // &&& check for FPIX !!!
-    alpha_ = PI - alpha_ ;
-    beta_ = acos(locy/sqrt(locy*locy+locz*locz));
-    */
-   
    
    theClusterParam.cotalpha = ltp.dxdz();
    theClusterParam.cotbeta  = ltp.dydz();
@@ -333,60 +309,7 @@ computeAnglesFromTrajectory( DetParam const & theDetParam, ClusterParam & theClu
 void PixelCPEBase::
 computeAnglesFromDetPosition(DetParam const & theDetParam, ClusterParam & theClusterParam ) const
 {
-  // &&& PM: darn, we have a lot of junk here.  Need to clean up.
    
-   /*
-    // get cluster center of gravity (of charge)
-    float xcenter = cl.x();
-    float ycenter = cl.y();
-    
-    // get the cluster position in local coordinates (cm)
-    
-    // ggiurgiu@jhu.edu 12/09/2010 : This function is called without track info, therefore there are no track
-    // angles to provide here. Call the default localPosition (without track info)
-    LocalPoint lp = theTopol->localPosition( MeasurementPoint(xcenter, ycenter) );
-    
-    
-    // get the cluster position in global coordinates (cm)
-    GlobalPoint gp = theDet->surface().toGlobal( lp );
-    float gp_mod = sqrt( gp.x()*gp.x() + gp.y()*gp.y() + gp.z()*gp.z() );
-    
-    // normalize
-    float gpx = gp.x()/gp_mod;
-    float gpy = gp.y()/gp_mod;
-    float gpz = gp.z()/gp_mod;
-    
-    // make a global vector out of the global point; this vector will point from the
-    // origin of the detector to the cluster
-    GlobalVector gv(gpx, gpy, gpz);
-    
-    // make local unit vector along local X axis
-    const Local3DVector lvx(1.0, 0.0, 0.0);
-    
-    // get the unit X vector in global coordinates/
-    GlobalVector gvx = theDet->surface().toGlobal( lvx );
-    
-    // make local unit vector along local Y axis
-    const Local3DVector lvy(0.0, 1.0, 0.0);
-    
-    // get the unit Y vector in global coordinates
-    GlobalVector gvy = theDet->surface().toGlobal( lvy );
-    
-    // make local unit vector along local Z axis
-    const Local3DVector lvz(0.0, 0.0, 1.0);
-    
-    // get the unit Z vector in global coordinates
-    GlobalVector gvz = theDet->surface().toGlobal( lvz );
-    
-    // calculate the components of gv (the unit vector pointing to the cluster)
-    // in the local coordinate system given by the basis {gvx, gvy, gvz}
-    // note that both gv and the basis {gvx, gvy, gvz} are given in global coordinates
-    float gv_dot_gvx = gv.x()*gvx.x() + gv.y()*gvx.y() + gv.z()*gvx.z();
-    float gv_dot_gvy = gv.x()*gvy.x() + gv.y()*gvy.y() + gv.z()*gvy.z();
-    float gv_dot_gvz = gv.x()*gvz.x() + gv.y()*gvz.y() + gv.z()*gvz.z();
-    */
-   
-   // all the above is equivalent to
    LocalPoint lp = theDetParam.theTopol->localPosition( MeasurementPoint(theClusterParam.theCluster->x(), theClusterParam.theCluster->y()) );
    auto gvx = lp.x()-theDetParam.theOrigin.x();
    auto gvy = lp.y()-theDetParam.theOrigin.y();
@@ -419,26 +342,6 @@ computeAnglesFromDetPosition(DetParam const & theDetParam, ClusterParam & theClu
 
 
 
-//-----------------------------------------------------------------------------
-// The isFlipped() is a silly way to determine which detectors are inverted.
-// In the barrel for every 2nd ladder the E field direction is in the
-// global r direction (points outside from the z axis), every other
-// ladder has the E field inside. Something similar is in the
-// forward disks (2 sides of the blade). This has to be recognised
-// because the charge sharing effect is different.
-//
-// The isFliped does it by looking and the relation of the local (z always
-// in the E direction) to global coordinates. There is probably a much
-// better way.
-//-----------------------------------------------------------------------------
-bool PixelCPEBase::isFlipped(DetParam const & theDetParam) const
-{
-   // Check the relative position of the local +/- z in global coordinates.
-   float tmp1 = theDetParam.theDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp2();
-   float tmp2 = theDetParam.theDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp2();
-   if ( tmp2 < tmp1 ) return true;
-   else return false;
-}
 //------------------------------------------------------------------------
 PixelCPEBase::DetParam const & PixelCPEBase::detParam(const GeomDetUnit & det) const 
 {

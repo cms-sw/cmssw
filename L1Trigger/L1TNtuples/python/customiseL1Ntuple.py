@@ -37,6 +37,20 @@ def L1NtupleAOD(process):
 
     return process
 
+def L1NtupleAODCalo(process):
+
+    L1NtupleTFileOut(process)
+    L1NtupleCustomReco(process)
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleAODCalo_cff')
+    process.l1ntupleaodcalo = cms.Path(
+        process.L1NtupleAODCalo
+    )
+
+    process.schedule.append(process.l1ntupleaodcalo)
+
+    return process
+
 
 def L1NtupleAOD_MC(process):
     
@@ -68,6 +82,31 @@ def L1NtupleRAW(process):
 
     return process
 
+def L1NtupleNANO(process):
+
+    L1NtupleTFileOut(process)
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleNANO_cff')
+    process.l1ntuplenano = cms.Path(
+        process.L1NtupleNANO
+    )
+
+    process.schedule.append(process.l1ntuplenano)
+
+    return process
+
+def L1NtupleRAWCalo(process):
+
+    L1NtupleTFileOut(process)
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleRAWCalo_cff')
+    process.l1ntuplerawcalo = cms.Path(
+        process.L1NtupleRAWCalo
+    )
+
+    process.schedule.append(process.l1ntuplerawcalo)
+
+    return process
 
 
 def L1NtupleEMU(process):
@@ -82,6 +121,20 @@ def L1NtupleEMU(process):
     process.schedule.append(process.l1ntupleemu)
 
     return process
+
+def L1NtupleEMUCalo(process):
+
+    L1NtupleTFileOut(process)
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleEMUCalo_cff')
+    process.l1ntupleemucalo = cms.Path(
+        process.L1NtupleEMUCalo
+    )
+
+    process.schedule.append(process.l1ntupleemucalo)
+
+    return process
+
 
 def L1NtupleEMULegacy(process):
 
@@ -118,6 +171,26 @@ def L1NtupleRAWEMU(process):
 
     return process
 
+def L1NtupleRAWEMUCalo(process):
+
+    L1NtupleRAWCalo(process)
+    L1NtupleEMUCalo(process)
+
+    return process
+
+def L1NtupleNANOEMU(process):
+
+    L1NtupleNANO(process)
+    process.load('L1Trigger.L1TNtuples.L1NtupleEMU_cff')
+
+    process.L1NtupleGTEMU = cms.Sequence( process.l1uGTEmuTree )
+    process.l1ntuplegtemu = cms.Path(
+        process.L1NtupleGTEMU
+    )
+    process.schedule.append(process.l1ntuplegtemu)
+
+    return process
+
 def L1NtupleRAWEMULegacy(process):
 
     L1NtupleRAW(process)
@@ -127,11 +200,17 @@ def L1NtupleRAWEMULegacy(process):
     return process
 
 
-
 def L1NtupleAODRAW(process):
 
     L1NtupleRAW(process)
     L1NtupleAOD(process)
+
+    return process
+
+def L1NtupleAODRAWCalo(process):
+
+    L1NtupleRAWCalo(process)
+    L1NtupleAODCalo(process)
 
     return process
 
@@ -153,12 +232,28 @@ def L1NtupleAODRAWEMU(process):
 
     return process
 
+def L1NtupleAODRAWEMUCalo(process):
+
+    L1NtupleRAWCalo(process)
+    L1NtupleEMUCalo(process)
+    L1NtupleAODCalo(process)
+
+    return process
+
 def L1NtupleAODEMU(process):
 
     L1NtupleEMU(process)
     L1NtupleAOD(process)
 
     return process
+
+def L1NtupleAODEMUCalo(process):
+
+    L1NtupleEMUCalo(process)
+    L1NtupleAODCalo(process)
+
+    return process
+
 
 def L1NtupleAODEMU_MC(process):
 
@@ -184,6 +279,14 @@ def L1NtupleAODEMUGEN_MC(process):
 
     return process
 
+def L1NtupleAODRAWEMUGEN_MC(process):
+
+    L1NtupleRAW(process)
+    L1NtupleEMU(process)
+    L1NtupleAOD_MC(process)
+    L1NtupleGEN(process)
+
+    return process
 
 def L1NtupleEMUNoEventTree(process):
 
@@ -198,4 +301,21 @@ def L1NtupleEMUNoEventTree(process):
 
     return process
 
+def PrefireVetoFilter(process):
 
+    process.load('EventFilter.L1TRawToDigi.triggerRulePrefireVetoFilter_cfi')
+
+    if hasattr(process, 'l1ntupleraw'):
+        process.l1ntupleraw.insert(0,process.triggerRulePrefireVetoFilter)
+    if hasattr(process, 'l1ntupleemu'):
+        process.l1ntupleemu.insert(0,process.triggerRulePrefireVetoFilter)
+    if hasattr(process, 'l1ntupleaod'):
+        process.l1ntupleaod.insert(0,process.triggerRulePrefireVetoFilter)
+    if hasattr(process, 'l1ntuplerawcalo'):
+        process.l1ntuplerawcalo.insert(0,process.triggerRulePrefireVetoFilter)
+    if hasattr(process, 'l1ntupleemucalo'):
+        process.l1ntupleemucalo.insert(0,process.triggerRulePrefireVetoFilter)
+    if hasattr(process, 'l1ntupleaodcalo'):
+        process.l1ntupleaodcalo.insert(0,process.triggerRulePrefireVetoFilter)
+
+    return process

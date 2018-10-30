@@ -22,9 +22,7 @@ using namespace std;
 using namespace l1t;
 
 
-Stage1Layer2EGammaAlgorithmImpHI::Stage1Layer2EGammaAlgorithmImpHI(CaloParamsHelper* params) : params_(params) {};
-
-Stage1Layer2EGammaAlgorithmImpHI::~Stage1Layer2EGammaAlgorithmImpHI(){};
+Stage1Layer2EGammaAlgorithmImpHI::Stage1Layer2EGammaAlgorithmImpHI(CaloParamsHelper const* params) : params_(params) {};
 
 void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 							 const std::vector<l1t::CaloRegion> & regions,
@@ -32,9 +30,8 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::
 							 std::vector<l1t::EGamma>* egammas) {
   int egEtaCut = params_->egEtaCut();
 
-  std::vector<l1t::EGamma> *preSortEGammas = new std::vector<l1t::EGamma>();
-  std::vector<l1t::EGamma> *preGtEGammas = new std::vector<l1t::EGamma>();
-  std::vector<l1t::EGamma> *dumpEGammas = new std::vector<l1t::EGamma>();
+  std::vector<l1t::EGamma> preSortEGammas;
+  std::vector<l1t::EGamma> preGtEGammas;
 
   for(CaloEmCandBxCollection::const_iterator egCand = EMCands.begin();
       egCand != EMCands.end(); egCand++) {
@@ -54,14 +51,10 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::
 
     isoFlag = isinBarrel;
     l1t::EGamma theEG(*&egLorentz, eg_et, eg_eta, eg_phi, index, isoFlag);
-    preSortEGammas->push_back(theEG);
+    preSortEGammas.push_back(theEG);
   }
 
-  SortEGammas(preSortEGammas, preGtEGammas);
-  EGammaToGtScales(params_, preGtEGammas, egammas);
+  SortEGammas(&preSortEGammas, &preGtEGammas);
+  EGammaToGtScales(params_, &preGtEGammas, egammas);
 
-
-  delete preSortEGammas;
-  delete preGtEGammas;
-  delete dumpEGammas;
 }

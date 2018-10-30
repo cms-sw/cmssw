@@ -18,19 +18,14 @@ from EventFilter.CastorRawToDigi.CastorDigiToRaw_cfi import *
 from EventFilter.RawDataCollector.rawDataCollector_cfi import *
 from L1Trigger.Configuration.L1TDigiToRaw_cff import *
 
-from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
-
 #DigiToRaw = cms.Sequence(L1TDigiToRaw*siPixelRawData*SiStripDigiToRaw*ecalPacker*esDigiToRaw*hcalRawData*cscpacker*dtpacker*rpcpacker*rawDataCollector)
 DigiToRaw = cms.Sequence(L1TDigiToRaw*siPixelRawData*SiStripDigiToRaw*ecalPacker*esDigiToRaw*hcalRawData*cscpacker*dtpacker*rpcpacker*castorRawData*rawDataCollector)
-# no L1 DigiToRaw in first PreMixing step
-premix_stage1.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([L1TDigiToRaw]))
 
 ecalPacker.Label = 'simEcalDigis'
 ecalPacker.InstanceEB = 'ebDigis'
 ecalPacker.InstanceEE = 'eeDigis'
 ecalPacker.labelEBSRFlags = "simEcalDigis:ebSrFlags"
 ecalPacker.labelEESRFlags = "simEcalDigis:eeSrFlags"
-premix_stage1.toModify(hcalRawDatauHTR, premix = True)
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([castorRawData]))

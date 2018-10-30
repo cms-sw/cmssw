@@ -1,6 +1,8 @@
 #ifndef __SimFastTiming_FastTimingCommon_ETLElectronicsSim_h__
 #define __SimFastTiming_FastTimingCommon_ETLElectronicsSim_h__
 
+#include "CommonTools/Utils/interface/FormulaEvaluator.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -39,7 +41,9 @@ class ETLElectronicsSim {
 
  private:
 
-  const bool debug_;
+  const bool  debug_;
+  const float bxTime_;
+  const reco::FormulaEvaluator sigmaEta_;
 
   // adc/tdc bitwidths
   const uint32_t adcNbits_, tdcNbits_; 

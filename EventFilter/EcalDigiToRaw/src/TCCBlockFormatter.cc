@@ -12,13 +12,9 @@
 using namespace std;
 
 
-TCCBlockFormatter::TCCBlockFormatter() {
+TCCBlockFormatter::TCCBlockFormatter(Config const& iC, Params const& iP): BlockFormatter(iC, iP) {
 
  AllTPsamples_ = false;
-}
-
-TCCBlockFormatter::~TCCBlockFormatter() {
-
 }
 
 void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim, 
@@ -28,8 +24,8 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
   if (debug_) cout << "enter in TCCBlockFormatter::DigiToRaw " << endl;
 
   int HEADER_SIZE = 8 * 9;
-  int bx = *pbx_;
-  int lv1 = *plv1_;
+  int bx = bx_;
+  int lv1 = lv1_;
 
 
 	const EcalTrigTowerDetId& detid = trigprim.id();

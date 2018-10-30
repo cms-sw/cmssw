@@ -23,7 +23,7 @@ public:
   bool operator<(const GEMPadDigi& digi) const;
   bool isValid() const;
 
-  // return the pad number. counts from 1.
+  // return the pad number. counts from 0.
   int pad() const { return pad_; }
   int bx() const { return bx_; }
 

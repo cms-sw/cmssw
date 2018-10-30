@@ -17,36 +17,36 @@
 
 namespace l1t {
 
-  void calibrateAndRankJets(CaloParamsHelper *params,
+  void calibrateAndRankJets(CaloParamsHelper const *params,
 			    const std::vector<l1t::Jet> * input,
 			    std::vector<l1t::Jet> *output);
 
-  void calibrateAndRankTaus(CaloParamsHelper *params,
+  void calibrateAndRankTaus(CaloParamsHelper const *params,
 			    const std::vector<l1t::Tau> * input,
 			    std::vector<l1t::Tau> *output);
 
-  void JetToGtEtaScales(CaloParamsHelper *params,
+  void JetToGtEtaScales(CaloParamsHelper const *params,
 			const std::vector<l1t::Jet> * input,
 			std::vector<l1t::Jet> *output);
 
-  void JetToGtPtScales(CaloParamsHelper *params,
+  void JetToGtPtScales(CaloParamsHelper const *params,
 		       const std::vector<l1t::Jet> * input,
 		       std::vector<l1t::Jet> *output);
 
 
-  void EGammaToGtScales(CaloParamsHelper *params,
+  void EGammaToGtScales(CaloParamsHelper const *params,
 			const std::vector<l1t::EGamma> * input,
 			std::vector<l1t::EGamma> *output);
 
-  void TauToGtEtaScales(CaloParamsHelper *params,
+  void TauToGtEtaScales(CaloParamsHelper const *params,
 			const std::vector<l1t::Tau> * input,
 			std::vector<l1t::Tau> *output);
 
-  void TauToGtPtScales(CaloParamsHelper *params,
+  void TauToGtPtScales(CaloParamsHelper const *params,
 		       const std::vector<l1t::Tau> * input,
 		       std::vector<l1t::Tau> *output);
 
-  void EtSumToGtScales(CaloParamsHelper *params,
+  void EtSumToGtScales(CaloParamsHelper const *params,
 		       const std::vector<l1t::EtSum> * input,
 		       std::vector<l1t::EtSum> *output);
 

@@ -86,7 +86,7 @@ class UCTGeometry {
 public:
 
   UCTGeometry();
-  ~UCTGeometry() {;}
+  ~UCTGeometry() = default;
 
   // Calorimeter indices are defined to be ints and do not count from zero
   // Eta index sign indicates negative or positive eta
@@ -189,7 +189,6 @@ public:
   double getUCTTowerPhi(int caloPhi);
 
 private:
-  double twrEtaValues[29];
 };
 
 #endif

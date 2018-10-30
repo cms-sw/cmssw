@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
@@ -84,7 +85,7 @@ elif options.output == "xml":
 ################################################################################
 
 usedGlobalTag = process.GlobalTag.globaltag.value()
-print "Using Global Tag:", usedGlobalTag
+print("Using Global Tag:", usedGlobalTag)
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.source = cms.Source("EmptySource")

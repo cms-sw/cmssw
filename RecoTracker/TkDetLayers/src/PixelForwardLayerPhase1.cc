@@ -6,7 +6,6 @@
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
 #include "TrackingTools/DetLayers/interface/simple_stat.h"
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing2Order.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
@@ -14,6 +13,8 @@
 #include "LayerCrossingSide.h"
 #include "DetGroupMerger.h"
 #include "CompatibleDetToGroupAdder.h"
+
+#include "DataFormats/GeometryVector/interface/VectorUtil.h" 
 
 #include <algorithm>
 #include <climits>
@@ -331,7 +332,7 @@ PixelForwardLayerPhase1::computeCrossings( const TrajectoryStateOnSurface& start
     LocalPoint closestPos = closestPlane.toLocal(GlobalPoint(theBladeCrossing.position(theClosestBladePath.second)) );
     closestDist = closestPos.x();
     // use fact that local X perp to global Y
-    nextIndex = PhiLess()( closestPlane.phi(), turbinePoint.barePhi()) ?
+    nextIndex = Geom::phiLess( closestPlane.phi(), turbinePoint.barePhi()) ?
       closestIndex+1 : closestIndex-1;
   } else {
     const BoundPlane& closestPlane( static_cast<const BoundPlane&>(
@@ -341,7 +342,7 @@ PixelForwardLayerPhase1::computeCrossings( const TrajectoryStateOnSurface& start
     LocalPoint closestPos = closestPlane.toLocal(GlobalPoint(theBladeCrossing.position(theClosestBladePath.second)) );
     closestDist = closestPos.x();
     // use fact that local X perp to global Y
-    nextIndex = PhiLess()( closestPlane.phi(), turbinePoint.barePhi()) ?
+    nextIndex = Geom::phiLess( closestPlane.phi(), turbinePoint.barePhi()) ?
       closestIndex+1 : closestIndex-1;
   }
   

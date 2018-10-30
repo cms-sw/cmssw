@@ -1,3 +1,4 @@
+from __future__ import print_function
 import urllib, re, json, socket
 
 """
@@ -64,10 +65,10 @@ class RRApi:
         Print debug information
         """
         if self.debug: 
-            print "RRAPI:",
+            print("RRAPI:", end=' ')
             for arg in args:
-                print arg, 
-            print
+                print(arg, end=' ') 
+            print()
 
     def get(self, parts, data = None):
         """
@@ -240,4 +241,4 @@ class RRApi:
 
 if __name__ == '__main__':
 
-    print "RR API library."
+    print("RR API library.")

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 from optparse import OptionParser
@@ -23,7 +24,7 @@ import os
 
 def verbose(msg):
   if options.verbose:
-    print msg
+    print(msg)
 
 parser = OptionParser(usage="Usage: %prog [options] file0_cfg.py file1_cfg.py...")
 

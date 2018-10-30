@@ -98,7 +98,9 @@ namespace l1t {
     unsigned int formatMissET(std::vector<l1t::EtSum>::const_iterator etSum);
     unsigned int formatTotalET(std::vector<l1t::EtSum>::const_iterator etSum);
     unsigned int formatTowerCounts(std::vector<l1t::EtSum>::const_iterator etSum);
+    unsigned int formatAsym(std::vector<l1t::EtSum>::const_iterator etSum);
     unsigned int formatHMB(std::vector<l1t::EtSum>::const_iterator etSum);
+    std::pair<unsigned int, unsigned int> formatCentrality(std::vector<l1t::EtSum>::const_iterator etSum);
     std::map<std::string, std::vector<int> > m_algoSummary;
 
 
@@ -440,6 +442,9 @@ namespace l1t {
 		       case l1t::EtSum::EtSumType::kMissingEtHF:
 			 cout << " ETMHF:";
 			 break;
+		       case l1t::EtSum::EtSumType::kMissingHtHF:
+			 cout << " HTMHF:";
+			 break;
 		       case l1t::EtSum::EtSumType::kMissingHt:
 			 cout << " HTM:  ";
 			 break;
@@ -455,6 +460,18 @@ namespace l1t {
 		       case l1t::EtSum::EtSumType::kTowerCount:
 			 cout << " TowerCounts:  ";
 			 break;
+		       case l1t::EtSum::EtSumType::kAsymEt:
+			 cout << " AsymEt:  ";
+			 break;
+		       case l1t::EtSum::EtSumType::kAsymHt:
+			 cout << " AsymHt:  ";
+			 break;
+		       case l1t::EtSum::EtSumType::kAsymEtHF:
+			 cout << " AsymEtHF:  ";
+			 break;
+		       case l1t::EtSum::EtSumType::kAsymHtHF:
+			 cout << " AsymHtHF:  ";
+			 break;
 		       case l1t::EtSum::EtSumType::kMinBiasHFP0:
 			 cout << " HFP0: ";
 			 break;
@@ -466,6 +483,9 @@ namespace l1t {
 			 break;
 		       case l1t::EtSum::EtSumType::kMinBiasHFM1:
 			 cout << " HFM1: ";
+			 break;
+		       case l1t::EtSum::EtSumType::kCentrality:
+			 cout << " Centrality: ";
 			 break;
 		       default:
 		         cout << " Unknown: ";
@@ -643,18 +663,28 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
       myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << empty;
    }
 
-// Dump Et Sums (Order ETT, ETTem, HT, ETM, ETMHF, HTM)
+// Dump Et Sums (ETT, HT, ETM, ETMHF, HTM)
    unsigned int ETTpackWd   = 0;
-   unsigned int ETTempackWd = 0;
    unsigned int HTTpackWd   = 0;
    unsigned int ETMpackWd   = 0;
    unsigned int HTMpackWd   = 0;
    unsigned int ETMHFpackWd = 0;
+   unsigned int HTMHFpackWd = 0;
+
+// quantities packed into the words
+   unsigned int ETTempackWd = 0;
    unsigned int HFP0packWd  = 0;
    unsigned int HFM0packWd  = 0;
    unsigned int HFP1packWd  = 0;
    unsigned int HFM1packWd  = 0;
    unsigned int TowerCountspackWd = 0; // ccla
+   unsigned int AsymEtpackWd  = 0;
+   unsigned int AsymHtpackWd  = 0;
+   unsigned int AsymEtHFpackWd  = 0;
+   unsigned int AsymHtHFpackWd  = 0;
+   unsigned int CENT30packWd  = 0;  // centrality bits 3:0 in ETMHF word
+   unsigned int CENT74packWd  = 0;  // centrality bits 7:4 in HTMHF word
+   std::pair<unsigned int, unsigned int> centrality(0,0);
 
    if(etsums.isValid()){
      for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(bx); etsum != etsums->end(bx); ++etsum) {
@@ -665,6 +695,9 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 	     break;
 	   case l1t::EtSum::EtSumType::kMissingEtHF:
 	     ETMHFpackWd = formatMissET(etsum);
+	     break;
+	   case l1t::EtSum::EtSumType::kMissingHtHF:
+	     HTMHFpackWd = formatMissET(etsum);
 	     break;
 	   case l1t::EtSum::EtSumType::kMissingHt:
 	     HTMpackWd = formatMissET(etsum);
@@ -693,6 +726,23 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 	   case l1t::EtSum::EtSumType::kMinBiasHFM1:
 	     HFM1packWd = formatHMB(etsum);
 	     break;
+	   case l1t::EtSum::EtSumType::kCentrality:
+	     centrality = formatCentrality(etsum);
+	     CENT30packWd = centrality.first;
+	     CENT74packWd = centrality.second;
+	     break;
+	   case l1t::EtSum::EtSumType::kAsymEt:
+	     AsymEtpackWd = formatAsym(etsum);
+	     break;
+	   case l1t::EtSum::EtSumType::kAsymHt:
+	     AsymHtpackWd = formatAsym(etsum);
+	     break;
+	   case l1t::EtSum::EtSumType::kAsymEtHF:
+	     AsymEtHFpackWd = formatAsym(etsum);
+	     break;
+	   case l1t::EtSum::EtSumType::kAsymHtHF:
+	     AsymHtHFpackWd = formatAsym(etsum);
+	     break;
            default:
 	     break;
 	} //end switch statement
@@ -710,7 +760,16 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 
    // ccla Towercounts go in HTT word, bits 12-24
    if(m_tvVersion>1) HTTpackWd |= ( TowerCountspackWd << 12);
+   if(m_tvVersion>2){
+     ETMpackWd |= AsymEtpackWd;
+     HTMpackWd |= AsymHtpackWd;
+     ETMHFpackWd |= AsymEtHFpackWd;
+     HTMHFpackWd |= AsymHtHFpackWd;
 
+     ETMHFpackWd |= CENT30packWd;
+     HTMHFpackWd |= CENT74packWd;
+     
+   }
    // Fill in the words in appropriate order
    myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << ETTpackWd;
    myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << HTTpackWd;
@@ -718,7 +777,11 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
    myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << HTMpackWd;
    if(m_tvVersion>1) {
       myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << ETMHFpackWd;
-      myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << empty;
+      if(m_tvVersion>2) {
+	myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << HTMHFpackWd;
+      } else{
+	myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << empty;
+      }
    }
 
 
@@ -865,8 +928,21 @@ unsigned int GtRecordDump::formatTowerCounts(std::vector<l1t::EtSum>::const_iter
   return packedVal;
 }
 
+unsigned int GtRecordDump::formatAsym(std::vector<l1t::EtSum>::const_iterator etSum){
+
+  //asym takes 8 bits, occupying bits 20-27 in ETM, HTM, ETMHF, and HTMHF etsums
+  unsigned int packedVal = 0;
+  unsigned int shift = 20;
+
+  // Pack Bits
+  packedVal |= ((etSum->hwPt()     & 0xff)   << shift);
+
+  return packedVal;
+}
+
 unsigned int GtRecordDump::formatHMB(std::vector<l1t::EtSum>::const_iterator etSum){
 
+  // 4 bits, occupying bits 28-31.
   unsigned int packedVal = 0;
   unsigned int shift = 28;
 
@@ -874,6 +950,28 @@ unsigned int GtRecordDump::formatHMB(std::vector<l1t::EtSum>::const_iterator etS
   packedVal |= ((etSum->hwPt()     & 0xf)   << shift);
 
   return packedVal;
+}
+
+std::pair<unsigned int, unsigned int> GtRecordDump::formatCentrality(std::vector<l1t::EtSum>::const_iterator etSum){
+
+
+  unsigned int centword = etSum->hwPt();
+
+  // unpack word into 2 4 bit words
+  int firstfour = (centword & 0xF);
+  int lastfour = (centword >> 4) & 0xF;
+
+  // 4 bits, occupying bits 28-31.
+  unsigned int packedValLN = 0;
+  unsigned int packedValUN = 0;
+  unsigned int shift = 28;
+
+// Pack Bits
+  packedValLN |= ((firstfour    & 0xf)   << shift);
+  packedValUN |= ((lastfour     & 0xf)   << shift);
+
+  std::pair<unsigned int, unsigned int> centrality(packedValLN, packedValUN);
+  return centrality;
 }
 
 

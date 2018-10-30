@@ -1,7 +1,8 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 def TkOnlyDigi(process):
-    print "!!! Special version of the digitization for tracker only !!!"
+    print("!!! Special version of the digitization for tracker only !!!")
     if hasattr(process,'digitisationTkOnly_step'):
         process=customise_DigiTkOnly(process)
 

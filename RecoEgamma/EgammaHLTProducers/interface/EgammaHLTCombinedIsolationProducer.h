@@ -13,7 +13,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,20 +27,20 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTCombinedIsolationProducer : public edm::EDProducer {
+class EgammaHLTCombinedIsolationProducer : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTCombinedIsolationProducer(const edm::ParameterSet&);
   ~EgammaHLTCombinedIsolationProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 private:
   // ----------member data ---------------------------
   
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   std::vector<edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> > IsolTag_;
   std::vector<double> IsolWeight_;
-  edm::ParameterSet conf_;
+  const edm::ParameterSet conf_;
 
 };
 

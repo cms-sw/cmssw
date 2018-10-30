@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import ROOT
 import sys
 from DataFormats.FWLite import Events, Handle
@@ -20,7 +21,7 @@ f.cd()
 i = 0
 for event in events:
     i = i + 1
-    print  '--------- Processing Event ' + str(i)
+    print('--------- Processing Event ' + str(i))
     # use getByLabel, just like in cmsRun
     event.getByLabel (label1, handle1)
     # get the product
@@ -30,17 +31,17 @@ for event in events:
     for igen in range(0,len(gens)) :
         gen = gens[igen]
         if gen.numberOfDaughters() > 1 :
-            print '{0:6.0f} : pdgid = {1:6.0f}, status = {2:6.0f}, da0 id = {3:6.0f}, da1 = {4:6.0f}, '.format(
+            print('{0:6.0f} : pdgid = {1:6.0f}, status = {2:6.0f}, da0 id = {3:6.0f}, da1 = {4:6.0f}, '.format(
                 igen, gen.pdgId(), gen.status(), gen.daughter(0).pdgId(), gen.daughter(1).pdgId()
-                )
+                ))
         elif gen.numberOfDaughters() > 0 :
-            print '{0:6.0f} : pdgid = {1:6.0f}, status = {2:6.0f}, da0 id = {3:6.0f}, da1 = {4:6.0f}, '.format(
+            print('{0:6.0f} : pdgid = {1:6.0f}, status = {2:6.0f}, da0 id = {3:6.0f}, da1 = {4:6.0f}, '.format(
                 igen, gen.pdgId(), gen.status(), gen.daughter(0).pdgId(), -9999
-                )
+                ))
         else :
-            print '{0:6.0f} : pdgid = {1:6.0f}, status = {2:6.0f}, da0 id = {3:6.0f}, da1 = {4:6.0f}, '.format(
+            print('{0:6.0f} : pdgid = {1:6.0f}, status = {2:6.0f}, da0 id = {3:6.0f}, da1 = {4:6.0f}, '.format(
                 igen, gen.pdgId(), gen.status(), -9999, -9999
-                )
+                ))
 
 f.cd()
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import os,string,sys,commands,time
 
 # template file to be used
@@ -14,8 +15,8 @@ NUMEVENTS="-1"
 # here starts the main
 
 if len(sys.argv)!=2 :
-    print "Usage = runonSM.py <type>"
-    print "where type is either \"tunnel\" or \"revproxy\" or \"playback\" "
+    print("Usage = runonSM.py <type>")
+    print("where type is either \"tunnel\" or \"revproxy\" or \"playback\" ")
     sys.exit(1)
 
 TYPE=sys.argv[1]
@@ -30,12 +31,12 @@ elif TYPE=="playback":
     SOURCE="cms.string('http://localhost:50082/urn:xdaq-application:lid=29')"
     SELECTHLT= "cms.untracked.string('hltOutputDQM')"
 else:
-    print "wrong type value."
+    print("wrong type value.")
     sys.exit(1)
     
 while True:
     DATE=str(int(time.time()))
-    print "Suffix:"+DATE
+    print("Suffix:"+DATE)
     FILENAME=PREFIX+"_"+DATE+"_cfg.py"
     FILELOG=PREFIX+"_"+DATE+".log"
     # read mod file
@@ -51,5 +52,5 @@ while True:
     newfile.write(text)
     newfile.close()
                  
-    print "Created: "+FILENAME+" . Running cmsRun now and logging in "+FILELOG
+    print("Created: "+FILENAME+" . Running cmsRun now and logging in "+FILELOG)
     os.system("cmsRun "+FILENAME+" 2>&1 | tee "+FILELOG+" | grep  --line-buffered -e \"Begin processing\" -e \"BeamSplash\" -e \"PhysDecl\"")

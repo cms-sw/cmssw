@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 process = cms.Process("HLTBTAG")
@@ -18,19 +19,19 @@ fileini = fileINI("config.ini")
 fileini.read()
 
 #print read variables
-print
-print "Reading ", fileini.fileName
-print
-print "maxEvents = ",fileini.maxEvents
-print "CMSSWVER = ",fileini.CMSSWVER
-print "processname = ",fileini.processname
-print "jets (for matching) = ",fileini.jets
-print "files = ",fileini.files
-print "btag_modules ",fileini.btag_modules
-print "btag_pathes ",fileini.btag_pathes
-print "vertex_modules ",fileini.vertex_modules
-print "vertex_pathes ",fileini.vertex_pathes
-print
+print()
+print("Reading ", fileini.fileName)
+print()
+print("maxEvents = ",fileini.maxEvents)
+print("CMSSWVER = ",fileini.CMSSWVER)
+print("processname = ",fileini.processname)
+print("jets (for matching) = ",fileini.jets)
+print("files = ",fileini.files)
+print("btag_modules ",fileini.btag_modules)
+print("btag_pathes ",fileini.btag_pathes)
+print("vertex_modules ",fileini.vertex_modules)
+print("vertex_pathes ",fileini.vertex_pathes)
+print()
 
 triggerFilter = []
 triggerFilter.extend(fileini.vertex_pathes)
@@ -44,7 +45,7 @@ for i in range(len(triggerFilter)):
 	
 	triggerString +=  triggerFilter[i] + "*"
 
-print "triggerString : ",triggerString
+print("triggerString : ",triggerString)
 
 #denominator trigger
 process.hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",

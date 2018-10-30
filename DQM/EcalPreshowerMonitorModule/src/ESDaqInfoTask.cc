@@ -130,12 +130,10 @@ void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
      if ( meESDaqError_ ) meESDaqError_->setBinContent(i, 0.0);
    }
    
-   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-
-   if( iSetup.find( recordKey ) ) {
+   if(auto runInfoRec = iSetup.tryToGet<RunInfoRcd>()) {
 
       edm::ESHandle<RunInfo> sumFED;
-      iSetup.get<RunInfoRcd>().get(sumFED);    
+      runInfoRec->get(sumFED);
 
       std::vector<int> FedsInIds= sumFED->m_fed_in;   
 

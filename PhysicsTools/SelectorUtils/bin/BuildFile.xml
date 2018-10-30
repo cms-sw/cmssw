@@ -2,7 +2,7 @@
 <use   name="DataFormats/FWLite"/>
 <use   name="FWCore/FWLite"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PythonParameterSet"/>
+<use   name="FWCore/ParameterSetReader"/>
 <use   name="root"/>
 <use   name="boost"/>
 <use   name="boost_python"/>

@@ -1,4 +1,5 @@
 #!/bin/env python
+from __future__ import print_function
 import json , sys
 input_range = []
 output_files_list = []
@@ -10,7 +11,7 @@ jdata = sys.stdin.read()
 try:
   lumi_data = json.loads(jdata) 
 except:
-  print jdata
+  print(jdata)
   exit (1)
 lumi_data = lumi_data['data']
 
@@ -42,7 +43,7 @@ def process_lumi(data):
         output_files_list.append(lumi_file)
         break
   for out_file_name in output_files_list:
-    print out_file_name
+    print(out_file_name)
 
 #Get file names for desired lumi ranges
 process_lumi(lumi_data)

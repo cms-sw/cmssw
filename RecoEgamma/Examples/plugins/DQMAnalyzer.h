@@ -19,7 +19,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -34,7 +34,7 @@ class TH1I;
 class TProfile;
 class TTree;
 
-class DQMAnalyzer : public edm::EDAnalyzer
+class DQMAnalyzer : public edm::one::EDAnalyzer<>
 {
  public:
 

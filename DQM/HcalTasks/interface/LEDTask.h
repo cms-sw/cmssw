@@ -113,7 +113,9 @@ class LEDTask : public hcaldqm::DQTask
 		hcaldqm::ContainerSingle2D _cLowSignal_CrateSlot;
 
 		// For monitoring LED firing: ADC vs BX
-		MonitorElement* _meLEDMon;
+		std::map<HcalSubdetector, std::vector<HcalDetId> > _ledCalibrationChannels;
+		hcaldqm::Container2D _LED_ADCvsBX_Subdet; // Pin diode amplitude vs BX for online DQM
+		hcaldqm::Container2D _LED_ADCvsEvn_Subdet; // Pin diode amplitude vs Evn for local DQM
 		
 };
 

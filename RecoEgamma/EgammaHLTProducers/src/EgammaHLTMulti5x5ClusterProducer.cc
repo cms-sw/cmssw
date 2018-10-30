@@ -78,7 +78,6 @@ EgammaHLTMulti5x5ClusterProducer::EgammaHLTMulti5x5ClusterProducer(const edm::Pa
   produces< reco::BasicClusterCollection >(barrelClusterCollection_);
 
   Multi5x5_p = new Multi5x5ClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, v_chstatus, posCalculator_);
-  nEvt_ = 0;
 }
 
 EgammaHLTMulti5x5ClusterProducer::~EgammaHLTMulti5x5ClusterProducer() {
@@ -245,12 +244,11 @@ void EgammaHLTMulti5x5ClusterProducer::produce(edm::Event& evt, const edm::Event
   if (doBarrel_) {
     clusterizeECALPart(evt, es, barrelHitToken_, barrelClusterCollection_, barrelRegions, reco::CaloID::DET_ECAL_BARREL);
   }
-  nEvt_++;
 }
 
 
 const EcalRecHitCollection * EgammaHLTMulti5x5ClusterProducer::getCollection(edm::Event& evt,
-									     edm::EDGetTokenT<EcalRecHitCollection>& hitToken) {
+									     const edm::EDGetTokenT<EcalRecHitCollection>& hitToken) const {
 
   edm::Handle<EcalRecHitCollection> rhcHandle;
   evt.getByToken(hitToken, rhcHandle);
@@ -266,10 +264,10 @@ const EcalRecHitCollection * EgammaHLTMulti5x5ClusterProducer::getCollection(edm
 
 
 void EgammaHLTMulti5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-							  edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
+							  const edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
 							  const std::string& clusterCollection,
 							  const std::vector<RectangularEtaPhiRegion>& regions,
-							  const reco::CaloID::Detectors detector) {
+							  const reco::CaloID::Detectors detector) const {
 
   // get the hit collection from the event:
   const EcalRecHitCollection *hitCollection_p = getCollection(evt, hitToken);

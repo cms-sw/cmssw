@@ -4,6 +4,7 @@ benedikt.hegner@cern.ch
 
 """
 from __future__ import absolute_import
+from __future__ import print_function
 import re
 import ROOT
 import exceptions
@@ -14,7 +15,7 @@ try:
   import readline #cmscompleter
   readline.parse_and_bind('tab: complete')
 except:
-  print 'WARNING: Could not load tab completion'
+  print('WARNING: Could not load tab completion')
 
 
 # for adding iterators at runtime
@@ -175,6 +176,6 @@ class EventBranch(object):
 class cmserror(exceptions.Exception):
     def __init__(self, message):
           length = len(message)+7   #7=len("ERROR: ")
-          print "="*length
-          print "ERROR:", message
-          print "="*length
+          print("="*length)
+          print("ERROR:", message)
+          print("="*length)

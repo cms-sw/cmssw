@@ -293,7 +293,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
 
     //===== normalized chi2, chi2 probability, ave. norm. chi2 vs eta; ave. pt bias vs eta
     plotOptReset(logx,logy,doKolmo,norm,minx,maxx,miny,maxy,drawopt,plots,titles);
-    plots[0]="chi2"              ; titles[0]="Track normalized #chi^{2}";
+    plots[0]="chi2"              ; titles[0]="Track #chi^{2}";
     plots[1]="chi2prob"          ; titles[1]="Probability of track #chi^{2}";
     plots[2]="chi2_vs_eta_prof"  ; titles[2]="Mean normalized #chi^{2} vs #eta" ;
 
@@ -301,9 +301,9 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     drawopt[1]="hist";
     drawopt[2]="";
 
-    norm[0]=  2.;
-    norm[1]=  2.;
-    norm[2]= -1.;
+    norm[0]= 0.;
+    norm[1]= 0.;
+    norm[2]= 0.;
 
     logy[0]=true;
     logy[1]=false;

@@ -913,11 +913,11 @@ namespace edm {
   }
   
   void
-  Principal::readAllFromSourceAndMergeImmediately() {
+  Principal::readAllFromSourceAndMergeImmediately(MergeableRunProductMetadata const* mergeableRunProductMetadata) {
     if(not reader()) {return;}
     
     for(auto & prod : *this) {
-      prod->retrieveAndMerge(*this);
+      prod->retrieveAndMerge(*this, mergeableRunProductMetadata);
     }
   }
 }

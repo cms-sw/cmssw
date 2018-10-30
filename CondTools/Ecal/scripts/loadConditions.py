@@ -1,3 +1,4 @@
+from __future__ import print_function
 # $Id: loadConditions.py,v 1.4 2008/12/19 11:02:21 argiro Exp $
 #
 # Author: Stefano Argiro'
@@ -17,16 +18,16 @@ import sys,os
 
 def usage():
 
-   print "Usage: cmsRun loadConditions.py file=FILENAME record=RECORD db=CONNECTSTRING"
-   print "   file=FILE"
-   print "       specify xml file to load to DB"
-   print
-   print "   record=RECORD"
-   print "       specify record to be loaded (EcalChannelStatus, etc)"
-   print 
-   print "   db=CONNECTSTRING"
-   print "       specify connection string, e.g. sqlite_file=file.db"
-   print 
+   print("Usage: cmsRun loadConditions.py file=FILENAME record=RECORD db=CONNECTSTRING")
+   print("   file=FILE")
+   print("       specify xml file to load to DB")
+   print()
+   print("   record=RECORD")
+   print("       specify record to be loaded (EcalChannelStatus, etc)")
+   print() 
+   print("   db=CONNECTSTRING")
+   print("       specify connection string, e.g. sqlite_file=file.db")
+   print() 
 
 
 usage()

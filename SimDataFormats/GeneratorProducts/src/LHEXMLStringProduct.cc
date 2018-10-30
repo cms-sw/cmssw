@@ -146,3 +146,7 @@ bool LHEXMLStringProduct::mergeProduct(LHEXMLStringProduct const &other)
   return true;
 }
 
+void LHEXMLStringProduct::swap(LHEXMLStringProduct& other) {
+  content_.swap(other.content_);
+  compressedContent_.swap(other.compressedContent_);
+}

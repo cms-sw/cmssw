@@ -8,7 +8,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -28,12 +28,12 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTPFChargedIsolationProducer : public edm::EDProducer {
+class EgammaHLTPFChargedIsolationProducer : public edm::global::EDProducer<> {
  public:
   explicit EgammaHLTPFChargedIsolationProducer(const edm::ParameterSet&);
   ~EgammaHLTPFChargedIsolationProducer() override {};
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  
 private:

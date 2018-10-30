@@ -147,8 +147,8 @@ private:
    FWBoolParameter   m_useGlobalEnergyScale;
 
    std::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
-   std::auto_ptr<FWViewContext> m_viewContext;
-   std::auto_ptr<FWViewEnergyScale> m_localEnergyScale;
+   std::unique_ptr<FWViewContext> m_viewContext;
+   std::unique_ptr<FWViewEnergyScale> m_localEnergyScale;
 
    mutable FWViewEnergyScaleEditor* m_viewEnergyScaleEditor;
 };

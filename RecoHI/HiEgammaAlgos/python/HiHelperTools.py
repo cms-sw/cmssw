@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 ## Helpers to perform some technically boring tasks like looking for all modules with a given parameter
@@ -18,7 +19,7 @@ def applyPostfix(process, label, postfix):
     if label in defaultLabels and hasattr(process, label+postfix):
         result = getattr(process, label+postfix)
     elif hasattr(process, label):
-        print "WARNING: called applyPostfix for module/sequence %s which is not in patHeavyIonDefaultSequence%s!"%(label,postfix)
+        print("WARNING: called applyPostfix for module/sequence %s which is not in patHeavyIonDefaultSequence%s!"%(label,postfix))
         result = getattr(process, label)    
     return result
 

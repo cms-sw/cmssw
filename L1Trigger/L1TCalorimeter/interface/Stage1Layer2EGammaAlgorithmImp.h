@@ -25,14 +25,14 @@ namespace l1t {
 
   class Stage1Layer2EGammaAlgorithmImpPP : public Stage1Layer2EGammaAlgorithm {
   public:
-    Stage1Layer2EGammaAlgorithmImpPP(CaloParamsHelper* params);
-    ~Stage1Layer2EGammaAlgorithmImpPP() override;
+    Stage1Layer2EGammaAlgorithmImpPP(CaloParamsHelper const* params);
+    ~Stage1Layer2EGammaAlgorithmImpPP() override =default;
     void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::Jet> * jets,
 			      std::vector<l1t::EGamma>* egammas) override;
   private:
-    CaloParamsHelper* const params_;
+    CaloParamsHelper const* const params_;
     double Isolation(int ieta, int iphi,
     		     const std::vector<l1t::CaloRegion> & regions)  const;
     double HoverE(int et, int ieta, int iphi,
@@ -45,14 +45,14 @@ namespace l1t {
 
   class Stage1Layer2EGammaAlgorithmImpHI : public Stage1Layer2EGammaAlgorithm {
   public:
-    Stage1Layer2EGammaAlgorithmImpHI(CaloParamsHelper* params);
-    ~Stage1Layer2EGammaAlgorithmImpHI() override;
+    Stage1Layer2EGammaAlgorithmImpHI(CaloParamsHelper const* params);
+    ~Stage1Layer2EGammaAlgorithmImpHI() override =default;
     void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::Jet> * jets,
 			      std::vector<l1t::EGamma>* egammas) override;
   private:
-    CaloParamsHelper* const params_;
+    CaloParamsHelper const* const params_;
     double Isolation(int ieta, int iphi,
     		     const std::vector<l1t::CaloRegion> & regions)  const;
     double HoverE(int et, int ieta, int iphi,
@@ -65,14 +65,14 @@ namespace l1t {
 
   class Stage1Layer2EGammaAlgorithmImpHW : public Stage1Layer2EGammaAlgorithm {
   public:
-    Stage1Layer2EGammaAlgorithmImpHW(CaloParamsHelper* params);
-    ~Stage1Layer2EGammaAlgorithmImpHW() override;
+    Stage1Layer2EGammaAlgorithmImpHW(CaloParamsHelper const* params);
+    ~Stage1Layer2EGammaAlgorithmImpHW() override = default;
     void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::Jet> * jets,
 			      std::vector<l1t::EGamma>* egammas) override;
   private:
-    CaloParamsHelper* const params_;
+    CaloParamsHelper const * const params_;
     int AssociatedJetPt(int ieta, int iphi,
 		           const std::vector<l1t::Jet> * jets) const;
 

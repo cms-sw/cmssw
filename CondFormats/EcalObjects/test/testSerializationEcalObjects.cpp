@@ -87,6 +87,7 @@ int main()
     testSerialization<EcalPedestal>();
     testSerialization<EcalPedestals>();
     testSerialization<EcalSRSettings>();
+    testSerialization<EcalSimPulseShape>();
     testSerialization<EcalSampleMask>();
     testSerialization<EcalTBWeights>();
     testSerialization<EcalTPGCrystalStatus>();

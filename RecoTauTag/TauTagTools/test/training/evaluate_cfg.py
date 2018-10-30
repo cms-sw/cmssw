@@ -9,6 +9,7 @@ to the other default algorithms.
 Author: Evan K. Friis (UC Davis)
 
 '''
+from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -130,7 +131,7 @@ process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 # Remove the lepton discrimination
 lepton_discriminants = [name for name in process.PFTau.moduleNames()
                         if 'Muon' in name or 'Electron' in name]
-print "Removing lepton discriminants: %s" % " ".join(lepton_discriminants)
+print("Removing lepton discriminants: %s" % " ".join(lepton_discriminants))
 for lepton_discriminant in lepton_discriminants:
     module = getattr(process, lepton_discriminant)
     process.PFTau.remove(module)

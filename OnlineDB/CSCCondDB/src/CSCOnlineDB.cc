@@ -106,7 +106,7 @@
    curtime.tm_hour, curtime.tm_min, curtime.tm_sec);
    stmt->setDate(4, edate_c);
    if(obj_name!="test") stmt->executeUpdate ();
-   }catch(oracle::occi::SQLException ex)
+   }catch(oracle::occi::SQLException &ex)
    {
     std::cout<<"Exception thrown for insertBind"<<std::endl;
     std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;

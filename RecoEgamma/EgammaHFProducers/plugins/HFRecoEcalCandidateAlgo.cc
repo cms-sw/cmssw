@@ -25,7 +25,6 @@ HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,do
 						 const std::vector<double>& eSeLCut,
 						 const reco::HFValueStruct hfvv				
 ) :
-  
   m_correct(correct), 
   m_e9e25Cut(e9e25Cut),
   m_intercept2DCut(intercept2DCut),
@@ -39,10 +38,9 @@ HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,do
   m_era(4), 
   m_hfvv(hfvv)
 {
-  
 }
 
-RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& original , const HFEMClusterShape& shape,int nvtx) {
+RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& original , const HFEMClusterShape& shape,int nvtx) const {
  double corEta=original.eta();
   //piece-wise log energy correction to eta
   double logel=log(shape.eLong3x3()/100.0);
@@ -108,7 +106,7 @@ RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& 
 void HFRecoEcalCandidateAlgo::produce(const edm::Handle<SuperClusterCollection>& SuperClusters,
 				      const HFEMClusterShapeAssociationCollection& AssocShapes,
 				      RecoEcalCandidateCollection& RecoECand,
-				      int nvtx) {
+				      int nvtx) const {
   
   
   

@@ -15,19 +15,13 @@
 #include "L1Trigger/L1TCalorimeter/interface/JetCalibrationMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 
-l1t::Stage1Layer2EtSumAlgorithmImpPP::Stage1Layer2EtSumAlgorithmImpPP(CaloParamsHelper* params) : params_(params)
+l1t::Stage1Layer2EtSumAlgorithmImpPP::Stage1Layer2EtSumAlgorithmImpPP(CaloParamsHelper const* params) : params_(params)
 {
   //now do what ever initialization is needed
   for(unsigned int i = 0; i < L1CaloRegionDetId::N_PHI; i++) {
     sinPhi.push_back(sin(2. * 3.1415927 * i * 1.0 / L1CaloRegionDetId::N_PHI));
     cosPhi.push_back(cos(2. * 3.1415927 * i * 1.0 / L1CaloRegionDetId::N_PHI));
   }
-}
-
-
-l1t::Stage1Layer2EtSumAlgorithmImpPP::~Stage1Layer2EtSumAlgorithmImpPP() {
-
-
 }
 
 
@@ -47,7 +41,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   double sumHx = 0;
   double sumHy = 0;
 
-  std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
+  std::vector<l1t::CaloRegion> subRegions;
 
 
   //Region Correction will return uncorrected subregions if
@@ -64,25 +58,25 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   //double etSumEtThresholdHt = params_->etSumEtThreshold(1);
   int etSumEtThresholdHt = (int) (params_->etSumEtThreshold(1) / jetLsb);
 
-  RegionCorrection(regions, subRegions, params_);
+  RegionCorrection(regions, &subRegions, params_);
 
   double towerLsb = params_->towerLsbSum();
   int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
   // ----- cluster jets for repurposing of MHT phi (use if for angle between leading jet)
-  std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
-  std::vector<l1t::Jet> * unSortedJets = new std::vector<l1t::Jet>();
-  std::vector<l1t::Jet> * SortedJets = new std::vector<l1t::Jet>();
-  slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
+  std::vector<l1t::Jet> unCorrJets;
+  std::vector<l1t::Jet>  unSortedJets;
+  std::vector<l1t::Jet>  SortedJets;
+  slidingWindowJetFinder(jetSeedThreshold, &subRegions, &unCorrJets);
 
   //if jetCalibrationType is set to None in the config
   std::string jetCalibrationType = params_->jetCalibrationType();
   std::vector<double> jetCalibrationParams = params_->jetCalibrationParams();
-  JetCalibration(unCorrJets, jetCalibrationParams, unSortedJets, jetCalibrationType, towerLsb);
+  JetCalibration(&unCorrJets, jetCalibrationParams, &unSortedJets, jetCalibrationType, towerLsb);
 
-  SortJets(unSortedJets, SortedJets);
-  int dijet_phi=DiJetPhi(SortedJets);
+  SortJets(&unSortedJets, &SortedJets);
+  int dijet_phi=DiJetPhi(&SortedJets);
 
-  for(std::vector<CaloRegion>::const_iterator region = subRegions->begin(); region != subRegions->end(); region++) {
+  for(std::vector<CaloRegion>::const_iterator region = subRegions.begin(); region != subRegions.end(); region++) {
     if (region->hwEta() < etSumEtaMinEt || region->hwEta() > etSumEtaMaxEt) {
       continue;
     }
@@ -97,7 +91,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
     }
   }
 
-  for(std::vector<CaloRegion>::const_iterator region = subRegions->begin(); region != subRegions->end(); region++) {
+  for(std::vector<CaloRegion>::const_iterator region = subRegions.begin(); region != subRegions.end(); region++) {
     if (region->hwEta() < etSumEtaMinHt || region->hwEta() > etSumEtaMaxHt) {
       continue;
     }
@@ -155,20 +149,9 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET&0xfff,0,0,ETTqual);
   l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT&0xfff,0,0,HTTqual);
 
-  std::vector<l1t::EtSum> *preGtEtSums = new std::vector<l1t::EtSum>();
+  std::vector<l1t::EtSum> preGtEtSums = {etMiss, htMiss, etTot, htTot};
 
-  preGtEtSums->push_back(etMiss);
-  preGtEtSums->push_back(htMiss);
-  preGtEtSums->push_back(etTot);
-  preGtEtSums->push_back(htTot);
-
-  EtSumToGtScales(params_, preGtEtSums, etsums);
-
-  delete subRegions;
-  delete unCorrJets;
-  delete unSortedJets;
-  delete SortedJets;
-  delete preGtEtSums;
+  EtSumToGtScales(params_, &preGtEtSums, etsums);
 }
 
 int l1t::Stage1Layer2EtSumAlgorithmImpPP::DiJetPhi(const std::vector<l1t::Jet> * jets)  const {

@@ -1,13 +1,13 @@
 #ifndef ElectronIDAnalyzer_h
 #define ElectronIDAnalyzer_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class ElectronIDAnalyzer : public edm::EDAnalyzer
+class ElectronIDAnalyzer : public edm::one::EDAnalyzer<>
 {
  public:
 

@@ -23,7 +23,7 @@ HFFibre::HFFibre(const std::string & name, const DDCompactView & cpv,
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   cFibre           = c_light*(m_HF.getParameter<double>("CFibre"));
   
-  edm::LogInfo("HFShower") << "HFFibre:: Speed of light in fibre " << cFibre
+  edm::LogVerbatim("HFShower") << "HFFibre:: Speed of light in fibre " << cFibre
                            << " m/ns";
 
   std::string attribute = "Volume"; 
@@ -43,14 +43,14 @@ HFFibre::HFFibre(const std::string & name, const DDCompactView & cpv,
       if(it/10*10 == it) { ss1 << "\n"; }
       ss1 << "  " << attL[it]*cm;
     }
-    edm::LogInfo("HFShower") << "HFFibre: " << nBinAtt << " attL(1/cm): " << ss1.str();
+    edm::LogVerbatim("HFShower") << "HFFibre: " << nBinAtt << " attL(1/cm): " << ss1.str();
 
     // Limits on Lambda
     int nb   = 2;
     std::vector<double>  nvec = getDDDArray("lambLim",sv,nb);
     lambLim[0] = static_cast<int>(nvec[0]);
     lambLim[1] = static_cast<int>(nvec[1]);
-    edm::LogInfo("HFShower") << "HFFibre: Limits on lambda " << lambLim[0]
+    edm::LogVerbatim("HFShower") << "HFFibre: Limits on lambda " << lambLim[0]
                              << " and " << lambLim[1];
 
     // Fibre Lengths
@@ -61,7 +61,7 @@ HFFibre::HFFibre(const std::string & name, const DDCompactView & cpv,
       if(it/10*10 == it) { ss2 << "\n"; }
       ss2 << "  " << longFL[it]/cm;
     }
-    edm::LogInfo("HFShower") << "HFFibre: " << nb << " Long Fibre Length(cm):" << ss2.str();
+    edm::LogVerbatim("HFShower") << "HFFibre: " << nb << " Long Fibre Length(cm):" << ss2.str();
     nb = 0;
     shortFL   = getDDDArray("ShortFL",sv,nb);
     std::stringstream ss3;
@@ -69,7 +69,7 @@ HFFibre::HFFibre(const std::string & name, const DDCompactView & cpv,
       if(it/10*10 == it) { ss3 << "\n"; }
       ss3 << "  " << shortFL[it]/cm;
     } 
-    edm::LogInfo("HFShower") << "HFFibre: " << nb << " Short Fibre Length(cm):" << ss3.str();
+    edm::LogVerbatim("HFShower") << "HFFibre: " << nb << " Short Fibre Length(cm):" << ss3.str();
   } else {
     edm::LogError("HFShower") << "HFFibre: cannot get filtered "
                               << " view for " << attribute << " matching "
@@ -91,7 +91,7 @@ void HFFibre::initRun(const HcalDDDSimConstants* hcons) {
     if(i/10*10 == i) { sss << "\n"; }
     sss << "  " << radius[i]/cm;
   }
-  edm::LogInfo("HFShower") << "HFFibre: " << radius.size() <<" rTable(cm):" << sss.str();
+  edm::LogVerbatim("HFShower") << "HFFibre: " << radius.size() <<" rTable(cm):" << sss.str();
 }
 
 double HFFibre::attLength(double lambda) {
@@ -105,7 +105,7 @@ double HFFibre::attLength(double lambda) {
     j = 0;
   double att = attL[j];
 #ifdef DebugLog
-  edm::LogInfo("HFShower") << "HFFibre::attLength for Lambda " << lambda
+  edm::LogVerbatim("HFShower") << "HFFibre::attLength for Lambda " << lambda
                            << " index " << i  << " " << j << " Att. Length " 
                            << att;
 #endif
@@ -117,7 +117,7 @@ double HFFibre::tShift(const G4ThreeVector& point, int depth, int fromEndAbs) {
   double zFibre = zShift(point, depth, fromEndAbs);
   double time   = zFibre/cFibre;
 #ifdef DebugLog
-  edm::LogInfo("HFShower") << "HFFibre::tShift for point " << point
+  edm::LogVerbatim("HFShower") << "HFFibre::tShift for point " << point
                            << " ( depth = " << depth <<", traversed length = " 
                            << zFibre/cm  << " cm) = " << time/ns << " ns";
 #endif
@@ -152,7 +152,7 @@ double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) { 
   }
 
 #ifdef DebugLog
-  edm::LogInfo("HFShower") << "HFFibre::zShift for point " << point
+  edm::LogVerbatim("HFShower") << "HFFibre::zShift for point " << point
                            << " (R = " << hR/cm << " cm, Index = " << ieta 
                            << ", depth = " << depth << ", Fibre Length = " 
                            << length/cm       << " cm = " << zFibre/cm  

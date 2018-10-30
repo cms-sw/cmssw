@@ -1,3 +1,4 @@
+from __future__ import print_function
 import array,coral
 from RecoLuminosity.LumiDB import CommonUtil,nameDealer
 
@@ -367,8 +368,8 @@ def trgFromOldGT(session,runnumber):
             s+=1
             lsnr=row['lsnr'].data()
             while s!=lsnr:
-                print 'DEADTIME alert: found hole in LS range'
-                print '         fill deadtimebeamactive 0 for LS '+str(s)
+                print('DEADTIME alert: found hole in LS range')
+                print('         fill deadtimebeamactive 0 for LS '+str(s))
                 deadtimeresult[s]=0
                 s+=1
             count=row['counts'].data()
@@ -414,8 +415,8 @@ def trgFromOldGT(session,runnumber):
             if algobit==NAlgoBit-1:
                 s+=1
                 while s!=lsnr:
-                    print 'ALGO COUNT alert: found hole in LS range'
-                    print '     fill all algocount 0 for LS '+str(s)
+                    print('ALGO COUNT alert: found hole in LS range')
+                    print('     fill all algocount 0 for LS '+str(s))
                     tmpzero=[0]*NAlgoBit
                     algocount[s]=tmpzero
                     s+=1
@@ -460,8 +461,8 @@ def trgFromOldGT(session,runnumber):
             if techbit==NTechBit-1:
                 s+=1
                 while s!=lsnr:
-                    print 'TECH COUNT alert: found hole in LS range'
-                    print '     fill all techcount 0 for LS '+str(s)
+                    print('TECH COUNT alert: found hole in LS range')
+                    print('     fill all techcount 0 for LS '+str(s))
                     tmpzero=[0]*NTechBit
                     techcount[s]=tmpzero
                     s+=1
@@ -701,7 +702,7 @@ def hltFromRuninfoV2(session,runnumber):
             npath=c.currentRow()['npath'].data()
         del q1
         if npath==0:
-            print 'request run is empty, do nothing'
+            print('request run is empty, do nothing')
             
         q=hltschema.newQuery()
         bindVar=coral.AttributeList()
@@ -809,7 +810,7 @@ def hltconf(session,hltkey):
         cursor=hltconfQuery.execute()
         while next(cursor):
             hltpath=cursor.currentRow()['hltpath'].data()
-            print hltpath
+            print(hltpath)
             l1expression=cursor.currentRow()['l1expression'].data()
             hlt2l1map[hltpath]=l1expression
         del hltconfQuery
@@ -1022,5 +1023,5 @@ if __name__ == "__main__":
     #print hltFromRuninfoV2(session,135735)
     svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_lumi_prod',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    print uncalibratedlumiFromOldLumi(session,135735)
+    print(uncalibratedlumiFromOldLumi(session,135735))
     del session

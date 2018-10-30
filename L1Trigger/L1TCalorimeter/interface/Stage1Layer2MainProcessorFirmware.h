@@ -24,13 +24,15 @@
 #include "Stage1Layer2HFRingSumAlgorithm.h"
 #include "Stage1Layer2HFBitCountAlgorithm.h"
 
+#include <memory>
+
 namespace l1t {
 
   class Stage1Layer2MainProcessorFirmwareImp1 : public Stage1Layer2MainProcessor {
   public:
     //Stage1Layer2MainProcessorFirmwareImp1(const FirmwareVersion & fwv /*const CaloParamsHelper & dbPars*/);
-    Stage1Layer2MainProcessorFirmwareImp1(const int fwv , CaloParamsHelper* dbPars);
-    ~Stage1Layer2MainProcessorFirmwareImp1() override;
+    Stage1Layer2MainProcessorFirmwareImp1(const int fwv , CaloParamsHelper const* dbPars);
+    ~Stage1Layer2MainProcessorFirmwareImp1() override = default;
     void processEvent(const std::vector<CaloEmCand> &,
                               const std::vector<CaloRegion> &,
 			      std::vector<EGamma> * egammas,
@@ -44,14 +46,13 @@ namespace l1t {
   private:
 
     int m_fwv;
-    CaloParamsHelper* m_db;
 
-    Stage1Layer2EGammaAlgorithm* m_egAlgo;
-    Stage1Layer2TauAlgorithm* m_tauAlgo;
-    Stage1Layer2JetAlgorithm* m_jetAlgo;
-    Stage1Layer2EtSumAlgorithm* m_sumAlgo;
-    Stage1Layer2HFRingSumAlgorithm* m_hfRingAlgo;
-    Stage1Layer2HFBitCountAlgorithm* m_hfBitAlgo;
+    std::unique_ptr<Stage1Layer2EGammaAlgorithm> m_egAlgo;
+    std::unique_ptr<Stage1Layer2TauAlgorithm> m_tauAlgo;
+    std::unique_ptr<Stage1Layer2JetAlgorithm> m_jetAlgo;
+    std::unique_ptr<Stage1Layer2EtSumAlgorithm> m_sumAlgo;
+    std::unique_ptr<Stage1Layer2HFRingSumAlgorithm> m_hfRingAlgo;
+    std::unique_ptr<Stage1Layer2HFBitCountAlgorithm> m_hfBitAlgo;
   };
 
 }

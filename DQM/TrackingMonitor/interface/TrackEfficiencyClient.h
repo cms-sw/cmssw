@@ -73,6 +73,6 @@ class TrackEfficiencyClient: public DQMEDHarvester
   MonitorElement * effPhi;
   MonitorElement * effD0; 
   MonitorElement * effCompatibleLayers; 
- 
+  MonitorElement * effPtPhiLowPt,*effPtPhiHighPt;
 };
 #endif

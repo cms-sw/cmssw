@@ -388,7 +388,7 @@ class DQMRootSource : public edm::InputSource
       std::list<unsigned int>::iterator m_nextIndexItr;
       std::list<unsigned int>::iterator m_presentIndexItr;
       std::vector<RunLumiToRange> m_runlumiToRange;
-      std::auto_ptr<TFile> m_file;
+      std::unique_ptr<TFile> m_file;
       std::vector<TTree*> m_trees;
       std::vector<boost::shared_ptr<TreeReaderBase> > m_treeReaders;
       
@@ -795,7 +795,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
   logFileAction("  Initiating request to open file ", m_catalog.fileNames()[iIndex].c_str());
   m_presentlyOpenFileIndex = iIndex;
   m_file.reset();
-  std::auto_ptr<TFile> newFile;
+  std::unique_ptr<TFile> newFile;
   try {
     // ROOT's context management implicitly assumes that a file is opened and
     // closed on the same thread.  To avoid the problem, we declare a local
@@ -803,7 +803,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
     // the context, guaranteeing the context is unregistered in the same thread
     // it was registered in.
     TDirectory::TContext contextEraser;
-    newFile = std::auto_ptr<TFile>(TFile::Open(m_catalog.fileNames()[iIndex].c_str()));
+    newFile = std::unique_ptr<TFile>(TFile::Open(m_catalog.fileNames()[iIndex].c_str()));
 
     //Since ROOT6, we can not propagate an exception through ROOT's plugin
     // system so we trap them and then pull from this function
@@ -851,7 +851,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
     }
     else {return false;}
   }
-  m_file = newFile; //passed all tests so now we want to use this file
+  m_file = std::move(newFile); //passed all tests so now we want to use this file
   TTree* parameterSetTree = dynamic_cast<TTree*>(metaDir->Get(kParameterSetTree));
   assert(nullptr!=parameterSetTree);
 

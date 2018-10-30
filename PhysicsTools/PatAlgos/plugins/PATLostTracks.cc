@@ -116,7 +116,6 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
 
     edm::Handle<reco::PFCandidateCollection> cands;
     iEvent.getByToken( cands_, cands );
-    std::vector<reco::Candidate>::const_iterator cand;
 
     edm::Handle<edm::Association<pat::PackedCandidateCollection> > pf2pc;
     iEvent.getByToken(map_,pf2pc);

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 from FWCore.GuiBrowsers.ConfigToolBase import *
@@ -121,8 +122,8 @@ class PickRelValInputFiles( ConfigToolBase ):
         return self.apply()
 
     def messageEmptyList( self ):
-        print '%s DEBUG: Empty file list returned'%( self._label )
-        print '    This might be overwritten by providing input files explicitly to the source module in the main configuration file.'
+        print('%s DEBUG: Empty file list returned'%( self._label ))
+        print('    This might be overwritten by providing input files explicitly to the source module in the main configuration file.')
 
     def apply( self ):
         useDAS        = self._parameters[ 'useDAS'        ].value
@@ -160,12 +161,12 @@ class PickRelValInputFiles( ConfigToolBase ):
         elif ibId in cmsswVersion or formerVersion:
             outputTuple = Popen( [ 'scram', 'l -c CMSSW' ], stdout = PIPE, stderr = PIPE ).communicate()
             if len( outputTuple[ 1 ] ) != 0:
-                print '%s INFO : SCRAM error'%( self._label )
+                print('%s INFO : SCRAM error'%( self._label ))
                 if debug:
-                    print '    from trying to determine last valid releases before \'%s\''%( cmsswVersion )
-                    print
-                    print outputTuple[ 1 ]
-                    print
+                    print('    from trying to determine last valid releases before \'%s\''%( cmsswVersion ))
+                    print()
+                    print(outputTuple[ 1 ])
+                    print()
                     self.messageEmptyList()
                 return filePaths
             versions = { 'last'      :''
@@ -203,40 +204,40 @@ class PickRelValInputFiles( ConfigToolBase ):
 
         # Debugging output
         if debug:
-            print '%s DEBUG: Called with...'%( self._label )
+            print('%s DEBUG: Called with...'%( self._label ))
             for key in self._parameters.keys():
-               print '    %s:\t'%( key ),
-               print self._parameters[ key ].value,
+               print('    %s:\t'%( key ), end=' ')
+               print(self._parameters[ key ].value, end=' ')
                if self._parameters[ key ].value is self.getDefaultParameters()[ key ].value:
-                   print ' (default)'
+                   print(' (default)')
                else:
-                   print
+                   print()
                if key == 'cmsswVersion' and cmsswVersion != self._parameters[ key ].value:
                    if formerVersion:
-                       print '    ==> modified to last to last valid release %s (s. \'formerVersion\' parameter)'%( cmsswVersion )
+                       print('    ==> modified to last to last valid release %s (s. \'formerVersion\' parameter)'%( cmsswVersion ))
                    else:
-                       print '    ==> modified to last valid release %s'%( cmsswVersion )
+                       print('    ==> modified to last valid release %s'%( cmsswVersion ))
 
         # Check domain
         domain = socket.getfqdn().split( '.' )
         domainSE = ''
         if len( domain ) == 0:
-            print '%s INFO : Cannot determine domain of this computer'%( self._label )
+            print('%s INFO : Cannot determine domain of this computer'%( self._label ))
             if debug:
                 self.messageEmptyList()
             return filePaths
         elif os.uname()[0] == "Darwin":
-            print '%s INFO : Running on MacOSX without direct access to RelVal files.'%( self._label )
+            print('%s INFO : Running on MacOSX without direct access to RelVal files.'%( self._label ))
             if debug:
                 self.messageEmptyList()
             return filePaths
         elif len( domain ) == 1:
-            print '%s INFO : Running on local host \'%s\' without direct access to RelVal files'%( self._label, domain[ 0 ] )
+            print('%s INFO : Running on local host \'%s\' without direct access to RelVal files'%( self._label, domain[ 0 ] ))
             if debug:
                 self.messageEmptyList()
             return filePaths
         if not ( ( domain[ -2 ] == 'cern' and domain[ -1 ] == 'ch' ) or ( domain[ -2 ] == 'fnal' and domain[ -1 ] == 'gov' ) ):
-            print '%s INFO : Running on site \'%s.%s\' without direct access to RelVal files'%( self._label, domain[ -2 ], domain[ -1 ] )
+            print('%s INFO : Running on site \'%s.%s\' without direct access to RelVal files'%( self._label, domain[ -2 ], domain[ -1 ] ))
             if debug:
                 self.messageEmptyList()
             return filePaths
@@ -245,8 +246,8 @@ class PickRelValInputFiles( ConfigToolBase ):
         elif domain[ -2 ] == 'fnal':
             domainSE = 'T1_US_FNAL_MSS'
         if debug:
-            print '%s DEBUG: Running at site \'%s.%s\''%( self._label, domain[ -2 ], domain[ -1 ] )
-            print '%s DEBUG: Looking for SE \'%s\''%( self._label, domainSE )
+            print('%s DEBUG: Running at site \'%s.%s\''%( self._label, domain[ -2 ], domain[ -1 ] ))
+            print('%s DEBUG: Looking for SE \'%s\''%( self._label, domainSE ))
 
         # Find files
         validVersion = 0
@@ -254,7 +255,7 @@ class PickRelValInputFiles( ConfigToolBase ):
         datasetAll = '/%s/%s-%s-v*/%s'%( relVal, cmsswVersion, globalTag, dataTier )
         if useDAS:
             if debug:
-                print '%s DEBUG: Using DAS query'%( self._label )
+                print('%s DEBUG: Using DAS query'%( self._label ))
             dasLimit = numberOfFiles
             if dasLimit <= 0:
                 dasLimit = 1
@@ -265,29 +266,29 @@ class PickRelValInputFiles( ConfigToolBase ):
                 dataset = '/%s/%s-%s-v%i/%s'%( relVal, cmsswVersion, globalTag, version, dataTier )
                 dasQuery = 'file dataset=%s | grep file.name'%( dataset )
                 if debug:
-                    print '%s DEBUG: Querying dataset \'%s\' with'%( self._label, dataset )
-                    print '    \'%s\''%( dasQuery )
+                    print('%s DEBUG: Querying dataset \'%s\' with'%( self._label, dataset ))
+                    print('    \'%s\''%( dasQuery ))
                 jsondict = das_client.get_data(dasQuery,dasLimit)
                 if debug:
-                    print '%s DEBUG: Received DAS JSON dictionary:'%( self._label )
-                    print '    \'%s\''%( jsondict )
+                    print('%s DEBUG: Received DAS JSON dictionary:'%( self._label ))
+                    print('    \'%s\''%( jsondict ))
                 if jsondict[ 'status' ] != 'ok':
-                    print 'There was a problem while querying DAS with query \'%s\'. Server reply was:\n %s' % (dasQuery, jsondict)
+                    print('There was a problem while querying DAS with query \'%s\'. Server reply was:\n %s' % (dasQuery, jsondict))
                     exit( 1 )
                 mongo_query = jsondict[ 'mongo_query' ]
                 filters     = mongo_query[ 'filters' ]
                 data        = jsondict[ 'data' ]
                 if debug:
-                    print '%s DEBUG: Query in JSON dictionary:'%( self._label )
-                    print '    \'%s\''%( mongo_query )
-                    print '%s DEBUG: Filters in query:'%( self._label )
-                    print '    \'%s\''%( filters )
-                    print '%s DEBUG: Data in JSON dictionary:'%( self._label )
-                    print '    \'%s\''%( data )
+                    print('%s DEBUG: Query in JSON dictionary:'%( self._label ))
+                    print('    \'%s\''%( mongo_query ))
+                    print('%s DEBUG: Filters in query:'%( self._label ))
+                    print('    \'%s\''%( filters ))
+                    print('%s DEBUG: Data in JSON dictionary:'%( self._label ))
+                    print('    \'%s\''%( data ))
                 for row in data:
                     filePath = [ r for r in das_client.get_value( row, filters[ 'grep' ] ) ][ 0 ]
                     if debug:
-                        print '%s DEBUG: Testing file entry \'%s\''%( self._label, filePath )
+                        print('%s DEBUG: Testing file entry \'%s\''%( self._label, filePath ))
                     if len( filePath ) > 0:
                         if validVersion != version:
                             jsontestdict = das_client.get_data('site dataset=%s | grep site.name' % ( dataset ),  999)
@@ -295,14 +296,14 @@ class PickRelValInputFiles( ConfigToolBase ):
                             testfilters = mongo_testquery[ 'filters' ]
                             testdata    = jsontestdict[ 'data' ]
                             if debug:
-                                print '%s DEBUG: Received DAS JSON dictionary (site test):'%( self._label )
-                                print '    \'%s\''%( jsontestdict )
-                                print '%s DEBUG: Query in JSON dictionary (site test):'%( self._label )
-                                print '    \'%s\''%( mongo_testquery )
-                                print '%s DEBUG: Filters in query (site test):'%( self._label )
-                                print '    \'%s\''%( testfilters )
-                                print '%s DEBUG: Data in JSON dictionary (site test):'%( self._label )
-                                print '    \'%s\''%( testdata )
+                                print('%s DEBUG: Received DAS JSON dictionary (site test):'%( self._label ))
+                                print('    \'%s\''%( jsontestdict ))
+                                print('%s DEBUG: Query in JSON dictionary (site test):'%( self._label ))
+                                print('    \'%s\''%( mongo_testquery ))
+                                print('%s DEBUG: Filters in query (site test):'%( self._label ))
+                                print('    \'%s\''%( testfilters ))
+                                print('%s DEBUG: Data in JSON dictionary (site test):'%( self._label ))
+                                print('    \'%s\''%( testdata ))
                             foundSE = False
                             for testrow in testdata:
                                 siteName = [ tr for tr in das_client.get_value( testrow, testfilters[ 'grep' ] ) ][ 0 ]
@@ -311,32 +312,32 @@ class PickRelValInputFiles( ConfigToolBase ):
                                     break
                             if not foundSE:
                                 if debug:
-                                    print '%s DEBUG: Possible version \'v%s\' not available on SE \'%s\''%( self._label, version, domainSE )
+                                    print('%s DEBUG: Possible version \'v%s\' not available on SE \'%s\''%( self._label, version, domainSE ))
                                 break
                             validVersion = version
                             if debug:
-                                print '%s DEBUG: Valid version set to \'v%i\''%( self._label, validVersion )
+                                print('%s DEBUG: Valid version set to \'v%i\''%( self._label, validVersion ))
                         if numberOfFiles == 0:
                             break
                         # protect from double entries ( 'unique' flag in query does not work here)
                         if not filePath in filePathsTmp:
                             filePathsTmp.append( filePath )
                             if debug:
-                                print '%s DEBUG: File \'%s\' found'%( self._label, filePath )
+                                print('%s DEBUG: File \'%s\' found'%( self._label, filePath ))
                             fileCount += 1
                             # needed, since and "limit" overrides "idx" in 'get_data' (==> "idx" set to '0' rather than "skipFiles")
                             if fileCount > skipFiles:
                                 filePaths.append( filePath )
                         elif debug:
-                            print '%s DEBUG: File \'%s\' found again'%( self._label, filePath )
+                            print('%s DEBUG: File \'%s\' found again'%( self._label, filePath ))
                 if validVersion > 0:
                     if numberOfFiles == 0 and debug:
-                        print '%s DEBUG: No files requested'%( self._label )
+                        print('%s DEBUG: No files requested'%( self._label ))
                     break
         else:
             if debug:
-                print '%s DEBUG: Using DBS query'%( self._label )
-            print '%s WARNING: DBS query disabled for DBS3 transition to new API'%( self._label )
+                print('%s DEBUG: Using DBS query'%( self._label ))
+            print('%s WARNING: DBS query disabled for DBS3 transition to new API'%( self._label ))
             #for version in range( maxVersions, 0, -1 ):
                 #filePaths = []
                 #fileCount = 0
@@ -383,18 +384,18 @@ class PickRelValInputFiles( ConfigToolBase ):
 
         # Check output and return
         if validVersion == 0:
-            print '%s WARNING : No RelVal file(s) found at all in datasets \'%s*\' on SE \'%s\''%( self._label, datasetAll, domainSE )
+            print('%s WARNING : No RelVal file(s) found at all in datasets \'%s*\' on SE \'%s\''%( self._label, datasetAll, domainSE ))
             if debug:
                 self.messageEmptyList()
         elif len( filePaths ) == 0:
-            print '%s WARNING : No RelVal file(s) picked up in dataset \'%s\''%( self._label, dataset )
+            print('%s WARNING : No RelVal file(s) picked up in dataset \'%s\''%( self._label, dataset ))
             if debug:
                 self.messageEmptyList()
         elif len( filePaths ) < numberOfFiles:
-            print '%s INFO : Only %i RelVal file(s) instead of %i picked up in dataset \'%s\''%( self._label, len( filePaths ), numberOfFiles, dataset )
+            print('%s INFO : Only %i RelVal file(s) instead of %i picked up in dataset \'%s\''%( self._label, len( filePaths ), numberOfFiles, dataset ))
 
         if debug:
-            print '%s DEBUG: returning %i file(s):\n%s'%( self._label, len( filePaths ), filePaths )
+            print('%s DEBUG: returning %i file(s):\n%s'%( self._label, len( filePaths ), filePaths ))
         return filePaths
 
 pickRelValInputFiles = PickRelValInputFiles()

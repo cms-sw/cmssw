@@ -11,6 +11,7 @@
 # Michael Anderson
 # Sept 15, 2009
 
+from __future__ import print_function
 import sys, os, shutil
 #----------------------------------------------------------------------
 # parameters
@@ -94,22 +95,22 @@ class ReplaceProcessNameOfInputTags(object):
                     for (i,n) in enumerate(value): 
                          # VInputTag can be declared as a list of strings, so ensure that n is formatted correctly
                          n = self.standardizeInputTagFmt(n)
-                         if self._verbose:print "FOUND TAG:",value[i]
+                         if self._verbose:print("FOUND TAG:",value[i])
 
                          if value[i].processName == self._origProcessName:
-                             if self._verbose: print "REPLACING"
+                             if self._verbose: print("REPLACING")
                              value[i].processName = self._newProcessName
                          else:
-                             if self._verbose: print "NOT REPLACING"
+                             if self._verbose: print("NOT REPLACING")
 
                 elif type == 'cms.InputTag':
-                    if self._verbose:print "FOUND TAG:",value                        
+                    if self._verbose:print("FOUND TAG:",value)                        
 
                     if value.processName == self._origProcessName:
-                        if self._verbose:print "REPLACING"
+                        if self._verbose:print("REPLACING")
                         value.processName = self._newProcessName
                     else:
-                        if self._verbose:print "NOT REPLACING"
+                        if self._verbose:print("NOT REPLACING")
 
     #----------------------------------------
     @staticmethod 
@@ -192,36 +193,36 @@ def findDataSetFromSampleName(sampleSpec, version, cdToReleaseDir):
     if len(allDatasetsToCheck) == 1:
         datasetToCheck = allDatasetsToCheck[0]
     elif len(allDatasetsToCheck) == 0:
-        print "failed to find dataset in dbs"
-        print
-        print "dbs command was:"
-        print dbs_cmd
+        print("failed to find dataset in dbs")
+        print()
+        print("dbs command was:")
+        print(dbs_cmd)
         sys.exit(1)
     else:
         # more than one dataset found
-        print "found the following matching datasets, please select one:"
+        print("found the following matching datasets, please select one:")
 
         for i in range(len(allDatasetsToCheck)):
-            print "  %2d: %s" % (i, allDatasetsToCheck[i])
+            print("  %2d: %s" % (i, allDatasetsToCheck[i]))
 
-        print "your choice:",
+        print("your choice:", end=' ')
         choice = sys.stdin.readline()
         choice = int(choice)
 
         datasetToCheck = allDatasetsToCheck[choice]
 
-        print "selected",datasetToCheck
+        print("selected",datasetToCheck)
 
     ###################################
 
 
     ###################################
     # Make sure dataset was found
-    print "Looked for dataset matching " + datasetToSearchFor
+    print("Looked for dataset matching " + datasetToSearchFor)
 
-    print "found"
-    print "  ",datasetToCheck
-    print
+    print("found")
+    print("  ",datasetToCheck)
+    print()
 
     return datasetToCheck
 
@@ -230,7 +231,7 @@ def createProjectArea(version):
     """creates a new scram project area for the given release
     and chdirs to it """
 
-    print "Setting up CMSSW_" + version + " environment"
+    print("Setting up CMSSW_" + version + " environment")
     execCmd("scramv1 project CMSSW CMSSW_" + version)
     os.chdir("CMSSW_" + version + "/src")
 
@@ -244,8 +245,8 @@ def ensureProjectAreaNotExisting(version):
     project_dir = "CMSSW_" + version
 
     if os.path.exists(project_dir):
-        print>>sys.stderr, "the project directory " + project_dir + " already exists."
-        print>>sys.stderr,"Refusing to continue as this might cause unexpected results."
+        print("the project directory " + project_dir + " already exists.", file=sys.stderr)
+        print("Refusing to continue as this might cause unexpected results.", file=sys.stderr)
         sys.exit(1)
 
 #----------------------------------------------------------------------
@@ -268,11 +269,11 @@ def getCMSSWVersionFromEnvironment():
     varname = "CMSSW_VERSION"
 
     if varname not in os.environ:
-        print >> sys.stderr,"The environment variable " + varname + " is not set."
-        print >> sys.stderr,"It looks like you have not initialized a runtime"
-        print >> sys.stderr,"environment for CMSSW but want to use the 'current one'."
-        print >> sys.stderr
-        print >> sys.stderr,"Try running cmsenv and then run this script again."
+        print("The environment variable " + varname + " is not set.", file=sys.stderr)
+        print("It looks like you have not initialized a runtime", file=sys.stderr)
+        print("environment for CMSSW but want to use the 'current one'.", file=sys.stderr)
+        print(file=sys.stderr)
+        print("Try running cmsenv and then run this script again.", file=sys.stderr)
         sys.exit(1)
 
     return cleanVersion(os.environ[varname])
@@ -396,24 +397,24 @@ if options.configFile == None:
 
 if len(options.direct_input_files) == 0:
     if len(ARGV) < 1:
-        print >> sys.stderr, "No data sample specified. Try the -h option to get more detailed usage help."
-        print >> sys.stderr
-        print >> sys.stderr,"known samples are: " + " ".join(knownDatasets.keys())
-        print >> sys.stderr
+        print("No data sample specified. Try the -h option to get more detailed usage help.", file=sys.stderr)
+        print(file=sys.stderr)
+        print("known samples are: " + " ".join(knownDatasets.keys()), file=sys.stderr)
+        print(file=sys.stderr)
         sys.exit(1)
 
     sampleSpec = ARGV.pop(0)
 
     # check whether we know the specified sample
     if sampleSpec not in knownDatasets:
-        print >> sys.stderr,"unknown sample " + sampleSpec + ", known samples are: " + " ".join(knownDatasets.keys())
+        print("unknown sample " + sampleSpec + ", known samples are: " + " ".join(knownDatasets.keys()), file=sys.stderr)
         sys.exit(1)
 
     if not options.useThisProjectArea:
 
         if len(ARGV) < 1:
-            print >> sys.stderr, "No CMSSW version specified. Try the -h option to get more detailed usage help."
-            print >> sys.stderr
+            print("No CMSSW version specified. Try the -h option to get more detailed usage help.", file=sys.stderr)
+            print(file=sys.stderr)
             sys.exit(1)
 
         version= cleanVersion(ARGV.pop())
@@ -429,8 +430,8 @@ if len(options.direct_input_files) == 0:
     datasetToCheck = findDataSetFromSampleName(sampleSpec, version, not options.useThisProjectArea)
 
     # Get the file names in the dataset path, and format it for python files
-    print "\n\nGetting file names for"
-    print "  ",datasetToCheck
+    print("\n\nGetting file names for")
+    print("  ",datasetToCheck)
 
     cmssw_release_dir = findCMSSWreleaseDir(version)
     cmd_parts = []
@@ -457,8 +458,8 @@ else:
 
     if not options.useThisProjectArea:
         if len(ARGV) < 1:
-            print >> sys.stderr, "No CMSSW version specified. Try the -h option to get more detailed usage help."
-            print >> sys.stderr
+            print("No CMSSW version specified. Try the -h option to get more detailed usage help.", file=sys.stderr)
+            print(file=sys.stderr)
             sys.exit(1)
 
         version=cleanVersion(ARGV.pop(0))
@@ -472,8 +473,8 @@ else:
 #----------------------------------------
 
 if len(ARGV) != 0:
-    print >> sys.stderr,"too many positional (non-option) arguments specified. Try the -h option to get more detailed usage help."
-    print >> sys.stderr
+    print("too many positional (non-option) arguments specified. Try the -h option to get more detailed usage help.", file=sys.stderr)
+    print(file=sys.stderr)
     sys.exit(1)
 
 #----------------------------------------
@@ -506,7 +507,7 @@ else:
 # Check out module and build it
 
 if not options.useThisProjectArea:
-    print "Checking out tag '" + options.cvstag + "' of " + module
+    print("Checking out tag '" + options.cvstag + "' of " + module)
     execCmd(" cvs -Q co -r " + options.cvstag + " " + module)
 
     execCmd("scramv1 b")
@@ -516,13 +517,13 @@ if not options.useThisProjectArea:
 # check if the (possibly user specified) config file does exist
 # or not. Note that we can do this only AFTER the CVS checkout
 if not os.path.exists(absoluteInputConfigFile):
-    print >> sys.stderr,"config file " + absoluteInputConfigFile + " does not exist"
-    print os.getcwd()
+    print("config file " + absoluteInputConfigFile + " does not exist", file=sys.stderr)
+    print(os.getcwd())
     sys.exit(1)
 #--------------------
 
 # Place file names in python config file
-print "taking config file " + absoluteInputConfigFile + " and copying to " + absoluteOutputConfigFile 
+print("taking config file " + absoluteInputConfigFile + " and copying to " + absoluteOutputConfigFile) 
 
 #----------------------------------------
 # append things to the config file
@@ -532,8 +533,8 @@ fout = open(absoluteOutputConfigFile,"w")
 # first copy all the lines of the original config file
 fout.write(open(absoluteInputConfigFile).read())
 
-print >> fout,"process.source.fileNames = " + str(FILES)
-print >> fout,"process.post.dataSet = cms.untracked.string('" + datasetToCheck +"')"
+print("process.source.fileNames = " + str(FILES), file=fout)
+print("process.post.dataSet = cms.untracked.string('" + datasetToCheck +"')", file=fout)
 
 # replace all HLT process names by something
 # else if specified by the user
@@ -545,46 +546,46 @@ if options.hlt_process_name != None:
     # the CMSSW python configuration file
     import inspect
 
-    print >> fout,"#----------------------------------------"
-    print >> fout,"# replace explicit specifications of HLT process name by " + options.hlt_process_name
-    print >> fout,"#----------------------------------------"
-    print >> fout, inspect.getsource(ReplaceProcessNameOfInputTags)
-    print >> fout
-    print >> fout, "for seq in process.sequences.values():"
-    print >> fout, """    seq.visit(ReplaceProcessNameOfInputTags("HLT","%s"))""" % options.hlt_process_name
+    print("#----------------------------------------", file=fout)
+    print("# replace explicit specifications of HLT process name by " + options.hlt_process_name, file=fout)
+    print("#----------------------------------------", file=fout)
+    print(inspect.getsource(ReplaceProcessNameOfInputTags), file=fout)
+    print(file=fout)
+    print("for seq in process.sequences.values():", file=fout)
+    print("""    seq.visit(ReplaceProcessNameOfInputTags("HLT","%s"))""" % options.hlt_process_name, file=fout)
 
 # check for additional configuration text specified
 
 if len(options.cfg_add) > 0:
-    print >> fout
-    print >> fout,"#----------------------------------------"
+    print(file=fout)
+    print("#----------------------------------------", file=fout)
 
     for line in options.cfg_add:
-        print >> fout,"# additional string specified on the command line"
-        print >> fout,line
+        print("# additional string specified on the command line", file=fout)
+        print(line, file=fout)
         
-    print >> fout
-    print >> fout,"#----------------------------------------"
+    print(file=fout)
+    print("#----------------------------------------", file=fout)
 
 #----------------------------------------
 # max. events to run on
 if options.num_events != None:
-    print >> fout
-    print >> fout,"#----------------------------------------"
-    print >> fout,"# maximum number of events specified"
-    print >> fout,"#----------------------------------------"
-    print >> fout,"process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(%d) )" % options.num_events
-    print >> fout,"#----------------------------------------"
+    print(file=fout)
+    print("#----------------------------------------", file=fout)
+    print("# maximum number of events specified", file=fout)
+    print("#----------------------------------------", file=fout)
+    print("process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(%d) )" % options.num_events, file=fout)
+    print("#----------------------------------------", file=fout)
 
 #----------------------------------------
 # run on real data
 if options.isData and absoluteInputConfigFile.find("testEmDQM_cfg.py") != -1:
-    print >> fout
-    print >> fout,"#----------------------------------------"
-    print >> fout,"# Running on real data sample"
-    print >> fout,"#----------------------------------------"
-    print >> fout,"process.emdqm.isData = cms.bool(True)" 
-    print >> fout,"#----------------------------------------"
+    print(file=fout)
+    print("#----------------------------------------", file=fout)
+    print("# Running on real data sample", file=fout)
+    print("#----------------------------------------", file=fout)
+    print("process.emdqm.isData = cms.bool(True)", file=fout) 
+    print("#----------------------------------------", file=fout)
 
 #----------------------------------------
 # close config file
@@ -594,12 +595,12 @@ fout.close()
 logfile = os.path.join(os.getcwd(),"log")
 
 if os.path.exists(logfile):
-    print >> sys.stderr,"the log file (" + logfile + ") exists already, this might causing problems"
-    print >> sys.stderr,"with your shell. Stopping here."
+    print("the log file (" + logfile + ") exists already, this might causing problems", file=sys.stderr)
+    print("with your shell. Stopping here.", file=sys.stderr)
     sys.exit(1)
 
 
-print "Starting cmsRun " + absoluteOutputConfigFile + " >& " + logfile
+print("Starting cmsRun " + absoluteOutputConfigFile + " >& " + logfile)
 
 cmd = "eval `scramv1 runtime -sh` && cmsRun " + absoluteOutputConfigFile
 
@@ -620,15 +621,15 @@ if os.path.exists(outputRootFile):
         renameOutputTo=knownDatasets[sampleSpec]['output'] % { "version" : version }
 
         shutil.move(outputRootFile, renameOutputTo)
-        print "Created"
-        print "  ",os.getcwd() + "/" + renameOutputTo
+        print("Created")
+        print("  ",os.getcwd() + "/" + renameOutputTo)
     else:
-        print "Created"
-        print "  ",os.getcwd() + "/" + outputRootFile
+        print("Created")
+        print("  ",os.getcwd() + "/" + outputRootFile)
 
 else: 
 
-    print "cmsRun failed to create " + outputRootFile
-    print "See log file:"
-    print "   ",os.getcwd() + "/log"
+    print("cmsRun failed to create " + outputRootFile)
+    print("See log file:")
+    print("   ",os.getcwd() + "/log")
     

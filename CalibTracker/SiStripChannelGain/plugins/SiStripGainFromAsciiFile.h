@@ -5,8 +5,9 @@
 
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
-#include <vector>
 
+#include <vector>
+#include <memory>
 #include <unordered_map>
 
 class SiStripGainFromAsciiFile : public ConditionDBWriter<SiStripApvGain> {
@@ -18,7 +19,7 @@ public:
 
 private:
 
-  SiStripApvGain * getNewObject() override;
+  std::unique_ptr<SiStripApvGain> getNewObject() override;
 
 private:
 

@@ -20,7 +20,7 @@ namespace l1t {
   }
 }
 
-l1t::Stage2Layer2TauAlgorithmFirmwareImp1::Stage2Layer2TauAlgorithmFirmwareImp1(CaloParamsHelper* params) :
+l1t::Stage2Layer2TauAlgorithmFirmwareImp1::Stage2Layer2TauAlgorithmFirmwareImp1(CaloParamsHelper const* params) :
   params_(params)
 {
 
@@ -122,7 +122,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 	// Similarly for south
 	// Then if N>S, use N
 	// else S
-	std::vector<l1t::CaloCluster*> secClusters = makeSecClusters (towers, sites, mainCluster, caloNav);
+	auto secClusters = makeSecClusters (towers, sites, mainCluster, caloNav);
 	l1t::CaloCluster* secMaxN = nullptr;
 	l1t::CaloCluster* secMaxS = nullptr;
 	l1t::CaloCluster* secondaryCluster = nullptr;
@@ -137,50 +137,50 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 	std::vector<int>::iterator isNeigh7 = find(sites.begin(), sites.end(), 7);
 	
 	// N neighbor --------------------------------------------------
-	if (isNeigh0 != sites.end()) secMaxN = secClusters.at(isNeigh0 - sites.begin());
-	else if (isNeigh2 != sites.end()) secMaxN = secClusters.at(isNeigh2 - sites.begin());
+	if (isNeigh0 != sites.end()) secMaxN = secClusters.at(isNeigh0 - sites.begin()).get();
+	else if (isNeigh2 != sites.end()) secMaxN = secClusters.at(isNeigh2 - sites.begin()).get();
 
 	else if ( isNeigh1 != sites.end() && isNeigh3 != sites.end() ) {
 
 	  if ((secClusters.at(isNeigh1 - sites.begin()))->hwPt() == (secClusters.at(isNeigh3 - sites.begin()))->hwPt()) {
 	    // same E --> take 1
-	    if(mainCluster.hwEta()>0) secMaxN = secClusters.at(isNeigh1 - sites.begin());
-	    else secMaxN = secClusters.at(isNeigh3 - sites.begin());	    
+	    if(mainCluster.hwEta()>0) secMaxN = secClusters.at(isNeigh1 - sites.begin()).get();
+	    else secMaxN = secClusters.at(isNeigh3 - sites.begin()).get();	    
 	  }
 
 	  else {
 	    if ((secClusters.at(isNeigh1 - sites.begin()))->hwPt() > (secClusters.at(isNeigh3 - sites.begin()))->hwPt()){
-	      secMaxN = secClusters.at(isNeigh1 - sites.begin());
+	      secMaxN = secClusters.at(isNeigh1 - sites.begin()).get();
 	    }
-	    else secMaxN = secClusters.at(isNeigh3 - sites.begin());
+	    else secMaxN = secClusters.at(isNeigh3 - sites.begin()).get();
 	  }
 		
 	}
 	 
-	else if (isNeigh1 != sites.end()) secMaxN = secClusters.at(isNeigh1 - sites.begin());
-	else if (isNeigh3 != sites.end()) secMaxN = secClusters.at(isNeigh3 - sites.begin());
+	else if (isNeigh1 != sites.end()) secMaxN = secClusters.at(isNeigh1 - sites.begin()).get();
+	else if (isNeigh3 != sites.end()) secMaxN = secClusters.at(isNeigh3 - sites.begin()).get();
 	    
 	// S neighbor --------------------------------------------------
-	if (isNeigh7 != sites.end()) secMaxS = secClusters.at(isNeigh7 - sites.begin());
-	else if (isNeigh5 != sites.end()) secMaxS = secClusters.at(isNeigh5 - sites.begin());
+	if (isNeigh7 != sites.end()) secMaxS = secClusters.at(isNeigh7 - sites.begin()).get();
+	else if (isNeigh5 != sites.end()) secMaxS = secClusters.at(isNeigh5 - sites.begin()).get();
 
 	else if (isNeigh4 != sites.end() && isNeigh6 != sites.end() ) {
 	  
 	  if ((secClusters.at(isNeigh4 - sites.begin()))->hwPt() == (secClusters.at(isNeigh6 - sites.begin()))->hwPt()){
 	    // same E --> take 1
-	    if(mainCluster.hwEta()>0) secMaxN = secClusters.at(isNeigh4 - sites.begin());	
-	    else secMaxN = secClusters.at(isNeigh6 - sites.begin());	
+	    if(mainCluster.hwEta()>0) secMaxN = secClusters.at(isNeigh4 - sites.begin()).get();	
+	    else secMaxN = secClusters.at(isNeigh6 - sites.begin()).get();	
 	  }
 	  
 	  else {
-	    if ((secClusters.at(isNeigh4 - sites.begin()))->hwPt() > (secClusters.at(isNeigh6 - sites.begin()))->hwPt()) secMaxS = secClusters.at(isNeigh4 - sites.begin());
-	    else secMaxS = secClusters.at(isNeigh6 - sites.begin());
+	    if ((secClusters.at(isNeigh4 - sites.begin()))->hwPt() > (secClusters.at(isNeigh6 - sites.begin()))->hwPt()) secMaxS = secClusters.at(isNeigh4 - sites.begin()).get();
+	    else secMaxS = secClusters.at(isNeigh6 - sites.begin()).get();
 	  }
 		
 	}
 	
-	else if (isNeigh4 != sites.end()) secMaxS = secClusters.at(isNeigh4 - sites.begin());
-	else if (isNeigh6 != sites.end()) secMaxS = secClusters.at(isNeigh6 - sites.begin());
+	else if (isNeigh4 != sites.end()) secMaxS = secClusters.at(isNeigh4 - sites.begin()).get();
+	else if (isNeigh6 != sites.end()) secMaxS = secClusters.at(isNeigh6 - sites.begin()).get();
 	    
 	// N vs S neighbor --------------------------------------------------
 	if (secMaxN != nullptr && secMaxS != nullptr) {
@@ -230,7 +230,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 	  
 	  secondaryClusterHwPt = secondaryCluster->hwPt();
 	  
-	  int iSecIdxPosition = find (secClusters.begin(), secClusters.end(), secondaryCluster) - secClusters.begin();
+	  int iSecIdxPosition = find_if (secClusters.begin(), secClusters.end(), [&](auto const& element) { return element.get() ==secondaryCluster;}) - secClusters.begin();
 	  int secondaryClusterSite = sites.at(iSecIdxPosition);	    
 	  
 	  for (unsigned int iTT = 0; iTT < TTPos.size(); iTT++) {
@@ -369,7 +369,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 	tau.setP4(calibP4);
 	
 	// delete all sec clusters that were allocated with new
-	for (unsigned int isec = 0; isec < secClusters.size(); isec++) delete secClusters.at(isec);
+        secClusters.clear();
 	
 
       }
@@ -455,7 +455,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::loadCalibrationLuts()
   // (0=BarrelA, 1=BarrelB, 2=BarrelC, 3=EndCapA, 4=EndCapA, 5=EndCapA, 6=Eta)
   enum {LUT_UPPER = 3};
   enum {LUT_OFFSET = 0x80};
-  l1t::LUT* lut = params_->tauCalibrationLUT();
+  l1t::LUT const* lut = params_->tauCalibrationLUT();
   unsigned int size = (1 << lut->nrBitsData());
   unsigned int nBins = (1 << (lut->nrBitsAddress() - LUT_UPPER));
 
@@ -532,16 +532,16 @@ bool l1t::Stage2Layer2TauAlgorithmFirmwareImp1::is3x3Maximum (const l1t::CaloTow
     return (!vetoTT); // negate because I ask if is a local maxima
 }
 
-std::vector<l1t::CaloCluster*> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSecClusters (const std::vector<l1t::CaloTower>& towers, std::vector<int> & sites, const l1t::CaloCluster& mainCluster, l1t::CaloStage2Nav& caloNav)
+std::vector<std::unique_ptr<l1t::CaloCluster>> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSecClusters (const std::vector<l1t::CaloTower>& towers, std::vector<int> & sites, const l1t::CaloCluster& mainCluster, l1t::CaloStage2Nav& caloNav)
 {
-    int neigEta [8] = {0, -1,  0,  1, -1,  0,  1,  0};
-    int neigPhi [8] = {3,  2,  2,  2, -2, -2, -2, -3};
+    constexpr int neigEta [8] = {0, -1,  0,  1, -1,  0,  1,  0};
+    constexpr int neigPhi [8] = {3,  2,  2,  2, -2, -2, -2, -3};
     int clusterThreshold = floor(params_->egNeighbourThreshold()/params_->towerLsbSum());
 
     int iEtamain = mainCluster.hwEta();
     int iPhimain = mainCluster.hwPhi();
 
-    std::vector<CaloCluster*> secClusters;
+    std::vector<unique_ptr<CaloCluster>> secClusters;
     for (unsigned int isite = 0; isite < sites.size(); isite++)
     {
         // build full cluster at this site
@@ -552,7 +552,7 @@ std::vector<l1t::CaloCluster*> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSe
         const l1t::CaloTower& towerSec = l1t::CaloTools::getTower(towers, iSecEta, iSecPhi);
         
         math::XYZTLorentzVector emptyP4;
-        l1t::CaloCluster* secondaryCluster = new l1t::CaloCluster ( emptyP4, towerSec.hwPt(), towerSec.hwEta(), towerSec.hwPhi() ) ;
+        auto secondaryCluster = std::make_unique<l1t::CaloCluster> ( emptyP4, towerSec.hwPt(), towerSec.hwEta(), towerSec.hwPhi() ) ;
 
         secondaryCluster->setHwPtEm(towerSec.hwEtEm());
         secondaryCluster->setHwPtHad(towerSec.hwEtHad());
@@ -666,7 +666,7 @@ std::vector<l1t::CaloCluster*> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSe
         if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SS)) secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadSS);
 
         // save this cluster in the vector
-        secClusters.push_back (secondaryCluster);
+        secClusters.emplace_back (std::move(secondaryCluster));
     }
     return secClusters;
 }

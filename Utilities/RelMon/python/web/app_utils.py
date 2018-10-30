@@ -6,6 +6,7 @@ Helper functions for CherryPy application ``browse_db.py``.
 Author:  Albertas Gimbutas,  Vilnius University (LT)
 e-mail:  albertasgim@gmail.com
 '''
+from __future__ import print_function
 
 import sqlite3
 import re
@@ -224,7 +225,7 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
 
     ## Select Summary Barchart, Detailed Barchart
     for folder in folders:
-        print folder
+        print(folder)
     #   detailed_ratios: (name, success_ratio)
     #   summary_ratios: (name, success_ratio)
 

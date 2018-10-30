@@ -14,7 +14,7 @@
 
 //-----------------------
 // This Class's Header --
-//----------------------- 
+//-----------------------
 #include "CSCTriggerPrimitivesReader.h"
 
 //-------------------------------
@@ -77,8 +77,6 @@ const int CSCTriggerPrimitivesReader::MAX_WG[CSC_TYPES] = {
    48,  64,  32,  48, 112,  64,  96,  64,  96,  64};//max. number of wiregroups
 const int CSCTriggerPrimitivesReader::MAX_HS[CSC_TYPES] = {
   128, 160, 128,  96, 160, 160, 160, 160, 160, 160}; // max. # of halfstrips
-const int CSCTriggerPrimitivesReader::ptype[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07]= {
-  -999,  3, -3,  2, -2,  1, -1,  0};  // "signed" pattern (== phiBend)
 const int CSCTriggerPrimitivesReader::ptype_TMB07[CSCConstants::NUM_CLCT_PATTERNS]= {
   -999,  -5,  4, -4,  3, -3,  2, -2,  1, -1,  0}; // "signed" pattern (== phiBend)
 
@@ -116,8 +114,6 @@ CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& 
   printps = conf.getParameter<bool>("printps");
   dataLctsIn_ = conf.getParameter<bool>("dataLctsIn");
   emulLctsIn_ = conf.getParameter<bool>("emulLctsIn");
-  isMTCCData_ = conf.getParameter<bool>("isMTCCData");
-  isTMB07 = true;
   plotME1A = true;
   plotME42 = true;
   lctProducerData_ = conf.getUntrackedParameter<string>("CSCLCTProducerData",
@@ -141,13 +137,13 @@ CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& 
   clcts_e_token_    = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerEmul_));
   lcts_tmb_e_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerEmul_));
   lcts_mpc_e_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerEmul_, "MPCSORTED"));
- 
+
   consumesMany<edm::HepMCProduct>();
 
   resultsFileNamesPrefix_ = conf.getUntrackedParameter<string>("resultsFileNamesPrefix","");
-  
+
   checkBadChambers_ = conf.getUntrackedParameter<bool>("checkBadChambers",true);
-  
+
   debug = conf.getUntrackedParameter<bool>("debug", false);
 
   dataIsAnotherMC_ = conf.getUntrackedParameter<bool>("dataIsAnotherMC", false);
@@ -173,7 +169,7 @@ CSCTriggerPrimitivesReader::~CSCTriggerPrimitivesReader() {
 }
 
 
-int CSCTriggerPrimitivesReader::maxRing(int station) 
+int CSCTriggerPrimitivesReader::maxRing(int station)
 {
   if (station == 1) {
     if (plotME1A) return 4;
@@ -205,7 +201,7 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
     setup.get<CSCBadChambersRcd>().get(pBad);
     badChambers_ = pBad.product();
   }
-  
+
   // Get the collections of ALCTs, CLCTs, and correlated LCTs from event.
   edm::Handle<CSCALCTDigiCollection> alcts_data;
   edm::Handle<CSCCLCTDigiCollection> clcts_data;
@@ -221,9 +217,9 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
     //    ev.getByLabel(lctProducerData_,  alcts_data);
     //    ev.getByLabel(lctProducerData_,  clcts_data);
     //    ev.getByLabel(lctProducerData_,  lcts_tmb_data);
-    ev.getByToken(alcts_d_token_, alcts_data);  
-    ev.getByToken(clcts_d_token_, clcts_data);  
-    ev.getByToken(lcts_tmb_d_token_, lcts_tmb_data);  
+    ev.getByToken(alcts_d_token_, alcts_data);
+    ev.getByToken(clcts_d_token_, clcts_data);
+    ev.getByToken(lcts_tmb_d_token_, lcts_tmb_data);
 
     if (!alcts_data.isValid()) {
       edm::LogWarning("L1CSCTPEmulatorWrongInput")
@@ -252,10 +248,10 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
     //    ev.getByLabel(lctProducerEmul_,              clcts_emul);
     //    ev.getByLabel(lctProducerEmul_,              lcts_tmb_emul);
     //    ev.getByLabel(lctProducerEmul_, "MPCSORTED", lcts_mpc_emul);
-    ev.getByToken(alcts_e_token_, alcts_emul);  
-    ev.getByToken(clcts_e_token_, clcts_emul);  
-    ev.getByToken(lcts_tmb_e_token_, lcts_tmb_emul);  
-    ev.getByToken(lcts_mpc_e_token_, lcts_mpc_emul);  
+    ev.getByToken(alcts_e_token_, alcts_emul);
+    ev.getByToken(clcts_e_token_, clcts_emul);
+    ev.getByToken(lcts_tmb_e_token_, lcts_tmb_emul);
+    ev.getByToken(lcts_mpc_e_token_, lcts_mpc_emul);
 
     if (!alcts_emul.isValid()) {
       edm::LogWarning("L1CSCTPEmulatorWrongInput")
@@ -319,9 +315,9 @@ void CSCTriggerPrimitivesReader::endJob() {
     if (bookedCLCTHistos)   drawCLCTHistos();
     if (bookedLCTTMBHistos) drawLCTTMBHistos();
     if (bookedLCTMPCHistos) drawLCTMPCHistos();
-    
+
     if (bookedCompHistos)   drawCompHistos();
-    
+
     if (bookedResolHistos)  drawResolHistos();
     if (bookedEfficHistos)  drawEfficHistos();
   }
@@ -374,7 +370,7 @@ void CSCTriggerPrimitivesReader::endJob() {
 	double eff  = 0.;
 	if (simh > 0.) eff = clct/simh;
 	edm::LogInfo("CSCTriggerPrimitivesReader")
-	  << "    " << csc_type[idh] 
+	  << "    " << csc_type[idh]
 	  << ": clct = " << clct << ", simh = " << simh << " eff = " << eff;
 	tot_simh += simh;
 	tot_clct += clct;
@@ -473,7 +469,7 @@ void CSCTriggerPrimitivesReader::bookALCTHistos() {
   hAlctBXN       = fs->make<TH1F>("ALCT_bx", "ALCT bx",             20, -0.5,  19.5);
 
   hAlctKeyGroupME11 = fs->make<TH1F>("hAlctKeyGroupME11", "ALCT key wiregroup ME1/1", 50, -0.5, 49.5);
-  
+
   bookedALCTHistos = true;
 }
 
@@ -565,14 +561,14 @@ void CSCTriggerPrimitivesReader::bookLCTTMBHistos() {
     snprintf(histname, sizeof(histname), "LCT_CSCId, station %d", istat+1);
     hLctTMBChamber[istat] = fs->make<TH1F>("", histname,  10, -0.5, 9.5);
   }
-  
+
   hLctTMBKeyGroupME11  = fs->make<TH1F>("hLctTMBKeyGroupME11", "LCT key wiregroup ME1/1", 50, -0.5, 49.5);
   hLctTMBKeyStripME11  = fs->make<TH1F>("hLctTMBKeyStripME11", "LCT key strip ME1/1",	  161, -0.5, 160.5);
 
   bookedLCTTMBHistos = true;
 }
 
-int CSCTriggerPrimitivesReader::chamberIXi(CSCDetId id) {  
+int CSCTriggerPrimitivesReader::chamberIXi(CSCDetId id) {
   //    1/1 1/2 1/3 2/1 2/2 3/1 3/2 4/1 4/2 -1/1 -1/2 -1/3 -2/1 -2/2 -3/1 -3/2 -4/1 -4/2
   //ix= 0   1   2   3   4   5   6   7   8    9    10   11   12   13   14   15   16   17
   int ix=0;
@@ -581,7 +577,7 @@ int CSCTriggerPrimitivesReader::chamberIXi(CSCDetId id) {
     ix=(id.station()-2)*2+3;
   }
   ix+=id.ring()-1;
-  if(id.endcap()==2) { 
+  if(id.endcap()==2) {
     ix+=9;
   }
   return ix;
@@ -593,8 +589,8 @@ int CSCTriggerPrimitivesReader::chamberIX(CSCDetId id) {
     ix=(id.station()-2)*2+3+1;
   }
   ix+=id.ring()-1;
-  if(id.endcap()==2) { 
-    ix*=-1;    
+  if(id.endcap()==2) {
+    ix*=-1;
   }
   return ix;
 }
@@ -715,7 +711,7 @@ void CSCTriggerPrimitivesReader::bookCompHistos() {
   hAlctCompSameN2i = fs->make<TH2F>("h_ALCT_SameN2i","h_ALCT_SameN2i",18,0,18,36,0.5,36.5);
   hAlctCompMatch2i = fs->make<TH2F>("h_ALCT_match2i","h_ALCT_match2i",18,0,18,36,0.5,36.5);
   hAlctCompTotal2i = fs->make<TH2F>("h_ALCT_total2i","h_ALCT_total2i",18,0,18,36,0.5,36.5);
-  hClctCompFound2i = fs->make<TH2F>("h_CLCT_found2i","h_CLCT_found2i",18,0,18,36,0.5,36.5);  		   
+  hClctCompFound2i = fs->make<TH2F>("h_CLCT_found2i","h_CLCT_found2i",18,0,18,36,0.5,36.5);
   hClctCompSameN2i = fs->make<TH2F>("h_CLCT_SameN2i","h_CLCT_SameN2i",18,0,18,36,0.5,36.5);
   hClctCompMatch2i = fs->make<TH2F>("h_CLCT_match2i","h_CLCT_match2i",18,0,18,36,0.5,36.5);
   hClctCompTotal2i = fs->make<TH2F>("h_CLCT_total2i","h_CLCT_total2i",18,0,18,36,0.5,36.5);
@@ -884,11 +880,9 @@ void CSCTriggerPrimitivesReader::bookResolHistos() {
   }
 
   int max_patterns, phibend;
-  if (!isTMB07) max_patterns = CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07;
-  else          max_patterns = CSCConstants::NUM_CLCT_PATTERNS;
+  max_patterns = CSCConstants::NUM_CLCT_PATTERNS;
   for (int i = 0; i < max_patterns; i++) {
-    if (!isTMB07) phibend = ptype[i];
-    else          phibend = ptype_TMB07[i];
+    phibend = ptype_TMB07[i];
     snprintf(histname, sizeof(histname), "#phi_rec-#phi_sim, bend = %d", phibend);
     hPhiDiffPattern[i] = fs->make<TH1F>("", histname, 100, PDMIN, PDMAX);
   }
@@ -1006,11 +1000,10 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
 	hClctCsc[id.endcap()-1][csctype]->Fill(id.chamber());
 
 	if (striptype==1 && csctype==0) hClctKeyStripME11->Fill(keystrip);
-	
+
 	int phibend;
 	int pattern = (*digiIt).getPattern();
-	if (!isTMB07) phibend = ptype[pattern];
-	else          phibend = ptype_TMB07[pattern];
+	phibend = ptype_TMB07[pattern];
 	hClctBendCsc[csctype][striptype]->Fill(abs(phibend));
 
 	if (striptype == 0) // distrips
@@ -1063,24 +1056,16 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
         hLctTMBQuality->Fill(quality);
         hLctTMBBXN->Fill((*digiIt).getBX());
 
-	if (isTMB07) alct_valid = (quality != 0 && quality != 2);
-	else         alct_valid = (quality != 4 && quality != 5);
+	alct_valid = (quality != 0 && quality != 2);
 	if (alct_valid) {
 	  hLctTMBKeyGroup->Fill((*digiIt).getKeyWG());
 	}
 
-	if (isTMB07) clct_valid = (quality != 0 && quality != 1);
-	else         clct_valid = (quality != 1 && quality != 3);
+	clct_valid = (quality != 0 && quality != 1);
 	if (clct_valid) {
 	  hLctTMBKeyStrip->Fill((*digiIt).getStrip());
-	  if (!isTMB07) {
-	    hLctTMBStripType->Fill((*digiIt).getStripType());
-	    hLctTMBPattern->Fill((*digiIt).getCLCTPattern());
-	  }
-	  else {
-	    hLctTMBStripType->Fill(1.);
-	    hLctTMBPattern->Fill((*digiIt).getPattern());
-	  }
+    hLctTMBStripType->Fill(1.);
+    hLctTMBPattern->Fill((*digiIt).getPattern());
 	  hLctTMBBend->Fill((*digiIt).getBend());
 	}
 
@@ -1088,7 +1073,7 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
 	hLctTMBPerCSC->Fill(csctype);
 	hLctTMBCsc[id.endcap()-1][csctype]->Fill(id.chamber());
 	// Truly correlated LCTs; for DAQ
-	if (alct_valid && clct_valid) hCorrLctTMBPerCSC->Fill(csctype); 
+	if (alct_valid && clct_valid) hCorrLctTMBPerCSC->Fill(csctype);
 
         if (alct_valid && csctype==0) {
           hLctTMBKeyGroupME11->Fill((*digiIt).getKeyWG());
@@ -1143,31 +1128,23 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
         hLctMPCQuality->Fill(quality);
         hLctMPCBXN->Fill((*digiIt).getBX());
 
-	if (isTMB07) alct_valid = (quality != 0 && quality != 2);
-	else         alct_valid = (quality != 4 && quality != 5);
+	alct_valid = (quality != 0 && quality != 2);
 	if (alct_valid) {
 	  hLctMPCKeyGroup->Fill((*digiIt).getKeyWG());
 	}
 
-	if (isTMB07) clct_valid = (quality != 0 && quality != 1);
-	else         clct_valid = (quality != 1 && quality != 3);
+	clct_valid = (quality != 0 && quality != 1);
 	if (clct_valid) {
 	  hLctMPCKeyStrip->Fill((*digiIt).getStrip());
-	  if (!isTMB07) {
-	    hLctMPCStripType->Fill((*digiIt).getStripType());
-	    hLctMPCPattern->Fill((*digiIt).getCLCTPattern());
-	  }
-	  else {
-	    hLctMPCStripType->Fill(1.);
-	    hLctMPCPattern->Fill((*digiIt).getPattern());
-	  }
+    hLctMPCStripType->Fill(1.);
+    hLctMPCPattern->Fill((*digiIt).getPattern());
 	  hLctMPCBend->Fill((*digiIt).getBend());
 	}
 
 	int csctype = getCSCType(id);
 	hLctMPCPerCSC->Fill(csctype);
 	// Truly correlated LCTs; for DAQ
-	if (alct_valid && clct_valid) hCorrLctMPCPerCSC->Fill(csctype); 
+	if (alct_valid && clct_valid) hCorrLctMPCPerCSC->Fill(csctype);
 
 
   if (alct_valid && csctype==0) {
@@ -1213,13 +1190,8 @@ void CSCTriggerPrimitivesReader::compare(
 
 void CSCTriggerPrimitivesReader::compareALCTs(
                                  const CSCALCTDigiCollection* alcts_data,
-				 const CSCALCTDigiCollection* alcts_emul) {
+                                 const CSCALCTDigiCollection* alcts_emul) {
   int emul_corr_bx;
-
-  // (Empirical) offset between 12-bit fullBX and Tbin0 of raw anode hits.
-  //int tbin_anode_offset = 4; // 2007, starting with run 539.
-  int tbin_anode_offset = 5; // 2007, run 14419.
-  if (isMTCCData_) tbin_anode_offset = 10; // MTCC-II. Why not 6???
 
   // Should be taken from config. parameters.
   int fifo_pretrig     = 10;
@@ -1284,12 +1256,8 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	      for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
 		if ((*pd).getTrknmb() == (*pe).getTrknmb()) {
 		  int emul_bx = (*pe).getBX();
-		  if (!isTMB07)
-		    emul_corr_bx =
-		      ((*pd).getFullBX() + emul_bx - tbin_anode_offset) & 0x1f;
-		  else
-		    emul_corr_bx =
-		      emul_bx - rawhit_tbin_offset + register_delay;
+      emul_corr_bx =
+        emul_bx - rawhit_tbin_offset + register_delay;
 		  strstrm << " Corr BX = " << emul_corr_bx;
 		  break;
 		}
@@ -1309,7 +1277,7 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	  //		 detid.station(),detid.ring(),detid.chamber(),ix);
 	  if(detid.station()>1 && detid.ring()==1) {
 	    hAlctCompFound2x->Fill(ix,detid.chamber()*2);
-	  }	   
+	  }
 	  else {
 	    hAlctCompFound2->Fill(ix,detid.chamber());
 	  }
@@ -1327,7 +1295,7 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	    hAlctCompSameNCsc[endc-1][csctype]->Fill(cham);
 	    if(detid.station()>1 && detid.ring()==1) {
 	      hAlctCompSameN2x->Fill(ix,detid.chamber()*2);
-	    }	   
+	    }
 	    else {
 	      hAlctCompSameN2->Fill(ix,detid.chamber());
 	    }
@@ -1342,7 +1310,6 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	    int data_collB     = alctV_data[i].getCollisionB();
 	    int data_wiregroup = alctV_data[i].getKeyWG();
 	    int data_bx        = alctV_data[i].getBX();
-	    int fullBX = alctV_data[i].getFullBX(); // full 12-bit BX
 
 	    if (i < nemul) {
 	      if (alctV_emul[i].isValid() == 0) continue;
@@ -1354,53 +1321,50 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	      int emul_bx        = alctV_emul[i].getBX();
 
 	      // Emulator BX re-calculated for comparison with BX in the data.
-	      if (!isTMB07)
-		emul_corr_bx = (fullBX + emul_bx - tbin_anode_offset) & 0x1f;
-	      else
-		emul_corr_bx = emul_bx - rawhit_tbin_offset + register_delay;
-              if (dataIsAnotherMC_)
-                emul_corr_bx = emul_bx;
+        emul_corr_bx = emul_bx - rawhit_tbin_offset + register_delay;
+        if (dataIsAnotherMC_)
+          emul_corr_bx = emul_bx;
 	      if (ndata == nemul) {
-		hAlctCompTotal->Fill(mychamber);
-		hAlctCompTotalCsc[endc-1][csctype]->Fill(cham);
-		if(detid.station()>1 && detid.ring()==1) {
-		  hAlctCompTotal2x->Fill(ix,detid.chamber()*2);
-		}	   
-		else {
-		  hAlctCompTotal2->Fill(ix,detid.chamber());
-		}
-                hAlctCompTotal2i->Fill(ix2,detid.chamber());
+          hAlctCompTotal->Fill(mychamber);
+          hAlctCompTotalCsc[endc-1][csctype]->Fill(cham);
+          if(detid.station()>1 && detid.ring()==1) {
+            hAlctCompTotal2x->Fill(ix,detid.chamber()*2);
+          }
+          else {
+            hAlctCompTotal2->Fill(ix,detid.chamber());
+          }
+          hAlctCompTotal2i->Fill(ix2,detid.chamber());
 	      }
 	      if (data_trknmb    == emul_trknmb    &&
-		  data_quality   == emul_quality   &&
-		  data_accel     == emul_accel     &&
-		  data_collB     == emul_collB     &&
-		  data_wiregroup == emul_wiregroup &&
-		  data_bx        == emul_corr_bx) {
-		if (ndata == nemul) {
-		  hAlctCompMatchCsc[endc-1][csctype]->Fill(cham);
-		  hAlctCompMatch->Fill(mychamber);
-		  if(detid.station()>1 && detid.ring()==1) {
-		    hAlctCompMatch2x->Fill(ix,detid.chamber()*2);
-		  }	   
-		  else {
+            data_quality   == emul_quality   &&
+            data_accel     == emul_accel     &&
+            data_collB     == emul_collB     &&
+            data_wiregroup == emul_wiregroup &&
+            data_bx        == emul_corr_bx) {
+          if (ndata == nemul) {
+            hAlctCompMatchCsc[endc-1][csctype]->Fill(cham);
+            hAlctCompMatch->Fill(mychamber);
+            if(detid.station()>1 && detid.ring()==1) {
+              hAlctCompMatch2x->Fill(ix,detid.chamber()*2);
+            }
+            else {
 		    hAlctCompMatch2->Fill(ix,detid.chamber());
-		  }
-		  hAlctCompMatch2i->Fill(ix2,detid.chamber());
-		}
-		if (debug) LogTrace("CSCTriggerPrimitivesReader")
-		  << "       Identical ALCTs #" << data_trknmb;
+            }
+            hAlctCompMatch2i->Fill(ix2,detid.chamber());
+          }
+          if (debug) LogTrace("CSCTriggerPrimitivesReader")
+                       << "       Identical ALCTs #" << data_trknmb;
 	      }
 	      else {
-		//LogTrace("CSCTriggerPrimitivesReader")
-    cerr
-		  << "       Different ALCTs #" << data_trknmb << " in ME"
-		  << ((endc == 1) ? "+" : "-") << stat << "/"
-		  << ring << "/" << cham;
+          //LogTrace("CSCTriggerPrimitivesReader")
+          cerr
+            << "       Different ALCTs #" << data_trknmb << " in ME"
+            << ((endc == 1) ? "+" : "-") << stat << "/"
+            << ring << "/" << cham;
 	      }
 	    }
 	  }
-	}
+        }
       }
     }
   }
@@ -1479,7 +1443,7 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 	  int ix2 = chamberIXi(detid);
 	  if(detid.station()>1 && detid.ring()==1) {
 	    hClctCompFound2x->Fill(ix,detid.chamber()*2);
-	  }	   
+	  }
 	  else {
 	    hClctCompFound2->Fill(ix,detid.chamber());
 	  }
@@ -1496,7 +1460,7 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 	    hClctCompSameNCsc[endc-1][csctype]->Fill(cham);
 	    if(detid.station()>1 && detid.ring()==1) {
 	      hClctCompSameN2x->Fill(ix,detid.chamber()*2);
-	    }	   
+	    }
 	    else {
 	      hClctCompSameN2->Fill(ix,detid.chamber());
 	    }
@@ -1527,55 +1491,54 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 	      int emul_bx        = (*pe).getBX();
 
 	      if (data_trknmb == emul_trknmb) {
-		// Emulator BX re-calculated using 12-bit full BX number.
-		// Used for comparison with BX in the data.
-		int emul_corr_bx =
-		  (fullBX + emul_bx - tbin_cathode_offset) & 0x03;
-                if (dataIsAnotherMC_)
-                    emul_corr_bx = emul_bx;
-		if (ndata == nemul) {
-		  hClctCompTotalCsc[endc-1][csctype]->Fill(cham);
-		  if(detid.station()>1 && detid.ring()==1) {
-		    hClctCompTotal2x->Fill(ix,detid.chamber()*2);
-		  }	   
-		  else {
-		    hClctCompTotal2->Fill(ix,detid.chamber());
-		  }
-		  hClctCompTotal2i->Fill(ix2,detid.chamber());
-		}
-		if (data_quality   == emul_quality   &&
-		    data_pattern   == emul_pattern   &&
-		    data_striptype == emul_striptype &&
-		    data_bend      == emul_bend      &&
-		    data_keystrip  == emul_keystrip  &&
-		    data_cfeb      == emul_cfeb      &&
-		    // BX comparison cannot be performed for MTCC data.
-		    (isMTCCData_ || (data_bx == emul_corr_bx))) {
-		  if (ndata == nemul) {
-		    hClctCompMatchCsc[endc-1][csctype]->Fill(cham);
-		    if(detid.station()>1 && detid.ring()==1) {
-		      hClctCompMatch2x->Fill(ix,detid.chamber()*2);
-		    }	   
-		    else {
-		      hClctCompMatch2->Fill(ix,detid.chamber());
-		    }
-		    hClctCompMatch2i->Fill(ix2,detid.chamber());
-		  }
-		  if (debug) LogTrace("CSCTriggerPrimitivesReader")
-		    << "       Identical CLCTs #" << data_trknmb;
-		}
-		else {
-		  //LogTrace("CSCTriggerPrimitivesReader")
-      cerr
-		    << "       Different CLCTs #" << data_trknmb << " in ME"
-		    << ((endc == 1) ? "+" : "-") << stat << "/"
-		    << ring << "/" << cham;
-		}
-		break;
+          // Emulator BX re-calculated using 12-bit full BX number.
+          // Used for comparison with BX in the data.
+          int emul_corr_bx =
+            (fullBX + emul_bx - tbin_cathode_offset) & 0x03;
+          if (dataIsAnotherMC_)
+            emul_corr_bx = emul_bx;
+          if (ndata == nemul) {
+            hClctCompTotalCsc[endc-1][csctype]->Fill(cham);
+            if(detid.station()>1 && detid.ring()==1) {
+              hClctCompTotal2x->Fill(ix,detid.chamber()*2);
+            }
+            else {
+              hClctCompTotal2->Fill(ix,detid.chamber());
+            }
+            hClctCompTotal2i->Fill(ix2,detid.chamber());
+          }
+          if (data_quality   == emul_quality   &&
+              data_pattern   == emul_pattern   &&
+              data_striptype == emul_striptype &&
+              data_bend      == emul_bend      &&
+              data_keystrip  == emul_keystrip  &&
+              data_cfeb      == emul_cfeb      &&
+              data_bx        == emul_corr_bx) {
+            if (ndata == nemul) {
+              hClctCompMatchCsc[endc-1][csctype]->Fill(cham);
+              if(detid.station()>1 && detid.ring()==1) {
+                hClctCompMatch2x->Fill(ix,detid.chamber()*2);
+              }
+              else {
+                hClctCompMatch2->Fill(ix,detid.chamber());
+              }
+              hClctCompMatch2i->Fill(ix2,detid.chamber());
+            }
+            if (debug) LogTrace("CSCTriggerPrimitivesReader")
+                         << "       Identical CLCTs #" << data_trknmb;
+          }
+          else {
+            //LogTrace("CSCTriggerPrimitivesReader")
+            cerr
+              << "       Different CLCTs #" << data_trknmb << " in ME"
+              << ((endc == 1) ? "+" : "-") << stat << "/"
+              << ring << "/" << cham;
+          }
+          break;
 	      }
 	    }
 	  }
-	}
+        }
       }
     }
   }
@@ -1637,11 +1600,9 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 	    for (pe = lctV_emul.begin(); pe != lctV_emul.end(); pe++) {
 	      strstrm << "     " << (*pe);
 	      strstrm << "    corr BX = "
-		      << convertBXofLCT((*pe).getBX(), detid,
-					alcts_data, clcts_data);
-	      if (isTMB07) {
-		strstrm << " LCT pattern = " << (*pe).getPattern();
-	      }
+                << convertBXofLCT((*pe).getBX(), detid,
+                            alcts_data, clcts_data);
+        strstrm << " LCT pattern = " << (*pe).getPattern();
 	      strstrm << "\n";
 
 	    }
@@ -1654,7 +1615,7 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 	  int ix2 = chamberIXi(detid);
 	  if(detid.station()>1 && detid.ring()==1) {
 	    hLCTCompFound2x->Fill(ix,detid.chamber()*2);
-	  }	   
+	  }
 	  else {
 	    hLCTCompFound2->Fill(ix,detid.chamber());
 	  }
@@ -1671,7 +1632,7 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 	    hLctCompSameNCsc[endc-1][csctype]->Fill(cham);
 	    if(detid.station()>1 && detid.ring()==1) {
 	      hLCTCompSameN2x->Fill(ix,detid.chamber()*2);
-	    }	   
+	    }
 	    else {
 	      hLCTCompSameN2->Fill(ix,detid.chamber());
 	    }
@@ -1711,7 +1672,7 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 		  hLctCompTotalCsc[endc-1][csctype]->Fill(cham);
 		  if(detid.station()>1 && detid.ring()==1) {
 		    hLCTCompTotal2x->Fill(ix,detid.chamber()*2);
-		  }	   
+		  }
 		  else {
 		    hLCTCompTotal2->Fill(ix,detid.chamber());
 		  }
@@ -1728,7 +1689,7 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 		    hLctCompMatchCsc[endc-1][csctype]->Fill(cham);
 		    if(detid.station()>1 && detid.ring()==1) {
 		      hLCTCompMatch2x->Fill(ix,detid.chamber()*2);
-		    }	   
+		    }
 		    else {
 		      hLCTCompMatch2->Fill(ix,detid.chamber());
 		    }
@@ -1756,13 +1717,12 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 
 int CSCTriggerPrimitivesReader::convertBXofLCT(
                              const int emul_bx, const CSCDetId& detid,
-			     const CSCALCTDigiCollection* alcts_data,
-			     const CSCCLCTDigiCollection* clcts_data) {
+                             const CSCALCTDigiCollection* alcts_data,
+                             const CSCCLCTDigiCollection* clcts_data) {
   int full_anode_bx = -999;
   //int full_cathode_bx = -999;
   int lct_bx = -999;
   int tbin_anode_offset = 5; // 2007, run 14419.
-  if (isMTCCData_) tbin_anode_offset = 10; // MTCC-II.  Why not 6???
 
   // Extract full 12-bit anode BX word from ALCT collections.
   const CSCALCTDigiCollection::Range& arange = alcts_data->get(detid);
@@ -1809,7 +1769,7 @@ void CSCTriggerPrimitivesReader::HotWires(const edm::Event& iEvent) {
   if (!bookedHotWireHistos) bookHotWireHistos();
   edm::Handle<CSCWireDigiCollection> wires;
   //  iEvent.getByLabel(wireDigiProducer_.label(), wireDigiProducer_.instance(), wires);
-  iEvent.getByToken(wireDigi_token_, wires);  
+  iEvent.getByToken(wireDigi_token_, wires);
 
   int serial_old=-1;
   for (CSCWireDigiCollection::DigiRangeIterator dWDiter=wires->begin(); dWDiter!=wires->end(); dWDiter++) {
@@ -1865,7 +1825,7 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
       int id = (*p)->pdg_id();
       double phitmp = (*p)->momentum().phi();
       if (phitmp < 0) phitmp += 2.*M_PI;
-      if (debug) LogDebug("CSCTriggerPrimitivesReader") 
+      if (debug) LogDebug("CSCTriggerPrimitivesReader")
 	<< "MC part #" << ++i << ": id = "  << id
 	<< ", status = " << (*p)->status()
 	<< "\n   pX = " << (*p)->momentum().x()
@@ -1991,8 +1951,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
   }
 
   // CLCT resolution
-  static const int key_layer = isTMB07 ?
-    CSCConstants::KEY_CLCT_LAYER : CSCConstants::KEY_CLCT_LAYER_PRE_TMB07;
+  static const int key_layer = CSCConstants::KEY_CLCT_LAYER;
   CSCCathodeLCTAnalyzer clct_analyzer;
   clct_analyzer.setGeometry(geom_);
   CSCCLCTDigiCollection::DigiRangeIterator cdetUnitIt;
@@ -2424,46 +2383,16 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
-  if (!isTMB07) pad[page]->Divide(2,3);
-  else          pad[page]->Divide(2,4);
+  pad[page]->Divide(2,4);
   pad[page]->cd(1);  hClctValid->Draw();
   pad[page]->cd(2);  hClctQuality->Draw();
   pad[page]->cd(3);  hClctSign->Draw();
-  if (!isTMB07) {
-    TH1F* hClctPatternTot = (TH1F*)hClctPattern[0]->Clone();
-    hClctPatternTot->SetTitle("CLCT pattern #");
-    hClctPatternTot->Add(hClctPattern[0], hClctPattern[1], 1., 1.);
-    pad[page]->cd(4);  hClctPatternTot->Draw(); 
-    hClctPattern[0]->SetLineStyle(2);
-    hClctPattern[1]->SetLineStyle(3);
-  }
-  else {
-    hClctPattern[1]->SetTitle("CLCT pattern #");
-    pad[page]->cd(4);  hClctPattern[1]->Draw(); 
-  }
+  hClctPattern[1]->SetTitle("CLCT pattern #");
+  pad[page]->cd(4);  hClctPattern[1]->Draw();
   pad[page]->cd(5);  hClctCFEB->Draw();
-  if (!isTMB07) { 
-    pad[page]->cd(6);  hClctBXN->Draw();
-  }
-  else {
-    pad[page]->cd(7);  hClctKeyStrip[1]->Draw();
-    pad[page]->cd(8);  hClctBXN->Draw();
-  }
+  pad[page]->cd(7);  hClctKeyStrip[1]->Draw();
+  pad[page]->cd(8);  hClctBXN->Draw();
   page++;  c1->Update();
-
-  if (!isTMB07) {
-    ps->NewPage();
-    c1->Clear();  c1->cd(0);
-    title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "CLCT quantities");
-    title->SetFillColor(10);  title->Draw();
-    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-    pad[page]->Draw();
-    pad[page]->Divide(1,3);
-    pad[page]->cd(1);  hClctStripType->Draw();
-    pad[page]->cd(2);  hClctKeyStrip[0]->Draw();
-    pad[page]->cd(3);  hClctKeyStrip[1]->Draw(); 
-    page++;  c1->Update();
-  }
 
   ps->NewPage();
   c1->Clear();  c1->cd(0);
@@ -2479,46 +2408,10 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
     pad[page]->cd(idh+1);
     hClctBendCsc[idh][1]->GetXaxis()->SetTitle("Pattern bend");
     hClctBendCsc[idh][1]->GetYaxis()->SetTitle("Number of LCTs");
-    hClctBendCsc[idh][1]->Draw();   
+    hClctBendCsc[idh][1]->Draw();
   }
   page++;  c1->Update();
 
-  if (!isTMB07) {
-    ps->NewPage();
-    c1->Clear();  c1->cd(0);
-    title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
-			   "CLCT bend for various chamber types, distrips");
-    title->SetFillColor(10);  title->Draw();
-    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-    pad[page]->Draw();
-    pad[page]->Divide(2,5);
-    for (int idh = 0; idh < max_idh; idh++) {
-      if (!plotME1A && idh == 3) continue;
-      pad[page]->cd(idh+1);
-      hClctBendCsc[idh][0]->GetXaxis()->SetTitle("Pattern bend");
-      hClctBendCsc[idh][0]->GetYaxis()->SetTitle("Number of LCTs");
-      hClctBendCsc[idh][0]->Draw();    
-    }
-    page++;  c1->Update();
-
-    ps->NewPage();
-    c1->Clear();  c1->cd(0);
-    title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
-			   "CLCT keystrip, distrip patterns only");
-    title->SetFillColor(10);  title->Draw();
-    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-    pad[page]->Draw();
-    pad[page]->Divide(2,5);
-    for (int idh = 0; idh < max_idh; idh++) {
-      if (!plotME1A && idh == 3) continue;
-      pad[page]->cd(idh+1);
-      hClctKeyStripCsc[idh]->GetXaxis()->SetTitle("Key distrip");
-      hClctKeyStripCsc[idh]->GetXaxis()->SetTitleOffset(1.2);
-      hClctKeyStripCsc[idh]->GetYaxis()->SetTitle("Number of LCTs");
-      hClctKeyStripCsc[idh]->Draw();    
-    }
-    page++;  c1->Update();
-  }
   ps->Close();
   delete c1;
 }
@@ -2550,7 +2443,7 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   pad[page]->Divide(2,2);
-  pad[page]->cd(1);  hLctTMBPerEvent->Draw(); 
+  pad[page]->cd(1);  hLctTMBPerEvent->Draw();
   pad[page]->cd(2);  hLctTMBPerChamber->Draw();
   c1->Update();
   for (int i = 0; i < CSC_TYPES; i++) {
@@ -2558,7 +2451,7 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
     hCorrLctTMBPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
   }
   // Should be multiplied by 40/nevents to convert to MHz
-  pad[page]->cd(3);  hLctTMBPerCSC->Draw(); 
+  pad[page]->cd(3);  hLctTMBPerCSC->Draw();
   pad[page]->cd(4);  hCorrLctTMBPerCSC->Draw();
   gStyle->SetOptStat(1110);
   page++;  c1->Update();
@@ -2571,12 +2464,12 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   gStyle->SetOptStat(110110);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
-  pad[page]->cd(1);  hLctTMBEndcap->Draw(); 
+  pad[page]->cd(1);  hLctTMBEndcap->Draw();
   pad[page]->cd(2);  hLctTMBStation->Draw();
-  pad[page]->cd(3);  hLctTMBSector->Draw(); 
-  pad[page]->cd(4);  hLctTMBRing->Draw(); 
+  pad[page]->cd(3);  hLctTMBSector->Draw();
+  pad[page]->cd(4);  hLctTMBRing->Draw();
   for (int istat = 0; istat < MAX_STATIONS; istat++) {
-    pad[page]->cd(istat+5);  hLctTMBChamber[istat]->Draw(); 
+    pad[page]->cd(istat+5);  hLctTMBChamber[istat]->Draw();
   }
   page++;  c1->Update();
 
@@ -2606,12 +2499,12 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   gStyle->SetOptStat(110110);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
-  pad[page]->cd(1);  hLctTMBValid->Draw(); 
+  pad[page]->cd(1);  hLctTMBValid->Draw();
   pad[page]->cd(2);  hLctTMBQuality->Draw();
-  pad[page]->cd(3);  hLctTMBKeyGroup->Draw(); 
+  pad[page]->cd(3);  hLctTMBKeyGroup->Draw();
   pad[page]->cd(4);  hLctTMBKeyStrip->Draw();
   pad[page]->cd(5);  hLctTMBStripType->Draw();
-  pad[page]->cd(6);  hLctTMBPattern->Draw(); 
+  pad[page]->cd(6);  hLctTMBPattern->Draw();
   pad[page]->cd(7);  hLctTMBBend->Draw();
   pad[page]->cd(8);  hLctTMBBXN->Draw();
   page++;  c1->Update();
@@ -2645,13 +2538,13 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   pad[page]->Divide(1,3);
-  pad[page]->cd(1);  hLctMPCPerEvent->Draw(); 
+  pad[page]->cd(1);  hLctMPCPerEvent->Draw();
   for (int i = 0; i < CSC_TYPES; i++) {
     hLctMPCPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
     hCorrLctMPCPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
   }
   // Should be multiplied by 40/nevents to convert to MHz
-  pad[page]->cd(2);  hLctMPCPerCSC->Draw(); 
+  pad[page]->cd(2);  hLctMPCPerCSC->Draw();
   pad[page]->cd(3);  hCorrLctMPCPerCSC->Draw();
   page++;  c1->Update();
 
@@ -2666,7 +2559,7 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   pad[page]->cd(1);  hLctMPCEndcap->Draw();
   pad[page]->cd(2);  hLctMPCStation->Draw();
   pad[page]->cd(3);  hLctMPCSector->Draw();
-  pad[page]->cd(4);  hLctMPCRing->Draw(); 
+  pad[page]->cd(4);  hLctMPCRing->Draw();
   for (int istat = 0; istat < MAX_STATIONS; istat++) {
     pad[page]->cd(istat+5);  hLctMPCChamber[istat]->Draw();
   }
@@ -2679,14 +2572,14 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
-  pad[page]->cd(1);  hLctMPCValid->Draw(); 
+  pad[page]->cd(1);  hLctMPCValid->Draw();
   pad[page]->cd(2);  hLctMPCQuality->Draw();
   pad[page]->cd(3);  hLctMPCKeyGroup->Draw();
   pad[page]->cd(4);  hLctMPCKeyStrip->Draw();
   pad[page]->cd(5);  hLctMPCStripType->Draw();
-  pad[page]->cd(6);  hLctMPCPattern->Draw(); 
-  pad[page]->cd(7);  hLctMPCBend->Draw(); 
-  pad[page]->cd(8);  hLctMPCBXN->Draw(); 
+  pad[page]->cd(6);  hLctMPCPattern->Draw();
+  pad[page]->cd(7);  hLctMPCBend->Draw();
+  pad[page]->cd(8);  hLctMPCBXN->Draw();
   page++;  c1->Update();
 
   ps->Close();
@@ -2807,7 +2700,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
       hAlctMatchEffVsCsc[endc][idh]->GetYaxis()->SetTitleSize(0.07);
       hAlctMatchEffVsCsc[endc][idh]->GetXaxis()->SetTitle("CSC id");
       hAlctMatchEffVsCsc[endc][idh]->GetYaxis()->SetTitle("% of exact match");
-      pad[page]->cd(idh+1);  hAlctMatchEffVsCsc[endc][idh]->Draw("e"); 
+      pad[page]->cd(idh+1);  hAlctMatchEffVsCsc[endc][idh]->Draw("e");
       double numer = hAlctCompMatchCsc[endc][idh]->Integral();
       double denom = hAlctCompTotalCsc[endc][idh]->Integral();
       double ratio = 0.0, error = 0.0;
@@ -2859,7 +2752,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
       hClctFoundEffVsCsc[endc][idh]->GetYaxis()->SetTitleSize(0.07);
       hClctFoundEffVsCsc[endc][idh]->GetXaxis()->SetTitle("CSC id");
       hClctFoundEffVsCsc[endc][idh]->GetYaxis()->SetTitle("% of same number found");
-      pad[page]->cd(idh+1);  hClctFoundEffVsCsc[endc][idh]->Draw("e"); 
+      pad[page]->cd(idh+1);  hClctFoundEffVsCsc[endc][idh]->Draw("e");
       double numer = hClctCompSameNCsc[endc][idh]->Integral();
       double denom = hClctCompFoundCsc[endc][idh]->Integral();
       double ratio = 0.0, error = 0.0;
@@ -2962,7 +2855,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
       hLctFoundEffVsCsc[endc][idh]->GetYaxis()->SetTitleSize(0.07);
       hLctFoundEffVsCsc[endc][idh]->GetXaxis()->SetTitle("CSC id");
       hLctFoundEffVsCsc[endc][idh]->GetYaxis()->SetTitle("% of same number found");
-      pad[page]->cd(idh+1);  hLctFoundEffVsCsc[endc][idh]->Draw("e"); 
+      pad[page]->cd(idh+1);  hLctFoundEffVsCsc[endc][idh]->Draw("e");
       double numer = hLctCompSameNCsc[endc][idh]->Integral();
       double denom = hLctCompFoundCsc[endc][idh]->Integral();
       double ratio = 0.0, error = 0.0;
@@ -3013,7 +2906,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
       hLctMatchEffVsCsc[endc][idh]->GetYaxis()->SetTitleSize(0.07);
       hLctMatchEffVsCsc[endc][idh]->GetXaxis()->SetTitle("CSC id");
       hLctMatchEffVsCsc[endc][idh]->GetYaxis()->SetTitle("% of exact match");
-      pad[page]->cd(idh+1);  hLctMatchEffVsCsc[endc][idh]->Draw("e"); 
+      pad[page]->cd(idh+1);  hLctMatchEffVsCsc[endc][idh]->Draw("e");
       double numer = hLctCompMatchCsc[endc][idh]->Integral();
       double denom = hLctCompTotalCsc[endc][idh]->Integral();
       double ratio = 0.0, error = 0.0;
@@ -3215,7 +3108,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   page++;  c1->Update();
 
   /* Old histos, separately for halfstrips and distrips */
-  /* 
+  /*
   ps->NewPage();
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
@@ -3339,7 +3232,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   page++;  c1->Update();
 
   /* Old histos for distrips */
-  /* 
+  /*
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
 			 "#phi_rec-#phi_sim (mrad) vs distrip #");
@@ -3369,14 +3262,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   pad[page]->Draw();
   pad[page]->Divide(3,3);
   int min_pattern, max_pattern;
-  if (!isTMB07) {
-    min_pattern = 0;
-    max_pattern = CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07;
-  }
-  else {
-    min_pattern = 2;
-    max_pattern = CSCConstants::NUM_CLCT_PATTERNS;
-  }
+  min_pattern = 2;
+  max_pattern = CSCConstants::NUM_CLCT_PATTERNS;
   for (int idh = min_pattern; idh < max_pattern; idh++) {
     hPhiDiffPattern[idh]->GetXaxis()->SetTitle("Halfstrip");
     hPhiDiffPattern[idh]->GetXaxis()->SetTitleOffset(1.2);
@@ -3425,7 +3312,7 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
   char pagenum[16];
   TPaveLabel *title;
   char histtitle[60];
-  
+
   gStyle->SetOptDate(0);
   gStyle->SetTitleSize(0.1, "");   // size for pad title; default is 0.02
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
@@ -111,8 +112,8 @@ process.ttHFGenFilter = ttHFGenFilter.clone(
     genParticles = genParticleCollection,
     taggingMode  = cms.bool(True),
 )
-print "If taggingMode is set to true, the filter will write a branch into the tree instead of filtering the events"
-print "taggingMode is set to ", process.ttHFGenFilter.taggingMode
+print("If taggingMode is set to true, the filter will write a branch into the tree instead of filtering the events")
+print("taggingMode is set to ", process.ttHFGenFilter.taggingMode)
 
 
 

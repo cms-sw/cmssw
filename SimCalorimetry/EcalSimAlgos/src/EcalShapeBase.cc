@@ -2,26 +2,27 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cmath>
-#include <iostream>
-#include <fstream>
 #include <algorithm>
 
-const double EcalShapeBase::qNSecPerBin = 1./(1.*kNBinsPerNSec) ;
+#include <iostream>
 
 EcalShapeBase::~EcalShapeBase()
 {
-   delete m_derivPtr ;
 }
 
-EcalShapeBase::EcalShapeBase( bool   aSaveDerivative ) :
+EcalShapeBase::EcalShapeBase(bool useDBShape) :
+   m_useDBShape              (useDBShape),
    m_firstIndexOverThreshold ( 0   ) ,
    m_firstTimeOverThreshold  ( 0.0 ) ,
    m_indexOfMax              ( 0   ) ,
-   m_timeOfMax               ( 0.0 ) ,
-   m_shape                   ( DVec( kNBinsStored, 0.0 ) ) ,
-   m_derivPtr                ( aSaveDerivative ? new DVec( kNBinsStored, 0.0 ) : nullptr )
+   m_timeOfMax               ( 0.0 ) , 
+   m_thresh                  ( 0.0 ) , 
+   m_es                      ( nullptr )
 {
 }
+
+void EcalShapeBase::setEventSetup( const edm::EventSetup & evtSetup ){ m_es = &evtSetup;  buildMe();} 
+
 
 double 
 EcalShapeBase::timeOfThr()  const 
@@ -42,12 +43,27 @@ EcalShapeBase::timeToRise() const
 }
 
 
+double 
+EcalShapeBase::threshold()  const 
+{
+   return m_thresh; 
+}
+
+
 void
 EcalShapeBase::buildMe()
 {
-   DVec shapeArray( k1NSecBinsTotal , 0.0 ) ;
+   DVec shapeArray;
 
-   fillShape( shapeArray ) ;
+   float time_interval = 0;
+   fillShape(time_interval, m_thresh, shapeArray, m_es) ; // pure virtual function, implementation may vary for EB/EE/APD ...
+   m_arraySize = shapeArray.size();  // original data
+  
+   m_denseArraySize    = 10*m_arraySize; // dense array with interpolation between data 
+   m_kNBinsPerNSec     = (unsigned int) (10/time_interval); // used to be an unsigned int = 10 in  < CMSSW10X, should work for time intervals ~0.1, 0.2, 0.5, 1
+   m_qNSecPerBin = time_interval/10.; 
+
+   for(unsigned int i = 0; i < m_denseArraySize; ++i) { m_deriv.push_back(0.0); m_shape.push_back(0.0); }
 
    const double maxel ( *max_element( shapeArray.begin(), shapeArray.end() ) ) ;
 
@@ -60,20 +76,15 @@ EcalShapeBase::buildMe()
 
    const double thresh ( threshold()/maxelt ) ;
 
-/*
-   for( unsigned int i ( 0 ) ; i != k1NSecBinsTotal ; ++i ) 
+   
+
+   const double delta ( m_qNSecPerBin/2. ) ; 
+
+   for( unsigned int denseIndex ( 0 ) ; denseIndex != m_denseArraySize ; ++denseIndex )
    {
-      LogDebug("EcalShapeBase") << " time (ns) = " << (double)i << " tabulated ECAL pulse shape = " << shapeArray[i];
-   }
-*/
+      const double xb ( ( denseIndex + 0.5 )*m_qNSecPerBin ) ; 
 
-   const double delta ( qNSecPerBin/2. ) ;
-
-   for( unsigned int j ( 0 ) ; j != kNBinsStored ; ++j )
-   {
-      const double xb ( ( j + 0.5 )*qNSecPerBin ) ; 
-
-      const unsigned int ibin ( j/kNBinsPerNSec ) ;
+      const unsigned int ibin ( denseIndex/10 ) ; 
 
       double value = 0.0 ;
       double deriv = 0.0 ;
@@ -86,54 +97,52 @@ EcalShapeBase::buildMe()
       }
       else 
       {
-	 const double x  ( xb - ( ibin + 0.5 ) ) ;
+	 const double x  ( xb - ( ibin + 0.5 )*time_interval ) ;
 	 const double f1 ( shapeArray[ ibin - 1 ] ) ;
 	 const double f2 ( shapeArray[ ibin     ] ) ;
 	 const double f3 ( shapeArray[ ibin + 1 ] ) ;
 	 const double a  ( f2 ) ;
-	 const double b  ( ( f3 - f1 )/2. ) ;
-	 const double c  ( ( f1 + f3 )/2. - f2 ) ;
+	 const double b  ( ( f3 - f1 )/(2.*time_interval) ) ;
+	 const double c  ( (( f1 + f3 )/2. - f2 )/(time_interval*time_interval) );
 	 value = a + b*x + c*x*x;
 	 deriv = ( b + 2*c*x )/delta ;
       }
 
-      m_shape[ j ] = value;
-      if( nullptr != m_derivPtr ) (*m_derivPtr)[ j ] = deriv;
+      m_shape[ denseIndex ] = value;
+      m_deriv[ denseIndex ] = deriv;
 
-      if( 0      <  j                         &&
+      if( 0      <  denseIndex                         &&
 	  thresh <  value                     &&
 	  0      == m_firstIndexOverThreshold     )
       {
-	 m_firstIndexOverThreshold = j - 1 ;
-	 m_firstTimeOverThreshold  = m_firstIndexOverThreshold*qNSecPerBin ;
+	 m_firstIndexOverThreshold = denseIndex - 1 ;
+	 m_firstTimeOverThreshold  = m_firstIndexOverThreshold*m_qNSecPerBin ;
       }
 
       if( m_shape[ m_indexOfMax ] < value )
       {
-	 m_indexOfMax = j ;
+	 m_indexOfMax = denseIndex ;
       }
 
-//      LogDebug("EcalShapeBase") << " time (ns) = " << ( j + 1.0 )*qNSecPerBin - delta 
-//				<< " interpolated ECAL pulse shape = " << m_shape[ j ] 
-//				<< " derivative = " << ( 0 != m_derivPtr ? (*m_derivPtr)[ j ] : 0 ) ;
    }
-   m_timeOfMax = m_indexOfMax*qNSecPerBin ;
+   m_timeOfMax = m_indexOfMax*m_qNSecPerBin ;
+
 }
 
 unsigned int
 EcalShapeBase::timeIndex( double aTime ) const
 {
    const int index ( m_firstIndexOverThreshold +
-		     (unsigned int) ( aTime*kNBinsPerNSec + 0.5 ) ) ;
+		     (unsigned int) ( aTime*m_kNBinsPerNSec + 0.5 ) ) ;
 
    const bool bad ( (int) m_firstIndexOverThreshold >  index || 
-		    (int) kNBinsStored              <= index    ) ;
+		    (int) m_denseArraySize              <= index    ) ;
 
-   if(		    (int) kNBinsStored              <= index    )
+   if(		    (int) m_denseArraySize              <= index    )
    {
       LogDebug("EcalShapeBase") << " ECAL MGPA shape requested for out of range time " << aTime ;
    }
-   return ( bad ? kNBinsStored : (unsigned int) index ) ;
+   return ( bad ? m_denseArraySize : (unsigned int) index ) ;
 }
 
 double 
@@ -142,13 +151,15 @@ EcalShapeBase::operator() ( double aTime ) const
    // return pulse amplitude for request time in ns
 
    const unsigned int index ( timeIndex( aTime ) ) ;
-   return ( kNBinsStored == index ? 0 : m_shape[ index ] ) ;
+   return ( m_denseArraySize == index ? 0 : m_shape[ index ] ) ;
 }
 
 double 
 EcalShapeBase::derivative( double aTime ) const
 {
    const unsigned int index ( timeIndex( aTime ) ) ;
-   return ( nullptr            == m_derivPtr ||
-	    kNBinsStored == index         ? 0 : (*m_derivPtr)[ index ] ) ;
+   return ( m_denseArraySize == index         ? 0 : m_deriv[ index ] ) ;
 }
+
+void 
+EcalShapeBase::m_shape_print(const char *fileName){std::ofstream fs; fs.open(fileName); for (auto i:m_shape) fs << "vec.push_back(" << i << ");\n"; fs.close();}

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # word-wrap functions
 # written by Mike Brown
 # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/148061
@@ -34,9 +35,9 @@ def wrap_onspace_strict(text, width):
     return wrap_onspace(wordRegex.sub(lambda m: wrap_always(m.group(),width),text),width)
 
 if __name__ == '__main__':
-    print wrap_always('1234567\ntrtyu43222',5)
-    print ''.join(['-']*5)+'|'
-    print wrap_onspace('1234567\ntrtyu43222',5)
-    print ''.join(['-']*5)+'|'
-    print wrap_onspace_strict('1234567\ntrtyu43222',5)
-    print ''.join(['-']*5)+'|'
+    print(wrap_always('1234567\ntrtyu43222',5))
+    print(''.join(['-']*5)+'|')
+    print(wrap_onspace('1234567\ntrtyu43222',5))
+    print(''.join(['-']*5)+'|')
+    print(wrap_onspace_strict('1234567\ntrtyu43222',5))
+    print(''.join(['-']*5)+'|')

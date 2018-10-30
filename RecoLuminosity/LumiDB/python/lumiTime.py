@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,sys,time,calendar
 from datetime import datetime,timedelta
 
@@ -59,7 +60,7 @@ class lumiTime(object):
             else:
                 result=datetime.strptime(strTime,customfm)
         except Exception as er:
-            print str(er)
+            print(str(er))
         return result
     def DatetimeToStr(self,timeValue,customfm=''):
         '''convert python datetime to string timestamp
@@ -71,13 +72,13 @@ class lumiTime(object):
             else:
                 result=timeValue.strftime(customfm)
         except Exception as er:
-            print str(er)
+            print(str(er))
         return result
 if __name__=='__main__':
     begTimeStr='03/30/10 10:10:01'
     c=lumiTime()
-    print 'orbit 0 : ',c.OrbitToTime(begTimeStr,0,0)
-    print 'orbit 1 : ',c.OrbitToTime(begTimeStr,1,0)
-    print 'orbit 262144 : ',c.OrbitToTime(begTimeStr,262144,0)
-    print 'orbit 0 : ',c.OrbitToUTCTimestamp(begTimeStr,0,0);
-    print 'orbit 0 : ',c.OrbitToLocalTimestamp(begTimeStr,0,0);
+    print('orbit 0 : ',c.OrbitToTime(begTimeStr,0,0))
+    print('orbit 1 : ',c.OrbitToTime(begTimeStr,1,0))
+    print('orbit 262144 : ',c.OrbitToTime(begTimeStr,262144,0))
+    print('orbit 0 : ',c.OrbitToUTCTimestamp(begTimeStr,0,0));
+    print('orbit 0 : ',c.OrbitToLocalTimestamp(begTimeStr,0,0));

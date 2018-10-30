@@ -1,3 +1,4 @@
+from __future__ import print_function
 __author__="Aurelija"
 __date__ ="$2010-09-23 15.00.20$"
 
@@ -54,7 +55,7 @@ def filterFile(file):
                         endPosition = m.end() + i + 1
                         break
             if openBracket != closeBracket:#if there is error in file
-                print "Error in file. To much open brackets. Run commentSkipper before you run functionSkipper."
+                print("Error in file. To much open brackets. Run commentSkipper before you run functionSkipper.")
                 break
             else:
                 #print "LINES: \n" + lines[startPosition:endPosition] 

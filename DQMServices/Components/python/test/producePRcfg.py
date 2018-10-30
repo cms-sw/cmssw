@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import os, sys, commands, re
 
 #    globaltag = cms.string('FT_R_42_V10A::All'))
@@ -28,7 +29,7 @@ if os.path.exists(CFGO):
   os.remove(CFGO)
 
 if base:
-  print 'Running test 15 for release %s' % base
+  print('Running test 15 for release %s' % base)
   commands.getoutput('eval `scram r -sh` && addpkg Configuration/DataProcessing')
   commands.getoutput('python %s/src/Configuration/DataProcessing/test/pp_reco_t.py' % base)
   if os.path.exists(CFGI):
@@ -36,7 +37,7 @@ if base:
     execfile('%s/src/Configuration/AlCa/python/autoCond.py' % base)
     gt = autoCond.get('com10', None)
     if gt:
-      print 'Using uptodate GT %s' % gt
+      print('Using uptodate GT %s' % gt)
       fi = open(CFGI, 'r')
       fo = open(CFGO, 'w')
       for line in fi:
@@ -55,6 +56,6 @@ if base:
       fo.close()
       os.rename(CFGO,CFGI)
 else:
-  print 'Error, no suitable release configured. Quitting'
+  print('Error, no suitable release configured. Quitting')
   sys.exit(1)
 

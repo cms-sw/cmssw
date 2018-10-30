@@ -1,3 +1,4 @@
+from __future__ import print_function
 import DLFCN, sys, os, time
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
@@ -28,9 +29,9 @@ for tag in globalTag.elements:
     iov.tail(1)
     for elem in iov.elements :
         lastSince = elem.since()
-    print tag.record,tag.label,tag.pfn,tag.tag
-    print iov.size(), iov.revision(), time.asctime(time.gmtime(unpackTime(iov.timestamp())[0])), iov.comment(), lastSince
-    print log.getState()
+    print(tag.record,tag.label,tag.pfn,tag.tag)
+    print(iov.size(), iov.revision(), time.asctime(time.gmtime(unpackTime(iov.timestamp())[0])), iov.comment(), lastSince)
+    print(log.getState())
     iov=0
     db=0
 
@@ -43,9 +44,9 @@ def iovSize(rdbms,conn,tag) :
         size = iov.size()
         for elem in iov.elements :
             if (elem.till()>4294967295) : 
-                print tag, elem.since(), elem.till(), elem.payloadToken()
+                print(tag, elem.since(), elem.till(), elem.payloadToken())
     except RuntimeError :
-        print conn, tag," no iov?"
+        print(conn, tag," no iov?")
         size=-1
     iov=0
     db=0

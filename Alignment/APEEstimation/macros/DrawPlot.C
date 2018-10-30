@@ -64,7 +64,7 @@ thesisMode_(false)
   if(!baselineTreeX_)std::cout<<"Baseline tree for x coordinate not found, cannot draw baselines!\n";
   if(!baselineTreeY_)std::cout<<"Baseline tree for y coordinate not found, cannot draw baselines!\n";
   
-  baseLineTreeX_->SetDirectory(nullptr);
+  baselineTreeX_->SetDirectory(nullptr);
   baselineTreeY_->SetDirectory(nullptr);
   
   delete inpath;

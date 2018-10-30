@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import os,sys
 
@@ -20,8 +21,8 @@ for i in range(0,len(sys.argv)):
 
 myfileNames = cms.untracked.vstring('file:hltExoticaValidator'+myinput+'.root')
 
-print "Using inputs : "
-print myfileNames
+print("Using inputs : ")
+print(myfileNames)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)

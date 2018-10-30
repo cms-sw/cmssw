@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import copy
 
@@ -110,7 +111,7 @@ for k in range(1):
 
 
 
-print "sequence", seq
+print("sequence", seq)
     
 process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(True)

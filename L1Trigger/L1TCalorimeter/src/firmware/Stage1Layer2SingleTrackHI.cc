@@ -16,9 +16,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 
 
-l1t::Stage1Layer2SingleTrackHI::Stage1Layer2SingleTrackHI(CaloParamsHelper* params) : params_(params) {}
-
-l1t::Stage1Layer2SingleTrackHI::~Stage1Layer2SingleTrackHI(){};
+l1t::Stage1Layer2SingleTrackHI::Stage1Layer2SingleTrackHI(CaloParamsHelper const* params) : params_(params) {}
 
 void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> * t, const int etaMask);
 
@@ -29,22 +27,19 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
 {
   int etaMask = params_->tauRegionMask();
 
-  std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
-  std::vector<l1t::Tau> *preGtEtaTaus = new std::vector<l1t::Tau>();
-  std::vector<l1t::Tau> *preGtTaus = new std::vector<l1t::Tau>();
-  std::vector<l1t::Tau> *unsortedTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::CaloRegion> subRegions;
+  std::vector<l1t::Tau> preGtEtaTaus;
+  std::vector<l1t::Tau> preGtTaus;
+  std::vector<l1t::Tau> unsortedTaus;
 
 
-  HICaloRingSubtraction(regions, subRegions, params_);
-  findRegions(subRegions, preGtTaus, etaMask);
-  TauToGtPtScales(params_, preGtTaus, unsortedTaus);
-  SortTaus(unsortedTaus, preGtEtaTaus);
+  HICaloRingSubtraction(regions, &subRegions, params_);
+  findRegions(&subRegions, &preGtTaus, etaMask);
+  TauToGtPtScales(params_, &preGtTaus, &unsortedTaus);
+  SortTaus(&unsortedTaus, &preGtEtaTaus);
   //SortTaus(preGtTaus, unsortedTaus);
   //TauToGtPtScales(params_, unsortedTaus, preGtEtaTaus);
-  TauToGtEtaScales(params_, preGtEtaTaus, taus);
-
-  delete subRegions;
-  delete preGtTaus;
+  TauToGtEtaScales(params_, &preGtEtaTaus, taus);
 
   isoTaus->resize(4);
   //taus->resize(4);

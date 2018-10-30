@@ -330,7 +330,11 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       iEvent.getByToken(tok_lumi_, lumiScale);
 
       if (lumiScale.isValid()) {
-	tmpHOCalib.inslumi=lumiScale->begin()->pileup();
+        if ( lumiScale->empty() ) {
+          edm::LogError("HOCalib") << "lumiScale collection is empty";
+        } else {
+          tmpHOCalib.inslumi=lumiScale->begin()->pileup();
+        }
       }
     }
   }

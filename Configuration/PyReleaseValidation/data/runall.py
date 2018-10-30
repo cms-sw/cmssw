@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os
 import time
 import sys
@@ -45,7 +46,7 @@ def main(argv) :
     try:
         opts, args = getopt.getopt(argv, "", ["nproc=","dohighstat",'hlt','inFile=','intbld'])
     except getopt.GetoptError as e:
-        print "unknown option", str(e)
+        print("unknown option", str(e))
         sys.exit(2)
         
 # check command line parameter
@@ -67,7 +68,7 @@ def main(argv) :
             intBld = True
 
     if hlt:
-        print "\nWARNING: option --hlt is deprecated as this is now default.\n"
+        print("\nWARNING: option --hlt is deprecated as this is now default.\n")
 
     if inFile:
         commands_standard_file=open(inFile,'r')
@@ -105,7 +106,7 @@ def main(argv) :
                if intBld and linecomponents[0].strip() not in forIB: continue
                command=linecomponents[1][:-1]
                commands.append(command)
-               print 'Will do: '+command
+               print('Will do: '+command)
         
 
     nfail=0
@@ -115,10 +116,10 @@ def main(argv) :
     clist = []
     cdone = []
     i=0
-    print 'Running in %s thread(s)' %np
+    print('Running in %s thread(s)' %np)
 
     for command in commands:
-        print 'Preparing to run %s' %command 
+        print('Preparing to run %s' %command) 
         current = testit(command)
         clist.append(current)
         cdone.append(0)
@@ -139,7 +140,7 @@ def main(argv) :
                     npass+=pingle.npass
                     report+=pingle.report
                     cdone[j]=1
-                    print pingle.report
+                    print(pingle.report)
 #            print 'Number of running threads: %s' % i        
 
     alen=len(cdone)
@@ -151,10 +152,10 @@ def main(argv) :
             nfail+=pingle.nfail
             npass+=pingle.npass
             report+=pingle.report
-            print pingle.report
+            print(pingle.report)
         
     report+='\n %s tests passed, %s failed \n' %(npass,nfail)
-    print report
+    print(report)
     
     runall_report_name='runall-report.log'
     runall_report=open(runall_report_name,'w')
@@ -162,7 +163,7 @@ def main(argv) :
     runall_report.close()
     
     if hlt:
-        print "\nWARNING: option --hlt is deprecated as this is now default.\n"
+        print("\nWARNING: option --hlt is deprecated as this is now default.\n")
 
 if __name__ == '__main__' :
     main(sys.argv[1:])

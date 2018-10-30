@@ -50,7 +50,7 @@ HGCSiliconDetId& HGCSiliconDetId::operator=(const DetId& gen) {
 }
 
 std::ostream& operator<<(std::ostream& s,const HGCSiliconDetId& id) {
-  return s << " EE:HE= " << id.isEE() << ":" << id.isHE()
+  return s << " HGCSiliconDetId::EE:HE= " << id.isEE() << ":" << id.isHE()
 	   << " type= " << id.type()  << " z= " << id.zside() 
 	   << " layer= " << id.layer() 
 	   << " wafer(u,v:x,y)= (" << id.waferU() << "," << id.waferV() << ":"

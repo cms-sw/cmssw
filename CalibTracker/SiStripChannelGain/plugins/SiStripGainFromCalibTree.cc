@@ -131,7 +131,7 @@ private:
 		return handle; //return handle to keep alive pointer (safety first)
 	}
 
-	SiStripApvGain* getNewObject() override;
+    std::unique_ptr<SiStripApvGain> getNewObject() override;
 
 	TFileService *tfs;
 	DQMStore* dbe;
@@ -1605,9 +1605,9 @@ bool SiStripGainFromCalibTree::produceTagFilter(){
     return true; 
 }
 
-SiStripApvGain* SiStripGainFromCalibTree::getNewObject() 
+std::unique_ptr<SiStripApvGain> SiStripGainFromCalibTree::getNewObject()
 {
-	SiStripApvGain* obj = new SiStripApvGain();
+	auto obj = std::make_unique<SiStripApvGain>();
 	if(!m_harvestingMode) return obj;
 
 	if(!produceTagFilter()){

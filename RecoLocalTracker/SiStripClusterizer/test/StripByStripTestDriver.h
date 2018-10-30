@@ -28,7 +28,7 @@ private:
   const bool hlt;
 
   //SiStripClusterizerFactory*               hltFactory;
-  std::auto_ptr<StripClusterizerAlgorithm> algorithm;
+  std::unique_ptr<StripClusterizerAlgorithm> algorithm;
 
 };
 #endif

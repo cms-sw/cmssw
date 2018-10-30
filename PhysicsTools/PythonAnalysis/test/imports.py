@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import traceback
 import os, sys
 #import gc
@@ -53,7 +54,7 @@ skipIt=['pytest','climate','theanets','hyperopt','thriftpy']
 #err = 0
 for i in l:
     if i in skipIt: continue
-    print i
+    print(i)
 #
 #    if i in skipIt: continue
 #    print "Importing",i,".....",

@@ -1,34 +1,36 @@
 #ifndef RecoEgamma_EgammaTools_MVAVariableManager_H
 #define RecoEgamma_EgammaTools_MVAVariableManager_H
 
-#include <fstream>
-
-#include "CommonTools/Utils/interface/StringObjectFunction.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"                                                        
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+
+#include <fstream>
 
 template <class ParticleType>
 class MVAVariableManager {
 
   public:
-    MVAVariableManager() {
-        nVars_ = 0;
+    MVAVariableManager()
+      : nVars_ (0)
+      , nHelperVars_ (0)
+      , nGlobalVars_ (0)
+    {
     };
 
     MVAVariableManager(const std::string &variableDefinitionFileName) {
         init(variableDefinitionFileName);
     };
 
-    int init(const std::string &variableDefinitionFileName) {
+    int init(const std::string &variableDefinitionFileName)
+    {
         nVars_ = 0;
+        nHelperVars_ = 0;
+        nGlobalVars_ = 0;
 
         variableInfos_.clear();
         functions_.clear();
@@ -43,6 +45,9 @@ class MVAVariableManager {
         std::string name, formula, upper, lower;
         while( true ) {
             file >> name;
+            if(file.eof()) {
+                break;
+            }
             if (name.find("#") != std::string::npos) {
                 file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 continue;
@@ -56,7 +61,8 @@ class MVAVariableManager {
         return nVars_;
     };
 
-    int getVarIndex(std::string &name) {
+    int getVarIndex(const std::string &name)
+    {
         std::map<std::string,int>::iterator it = indexMap_.find(name);
         if (it == indexMap_.end()) {
             return -1;
@@ -65,30 +71,23 @@ class MVAVariableManager {
         }
     }
 
-    const std::string getName(int index) const {
+    const std::string& getName(int index) const {
         return names_[index];
     }
 
-    const int getNVars() const {
+    int getNVars() const {
         return nVars_;
     }
 
-    std::vector<edm::InputTag> getHelperInputTags() const {
-        return helperInputTags_;
-    }
-
-    std::vector<edm::InputTag> getGlobalInputTags() const {
-        return globalInputTags_;
-    }
-
+    // For edm::EventBase with getByLabel
     float getValue(int index, const edm::Ptr<ParticleType>& ptclPtr, const edm::EventBase& iEvent) const {
         float value;
         MVAVariableInfo varInfo = variableInfos_[index];
-        if (varInfo.fromVariableHelper) {
+        if (varInfo.fromVariableHelper >= 0) {
             edm::Handle<edm::ValueMap<float>> vMap;
             iEvent.getByLabel(edm::InputTag(formulas_[index]), vMap);
             value = (*vMap)[ptclPtr];
-        } else if (varInfo.isGlobalVariable) {
+        } else if (varInfo.isGlobalVariable >= 0) {
             edm::Handle<double> valueHandle;
             iEvent.getByLabel(edm::InputTag(formulas_[index]), valueHandle);
             value = *valueHandle;
@@ -104,6 +103,41 @@ class MVAVariableManager {
         return value;
     }
 
+    // For edm::Event where getByToken is possible
+    float getValue(int index, const edm::Ptr<ParticleType>& ptclPtr, const edm::Event& iEvent) const {
+        float value;
+        MVAVariableInfo varInfo = variableInfos_[index];
+        if (varInfo.fromVariableHelper >= 0) {
+            edm::Handle<edm::ValueMap<float>> vMap;
+            iEvent.getByToken(helperTokens_[varInfo.fromVariableHelper], vMap);
+            value = (*vMap)[ptclPtr];
+        } else if (varInfo.isGlobalVariable >= 0) {
+            edm::Handle<double> valueHandle;
+            iEvent.getByToken(globalTokens_[varInfo.isGlobalVariable], valueHandle);
+            value = *valueHandle;
+        } else {
+            value = functions_[index](*ptclPtr);
+        }
+        if (varInfo.hasLowerClip && value < varInfo.lowerClipValue) {
+            value = varInfo.lowerClipValue;
+        }
+        if (varInfo.hasUpperClip && value > varInfo.upperClipValue) {
+            value = varInfo.upperClipValue;
+        }
+        return value;
+    }
+
+    void setConsumes(edm::ConsumesCollector&& cc) {
+      // All tokens for event content needed by the MVA
+      // Tags from the variable helper
+      for (auto &tag : helperInputTags_) {
+          helperTokens_.push_back(cc.consumes<edm::ValueMap<float>>(tag));
+      }
+      for (auto &tag : globalInputTags_) {
+          globalTokens_.push_back(cc.consumes<double>(tag));
+      }
+    }
+
   private:
 
     struct MVAVariableInfo {
@@ -111,21 +145,23 @@ class MVAVariableManager {
         bool hasUpperClip;
         float lowerClipValue;
         float upperClipValue;
-        bool fromVariableHelper;
-        bool isGlobalVariable;
+        int fromVariableHelper;
+        int isGlobalVariable;
     };
 
-    void addVariable(std::string &name, std::string &formula, std::string &lowerClip, std::string &upperClip) {
+    void addVariable(const std::string &name,      const std::string &formula,
+                     const std::string &lowerClip, const std::string &upperClip)
+    {
         bool hasLowerClip = lowerClip.find("None") == std::string::npos;
         bool hasUpperClip = upperClip.find("None") == std::string::npos;
-        bool fromVariableHelper = formula.find("MVAVariableHelper") != std::string::npos ||
-                                  formula.find("IDValueMapProducer") != std::string::npos ||
-                                  formula.find("egmPhotonIsolation") != std::string::npos;
+        int fromVariableHelper = formula.find("MVAVariableHelper") != std::string::npos ||
+                                 formula.find("IDValueMapProducer") != std::string::npos ||
+                                 formula.find("egmPhotonIsolation") != std::string::npos;
         float lowerClipValue = hasLowerClip ? (float)::atof(lowerClip.c_str()) : 0.;
         float upperClipValue = hasUpperClip ? (float)::atof(upperClip.c_str()) : 0.;
 
         // *Rho* is the only global variable used ever, so its hardcoded...
-        bool isGlobalVariable = formula.find("Rho") != std::string::npos;
+        int isGlobalVariable = formula.find("Rho") != std::string::npos;
 
         if ( !(fromVariableHelper || isGlobalVariable) ) {
             functions_.push_back(StringObjectFunction<ParticleType>(formula));
@@ -143,6 +179,11 @@ class MVAVariableManager {
         if (isGlobalVariable) {
             globalInputTags_.push_back(edm::InputTag(formula));
         }
+
+        // Switch from bool to int, corresponding to the token index
+        fromVariableHelper = fromVariableHelper ? nHelperVars_++ : -1;
+        isGlobalVariable   = isGlobalVariable ? nGlobalVars_++ : - 1;
+
         MVAVariableInfo varInfo = {
             .hasLowerClip       = hasLowerClip,
             .hasUpperClip       = hasUpperClip,
@@ -157,8 +198,10 @@ class MVAVariableManager {
         nVars_++;
     };
 
-
     int nVars_;
+    int nHelperVars_;
+    int nGlobalVars_;
+
     std::vector<MVAVariableInfo> variableInfos_;
     std::vector<StringObjectFunction<ParticleType>> functions_;
     std::vector<std::string> formulas_;
@@ -167,8 +210,11 @@ class MVAVariableManager {
 
     // To store the MVAVariableHelper input tags needed for the variables in this container
     std::vector<edm::InputTag> helperInputTags_;
-
     std::vector<edm::InputTag> globalInputTags_;
+
+    // Tokens
+    std::vector<edm::EDGetToken> helperTokens_;
+    std::vector<edm::EDGetToken> globalTokens_;
 };
 
 #endif

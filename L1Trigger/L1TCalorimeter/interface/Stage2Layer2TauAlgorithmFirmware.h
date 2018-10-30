@@ -23,7 +23,7 @@ namespace l1t {
   // Imp1 is for v1 and v2
   class Stage2Layer2TauAlgorithmFirmwareImp1 : public Stage2Layer2TauAlgorithm {
   public:
-    Stage2Layer2TauAlgorithmFirmwareImp1(CaloParamsHelper* params); //const CaloMainProcessorParams & dbPars);
+    Stage2Layer2TauAlgorithmFirmwareImp1(CaloParamsHelper const* params); //const CaloMainProcessorParams & dbPars);
     ~Stage2Layer2TauAlgorithmFirmwareImp1() override;
     void processEvent(const std::vector<CaloCluster> & clusters,
                   const std::vector<CaloTower>& towers,
@@ -41,7 +41,7 @@ namespace l1t {
     // double calibratedPt(int hwPtEm, int hwPtHad, int ieta);
 
     // parameters
-    CaloParamsHelper* params_;
+    CaloParamsHelper const* params_;
     std::vector<std::vector<float> >coefficients_;
 
     float offsetBarrelEH_;
@@ -52,7 +52,7 @@ namespace l1t {
     unsigned int trimMainLutIndex (int neighPos, bool isWe);
     static bool compareTowers (l1t::CaloTower TT1, l1t::CaloTower TT2); // implements operator < for TT
     bool is3x3Maximum (const l1t::CaloTower& tower, const std::vector<CaloTower>& towers, l1t::CaloStage2Nav& caloNav); // is maximum in the 3x3 window? (recompute jet flag)
-    std::vector<l1t::CaloCluster*> makeSecClusters (const std::vector<l1t::CaloTower>& towers, std::vector<int> & sites, const l1t::CaloCluster& mainCluster, l1t::CaloStage2Nav& caloNav); // make the secondary clusters fr merging (need to be deleted later)
+    std::vector<std::unique_ptr<l1t::CaloCluster>> makeSecClusters (const std::vector<l1t::CaloTower>& towers, std::vector<int> & sites, const l1t::CaloCluster& mainCluster, l1t::CaloStage2Nav& caloNav); // make the secondary clusters fr merging (need to be deleted later)
     unsigned int calibLutIndex (int ieta, int Et, int hasEM, int isMerged);
     int calibratedPt(const l1t::CaloCluster& clus, const std::vector<l1t::CaloTower>& towers, int hwPt, bool isMerged);
 

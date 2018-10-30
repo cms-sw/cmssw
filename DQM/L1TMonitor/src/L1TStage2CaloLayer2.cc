@@ -102,7 +102,10 @@ void L1TStage2CaloLayer2::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
   stage2CaloLayer2MHTHFPhi_ = ibooker.book1D("MHTHFPhi", "MHTHF Phi; MHTHF i#phi; Counts", 144, -0.5, 143.5);
   // stage2CaloLayer2HTTHFRank_ = ibooker.book1D("HTTHFRank", "HTTHF E_{T}", 4096, -0.5, 4095.5);
   stage2CaloLayer2ETTEMRank_ = ibooker.book1D("ETTEMRank", "ETTEM E_{T}; ETTEM iE_{T}; Counts", 4096, -0.5, 4095.5);
-
+  
+  stage2CaloLayer2Asymmetry_ = ibooker.book1D("Asymmetry", "Asymmetry; Assymmetry; Counts", 256, -0.5, 255.5);
+  stage2CaloLayer2Centrality_ = ibooker.book1D("Centrality", "Centrality; Centrality; Counts", 9, -1.5, 7.5);
+ 
   stage2CaloLayer2MinBiasHFP0_ = ibooker.book1D("MinBiasHFP0", "HF Min Bias Sum Threshold 0, Positive #eta; N_{towers}; Events", 16, -0.5, 15.5);
   stage2CaloLayer2MinBiasHFM0_ = ibooker.book1D("MinBiasHFM0", "HF Min Bias Sum Threshold 1, Nevagive #eta; N_{towers}; Events", 16, -0.5, 15.5);
   stage2CaloLayer2MinBiasHFP1_ = ibooker.book1D("MinBiasHFP1", "HF Min Bias Sum Threshold 1, Positive #eta; N_{towers}; Events", 16, -0.5, 15.5);
@@ -273,10 +276,12 @@ void L1TStage2CaloLayer2::analyze(const edm::Event & e, const edm::EventSetup & 
 	  // stage2CaloLayer2ETTHFRank_->Fill(itEtSum->hwPt());
 	} else if(l1t::EtSum::EtSumType::kMissingHt == itEtSum->getType()){    // MHT
 	  stage2CaloLayer2MHTRank_->Fill(itEtSum->hwPt());
-	  stage2CaloLayer2MHTPhi_->Fill(itEtSum->hwPhi());
+          if (itEtSum->hwPt()>0)
+		  stage2CaloLayer2MHTPhi_->Fill(itEtSum->hwPhi());
 	} else if(l1t::EtSum::EtSumType::kMissingHtHF == itEtSum->getType()){  // MHTHF
 	  stage2CaloLayer2MHTHFRank_->Fill(itEtSum->hwPt());
-	  stage2CaloLayer2MHTHFPhi_->Fill(itEtSum->hwPhi());
+	  if (itEtSum->hwPt()>0)
+	          stage2CaloLayer2MHTHFPhi_->Fill(itEtSum->hwPhi());
 	} else if(l1t::EtSum::EtSumType::kMinBiasHFP0 == itEtSum->getType()){  // MBHFP0
 	  stage2CaloLayer2MinBiasHFP0_->Fill(itEtSum->hwPt());
 	} else if(l1t::EtSum::EtSumType::kMinBiasHFM0 == itEtSum->getType()){  // MBHFM0
@@ -291,9 +296,17 @@ void L1TStage2CaloLayer2::analyze(const edm::Event & e, const edm::EventSetup & 
 	  stage2CaloLayer2ETTEMRank_->Fill(itEtSum->hwPt());
 	} else if (l1t::EtSum::EtSumType::kTowerCount == itEtSum->getType()) {
 	  stage2CaloLayer2TowCount_->Fill(itEtSum->hwPt());
-	} else{
+	} else if (l1t::EtSum::EtSumType::kTotalHt == itEtSum->getType()){
 	  stage2CaloLayer2HTTRank_->Fill(itEtSum->hwPt());
-	}
+	} else if (l1t::EtSum::EtSumType::kAsymEt == itEtSum->getType()){     //Asym ET
+	  stage2CaloLayer2Asymmetry_->Fill(itEtSum->hwPt());
+        } else if (l1t::EtSum::EtSumType::kCentrality == itEtSum->getType()){     //Centrality
+          if (itEtSum->hwPt()==0) stage2CaloLayer2Centrality_->Fill(-1);
+          else {
+          	for (int i=0; i<8; i++)
+	        	if (((itEtSum->hwPt()>>i)&1)==1) stage2CaloLayer2Centrality_->Fill(i);
+	       }
+        }
       }
     }
   }

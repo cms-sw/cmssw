@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 from os.path import join
 
@@ -10,7 +11,7 @@ def main():
 
     #  headers
     file_h = join(path_tools, 'BTagCalibrationStandalone.h')
-    print 'Creating', file_h
+    print('Creating', file_h)
     with open(file_h, 'w') as fout:
         for fname in ['CondFormats/BTauObjects/interface/BTagEntry.h',
                       'CondFormats/BTauObjects/interface/BTagCalibration.h',
@@ -25,7 +26,7 @@ def main():
 
     # implementation
     file_cc = join(path_tools, 'BTagCalibrationStandalone.cpp')
-    print 'Creating', file_cc
+    print('Creating', file_cc)
     with open(file_cc, 'w') as fout:
         fout.write('#include "BTagCalibrationStandalone.h"\n')
         fout.write('#include <iostream>\n')

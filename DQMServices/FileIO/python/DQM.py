@@ -1,5 +1,6 @@
 #!/bin/env python
 
+from __future__ import print_function
 import ROOT as R
 import os, re
 
@@ -104,8 +105,8 @@ if __name__ == '__main__':
 
     for (fn, v) in reader.read_objects():
         if (hasattr(v, "ClassName")):
-            print fn, v.ClassName()
+            print(fn, v.ClassName())
         else:
-            print fn, type(v)
+            print(fn, type(v))
 
     reader.close()

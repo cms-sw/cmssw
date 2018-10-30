@@ -80,23 +80,23 @@ namespace SiPixelTemplateReco {
    };
 #endif
    
-   int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, float locBx, ClusMatrix & cluster,
+   int PixelTempReco1D(int id, float cotalpha, float cotbeta, float locBz, float locBx, ClusMatrix & cluster,
                        SiPixelTemplate& templ,
                        float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix,
                        std::vector<std::pair<int, int> >& zeropix,
                        float& probQ, int& nypix, int& nxpix);
    
-   int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, float locBx, ClusMatrix & cluster,
+   int PixelTempReco1D(int id, float cotalpha, float cotbeta, float locBz, float locBx, ClusMatrix & cluster,
                        SiPixelTemplate& templ,
                        float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
                        float& probQ);
 		 
-   int PixelTempReco2D(int id, float cotalpha, float cotbeta, ClusMatrix & cluster,
+   int PixelTempReco1D(int id, float cotalpha, float cotbeta, ClusMatrix & cluster,
                        SiPixelTemplate& templ,
                        float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
                        float& probQ);
    
-   int PixelTempReco2D(int id, float cotalpha, float cotbeta, ClusMatrix & cluster,
+   int PixelTempReco1D(int id, float cotalpha, float cotbeta, ClusMatrix & cluster,
                        SiPixelTemplate& templ, 
                        float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed);
 }

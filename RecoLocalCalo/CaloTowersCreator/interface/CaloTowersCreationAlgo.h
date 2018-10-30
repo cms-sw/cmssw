@@ -186,6 +186,7 @@ public:
 
   void setUseRejectedRecoveredHcalHits(bool flag) {useRejectedRecoveredHcalHits = flag; };
   void setUseRejectedRecoveredEcalHits(bool flag) {useRejectedRecoveredEcalHits = flag; };
+  void setMissingHcalRescaleFactorForEcal(float factor) {missingHcalRescaleFactorForEcal = factor; };
 
   //-------------------------------------------------------------------------------------------------------------------
 
@@ -315,6 +316,8 @@ private:
   unsigned int useRejectedRecoveredHcalHits;
   unsigned int useRejectedRecoveredEcalHits;
 
+  // if Hcal is missing, fudge it scaling Ecal by this factor (if > 0)
+  float missingHcalRescaleFactorForEcal;
 
   /// only affects energy and ET calculation.  HO is still recorded in the tower
   bool theHOIsUsed;
@@ -340,7 +343,7 @@ private:
 
   // Number of channels in the tower that were not used in RecHit production (dead/off,...).
   // These channels are added to the other "bad" channels found in the recHit collection. 
-  typedef std::map<CaloTowerDetId, int> HcalDropChMap;
+  typedef std::map<CaloTowerDetId, std::pair<short int,bool>> HcalDropChMap;
   HcalDropChMap hcalDropChMap;
 
   // Number of bad Ecal channel in each tower

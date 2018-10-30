@@ -1,0 +1,12 @@
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/ForwardDetId"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Utilities"/>
+<use   name="TrackingTools/DetLayers"/>
+<use   name="Utilities/BinningTools"/>
+<use   name="Geometry/MTDGeometryBuilder"/>
+<export>
+  <lib   name="1"/>
+</export>

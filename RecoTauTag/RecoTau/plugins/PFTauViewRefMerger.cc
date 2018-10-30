@@ -7,7 +7,6 @@
  * Author: Evan K. Friis
  *
  */
-#include <boost/foreach.hpp>
 
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
@@ -28,13 +27,13 @@ class PFTauViewRefMerger : public edm::EDProducer {
   private:
     void produce(edm::Event & evt, const edm::EventSetup &) override {
       auto out = std::make_unique<reco::PFTauRefVector>();
-      BOOST_FOREACH(const edm::InputTag& inputSrc, src_) {
+      for(auto const& inputSrc : src_) {
         edm::Handle<reco::CandidateView> src;
         evt.getByLabel(inputSrc, src);
         reco::PFTauRefVector inputRefs =
             reco::tau::castView<reco::PFTauRefVector>(src);
         // Merge all the collections
-        BOOST_FOREACH(const reco::PFTauRef tau, inputRefs) {
+        for(auto const& tau : inputRefs) {
           out->push_back(tau);
         }
       }

@@ -6,6 +6,7 @@
 ##     ./compareReleases.py -h
 
 ## Import python libraries
+from __future__ import print_function
 import sys
 import optparse
 import os
@@ -32,7 +33,7 @@ class RootFile:
         self.name = file_name[0:file_name.find(".root")]
         self.file = ROOT.TFile(file_name, "read")
         if self.file.IsZombie():
-            print "Error opening %s, exiting..." % file_name
+            print("Error opening %s, exiting..." % file_name)
             sys.exit(1)
     def Get(self, object_name):
         return self.file.Get(object_name)
@@ -61,7 +62,7 @@ def main():
     if options.gen: source_types.remove("rec")
     if options.rec: source_types.remove("gen")
     if len(arguments) == 0:
-        print "Please provide at least one file as an argument"
+        print("Please provide at least one file as an argument")
         return
 
     ## Define constants
@@ -82,7 +83,7 @@ def main():
             make_efficiency_table(files, source_type, filter_names,
                                   efficiencies, options.stats_format)
         sys.exit(0)
-    print "Generating plots for %s path" % path
+    print("Generating plots for %s path" % path)
     make_efficiency_summary_plot(files, me_values)
     if len(files) == 1:
         for source_type in source_types:
@@ -141,7 +142,7 @@ def get_global_efficiencies(files, path):
             eff_hist = ROOT.TH1F(file.Get("%s/%s/globalEfficiencies" %
                                                (path_dist, path)))
         except:
-            print "No global efficiency in %s" % file.name
+            print("No global efficiency in %s" % file.name)
             sys.exit(1)
         eff_hist.LabelsDeflate()
         efficiencies.append({})
@@ -183,9 +184,9 @@ def make_efficiency_table(files, source_type, filter_names,
     if "html" in stats_format:
         format = "<tr><th>%s<td>%s"
         separator = "<td>"
-        print "<table>"
+        print("<table>")
     sample = files[0].name[0:files[0].name.find("_")]
-    print (format % (sample, separator.join(filter_names))).replace('td', 'th')
+    print((format % (sample, separator.join(filter_names))).replace('td', 'th'))
     for file_index, file in enumerate(files):
         entries = []
         for filter in filter_names:
@@ -194,9 +195,9 @@ def make_efficiency_table(files, source_type, filter_names,
             entries.append("%.1f &plusmn; %.1f" % (eff, err))
         version = file.name
         version = version[version.find("_")+1:version.find("-")]
-        print format % (version, separator.join(entries))
+        print(format % (version, separator.join(entries)))
     if "html" in stats_format:
-        print "</table>"
+        print("</table>")
 
 
 def make_efficiency_summary_plot(files, me_values):
@@ -212,7 +213,7 @@ def make_efficiency_summary_plot(files, me_values):
         if not hist:
             hist = file.Get(hist_path + "_Muon")
         if not hist:
-            print "No efficiency summary plot found in %s" % file.name
+            print("No efficiency summary plot found in %s" % file.name)
             return
         n_bins = hist.GetNbinsX()
         bins = [Bin(hist.GetXaxis().GetBinLabel(i + 1),
@@ -249,7 +250,7 @@ def make_efficiency_plot(files, plot_name, path, efficiencies, me_values):
         try: hist = ROOT.TH1F(file.Get(hist_path))
         except:
             try: hist = ROOT.TProfile(file.Get(hist_path))
-            except: print "Failed to find %s!!" % plot_name; return
+            except: print("Failed to find %s!!" % plot_name); return
         new_hist = hist.Clone()
         new_hist.SetTitle(file.name)
         hists.Add(new_hist)
@@ -367,7 +368,7 @@ def merge_pdf_output(files):
         pdfname = "%s_vs_Many.pdf" % files[0].name
     os.system("cp merged.pdf %s" % pdfname)
     os.system("rm [0-9]*.pdf")
-    print "Wrote %i plots to %s" % (next_counter() - 1, pdfname)
+    print("Wrote %i plots to %s" % (next_counter() - 1, pdfname))
 
 
 

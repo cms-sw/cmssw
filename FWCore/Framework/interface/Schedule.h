@@ -99,6 +99,7 @@ namespace edm {
   class BranchIDListHelper;
   class EventSetup;
   class ExceptionCollector;
+  class MergeableRunProductMetadata;
   class OutputModuleCommunicator;
   class ProcessContext;
   class ProductRegistry;
@@ -173,7 +174,8 @@ namespace edm {
     void writeRunAsync(WaitingTaskHolder iTask,
                        RunPrincipal const& rp,
                        ProcessContext const*,
-                       ActivityRegistry*);
+                       ActivityRegistry*,
+                       MergeableRunProductMetadata const*);
 
     // Call closeFile() on all OutputModules.
     void closeOutputFiles();

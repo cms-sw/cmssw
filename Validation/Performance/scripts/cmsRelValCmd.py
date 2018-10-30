@@ -2,6 +2,7 @@
 #Parsing the $CMSSW_RELEASE_BASE/src/Configuration/PyReleaseValidation/data/cmsDriver_highstats_htl.txt file
 #to look for necessary cmsdriver extra options
 
+from __future__ import print_function
 import os, re
 
 #Assuming high statistics RelVal cmsDriver command file to be named:
@@ -34,5 +35,5 @@ def get_cmsDriverOptions():
                         cmsDriverOptions=cmsDriverOptions+found.string+" "+tokens[tokens.index(found.string)+1]+" "
         return cmsDriverOptions
     else:
-        print "Could not find file %s!\n"%filename
+        print("Could not find file %s!\n"%filename)
         return NULL

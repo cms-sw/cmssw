@@ -70,8 +70,8 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
 */
 
   theESShape = new ESShape();
-  theEBShape = new EBShape(); 
-  theEEShape = new EEShape(); 
+  theEBShape = new EBShape(true); 
+  theEEShape = new EEShape(true); 
 
   theESResponse = new CaloHitResponse(theParameterMap, theESShape);
   theEBResponse = new CaloHitResponse(theParameterMap, theEBShape);
@@ -136,7 +136,8 @@ EcalMixingModuleValidation::~EcalMixingModuleValidation(){}
 void EcalMixingModuleValidation::dqmBeginRun(edm::Run const&, edm::EventSetup const& c) {
 
   checkCalibrations(c);
-
+  theEBShape->setEventSetup(c);
+  theEEShape->setEventSetup(c);
 }
 
 void EcalMixingModuleValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&){

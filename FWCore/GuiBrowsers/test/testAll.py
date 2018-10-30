@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from __future__ import print_function
 import unittest
 import os.path
 import sys
@@ -13,16 +14,16 @@ if __name__ == "__main__":
     for dir in dirs:
         dirList = [os.path.abspath(os.path.join(dir, f)) for f in os.listdir(dir)]
         dirs += [d for d in dirList if os.path.isdir(d) and not os.path.basename(d).startswith(".")]
-    print "scanning directories:"
+    print("scanning directories:")
     for dir in dirs:
-        print os.path.basename(dir)
+        print(os.path.basename(dir))
         sys.path.append(dir)
         tests += [f[: - 3] for f in os.listdir(dir) if f.startswith("test") and f.endswith(".py")]
-    print "---"
-    print "running tests:"
+    print("---")
+    print("running tests:")
     for test in sorted(tests):
-        print test
-    print "---"
+        print(test)
+    print("---")
     for test in sorted(tests):
         exec("from " + str(test) + " import *")
     unittest.main()

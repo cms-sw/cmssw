@@ -6,7 +6,7 @@
                                                                                              
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EDProducer.h>
+#include <FWCore/Framework/interface/stream/EDProducer.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
@@ -27,14 +27,13 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EcalListOfFEDSProducer : public edm::EDProducer {
+class EcalListOfFEDSProducer : public edm::stream::EDProducer<> {
   
  public:
   EcalListOfFEDSProducer(const edm::ParameterSet& pset);
   ~EcalListOfFEDSProducer() override;
   void produce(edm::Event & e, const edm::EventSetup& c) override;
-  void beginJob(void) override;
-  void endJob(void) override;
+
   void Egamma(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs);
   void Muon(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs);
   void Jets(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs);

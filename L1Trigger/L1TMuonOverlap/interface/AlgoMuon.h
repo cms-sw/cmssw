@@ -15,6 +15,8 @@ class AlgoMuon{
               m_hits(hits), m_q(q), m_bx(bx), m_pt(pt), m_charge(charge), 
               m_patNumb(999), m_rhitNumb(999) {}
 
+  virtual ~AlgoMuon() {}
+
   int getDisc() const { return m_disc; }
   int getPhi()  const { return m_phi; }
   int getEta()  const { return m_eta; }

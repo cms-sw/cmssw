@@ -276,7 +276,7 @@ double SiStripGainCosmicCalculator::moduleThickness(const uint32_t detid, const 
 }
 
 //---------------------------------------------------------------------------------------------------------
-SiStripApvGain * SiStripGainCosmicCalculator::getNewObject() {
+std::unique_ptr<SiStripApvGain> SiStripGainCosmicCalculator::getNewObject() {
   std::cout<<"SiStripGainCosmicCalculator::getNewObject called"<<std::endl;
 
   std::cout<<"total_nr_of_events="<<total_nr_of_events<<std::endl;
@@ -419,7 +419,7 @@ TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairCont
     outputfile->Close();
   }
 
-  SiStripApvGain * obj = new SiStripApvGain();
+  auto obj = std::make_unique<SiStripApvGain>();
 
 //   for(std::map<uint32_t,OptoScanAnalysis*>::const_iterator it = analyses.begin(); it != analyses.end(); it++){
 //     //Generate Gain for det detid

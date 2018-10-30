@@ -2,10 +2,11 @@
 
 #include <vector>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 #include "DetectorDescription/Core/src/Solid.h"
+
+using namespace dd::operators;
 
 DDI::TruncTubs::TruncTubs(double zHalf,
 			  double rIn, double rOut,
@@ -29,13 +30,12 @@ DDI::TruncTubs::TruncTubs(double zHalf,
 
 void DDI::TruncTubs::stream(std::ostream & os) const
 {
-  os << " zHalf=" << p_[0]/cm 
-     << "cm rIn=" << p_[1]/cm
-     << "cm rOut=" << p_[2]/cm
-     << "cm startPhi=" << p_[3]/deg
-     << "deg deltaPhi=" << p_[4]/deg
-     << "deg cutAtStart=" << p_[5]/cm
-     << "cm cutAtDelta=" << p_[6]/cm
+  os << " zHalf=" << CONVERT_TO( p_[0], cm )
+     << "cm rIn=" << CONVERT_TO( p_[1], cm )
+     << "cm rOut=" << CONVERT_TO( p_[2], cm )
+     << "cm startPhi=" << CONVERT_TO( p_[3], deg )
+     << "deg deltaPhi=" << CONVERT_TO( p_[4], deg )
+     << "deg cutAtStart=" << CONVERT_TO( p_[5], cm )
+     << "cm cutAtDelta=" << CONVERT_TO( p_[6], cm )
      << "cm cutInside=" << p_[7];
 }
-

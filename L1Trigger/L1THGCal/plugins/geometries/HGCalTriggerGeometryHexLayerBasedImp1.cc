@@ -17,6 +17,9 @@ class HGCalTriggerGeometryHexLayerBasedImp1 : public HGCalTriggerGeometryBase
         HGCalTriggerGeometryHexLayerBasedImp1(const edm::ParameterSet& conf);
 
         void initialize(const edm::ESHandle<CaloGeometry>& ) final;
+        void initialize(const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&) final;
         void reset() final;
 
         unsigned getTriggerCellFromCell( const unsigned ) const final;
@@ -155,6 +158,17 @@ initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
 
 }
 
+void
+HGCalTriggerGeometryHexLayerBasedImp1::
+initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
+        const edm::ESHandle<HGCalGeometry>& hgc_hsi_geometry,
+        const edm::ESHandle<HGCalGeometry>& hgc_hsc_geometry
+        )
+{
+    throw cms::Exception("BadGeometry")
+        << "HGCalTriggerGeometryHexLayerBasedImp1 geometry cannot be initialized with the V9 HGCAL geometry";
+}
+
 unsigned 
 HGCalTriggerGeometryHexLayerBasedImp1::
 getTriggerCellFromCell( const unsigned cell_id ) const
@@ -238,7 +252,7 @@ getModuleFromTriggerCell( const unsigned trigger_cell_id ) const
         }
         module = module_itr->second;
     }
-    return HGCalDetId((ForwardSubdetector)trigger_cell_det_id.subdetId(), trigger_cell_det_id.zside(), trigger_cell_det_id.layer(), trigger_cell_det_id.waferType(), module, HGCalDetId::kHGCalCellMask).rawId();
+    return HGCalDetId((ForwardSubdetector)trigger_cell_det_id.subdetId(), trigger_cell_det_id.zside(), trigger_cell_det_id.layer(), (trigger_cell_det_id.waferType()==1 ? 1:0), module, HGCalDetId::kHGCalCellMask).rawId();
 }
 
 HGCalTriggerGeometryBase::geom_set 
@@ -275,7 +289,7 @@ getCellsFromTriggerCell( const unsigned trigger_cell_id ) const
             unsigned wafer = 0;
             unsigned cell = 0;
             unpackWaferCellId(tc_c_itr->second, wafer, cell);
-            unsigned wafer_type = detIdWaferType(subdet, wafer);
+            unsigned wafer_type = (detIdWaferType(subdet, wafer)==1 ? 1 : 0);
             unsigned cell_det_id = HGCalDetId((ForwardSubdetector)trigger_cell_det_id.subdetId(), trigger_cell_det_id.zside(), trigger_cell_det_id.layer(), wafer_type, wafer, cell).rawId();
             if(validCellId(subdet, cell_det_id)) cell_det_ids.emplace(cell_det_id);
         }

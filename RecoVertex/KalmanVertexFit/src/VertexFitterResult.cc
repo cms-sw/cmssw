@@ -133,7 +133,7 @@ void VertexFitterResult::fill(const TransientVertex & recVertex,
 //       if (recSimColl!=0) simFound = (*recSimColl)[recTrack->persistentTrackRef()];
 //      if (recSimColl!=0) simFound = (*recSimColl)[recTrack];
 
-    } catch (cms::Exception e) {
+    } catch (cms::Exception const& e) {
 //       LogDebug("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt() 
 // 				 << " NOT associated to any TrackingParticle" << "\n";
 //       edm::LogError("TrackValidator") << e.what() << "\n";

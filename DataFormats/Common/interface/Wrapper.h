@@ -30,7 +30,7 @@ namespace edm {
     explicit Wrapper(std::unique_ptr<T> ptr);
     
     template<typename... Args>
-    explicit Wrapper( Args&&... );
+    explicit Wrapper( Emplace, Args&&... );
     ~Wrapper() override {}
     T const* product() const {return (present ? &obj : nullptr);}
     T const* operator->() const {return product();}
@@ -58,6 +58,8 @@ private:
     bool mergeProduct_(WrapperBase const* newProduct) override;
     bool hasIsProductEqual_() const override;
     bool isProductEqual_(WrapperBase const* newProduct) const override;
+    bool hasSwap_() const override;
+    void swapProduct_(WrapperBase* newProduct) override;
 
     void do_fillView(ProductID const& id,
                              std::vector<void const*>& pointers,
@@ -93,7 +95,7 @@ private:
 
   template<typename T>
   template<typename... Args>
-  Wrapper<T>::Wrapper(Args&&... args) :
+  Wrapper<T>::Wrapper(Emplace, Args&&... args) :
   WrapperBase(),
   present(true),
   obj(std::forward<Args>(args)...) {
@@ -150,6 +152,20 @@ private:
     return detail::doIsProductEqual<T>()(obj, wrappedNewProduct->obj);
   }
   
+  template<typename T>
+  inline
+  bool Wrapper<T>::hasSwap_() const {
+    return detail::getHasSwapFunction<T>()();
+  }
+
+  template<typename T>
+  inline
+  void Wrapper<T>::swapProduct_(WrapperBase* newProduct) {
+    Wrapper<T>* wrappedNewProduct = dynamic_cast<Wrapper<T>*>(newProduct);
+    assert(wrappedNewProduct != nullptr);
+    detail::doSwapProduct<T>()(obj, wrappedNewProduct->obj);
+  }
+
   namespace soa {
     template<class T>
     struct MakeTableExaminer {

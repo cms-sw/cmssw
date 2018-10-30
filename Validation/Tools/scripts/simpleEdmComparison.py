@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import inspect
 import itertools
 import logging
@@ -71,7 +72,7 @@ def compareEvents(event1, event2, handleName, label, options):
             if val1 != val2:
                 mismatch += 1
                 logging.error("Comparison problem %s != %s" % (val1, val2))
-	logging.debug("Compared %s elements" % count)
+        logging.debug("Compared %s elements" % count)
         return (count, mismatch)
 
 if __name__ == "__main__":
@@ -158,7 +159,7 @@ if __name__ == "__main__":
             plagerDict.update({'count_%s' % objName : totalCount})
             if mismatches:
                 plagerDict.update({objName: {'_var' : {handleName:mismatches}}})
-            print "Summary"
+            print("Summary")
             pprint.pprint(plagerDict)
         except ProductNotFoundError:
             logging.info("No product found for handle=%s, label=%s" % (handleName, label))
@@ -166,5 +167,5 @@ if __name__ == "__main__":
     logging.info("Total products compared: %s, %s/%s" % (productsCompared, mismatches, totalCount))
 
     if not productsCompared:
-        print "Plager compatible message: not able to get any products"
+        print("Plager compatible message: not able to get any products")
         sys.exit()

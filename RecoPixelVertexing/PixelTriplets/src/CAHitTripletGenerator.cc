@@ -1,31 +1,26 @@
 #include <unordered_map>
 
-#include "RecoPixelVertexing/PixelTriplets/interface/CAHitTripletGenerator.h"
-
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
-
-#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "CommonTools/Utils/interface/DynArray.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/isFinite.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CAHitTripletGenerator.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+
 #include "CAGraph.h"
 #include "CellularAutomaton.h"
 
-#include "CommonTools/Utils/interface/DynArray.h"
-
-#include "FWCore/Utilities/interface/isFinite.h"
-
 namespace
 {
-
-template<typename T>
-T sqr(T x)
-{
-	return x * x;
-}
+  template <typename T>
+  T sqr(T x)
+  {
+    return x * x;
+  }
 }
 
 using namespace std;

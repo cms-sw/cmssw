@@ -16,7 +16,7 @@
 #include <memory>
 #include <string>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -28,12 +28,12 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTRemoveDuplicatedSC : public edm::EDProducer {
+class EgammaHLTRemoveDuplicatedSC : public edm::global::EDProducer<> {
   
  public:
   explicit EgammaHLTRemoveDuplicatedSC(const edm::ParameterSet&);
   ~EgammaHLTRemoveDuplicatedSC() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:

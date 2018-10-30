@@ -37,9 +37,8 @@ SensitiveDetector::SensitiveDetector(const std::string & iname,
     this->AssignSD(lvname);
     ss << " " << lvname;
   }
-  edm::LogInfo("SensitiveDetector") << " <" << iname <<"> : Assigns SD to LVs " 
-				    << ss.str();
-
+  edm::LogVerbatim("SensitiveDetector") 
+    << " <" << iname <<"> : Assigns SD to LVs " << ss.str();
 }
 
 SensitiveDetector::~SensitiveDetector() {}
@@ -76,8 +75,7 @@ Local3DPoint SensitiveDetector::FinalStepPosition(const G4Step * step, coordinat
   const G4ThreeVector& globalCoordinates = postStepPoint->GetPosition();
   if (cd == WorldCoordinates) { return ConvertToLocal3DPoint(globalCoordinates); }
   const G4StepPoint * preStepPoint  = step->GetPreStepPoint();
-  G4TouchableHistory * theTouchable = (G4TouchableHistory *)(preStepPoint->GetTouchable());
-  const G4ThreeVector localCoordinates = theTouchable->GetHistory()
+  const G4ThreeVector localCoordinates = preStepPoint->GetTouchable()->GetHistory()
                   ->GetTopTransform().TransformPoint(globalCoordinates);
   return ConvertToLocal3DPoint(localCoordinates); 
 }
@@ -85,8 +83,7 @@ Local3DPoint SensitiveDetector::FinalStepPosition(const G4Step * step, coordinat
 Local3DPoint SensitiveDetector::LocalPreStepPosition(const G4Step * step) const
 {
   const G4StepPoint * preStepPoint = step->GetPreStepPoint();
-  G4TouchableHistory * theTouchable=(G4TouchableHistory *)(preStepPoint->GetTouchable());
-  G4ThreeVector localCoordinates = theTouchable->GetHistory()
+  G4ThreeVector localCoordinates = preStepPoint->GetTouchable()->GetHistory()
     ->GetTopTransform().TransformPoint(preStepPoint->GetPosition());
   return ConvertToLocal3DPoint(localCoordinates); 
 }
@@ -94,9 +91,7 @@ Local3DPoint SensitiveDetector::LocalPreStepPosition(const G4Step * step) const
 Local3DPoint SensitiveDetector::LocalPostStepPosition(const G4Step * step) const
 {
   const G4ThreeVector& globalCoordinates = step->GetPostStepPoint()->GetPosition();
-  G4TouchableHistory * theTouchable = 
-    (G4TouchableHistory *)(step->GetPreStepPoint()->GetTouchable());
-  G4ThreeVector localCoordinates = theTouchable->GetHistory()
+  G4ThreeVector localCoordinates = step->GetPreStepPoint()->GetTouchable()->GetHistory()
     ->GetTopTransform().TransformPoint(globalCoordinates);
   return ConvertToLocal3DPoint(localCoordinates);
 }

@@ -30,7 +30,7 @@ namespace l1t
         EH = 2
       };
 
-      Stage2Layer2ClusterAlgorithmFirmwareImp1(CaloParamsHelper* params, ClusterInput clusterInput);
+      Stage2Layer2ClusterAlgorithmFirmwareImp1(CaloParamsHelper const* params, ClusterInput clusterInput);
       ~Stage2Layer2ClusterAlgorithmFirmwareImp1() override;
       void processEvent(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters) override;
 
@@ -46,7 +46,7 @@ namespace l1t
       int seedThreshold_;
       int clusterThreshold_;
       int hcalThreshold_;
-      CaloParamsHelper* params_;
+      CaloParamsHelper const* params_;
   };
 
 }

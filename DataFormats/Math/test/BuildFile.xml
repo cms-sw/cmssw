@@ -34,6 +34,9 @@
 </release>
 <bin   file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
 </bin>
+<bin   file="crossV4_t.cpp" name="DataFormatscrossV4_t">
+  <flags CXXFLAGS="-Ofast"/>
+</bin>
 <bin   file="sign_t.cpp" name="DataFormatsSign_t">
 </bin>
 <bin   file="eta_t.cpp" name="DataFormatsEta_t">

@@ -48,12 +48,11 @@ namespace edm {
     // construct from coded string.
     explicit ParameterSet(std::string const& rep);
 
-    ~ParameterSet();
-
-    // instantiate in this library, so these methods don't cause code bloat
-    ParameterSet(ParameterSet const& other);
-
-    ParameterSet& operator=(ParameterSet const& other);
+    ~ParameterSet() = default;
+    ParameterSet(ParameterSet const& other) = default;
+    ParameterSet(ParameterSet&& other) = default;
+    ParameterSet& operator=(ParameterSet const& other) = default;
+    ParameterSet& operator=(ParameterSet&& other) = default;
 
     void swap(ParameterSet& other);
 

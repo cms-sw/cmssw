@@ -86,6 +86,8 @@ protected:
   void     update(const EndOfTrack * trk) override;
   void     update(const ::EndOfEvent *) override;
   virtual void     initRun();
+  virtual void     initEvent(const BeginOfEvent *);
+  virtual void     endEvent();
   virtual bool     filterHit(CaloG4Hit*, double);
 
   virtual int      getTrackID(const G4Track*); 

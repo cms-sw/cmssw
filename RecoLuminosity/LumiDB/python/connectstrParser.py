@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re
 class connectstrParser(object):
     def __init__(self,connectstr):
@@ -12,7 +13,7 @@ class connectstrParser(object):
         if result is not None:
             protocol=result.group(1)
             if protocol!='frontier' and protocol!='oracle':
-                raise 'unsupported technology',protocol
+                raise RuntimeError('unsupported technology '+protocol)
             self.__protocol=protocol
             self.__schemaname=result.group(5)
             self.__servicename=result.group(3)
@@ -70,42 +71,42 @@ if __name__ == '__main__':
     o='oracle://cms_orcoff_prep/CMS_LUMI_DEV_OFFLINE'
     parser=connectstrParser(o)
     parser.parse()
-    print parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo()
-    print 'case 1'
+    print(parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo())
+    print('case 1')
     f1='frontier://cmsfrontier.cern.ch:8000/LumiPrep/CMS_LUMI_DEV_OFFLINE'
     parser=connectstrParser(f1)
     parser.parse()
-    print parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo()
-    print 'case 2'
+    print(parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo())
+    print('case 2')
     f2='frontier://(serverurl=cmsfrontier.cern.ch:8000/LumiPrep/CMS_LUMI_DEV_OFFLINE)'
     parser=connectstrParser(f2)
     parser.parse()
-    print parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo()
-    print 'case 3'
+    print(parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo())
+    print('case 3')
     f3='frontier://(proxyurl=http://cmst0frontier.cern.ch:3128)(proxyurl=http://cmst0frontier.cern.ch:3128)(proxyurl=http://cmst0frontier1.cern.ch:3128)(proxyurl=http://cmst0frontier2.cern.ch:3128)(serverurl=http://cmsfrontier.cern.ch:8000/LumiPrep)(serverurl=http://cmsfrontier.cern.ch:8000)/LumiPrep)(serverurl=http://cmsfrontier1.cern.ch:8000/LumiPrep)(serverurl=http://cmsfrontier2.cern.ch:8000/LumiPrep)(serverurl=http://cmsfrontier3.cern.ch:8000/LumiPrep)(serverurl=http://cmsfrontier4.cern.ch:8000/LumiPrep)/CMS_LUMI_DEV_OFFLINE'
     parser=connectstrParser(f3)
     parser.parse()
-    print parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo()
-    print 'case 4'
+    print(parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo())
+    print('case 4')
     f4='frontier://LumiPrep/CMS_LUMI_DEV_OFFLINE'
     parser=connectstrParser(f4)
     parser.parse()
-    print parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo(),parser.servlettotranslate()
+    print(parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo(),parser.servlettotranslate())
     if parser.needsitelocalinfo():
         sitelocalconfig='/afs/cern.ch/user/x/xiezhen/w1/site-local-config.xml'
         frontierparser=cacheconfigParser.cacheconfigParser()
         frontierparser.parse(sitelocalconfig)
-        print 'full frontier string'
-        print parser.fullfrontierStr(parser.schemaname(),frontierparser.parameterdict())
-    print 'case 5'
+        print('full frontier string')
+        print(parser.fullfrontierStr(parser.schemaname(),frontierparser.parameterdict()))
+    print('case 5')
     f5='frontier://LumiPrep(otherparameter=value)/CMS_LUMI_DEV_OFFLINE'
     parser=connectstrParser(f5)
     parser.parse()
-    print parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo(),parser.servlettotranslate()
-    print  parser.fullfrontierStr(parser.schemaname(),frontierparser.parameterdict())
-    print 'case 6'
+    print(parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo(),parser.servlettotranslate())
+    print(parser.fullfrontierStr(parser.schemaname(),frontierparser.parameterdict()))
+    print('case 6')
     f6='frontier://LumiCalc/CMS_LUMI_PROD'
     parser=connectstrParser(f6)
     parser.parse()
-    print parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo(),parser.servlettotranslate()
-    print  parser.fullfrontierStr(parser.schemaname(),frontierparser.parameterdict())
+    print(parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo(),parser.servlettotranslate())
+    print(parser.fullfrontierStr(parser.schemaname(),frontierparser.parameterdict()))

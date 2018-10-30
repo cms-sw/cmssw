@@ -55,6 +55,7 @@
 
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -75,7 +76,7 @@ namespace DDI {
 
 std::ostream & operator<<( std::ostream &, const DDDivision &);
 
-class DDDivision : public DDBase<DDName, DDI::Division*>
+class DDDivision : public DDBase<DDName, std::unique_ptr<DDI::Division> >
 {
  public:      
   

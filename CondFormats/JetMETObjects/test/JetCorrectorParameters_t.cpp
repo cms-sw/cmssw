@@ -105,7 +105,7 @@ void testJetCorrectorParameters::setupCorrector(bool is3D) {
        edm::FileInPath strFIP(to_try);
        filename = strFIP.fullPath();
     }
-    catch (edm::Exception ex) {
+    catch (edm::Exception const& ex) {
        throw ex;
     }
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re,ast
 class normFunctionFactory(object):
     '''
@@ -51,7 +52,7 @@ def normFunctionCaller(funcName,*args,**kwds):
     try:
         myfunc=getattr(fac,funcName,None)
     except AttributeError:
-        print '[ERROR] unknown correction function '+funcName
+        print('[ERROR] unknown correction function '+funcName)
         raise
     if callable(myfunc):
         return myfunc(*args,**kwds)
@@ -64,10 +65,10 @@ if __name__ == '__main__':
     nBXs=1331
     constParams={'a0':1.0}    
     argvals=[luminonorm,intglumi,nBXs,0.0,0.0]
-    print 'no correction lumi in Hz/ub ',luminonorm*normFunctionCaller('fPoly',*argvals,**constParams)
+    print('no correction lumi in Hz/ub ',luminonorm*normFunctionCaller('fPoly',*argvals,**constParams))
     polyParams={'a0':7.268,'a1':0.063,'a2':-0.0037,'drift':0.01258,'c1':6.37,'afterglow':'[(213,0.992), (321,0.99), (423,0.988), (597,0.985), (700,0.984), (873,0.981), (1041,0.979), (1179,0.977),(1317,0.975)]'}
-    print 'poly corrected lumi in Hz/ub',luminonorm*normFunctionCaller('fPoly',*argvals,**polyParams)
+    print('poly corrected lumi in Hz/ub',luminonorm*normFunctionCaller('fPoly',*argvals,**polyParams))
     polyParams={'a0':7.268,'a1':0.063,'a2':-0.0037,'drift':0.0,'c1':6.37,'afterglow':'[(213,0.992), (321,0.99), (423,0.988), (597,0.985), (700,0.984), (873,0.981), (1041,0.979), (1179,0.977),(1317,0.975)]'}
-    print 'poly corrected without drift in Hz/ub ',luminonorm*normFunctionCaller('fPoly',*argvals,**polyParams)
+    print('poly corrected without drift in Hz/ub ',luminonorm*normFunctionCaller('fPoly',*argvals,**polyParams))
     constParams={'a0':7.268}
-    print 'const corrected lumi in Hz/ub',luminonorm*normFunctionCaller('fPoly',*argvals,**constParams)
+    print('const corrected lumi in Hz/ub',luminonorm*normFunctionCaller('fPoly',*argvals,**constParams))

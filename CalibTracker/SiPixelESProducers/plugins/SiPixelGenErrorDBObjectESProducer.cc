@@ -31,7 +31,7 @@ SiPixelGenErrorDBObjectESProducer::~SiPixelGenErrorDBObjectESProducer(){
 
 
 
-std::shared_ptr<SiPixelGenErrorDBObject> SiPixelGenErrorDBObjectESProducer::produce(const SiPixelGenErrorDBObjectESProducerRcd & iRecord) {
+std::shared_ptr<const SiPixelGenErrorDBObject> SiPixelGenErrorDBObjectESProducer::produce(const SiPixelGenErrorDBObjectESProducerRcd & iRecord) {
 	
 	ESHandle<MagneticField> magfield;
 	iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
@@ -56,7 +56,7 @@ std::shared_ptr<SiPixelGenErrorDBObject> SiPixelGenErrorDBObjectESProducer::prod
 	if(std::fabs(theMagField-dbobject->sVector()[22])>0.1)
 		edm::LogWarning("UnexpectedMagneticFieldUsingNonIdealPixelGenError") << "Magnetic field is " << theMagField << " GenError Magnetic field is " << dbobject->sVector()[22];
 	
-	return std::shared_ptr<SiPixelGenErrorDBObject>(const_cast<SiPixelGenErrorDBObject*>(&(*dbobject)), edm::do_nothing_deleter());
+	return std::shared_ptr<const SiPixelGenErrorDBObject>(&(*dbobject), edm::do_nothing_deleter());
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiPixelGenErrorDBObjectESProducer);

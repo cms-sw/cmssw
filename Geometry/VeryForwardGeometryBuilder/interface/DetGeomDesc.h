@@ -84,7 +84,7 @@ class DetGeomDesc
 		DDTranslation		translation() const {return _trans;}
 		DDSolidShape		shape() const  {return _shape;}
 		GeometricEnumType	type() const {return _type;}
-		DDName				name() const {return _ddname;};
+		DDName				name() const {return _name;};
 		nav_type			navType() const {return _ddd;}
 		std::vector<double>	params() const {return _params;}
 		virtual int			copyno() const {return _copy;}
@@ -102,7 +102,7 @@ class DetGeomDesc
 		DDTranslation 					_trans;
 		DDRotationMatrix				_rot;
 		DDSolidShape					_shape;
-		DDName 							_ddname;
+		std::string 					_name;
 		GeometricEnumType 				_type;
 		std::vector<double>				_params;
 		DetId 							_geographicalID;

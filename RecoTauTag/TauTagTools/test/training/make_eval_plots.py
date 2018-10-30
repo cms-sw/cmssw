@@ -7,6 +7,7 @@ tau ID discriminator.
 Author: Evan K. Friis
 
 '''
+from __future__ import print_function
 import math
 
 import sys
@@ -21,7 +22,7 @@ ROOT.gStyle.SetOptStat(0)
 
 def make_perf_curve2(signal, background, signal_denom, background_denom):
     signal_integral = signal.GetIntegral()
-    print signal_integral
+    print(signal_integral)
     background_integral = background.GetIntegral()
     signal_total = signal.Integral()
     background_total = background.Integral()
@@ -181,7 +182,7 @@ if __name__ == "__main__":
     steering['signal'] = { 'file' : ROOT.TFile(signal_input, 'READ') }
     steering['background'] = { 'file' : ROOT.TFile(background_input, 'READ') }
 
-    print "Loading histograms"
+    print("Loading histograms")
     # Load all the histograms
     for sample in ['signal', 'background']:
         sample_info = steering[sample]
@@ -189,7 +190,7 @@ if __name__ == "__main__":
         for producer in discriminators.keys():
             sample_info['algos'][producer] = {}
             for discriminator in discriminators[producer]:
-                print "Getting %s-%s" % (producer, discriminator)
+                print("Getting %s-%s" % (producer, discriminator))
                 producer_folder = sample_info['file'].Get("plot"+producer)
                 to_get = discriminator + _DENOM_PLOT_TYPE[sample]
                 raw_histo = producer_folder.Get(to_get)
@@ -302,7 +303,7 @@ if __name__ == "__main__":
         graphs[producer] = {}
         for marker, discriminator in zip(
             good_markers, discriminators[producer]):
-            print "Building perf curve graph:", producer, discriminator
+            print("Building perf curve graph:", producer, discriminator)
             new_graph = make_perf_curve2(
                 steering['signal']['algos'][producer][discriminator]['disc'],
                 steering['background']['algos'][producer][discriminator]['disc'],
@@ -316,7 +317,7 @@ if __name__ == "__main__":
             new_graph.SetLineStyle(2)
             new_graph.SetLineWidth(3)
             graphs[producer][discriminator] = new_graph
-            print new_graph.GetN()
+            print(new_graph.GetN())
             if new_graph.GetN() > 1:
                 new_graph.Draw("l")
                 legend.AddEntry(
@@ -389,7 +390,7 @@ if __name__ == "__main__":
     pt_legend.Draw()
     pt_canvas.SaveAs(output_file.replace('.pdf', '_pt_eff.pdf'))
 
-    print "Making PU plots"
+    print("Making PU plots")
     vtx_signal = ROOT.TH1F("sig_vtx", "Efficiency vs. PU", 16, -0.5, 15.5)
     vtx_signal.SetMaximum(1.0)
     vtx_signal.SetMinimum(0)
@@ -406,7 +407,7 @@ if __name__ == "__main__":
         pt_canvas.cd(2)
         vtx_background.Draw()
         for color, (producer, discriminator) in zip(good_colors, pt_curves_to_plot):
-            print "Making PU plots for", producer, discriminator
+            print("Making PU plots for", producer, discriminator)
             signal_algos = steering['signal']['algos'][producer]
             background_algos = steering['background']['algos'][producer]
             signal_graph = signal_algos[discriminator][puType]

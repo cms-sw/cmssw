@@ -20,5 +20,5 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override {};
 
-  std::auto_ptr<BaseFunction> corrector_;
+  std::unique_ptr<BaseFunction> corrector_;
 };

@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from __future__ import print_function
 from ROOT import TFile, gStyle,gPad ,TObject, TCanvas, TH1, TH1F, TH2F, TLegend, TPaletteAxis, TList, TLine, TAttLine, TF1,TAxis
 import re
 import sys, string
@@ -15,8 +16,8 @@ def GetNonZeroOccNumber(histoname):
     nrocs=0
     histo=fin.Get(histoname)
     if not histo:
-	print "null histo"
-	return
+        print("null histo")
+        return
     nx=histo.GetNbinsX()
     ny=histo.GetNbinsY()
     for i in range(1,nx+1):

@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import sys, ROOT
 
 from geometryDiffVisualization import *
@@ -9,11 +10,11 @@ ROOT.gROOT.SetBatch(1)
 cargs = sys.argv[:]
 
 if len(cargs) != 5:
-  print "Makes schematic drawings of the detector in various projections with overlayed chambers"
-  print "shifted and rotated by their correction amounts times some scale (geom2-geom1)"
-  print "usage: ./geometryDiffVisualizer.py label svg_template_dir geometry2.xml geometry1.xml"
-  print "The label will be included into the filenames as geoVisual_label__specifier.png"
-  print ""
+  print("Makes schematic drawings of the detector in various projections with overlayed chambers")
+  print("shifted and rotated by their correction amounts times some scale (geom2-geom1)")
+  print("usage: ./geometryDiffVisualizer.py label svg_template_dir geometry2.xml geometry1.xml")
+  print("The label will be included into the filenames as geoVisual_label__specifier.png")
+  print("")
   sys.exit()
 
 label = cargs[1]

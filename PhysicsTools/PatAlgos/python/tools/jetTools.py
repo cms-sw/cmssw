@@ -1,3 +1,4 @@
+from __future__ import print_function
 from FWCore.GuiBrowsers.ConfigToolBase import *
 from FWCore.ParameterSet.Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase
 from FWCore.ParameterSet.SequenceTypes import _ModuleSequenceType, _Sequenceable
@@ -63,8 +64,8 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
                 ## otherwise levels is miss configured
                 error=True
             else:
-                raise ValueError, "In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
-                once. Check the list of correction levels you requested to be applied: ", jetCorrections[1]
+                raise ValueError("In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
+                once. Check the list of correction levels you requested to be applied: "+ jetCorrections[1])
         if x == 'L1FastJet' :
             if not error :
                 if _type == "JPT" :
@@ -79,14 +80,14 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
                 ## otherwise levels is miss configured
                 error=True
             else:
-                raise ValueError, "In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
-                once. Check the list of correction levels you requested to be applied: ", jetCorrections[1]
+                raise ValueError("In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
+                once. Check the list of correction levels you requested to be applied: "+ jetCorrections[1])
     patJets.jetCorrFactorsSource=cms.VInputTag(cms.InputTag('patJetCorrFactors'+labelName+postfix))
     ## configure MET(Type1) corrections
     if jetCorrections[2].lower() != 'none' and jetCorrections[2] != '':
         if not jetCorrections[2].lower() == 'type-1' and not jetCorrections[2].lower() == 'type-2':
-            raise valueError, "In addJetCollection: Wrong choice of MET corrections for new jet collection. Possible choices are None (or empty string), Type-1, Type-2 (i.e.\
-            Type-1 and Type-2 corrections applied). This choice is not case sensitive. Your choice was: ", jetCorrections[2]
+            raise ValueError("In addJetCollection: Wrong choice of MET corrections for new jet collection. Possible choices are None (or empty string), Type-1, Type-2 (i.e.\
+            Type-1 and Type-2 corrections applied). This choice is not case sensitive. Your choice was: "+ jetCorrections[2])
         if _type == "JPT":
             raise ValueError("In addJecCollection: MET(type1) corrections are not supported for JPTJets. Please set the MET-LABEL to \"None\" (as string in quatiation \
             marks) and use raw tcMET together with JPTJets.")
@@ -630,11 +631,50 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       ),
                                     process, task)
 
+            if btagInfo == 'pfDeepBoostedJetTagInfos':
+                if pfCandidates.value() == 'packedPFCandidates':
+                    # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
+                    jetSrcName = jetSource.value().lower()
+                    if 'updated' in jetSrcName:
+                        puppi_value_map = ""
+                        vertex_associator = ""
+                        if 'withpuppidaughter' in jetSrcName:
+                            # special case for Puppi jets reclustered from MiniAOD by analyzers
+                            # need to specify 'WithPuppiDaughters' in the postfix when calling updateJetCollection
+                            # daughters of these jets are already scaled by their puppi weights
+                            has_puppi_weighted_daughters = True
+                        else:
+                            # default case for updating jet collection stored in MiniAOD, e.g., slimmedJetsAK8
+                            # daughters are links to the original PackedCandidates, so NOT scaled by their puppi weights yet
+                            has_puppi_weighted_daughters = False
+                    else:
+                        raise ValueError("Invalid jet collection: %s. pfDeepBoostedJetTagInfos only supports running via updateJetCollection." % jetSource.value())
+                elif pfCandidates.value() == 'particleFlow':
+                    raise ValueError("Running pfDeepBoostedJetTagInfos with reco::PFCandidates is currently not supported.")
+                    # case 2: running on new jet collection whose daughters are PFCandidates (e.g., cluster jets in RECO/AOD)
+                    # daughters are the particles used in jet clustering, so already scaled by their puppi weights
+                    # Uncomment the lines below after running pfDeepBoostedJetTagInfos with reco::PFCandidates becomes supported
+#                     has_puppi_weighted_daughters = True
+#                     puppi_value_map = "puppi"
+#                     vertex_associator = "primaryVertexAssociation:original"
+                else:
+                    raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfDeepBoostedJetTagInfos.clone(
+                                      jets = jetSource,
+                                      vertices = pvSource,
+                                      secondary_vertices = svSource,
+                                      has_puppi_weighted_daughters = has_puppi_weighted_daughters,
+                                      puppi_value_map = puppi_value_map,
+                                      vertex_associator = vertex_associator,
+                                      ),
+                                    process, task)
+
             acceptedTagInfos.append(btagInfo)
         elif hasattr(toptag, btagInfo) :
             acceptedTagInfos.append(btagInfo)
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo)
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo))
     ## setup all required btagDiscriminators
     acceptedBtagDiscriminators = list()
     for discriminator_name in btagDiscriminators :			
@@ -669,7 +709,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 raise ValueError('I do not know how to update %s it does not have neither "tagInfos" nor "src" attributes' % btagDiscr)
             acceptedBtagDiscriminators.append(discriminator_name)
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr))
     #update meta-taggers, if any
     for meta_tagger in present_meta:
         btagDiscr = meta_tagger.split(':')[0] #split input tag to get the producer label
@@ -694,7 +734,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     replace.doIt(getattr(process, newDiscr), newDiscr)
             acceptedBtagDiscriminators.append(meta_tagger)            
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr))
         
     ## replace corresponding tags for pat jet production
     patJets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in acceptedTagInfos ] )

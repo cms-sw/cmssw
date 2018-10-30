@@ -158,7 +158,7 @@ reclusterize(const edm::ParameterSet& conf) const {
       ? static_cast<uint8_t>(charges[i] * gains[i])
       : charges[i];
 
-  std::auto_ptr<StripClusterizerAlgorithm> 
+  std::unique_ptr<StripClusterizerAlgorithm> 
     algorithm = StripClusterizerAlgorithmFactory::create(conf);
   algorithm->initialize(es);
   auto const & det = algorithm->stripByStripBegin( detId_ );

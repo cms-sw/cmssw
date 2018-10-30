@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from math import *
 from ROOT import TFile, TObject, TTree
 from array import array
@@ -35,8 +36,8 @@ while key:
     key = keys.After(key)
 if len(globalTag) > 1:
     if globalTag.find('::') >= 0: 
-        print globalTag[0:globalTag.find('::')]
+        print(globalTag[0:globalTag.find('::')])
     else:
-        print globalTag
+        print(globalTag)
 
 

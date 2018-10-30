@@ -9,22 +9,15 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2JetSumAlgorithmFirmware.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
-l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParamsHelper* params) :
-  params_(params)
+l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParamsHelper const* params) 
 {
-  httJetThresholdHw_ = floor(params_->etSumEtThreshold(1)/params_->jetLsb());
-  mhtJetThresholdHw_ = floor(params_->etSumEtThreshold(3)/params_->jetLsb());
+  httJetThresholdHw_ = floor(params->etSumEtThreshold(1)/params->jetLsb());
+  mhtJetThresholdHw_ = floor(params->etSumEtThreshold(3)/params->jetLsb());
 
-  httEtaMax_  = params_->etSumEtaMax(1);
+  httEtaMax_  = params->etSumEtaMax(1);
   httEtaMaxHF_ = CaloTools::kHFEnd;
-  mhtEtaMax_  = params_->etSumEtaMax(3);
+  mhtEtaMax_  = params->etSumEtaMax(3);
   mhtEtaMaxHF_ = CaloTools::kHFEnd;
-}
-
-
-l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::~Stage2Layer2JetSumAlgorithmFirmwareImp1() {
-
-
 }
 
 

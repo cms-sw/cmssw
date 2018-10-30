@@ -21,44 +21,34 @@ class L1TMuonBarrelKalmanStubProcessor {
   ~L1TMuonBarrelKalmanStubProcessor();
 
 
-  L1MuKBMTCombinedStubCollection makeStubs(const L1MuDTChambPhContainer*,const L1MuDTChambThContainer*);
+  L1MuKBMTCombinedStubCollection makeStubs(const L1MuDTChambPhContainer*,const L1MuDTChambThContainer*,const L1TMuonBarrelParams&);
+  void makeInputPattern(const L1MuDTChambPhContainer* phiContainer,const L1MuDTChambThContainer* etaContainer,int sector);
 
   
  private:
   bool isGoodPhiStub(const L1MuDTChambPhDigi*); 
-  std::pair<bool,bool> isGoodThetaStub(const L1MuDTChambThDigi*,uint pos1,uint pos2=0); 
-  L1MuKBMTCombinedStub buildStub(const L1MuDTChambPhDigi*,const L1MuDTChambThDigi*);
+  L1MuKBMTCombinedStub buildStub(const L1MuDTChambPhDigi&,const L1MuDTChambThDigi*);
+  L1MuKBMTCombinedStub buildStubNoEta(const L1MuDTChambPhDigi&);
+
+
+  int calculateEta(uint, int,uint,uint);  
   int minPhiQuality_;
-  int minThetaQuality_;
   int minBX_;
   int maxBX_;
+  std::vector<int> eta1_;
+  std::vector<int> eta2_;
+  std::vector<int> eta3_;
 
-  std::vector<int>  etaLUT_minus_2_1;
-  std::vector<int>  etaLUT_minus_2_2;
-  std::vector<int>  etaLUT_minus_2_3;
-  std::vector<int>  etaLUT_minus_1_1;
-  std::vector<int>  etaLUT_minus_1_2;
-  std::vector<int>  etaLUT_minus_1_3;
-  std::vector<int>  etaLUT_0_1;
-  std::vector<int>  etaLUT_0_2;
-  std::vector<int>  etaLUT_0_3;
-  std::vector<int>  etaLUT_plus_1_1;
-  std::vector<int>  etaLUT_plus_1_2;
-  std::vector<int>  etaLUT_plus_1_3;
-  std::vector<int>  etaLUT_plus_2_1;
-  std::vector<int>  etaLUT_plus_2_2;
-  std::vector<int>  etaLUT_plus_2_3;
-  std::vector<int>  etaCoarseLUT_minus_2;
-  std::vector<int>  etaCoarseLUT_minus_1;
-  std::vector<int>  etaCoarseLUT_0;
-  std::vector<int>  etaCoarseLUT_plus_1;
-  std::vector<int>  etaCoarseLUT_plus_2;
 
+  bool disableMasks_;
   int verbose_;
 
 
   //    edm::ESHandle< L1TMuonBarrelParams > bmtfParamsHandle;
   //    L1MuDTTFMasks       masks_;
+
+
+
 
 
 };

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys,os,commands
 from CommonMethods import *
 def main():
@@ -11,7 +12,7 @@ def main():
     fileList = ls(sourceDir,".txt")
     if not os.path.isdir(destDir):
         error = "WARNING: destination directory doesn't exist! Creating it..."
-        print error
+        print(error)
         os.mkdir(destDir)
     copiedFiles = cp(sourceDir,destDir,fileList)
 
@@ -34,12 +35,12 @@ def main():
         newFileName = fileName.replace("1_.txt",str(runNumber)+"_1_.txt")
         if fileName != newFileName:
             aCmd = "mv " + destDir + fileName + " " + destDir + newFileName
-            print aCmd
+            print(aCmd)
             output =  commands.getstatusoutput(aCmd)
             if output[0] != 0:
-                print output[1]
+                print(output[1])
         else:
-            print "WARNING couldn't find keyword None in file " + fileName
+            print("WARNING couldn't find keyword None in file " + fileName)
 
 
 

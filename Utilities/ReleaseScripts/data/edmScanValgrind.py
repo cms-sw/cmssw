@@ -1,4 +1,5 @@
 #!/bin/env python
+from __future__ import print_function
 import sys
 
 fileName = sys.argv[1]
@@ -186,9 +187,9 @@ for l in f.readlines():
         possibleDataRaceRead = (l.find('data race during read') != -1)
         if buffer:
             #print buffer
-            print '---------------------'
+            print('---------------------')
             for b in buffer:
-                print b[:-1]
+                print(b[:-1])
         
         buffer=[l]
         lineCount = 0

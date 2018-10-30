@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 from ROOT import *
 from array import array
@@ -306,7 +307,7 @@ class ModuleLvlValuesReader:
       print(key)
       module = self.internalData[key]
       for d in module:
-        print(d, module[d])
+        print((d, module[d]))
         
     for i in self.availableNames:
       print(i)

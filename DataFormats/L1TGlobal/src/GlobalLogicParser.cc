@@ -274,7 +274,7 @@ bool GlobalLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
                 }
 
                 break;
-            case OP_AND: {
+            case OP_XOR: {
                     // first pop operators with higher precedence (NOT)
                     while (!operatorStack.empty() && operatorStack.top().operation == OP_NOT) {
                         m_rpnVector.push_back(operatorStack.top());
@@ -284,10 +284,24 @@ bool GlobalLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
                 }
 
                 break;
+            case OP_AND: {
+                    // first pop operators with higher precedence (XOR, NOT)
+                    while (!operatorStack.empty() && 
+			   ( operatorStack.top().operation == OP_NOT ||
+			     operatorStack.top().operation == OP_AND)  ) {
+
+		        m_rpnVector.push_back(operatorStack.top());
+                        operatorStack.pop();
+                    }
+                    operatorStack.push(rpnToken);
+                }
+
+                break;
             case OP_OR: {
-                    // pop operators with higher precedence (AND, NOT)
+                    // pop operators with higher precedence (AND, XOR, NOT)
                     while (!operatorStack.empty() &&
                             (operatorStack.top().operation == OP_NOT ||
+			     operatorStack.top().operation == OP_XOR ||
                              operatorStack.top().operation == OP_AND)  ) {
 
                         m_rpnVector.push_back(operatorStack.top());
@@ -387,7 +401,7 @@ bool GlobalLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
     for(RpnVector::iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
         if (it->operation == OP_OPERAND)
             counter++;
-        if (it->operation == OP_OR || it->operation == OP_AND)
+        if (it->operation == OP_OR || it->operation == OP_AND || it->operation == OP_XOR)
             counter--;
         if (counter < 1) {
 
@@ -415,7 +429,6 @@ bool GlobalLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
         clearRpnVector();
         return false;
     }
-
     return true;
 }
 
@@ -475,6 +488,9 @@ void GlobalLogicParser::buildOperandTokenVector()
 
                 break;
             case OP_AND: {
+                // do nothing
+                }
+            case OP_XOR: {
                 // do nothing
                 }
 
@@ -733,6 +749,15 @@ const bool GlobalLogicParser::expressionResult() const
                 }
 
                 break;
+            case OP_XOR: {
+                    b1 = resultStack.top();
+                    resultStack.pop();
+                    b2 = resultStack.top();
+                    resultStack.pop();
+                    resultStack.push(b1 ^ b2);
+                }
+
+                break;
             case OP_AND: {
                     b1 = resultStack.top();
                     resultStack.pop();
@@ -923,6 +948,11 @@ void GlobalLogicParser::buildOperandTokenVectorNumExp()
                 }
 
                 break;
+            case OP_XOR: {
+                    // do nothing
+                }
+
+                break;
             case OP_AND: {
                 // do nothing
                 }
@@ -991,6 +1021,15 @@ const bool GlobalLogicParser::expressionResultNumExp() const
                     b2 = resultStack.top();
                     resultStack.pop();
                     resultStack.push(b1 || b2);
+                }
+
+                break;
+            case OP_XOR: {
+                    b1 = resultStack.top();
+                    resultStack.pop();
+                    b2 = resultStack.top();
+                    resultStack.pop();
+                    resultStack.push(b1 ^ b2);
                 }
 
                 break;
@@ -1356,6 +1395,39 @@ std::vector<GlobalLogicParser::OperandToken>
                 }
 
                 break;
+            case OP_XOR: {
+
+                    newOperandBlock = false;
+                    operandOnly = false;
+
+                    b1 = tmpStack.top();
+                    tmpStack.pop();
+                    b2 = tmpStack.top();
+                    tmpStack.pop();
+
+                    tmpStack.push(dummyToken);                     // and push dummy result
+
+                    if ( b1.tokenNumber >= 0 ) {
+                        tmpVector.push_back(b1);
+
+                        //LogTrace("L1TGlobal")
+                        //<< "  Push operand " << b1.tokenName
+                        //<<" on the tmp list"
+                        //<< std::endl;
+                    }
+
+                    if ( b2.tokenNumber >= 0 ) {
+                        tmpVector.push_back(b2);
+
+                        //LogTrace("L1TGlobal")
+                        //<< "  Push operand " << b2.tokenName
+                        //<<" on the tmp list"
+                        //<< std::endl;
+                    }
+
+                }
+
+                break;
             case OP_AND: {
 
                     newOperandBlock = false;
@@ -1648,11 +1720,12 @@ bool GlobalLogicParser::setNumericalExpression(const std::string& numericalExpre
 // 3rd column: forbiddenLastOperation (what operation the operator/operand must not follow)
 const struct GlobalLogicParser::OperationRule GlobalLogicParser::m_operationRules[] =
     {
-        { "AND",  OP_AND,           OP_AND | OP_OR | OP_NOT | OP_OPENBRACKET | OP_NULL },
-        { "OR",   OP_OR,            OP_AND | OP_OR | OP_NOT | OP_OPENBRACKET | OP_NULL },
+        { "AND",  OP_AND,           OP_AND | OP_OR | OP_XOR | OP_NOT | OP_OPENBRACKET | OP_NULL },
+        { "OR",   OP_OR,            OP_AND | OP_OR | OP_XOR | OP_NOT | OP_OPENBRACKET | OP_NULL },
+        { "XOR",  OP_XOR,           OP_AND | OP_OR | OP_XOR | OP_NOT | OP_OPENBRACKET | OP_NULL },
         { "NOT",  OP_NOT,           OP_OPERAND | OP_CLOSEBRACKET                       },
         { "(",    OP_OPENBRACKET,   OP_OPERAND | OP_CLOSEBRACKET                       },
-        { ")",    OP_CLOSEBRACKET,  OP_AND | OP_OR | OP_NOT | OP_OPENBRACKET           },
-        { nullptr,   OP_OPERAND,       OP_OPERAND | OP_CLOSEBRACKET                       },
-        { nullptr,   OP_NULL,          OP_NULL                                            }
+        { ")",    OP_CLOSEBRACKET,  OP_AND | OP_OR | OP_XOR | OP_NOT | OP_OPENBRACKET  },
+        { nullptr,   OP_OPERAND,       OP_OPERAND | OP_CLOSEBRACKET                    },
+        { nullptr,   OP_NULL,          OP_NULL                                         }
     };

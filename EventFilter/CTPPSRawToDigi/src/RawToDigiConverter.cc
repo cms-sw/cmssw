@@ -343,7 +343,7 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll, const TotemDAQMapp
 
           const TotemDAQMapping::TotemTimingPlaneChannelPair SWpair = mapping.getTimingChannel( totemSampicFrame.getHardwareId() );
           // for FW Version > 0 plane and channel are encoded in the dataframe
-          if ( totemSampicFrame.getFWVersion() == 0 )  // Mapping not present in HW, read from SW
+          if ( totemSampicFrame.getFWVersion() < 0x30 )  // Mapping not present in HW, read from SW for FW versions < 3.0
           {
             if ( SWpair.plane == -1 || SWpair.channel == -1 )
             {

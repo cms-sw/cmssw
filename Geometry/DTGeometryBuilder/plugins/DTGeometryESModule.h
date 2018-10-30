@@ -9,8 +9,10 @@
  */
 
 #include <FWCore/Framework/interface/ESProducer.h>
+#include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 
@@ -28,10 +30,16 @@ public:
   /// Produce DTGeometry.
   std::shared_ptr<DTGeometry> produce(const MuonGeometryRecord& record);
 
-private:  
-  void geometryCallback_( const MuonNumberingRecord& record ) ;
-  void dbGeometryCallback_( const DTRecoGeometryRcd& record ) ;
-  std::shared_ptr<DTGeometry> _dtGeometry;
+private:
+
+  using HostType = edm::ESProductHost<DTGeometry,
+                                      MuonNumberingRecord,
+                                      DTRecoGeometryRcd>;
+
+  void setupGeometry(MuonNumberingRecord const&, std::shared_ptr<HostType>&);
+  void setupDBGeometry(DTRecoGeometryRcd const&, std::shared_ptr<HostType>&);
+
+  edm::ReusableObjectHolder<HostType> holder_;
 
   bool applyAlignment_; // Switch to apply alignment corrections
   const std::string alignmentsLabel_;
@@ -39,9 +47,3 @@ private:
   bool fromDDD_;
 };
 #endif
-
-
-
-
-
-

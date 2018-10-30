@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import ROOT
 from array import array
 from copy import copy
@@ -241,7 +242,7 @@ class EventPlotter(object):
 		Y.append(hit.y())
 		Z.append(hit.z())	
 	if(not X):
-	    print "Track has no valid points"
+	    print("Track has no valid points")
 	    return
 	plot = ROOT.TPolyLine3D(len(X),array("f",Z),array("f",X),array("f",Y))
 	plot.SetLineColor(color)
@@ -478,7 +479,7 @@ class EventPlotter(object):
 		elif hit.isValidHit() and hit.z() < 0: self.PlotDetectorRange("n",4)
 		else: self.PlotDetectorRange("b",4)
 
-                print "****************************\n"
+                print("****************************\n")
 	        self.Draw()
             return
 
@@ -488,15 +489,15 @@ class EventPlotter(object):
 
     def ParticleTest(self, particles, draw=False):
 	for particle in particles:
-	    print "\nPARTICLE " + str(particle.index())
+	    print("\nPARTICLE " + str(particle.index()))
 	    for hit in particle.hits():
 		tof = -1
 		for simHit in hit.simHits():
 		    if simHit.trackingParticle().index() == particle.index():
 			#if len(info.tof()): 
 			tof = simHit.tof()
-		print "Index: " + str(hit.index()) + ", Layer: " + str(hit.layerStr()) + ", TOF: " + str(tof) +\
-	        "     XY distance: " + str(sqrt(hit.x()**2 + hit.y()**2)) + ", Z: " + str(hit.z())
+		print("Index: " + str(hit.index()) + ", Layer: " + str(hit.layerStr()) + ", TOF: " + str(tof) +\
+	        "     XY distance: " + str(sqrt(hit.x()**2 + hit.y()**2)) + ", Z: " + str(hit.z()))
 	    self.DrawTrackTest(particle)
 	    if draw:
 		self.Draw()
@@ -749,7 +750,7 @@ class EventPlotter(object):
 	    if normalised: color = ROOT.kBlue
 	    else: color = 38	
 	else:
-	    print "Unspecified data type"
+	    print("Unspecified data type")
 	    return
 	
 	c1 = ROOT.TCanvas("Resolution_histograms","Resolution histograms", 1000, 900)

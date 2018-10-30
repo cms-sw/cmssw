@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 ###Description: The tool reads cern web services behind SSO using user certificates
+from __future__ import print_function
 import os, urllib, urllib2, httplib, cookielib, sys, HTMLParser, re
 from optparse import OptionParser
 
@@ -87,7 +88,7 @@ def getContent(target_url, cert_path, key_path, post_data=None, debug=False, adf
     result = getResponseContent(opener, target_url, post_data, debug)
   except Exception as e:
     result = ""
-    print sys.stderr.write("ERROR:"+str(e))
+    print(sys.stderr.write("ERROR:"+str(e)))
   if hasCookie:
     burl = getParentURL(target_url)
     try:
@@ -115,4 +116,4 @@ if __name__ == "__main__":
   (opts, args) = parser.parse_args()
   checkRequiredArguments(opts, parser)
   content = getContent(opts.url, opts.cert_path, opts.key_path, opts.postdata, opts.debug)
-  print content
+  print(content)

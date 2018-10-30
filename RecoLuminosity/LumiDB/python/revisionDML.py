@@ -1,3 +1,4 @@
+from __future__ import print_function
 ############################################################
 # LumiDB Revision and Versioning API
 #
@@ -915,7 +916,7 @@ if __name__ == "__main__":
     #print norminfo
     (branchid,branchparent)=branchInfoByName(schema,'DATA')
     databranchinfo=(branchid,'DATA')
-    print databranchinfo
+    print(databranchinfo)
     for runnum in [1200,1211,1222,1233,1345,1222,1200]:
         lumientryid=entryInBranch(schema,nameDealer.lumidataTableName(),str(runnum),'DATA')
         trgentryid=entryInBranch(schema,nameDealer.trgdataTableName(),str(runnum),'DATA')
@@ -949,14 +950,14 @@ if __name__ == "__main__":
             #add data here
         
     session.transaction().commit()
-    print 'test reading'
+    print('test reading')
     session.transaction().start(True)
-    print branchType(schema,'DATA')
+    print(branchType(schema,'DATA'))
     revlist=revisionsInBranchName(schema,'DATA')
-    print 'DATA revlist ',revlist
+    print('DATA revlist ',revlist)
     lumientry_id=entryInBranch(schema,nameDealer.lumidataTableName(),'1211','DATA')
-    print lumientry_id
+    print(lumientry_id)
     latestrevision=latestDataRevisionOfEntry(schema,nameDealer.lumidataTableName(),lumientry_id,revlist)
-    print 'latest data_id for run 1211 ',latestrevision
+    print('latest data_id for run 1211 ',latestrevision)
     session.transaction().commit()
     del session

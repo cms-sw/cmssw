@@ -6,6 +6,7 @@ Test wrapper to generate a harvesting config and push it into cmsRun for
 testing with a few input files etc from the command line
 
 """
+from __future__ import print_function
 
 import sys
 import getopt
@@ -55,9 +56,9 @@ class RunAlcaHarvesting:
             msg += str(ex)
             raise RuntimeError(msg)
 
-        print "Retrieved Scenario: %s" % self.scenario
-        print "Using Global Tag: %s" % self.globalTag
-        print "Dataset: %s" % self.dataset
+        print("Retrieved Scenario: %s" % self.scenario)
+        print("Using Global Tag: %s" % self.globalTag)
+        print("Dataset: %s" % self.dataset)
 #         print "Run: %s" % self.run
         
         
@@ -96,7 +97,7 @@ class RunAlcaHarvesting:
             pklFile.close()
 
         cmsRun = "cmsRun -j FrameworkJobReport.xml RunAlcaHarvestingCfg.py"
-        print "Now do:\n%s" % cmsRun
+        print("Now do:\n%s" % cmsRun)
         
 
 
@@ -122,8 +123,8 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
     except getopt.GetoptError as ex:
-        print usage
-        print str(ex)
+        print(usage)
+        print(str(ex))
         sys.exit(1)
 
 

@@ -34,7 +34,7 @@ CaloTopologyBuilder::produceCalo( const CaloTopologyRecord& iRecord )
    edm::ESHandle<CaloGeometry>                  theGeometry   ;
    iRecord.getRecord<CaloGeometryRecord>().get( theGeometry ) ;
 
-   ReturnType ct ( new CaloTopology ) ;
+   ReturnType ct = std::make_unique<CaloTopology>();
    //ECAL parts      
    ct->setSubdetTopology( DetId::Ecal,
 			  EcalBarrel,

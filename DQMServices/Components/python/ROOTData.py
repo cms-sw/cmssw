@@ -1,3 +1,4 @@
+from __future__ import print_function
 from ROOT import *
 from array import array
 
@@ -19,7 +20,7 @@ def tfile_cd(dirname, tfile, debug=False):
       gDirectory.cd(component)
 
   if debug:
-    print "Current dir %s" % gDirectory.pwd()
+    print("Current dir %s" % gDirectory.pwd())
 
 def loadStreamerInfo(literal, debug):
 
@@ -42,10 +43,10 @@ def loadStreamerInfo(literal, debug):
       c.GetStreamerInfo();
       if c.GetStreamerInfos().At(v):
         if debug:
-          print "skipping already present streamer info version %d for %s" % (v, obj.GetName())
+          print("skipping already present streamer info version %d for %s" % (v, obj.GetName()))
         continue
     if debug:
-      print "Importing streamer info version %d for %s" % (v, obj.GetName())
+      print("Importing streamer info version %d for %s" % (v, obj.GetName()))
     obj.BuildCheck();
 
 #-------------------------------------------------------------------------------

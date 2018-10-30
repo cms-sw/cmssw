@@ -27,7 +27,11 @@ namespace edm {
     ParameterSetEntry(ParameterSetID const& id, bool isTracked);
     explicit ParameterSetEntry(std::string const& rep);
 
-    ~ParameterSetEntry();
+    ~ParameterSetEntry() = default;
+    ParameterSetEntry(ParameterSetEntry const&) = default;
+    ParameterSetEntry(ParameterSetEntry&&) = default;
+    ParameterSetEntry& operator=(ParameterSetEntry const&) = default;
+    ParameterSetEntry& operator=(ParameterSetEntry&&) = default;
 
     std::string toString() const;
     void toString(std::string& result) const;

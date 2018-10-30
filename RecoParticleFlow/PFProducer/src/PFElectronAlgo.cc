@@ -287,7 +287,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	         && nexhits == 0 && trackIsFromPrimaryVertex) {
 		localactive[ecalKf_index] = false;
 	      } else {
-		fifthStepKfTrack_.push_back(make_pair(ecalKf_index,trackIs[iEle]));
+		fifthStepKfTrack_.emplace_back(ecalKf_index,trackIs[iEle]);
 	      }
 	    }
 	  }
@@ -721,7 +721,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 			   <<", " <<  clusterRef->position().phi() << endl;
 		 
 		    GsfElemIndex.push_back(ecalConvElems.begin()->second);
-		    convGsfTrack_.push_back(make_pair(ecalConvElems.begin()->second,gsfIs[iConv]));
+		    convGsfTrack_.emplace_back(ecalConvElems.begin()->second,gsfIs[iConv]);
 		    localactive[ecalConvElems.begin()->second] = false;
 		    
 		  }

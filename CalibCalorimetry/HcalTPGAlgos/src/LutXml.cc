@@ -123,7 +123,7 @@ void LutXml::addLut( LutXml::Config & _config, XMLDOMBlock * checksums_xml )
 	addParameter( "DEPTH", "int", _config.depth );
 	addData( to_string(_config.lut.size()), "hex", _config.lut );
     }
-    else if(_config.lut_type==2){ // compression LUT
+    else if(_config.lut_type==2 || _config.lut_type==4){ // compression LUT or HE feature bit LUT
 	addParameter( "IETA", "int", _config.ieta );
 	addParameter( "IPHI", "int", _config.iphi );
 	addParameter( "TOPBOTTOM", "int", _config.topbottom );
@@ -132,15 +132,15 @@ void LutXml::addLut( LutXml::Config & _config, XMLDOMBlock * checksums_xml )
 	addParameter( "SLBCHAN", "int", _config.fiberchan );
 	addData( to_string(_config.lut.size()), "hex", _config.lut );
     }
-    else if(_config.lut_type==3){ // channel masks
+    else if(_config.lut_type==5){ // channel masks
 	addParameter( "MASK_TYPE", "string", "TRIGGERCHANMASK" );
 	addData( to_string(_config.mask.size()), "hex", _config.mask );
     }
-    else if(_config.lut_type==4){ // adc threshold for tdc mask
+    else if(_config.lut_type==6){ // adc threshold for tdc mask
 	addParameter( "THRESH_TYPE", "string", "TRIGINTIME" );
 	addData( to_string(_config.mask.size()), "hex", _config.mask );
     }
-    else if(_config.lut_type==5){ // tdc mask
+    else if(_config.lut_type==7){ // tdc mask
 	addParameter( "TDCMAP_TYPE", "string", "TRIGINTIME" );
 	addData( to_string(_config.mask.size()), "hex", _config.mask );
     }
@@ -269,6 +269,14 @@ std::string LutXml::get_checksum( std::vector<unsigned int> & lut )
   else if ( lut . size() == 2048 ){
     unsigned char tool;
     for (int i=0; i<2048; i++) {
+      tool=lut[i]&0xFF;
+      md5_append(&md5er,&tool,1);
+    }
+  }
+  // HE fine grain LUT
+  else if ( lut . size() == 4096){
+    unsigned char tool;
+    for (int i=0; i<4096; i++) {
       tool=lut[i]&0xFF;
       md5_append(&md5er,&tool,1);
     }

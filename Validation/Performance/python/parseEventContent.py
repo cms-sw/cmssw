@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.usedOutput import *
 
@@ -148,8 +149,8 @@ def getTxtEventContentRules():
 	
 #a test
 if __name__ == "__main__":
-	print "==== The  event contents data is: === "
-	print EventContents
+	print("==== The  event contents data is: === ")
+	print(EventContents)
 	prod = {'module_name': 'hybridSuperClusters', 'module_label': 'hybridShapeAssoc', 'size_compressed': '65.4852', 'cpp_type': 'recoCaloClustersToOnerecoClusterShapesAssociation', 'size_uncompressed': '272.111'}
-	print List_ECs_forProduct(prod)
+	print(List_ECs_forProduct(prod))
 	

@@ -22,10 +22,7 @@ using namespace std;
 using namespace l1t;
 
 
-Stage1Layer2EGammaAlgorithmImpPP::Stage1Layer2EGammaAlgorithmImpPP(CaloParamsHelper* params) : params_(params) {};
-
-Stage1Layer2EGammaAlgorithmImpPP::~Stage1Layer2EGammaAlgorithmImpPP(){};
-
+Stage1Layer2EGammaAlgorithmImpPP::Stage1Layer2EGammaAlgorithmImpPP(CaloParamsHelper const* params) : params_(params) {};
 
 
 void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, const std::vector<l1t::CaloRegion> & regions, const std::vector<l1t::Jet> * jets, std::vector<l1t::EGamma>* egammas) {
@@ -40,19 +37,19 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   int egMinPtHOverEIsolation = params_->egMinPtHOverEIsolation();
   int egMaxPtHOverEIsolation = params_->egMaxPtHOverEIsolation();
 
-  std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
-  std::vector<l1t::EGamma> *preSortEGammas = new std::vector<l1t::EGamma>();
-  std::vector<l1t::EGamma> *preGtEGammas = new std::vector<l1t::EGamma>();
+  std::vector<l1t::CaloRegion> subRegions;
+  std::vector<l1t::EGamma> preSortEGammas;
+  std::vector<l1t::EGamma> preGtEGammas;
 
 
   //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
-  RegionCorrection(regions, subRegions, params_);
+  RegionCorrection(regions, &subRegions, params_);
 
   // ----- need to cluster jets in order to compute jet isolation ----
   std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
   // slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
-  TwelveByTwelveFinder(jetSeedThreshold, subRegions, unCorrJets);
+  TwelveByTwelveFinder(jetSeedThreshold, &subRegions, unCorrJets);
 
 
   for(CaloEmCandBxCollection::const_iterator egCand = EMCands.begin();
@@ -107,17 +104,12 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
     // ------- fill the EG candidate vector ---------
     l1t::EGamma theEG(*&egLorentz, eg_et, eg_eta, eg_phi, index, fullIsoFlag);
     //?? if( hoe < HoverECut) egammas->push_back(theEG);
-    preSortEGammas->push_back(theEG);
+    preSortEGammas.push_back(theEG);
   }
 
-  SortEGammas(preSortEGammas, preGtEGammas);
+  SortEGammas(&preSortEGammas, &preGtEGammas);
 
-  EGammaToGtScales(params_, preGtEGammas, egammas);
-
-  delete subRegions;
-  delete unCorrJets;
-  delete preSortEGammas;
-  delete preGtEGammas;
+  EGammaToGtScales(params_, &preGtEGammas, egammas);
 
 }
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import ROOT
 from ROOT import TBufferFile, TH1F, TProfile, TProfile2D, TH2F, TFile, TH1D, TH2D
 import re
@@ -187,7 +188,7 @@ def dqm_get_dataset(server, match, run, type="offline_data"):
                 if int(x['run']) == int(run):
                     ret=x['dataset']
                     break
-    print ret
+    print(ret)
     return ret
 
 
@@ -199,11 +200,11 @@ def main():
     import ROOT
 
     if len(sys.argv) != 2:
-        print "input file needed!"
+        print("input file needed!")
         return
     else:
         filename=sys.argv[1]
-    print filename+" -- "+filename[19:25]
+    print(filename+" -- "+filename[19:25])
     runNum=filename[19:25]
 
     dir="DQMData/Run " + runNum + "/PixelPhase1/Run summary/Pahse1_MechanicalView/"
@@ -228,7 +229,7 @@ def main():
 
     c=ROOT.TCanvas("c","c",1250,1000)
     #BPIX
-    print "----> Build maps for BPix"
+    print("----> Build maps for BPix")
     histOccList=[]
     histDeadList=[]
     for lyr in range(1,5):
@@ -295,9 +296,9 @@ def main():
                 os.system('gs -dBATCH -dNOPAUSE -sDEVICE=png16m -dUseCropBox -sOutputFile=MergedOccupancyDeadROC_BPix_Layer{0}_TBM.png -r144 -q MergedOccupancyDeadROC_BPix_Layer{0}_TBM.pdf'.format(lyr))
                 os.system('rm -f MergedOccupancyDeadROC_BPix_Layer{0}_TBM.pdf'.format(lyr))
         else :
-            print "Some Error in get the histograms for FPIX"
+            print("Some Error in get the histograms for FPIX")
     #FPIX
-    print "----> Build maps for FPix"
+    print("----> Build maps for FPix")
     for rng in range(1,3):
         histOccList.append(rootf.FindObjectAny(hoccF+str(rng)))
         histDeadList.append(rootf.FindObjectAny(hdeadF+str(rng)))
@@ -360,7 +361,7 @@ def main():
                 os.system('rm -f MergedOccupancyDeadROC_FPix_Ring{0}_TBM.pdf'.format(ring))
 
         else :
-            print "Some Error in get the histograms for FPIX"
+            print("Some Error in get the histograms for FPIX")
 
 
 

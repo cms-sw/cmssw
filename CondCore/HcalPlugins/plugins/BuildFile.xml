@@ -1,0 +1,69 @@
+<library   file="HcalGains_PayloadInspector.cc" name="HcalGains_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="HcalPedestals_PayloadInspector.cc" name="HcalPedestals_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="HcalPedestalWidths_PayloadInspector.cc" name="HcalPedestalWidths_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="HcalRespCorrs_PayloadInspector.cc" name="HcalRespCorrs_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="HcalChannelQuality_PayloadInspector.cc" name="HcalChannelQuality_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="HcalL1TriggerObjects_PayloadInspector.cc" name="HcalL1TriggerObjects_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="HcalRecoParams_PayloadInspector.cc" name="HcalRecoParams_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+<library   file="HcalSiPMCharacteristics_PayloadInspector.cc" name="HcalSiPMCharacteristics_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+<library   file="HcalSiPMParameters_PayloadInspector.cc" name="HcalSiPMParameters_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="boost_python"/>
+</library>

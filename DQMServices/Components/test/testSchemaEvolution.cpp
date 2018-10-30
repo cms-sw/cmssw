@@ -42,45 +42,48 @@ private:
 CPPUNIT_TEST_SUITE_REGISTRATION( TestSchemaEvolution );
 
 void TestSchemaEvolution::fillBaseline() {
+  unique_classes_current_.insert(std::make_pair("vector<double>", 6));
+  unique_classes_current_.insert(std::make_pair("TF1", 10));
+  unique_classes_current_.insert(std::make_pair("TH3S", 3));
+  unique_classes_current_.insert(std::make_pair("TAtt3D", 1));
+  unique_classes_current_.insert(std::make_pair("TH3", 5));
+  unique_classes_current_.insert(std::make_pair("TH3F", 3));
+  unique_classes_current_.insert(std::make_pair("TH2D", 3));
+  unique_classes_current_.insert(std::make_pair("TH2S", 3));
+  unique_classes_current_.insert(std::make_pair("TArrayI", 1));
+  unique_classes_current_.insert(std::make_pair("TH2I", 3));
+  unique_classes_current_.insert(std::make_pair("TH2F", 3));
+  unique_classes_current_.insert(std::make_pair("TH1I", 2));
+  unique_classes_current_.insert(std::make_pair("TString", 2));
+  unique_classes_current_.insert(std::make_pair("TAttLine", 2));
+  unique_classes_current_.insert(std::make_pair("TObject", 1));
+  unique_classes_current_.insert(std::make_pair("TH3D", 3));
+  unique_classes_current_.insert(std::make_pair("TH1S", 2));
+  unique_classes_current_.insert(std::make_pair("TH3I", 3));
+  unique_classes_current_.insert(std::make_pair("TAttFill", 2));
+  unique_classes_current_.insert(std::make_pair("TNamed", 1));
+  unique_classes_current_.insert(std::make_pair("TH1F", 2));
+  unique_classes_current_.insert(std::make_pair("TH2", 4));
+  unique_classes_current_.insert(std::make_pair("TH1", 8));
+  unique_classes_current_.insert(std::make_pair("TProfile", 6));
+  unique_classes_current_.insert(std::make_pair("TAttMarker", 2));
   unique_classes_current_.insert(std::make_pair("TArray", 1));
+  unique_classes_current_.insert(std::make_pair("TAxis", 10));
+  unique_classes_current_.insert(std::make_pair("TProfile2D", 7));
+  unique_classes_current_.insert(std::make_pair("TH1D", 2));
+  unique_classes_current_.insert(std::make_pair("TArrayS", 1));
+  unique_classes_current_.insert(std::make_pair("TAttAxis", 4));
   unique_classes_current_.insert(std::make_pair("TArrayD", 1));
   unique_classes_current_.insert(std::make_pair("TArrayF", 1));
-  unique_classes_current_.insert(std::make_pair("TArrayI", 1));
-  unique_classes_current_.insert(std::make_pair("TArrayS", 1));
-  unique_classes_current_.insert(std::make_pair("TAtt3D", 1));
-  unique_classes_current_.insert(std::make_pair("TAttAxis", 4));
-  unique_classes_current_.insert(std::make_pair("TAttFill", 2));
-  unique_classes_current_.insert(std::make_pair("TAttLine", 2));
-  unique_classes_current_.insert(std::make_pair("TAttMarker", 2));
-  unique_classes_current_.insert(std::make_pair("TAxis", 10));
-  unique_classes_current_.insert(std::make_pair("TH1", 8));
-  unique_classes_current_.insert(std::make_pair("TH1D", 2));
-  unique_classes_current_.insert(std::make_pair("TH1F", 2));
-  unique_classes_current_.insert(std::make_pair("TH1I", 2));
-  unique_classes_current_.insert(std::make_pair("TH1S", 2));
-  unique_classes_current_.insert(std::make_pair("TH2", 4));
-  unique_classes_current_.insert(std::make_pair("TH2D", 3));
-  unique_classes_current_.insert(std::make_pair("TH2F", 3));
-  unique_classes_current_.insert(std::make_pair("TH2I", 3));
-  unique_classes_current_.insert(std::make_pair("TH2S", 3));
-  unique_classes_current_.insert(std::make_pair("TH3", 5));
-  unique_classes_current_.insert(std::make_pair("TH3D", 3));
-  unique_classes_current_.insert(std::make_pair("TH3F", 3));
-  unique_classes_current_.insert(std::make_pair("TH3I", 3));
-  unique_classes_current_.insert(std::make_pair("TH3S", 3));
-  unique_classes_current_.insert(std::make_pair("TNamed", 1));
-  unique_classes_current_.insert(std::make_pair("TObject", 1));
-  unique_classes_current_.insert(std::make_pair("TProfile", 6));
-  unique_classes_current_.insert(std::make_pair("TProfile2D", 7));
-  unique_classes_current_.insert(std::make_pair("TString", 2));
 }
 
 void TestSchemaEvolution::runComparison() {
   CPPUNIT_ASSERT(unique_classes_current_.size() == unique_classes_.size());
-  for (auto cl : unique_classes_current_) {
+  for (auto cl : unique_classes_) {
     std::cout << "Checking " << cl.first << " " << cl.second << std::endl;
+    //std::cout << "unique_classes_current_.insert(std::make_pair(\"" << cl.first << "\", " << cl.second << "));" << std::endl;
     CPPUNIT_ASSERT(unique_classes_.find(cl.first) != unique_classes_.end());
-    CPPUNIT_ASSERT(unique_classes_[cl.first] <= unique_classes_current_[cl.first]);
+    CPPUNIT_ASSERT(unique_classes_[cl.first] == unique_classes_current_[cl.first]);
   }
 }
 
@@ -96,7 +99,7 @@ void TestSchemaEvolution::gatherAllClasses() {
     "TH1F", "TH1S", "TH1D", "TH1I",
     "TH2F", "TH2S", "TH2D", "TH2I",
     "TH3F", "TH3S", "TH3D", "TH3I",
-    "TProfile", "TProfile2D", 0
+    "TProfile", "TProfile2D", "TF1", 0
   };
 
   int i = 0;

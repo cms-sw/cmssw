@@ -1,3 +1,4 @@
+from __future__ import print_function
 import abc
 import math
 import os
@@ -12,7 +13,7 @@ from TkAlExceptions import AllInOneError
 class ValidationPlots(object):
     def __init__(self, path):
         if not os.path.isdir(path):
-            print "Error: Directory "+path+" not found!"
+            print("Error: Directory "+path+" not found!")
             exit(1)
         if not path.endswith('/'):
             path += '/'
@@ -144,7 +145,7 @@ def writePageReg(identifier, title, validations, layout=0):
         valiplots.sort(key=plotSortKey)
         plots.append(valiplots)
     if sum(len(p) for p in plots) == 0:
-        print 'Warning: no plots matching ' + identifier
+        print('Warning: no plots matching ' + identifier)
         return ''
 
     # Create layout, if not given.

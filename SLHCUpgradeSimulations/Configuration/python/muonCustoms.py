@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 
@@ -48,7 +49,7 @@ def customise_csc_cond_ungangedME11A_mc(process):
 
     from CalibMuon.Configuration.getCSCConditions_frontier_cff import cscConditions
     for (classname, tag) in myconds:
-      print classname, tag
+      print(classname, tag)
       sourcename = 'unganged_' + classname
       process.__setattr__(sourcename, cscConditions.clone())
       process.__getattribute__(sourcename).toGet = cms.VPSet( cms.PSet( record = cms.string(classname), tag = cms.string(tag)) )
@@ -109,9 +110,9 @@ def csc_PathVsModule_SanityCheck(process):
     # verify:
     for path_name, module_name in paths_modules:
         if hasattr(process, path_name) and not hasattr(process, module_name):
-            print "WARNING: module %s is not in %s path!!!" % (module_name, path_name)
-            print "         This path has the following modules:"
-            print "         ", getattr(process, path_name).moduleNames(),"\n"
+            print("WARNING: module %s is not in %s path!!!" % (module_name, path_name))
+            print("         This path has the following modules:")
+            print("         ", getattr(process, path_name).moduleNames(),"\n")
 
 
 # ------------------------------------------------------------------ 

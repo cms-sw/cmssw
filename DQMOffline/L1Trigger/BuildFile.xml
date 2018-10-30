@@ -23,4 +23,5 @@
 <use name="RecoMuon/TrackingTools"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="DQM/L1TMonitor"/>
+<use name="MuonAnalysis/MuonAssociators"/>
 <flags   EDM_PLUGIN="1"/>

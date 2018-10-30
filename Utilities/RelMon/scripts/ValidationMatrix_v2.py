@@ -9,6 +9,7 @@ e-mail:  albertasgim@gmail.com
 Note: default Pool size for file comparison is 7.
 Note: did NOT finish static HTML generation implementation.
 """
+from __future__ import print_function
 import sqlite3
 from datetime import datetime
 from multiprocessing import Pool, Queue, Process
@@ -139,13 +140,13 @@ class ReleaseComparison(object):
         return False
 
     def compare(self, rel1, frags1, rel2, frags2, st_tests, url=None, title=None):
-        print '\n#################     Searching for files     ###################'
+        print('\n#################     Searching for files     ###################')
         if self.no_url:
-            print 'Searching for files on disk at %s' % (self.work_path)
+            print('Searching for files on disk at %s' % (self.work_path))
             files1, files2 = search_on_disk(self.work_path, rel1, frags1, rel2, frags2)
             file_pairs = make_file_pairs(files1, files2)
         else:
-            print 'Searching for files online at:'
+            print('Searching for files online at:')
             files_with_urls1, files_with_urls2 = recursive_search_online(url, rel1, frags1, rel2, frags2)
             file_pairs = make_file_pairs(files_with_urls1, files_with_urls2)
             files_with_urls1.update(files_with_urls2)
@@ -153,7 +154,7 @@ class ReleaseComparison(object):
             paired_files_with_urls = [(file, files_with_urls1[file]) for file in files1 + files2]
 
             if self.dry:
-                print 'DRY: nothing to do. Exiting.'
+                print('DRY: nothing to do. Exiting.')
                 exit()
 
             ## Create working directory if not given.
@@ -163,12 +164,12 @@ class ReleaseComparison(object):
                     self.db_name = join(self.work_path, self.db_name)
 
             if not exists(self.work_path):
-                print '\n###################      Preparing directory     ###################'
-                print 'Creating working directory: %s ...' % self.work_path,
+                print('\n###################      Preparing directory     ###################')
+                print('Creating working directory: %s ...' % self.work_path, end=' ')
                 makedirs(self.work_path)
-                print 'Done.'
+                print('Done.')
 
-            print '\n#################     Downloading the files     ###################'
+            print('\n#################     Downloading the files     ###################')
             total_size, files_to_download = get_size_to_download(self.work_path, paired_files_with_urls)
             check_disk_for_space(self.work_path, total_size)
 
@@ -181,24 +182,24 @@ class ReleaseComparison(object):
             Process(target=show_status_bar, args=(total_size,)).start()
             Pool(2).map(auth_download_file, files_to_download)
             if total_size:
-                print "Done."
+                print("Done.")
 
         ## Create database
-        print '\n#################     Preparing Database     ###################'
+        print('\n#################     Preparing Database     ###################')
         if not self.db_name:
             self.db_name = '%s___VS___%s.db' % (get_version(file_pairs[0][0]), get_version(file_pairs[0][1]))
 
         if self.clear_db:
-            print 'Clearing DB: %s...' % self.db_name,
+            print('Clearing DB: %s...' % self.db_name, end=' ')
             open(join(self.work_path, self.db_name), 'w').close()
-            print 'Done.'
+            print('Done.')
 
         ## Compare file pairs.
         self.db_name = init_database(join(self.work_path, self.db_name))
 
         # TODO: Use multiprocessing for this task.
         for st_test_name in st_tests.split(','):
-            print '\n#################     Comparing Releases (%s)     ###################' % st_test_name
+            print('\n#################     Comparing Releases (%s)     ###################' % st_test_name)
             st_test = tests[st_test_name]()
 
             some_files_compared = False
@@ -211,13 +212,13 @@ class ReleaseComparison(object):
                 pool.map(call_compare_using_files, arg_list)
 
                 # Merge databases
-                print '\n#################     Merging DBs (%s)     ###################' % st_test_name
+                print('\n#################     Merging DBs (%s)     ###################' % st_test_name)
                 for i, pair in enumerate(file_pairs):
                     tmp_db = partial_db_name(self.db_name, i)
-                    print 'Merging %s...' % (basename(tmp_db),),
+                    print('Merging %s...' % (basename(tmp_db),), end=' ')
                     file_comparison_ids.append(merge_dbs(self.db_name, tmp_db))
                     remove(tmp_db)
-                    print 'Done.'
+                    print('Done.')
                     some_files_compared = True
             else:
                 file_comparison = RootFileComparison(self.db_name)
@@ -229,12 +230,12 @@ class ReleaseComparison(object):
                     file2_path = join(self.work_path, file2)
 
                     if not file_comparison.was_compared(file1, file2, st_test_name):
-                        print "Comparing:\n%s\n%s\n" % (file1, file2)
+                        print("Comparing:\n%s\n%s\n" % (file1, file2))
                         file_comparison_id = file_comparison.compare(file1_path, file2_path, st_test)
                         file_comparison_ids.append(file_comparison_id)
                         some_files_compared = True
                     else:
-                        print "Already compared:\n%s\n%s\n" % (file1, file2)
+                        print("Already compared:\n%s\n%s\n" % (file1, file2))
 
             ## Calculate statistics for the release.
             release1 = get_version(file_pairs[0][0])
@@ -244,7 +245,7 @@ class ReleaseComparison(object):
                 conn = sqlite3.connect(self.db_name)
                 c = conn.cursor()
                 if not release_comparison_id:
-                    print 'Inserting release "%s  VS  %s" description.\n' % (release1, release2)
+                    print('Inserting release "%s  VS  %s" description.\n' % (release1, release2))
                     if not title:
                         title = "%s__VS__%s" % (release1, release2)
                     c.execute('''INSERT INTO ReleaseComparison(title, release1, release2,
@@ -267,8 +268,8 @@ if __name__ == '__main__':
     rel_cmp.compare(opts.release1, opts.fragments1, opts.release2,
                         opts.fragments2, opts.st_tests, opts.url, opts.title)
     if opts.html:
-        print '\n#################     Generating static HTML    #################'
-        print '\n  Warrning!!!  Did NOT finished the implementation. \n'
+        print('\n#################     Generating static HTML    #################')
+        print('\n  Warrning!!!  Did NOT finished the implementation. \n')
         from Utilities.RelMon.web.dbfile2html import dbfile2html
         dbfile2html(rel_cmp.db_name, opts.dir)
-    print '#################     Execution time: %s    #################\n' % (datetime.now() - start,)
+    print('#################     Execution time: %s    #################\n' % (datetime.now() - start,))

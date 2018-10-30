@@ -1,4 +1,4 @@
-// system include files
+// System include files
 #include <cmath>
 #include <string>
 #include <map>
@@ -312,7 +312,6 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
 
   //get Handles to SimTracks and SimHits
   edm::Handle<edm::SimTrackContainer> SimTk;
-  edm::SimTrackContainer::const_iterator simTrkItr;
   edm::Handle<edm::SimVertexContainer> SimVtx;
 
   //get Handles to PCaloHitContainers of eb/ee/hbhe

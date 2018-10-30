@@ -23,6 +23,7 @@ a set of related EDProducts. This is the storage unit of such information.
 #include <string>
 
 namespace edm {
+  class MergeableRunProductMetadata;
   class ProductProvenanceRetriever;
   class DelayedReader;
   class ModuleCallingContext;
@@ -62,6 +63,7 @@ namespace edm {
     //Handle the boilerplate code needed for resolveProduct_
     template <bool callResolver, typename FUNC>
     Resolution resolveProductImpl( FUNC resolver) const;
+    void setMergeableRunProductMetadataInProductData(MergeableRunProductMetadata const*);
 
   private:
 
@@ -70,9 +72,9 @@ namespace edm {
     ProductData const& getProductData() const {return productData_;}
     virtual bool isFromCurrentProcess() const = 0;
     // merges the product with the pre-existing product
-    void mergeProduct(std::unique_ptr<WrapperBase> edp) const;
+    void mergeProduct(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const;
 
-    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const final;
+    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod, MergeableRunProductMetadata const* mergeableRunProductMetadata) const final;
     bool productUnavailable_() const final;
     bool productResolved_() const final;
     bool productWasDeleted_() const final;
@@ -116,9 +118,11 @@ namespace edm {
                          ServiceToken const& token,
                          SharedResourcesAcquirer* sra,
                          ModuleCallingContext const* mcc) const override;
-    void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+      void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
 
-      void retrieveAndMerge_(Principal const& principal) const override;
+      void retrieveAndMerge_(Principal const& principal, MergeableRunProductMetadata const* mergeableRunProductMetadata) const override;
+
+      void setMergeableRunProductMetadata_(MergeableRunProductMetadata const*) override;
 
       bool unscheduledWasNotRun_() const final {return false;}
 
@@ -233,7 +237,7 @@ namespace edm {
       }
 
       void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-      void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const final;
+      void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod, MergeableRunProductMetadata const* mergeableRunProductMetadata) const final;
       BranchDescription const& branchDescription_() const override {return *bd_;}
       void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override {bd_ = bd;}
       Provenance const* provenance_() const final { return realProduct_.provenance(); }
@@ -290,7 +294,7 @@ namespace edm {
     }
 
     void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const final;
+    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod, MergeableRunProductMetadata const* mergeableRunProductMetadata) const final;
     BranchDescription const& branchDescription_() const override {return *bd_;}
     void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override {bd_ = bd;}
     Provenance const* provenance_() const final {return realProduct_->provenance();
@@ -351,7 +355,7 @@ namespace edm {
       bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override;
 
       void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-      void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const final;
+      void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod, MergeableRunProductMetadata const* mergeableRunProductMetadata) const final;
       BranchDescription const& branchDescription_() const override;
       void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override;
       Provenance const* provenance_() const override;
@@ -408,7 +412,7 @@ namespace edm {
     bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override;
 
     void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const final;
+    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod, MergeableRunProductMetadata const* mergeableRunProductMetadata) const final;
     BranchDescription const& branchDescription_() const override;
     void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override;
     Provenance const* provenance_() const override;

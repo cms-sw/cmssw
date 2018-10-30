@@ -15,7 +15,7 @@
 void HGCalImagingAlgo::populate(const HGCRecHitCollection &hits) {
   // loop over all hits and create the Hexel structure, skip energies below ecut
 
-  if (dependSensor) {
+  if (dependSensor_) {
     // for each layer and wafer calculate the thresholds (sigmaNoise and energy)
     // once
     computeThreshold();
@@ -31,21 +31,19 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection &hits) {
     // set sigmaNoise default value 1 to use kappa value directly in case of
     // sensor-independent thresholds
     float sigmaNoise = 1.f;
-    if (dependSensor) {
-      if (layer <= lastLayerFH) // only EE and FH have silicon sensors
-        thickness = rhtools_.getSiThickness(detid);
-      double storedThreshold =
-          thresholds[layer - 1]
-                    [layer <= lastLayerFH ? rhtools_.getSiThickIndex(detid) : 0];
-      sigmaNoise =
-          v_sigmaNoise[layer - 1]
-                      [layer <= lastLayerFH ? rhtools_.getSiThickIndex(detid) : 0];
+    if (dependSensor_) {
+      thickness = rhtools_.getSiThickness(detid);
+      int thickness_index = rhtools_.getSiThickIndex(detid);
+      if (thickness_index == -1)
+        thickness_index = 3;
+      double storedThreshold = thresholds_[layer - 1][thickness_index];
+      sigmaNoise = v_sigmaNoise_[layer - 1][thickness_index];
 
       if (hgrh.energy() < storedThreshold)
         continue; // this sets the ZS threshold at ecut times the sigma noise
                   // for the sensor
     }
-    if (!dependSensor && hgrh.energy() < ecut)
+    if (!dependSensor_ && hgrh.energy() < ecut_)
       continue;
 
     // map layers from positive endcap (z) to layer + maxlayer+1 to prevent
@@ -58,23 +56,23 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection &hits) {
 
     // here's were the KDNode is passed its dims arguments - note that these are
     // *copied* from the Hexel
-    points[layer].emplace_back(
+    points_[layer].emplace_back(
         Hexel(hgrh, detid, isHalf, sigmaNoise, thickness, &rhtools_),
         position.x(), position.y());
 
     // for each layer, store the minimum and maximum x and y coordinates for the
     // KDTreeBox boundaries
     if (firstHit[layer]) {
-      minpos[layer][0] = position.x();
-      minpos[layer][1] = position.y();
-      maxpos[layer][0] = position.x();
-      maxpos[layer][1] = position.y();
+      minpos_[layer][0] = position.x();
+      minpos_[layer][1] = position.y();
+      maxpos_[layer][0] = position.x();
+      maxpos_[layer][1] = position.y();
       firstHit[layer] = false;
     } else {
-      minpos[layer][0] = std::min((float)position.x(), minpos[layer][0]);
-      minpos[layer][1] = std::min((float)position.y(), minpos[layer][1]);
-      maxpos[layer][0] = std::max((float)position.x(), maxpos[layer][0]);
-      maxpos[layer][1] = std::max((float)position.y(), maxpos[layer][1]);
+      minpos_[layer][0] = std::min((float)position.x(), minpos_[layer][0]);
+      minpos_[layer][1] = std::min((float)position.y(), minpos_[layer][1]);
+      maxpos_[layer][0] = std::max((float)position.x(), maxpos_[layer][0]);
+      maxpos_[layer][1] = std::max((float)position.y(), maxpos_[layer][1]);
     }
 
   } // end loop hits
@@ -84,13 +82,13 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection &hits) {
 // this method can be invoked multiple times for the same event with different
 // input (reset should be called between events)
 void HGCalImagingAlgo::makeClusters() {
-  layerClustersPerLayer.resize(2 * maxlayer + 2);
+  layerClustersPerLayer_.resize(2 * maxlayer + 2);
   // assign all hits in each layer to a cluster core or halo
   tbb::this_task_arena::isolate([&] {
     tbb::parallel_for(size_t(0), size_t(2 * maxlayer + 2), [&](size_t i) {
-      KDTreeBox bounds(minpos[i][0], maxpos[i][0], minpos[i][1], maxpos[i][1]);
+      KDTreeBox bounds(minpos_[i][0], maxpos_[i][0], minpos_[i][1], maxpos_[i][1]);
       KDTree hit_kdtree;
-      hit_kdtree.build(points[i], bounds);
+      hit_kdtree.build(points_[i], bounds);
 
       unsigned int actualLayer =
           i > maxlayer
@@ -98,13 +96,13 @@ void HGCalImagingAlgo::makeClusters() {
               : i; // maps back from index used for KD trees to actual layer
 
       double maxdensity = calculateLocalDensity(
-          points[i], hit_kdtree, actualLayer); // also stores rho (energy
+          points_[i], hit_kdtree, actualLayer); // also stores rho (energy
                                                // density) for each point (node)
       // calculate distance to nearest point with higher density storing
       // distance (delta) and point's index
-      calculateDistanceToHigher(points[i]);
-      findAndAssignClusters(points[i], hit_kdtree, maxdensity, bounds,
-                            actualLayer, layerClustersPerLayer[i]);
+      calculateDistanceToHigher(points_[i]);
+      findAndAssignClusters(points_[i], hit_kdtree, maxdensity, bounds,
+                            actualLayer, layerClustersPerLayer_[i]);
     });
   });
 }
@@ -113,7 +111,7 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
 
   reco::CaloID caloID = reco::CaloID::DET_HGCAL_ENDCAP;
   std::vector<std::pair<DetId, float>> thisCluster;
-  for (auto &clsOnLayer : layerClustersPerLayer) {
+  for (auto &clsOnLayer : layerClustersPerLayer_) {
     for (unsigned int i = 0; i < clsOnLayer.size(); ++i) {
       double energy = 0;
       Point position;
@@ -146,7 +144,7 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
             }
           }
 
-          if (verbosity < pINFO) {
+          if (verbosity_ < pINFO) {
             std::cout << "\t******** NEW CLUSTER (SHARING) ********"
                       << std::endl;
             std::cout << "\tEff. No. of cells = " << effective_hits
@@ -158,8 +156,8 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
                       << std::endl;
             std::cout << "\t*****************************" << std::endl;
           }
-          clusters_v.emplace_back(energy, position, caloID, thisCluster,
-                                  algoId);
+          clusters_v_.emplace_back(energy, position, caloID, thisCluster,
+                                  algoId_);
           thisCluster.clear();
         }
       } else {
@@ -170,7 +168,7 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
           // use fraction to store whether this is a Halo hit or not
           thisCluster.emplace_back(it.data.detid, (it.data.isHalo ? 0.f : 1.f));
         }
-        if (verbosity < pINFO) {
+        if (verbosity_ < pINFO) {
           std::cout << "******** NEW CLUSTER (HGCIA) ********" << std::endl;
           std::cout << "Index          " << i << std::endl;
           std::cout << "No. of cells = " << clsOnLayer[i].size() << std::endl;
@@ -179,12 +177,12 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
           std::cout << "     Eta        = " << position.eta() << std::endl;
           std::cout << "*****************************" << std::endl;
         }
-        clusters_v.emplace_back(energy, position, caloID, thisCluster, algoId);
+        clusters_v_.emplace_back(energy, position, caloID, thisCluster, algoId_);
         thisCluster.clear();
       }
     }
   }
-  return clusters_v;
+  return clusters_v_;
 }
 
 math::XYZPoint
@@ -238,11 +236,11 @@ double HGCalImagingAlgo::calculateLocalDensity(std::vector<KDNode> &nd,
   float delta_c; // maximum search distance (critical distance) for local
                  // density calculation
   if (layer <= lastLayerEE)
-    delta_c = vecDeltas[0];
+    delta_c = vecDeltas_[0];
   else if (layer <= lastLayerFH)
-    delta_c = vecDeltas[1];
+    delta_c = vecDeltas_[1];
   else
-    delta_c = vecDeltas[2];
+    delta_c = vecDeltas_[2];
 
   // for each node calculate local density rho and store it
   for (unsigned int i = 0; i < nd.size(); ++i) {
@@ -327,11 +325,11 @@ int HGCalImagingAlgo::findAndAssignClusters(
   unsigned int nClustersOnLayer = 0;
   float delta_c; // critical distance
   if (layer <= lastLayerEE)
-    delta_c = vecDeltas[0];
+    delta_c = vecDeltas_[0];
   else if (layer <= lastLayerFH)
-    delta_c = vecDeltas[1];
+    delta_c = vecDeltas_[1];
   else
-    delta_c = vecDeltas[2];
+    delta_c = vecDeltas_[2];
 
   std::vector<size_t> rs =
       sorted_indices(nd); // indices sorted by decreasing rho
@@ -343,17 +341,17 @@ int HGCalImagingAlgo::findAndAssignClusters(
 
     if (nd[ds[i]].data.delta < delta_c)
       break; // no more cluster centers to be looked at
-    if (dependSensor) {
+    if (dependSensor_) {
 
-      float rho_c = kappa * nd[ds[i]].data.sigmaNoise;
+      float rho_c = kappa_ * nd[ds[i]].data.sigmaNoise;
       if (nd[ds[i]].data.rho < rho_c)
         continue; // set equal to kappa times noise threshold
 
-    } else if (nd[ds[i]].data.rho * kappa < maxdensity)
+    } else if (nd[ds[i]].data.rho * kappa_ < maxdensity)
       continue;
 
     nd[ds[i]].data.clusterIndex = nClustersOnLayer;
-    if (verbosity < pINFO) {
+    if (verbosity_ < pINFO) {
       std::cout << "Adding new cluster with index " << nClustersOnLayer
                 << std::endl;
       std::cout << "Cluster center is hit " << ds[i] << std::endl;
@@ -381,7 +379,7 @@ int HGCalImagingAlgo::findAndAssignClusters(
   // make room in the temporary cluster vector for the additional clusterIndex
   // clusters
   // from this layer
-  if (verbosity < pINFO) {
+  if (verbosity_ < pINFO) {
     std::cout << "resizing cluster vector by " << nClustersOnLayer << std::endl;
   }
   clustersOnLayer.resize(nClustersOnLayer);
@@ -443,7 +441,7 @@ int HGCalImagingAlgo::findAndAssignClusters(
       if (nd[i].data.rho <= rho_b[ci])
         nd[i].data.isHalo = true;
       clustersOnLayer[ci].push_back(nd[i]);
-      if (verbosity < pINFO) {
+      if (verbosity_ < pINFO) {
         std::cout << "Pushing hit " << i << " into cluster with index " << ci
                   << std::endl;
       }
@@ -451,7 +449,7 @@ int HGCalImagingAlgo::findAndAssignClusters(
   }
 
   // prepare the offset for the next layer if there is one
-  if (verbosity < pINFO) {
+  if (verbosity_ < pINFO) {
     std::cout << "moving cluster offset by " << nClustersOnLayer << std::endl;
   }
   return nClustersOnLayer;
@@ -570,7 +568,7 @@ void HGCalImagingAlgo::shareEnergy(
         double d2 = (std::pow(ihit.x - centroids[j].x(), 2.0) +
                      std::pow(ihit.y - centroids[j].y(), 2.0) +
                      std::pow(ihit.z - centroids[j].z(), 2.0)) /
-                    sigma2;
+                    sigma2_;
         dist2[j] = d2;
         // now we set the fractions up based on hit type
         if (i == seeds[j]) { // this cluster's seed
@@ -612,35 +610,35 @@ void HGCalImagingAlgo::shareEnergy(
 }
 
 void HGCalImagingAlgo::computeThreshold() {
+  // To support the TDR geometry and also the post-TDR one (v9 onwards), we
+  // need to change the logic of the vectors containing signal to noise and
+  // thresholds. The first 3 indices will keep on addressing the different
+  // thicknesses of the Silicon detectors, while the last one, number 3 (the
+  // fourth) will address the Scintillators. This change will support both
+  // geometries at the same time.
 
-  if (initialized)
+  if (initialized_)
     return; // only need to calculate thresholds once
+
+  initialized_ = true;
 
   std::vector<double> dummy;
   const unsigned maxNumberOfThickIndices = 3;
-  dummy.resize(maxNumberOfThickIndices, 0);
-  thresholds.resize(maxlayer, dummy);
-  v_sigmaNoise.resize(maxlayer, dummy);
+  dummy.resize(maxNumberOfThickIndices + 1, 0); // +1 to accomodate for the Scintillators
+  thresholds_.resize(maxlayer, dummy);
+  v_sigmaNoise_.resize(maxlayer, dummy);
 
   for (unsigned ilayer = 1; ilayer <= maxlayer; ++ilayer) {
     for (unsigned ithick = 0; ithick < maxNumberOfThickIndices; ++ithick) {
       float sigmaNoise =
-          0.001f * fcPerEle * nonAgedNoises[ithick] * dEdXweights[ilayer] /
-          (fcPerMip[ithick] * thicknessCorrection[ithick]);
-      thresholds[ilayer - 1][ithick] = sigmaNoise * ecut;
-      v_sigmaNoise[ilayer - 1][ithick] = sigmaNoise;
+          0.001f * fcPerEle_ * nonAgedNoises_[ithick] * dEdXweights_[ilayer] /
+          (fcPerMip_[ithick] * thicknessCorrection_[ithick]);
+      thresholds_[ilayer - 1][ithick] = sigmaNoise * ecut_;
+      v_sigmaNoise_[ilayer - 1][ithick] = sigmaNoise;
     }
+    float scintillators_sigmaNoise = 0.001f * noiseMip_ * dEdXweights_[ilayer];
+    thresholds_[ilayer - 1][maxNumberOfThickIndices] = ecut_ * scintillators_sigmaNoise;
+    v_sigmaNoise_[ilayer -1][maxNumberOfThickIndices] = scintillators_sigmaNoise;
   }
 
-  // now BH, much faster
-  for (unsigned ilayer = lastLayerFH + 1; ilayer <= maxlayer; ++ilayer) {
-    float sigmaNoise = 0.001f * noiseMip * dEdXweights[ilayer];
-    std::vector<double> bhDummy_thresholds;
-    std::vector<double> bhDummy_sigmaNoise;
-    bhDummy_thresholds.push_back(sigmaNoise * ecut);
-    bhDummy_sigmaNoise.push_back(sigmaNoise);
-    thresholds[ilayer - 1] = bhDummy_thresholds;
-    v_sigmaNoise[ilayer - 1] = bhDummy_sigmaNoise;
-  }
-  initialized = true;
 }

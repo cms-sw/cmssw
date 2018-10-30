@@ -34,6 +34,13 @@ void EventAction::BeginOfEventAction(const G4Event * anEvent)
   BeginOfEvent e(anEvent);
   m_beginOfEventSignal(&e);
 
+  if(m_printRandom) 
+    {
+      edm::LogVerbatim("SimG4CoreApplication") 
+	<< "BeginOfEvent " << anEvent->GetEventID()
+	<< " Random number: " << G4UniformRand();  
+    }
+
   if(nullptr != m_SteppingVerbose) { m_SteppingVerbose->BeginOfEvent(anEvent); }
 }
 
@@ -41,11 +48,11 @@ void EventAction::EndOfEventAction(const G4Event * anEvent)
 {
   if(m_printRandom) 
     {
-      edm::LogInfo("SimG4CoreApplication") << " Event " << anEvent->GetEventID()
-					   << " Random number: " << G4UniformRand();  
-      //CLHEP::HepRandom::showEngineStatus();
+      edm::LogVerbatim("SimG4CoreApplication") 
+	<< " EndOfEvent " << anEvent->GetEventID()
+	<< " Random number: " << G4UniformRand();  
     }
-  if (std::ifstream(m_stopFile.c_str()))
+  if (!m_stopFile.empty() && std::ifstream(m_stopFile.c_str()))
     {
       edm::LogWarning("SimG4CoreApplication")
         << "EndOfEventAction: termination signal received at event "

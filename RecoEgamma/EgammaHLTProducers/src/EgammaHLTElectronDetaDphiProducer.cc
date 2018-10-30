@@ -123,7 +123,6 @@ std::pair<float,float> EgammaHLTElectronDetaDphiProducer::calDEtaDPhiSCTrk(reco:
   float deltaeta = fabs(SCcorrPosition.eta()-eleref->track()->eta());
   float deltaphi = 999.;
   
-  bool recoveryForFailingPropagation = false;
   if (variablesAtVtx_) {
     reco::TrackRef track = eleref->track();
     reco::TransientTrack tt(track, magField_);
@@ -133,10 +132,8 @@ std::pair<float,float> EgammaHLTElectronDetaDphiProducer::calDEtaDPhiSCTrk(reco:
       EleRelPointPair scAtVtx(theClus->position(), sclTSOS.globalPosition(), bsPosition);
       deltaeta = fabs(scAtVtx.dEta());
       deltaphi = fabs(scAtVtx.dPhi());
-    } else {
-      recoveryForFailingPropagation = true;
     }
-  } else if (useTrackProjectionToEcal_ or recoveryForFailingPropagation) { 
+  } else if (useTrackProjectionToEcal_) { 
     ECALPositionCalculator posCalc;
     const math::XYZPoint vertex(bsPosition.x(),bsPosition.y(),eleref->track()->vz());
     

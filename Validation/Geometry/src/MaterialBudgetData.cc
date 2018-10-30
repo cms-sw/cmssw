@@ -1,149 +1,113 @@
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "G4Step.hh"
 #include "G4Material.hh"
 #include "G4EventManager.hh"
 #include "G4Event.hh"
-
-//#define TREE_DEBUG
 
 MaterialBudgetData::MaterialBudgetData() 
 {
   //instantiate categorizer to assign an ID to volumes and materials
   myMaterialBudgetCategorizer = nullptr;
   allStepsToTree = false;
+  isHGCal = false;
   densityConvertionFactor = 6.24E18;
 }
 
 MaterialBudgetData::~MaterialBudgetData() {
+
 }
 
 void MaterialBudgetData::SetAllStepsToTree()
 {
   allStepsToTree = true;
-  MAXNUMBERSTEPS = 0;
-  MAXNUMBERSTEPS = 10000; //!!!WARNING: this number is also hardcoded when booking the tree
-  theDmb = new float[MAXNUMBERSTEPS];
-  theDil = new float[MAXNUMBERSTEPS];
-  // rr
-  theSupportDmb     = new float[MAXNUMBERSTEPS];
-  theSensitiveDmb   = new float[MAXNUMBERSTEPS];
-  theCablesDmb      = new float[MAXNUMBERSTEPS];
-  theCoolingDmb     = new float[MAXNUMBERSTEPS];
-  theElectronicsDmb = new float[MAXNUMBERSTEPS];
-  theOtherDmb       = new float[MAXNUMBERSTEPS];
-  theAirDmb         = new float[MAXNUMBERSTEPS];
-  theSupportDil     = new float[MAXNUMBERSTEPS];
-  theSensitiveDil   = new float[MAXNUMBERSTEPS];
-  theCablesDil      = new float[MAXNUMBERSTEPS];
-  theCoolingDil     = new float[MAXNUMBERSTEPS];
-  theElectronicsDil = new float[MAXNUMBERSTEPS];
-  theOtherDil       = new float[MAXNUMBERSTEPS];
-  theAirDil         = new float[MAXNUMBERSTEPS];
-  // rr
-  theInitialX = new double[MAXNUMBERSTEPS];
-  theInitialY = new double[MAXNUMBERSTEPS];
-  theInitialZ = new double[MAXNUMBERSTEPS];
-  theFinalX   = new double[MAXNUMBERSTEPS];
-  theFinalY   = new double[MAXNUMBERSTEPS];
-  theFinalZ   = new double[MAXNUMBERSTEPS];
-  // rr
-  theVolumeID     = new int[MAXNUMBERSTEPS];
-  theVolumeName   = new std::string[MAXNUMBERSTEPS];
-  theVolumeCopy   = new int[MAXNUMBERSTEPS];
-  theVolumeX      = new float[MAXNUMBERSTEPS];
-  theVolumeY      = new float[MAXNUMBERSTEPS];
-  theVolumeZ      = new float[MAXNUMBERSTEPS];
-  theVolumeXaxis1 = new float[MAXNUMBERSTEPS];
-  theVolumeXaxis2 = new float[MAXNUMBERSTEPS];
-  theVolumeXaxis3 = new float[MAXNUMBERSTEPS];
-  theVolumeYaxis1 = new float[MAXNUMBERSTEPS];
-  theVolumeYaxis2 = new float[MAXNUMBERSTEPS];
-  theVolumeYaxis3 = new float[MAXNUMBERSTEPS];
-  theVolumeZaxis1 = new float[MAXNUMBERSTEPS];
-  theVolumeZaxis2 = new float[MAXNUMBERSTEPS];
-  theVolumeZaxis3 = new float[MAXNUMBERSTEPS];
-  theMaterialID      = new int[MAXNUMBERSTEPS];
-  theMaterialName    = new std::string[MAXNUMBERSTEPS];
-  theMaterialX0      = new float[MAXNUMBERSTEPS];
-  theMaterialLambda0 = new float[MAXNUMBERSTEPS];
-  theMaterialDensity = new float[MAXNUMBERSTEPS];
-  theStepID             = new int[MAXNUMBERSTEPS];
-  theStepInitialPt      = new float[MAXNUMBERSTEPS];
-  theStepInitialEta     = new float[MAXNUMBERSTEPS];
-  theStepInitialPhi     = new float[MAXNUMBERSTEPS];
-  theStepInitialEnergy  = new float[MAXNUMBERSTEPS];
-  theStepInitialPx      = new float[MAXNUMBERSTEPS];
-  theStepInitialPy      = new float[MAXNUMBERSTEPS];
-  theStepInitialPz      = new float[MAXNUMBERSTEPS];
-  theStepInitialBeta    = new float[MAXNUMBERSTEPS];
-  theStepInitialGamma   = new float[MAXNUMBERSTEPS];
-  theStepInitialMass    = new float[MAXNUMBERSTEPS];
-  theStepFinalPt        = new float[MAXNUMBERSTEPS];
-  theStepFinalEta       = new float[MAXNUMBERSTEPS];
-  theStepFinalPhi       = new float[MAXNUMBERSTEPS];
-  theStepFinalEnergy    = new float[MAXNUMBERSTEPS];
-  theStepFinalPx        = new float[MAXNUMBERSTEPS];
-  theStepFinalPy        = new float[MAXNUMBERSTEPS];
-  theStepFinalPz        = new float[MAXNUMBERSTEPS];
-  theStepFinalBeta      = new float[MAXNUMBERSTEPS];
-  theStepFinalGamma     = new float[MAXNUMBERSTEPS];
-  theStepFinalMass      = new float[MAXNUMBERSTEPS];
-  theStepPreProcess     = new int[MAXNUMBERSTEPS];
-  theStepPostProcess    = new int[MAXNUMBERSTEPS];
-  // rr
 }
 
 
 void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
 {
+
   const G4ThreeVector& dir = aTrack->GetMomentum() ;
-  
-  if( myMaterialBudgetCategorizer == nullptr) myMaterialBudgetCategorizer = new MaterialBudgetCategorizer;
+
+  if( myMaterialBudgetCategorizer == nullptr){
+    myMaterialBudgetCategorizer = std::make_unique<MaterialBudgetCategorizer>();
+  }
   
   theStepN=0;
   theTotalMB=0;
   theTotalIL=0;
   theEta=0;
   thePhi=0;
-  
-  // rr
   theID=0;
   thePt=0;
   theEnergy=0;
   theMass=0;
-  
+ 
   theSupportMB     = 0.;
   theSensitiveMB   = 0.;
-  theCablesMB      = 0.;
   theCoolingMB     = 0.;
   theElectronicsMB = 0.;
   theOtherMB       = 0.;
-  theAirMB         = 0.;
+
+  //HGCal
+  theAirMB              = 0.;
+  theCablesMB           = 0.;
+  theCopperMB           = 0.;
+  theH_ScintillatorMB   = 0.;
+  theLeadMB             = 0.;
+  theM_NEMA_FR4_plateMB = 0.;
+  theSiliconMB          = 0.;
+  theStainlessSteelMB   = 0.;
+  theWCuMB              = 0.;
+
   theSupportIL     = 0.;
   theSensitiveIL   = 0.;
-  theCablesIL      = 0.;
   theCoolingIL     = 0.;
   theElectronicsIL = 0.;
   theOtherIL       = 0.;
-  theAirIL         = 0.;
+
+  //HGCal
+  theAirIL              = 0.;
+  theCablesIL           = 0.;
+  theCopperIL           = 0.;
+  theH_ScintillatorIL   = 0.;
+  theLeadIL             = 0.;
+  theM_NEMA_FR4_plateIL = 0.;
+  theSiliconIL          = 0.;
+  theStainlessSteelIL   = 0.;
+  theWCuIL              = 0.;
+  
   theSupportFractionMB     = 0.;
   theSensitiveFractionMB   = 0.;
-  theCablesFractionMB      = 0.;
   theCoolingFractionMB     = 0.;
   theElectronicsFractionMB = 0.;
   theOtherFractionMB       = 0.;
-  theAirFractionMB         = 0.;
+  //HGCal
+  theAirFractionMB               = 0.;         
+  theCablesFractionMB            = 0.;            
+  theCopperFractionMB            = 0.;               
+  theH_ScintillatorFractionMB    = 0.;          
+  theLeadFractionMB              = 0.;              
+  theM_NEMA_FR4_plateFractionMB  = 0.;         
+  theSiliconFractionMB           = 0.;               
+  theStainlessSteelFractionMB    = 0.;          
+  theWCuFractionMB               = 0.;                   
+
   theSupportFractionIL     = 0.;
   theSensitiveFractionIL   = 0.;
-  theCablesFractionIL      = 0.;
   theCoolingFractionIL     = 0.;
   theElectronicsFractionIL = 0.;
   theOtherFractionIL       = 0.;
-  theAirFractionIL         = 0.;
-  // rr
+  //HGCal
+  theAirFractionIL               = 0.;         
+  theCablesFractionIL            = 0.;            
+  theCopperFractionIL            = 0.;               
+  theH_ScintillatorFractionIL    = 0.;          
+  theLeadFractionIL              = 0.;              
+  theM_NEMA_FR4_plateFractionIL  = 0.;         
+  theSiliconFractionIL           = 0.;               
+  theStainlessSteelFractionIL    = 0.;          
+  theWCuFractionIL               = 0.;                   
   
   theID = (int)(aTrack->GetDefinition()->GetPDGEncoding());
   thePt = dir.perp();
@@ -152,22 +116,63 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
   } else {
     theEta = -99;
   }
-  //  thePhi = dir.phi()/deg; // better not to store in deg
   thePhi = dir.phi();
   theEnergy = aTrack->GetTotalEnergy();
-  theMass = aTrack->GetDefinition()->GetPDGMass();
-  
+  theMass = aTrack->GetDefinition()->GetPDGMass();  
 }
 
 
 void MaterialBudgetData::dataEndTrack( const G4Track* aTrack )
 {
-  //-  std::cout << "[OVAL] MaterialBudget " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " " << theEta << " " << thePhi << " " << theTotalMB << std::endl;
-  // rr
-  std::cout << "Recorded steps " << theStepN << std::endl;
-  std::cout << " Material Budget: Radiation Length   " << "G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()" << " eta " << theEta << " phi " << thePhi << " total X " << theTotalMB << " SUP " << theSupportMB << " SEN " << theSensitiveMB << " CAB " << theCablesMB << " COL " << theCoolingMB << " ELE " << theElectronicsMB << " other " << theOtherMB << " Air " << theAirMB << std::endl;
-  std::cout << " Material Budget: Interaction Length " << "G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()" << " eta " << theEta << " phi " << thePhi << " total L " << theTotalIL << " SUP " << theSupportIL << " SEN " << theSensitiveIL << " CAB " << theCablesIL << " COL " << theCoolingIL << " ELE " << theElectronicsIL << " other " << theOtherIL << " Air " << theAirIL << std::endl;
-  // rr
+  LogDebug("MaterialBudget") << "MaterialBudgetData: [OVAL] MaterialBudget " 
+			     << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() 
+			     << " Eta:" << theEta << " Phi:" << thePhi << " TotalMB" << theTotalMB;
+  
+  LogDebug("MaterialBudget") << "MaterialBudgetData:" << theStepN << "Recorded steps ";
+
+  if (!isHGCal){
+    
+    LogDebug("Material Budget") <<"MaterialBudgetData: Radiation Length " 
+				<< G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() 
+				<< " Eta" << theEta << " Phi" << thePhi 
+				<< " TotalMB" << theTotalMB 
+				<< " SUP " << theSupportMB << " SEN " << theSensitiveMB 
+				<< " CAB " << theCablesMB << " COL " << theCoolingMB 
+				<< " ELE " << theElectronicsMB << " other " << theOtherMB 
+				<< " Air " << theAirMB;
+
+    LogDebug("Material Budget") << "MaterialBudgetData: Interaction Length " 
+				<< G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() 
+				<< " Eta " << theEta << " Phi " << thePhi 
+				<< " TotalIL " << theTotalIL
+				<< " SUP " << theSupportIL << " SEN " << theSensitiveIL 
+				<< " CAB " << theCablesIL << " COL " << theCoolingIL 
+				<< " ELE " << theElectronicsIL << " other " << theOtherIL 
+				<< " Air " << theAirIL << std::endl;
+
+  } else {
+
+    LogDebug("MaterialBudget") << "MaterialBudgetData: HGCal Material Budget: Radiation Length " 
+			       << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() 
+			       << " Eta " << theEta << " Phi " << thePhi 
+			       << " TotaLMB" << theTotalMB 
+			       << " theCopperMB " << theCopperMB << " theH_ScintillatorMB " << theH_ScintillatorMB 
+			       << " CAB " << theCablesMB << " theLeadMB " << theLeadMB << " theM_NEMA_FR4_plateMB " 
+			       << theM_NEMA_FR4_plateMB << " theSiliconMB " << theSiliconMB 
+			       << " theAirMB " << theAirMB << " theStainlessSteelMB " << theStainlessSteelMB 
+			       << " theWCuMB " << theWCuMB;
+    
+    LogDebug("MaterialBudget") << "MaterialBudgetData: HGCal Material Budget: Interaction Length " 
+			       << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() 
+			       << " Eta " << theEta << " Phi " << thePhi 
+			       << " TotalIL " << theTotalIL << " theCopperIL " << theCopperIL 
+			       << " theH_ScintillatorIL " << theH_ScintillatorIL 
+			       << " CAB " << theCablesIL << " theLeadIL " << theLeadIL 
+			       << " theM_NEMA_FR4_plateIL " << theM_NEMA_FR4_plateIL 
+			       << " theSiliconIL " << theSiliconIL << " Air " 
+			       << theAirIL << " theStainlessSteelIL " << theStainlessSteelIL 
+			       << " theWCuIL " << theWCuIL << std::endl;
+  }
 }
 
 void MaterialBudgetData::dataPerStep( const G4Step* aStep )
@@ -190,40 +195,91 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   G4double density = theMaterialPre->GetDensity() / densityConvertionFactor; // always g/cm3
   
   G4String materialName = theMaterialPre->GetName();
-  std::cout << " steplen " << steplen << " radlen " << radlen << " mb " << steplen/radlen << " mate " << theMaterialPre->GetName() << std::endl;
+  
+  LogDebug("MaterialBudget") << "MaterialBudgetData: Material " << materialName
+			     << " steplen " << steplen
+			     << " radlen " << radlen 
+			     << " mb " << steplen/radlen;
 
   G4String volumeName = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume()->GetName();
-  std::cout << " Volume "   << volumeName << "\n";
-  std::cout << " Material " << materialName << "\n";
-  
+
+  LogDebug("MaterialBudget") << "MaterialBudgetData: Volume " << volumeName
+			     << " Material " << materialName;
+
   // instantiate the categorizer
   assert(myMaterialBudgetCategorizer);
   int volumeID   = myMaterialBudgetCategorizer->volume( volumeName );
   int materialID = myMaterialBudgetCategorizer->material( materialName );
-  std::cout << "Volume ID " << volumeID << " and material ID " << materialID << "\n";
+
+  LogDebug("MaterialBudget") << "MaterialBudgetData: Volume ID " << volumeID 
+			     << " Material ID " << materialID;
 
   // FIXME: Both volume ID and material ID are zeros, so this part is not executed leaving all
   // values as zeros. 
-  if(!myMaterialBudgetCategorizer->x0fraction(materialName).empty())
+  if(!myMaterialBudgetCategorizer->x0fraction(materialName).empty() && (!isHGCal))
     {
-      theSupportFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName).at(0);
-      theSensitiveFractionMB   = myMaterialBudgetCategorizer->x0fraction(materialName).at(1);
-      theCablesFractionMB      = myMaterialBudgetCategorizer->x0fraction(materialName).at(2);
-      theCoolingFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName).at(3);
-      theElectronicsFractionMB = myMaterialBudgetCategorizer->x0fraction(materialName).at(4);
-      theOtherFractionMB       = myMaterialBudgetCategorizer->x0fraction(materialName).at(5);
-      theAirFractionMB         = myMaterialBudgetCategorizer->x0fraction(materialName).at(6);
+      theSupportFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName)[0];
+      theSensitiveFractionMB   = myMaterialBudgetCategorizer->x0fraction(materialName)[1];
+      theCablesFractionMB      = myMaterialBudgetCategorizer->x0fraction(materialName)[2];
+      theCoolingFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName)[3];
+      theElectronicsFractionMB = myMaterialBudgetCategorizer->x0fraction(materialName)[4];
+      theOtherFractionMB       = myMaterialBudgetCategorizer->x0fraction(materialName)[5];
+      theAirFractionMB         = myMaterialBudgetCategorizer->x0fraction(materialName)[6];
+      
+      if(theOtherFractionMB!=0) 
+	edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName 
+				     << " in volume " << volumeName;
+
+      theSupportFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName)[0];
+      theSensitiveFractionIL   = myMaterialBudgetCategorizer->l0fraction(materialName)[1];
+      theCablesFractionIL      = myMaterialBudgetCategorizer->l0fraction(materialName)[2];
+      theCoolingFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName)[3];
+      theElectronicsFractionIL = myMaterialBudgetCategorizer->l0fraction(materialName)[4];
+      theOtherFractionIL       = myMaterialBudgetCategorizer->l0fraction(materialName)[5];
+      theAirFractionIL         = myMaterialBudgetCategorizer->l0fraction(materialName)[6];
+
+      if(theOtherFractionIL!=0) 
+	edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName 
+				     << " in volume " << volumeName;
+    }
+   else
+   {
+     theOtherFractionMB = 1;
+     theOtherFractionIL = 1;
+   }
+  if( (!myMaterialBudgetCategorizer->HGCalx0fraction(materialName).empty()) && (isHGCal) )
+    {
+      
+      theAirFractionMB              = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[0];
+      theCablesFractionMB           = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[1];
+      theCopperFractionMB           = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[2];
+      theH_ScintillatorFractionMB   = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[3];
+      theLeadFractionMB             = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[4];
+      theM_NEMA_FR4_plateFractionMB = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[5];
+      theSiliconFractionMB          = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[6];
+      theStainlessSteelFractionMB   = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[7];
+      theWCuFractionMB              = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[8];
+      theOtherFractionMB            = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[9];
+
     
-      if(theOtherFractionMB!=0) std::cout << " material found with no category " << materialName 
+      if(theOtherFractionMB!=0) 
+	edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName 
 					  << " in volume " << volumeName << std::endl;
-      theSupportFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName).at(0);
-      theSensitiveFractionIL   = myMaterialBudgetCategorizer->l0fraction(materialName).at(1);
-      theCablesFractionIL      = myMaterialBudgetCategorizer->l0fraction(materialName).at(2);
-      theCoolingFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName).at(3);
-      theElectronicsFractionIL = myMaterialBudgetCategorizer->l0fraction(materialName).at(4);
-      theOtherFractionIL       = myMaterialBudgetCategorizer->l0fraction(materialName).at(5);
-      theAirFractionIL         = myMaterialBudgetCategorizer->l0fraction(materialName).at(6);
-      if(theOtherFractionIL!=0) std::cout << " material found with no category " << materialName 
+
+      theAirFractionIL              = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[0];
+      theCablesFractionIL           = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[1];
+      theCopperFractionIL           = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[2];
+      theH_ScintillatorFractionIL   = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[3];
+      theLeadFractionIL             = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[4];
+      theM_NEMA_FR4_plateFractionIL = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[5];
+      theSiliconFractionIL          = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[6];
+      theStainlessSteelFractionIL   = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[7];
+      theWCuFractionIL              = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[8];
+      theOtherFractionIL            = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[9];
+
+
+      if(theOtherFractionIL!=0) 
+	edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category " << materialName 
 					  << " in volume " << volumeName << std::endl;
     }
    else
@@ -231,9 +287,6 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
      theOtherFractionMB = 1;
      theOtherFractionIL = 1;
    }
-  //  if(theOtherFractionMB!=0) LogDebug("MaterialBudgetData") << " material found with no category " << name 
-  //				 << " in volume " << lv->GetName();
-  // rr  
   
   float dmb = steplen/radlen;
   float dil = steplen/intlen;
@@ -246,32 +299,52 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   const G4VProcess*        interactionPost   = postPoint->GetProcessDefinedStep();
   
   G4Track* track = aStep->GetTrack();
-  if(theStepN==0) std::cout << " Simulated Particle " << theID << "\tMass " << theMass << " MeV/c2"
-			    << "\tPt = " << thePt  << " MeV/c" << "\tEta = " << theEta << "\tPhi = " << thePhi 
-			    << "\tEnergy = " << theEnergy << " MeV"
-		    //			    << std::endl
-		    //			    << "\tMagnetic Field at (0,0,0): (" << B000[0] << "," < B000[1] << "," << B000[2] << ")" 
-			    << std::endl;
-  
+  if(theStepN==0) 
+    LogDebug("MaterialBudget") << "MaterialBudgetData: Simulated Particle " << theID 
+			       << "\tMass " << theMass << " MeV/c2"
+			       << "\tPt = " << thePt  << " MeV/c" 
+			       << "\tEta = " << theEta 
+			       << "\tPhi = " << thePhi 
+			       << "\tEnergy = " << theEnergy << " MeV";
+
   //fill data per step
   if( allStepsToTree ){
-    if( stepN > MAXNUMBERSTEPS ) stepN = MAXNUMBERSTEPS - 1;
-    theDmb[theStepN] = dmb; 
-    theDil[theStepN] = dil; 
+    assert(theStepN < MAXNUMBERSTEPS);
+    if( theStepN > MAXNUMBERSTEPS ) theStepN = MAXNUMBERSTEPS - 1;
+    theDmb[theStepN] = dmb;
+    theDil[theStepN] = dil;
     theSupportDmb[theStepN]     = (dmb * theSupportFractionMB);
     theSensitiveDmb[theStepN]   = (dmb * theSensitiveFractionMB);
-    theCablesDmb[theStepN]      = (dmb * theCablesFractionMB);
     theCoolingDmb[theStepN]     = (dmb * theCoolingFractionMB);
     theElectronicsDmb[theStepN] = (dmb * theElectronicsFractionMB);
     theOtherDmb[theStepN]       = (dmb * theOtherFractionMB);
-    theAirDmb[theStepN]         = (dmb * theAirFractionMB);
+    //HGCal
+    theAirDmb[theStepN]                 = (dmb * theAirFractionMB);
+    theCablesDmb[theStepN]              = (dmb * theCablesFractionMB);
+    theCopperDmb[theStepN]              = (dmb * theCopperFractionMB);                       
+    theH_ScintillatorDmb[theStepN]      = (dmb * theH_ScintillatorFractionMB);       
+    theLeadDmb[theStepN]                = (dmb * theLeadFractionMB);                           
+    theM_NEMA_FR4_plateDmb[theStepN]    = (dmb * theM_NEMA_FR4_plateFractionMB);   
+    theSiliconDmb[theStepN]             = (dmb * theSiliconFractionMB);                     
+    theStainlessSteelDmb[theStepN]      = (dmb * theStainlessSteelFractionMB);       
+    theWCuDmb[theStepN]                 = (dmb * theWCuFractionMB);                             
+
     theSupportDil[theStepN]     = (dil * theSupportFractionIL);
     theSensitiveDil[theStepN]   = (dil * theSensitiveFractionIL);
-    theCablesDil[theStepN]      = (dil * theCablesFractionIL);
     theCoolingDil[theStepN]     = (dil * theCoolingFractionIL);
     theElectronicsDil[theStepN] = (dil * theElectronicsFractionIL);
     theOtherDil[theStepN]       = (dil * theOtherFractionIL);
-    theAirDil[theStepN]         = (dil * theAirFractionIL);
+    //HGCal
+    theAirDil[theStepN]                 = (dil * theAirFractionIL);
+    theCablesDil[theStepN]              = (dil * theCablesFractionIL);
+    theCopperDil[theStepN]              = (dil * theCopperFractionIL);                       
+    theH_ScintillatorDil[theStepN]      = (dil * theH_ScintillatorFractionIL);       
+    theLeadDil[theStepN]                = (dil * theLeadFractionIL);                           
+    theM_NEMA_FR4_plateDil[theStepN]    = (dil * theM_NEMA_FR4_plateFractionIL);   
+    theSiliconDil[theStepN]             = (dil * theSiliconFractionIL);                     
+    theStainlessSteelDil[theStepN]      = (dil * theStainlessSteelFractionIL);       
+    theWCuDil[theStepN]                 = (dil * theWCuFractionIL);                             
+
     theInitialX[theStepN] = prePos.x();
     theInitialY[theStepN] = prePos.y();
     theInitialZ[theStepN] = prePos.z();
@@ -325,113 +398,111 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theStepPreProcess[theStepN]     = preProcType;
     if (interactionPost) postProcType = interactionPost->GetProcessType();
     theStepPostProcess[theStepN]    = postProcType;
-#ifdef TREE_DEBUG
-    std::cout << " step " << theStepN
-	      << "\tDelta MB = " << theDmb[theStepN]
-	      << std::endl
-	      << "\t\tSupport "  << theSupportDmb[theStepN]
-	      << " Sensitive "   << theSensitiveDmb[theStepN]
-	      << " Cables "      << theCablesDmb[theStepN]
-	      << " Cooling "     << theCoolingDmb[theStepN]
-	      << " Electronics " << theElectronicsDmb[theStepN]
-	      << " Other "       << theOtherDmb[theStepN]
-	      << " Air "         << theAirDmb[theStepN]
-	      << std::endl
-	      << "\tDelta IL = " << theDil[theStepN]
-	      << std::endl
-	      << "\t\tSupport "  << theSupportDil[theStepN]
-	      << " Sensitive "   << theSensitiveDil[theStepN]
-	      << " Cables "      << theCablesDil[theStepN]
-	      << " Cooling "     << theCoolingDil[theStepN]
-	      << " Electronics " << theElectronicsDil[theStepN]
-	      << " Other "       << theOtherDil[theStepN]
-	      << " Air "         << theAirDil[theStepN]
-	      << std::endl;
+    
+    LogDebug("MaterialBudget") 
+      << "MaterialBudgetData: Step " << theStepN
+      << "\tDelta MB = " << theDmb[theStepN]
+      << std::endl
+      << " Support "  << theSupportDmb[theStepN]
+      << " Sensitive "   << theSensitiveDmb[theStepN]
+      << " Cables "      << theCablesDmb[theStepN]
+      << " Cooling "     << theCoolingDmb[theStepN]
+      << " Electronics " << theElectronicsDmb[theStepN]
+      << " Other "       << theOtherDmb[theStepN]
+      << " Air "         << theAirDmb[theStepN]
+      << std::endl
+      << "\tDelta IL = " << theDil[theStepN]
+      << std::endl
+      << " Support "  << theSupportDil[theStepN]
+      << " Sensitive "   << theSensitiveDil[theStepN]
+      << " Cables "      << theCablesDil[theStepN]
+      << " Cooling "     << theCoolingDil[theStepN]
+      << " Electronics " << theElectronicsDil[theStepN]
+      << " Other "       << theOtherDil[theStepN]
+      << " Air "         << theAirDil[theStepN];
+    
     if (interactionPre)
-      std::cout << "\tProcess Pre " << interactionPre->GetProcessName()
-		<< " type " << theStepPreProcess[theStepN] << " " << interactionPre->GetProcessTypeName(G4ProcessType(theStepPreProcess[theStepN]))
-		<< std::endl;
+      LogDebug("MaterialBudget") 
+	<< "MaterialBudgetData: Process Pre " << interactionPre->GetProcessName()
+	<< " type " << theStepPreProcess[theStepN] 
+	<< " name " << interactionPre->GetProcessTypeName(G4ProcessType(theStepPreProcess[theStepN]));
     if (interactionPost)
-      std::cout << "\tProcess Post " << interactionPost->GetProcessName()
-		<< " type " << theStepPostProcess[theStepN] << " "
-		<< interactionPost->GetProcessTypeName(G4ProcessType(theStepPostProcess[theStepN]))
-		<< std::endl;
-    std::cout << "\tPre x = " << theInitialX[theStepN]
-	      << "\ty = "     << theInitialY[theStepN]
-	      << "\tz = "     << theInitialZ[theStepN] 
-	      << "\tPolar Radius = " << sqrt(prePos.x()*prePos.x()+prePos.y()*prePos.y())
-	      << "\tPt = "     << theStepInitialPt[theStepN]
-	      << "\tEnergy = " << theStepInitialEnergy[theStepN]
-      //	      << std::endl
-      //	      << "B-field(T) at Pre (cm): " << field->fieldInTesla(GlobalPoint(pos.x()/10.,pos.y()/10.,pos.z()/10.))
-	      << std::endl;
-    std::cout  << "\tPost x = " << theFinalX[theStepN]
-	       << "\ty = "      << theFinalY[theStepN]
-	       << "\tz = "      << theFinalZ[theStepN] 
-	       << "\tPolar Radius = " << sqrt(postPos.x()*postPos.x()+postPos.y()*postPos.y())
-	      << "\tPt = "     << theStepFinalPt[theStepN]
-	       << "\tEnergy = " << theStepFinalEnergy[theStepN]
-	       << std::endl;
-    std::cout << "\tvolume " << volumeID << " " << theVolumeName[theStepN] 
-	      << " copy number " << theVolumeCopy[theStepN]
-	      << "\tmaterial " << theMaterialID[theStepN] << " " << theMaterialName[theStepN]
-	      << "\tDensity = " << theMaterialDensity[theStepN] << " g/cm3"
-	      << "\tX0 = " << theMaterialX0[theStepN] << " mm"
-	      << "\tLambda0 = " << theMaterialLambda0[theStepN] << " mm"
-	      << std::endl;
-    std::cout << "\t\tParticle "  << theStepID[theStepN] 
-	      << " Initial Pt = " << theStepInitialPt[theStepN]     << " MeV/c"
-	      << " eta = "        << theStepInitialEta[theStepN]
-	      << " phi = "        << theStepInitialPhi[theStepN]
-	      << " Energy = "     << theStepInitialEnergy[theStepN] << " MeV"
-	      << " Mass = "       << theStepInitialMass[theStepN]   << " MeV/c2"
-	      << " Beta = "       << theStepInitialBeta[theStepN]
-	      << " Gamma = "      << theStepInitialGamma[theStepN]
-	      << std::endl
-	      << "\t\tParticle "  << theStepID[theStepN]
-	      << " Final Pt = "   << theStepFinalPt[theStepN]       << " MeV/c"
-	      << " eta = "        << theStepFinalEta[theStepN]
-	      << " phi = "        << theStepFinalPhi[theStepN]
-	      << " Energy = "     << theStepFinalEnergy[theStepN]   << " MeV"
-	      << " Mass = "       << theStepFinalMass[theStepN]     << " MeV/c2"
-	      << " Beta = "       << theStepFinalBeta[theStepN]
-	      << " Gamma = "      << theStepFinalGamma[theStepN]
-	      << std::endl;
-    std:: cout << "\tVolume Centre x = " << theVolumeX[theStepN]
-	       << "\ty = "               << theVolumeY[theStepN]
-	       << "\tz = "               << theVolumeZ[theStepN]
-	       << "\tPolar Radius = "    << sqrt( theVolumeX[theStepN]*theVolumeX[theStepN] +
-						  theVolumeY[theStepN]*theVolumeY[theStepN] )
-	       << std::endl;
-    std::cout << "\tx axis = (" 
-	      << theVolumeXaxis1[theStepN] << "," 
-	      << theVolumeXaxis2[theStepN] << "," 
-	      << theVolumeXaxis3[theStepN] << ")"
-	      << std::endl;
-    std::cout << "\ty axis = (" 
-	      << theVolumeYaxis1[theStepN] << "," 
-	      << theVolumeYaxis2[theStepN] << "," 
-	      << theVolumeYaxis3[theStepN] << ")"
-	      << std::endl;
-    std::cout << "\tz axis = (" 
-	      << theVolumeZaxis1[theStepN] << "," 
-	      << theVolumeZaxis2[theStepN] << "," 
-	      << theVolumeZaxis3[theStepN] << ")"
-	      << std::endl;
-    std::cout << "\tSecondaries"
-	      << std::endl;
-    for(G4TrackVector::iterator iSec = aStep->GetSecondary()->begin(); iSec!=aStep->GetSecondary()->end(); iSec++) {
-      std::cout << "\t\tid " << (*iSec)->GetDefinition()->GetPDGEncoding()
-		<< " created through process "
-		<< " type " << (*iSec)->GetCreatorProcess()->GetProcessType()
-		<< " " << (*iSec)->GetCreatorProcess()->GetProcessTypeName(G4ProcessType((*iSec)->GetCreatorProcess()->GetProcessType()))
-		<< std::endl;
+      LogDebug("MaterialBudget")
+	<< "MaterialBudgetData: Process Post " << interactionPost->GetProcessName()
+	<< " type " << theStepPostProcess[theStepN] 
+	<< " name "<< interactionPost->GetProcessTypeName(G4ProcessType(theStepPostProcess[theStepN]))
+	<< " Pre x = " << theInitialX[theStepN]
+	<< " y = "     << theInitialY[theStepN]
+	<< " z = "     << theInitialZ[theStepN] 
+	<< " Polar Radius = " << sqrt(prePos.x()*prePos.x()+prePos.y()*prePos.y())
+	<< " Pt = "     << theStepInitialPt[theStepN]
+	<< " Energy = " << theStepInitialEnergy[theStepN]
+	<< " Final: "
+	<< " Post x = " << theFinalX[theStepN]
+	<< " y = "      << theFinalY[theStepN]
+	<< " z = "      << theFinalZ[theStepN] 
+	<< " Polar Radius = " << sqrt(postPos.x()*postPos.x()+postPos.y()*postPos.y())
+	<< " Pt = "     << theStepFinalPt[theStepN]
+	<< " Energy = " << theStepFinalEnergy[theStepN]
+	<< std::endl
+	<< " Volume " << volumeID << " name " << theVolumeName[theStepN] 
+	<< " copy number " << theVolumeCopy[theStepN]
+	<< " material " << theMaterialID[theStepN] << " " << theMaterialName[theStepN]
+	<< " Density = " << theMaterialDensity[theStepN] << " g/cm3"
+	<< " X0 = " << theMaterialX0[theStepN] << " mm"
+	<< " Lambda0 = " << theMaterialLambda0[theStepN] << " mm"
+	<< std::endl
+	<< " Particle "  << theStepID[theStepN] 
+	<< " Initial Pt = " << theStepInitialPt[theStepN]     << " MeV/c"
+	<< " eta = "        << theStepInitialEta[theStepN]
+	<< " phi = "        << theStepInitialPhi[theStepN]
+	<< " Energy = "     << theStepInitialEnergy[theStepN] << " MeV"
+	<< " Mass = "       << theStepInitialMass[theStepN]   << " MeV/c2"
+	<< " Beta = "       << theStepInitialBeta[theStepN]
+	<< " Gamma = "      << theStepInitialGamma[theStepN]
+	<< std::endl
+	<< " Particle "  << theStepID[theStepN]
+	<< " Final Pt = "   << theStepFinalPt[theStepN]       << " MeV/c"
+	<< " eta = "        << theStepFinalEta[theStepN]
+	<< " phi = "        << theStepFinalPhi[theStepN]
+	<< " Energy = "     << theStepFinalEnergy[theStepN]   << " MeV"
+	<< " Mass = "       << theStepFinalMass[theStepN]     << " MeV/c2"
+	<< " Beta = "       << theStepFinalBeta[theStepN]
+	<< " Gamma = "      << theStepFinalGamma[theStepN]
+	<< std::endl
+	<< " Volume Centre x = " << theVolumeX[theStepN]
+	<< " y = "               << theVolumeY[theStepN]
+	<< " z = "               << theVolumeZ[theStepN]
+	<< "Polar Radius = "    << sqrt( theVolumeX[theStepN]*theVolumeX[theStepN] +
+					 theVolumeY[theStepN]*theVolumeY[theStepN] )
+	<< std::endl
+	<< " x axis = (" 
+	<< theVolumeXaxis1[theStepN] << "," 
+	<< theVolumeXaxis2[theStepN] << "," 
+	<< theVolumeXaxis3[theStepN] << ")"
+	<< std::endl
+	<< " y axis = (" 
+	<< theVolumeYaxis1[theStepN] << "," 
+	<< theVolumeYaxis2[theStepN] << "," 
+	<< theVolumeYaxis3[theStepN] << ")"
+	<< std::endl
+	<< " z axis = (" 
+	<< theVolumeZaxis1[theStepN] << "," 
+	<< theVolumeZaxis2[theStepN] << "," 
+	<< theVolumeZaxis3[theStepN] << ")"
+	<< std::endl
+	<< " Secondaries"
+	<< std::endl;
+    
+    for(G4TrackVector::const_iterator iSec = aStep->GetSecondary()->begin(); iSec!=aStep->GetSecondary()->end(); iSec++) {
+      LogDebug("MaterialBudget") 
+	<< "MaterialBudgetData: tid " << (*iSec)->GetDefinition()->GetPDGEncoding()
+	<< " created through process type " << (*iSec)->GetCreatorProcess()->GetProcessType()
+	<< (*iSec)->GetCreatorProcess()->GetProcessTypeName(G4ProcessType((*iSec)->GetCreatorProcess()->GetProcessType()));
     }
-#endif
   }
   
   theTrkLen = aStep->GetTrack()->GetTrackLength();
-  //-  std::cout << " theTrkLen " << theTrkLen << " theTrkLen2 " << theTrkLen2 << " postPos " << postPos.mag() << postPos << std::endl;
   thePVname = pv->GetName();
   thePVcopyNo = pv->GetCopyNo();
   theRadLen = radlen;
@@ -439,21 +510,41 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   theTotalMB += dmb;
   theTotalIL += dil;
   
-  // rr
   theSupportMB     += (dmb * theSupportFractionMB);
   theSensitiveMB   += (dmb * theSensitiveFractionMB);
-  theCablesMB      += (dmb * theCablesFractionMB);
   theCoolingMB     += (dmb * theCoolingFractionMB);
   theElectronicsMB += (dmb * theElectronicsFractionMB);
   theOtherMB       += (dmb * theOtherFractionMB);
-  theAirMB         += (dmb * theAirFractionMB);
+
+  //HGCal
+  theAirMB                 += (dmb * theAirFractionMB);
+  theCablesMB              += (dmb * theCablesFractionMB);
+  theCopperMB              += (dmb * theCopperFractionMB);                       
+  theH_ScintillatorMB      += (dmb * theH_ScintillatorFractionMB);       
+  theLeadMB                += (dmb * theLeadFractionMB);                           
+  theM_NEMA_FR4_plateMB    += (dmb * theM_NEMA_FR4_plateFractionMB);   
+  theSiliconMB             += (dmb * theSiliconFractionMB);                     
+  theStainlessSteelMB      += (dmb * theStainlessSteelFractionMB);       
+  theWCuMB                 += (dmb * theWCuFractionMB);                             
+
   theSupportIL     += (dil * theSupportFractionIL);
   theSensitiveIL   += (dil * theSensitiveFractionIL);
-  theCablesIL      += (dil * theCablesFractionIL);
   theCoolingIL     += (dil * theCoolingFractionIL);
   theElectronicsIL += (dil * theElectronicsFractionIL);
   theOtherIL       += (dil * theOtherFractionIL);
-  theAirIL         += (dil * theAirFractionIL);
+  //HGCal
+  theAirIL                 += (dil * theAirFractionIL);
+  theCablesIL              += (dil * theCablesFractionIL);
+  theCopperIL              += (dil * theCopperFractionIL);                       
+  theH_ScintillatorIL      += (dil * theH_ScintillatorFractionIL);       
+  theLeadIL                += (dil * theLeadFractionIL);                           
+  theM_NEMA_FR4_plateIL    += (dil * theM_NEMA_FR4_plateFractionIL);   
+  theSiliconIL             += (dil * theSiliconFractionIL);                     
+  theStainlessSteelIL      += (dil * theStainlessSteelFractionIL);       
+  theWCuIL                 += (dil * theWCuFractionIL);                             
+  
+
+
   // rr
   
   theStepN++;

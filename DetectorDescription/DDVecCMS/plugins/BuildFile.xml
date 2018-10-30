@@ -1,0 +1,10 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="vecgeom_interface"/>
+<use name="vecgeom"/>
+<!-- use name="DetectorDescription/DDVecCMS"/ -->
+
+<library name="DetectorDescriptionVecGeomPlugins" file="DDVecCMSDetector.cc" >
+  <lib name="Geom"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

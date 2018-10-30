@@ -17,13 +17,11 @@ SiStripBadFiberBuilder::SiStripBadFiberBuilder(const edm::ParameterSet& iConfig)
 SiStripBadFiberBuilder::~SiStripBadFiberBuilder(){
 }
 
-void SiStripBadFiberBuilder::algoAnalyze(const edm::Event & event, const edm::EventSetup& iSetup){
+std::unique_ptr<SiStripBadStrip> SiStripBadFiberBuilder::getNewObject() {
   
-  unsigned int run=event.id().run();
-
-  edm::LogInfo("SiStripBadFiberBuilder") << "... creating dummy SiStripBadStrip Data for Run " << run << "\n " << std::endl;
+  edm::LogInfo("SiStripBadFiberBuilder") << "... creating dummy SiStripBadStrip Data" << std::endl;
   
-  obj = new SiStripBadStrip();
+  auto obj =  std::make_unique<SiStripBadStrip>();
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
   
@@ -61,6 +59,8 @@ void SiStripBadFiberBuilder::algoAnalyze(const edm::Event & event, const edm::Ev
   }
   if (printdebug_)
     edm::LogInfo("SiStripBadFiberBuilder") << ss.str();
+
+  return obj;
 }
 
 

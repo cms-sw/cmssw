@@ -8,6 +8,7 @@ Note: some things done in methods written in classes rely on the querying module
       so these will not work in a normal context outside the framework.
 
 """
+from __future__ import print_function
 import json
 import datetime
 
@@ -834,7 +835,7 @@ def generate(map_blobs=False, class_name=None):
                 sqlite_iovs_sinces.append(sqlite_iovs[i].since)
 
 
-            print sqlite_iovs_sinces
+            print(sqlite_iovs_sinces)
 
             new_iovs_list = imported_iovs + sqlite_iovs
             new_iovs_list = sorted(new_iovs_list, key=lambda iov : iov.since)

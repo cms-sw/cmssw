@@ -8,9 +8,9 @@
 namespace edm
 {
   PathStatusInserter::PathStatusInserter(unsigned int numberOfStreams) :
-    hltPathStatus_(numberOfStreams)
+    hltPathStatus_(numberOfStreams),
+    token_{produces<HLTPathStatus>()}
   {
-    produces<HLTPathStatus>();
   }
 
   void
@@ -22,6 +22,6 @@ namespace edm
   void
   PathStatusInserter::produce(StreamID streamID, edm::Event& event, edm::EventSetup const&) const
   {
-    event.put(std::make_unique<HLTPathStatus>(hltPathStatus_[streamID.value()]));
+    event.emplace(token_,hltPathStatus_[streamID.value()]);
   }
 }

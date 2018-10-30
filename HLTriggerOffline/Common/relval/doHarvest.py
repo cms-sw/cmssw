@@ -1,33 +1,34 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 import os
 
 #Check arg,settings
 
 if len(sys.argv) != 2 : 
-    print """
+    print("""
     Usage: create_harvesting_py.py  <dataset>
     example:
     create_harvesting_py.py \
      /RelValTTbar/CMSSW_3_1_0_pre4_STARTUP_30X_v1/GEN-SIM-RECO
-    """
+    """)
     sys.exit(10) 
     
 #Get data files of dataset to be processed
 if os.getenv('DBSCMD_HOME','NOTSET') == 'NOTSET' :
-    print "dbs not set!"
+    print("dbs not set!")
     sys.exit(11)
 
 if os.getenv('CMSSW_VERSION','NOTSET') == 'NOTSET' :
-    print """
+    print("""
     cmssw not set!
     example:
       cmsrel CMSSW_3_1_0_pre4
       cd CMSSW_3_1_0_pre4/src
       eval `scramv1 runtime -sh`
       cd -
-    """
+    """)
     sys.exit(12) 
 
 dsetpath = sys.argv[1]
@@ -41,10 +42,10 @@ optManager  = DbsOptionParser()
 (opts,args) = optManager.getOpt()
 api = DbsApi(opts.__dict__)
 
-print "dataset: ", dsetpath
-print "data files: "
+print("dataset: ", dsetpath)
+print("data files: ")
 for afile in api.listFiles(path=dsetpath):
-  print "  %s" % afile['LogicalFileName']
+  print("  %s" % afile['LogicalFileName'])
 
 #Determine number of events/processes
 totnevts=0
@@ -53,14 +54,14 @@ for afile in api.listFiles(path=dsetpath):
 njobs = 1
 nevtref = 9000
 if totnevts > nevtref : njobs = (int) (totnevts / 9000)
-print "Total # events: ", totnevts, \
-      " to be executed in ", njobs, "processes"
+print("Total # events: ", totnevts, \
+      " to be executed in ", njobs, "processes")
 
 
 #Run cmsDriver command
 raw_cmsdriver = "cmsDriver.py harvest -s HARVESTING:validationHarvesting --mc  --conditions FrontierConditions_GlobalTag,STARTUP_30X::All --harvesting AtJobEnd --no_exec -n -1"
 
-print "executing cmsdriver command:\n\t", raw_cmsdriver
+print("executing cmsdriver command:\n\t", raw_cmsdriver)
 
 os.system( '`' + raw_cmsdriver + '`' )
 
@@ -134,7 +135,7 @@ crab_cfg.close()
 #os.system("cat " + pyout_name)
 #print "Created crab conf:\t", crab_name,"\n"
 
-print '\n\nCreated:\n\t %(pwd)s/%(pf)s \n\t %(pwd)s/%(cf)s' \
-      % {'pwd' : os.environ["PWD"], 'pf' : pyout_name, 'cf' : crab_name}
+print('\n\nCreated:\n\t %(pwd)s/%(pf)s \n\t %(pwd)s/%(cf)s' \
+      % {'pwd' : os.environ["PWD"], 'pf' : pyout_name, 'cf' : crab_name})
 
-print "Done."
+print("Done.")

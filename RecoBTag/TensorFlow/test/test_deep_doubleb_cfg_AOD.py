@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 import six
@@ -113,7 +114,7 @@ process.out.outputCommands.append('keep *_pfBoostedDoubleSVAK8TagInfos*_*_*')
 process.out.outputCommands.append('keep *_pfDeepDoubleBTagInfos*_*_*')
 process.out.outputCommands.append('keep *_updatedPatJets*_*_*')
 
-print process.out.outputCommands
+print(process.out.outputCommands)
 process.out.fileName = 'test_deep_doubleb_AODSIM.root'
 
 #                                         ##

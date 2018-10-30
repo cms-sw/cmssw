@@ -34,7 +34,7 @@ void CMSFieldManager::InitialiseForVolume(const edm::ParameterSet& p, sim::Field
     p.getUntrackedParameter<double>("MinimumEpsilonStep",0.00001)*CLHEP::mm;
   double maxEpsStep = 
     p.getUntrackedParameter<double>("MaximumEpsilonStep",0.01)*CLHEP::mm;
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << " New CMSFieldManager: LogicalVolume:      <" << vol << ">\n"
     << "               Stepper:                   <" << stepper << ">\n" 
     << "               Field type                 <" << type<< ">\n"

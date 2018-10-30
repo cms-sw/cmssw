@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hfnoseWafer.xml" eval="true">
+  <Constant name="WaferSize"             value="[hfnose:WaferSize]"/>
+  <Constant name="WaferThickness"        value="[hfnose:WaferThickness]"/>
+  <Constant name="SensorSeparation"      value="[hfnose:SensorSeparation]"/>
+  <Constant name="MouseBite"             value="[hfnose:MouseBite]"/>
+  <Constant name="CellThicknessFine"     value="[hfnose:CellThicknessFine]"/>
+  <Constant name="NumberOfCellsFine"     value="[hfnose:NumberOfCellsFine]"/>
+</ConstantsSection>
+
+<PosPartSection label="hfnoseWafer.xml">
+  <Algorithm name="hgcal:DDHGCalWafer8">
+    <rParent name="hfnoseWafer:HFNoseWafer0Fine"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="WaferThick"       value="[WaferThickness]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="MouseBite"        value="[MouseBite]"/>
+    <Numeric name="NCells"           value="[NumberOfCellsFine]"/>
+    <Numeric name="CellType"         value="0"/>
+    <String name="Material"          value="materials:Air"/>
+    <Vector name="CellNames" type="string" nEntries="13">
+      hfnoseCell:HFNoseCellFull0Fine,   hfnoseCell:HFNoseCellTrunc01Fine,
+      hfnoseCell:HFNoseCellTrunc02Fine, hfnoseCell:HFNoseCellTrunc03Fine,
+      hfnoseCell:HFNoseCellExten01Fine, hfnoseCell:HFNoseCellExten02Fine,
+      hfnoseCell:HFNoseCellExten03Fine, hfnoseCell:HFNoseCellCorner01Fine, 
+      hfnoseCell:HFNoseCellCorner02Fine,hfnoseCell:HFNoseCellCorner03Fine,
+      hfnoseCell:HFNoseCellCorner04Fine,hfnoseCell:HFNoseCellCorner05Fine,
+      hfnoseCell:HFNoseCellCorner06Fine</Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWafer8">
+    <rParent name="hfnoseWafer:HFNoseWafer1Fine"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="WaferThick"       value="[WaferThickness]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="MouseBite"        value="[MouseBite]"/>
+    <Numeric name="NCells"           value="[NumberOfCellsFine]"/>
+    <Numeric name="CellType"         value="0"/>
+    <String name="Material"          value="materials:Air"/>
+    <Vector name="CellNames" type="string" nEntries="13">
+      hfnoseCell:HFNoseCellFull1Fine,   hfnoseCell:HFNoseCellTrunc11Fine,
+      hfnoseCell:HFNoseCellTrunc12Fine, hfnoseCell:HFNoseCellTrunc13Fine,
+      hfnoseCell:HFNoseCellExten11Fine, hfnoseCell:HFNoseCellExten12Fine,
+      hfnoseCell:HFNoseCellExten13Fine, hfnoseCell:HFNoseCellCorner11Fine, 
+      hfnoseCell:HFNoseCellCorner12Fine,hfnoseCell:HFNoseCellCorner13Fine,
+      hfnoseCell:HFNoseCellCorner14Fine,hfnoseCell:HFNoseCellCorner15Fine,
+      hfnoseCell:HFNoseCellCorner16Fine</Vector>
+  </Algorithm>
+</PosPartSection>
+
+</DDDefinition>

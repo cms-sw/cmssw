@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -373,10 +372,11 @@ void HGCalTriggerGeomTester::checkMappingConsistency()
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferid(id);
+        unsigned wafer_type = (triggerGeometry_->eeTopology().dddConstants().waferTypeT(waferid.wafer())==2?0:1);
         int nCells = triggerGeometry_->eeTopology().dddConstants().numberCellsHexagon(waferid.wafer());
         for(int i=0;i<nCells;i++)
         {
-            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), waferid.waferType(), waferid.wafer(), i);
+            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), wafer_type, waferid.wafer(), i);
             if(!triggerGeometry_->eeTopology().valid(id)) continue;
             // fill trigger cells
             uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
@@ -393,10 +393,11 @@ void HGCalTriggerGeomTester::checkMappingConsistency()
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferid(id);
+        unsigned wafer_type = (triggerGeometry_->fhTopology().dddConstants().waferTypeT(waferid.wafer())==2?0:1);
         int nCells = triggerGeometry_->fhTopology().dddConstants().numberCellsHexagon(waferid.wafer());
         for(int i=0;i<nCells;i++)
         {
-            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), waferid.waferType(), waferid.wafer(), i);
+            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), wafer_type, waferid.wafer(), i);
             if(!triggerGeometry_->fhTopology().valid(id)) continue;
             // fill trigger cells
             uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
@@ -455,6 +456,7 @@ void HGCalTriggerGeomTester::checkMappingConsistency()
                     output<<cell_geom<<" ";
                 }
                 edm::LogProblem("BadTriggerCell")<<output.str();
+                throw cms::Exception("BadTriggerCell")<<"Trigger cell <-> cell inconsistency";
             }
         }
     }
@@ -479,6 +481,7 @@ void HGCalTriggerGeomTester::checkMappingConsistency()
                     output<<cell_geom<<" ";
                 }
                 edm::LogProblem("BadModule")<<output.str();
+                throw cms::Exception("BadModule")<<"Trigger cell <-> module inconsistency";
             }
         }
     }
@@ -508,6 +511,7 @@ void HGCalTriggerGeomTester::checkMappingConsistency()
                     output<<cell_geom<<" ";
                 }
                 edm::LogProblem("BadModule")<<output.str();
+                throw cms::Exception("BadModule")<<"Cell <-> module inconsistency";
             }
         }
     }
@@ -522,10 +526,11 @@ void HGCalTriggerGeomTester::checkNeighborConsistency()
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferid(id);
+        unsigned wafer_type = (triggerGeometry_->eeTopology().dddConstants().waferTypeT(waferid.wafer())==2?0:1);
         int nCells = triggerGeometry_->eeTopology().dddConstants().numberCellsHexagon(waferid.wafer());
         for(int i=0;i<nCells;i++)
         {
-            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), waferid.waferType(), waferid.wafer(), i);
+            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), wafer_type, waferid.wafer(), i);
             if(!triggerGeometry_->eeTopology().valid(id)) continue;
             // fill trigger cells
             // Skip trigger cells in module 0
@@ -541,10 +546,11 @@ void HGCalTriggerGeomTester::checkNeighborConsistency()
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferid(id);
+        unsigned wafer_type = (triggerGeometry_->fhTopology().dddConstants().waferTypeT(waferid.wafer())==2?0:1);
         int nCells = triggerGeometry_->fhTopology().dddConstants().numberCellsHexagon(waferid.wafer());
         for(int i=0;i<nCells;i++)
         {
-            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), waferid.waferType(), waferid.wafer(), i);
+            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), wafer_type, waferid.wafer(), i);
             if(!triggerGeometry_->fhTopology().valid(id)) continue;
             // fill trigger cells
             // Skip trigger cells in module 0
@@ -590,6 +596,7 @@ void HGCalTriggerGeomTester::checkNeighborConsistency()
                     output<<"  "<< HGCalDetId(neighbor_of_neighbor)<<"\n";
                 }
                 edm::LogProblem("BadNeighbor")<<output.str();
+                throw cms::Exception("BadNeighbor")<<"Neighbor mapping not consistent";
             }
         }
     }
@@ -610,10 +617,11 @@ void HGCalTriggerGeomTester::fillTriggerGeometry()
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferid(id); 
+        unsigned wafer_type = (triggerGeometry_->eeTopology().dddConstants().waferTypeT(waferid.wafer())==2?0:1);
         int nCells = triggerGeometry_->eeTopology().dddConstants().numberCellsHexagon(waferid.wafer());
         for(int i=0;i<nCells;i++)
         {
-            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), waferid.waferType(), waferid.wafer(), i);
+            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), wafer_type, waferid.wafer(), i);
             if(!triggerGeometry_->eeTopology().valid(id)) continue;
             cellId_         = id.rawId();
             cellSide_       = id.zside();
@@ -660,10 +668,11 @@ void HGCalTriggerGeomTester::fillTriggerGeometry()
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferid(id); 
+        unsigned wafer_type = (triggerGeometry_->fhTopology().dddConstants().waferTypeT(waferid.wafer())==2?0:1);
         int nCells = triggerGeometry_->fhTopology().dddConstants().numberCellsHexagon(waferid.wafer());
         for(int i=0;i<nCells;i++)
         {
-            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), waferid.waferType(), waferid.wafer(), i);
+            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), wafer_type, waferid.wafer(), i);
             if(!triggerGeometry_->fhTopology().valid(id)) continue;
             cellId_         = id.rawId();
             cellSide_       = id.zside();

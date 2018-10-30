@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 import os
 
@@ -15,11 +16,11 @@ nuno@cern.ch 09.04
 """
 
 def print_def():
-    print "Usage:", sys.argv[0], "[list_of_processes]"
-    print "Examples:"
-    print "harvestRelVal.py"
-    print "harvestRelVal.py /RelValTTbar/CMSSW_3_1_0_pre4_STARTUP_30X_v1/GEN-SIM-RECO"
-    print "harvestRelVal.py <dataset_list.txt>"
+    print("Usage:", sys.argv[0], "[list_of_processes]")
+    print("Examples:")
+    print("harvestRelVal.py")
+    print("harvestRelVal.py /RelValTTbar/CMSSW_3_1_0_pre4_STARTUP_30X_v1/GEN-SIM-RECO")
+    print("harvestRelVal.py <dataset_list.txt>")
 
 def check_dbs():
     if os.getenv('DBSCMD_HOME','NOTSET') == 'NOTSET' :
@@ -48,17 +49,17 @@ def get_cond_from_dsetpath(ds) :
     ca = ds.split('/')[2].replace(cmssw_ver+'_','').replace('IDEAL_','').replace('STARTUP_','').replace('_FastSim','')
     cb = ca[:ca.find('v')-1]
     if cb[0].find('3') == -1 or len(cb) > 3:
-        print "problem extracting condition for", ds, " : ", cb, '(len:',len(cb),')'  
+        print("problem extracting condition for", ds, " : ", cb, '(len:',len(cb),')')  
         if cb.find('31X') != -1:
             cb = '31X'
         elif cb.find('30X') != -1:
             cb = '30X'
         else:
-            print "skipping", cb
+            print("skipping", cb)
             return 0
-        print "condition found:", cb
+        print("condition found:", cb)
     else :
-        print "good condition for", ds, " : ", cb, '(len:',len(cb),')'      
+        print("good condition for", ds, " : ", cb, '(len:',len(cb),')')      
     return cb
 
 
@@ -73,7 +74,7 @@ def make_dbs_list(dbslf) :
 #               and ads.find("/GEN-SIM-RECO") != -1 : 
             flis.write(ads + '\n')
     flis.close()
-    print 'Generated dataset list', dbslf, 'from dbs.' 
+    print('Generated dataset list', dbslf, 'from dbs.') 
     #exampe:
     #dbs lsd --path=/RelVal*/CMSSW_3_1_0_pre5*/GEN-SIM-RECO --url=http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet > mylist.txt
     #dbslsd = "dbs lsd --path=/RelVal*/" + cmssw_ver + "*/GEN-SIM-RECO --url=http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
@@ -81,7 +82,7 @@ def make_dbs_list(dbslf) :
 
 def read_ds_file() :
     if not os.path.exists(dsfile) :
-        print "problem reading file", dsfile
+        print("problem reading file", dsfile)
         sys.exit(30)
     fin = open(dsfile,'r')
     for dset in fin.readlines(): 
@@ -89,17 +90,17 @@ def read_ds_file() :
         if d.find('#') == -1 :
             dsetpaths.append(d)
         else :
-            print 'skipping:', d
+            print('skipping:', d)
     fin.close()
-    print 'Using data set list in ', dsfile
+    print('Using data set list in ', dsfile)
 
 def check_dset() :
    #check cmssw consistency
    for s in dsetpaths:
        if s.find(cmssw_ver) == -1 :
            dsetpaths.remove(s)        
-           print 'Inconsistency found with datset and cmssw version (', cmssw_ver, ')' \
-                 ': \t ', s, ' has been removed.'
+           print('Inconsistency found with datset and cmssw version (', cmssw_ver, ')' \
+                 ': \t ', s, ' has been removed.')
    #check conditions from dsetname
    for s in dsetpaths[:]: #nb:need to make a copy here!
        cond = get_cond_from_dsetpath(s)
@@ -108,15 +109,15 @@ def check_dset() :
    #check list size
    nSamples = len(dsetpaths)
    if nSamples == 0 :
-       print "Empty input list, exit."
+       print("Empty input list, exit.")
        sys.exit(12)
    else :
-       print 'Processing', nSamples, 'data sets.'
+       print('Processing', nSamples, 'data sets.')
    #check event numbers
    nSampleEvts = list()
    for s in dsetpaths:
        nSampleEvts.append(check_nevts_dset(s))
-   print 'number of events per dataset:', nSampleEvts
+   print('number of events per dataset:', nSampleEvts)
 
 def find_dqmref(ds) :
     if not do_reference :
@@ -149,7 +150,7 @@ def find_dqmref(ds) :
             the_ref = ref
     else :
         the_ref = 'NONE'
-    print "Found reference file:", the_ref
+    print("Found reference file:", the_ref)
     return the_ref
 
 def create_harvest(ds) :
@@ -157,7 +158,7 @@ def create_harvest(ds) :
     cmsdriver = raw_cmsdriver
     cond = get_cond_from_dsetpath(ds)
     if cond == 0 :
-        print 'unexpected problem with conditions'
+        print('unexpected problem with conditions')
         sys.exit(50)
     cmsdriver = cmsdriver.replace('30X',cond)
     fin_name="harvest_HARVESTING_STARTUP.py"
@@ -172,10 +173,10 @@ def create_harvest(ds) :
     #print "=>", cmsdriver, " fs?", ds.find('FastSim')
     if os.path.exists(fin_name) : 
         os.system("rm " + fin_name)
-    print "executing cmsdriver command:\n\t", cmsdriver
+    print("executing cmsdriver command:\n\t", cmsdriver)
     os.system(cmsdriver)
     if not os.path.exists(fin_name) : 
-        print 'problem with cmsdriver file name'
+        print('problem with cmsdriver file name')
         sys.exit(40)
     os.system("touch " + fin_name)
     hf = make_harv_name(ds)
@@ -217,7 +218,7 @@ def append_sample_mcrab(dsetp, fout):
     sample = get_name_from_dsetpath(dsetp)
     hf = make_harv_name(dsetp)
     if not os.path.exists(hf) :
-        print 'problem creating multicrab, file', hf, 'does not exist'
+        print('problem creating multicrab, file', hf, 'does not exist')
         sys.exit(17)
     fout.write('\n\n[' + sample + ']')
     fout.write('\nCMSSW.pset=' + hf)
@@ -273,7 +274,7 @@ if len(sys.argv) > 2 :
     print_def()
     sys.exit(10) 
 elif len(sys.argv) == 1 : 
-    print "Will search for available datasets."
+    print("Will search for available datasets.")
     input_type = 'none'
 elif len(sys.argv) == 2 : 
     argin = sys.argv[1]
@@ -282,19 +283,19 @@ elif len(sys.argv) == 2 :
         #print 'Reading list of datasets from', dsfile
         input_type = 'file'
     elif argin.find('CMSSW') != -1 and argin.find('RelVal'): 
-        print 'Using specified data set', argin
+        print('Using specified data set', argin)
         input_type = 'ds'
     else :
-        print 'Invalid argument: process list, dataset or file', \
-                  argin, 'does not exist.'
+        print('Invalid argument: process list, dataset or file', \
+                  argin, 'does not exist.')
         sys.exit(11) 
 
 #dbs
 is_dbs = check_dbs()
 if not is_dbs:
-    print "dbs not set!"
+    print("dbs not set!")
 else:
-    print "dbs home:", os.getenv('DBSCMD_HOME')
+    print("dbs home:", os.getenv('DBSCMD_HOME'))
     from DBSAPI.dbsApi import DbsApi
     from DBSAPI.dbsException import *
     from DBSAPI.dbsApiException import *
@@ -309,17 +310,17 @@ else:
 #cmssw
 cmssw_ver = os.getenv('CMSSW_VERSION','NOTSET')
 if cmssw_ver == 'NOTSET' :
-    print """
+    print("""
     cmssw not set!
     example:
       scramv1 p CMSSW CMSSW_3_1_0_pre5
       cd CMSSW_3_1_0_pre5/src
       eval `scramv1 runtime -sh`
       cd -
-    """
+    """)
     sys.exit(12) 
 else :
-    print "Using cmssw version:", cmssw_ver
+    print("Using cmssw version:", cmssw_ver)
     
 
 #read datasets
@@ -327,7 +328,7 @@ dsetpaths = list()
 
 if input_type == 'none' :
     if not is_dbs :
-        print "no dataset specified, and dbs isn't set..."
+        print("no dataset specified, and dbs isn't set...")
         print_def()
         sys.exit(13)
     else :
@@ -344,7 +345,7 @@ elif input_type == 'ds' :
 check_dset()
 
 #print dataset list to be processed
-print 'data sets:', dsetpaths
+print('data sets:', dsetpaths)
 dslproc = open("dset_processed.txt", 'w')
 for s in dsetpaths :
     dslproc.write(s+'\n')
@@ -372,8 +373,8 @@ harvfilelist = list()
 for s in dsetpaths:
     harvfilelist.append(make_harv_name(s))
 
-print '\nCreated:\n\t %(pwd)s/%(cf)s \n\t %(pwd)s/%(mc)s' \
-      % {'pwd' : os.environ["PWD"],'cf' : f_crab, 'mc' : f_multi_crab}
-print "\tIndividual harvest py's:\n\t", harvfilelist
+print('\nCreated:\n\t %(pwd)s/%(cf)s \n\t %(pwd)s/%(mc)s' \
+      % {'pwd' : os.environ["PWD"],'cf' : f_crab, 'mc' : f_multi_crab})
+print("\tIndividual harvest py's:\n\t", harvfilelist)
 
-print "Done."
+print("Done.")

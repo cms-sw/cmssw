@@ -72,10 +72,7 @@ namespace {
     void operator () (T* arr) { delete [] arr; }
   };
 
-  typedef std::unary_function<const edm::Ptr<reco::PFCluster>&, 
-			      double> ClusUnaryFunction;  
-
-  struct GetSharedRecHitFraction : public ClusUnaryFunction {
+  struct GetSharedRecHitFraction {
     const edm::Ptr<reco::PFCluster> the_seed;    
     double x_rechits_tot, x_rechits_match;
     GetSharedRecHitFraction(const edm::Ptr<reco::PFCluster>& s) : 

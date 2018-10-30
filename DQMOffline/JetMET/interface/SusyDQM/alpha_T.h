@@ -6,7 +6,6 @@
 #include <numeric>
 #include <functional>
 #include <algorithm>
-#include "special_less.h"
 
 struct alpha_T {
   
@@ -30,7 +29,8 @@ struct alpha_T {
       for(unsigned j=0; j < pTs.size(); j++)
 	diff[i] += pTs[j] * ( 1 - 2 * (int(i>>j)&1) ) ;
     
-    return fabs( *min_element( diff.begin(), diff.end(), fabs_less() ) );
+    return fabs( *min_element( diff.begin(), diff.end(),
+                [](auto x, auto y){return fabs(x) < fabs(y);} ) );
   }
   
 };

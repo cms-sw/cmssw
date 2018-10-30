@@ -45,11 +45,11 @@ namespace SiPixelTemplateReco2D {
    };
 #endif
    
-   int PixelTempReco3D(int id, float cotalpha, float cotbeta, float locBz, float locBx, int edgeflagy, int edgeflagx,
+   int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, float locBx, int edgeflagy, int edgeflagx,
                        ClusMatrix & cluster, SiPixelTemplate2D& templ,
                        float& yrec, float& sigmay, float& xrec, float& sigmax, float& probxy, float& probQ, int& qbin, float& deltay, int& npixel);
    
-   int PixelTempReco3D(int id, float cotalpha, float cotbeta, float locBz, float locBx, int edgeflagy, int edgeflagx,
+   int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, float locBx, int edgeflagy, int edgeflagx,
                        ClusMatrix & cluster, SiPixelTemplate2D& templ,
                        float& yrec, float& sigmay, float& xrec, float& sigmax, float& probxy, float& probQ, int& qbin, float& deltay);
    

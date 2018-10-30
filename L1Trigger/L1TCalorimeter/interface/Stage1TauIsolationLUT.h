@@ -23,14 +23,14 @@ namespace l1t {
     static const unsigned int nbits_data; // number of bits in the payload
     static const unsigned int lut_version;
 
-    Stage1TauIsolationLUT(CaloParamsHelper* params);
+    Stage1TauIsolationLUT(CaloParamsHelper const* params);
     virtual ~Stage1TauIsolationLUT();
 
     unsigned lutAddress(unsigned int, unsigned int) const;
     int lutPayload(unsigned int) const;
   private:
 
-    CaloParamsHelper* const params_;
+    CaloParamsHelper const* const params_;
     //double tauMaxJetIsolationA;
     //double tauMaxJetIsolationB;
     //int tauMinPtJetIsolationB;

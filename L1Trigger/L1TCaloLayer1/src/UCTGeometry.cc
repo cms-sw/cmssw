@@ -1,24 +1,13 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstdint>
+#include <array>
 
 #include "UCTGeometry.hh"
 #include "UCTLogging.hh"
 using namespace l1tcalo;
 
 UCTGeometry::UCTGeometry() {
-  twrEtaValues[0] = 0;
-  for(unsigned int i = 0; i < 20; i++) {
-    twrEtaValues[i + 1] = 0.0436 + i * 0.0872;
-  }
-  twrEtaValues[21] = 1.785;
-  twrEtaValues[22] = 1.880;
-  twrEtaValues[23] = 1.9865;
-  twrEtaValues[24] = 2.1075;
-  twrEtaValues[25] = 2.247;
-  twrEtaValues[26] = 2.411;
-  twrEtaValues[27] = 2.575;
-  twrEtaValues[28] = 2.825;
 }
 
 uint32_t UCTGeometry::getLinkNumber(bool negativeEta, uint32_t region, 
@@ -216,10 +205,9 @@ UCTTowerIndex UCTGeometry::getUCTTowerIndex(UCTRegionIndex region, uint32_t iEta
   return UCTTowerIndex(towerEta, towerPhi);
 }
 
-double UCTGeometry::getUCTTowerEta(int caloEta) {
-  static bool first = true;
-  static double twrEtaValues[42];
-  if(first) {
+namespace {
+  constexpr std::array<double,42> fillTwrEtaValues() {
+    std::array<double, 42> twrEtaValues = {{0}};
     twrEtaValues[0] = 0;
     for(unsigned int i = 0; i < 20; i++) {
       twrEtaValues[i + 1] = 0.0436 + i * 0.0872;
@@ -245,8 +233,12 @@ double UCTGeometry::getUCTTowerEta(int caloEta) {
     twrEtaValues[39] = (4.38+4.74*3)/4.;
     twrEtaValues[40] = (5.21+4.74*3)/4.;
     twrEtaValues[41] = (4.74+5.21*3)/4.;
-    first = false;
+    return twrEtaValues;
   }
+  constexpr std::array<double,42> twrEtaValues = fillTwrEtaValues();
+}
+
+double UCTGeometry::getUCTTowerEta(int caloEta) {
   uint32_t absCaloEta = std::abs(caloEta);
   if(absCaloEta <= 41) {
     if(caloEta < 0)

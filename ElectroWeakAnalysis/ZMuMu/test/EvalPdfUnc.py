@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os, sys, re
 import string
 import math
@@ -6,14 +7,14 @@ from ROOT import *
 usage = "usage: %s python EvalPdfUnc.py infile outfile" %         os.path.basename(sys.argv[0])
 
 if len(sys.argv) < 3:
-   print usage
+   print(usage)
    sys.exit(2)
 else:
    argv = sys.argv
-   print argv
+   print(argv)
    infile = argv[1]
    outfile = argv[2]
-   print argv[1]
+   print(argv[1])
    f = open(infile, 'read')
    ## outfile in append mode
    ff = open(outfile,'a')
@@ -45,14 +46,14 @@ def mean ( v):
   return ( mean / n )   
 
 avg_acc =   mean (acc)
-print "mean acc: ", avg_acc
+print("mean acc: ", avg_acc)
 avg_acc_rew =   mean (acc_rew)
-print "mean acc_rew: ", avg_acc_rew
+print("mean acc_rew: ", avg_acc_rew)
 diff_acc= (avg_acc_rew - avg_acc) / ( avg_acc )
 avg_nevt =   mean (nevt)
-print "mean nevt: ", avg_nevt
+print("mean nevt: ", avg_nevt)
 avg_nevt_rew =   mean (nevt_rew)
-print "mean nevt_rew: ", avg_nevt_rew
+print("mean nevt_rew: ", avg_nevt_rew)
 diff_evt =  (avg_nevt_rew - avg_nevt) / ( avg_nevt ) 
 
 
@@ -79,16 +80,16 @@ def eval_asym_sys(eff):
                 tmp = d1
                 d1 = -d2
                 d2 = -tmp
-            print idx/2, ' ' , x0, '[+', d1, ' -', d2, ']'    
+            print(idx/2, ' ' , x0, '[+', d1, ' -', d2, ']')    
         m1 = max(d1, 0.)   
         s1 += m1*m1
         m2 = max(d2, 0.)   
         s2 += m2*m2
    s1 = sqrt(s1)
    s2 = sqrt(s2)
-   print >> ff, infile, 'asym error'
-   print >> ff ,   ' x = ', x0, '[+', s1, ' -', s2, ']'
-   print >> ff,  'err = +', s1/x0*100, ' -', s2/x0*100
+   print(infile, 'asym error', file=ff)
+   print(' x = ', x0, '[+', s1, ' -', s2, ']', file=ff)
+   print('err = +', s1/x0*100, ' -', s2/x0*100, file=ff)
   
 
 
@@ -114,13 +115,13 @@ def eval_max_asym_sys(eff):
                 tmp = d1
                 d1 = -d2
                 d2 = -tmp
-            print idx/2, ' ' , x0, '[+', d1, ' -', d2, ']'    
+            print(idx/2, ' ' , x0, '[+', d1, ' -', d2, ']')    
         m = max(abs(d1), abs(d2))   
         s1 += m*m
    s1 = sqrt(s1)
-   print >> ff, infile, 'sym error taking the max between asym errors'
-   print >> ff ,   ' x = ', x0, '[+', s1, ' -', s1, ']'
-   print >> ff,  'err = +', s1/x0*100, ' -', s1/x0*100
+   print(infile, 'sym error taking the max between asym errors', file=ff)
+   print(' x = ', x0, '[+', s1, ' -', s1, ']', file=ff)
+   print('err = +', s1/x0*100, ' -', s1/x0*100, file=ff)
   
 
 
@@ -147,13 +148,13 @@ def eval_mean_asym_sys(eff):
                 tmp = d1
                 d1 = -d2
                 d2 = -tmp
-            print idx/2, ' ' , x0, '[+', d1, ' -', d2, ']'    
+            print(idx/2, ' ' , x0, '[+', d1, ' -', d2, ']')    
         m = 0.5 * ( abs(d1) + abs(d2))   
         s1 += m*m
    s1 = sqrt(s1)
-   print >> ff, infile, 'sym error taking the mean between asym errors'
-   print >> ff ,   ' x = ', x0, '[+', s1, ' -', s1, ']'
-   print >> ff,  'err = +', s1/x0*100, ' -', s1/x0*100
+   print(infile, 'sym error taking the mean between asym errors', file=ff)
+   print(' x = ', x0, '[+', s1, ' -', s1, ']', file=ff)
+   print('err = +', s1/x0*100, ' -', s1/x0*100, file=ff)
   
 
 
@@ -179,13 +180,13 @@ def eval_quadsum_asym_sys(eff):
                 tmp = d1
                 d1 = -d2
                 d2 = -tmp
-            print idx/2, ' ' , x0, '[+', d1, ' -', d2, ']'    
+            print(idx/2, ' ' , x0, '[+', d1, ' -', d2, ']')    
         m = sqrt( 0.5 *( abs(d1)* abs(d1) + abs(d2)*abs(d2)) )   
         s1 += m*m
    s1 = sqrt(s1)
-   print >> ff, infile, 'sym error taking the qaudratic sum between asym errors'
-   print >> ff ,   ' x = ', x0, '[+', s1, ' -', s1, ']'
-   print >> ff,  'err = +', s1/x0*100, ' -', s1/x0*100
+   print(infile, 'sym error taking the qaudratic sum between asym errors', file=ff)
+   print(' x = ', x0, '[+', s1, ' -', s1, ']', file=ff)
+   print('err = +', s1/x0*100, ' -', s1/x0*100, file=ff)
 
 
 sys_acc_asym = eval_asym_sys(acc_rew)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 from contentValuesLib import *
 
 class OptionParser(optparse.OptionParser):
@@ -18,7 +19,7 @@ if __name__ == "__main__":
 
   # Check if at least one root file defined (can be many!)
   if len(args) == 0:
-    print "At least one ROOT file must be priovided, use --help for hit"
+    print("At least one ROOT file must be priovided, use --help for hit")
     sys.exit(1)
 
   # Check if all files exists and are accessible
@@ -26,7 +27,7 @@ if __name__ == "__main__":
     try:
       os.stat(rfile)
     except:
-      print "File [", rfile, "] not exists or is not accessible?"
+      print("File [", rfile, "] not exists or is not accessible?")
       sys.exit(2)
 
   ss = opts['subsystem']
@@ -37,7 +38,7 @@ if __name__ == "__main__":
     (run_number, values) = getSummaryValues(file_name = rfile, shift_type = None, translate = False, filters = None)
 
     if values == None or len(values) == 0:
-      print "No content summary values found. Skipping file: %s" % rfile
+      print("No content summary values found. Skipping file: %s" % rfile)
       continue
 
     messages = []
@@ -83,8 +84,8 @@ if __name__ == "__main__":
           messages.append("%s: value (%s)/%s not found in (%s)" % (sub, ','.join(skeys[key]), key, ','.join(nfound)))
 
     if not opts['silent']:
-      for message in sorted(messages):  print message          
-      print "%d errors found" % len(messages)
+      for message in sorted(messages):  print(message)          
+      print("%d errors found" % len(messages))
 
     if len(messages) > 0: sys.exit(1)
 

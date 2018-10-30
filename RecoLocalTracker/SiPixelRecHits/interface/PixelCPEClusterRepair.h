@@ -49,7 +49,7 @@ public:
       
       // 2D fit stuff.
       float templProbXY_ ;
-      bool  recommended3D_ ;
+      bool  recommended2D_ ;
       int   ierr2;
    };
    
@@ -70,13 +70,13 @@ private:
    // Helper functions: 
 
    // Call vanilla template reco, then clean-up
-   void callTempReco2D( DetParam const & theDetParam, 
+   void callTempReco1D( DetParam const & theDetParam, 
 			ClusterParamTemplate & theClusterParam, 
 			SiPixelTemplateReco::ClusMatrix & clusterPayload,
 			int ID, LocalPoint & lp ) const;
 
    // Call 2D template reco, then clean-up
-   void callTempReco3D( DetParam const & theDetParam, 
+   void callTempReco2D( DetParam const & theDetParam, 
 			ClusterParamTemplate & theClusterParam, 
 			SiPixelTemplateReco2D::ClusMatrix & clusterPayload,
 			int ID, LocalPoint & lp ) const;
@@ -95,7 +95,7 @@ private:
    int forwardTemplateID_ ;
    std::string templateDir_ ;
 
-   // Configure 3D reco.
+   // Configure 2D reco.
    float minProbY_ ;
    int   maxSizeMismatchInY_ ;
    

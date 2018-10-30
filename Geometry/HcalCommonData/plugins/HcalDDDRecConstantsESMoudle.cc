@@ -40,7 +40,7 @@ public:
   HcalDDDRecConstantsESModule(const edm::ParameterSet&);
   ~HcalDDDRecConstantsESModule() override;
 
-  typedef std::shared_ptr<HcalDDDRecConstants> ReturnType;
+  using ReturnType = std::unique_ptr<HcalDDDRecConstants>;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & );
 
@@ -73,7 +73,7 @@ HcalDDDRecConstantsESModule::produce(const HcalRecNumberingRecord& iRecord) {
   edm::ESHandle<HcalDDDSimConstants>    hdc;
   iRecord.getRecord<HcalSimNumberingRecord>().get(hdc);
 
-  return HcalDDDRecConstantsESModule::ReturnType(new HcalDDDRecConstants(&(*parHandle), *hdc)) ;
+  return std::make_unique<HcalDDDRecConstants>(&(*parHandle), *hdc);
 }
 
 //define this as a plug-in

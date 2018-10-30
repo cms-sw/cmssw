@@ -40,6 +40,9 @@ gemDigiCommonParameters = cms.PSet(
     GE21ModNeuBkgParam2 = cms.double(0.0103078)
 )
 
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(gemDigiCommonParameters, mixLabel = "mixData")
+
 # Module to create simulated GEM digis.
 simMuonGEMDigis = cms.EDProducer("GEMDigiProducer",
     gemDigiCommonParameters

@@ -15,9 +15,14 @@ class HGCalTriggerGeometryImp1 : public HGCalTriggerGeometryGenericMapping
         HGCalTriggerGeometryImp1(const edm::ParameterSet& conf);
 
         void initialize(const edm::ESHandle<CaloGeometry>& ) final;
+        void initialize(const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&) final;
 
     private:
         edm::FileInPath l1tCellsMapping_;
+
+        void buildMaps();
 };
 
 
@@ -29,7 +34,6 @@ HGCalTriggerGeometryImp1::HGCalTriggerGeometryImp1(const edm::ParameterSet& conf
 {
 }
 
-
 /*****************************************************************/
 void HGCalTriggerGeometryImp1::initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
 /*****************************************************************/
@@ -39,6 +43,24 @@ void HGCalTriggerGeometryImp1::initialize(const edm::ESHandle<CaloGeometry>& cal
                                             << "WARNING: Only the EE part is covered.\n"\
                                             << "WARNING: There is no neighbor information.\n";
     setCaloGeometry(calo_geometry);
+}
+
+/*****************************************************************/
+void HGCalTriggerGeometryImp1::initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
+        const edm::ESHandle<HGCalGeometry>& hgc_hsi_geometry,
+        const edm::ESHandle<HGCalGeometry>& hgc_hsc_geometry
+        )
+/*****************************************************************/
+{
+    throw cms::Exception("BadGeometry")
+        << "HGCalTriggerGeometryImp1 geometry cannot be initialized with the V9 HGCAL geometry";
+}
+
+
+/*****************************************************************/
+void HGCalTriggerGeometryImp1::buildMaps()
+/*****************************************************************/
+{
     //
     // read trigger cell mapping file
     std::ifstream l1tCellsMappingStream(l1tCellsMapping_.fullPath());

@@ -24,6 +24,7 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/insertSelectedProcesses.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
@@ -99,6 +100,7 @@ namespace edm {
       std::map<BranchID, BranchDescription const*> trueBranchIDToKeptBranchDesc;
       std::vector<BranchDescription const*> associationDescriptions;
       std::set<BranchID> keptProductsInEvent;
+      std::set<std::string> processesWithSelectedMergeableRunProducts;
 
       for(auto const& it : preg.productList()) {
         BranchDescription const& desc = it.second;
@@ -111,12 +113,16 @@ namespace edm {
           associationDescriptions.push_back(&desc);
         } else if(selected(desc)) {
           keepThisBranch(desc, trueBranchIDToKeptBranchDesc, keptProductsInEvent);
+          insertSelectedProcesses(desc,
+                                  processesWithSelectedMergeableRunProducts);
         } else {
           // otherwise, output nothing,
           // and mark the fact that there is a newly dropped branch of this type.
           hasNewlyDroppedBranch_[desc.branchType()] = true;
         }
       }
+
+      setProcessesWithSelectedMergeableRunProducts(processesWithSelectedMergeableRunProducts);
 
       thinnedAssociationsHelper.selectAssociationProducts(associationDescriptions,
                                                           keptProductsInEvent,
@@ -288,8 +294,9 @@ namespace edm {
     
     void
     OutputModuleBase::doWriteRun(RunPrincipal const& rp,
-                                 ModuleCallingContext const* mcc) {
-      RunForOutput r(rp, moduleDescription_, mcc, true);
+                                 ModuleCallingContext const* mcc,
+                                 MergeableRunProductMetadata const* mrpm) {
+      RunForOutput r(rp, moduleDescription_, mcc, true, mrpm);
       r.setConsumer(this);
       writeRun(r);
     }

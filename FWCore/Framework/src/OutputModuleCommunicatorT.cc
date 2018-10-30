@@ -70,7 +70,8 @@ namespace edm {
   OutputModuleCommunicatorT<T>::writeRunAsync(WaitingTaskHolder iTask,
                                               edm::RunPrincipal const& rp,
                                               ProcessContext const* processContext,
-                                              ActivityRegistry* activityRegistry) {
+                                              ActivityRegistry* activityRegistry,
+                                              MergeableRunProductMetadata const* mergeableRunProductMetadata) {
     auto token = ServiceRegistry::instance().presentToken();
     GlobalContext globalContext(GlobalContext::Transition::kWriteRun,
                                 LuminosityBlockID(rp.run(), 0),
@@ -78,7 +79,7 @@ namespace edm {
                                 LuminosityBlockIndex::invalidLuminosityBlockIndex(),
                                 rp.endTime(),
                                 processContext);
-    auto t = [&mod = module(), &rp, globalContext, token, desc = &description(), activityRegistry, iTask]() mutable {
+    auto t = [&mod = module(), &rp, globalContext, token, desc = &description(), activityRegistry, mergeableRunProductMetadata, iTask]() mutable {
       std::exception_ptr ex;
       try {
         ServiceRegistry::Operate op(token);
@@ -90,7 +91,7 @@ namespace edm {
                                [&globalContext, &mcc](ActivityRegistry* activityRegistry) {
                                  activityRegistry->postModuleWriteRunSignal_(globalContext, mcc);
                                }));
-        mod.doWriteRun(rp, &mcc);
+        mod.doWriteRun(rp, &mcc, mergeableRunProductMetadata);
       } catch(...) {
         ex = std::current_exception();
       }

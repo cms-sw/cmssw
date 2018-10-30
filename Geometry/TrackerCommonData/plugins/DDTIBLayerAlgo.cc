@@ -705,7 +705,8 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
       if( pillarPhi[i]>0. ) {
 	
 	pillarTran = DDTranslation(0., 0., pillarZ[i]);
-	pillarRota = DDanonymousRot(DDcreateRotationMatrix(90.*CLHEP::deg, pillarPhi[i], 90.*CLHEP::deg, 90.*CLHEP::deg+pillarPhi[i], 0., 0.));
+	pillarRota = DDanonymousRot(std::unique_ptr<DDRotationMatrix>(DDcreateRotationMatrix(90.*CLHEP::deg, pillarPhi[i], 90.*CLHEP::deg,
+											     90.*CLHEP::deg+pillarPhi[i], 0., 0.)));
 	
 	cpv.position(Pillar, parent(), i, pillarTran, pillarRota);
 	LogDebug("TIBGeom") << "DDTIBLayerAlgo test "

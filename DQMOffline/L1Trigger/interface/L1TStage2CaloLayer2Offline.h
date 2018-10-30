@@ -96,6 +96,7 @@ protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void endJob() override;
 
 private:
   //histos booking function
@@ -108,6 +109,8 @@ private:
   void fillJetEfficiencies(const double & recoEt, const double & l1Et, const double & recoEta);
 
   bool doesNotOverlapWithHLTObjects(const l1t::Jet & jet) const;
+
+  void normalise2DHistogramsToBinArea();
 
   //private variables
   math::XYZPoint PVPoint_;

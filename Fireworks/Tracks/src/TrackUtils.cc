@@ -359,7 +359,8 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
    {
       for( trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it )
       {
-         if( typeid( **it ) == typeid( SiStripRecHit2D ))
+          const auto & rhs = *(*(it));
+         if(  typeid( rhs ) == typeid( SiStripRecHit2D ))
          {
             const SiStripRecHit2D &hit = static_cast<const SiStripRecHit2D &>( **it );
             if( hit.cluster().isNonnull() && hit.cluster().isAvailable())
@@ -370,7 +371,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
                break;
             }
          }
-         else if( typeid( **it ) == typeid( SiStripRecHit1D ))
+         else if( typeid( rhs ) == typeid( SiStripRecHit1D ))
          {
             const SiStripRecHit1D &hit = static_cast<const SiStripRecHit1D &>( **it );
             if( hit.cluster().isNonnull() && hit.cluster().isAvailable())
@@ -520,7 +521,8 @@ pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iIte
    const edmNew::DetSetVector<SiPixelCluster> * allClusters = nullptr;
    for( trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it)
    {
-      if( typeid(**it) == typeid( SiPixelRecHit ))
+       const auto & rhs  = *(*(it));
+      if( typeid( rhs ) == typeid( SiPixelRecHit ))
       {
          const SiPixelRecHit &hit = static_cast<const SiPixelRecHit &>(**it);
          if( hit.cluster().isNonnull() && hit.cluster().isAvailable())

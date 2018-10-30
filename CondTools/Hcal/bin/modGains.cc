@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstring>
 #include <string>
+#include <memory>
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
@@ -95,21 +96,21 @@ void modGains::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
 	std::cerr << "Vector operation, " << i << "th channel: using val=" << val << std::endl;
     }
     
-    HcalGain* p_item = nullptr;
+    std::unique_ptr<HcalGain> p_item;
     if ((std::strcmp(s_operation.c_str(),"add")==0) || (std::strcmp(s_operation.c_str(),"sadd")==0))
-      p_item = new HcalGain(id, gainsIn.getValues(id)->getValue(0) + val, gainsIn.getValues(id)->getValue(1) + val, 
+      p_item = std::make_unique<HcalGain>(id, gainsIn.getValues(id)->getValue(0) + val, gainsIn.getValues(id)->getValue(1) + val, 
 			    gainsIn.getValues(id)->getValue(2) + val, gainsIn.getValues(id)->getValue(3) + val);
 
     if ((std::strcmp(s_operation.c_str(),"sub")==0) || (std::strcmp(s_operation.c_str(),"ssub")==0))
-      p_item = new HcalGain(id, gainsIn.getValues(id)->getValue(0) - val, gainsIn.getValues(id)->getValue(1) - val, 
+      p_item = std::make_unique<HcalGain>(id, gainsIn.getValues(id)->getValue(0) - val, gainsIn.getValues(id)->getValue(1) - val, 
 			    gainsIn.getValues(id)->getValue(2) - val, gainsIn.getValues(id)->getValue(3) - val);
     
     if ((std::strcmp(s_operation.c_str(),"mult")==0) || (std::strcmp(s_operation.c_str(),"smult")==0))
-      p_item = new HcalGain(id, gainsIn.getValues(id)->getValue(0) * val, gainsIn.getValues(id)->getValue(1) * val, 
+      p_item = std::make_unique<HcalGain>(id, gainsIn.getValues(id)->getValue(0) * val, gainsIn.getValues(id)->getValue(1) * val, 
 			    gainsIn.getValues(id)->getValue(2) * val, gainsIn.getValues(id)->getValue(3) * val);
 
     if ((std::strcmp(s_operation.c_str(),"div")==0) || (std::strcmp(s_operation.c_str(),"sdiv")==0))
-      p_item = new HcalGain(id, gainsIn.getValues(id)->getValue(0) / val, gainsIn.getValues(id)->getValue(1) / val, 
+      p_item = std::make_unique<HcalGain>(id, gainsIn.getValues(id)->getValue(0) / val, gainsIn.getValues(id)->getValue(1) / val, 
 			    gainsIn.getValues(id)->getValue(2) / val, gainsIn.getValues(id)->getValue(3) / val);
 
 

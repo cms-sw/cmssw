@@ -62,10 +62,10 @@ class PFDisplacedVertexCandidateFinder {
   
   
   /// \return auto_ptr to collection of DisplacedVertexCandidates
-  std::auto_ptr< reco::PFDisplacedVertexCandidateCollection > transferVertexCandidates() {return vertexCandidates_;}
+  std::unique_ptr< reco::PFDisplacedVertexCandidateCollection > transferVertexCandidates() {return std::move(vertexCandidates_);}
 
-  const std::auto_ptr< reco::PFDisplacedVertexCandidateCollection >& vertexCandidates() const 
-    {return vertexCandidates_;}
+  const std::unique_ptr< reco::PFDisplacedVertexCandidateCollection >& vertexCandidates() const 
+    {return std::move(vertexCandidates_);}
 
   /// -------- Main function which find vertices -------- ///
 
@@ -116,7 +116,7 @@ class PFDisplacedVertexCandidateFinder {
 
   /// -------- Members -------- ///
 
-  std::auto_ptr< reco::PFDisplacedVertexCandidateCollection > vertexCandidates_;
+  std::unique_ptr< reco::PFDisplacedVertexCandidateCollection > vertexCandidates_;
   
 
   /// The track refs

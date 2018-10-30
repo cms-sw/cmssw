@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys,os,commands
 from CommonMethods import *
 
@@ -19,7 +20,7 @@ def main():
     dropbox = "/DropBox"
     for fileName in listOfFiles:
         fileNameRoot = fileName[0:len(fileName)-4]
-        print fileNameRoot
+        print(fileNameRoot)
         uploadSqliteFile(payloadDir, fileNameRoot, dropbox)
             
 

@@ -28,17 +28,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -95,9 +94,7 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
 
         HLTConfigProvider m_hltConfig;
 
-        edm::ESHandle<MagneticField> m_BField;
-        edm::ESHandle<Propagator> m_propagatorAlong;
-        edm::ESHandle<Propagator> m_propagatorOpposite;
+        PropagateToMuon m_propagator;
 
         std::vector<float> getHistBinsEff(EffType eff);
         std::tuple<int, double, double> getHistBinsRes(ResType res);
@@ -176,7 +173,7 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
 //
 class MuonGmtPair {
     public :
-        MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu, bool useAtVtxCoord);
+        MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu, const PropagateToMuon& propagator, bool useAtVtxCoord);
         MuonGmtPair(const MuonGmtPair& muonGmtPair);
         ~MuonGmtPair() { };
 
@@ -195,23 +192,9 @@ class MuonGmtPair {
         double getDeltaVar(const L1TMuonDQMOffline::ResType) const;
         double getVar(const L1TMuonDQMOffline::EffType) const;
 
-        void propagate(edm::ESHandle<MagneticField> bField,
-        edm::ESHandle<Propagator> propagatorAlong,
-        edm::ESHandle<Propagator> propagatorOpposite);
-
-    private :
-    // propagation private members
-        TrajectoryStateOnSurface cylExtrapTrkSam(reco::TrackRef track, double rho);
-        TrajectoryStateOnSurface surfExtrapTrkSam(reco::TrackRef track, double z);
-        FreeTrajectoryState freeTrajStateMuon(reco::TrackRef track);
-
     private :
         const reco::Muon *m_muon;
         const l1t::Muon *m_regMu;
-
-        edm::ESHandle<MagneticField> m_BField;
-        edm::ESHandle<Propagator> m_propagatorAlong;
-        edm::ESHandle<Propagator> m_propagatorOpposite;
 
         // L1T muon eta and phi coordinates to be used
         // Can be the coordinates from the 2nd muon station or from the vertex
@@ -219,8 +202,7 @@ class MuonGmtPair {
         double m_gmtPhi;
 
         double m_eta;
-        double m_phi_bar;
-        double m_phi_end;
+        double m_phi;
 };
 
 #endif

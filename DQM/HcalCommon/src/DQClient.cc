@@ -18,6 +18,7 @@ namespace hcaldqm
 	{
 		//	TEMPORARY
 		_vhashFEDs.clear(); _vcdaqEids.clear();
+		_vhashCrates.clear();
 
 		//	get various FED lists
 		edm::ESHandle<HcalDbService> dbs;
@@ -55,13 +56,10 @@ namespace hcaldqm
 			}
 
 			//	get FEDs registered @cDAQ
-			edm::eventsetup::EventSetupRecordKey recordKey(
-				edm::eventsetup::EventSetupRecordKey::TypeTag::findType(
-					"RunInfoRcd"));
-			if (es.find(recordKey))
+                        if (auto runInfoRec = es.tryToGet<RunInfoRcd>())
 			{
 				edm::ESHandle<RunInfo> ri;
-				es.get<RunInfoRcd>().get(ri);
+                                runInfoRec->get(ri);
 				std::vector<int> vfeds=ri->m_fed_in;
 				for (std::vector<int>::const_iterator it=vfeds.begin();
 					it!=vfeds.end(); ++it)

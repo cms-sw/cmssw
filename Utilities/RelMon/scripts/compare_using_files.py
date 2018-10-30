@@ -9,6 +9,7 @@
 ################################################################################
 
 
+from __future__ import print_function
 def getInfoFromFilename(filename):
   prefix,sample,cmssw_release,tier = filename[:-5].split("__")[:5]
   run=int(prefix.split("_")[-1][1:])
@@ -169,8 +170,8 @@ def blackListedHistos():
 (options, args) = parser.parse_args()
 
 if len(args)!=2 and options.compare:
-  print "Wrong number of RootFiles specified (%s)" %len(args)
-  print args
+  print("Wrong number of RootFiles specified (%s)" %len(args))
+  print(args)
   
 #-------------------------------------------------------------------------------
 original_pickle_name=""
@@ -206,20 +207,20 @@ if options.compare:
     run1,sample1,cmssw_release1,tier1= getInfoFromFilename(rootfilename1)
     run2,sample2,cmssw_release2,tier2= getInfoFromFilename(rootfilename2)
   else:
-    print "Reading meta from commandline"
+    print("Reading meta from commandline")
     sample1=sample2=options.sample
     cmssw_release1,cmssw_release2=options.metas.split('@@@')
     options.standalone = True
     
   # check if the sample is the same
   if sample1!=sample2:
-    print "I am puzzled. Did you choose two different samples?"
+    print("I am puzzled. Did you choose two different samples?")
     #exit(1)
   sample = sample1
 
   # check if the run is the same
   if run1!=run2:
-    print "I am puzzled. Did you choose two different runs?"
+    print("I am puzzled. Did you choose two different runs?")
 #    exit(1)  
   run=run1
 
@@ -239,15 +240,15 @@ if options.compare:
       
 #-------------------------------------------------------------------------------
 
-  print "Analysing Histograms located in directory %s at: " %options.dir_name
+  print("Analysing Histograms located in directory %s at: " %options.dir_name)
   for filename in rootfilename1,rootfilename2:
-    print " o %s" %filename
+    print(" o %s" %filename)
 
 
   if len(black_list)>0:
-    print "We have a Blacklist:"
+    print("We have a Blacklist:")
     for dirid in black_list:
-      print " o %s" %dirid
+      print(" o %s" %dirid)
 
   # Set up the fake directory structure
   directory=Directory(options.dir_name)
@@ -268,8 +269,8 @@ if options.compare:
   if run>1 and options.specify_run:
     outdir_name+="_%s" %run
     fulldirname+="_%s" %run
-  print "+"*30
-  print "Output Directory will be ", outdir_name
+  print("+"*30)
+  print("Output Directory will be ", outdir_name)
   options.outdir_name=outdir_name
   if not exists(outdir_name) and len(outdir_name )>0:
     mkdir(outdir_name)
@@ -301,7 +302,7 @@ if options.compare:
 
   # Dump the directory structure on disk in a pickle
   original_pickle_name="%s.pkl" %fulldirname
-  print "Pickleing the directory as %s in dir %s" %(original_pickle_name,getcwd())
+  print("Pickleing the directory as %s in dir %s" %(original_pickle_name,getcwd()))
   output = open(original_pickle_name,"w")
   cPickle.dump(directory, output, -1)# use highest protocol available for the pickle
   output.close()
@@ -325,7 +326,7 @@ if options.report:
   if len(options.pklfile)==0:
     pickle_name=original_pickle_name  
 
-  print "Reading directory from %s" %(pickle_name)
+  print("Reading directory from %s" %(pickle_name))
   ifile=open(pickle_name,"rb")
   directory=cPickle.load(ifile)
   ifile.close()
@@ -338,13 +339,13 @@ if options.report:
     chdir(options.outdir_name)
   
   # Calculate the results of the tests for each directory
-  print "Calculating stats for the directory..."
+  print("Calculating stats for the directory...")
   directory.calcStats()
   
-  print "Producing html..."
+  print("Producing html...")
   directory2html(directory, options.hash_name, options.standalone)
 
 if not (options.report or options.compare):
-  print "Neither comparison nor report to be executed. A typo?"
+  print("Neither comparison nor report to be executed. A typo?")
 
 

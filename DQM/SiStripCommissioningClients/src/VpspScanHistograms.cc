@@ -21,7 +21,7 @@ VpspScanHistograms::VpspScanHistograms( const edm::ParameterSet& pset,
                              bei,
                              sistrip::VPSP_SCAN )
 {
-  factory_ = auto_ptr<VpspScanSummaryFactory>( new VpspScanSummaryFactory );
+  factory_ = unique_ptr<VpspScanSummaryFactory>( new VpspScanSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistograms::" << __func__ << "]"
     << " Constructing object...";

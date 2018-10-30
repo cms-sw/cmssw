@@ -29,8 +29,8 @@ struct DDPosData
   const DDTranslation & translation() const { return trans_; }
   const DDTranslation & trans() const { return trans_; }
 
-  const DDRotationMatrix & rotation() const { return *(rot_.rotation()); }
-  const DDRotationMatrix & rot() const { return *(rot_.rotation()); }
+  const DDRotationMatrix & rotation() const { return rot_.rotation(); }
+  const DDRotationMatrix & rot() const { return rot_.rotation(); }
   const DDRotation & ddrot() const { return rot_; }
   int copyno() const { return copyno_; }
 

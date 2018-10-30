@@ -6,42 +6,51 @@ L1TMuonBarrelKalmanLUTs::L1TMuonBarrelKalmanLUTs(const std::string& filename) {
   lutFile_ = new TFile(path.fullPath().c_str());
 
 
-  lut_[15*100+3] = (TH1*)lutFile_->Get("gain_15_3");
-  lut_[15*100+2] = (TH1*)lutFile_->Get("gain_15_2");
-  lut_[15*100+1] = (TH1*)lutFile_->Get("gain_15_1");
-  lut_[15*100] = (TH1*)lutFile_->Get("gain_15_0");
-  lut_[14*100+3] = (TH1*)lutFile_->Get("gain_14_3");
-  lut_[14*100+2] = (TH1*)lutFile_->Get("gain_14_2");
-  lut_[14*100] = (TH1*)lutFile_->Get("gain_14_0");
 
-  lut_[13*100+3] = (TH1*)lutFile_->Get("gain_13_3");
-  lut_[13*100+1] = (TH1*)lutFile_->Get("gain_13_1");
-  lut_[13*100] = (TH1*)lutFile_->Get("gain_13_0");
+  lut_[3*64+8] = (TH1*)lutFile_->Get("gain_8_3");
+  lut_[2*64+8] = (TH1*)lutFile_->Get("gain_8_2");
+  lut_[2*64+12] = (TH1*)lutFile_->Get("gain_12_2");
+  lut_[2*64+4] = (TH1*)lutFile_->Get("gain_4_2");
+  lut_[1*64+12] = (TH1*)lutFile_->Get("gain_12_1");
+  lut_[1*64+10] = (TH1*)lutFile_->Get("gain_10_1");
+  lut_[1*64+6] = (TH1*)lutFile_->Get("gain_6_1");
+  lut_[1*64+14] = (TH1*)lutFile_->Get("gain_14_1");
+  lut_[3] = (TH1*)lutFile_->Get("gain_3_0");
+  lut_[5] = (TH1*)lutFile_->Get("gain_5_0");
+  lut_[6] = (TH1*)lutFile_->Get("gain_6_0");
+  lut_[7] = (TH1*)lutFile_->Get("gain_7_0");
+  lut_[9] = (TH1*)lutFile_->Get("gain_9_0");
+  lut_[10] = (TH1*)lutFile_->Get("gain_10_0");
+  lut_[11] = (TH1*)lutFile_->Get("gain_11_0");
+  lut_[12] = (TH1*)lutFile_->Get("gain_12_0");
+  lut_[13] = (TH1*)lutFile_->Get("gain_13_0");
+  lut_[14] = (TH1*)lutFile_->Get("gain_14_0");
+  lut_[15] = (TH1*)lutFile_->Get("gain_15_0");
 
-  lut_[12*100+3] = (TH1*)lutFile_->Get("gain_12_3");
-  lut_[12*100] = (TH1*)lutFile_->Get("gain_12_0");
+  lut2_[3*64+8] = (TH1*)lutFile_->Get("gain2_8_3");
+  lut2_[2*64+8] = (TH1*)lutFile_->Get("gain2_8_2");
+  lut2_[2*64+4] = (TH1*)lutFile_->Get("gain2_4_2");
+  lut2_[1*64+8] = (TH1*)lutFile_->Get("gain2_8_1");
+  lut2_[1*64+4] = (TH1*)lutFile_->Get("gain2_4_1");
+  lut2_[1*64+2] = (TH1*)lutFile_->Get("gain2_2_1");
 
-  lut_[11*100+2] = (TH1*)lutFile_->Get("gain_11_2");
-  lut_[11*100+1] = (TH1*)lutFile_->Get("gain_11_1");
-  lut_[11*100] = (TH1*)lutFile_->Get("gain_11_0");
 
-  lut_[10*100+2] = (TH1*)lutFile_->Get("gain_10_2");
-  lut_[10*100] = (TH1*)lutFile_->Get("gain_10_0");
 
-  lut_[9*100+1] = (TH1*)lutFile_->Get("gain_9_1");
-  lut_[9*100] = (TH1*)lutFile_->Get("gain_9_0");
+  coarseEta_[3] = (TH1*)lutFile_->Get("coarseEta_3");
+  coarseEta_[5] = (TH1*)lutFile_->Get("coarseEta_5");
+  coarseEta_[6] = (TH1*)lutFile_->Get("coarseEta_6");
+  coarseEta_[7] = (TH1*)lutFile_->Get("coarseEta_7");
+  coarseEta_[9] = (TH1*)lutFile_->Get("coarseEta_9");
 
-  lut_[7*100+2] = (TH1*)lutFile_->Get("gain_7_2");
-  lut_[7*100+1] = (TH1*)lutFile_->Get("gain_7_1");
-  lut_[7*100] = (TH1*)lutFile_->Get("gain_7_0");
+  coarseEta_[10] = (TH1*)lutFile_->Get("coarseEta_10");
+  coarseEta_[11] = (TH1*)lutFile_->Get("coarseEta_11");
+  coarseEta_[12] = (TH1*)lutFile_->Get("coarseEta_12");
+  coarseEta_[13] = (TH1*)lutFile_->Get("coarseEta_13");
+  coarseEta_[14] = (TH1*)lutFile_->Get("coarseEta_14");
+  coarseEta_[15] = (TH1*)lutFile_->Get("coarseEta_15");
 
-  lut_[6*100+2] = (TH1*)lutFile_->Get("gain_6_2");
-  lut_[6*100] = (TH1*)lutFile_->Get("gain_6_0");
 
-  lut_[5*100+1] = (TH1*)lutFile_->Get("gain_5_1");
-  lut_[5*100] = (TH1*)lutFile_->Get("gain_5_0");
-  lut_[3*100+1] = (TH1*)lutFile_->Get("gain_3_1");
-  lut_[3*100] = (TH1*)lutFile_->Get("gain_3_0");
+
 
 }
 
@@ -54,18 +63,37 @@ L1TMuonBarrelKalmanLUTs::~L1TMuonBarrelKalmanLUTs() {
 
 std::vector<float> L1TMuonBarrelKalmanLUTs::trackGain(uint step,uint bitmask,uint K) {
   std::vector<float> gain(4,0.0);
-  //  printf("Track gain %d %d %d\n",step,bitmask,K);
-  const TH1* h = lut_[100*bitmask+step];
+  const TH1* h = lut_[64*step+bitmask];
   gain[0] = h->GetBinContent(K+1);
-  gain[1] = h->GetBinContent(1024+K+1);
-  gain[2] = -h->GetBinContent(2*1024+K+1);
-  gain[3] = h->GetBinContent(3*1024+K+1);
+  gain[2] = -h->GetBinContent(1024+K+1);
   return gain;
 }
 
 
+std::vector<float> L1TMuonBarrelKalmanLUTs::trackGain2(uint step,uint bitmask,uint K) {
+  std::vector<float> gain(4,0.0);
+
+  //  printf("Track gain %d %d %d\n",step,bitmask,K);
+  const TH1* h = lut2_[64*step+bitmask];
+  gain[0] = h->GetBinContent(K+1);
+  gain[1] = h->GetBinContent(512+K+1);
+  gain[2] = -h->GetBinContent(2*512+K+1);
+  gain[3] = h->GetBinContent(3*512+K+1);
+  return gain;
+
+
+}
+
+
 std::pair<float,float> L1TMuonBarrelKalmanLUTs::vertexGain(uint bitmask,uint K) {
-  const TH1* h = lut_[100*bitmask];
+  const TH1* h = lut_[bitmask];
   std::pair<float,float> gain(-h->GetBinContent(K+1),-h->GetBinContent(1024+K+1) );
   return gain;
+}
+
+
+
+uint L1TMuonBarrelKalmanLUTs::coarseEta(uint pattern,uint mask) {
+  const TH1* h = coarseEta_[pattern];
+  return uint(h->GetBinContent(h->GetXaxis()->FindBin(mask)));
 }

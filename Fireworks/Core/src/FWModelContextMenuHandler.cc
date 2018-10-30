@@ -125,10 +125,9 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
       case kSetVisibleMO:
       {
          FWModelId id = *(m_selectionManager->selected().begin());
-         const FWDisplayProperties& props = id.item()->modelInfo(id.index()).displayProperties();
          for_each(m_selectionManager->selected().begin(),
                   m_selectionManager->selected().end(), 
-                  change_visibility(!props.isVisible())
+                  change_visibility(!id.item()->modelInfo(id.index()).displayProperties().isVisible())
                   );
          break;
       }
@@ -253,8 +252,7 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
 
    //setup the menu based on this object
    FWModelId id = *(m_selectionManager->selected().begin());
-   const FWDisplayProperties& props = id.item()->modelInfo(id.index()).displayProperties();
-   if(props.isVisible()) {
+   if(id.item()->modelInfo(id.index()).displayProperties().isVisible()) {
       m_modelPopup->CheckEntry(kSetVisibleMO);
    }else {
       m_modelPopup->UnCheckEntry(kSetVisibleMO);

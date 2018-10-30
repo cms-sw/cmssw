@@ -21,3 +21,7 @@ bool FileBlobCollection::mergeProduct(FileBlobCollection const &other) {
                    other.fileBlobs.end());
   return true;
 }
+
+void FileBlobCollection::swap(FileBlobCollection& iOther) {
+  fileBlobs.swap(iOther.fileBlobs);
+}

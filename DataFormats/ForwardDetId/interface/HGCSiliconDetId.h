@@ -106,7 +106,7 @@ public:
   
   static const HGCSiliconDetId Undefined;
 
-private:
+public:
 
   static const int kHGCalCellUOffset      = 0;
   static const int kHGCalCellUMask        = 0x1F;

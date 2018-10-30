@@ -28,11 +28,7 @@
  *
  *  The user must implement in his derived class the abstract method below
  *
- *  virtual MyCalibration * getNewObject()=0;
- *
- *  in this method, the user must create a new instance of the DB object and 
- *  return a pointer to it. The object must be created with "new" and never 
- *  be deleted by the user: it will be the FWK that takes control over it.
+ *  virtual std::unique_ptr<MyCalibration> getNewObject()=0;
  *
  *  The user can optionally implement the following methods 
  *
@@ -186,7 +182,7 @@ private:
   
   // method to be implemented by derived class. Must return a pointer to the DB object to be stored, which must have been created with "new". The derived class looses control on it (must not "delete" it at any time in its code!) 
   
-  virtual T * getNewObject()=0;
+  virtual std::unique_ptr<T> getNewObject()=0;
   
   
   // Optional methods that may be implemented (technically "overridden") in the derived classes if needed
@@ -246,7 +242,7 @@ private:
     
     if(LumiBlockMode_){
       
-      T * objPointer = getNewObject();
+      std::unique_ptr<T> objPointer = getNewObject();
       
       if(objPointer ){
 	storeOnDb(objPointer);
@@ -267,7 +263,7 @@ private:
     
     if(RunMode_){
       
-      T * objPointer = getNewObject();
+      std::unique_ptr<T> objPointer = getNewObject();
       
       if(objPointer ){
 	if( timeFromEndRun_ ) Time_ = run.id().run();
@@ -287,10 +283,10 @@ private:
     
     if(JobMode_){
       
-      T * objPointer = getNewObject();
+      std::unique_ptr<T> objPointer = getNewObject();
       
       if( objPointer ){
-	storeOnDb(objPointer);
+        storeOnDb(objPointer);
       }
       
       else {
@@ -300,7 +296,7 @@ private:
     }
   }
 
-  void storeOnDb(T * objPointer)
+  void storeOnDb(std::unique_ptr<T>& objPointer)
   {
     edm::LogInfo("ConditionDBWriter::storeOnDb ")  << std::endl;
     
@@ -327,7 +323,9 @@ private:
 
     edm::LogInfo("ConditionDBWriter") << "appending a new object to tag " 
 				      <<Record_ <<" in since mode " << std::endl;
-    mydbservice->writeOne<T>(objPointer, since, Record_);
+
+    // The Framework will take control over the DB object now, therefore the release.
+    mydbservice->writeOne<T>(objPointer.release(), since, Record_);
   }
 
   void setTime()
@@ -349,19 +347,19 @@ protected:
 
   void storeOnDbNow()
   {
-    T * objPointer = nullptr;
-    
     if(AlgoDrivenMode_){
       
       setSinceTime_=true;
       
-      objPointer = getNewObject();
+      std::unique_ptr<T> objPointer = getNewObject();
       
       if (!objPointer ) {
-	edm::LogError("ConditionDBWriter::storeOnDbNow: ERROR - requested to store on DB a new object (module configuration is algo driven based IOV), but received NULL pointer...will not store anything on the DB") << std::endl;
-	return;
+        edm::LogError("ConditionDBWriter::storeOnDbNow: ERROR - requested to store on DB a new object (module configuration is algo driven based IOV), but received NULL pointer...will not store anything on the DB") << std::endl;
+        return;
       }
-      else {storeOnDb(objPointer);}
+      else {
+        storeOnDb(objPointer);
+      }
       
     }
     else {

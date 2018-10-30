@@ -209,7 +209,7 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass,
     particle->SetCloud(tmpParticle);
     particle->SetSpectator(spectator);
 
-    edm::LogInfo("SimG4CoreCustomPhysics")
+    if(spectator) edm::LogVerbatim("SimG4CoreCustomPhysics")
       <<"CustomParticleFactory: " <<name<<" being assigned spectator"
       << spectator->GetParticleName() << " and cloud " <<cloudname << "\n" 
       <<"                        Masses: "<<mass<<" Gev, "

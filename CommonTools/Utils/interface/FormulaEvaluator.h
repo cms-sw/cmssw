@@ -22,6 +22,7 @@
 #include <array>
 #include <vector>
 #include <memory>
+#include <string>
 
 // user include files
 
@@ -84,6 +85,8 @@ namespace reco {
     
     unsigned int numberOfParameters() const { return m_nParameters; }
     unsigned int numberOfVariables() const { return m_nVariables; }
+
+    std::vector<std::string> abstractSyntaxTree() const;
     
   private:
     double evaluate(double const* iVariables, double const* iParameters) const;

@@ -28,3 +28,13 @@ recoAllJets=cms.Sequence(fixedGridRhoFastjetAllCalo+
 recoAllJetsPUOffsetCorr=cms.Sequence(fixedGridRhoFastjetAllCalo+
                                      fixedGridRhoFastjetCentralCalo+
                                      ak4CaloJetsPUCorr)
+
+from RecoHI.HiJetAlgos.HiRecoJets_cff import caloTowersRec, caloTowers, akPu4CaloJets
+
+recoJetsHI =cms.Sequence(fixedGridRhoFastjetAllCalo+
+                         fixedGridRhoFastjetCentralCalo+
+                         ak4CaloJets+
+                         caloTowersRec+
+                         caloTowers+
+                         akPu4CaloJets
+                         )

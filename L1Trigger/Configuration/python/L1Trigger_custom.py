@@ -1,3 +1,4 @@
+from __future__ import print_function
 # customization fragments to be used with cmsDriver and hltGetConfiguration
 #
 # V.M. Ghete 2010-06-09 initial version
@@ -129,7 +130,7 @@ def customiseL1Menu(process):
             process.es_prefer_l1conddb = cms.ESPrefer("PoolDBESSource", "l1conddb")
 
         else :
-            print '   Error: no SQL file is given; please provide a valid SQL file for option sqlFile'
+            print('   Error: no SQL file is given; please provide a valid SQL file for option sqlFile')
 
     return process
 

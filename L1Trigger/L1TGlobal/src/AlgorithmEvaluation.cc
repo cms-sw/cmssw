@@ -160,6 +160,15 @@ void l1t::AlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
             }
 
                 break;
+            case GlobalLogicParser::OP_XOR: {
+                b1 = resultStack.top();
+                resultStack.pop();
+                b2 = resultStack.top();
+                resultStack.pop();
+                resultStack.push(b1 ^ b2);
+            }
+
+                break;
             default: {
                 // should not arrive here
             }

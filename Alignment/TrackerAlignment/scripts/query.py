@@ -8,6 +8,7 @@
 """
 DBS data discovery command line interface
 """
+from __future__ import print_function
 
 import httplib, urllib, types, string, os, sys
 from optparse import OptionParser
@@ -59,7 +60,7 @@ def sendMessage(host,port,dbsInst,userInput,page,limit,xml=0,case='on',iface='dd
     input=urllib.quote(userInput)
     if debug:
        httplib.HTTPConnection.debuglevel = 1
-       print "Contact",host,port
+       print("Contact",host,port)
     _port=443
     if host.find("http://")!=-1:
        _port=80
@@ -96,15 +97,15 @@ def sendMessage(host,port,dbsInst,userInput,page,limit,xml=0,case='on',iface='dd
     (status_code,msg,reply)=http_conn.getreply()
     data=http_conn.getfile().read()
     if debug or msg!="OK":
-       print
-       print http_conn.headers
-       print "*** Send message ***"
-       print input
-       print "************************************************************************"
-       print "status code:",status_code
-       print "message:",msg
-       print "************************************************************************"
-       print reply
+       print()
+       print(http_conn.headers)
+       print("*** Send message ***")
+       print(input)
+       print("************************************************************************")
+       print("status code:",status_code)
+       print("message:",msg)
+       print("************************************************************************")
+       print(reply)
     return data
 
 #
@@ -132,7 +133,7 @@ if __name__ == "__main__":
        else:
           input=opts.input
     else:
-       print "\nUsage: %s --help"%sys.argv[0]
+       print("\nUsage: %s --help"%sys.argv[0])
        sys.exit(0)
     result = sendMessage(host,port,dbsInst,input,opts.page,opts.limit,opts.xml,opts.case,opts.iface,opts.details,opts.cff,opts.verbose)
-    print result
+    print(result)

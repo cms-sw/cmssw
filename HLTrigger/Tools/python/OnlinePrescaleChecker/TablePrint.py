@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 from colors import *
 write = sys.stdout.write
@@ -26,8 +27,8 @@ def PrintLine(line,ColWidths,Warn,border):
     try:
        assert len(line)==len(ColWidths)
     except:
-       print line
-       print ColWidths
+       print(line)
+       print(ColWidths)
        raise
     if Warn:
         write(bcolors.FAIL)
@@ -36,7 +37,7 @@ def PrintLine(line,ColWidths,Warn,border):
         try:
             entry = str(entry)
         except:
-            print "\n\n\n Weird Data .. Bailing out\n\n"
+            print("\n\n\n Weird Data .. Bailing out\n\n")
             sys.exit(0)
         for i in range(width):
             if i==0:

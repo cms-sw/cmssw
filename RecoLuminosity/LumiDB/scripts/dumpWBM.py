@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 VERSION='1.02'
 import os,sys
 import coral
@@ -53,7 +54,7 @@ def bitzeroForRun(dbsession,c,runnum):
         dbsession.transaction().commit()
         return result
     except Exception as e:
-        print str(e)
+        print(str(e))
         dbsession.transaction().rollback()
         del dbsession
 
@@ -96,7 +97,7 @@ def deadcountForRun(dbsession,c,runnum):
         dbsession.transaction().commit()
         return result
     except Exception as e:
-        print str(e)
+        print(str(e))
         dbsession.transaction().rollback()
         del dbsession
         
@@ -126,18 +127,18 @@ def main():
     if args.action == 'deadtime':
         deadresult=deadcountForRun(session,c,runnumber)
         if deadresult and len(deadresult)!=0:
-            print 'run',runnumber
-            print 'ls deadcount'
+            print('run',runnumber)
+            print('ls deadcount')
             for cmsls,deadcount in deadresult.items():
-                print cmsls,deadcount
+                print(cmsls,deadcount)
         else:
-            print 'no deadtime found for run ',runnumber
+            print('no deadtime found for run ',runnumber)
             
     if args.action == 'deadfraction':
         deadresult=deadcountForRun(session,c,runnumber)
         bitzeroresult=bitzeroForRun(session,c,runnumber)
-        print 'run',runnumber
-        print 'ls deadfraction'
+        print('run',runnumber)
+        print('ls deadfraction')
         if deadresult and len(deadresult)!=0:
             #print 'run',runnumber
             #print 'ls deadfraction'
@@ -147,11 +148,11 @@ def main():
                 if int(runnumber)>=146315:
                     bitzero_prescale=17.0
                 if bitzero==0:
-                    print cmsls,'no beam'
+                    print(cmsls,'no beam')
                 else:
-                    print cmsls,'%.5f'%float(float(deadcount)/(float(bitzero)*bitzero_prescale))
+                    print(cmsls,'%.5f'%float(float(deadcount)/(float(bitzero)*bitzero_prescale)))
         else:
-            print 'no deadtime found for run ',runnumber
+            print('no deadtime found for run ',runnumber)
     del session
     del svc
         

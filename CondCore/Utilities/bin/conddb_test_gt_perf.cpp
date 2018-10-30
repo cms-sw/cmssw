@@ -10,6 +10,7 @@
 #include <fstream>
 
 #include <chrono>
+#include <memory>
 
 #include <boost/thread/mutex.hpp>
 #include "tbb/parallel_for_each.h"
@@ -87,7 +88,7 @@ namespace cond {
   class TestGTPerf : public cond::Utilities {
     public:
       TestGTPerf();
-      int execute();
+      int execute() override;
   }; // end class TestGTLoad
   
 } // end namespace cond
@@ -270,7 +271,7 @@ void Timer::showIntervals(std::ostream &os) {
 void Timer::showFetchInfo(std::ostream &os) {
     os << std::endl;
     os << "Serialization type: " << name << std::endl;
-    if (fetchTime.size() < 1) {
+    if (fetchTime.empty()) {
       os << "No fetch info available." << std::endl;
       return;
     }
@@ -288,7 +289,7 @@ void Timer::showFetchInfo(std::ostream &os) {
 void Timer::showDeserInfo(std::ostream &os) {
     os << std::endl;
     os << "Serialization type: " << name << std::endl;
-    if (deserTime.size() < 1) {
+    if (deserTime.empty()) {
       os << "No deserialization info available." << std::endl;
       return;
     }
@@ -414,7 +415,7 @@ public:
     const cond::Binary &buffer = p->getBuffer();
     const cond::Binary &streamerInfo = p->getStreamerInfo();
   
-    auto result = new std::pair< std::string, std::shared_ptr<void> > (cond::persistency::fetchOne( payloadTypeName, buffer, streamerInfo, payloadPtr ));
+    auto result = std::make_unique<std::pair< std::string, std::shared_ptr<void> > >(cond::persistency::fetchOne( payloadTypeName, buffer, streamerInfo, payloadPtr ));
     payload = result->second;
 
     return;

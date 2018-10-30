@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import print_function
 import sys
 import logging
 import os.path
@@ -302,7 +303,7 @@ class ConfigEditorTabController(BrowserTabController):
             if self.plugin().application().commandLineOptions().saveimage:
                 self.tab().centerView().updateConnections()
                 self.saveImage(self.plugin().application().commandLineOptions().saveimage)
-                print "Saved image to", self.plugin().application().commandLineOptions().saveimage, "."
+                print("Saved image to", self.plugin().application().commandLineOptions().saveimage, ".")
                 sys.exit(2)
             return True
         return False

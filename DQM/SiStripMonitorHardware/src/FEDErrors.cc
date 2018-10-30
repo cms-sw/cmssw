@@ -235,7 +235,7 @@ bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData,
 				   const unsigned int aPrintDebug)
 {
 
-  std::auto_ptr<const sistrip::FEDBufferBase> bufferBase;
+  std::unique_ptr<const sistrip::FEDBufferBase> bufferBase;
   try {
     bufferBase.reset(new sistrip::FEDBufferBase(aFedData.data(),aFedData.size()));
   } catch (const cms::Exception& e) {
@@ -347,7 +347,7 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
   if (!fillFatalFEDErrors(aFedData,aPrintDebug)) return false;
 
   //need to construct full object to go any further
-  std::auto_ptr<const sistrip::FEDBuffer> buffer;
+  std::unique_ptr<const sistrip::FEDBuffer> buffer;
   buffer.reset(new sistrip::FEDBuffer(aFedData.data(),aFedData.size(),true));
 
   //fill remaining unpackerFEDcheck

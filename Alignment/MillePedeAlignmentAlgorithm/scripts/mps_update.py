@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import os
 import re
 import subprocess
@@ -53,7 +54,7 @@ for i in xrange(len(lib.JOBID)):
             break
     if submitted:
         submitted_jobs[lib.JOBID[i]] = i
-print "submitted jobs:", len(submitted_jobs)
+print("submitted jobs:", len(submitted_jobs))
 
 
 ################################################################################
@@ -87,7 +88,7 @@ if len(submitted_jobs) > 0:
             # extract CPU time (only present for finished job)
             match = cputime_regex.search(line)
             cpu_time = float(match.group(1)) if match else 0
-            print  "out ", job_id, " ", status, " ", cpu_time
+            print("out ", job_id, " ", status, " ", cpu_time)
             job_status[job_id] = {"status": status,
                                   "cpu": cpu_time}
 
@@ -98,8 +99,8 @@ if len(submitted_jobs) > 0:
 
         # continue with next batch job if not found or not interesting
         if mps_index == -1:
-            print "mps_update.py - the job", job_id,
-            print "was not found in the JOBID array"
+            print("mps_update.py - the job", job_id, end=' ')
+            print("was not found in the JOBID array")
             continue
         else:                   # pop entry from submitted jobs
             submitted_jobs.pop(job_id)
@@ -115,13 +116,13 @@ if len(submitted_jobs) > 0:
 for job_id, mps_index in submitted_jobs.items(): # IMPORTANT to copy here (no iterator!)
     # check if current job is disabled. Print stuff.
     disabled = "DISABLED" if "DISABLED" in lib.JOBSTATUS[mps_index] else ""
-    print " DB job ", job_id, mps_index
+    print(" DB job ", job_id, mps_index)
 
     # check if job may be done by looking if a folder exists in the project directory.
     # if True  -> jobstatus is set to DONE
     theBatchDirectory = "LSFJOB_"+job_id
     if os.path.isdir(theBatchDirectory):
-        print "Directory ", theBatchDirectory, "exists"
+        print("Directory ", theBatchDirectory, "exists")
         lib.JOBSTATUS[mps_index] = disabled + "DONE"
         submitted_jobs.pop(job_id)
         continue
@@ -142,9 +143,9 @@ for job_id, mps_index in submitted_jobs.items(): # IMPORTANT to copy here (no it
             continue
 
     if "RUN" in lib.JOBSTATUS[mps_index]:
-        print "WARNING: Job ", mps_index,
-        print "in state RUN, neither found by htcondor, nor bjobs, nor find",
-        print "LSFJOB directory!"
+        print("WARNING: Job ", mps_index, end=' ')
+        print("in state RUN, neither found by htcondor, nor bjobs, nor find", end=' ')
+        print("LSFJOB directory!")
 
 
 ################################################################################
@@ -152,8 +153,8 @@ for job_id, mps_index in submitted_jobs.items(): # IMPORTANT to copy here (no it
 for job_id, mps_index in six.iteritems(submitted_jobs):
     for status in ("SETUP", "DONE", "FETCH", "TIMEL", "SUBTD"):
         if status in lib.JOBSTATUS[mps_index]:
-            print "Funny entry index", mps_index, " job", lib.JOBID[mps_index],
-            print " status", lib.JOBSTATUS[mps_index]
+            print("Funny entry index", mps_index, " job", lib.JOBID[mps_index], end=' ')
+            print(" status", lib.JOBSTATUS[mps_index])
 
 
 lib.write_db()

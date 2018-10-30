@@ -33,11 +33,6 @@ namespace evf {
 class FastMonitoringService;
 }
 
-namespace jsoncollector {
-class DataPointDefinition;
-}
-
-
 class FedRawDataInputSource: public edm::RawInputSource {
 
 friend struct InputFile;
@@ -57,12 +52,10 @@ private:
   void rewind_() override;
 
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
-  void createBoLSFile(const uint32_t lumiSection,bool checkIfExists);
   evf::EvFDaqDirector::FileStatus nextEvent();
   evf::EvFDaqDirector::FileStatus getNextEvent();
   edm::Timestamp fillFEDRawDataCollection(FEDRawDataCollection&);
   void deleteFile(std::string const&);
-  int grabNextJsonFile(boost::filesystem::path const&);
 
   void readSupervisor();
   void readWorker(unsigned int tid);
@@ -94,10 +87,12 @@ private:
 
   // get LS from filename instead of event header
   const bool getLSFromFilename_;
+  const bool alwaysStartFromFirstLS_;
   const bool verifyAdler32_;
   const bool verifyChecksum_;
   const bool useL1EventID_;
   std::vector<std::string> fileNames_;
+  bool useFileBroker_;
   //std::vector<std::string> fileNamesSorted_;
 
   const bool fileListMode_;
@@ -122,8 +117,6 @@ private:
   unsigned char *tcds_pointer_;
   unsigned int eventsThisLumi_;
   unsigned long eventsThisRun_ = 0;
-
-  jsoncollector::DataPointDefinition *dpd_;
 
   /*
    *
@@ -211,7 +204,7 @@ struct InputFile {
   evf::EvFDaqDirector::FileStatus status_;
   unsigned int lumi_;
   std::string fileName_;
-  uint32_t fileSize_;
+  uint64_t fileSize_;
   uint32_t nChunks_;
   int nEvents_;
   unsigned int nProcessed_;
@@ -223,7 +216,7 @@ struct InputFile {
   unsigned int currentChunk_ = 0;
 
   InputFile(evf::EvFDaqDirector::FileStatus status, unsigned int lumi = 0, std::string const& name = std::string(),
-      uint32_t fileSize =0, uint32_t nChunks=0, int nEvents=0, FedRawDataInputSource *parent = nullptr):
+      uint64_t fileSize =0, uint32_t nChunks=0, int nEvents=0, FedRawDataInputSource *parent = nullptr):
     parent_(parent),
     status_(status),
     lumi_(lumi),

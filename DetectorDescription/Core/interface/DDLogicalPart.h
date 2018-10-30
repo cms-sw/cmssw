@@ -3,6 +3,7 @@
 
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -89,11 +90,11 @@ std::ostream & operator<<( std::ostream &, const DDLogicalPart &);
     }
     \endcode
 */    
-class DDLogicalPart : public DDBase<DDName,DDI::LogicalPart*>
+class DDLogicalPart : public DDBase<DDName,std::unique_ptr<DDI::LogicalPart> >
 {
  public:  
   //! The default constructor provides an uninitialzed reference object. 
-  DDLogicalPart( void ) : DDBase<DDName,DDI::LogicalPart*>(){ }   
+  DDLogicalPart( void ) : DDBase<DDName,std::unique_ptr<DDI::LogicalPart> >(){ }   
   
   //! Creates a reference object referring to the appropriate XML specification.
   DDLogicalPart( const DDName & name );

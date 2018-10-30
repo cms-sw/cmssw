@@ -1,5 +1,6 @@
 #!/bin/env python
 
+from __future__ import print_function
 import sys
 import imp
 import copy
@@ -65,22 +66,22 @@ class MyBatchManager:
       self.mkdir(self.opt.outputdir)
 
       if self.opt.lstfile is None:
-         print "Unspecified lst file."
+         print("Unspecified lst file.")
          sys.exit(1)
       if self.opt.iovfile is None:
-         print "Unspecified IOV list."
+         print("Unspecified IOV list.")
          sys.exit(1)
 
       self.jobname = self.opt.outputdir.split('/')[-1]
 
       if self.opt.redirectproxy:
-         print "Job {} is configured to redirect its Grid proxy.".format(self.jobname)
+         print("Job {} is configured to redirect its Grid proxy.".format(self.jobname))
          self.redirectProxy()
 
       if self.opt.sendto is not None:
          self.opt.sendto.strip()
          self.opt.sendto.replace(","," ")
-         print "Job {} is configured to notify {}.".format(self.jobname, self.opt.sendto)
+         print("Job {} is configured to notify {}.".format(self.jobname, self.opt.sendto))
 
       # Set numerical flags for iterator_py
       self.SDflag = 1 if self.opt.useSD else 0
@@ -91,11 +92,11 @@ class MyBatchManager:
       mkdir = 'mkdir -p %s' % dirname
       ret = os.system( mkdir )
       if( ret != 0 ):
-         print 'Please remove or rename directory: ', dirname
+         print('Please remove or rename directory: ', dirname)
          sys.exit(4)
 
    def notify(self, desc):
-      print desc
+      print(desc)
       if self.opt.sendto is not None:
          strcmd = "mail -s {1} {0} <<< \"{2}\"".format(self.opt.sendto, self.jobname, desc)
          os.system(strcmd)
@@ -142,7 +143,7 @@ class MyBatchManager:
          )
       else:
          if self.opt.dryRun > 0:
-            print 'Dry run option is enabled. Will not submit jobs to the queue'
+            print('Dry run option is enabled. Will not submit jobs to the queue')
          jobcmd = 'scripts/iterator_py {} {} {} {} {} {} {} {} {} {}'.format(
          self.opt.niter,
          self.opt.outputdir,
@@ -162,13 +163,13 @@ class MyBatchManager:
       try:
          subprocess.check_call(["voms-proxy-info", "--exists"])
       except subprocess.CalledProcessError:
-         print "Please initialize your proxy before submitting."
+         print("Please initialize your proxy before submitting.")
          sys.exit(1)
 
    def redirectProxy(self):
       local_proxy = subprocess.check_output(["voms-proxy-info", "--path"]).strip()
       new_proxy_path = os.path.join(self.opt.outputdir,".user_proxy")
-      print "Copying local proxy {} to the job directory as {}.".format(local_proxy,new_proxy_path)
+      print("Copying local proxy {} to the job directory as {}.".format(local_proxy,new_proxy_path))
       shutil.copyfile(local_proxy, new_proxy_path)
 
 

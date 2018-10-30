@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 # options
@@ -50,7 +51,7 @@ if (options.globalTag != "") :
 
 if (options.sqlite != "") :
     process.load("CondTools.L1Trigger.L1CondDBSource_cff")
-    print "Can't read SQLite files yet"
+    print("Can't read SQLite files yet")
 
 if (options.cfi > 0) :
     process.load("L1Trigger.Configuration.L1Trigger_FakeConditions_cff")

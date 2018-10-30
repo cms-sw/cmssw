@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/LooperFactory.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 #include "FWCore/Framework/interface/ModuleChanger.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
@@ -43,7 +44,6 @@
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -215,7 +215,7 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
-  EventProcessor::EventProcessor(std::string const& config,
+  EventProcessor::EventProcessor(std::unique_ptr<ParameterSet> parameterSet,//std::string const& config,
                                  ServiceToken const& iToken,
                                  serviceregistry::ServiceLegacy iLegacy,
                                  std::vector<std::string> const& defaultServices,
@@ -248,13 +248,12 @@ namespace edm {
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
     eventSetupDataToExcludeFromPrefetching_() {
-    std::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
-    auto processDesc = std::make_shared<ProcessDesc>(parameterSet);
+    auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
   }
 
-  EventProcessor::EventProcessor(std::string const& config,
+  EventProcessor::EventProcessor(std::unique_ptr<ParameterSet> parameterSet,//std::string const& config,
                                  std::vector<std::string> const& defaultServices,
                                  std::vector<std::string> const& forcedServices) :
     actReg_(),
@@ -287,8 +286,7 @@ namespace edm {
     asyncStopRequestedWhileProcessingEvents_(false),
     eventSetupDataToExcludeFromPrefetching_()
   {
-    std::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
-    auto processDesc = std::make_shared<ProcessDesc>(parameterSet);
+    auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
   }
@@ -327,49 +325,6 @@ namespace edm {
     eventSetupDataToExcludeFromPrefetching_()
   {
     init(processDesc, token, legacy);
-  }
-
-
-  EventProcessor::EventProcessor(std::string const& config, bool isPython):
-    actReg_(),
-    preg_(),
-    branchIDListHelper_(),
-    serviceToken_(),
-    input_(),
-    espController_(new eventsetup::EventSetupsController),
-    esp_(),
-    act_table_(),
-    processConfiguration_(),
-    schedule_(),
-    subProcesses_(),
-    historyAppender_(new HistoryAppender),
-    fb_(),
-    looper_(),
-    deferredExceptionPtrIsSet_(false),
-    sourceResourcesAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first),
-    sourceMutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
-    principalCache_(),
-    beginJobCalled_(false),
-    shouldWeStop_(false),
-    fileModeNoMerge_(false),
-    exceptionMessageFiles_(),
-    exceptionMessageRuns_(),
-    exceptionMessageLumis_(),
-    forceLooperToEnd_(false),
-    looperBeginJobRun_(false),
-    forceESCacheClearOnNewRun_(false),
-    asyncStopRequestedWhileProcessingEvents_(false),
-    eventSetupDataToExcludeFromPrefetching_()
-  {
-    if(isPython) {
-      std::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
-      auto processDesc = std::make_shared<ProcessDesc>(parameterSet);
-      init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
-    }
-    else {
-      auto processDesc = std::make_shared<ProcessDesc>(config);
-      init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
-    }
   }
 
   void
@@ -419,7 +374,7 @@ namespace edm {
     if (nStreams == 0) {
       nStreams = nThreads;
     }
-    if(nThreads > 1) {
+    if (nThreads > 1 or nStreams > 1) {
       edm::LogInfo("ThreadStreamSetup") <<"setting # threads "<<nThreads<<"\nsetting # streams "<<nStreams;
     }
     unsigned int nConcurrentRuns = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
@@ -505,6 +460,7 @@ namespace edm {
     act_table_ = std::move(items.act_table_);
     actReg_ = items.actReg_;
     preg_ = items.preg();
+    mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
     branchIDListHelper_ = items.branchIDListHelper();
     thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
     processConfiguration_ = items.processConfiguration();
@@ -825,6 +781,8 @@ namespace edm {
     size_t size = preg_->size();
     SendSourceTerminationSignalIfException sentry(actReg_.get());
 
+    principalCache_.preReadFile();
+
     fb_ = input_->readFile();
     if(size < preg_->size()) {
       principalCache_.adjustIndexesAfterProductRegistryAddition();
@@ -936,7 +894,8 @@ namespace edm {
       << "This likely indicates a bug in an input module or corrupted input or both\n";
   }
   
-  void EventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded) {
+  void EventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded,
+                                bool& eventSetupForInstanceSucceeded) {
     globalBeginSucceeded = false;
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
     {
@@ -954,6 +913,7 @@ namespace edm {
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
       espController_->eventSetupForInstance(ts);
+      eventSetupForInstanceSucceeded = true;
       sentry.completedSuccessfully();
     }
     EventSetup const& es = esp_->eventSetup();
@@ -1011,17 +971,25 @@ namespace edm {
     }
   }
 
-  void EventProcessor::endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException) {
-    //If we skip empty runs, this would be called conditionally
-    endRun(phid, run, globalBeginSucceeded, cleaningUpAfterException);
+  void EventProcessor::endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run,
+                                        bool globalBeginSucceeded, bool cleaningUpAfterException,
+                                        bool eventSetupForInstanceSucceeded) {
+    if (eventSetupForInstanceSucceeded) {
+      //If we skip empty runs, this would be called conditionally
+      endRun(phid, run, globalBeginSucceeded, cleaningUpAfterException);
     
-    if(globalBeginSucceeded) {
-      auto t = edm::make_empty_waiting_task();
-      t->increment_ref_count();
-      writeRunAsync(edm::WaitingTaskHolder{t.get()}, phid, run);
-      t->wait_for_all();
-      if(t->exceptionPtr()) {
-        std::rethrow_exception(*t->exceptionPtr());
+      if(globalBeginSucceeded) {
+        auto t = edm::make_empty_waiting_task();
+        t->increment_ref_count();
+        RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
+        MergeableRunProductMetadata* mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
+        mergeableRunProductMetadata->preWriteRun();
+        writeRunAsync(edm::WaitingTaskHolder{t.get()}, phid, run, mergeableRunProductMetadata);
+        t->wait_for_all();
+        mergeableRunProductMetadata->postWriteRun();
+        if(t->exceptionPtr()) {
+          std::rethrow_exception(*t->exceptionPtr());
+        }
       }
     }
     deleteRunFromCache(phid, run);
@@ -1403,7 +1371,9 @@ namespace edm {
         << "Illegal attempt to insert run into cache\n"
         << "Contact a Framework Developer\n";
     }
-    auto rp = std::make_shared<RunPrincipal>(input_->runAuxiliary(), preg(), *processConfiguration_, historyAppender_.get(), 0);
+    auto rp = std::make_shared<RunPrincipal>(input_->runAuxiliary(), preg(),
+                                             *processConfiguration_, historyAppender_.get(),
+                                             0, true, &mergeableRunProductProcesses_);
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
       input_->readRun(*rp, *historyAppender_);
@@ -1461,19 +1431,22 @@ namespace edm {
     return input_->luminosityBlock();
   }
 
-  void EventProcessor::writeRunAsync(WaitingTaskHolder task, ProcessHistoryID const& phid, RunNumber_t run) {
-    auto subsT = edm::make_waiting_task(tbb::task::allocate_root(), [this,phid,run,task](std::exception_ptr const* iExcept) mutable {
+  void EventProcessor::writeRunAsync(WaitingTaskHolder task, ProcessHistoryID const& phid, RunNumber_t run,
+                                     MergeableRunProductMetadata const* mergeableRunProductMetadata) {
+    auto subsT = edm::make_waiting_task(tbb::task::allocate_root(), [this,phid,run,task,mergeableRunProductMetadata]
+                                                                    (std::exception_ptr const* iExcept) mutable {
       if(iExcept) {
         task.doneWaiting(*iExcept);
       } else {
         ServiceRegistry::Operate op(serviceToken_);
         for(auto&s : subProcesses_) {
-          s.writeRunAsync(task,phid,run);
+          s.writeRunAsync(task,phid,run,mergeableRunProductMetadata);
         }
       }
     });
     ServiceRegistry::Operate op(serviceToken_);
-    schedule_->writeRunAsync(WaitingTaskHolder(subsT), principalCache_.runPrincipal(phid, run), &processContext_, actReg_.get());
+    schedule_->writeRunAsync(WaitingTaskHolder(subsT), principalCache_.runPrincipal(phid, run),
+                             &processContext_, actReg_.get(), mergeableRunProductMetadata);
   }
 
   void EventProcessor::deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run) {
@@ -1495,7 +1468,10 @@ namespace edm {
     });
     ServiceRegistry::Operate op(serviceToken_);
 
-    schedule_->writeLumiAsync(WaitingTaskHolder{subsT}, *(iStatus->lumiPrincipal()), &processContext_, actReg_.get());
+    std::shared_ptr<LuminosityBlockPrincipal> const& lumiPrincipal = iStatus->lumiPrincipal();
+    lumiPrincipal->runPrincipal().mergeableRunProductMetadata()->writeLumi(lumiPrincipal->luminosityBlock());
+
+    schedule_->writeLumiAsync(WaitingTaskHolder{subsT}, *lumiPrincipal, &processContext_, actReg_.get());
   }
 
   void EventProcessor::deleteLumiFromCache(LuminosityBlockProcessingStatus& iStatus) {

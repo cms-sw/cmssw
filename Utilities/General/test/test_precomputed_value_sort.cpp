@@ -3,6 +3,7 @@
 #include <vector>
 #include <iterator>
 #include <iostream>
+#include <functional>
 #include <cmath>
 
 using namespace std;
@@ -48,41 +49,32 @@ Point::Point(const Point& p): X(p.X), Y(p.Y){
 
 
 
-// A trivial operation on Point
-struct ExtractR1 : public std::unary_function<const Point&, float> {
-  float operator()(const Point& p) const {return p.r();}
-};
-
-// Same, but on Point*
-struct ExtractR2 : public std::unary_function<const Point*, float> {
-  float operator()(const Point* p) const {return p->r();}
-};
-
-// Extract phi on Point*
-struct ExtractPhi2 : public std::unary_function<const Point*, Phi> {
-  Phi operator()(const Point* p) const {return p->phi();}
-};
-
-
-// A trivial (useless!) binary predicate
-struct LessR {
-  bool operator()(const double& a, const double& b) const {
-    return a<b;
-  }
-};
  
-// A less trivial example: sorts angles 
-// within any range SMALLER THAN PI "counter-clockwise" 
-// even if the angles cross the pi boundary.
-// The result is undefined if the input values cover a range larger than pi!!!
-struct LessDPhi {
-  bool operator()(const Phi& a, const Phi& b) const {
-    return b - a > 0.; // note: Phi handles periodicity...
-  }
-};
-
-
 int main() {
+
+  // A trivial operation on Point
+  std::function<float(const Point&)> extractR1
+        {[](const Point& p){return p.r();}};
+
+  // Same, but on Point*
+  std::function<float(const Point*)> extractR2
+        {[](const Point* p){return p->r();}};
+
+  // Extract phi on Point*
+  std::function<Phi(const Point*)> extractPhi2
+        {[](const Point* p){return p->phi();}};
+
+  // A trivial (useless!) binary predicate
+  std::function<bool(const double& a, const double& b)> lessR
+        {[](const double& a, const double& b){return a<b;}};
+
+  // A less trivial example: sorts angles 
+  // within any range SMALLER THAN PI "counter-clockwise" 
+  // even if the angles cross the pi boundary.
+  // The result is undefined if the input values cover a range larger than pi!!!
+  // note: Phi handles periodicity...
+  std::function<bool(const Phi& a, const Phi& b)> lessDPhi
+        {[](const Phi& a, const Phi& b){return b - a > 0.;}};
 
   // Create a vector with some random Points
   vector<Point> v1;
@@ -108,33 +100,33 @@ int main() {
   cout << endl;
 
   // Sort v1
-  precomputed_value_sort(v1.begin(), v1.end(), ExtractR1());
+  precomputed_value_sort(v1.begin(), v1.end(), extractR1);
   cout << "Sorted with ExtractR1 : " << endl;
   copy(v1.begin(), v1.end(), ostream_iterator<Point>(cout, "\n"));
   cout << endl;
 
   // Sort v2
   cout << "Sorted with ExtractR2: " << endl;  
-  precomputed_value_sort(v2.begin(), v2.end(), ExtractR2());
+  precomputed_value_sort(v2.begin(), v2.end(), extractR2);
   copy(v2.begin(), v2.end(), ostream_iterator<Point*>(cout, "\n"));
   cout << endl;
 
   // Sort v3 using a BinaryPredicate
   cout << "Sort with LessR: " << endl;  
-  precomputed_value_sort(v3.begin(), v3.end(), ExtractR2(), LessR());
+  precomputed_value_sort(v3.begin(), v3.end(), extractR2, lessR);
   copy(v3.begin(), v3.end(), ostream_iterator<Point* >(cout, "\n"));
   cout << endl;
   
   // Sort v3 using phi
   cout << "Sort with ExtractPhi2: " << endl;  
-  precomputed_value_sort(v3.begin(), v3.end(), ExtractPhi2());
+  precomputed_value_sort(v3.begin(), v3.end(), extractPhi2);
   copy(v3.begin(), v3.end(), ostream_iterator<Point* >(cout, "\n"));
   cout << endl;
 
 
   // Sort v3 using a BinaryPredicate
   cout << "Sort with LessDPhi: " << endl;  
-  precomputed_value_sort(v3.begin(), v3.end(), ExtractPhi2(), LessDPhi());
+  precomputed_value_sort(v3.begin(), v3.end(), extractPhi2, lessDPhi);
   copy(v3.begin(), v3.end(), ostream_iterator<Point* >(cout, "\n"));
   cout << endl;
 

@@ -48,7 +48,6 @@ void popcon::EcalLaser_weekly_Linearization::getNewObjects() {
   //	    << std::endl;
 
   for(int week = 0; week < 1; week++) {
-    EcalTPGLinearizationConst *linC = new EcalTPGLinearizationConst;
     int fileIOV;
     std::cout << " which input IOV do you want " << std::endl;
     std::cin >> fileIOV; 
@@ -79,6 +78,9 @@ void popcon::EcalLaser_weekly_Linearization::getNewObjects() {
     char cryst[10];
     uint32_t  ped[kGains], mult[kGains], shift[kGains];
     uint32_t id;
+
+    EcalTPGLinearizationConst *linC = new EcalTPGLinearizationConst;
+
     for (int iChannel = 0; iChannel < kEBChannels; iChannel++) {
       getline (fWeek, line);
       //     std::cout << " line " << line << std::endl;
@@ -135,7 +137,7 @@ void popcon::EcalLaser_weekly_Linearization::getNewObjects() {
     fWeek.close();
     // special tag for Stephanie
     //    m_to_transfer.push_back(std::make_pair((EcalTPGLinearizationConst*)linC, file[week]));
-    m_to_transfer.push_back(std::make_pair((EcalTPGLinearizationConst*)linC, fileIOV));
+    m_to_transfer.push_back(std::make_pair(linC, fileIOV));
     // end special
     iIov++;
   }   // end loop over week

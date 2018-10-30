@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import subprocess
 import argparse
@@ -20,7 +21,7 @@ eosDir = args.eosDir
 lib = mpslib.jobdatabase()
 lib.read_db()
 for i in xrange(lib.nJobs):
-	print lib.JOBSP3[i]
+	print(lib.JOBSP3[i])
 
 # count how much jobs there are of each dataset
 occurences = []

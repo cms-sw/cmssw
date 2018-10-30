@@ -28,6 +28,7 @@ process.maxEvents = cms.untracked.PSet(
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('HGCSim')
     process.MessageLogger.categories.append('HcalSim')
+    process.MessageLogger.categories.append('HcalTB06BeamSD')
     process.MessageLogger.categories.append('ValidHGCal')
 
 # Input source

@@ -75,5 +75,6 @@ problem with it.  Can a Polycone come to a point "in the real world?" -->
         <rSolid name="cone2hole"/>
         <rRotation name="testRotations:x90y45"/>
     </SubtractionSolid>
+    <TruncTubs name="V_1101" rMin="6.9551*m" rMax="9*m" cutAtStart="6.9551*m" cutAtDelta="7.20045*m" cutInside="true" startPhi="0*deg" deltaPhi="15*deg" zHalf="6.57005*m"/>
   </SolidSection>
 </DDDefinition>

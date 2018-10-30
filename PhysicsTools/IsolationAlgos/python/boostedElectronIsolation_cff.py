@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 from CommonTools.ParticleFlow.Isolation.pfElectronIsolation_cff import *
@@ -47,27 +48,27 @@ otherSubJetVeto = 'OtherJetConstituentsDeltaRVeto(boostedTauSeeds,0.3,boostedTau
 #pfChargedHadronVetos = elPFIsoValueCharged04NoPFId.deposits[0].vetos.value()
 pfChargedHadronVetos = elPFIsoValueCharged03NoPFId.deposits[0].vetos.value()
 pfChargedHadronVetos.append(otherSubJetVeto)
-print "pfChargedHadronVetos = %s" % pfChargedHadronVetos
+print("pfChargedHadronVetos = %s" % pfChargedHadronVetos)
 
 #pfNeutralHadronVetos = elPFIsoValueNeutral04NoPFId.deposits[0].vetos.value()
 pfNeutralHadronVetos = elPFIsoValueNeutral03NoPFId.deposits[0].vetos.value()
 pfNeutralHadronVetos.append(otherSubJetVeto)
-print "pfNeutralHadronVetos = %s" % pfNeutralHadronVetos
+print("pfNeutralHadronVetos = %s" % pfNeutralHadronVetos)
 
 #pfGammaVetos = elPFIsoValueGamma04NoPFId.deposits[0].vetos.value()
 pfGammaVetos = elPFIsoValueGamma03NoPFId.deposits[0].vetos.value()
 pfGammaVetos.append(otherSubJetVeto)
-print "pfGammaVetos = %s" % pfGammaVetos
+print("pfGammaVetos = %s" % pfGammaVetos)
 
 #userVetos1 = elPFIsoValueChargedAll04NoPFId.deposits[0].vetos.value()
 userVetos1 = elPFIsoValueChargedAll03NoPFId.deposits[0].vetos.value()
 userVetos1.append(otherSubJetVeto)
-print "userVetos1 = %s" % userVetos1
+print("userVetos1 = %s" % userVetos1)
 
 #userVetos2 = elPFIsoValuePU04NoPFId.deposits[0].vetos.value()
 userVetos2 = elPFIsoValuePU03NoPFId.deposits[0].vetos.value()
 userVetos2.append(otherSubJetVeto)
-print "userVetos2 = %s" % userVetos2
+print("userVetos2 = %s" % userVetos2)
 
 patBoostedElectrons.userIsolation = cms.PSet(
    # CV: strings for Isolation values defined in PhysicsTools/PatAlgos/src/MultiIsolator.cc
