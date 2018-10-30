@@ -58,11 +58,11 @@ void TriggerMatchMonitor::bookHistograms(DQMStore::IBooker & ibooker,
    
   matchHists.push_back(ibooker.book1D("DelR_HLT_"+triggerHistName1_+"_v1", "DeltaR_(offline,HLT)_triggerPass("+triggerHistName1_+")", 500, 0.0, 0.5));
   matchHists.push_back(ibooker.book1D("DelR_HLT_"+triggerHistName1_+"_v2", "DeltaR_(offline,HLT)_triggerPass("+triggerHistName1_+")", 1000, 0.0, 1.0));
-  matchHists.push_back(ibooker.book1D("DelR_HLT_"+triggerHistName1_+"_v3", "DeltaR_(offline,HLT)_triggerPass("+triggerHistName1_+")", 5000, 0.0, 5.0));
+  matchHists.push_back(ibooker.book1D("DelR_HLT_"+triggerHistName1_+"_v3", "DeltaR_(offline,HLT)_triggerPass("+triggerHistName1_+")", 400, 0.0, 8.0));  
   matchHists.push_back(ibooker.book1D("PtRatio_HLT_"+triggerHistName1_, "PtRatio_(HLTPt/OfflinePt)_"+triggerHistName1_, 200, -5., 5.0));
   
   matchHists.push_back(ibooker.book1D("DelR_L1_"+triggerHistName1_+"_v1", "DeltaR_(offline, L1)_triggerPass("+triggerHistName1_+")", 500, 0.0, 1.0));
-  matchHists.push_back(ibooker.book1D("DelR_L1_"+triggerHistName1_+"_v2", "DeltaR_(offline, L1)_triggerPass("+triggerHistName1_+")", 1000, 0.0, 2.0));
+  matchHists.push_back(ibooker.book1D("DelR_L1_"+triggerHistName1_+"_v2", "DeltaR_(offline, L1)_triggerPass("+triggerHistName1_+")", 500, 0.0, 2.0));  
   matchHists.push_back(ibooker.book1D("PtRatio_L1_"+triggerHistName1_, "PtRatio_(HLTPt/OfflinePt)_"+triggerHistName1_, 200, -5., 5.0));
    
   matchHists.push_back(ibooker.book1D("DelR_HLT_"+triggerHistName2_+"_v1", "DeltaR_(offline,HLT)_triggerPass("+triggerHistName2_+")", 500, 0.0, 0.5));
