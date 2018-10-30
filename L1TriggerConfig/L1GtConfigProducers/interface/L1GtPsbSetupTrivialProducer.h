@@ -46,7 +46,7 @@ public:
     /// public methods
 
     /// produce the setup for L1 GT PSB boards
-    std::shared_ptr<L1GtPsbSetup> producePsbSetup(
+    std::unique_ptr<L1GtPsbSetup> producePsbSetup(
         const L1GtPsbSetupRcd&);
 
 private:
