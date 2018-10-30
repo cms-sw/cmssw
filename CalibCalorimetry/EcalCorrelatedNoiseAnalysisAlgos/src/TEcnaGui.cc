@@ -3719,7 +3719,7 @@ void TEcnaGui::DoButtonVmaxD_SCs_ChNb()
 {
 //Registration of Ymax for sigmas of cor(s,s')
 
-  const char *bufferchain = (char*)fVmaxD_SCs_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = fVmaxD_SCs_ChNbText->GetBuffer()->GetString();
 
   fKeyVmaxD_SCs_ChNb = (Double_t)atof(bufferchain);
 
@@ -3831,7 +3831,7 @@ void TEcnaGui::DoButtonStinA()
 {
 //Registration of the Stin A number (A = X coordinate for cor(c,c') plots)
 
-  const char *bufferchain = (char*)fStinAText->GetBuffer()->GetString();
+  const char *bufferchain = fStinAText->GetBuffer()->GetString();
 
   Int_t xReadStinANumberForCons = atoi(bufferchain);
 
@@ -4012,7 +4012,7 @@ void TEcnaGui::DoButtonRul()
 //Register the name of the file containing the list of run parameters
 
   //........................... get info from the entry field
-  char* listchain = (char*)fRulText->GetBuffer()->GetString();
+  const char* listchain = fRulText->GetBuffer()->GetString();
   if( listchain[0] == '\0' )
     {
       fCnaError++;
@@ -4054,7 +4054,7 @@ void TEcnaGui::DoButtonGent()
 {
 //Register the general title
   //........................... get info from the entry field
-  char* listchain = (char*)fGentText->GetBuffer()->GetString();  
+  const char* listchain = fGentText->GetBuffer()->GetString();
   fKeyGeneralTitle = listchain;
   
   fCnaCommand++;
