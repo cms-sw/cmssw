@@ -470,16 +470,6 @@ hltObjectMonitorLeadLead = DQMEDAnalyzer('HLTObjectMonitorHI',
         Xmin = cms.double(-2.5),
         Xmax = cms.double(2.5)
         ),
-    HIDoubleMuOpenHFVetoInAndMaxTrackPhi = cms.PSet(
-        pathName = cms.string(doublemuhfveto_pathName),
-        moduleName = cms.string(doublemuhfveto_moduleName),
-        plotLabel = cms.string("HIDoubleMuOpenHFVetoInAndMaxTrack_Phi"),
-        axisLabel = cms.string("dimu phi"),
-        mainWorkspace = cms.bool(True),
-        NbinsX = cms.int32(50),
-        Xmin = cms.double(-3.2),
-        Xmax = cms.double(3.2)
-        ),
     HIDoubleMuOpenHFVetoInAndMaxTrackMass = cms.PSet(
         pathName = cms.string(doublemuhfveto_pathName),
         moduleName = cms.string(doublemuhfveto_moduleName),
@@ -658,7 +648,7 @@ hltObjectMonitorLeadLead = DQMEDAnalyzer('HLTObjectMonitorHI',
         mainWorkspace = cms.bool(True),
         NbinsX = cms.int32(50),
         Xmin = cms.double(0),
-        Xmax = cms.double(100)
+        Xmax = cms.double(20)
         ),
     HIFullTracksMultiplicity6080Eta = cms.PSet(
         pathName = cms.string(fulltrack_pathName),
@@ -666,9 +656,9 @@ hltObjectMonitorLeadLead = DQMEDAnalyzer('HLTObjectMonitorHI',
         plotLabel = cms.string("HIFullTracksMultiplicity6080_eta"),
         axisLabel = cms.string("eta"),
         mainWorkspace = cms.bool(True),
-        NbinsX = cms.int32(30),
-        Xmin = cms.double(-2.4),
-        Xmax = cms.double(2.4)
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(-2.5),
+        Xmax = cms.double(2.5)
         ),
     HIFullTracksMultiplicity6080Phi = cms.PSet(
         pathName = cms.string(fulltrack_pathName),
