@@ -49,47 +49,31 @@ hltMuonOfflineAnalyzer = DQMEDAnalyzer('HLTMuonOfflineAnalyzer',
       "HLT_TkMu100_v",
       "HLT_DoubleL2Mu50_v",
       "HLT_HIL1DoubleMuOpen_v1", #for HI
-      "HLT_HIL1DoubleMuOpen_Centrality_30_100_v1", #for HI
-      "HLT_HIL1DoubleMuOpen_OS_Centrality_30_100_v1", #for HI
-      "HLT_HIL1DoubleMuOpen_Centrality_40_100_v1", #for HI
       "HLT_HIL1DoubleMuOpen_OS_Centrality_40_100_v1", #for HI
       "HLT_HIL1DoubleMuOpen_Centrality_50_100_v1", #for HI
-      "HLT_HIL1DoubleMuOpen_MAXdR2p0_v1", #for HI
-      "HLT_HIL1DoubleMuOpen_OS_MAXdR2p0_v1", #for HI
-      "HLT_HIL1DoubleMuOpen_MAXdR3p5_v1", #for HI
-      "HLT_HIL1DoubleMuOpen_OS_v1", #for HI
-      "HLT_HIL1DoubleMuOpen_SS_v1", #for HI
-      "HLT_HIL1DoubleMuOpen_er1p6_v1", #for HI
-      "HLT_HIL1DoubleMuOpen_OS_er1p6_v1", #for HI
-      "HLT_HIL1DoubleMu0_v1", #for HI
-      "HLT_HIL1DoubleMu2_v1", #for HI
-      "HLT_HIL1DoubleMu2p5_v1", #for HI
-      "HLT_HIL1DoubleMu3_v1", #for HI
-      "HLT_HIL1DoubleMu2_OS_v1", #for HI
-      "HLT_HIL1DoubleMu3_OS_v1", #for HI
       "HLT_HIL1DoubleMu10_v1", #for HI
       "HLT_HIL2_L1DoubleMu10_v1", #for HI
       "HLT_HIL3_L1DoubleMu10_v1", #for HI
-      "HLT_HIL2DoubleMu_L1DoubleMuOpen_OS_MAXdR2p0_v1", #for HI
       "HLT_HIL2DoubleMuOpen_v1", #for HI
       "HLT_HIL3DoubleMuOpen_v1", #for HI
       "HLT_HIL3DoubleMuOpen_M60120_v1", #for HI
       "HLT_HIL3DoubleMuOpen_JpsiPsi_v1", #for HI
       "HLT_HIL3DoubleMuOpen_Upsi_v1", #for HI
       "HLT_HIL3Mu0_L2Mu0_v1", #for HI
-      "HLT_HIL3Mu0_L2Mu0_MAXdR2p0_v1", #for HI
-      "HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR2p0_v1", #for HI
-      "HLT_HIL3Mu0_L2Mu0_M1to5_v1", #for HI
-      "HLT_HIL3Mu0NHitQ10_L2Mu0_M1to5_v1", #for HI
-      "HLT_HIL3Mu2p5NHitQ10_L2Mu0_v1", #for HI
-      "HLT_HIL3Mu2p5NHitQ10_L2Mu0NHitQ15_v1", #for HI
-      "HLT_HIL3Mu2p5NHitQ10_L2Mu2_v1", #for HI
-      "HLT_HIL3Mu2p5_L1DoubleMu0_v1", #for HI
-      "HLT_HIL3Mu3_L1DoubleMuOpen_v1", #for HI
-      "HLT_HIL3Mu3_L1DoubleMuOpen_OS_v1", #for HI
-      "HLT_HIL3Mu3_L1DoubleMu0_v1", #for HI
-      "HLT_HIL3Mu3NHitQ10_L1DoubleMuOpen_v1", #for HI
-      "HLT_HIL3Mu3_L1TripleMuOpen_v1" #for HI
+      "HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1", #for HI
+      "HLT_HIL3Mu2p5NHitQ10_L2Mu2_M7toinf_v1", #for HI
+      "HLT_HIL1MuOpen_Centrality_70_100_v1", #for HI
+      "HLT_HIL1MuOpen_Centrality_80_100_v1", #for HI
+      "HLT_HIL2Mu3_NHitQ15_v1", #for HI
+      "HLT_HIL2Mu5_NHitQ15_v1", #for HI
+      "HLT_HIL2Mu7_NHitQ15_v1", #for HI
+      "HLT_HIL3Mu3_L1TripleMuOpen_v1", #for HI
+      "HLT_HIL3Mu12_v1", #for HI
+      "HLT_HIL3Mu15_v1", #for HI
+      "HLT_HIL3Mu20_v1", #for HI
+      "HLT_HIL3Mu3_NHitQ10_v1", #for HI
+      "HLT_HIL3Mu5_NHitQ10_v1", #for HI
+      "HLT_HIL3Mu7_NHitQ10_v1" #for HI
     ),
 
 #HLT_Mu15_eta2p1_TriCentral_40_20_20_BTagIP3D1stTrack_v3 matches HLT_Mu15_eta2p1_v
