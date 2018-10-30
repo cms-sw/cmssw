@@ -38,24 +38,13 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-//for collections
-#include "HLTrigger/JetMET/interface/AlphaT.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-#include "TMath.h"
-#include "TStyle.h"
-#include "TLorentzVector.h"
+#include <TMath.h>
+#include <TStyle.h>
+#include <TLorentzVector.h>
 
 #include <unordered_map>
 //
@@ -167,6 +156,18 @@ class HLTObjectMonitorHI : public DQMEDAnalyzer {
   edm::ParameterSet HIDoubleMuOpenHFVetoInAndMaxTrackEta_pset;
   edm::ParameterSet HIDoubleMuOpenHFVetoInAndMaxTrackPhi_pset;
   edm::ParameterSet HIDoubleMuOpenHFVetoInAndMaxTrackMass_pset;
+  edm::ParameterSet HITktkDzeroPt_pset;
+  edm::ParameterSet HITktkDzeroEta_pset;
+  edm::ParameterSet HITktkDzeroPhi_pset;
+  edm::ParameterSet HITktkDzeroMass_pset;
+  edm::ParameterSet HITktktkDsPt_pset;
+  edm::ParameterSet HITktktkDsEta_pset;
+  edm::ParameterSet HITktktkDsPhi_pset;
+  edm::ParameterSet HITktktkDsMass_pset;
+  edm::ParameterSet HITktktkLcPt_pset;
+  edm::ParameterSet HITktktkLcEta_pset;
+  edm::ParameterSet HITktktkLcPhi_pset;
+  edm::ParameterSet HITktktkLcMass_pset;
   edm::ParameterSet wallTime_pset;
 
   string processName_;
@@ -218,6 +219,18 @@ class HLTObjectMonitorHI : public DQMEDAnalyzer {
   hltPlot HIDoubleMuOpenHFVetoInAndMaxTrackEta_;
   hltPlot HIDoubleMuOpenHFVetoInAndMaxTrackPhi_;
   hltPlot HIDoubleMuOpenHFVetoInAndMaxTrackMass_;
+  hltPlot HITktkDzeroPt_;  
+  hltPlot HITktkDzeroEta_; 
+  hltPlot HITktkDzeroPhi_; 
+  hltPlot HITktkDzeroMass_;
+  hltPlot HITktktkDsPt_;   
+  hltPlot HITktktkDsEta_;  
+  hltPlot HITktktkDsPhi_;  
+  hltPlot HITktktkDsMass_; 
+  hltPlot HITktktkLcPt_;   
+  hltPlot HITktktkLcEta_;  
+  hltPlot HITktktkLcPhi_;  
+  hltPlot HITktktkLcMass_; 
   hltPlot wallTime_;
 
 };
@@ -338,6 +351,30 @@ HLTObjectMonitorHI::HLTObjectMonitorHI(const edm::ParameterSet& iConfig)
   plotMap[&HIDoubleMuOpenHFVetoInAndMaxTrackEta_] = &HIDoubleMuOpenHFVetoInAndMaxTrackEta_pset;
   HIDoubleMuOpenHFVetoInAndMaxTrackMass_pset = iConfig.getParameter<edm::ParameterSet>("HIDoubleMuOpenHFVetoInAndMaxTrackMass");
   plotMap[&HIDoubleMuOpenHFVetoInAndMaxTrackMass_] = &HIDoubleMuOpenHFVetoInAndMaxTrackMass_pset;
+  HITktkDzeroPt_pset = iConfig.getParameter<edm::ParameterSet>("HITktkDzeroPt");
+  plotMap[&HITktkDzeroPt_] = &HITktkDzeroPt_pset; 
+  HITktkDzeroEta_pset = iConfig.getParameter<edm::ParameterSet>("HITktkDzeroEta");
+  plotMap[&HITktkDzeroEta_] = &HITktkDzeroEta_pset; 
+  HITktkDzeroPhi_pset = iConfig.getParameter<edm::ParameterSet>("HITktkDzeroPhi");
+  plotMap[&HITktkDzeroPhi_] = &HITktkDzeroPhi_pset; 
+  HITktkDzeroMass_pset = iConfig.getParameter<edm::ParameterSet>("HITktkDzeroMass");
+  plotMap[&HITktkDzeroMass_] = &HITktkDzeroMass_pset;
+  HITktktkDsPt_pset = iConfig.getParameter<edm::ParameterSet>("HITktktkDsPt");
+  plotMap[&HITktktkDsPt_] = &HITktktkDsPt_pset;  
+  HITktktkDsEta_pset = iConfig.getParameter<edm::ParameterSet>("HITktktkDsEta");
+  plotMap[&HITktktkDsEta_] = &HITktktkDsEta_pset; 
+  HITktktkDsPhi_pset = iConfig.getParameter<edm::ParameterSet>("HITktktkDsPhi");
+  plotMap[&HITktktkDsPhi_] = &HITktktkDsPhi_pset; 
+  HITktktkDsMass_pset = iConfig.getParameter<edm::ParameterSet>("HITktktkDsMass");
+  plotMap[&HITktktkDsMass_] = &HITktktkDsMass_pset; 
+  HITktktkLcPt_pset = iConfig.getParameter<edm::ParameterSet>("HITktktkLcPt");
+  plotMap[&HITktktkLcPt_] = &HITktktkLcPt_pset;  
+  HITktktkLcEta_pset = iConfig.getParameter<edm::ParameterSet>("HITktktkLcEta");
+  plotMap[&HITktktkLcEta_] = &HITktktkLcEta_pset; 
+  HITktktkLcPhi_pset = iConfig.getParameter<edm::ParameterSet>("HITktktkLcPhi");
+  plotMap[&HITktktkLcPhi_] = &HITktktkLcPhi_pset; 
+  HITktktkLcMass_pset = iConfig.getParameter<edm::ParameterSet>("HITktktkLcMass");
+  plotMap[&HITktktkLcMass_] = &HITktktkLcMass_pset; 
 
   wallTime_pset = iConfig.getParameter<edm::ParameterSet>("wallTime");
   plotMap[&wallTime_] = &wallTime_pset;
@@ -553,6 +590,7 @@ HLTObjectMonitorHI::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      }
 	   }
 
+
 	   // ////////////////////////////////
 	   // ///
 	   // /// double-object plots
@@ -640,7 +678,100 @@ HLTObjectMonitorHI::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		 kCnt0 +=1;
 	      }
            }
-	
+//HITktkDzeroPt_;
+//HITktkDzeroEta_
+//HITktkDzeroPhi_
+//HITktkDzeroMass
+//HITktktkDsPt_; 
+//HITktktkDsEta_;
+//HITktktkDsPhi_;
+//HITktktkDsMass_
+//HITktktkLcPt_; 
+//HITktktkLcEta_;
+//HITktktkLcPhi_;
+//HITktktkLcMass_
+           else if (pathName == HITktkDzeroPt_.pathName){
+             const double pi_mass(0.13957018);
+             unsigned int kCnt0 = 0;
+             for (const auto & key0: keys){
+               unsigned int kCnt1 = 0;
+               for (const auto & key1: keys){
+                 unsigned int kCnt2 = 0;
+                 for (const auto & key2: keys){
+                   if (key0 != key1 && kCnt1 > kCnt0 && key0 != key2 && key1 != key2 && kCnt2 > kCnt1){ // avoid filling hists with same objs && avoid double counting separate objs
+                     // if (abs(objects[key0].id()) == 13 && (objects[key0].id()+objects[key1].id()==0))  // id is not filled for l1 stage2 muons
+                     TLorentzVector mu1, mu2, mu3, dimu;
+                     mu1.SetPtEtaPhiM(objects[key0].pt(), objects[key0].eta(), objects[key0].phi(), pi_mass);
+                     mu2.SetPtEtaPhiM(objects[key1].pt(), objects[key1].eta(), objects[key1].phi(), pi_mass);
+                     mu3.SetPtEtaPhiM(objects[key2].pt(), objects[key2].eta(), objects[key2].phi(), pi_mass);
+                     dimu = mu1+mu2;
+                     if(dimu.Pt()>HITktkDzeroPt_.xMin && dimu.Pt()<HITktkDzeroPt_.xMax) HITktkDzeroPt_.ME->Fill(dimu.Pt());
+                     if(dimu.Eta()>HITktkDzeroEta_.xMin && dimu.Eta()<HITktkDzeroEta_.xMax) HITktkDzeroEta_.ME->Fill(dimu.Eta());
+                     if(dimu.Phi()>HITktkDzeroPhi_.xMin && dimu.Phi()<HITktkDzeroPhi_.xMax) HITktkDzeroPhi_.ME->Fill(dimu.Eta());
+                     if(dimu.M()>HITktkDzeroMass_.xMin && dimu.M()<HITktkDzeroMass_.xMax) HITktkDzeroMass_.ME->Fill(dimu.M());
+                   }
+                   kCnt2 +=1;
+                 }
+                 kCnt1 +=1;
+               }
+               kCnt0 +=1;
+             }
+           }
+           else if (pathName == HITktktkDsPt_.pathName){
+             const double pi_mass(0.13957018);
+             unsigned int kCnt0 = 0;
+             for (const auto & key0: keys){
+               unsigned int kCnt1 = 0;
+               for (const auto & key1: keys){
+                 unsigned int kCnt2 = 0;
+                 for (const auto & key2: keys){
+                   if (key0 != key1 && kCnt1 > kCnt0 && key0 != key2 && key1 != key2 && kCnt2 > kCnt1){ // avoid filling hists with same objs && avoid double counting separate objs
+                     // if (abs(objects[key0].id()) == 13 && (objects[key0].id()+objects[key1].id()==0))  // id is not filled for l1 stage2 muons
+                     TLorentzVector mu1, mu2, mu3, dimu;
+                     mu1.SetPtEtaPhiM(objects[key0].pt(), objects[key0].eta(), objects[key0].phi(), pi_mass);
+                     mu2.SetPtEtaPhiM(objects[key1].pt(), objects[key1].eta(), objects[key1].phi(), pi_mass);
+                     mu3.SetPtEtaPhiM(objects[key2].pt(), objects[key2].eta(), objects[key2].phi(), pi_mass);
+                     dimu = mu1+mu2;
+                     if(dimu.Pt()>HITktktkDsPt_.xMin && dimu.Pt()<HITktktkDsPt_.xMax) HITktktkDsPt_.ME->Fill(dimu.Pt());
+                     if(dimu.Eta()>HITktktkDsEta_.xMin && dimu.Eta()<HITktktkDsEta_.xMax) HITktktkDsEta_.ME->Fill(dimu.Eta());
+                     if(dimu.Phi()>HITktktkDsPhi_.xMin && dimu.Phi()<HITktktkDsPhi_.xMax) HITktktkDsPhi_.ME->Fill(dimu.Eta());
+                     if(dimu.M()>HITktktkDsMass_.xMin && dimu.M()<HITktktkDsMass_.xMax) HITktktkDsMass_.ME->Fill(dimu.M());
+                   }
+                   kCnt2 +=1;
+                 }
+                 kCnt1 +=1;
+               }
+               kCnt0 +=1;
+             }
+           }
+           else if (pathName == HITktktkLcPt_.pathName){
+             const double pi_mass(0.13957018);
+             unsigned int kCnt0 = 0;
+             for (const auto & key0: keys){
+               unsigned int kCnt1 = 0;
+               for (const auto & key1: keys){
+                 unsigned int kCnt2 = 0;
+                 for (const auto & key2: keys){
+                   if (key0 != key1 && kCnt1 > kCnt0 && key0 != key2 && key1 != key2 && kCnt2 > kCnt1){ // avoid filling hists with same objs && avoid double counting separate objs
+                     // if (abs(objects[key0].id()) == 13 && (objects[key0].id()+objects[key1].id()==0))  // id is not filled for l1 stage2 muons
+                     TLorentzVector mu1, mu2, mu3, dimu;
+                     mu1.SetPtEtaPhiM(objects[key0].pt(), objects[key0].eta(), objects[key0].phi(), pi_mass);
+                     mu2.SetPtEtaPhiM(objects[key1].pt(), objects[key1].eta(), objects[key1].phi(), pi_mass);
+                     mu3.SetPtEtaPhiM(objects[key2].pt(), objects[key2].eta(), objects[key2].phi(), pi_mass);
+                     dimu = mu1+mu2;
+                     if(dimu.Pt()>HITktktkLcPt_.xMin && dimu.Pt()<HITktktkLcPt_.xMax) HITktktkLcPt_.ME->Fill(dimu.Pt());
+                     if(dimu.Eta()>HITktktkLcEta_.xMin && dimu.Eta()<HITktktkLcEta_.xMax) HITktktkLcEta_.ME->Fill(dimu.Eta());
+                     if(dimu.Phi()>HITktktkLcPhi_.xMin && dimu.Phi()<HITktktkLcPhi_.xMax) HITktktkLcPhi_.ME->Fill(dimu.Eta());
+                     if(dimu.M()>HITktktkLcMass_.xMin && dimu.M()<HITktktkLcMass_.xMax) HITktktkLcMass_.ME->Fill(dimu.M());
+                   }
+                   kCnt2 +=1;
+                 }
+                 kCnt1 +=1;
+               }
+               kCnt0 +=1;
+             }
+           }
+
 	   firedMap[pathName] = true;
 	 } //end if trigger accept
      } //end loop over plots/paths

@@ -44,6 +44,13 @@ mu0hfveto_moduleName = "hltPixelTracksForUPCFilterPPOnAA"
 doublemuhfveto_pathName = "HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelTrack"
 doublemuhfveto_moduleName = "hltPixelTracksForUPCFilterPPOnAA"
 
+tracking1_pathName = "HLT_HIDmesonPPTrackingGlobal_Dpt20"
+tracking1_moduleName = "hlttktkFilterForDmesonDpt20"
+tracking2_pathName = "HLT_HIDsPPTrackingGlobal_Dpt20"
+tracking2_moduleName = "hlttktkFilterForDsDpt20"
+tracking3_pathName = "HLT_HILcPPTrackingGlobal_Dpt20"
+tracking3_moduleName = "hlttktkFilterForLcDpt20"
+
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltObjectMonitorLeadLead = DQMEDAnalyzer('HLTObjectMonitorHI',
     processName         = cms.string("HLT"),
@@ -520,6 +527,126 @@ hltObjectMonitorLeadLead = DQMEDAnalyzer('HLTObjectMonitorHI',
 	Xmin = cms.double(2.0),
 	Xmax = cms.double(5.0)
 	),
+    HITktkDzeroPt = cms.PSet(
+        pathName = cms.string(tracking1_pathName),
+        moduleName = cms.string(tracking1_moduleName),
+        plotLabel = cms.string("HITktkDzero_pT"),
+        axisLabel = cms.string("dimu p_{T} [GeV]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(0),
+        Xmax = cms.double(100)
+        ),
+    HITktkDzeroEta = cms.PSet(
+        pathName = cms.string(tracking1_pathName),
+        moduleName = cms.string(tracking1_moduleName),
+        plotLabel = cms.string("HITktkDzero_eta"),
+        axisLabel = cms.string("dimu eta"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(30),
+        Xmin = cms.double(-2.4),
+        Xmax = cms.double(2.4)
+        ),
+    HITktkDzeroPhi = cms.PSet(
+        pathName = cms.string(tracking1_pathName),
+        moduleName = cms.string(tracking1_moduleName),
+        plotLabel = cms.string("HITktkDzero_Phi"),
+        axisLabel = cms.string("dimu phi"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(-3.2),
+        Xmax = cms.double(3.2)
+        ),
+    HITktkDzeroMass = cms.PSet(
+        pathName = cms.string(tracking1_pathName),
+        moduleName = cms.string(tracking1_moduleName),
+        plotLabel = cms.string("HITktkDzero_Mass"),
+        axisLabel = cms.string("dimu mass"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(1.7),
+        Xmax = cms.double(2.0)
+        ),
+    HITktktkDsPt = cms.PSet(
+        pathName = cms.string(tracking2_pathName),
+        moduleName = cms.string(tracking2_moduleName),
+        plotLabel = cms.string("HITktktkDs_pT"),
+        axisLabel = cms.string("dimu p_{T} [GeV]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(0),
+        Xmax = cms.double(100)
+        ),
+    HITktktkDsEta = cms.PSet(
+        pathName = cms.string(tracking2_pathName),
+        moduleName = cms.string(tracking2_moduleName),
+        plotLabel = cms.string("HITktktkDs_eta"),
+        axisLabel = cms.string("dimu eta"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(30),
+        Xmin = cms.double(-2.4),
+        Xmax = cms.double(2.4)
+        ),
+    HITktktkDsPhi = cms.PSet(
+        pathName = cms.string(tracking2_pathName),
+        moduleName = cms.string(tracking2_moduleName),
+        plotLabel = cms.string("HITktktkDs_Phi"),
+        axisLabel = cms.string("phi"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(-3.2),
+        Xmax = cms.double(3.2)
+        ),
+    HITktktkDsMass = cms.PSet(
+        pathName = cms.string(tracking2_pathName),
+        moduleName = cms.string(tracking2_moduleName),
+        plotLabel = cms.string("HITktktkDs_Mass"),
+        axisLabel = cms.string("mass"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(1.91),
+        Xmax = cms.double(2.11)
+        ),
+    HITktktkLcPt = cms.PSet(
+        pathName = cms.string(tracking3_pathName),
+        moduleName = cms.string(tracking3_moduleName),
+        plotLabel = cms.string("HITktktkLc_pT"),
+        axisLabel = cms.string("p_{T} [GeV]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(0),
+        Xmax = cms.double(100)
+        ),
+    HITktktkLcEta = cms.PSet(
+        pathName = cms.string(tracking3_pathName),
+        moduleName = cms.string(tracking3_moduleName),
+        plotLabel = cms.string("HITktktkLc_eta"),
+        axisLabel = cms.string("eta"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(30),
+        Xmin = cms.double(-2.4),
+        Xmax = cms.double(2.4)
+        ),
+    HITktktkLcPhi = cms.PSet(
+        pathName = cms.string(tracking3_pathName),
+        moduleName = cms.string(tracking3_moduleName),
+        plotLabel = cms.string("HITktktkLc_Phi"),
+        axisLabel = cms.string("phi"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(-3.2),
+        Xmax = cms.double(3.2)
+        ),
+    HITktktkLcMass = cms.PSet(
+        pathName = cms.string(tracking3_pathName),
+        moduleName = cms.string(tracking3_moduleName),
+        plotLabel = cms.string("HITktktkLc_Mass"),
+        axisLabel = cms.string("mass"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(2.1),
+        Xmax = cms.double(2.5)
+        ),
     wallTime = cms.PSet(
 	pathName = cms.string("wall time per event"),
 	moduleName = cms.string(""),
