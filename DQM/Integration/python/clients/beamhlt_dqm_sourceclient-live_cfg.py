@@ -122,7 +122,8 @@ if (process.runType.getRunType() == process.runType.pp_run or
     #it will pick all triggers which has these strings in theri name
     process.dqmBeamMonitor.jetTrigger = cms.untracked.vstring(
         "HLT_HT300_Beamspot", "HLT_HT300_Beamspot",
-        "HLT_PAZeroBias_v", "HLT_ZeroBias_v", "HLT_QuadJet")
+        "HLT_PAZeroBias_v", "HLT_ZeroBias_", "HLT_QuadJet",
+        "HLT_HI")
 
     process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
 
