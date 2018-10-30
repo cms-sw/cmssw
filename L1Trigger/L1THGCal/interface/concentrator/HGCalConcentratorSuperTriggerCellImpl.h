@@ -17,17 +17,21 @@ class HGCalConcentratorSuperTriggerCellImpl
   public:
     HGCalConcentratorSuperTriggerCellImpl(const edm::ParameterSet& conf);
 
-    void superTriggerCellSelectImpl(uint32_t module_id, const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput, std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput);
+    void superTriggerCellSelectImpl(const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput, std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput);
 
   private:
 
-    int getSuperTriggerCellId_(int detid) const ;
+    int getSuperTriggerCellId(int detid) const ;
 
-    struct SuperTriggerCell {
+    class SuperTriggerCell {
+  
+    private:
         float sumPt, sumMipPt;
         int sumHwPt, maxHwPt; 
         unsigned maxId;
-        SuperTriggerCell() : sumPt(0), sumMipPt(0), sumHwPt(0), maxHwPt(0), maxId(0) {}
+
+    public:
+        SuperTriggerCell(){  sumPt=0, sumMipPt=0, sumHwPt=0, maxHwPt=0, maxId=0 ;}
         void add(const l1t::HGCalTriggerCell &c) {
             sumPt += c.pt();
             sumMipPt += c.mipPt();
@@ -42,8 +46,9 @@ class HGCalConcentratorSuperTriggerCellImpl
             c.setMipPt(sumMipPt);
             c.setP4(math::PtEtaPhiMLorentzVector(sumPt, c.eta(), c.phi(), c.mass())); // there's no setPt
         }
+	unsigned GetMaxId()const{return maxId;}
     };
-
+    
     size_t   nData_;
     size_t   nCellsInModule_;
     double   linLSB_;

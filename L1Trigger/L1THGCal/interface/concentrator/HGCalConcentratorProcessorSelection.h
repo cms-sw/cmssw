@@ -3,6 +3,7 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalConcentratorProcessorBase.h"
 #include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorSelectionImpl.h"
+#include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorSuperTriggerCellImpl.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
@@ -20,6 +21,7 @@ class HGCalConcentratorProcessorSelection : public HGCalConcentratorProcessorBas
     std::string choice_;
     
     HGCalConcentratorSelectionImpl concentratorProcImpl_;
+    HGCalConcentratorSuperTriggerCellImpl concentratorSTCImpl_;
      
     HGCalTriggerTools triggerTools_;
 

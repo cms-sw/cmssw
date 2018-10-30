@@ -53,7 +53,7 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
   else if (choice_ == "superTriggerCellSelect"){
     for( const auto& module_trigcell : tc_modules ) {  
       std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;
-      concentratorSTCImpl_.superTriggerCellSelectImpl(module_trigcell.first, module_trigcell.second, trigCellVecOutput);
+      concentratorSTCImpl_.superTriggerCellSelectImpl( module_trigcell.second, trigCellVecOutput);
       
       // Push trigger Cells for each module from std::vector<l1t::HGCalTriggerCell> into the final collection
       for( auto trigCell = trigCellVecOutput.begin(); trigCell != trigCellVecOutput.end(); ++trigCell){
