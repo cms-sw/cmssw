@@ -1116,7 +1116,6 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 			        filterproduct.addObject(trigger::TriggerL1ETMHF, myref); 
 			      break;
 			    case l1t::EtSum::kCentrality: 
-			      std::cout << "CCLA HLTL1TSeed filterproduct Add Centrality" << std::endl;
             if(!listCentrality.empty())
 			        filterproduct.addObject(trigger::TriggerL1Centrality, myref); 
 			      break;
