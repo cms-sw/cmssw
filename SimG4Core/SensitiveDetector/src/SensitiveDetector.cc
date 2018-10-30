@@ -63,7 +63,7 @@ Local3DPoint SensitiveDetector::InitialStepPosition(const G4Step * step, coordin
   const G4StepPoint * preStepPoint = step->GetPreStepPoint();
   const G4ThreeVector& globalCoordinates = preStepPoint->GetPosition();
   if (cd == WorldCoordinates) { return ConvertToLocal3DPoint(globalCoordinates); }
-  G4TouchableHistory * theTouchable=(G4TouchableHistory *)(preStepPoint->GetTouchable());
+  const G4TouchableHistory * theTouchable=static_cast<const G4TouchableHistory *>(preStepPoint->GetTouchable());
   const G4ThreeVector localCoordinates = theTouchable->GetHistory()
                   ->GetTopTransform().TransformPoint(globalCoordinates);
   return ConvertToLocal3DPoint(localCoordinates); 
