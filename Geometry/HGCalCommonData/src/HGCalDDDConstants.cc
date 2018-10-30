@@ -53,8 +53,8 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 				      max_modules_layer_[simreco][layer]);
 #ifdef EDM_ML_DEBUG
 	edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " with " 
-					<< max_modules_layer_[simreco][layer] 
-					<< ":" << modHalf_ << " modules";
+				      << max_modules_layer_[simreco][layer] 
+				      << ":" << modHalf_ << " modules";
 #endif
       }
     }
@@ -539,6 +539,10 @@ bool HGCalDDDConstants::isValidTrap(int layer, int irad, int iphi) const {
 	  (iphi > 0) && (iphi <= hgpar_->scintCells(layer)));
 }
 
+int HGCalDDDConstants::lastLayer(bool reco) const {
+  return (hgpar_->firstLayer_+tot_layers_[(int)reco]-1);
+}
+
 unsigned int HGCalDDDConstants::layers(bool reco) const {
   return tot_layers_[(int)reco];
 }
@@ -696,24 +700,38 @@ bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
   if (corners > 2 && corners < 6) {
     if ((mode_ == HGCalGeometryMode::Hexagon8) ||
 	(mode_ == HGCalGeometryMode::Hexagon8Full)) {
-      HGCSiliconDetId id(detId);
-      int wl = HGCalWaferIndex::waferIndex(id.layer(),id.waferU(),id.waferV());
+      int N(0), layer(0), waferU(0), waferV(0), u(0), v(0);
+      if (detId.det() == DetId::Forward) {
+	HFNoseDetId id(detId); 
+	N      = getUVMax(id.type());
+	layer  = id.layer();
+	waferU = id.waferU();
+	waferV = id.waferV();
+	u      = id.cellU();
+	v      = id.cellV();
+      } else {
+	HGCSiliconDetId id(detId);
+	N      = getUVMax(id.type());
+	layer  = id.layer();
+	waferU = id.waferU();
+	waferV = id.waferV();
+	u      = id.cellU();
+	v      = id.cellV();
+      }
+      int  wl  = HGCalWaferIndex::waferIndex(layer,waferU,waferV);
       auto itr = hgpar_->waferTypes_.find(wl);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "MaskCell: Layer " << id.layer() 
-				    << " Wafer " << id.waferU() << ":"
-				    << id.waferV() << " Index " << wl << ":"
+      edm::LogVerbatim("HGCalGeom") << "MaskCell: Layer " << layer 
+				    << " Wafer " << waferU << ":"
+				    << waferV << " Index " << wl << ":"
 				    << (itr != hgpar_->waferTypes_.end());
 #endif
       if (itr != hgpar_->waferTypes_.end()) {
-	int N    = getUVMax(id.type());
 	int ncor = (itr->second).first;
 	int fcor = (itr->second).second;
 	if (ncor < corners) {
 	  mask   = true;
 	} else {
-	  int u = id.cellU();
-	  int v = id.cellV();
 	  if (ncor == 4) {
 	    switch (fcor) {
 	      case(0): { mask = (v >= N); break; }
@@ -1245,6 +1263,20 @@ int HGCalDDDConstants::waferType(DetId const& id) const {
   } else if ((mode_ == HGCalGeometryMode::Hexagon) ||
 	     (mode_ == HGCalGeometryMode::HexagonFull)) {
     type = waferTypeL(HGCalDetId(id).wafer());
+  }
+  return type;
+}
+
+bool HGCalDDDConstants::waferVirtual(int layer, int waferU, int waferV) const {
+  bool type(false);
+  if ((mode_ == HGCalGeometryMode::Hexagon8) ||
+      (mode_ == HGCalGeometryMode::Hexagon8Full)) {
+    int wl = HGCalWaferIndex::waferIndex(layer,waferU,waferV,false);
+    type   = (hgpar_->waferTypes_.find(wl) != hgpar_->waferTypes_.end());
+  } else if ((mode_ == HGCalGeometryMode::Hexagon) ||
+	     (mode_ == HGCalGeometryMode::HexagonFull)) {
+    int wl = HGCalWaferIndex::waferIndex(layer,waferU,0,true);
+    type   = (hgpar_->waferTypes_.find(wl) != hgpar_->waferTypes_.end());
   }
   return type;
 }
