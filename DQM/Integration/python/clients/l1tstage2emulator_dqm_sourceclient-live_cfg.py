@@ -65,7 +65,7 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
 process.hltFatEventFilter = hltHighLevel.clone()
 process.hltFatEventFilter.throw = cms.bool(False)
 # HLT_Physics now has the event % 107 filter as well as L1FatEvents
-process.hltFatEventFilter.HLTPaths = cms.vstring('HLT_L1FatEvents_v*', 'HLT_Physics_v*', 'HLT_HIPhysics_v*')
+process.hltFatEventFilter.HLTPaths = cms.vstring('HLT_L1FatEvents_v*', 'HLT_Physics_v*')
 
 # This can be used if HLT filter not available in a run
 process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
@@ -149,6 +149,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.selfFatEventFilter.rawInput = cms.InputTag("rawDataRepacker")
     process.rpcTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
     process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
+    process.hltFatEventFilter.HLTPaths.append('HLT_HIPhysics_v*')
 
 #--------------------------------------------------
 # L1T Emulator Online DQM Schedule
