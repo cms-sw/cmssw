@@ -26,27 +26,27 @@ class HGCalConcentratorSuperTriggerCellImpl
     class SuperTriggerCell {
   
     private:
-        float sumPt, sumMipPt;
-        int sumHwPt, maxHwPt; 
-        unsigned maxId;
+        float sumPt_, sumMipPt_;
+        int sumHwPt_, maxHwPt_; 
+        unsigned maxId_;
 
     public:
-        SuperTriggerCell(){  sumPt=0, sumMipPt=0, sumHwPt=0, maxHwPt=0, maxId=0 ;}
+        SuperTriggerCell(){  sumPt_=0, sumMipPt_=0, sumHwPt_=0, maxHwPt_=0, maxId_=0 ;}
         void add(const l1t::HGCalTriggerCell &c) {
-            sumPt += c.pt();
-            sumMipPt += c.mipPt();
-            sumHwPt += c.hwPt();
-            if (maxId == 0 || c.hwPt() > maxHwPt) {
-                maxHwPt = c.hwPt();
-                maxId = c.detId();
+            sumPt_ += c.pt();
+            sumMipPt_ += c.mipPt();
+            sumHwPt_ += c.hwPt();
+            if (maxId_ == 0 || c.hwPt() > maxHwPt_) {
+                maxHwPt_ = c.hwPt();
+                maxId_ = c.detId();
             }
         }
         void assignEnergy(l1t::HGCalTriggerCell &c) const {
-            c.setHwPt(sumHwPt);
-            c.setMipPt(sumMipPt);
-            c.setP4(math::PtEtaPhiMLorentzVector(sumPt, c.eta(), c.phi(), c.mass())); // there's no setPt
+            c.setHwPt(sumHwPt_);
+            c.setMipPt(sumMipPt_);
+            c.setP4(math::PtEtaPhiMLorentzVector(sumPt_, c.eta(), c.phi(), c.mass())); // there's no setPt
         }
-	unsigned GetMaxId()const{return maxId;}
+        unsigned GetMaxId()const{return maxId_;}
     };
     
 };

@@ -13,10 +13,10 @@ HGCalConcentratorSuperTriggerCellImpl::getSuperTriggerCellId(int detid) const {
   return TC_id.cell(); //scintillator
   } else {
     int TC_wafer = TC_id.wafer();
-    int split =  0x3a;
+    int split = 0x3a;
     int TC_12th = ( TC_id.cell() & split );
-    int divisor =  6;
-    return TC_wafer<<divisor | TC_12th;
+    int wafer_offset = 6;
+    return TC_wafer<<wafer_offset | TC_12th;
   }
   
 }
@@ -39,7 +39,7 @@ superTriggerCellSelectImpl(const std::vector<l1t::HGCalTriggerCell>& trigCellVec
     
     //If scintillator use a simple threshold cut
     if (tc.subdetId() == HGCHEB) {
-        trigCellVecOutput.push_back( tc );
+      trigCellVecOutput.push_back( tc );
     } else {
       const auto & stc = STCs[getSuperTriggerCellId(tc.detId())]; 
       if (tc.detId() == stc.GetMaxId() ) {
