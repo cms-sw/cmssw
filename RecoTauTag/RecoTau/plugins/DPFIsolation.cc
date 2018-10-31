@@ -12,15 +12,11 @@ namespace {
 inline int getPFCandidateIndex(const edm::Handle<pat::PackedCandidateCollection>& pfcands,
                                const reco::CandidatePtr& cptr)
 {
-    unsigned int pfInd = -1;
     for(unsigned int i = 0; i < pfcands->size(); ++i) {
-        pfInd++;
-        if(reco::CandidatePtr(pfcands,i) == cptr) {
-            pfInd = i;
-            break;
-        }
+        if(reco::CandidatePtr(pfcands,i) == cptr)
+            return i;
     }
-    return pfInd;
+    return -1;
 }
 } // anonymous namespace
 
@@ -53,6 +49,7 @@ public:
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
         desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0.pb");
+        desc.add<unsigned>("version", 0);
 
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
@@ -71,13 +68,11 @@ public:
     explicit DPFIsolation(const edm::ParameterSet& cfg) :
         DeepTauBase(cfg, GetOutputs()),
         pfcand_token(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("pfcands"))),
-        vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices")))
+        vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
+        graphVersion(cfg.getParameter<unsigned>("version"))
     {
-        if(graphName.find("v0.pb") != std::string::npos)
-            graphVersion = 0;
-        else if(graphName.find("v1.pb") != std::string::npos)
-            graphVersion = 1;
-        else
+        std::cout << "graphVersion: " << graphVersion << '\n';
+        if(!(graphVersion == 1 || graphVersion == 0 ))
             throw cms::Exception("DPFIsolation") << "unknown version of the graph file.";
     }
 
@@ -153,8 +148,6 @@ private:
                 if (p.pt() < 0.5) continue;
                 if (p.fromPV() < 0) continue;
                 if (deltaR_tau_p > 0.5) continue;
-
-
                 if (p.fromPV() < 1 && p.charge() != 0) continue;
                 pfCandPt = p.pt();
                 pfCandPtRel = p.pt()/lepRecoPt;
@@ -372,11 +365,9 @@ private:
                     tensor.tensor<float,3>()( 0, 36-1-iPF, 49) = pfCandPdgID==211;
                     tensor.tensor<float,3>()( 0, 36-1-iPF, 50) = pfCandTauIndMatch;
                 }
-
                 iPF++;
             }
-
-            tensorflow::Status status = session->Run( { {"input_1", tensor} }, {"output_node0"}, {}, &outputs);
+            tensorflow::run(session, { { "input_1", tensor } }, { "output_node0" }, {}, &outputs);
             predictions.matrix<float>()(tau_index, 0) = outputs[0].flat<float>()(0);
         }
         return predictions;

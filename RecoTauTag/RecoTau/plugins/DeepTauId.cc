@@ -62,6 +62,8 @@ struct dnn_inputs_2017v1 {
         isolationGammaCands_nTotal,
         NumberOfInputs
     };
+
+    static constexpr int NumberOfOutputs = 4;
 };
 
 template<typename LVector1, typename LVector2>
@@ -158,7 +160,6 @@ struct MuonHitMatch {
         }
         return matched_muons;
     }
-
 
     template<typename dnn, typename TensorElemGet>
     void FillTensor(const TensorElemGet& get, const pat::Tau& tau, float default_value) const
@@ -286,30 +287,33 @@ private:
         edm::Handle<pat::MuonCollection> muons;
         event.getByToken(muons_token, muons);
 
-        const tensorflow::Tensor& inputs = CreateInputs<dnn_inputs_2017v1>(*taus, *electrons, *muons);
-        std::vector<tensorflow::Tensor> pred_vector;
-        tensorflow::run(session, { { input_layer, inputs } }, { output_layer }, &pred_vector);
-        return pred_vector.at(0);
-    }
-
-    template<typename dnn_inputs>
-    tensorflow::Tensor CreateInputs(const TauCollection& taus, const ElectronCollection& electrons,
-                                    const MuonCollection& muons) const
-    {
-        tensorflow::Tensor inputs(tensorflow::DT_FLOAT, { static_cast<int>(taus.size()), dnn_inputs::NumberOfInputs});
-        for(size_t tau_index = 0; tau_index < taus.size(); ++tau_index)
-            SetInputs<dnn_inputs>(taus, tau_index, inputs, electrons, muons);
-        return inputs;
+        tensorflow::Tensor predictions(tensorflow::DT_FLOAT, { static_cast<int>(taus->size()),
+                                       dnn_inputs_2017v1::NumberOfOutputs});
+        for(size_t tau_index = 0; tau_index < taus->size(); ++tau_index) {
+            const tensorflow::Tensor& inputs = CreateInputs<dnn_inputs_2017v1>(taus->at(tau_index), *electrons, *muons);
+            std::vector<tensorflow::Tensor> pred_vector;
+            tensorflow::run(session, { { input_layer, inputs } }, { output_layer }, &pred_vector);
+            for(int k = 0; k < dnn_inputs_2017v1::NumberOfOutputs; ++k)
+                predictions.matrix<float>()(tau_index, k) = pred_vector[0].flat<float>()(k);
+        }
+        return predictions;
     }
 
     template<typename dnn>
-    void SetInputs(const TauCollection& taus, size_t tau_index, tensorflow::Tensor& inputs,
-                   const ElectronCollection& electrons, const MuonCollection& muons) const
+    tensorflow::Tensor CreateInputs(const TauType& tau, const ElectronCollection& electrons,
+                                    const MuonCollection& muons) const
     {
         static constexpr bool check_all_set = false;
         static constexpr float magic_number = -42;
+<<<<<<< HEAD
         const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(tau_index, var_index); };
         const TauType& tau = taus.at(tau_index);
+=======
+        static const TauIdMVAAuxiliaries clusterVariables;
+
+        tensorflow::Tensor inputs(tensorflow::DT_FLOAT, { 1, dnn_inputs_2017v1::NumberOfInputs});
+        const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
+>>>>>>> ef7dc2ec57c... - Implemented on runTauIdMVA the option to work with new training files quantized
         auto leadChargedHadrCand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get());
 
         if(check_all_set) {
@@ -492,6 +496,8 @@ private:
                     throw cms::Exception("DeepTauId: variable with index = ") << var_index << " is not set.";
             }
         }
+
+        return inputs;
     }
 
     static void CalculateElectronClusterVars(const pat::Electron* ele, float& elecEe, float& elecEgamma)
