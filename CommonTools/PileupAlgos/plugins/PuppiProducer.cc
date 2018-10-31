@@ -250,15 +250,16 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
     LorentzVector pVec;
 
-    // Find the Puppi particle matched to the input collection using the "user_index" of the object. 
-    auto puppiMatched = find_if( lCandidates.begin(), lCandidates.end(), [&val]( PuppiCandidate const & i ){ return i.user_index() == val; } );
-    if ( puppiMatched != lCandidates.end() ) {
-      pVec.SetPxPyPzE(puppiMatched->px(),puppiMatched->py(),puppiMatched->pz(),puppiMatched->E());
+    //get an index to a pup in lCandidates: either fUseExistingWeights with no skips or get from fPuppiContainer
+    int iPuppiMatched = fUseExistingWeights ? val : fPuppiContainer->recoToPup()[val];
+    if ( iPuppiMatched >= 0 ) {
+      auto const& puppiMatched = lCandidates[iPuppiMatched];
+      pVec.SetPxPyPzE(puppiMatched.px(),puppiMatched.py(),puppiMatched.pz(),puppiMatched.E());
       if(fClonePackedCands && (!fUseExistingWeights)) {
         if(fPuppiForLeptons)
-          pCand->setPuppiWeight(pCand->puppiWeight(),lWeights[puppiMatched-lCandidates.begin()]);
+          pCand->setPuppiWeight(pCand->puppiWeight(),lWeights[iPuppiMatched]);
         else
-          pCand->setPuppiWeight(lWeights[puppiMatched-lCandidates.begin()],pCand->puppiWeightNoLep());
+          pCand->setPuppiWeight(lWeights[iPuppiMatched],pCand->puppiWeightNoLep());
       }
     } else {
       pVec.SetPxPyPzE( 0, 0, 0, 0);
