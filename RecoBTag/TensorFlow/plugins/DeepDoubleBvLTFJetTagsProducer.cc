@@ -26,23 +26,23 @@
 // make use of a cache struct that can be extended in the future if nedded. In addition, the graph
 // is protected via std::atomic, which should not affect the performance as it is only accessed in
 // the module constructor and not in the actual produce loop.
-struct DeepDoubleXTFCache {
-  DeepDoubleXTFCache() : graphDef(nullptr) {
+struct DeepDoubleBvLTFCache {
+  DeepDoubleBvLTFCache() : graphDef(nullptr) {
   }
 
   std::atomic<tensorflow::GraphDef*> graphDef;
 };
 
-class DeepDoubleXTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<DeepDoubleXTFCache>> {
+class DeepDoubleBvLTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<DeepDoubleBvLTFCache>> {
 
   public:
-    explicit DeepDoubleXTFJetTagsProducer(const edm::ParameterSet&, const DeepDoubleXTFCache*);
-    ~DeepDoubleXTFJetTagsProducer() override;
+    explicit DeepDoubleBvLTFJetTagsProducer(const edm::ParameterSet&, const DeepDoubleBvLTFCache*);
+    ~DeepDoubleBvLTFJetTagsProducer() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-    static std::unique_ptr<DeepDoubleXTFCache> initializeGlobalCache(const edm::ParameterSet&);
-    static void globalEndJob(const DeepDoubleXTFCache*);
+    static std::unique_ptr<DeepDoubleBvLTFCache> initializeGlobalCache(const edm::ParameterSet&);
+    static void globalEndJob(const DeepDoubleBvLTFCache*);
 
     enum InputIndexes {
       kGlobal = 0,
@@ -76,8 +76,8 @@ class DeepDoubleXTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalC
     bool batch_eval_;
 };
 
-DeepDoubleXTFJetTagsProducer::DeepDoubleXTFJetTagsProducer(const edm::ParameterSet& iConfig,
-  const DeepDoubleXTFCache* cache) :
+DeepDoubleBvLTFJetTagsProducer::DeepDoubleBvLTFJetTagsProducer(const edm::ParameterSet& iConfig,
+  const DeepDoubleBvLTFCache* cache) :
   src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
   input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
   output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")),
@@ -116,7 +116,7 @@ DeepDoubleXTFJetTagsProducer::DeepDoubleXTFJetTagsProducer(const edm::ParameterS
   }
 }
 
-DeepDoubleXTFJetTagsProducer::~DeepDoubleXTFJetTagsProducer()
+DeepDoubleBvLTFJetTagsProducer::~DeepDoubleBvLTFJetTagsProducer()
 {
   // close and delete the session
   if (session_ != nullptr) {
@@ -124,7 +124,7 @@ DeepDoubleXTFJetTagsProducer::~DeepDoubleXTFJetTagsProducer()
   }
 }
 
-void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+void DeepDoubleBvLTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
 
   // pfDeepDoubleBvLJetTags
@@ -152,59 +152,9 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
 
   descriptions.add("pfDeepDoubleBvLJetTags", desc);
 
-  // pfDeepDoubleCvLJetTags
-  edm::ParameterSetDescription desc2;
-  desc2.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleXTagInfos"));
-  desc2.add<std::vector<std::string>>("input_names", 
-    { "input_1", "input_2", "input_3" });
-  desc2.add<edm::FileInPath>("graph_path",
-    edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC.pb"));
-  desc2.add<std::vector<std::string>>("lp_names",
-    { "db_input_batchnorm/keras_learning_phase" });
-  desc2.add<std::vector<std::string>>("output_names",
-    { "ID_pred/Softmax" });
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::vector<unsigned int>>("probQCD", {0});
-    psd0.add<std::vector<unsigned int>>("probHcc", {1});
-    desc2.add<edm::ParameterSetDescription>("flav_table", psd0);
-  }
-
-  desc2.add<bool>("batch_eval", false);
-
-  desc2.add<unsigned int>("nThreads", 1);
-  desc2.add<std::string>("singleThreadPool", "no_threads");
-
-  descriptions.add("pfDeepDoubleCvLJetTags", desc2);
-
-  // pfDeepDoubleCvBJetTags
-  edm::ParameterSetDescription desc3;
-  desc3.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleXTagInfos"));
-  desc3.add<std::vector<std::string>>("input_names", 
-    { "input_1", "input_2", "input_3" });
-  desc3.add<edm::FileInPath>("graph_path",
-    edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.pb"));
-  desc3.add<std::vector<std::string>>("lp_names",
-    { "db_input_batchnorm/keras_learning_phase" });
-  desc3.add<std::vector<std::string>>("output_names",
-    { "ID_pred/Softmax" });
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::vector<unsigned int>>("probHbb", {0});
-    psd0.add<std::vector<unsigned int>>("probHcc", {1});
-    desc3.add<edm::ParameterSetDescription>("flav_table", psd0);
-  }
-
-  desc3.add<bool>("batch_eval", false);
-
-  desc3.add<unsigned int>("nThreads", 1);
-  desc3.add<std::string>("singleThreadPool", "no_threads");
-  descriptions.add("pfDeepDoubleCvBJetTags", desc3);
-
-
 }
 
-std::unique_ptr<DeepDoubleXTFCache> DeepDoubleXTFJetTagsProducer::initializeGlobalCache(
+std::unique_ptr<DeepDoubleBvLTFCache> DeepDoubleBvLTFJetTagsProducer::initializeGlobalCache(
   const edm::ParameterSet& iConfig)
 {
   // set the tensorflow log level to error
@@ -214,20 +164,20 @@ std::unique_ptr<DeepDoubleXTFCache> DeepDoubleXTFJetTagsProducer::initializeGlob
   std::string pbFile = iConfig.getParameter<edm::FileInPath>("graph_path").fullPath();
 
   // load the graph def and save it in the cache
-  DeepDoubleXTFCache* cache = new DeepDoubleXTFCache();
+  DeepDoubleBvLTFCache* cache = new DeepDoubleBvLTFCache();
   cache->graphDef = tensorflow::loadGraphDef(pbFile);
 
-  return std::unique_ptr<DeepDoubleXTFCache>(cache);
+  return std::unique_ptr<DeepDoubleBvLTFCache>(cache);
 }
 
-void DeepDoubleXTFJetTagsProducer::globalEndJob(const DeepDoubleXTFCache* cache)
+void DeepDoubleBvLTFJetTagsProducer::globalEndJob(const DeepDoubleBvLTFCache* cache)
 {
   if (cache->graphDef != nullptr) {
     delete cache->graphDef;
   }
 }
 
-void DeepDoubleXTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void DeepDoubleBvLTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   edm::Handle<TagInfoCollection> tag_infos;
@@ -340,4 +290,4 @@ void DeepDoubleXTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(DeepDoubleXTFJetTagsProducer);
+DEFINE_FWK_MODULE(DeepDoubleBvLTFJetTagsProducer);
