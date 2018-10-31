@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 #setup names for multiple plots that use the same paths+modules
 
-caloJet_pathName = "HLT_HIPuAk4CaloJet40Eta5p1"
+caloJet_pathName = "HLT_HIPuAK4CaloJet40Eta5p1" 
 caloJet_moduleName = "hltSinglePuAK4CaloJet40Eta5p1"
 
-cspfJet_pathName = "HLT_HICsAk4PFJet60Eta1p5"
-cspfJet_moduleName = "hltSingleCsAK4PFJet60Eta1p5"
+cspfJet_pathName = "HLT_HICsAK4PFJet60Eta1p5"
+cspfJet_moduleName = "hltSingleCsPFJet60Eta1p5"
 
 caloBJetdeepcsv_pathName = "HLT_HIPuAK4CaloJet60Eta2p4_DeepCSV0p4" 
 caloBJetdeepcsv_moduleName = "hltBTagCaloDeepCSV0p4TagSingleJet60"
@@ -513,12 +513,12 @@ hltObjectMonitorLeadLead = DQMEDAnalyzer('HLTObjectMonitorHI',
     HIL3DoubleMuJpsiMass = cms.PSet(
 	pathName = cms.string("HLT_HIL3DoubleMuOpen_JpsiPsi"),
 	moduleName = cms.string("hltL3fL1DoubleMuOpenL3FilteredPsi"),
-	plotLabel = cms.string("HIL3DoubleMu10_JpsiMass"),
+	plotLabel = cms.string("HIL3DoubleMuOpen_JpsiMass"),
 	axisLabel = cms.string("L3 dimuon mass [GeV]"),
 	mainWorkspace = cms.bool(True),
 	NbinsX = cms.int32(30),
-	Xmin = cms.double(2.0),
-	Xmax = cms.double(5.0)
+	Xmin = cms.double(2.2),
+	Xmax = cms.double(4.5)
 	),
     HITktkDzeroPt = cms.PSet(
         pathName = cms.string(tracking1_pathName),
