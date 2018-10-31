@@ -149,6 +149,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.selfFatEventFilter.rawInput = cms.InputTag("rawDataRepacker")
     process.rpcTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
     process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
+    process.hltFatEventFilter.HLTPaths.append('HLT_HIPhysics_v*')
 
 #--------------------------------------------------
 # L1T Emulator Online DQM Schedule
