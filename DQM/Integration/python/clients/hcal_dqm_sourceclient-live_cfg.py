@@ -207,8 +207,8 @@ process.preRecoPath = cms.Path(
 		process.hcalDigis
 		*process.castorDigis
 		*process.emulTPDigis
-		*process.emulTPDigisNoTDCCut
-		*process.L1TRawToDigi
+		*process.emulTPDigisNoTDCCut,
+		process.L1TRawToDigi
 )
 
 process.dqmPath = cms.EndPath(

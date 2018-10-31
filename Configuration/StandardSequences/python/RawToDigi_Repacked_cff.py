@@ -19,10 +19,10 @@ muonDTDigis.inputLabel = 'rawDataRepacker'
 muonRPCDigis.InputLabel = 'rawDataRepacker'
 castorDigis.InputLabel = 'rawDataRepacker'
 
-RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis+castorDigis+scalersRawToDigi)
+RawToDigi = cms.Task(csctfDigis, dttfDigis, gctDigis, gtDigis, gtEvmDigis, siPixelDigis, siStripDigis, ecalDigis, ecalPreshowerDigis, hcalDigis, muonCSCDigis, muonDTDigis, muonRPCDigis, castorDigis, scalersRawToDigi)
 
-RawToDigi_woGCT = cms.Sequence(csctfDigis+dttfDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis+castorDigis+scalersRawToDigi)
+RawToDigi_woGCT = cms.Task(csctfDigis, dttfDigis, gtDigis, gtEvmDigis, siPixelDigis, siStripDigis, ecalDigis, ecalPreshowerDigis, hcalDigis, muonCSCDigis, muonDTDigis, muonRPCDigis, castorDigis, scalersRawToDigi)
 
 
 siStripVRDigis = siStripDigis.clone(ProductLabel = 'virginRawDataRepacker')
-RawToDigi_withVR = cms.Sequence(RawToDigi + siStripVRDigis)
+RawToDigi_withVR = cms.Task(RawToDigi, siStripVRDigis)

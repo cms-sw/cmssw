@@ -105,11 +105,11 @@ process.SiPixelClusterSource.modOn = cms.untracked.bool(True)
 process.dump = cms.EDAnalyzer('EventContentAnalyzer')
 
 #Paths
-##process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics *  process.DQMOfflineCosmics * process.MEtoEDMConverter)
-##process.allPath = cms.Path( process.RawToDigi * process.reconstruction * process.DQMOffline * process.MEtoEDMConverter)
+##process.allPath = cms.Path( process.reconstructionCosmics *  process.DQMOfflineCosmics * process.MEtoEDMConverter, process.RawToDigi_woGCT)
+##process.allPath = cms.Path( process.reconstruction * process.DQMOffline * process.MEtoEDMConverter, process.RawToDigi)
 
-#######process.allPath = cms.Path( process.RawToDigi * process.reconstruction * process.DQMOffline)
+#######process.allPath = cms.Path( process.reconstruction * process.DQMOffline, process.RawToDigi)
 
-process.allPath = cms.Path( process.RawToDigi * process.reconstruction * process.SiPixelClusterSource * process.SiPixelTrackResidualSource)
+process.allPath = cms.Path( process.reconstruction * process.SiPixelClusterSource * process.SiPixelTrackResidualSource, process.RawToDigi)
 
 process.outpath = cms.EndPath(process.FEVT)

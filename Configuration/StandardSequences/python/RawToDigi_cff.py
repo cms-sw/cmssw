@@ -48,35 +48,24 @@ from L1Trigger.Configuration.L1TRawToDigi_cff import *
 
 from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import *
 
-RawToDigi = cms.Sequence(L1TRawToDigi
-                         +siPixelDigis
-                         +siStripDigis
-                         +ecalDigis
-                         +ecalPreshowerDigis
-                         +hcalDigis
-                         +muonCSCDigis
-                         +muonDTDigis
-                         +muonRPCDigis
-                         +castorDigis
-                         +scalersRawToDigi
-                         +tcdsDigis
-                         +onlineMetaDataDigis
-                         )
+RawToDigi = cms.Task(L1TRawToDigi,
+                     siPixelDigis,
+                     siStripDigis,
+                     ecalDigis,
+                     ecalPreshowerDigis,
+                     hcalDigis,
+                     muonCSCDigis,
+                     muonDTDigis,
+                     muonRPCDigis,
+                     castorDigis,
+                     scalersRawToDigi,
+                     tcdsDigis,
+                     onlineMetaDataDigis,
+                     )
 
-RawToDigi_noTk = cms.Sequence(L1TRawToDigi
-                              +ecalDigis
-                              +ecalPreshowerDigis
-                              +hcalDigis
-                              +muonCSCDigis
-                              +muonDTDigis
-                              +muonRPCDigis
-                              +castorDigis
-                              +scalersRawToDigi
-                              +tcdsDigis
-                              +onlineMetaDataDigis
-                              )
+RawToDigi_noTk = RawToDigi.copyAndExclude([siPixelDigis, siStripDigis])
 
-RawToDigi_pixelOnly = cms.Sequence(siPixelDigis)
+RawToDigi_pixelOnly = cms.Task(siPixelDigis)
 
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 siPixelDigis.InputLabel = 'rawDataCollector'
@@ -101,16 +90,16 @@ phase2_tracker.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([siPixelDigis])
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 
 _ctpps_2016_RawToDigi = RawToDigi.copy()
-_ctpps_2016_RawToDigi += ctppsRawToDigi
+_ctpps_2016_RawToDigi.add(ctppsRawToDigi)
 ctpps_2016.toReplaceWith(RawToDigi, _ctpps_2016_RawToDigi)
 
 _ctpps_2016_RawToDigi_noTk = RawToDigi_noTk.copy()
-_ctpps_2016_RawToDigi_noTk += ctppsRawToDigi
+_ctpps_2016_RawToDigi_noTk.add(ctppsRawToDigi)
 ctpps_2016.toReplaceWith(RawToDigi_noTk, _ctpps_2016_RawToDigi_noTk)
 
 # GEM settings
 _gem_RawToDigi = RawToDigi.copy()
-_gem_RawToDigi.insert(-1,muonGEMDigis)
+_gem_RawToDigi.add(muonGEMDigis)
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith(RawToDigi, _gem_RawToDigi)
@@ -120,7 +109,7 @@ run3_GEM.toReplaceWith(RawToDigi, _gem_RawToDigi)
 
 from EventFilter.HGCalRawToDigi.HGCalRawToDigi_cfi import *
 _hgcal_RawToDigi = RawToDigi.copy()
-_hgcal_RawToDigi += hgcalDigis
+_hgcal_RawToDigi.add(hgcalDigis)
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(RawToDigi,_hgcal_RawToDigi)
 
@@ -128,8 +117,8 @@ phase2_hgcal.toReplaceWith(RawToDigi,_hgcal_RawToDigi)
 from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
 _rpc_NewReadoutVal_RawToDigi = RawToDigi.copy()
 _rpc_NewReadoutVal_RawToDigi_noTk = RawToDigi_noTk.copy()
-_rpc_NewReadoutVal_RawToDigi += muonRPCNewDigis
-_rpc_NewReadoutVal_RawToDigi_noTk += muonRPCNewDigis
+_rpc_NewReadoutVal_RawToDigi.add(muonRPCNewDigis)
+_rpc_NewReadoutVal_RawToDigi_noTk.add(muonRPCNewDigis)
 stage2L1Trigger_2017.toReplaceWith(RawToDigi, _rpc_NewReadoutVal_RawToDigi)
 stage2L1Trigger_2017.toReplaceWith(RawToDigi_noTk, _rpc_NewReadoutVal_RawToDigi)
 
@@ -138,7 +127,7 @@ fastSim.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([muonRPCNewDigis]))
 fastSim.toReplaceWith(RawToDigi_noTk, RawToDigi_noTk.copyAndExclude([muonRPCNewDigis]))
 
 _hfnose_RawToDigi = RawToDigi.copy()
-_hfnose_RawToDigi += hfnoseDigis
+_hfnose_RawToDigi.add(hfnoseDigis)
 
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 phase2_hfnose.toReplaceWith(RawToDigi,_hfnose_RawToDigi)

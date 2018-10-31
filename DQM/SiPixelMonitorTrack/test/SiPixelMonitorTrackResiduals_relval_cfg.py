@@ -66,4 +66,4 @@ process.monitorTrack = cms.Sequence(process.SiPixelTrackResidualSource)
 process.monitors = cms.Sequence(process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.SiPixelClusterSource*process.SiPixelRecHitSource*process.SiPixelTrackResidualSource)
 
 process.pathTrack = cms.Path(process.trackReconstruction*process.monitorTrack) 
-# process.pathStandard = cms.Path(process.RawToDigi*process.reconstruction*process.monitors) 
+# process.pathStandard = cms.Path(process.reconstruction*process.monitors, process.RawToDigi)
