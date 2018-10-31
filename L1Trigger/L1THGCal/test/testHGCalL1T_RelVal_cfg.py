@@ -65,11 +65,10 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 # load HGCAL TPG simulation
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
-process.hgcalConcentratorProducer.ProcessorParameters.Method = cms.string('superTriggerCellSelect')
+
 # Change to V7 trigger geometry for older samples
 #  from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_ZoltanSplit_V7
 #  process = custom_geometry_ZoltanSplit_V7(process)
-
 
 # load ntuplizer
 process.load('L1Trigger.L1THGCal.hgcalTriggerNtuples_cff')
