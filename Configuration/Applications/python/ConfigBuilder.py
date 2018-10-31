@@ -1207,7 +1207,11 @@ class ConfigBuilder(object):
                     setattr(self.process,prefix,getattr(cms,what)( getattr(self.process, s) ))
                 else:
                     p=getattr(self.process,prefix)
-                    p+=getattr(self.process, s)
+                    tmp = getattr(self.process, s)
+                    if isinstance(tmp, cms.Task):
+                        p.associate(tmp)
+                    else:
+                        p+=tmp
             self.schedule.append(getattr(self.process,prefix))
             return
         else:
