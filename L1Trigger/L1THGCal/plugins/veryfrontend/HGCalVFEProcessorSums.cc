@@ -4,6 +4,8 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+
 DEFINE_EDM_PLUGIN(HGCalVFEProcessorBaseFactory, 
         HGCalVFEProcessorSums,
         "HGCalVFEProcessorSums");
@@ -13,73 +15,47 @@ HGCalVFEProcessorSums::
 HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(conf),
   vfeLinearizationImpl_(conf),
   vfeSummationImpl_(conf),
+  vfeCompressionImpl_(conf),
   calibration_( conf.getParameterSet("calib_parameters") )
 { 
 }
 
 void
-HGCalVFEProcessorSums::run(const HGCEEDigiCollection& ee,
-                           const HGCHEDigiCollection& fh, 
-                           const HGCBHDigiCollection& bh, 
+HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
                            l1t::HGCalTriggerCellBxCollection& triggerCellColl, 
                            const edm::EventSetup& es) 
 { 
   calibration_.eventSetup(es);
 
-  std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+  std::vector<HGCalDataFrame> dataframes;
   std::vector<std::pair<DetId, uint32_t >> linearized_dataframes;
   std::map<HGCalDetId, uint32_t> payload;
+  std::map<HGCalDetId, std::array<uint32_t, 2> > compressed_payload;
 
   // convert ee and fh hit collections into the same object  
-  if(!ee.empty())
+  for(const auto& digiData : digiColl)
   {
-    for(const auto& eedata : ee)
-    { 
-      uint32_t module = geometry_->getModuleFromCell(eedata.id());
-      if(geometry_->disconnectedModule(module)) continue;
-      dataframes.emplace_back(eedata.id());
-      for(int i=0; i<eedata.size(); i++)
-      {
-        dataframes.back().setSample(i, eedata.sample(i));
-      }
+    if(DetId(digiData.id()).det()==DetId::Hcal && HcalDetId(digiData.id()).subdetId()!=HcalEndcap) continue;
+    uint32_t module = geometry_->getModuleFromCell(digiData.id());
+    if(geometry_->disconnectedModule(module)) continue;
+    dataframes.emplace_back(digiData.id());
+    for(int i=0; i<digiData.size(); i++)
+    {
+      dataframes.back().setSample(i, digiData.sample(i));
     }
   }
-  else if(!fh.empty())
-  {
-    for(const auto& fhdata : fh)
-    {
-       uint32_t module = geometry_->getModuleFromCell(fhdata.id());
-       if(geometry_->disconnectedModule(module)) continue;
-       dataframes.emplace_back(fhdata.id());
-       for(int i=0; i<fhdata.size(); i++)
-       {
-         dataframes.back().setSample(i, fhdata.sample(i));
-       }
-     }
-   }
-  else if(!bh.empty())
-  {  
-     for(const auto& bhdata : bh)
-     { 
-       if(HcalDetId(bhdata.id()).subdetId()!=HcalEndcap) continue;
-       uint32_t module = geometry_->getModuleFromCell(bhdata.id());
-       if(geometry_->disconnectedModule(module)) continue;
-       dataframes.emplace_back(bhdata.id());
-       for(int i=0; i<bhdata.size(); i++)
-       {
-         dataframes.back().setSample(i, bhdata.sample(i));
-       }
-     }
-   }
 
   vfeLinearizationImpl_.linearize(dataframes, linearized_dataframes);
   vfeSummationImpl_.triggerCellSums(*geometry_, linearized_dataframes, payload);  
+  vfeCompressionImpl_.compress(payload, compressed_payload);
   
   // Transform map to trigger cell vector vector<HGCalTriggerCell>
   for(const auto& id_value : payload)
   { 
     if (id_value.second>0){
-      l1t::HGCalTriggerCell triggerCell(reco::LeafCandidate::LorentzVector(), id_value.second, 0, 0, 0, id_value.first.rawId());
+      l1t::HGCalTriggerCell triggerCell(reco::LeafCandidate::LorentzVector(), compressed_payload[id_value.first][1], 0, 0, 0, id_value.first.rawId());
+      triggerCell.setCompressedCharge(compressed_payload[id_value.first][0]);
+      triggerCell.setUncompressedCharge(id_value.second);
       GlobalPoint point = geometry_->getTriggerCellPosition(id_value.first.rawId());
       
       // 'value' is hardware, so p4 is meaningless, except for eta and phi
@@ -95,6 +71,5 @@ HGCalVFEProcessorSums::run(const HGCEEDigiCollection& ee,
         triggerCellColl.push_back(0, calibratedtriggercell);
       }
     }
-  }    
+  }
 }
-

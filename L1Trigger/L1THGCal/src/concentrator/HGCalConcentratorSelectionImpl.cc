@@ -23,13 +23,13 @@ void
 HGCalConcentratorSelectionImpl::
 thresholdSelectImpl(const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput, std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput)
 { 
-  for (size_t i = 0; i<trigCellVecInput.size();i++){
-
-    int threshold = (HGCalDetId(trigCellVecInput[i].detId()).subdetId()==ForwardSubdetector::HGCHEB ? TCThresholdBH_ADC_ : TCThreshold_ADC_);
-    double triggercell_threshold = (HGCalDetId(trigCellVecInput[i].detId()).subdetId()==HGCHEB ? triggercell_threshold_scintillator_ : triggercell_threshold_silicon_);
+  for (const auto& trigCell: trigCellVecInput){
   
-    if ((trigCellVecInput[i].hwPt() >= threshold) && (trigCellVecInput[i].mipPt() >= triggercell_threshold)){ 
-      trigCellVecOutput.push_back(trigCellVecInput[i]);      
+    int threshold = (HGCalDetId(trigCell.detId()).subdetId()==ForwardSubdetector::HGCHEB ? TCThresholdBH_ADC_ : TCThreshold_ADC_);
+    double triggercell_threshold = (HGCalDetId(trigCell.detId()).subdetId()==HGCHEB ? triggercell_threshold_scintillator_ : triggercell_threshold_silicon_);
+  
+    if ((trigCell.hwPt() >= threshold) && (trigCell.mipPt() >= triggercell_threshold)){ 
+      trigCellVecOutput.push_back(trigCell);      
     }  
   }
 }
@@ -40,7 +40,7 @@ bestChoiceSelectImpl(const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput,
 { 
   trigCellVecOutput = trigCellVecInput;    
   // sort, reverse order
-  sort(trigCellVecOutput.begin(), trigCellVecOutput.end(),
+  std::sort(trigCellVecOutput.begin(), trigCellVecOutput.end(),
        [](const l1t::HGCalTriggerCell& a, 
           const  l1t::HGCalTriggerCell& b) -> bool
   { 

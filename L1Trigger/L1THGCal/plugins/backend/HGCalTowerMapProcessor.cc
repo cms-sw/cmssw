@@ -1,4 +1,4 @@
-#include "L1Trigger/L1THGCal/interface/HGCalTowerMapProcessorBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
