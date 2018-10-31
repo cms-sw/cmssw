@@ -216,40 +216,58 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 
   // FIXME: Both volume ID and material ID are zeros, so this part is not executed leaving all
   // values as zeros. 
-  if(!myMaterialBudgetCategorizer->x0fraction(materialName).empty() && (!isHGCal))
-    {
-      theSupportFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName)[0];
-      theSensitiveFractionMB   = myMaterialBudgetCategorizer->x0fraction(materialName)[1];
-      theCablesFractionMB      = myMaterialBudgetCategorizer->x0fraction(materialName)[2];
-      theCoolingFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName)[3];
-      theElectronicsFractionMB = myMaterialBudgetCategorizer->x0fraction(materialName)[4];
-      theOtherFractionMB       = myMaterialBudgetCategorizer->x0fraction(materialName)[5];
-      theAirFractionMB         = myMaterialBudgetCategorizer->x0fraction(materialName)[6];
-      
-      if(theOtherFractionMB!=0) 
-	edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName 
-				     << " in volume " << volumeName;
 
-      theSupportFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName)[0];
-      theSensitiveFractionIL   = myMaterialBudgetCategorizer->l0fraction(materialName)[1];
-      theCablesFractionIL      = myMaterialBudgetCategorizer->l0fraction(materialName)[2];
-      theCoolingFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName)[3];
-      theElectronicsFractionIL = myMaterialBudgetCategorizer->l0fraction(materialName)[4];
-      theOtherFractionIL       = myMaterialBudgetCategorizer->l0fraction(materialName)[5];
-      theAirFractionIL         = myMaterialBudgetCategorizer->l0fraction(materialName)[6];
+  bool isx0fractionEmpty = myMaterialBudgetCategorizer->x0fraction(materialName).empty();
+  bool isl0fractionEmpty = myMaterialBudgetCategorizer->l0fraction(materialName).empty();
+  bool isHGCalx0fractionEmpty = myMaterialBudgetCategorizer->HGCalx0fraction(materialName).empty();
+  bool isHGCall0fractionEmpty = myMaterialBudgetCategorizer->HGCall0fraction(materialName).empty();
 
-      if(theOtherFractionIL!=0) 
-	edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName 
-				     << " in volume " << volumeName;
-    }
-   else
-   {
-     theOtherFractionMB = 1;
-     theOtherFractionIL = 1;
-   }
-  if( (!myMaterialBudgetCategorizer->HGCalx0fraction(materialName).empty()) && (isHGCal) )
-    {
+  if (!isHGCal){
+
+    if( isx0fractionEmpty && isl0fractionEmpty ) // Empty
+      {
+	theOtherFractionMB = 1;
+	theOtherFractionIL = 1;
+
+	edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material forced to 'Other': " << materialName 
+					  << " in volume " << volumeName;
+      }
+    else 
+      {
+	theSupportFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName)[0];
+	theSensitiveFractionMB   = myMaterialBudgetCategorizer->x0fraction(materialName)[1];
+	theCablesFractionMB      = myMaterialBudgetCategorizer->x0fraction(materialName)[2];
+	theCoolingFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName)[3];
+	theElectronicsFractionMB = myMaterialBudgetCategorizer->x0fraction(materialName)[4];
+	theOtherFractionMB       = myMaterialBudgetCategorizer->x0fraction(materialName)[5];
+	theAirFractionMB         = myMaterialBudgetCategorizer->x0fraction(materialName)[6];
       
+	if(theOtherFractionMB!=0) 
+	  edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName 
+					    << " in volume " << volumeName;
+
+	theSupportFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName)[0];
+	theSensitiveFractionIL   = myMaterialBudgetCategorizer->l0fraction(materialName)[1];
+	theCablesFractionIL      = myMaterialBudgetCategorizer->l0fraction(materialName)[2];
+	theCoolingFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName)[3];
+	theElectronicsFractionIL = myMaterialBudgetCategorizer->l0fraction(materialName)[4];
+	theOtherFractionIL       = myMaterialBudgetCategorizer->l0fraction(materialName)[5];
+	theAirFractionIL         = myMaterialBudgetCategorizer->l0fraction(materialName)[6];
+
+	if(theOtherFractionIL!=0) 
+	  edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName 
+					    << " in volume " << volumeName;
+      }
+  }  else {// Not empty, isHGCal
+    
+    if( isHGCalx0fractionEmpty && isHGCall0fractionEmpty ) {
+      theOtherFractionMB = 1;
+      theOtherFractionIL = 1;
+
+      edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material forced to 'Other': " << materialName 
+					<< " in volume " << volumeName;
+    } else{
+    
       theAirFractionMB              = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[0];
       theCablesFractionMB           = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[1];
       theCopperFractionMB           = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[2];
@@ -282,11 +300,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category " << materialName 
 					  << " in volume " << volumeName << std::endl;
     }
-   else
-   {
-     theOtherFractionMB = 1;
-     theOtherFractionIL = 1;
-   }
+  }
   
   float dmb = steplen/radlen;
   float dil = steplen/intlen;
