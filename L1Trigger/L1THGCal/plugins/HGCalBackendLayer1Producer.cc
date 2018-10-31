@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -10,11 +10,10 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
-#include "L1Trigger/L1THGCal/interface/HGCalBackendLayer1ProcessorBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 
-#include <sstream>
 #include <memory>
 
 
@@ -59,8 +58,8 @@ void HGCalBackendLayer1Producer::beginRun(const edm::Run& /*run*/,
 void HGCalBackendLayer1Producer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // Output collections
-  std::unique_ptr<l1t::HGCalClusterBxCollection> be_cluster_output( new l1t::HGCalClusterBxCollection );
-
+  auto be_cluster_output = std::make_unique<l1t::HGCalClusterBxCollection>();
+  
   // Input collections
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
 

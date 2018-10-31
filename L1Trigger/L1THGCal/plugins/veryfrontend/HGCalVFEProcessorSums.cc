@@ -4,6 +4,8 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+
 DEFINE_EDM_PLUGIN(HGCalVFEProcessorBaseFactory, 
         HGCalVFEProcessorSums,
         "HGCalVFEProcessorSums");
@@ -19,60 +21,29 @@ HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(con
 }
 
 void
-HGCalVFEProcessorSums::run(const HGCEEDigiCollection& ee,
-                           const HGCHEDigiCollection& fh, 
-                           const HGCBHDigiCollection& bh, 
+HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
                            l1t::HGCalTriggerCellBxCollection& triggerCellColl, 
                            const edm::EventSetup& es) 
 { 
   calibration_.eventSetup(es);
 
-  std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+  std::vector<HGCalDataFrame> dataframes;
   std::vector<std::pair<DetId, uint32_t >> linearized_dataframes;
   std::map<HGCalDetId, uint32_t> payload;
   std::map<HGCalDetId, std::array<uint32_t, 2> > compressed_payload;
 
   // convert ee and fh hit collections into the same object  
-  if(!ee.empty())
+  for(const auto& digiData : digiColl)
   {
-    for(const auto& eedata : ee)
-    { 
-      uint32_t module = geometry_->getModuleFromCell(eedata.id());
-      if(geometry_->disconnectedModule(module)) continue;
-      dataframes.emplace_back(eedata.id());
-      for(int i=0; i<eedata.size(); i++)
-      {
-        dataframes.back().setSample(i, eedata.sample(i));
-      }
+    if(DetId(digiData.id()).det()==DetId::Hcal && HcalDetId(digiData.id()).subdetId()!=HcalEndcap) continue;
+    uint32_t module = geometry_->getModuleFromCell(digiData.id());
+    if(geometry_->disconnectedModule(module)) continue;
+    dataframes.emplace_back(digiData.id());
+    for(int i=0; i<digiData.size(); i++)
+    {
+      dataframes.back().setSample(i, digiData.sample(i));
     }
   }
-  else if(!fh.empty())
-  {
-    for(const auto& fhdata : fh)
-    {
-       uint32_t module = geometry_->getModuleFromCell(fhdata.id());
-       if(geometry_->disconnectedModule(module)) continue;
-       dataframes.emplace_back(fhdata.id());
-       for(int i=0; i<fhdata.size(); i++)
-       {
-         dataframes.back().setSample(i, fhdata.sample(i));
-       }
-     }
-   }
-  else if(!bh.empty())
-  {  
-     for(const auto& bhdata : bh)
-     { 
-       if(HcalDetId(bhdata.id()).subdetId()!=HcalEndcap) continue;
-       uint32_t module = geometry_->getModuleFromCell(bhdata.id());
-       if(geometry_->disconnectedModule(module)) continue;
-       dataframes.emplace_back(bhdata.id());
-       for(int i=0; i<bhdata.size(); i++)
-       {
-         dataframes.back().setSample(i, bhdata.sample(i));
-       }
-     }
-   }
 
   vfeLinearizationImpl_.linearize(dataframes, linearized_dataframes);
   vfeSummationImpl_.triggerCellSums(*geometry_, linearized_dataframes, payload);  
@@ -100,6 +71,5 @@ HGCalVFEProcessorSums::run(const HGCEEDigiCollection& ee,
         triggerCellColl.push_back(0, calibratedtriggercell);
       }
     }
-  }    
+  }
 }
-

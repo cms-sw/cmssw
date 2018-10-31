@@ -10,8 +10,7 @@ def custom_geometry_V9(process):
     process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TCellsSciMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping_sci_2x2_V9_0.txt")
     process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TCellNeighborsSciMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_neighbor_mapping_sci_2x2_V9_0.txt")
     process.hgcalTriggerGeometryESProducer.TriggerGeometry.DisconnectedModules = cms.vuint32(0)
-    process.hgcalTriggerPrimitiveDigiProducer.FECodec.MaxCellsInModule = cms.uint32(288)
-    process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].FECodec.MaxCellsInModule = cms.uint32(288)
+    process.hgcalConcentratorProducer.ProcessorParameters.MaxCellsInModule = cms.uint32(288)
     return process
 
 def custom_geometry_ZoltanSplit_V8(process):
