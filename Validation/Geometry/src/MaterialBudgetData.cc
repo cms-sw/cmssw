@@ -217,12 +217,10 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   // FIXME: Both volume ID and material ID are zeros, so this part is not executed leaving all
   // values as zeros. 
 
-  bool isx0fractionEmpty = myMaterialBudgetCategorizer->x0fraction(materialName).empty();
-  bool isl0fractionEmpty = myMaterialBudgetCategorizer->l0fraction(materialName).empty();
-  bool isHGCalx0fractionEmpty = myMaterialBudgetCategorizer->HGCalx0fraction(materialName).empty();
-  bool isHGCall0fractionEmpty = myMaterialBudgetCategorizer->HGCall0fraction(materialName).empty();
-
   if (!isHGCal){
+
+    bool isx0fractionEmpty = myMaterialBudgetCategorizer->x0fraction(materialName).empty();
+    bool isl0fractionEmpty = myMaterialBudgetCategorizer->l0fraction(materialName).empty();
 
     if( isx0fractionEmpty && isl0fractionEmpty ) // Empty
       {
@@ -258,7 +256,10 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	  edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName 
 					    << " in volume " << volumeName;
       }
-  }  else {// Not empty, isHGCal
+  }  else { // isHGCal
+
+    bool isHGCalx0fractionEmpty = myMaterialBudgetCategorizer->HGCalx0fraction(materialName).empty();
+    bool isHGCall0fractionEmpty = myMaterialBudgetCategorizer->HGCall0fraction(materialName).empty();
     
     if( isHGCalx0fractionEmpty && isHGCall0fractionEmpty ) {
       theOtherFractionMB = 1;
