@@ -68,6 +68,16 @@ namespace edm {
         typedef edm::one::impl::EndLuminosityBlockProducer<edm::one::EDProducerBase> Type;
       };
 
+      template<typename C>
+      struct AbilityToImplementor<edm::RunCache<C>> {
+        typedef edm::one::impl::RunCacheHolder<edm::one::EDProducerBase,C> Type;
+      };
+      
+      template<typename C>
+      struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
+        typedef edm::one::impl::LuminosityBlockCacheHolder<edm::one::EDProducerBase,C> Type;
+      };
+
       template<>
       struct AbilityToImplementor<edm::Accumulator> {
         typedef edm::one::impl::Accumulator<edm::one::EDProducerBase> Type;
