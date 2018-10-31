@@ -83,43 +83,47 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   //Fill the reco objects
   fRecoObjCollection.clear();
-  for(CandidateView::const_iterator itPF = pfCol->begin(); itPF!=pfCol->end(); itPF++) {
-    // std::cout << "itPF->pdgId() = " << itPF->pdgId() << std::endl;
+  fRecoObjCollection.reserve(pfCol->size());
+  for(auto const& aPF : *pfCol) {
     RecoObj pReco;
-    pReco.pt  = itPF->pt();
-    pReco.eta = itPF->eta();
-    pReco.phi = itPF->phi();
-    pReco.m   = itPF->mass();
-    pReco.rapidity = itPF->rapidity();
-    pReco.charge = itPF->charge(); 
+    pReco.pt  = aPF.pt();
+    pReco.eta = aPF.eta();
+    pReco.phi = aPF.phi();
+    pReco.m   = aPF.mass();
+    pReco.rapidity = aPF.rapidity();
+    pReco.charge = aPF.charge(); 
     const reco::Vertex *closestVtx = nullptr;
     double pDZ    = -9999; 
     double pD0    = -9999; 
     int    pVtxId = -9999; 
     bool lFirst = true;
-    const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&(*itPF));
+    const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
     if(lPack == nullptr ) {
 
-      const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&(*itPF));
+      const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&aPF);
       double curdz = 9999;
       int closestVtxForUnassociateds = -9999;
-      for(reco::VertexCollection::const_iterator iV = pvCol->begin(); iV!=pvCol->end(); ++iV) {
+      const reco::TrackRef aTrackRef = pPF->trackRef();
+      for(auto const& aV : *pvCol) {
         if(lFirst) {
-          if      ( pPF->trackRef().isNonnull()    ) pDZ = pPF->trackRef()   ->dz(iV->position());
-          else if ( pPF->gsfTrackRef().isNonnull() ) pDZ = pPF->gsfTrackRef()->dz(iV->position());
-          if      ( pPF->trackRef().isNonnull()    ) pD0 = pPF->trackRef()   ->d0();
-          else if ( pPF->gsfTrackRef().isNonnull() ) pD0 = pPF->gsfTrackRef()->d0();
+          if ( aTrackRef.isNonnull()) {
+            pDZ = aTrackRef->dz(aV.position());
+            pD0 = aTrackRef->d0();
+          } else if (pPF->gsfTrackRef().isNonnull()) {
+            pDZ = pPF->gsfTrackRef()->dz(aV.position());
+            pD0 = pPF->gsfTrackRef()->d0();
+          }
           lFirst = false;
           if(pDZ > -9999) pVtxId = 0;
         }
-        if(iV->trackWeight(pPF->trackRef())>0) {
-            closestVtx  = &(*iV);
+        if(aTrackRef.isNonnull() && aV.trackWeight(pPF->trackRef())>0) {
+            closestVtx  = &aV;
             break;
           }        
         // in case it's unassocciated, keep more info
         double tmpdz = 99999;
-        if      ( pPF->trackRef().isNonnull()    ) tmpdz = pPF->trackRef()   ->dz(iV->position());
-        else if ( pPF->gsfTrackRef().isNonnull() ) tmpdz = pPF->gsfTrackRef()->dz(iV->position());
+        if      ( aTrackRef.isNonnull()    )       tmpdz = aTrackRef         ->dz(aV.position());
+        else if ( pPF->gsfTrackRef().isNonnull() ) tmpdz = pPF->gsfTrackRef()->dz(aV.position());
         if (std::abs(tmpdz) < curdz){
           curdz = std::abs(tmpdz);
           closestVtxForUnassociateds = pVtxId;
@@ -129,10 +133,12 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
       int tmpFromPV = 0;  
       // mocking the miniAOD definitions
-      if (closestVtx != nullptr && std::abs(pReco.charge) > 0 && pVtxId > 0) tmpFromPV = 0;
-      if (closestVtx != nullptr && std::abs(pReco.charge) > 0 && pVtxId == 0) tmpFromPV = 3;
-      if (closestVtx == nullptr && std::abs(pReco.charge) > 0 && closestVtxForUnassociateds == 0) tmpFromPV = 2;
-      if (closestVtx == nullptr && std::abs(pReco.charge) > 0 && closestVtxForUnassociateds != 0) tmpFromPV = 1;
+      if (std::abs(pReco.charge) > 0){
+        if (closestVtx != nullptr && pVtxId > 0) tmpFromPV = 0;
+        if (closestVtx != nullptr && pVtxId == 0) tmpFromPV = 3;
+        if (closestVtx == nullptr && closestVtxForUnassociateds == 0) tmpFromPV = 2;
+        if (closestVtx == nullptr && closestVtxForUnassociateds != 0) tmpFromPV = 1;
+      }
       pReco.dZ      = pDZ;
       pReco.d0      = pD0;
       pReco.id = 0; 
@@ -187,8 +193,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   else{
     //Use the existing weights
     int lPackCtr = 0;
-    for(CandidateView::const_iterator itPF = pfCol->begin(); itPF!=pfCol->end(); itPF++) {  
-      const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&(*itPF));
+    for(auto const& aPF : *pfCol) {  
+      const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
       float curpupweight = -1.;
       if(lPack == nullptr ) { 
         // throw error
@@ -227,23 +233,22 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LorentzVectorCollection puppiP4s;
   std::vector<reco::CandidatePtr> values(hPFProduct->size());
 
-  for ( auto i0 = hPFProduct->begin(),
-	  i0begin = hPFProduct->begin(),
-	  i0end = hPFProduct->end(); i0 != i0end; ++i0 ) {
+  int val = -1;
+  for ( auto const& aCand : *hPFProduct) {
+    val++;
     std::unique_ptr<pat::PackedCandidate> pCand;
     std::unique_ptr<reco::PFCandidate>    pfCand;
     if (fUseExistingWeights || fClonePackedCands) {
-      const pat::PackedCandidate *cand = dynamic_cast<const pat::PackedCandidate*>(&(*i0));
+      const pat::PackedCandidate *cand = dynamic_cast<const pat::PackedCandidate*>(&aCand);
       if(!cand)
         throw edm::Exception(edm::errors::LogicError,"PuppiProducer: inputs are not PackedCandidates");
       pCand.reset( new pat::PackedCandidate(*cand) );
     } else {
-      auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(i0->pdgId());
-      const reco::PFCandidate *cand = dynamic_cast<const reco::PFCandidate*>(&(*i0));
-      pfCand.reset( new reco::PFCandidate( cand ? *cand : reco::PFCandidate(i0->charge(), i0->p4(), id) ) );
+      auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(aCand.pdgId());
+      const reco::PFCandidate *cand = dynamic_cast<const reco::PFCandidate*>(&aCand);
+      pfCand.reset( new reco::PFCandidate( cand ? *cand : reco::PFCandidate(aCand.charge(), aCand.p4(), id) ) );
     }
-    LorentzVector pVec = i0->p4();
-    int val = i0 - i0begin;
+    LorentzVector pVec;
 
     // Find the Puppi particle matched to the input collection using the "user_index" of the object. 
     auto puppiMatched = find_if( lCandidates.begin(), lCandidates.end(), [&val]( PuppiCandidate const & i ){ return i.user_index() == val; } );
@@ -265,11 +270,11 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     if (fUseExistingWeights || fClonePackedCands) {
       pCand->setP4(pVec);
-      pCand->setSourceCandidatePtr( i0->sourceCandidatePtr(0) );
+      pCand->setSourceCandidatePtr( aCand.sourceCandidatePtr(0) );
       fPackedPuppiCandidates->push_back(*pCand);
     } else {
       pfCand->setP4(pVec);
-      pfCand->setSourceCandidatePtr( i0->sourceCandidatePtr(0) );
+      pfCand->setSourceCandidatePtr( aCand.sourceCandidatePtr(0) );
       fPuppiCandidates->push_back(*pfCand);
     }
   }
