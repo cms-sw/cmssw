@@ -61,7 +61,7 @@ namespace ecaldqm {
     // Get GT L1 info
     const FEDRawData &gtFED(_fedRaw.FEDData(812));
     if(gtFED.size() > sizeof(uint64_t)){ // FED header is one 64 bit word
-      uint32_t *halfHeader((uint32_t *)gtFED.data());
+      const uint32_t *halfHeader = reinterpret_cast<const uint32_t *>(gtFED.data());
       l1A_ = *(halfHeader + 1) & 0xffffff;
     }
 
