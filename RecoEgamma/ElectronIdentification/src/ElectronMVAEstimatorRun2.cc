@@ -40,13 +40,13 @@ void ElectronMVAEstimatorRun2::init(const std::vector<std::string> &weightFileNa
   // Create a TMVA reader object for each category
   for(int i=0; i<getNCategories(); i++){
 
-    std::vector<std::string> variableNamesInCategory;
     std::vector<int> variablesInCategory;
 
     // Use unique_ptr so that all readers are properly cleaned up
     // when the vector clear() is called in the destructor
 
-    gbrForests_.push_back( GBRForestTools::createGBRForest( weightFileNames[i], variableNamesInCategory ) );
+    std::vector<std::string> variableNamesInCategory;
+    gbrForests_.push_back(createGBRForest(weightFileNames[i], variableNamesInCategory));
 
     nVariables_.push_back(variableNamesInCategory.size());
 

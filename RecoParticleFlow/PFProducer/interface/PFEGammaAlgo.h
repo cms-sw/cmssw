@@ -41,7 +41,6 @@
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 
-#include "TMVA/Reader.h"
 #include <iostream>
 #include <TH2D.h>
 
@@ -133,9 +132,6 @@ class PFEGammaAlgo {
     channelStatus_ = channelStatus;
   }
 
-  void setnPU(int nVtx){
-    nVtx_=nVtx;
-  }
   void setPhotonPrimaryVtx(const reco::Vertex& primary){
     cfg_.primaryVtx = & primary;
   }
@@ -145,14 +141,6 @@ class PFEGammaAlgo {
                std::vector< bool >& active
                );
                
-  //check candidate validity
-  bool isEGValidCandidate(const pfEGHelpers::HeavyObjectCache* hoc,
-                          const reco::PFBlockRef&  blockRef,
-                          std::vector< bool >&  active){
-    RunPFEG(hoc,blockRef,active);
-    return (!egCandidate_.empty());
-  };
-  
   //get PFCandidate collection
   reco::PFCandidateCollection& getCandidates() {return outcands_;}
 
@@ -164,12 +152,6 @@ class PFEGammaAlgo {
   
 private: 
   
-
-  enum verbosityLevel {
-    Silent,
-    Summary,
-    Chatty
-  };
 
   // ------ rewritten basic processing pieces and cleaning algorithms
   // the output collections
@@ -185,10 +167,9 @@ private:
   // keep a map of pf indices to the splayed block for convenience
   // sadly we're mashing together two ways of thinking about the block
   std::vector<std::vector<PFFlaggedElement> > _splayedblock; 
-  ElementMap _recoveredlinks;
 
   // pre-cleaning for the splayed block
-  bool isAMuon(const reco::PFBlockElement&);
+  bool isMuon(const reco::PFBlockElement&);
   // pre-processing of ECAL clusters near non-primary KF tracks
   void removeOrLinkECALClustersToKFTracks();
 
@@ -199,8 +180,6 @@ private:
   // flow.
   // use list for constant-time removals
   std::list<ProtoEGObject> _refinableObjects;
-  // final list of fully refined objects in this block
-  reco::PFCandidateCollection _finalCandidates;
 
   // functions:
   // this runs the functions below
@@ -271,10 +250,10 @@ private:
   
   // helper functions for that
 
-  float calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
-                          const ProtoEGObject&,
-			  reco::PFCandidateEGammaExtra&);
-  void fill_extra_info(const ProtoEGObject&,
+  float calculateEleMVA(const pfEGHelpers::HeavyObjectCache* hoc,
+                        const ProtoEGObject&,
+                        reco::PFCandidateEGammaExtra&) const;
+  void fillExtraInfo(const ProtoEGObject&,
 		       reco::PFCandidateEGammaExtra&);
   
   // ------ end of new stuff 
@@ -297,91 +276,12 @@ private:
 
   const char  *mvaWeightFile_;
 
-  // New BDT observables
-  // Normalization 
-  float lnPt_gsf,Eta_gsf;
-  
-  // Pure Tracking observ.
-  float dPtOverPt_gsf,chi2_gsf,DPtOverPt_gsf,
-    chi2_kf,DPtOverPt_kf;
-  //  int nhit_gsf,nhit_kf;
-  float nhit_gsf,nhit_kf;
-  
-  // Tracker-Ecal observ. 
-  float EtotPinMode,EGsfPoutMode,EtotBremPinPoutMode;
-  float DEtaGsfEcalClust;
-  float SigmaEtaEta; 
-  //int lateBrem,firstBrem,earlyBrem;
-  float lateBrem,firstBrem,earlyBrem;
-  float HOverHE,HOverPin;
-
-  bool isvalid_;
-
-  //const std::vector<reco::GsfElectron> * theGsfElectrons_;
-  //end of data members from PFElectronAlgo
-  
-  
-  //bool isvalid_;                               // is set to TRUE when a valid PhotonCandidate is found in a PFBlock
-  verbosityLevel  verbosityLevel_;            /* Verbosity Level: 
-						  ...............  0: Say nothing at all
-						  ...............  1: Print summary about found PhotonCadidates only
-						  ...............  2: Chatty mode
-                                              */ 
-  //FOR SINGLE LEG MVA:					      
-  const reco::Vertex  *  primaryVertex_;
-  //TMVA::Reader *tmvaReader_;
-  const GBRForest *ReaderLC_;
-  const GBRForest *ReaderGC_;
-  const GBRForest *ReaderRes_;
-  
-  const GBRForest *ReaderLCEB_;
-  const GBRForest *ReaderLCEE_;
-  const GBRForest *ReaderGCEB_;
-  const GBRForest *ReaderGCEEhR9_;
-  const GBRForest *ReaderGCEElR9_;
-  
-//  boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
-  std::vector<int>match_ind;
-  //std::auto_ptr< reco::PFCandidateCollection > permElectronCandidates_;
-
-  std::vector< reco::PFCandidate >permElectronCandidates_;
-  float nlost, nlayers;
-  float chi2, STIP, del_phi,HoverPt, EoverPt, track_pt;
-  double mvaValue;
-    //for Cluster Shape Calculations:
-  float e5x5Map[5][5];
-  
-  //For Local Containment Corrections:
-  float CrysPhi_, CrysEta_,  VtxZ_, ClusPhi_, ClusEta_, 
-    ClusR9_, Clus5x5ratio_,  PFCrysEtaCrack_, logPFClusE_, e3x3_;
-  int CrysIPhi_, CrysIEta_;
-  float CrysX_, CrysY_;
-  float EB;
-  //Cluster Shapes:
-  float eSeed_, e1x3_,e3x1_, e1x5_, e2x5Top_,  e2x5Bottom_, e2x5Left_,  e2x5Right_ ;
-  float etop_, ebottom_, eleft_, eright_;
-  float e2x5Max_;
-  //For Global Corrections:
-  float PFPhoEta_, PFPhoPhi_, PFPhoR9_, PFPhoR9Corr_, SCPhiWidth_, SCEtaWidth_, PFPhoEt_, RConv_, PFPhoEtCorr_, PFPhoE_, PFPhoECorr_, MustE_, E3x3_;
-  float dEta_, dPhi_, LowClusE_, RMSAll_, RMSMust_, nPFClus_;
-  float TotPS1_, TotPS2_;
-  float nVtx_;
-  //for PileUP
-  float excluded_, Mustache_EtRatio_, Mustache_Et_out_;
   const ESChannelStatus* channelStatus_;
   
-  std::vector<unsigned int> AddFromElectron_;  
-  
-  reco::PFCandidateCollection egCandidate_;
-//   std::vector<reco::CaloCluser> ebeeCluster_;
-//   std::vector<reco::PreshowerCluser> esCluster_;
-//   std::vector<reco::SuperCluser> sCluster_;
-  reco::PFCandidateEGammaExtraCollection egExtra_;  
-
-  float EvaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
+  float evaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
                              const reco::PFBlockRef& blockref, 
-                             const reco::Vertex& primaryvtx, 
-                             unsigned int track_index);
+                             const reco::Vertex& primaryVtx,
+                             unsigned int trackIndex);
 };
 
 #endif
