@@ -1,0 +1,4 @@
+<bin name="testHeteroGeneousProduct" file="testHeterogeneousProduct.cpp">
+  <use name="cppunit"/>
+  <use name="HeterogeneousCore/Product"/>
+</bin>

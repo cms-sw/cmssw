@@ -15,7 +15,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
     src = 'siPixelClustersPreSplitting'
-    )
+)
 
 # Global  reco
 from RecoEcal.Configuration.RecoEcal_cff import *
