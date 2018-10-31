@@ -1,6 +1,7 @@
 #include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
@@ -10,34 +11,12 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
-#include "TMVA/Reader.h"
-#include "TMVA/MethodBDT.h"
-
 using namespace pat;
 
-namespace {
-  constexpr char muon_mva_name[] = "BDTG";
-}
-
-MuonMvaEstimator::MuonMvaEstimator(const std::string& weightsfile, float dRmax):
+MuonMvaEstimator::MuonMvaEstimator(const edm::FileInPath& weightsfile, float dRmax):
   dRmax_(dRmax)
 {
-  TMVA::Reader tmvaReader("!Color:!Silent:Error");
-  tmvaReader.AddVariable("LepGood_pt",                    &pt_               );
-  tmvaReader.AddVariable("LepGood_eta",                   &eta_              );
-  tmvaReader.AddVariable("LepGood_jetNDauChargedMVASel",  &jetNDauCharged_   );
-  tmvaReader.AddVariable("LepGood_miniRelIsoCharged",     &miniRelIsoCharged_);
-  tmvaReader.AddVariable("LepGood_miniRelIsoNeutral",     &miniRelIsoNeutral_);
-  tmvaReader.AddVariable("LepGood_jetPtRelv2",            &jetPtRel_         );
-  tmvaReader.AddVariable("max(LepGood_jetBTagCSV,0)",     &jetBTagCSV_       );
-  tmvaReader.AddVariable("(LepGood_jetBTagCSV>-5)*min(LepGood_jetPtRatiov2,1.5)+(LepGood_jetBTagCSV<-5)/(1+LepGood_relIso04)", &jetPtRatio_       );
-  tmvaReader.AddVariable("LepGood_sip3d",                 &sip_              );
-  tmvaReader.AddVariable("log(abs(LepGood_dxy))",         &log_abs_dxyBS_    );
-  tmvaReader.AddVariable("log(abs(LepGood_dz))",          &log_abs_dzPV_     );
-  tmvaReader.AddVariable("LepGood_segmentCompatibility",  &segmentCompatibility_);
-
-  auto temp{ tmvaReader.BookMVA(muon_mva_name, weightsfile.c_str()) };
-  gbrForest_ = std::make_unique<GBRForest>( dynamic_cast<TMVA::MethodBDT*>( temp ) );
+  gbrForest_ = createGBRForest( weightsfile );
 }
 
 MuonMvaEstimator::~MuonMvaEstimator() { }

@@ -7,7 +7,7 @@
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
-#include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
 
 class PhotonMVAEstimator : public AnyMVAEstimatorRun2Base{
