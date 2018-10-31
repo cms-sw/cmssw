@@ -57,7 +57,7 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
   m_isDebugEnabled(edm::isDebugEnabled())
 {
 
-  if (m_l1SeedsLogicalExpression == "") {
+  if (m_l1SeedsLogicalExpression.empty()) {
 
     throw cms::Exception("FailModule") << "\nTrying to seed with an empty L1SeedsLogicalExpression.\n" << std::endl;
 
