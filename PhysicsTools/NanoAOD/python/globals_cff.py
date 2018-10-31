@@ -35,3 +35,36 @@ genTable  = cms.EDProducer("SimpleGenEventFlatTableProducer",
 
 globalTables = cms.Sequence(rhoTable)
 globalTablesMC = cms.Sequence(puTable+genTable)
+
+rivetProducerHTXS = cms.EDProducer('HTXSRivetProducer',
+   HepMCCollection = cms.InputTag('myGenerator','unsmeared'),
+   LHERunInfo = cms.InputTag('externalLHEProducer'),
+   #ProductionMode = cms.string('GGF'),
+   ProductionMode = cms.string('AUTO'),
+)
+
+myMergedGenParticles = cms.EDProducer("MergedGenParticleProducer",
+     inputPruned = cms.InputTag("prunedGenParticles"),
+     inputPacked = cms.InputTag("packedGenParticles"),
+)
+myGenerator = cms.EDProducer("GenParticles2HepMCConverter",
+     genParticles = cms.InputTag("myMergedGenParticles"),
+     genEventInfo = cms.InputTag("generator"),
+     signalParticlePdgIds = cms.vint32(25), ## for the Higgs analysis
+)
+
+HTXSCategoryTable = cms.EDProducer("SimpleHTXSFlatTableProducer",
+    src = cms.InputTag("rivetProducerHTXS","HiggsClassification"),
+    cut = cms.string(""),
+    name = cms.string("STXS"),
+    doc = cms.string("Higgs STXS classification"),
+    singleton = cms.bool(True),
+    extension = cms.bool(False),
+    variables=cms.PSet(
+        stage_0 = Var("stage0_cat","int", doc="Higgs STXS stage-0 category"),
+        stage_1 = Var("stage1_cat_pTjet30GeV","int", doc="Higgs STXS stage-1 category (jet pT>30 GeV)")
+   )
+)
+
+
+globalrivetProducerHTXS = cms.Sequence(myMergedGenParticles*myGenerator*rivetProducerHTXS*HTXSCategoryTable)
