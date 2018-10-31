@@ -910,8 +910,20 @@ bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx,
 bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   if(!muon.isGlobalMuon()) return false;
 
-  bool muValHits = ( muon.globalTrack()->hitPattern().numberOfValidMuonHits()>0 || muon.tunePMuonBestTrack()->hitPattern().numberOfValidMuonHits()>0 );
-  bool muMatchedSt = muon.isTrackerMuon() && ( ( muon.numberOfMatchedStations()>1 ) || ( muon.numberOfMatchedStations()==1 && ( muon.expectedNnumberOfMatchedStations()<2 || !(muon.stationMask()==1 || muon.stationMask()==16) || muon.numberOfMatchedRPCLayers()>2 ) ) );
+  bool muValHits = ( muon.globalTrack()->hitPattern().numberOfValidMuonHits()>0 ||
+                     muon.tunePMuonBestTrack()->hitPattern().numberOfValidMuonHits()>0 );
+
+  bool muMatchedSt = muon.numberOfMatchedStations()>1;
+  if(!muMatchedSt) {
+    if( muon.isTrackerMuon() && muon.numberOfMatchedStations()==1 ) {
+      if( muon.expectedNnumberOfMatchedStations()<2 ||
+          !(muon.stationMask()==1 || muon.stationMask()==16) ||
+          muon.numberOfMatchedRPCLayers()>2
+        )
+        muMatchedSt = true;
+    }
+  }
+
   bool muID = muValHits && muMatchedSt;
 
   bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
