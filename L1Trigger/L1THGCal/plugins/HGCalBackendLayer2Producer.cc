@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -12,9 +12,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
-#include "L1Trigger/L1THGCal/interface/HGCalBackendLayer2ProcessorBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
 
-#include <sstream>
 #include <memory>
 
 
@@ -60,7 +59,7 @@ void HGCalBackendLayer2Producer::beginRun(const edm::Run& /*run*/,
 void HGCalBackendLayer2Producer::produce(edm::Event& e, const edm::EventSetup& es) 
 {
   // Output collections
-  std::unique_ptr<l1t::HGCalMulticlusterBxCollection> be_multicluster_output( new l1t::HGCalMulticlusterBxCollection );
+  auto be_multicluster_output = std::make_unique<l1t::HGCalMulticlusterBxCollection>();
 
   // Input collections   
   edm::Handle<l1t::HGCalClusterBxCollection> trigCluster2DBxColl;

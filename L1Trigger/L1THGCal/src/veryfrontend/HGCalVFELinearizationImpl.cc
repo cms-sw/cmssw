@@ -25,7 +25,8 @@ linearize(const std::vector<HGCDataFrame<DetId,HGCSample>>& dataframes,
     const int kIntimeSample = 2;
 
     for(const auto& frame : dataframes) {//loop on DIGI
-        if(frame.id().det()==DetId::Forward) {
+        unsigned det = frame.id().det();
+        if(det==DetId::Forward || det==DetId::HGCalEE || det==DetId::HGCalHSi) {
             if (frame[kIntimeSample].mode()) {//TOT mode
                 amplitude =( floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + double(frame[kIntimeSample].data()) * tdcLSB_;
             }
@@ -35,7 +36,7 @@ linearize(const std::vector<HGCDataFrame<DetId,HGCSample>>& dataframes,
 
             amplitude_int = uint32_t (floor(amplitude/linLSB_+0.5)); 
         }
-        else if(frame.id().det()==DetId::Hcal) {
+        else if(det==DetId::Hcal || det==DetId::HGCalHSc) {
             // no linearization here. Take the raw ADC data
             amplitude_int = frame[kIntimeSample].data();
         }
@@ -44,7 +45,5 @@ linearize(const std::vector<HGCDataFrame<DetId,HGCSample>>& dataframes,
         linearized_dataframes.push_back(std::make_pair (frame.id(), amplitude_int));
     }
 }
-  
-
 
 

@@ -1,7 +1,7 @@
 #ifndef __L1Trigger_L1THGCal_HGCalConcentratorProcessorSelection_h__
 #define __L1Trigger_L1THGCal_HGCalConcentratorProcessorSelection_h__
 
-#include "L1Trigger/L1THGCal/interface/HGCalConcentratorProcessorBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
 #include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorSelectionImpl.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
