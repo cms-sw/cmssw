@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_10_3_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run2_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_10_3_0/PRef/V17 (CMSSW_10_3_0)
+# /dev/CMSSW_10_3_0/PRef/V20 (CMSSW_10_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_3_0/PRef/V17')
+  tableName = cms.string('/dev/CMSSW_10_3_0/PRef/V20')
 )
 
 process.transferSystem = cms.PSet( 
@@ -5041,39 +5041,39 @@ process.hltEcalRecHit = cms.EDProducer( "EcalRecHitProducer",
     triggerPrimitiveDigiCollection = cms.InputTag( 'hltEcalDigis','EcalTriggerPrimitives' ),
     dbStatusToBeExcludedEE = cms.vint32( 14, 78, 142 ),
     flagsMapDBReco = cms.PSet( 
-      kDead = cms.vstring( 'kNoDataNoTP' ),
       kGood = cms.vstring( 'kOk',
         'kDAC',
         'kNoLaser',
         'kNoisy' ),
-      kTowerRecovered = cms.vstring( 'kDeadFE' ),
+      kNeighboursRecovered = cms.vstring( 'kFixedG0',
+        'kNonRespondingIsolated',
+        'kDeadVFE' ),
+      kDead = cms.vstring( 'kNoDataNoTP' ),
       kNoisy = cms.vstring( 'kNNoisy',
         'kFixedG6',
         'kFixedG1' ),
-      kNeighboursRecovered = cms.vstring( 'kFixedG0',
-        'kNonRespondingIsolated',
-        'kDeadVFE' )
+      kTowerRecovered = cms.vstring( 'kDeadFE' )
     ),
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEB' ),
     skipTimeCalib = cms.bool( True ),
     algoRecover = cms.string( "EcalRecHitWorkerRecover" ),
     eeFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeFE' ),
     cleaningConfig = cms.PSet( 
-      cThreshold_endcap = cms.double( 15.0 ),
-      tightenCrack_e1_double = cms.double( 2.0 ),
-      cThreshold_barrel = cms.double( 4.0 ),
       e6e2thresh = cms.double( 0.04 ),
-      e4e1Threshold_barrel = cms.double( 0.08 ),
+      tightenCrack_e6e2_double = cms.double( 3.0 ),
       e4e1Threshold_endcap = cms.double( 0.3 ),
       tightenCrack_e4e1_single = cms.double( 3.0 ),
-      cThreshold_double = cms.double( 10.0 ),
-      e4e1_b_barrel = cms.double( -0.024 ),
-      tightenCrack_e6e2_double = cms.double( 3.0 ),
-      e4e1_a_barrel = cms.double( 0.04 ),
+      tightenCrack_e1_double = cms.double( 2.0 ),
+      cThreshold_barrel = cms.double( 4.0 ),
+      e4e1Threshold_barrel = cms.double( 0.08 ),
       tightenCrack_e1_single = cms.double( 2.0 ),
-      e4e1_a_endcap = cms.double( 0.02 ),
+      e4e1_b_barrel = cms.double( -0.024 ),
+      e4e1_a_barrel = cms.double( 0.04 ),
+      ignoreOutOfTimeThresh = cms.double( 1.0E9 ),
+      cThreshold_endcap = cms.double( 15.0 ),
       e4e1_b_endcap = cms.double( -0.0125 ),
-      ignoreOutOfTimeThresh = cms.double( 1.0E9 )
+      e4e1_a_endcap = cms.double( 0.02 ),
+      cThreshold_double = cms.double( 10.0 )
     ),
     logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
     logWarningEtThreshold_EE_FE = cms.double( 50.0 )

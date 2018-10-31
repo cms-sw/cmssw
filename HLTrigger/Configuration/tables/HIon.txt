@@ -18,6 +18,7 @@ AlCa_EcalEtaEBonlyForHI_v*
 AlCa_EcalEtaEEonlyForHI_v*
 HLT_HICentralityVeto_v*
 HLT_HICentralityVeto_Beamspot_v*
+HLT_HICentralityTag20100_v*
 HLT_HICentralityTag30100_v*
 HLT_HICentralityTag50100_v*
 HLT_HIZeroBias_v*
@@ -344,6 +345,9 @@ HLT_HIPuAK4CaloJet100Eta2p4_CSVv2WP0p75_v*
 
 HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v*
 HLT_HIL3Mu2p5NHitQ10_L2Mu2_M7toinf_v*
+
+HLT_HIUPC_ETT5_Asym50_NotMBHF2OR_v*
+HLT_HIUPC_ETT5_Asym50_NotMBHF2OR_SinglePixelTrack_v*
 
 HLTriggerFinalPath
 
