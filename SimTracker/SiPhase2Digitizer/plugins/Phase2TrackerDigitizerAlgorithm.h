@@ -181,7 +181,9 @@ class Phase2TrackerDigitizerAlgorithm  {
   void fluctuateEloss(int particleId, float momentum, float eloss, 
 		      float length, int NumberOfSegments,
 		      std::vector<float> & elossVector) const;
-  virtual void add_noise(const Phase2TrackerGeomDetUnit* pixdet, float thePixelThreshold);
+  virtual void add_noise(const Phase2TrackerGeomDetUnit* pixdet);
+  virtual void add_cross_talk(const Phase2TrackerGeomDetUnit* pixdet);
+  virtual void add_noisy_cells(const Phase2TrackerGeomDetUnit* pixdet, float thePixelThreshold);
   virtual void pixel_inefficiency(const SubdetEfficiencies& eff,
 				  const Phase2TrackerGeomDetUnit* pixdet,
 				  const TrackerTopology* tTopo);
