@@ -22,5 +22,6 @@ class PixelDigitizerAlgorithm: public Phase2TrackerDigitizerAlgorithm {
 			 const unsigned int tofBin,
                          const Phase2TrackerGeomDetUnit* pixdet,
                          const GlobalVector& bfield) override;
+  virtual void add_cross_talk(const Phase2TrackerGeomDetUnit* pixdet) override;
 };
 #endif

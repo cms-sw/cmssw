@@ -117,3 +117,47 @@ void PixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iter
     }
   }
 }
+// ======================================================================
+//
+//  Add  Cross-talk contribution
+//
+// ======================================================================
+void PixelDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetUnit* pixdet) {
+  if (!pixelFlag) return;
+  uint32_t detID = pixdet->geographicalId().rawId();
+  signal_map_type& theSignal = _signal[detID];
+  signal_map_type signalNew;
+  const Phase2TrackerTopology* topol = &pixdet->specificTopology();
+  int numRows = topol->nrows();
+
+  for (auto & s : theSignal) {
+    float signalInElectrons = s.second.ampl();   // signal in electrons
+    std::pair<int,int> hitChan;
+    hitChan = PixelDigi::channelToPixel(s.first);
+    
+    float signalInElectrons_Xtalk = signalInElectrons * interstripCoupling;     
+    //subtract the charge which will be shared 
+    s.second.set(signalInElectrons-signalInElectrons_Xtalk);
+    
+    if (hitChan.first != 0) {
+      std::pair<int,int> XtalkPrev = std::pair<int,int>(hitChan.first-1, hitChan.second);
+      int chanXtalkPrev = PixelDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second);
+      signalNew.insert(std::pair<int,DigitizerUtility::Amplitude>(chanXtalkPrev, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, nullptr, -1.0)));
+    }
+    if (hitChan.first < (numRows-1)) {
+      std::pair<int,int> XtalkNext = std::pair<int,int>(hitChan.first+1, hitChan.second);
+      int chanXtalkNext = PixelDigi::pixelToChannel(XtalkNext.first, XtalkNext.second);
+      signalNew.insert(std::pair<int,DigitizerUtility::Amplitude>(chanXtalkNext, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, nullptr, -1.0)));
+    }
+  }
+  for (auto const & l : signalNew) {
+    int chan = l.first;
+    auto iter = theSignal.find(chan);
+    if (iter != theSignal.end()) {
+      theSignal[chan] += l.second.ampl();
+    }  else {
+      theSignal.insert(std::pair<int,DigitizerUtility::Amplitude>(chan, DigitizerUtility::Amplitude(l.second.ampl(), nullptr, -1.0)));
+    }
+  } 
+}
+
