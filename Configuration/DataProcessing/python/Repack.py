@@ -58,6 +58,10 @@ def repackProcess(**args):
             )
 
         outputModule.dataset = cms.untracked.PSet(dataTier = cms.untracked.string("RAW"))
+        
+        #override defaults [LZMA-9 since 9_3_X]
+        outputModule.compressionAlgorithm = cms.untracked.string("LZMA")
+        outputModule.compressionLevel = cms.untracked.int32(4)
 
         if maxSize != None:
             outputModule.maxSize = cms.untracked.int32(maxSize)
