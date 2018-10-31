@@ -184,15 +184,16 @@ hltMuonOfflineAnalyzers = cms.Sequence(
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 for muAna in [globalAnalyzerTnP.targetParams, trackerAnalyzerTnP.targetParams, 
               tightAnalyzerTnP.targetParams, looseAnalyzerTnP.targetParams,
               globalAnalyzerRef.targetParams, trackerAnalyzerRef.targetParams, 
               tightAnalyzerRef.targetParams, looseAnalyzerRef.targetParams,]:
-    for e in [pA_2016, ppRef_2017]:
+    for e in [pA_2016, ppRef_2017, pp_on_AA_2018]:
 	    e.toModify(muAna, ptCut_Jpsi = cms.untracked.double( 5.0))
 for muAna in [globalAnalyzerTnP.binParams, trackerAnalyzerTnP.binParams,
               tightAnalyzerTnP.binParams, looseAnalyzerTnP.binParams,
               globalAnalyzerRef.binParams, trackerAnalyzerRef.binParams,
               tightAnalyzerRef.binParams, looseAnalyzerRef.binParams]:
-    for e in [pA_2016, ppRef_2017]:
+    for e in [pA_2016, ppRef_2017, pp_on_AA_2018]:
 	    e.toModify(muAna, ptCoarse = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.))
