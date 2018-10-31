@@ -38,7 +38,7 @@
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
 
-#include "CommonTools/Utils/interface/TMVAZipReader.h"
+#include "CommonTools/MVAUtils/interface/TMVAZipReader.h"
 
 #include <vector>
 
