@@ -33,7 +33,7 @@ protected:
     double  var_within_R (int iId, const std::vector<PuppiCandidate> & particles, const PuppiCandidate& centre, const double R);
     
     bool      fPuppiDiagnostics;
-    std::vector<RecoObj>   fRecoParticles;
+    const std::vector<RecoObj>* fRecoParticles;
     std::vector<PuppiCandidate> fPFParticles;
     std::vector<PuppiCandidate> fChargedPV;
     std::vector<PuppiCandidate> fPupParticles;
