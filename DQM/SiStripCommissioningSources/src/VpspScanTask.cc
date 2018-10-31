@@ -63,8 +63,8 @@ void VpspScanTask::fill( const SiStripEventSummary& summary,
 			 const edm::DetSet<SiStripRawDigi>& digis ) {
 
   // Retrieve VPSP setting and CCU channel
-  uint32_t vpsp = const_cast<SiStripEventSummary&>(summary).vpsp();
-  uint32_t ccu_chan = const_cast<SiStripEventSummary&>(summary).vpspCcuChan();
+  uint32_t vpsp = summary.vpsp();
+  uint32_t ccu_chan = summary.vpspCcuChan();
 
   // Check CCU channel from EventSummary is consistent with this module
   if ( SiStripFecKey( fecKey() ).ccuChan() != ccu_chan ) { return; }

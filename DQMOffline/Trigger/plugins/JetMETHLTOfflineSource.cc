@@ -852,8 +852,7 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
 	if(!isdigit(tpath[trig])) break;
 	jetTrigVal+=tpath[trig];
       }
-      auto *cjetTrigVal = (char*)jetTrigVal.c_str();
-      jetVal=atof(cjetTrigVal);
+      jetVal=atof(jetTrigVal.c_str());
       //
       if(jetVal>0.){
 	if(jetVal<50.){
