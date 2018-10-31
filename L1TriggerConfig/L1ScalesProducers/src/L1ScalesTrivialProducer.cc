@@ -53,32 +53,21 @@ L1ScalesTrivialProducer::~L1ScalesTrivialProducer()
 // ------------ method called to produce the data  ------------
 std::unique_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceEmScale(const L1EmEtScaleRcd& iRecord)
 {
-   std::unique_ptr<L1CaloEtScale> emScale = std::unique_ptr<L1CaloEtScale>( new L1CaloEtScale(m_emEtScaleInputLsb, m_emEtThresholds) );
-
-   return emScale ;
+   return std::make_unique<L1CaloEtScale>(m_emEtScaleInputLsb, m_emEtThresholds);
 }
 
 std::unique_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceJetScale(const L1JetEtScaleRcd& iRecord)
 {
-   std::unique_ptr<L1CaloEtScale> jetEtScale = std::unique_ptr<L1CaloEtScale>( new L1CaloEtScale(m_jetEtScaleInputLsb, m_jetEtThresholds) );
-
-   return jetEtScale ;
+   return std::make_unique<L1CaloEtScale>(m_jetEtScaleInputLsb, m_jetEtThresholds);
 }
-
 
 std::unique_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceHtMissScale(const L1HtMissScaleRcd& iRecord)
 {
-   std::unique_ptr<L1CaloEtScale> htMissScale = std::unique_ptr<L1CaloEtScale>( new L1CaloEtScale(0, 0x7f, m_jetEtScaleInputLsb, m_htMissThresholds) );
-
-   return htMissScale ;
+   return std::make_unique<L1CaloEtScale>(0, 0x7f, m_jetEtScaleInputLsb, m_htMissThresholds);
 }
-
 
 std::unique_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceHfRingScale(const L1HfRingEtScaleRcd& iRecord)
 {
-   std::unique_ptr<L1CaloEtScale> hfRingEtScale = std::unique_ptr<L1CaloEtScale>( new L1CaloEtScale(0xff, 0x7, m_jetEtScaleInputLsb, m_hfRingThresholds) );
-
-   return hfRingEtScale ;
+   return std::make_unique<L1CaloEtScale>(0xff, 0x7, m_jetEtScaleInputLsb, m_hfRingThresholds);
 }
-
 

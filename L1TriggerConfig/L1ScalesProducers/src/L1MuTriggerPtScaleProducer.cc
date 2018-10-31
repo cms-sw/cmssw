@@ -31,9 +31,6 @@ L1MuTriggerPtScaleProducer::~L1MuTriggerPtScaleProducer() {}
 std::unique_ptr<L1MuTriggerPtScale> 
 L1MuTriggerPtScaleProducer::produceL1MuTriggerPtScale(const L1MuTriggerPtScaleRcd& iRecord)
 {
-   std::unique_ptr<L1MuTriggerPtScale> l1muscale =
-     std::unique_ptr<L1MuTriggerPtScale>( new L1MuTriggerPtScale( m_scales ) );
-
-   return l1muscale ;
+  return std::make_unique<L1MuTriggerPtScale>(m_scales);
 }
 
