@@ -8,8 +8,37 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <fstream>
+
+template<class T>
+class ThreadSafeStringObjectFunction
+{
+  public:
+
+    ThreadSafeStringObjectFunction(const std::string & expr) // constructor
+      : func_(expr)
+      , expr_(expr)
+    {}
+
+    ThreadSafeStringObjectFunction(ThreadSafeStringObjectFunction&& other) noexcept // move constructor
+      : func_(std::move(other.func_))
+      , expr_(std::move(other.expr_))
+    {}
+
+    double operator()(const T & t) const
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+        return func_(t);
+    }
+
+  private:
+
+    const StringObjectFunction<T> func_;
+    const std::string expr_;
+    CMS_THREAD_SAFE mutable std::mutex mutex_;
+};
 
 template <class ParticleType>
 class MVAVariableManager {
@@ -19,8 +48,7 @@ class MVAVariableManager {
       : nVars_ (0)
       , nHelperVars_ (0)
       , nGlobalVars_ (0)
-    {
-    };
+    {}
 
     MVAVariableManager(const std::string &variableDefinitionFileName) {
         init(variableDefinitionFileName);
@@ -92,7 +120,6 @@ class MVAVariableManager {
             iEvent.getByLabel(edm::InputTag(formulas_[index]), valueHandle);
             value = *valueHandle;
         } else {
-            std::lock_guard<std::mutex> guard(mutex_);
             value = functions_[index](*ptclPtr);
         }
         if (varInfo.hasLowerClip && value < varInfo.lowerClipValue) {
@@ -117,7 +144,6 @@ class MVAVariableManager {
             iEvent.getByToken(globalTokens_[varInfo.isGlobalVariable], valueHandle);
             value = *valueHandle;
         } else {
-            std::lock_guard<std::mutex> guard(mutex_);
             value = functions_[index](*ptclPtr);
         }
         if (varInfo.hasLowerClip && value < varInfo.lowerClipValue) {
@@ -166,12 +192,12 @@ class MVAVariableManager {
         int isGlobalVariable = formula.find("Rho") != std::string::npos;
 
         if ( !(fromVariableHelper || isGlobalVariable) ) {
-            functions_.push_back(StringObjectFunction<ParticleType>(formula));
+            functions_.emplace_back(formula);
         } else {
             // Push back a dummy function since we won't use the
             // StringObjectFunction to evaluate a variable form the helper or a
             // global variable
-            functions_.push_back(StringObjectFunction<ParticleType>("pt"));
+            functions_.emplace_back("pt");
         }
 
         formulas_.push_back(formula);
@@ -205,7 +231,7 @@ class MVAVariableManager {
     int nGlobalVars_;
 
     std::vector<MVAVariableInfo> variableInfos_;
-    std::vector<StringObjectFunction<ParticleType>> functions_;
+    std::vector<ThreadSafeStringObjectFunction<ParticleType>> functions_;
     std::vector<std::string> formulas_;
     std::vector<std::string> names_;
     std::map<std::string, int> indexMap_;
@@ -217,9 +243,6 @@ class MVAVariableManager {
     // Tokens
     std::vector<edm::EDGetToken> helperTokens_;
     std::vector<edm::EDGetToken> globalTokens_;
-
-    // To lock thread
-    mutable std::mutex mutex_;
 };
 
 #endif

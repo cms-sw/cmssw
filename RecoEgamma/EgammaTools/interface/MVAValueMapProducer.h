@@ -36,9 +36,14 @@ class MVAValueMapProducer : public edm::global::EDProducer<> {
   // MVA estimators
   const std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators_;
 
+  // Value map names
+  const std::vector<std::string> mvaValueMapNames_;
+  const std::vector<std::string> mvaRawValueMapNames_;
+  const std::vector<std::string> mvaCategoriesMapNames_;
 };
 
 namespace {
+
     auto getMVAEstimators(const edm::VParameterSet& vConfig, edm::ConsumesCollector&& cc)
     {
       std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators;
@@ -64,34 +69,31 @@ namespace {
 
       return mvaEstimators;
     }
+
+    std::vector<std::string> getValueMapNames(const edm::VParameterSet& vConfig, std::string && suffix)
+    {
+      std::vector<std::string> names;
+      for( auto &imva : vConfig )
+      {
+        names.push_back(imva.getParameter<std::string>("mvaName") + imva.getParameter<std::string>("mvaTag") + suffix);
+      }
+
+      return names;
+    }
 }
 
 template <class ParticleType>
 MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& iConfig)
   : src_(consumesCollector(), iConfig, "src", "srcMiniAOD")
   , mvaEstimators_(getMVAEstimators(iConfig.getParameterSetVector("mvaConfigurations"), consumesCollector()))
+  , mvaValueMapNames_     (getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "Values"    ))
+  , mvaRawValueMapNames_  (getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "RawValues" ))
+  , mvaCategoriesMapNames_(getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "Categories"))
 
 {
-
-  for( auto const& esti : mvaEstimators_ ) {
-
-    //
-    // Compose and save the names of the value maps to be produced
-    //
-
-    const std::string fullName = esti->getName() + esti->getTag();
-
-    const std::string thisValueMapName      = fullName + "Values";
-    const std::string thisRawValueMapName   = fullName + "RawValues";
-    const std::string thisCategoriesMapName = fullName + "Categories";
-
-    // Declare the maps to the framework
-    produces<edm::ValueMap<float>>(thisValueMapName     );
-    produces<edm::ValueMap<float>>(thisRawValueMapName  );
-    produces<edm::ValueMap<int>>  (thisCategoriesMapName);
-
-  }
-
+  for( auto const& name : mvaValueMapNames_      ) produces<edm::ValueMap<float>>(name);
+  for( auto const& name : mvaRawValueMapNames_   ) produces<edm::ValueMap<float>>(name);
+  for( auto const& name : mvaCategoriesMapNames_ ) produces<edm::ValueMap<int  >>(name);
 }
 
 template <class ParticleType>
@@ -117,11 +119,9 @@ void MVAValueMapProducer<ParticleType>::produce(edm::StreamID, edm::Event& iEven
       mvaCategories.push_back( cat );
     } // end loop over particles
 
-    const std::string fullName = mvaEstimators_[iEstimator]->getName() + mvaEstimators_[iEstimator]->getTag();
-
-    writeValueMap(iEvent, src, mvaValues    , fullName + "Values"     );
-    writeValueMap(iEvent, src, mvaRawValues , fullName + "RawValues"  );
-    writeValueMap(iEvent, src, mvaCategories, fullName + "Categories" );
+    writeValueMap(iEvent, src, mvaValues    , mvaValueMapNames_     [iEstimator] );
+    writeValueMap(iEvent, src, mvaRawValues , mvaRawValueMapNames_  [iEstimator] );
+    writeValueMap(iEvent, src, mvaCategories, mvaCategoriesMapNames_[iEstimator] );
 
   } // end loop over estimators
 
