@@ -20,6 +20,7 @@ public:
     // const std::vector<double> puppiAlpha   () {return fAlpha;}
     const std::vector<double> & puppiAlphasMed() {return fAlphaMed;}
     const std::vector<double> & puppiAlphasRMS() {return fAlphaRMS;}
+    const std::vector<int>& recoToPup() const {return fRecoToPup;}
 
     int puppiNAlgos(){ return fNAlgos; }
     std::vector<PuppiCandidate> const & puppiParticles() const { return fPupParticles;}
@@ -42,6 +43,7 @@ protected:
     std::vector<double>    fRawAlphas;
     std::vector<double>    fAlphaMed;
     std::vector<double>    fAlphaRMS;
+    std::vector<int>       fRecoToPup;
 
     bool   fApplyCHS;
     bool   fInvert;

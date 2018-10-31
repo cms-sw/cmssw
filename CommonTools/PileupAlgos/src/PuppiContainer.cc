@@ -39,6 +39,8 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     fPVFrac = 0.;
     fNPV    = 1.;
     fRecoParticles = &iRecoObjects;
+    fRecoToPup.clear();
+    fRecoToPup.reserve(fRecoParticles->size());
     for (auto const& rParticle : *fRecoParticles){
         PuppiCandidate curPseudoJet;
         // float nom = sqrt((rParticle.m)*(rParticle.m) + (rParticle.pt)*(rParticle.pt)*(cosh(rParticle.eta))*(cosh(rParticle.eta))) + (rParticle.pt)*sinh(rParticle.eta);//hacked
@@ -203,21 +205,26 @@ double PuppiContainer::getChi2FromdZ(double iDZ) {
     return lChi2PU;
 }
 std::vector<double> const & PuppiContainer::puppiWeights() {
-    fPupParticles .resize(0);
-    fWeights      .resize(0);
-    fVals         .resize(0);
+    int lNParticles    = fRecoParticles->size();
+
+    fPupParticles .clear();
+    fPupParticles.reserve(lNParticles);
+    fWeights      .clear();
+    fWeights.reserve(lNParticles);
+    fVals         .clear();
+    fVals.reserve(lNParticles);
     for(int i0 = 0; i0 < fNAlgos; i0++) fPuppiAlgo[i0].reset();
     
     int lNMaxAlgo = 1;
     for(int i0 = 0; i0 < fNAlgos; i0++) lNMaxAlgo = std::max(fPuppiAlgo[i0].numAlgos(),lNMaxAlgo);
     //Run through all compute mean and RMS
-    int lNParticles    = fRecoParticles->size();
     for(int i0 = 0; i0 < lNMaxAlgo; i0++) {
         getRMSAvg(i0,fPFParticles,fPFParticles,fChargedPV);
     }
     if (fPuppiDiagnostics) getRawAlphas(0,fPFParticles,fPFParticles,fChargedPV);
 
     std::vector<double> pVals;
+    pVals.reserve(lNParticles);
     for(int i0 = 0; i0 < lNParticles; i0++) {
         //Refresh
         pVals.clear();
@@ -228,8 +235,11 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
         if(pPupId == -1) {
             fWeights .push_back(pWeight);
             fAlphaMed.push_back(-10);
-            fAlphaRMS.push_back(-10);            
+            fAlphaRMS.push_back(-10);
+            fRecoToPup.push_back(-1);
             continue;
+        } else {
+          fRecoToPup.push_back(fPupParticles.size());//watch out: there should be no skips after this
         }
         // fill the p-values
         double pChi2   = 0;
