@@ -27,8 +27,7 @@ PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf)
       << "wrong number of category cuts in PhotonMVAEstimator" << getTag() << std::endl;
 
   for (int i = 0; i < getNCategories(); ++i) {
-      StringCutObjectSelector<reco::Photon> select(categoryCutStrings[i]);
-      categoryFunctions_.push_back(select);
+      categoryFunctions_.emplace_back(categoryCutStrings[i]);
   }
 
   // Initialize GBRForests

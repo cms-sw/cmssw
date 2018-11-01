@@ -1,44 +1,15 @@
 #ifndef RecoEgamma_EgammaTools_MVAVariableManager_H
 #define RecoEgamma_EgammaTools_MVAVariableManager_H
 
-#include "CommonTools/Utils/interface/StringObjectFunction.h"                                                        
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "RecoEgamma/EgammaTools/interface/ThreadSafeStringCut.h"
 
 #include <fstream>
-
-template<class T>
-class ThreadSafeStringObjectFunction
-{
-  public:
-
-    ThreadSafeStringObjectFunction(const std::string & expr) // constructor
-      : func_(expr)
-      , expr_(expr)
-    {}
-
-    ThreadSafeStringObjectFunction(ThreadSafeStringObjectFunction&& other) noexcept // move constructor
-      : func_(std::move(other.func_))
-      , expr_(std::move(other.expr_))
-    {}
-
-    double operator()(const T & t) const
-    {
-        std::lock_guard<std::mutex> guard(mutex_);
-        return func_(t);
-    }
-
-  private:
-
-    const StringObjectFunction<T> func_;
-    const std::string expr_;
-    CMS_THREAD_SAFE mutable std::mutex mutex_;
-};
 
 template <class ParticleType>
 class MVAVariableManager {
@@ -231,7 +202,7 @@ class MVAVariableManager {
     int nGlobalVars_;
 
     std::vector<MVAVariableInfo> variableInfos_;
-    std::vector<ThreadSafeStringObjectFunction<ParticleType>> functions_;
+    std::vector<ThreadSafeStringCut<StringObjectFunction<ParticleType>, ParticleType>> functions_;
     std::vector<std::string> formulas_;
     std::vector<std::string> names_;
     std::map<std::string, int> indexMap_;
