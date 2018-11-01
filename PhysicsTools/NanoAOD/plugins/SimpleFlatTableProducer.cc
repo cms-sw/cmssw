@@ -229,7 +229,7 @@ typedef SimpleFlatTableProducer<reco::Candidate> SimpleCandidateFlatTableProduce
 typedef EventSingletonSimpleFlatTableProducer<GenEventInfoProduct> SimpleGenEventFlatTableProducer;
 
 #include "SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h"
- typedef EventSingletonSimpleFlatTableProducer<HTXS::HiggsClassification> SimpleHTXSFlatTableProducer;
+typedef EventSingletonSimpleFlatTableProducer<HTXS::HiggsClassification> SimpleHTXSFlatTableProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
