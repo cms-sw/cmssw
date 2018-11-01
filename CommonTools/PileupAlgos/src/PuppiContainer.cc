@@ -88,7 +88,8 @@ double PuppiContainer::var_within_R(int iId, const vector<PuppiCandidate> & part
     vector<double > near_pts;      near_pts.reserve(std::min(50UL, particles.size()));
     const double r2 = R*R;
     for (auto const& part : particles){
-      if ( part.squared_distance(centre) < r2 ){
+      //squared_distance is in (y,phi) coords: rap() has faster access -> check it first
+      if ( std::abs(part.rap()-centre.rap()) < R && part.squared_distance(centre) < r2 ){
         near_dR2s.push_back(reco::deltaR2(part, centre));
         near_pts.push_back(part.pt());
       }
@@ -145,8 +146,12 @@ void PuppiContainer::getRMSAvg(int iOpt,std::vector<PuppiCandidate> const &iCons
             pCharged = fPuppiAlgo[i1].isCharged(iOpt);
             pCone    = fPuppiAlgo[i1].coneSize (iOpt);
             double curVal = -1; 
-            if(!pCharged) curVal = goodVar(iConstits[i0],iParticles       ,pAlgo,pCone);
-            if( pCharged) curVal = goodVar(iConstits[i0],iChargedParticles,pAlgo,pCone);
+            if (i1 != pPupId){
+              if(!pCharged) curVal = goodVar(iConstits[i0],iParticles       ,pAlgo,pCone);
+              if( pCharged) curVal = goodVar(iConstits[i0],iChargedParticles,pAlgo,pCone);
+            } else {//no need to repeat the computation
+              curVal = pVal;
+            }
             //std::cout << "i1 = " << i1 << ", curVal = " << curVal << ", eta = " << iConstits[i0].eta() << ", pupID = " << pPupId << std::endl;
             fPuppiAlgo[i1].add(iConstits[i0],curVal,iOpt);
         }
