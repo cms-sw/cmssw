@@ -104,16 +104,19 @@ PF_PU_AssoMapAlgos::GetInputCollections(edm::Event& iEvent, const edm::EventSetu
 }
 
 /*************************************************************************************/
-/* create the track to vertex association map                                        */
+/* create the track-to-vertex and vertex-to-track maps in one go                     */
 /*************************************************************************************/
-std::unique_ptr<TrackToVertexAssMap>
-PF_PU_AssoMapAlgos::CreateTrackToVertexMap(edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup)
+std::pair<std::unique_ptr<TrackToVertexAssMap>, std::unique_ptr<VertexToTrackAssMap>>
+PF_PU_AssoMapAlgos::createMappings(edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup)
 {
 
 	unique_ptr<TrackToVertexAssMap> track2vertex(new TrackToVertexAssMap(vtxcollH, trkcollH));
+	unique_ptr<VertexToTrackAssMap> vertex2track(new VertexToTrackAssMap(trkcollH, vtxcollH));
 
 	int num_vertices = vtxcollH->size();
 	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;
+        vector<VertexRef> vtxColl_help;
+        if (input_MaxNumAssociations_ == 1) vtxColl_help = CreateVertexVector(vtxcollH);
 
   	//loop over all tracks of the track collection
   	for ( size_t idxTrack = 0; idxTrack < trkcollH->size(); ++idxTrack ) {
@@ -124,7 +127,7 @@ PF_PU_AssoMapAlgos::CreateTrackToVertexMap(edm::Handle<reco::TrackCollection> tr
           transtrk.setBeamSpot(*beamspotH);
           transtrk.setES(iSetup);
 
-	  vector<VertexRef> vtxColl_help = CreateVertexVector(vtxcollH);
+	  if (input_MaxNumAssociations_ > 1) vtxColl_help = CreateVertexVector(vtxcollH);
 
 	  for ( int assoc_ite = 0; assoc_ite < input_MaxNumAssociations_; ++assoc_ite ) {
 
@@ -141,15 +144,27 @@ PF_PU_AssoMapAlgos::CreateTrackToVertexMap(edm::Handle<reco::TrackCollection> tr
 
     	    // Insert the best vertex and the pair of track and the quality of this association in the map
     	    track2vertex->insert( assocVtx.first, make_pair(trackref, quality) );
+            vertex2track->insert( trackref, make_pair(assocVtx.first, quality) );
 
-	    PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, assocVtx.first);
+            //cleanup only if multiple iterations are made
+	    if (input_MaxNumAssociations_ > 1) PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, assocVtx.first);
 
 	  }
 
   	}
 
-	return std::move(track2vertex);
+	return {std::move(track2vertex), std::move(vertex2track)};
 
+}
+
+/*************************************************************************************/
+/* create the track to vertex association map                                        */
+/*************************************************************************************/
+
+std::unique_ptr<TrackToVertexAssMap>
+PF_PU_AssoMapAlgos::CreateTrackToVertexMap(edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup)
+{
+  return createMappings(trkcollH,iSetup).first;
 }
 
 /*************************************************************************************/
@@ -159,46 +174,7 @@ PF_PU_AssoMapAlgos::CreateTrackToVertexMap(edm::Handle<reco::TrackCollection> tr
 std::unique_ptr<VertexToTrackAssMap>
 PF_PU_AssoMapAlgos::CreateVertexToTrackMap(edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup)
 {
-
-  	unique_ptr<VertexToTrackAssMap> vertex2track(new VertexToTrackAssMap(trkcollH, vtxcollH));
-
-	int num_vertices = vtxcollH->size();
-	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;
-
-  	//loop over all tracks of the track collection
-  	for ( size_t idxTrack = 0; idxTrack < trkcollH->size(); ++idxTrack ) {
-
-    	  TrackRef trackref = TrackRef(trkcollH, idxTrack);
-
-          TransientTrack transtrk(trackref, &(*bFieldH) );
-          transtrk.setBeamSpot(*beamspotH);
-          transtrk.setES(iSetup);
-
-	  vector<VertexRef> vtxColl_help = CreateVertexVector(vtxcollH);
-
-	  for ( int assoc_ite = 0; assoc_ite < input_MaxNumAssociations_; ++assoc_ite ) {
-
-    	    VertexStepPair assocVtx = FindAssociation(trackref, vtxColl_help, bFieldH, iSetup, beamspotH, assoc_ite);
-	    int step = assocVtx.second;
-	    double distance = ( IPTools::absoluteImpactParameter3D( transtrk, *(assocVtx.first) ) ).second.value();
-
-	    int quality = DefineQuality(assoc_ite, step, distance);
-
-    	    //std::cout << "associating track: Pt = " << trackref->pt() << ","
-    	    //	        << " eta = " << trackref->eta() << ", phi = " << trackref->phi()
-    	    //	        << " to vertex: z = " << associatedVertex.first->position().z() << " with quality q = " << quality << std::endl;
-
-    	    // Insert the best vertex and the pair of track and the quality of this association in the map
-    	    vertex2track->insert( trackref, make_pair(assocVtx.first, quality) );
-
-	    PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, assocVtx.first);
-
-	  }
-
-	}
-
-	return vertex2track;
-
+  return createMappings(trkcollH,iSetup).second;
 }
 
 /*****************************************************************************************/

@@ -93,6 +93,10 @@ class PF_PU_AssoMapAlgos{
    //get all needed collections at the beginning
    virtual void GetInputCollections(edm::Event&, const edm::EventSetup&);
 
+   //create the track-to-vertex and vertex-to-track maps in one go
+   std::pair<std::unique_ptr<TrackToVertexAssMap>, std::unique_ptr<VertexToTrackAssMap>> 
+     createMappings(edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup);
+
    //create the track to vertex association map
    std::unique_ptr<TrackToVertexAssMap> CreateTrackToVertexMap(edm::Handle<reco::TrackCollection>, const edm::EventSetup&);
 

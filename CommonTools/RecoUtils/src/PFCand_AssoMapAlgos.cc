@@ -43,23 +43,23 @@ PFCand_AssoMapAlgos::GetInputCollections(edm::Event& iEvent, const edm::EventSet
 }
 
 /*************************************************************************************/
-/* create the pf candidate to vertex association map                                 */
+/* create the pf candidate to vertex association and the inverse map                 */
 /*************************************************************************************/
-
-std::unique_ptr<PFCandToVertexAssMap>
-PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup)
-{
-
+std::pair<std::unique_ptr<PFCandToVertexAssMap>, std::unique_ptr<VertexToPFCandAssMap>>
+  PFCand_AssoMapAlgos::createMappings(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup){
         unique_ptr<PFCandToVertexAssMap> pfcand2vertex(new PFCandToVertexAssMap(vtxcollH, pfCandH));
+        unique_ptr<VertexToPFCandAssMap> vertex2pfcand(new VertexToPFCandAssMap(pfCandH, vtxcollH));
 
 	int num_vertices = vtxcollH->size();
 	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;
+        vector<VertexRef> vtxColl_help;
+        if (input_MaxNumAssociations_ == 1) vtxColl_help = CreateVertexVector(vtxcollH);
 
 	for( unsigned i=0; i<pfCandH->size(); i++ ) {
 
           PFCandidateRef candref(pfCandH, i);
 
-	  vector<VertexRef> vtxColl_help = CreateVertexVector(vtxcollH);
+	  if (input_MaxNumAssociations_ > 1) vtxColl_help = CreateVertexVector(vtxcollH);
 
           VertexPfcQuality VtxPfcQual;
 
@@ -73,8 +73,10 @@ PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollec
 
     	      // Insert the best vertex and the pair of track and the quality of this association in the map
     	      pfcand2vertex->insert( vtxColl_help.at(0), make_pair(candref, quality) );
+              vertex2pfcand->insert( candref, make_pair(vtxColl_help.at(0), quality) );
 
-	      PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, vtxColl_help.at(0));
+              //cleanup only if multiple iterations are made
+	      if (input_MaxNumAssociations_ > 1) PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, vtxColl_help.at(0));
 
 	    }
 
@@ -94,17 +96,28 @@ PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollec
 
     	      // Insert the best vertex and the pair of track and the quality of this association in the map
     	      pfcand2vertex->insert( assocVtx.first, make_pair(candref, quality) );
+              vertex2pfcand->insert( candref, make_pair(assocVtx.first, quality) );
 
-	      PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, assocVtx.first);
+              //cleanup only if multiple iterations are made
+	      if (input_MaxNumAssociations_ > 2) PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, assocVtx.first);
 
 	    }
 
-	  }
+	  }//check PFCtrackref.isNull
 
-       	}
+       	}//i on pfCandH
 
-	return pfcand2vertex;
+	return {std::move(pfcand2vertex), std::move(vertex2pfcand)};
+}
 
+/*************************************************************************************/
+/* create the pf candidate to vertex association map                                 */
+/*************************************************************************************/
+
+std::unique_ptr<PFCandToVertexAssMap>
+PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup)
+{
+  return createMappings(pfCandH, iSetup).first;
 }
 
 /*************************************************************************************/
@@ -114,61 +127,7 @@ PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollec
 std::unique_ptr<VertexToPFCandAssMap>
 PFCand_AssoMapAlgos::CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup)
 {
-
-  	unique_ptr<VertexToPFCandAssMap> vertex2pfcand(new VertexToPFCandAssMap(pfCandH, vtxcollH));
-
-	int num_vertices = vtxcollH->size();
-	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;
-
-	for( unsigned i=0; i<pfCandH->size(); i++ ) {
-
-          PFCandidateRef candref(pfCandH, i);
-
-	  vector<VertexRef> vtxColl_help = CreateVertexVector(vtxcollH);
-
-          VertexPfcQuality VtxPfcQual;
-
-	  TrackRef PFCtrackref = candref->trackRef();
-
-	  if ( PFCtrackref.isNull() ){
-
-	    for ( int assoc_ite = 0; assoc_ite < input_MaxNumAssociations_; ++assoc_ite ) {
-
-	      int quality = -1 - assoc_ite;
-
-    	      // Insert the best vertex and the pair of track and the quality of this association in the map
-    	      vertex2pfcand->insert( candref, make_pair(vtxColl_help.at(0), quality) );
-
-	      PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, vtxColl_help.at(0));
-
-	    }
-
-          } else {
-
-            TransientTrack transtrk(PFCtrackref, &(*bFieldH) );
-            transtrk.setBeamSpot(*beamspotH);
-            transtrk.setES(iSetup);
-
-	    for ( int assoc_ite = 0; assoc_ite < input_MaxNumAssociations_; ++assoc_ite ) {
-
-    	      VertexStepPair assocVtx = FindAssociation(PFCtrackref, vtxColl_help, bFieldH, iSetup, beamspotH, assoc_ite);
-	      int step = assocVtx.second;
-	      double distance = ( IPTools::absoluteImpactParameter3D( transtrk, *(assocVtx.first) ) ).second.value();
-
-	      int quality = DefineQuality(assoc_ite, step, distance);
-
-    	      // Insert the best vertex and the pair of track and the quality of this association in the map
-    	      vertex2pfcand->insert( candref, make_pair(assocVtx.first, quality) );
-
-	      PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, assocVtx.first);
-
-	    }
-
-	  }
-
-       	}
-
-	return std::move(vertex2pfcand);
+  return createMappings(pfCandH, iSetup).second;
 }
 
 /*************************************************************************************/
