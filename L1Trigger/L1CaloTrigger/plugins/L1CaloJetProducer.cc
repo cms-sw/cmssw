@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package: L1CaloTrigger
-// Class: L1CaloTauProducer
+// Class: L1CaloJetProducer
 //
-/**\class L1CaloTauProducer L1CaloTauProducer.cc
+/**\class L1CaloJetProducer L1CaloJetProducer.cc
 
 Description: 
 Beginning with HCAL TPs, create HCAL jet, then
@@ -72,9 +72,9 @@ Implementation:
 #include "DataFormats/L1Trigger/interface/Jet.h"
 
 
-class L1CaloTauProducer : public edm::EDProducer {
+class L1CaloJetProducer : public edm::EDProducer {
     public:
-        explicit L1CaloTauProducer(const edm::ParameterSet&);
+        explicit L1CaloJetProducer(const edm::ParameterSet&);
 
     private:
         virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -84,11 +84,23 @@ class L1CaloTauProducer : public edm::EDProducer {
         int tower_diEta( int &iEta_1, int &iEta_2 ) const;
         float get_deltaR( reco::Candidate::PolarLorentzVector &p4_1,
                 reco::Candidate::PolarLorentzVector &p4_2) const;
+        float get_hcal_calibration( float &jet_pt, float &ecal_pt,
+                float &ecal_L1EG_jet_pt, float &jet_eta ) const;
 
         //double EtminForStore;
         double HcalTpEtMin;
         double EcalTpEtMin;
         double EtMinForSeedHit;
+
+        // For fetching calibrations
+        std::vector< double > emFractionBins;
+        std::vector< double > absEtaBins;
+        std::vector< double > jetPtBins;
+        std::vector< double > jetCalibrations;
+
+        // For storing calibrations
+        std::vector< std::vector< std::vector< double >>> calibrations;
+
         bool debug;
         edm::EDGetTokenT< L1CaloTowerCollection > l1TowerToken_;
         edm::Handle< L1CaloTowerCollection > l1CaloTowerHandle;
@@ -263,20 +275,24 @@ class L1CaloTauProducer : public edm::EDProducer {
         };
 };
 
-L1CaloTauProducer::L1CaloTauProducer(const edm::ParameterSet& iConfig) :
+L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     //EtminForStore(iConfig.getParameter<double>("EtminForStore")),
-    HcalTpEtMin(iConfig.getUntrackedParameter<double>("HcalTpEtMin", 0.0)), // Default to 0 MeV
-    EcalTpEtMin(iConfig.getUntrackedParameter<double>("EcalTpEtMin", 0.0)), // Default to 0 MeV
-    EtMinForSeedHit(iConfig.getUntrackedParameter<double>("EtMinForSeedHit", 2.5)), // Default to 2.5 GeV
-    debug(iConfig.getUntrackedParameter<bool>("debug", false)),
+    HcalTpEtMin(iConfig.getParameter<double>("HcalTpEtMin")), // Should default to 0 MeV
+    EcalTpEtMin(iConfig.getParameter<double>("EcalTpEtMin")), // Should default to 0 MeV
+    EtMinForSeedHit(iConfig.getParameter<double>("EtMinForSeedHit")), // Should default to 2.5 GeV
+    emFractionBins(iConfig.getParameter<std::vector<double>>("emFractionBins")),
+    absEtaBins(iConfig.getParameter<std::vector<double>>("absEtaBins")),
+    jetPtBins(iConfig.getParameter<std::vector<double>>("jetPtBins")),
+    jetCalibrations(iConfig.getParameter<std::vector<double>>("jetCalibrations")),
+    debug(iConfig.getParameter<bool>("debug")),
     l1TowerToken_(consumes< L1CaloTowerCollection >(iConfig.getParameter<edm::InputTag>("l1CaloTowers"))),
     crystalClustersToken_(consumes<l1slhc::L1EGCrystalClusterCollection>(iConfig.getParameter<edm::InputTag>("L1CrystalClustersInputTag")))
 
 {
-    produces<l1slhc::L1CaloJetsCollection>("L1CaloTausNoCuts");
-    produces<l1slhc::L1CaloJetsCollection>("L1CaloTausWithCuts");
+    produces<l1slhc::L1CaloJetsCollection>("L1CaloJetsNoCuts");
+    produces<l1slhc::L1CaloJetsCollection>("L1CaloJetsWithCuts");
     //produces<l1extra::L1JetParticleCollection>("L1CaloClusterCollectionWithCuts");
-    produces< BXVector<l1t::Tau> >("L1CaloClusterCollectionBXVWithCuts");
+    produces< BXVector<l1t::Jet> >("L1CaloClusterCollectionBXVWithCuts");
 
 
     //// Fit parameters measured on 11 Aug 2018, using 500 MeV threshold for ECAL TPs
@@ -291,17 +307,55 @@ L1CaloTauProducer::L1CaloTauProducer(const edm::ParameterSet& iConfig) :
     //ptAdjustFunc.SetParameter( 3, 1.00 );
     //ptAdjustFunc.SetParameter( 4, 0.567 );
     //ptAdjustFunc.SetParameter( 5, 0.288 );
-    printf("\nHcalTpEtMin = %f\nEcalTpEtMin = %f\n", HcalTpEtMin, EcalTpEtMin);
+    if(debug) printf("\nHcalTpEtMin = %f\nEcalTpEtMin = %f\n", HcalTpEtMin, EcalTpEtMin);
+    //for( unsigned int i = 0; i < emFractionBins.size(); i++)
+    //{
+    //    printf("\n  emFrac: %f", emFractionBins.at(i));
+    //}
+    //for( unsigned int i = 0; i < absEtaBins.size(); i++)
+    //{
+    //    printf("\n  absEta: %f", absEtaBins.at(i));
+    //}
+    //for( unsigned int i = 0; i < jetPtBins.size(); i++)
+    //{
+    //    printf("\n  jetPt: %f", jetPtBins.at(i));
+    //}
+
+    // Fill the calibration 3D vector
+    // Dimension 1 is EM Fraction bin
+    // Dimension 2 is AbsEta bin
+    // Dimension 3 is jet pT bin which is filled with the actual callibration value
+    // size()-1 b/c the inputs have lower and upper bounds
+    int index = 0;
+                //calibrations[em_frac][abs_eta].push_back( jetCalibrations.at(index) );
+    for( unsigned int em_frac = 0; em_frac < emFractionBins.size()-1; em_frac++)
+    {
+        std::vector< std::vector< double >> eta_bins;
+        for( unsigned int abs_eta = 0; abs_eta < absEtaBins.size()-1; abs_eta++)
+        {
+            std::vector< double > pt_bin_calibs;
+            for( unsigned int pt = 0; pt < jetPtBins.size()-1; pt++)
+            {
+                //printf("\n em_frac %d abs_eta %d pt %d", em_frac, abs_eta, pt);
+                //printf("\n - em_frac %f abs_eta %f pt %f = %f\n", emFractionBins.at(em_frac), absEtaBins.at(abs_eta), jetPtBins.at(pt), jetCalibrations.at(index));
+                pt_bin_calibs.push_back( jetCalibrations.at(index) );
+                index++;
+            }
+            eta_bins.push_back( pt_bin_calibs );
+        }
+        calibrations.push_back( eta_bins );
+    }
+    if(debug) printf("\nLoading calibrations: Loaded %i values vs. size() of input calibration file: %i", index, int(jetCalibrations.size()));
 }
 
-void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
     // Output collections
-    std::unique_ptr<l1slhc::L1CaloJetsCollection> L1CaloTausNoCuts (new l1slhc::L1CaloJetsCollection );
-    std::unique_ptr<l1slhc::L1CaloJetsCollection> L1CaloTausWithCuts( new l1slhc::L1CaloJetsCollection );
+    std::unique_ptr<l1slhc::L1CaloJetsCollection> L1CaloJetsNoCuts (new l1slhc::L1CaloJetsCollection );
+    std::unique_ptr<l1slhc::L1CaloJetsCollection> L1CaloJetsWithCuts( new l1slhc::L1CaloJetsCollection );
     //std::unique_ptr<l1extra::L1JetParticleCollection> L1CaloClusterCollectionWithCuts( new l1extra::L1JetParticleCollection );
-    std::unique_ptr<BXVector<l1t::Tau>> L1CaloClusterCollectionBXVWithCuts(new l1t::TauBxCollection);
+    std::unique_ptr<BXVector<l1t::Jet>> L1CaloClusterCollectionBXVWithCuts(new l1t::JetBxCollection);
 
 
 
@@ -340,7 +394,7 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     // Make simple L1objects from the L1EG input collection with marker for 'stale'
     // FIXME could later add quality criteria here to help differentiate likely
-    // photons/electrons vs. pions. This could be helpful for L1CaloTaus
+    // photons/electrons vs. pions. This could be helpful for L1CaloJets
     std::vector< simpleL1obj > crystalClustersVect;
     for (auto EGammaCand : crystalClusters)
     {
@@ -964,6 +1018,16 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         params["jet_mass"] = caloJetObj.jetCluster.mass();
         params["jet_energy"] = caloJetObj.jetCluster.energy();
 
+        // Calibrations
+        params["hcal_calibration"] = get_hcal_calibration( 
+            params["jet_pt"],
+            params["ecal_pt"],
+            params["ecal_L1EG_jet_pt"],
+            params["jet_eta"] );
+        params["hcal_pt_calibration"] = params["hcal_pt"] * params["hcal_calibration"];
+        params["jet_pt_calibration"] = params["hcal_pt_calibration"] +
+            params["ecal_pt"] + params["ecal_L1EG_jet_pt"];
+
         float calibratedPt = -1;
         float ECalIsolation = -1; // Need to loop over 7x7 crystals of unclustered energy
         float totalPtPUcorr = -1;
@@ -980,9 +1044,9 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             }
         }
 
-        L1CaloTausNoCuts->push_back( caloJet );
+        L1CaloJetsNoCuts->push_back( caloJet );
         // Same for the moment...
-        L1CaloTausWithCuts->push_back( caloJet );
+        L1CaloJetsWithCuts->push_back( caloJet );
 
         if (debug) printf("Made a Jet, eta %f phi %f pt %f\n", caloJetObj.jetCluster.eta(), caloJetObj.jetCluster.phi(), caloJetObj.jetClusterET);
 
@@ -990,8 +1054,8 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     } // end jetClusters loop
 
 
-    iEvent.put(std::move(L1CaloTausNoCuts),"L1CaloTausNoCuts");
-    iEvent.put(std::move(L1CaloTausWithCuts), "L1CaloTausWithCuts" );
+    iEvent.put(std::move(L1CaloJetsNoCuts),"L1CaloJetsNoCuts");
+    iEvent.put(std::move(L1CaloJetsWithCuts), "L1CaloJetsWithCuts" );
     //iEvent.put(std::move(L1CaloClusterCollectionWithCuts), "L1CaloClusterCollectionWithCuts" );
     iEvent.put(std::move(L1CaloClusterCollectionBXVWithCuts),"L1CaloClusterCollectionBXVWithCuts");
 }
@@ -1011,7 +1075,7 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 int
-L1CaloTauProducer::ecalXtal_diPhi( int &iPhi_1, int &iPhi_2 ) const
+L1CaloJetProducer::ecalXtal_diPhi( int &iPhi_1, int &iPhi_2 ) const
 {
     // We shouldn't compare integer indices in endcap, the map is not linear
     // Logic from EBDetId::distancePhi() without the abs()
@@ -1024,7 +1088,7 @@ L1CaloTauProducer::ecalXtal_diPhi( int &iPhi_1, int &iPhi_2 ) const
 
 
 int
-L1CaloTauProducer::tower_diPhi( int &iPhi_1, int &iPhi_2 ) const
+L1CaloJetProducer::tower_diPhi( int &iPhi_1, int &iPhi_2 ) const
 {
     // 360 Crystals in full, 72 towers, half way is 36
     int PI = 36;
@@ -1037,7 +1101,7 @@ L1CaloTauProducer::tower_diPhi( int &iPhi_1, int &iPhi_2 ) const
 
 // Added b/c of the iEta jump from +1 to -1 across the barrel mid point
 int
-L1CaloTauProducer::tower_diEta( int &iEta_1, int &iEta_2 ) const
+L1CaloJetProducer::tower_diEta( int &iEta_1, int &iEta_2 ) const
 {
     // On same side of barrel
     if (iEta_1 * iEta_2 > 0) return iEta_1 - iEta_2;
@@ -1046,7 +1110,7 @@ L1CaloTauProducer::tower_diEta( int &iEta_1, int &iEta_2 ) const
 
 
 float
-L1CaloTauProducer::get_deltaR( reco::Candidate::PolarLorentzVector &p4_1,
+L1CaloJetProducer::get_deltaR( reco::Candidate::PolarLorentzVector &p4_1,
         reco::Candidate::PolarLorentzVector &p4_2) const
 {
     // Check that pt is > 0 for both or else reco::deltaR returns bogus values
@@ -1058,4 +1122,57 @@ L1CaloTauProducer::get_deltaR( reco::Candidate::PolarLorentzVector &p4_1,
 }
 
 
-DEFINE_FWK_MODULE(L1CaloTauProducer);
+float
+L1CaloJetProducer::get_hcal_calibration( float &jet_pt, float &ecal_pt,
+        float &ecal_L1EG_jet_pt, float &jet_eta ) const
+{
+
+    float em_frac = (ecal_L1EG_jet_pt + ecal_pt) / jet_pt;
+    float abs_eta = fabs( jet_eta );
+    float tmp_jet_pt = jet_pt;
+    if (tmp_jet_pt > 499) tmp_jet_pt = 499;
+
+    // Treat anything beyond the barrel as boundary
+    if(abs_eta > 1.5) abs_eta = 1.5;
+
+    size_t em_index = 0;
+    // Start loop checking 2nd value
+    for( unsigned int i = 1; i < emFractionBins.size(); i++)
+    {
+        if(em_frac <= emFractionBins.at(i)) break;
+        em_index++;
+    }
+
+    size_t eta_index = 0;
+    // Start loop checking 2nd value
+    for( unsigned int i = 1; i < absEtaBins.size(); i++)
+    {
+        if(abs_eta <= absEtaBins.at(i)) break;
+        eta_index++;
+    }
+
+    size_t pt_index = 0;
+    // Start loop checking 2nd value
+    for( unsigned int i = 1; i < jetPtBins.size(); i++)
+    {
+        if(tmp_jet_pt <= jetPtBins.at(i)) break;
+        pt_index++;
+    }
+    //printf(" - jet pt %f index %i\n", jet_pt, int(pt_index));
+    //printf(" --- calibration: %f\n", calibrations[ em_index ][ eta_index ][ pt_index ] );
+
+    float calib = calibrations[ em_index ][ eta_index ][ pt_index ];
+    if(calib > 50)
+    {
+        printf(" - em frac %f index %i\n", em_frac, int(em_index));
+        printf(" - abs eta %f index %i\n", abs_eta, int(eta_index));
+        printf(" - jet pt %f tmp_jet_pt %f index %i\n", jet_pt, tmp_jet_pt, int(pt_index));
+        printf(" --- calibration: %f\n", calibrations[ em_index ][ eta_index ][ pt_index ] );
+    }
+    return calib;
+    
+
+}
+
+
+DEFINE_FWK_MODULE(L1CaloJetProducer);
