@@ -97,7 +97,7 @@ process.l1pf = cms.Path(process.pfTracksFromL1Tracks+process.l1ParticleFlow)
 # L1 Tau object
 ############################################################
 
-process.load("L1Trigger.Phase2L1Taus.L1PFTauProducer_grow_l1t_cff")
+process.load("L1Trigger.Phase2L1Taus.L1PFTauProducer_cff")
 process.L1PFTauProducer.debug = cms.untracked.bool(True)
 process.L1PFTauProducer.L1PFObjects = cms.InputTag("l1pfProducer","PF")
 process.L1PFTauProducer.L1Neutrals = cms.InputTag("l1pfProducer")

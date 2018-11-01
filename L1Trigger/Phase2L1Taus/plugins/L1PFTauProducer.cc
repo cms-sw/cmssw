@@ -96,7 +96,7 @@ void L1PFTauProducer::createTaus(tauMapperCollection &inputCollection){
   inputCollection.clear();
   float left_edge_center_eta = (-1)*tracker_eta + tau_size_eta/2 ;
  
-  std::cout<<"min_pi0pt "<<min_pi0pt_<<std::endl;
+  //std::cout<<"min_pi0pt "<<min_pi0pt_<<std::endl;
   for(float iTau_eta = left_edge_center_eta; iTau_eta < tracker_eta; iTau_eta = iTau_eta + tau_size_eta ){
     for(float iTau_phi = -3.14159; iTau_phi < 3.14159; iTau_phi = iTau_phi + tau_size_phi ){
       TauMapper tempTau; 

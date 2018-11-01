@@ -180,7 +180,7 @@ void TauMapper::process(){
   }
 
   //1 prong
-  if(prong3.pt() == 0 && strip_pt < m_minpi0pt ){
+  if(prong3.pt() == 0 && strip_pt == 0 ){
     float pt = seedCH.pt();
     float eta = seedCH.eta();
     float phi = seedCH.phi();
@@ -194,7 +194,7 @@ void TauMapper::process(){
   }
 
   // 1 prong pi0
-  if(prong3.pt() == 0 && strip_pt >= m_minpi0pt ){
+  if(prong3.pt() == 0 && strip_pt > 0 ){
     float pt = seedCH.pt() + strip_pt;
     float eta = (seedCH.eta() + strip_eta)/2;
     float phi = seedCH.phi();
