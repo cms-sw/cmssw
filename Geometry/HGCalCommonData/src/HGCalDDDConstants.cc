@@ -697,7 +697,7 @@ std::pair<float,float> HGCalDDDConstants::locateCellTrap(int lay, int irad,
 
 bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
   bool mask(false);
-  if (corners > 2 && corners < 6) {
+  if (corners > 2 && corners < (int)(HGCalParameters::k_CornerSize)) {
     if ((mode_ == HGCalGeometryMode::Hexagon8) ||
         (mode_ == HGCalGeometryMode::Hexagon8Full)) {
       int N(0), layer(0), waferU(0), waferV(0), u(0), v(0);
