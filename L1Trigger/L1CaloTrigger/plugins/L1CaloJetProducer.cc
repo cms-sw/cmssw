@@ -86,6 +86,8 @@ class L1CaloJetProducer : public edm::EDProducer {
                 reco::Candidate::PolarLorentzVector &p4_2) const;
         float get_hcal_calibration( float &jet_pt, float &ecal_pt,
                 float &ecal_L1EG_jet_pt, float &jet_eta ) const;
+        float apply_barrel_HGCal_boundary_calibration( float &jet_pt, float &hcal_pt, float &ecal_pt,
+                float &ecal_L1EG_jet_pt, int &seed_iEta ) const;
 
         //double EtminForStore;
         double HcalTpEtMin;
@@ -910,6 +912,18 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         //    caloJetObj.jetClusterET, jet_tmp
         //);
 
+
+        // Do barrel to HGCal transition calibrations for situation when
+        // only a portion of the jet can be clustered.
+        // This is temporary until there is a HGCal method to stitch them.
+        params["transition_calibration"] = apply_barrel_HGCal_boundary_calibration(
+            caloJetObj.jetClusterET,
+            caloJetObj.hcalJetClusterET,
+            caloJetObj.ecalJetClusterET,
+            caloJetObj.l1EGjetET,
+            caloJetObj.seed_iEta );
+
+
         params["hcal_PU_cor_pt"] = hcal_tmp;
         params["ecal_PU_cor_pt"] = ecal_tmp;
         params["ecal_L1EG_jet_PU_cor_pt"] = l1eg_tmp;
@@ -933,13 +947,12 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         params["hcal_mass"] = caloJetObj.hcalJetCluster.mass();
         params["hcal_energy"] = caloJetObj.hcalJetCluster.energy();
 
-        params["hcal_seed_pt"] = caloJetObj.seedTowerET;
-        params["hcal_seed_eta"] = caloJetObj.seedTower.eta();
-        params["hcal_seed_phi"] = caloJetObj.seedTower.phi();
+        params["seed_pt"] = caloJetObj.seedTowerET;
+        params["seed_eta"] = caloJetObj.seedTower.eta();
+        params["seed_phi"] = caloJetObj.seedTower.phi();
         params["seed_iEta"] = caloJetObj.seed_iEta;
         params["seed_iPhi"] = caloJetObj.seed_iPhi;
-        params["hcal_seed_energy"] = caloJetObj.seedTower.energy();
-        params["hcal_seed"] = caloJetObj.hcal_seed;
+        params["seed_energy"] = caloJetObj.seedTower.energy();
         params["hcal_3x3"] = caloJetObj.hcal_3x3;
         params["hcal_5x5"] = caloJetObj.hcal_5x5;
         params["hcal_7x7"] = caloJetObj.hcal_7x7;
@@ -982,7 +995,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         params["deltaR_ecal_lead_vs_jet"] = get_deltaR( caloJetObj.jetCluster, caloJetObj.leadingL1EG );
         params["deltaR_hcal_vs_jet"] = get_deltaR( caloJetObj.hcalJetCluster, caloJetObj.jetCluster );
         params["deltaR_hcal_vs_seed_tower"] = get_deltaR( caloJetObj.hcalJetCluster, caloJetObj.seedTower );
-        params["deltaR_ecal_vs_hcal_seed"] = get_deltaR( caloJetObj.ecalJetCluster, caloJetObj.seedTower );
+        params["deltaR_ecal_vs_seed"] = get_deltaR( caloJetObj.ecalJetCluster, caloJetObj.seedTower );
 
 
         params["ecal_leading_pt"] =     caloJetObj.leadingL1EGET;
@@ -1122,6 +1135,7 @@ L1CaloJetProducer::get_deltaR( reco::Candidate::PolarLorentzVector &p4_1,
 }
 
 
+// Apply calibrations to HCAL energy based on EM Fraction, Jet Eta, Jet pT
 float
 L1CaloJetProducer::get_hcal_calibration( float &jet_pt, float &ecal_pt,
         float &ecal_L1EG_jet_pt, float &jet_eta ) const
@@ -1162,7 +1176,7 @@ L1CaloJetProducer::get_hcal_calibration( float &jet_pt, float &ecal_pt,
     //printf(" --- calibration: %f\n", calibrations[ em_index ][ eta_index ][ pt_index ] );
 
     float calib = calibrations[ em_index ][ eta_index ][ pt_index ];
-    if(calib > 50)
+    if(calib > 50 && debug)
     {
         printf(" - em frac %f index %i\n", em_frac, int(em_index));
         printf(" - abs eta %f index %i\n", abs_eta, int(eta_index));
@@ -1170,8 +1184,40 @@ L1CaloJetProducer::get_hcal_calibration( float &jet_pt, float &ecal_pt,
         printf(" --- calibration: %f\n", calibrations[ em_index ][ eta_index ][ pt_index ] );
     }
     return calib;
-    
+}
 
+
+// Apply calibrations to all energies except seed tower if jet is close to the 
+// barrel / HGCal transition boundary
+float
+L1CaloJetProducer::apply_barrel_HGCal_boundary_calibration( float &jet_pt, float &hcal_pt, float &ecal_pt,
+        float &ecal_L1EG_jet_pt, int &seed_iEta ) const
+{
+
+    int abs_iEta = abs( seed_iEta );
+    // If full 7x7 is in barrel, return 1.0
+    if(abs_iEta < 15) return 1.0;
+
+    // Return values are based on 7x7 jet = 49 TTs normally
+    // and are w.r.t. the jet area in the barrel including TT 17 
+    float calib = 1.0;
+    if(abs_iEta == 15) 
+    {
+        calib = 49./42.;
+    }
+    else if(abs_iEta == 16) 
+    {
+        calib = 49./35.;
+    }
+    else if(abs_iEta == 17) 
+    {
+        calib = 49./28.;
+    }
+    jet_pt = jet_pt * calib;
+    hcal_pt = hcal_pt * calib;
+    ecal_pt = ecal_pt * calib;
+    ecal_L1EG_jet_pt = ecal_L1EG_jet_pt * calib;
+    return calib;
 }
 
 
