@@ -12,12 +12,7 @@
 #include <fstream>
 #include <vector>
 
-MaterialBudgetCategorizer::MaterialBudgetCategorizer()
-{
-  buildMaps();
-}
-
-void MaterialBudgetCategorizer::buildMaps()
+MaterialBudgetCategorizer::MaterialBudgetCategorizer(std::string mode)
 {
   //----- Build map volume name - volume index
   G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
@@ -26,33 +21,24 @@ void MaterialBudgetCategorizer::buildMaps()
   for (ite = lvs->begin(); ite != lvs->end(); ite++) {
     theVolumeMap[(*ite)->GetName()] = ii++;
   }
-  
-  //----- Build map material name - volume index
-  const G4MaterialTable* matTable = G4Material::GetMaterialTable();
-  G4int matSize = matTable->size();
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetCategorizer: matSize:" << matSize;
-  
-  //----- Build map material name - X0 contributes
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetCategorizer: Fill X0 Map";
-  std::string theMaterialX0FileName = edm::FileInPath("Validation/Geometry/data/trackerMaterials.x0").fullPath();
-  buildCategoryMap(theMaterialX0FileName, theX0Map);
-  //For the HGCal
-  std::string thehgcalMaterialX0FileName = edm::FileInPath("Validation/Geometry/data/hgcalMaterials.x0").fullPath();
-  buildHGCalCategoryMap(thehgcalMaterialX0FileName, theHGCalX0Map);
-  //----- Build map material name - L0 contributes
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetCategorizer: Fill L0 Map";
-  std::string theMaterialL0FileName = edm::FileInPath("Validation/Geometry/data/trackerMaterials.l0").fullPath();
-  buildCategoryMap(theMaterialL0FileName, theL0Map);
-  //For the HGCal
-  std::string thehgcalMaterialL0FileName = edm::FileInPath("Validation/Geometry/data/hgcalMaterials.l0").fullPath();
-  buildHGCalCategoryMap(thehgcalMaterialL0FileName, theHGCalL0Map);
-  // summary of all the materials loaded
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetCategorizer: Material Summary Starts";
-  G4EmCalculator calc;
+
+  if ( mode.compare("Tracker") == 0 ) {
+    std::string theMaterialX0FileName = edm::FileInPath("Validation/Geometry/data/trackerMaterials.x0").fullPath();
+    buildCategoryMap(theMaterialX0FileName, theX0Map);
+    std::string theMaterialL0FileName = edm::FileInPath("Validation/Geometry/data/trackerMaterials.l0").fullPath();
+    buildCategoryMap(theMaterialL0FileName, theL0Map);
+  } else if ( mode.compare("HGCal") == 0 ){
+      std::string thehgcalMaterialX0FileName = edm::FileInPath("Validation/Geometry/data/hgcalMaterials.x0").fullPath();
+      buildHGCalCategoryMap(thehgcalMaterialX0FileName, theHGCalX0Map);
+      std::string thehgcalMaterialL0FileName = edm::FileInPath("Validation/Geometry/data/hgcalMaterials.l0").fullPath();
+      buildHGCalCategoryMap(thehgcalMaterialL0FileName, theHGCalL0Map);
+  }
 }
 
-void MaterialBudgetCategorizer::buildCategoryMap(std::string theMaterialFileName, std::map<std::string,std::vector<float> >& theMap) {
-  
+void MaterialBudgetCategorizer::buildCategoryMap(std::string theMaterialFileName, 
+						 std::map<std::string,std::vector<float> >& theMap) 
+{
+
   std::ifstream theMaterialFile(theMaterialFileName);
 
   if (!theMaterialFile) 

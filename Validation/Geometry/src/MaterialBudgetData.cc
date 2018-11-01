@@ -30,7 +30,11 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
   const G4ThreeVector& dir = aTrack->GetMomentum() ;
 
   if( myMaterialBudgetCategorizer == nullptr){
-    myMaterialBudgetCategorizer = std::make_unique<MaterialBudgetCategorizer>();
+    if(isHGCal){
+      myMaterialBudgetCategorizer = std::make_unique<MaterialBudgetCategorizer>("HGCal"); 
+    } else {
+      myMaterialBudgetCategorizer = std::make_unique<MaterialBudgetCategorizer>("Tracker"); 
+    }
   }
   
   theStepN=0;
