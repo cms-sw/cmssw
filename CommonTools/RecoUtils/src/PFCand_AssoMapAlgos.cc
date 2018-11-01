@@ -207,5 +207,5 @@ PFCand_AssoMapAlgos::SortPFCandAssociationMap(PFCandToVertexAssMap* pfcvertexass
 
         }
 
-        return std::move(pfcvertexassOutput);
+        return pfcvertexassOutput;
 }
