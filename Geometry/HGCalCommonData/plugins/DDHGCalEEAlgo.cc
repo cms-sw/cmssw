@@ -278,8 +278,9 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
   int    ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
   std::vector<int>  ntype(6,0);
   edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.ddname() 
-				<< " rout " << rout << " N " 
-				<< N << " for maximum u, v";
+				<< " rout " << rout << " N " << N 
+				<< " for maximum u, v;  r " << r << " R "
+				<< R << " dy " << dy;
 #endif
   for (int u = -N; u <= N; ++u) {
     int iu = std::abs(u);
@@ -289,20 +290,38 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
       int nc =-2*u+v;
       double xpos = nc*r;
       double ypos = nr*dy;
-      xc[0] = xpos+r;  yc[0] = ypos+0.5*R;
-      xc[1] = xpos;    yc[1] = ypos+R;
-      xc[2] = xpos-r;  yc[2] = ypos+0.5*R;
-      xc[3] = xpos-r;  yc[3] = ypos-0.5*R;
-      xc[4] = xpos;    yc[4] = ypos-R;
-      xc[5] = xpos+r;  yc[5] = ypos-0.5*R;
+      xc[0] = xpos;    yc[0] = ypos+R;
+      xc[1] = xpos-r;  yc[1] = ypos+0.5*R;
+      xc[2] = xpos-r;  yc[2] = ypos-0.5*R;
+      xc[3] = xpos;    yc[3] = ypos-R;
+      xc[4] = xpos+r;  yc[4] = ypos-0.5*R;
+      xc[5] = xpos+r;  yc[5] = ypos+0.5*R;
       bool cornerOne(false), cornerAll(true);
+      int  ncin(0);
       for (int k=0; k<6; ++k) {
 	double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
-	if (rpos >= rin && rpos <= rout) cornerOne = true;
-	else                             cornerAll = false;
+	if (rpos >= rin && rpos <= rout) {
+	  cornerOne = true;
+	  ++ncin;
+	} else {
+	  cornerAll = false;
+	}
       }
 #ifdef EDM_ML_DEBUG
       ++ntot;
+      if ((!cornerOne && std::abs(u) < 5 && std::abs(v) < 5) ||
+	  (std::abs(u) < 2 && std::abs(v) < 2)) {
+	edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.ddname() 
+				      << " R " << rin << ":" << rout 
+				      << "\n Z " << zpos << " LayerType " 
+				      << layertype << " u " << u << " v " << v
+				      << " with " << ncin << " corners";
+	for (int k=0; k<6; ++k) {
+	  double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
+	  edm::LogVerbatim("HGCalGeom") << "[" << k << "] x " << xc[k] << " y "
+					<< yc[k] << " R " << rpos;
+	}
+      }
 #endif
       if (cornerOne) {
 	int type = waferType_->getType(xpos,ypos,zpos);
