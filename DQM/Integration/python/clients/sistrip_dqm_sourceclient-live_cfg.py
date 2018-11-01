@@ -585,7 +585,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     import  HLTrigger.special.hltPixelActivityFilter_cfi
     process.multFilter = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone(
         inputTag  = cms.InputTag('siPixelClusters'),
-        minClusters = cms.uint32(10000),
+        minClusters = cms.uint32(1),
         maxClusters = cms.uint32(50000)
         )
 
