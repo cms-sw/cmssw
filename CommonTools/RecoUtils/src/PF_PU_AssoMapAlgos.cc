@@ -124,7 +124,7 @@ PF_PU_AssoMapAlgos::CreateTrackToVertexMap(edm::Handle<reco::TrackCollection> tr
           transtrk.setBeamSpot(*beamspotH);
           transtrk.setES(iSetup);
 
-	  vector<VertexRef>* vtxColl_help = CreateVertexVector(vtxcollH);
+	  vector<VertexRef> vtxColl_help = CreateVertexVector(vtxcollH);
 
 	  for ( int assoc_ite = 0; assoc_ite < input_MaxNumAssociations_; ++assoc_ite ) {
 
@@ -145,8 +145,6 @@ PF_PU_AssoMapAlgos::CreateTrackToVertexMap(edm::Handle<reco::TrackCollection> tr
 	    PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, assocVtx.first);
 
 	  }
-
-	  delete vtxColl_help;
 
   	}
 
@@ -176,7 +174,7 @@ PF_PU_AssoMapAlgos::CreateVertexToTrackMap(edm::Handle<reco::TrackCollection> tr
           transtrk.setBeamSpot(*beamspotH);
           transtrk.setES(iSetup);
 
-	  vector<VertexRef>* vtxColl_help = CreateVertexVector(vtxcollH);
+	  vector<VertexRef> vtxColl_help = CreateVertexVector(vtxcollH);
 
 	  for ( int assoc_ite = 0; assoc_ite < input_MaxNumAssociations_; ++assoc_ite ) {
 
@@ -196,8 +194,6 @@ PF_PU_AssoMapAlgos::CreateVertexToTrackMap(edm::Handle<reco::TrackCollection> tr
 	    PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, assocVtx.first);
 
 	  }
-
-	  delete vtxColl_help;
 
 	}
 
@@ -295,19 +291,14 @@ PF_PU_AssoMapAlgos::SortAssociationMap(TrackToVertexAssMap* trackvertexassInput,
 /* create helping vertex vector to remove associated vertices                        */
 /*************************************************************************************/
 
-std::vector<reco::VertexRef>*
+std::vector<reco::VertexRef>
 PF_PU_AssoMapAlgos::CreateVertexVector(edm::Handle<reco::VertexCollection> vtxcollH)
 {
 
-	vector<VertexRef>* output = new vector<VertexRef>();
-
-  	for(unsigned int index_vtx=0;  index_vtx<vtxcollH->size(); ++index_vtx){
-
-          VertexRef vertexref(vtxcollH,index_vtx);
-
-	  output->push_back(vertexref);
-
-	}
+	vector<VertexRef> output;
+        output.reserve(vtxcollH->size());
+        auto const nVtx = vtxcollH->size();
+        for (unsigned int i = 0; i < nVtx; ++i) output.emplace_back(vtxcollH,i);
 
 	return output;
 
@@ -318,15 +309,15 @@ PF_PU_AssoMapAlgos::CreateVertexVector(edm::Handle<reco::VertexCollection> vtxco
 /****************************************************************************/
 
 void
-PF_PU_AssoMapAlgos::EraseVertex(std::vector<reco::VertexRef>* vtxcollV, reco::VertexRef toErase)
+PF_PU_AssoMapAlgos::EraseVertex(std::vector<reco::VertexRef>& vtxcollV, reco::VertexRef toErase)
 {
 
-  	for(unsigned int index_vtx=0;  index_vtx<vtxcollV->size(); ++index_vtx){
+  	for(unsigned int index_vtx=0;  index_vtx<vtxcollV.size(); ++index_vtx){
 
-          VertexRef vertexref = vtxcollV->at(index_vtx);
+          VertexRef vertexref = vtxcollV.at(index_vtx);
 
 	  if ( vertexref == toErase ){
-            vtxcollV->erase(vtxcollV->begin()+index_vtx);
+            vtxcollV.erase(vtxcollV.begin()+index_vtx);
 	    break;
 	  }
 
@@ -340,19 +331,19 @@ PF_PU_AssoMapAlgos::EraseVertex(std::vector<reco::VertexRef>* vtxcollV, reco::Ve
 /*************************************************************************************/
 
 VertexRef
-PF_PU_AssoMapAlgos::FindClosestZ(const reco::TrackRef trkref, std::vector<reco::VertexRef>* vtxcollV, double tWeight)
+PF_PU_AssoMapAlgos::FindClosestZ(const reco::TrackRef trkref, const std::vector<reco::VertexRef>& vtxcollV, double tWeight)
 {
 
 	double ztrack = trkref->vertex().z();
 
-	VertexRef foundVertexRef = vtxcollV->at(0);
+	VertexRef foundVertexRef = vtxcollV.at(0);
 
 	double dzmin = 1e5;
 
 	//loop over all vertices with a good quality in the vertex collection
-  	for(unsigned int index_vtx=0;  index_vtx<vtxcollV->size(); ++index_vtx){
+  	for(unsigned int index_vtx=0;  index_vtx<vtxcollV.size(); ++index_vtx){
 
-          VertexRef vertexref = vtxcollV->at(index_vtx);
+          VertexRef vertexref = vtxcollV.at(index_vtx);
 
 	  double nTracks = sqrt(vertexref->tracksSize());
 
@@ -376,17 +367,17 @@ PF_PU_AssoMapAlgos::FindClosestZ(const reco::TrackRef trkref, std::vector<reco::
 /*************************************************************************************/
 
 VertexRef
-PF_PU_AssoMapAlgos::FindClosest3D(TransientTrack transtrk, std::vector<reco::VertexRef>* vtxcollV, double tWeight)
+PF_PU_AssoMapAlgos::FindClosest3D(TransientTrack transtrk, const std::vector<reco::VertexRef>& vtxcollV, double tWeight)
 {
 
-	VertexRef foundVertexRef = vtxcollV->at(0);
+	VertexRef foundVertexRef = vtxcollV.at(0);
 
 	double d3min = 1e5;
 
 	//loop over all vertices with a good quality in the vertex collection
-  	for(unsigned int index_vtx=0;  index_vtx<vtxcollV->size(); ++index_vtx){
+  	for(unsigned int index_vtx=0;  index_vtx<vtxcollV.size(); ++index_vtx){
 
-          VertexRef vertexref = vtxcollV->at(index_vtx);
+          VertexRef vertexref = vtxcollV.at(index_vtx);
 
 	  double nTracks = sqrt(vertexref->tracksSize());
 
@@ -494,7 +485,8 @@ PF_PU_AssoMapAlgos::ComesFromConversion(const TrackRef trackref, const Conversio
 /********************************************************************************/
 
 VertexRef
-PF_PU_AssoMapAlgos::FindConversionVertex(const reco::TrackRef trackref, const reco::Conversion& gamma, ESHandle<MagneticField> bfH, const EventSetup& iSetup, edm::Handle<reco::BeamSpot> bsH, std::vector<reco::VertexRef>* vtxcollV, double tWeight)
+PF_PU_AssoMapAlgos::FindConversionVertex(const reco::TrackRef trackref, const reco::Conversion& gamma, ESHandle<MagneticField> bfH, 
+                                         const EventSetup& iSetup, edm::Handle<reco::BeamSpot> bsH, const std::vector<reco::VertexRef>& vtxcollV, double tWeight)
 {
 
 	math::XYZPoint conv_pos = gamma.conversionVertex().position();
@@ -662,7 +654,8 @@ PF_PU_AssoMapAlgos::ComesFromV0Decay(const TrackRef trackref, const VertexCompos
 /*************************************************************************************/
 
 VertexRef
-PF_PU_AssoMapAlgos::FindV0Vertex(const TrackRef trackref, const VertexCompositeCandidate& V0_vtx, ESHandle<MagneticField> bFieldH, const EventSetup& iSetup, Handle<BeamSpot> bsH, std::vector<reco::VertexRef>* vtxcollV, double tWeight)
+PF_PU_AssoMapAlgos::FindV0Vertex(const TrackRef trackref, const VertexCompositeCandidate& V0_vtx, ESHandle<MagneticField> bFieldH, 
+                                 const EventSetup& iSetup, Handle<BeamSpot> bsH, const std::vector<reco::VertexRef>& vtxcollV, double tWeight)
 {
 
 	const math::XYZPoint& dec_pos = V0_vtx.vertex();
@@ -758,7 +751,8 @@ PF_PU_AssoMapAlgos::ComesFromNI(const TrackRef trackref, const PFDisplacedVertex
 /*************************************************************************************/
 
 VertexRef
-PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref, const PFDisplacedVertex& displVtx, ESHandle<MagneticField> bFieldH, const EventSetup& iSetup, Handle<BeamSpot> bsH, std::vector<reco::VertexRef>* vtxcollV, double tWeight)
+PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref, const PFDisplacedVertex& displVtx, ESHandle<MagneticField> bFieldH, 
+                                 const EventSetup& iSetup, Handle<BeamSpot> bsH, const std::vector<reco::VertexRef>& vtxcollV, double tWeight)
 {
 
 	TrackCollection refittedTracks = displVtx.refittedTracks();
@@ -810,14 +804,14 @@ PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref, const PFDisplacedVerte
 /*************************************************************************************/
 template<typename TREF>
 VertexRef
-PF_PU_AssoMapAlgos::TrackWeightAssociation(const TREF& trackRef, std::vector<reco::VertexRef>* vtxcollV)
+PF_PU_AssoMapAlgos::TrackWeightAssociation(const TREF& trackRef, const std::vector<reco::VertexRef>& vtxcollV)
 {
 
-	VertexRef bestvertexref = vtxcollV->at(0);
+	VertexRef bestvertexref = vtxcollV.at(0);
  	float bestweight = 0.;
 
 	//loop over all vertices in the vertex collection
-        for(auto const& vertexref : *vtxcollV){
+        for(auto const& vertexref : vtxcollV){
 
      	  //get the most probable vertex for the track
 	  float weight = vertexref->trackWeight(trackRef);
@@ -837,7 +831,8 @@ PF_PU_AssoMapAlgos::TrackWeightAssociation(const TREF& trackRef, std::vector<rec
 /*************************************************************************************/
 
 VertexStepPair
-PF_PU_AssoMapAlgos::FindAssociation(const reco::TrackRef& trackref, std::vector<reco::VertexRef>* vtxColl, edm::ESHandle<MagneticField> bfH, const edm::EventSetup& iSetup, edm::Handle<reco::BeamSpot> bsH, int assocNum)
+PF_PU_AssoMapAlgos::FindAssociation(const reco::TrackRef& trackref, const std::vector<reco::VertexRef>& vtxColl, 
+                                    edm::ESHandle<MagneticField> bfH, const edm::EventSetup& iSetup, edm::Handle<reco::BeamSpot> bsH, int assocNum)
 {
 
 	VertexRef foundVertex;
@@ -925,7 +920,7 @@ PF_PU_AssoMapAlgos::FindAssociation(const reco::TrackRef& trackref, std::vector<
  	  default:{
 
 	    // allways first vertex
-            foundVertex = vtxColl->at(0);
+            foundVertex = vtxColl.at(0);
 	    break;
 
           }

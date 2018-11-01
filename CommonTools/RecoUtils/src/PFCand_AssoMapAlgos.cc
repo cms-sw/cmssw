@@ -59,7 +59,7 @@ PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollec
 
           PFCandidateRef candref(pfCandH, i);
 
-	  vector<VertexRef>* vtxColl_help = CreateVertexVector(vtxcollH);
+	  vector<VertexRef> vtxColl_help = CreateVertexVector(vtxcollH);
 
           VertexPfcQuality VtxPfcQual;
 
@@ -72,9 +72,9 @@ PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollec
 	      int quality = -1 - assoc_ite;
 
     	      // Insert the best vertex and the pair of track and the quality of this association in the map
-    	      pfcand2vertex->insert( vtxColl_help->at(0), make_pair(candref, quality) );
+    	      pfcand2vertex->insert( vtxColl_help.at(0), make_pair(candref, quality) );
 
-	      PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, vtxColl_help->at(0));
+	      PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, vtxColl_help.at(0));
 
 	    }
 
@@ -101,7 +101,6 @@ PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollec
 
 	  }
 
-	  delete vtxColl_help;
        	}
 
 	return pfcand2vertex;
@@ -125,7 +124,7 @@ PFCand_AssoMapAlgos::CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollec
 
           PFCandidateRef candref(pfCandH, i);
 
-	  vector<VertexRef>* vtxColl_help = CreateVertexVector(vtxcollH);
+	  vector<VertexRef> vtxColl_help = CreateVertexVector(vtxcollH);
 
           VertexPfcQuality VtxPfcQual;
 
@@ -138,9 +137,9 @@ PFCand_AssoMapAlgos::CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollec
 	      int quality = -1 - assoc_ite;
 
     	      // Insert the best vertex and the pair of track and the quality of this association in the map
-    	      vertex2pfcand->insert( candref, make_pair(vtxColl_help->at(0), quality) );
+    	      vertex2pfcand->insert( candref, make_pair(vtxColl_help.at(0), quality) );
 
-	      PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, vtxColl_help->at(0));
+	      PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, vtxColl_help.at(0));
 
 	    }
 
@@ -167,7 +166,6 @@ PFCand_AssoMapAlgos::CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollec
 
 	  }
 
-	  delete vtxColl_help;
        	}
 
 	return std::move(vertex2pfcand);
