@@ -47,6 +47,7 @@ class TauMapper{
 	}
 	void setSeedChargedHadron(l1t::PFCandidate in){
 	  seedCH = in;
+	  sumChargedIso = 0;
 	  seedHadronSet = true;
 	  buildStripGrid();
 	};
