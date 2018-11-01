@@ -42,16 +42,18 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.prodEE = cms.EDAnalyzer("HGCalGeometryCornerTester",
-                                Detector   = cms.string("HGCalEESensitive"),
+                                detector   = cms.string("HGCalEESensitive"),
+                                cornerType = cms.int32(1)
                                 )
 
 process.prodHEF = process.prodEE.clone(
-    Detector   = "HGCalHESiliconSensitive",
+    detector   = "HGCalHESiliconSensitive",
 )
 
 process.prodHEB = process.prodEE.clone(
-    Detector   = "HGCalHEScintillatorSensitive",
+    detector   = "HGCalHEScintillatorSensitive",
 )
 
 #process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
+#process.p1 = cms.Path(process.prodHEB)
 process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF*process.prodHEB)
