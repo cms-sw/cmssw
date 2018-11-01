@@ -168,7 +168,7 @@ class PF_PU_AssoMapAlgos{
  	 	                       edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double);
 
    //function to find the vertex with the highest TrackWeight for a certain track
-   static reco::VertexRef TrackWeightAssociation(const reco::TrackBaseRef&, std::vector<reco::VertexRef>*);
+   template<typename TREF> static reco::VertexRef TrackWeightAssociation(const TREF&, std::vector<reco::VertexRef>*);
 
 
   // ----------member data ---------------------------
