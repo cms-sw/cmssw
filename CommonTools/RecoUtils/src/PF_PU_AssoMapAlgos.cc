@@ -808,21 +808,19 @@ PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref, const PFDisplacedVerte
 /*************************************************************************************/
 /* function to find the vertex with the highest TrackWeight for a certain track      */
 /*************************************************************************************/
-
+template<typename TREF>
 VertexRef
-PF_PU_AssoMapAlgos::TrackWeightAssociation(const TrackBaseRef& trackbaseRef, std::vector<reco::VertexRef>* vtxcollV)
+PF_PU_AssoMapAlgos::TrackWeightAssociation(const TREF& trackRef, std::vector<reco::VertexRef>* vtxcollV)
 {
 
 	VertexRef bestvertexref = vtxcollV->at(0);
  	float bestweight = 0.;
 
 	//loop over all vertices in the vertex collection
-  	for(unsigned int index_vtx=0;  index_vtx<vtxcollV->size(); ++index_vtx){
-
-          VertexRef vertexref = vtxcollV->at(index_vtx);
+        for(auto const& vertexref : *vtxcollV){
 
      	  //get the most probable vertex for the track
-	  float weight = vertexref->trackWeight(trackbaseRef);
+	  float weight = vertexref->trackWeight(trackRef);
 	  if(weight>bestweight){
   	    bestweight = weight;
 	    bestvertexref = vertexref;
@@ -842,8 +840,6 @@ VertexStepPair
 PF_PU_AssoMapAlgos::FindAssociation(const reco::TrackRef& trackref, std::vector<reco::VertexRef>* vtxColl, edm::ESHandle<MagneticField> bfH, const edm::EventSetup& iSetup, edm::Handle<reco::BeamSpot> bsH, int assocNum)
 {
 
-	const TrackBaseRef& trackbaseRef = TrackBaseRef(trackref);
-
 	VertexRef foundVertex;
 
 	//if it is not the first try of an association jump to the final association
@@ -852,9 +848,9 @@ PF_PU_AssoMapAlgos::FindAssociation(const reco::TrackRef& trackref, std::vector<
 
 	// Step 1: First round of association:
     	// Find the vertex with the highest track-to-vertex association weight
-    	foundVertex = TrackWeightAssociation(trackbaseRef, vtxColl);
+    	foundVertex = TrackWeightAssociation(trackref, vtxColl);
 
-    	if ( foundVertex->trackWeight(trackbaseRef) >= 1.e-5 ){
+    	if ( foundVertex->trackWeight(trackref) >= 1.e-5 ){
           return make_pair( foundVertex, 0. );
 	}
 
