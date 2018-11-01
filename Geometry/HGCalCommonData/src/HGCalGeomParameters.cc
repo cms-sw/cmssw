@@ -914,7 +914,7 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
             }
             if ((!cornerAll) && (nCorner > 0)) {
               if ((nCorner > 1) && (firstCorner == 0) && (firstMiss < nCorner)) {
-                firstCorner = firstMiss+6-nCorner;
+                firstCorner = firstMiss+HGCalParameters::k_CornerSize-nCorner;
               }
               int wl = HGCalWaferIndex::waferIndex(php.layer_[il],copy,0,true);
               waferTypes[wl] = std::make_pair(nCorner,firstCorner);
@@ -1026,7 +1026,7 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
         ++lpos;
 #ifdef EDM_ML_DEBUG
         indtypes.emplace_back(kndx);
-        int  corners[6];
+        int  corners[HGCalParameters::k_CornerSize];
 #endif
         bool cornerOne(false), cornerAll(true);
         int  nCorner(0), firstCorner(-1), firstMiss(-1);
@@ -1052,7 +1052,7 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
                                         << php.rMaxLayHex_[i] << " u "
                                         << u << " v " << v << " with "
                                         << nCorner << " corners";
-          for (int k=0; k<6; ++k) {
+          for (uint32_t k=0; k<HGCalParameters::k_CornerSize; ++k) {
             double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
             edm::LogVerbatim("HGCalGeom") << "[" << k << "] x " << xc[k] 
                                           << " y " << yc[k] << " R " << rpos;
@@ -1064,7 +1064,7 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
         }
         if ((!cornerAll) && (nCorner > 0)) {
           if ((nCorner > 1) && (firstCorner == 0) && (firstMiss < nCorner)) {
-            firstCorner = firstMiss+6-nCorner;
+            firstCorner = firstMiss+HGCalParameters::k_CornerSize-nCorner;
           }
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " u|v " << u 
