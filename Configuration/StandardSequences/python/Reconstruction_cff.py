@@ -50,8 +50,8 @@ from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 # Cosmic During Collisions
 from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *
 
-localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
-localreco_HcalNZS = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
+localreco = cms.Sequence(bunchSpacingProducer+muonlocalreco+calolocalreco+castorreco, trackerlocalreco)
+localreco_HcalNZS = cms.Sequence(bunchSpacingProducer+muonlocalreco+calolocalrecoNZS+castorreco, trackerlocalreco)
 
 _run3_localreco = localreco.copyAndExclude([castorreco])
 _run3_localreco_HcalNZS = localreco_HcalNZS.copyAndExclude([castorreco])
@@ -179,10 +179,10 @@ logErrorHarvester.includeModules = cms.untracked.vstring(set(_modulesInReconstru
 
 reconstruction_trackingOnly = cms.Sequence(localreco*globalreco_tracking)
 reconstruction_pixelTrackingOnly = cms.Sequence(
-    pixeltrackerlocalreco*
     offlineBeamSpot*
     siPixelClusterShapeCachePreSplitting*
-    recopixelvertexing
+    recopixelvertexing,
+    pixeltrackerlocalreco
 )
 
 #need a fully expanded sequence copy

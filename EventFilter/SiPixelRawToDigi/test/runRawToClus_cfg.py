@@ -102,11 +102,11 @@ process.myprefer = cms.ESPrefer("PoolDBESSource","DBReaderFrontier")
 
 #process.p = cms.Path(process.siPixelDigis)
 #process.p = cms.Path(process.siPixelDigis*process.siPixelClusters)
-#process.p = cms.Path(process.siPixelDigis*process.pixeltrackerlocalreco)
+#process.p = cms.Path(process.siPixelDigis, process.pixeltrackerlocalreco)
 
 #process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis)
 # crash on strip clusters, calibration records missing? works with the 620 tag
 
-process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
+process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis, process.trackerlocalreco)
 
 process.ep = cms.EndPath(process.out)

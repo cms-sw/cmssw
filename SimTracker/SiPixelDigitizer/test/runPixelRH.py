@@ -174,6 +174,6 @@ process.p1 = cms.Path(process.pixeltrackerlocalreco)
 
 #process.p1 = cms.Path(process.siPixelRawData)
 #process.p1 = cms.Path(process.siPixelRawData*process.siPixelDigis)
-#process.p1 = cms.Path(process.siPixelRawData*process.siPixelDigis*process.pixeltrackerlocalreco)
+#process.p1 = cms.Path(process.siPixelRawData*process.siPixelDigis, process.pixeltrackerlocalreco)
 
 process.outpath = cms.EndPath(process.o1)

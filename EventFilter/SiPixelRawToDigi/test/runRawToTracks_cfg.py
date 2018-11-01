@@ -122,19 +122,19 @@ process.myTracking = cms.Sequence(process.InitialStep*
 
 #process.p = cms.Path(process.siPixelDigis)
 #process.p = cms.Path(process.siPixelDigis*process.siPixelClusters)
-#process.p = cms.Path(process.siPixelDigis*process.pixeltrackerlocalreco)
+#process.p = cms.Path(process.siPixelDigis, process.pixeltrackerlocalreco)
 
 #process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis)
 # crash on strip clusters, calibration records missing? works with the 620 tag
-#process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
+#process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis, process.trackerlocalreco)
 
-#process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot)
-#process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing)
-#process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.MeasurementTrackerEvent)
+#process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.offlineBeamSpot, process.trackerlocalreco)
+#process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.offlineBeamSpot*process.recopixelvertexing, process.trackerlocalreco)
+#process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.offlineBeamSpot*process.recopixelvertexing*process.MeasurementTrackerEvent, process.trackerlocalreco)
 # trackingGlobalReco, ckftracks, iterTracking - 
-#process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.MeasurementTrackerEvent*process.myTracking)
+#process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.offlineBeamSpot*process.recopixelvertexing*process.MeasurementTrackerEvent*process.myTracking, process.trackerlocalreco)
 
-process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.siPixelClusterShapeCache*process.recopixelvertexing*process.MeasurementTrackerEvent*process.myTracking*process.vertexreco)
+process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.offlineBeamSpot*process.siPixelClusterShapeCache*process.recopixelvertexing*process.MeasurementTrackerEvent*process.myTracking*process.vertexreco, process.trackerlocalreco)
 
 
 process.ep = cms.EndPath(process.out)

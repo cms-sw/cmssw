@@ -137,23 +137,23 @@ process.siPixelClusters.src = 'siPixelDigis'
 # pixel only 
 #process.p1 = cms.Path(process.siPixelRawData)
 #process.p1 = cms.Path(process.siPixelRawData*process.siPixelDigis)
-#process.p1 = cms.Path(process.siPixelRawData*process.siPixelDigis*process.pixeltrackerlocalreco)
+#process.p1 = cms.Path(process.siPixelRawData*process.siPixelDigis, process.pixeltrackerlocalreco)
 
 # with strips ok
 #process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw)
 #process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis)
 
 # runs ok
-#process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
+#process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis, process.trackerlocalreco)
 
 # runs ok
-#process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot)
+#process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis, process.trackerlocalreco*process.offlineBeamSpot)
 
 # runs ok
-#process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.MeasurementTrackerEvent)
+#process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis, process.trackerlocalreco*process.offlineBeamSpot*process.MeasurementTrackerEvent)
 
 # runs ok
-#process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.MeasurementTrackerEvent*process.siPixelClusterShapeCache*process.recopixelvertexing)
+#process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis, process.trackerlocalreco*process.offlineBeamSpot*process.MeasurementTrackerEvent*process.siPixelClusterShapeCache*process.recopixelvertexing)
 
 process.load("RecoTracker.IterativeTracking.iterativeTk_cff")
 
@@ -177,7 +177,7 @@ process.myTracking = cms.Sequence(process.InitialStep*
 # run full tracking
 # trackingGlobalReco does not work, needs EarlyMuons for muon seeding.
 # ckftracks & iterTracking does not work as well  (same problem).
-process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.siPixelClusterShapeCache*process.recopixelvertexing*process.MeasurementTrackerEvent*process.myTracking*process.vertexreco)
+process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis*process.offlineBeamSpot*process.siPixelClusterShapeCache*process.recopixelvertexing*process.MeasurementTrackerEvent*process.myTracking*process.vertexreco, process.trackerlocalreco)
 
 # unused 
 # Path and EndPath definitions

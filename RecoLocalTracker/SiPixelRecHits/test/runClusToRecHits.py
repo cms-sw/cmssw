@@ -189,7 +189,7 @@ process.analysis = cms.EDAnalyzer("ReadPixelRecHit",
 # plus pixel clusters  (OK)
 #process.p1 = cms.Path(process.siPixelClusters)
 # plus pixel rechits (OK)
-#process.p1 = cms.Path(process.pixeltrackerlocalreco*process.analysis)
+#process.p1 = cms.Path(process.analysis, process.pixeltrackerlocalreco)
 # only rechits
 process.p1 = cms.Path(process.siPixelRecHits*process.analysis)
 
@@ -203,7 +203,7 @@ process.p1 = cms.Path(process.siPixelRecHits*process.analysis)
 
 #process.p1 = cms.Path(process.siPixelRawData)
 #process.p1 = cms.Path(process.siPixelRawData*process.siPixelDigis)
-#process.p1 = cms.Path(process.siPixelRawData*process.siPixelDigis*process.pixeltrackerlocalreco)
+#process.p1 = cms.Path(process.siPixelRawData*process.siPixelDigis, process.pixeltrackerlocalreco)
 
 # save output 
 #process.outpath = cms.EndPath(process.o1)

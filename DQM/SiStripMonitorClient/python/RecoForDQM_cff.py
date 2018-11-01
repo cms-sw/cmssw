@@ -24,7 +24,7 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoPixelVertexing.Configuration.RecoPixelVertexing_cff import *
 
 # Reconstruction Sequence
-RecoForDQMCollision = cms.Sequence(siPixelDigis*siStripDigis*trackerlocalreco*offlineBeamSpot*recopixelvertexing*ckftracks)
+RecoForDQMCollision = cms.Sequence(siPixelDigis*siStripDigis*offlineBeamSpot*recopixelvertexing*ckftracks, trackerlocalreco)
 
 
 

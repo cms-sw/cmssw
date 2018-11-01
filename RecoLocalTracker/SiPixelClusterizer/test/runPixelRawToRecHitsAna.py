@@ -200,7 +200,7 @@ process.siPixelDigis.InputLabel = 'rawDataCollector'
 
 process.siPixelClusters.src = 'siPixelDigis'
 
-#process.p1 = cms.Path(process.siPixelDigis*process.pixeltrackerlocalreco)
-process.p1 = cms.Path(process.siPixelDigis*process.pixeltrackerlocalreco*process.d)
+#process.p1 = cms.Path(process.siPixelDigis, process.pixeltrackerlocalreco)
+process.p1 = cms.Path(process.siPixelDigis*process.d, process.pixeltrackerlocalreco)
 
 #process.outpath = cms.EndPath(process.o1)

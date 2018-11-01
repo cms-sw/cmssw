@@ -115,7 +115,7 @@ process.DQMStore = cms.Service("DQMStore",
 
 #pixeltrackerlocalreco = cms.Path(process.siPixelClusters*process.siPixelRecHits)
 #striptrackerlocalreco = cms.Path(process.siStripClusters*process.siStripMatchedRecHits)
-#trackerlocalreco = cms.Path(process.pixeltrackerlocalreco*process.striptrackerlocalreco)
+#trackerlocalreco = cms.Path(process.pixeltrackerlocalreco,process.striptrackerlocalreco)
 #process.digis = cms.Path(process.siPixelDigis*process.siStripDigis)
 #process.preTracking = cms.Path(process.trackerlocalreco)
 process.preTracking = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits)

@@ -209,12 +209,12 @@ print("[beampixel_dqm_sourceclient-live_cfg]::saving DIP file into " + str(proce
 #----------------------------
 process.reconstructionStep = cms.Sequence(process.siPixelDigis*
                                           process.siStripDigis*
-                                          process.striptrackerlocalreco*
                                           process.offlineBeamSpot*
                                           process.siPixelClustersPreSplitting*
                                           process.siPixelRecHitsPreSplitting*
                                           process.siPixelClusterShapeCachePreSplitting*
-                                          process.recopixelvertexing)
+                                          process.recopixelvertexing,
+                                          process.striptrackerlocalreco)
 
 
 #----------------------------

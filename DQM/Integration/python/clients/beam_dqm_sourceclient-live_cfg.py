@@ -293,12 +293,12 @@ process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegi
 process.tracking_FirstStep = cms.Sequence(
       process.siPixelDigis 
     * process.siStripDigis
-    * process.striptrackerlocalreco
     * process.offlineBeamSpot
     * process.siPixelClustersPreSplitting
     * process.siPixelRecHitsPreSplitting
     * process.siPixelClusterShapeCachePreSplitting
-    * process.recopixelvertexing)
+    * process.recopixelvertexing,
+      process.striptrackerlocalreco)
 
 # triggerName for selecting pv for DIP publication, no wildcard needed here
 # it will pick all triggers which has these strings in theri name
