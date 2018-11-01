@@ -41,7 +41,7 @@ muopenhfveto_moduleName = "hltPixelTracksForUPCFilterPPOnAA"
 mu0hfveto_pathName = "HLT_HIUPC_SingleMu0_NotMBHF2AND_MaxPixelTrack"
 mu0hfveto_moduleName = "hltPixelTracksForUPCFilterPPOnAA"
 
-doublemuhfveto_pathName = "HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelTrack"
+doublemuhfveto_pathName = "HLT_HIUPC_DoubleMu0_NotMBHF2AND_MaxPixelTrack"
 doublemuhfveto_moduleName = "hltPixelTracksForUPCFilterPPOnAA"
 
 tracking1_pathName = "HLT_HIDmesonPPTrackingGlobal_Dpt20"
@@ -450,30 +450,30 @@ hltObjectMonitorLeadLead = DQMEDAnalyzer('HLTObjectMonitorHI',
         Xmin = cms.double(-3.2),
         Xmax = cms.double(3.2)
         ),
-    HIDoubleMuOpenHFVetoInAndMaxTrackPt = cms.PSet(
+    HIDoubleMu0HFVetoInAndMaxTrackPt = cms.PSet(
         pathName = cms.string(doublemuhfveto_pathName),
         moduleName = cms.string(doublemuhfveto_moduleName),
-        plotLabel = cms.string("HIDoubleMuOpenHFVetoInAndMaxTrack_pT"),
+        plotLabel = cms.string("HIDoubleMu0HFVetoInAndMaxTrack_pT"),
         axisLabel = cms.string("dimu p_{T} [GeV]"),
         mainWorkspace = cms.bool(True),
         NbinsX = cms.int32(40),
         Xmin = cms.double(0),
         Xmax = cms.double(2)
         ),
-    HIDoubleMuOpenHFVetoInAndMaxTrackEta = cms.PSet(
+    HIDoubleMu0HFVetoInAndMaxTrackEta = cms.PSet(
         pathName = cms.string(doublemuhfveto_pathName),
         moduleName = cms.string(doublemuhfveto_moduleName),
-        plotLabel = cms.string("HIDoubleMuOpenHFVetoInAndMaxTrack_eta"),
+        plotLabel = cms.string("HIDoubleMu0HFVetoInAndMaxTrack_eta"),
         axisLabel = cms.string("dimu eta"),
         mainWorkspace = cms.bool(True),
         NbinsX = cms.int32(50),
         Xmin = cms.double(-2.5),
         Xmax = cms.double(2.5)
         ),
-    HIDoubleMuOpenHFVetoInAndMaxTrackMass = cms.PSet(
+    HIDoubleMu0HFVetoInAndMaxTrackMass = cms.PSet(
         pathName = cms.string(doublemuhfveto_pathName),
         moduleName = cms.string(doublemuhfveto_moduleName),
-        plotLabel = cms.string("HIDoubleMuOpenHFVetoInAndMaxTrack_Mass"),
+        plotLabel = cms.string("HIDoubleMu0HFVetoInAndMaxTrack_Mass"),
         axisLabel = cms.string("dimu mass"),
         mainWorkspace = cms.bool(True),
         NbinsX = cms.int32(25),
