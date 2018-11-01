@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_10_3_0/HIon --type HIon
 
-# /dev/CMSSW_10_3_0/HIon/V22 (CMSSW_10_3_0)
+# /dev/CMSSW_10_3_0/HIon/V23 (CMSSW_10_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_3_0/HIon/V22')
+  tableName = cms.string('/dev/CMSSW_10_3_0/HIon/V23')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -17354,55 +17354,6 @@ fragment.hltFullIter6MaskedMeasurementTrackerEventPPOnAA = cms.EDProducer( "Mask
     OnDemand = cms.bool( False ),
     src = cms.InputTag( "hltSiStripClustersFullPPOnAA" )
 )
-fragment.hltFullIter6PixelPairsAPPOnAA = cms.EDProducer( "SeedingLayersEDProducer",
-    layerList = cms.vstring( 'BPix1+BPix2',
-      'BPix1+BPix3',
-      'BPix2+BPix3',
-      'BPix1+FPix1_pos',
-      'BPix1+FPix1_neg',
-      'BPix2+FPix1_pos',
-      'BPix2+FPix1_neg' ),
-    MTOB = cms.PSet(  ),
-    TEC = cms.PSet(  ),
-    MTID = cms.PSet(  ),
-    FPix = cms.PSet( 
-      hitErrorRPhi = cms.double( 0.0051 ),
-      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-      skipClusters = cms.InputTag( "hltFullIter6ClustersRefRemovalPPOnAA" ),
-      useErrorsFromParam = cms.bool( True ),
-      hitErrorRZ = cms.double( 0.0036 ),
-      HitProducer = cms.string( "hltSiPixelRecHitsAfterSplittingPPOnAA" )
-    ),
-    MTEC = cms.PSet(  ),
-    MTIB = cms.PSet(  ),
-    TID = cms.PSet(  ),
-    TOB = cms.PSet(  ),
-    BPix = cms.PSet( 
-      hitErrorRPhi = cms.double( 0.0027 ),
-      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-      skipClusters = cms.InputTag( "hltFullIter6ClustersRefRemovalPPOnAA" ),
-      useErrorsFromParam = cms.bool( True ),
-      HitProducer = cms.string( "hltSiPixelRecHitsAfterSplittingPPOnAA" )
-    ),
-    TIB = cms.PSet(  )
-)
-fragment.hltFullIter6PixelTrackingRegionsAPPOnAA = cms.EDProducer( "GlobalTrackingRegionWithVerticesEDProducer",
-    RegionPSet = cms.PSet( 
-      useFixedError = cms.bool( True ),
-      nSigmaZ = cms.double( 4.0 ),
-      VertexCollection = cms.InputTag( "hltFullIter0PrimaryVerticesPPOnAA" ),
-      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-      useFoundVertices = cms.bool( True ),
-      fixedError = cms.double( 0.03 ),
-      maxNVertices = cms.int32( 5 ),
-      sigmaZVertex = cms.double( 3.0 ),
-      useFakeVertices = cms.bool( False ),
-      ptMin = cms.double( 0.6 ),
-      originRadius = cms.double( 0.015 ),
-      precise = cms.bool( True ),
-      useMultipleScattering = cms.bool( False )
-    )
-)
 fragment.hltFullIter6PixelClusterCheckPPOnAA = cms.EDProducer( "ClusterCheckerEDProducer",
     cut = cms.string( "strip < 1000000 && pixel < 150000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)" ),
     silentClusterCheck = cms.untracked.bool( False ),
@@ -17412,89 +17363,76 @@ fragment.hltFullIter6PixelClusterCheckPPOnAA = cms.EDProducer( "ClusterCheckerED
     MaxNumberOfPixelClusters = cms.uint32( 100000 ),
     ClusterCollectionLabel = cms.InputTag( "hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression" )
 )
-fragment.hltFullIter6PixelHitDoubletsAPPOnAA = cms.EDProducer( "HitPairEDProducer",
-    trackingRegions = cms.InputTag( "hltFullIter6PixelTrackingRegionsAPPOnAA" ),
-    layerPairs = cms.vuint32( 0 ),
-    clusterCheck = cms.InputTag( "hltFullIter6PixelClusterCheckPPOnAA" ),
-    produceSeedingHitSets = cms.bool( True ),
-    produceIntermediateHitDoublets = cms.bool( False ),
-    trackingRegionsSeedingLayers = cms.InputTag( "" ),
-    maxElement = cms.uint32( 0 ),
-    seedingLayers = cms.InputTag( "hltFullIter6PixelPairsAPPOnAA" )
-)
-fragment.hltFullIter6PixelSeedsAPPOnAA = cms.EDProducer( "SeedCreatorFromRegionConsecutiveHitsEDProducer",
-    SeedComparitorPSet = cms.PSet( 
-      FilterStripHits = cms.bool( False ),
-      FilterPixelHits = cms.bool( True ),
-      ClusterShapeHitFilterName = cms.string( "ClusterShapeHitFilter" ),
-      FilterAtHelixStage = cms.bool( True ),
-      ComponentName = cms.string( "PixelClusterShapeSeedComparitor" ),
-      ClusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCacheAfterSplittingPPOnAA" )
-    ),
-    forceKinematicWithRegionDirection = cms.bool( False ),
-    magneticField = cms.string( "ParabolicMf" ),
-    SeedMomentumForBOFF = cms.double( 5.0 ),
-    OriginTransverseErrorMultiplier = cms.double( 1.0 ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    MinOneOverPtError = cms.double( 1.0 ),
-    seedingHitSets = cms.InputTag( "hltFullIter6PixelHitDoubletsAPPOnAA" ),
-    propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-)
-fragment.hltFullIter6PixelPairsBPPOnAA = cms.EDProducer( "SeedingLayersEDProducer",
-    layerList = cms.vstring( 'BPix1+BPix4' ),
+fragment.hltFullIter6PixelTrackingRegionSeedLayersBPPOnAA = cms.EDProducer( "PixelInactiveAreaTrackingRegionsSeedingLayersProducer",
+    inactivePixelDetectorLabels = cms.VInputTag( 'hltSiPixelDigis' ),
+    layerList = cms.vstring( 'BPix1+BPix2',
+      'BPix1+BPix3',
+      'BPix1+BPix4',
+      'BPix2+BPix3',
+      'BPix2+BPix4',
+      'BPix3+BPix4',
+      'BPix1+FPix1_pos',
+      'BPix1+FPix1_neg',
+      'BPix1+FPix2_pos',
+      'BPix1+FPix2_neg',
+      'BPix1+FPix3_pos',
+      'BPix1+FPix3_neg',
+      'BPix2+FPix1_pos',
+      'BPix2+FPix1_neg',
+      'BPix2+FPix2_pos',
+      'BPix2+FPix2_neg',
+      'BPix3+FPix1_pos',
+      'BPix3+FPix1_neg',
+      'FPix1_pos+FPix2_pos',
+      'FPix1_neg+FPix2_neg',
+      'FPix1_pos+FPix3_pos',
+      'FPix1_neg+FPix3_neg',
+      'FPix2_pos+FPix3_pos',
+      'FPix2_neg+FPix3_neg' ),
     MTOB = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
+    RegionPSet = cms.PSet( 
+      precise = cms.bool( True ),
+      maxNVertices = cms.int32( 5 ),
+      extraPhi = cms.double( 0.0 ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      whereToUseMeasurementTracker = cms.string( "Never" ),
+      deltaEta_Cand = cms.double( -1.0 ),
+      zErrorBeamSpot = cms.double( 24.2 ),
+      nSigmaZVertex = cms.double( 3.0 ),
+      deltaPhi_Cand = cms.double( -1.0 ),
+      nSigmaZBeamSpot = cms.double( 4.0 ),
+      extraEta = cms.double( 0.0 ),
+      vertexCollection = cms.InputTag( "hltFullIter0PrimaryVerticesPPOnAA" ),
+      ptMin = cms.double( 0.6 ),
+      searchOpt = cms.bool( False ),
+      seedingMode = cms.string( "Global" ),
+      input = cms.InputTag( "" ),
+      measurementTrackerName = cms.InputTag( "" ),
+      originRadius = cms.double( 0.015 ),
+      zErrorVertex = cms.double( 0.3 ),
+      operationMode = cms.string( "VerticesFixed" )
+    ),
     TEC = cms.PSet(  ),
+    ignoreSingleFPixPanelModules = cms.bool( True ),
+    TID = cms.PSet(  ),
+    BPix = cms.PSet( 
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      HitProducer = cms.string( "hltSiPixelRecHitsAfterSplittingPPOnAA" ),
+      skipClusters = cms.InputTag( "hltFullIter6ClustersRefRemovalPPOnAA" )
+    ),
     MTID = cms.PSet(  ),
     FPix = cms.PSet( 
-      hitErrorRPhi = cms.double( 0.0051 ),
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-      skipClusters = cms.InputTag( "hltFullIter6ClustersRefRemovalPPOnAA" ),
-      useErrorsFromParam = cms.bool( True ),
-      hitErrorRZ = cms.double( 0.0036 ),
-      HitProducer = cms.string( "hltSiPixelRecHitsAfterSplittingPPOnAA" )
+      HitProducer = cms.string( "hltSiPixelRecHitsAfterSplittingPPOnAA" ),
+      skipClusters = cms.InputTag( "hltFullIter6ClustersRefRemovalPPOnAA" )
     ),
     MTEC = cms.PSet(  ),
-    MTIB = cms.PSet(  ),
-    TID = cms.PSet(  ),
+    badPixelFEDChannelCollectionLabels = cms.VInputTag( 'hltSiPixelDigis' ),
+    debug = cms.untracked.bool( False ),
     TOB = cms.PSet(  ),
-    BPix = cms.PSet( 
-      hitErrorRPhi = cms.double( 0.0027 ),
-      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-      skipClusters = cms.InputTag( "hltFullIter6ClustersRefRemovalPPOnAA" ),
-      useErrorsFromParam = cms.bool( True ),
-      HitProducer = cms.string( "hltSiPixelRecHitsAfterSplittingPPOnAA" )
-    ),
-    TIB = cms.PSet( 
-      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-      skipClusters = cms.InputTag( "hltFullIter6ClustersRefRemovalPPOnAA" ),
-      matchedRecHits = cms.InputTag( 'hltSiStripMatchedRecHitsFull','matchedRecHit' ),
-      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) )
-    )
-)
-fragment.hltFullIter6PixelTrackingRegionsBPPOnAA = cms.EDProducer( "PointSeededTrackingRegionsEDProducer",
-    RegionPSet = cms.PSet( 
-      vertexCollection = cms.InputTag( "hltFullIter0PrimaryVerticesPPOnAA" ),
-      zErrorVetex = cms.double( 0.03 ),
-      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-      zErrorBeamSpot = cms.double( 24.2 ),
-      maxNVertices = cms.int32( 5 ),
-      maxNRegions = cms.int32( 5 ),
-      nSigmaZVertex = cms.double( 3.0 ),
-      nSigmaZBeamSpot = cms.double( 4.0 ),
-      ptMin = cms.double( 0.6 ),
-      points = cms.PSet( 
-        phi = cms.vdouble( 3.0 ),
-        eta = cms.vdouble( 0.0 )
-      ),
-      mode = cms.string( "VerticesFixed" ),
-      searchOpt = cms.bool( False ),
-      whereToUseMeasurementTracker = cms.string( "Never" ),
-      originRadius = cms.double( 0.015 ),
-      measurementTrackerName = cms.InputTag( "" ),
-      precise = cms.bool( True ),
-      deltaEta = cms.double( 1.2 ),
-      deltaPhi = cms.double( 0.5 )
-    )
+    createPlottingFiles = cms.untracked.bool( False ),
+    TIB = cms.PSet(  )
 )
 fragment.hltFullIter6PixelHitDoubletsBPPOnAA = cms.EDProducer( "HitPairEDProducer",
     trackingRegions = cms.InputTag( "" ),
@@ -17523,9 +17461,6 @@ fragment.hltFullIter6PixelSeedsBPPOnAA = cms.EDProducer( "SeedCreatorFromRegionC
     MinOneOverPtError = cms.double( 1.0 ),
     seedingHitSets = cms.InputTag( "hltFullIter6PixelHitDoubletsBPPOnAA" ),
     propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-)
-fragment.hltFullIter6PixelSeedsPPOnAA = cms.EDProducer( "SeedCombiner",
-    seedCollections = cms.VInputTag( 'hltFullIter6PixelSeedsAPPOnAA','hltFullIter6PixelSeedsBPPOnAA' )
 )
 fragment.hltFullIter6CkfTrackCandidatesPPOnAA = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltFullIter6PixelSeedsBPPOnAA" ),
@@ -25514,7 +25449,7 @@ fragment.HLTEndSequenceWithZeroSuppressionRepacker = cms.Sequence( fragment.HLTD
 fragment.HLTFullIterativeTrackingIteration3PPOnAA = cms.Sequence( fragment.hltFullIter3ClustersRefRemovalPPOnAA + fragment.hltFullIter3MaskedMeasurementTrackerEventPPOnAA + fragment.hltFullIter3PixelTripletsPPOnAA + fragment.hltFullIter3PixelTrackingRegionsPPOnAA + fragment.hltFullIter3PixelClusterCheckPPOnAA + fragment.hltFullIter3PixelHitDoubletsPPOnAA + fragment.hltFullIter3PixelHitTripletsPPOnAA + fragment.hltFullIter3PixelSeedsPPOnAA + fragment.hltFullIter3CkfTrackCandidatesPPOnAA + fragment.hltFullIter3CtfWithMaterialTracksPPOnAA + fragment.hltFullIter3TrackMVAClassifierPPOnAA + fragment.hltFullIter3HighPurityTracksPPOnAA )
 fragment.HLTFullIterativeTrackingIteration4PPOnAA = cms.Sequence( fragment.hltFullIter4ClustersRefRemovalPPOnAA + fragment.hltFullIter4MaskedMeasurementTrackerEventPPOnAA + fragment.hltFullIter4PixelQuadrupletsPPOnAA + fragment.hltFullIter4PixelTrackingRegionsPPOnAA + fragment.hltFullIter4PixelClusterCheckPPOnAA + fragment.hltFullIter4PixelHitDoubletsPPOnAA + fragment.hltFullIter4PixelHitQuadrupletsPPOnAA + fragment.hltFullIter4PixelSeedsPPOnAA + fragment.hltFullIter4CkfTrackCandidatesPPOnAA + fragment.hltFullIter4CtfWithMaterialTracksPPOnAA + fragment.hltFullIter4TrackMVAClassifierPPOnAA + fragment.hltFullIter4HighPurityTracksPPOnAA )
 fragment.HLTFullIterativeTrackingIteration5PPOnAA = cms.Sequence( fragment.hltFullIter5ClustersRefRemovalPPOnAA + fragment.hltFullIter5MaskedMeasurementTrackerEventPPOnAA + fragment.hltFullIter5PixelTripletsPPOnAA + fragment.hltFullIter5PixelTrackingRegionsPPOnAA + fragment.hltFullIter5PixelClusterCheckPPOnAA + fragment.hltFullIter5PixelHitDoubletsPPOnAA + fragment.hltFullIter5PixelHitTripletsPPOnAA + fragment.hltFullIter5PixelSeedsPPOnAA + fragment.hltFullIter5CkfTrackCandidatesPPOnAA + fragment.hltFullIter5CtfWithMaterialTracksPPOnAA + fragment.hltFullIter5TrackMVAClassifierPPOnAA + fragment.hltFullIter5HighPurityTracksPPOnAA )
-fragment.HLTFullIterativeTrackingIteration6PPOnAA = cms.Sequence( fragment.hltFullIter6ClustersRefRemovalPPOnAA + fragment.hltFullIter6MaskedMeasurementTrackerEventPPOnAA + fragment.hltFullIter6PixelPairsAPPOnAA + fragment.hltFullIter6PixelTrackingRegionsAPPOnAA + fragment.hltFullIter6PixelClusterCheckPPOnAA + fragment.hltFullIter6PixelHitDoubletsAPPOnAA + fragment.hltFullIter6PixelSeedsAPPOnAA + fragment.hltFullIter6PixelPairsBPPOnAA + fragment.hltFullIter6PixelTrackingRegionsBPPOnAA + fragment.hltFullIter6PixelHitDoubletsBPPOnAA + fragment.hltFullIter6PixelSeedsBPPOnAA + fragment.hltFullIter6PixelSeedsPPOnAA + fragment.hltFullIter6CkfTrackCandidatesPPOnAA + fragment.hltFullIter6CtfWithMaterialTracksPPOnAA + fragment.hltFullIter6TrackMVAClassifierPPOnAA + fragment.hltFullIter6HighPurityTracksPPOnAA )
+fragment.HLTFullIterativeTrackingIteration6PPOnAA = cms.Sequence( fragment.hltFullIter6ClustersRefRemovalPPOnAA + fragment.hltFullIter6MaskedMeasurementTrackerEventPPOnAA + fragment.hltFullIter6PixelClusterCheckPPOnAA + fragment.hltFullIter6PixelTrackingRegionSeedLayersBPPOnAA + fragment.hltFullIter6PixelHitDoubletsBPPOnAA + fragment.hltFullIter6PixelSeedsBPPOnAA + fragment.hltFullIter6CkfTrackCandidatesPPOnAA + fragment.hltFullIter6CtfWithMaterialTracksPPOnAA + fragment.hltFullIter6TrackMVAClassifierPPOnAA + fragment.hltFullIter6HighPurityTracksPPOnAA )
 fragment.HLTFullIterativeTrackingIteration7PPOnAA = cms.Sequence( fragment.hltFullIter7ClustersRefRemovalPPOnAA + fragment.hltFullIter7MaskedMeasurementTrackerEventPPOnAA + fragment.hltFullIter7MixedLayersAPPOnAA + fragment.hltFullIter7MixedTrackingRegionsAPPOnAA + fragment.hltFullIter7MixedClusterCheckPPOnAA + fragment.hltFullIter7MixedHitDoubletsAPPOnAA + fragment.hltFullIter7MixedHitTripletsAPPOnAA + fragment.hltFullIter7MixedSeedsAPPOnAA + fragment.hltFullIter7MixedLayersBPPOnAA + fragment.hltFullIter7MixedTrackingRegionsBPPOnAA + fragment.hltFullIter7MixedHitDoubletsBPPOnAA + fragment.hltFullIter7MixedHitTripletsBPPOnAA + fragment.hltFullIter7MixedSeedsBPPOnAA + fragment.hltFullIter7MixedSeedsPPOnAA + fragment.hltFullIter7CkfTrackCandidatesPPOnAA + fragment.hltFullIter7CtfWithMaterialTracksPPOnAA + fragment.hltFullIter7TrackMVAClassifierPPOnAA + fragment.hltFullIter7HighPurityTracksPPOnAA )
 fragment.HLTFullIterativeTrackingIteration8PPOnAA = cms.Sequence( fragment.hltFullIter8ClustersRefRemovalPPOnAA + fragment.hltFullIter8MaskedMeasurementTrackerEventPPOnAA + fragment.hltFullIter8PixelLessLayersPPOnAA + fragment.hltFullIter8PixelLessTrackingRegionsPPOnAA + fragment.hltFullIter8PixelLessClusterCheckPPOnAA + fragment.hltFullIter8PixelLessHitDoubletsPPOnAA + fragment.hltFullIter8PixelLessHitTripletsPPOnAA + fragment.hltFullIter8PixelLessSeedsPPOnAA + fragment.hltFullIter8CkfTrackCandidatesPPOnAA + fragment.hltFullIter8CtfWithMaterialTracksPPOnAA + fragment.hltFullIter8TrackMVAClassifierPPOnAA + fragment.hltFullIter8HighPurityTracksPPOnAA )
 fragment.HLTFullIterativeTrackingIteration9PPOnAA = cms.Sequence( fragment.hltFullIter9ClustersRefRemovalPPOnAA + fragment.hltFullIter9MaskedMeasurementTrackerEventPPOnAA + fragment.hltFullIter9TobTecLayersTriplPPOnAA + fragment.hltFullIter9TobTecTrackingRegionsTriplPPOnAA + fragment.hltFullIter9TobTecClusterCheckPPOnAA + fragment.hltFullIter9TobTecHitDoubletsTriplPPOnAA + fragment.hltFullIter9TobTecHitTripletsTriplPPOnAA + fragment.hltFullIter9TobTecSeedsTriplPPOnAA + fragment.hltFullIter9TobTecLayersPairPPOnAA + fragment.hltFullIter9TobTecTrackingRegionsPairPPOnAA + fragment.hltFullIter9TobTecHitDoubletsPairPPOnAA + fragment.hltFullIter9TobTecSeedsPairPPOnAA + fragment.hltFullIter9TobTecSeedsPPOnAA + fragment.hltFullIter9CkfTrackCandidatesPPOnAA + fragment.hltFullIter9CtfWithMaterialTracksPPOnAA + fragment.hltFullIter9TrackMVAClassifierPPOnAA )
