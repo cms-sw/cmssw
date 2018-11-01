@@ -655,14 +655,12 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
     meJetPhi[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_EndCap");
     meJetPhi[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_Forward");
     meJetPhi[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Phi");
-    //meJetPhi[4] = iget_.get(newHistoName+cleaningdir+"JetPlusTrackZSPCorJetAntiKt5/Phi");
 
     //Jet Eta histos
     meJetEta[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Eta");
     meJetEta[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Eta");
     meJetEta[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/EtaFirst");
     meJetEta[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Eta");
-    //meJetEta[4] = iget_.get(newHistoName+cleaningdir+"JetPlusTrackZSPCorJetAntiKt5/Eta");
 
     //Jet Pt histos
     meJetPt[0]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Pt_Barrel");
