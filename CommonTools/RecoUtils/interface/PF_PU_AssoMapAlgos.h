@@ -106,13 +106,13 @@ class PF_PU_AssoMapAlgos{
   //protected functions
 
    //create helping vertex vector to remove associated vertices
-   std::vector<reco::VertexRef>* CreateVertexVector(edm::Handle<reco::VertexCollection>);
+   std::vector<reco::VertexRef> CreateVertexVector(edm::Handle<reco::VertexCollection>);
 
    //erase one vertex from the vertex vector
-   void EraseVertex(std::vector<reco::VertexRef>*, reco::VertexRef);
+   void EraseVertex(std::vector<reco::VertexRef>&, reco::VertexRef);
 
    //find an association for a certain track
-   VertexStepPair FindAssociation(const reco::TrackRef&, std::vector<reco::VertexRef>*,
+   VertexStepPair FindAssociation(const reco::TrackRef&, const std::vector<reco::VertexRef>&,
                                   edm::ESHandle<MagneticField>, const edm::EventSetup&,
 		                  edm::Handle<reco::BeamSpot>, int);
 
@@ -124,10 +124,10 @@ class PF_PU_AssoMapAlgos{
   // private methods for internal usage
 
    //function to find the closest vertex in z for a certain track
-   static reco::VertexRef FindClosestZ(const reco::TrackRef, std::vector<reco::VertexRef>*, double tWeight = 0.);
+   static reco::VertexRef FindClosestZ(const reco::TrackRef, const std::vector<reco::VertexRef>&, double tWeight = 0.);
 
    //function to find the closest vertex in 3D for a certain track
-   static reco::VertexRef FindClosest3D(reco::TransientTrack, std::vector<reco::VertexRef>*, double tWeight = 0.);
+   static reco::VertexRef FindClosest3D(reco::TransientTrack, const std::vector<reco::VertexRef>&, double tWeight = 0.);
 
    //function to calculate the deltaR between a vector and a vector connecting two points
    static double dR(const math::XYZPoint&, const math::XYZVector&, edm::Handle<reco::BeamSpot>);
@@ -141,7 +141,7 @@ class PF_PU_AssoMapAlgos{
 
    static reco::VertexRef FindConversionVertex(const reco::TrackRef, const reco::Conversion&,
                                                edm::ESHandle<MagneticField>, const edm::EventSetup&,
-				               edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double);
+				               edm::Handle<reco::BeamSpot>, const std::vector<reco::VertexRef>&, double);
 
    //function to filter the Kshort collection
    static std::unique_ptr<reco::VertexCompositeCandidateCollection> GetCleanedKshort(edm::Handle<reco::VertexCompositeCandidateCollection>, edm::Handle<reco::BeamSpot>, bool);
@@ -155,7 +155,7 @@ class PF_PU_AssoMapAlgos{
 
    static reco::VertexRef FindV0Vertex(const reco::TrackRef, const reco::VertexCompositeCandidate&,
                                        edm::ESHandle<MagneticField>, const edm::EventSetup&,
-				       edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double);
+				       edm::Handle<reco::BeamSpot>, const std::vector<reco::VertexRef>&, double);
 
    //function to filter the nuclear interaction collection
    static std::unique_ptr<reco::PFDisplacedVertexCollection> GetCleanedNI(edm::Handle<reco::PFDisplacedVertexCollection>, edm::Handle<reco::BeamSpot>, bool);
@@ -165,10 +165,10 @@ class PF_PU_AssoMapAlgos{
 
    static reco::VertexRef FindNIVertex(const reco::TrackRef, const reco::PFDisplacedVertex&,
                                        edm::ESHandle<MagneticField>, const edm::EventSetup&,
- 	 	                       edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double);
+ 	 	                       edm::Handle<reco::BeamSpot>, const std::vector<reco::VertexRef>&, double);
 
    //function to find the vertex with the highest TrackWeight for a certain track
-   template<typename TREF> static reco::VertexRef TrackWeightAssociation(const TREF&, std::vector<reco::VertexRef>*);
+   template<typename TREF> static reco::VertexRef TrackWeightAssociation(const TREF&, const std::vector<reco::VertexRef>&);
 
 
   // ----------member data ---------------------------
