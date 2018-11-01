@@ -54,10 +54,10 @@ void MaterialBudgetCategorizer::buildMaps()
 void MaterialBudgetCategorizer::buildCategoryMap(std::string theMaterialFileName, std::map<std::string,std::vector<float> >& theMap) {
   
   std::ifstream theMaterialFile(theMaterialFileName);
+
   if (!theMaterialFile) 
     cms::Exception("LogicError") << " File not found " << theMaterialFileName;
   
-  // fill everything as "other"
   float sup,sen,cab,col,ele,oth,air;
   sup=sen=cab=col=ele=0.;
 
