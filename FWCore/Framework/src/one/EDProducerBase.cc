@@ -86,7 +86,11 @@ namespace edm {
     EDProducerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       auto const nThreads = iPrealloc.numberOfThreads();
       preallocThreads(nThreads);
+      preallocLumis(iPrealloc.numberOfLuminosityBlocks());
     }
+    
+    void EDProducerBase::preallocLumis(unsigned int) {};
+
    
     void
     EDProducerBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,

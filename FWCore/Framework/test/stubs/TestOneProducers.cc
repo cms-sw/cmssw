@@ -18,6 +18,8 @@ for testing purposes only.
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -149,6 +151,108 @@ namespace one {
     }
   };
   
+  namespace prdr {
+    struct Cache { bool begin = true; bool end = false; };
+  }
+  class RunCacheProducer: public edm::one::EDProducer<edm::RunCache<prdr::Cache>> {
+  public:
+    explicit RunCacheProducer(edm::ParameterSet const& p) :
+    trans_(p.getParameter<int>("transitions")) {
+      produces<int>();
+    }
+    const unsigned int trans_;
+    mutable unsigned int m_count = 0;
+    
+    void produce(edm::Event& iEvent, edm::EventSetup const&) override {
+      ++m_count;
+      auto c = runCache(iEvent.getRun().index());
+      if( nullptr == c) {
+        throw cms::Exception("Missing cache") <<" no cache in analyze";
+      }
+      
+      if ( !c->begin  || c->end ) {
+        throw cms::Exception("out of sequence")
+        << " produce before beginRun or after endRun";
+      }
+    }
+    
+    std::shared_ptr<prdr::Cache> globalBeginRun(edm::Run const&, edm::EventSetup const&) const final {
+      ++m_count;
+      return std::make_shared<prdr::Cache>();
+    }
+    
+    void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) final {
+      ++m_count;
+      auto c = runCache(iRun.index());
+      if( nullptr == c) {
+        throw cms::Exception("Missing cache") <<" no cache in globalEndRun";
+      }
+      if ( !c->begin ) {
+        throw cms::Exception("out of sequence")
+        << " endRun before beginRun";
+      }
+      c->begin = false;
+      c->end = true;
+    }
+    
+    ~RunCacheProducer() {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+        << "WatchRunsAnalyzer transitions "
+        << m_count<< " but it was supposed to be " << trans_;
+      }
+    }
+  };
+  
+  
+  class LumiBlockCacheProducer: public edm::one::EDProducer<edm::LuminosityBlockCache<prdr::Cache>> {
+  public:
+    explicit LumiBlockCacheProducer(edm::ParameterSet const& p) :
+    trans_(p.getParameter<int>("transitions")) {
+      produces<int>();
+    }
+    const unsigned int trans_;
+    mutable unsigned int m_count = 0;
+    
+    void produce(edm::Event& iEvent, edm::EventSetup const&) override {
+      ++m_count;
+      
+      auto c = luminosityBlockCache(iEvent.getLuminosityBlock().index());
+      if( nullptr == c) {
+        throw cms::Exception("Missing cache") <<" no cache in analyze";
+      }
+      
+      if ( !c->begin  || c->end ) {
+        throw cms::Exception("out of sequence")
+        << " produce before beginLumiBlock or after endLumiBlock";
+      }
+    }
+    
+    std::shared_ptr<prdr::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const final {
+      ++m_count;
+      return std::make_shared<prdr::Cache>();
+    }
+    
+    void globalEndLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) override {
+      ++m_count;
+      auto c = luminosityBlockCache(iLumi.index());
+      if ( !c->begin ) {
+        throw cms::Exception("out of sequence")
+        << " endLumiBlock before beginLumiBlock";
+      }
+      c->begin = false;
+      c->end = true;
+    }
+    
+    ~LumiBlockCacheProducer() {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+        << "WatchLumiBlocksAnalyzer transitions "
+        << m_count<< " but it was supposed to be " << trans_;
+      }
+    }
+  };
+
   class TestBeginRunProducer : public edm::one::EDProducer<edm::one::WatchRuns,edm::BeginRunProducer> {
   public:
     explicit TestBeginRunProducer(edm::ParameterSet const& p) :
@@ -340,6 +444,8 @@ namespace one {
 DEFINE_FWK_MODULE(edmtest::one::SharedResourcesProducer);
 DEFINE_FWK_MODULE(edmtest::one::WatchRunsProducer);
 DEFINE_FWK_MODULE(edmtest::one::WatchLumiBlocksProducer);
+DEFINE_FWK_MODULE(edmtest::one::RunCacheProducer);
+DEFINE_FWK_MODULE(edmtest::one::LumiBlockCacheProducer);
 DEFINE_FWK_MODULE(edmtest::one::TestBeginRunProducer);
 DEFINE_FWK_MODULE(edmtest::one::TestBeginLumiBlockProducer);
 DEFINE_FWK_MODULE(edmtest::one::TestEndRunProducer);
