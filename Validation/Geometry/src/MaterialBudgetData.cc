@@ -219,16 +219,20 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 
   if (!isHGCal){
 
-    bool isx0fractionEmpty = myMaterialBudgetCategorizer->x0fraction(materialName).empty();
-    bool isl0fractionEmpty = myMaterialBudgetCategorizer->l0fraction(materialName).empty();
-
-    if( isx0fractionEmpty && isl0fractionEmpty ) // Empty
+    bool isCtgOk = !myMaterialBudgetCategorizer->x0fraction(materialName).empty()
+      && !myMaterialBudgetCategorizer->l0fraction(materialName).empty()
+      && (myMaterialBudgetCategorizer->x0fraction(materialName).size() == 7) /*7 Categories*/
+      && (myMaterialBudgetCategorizer->l0fraction(materialName).size() == 7);
+   
+    if(!isCtgOk) 
       {
 	theOtherFractionMB = 1;
 	theOtherFractionIL = 1;
 
-	edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material forced to 'Other': " << materialName 
-					  << " in volume " << volumeName;
+	edm::LogWarning("MaterialBudget")
+	  << "MaterialBudgetData: Material forced to 'Other': " << materialName 
+	  << " in volume " << volumeName << ". Check Categorization.";
+
       }
     else 
       {
