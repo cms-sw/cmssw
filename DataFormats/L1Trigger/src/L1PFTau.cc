@@ -10,15 +10,15 @@ using std::dec;
 typedef std::vector<l1t::L1PFTau> L1PFTauCollection;
 
 // default constructor
-l1t::L1PFTau::L1PFTau() : m_data(0), m_relativeIsolation(100), m_tauType(12){ }
-
+l1t::L1PFTau::L1PFTau() : m_data(0), m_tauType(12), m_relativeIsolation(100), m_chargedIsolation(0), m_rawIsolation(0), m_passTightIso(0), m_passMediumIso(0),m_passLooseIso(0), m_passVLooseIso(0), m_passTightRelIso(0), m_passMediumRelIso(0),m_passLooseRelIso(0), m_passVLooseRelIso(0){  };
+ 
 
 // destructor
 l1t::L1PFTau::~L1PFTau() { }
 
 
 // print to stream
-
+/*
 ostream& l1t::operator<<(ostream& os, const l1t::L1PFTau& tau) {
 
   os << "L1PFTau:";
@@ -46,3 +46,4 @@ ostream& l1t::operator<<(ostream& os, const l1t::L1PFTau& tau) {
   return os;
 }
 
+*/

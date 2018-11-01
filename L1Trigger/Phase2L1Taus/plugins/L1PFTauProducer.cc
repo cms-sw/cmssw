@@ -16,6 +16,7 @@
 
 L1PFTauProducer::L1PFTauProducer(const edm::ParameterSet& cfg) :
   debug(                cfg.getUntrackedParameter<bool>("debug", false)),
+  min_pi0pt_(           cfg.getParameter<double>("min_pi0pt")),
   L1PFToken_(           consumes< vector<l1t::PFCandidate> >(cfg.getParameter<edm::InputTag>("L1PFObjects"))),
   L1NeutralToken_(      consumes< vector<l1t::PFCandidate> >(cfg.getParameter<edm::InputTag>("L1Neutrals")) )
 {
@@ -95,9 +96,11 @@ void L1PFTauProducer::createTaus(tauMapperCollection &inputCollection){
   inputCollection.clear();
   float left_edge_center_eta = (-1)*tracker_eta + tau_size_eta/2 ;
  
+  std::cout<<"min_pi0pt "<<min_pi0pt_<<std::endl;
   for(float iTau_eta = left_edge_center_eta; iTau_eta < tracker_eta; iTau_eta = iTau_eta + tau_size_eta ){
     for(float iTau_phi = -3.14159; iTau_phi < 3.14159; iTau_phi = iTau_phi + tau_size_phi ){
       TauMapper tempTau; 
+      tempTau.setMinPi0Pt(min_pi0pt_);
       tempTau.l1PFTau.setHWEta(iTau_eta);
       tempTau.l1PFTau.setHWPhi(iTau_phi);
       tempTau.ClearSeedHadron();

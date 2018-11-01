@@ -4,6 +4,7 @@
 bool TauMapper::addPFChargedHadron( l1t::PFCandidate in ){
   bool ChargedHadronAdded = false;
   if(!seedHadronSet && contains(in)){
+    //perform initialization here
     setSeedChargedHadron(in);
     return true;
   }
@@ -112,6 +113,7 @@ void TauMapper::buildStripGrid(){
     std::cout<<"ERROR SEED CONE NOT SET"<<std::endl;
     exit(0);
   }
+
   for( int i = -2; i<3; i++){
     for( int j = -2; j<3; j++){
       simple_object_t temp;
@@ -178,7 +180,7 @@ void TauMapper::process(){
   }
 
   //1 prong
-  if(prong3.pt() == 0 && strip_pt == 0 ){
+  if(prong3.pt() == 0 && strip_pt < m_minpi0pt ){
     float pt = seedCH.pt();
     float eta = seedCH.eta();
     float phi = seedCH.phi();
@@ -186,13 +188,13 @@ void TauMapper::process(){
 
     l1PFTau.setP4(tempP4);
 
-    l1PFTau.setChargedIso(sumChargedIso+prong2.pt());
+    l1PFTau.setChargedIso(sumChargedIso + prong2.pt() + strip_pt);
 
     l1PFTau.setTauType(0);    
   }
 
   // 1 prong pi0
-  if(prong3.pt() == 0 && strip_pt != 0 ){
+  if(prong3.pt() == 0 && strip_pt >= m_minpi0pt ){
     float pt = seedCH.pt() + strip_pt;
     float eta = (seedCH.eta() + strip_eta)/2;
     float phi = seedCH.phi();
@@ -204,6 +206,34 @@ void TauMapper::process(){
 
     l1PFTau.setTauType(1);    
   }
+  
+  if(l1PFTau.chargedIso() < 50){
+    l1PFTau.setPassVLooseIso(true);
+  }
+  if(l1PFTau.chargedIso() < 20){
+    l1PFTau.setPassLooseIso(true);
+  }
+  if(l1PFTau.chargedIso() < 10){
+    l1PFTau.setPassMediumIso(true);
+  }
+  if(l1PFTau.chargedIso() < 5){
+    l1PFTau.setPassTightIso(true);
+  }
+  /*
+  if(l1PFTau.chargedIso()/l1PFTau.p4().pt() < 0.5){
+    l1PFTau.setPassVLooseRelIso(true);
+  }
+  if(l1PFTau.chargedIso()/l1PFTau.p4().pt() < 0.2){
+    l1PFTau.setPassLooseRelIso(true);
+  }
+  if(l1PFTau.chargedIso()/l1PFTau.p4().pt() < 0.15){
+    l1PFTau.setPassMediumRelIso(true);
+  }
+  if(l1PFTau.chargedIso()/l1PFTau.p4().pt() < 0.1){
+    l1PFTau.setPassTightRelIso(true);
+  }
+  */
+  
 
 }
 
@@ -211,6 +241,15 @@ void TauMapper::process_strip(){
 
   simple_object_t temp_strip[5];    
   simple_object_t final_strip;
+  float Iso_EG_Sum = 0;
+
+  for(int i = 0; i<5; i++){
+    for(int j = 0; j<5; j++){
+      Iso_EG_Sum +=egGrid[i][j].et;
+      //if(egGrid[i][j].et>0)
+	//std::cout<<"eg Grid et,eta,phi "<<egGrid[i][j].et<<","<<egGrid[i][j].eta<<","<<egGrid[i][j].phi<<std::endl;
+    }
+  }
 
   for(int i = 0; i<4; i++){
     for(int j = 0; j<5; j++){
@@ -220,18 +259,27 @@ void TauMapper::process_strip(){
   }
 
   final_strip = temp_strip[0];
-
+  
   for(unsigned int j = 1; j < 5; j++){
     
     //first check if strip j is greater than final strip
     if(temp_strip[j].et > final_strip.et){
       final_strip = temp_strip[j];
     }
-
-    strip_pt  = final_strip.et;
-    strip_eta = final_strip.eta;
-
   }
+  strip_pt  = final_strip.et;
+  strip_eta = final_strip.eta;
+  strip_phi = final_strip.phi;
+
+  //if(strip_pt>0)
+    //std::cout<<"Final Strip pt,eta,phi "<<strip_pt<<","<<strip_eta<<","<<strip_phi<<std::endl;
+
+  
+  reco::LeafCandidate::LorentzVector tempP4(strip_pt,strip_eta,strip_phi,strip_pt);
+  sumEGIso = Iso_EG_Sum - strip_pt;
+
+  l1PFTau.set_strip_p4(tempP4); 
+  
 }
 
 
@@ -275,5 +323,5 @@ float TauMapper::weighted_avg_eta(simple_object_t cluster_1, simple_object_t clu
 }
 
 
-TauMapper::TauMapper() {};
+TauMapper::TauMapper():m_minpi0pt(0) {};
 TauMapper::~TauMapper() {};

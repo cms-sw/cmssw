@@ -105,6 +105,7 @@ class L1PFTauProducer : public edm::EDProducer {
   /// ///////////////// ///
 
   bool debug;
+  double min_pi0pt_;
   int input_EoH_cut_;
   int input_HoE_cut_;
   int input_min_n_stubs_;

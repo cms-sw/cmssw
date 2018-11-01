@@ -54,11 +54,31 @@ namespace l1t {
     void setEoH(unsigned inputEoH) {(m_EoH = inputEoH);}
     void setHoE(float inputHoE){m_HoE = inputHoE;};  
 
+    void setPassTightIso(bool input)  {m_passTightIso  = input;};
+    void setPassMediumIso(bool input) {m_passMediumIso = input;};
+    void setPassLooseIso(bool input)  {m_passLooseIso  = input;};
+    void setPassVLooseIso(bool input) {m_passVLooseIso = input;};
+
+    void setPassTightRelIso(bool input)  {m_passTightRelIso  = input;};
+    void setPassMediumRelIso(bool input) {m_passMediumRelIso = input;};
+    void setPassLooseRelIso(bool input)  {m_passLooseRelIso  = input;};
+    void setPassVLooseRelIso(bool input) {m_passVLooseRelIso = input;};
+
     /// set data
     void setRawData(uint32_t data) { m_data = data; }
 
+    bool passTightIso()  const{return m_passTightIso;};
+    bool passMediumIso() const{return m_passMediumIso;};
+    bool passLooseIso()  const{return m_passLooseIso;};
+    bool passVLooseIso() const{return m_passVLooseIso;};
+
+    bool passTightRelIso()  const{return m_passTightRelIso;};
+    bool passMediumRelIso() const{return m_passMediumRelIso;};
+    bool passLooseRelIso()  const{return m_passLooseRelIso;};
+    bool passVLooseRelIso() const{return m_passVLooseRelIso;};
+
     // reco level quantities to be set manually, temporary aid for algo development
-    //LorentzVector p4() const {return m_p4;};
+    LorentzVector strip_p4() const {return m_strip_p4;};
     float ecalEnergy() const{return m_ecalEnergy;}
     float hcalEnergy() const{return m_hcalEnergy;}
     float caloEnergy() const{return m_caloEnergy;}
@@ -70,9 +90,9 @@ namespace l1t {
     float rawIso() const{return m_rawIsolation;}
     float chargedIso() const{return m_chargedIsolation;}
     float neutralIso() const{return m_neutralIsolation;}
-    short int tauType()const{return m_tauType;}
+    int tauType()const{return m_tauType;}
 
-    //void setp4(LorentzVector input) {m_p4 = input;};
+    void set_strip_p4(LorentzVector input) {m_strip_p4 = input;};
     //void setPtEtaPhiE(float pt, float eta, float phi, float et){m_p4.SetPtEtaPhiE(pt,eta,phi,et);};
     void setEcalEnergy(float input){ m_ecalEnergy = input;};
     void setHcalEnergy(float input){ m_hcalEnergy = input;};
@@ -80,7 +100,7 @@ namespace l1t {
     void setTrackRef(TTTrack< Ref_Phase2TrackerDigi_ > trackRef){m_trackRef = trackRef;};
     void setRelIso(float inputIso){m_relativeIsolation = inputIso;};
 
-    void setTauType(short int input){ m_tauType = input;};
+    void setTauType(float input){ m_tauType = input;};
     void setRawIso(float inputIso){m_rawIsolation = inputIso;};
     void setChargedIso(float inputIso){m_chargedIsolation = inputIso;};
     void setNeutralIso(float inputIso){m_neutralIsolation = inputIso;};
@@ -104,7 +124,7 @@ namespace l1t {
   private:
 
     uint16_t m_data;
-    LorentzVector m_p4;
+    LorentzVector m_strip_p4;
     //for temporary use
     float m_ecalEnergy;
     float m_hcalEnergy;
@@ -123,11 +143,20 @@ namespace l1t {
     unsigned m_EoH;
     unsigned m_HoE;
 
-    short int m_tauType;
+    unsigned m_tauType;
     float m_rawIsolation;
     float m_chargedIsolation;
     float m_neutralIsolation;
 
+    bool m_passTightIso;
+    bool m_passMediumIso;
+    bool m_passLooseIso;
+    bool m_passVLooseIso;
+
+    bool m_passTightRelIso;
+    bool m_passMediumRelIso;
+    bool m_passLooseRelIso;
+    bool m_passVLooseRelIso;
 
     TTTrack< Ref_Phase2TrackerDigi_ > m_trackRef;
   };
