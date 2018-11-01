@@ -1674,7 +1674,7 @@ steps['RECOHID15']=merge([{ '--runUnscheduled':'',
                            
 steps['RECOHID18']=merge([{ '--scenario':'pp',
                             '--conditions':'103X_dataRun2_Prompt_v2',
-                            '-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@standardDQM+@ExtraHLT',
+                            '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiPixelCalZeroBias,SKIM:PbPbEMu+PbPbZEE+PbPbZMM,EI,DQM:@common+@standardDQM+@ExtraHLT',
                             '--datatier':'AOD,DQMIO',
                             '--eventcontent':'AOD,DQM',
                             '--era':'Run2_2018_pp_on_AA'
