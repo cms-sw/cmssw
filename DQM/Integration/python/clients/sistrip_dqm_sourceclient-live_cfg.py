@@ -512,8 +512,9 @@ if (process.runType.getRunType() == process.runType.hi_run):
     if ((process.runType.getRunType() == process.runType.hi_run) and live):
         process.source.SelectEvents = cms.untracked.vstring(
             'HLT_HICentralityVeto*',
-            'HLT_HIMinBias*',
-            'HLT_HIZeroBias*'
+#            'HLT_HIMinimumBias*',
+#            'HLT_HIZeroBias*'
+            'HLT_HIPhysics*'
             )
 
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_pp.root'
@@ -588,6 +589,13 @@ if (process.runType.getRunType() == process.runType.hi_run):
         maxClusters = cms.uint32(50000)
         )
 
+    # BaselineValidator Module
+    from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import siStripDigis as _siStripDigis
+    process.siStripDigisNoZS=_siStripDigis.clone()
+    process.siStripDigisNoZS.ProductLabel = cms.InputTag("rawDataCollector")
+    process.SiStripBaselineValidator.srcProcessedRawDigi =  cms.InputTag('siStripDigisNoZS','ZeroSuppressed')
+
+
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
     process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
@@ -602,12 +610,14 @@ if (process.runType.getRunType() == process.runType.hi_run):
         process.consecutiveHEs*
         process.hltTriggerTypeFilter*
         process.siStripFEDCheck *
+        process.siStripDigisNoZS*
+        process.SiStripBaselineValidator*
         process.RecoForDQM_LocalReco*
         process.siPixelClusters*
-        process.multFilter*
         process.DQMCommon*
         process.SiStripClients*
         process.SiStripSources_LocalReco*
+        process.multFilter*
         ##### TRIGGER SELECTION #####
         process.hltHighLevel*
         process.RecoForDQM_TrkReco*
