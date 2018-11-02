@@ -228,7 +228,7 @@ private:
 
 } // anonymous namespace
 
-class DeepTauId : public deep_tau::DeepTauBase {
+class DeepTauId : public deep_tau::DeepTauBase{
 public:
 
     static constexpr float default_value = -999.;
@@ -269,13 +269,23 @@ public:
     }
 
 public:
-    explicit DeepTauId(const edm::ParameterSet& cfg) :
-        DeepTauBase(cfg, GetOutputs()),
+    explicit DeepTauId(const edm::ParameterSet& cfg, const deep_tau::DeepTauCache* cache) :
+        DeepTauBase(cfg, GetOutputs(), cache),
         electrons_token(consumes<ElectronCollection>(cfg.getParameter<edm::InputTag>("electrons"))),
         muons_token(consumes<MuonCollection>(cfg.getParameter<edm::InputTag>("muons"))),
-        input_layer(graph->node(0).name()),
-        output_layer(graph->node(graph->node_size() - 1).name())
+        input_layer(cache->getGraph().node(0).name()),
+        output_layer(cache->getGraph().node(cache->getGraph().node_size() - 1).name())
     {
+    }
+
+    static std::unique_ptr<deep_tau::DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg)
+    {
+        return DeepTauBase::initializeGlobalCache(cfg);
+    }
+
+    static void globalEndJob(const deep_tau::DeepTauCache* cache)
+    {
+        return DeepTauBase::globalEndJob(cache);
     }
 
 private:
@@ -293,7 +303,7 @@ private:
         for(size_t tau_index = 0; tau_index < taus->size(); ++tau_index) {
             const tensorflow::Tensor& inputs = CreateInputs<dnn_inputs_2017v1>(taus->at(tau_index), *electrons, *muons);
             std::vector<tensorflow::Tensor> pred_vector;
-            tensorflow::run(session, { { input_layer, inputs } }, { output_layer }, &pred_vector);
+            tensorflow::run(&(cache->getSession()), { { input_layer, inputs } }, { output_layer }, &pred_vector);
             for(int k = 0; k < dnn_inputs_2017v1::NumberOfOutputs; ++k)
                 predictions.matrix<float>()(tau_index, k) = pred_vector[0].flat<float>()(k);
         }
