@@ -26,6 +26,16 @@
 
 namespace deep_tau {
 
+class TauWPThreshold {
+public:
+    explicit TauWPThreshold(const std::string& cut_str);
+    double operator()(const pat::Tau& tau) const;
+
+private:
+    std::unique_ptr<TF1> fn;
+    double value;
+};
+
 class DeepTauCache {
 public:
     using GraphPtr = std::shared_ptr<tensorflow::GraphDef>;
@@ -54,7 +64,7 @@ public:
     using ElectronCollection = pat::ElectronCollection;
     using MuonCollection = pat::MuonCollection;
     using LorentzVectorXYZ = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>;
-    using Cutter = StringObjectFunction<TauType>;
+    using Cutter = TauWPThreshold;
     using CutterPtr = std::unique_ptr<Cutter>;
     using WPMap = std::map<std::string, CutterPtr>;
 

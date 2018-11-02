@@ -594,35 +594,35 @@ class TauIDEmbedder(object):
 
             working_points = {
                 "e": {
-                    "VVVLoose" : "0.96424",
-                    "VVLoose" : "0.98992",
-                    "VLoose" : "0.99574",
-                    "Loose": "0.99831",
-                    "Medium": "0.99868",
-                    "Tight": "0.99898",
-                    "VTight": "0.99911",
-                    "VVTight": "0.99918"
+                    "VVVLoose" : 0.96424,
+                    "VVLoose" : 0.98992,
+                    "VLoose" : 0.99574,
+                    "Loose": 0.99831,
+                    "Medium": 0.99868,
+                    "Tight": 0.99898,
+                    "VTight": 0.99911,
+                    "VVTight": 0.99918
                 },
                 "mu": {
-                    "VVVLoose" : "0.959619",
-                    "VVLoose" : "0.997687",
-                    "VLoose" : "0.999392",
-                    "Loose": "0.999755",
-                    "Medium": "0.999854",
-                    "Tight": "0.999886",
-                    "VTight": "0.999944",
-                    "VVTight": "0.9999971"
+                    "VVVLoose" : 0.959619,
+                    "VVLoose" : 0.997687,
+                    "VLoose" : 0.999392,
+                    "Loose": 0.999755,
+                    "Medium": 0.999854,
+                    "Tight": 0.999886,
+                    "VTight": 0.999944,
+                    "VVTight": 0.9999971
                 },
 
                 "jet": {
-                    "VVVLoose" : "0.5329",
-                    "VVLoose" : "0.7645",
-                    "VLoose" : "0.8623",
-                    "Loose": "0.9140",
-                    "Medium": "0.9464",
-                    "Tight": "0.9635",
-                    "VTight": "0.9760",
-                    "VVTight": "0.9859"
+                    "VVVLoose" : 0.5329,
+                    "VVLoose" : 0.7645,
+                    "VLoose" : 0.8623,
+                    "Loose": 0.9140,
+                    "Medium": 0.9464,
+                    "Tight": 0.9635,
+                    "VTight": 0.9760,
+                    "VVTight": 0.9859
                 }
             }
 
@@ -662,10 +662,13 @@ class TauIDEmbedder(object):
 
             working_points = {
                 "all": {
-
-                    "Tight" : "? decayMode == 0 ? (0.898328 - 0.000160992 * pt) : " +
-                              "(? decayMode == 1 ? 0.910138 - 0.000229923 * pt : " +
-                              "(? decayMode == 10 ? (0.873958 - 0.0002328 * pt) : 1))"
+                    "Tight" : "if(decayMode == 0) return (0.898328 - 0.000160992 * pt);" + \
+                              "if(decayMode == 1) return (0.910138 - 0.000229923 * pt);" + \
+                              "if(decayMode == 10) return (0.873958 - 0.0002328 * pt);" + \
+                              "return 1.0;"
+                    #"Tight" : "? decayMode == 0 ? (0.898328 - 0.000160992 * pt) : " +
+                    #          "(? decayMode == 1 ? 0.910138 - 0.000229923 * pt : " +
+                    #          "(? decayMode == 10 ? (0.873958 - 0.0002328 * pt) : 1))"
                     # "Tight" : "(decayMode == 0) * (0.898328 - 0.000160992 * pt) + \
                     #            (decayMode == 1) * (0.910138 - 0.000229923 * pt) + \
                     #            (decayMode == 10) * (0.873958 - 0.0002328 * pt) "
@@ -708,7 +711,7 @@ class TauIDEmbedder(object):
             print "WARNING: The score of DPFTau_2016_v1 is inverted: i.e. for Sig->0, for Bkg->1 with -1 for undefined input (preselection not passed)."
 
             working_points = {
-                "all": {"Tight" : "0.123"} #FIXME: define WP
+                "all": {"Tight" : 0.123} #FIXME: define WP
             }
 
             if "DPFTau_2016_v1" in self.toKeep:
@@ -755,7 +758,7 @@ class TauIDEmbedder(object):
             setattr(tauIDSources, 'by{}VS{}raw'.format(producer_name[0].upper()+producer_name[1:], target),
                         self.cms.InputTag(producer_name, 'VS{}'.format(target)))
             for point,cut in points.iteritems():
-                setattr(cuts, point, self.cms.string(cut))
+                setattr(cuts, point, self.cms.string(str(cut)))
 
                 setattr(tauIDSources, 'by{}{}VS{}'.format(point, producer_name[0].upper()+producer_name[1:], target),
                         self.cms.InputTag(producer_name, 'VS{}{}'.format(target, point)))
