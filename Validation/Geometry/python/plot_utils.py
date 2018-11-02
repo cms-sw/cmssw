@@ -18,17 +18,20 @@ plots = {}
 plots.setdefault('x_vs_eta', Plot_params(10, '#eta', 'x/X_{0}', 0.0, 2.575, -4.0, 4.0, '', 0, 0., 0., 0, 1))
 plots.setdefault('x_vs_phi', Plot_params(20, '#varphi [rad]', 'x/X_{0}', 0.0, 6.2, -4.0, 4.0, '', 0, 0., 0., 0, 1))
 plots.setdefault('x_vs_R',   Plot_params(40, 'R [cm]', 'x/X_{0}', 0.0, 70.0, 0.0, 1200.0, '', 0, 0., 0., 0, 1))
-plots.setdefault('l_vs_eta', Plot_params(1010, '#eta', 'x/#lambda_{I}', 0.0, 0.73, -4.0, 4.0, '', 0, 0., 0., 0, 1))
-plots.setdefault('l_vs_phi', Plot_params(1020, '#varphi [rad]', 'x/#lambda_{I}', 0.0, 1.2, -4.0, 4.0, '', 0, 0., 0., 0, 1))
-plots.setdefault('l_vs_R',   Plot_params(1040, '#R [cm]', 'x/#lambda_{I}', 0.0, 7.5, 0.0, 1200.0, '', 0, 0., 0., 0, 1))
+plots.setdefault('l_vs_eta', Plot_params(1010, '#eta', 'x/#lambda_{0}', 0.0, 0.73, -4.0, 4.0, '', 0, 0., 0., 0, 1))
+plots.setdefault('l_vs_phi', Plot_params(1020, '#varphi [rad]', 'x/#lambda_{0}', 0.0, 1.2, -4.0, 4.0, '', 0, 0., 0., 0, 1))
+plots.setdefault('l_vs_R',   Plot_params(1040, '#R [cm]', 'x/#lambda_{0}', 0.0, 7.5, 0.0, 1200.0, '', 0, 0., 0., 0, 1))
 plots.setdefault('x_vs_eta_vs_phi', Plot_params(30, '#eta', '#varphi', 0., 0., 0., 0., 'x/X_{0}', 0, -1., -1., 0, 1))
-plots.setdefault('l_vs_eta_vs_phi', Plot_params(1030, '#eta', '#varphi', 0., 0., 0., 0., 'x/#lambda_{I}', 0, -1, -1, 0, 1))
+plots.setdefault('l_vs_eta_vs_phi', Plot_params(1030, '#eta', '#varphi', 0., 0., 0., 0., 'x/#lambda_{0}', 0, -1, -1, 0, 1))
 plots.setdefault('x_vs_z_vs_Rsum', Plot_params(50, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '#Sigmax/X_{0}', 1, 0., 2.5, 0, 0))
 plots.setdefault('x_vs_z_vs_R', Plot_params(60, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '1/X_{0}', 1, 0.00001, 0.01, 1, 0))
-plots.setdefault('l_vs_z_vs_Rsum', Plot_params(1050, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '#Sigmax/#lambda_{I}', 1, 0., 1., 0, 0))
-plots.setdefault('l_vs_z_vs_R', Plot_params(1060, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '1/#lambda_{I}', 1, 0.001, 0.9, 1, 0))
-plots.setdefault('x_over_l_vs_eta', Plot_params(10, '#eta', '(x/X_{0})/(x/#lambda_{I})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
-plots.setdefault('x_over_l_vs_phi', Plot_params(20, '#varphi [rad]', '(x/X_{0})/(x/#lambda_{I})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
+plots.setdefault('l_vs_z_vs_Rsum', Plot_params(1050, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '#Sigmax/#lambda_{0}', 1, 0., 1., 0, 0))
+plots.setdefault('l_vs_z_vs_R', Plot_params(1060, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '1/#lambda_{0}', 1, 0.001, 0.9, 1, 0))
+# x_over_l_vs_eta is not extracted from the ROOT file 
+# but generated from 10 and 1010 in MaterialBudget.py
+plots.setdefault('x_over_l_vs_eta', Plot_params(10, '#eta', '(#frac{x}{X_{0}})/(#frac{x}{#lambda_{0}})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
+# same goes with x_over_l_vs_phi 20/1020
+plots.setdefault('x_over_l_vs_phi', Plot_params(20, '#varphi [rad]', '(#frac{x}{X_{0}})/(#frac{x}{#lambda_{0}})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
 
 # Conversion name from the label (key) to the components in CMSSW/Geometry
 _LABELS2COMPS = {'BeamPipe': 'BEAM',
@@ -113,7 +116,7 @@ sDETS["TEC"] = kPink
 # mat*root files produced. The numbering of the plots is identical
 # across all files.
 hist_label_to_num = OrderedDict()
-hist_label_to_num['SUM'] = [0, kGreen+1, 'Total MB']
+hist_label_to_num['SUM'] = [0, kGreen+1, 'Total']
 hist_label_to_num['SUP'] = [100, 13, 'Support'] # [Index , color, legend label]
 hist_label_to_num['SEN'] = [200, 27, 'Sensitive']
 hist_label_to_num['CAB'] = [300, 46, 'Cables']
