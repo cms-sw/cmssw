@@ -1818,7 +1818,7 @@ class ConfigBuilder(object):
         if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
             #will get in the schedule, smoothly
             for (i,s) in enumerate(valSeqName):
-                getattr(self.process,'validation_step%s'%NFI(i))._seq = self.process.genstepfilter * getattr(self.process,'validation_step%s'%NFI(i))._seq
+                getattr(self.process,'validation_step%s'%NFI(i)).insert(0, self.process.genstepfilter)
 
         return
 
@@ -2231,12 +2231,12 @@ class ConfigBuilder(object):
                 self.pythonCfgCode +='\tif not path in %s: continue\n'%str(self.conditionalPaths)
             if len(self.excludedPaths):
                 self.pythonCfgCode +='\tif path in %s: continue\n'%str(self.excludedPaths)			
-            self.pythonCfgCode +='\tgetattr(process,path)._seq = process.%s * getattr(process,path)._seq \n'%(self.productionFilterSequence,)
+            self.pythonCfgCode +='\tgetattr(process,path).insert(0, process.%s)\n'%(self.productionFilterSequence,)
             pfs = getattr(self.process,self.productionFilterSequence)
             for path in self.process.paths:
                 if not path in self.conditionalPaths: continue
                 if path in self.excludedPaths: continue
-                getattr(self.process,path)._seq = pfs * getattr(self.process,path)._seq
+                getattr(self.process,path).insert(0, pfs)
 
 
         # dump customise fragment
