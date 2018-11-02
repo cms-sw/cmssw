@@ -140,8 +140,8 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
     { "ID_pred/Softmax" });
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::vector<unsigned int>>("probQCD", {0});
-    psd0.add<std::vector<unsigned int>>("probHbb", {1});
+    psd0.addOptional<std::vector<unsigned int>>("probQCD", {0});
+    psd0.addOptional<std::vector<unsigned int>>("probHbb", {1});
     psd0.addOptional<std::vector<unsigned int>>("probHcc");
     desc.add<edm::ParameterSetDescription>("flav_table", psd0);
   }
@@ -152,58 +152,6 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::string>("singleThreadPool", "no_threads");
 
   descriptions.add("pfDeepDoubleBvLJetTags", desc);
-
-  // pfDeepDoubleCvLJetTags
-  edm::ParameterSetDescription desc2;
-  desc2.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleXTagInfos"));
-  desc2.add<std::vector<std::string>>("input_names", 
-    { "input_1", "input_2", "input_3" });
-  desc2.add<edm::FileInPath>("graph_path",
-    edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC.pb"));
-  desc2.add<std::vector<std::string>>("lp_names",
-    { "db_input_batchnorm/keras_learning_phase" });
-  desc2.add<std::vector<std::string>>("output_names",
-    { "ID_pred/Softmax" });
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::vector<unsigned int>>("probQCD", {0});
-    psd0.add<std::vector<unsigned int>>("probHcc", {1});
-    psd0.addOptional<std::vector<unsigned int>>("probHbb");
-    desc2.add<edm::ParameterSetDescription>("flav_table", psd0);
-  }
-
-  desc2.add<bool>("batch_eval", false);
-
-  desc2.add<unsigned int>("nThreads", 1);
-  desc2.add<std::string>("singleThreadPool", "no_threads");
-
-  descriptions.add("pfDeepDoubleCvLJetTags", desc2);
-
-  // pfDeepDoubleCvBJetTags
-  edm::ParameterSetDescription desc3;
-  desc3.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleXTagInfos"));
-  desc3.add<std::vector<std::string>>("input_names", 
-    { "input_1", "input_2", "input_3" });
-  desc3.add<edm::FileInPath>("graph_path",
-    edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.pb"));
-  desc3.add<std::vector<std::string>>("lp_names",
-    { "db_input_batchnorm/keras_learning_phase" });
-  desc3.add<std::vector<std::string>>("output_names",
-    { "ID_pred/Softmax" });
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::vector<unsigned int>>("probHbb", {0});
-    psd0.add<std::vector<unsigned int>>("probHcc", {1});
-    psd0.addOptional<std::vector<unsigned int>>("probQCD");
-    desc3.add<edm::ParameterSetDescription>("flav_table", psd0);
-  }
-
-  desc3.add<bool>("batch_eval", false);
-
-  desc3.add<unsigned int>("nThreads", 1);
-  desc3.add<std::string>("singleThreadPool", "no_threads");
-  descriptions.add("pfDeepDoubleCvBJetTags", desc3);
-
 
 }
 
