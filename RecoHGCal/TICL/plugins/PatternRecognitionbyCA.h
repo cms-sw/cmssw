@@ -4,10 +4,15 @@
 
 #ifndef __RecoHGCal_TICL_PRbyCA_H__
 #define __RecoHGCal_TICL_PRbyCA_H__
-#include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
-
-
+#include <algorithm>
 #include <iostream>
+#include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoHGCal/TICL/interface/TICLConstants.h"
+#include "DataFormats/Math/interface/normalizedPhi.h" 
+#include "HGCGraph.h"
+#include "HGCDoublet.h"
+
 
 
 class PatternRecognitionbyCA final : public PatternRecognitionAlgoBase {
@@ -20,7 +25,7 @@ public:
         // bins of size 0.05 in eta/phi -> 30 bins in eta, 126 bins in phi
         histogram_.resize(nLayers_);
         auto nBins = nEtaBins_*nPhiBins_;
-        for(uint i = 0; i < nLayers_; ++i)
+        for(int i = 0; i < nLayers_; ++i)
         {
             histogram_[i].resize(nBins);
         }
@@ -30,22 +35,55 @@ public:
     void fillHistogram(const std::vector<reco::CaloCluster>& layerClusters,
             const std::vector<std::pair<unsigned int, float> >& mask);
 
-    void makeDoublets(unsigned int deltaEta, unsigned int deltaPhi, unsigned int deltaLayers);
 
     void makeTracksters(
         const edm::Event& ev,
         const edm::EventSetup& es,
         const std::vector<reco::CaloCluster>& layerClusters,
-        const std::vector<std::pair<unsigned int, float> >& mask, std::vector<Trackster>& result) const override;
+        const std::vector<std::pair<unsigned int, float> >& mask, std::vector<Trackster>& result) override;
 
 private:
 
-    std::vector< std::vector< std::vector<unsigned int> > > histogram_; // a histogram of layerClusters IDs per layer
+    int getEtaBin(float eta) const {
+        constexpr float etaRange = ticlConstants::maxEta - ticlConstants::minEta;
+        static_assert(etaRange>=0.f);
+        float r = nEtaBins_/etaRange;
+        int etaBin = (eta - ticlConstants::minEta)*r;
+        etaBin = std::min(etaBin,nEtaBins_);
+        etaBin = std::max(etaBin,0);
+        return etaBin;
+    }
 
+    int getPhiBin(float phi) const {
+        auto normPhi = normalizedPhi(phi);
+        float r = nPhiBins_*M_1_PI*0.5f;
+        int phiBin = (normPhi + M_PI)*r;
+        
+        return phiBin;
+    }
+
+    int globalBin(int etaBin, int phiBin) const {
+        return phiBin + etaBin*nPhiBins_;
+    }
+
+    void clearHistogram()
+    {
+        auto nBins = nEtaBins_*nPhiBins_;
+        for(int i = 0; i < nLayers_; ++i)
+        {
+            for(int j = 0; j< nBins; ++j)  histogram_[i][j].clear();
+        }
+    }
+
+
+    std::vector< std::vector< std::vector<unsigned int> > > histogram_; // a histogram of layerClusters IDs per layer
     
-    const unsigned int nEtaBins_ = 30;
-    const unsigned int nPhiBins_ = 126;
-    const unsigned int nLayers_ = 104;
+    hgcal::RecHitTools rhtools_;
+
+    const int nEtaBins_ = 30;
+    const int nPhiBins_ = 126;
+    const int nLayers_ = 104;
+    HGCGraph theGraph_;
 };
 
 #endif

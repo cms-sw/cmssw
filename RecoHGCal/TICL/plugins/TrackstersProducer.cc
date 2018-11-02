@@ -22,11 +22,12 @@
 #include "RecoHGCal/TICL/plugins/TrackstersProducer.h"
 
 #include "PatternRecognitionbyMultiClusters.h"
+#include "PatternRecognitionbyCA.h"
 
 
 DEFINE_FWK_MODULE(TrackstersProducer);
 
-TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps): myAlgo_(std::make_unique<PatternRecognitionbyMultiClusters>(ps))
+TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps): myAlgo_(std::make_unique<PatternRecognitionbyCA>(ps))
 {
   clusters_token = consumes<std::vector<reco::CaloCluster>>(
       ps.getParameter<edm::InputTag>("HGCLayerClusters"));
