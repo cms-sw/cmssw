@@ -53,6 +53,9 @@ void MaterialBudgetCategorizer::buildCategoryMap(std::string theMaterialFileName
     theMaterialFile >> materialName;
     theMaterialFile >> sup >> sen >> cab >> col >> ele;
 
+    if (materialName[0] == '#') //Ignore comments
+      continue;
+ 
     oth = 0.000;
     air = 0.000;
     theMap[materialName].clear();        // clear before re-filling
@@ -64,14 +67,15 @@ void MaterialBudgetCategorizer::buildCategoryMap(std::string theMaterialFileName
     theMap[materialName].push_back(oth); // oth
     theMap[materialName].push_back(air); // air
     edm::LogInfo("MaterialBudget") 
-      << "MaterialBudgetCategorizer: Material " << materialName << " filled " 
-      << " SUP " << sup 
-      << " SEN " << sen 
-      << " CAB " << cab 
-      << " COL " << col 
-      << " ELE " << ele 
-      << " OTH " << oth 
-      << " AIR " << air;
+      << "MaterialBudgetCategorizer: Material " << materialName << " filled: " 
+      << "\n\tSUP " << sup 
+      << "\n\tSEN " << sen 
+      << "\n\tCAB " << cab 
+      << "\n\tCOL " << col 
+      << "\n\tELE " << ele 
+      << "\n\tOTH " << oth 
+      << "\n\tAIR " << air
+      << "\n\tAdd up to: " << sup + sen + cab + col + ele + oth + air;
   }
 }
 
