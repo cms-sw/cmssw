@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 # options.parseArguments()
 updatedTauName = "slimmedTausNewID"
 minimalOutput = True
-eventsToProcess = 1000
+eventsToProcess = 100
 nThreads = 1
 
 process = cms.Process('TauID')
@@ -26,8 +26,13 @@ process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(
     '/store/mc/RunIISummer18MiniAOD/DY1JetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/101X_upgrade2018_realistic_v7-v1/20000/0617A8FC-1CA0-E811-9992-FA163E4CB6BE.root'
 =======
     # File from dataset /GluGluHToTauTau_M125_13TeV_powheg_pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM
+<<<<<<< HEAD
      '/store/mc/RunIIFall17MiniAODv2/GluGluHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/0498CD6A-CC42-E811-95D3-008CFA1CB8A8.root'
 >>>>>>> ef7dc2ec57c... - Implemented on runTauIdMVA the option to work with new training files quantized
+=======
+     # '/store/mc/RunIIFall17MiniAODv2/GluGluHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/0498CD6A-CC42-E811-95D3-008CFA1CB8A8.root'
+     '/store/mc/RunIIFall17MiniAODv2/TTToHadronic_mtop169p5_TuneCP5_PSweights_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v3/100000/64BE09E8-76A8-E811-8602-FA163EC538AA.root'
+>>>>>>> 1c07197f73b... - Implementation of global cache to avoid reloading graph for each thread and reduce the memory consuption
 ))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eventsToProcess) )
@@ -37,13 +42,13 @@ import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
 tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
                     updatedTauName = updatedTauName,
                     toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
-                               "deepTau2017v1",
-                               "DPFTau_2016_v0",
-                               "DPFTau_2016_v1",
-                               "deepTau2017v1Q",
-                               #"DPFTau_2016_v0Q",
-                               #"DPFTau_2016_v1Q",
-                               ]) #DPF quantized files are not working for release 94X
+                               # "deepTau2017v1",
+                               # "DPFTau_2016_v0",
+                               # "DPFTau_2016_v1",
+                               # "deepTau2017v1Q",
+                               "DPFTau_2016_v0Q",
+                               # "DPFTau_2016_v1Q",
+                               ]) 
 tauIdEmbedder.runTauID()
 
 # Output definition
@@ -83,3 +88,6 @@ process.options = cms.untracked.PSet(
      numberOfThreads = cms.untracked.uint32(nThreads),
      numberOfStreams = cms.untracked.uint32(0)
 )
+
+from Validation.Performance.IgProfInfo import customise
+process = customise(process)
