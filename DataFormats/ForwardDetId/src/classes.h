@@ -14,6 +14,9 @@
 namespace DataFormats_ForwardDetId {
   struct dictionary {
 
+    //Virtual class
+    WaferDetId aWaferDetId;
+
     //EE specific
     HGCEEDetId anHGCEEDetId;
 

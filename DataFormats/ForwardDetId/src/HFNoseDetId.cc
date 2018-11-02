@@ -5,14 +5,14 @@
 
 const HFNoseDetId HFNoseDetId::Undefined(0,0,0,0,0,0,0);
 
-HFNoseDetId::HFNoseDetId() : DetId() {
+HFNoseDetId::HFNoseDetId() : WaferDetId() {
 }
 
-HFNoseDetId::HFNoseDetId(uint32_t rawid) : DetId(rawid) {
+HFNoseDetId::HFNoseDetId(uint32_t rawid) : WaferDetId(rawid) {
 }
 
 HFNoseDetId::HFNoseDetId(int zp, int type, int layer, int waferU, int waferV,
-			 int cellU, int cellV) : DetId(Forward,HFNose) {  
+			 int cellU, int cellV) : WaferDetId(Forward,HFNose) {  
 
   int waferUabs(std::abs(waferU)), waferVabs(std::abs(waferV));
   int waferUsign = (waferU >= 0) ? 0 : 1;

@@ -14,8 +14,8 @@
    <version ClassVersion="14" checksum="2581740375"/>
    <version ClassVersion="13" checksum="519079711"/>
   </class>
-  <class name="HGCSiliconDetId" ClassVersion="15">
-   <version ClassVersion="15" checksum="127365755"/>
+  <class name="HGCSiliconDetId" ClassVersion="16">
+   <version ClassVersion="16" checksum="4020781461"/>
   </class>
   <class name="HGCScintillatorDetId" ClassVersion="15">
    <version ClassVersion="15" checksum="1085028962"/>
@@ -34,6 +34,9 @@
    <version ClassVersion="3" checksum="1644731879"/>
   </class>
   <class name="HFNoseDetId" ClassVersion="0">
-   <version ClassVersion="0" checksum="1469396081"/>
+   <version ClassVersion="1" checksum="3716636183"/>
+  </class>
+  <class name="WaferDetId" ClassVersion="0">
+   <version ClassVersion="1" checksum="2980321125"/>
   </class>
 </lcgdict>

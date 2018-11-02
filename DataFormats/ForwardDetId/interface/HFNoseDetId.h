@@ -3,6 +3,7 @@
 
 #include <iosfwd>
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/ForwardDetId/interface/WaferDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 /* \brief description of the bit assigment
@@ -20,7 +21,7 @@
    [25:27] Subdetector type (HFNose)
    [28:31] Detector type (Forward)
 */
-class HFNoseDetId : public DetId {
+class HFNoseDetId : public WaferDetId {
 
 public:
 
@@ -49,41 +50,28 @@ public:
   HFNoseDetId geometryCell () const {return HFNoseDetId (zside(), 0, layer(), waferU(), waferV(), 0, 0);}
 
   /// get the type
-  int type() const { return (id_>>kHFNoseTypeOffset)&kHFNoseTypeMask; }
+  int type() const override { return (id_>>kHFNoseTypeOffset)&kHFNoseTypeMask; }
 
   /// get the z-side of the cell (1/-1)
-  int zside() const { return (((id_>>kHFNoseZsideOffset) & kHFNoseZsideMask) ? -1 : 1); }
+  int zside() const override { return (((id_>>kHFNoseZsideOffset) & kHFNoseZsideMask) ? -1 : 1); }
 
   /// get the layer #
-  int layer() const { return (id_>>kHFNoseLayerOffset)&kHFNoseLayerMask; }
+  int layer() const override { return (id_>>kHFNoseLayerOffset)&kHFNoseLayerMask; }
 
   /// get the cell #'s in u,v or in x,y
-  int cellU() const { return (id_>>kHFNoseCellUOffset)&kHFNoseCellUMask; }
-  int cellV() const { return (id_>>kHFNoseCellVOffset)&kHFNoseCellVMask; }
-  std::pair<int,int> cellUV() const { return std::pair<int,int>(cellU(),cellV()); }
-  int cellX() const {
-    int N = (type() == HFNoseFine) ? HFNoseFineN : HFNoseCoarseN;
-    return (3*(cellV()-N)+2);
-  }
-  int cellY() const {
-    int N = (type() == HFNoseFine) ? HFNoseFineN : HFNoseCoarseN;
-    return (2*cellU()-(N+cellV()));
-  }
-  std::pair<int,int> cellXY() const { return std::pair<int,int>(cellX(),cellY()); }
+  int cellU() const override { return (id_>>kHFNoseCellUOffset)&kHFNoseCellUMask; }
+  int cellV() const override { return (id_>>kHFNoseCellVOffset)&kHFNoseCellVMask; }
+  int getN()  const override { return ((type() == HFNoseFine) ? HFNoseFineN : HFNoseCoarseN); }
 
   /// get the wafer #'s in u,v or in x,y
-  int waferUAbs() const { return (id_>>kHFNoseWaferUOffset)&kHFNoseWaferUMask; }
-  int waferVAbs() const { return (id_>>kHFNoseWaferVOffset)&kHFNoseWaferVMask; }
-  int waferU() const { return (((id_>>kHFNoseWaferUSignOffset) & kHFNoseWaferUSignMask) ? -waferUAbs() : waferUAbs()); }
-  int waferV() const { return (((id_>>kHFNoseWaferVSignOffset) & kHFNoseWaferVSignMask) ? -waferVAbs() : waferVAbs()); }
-  std::pair<int,int> waferUV() const { return std::pair<int,int>(waferU(),waferV()); }
-  int waferX() const { return (-2*waferU()+waferV()); }
-  int waferY() const { return (2*waferV()); }
-  std::pair<int,int> waferXY() const { return std::pair<int,int>(waferX(),waferY()); }
+  int waferUAbs() const override { return (id_>>kHFNoseWaferUOffset)&kHFNoseWaferUMask; }
+  int waferVAbs() const override { return (id_>>kHFNoseWaferVOffset)&kHFNoseWaferVMask; }
+  int waferU() const override { return (((id_>>kHFNoseWaferUSignOffset) & kHFNoseWaferUSignMask) ? -waferUAbs() : waferUAbs()); }
+  int waferV() const override { return (((id_>>kHFNoseWaferVSignOffset) & kHFNoseWaferVSignMask) ? -waferVAbs() : waferVAbs()); }
 
   /// consistency check : no bits left => no overhead
-  bool isEE()      const { return (layer() <= kHFNoseLayerEEmax); }
-  bool isHE()      const { return (layer() >  kHFNoseLayerEEmax); }
+  bool isEE()      const override { return (layer() <= kHFNoseLayerEEmax); }
+  bool isHE()      const override { return (layer() >  kHFNoseLayerEEmax); }
   bool isForward() const { return true; }
   
   static const HFNoseDetId Undefined;

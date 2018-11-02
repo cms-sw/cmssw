@@ -5,15 +5,15 @@
 
 const HGCSiliconDetId HGCSiliconDetId::Undefined(HGCalEE,0,0,0,0,0,0,0);
 
-HGCSiliconDetId::HGCSiliconDetId() : DetId() {
+HGCSiliconDetId::HGCSiliconDetId() : WaferDetId() {
 }
 
-HGCSiliconDetId::HGCSiliconDetId(uint32_t rawid) : DetId(rawid) {
+HGCSiliconDetId::HGCSiliconDetId(uint32_t rawid) : WaferDetId(rawid) {
 }
 
 HGCSiliconDetId::HGCSiliconDetId(DetId::Detector det, int zp, int type, 
 				 int layer, int waferU, int waferV, int cellU,
-				 int cellV) : DetId(det,ForwardEmpty) {  
+				 int cellV) : WaferDetId(det,ForwardEmpty) {  
 
   int waferUabs(std::abs(waferU)), waferVabs(std::abs(waferV));
   int waferUsign = (waferU >= 0) ? 0 : 1;
