@@ -63,7 +63,11 @@ void PixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
 
 PixelDigitizerAlgorithm::PixelDigitizerAlgorithm(const edm::ParameterSet& conf) :
   Phase2TrackerDigitizerAlgorithm(conf.getParameter<ParameterSet>("AlgorithmCommon"),
-				  conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm"))
+				  conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm")),
+  odd_row_interchannelCoupling_next_row(conf.getParameter<double>("Odd_row_interchannelCoupling_next_row")),
+  even_row_interchannelCoupling_next_row(conf.getParameter<double>("Even_row_interchannelCoupling_next_row")),
+  odd_column_interchannelCoupling_next_column(conf.getParameter<double>("Odd_column_interchannelCoupling_next_column")),
+  even_column_interchannelCoupling_next_column(conf.getParameter<double>("Even_column_interchannelCoupling_next_column"))
 {
   pixelFlag = true;
   LogInfo("PixelDigitizerAlgorithm") << "Algorithm constructed "
@@ -184,4 +188,5 @@ void PixelDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetUnit* pix
     }
   } 
 }
+
 
