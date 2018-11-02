@@ -7,9 +7,45 @@
  * \author Maria Rosaria Di Domenico, University of Siena & INFN Pisa
  */
 
+#include <TF1.h>
 #include "RecoTauTag/RecoTau/interface/DeepTauBase.h"
 
 namespace deep_tau {
+
+TauWPThreshold::TauWPThreshold(const std::string& cut_str)
+{
+    bool simple_value = false;
+    try {
+        size_t pos = 0;
+        value = std::stod(cut_str, &pos);
+        simple_value = pos == cut_str.size();
+    } catch(std::invalid_argument&) {
+    } catch(std::out_of_range&) {
+    }
+    if(!simple_value) {
+        static const std::string prefix = "[&](double *x, double *p) { const int decayMode = p[0];"
+                                          "const double pt = p[1]; const double eta = p[2];";
+        static const int n_params = 3;
+        static const auto handler = [](int, Bool_t, const char*, const char*) -> void {};
+
+        const std::string fn_str = prefix + cut_str + "}";
+        auto old_handler = SetErrorHandler(handler);
+        fn = std::make_unique<TF1>("fn", fn_str.c_str(), 0, 1, n_params);
+        SetErrorHandler(old_handler);
+        if(!fn->IsValid())
+            throw cms::Exception("TauWPThreshold: invalid formula") << "Invalid WP cut formula = '" << cut_str << "'.";
+    }
+}
+
+double TauWPThreshold::operator()(const pat::Tau& tau) const
+{
+    if(!fn)
+        return value;
+    fn->SetParameter(0, tau.decayMode());
+    fn->SetParameter(1, tau.pt());
+    fn->SetParameter(2, tau.eta());
+    return fn->Eval(0);
+}
 
 DeepTauBase::Output::ResultMap DeepTauBase::Output::get_value(const edm::Handle<TauCollection>& taus,
                                                               const tensorflow::Tensor& pred,
