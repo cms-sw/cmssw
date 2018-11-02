@@ -2330,6 +2330,12 @@ steps['HARVEST2018_hBStar'] = merge([ {'--era' : 'Run2_2018_highBetaStar'}, step
 steps['HARVEST2018_HEfail'] = merge([ {'--conditions':'auto:run2_data_promptlike_HEfail'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_BadHcalMitig'] = merge([ {'--era' : 'Run2_2018,pf_badHcalMitigation','--conditions':'auto:run2_data_promptlike_HEfail'}, steps['HARVEST2018'] ])
 
+steps['HARVEST2018_L1TEgDQM_MULTIRUN'] = merge([ {
+        '--customise':"Configuration/StandardSequences/DQMSaverAtJobEnd_cff",
+        # hardcode the input files since we need multiple, from each of the RECO steps.
+        '--filein':"file:step6_inDQM.root,file:step3_inDQM.root",
+    }, steps['HARVEST2018_L1TEgDQM'] ])
+
 steps['DQMHLTonAOD_2017']={
     '-s':'DQM:offlineHLTSourceOnAOD', ### DQM-only workflow on AOD input: for HLT
     '--conditions':'auto:run2_data_promptlike',
