@@ -132,18 +132,32 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleXTagInfos"));
   desc.add<std::vector<std::string>>("input_names", 
     { "input_1", "input_2", "input_3" });
-  desc.add<edm::FileInPath>("graph_path",
-    edm::FileInPath("RecoBTag/Combined/data/DeepDoubleB/V01/constant_graph_PtCut_MassSculptPen.pb"));
   desc.add<std::vector<std::string>>("lp_names",
     { "db_input_batchnorm/keras_learning_phase" });
   desc.add<std::vector<std::string>>("output_names",
     { "ID_pred/Softmax" });
+
   {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::vector<unsigned int>>("probQCD", {0});
-    psd0.add<std::vector<unsigned int>>("probHbb", {1});
-    psd0.addOptional<std::vector<unsigned int>>("probHcc");
-    desc.add<edm::ParameterSetDescription>("flav_table", psd0);
+  edm::ParameterSetDescription psBvL;
+  psBvL.add<std::vector<unsigned int>>("probQCD", {0});
+  psBvL.add<std::vector<unsigned int>>("probHbb", {1});
+
+  edm::ParameterSetDescription psCvL;
+  psCvL.add<std::vector<unsigned int>>("probQCD", {0});
+  psCvL.add<std::vector<unsigned int>>("probHcc", {1});
+
+  edm::ParameterSetDescription psCvB;
+  psCvB.add<std::vector<unsigned int>>("probHbb", {0});
+  psCvB.add<std::vector<unsigned int>>("probHcc", {1});
+
+  desc.ifValue( edm::ParameterDescription<std::string>("flavor", "BvL", true),
+    "BvL" >> (edm::ParameterDescription<edm::ParameterSetDescription>("flav_table", psBvL, true) and 
+		edm::ParameterDescription<edm::FileInPath>("graph_path",  edm::FileInPath("RecoBTag/Combined/data/DeepDoubleB/V01/constant_graph_PtCut_MassSculptPen.pb"), true)) or
+    "CvL" >> (edm::ParameterDescription<edm::ParameterSetDescription>("flav_table", psCvL, true) and 
+		edm::ParameterDescription<edm::FileInPath>("graph_path",  edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC.pb"), true) ) or
+    "CvB" >> (edm::ParameterDescription<edm::ParameterSetDescription>("flav_table", psCvB, true) and 
+		edm::ParameterDescription<edm::FileInPath>("graph_path",  edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.pb"), true)) 
+    );
   }
 
   desc.add<bool>("batch_eval", false);
@@ -152,58 +166,6 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::string>("singleThreadPool", "no_threads");
 
   descriptions.add("pfDeepDoubleBvLJetTags", desc);
-
-  // pfDeepDoubleCvLJetTags
-  edm::ParameterSetDescription desc2;
-  desc2.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleXTagInfos"));
-  desc2.add<std::vector<std::string>>("input_names", 
-    { "input_1", "input_2", "input_3" });
-  desc2.add<edm::FileInPath>("graph_path",
-    edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC.pb"));
-  desc2.add<std::vector<std::string>>("lp_names",
-    { "db_input_batchnorm/keras_learning_phase" });
-  desc2.add<std::vector<std::string>>("output_names",
-    { "ID_pred/Softmax" });
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::vector<unsigned int>>("probQCD", {0});
-    psd0.add<std::vector<unsigned int>>("probHcc", {1});
-    psd0.addOptional<std::vector<unsigned int>>("probHbb");
-    desc2.add<edm::ParameterSetDescription>("flav_table", psd0);
-  }
-
-  desc2.add<bool>("batch_eval", false);
-
-  desc2.add<unsigned int>("nThreads", 1);
-  desc2.add<std::string>("singleThreadPool", "no_threads");
-
-  descriptions.add("pfDeepDoubleCvLJetTags", desc2);
-
-  // pfDeepDoubleCvBJetTags
-  edm::ParameterSetDescription desc3;
-  desc3.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleXTagInfos"));
-  desc3.add<std::vector<std::string>>("input_names", 
-    { "input_1", "input_2", "input_3" });
-  desc3.add<edm::FileInPath>("graph_path",
-    edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.pb"));
-  desc3.add<std::vector<std::string>>("lp_names",
-    { "db_input_batchnorm/keras_learning_phase" });
-  desc3.add<std::vector<std::string>>("output_names",
-    { "ID_pred/Softmax" });
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::vector<unsigned int>>("probHbb", {0});
-    psd0.add<std::vector<unsigned int>>("probHcc", {1});
-    psd0.addOptional<std::vector<unsigned int>>("probQCD");
-    desc3.add<edm::ParameterSetDescription>("flav_table", psd0);
-  }
-
-  desc3.add<bool>("batch_eval", false);
-
-  desc3.add<unsigned int>("nThreads", 1);
-  desc3.add<std::string>("singleThreadPool", "no_threads");
-  descriptions.add("pfDeepDoubleCvBJetTags", desc3);
-
 
 }
 
