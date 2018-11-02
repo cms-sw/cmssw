@@ -176,6 +176,8 @@ class ValidationJob(object):
         elif valType == "primaryvertex":
             validation = PrimaryVertexValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
+        elif valType == "preexistingprimaryvertex":
+            validation = PreexistingPrimaryVertexValidation(name, self.__config)
         else:
             raise AllInOneError("Unknown validation mode '%s'"%valType)
 
