@@ -142,6 +142,7 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
     edm::ParameterSetDescription psd0;
     psd0.add<std::vector<unsigned int>>("probQCD", {0});
     psd0.add<std::vector<unsigned int>>("probHbb", {1});
+    psd0.addOptional<std::vector<unsigned int>>("probHcc");
     desc.add<edm::ParameterSetDescription>("flav_table", psd0);
   }
 
@@ -167,6 +168,7 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
     edm::ParameterSetDescription psd0;
     psd0.add<std::vector<unsigned int>>("probQCD", {0});
     psd0.add<std::vector<unsigned int>>("probHcc", {1});
+    psd0.addOptional<std::vector<unsigned int>>("probHbb");
     desc2.add<edm::ParameterSetDescription>("flav_table", psd0);
   }
 
@@ -192,6 +194,7 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
     edm::ParameterSetDescription psd0;
     psd0.add<std::vector<unsigned int>>("probHbb", {0});
     psd0.add<std::vector<unsigned int>>("probHcc", {1});
+    psd0.addOptional<std::vector<unsigned int>>("probQCD");
     desc3.add<edm::ParameterSetDescription>("flav_table", psd0);
   }
 
