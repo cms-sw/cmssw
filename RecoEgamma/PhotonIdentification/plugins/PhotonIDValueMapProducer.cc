@@ -443,3 +443,4 @@ const reco::Track* PhotonIDValueMapProducer::getTrackPointer(const edm::Ptr<reco
         &(((const edm::Ptr<pat::PackedCandidate>)candidate)->pseudoTrack());
 }
 
+DEFINE_FWK_MODULE(PhotonIDValueMapProducer);
