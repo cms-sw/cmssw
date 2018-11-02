@@ -73,6 +73,10 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
   alpha2Order(conf_specific.getParameter<bool>("Alpha2Order")),      // switch on/off of E.B effect
   addXtalk(conf_specific.getParameter<bool>("AddXTalk")), 
   interstripCoupling(conf_specific.getParameter<double>("InterstripCoupling")), // Interstrip Coupling
+  odd_row_interchannelCoupling_next_row(conf_specific.getParameter<double>("Odd_row_interchannelCoupling_next_row")),
+  even_row_interchannelCoupling_next_row(conf_specific.getParameter<double>("Even_row_interchannelCoupling_next_row")),
+  odd_column_interchannelCoupling_next_column(conf_specific.getParameter<double>("Odd_column_interchannelCoupling_next_column")),
+  even_column_interchannelCoupling_next_column(conf_specific.getParameter<double>("Even_column_interchannelCoupling_next_column")),
   
   Sigma0(conf_specific.getParameter<double>("SigmaZero")),           // Charge diffusion constant 7->3.7
   SigmaCoeff(conf_specific.getParameter<double>("SigmaCoeff")),      // delta in the diffusion across the strip pitch 
