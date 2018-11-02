@@ -132,34 +132,23 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleXTagInfos"));
   desc.add<std::vector<std::string>>("input_names", 
     { "input_1", "input_2", "input_3" });
-  //desc.add<edm::FileInPath>("graph_path",
-  //  edm::FileInPath("RecoBTag/Combined/data/DeepDoubleB/V01/constant_graph_PtCut_MassSculptPen.pb"));
   desc.add<std::vector<std::string>>("lp_names",
     { "db_input_batchnorm/keras_learning_phase" });
   desc.add<std::vector<std::string>>("output_names",
     { "ID_pred/Softmax" });
 
-  /*desc.ifValue( edm::ParameterDescription<std::string>("model", "BvL", true),
-    "BvL" >> edm::ParameterDescription<edm::FileInPath>("graph_path",  edm::FileInPath("RecoBTag/Combined/data/DeepDoubleB/V01/constant_graph_PtCut_MassSculptPen.pb"), true)  or
-    "CvL" >> edm::ParameterDescription<edm::FileInPath>("graph_path",  edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC.pb"), true) or
-    "CvB" >> edm::ParameterDescription<edm::FileInPath>("graph_path",  edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.pb"), true) 
-    );*/
-
   {
   edm::ParameterSetDescription psBvL;
   psBvL.add<std::vector<unsigned int>>("probQCD", {0});
   psBvL.add<std::vector<unsigned int>>("probHbb", {1});
-  //psBvL.add<edm::FileInPath>("graph_path", edm::FileInPath("RecoBTag/Combined/data/DeepDoubleB/V01/constant_graph_PtCut_MassSculptPen.pb"));
 
   edm::ParameterSetDescription psCvL;
   psCvL.add<std::vector<unsigned int>>("probQCD", {0});
   psCvL.add<std::vector<unsigned int>>("probHcc", {1});
-  //psCvL.add<edm::FileInPath>("graph_path",  edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC.pb"));
 
   edm::ParameterSetDescription psCvB;
   psCvB.add<std::vector<unsigned int>>("probHbb", {0});
   psCvB.add<std::vector<unsigned int>>("probHcc", {1});
-  //psCvB.add<edm::FileInPath>("graph_path",  edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.pb")); 
 
   desc.ifValue( edm::ParameterDescription<std::string>("flavor", "BvL", true),
     "BvL" >> (edm::ParameterDescription<edm::ParameterSetDescription>("flav_table", psBvL, true) and 
@@ -170,17 +159,6 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
 		edm::ParameterDescription<edm::FileInPath>("graph_path",  edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.pb"), true)) 
     );
   }
- /* {
-    edm::ParameterSetDescription psd0;
-    psd0.addOptional<std::vector<unsigned int>>("probQCD", {0});
-    psd0.addOptional<std::vector<unsigned int>>("probHbb", {1});
-    psd0.addOptional<std::vector<unsigned int>>("probHcc");
-    desc.add<edm::ParameterSetDescription>("flav_table", psd0);
-
-    desc.add<edm::FileInPath>("graph_path",
-     edm::FileInPath("RecoBTag/Combined/data/DeepDoubleB/V01/constant_graph_PtCut_MassSculptPen.pb"));
-      
-  } */
 
   desc.add<bool>("batch_eval", false);
 
