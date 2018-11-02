@@ -34,31 +34,31 @@ IdealObliquePrism::~IdealObliquePrism()
 CCGFloat 
 IdealObliquePrism::dEta()  const 
 {
-   return param()[0] ;
+   return param()[IdealObliquePrism::k_dEta] ;
 }
 
 CCGFloat 
 IdealObliquePrism::dPhi()  const 
 { 
-   return param()[1] ;
+   return param()[IdealObliquePrism::k_dPhi] ;
 }
 
 CCGFloat 
 IdealObliquePrism::dz()    const 
 {
-   return param()[2] ;
+   return param()[IdealObliquePrism::k_dZ] ;
 }
 
 CCGFloat 
 IdealObliquePrism::eta()   const
 {
-   return param()[3] ; 
+   return param()[IdealObliquePrism::k_Eta] ; 
 }
 
 CCGFloat 
 IdealObliquePrism::z()     const 
 {
-   return param()[4] ;
+   return param()[IdealObliquePrism::k_Z] ;
 }
 
 void 
@@ -92,11 +92,11 @@ void IdealObliquePrism::localCorners( Pt3DVec&        lc  ,
    assert( 8 == lc.size() ) ;
    assert( nullptr != pv ) ;
    
-   const CCGFloat dEta ( pv[0] ) ;
-   const CCGFloat dPhi ( pv[1] ) ;
-   const CCGFloat dz   ( pv[2] ) ;
-   const CCGFloat eta  ( pv[3] ) ;
-   const CCGFloat z    ( pv[4] ) ;
+   const CCGFloat dEta ( pv[IdealObliquePrism::k_dEta] ) ;
+   const CCGFloat dPhi ( pv[IdealObliquePrism::k_dPhi] ) ;
+   const CCGFloat dz   ( pv[IdealObliquePrism::k_dZ] ) ;
+   const CCGFloat eta  ( pv[IdealObliquePrism::k_Eta] ) ;
+   const CCGFloat z    ( pv[IdealObliquePrism::k_Z] ) ;
    
    std::vector<GlobalPoint> gc ( 8, GlobalPoint(0,0,0) ) ;
 
