@@ -57,7 +57,11 @@ updateJetCollection(
       'pfDeepDoubleCvLJetTags:probQCD',
       'pfDeepDoubleCvLJetTags:probHcc',
       'pfDeepDoubleCvBJetTags:probHbb',
-      'pfDeepDoubleCvBJetTags:probHcc'
+      'pfDeepDoubleCvBJetTags:probHcc',
+      'pfMassIndependentDeepDoubleCvLJetTags:probQCD',
+      'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
+      'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
+      'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
       ]
    )
 
@@ -70,7 +74,7 @@ process.source.fileNames = cms.untracked.vstring(
 #'/store/mc/RunIIFall17MiniAODv2/GluGluHToCC_M125_13TeV_powheg_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v2/30000/72164088-CB67-E811-9D0D-008CFA197AC4.root',
 #'/store/mc/RunIIFall17MiniAOD/QCD_HT700to1000_TuneCP5_13TeV-madgraph-pythia8/MINIAODSIM/94X_mc2017_realistic_v10-v1/20000/C0F304A4-23FA-E711-942E-E0071B6CAD20.root'
 )
-process.maxEvents.input = -1 
+process.maxEvents.input = 1000 
 
 from Configuration.EventContent.EventContent_cff import MINIAODSIMEventContent
 process.out.outputCommands.append('keep *_slimmedJetsAK8*_*_*')

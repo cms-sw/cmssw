@@ -10,6 +10,7 @@ pfMassIndependentDeepDoubleCvLJetTags = cms.EDProducer('DeepDoubleXTFJetTagsProd
   graph_path = cms.FileInPath('RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC_mass_independent.pb'),
   lp_names = cms.vstring('db_input_batchnorm/keras_learning_phase'),
   output_names = cms.vstring('ID_pred/Softmax'),
+  flavor = cms.string('CvL'),
   flav_table = cms.PSet(
     probQCD = cms.vuint32(0),
     probHcc = cms.vuint32(1)
