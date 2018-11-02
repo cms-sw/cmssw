@@ -178,9 +178,9 @@ void FlatHexagon::localCorners( Pt3DVec&        lc  ,
    assert( nullptr != pv ) ;
    assert( ncorner_ == lc.size() ) ;
 
-   const CCGFloat dz ( pv[0] ) ;
-   const CCGFloat r  ( pv[1] ) ;
-   const CCGFloat R  ( pv[2] ) ;
+   const CCGFloat dz ( pv[FlatHexagon::k_dZ] ) ;
+   const CCGFloat r  ( pv[FlatHexagon::k_r] ) ;
+   const CCGFloat R  ( pv[FlatHexagon::k_R] ) ;
 
    lc[0] = Pt3D (   0 ,  - 2*R , -dz ); // (0,-,-)
    lc[1] = Pt3D ( - r ,  -   R , -dz ); // (-,-,-)
@@ -272,7 +272,7 @@ GlobalVector FlatHexagon::makeAxis() {
 
 GlobalPoint FlatHexagon::backCtr() const {
   float dz = (getCorners()[ncornerBy2_].z() > getCorners()[0].z()) ? 
-    param()[0] : -param()[0];
+    param()[FlatHexagon::k_dZ] : -param()[FlatHexagon::k_dZ];
   Pt3D local_b(m_local.x(),m_local.y(),m_local.z()+dz);
   Pt3D global_b = m_tr*local_b;
   GlobalPoint global(global_b.x(),global_b.y(),global_b.z());
