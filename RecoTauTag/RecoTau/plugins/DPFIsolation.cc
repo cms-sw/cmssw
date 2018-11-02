@@ -20,8 +20,7 @@ inline int getPFCandidateIndex(const edm::Handle<pat::PackedCandidateCollection>
 }
 } // anonymous namespace
 
-
-class DPFIsolation : public deep_tau::DeepTauBase {
+class DPFIsolation : public deep_tau::DeepTauBase{
 public:
     static OutputCollection& GetOutputs()
     {
@@ -65,8 +64,8 @@ public:
         descriptions.add("DPFTau2016v0", desc);
     }
 
-    explicit DPFIsolation(const edm::ParameterSet& cfg) :
-        DeepTauBase(cfg, GetOutputs()),
+    explicit DPFIsolation(const edm::ParameterSet& cfg,const deep_tau::DeepTauCache* cache ) :
+        DeepTauBase(cfg, GetOutputs(), cache),
         pfcand_token(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("pfcands"))),
         vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
         graphVersion(cfg.getParameter<unsigned>("version"))
@@ -367,7 +366,7 @@ private:
                 }
                 iPF++;
             }
-            tensorflow::run(session, { { "input_1", tensor } }, { "output_node0" }, {}, &outputs);
+            tensorflow::run(&(cache->getSession()), { { "input_1", tensor } }, { "output_node0" }, {}, &outputs);
             predictions.matrix<float>()(tau_index, 0) = outputs[0].flat<float>()(0);
         }
         return predictions;

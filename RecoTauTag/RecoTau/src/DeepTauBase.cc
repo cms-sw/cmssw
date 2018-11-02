@@ -40,12 +40,10 @@ DeepTauBase::Output::ResultMap DeepTauBase::Output::get_value(const edm::Handle<
     return output;
 }
 
-DeepTauBase::DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputCollection) :
+DeepTauBase::DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputCollection, const DeepTauCache* _cache) :
     taus_token(consumes<TauCollection>(cfg.getParameter<edm::InputTag>("taus"))),
-    graphName(edm::FileInPath(cfg.getParameter<std::string>("graph_file")).fullPath()),
-    graph(tensorflow::loadGraphDef(graphName)),
-    session(tensorflow::createSession(graph.get())),
-    outputs(outputCollection)
+    outputs(outputCollection),
+    cache(_cache)
 {
     for(const auto& output_desc : outputs) {
         produces<TauDiscriminator>(output_desc.first);
@@ -60,7 +58,6 @@ DeepTauBase::DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& o
 
 DeepTauBase::~DeepTauBase()
 {
-    tensorflow::closeSession(session);
 }
 
 void DeepTauBase::produce(edm::Event& event, const edm::EventSetup& es)
@@ -79,6 +76,26 @@ void DeepTauBase::CreateOutputs(edm::Event& event, const tensorflow::Tensor& pre
         for(auto& result : result_map)
             event.put(std::move(result.second), output_desc.first + result.first);
     }
+}
+
+
+std::unique_ptr<DeepTauCache> DeepTauBase::initializeGlobalCache(const edm::ParameterSet& cfg )
+{
+    std::string graphName = edm::FileInPath(cfg.getParameter<std::string>("graph_file")).fullPath();
+    return std::make_unique<DeepTauCache>(graphName);
+}
+
+void DeepTauBase::globalEndJob(const DeepTauCache* cache) { }
+
+DeepTauCache::DeepTauCache(const std::string& graphName) :
+    graph(tensorflow::loadGraphDef(graphName)),
+    session(tensorflow::createSession(graph.get()))
+{
+}
+
+DeepTauCache::~DeepTauCache()
+{
+    tensorflow::closeSession(session);
 }
 
 } // namespace deep_tau

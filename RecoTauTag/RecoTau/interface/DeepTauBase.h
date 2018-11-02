@@ -25,7 +25,24 @@
 
 namespace deep_tau {
 
-class DeepTauBase : public edm::stream::EDProducer<> {
+class DeepTauCache {
+public:
+    using GraphPtr = std::shared_ptr<tensorflow::GraphDef>;
+
+    DeepTauCache(const std::string& graphName);
+    ~DeepTauCache();
+
+   // A Session allows concurrent calls to Run(), though a Session must
+   // be created / extended by a single thread.
+   tensorflow::Session& getSession() const { return *session; }
+   const tensorflow::GraphDef& getGraph() const { return *graph; }
+
+protected:
+    GraphPtr graph;
+    tensorflow::Session* session;
+};
+
+class DeepTauBase : public edm::stream::EDProducer<edm::GlobalCache<DeepTauCache>> {
 public:
     using TauType = pat::Tau;
     using TauDiscriminator = pat::PATTauDiscriminator;
@@ -35,11 +52,9 @@ public:
     using ElectronCollection = pat::ElectronCollection;
     using MuonCollection = pat::MuonCollection;
     using LorentzVectorXYZ = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>;
-    using GraphPtr = std::shared_ptr<tensorflow::GraphDef>;
     using Cutter = StringObjectFunction<TauType>;
     using CutterPtr = std::unique_ptr<Cutter>;
     using WPMap = std::map<std::string, CutterPtr>;
-
 
     struct Output {
         using ResultMap = std::map<std::string, std::unique_ptr<TauDiscriminator>>;
@@ -54,10 +69,14 @@ public:
     using OutputCollection = std::map<std::string, Output>;
 
 
-    DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputs);
+    DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputs, const DeepTauCache* cache);
+
     virtual ~DeepTauBase();
 
     virtual void produce(edm::Event& event, const edm::EventSetup& es) override;
+
+    static std::unique_ptr<DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg);
+    static void globalEndJob(const DeepTauCache* cache);
 
 private:
     virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es,
@@ -66,11 +85,9 @@ private:
 
 protected:
     edm::EDGetTokenT<TauCollection> taus_token;
-    std::string graphName;
-    GraphPtr graph;
-    tensorflow::Session* session;
     std::map<std::string, WPMap> working_points;
     OutputCollection outputs;
+    const DeepTauCache* cache;
 };
 
 } // namespace deep_tau
