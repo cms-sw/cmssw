@@ -113,7 +113,7 @@ std::unique_ptr<T> produce_impl (const std::string& fFile) {
     std::cerr << "CastorTextCalibrations-> Unable to open file '" << fFile << "'" << std::endl;
     throw cms::Exception("FileNotFound") << "Unable to open '" << fFile << "'" << std::endl;
   }
-  if (!CastorDbASCIIIO::getObject (inStream, &*result)) {
+  if (!CastorDbASCIIIO::getObject (inStream, *result)) {
     std::cerr << "CastorTextCalibrations-> Can not read object from file '" << fFile << "'" << std::endl;
     throw cms::Exception("ReadError") << "Can not read object from file '" << fFile << "'" << std::endl;
   }
