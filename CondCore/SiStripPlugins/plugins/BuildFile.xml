@@ -1,5 +1,3 @@
-<flags CXX_FLAGS="-Wno-unused-variable"/>
-
 <library   file="SiStripDetVOff_PayloadInspector.cc" name="SiStripDetVOff_PayloadInspector">
   <use   name="CondCore/Utilities"/>
   <use   name="CondCore/CondDB"/>
