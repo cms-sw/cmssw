@@ -46,89 +46,20 @@ namespace {
       tmap->setTitle(titleMap);
 
       TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
-
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
-
       std::unique_ptr<SiStripDetCabling> detCabling_ =std::unique_ptr<SiStripDetCabling>(new SiStripDetCabling(*(payload.get()),&tTopo));
 
-      // std::vector<uint32_t> activeDetIds;
-      // detCabling_->addActiveDetectorsRawIds(activeDetIds);
-      // detCabling_->addAllDetectorsRawIds(activeDetIds);
+      std::vector<uint32_t> activeDetIds;
+      detCabling_->addActiveDetectorsRawIds(activeDetIds);
 
-      // for(const auto &detId : activeDetIds){
-      // 	int32_t n_conn = 0;																      
-      // 	for(uint32_t connDet_i=0; connDet_i<detCabling_->getConnections(detId).size(); connDet_i++){						      
-      // 	  if(detCabling_->getConnections(detId)[connDet_i]!=nullptr && detCabling_->getConnections(detId)[connDet_i]->isConnected()!=0) n_conn++;     
-      // 	}																		      
-      // 	if(n_conn!=0){																	      
-      // 	  tmap->fill(detId,n_conn*2);														      
-      // 	}                                                                                                                                                     
-      // }
-
-      auto DetInfos  = reader->getAllData(); 
-      for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++){    
-      	// check if det id is correct and if it is actually cabled in the detector
-      	if( it->first==0 || it->first==0xFFFFFFFF ) {
-      	  edm::LogError("DetIdNotGood") << "@SUB=analyze" << "Wrong det id: " << it->first 
-      					<< "  ... neglecting!" << std::endl;
-      	  continue;
-      	}
-
-      	// uint16_t nAPVs = 0;
-      	// const std::vector<const FedChannelConnection*> connection = detCabling_->getConnections(it->first);
-      	// for (unsigned int ca = 0; ca<connection.size(); ca++) {
-      	//   if ( connection[ca]!=0 )  {
-      	//     nAPVs+=( connection[ca] )->nApvs();
-      	//     break;
-      	//   }
-      	// }
-
-      	int32_t n_conn = 0;
-      	for(uint32_t connDet_i=0; connDet_i<detCabling_->getConnections(it->first).size(); connDet_i++){
-      	  if(detCabling_->getConnections(it->first)[connDet_i]!=nullptr && detCabling_->getConnections(it->first)[connDet_i]->isConnected()!=0) n_conn++;
-      	}
-      	if(n_conn!=0){
-      	  tmap->fill(it->first,n_conn*2);
-      	}                                                                                                                                                     
+      for(const auto &detId : activeDetIds){
+	int32_t n_conn = 0;
+	for(uint32_t connDet_i=0; connDet_i<detCabling_->getConnections(detId).size(); connDet_i++){
+	  if(detCabling_->getConnections(detId)[connDet_i]!=nullptr && detCabling_->getConnections(detId)[connDet_i]->isConnected()!=0) n_conn++;
+	}
+	if(n_conn!=0){
+	  tmap->fill(detId,n_conn*2);
+	}
       }
-
-      // auto feds = payload->fedIds();
-      // for ( auto ifed = feds.begin(); ifed != feds.end(); ifed++ ) { // iterate over active feds, get all their FedChannelConnection-s
-      // 	SiStripFedCabling::ConnsConstIterRange conns = payload->fedConnections( *ifed );
-      // 	for ( auto iconn = conns.begin(); iconn != conns.end(); iconn++ ) { // loop over FedChannelConnection objects
-      // 	  bool have_fed_id = iconn->fedId();
-      // 	  std::vector<int> vector_of_connected_apvs;
-      // 	  if(have_fed_id){ // these apvpairs are seen from the readout
-      // 	    // there can be at most 6 APVs on one DetId: 0,1,2,3,4,5
-      // 	    int which_apv_pair = iconn->apvPairNumber(); // APVPair (0,1) for 512 strips and (0,1,2) for 768 strips
-	
-      // 	    // patch needed to take into account invalid detids or apvPairs
-      // 	    if( iconn->detId()==0 ||  
-      // 		iconn->detId() == sistrip::invalid32_ ||  
-      // 		iconn->apvPairNumber() == sistrip::invalid_  ||
-      // 		iconn->nApvPairs() == sistrip::invalid_ ) {
-      // 	      continue;
-      // 	    } 
-
-      // 	    if(iconn->i2cAddr(0)) vector_of_connected_apvs.push_back(2*which_apv_pair + 0); // first apv of the pair
-      // 	    if(iconn->i2cAddr(1)) vector_of_connected_apvs.push_back(2*which_apv_pair + 1); // second apv of the pair
-      // 	  }
-
-      // 	  if(!vector_of_connected_apvs.empty()){ // add only is smth. there, obviously
-      // 	    std::cout << iconn->detId();
-      // 	    for (const auto &element : vector_of_connected_apvs){
-      // 	      std::cout << " "<< element;
-      // 	    }
-      // 	     std::cout << std::endl;
-      // 	  }
-      // 	} // loop on fedchannel connections
-      // } // loop on feds
-
-      // // for(const auto & element : map_of_connected_apvs){
-      // // 	std::cout<<" detid" << element.first << " n. APVs:" << element.second << std::endl;
-      // // 	tmap->fill(element.first,element.second);
-      // // }
 
       std::string fileName(m_imageFileName);
       tmap->save(true,0.,6.,fileName);
@@ -153,12 +84,9 @@ namespace {
       std::vector<uint32_t> activeDetIds;
 
       TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
-      //SiStripDetCabling* detCabling_ = new SiStripDetCabling(*(payload.get()),&tTopo);
-
       std::unique_ptr<SiStripDetCabling> detCabling_ =std::unique_ptr<SiStripDetCabling>(new SiStripDetCabling(*(payload.get()),&tTopo));
 
       detCabling_->addActiveDetectorsRawIds(activeDetIds);
-      detCabling_->addAllDetectorsRawIds(activeDetIds);
 
       containers myCont;
       containers allCounts;
@@ -166,10 +94,10 @@ namespace {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
       auto DetInfos  = reader->getAllData(); 
-      for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++){    
-      	// check if det id is correct and if it is actually cabled in the detector
-      	if( it->first==0 || it->first==0xFFFFFFFF ) {
-      	  edm::LogError("DetIdNotGood") << "@SUB=analyze" << "Wrong det id: " << it->first 
+      for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++){
+	// check if det id is correct and if it is actually cabled in the detector
+	if( it->first==0 || it->first==0xFFFFFFFF ) {
+	  edm::LogError("DetIdNotGood") << "@SUB=analyze" << "Wrong det id: " << it->first 
       					<< "  ... neglecting!" << std::endl;
       	  continue;
       	}
@@ -184,7 +112,7 @@ namespace {
       ME->GetXaxis()->SetTitle("Sub Det");
       ME->GetYaxis()->SetTitle("Layer");
 
-      ME->SetTitle(0);
+      ME->SetTitle("");
 
       ME->GetXaxis()->SetBinLabel(1,"TIB");
       ME->GetXaxis()->SetBinLabel(2,"TID F");

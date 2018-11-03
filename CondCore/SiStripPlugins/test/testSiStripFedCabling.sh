@@ -11,12 +11,6 @@ cd $W_DIR;
 # Run get payload data script
 
 mkdir -p $W_DIR/results
-
-#325662       2018-11-01 16:34:47  2179955a8c34591a56d4d257703046016bfb7550  SiStripFedCabling  
-#325702       2018-11-02 09:27:42  fe784eb7f2f7f0b7eca386034f92864fc2759512  SiStripFedCabling  
-#325715       2018-11-02 11:08:29  de6214e3cce78991eed41d2ec47a456ebd6aeaa8  SiStripFedCabling  
-#325717       2018-11-02 11:13:39  f196a2ba349dece1923e0d56ceada4659baa904a  SiStripFedCabling  
-
 declare -a arr=("325662" "325702" "325715" "325717")
 
 for i in "${arr[@]}"
