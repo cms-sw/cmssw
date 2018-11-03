@@ -52,31 +52,45 @@ namespace {
 
       SiStripDetCabling* detCabling_ = new SiStripDetCabling(*(payload.get()),&tTopo);
 
+      // std::vector<uint32_t> activeDetIds;
+      // detCabling_->addActiveDetectorsRawIds(activeDetIds);
+      // detCabling_->addAllDetectorsRawIds(activeDetIds);
+
+      // for(const auto &detId : activeDetIds){
+      // 	int32_t n_conn = 0;																      
+      // 	for(uint32_t connDet_i=0; connDet_i<detCabling_->getConnections(detId).size(); connDet_i++){						      
+      // 	  if(detCabling_->getConnections(detId)[connDet_i]!=nullptr && detCabling_->getConnections(detId)[connDet_i]->isConnected()!=0) n_conn++;     
+      // 	}																		      
+      // 	if(n_conn!=0){																	      
+      // 	  tmap->fill(detId,n_conn*2);														      
+      // 	}                                                                                                                                                     
+      // }
+
       auto DetInfos  = reader->getAllData(); 
       for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++){    
-	// check if det id is correct and if it is actually cabled in the detector
-	if( it->first==0 || it->first==0xFFFFFFFF ) {
-	  edm::LogError("DetIdNotGood") << "@SUB=analyze" << "Wrong det id: " << it->first 
-					<< "  ... neglecting!" << std::endl;
-	  continue;
-	}
+      	// check if det id is correct and if it is actually cabled in the detector
+      	if( it->first==0 || it->first==0xFFFFFFFF ) {
+      	  edm::LogError("DetIdNotGood") << "@SUB=analyze" << "Wrong det id: " << it->first 
+      					<< "  ... neglecting!" << std::endl;
+      	  continue;
+      	}
 
-	// uint16_t nAPVs = 0;
-	// const std::vector<const FedChannelConnection*> connection = detCabling_->getConnections(it->first);
-	// for (unsigned int ca = 0; ca<connection.size(); ca++) {
-	//   if ( connection[ca]!=0 )  {
-	//     nAPVs+=( connection[ca] )->nApvs();
-	//     break;
-	//   }
-	// }
+      	// uint16_t nAPVs = 0;
+      	// const std::vector<const FedChannelConnection*> connection = detCabling_->getConnections(it->first);
+      	// for (unsigned int ca = 0; ca<connection.size(); ca++) {
+      	//   if ( connection[ca]!=0 )  {
+      	//     nAPVs+=( connection[ca] )->nApvs();
+      	//     break;
+      	//   }
+      	// }
 
-	int32_t n_conn = 0;
-	for(uint32_t connDet_i=0; connDet_i<detCabling_->getConnections(it->first).size(); connDet_i++){
-	  if(detCabling_->getConnections(it->first)[connDet_i]!=nullptr && detCabling_->getConnections(it->first)[connDet_i]->isConnected()!=0) n_conn++;
-	}
-	if(n_conn!=0){
-	  tmap->fill(it->first,n_conn*2);
-	}
+      	int32_t n_conn = 0;
+      	for(uint32_t connDet_i=0; connDet_i<detCabling_->getConnections(it->first).size(); connDet_i++){
+      	  if(detCabling_->getConnections(it->first)[connDet_i]!=nullptr && detCabling_->getConnections(it->first)[connDet_i]->isConnected()!=0) n_conn++;
+      	}
+      	if(n_conn!=0){
+      	  tmap->fill(it->first,n_conn*2);
+      	}                                                                                                                                                     
       }
 
       // auto feds = payload->fedIds();
@@ -124,7 +138,7 @@ namespace {
   };
 
   /************************************************
-    TrackerMap of SiStrip FED Cabling
+    Summary Plot of SiStrip FED Cabling
   *************************************************/
   class SiStripFedCabling_Summary : public cond::payloadInspector::PlotImage<SiStripFedCabling> {
   public:
