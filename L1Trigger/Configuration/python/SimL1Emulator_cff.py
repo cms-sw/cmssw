@@ -103,6 +103,8 @@ phase2_SimL1Emulator += VertexProducer
 # ########################################################################
 from L1Trigger.L1CaloTrigger.l1EGammaCrystalsProducer_cfi import *
 phase2_SimL1Emulator += l1EGammaCrystalsProducer
+from L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi import *
+phase2_SimL1Emulator += L1EGammaClusterEmuProducer
 
 from L1Trigger.L1CaloTrigger.l1EGammaEEProducer_cfi import * 
 phase2_SimL1Emulator += l1EGammaEEProducer
