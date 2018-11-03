@@ -23,6 +23,7 @@
 #include <sstream>
 #include <TCanvas.h>
 #include <TH2D.h>
+#include <TLatex.h>
 
 namespace {
 
@@ -134,75 +135,40 @@ namespace {
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       auto iov = iovs.front();
       std::shared_ptr<SiStripFedCabling> payload = fetchPayload( std::get<1>(iov) );
-
+      int IOV = std::get<0>(iov);
       std::vector<uint32_t> activeDetIds;
 
       TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
-
-      // edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      // SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
-
       SiStripDetCabling* detCabling_ = new SiStripDetCabling(*(payload.get()),&tTopo);
 
       detCabling_->addActiveDetectorsRawIds(activeDetIds);
       detCabling_->addAllDetectorsRawIds(activeDetIds);
 
-      //Initialize arrays for counting:
-      int counterTIB[4]={0};
-      int counterTID[2][3]={{0}};
-      int counterTOB[6]={0};
-      int counterTEC[2][9]={{0}};
+      containers myCont;
+      containers allCounts;
 
-      for(const auto &detId : activeDetIds){
-	 StripSubdetector subdet(detId);
-
-	 switch (subdet.subdetId()) {
-	 case StripSubdetector::TIB:
-	   {
-	     int i = tTopo.tibLayer(detId) - 1;
-	     counterTIB[i]++;
-	     break;       
-	   }
-	 case StripSubdetector::TID:
-	   {
-	     int j = tTopo.tidWheel(detId) - 1;
-	     int side = tTopo.tidSide(detId);
-	     if (side == 2) {
-	       counterTID[0][j]++;
-	     } else if (side == 1) {
-	       counterTID[1][j]++;
-	     }
-	     break;       
-	   }
-	 case StripSubdetector::TOB:
-	   {
-	     int i = tTopo.tobLayer(detId) - 1;
-	     counterTOB[i]++;
-	     break;       
-	   }
-	 case StripSubdetector::TEC:
-	   {
-	     int j = tTopo.tecWheel(detId) - 1;
-	     int side = tTopo.tecSide(detId);
-	     if (side == 2) {
-	       counterTEC[0][j]++;
-	     } else if (side == 1) {
-	       counterTEC[1][j]++;
-	     }
-	     break;       
-	   }
-	 }
+      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto DetInfos  = reader->getAllData(); 
+      for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++){    
+      	// check if det id is correct and if it is actually cabled in the detector
+      	if( it->first==0 || it->first==0xFFFFFFFF ) {
+      	  edm::LogError("DetIdNotGood") << "@SUB=analyze" << "Wrong det id: " << it->first 
+      					<< "  ... neglecting!" << std::endl;
+      	  continue;
+      	}
+	updateCounters(it->first,allCounts,tTopo);
       }
 
-      //obtained from tracker.dat and hard-coded
-      int TIBDetIds[4]={672,864,540,648};
-      int TIDDetIds[2][3]={{136,136,136},{136,136,136}};
-      int TOBDetIds[6]={1008,1152,648,720,792,888};
-      int TECDetIds[2][9]={{408,408,408,360,360,360,312,312,272},{408,408,408,360,360,360,312,312,272}};
+      for(const auto &detId : activeDetIds){
+	updateCounters(detId,myCont,tTopo);
+      }
 
       TH2D* ME = new TH2D("SummaryOfCabling","SummaryOfCabling",6,0.5,6.5,9,0.5,9.5);
       ME->GetXaxis()->SetTitle("Sub Det");
       ME->GetYaxis()->SetTitle("Layer");
+
+      ME->SetTitle(0);
 
       ME->GetXaxis()->SetBinLabel(1,"TIB");
       ME->GetXaxis()->SetBinLabel(2,"TID F");
@@ -212,33 +178,96 @@ namespace {
       ME->GetXaxis()->SetBinLabel(6,"TEC B");
 
       for(int i=0;i<4;i++){
-	ME->Fill(1,i+1,float(counterTIB[i])/TIBDetIds[i]);
+	ME->Fill(1,i+1,float(myCont.counterTIB[i])/allCounts.counterTIB[i]);
       }
   
       for(int i=0;i<2;i++){
 	for(int j=0;j<3;j++){
-	  ME->Fill(i+2,j+1,float(counterTID[i][j])/TIDDetIds[i][j]);
+	  ME->Fill(i+2,j+1,float(myCont.counterTID[i][j])/allCounts.counterTID[i][j]);
 	}
       }
 
       for(int i=0;i<6;i++){
-	ME->Fill(4,i+1,float(counterTOB[i])/TOBDetIds[i]);
+	ME->Fill(4,i+1,float(myCont.counterTOB[i])/allCounts.counterTOB[i]);
       }
   
       for(int i=0;i<2;i++){
 	for(int j=0;j<9;j++){
-	  ME->Fill(i+5,j+1,float(counterTEC[i][j])/TECDetIds[i][j]);
+	  ME->Fill(i+5,j+1,float(myCont.counterTEC[i][j])/allCounts.counterTEC[i][j]);
 	}
       }
       
       TCanvas c1("SiStrip FED cabling summary","SiStrip FED cabling summary",800,600);
-      ME->Draw("TEXT");
+      c1.SetTopMargin(0.07);
+      c1.SetBottomMargin(0.10);
+      c1.SetLeftMargin(0.07);
+      c1.SetRightMargin(0.10);
+
+      ME->Draw("colz");
+      ME->Draw("TEXTsame");
       ME->SetStats(kFALSE);
       
+      TLatex t1;
+      t1.SetNDC();
+      t1.SetTextAlign(26);
+      t1.SetTextSize(0.05);
+      t1.DrawLatex(0.5, 0.96, Form("SiStrip FedCabling, IOV %i", IOV));
+
       std::string fileName(m_imageFileName);
       c1.SaveAs(fileName.c_str());
 
       return true;
+    }
+
+  private:
+    struct containers{
+    public:
+      int counterTIB[4]={0};	    
+      int counterTID[2][3]={{0}};
+      int counterTOB[6]={0};	    
+      int counterTEC[2][9]={{0}};
+    };
+
+    void updateCounters(int detId,containers &cont,const TrackerTopology& tTopo){
+      
+      StripSubdetector subdet(detId);
+
+      switch (subdet.subdetId()) {
+      case StripSubdetector::TIB:
+	{
+	  int i = tTopo.tibLayer(detId) - 1;
+	  cont.counterTIB[i]++;
+	  break;       
+	}
+      case StripSubdetector::TID:
+	{
+	  int j = tTopo.tidWheel(detId) - 1;
+	  int side = tTopo.tidSide(detId);
+	  if (side == 2) {
+	    cont.counterTID[0][j]++;
+	  } else if (side == 1) {
+	    cont.counterTID[1][j]++;
+	  }
+	  break;       
+	}
+      case StripSubdetector::TOB:
+	{
+	  int i = tTopo.tobLayer(detId) - 1;
+	  cont.counterTOB[i]++;
+	  break;       
+	}
+      case StripSubdetector::TEC:
+	{
+	  int j = tTopo.tecWheel(detId) - 1;
+	  int side = tTopo.tecSide(detId);
+	  if (side == 2) {
+	    cont.counterTEC[0][j]++;
+	  } else if (side == 1) {
+	    cont.counterTEC[1][j]++;
+	  }
+	  break;       
+	}
+      }
     }
   };
 
