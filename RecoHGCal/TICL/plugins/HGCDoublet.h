@@ -75,6 +75,57 @@ class HGCDoublet
         theInnerNeighbors_.push_back(otherDoublet);
     }
 
+    bool checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets, const std::vector<int>& innerDoublets, float minCosTheta )
+    {
+        int nDoublets = innerDoublets.size();
+        int constexpr VSIZE = 4;
+        int ok[VSIZE];
+        double xi[VSIZE];
+        double yi[VSIZE];
+        double zi[VSIZE];
+        auto xo = getOuterX();
+        auto yo = getOuterY();
+        auto zo = getOuterZ();
+        unsigned int doubletId = theDoubletId_;
+
+        auto loop = [&](int i, int vs) {
+            for (int j = 0; j < vs; ++j)
+            {
+                auto otherDoubletId = innerDoublets[i + j];
+                auto &otherDoublet = allDoublets[otherDoubletId];
+                xi[j] = otherDoublet.getInnerX();
+                yi[j] = otherDoublet.getInnerY();
+                zi[j] = otherDoublet.getInnerZ();
+            }
+            for (int j = 0; j < vs; ++j)
+                ok[j] = areAligned(xi[j], yi[j], zi[j], xo, yo, zo, minCosTheta);
+
+            for (int j = 0; j < vs; ++j)
+            {
+                auto otherDoubletId = innerDoublets[i + j];
+                auto &otherDoublet = allDoublets[otherDoubletId];
+                 if (ok[j])
+                 {
+                    otherDoublet.tagAsOuterNeighbor(doubletId);
+                    allDoublets[doubletId].tagAsInnerNeighbor(otherDoubletId);
+
+                 }
+            }
+        };
+        auto lim = VSIZE * (nDoublets / VSIZE);
+        for (int i = 0; i < lim; i += VSIZE)
+            loop(i, VSIZE);
+        loop(lim, nDoublets - lim);
+
+        return theInnerNeighbors_.empty();
+    }
+
+    int areAligned(double xi, double yi, double zi, double xo, double yo, double zo, float minCosTheta)
+    {
+        return true;
+    }
+
+
     // void checkAlignmentAndAct(std::vector<HGCDoublet> &allCells, CAntuple &innerCells, const double ptmin, const double region_origin_x,
     //                           const double region_origin_y, const double region_origin_radius, const double thetaCut,
     //                           const double phiCut, const double hardPtCut, std::vector<HGCDoublet::HGCntuplet> *foundTriplets)

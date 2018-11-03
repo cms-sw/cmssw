@@ -12,6 +12,7 @@ void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<
     isOuterClusterOfDoublets_.clear();
     isOuterClusterOfDoublets_.resize(nClusters);
     allDoublets_.clear();
+    theRootDoublets_.clear();
     for(int zSide = 0; zSide < 2; ++zSide)
     {
         for(int il = 0; il<ticlConstants::maxNumberOfLayers-1; ++il)
@@ -40,29 +41,27 @@ void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<
                                 auto iphi = ((ophi + phiRange - deltaIPhi) % nPhiBins + nPhiBins) % nPhiBins;
                                 for(auto innerClusterId: innerLayerHisto[ieta*nPhiBins+iphi])
                                 {
-                                    allDoublets_.emplace_back(innerClusterId, outerClusterId, allDoublets_.size(), &layerClusters);
+                                    auto doubletId = allDoublets_.size();
+                                    allDoublets_.emplace_back(innerClusterId, outerClusterId, doubletId, &layerClusters);
+                                    isOuterClusterOfDoublets_[outerClusterId].push_back(doubletId);
+                                    // if(isOuterClusterOfDoublets_.[innerClusterId].empty())
+                                    // {
+                                    //     theRootDoublets_.push_back(doubletId);
+                                    // }
 
+                                    auto& neigDoublets = isOuterClusterOfDoublets_[innerClusterId];
+                                    auto& thisDoublet = allDoublets_[doubletId];
+                                    bool isRootDoublet = thisDoublet.checkCompatibilityAndTag(allDoublets_, neigDoublets, minCosTheta);
+                                    if(isRootDoublet) theRootDoublets_.push_back(doubletId);
                                 }
                             }
                         }
-
                     }
-                    
-
-
                 }
-            }
-
-
-            
+            }            
         }
-
-
     }
-
-    std::cout << "found doublets: "<<  allDoublets_.size() << std::endl;
-
-
+    std::cout << "number of Root doublets " << theRootDoublets_.size() << " over a total number of doublets " << allDoublets_.size() << std::endl;
 }
 
 // void HGCGraph::createAndConnectCells(const std::vector<const HitDoublets *> &hitDoublets, const TrackingRegion &region,
