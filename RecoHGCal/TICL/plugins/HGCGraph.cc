@@ -7,209 +7,76 @@
 #include "HGCDoublet.h"
 
 void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<unsigned int>>> &h, int nEtaBins,
-    int nPhiBins, const std::vector<reco::CaloCluster>& layerClusters, int nClusters, int deltaIEta, int deltaIPhi, float minCosTheta)
+                                      int nPhiBins, const std::vector<reco::CaloCluster> &layerClusters, int nClusters, int deltaIEta, int deltaIPhi, float minCosTheta)
 {
     isOuterClusterOfDoublets_.clear();
     isOuterClusterOfDoublets_.resize(nClusters);
     allDoublets_.clear();
     theRootDoublets_.clear();
-    for(int zSide = 0; zSide < 2; ++zSide)
+    for (int zSide = 0; zSide < 2; ++zSide)
     {
-        for(int il = 0; il<ticlConstants::maxNumberOfLayers-1; ++il)
+        for (int il = 0; il < ticlConstants::maxNumberOfLayers - 1; ++il)
         {
-            int currentInnerLayerId = il + ticlConstants::maxNumberOfLayers*zSide;
-            int currentOuterLayerId = currentInnerLayerId + 1; 
-            auto& outerLayerHisto = h[currentOuterLayerId];
-            auto& innerLayerHisto = h[currentInnerLayerId];
+            int currentInnerLayerId = il + ticlConstants::maxNumberOfLayers * zSide;
+            int currentOuterLayerId = currentInnerLayerId + 1;
+            auto &outerLayerHisto = h[currentOuterLayerId];
+            auto &innerLayerHisto = h[currentInnerLayerId];
 
-            for(int oeta = 0; oeta<nEtaBins; ++oeta)
+            for (int oeta = 0; oeta < nEtaBins; ++oeta)
             {
-                auto offset = oeta*nPhiBins;
-                for(int ophi = 0; ophi<nPhiBins; ++ophi)
+                auto offset = oeta * nPhiBins;
+                for (int ophi = 0; ophi < nPhiBins; ++ophi)
                 {
-                    for(auto outerClusterId : outerLayerHisto[offset + ophi])
+                    for (auto outerClusterId : outerLayerHisto[offset + ophi])
                     {
-                        const auto etaRangeMin = std::max(0,oeta-deltaIEta);
-                        const auto etaRangeMax = std::min(oeta+deltaIEta, nEtaBins);
-                        
-                        for (int ieta = etaRangeMin; ieta<etaRangeMax-etaRangeMin; ++ieta)
+                        const auto etaRangeMin = std::max(0, oeta - deltaIEta);
+                        const auto etaRangeMax = std::min(oeta + deltaIEta, nEtaBins);
+
+                        for (int ieta = etaRangeMin; ieta < etaRangeMax - etaRangeMin; ++ieta)
                         {
 
                             //wrap phi bin
-                            for(int phiRange = 0; phiRange < 2*deltaIPhi +1 ; ++phiRange)
+                            for (int phiRange = 0; phiRange < 2 * deltaIPhi + 1; ++phiRange)
                             {
                                 auto iphi = ((ophi + phiRange - deltaIPhi) % nPhiBins + nPhiBins) % nPhiBins;
-                                for(auto innerClusterId: innerLayerHisto[ieta*nPhiBins+iphi])
+                                for (auto innerClusterId : innerLayerHisto[ieta * nPhiBins + iphi])
                                 {
                                     auto doubletId = allDoublets_.size();
                                     allDoublets_.emplace_back(innerClusterId, outerClusterId, doubletId, &layerClusters);
                                     isOuterClusterOfDoublets_[outerClusterId].push_back(doubletId);
-                                    // if(isOuterClusterOfDoublets_.[innerClusterId].empty())
-                                    // {
-                                    //     theRootDoublets_.push_back(doubletId);
-                                    // }
-
-                                    auto& neigDoublets = isOuterClusterOfDoublets_[innerClusterId];
-                                    auto& thisDoublet = allDoublets_[doubletId];
+                                    auto &neigDoublets = isOuterClusterOfDoublets_[innerClusterId];
+                                    auto &thisDoublet = allDoublets_[doubletId];
                                     bool isRootDoublet = thisDoublet.checkCompatibilityAndTag(allDoublets_, neigDoublets, minCosTheta);
-                                    if(isRootDoublet) theRootDoublets_.push_back(doubletId);
+                                    if (isRootDoublet)
+                                        theRootDoublets_.push_back(doubletId);
                                 }
                             }
                         }
                     }
                 }
-            }            
+            }
         }
     }
+    #ifdef FP_DEBUG
     std::cout << "number of Root doublets " << theRootDoublets_.size() << " over a total number of doublets " << allDoublets_.size() << std::endl;
+    #endif
 }
 
-// void HGCGraph::createAndConnectCells(const std::vector<const HitDoublets *> &hitDoublets, const TrackingRegion &region,
-//                                      const float thetaCut, const float phiCut, const float hardPtCut)
-// {
-//     int tsize = 0;
-//     for (auto hd : hitDoublets)
-//         tsize += hd->size();
-//     allCells.reserve(tsize);
-//     unsigned int cellId = 0;
-//     float ptmin = region.ptMin();
-//     float region_origin_x = region.origin().x();
-//     float region_origin_y = region.origin().y();
-//     float region_origin_radius = region.originRBound();
 
-//     std::vector<bool> alreadyVisitedLayerPairs;
-//     alreadyVisitedLayerPairs.resize(theLayerGraph.theLayerPairs.size());
-//     for (auto visited : alreadyVisitedLayerPairs)
-//     {
-//         visited = false;
-//     }
-//     for (int rootVertex : theLayerGraph.theRootLayers)
-//     {
+void HGCGraph::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets, const unsigned int minClustersPerNtuplet)
+{
+    HGCDoublet::HGCntuplet tmpNtuplet;
+    tmpNtuplet.reserve(minClustersPerNtuplet);
+    for (auto rootDoublet : theRootDoublets_)
+    {
+        tmpNtuplet.clear();
+        allDoublets_[rootDoublet].findNtuplets(allDoublets_, tmpNtuplet);
+        if (tmpNtuplet.size() > minClustersPerNtuplet)
+        {
+            foundNtuplets.push_back(tmpNtuplet);
 
-//         std::queue<int> LayerPairsToVisit;
+        }
+    }
+}
 
-//         for (int LayerPair : theLayerGraph.theLayers[rootVertex].theOuterLayerPairs)
-//         {
-//             LayerPairsToVisit.push(LayerPair);
-//         }
 
-//         unsigned int numberOfLayerPairsToVisitAtThisDepth =
-//             LayerPairsToVisit.size();
-
-//         while (!LayerPairsToVisit.empty())
-//         {
-//             auto currentLayerPair = LayerPairsToVisit.front();
-//             auto &currentLayerPairRef = theLayerGraph.theLayerPairs[currentLayerPair];
-//             auto &currentInnerLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[0]];
-//             auto &currentOuterLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[1]];
-//             bool allInnerLayerPairsAlreadyVisited{true};
-
-//             for (auto innerLayerPair : currentInnerLayerRef.theInnerLayerPairs)
-//             {
-//                 allInnerLayerPairsAlreadyVisited &=
-//                     alreadyVisitedLayerPairs[innerLayerPair];
-//             }
-
-//             if (alreadyVisitedLayerPairs[currentLayerPair] == false && allInnerLayerPairsAlreadyVisited)
-//             {
-
-//                 const HitDoublets *doubletLayerPairId =
-//                     hitDoublets[currentLayerPair];
-//                 auto numberOfDoublets = doubletLayerPairId->size();
-//                 currentLayerPairRef.theFoundCells[0] = cellId;
-//                 currentLayerPairRef.theFoundCells[1] = cellId + numberOfDoublets;
-//                 for (unsigned int i = 0; i < numberOfDoublets; ++i)
-//                 {
-//                     allCells.emplace_back(doubletLayerPairId, i,
-//                                           doubletLayerPairId->innerHitId(i),
-//                                           doubletLayerPairId->outerHitId(i));
-
-//                     currentOuterLayerRef.isOuterHitOfCell[doubletLayerPairId->outerHitId(i)].push_back(cellId);
-
-//                     cellId++;
-
-//                     auto &neigCells = currentInnerLayerRef.isOuterHitOfCell[doubletLayerPairId->innerHitId(i)];
-//                     allCells.back().checkAlignmentAndTag(allCells,
-//                                                          neigCells, ptmin, region_origin_x,
-//                                                          region_origin_y, region_origin_radius, thetaCut,
-//                                                          phiCut, hardPtCut);
-//                 }
-//                 assert(cellId == currentLayerPairRef.theFoundCells[1]);
-//                 for (auto outerLayerPair : currentOuterLayerRef.theOuterLayerPairs)
-//                 {
-//                     LayerPairsToVisit.push(outerLayerPair);
-//                 }
-
-//                 alreadyVisitedLayerPairs[currentLayerPair] = true;
-//             }
-//             LayerPairsToVisit.pop();
-//             numberOfLayerPairsToVisitAtThisDepth--;
-//             if (numberOfLayerPairsToVisitAtThisDepth == 0)
-//             {
-//                 numberOfLayerPairsToVisitAtThisDepth = LayerPairsToVisit.size();
-//             }
-//         }
-//     }
-// }
-
-// void HGCGraph::evolve(const unsigned int minHitsPerNtuplet)
-// {
-//     allStatus.resize(allCells.size());
-
-//     unsigned int numberOfIterations = minHitsPerNtuplet - 2;
-//     // keeping the last iteration for later
-//     for (unsigned int iteration = 0; iteration < numberOfIterations - 1;
-//          ++iteration)
-//     {
-//         for (auto &layerPair : theLayerGraph.theLayerPairs)
-//         {
-//             for (auto i = layerPair.theFoundCells[0]; i < layerPair.theFoundCells[1]; ++i)
-//             {
-//                 allCells[i].evolve(i, allStatus);
-//             }
-//         }
-
-//         for (auto &layerPair : theLayerGraph.theLayerPairs)
-//         {
-//             for (auto i = layerPair.theFoundCells[0]; i < layerPair.theFoundCells[1]; ++i)
-//             {
-//                 allStatus[i].updateState();
-//             }
-//         }
-//     }
-
-//     //last iteration
-
-//     for (int rootLayerId : theLayerGraph.theRootLayers)
-//     {
-//         for (int rootLayerPair : theLayerGraph.theLayers[rootLayerId].theOuterLayerPairs)
-//         {
-//             auto foundCells = theLayerGraph.theLayerPairs[rootLayerPair].theFoundCells;
-//             for (auto i = foundCells[0]; i < foundCells[1]; ++i)
-//             {
-//                 auto &cell = allStatus[i];
-//                 allCells[i].evolve(i, allStatus);
-//                 cell.updateState();
-//                 if (cell.isRootCell(minHitsPerNtuplet - 2))
-//                 {
-//                     theRootCells.push_back(i);
-//                 }
-//             }
-//         }
-//     }
-// }
-
-// void HGCGraph::findNtuplets(
-//     std::vector<CACell::CAntuplet> &foundNtuplets,
-//     const unsigned int minHitsPerNtuplet)
-// {
-//     CACell::CAntuple tmpNtuplet;
-//     tmpNtuplet.reserve(minHitsPerNtuplet);
-
-//     for (auto root_cell : theRootCells)
-//     {
-//         tmpNtuplet.clear();
-//         tmpNtuplet.push_back(root_cell);
-//         allCells[root_cell].findNtuplets(allCells, foundNtuplets, tmpNtuplet, minHitsPerNtuplet);
-//     }
-// }

@@ -15,13 +15,12 @@ class HGCDoublet
   public:
     using HGCntuplet = std::vector<unsigned int>;
 
-    HGCDoublet(const int innerClusterId, const int outerClusterId, const int doubletId, 
-    const std::vector<reco::CaloCluster> *layerClusters) : 
-        layerClusters_(layerClusters), theDoubletId_(doubletId), theInnerClusterId_(innerClusterId), theOuterClusterId_(outerClusterId),
-        theInnerR_((*layerClusters)[innerClusterId].position().r()), theOuterR_((*layerClusters)[outerClusterId].position().r()),
-        theInnerX_((*layerClusters)[innerClusterId].x()), theOuterX_((*layerClusters)[outerClusterId].x()),
-        theInnerY_((*layerClusters)[innerClusterId].y()), theOuterY_((*layerClusters)[outerClusterId].y()),
-        theInnerZ_((*layerClusters)[innerClusterId].z()), theOuterZ_((*layerClusters)[outerClusterId].z())
+    HGCDoublet(const int innerClusterId, const int outerClusterId, const int doubletId,
+               const std::vector<reco::CaloCluster> *layerClusters) : layerClusters_(layerClusters), theDoubletId_(doubletId), theInnerClusterId_(innerClusterId), theOuterClusterId_(outerClusterId),
+                                                                      theInnerR_((*layerClusters)[innerClusterId].position().r()), theOuterR_((*layerClusters)[outerClusterId].position().r()),
+                                                                      theInnerX_((*layerClusters)[innerClusterId].x()), theOuterX_((*layerClusters)[outerClusterId].x()),
+                                                                      theInnerY_((*layerClusters)[innerClusterId].y()), theOuterY_((*layerClusters)[outerClusterId].y()),
+                                                                      theInnerZ_((*layerClusters)[innerClusterId].z()), theOuterZ_((*layerClusters)[outerClusterId].z()), alreadyVisited_(false)
     {
     }
 
@@ -65,6 +64,16 @@ class HGCDoublet
         return theOuterZ_;
     }
 
+    int getInnerClusterId() const
+    {
+        return theInnerClusterId_;
+    }
+
+    int getOuterClusterId() const
+    {
+        return theOuterClusterId_;
+    }
+
     void tagAsOuterNeighbor(unsigned int otherDoublet)
     {
         theOuterNeighbors_.push_back(otherDoublet);
@@ -75,7 +84,7 @@ class HGCDoublet
         theInnerNeighbors_.push_back(otherDoublet);
     }
 
-    bool checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets, const std::vector<int>& innerDoublets, float minCosTheta )
+    bool checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets, const std::vector<int> &innerDoublets, float minCosTheta)
     {
         int nDoublets = innerDoublets.size();
         int constexpr VSIZE = 4;
@@ -104,12 +113,11 @@ class HGCDoublet
             {
                 auto otherDoubletId = innerDoublets[i + j];
                 auto &otherDoublet = allDoublets[otherDoubletId];
-                 if (ok[j])
-                 {
+                if (ok[j])
+                {
                     otherDoublet.tagAsOuterNeighbor(doubletId);
                     allDoublets[doubletId].tagAsInnerNeighbor(otherDoubletId);
-
-                 }
+                }
             }
         };
         auto lim = VSIZE * (nDoublets / VSIZE);
@@ -122,108 +130,38 @@ class HGCDoublet
 
     int areAligned(double xi, double yi, double zi, double xo, double yo, double zo, float minCosTheta)
     {
-        return true;
+
+        auto dx1 = xo-xi;
+        auto dy1 = yo-yi;
+        auto dz1 = zo-zi;
+
+        auto dx2 = getInnerX() - xi;
+        auto dy2 = getInnerY() - yi;
+        auto dz2 = getInnerZ() - zi;
+
+        //inner product
+        auto dot = dx1*dx2 + dy1*dy2 + dz1*dz2;
+        //magnitudes
+        auto mag1 = std::sqrt(dx1*dx1 + dy1*dy1 + dz1*dz1);
+        auto mag2 = std::sqrt(dx2*dx2 + dy2*dy2 + dz2*dz2);
+        //angle between the vectors
+        auto cosTheta = dot/(mag1*mag2);
+        return cosTheta > minCosTheta;
     }
 
-
-    // void checkAlignmentAndAct(std::vector<HGCDoublet> &allCells, CAntuple &innerCells, const double ptmin, const double region_origin_x,
-    //                           const double region_origin_y, const double region_origin_radius, const double thetaCut,
-    //                           const double phiCut, const double hardPtCut, std::vector<HGCDoublet::HGCntuplet> *foundTriplets)
-    // {
-    //     int ncells = innerCells.size();
-    //     int constexpr VSIZE = 16;
-    //     int ok[VSIZE];
-    //     double r1[VSIZE];
-    //     double z1[VSIZE];
-    //     auto ro = getOuterR();
-    //     auto zo = getOuterZ();
-    //     unsigned int cellId = this - &allCells.front();
-    //     auto loop = [&](int i, int vs) {
-    //         for (int j = 0; j < vs; ++j)
-    //         {
-    //             auto koc = innerCells[i + j];
-    //             auto &oc = allCells[koc];
-    //             r1[j] = oc.getInnerR();
-    //             z1[j] = oc.getInnerZ();
-    //         }
-    //         // this vectorize!
-    //         for (int j = 0; j < vs; ++j)
-    //             ok[j] = areAlignedRZ(r1[j], z1[j], ro, zo, ptmin, thetaCut);
-    //         for (int j = 0; j < vs; ++j)
-    //         {
-    //             auto koc = innerCells[i + j];
-    //             auto &oc = allCells[koc];
-    //             if (ok[j] && haveSimilarCurvature(oc, ptmin, region_origin_x, region_origin_y,
-    //                                               region_origin_radius, phiCut, hardPtCut))
-    //             {
-    //                 if (foundTriplets)
-    //                     foundTriplets->emplace_back(HGCDoublet::HGCntuplet{koc, cellId});
-    //                 else
-    //                 {
-    //                     oc.tagAsOuterNeighbor(cellId);
-    //                 }
-    //             }
-    //         }
-    //     };
-    //     auto lim = VSIZE * (ncells / VSIZE);
-    //     for (int i = 0; i < lim; i += VSIZE)
-    //         loop(i, VSIZE);
-    //     loop(lim, ncells - lim);
-    // }
-
-    // void checkAlignmentAndTag(std::vector<HGCDoublet> &allCells, CAntuple &innerCells, const double ptmin, const double region_origin_x,
-    //                           const double region_origin_y, const double region_origin_radius, const double thetaCut,
-    //                           const double phiCut, const double hardPtCut)
-    // {
-    //     checkAlignmentAndAct(allCells, innerCells, ptmin, region_origin_x, region_origin_y, region_origin_radius, thetaCut,
-    //                          phiCut, hardPtCut, nullptr);
-    // }
-    // void checkAlignmentAndPushTriplet(std::vector<HGCDoublet> &allCells, CAntuple &innerCells, std::vector<HGCDoublet::HGCntuplet> &foundTriplets,
-    //                                   const double ptmin, const double region_origin_x, const double region_origin_y,
-    //                                   const double region_origin_radius, const double thetaCut, const double phiCut,
-    //                                   const double hardPtCut)
-    // {
-    //     checkAlignmentAndAct(allCells, innerCells, ptmin, region_origin_x, region_origin_y, region_origin_radius, thetaCut,
-    //                          phiCut, hardPtCut, &foundTriplets);
-    // }
-
-    // int areAlignedRZ(double r1, double z1, double ro, double zo, const double ptmin, const double thetaCut) const
-    // {
-    //     double radius_diff = std::abs(r1 - ro);
-    //     double distance_13_squared = radius_diff * radius_diff + (z1 - zo) * (z1 - zo);
-
-    //     double pMin = ptmin * std::sqrt(distance_13_squared); //this needs to be divided by radius_diff later
-
-    //     double tan_12_13_half_mul_distance_13_squared = fabs(z1 * (getInnerR() - ro) + getInnerZ() * (ro - r1) + zo * (r1 - getInnerR()));
-    //     return tan_12_13_half_mul_distance_13_squared * pMin <= thetaCut * distance_13_squared * radius_diff;
-    // }
-
-     // // trying to free the track building process from hardcoded layers, leaving the visit of the graph
-    // // based on the neighborhood connections between cells.
-
-    // void findNtuplets(std::vector<HGCDoublet> &allCells, std::vector<HGCntuplet> &foundNtuplets, HGCntuplet &tmpNtuplet, const unsigned int minClustersPerNtuplet) const
-    // {
-
-    //     // the building process for a track ends if:
-    //     // it has no outer neighbor
-    //     // it has no compatible neighbor
-    //     // the ntuplets is then saved if the number of hits it contains is greater than a threshold
-
-    //     if (tmpNtuplet.size() == minClustersPerNtuplet - 1)
-    //     {
-    //         foundNtuplets.push_back(tmpNtuplet);
-    //     }
-    //     else
-    //     {
-    //         unsigned int numberOfOuterNeighbors = theOuterNeighbors_.size();
-    //         for (unsigned int i = 0; i < numberOfOuterNeighbors; ++i)
-    //         {
-    //             tmpNtuplet.push_back((theOuterNeighbors_[i]));
-    //             allCells[theOuterNeighbors_[i]].findNtuplets(allCells, foundNtuplets, tmpNtuplet, minClustersPerNtuplet);
-    //             tmpNtuplet.pop_back();
-    //         }
-    //     }
-    // }
+    void findNtuplets(std::vector<HGCDoublet> &allDoublets, HGCntuplet &tmpNtuplet)
+    {
+        if (!alreadyVisited_)
+        {
+            alreadyVisited_ = true;
+            tmpNtuplet.push_back(theDoubletId_);
+            unsigned int numberOfOuterNeighbors = theOuterNeighbors_.size();
+            for (unsigned int i = 0; i < numberOfOuterNeighbors; ++i)
+            {
+                allDoublets[theOuterNeighbors_[i]].findNtuplets(allDoublets, tmpNtuplet);
+            }
+        }
+    }
 
   private:
     const std::vector<reco::CaloCluster> *layerClusters_;
@@ -242,6 +180,7 @@ class HGCDoublet
     const double theOuterY_;
     const double theInnerZ_;
     const double theOuterZ_;
+    bool alreadyVisited_ ;
 };
 
 #endif /*HGCDoublet_H_ */
