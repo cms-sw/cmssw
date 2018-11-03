@@ -1,5 +1,5 @@
 /*!
-  \file SiStripLorentzAngle_PayloadInspector
+  \file SiStripFedCabling_PayloadInspector
   \Payload Inspector Plugin for SiStrip Fed Cabling
   \author M. Musich
   \version $Revision: 1.0 $
@@ -21,7 +21,8 @@
 
 #include <memory>
 #include <sstream>
-
+#include <TCanvas.h>
+#include <TH2D.h>
 
 namespace {
 
@@ -121,8 +122,129 @@ namespace {
     }
   };
 
+  /************************************************
+    TrackerMap of SiStrip FED Cabling
+  *************************************************/
+  class SiStripFedCabling_Summary : public cond::payloadInspector::PlotImage<SiStripFedCabling> {
+  public:
+    SiStripFedCabling_Summary() : cond::payloadInspector::PlotImage<SiStripFedCabling>( "SiStrip Fed Cabling Summary" ){
+      setSingleIov( true );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      auto iov = iovs.front();
+      std::shared_ptr<SiStripFedCabling> payload = fetchPayload( std::get<1>(iov) );
+
+      std::vector<uint32_t> activeDetIds;
+
+      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
+
+      // edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      // SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+
+      SiStripDetCabling* detCabling_ = new SiStripDetCabling(*(payload.get()),&tTopo);
+
+      detCabling_->addActiveDetectorsRawIds(activeDetIds);
+      detCabling_->addAllDetectorsRawIds(activeDetIds);
+
+      //Initialize arrays for counting:
+      int counterTIB[4]={0};
+      int counterTID[2][3]={{0}};
+      int counterTOB[6]={0};
+      int counterTEC[2][9]={{0}};
+
+      for(const auto &detId : activeDetIds){
+	 StripSubdetector subdet(detId);
+
+	 switch (subdet.subdetId()) {
+	 case StripSubdetector::TIB:
+	   {
+	     int i = tTopo.tibLayer(detId) - 1;
+	     counterTIB[i]++;
+	     break;       
+	   }
+	 case StripSubdetector::TID:
+	   {
+	     int j = tTopo.tidWheel(detId) - 1;
+	     int side = tTopo.tidSide(detId);
+	     if (side == 2) {
+	       counterTID[0][j]++;
+	     } else if (side == 1) {
+	       counterTID[1][j]++;
+	     }
+	     break;       
+	   }
+	 case StripSubdetector::TOB:
+	   {
+	     int i = tTopo.tobLayer(detId) - 1;
+	     counterTOB[i]++;
+	     break;       
+	   }
+	 case StripSubdetector::TEC:
+	   {
+	     int j = tTopo.tecWheel(detId) - 1;
+	     int side = tTopo.tecSide(detId);
+	     if (side == 2) {
+	       counterTEC[0][j]++;
+	     } else if (side == 1) {
+	       counterTEC[1][j]++;
+	     }
+	     break;       
+	   }
+	 }
+      }
+
+      //obtained from tracker.dat and hard-coded
+      int TIBDetIds[4]={672,864,540,648};
+      int TIDDetIds[2][3]={{136,136,136},{136,136,136}};
+      int TOBDetIds[6]={1008,1152,648,720,792,888};
+      int TECDetIds[2][9]={{408,408,408,360,360,360,312,312,272},{408,408,408,360,360,360,312,312,272}};
+
+      TH2D* ME = new TH2D("SummaryOfCabling","SummaryOfCabling",6,0.5,6.5,9,0.5,9.5);
+      ME->GetXaxis()->SetTitle("Sub Det");
+      ME->GetYaxis()->SetTitle("Layer");
+
+      ME->GetXaxis()->SetBinLabel(1,"TIB");
+      ME->GetXaxis()->SetBinLabel(2,"TID F");
+      ME->GetXaxis()->SetBinLabel(3,"TID B");
+      ME->GetXaxis()->SetBinLabel(4,"TOB");
+      ME->GetXaxis()->SetBinLabel(5,"TEC F");
+      ME->GetXaxis()->SetBinLabel(6,"TEC B");
+
+      for(int i=0;i<4;i++){
+	ME->Fill(1,i+1,float(counterTIB[i])/TIBDetIds[i]);
+      }
+  
+      for(int i=0;i<2;i++){
+	for(int j=0;j<3;j++){
+	  ME->Fill(i+2,j+1,float(counterTID[i][j])/TIDDetIds[i][j]);
+	}
+      }
+
+      for(int i=0;i<6;i++){
+	ME->Fill(4,i+1,float(counterTOB[i])/TOBDetIds[i]);
+      }
+  
+      for(int i=0;i<2;i++){
+	for(int j=0;j<9;j++){
+	  ME->Fill(i+5,j+1,float(counterTEC[i][j])/TECDetIds[i][j]);
+	}
+      }
+      
+      TCanvas c1("SiStrip FED cabling summary","SiStrip FED cabling summary",800,600);
+      ME->Draw("TEXT");
+      ME->SetStats(kFALSE);
+      
+      std::string fileName(m_imageFileName);
+      c1.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  };
+
 }
 
 PAYLOAD_INSPECTOR_MODULE( SiStripFedCabling ){
   PAYLOAD_INSPECTOR_CLASS( SiStripFedCabling_TrackerMap );
+  PAYLOAD_INSPECTOR_CLASS( SiStripFedCabling_Summary );
 }
