@@ -20,6 +20,13 @@ namespace l1t {
 
   public:
 
+    enum IsoQual {
+      kVLoose,
+      kLoose,
+      kMedium,
+      kTight
+    };
+
     /// default constructor
     L1PFTau();
     
@@ -30,7 +37,6 @@ namespace l1t {
     
     /// destructor
     ~L1PFTau();
-    
     
     // get/set methods for the data
     
@@ -54,15 +60,15 @@ namespace l1t {
     void setEoH(unsigned inputEoH) {(m_EoH = inputEoH);}
     void setHoE(float inputHoE){m_HoE = inputHoE;};  
 
-    void setPassTightIso(bool input)  {m_passTightIso  = input;};
-    void setPassMediumIso(bool input) {m_passMediumIso = input;};
-    void setPassLooseIso(bool input)  {m_passLooseIso  = input;};
-    void setPassVLooseIso(bool input) {m_passVLooseIso = input;};
+    void setPassTightIso(bool input)  {m_passTightIso  = input; m_tauIsoQual |= 1 << kTight;};
+    void setPassMediumIso(bool input) {m_passMediumIso = input; m_tauIsoQual |= 1 << kMedium;};
+    void setPassLooseIso(bool input)  {m_passLooseIso  = input; m_tauIsoQual |= 1 << kLoose;};
+    void setPassVLooseIso(bool input) {m_passVLooseIso = input; m_tauIsoQual |= 1 << kVLoose;};
 
-    void setPassTightRelIso(bool input)  {m_passTightRelIso  = input;};
-    void setPassMediumRelIso(bool input) {m_passMediumRelIso = input;};
-    void setPassLooseRelIso(bool input)  {m_passLooseRelIso  = input;};
-    void setPassVLooseRelIso(bool input) {m_passVLooseRelIso = input;};
+    void setPassTightRelIso(bool input)  {m_passTightRelIso  = input; m_tauRelIsoQual |= 1 << kTight;};
+    void setPassMediumRelIso(bool input) {m_passMediumRelIso = input; m_tauRelIsoQual |= 1 << kMedium;};
+    void setPassLooseRelIso(bool input)  {m_passLooseRelIso  = input; m_tauRelIsoQual |= 1 << kLoose;};
+    void setPassVLooseRelIso(bool input) {m_passVLooseRelIso = input; m_tauRelIsoQual |= 1 << kVLoose;};
 
     /// set data
     void setRawData(uint32_t data) { m_data = data; }
@@ -91,6 +97,8 @@ namespace l1t {
     float chargedIso() const{return m_chargedIsolation;}
     float neutralIso() const{return m_neutralIsolation;}
     int tauType()const{return m_tauType;}
+    int tauIsoQuality()const{return m_tauIsoQual;}
+    int tauRelIsoQuality()const{return m_tauIsoQual;}
 
     void set_strip_p4(LorentzVector input) {m_strip_p4 = input;};
     //void setPtEtaPhiE(float pt, float eta, float phi, float et){m_p4.SetPtEtaPhiE(pt,eta,phi,et);};
@@ -124,6 +132,9 @@ namespace l1t {
   private:
 
     uint16_t m_data;
+    unsigned m_tauType;
+    unsigned m_tauIsoQual;
+    unsigned m_tauRelIsoQual;
     LorentzVector m_strip_p4;
     //for temporary use
     float m_ecalEnergy;
@@ -143,7 +154,6 @@ namespace l1t {
     unsigned m_EoH;
     unsigned m_HoE;
 
-    unsigned m_tauType;
     float m_rawIsolation;
     float m_chargedIsolation;
     float m_neutralIsolation;
