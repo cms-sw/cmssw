@@ -50,7 +50,7 @@ namespace {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
-      SiStripDetCabling* detCabling_ = new SiStripDetCabling(*(payload.get()),&tTopo);
+      std::unique_ptr<SiStripDetCabling> detCabling_ =std::unique_ptr<SiStripDetCabling>(new SiStripDetCabling(*(payload.get()),&tTopo));
 
       // std::vector<uint32_t> activeDetIds;
       // detCabling_->addActiveDetectorsRawIds(activeDetIds);
@@ -153,7 +153,9 @@ namespace {
       std::vector<uint32_t> activeDetIds;
 
       TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
-      SiStripDetCabling* detCabling_ = new SiStripDetCabling(*(payload.get()),&tTopo);
+      //SiStripDetCabling* detCabling_ = new SiStripDetCabling(*(payload.get()),&tTopo);
+
+      std::unique_ptr<SiStripDetCabling> detCabling_ =std::unique_ptr<SiStripDetCabling>(new SiStripDetCabling(*(payload.get()),&tTopo));
 
       detCabling_->addActiveDetectorsRawIds(activeDetIds);
       detCabling_->addAllDetectorsRawIds(activeDetIds);
