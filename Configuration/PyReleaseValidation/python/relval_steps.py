@@ -608,20 +608,20 @@ baseDataSetRelease=[
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
     'CMSSW_9_2_4-91X_mcRun2_asymptotic_v3-v1',              # 3 - GEN-SIM input for 13 TeV 2016 workfows
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_10_3_0_pre5-PU25ns_103X_mcRun2_asymptotic_v1-v1',    # 5 - fullSim PU 25ns UP15 premix
-    'CMSSW_10_3_0_pre5-PU50ns_103X_mcRun2_startup_v1-v1',        # 6 - fullSim PU 50ns UP15 premix
-    'CMSSW_10_3_0_pre5-103X_mcRun2_asymptotic_v1_FastSim-v1',    # 7 - fastSim MinBias for mixing
-    'CMSSW_10_3_0_pre5-PU25ns_103X_mcRun2_asymptotic_v1_FastSim-v1',# 8 - fastSim premixed MinBias
+    'CMSSW_10_4_0_pre1-PU25ns_103X_mcRun2_asymptotic_v1-v2',    # 5 - fullSim PU 25ns UP15 premix library
+    'CMSSW_10_4_0_pre1-PU50ns_103X_mcRun2_startup_v1-v1',        # 6 - fullSim PU 50ns UP15 premix library
+    'CMSSW_10_4_0_pre1-103X_mcRun2_asymptotic_v1_FastSim-v1',    # 7 - fastSim MinBias for mixing UP16
+    'CMSSW_10_4_0_pre1-PU25ns_103X_mcRun2_asymptotic_v1_FastSim-v2',# 8 - fastSim premix library  UP16
     'CMSSW_10_3_0_pre5-103X_upgrade2018_realistic_v7-v1',        # 9 - Run2 HI GEN-SIM for mixing
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM
     'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2cosmics_startup_peak_v2-v1', # 12 - GEN-SIM input for 1307 cosmics wf from 810_p2
-    'CMSSW_10_0_0_pre2-100X_mc2017_realistic_v1-v1',     # 13 - 13 TeV samples with GEN-SIM from PhaseI upgrade
-    'CMSSW_10_3_0_pre5-PU25ns_103X_mc2017_realistic_v1-v1',     # 14 - fullSim PU 25ns UP17 premix
-    'CMSSW_10_3_0_pre5-PU25ns_103X_upgrade2018_realistic_v7-v1',  #15 - fullSim PU 25ns UP18 premix
-    'CMSSW_10_3_0_pre5-103X_upgrade2018_realistic_v7-v1',  #16 - GENSIM input 2018
-    'CMSSW_10_3_0_pre5-103X_mc2017_realistic_v1_FastSim-v1',    # 17 - fastSim MinBias for mixing UP17
-    'CMSSW_10_3_0_pre5-PU25ns_103X_mc2017_realistic_v1_FastSim-v1',# 18 - fastSim premixed MinBias UP17
+    'CMSSW_10_0_0_pre2-100X_mc2017_realistic_v1-v1',     # 13 - GENSIM input for 2017 fullSim premix workflows
+    'CMSSW_10_4_0_pre1-PU25ns_103X_mc2017_realistic_v1-v1',     # 14 - fullSim PU 25ns UP17 premix library
+    'CMSSW_10_4_0_pre1-PU25ns_103X_upgrade2018_realistic_v7-v2',  # 15 - fullSim PU 25ns UP18 premix library
+    'CMSSW_10_3_0_pre5-103X_upgrade2018_realistic_v7-v1',  # 16 - GENSIM input for 2018 fullSim premix workflows
+    'CMSSW_10_4_0_pre1-103X_mc2017_realistic_v1_FastSim-v1',    # 17 - fastSim MinBias for mixing UP17
+    'CMSSW_10_4_0_pre1-PU25ns_103X_mc2017_realistic_v1_FastSim-v2',# 18 - fastSim premix library UP17
     ]
 
 
@@ -749,7 +749,7 @@ steps['NuGun_UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValNuGun/%s/GEN-SIM'%(b
 steps['SMS-T1tttt_mGl-1500_mLSP-100_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/%s/GEN-SIM'%(baseDataSetRelease[13],),location='STD')}
 
 
-# INPUT commands for 2017 wf
+# INPUT commands for 2018 wf
 steps['TTbar_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM'%(baseDataSetRelease[16],),location='STD')}
 steps['TTbar_13UP18HEfailINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM'%(baseDataSetRelease[16],),location='STD')}
 steps['TTbar_13UP18BadHcalMitigINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM'%(baseDataSetRelease[16],),label='Mitig',location='STD')}
@@ -3062,4 +3062,4 @@ for step in upgradeStepDict.keys():
             k=step+'_'+key
             if step in upgradeStepDict and key in upgradeStepDict[step]:
                 steps[k]=merge([upgradeStepDict[step][key]])
-# my-new-feature
+
