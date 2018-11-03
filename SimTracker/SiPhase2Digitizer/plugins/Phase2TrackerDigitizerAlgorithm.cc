@@ -72,7 +72,7 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
   GeVperElectron(3.61E-09), // 1 electron(3.61eV, 1keV(277e, mod 9/06 d.k.
   alpha2Order(conf_specific.getParameter<bool>("Alpha2Order")),      // switch on/off of E.B effect
   addXtalk(conf_specific.getParameter<bool>("AddXTalk")), 
-  interstripCoupling(conf_specific.getParameter<double>("InterstripCoupling")), // Interstrip Coupling
+  interstripCoupling(conf_specific.getParameter<double>("InterstripCoupling")), // Interstrip Coupling - Not used in PixelDigitizerAlgorithm
   
   Sigma0(conf_specific.getParameter<double>("SigmaZero")),           // Charge diffusion constant 7->3.7
   SigmaCoeff(conf_specific.getParameter<double>("SigmaCoeff")),      // delta in the diffusion across the strip pitch 
