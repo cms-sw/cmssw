@@ -890,10 +890,10 @@ timingDict = {
             'Geometry/MTDCommonData/data/CrystalBarZflat/mtd.xml',
             ],
         3 : [
-            'Geometry/MTDSimData/data/CrystalBar/mtdsens.xml'
+            'Geometry/MTDSimData/data/CrystalBarZflat/mtdsens.xml'
             ],
         4 : [
-            'Geometry/MTDSimData/data/CrystalBar/mtdProdCuts.xml'
+            'Geometry/MTDSimData/data/CrystalBarZflat/mtdProdCuts.xml'
             ],
         "sim" : [
             'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
