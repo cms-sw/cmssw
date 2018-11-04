@@ -3,6 +3,7 @@
 
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include <ostream>
+#include <array>
 
 /** 
     @class BTLDetId
@@ -27,7 +28,9 @@ class BTLDetId : public MTDDetId {
 
   /// range constants, need two sets for the time being (one for tiles and one for bars)
   static constexpr int kModulesPerROD = 54;
-  static constexpr int kTypeBoundaries[4] = { 0, 18, 36, 54 };
+  static constexpr int kModulesPerRODBarZflat = 42;
+  static constexpr std::array<int,4> kTypeBoundariesReference{ { 0, 18, 36, 54 } };
+  static constexpr std::array<int,4> kTypeBoundariesBarZflat{ { 0, 14, 28, 42 } };
   static constexpr int kCrystalsInPhiTile = 16; // per module and ROD
   static constexpr int kCrystalsInEtaTile = 4; // per module
   static constexpr int kCrystalsInPhiBar = 4; // per module and ROD
@@ -35,6 +38,7 @@ class BTLDetId : public MTDDetId {
   static constexpr int kCrystalsInPhiBarZ = 64; // per module and ROD
   static constexpr int kCrystalsInEtaBarZ = 1; // per module
   static constexpr int kCrystalsPerROD = kModulesPerROD*kCrystalsInPhiTile*kCrystalsInEtaTile; // 64 crystals per module x 54 modules per rod, independent on geometry scenario Tile or Bar
+  static constexpr int kCrystalsPerRODBarZflat = kModulesPerRODBarZflat*kCrystalsInPhiBarZ*kCrystalsInEtaBarZ; // 64 crystals per module x 42 modules per rod, independent on geometry scenario Tile or Bar
   static constexpr int MIN_ROD = 1;
   static constexpr int MAX_ROD = 72;
   static constexpr int HALF_ROD = 36;
@@ -46,11 +50,13 @@ class BTLDetId : public MTDDetId {
   static constexpr int MAX_IPHI_BAR = kCrystalsInPhiBar*HALF_ROD;
   static constexpr int MAX_IETA_BARZ = kCrystalsInEtaBarZ*kModulesPerROD;
   static constexpr int MAX_IPHI_BARZ = kCrystalsInPhiBarZ*HALF_ROD;
+  static constexpr int MAX_IETA_BARZFLAT = kCrystalsInEtaBarZ*kModulesPerRODBarZflat;
+  static constexpr int MAX_IPHI_BARZFLAT = kCrystalsInPhiBarZ*HALF_ROD;
   static constexpr int MIN_HASH =  0; // always 0 ...
   static constexpr int MAX_HASH =  2*MAX_IPHI_TILE*MAX_IETA_TILE-1; // the total amount is invariant per tile or bar)
   static constexpr int kSizeForDenseIndexing = MAX_HASH + 1 ;
 
-  enum class CrysLayout { tile = 1 , bar = 2 , barz = 3 } ;
+  enum class CrysLayout { tile = 1 , bar = 2 , barz = 3 , barzflat = 4} ;
   
   // ---------- Constructors, enumerated types ----------
   
