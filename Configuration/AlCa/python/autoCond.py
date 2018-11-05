@@ -52,9 +52,9 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
     'phase1_2018_design'       : '102X_upgrade2018_design_v9',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
-    'phase1_2018_realistic'    : '102X_upgrade2018_realistic_v14',
+    'phase1_2018_realistic'    : '102X_upgrade2018_realistic_v15',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
-    'phase1_2018_realistic_HEfail'    : '102X_upgrade2018_realistic_v12HEfail_v2',
+    'phase1_2018_realistic_HEfail'    : '102X_upgrade2018_realistic_v12HEfail_v3',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
     'phase1_2018_cosmics'      :   '102X_upgrade2018cosmics_realistic_deco_v13',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in PEAK mode
