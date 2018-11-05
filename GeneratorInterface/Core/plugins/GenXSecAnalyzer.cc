@@ -665,7 +665,7 @@ GenXSecAnalyzer::endJob() {
 
     // L=[N*(1-2f)^2]/s
     double lumi_1M_evts = xsec_.value() > 0 ? 1e6*(1-2*final_fract_neg_w)*(1-2*final_fract_neg_w)/xsec_.value()/1e3 : 0;
-    double lumi_1M_evts_unc = xsec_.value() > 0 ? lumi_1M_evts*lumi_1M_evts*sqrt(16/(1-2*final_fract_neg_w)/(1-2*final_fract_neg_w)*final_fract_neg_w_unc*final_fract_neg_w_unc + xsec_.error()*xsec_.error()/xsec_.value()/xsec_.value()) : 0;
+    double lumi_1M_evts_unc = xsec_.value() > 0 ? (1-2*final_fract_neg_w)*lumi_1M_evts*sqrt(1e-6 + 16*pow(final_fract_neg_w_unc,2)/pow(1-2*final_fract_neg_w,2)+pow(xsec_.error()/xsec_.value(),2)) : 0;
   edm::LogPrint("GenXSecAnalyzer") 
     << "After filter: final equivalent lumi for 1M events (1/fb) = " 
     << std::scientific << std::setprecision(3)  
