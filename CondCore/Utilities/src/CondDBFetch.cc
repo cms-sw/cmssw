@@ -2,8 +2,7 @@
 
 #define FETCH_PAYLOAD_CASE( TYPENAME ) \
   if( payloadTypeName == #TYPENAME ){ \
-    auto payload = deserialize<TYPENAME>( payloadTypeName, data, streamerInfo ); \
-    payloadPtr = payload; \
+    payloadPtr = deserialize<TYPENAME>( payloadTypeName, data, streamerInfo ); \
     match = true; \
   }
 
@@ -305,18 +304,15 @@ namespace cond {
 
       //   
       if( payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){    
-	auto payload = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data, streamerInfo );
-	payloadPtr = payload;
+	payloadPtr = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data, streamerInfo );
 	match = true;
       }
       if( payloadTypeName == "PhysicsTools::Calibration::Histogram2D<double,double,double>" ){    
-	auto payload = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data, streamerInfo );
-	payloadPtr = payload;
+	payloadPtr = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data, streamerInfo );
 	match = true;
       }
       if( payloadTypeName == "std::vector<unsignedlonglong,std::allocator<unsignedlonglong>>" ){
-	auto payload = deserialize<std::vector<unsigned long long> >( payloadTypeName, data, streamerInfo );
-	payloadPtr = payload;
+	payloadPtr = deserialize<std::vector<unsigned long long> >( payloadTypeName, data, streamerInfo );
 	match = true;
       }
   
