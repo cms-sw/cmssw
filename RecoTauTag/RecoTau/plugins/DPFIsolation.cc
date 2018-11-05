@@ -20,7 +20,7 @@ inline int getPFCandidateIndex(const edm::Handle<pat::PackedCandidateCollection>
 }
 } // anonymous namespace
 
-class DPFIsolation : public deep_tau::DeepTauBase{
+class DPFIsolation : public deep_tau::DeepTauBase {
 public:
     static OutputCollection& GetOutputs()
     {
@@ -49,6 +49,7 @@ public:
         desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0.pb");
         desc.add<unsigned>("version", 0);
+        desc.add<bool>("memMapped", false);
 
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
@@ -64,13 +65,12 @@ public:
         descriptions.add("DPFTau2016v0", desc);
     }
 
-    explicit DPFIsolation(const edm::ParameterSet& cfg,const deep_tau::DeepTauCache* cache ) :
+    explicit DPFIsolation(const edm::ParameterSet& cfg,const deep_tau::DeepTauCache* cache) :
         DeepTauBase(cfg, GetOutputs(), cache),
         pfcand_token(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("pfcands"))),
         vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
         graphVersion(cfg.getParameter<unsigned>("version"))
     {
-        std::cout << "graphVersion: " << graphVersion << '\n';
         if(!(graphVersion == 1 || graphVersion == 0 ))
             throw cms::Exception("DPFIsolation") << "unknown version of the graph file.";
     }

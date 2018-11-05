@@ -228,7 +228,7 @@ private:
 
 } // anonymous namespace
 
-class DeepTauId : public deep_tau::DeepTauBase{
+class DeepTauId : public deep_tau::DeepTauBase {
 public:
 
     static constexpr float default_value = -999.;
@@ -251,6 +251,8 @@ public:
         desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N.pb");
+        desc.add<bool>("memMapped", false);
+
 
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
