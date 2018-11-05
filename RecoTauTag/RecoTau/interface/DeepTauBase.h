@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "tensorflow/core/util/memmapped_file_system.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -29,7 +30,7 @@ class DeepTauCache {
 public:
     using GraphPtr = std::shared_ptr<tensorflow::GraphDef>;
 
-    DeepTauCache(const std::string& graphName);
+    DeepTauCache(const std::string& graphName, const bool& memMapped);
     ~DeepTauCache();
 
    // A Session allows concurrent calls to Run(), though a Session must
@@ -40,6 +41,7 @@ public:
 protected:
     GraphPtr graph;
     tensorflow::Session* session;
+    std::unique_ptr<tensorflow::MemmappedEnv> memmapped_env;
 };
 
 class DeepTauBase : public edm::stream::EDProducer<edm::GlobalCache<DeepTauCache>> {
@@ -70,14 +72,12 @@ public:
 
 
     DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputs, const DeepTauCache* cache);
-
     virtual ~DeepTauBase();
 
     virtual void produce(edm::Event& event, const edm::EventSetup& es) override;
 
     static std::unique_ptr<DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg);
     static void globalEndJob(const DeepTauCache* cache);
-
 private:
     virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es,
                                               edm::Handle<TauCollection> taus) = 0;
@@ -91,7 +91,5 @@ protected:
 };
 
 } // namespace deep_tau
-
-
 
 #endif
