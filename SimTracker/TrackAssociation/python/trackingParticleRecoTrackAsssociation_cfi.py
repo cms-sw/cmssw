@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 trackingParticleRecoTrackAsssociation = cms.EDProducer("TrackAssociatorEDProducer",
     associator = cms.InputTag('quickTrackAssociatorByHits'),
+    # associator = cms.InputTag('trackAssociatorByChi2'),
     label_tp = cms.InputTag("mix","MergedTrackTruth"),
     label_tr = cms.InputTag("generalTracks"),
     ignoremissingtrackcollection=cms.untracked.bool(False)
@@ -9,4 +10,3 @@ trackingParticleRecoTrackAsssociation = cms.EDProducer("TrackAssociatorEDProduce
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(trackingParticleRecoTrackAsssociation, label_tp = "mixData:MergedTrackTruth")
-

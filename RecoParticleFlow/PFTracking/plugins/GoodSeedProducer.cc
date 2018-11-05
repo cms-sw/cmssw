@@ -336,6 +336,8 @@ void GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     for (unsigned int i = 0; i < Tk.size(); ++i) {
       if (useQuality_ && (!(Tk[i].quality(trackQuality_))))
         continue;
+      if(Tk[i].algo() == 11) 
+        continue; //Skip jetcore tracks because the seeds are hitless
 
       reco::PreId myPreId;
       bool GoodPreId = false;

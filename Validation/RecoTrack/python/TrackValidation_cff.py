@@ -365,6 +365,34 @@ highPtJetsForTrk = highPtJetsForTrk = highPtJets.clone(src = "ak4CaloJetsForTrk"
 # Select B-hadron TPs
 trackingParticlesBHadron = _trackingParticleBHadronRefSelector.clone()
 
+# MTVtrackAssociatorByChi2 = SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi.trackAssociatorByChi2.clone() #maybe modification needed
+
+MTVTrackAssociationByChi2 = trackingParticleRecoTrackAsssociation.clone(
+    associator = cms.InputTag('trackAssociatorByChi2'),
+    # UseAssociators = cms.bool(True)
+)
+
+# associatorByHitLoose = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone(
+associatorByHitLoose = quickTrackAssociatorByHits.clone(
+    # AbsoluteNumberOfHits = cms.bool(False),
+	Cut_RecoToSim = cms.double(0.5),
+	# SimToRecoDenominator = cms.string('reco'), # either "sim" or "reco"
+	Quality_SimToReco = cms.double(0.3),
+	Purity_SimToReco = cms.double(0.5),
+	# ThreeHitTracksAreSpecial = cms.bool(True),
+    # PixelHitWeight = cms.double(1.0),
+    # useClusterTPAssociation = cms.bool(True),
+    # cluster2TPSrc = cms.InputTag("tpClusterProducer")
+    usePixels = cms.bool(False)
+)
+
+
+MTVTrackAssociationByHitsLoose = trackingParticleRecoTrackAsssociation.clone(
+    associator = cms.InputTag('associatorByHitLoose'),
+    # UseAssociators = cms.bool(True)
+)
+
+
 ## MTV instances
 trackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone(
     useLogPt = cms.untracked.bool(True),
@@ -660,6 +688,8 @@ tracksValidationTruth = cms.Task(
     tpClusterProducerPreSplitting,
     # trackAssociatorByChi2, #uncomment for byChi2 assoc. for jetcore studies (4/5)
     # MTVTrackAssociationByChi2, #uncomment for byChi2 assoc. for jetcore studies (5/5)
+    associatorByHitLoose,
+    MTVTrackAssociationByHitsLoose,
     quickTrackAssociatorByHits,
     quickTrackAssociatorByHitsPreSplitting,
     trackingParticleRecoTrackAsssociation,

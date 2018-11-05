@@ -19,6 +19,11 @@ hltTrackAssociatorByHits.UseGrouped               = cms.bool( False )
 hltTrackAssociatorByHits.UseSplitting             = cms.bool( False )
 hltTrackAssociatorByHits.ThreeHitTracksAreSpecial = cms.bool( False )
 
+#NOT BY HIT NOW!!! uncomment lines 16-20 to do byhits
+# hltTrackAssociatorByHits = SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi.trackAssociatorByChi2.clone()
+
+
+
 hltTrackAssociatorByDeltaR = SimTracker.TrackAssociatorProducers.trackAssociatorByPosition_cfi.trackAssociatorByPosition.clone()
 hltTrackAssociatorByDeltaR.method             = cms.string('momdr')
 hltTrackAssociatorByDeltaR.QCut               = cms.double(0.5)
