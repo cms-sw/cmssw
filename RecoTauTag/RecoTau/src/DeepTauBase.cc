@@ -121,7 +121,7 @@ std::unique_ptr<DeepTauCache> DeepTauBase::initializeGlobalCache(const edm::Para
     return std::make_unique<DeepTauCache>(graphName, memMapped );
 }
 
-void DeepTauBase::globalEndJob(const DeepTauCache* cache) { }
+// void DeepTauBase::globalEndJob(const DeepTauCache* cache) { }
 
 DeepTauCache::DeepTauCache(const std::string& graphName, const bool& memMapped)
 {
@@ -145,12 +145,11 @@ DeepTauCache::DeepTauCache(const std::string& graphName, const bool& memMapped)
         options.config.mutable_graph_options()->mutable_optimizer_options()->set_opt_level(::tensorflow::OptimizerOptions::L0);
         options.env = memmapped_env.get();
 
-        const tensorflow::Status session_status = tensorflow::NewSession(options, &session);
-        session = tensorflow::createSession(graph.get(), options);        if(!session_status.ok())
-            throw cms::Exception("DeepTauCache: unable to create a session for ") << graphName << ". \n"
-                                                                                  << session_status.ToString();
-      } else {
+        session = tensorflow::createSession(graph.get(), options);
+
+    } else {
         graph.reset(tensorflow::loadGraphDef(graphName));
+        session = tensorflow::createSession(graph.get(), options);
       }
 }
 

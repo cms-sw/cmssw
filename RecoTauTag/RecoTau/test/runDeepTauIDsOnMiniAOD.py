@@ -45,7 +45,7 @@ tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
                                # "deepTau2017v1",
                                # "DPFTau_2016_v0",
                                # "DPFTau_2016_v1",
-                               # "deepTau2017v1Q",
+                               "deepTau2017v1Q",
                                "DPFTau_2016_v0Q",
                                # "DPFTau_2016_v1Q",
                                ])
@@ -88,3 +88,6 @@ process.options = cms.untracked.PSet(
      numberOfThreads = cms.untracked.uint32(nThreads),
      numberOfStreams = cms.untracked.uint32(0)
 )
+
+from Validation.Performance.IgProfInfo import customise
+process = customise(process)

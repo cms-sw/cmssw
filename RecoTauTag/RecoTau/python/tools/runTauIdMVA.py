@@ -653,9 +653,8 @@ class TauIDEmbedder(object):
                     electrons               = self.cms.InputTag('slimmedElectrons'),
                     muons                   = self.cms.InputTag('slimmedMuons'),
                     taus                    = self.cms.InputTag('slimmedTaus'),
-                    # graph_file              = self.cms.string('RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb'),
-                    graph_file              = self.cms.string('RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_qm.pb'),
-                    memMapped              = self.cms.bool(True)
+                    graph_file              = self.cms.string('RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb'),
+                    memMapped              = self.cms.bool(False)
                 )
 
                 self.processDeepProducer('deepTau2017v1Q', tauIDSources, working_points)
@@ -703,9 +702,9 @@ class TauIDEmbedder(object):
                     pfcands     = self.cms.InputTag('packedPFCandidates'),
                     taus 	    = self.cms.InputTag('slimmedTaus'),
                     vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
-                    graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_qm.pb'),
+                    graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb'),
                     version     = self.cms.uint32(0),
-                    memMapped   = self.cms.bool(True)
+                    memMapped   = self.cms.bool(False)
                 )
 
                 self.processDeepProducer('dpfTau2016v0Q', tauIDSources, working_points)
@@ -742,9 +741,9 @@ class TauIDEmbedder(object):
                     pfcands     = self.cms.InputTag('packedPFCandidates'),
                     taus 	    = self.cms.InputTag('slimmedTaus'),
                     vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
-                    graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v1_qm.pb'),
+                    graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v1_quantized.pb'),
                     version     = self.cms.uint32(1),
-                    memMapped   = self.cms.bool(True)
+                    memMapped   = self.cms.bool(False)
                 )
 
                 self.processDeepProducer('dpfTau2016v1Q', tauIDSources, working_points)
