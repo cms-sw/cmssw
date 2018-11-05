@@ -51,16 +51,22 @@
   <class name="edm::reftobase::Holder<reco::PFTau, reco::PFTauRef>" />
   <class name="edm::reftobase::RefHolder<reco::PFTauRef>" />
 
-<ioread sourceClass="reco::PFTau" version="[12-20]" source="edm::Ptr<reco::PFCandidate> leadPFChargedHadrCand_;" targetClass="reco::PFTau" target="leadChargedHadrCand_">
-   <![CDATA[leadChargedHadrCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFChargedHadrCand_);]]>
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="edm::Ptr<reco::PFCandidate> leadPFChargedHadrCand_;" targetClass="reco::PFTau" target="leadPFChargedHadrCand_,leadChargedHadrCand_">
+   <![CDATA[
+   leadPFChargedHadrCand_.reset();
+   leadChargedHadrCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFChargedHadrCand_);]]>
   </ioread>
 
-<ioread sourceClass="reco::PFTau" version="[12-20]" source="edm::Ptr<reco::PFCandidate> leadPFNeutralCand_;" targetClass="reco::PFTau" target="leadNeutralCand_">
-    <![CDATA[leadNeutralCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFNeutralCand_);]]>
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="edm::Ptr<reco::PFCandidate> leadPFNeutralCand_;" targetClass="reco::PFTau" target="leadPFNeutralCand_,leadNeutralCand_">
+    <![CDATA[
+    leadPFNeutralCand_.reset();
+    leadNeutralCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFNeutralCand_);]]>
   </ioread>
 
-<ioread sourceClass="reco::PFTau" version="[12-20]" source="edm::Ptr<reco::PFCandidate> leadPFCand_;" targetClass="reco::PFTau" target="leadCand_">
-    <![CDATA[leadCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFCand_);]]>
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="edm::Ptr<reco::PFCandidate> leadPFCand_;" targetClass="reco::PFTau" target="leadPFCand_,leadCand_">
+    <![CDATA[
+    leadPFCand_.reset();
+    leadCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFCand_);]]>
   </ioread>
 
 <ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<reco::PFCandidatePtr> selectedSignalPFCands_;" targetClass="reco::PFTau" target="selectedSignalCands_">
