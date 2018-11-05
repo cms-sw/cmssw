@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_10_3_0/PIon --type PIon
 
-# /dev/CMSSW_10_3_0/PIon/V17 (CMSSW_10_3_0)
+# /dev/CMSSW_10_3_0/PIon/V24 (CMSSW_10_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_3_0/PIon/V17')
+  tableName = cms.string('/dev/CMSSW_10_3_0/PIon/V24')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -2098,7 +2098,7 @@ fragment.HLTPSetLowPtTripletStepTrajectoryFilterPPOnAA = cms.PSet(
   strictSeedExtension = cms.bool( False ),
   nSigmaMinPt = cms.double( 5.0 ),
   maxCCCLostHits = cms.int32( 0 ),
-  minPt = cms.double( 0.49 ),
+  minPt = cms.double( 2.0 ),
   maxConsecLostHits = cms.int32( 1 ),
   extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
   constantValueForLostHitsFractionFilter = cms.double( 2.0 ),
@@ -2120,7 +2120,7 @@ fragment.HLTPSetDetachedQuadStepTrajectoryFilterPPOnAA = cms.PSet(
   strictSeedExtension = cms.bool( False ),
   nSigmaMinPt = cms.double( 5.0 ),
   maxCCCLostHits = cms.int32( 0 ),
-  minPt = cms.double( 0.9 ),
+  minPt = cms.double( 3.0 ),
   maxConsecLostHits = cms.int32( 1 ),
   extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
   constantValueForLostHitsFractionFilter = cms.double( 2.0 ),
@@ -2304,7 +2304,7 @@ fragment.HLTPSetDetachedTripletStepTrajectoryFilterPPOnAA = cms.PSet(
   strictSeedExtension = cms.bool( False ),
   nSigmaMinPt = cms.double( 5.0 ),
   maxCCCLostHits = cms.int32( 0 ),
-  minPt = cms.double( 0.9 ),
+  minPt = cms.double( 3.0 ),
   maxConsecLostHits = cms.int32( 1 ),
   extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
   constantValueForLostHitsFractionFilter = cms.double( 2.0 ),
@@ -2396,7 +2396,7 @@ fragment.HLTPSetMixedTripletStepTrajectoryFilterPPOnAA = cms.PSet(
   strictSeedExtension = cms.bool( False ),
   nSigmaMinPt = cms.double( 5.0 ),
   maxCCCLostHits = cms.int32( 9999 ),
-  minPt = cms.double( 0.4 ),
+  minPt = cms.double( 1.0 ),
   maxConsecLostHits = cms.int32( 1 ),
   extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
   constantValueForLostHitsFractionFilter = cms.double( 1.4 ),
@@ -2652,7 +2652,7 @@ fragment.HLTPSetPixelPairStepTrajectoryFilterPPOnAA = cms.PSet(
   strictSeedExtension = cms.bool( False ),
   nSigmaMinPt = cms.double( 5.0 ),
   maxCCCLostHits = cms.int32( 0 ),
-  minPt = cms.double( 0.1 ),
+  minPt = cms.double( 3.5 ),
   maxConsecLostHits = cms.int32( 1 ),
   extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
   constantValueForLostHitsFractionFilter = cms.double( 2.0 ),
