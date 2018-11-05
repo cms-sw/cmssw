@@ -1253,7 +1253,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                    int standaloneWP = (int)(is_iso && is_ss);
                    int looseL1TkMatchWP = (int)(is_looseTkiso && is_looseTkss); 
                    int photonWP = (int)(is_photon);
-                   int quality = (standaloneWP*2^0) + (looseL1TkMatchWP*2^1) + (photonWP*2^2);
+                   int quality = (standaloneWP*std::pow(2,0)) + (looseL1TkMatchWP*std::pow(2,1)) + (photonWP*std::pow(2,2));
                    L1EGammaCollectionBXVEmulator->push_back(0,l1t::EGamma(p4calibrated, p4calibrated.pt(), p4calibrated.eta(), p4calibrated.phi(),quality,1 ));
 
 		}

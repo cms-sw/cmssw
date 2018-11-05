@@ -726,7 +726,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
             L1EGCollectionWithCuts->push_back(l1extra::L1EmParticle(p4calibrated, edm::Ref<L1GctEmCandCollection>(), 0));
 
             // BXVector l1t::EGamma quality defined with respect to these WPs
-            int quality = (standaloneWP*2^0) + (electronWP98*2^1) + (looseL1TkMatchWP*2^2) + (photonWP80*2^3) + (electronWP90*2^4) + (passesStage2Eff*2^5);
+            int quality = (standaloneWP*std::pow(2,0)) + (electronWP98*std::pow(2,1)) + (looseL1TkMatchWP*std::pow(2,2)) + (photonWP80*std::pow(2,3)) + (electronWP90*std::pow(2,4)) + (passesStage2Eff*std::pow(2,5));
             L1EGammaCollectionBXVWithCuts->push_back(0,l1t::EGamma(p4calibrated, calibratedPt, weightedPosition.eta(), weightedPosition.phi(),quality,1 ));
             if (debug) std::cout << "Quality: "<<  std::bitset<10>(quality) << std::endl;
          }
