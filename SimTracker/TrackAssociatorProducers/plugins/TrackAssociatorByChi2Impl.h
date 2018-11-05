@@ -2,7 +2,7 @@
 #define TrackAssociatorByChi2Impl_h
 
 /** \class TrackAssociatorByChi2Impl
- *  Class that performs the association of reco::Tracks and TrackingParticles evaluating the chi2 of reco tracks parameters and sim tracks parameters. The cut can be tuned from the config file: see data/TrackAssociatorByChi2.cfi. Note that the Association Map is filled with -ch2 and not chi2 because it is ordered using std::greater: the track with the lowest association chi2 will be the first in the output map.It is possible to use only diagonal terms (associator by pulls) seeting onlyDiagonal = true in the PSet 
+ *  Class that performs the association of reco::Tracks and TrackingParticles evaluating the chi2 of reco tracks parameters and sim tracks parameters. The cut can be tuned from the config file: see data/TrackAssociatorByChi2.cfi. Note that the Association Map is filled with -ch2 and not chi2 because it is ordered using std::greater: the track with the lowest association chi2 will be the first in the output map.It is possible to use only diagonal terms (associator by pulls) seeting onlyDiagonal = true in the PSet
  *
  *  \author cerati, magni
  */
@@ -47,10 +47,10 @@ public:
     chi2cut(conf.getParameter<double>("chi2cut")),
     onlyDiagonal(conf.getParameter<bool>("onlyDiagonal")),
     bsSrc(conf.getParameter<edm::InputTag>("beamSpot")) {
-    theMF=mF;  
+    theMF=mF;
     if (onlyDiagonal)
       edm::LogInfo("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms = 0 ---- " <<  "\n";
-    else 
+    else
       edm::LogInfo("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms != 0 ---- " <<  "\n";
   }
   */

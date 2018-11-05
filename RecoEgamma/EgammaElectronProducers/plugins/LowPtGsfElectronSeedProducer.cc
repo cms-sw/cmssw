@@ -337,6 +337,7 @@ void LowPtGsfElectronSeedProducer::loop(const edm::Handle<std::vector<T> >& hand
     if (!passThrough_ && (trackRef->pt() < minPtThreshold_)) {
       continue;
     }
+    if(trackRef->algo() == 11) continue; //Skip jetcore tracks because the seeds are hitless
 
     // Create ElectronSeed
     reco::ElectronSeed seed(*(trackRef->seedRef()));
