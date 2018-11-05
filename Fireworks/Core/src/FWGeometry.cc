@@ -234,13 +234,20 @@ FWGeometry::getMatchedIds( Detector det ) const
    {
       if( (( it->id >> kDetOffset ) & 0xF) != det ) continue;
       // select only the 1st layer
-      // if(((it->id>>20)&0x1F) != 1) continue;
-      bool flag(false);
-      for(std::vector<unsigned int>::iterator id_it = ids.begin(); id_it != ids.end(); ++id_it) {
-         flag = (~0x3FF & it->id) == (~0x3FF & *id_it);
-         if(flag) break;
+      // if(((it->id>>17)&0x1F) != 12) continue;
+
+      // select only the first cell of each wafer
+      if(det != HGCalHSc){
+        bool flag(false);
+
+        for(std::vector<unsigned int>::iterator id_it = ids.begin(); id_it != ids.end(); ++id_it) {
+           flag = (~0x3FF & it->id) == (~0x3FF & *id_it);
+           if(flag) break;
+        }
+
+        if(flag) continue;
       }
-      if(flag) continue;
+      
       ids.push_back( it->id );
    }
    return ids;
@@ -315,7 +322,7 @@ FWGeometry::getEveShape( unsigned int id  ) const
 }
 
 TEveGeoShape*
-FWGeometry::getHGCalEveShape( unsigned int id  ) const
+FWGeometry::getHGCSiliconEveShape( unsigned int id  ) const
 {
 #if 0 
    const unsigned int type = (id>>26)&0x3;
@@ -337,60 +344,86 @@ FWGeometry::getHGCalEveShape( unsigned int id  ) const
    float waferY = waferV*sqrt(3)/2;
 #endif
    IdToInfoItr it = FWGeometry::find( id );
-   if( it == m_idToInfo.end())
-   {
+   if( it == m_idToInfo.end()){
       fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
       return nullptr;
    }
-   else
-   {
-      GeomDetInfo info = *it;
-      
-      TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
-      TEveGeoShape* shape = new TEveGeoShape(TString::Format("RecoGeom Id=%u", id));
-#if 0
-      TGeoShape* geoShape = new TGeoBBox( info.shape[1], info.shape[2], info.shape[3] );
-#else
-      float dz = fabs(info.points[14] - info.points[2])*0.5;
-      // std::cout << "new point:\n";
-      // for(int i = 0; i < 24;)
-         // std::cout << info.points[i++] << ", " << info.points[i++] << ", " << info.points[i++] << "\n";
-      info.translation[2] = (info.points[14] + info.points[2])/2.0f; 
-      info.translation[0] = waferX*((0 < info.translation[2]) - (info.translation[2] < 0)); 
-      info.translation[1] = waferY; 
-      // scale up each cell
-      // size[0] *= (type == 0) ? 12.0f : 8.0f;
-      // size[1] *= (type == 0) ? 12.0f : 8.0f;
-      // roll = pitch = yaw = 0.0
-      info.matrix[0] = 1.0;
-      info.matrix[4] = 1.0;
-      info.matrix[8] = 1.0;
-      TGeoXtru* geoShape = new TGeoXtru(2);
-      Double_t x[6] = {
-         -dx, -dx, 0.0, dx, dx, 0.0
-       };
-      Double_t y[6] = {
-         -sidey,
-         sidey,
-         dy,
-         sidey,
-         -sidey,
-         -dy    
-      };
-      geoShape->DefinePolygon(6,x,y);
-      geoShape->DefineSection(0, -dz);
-      geoShape->DefineSection(1, dz);
-#endif
-      shape->SetShape( geoShape );
-      double array[16] = { info.matrix[0], info.matrix[3], info.matrix[6], 0.,
-			   info.matrix[1], info.matrix[4], info.matrix[7], 0.,
-			   info.matrix[2], info.matrix[5], info.matrix[8], 0.,
-			   info.translation[0], info.translation[1], info.translation[2], 1.
-      };
-      // Set transformation matrix from a column-major array
-      shape->SetTransMatrix( array );
-      return shape;
+
+   GeomDetInfo info = *it;
+   
+   TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
+   TEveGeoShape* shape = new TEveGeoShape(TString::Format("RecoGeom Id=%u", id));
+
+   float dz = fabs(info.points[14] - info.points[2])*0.5;
+
+   info.translation[2] = (info.points[14] + info.points[2])/2.0f; 
+   info.translation[0] = waferX*((0 < info.translation[2]) - (info.translation[2] < 0)); 
+   info.translation[1] = waferY; 
+
+   TGeoXtru* geoShape = new TGeoXtru(2);
+   Double_t x[6] = {
+      -dx, -dx, 0.0, dx, dx, 0.0
+   };
+   Double_t y[6] = {
+      -sidey,
+      sidey,
+      dy,
+      sidey,
+      -sidey,
+      -dy    
+   };
+   geoShape->DefinePolygon(6,x,y);
+   geoShape->DefineSection(0, -dz);
+   geoShape->DefineSection(1, dz);
+
+   shape->SetShape( geoShape );
+   double array[16] = { info.matrix[0], info.matrix[3], info.matrix[6], 0.,
+         info.matrix[1], info.matrix[4], info.matrix[7], 0.,
+         info.matrix[2], info.matrix[5], info.matrix[8], 0.,
+         info.translation[0], info.translation[1], info.translation[2], 1.
+   };
+   // Set transformation matrix from a column-major array
+   shape->SetTransMatrix( array );
+   return shape;
+}
+
+TEveGeoShape*
+FWGeometry::getHGCScintillatorEveShape( unsigned int id  ) const
+{
+   IdToInfoItr it = FWGeometry::find( id );
+   if( it == m_idToInfo.end()){
+      fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
+      return nullptr;
    }
+
+   GeomDetInfo info = *it;
+
+   TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
+   TEveGeoShape* shape = new TEveGeoShape(TString::Format("RecoGeom Id=%u", id));
+
+   TGeoXtru* geoShape = new TGeoXtru(2);
+   Double_t x[4] = {
+      info.points[0], info.points[3], info.points[6], info.points[9]
+   };
+   Double_t y[4] = {
+      info.points[1], info.points[4], info.points[7], info.points[10]
+   };
+
+   bool isNeg = info.shape[3] < 0;
+   geoShape->DefinePolygon(4,x,y);
+   geoShape->DefineSection(0, isNeg*info.shape[3]);
+   geoShape->DefineSection(1, !isNeg*info.shape[3]);
+   info.translation[2] = info.points[2];
+
+   shape->SetShape( geoShape );
+   double array[16] = { info.matrix[0], info.matrix[3], info.matrix[6], 0.,
+      info.matrix[1], info.matrix[4], info.matrix[7], 0.,
+      info.matrix[2], info.matrix[5], info.matrix[8], 0.,
+      info.translation[0], info.translation[1], info.translation[2], 1.
+   };
+   // Set transformation matrix from a column-major array
+   shape->SetTransMatrix( array );
+   return shape;
 }
 
 const float*

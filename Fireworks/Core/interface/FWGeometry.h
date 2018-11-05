@@ -72,7 +72,8 @@ public:
   
    // extract globally positioned shape for stand alone use
    TEveGeoShape* getEveShape( unsigned int id  ) const;
-   TEveGeoShape* getHGCalEveShape( unsigned int id  ) const;
+   TEveGeoShape* getHGCSiliconEveShape( unsigned int id  ) const;
+   TEveGeoShape* getHGCScintillatorEveShape( unsigned int id  ) const;
   
    // get shape description parameters
    const float* getShapePars( unsigned int id  ) const;
