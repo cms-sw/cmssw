@@ -87,7 +87,7 @@ public:
     virtual void produce(edm::Event& event, const edm::EventSetup& es) override;
 
     static std::unique_ptr<DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg);
-    static void globalEndJob(const DeepTauCache* cache);
+    static void globalEndJob(const DeepTauCache* cache){ }
 private:
     virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es,
                                               edm::Handle<TauCollection> taus) = 0;
