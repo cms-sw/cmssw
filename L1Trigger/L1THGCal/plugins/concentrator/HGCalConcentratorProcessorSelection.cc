@@ -13,6 +13,7 @@ HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const e
   concentratorProcImpl_(conf),
   concentratorSTCImpl_(conf)
 { 
+}
 
 void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput, 
                                               l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput,

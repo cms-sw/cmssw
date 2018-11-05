@@ -9,7 +9,7 @@ def custom_triggercellselect_supertriggercell(process):
 
 def custom_triggercellselect_threshold(process):
 
-    parameters = process.hgcalBackEndLayer1Producer.ProcessorParameters    
+    parameters = process.process.hgcalConcentratorProducer.ProcessorParameters    
     parameters.Method = cms.string('thresholdSelect')
     parameters.MethodNData = cms.uint32(999),
     parameters.MethodMaxCellsInModule = cms.uint32(288),

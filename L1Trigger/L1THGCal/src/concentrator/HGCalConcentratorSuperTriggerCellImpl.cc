@@ -10,7 +10,7 @@ int
 HGCalConcentratorSuperTriggerCellImpl::getSuperTriggerCellId(int detid) const {
   HGCalDetId TC_id(detid);
   if(TC_id.subdetId()==HGCHEB) {
-  return TC_id.cell(); //scintillator
+    return TC_id.cell(); //scintillator
   } else {
     int TC_wafer = TC_id.wafer();
     int split = 0x3a;
