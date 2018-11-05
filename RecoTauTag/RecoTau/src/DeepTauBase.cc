@@ -78,19 +78,44 @@ void DeepTauBase::CreateOutputs(edm::Event& event, const tensorflow::Tensor& pre
     }
 }
 
-
 std::unique_ptr<DeepTauCache> DeepTauBase::initializeGlobalCache(const edm::ParameterSet& cfg )
 {
     std::string graphName = edm::FileInPath(cfg.getParameter<std::string>("graph_file")).fullPath();
-    return std::make_unique<DeepTauCache>(graphName);
+    bool memMapped = cfg.getParameter<bool>("memMapped");
+    return std::make_unique<DeepTauCache>(graphName, memMapped );
 }
 
 void DeepTauBase::globalEndJob(const DeepTauCache* cache) { }
 
-DeepTauCache::DeepTauCache(const std::string& graphName) :
-    graph(tensorflow::loadGraphDef(graphName)),
-    session(tensorflow::createSession(graph.get()))
+DeepTauCache::DeepTauCache(const std::string& graphName, const bool& memMapped)
 {
+    tensorflow::SessionOptions options;
+    tensorflow::setThreading(options, 1, "no_threads");
+
+    if(memMapped) {
+        memmapped_env = std::make_unique<tensorflow::MemmappedEnv>(tensorflow::Env::Default());
+        const tensorflow::Status mmap_status = memmapped_env.get()->InitializeFromFile(graphName);
+        if(!mmap_status.ok())
+            throw cms::Exception("DeepTauCache: unable to initalize memmapped environment for ") << graphName << ". \n"
+                                                                                                 << mmap_status.ToString();
+
+        graph = std::make_unique<tensorflow::GraphDef>();
+        const tensorflow::Status load_graph_status = ReadBinaryProto(memmapped_env.get(),
+                                                                     tensorflow::MemmappedFileSystem::kMemmappedPackageDefaultGraphDef,
+                                                                     graph.get());
+        if(!load_graph_status.ok())
+            throw cms::Exception("DeepTauCache: unable to load graph from ") << graphName << ". \n"
+                                                                             << mmap_status.ToString();
+        options.config.mutable_graph_options()->mutable_optimizer_options()->set_opt_level(::tensorflow::OptimizerOptions::L0);
+        options.env = memmapped_env.get();
+
+        const tensorflow::Status session_status = tensorflow::NewSession(options, &session);
+        session = tensorflow::createSession(graph.get(), options);        if(!session_status.ok())
+            throw cms::Exception("DeepTauCache: unable to create a session for ") << graphName << ". \n"
+                                                                                  << session_status.ToString();
+      } else {
+        graph.reset(tensorflow::loadGraphDef(graphName));
+      }
 }
 
 DeepTauCache::~DeepTauCache()
