@@ -567,6 +567,9 @@ FWRecoGeometryESProducer::addCaloGeometry( FWRecoGeometry& fwRecoGeometry )
 
       // thickness
       fwRecoGeometry.idToName[id].shape[3] = cor[cor.size()-1].z();
+
+      // total points
+      fwRecoGeometry.idToName[id].topology[0] = cor.size() - 1;
     }
   }
 }
