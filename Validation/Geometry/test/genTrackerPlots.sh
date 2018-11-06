@@ -3,11 +3,8 @@
 VGEO_DIR=$CMSSW_BASE/src/Validation/Geometry
 TEST_DIR=${VGEO_DIR}/test/materialBudgetTrackerPlots
 
-if [ ! -d $TEST_DIR ]; then
-    mkdir $TEST_DIR && cd $TEST_DIR
-else
-    rm -rf $TEST_DIR && cd $TEST_DIR
-fi
+if [ -d $TEST_DIR ] ; then rm -rf $TEST_DIR ; fi
+mkdir $TEST_DIR && cd $TEST_DIR
 
 cmsRun ${VGEO_DIR}/test/single_neutrino_cfg.py nEvents=1000 >$TEST_DIR/single_neutrino_cfg.log 2>&1
 
