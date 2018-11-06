@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
+import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 
 def custom_triggercellselect_supertriggercell(process):
     
@@ -9,16 +9,19 @@ def custom_triggercellselect_supertriggercell(process):
 
 def custom_triggercellselect_threshold(process):
 
-    parameters = process.process.hgcalConcentratorProducer.ProcessorParameters    
+    adcSaturationBH_MIP = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcSaturation_fC
+    adcNbitsBH = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcNbits
+
+    parameters = process.hgcalConcentratorProducer.ProcessorParameters
     parameters.Method = cms.string('thresholdSelect')
-    parameters.MethodNData = cms.uint32(999),
-    parameters.MethodMaxCellsInModule = cms.uint32(288),
-    parameters.MethodlinLSB = cms.double(100./1024.),
-    parameters.MethodadcsaturationBH = adcSaturationBH_MIP,
-    parameters.MethodadcnBitsBH = adcNbitsBH,
-    parameters.MethodTCThreshold_fC = cms.double(0.),
-    parameters.MethodTCThresholdBH_MIP = cms.double(0.),
-    parameters.Methodtriggercell_threshold_silicon = cms.double(2.), # MipT
-    parameters.Methodtriggercell_threshold_scintillator = cms.double(2.) # MipT
+    parameters.NData = cms.uint32(999)
+    parameters.MaxCellsInModule = cms.uint32(288)
+    parameters.linLSB = cms.double(100./1024.)
+    parameters.adcsaturationBH = adcSaturationBH_MIP
+    parameters.adcnBitsBH = adcNbitsBH
+    parameters.TCThreshold_fC = cms.double(0.)
+    parameters.TCThresholdBH_MIP = cms.double(0.)
+    parameters.triggercell_threshold_silicon = cms.double(2.) # MipT
+    parameters.triggercell_threshold_scintillator = cms.double(2.) # MipT
 
     return process
