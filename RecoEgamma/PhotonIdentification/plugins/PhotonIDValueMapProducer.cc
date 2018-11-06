@@ -185,8 +185,7 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationMap;
     if (isAOD) { // this exists only in AOD
         iEvent.getByToken(particleBasedIsolationToken_, particleBasedIsolationMap);
-    }
-    if (!isAOD && !src->empty()) {
+    } else if (!src->empty()) {
         edm::Ptr<pat::Photon> test(src->ptrAt(0));
         if (test.isNull() || !test.isAvailable()) {
             throw cms::Exception("InvalidConfiguration")
