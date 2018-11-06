@@ -27,12 +27,16 @@ process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(
 =======
     # File from dataset /GluGluHToTauTau_M125_13TeV_powheg_pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM
 <<<<<<< HEAD
+<<<<<<< HEAD
      '/store/mc/RunIIFall17MiniAODv2/GluGluHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/0498CD6A-CC42-E811-95D3-008CFA1CB8A8.root'
 >>>>>>> ef7dc2ec57c... - Implemented on runTauIdMVA the option to work with new training files quantized
 =======
      # '/store/mc/RunIIFall17MiniAODv2/GluGluHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/0498CD6A-CC42-E811-95D3-008CFA1CB8A8.root'
      '/store/mc/RunIIFall17MiniAODv2/TTToHadronic_mtop169p5_TuneCP5_PSweights_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v3/100000/64BE09E8-76A8-E811-8602-FA163EC538AA.root'
 >>>>>>> 1c07197f73b... - Implementation of global cache to avoid reloading graph for each thread and reduce the memory consuption
+=======
+    '/store/mc/RunIIFall17MiniAODv2/GluGluHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/0498CD6A-CC42-E811-95D3-008CFA1CB8A8.root'
+>>>>>>> 1968c81d039... -Overall, changes to improve memory usage, among these are:
 ))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eventsToProcess) )
@@ -88,6 +92,3 @@ process.options = cms.untracked.PSet(
      numberOfThreads = cms.untracked.uint32(nThreads),
      numberOfStreams = cms.untracked.uint32(0)
 )
-
-from Validation.Performance.IgProfInfo import customise
-process = customise(process)

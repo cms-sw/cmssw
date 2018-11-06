@@ -100,7 +100,7 @@ struct MuonHitMatch {
         n_hits[MuonSubdetId::RPC].assign(n_muon_stations, 0);
     }
 
-    void AddMatchedMuon(const pat::Muon& muon, const pat::Tau& tau)
+    void addMatchedMuon(const pat::Muon& muon, const pat::Tau& tau)
     {
         static constexpr int n_stations = 4;
 
@@ -119,8 +119,7 @@ struct MuonHitMatch {
 
         if(muon.outerTrack().isNonnull()) {
             const auto& hit_pattern = muon.outerTrack()->hitPattern();
-            for(int hit_index = 0; hit_index < hit_pattern.numberOfAllHits(reco::HitPattern::TRACK_HITS);
-                ++hit_index) {
+            for(int hit_index = 0; hit_index < hit_pattern.numberOfAllHits(reco::HitPattern::TRACK_HITS); ++hit_index) {
                 auto hit_id = hit_pattern.getHitPattern(reco::HitPattern::TRACK_HITS, hit_index);
                 if(hit_id == 0) break;
                 if(hit_pattern.muonHitFilter(hit_id) && (hit_pattern.getHitType(hit_id) == TrackingRecHit::valid
@@ -143,7 +142,7 @@ struct MuonHitMatch {
         }
     }
 
-    static std::vector<const pat::Muon*> FindMatchedMuons(const pat::Tau& tau, const pat::MuonCollection& muons,
+    static std::vector<const pat::Muon*> findMatchedMuons(const pat::Tau& tau, const pat::MuonCollection& muons,
                                                            double deltaR, double minPt)
     {
         const reco::Muon* hadr_cand_muon = nullptr;
@@ -162,7 +161,7 @@ struct MuonHitMatch {
     }
 
     template<typename dnn, typename TensorElemGet>
-    void FillTensor(const TensorElemGet& get, const pat::Tau& tau, float default_value) const
+    void fillTensor(const TensorElemGet& get, const pat::Tau& tau, float default_value) const
     {
         get(dnn::n_matched_muons) = n_muons;
         get(dnn::muon_pt) = best_matched_muon != nullptr ? best_matched_muon->p4().pt() : default_value;
@@ -187,12 +186,12 @@ struct MuonHitMatch {
         get(dnn::muon_n_hits_RPC_2) = n_hits.at(MuonSubdetId::RPC).at(1);
         get(dnn::muon_n_hits_RPC_3) = n_hits.at(MuonSubdetId::RPC).at(2);
         get(dnn::muon_n_hits_RPC_4) = n_hits.at(MuonSubdetId::RPC).at(3);
-        get(dnn::muon_n_stations_with_matches_03) = CountMuonStationsWithMatches(0, 3);
-        get(dnn::muon_n_stations_with_hits_23) = CountMuonStationsWithHits(2, 3);
+        get(dnn::muon_n_stations_with_matches_03) = countMuonStationsWithMatches(0, 3);
+        get(dnn::muon_n_stations_with_hits_23) = countMuonStationsWithHits(2, 3);
     }
 
 private:
-    unsigned CountMuonStationsWithMatches(size_t first_station, size_t last_station) const
+    unsigned countMuonStationsWithMatches(size_t first_station, size_t last_station) const
     {
         static const std::map<int, std::vector<bool>> masks = {
             { MuonSubdetId::DT, { false, false, false, false } },
@@ -208,7 +207,7 @@ private:
         return cnt;
     }
 
-    unsigned CountMuonStationsWithHits(size_t first_station, size_t last_station) const
+    unsigned countMuonStationsWithHits(size_t first_station, size_t last_station) const
     {
         static const std::map<int, std::vector<bool>> masks = {
             { MuonSubdetId::DT, { false, false, false, false } },
@@ -250,9 +249,13 @@ public:
         desc.add<edm::InputTag>("electrons", edm::InputTag("slimmedElectrons"));
         desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
+<<<<<<< HEAD
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N.pb");
 <<<<<<< HEAD
 =======
+=======
+        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb");
+>>>>>>> 1968c81d039... -Overall, changes to improve memory usage, among these are:
         desc.add<bool>("memMapped", false);
 
 
@@ -294,7 +297,7 @@ public:
     }
 
 private:
-    virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es,
+    virtual tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
                                               edm::Handle<TauCollection> taus) override
     {
         edm::Handle<pat::ElectronCollection> electrons;
@@ -369,19 +372,25 @@ private:
         get(dnn::pt_weighted_dr_signal) = reco::tau::pt_weighted_dr_signal(tau, tau.decayMode());
         get(dnn::pt_weighted_dr_iso) = reco::tau::pt_weighted_dr_iso(tau, tau.decayMode());
         get(dnn::leadingTrackNormChi2) = tau.leadingTrackNormChi2();
+<<<<<<< HEAD
         get(dnn::e_ratio) = reco::tau::eratio(tau);
         get(dnn::gj_angle_diff) = CalculateGottfriedJacksonAngleDifference(tau);
         get(dnn::n_photons) = reco::tau::n_photons_total(tau);
+=======
+        get(dnn::e_ratio) = clusterVariables.tau_Eratio(tau);
+        get(dnn::gj_angle_diff) = calculateGottfriedJacksonAngleDifference(tau);
+        get(dnn::n_photons) = clusterVariables.tau_n_photons_total(tau);
+>>>>>>> 1968c81d039... -Overall, changes to improve memory usage, among these are:
         get(dnn::emFraction) = tau.emFraction_MVA();
         get(dnn::has_gsf_track) = leadChargedHadrCand && std::abs(leadChargedHadrCand->pdgId()) == 11;
-        get(dnn::inside_ecal_crack) = IsInEcalCrack(tau.p4().Eta());
-        auto gsf_ele = FindMatchedElectron(tau, electrons, 0.3);
+        get(dnn::inside_ecal_crack) = isInEcalCrack(tau.p4().Eta());
+        auto gsf_ele = findMatchedElectron(tau, electrons, 0.3);
         get(dnn::gsf_ele_matched) = gsf_ele != nullptr;
         get(dnn::gsf_ele_pt) = gsf_ele != nullptr ? gsf_ele->p4().Pt() : default_value;
         get(dnn::gsf_ele_dEta) = gsf_ele != nullptr ? dEta(gsf_ele->p4(), tau.p4()) : default_value;
         get(dnn::gsf_ele_dPhi) = gsf_ele != nullptr ? dPhi(gsf_ele->p4(), tau.p4()) : default_value;
         get(dnn::gsf_ele_mass) = gsf_ele != nullptr ? gsf_ele->p4().mass() : default_value;
-        CalculateElectronClusterVars(gsf_ele, get(dnn::gsf_ele_Ee), get(dnn::gsf_ele_Egamma));
+        calculateElectronClusterVars(gsf_ele, get(dnn::gsf_ele_Ee), get(dnn::gsf_ele_Egamma));
         get(dnn::gsf_ele_Pin) = gsf_ele != nullptr ? gsf_ele->trackMomentumAtVtx().R() : default_value;
         get(dnn::gsf_ele_Pout) = gsf_ele != nullptr ? gsf_ele->trackMomentumOut().R() : default_value;
         get(dnn::gsf_ele_EtotOverPin) = get(dnn::gsf_ele_Pin) > 0
@@ -430,15 +439,15 @@ private:
 
         MuonHitMatch muon_hit_match;
         if(tau.leadPFChargedHadrCand().isNonnull() && tau.leadPFChargedHadrCand()->muonRef().isNonnull())
-            muon_hit_match.AddMatchedMuon(*tau.leadPFChargedHadrCand()->muonRef(), tau);
+            muon_hit_match.addMatchedMuon(*tau.leadPFChargedHadrCand()->muonRef(), tau);
 
-        auto matched_muons = muon_hit_match.FindMatchedMuons(tau, muons, 0.3, 5);
+        auto matched_muons = muon_hit_match.findMatchedMuons(tau, muons, 0.3, 5);
         for(auto muon : matched_muons)
-            muon_hit_match.AddMatchedMuon(*muon, tau);
-        muon_hit_match.FillTensor<dnn>(get, tau, default_value);
+            muon_hit_match.addMatchedMuon(*muon, tau);
+        muon_hit_match.fillTensor<dnn>(get, tau, default_value);
 
         LorentzVectorXYZ signalChargedHadrCands_sumIn, signalChargedHadrCands_sumOut;
-        ProcessSignalPFComponents(tau, tau.signalChargedHadrCands(),
+        processSignalPFComponents(tau, tau.signalChargedHadrCands(),
                                   signalChargedHadrCands_sumIn, signalChargedHadrCands_sumOut,
                                   get(dnn::signalChargedHadrCands_sum_innerSigCone_pt),
                                   get(dnn::signalChargedHadrCands_sum_innerSigCone_dEta),
@@ -452,7 +461,7 @@ private:
                                   get(dnn::signalChargedHadrCands_nTotal_outerSigCone));
 
         LorentzVectorXYZ signalNeutrHadrCands_sumIn, signalNeutrHadrCands_sumOut;
-        ProcessSignalPFComponents(tau, tau.signalNeutrHadrCands(),
+        processSignalPFComponents(tau, tau.signalNeutrHadrCands(),
                                   signalNeutrHadrCands_sumIn, signalNeutrHadrCands_sumOut,
                                   get(dnn::signalNeutrHadrCands_sum_innerSigCone_pt),
                                   get(dnn::signalNeutrHadrCands_sum_innerSigCone_dEta),
@@ -467,7 +476,7 @@ private:
 
 
         LorentzVectorXYZ signalGammaCands_sumIn, signalGammaCands_sumOut;
-        ProcessSignalPFComponents(tau, tau.signalGammaCands(),
+        processSignalPFComponents(tau, tau.signalGammaCands(),
                                   signalGammaCands_sumIn, signalGammaCands_sumOut,
                                   get(dnn::signalGammaCands_sum_innerSigCone_pt),
                                   get(dnn::signalGammaCands_sum_innerSigCone_dEta),
@@ -516,7 +525,7 @@ private:
         return inputs;
     }
 
-    static void CalculateElectronClusterVars(const pat::Electron* ele, float& elecEe, float& elecEgamma)
+    static void calculateElectronClusterVars(const pat::Electron* ele, float& elecEe, float& elecEgamma)
     {
         if(ele) {
             elecEe = elecEgamma = 0;
@@ -535,7 +544,7 @@ private:
     }
 
     template<typename CandidateCollection>
-    static void ProcessSignalPFComponents(const pat::Tau& tau, const CandidateCollection& candidates,
+    static void processSignalPFComponents(const pat::Tau& tau, const CandidateCollection& candidates,
                                           LorentzVectorXYZ& p4_inner, LorentzVectorXYZ& p4_outer,
                                           float& pt_inner, float& dEta_inner, float& dPhi_inner, float& m_inner,
                                           float& pt_outer, float& dEta_outer, float& dPhi_outer, float& m_outer,
@@ -546,7 +555,7 @@ private:
         n_inner = 0;
         n_outer = 0;
 
-        const double innerSigCone_radius = GetInnerSignalConeRadius(tau.pt());
+        const double innerSigCone_radius = getInnerSignalConeRadius(tau.pt());
         for(const auto& cand : candidates) {
             const double dR = reco::deltaR(cand->p4(), tau.leadChargedHadrCand()->p4());
             const bool isInside_innerSigCone = dR < innerSigCone_radius;
@@ -589,13 +598,13 @@ private:
         m = n != 0 ? p4.mass() : default_value;
     }
 
-    static double GetInnerSignalConeRadius(double pt)
+    static double getInnerSignalConeRadius(double pt)
     {
         return std::max(.05, std::min(.1, 3./std::max(1., pt)));
     }
 
     // Copied from https://github.com/cms-sw/cmssw/blob/CMSSW_9_4_X/RecoTauTag/RecoTau/plugins/PATTauDiscriminationByMVAIsolationRun2.cc#L218
-    static float CalculateGottfriedJacksonAngleDifference(const pat::Tau& tau)
+    static float calculateGottfriedJacksonAngleDifference(const pat::Tau& tau)
     {
         if(tau.decayMode() == 10) {
             static constexpr double mTau = 1.77682;
@@ -613,13 +622,13 @@ private:
         return default_value;
     }
 
-    static bool IsInEcalCrack(double eta)
+    static bool isInEcalCrack(double eta)
     {
         const double abs_eta = std::abs(eta);
         return abs_eta > 1.46 && abs_eta < 1.558;
     }
 
-    static const pat::Electron* FindMatchedElectron(const pat::Tau& tau, const pat::ElectronCollection& electrons,
+    static const pat::Electron* findMatchedElectron(const pat::Tau& tau, const pat::ElectronCollection& electrons,
                                                     double deltaR)
     {
         const double dR2 = deltaR*deltaR;
