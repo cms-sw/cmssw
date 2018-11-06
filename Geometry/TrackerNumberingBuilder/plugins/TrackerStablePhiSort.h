@@ -21,11 +21,12 @@ void trackerStablePhiSort(RandomAccessIterator begin, RandomAccessIterator end, 
   // are at most 5 modules, no other structure has less than ~10 elements to
   // order in phi hence the special case in phi~0 if the size of the elements
   // to order is <=5
-  const unsigned int nMaxModulesPerRing = 5;
-  const double       phiMin             = M_PI_4;
-  const double       phiMax             = 2 * M_PI - phiMin;
-  const double       tolerance          = 0.000001;
-  const unsigned int n                  = tmpvec.size();
+  constexpr unsigned int nMaxModulesPerRing = 5;
+  constexpr double       phiMin             = M_PI_4;
+  constexpr double       phiMax             = 2 * M_PI - phiMin;
+  constexpr double       tolerance          = 0.000001;
+
+  const unsigned int n = tmpvec.size();
 
   if( n > nMaxModulesPerRing ) {
     // stability check

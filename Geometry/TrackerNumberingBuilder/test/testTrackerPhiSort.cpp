@@ -1,4 +1,4 @@
-#include "../plugins/TrackerStablePhiSort.h"
+#include "Geometry/TrackerNumberingBuilder/plugins/TrackerStablePhiSort.h"
 #include "FakeCPP.h"
 
 #include <cmath>
@@ -80,18 +80,14 @@ int main()
   sorted.resize(original.size());
   std::copy(original.begin(),original.end(),shuffled.begin());
   auto rng = std::default_random_engine {};
-  for(auto& v : shuffled) {
-      std::shuffle(v.begin(), v.end(), rng);
-  }
+  for(auto& v : shuffled) std::shuffle(v.begin(), v.end(), rng);
 
   std::copy(shuffled.begin(),shuffled.end(),sorted.begin());
 
   CPPUNIT_ASSERT(original!=sorted);
 
   double before = std::clock();
-  for(auto& v : sorted) {
-      trackerStablePhiSort(v.begin(), v.end(), getPhi);
-  }
+  for(auto& v : sorted) trackerStablePhiSort(v.begin(), v.end(), getPhi);
 
   double after = std::clock();
   std::cout << "elapsed " << (after-before)*0.01 << std::endl;
