@@ -4,6 +4,8 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
+#include <mutex>
+
 /*
  * This class is a simple wrapper around either a StringObjectFunction or
  * StringCutObjectSelector to use them in a thread safe way.
