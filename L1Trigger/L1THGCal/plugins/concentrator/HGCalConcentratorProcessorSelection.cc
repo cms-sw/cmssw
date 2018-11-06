@@ -10,8 +10,9 @@ DEFINE_EDM_PLUGIN(HGCalConcentratorFactory,
 HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const edm::ParameterSet& conf)  : 
   HGCalConcentratorProcessorBase(conf),
   choice_(conf.getParameter<std::string>("Method")),
-  concentratorProcImpl_(conf)
-{
+  concentratorProcImpl_(conf),
+  concentratorSTCImpl_(conf)
+{ 
 }
 
 void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput, 
@@ -44,6 +45,17 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
       // Push trigger Cells for each module from std::vector<l1t::HGCalTriggerCell> into the final collection
       for( const auto& trigCell : trigCellVecOutput){
         triggerCellCollOutput.push_back(0, trigCell);       
+      }
+    }
+  }
+  else if (choice_ == "superTriggerCellSelect"){
+    for( const auto& module_trigcell : tc_modules ) {  
+      std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;
+      concentratorSTCImpl_.superTriggerCellSelectImpl( module_trigcell.second, trigCellVecOutput);
+      
+      // Push trigger Cells for each module from std::vector<l1t::HGCalTriggerCell> into the final collection
+      for( auto trigCell = trigCellVecOutput.begin(); trigCell != trigCellVecOutput.end(); ++trigCell){
+        triggerCellCollOutput.push_back(0, *trigCell);       
       }
     }
   }
