@@ -20,6 +20,7 @@
 #include "CondFormats/EgammaObjects/interface/GBRTree.h"
 
 #include <vector>
+#include <cmath>
 
   class GBRForest {
 
