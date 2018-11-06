@@ -23,6 +23,7 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include <TF1.h>
 
 namespace deep_tau {
 
@@ -82,16 +83,16 @@ public:
 
 
     DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputs, const DeepTauCache* cache);
-    virtual ~DeepTauBase();
+    virtual ~DeepTauBase() {}
 
     virtual void produce(edm::Event& event, const edm::EventSetup& es) override;
 
     static std::unique_ptr<DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg);
     static void globalEndJob(const DeepTauCache* cache){ }
 private:
-    virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es,
+    virtual tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
                                               edm::Handle<TauCollection> taus) = 0;
-    virtual void CreateOutputs(edm::Event& event, const tensorflow::Tensor& pred, edm::Handle<TauCollection> taus);
+    virtual void createOutputs(edm::Event& event, const tensorflow::Tensor& pred, edm::Handle<TauCollection> taus);
 
 protected:
     edm::EDGetTokenT<TauCollection> taus_token;
