@@ -29,7 +29,7 @@ public:
         return outputs;
     };
 
-    static unsigned GetNumberOfParticles(unsigned graphVersion)
+    static unsigned getNumberOfParticles(unsigned graphVersion)
     {
         static const std::map<unsigned, unsigned> nparticles { { 0, 60 }, { 1, 36 } };
         return nparticles.at(graphVersion);
@@ -47,7 +47,7 @@ public:
         desc.add<edm::InputTag>("pfcands", edm::InputTag("packedPFCandidates"));
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
         desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
-        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0.pb");
+        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb");
         desc.add<unsigned>("version", 0);
         desc.add<bool>("memMapped", false);
 
@@ -76,7 +76,7 @@ public:
     }
 
 private:
-    virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es,
+    virtual tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
                                               edm::Handle<TauCollection> taus) override
     {
         edm::Handle<pat::PackedCandidateCollection> pfcands;
@@ -86,7 +86,7 @@ private:
         event.getByToken(vtx_token, vertices);
 
         tensorflow::Tensor tensor(tensorflow::DT_FLOAT, {1,
-            static_cast<int>(GetNumberOfParticles(graphVersion)), static_cast<int>(GetNumberOfFeatures(graphVersion))});
+            static_cast<int>(getNumberOfParticles(graphVersion)), static_cast<int>(GetNumberOfFeatures(graphVersion))});
 
         tensorflow::Tensor predictions(tensorflow::DT_FLOAT, { static_cast<int>(taus->size()), 1});
 
@@ -118,7 +118,7 @@ private:
 
             std::vector<unsigned int> signalCandidateInds;
 
-            for(auto c : tau.signalCands())
+            for(const auto c : tau.signalCands())
                 signalCandidateInds.push_back(getPFCandidateIndex(pfcands,c));
 
             float lepRecoPt = tau.pt();
@@ -126,12 +126,12 @@ private:
 
             // Use of setZero results in warnings in eigen library during compilation.
             //tensor.flat<float>().setZero();
-            const unsigned n_inputs = GetNumberOfParticles(graphVersion) * GetNumberOfFeatures(graphVersion);
+            const unsigned n_inputs = getNumberOfParticles(graphVersion) * GetNumberOfFeatures(graphVersion);
             for(unsigned input_idx = 0; input_idx < n_inputs; ++input_idx)
                 tensor.flat<float>()(input_idx) = 0;
 
             unsigned int iPF = 0;
-            const unsigned max_iPF = GetNumberOfParticles(graphVersion);
+            const unsigned max_iPF = getNumberOfParticles(graphVersion);
 
             std::vector<unsigned int> sorted_inds(pfcands->size());
             std::size_t n = 0;
