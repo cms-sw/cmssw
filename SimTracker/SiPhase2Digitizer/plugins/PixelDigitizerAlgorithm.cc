@@ -128,10 +128,15 @@ void PixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iter
 // ======================================================================
 void PixelDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetUnit* pixdet) {
   if (!pixelFlag) return;
+
+  const Phase2TrackerTopology* topol = &pixdet->specificTopology();
+
+  // cross-talk calculation valid for the case of 25x100 pixels
+  if ( !topol->pitch().first==0.0025 || !topol->pitch().second == 0.0100 ) return;  // please check that units are really cm!
+
   uint32_t detID = pixdet->geographicalId().rawId();
   signal_map_type& theSignal = _signal[detID];
   signal_map_type signalNew;
-  const Phase2TrackerTopology* topol = &pixdet->specificTopology();
   int numRows = topol->nrows();
   int numColumns = topol->ncolumns();
 
