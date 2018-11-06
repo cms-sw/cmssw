@@ -1015,8 +1015,8 @@ bool L1TdeStage2CaloLayer2::compareSums(
   l1t::EtSumBxCollection::const_iterator dataIt;
   l1t::EtSumBxCollection::const_iterator emulIt = emulCol->begin(currBx);
 
-  // if either data or emulator collections are empty, or they have different
-  // size, mark the event as bad (this should never occur in normal running)
+  // if either data or emulator collections are empty mark the event as bad (this should never occur in normal running)
+  // matching data/emul collections by type before proceeding with the checks
   if (dataCol->isEmpty(currBx) || emulCol->isEmpty(currBx))
     return false;
 
