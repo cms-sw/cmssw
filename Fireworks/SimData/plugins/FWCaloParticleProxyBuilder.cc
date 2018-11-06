@@ -30,7 +30,6 @@
 #include "TEveTrack.h"
 #include "TEveBoxSet.h"
 
-#if 1
 class FWCaloParticleProxyBuilder : public FWProxyBuilderBase
 {
 public:
@@ -44,7 +43,6 @@ private:
    // Disable default assignment operator
    const FWCaloParticleProxyBuilder& operator=( const FWCaloParticleProxyBuilder& ) = delete;
 
-   using FWProxyBuilderBase::build;
    void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 };
 
@@ -53,201 +51,57 @@ FWCaloParticleProxyBuilder::build( const FWEventItem* iItem, TEveElementList* pr
    const CaloParticleCollection* collection = nullptr;
    iItem->get( collection );
 
-   if( nullptr == collection )
-   {
-      return;
-   }
-   
-   const edm::EventBase *event = item()->getEvent();
-   // hitmap
-   std::map<DetId, const HGCRecHit*> hitmap;
-   // max detected energy
-   float maxEnergy(1e-5f);
+   if( collection == nullptr ) return;
 
-   edm::Handle<HGCRecHitCollection> recHitHandleEE;
-   edm::Handle<HGCRecHitCollection> recHitHandleFH;
-   edm::Handle<HGCRecHitCollection> recHitHandleBH;   
-
-   event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCEERecHits" ), recHitHandleEE );
-   event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCHEFRecHits" ), recHitHandleFH );
-   event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCHEBRecHits" ), recHitHandleBH );
-
-   const auto& rechitsEE = *recHitHandleEE;
-   const auto& rechitsFH = *recHitHandleFH;
-   const auto& rechitsBH = *recHitHandleBH;
-
-   for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
-      hitmap[rechitsEE[i].detid().rawId()] = &rechitsEE[i];
-      maxEnergy = fmax(maxEnergy, rechitsEE[i].energy());
-   }
-   for (unsigned int i = 0; i < rechitsFH.size(); ++i) {
-      hitmap[rechitsFH[i].detid().rawId()] = &rechitsFH[i];
-      maxEnergy = fmax(maxEnergy, rechitsFH[i].energy());   
-   }
-   for (unsigned int i = 0; i < rechitsBH.size(); ++i) {
-      hitmap[rechitsBH[i].detid().rawId()] = &rechitsBH[i];
-      maxEnergy = fmax(maxEnergy, rechitsBH[i].energy());
-   }
-   
    for( std::vector<CaloParticle>::const_iterator iData = collection->begin(), end = collection->end(); iData != end; ++iData )
    {
+      TEveBoxSet* boxset = new TEveBoxSet();
+      boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
+      boxset->UseSingleColor();
+      boxset->SetPickable(true);
+
       for (const auto & c : iData->simClusters())
       {
          auto clusterDetIds = (*c).hits_and_fractions();
 
          for( auto it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
             it != itEnd; ++it )
-         {
-            if(hitmap.find(it->first) == hitmap.end()) continue;
-#if 0
-            TEveGeoShape* shape = item()->getGeom()->getHGCalEveShape(it->first);
-#else
-            TEveGeoShape* shape = new TEveGeoShape(TString::Format("CaloParticleRecHit Id=%u", it->first));
-            
+         {  
             const float* corners = item()->getGeom()->getCorners( it->first );
-            if( corners == nullptr ) {
+            const float* parameters = item()->getGeom()->getParameters( it->first );
+            const float* shapes = item()->getGeom()->getShapePars(it->first);
+
+            if( corners == nullptr || parameters == nullptr || shapes == nullptr ) {
                continue;
             }
 
-            float dx = fabs(corners[6]  - corners[0]);
-            float dy = fabs(corners[4]  - corners[1]);
-            float dz = fabs(corners[14] - corners[2]);
+#if 0
+            const int total_points = parameters[0];
+            const int total_vertices = 3*total_points;
+#else // using broken boxes(half hexagon) until there's support for hexagons in TEveBoxSet
+            const int total_points = 4;
+            const int total_vertices = 3*total_points;
 
-            TGeoShape* geoShape = new TGeoBBox( dx, dy, dz );
-            shape->SetShape( geoShape );
+            const float thickness = shapes[3];
 
-            double array[16] = { 1., 0., 0., 0.,
-                  0., 1., 0., 0.,
-                  0., 0., 1., 0.,
-                  (corners[6] + corners[0])*0.5f, (corners[4] + corners[1])*0.5f, (corners[14] + corners[2])*0.5f, 1.
-            };
-            shape->SetTransMatrix( array );
+            std::vector<float> pnts(24);
+            for(int i = 0; i < total_points; ++i){
+               pnts[i*3+0] = corners[i*3];
+               pnts[i*3+1] = corners[i*3+1];
+               pnts[i*3+2] = corners[i*3+2];
+
+               pnts[(i*3+0)+total_vertices] = corners[i*3];
+               pnts[(i*3+1)+total_vertices] = corners[i*3+1];
+               pnts[(i*3+2)+total_vertices] = corners[i*3+2]+thickness;
+            }
+            boxset->AddBox( &pnts[0]);
 #endif
 
-            shape->SetPickable(false);
-            // float x = (hitmap[it->first]->energy()*it->second)/maxEnergy;
-            // x += 0.5*(1.0f - x*x*(3.0f - 2.0f*x));
-            // shape->SetMainColorRGB( x, fmax(0.0f, 0.5f-x), 0.0f );
-            // product->AddElement( shape ); 
-            setupAddElement( shape, product );
          }
       }
+      boxset->RefitPlex();
+      setupAddElement(boxset, product);
    }
 }
 
 REGISTER_FWPROXYBUILDER( FWCaloParticleProxyBuilder, CaloParticleCollection, "CaloFTW", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
-
-#else
-class FWCaloParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<CaloParticle>
-{
-public:
-   FWCaloParticleProxyBuilder( void ) {}
-   ~FWCaloParticleProxyBuilder( void ) override {}
-
-   void setItem(const FWEventItem* iItem) override {
-      FWProxyBuilderBase::setItem(iItem);
-      iItem->getConfig()->assertParam("Point Size", 1l, 3l, 1l);
-   }
-
-   REGISTER_PROXYBUILDER_METHODS();
-
-private:
-   // Disable default copy constructor
-   FWCaloParticleProxyBuilder( const FWCaloParticleProxyBuilder& ) = delete;
-   // Disable default assignment operator
-   const FWCaloParticleProxyBuilder& operator=( const FWCaloParticleProxyBuilder& ) = delete;
-
-   using FWSimpleProxyBuilderTemplate<CaloParticle>::build;
-   void build( const CaloParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
-};
-
-void
-FWCaloParticleProxyBuilder::build( const CaloParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
-{
-   const edm::EventBase *event = item()->getEvent();
-   // hitmap
-   std::map<DetId, const HGCRecHit*> hitmap;
-   // max detected energy
-   float maxEnergy(1e-5f);
-
-   edm::Handle<HGCRecHitCollection> recHitHandleEE;
-   edm::Handle<HGCRecHitCollection> recHitHandleFH;
-   edm::Handle<HGCRecHitCollection> recHitHandleBH;   
-
-   event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCEERecHits" ), recHitHandleEE );
-   event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCHEFRecHits" ), recHitHandleFH );
-   event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCHEBRecHits" ), recHitHandleBH );
-
-   const auto& rechitsEE = *recHitHandleEE;
-   const auto& rechitsFH = *recHitHandleFH;
-   const auto& rechitsBH = *recHitHandleBH;
-
-   for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
-      hitmap[rechitsEE[i].detid().rawId()] = &rechitsEE[i];
-      maxEnergy = fmax(maxEnergy, rechitsEE[i].energy());
-   }
-   for (unsigned int i = 0; i < rechitsFH.size(); ++i) {
-      hitmap[rechitsFH[i].detid().rawId()] = &rechitsFH[i];
-      maxEnergy = fmax(maxEnergy, rechitsFH[i].energy());   
-   }
-   for (unsigned int i = 0; i < rechitsBH.size(); ++i) {
-      hitmap[rechitsBH[i].detid().rawId()] = &rechitsBH[i];
-      maxEnergy = fmax(maxEnergy, rechitsBH[i].energy());
-   }
-   
-   for (const auto & c : iData.simClusters())
-   {
-      auto clusterDetIds = (*c).hits_and_fractions();
-
-      for( auto it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
-         it != itEnd; ++it )
-      {
-
-#if 1
-         TEveGeoShape* wafer = item()->getGeom()->getHGCalEveShape(it->first);
-         // wafer->SetDrawFrame(true);
-         // wafer->SetHighlightFrame(true);
-         // wafer->SetMiniFrame(true);
- 
-         // wafer->SetFillColor(0);
-         // wafer->SetLineColor(100);
-         // wafer->SetLineWidth(10);
-
-         wafer->SetMainAlpha(0.5f); 
-         // setupAddElement(wafer, &oItemHolder);
-         oItemHolder.AddElement(wafer);
-
-         TEveGeoShape* shape = new TEveGeoShape(TString::Format("CaloParticleRecHit Id=%u", it->first));
-
-         const float* corners = item()->getGeom()->getCorners( it->first );
-         if( corners == nullptr ) {
-            continue;
-         }
-
-         // std::cout << (corners[6] + corners[0])*0.5f << "," << (corners[4] + corners[1])*0.5f << std::endl;
-         float dx = abs(corners[6]  - corners[0]);
-         float dy = abs(corners[4]  - corners[1]);
-         float dz = abs(corners[14] - corners[2]);
-
-         TGeoShape* geoShape = new TGeoBBox( dx, dy, dz );
-
-         shape->SetShape( geoShape );
-         double array[16] = { 1., 0., 0., 0.,
-               0., 1., 0., 0.,
-               0., 0., 1., 0.,
-               (corners[6] + corners[0])*0.5f, (corners[4] + corners[1])*0.5f, (corners[14] + corners[2])*0.5f, 1.
-         };
-         shape->SetTransMatrix(  array );
-         shape->SetMainAlpha(1.0f);
-         // shape->SetMainTransparency(100); 
-         // shape->SetMainColorRGB( 0.0f, 0.0f, 1.0f );
-         oItemHolder.AddElement(shape);
-#endif
-
-         // setupAddElement(shape, &oItemHolder);
-      }
-   }
-}
-
-REGISTER_FWPROXYBUILDER( FWCaloParticleProxyBuilder, CaloParticle, "CaloFTWW", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
-#endif
