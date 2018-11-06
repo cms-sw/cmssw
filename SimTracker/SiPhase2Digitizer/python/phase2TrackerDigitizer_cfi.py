@@ -39,10 +39,10 @@ phase2TrackerDigitizer = cms.PSet(
       AddNoise = cms.bool(False),
       AddXTalk = cms.bool(True),			#D.B.
       InterstripCoupling = cms.double(0.0),	#D.B. # No need to be used in PixelDigitizerAlgorithm
-      Odd_row_interchannelCoupling_next_row = cms.double(0.10),
-      Even_row_interchannelCoupling_next_row = cms.double(0.01),
-      Odd_column_interchannelCoupling_next_column = cms.double(0.01),
-      Even_column_interchannelCoupling_next_column = cms.double(0.01),
+      Odd_row_interchannelCoupling_next_row = cms.double(0.20),
+      Even_row_interchannelCoupling_next_row = cms.double(0.0),
+      Odd_column_interchannelCoupling_next_column = cms.double(0.0),
+      Even_column_interchannelCoupling_next_column = cms.double(0.0),
       SigmaZero = cms.double(0.00037),  		#D.B.: 3.7um spread for 300um-thick sensor, renormalized in digitizerAlgo
       SigmaCoeff = cms.double(1.80),  		#D.B.: to be confirmed with simulations in CMSSW_6.X
       ClusterWidth = cms.double(3),		#D.B.: this is used as number of sigmas for charge collection (3=+-3sigmas)
