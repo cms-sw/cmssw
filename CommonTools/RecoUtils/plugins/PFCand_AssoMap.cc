@@ -86,15 +86,15 @@ PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	PFCand_AssoMapAlgos::GetInputCollections(iEvent,iSetup);
 
-	if ( ( asstype == "PFCandsToVertex" ) || ( asstype == "Both" ) ) {
-	  unique_ptr<PFCandToVertexAssMap> PFCand2Vertex = CreatePFCandToVertexMap(pfCandH, iSetup);
-	  iEvent.put( SortPFCandAssociationMap( &(*PFCand2Vertex), &iEvent.productGetter() ) );
-	}
-
-	if ( ( asstype == "VertexToPFCands" ) || ( asstype == "Both" ) ) {
-	  unique_ptr<VertexToPFCandAssMap> Vertex2PFCand = CreateVertexToPFCandMap(pfCandH, iSetup);
-	  iEvent.put(std::move(Vertex2PFCand));
-	}
+        if (asstype == "PFCandsToVertex" || asstype == "VertexToPFCands" || asstype == "Both") {
+          auto mappings = createMappings(pfCandH, iSetup);
+          if (asstype == "PFCandsToVertex" || asstype == "Both") {
+            iEvent.put( SortPFCandAssociationMap( &(*mappings.first), &iEvent.productGetter() ) );
+          }
+          if (asstype == "VertexToPFCands" || asstype == "Both") {
+            iEvent.put( std::move(mappings.second));
+          }          
+        }
 
 }
 
