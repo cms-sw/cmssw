@@ -40,6 +40,6 @@ process.load("L1Trigger.L1TNtuples.l1NtupleProducer_cfi")
 
 process.p = cms.Path(
   process.RawToDigi
-  +process.l1NtupleProducer
+  ,process.l1NtupleProducer
 )
 

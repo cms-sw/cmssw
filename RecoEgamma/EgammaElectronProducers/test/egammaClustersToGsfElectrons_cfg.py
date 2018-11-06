@@ -99,7 +99,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 
 process.mylocalreco =  cms.Sequence(process.trackerlocalreco*process.calolocalreco)
 process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*process.gsfElectronSequence)
-process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco*process.gsfElectronAnalysis)
+process.p = cms.Path(process.mylocalreco*process.myglobalreco*process.gsfElectronAnalysis, process.RawToDigi)
 
 process.outpath = cms.EndPath(process.out)
 process.GlobalTag.globaltag = 'MC_31X_V2'

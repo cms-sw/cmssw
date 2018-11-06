@@ -55,9 +55,9 @@ process.options = cms.untracked.PSet(
 )
 
 process.path = cms.Path(
-  process.ctppsRawToDigi *
   process.recoCTPPS +
-  process.ctppsDQM
+  process.ctppsDQM,
+  process.ctppsRawToDigi
 )
 
 process.end_path = cms.EndPath(

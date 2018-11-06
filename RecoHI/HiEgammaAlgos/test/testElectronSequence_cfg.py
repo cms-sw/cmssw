@@ -99,9 +99,9 @@ process.output.outputCommands.extend(["keep *_*_*_TEST"])
 process.filter_step = cms.Path(process.eegenfilter)
 
 process.reco_step = cms.Path(process.eegenfilter
-                             * process.RawToDigi
                              * process.reconstructionHeavyIons
-                             * process.hiElectronSequence)
+                             * process.hiElectronSequence,
+                             process.RawToDigi)
 
 process.out_step = cms.EndPath(process.output)
 

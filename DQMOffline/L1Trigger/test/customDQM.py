@@ -38,10 +38,10 @@ def customise(process):
     process = L1TReEmulFromRAW(process)
     #Put all together into one path, so that reco does not run on non-fat events
     process.p=cms.Path( #process.hltFatEventFilters*
-    			process.RawToDigi*
     			process.reconstruction*
     			process.DQMOffline*			
-    			process.L1TReEmul
+    			process.L1TReEmul,
+    			process.RawToDigi
     		)
     process.e=cms.EndPath( process.DQMoutput )
     process.schedule=cms.Schedule(process.p,process.e)

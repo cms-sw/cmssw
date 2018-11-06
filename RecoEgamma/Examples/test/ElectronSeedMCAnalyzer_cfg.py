@@ -29,8 +29,8 @@ process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelver
 process.myelectronseeding = cms.Sequence(process.trackerDrivenElectronSeeds*process.ecalDrivenElectronSeeds*process.electronMergedSeeds)
 process.myelectrontracking = cms.Sequence(process.electronCkfTrackCandidates*process.electronGsfTracks)
 
-#process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco*process.myelectronseeding*process.myelectrontracking*process.particleFlowReco*process.pfElectronTranslator*process.gsfElectronSequence*)
-process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco*process.myelectronseeding*process.electronSeedAnalysis)
+#process.p = cms.Path(process.mylocalreco*process.myglobalreco*process.myelectronseeding*process.myelectrontracking*process.particleFlowReco*process.pfElectronTranslator*process.gsfElectronSequence, process.RawToDigi)
+process.p = cms.Path(process.mylocalreco*process.myglobalreco*process.myelectronseeding*process.electronSeedAnalysis, process.RawToDigi)
 
 
 process.GlobalTag.globaltag = 'MC_31X_V3::All'

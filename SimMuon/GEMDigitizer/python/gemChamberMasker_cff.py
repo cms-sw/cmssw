@@ -18,11 +18,11 @@ def appendGEMChamberMaskerAtReco(process):
         process.simMuonGEMDigis.digiTag =  cms.InputTag("simMuonGEMDigis", \
                                                         processName = cms.InputTag.skipCurrentProcess())
 
-        process.filteredGEMDigiSequence = cms.Sequence( process.simMuonGEMDigis \
-                                                        + process.simMuonGEMPadDigis \
-                                                        + process.simMuonGEMPadDigiClusters)
+        process.filteredGEMDigiTask = cms.Task( process.simMuonGEMDigis,
+                                                process.simMuonGEMPadDigis,
+                                                process.simMuonGEMPadDigiClusters)
 
-        process.RawToDigi += process.filteredGEMDigiSequence
+        process.RawToDigi.add(process.filteredGEMDigiTask)
 
     return process
 

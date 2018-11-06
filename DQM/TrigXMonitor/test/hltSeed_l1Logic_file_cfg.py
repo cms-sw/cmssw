@@ -182,8 +182,8 @@ process.load("DQM.TrigXMonitor.HLTSeedL1LogicScalers_cfi")
 if dataType == 'RAW' :
     process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
 #process.l1GtTrigReport.L1GtRecordInputTag = "gtDigis"
-#process.pHLT = cms.Path(process.RawToDigi+process.l1GtTrigReport+process.hltSeedL1Logic)
-#process.pHLT = cms.Path(process.RawToDigi+process.hltSeedL1Logic)
+#process.pHLT = cms.Path(process.l1GtTrigReport+process.hltSeedL1Logic, process.RawToDigi)
+#process.pHLT = cms.Path(process.hltSeedL1Logic, process.RawToDigi)
     process.pHLT = cms.Path(process.gtDigis+process.hltSeedL1Logic)
     
 else :        

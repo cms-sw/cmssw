@@ -92,7 +92,7 @@ process.pxlreco = cms.Sequence(process.vtxreco * process.hiPixel3PrimTracksSeque
 process.trkreco = cms.Sequence(process.offlineBeamSpot * process.trackerlocalreco * process.heavyIonTracking)
 
 # Paths
-#process.reco = cms.Path(process.RawToDigi * process.trkreco)           # for RECO from RAW
+#process.reco = cms.Path(process.trkreco, process.RawToDigi)           # for RECO from RAW
 process.rereco = cms.Path(process.rechits * process.heavyIonTracking    # for reRECO from RECO
                           * process.secondStep                          # plus pair-seeded iteration
                           )

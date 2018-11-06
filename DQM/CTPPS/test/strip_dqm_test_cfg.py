@@ -51,9 +51,9 @@ process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 process.load("DQM.CTPPS.ctppsDQM_cff")
 
 process.path = cms.Path(
-  process.ctppsRawToDigi *
   process.recoCTPPS *
-  process.ctppsDQM
+  process.ctppsDQM,
+  process.ctppsRawToDigi
 )
 
 process.end_path = cms.EndPath(

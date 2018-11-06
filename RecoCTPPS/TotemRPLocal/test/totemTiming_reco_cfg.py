@@ -45,8 +45,8 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 # execution configuration
 process.p = cms.Path(
-    process.ctppsRawToDigi*
-    process.totemTimingLocalReconstruction
+    process.totemTimingLocalReconstruction,
+    process.ctppsRawToDigi
 )
 
 process.outpath = cms.EndPath(process.output)

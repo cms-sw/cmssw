@@ -115,7 +115,7 @@ if rawORreco:
         *process.PFTowers
         )        
 else:
-    process.reco_extra = cms.Path(process.RawToDigi * process.reconstructionHeavyIons_withPF)
+    process.reco_extra = cms.Path(process.reconstructionHeavyIons_withPF, process.RawToDigi)
     
 # tack on iteative tracking, particle flow and calo-matching
 

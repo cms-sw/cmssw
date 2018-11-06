@@ -104,7 +104,7 @@ if rawORreco:
 else:
     process.reco_extra = cms.Path(
         #process.centralityFilter *
-        process.RawToDigi * process.reconstructionHeavyIons)
+        process.reconstructionHeavyIons, process.RawToDigi)
     
 
     

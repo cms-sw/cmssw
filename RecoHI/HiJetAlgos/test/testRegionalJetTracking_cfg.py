@@ -99,7 +99,7 @@ process.vtxreco = cms.Sequence(process.offlineBeamSpot * process.trackerlocalrec
 process.pxlreco = cms.Sequence(process.vtxreco * process.hiPixel3PrimTracksSequence)
 process.trkreco = cms.Sequence(process.offlineBeamSpot * process.trackerlocalreco * process.heavyIonTracking)
 
-process.reco        = cms.Sequence(process.RawToDigi * process.trkreco)
+process.reco        = cms.Sequence(process.trkreco, process.RawToDigi)
 process.rereco      = cms.Sequence(process.rechits * process.heavyIonTracking)
 process.rerecojets  = cms.Sequence(process.goodJets * process.rechits * process.heavyIonTracking)
 

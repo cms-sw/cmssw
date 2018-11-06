@@ -43,8 +43,8 @@ process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 
 process.p = cms.Path(
-  process.ctppsRawToDigi *
-  process.recoCTPPS
+  process.recoCTPPS,
+  process.ctppsRawToDigi
 )
 
 # output configuration

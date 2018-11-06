@@ -84,7 +84,7 @@ process.TFileService = cms.Service("TFileService",
 )
 
 if useCrossingFrames:
-  process.raw2digi_step = cms.Sequence(process.mix*process.RawToDigi)
+  process.raw2digi_step = cms.Sequence(process.mix, process.RawToDigi)
 else:
   process.raw2digi_step = cms.Sequence(process.RawToDigi)
 

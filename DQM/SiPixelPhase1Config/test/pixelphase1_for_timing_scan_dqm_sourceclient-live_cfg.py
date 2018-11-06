@@ -213,8 +213,7 @@ process.AdaptorConfig = cms.Service("AdaptorConfig")
 process.DQMmodules = cms.Sequence(process.dqmEnv*process.dqmSaver)
 
 process.p = cms.Path(
-  process.RawToDigi 
-  * process.L1Reco 
+  process.L1Reco
   *    process.reconstruction
   #  process.siPixelDigis
   #* process.siPixelClusters
@@ -222,6 +221,7 @@ process.p = cms.Path(
   * process.siPixelPhase1OfflineDQM_source
   * process.siPixelPhase1OfflineDQM_harvesting
   * process.SiPixelPhase1GeometryDebugAnalyzer
-  * process.SiPixelPhase1GeometryDebugHarvester
+  * process.SiPixelPhase1GeometryDebugHarvester,
+  process.RawToDigi
 )
     

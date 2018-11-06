@@ -56,9 +56,9 @@ process.load("DQM.CTPPS.ctppsDQM_cff")
 
 # processing path
 process.recoStep = cms.Sequence(
-  process.ctppsRawToDigi *
   process.onlineMetaDataDigis *
-  process.recoCTPPS
+  process.recoCTPPS,
+  process.ctppsRawToDigi
 )
 
 process.dqmModules = cms.Sequence(

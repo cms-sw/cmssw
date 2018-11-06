@@ -46,10 +46,10 @@ process.onlineMetaDataDigis = cms.EDProducer('OnlineMetaDataRawToDigi')
 process.load("DQM.CTPPS.ctppsDQM_cff")
 
 process.path = cms.Path(
-  process.ctppsRawToDigi *
   process.onlineMetaDataDigis *
   process.recoCTPPS *
-  process.ctppsDQMElastic
+  process.ctppsDQMElastic,
+  process.ctppsRawToDigi
 )
 
 process.end_path = cms.EndPath(

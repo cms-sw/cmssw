@@ -155,12 +155,12 @@ process.options = cms.untracked.PSet(
 
 process.hi = cms.Path(*process.preScaler
                       *process.hltTriggerTypeFilter
-                      *process.RawToDigi
                       *process.filter_step
                       *process.RecoForDQM
                       *process.dqmBeamMonitor
                       +process.dqmEnv
-                      +process.dqmSaver)
+                      +process.dqmSaver,
+                      process.RawToDigi)
 
 
 process.schedule = cms.Schedule(process.hi)

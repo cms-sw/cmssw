@@ -62,13 +62,13 @@ process.load("DQM.CTPPS.ctppsDQM_cff")
 process.ctppsDiamondDQMSource.excludeMultipleHits = cms.bool(True);
 
 process.path = cms.Path(
-    #process.ctppsRawToDigi *
     process.recoCTPPS *
     #process.ctppsDiamondRawToDigi *
     process.ctppsDiamondRecHits *
     process.ctppsDiamondLocalTracks *
     process.ctppsPixelLocalTracks *
     process.ctppsDQM
+    #,process.ctppsRawToDigi
     )
 
 

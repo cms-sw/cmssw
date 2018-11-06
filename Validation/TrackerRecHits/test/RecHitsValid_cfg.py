@@ -197,11 +197,11 @@ process.p1 = cms.Path(
     # process.content*
     process.mix
     # *process.DigiToRaw  # for remaking recHits
-    *process.RawToDigi
     *process.L1Reco
     *process.reconstruction
     *process.validation_step
     *process.dqmSaver
+    ,process.RawToDigi
     )
 
 # # customisation of the process.

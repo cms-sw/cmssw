@@ -36,7 +36,6 @@ from Configuration.EventContent.EventContent_cff import RECOSIMEventContent
 process.out.outputCommands += RECOSIMEventContent.outputCommands
 
 process.p = cms.Path(
-    process.RawToDigi
   * process.localreco * process.globalreco
   + process.egammaHighLevelRecoPrePF + process.particleFlowReco
   + process.regionalCosmicTracksSeq * process.muoncosmichighlevelreco * process.muonshighlevelreco
@@ -45,6 +44,7 @@ process.p = cms.Path(
 #  + process.metrecoPlusHCALNoise + process.btagging * process.recoPFMET + process.PFTau
 #  * process.reducedRecHits
 #  * process.reconstruction
+    , process.RawToDigi
 )
 
 process.outPath = cms.EndPath(process.out)

@@ -15,9 +15,9 @@ def appendME0ChamberMaskerAtReco(process):
         process.simMuonME0PseudoDigis.digiTag =  cms.InputTag("simMuonME0PseudoDigis", \
                                                         processName = cms.InputTag.skipCurrentProcess())
 
-        process.filteredME0DigiSequence = cms.Sequence( process.simMuonME0PseudoDigis 
-                                                        + process.simMuonME0PseudoReDigis )
+        process.filteredME0DigiTask = cms.Task( process.simMuonME0PseudoDigis,
+                                                process.simMuonME0PseudoReDigis )
 
-        process.RawToDigi += process.filteredME0DigiSequence
+        process.RawToDigi.add(process.filteredME0DigiTask)
 
     return process

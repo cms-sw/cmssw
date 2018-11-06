@@ -79,11 +79,11 @@ process.postValidation_step = cms.Sequence(
 #)
 
 process.p = cms.Path(
-    process.RawToDigi*
     process.rpcTier0Source+
     process.rpcRecHitValidation_step+
     process.rpcPointProducerPlusValidation_step*
-    process.postValidation_step
+    process.postValidation_step,
+    process.RawToDigi
 )
 #process.outPath = cms.EndPath(process.out)
 
