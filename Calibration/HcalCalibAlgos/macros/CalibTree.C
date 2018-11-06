@@ -524,6 +524,9 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
+      if (jentry%1000000 == 0) 
+	std::cout << "Entry " << jentry << " Run " << t_Run << " Event "
+		  << t_Event << std::endl;
       // Find DetIds contributing to the track
       bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) :
 		     ((t_Run < runlo_) || (t_Run > runhi_)));
@@ -612,6 +615,9 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0)                               break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
+    if (jentry%1000000 == 0) 
+      std::cout << "Entry " << jentry << " Run " << t_Run << " Event "
+		<< t_Event << std::endl;
     if (std::find(entries.begin(),entries.end(),jentry) !=
 	entries.end())                            continue;
     bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) :
