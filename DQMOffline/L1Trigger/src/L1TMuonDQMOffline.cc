@@ -176,16 +176,6 @@ void L1TMuonDQMOffline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Ru
 }
 
 //_____________________________________________________________________
-void L1TMuonDQMOffline::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
-    if(m_verbose) cout << "[L1TMuonDQMOffline:] Called beginLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock() << endl;
-}
-
-//_____________________________________________________________________
-void L1TMuonDQMOffline::dqmEndLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
-    if(m_verbose) cout << "[L1TMuonDQMOffline:] Called endLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock() << endl;
-}
-
-//_____________________________________________________________________
 void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
     Handle<reco::MuonCollection> muons;
