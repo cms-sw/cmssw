@@ -95,7 +95,7 @@ class TrackExtenderWithMTDT : public edm::stream::EDProducer<> {
     return RefitDirection::undetermined;
   }
 
-  reco::Track buildTrack(const reco::Track&, const Trajectory&, const reco::BeamSpot&, const MagneticField* field, bool hasMTD) const;
+  reco::Track buildTrack(const reco::Track&, const Trajectory&, const Trajectory &, const reco::BeamSpot&, const MagneticField* field, bool hasMTD) const;
   reco::TrackExtra buildTrackExtra(const Trajectory& trajectory) const;
 
   string dumpLayer(const DetLayer* layer) const;
@@ -202,30 +202,31 @@ void TrackExtenderWithMTDT<TrackCollection>::produce( edm::Event& ev,
     }
     auto trajwithmtd = theTransformer->transform(ttrack,thits);
     for( const auto& trj : trajwithmtd ) {
+      
       const auto& thetrj = (updateTraj_ ? trj : trajs.front());
-      reco::Track result = buildTrack(track, thetrj, bs, magfield.product(), !mtdthits.empty());
+      reco::Track result = buildTrack(track, thetrj, trj, bs, magfield.product(), !mtdthits.empty());
       if( result.ndof() > 0 ) {
-	/// setup the track extras
-	reco::TrackExtra::TrajParams trajParams;
-	reco::TrackExtra::Chi2sFive chi2s; 
-	size_t hitsstart = outhits->size();
-	if( updatePattern_ ) {
-	  t2t(trj,*outhits,trajParams,chi2s); // this fills the output hit collection
-	} else {
-	  t2t(thetrj,*outhits,trajParams,chi2s);
-	}
-	size_t hitsend = outhits->size();
-	extras->push_back(buildTrackExtra(trj)); // always push back the fully built extra, update by setting in track
-	extras->back().setHits(hitsRefProd,hitsstart,hitsend);	
-	extras->back().setTrajParams(trajParams,chi2s);
-	//create the track
-	output->push_back(result);
-	auto& backtrack = output->back();
-	reco::TrackExtraRef extraRef(extrasRefProd,extras->size()-1);
-	backtrack.setExtra( (updateExtra_ ? extraRef : track.extra()) );
-	for(unsigned ihit = hitsstart; ihit < hitsend; ++ihit) {
-	  backtrack.appendHitPattern((*outhits)[ihit],ttopo);
-	}
+        /// setup the track extras
+        reco::TrackExtra::TrajParams trajParams;
+        reco::TrackExtra::Chi2sFive chi2s; 
+        size_t hitsstart = outhits->size();
+        if( updatePattern_ ) {
+          t2t(trj,*outhits,trajParams,chi2s); // this fills the output hit collection
+        } else {
+          t2t(thetrj,*outhits,trajParams,chi2s);
+        }
+        size_t hitsend = outhits->size();
+        extras->push_back(buildTrackExtra(trj)); // always push back the fully built extra, update by setting in track
+        extras->back().setHits(hitsRefProd,hitsstart,hitsend);	
+        extras->back().setTrajParams(trajParams,chi2s);        
+        //create the track
+        output->push_back(result);
+        auto& backtrack = output->back();
+        reco::TrackExtraRef extraRef(extrasRefProd,extras->size()-1);
+        backtrack.setExtra( (updateExtra_ ? extraRef : track.extra()) );
+        for(unsigned ihit = hitsstart; ihit < hitsend; ++ihit) {
+          backtrack.appendHitPattern((*outhits)[ihit],ttopo);
+        }
       }
     }
   }
@@ -346,6 +347,7 @@ TrackExtenderWithMTDT<TrackCollection>::tryETLLayers(const TrackType& track,
 template<class TrackCollection>
 reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track& orig,
 							       const Trajectory& traj,
+                                   const Trajectory& trajWithMtd,
 							       const reco::BeamSpot& bs,
 							       const MagneticField* field,
 							       bool hasMTD) const {  
@@ -358,9 +360,13 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
     return reco::Track();
   }
 
+  constexpr double mpi = 0.13957018;
+  constexpr double c = 2.99792458e1; //[cm/ns]
+
+  
   const FreeTrajectoryState & stateForProjectionToBeamLine=*stateForProjectionToBeamLineOnSurface.freeState();
 
-  PropagatorWithMaterial thePropagator(anyDirection,0.13957018,field,1.6,false,0.1,true);
+  PropagatorWithMaterial thePropagator(anyDirection,mpi,field,1.6,false,0.1,true);
   
   TSCBLBuilderWithPropagator tscblBuilder(thePropagator);
   TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
@@ -376,11 +382,61 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
 
   int ndof = traj.ndof();
   
+  double t0 = 0.;
+  double covt0t0 = -1.;
+    
+  //compute path length for time backpropagation, using first MTD hit for the momentum
+  if (hasMTD) {
+    double pathlength = 0.;
+    double thit = 0.;
+    double thiterror = -1.;
+    bool validmtd = false;
+    if (trajWithMtd.direction() == alongMomentum) {
+      for (auto it=trajWithMtd.measurements().begin(); it!=trajWithMtd.measurements().end(); ++it) {
+        bool ismtd = it->recHit()->geographicalId().det() == DetId::Forward && ForwardSubdetector(it->recHit()->geographicalId().subdetId()) == FastTime;
+        if (ismtd) {
+          const auto &propresult = thePropagator.propagateWithPath(tscbl.trackStateAtPCA(), it->updatedState().surface());
+          pathlength = propresult.second;
+          const MTDTrackingRecHit *mtdhit = static_cast<const MTDTrackingRecHit*>(it->recHit()->hit());
+          thit = mtdhit->time();
+          thiterror = mtdhit->timeError();
+          validmtd = true;
+          break;          
+        }
+      }
+    }
+    else {
+      for (auto it=trajWithMtd.measurements().rbegin(); it!=trajWithMtd.measurements().rend(); ++it) {
+        bool ismtd = it->recHit()->geographicalId().det() == DetId::Forward && ForwardSubdetector(it->recHit()->geographicalId().subdetId()) == FastTime;
+        if (ismtd) {
+          const auto &propresult = thePropagator.propagateWithPath(tscbl.trackStateAtPCA(), it->updatedState().surface());
+          pathlength = propresult.second;
+          const MTDTrackingRecHit *mtdhit = static_cast<const MTDTrackingRecHit*>(it->recHit()->hit());
+          thit = mtdhit->time();
+          thiterror = mtdhit->timeError();
+          validmtd = true;
+          break;          
+        }
+      }
+    }
+    
+    if (validmtd) {
+      
+      double magp = p.mag();
+      double gammasq = 1. + magp*magp/mpi/mpi;
+      double beta = std::sqrt(1.-1./gammasq);
+      double dt = pathlength/beta/c;
+      t0 = thit - dt;
+      covt0t0 = thiterror*thiterror;
+      printf("Propagation to MTD with path length = %5f, beta = %5f, thit = %5f, dt = %5f, t0 = %5f\n", pathlength,beta,thit,dt,t0);
+    }
+  }
+  
   return reco::Track(traj.chiSquared(),
 		     int(ndof),//FIXME fix weight() in TrackingRecHit
 		     pos, mom, tscbl.trackStateAtPCA().charge(), 
 		     tscbl.trackStateAtPCA().curvilinearError(),
-		     orig.algo(),reco::TrackBase::undefQuality,0,0,hasMTD ? 1.0 : -1.0,hasMTD ? 1.0 : -1.0);
+		     orig.algo(),reco::TrackBase::undefQuality,t0,0,covt0t0,-1.);
 }
 
 template<class TrackCollection>
