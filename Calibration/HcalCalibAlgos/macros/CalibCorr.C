@@ -225,10 +225,10 @@ CalibCorrFactor::CalibCorrFactor(const char* infile, int useScale, double scale,
   etamp_(0), etamn_(0), cfacmp_(1), cfacmn_(1) {
 
   corrE_ = readCorrFactor(infile);
-  std::cout << "Reads correction factors from " << infile
-	    << " with flag " << corrE_ << std::endl << " Flag for scale "
-	    << useScale_ << " with scale " << scale_ << " and flag for etaMax "
-	    << etaMax_ << std::endl;
+  std::cout << "Reads " << cfactors_.size() << " correction factors from " 
+	    << infile << " with flag " << corrE_ << std::endl 
+	    << " Flag for scale " << useScale_ << " with scale " << scale_ 
+	    << " and flag for etaMax " << etaMax_ << std::endl;
 }
 
 double CalibCorrFactor::getCorr(unsigned int id) {
@@ -382,7 +382,8 @@ void CalibCorr::readCorrDepth(const char* infile) {
       }
     }
     fInput.close();
-    std::cout << "Reads total of " << all << " and " << good << " good records"
+    std::cout << "Reads total of " << all << " and " << good 
+	      << " good records of depth dependent factors from " << infile 
 	      << std::endl;
   }
 }
@@ -439,8 +440,9 @@ void CalibCorr::readCorr(const char* infile) {
       }
     }
     fInput.close();
-    std::cout << "Reads total of " << all << " and " << good << " good records"
-	      << std::endl;
+    std::cout << "Reads total of " << all << " and " << good 
+	      << " good records of run dependent corrections from "
+	      << infile << std::endl;
   }
 }
 
