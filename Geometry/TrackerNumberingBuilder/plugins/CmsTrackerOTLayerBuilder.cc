@@ -8,7 +8,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <functional>
 #include <vector>
 #include <bitset>
 
@@ -76,7 +75,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
   // rods 
   if(!rods.empty()){
-    TrackerStablePhiSort(rods.begin(), rods.end(), std::function<double(const GeometricDet*)>(getPhi));
+    trackerStablePhiSort(rods.begin(), rods.end(), getPhi);
     uint32_t  totalrods = rods.size();
   
     LogTrace("DetConstruction") << " Rods ordered by phi: ";
@@ -109,4 +108,3 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   det->addComponents(ringsPos);
 
 }
-
