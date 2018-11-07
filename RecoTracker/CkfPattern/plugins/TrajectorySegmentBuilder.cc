@@ -2,7 +2,6 @@
 
 #include "TrajectorySegmentBuilder.h"
 
-#include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"

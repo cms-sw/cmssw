@@ -67,9 +67,13 @@ namespace edm {
   //
   namespace refhelper {
     template<typename T, typename C >
-    struct FindDetSetForDetSetVector : public std::binary_function<const C &, edm::det_id_type, const DetSet<T>*> {
-      typedef FindDetSetForDetSetVector<T,C> self;
-      typename self::result_type operator()(typename self::first_argument_type iContainer,  typename self::second_argument_type iIndex) const {
+    struct FindDetSetForDetSetVector {
+
+      using result_type          = DetSet<T>        const*;
+      using first_argument_type  = C                const&;
+      using second_argument_type = edm::det_id_type const;
+
+      result_type operator()(first_argument_type iContainer, second_argument_type iIndex) const {
         return &(*(iContainer.find(iIndex)));
       }
     };
@@ -287,9 +291,13 @@ namespace edm {
 
   namespace refhelper {
     template<typename T, typename C>
-    struct FindForDetSetRefVector : public std::binary_function<const DetSetRefVector<T,C>&, std::pair<det_id_type, typename DetSet<T>::collection_type::size_type>, const T*> {
-      typedef FindForDetSetRefVector<T,C> self;
-      typename self::result_type operator()(typename self::first_argument_type iContainer,  typename self::second_argument_type iIndex) {
+    struct FindForDetSetRefVector {
+
+      using result_type          = T const*;
+      using first_argument_type  = DetSetRefVector<T,C> const&;
+      using second_argument_type = std::pair<det_id_type, typename DetSet<T>::collection_type::size_type>;
+
+      result_type operator()(first_argument_type iContainer, second_argument_type iIndex) {
         return &(*(iContainer.find(iIndex.first)->data.begin()+iIndex.second));
       }
     };

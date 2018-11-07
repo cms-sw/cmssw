@@ -44,14 +44,11 @@ namespace egHLT {
     
     //comparision functor for PhoHLTFilterMon
     //short for: pointer compared with string
-    struct ptrCompStr : public std::binary_function<const PhoHLTFilterMon*,const std::string&,bool> {
-      bool operator()(const PhoHLTFilterMon* lhs,const std::string& rhs){return lhs->filterName()<rhs;}
-      bool operator()(const std::string& lhs,const PhoHLTFilterMon* rhs){return lhs<rhs->filterName();}
-    };
+    bool ptrCompStr(const PhoHLTFilterMon* lhs,const std::string& rhs){return lhs->filterName()<rhs;}
+    bool ptrCompStr(const std::string& lhs,const PhoHLTFilterMon* rhs){return lhs<rhs->filterName();}
     //yes I am aware that such a function undoubtably exists but it was quicker to write it than look it up
-    template<class T> struct ptrLess : public std::binary_function<const T*,const T*,bool> {
-      bool operator()(const T* lhs,const T* rhs){return *lhs<*rhs;}
-    };
+    template<class T>
+    inline bool ptrLess(const T* lhs,const T* rhs){return *lhs<*rhs;}
     
   private:
     std::string filterName_;
