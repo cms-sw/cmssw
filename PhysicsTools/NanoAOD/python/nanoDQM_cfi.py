@@ -202,6 +202,18 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('status', 'status', 16, -0.5, 15.5, 'Hadronic tau decay mode. 0=OneProng0PiZero, 1=OneProng1PiZero, 2=OneProng2PiZero, 10=ThreeProng0PiZero, 11=ThreeProng1PiZero, 15=Other'),
             )
         ),
+        HTXS = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('Higgs_pt', 'Higgs_pt', 20, 0, 400, 'pt of the Higgs boson as identified in HTXS'),
+                Plot1D('Higgs_y', 'Higgs_y', 20, -5, 5, 'eta of the Higgs boson as identified in HTXS'),
+                Plot1D('njets25', 'njets25', 20, 0, 20, 'number of jets with pt>25 GeV as identified in HTXS'),
+                Plot1D('njets30', 'njets30', 20, 0, 20, 'number of jets with pt>30 GeV as identified in HTXS'),
+                Plot1D('stage_0', 'stage_0', 100, 0, 100, 'HTXS stage-0 category'),
+                Plot1D('stage_1_pTjet25', 'stage_1_pTjet25', 1000, 0, 1000, 'HTXS stage-1 category (jet pt>25 GeV)'),
+                Plot1D('stage_1_pTjet30', 'stage_1_pTjet30', 1000, 0, 1000, 'HTXS stage-1 category (jet pt>30 GeV)'),
+            )
+        ),
         IsoTrack = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
