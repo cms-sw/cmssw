@@ -31,8 +31,8 @@
 <use   name="TrackingTools/IPTools"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="CondFormats/EgammaObjects"/>
+<use   name="CommonTools/MVAUtils"/>
 <use   name="rootcore"/>
-<use   name="roottmva"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -17,23 +17,15 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include "CondFormats/EgammaObjects/interface/GBRTree.h"
 
 #include <vector>
-#include "GBRTree.h"
-#include <cmath>
-#include <cstdio>
-
-  namespace TMVA {
-    class MethodBDT;
-  }
 
   class GBRForest {
 
     public:
 
        GBRForest();
-       explicit GBRForest(const TMVA::MethodBDT *bdt);
-       virtual ~GBRForest();
        
        double GetResponse(const float* vector) const;
        double GetGradBoostClassifier(const float* vector) const;
@@ -46,10 +38,11 @@
        
        std::vector<GBRTree> &Trees() { return fTrees; }
        const std::vector<GBRTree> &Trees() const { return fTrees; }
-       
+
     protected:
-      double               fInitialResponse;
-      std::vector<GBRTree> fTrees;  
+
+       double               fInitialResponse;
+       std::vector<GBRTree> fTrees;  
       
   
   COND_SERIALIZABLE;

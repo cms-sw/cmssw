@@ -189,7 +189,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     #--------------------------
     # HI Runs HLT path
     #--------------------------
-    process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_HIZeroBias*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*' , 'HLT_HICentralityVeto*','HLT_HIMinBias*')
+    process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_HIZeroBias*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*' , 'HLT_HICentralityVeto*','HLT_HIMinimumBias*', 'HLT_HIPhysics*')
 else:
     process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*')
 process.hltHighLevel.andOr = cms.bool(True)
@@ -512,8 +512,9 @@ if (process.runType.getRunType() == process.runType.hi_run):
     if ((process.runType.getRunType() == process.runType.hi_run) and live):
         process.source.SelectEvents = cms.untracked.vstring(
             'HLT_HICentralityVeto*',
-            'HLT_HIMinBias*',
-            'HLT_HIZeroBias*'
+#            'HLT_HIMinimumBias*',
+#            'HLT_HIZeroBias*'
+            'HLT_HIPhysics*'
             )
 
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_pp.root'
@@ -584,9 +585,16 @@ if (process.runType.getRunType() == process.runType.hi_run):
     import  HLTrigger.special.hltPixelActivityFilter_cfi
     process.multFilter = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone(
         inputTag  = cms.InputTag('siPixelClusters'),
-        minClusters = cms.uint32(10000),
+        minClusters = cms.uint32(1),
         maxClusters = cms.uint32(50000)
         )
+
+    # BaselineValidator Module
+    from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import siStripDigis as _siStripDigis
+    process.siStripDigisNoZS=_siStripDigis.clone()
+    process.siStripDigisNoZS.ProductLabel = cms.InputTag("rawDataCollector")
+    process.SiStripBaselineValidator.srcProcessedRawDigi =  cms.InputTag('siStripDigisNoZS','ZeroSuppressed')
+
 
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
@@ -602,12 +610,14 @@ if (process.runType.getRunType() == process.runType.hi_run):
         process.consecutiveHEs*
         process.hltTriggerTypeFilter*
         process.siStripFEDCheck *
+        process.siStripDigisNoZS*
+        process.SiStripBaselineValidator*
         process.RecoForDQM_LocalReco*
         process.siPixelClusters*
-        process.multFilter*
         process.DQMCommon*
         process.SiStripClients*
         process.SiStripSources_LocalReco*
+        process.multFilter*
         ##### TRIGGER SELECTION #####
         process.hltHighLevel*
         process.RecoForDQM_TrkReco*

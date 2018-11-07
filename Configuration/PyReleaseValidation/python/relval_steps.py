@@ -102,6 +102,9 @@ steps['RunPA2013']={'INPUT':InputInfo(dataSet='/PAMinBiasUPC/HIRun2013-v1/RAW',l
 Run2015HI={263400: [[65,904]]}
 steps['RunHI2015VR']={'INPUT':InputInfo(dataSet='/HITrackerVirginRaw/HIRun2015-v1/RAW',label='hi2015vr',events=10000,location='STD',ls=Run2015HI)}
 
+steps['RunHI2018']={'INPUT':InputInfo(dataSet='/HIMinimumBias0/Tier0_REPLAY_vocms015-v214/RAW',label='hi2018',run=[325174],events=10000,location='STD')}
+steps['RunHI2018Reduced']={'INPUT':InputInfo(dataSet='/HIMinimumBiasReducedFormat0/Tier0_REPLAY_vocms015-v214/RAW',label='hi2018reduced',run=[325174],events=10000,location='STD')}
+
 Run2012A=[191226]
 Run2012ASk=Run2012A+[]
 steps['RunMinBias2012A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012A-v1/RAW',label='mb2012A',run=Run2012A, events=100000,location='STD')}
@@ -605,20 +608,20 @@ baseDataSetRelease=[
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
     'CMSSW_9_2_4-91X_mcRun2_asymptotic_v3-v1',              # 3 - GEN-SIM input for 13 TeV 2016 workfows
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_10_3_0_pre5-PU25ns_103X_mcRun2_asymptotic_v1-v1',    # 5 - fullSim PU 25ns UP15 premix
-    'CMSSW_10_3_0_pre5-PU50ns_103X_mcRun2_startup_v1-v1',        # 6 - fullSim PU 50ns UP15 premix
-    'CMSSW_10_3_0_pre5-103X_mcRun2_asymptotic_v1_FastSim-v1',    # 7 - fastSim MinBias for mixing
-    'CMSSW_10_3_0_pre5-PU25ns_103X_mcRun2_asymptotic_v1_FastSim-v1',# 8 - fastSim premixed MinBias
+    'CMSSW_10_4_0_pre1-PU25ns_103X_mcRun2_asymptotic_v1-v2',    # 5 - fullSim PU 25ns UP15 premix library
+    'CMSSW_10_4_0_pre1-PU50ns_103X_mcRun2_startup_v1-v1',        # 6 - fullSim PU 50ns UP15 premix library
+    'CMSSW_10_4_0_pre1-103X_mcRun2_asymptotic_v1_FastSim-v1',    # 7 - fastSim MinBias for mixing UP16
+    'CMSSW_10_4_0_pre1-PU25ns_103X_mcRun2_asymptotic_v1_FastSim-v2',# 8 - fastSim premix library  UP16
     'CMSSW_10_3_0_pre5-103X_upgrade2018_realistic_v7-v1',        # 9 - Run2 HI GEN-SIM for mixing
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM
     'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2cosmics_startup_peak_v2-v1', # 12 - GEN-SIM input for 1307 cosmics wf from 810_p2
-    'CMSSW_10_0_0_pre2-100X_mc2017_realistic_v1-v1',     # 13 - 13 TeV samples with GEN-SIM from PhaseI upgrade
-    'CMSSW_10_3_0_pre5-PU25ns_103X_mc2017_realistic_v1-v1',     # 14 - fullSim PU 25ns UP17 premix
-    'CMSSW_10_3_0_pre5-PU25ns_103X_upgrade2018_realistic_v7-v1',  #15 - fullSim PU 25ns UP18 premix
-    'CMSSW_10_3_0_pre5-103X_upgrade2018_realistic_v7-v1',  #16 - GENSIM input 2018
-    'CMSSW_10_3_0_pre5-103X_mc2017_realistic_v1_FastSim-v1',    # 17 - fastSim MinBias for mixing UP17
-    'CMSSW_10_3_0_pre5-PU25ns_103X_mc2017_realistic_v1_FastSim-v1',# 18 - fastSim premixed MinBias UP17
+    'CMSSW_10_0_0_pre2-100X_mc2017_realistic_v1-v1',     # 13 - GENSIM input for 2017 fullSim premix workflows
+    'CMSSW_10_4_0_pre1-PU25ns_103X_mc2017_realistic_v1-v1',     # 14 - fullSim PU 25ns UP17 premix library
+    'CMSSW_10_4_0_pre1-PU25ns_103X_upgrade2018_realistic_v7-v2',  # 15 - fullSim PU 25ns UP18 premix library
+    'CMSSW_10_3_0_pre5-103X_upgrade2018_realistic_v7-v1',  # 16 - GENSIM input for 2018 fullSim premix workflows
+    'CMSSW_10_4_0_pre1-103X_mc2017_realistic_v1_FastSim-v1',    # 17 - fastSim MinBias for mixing UP17
+    'CMSSW_10_4_0_pre1-PU25ns_103X_mc2017_realistic_v1_FastSim-v2',# 18 - fastSim premix library UP17
     ]
 
 
@@ -746,7 +749,7 @@ steps['NuGun_UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValNuGun/%s/GEN-SIM'%(b
 steps['SMS-T1tttt_mGl-1500_mLSP-100_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/%s/GEN-SIM'%(baseDataSetRelease[13],),location='STD')}
 
 
-# INPUT commands for 2017 wf
+# INPUT commands for 2018 wf
 steps['TTbar_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM'%(baseDataSetRelease[16],),location='STD')}
 steps['TTbar_13UP18HEfailINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM'%(baseDataSetRelease[16],),location='STD')}
 steps['TTbar_13UP18BadHcalMitigINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM'%(baseDataSetRelease[16],),label='Mitig',location='STD')}
@@ -1206,7 +1209,6 @@ steps['SoftQCDelastic_13TeV_pythia8']=genvalid('SoftQCDelastic_13TeV_pythia8_cff
 steps['SoftQCDinelastic_13TeV_pythia8']=genvalid('SoftQCDinelastic_13TeV_pythia8_cff',step1GenDefaults)
 
 steps['QCD_Pt-30_13TeV_aMCatNLO_herwig7']=genvalid('Herwig7_Matchbox_aMCatNLO_Herwig_ppTojj_cff',step1GenDefaults)
-steps['PPtoee-M60-120_13TeV_madgraph_openloops_herwig7']=genvalid('Herwig7_Matchbox_madgraph_openloops_Herwig_ppToee_cff',step1GenDefaults)
 
 steps['ZprimeToll_M3000_13TeV_pythia8']=genvalid('ZprimeToll_M3000_13TeV_pythia8_cff',step1GenDefaults)
 steps['WprimeTolNu_M3000_13TeV_pythia8']=genvalid('WprimeTolNu_M3000_13TeV_pythia8_cff',step1GenDefaults)
@@ -1214,29 +1216,44 @@ steps['WprimeTolNu_M3000_13TeV_pythia8']=genvalid('WprimeTolNu_M3000_13TeV_pythi
 # Generator Hadronization (Hadronization of LHE)
 steps['WJetsLNu_13TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_cff',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
 steps['Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8']=genvalid('Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8_cff',step1HadronizerDefaults)
 steps['GGToH_13TeV_pythia8']=genvalid('GGToHtautau_13TeV_pythia8_cff',step1GenDefaults)
 
 steps['WJetsLNutaupinu_13TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_taupinu_cff',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
 steps['Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_taupinu']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_taupinu_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8_taupinu']=genvalid('Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8_taupinu_cff',step1HadronizerDefaults)
 steps['GGToHtaupinu_13TeV_pythia8']=genvalid('GGToHtautau_13TeV_pythia8_taupinu_cff',step1GenDefaults)
 
 steps['WJetsLNutaurhonu_13TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_taurhonu_cff.py',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
 steps['Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_taurhonu']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_taurhonu_cff.py',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8_taurhonu']=genvalid('Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8_taurhonu_cff.py',step1HadronizerDefaults)
 steps['GGToHtaurhonu_13TeV_pythia8']=genvalid('GGToHtautau_13TeV_pythia8_taurhonu_cff',step1GenDefaults)
 
 steps['Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8']=genvalid('Hadronizer_TuneCP5_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8_cff',step1HadronizerDefaults)
 steps['Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8_evtgen']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8_evtgen_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8_evtgen']=genvalid('Hadronizer_TuneCP5_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8_evtgen_cff',step1HadronizerDefaults)
 steps['Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max0p_LHE_pythia8']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max0p_LHE_pythia8_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_aMCatNLO_FXFX_5f_max2j_max0p_LHE_pythia8']=genvalid('Hadronizer_TuneCP5_13TeV_aMCatNLO_FXFX_5f_max2j_max0p_LHE_pythia8_cff',step1HadronizerDefaults)
 
 steps['Hadronizer_TuneCUETP8M1_13TeV_Hgg_powhegEmissionVeto_pythia8']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_Hgg_powhegEmissionVeto_pythia8_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_Hgg_powhegEmissionVeto_pythia8']=genvalid('Hadronizer_TuneCP5_13TeV_Hgg_powhegEmissionVeto_pythia8_cff',step1HadronizerDefaults)
 steps['Hadronizer_TuneCUETP8M1_13TeV_Httpinu_powhegEmissionVeto_pythia8']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_Httpinu_powhegEmissionVeto_pythia8_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_Httpinu_powhegEmissionVeto_pythia8']=genvalid('Hadronizer_TuneCP5_13TeV_Httpinu_powhegEmissionVeto_pythia8_cff',step1HadronizerDefaults)
 steps['Hadronizer_TuneCUETP8M1_13TeV_Httrhonu_powhegEmissionVeto_pythia8']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_Httrhonu_powhegEmissionVeto_pythia8_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_Httrhonu_powhegEmissionVeto_pythia8']=genvalid('Hadronizer_TuneCP5_13TeV_Httrhonu_powhegEmissionVeto_pythia8_cff',step1HadronizerDefaults)
 steps['Hadronizer_TuneCUETP8M1_13TeV_Htt_powhegEmissionVeto_pythia8']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_Htt_powhegEmissionVeto_pythia8_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_Htt_powhegEmissionVeto_pythia8']=genvalid('Hadronizer_TuneCP5_13TeV_Htt_powhegEmissionVeto_pythia8_cff',step1HadronizerDefaults)
 steps['Hadronizer_TuneCUETP8M1_13TeV_Htt_powhegEmissionVeto_pythia8_tauola']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_Htt_powhegEmissionVeto_pythia8_tauola_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_Htt_powhegEmissionVeto_pythia8_tauola']=genvalid('Hadronizer_TuneCP5_13TeV_Htt_powhegEmissionVeto_pythia8_tauola_cff',step1HadronizerDefaults)
 steps['Hadronizer_TuneCUETP8M1_13TeV_Httpinu_powhegEmissionVeto_pythia8_tauola']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_Httpinu_powhegEmissionVeto_pythia8_tauola_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_Httpinu_powhegEmissionVeto_pythia8_tauola']=genvalid('Hadronizer_TuneCP5_13TeV_Httpinu_powhegEmissionVeto_pythia8_tauola_cff',step1HadronizerDefaults)
 steps['Hadronizer_TuneCUETP8M1_13TeV_Httrhonu_powhegEmissionVeto_pythia8_tauola']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_Httrhonu_powhegEmissionVeto_pythia8_tauola_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_Httrhonu_powhegEmissionVeto_pythia8_tauola']=genvalid('Hadronizer_TuneCP5_13TeV_Httrhonu_powhegEmissionVeto_pythia8_tauola_cff',step1HadronizerDefaults)
 steps['Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_pythia8']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_pythia8_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_powhegEmissionVeto_pythia8']=genvalid('Hadronizer_TuneCP5_13TeV_powhegEmissionVeto_pythia8_cff',step1HadronizerDefaults)
 steps['Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto2p_pythia8']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto2p_pythia8_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_powhegEmissionVeto2p_pythia8']=genvalid('Hadronizer_TuneCP5_13TeV_powhegEmissionVeto2p_pythia8_cff',step1HadronizerDefaults)
 
 steps['Hadronizer_TuneCUETP8M1_Mad_pythia8']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_generic_LHE_pythia8_cff',step1HadronizerDefaults)
 
@@ -1246,16 +1263,19 @@ steps['Hadronizer_TuneCUETP8M1_Mad_pythia8']=genvalid('Hadronizer_TuneCUETP8M1_1
 steps['TT_13TeV_pythia8-evtgen']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_EvtGen_cff',step1GenDefaults,dataSet='/TTJets_MSDecaysCKM_central_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
 
 steps['Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola']=genvalid('Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_cff',step1HadronizerDefaults)
 
 steps['WToLNu_13TeV_pythia8-tauola']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_Tauola_cff',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
 steps['GGToH_13TeV_pythia8-tauola']=genvalid('GGToHtautau_13TeV_pythia8_Tauola_cff',step1GenDefaults)
 
 steps['WToLNutaupinu_13TeV_pythia8-tauola']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_Tauola_taupinu_cff',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
 steps['Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taupinu']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taupinu_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taupinu']=genvalid('Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taupinu_cff',step1HadronizerDefaults)
 steps['GGToHtaupinu_13TeV_pythia8-tauola']=genvalid('GGToHtautau_13TeV_pythia8_Tauola_taupinu_cff',step1GenDefaults)
 
 steps['WToLNutaurhonu_13TeV_pythia8-tauola']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_Tauola_taurhonu_cff',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
 steps['Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taurhonu']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taurhonu_cff',step1HadronizerDefaults)
+steps['Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taurhonu']=genvalid('Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taurhonu_cff',step1HadronizerDefaults)
 steps['GGToHtaurhonu_13TeV_pythia8-tauola']=genvalid('GGToHtautau_13TeV_pythia8_Tauola_taurhonu_cff',step1GenDefaults)
 
 # normal fullSim workflows using gridpack LHE generator
@@ -1431,9 +1451,9 @@ steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
 steps['DIGIHI2018PPRECO']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2018_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2018']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2018, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2017']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2017, step2Upg2015Defaults])
-steps['DIGIHI2015']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:HIon'}, hiDefaults2015, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
+steps['DIGIHI2015']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake'}, hiDefaults2015, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2011']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake'}, hiDefaults2011, {'--pileup':'HiMixNoPU'}, step2Defaults])
-steps['DIGIHIMIX']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:HIon', '-n':2}, hiDefaults2018_ppReco, {'--pileup':'HiMix'}, PUHI, step2Upg2015Defaults])
+steps['DIGIHIMIX']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2018_ppReco, {'--pileup':'HiMix'}, PUHI, step2Upg2015Defaults])
 
 steps['DIGIPPREF2017']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake2'}, ppRefDefaults2017, step2Upg2015Defaults])
 
@@ -1652,6 +1672,14 @@ steps['RECOHID15']=merge([{ '--runUnscheduled':'',
                             '--era':'Run2_HI'
                             },steps['RECOHID11']])
                            
+steps['RECOHID18']=merge([{ '--scenario':'pp',
+                            '--conditions':'103X_dataRun2_Prompt_v2',
+                            '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiPixelCalZeroBias,SKIM:PbPbEMu+PbPbZEE+PbPbZMM,EI,DQM:@common+@standardDQM+@ExtraHLT',
+                            '--datatier':'AOD,DQMIO',
+                            '--eventcontent':'AOD,DQM',
+                            '--era':'Run2_2018_pp_on_AA'
+                            },steps['RECOHID15']])
+
 steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                        '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allForPrompt,DQM:@allForPrompt,ENDJOB',
                        '--datatier':'RECO,AOD,ALCARECO,DQMIO',
@@ -2302,6 +2330,12 @@ steps['HARVEST2018_hBStar'] = merge([ {'--era' : 'Run2_2018_highBetaStar'}, step
 steps['HARVEST2018_HEfail'] = merge([ {'--conditions':'auto:run2_data_promptlike_HEfail'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_BadHcalMitig'] = merge([ {'--era' : 'Run2_2018,pf_badHcalMitigation','--conditions':'auto:run2_data_promptlike_HEfail'}, steps['HARVEST2018'] ])
 
+steps['HARVEST2018_L1TEgDQM_MULTIRUN'] = merge([ {
+        '--customise':"Configuration/StandardSequences/DQMSaverAtJobEnd_cff",
+        # hardcode the input files since we need multiple, from each of the RECO steps.
+        '--filein':"file:step6_inDQM.root,file:step3_inDQM.root",
+    }, steps['HARVEST2018_L1TEgDQM'] ])
+
 steps['DQMHLTonAOD_2017']={
     '-s':'DQM:offlineHLTSourceOnAOD', ### DQM-only workflow on AOD input: for HLT
     '--conditions':'auto:run2_data_promptlike',
@@ -2355,6 +2389,9 @@ steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
 steps['HARVESTDHI15']=merge([{ '--conditions':'auto:run2_data',
                                '--era':'Run2_HI',
                                '-n':-1},steps['HARVESTDHI']])
+
+steps['HARVESTDHI18']=merge([{ '--era':'Run2_2018_pp_on_AA',
+                               '--scenario':'pp' },steps['HARVESTDHI15']])
 
 #MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
@@ -3025,4 +3062,4 @@ for step in upgradeStepDict.keys():
             k=step+'_'+key
             if step in upgradeStepDict and key in upgradeStepDict[step]:
                 steps[k]=merge([upgradeStepDict[step][key]])
-# my-new-feature
+

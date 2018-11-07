@@ -56,7 +56,7 @@ namespace l1t {
 	   egBypassHoEFlag=44,
 	   etSumCentralityLower=45,
 	   etSumCentralityUpper=46,
-     jetPUSUsePhiRingFlag=47,
+           jetPUSUsePhiRingFlag=47,
 	   metPhiCalibration=48,
 	   metHFPhiCalibration=49,
 	   NUM_CALOPARAMNODES=50
@@ -338,7 +338,11 @@ namespace l1t {
     }
 
     unsigned jetBypassPUS() const { return pnode_[jetBypassPUSFlag].uparams_[0]; }
-    unsigned jetPUSUsePhiRing() const { return pnode_[jetPUSUsePhiRingFlag].uparams_[0]; }
+    unsigned jetPUSUsePhiRing() const {
+      if(pnode_[jetPUSUsePhiRingFlag].uparams_.empty()) return 0;
+      else return pnode_[jetPUSUsePhiRingFlag].uparams_[0];
+    }
+
 
     std::string jetPUSType() const { return pnode_[jetPUS].type_; }
     std::vector<double> const& jetPUSParams() const { return pnode_[jetPUS].dparams_; }

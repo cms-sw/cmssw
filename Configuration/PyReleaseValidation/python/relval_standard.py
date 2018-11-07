@@ -116,6 +116,8 @@ workflows[140.53] = ['',['RunHI2011','RECOHID11','HARVESTDHI']]
 workflows[140.54] = ['',['RunPA2013','RECO_PPbData','HARVEST_PPbData']]
 
 workflows[140.55] = ['',['RunHI2015VR','HYBRIDRepackHI2015VR','HYBRIDZSHI2015','RECOHID15','HARVESTDHI15']]
+workflows[140.56] = ['',['RunHI2018','RECOHID18','HARVESTDHI18']]
+workflows[140.57] = ['',['RunHI2018Reduced','RECOHID18','HARVESTDHI18']]
 
 ### run2 2015B 50ns ###
 workflows[134.701] = ['',['RunHLTPhy2015B','HLTDR2_50ns','RECODR2_50nsreHLT_HIPM','HARVESTDR2']]
@@ -386,6 +388,9 @@ workflows[136.894] = ['',['RunNoBPTX2018D','HLTDR2_2018','RECODR2_2018reHLTAlCaT
 workflows[136.895] = ['',['RunDisplacedJet2018D','HLTDR2_2018','RECODR2_2018reHLT_skimDisplacedJet_Prompt','HARVEST2018']]
 workflows[136.896] = ['',['RunCharmonium2018D','HLTDR2_2018','RECODR2_2018reHLT_skimCharmonium_Prompt','HARVEST2018']]
 
+# multi-run harvesting
+workflows[137.8] = ['',['RunEGamma2018C','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM',
+                        'RunEGamma2018D','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_MULTIRUN']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]

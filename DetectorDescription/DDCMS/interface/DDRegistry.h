@@ -5,7 +5,4 @@
 #include <vector>
 #include <unordered_map>
 
-using namespace std;
-using namespace cms;
-
-struct DDVectorRegistry : public DDSingleton< unordered_map< string, vector<double> >, DDVectorRegistry>{};
+struct DDVectorRegistry : public cms::DDSingleton< std::unordered_map< std::string, std::vector<double> >, DDVectorRegistry>{};

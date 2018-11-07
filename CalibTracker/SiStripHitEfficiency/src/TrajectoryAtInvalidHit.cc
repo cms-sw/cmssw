@@ -52,7 +52,7 @@ TrajectoryAtInvalidHit::TrajectoryAtInvalidHit( const TrajectoryMeasurement& tm,
     unsigned int matched_iidd = iidd-(iidd & 0x3);
     DetId matched_id(matched_iidd);
     
-    GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(matched_id);
+    const GluedGeomDet * gdet=static_cast<const GluedGeomDet *>(tracker->idToDet(matched_id));
     
     // get the sensor det indicated by mono
     if (mono == 1) monodet=gdet->stereoDet();
@@ -92,7 +92,7 @@ TrajectoryAtInvalidHit::TrajectoryAtInvalidHit( const TrajectoryMeasurement& tm,
     //set module id to be mono det
     iidd = monodet->geographicalId().rawId();
   } else {
-    monodet = (GeomDetUnit*)theHit->det();
+    monodet = theHit->det();
     hasValidHit = theHit->isValid();
   }
   

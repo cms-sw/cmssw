@@ -31,6 +31,12 @@ namespace edm {
                        public virtual EDFilterBase {
       
     public:
+      static_assert(not (CheckAbility<module::Abilities::kRunCache,T...>::kHasIt and
+                      CheckAbility<module::Abilities::kOneWatchRuns,T...>::kHasIt),
+                 "Cannot use both WatchRuns and RunCache");
+      static_assert(not (CheckAbility<module::Abilities::kLuminosityBlockCache,T...>::kHasIt and
+                      CheckAbility<module::Abilities::kOneWatchLuminosityBlocks,T...>::kHasIt),
+                 "Cannot use both WatchLuminosityBlocks and LuminosityBLockCache");
       EDFilter() = default;
       //virtual ~EDFilter();
       
@@ -61,8 +67,8 @@ namespace edm {
       const EDFilter& operator=(const EDFilter&) = delete;
       
       // ---------- member data --------------------------------
-      impl::OptionalSerialTaskQueueHolder<WantsGlobalRunTransitions<T...>::value> globalRunsQueue_;
-      impl::OptionalSerialTaskQueueHolder<WantsGlobalLuminosityBlockTransitions<T...>::value> globalLuminosityBlocksQueue_;
+      impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalRunTransitions<T...>::value> globalRunsQueue_;
+      impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalLuminosityBlockTransitions<T...>::value> globalLuminosityBlocksQueue_;
 
     };
     
