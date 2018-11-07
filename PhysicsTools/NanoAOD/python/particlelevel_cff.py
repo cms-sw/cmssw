@@ -128,7 +128,14 @@ HTXSCategoryTable = cms.EDProducer("SimpleHTXSFlatTableProducer",
     extension = cms.bool(False),
     variables=cms.PSet(
         stage_0 = Var("stage0_cat","int", doc="Higgs STXS stage-0 category"),
-        stage_1 = Var("stage1_cat_pTjet30GeV","int", doc="Higgs STXS stage-1 category (jet pT>30 GeV)")
+        stage_1_pTjet30GeV = Var("stage1_cat_pTjet30GeV","int", doc="STXS stage-1 category (jet pT>30 GeV)"),
+        stage_1_pTjet25GeV = Var("stage1_cat_pTjet25GeV","int", doc="STXS stage-1 category (jet pT>25 GeV)"),
+        Higgs_pt = Var("higgs.Pt()","float", doc="pT of the Higgs boson as identified in STXS",  precision=14),
+        Higgs_eta = Var("higgs.Eta()","float", doc="eta of the Higgs boson as identified in STXS", precision=14),
+        Higgs_phi = Var("higgs.Phi()","float", doc="phi of the Higgs boson as identified in STXS", precision=14),
+        Higgs_mass = Var("higgs.M()","float", doc="phi of the Higgs boson as identified in STXS", precision=14),
+        njets30 = Var("jets30.size()","int", doc="number of jets with pt>30 GeV as identified in STXS"),
+        njets25 = Var("jets25.size()","int", doc="number of jets with pt>25 GeV as identified in STXS"),
    )
 )
 
