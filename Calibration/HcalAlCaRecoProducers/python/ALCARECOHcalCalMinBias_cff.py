@@ -68,7 +68,7 @@ seqALCARECOHcalCalMinBiasDigiNoHLT = cms.Sequence(hcalDigiAlCaMB*gtDigisAlCaMB)
 seqALCARECOHcalCalMinBias = cms.Sequence(hbherecoMBNZS*horecoMBNZS*hbherecoNoise*hfrecoNoise*hfrecoMBNZS*horecoNoise)
 
 #Specify to use HI output for the pp_on_AA_2018 eras
-seqALCARECOHcalCalMinBiasHI = cms.Sequence(hbherecoNoise*hfrecoNoise*hfrecoMBNZS*horecoNoise)
+seqALCARECOHcalCalMinBiasHI = cms.Sequence(hbherecoNoise*hfprerecoNoise*hfprerecoMBNZS*hfrecoNoise*hfrecoMBNZS*horecoNoise)
 pp_on_AA_2018.toReplaceWith(seqALCARECOHcalCalMinBias,
                             seqALCARECOHcalCalMinBiasHI
 )
