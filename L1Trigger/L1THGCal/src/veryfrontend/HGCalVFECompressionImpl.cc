@@ -72,8 +72,8 @@ compressSingle(const uint32_t value,
 
 void
 HGCalVFECompressionImpl::
-compress(const std::map<HGCalDetId, uint32_t>& payload,
-         std::map<HGCalDetId, std::array<uint32_t, 2> >& compressed_payload)
+compress(const std::unordered_map<uint32_t, uint32_t>& payload,
+         std::unordered_map<uint32_t, std::array<uint32_t, 2> >& compressed_payload)
 {
   for (const auto& item : payload) {
     const uint32_t value = item.second;

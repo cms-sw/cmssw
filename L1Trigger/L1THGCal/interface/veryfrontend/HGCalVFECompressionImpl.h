@@ -12,8 +12,8 @@ class HGCalVFECompressionImpl
  public:
   HGCalVFECompressionImpl(const edm::ParameterSet& conf);
 
-  void compress(const std::map<HGCalDetId, uint32_t>&,
-                std::map<HGCalDetId, std::array<uint32_t, 2> >&);
+  void compress(const std::unordered_map<uint32_t, uint32_t>&,
+                std::unordered_map<uint32_t, std::array<uint32_t, 2> >&);
 
  private:
   void compressSingle(const uint32_t value,
