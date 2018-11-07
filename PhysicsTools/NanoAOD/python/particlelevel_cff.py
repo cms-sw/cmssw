@@ -131,7 +131,7 @@ HTXSCategoryTable = cms.EDProducer("SimpleHTXSFlatTableProducer",
         stage_1_pTjet30 = Var("stage1_cat_pTjet30GeV",int, doc="HTXS stage-1 category (jet pt>30 GeV)"),
         stage_1_pTjet25 = Var("stage1_cat_pTjet25GeV",int, doc="HTXS stage-1 category (jet pt>25 GeV)"),
         Higgs_pt = Var("higgs.Pt()",float, doc="pt of the Higgs boson as identified in HTXS", precision=14),
-        Higgs_y = Var("higgs.Rapidity()",float, doc="eta of the Higgs boson as identified in HTXS", precision=12),
+        Higgs_y = Var("higgs.Rapidity()",float, doc="rapidity of the Higgs boson as identified in HTXS", precision=12),
         njets30 = Var("jets30.size()","uint8", doc="number of jets with pt>30 GeV as identified in HTXS"),
         njets25 = Var("jets25.size()","uint8", doc="number of jets with pt>25 GeV as identified in HTXS"),
    )
