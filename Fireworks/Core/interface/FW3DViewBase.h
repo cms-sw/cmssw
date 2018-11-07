@@ -83,6 +83,9 @@ private:
    FWBoolParameter m_showPixelEndcap;
    FWBoolParameter m_showTrackerBarrel;
    FWBoolParameter m_showTrackerEndcap;
+   FWBoolParameter m_showHGCalEE;
+   FWBoolParameter m_showHGCalHSi;
+   FWBoolParameter m_showHGCalHSc;
 
    TEveBoxSet* m_ecalBarrel;
    FWBoolParameter m_showEcalBarrel;

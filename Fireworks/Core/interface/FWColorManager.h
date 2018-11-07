@@ -37,6 +37,9 @@ enum FWGeomColorIndex
    kFWTrackerEndcapColorIndex,
    kFWMuonBarrelLineColorIndex,
    kFWMuonEndcapLineColorIndex,
+   HGCalEEColorIndex,
+   HGCalHSiColorIndex,
+   HGCalHScColorIndex,
    kFWGeomColorSize
 };
 

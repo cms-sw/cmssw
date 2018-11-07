@@ -29,11 +29,13 @@ public:
   
 private:
   void doTest(const HGCalGeometry* geom);
-  const std::string    name;
+  const std::string    name_;
+  const int            cornerType_;
 };
 
-HGCalGeometryCornerTester::HGCalGeometryCornerTester(const edm::ParameterSet& iC) : name(iC.getParameter<std::string>("Detector")) { }
-
+HGCalGeometryCornerTester::HGCalGeometryCornerTester(const edm::ParameterSet& iC) : 
+  name_(iC.getParameter<std::string>("detector")),
+  cornerType_(iC.getParameter<int>("cornerType")) { }
 
 HGCalGeometryCornerTester::~HGCalGeometryCornerTester() {}
 
@@ -41,10 +43,10 @@ void HGCalGeometryCornerTester::analyze(const edm::Event& ,
 					const edm::EventSetup& iSetup ) {
 
   edm::ESHandle<HGCalGeometry> geomH;
-  iSetup.get<IdealGeometryRecord>().get(name,geomH);
+  iSetup.get<IdealGeometryRecord>().get(name_,geomH);
   const HGCalGeometry* geom = (geomH.product());
   if (!geomH.isValid()) {
-    std::cout << "Cannot get valid HGCalGeometry Object for " << name 
+    std::cout << "Cannot get valid HGCalGeometry Object for " << name_
 	      << std::endl;
   } else {
     doTest(geom);
@@ -63,10 +65,13 @@ void HGCalGeometryCornerTester::doTest(const HGCalGeometry* geom) {
     else if (id.det() == DetId::HGCalHSc) std::cout <<HGCScintillatorDetId(id);
     else                                  std::cout <<HGCSiliconDetId(id);
     std::cout << std::endl;
-    const auto cor = geom->getCorners(id);
-    std::cout << cor.size() << " Corners:";
+    const auto cor = ((cornerType_ > 0) ? geom->getCorners(id) : 
+		      ((cornerType_ < 0) ? geom->get8Corners(id) :
+		       geom->getNewCorners(id)));
+    GlobalPoint gp = geom->getPosition(id);
+    std::cout << "Center" << gp << "with " << cor.size() << " Corners: ";
     for (unsigned k=0; k<cor.size(); ++k)
-      std::cout << " [" << k << "] " << cor[k];
+      std::cout << "[" << k << "]" << cor[k];
     std::cout << std::endl;
     ++kount;
   }
