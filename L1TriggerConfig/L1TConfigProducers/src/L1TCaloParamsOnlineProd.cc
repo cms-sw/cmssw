@@ -86,7 +86,7 @@ std::map<std::string, l1t::Mask>& ) {
     "egammaMaxEta",
     "egammaBypassCuts",
     "egammaBypassShape",
-    "egammaBypassEcalFG'",
+    "egammaBypassEcalFG",
     "egammaBypassExtendedHOverE",
     "egammaHOverECut_iEtaLT15",
     "egammaHOverECut_iEtaGTEq15",
@@ -137,7 +137,7 @@ std::map<std::string, l1t::Mask>& ) {
   paramsHelper.setEgEtaCut((conf["egammaMaxEta"].getValue<int>()));
   paramsHelper.setEgBypassEGVetos(conf["egammaBypassCuts"].getValue<bool>());
   paramsHelper.setEgBypassShape( conf["egammaBypassShape"].getValue<bool>() );
-  paramsHelper.setEgBypassECALFG( conf["egammaBypassECALFG"].getValue<bool>() );
+  paramsHelper.setEgBypassECALFG( conf["egammaBypassEcalFG"].getValue<bool>() );
   paramsHelper.setEgBypassExtHOverE( conf["egammaBypassExtendedHOverE"].getValue<bool>() );
   paramsHelper.setEgHOverEcutBarrel(conf["egammaHOverECut_iEtaLT15"].getValue<int>());
   paramsHelper.setEgHOverEcutEndcap(conf["egammaHOverECut_iEtaGTEq15"].getValue<int>());
@@ -179,6 +179,17 @@ std::map<std::string, l1t::Mask>& ) {
   paramsHelper.setEtSumMetPUSLUT    ( l1t::convertToLUT( conf["MET_towerThresholdLUT"].getVector<int>() ) );
   paramsHelper.setEtSumEttPUSLUT    ( l1t::convertToLUT( conf["ET_towerThresholdLUT"].getVector<int>() ) );
   paramsHelper.setEtSumEcalSumPUSLUT( l1t::convertToLUT( conf["ecalET_towerThresholdLUT"].getVector<int>() ) );
+
+  std::vector<double> etSumCentLowerValues;
+  std::vector<double> etSumCentUpperValues;
+
+  etSumCentLowerValues = conf["ET_centralityLowerThresholds"].getVector<double>();
+  etSumCentUpperValues = conf["ET_centralityUpperThresholds"].getVector<double>();
+
+  for(uint i=0; i<8; ++i){
+    paramsHelper.setEtSumCentLower(i, etSumCentLowerValues[i]/2);
+    paramsHelper.setEtSumCentUpper(i, etSumCentUpperValues[i]/2);
+  }
 
   // demux tower sum calib LUTs
   paramsHelper.setEtSumEttCalibrationLUT    ( l1t::convertToLUT( conf["ET_energyCalibLUT"].getVector<int>() ) );
@@ -363,6 +374,8 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
             calol2.setConfigured();
 
             std::map<std::string, l1t::Parameter> calol2_conf = calol2.getParameters("MP1");
+	    std::map<std::string, l1t::Parameter> calol2_conf_demux = calol2.getParameters("DEMUX");
+	    calol2_conf.insert( calol2_conf_demux.begin(), calol2_conf_demux.end() ) ;
             std::map<std::string, l1t::Mask>      calol2_rs   ;//= calol2.getMasks   ("processors");
 
             if( !readCaloLayer2OnlineSettings(m_params_helper, calol2_conf, calol2_rs) )

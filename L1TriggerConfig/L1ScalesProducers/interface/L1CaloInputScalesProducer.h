@@ -40,9 +40,9 @@ class L1CaloInputScalesProducer : public edm::ESProducer {
 
       //typedef std::shared_ptr<L1CaloInputScale> ReturnType;
 
-      std::shared_ptr<L1CaloEcalScale>
+      std::unique_ptr<L1CaloEcalScale>
 	produceEcalScale(const L1CaloEcalScaleRcd&);
-      std::shared_ptr<L1CaloHcalScale>
+      std::unique_ptr<L1CaloHcalScale>
 	produceHcalScale(const L1CaloHcalScaleRcd&);
    private:
       // ----------member data ---------------------------

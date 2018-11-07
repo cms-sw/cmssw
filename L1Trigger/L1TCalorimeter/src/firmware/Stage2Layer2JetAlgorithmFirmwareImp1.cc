@@ -165,6 +165,13 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 
 	    if(!params_->jetBypassPUS()
 	       && !satSeed){
+
+	      // comment out for emulator studies
+	      if(params_->jetPUSUsePhiRing())
+		PUSubMethod = "PhiRing1";
+	      else
+		PUSubMethod = "ChunkyDonut";
+
 	      if (PUSubMethod == "Donut") {
 		puEt = donutPUEstimate(ieta, iphi, 5, towers);	    
 		iEt -= puEt;
