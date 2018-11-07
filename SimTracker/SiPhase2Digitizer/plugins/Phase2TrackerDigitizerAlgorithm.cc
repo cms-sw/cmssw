@@ -617,6 +617,7 @@ void Phase2TrackerDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetU
 
   for (auto & s : theSignal) {
     float signalInElectrons = s.second.ampl();   // signal in electrons
+
     std::pair<int,int> hitChan;
     if (pixelFlag) hitChan = PixelDigi::channelToPixel(s.first);
     else hitChan = Phase2TrackerDigi::channelToPixel(s.first);
@@ -626,16 +627,18 @@ void Phase2TrackerDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetU
     s.second.set(signalInElectrons-signalInElectrons_Xtalk);
          
     if (hitChan.first != 0) {
-      std::pair<int,int> XtalkPrev = std::pair<int,int>(hitChan.first-1, hitChan.second);
+      auto XtalkPrev = std::make_pair(hitChan.first-1, hitChan.second);
       int chanXtalkPrev = (pixelFlag) ? PixelDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second)
 	: Phase2TrackerDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second);
-      signalNew.insert(std::pair<int,DigitizerUtility::Amplitude>(chanXtalkPrev, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, nullptr, -1.0)));
+      signalNew.emplace(chanXtalkPrev, 
+      DigitizerUtility::Amplitude(signalInElectrons_Xtalk, nullptr, -1.0));
     }
     if (hitChan.first < (numRows-1)) {
-      std::pair<int,int> XtalkNext = std::pair<int,int>(hitChan.first+1, hitChan.second);
+      auto XtalkNext = std::make_pair(hitChan.first+1, hitChan.second);
       int chanXtalkNext = (pixelFlag) ? PixelDigi::pixelToChannel(XtalkNext.first, XtalkNext.second)
 	: Phase2TrackerDigi::pixelToChannel(XtalkNext.first, XtalkNext.second);
-      signalNew.insert(std::pair<int,DigitizerUtility::Amplitude>(chanXtalkNext, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, nullptr, -1.0)));
+      signalNew.emplace(chanXtalkNext,
+      DigitizerUtility::Amplitude(signalInElectrons_Xtalk, nullptr, -1.0));
     }
   }
   for (auto const & l : signalNew) {
@@ -644,7 +647,7 @@ void Phase2TrackerDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetU
     if (iter != theSignal.end()) {
       theSignal[chan] += l.second.ampl();
     }  else {
-      theSignal.insert(std::pair<int,DigitizerUtility::Amplitude>(chan, DigitizerUtility::Amplitude(l.second.ampl(), nullptr, -1.0)));
+      theSignal.emplace(chan, DigitizerUtility::Amplitude(l.second.ampl(), nullptr, -1.0));
     }
   } 
 }
