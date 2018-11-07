@@ -23,7 +23,7 @@ class HGCalTriggerNtupleHGCTriggerCells : public HGCalTriggerNtupleBase
     void fill(const edm::Event& e, const edm::EventSetup& es) final;
 
   private:
-    double calibrate(double, int, int);
+    double calibrate(double, int, unsigned);
     void simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, std::unordered_map<uint32_t, double>& simhits_fh, std::unordered_map<uint32_t, double>& simhits_bh);
     void clear() final;
 
@@ -210,33 +210,23 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       {
         double energy = 0;
         int subdet = id.subdetId();
+        unsigned layer = triggerTools_.layerWithOffset(id);
         // search for simhit for all the cells inside the trigger cell
         for(uint32_t c_id : geometry_->getCellsFromTriggerCell(id))
         {
+          int thickness = triggerTools_.thicknessIndex(c_id);
           switch(subdet)
           {
             case ForwardSubdetector::HGCEE:
               {
                 auto itr = simhits_ee.find(c_id);
-                if(itr!=simhits_ee.end())
-                {
-                  HGCalDetId detid(c_id);
-                  int thickness = geometry_->eeTopology().dddConstants().waferTypeL(detid.wafer())-1;
-                  int layer = detid.layer();
-                  energy += calibrate(itr->second, thickness, layer);
-                }
+                if(itr!=simhits_ee.end()) energy += calibrate(itr->second, thickness, layer);
                 break;
               }
             case ForwardSubdetector::HGCHEF:
               {
                 auto itr = simhits_fh.find(c_id);
-                if(itr!=simhits_fh.end())
-                {
-                  HGCalDetId detid(c_id);
-                  int thickness = geometry_->fhTopology().dddConstants().waferTypeL(detid.wafer())-1;
-                  int layer = detid.layer();
-                  energy += calibrate(itr->second, thickness, layer);
-                }
+                if(itr!=simhits_fh.end()) energy += calibrate(itr->second, thickness, layer);
                 break;
               }
             case ForwardSubdetector::HGCHEB:
@@ -257,7 +247,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
 
 double
 HGCalTriggerNtupleHGCTriggerCells::
-calibrate(double energy, int thickness, int layer)
+calibrate(double energy, int thickness, unsigned layer)
 {
   double fcPerMip = fcPerMip_[thickness];
   double thicknessCorrection = thicknessCorrections_[thickness];
