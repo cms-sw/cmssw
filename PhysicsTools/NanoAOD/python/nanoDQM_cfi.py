@@ -215,7 +215,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
             sels = cms.PSet(),
             plots = cms.VPSet(
                 Plot1D('Higgs_pt', 'Higgs_pt', 20, 0, 400, 'pt of the Higgs boson as identified in HTXS'),
-                Plot1D('Higgs_y', 'Higgs_y', 20, -5, 5, 'eta of the Higgs boson as identified in HTXS'),
+                Plot1D('Higgs_y', 'Higgs_y', 20, -5, 5, 'rapidity of the Higgs boson as identified in HTXS'),
                 Plot1D('njets25', 'njets25', 20, 0, 20, 'number of jets with pt>25 GeV as identified in HTXS'),
                 Plot1D('njets30', 'njets30', 20, 0, 20, 'number of jets with pt>30 GeV as identified in HTXS'),
                 Plot1D('stage_0', 'stage_0', 100, 0, 100, 'HTXS stage-0 category'),
