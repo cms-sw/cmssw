@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_10_3_0/PRef --type PRef
 
-# /dev/CMSSW_10_3_0/PRef/V30 (CMSSW_10_3_0)
+# /dev/CMSSW_10_3_0/PRef/V31 (CMSSW_10_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_3_0/PRef/V30')
+  tableName = cms.string('/dev/CMSSW_10_3_0/PRef/V31')
 )
 
 fragment.HLTPSetTobTecStepTrajectoryBuilderPPOnAA = cms.PSet( 
