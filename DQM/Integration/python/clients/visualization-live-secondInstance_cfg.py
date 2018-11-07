@@ -38,6 +38,10 @@ kwds = {
    'globalTagConnect': GlobalTag.connect.value()
 }
 
+# explicitly select the input collection, since we get multiple in online
+from EventFilter.RawDataCollector.rawDataMapperByLabel_cfi import rawDataMapperByLabel
+rawDataMapperByLabel.rawCollectionList = [cms.InputTag("rawDataRepacker")]
+
 # example of how to add a filer IN FRONT of all the paths, eg for HLT selection
 #kwds['preFilter'] = 'DQM/Integration/config/visualizationPreFilter.hltfilter'
 
