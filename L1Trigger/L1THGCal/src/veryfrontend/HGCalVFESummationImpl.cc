@@ -25,28 +25,7 @@ triggerCellSums(const HGCalTriggerGeometryBase& geometry,
     // equalize value among cell thicknesses for Silicon parts
     if(det==DetId::Forward || det==DetId::HGCalEE || det==DetId::HGCalHSi)
     {
-      int thickness = 0;
-      // For the v8 geometry
-      if(det==DetId::Forward)
-      {
-        switch(cellid.subdetId())
-        { 
-          case ForwardSubdetector::HGCEE:
-            thickness = geometry.eeTopology().dddConstants().waferTypeL(HGCalDetId(cellid).wafer())-1;
-            break;
-          case ForwardSubdetector::HGCHEF:
-            thickness = geometry.fhTopology().dddConstants().waferTypeL(HGCalDetId(cellid).wafer())-1;
-            break;
-          default:
-            break;
-        };
-      }
-      // For the v9 geometry
-      else if(det==DetId::HGCalEE || det==DetId::HGCalHSi)
-      {
-        thickness = HGCSiliconDetId(cellid).type();
-      }
-
+      int thickness = triggerTools_.thicknessIndex(cellid);
       double thickness_correction = thickness_corrections_.at(thickness);
       value = (double)value*thickness_correction;
     }

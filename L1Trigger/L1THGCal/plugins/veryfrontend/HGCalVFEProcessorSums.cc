@@ -25,6 +25,7 @@ HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
                            l1t::HGCalTriggerCellBxCollection& triggerCellColl, 
                            const edm::EventSetup& es) 
 { 
+  vfeSummationImpl_.eventSetup(es);
   calibration_.eventSetup(es);
 
   std::vector<HGCalDataFrame> dataframes;
