@@ -9,7 +9,7 @@ void
 HGCalVFESummationImpl::
 triggerCellSums(const HGCalTriggerGeometryBase& geometry, 
                 const std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes,
-                std::map<HGCalDetId, uint32_t>& payload)
+                std::unordered_map<uint32_t, uint32_t>& payload)
 {
   if(linearized_dataframes.empty()) return;
   // sum energies in trigger cells
@@ -19,8 +19,7 @@ triggerCellSums(const HGCalTriggerGeometryBase& geometry,
 
     // find trigger cell associated to cell
     uint32_t tcid = geometry.getTriggerCellFromCell(cellid);
-    HGCalDetId triggercellid( tcid );
-    payload.emplace(triggercellid, 0); // do nothing if key exists already
+    payload.emplace(tcid, 0); // do nothing if key exists already
     uint32_t value = frame.second;
     unsigned det = cellid.det();
     // equalize value among cell thicknesses for Silicon parts
@@ -52,8 +51,8 @@ triggerCellSums(const HGCalTriggerGeometryBase& geometry,
       value = (double)value*thickness_correction;
     }
 
-    // sums energy for the same triggercellid
-    payload[triggercellid] += value; // 32 bits integer should be largely enough 
+    // sums energy for the same trigger cell id
+    payload[tcid] += value; // 32 bits integer should be largely enough 
   }
 
 }
