@@ -18,16 +18,6 @@ class FWGeometry;
 class TEveCaloDataVec;
 class TEveCaloLego;
 
-// Less than operator for sorting clusters according to eta
-class superClsterEtaLess : public std::binary_function<const reco::CaloCluster&, const reco::CaloCluster&, bool>
-{
-public:
-   bool operator()(const reco::CaloCluster &lhs, const reco::CaloCluster &rhs)
-   {
-      return ( lhs.eta() < rhs.eta()) ;
-   }
-};
-
 // builder class for ecal detail view
 class FWECALDetailViewBuilder {
 

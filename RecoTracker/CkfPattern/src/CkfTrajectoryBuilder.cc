@@ -16,7 +16,6 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
 
-#include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "RecoTracker/CkfPattern/interface/TrajCandLess.h"
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -219,7 +218,7 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 	if ( theAlwaysUseInvalidHits) last = meas.end();
 	else {
 	  if (meas.front().recHit()->isValid()) {
-	    last = find_if( meas.begin(), meas.end(), RecHitIsInvalid());
+	    last = find_if( meas.begin(), meas.end(), [](auto const& meas){ return !meas.recHit()->isValid(); });
 	  }
 	  else last = meas.end();
 	}

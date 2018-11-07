@@ -1520,7 +1520,7 @@ std::string DEutils<T>::GetName(int i) const {
 /// --- order candidates ---
 
 template <typename T>
-struct de_rank : public DEutils<T> , public std::binary_function<typename DEutils<T>::cand_type, typename DEutils<T>::cand_type, bool> {
+struct de_rank : public DEutils<T> {
   typedef DEtrait<T> de_trait;
   typedef typename de_trait::cand_type cand_type;
   bool operator()(const cand_type& x, const cand_type& y) const {
