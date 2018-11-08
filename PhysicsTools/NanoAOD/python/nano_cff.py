@@ -178,6 +178,20 @@ def nanoAOD_addDeepFlavourTagFor94X2016(process):
     process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
 
+from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+def nanoAOD_recalibrateMETs(process,isData):
+    runMetCorAndUncFromMiniAOD(process,isData=isData)
+    process.nanoSequence.insert(process.nanoSequence.index(metSequence),cms.Sequence(process.fullPatMetSequence))
+    return process
+
+# to recalibrate PUPPI MET, does not work at the moment because of VID conflicting with this setup
+#from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
+#    makePuppiesFromMiniAOD(process,True)
+#    runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi")
+#    process.puppiNoLep.useExistingWeights = False
+#    process.puppi.useExistingWeights = False
+#    process.nanoSequence.insert(process.nanoSequence.index(metSequence),cms.Sequence(process.egmPhotonIDSequence+process.puppiMETSequence+process.fullPatMetSequencePuppi))
+
 
 def nanoAOD_customizeCommon(process):
     run2_miniAOD_80XLegacy.toModify(process, nanoAOD_addDeepBTagFor80X)
@@ -187,6 +201,7 @@ def nanoAOD_customizeCommon(process):
 
 def nanoAOD_customizeData(process):
     process = nanoAOD_customizeCommon(process)
+    process = nanoAOD_recalibrateMETs(process,isData=True)
     if hasattr(process,'calibratedPatElectrons80X'):
         process.calibratedPatElectrons80X.isMC = cms.bool(False)
         process.calibratedPatPhotons80X.isMC = cms.bool(False)
@@ -194,6 +209,7 @@ def nanoAOD_customizeData(process):
 
 def nanoAOD_customizeMC(process):
     process = nanoAOD_customizeCommon(process)
+    process = nanoAOD_recalibrateMETs(process,isData=False)
     if hasattr(process,'calibratedPatElectrons80X'):
         process.calibratedPatElectrons80X.isMC = cms.bool(True)
         process.calibratedPatPhotons80X.isMC = cms.bool(True)
