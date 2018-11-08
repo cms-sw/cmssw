@@ -25,7 +25,7 @@ class LumiCorrectionParam;
 class LumiCorrectionSource: public edm::ESProducer , public edm::EventSetupRecordIntervalFinder{
  public:
   LumiCorrectionSource(const edm::ParameterSet&);
-  typedef std::shared_ptr<LumiCorrectionParam> ReturnParamType;
+  typedef std::shared_ptr<const LumiCorrectionParam> ReturnParamType;
   ReturnParamType produceLumiCorrectionParam(const LumiCorrectionParamRcd&);
   ~LumiCorrectionSource() override;
  protected:
@@ -46,11 +46,11 @@ class LumiCorrectionSource: public edm::ESProducer , public edm::EventSetupRecor
   std::string m_globaltag;
   std::string m_normtag;
   std::string m_siteconfpath;
-  std::map< unsigned int,std::shared_ptr<LumiCorrectionParam> > m_paramcache;
+  std::map< unsigned int,std::shared_ptr<const LumiCorrectionParam> > m_paramcache;
   bool m_isNullRun; //if lumi data exist for this run
   unsigned int m_paramcachedrun;
   unsigned int m_cachesize;
-  std::shared_ptr<LumiCorrectionParam> m_paramresult;
+  std::shared_ptr<const LumiCorrectionParam> m_paramresult;
   const edm::IOVSyncValue* m_pcurrentTime;
  private:
   void fillparamcache(unsigned int runnumber);

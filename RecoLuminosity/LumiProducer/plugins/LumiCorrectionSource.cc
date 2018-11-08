@@ -205,7 +205,7 @@ LumiCorrectionSource::produceLumiCorrectionParam(const LumiCorrectionParamRcd&)
 { 
   unsigned int currentrun=m_pcurrentTime->eventID().run();
   if(currentrun==0||currentrun==4294967295){ 
-    return std::make_shared<LumiCorrectionParam>();
+    return std::make_shared<const LumiCorrectionParam>();
   }
   if(m_paramcachedrun!=currentrun){//i'm in a new run
     fillparamcache(currentrun);//fill cache
@@ -215,11 +215,11 @@ LumiCorrectionSource::produceLumiCorrectionParam(const LumiCorrectionParamRcd&)
     }
   }
   if(m_paramcache.empty()){
-    return std::make_shared<LumiCorrectionParam>();
+    return std::make_shared<const LumiCorrectionParam>();
   }
   m_paramresult=m_paramcache[currentrun];
   if(m_paramresult.get()==nullptr){
-    return std::make_shared<LumiCorrectionParam>();
+    return std::make_shared<const LumiCorrectionParam>();
   }
   return m_paramresult;
 }
@@ -270,7 +270,7 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
   tconverter.setCppTypeForSqlType(std::string("float"),std::string("FLOAT(63)"));
   tconverter.setCppTypeForSqlType(std::string("unsigned int"),std::string("NUMBER(10)"));
   tconverter.setCppTypeForSqlType(std::string("unsigned short"),std::string("NUMBER(1)"));
-  auto result = std::make_shared<LumiCorrectionParam>(LumiCorrectionParam::HF);
+  auto result = std::make_unique<LumiCorrectionParam>(LumiCorrectionParam::HF);
   try{
     session->transaction().start(true);
     coral::ISchema& schema=session->nominalSchema();
@@ -285,7 +285,8 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
     unsigned int lumiid=dataid.lumi_id;
     if(lumiid==0){
       result->setNBX(0);
-      m_paramcache.insert(std::make_pair(runnumber,result));
+      std::shared_ptr<const LumiCorrectionParam> const_result = std::move(result);
+      m_paramcache.insert(std::make_pair(runnumber,const_result));
       session->transaction().commit();
       delete session;
       delete mydbservice;
@@ -337,11 +338,11 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
     result->setnonlinearCoeff(normIt->second.coefficientmap);
     result->setafterglows(normIt->second.afterglows);
     result->setdescription(normIt->second.amodetag,normIt->second.beamegev);
-    m_paramcache.insert(std::make_pair(runnumber,result));
     if(normIt->second.coefficientmap["DRIFT"]!=0.){
       float intglumi=fetchIntglumi(schema,runnumber);
       result->setintglumi(intglumi);
     }
+    m_paramcache.insert(std::make_pair(runnumber,std::shared_ptr<LumiCorrectionParam>(std::move(result))));
     session->transaction().commit();
   }catch(const coral::Exception& er){
     session->transaction().rollback();
