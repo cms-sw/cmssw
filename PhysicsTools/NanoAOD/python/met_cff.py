@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from  PhysicsTools.NanoAOD.common_cff import *
 
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 
 ##################### Tables for final output and docs ##########################
 metTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
@@ -86,6 +88,12 @@ chsMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 
+metFixEE2017Table = metTable.clone()
+metFixEE2017Table.src = cms.InputTag("slimmedMETsFixEE2017")
+metFixEE2017Table.name = cms.string("METFixEE2017")
+metFixEE2017Table.doc = cms.string("Type-1 corrected PF MET, with fixEE2017 definition")
+
+
 metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = metTable.src,
     name = cms.string("GenMET"),
@@ -101,5 +109,8 @@ metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 
 metTables = cms.Sequence( metTable + rawMetTable + caloMetTable + puppiMetTable + tkMetTable + chsMetTable)
+_withFixEE2017_sequence = cms.Sequence(metTables.copy() + metFixEE2017Table)
+for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
+    modifier.toReplaceWith(metTables,_withFixEE2017_sequence)
 metMC = cms.Sequence( metMCTable )
 
