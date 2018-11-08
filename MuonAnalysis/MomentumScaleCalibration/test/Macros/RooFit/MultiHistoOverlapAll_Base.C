@@ -366,7 +366,8 @@ void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, s
   };
 
 
-  //Plot 2D hystograms
+  // Plot 2D hystograms
+  // TO BE FIXED: something strange appears in the 2D plots for the sigma, this should be further investigated
   Double_t zMass(91.1876);
   Double_t Y1SMass(9.46);
   Double_t maxDist(0.);
