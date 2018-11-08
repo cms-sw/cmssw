@@ -19,28 +19,7 @@ slimmedElectronsUpdated = cms.EDProducer("PATElectronUpdater",
 )
 run2_miniAOD_80XLegacy.toModify( slimmedElectronsUpdated, computeMiniIso = True )
 
-from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection
-from RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff import *
-from RecoEgamma.ElectronIdentification.heepIdVarValueMapProducer_cfi import *
-
-electronMVAValueMapProducer.srcMiniAOD = cms.InputTag("slimmedElectrons")
-run2_miniAOD_80XLegacy.toModify(electronMVAValueMapProducer, srcMiniAOD = "slimmedElectronsUpdated")
-run2_nanoAOD_92X.toModify(electronMVAValueMapProducer, srcMiniAOD = "slimmedElectronsUpdated")
-
-electronMVAVariableHelper.srcMiniAOD = cms.InputTag("slimmedElectrons")
-run2_miniAOD_80XLegacy.toModify(electronMVAVariableHelper, srcMiniAOD = "slimmedElectronsUpdated")
-run2_nanoAOD_92X.toModify(electronMVAVariableHelper, srcMiniAOD = "slimmedElectronsUpdated")
-
-egmGsfElectronIDs.physicsObjectIDs = cms.VPSet()
-egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
-run2_miniAOD_80XLegacy.toModify(egmGsfElectronIDs, physicsObjectSrc = "slimmedElectronsUpdated")
-run2_nanoAOD_92X.toModify(egmGsfElectronIDs, physicsObjectSrc = "slimmedElectronsUpdated")
-
-heepIDVarValueMaps.elesMiniAOD = cms.InputTag('slimmedElectrons')
-run2_miniAOD_80XLegacy.toModify(heepIDVarValueMaps, elesMiniAOD = "slimmedElectronsUpdated")
-run2_nanoAOD_92X.toModify(heepIDVarValueMaps, elesMiniAOD = "slimmedElectronsUpdated")
-
-_electron_id_modules_WorkingPoints = cms.PSet(
+electron_id_modules_WorkingPoints_nanoAOD = cms.PSet(
     modules = cms.vstring(
         'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff',
@@ -57,7 +36,7 @@ _electron_id_modules_WorkingPoints = cms.PSet(
         "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-tight",
     )
 )
-run2_miniAOD_80XLegacy.toModify(_electron_id_modules_WorkingPoints,
+run2_miniAOD_80XLegacy.toModify(electron_id_modules_WorkingPoints_nanoAOD,
     modules = cms.vstring(
         'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronHLTPreselecition_Summer16_V1_cff',
@@ -72,7 +51,7 @@ run2_miniAOD_80XLegacy.toModify(_electron_id_modules_WorkingPoints,
         "egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-tight",
     )
 )
-run2_nanoAOD_94X2016.toModify(_electron_id_modules_WorkingPoints,
+run2_nanoAOD_94X2016.toModify(electron_id_modules_WorkingPoints_nanoAOD,
     modules = cms.vstring(
         'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronHLTPreselecition_Summer16_V1_cff',
@@ -88,18 +67,17 @@ run2_nanoAOD_94X2016.toModify(_electron_id_modules_WorkingPoints,
  
 
 _bitmapVIDForEle_docstring = ''
-for modname in _electron_id_modules_WorkingPoints.modules:
+for modname in electron_id_modules_WorkingPoints_nanoAOD.modules:
     ids= __import__(modname, globals(), locals(), ['idName','cutFlow'])
     for name in dir(ids):
         _id = getattr(ids,name)
         if hasattr(_id,'idName') and hasattr(_id,'cutFlow'):
-            setupVIDSelection(egmGsfElectronIDs,_id)
-            if (len(_electron_id_modules_WorkingPoints.WorkingPoints)>0 and _id.idName==_electron_id_modules_WorkingPoints.WorkingPoints[0].split(':')[-1]):
-                _bitmapVIDForEle_docstring = 'VID compressed bitmap (%s), %d bits per cut'%(','.join([cut.cutName.value() for cut in _id.cutFlow]),int(ceil(log(len(_electron_id_modules_WorkingPoints.WorkingPoints)+1,2))))
+            if (len(electron_id_modules_WorkingPoints_nanoAOD.WorkingPoints)>0 and _id.idName==electron_id_modules_WorkingPoints_nanoAOD.WorkingPoints[0].split(':')[-1]):
+                _bitmapVIDForEle_docstring = 'VID compressed bitmap (%s), %d bits per cut'%(','.join([cut.cutName.value() for cut in _id.cutFlow]),int(ceil(log(len(electron_id_modules_WorkingPoints_nanoAOD.WorkingPoints)+1,2))))
 
 bitmapVIDForEle = cms.EDProducer("EleVIDNestedWPBitmapProducer",
     src = cms.InputTag("slimmedElectrons"),
-    WorkingPoints = _electron_id_modules_WorkingPoints.WorkingPoints,
+    WorkingPoints = electron_id_modules_WorkingPoints_nanoAOD.WorkingPoints,
 )
 run2_miniAOD_80XLegacy.toModify(bitmapVIDForEle, src = "slimmedElectronsUpdated")
 run2_nanoAOD_92X.toModify(bitmapVIDForEle, src = "slimmedElectronsUpdated")
@@ -429,7 +407,7 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     docString = cms.string("MC matching to status==1 electrons or photons"),
 )
 
-electronSequence = cms.Sequence(heepIDVarValueMaps + egmGsfElectronIDSequence + bitmapVIDForEle + isoForEle + ptRatioRelForEle + slimmedElectronsWithUserData + finalElectrons)
+electronSequence = cms.Sequence(bitmapVIDForEle + isoForEle + ptRatioRelForEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)
 electronMC = cms.Sequence(electronsMCMatchForTable + electronMCTable)
 
