@@ -265,9 +265,9 @@ void L1TdeStage2CaloLayer2::bookHistograms(
 
  // book centrality sums
  
- asymCountData = ibooker.book1D("Problematic Centrality Count - Data",
+ centrCountData = ibooker.book1D("Problematic Centrality Count - Data",
                                 "", 9, -1.5, 7.5);
- asymCountEmul = ibooker.book1D("Problematic Centrality Count - Emulator",
+ centrCountEmul = ibooker.book1D("Problematic Centrality Count - Emulator",
                                 "", 9, -1.5, 7.5);
 
 
@@ -1011,6 +1011,8 @@ bool L1TdeStage2CaloLayer2::compareSums(
   double emulEt = 0;
   double dataPhi = 0;
   double emulPhi = 0;
+  int dataCentr = 0;
+  int emulCentr = 0;
 
   l1t::EtSumBxCollection::const_iterator dataIt;
   l1t::EtSumBxCollection::const_iterator emulIt = emulCol->begin(currBx);
@@ -1019,7 +1021,7 @@ bool L1TdeStage2CaloLayer2::compareSums(
   // matching data/emul collections by type before proceeding with the checks
   if (dataCol->isEmpty(currBx) || emulCol->isEmpty(currBx))
     return false;
-
+  
   while(true) {
     dataIt = dataCol->begin(currBx);
 	  while(true) {
@@ -1027,7 +1029,6 @@ bool L1TdeStage2CaloLayer2::compareSums(
 			// It should be possible to implement this with a switch statement
 			etGood = true;
 			phiGood = true;
-
 			// ETT
 			if (l1t::EtSum::EtSumType::kTotalEt == dataIt->getType()) {
 
@@ -1534,14 +1535,21 @@ bool L1TdeStage2CaloLayer2::compareSums(
    
 			// CentralityCount
 			if (l1t::EtSum::EtSumType::kCentrality == dataIt->getType()) {
-				 
-			  dataEt = dataIt->hwPt();
-			  emulEt = emulIt->hwPt();
-
-			  if (dataEt != emulEt) {
+			  dataCentr = dataIt->hwPt();
+			  emulCentr = emulIt->hwPt();
+                          
+			  if (dataCentr != emulCentr) {
 				eventGood = false;
-				centrCountData->Fill(dataEt);
-				centrCountEmul->Fill(emulEt);
+                                if (dataCentr==0) centrCountData->Fill(-1);
+         			  else {
+          	 	            for (int i=0; i<8; i++)
+	        	              if (((dataCentr>>i)&1)==1) centrCountData->Fill(i);
+	                               }
+                                if (emulCentr==0) centrCountEmul->Fill(-1);
+                                  else {
+                                    for (int i=0; i<8; i++)
+                                      if (((emulCentr>>i)&1)==1) centrCountEmul->Fill(i);
+                                       }
 			  } else {
 				agreementSummary->Fill(SUMGOOD_S);
 				sumSummary->Fill(SUMGOOD);
