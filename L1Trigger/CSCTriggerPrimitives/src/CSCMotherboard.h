@@ -51,7 +51,7 @@ class CSCMotherboard : public CSCBaseboard
   CSCMotherboard();
 
   /** Default destructor. */
-  virtual ~CSCMotherboard() = default;
+  ~CSCMotherboard() override = default;
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
