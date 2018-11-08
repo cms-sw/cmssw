@@ -738,7 +738,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
       }
       // The pattern finder runs continuously, so another pre-trigger
       // could occur already at the next bx.
-      start_bx = first_bx + 1;
+      //start_bx = first_bx + 1;
 
       // Quality for sorting.
       int quality[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
@@ -796,11 +796,11 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
 	}
 
 	// Pattern finder.
-	bool ptn_trig = false;
+	//bool ptn_trig = false;
 	for (int ilct = 0; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
 	  int best_hs = best_halfstrip[ilct];
 	  if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
-	    ptn_trig = true;
+	    //ptn_trig = true;
 	    keystrip_data[ilct][CLCT_PATTERN]    = best_pid[best_hs];
 	    keystrip_data[ilct][CLCT_BEND]       =
 	      pattern2007[best_pid[best_hs]][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
@@ -833,7 +833,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
 	  }
 	}
 
-	if (ptn_trig) {
+	//if (ptn_trig) {
 	  // Once there was a trigger, CLCT pre-trigger state machine
 	  // checks the number of hits that lie on a pattern template
 	  // at every bx, and waits for it to drop below threshold.
@@ -850,7 +850,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
 	    if (hits_in_time) {
 	      for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
 		   hstrip < maxHalfStrips; hstrip++) {
-		if (nhits[hstrip] >= nplanes_hit_pattern) {
+		//if (nhits[hstrip] >= nplanes_hit_pattern) {
+		if (nhits[hstrip] >= nplanes_hit_pretrig) {//Tao, move dead time to pretrigger level
 		  if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
 		    << " State machine busy at bx = " << bx;
 		  return_to_idle = false;
@@ -865,8 +866,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
 	      break;
 	    }
 	  }
-	}
-      }
+	//}
+      }//pre_trig
     }
     else {
       start_bx = first_bx + 1; // no dead time
