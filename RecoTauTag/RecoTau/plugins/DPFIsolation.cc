@@ -49,7 +49,7 @@ public:
         desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb");
         desc.add<unsigned>("version", 0);
-        desc.add<bool>("memMapped", false);
+        desc.add<bool>("mem_mapped", false);
 
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
@@ -65,8 +65,8 @@ public:
         descriptions.add("DPFTau2016v0", desc);
     }
 
-    explicit DPFIsolation(const edm::ParameterSet& cfg,const deep_tau::DeepTauCache* cache_) :
-        DeepTauBase(cfg, GetOutputs(), cache_),
+    explicit DPFIsolation(const edm::ParameterSet& cfg,const deep_tau::DeepTauCache* cache) :
+        DeepTauBase(cfg, GetOutputs(), cache),
         pfcand_token(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("pfcands"))),
         vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
         graphVersion(cfg.getParameter<unsigned>("version"))

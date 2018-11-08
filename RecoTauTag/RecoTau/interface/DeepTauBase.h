@@ -29,7 +29,7 @@ namespace deep_tau {
 
 class TauWPThreshold {
 public:
-    explicit TauWPThreshold(const std::string& cutStr);
+    explicit TauWPThreshold(const std::string& cut_str);
     double operator()(const pat::Tau& tau) const;
 
 private:
@@ -41,7 +41,7 @@ class DeepTauCache {
 public:
     using GraphPtr = std::shared_ptr<tensorflow::GraphDef>;
 
-    DeepTauCache(const std::string& graphName, const bool& memMapped);
+    DeepTauCache(const std::string& graph_name, const bool& mem_mapped);
     ~DeepTauCache();
 
    // A Session allows concurrent calls to Run(), though a Session must
@@ -71,24 +71,24 @@ public:
 
     struct Output {
         using ResultMap = std::map<std::string, std::unique_ptr<TauDiscriminator>>;
-        std::vector<size_t> num, den;
+        std::vector<size_t> num_, den_;
 
-        Output(const std::vector<size_t>& num_, const std::vector<size_t>& den_) : num(num_), den(den_) {}
+        Output(const std::vector<size_t>& num, const std::vector<size_t>& den) : num_(num), den_(den) {}
 
         ResultMap get_value(const edm::Handle<TauCollection>& taus, const tensorflow::Tensor& pred,
-                            const WPMap& workingPoints_) const;
+                            const WPMap& working_points) const;
     };
 
     using OutputCollection = std::map<std::string, Output>;
 
 
-    DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputs_, const DeepTauCache* cache_);
+    DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputs, const DeepTauCache* cache);
     virtual ~DeepTauBase() {}
 
     virtual void produce(edm::Event& event, const edm::EventSetup& es) override;
 
     static std::unique_ptr<DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg);
-    static void globalEndJob(const DeepTauCache* cache_){ }
+    static void globalEndJob(const DeepTauCache* cache){ }
 private:
     virtual tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
                                               edm::Handle<TauCollection> taus) = 0;

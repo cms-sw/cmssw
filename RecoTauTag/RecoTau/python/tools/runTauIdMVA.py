@@ -632,7 +632,7 @@ class TauIDEmbedder(object):
                     muons                  = self.cms.InputTag('slimmedMuons'),
                     taus                   = self.cms.InputTag('slimmedTaus'),
                     graph_file             = self.cms.string('RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N.pb'),
-                    memMapped              = self.cms.bool(False)
+                    mem_mapped              = self.cms.bool(False)
                 )
 
                 self.processDeepProducer('deepTau2017v1', tauIDSources, workingPoints_)
@@ -646,7 +646,7 @@ class TauIDEmbedder(object):
                     muons                   = self.cms.InputTag('slimmedMuons'),
                     taus                    = self.cms.InputTag('slimmedTaus'),
                     graph_file              = self.cms.string('RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb'),
-                    memMapped              = self.cms.bool(False)
+                    mem_mapped              = self.cms.bool(False)
                 )
 
                 self.processDeepProducer('deepTau2017v1Q', tauIDSources, workingPoints_)
@@ -681,7 +681,7 @@ class TauIDEmbedder(object):
                     vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
                     graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0.pb'),
                     version     = self.cms.uint32(0),
-                    memMapped   = self.cms.bool(False)
+                    mem_mapped   = self.cms.bool(False)
                 )
 
                 self.processDeepProducer('dpfTau2016v0', tauIDSources, workingPoints_)
@@ -696,7 +696,7 @@ class TauIDEmbedder(object):
                     vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
                     graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb'),
                     version     = self.cms.uint32(0),
-                    memMapped   = self.cms.bool(False)
+                    mem_mapped   = self.cms.bool(False)
                 )
 
                 self.processDeepProducer('dpfTau2016v0Q', tauIDSources, workingPoints_)
@@ -720,7 +720,7 @@ class TauIDEmbedder(object):
                     vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
                     graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v1.pb'),
                     version     = self.cms.uint32(1),
-                    memMapped   = self.cms.bool(False)
+                    mem_mapped   = self.cms.bool(False)
                 )
 
                 self.processDeepProducer('dpfTau2016v1', tauIDSources, workingPoints_)
@@ -735,7 +735,7 @@ class TauIDEmbedder(object):
                     vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
                     graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v1_quantized.pb'),
                     version     = self.cms.uint32(1),
-                    memMapped   = self.cms.bool(False)
+                    mem_mapped   = self.cms.bool(False)
                 )
 
                 self.processDeepProducer('dpfTau2016v1Q', tauIDSources, workingPoints_)
