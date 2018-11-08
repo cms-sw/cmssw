@@ -6,7 +6,11 @@
 #include <random>
 #include <memory>  // unique_ptr
 
+#include <TFile.h>
+#include <TH1F.h>
+
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
+//#include "RecoPixelVertexing/PixelTrackFitting/interface/BrokenLine.h"
 
 using namespace std;
 using namespace Eigen;
@@ -164,161 +168,261 @@ Matrix<double, 6, 1> New_par(const Matrix<double, 6, 1>& gen_par, const int& cha
   return new_par;
 }
 
+template<typename Fit, size_t N>
+void computePull(std::array<Fit, N> & fit, const char * label,
+    int n_, int iteration, const Vector5d & true_par) {
+  Matrix<double, 41, Dynamic, 1> score(41, iteration);
+
+  std::string histo_name("Phi Pull");
+  histo_name += label;
+  TH1F phi_pull(histo_name.data(), histo_name.data(), 100, -10., 10.);
+  histo_name = "dxy Pull ";
+  histo_name += label;
+  TH1F dxy_pull(histo_name.data(), histo_name.data(), 100, -10., 10.);
+  histo_name = "dz Pull ";
+  histo_name += label;
+  TH1F dz_pull(histo_name.data(), histo_name.data(), 100, -10., 10.);
+  histo_name = "Theta Pull ";
+  histo_name += label;
+  TH1F theta_pull(histo_name.data(), histo_name.data(), 100, -10., 10.);
+  histo_name = "Pt Pull ";
+  histo_name += label;
+  TH1F pt_pull(histo_name.data(), histo_name.data(), 100, -10., 10.);
+  histo_name = "Phi Error ";
+  histo_name += label;
+  TH1F phi_error(histo_name.data(), histo_name.data(), 100, 0., 0.1);
+  histo_name = "dxy error ";
+  histo_name += label;
+  TH1F dxy_error(histo_name.data(), histo_name.data(), 100, 0., 0.1);
+  histo_name = "dz error ";
+  histo_name += label;
+  TH1F dz_error(histo_name.data(), histo_name.data(), 100, 0., 0.1);
+  histo_name = "Theta error ";
+  histo_name += label;
+  TH1F theta_error(histo_name.data(), histo_name.data(), 100, 0., 0.1);
+  histo_name = "Pt error ";
+  histo_name += label;
+  TH1F pt_error(histo_name.data(), histo_name.data(), 100, 0., 0.1);
+  for (int x = 0; x < iteration; x++) {
+    // Compute PULLS information
+    score(0, x) = (fit[x].par(0) - true_par(0)) / sqrt(fit[x].cov(0, 0));
+    score(1, x) = (fit[x].par(1) - true_par(1)) / sqrt(fit[x].cov(1, 1));
+    score(2, x) = (fit[x].par(2) - true_par(2)) / sqrt(fit[x].cov(2, 2));
+    score(3, x) = (fit[x].par(3) - true_par(3)) / sqrt(fit[x].cov(3, 3));
+    score(4, x) = (fit[x].par(4) - true_par(4)) / sqrt(fit[x].cov(4, 4));
+    phi_pull.Fill(score(0, x));
+    dxy_pull.Fill(score(1, x));
+    pt_pull.Fill(score(2, x));
+    theta_pull.Fill(score(3, x));
+    dz_pull.Fill(score(4, x));
+    phi_error.Fill(sqrt(fit[x].cov(0, 0)));
+    dxy_error.Fill(sqrt(fit[x].cov(1, 1)));
+    pt_error.Fill(sqrt(fit[x].cov(2, 2)));
+    theta_error.Fill(sqrt(fit[x].cov(3, 3)));
+    dz_error.Fill(sqrt(fit[x].cov(4, 4)));
+    score(5, x) =
+      (fit[x].par(0) - true_par(0)) * (fit[x].par(1) - true_par(1)) / (fit[x].cov(0, 1));
+    score(6, x) =
+      (fit[x].par(0) - true_par(0)) * (fit[x].par(2) - true_par(2)) / (fit[x].cov(0, 2));
+    score(7, x) =
+      (fit[x].par(1) - true_par(1)) * (fit[x].par(2) - true_par(2)) / (fit[x].cov(1, 2));
+    score(8, x) =
+      (fit[x].par(3) - true_par(3)) * (fit[x].par(4) - true_par(4)) / (fit[x].cov(3, 4));
+    score(9, x) = fit[x].chi2_circle;
+    score(25, x) = fit[x].chi2_line;
+    score(10, x) = sqrt(fit[x].cov(0, 0)) / fit[x].par(0) * 100;
+    score(13, x) = sqrt(fit[x].cov(3, 3)) / fit[x].par(3) * 100;
+    score(14, x) = sqrt(fit[x].cov(4, 4)) / fit[x].par(4) * 100;
+    score(15, x) = (fit[x].par(0) - true_par(0)) * (fit[x].par(3) - true_par(3)) /
+      sqrt(fit[x].cov(0, 0)) / sqrt(fit[x].cov(3, 3));
+    score(16, x) = (fit[x].par(1) - true_par(1)) * (fit[x].par(3) - true_par(3)) /
+      sqrt(fit[x].cov(1, 1)) / sqrt(fit[x].cov(3, 3));
+    score(17, x) = (fit[x].par(2) - true_par(2)) * (fit[x].par(3) - true_par(3)) /
+      sqrt(fit[x].cov(2, 2)) / sqrt(fit[x].cov(3, 3));
+    score(18, x) = (fit[x].par(0) - true_par(0)) * (fit[x].par(4) - true_par(4)) /
+      sqrt(fit[x].cov(0, 0)) / sqrt(fit[x].cov(4, 4));
+    score(19, x) = (fit[x].par(1) - true_par(1)) * (fit[x].par(4) - true_par(4)) /
+      sqrt(fit[x].cov(1, 1)) / sqrt(fit[x].cov(4, 4));
+    score(20, x) = (fit[x].par(2) - true_par(2)) * (fit[x].par(4) - true_par(4)) /
+      sqrt(fit[x].cov(2, 2)) / sqrt(fit[x].cov(4, 4));
+    score(21, x) = (fit[x].par(0) - true_par(0)) * (fit[x].par(1) - true_par(1)) /
+      sqrt(fit[x].cov(0, 0)) / sqrt(fit[x].cov(1, 1));
+    score(22, x) = (fit[x].par(0) - true_par(0)) * (fit[x].par(2) - true_par(2)) /
+      sqrt(fit[x].cov(0, 0)) / sqrt(fit[x].cov(2, 2));
+    score(23, x) = (fit[x].par(1) - true_par(1)) * (fit[x].par(2) - true_par(2)) /
+      sqrt(fit[x].cov(1, 1)) / sqrt(fit[x].cov(2, 2));
+    score(24, x) = (fit[x].par(3) - true_par(3)) * (fit[x].par(4) - true_par(4)) /
+      sqrt(fit[x].cov(3, 3)) / sqrt(fit[x].cov(4, 4));
+    score(30, x) = fit[x].par(0);
+    score(31, x) = fit[x].par(1);
+    score(32, x) = fit[x].par(2);
+    score(33, x) = fit[x].par(3);
+    score(34, x) = fit[x].par(4);
+    score(35, x) = sqrt(fit[x].cov(0,0));
+    score(36, x) = sqrt(fit[x].cov(1,1));
+    score(37, x) = sqrt(fit[x].cov(2,2));
+    score(38, x) = sqrt(fit[x].cov(3,3));
+    score(39, x) = sqrt(fit[x].cov(4,4));
+
+  }
+
+  double phi_ = score.row(0).mean();
+  double a_ = score.row(1).mean();
+  double pt_ = score.row(2).mean();
+  double coT_ = score.row(3).mean();
+  double Zip_ = score.row(4).mean();
+  std::cout << std::setprecision(5) << std::scientific << label << " AVERAGE FITTED VALUES: \n"
+    << "phi: " << score.row(30).mean() << " +/- " << score.row(35).mean() << " [+/-] " << sqrt(score.row(35).array().abs2().mean() - score.row(35).mean()*score.row(35).mean()) << std::endl
+    << "d0:  " << score.row(31).mean() << " +/- " << score.row(36).mean() << " [+/-] " << sqrt(score.row(36).array().abs2().mean() - score.row(36).mean()*score.row(36).mean()) << std::endl
+    << "pt:  " << score.row(32).mean() << " +/- " << score.row(37).mean() << " [+/-] " << sqrt(score.row(37).array().abs2().mean() - score.row(37).mean()*score.row(37).mean()) << std::endl
+    << "coT: " << score.row(33).mean() << " +/- " << score.row(38).mean() << " [+/-] " << sqrt(score.row(38).array().abs2().mean() - score.row(38).mean()*score.row(38).mean()) << std::endl
+    << "Zip: " << score.row(34).mean() << " +/- " << score.row(39).mean() << " [+/-] " << sqrt(score.row(39).array().abs2().mean() - score.row(39).mean()*score.row(39).mean()) << std::endl;
+
+  Matrix5d correlation;
+  correlation << 1., score.row(21).mean(), score.row(22).mean(), score.row(15).mean(),
+              score.row(20).mean(), score.row(21).mean(), 1., score.row(23).mean(), score.row(16).mean(),
+              score.row(19).mean(), score.row(22).mean(), score.row(23).mean(), 1., score.row(17).mean(),
+              score.row(20).mean(), score.row(15).mean(), score.row(16).mean(), score.row(17).mean(), 1.,
+              score.row(24).mean(), score.row(18).mean(), score.row(19).mean(), score.row(20).mean(),
+              score.row(24).mean(), 1.;
+
+  cout << "\n" << label << " PULLS (mean, sigma, relative_error):\n"
+    << "phi:  " << phi_ << "     "
+    << sqrt((score.row(0).array() - phi_).square().sum() / (iteration - 1)) << "   "
+    << abs(score.row(10).mean()) << "%\n"
+    << "a0 :  " << a_ << "     "
+    << sqrt((score.row(1).array() - a_).square().sum() / (iteration - 1)) << "   "
+    << abs(score.row(11).mean()) << "%\n"
+    << "pt :  " << pt_ << "     "
+    << sqrt((score.row(2).array() - pt_).square().sum() / (iteration - 1)) << "   "
+    << abs(score.row(12).mean()) << "%\n"
+    << "coT:  " << coT_ << "     "
+    << sqrt((score.row(3).array() - coT_).square().sum() / (iteration - 1)) << "   "
+    << abs(score.row(13).mean()) << "%\n"
+    << "Zip:  " << Zip_ << "     "
+    << sqrt((score.row(4).array() - Zip_).square().sum() / (iteration - 1)) << "   "
+    << abs(score.row(14).mean()) << "%\n\n"
+    << "cov(phi,a0)_:  " << score.row(5).mean() << "\n"
+    << "cov(phi,pt)_:  " << score.row(6).mean() << "\n"
+    << "cov(a0,pt)_:   " << score.row(7).mean() << "\n"
+    << "cov(coT,Zip)_: " << score.row(8).mean() << "\n\n"
+    << "chi2_circle:  " << score.row(9).mean() << " vs " << n_ - 3 << "\n"
+    << "chi2_line:    " << score.row(25).mean() << " vs " << n_ - 2 << "\n\n"
+    << "correlation matrix:\n"
+    << correlation << "\n\n"
+    << endl;
+
+  phi_pull.Fit("gaus", "Q");
+  dxy_pull.Fit("gaus", "Q");
+  dz_pull.Fit("gaus", "Q");
+  theta_pull.Fit("gaus", "Q");
+  pt_pull.Fit("gaus", "Q");
+  phi_pull.Write();
+  dxy_pull.Write();
+  dz_pull.Write();
+  theta_pull.Write();
+  pt_pull.Write();
+  phi_error.Write();
+  dxy_error.Write();
+  dz_error.Write();
+  theta_error.Write();
+  pt_error.Write();
+}
+
+
 void test_helix_fit() {
   int n_;
-  int iteration;
-  int debug2 = 0;
   bool return_err;
   const double B_field = 3.8 * c_speed / pow(10, 9) / 100;
   Matrix<double, 6, 1> gen_par;
   Vector5d true_par;
   Vector5d err;
-//  while (1) {
-    generator.seed(1);
-    int debug = 0;
-    debug2 = 0;
-    std::cout << std::setprecision(6);
-    cout << "_________________________________________________________________________\n";
-    cout << "n x(cm) y(cm) z(cm) phi(grad) R(Gev/c) eta iteration return_err debug" << endl;
-//    cin >> n_ >> gen_par(0) >> gen_par(1) >> gen_par(2) >> gen_par(3) >> gen_par(4) >> gen_par(5) >>
-//        iteration >> return_err >> debug2;
-    n_ = 4;
-    gen_par(0) = -0.1;  // x
-    gen_par(1) = 0.1;   // y
-    gen_par(2) = -1.;  // z
-    gen_par(3) = 45.;   // phi
-    gen_par(4) = 10.;   // R (p_t)
-    gen_par(5) = 1.;   // eta
-    iteration = 1;
-    return_err = 1;
-    debug2 = 1;
+  generator.seed(1);
+  std::cout << std::setprecision(6);
+  cout << "_________________________________________________________________________\n";
+  cout << "n x(cm) y(cm) z(cm) phi(grad) R(Gev/c) eta iteration return_err debug" << endl;
+  cout << "hits: ";
+  cin  >> n_;
+  cout << "x: ";
+  cin  >> gen_par(0);
+  cout << "y: ";
+  cin  >> gen_par(1);
+  cout << "z: ";
+  cin  >> gen_par(2);
+  cout << "phi: ";
+  cin  >> gen_par(3);
+  cout << "p_t: ";
+  cin  >> gen_par(4);
+  cout << "eta: ";
+  cin  >> gen_par(5);
+  //
+  /*
+     n_ = 4;
+     gen_par(0) = -0.1;  // x
+     gen_par(1) = 0.1;   // y
+     gen_par(2) = -1.;  // z
+     gen_par(3) = 45.;   // phi
+     gen_par(4) = 10.;   // R (p_t)
+     gen_par(5) = 1.;   // eta
+     iteration = 1;
+     */
+  return_err = 1;
 
-    iteration *= 10;
-    gen_par = New_par(gen_par, 1, B_field);
-    true_par = True_par(gen_par, 1, B_field);
-    Matrix3xNd hits;
-    Matrix3Nd hits_cov;
-    unique_ptr<helix_fit[]> helix(new helix_fit[iteration]);
-//    helix_fit* helix = new helix_fit[iteration];
-    Matrix<double, 41, Dynamic, 1> score(41, iteration);
+  const int iteration = 5000;
+  gen_par = New_par(gen_par, 1, B_field);
+  true_par = True_par(gen_par, 1, B_field);
+  Matrix3xNd hits;
+  Matrix3Nd hits_cov;
+  std::array<helix_fit, iteration> helixRiemann_fit;
+//  std::array<BrokenLine::helix_fit, iteration> helixBrokenLine_fit;
 
-    for (int i = 0; i < iteration; i++) {
-      if (debug2 == 1 && i == (iteration - 1)) {
-        debug = 1;
-      }
-      hits_gen gen;
-      gen = Hits_gen(n_, gen_par);
-//      gen.hits = MatrixXd::Zero(3, 4);
-//      gen.hits_cov = MatrixXd::Zero(3 * 4, 3 * 4);
-//      gen.hits.col(0) << 1.82917642593, 2.0411875248, 7.18495464325;
-//      gen.hits.col(1) << 4.47041416168, 4.82704305649, 18.6394691467;
-//      gen.hits.col(2) << 7.25991010666, 7.74653434753, 30.6931324005;
-//      gen.hits.col(3) << 8.99161434174, 9.54262828827, 38.1338043213;
-      helix[i] = Rfit::Helix_fit(gen.hits, gen.hits_cov, B_field, return_err);
+  std::cout << "\nTrue parameters: "
+    << "phi: " << true_par(0) << " "
+    << "dxy: " << true_par(1) << " "
+    << "pt: " << true_par(2) << " "
+    << "CotT: " << true_par(3) << " "
+    << "Zip: " << true_par(4) << " "
+    << std::endl;
+  for (int i = 0; i < iteration; i++) {
+    hits_gen gen;
+    gen = Hits_gen(n_, gen_par);
+    //      gen.hits = MatrixXd::Zero(3, 4);
+    //      gen.hits_cov = MatrixXd::Zero(3 * 4, 3 * 4);
+    //      gen.hits.col(0) << 1.82917642593, 2.0411875248, 7.18495464325;
+    //      gen.hits.col(1) << 4.47041416168, 4.82704305649, 18.6394691467;
+    //      gen.hits.col(2) << 7.25991010666, 7.74653434753, 30.6931324005;
+    //      gen.hits.col(3) << 8.99161434174, 9.54262828827, 38.1338043213;
+    helixRiemann_fit[i] = Rfit::Helix_fit(gen.hits, gen.hits_cov, B_field, return_err);
+//    helixBrokenLine_fit[i] = BrokenLine::Helix_fit(gen.hits, gen.hits_cov, B_field);
 
-      if (debug)
-        cout << std::setprecision(10)
-            << "phi:  " << helix[i].par(0) << " +/- " << sqrt(helix[i].cov(0, 0)) << " vs "
-            << true_par(0) << endl
-            << "Tip:  " << helix[i].par(1) << " +/- " << sqrt(helix[i].cov(1, 1)) << " vs "
-            << true_par(1) << endl
-            << "p_t:  " << helix[i].par(2) << " +/- " << sqrt(helix[i].cov(2, 2)) << " vs "
-            << true_par(2) << endl
-            << "theta:" << helix[i].par(3) << " +/- " << sqrt(helix[i].cov(3, 3)) << " vs "
-            << true_par(3) << endl
-            << "Zip:  " << helix[i].par(4) << " +/- " << sqrt(helix[i].cov(4, 4)) << " vs "
-            << true_par(4) << endl
-            << "charge:" << helix[i].q << " vs 1" << endl
-            << "covariance matrix:" << endl
-            << helix[i].cov << endl
-            << "Initial hits:\n" << gen.hits << endl
-            << "Initial Covariance:\n" << gen.hits_cov << endl;
-    }
-
-    for (int x = 0; x < iteration; x++) {
-      // Compute PULLS information
-      score(0, x) = (helix[x].par(0) - true_par(0)) / sqrt(helix[x].cov(0, 0));
-      score(1, x) = (helix[x].par(1) - true_par(1)) / sqrt(helix[x].cov(1, 1));
-      score(2, x) = (helix[x].par(2) - true_par(2)) / sqrt(helix[x].cov(2, 2));
-      score(3, x) = (helix[x].par(3) - true_par(3)) / sqrt(helix[x].cov(3, 3));
-      score(4, x) = (helix[x].par(4) - true_par(4)) / sqrt(helix[x].cov(4, 4));
-      score(5, x) =
-          (helix[x].par(0) - true_par(0)) * (helix[x].par(1) - true_par(1)) / (helix[x].cov(0, 1));
-      score(6, x) =
-          (helix[x].par(0) - true_par(0)) * (helix[x].par(2) - true_par(2)) / (helix[x].cov(0, 2));
-      score(7, x) =
-          (helix[x].par(1) - true_par(1)) * (helix[x].par(2) - true_par(2)) / (helix[x].cov(1, 2));
-      score(8, x) =
-          (helix[x].par(3) - true_par(3)) * (helix[x].par(4) - true_par(4)) / (helix[x].cov(3, 4));
-      score(9, x) = helix[x].chi2_circle;
-      score(25, x) = helix[x].chi2_line;
-      score(10, x) = sqrt(helix[x].cov(0, 0)) / helix[x].par(0) * 100;
-      score(13, x) = sqrt(helix[x].cov(3, 3)) / helix[x].par(3) * 100;
-      score(14, x) = sqrt(helix[x].cov(4, 4)) / helix[x].par(4) * 100;
-      score(15, x) = (helix[x].par(0) - true_par(0)) * (helix[x].par(3) - true_par(3)) /
-                     sqrt(helix[x].cov(0, 0)) / sqrt(helix[x].cov(3, 3));
-      score(16, x) = (helix[x].par(1) - true_par(1)) * (helix[x].par(3) - true_par(3)) /
-                     sqrt(helix[x].cov(1, 1)) / sqrt(helix[x].cov(3, 3));
-      score(17, x) = (helix[x].par(2) - true_par(2)) * (helix[x].par(3) - true_par(3)) /
-                     sqrt(helix[x].cov(2, 2)) / sqrt(helix[x].cov(3, 3));
-      score(18, x) = (helix[x].par(0) - true_par(0)) * (helix[x].par(4) - true_par(4)) /
-                     sqrt(helix[x].cov(0, 0)) / sqrt(helix[x].cov(4, 4));
-      score(19, x) = (helix[x].par(1) - true_par(1)) * (helix[x].par(4) - true_par(4)) /
-                     sqrt(helix[x].cov(1, 1)) / sqrt(helix[x].cov(4, 4));
-      score(20, x) = (helix[x].par(2) - true_par(2)) * (helix[x].par(4) - true_par(4)) /
-                     sqrt(helix[x].cov(2, 2)) / sqrt(helix[x].cov(4, 4));
-      score(21, x) = (helix[x].par(0) - true_par(0)) * (helix[x].par(1) - true_par(1)) /
-                     sqrt(helix[x].cov(0, 0)) / sqrt(helix[x].cov(1, 1));
-      score(22, x) = (helix[x].par(0) - true_par(0)) * (helix[x].par(2) - true_par(2)) /
-                     sqrt(helix[x].cov(0, 0)) / sqrt(helix[x].cov(2, 2));
-      score(23, x) = (helix[x].par(1) - true_par(1)) * (helix[x].par(2) - true_par(2)) /
-                     sqrt(helix[x].cov(1, 1)) / sqrt(helix[x].cov(2, 2));
-      score(24, x) = (helix[x].par(3) - true_par(3)) * (helix[x].par(4) - true_par(4)) /
-                     sqrt(helix[x].cov(3, 3)) / sqrt(helix[x].cov(4, 4));
-    }
-
-    double phi_ = score.row(0).mean();
-    double a_ = score.row(1).mean();
-    double pt_ = score.row(2).mean();
-    double coT_ = score.row(3).mean();
-    double Zip_ = score.row(4).mean();
-    Matrix5d correlation;
-    correlation << 1., score.row(21).mean(), score.row(22).mean(), score.row(15).mean(),
-        score.row(20).mean(), score.row(21).mean(), 1., score.row(23).mean(), score.row(16).mean(),
-        score.row(19).mean(), score.row(22).mean(), score.row(23).mean(), 1., score.row(17).mean(),
-        score.row(20).mean(), score.row(15).mean(), score.row(16).mean(), score.row(17).mean(), 1.,
-        score.row(24).mean(), score.row(18).mean(), score.row(19).mean(), score.row(20).mean(),
-        score.row(24).mean(), 1.;
-
-    cout << "\nPULLS:\n"
-         << "phi:  " << phi_ << "     "
-         << sqrt((score.row(0).array() - phi_).square().sum() / (iteration - 1)) << "   "
-         << abs(score.row(10).mean()) << "%\n"
-         << "a0 :  " << a_ << "     "
-         << sqrt((score.row(1).array() - a_).square().sum() / (iteration - 1)) << "   "
-         << abs(score.row(11).mean()) << "%\n"
-         << "pt :  " << pt_ << "     "
-         << sqrt((score.row(2).array() - pt_).square().sum() / (iteration - 1)) << "   "
-         << abs(score.row(12).mean()) << "%\n"
-         << "coT:  " << coT_ << "     "
-         << sqrt((score.row(3).array() - coT_).square().sum() / (iteration - 1)) << "   "
-         << abs(score.row(13).mean()) << "%\n"
-         << "Zip:  " << Zip_ << "     "
-         << sqrt((score.row(4).array() - Zip_).square().sum() / (iteration - 1)) << "   "
-         << abs(score.row(14).mean()) << "%\n\n"
-         << "cov(phi,a0)_:  " << score.row(5).mean() << "\n"
-         << "cov(phi,pt)_:  " << score.row(6).mean() << "\n"
-         << "cov(a0,pt)_:   " << score.row(7).mean() << "\n"
-         << "cov(coT,Zip)_: " << score.row(8).mean() << "\n\n"
-         << "chi2_circle:  " << score.row(9).mean() << " vs " << n_ - 3 << "\n"
-         << "chi2_line:    " << score.row(25).mean() << " vs " << n_ - 2 << "\n\n"
-         << "correlation matrix:\n"
-         << correlation << "\n\n"
-         << endl;
-//  }
+    std::cout << std::endl;
+    /*
+    if (debug)
+      cout << std::setprecision(6)
+        << "phi:  " << helixRiemann_fit[i].par(0) << " +/- " << sqrt(helixRiemann_fit[i].cov(0, 0)) << " vs "
+        << true_par(0) << endl
+        << "Tip:  " << helixRiemann_fit[i].par(1) << " +/- " << sqrt(helixRiemann_fit[i].cov(1, 1)) << " vs "
+        << true_par(1) << endl
+        << "p_t:  " << helixRiemann_fit[i].par(2) << " +/- " << sqrt(helixRiemann_fit[i].cov(2, 2)) << " vs "
+        << true_par(2) << endl
+        << "theta:" << helixRiemann_fit[i].par(3) << " +/- " << sqrt(helixRiemann_fit[i].cov(3, 3)) << " vs "
+        << true_par(3) << endl
+        << "Zip:  " << helixRiemann_fit[i].par(4) << " +/- " << sqrt(helixRiemann_fit[i].cov(4, 4)) << " vs "
+        << true_par(4) << endl
+        << "charge:" << helixRiemann_fit[i].q << " vs 1" << endl
+        << "covariance matrix:" << endl
+        << helixRiemann_fit[i].cov << endl
+        << "Initial hits:\n" << gen.hits << endl
+        << "Initial Covariance:\n" << gen.hits_cov << endl;
+        */
+  }
+  computePull(helixRiemann_fit, "Riemann", n_, iteration, true_par);
+//  computePull(helixBrokenLine_fit, "BrokenLine", n_, iteration, true_par);
 }
 
 int main() {
+  TFile f("TestFitResults.root", "RECREATE");
   test_helix_fit();
+  f.Close();
   return 0;
 }
