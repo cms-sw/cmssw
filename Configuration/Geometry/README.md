@@ -26,8 +26,8 @@ Fast Timing system:
 * I2: Fast Timing detector (LYSO barrel, silicon endcap), only sensitive layers
 * I3: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO tiles
 * I4: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars
-* I5: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z
-* I6: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z flat
+* I5: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z flat
+* I6: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z flat no hole between modules
 
 The script also handles the common and forward elements of the geometry:
 * O2: detailed cavern description
