@@ -32,7 +32,7 @@ class CSCMotherboardME11 : public CSCUpgradeMotherboard
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
   void run(const CSCWireDigiCollection* wiredc,
-	   const CSCComparatorDigiCollection* compdc);
+           const CSCComparatorDigiCollection* compdc) override;
 
   /** Returns vectors of found correlated LCTs in ME1a and ME1b, if any. */
   std::vector<CSCCorrelatedLCTDigi> getLCTs1a() const;
