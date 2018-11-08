@@ -18,7 +18,7 @@ TauWPThreshold::TauWPThreshold(const std::string& cut_str)
     try {
         size_t pos = 0;
         value_ = std::stod(cut_str, &pos);
-        simple_value = pos == cut_str.size();
+        simple_value = (pos == cut_str.size());
     } catch(std::invalid_argument&) {
     } catch(std::out_of_range&) {
     }
