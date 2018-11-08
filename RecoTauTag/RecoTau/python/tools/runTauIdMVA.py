@@ -592,7 +592,7 @@ class TauIDEmbedder(object):
         if "deepTau2017v1" in self.toKeep or "deepTau2017v1Q" in self.toKeep:
             print "Adding DeepTau IDs"
 
-            working_points = {
+            workingPoints_ = {
                 "e": {
                     "VVVLoose" : 0.96424,
                     "VVLoose" : 0.98992,
@@ -635,7 +635,7 @@ class TauIDEmbedder(object):
                     memMapped              = self.cms.bool(False)
                 )
 
-                self.processDeepProducer('deepTau2017v1', tauIDSources, working_points)
+                self.processDeepProducer('deepTau2017v1', tauIDSources, workingPoints_)
 
                 self.process.rerunMvaIsolationTask.add(self.process.deepTau2017v1)
                 self.process.rerunMvaIsolationSequence += self.process.deepTau2017v1
@@ -649,7 +649,7 @@ class TauIDEmbedder(object):
                     memMapped              = self.cms.bool(False)
                 )
 
-                self.processDeepProducer('deepTau2017v1Q', tauIDSources, working_points)
+                self.processDeepProducer('deepTau2017v1Q', tauIDSources, workingPoints_)
 
                 self.process.rerunMvaIsolationTask.add(self.process.deepTau2017v1Q)
                 self.process.rerunMvaIsolationSequence += self.process.deepTau2017v1Q
@@ -659,12 +659,12 @@ class TauIDEmbedder(object):
         if "DPFTau_2016_v0" in self.toKeep or "DPFTau_2016_v0Q" in self.toKeep:
             print "Adding DPFTau isolation (v0)"
 
-            working_points = {
+            workingPoints_ = {
                 "all": {
                     "Tight" : "if(decayMode == 0) return (0.898328 - 0.000160992 * pt);" + \
                               "if(decayMode == 1) return (0.910138 - 0.000229923 * pt);" + \
                               "if(decayMode == 10) return (0.873958 - 0.0002328 * pt);" + \
-                              "return 1.0;"
+                              "return 99.0;"
                     #"Tight" : "? decayMode == 0 ? (0.898328 - 0.000160992 * pt) : " +
                     #          "(? decayMode == 1 ? 0.910138 - 0.000229923 * pt : " +
                     #          "(? decayMode == 10 ? (0.873958 - 0.0002328 * pt) : 1))"
@@ -684,7 +684,7 @@ class TauIDEmbedder(object):
                     memMapped   = self.cms.bool(False)
                 )
 
-                self.processDeepProducer('dpfTau2016v0', tauIDSources, working_points)
+                self.processDeepProducer('dpfTau2016v0', tauIDSources, workingPoints_)
 
                 self.process.rerunMvaIsolationTask.add(self.process.dpfTau2016v0)
                 self.process.rerunMvaIsolationSequence += self.process.dpfTau2016v0
@@ -699,7 +699,7 @@ class TauIDEmbedder(object):
                     memMapped   = self.cms.bool(False)
                 )
 
-                self.processDeepProducer('dpfTau2016v0Q', tauIDSources, working_points)
+                self.processDeepProducer('dpfTau2016v0Q', tauIDSources, workingPoints_)
 
                 self.process.rerunMvaIsolationTask.add(self.process.dpfTau2016v0Q)
                 self.process.rerunMvaIsolationSequence += self.process.dpfTau2016v0Q
@@ -709,7 +709,7 @@ class TauIDEmbedder(object):
             print "WARNING: WPs are not defined for DPFTau_2016_v1"
             print "WARNING: The score of DPFTau_2016_v1 is inverted: i.e. for Sig->0, for Bkg->1 with -1 for undefined input (preselection not passed)."
 
-            working_points = {
+            workingPoints_ = {
                 "all": {"Tight" : 0.123} #FIXME: define WP
             }
 
@@ -723,7 +723,7 @@ class TauIDEmbedder(object):
                     memMapped   = self.cms.bool(False)
                 )
 
-                self.processDeepProducer('dpfTau2016v1', tauIDSources, working_points)
+                self.processDeepProducer('dpfTau2016v1', tauIDSources, workingPoints_)
 
                 self.process.rerunMvaIsolationTask.add(self.process.dpfTau2016v1)
                 self.process.rerunMvaIsolationSequence += self.process.dpfTau2016v1
@@ -738,7 +738,7 @@ class TauIDEmbedder(object):
                     memMapped   = self.cms.bool(False)
                 )
 
-                self.processDeepProducer('dpfTau2016v1Q', tauIDSources, working_points)
+                self.processDeepProducer('dpfTau2016v1Q', tauIDSources, workingPoints_)
 
                 self.process.rerunMvaIsolationTask.add(self.process.dpfTau2016v1Q)
                 self.process.rerunMvaIsolationSequence += self.process.dpfTau2016v1Q
@@ -751,8 +751,8 @@ class TauIDEmbedder(object):
         setattr(self.process, self.updatedTauName, embedID)
 
 
-    def processDeepProducer(self, producer_name, tauIDSources, working_points):
-        for target,points in working_points.iteritems():
+    def processDeepProducer(self, producer_name, tauIDSources, workingPoints_):
+        for target,points in workingPoints_.iteritems():
             cuts = self.cms.PSet()
             setattr(tauIDSources, 'by{}VS{}raw'.format(producer_name[0].upper()+producer_name[1:], target),
                         self.cms.InputTag(producer_name, 'VS{}'.format(target)))

@@ -29,12 +29,12 @@ namespace deep_tau {
 
 class TauWPThreshold {
 public:
-    explicit TauWPThreshold(const std::string& cut_str);
+    explicit TauWPThreshold(const std::string& cutStr);
     double operator()(const pat::Tau& tau) const;
 
 private:
-    std::unique_ptr<TF1> fn;
-    double value;
+    std::unique_ptr<TF1> fn_;
+    double value_;
 };
 
 class DeepTauCache {
@@ -46,13 +46,13 @@ public:
 
    // A Session allows concurrent calls to Run(), though a Session must
    // be created / extended by a single thread.
-   tensorflow::Session& getSession() const { return *session; }
-   const tensorflow::GraphDef& getGraph() const { return *graph; }
+   tensorflow::Session& getSession() const { return *session_; }
+   const tensorflow::GraphDef& getGraph() const { return *graph_; }
 
 protected:
-    GraphPtr graph;
-    tensorflow::Session* session;
-    std::unique_ptr<tensorflow::MemmappedEnv> memmapped_env;
+    GraphPtr graph_;
+    tensorflow::Session* session_;
+    std::unique_ptr<tensorflow::MemmappedEnv> memmappedEnv_;
 };
 
 class DeepTauBase : public edm::stream::EDProducer<edm::GlobalCache<DeepTauCache>> {
@@ -73,32 +73,32 @@ public:
         using ResultMap = std::map<std::string, std::unique_ptr<TauDiscriminator>>;
         std::vector<size_t> num, den;
 
-        Output(const std::vector<size_t>& _num, const std::vector<size_t>& _den) : num(_num), den(_den) {}
+        Output(const std::vector<size_t>& num_, const std::vector<size_t>& den_) : num(num_), den(den_) {}
 
         ResultMap get_value(const edm::Handle<TauCollection>& taus, const tensorflow::Tensor& pred,
-                            const WPMap& working_points) const;
+                            const WPMap& workingPoints_) const;
     };
 
     using OutputCollection = std::map<std::string, Output>;
 
 
-    DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputs, const DeepTauCache* cache);
+    DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputs_, const DeepTauCache* cache_);
     virtual ~DeepTauBase() {}
 
     virtual void produce(edm::Event& event, const edm::EventSetup& es) override;
 
     static std::unique_ptr<DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg);
-    static void globalEndJob(const DeepTauCache* cache){ }
+    static void globalEndJob(const DeepTauCache* cache_){ }
 private:
     virtual tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
                                               edm::Handle<TauCollection> taus) = 0;
     virtual void createOutputs(edm::Event& event, const tensorflow::Tensor& pred, edm::Handle<TauCollection> taus);
 
 protected:
-    edm::EDGetTokenT<TauCollection> taus_token;
-    std::map<std::string, WPMap> working_points;
-    OutputCollection outputs;
-    const DeepTauCache* cache;
+    edm::EDGetTokenT<TauCollection> tausToken_;
+    std::map<std::string, WPMap> workingPoints_;
+    OutputCollection outputs_;
+    const DeepTauCache* cache_;
 };
 
 } // namespace deep_tau
