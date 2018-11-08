@@ -12,10 +12,6 @@ int BTLDetId::iphi( CrysLayout lay ) const {
       kCrystalsInPhi = kCrystalsInPhiBar ;
       break ;
     }
-    case CrysLayout::barz  : {
-      kCrystalsInPhi = kCrystalsInPhiBarZ ;
-      break ;
-    }
     case CrysLayout::barzflat  : {
       kCrystalsInPhi = kCrystalsInPhiBarZ ;
       break ;
@@ -45,12 +41,6 @@ int BTLDetId::ietaAbs( CrysLayout lay ) const {
       kTypeBoundaries = kTypeBoundariesReference;
       break ;
     }
-    case CrysLayout::barz  : {
-      kCrystalsInEta = kCrystalsInEtaBarZ ;
-      kCrystalsInPhi = kCrystalsInPhiBarZ ;
-      kTypeBoundaries = kTypeBoundariesReference;
-      break ;
-    }
     case CrysLayout::barzflat  : {
       kCrystalsInEta = kCrystalsInEtaBarZ ;
       kCrystalsInPhi = kCrystalsInPhiBarZ ;
@@ -77,11 +67,6 @@ int BTLDetId::hashedIndex( CrysLayout lay ) const {
     case CrysLayout::bar : {
       max_iphi = MAX_IPHI_BAR;
       max_ieta = MAX_IETA_BAR;
-      break ;
-    }
-    case CrysLayout::barz : {
-      max_iphi = MAX_IPHI_BARZ;
-      max_ieta = MAX_IETA_BARZ;
       break ;
     }
     case CrysLayout::barzflat : {
@@ -115,14 +100,6 @@ BTLDetId BTLDetId::getUnhashedIndex( int hi, CrysLayout lay ) const {
       max_ieta = MAX_IETA_BAR;
       nphi = kCrystalsInPhiBar;
       keta = kCrystalsInEtaBar;
-      kTypeBoundaries = kTypeBoundariesReference;
-      break ;
-    }
-    case CrysLayout::barz : {
-      max_iphi = MAX_IPHI_BARZ;
-      max_ieta = MAX_IETA_BARZ;
-      nphi = kCrystalsInPhiBarZ;
-      keta = kCrystalsInEtaBarZ;
       kTypeBoundaries = kTypeBoundariesReference;
       break ;
     }

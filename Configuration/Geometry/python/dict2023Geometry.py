@@ -861,13 +861,13 @@ timingDict = {
         1 : [
             'Geometry/MTDCommonData/data/btl.xml',
             'Geometry/MTDCommonData/data/etl.xml',
-            'Geometry/MTDCommonData/data/CrystalBarZ/mtd.xml',
+            'Geometry/MTDCommonData/data/CrystalBarZflat/mtd.xml',
             ],
         3 : [
-            'Geometry/MTDSimData/data/CrystalBar/mtdsens.xml'
+            'Geometry/MTDSimData/data/CrystalBarZflat/mtdsens.xml'
             ],
         4 : [
-            'Geometry/MTDSimData/data/CrystalBar/mtdProdCuts.xml'
+            'Geometry/MTDSimData/data/CrystalBarZflat/mtdProdCuts.xml'
             ],
         "sim" : [
             'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
@@ -887,7 +887,7 @@ timingDict = {
         1 : [
             'Geometry/MTDCommonData/data/btl.xml',
             'Geometry/MTDCommonData/data/etl.xml',
-            'Geometry/MTDCommonData/data/CrystalBarZflat/mtd.xml',
+            'Geometry/MTDCommonData/data/CrystalBarZflatNOhole/mtd.xml',
             ],
         3 : [
             'Geometry/MTDSimData/data/CrystalBarZflat/mtdsens.xml'

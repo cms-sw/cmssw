@@ -56,7 +56,7 @@ class BTLDetId : public MTDDetId {
   static constexpr int MAX_HASH =  2*MAX_IPHI_TILE*MAX_IETA_TILE-1; // the total amount is invariant per tile or bar)
   static constexpr int kSizeForDenseIndexing = MAX_HASH + 1 ;
 
-  enum class CrysLayout { tile = 1 , bar = 2 , barz = 3 , barzflat = 4} ;
+  enum class CrysLayout { tile = 1 , bar = 2 , barzflat = 3} ;
   
   // ---------- Constructors, enumerated types ----------
   
