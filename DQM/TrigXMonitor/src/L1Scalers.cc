@@ -380,7 +380,12 @@ void L1Scalers::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   return;
 }
 
-void L1Scalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-                                   const edm::EventSetup& iSetup) {
+std::shared_ptr<l1s::Empty> L1Scalers::globalBeginLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
+                                                            const edm::EventSetup &c) const {
+  return std::shared_ptr<l1s::Empty>();
+}
+
+void L1Scalers::globalEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+                                         const edm::EventSetup& iSetup) {
   nLumiBlock_->Fill(lumiSeg.id().luminosityBlock());
 }

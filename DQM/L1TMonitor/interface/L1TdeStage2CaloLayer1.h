@@ -28,7 +28,7 @@
 
 using namespace l1t;
 
-class L1TdeStage2CaloLayer1 : public DQMEDAnalyzer {
+class L1TdeStage2CaloLayer1 : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   public:
     L1TdeStage2CaloLayer1(const edm::ParameterSet& ps);
     ~L1TdeStage2CaloLayer1() override;

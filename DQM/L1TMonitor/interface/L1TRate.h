@@ -46,7 +46,7 @@
 // class declaration
 //
 
-class L1TRate : public DQMEDAnalyzer {
+class L1TRate : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 
   public:
 

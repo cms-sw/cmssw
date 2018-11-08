@@ -138,7 +138,7 @@ class TH2FFiller : public FillerBase {
 };
 }
 
-class DummyBookFillDQMStoreMultiThread :  public DQMEDAnalyzer {
+class DummyBookFillDQMStoreMultiThread :  public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
  public:
   using PSets = std::vector<edm::ParameterSet>;
   explicit DummyBookFillDQMStoreMultiThread(const edm::ParameterSet&);

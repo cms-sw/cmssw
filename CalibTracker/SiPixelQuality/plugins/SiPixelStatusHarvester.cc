@@ -51,7 +51,7 @@ using namespace edm;
 
 //--------------------------------------------------------------------------------------------------
 SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1Base(iConfig),
+  HistogramManagerHolder(iConfig),
   outputBase_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<std::string>("outputBase")),
   aveDigiOcc_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<int>("aveDigiOcc")),
   nLumi_(iConfig.getParameter<edm::ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<int>("resetEveryNLumi")),
@@ -81,6 +81,14 @@ void SiPixelStatusHarvester::beginJob() { }
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::endJob() { }  
 
+//--------------------------------------------------------------------------------------------------
+void
+SiPixelStatusHarvester::bookHistograms( DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const& iSetup )
+{
+  for( auto& histoman : histo ){
+    histoman.book( iBooker, iSetup );
+  }
+}
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 

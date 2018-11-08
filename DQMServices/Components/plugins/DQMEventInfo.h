@@ -29,7 +29,7 @@
 #include <map>
 #include <sys/time.h>
 
-class DQMEventInfo: public DQMEDAnalyzer{
+class DQMEventInfo: public DQMEDAnalyzer {
 
 public:
 
@@ -44,7 +44,6 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
 
 private:
 
@@ -52,7 +51,6 @@ private:
 
   DQMStore *dbe_;
 
-  edm::ParameterSet parameters_;
   std::string eventInfoFolder_;
   std::string subsystemname_;
 

@@ -10,7 +10,7 @@
 
 class MonitorElement;
 
-class ESIntegrityTask : public DQMEDAnalyzer {
+class ESIntegrityTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
 
    public:
 
