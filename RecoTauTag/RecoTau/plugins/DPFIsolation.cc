@@ -25,8 +25,8 @@ public:
     static OutputCollection& GetOutputs()
     {
         static size_t tau_index = 0;
-        static OutputCollection outputs = { { "VSall", Output({tau_index}, {}) } };
-        return outputs;
+        static OutputCollection outputs_ = { { "VSall", Output({tau_index}, {}) } };
+        return outputs_;
     };
 
     static unsigned getNumberOfParticles(unsigned graphVersion)
@@ -65,14 +65,14 @@ public:
         descriptions.add("DPFTau2016v0", desc);
     }
 
-    explicit DPFIsolation(const edm::ParameterSet& cfg,const deep_tau::DeepTauCache* cache) :
-        DeepTauBase(cfg, GetOutputs(), cache),
+    explicit DPFIsolation(const edm::ParameterSet& cfg,const deep_tau::DeepTauCache* cache_) :
+        DeepTauBase(cfg, GetOutputs(), cache_),
         pfcand_token(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("pfcands"))),
         vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
         graphVersion(cfg.getParameter<unsigned>("version"))
     {
         if(!(graphVersion == 1 || graphVersion == 0 ))
-            throw cms::Exception("DPFIsolation") << "unknown version of the graph file.";
+            throw cms::Exception("DPFIsolation") << "unknown version of the graph_ file.";
     }
 
 private:
@@ -90,7 +90,7 @@ private:
 
         tensorflow::Tensor predictions(tensorflow::DT_FLOAT, { static_cast<int>(taus->size()), 1});
 
-        std::vector<tensorflow::Tensor> outputs;
+        std::vector<tensorflow::Tensor> outputs_;
 
         float pfCandPt, pfCandPz, pfCandPtRel, pfCandPzRel, pfCandDr, pfCandDEta, pfCandDPhi, pfCandEta, pfCandDz,
               pfCandDzErr, pfCandD0, pfCandD0D0, pfCandD0Dz, pfCandD0Dphi, pfCandPuppiWeight,
@@ -366,8 +366,8 @@ private:
                 }
                 iPF++;
             }
-            tensorflow::run(&(cache->getSession()), { { "input_1", tensor } }, { "output_node0" }, {}, &outputs);
-            predictions.matrix<float>()(tau_index, 0) = outputs[0].flat<float>()(0);
+            tensorflow::run(&(cache_->getSession()), { { "input_1", tensor } }, { "output_node0" }, {}, &outputs_);
+            predictions.matrix<float>()(tau_index, 0) = outputs_[0].flat<float>()(0);
         }
         return predictions;
     }
