@@ -15,7 +15,7 @@
 ///Data Format
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 
-class RPCDcsInfo: public DQMEDAnalyzer{
+class RPCDcsInfo: public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
 
 public:
 

@@ -16,7 +16,10 @@ class MonitorElement ;
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-class ElectronDqmAnalyzerBase : public DQMEDAnalyzer
+namespace edab {
+  struct Empty {};
+}
+class ElectronDqmAnalyzerBase : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<edab::Empty>>
  {
 
   protected:
@@ -26,7 +29,8 @@ class ElectronDqmAnalyzerBase : public DQMEDAnalyzer
 
     // specific implementation of EDAnalyzer
     void endRun( edm::Run const &, edm::EventSetup const & )  override;
-    void endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) override ;
+    std::shared_ptr<edab::Empty> globalBeginLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) const final ;
+    void globalEndLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) final ;
     void dqmBeginRun( edm::Run const & , edm::EventSetup const & )  override;
     void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 

@@ -75,7 +75,11 @@ void ElectronDqmAnalyzerBase::endRun( edm::Run const &, edm::EventSetup const & 
    }
  }
 
-void ElectronDqmAnalyzerBase::endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & )
+std::shared_ptr<edab::Empty> 
+ElectronDqmAnalyzerBase::globalBeginLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) const {
+  return std::shared_ptr<edab::Empty>();
+}
+void ElectronDqmAnalyzerBase::globalEndLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & )
  {
   if (finalStep_=="AtLumiEnd")
    {

@@ -25,7 +25,7 @@
 class BeamFitter;
 class PVFitter;
 
-class AlcaBeamMonitor : public DQMEDAnalyzer {
+class AlcaBeamMonitor : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
  public:
   AlcaBeamMonitor( const edm::ParameterSet& );
   ~AlcaBeamMonitor() override;

@@ -22,7 +22,7 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-class DQMDcsInfo: public DQMEDAnalyzer{
+class DQMDcsInfo: public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
 
 public:
 
