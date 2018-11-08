@@ -32,15 +32,6 @@ L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TRPCTF: constructor...." << endl;
 
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-  if ( !outputFile_.empty() ) {
-    cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
-  }
-
-  bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
-  if(disable){
-    outputFile_="";
-  }
 }
 
 
@@ -344,21 +335,5 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
 
   if(verbose_) cout << "L1TRPCTF: end job...." << endl;
   LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
-  
-}
-
-void L1TRPCTF::beginLuminosityBlock(const edm::LuminosityBlock& l, 
-                                    const edm::EventSetup& c){
-//    m_rpcDigiWithBX0=0;
-//    m_rpcDigiWithBXnon0=0;
-//    m_bxs.clear();
-//    m_useRpcDigi = true;
-
-                          
-}
-
-
-
-void L1TRPCTF::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
   
 }
