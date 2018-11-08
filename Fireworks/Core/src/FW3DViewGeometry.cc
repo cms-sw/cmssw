@@ -421,24 +421,22 @@ void
 FW3DViewGeometry::showHGCalEE(bool showHGCalEE){
    if( showHGCalEE && !m_HGCalEEElements ){
       m_HGCalEEElements = new TEveElementList("HGCalEE");
-      std::vector<unsigned int> ids = m_geom->getMatchedIds( FWGeometry::HGCalEE );
-      for( std::vector<unsigned int>::const_iterator id = ids.begin();
-            id != ids.end(); ++id )
+      for( const auto& id : m_geom->getMatchedIds( FWGeometry::HGCalEE ))
       {
-         TEveGeoShape* shape = m_geom->getHGCSiliconEveShape( *id );
-         shape->SetTitle(Form("HGCalEE %d",*id));
+         TEveGeoShape* shape = m_geom->getHGCSiliconEveShape( id );
+         shape->SetTitle(Form("HGCalEE %d",id));
          {
-            const unsigned int layer = (*id>>20)&0x1F;
+            const unsigned int layer = (id>>20)&0x1F;
             float color[3];
             color[0] = color[1] = color[2] = 0.3f + 0.7f*(1.0f-layer/28.0f); 
             color[1] = 0.5f*(layer&2U) + 0.5f*color[1];
-            const bool isFine = ((*id>>26)&0x3) == 0;
+            const bool isFine = ((id>>26)&0x3) == 0;
             color[0] *= isFine ? 1.0f : 1.0f;
             color[1] *= isFine ? 1.0f : 0.4f;
             color[2] *= isFine ? 0.0f : 0.0f;
             shape->SetMainColorRGB( color[0], color[1], color[2] );
             shape->SetPickable(false);
-            m_colorComp[HGCalEEColorIndex]->AddElement(shape);
+            m_colorComp[kFwHGCalEEColorIndex]->AddElement(shape);
          }
          m_HGCalEEElements->AddElement( shape );
       }
@@ -454,24 +452,22 @@ void
 FW3DViewGeometry::showHGCalHSi(bool showHGCalHSi){
   if( showHGCalHSi && !m_HGCalHSiElements ){
     m_HGCalHSiElements = new TEveElementList("HGCalHSi");
-    std::vector<unsigned int> ids = m_geom->getMatchedIds( FWGeometry::HGCalHSi );
-    for( std::vector<unsigned int>::const_iterator id = ids.begin();
-          id != ids.end(); ++id )
+    for( const auto& id : m_geom->getMatchedIds( FWGeometry::HGCalHSi ))
     {
-        TEveGeoShape* shape = m_geom->getHGCSiliconEveShape( *id );
-        shape->SetTitle(Form("HGCalHSi %d",*id));
+        TEveGeoShape* shape = m_geom->getHGCSiliconEveShape( id );
+        shape->SetTitle(Form("HGCalHSi %d",id));
         {
-            const unsigned int layer = (*id>>20)&0x1F;
+            const unsigned int layer = (id>>20)&0x1F;
             float color[3];
             color[0] = color[1] = color[2] = 0.3f + 0.7f*(1.0f-layer/28.0f); 
             color[0] = 0.5f*(layer&2U) + 0.5f*color[0];
-            const bool isFine = ((*id>>26)&0x3) == 0;
+            const bool isFine = ((id>>26)&0x3) == 0;
             color[0] *= isFine ? 1.0f : 0.4f;
             color[1] *= isFine ? 0.7f : 0.7f;
             color[2] *= isFine ? 0.2f : 0.2f;
             shape->SetMainColorRGB( color[0], color[1], color[2] );
             shape->SetPickable(false);
-            m_colorComp[HGCalEEColorIndex]->AddElement(shape);
+            m_colorComp[kFwHGCalHSiColorIndex]->AddElement(shape);
         }
         m_HGCalHSiElements->AddElement( shape );
     }
@@ -488,11 +484,10 @@ void FW3DViewGeometry::showHGCalHSc(bool showHGCalHSc){
    {
       m_HGCalHScElements = new TEveElementList( "HGCalHSc" );
       std::vector<unsigned int> ids = m_geom->getMatchedIds( FWGeometry::HGCalHSc );
-      for( std::vector<unsigned int>::const_iterator id = ids.begin();
-	    id != ids.end(); ++id )
+      for( const auto& id : m_geom->getMatchedIds( FWGeometry::HGCalHSc ))
       {
-        TEveGeoShape* shape = m_geom->getHGCScintillatorEveShape( *id ); 
-        addToCompound(shape, HGCalHScColorIndex);
+        TEveGeoShape* shape = m_geom->getHGCScintillatorEveShape( id ); 
+        addToCompound(shape, kFwHGCalHScColorIndex);
         m_HGCalHScElements->AddElement( shape );
       }
       AddElement( m_HGCalHScElements );

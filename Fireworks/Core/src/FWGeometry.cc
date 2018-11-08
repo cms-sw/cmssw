@@ -229,10 +229,10 @@ std::vector<unsigned int>
 FWGeometry::getMatchedIds( Detector det ) const
 {
    std::vector<unsigned int> ids;
-   for( IdToInfoItr it = m_idToInfo.begin(), itEnd = m_idToInfo.end();
-	it != itEnd; ++it )
+   
+   for(const auto& it : m_idToInfo)
    {
-      if( (( it->id >> kDetOffset ) & 0xF) != det ) continue;
+      if( (( it.id >> kDetOffset ) & 0xF) != det ) continue;
       // select only the 1st layer
       // if(((it->id>>17)&0x1F) != 12) continue;
 
@@ -240,15 +240,15 @@ FWGeometry::getMatchedIds( Detector det ) const
       if(det != HGCalHSc){
         bool flag(false);
 
-        for(std::vector<unsigned int>::iterator id_it = ids.begin(); id_it != ids.end(); ++id_it) {
-           flag = (~0x3FF & it->id) == (~0x3FF & *id_it);
+        for(const auto& id_it : ids) {
+           flag = (~0x3FF & it.id) == (~0x3FF & id_it);
            if(flag) break;
         }
 
         if(flag) continue;
       }
       
-      ids.push_back( it->id );
+      ids.push_back( it.id );
    }
    return ids;
 }
@@ -330,7 +330,7 @@ FWGeometry::getHGCSiliconEveShape( unsigned int id  ) const
    id &= ~0x3FF;
    id |= (type == 0) ? 0x16B : 0xE7;
 #else
-   float sideToSideWaferSize = 16.7441;
+   float sideToSideWaferSize = 16.7441f;
    float dx = sideToSideWaferSize/2;
    float sidey = dx/sqrt(3);
    float dy = 2*sidey;

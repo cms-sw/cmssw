@@ -53,14 +53,14 @@ FWCaloParticleProxyBuilder::build( const FWEventItem* iItem, TEveElementList* pr
 
    if( collection == nullptr ) return;
 
-   for( std::vector<CaloParticle>::const_iterator iData = collection->begin(), end = collection->end(); iData != end; ++iData )
+   for( const auto & iData : *collection )
    {
       TEveBoxSet* boxset = new TEveBoxSet();
       boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
       boxset->UseSingleColor();
       boxset->SetPickable(true);
 
-      for (const auto & c : iData->simClusters())
+      for (const auto & c : iData.simClusters())
       {
          auto clusterDetIds = (*c).hits_and_fractions();
 
