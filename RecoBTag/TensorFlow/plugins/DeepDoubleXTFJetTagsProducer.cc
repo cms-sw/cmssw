@@ -137,7 +137,7 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::vector<std::string>>("output_names",
     { "ID_pred/Softmax" });
 
-  {
+  //{
   edm::ParameterSetDescription psBvL;
   psBvL.add<std::vector<unsigned int>>("probQCD", {0});
   psBvL.add<std::vector<unsigned int>>("probHbb", {1});
@@ -158,7 +158,7 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
     "CvB" >> (edm::ParameterDescription<edm::ParameterSetDescription>("flav_table", psCvB, true) and 
 		edm::ParameterDescription<edm::FileInPath>("graph_path",  edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.pb"), true)) 
     );
-  }
+  //}
 
   desc.add<bool>("batch_eval", false);
 
