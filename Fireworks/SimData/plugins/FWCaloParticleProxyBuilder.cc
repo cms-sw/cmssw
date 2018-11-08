@@ -62,14 +62,11 @@ FWCaloParticleProxyBuilder::build( const FWEventItem* iItem, TEveElementList* pr
 
       for (const auto & c : iData.simClusters())
       {
-         auto clusterDetIds = (*c).hits_and_fractions();
-
-         for( auto it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
-            it != itEnd; ++it )
+         for( const auto & it : (*c).hits_and_fractions() )
          {  
-            const float* corners = item()->getGeom()->getCorners( it->first );
-            const float* parameters = item()->getGeom()->getParameters( it->first );
-            const float* shapes = item()->getGeom()->getShapePars(it->first);
+            const float* corners = item()->getGeom()->getCorners( it.first );
+            const float* parameters = item()->getGeom()->getParameters( it.first );
+            const float* shapes = item()->getGeom()->getShapePars(it.first);
 
             if( corners == nullptr || parameters == nullptr || shapes == nullptr ) {
                continue;
