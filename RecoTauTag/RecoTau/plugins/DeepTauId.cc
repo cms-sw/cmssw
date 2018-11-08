@@ -249,17 +249,10 @@ public:
         desc.add<edm::InputTag>("electrons", edm::InputTag("slimmedElectrons"));
         desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
-<<<<<<< HEAD
-        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N.pb");
-<<<<<<< HEAD
-=======
-=======
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb");
->>>>>>> 1968c81d039... -Overall, changes to improve memory usage, among these are:
         desc.add<bool>("memMapped", false);
 
 
->>>>>>> 0410883ea87... Applied changes on DeepTauBase to allow load new training files using memory mapping
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
         descWP.add<std::string>("VVLoose", "0");
@@ -277,8 +270,8 @@ public:
     }
 
 public:
-    explicit DeepTauId(const edm::ParameterSet& cfg, const deep_tau::DeepTauCache* cache_) :
-        DeepTauBase(cfg, GetOutputs(), cache_),
+    explicit DeepTauId(const edm::ParameterSet& cfg, const deep_tau::DeepTauCache* cache) :
+        DeepTauBase(cfg, GetOutputs(), cache),
         electrons_token(consumes<ElectronCollection>(cfg.getParameter<edm::InputTag>("electrons"))),
         muons_token(consumes<MuonCollection>(cfg.getParameter<edm::InputTag>("muons"))),
         input_layer(cache_->getGraph().node(0).name()),
@@ -324,15 +317,9 @@ private:
     {
         static constexpr bool check_all_set = false;
         static constexpr float magic_number = -42;
-<<<<<<< HEAD
-        const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(tau_index, var_index); };
-        const TauType& tau = taus.at(tau_index);
-=======
-        static const TauIdMVAAuxiliaries clusterVariables;
 
         tensorflow::Tensor inputs(tensorflow::DT_FLOAT, { 1, dnn_inputs_2017v1::NumberOfInputs});
         const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
->>>>>>> ef7dc2ec57c... - Implemented on runTauIdMVA the option to work with new training files quantized
         auto leadChargedHadrCand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get());
 
         if(check_all_set) {
@@ -372,15 +359,9 @@ private:
         get(dnn::pt_weighted_dr_signal) = reco::tau::pt_weighted_dr_signal(tau, tau.decayMode());
         get(dnn::pt_weighted_dr_iso) = reco::tau::pt_weighted_dr_iso(tau, tau.decayMode());
         get(dnn::leadingTrackNormChi2) = tau.leadingTrackNormChi2();
-<<<<<<< HEAD
         get(dnn::e_ratio) = reco::tau::eratio(tau);
         get(dnn::gj_angle_diff) = CalculateGottfriedJacksonAngleDifference(tau);
         get(dnn::n_photons) = reco::tau::n_photons_total(tau);
-=======
-        get(dnn::e_ratio) = clusterVariables.tau_Eratio(tau);
-        get(dnn::gj_angle_diff) = calculateGottfriedJacksonAngleDifference(tau);
-        get(dnn::n_photons) = clusterVariables.tau_n_photons_total(tau);
->>>>>>> 1968c81d039... -Overall, changes to improve memory usage, among these are:
         get(dnn::emFraction) = tau.emFraction_MVA();
         get(dnn::has_gsf_track) = leadChargedHadrCand && std::abs(leadChargedHadrCand->pdgId()) == 11;
         get(dnn::inside_ecal_crack) = isInEcalCrack(tau.p4().Eta());
