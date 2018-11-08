@@ -1,7 +1,7 @@
 #include "JsonWritingTimeoutPoolOutputModule.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "DQMServices/Components/src/DQMFileSaver.h"
+#include "DQMServices/Components/interface/fillJson.h"
 
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
@@ -40,7 +40,7 @@ void JsonWritingTimeoutPoolOutputModule::doExtrasAfterCloseFile() {
   std::string json_tmp_ = currentJsonName_ + ".open";
   std::string transferDest = "";
   std::string mergeType = "ROOT";
-  auto pt = DQMFileSaver::fillJson(runNumber_, sequence_, currentFileName_,
+  auto pt = dqmfilesaver::fillJson(runNumber_, sequence_, currentFileName_,
                                    transferDest, mergeType, nullptr);
   write_json(json_tmp_, pt);
   rename(json_tmp_.c_str(), currentJsonName_.c_str());
