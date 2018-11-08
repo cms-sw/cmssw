@@ -250,7 +250,7 @@ public:
         desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb");
-        desc.add<bool>("memMapped", false);
+        desc.add<bool>("mem_mapped", false);
 
 
         edm::ParameterSetDescription descWP;
@@ -270,8 +270,8 @@ public:
     }
 
 public:
-    explicit DeepTauId(const edm::ParameterSet& cfg, const deep_tau::DeepTauCache* cache_) :
-        DeepTauBase(cfg, GetOutputs(), cache_),
+    explicit DeepTauId(const edm::ParameterSet& cfg, const deep_tau::DeepTauCache* cache) :
+        DeepTauBase(cfg, GetOutputs(), cache),
         electrons_token(consumes<ElectronCollection>(cfg.getParameter<edm::InputTag>("electrons"))),
         muons_token(consumes<MuonCollection>(cfg.getParameter<edm::InputTag>("muons"))),
         input_layer(cache_->getGraph().node(0).name()),
