@@ -503,13 +503,15 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
             }
                   
             //break;
-          }
-          //else {
             // Assume that the earliest time when another pre-trigger can
             // occur in case pattern detection failed is bx_pretrigger+4:
             // this seems to match the data.
-          start_bx = first_bx[i_wire] + drift_delay + pretrig_extra_deadtime;
-          //}
+            start_bx = first_bx[i_wire] + drift_delay + pretrig_extra_deadtime;
+          }
+          else {
+            //only pretrigger, no trigger ==> no dead time, continue to find next pretrigger
+            start_bx = first_bx[i_wire] + 1;
+          }
         }
         else {//no pretrigger, skip this wiregroup
           break;
