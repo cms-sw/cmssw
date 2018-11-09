@@ -127,8 +127,8 @@ struct Plot_1D{
     overallAvg /= overallSigmaSqInv;
 
     // Update August 2018, implemented autorange for histograms
-    float MaxY=-1000;
-    float MinY=1000;
+    float MaxY=-1000.;
+    float MinY=1000.;
 
 
     for (unsigned int f=0; f<nValidHistos; f++){
