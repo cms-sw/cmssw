@@ -1540,16 +1540,18 @@ bool L1TdeStage2CaloLayer2::compareSums(
                       
           if (dataCentr != emulCentr) {
             eventGood = false;
-                            if (dataCentr==0) centrCountData->Fill(-1);
-                  else {
-                        for (int i=0; i<8; i++)
-                          if (((dataCentr>>i)&1)==1) centrCountData->Fill(i);
-                               }
-                            if (emulCentr==0) centrCountEmul->Fill(-1);
-                              else {
-                                for (int i=0; i<8; i++)
-                                  if (((emulCentr>>i)&1)==1) centrCountEmul->Fill(i);
-                                   }
+            if (dataCentr==0) centrCountData->Fill(-1);
+              else {
+                for (int i=0; i<8; i++)
+                  if (((dataCentr>>i)&1)==1) centrCountData->Fill(i);
+            }
+              
+            if (emulCentr==0) centrCountEmul->Fill(-1);
+              else {
+                for (int i=0; i<8; i++)
+                  if (((emulCentr>>i)&1)==1) centrCountEmul->Fill(i);
+            }
+              
           } else {
             agreementSummary->Fill(SUMGOOD_S);
             sumSummary->Fill(SUMGOOD);
