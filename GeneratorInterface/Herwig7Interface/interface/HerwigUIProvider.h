@@ -26,6 +26,8 @@ public:
 
   /// Requested Herwig run mode
   RunMode::Mode runMode() const { return runMode_; }
+  void setSeed(long seed){ seed_=seed; }
+
 
   /// Try to resume execution from an earlier interrupted run.
   bool resume() const { return resume_; }
