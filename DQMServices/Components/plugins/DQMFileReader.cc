@@ -20,7 +20,7 @@ void
 DQMFileReader::beginJob()
 {
   
-  if (referenceFileName_ != "") 
+  if (!referenceFileName_.empty()) 
   {
     const std::string override = "";
     std::vector<std::string> in ; in.push_back(referenceFileName_);

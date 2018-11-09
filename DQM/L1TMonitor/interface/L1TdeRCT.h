@@ -67,7 +67,7 @@ protected:
 //For FED vector monitoring 
   void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
   std::shared_ptr<l1tderct::Empty> globalBeginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) const override;
-  void globalEndLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override final {}
+  void globalEndLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final {}
   void readFEDVector(MonitorElement*,const edm::EventSetup&) const;
 
 private:
