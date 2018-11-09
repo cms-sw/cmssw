@@ -13,9 +13,9 @@ HLT_ZeroBias_FirstCollisionAfterAbortGap_v*	#	CMSHLT-1264
 AlCa_LumiPixels_Random_v*	#	CMSHLT-1393
 AlCa_LumiPixels_ZeroBias_v*	#	CMSHLT-1393
 HLT_ZeroBias_Beamspot_v*	#	CMSHLT-1572
-HLT_HIL1UnpairedBunchBptxPlus_v*	#	CMSHLT-1673
-HLT_HIL1UnpairedBunchBptxMinus_v*	#	CMSHLT-1673
-HLT_HIL1NotBptxOR_v*	#	CMSHLT-1673
+HLT_HIL1UnpairedBunchBptxPlusForPPRef_v*	#	CMSHLT-1673
+HLT_HIL1UnpairedBunchBptxMinusForPPRef_v*	#	CMSHLT-1673
+HLT_HIL1NotBptxORForPPRef_v*	#	CMSHLT-1673
 HLT_HIHT80_Beamspot_ppRef5TeV_v*	#	CMSHLT-1676
 HLT_HIZeroBias_part0_v*	#	CMSHLT-1674
 HLT_HIZeroBias_part1_v*	#	CMSHLT-1674

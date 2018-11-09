@@ -278,11 +278,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if self._parameters["Puppi"].value and not onMiniAOD:
             self.setParameter('reclusterJets',False)
 
-        #jet collection overloading for automatic jet reclustering or JEC application
-        if reclusterJets:
-            self.setParameter('jetCollectionUnskimmed',cms.InputTag('patJets'))
-
-
         self.apply(process)
 
 
