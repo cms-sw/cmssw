@@ -34,19 +34,25 @@ popcon::EcalTPGWeightIdMapHandler::EcalTPGWeightIdMapHandler(const edm::Paramete
         m_location=ps.getParameter<std::string>("Location");
         m_gentag=ps.getParameter<std::string>("GenTag");
         m_runtype=ps.getParameter<std::string>("RunType");
+	m_file_type = ps.getParameter<std::string>("fileType");           // xml/txt
+	m_file_name = ps.getParameter<std::string>("fileName");
 
         edm::LogInfo("EcalTPGWeightIdMapHandler") << m_sid<<"/"<<m_user<<"/"<<m_location<<"/"<<m_gentag;
 
 }
 
-popcon::EcalTPGWeightIdMapHandler::~EcalTPGWeightIdMapHandler()
-{
+popcon::EcalTPGWeightIdMapHandler::~EcalTPGWeightIdMapHandler() {
 }
 
 
-void popcon::EcalTPGWeightIdMapHandler::getNewObjects()
-{
-
+void popcon::EcalTPGWeightIdMapHandler::getNewObjects() {
+  if(m_file_type == "txt") {
+    readtxtFile();
+  }
+  else if(m_file_type == "xml") {
+    readxmlFile();
+  }
+  else {
 	edm::LogInfo("EcalTPGWeightIdMapHandler") << "Started GetNewObjects!!!";
 
 	//check whats already inside of database
@@ -255,9 +261,107 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects()
 	}
 	  
 	delete econn;
+  }  // usual way
+  edm::LogInfo("EcalTPGWeightIdMapHandler") << "Ecal - > end of getNewObjects -----------";
+}
+void  popcon::EcalTPGWeightIdMapHandler::readtxtFile() {
+  std::cout << " reading the input file " << m_file_name <<  std::endl;
+  std::ifstream fInput;
+  fInput.open(m_file_name);
+  if(!fInput.is_open()) {
+    std::cout << "ERROR : cannot open file " << m_file_name << std::endl;
+    exit (1);
+  }
+  unsigned int wloc[5];
+  EcalTPGWeights w;		
+  EcalTPGWeightIdMap* weightMap = new EcalTPGWeightIdMap;
+  int igroups = 0;
+  for (int ifirst = 0; ifirst < 2; ifirst++) {
+    for (int isecond = 0; isecond < 5; isecond++)
+      fInput >> wloc[isecond];
+    w.setValues(wloc[0], wloc[1], wloc[2], wloc[3], wloc[4]);
+    weightMap->setValue(igroups, w);
+    igroups++;
+  }
+  edm::LogInfo("EcalTPGWeightIdMapHandler") << "found " << igroups << "Weight groups";
+  try{ 
+    Time_t snc= (Time_t) m_firstRun; 	      
+    m_to_transfer.push_back(std::make_pair((EcalTPGWeightIdMap*)weightMap, snc));
+  } catch (std::exception &e) { 
+    std::cout << "EcalTPGWeightIdMapHandler::readtxtFile error : " << e.what() << std::endl;
+  }
+  std::cout<<" **************** "<<std::endl;
+}
 
-	edm::LogInfo("EcalTPGWeightIdMapHandler") << "Ecal - > end of getNewObjects -----------";
-	
+void  popcon::EcalTPGWeightIdMapHandler::readxmlFile() {
+  std::cout << " reading the input file " << m_file_name <<  std::endl;
+  std::ifstream fxml;
+  fxml.open(m_file_name);
+  if(!fxml.is_open()) {
+    std::cout << "ERROR : cannot open file " << m_file_name << std::endl;
+    exit (1);
+  }
+  std::string dummyLine, bid;
+  unsigned int wloc[5];
+  EcalTPGWeights w;		
+  EcalTPGWeightIdMap* weightMap = new EcalTPGWeightIdMap;
+  int ngroups, igroups;
+  edm::LogInfo("EcalTPGWeightIdMapHandler") << "found " << igroups << "Weight groups";
+  for(int i = 0; i < 5; i++) std::getline(fxml, dummyLine);   // skip first lines
+  fxml >> bid;
+  std::string stt = bid.substr(7, 1);
+  std::istringstream sc(stt);
+  sc >> ngroups;
+  if(ngroups != 2) {
+    std::cout << " line : " << bid << " ngroups " << ngroups << std::endl;
+    exit(-1);
+  }
+  for(int i = 0; i < 3; i++) std::getline(fxml, dummyLine);
+  fxml >> bid;
+  stt = bid.substr(7, 1);
+  std::istringstream sg1(stt);
+  sg1 >> igroups;
+  if(igroups != 0) {
+    std::cout << " group 1: " << bid << " igroups " << igroups << std::endl;
+    exit(-1);
+  }
+  for(int i = 0; i < 2; i++) std::getline(fxml, dummyLine);
+  for(int i = 0; i < 5; i++) {
+    fxml >> bid;
+    std::size_t found = bid.find("</");
+    stt = bid.substr(5, found - 5);
+    std::istringstream w(stt);
+    w >> wloc[i];
+  }
+  w.setValues(wloc[0], wloc[1], wloc[2], wloc[3], wloc[4]);
+  weightMap->setValue(igroups, w);
+  // second group
+  for(int i = 0; i < 4; i++) std::getline(fxml, dummyLine);
+  fxml >> bid;
+  stt = bid.substr(7, 1);
+  std::istringstream sg2(stt);
+  sg2 >> igroups;
+  if(igroups != 1) {
+    std::cout << " group 2 : " << bid << " igroups " << igroups << std::endl;
+    exit(-1);
+  }
+  for(int i = 0; i < 2; i++) std::getline(fxml, dummyLine);
+  for(int i = 0; i < 5; i++) {
+    fxml >> bid;
+    std::size_t found = bid.find("</");
+    stt = bid.substr(5, found - 5);
+    std::istringstream w(stt);
+    w >> wloc[i];
+  }
+  w.setValues(wloc[0], wloc[1], wloc[2], wloc[3], wloc[4]);
+  weightMap->setValue(igroups, w);
+  try{ 
+    Time_t snc= (Time_t) m_firstRun; 	      
+    m_to_transfer.push_back(std::make_pair((EcalTPGWeightIdMap*)weightMap, snc));
+  } catch (std::exception &e) { 
+    std::cout << "EcalTPGWeightIdMapHandler::readxmlFile error : " << e.what() << std::endl;
+  }
+  std::cout<<" **************** "<<std::endl;
 }
 
 void  popcon::EcalTPGWeightIdMapHandler::readFromFile(const char* inputFile) {
