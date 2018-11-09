@@ -20,6 +20,8 @@ from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -179,9 +181,33 @@ def nanoAOD_addDeepFlavourTagFor94X2016(process):
     return process
 
 
+def nanoAOD_addDeepBoostedJetForPre103X(process):
+    print("Updating process to run DeepBoostedJet on datasets before 103X")
+    from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
+    updateJetCollection(
+       process,
+       jetSource = cms.InputTag('slimmedJetsAK8'),
+       pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+       svSource = cms.InputTag('slimmedSecondaryVertices'),
+       rParam = 0.8,
+       jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual']), 'None'),
+       btagDiscriminators = pfDeepBoostedJetTagsAll,
+       postfix='AK8Puppi',
+       printWarning = False
+       )
+    process.looseJetIdAK8.src = "selectedUpdatedPatJetsAK8Puppi"
+    process.tightJetIdAK8.src = "selectedUpdatedPatJetsAK8Puppi"
+    process.tightJetIdLepVetoAK8.src = "selectedUpdatedPatJetsAK8Puppi"
+    process.slimmedJetsAK8WithUserData.src = "selectedUpdatedPatJetsAK8Puppi"
+    return process
+
+
 def nanoAOD_customizeCommon(process):
     run2_miniAOD_80XLegacy.toModify(process, nanoAOD_addDeepBTagFor80X)
     run2_nanoAOD_94X2016.toModify(process, nanoAOD_addDeepFlavourTagFor94X2016)
+    for modifier in run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
+        # FIXME: need to add the era modifier for 102X as well
+        modifier.toModify(process, nanoAOD_addDeepBoostedJetForPre103X)
     return process
 
 
