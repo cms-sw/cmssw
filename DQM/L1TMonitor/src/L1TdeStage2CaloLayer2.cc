@@ -1036,24 +1036,24 @@ bool L1TdeStage2CaloLayer2::compareSums(
           emulEt = emulIt->hwPt();
 
           if (dataEt != emulEt) {
-        eventGood = false;
+            eventGood = false;
 
-        ettData->Fill(dataEt);
-        ettEmul->Fill(emulEt);
+            ettData->Fill(dataEt);
+            ettEmul->Fill(emulEt);
           } else {
-        agreementSummary->Fill(SUMGOOD_S);
-        sumSummary->Fill(SUMGOOD);
-        sumSummary->Fill(ETTSUMGOOD);
+            agreementSummary->Fill(SUMGOOD_S);
+            sumSummary->Fill(SUMGOOD);
+            sumSummary->Fill(ETTSUMGOOD);
           }
 
           if (verbose) {
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "ETT       | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "ETT       | ";
             if (dataEt != emulEt)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
           }
 
           // update sum counters
@@ -1069,24 +1069,24 @@ bool L1TdeStage2CaloLayer2::compareSums(
           emulEt = emulIt->hwPt();
 
           if (dataEt != emulEt) {
-        eventGood = false;
-        ettEmData->Fill(dataEt);
-        ettEmEmul->Fill(emulEt);
+            eventGood = false;
+            ettEmData->Fill(dataEt);
+            ettEmEmul->Fill(emulEt);
 
           } else {
-        agreementSummary->Fill(SUMGOOD_S);
-        sumSummary->Fill(SUMGOOD);
-        sumSummary->Fill(ETTSUMGOOD);
+            agreementSummary->Fill(SUMGOOD_S);
+            sumSummary->Fill(SUMGOOD);
+            sumSummary->Fill(ETTSUMGOOD);
           }
 
           if (verbose) {
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "ETTEM     | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "ETTEM     | ";
             if (dataEt != emulEt)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
           }
 
           // update sum counters
@@ -1102,23 +1102,23 @@ bool L1TdeStage2CaloLayer2::compareSums(
           emulEt = emulIt->hwPt();
 
           if (dataEt != emulEt) {
-        eventGood = false;
-        httData->Fill(dataEt);
-        httEmul->Fill(emulEt);
+            eventGood = false;
+            httData->Fill(dataEt);
+            httEmul->Fill(emulEt);
           } else {
-        agreementSummary->Fill(SUMGOOD_S);
-        sumSummary->Fill(SUMGOOD);
-        sumSummary->Fill(HTTSUMGOOD);
+            agreementSummary->Fill(SUMGOOD_S);
+            sumSummary->Fill(SUMGOOD);
+            sumSummary->Fill(HTTSUMGOOD);
           }
 
           if (verbose) {
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "HTT       | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "HTT       | ";
             if (dataEt != emulEt)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
           }
 
           // update sum counters
@@ -1138,42 +1138,42 @@ bool L1TdeStage2CaloLayer2::compareSums(
           emulPhi = emulIt->hwPhi();
 
           if (dataEt != emulEt) {
-        etGood = false;
-        eventGood = false;
+            etGood = false;
+            eventGood = false;
           }
 
           if (dataPhi != emulPhi) {
-        phiGood = false;
-        eventGood = false;
+            phiGood = false;
+            eventGood = false;
           }
 
           if (etGood && phiGood) {
-        agreementSummary->Fill(SUMGOOD_S);
-        sumSummary->Fill(SUMGOOD);
-        sumSummary->Fill(METSUMGOOD);
+            agreementSummary->Fill(SUMGOOD_S);
+            sumSummary->Fill(SUMGOOD);
+            sumSummary->Fill(METSUMGOOD);
           } else {
-        metEtData->Fill(dataEt);
-        metPhiData->Fill(dataPhi);
-        metEtEmul->Fill(emulEt);
-        metPhiEmul->Fill(emulPhi);
+            metEtData->Fill(dataEt);
+            metPhiData->Fill(dataPhi);
+            metEtEmul->Fill(emulEt);
+            metPhiEmul->Fill(emulPhi);
           }
 
           if (verbose) {
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "MET       | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "MET       | ";
             if (dataEt != emulEt)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
 
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "MET phi   | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "MET phi   | ";
             if (dataPhi != emulPhi)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataPhi << "\t" << emulPhi;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataPhi << "\t" << emulPhi;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
           }
 
           // update sum counters
@@ -1193,42 +1193,42 @@ bool L1TdeStage2CaloLayer2::compareSums(
           emulPhi = emulIt->hwPhi();
 
           if (dataEt != emulEt) {
-        etGood = false;
-        eventGood = false;
+            etGood = false;
+            eventGood = false;
           }
 
           if (dataPhi != emulPhi) {
-        phiGood = false;
-        eventGood = false;
+            phiGood = false;
+            eventGood = false;
           }
 
           if (etGood && phiGood) {
-        agreementSummary->Fill(SUMGOOD_S);
-        sumSummary->Fill(SUMGOOD);
-        sumSummary->Fill(METSUMGOOD);
+            agreementSummary->Fill(SUMGOOD_S);
+            sumSummary->Fill(SUMGOOD);
+            sumSummary->Fill(METSUMGOOD);
           } else {
-        metHFEtData->Fill(dataEt);
-        metHFPhiData->Fill(dataPhi);
-        metHFEtEmul->Fill(emulEt);
-        metHFPhiEmul->Fill(emulPhi);
+            metHFEtData->Fill(dataEt);
+            metHFPhiData->Fill(dataPhi);
+            metHFEtEmul->Fill(emulEt);
+            metHFPhiEmul->Fill(emulPhi);
           }
 
           if (verbose) {
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "METHF     | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "METHF     | ";
             if (dataEt != emulEt)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
 
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "METHF phi | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "METHF phi | ";
             if (dataPhi != emulPhi)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataPhi << "\t" << emulPhi;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataPhi << "\t" << emulPhi;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
           }
 
           // update sum counters
@@ -1248,44 +1248,44 @@ bool L1TdeStage2CaloLayer2::compareSums(
           emulPhi = emulIt->hwPhi();
 
           if (dataEt != emulEt) {
-        etGood = false;
-        eventGood = false;
+            etGood = false;
+            eventGood = false;
           }
 
           if (!(etGood && dataEt == 0)) {
-        if (dataPhi != emulPhi) {
-          phiGood = false;
-          eventGood = false;
-        }
+            if (dataPhi != emulPhi) {
+              phiGood = false;
+              eventGood = false;
+            }
           }
 
           if (etGood && phiGood) {
-        agreementSummary->Fill(SUMGOOD_S);
-        sumSummary->Fill(SUMGOOD);
-        sumSummary->Fill(MHTSUMGOOD);
+            agreementSummary->Fill(SUMGOOD_S);
+            sumSummary->Fill(SUMGOOD);
+            sumSummary->Fill(MHTSUMGOOD);
           } else {
-        mhtEtData->Fill(dataEt);
-        mhtPhiData->Fill(dataPhi);
-        mhtEtEmul->Fill(emulEt);
-        mhtPhiEmul->Fill(emulPhi);
+            mhtEtData->Fill(dataEt);
+            mhtPhiData->Fill(dataPhi);
+            mhtEtEmul->Fill(emulEt);
+            mhtPhiEmul->Fill(emulPhi);
           }
 
           if (verbose) {
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "MHT       | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "MHT       | ";
             if (dataEt != emulEt)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
 
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "MHT phi   | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "MHT phi   | ";
             if (dataPhi != emulPhi)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataPhi << "\t" << emulPhi;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataPhi << "\t" << emulPhi;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
           }
 
           // update sum counters
@@ -1305,44 +1305,44 @@ bool L1TdeStage2CaloLayer2::compareSums(
           emulPhi = emulIt->hwPhi();
 
           if (dataEt != emulEt) {
-        phiGood = false;
-        eventGood = false;
+            phiGood = false;
+            eventGood = false;
           }
 
           if (!(etGood && dataEt == 0)) {
-        if (dataPhi != emulPhi) {
-          phiGood = false;
-          eventGood = false;
-        }
+            if (dataPhi != emulPhi) {
+              phiGood = false;
+              eventGood = false;
+            }
           }
 
           if (etGood && phiGood) {
-        agreementSummary->Fill(SUMGOOD_S);
-        sumSummary->Fill(SUMGOOD);
-        sumSummary->Fill(MHTSUMGOOD);
+            agreementSummary->Fill(SUMGOOD_S);
+            sumSummary->Fill(SUMGOOD);
+            sumSummary->Fill(MHTSUMGOOD);
           } else {
             mhtHFEtData->Fill(dataEt);
-        mhtHFPhiData->Fill(dataPhi);
-        mhtHFEtEmul->Fill(emulEt);
-        mhtHFPhiEmul->Fill(emulPhi);
+            mhtHFPhiData->Fill(dataPhi);
+            mhtHFEtEmul->Fill(emulEt);
+            mhtHFPhiEmul->Fill(emulPhi);
           }
 
           if (verbose) {
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "MHTHF     | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "MHTHF     | ";
             if (dataEt != emulEt)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
 
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "MHTHF phi | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "MHTHF phi | ";
             if (dataPhi != emulPhi)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataPhi << "\t" << emulPhi;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataPhi << "\t" << emulPhi;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
           }
 
           // update sum counters
@@ -1358,23 +1358,23 @@ bool L1TdeStage2CaloLayer2::compareSums(
           emulEt = emulIt->hwPt();
 
           if (dataEt != emulEt) {
-        eventGood = false;
-        mbhfp0Data->Fill(dataEt);
-        mbhfp0Emul->Fill(emulEt);
+            eventGood = false;
+            mbhfp0Data->Fill(dataEt);
+            mbhfp0Emul->Fill(emulEt);
           } else {
-        agreementSummary->Fill(SUMGOOD_S);
-        sumSummary->Fill(SUMGOOD);
-        sumSummary->Fill(MBHFSUMGOOD);
+            agreementSummary->Fill(SUMGOOD_S);
+            sumSummary->Fill(SUMGOOD);
+            sumSummary->Fill(MBHFSUMGOOD);
           }
 
           if (verbose) {
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "MBHFP0    | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "MBHFP0    | ";
             if (dataEt != emulEt)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
           }
 
           // update sum counters
@@ -1390,13 +1390,13 @@ bool L1TdeStage2CaloLayer2::compareSums(
           emulEt = emulIt->hwPt();
 
           if (dataEt != emulEt) {
-        eventGood = false;
-        mbhfm0Data->Fill(dataEt);
-        mbhfm0Emul->Fill(emulEt);
+            eventGood = false;
+            mbhfm0Data->Fill(dataEt);
+            mbhfm0Emul->Fill(emulEt);
           } else {
-        agreementSummary->Fill(SUMGOOD_S);
-        sumSummary->Fill(SUMGOOD);
-        sumSummary->Fill(MBHFSUMGOOD);
+            agreementSummary->Fill(SUMGOOD_S);
+            sumSummary->Fill(SUMGOOD);
+            sumSummary->Fill(MBHFSUMGOOD);
           }
 
           // update sum counters
@@ -1412,23 +1412,23 @@ bool L1TdeStage2CaloLayer2::compareSums(
           emulEt = emulIt->hwPt();
 
           if (dataEt != emulEt) {
-        eventGood = false;
-        mbhfp1Data->Fill(dataEt);
-        mbhfp1Emul->Fill(emulEt);
+            eventGood = false;
+            mbhfp1Data->Fill(dataEt);
+            mbhfp1Emul->Fill(emulEt);
           } else {
-        agreementSummary->Fill(SUMGOOD_S);
-        sumSummary->Fill(SUMGOOD);
-        sumSummary->Fill(MBHFSUMGOOD);
+            agreementSummary->Fill(SUMGOOD_S);
+            sumSummary->Fill(SUMGOOD);
+            sumSummary->Fill(MBHFSUMGOOD);
           }
 
           if (verbose) {
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "MBHFP1    | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "MBHFP1    | ";
             if (dataEt != emulEt)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
           }
 
           // update sum counters
@@ -1446,23 +1446,23 @@ bool L1TdeStage2CaloLayer2::compareSums(
           sumSummary->Fill(NMBHFSUMS);
 
           if (dataEt != emulEt) {
-        eventGood = false;
-        mbhfm1Data->Fill(dataEt);
-        mbhfm1Emul->Fill(emulEt);
+            eventGood = false;
+            mbhfm1Data->Fill(dataEt);
+            mbhfm1Emul->Fill(emulEt);
           } else {
-        agreementSummary->Fill(SUMGOOD_S);
-        sumSummary->Fill(SUMGOOD);
-        sumSummary->Fill(MBHFSUMGOOD);
+            agreementSummary->Fill(SUMGOOD_S);
+            sumSummary->Fill(SUMGOOD);
+            sumSummary->Fill(MBHFSUMGOOD);
           }
 
           if (verbose) {
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "MBHFM1    | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "MBHFM1    | ";
             if (dataEt != emulEt)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
           }
 
           agreementSummary->Fill(NSUMS_S);
@@ -1476,23 +1476,23 @@ bool L1TdeStage2CaloLayer2::compareSums(
           emulEt = emulIt->hwPt();
 
           if (dataEt != emulEt) {
-        eventGood = false;
-        towCountData->Fill(dataEt);
-        towCountEmul->Fill(emulEt);
+            eventGood = false;
+            towCountData->Fill(dataEt);
+            towCountEmul->Fill(emulEt);
           } else {
-        agreementSummary->Fill(SUMGOOD_S);
-        sumSummary->Fill(SUMGOOD);
-        sumSummary->Fill(TOWCOUNTGOOD);
+            agreementSummary->Fill(SUMGOOD_S);
+            sumSummary->Fill(SUMGOOD);
+            sumSummary->Fill(TOWCOUNTGOOD);
           }
 
           if (verbose) {
-        edm::LogInfo("L1TdeStage2CaloLayer2") << "TowCount  | ";
+            edm::LogInfo("L1TdeStage2CaloLayer2") << "TowCount  | ";
             if (dataEt != emulEt)
               edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
             else
               edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
-        edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
-        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
+            edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
           }
 
           // update sum counters
