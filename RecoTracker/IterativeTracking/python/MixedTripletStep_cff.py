@@ -344,8 +344,17 @@ trackingPhase1.toReplaceWith(mixedTripletStep, TrackLwtnnClassifier.clone(
      src = 'mixedTripletStepTracks',
      qualityCuts = [-0.8, -0.55, -0.3],
 ))
-highBetaStar_2018.toModify(mixedTripletStep,qualityCuts = [-0.7,0.0,0.5])
-pp_on_AA_2018.toModify(mixedTripletStep, qualityCuts = [-0.5,0.0,0.9])
+
+highBetaStar_2018.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
+     qualityCuts = [-0.7,0.0,0.5],
+     mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1')
+))
+
+pp_on_AA_2018.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
+     qualityCuts = [-0.5,0.0,0.9],
+     mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1')
+))
+
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
