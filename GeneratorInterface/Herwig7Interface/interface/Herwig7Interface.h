@@ -91,6 +91,7 @@ class Herwig7Interface {
 	// File name containing Herwig input config 
 	std::string				dumpConfig_;
 	const unsigned int			skipEvents_;
+    CLHEP::HepRandomEngine* randomEngine;
 };
 
 
