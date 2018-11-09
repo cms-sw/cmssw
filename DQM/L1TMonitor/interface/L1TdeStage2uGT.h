@@ -34,7 +34,6 @@
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include <boost/foreach.hpp>
 
-using namespace l1t;
 
 class L1TdeStage2uGT : public DQMEDAnalyzer {
   public:
@@ -55,7 +54,7 @@ class L1TdeStage2uGT : public DQMEDAnalyzer {
     std::vector<std::string>  triggerBlackList_;
     int numBx_;
     std::string histFolder_;
-    L1TGlobalUtil* gtUtil_;
+    l1t::L1TGlobalUtil* gtUtil_;
     int numLS_;
     uint m_currentLumi;
 
