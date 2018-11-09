@@ -5,7 +5,6 @@ from operator import attrgetter,itemgetter
 import sys
 from collections import defaultdict
 import six
-import yaml 
 
 #----------------------------------------------
 def printHelp():
@@ -348,7 +347,7 @@ def findStalledModules(processingSteps, numStreams):
 
 
 def createModuleTiming(processingSteps, numStreams):
-    
+    import yaml 
     streamTime = [0]*numStreams
     streamState = [0]*numStreams
     moduleTimings = defaultdict(list)
