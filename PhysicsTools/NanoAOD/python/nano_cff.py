@@ -182,7 +182,7 @@ def nanoAOD_addDeepFlavourTagFor94X2016(process):
 
 
 def nanoAOD_addDeepBoostedJetForPre103X(process):
-    print "Updating process to run DeepBoostedJet on datasets before 103X"
+    print("Updating process to run DeepBoostedJet on datasets before 103X")
     from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
     updateJetCollection(
        process,
