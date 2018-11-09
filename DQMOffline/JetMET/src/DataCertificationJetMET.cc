@@ -61,8 +61,6 @@ DataCertificationJetMET::DataCertificationJetMET(const edm::ParameterSet& iConfi
   metTests[1][1] = conf_.getUntrackedParameter<bool>("pfMETKSTest",false);
   metTests[2][0] = conf_.getUntrackedParameter<bool>("tcMETMeanTest",true);
   metTests[2][1] = conf_.getUntrackedParameter<bool>("tcMETKSTest",false);
-
-  isHI = conf_.getUntrackedParameter<bool>("isHI",false);
  
   if (verbose_) std::cout << ">>> Constructor (DataCertificationJetMET) <<<" << std::endl;
 
@@ -605,82 +603,43 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
   MonitorElement *meJetEMFrac[4];
   MonitorElement *meJetConstituents[4];
   RunDir = "";
-  if (RunDir.empty()) newHistoName = "JetMET/Jet/";
+  if (RunDir == "") newHistoName = "JetMET/Jet/";
   else              newHistoName = RunDir+"/JetMET/Runsummary/Jet/";
   std::string cleaningdir = "";
     cleaningdir = "Cleaned";
  
-  // Read different histograms for PbPb and pp collisions
+ //Jet Phi histos
+  meJetPhi[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_Barrel");
+  meJetPhi[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_EndCap");
+  meJetPhi[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_Forward");
+  meJetPhi[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Phi");
+  //meJetPhi[4] = iget_.get(newHistoName+cleaningdir+"JetPlusTrackZSPCorJetAntiKt5/Phi");
 
-  if(isHI){ // Histograms for heavy ions
+  //Jet Eta histos
+  meJetEta[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Eta");
+  meJetEta[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Eta");
+  meJetEta[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/EtaFirst");
+  meJetEta[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Eta");
+  //meJetEta[4] = iget_.get(newHistoName+cleaningdir+"JetPlusTrackZSPCorJetAntiKt5/Eta");
 
-    newHistoName = "JetMET/HIJetValidation/";
-    cleaningdir = "";
+  //Jet Pt histos
+  meJetPt[0]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Pt_Barrel");
+  meJetPt[1]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Pt_EndCap");
+  meJetPt[2]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Pt_Forward");
+  meJetPt[3]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Pt_2");
 
-    //Jet Phi histos
-    meJetPhi[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"Cs4PFJets/Phi");
-    meJetPhi[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"Pu3PFJets/Phi");
-    meJetPhi[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"Pu4PFJets/Phi");
-    meJetPhi[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"Pu4CaloJets/Phi");
+  ////Jet Constituents histos
+  meJetConstituents[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Constituents_Barrel");
+  meJetConstituents[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Constituents_EndCap");
+  meJetConstituents[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Constituents_Forward");
+  meJetConstituents[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Constituents");
+  //
+  ////Jet EMFrac histos
+  meJetEMFrac[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/EFrac_Barrel");
+  meJetEMFrac[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/EFrac_EndCap");
+  meJetEMFrac[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/EFrac_Forward");
+  meJetEMFrac[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/EFrac");
 
-    //Jet Eta histos
-    meJetEta[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"Cs4PFJets/Eta");
-    meJetEta[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"Pu3PFJets/Eta");
-    meJetEta[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"Pu4PFJets/Eta");
-    meJetEta[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"Pu4CaloJets/Eta");
-
-    //Jet Pt histos
-    meJetPt[0]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"Cs4PFJets/Pt");
-    meJetPt[1]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"Pu3PFJets/Pt");
-    meJetPt[2]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"Pu4PFJets/Pt");
-    meJetPt[3]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"Pu4CaloJets/Pt");
-
-    //Jet Constituents histos
-    meJetConstituents[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"Cs4PFJets/Constituents");
-    meJetConstituents[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"Pu3PFJets/Constituents");
-    meJetConstituents[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"Pu4PFJets/Constituents");
-    meJetConstituents[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"Pu4CaloJets/Constituents");
-    
-    //There are no jet EMFrac histograms for HI. Dummy paths will pass the tests by default
-    meJetEMFrac[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"dummy/dummy");
-    meJetEMFrac[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"dummy/dummy");
-    meJetEMFrac[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"dummy/dummy");
-    meJetEMFrac[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"dummy/dummy");
-
-
-  } else { // Histograms for protons
-
-    //Jet Phi histos
-    meJetPhi[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_Barrel");
-    meJetPhi[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_EndCap");
-    meJetPhi[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_Forward");
-    meJetPhi[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Phi");
-
-    //Jet Eta histos
-    meJetEta[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Eta");
-    meJetEta[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Eta");
-    meJetEta[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/EtaFirst");
-    meJetEta[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Eta");
-
-    //Jet Pt histos
-    meJetPt[0]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Pt_Barrel");
-    meJetPt[1]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Pt_EndCap");
-    meJetPt[2]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Pt_Forward");
-    meJetPt[3]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Pt_2");
-
-    //Jet Constituents histos
-    meJetConstituents[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Constituents_Barrel");
-    meJetConstituents[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Constituents_EndCap");
-    meJetConstituents[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Constituents_Forward");
-    meJetConstituents[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Constituents");
-    
-    //Jet EMFrac histos
-    meJetEMFrac[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/EFrac_Barrel");
-    meJetEMFrac[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/EFrac_EndCap");
-    meJetEMFrac[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/EFrac_Forward");
-    meJetEMFrac[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/EFrac");
-
-  }
 				   
   //------------------------------------------------------------------------------
   //--- Extract quality test results and fill data certification results for Jets
@@ -911,12 +870,6 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
     reportSummaryMap->Fill(2, 4-jtyp, dc_Jet[jtyp]);
   }
 
-  // There is nothing on the first row for HI, so mark the unfilled
-  if(isHI){
-    CertificationSummaryMap->Fill(2, 0, -2);
-    reportSummaryMap->Fill(2, 0, -2);
-  }
-
   //-----------------------------
   // MET DQM Data Certification
   //-----------------------------
@@ -929,7 +882,7 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
   MonitorElement *meMETPhi[2];
  
   RunDir = "";
-  if (RunDir.empty()) newHistoName = "JetMET/MET/";
+  if (RunDir == "") newHistoName = "JetMET/MET/";
   else              newHistoName = RunDir+"/JetMET/Runsummary/MET/";
 
     metFolder = "Cleaned";
@@ -1137,13 +1090,6 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
     reportSummaryMap->Fill(1, 4-mtyp, dc_MET[mtyp]);
   }
 
-  // There is nothing on the first three rows for HI, so mark them unfilled
-  if(isHI){
-    for(int i = 0; i < 3; i++){
-      CertificationSummaryMap->Fill(1, i, -2);
-      reportSummaryMap->Fill(1, i, -2);
-    }
-  }
 				   
   //----------------------------------------------------------------------------
   //--- Extract quality test results and fill data certification results for MET
