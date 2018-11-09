@@ -653,7 +653,7 @@ namespace pat {
     void setHcalFraction(float p);                      /// Set the fraction of Hcal needed for HF and neutral hadrons and isolated charged hadrons
     float hcalFraction() const { return (hcalFraction_/100.); }    /// Fraction of Ecal and Hcal for HF and neutral hadrons and isolated charged hadrons
     void setHcalDepthEnergyFractions(const std::array<float,7> & fracs);                      /// set fraction of Hcal energies in each depth
-    float hcalDepthEnergyFraction(unsigned int depth) const { return (hcalDepthEnergyFractions_[depth-1]/100.); }    /// Fraction of Hcal energies in each depth
+    float hcalDepthEnergyFraction(unsigned int depth) const { return (hcalDepthEnergyFractions_[depth-1]/200.); }    /// Fraction of Hcal energies in each depth
 
      // isolated charged hadrons
     void setIsIsolatedChargedHadron(bool p);                      /// Set isolation (as in particle flow, i.e. at calorimeter surface rather than at PV) flat for charged hadrons
@@ -725,7 +725,7 @@ namespace pat {
     int8_t packedPuppiweightNoLepDiff_; // storing the DIFFERENCE of (all - "no lep") for compression optimization
     uint8_t rawCaloFraction_;
     int8_t hcalFraction_;
-    std::array<int8_t,7> hcalDepthEnergyFractions_;
+    std::array<uint8_t,7> hcalDepthEnergyFractions_;
     int16_t packedTime_;
     uint8_t packedTimeError_;
 
