@@ -237,13 +237,13 @@ void splitOptionRecursive(string rawoption, vector<string>& splitoptions, char d
 void getCustomRanges(TString type, TString resonance, int iP, float minmax_plot[2]);
 void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, string linestyles, string markerstyles, TString directory, TString resonance, TString type, bool switchONfit, bool AutoSetRange, float CustomMinY, float CustomMaxY);
 
-void MultiHistoOverlapAll_Base(string files, string labels, string colors, string linestyles, string markerstyles, TString directory, TString resonance, bool switchONfit=false, bool AutoSetRange="false", float CustomMinY=90.85, float CustomMaxY=91.4){
+void MultiHistoOverlapAll_Base(string files, string labels, string colors, string linestyles, string markerstyles, TString directory, TString resonance, bool switchONfit=false, bool AutoSetRange=false, float CustomMinY=90.85, float CustomMaxY=91.4){
   gSystem->mkdir(directory, true);
   MultiHistoOverlapAll_Base_one(files, labels, colors, linestyles, markerstyles, directory, resonance, "mean", switchONfit, AutoSetRange, CustomMinY, CustomMaxY);
   MultiHistoOverlapAll_Base_one(files, labels, colors, linestyles, markerstyles, directory, resonance, "sigma", switchONfit, AutoSetRange, CustomMinY, CustomMaxY);
 }
 
-void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, string linestyles, string markerstyles, TString directory, TString resonance, TString type, bool switchONfit, bool AutoSetRange="false", float CustomMinY=90.85, float CustomMaxY=91.4){
+void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, string linestyles, string markerstyles, TString directory, TString resonance, TString type, bool switchONfit, bool AutoSetRange=false, float CustomMinY=90.85, float CustomMaxY=91.4){
   gROOT->Reset();
   if (TkAlStyle::status() == NO_STATUS) TkAlStyle::set(INTERNAL);
   gROOT->ForceStyle();
