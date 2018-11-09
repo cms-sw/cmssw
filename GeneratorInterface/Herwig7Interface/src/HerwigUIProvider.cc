@@ -183,7 +183,6 @@ void HerwigUIProvider::setRunMode(RunMode::Mode runMode, const edm::ParameterSet
 		ThePEG::SamplerBase::setIntegrationJobs(maxjobs_);
 	}
 }
-
 // End Herwig namespace
 }
 
