@@ -182,12 +182,12 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
 def nanoAOD_recalibrateMETs(process,isData):
     runMetCorAndUncFromMiniAOD(process,isData=isData)
-    process.nanoSequence.insert(process.nanoSequence.index(metSequence),cms.Sequence(process.fullPatMetSequence))
+    process.nanoSequence.insert(process.nanoSequence.index(jetSequence),cms.Sequence(process.fullPatMetSequence))
 #    makePuppiesFromMiniAOD(process,True) # call this before in the global customizer otherwise it would reset photon IDs in VID
     runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi")
     process.puppiNoLep.useExistingWeights = False
     process.puppi.useExistingWeights = False
-    process.nanoSequence.insert(process.nanoSequence.index(metSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
+    process.nanoSequence.insert(process.nanoSequence.index(jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
     return process
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
