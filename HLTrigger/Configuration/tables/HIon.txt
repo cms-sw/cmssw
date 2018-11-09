@@ -33,22 +33,30 @@ HLT_HIMinimumBias_part6_v*
 HLT_HIMinimumBias_part7_v*
 HLT_HIMinimumBias_part8_v*
 HLT_HIMinimumBias_part9_v*
-HLT_HIMinimumBias_part10_v*
-HLT_HIMinimumBias_part11_v*
-HLT_HIMinimumBias_part12_v*
-HLT_HIMinimumBias_part13_v*
-HLT_HIMinimumBias_part14_v*
-HLT_HIMinimumBias_part15_v*
-HLT_HIMinimumBias_part16_v*
-HLT_HIMinimumBias_part17_v*
-HLT_HIMinimumBias_part18_v*
-HLT_HIMinimumBias_part19_v*
-HLT_HIMinimumBias_part20_v*
-HLT_HIMinimumBias_part21_v*
-HLT_HIMinimumBias_part22_v*
-HLT_HIMinimumBias_part23_v*
-HLT_HIMinimumBias_part24_v*
-HLT_HIMinimumBias_part25_v*
+HLT_HIMinimumBiasRF_part0_v*
+HLT_HIMinimumBiasRF_part1_v*
+HLT_HIMinimumBiasRF_part2_v*
+HLT_HIMinimumBiasRF_part3_v*
+HLT_HIMinimumBiasRF_part4_v*
+HLT_HIMinimumBiasRF_part5_v*
+HLT_HIMinimumBiasRF_part6_v*
+HLT_HIMinimumBiasRF_part7_v*
+HLT_HIMinimumBiasRF_part8_v*
+HLT_HIMinimumBiasRF_part9_v*
+HLT_HIMinimumBiasRF_part10_v*
+HLT_HIMinimumBiasRF_part11_v*
+HLT_HIMinimumBiasRF_part12_v*
+HLT_HIMinimumBiasRF_part13_v*
+HLT_HIMinimumBiasRF_part14_v*
+HLT_HIMinimumBiasRF_part15_v*
+HLT_HIMinimumBiasRF_part16_v*
+HLT_HIMinimumBiasRF_part17_v*
+HLT_HIMinimumBiasRF_part18_v*
+HLT_HIMinimumBiasRF_part19_v*
+HLT_HIMinimumBiasRF_part20_v*
+HLT_HIMinimumBiasRF_part21_v*
+HLT_HIMinimumBiasRF_part22_v*
+HLT_HIMinimumBiasRF_part23_v*
 HLT_HIPuAK4CaloJet40Eta5p1_v*
 HLT_HIPuAK4CaloJet60Eta5p1_v*
 HLT_HIPuAK4CaloJet80Eta5p1_v*
@@ -351,6 +359,10 @@ HLT_HIL3Mu2p5NHitQ10_L2Mu2_M7toinf_v*
 HLT_HIUPC_ETT5_Asym50_NotMBHF2OR_v*
 HLT_HIUPC_ETT5_Asym50_NotMBHF2OR_SinglePixelTrack_v*
 
+HLT_HIL1NotBptxOR_v*
+HLT_HIL1UnpairedBunchBptxMinus_v*
+HLT_HIL1UnpairedBunchBptxPlus_v*
+
 HLTriggerFinalPath
 
 HIDQMOutput
@@ -379,6 +391,14 @@ PhysicsHIHeavyFlavorOutput
 PhysicsHIHighMultiplicityOutput
 PhysicsHILowMultiplicityReducedFormatOutput
 PhysicsHIMinimumBias1Output
+PhysicsHIMinimumBias2Output
+PhysicsHIMinimumBias3Output
+PhysicsHIMinimumBias4Output
+PhysicsHIMinimumBias5Output
+PhysicsHIMinimumBias6Output
+PhysicsHIMinimumBias7Output
+PhysicsHIMinimumBias8Output
+PhysicsHIMinimumBias9Output
 PhysicsHIMinimumBiasReducedFormat0Output
 PhysicsHIMinimumBiasReducedFormat1Output
 PhysicsHIMinimumBiasReducedFormat2Output
@@ -391,7 +411,7 @@ PhysicsHIMinimumBiasReducedFormat8Output
 PhysicsHIMinimumBiasReducedFormat9Output
 PhysicsHIMinimumBiasReducedFormat10Output
 PhysicsHIMinimumBiasReducedFormat11Output
-PhysicsHIVirginRawOutput
+PhysicsHITrackerNZSOutput
 PhysicsHIForwardOutput
 
 HLTAnalyzerEndpath              # only in 'HIon', not in 'online'
