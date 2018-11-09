@@ -50,3 +50,16 @@ SKIMStreamPbPbZMM = cms.FilteredStream(
     )
 
 #####################      
+
+from Configuration.Skimming.PbPb_ZMuSkimMuonDPG_cff import *
+ZMuSkimPath = cms.Path( diMuonSelSeq )
+SKIMStreamZMu = cms.FilteredStream(
+    responsible = 'HI PAG',
+    name = 'ZMu',
+    paths = (ZMuSkimPath),
+    content = skimFEVTContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+#####################      
