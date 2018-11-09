@@ -28,8 +28,6 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
 
-#include "DQMServices/Components/src/DQMFileSaver.h"
-
 namespace dqmservices {
 
 class DQMStreamerOutputRepackerTest : public edm::StreamerOutputModuleBase {
