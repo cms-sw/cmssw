@@ -6,7 +6,7 @@
  *
 */
 
-#include "DQMServices/Components/src/DQMDcsInfoClient.h"
+#include "DQMDcsInfoClient.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 // -----------------------------

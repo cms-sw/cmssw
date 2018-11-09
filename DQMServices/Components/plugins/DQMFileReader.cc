@@ -1,4 +1,4 @@
-#include "DQMServices/Components/src/DQMFileReader.h"
+#include "DQMFileReader.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include <iostream>
 
