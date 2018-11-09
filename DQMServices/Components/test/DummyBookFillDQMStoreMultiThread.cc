@@ -147,9 +147,9 @@ class DummyBookFillDQMStoreMultiThread :  public one::DQMEDAnalyzer<one::DQMLumi
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  virtual void beginJob();
+  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob();
+  void endJob() override;
 
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   void beginLuminosityBlock(edm::LuminosityBlock const&,
