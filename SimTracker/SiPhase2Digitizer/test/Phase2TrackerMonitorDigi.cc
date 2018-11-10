@@ -140,6 +140,7 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
       nDigi++;
       edm::LogInfo("Phase2TrackerMonitorDigi")<< "  column " << col << " row " << row  <<
         std::dec  << std::endl;
+      local_mes.ChargeXYMap->Fill(col, row, adc);
       local_mes.PositionOfDigis->Fill(row+1, col+1);
       if (local_mes.ChargeOfDigis) local_mes.ChargeOfDigis->Fill(adc);
       if (row_last == -1 ) {
@@ -420,7 +421,18 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
     local_mes.EtaOccupancyProfP = ibooker.bookProfile(HistoName.str(), HistoName.str(), 
 	  EtaParameters.getParameter<int32_t>("Nbins"),EtaParameters.getParameter<double>("xmin"),EtaParameters.getParameter<double>("xmax"),
           Parameters.getParameter<double>("xmin"),Parameters.getParameter<double>("xmax"),"");
-
+    
+    Parameters =  config_.getParameter<edm::ParameterSet>("ChargeXYMapH");
+    HistoName.str("");
+    HistoName << "ChargeXYMap_" << fname2.str().c_str();
+    local_mes.ChargeXYMap = ibooker.book2D(HistoName.str(), HistoName.str(),
+					       Parameters.getParameter<int32_t>("Nxbins"),
+					       Parameters.getParameter<double>("xmin"),
+					       Parameters.getParameter<double>("xmax"),
+					       Parameters.getParameter<int32_t>("Nybins"),
+					       Parameters.getParameter<double>("ymin"),
+					       Parameters.getParameter<double>("ymax"));
+    
     Parameters =  config_.getParameter<edm::ParameterSet>("PositionOfDigisH");
     HistoName.str("");
     HistoName << "PositionOfDigis_" << fname2.str().c_str();
