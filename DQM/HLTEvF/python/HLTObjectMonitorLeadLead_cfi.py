@@ -17,8 +17,8 @@ caloBJetcsv_moduleName = "hltBTagCaloCSVv2WP0p75SingleJet60HI"
 photon_pathName = "HLT_HIGEDPhoton10"
 photon_moduleName = "hltEG10HoverELoosePPOnAAFilter"
 
-isphoton_pathName = "HLT_HIIslandPhoton10_Eta3p1"
-isphoton_moduleName = "hltHIIslandPhoton10Eta3p1"
+isphoton_pathName = "HLT_HIIslandPhoton10_Eta2p4"
+isphoton_moduleName = "hltHIIslandPhoton10Eta2p4"
 
 electron_pathName = "HLT_HIEle15Gsf"
 electron_moduleName = "hltEle15GsfTrackIsoPPOnAAFilter"
