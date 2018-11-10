@@ -43,7 +43,7 @@ namespace CLHEP {
 class Herwig7Interface {
     public:
 	Herwig7Interface(const edm::ParameterSet &params);
-	~Herwig7Interface();
+	~Herwig7Interface() noexcept;
 
         void setPEGRandomEngine(CLHEP::HepRandomEngine*);
 
