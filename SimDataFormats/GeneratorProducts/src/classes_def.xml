@@ -86,14 +86,13 @@
 	<!-- Classes shared between different kinds of products -->
 
      <class name="gen::PdfInfo" ClassVersion="10">
-  <version ClassVersion="10" checksum="876888052"/>
+    <version ClassVersion="10" checksum="876888052"/>
  </class>
-<!--       <class name="std::auto_ptr&lt;gen::PdfInfo&gt;"/> -->
 
 	<!-- GenRunInfoProduct -->
 
-	<class name="GenRunInfoProduct" ClassVersion="10">
-  <version ClassVersion="10" checksum="3638379298"/>
+        <class name="GenRunInfoProduct" ClassVersion="10">
+        <version ClassVersion="10" checksum="3638379298"/>
  </class>
 	<class name="GenRunInfoProduct::XSec" ClassVersion="10">
   <version ClassVersion="10" checksum="658524022"/>

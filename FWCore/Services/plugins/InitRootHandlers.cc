@@ -257,7 +257,8 @@ namespace {
 
       if (find_if_string(el_message,in_message) ||
           find_if_string(el_location,in_location) ||
-          (level < kError and (el_location.find("CINTTypedefBuilder::Setup")!= std::string::npos) and (el_message.find("possible entries are in use!") != std::string::npos)))
+          (level < kError and (el_location.find("CINTTypedefBuilder::Setup")!= std::string::npos) and (el_message.find("possible entries are in use!") != std::string::npos)) ||
+          ( el_message.find("Inspection for auto_ptr") != std::string::npos ))
       {
         el_severity = edm::RootHandlers::SeverityLevel::kInfo;
       }
