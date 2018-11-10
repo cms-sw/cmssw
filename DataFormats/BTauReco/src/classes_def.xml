@@ -463,6 +463,7 @@
   <class name="reco::DeepFlavourTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::DeepFlavourTagInfoCollection>"/>
 
+  <class name="reco::DeepDoubleBTagInfo"/> 
   <class name="reco::DeepDoubleXTagInfo"/>
   <class name="reco::DeepDoubleXTagInfoCollection"/>
   <class name="reco::DeepDoubleXTagInfoRef"/>

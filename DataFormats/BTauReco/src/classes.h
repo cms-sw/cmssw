@@ -56,6 +56,7 @@
 #include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepDoubleXFeatures.h"
 #include "DataFormats/BTauReco/interface/DeepDoubleXTagInfo.h"
+#include "DataFormats/BTauReco/interface/DeepDoubleBTagInfo.h"  // for posterity
 #include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"
 
 
