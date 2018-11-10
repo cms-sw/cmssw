@@ -673,6 +673,26 @@ HLTObjectMonitorHI::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		 kCnt0 +=1;
 	      }
 	   }
+	   else if (pathName == HIL3DoubleMuJpsiMass_.pathName){
+	      const double mu_mass(.105658);
+	      unsigned int kCnt0 = 0;
+	      for (const auto & key0: keys){
+		 unsigned int kCnt1 = 0;
+		 for (const auto & key1: keys){
+		    if (key0 != key1 && kCnt1 > kCnt0){ // avoid filling hists with same objs && avoid double counting separate objs
+		       if (abs(objects[key0].id()) == 13 && (objects[key0].id()+objects[key1].id()==0)){  // check muon id and dimuon charge
+			  TLorentzVector mu1, mu2, dimu;
+			  mu1.SetPtEtaPhiM(objects[key0].pt(), objects[key0].eta(), objects[key0].phi(), mu_mass);
+			  mu2.SetPtEtaPhiM(objects[key1].pt(), objects[key1].eta(), objects[key1].phi(), mu_mass);
+			  dimu = mu1+mu2;
+			  if(dimu.M()>HIL3DoubleMuJpsiMass_.xMin && dimu.M()<HIL3DoubleMuJpsiMass_.xMax) HIL3DoubleMuJpsiMass_.ME->Fill(dimu.M());
+		       }
+		    }
+		    kCnt1 +=1;
+		 }
+		 kCnt0 +=1;
+	      }
+	   }
 	   else if (pathName == HIDoubleMu0HFVetoInAndMaxTrackPt_.pathName){
 	      const double mu_mass(.105658);
 	      unsigned int kCnt0 = 0;
