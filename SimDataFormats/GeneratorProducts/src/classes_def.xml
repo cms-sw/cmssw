@@ -88,7 +88,7 @@
      <class name="gen::PdfInfo" ClassVersion="10">
   <version ClassVersion="10" checksum="876888052"/>
  </class>
-<!--       <class name="std::auto_ptr&lt;gen::PdfInfo&gt;"/> -->
+      <class name="std::auto_ptr&lt;gen::PdfInfo&gt;"/> 
 
 	<!-- GenRunInfoProduct -->
 
