@@ -26,6 +26,8 @@ Fast Timing system:
 * I2: Fast Timing detector (LYSO barrel, silicon endcap), only sensitive layers
 * I3: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO tiles
 * I4: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars
+* I5: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z flat
+* I6: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z flat no hole between modules
 
 The script also handles the common and forward elements of the geometry:
 * O2: detailed cavern description
@@ -47,5 +49,7 @@ Several detector combinations have been generated:
 * D30 = T6+C5+M2+I1+O2+F2
 * D31 = T6+C6+M2+I1+O2+F3
 * D32 = T6+C7+M2+I1+O2+F2
+* D33 = T6+C3+M2+I5+O2+F2 
+* D34 = T6+C3+M2+I6+O2+F2 
 
 Currently, D17 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.
