@@ -51,8 +51,6 @@ protected:
 // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
  
 private:
@@ -120,12 +118,8 @@ private:
   MonitorElement* lumisecId_;
 
 
-  int nev_; // Number of events processed
   std::string histFolder_;
-  std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
-  bool monitorDaemon_;
-  std::ofstream logFile_;
   
   edm::EDGetTokenT<L1CaloRegionCollection> rctSource_L1CRCollection_;
   edm::EDGetTokenT<L1CaloEmCollection> rctSource_L1CEMCollection_;
