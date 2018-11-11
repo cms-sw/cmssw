@@ -17,13 +17,13 @@
      <version ClassVersion="10" checksum="920043842"/>
     </class>
 	<class name="HepMC::WeightContainer" ClassVersion="16">
-  <version ClassVersion="16" checksum="481001444"/>
-  <version ClassVersion="15" checksum="376377869"/>
   <version ClassVersion="10" checksum="2163093401"/>
   <version ClassVersion="11" checksum="376377869"/>
   <version ClassVersion="12" checksum="2537869863"/>
   <version ClassVersion="13" checksum="1293886956"/>
   <version ClassVersion="14" checksum="481001444"/>
+  <version ClassVersion="15" checksum="376377869"/>
+  <version ClassVersion="16" checksum="481001444"/>
  </class>
 	<class name="HepMC::FourVector" ClassVersion="10">
   <version ClassVersion="10" checksum="3279825169"/>
@@ -85,10 +85,10 @@
 
 	<!-- Classes shared between different kinds of products -->
 
-     <class name="gen::PdfInfo" ClassVersion="10">
+        <class name="gen::PdfInfo" ClassVersion="10">
   <version ClassVersion="10" checksum="876888052"/>
  </class>
-      <class name="std::auto_ptr&lt;gen::PdfInfo&gt;"/> 
+        <class name="std::auto_ptr&lt;gen::PdfInfo&gt;"/>
 
 	<!-- GenRunInfoProduct -->
 
@@ -160,9 +160,12 @@
   <version ClassVersion="11" checksum="4154339631"/>
   <version ClassVersion="10" checksum="2479857328"/>
  </class>
- <ioread sourceClass = "GenEventInfoProduct" version="[-11]" targetClass="GenEventInfoProduct" source = "std::auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
-   <![CDATA[pdf_ = std::make_unique<gen::PdfInfo>(*onfile.pdf_);onfile.pdf_.release();]]>
- </ioread> 
+ <ioread sourceClass = "GenEventInfoProduct" version="[12-]" targetClass="GenEventInfoProduct" source = "std::unique_ptr<GenEventInfoProduct::PDF> pdf_;" target="pdf_">
+   <![CDATA[pdf_ = std::move(onfile.pdf_);]]>
+ </ioread>
+ <ioread sourceClass = "GenEventInfoProduct" version="[-11]" targetClass="GenEventInfoProduct" source = "std::auto_ptr<GenEventInfoProduct::PDF> pdf_;" target="pdf_">
+   <![CDATA[pdf_ = std::unique_ptr<GenEventInfoProduct::PDF>(onfile.pdf_.release());]]>
+ </ioread>
  <ioread sourceClass = "GenEventInfoProduct" version="[-10]" targetClass="GenEventInfoProduct" source = "" target="nMEPartons_">
     <![CDATA[nMEPartons_ = -1;]]>
  </ioread> 
@@ -203,6 +206,12 @@
   <version ClassVersion="14" checksum="905719452"/>
   <version ClassVersion="15" checksum="1277919821"/>
  </class>
+ <ioread sourceClass = "LHEEventProduct" version="[14-]" targetClass="LHEEventProduct" source = "std::unique_ptr<LHEEventProduct::PDF> pdf_;" target="pdf_">
+   <![CDATA[pdf_ = std::move(onfile.pdf_);]]>
+ </ioread> 
+ <ioread sourceClass = "LHEEventProduct" version="[-13]" targetClass="LHEEventProduct" source = "std::auto_ptr<LHEEventProduct::PDF> pdf_;" target="pdf_">
+   <![CDATA[pdf_ = std::unique_ptr<LHEEventProduct::PDF>(onfile.pdf_.release());]]>
+ </ioread> 
  <ioread sourceClass = "LHEEventProduct" version="[-12]" targetClass="LHEEventProduct" source = "" target="npLO_">
     <![CDATA[npLO_ = -99;]]>
   </ioread> 
