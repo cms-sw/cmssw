@@ -74,6 +74,7 @@ class ElectronSeedProducer : public edm::stream::EDProducer<>
     std::unique_ptr<SeedFilter> seedFilter_;
 
     TrajectorySeedCollection * theInitialSeedColl ;
+    const TrajectorySeedCollection * theInitialSeedCollConst ;
 
     // for the filter
     // H/E

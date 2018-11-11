@@ -97,7 +97,7 @@ float PixelHitMatcher::getVertex()
 
 std::vector<SeedWithInfo>
 PixelHitMatcher::compatibleSeeds
- ( TrajectorySeedCollection * seeds, const GlobalPoint & xmeas,
+ ( const TrajectorySeedCollection * seeds, const GlobalPoint & xmeas,
    const GlobalPoint & vprim, float energy, float fcharge )
  {
    typedef std::unordered_map<const GeomDet *, TrajectoryStateOnSurface> DetTsosAssoc;
