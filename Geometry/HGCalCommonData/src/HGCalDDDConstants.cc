@@ -1446,35 +1446,23 @@ bool HGCalDDDConstants::isValidCell(int lay, int wafer, int cell) const {
 
 bool HGCalDDDConstants::waferInLayerTest(int wafer, int lay, bool full) const {
 
-  const double waferX = hgpar_->waferPosX_[wafer];
-  const double waferY = hgpar_->waferPosY_[wafer];
-  double xc[HGCalParameters::k_CornerSize], yc[HGCalParameters::k_CornerSize];
-  xc[0] = waferX;       yc[0] = waferY+hexside_;
-  xc[1] = waferX-rmax_; yc[1] = waferY+0.5*hexside_;
-  if ((mode_ == HGCalGeometryMode::Hexagon) ||
-      (mode_ == HGCalGeometryMode::HexagonFull)) { // Till bug in l1 fixed
-    xc[2] = waferX+rmax_; yc[2] = waferY-0.5*hexside_;
-  } else {
-    xc[2] = waferX-rmax_; yc[2] = waferY-0.5*hexside_;
-  }
-  xc[3] = waferX;       yc[3] = waferY-hexside_;
-  xc[4] = waferX+rmax_; yc[4] = waferY-0.5*hexside_;
-  xc[5] = waferX+rmax_; yc[5] = waferY+0.5*hexside_;
-  bool cornerOne(false), cornerAll(true);
-  for (unsigned int k=0; k<HGCalParameters::k_CornerSize; ++k) {
-    double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
-    if ((rpos >= hgpar_->rMinLayHex_[lay]) && 
-        (rpos <= hgpar_->rMaxLayHex_[lay])) cornerOne = true;
-    else                                    cornerAll = false;
-  }
-  bool in =  full ? cornerOne : cornerAll;
+  bool flag = ((mode_ == HGCalGeometryMode::Hexagon) ||
+               (mode_ == HGCalGeometryMode::HexagonFull)) ? true : false;
+  std::pair<int,int> corner = 
+    HGCalGeomTools::waferCorner(hgpar_->waferPosX_[wafer],
+                                hgpar_->waferPosY_[wafer],
+                                rmax_, hexside_,
+                                hgpar_->rMinLayHex_[lay],
+                                hgpar_->rMaxLayHex_[lay], flag);
+  bool in =  (full ? (corner.first > 0) : 
+              (corner.first == (int)(HGCalParameters::k_CornerSize)));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "WaferInLayerTest: Layer " << lay
                                 << " wafer " << wafer << " R-limits "
                                 << hgpar_->rMinLayHex_[lay] << ":"
                                 << hgpar_->rMaxLayHex_[lay] << " Corners "
-                                << cornerOne << ":" << cornerAll << " In "
-                                << in;
+                                << corner.first << ":" << corner.second
+                                << " In " << in;
 #endif
   return in;
 }

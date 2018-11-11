@@ -11,6 +11,7 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/HGCalCommonData/plugins/DDHGCalEEAlgo.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -273,7 +274,6 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
   double R    = 2.0*r/sqrt3;
   double dy   = 0.75*R;
   int    N    = (int)(0.5*rout/r) + 2;
-  double xc[6], yc[6];
 #ifdef EDM_ML_DEBUG
   int    ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
   std::vector<int>  ntype(6,0);
@@ -290,40 +290,20 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
       int nc =-2*u+v;
       double xpos = nc*r;
       double ypos = nr*dy;
-      xc[0] = xpos;    yc[0] = ypos+R;
-      xc[1] = xpos-r;  yc[1] = ypos+0.5*R;
-      xc[2] = xpos-r;  yc[2] = ypos-0.5*R;
-      xc[3] = xpos;    yc[3] = ypos-R;
-      xc[4] = xpos+r;  yc[4] = ypos-0.5*R;
-      xc[5] = xpos+r;  yc[5] = ypos+0.5*R;
-      bool cornerOne(false), cornerAll(true);
-      int  ncin(0);
-      for (int k=0; k<6; ++k) {
-	double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
-	if (rpos >= rin && rpos <= rout) {
-	  cornerOne = true;
-	  ++ncin;
-	} else {
-	  cornerAll = false;
-	}
-      }
+      std::pair<int,int> corner = 
+	HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
 #ifdef EDM_ML_DEBUG
       ++ntot;
-      if ((!cornerOne && std::abs(u) < 5 && std::abs(v) < 5) ||
+      if (((corner.first <= 0) && std::abs(u) < 5 && std::abs(v) < 5) ||
 	  (std::abs(u) < 2 && std::abs(v) < 2)) {
 	edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.ddname() 
 				      << " R " << rin << ":" << rout 
 				      << "\n Z " << zpos << " LayerType " 
 				      << layertype << " u " << u << " v " << v
-				      << " with " << ncin << " corners";
-	for (int k=0; k<6; ++k) {
-	  double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
-	  edm::LogVerbatim("HGCalGeom") << "[" << k << "] x " << xc[k] << " y "
-					<< yc[k] << " R " << rpos;
-	}
+				      << " with " << corner.first <<" corners";
       }
 #endif
-      if (cornerOne) {
+      if (corner.first > 0) {
 	int type = waferType_->getType(xpos,ypos,zpos);
 	int copy = type*1000000 + iv*100 + iu;
 	if (u < 0) copy += 10000;
@@ -334,7 +314,7 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
 	kount++;
 	if (copies_.count(copy) == 0) copies_.insert(copy);
 #endif
-	if (cornerAll) {
+	if (corner.first == (int)(HGCalParameters::k_CornerSize)) {
 #ifdef EDM_ML_DEBUG
 	  if (iu > iumAll) iumAll = iu;
 	  if (iv > ivmAll) ivmAll = iv;
