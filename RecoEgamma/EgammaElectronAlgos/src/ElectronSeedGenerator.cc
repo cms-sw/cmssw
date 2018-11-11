@@ -220,9 +220,9 @@ bool equivalent( const TrajectorySeed & s1, const TrajectorySeed & s2 )
 void  ElectronSeedGenerator::run
  ( edm::Event & e, const edm::EventSetup & setup,
    const reco::SuperClusterRefVector & sclRefs, const std::vector<float> & hoe1s, const std::vector<float> & hoe2s,
-   const TrajectorySeedCollection * seeds, reco::ElectronSeedCollection & out )
+   const std::vector<const TrajectorySeedCollection *>& seedsV, reco::ElectronSeedCollection & out )
  {
-  theInitialSeedColl = seeds ;
+   theInitialSeedCollV = &seedsV;
 //  bool duplicateTrajectorySeeds =false ;
 //  unsigned int i,j ;
 //  for (i=0;i<seeds->size();++i)
@@ -259,9 +259,6 @@ void  ElectronSeedGenerator::run
   e.getByToken(theMeasurementTrackerEventTag, data);
   myMatchEle->setEvent(*data);
   myMatchPos->setEvent(*data);
-
-  // get initial TrajectorySeeds if necessary
-  //  if (fromTrackerSeeds_) e.getByToken(initialSeeds_, theInitialSeedColl);
 
   // get the beamspot from the Event:
   //e.getByType(theBeamSpot);
@@ -371,11 +368,11 @@ void ElectronSeedGenerator::seedsFromThisCluster
      {
       // try electron
       std::vector<SeedWithInfo> elePixelSeeds
-       = myMatchEle->compatibleSeeds(theInitialSeedColl,clusterPos,vertexPos,clusterEnergy,-1.) ;
+       = myMatchEle->compatibleSeeds(*theInitialSeedCollV,clusterPos,vertexPos,clusterEnergy,-1.) ;
       seedsFromTrajectorySeeds(elePixelSeeds,caloCluster,hoe1,hoe2,out,false) ;
       // try positron
       std::vector<SeedWithInfo> posPixelSeeds
-       = myMatchPos->compatibleSeeds(theInitialSeedColl,clusterPos,vertexPos,clusterEnergy,1.) ;
+       = myMatchPos->compatibleSeeds(*theInitialSeedCollV,clusterPos,vertexPos,clusterEnergy,1.) ;
       seedsFromTrajectorySeeds(posPixelSeeds,caloCluster,hoe1,hoe2,out,true) ;
      }
 
@@ -425,11 +422,11 @@ void ElectronSeedGenerator::seedsFromThisCluster
        {
         // try electron
         std::vector<SeedWithInfo> elePixelSeeds
-         = myMatchEle->compatibleSeeds(theInitialSeedColl,clusterPos,vertexPos,clusterEnergy,-1.) ;
+         = myMatchEle->compatibleSeeds(*theInitialSeedCollV,clusterPos,vertexPos,clusterEnergy,-1.) ;
         seedsFromTrajectorySeeds(elePixelSeeds,caloCluster,hoe1,hoe2,out,false) ;
         // try positron
         std::vector<SeedWithInfo> posPixelSeeds
-         = myMatchPos->compatibleSeeds(theInitialSeedColl,clusterPos,vertexPos,clusterEnergy,1.) ;
+         = myMatchPos->compatibleSeeds(*theInitialSeedCollV,clusterPos,vertexPos,clusterEnergy,1.) ;
         seedsFromTrajectorySeeds(posPixelSeeds,caloCluster,hoe1,hoe2,out,true) ;
        }
      }

@@ -69,7 +69,7 @@ class ElectronSeedGenerator
   void run(
     edm::Event&, const edm::EventSetup& setup,
     const reco::SuperClusterRefVector &, const std::vector<float> & hoe1s, const std::vector<float> & hoe2s,
-    const TrajectorySeedCollection *seeds, reco::ElectronSeedCollection&);
+    const std::vector<const TrajectorySeedCollection *>& seedsV, reco::ElectronSeedCollection&);
 
  private:
 
@@ -111,8 +111,7 @@ class ElectronSeedGenerator
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;
 
-  //  edm::Handle<TrajectorySeedCollection> theInitialSeedColl;
-  const TrajectorySeedCollection* theInitialSeedColl;
+  const std::vector<const TrajectorySeedCollection*>* theInitialSeedCollV = nullptr;
 
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<TrackerGeometry>              theTrackerGeometry;

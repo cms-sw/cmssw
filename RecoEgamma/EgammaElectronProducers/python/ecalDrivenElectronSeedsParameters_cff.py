@@ -4,7 +4,8 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
 
     # steering
     fromTrackerSeeds = cms.bool(True),
-    initialSeeds = cms.InputTag("newCombinedSeeds"),
+    initialSeeds = cms.InputTag(""),
+    initialSeedsVector = cms.VInputTag( "newCombinedSeeds" ),
     preFilteredSeeds = cms.bool(False),
     useRecoVertex = cms.bool(False),
     vertices = cms.InputTag("offlinePrimaryVerticesWithBS"),
