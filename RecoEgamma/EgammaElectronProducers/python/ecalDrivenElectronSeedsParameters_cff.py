@@ -7,6 +7,7 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     # steering
     fromTrackerSeeds = cms.bool(True),
     initialSeeds = cms.InputTag(""),
+    #skip newCombinedSeeds if it is a trivial seed merger
     initialSeedsVector = _newCombinedSeeds.seedCollections,
     preFilteredSeeds = cms.bool(False),
     useRecoVertex = cms.bool(False),
