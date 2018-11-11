@@ -197,13 +197,21 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
      {
       edm::Handle<TrajectorySeedCollection> hSeeds;
       e.getByToken(initialSeeds_, hSeeds);
-      theInitialSeedColl = const_cast<TrajectorySeedCollection *> (hSeeds.product());
+      theInitialSeedCollConst = hSeeds.product();
+      theInitialSeedColl = nullptr;// not needed in this case
      }
     else
-     { theInitialSeedColl = new TrajectorySeedCollection ; }
+     { 
+       theInitialSeedCollConst = nullptr;//reset later
+       theInitialSeedColl = new TrajectorySeedCollection ; 
+     }
    }
   else
-   { theInitialSeedColl = nullptr ; } // not needed in this case
+   {
+     // not needed in this case
+     theInitialSeedCollConst = nullptr;
+     theInitialSeedColl = nullptr ; 
+   }
 
   ElectronSeedCollection * seeds = new ElectronSeedCollection ;
 
@@ -216,7 +224,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
     filterClusters(*theBeamSpot,clusters,/*mhbhe_,*/clusterRefs,hoe1s,hoe2s,e, iSetup);
     if ((fromTrackerSeeds_) && (prefilteredSeeds_))
       { filterSeeds(e,iSetup,clusterRefs) ; }
-    matcher_->run(e,iSetup,clusterRefs,hoe1s,hoe2s,theInitialSeedColl,*seeds);
+    matcher_->run(e,iSetup,clusterRefs,hoe1s,hoe2s,theInitialSeedCollConst,*seeds);
   }
 
   // store the accumulated result
@@ -316,7 +324,8 @@ void ElectronSeedProducer::filterSeeds
   for ( unsigned int i=0 ; i<sclRefs.size() ; ++i )
    {
     seedFilter_->seeds(event,setup,sclRefs[i],theInitialSeedColl) ;
-    LogDebug("ElectronSeedProducer")<<"Number of Seeds: "<<theInitialSeedColl->size() ;
+    theInitialSeedCollConst = theInitialSeedColl;
+    LogDebug("ElectronSeedProducer")<<"Number of Seeds: "<<theInitialSeedCollConst->size() ;
    }
  }
 

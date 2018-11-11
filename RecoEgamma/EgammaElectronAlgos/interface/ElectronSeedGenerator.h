@@ -69,13 +69,15 @@ class ElectronSeedGenerator
   void run(
     edm::Event&, const edm::EventSetup& setup,
     const reco::SuperClusterRefVector &, const std::vector<float> & hoe1s, const std::vector<float> & hoe2s,
-    TrajectorySeedCollection *seeds, reco::ElectronSeedCollection&);
+    const TrajectorySeedCollection *seeds, reco::ElectronSeedCollection&);
 
  private:
 
   void seedsFromThisCluster( edm::Ref<reco::SuperClusterCollection> seedCluster, float hoe1, float hoe2, reco::ElectronSeedCollection & out, const TrackerTopology *tTopo ) ;
-  void seedsFromRecHits( std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > & elePixelHits, PropagationDirection & dir, const GlobalPoint & vertexPos, const reco::ElectronSeed::CaloClusterRef & cluster, reco::ElectronSeedCollection & out, bool positron ) ;
-  void seedsFromTrajectorySeeds( const std::vector<SeedWithInfo> & elePixelSeeds, const reco::ElectronSeed::CaloClusterRef & cluster, float hoe1, float hoe2, reco::ElectronSeedCollection & out, bool positron ) ;
+  void seedsFromRecHits( std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > & elePixelHits, PropagationDirection & dir, 
+                         const GlobalPoint & vertexPos, const reco::ElectronSeed::CaloClusterRef & cluster, reco::ElectronSeedCollection & out, bool positron ) ;
+  void seedsFromTrajectorySeeds( const std::vector<SeedWithInfo> & elePixelSeeds, const reco::ElectronSeed::CaloClusterRef & cluster, 
+                                 float hoe1, float hoe2, reco::ElectronSeedCollection & out, bool positron ) ;
   void addSeed( reco::ElectronSeed & seed, const SeedWithInfo * info, bool positron, reco::ElectronSeedCollection & out ) ;
   bool prepareElTrackSeed( ConstRecHitPointer outerhit,ConstRecHitPointer innerhit, const GlobalPoint & vertexPos) ;
 
@@ -110,7 +112,7 @@ class ElectronSeedGenerator
   PixelHitMatcher *myMatchPos;
 
   //  edm::Handle<TrajectorySeedCollection> theInitialSeedColl;
-  TrajectorySeedCollection* theInitialSeedColl;
+  const TrajectorySeedCollection* theInitialSeedColl;
 
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<TrackerGeometry>              theTrackerGeometry;

@@ -220,7 +220,7 @@ bool equivalent( const TrajectorySeed & s1, const TrajectorySeed & s2 )
 void  ElectronSeedGenerator::run
  ( edm::Event & e, const edm::EventSetup & setup,
    const reco::SuperClusterRefVector & sclRefs, const std::vector<float> & hoe1s, const std::vector<float> & hoe2s,
-   TrajectorySeedCollection * seeds, reco::ElectronSeedCollection & out )
+   const TrajectorySeedCollection * seeds, reco::ElectronSeedCollection & out )
  {
   theInitialSeedColl = seeds ;
 //  bool duplicateTrajectorySeeds =false ;

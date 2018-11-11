@@ -178,7 +178,7 @@ class PixelHitMatcher
 
     std::vector<SeedWithInfo>
     compatibleSeeds
-      ( TrajectorySeedCollection * seeds, const GlobalPoint & xmeas,
+      ( const TrajectorySeedCollection * seeds, const GlobalPoint & xmeas,
         const GlobalPoint & vprim, float energy, float charge ) ;
 
 
