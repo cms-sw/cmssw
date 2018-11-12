@@ -379,7 +379,6 @@ HIDQMOutput
 HIDQMEventDisplayOutput
 HIDQMOnlineBeamspotOutput
 DQMCalibrationOutput
-DQMOnlineBeamspotOutput
 HIHLTMonitorOutput
 CalibrationOutput
 EcalCalibrationOutput
