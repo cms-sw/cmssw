@@ -55,7 +55,7 @@ from Configuration.Skimming.PbPb_ZMuSkimMuonDPG_cff import *
 ZMuSkimPath = cms.Path( diMuonSelSeq )
 SKIMStreamZMu = cms.FilteredStream(
     responsible = 'HI PAG',
-    name = 'ZMu',
+    name = 'PbPbZMu',
     paths = (ZMuSkimPath),
     content = skimFEVTContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
