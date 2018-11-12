@@ -100,7 +100,6 @@ metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 
 
-#metSequence = cms.Sequence(chsForTkMet+tkMet)
 metTables = cms.Sequence( metTable + rawMetTable + caloMetTable + puppiMetTable + tkMetTable + chsMetTable)
 metMC = cms.Sequence( metMCTable )
 
