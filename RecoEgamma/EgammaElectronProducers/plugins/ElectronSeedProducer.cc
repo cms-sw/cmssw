@@ -48,6 +48,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
@@ -58,67 +59,76 @@
 using namespace reco ;
 
 ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
- : //conf_(iConfig),
-   applyHOverECut_(true), hcalHelper_(nullptr),
+ : applyHOverECut_(true), hcalHelper_(nullptr),
    caloGeom_(nullptr), caloGeomCacheId_(0), caloTopo_(nullptr), caloTopoCacheId_(0)
  {
-  conf_ = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
+  auto const& conf = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
 
-  initialSeeds_ = consumes<TrajectorySeedCollection>(conf_.getParameter<edm::InputTag>("initialSeeds")) ;
-  SCEtCut_ = conf_.getParameter<double>("SCEtCut");
-  fromTrackerSeeds_ = conf_.getParameter<bool>("fromTrackerSeeds") ;
-  prefilteredSeeds_ = conf_.getParameter<bool>("preFilteredSeeds") ;
+  auto legacyConfSeeds = conf.getParameter<edm::InputTag>("initialSeeds");
+  if (legacyConfSeeds.label().empty())
+    {//new format
+      initialSeeds_ = edm::vector_transform(conf.getParameter<std::vector<edm::InputTag> >( "initialSeedsVector" ), 
+                                            [this](edm::InputTag const & tag){return consumes<TrajectorySeedCollection >(tag);});
+    } 
+  else
+    {
+      initialSeeds_ = {consumes<TrajectorySeedCollection>(conf.getParameter<edm::InputTag>("initialSeeds"))};
+    }
+
+  SCEtCut_ = conf.getParameter<double>("SCEtCut");
+  fromTrackerSeeds_ = conf.getParameter<bool>("fromTrackerSeeds") ;
+  prefilteredSeeds_ = conf.getParameter<bool>("preFilteredSeeds") ;
 
   auto theconsumes = consumesCollector();
 
   // new beamSpot tag
-  beamSpotTag_ = consumes<reco::BeamSpot>(conf_.getParameter<edm::InputTag>("beamSpot")); 
+  beamSpotTag_ = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot")); 
 
   // for H/E
-  applyHOverECut_ = conf_.getParameter<bool>("applyHOverECut") ;
+  applyHOverECut_ = conf.getParameter<bool>("applyHOverECut") ;
   if (applyHOverECut_)
    {
      ElectronHcalHelper::Configuration hcalCfg ;
-     hcalCfg.hOverEConeSize = conf_.getParameter<double>("hOverEConeSize") ;
+     hcalCfg.hOverEConeSize = conf.getParameter<double>("hOverEConeSize") ;
      if (hcalCfg.hOverEConeSize>0)
        {
 	 hcalCfg.useTowers = true ;
 	 hcalCfg.hcalTowers = 
-	   consumes<CaloTowerCollection>(conf_.getParameter<edm::InputTag>("hcalTowers")) ;
-	 hcalCfg.hOverEPtMin = conf_.getParameter<double>("hOverEPtMin") ;
+	   consumes<CaloTowerCollection>(conf.getParameter<edm::InputTag>("hcalTowers")) ;
+	 hcalCfg.hOverEPtMin = conf.getParameter<double>("hOverEPtMin") ;
        }
      hcalHelper_ = new ElectronHcalHelper(hcalCfg) ;
      
-     allowHGCal_ = conf_.getParameter<bool>("allowHGCal");
+     allowHGCal_ = conf.getParameter<bool>("allowHGCal");
      if( allowHGCal_ ) {
-       const edm::ParameterSet& hgcCfg = conf_.getParameterSet("HGCalConfig");
+       const edm::ParameterSet& hgcCfg = conf.getParameterSet("HGCalConfig");
        hgcClusterTools_.reset( new hgcal::ClusterTools(hgcCfg, theconsumes) );
      }
      
-     maxHOverEBarrel_=conf_.getParameter<double>("maxHOverEBarrel") ;
-     maxHOverEEndcaps_=conf_.getParameter<double>("maxHOverEEndcaps") ;
-     maxHBarrel_=conf_.getParameter<double>("maxHBarrel") ;
-     maxHEndcaps_=conf_.getParameter<double>("maxHEndcaps") ;
+     maxHOverEBarrel_=conf.getParameter<double>("maxHOverEBarrel") ;
+     maxHOverEEndcaps_=conf.getParameter<double>("maxHOverEEndcaps") ;
+     maxHBarrel_=conf.getParameter<double>("maxHBarrel") ;
+     maxHEndcaps_=conf.getParameter<double>("maxHEndcaps") ;
    }
 
-  applySigmaIEtaIEtaCut_ = conf_.getParameter<bool>("applySigmaIEtaIEtaCut");
+  applySigmaIEtaIEtaCut_ = conf.getParameter<bool>("applySigmaIEtaIEtaCut");
 
   // apply sigma_ieta_ieta cut
   if (applySigmaIEtaIEtaCut_ == true)
     {
-      maxSigmaIEtaIEtaBarrel_ = conf_.getParameter<double>("maxSigmaIEtaIEtaBarrel");
-      maxSigmaIEtaIEtaEndcaps_ = conf_.getParameter<double>("maxSigmaIEtaIEtaEndcaps");
+      maxSigmaIEtaIEtaBarrel_ = conf.getParameter<double>("maxSigmaIEtaIEtaBarrel");
+      maxSigmaIEtaIEtaEndcaps_ = conf.getParameter<double>("maxSigmaIEtaIEtaEndcaps");
     }
 
-  edm::ParameterSet rpset = conf_.getParameter<edm::ParameterSet>("RegionPSet");
+  edm::ParameterSet rpset = conf.getParameter<edm::ParameterSet>("RegionPSet");
   filterVtxTag_ = consumes<std::vector<reco::Vertex> >(rpset.getParameter<edm::InputTag> ("VertexProducer"));
 
   ElectronSeedGenerator::Tokens esg_tokens;
   esg_tokens.token_bs = beamSpotTag_;
-  esg_tokens.token_vtx = mayConsume<reco::VertexCollection>(conf_.getParameter<edm::InputTag>("vertices"));
-  esg_tokens.token_measTrkEvt= consumes<MeasurementTrackerEvent>(conf_.getParameter<edm::InputTag>("measurementTrackerEvent"));
+  esg_tokens.token_vtx = mayConsume<reco::VertexCollection>(conf.getParameter<edm::InputTag>("vertices"));
+  esg_tokens.token_measTrkEvt= consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("measurementTrackerEvent"));
 
-  matcher_ = new ElectronSeedGenerator(conf_,esg_tokens) ;
+  matcher_ = new ElectronSeedGenerator(conf,esg_tokens) ;
 
   //  get collections from config
   if (applySigmaIEtaIEtaCut_ == true) {
@@ -142,7 +152,7 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
     sf_tokens.token_bs  = beamSpotTag_;
     sf_tokens.token_vtx = filterVtxTag_;
     edm::ConsumesCollector iC = consumesCollector();
-    seedFilter_.reset(new SeedFilter(conf_, sf_tokens, iC));
+    seedFilter_.reset(new SeedFilter(conf, sf_tokens, iC));
   }
 
   //register your products
@@ -195,15 +205,28 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
    {
     if (!prefilteredSeeds_)
      {
-      edm::Handle<TrajectorySeedCollection> hSeeds;
-      e.getByToken(initialSeeds_, hSeeds);
-      theInitialSeedColl = const_cast<TrajectorySeedCollection *> (hSeeds.product());
+       theInitialSeedColls.clear();
+       for (auto const& seeds : initialSeeds_)
+         {
+           edm::Handle<TrajectorySeedCollection> hSeeds;
+           e.getByToken(seeds, hSeeds);
+           theInitialSeedColls.push_back(hSeeds.product());
+         }
+       theInitialSeedColl = nullptr;// not needed in this case
+
      }
     else
-     { theInitialSeedColl = new TrajectorySeedCollection ; }
+     { 
+       theInitialSeedColls.clear();//reset later
+       theInitialSeedColl = new TrajectorySeedCollection ; 
+     }
    }
   else
-   { theInitialSeedColl = nullptr ; } // not needed in this case
+   {
+     // not needed in this case
+     theInitialSeedColls.clear();
+     theInitialSeedColl = nullptr ; 
+   }
 
   ElectronSeedCollection * seeds = new ElectronSeedCollection ;
 
@@ -216,7 +239,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
     filterClusters(*theBeamSpot,clusters,/*mhbhe_,*/clusterRefs,hoe1s,hoe2s,e, iSetup);
     if ((fromTrackerSeeds_) && (prefilteredSeeds_))
       { filterSeeds(e,iSetup,clusterRefs) ; }
-    matcher_->run(e,iSetup,clusterRefs,hoe1s,hoe2s,theInitialSeedColl,*seeds);
+    matcher_->run(e,iSetup,clusterRefs,hoe1s,hoe2s,theInitialSeedColls,*seeds);
   }
 
   // store the accumulated result
@@ -316,6 +339,7 @@ void ElectronSeedProducer::filterSeeds
   for ( unsigned int i=0 ; i<sclRefs.size() ; ++i )
    {
     seedFilter_->seeds(event,setup,sclRefs[i],theInitialSeedColl) ;
+    theInitialSeedColls.push_back(theInitialSeedColl);
     LogDebug("ElectronSeedProducer")<<"Number of Seeds: "<<theInitialSeedColl->size() ;
    }
  }
@@ -368,7 +392,8 @@ ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd0.add<double>("r2MaxF",0.15);
     psd0.add<double>("hOverEConeSize",0.15);
     psd0.add<double>("pPhiMin1",-0.075);
-    psd0.add<edm::InputTag>("initialSeeds",edm::InputTag("newCombinedSeeds"));
+    psd0.add<edm::InputTag>("initialSeeds",edm::InputTag(""));//keep for be compatibility
+    psd0.add<std::vector<edm::InputTag>>("initialSeedsVector",{{"newCombinedSeeds"}});
     psd0.add<double>("deltaZ1WithVertex",25.0);
     psd0.add<double>("SCEtCut",0.0);
     psd0.add<double>("z2MaxB",0.09);
