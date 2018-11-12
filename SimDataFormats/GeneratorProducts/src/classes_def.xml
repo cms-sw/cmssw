@@ -161,7 +161,7 @@
   <version ClassVersion="10" checksum="2479857328"/>
  </class>
  <ioread sourceClass = "GenEventInfoProduct" version="[12-]" targetClass="GenEventInfoProduct" source = "std::unique_ptr<GenEventInfoProduct::PDF> pdf_;" target="pdf_">
-   <![CDATA[pdf_ = std::move(onfile.pdf_);]]>
+   <![CDATA[pdf_ = std::unique_ptr<GenEventInfoProduct::PDF>(onfile.pdf_.release());]]>
  </ioread>
  <ioread sourceClass = "GenEventInfoProduct" version="[-11]" targetClass="GenEventInfoProduct" source = "std::auto_ptr<GenEventInfoProduct::PDF> pdf_;" target="pdf_">
    <![CDATA[pdf_ = std::unique_ptr<GenEventInfoProduct::PDF>(onfile.pdf_.release());]]>
@@ -207,7 +207,7 @@
   <version ClassVersion="15" checksum="1277919821"/>
  </class>
  <ioread sourceClass = "LHEEventProduct" version="[14-]" targetClass="LHEEventProduct" source = "std::unique_ptr<LHEEventProduct::PDF> pdf_;" target="pdf_">
-   <![CDATA[pdf_ = std::move(onfile.pdf_);]]>
+   <![CDATA[pdf_ = std::unique_ptr<LHEEventProduct::PDF>(onfile.pdf_.release());]]>
  </ioread> 
  <ioread sourceClass = "LHEEventProduct" version="[-13]" targetClass="LHEEventProduct" source = "std::auto_ptr<LHEEventProduct::PDF> pdf_;" target="pdf_">
    <![CDATA[pdf_ = std::unique_ptr<LHEEventProduct::PDF>(onfile.pdf_.release());]]>
