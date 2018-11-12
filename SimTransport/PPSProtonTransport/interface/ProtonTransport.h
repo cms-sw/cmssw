@@ -17,7 +17,7 @@ class ProtonTransport {
       public:
             ProtonTransport();
             virtual ~ProtonTransport();
-            std::vector<LHCTransportLink>& getCorrespondenceMap() { return theCorrespondenceMap; }
+            std::vector<LHCTransportLink>& getCorrespondenceMap() { return m_CorrespondenceMap; }
             virtual void process(const HepMC::GenEvent * ev , const edm::EventSetup & es, CLHEP::HepRandomEngine * engine)=0;
             void ApplyBeamCorrection(HepMC::GenParticle* p);
             void ApplyBeamCorrection(CLHEP::HepLorentzVector& p);
@@ -25,8 +25,8 @@ class ProtonTransport {
             void clear();
 
       protected:
-            enum transport_mode {HECTOR,TOTEM};
-            transport_mode MODE;
+            enum class TransportMode {HECTOR,TOTEM};
+            TransportMode MODE;
             int NEvent;
             bool m_verbosity;
             CLHEP::HepRandomEngine * engine;
@@ -37,7 +37,7 @@ class ProtonTransport {
             double fCrossingAngle_45;
             double fCrossingAngle_56;
 
-            std::vector<LHCTransportLink> theCorrespondenceMap;
+            std::vector<LHCTransportLink> m_CorrespondenceMap;
             std::map<unsigned int, CLHEP::HepLorentzVector*> m_beamPart;
             std::map<unsigned int, double> m_xAtTrPoint;
             std::map<unsigned int, double> m_yAtTrPoint;

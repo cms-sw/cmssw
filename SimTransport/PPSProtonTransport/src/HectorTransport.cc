@@ -13,9 +13,9 @@ HectorTransport::HectorTransport(){};
 
 HectorTransport::HectorTransport(const edm::ParameterSet & param, bool verbosity)
 {
-    // Create LHC beam line
-    MODE=HECTOR; // defines the MODE for the transport
-    m_verbosity=verbosity;
+   // Create LHC beam line
+   MODE=TransportMode::HECTOR; // defines the MODE for the transport
+   m_verbosity=verbosity;
    edm::ParameterSet hector_par = param.getParameter<edm::ParameterSet>("PPSHector");
    
    m_f_ctpps_f          = (float) hector_par.getParameter<double>("PPSf");
@@ -23,15 +23,15 @@ HectorTransport::HectorTransport(const edm::ParameterSet & param, bool verbosity
    fCrossingAngle_56    = hector_par.getParameter<double>("CrossingAngleBeam1");
    fCrossingAngle_45    = hector_par.getParameter<double>("CrossingAngleBeam2");
    fBeamEnergy          = hector_par.getParameter<double>("BeamEnergy"); // beam energy in GeV
-   fEtacut              = hector_par.getParameter<double>("EtaCutForHector");
-   fMomentumMin         = hector_par.getParameter<double>("MomentumMin");
+   m_fEtacut              = hector_par.getParameter<double>("EtaCutForHector");
+   m_fMomentumMin         = hector_par.getParameter<double>("MomentumMin");
    fBeamMomentum        = sqrt(fBeamEnergy*fBeamEnergy - PPSTools::ProtonMassSQ);
 
     // User definitons
-    lengthctpps     = hector_par.getParameter<double>("BeamLineLengthPPS" );
+    m_lengthctpps     = hector_par.getParameter<double>("BeamLineLengthPPS" );
 
-    beam1filename   = hector_par.getParameter<string>("Beam1");
-    beam2filename   = hector_par.getParameter<string>("Beam2");  
+    m_beam1filename   = hector_par.getParameter<string>("Beam1");
+    m_beam2filename   = hector_par.getParameter<string>("Beam2");  
     fVtxMeanX       = param.getParameter<double>("VtxMeanX");
     fVtxMeanY       = param.getParameter<double>("VtxMeanY");
     fVtxMeanZ       = param.getParameter<double>("VtxMeanZ");
@@ -45,7 +45,7 @@ HectorTransport::HectorTransport(const edm::ParameterSet & param, bool verbosity
     bApplyZShift    = hector_par.getParameter<bool>("ApplyZShift");
     //PPS
 
-    SetBeamLine();
+    setBeamLine();
     PPSTools::fBeamMomentum=fBeamMomentum;
     PPSTools::fBeamEnergy=fBeamEnergy;
     PPSTools::fCrossingAngleBeam1=fCrossingAngle_56;
@@ -61,8 +61,8 @@ HectorTransport::~HectorTransport()
 void HectorTransport::process( const HepMC::GenEvent * ev , const edm::EventSetup & iSetup, CLHEP::HepRandomEngine * _engine)
 {
      engine = _engine;
-     iSetup.getData( pdt );
-     GenProtonsLoop(ev,iSetup);
+     iSetup.getData( m_pdt );
+     genProtonsLoop(ev,iSetup);
      addPartToHepMC(const_cast<HepMC::GenEvent*>(ev));
 }
 bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
@@ -82,8 +82,7 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
 
      e = sqrt(pow(mass,2)+pow(px,2)+pow(py,2)+pow(pz,2));
 
-     int direction;
-     direction = (pz>0)?1:-1;
+     int direction = (pz>0)?1:-1;
 
      // Apply Beam and Crossing Angle Corrections
      LorentzVector* p_out = new LorentzVector(px,py,pz,e);
@@ -133,7 +132,15 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
      is_stop = h_p->stopped(&*_beamline);
      if(m_verbosity) LogDebug("HectorTransportEventProcessing") << "HectorTransport:filterPPS: barcode = "
              << line << " is_stop=  "<< is_stop;
-     if (is_stop) return false;
+     if (p_out) {
+       delete p_out;
+       p_out = nullptr;
+     } 
+     if (is_stop) {
+       delete h_p;
+       h_p=nullptr;
+       return false;
+     }
      //
      //propagating
      //
@@ -151,9 +158,11 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
      m_beamPart[line]    = p_out;
      m_xAtTrPoint[line]  = x1_ctpps;
      m_yAtTrPoint[line]  = y1_ctpps;
+     delete p_out; p_out = nullptr;
+     delete h_p; h_p = nullptr;
      return true;
 }
-void HectorTransport::GenProtonsLoop( const HepMC::GenEvent * evt ,const edm::EventSetup & iSetup)
+void HectorTransport::genProtonsLoop( const HepMC::GenEvent * evt ,const edm::EventSetup & iSetup)
 {
 /*
    Loop over genVertex looking for transportable protons
@@ -162,7 +171,7 @@ void HectorTransport::GenProtonsLoop( const HepMC::GenEvent * evt ,const edm::Ev
 
     for (HepMC::GenEvent::particle_const_iterator eventParticle =evt->particles_begin(); eventParticle != evt->particles_end(); ++eventParticle ) {
         if (!((*eventParticle)->status() == 1 && (*eventParticle)->pdg_id()==2212 )) continue;
-        if (!(fabs((*eventParticle)->momentum().eta())>fEtacut && fabs((*eventParticle)->momentum().pz())>fMomentumMin)) continue;
+        if (!(fabs((*eventParticle)->momentum().eta())>m_fEtacut && fabs((*eventParticle)->momentum().pz())>m_fMomentumMin)) continue;
         line = (*eventParticle)->barcode();
 
         if ( m_beamPart.find(line) != m_beamPart.end() ) continue;
@@ -172,13 +181,13 @@ void HectorTransport::GenProtonsLoop( const HepMC::GenEvent * evt ,const edm::Ev
         transportProton(gpart);
     } 
 }
-bool HectorTransport::SetBeamLine()
+bool HectorTransport::setBeamLine()
 {
 
     m_beamline45=nullptr;
     m_beamline56=nullptr;
-    edm::FileInPath b1(beam1filename.c_str());
-    edm::FileInPath b2(beam2filename.c_str());
+    edm::FileInPath b1(m_beam1filename.c_str());
+    edm::FileInPath b2(m_beam2filename.c_str());
     if(m_verbosity) {
         edm::LogInfo("HectorTransportSetup") << "===================================================================\n"  
             << " * * * * * * * * * * * * * * * * * * * * * * * * * * * *           \n"  
@@ -199,21 +208,21 @@ bool HectorTransport::SetBeamLine()
             << " *                                                         *       \n"  
             << " * * * * * * * * * * * * * * * * * * * * * * * * * * * *           \n"   
             << " HectorTransport configuration: \n" 
-            << " lengthctpps      = " << lengthctpps << "\n"
+            << " lengthctpps      = " << m_lengthctpps << "\n"
             << " m_f_ctpps_f      =  " << m_f_ctpps_f << "\n"
             << " m_b_ctpps_b      =  " << m_b_ctpps_b << "\n"
             << "===================================================================\n";
     }  
 
     // construct beam line for PPS (forward 1 backward 2):                                                                                           
-    if(lengthctpps>0. ) {
-        m_beamline45 = std::unique_ptr<H_BeamLine>(new H_BeamLine(-1, lengthctpps + 0.1 )); // (direction, length)
+    if(m_lengthctpps>0. ) {
+        m_beamline45 = std::unique_ptr<H_BeamLine>(new H_BeamLine(-1, m_lengthctpps + 0.1 )); // (direction, length)
         m_beamline45->fill( b2.fullPath(), 1, "IP5");
-        m_beamline56 = std::unique_ptr<H_BeamLine>(new H_BeamLine( 1, lengthctpps + 0.1 )); //
+        m_beamline56 = std::unique_ptr<H_BeamLine>(new H_BeamLine( 1, m_lengthctpps + 0.1 )); //
         m_beamline56->fill( b1.fullPath(), 1, "IP5");
     }
     else {
-        if ( m_verbosity ) LogDebug("HectorTransportSetup") << "HectorTransport: WARNING: lengthctpps=  " << lengthctpps;
+        if ( m_verbosity ) LogDebug("HectorTransportSetup") << "HectorTransport: WARNING: lengthctpps=  " << m_lengthctpps;
         return false;
     }
     if (m_verbosity) {

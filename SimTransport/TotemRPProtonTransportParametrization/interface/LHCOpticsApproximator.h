@@ -125,11 +125,11 @@ private:
 	TMultiDimFet theta_y_parametrisation;             ///< polynomial approximation for theta_y
 
 	//train_mode mode_;  //polynomial selection mode - selection done by fitting function or selection from the list according to the specified order
-	enum variable_type {X, THETA_X, Y, THETA_Y};
+	enum class VariableType {X, THETA_X, Y, THETA_Y};
 	//internal methods
 	void InitializeApproximators(polynomials_selection mode, int max_degree_x, int max_degree_tx, int max_degree_y, int max_degree_ty, bool common_terms);
-	void SetDefaultAproximatorSettings(TMultiDimFet &approximator, variable_type var_type, int max_degree);
-	void SetTermsManually(TMultiDimFet &approximator, variable_type variable, int max_degree, bool common_terms);
+	void SetDefaultAproximatorSettings(TMultiDimFet &approximator, VariableType var_type, int max_degree);
+	void SetTermsManually(TMultiDimFet &approximator, VariableType variable, int max_degree, bool common_terms);
 
 	void AllocateErrorHists(TH1D *err_hists[4]);
 	void AllocateErrorInputCorHists(TH2D *err_inp_cor_hists[4][5]);
@@ -149,17 +149,17 @@ private:
 class LHCApertureApproximator : public LHCOpticsApproximator
 {
 public:
-	enum aperture_type {NO_APERTURE, RECTELLIPSE};
+	enum class ApertureType {NO_APERTURE, RECTELLIPSE};
 
 	LHCApertureApproximator();
 	LHCApertureApproximator(const LHCOpticsApproximator &in, double rect_x, double rect_y, double r_el_x, double r_el_y,
-							aperture_type type = RECTELLIPSE);
+							ApertureType type = ApertureType::RECTELLIPSE);
 
 	bool CheckAperture(const double *in, bool invert_beam_coord_sytems=true) const;  //x, thx. y, thy, ksi
 	//bool CheckAperture(MadKinematicDescriptor *in);  //x, thx. y, thy, ksi
 private:
 	double rect_x_, rect_y_, r_el_x_, r_el_y_;
-	aperture_type ap_type_;
+	ApertureType ap_type_;
 
 	ClassDef(LHCApertureApproximator,1) // Aperture approximator
 };

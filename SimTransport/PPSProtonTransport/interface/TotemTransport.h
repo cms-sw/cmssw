@@ -36,31 +36,31 @@ class TotemTransport: public ProtonTransport {
             bool transportProton( const HepMC::GenParticle* );
             LHCOpticsApproximator* ReadParameterization(const std::string& , const std::string&);
 
-            edm::ParameterSet parameters;
-            bool verbosity;
-            LHCOpticsApproximator* aprox_ip_150_r=nullptr;
-            LHCOpticsApproximator* aprox_ip_150_l=nullptr;
-            std::string model_root_file_r;
-            std::string model_root_file_l;
-            std::string model_ip_150_r_name;
-            std::string model_ip_150_l_name;
-            double model_ip_150_r_zmin;
-            double model_ip_150_r_zmax;
-            double model_ip_150_l_zmin;
-            double model_ip_150_l_zmax;
+            edm::ParameterSet m_parameters;
+            bool m_verbosity;
+            LHCOpticsApproximator* m_aprox_ip_150_r=nullptr;
+            LHCOpticsApproximator* m_aprox_ip_150_l=nullptr;
+            std::string m_model_root_file_r;
+            std::string m_model_root_file_l;
+            std::string m_model_ip_150_r_name;
+            std::string m_model_ip_150_l_name;
+            double m_model_ip_150_r_zmin;
+            double m_model_ip_150_r_zmax;
+            double m_model_ip_150_l_zmin;
+            double m_model_ip_150_l_zmax;
 
-            edm::EDGetTokenT<edm::HepMCProduct> protonsToken_;
+            edm::EDGetTokenT<edm::HepMCProduct> m_protonsToken_;
 
             // Private data members
-            edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
+            edm::FileInPath m_opticsFileBeam1_, m_opticsFileBeam2_;
 
-            edm::ESHandle < ParticleDataTable > pdt;
+            edm::ESHandle < ParticleDataTable > m_pdt;
 
-            double beampipe_aperture_radius;
-            double Zin_;
-            double Zout_;
-            double fEtacut;
-            double fMomentumMin;
+            double m_beampipe_aperture_radius;
+            double m_Zin_;
+            double m_Zout_;
+            double m_fEtacut;
+            double m_fMomentumMin;
 
 };
 #endif

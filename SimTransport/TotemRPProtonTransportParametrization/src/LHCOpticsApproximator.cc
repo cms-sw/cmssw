@@ -404,27 +404,27 @@ void LHCOpticsApproximator::Train(TTree *inp_tree, std::string data_prefix, poly
 
 void LHCOpticsApproximator::InitializeApproximators(polynomials_selection mode, int max_degree_x, int max_degree_tx, int max_degree_y, int max_degree_ty, bool common_terms)
 {
-  SetDefaultAproximatorSettings(x_parametrisation, X, max_degree_x);
-  SetDefaultAproximatorSettings(theta_x_parametrisation, THETA_X, max_degree_tx);
-  SetDefaultAproximatorSettings(y_parametrisation, Y, max_degree_y);
-  SetDefaultAproximatorSettings(theta_y_parametrisation, THETA_Y, max_degree_ty);
+  SetDefaultAproximatorSettings(x_parametrisation, VariableType::X, max_degree_x);
+  SetDefaultAproximatorSettings(theta_x_parametrisation, VariableType::THETA_X, max_degree_tx);
+  SetDefaultAproximatorSettings(y_parametrisation, VariableType::Y, max_degree_y);
+  SetDefaultAproximatorSettings(theta_y_parametrisation, VariableType::THETA_Y, max_degree_ty);
 
   if(mode == PREDEFINED)
   {
-    SetTermsManually(x_parametrisation, X, max_degree_x, common_terms);
-    SetTermsManually(theta_x_parametrisation, THETA_X, max_degree_tx, common_terms);
-    SetTermsManually(y_parametrisation, Y, max_degree_y, common_terms);
-    SetTermsManually(theta_y_parametrisation, THETA_Y, max_degree_ty, common_terms);
+    SetTermsManually(x_parametrisation, VariableType::X, max_degree_x, common_terms);
+    SetTermsManually(theta_x_parametrisation, VariableType::THETA_X, max_degree_tx, common_terms);
+    SetTermsManually(y_parametrisation, VariableType::Y, max_degree_y, common_terms);
+    SetTermsManually(theta_y_parametrisation, VariableType::THETA_Y, max_degree_ty, common_terms);
   }
 }
 
 
-void LHCOpticsApproximator::SetDefaultAproximatorSettings(TMultiDimFet &approximator, variable_type var_type, int max_degree)
+void LHCOpticsApproximator::SetDefaultAproximatorSettings(TMultiDimFet &approximator, VariableType var_type, int max_degree)
 {
   if(max_degree<1 || max_degree>20)
     max_degree = 10;
 
-  if(var_type == X || var_type == THETA_X)
+  if(var_type == VariableType::X || var_type == VariableType::THETA_X)
   {
     Int_t mPowers[] = { 1, 1, 0, 0, max_degree };
     approximator.SetMaxPowers (mPowers);
@@ -437,7 +437,7 @@ void LHCOpticsApproximator::SetDefaultAproximatorSettings(TMultiDimFet &approxim
     approximator.SetMinRelativeError (1e-13);
   }
 
-  if(var_type == Y || var_type == THETA_Y)
+  if(var_type == VariableType::Y || var_type == VariableType::THETA_Y)
   {
     Int_t mPowers[] = { 0, 0, 1, 1, max_degree };
     approximator.SetMaxPowers (mPowers);
@@ -452,7 +452,7 @@ void LHCOpticsApproximator::SetDefaultAproximatorSettings(TMultiDimFet &approxim
 }
 
 
-void LHCOpticsApproximator::SetTermsManually(TMultiDimFet &approximator, variable_type variable, int max_degree, bool common_terms)
+void LHCOpticsApproximator::SetTermsManually(TMultiDimFet &approximator, VariableType variable, int max_degree, bool common_terms)
 {
   if(max_degree<1 || max_degree>20)
     max_degree = 10;
@@ -464,7 +464,7 @@ void LHCOpticsApproximator::SetTermsManually(TMultiDimFet &approximator, variabl
   std::vector<Int_t> term_literals;
   term_literals.reserve(5000);
 
-  if(variable == X || variable == THETA_X)
+  if(variable == VariableType::X || variable == VariableType::THETA_X)
   {
     //1,0,0,0,t
     for(int i=0; i<=max_degree; ++i)
@@ -513,7 +513,7 @@ void LHCOpticsApproximator::SetTermsManually(TMultiDimFet &approximator, variabl
     }
   }
 
-  if(variable == Y || variable == THETA_Y)
+  if(variable == VariableType::Y || variable == VariableType::THETA_Y)
   {
     //0,0,1,0,t
     for(int i=0; i<=max_degree; ++i)
@@ -981,19 +981,19 @@ bool LHCOpticsApproximator::CheckInputRange(const double *in, bool invert_beam_c
 
 void LHCOpticsApproximator::AddRectEllipseAperture(const LHCOpticsApproximator &in, double rect_x, double rect_y, double r_el_x, double r_el_y)
 {
-  apertures_.push_back(LHCApertureApproximator(in, rect_x, rect_y, r_el_x, r_el_y, LHCApertureApproximator::RECTELLIPSE));
+  apertures_.push_back(LHCApertureApproximator(in, rect_x, rect_y, r_el_x, r_el_y, LHCApertureApproximator::ApertureType::RECTELLIPSE));
 }
 
 
 LHCApertureApproximator::LHCApertureApproximator()
 {
   rect_x_ = rect_y_ = r_el_x_ = r_el_y_ = 0.0;
-  ap_type_ = NO_APERTURE;
+  ap_type_ = ApertureType::NO_APERTURE;
 }
 
 
 LHCApertureApproximator::LHCApertureApproximator(const LHCOpticsApproximator &in, double rect_x, double rect_y, double r_el_x, double r_el_y,
-        aperture_type type) : LHCOpticsApproximator(in)
+        ApertureType type) : LHCOpticsApproximator(in)
 {
   rect_x_ = rect_x;
   rect_y_ = rect_y;
@@ -1007,7 +1007,7 @@ bool LHCApertureApproximator::CheckAperture(const double *in, bool invert_beam_c
   double out[5];
   bool result = Transport(in, out, false, invert_beam_coord_sytems);
 
-  if(ap_type_==RECTELLIPSE)
+  if(ap_type_==ApertureType::RECTELLIPSE)
   {
     result = result && out[0]<rect_x_ && out[0]>-rect_x_ && out[2]<rect_y_ && out[2]>-rect_y_ &&
         ( out[0]*out[0]/(r_el_x_*r_el_x_) + out[2]*out[2]/(r_el_y_*r_el_y_) < 1 );

@@ -56,31 +56,31 @@ public:
 private:
         void AlignObject(H_OpticalElement* opt,H_BeamLine* bline,double disp);
 
-        bool IP_Found;
-        bool ParIdx_Found;
-        bool Emmitance_OK;
-        int    beamline_length;
+        bool m_IP_Found;
+        bool m_ParIdx_Found;
+        bool m_Emmitance_OK;
+        int    m_beamline_length;
         std::unique_ptr<H_BeamLine> m_beamline56;
         std::unique_ptr<H_BeamLine> m_beamline45;
-        double fBeamXatIP;
-        double fBeamYatIP;
+        double m_fBeamXatIP;
+        double m_fBeamYatIP;
         double m_sigmaSX;
         double m_sigmaSY;
         double m_sigmaSTX;
         double m_sigmaSTY;
         double m_sigE;
-        int x_idx = 0;
-        int s_idx = 0;
-        int y_idx = 0; 
-        int betx_idx = 0;
-        int bety_idx = 0;
-        double IPposition;
-        double emittanceX;
-        double emittanceY; 
-        std::vector<std::tuple<double,double,double,double,double> >  PosP;
-        std::vector<std::tuple<double,double,double,double,double> >  PosN;
-        std::vector<std::tuple<double,double,double> >  BdistP;
-        std::vector<std::tuple<double,double,double> >  BdistN;
+        int m_x_idx = 0;
+        int m_s_idx = 0;
+        int m_y_idx = 0; 
+        int m_betx_idx = 0;
+        int m_bety_idx = 0;
+        double m_IPposition;
+        double m_emittanceX;
+        double m_emittanceY; 
+        std::vector<std::tuple<double,double,double,double,double> >  m_PosP;
+        std::vector<std::tuple<double,double,double,double,double> >  m_PosN;
+        std::vector<std::tuple<double,double,double> >  m_BdistP;
+        std::vector<std::tuple<double,double,double> >  m_BdistN;
 
 };
 #endif

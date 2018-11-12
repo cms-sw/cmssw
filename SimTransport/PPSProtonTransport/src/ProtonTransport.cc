@@ -17,7 +17,7 @@ void ProtonTransport::clear()
 void ProtonTransport::addPartToHepMC( HepMC::GenEvent * evt )
 {
     NEvent++;
-    theCorrespondenceMap.clear();
+    m_CorrespondenceMap.clear();
     std::map< unsigned int, CLHEP::HepLorentzVector* >::iterator it;
 
     int direction=0;
@@ -25,8 +25,8 @@ void ProtonTransport::addPartToHepMC( HepMC::GenEvent * evt )
 
     unsigned int line;
 
-    for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
-        line = (*it ).first;
+    for( auto it : m_beamPart ) {
+        line = (it ).first;
         gpart = evt->barcode_to_particle( line );
 
         direction=(gpart->momentum().pz()>0)?1:-1;
@@ -45,7 +45,7 @@ void ProtonTransport::addPartToHepMC( HepMC::GenEvent * evt )
                         <<"HectorTransport:: z= "<< ddd * direction*m_to_mm << "\n"
                         <<"HectorTransport:: t= "<< time;
         }
-        CLHEP::HepLorentzVector* p_out = (*it).second;
+        CLHEP::HepLorentzVector* p_out = (it).second;
 
         HepMC::GenVertex * vert = new HepMC::GenVertex(
                         HepMC::FourVector( (*(m_xAtTrPoint.find(line))).second,
@@ -62,7 +62,7 @@ void ProtonTransport::addPartToHepMC( HepMC::GenEvent * evt )
 
         LHCTransportLink theLink(ingoing,outgoing);
         if (m_verbosity) LogDebug("HectorTransportEventProcessing") << "HectorTransport:addPartToHepMC: LHCTransportLink " << theLink;
-        theCorrespondenceMap.push_back(theLink);
+        m_CorrespondenceMap.push_back(theLink);
     }
 }
 void ProtonTransport::ApplyBeamCorrection(HepMC::GenParticle* p)
@@ -87,7 +87,7 @@ void ProtonTransport::ApplyBeamCorrection(CLHEP::HepLorentzVector& p_out)
 
     if (p_out.pz()<0) theta=CLHEP::pi-theta;
 
-    if (MODE==TOTEM) thetax+=(p_out.pz()>0)?fCrossingAngle_45*urad:fCrossingAngle_56*urad;
+    if (MODE==TransportMode::TOTEM) thetax+=(p_out.pz()>0)?fCrossingAngle_45*urad:fCrossingAngle_56*urad;
 
     double dtheta_x = (double)CLHEP::RandGauss::shoot(engine,0.,m_sigmaSTX);
     double dtheta_y = (double)CLHEP::RandGauss::shoot(engine,0.,m_sigmaSTY);

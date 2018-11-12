@@ -62,8 +62,8 @@ class PPSSimTrackProducer : public edm::stream::EDProducer<> {
              edm::EDGetTokenT<edm::HepMCProduct> m_InTagToken;
 
              std::string m_transportMethod;
-             int  eventsAnalysed; //!< just to count events that have been analysed
-
+             int m_eventsAnalysed; //!< just to count events that have been analysed
+    
 };
 
 //
@@ -118,6 +118,10 @@ PPSSimTrackProducer::~PPSSimTrackProducer()
  
    // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
+   if (theTransporter) { 
+      delete theTransporter; 
+      theTransporter = nullptr;
+   } 
 
 }
 
@@ -132,7 +136,7 @@ PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace edm;
     using namespace std;
-    HepMC::GenEvent * evt_;
+    HepMC::GenEvent * evt;
     edm::Service<edm::RandomNumberGenerator> rng;
     CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
     if ( engine->name() != "TRandom3" ) {
@@ -140,7 +144,7 @@ PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             << "The TRandom3 engine type must be used with ProtonTransport, Random Number Generator Service not correctly configured!";
     }
 
-    eventsAnalysed++;
+    m_eventsAnalysed++;
     Handle<HepMCProduct>  HepMCEvt;   
     iEvent.getByToken( m_InTagToken, HepMCEvt ) ;
 
@@ -154,17 +158,17 @@ PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             << "HectorTrasported HepMCProduce already exists\n";
     }
 
-    evt_ = new HepMC::GenEvent( *HepMCEvt->GetEvent() );
+    evt = new HepMC::GenEvent( *HepMCEvt->GetEvent() );
 
     theTransporter->clear();
-    theTransporter->process( evt_ ,iSetup ,engine);
+    theTransporter->process( evt ,iSetup ,engine);
 
-    if (m_verbosity)  evt_->print();
+    if (m_verbosity)  evt->print();
 
-    unique_ptr<HepMCProduct> NewProduct(new edm::HepMCProduct()) ;
-    NewProduct->addHepMCData( evt_ ) ;
+    unique_ptr<HepMCProduct> newProduct(new edm::HepMCProduct()) ;
+    newProduct->addHepMCData( evt ) ;
 
-    iEvent.put(std::move(NewProduct)) ;
+    iEvent.put(std::move(newProduct)) ;
 
     unique_ptr<LHCTransportLinkContainer> NewCorrespondenceMap(new edm::LHCTransportLinkContainer() );
     edm::LHCTransportLinkContainer thisLink(theTransporter->getCorrespondenceMap());
@@ -176,6 +180,8 @@ PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     iEvent.put(std::move(NewCorrespondenceMap));
+    // There is no need to delete the pointer to the event, since it is deleted in HepMCProduct,
+    // in fact, it MUST NOT be delete here, as a protection is missing in above package
 }
 // The methods below are pure virtual, so it needs to be implemented even if not used
 //

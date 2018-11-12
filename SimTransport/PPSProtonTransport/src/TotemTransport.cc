@@ -7,54 +7,54 @@
 
 #include <cmath>
 
-TotemTransport::TotemTransport():ProtonTransport(){MODE=TOTEM;};
+TotemTransport::TotemTransport():ProtonTransport(){MODE=TransportMode::TOTEM;};
 TotemTransport::~TotemTransport()
 {
       this->clear();
 }
 TotemTransport::TotemTransport(const edm::ParameterSet & iConfig, bool verbosity):ProtonTransport(),
-        parameters(iConfig.getParameter<edm::ParameterSet>("BeamProtTransportSetup")),
-        verbosity(iConfig.getParameter<bool>("Verbosity")),
-        model_root_file_r(parameters.getParameter<std::string>("ModelRootFile_R")),
-        model_root_file_l(parameters.getParameter<std::string>("ModelRootFile_L")),
-        model_ip_150_r_name(parameters.getParameter<std::string>("Model_IP_150_R_Name")),
-        model_ip_150_l_name(parameters.getParameter<std::string>("Model_IP_150_L_Name")),
-        model_ip_150_r_zmin(parameters.getParameter<double>("Model_IP_150_R_Zmin")),
-        model_ip_150_r_zmax(parameters.getParameter<double>("Model_IP_150_R_Zmax")),
-        model_ip_150_l_zmin(parameters.getParameter<double>("Model_IP_150_L_Zmin")),
-        model_ip_150_l_zmax(parameters.getParameter<double>("Model_IP_150_L_Zmax")), 
-        beampipe_aperture_radius(parameters.getParameter<double>("BeampipeApertureRadius"))
+        m_parameters(iConfig.getParameter<edm::ParameterSet>("BeamProtTransportSetup")),
+        m_verbosity(iConfig.getParameter<bool>("Verbosity")),
+        m_model_root_file_r(m_parameters.getParameter<std::string>("ModelRootFile_R")),
+        m_model_root_file_l(m_parameters.getParameter<std::string>("ModelRootFile_L")),
+        m_model_ip_150_r_name(m_parameters.getParameter<std::string>("Model_IP_150_R_Name")),
+        m_model_ip_150_l_name(m_parameters.getParameter<std::string>("Model_IP_150_L_Name")),
+        m_model_ip_150_r_zmin(m_parameters.getParameter<double>("Model_IP_150_R_Zmin")),
+        m_model_ip_150_r_zmax(m_parameters.getParameter<double>("Model_IP_150_R_Zmax")),
+        m_model_ip_150_l_zmin(m_parameters.getParameter<double>("Model_IP_150_L_Zmin")),
+        m_model_ip_150_l_zmax(m_parameters.getParameter<double>("Model_IP_150_L_Zmax")), 
+        m_beampipe_aperture_radius(m_parameters.getParameter<double>("BeampipeApertureRadius"))
 {
-        fBeamEnergy= parameters.getParameter<double>("sqrtS");
-        m_sigmaSTX = parameters.getParameter<double>("beamDivergenceX");
-        m_sigmaSTY = parameters.getParameter<double>("beamDivergenceY");
-        m_sig_E    = parameters.getParameter<double>("beamEnergyDispersion");
-        fCrossingAngle_45 = parameters.getParameter<double>("halfCrossingAngleSector45");
-        fCrossingAngle_56 = parameters.getParameter<double>("halfCrossingAngleSector56");
+        fBeamEnergy= m_parameters.getParameter<double>("sqrtS");
+        m_sigmaSTX = m_parameters.getParameter<double>("beamDivergenceX");
+        m_sigmaSTY = m_parameters.getParameter<double>("beamDivergenceY");
+        m_sig_E    = m_parameters.getParameter<double>("beamEnergyDispersion");
+        fCrossingAngle_45 = m_parameters.getParameter<double>("halfCrossingAngleSector45");
+        fCrossingAngle_56 = m_parameters.getParameter<double>("halfCrossingAngleSector56");
         fVtxMeanX       = iConfig.getParameter<double>("VtxMeanX");
         fVtxMeanY       = iConfig.getParameter<double>("VtxMeanY");
         fVtxMeanZ       = iConfig.getParameter<double>("VtxMeanZ");
-        fBeamXatIP      = parameters.getUntrackedParameter<double>("BeamXatIP",fVtxMeanX);
-        fBeamYatIP      = parameters.getUntrackedParameter<double>("BeamYatIP",fVtxMeanY);
-        bApplyZShift    = parameters.getParameter<bool>("ApplyZShift");
+        fBeamXatIP      = m_parameters.getUntrackedParameter<double>("BeamXatIP",fVtxMeanX);
+        fBeamYatIP      = m_parameters.getUntrackedParameter<double>("BeamYatIP",fVtxMeanY);
+        bApplyZShift    = m_parameters.getParameter<bool>("ApplyZShift");
 
-        MODE = TOTEM;
+        MODE = TransportMode::TOTEM;
 
         fBeamMomentum        = sqrt(fBeamEnergy*fBeamEnergy - ProtonMassSQ);
 
-        fPPSRegionStart_56=model_ip_150_r_zmax;
-        fPPSRegionStart_45=model_ip_150_l_zmax;
+        fPPSRegionStart_56=m_model_ip_150_r_zmax;
+        fPPSRegionStart_45=m_model_ip_150_l_zmax;
         
-        aprox_ip_150_r = ReadParameterization(model_ip_150_r_name,model_root_file_r);
-        aprox_ip_150_l = ReadParameterization(model_ip_150_l_name,model_root_file_l);
+        m_aprox_ip_150_r = ReadParameterization(m_model_ip_150_r_name,m_model_root_file_r);
+        m_aprox_ip_150_l = ReadParameterization(m_model_ip_150_l_name,m_model_root_file_l);
 
-        if (aprox_ip_150_r == nullptr || aprox_ip_150_l == nullptr) {
+        if (m_aprox_ip_150_r == nullptr || m_aprox_ip_150_l == nullptr) {
                 edm::LogError("TotemTransport") << "Parameterisation "
-                        << model_ip_150_r_name << " or " << model_ip_150_l_name << " missing in file. Cannot proceed. ";
+                        << m_model_ip_150_r_name << " or " << m_model_ip_150_l_name << " missing in file. Cannot proceed. ";
                 exit(1);
         }
         edm::LogInfo("TotemRPProtonTransportSetup") <<
-                "Parameterizations read from file, pointers:" << aprox_ip_150_r << " " << aprox_ip_150_l << " ";
+                "Parameterizations read from file, pointers:" << m_aprox_ip_150_r << " " << m_aprox_ip_150_l << " ";
 }
 void TotemTransport::process(const HepMC::GenEvent * evt , const edm::EventSetup& iSetup, CLHEP::HepRandomEngine * _engine )
 {
@@ -101,12 +101,12 @@ bool TotemTransport::transportProton( const HepMC::GenParticle* in_trk)
              " momentum: " << in_momentum[0] << ", " << in_momentum[1] << ", " << in_momentum[2];
 
      LHCOpticsApproximator* approximator_= nullptr;
-     if (in_mom.z()>0) {approximator_ = aprox_ip_150_l; Zin_ = model_ip_150_l_zmin; Zout_ = model_ip_150_l_zmax;}
-     else              {approximator_ = aprox_ip_150_r; Zin_ = model_ip_150_r_zmin; Zout_ = model_ip_150_r_zmax;}
+     if (in_mom.z()>0) {approximator_ = m_aprox_ip_150_l; m_Zin_ = m_model_ip_150_l_zmin; m_Zout_ = m_model_ip_150_l_zmax;}
+     else              {approximator_ = m_aprox_ip_150_r; m_Zin_ = m_model_ip_150_r_zmin; m_Zout_ = m_model_ip_150_r_zmax;}
 
      bool invert_beam_coord_system=true; // it doesn't matter the option here, it is hard coded as TRUE inside LHCOpticsApproximator!
 
-     bool tracked = approximator_->Transport_m_GeV(in_position, in_momentum, out_position, out_momentum, invert_beam_coord_system, Zout_ - Zin_);
+     bool tracked = approximator_->Transport_m_GeV(in_position, in_momentum, out_position, out_momentum, invert_beam_coord_system, m_Zout_ - m_Zin_);
 
      if (!tracked) return false;
 
@@ -115,7 +115,7 @@ bool TotemTransport::transportProton( const HepMC::GenParticle* in_trk)
              "momentum: " << out_momentum[0] << ", " << out_momentum[1] << ", " << out_momentum[2];
 
      if (out_position[0] * out_position[0] + out_position[1] * out_position[1] >
-                     beampipe_aperture_radius * beampipe_aperture_radius) {
+                     m_beampipe_aperture_radius * m_beampipe_aperture_radius) {
              edm::LogInfo("TotemTransport") << "Proton ouside beampipe";
              edm::LogInfo("TotemTransport") << "===== END Transport " << "====================";
              return false;
@@ -143,7 +143,7 @@ bool TotemTransport::transportProton( const HepMC::GenParticle* in_trk)
      m_yAtTrPoint[line]  = y1_ctpps;
      return true;
 }
-LHCOpticsApproximator* TotemTransport::ReadParameterization(const std::string& model_name, const std::string& rootfile)
+LHCOpticsApproximator* TotemTransport::ReadParameterization(const std::string& m_model_name, const std::string& rootfile)
 {
     edm::FileInPath fileName(rootfile.c_str());
     TFile *f = TFile::Open(fileName.fullPath().c_str(), "read");
@@ -154,7 +154,7 @@ LHCOpticsApproximator* TotemTransport::ReadParameterization(const std::string& m
     edm::LogInfo("TotemRPProtonTransportSetup") << "Root file opened, pointer:" << f;
 
     // read parametrization
-    LHCOpticsApproximator* aprox = (LHCOpticsApproximator *) f->Get(model_name.c_str());
+    LHCOpticsApproximator* aprox = (LHCOpticsApproximator *) f->Get(m_model_name.c_str());
     f->Close();
     return aprox;
 }

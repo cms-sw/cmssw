@@ -87,16 +87,16 @@ int main(int argc, char** argv)
     fout->Close();
 };
 
-PPSOpticsCalibrator::PPSOpticsCalibrator(const std::string b1,const std::string b2, int len):beamline_length(len+0.1)
+PPSOpticsCalibrator::PPSOpticsCalibrator(const std::string b1,const std::string b2, int len):m_beamline_length(len+0.1)
 {
-        IP_Found=false;
-        ParIdx_Found=false;
-        Emmitance_OK=false;
-        emittanceX=0.;
-        emittanceY=0.;
+        m_IP_Found=false;
+        m_ParIdx_Found=false;
+        m_Emmitance_OK=false;
+        m_emittanceX=0.;
+        m_emittanceY=0.;
 
-        m_beamline56 = std::unique_ptr<H_BeamLine>(new H_BeamLine( 1, beamline_length )); // (direction, length)
-        m_beamline45 = std::unique_ptr<H_BeamLine>(new H_BeamLine(-1, beamline_length )); //
+        m_beamline56 = std::unique_ptr<H_BeamLine>(new H_BeamLine( 1, m_beamline_length )); // (direction, length)
+        m_beamline45 = std::unique_ptr<H_BeamLine>(new H_BeamLine(-1, m_beamline_length )); //
         m_beamline56->fill( b1, 1, "IP5");
         m_beamline45->fill( b2,-1, "IP5");
         m_beamline45->offsetElements( 120, 0.097 );
@@ -130,7 +130,7 @@ void PPSOpticsCalibrator::AlignBeamLine()
             beamline->alignElement(opt->getName(),0.1,0.1);
             std::cout << "Verifying the alingment"<< std::endl;
             H_BeamParticle h_p;
-            h_p.setPosition(fBeamXatIP*mm_to_um,fBeamYatIP*mm_to_um,0.,0.,0.);
+            h_p.setPosition(m_fBeamXatIP*mm_to_um,m_fBeamYatIP*mm_to_um,0.,0.,0.);
             h_p.computePath(beamline);
             for(int j=NumberOfElements-1;j>=0;j--) {
                H_OpticalElement* opt = const_cast<H_OpticalElement*>(beamline->getElement(j));
@@ -147,8 +147,8 @@ void PPSOpticsCalibrator::AlignBeamLine()
 }
 void PPSOpticsCalibrator::CalibrateBeamPositionatIP(double& xpos,double& ypos)
 {
-     xpos=fBeamXatIP;
-     xpos=fBeamYatIP;
+     xpos=m_fBeamXatIP;
+     xpos=m_fBeamYatIP;
      double sigx_target=0.001;
      double sigy_target=0.001;
 //
@@ -182,21 +182,21 @@ void PPSOpticsCalibrator::CalibrateBeamPositionatIP(double& xpos,double& ypos)
         h_pp.computePath(&*m_beamline45); h_pn.computePath(&*m_beamline56);
         sigx=0.;
         sigy=0.;
-        BdistP.clear();
-        BdistN.clear();
+        m_BdistP.clear();
+        m_BdistN.clear();
         int z1=1;
         int z2 = 3;
         int z3 = 4;
         for(unsigned int i:{z1,z2,z3}){
-           h_pp.propagate(std::get<0>(PosP.at(i)));
-           h_pn.propagate(std::get<0>(PosN.at(i)));
+           h_pp.propagate(std::get<0>(m_PosP.at(i)));
+           h_pn.propagate(std::get<0>(m_PosN.at(i)));
 
-           double xp = std::get<1>(PosP.at(i)); double yp = std::get<2>(PosP.at(i)); // the beam position is given as positive (LHC frame)
-           double xn = std::get<1>(PosN.at(i)); double yn = std::get<2>(PosN.at(i)); // ibdem
+           double xp = std::get<1>(m_PosP.at(i)); double yp = std::get<2>(m_PosP.at(i)); // the beam position is given as positive (LHC frame)
+           double xn = std::get<1>(m_PosN.at(i)); double yn = std::get<2>(m_PosN.at(i)); // ibdem
 
-           BdistP.push_back(make_tuple<double,double,double>((double)std::get<0>(PosP.at(i)),h_pp.getX()*um_to_mm,h_pp.getY()*um_to_mm));
+           m_BdistP.push_back(make_tuple<double,double,double>((double)std::get<0>(m_PosP.at(i)),h_pp.getX()*um_to_mm,h_pp.getY()*um_to_mm));
            sigx+=(pow((h_pp.getX()*um_to_mm-xp),2)+pow((h_pn.getX()*um_to_mm-xn),2));
-           BdistN.push_back(make_tuple<double,double,double>((double)std::get<0>(PosN.at(i)),h_pn.getX()*um_to_mm,h_pn.getY()*um_to_mm));
+           m_BdistN.push_back(make_tuple<double,double,double>((double)std::get<0>(m_PosN.at(i)),h_pn.getX()*um_to_mm,h_pn.getY()*um_to_mm));
 
            sigy+=(pow((h_pp.getY()*um_to_mm-yp),2)+pow((h_pn.getY()*um_to_mm-yn),2));
         }
@@ -231,23 +231,23 @@ void PPSOpticsCalibrator::CalibrateBeamPositionatIP(double& xpos,double& ypos)
              << "                   "                  << "\tY = " << ypos << " (mm) \tSigmaY = " << sigy_min << "\tDeltaY = " << deltay << "\n"
              << "Calibrated beam positions: (in mm)\n"
              << " Z (m)   \t X (twiss) \t X (calib) \t Y (twiss) \t Y (calib) \t Delta X \t Delta Y\n";
-     for(unsigned int i=0;i<BdistP.size();i++) {
+     for(unsigned int i=0;i<m_BdistP.size();i++) {
              std::cout << std::setw(10) << std::setprecision(6) << std::fixed
-                     <<  std::get<0>(BdistP.at(i))<< " \t "<< std::get<1>(PosP.at(i))<< " \t "<< std::get<1>(BdistP.at(i))
-                     << " \t "<< std::get<2>(PosP.at(i))<< " \t " << std::get<2>(BdistP.at(i))
-                     << " \t "<< std::get<1>(BdistP.at(i))-std::get<1>(PosP.at(i))
-                     << " \t "<< std::get<2>(BdistP.at(i))-std::get<2>(PosP.at(i))
+                     <<  std::get<0>(m_BdistP.at(i))<< " \t "<< std::get<1>(m_PosP.at(i))<< " \t "<< std::get<1>(m_BdistP.at(i))
+                     << " \t "<< std::get<2>(m_PosP.at(i))<< " \t " << std::get<2>(m_BdistP.at(i))
+                     << " \t "<< std::get<1>(m_BdistP.at(i))-std::get<1>(m_PosP.at(i))
+                     << " \t "<< std::get<2>(m_BdistP.at(i))-std::get<2>(m_PosP.at(i))
                      << "\n";
      }
-     for(unsigned int i=0;i<BdistN.size();i++) {
-             std::cout << -std::get<0>(BdistN.at(i))<< " \t "<<std::get<1>(PosN.at(i)) << " \t "<< std::get<1>(BdistN.at(i))
-                                              << " \t "<<std::get<2>(PosN.at(i)) << " \t "<<std::get<2>(BdistN.at(i))
-                                              << " \t "<<std::get<1>(BdistN.at(i))-std::get<1>(PosN.at(i))
-                                              << " \t "<<std::get<2>(BdistN.at(i))-std::get<2>(PosN.at(i))
+     for(unsigned int i=0;i<m_BdistN.size();i++) {
+             std::cout << -std::get<0>(m_BdistN.at(i))<< " \t "<<std::get<1>(m_PosN.at(i)) << " \t "<< std::get<1>(m_BdistN.at(i))
+                                              << " \t "<<std::get<2>(m_PosN.at(i)) << " \t "<<std::get<2>(m_BdistN.at(i))
+                                              << " \t "<<std::get<1>(m_BdistN.at(i))-std::get<1>(m_PosN.at(i))
+                                              << " \t "<<std::get<2>(m_BdistN.at(i))-std::get<2>(m_PosN.at(i))
                                               << "\n";
      }
-     fBeamXatIP=xpos;
-     fBeamYatIP=ypos;
+     m_fBeamXatIP=xpos;
+     m_fBeamYatIP=ypos;
      return;
 }
 void PPSOpticsCalibrator::BeamProfile(TFile* fout,int Nevents)
@@ -263,12 +263,12 @@ void PPSOpticsCalibrator::BeamProfile(TFile* fout,int Nevents)
      int z2 = 3;
      int z3 = 4;
      for(int i:{z1,z2,z3}) {
-        averageX_bp+=std::get<1>(PosP.at(i)); averageY_bp+=std::get<2>(PosP.at(i));
-        averageX_bp+=std::get<1>(PosN.at(i)); averageY_bp+=std::get<2>(PosN.at(i));
-        maxSX = max(std::get<3>(PosP.at(i)),maxSX);
-        maxSX = max(std::get<3>(PosN.at(i)),maxSX);
-        maxSY = max(std::get<4>(PosP.at(i)),maxSY);
-        maxSY = max(std::get<4>(PosN.at(i)),maxSY);
+        averageX_bp+=std::get<1>(m_PosP.at(i)); averageY_bp+=std::get<2>(m_PosP.at(i));
+        averageX_bp+=std::get<1>(m_PosN.at(i)); averageY_bp+=std::get<2>(m_PosN.at(i));
+        maxSX = max(std::get<3>(m_PosP.at(i)),maxSX);
+        maxSX = max(std::get<3>(m_PosN.at(i)),maxSX);
+        maxSY = max(std::get<4>(m_PosP.at(i)),maxSY);
+        maxSY = max(std::get<4>(m_PosN.at(i)),maxSY);
      }
      averageX_bp/=6; averageY_bp/=6;
      averageX_bp*=10;averageY_bp*=10; // next hundreths
@@ -277,25 +277,25 @@ void PPSOpticsCalibrator::BeamProfile(TFile* fout,int Nevents)
      int width = (int)max(ceil(maxSX*10),ceil(maxSY*10));
      width*=100; // final convertion to microns
      width*=3.5;   // use 5 sigmas 
-     TH2F* bp1f = new TH2F("bp1f",Form("Z=%5.2f (m);X(#mum);Y(#mum)",std::get<0>(PosP.at(z1))),
+     TH2F* bp1f = new TH2F("bp1f",Form("Z=%5.2f (m);X(#mum);Y(#mum)",std::get<0>(m_PosP.at(z1))),
                             1000,averageX_bp-width,averageX_bp+width,1000,averageY_bp-width,averageY_bp+width);
-     TH2F* bp2f = new TH2F("bp2f",Form("Z=%5.2f (m);X(#mum);Y(#mum)",std::get<0>(PosP.at(z2))),
+     TH2F* bp2f = new TH2F("bp2f",Form("Z=%5.2f (m);X(#mum);Y(#mum)",std::get<0>(m_PosP.at(z2))),
                             1000,averageX_bp-width,averageX_bp+width,1000,averageY_bp-width,averageY_bp+width);
-     TH2F* bp3f = new TH2F("bp3f",Form("Z=%5.2f (m);X(#mum);Y(#mum)",std::get<0>(PosP.at(z3))),
+     TH2F* bp3f = new TH2F("bp3f",Form("Z=%5.2f (m);X(#mum);Y(#mum)",std::get<0>(m_PosP.at(z3))),
                             1000,averageX_bp-width,averageX_bp+width,1000,averageY_bp-width,averageY_bp+width);
-     TH2F* bp1b = new TH2F("bp1b",Form("Z=-%5.2f (m);X(#mum);Y(#mum)",std::get<0>(PosN.at(z1))),
+     TH2F* bp1b = new TH2F("bp1b",Form("Z=-%5.2f (m);X(#mum);Y(#mum)",std::get<0>(m_PosN.at(z1))),
                             1000,averageX_bp-width,averageX_bp+width,1000,averageY_bp-width,averageY_bp+width);
-     TH2F* bp2b = new TH2F("bp2b",Form("Z=-%5.2f (m);X(#mum);Y(#mum)",std::get<0>(PosN.at(z2))),
+     TH2F* bp2b = new TH2F("bp2b",Form("Z=-%5.2f (m);X(#mum);Y(#mum)",std::get<0>(m_PosN.at(z2))),
                             1000,averageX_bp-width,averageX_bp+width,1000,averageY_bp-width,averageY_bp+width);
-     TH2F* bp3b = new TH2F("bp3b",Form("Z=-%5.2f (m);X(#mum);Y(#mum)",std::get<0>(PosN.at(z3))),
+     TH2F* bp3b = new TH2F("bp3b",Form("Z=-%5.2f (m);X(#mum);Y(#mum)",std::get<0>(m_PosN.at(z3))),
                             1000,averageX_bp-width,averageX_bp+width,1000,averageY_bp-width,averageY_bp+width);
 
-     TEllipse* el1f = new TEllipse(std::get<1>(PosP.at(z1))*mm_to_um,std::get<2>(PosP.at(z1))*mm_to_um,std::get<3>(PosP.at(z1))*mm_to_um,std::get<4>(PosP.at(z1))*mm_to_um);
-     TEllipse* el2f = new TEllipse(std::get<1>(PosP.at(z2))*mm_to_um,std::get<2>(PosP.at(z2))*mm_to_um,std::get<3>(PosP.at(z2))*mm_to_um,std::get<4>(PosP.at(z2))*mm_to_um);
-     TEllipse* el3f = new TEllipse(std::get<1>(PosP.at(z3))*mm_to_um,std::get<2>(PosP.at(z3))*mm_to_um,std::get<3>(PosP.at(z3))*mm_to_um,std::get<4>(PosP.at(z3))*mm_to_um);
-     TEllipse* el1b = new TEllipse(std::get<1>(PosN.at(z1))*mm_to_um,std::get<2>(PosN.at(z1))*mm_to_um,std::get<3>(PosN.at(z1))*mm_to_um,std::get<4>(PosN.at(z1))*mm_to_um);
-     TEllipse* el2b = new TEllipse(std::get<1>(PosN.at(z2))*mm_to_um,std::get<2>(PosN.at(z2))*mm_to_um,std::get<3>(PosN.at(z2))*mm_to_um,std::get<4>(PosN.at(z2))*mm_to_um);
-     TEllipse* el3b = new TEllipse(std::get<1>(PosN.at(z3))*mm_to_um,std::get<2>(PosN.at(z3))*mm_to_um,std::get<3>(PosN.at(z3))*mm_to_um,std::get<4>(PosN.at(z3))*mm_to_um);
+     TEllipse* el1f = new TEllipse(std::get<1>(m_PosP.at(z1))*mm_to_um,std::get<2>(m_PosP.at(z1))*mm_to_um,std::get<3>(m_PosP.at(z1))*mm_to_um,std::get<4>(m_PosP.at(z1))*mm_to_um);
+     TEllipse* el2f = new TEllipse(std::get<1>(m_PosP.at(z2))*mm_to_um,std::get<2>(m_PosP.at(z2))*mm_to_um,std::get<3>(m_PosP.at(z2))*mm_to_um,std::get<4>(m_PosP.at(z2))*mm_to_um);
+     TEllipse* el3f = new TEllipse(std::get<1>(m_PosP.at(z3))*mm_to_um,std::get<2>(m_PosP.at(z3))*mm_to_um,std::get<3>(m_PosP.at(z3))*mm_to_um,std::get<4>(m_PosP.at(z3))*mm_to_um);
+     TEllipse* el1b = new TEllipse(std::get<1>(m_PosN.at(z1))*mm_to_um,std::get<2>(m_PosN.at(z1))*mm_to_um,std::get<3>(m_PosN.at(z1))*mm_to_um,std::get<4>(m_PosN.at(z1))*mm_to_um);
+     TEllipse* el2b = new TEllipse(std::get<1>(m_PosN.at(z2))*mm_to_um,std::get<2>(m_PosN.at(z2))*mm_to_um,std::get<3>(m_PosN.at(z2))*mm_to_um,std::get<4>(m_PosN.at(z2))*mm_to_um);
+     TEllipse* el3b = new TEllipse(std::get<1>(m_PosN.at(z3))*mm_to_um,std::get<2>(m_PosN.at(z3))*mm_to_um,std::get<3>(m_PosN.at(z3))*mm_to_um,std::get<4>(m_PosN.at(z3))*mm_to_um);
      el1f->SetFillStyle(0); el2f->SetFillStyle(0); el3f->SetFillStyle(0); el1b->SetFillStyle(0); el2b->SetFillStyle(0); el3b->SetFillStyle(0);
      el1f->SetLineWidth(2); el2f->SetLineWidth(2); el3f->SetLineWidth(2); el1b->SetLineWidth(2); el2b->SetLineWidth(2); el3b->SetLineWidth(2);
      bp1f->GetListOfFunctions()->Add(el1f); bp2f->GetListOfFunctions()->Add(el2f); bp3f->GetListOfFunctions()->Add(el3f);
@@ -310,13 +310,13 @@ void PPSOpticsCalibrator::BeamProfile(TFile* fout,int Nevents)
               case 0:  // positive side
                      prof1 = &(*bp1f);prof2 = &(*bp2f);prof3 = &(*bp3f);
                      beamline= &(*m_beamline45);   // PPS1 corresponds to beam2
-                     DetPos = &(PosP);
+                     DetPos = &(m_PosP);
                      direction=1;
                      break;
               case 1: // negative side
                      prof1 = &(*bp1b);prof2 = &(*bp2b); prof3 = &(*bp3b);
                      beamline= &(*m_beamline56);   // PPS2 corresponds to beam1
-                     DetPos = &(PosN);
+                     DetPos = &(m_PosN);
                      direction=-1;
                      break;
         }
@@ -324,7 +324,7 @@ void PPSOpticsCalibrator::BeamProfile(TFile* fout,int Nevents)
         for(int i=0;i<Nevents;i++) {
            H_BeamParticle h_p; // Hector always gives a positive pz
            PPSTools::LorentzBoost(h_p,direction,"LAB");
-           h_p.setPosition(-fBeamXatIP*mm_to_um,fBeamYatIP*mm_to_um,h_p.getTX(),h_p.getTY(),-fVtxMeanZ*cm_to_m);
+           h_p.setPosition(-m_fBeamXatIP*mm_to_um,m_fBeamYatIP*mm_to_um,h_p.getTX(),h_p.getTY(),-fVtxMeanZ*cm_to_m);
 
            m_sigE=1.1e-4;
            h_p.smearPos(m_sigmaSX,m_sigmaSY); h_p.smearAng(m_sigmaSTX,m_sigmaSTY); h_p.smearE(m_sigE);
@@ -366,12 +366,12 @@ void PPSOpticsCalibrator::BeamProfile(TFile* fout,int Nevents)
                 << "Beam position at Det2 negative size --> " << _beamX_Det2_b << "("<< _beamSigX_Det2_b<<"),\t"<< _beamY_Det2_b << "("<< _beamSigY_Det2_b<<")\n"
                 << "Beam position at ToF  negative size --> " << _beamX_Det3_b << "("<< _beamSigX_Det3_b<<"),\t"<< _beamY_Det3_b << "("<< _beamSigY_Det3_b<<")\n"
              << "\nBeam positions displacement to the closed orbit (im mm):\n" << std::setprecision(3)
-             << "at Det1 positive side  --> X= " << _beamX_Det1_f*um_to_mm-std::get<1>(PosP.at(z1)) << "\tY= "<< _beamY_Det1_f*um_to_mm-std::get<2>(PosP.at(z1))<< "\n"
-             << "at Det2 positive side  --> X= " << _beamX_Det2_f*um_to_mm-std::get<1>(PosP.at(z2)) << "\tY= "<<_beamY_Det2_f*um_to_mm-std::get<2>(PosP.at(z2))<< "\n"
-             << "at ToF  positive side  --> X= " << _beamX_Det3_f*um_to_mm-std::get<1>(PosP.at(z3)) << "\tY= "<<_beamY_Det3_f*um_to_mm-std::get<2>(PosP.at(z3))<<"\n"
-             << "at Det1 negative side  --> X= " << _beamX_Det1_b*um_to_mm-std::get<1>(PosN.at(z1)) << "\tY= "<< _beamY_Det1_b*um_to_mm-std::get<2>(PosN.at(z1))<<"\n"
-             << "at Det2 negative side  --> X= " << _beamX_Det2_b*um_to_mm-std::get<1>(PosN.at(z2)) << "\tY= "<< _beamY_Det2_b*um_to_mm-std::get<2>(PosN.at(z2))<<"\n"
-             << "at ToF  negative side  --> X= " << _beamX_Det3_b*um_to_mm-std::get<1>(PosN.at(z3)) << "\tY= "<< _beamY_Det3_b*um_to_mm-std::get<2>(PosN.at(z3))<<"\n";
+             << "at Det1 positive side  --> X= " << _beamX_Det1_f*um_to_mm-std::get<1>(m_PosP.at(z1)) << "\tY= "<< _beamY_Det1_f*um_to_mm-std::get<2>(m_PosP.at(z1))<< "\n"
+             << "at Det2 positive side  --> X= " << _beamX_Det2_f*um_to_mm-std::get<1>(m_PosP.at(z2)) << "\tY= "<<_beamY_Det2_f*um_to_mm-std::get<2>(m_PosP.at(z2))<< "\n"
+             << "at ToF  positive side  --> X= " << _beamX_Det3_f*um_to_mm-std::get<1>(m_PosP.at(z3)) << "\tY= "<<_beamY_Det3_f*um_to_mm-std::get<2>(m_PosP.at(z3))<<"\n"
+             << "at Det1 negative side  --> X= " << _beamX_Det1_b*um_to_mm-std::get<1>(m_PosN.at(z1)) << "\tY= "<< _beamY_Det1_b*um_to_mm-std::get<2>(m_PosN.at(z1))<<"\n"
+             << "at Det2 negative side  --> X= " << _beamX_Det2_b*um_to_mm-std::get<1>(m_PosN.at(z2)) << "\tY= "<< _beamY_Det2_b*um_to_mm-std::get<2>(m_PosN.at(z2))<<"\n"
+             << "at ToF  negative side  --> X= " << _beamX_Det3_b*um_to_mm-std::get<1>(m_PosN.at(z3)) << "\tY= "<< _beamY_Det3_b*um_to_mm-std::get<2>(m_PosN.at(z3))<<"\n";
      bp1f->Write();
      bp2f->Write();
      bp3f->Write();
@@ -390,16 +390,16 @@ void PPSOpticsCalibrator::ReadEmittance(std::ifstream& tabfile)
      }
      std::string temp_string;
      std::istringstream curstring;
-     while (std::getline(tabfile,temp_string)&&(emittanceX==0||emittanceY==0)) {
+     while (std::getline(tabfile,temp_string)&&(m_emittanceX==0||m_emittanceY==0)) {
             string dummy;
             curstring.clear(); // needed when using istringstream::str(string) several times !
             curstring.str(temp_string);
             if (temp_string.find("@ EX")<temp_string.length()) {
-               curstring >> dummy >> dummy >> dummy >> emittanceX;
+               curstring >> dummy >> dummy >> dummy >> m_emittanceX;
                continue;
             }
             if (temp_string.find("@ EY")<temp_string.length()) {
-               curstring >> dummy >> dummy >> dummy >> emittanceY;
+               curstring >> dummy >> dummy >> dummy >> m_emittanceY;
                continue;
             }
      }
@@ -428,11 +428,11 @@ void PPSOpticsCalibrator::ReadParameterIndex(std::ifstream& tabfile)
                    if (header=="*") continue; // skip first field
                    N_col++;
                    if (header=="NAME") continue;
-                   else if (header=="S") {s_idx = N_col-1;continue;}
-                   else if (header=="X") {x_idx = N_col-1;continue;}
-                   else if (header=="Y") {y_idx = N_col-1;continue;}
-                   else if (header=="BETX") {betx_idx = N_col-1;continue;}
-                   else if (header=="BETY") {bety_idx = N_col-1;continue;}
+                   else if (header=="S") {m_s_idx = N_col-1;continue;}
+                   else if (header=="X") {m_x_idx = N_col-1;continue;}
+                   else if (header=="Y") {m_y_idx = N_col-1;continue;}
+                   else if (header=="BETX") {m_betx_idx = N_col-1;continue;}
+                   else if (header=="BETY") {m_bety_idx = N_col-1;continue;}
               }
            }
            break;
@@ -456,20 +456,20 @@ void PPSOpticsCalibrator::FindIP(std::ifstream& tabfile)
           curstring.str(temp_string);
           std::string buffer;
           while(curstring>>buffer) {
-               if (Ncol==x_idx)    fBeamXatIP=-atof(buffer.c_str())*m_to_mm;
-               if (Ncol==y_idx)    fBeamYatIP=atof(buffer.c_str())*m_to_mm;
-               if (Ncol==s_idx)    IPposition=atof(buffer.c_str());
-               if (Ncol==betx_idx) BetaX=atof(buffer.c_str());
-               if (Ncol==bety_idx) BetaY=atof(buffer.c_str());
-               if (Ncol>=std::max({s_idx,betx_idx,bety_idx,x_idx,y_idx})) break;
+               if (Ncol==m_x_idx)    m_fBeamXatIP=-atof(buffer.c_str())*m_to_mm;
+               if (Ncol==m_y_idx)    m_fBeamYatIP=atof(buffer.c_str())*m_to_mm;
+               if (Ncol==m_s_idx)    m_IPposition=atof(buffer.c_str());
+               if (Ncol==m_betx_idx) BetaX=atof(buffer.c_str());
+               if (Ncol==m_bety_idx) BetaY=atof(buffer.c_str());
+               if (Ncol>=std::max({m_s_idx,m_betx_idx,m_bety_idx,m_x_idx,m_y_idx})) break;
                Ncol++;
           }
           break;
     }
-    m_sigmaSX = sqrt(emittanceX*BetaX)*m_to_um;
-    m_sigmaSY = sqrt(emittanceY*BetaY)*m_to_um;
-    m_sigmaSTX= sqrt(emittanceX/BetaX)*m_to_um;
-    m_sigmaSTY= sqrt(emittanceY/BetaY)*m_to_um;
+    m_sigmaSX = sqrt(m_emittanceX*BetaX)*m_to_um;
+    m_sigmaSY = sqrt(m_emittanceY*BetaY)*m_to_um;
+    m_sigmaSTX= sqrt(m_emittanceX/BetaX)*m_to_um;
+    m_sigmaSTY= sqrt(m_emittanceY/BetaY)*m_to_um;
 
     tabfile.clear();
     tabfile.seekg(0);
@@ -498,27 +498,27 @@ void PPSOpticsCalibrator::ReadBeamPositionFromOpticsFile(std::ifstream& tabfile)
           std::string buffer;
           while(curstring.good()&&curstring>>buffer) {
                double value=atof(buffer.c_str());
-               if (Ncol==s_idx) {S=value-IPposition;}
-               if (Ncol==x_idx) {X=value*m_to_mm;}
-               if (Ncol==y_idx) {Y=value*m_to_mm;}
-               if (Ncol==betx_idx) {BetaX=value;}
-               if (Ncol==bety_idx) {BetaY=value;}
+               if (Ncol==m_s_idx) {S=value-m_IPposition;}
+               if (Ncol==m_x_idx) {X=value*m_to_mm;}
+               if (Ncol==m_y_idx) {Y=value*m_to_mm;}
+               if (Ncol==m_betx_idx) {BetaX=value;}
+               if (Ncol==m_bety_idx) {BetaY=value;}
                Ncol++;
           }
-          double sigx=sqrt(emittanceX*BetaX)*m_to_mm;
-          double sigy=sqrt(emittanceY*BetaY)*m_to_mm;
-          if (S>0) PosP.push_back(std::make_tuple<double,double,double,double,double>((double)S,(double)X,(double)Y,(double)sigx,(double)sigy));
-          else     PosN.insert(PosN.rbegin().base(),std::make_tuple<double,double,double,double,double>((double)-S,(double)X,(double)Y,(double)sigx,(double)sigy));
+          double sigx=sqrt(m_emittanceX*BetaX)*m_to_mm;
+          double sigy=sqrt(m_emittanceY*BetaY)*m_to_mm;
+          if (S>0) m_PosP.push_back(std::make_tuple<double,double,double,double,double>((double)S,(double)X,(double)Y,(double)sigx,(double)sigy));
+          else     m_PosN.insert(m_PosN.rbegin().base(),std::make_tuple<double,double,double,double,double>((double)-S,(double)X,(double)Y,(double)sigx,(double)sigy));
     }
-    std::reverse(PosN.begin(),PosN.end());
+    std::reverse(m_PosN.begin(),m_PosN.end());
     std::cout << "Beam Parameters at RPs (Positive side)"<<std::endl;
-    for(int i=0;i<(int)PosP.size();i++) 
-       std::cout << "At Z = " << std::get<0>(PosP.at(i)) << " " << std::get<1>(PosP.at(i)) << " "
-                 << std::get<2>(PosP.at(i)) << " " << std::get<3>(PosP.at(i)) << " " << std::get<4>(PosP.at(i)) <<std::endl;
+    for(int i=0;i<(int)m_PosP.size();i++) 
+       std::cout << "At Z = " << std::get<0>(m_PosP.at(i)) << " " << std::get<1>(m_PosP.at(i)) << " "
+                 << std::get<2>(m_PosP.at(i)) << " " << std::get<3>(m_PosP.at(i)) << " " << std::get<4>(m_PosP.at(i)) <<std::endl;
     std::cout << "Beam Parameters at RPs (Negative side)"<<std::endl;
-    for(int i=0;i<(int)PosN.size();i++) 
-       std::cout << "At Z = " << std::get<0>(PosN.at(i)) << " " << std::get<1>(PosN.at(i)) << " "
-                 << std::get<2>(PosN.at(i)) << " " << std::get<3>(PosN.at(i)) << " " << std::get<4>(PosN.at(i)) <<std::endl;
+    for(int i=0;i<(int)m_PosN.size();i++) 
+       std::cout << "At Z = " << std::get<0>(m_PosN.at(i)) << " " << std::get<1>(m_PosN.at(i)) << " "
+                 << std::get<2>(m_PosN.at(i)) << " " << std::get<3>(m_PosN.at(i)) << " " << std::get<4>(m_PosN.at(i)) <<std::endl;
     tabfile.clear();
     tabfile.seekg(0);
 }
@@ -527,7 +527,7 @@ void PPSOpticsCalibrator::AlignObject(H_OpticalElement* opt,H_BeamLine* bline,do
      double tolerance=1.;
      for(int i:{'x','y'}) {
          H_BeamParticle h_p;
-         h_p.setPosition(-fBeamXatIP*mm_to_um,fBeamYatIP*mm_to_um,0.,0.,0.);
+         h_p.setPosition(-m_fBeamXatIP*mm_to_um,m_fBeamYatIP*mm_to_um,0.,0.,0.);
          h_p.computePath(bline);
          h_p.propagate(opt->getS());
          double delta=(i=='x')?abs(opt->getRelX()-h_p.getX()):abs(opt->getRelY()-h_p.getY());

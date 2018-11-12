@@ -42,8 +42,6 @@ public:
       kLegendre
    };
 
-private:
-   //static TMultiDimFet* fgInstance; //! Static instance
 protected:
 
    TVectorD     fQuantity;             //! Training sample, dependent quantity

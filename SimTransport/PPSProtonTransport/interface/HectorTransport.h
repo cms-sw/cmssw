@@ -62,28 +62,28 @@ class HectorTransport: public ProtonTransport {
             /*!Adds the stable protons from the event \a ev to a beamline*/
 
               //!Clears BeamParticle, prepares PPSHector for a next Aperture check or/and a next event
-              void GenProtonsLoop( const HepMC::GenEvent *  , const edm::EventSetup &);
+              void genProtonsLoop( const HepMC::GenEvent *  , const edm::EventSetup &);
 
               // New function to calculate the LorentzBoost 
-              void set_BeamEnergy(double e) {fBeamEnergy=e;fBeamMomentum = sqrt(fBeamEnergy*fBeamEnergy - ProtonMassSQ);}
+              void setBeamEnergy(double e) {fBeamEnergy=e;fBeamMomentum = sqrt(fBeamEnergy*fBeamEnergy - ProtonMassSQ);}
 
-              double get_BeamEnergy() {return fBeamEnergy;}
+              double getBeamEnergy() {return fBeamEnergy;}
 
-              double get_BeamMomentum() {return fBeamMomentum;}
+              double getBeamMomentum() {return fBeamMomentum;}
 
-              bool SetBeamLine();
+              bool setBeamLine();
 /*
  *
  *                        ATTENTION:  DATA MEMBERS AND FUNCTIONS COMMON TO BOTH METHODS SHOULD BE MOVED TO THE BASE CLASS
  *
  */  
               // Defaults
-            edm::ESHandle < ParticleDataTable > pdt;
+            edm::ESHandle < ParticleDataTable > m_pdt;
 
-            double fEtacut;
-            double fMomentumMin;
+            double m_fEtacut;
+            double m_fMomentumMin;
 
-            double lengthctpps ;
+            double m_lengthctpps ;
             double m_f_ctpps_f;
             double m_b_ctpps_b;
 
@@ -92,8 +92,8 @@ class HectorTransport: public ProtonTransport {
               std::unique_ptr<H_BeamLine> m_beamline45;
               std::unique_ptr<H_BeamLine> m_beamline56;
 
-              std::string beam1filename;
-              std::string beam2filename;
+              std::string m_beam1filename;
+              std::string m_beam2filename;
 
 };
 #endif
