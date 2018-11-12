@@ -1,5 +1,5 @@
-#ifndef TrackerStablePhiSort_H
-#define TrackerStablePhiSort_H
+#ifndef Geometry_TrackerNumberingBuilder_trackerStablePhiSort_H
+#define Geometry_TrackerNumberingBuilder_trackerStablePhiSort_H
 
 #include <vector>
 #include <algorithm>

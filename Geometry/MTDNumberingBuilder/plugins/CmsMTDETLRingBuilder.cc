@@ -5,7 +5,7 @@
 #include "Geometry/MTDNumberingBuilder/plugins/CmsMTDConstruction.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/MTDNumberingBuilder/plugins/MTDStablePhiSort.h"
+#include "Geometry/MTDNumberingBuilder/plugins/mtdStablePhiSort.h"
 
 #include <vector>
 
