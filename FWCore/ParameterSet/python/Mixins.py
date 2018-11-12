@@ -437,6 +437,8 @@ class _TypedParameterizable(_Parameterizable):
         return myname;
     def moduleLabel_(self, myname):
         return myname
+    def appendToProcessDescList_(self, lst, myname):
+        lst.append(self.nameInProcessDesc_(myname))
     def insertInto(self, parameterSet, myname):
         newpset = parameterSet.newPSet()
         newpset.addString(True, "@module_label", self.moduleLabel_(myname))

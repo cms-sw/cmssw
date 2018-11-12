@@ -880,8 +880,7 @@ class Process(object):
     def _insertManyInto(self, parameterSet, label, itemDict, tracked):
         l = []
         for name,value in six.iteritems(itemDict):
-            newLabel = value.nameInProcessDesc_(name)
-            l.append(newLabel)
+            value.appendToProcessDescList_(l, name)
             value.insertInto(parameterSet, name)
         # alphabetical order is easier to compare with old language
         l.sort()
