@@ -24,10 +24,10 @@ metTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     extension = cms.bool(False), # this is the main table for the MET
     variables = cms.PSet(PTVars,
        sumEt = Var("sumEt()", float, doc="scalar sum of Et",precision=10),
-       covXX = Var("getSignificanceMatrix().At(0,0)",float,doc="xx element of met covariance matrix", precision=8),
-       covXY = Var("getSignificanceMatrix().At(0,1)",float,doc="xy element of met covariance matrix", precision=8),
-       covYY = Var("getSignificanceMatrix().At(1,1)",float,doc="yy element of met covariance matrix", precision=8),
-       significance = Var("metSignificance()", float, doc="MET significance",precision=10),
+#       covXX = Var("getSignificanceMatrix().At(0,0)",float,doc="xx element of met covariance matrix", precision=8),
+#       covXY = Var("getSignificanceMatrix().At(0,1)",float,doc="xy element of met covariance matrix", precision=8),
+#       covYY = Var("getSignificanceMatrix().At(1,1)",float,doc="yy element of met covariance matrix", precision=8),
+#       significance = Var("metSignificance()", float, doc="MET significance",precision=10),
        MetUnclustEnUpDeltaX = Var("shiftedPx('UnclusteredEnUp')-px()", float, doc="Delta (METx_mod-METx) Unclustered Energy Up",precision=10),
        MetUnclustEnUpDeltaY = Var("shiftedPy('UnclusteredEnUp')-py()", float, doc="Delta (METy_mod-METy) Unclustered Energy Up",precision=10),
 
@@ -65,7 +65,7 @@ caloMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 puppiMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("slimmedMETsPuppi"),
     name = cms.string("PuppiMET"),
-    doc = cms.string("PUPPI  MET"),
+    doc = cms.string("PUPPI  MET, type-1 corrected"),
     singleton = cms.bool(True),  # there's always exactly one MET per event
     extension = cms.bool(False), # this is the main table for the MET
     variables = cms.PSet(PTVars,
