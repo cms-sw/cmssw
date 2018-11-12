@@ -1,4 +1,4 @@
-#include "Geometry/TrackerNumberingBuilder/plugins/TrackerStablePhiSort.h"
+#include "Geometry/TrackerNumberingBuilder/interface/trackerStablePhiSort.h"
 #include "FakeCPP.h"
 
 #include <cmath>
@@ -11,7 +11,7 @@
 namespace {
 
   struct XY {
-    XY(double ix=0,double iy=0):x(ix),y(iy){}
+    XY(double ix=0.,double iy=0.):x(ix),y(iy){}
     double x;
     double y;
   };
@@ -36,44 +36,43 @@ int main()
 {
   cppUnit::Dump a;
 
-  typedef std::vector<XY>     Vector;
-  typedef std::vector<Vector> Collection;
+  using Collection =  std::vector<std::vector<XY>>;
 
   Collection original;
   Collection shuffled;
   Collection sorted;
 
-  auto fromRP = [](double phi){ return XY(2*std::cos(phi), 2*std::sin(phi)); };
+  auto fromRP = [](double phi){ return XY(2.*std::cos(phi), 2.*std::sin(phi)); };
 
   // test1
   {
     // ordered.... last element is almost 0 (but not quite)
     std::vector<double> phis {0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3., 3.1, 4.2, 5.2, 6.25, getPhi(XY(1.E5,-1.))};
-    original.push_back(Vector(phis.size()));
+    original.emplace_back(phis.size());
     std::transform(phis.begin(),phis.end(),original.back().begin(),fromRP);
   }  // test1
   {
     // ordered.... first element is almost 0 (is zero for the algo)
     std::vector<double> phis {getPhi(XY(1.E10,-1.)), 0.000001, 0.5, 1.0, 1.5, 2.0, 2.5, 3., 3.1, 4.2, 5.2, 6.25, };
-    original.push_back(Vector(phis.size()));
+    original.emplace_back(phis.size());
     std::transform(phis.begin(),phis.end(),original.back().begin(),fromRP);
   }
   // TEC tests???
   {
     // ordered....
     std::vector<double> phis {0.0, 0.5, 3., 5.2, 6.25};
-    original.push_back(Vector(phis.size()));
+    original.emplace_back(phis.size());
     std::transform(phis.begin(),phis.end(),original.back().begin(),fromRP);
   }
   {
     // ordered....
     std::vector<double> phis {-0.1683, -0.0561, +0.0000, +0.0561, +0.1683};
-    original.push_back(Vector(phis.size()));
+    original.emplace_back(phis.size());
     std::transform(phis.begin(),phis.end(),original.back().begin(),fromRP);
   }
 
 
-  for(auto const& v : original) printPhi<Vector>(v);
+  for(auto const& v : original) printPhi(v);
 
   // do the test
   shuffled.resize(original.size());
@@ -94,7 +93,7 @@ int main()
 
   CPPUNIT_ASSERT(original==sorted);
 
-  for(auto const& v : sorted) printPhi<Vector>(v);
+  for(auto const& v : sorted) printPhi(v);
   std::cout << std::endl;
 
   return 0;
