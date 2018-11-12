@@ -5,6 +5,7 @@
  <class name="std::allocator<short>"/>
  <class name="std::basic_string<char>"/>
  <class name="std::bidirectional_iterator_tag"/>
+ <class name="std::bitset<6>"/>
  <class name="std::bitset<7>"/>
  <class name="std::bitset<15>"/>
  <class name="std::deque<int>"/>
