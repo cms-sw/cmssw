@@ -51,5 +51,6 @@ Several detector combinations have been generated:
 * D32 = T6+C7+M2+I1+O2+F2
 * D33 = T6+C3+M2+I5+O2+F2 
 * D34 = T6+C3+M2+I6+O2+F2 
+* D35 = T6+C4+M2+I5+O2+F2 
 
 Currently, D17 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.
