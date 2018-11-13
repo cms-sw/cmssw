@@ -117,7 +117,7 @@ std::unique_ptr<DeepTauCache> DeepTauBase::initializeGlobalCache(const edm::Para
     return std::make_unique<DeepTauCache>(graph_name, mem_mapped);
 }
 
-DeepTauCache::DeepTauCache(const std::string& graph_name, const bool& mem_mapped)
+DeepTauCache::DeepTauCache(const std::string& graph_name, bool mem_mapped)
 {
     tensorflow::SessionOptions options;
     tensorflow::setThreading(options, 1, "no_threads");

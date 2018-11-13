@@ -47,7 +47,7 @@ public:
         desc.add<edm::InputTag>("pfcands", edm::InputTag("packedPFCandidates"));
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
         desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
-        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb");
+        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0.pb");
         desc.add<unsigned>("version", 0);
         desc.add<bool>("mem_mapped", false);
 
@@ -71,8 +71,14 @@ public:
         vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
         graphVersion(cfg.getParameter<unsigned>("version"))
     {
+        const auto& shape = cache_->getGraph().node(0).attr().at("shape").shape();
+
         if(!(graphVersion == 1 || graphVersion == 0 ))
             throw cms::Exception("DPFIsolation") << "unknown version of the graph_ file.";
+            
+        if(!(shape.dim(1).size() == getNumberOfParticles(graphVersion) && shape.dim(2).size() == GetNumberOfFeatures(graphVersion)))
+            throw cms::Exception("DeepTauId") << "number of inputs does not match the expected inputs for the given version";
+
     }
 
 private:
