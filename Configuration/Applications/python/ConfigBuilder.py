@@ -998,8 +998,6 @@ class ConfigBuilder(object):
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
 	        self.NANODefaultSeq='nanoSequenceMC'
-        if self._options.fast == True:
-            self.NANODefaultSeq='nanoSequenceFS'
 	else:
 		self._options.beamspot = None
 	
@@ -1106,6 +1104,7 @@ class ConfigBuilder(object):
 		self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
 		self.RECOBEFMIXDefaultCFF = 'FastSimulation.Configuration.Reconstruction_BefMix_cff'
 		self.RECOBEFMIXDefaultSeq = 'reconstruction_befmix'
+		self.NANODefaultSeq = 'nanoSequenceFS'
                 self.DQMOFFLINEDefaultCFF="FastSimulation.Configuration.DQMOfflineMC_cff"
 
         # Mixing
