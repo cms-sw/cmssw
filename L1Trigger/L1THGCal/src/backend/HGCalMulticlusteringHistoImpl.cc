@@ -194,7 +194,11 @@ std::vector<GlobalPoint> HGCalMulticlusteringHistoImpl::computeMaxSeeds( const H
                 isMax &= MIPT_seed>MIPT_SW;
                 isMax &= MIPT_seed>MIPT_NW;
 
+
+
                 if(isMax){
+
+
                     float ROverZ_seed = kROverZMin_ + (bin_R+0.5) * (kROverZMax_-kROverZMin_)/nBinsRHisto_;
                     float phi_seed = -M_PI + (bin_phi+0.5) * 2*M_PI/nBinsPhiHisto_;
                     float x_seed = ROverZ_seed*cos(phi_seed);
@@ -286,10 +290,6 @@ std::vector<GlobalPoint> HGCalMulticlusteringHistoImpl::computeCrossRefinedMaxSe
 
         float MIPT_W = histoClusters.at({{z_side,bin_R,binLeft}});
         float MIPT_E = histoClusters.at({{z_side,bin_R,binRight}});
-        float MIPT_NW = bin_R>0 ? histoClusters.at({{z_side,bin_R-1,binLeft}}) : 0;
-        float MIPT_NE = bin_R>0 ? histoClusters.at({{z_side,bin_R-1,binRight}}) : 0;
-        float MIPT_SW = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,binLeft}}) : 0;
-        float MIPT_SE = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,binRight}}) : 0;
 
         float MIPT_pred = 0.25 * ( MIPT_S + MIPT_N + MIPT_E + MIPT_W );
 
@@ -411,7 +411,8 @@ void HGCalMulticlusteringHistoImpl::clusterizeHisto( const std::vector<edm::Ptr<
     std::vector<GlobalPoint> seedPositions;
     if(multiclusterAlgoType_ == "HistoMaxC3d") seedPositions = computeMaxSeeds(smoothRPhiHistoCluster);
     else if(multiclusterAlgoType_ == "HistoThresholdC3d") seedPositions = computeThresholdSeeds(smoothRPhiHistoCluster);
-
+    else if(multiclusterAlgoType_ == "HistoRefinedMaxC3d") seedPositions = computeRefinedMaxSeeds(smoothRPhiHistoCluster);
+    else if(multiclusterAlgoType_ == "HistoCrossRefinedMaxC3d") seedPositions = computeCrossRefinedMaxSeeds(smoothRPhiHistoCluster);
     /* clusterize clusters around seeds */
     std::vector<l1t::HGCalMulticluster> multiclustersTmp = clusterSeedMulticluster(clustersPtrs,seedPositions);
 
