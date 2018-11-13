@@ -80,8 +80,8 @@ chsMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     singleton = cms.bool(True),  # there's always exactly one MET per event
     extension = cms.bool(False), # this is the main table for the TkMET
     variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
-       pt = Var("corPt('RawChs')", float, doc="chs PF MET pt",precision=10),
-       phi = Var("corPhi('RawChs')", float, doc="chs PF MET phi",precision=10),
+       pt = Var("corPt('RawChs')", float, doc="raw chs PF MET pt",precision=10),
+       phi = Var("corPhi('RawChs')", float, doc="raw chs PF MET phi",precision=10),
        sumEt = Var("corSumEt('RawChs')", float, doc="raw chs PF scalar sum of Et",precision=10),
     ),
 )
