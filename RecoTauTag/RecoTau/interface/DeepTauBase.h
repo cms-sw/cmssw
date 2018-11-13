@@ -41,7 +41,7 @@ class DeepTauCache {
 public:
     using GraphPtr = std::shared_ptr<tensorflow::GraphDef>;
 
-    DeepTauCache(const std::string& graph_name, const bool& mem_mapped);
+    DeepTauCache(const std::string& graph_name, bool mem_mapped);
     ~DeepTauCache();
 
    // A Session allows concurrent calls to Run(), though a Session must
@@ -49,7 +49,7 @@ public:
    tensorflow::Session& getSession() const { return *session_; }
    const tensorflow::GraphDef& getGraph() const { return *graph_; }
 
-protected:
+private:
     GraphPtr graph_;
     tensorflow::Session* session_;
     std::unique_ptr<tensorflow::MemmappedEnv> memmappedEnv_;
