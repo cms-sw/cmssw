@@ -62,6 +62,8 @@ struct dnn_inputs_2017v1 {
         isolationGammaCands_nTotal,
         NumberOfInputs
     };
+
+    static constexpr int NumberOfOutputs = 4;
 };
 
 template<typename LVector1, typename LVector2>
@@ -98,7 +100,7 @@ struct MuonHitMatch {
         n_hits[MuonSubdetId::RPC].assign(n_muon_stations, 0);
     }
 
-    void AddMatchedMuon(const pat::Muon& muon, const pat::Tau& tau)
+    void addMatchedMuon(const pat::Muon& muon, const pat::Tau& tau)
     {
         static constexpr int n_stations = 4;
 
@@ -117,8 +119,7 @@ struct MuonHitMatch {
 
         if(muon.outerTrack().isNonnull()) {
             const auto& hit_pattern = muon.outerTrack()->hitPattern();
-            for(int hit_index = 0; hit_index < hit_pattern.numberOfAllHits(reco::HitPattern::TRACK_HITS);
-                ++hit_index) {
+            for(int hit_index = 0; hit_index < hit_pattern.numberOfAllHits(reco::HitPattern::TRACK_HITS); ++hit_index) {
                 auto hit_id = hit_pattern.getHitPattern(reco::HitPattern::TRACK_HITS, hit_index);
                 if(hit_id == 0) break;
                 if(hit_pattern.muonHitFilter(hit_id) && (hit_pattern.getHitType(hit_id) == TrackingRecHit::valid
@@ -141,7 +142,7 @@ struct MuonHitMatch {
         }
     }
 
-    static std::vector<const pat::Muon*> FindMatchedMuons(const pat::Tau& tau, const pat::MuonCollection& muons,
+    static std::vector<const pat::Muon*> findMatchedMuons(const pat::Tau& tau, const pat::MuonCollection& muons,
                                                            double deltaR, double minPt)
     {
         const reco::Muon* hadr_cand_muon = nullptr;
@@ -159,9 +160,8 @@ struct MuonHitMatch {
         return matched_muons;
     }
 
-
     template<typename dnn, typename TensorElemGet>
-    void FillTensor(const TensorElemGet& get, const pat::Tau& tau, float default_value) const
+    void fillTensor(const TensorElemGet& get, const pat::Tau& tau, float default_value) const
     {
         get(dnn::n_matched_muons) = n_muons;
         get(dnn::muon_pt) = best_matched_muon != nullptr ? best_matched_muon->p4().pt() : default_value;
@@ -186,12 +186,12 @@ struct MuonHitMatch {
         get(dnn::muon_n_hits_RPC_2) = n_hits.at(MuonSubdetId::RPC).at(1);
         get(dnn::muon_n_hits_RPC_3) = n_hits.at(MuonSubdetId::RPC).at(2);
         get(dnn::muon_n_hits_RPC_4) = n_hits.at(MuonSubdetId::RPC).at(3);
-        get(dnn::muon_n_stations_with_matches_03) = CountMuonStationsWithMatches(0, 3);
-        get(dnn::muon_n_stations_with_hits_23) = CountMuonStationsWithHits(2, 3);
+        get(dnn::muon_n_stations_with_matches_03) = countMuonStationsWithMatches(0, 3);
+        get(dnn::muon_n_stations_with_hits_23) = countMuonStationsWithHits(2, 3);
     }
 
 private:
-    unsigned CountMuonStationsWithMatches(size_t first_station, size_t last_station) const
+    unsigned countMuonStationsWithMatches(size_t first_station, size_t last_station) const
     {
         static const std::map<int, std::vector<bool>> masks = {
             { MuonSubdetId::DT, { false, false, false, false } },
@@ -207,7 +207,7 @@ private:
         return cnt;
     }
 
-    unsigned CountMuonStationsWithHits(size_t first_station, size_t last_station) const
+    unsigned countMuonStationsWithHits(size_t first_station, size_t last_station) const
     {
         static const std::map<int, std::vector<bool>> masks = {
             { MuonSubdetId::DT, { false, false, false, false } },
@@ -235,12 +235,12 @@ public:
     static const OutputCollection& GetOutputs()
     {
         static constexpr size_t e_index = 0, mu_index = 1, tau_index = 2, jet_index = 3;
-        static const OutputCollection outputs = {
+        static const OutputCollection outputs_ = {
             { "VSe", Output({tau_index}, {e_index, tau_index}) },
             { "VSmu", Output({tau_index}, {mu_index, tau_index}) },
             { "VSjet", Output({tau_index}, {jet_index, tau_index}) },
         };
-        return outputs;
+        return outputs_;
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
@@ -249,7 +249,9 @@ public:
         desc.add<edm::InputTag>("electrons", edm::InputTag("slimmedElectrons"));
         desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
-        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N.pb");
+        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb");
+        desc.add<bool>("mem_mapped", false);
+
 
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
@@ -268,17 +270,27 @@ public:
     }
 
 public:
-    explicit DeepTauId(const edm::ParameterSet& cfg) :
-        DeepTauBase(cfg, GetOutputs()),
+    explicit DeepTauId(const edm::ParameterSet& cfg, const deep_tau::DeepTauCache* cache) :
+        DeepTauBase(cfg, GetOutputs(), cache),
         electrons_token(consumes<ElectronCollection>(cfg.getParameter<edm::InputTag>("electrons"))),
         muons_token(consumes<MuonCollection>(cfg.getParameter<edm::InputTag>("muons"))),
-        input_layer(graph->node(0).name()),
-        output_layer(graph->node(graph->node_size() - 1).name())
+        input_layer(cache_->getGraph().node(0).name()),
+        output_layer(cache_->getGraph().node(cache_->getGraph().node_size() - 1).name())
     {
     }
 
+    static std::unique_ptr<deep_tau::DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg)
+    {
+        return DeepTauBase::initializeGlobalCache(cfg);
+    }
+
+    static void globalEndJob(const deep_tau::DeepTauCache* cache_)
+    {
+        return DeepTauBase::globalEndJob(cache_);
+    }
+
 private:
-    virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es,
+    virtual tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
                                               edm::Handle<TauCollection> taus) override
     {
         edm::Handle<pat::ElectronCollection> electrons;
@@ -287,31 +299,28 @@ private:
         edm::Handle<pat::MuonCollection> muons;
         event.getByToken(muons_token, muons);
 
-        const tensorflow::Tensor& inputs = CreateInputs<dnn_inputs_2017v1>(*taus, *electrons, *muons);
-        std::vector<tensorflow::Tensor> pred_vector;
-        tensorflow::run(session, { { input_layer, inputs } }, { output_layer }, &pred_vector);
-        return pred_vector.at(0);
-    }
-
-    template<typename dnn_inputs>
-    tensorflow::Tensor CreateInputs(const TauCollection& taus, const ElectronCollection& electrons,
-                                    const MuonCollection& muons) const
-    {
-        tensorflow::Tensor inputs(tensorflow::DT_FLOAT, { static_cast<int>(taus.size()), dnn_inputs::NumberOfInputs});
-        for(size_t tau_index = 0; tau_index < taus.size(); ++tau_index)
-            SetInputs<dnn_inputs>(taus, tau_index, inputs, electrons, muons);
-        return inputs;
+        tensorflow::Tensor predictions(tensorflow::DT_FLOAT, { static_cast<int>(taus->size()),
+                                       dnn_inputs_2017v1::NumberOfOutputs});
+        for(size_t tau_index = 0; tau_index < taus->size(); ++tau_index) {
+            const tensorflow::Tensor& inputs = CreateInputs<dnn_inputs_2017v1>(taus->at(tau_index), *electrons, *muons);
+            std::vector<tensorflow::Tensor> pred_vector;
+            tensorflow::run(&(cache_->getSession()), { { input_layer, inputs } }, { output_layer }, &pred_vector);
+            for(int k = 0; k < dnn_inputs_2017v1::NumberOfOutputs; ++k)
+                predictions.matrix<float>()(tau_index, k) = pred_vector[0].flat<float>()(k);
+        }
+        return predictions;
     }
 
     template<typename dnn>
-    void SetInputs(const TauCollection& taus, size_t tau_index, tensorflow::Tensor& inputs,
-                   const ElectronCollection& electrons, const MuonCollection& muons) const
+    tensorflow::Tensor CreateInputs(const TauType& tau, const ElectronCollection& electrons,
+                                    const MuonCollection& muons) const
     {
         static constexpr bool check_all_set = false;
         static constexpr float magic_number = -42;
         static const TauIdMVAAuxiliaries clusterVariables;
-        const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(tau_index, var_index); };
-        const TauType& tau = taus.at(tau_index);
+
+        tensorflow::Tensor inputs(tensorflow::DT_FLOAT, { 1, dnn_inputs_2017v1::NumberOfInputs});
+        const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
         auto leadChargedHadrCand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get());
 
         if(check_all_set) {
@@ -352,18 +361,18 @@ private:
         get(dnn::pt_weighted_dr_iso) = clusterVariables.tau_pt_weighted_dr_iso(tau, tau.decayMode());
         get(dnn::leadingTrackNormChi2) = tau.leadingTrackNormChi2();
         get(dnn::e_ratio) = clusterVariables.tau_Eratio(tau);
-        get(dnn::gj_angle_diff) = CalculateGottfriedJacksonAngleDifference(tau);
+        get(dnn::gj_angle_diff) = calculateGottfriedJacksonAngleDifference(tau);
         get(dnn::n_photons) = clusterVariables.tau_n_photons_total(tau);
         get(dnn::emFraction) = tau.emFraction_MVA();
         get(dnn::has_gsf_track) = leadChargedHadrCand && std::abs(leadChargedHadrCand->pdgId()) == 11;
-        get(dnn::inside_ecal_crack) = IsInEcalCrack(tau.p4().Eta());
-        auto gsf_ele = FindMatchedElectron(tau, electrons, 0.3);
+        get(dnn::inside_ecal_crack) = isInEcalCrack(tau.p4().Eta());
+        auto gsf_ele = findMatchedElectron(tau, electrons, 0.3);
         get(dnn::gsf_ele_matched) = gsf_ele != nullptr;
         get(dnn::gsf_ele_pt) = gsf_ele != nullptr ? gsf_ele->p4().Pt() : default_value;
         get(dnn::gsf_ele_dEta) = gsf_ele != nullptr ? dEta(gsf_ele->p4(), tau.p4()) : default_value;
         get(dnn::gsf_ele_dPhi) = gsf_ele != nullptr ? dPhi(gsf_ele->p4(), tau.p4()) : default_value;
         get(dnn::gsf_ele_mass) = gsf_ele != nullptr ? gsf_ele->p4().mass() : default_value;
-        CalculateElectronClusterVars(gsf_ele, get(dnn::gsf_ele_Ee), get(dnn::gsf_ele_Egamma));
+        calculateElectronClusterVars(gsf_ele, get(dnn::gsf_ele_Ee), get(dnn::gsf_ele_Egamma));
         get(dnn::gsf_ele_Pin) = gsf_ele != nullptr ? gsf_ele->trackMomentumAtVtx().R() : default_value;
         get(dnn::gsf_ele_Pout) = gsf_ele != nullptr ? gsf_ele->trackMomentumOut().R() : default_value;
         get(dnn::gsf_ele_EtotOverPin) = get(dnn::gsf_ele_Pin) > 0
@@ -412,15 +421,15 @@ private:
 
         MuonHitMatch muon_hit_match;
         if(tau.leadPFChargedHadrCand().isNonnull() && tau.leadPFChargedHadrCand()->muonRef().isNonnull())
-            muon_hit_match.AddMatchedMuon(*tau.leadPFChargedHadrCand()->muonRef(), tau);
+            muon_hit_match.addMatchedMuon(*tau.leadPFChargedHadrCand()->muonRef(), tau);
 
-        auto matched_muons = muon_hit_match.FindMatchedMuons(tau, muons, 0.3, 5);
+        auto matched_muons = muon_hit_match.findMatchedMuons(tau, muons, 0.3, 5);
         for(auto muon : matched_muons)
-            muon_hit_match.AddMatchedMuon(*muon, tau);
-        muon_hit_match.FillTensor<dnn>(get, tau, default_value);
+            muon_hit_match.addMatchedMuon(*muon, tau);
+        muon_hit_match.fillTensor<dnn>(get, tau, default_value);
 
         LorentzVectorXYZ signalChargedHadrCands_sumIn, signalChargedHadrCands_sumOut;
-        ProcessSignalPFComponents(tau, tau.signalChargedHadrCands(),
+        processSignalPFComponents(tau, tau.signalChargedHadrCands(),
                                   signalChargedHadrCands_sumIn, signalChargedHadrCands_sumOut,
                                   get(dnn::signalChargedHadrCands_sum_innerSigCone_pt),
                                   get(dnn::signalChargedHadrCands_sum_innerSigCone_dEta),
@@ -434,7 +443,7 @@ private:
                                   get(dnn::signalChargedHadrCands_nTotal_outerSigCone));
 
         LorentzVectorXYZ signalNeutrHadrCands_sumIn, signalNeutrHadrCands_sumOut;
-        ProcessSignalPFComponents(tau, tau.signalNeutrHadrCands(),
+        processSignalPFComponents(tau, tau.signalNeutrHadrCands(),
                                   signalNeutrHadrCands_sumIn, signalNeutrHadrCands_sumOut,
                                   get(dnn::signalNeutrHadrCands_sum_innerSigCone_pt),
                                   get(dnn::signalNeutrHadrCands_sum_innerSigCone_dEta),
@@ -449,7 +458,7 @@ private:
 
 
         LorentzVectorXYZ signalGammaCands_sumIn, signalGammaCands_sumOut;
-        ProcessSignalPFComponents(tau, tau.signalGammaCands(),
+        processSignalPFComponents(tau, tau.signalGammaCands(),
                                   signalGammaCands_sumIn, signalGammaCands_sumOut,
                                   get(dnn::signalGammaCands_sum_innerSigCone_pt),
                                   get(dnn::signalGammaCands_sum_innerSigCone_dEta),
@@ -494,9 +503,11 @@ private:
                     throw cms::Exception("DeepTauId: variable with index = ") << var_index << " is not set.";
             }
         }
+
+        return inputs;
     }
 
-    static void CalculateElectronClusterVars(const pat::Electron* ele, float& elecEe, float& elecEgamma)
+    static void calculateElectronClusterVars(const pat::Electron* ele, float& elecEe, float& elecEgamma)
     {
         if(ele) {
             elecEe = elecEgamma = 0;
@@ -515,7 +526,7 @@ private:
     }
 
     template<typename CandidateCollection>
-    static void ProcessSignalPFComponents(const pat::Tau& tau, const CandidateCollection& candidates,
+    static void processSignalPFComponents(const pat::Tau& tau, const CandidateCollection& candidates,
                                           LorentzVectorXYZ& p4_inner, LorentzVectorXYZ& p4_outer,
                                           float& pt_inner, float& dEta_inner, float& dPhi_inner, float& m_inner,
                                           float& pt_outer, float& dEta_outer, float& dPhi_outer, float& m_outer,
@@ -526,7 +537,7 @@ private:
         n_inner = 0;
         n_outer = 0;
 
-        const double innerSigCone_radius = GetInnerSignalConeRadius(tau.pt());
+        const double innerSigCone_radius = getInnerSignalConeRadius(tau.pt());
         for(const auto& cand : candidates) {
             const double dR = reco::deltaR(cand->p4(), tau.leadChargedHadrCand()->p4());
             const bool isInside_innerSigCone = dR < innerSigCone_radius;
@@ -569,13 +580,13 @@ private:
         m = n != 0 ? p4.mass() : default_value;
     }
 
-    static double GetInnerSignalConeRadius(double pt)
+    static double getInnerSignalConeRadius(double pt)
     {
         return std::max(.05, std::min(.1, 3./std::max(1., pt)));
     }
 
     // Copied from https://github.com/cms-sw/cmssw/blob/CMSSW_9_4_X/RecoTauTag/RecoTau/plugins/PATTauDiscriminationByMVAIsolationRun2.cc#L218
-    static float CalculateGottfriedJacksonAngleDifference(const pat::Tau& tau)
+    static float calculateGottfriedJacksonAngleDifference(const pat::Tau& tau)
     {
         if(tau.decayMode() == 10) {
             static constexpr double mTau = 1.77682;
@@ -593,13 +604,13 @@ private:
         return default_value;
     }
 
-    static bool IsInEcalCrack(double eta)
+    static bool isInEcalCrack(double eta)
     {
         const double abs_eta = std::abs(eta);
         return abs_eta > 1.46 && abs_eta < 1.558;
     }
 
-    static const pat::Electron* FindMatchedElectron(const pat::Tau& tau, const pat::ElectronCollection& electrons,
+    static const pat::Electron* findMatchedElectron(const pat::Tau& tau, const pat::ElectronCollection& electrons,
                                                     double deltaR)
     {
         const double dR2 = deltaR*deltaR;

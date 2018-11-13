@@ -12,29 +12,24 @@ namespace {
 inline int getPFCandidateIndex(const edm::Handle<pat::PackedCandidateCollection>& pfcands,
                                const reco::CandidatePtr& cptr)
 {
-    unsigned int pfInd = -1;
     for(unsigned int i = 0; i < pfcands->size(); ++i) {
-        pfInd++;
-        if(reco::CandidatePtr(pfcands,i) == cptr) {
-            pfInd = i;
-            break;
-        }
+        if(reco::CandidatePtr(pfcands,i) == cptr)
+            return i;
     }
-    return pfInd;
+    return -1;
 }
 } // anonymous namespace
-
 
 class DPFIsolation : public deep_tau::DeepTauBase {
 public:
     static OutputCollection& GetOutputs()
     {
         static size_t tau_index = 0;
-        static OutputCollection outputs = { { "VSall", Output({tau_index}, {}) } };
-        return outputs;
+        static OutputCollection outputs_ = { { "VSall", Output({tau_index}, {}) } };
+        return outputs_;
     };
 
-    static unsigned GetNumberOfParticles(unsigned graphVersion)
+    static unsigned getNumberOfParticles(unsigned graphVersion)
     {
         static const std::map<unsigned, unsigned> nparticles { { 0, 60 }, { 1, 36 } };
         return nparticles.at(graphVersion);
@@ -52,7 +47,9 @@ public:
         desc.add<edm::InputTag>("pfcands", edm::InputTag("packedPFCandidates"));
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
         desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
-        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0.pb");
+        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb");
+        desc.add<unsigned>("version", 0);
+        desc.add<bool>("mem_mapped", false);
 
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
@@ -68,21 +65,18 @@ public:
         descriptions.add("DPFTau2016v0", desc);
     }
 
-    explicit DPFIsolation(const edm::ParameterSet& cfg) :
-        DeepTauBase(cfg, GetOutputs()),
+    explicit DPFIsolation(const edm::ParameterSet& cfg,const deep_tau::DeepTauCache* cache) :
+        DeepTauBase(cfg, GetOutputs(), cache),
         pfcand_token(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("pfcands"))),
-        vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices")))
+        vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
+        graphVersion(cfg.getParameter<unsigned>("version"))
     {
-        if(graphName.find("v0.pb") != std::string::npos)
-            graphVersion = 0;
-        else if(graphName.find("v1.pb") != std::string::npos)
-            graphVersion = 1;
-        else
-            throw cms::Exception("DPFIsolation") << "unknown version of the graph file.";
+        if(!(graphVersion == 1 || graphVersion == 0 ))
+            throw cms::Exception("DPFIsolation") << "unknown version of the graph_ file.";
     }
 
 private:
-    virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es,
+    virtual tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
                                               edm::Handle<TauCollection> taus) override
     {
         edm::Handle<pat::PackedCandidateCollection> pfcands;
@@ -92,11 +86,11 @@ private:
         event.getByToken(vtx_token, vertices);
 
         tensorflow::Tensor tensor(tensorflow::DT_FLOAT, {1,
-            static_cast<int>(GetNumberOfParticles(graphVersion)), static_cast<int>(GetNumberOfFeatures(graphVersion))});
+            static_cast<int>(getNumberOfParticles(graphVersion)), static_cast<int>(GetNumberOfFeatures(graphVersion))});
 
         tensorflow::Tensor predictions(tensorflow::DT_FLOAT, { static_cast<int>(taus->size()), 1});
 
-        std::vector<tensorflow::Tensor> outputs;
+        std::vector<tensorflow::Tensor> outputs_;
 
         float pfCandPt, pfCandPz, pfCandPtRel, pfCandPzRel, pfCandDr, pfCandDEta, pfCandDPhi, pfCandEta, pfCandDz,
               pfCandDzErr, pfCandD0, pfCandD0D0, pfCandD0Dz, pfCandD0Dphi, pfCandPuppiWeight,
@@ -124,7 +118,7 @@ private:
 
             std::vector<unsigned int> signalCandidateInds;
 
-            for(auto c : tau.signalCands())
+            for(const auto c : tau.signalCands())
                 signalCandidateInds.push_back(getPFCandidateIndex(pfcands,c));
 
             float lepRecoPt = tau.pt();
@@ -132,12 +126,12 @@ private:
 
             // Use of setZero results in warnings in eigen library during compilation.
             //tensor.flat<float>().setZero();
-            const unsigned n_inputs = GetNumberOfParticles(graphVersion) * GetNumberOfFeatures(graphVersion);
+            const unsigned n_inputs = getNumberOfParticles(graphVersion) * GetNumberOfFeatures(graphVersion);
             for(unsigned input_idx = 0; input_idx < n_inputs; ++input_idx)
                 tensor.flat<float>()(input_idx) = 0;
 
             unsigned int iPF = 0;
-            const unsigned max_iPF = GetNumberOfParticles(graphVersion);
+            const unsigned max_iPF = getNumberOfParticles(graphVersion);
 
             std::vector<unsigned int> sorted_inds(pfcands->size());
             std::size_t n = 0;
@@ -153,8 +147,6 @@ private:
                 if (p.pt() < 0.5) continue;
                 if (p.fromPV() < 0) continue;
                 if (deltaR_tau_p > 0.5) continue;
-
-
                 if (p.fromPV() < 1 && p.charge() != 0) continue;
                 pfCandPt = p.pt();
                 pfCandPtRel = p.pt()/lepRecoPt;
@@ -372,12 +364,10 @@ private:
                     tensor.tensor<float,3>()( 0, 36-1-iPF, 49) = pfCandPdgID==211;
                     tensor.tensor<float,3>()( 0, 36-1-iPF, 50) = pfCandTauIndMatch;
                 }
-
                 iPF++;
             }
-
-            tensorflow::Status status = session->Run( { {"input_1", tensor} }, {"output_node0"}, {}, &outputs);
-            predictions.matrix<float>()(tau_index, 0) = outputs[0].flat<float>()(0);
+            tensorflow::run(&(cache_->getSession()), { { "input_1", tensor } }, { "output_node0" }, {}, &outputs_);
+            predictions.matrix<float>()(tau_index, 0) = outputs_[0].flat<float>()(0);
         }
         return predictions;
     }
