@@ -123,7 +123,7 @@ lheInfoTable = cms.EDProducer("LHETablesProducer",
 
 l1bits=cms.EDProducer("L1TriggerResultsConverter", src=cms.InputTag("gtStage2Digis"), legacyL1=cms.bool(False))
 
-nanoSequence = cms.Sequence(
+nanoSequenceCommon = cms.Sequence(
         nanoMetadata + jetSequence + muonSequence + tauSequence + electronSequence+photonSequence+vertexSequence+metSequence+
         isoTrackSequence + # must be after all the leptons 
         linkedObjects  +
@@ -131,10 +131,12 @@ nanoSequence = cms.Sequence(
         )
 nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTables + l1bits)
 
-nanoSequenceFS = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
+nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyFullSim)
+
+nanoSequenceFS = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequenceCommon + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
 
 nanoSequenceMC = nanoSequenceFS.copy()
-nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequence)+1,nanoSequenceOnlyFullSim)
+nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnlyFullSim)
 
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
@@ -188,12 +190,12 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
 def nanoAOD_recalibrateMETs(process,isData):
     runMetCorAndUncFromMiniAOD(process,isData=isData)
-    process.nanoSequence.insert(process.nanoSequence.index(jetSequence),cms.Sequence(process.fullPatMetSequence))
+    process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(jetSequence),cms.Sequence(process.fullPatMetSequence))
 #    makePuppiesFromMiniAOD(process,True) # call this before in the global customizer otherwise it would reset photon IDs in VID
     runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi")
     process.puppiNoLep.useExistingWeights = False
     process.puppi.useExistingWeights = False
-    process.nanoSequence.insert(process.nanoSequence.index(jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
+    process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
     return process
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
@@ -263,7 +265,7 @@ def nanoAOD_customizeMC(process):
     return process
 
 ### Era dependent customization
-_80x_sequence = nanoSequence.copy()
+_80x_sequence = nanoSequenceCommon.copy()
 _80x_sequence_OnlyFullSim = nanoSequenceOnlyFullSim.copy()
 #remove stuff 
 _80x_sequence.remove(isoTrackTable)
@@ -272,5 +274,5 @@ _80x_sequence.remove(isoTrackSequence)
 _80x_sequence.insert(_80x_sequence.index(jetSequence), extraFlagsProducers)
 _80x_sequence_OnlyFullSim.insert(_80x_sequence_OnlyFullSim.index(l1bits)+1, extraFlagsTable)
 
-run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
+run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceCommon, _80x_sequence)
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceOnlyFullSim, _80x_sequence_OnlyFullSim)
