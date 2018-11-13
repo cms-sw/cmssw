@@ -12,7 +12,8 @@ for geom in {'Extended2015','Extended2017Plan1'}; do
     cmsRun ${VGEO_DIR}/test/runP_Tracker_cfg.py geom=$geom label=Tracker >$TEST_DIR/runP_Tracker_cfg.log 2>&1
 done
 
-python ${VGEO_DIR}/test/MaterialBudget.py -s -d Tracker
+python ${VGEO_DIR}/test/MaterialBudget.py -s -d Tracker -g 'Extended2017Plan1'
+python ${VGEO_DIR}/test/MaterialBudget.py -s -d Tracker -g 'Extended2015' -gc 'Extended2017Plan1'
 
 if [[ ! -z ${JENKINS_UPLOAD_DIR} ]] ; then
    mkdir ${JENKINS_UPLOAD_DIR}/materialBudgetTrackerPlots
