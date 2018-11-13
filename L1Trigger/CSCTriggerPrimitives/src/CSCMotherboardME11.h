@@ -47,6 +47,8 @@ class CSCMotherboardME11 : public CSCUpgradeMotherboard
 
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1a() const;
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1b() const;
+
+  using CSCUpgradeMotherboard::readoutLCTs;
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs(int me1ab) const;
 
  private:
