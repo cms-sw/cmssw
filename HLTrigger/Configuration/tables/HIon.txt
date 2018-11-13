@@ -1,4 +1,4 @@
-# "HIon" menu (placeholder)
+# "HIon" menu (2018)
 
 HLTriggerFirstPath
 
@@ -33,6 +33,16 @@ HLT_HIMinimumBias_part6_v*
 HLT_HIMinimumBias_part7_v*
 HLT_HIMinimumBias_part8_v*
 HLT_HIMinimumBias_part9_v*
+HLT_HIMinimumBias_part10_v*
+HLT_HIMinimumBias_part11_v*
+HLT_HIMinimumBias_part12_v*
+HLT_HIMinimumBias_part13_v*
+HLT_HIMinimumBias_part14_v*
+HLT_HIMinimumBias_part15_v*
+HLT_HIMinimumBias_part16_v*
+HLT_HIMinimumBias_part17_v*
+HLT_HIMinimumBias_part18_v*
+HLT_HIMinimumBias_part19_v*
 HLT_HIMinimumBiasRF_part0_v*
 HLT_HIMinimumBiasRF_part1_v*
 HLT_HIMinimumBiasRF_part2_v*
@@ -369,7 +379,6 @@ HIDQMOutput
 HIDQMEventDisplayOutput
 HIDQMOnlineBeamspotOutput
 DQMCalibrationOutput
-DQMOnlineBeamspotOutput
 HIHLTMonitorOutput
 CalibrationOutput
 EcalCalibrationOutput
@@ -399,6 +408,16 @@ PhysicsHIMinimumBias6Output
 PhysicsHIMinimumBias7Output
 PhysicsHIMinimumBias8Output
 PhysicsHIMinimumBias9Output
+PhysicsHIMinimumBias10Output
+PhysicsHIMinimumBias11Output
+PhysicsHIMinimumBias12Output
+PhysicsHIMinimumBias13Output
+PhysicsHIMinimumBias14Output
+PhysicsHIMinimumBias15Output
+PhysicsHIMinimumBias16Output
+PhysicsHIMinimumBias17Output
+PhysicsHIMinimumBias18Output
+PhysicsHIMinimumBias19Output
 PhysicsHIMinimumBiasReducedFormat0Output
 PhysicsHIMinimumBiasReducedFormat1Output
 PhysicsHIMinimumBiasReducedFormat2Output
