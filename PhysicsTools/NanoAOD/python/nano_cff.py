@@ -127,14 +127,15 @@ nanoSequence = cms.Sequence(
         nanoMetadata + jetSequence + muonSequence + tauSequence + electronSequence+photonSequence+vertexSequence+
         isoTrackSequence + # must be after all the leptons 
         linkedObjects  +
-        jetTables + muonTables + tauTables + electronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + triggerObjectTables + isoTrackTables +
-	l1bits)
+        jetTables + muonTables + tauTables + electronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + isoTrackTables
+        )
+nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTables + l1bits)
 
-nanoSequenceMC = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
+nanoSequenceFS = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
 
-nanoSequenceFS = nanoSequenceMC.copy()
-nanoSequenceFS.remove(triggerObjectTables)
-nanoSequenceFS.remove(l1bits)
+nanoSequenceMC = nanoSequenceFS.copy()
+nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequence)+1,nanoSequenceOnlyFullSim)
+
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
@@ -257,21 +258,13 @@ def nanoAOD_customizeMC(process):
 
 ### Era dependent customization
 _80x_sequence = nanoSequence.copy()
+_80x_sequence_OnlyFullSim = nanoSequenceOnlyFullSim.copy()
 #remove stuff 
 _80x_sequence.remove(isoTrackTable)
 _80x_sequence.remove(isoTrackSequence)
 #add stuff
 _80x_sequence.insert(_80x_sequence.index(jetSequence), extraFlagsProducers)
-_80x_sequence.insert(_80x_sequence.index(l1bits)+1, extraFlagsTable)
+_80x_sequence_OnlyFullSim.insert(_80x_sequence_OnlyFullSim.index(l1bits)+1, extraFlagsTable)
 
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
-
-_80x_sequenceFS = nanoSequenceFS.copy()
-_80x_sequenceFS.remove(isoTrackTable)
-_80x_sequenceFS.remove(isoTrackSequence)
-_80x_sequenceFS.insert(_80x_sequenceFS.index(jetSequence), extraFlagsProducers)
-_80x_sequenceFS.insert(_80x_sequenceFS.index(simpleCleanerTable)+1, extraFlagsTable)
-run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceFS, _80x_sequenceFS)
-
-	
-
+run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceOnlyFullSim, _80x_sequence_OnlyFullSim)
