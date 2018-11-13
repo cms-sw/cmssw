@@ -399,7 +399,6 @@ namespace edm
     formerID = 0;
     ESum = 0.;
     float HFTime = 0.;
-    HFRecHit HFOldHit;
 
     HFRecHitMap::const_iterator iHFchk;
 
