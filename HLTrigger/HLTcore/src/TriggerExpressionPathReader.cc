@@ -15,7 +15,6 @@ bool PathReader::operator()(const Data & data) const {
   if (not data.hasHLT())
     return false;
 
-  typedef std::pair<std::string, unsigned int> value_type;
   for(auto const& trigger : m_triggers)
     if (data.hltResults().accept(trigger.second))
       return true;

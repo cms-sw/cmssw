@@ -71,7 +71,6 @@ void MeasureLA::
 summarize_module_muH_byLayer(const LA_Filler_Fitter& laff) {
   for(int m = LA_Filler_Fitter::FIRST_METHOD; m <= LA_Filler_Fitter::LAST_METHOD; m<<=1) {
     const LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method)m;
-    std::pair<uint32_t,LA_Filler_Fitter::Result> result;
     for(auto& result : LA_Filler_Fitter::module_results(book, method)) {
       
       calibrate( calibration_key(result.first,method), result.second); 
@@ -125,7 +124,6 @@ write_report_text(std::string name, const LA_Filler_Fitter::Method& _method, con
   LA_Filler_Fitter::Method method = _method;
   std::map<T,LA_Filler_Fitter::Result>results = _results;
   std::fstream file((name+".dat").c_str(),std::ios::out);
-  std::pair<T,LA_Filler_Fitter::Result> result;
   for(auto& result : results) {
     calibrate( calibration_key(result.first,method), result.second); 
     file << result.first << "\t" << result.second << std::endl;
