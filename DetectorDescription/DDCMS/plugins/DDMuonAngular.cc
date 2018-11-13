@@ -58,4 +58,4 @@ static long algorithm( Detector& /* description */,
 }
 
 // first argument is the type from the xml file
-DECLARE_DDCMS_DETELEMENT( DDCMS_global_DDMuonAngular, algorithm )
+DECLARE_DDCMS_DETELEMENT( DDCMS_muon_DDMuonAngular, algorithm )
