@@ -46,6 +46,7 @@ public:
   void clear();
 
   // run TMB with GEM pads as input
+  using CSCUpgradeMotherboard::run;
   virtual void run(const CSCWireDigiCollection* wiredc,
                    const CSCComparatorDigiCollection* compdc,
                    const GEMPadDigiCollection* gemPads)=0;
