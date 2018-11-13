@@ -51,7 +51,6 @@ void EnsembleCalibrationLA::endRun(const edm::Run&, const edm::EventSetup& eSetu
 
 void EnsembleCalibrationLA::write_ensembles_text(const Book& book)
 {
-  std::pair<std::string, std::vector<LA_Filler_Fitter::EnsembleSummary> > ensemble;
   for(auto const& ensemble : LA_Filler_Fitter::ensemble_summary(book)) {
     std::fstream file((Prefix+ensemble.first+".dat").c_str(),std::ios::out);
     for(auto const& summary : ensemble.second)
