@@ -144,6 +144,7 @@ def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
         print("Updating process to run DeepFlavour btag")
         _btagDiscriminators += ['pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb']
     if len(_btagDiscriminators)==0: return process
+    print("Will recalculate the following discriminators: "+", ".join(_btagDiscriminators))
     updateJetCollection(
                process,
                jetSource = cms.InputTag('slimmedJets'),
@@ -151,6 +152,13 @@ def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
                btagDiscriminators = _btagDiscriminators,
                btagPrefix = ''
            )
+    process.load("Configuration.StandardSequences.MagneticField_cff")
+    process.looseJetId.src="selectedUpdatedPatJets"
+    process.tightJetId.src="selectedUpdatedPatJets"
+    process.tightJetIdLepVeto.src="selectedUpdatedPatJets"
+    process.bJetVars.src="selectedUpdatedPatJets"
+    process.slimmedJetsWithUserData.src="selectedUpdatedPatJets"
+    process.qgtagger80x.srcJets="selectedUpdatedPatJets"
     if addDeepFlavour:
         process.pfDeepFlavourJetTags.graph_path = 'RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb'
         process.pfDeepFlavourJetTags.lp_names = ["cpf_input_batchnorm/keras_learning_phase"]
