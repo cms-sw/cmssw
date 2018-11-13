@@ -27,11 +27,19 @@ class MTDRecHitAlgo : public MTDRecHitAlgoBase {
 FTLRecHit 
 MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const {
 
-  float energy = uRecHit.amplitude() * calibration_;
-  float time   = uRecHit.time();
+  float energy = uRecHit.amplitude().first * calibration_;
+  float time   = uRecHit.time().first;
   float timeError = uRecHit.timeError();
-  
-  FTLRecHit rh( uRecHit.id(), energy, time, timeError );
+
+  // --- In the case of BTL bar geometry left and right informations are combined:
+  if ( uRecHit.amplitude().second > 0. ) {
+
+    energy += uRecHit.amplitude().second * calibration_;
+    time = 0.5*(uRecHit.time().first + uRecHit.time().second);
+
+  }
+
+  FTLRecHit rh( uRecHit.id(), uRecHit.row(), uRecHit.column(), energy, time, timeError );
     
   // Now fill flags
   // all rechits from the digitizer are "good" at present

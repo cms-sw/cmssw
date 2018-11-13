@@ -1,6 +1,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Framework"/>
-<use   name="Geometry/HGCalGeometry"/>
+<use   name="Geometry/MTDGeometryBuilder"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>

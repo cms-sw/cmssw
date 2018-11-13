@@ -1,5 +1,5 @@
-#ifndef __SimFastTiming_FastTimingCommon_ETLDeviceSim_h__
-#define __SimFastTiming_FastTimingCommon_ETLDeviceSim_h__
+#ifndef __SimFastTiming_FastTimingCommon_BTLBarDeviceSim_h__
+#define __SimFastTiming_FastTimingCommon_BTLBarDeviceSim_h__
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -19,11 +19,11 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class ETLDeviceSim {
+class BTLBarDeviceSim {
 
  public:
 
-  ETLDeviceSim(const edm::ParameterSet& pset);
+  BTLBarDeviceSim(const edm::ParameterSet& pset);
   
   void getEvent(const edm::Event& evt) { }
 
@@ -33,15 +33,19 @@ class ETLDeviceSim {
 		       const edm::Handle<edm::PSimHitContainer> &hits,
 		       mtd_digitizer::MTDSimHitDataAccumulator *simHitAccumulator,
 		       CLHEP::HepRandomEngine *hre);
-
+  
  private:
 
   edm::ESWatcher<MTDDigiGeometryRecord> geomwatcher_;
   const MTDGeometry* geom_;
 
-  float MIPPerMeV_;
-  float bxTime_;
-  float tofDelay_;
+  const float bxTime_;
+  const float LightYield_;
+  const float LightCollEff_;
+
+  const float LightCollSlopeR_;
+  const float LightCollSlopeL_;
+  const float PDE_;
 
 };
 

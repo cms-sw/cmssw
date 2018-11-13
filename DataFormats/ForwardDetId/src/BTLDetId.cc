@@ -128,6 +128,13 @@ BTLDetId BTLDetId::getUnhashedIndex( int hi, CrysLayout lay ) const {
   return  BTLDetId( zside, rod, module, modtype, crystal);
 }
 
+BTLDetId BTLDetId::geographicalId() const {
+  // reorganize the modules to count from 0 to 54
+  // remove module type
+  // remove crystal index
+  return BTLDetId(mtdSide(),mtdRR(),module()+18*(modType()-1),0,1);
+}
+
 #include <iomanip>
 
 std::ostream& operator<< ( std::ostream& os, const BTLDetId& id ) {
