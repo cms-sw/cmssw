@@ -135,13 +135,21 @@ nanoSequenceMC = cms.Sequence(genParticleSequence + particleLevelSequence + nano
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
-def nanoAOD_addDeepBTagFor80X(process):
-    print("Updating process to run DeepCSV btag on legacy 80X datasets")
+def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
+    _btagDiscriminators=[]
+    if addDeepBTag:
+        print("Updating process to run DeepCSV btag")
+        _btagDiscriminators += ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc']
+    if addDeepFlavour:
+        print("Updating process to run DeepFlavour btag")
+        _btagDiscriminators += ['pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb']
+    if len(_btagDiscriminators)==0: return process
+    print("Will recalculate the following discriminators: "+", ".join(_btagDiscriminators))
     updateJetCollection(
                process,
                jetSource = cms.InputTag('slimmedJets'),
                jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual']), 'None'),
-               btagDiscriminators = ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc'], ## to add discriminators
+               btagDiscriminators = _btagDiscriminators,
                btagPrefix = ''
            )
     process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -151,32 +159,12 @@ def nanoAOD_addDeepBTagFor80X(process):
     process.bJetVars.src="selectedUpdatedPatJets"
     process.slimmedJetsWithUserData.src="selectedUpdatedPatJets"
     process.qgtagger80x.srcJets="selectedUpdatedPatJets"
+    if addDeepFlavour:
+        process.pfDeepFlavourJetTags.graph_path = 'RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb'
+        process.pfDeepFlavourJetTags.lp_names = ["cpf_input_batchnorm/keras_learning_phase"]
     patAlgosToolsTask = getPatAlgosToolsTask(process)
-    patAlgosToolsTask .add(process.updatedPatJets)
-    patAlgosToolsTask .add(process.patJetCorrFactors)
-    process.additionalendpath = cms.EndPath(patAlgosToolsTask)
-    return process
-def nanoAOD_addDeepFlavourTagFor94X2016(process):
-    print("Updating process to run DeepCSV btag on 94X re-miniAOD of legacy 80X datasets")
-    updateJetCollection(
-               process,
-               jetSource = cms.InputTag('slimmedJets'),
-               jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual']), 'None'),
-               btagDiscriminators = ['pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb'], ## to add discriminators
-               btagPrefix = ''
-           )
-    process.load("Configuration.StandardSequences.MagneticField_cff")
-    process.looseJetId.src="selectedUpdatedPatJets"
-    process.tightJetId.src="selectedUpdatedPatJets"
-    process.tightJetIdLepVeto.src="selectedUpdatedPatJets"
-    process.bJetVars.src="selectedUpdatedPatJets"
-    process.slimmedJetsWithUserData.src="selectedUpdatedPatJets"
-    process.qgtagger80x.srcJets="selectedUpdatedPatJets"
-    process.pfDeepFlavourJetTags.graph_path = 'RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb'
-    process.pfDeepFlavourJetTags.lp_names = ["cpf_input_batchnorm/keras_learning_phase"]
-    patAlgosToolsTask = getPatAlgosToolsTask(process)
-    patAlgosToolsTask .add(process.updatedPatJets)
-    patAlgosToolsTask .add(process.patJetCorrFactors)
+    patAlgosToolsTask.add(process.updatedPatJets)
+    patAlgosToolsTask.add(process.patJetCorrFactors)
     process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
 
@@ -213,7 +201,7 @@ def nanoAOD_activateVID(process):
 def nanoAOD_addDeepBoostedJetForPre103X(process):
     print("Updating process to run DeepBoostedJet on datasets before 103X")
     from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
-    updateJetCollection(
+    updateJetCollection( # does not conflict with anything for the moment, since it is called on AK8 jets
        process,
        jetSource = cms.InputTag('slimmedJetsAK8'),
        pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
@@ -234,8 +222,14 @@ def nanoAOD_addDeepBoostedJetForPre103X(process):
 def nanoAOD_customizeCommon(process):
     makePuppiesFromMiniAOD(process,True) # call this here as it calls switchOnVIDPhotonIdProducer
     process = nanoAOD_activateVID(process)
-    run2_miniAOD_80XLegacy.toModify(process, nanoAOD_addDeepBTagFor80X)
-    run2_nanoAOD_94X2016.toModify(process, nanoAOD_addDeepFlavourTagFor94X2016)
+    nanoAOD_addDeepInfo_switch = cms.PSet(
+        nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
+        nanoAOD_addDeepFlavourTag_switch = cms.untracked.bool(False),
+        )
+    run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfo_switch, nanoAOD_addDeepBTag_switch = cms.untracked.bool(True))
+    for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
+        modifier.toModify(nanoAOD_addDeepInfo_switch, nanoAOD_addDeepFlavourTag_switch =  cms.untracked.bool(True))
+    process = nanoAOD_addDeepInfo(process,nanoAOD_addDeepInfo_switch.nanoAOD_addDeepBTag_switch,nanoAOD_addDeepInfo_switch.nanoAOD_addDeepFlavourTag_switch)
     for modifier in run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         # FIXME: need to add the era modifier for 102X as well
         modifier.toModify(process, nanoAOD_addDeepBoostedJetForPre103X)
