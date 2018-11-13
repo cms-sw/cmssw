@@ -30,7 +30,7 @@ ConcretelooseMuonsForZMuSkim = cms.EDProducer("ConcreteChargedCandidateProducer"
 
 
 ###create iso deposits
-tkIsoDepositTk = cms.EDProducer("CandIsoDepositProducer",
+tkIsoDepositTkForZMuSkim = cms.EDProducer("CandIsoDepositProducer",
                                 src = cms.InputTag("ConcretelooseMuonsForZMuSkim"),
                                 MultipleDepositsFlag = cms.bool(False),
                                 trackType = cms.string('track'),
@@ -53,19 +53,19 @@ tkIsoDepositTk = cms.EDProducer("CandIsoDepositProducer",
                                 )
 
 ###adding isodeposits to candidate collection
-allPatTracks = patGenericParticles.clone(
+allPatTracksForZMuSkim = patGenericParticles.clone(
     src = cms.InputTag("ConcretelooseMuonsForZMuSkim"),
     # isolation configurables
     userIsolation = cms.PSet(
       tracker = cms.PSet(
         veto = cms.double(0.015),
-        src = cms.InputTag("tkIsoDepositTk"),
+        src = cms.InputTag("tkIsoDepositTkForZMuSkim"),
         deltaR = cms.double(0.3),
         #threshold = cms.double(1.5)
       ),
       ),
     isoDeposits = cms.PSet(
-        tracker = cms.InputTag("tkIsoDepositTk"),
+        tracker = cms.InputTag("tkIsoDepositTkForZMuSkim"),
         ),
     )
 
@@ -74,7 +74,7 @@ allPatTracks = patGenericParticles.clone(
 
 ###create the "probe collection" of isolated tracks 
 looseIsoMuonsForZMuSkim = cms.EDFilter("PATGenericParticleSelector",  
-                             src = cms.InputTag("allPatTracks"), 
+                             src = cms.InputTag("allPatTracksForZMuSkim"), 
                              cut = cms.string("(userIsolation('pat::TrackIso')/pt)<0.4"),
                              filter = cms.bool(True)
                              )
@@ -113,8 +113,8 @@ diMuonSelSeq = cms.Sequence(
                             ZMuHLTFilter *
                             looseMuonsForZMuSkim *
                             ConcretelooseMuonsForZMuSkim *
-                            tkIsoDepositTk *
-                            allPatTracks *
+                            tkIsoDepositTkForZMuSkim *
+                            allPatTracksForZMuSkim *
                             looseIsoMuonsForZMuSkim * 
                             tightMuonsForZMuSkim *
                             dimuonsZMuSkim *
