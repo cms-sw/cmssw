@@ -35,6 +35,7 @@ set InputLHCRawGRun1 = root://eoscms.cern.ch//eos/cms/store/data/Run2015D/MuonEG
 set InputLHCRawGRun2 = root://eoscms.cern.ch//eos/cms/store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root
 set InputLHCRawGRun3 = root://eoscms.cern.ch//eos/cms/store/data/Run2017A/HLTPhysics4/RAW/v1/000/295/606/00000/36DE5E0A-3645-E711-8FA1-02163E01A43B.root
 set InputLHCRawHIon1 = root://eoscms.cern.ch//eos/cms/store/hidata/HIRun2015/HIHardProbes/RAW-RECO/HighPtJet-PromptReco-v1/000/263/689/00000/1802CD9A-DDB8-E511-9CF9-02163E0138CA.root
+#et InputLHCRawHIon3 = root://eoscms.cern.ch//eos/cms/store/hidata/HIRun2018A/HIHardProbes/RAW/v1/000/326/479/00000/853DBE29-53BA-9A44-9FDD-58E4E9064EB1.root
 set InputLHCRawHIon3 = root://eoscms.cern.ch//eos/cms/store/data/Run2018D/HIMinimumBias0/RAW/v1/000/325/112/00000/660F62BB-9932-D645-A4A4-0BBBDA3963E8.root
 set InputLHCRawPIon2 = $InputLHCRawGRun2
 set InputLHCRawPRef2 = $InputLHCRawGRun2
