@@ -142,7 +142,8 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   association = std::make_unique<reco::JetPiZeroAssociation>(reco::JetRefBaseProd(jetView));
 
   // Loop over our jets
-  for (size_t i = 0; i < jetView->size(); ++i) {
+  size_t nJets = jetView->size();
+  for (size_t i = 0; i < nJets; ++i) {
     const reco::JetBaseRef jet(jetView->refAt(i));
 
     if(jet->pt() - minJetPt_ < 1e-5) continue;
