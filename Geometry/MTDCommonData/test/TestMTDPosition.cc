@@ -17,11 +17,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "DetectorDescription/Core/interface/DDValue.h"
-#include "DetectorDescription/Core/interface/DDExpandedNode.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 
@@ -105,8 +101,9 @@ void TestMTDPosition::checkMTD ( const DDCompactView& cpv, std::string fname, in
   DDFilteredView fv(cpv, filter);
 
   edm::LogInfo("TestMTDPosition") << "Top Most LogicalPart = " << fv.logicalPart();
-  typedef DDExpandedView::nav_type nav_type;
-  typedef std::map<nav_type,int> id_type;
+
+  using nav_type =  DDFilteredView::nav_type;
+  using id_type = std::map<nav_type,int>;
   id_type idMap;
   int id=0;
   std::ofstream dump(fname.c_str());
