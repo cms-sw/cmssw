@@ -213,7 +213,106 @@ std::vector<GlobalPoint> HGCalMulticlusteringHistoImpl::computeMaxSeeds( const H
 }
 
 
+std::vector<GlobalPoint> HGCalMulticlusteringHistoImpl::computeRefinedMaxSeeds( const Histogram & histoClusters ){
 
+  std::vector<GlobalPoint> seedPositions;
+
+  for(int z_side : {-1,1}){
+
+    for(int bin_R = 0; bin_R<int(nBinsRHisto_); bin_R++){
+
+      for(int bin_phi = 0; bin_phi<int(nBinsPhiHisto_); bin_phi++){
+
+        float MIPT_seed = histoClusters.at({{z_side,bin_R,bin_phi}});
+        bool isMax = MIPT_seed>0;
+
+        float MIPT_S = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,bin_phi}}) : 0;
+        float MIPT_N = bin_R>0 ? histoClusters.at({{z_side,bin_R-1,bin_phi}}) : 0;
+
+        int binLeft = bin_phi - 1;
+        if( binLeft<0 ) binLeft += nBinsPhiHisto_;
+        int binRight = bin_phi + 1;
+        if( binRight>=int(nBinsPhiHisto_) ) binRight -= nBinsPhiHisto_;
+
+        float MIPT_W = histoClusters.at({{z_side,bin_R,binLeft}});
+        float MIPT_E = histoClusters.at({{z_side,bin_R,binRight}});
+        float MIPT_NW = bin_R>0 ? histoClusters.at({{z_side,bin_R-1,binLeft}}) : 0;
+        float MIPT_NE = bin_R>0 ? histoClusters.at({{z_side,bin_R-1,binRight}}) : 0;
+        float MIPT_SW = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,binLeft}}) : 0;
+        float MIPT_SE = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,binRight}}) : 0;
+
+        float MIPT_pred = 0.5 * ( MIPT_S + MIPT_N + MIPT_E + MIPT_W ) - 0.25 * ( MIPT_SW + MIPT_SE + MIPT_NW + MIPT_NE);
+
+        isMax &= MIPT_seed>=MIPT_pred;
+
+        if(isMax){
+          float ROverZ_seed = kROverZMin_ + (bin_R+0.5) * (kROverZMax_-kROverZMin_)/nBinsRHisto_;
+          float phi_seed = -M_PI + (bin_phi+0.5) * 2*M_PI/nBinsPhiHisto_;
+          float x_seed = ROverZ_seed*cos(phi_seed);
+          float y_seed = ROverZ_seed*sin(phi_seed);
+          seedPositions.emplace_back(x_seed,y_seed,z_side);
+        }
+
+      }
+
+    }
+
+  }
+
+  return seedPositions;
+
+}
+
+std::vector<GlobalPoint> HGCalMulticlusteringHistoImpl::computeCrossRefinedMaxSeeds( const Histogram & histoClusters ){
+
+  std::vector<GlobalPoint> seedPositions;
+
+  for(int z_side : {-1,1}){
+
+    for(int bin_R = 0; bin_R<int(nBinsRHisto_); bin_R++){
+
+      for(int bin_phi = 0; bin_phi<int(nBinsPhiHisto_); bin_phi++){
+
+        float MIPT_seed = histoClusters.at({{z_side,bin_R,bin_phi}});
+        bool isMax = MIPT_seed>0;
+
+        float MIPT_S = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,bin_phi}}) : 0;
+        float MIPT_N = bin_R>0 ? histoClusters.at({{z_side,bin_R-1,bin_phi}}) : 0;
+
+        int binLeft = bin_phi - 1;
+        if( binLeft<0 ) binLeft += nBinsPhiHisto_;
+        int binRight = bin_phi + 1;
+        if( binRight>=int(nBinsPhiHisto_) ) binRight -= nBinsPhiHisto_;
+
+        float MIPT_W = histoClusters.at({{z_side,bin_R,binLeft}});
+        float MIPT_E = histoClusters.at({{z_side,bin_R,binRight}});
+        float MIPT_NW = bin_R>0 ? histoClusters.at({{z_side,bin_R-1,binLeft}}) : 0;
+        float MIPT_NE = bin_R>0 ? histoClusters.at({{z_side,bin_R-1,binRight}}) : 0;
+        float MIPT_SW = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,binLeft}}) : 0;
+        float MIPT_SE = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,binRight}}) : 0;
+
+        float MIPT_pred = 0.25 * ( MIPT_S + MIPT_N + MIPT_E + MIPT_W );
+
+        isMax &= MIPT_seed>=MIPT_pred;
+
+        if(isMax){
+          float ROverZ_seed = kROverZMin_ + (bin_R+0.5) * (kROverZMax_-kROverZMin_)/nBinsRHisto_;
+          float phi_seed = -M_PI + (bin_phi+0.5) * 2*M_PI/nBinsPhiHisto_;
+          float x_seed = ROverZ_seed*cos(phi_seed);
+          float y_seed = ROverZ_seed*sin(phi_seed);
+          seedPositions.emplace_back(x_seed,y_seed,z_side);
+        }
+
+      }
+
+    }
+
+  }
+
+  return seedPositions;
+
+}
+ 
 
 
 std::vector<GlobalPoint> HGCalMulticlusteringHistoImpl::computeThresholdSeeds( const Histogram & histoClusters ){
