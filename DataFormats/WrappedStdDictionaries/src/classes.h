@@ -6,6 +6,7 @@
 #include <deque>
 #include <set>
 #include <string>
+#include <bitset>
 
 namespace DataFormats_WrappedStdDictionaries {
   struct dictionary {
