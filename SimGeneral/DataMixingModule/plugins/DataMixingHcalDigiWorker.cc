@@ -240,7 +240,7 @@ namespace edm
     QIE11DigiPToken_ = iC.consumes<QIE11DigiCollection>(QIE11PileInputTag_);
 
     DoZDC_ = false;
-    if(ZDCPileInputTag_.label() != "") DoZDC_ = true;
+    if(!ZDCPileInputTag_.label().empty()) DoZDC_ = true;
 
     if(DoZDC_) { 
       ZDCDigiToken_ = iC.consumes<ZDCDigiCollection>(ZDCdigiCollectionSig_);
