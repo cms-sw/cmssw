@@ -5,15 +5,15 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import patGenericParticles
 
 
-ZMuHLTFilter = copy.deepcopy(hltHighLevel)
-ZMuHLTFilter.throw = cms.bool(False)
-ZMuHLTFilter.HLTPaths = ["HLT_HIL3Mu*"]
+PbPbZMuHLTFilter = copy.deepcopy(hltHighLevel)
+PbPbZMuHLTFilter.throw = cms.bool(False)
+PbPbZMuHLTFilter.HLTPaths = ["HLT_HIL3Mu*"]
 
 ### Z -> MuMu candidates
 # Get muons of needed quality for Zs
 
 ###create a track collection with generic kinematic cuts
-looseMuonsForZMuSkim = cms.EDFilter("TrackSelector",
+looseMuonsForPbPbZMuSkim = cms.EDFilter("TrackSelector",
                              src = cms.InputTag("generalTracks"),
                              cut = cms.string('pt > 10 &&  abs(eta)<2.4 &&  (charge!=0)'),
                              filter = cms.bool(True)                                
@@ -22,16 +22,16 @@ looseMuonsForZMuSkim = cms.EDFilter("TrackSelector",
 
 
 ###cloning the previous collection into a collection of candidates
-ConcretelooseMuonsForZMuSkim = cms.EDProducer("ConcreteChargedCandidateProducer",
-                                              src = cms.InputTag("looseMuonsForZMuSkim"),
+ConcretelooseMuonsForPbPbZMuSkim = cms.EDProducer("ConcreteChargedCandidateProducer",
+                                              src = cms.InputTag("looseMuonsForPbPbZMuSkim"),
                                               particleType = cms.string("mu+")
                                               )
 
 
 
 ###create iso deposits
-tkIsoDepositTkForZMuSkim = cms.EDProducer("CandIsoDepositProducer",
-                                src = cms.InputTag("ConcretelooseMuonsForZMuSkim"),
+tkIsoDepositTkForPbPbZMuSkim = cms.EDProducer("CandIsoDepositProducer",
+                                src = cms.InputTag("ConcretelooseMuonsForPbPbZMuSkim"),
                                 MultipleDepositsFlag = cms.bool(False),
                                 trackType = cms.string('track'),
                                 ExtractorPSet = cms.PSet(
@@ -53,19 +53,19 @@ tkIsoDepositTkForZMuSkim = cms.EDProducer("CandIsoDepositProducer",
                                 )
 
 ###adding isodeposits to candidate collection
-allPatTracksForZMuSkim = patGenericParticles.clone(
-    src = cms.InputTag("ConcretelooseMuonsForZMuSkim"),
+allPatTracksForPbPbZMuSkim = patGenericParticles.clone(
+    src = cms.InputTag("ConcretelooseMuonsForPbPbZMuSkim"),
     # isolation configurables
     userIsolation = cms.PSet(
       tracker = cms.PSet(
         veto = cms.double(0.015),
-        src = cms.InputTag("tkIsoDepositTkForZMuSkim"),
+        src = cms.InputTag("tkIsoDepositTkForPbPbZMuSkim"),
         deltaR = cms.double(0.3),
         #threshold = cms.double(1.5)
       ),
       ),
     isoDeposits = cms.PSet(
-        tracker = cms.InputTag("tkIsoDepositTkForZMuSkim"),
+        tracker = cms.InputTag("tkIsoDepositTkForPbPbZMuSkim"),
         ),
     )
 
@@ -73,8 +73,8 @@ allPatTracksForZMuSkim = patGenericParticles.clone(
 
 
 ###create the "probe collection" of isolated tracks 
-looseIsoMuonsForZMuSkim = cms.EDFilter("PATGenericParticleSelector",  
-                             src = cms.InputTag("allPatTracksForZMuSkim"), 
+looseIsoMuonsForPbPbZMuSkim = cms.EDFilter("PATGenericParticleSelector",  
+                             src = cms.InputTag("allPatTracksForPbPbZMuSkim"), 
                              cut = cms.string("(userIsolation('pat::TrackIso')/pt)<0.4"),
                              filter = cms.bool(True)
                              )
@@ -84,7 +84,7 @@ looseIsoMuonsForZMuSkim = cms.EDFilter("PATGenericParticleSelector",
 ###create the "tag collection" of muon candidate, no dB cut applied 
 
 
-tightMuonsForZMuSkim = cms.EDFilter("MuonSelector",
+tightMuonsForPbPbZMuSkim = cms.EDFilter("MuonSelector",
     src = cms.InputTag("muons"),
     cut = cms.string("(isGlobalMuon) && pt > 25. &&  (abs(eta)<2.4) &&  (isPFMuon>0) && (globalTrack().normalizedChi2() < 10) && (globalTrack().hitPattern().numberOfValidMuonHits()>0)&& (numberOfMatchedStations() > 1)&& (innerTrack().hitPattern().numberOfValidPixelHits() > 0)&& (innerTrack().hitPattern().trackerLayersWithMeasurement() > 5) && ((isolationR03().sumPt/pt)<0.1)"),
     filter = cms.bool(True)
@@ -94,31 +94,31 @@ tightMuonsForZMuSkim = cms.EDFilter("MuonSelector",
 
 
 # build Z-> MuMu candidates
-dimuonsZMuSkim = cms.EDProducer("CandViewShallowCloneCombiner",
+dimuonsForPbPbZMuSkim = cms.EDProducer("CandViewShallowCloneCombiner",
                          checkCharge = cms.bool(False),
                          cut = cms.string('(mass > 60) &&  (charge=0)'),       
-                         decay = cms.string("tightMuonsForZMuSkim looseIsoMuonsForZMuSkim")
+                         decay = cms.string("tightMuonsForPbPbZMuSkim looseIsoMuonsForPbPbZMuSkim")
                          )                                    
 
 
 # Z filter
-dimuonsFilterZMuSkim = cms.EDFilter("CandViewCountFilter",
-                             src = cms.InputTag("dimuonsZMuSkim"),
+dimuonsFilterForPbPbZMuSkim = cms.EDFilter("CandViewCountFilter",
+                             src = cms.InputTag("dimuonsForPbPbZMuSkim"),
                              minNumber = cms.uint32(1)
                              )
 
 
 
-diMuonSelSeq = cms.Sequence(
-                            ZMuHLTFilter *
-                            looseMuonsForZMuSkim *
-                            ConcretelooseMuonsForZMuSkim *
-                            tkIsoDepositTkForZMuSkim *
-                            allPatTracksForZMuSkim *
-                            looseIsoMuonsForZMuSkim * 
-                            tightMuonsForZMuSkim *
-                            dimuonsZMuSkim *
-                            dimuonsFilterZMuSkim 
+diMuonSelSeqForPbPbZMuSkim = cms.Sequence(
+                            PbPbZMuHLTFilter *
+                            looseMuonsForPbPbZMuSkim *
+                            ConcretelooseMuonsForPbPbZMuSkim *
+                            tkIsoDepositTkForPbPbZMuSkim *
+                            allPatTracksForPbPbZMuSkim *
+                            looseIsoMuonsForPbPbZMuSkim * 
+                            tightMuonsForPbPbZMuSkim *
+                            dimuonsForPbPbZMuSkim *
+                            dimuonsFilterForPbPbZMuSkim 
 )
 
 
