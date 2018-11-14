@@ -250,10 +250,14 @@ public:
         desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
 <<<<<<< HEAD
+<<<<<<< HEAD
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb");
         desc.add<bool>("memMapped", false);
 =======
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N.pb");
+=======
+        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb");
+>>>>>>> a9f6b7c945b... Applied last comments
         desc.add<bool>("mem_mapped", false);
 >>>>>>> c32912aefa5... Applied commets of previus PR
 
