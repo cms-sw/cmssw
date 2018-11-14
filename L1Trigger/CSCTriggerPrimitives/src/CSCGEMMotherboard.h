@@ -295,8 +295,12 @@ void CSCGEMMotherboard::matchingPads(const CSCCLCTDigi& clct,
   auto part(getCSCPart(clct.getKeyStrip()));
   // Get the corresponding pad numbers for a given CLCT
   const auto& mymap = (getLUT()->get_csc_hs_to_gem_pad(theParity, part));
-  const int lowPad(mymap[clct.getKeyStrip()].first);
-  const int highPad(mymap[clct.getKeyStrip()].second);
+  int keyStrip = clct.getKeyStrip();
+  //ME1A part, convert halfstrip from 128-223 to 0-95
+  if (part == CSCPart::ME1A and keyStrip > CSCConstants::MAX_HALF_STRIP_ME1B) 
+      keyStrip = keyStrip -  CSCConstants::MAX_HALF_STRIP_ME1B -1;
+  const int lowPad(mymap[keyStrip].first);
+  const int highPad(mymap[keyStrip].second);
 
   // Get the pads in the CLCT bx
   const matchesBX<T>& lut = getPads<T>();
