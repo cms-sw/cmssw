@@ -1736,7 +1736,7 @@ namespace edm {
   void EventProcessor::warnAboutModulesRequiringLuminosityBLockSynchronization() const {
     std::unique_ptr<LogSystem> s;
     for( auto worker: schedule_->allWorkers()) {
-      if( worker->globalLuminosityBlocksQueue()) {
+      if( worker->wantsGlobalLuminosityBlocks() and worker->globalLuminosityBlocksQueue()) {
         if(not s) {
           s = std::make_unique<LogSystem>("ModulesSynchingOnLumis");
           (*s) <<"The following modules require synchronizing on LuminosityBlock boundaries:";
