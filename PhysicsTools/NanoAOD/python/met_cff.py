@@ -2,19 +2,6 @@ import FWCore.ParameterSet.Config as cms
 from  PhysicsTools.NanoAOD.common_cff import *
 
 
-
-##################### User floats producers, selectors ##########################
-## this can be merged with chsFor soft activity if we keep the same selection
-chsForTkMet = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string('charge()!=0 && pvAssociationQuality()>=5 && vertexRef().key()==0'))
-tkMet = cms.EDProducer("PFMETProducer",
-    src = cms.InputTag("chsForTkMet"),
-    alias = cms.string('tkMet'),
-    globalThreshold = cms.double(0.0),
-    calculateSignificance = cms.bool(False),
-)
-
-
-
 ##################### Tables for final output and docs ##########################
 metTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("slimmedMETs"),
@@ -74,16 +61,30 @@ puppiMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 )
 
 tkMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-    src = cms.InputTag("tkMet"),
+    src = metTable.src,
     name = cms.string("TkMET"),
-    doc = cms.string("Track MET computed with tracks from PV0 ( pvAssociationQuality()>=5 ) "),
+    doc = cms.string("Track MET computed with tracks from PV0 ( pvAssociationQuality()>=4 ) "),
     singleton = cms.bool(True),  # there's always exactly one MET per event
     extension = cms.bool(False), # this is the main table for the TkMET
-    variables = cms.PSet(PTVars,
-       sumEt = Var("sumEt()", float, doc="scalar sum of Et",precision=10),
+    variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
+       pt = Var("corPt('RawTrk')", float, doc="raw track MET pt",precision=10),
+       phi = Var("corPhi('RawTrk')", float, doc="raw track MET phi",precision=10),
+       sumEt = Var("corSumEt('RawTrk')", float, doc="raw track scalar sum of Et",precision=10),
     ),
 )
 
+chsMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = metTable.src,
+    name = cms.string("ChsMET"),
+    doc = cms.string("PF MET computed with CHS PF candidates"),
+    singleton = cms.bool(True),  # there's always exactly one MET per event
+    extension = cms.bool(False), # this is the main table for the TkMET
+    variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
+       pt = Var("corPt('RawChs')", float, doc="raw chs PF MET pt",precision=10),
+       phi = Var("corPhi('RawChs')", float, doc="raw chs PF MET phi",precision=10),
+       sumEt = Var("corSumEt('RawChs')", float, doc="raw chs PF scalar sum of Et",precision=10),
+    ),
+)
 
 metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = metTable.src,
@@ -99,7 +100,6 @@ metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 
 
-metSequence = cms.Sequence(chsForTkMet+tkMet)
-metTables = cms.Sequence( metTable + rawMetTable + caloMetTable + puppiMetTable + tkMetTable)
+metTables = cms.Sequence( metTable + rawMetTable + caloMetTable + puppiMetTable + tkMetTable + chsMetTable)
 metMC = cms.Sequence( metMCTable )
 
