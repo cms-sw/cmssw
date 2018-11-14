@@ -58,11 +58,11 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects() {
 	//check whats already inside of database
 	if (tagInfo().size){
   	//check whats already inside of database
-    	std::cout << "got offlineInfo = " << std::endl;
-	std::cout << "tag name = " << tagInfo().name << std::endl;
-	std::cout << "size = " << tagInfo().size <<  std::endl;
+	  edm::LogInfo("got offlineInfo = ");
+	  edm::LogInfo("tag name = ") << tagInfo().name;
+	  edm::LogInfo("size = ") << tagInfo().size;
     	} else {
-    	std::cout << " First object for this tag " << std::endl;
+	  edm::LogInfo(" First object for this tag ");
     	}
 
 	unsigned int max_since=0;
@@ -81,7 +81,7 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects() {
 	
 	if (!econn)
 	  {
-	    std::cout << " connection parameters " <<m_sid <<"/"<<m_user<<std::endl;
+	    edm::LogInfo(" connection parameters ") <<m_sid <<"/"<<m_user;
 	    //	    cerr << e.what() << std::endl;
 	    throw cms::Exception("OMDS not available");
 	  } 
@@ -113,7 +113,7 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects() {
 	  min_run=max_since+1; // we have to add 1 to the last transferred one
 	} 
 
-	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< std::endl;
+	edm::LogInfo("m_i_run_number")<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since;
 
 	unsigned int max_run=m_lastRun;
 	edm::LogInfo("EcalTPGWeightIdMapHandler") << "min_run= " << min_run << "max_run= " << max_run;
@@ -132,9 +132,7 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects() {
 
 	    irun=static_cast<unsigned int>(run_vec[kr].getRunNumber());
 
-	    std::cout<<" **************** "<<std::endl;
-	    std::cout<<" **************** "<<std::endl;
-	    std::cout<<" run= "<<irun<<std::endl;
+	    edm::LogInfo(" run= ")<<irun;
 	  
 	    // retrieve the data :
 	    std::map<EcalLogicID, RunTPGConfigDat> dataset;
@@ -159,22 +157,20 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects() {
 	    // it is all the same for all SM... get the last one 
 
 
-	    std::cout<<" run= "<<irun<<" tag "<<the_config_tag<<" version="<<the_config_version <<std::endl;
+			 edm::LogInfo(" run= ")<<irun<<" tag "<<the_config_tag<<" version="<<the_config_version;
 
 	    // here we should check if it is the same as previous run.
 
 
 	    if((the_config_tag != m_i_tag || the_config_version != m_i_version ) && nr>0 ) {
-	      std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<std::endl;
+	      edm::LogInfo("the tag is different from last transferred run ... retrieving last config set from DB");
 
 	      FEConfigMainInfo fe_main_info;
 	      fe_main_info.setConfigTag(the_config_tag);
 	      fe_main_info.setVersion(the_config_version);
 
 	      try{ 
-		std::cout << " before fetch config set" << std::endl;	    
 		econn-> fetchConfigSet(&fe_main_info);
-		std::cout << " after fetch config set" << std::endl;	    
 
 
         	// now get TPGWeightIdMap
@@ -231,29 +227,26 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects() {
 
 		  writeFile("last_tpg_weightIdMap_settings.txt");
 
-		  std::cout<< " even if the tag/version is not the same, the weightIdMap id is the same -> no transfer needed "<< std::endl; 
+		  edm::LogInfo(" even if the tag/version is not the same, the weightIdMap id is the same -> no transfer needed "); 
 
 		}
 
 	      }       catch (std::exception &e) { 
-		std::cout << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" <<the_config_tag
-			  <<" version="<<the_config_version<< std::endl;
-		std::cout << e.what() << std::endl;
+		edm::LogInfo("ERROR: THIS CONFIG DOES NOT EXIST: tag=") <<the_config_tag
+			  <<" version="<<the_config_version;
+			     edm::LogInfo("error")<<e.what();
 		m_i_run_number=irun;
 
 	      }
-	      std::cout<<" **************** "<<std::endl;
 	      
 	    } else if(nr==0) {
 	      m_i_run_number=irun;
-	      std::cout<< " no tag saved to RUN_TPGCONFIG_DAT by EcalSupervisor -> no transfer needed "<< std::endl; 
-	      std::cout<<" **************** "<<std::endl;
+	      edm::LogInfo( " no tag saved to RUN_TPGCONFIG_DAT by EcalSupervisor,  no transfer needed "); 
 	    } else {
 	      m_i_run_number=irun;
 	      m_i_tag=the_config_tag;
 	      m_i_version=the_config_version;
-	      std::cout<< " the tag/version is the same -> no transfer needed "<< std::endl; 
-	      std::cout<<" **************** "<<std::endl;
+	      edm::LogInfo(" the tag/version is the same, no transfer needed "); 
 	      writeFile("last_tpg_weightIdMap_settings.txt");
 	    }
 	    
@@ -265,11 +258,11 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects() {
   edm::LogInfo("EcalTPGWeightIdMapHandler") << "Ecal - > end of getNewObjects -----------";
 }
 void  popcon::EcalTPGWeightIdMapHandler::readtxtFile() {
-  std::cout << " reading the input file " << m_file_name <<  std::endl;
+  edm::LogInfo(" reading the input file ") << m_file_name;
   std::ifstream fInput;
   fInput.open(m_file_name);
   if(!fInput.is_open()) {
-    std::cout << "ERROR : cannot open file " << m_file_name << std::endl;
+    edm::LogInfo("ERROR : cannot open file ") << m_file_name;
     exit (1);
   }
   unsigned int wloc[5];
@@ -288,17 +281,16 @@ void  popcon::EcalTPGWeightIdMapHandler::readtxtFile() {
     Time_t snc= (Time_t) m_firstRun; 	      
     m_to_transfer.push_back(std::make_pair((EcalTPGWeightIdMap*)weightMap, snc));
   } catch (std::exception &e) { 
-    std::cout << "EcalTPGWeightIdMapHandler::readtxtFile error : " << e.what() << std::endl;
+    edm::LogInfo("EcalTPGWeightIdMapHandler::readtxtFile error : ") << e.what() << std::endl;
   }
-  std::cout<<" **************** "<<std::endl;
 }
 
 void  popcon::EcalTPGWeightIdMapHandler::readxmlFile() {
-  std::cout << " reading the input file " << m_file_name <<  std::endl;
+  edm::LogInfo(" reading the input file ") << m_file_name;
   std::ifstream fxml;
   fxml.open(m_file_name);
   if(!fxml.is_open()) {
-    std::cout << "ERROR : cannot open file " << m_file_name << std::endl;
+    edm::LogInfo("ERROR : cannot open file ") << m_file_name;
     exit (1);
   }
   std::string dummyLine, bid;
@@ -313,7 +305,7 @@ void  popcon::EcalTPGWeightIdMapHandler::readxmlFile() {
   std::istringstream sc(stt);
   sc >> ngroups;
   if(ngroups != 2) {
-    std::cout << " line : " << bid << " ngroups " << ngroups << std::endl;
+    edm::LogInfo(" line : ") << bid << " ngroups " << ngroups;
     exit(-1);
   }
   for(int i = 0; i < 3; i++) std::getline(fxml, dummyLine);
@@ -322,7 +314,7 @@ void  popcon::EcalTPGWeightIdMapHandler::readxmlFile() {
   std::istringstream sg1(stt);
   sg1 >> igroups;
   if(igroups != 0) {
-    std::cout << " group 1: " << bid << " igroups " << igroups << std::endl;
+    edm::LogInfo(" group 1: ") << bid << " igroups " << igroups;
     exit(-1);
   }
   for(int i = 0; i < 2; i++) std::getline(fxml, dummyLine);
@@ -342,7 +334,7 @@ void  popcon::EcalTPGWeightIdMapHandler::readxmlFile() {
   std::istringstream sg2(stt);
   sg2 >> igroups;
   if(igroups != 1) {
-    std::cout << " group 2 : " << bid << " igroups " << igroups << std::endl;
+    edm::LogInfo(" group 2 : ") << bid << " igroups " << igroups;
     exit(-1);
   }
   for(int i = 0; i < 2; i++) std::getline(fxml, dummyLine);
@@ -359,9 +351,8 @@ void  popcon::EcalTPGWeightIdMapHandler::readxmlFile() {
     Time_t snc= (Time_t) m_firstRun; 	      
     m_to_transfer.push_back(std::make_pair((EcalTPGWeightIdMap*)weightMap, snc));
   } catch (std::exception &e) { 
-    std::cout << "EcalTPGWeightIdMapHandler::readxmlFile error : " << e.what() << std::endl;
+    edm::LogInfo("EcalTPGWeightIdMapHandler::readxmlFile error : ") << e.what();
   }
-  std::cout<<" **************** "<<std::endl;
 }
 
 void  popcon::EcalTPGWeightIdMapHandler::readFromFile(const char* inputFile) {
