@@ -76,7 +76,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCUpgradeMotherboard(endc, stat, sect, subs, cham, conf) );
             else if (isSLHC_ and ring == 1 and stat==2 and runME21Up_ and runME21ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCGEMMotherboardME21(endc, stat, sect, subs, cham, conf) );
-            else if (isSLHC_ and ring == 1 and (stat==3 and runME31Up_) || (stat==4 and runME41Up_))
+            else if (isSLHC_ and ring == 1 and ((stat==3 and runME31Up_) || (stat==4 and runME41Up_)))
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCUpgradeMotherboard(endc, stat, sect, subs, cham, conf) );
             else
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboard(endc, stat, sect, subs, cham, conf) );
