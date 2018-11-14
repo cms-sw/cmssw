@@ -8,26 +8,17 @@
 #include <vector>
 #include <memory>
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
-
+namespace edm {class ParameterSet;}
+namespace reco {class CaloCluster;}
 
 class ClusterFilterBase {
 public:
-  virtual ~ClusterFilterBase(){}
+  explicit ClusterFilterBase(const edm::ParameterSet &) {};
+  virtual ~ClusterFilterBase(){};
 
-  virtual std::unique_ptr<std::vector<std::pair<unsigned int, float> > >  filter(const std::vector<reco::CaloCluster>& layerClusters,
-                                           const std::vector<std::pair<unsigned int, float> >& mask) const { return std::unique_ptr<std::vector<std::pair<unsigned int, float> > >(); }
-
-  virtual std::unique_ptr<std::vector<std::pair<unsigned int, float> > >  filter(
-      const edm::EventSetup& es,
-      const std::vector<reco::CaloCluster>& layerClusters,
-      const std::vector<std::pair<unsigned int, float> >& mask) const { return nullptr;}
-
-  virtual std::unique_ptr<std::vector<std::pair<unsigned int, float> > >  filter(
-      const edm::Event& ev,
-      const edm::EventSetup& es,
-      const std::vector<reco::CaloCluster>& layerClusters,
-      const std::vector<std::pair<unsigned int, float> >& mask) const { return filter(es, layerClusters, mask); }
+  virtual std::unique_ptr<std::vector<std::pair<unsigned int, float> > >
+    filter(const std::vector<reco::CaloCluster>& layerClusters,
+           const std::vector<std::pair<unsigned int, float> >& mask) const = 0;
 };
 
 
