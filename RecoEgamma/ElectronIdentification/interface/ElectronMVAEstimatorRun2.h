@@ -5,6 +5,7 @@
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 #include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
+#include "RecoEgamma/EgammaTools/interface/ThreadSafeStringCut.h"
 
 class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
 
@@ -33,7 +34,7 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
 
   int findCategory( const edm::Ptr<reco::GsfElectron>& gsfPtr) const;
 
-  std::vector<StringCutObjectSelector<reco::GsfElectron>> categoryFunctions_;
+  std::vector<ThreadSafeStringCut<StringCutObjectSelector<reco::GsfElectron>, reco::GsfElectron>> categoryFunctions_;
   std::vector<int> nVariables_;
 
   // Data members
