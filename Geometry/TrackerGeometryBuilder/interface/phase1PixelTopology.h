@@ -20,6 +20,15 @@ namespace phase1PixelTopology {
 
   constexpr uint32_t numPixsInModule = uint32_t(numRowsInModule)* uint32_t(numColsInModule);
 
+  constexpr uint32_t numberOfModules = 1856;
+  
+  constexpr uint32_t layerStart[11] = {0,96,320,672,1184,1296,1408,1520,1632,1744,1856};
+  constexpr char const * layerName[10] = {"BL1","BL2","BL3","BL4",
+   		  	                  "E+1", "E+2", "E+3",
+			                  "E-1", "E-2", "E-3"
+                                          };
+
+
   // this is for the ROC n<512 (upgrade 1024)
   constexpr inline
   uint16_t  divu52(uint16_t n) {

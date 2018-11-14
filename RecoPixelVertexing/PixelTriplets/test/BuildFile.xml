@@ -19,3 +19,5 @@
 <bin file="PixelTriplets_InvPrbl_prec.cpp">
   <use   name="RecoPixelVertexing/PixelTriplets"/>
 </bin>
+
+<bin file="fastDPHI_t.cpp"/>

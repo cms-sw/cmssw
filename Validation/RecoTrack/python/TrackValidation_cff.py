@@ -710,9 +710,18 @@ tracksValidationTrackingOnly = cms.Sequence(
 
 
 ### Pixel tracking only mode (placeholder for now)
-tpClusterProducerPixelTrackingOnly = tpClusterProducer.clone(
-    pixelClusterSrc = "siPixelClustersPreSplitting"
+
+tpClusterProducerHeterogeneousPixelTrackingOnly = tpClusterProducerHeterogeneous.clone(
+   pixelClusterSrc = "siPixelClustersPreSplitting"
 )
+tpClusterProducerPixelTrackingOnly = tpClusterProducer.clone(
+   pixelClusterSrc = "siPixelClustersPreSplitting"
+)
+from Configuration.ProcessModifiers.gpu_cff import gpu
+gpu.toReplaceWith(tpClusterProducerPixelTrackingOnly, tpClusterProducerConverter.clone(
+    src = "tpClusterProducerHeterogeneousPixelTrackingOnly"
+))
+
 quickTrackAssociatorByHitsPixelTrackingOnly = quickTrackAssociatorByHits.clone(
     cluster2TPSrc = "tpClusterProducerPixelTrackingOnly"
 )
@@ -722,6 +731,12 @@ trackingParticlePixelTrackAsssociation = trackingParticleRecoTrackAsssociation.c
 )
 PixelVertexAssociatorByPositionAndTracks = VertexAssociatorByPositionAndTracks.clone(
     trackAssociation = "trackingParticlePixelTrackAsssociation"
+)
+
+pixelTracksFromPV = generalTracksFromPV.clone(
+    src = "pixelTracks",
+    vertexTag = "pixelVertices",
+    quality = "undefQuality",
 )
 
 trackValidatorPixelTrackingOnly = trackValidator.clone(
@@ -734,16 +749,48 @@ trackValidatorPixelTrackingOnly = trackValidator.clone(
     vertexAssociator = "PixelVertexAssociatorByPositionAndTracks",
     dodEdxPlots = False,
 )
+trackValidatorFromPVPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(
+    dirName = "Tracking/PixelTrackFromPV/",
+    label = ["pixelTracksFromPV"],
+    label_tp_effic = "trackingParticlesSignal",
+    label_tp_fake = "trackingParticlesSignal",
+    label_tp_effic_refvector = True,
+    label_tp_fake_refvector = True,
+    trackCollectionForDrCalculation = "pixelTracksFromPV",
+    doPlotsOnlyForTruePV = True,
+    doPVAssociationPlots = False,
+    doResolutionPlotsForLabels = ["disabled"],
+)
+trackValidatorFromPVAllTPPixelTrackingOnly = trackValidatorFromPVPixelTrackingOnly.clone(
+    dirName = "Tracking/PixelTrackFromPVAllTP/",
+    label_tp_effic = trackValidatorPixelTrackingOnly.label_tp_effic.value(),
+    label_tp_fake = trackValidatorPixelTrackingOnly.label_tp_fake.value(),
+    label_tp_effic_refvector = False,
+    label_tp_fake_refvector = False,
+    doSimPlots = False,
+    doSimTrackPlots = False,
+)
+
 
 tracksValidationTruthPixelTrackingOnly = tracksValidationTruth.copy()
 tracksValidationTruthPixelTrackingOnly.replace(tpClusterProducer, tpClusterProducerPixelTrackingOnly)
 tracksValidationTruthPixelTrackingOnly.replace(quickTrackAssociatorByHits, quickTrackAssociatorByHitsPixelTrackingOnly)
 tracksValidationTruthPixelTrackingOnly.replace(trackingParticleRecoTrackAsssociation, trackingParticlePixelTrackAsssociation)
 tracksValidationTruthPixelTrackingOnly.replace(VertexAssociatorByPositionAndTracks, PixelVertexAssociatorByPositionAndTracks)
+
+_tracksValidationTruthPixelTrackingOnlyGPU = tracksValidationTruthPixelTrackingOnly.copy()
+_tracksValidationTruthPixelTrackingOnlyGPU.insert(0, tpClusterProducerHeterogeneousPixelTrackingOnly)
+gpu.toReplaceWith(tracksValidationTruthPixelTrackingOnly, _tracksValidationTruthPixelTrackingOnlyGPU)
+
 tracksValidationPixelTrackingOnly = cms.Sequence(
     tracksValidationTruthPixelTrackingOnly +
-    trackValidatorPixelTrackingOnly
+    cms.ignore(trackingParticlesSignal) +
+    pixelTracksFromPV +
+    trackValidatorPixelTrackingOnly +
+    trackValidatorFromPVPixelTrackingOnly +
+    trackValidatorFromPVAllTPPixelTrackingOnly
 )
+
 
 
 ### Lite mode (only generalTracks and HP)

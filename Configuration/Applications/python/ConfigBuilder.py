@@ -918,6 +918,8 @@ class ConfigBuilder(object):
                 self.loadAndRemember('SimGeneral.HepPDTESSource.'+self._options.particleTable+'_cfi')
 
         self.loadAndRemember('FWCore/MessageService/MessageLogger_cfi')
+        # Eventually replace with some more generic file to load
+        self.loadAndRemember('HeterogeneousCore/CUDAServices/CUDAService_cfi')
 
         self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreams_cff"
         self.GENDefaultCFF="Configuration/StandardSequences/Generator_cff"
