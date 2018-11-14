@@ -118,7 +118,7 @@ bool CSCUpgradeCathodeLCTProcessor::preTrigger(
           for (int hs = min_hstrip; hs <= max_hstrip; hs++)
               busyMap[hs][bx_time+1] = true;
           if (infoV > 1)
-            LogTrace("CSCUpgradeCathodeLCTProcessor") << " marked zoen around pretriggerred halfstrip " << hstrip <<" as dead zone for pretriggering at bx" 
+            LogTrace("CSCUpgradeCathodeLCTProcessor") << " marked zone around pretriggerred halfstrip " << hstrip <<" as dead zone for pretriggering at bx"
               << bx_time+1 <<" halfstrip: [" << min_hstrip << "," << max_hstrip << "]";
         }
 	}

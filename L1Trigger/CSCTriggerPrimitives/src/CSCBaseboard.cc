@@ -34,17 +34,26 @@ CSCBaseboard::CSCBaseboard(unsigned endcap, unsigned station,
 
   alctClctOffset_ = commonParams_.getParameter<unsigned int>("alctClctOffset");
 
+  runME11Up_ = commonParams_.existsAs<bool>("runME11Up")?
+    commonParams_.getParameter<bool>("runME11Up"):false;
+
+  runME21Up_ = commonParams_.existsAs<bool>("runME21Up")?
+    commonParams_.getParameter<bool>("runME21Up"):false;
+
+  runME31Up_ = commonParams_.existsAs<bool>("runME31Up")?
+    commonParams_.getParameter<bool>("runME31Up"):false;
+
+  runME41Up_ = commonParams_.existsAs<bool>("runME41Up")?
+    commonParams_.getParameter<bool>("runME41Up"):false;
+
   runME11ILT_ = commonParams_.existsAs<bool>("runME11ILT") ?
     commonParams_.getParameter<bool>("runME11ILT"):false;
 
   runME21ILT_ = commonParams_.existsAs<bool>("runME21ILT")?
     commonParams_.getParameter<bool>("runME21ILT"):false;
 
-  runME3141ILT_ = commonParams_.existsAs<bool>("runME3141ILT")?
-    commonParams_.getParameter<bool>("runME3141ILT"):false;
-
   if (isSLHC_ and theRing == 1) {
-    if (theStation == 1) {
+    if (theStation == 1 and runME11Up_) {
       tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbSLHC");
       clctParams_ = conf.getParameter<edm::ParameterSet>("clctSLHC");
       alctParams_ = conf.getParameter<edm::ParameterSet>("alctSLHC");
@@ -55,13 +64,17 @@ CSCBaseboard::CSCBaseboard(unsigned endcap, unsigned station,
         tmbParams_ = conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM");
       }
     }
-    else if (theStation == 2 and runME21ILT_) {
-      tmbParams_ = conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM");
+    else if (theStation == 2 and runME21Up_) {
+      tmbParams_ = conf.getParameter<edm::ParameterSet>("meX1tmbSLHC");
       alctParams_ = conf.getParameter<edm::ParameterSet>("alctSLHCME21");
       clctParams_ = conf.getParameter<edm::ParameterSet>("clctSLHCME21");
+      if (runME21ILT_) {
+        tmbParams_ = conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM");
+      }
     }
-    else if ((theStation == 3 or theStation == 4) and runME3141ILT_) {
-      tmbParams_ = conf.getParameter<edm::ParameterSet>("me3141tmbSLHC");
+    else if ((theStation == 3 and runME31Up_) or
+             (theStation == 4 and runME41Up_)) {
+      tmbParams_ = conf.getParameter<edm::ParameterSet>("meX1tmbSLHC");
       alctParams_ = conf.getParameter<edm::ParameterSet>("alctSLHCME3141");
       clctParams_ = conf.getParameter<edm::ParameterSet>("clctSLHCME3141");
     }

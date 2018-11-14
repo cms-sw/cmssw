@@ -67,30 +67,19 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             // When the motherboard is instantiated, it instantiates ALCT
             // and CLCT processors.
 
-            // General case: SLHC
-            if (isSLHC_ and ring==1) {
-              if (stat==1) {
-                if (runME11ILT_) {
-                  tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCGEMMotherboardME11(endc, stat, sect, subs, cham, conf) );
-                }
-                else {
-                  tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME11(endc, stat, sect, subs, cham, conf) );
-                }
-              }
-              else if (stat==2) {
-                if (runME21ILT_) {
-                  tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCGEMMotherboardME21(endc, stat, sect, subs, cham, conf) );
-                }
-                else {
-                  tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCUpgradeMotherboard(endc, stat, sect, subs, cham, conf) );
-                }
-              }
-              else if (stat==3 || stat==4) {
-                tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCUpgradeMotherboard(endc, stat, sect, subs, cham, conf) );
-              }
-            } else {
+            // go through all possible cases
+            if (isSLHC_ and ring == 1 and stat==1 and runME11Up_ and !runME11ILT_)
+              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME11(endc, stat, sect, subs, cham, conf) );
+            else if (isSLHC_ and ring == 1 and stat==1 and runME11Up_ and runME11ILT_)
+              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCGEMMotherboardME11(endc, stat, sect, subs, cham, conf) );
+            else if (isSLHC_ and ring == 1 and stat==2 and runME21Up_ and !runME21ILT_)
+              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCUpgradeMotherboard(endc, stat, sect, subs, cham, conf) );
+            else if (isSLHC_ and ring == 1 and stat==2 and runME21Up_ and runME21ILT_)
+              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCGEMMotherboardME21(endc, stat, sect, subs, cham, conf) );
+            else if (isSLHC_ and ring == 1 and (stat==3 and runME31Up_) || (stat==4 and runME41Up_))
+              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCUpgradeMotherboard(endc, stat, sect, subs, cham, conf) );
+            else
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboard(endc, stat, sect, subs, cham, conf) );
-            }
           }
         }
       }
@@ -373,12 +362,11 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               }
 
               // put collections in event
-              const std::string chamberString("ME" + std::to_string(stat) + "" + std::to_string(ring) + " ");
-              put(lctV, oc_lct, detid, chamberString + " LCT digi");
-              put(alctV, oc_alct, detid, chamberString + " ALCT digi");
-              put(clctV, oc_clct, detid, chamberString + " CLCT digi");
-              put(pretriggerV, oc_pretrigger, detid, chamberString + " CLCT pre-trigger digi");
-              put(preTriggerBXs, oc_pretrig, detid, chamberString + " CLCT pre-trigger BX");
+              put(lctV, oc_lct, detid, tmb->getCSCName() + " LCT digi");
+              put(alctV, oc_alct, detid, tmb->getCSCName() + " ALCT digi");
+              put(clctV, oc_clct, detid, tmb->getCSCName() + " CLCT digi");
+              put(pretriggerV, oc_pretrigger, detid, tmb->getCSCName() + " CLCT pre-trigger digi");
+              put(preTriggerBXs, oc_pretrig, detid, tmb->getCSCName() + " CLCT pre-trigger BX");
             } // non-upgraded TMB
           }
         }

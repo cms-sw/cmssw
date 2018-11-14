@@ -26,6 +26,8 @@ class CSCBaseboard
 
   void setCSCGeometry(const CSCGeometry *g);
 
+  std::string getCSCName() const {return theCSCName_;}
+
  protected:
   /** Chamber id (trigger-type labels). */
   const unsigned theEndcap;
@@ -89,7 +91,10 @@ class CSCBaseboard
   /** SLHC: run the upgrade for the Phase-II ME2/1 integrated local trigger */
   bool runME21ILT_;
 
-  /** SLHC: run the upgrade for the Phase-II ME3/1(ME4/1) integrated local trigger */
-  bool runME3141ILT_;
+  /** SLHC: run the upgrade local trigger (without GEMs) */
+  bool runME11Up_;
+  bool runME21Up_;
+  bool runME31Up_;
+  bool runME41Up_;
 };
 #endif
