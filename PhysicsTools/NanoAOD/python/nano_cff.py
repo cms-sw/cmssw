@@ -266,13 +266,11 @@ def nanoAOD_customizeMC(process):
 
 ### Era dependent customization
 _80x_sequence = nanoSequenceCommon.copy()
-_80x_sequence_OnlyFullSim = nanoSequenceOnlyFullSim.copy()
 #remove stuff 
-_80x_sequence.remove(isoTrackTable)
+_80x_sequence.remove(isoTrackTables)
 _80x_sequence.remove(isoTrackSequence)
 #add stuff
 _80x_sequence.insert(_80x_sequence.index(jetSequence), extraFlagsProducers)
-_80x_sequence_OnlyFullSim.insert(_80x_sequence_OnlyFullSim.index(l1bits)+1, extraFlagsTable)
+_80x_sequence.insert(_80x_sequence.index(simpleCleanerTable)+1, extraFlagsTable)
 
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceCommon, _80x_sequence)
-run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceOnlyFullSim, _80x_sequence_OnlyFullSim)
