@@ -9,7 +9,7 @@
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoHGCal/TICL/interface/TICLConstants.h"
-#include "DataFormats/Math/interface/normalizedPhi.h" 
+#include "DataFormats/Math/interface/normalizedPhi.h"
 #include "HGCGraph.h"
 #include "HGCDoublet.h"
 
@@ -30,7 +30,7 @@ public:
             histogram_[i].resize(nBins);
         }
     }
-    
+
 
     void fillHistogram(const std::vector<reco::CaloCluster>& layerClusters,
             const std::vector<std::pair<unsigned int, float> >& mask);
@@ -48,7 +48,7 @@ private:
         constexpr float etaRange = ticlConstants::maxEta - ticlConstants::minEta;
         static_assert(etaRange>=0.f);
         float r = nEtaBins_/etaRange;
-        int etaBin = (eta - ticlConstants::minEta)*r;
+        int etaBin = (std::abs(eta) - ticlConstants::minEta)*r;
         etaBin = std::min(etaBin,nEtaBins_);
         etaBin = std::max(etaBin,0);
         return etaBin;
@@ -58,7 +58,7 @@ private:
         auto normPhi = normalizedPhi(phi);
         float r = nPhiBins_*M_1_PI*0.5f;
         int phiBin = (normPhi + M_PI)*r;
-        
+
         return phiBin;
     }
 
@@ -77,7 +77,7 @@ private:
 
 
     std::vector< std::vector< std::vector<unsigned int> > > histogram_; // a histogram of layerClusters IDs per layer
-    
+
     hgcal::RecHitTools rhtools_;
 
     const int nEtaBins_ = 30;

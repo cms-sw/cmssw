@@ -7,10 +7,10 @@
 #include "HGCDoublet.h"
 
 void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<unsigned int>>> &h, int nEtaBins,
-                                      int nPhiBins, const std::vector<reco::CaloCluster> &layerClusters, int nClusters, int deltaIEta, int deltaIPhi, float minCosTheta)
+                                      int nPhiBins, const std::vector<reco::CaloCluster> &layerClusters, int deltaIEta, int deltaIPhi, float minCosTheta)
 {
     isOuterClusterOfDoublets_.clear();
-    isOuterClusterOfDoublets_.resize(nClusters);
+    isOuterClusterOfDoublets_.resize(layerClusters.size());
     allDoublets_.clear();
     theRootDoublets_.clear();
     for (int zSide = 0; zSide < 2; ++zSide)
@@ -32,13 +32,18 @@ void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<
                         const auto etaRangeMin = std::max(0, oeta - deltaIEta);
                         const auto etaRangeMax = std::min(oeta + deltaIEta, nEtaBins);
 
-                        for (int ieta = etaRangeMin; ieta < etaRangeMax - etaRangeMin; ++ieta)
+                        for (int ieta = etaRangeMin; ieta < etaRangeMax; ++ieta)
                         {
-
                             //wrap phi bin
                             for (int phiRange = 0; phiRange < 2 * deltaIPhi + 1; ++phiRange)
                             {
-                                auto iphi = ((ophi + phiRange - deltaIPhi) % nPhiBins + nPhiBins) % nPhiBins;
+                              // The first wrapping is to take into account the
+                              // cases in which we would have to seach in
+                              // negative bins. The second wrap is mandatory to
+                              // account for all other cases, since we add in
+                              // between a full nPhiBins slot.
+                                auto iphi = ((ophi + phiRange - deltaIPhi) %
+                                    nPhiBins + nPhiBins) % nPhiBins;
                                 for (auto innerClusterId : innerLayerHisto[ieta * nPhiBins + iphi])
                                 {
                                     auto doubletId = allDoublets_.size();
@@ -57,9 +62,9 @@ void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<
             }
         }
     }
-    #ifdef FP_DEBUG
+// #ifdef FP_DEBUG
     std::cout << "number of Root doublets " << theRootDoublets_.size() << " over a total number of doublets " << allDoublets_.size() << std::endl;
-    #endif
+// #endif
 }
 
 
