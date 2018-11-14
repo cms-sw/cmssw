@@ -50,6 +50,8 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGWeightIdMapAnalyzer",
      Location = cms.string('P5_Co'),
      GenTag = cms.string('GLOBAL'),
      RunType = cms.string('PHYSICS')
+     fileType = cms.string('txt')
+     fileName = cms.string('./EcalTPGWeightIdMap.txt')
     )                            
 )
 
