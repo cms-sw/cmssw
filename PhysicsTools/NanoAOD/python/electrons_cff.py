@@ -66,21 +66,35 @@ run2_nanoAOD_94X2016.toModify(electron_id_modules_WorkingPoints_nanoAOD,
 )
  
 
-_bitmapVIDForEle_docstring = ''
-for modname in electron_id_modules_WorkingPoints_nanoAOD.modules:
-    ids= __import__(modname, globals(), locals(), ['idName','cutFlow'])
-    for name in dir(ids):
-        _id = getattr(ids,name)
-        if hasattr(_id,'idName') and hasattr(_id,'cutFlow'):
-            if (len(electron_id_modules_WorkingPoints_nanoAOD.WorkingPoints)>0 and _id.idName==electron_id_modules_WorkingPoints_nanoAOD.WorkingPoints[0].split(':')[-1]):
-                _bitmapVIDForEle_docstring = 'VID compressed bitmap (%s), %d bits per cut'%(','.join([cut.cutName.value() for cut in _id.cutFlow]),int(ceil(log(len(electron_id_modules_WorkingPoints_nanoAOD.WorkingPoints)+1,2))))
+def _get_bitmapVIDForEle_docstring(modules,WorkingPoints):
+    docstring=''
+    for modname in modules:
+        ids= __import__(modname, globals(), locals(), ['idName','cutFlow'])
+        for name in dir(ids):
+            _id = getattr(ids,name)
+            if hasattr(_id,'idName') and hasattr(_id,'cutFlow'):
+                if (len(WorkingPoints)>0 and _id.idName==WorkingPoints[0].split(':')[-1]):
+                    docstring = 'VID compressed bitmap (%s), %d bits per cut'%(','.join([cut.cutName.value() for cut in _id.cutFlow]),int(ceil(log(len(WorkingPoints)+1,2))))
+    return docstring
 
 bitmapVIDForEle = cms.EDProducer("EleVIDNestedWPBitmapProducer",
     src = cms.InputTag("slimmedElectrons"),
     WorkingPoints = electron_id_modules_WorkingPoints_nanoAOD.WorkingPoints,
 )
-run2_miniAOD_80XLegacy.toModify(bitmapVIDForEle, src = "slimmedElectronsUpdated")
-run2_nanoAOD_92X.toModify(bitmapVIDForEle, src = "slimmedElectronsUpdated")
+_bitmapVIDForEle_docstring = _get_bitmapVIDForEle_docstring(electron_id_modules_WorkingPoints_nanoAOD.modules,bitmapVIDForEle.WorkingPoints)
+
+bitmapVIDForEleSpring15 = bitmapVIDForEle.clone()
+bitmapVIDForEleSpring15.WorkingPoints = cms.vstring(
+    "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto",
+    "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose",
+    "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium",
+#    "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight", # not fitting in sizeof(int)
+)
+_bitmapVIDForEleSpring15_docstring = _get_bitmapVIDForEle_docstring(electron_id_modules_WorkingPoints_nanoAOD.modules,bitmapVIDForEleSpring15.WorkingPoints)
+
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_92X:
+    modifier.toModify(bitmapVIDForEle, src = "slimmedElectronsUpdated")
+run2_miniAOD_80XLegacy.toModify(bitmapVIDForEleSpring15, src = "slimmedElectronsUpdated")
 
 isoForEle = cms.EDProducer("EleIsoValueMapProducer",
     src = cms.InputTag("slimmedElectrons"),
@@ -220,6 +234,11 @@ run2_nanoAOD_94X2016.toReplaceWith(slimmedElectronsWithUserData.userIntFromBools
         cutbasedID_Spring15_tight = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
     )
 )
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
+    modifier.toModify(slimmedElectronsWithUserData.userInts,
+                      VIDNestedWPBitmapSpring15 = cms.InputTag("bitmapVIDForEleSpring15"),
+                      )
+
 finalElectrons = cms.EDFilter("PATElectronRefSelector",
     src = cms.InputTag("slimmedElectronsWithUserData"),
     cut = cms.string("pt > 5 ")
@@ -352,6 +371,7 @@ run2_nanoAOD_94X2016.toModify(electronTable.variables,
     mvaFall17V2noIso_WP80 = None,
     mvaFall17V2noIso_WP90 = None,
     mvaFall17V2noIso_WPL = None,
+    vidNestedWPBitmapSpring15 = Var("userInt('VIDNestedWPBitmapSpring15')",int,doc=_bitmapVIDForEleSpring15_docstring),
 )
 run2_miniAOD_80XLegacy.toModify(electronTable.variables,
     jetRelIso = Var("(1./userFloat('ptRatio'))-1.",float,doc="Relative isolation in matched jet (1/ptRatio-1, 0 if no matched jet (2016 definition))",precision=8),
@@ -383,6 +403,7 @@ run2_miniAOD_80XLegacy.toModify(electronTable.variables,
     mvaFall17V2noIso_WPL = None,
 
     cutBased_Fall17_V1 = None,
+    vidNestedWPBitmapSpring15 = Var("userInt('VIDNestedWPBitmapSpring15')",int,doc=_bitmapVIDForEleSpring15_docstring),
 
     pt = Var("pt*userFloat('eCorr')",  float, precision=-1, doc="p_{T} after energy correction & smearing"),
     energyErr = Var("p4Error('P4_COMBINATION')*userFloat('eCorr')",float,doc="energy error of the cluster-track combination",precision=6),
@@ -418,10 +439,13 @@ _withUpdate_sequence = cms.Sequence(slimmedElectronsUpdated + electronSequence.c
 run2_nanoAOD_92X.toReplaceWith(electronSequence, _withUpdate_sequence)
 
 _withUpdateAnd80XScale_sequence = _withUpdate_sequence.copy()
-_withUpdateAnd80XScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectrons80X + energyCorrForEle80X + slimmedElectronsWithUserData)
+_withUpdateAnd80XScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectrons80X + energyCorrForEle80X + bitmapVIDForEleSpring15 + slimmedElectronsWithUserData)
 run2_miniAOD_80XLegacy.toReplaceWith(electronSequence, _withUpdateAnd80XScale_sequence)
 
 _with94Xv1Scale_sequence = electronSequence.copy()
 _with94Xv1Scale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectrons94Xv1 + slimmedElectronsWithUserData)
 run2_nanoAOD_94XMiniAODv1.toReplaceWith(electronSequence, _with94Xv1Scale_sequence)
 
+_with_bitmapVIDForEleSpring15_sequence = electronSequence.copy()
+_with_bitmapVIDForEleSpring15_sequence.replace(slimmedElectronsWithUserData, bitmapVIDForEleSpring15 + slimmedElectronsWithUserData)
+run2_nanoAOD_94X2016.toReplaceWith(electronSequence, _with_bitmapVIDForEleSpring15_sequence)
