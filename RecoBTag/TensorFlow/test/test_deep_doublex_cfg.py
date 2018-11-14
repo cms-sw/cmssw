@@ -58,6 +58,8 @@ updateJetCollection(
       'pfDeepDoubleCvLJetTags:probHcc',
       'pfDeepDoubleCvBJetTags:probHbb',
       'pfDeepDoubleCvBJetTags:probHcc',
+      'pfMassIndependentDeepDoubleBvLJetTags:probQCD', 
+      'pfMassIndependentDeepDoubleBvLJetTags:probHbb',
       'pfMassIndependentDeepDoubleCvLJetTags:probQCD',
       'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
       'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
