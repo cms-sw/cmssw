@@ -23,8 +23,7 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/RecHitsMap.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
 
-
-// FIXME  (split header???)
+#include "CAHitQuadrupletGeneratorKernels.h"
 #include "GPUCACell.h"
 
 class TrackingRegion;
