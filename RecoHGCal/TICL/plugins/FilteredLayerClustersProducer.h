@@ -1,7 +1,8 @@
 #ifndef __RecoHGCal_TICL_FilteredLayerClustersProducer_H__
 #define __RecoHGCal_TICL_FilteredLayerClustersProducer_H__
 #include <string>
-#include "RecoHGCal/TICL/interface/ClusterFilter.h"
+#include "RecoHGCal/TICL/interface/ClusterFilterBase.h"
+
 class FilteredLayerClustersProducer : public edm::stream::EDProducer<> {
 public:
   FilteredLayerClustersProducer(const edm::ParameterSet &);
@@ -13,11 +14,11 @@ public:
 
 private:
 
-  edm::EDGetTokenT<ClusterFilter> clusterFilterToken;
-  std::string iterationLabel;
-  edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token;
-  edm::EDGetTokenT<std::vector<float>> clustersMask_token;
-  const ClusterFilter* theFilter = nullptr;
+  edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
+  edm::EDGetTokenT<std::vector<float>> clustersMask_token_;
+  std::string clusterFilter_;
+  std::string iterationLabel_;
+  const ClusterFilterBase* theFilter_ = nullptr;
 };
 
 
