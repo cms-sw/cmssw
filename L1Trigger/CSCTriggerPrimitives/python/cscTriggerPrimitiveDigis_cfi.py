@@ -40,6 +40,11 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         # offset between the ALCT and CLCT central BX in simulation
         alctClctOffset = cms.uint32(1),
+
+        runME11Up = cms.bool(False),
+        runME21Up = cms.bool(False),
+        runME31Up = cms.bool(False),
+        runME41Up = cms.bool(False),
     ),
 
     # Parameters for ALCT processors: 2007 and later

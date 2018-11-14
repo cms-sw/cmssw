@@ -35,7 +35,7 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogic()
       int qual_this = quality[key_wire][i_pattern];
       if (qual_this > 0) {
 
-        if (isSLHC_ and (runME21ILT_ or runME3141ILT_))
+        if (isSLHC_ and (runME21ILT_ or runME31Up_ or runME41Up_))
           qual_this = (qual_this & 0x03);
         // Previous wire.
         int dt = -1;
@@ -46,7 +46,7 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogic()
           else
             dt = first_bx[key_wire] - first_bx[key_wire-1];
           // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
-          if (isSLHC_ and (runME21ILT_ or runME3141ILT_))
+          if (isSLHC_ and (runME21ILT_ or runME31Up_ or runME41Up_))
             qual_prev = (qual_prev & 0x03);
 
           // Cancel this wire
@@ -84,7 +84,7 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogic()
           else
             dt = first_bx[key_wire] - first_bx[key_wire+1];
           // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
-          if (isSLHC_ and (runME21ILT_ or runME3141ILT_))
+          if (isSLHC_ and (runME21ILT_ or runME31Up_ or runME41Up_))
             qual_next = (qual_next & 0x03);
           // Same cancellation logic as for the previous wire.
           if (dt == 0) {
@@ -131,7 +131,7 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wi
       int qual_this = quality[key_wire][i_pattern];
       if (qual_this > 0) {
 
-        if (isSLHC_ and (runME21ILT_ or runME3141ILT_))
+        if (isSLHC_ and (runME21ILT_ or runME31Up_ or runME41Up_))
           qual_this = (qual_this & 0x03);
         // Previous wire.
         int dt = -1;
@@ -152,7 +152,7 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wi
           else
             dt = first_bx[key_wire] - first_bx_prev;
           // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
-          if (isSLHC_ and (runME21ILT_ or runME3141ILT_))
+          if (isSLHC_ and (runME21ILT_ or runME31Up_ or runME41Up_))
             qual_prev = (qual_prev & 0x03);
 
           // Cancel this wire
@@ -205,7 +205,7 @@ int CSCUpgradeAnodeLCTProcessor::getTempALCTQuality(int temp_quality) const
   // on pattern_thresh.
   int Q;
   // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
-  if (temp_quality == 3 and isSLHC_ and (runME21ILT_ or runME3141ILT_)) Q = 4;
+  if (temp_quality == 3 and isSLHC_ and (runME21ILT_ or runME31Up_ or runME41Up_)) Q = 4;
   else if (temp_quality > 3) Q = temp_quality - 3;
   else                  Q = 0; // quality code 0 is valid!
 
