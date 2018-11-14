@@ -47,7 +47,7 @@ public:
         desc.add<edm::InputTag>("pfcands", edm::InputTag("packedPFCandidates"));
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
         desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
-        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0.pb");
+        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb");
         desc.add<unsigned>("version", 0);
         desc.add<bool>("mem_mapped", false);
 
