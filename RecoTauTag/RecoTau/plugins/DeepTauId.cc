@@ -277,6 +277,10 @@ public:
         input_layer(cache_->getGraph().node(0).name()),
         output_layer(cache_->getGraph().node(cache_->getGraph().node_size() - 1).name())
     {
+        const auto& shape = cache_->getGraph().node(0).attr().at("shape").shape();
+        if(shape.dim(1).size() != dnn_inputs_2017v1::NumberOfInputs)
+            throw cms::Exception("DeepTauId") << "number of inputs does not match the expected inputs for the given version";
+
     }
 
     static std::unique_ptr<deep_tau::DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg)

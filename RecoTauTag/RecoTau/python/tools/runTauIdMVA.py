@@ -1,6 +1,7 @@
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import patDiscriminationByIsolationMVArun2v1raw, patDiscriminationByIsolationMVArun2v1VLoose
 import os
+import re
 
 class TauIDEmbedder(object):
     """class to rerun the tau seq and acces trainings from the database"""
@@ -589,7 +590,7 @@ class TauIDEmbedder(object):
             tauIDSources.byVTightIsolationMVArun2v1DBnewDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1VTight')
             tauIDSources.byVVTightIsolationMVArun2v1DBnewDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1VVTight')
 
-        if "deepTau2017v1" in self.toKeep or "deepTau2017v1Q" in self.toKeep:
+        if "deepTau2017v1" in self.toKeep:
             print "Adding DeepTau IDs"
 
             workingPoints_ = {
@@ -625,38 +626,21 @@ class TauIDEmbedder(object):
                     "VVTight": 0.9859
                 }
             }
+            file_name = 'RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb'
+            self.process.deepTau2017v1 = self.cms.EDProducer("DeepTauId",
+                electrons              = self.cms.InputTag('slimmedElectrons'),
+                muons                  = self.cms.InputTag('slimmedMuons'),
+                taus                   = self.cms.InputTag('slimmedTaus'),
+                graph_file             = self.cms.string(file_name),
+                mem_mapped             = self.cms.bool(False)
+            )
 
-            if "deepTau2017v1" in self.toKeep:
-                self.process.deepTau2017v1 = self.cms.EDProducer("DeepTauId",
-                    electrons              = self.cms.InputTag('slimmedElectrons'),
-                    muons                  = self.cms.InputTag('slimmedMuons'),
-                    taus                   = self.cms.InputTag('slimmedTaus'),
-                    graph_file             = self.cms.string('RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N.pb'),
-                    mem_mapped              = self.cms.bool(False)
-                )
+            self.processDeepProducer('deepTau2017v1', tauIDSources, workingPoints_)
 
-                self.processDeepProducer('deepTau2017v1', tauIDSources, workingPoints_)
+            self.process.rerunMvaIsolationTask.add(self.process.deepTau2017v1)
+            self.process.rerunMvaIsolationSequence += self.process.deepTau2017v1
 
-                self.process.rerunMvaIsolationTask.add(self.process.deepTau2017v1)
-                self.process.rerunMvaIsolationSequence += self.process.deepTau2017v1
-
-            if "deepTau2017v1Q" in self.toKeep:
-                self.process.deepTau2017v1Q = self.cms.EDProducer("DeepTauId",
-                    electrons               = self.cms.InputTag('slimmedElectrons'),
-                    muons                   = self.cms.InputTag('slimmedMuons'),
-                    taus                    = self.cms.InputTag('slimmedTaus'),
-                    graph_file              = self.cms.string('RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb'),
-                    mem_mapped              = self.cms.bool(False)
-                )
-
-                self.processDeepProducer('deepTau2017v1Q', tauIDSources, workingPoints_)
-
-                self.process.rerunMvaIsolationTask.add(self.process.deepTau2017v1Q)
-                self.process.rerunMvaIsolationSequence += self.process.deepTau2017v1Q
-
-
-
-        if "DPFTau_2016_v0" in self.toKeep or "DPFTau_2016_v0Q" in self.toKeep:
+        if "DPFTau_2016_v0" in self.toKeep:
             print "Adding DPFTau isolation (v0)"
 
             workingPoints_ = {
@@ -673,38 +657,23 @@ class TauIDEmbedder(object):
                     #            (decayMode == 10) * (0.873958 - 0.0002328 * pt) "
                 }
             }
+            file_name = 'RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb'
+            self.process.dpfTau2016v0 = self.cms.EDProducer("DPFIsolation",
+                pfcands     = self.cms.InputTag('packedPFCandidates'),
+                taus        = self.cms.InputTag('slimmedTaus'),
+                vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
+                graph_file  = self.cms.string(file_name),
+                version     = self.cms.uint32(self.getDpfTauVersion(file_name)),
+                mem_mapped  = self.cms.bool(False)
+            )
 
-            if "DPFTau_2016_v0" in self.toKeep:
-                self.process.dpfTau2016v0 = self.cms.EDProducer("DPFIsolation",
-                    pfcands     = self.cms.InputTag('packedPFCandidates'),
-                    taus 	    = self.cms.InputTag('slimmedTaus'),
-                    vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
-                    graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0.pb'),
-                    version     = self.cms.uint32(0),
-                    mem_mapped   = self.cms.bool(False)
-                )
+            self.processDeepProducer('dpfTau2016v0', tauIDSources, workingPoints_)
 
-                self.processDeepProducer('dpfTau2016v0', tauIDSources, workingPoints_)
+            self.process.rerunMvaIsolationTask.add(self.process.dpfTau2016v0)
+            self.process.rerunMvaIsolationSequence += self.process.dpfTau2016v0
 
-                self.process.rerunMvaIsolationTask.add(self.process.dpfTau2016v0)
-                self.process.rerunMvaIsolationSequence += self.process.dpfTau2016v0
 
-            if "DPFTau_2016_v0Q" in self.toKeep:
-                self.process.dpfTau2016v0Q = self.cms.EDProducer("DPFIsolation",
-                    pfcands     = self.cms.InputTag('packedPFCandidates'),
-                    taus 	    = self.cms.InputTag('slimmedTaus'),
-                    vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
-                    graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb'),
-                    version     = self.cms.uint32(0),
-                    mem_mapped   = self.cms.bool(False)
-                )
-
-                self.processDeepProducer('dpfTau2016v0Q', tauIDSources, workingPoints_)
-
-                self.process.rerunMvaIsolationTask.add(self.process.dpfTau2016v0Q)
-                self.process.rerunMvaIsolationSequence += self.process.dpfTau2016v0Q
-
-        if "DPFTau_2016_v1" in self.toKeep or "DPFTau_2016_v1Q" in self.toKeep:
+        if "DPFTau_2016_v1" in self.toKeep:
             print "Adding DPFTau isolation (v1)"
             print "WARNING: WPs are not defined for DPFTau_2016_v1"
             print "WARNING: The score of DPFTau_2016_v1 is inverted: i.e. for Sig->0, for Bkg->1 with -1 for undefined input (preselection not passed)."
@@ -713,35 +682,20 @@ class TauIDEmbedder(object):
                 "all": {"Tight" : 0.123} #FIXME: define WP
             }
 
-            if "DPFTau_2016_v1" in self.toKeep:
-                self.process.dpfTau2016v1 = self.cms.EDProducer("DPFIsolation",
-                    pfcands     = self.cms.InputTag('packedPFCandidates'),
-                    taus 	    = self.cms.InputTag('slimmedTaus'),
-                    vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
-                    graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v1.pb'),
-                    version     = self.cms.uint32(1),
-                    mem_mapped   = self.cms.bool(False)
-                )
+            file_name = 'RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v1_quantized.pb'
+            self.process.dpfTau2016v1 = self.cms.EDProducer("DPFIsolation",
+                pfcands     = self.cms.InputTag('packedPFCandidates'),
+                taus        = self.cms.InputTag('slimmedTaus'),
+                vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
+                graph_file  = self.cms.string(file_name),
+                version     = self.cms.uint32(self.getDpfTauVersion(file_name)),
+                mem_mapped  = self.cms.bool(False)
+            )
 
-                self.processDeepProducer('dpfTau2016v1', tauIDSources, workingPoints_)
+            self.processDeepProducer('dpfTau2016v1', tauIDSources, workingPoints_)
 
-                self.process.rerunMvaIsolationTask.add(self.process.dpfTau2016v1)
-                self.process.rerunMvaIsolationSequence += self.process.dpfTau2016v1
-
-            if "DPFTau_2016_v1Q" in self.toKeep:
-                self.process.dpfTau2016v1Q = self.cms.EDProducer("DPFIsolation",
-                    pfcands     = self.cms.InputTag('packedPFCandidates'),
-                    taus 	    = self.cms.InputTag('slimmedTaus'),
-                    vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
-                    graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v1_quantized.pb'),
-                    version     = self.cms.uint32(1),
-                    mem_mapped   = self.cms.bool(False)
-                )
-
-                self.processDeepProducer('dpfTau2016v1Q', tauIDSources, workingPoints_)
-
-                self.process.rerunMvaIsolationTask.add(self.process.dpfTau2016v1Q)
-                self.process.rerunMvaIsolationSequence += self.process.dpfTau2016v1Q
+            self.process.rerunMvaIsolationTask.add(self.process.dpfTau2016v1)
+            self.process.rerunMvaIsolationSequence += self.process.dpfTau2016v1
 
         print('Embedding new TauIDs into \"'+self.updatedTauName+'\"')
         embedID = self.cms.EDProducer("PATTauIDEmbedder",
@@ -763,3 +717,14 @@ class TauIDEmbedder(object):
                         self.cms.InputTag(producer_name, 'VS{}{}'.format(target, point)))
 
             setattr(getattr(self.process, producer_name), 'VS{}WP'.format(target), cuts)
+
+
+    def getDpfTauVersion(self, file_name):
+        """returns the DNN version. File name should contain a version label with data takig year (2011-2, 2015-8) and \
+           version number (vX), e.g. 2017v0, in general the following format: {year}v{version}"""
+        version_search = re.search('201[125678]v([0-9]+)[\._]', file_name)
+        if not version_search:
+            raise RuntimeError('File "{}" has an invalid name pattern, should be in the format "{year}v{version}". \
+                                Unable to extract version number.'.format(file_name))
+        version = version_search.group(1)
+        return int(version)
