@@ -24,17 +24,16 @@ PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf)
 
   if( (int)(categoryCutStrings.size()) != getNCategories() )
     throw cms::Exception("MVA config failure: ")
-      << "wrong number of category cuts in " << getName() << getTag() << std::endl;
+      << "wrong number of category cuts in PhotonMVAEstimator" << getTag() << std::endl;
 
   for (int i = 0; i < getNCategories(); ++i) {
-      StringCutObjectSelector<reco::Photon> select(categoryCutStrings[i]);
-      categoryFunctions_.push_back(select);
+      categoryFunctions_.emplace_back(categoryCutStrings[i]);
   }
 
   // Initialize GBRForests
   if( static_cast<int>(weightFileNames.size()) != getNCategories() )
     throw cms::Exception("MVA config failure: ")
-      << "wrong number of weightfiles in " << getName() << getTag() << std::endl;
+      << "wrong number of weightfiles in PhotonMVAEstimator" << getTag() << std::endl;
 
   gbrForests_.clear();
   // Create a TMVA reader object for each category
@@ -53,7 +52,7 @@ PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf)
         int index = mvaVarMngr_.getVarIndex(variableNamesInCategory[j]);
         if(index == -1) {
             throw cms::Exception("MVA config failure: ")
-               << "Concerning " << getName() << getTag() << std::endl
+               << "Concerning PhotonMVAEstimator" << getTag() << std::endl
                << "Variable " << variableNamesInCategory[j]
                << " not found in variable definition file!" << std::endl;
         }
@@ -91,7 +90,7 @@ mvaValue(const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent,
   }
 
   if(isDebug()) {
-    std::cout << " *** Inside " << getName() << getTag() << std::endl;
+    std::cout << " *** Inside PhotonMVAEstimator" << getTag() << std::endl;
     std::cout << " category " << iCategory << std::endl;
     for (int i = 0; i < nVariables_[iCategory]; ++i) {
         std::cout << " " << mvaVarMngr_.getName(variables_[iCategory][i]) << " " << vars[i] << std::endl;
@@ -128,7 +127,7 @@ int PhotonMVAEstimator::findCategory( const edm::Ptr<reco::Photon>& phoPtr) cons
 
   edm::LogWarning  ("MVA warning") <<
       "category not defined for particle with pt " << phoPtr->pt() << " GeV, eta " <<
-          phoPtr->superCluster()->eta() << " in " << getName() << getTag();
+          phoPtr->superCluster()->eta() << " in PhotonMVAEstimator" << getTag();
 
   return -1;
 

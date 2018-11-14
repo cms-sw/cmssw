@@ -9,6 +9,7 @@
 #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
+#include "RecoEgamma/EgammaTools/interface/ThreadSafeStringCut.h"
 
 class PhotonMVAEstimator : public AnyMVAEstimatorRun2Base{
   
@@ -35,7 +36,7 @@ class PhotonMVAEstimator : public AnyMVAEstimatorRun2Base{
 
   // The number of categories and number of variables per category
   int nCategories_;
-  std::vector<StringCutObjectSelector<reco::Photon>> categoryFunctions_;
+  std::vector<ThreadSafeStringCut<StringCutObjectSelector<reco::Photon>,reco::Photon>> categoryFunctions_;
   std::vector<int> nVariables_;
 
   // Data members

@@ -13,11 +13,10 @@ ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(const edm::ParameterSet& conf
 
   if( (int)(categoryCutStrings.size()) != getNCategories() )
     throw cms::Exception("MVA config failure: ")
-      << "wrong number of category cuts in " << getName() << getTag() << std::endl;
+      << "wrong number of category cuts in ElectronMVAEstimatorRun2" << getTag() << std::endl;
 
   for (int i = 0; i < getNCategories(); ++i) {
-      StringCutObjectSelector<reco::GsfElectron> select(categoryCutStrings[i]);
-      categoryFunctions_.push_back(select);
+      categoryFunctions_.emplace_back(categoryCutStrings[i]);
   }
 
   // Initialize GBRForests from weight files
@@ -28,13 +27,13 @@ ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(const edm::ParameterSet& conf
 void ElectronMVAEstimatorRun2::init(const std::vector<std::string> &weightFileNames) {
 
   if(isDebug()) {
-    std::cout << " *** Inside " << getName() << getTag() << std::endl;
+    std::cout << " *** Inside ElectronMVAEstimatorRun2" << getTag() << std::endl;
   }
 
   // Initialize GBRForests
   if( (int)(weightFileNames.size()) != getNCategories() )
     throw cms::Exception("MVA config failure: ")
-      << "wrong number of weightfiles in " << getName() << getTag() << std::endl;
+      << "wrong number of weightfiles in ElectronMVAEstimatorRun2" << getTag() << std::endl;
 
   gbrForests_.clear();
   // Create a TMVA reader object for each category
@@ -53,7 +52,7 @@ void ElectronMVAEstimatorRun2::init(const std::vector<std::string> &weightFileNa
     variables_.push_back(variablesInCategory);
 
     if(isDebug()) {
-      std::cout << " *** Inside " << getName() << getTag() << std::endl;
+      std::cout << " *** Inside ElectronMVAEstimatorRun2" << getTag() << std::endl;
       std::cout << " category " << i << " with nVariables " << nVariables_[i] << std::endl;
     }
 
@@ -61,7 +60,7 @@ void ElectronMVAEstimatorRun2::init(const std::vector<std::string> &weightFileNa
         int index = mvaVarMngr_.getVarIndex(variableNamesInCategory[j]);
         if(index == -1) {
             throw cms::Exception("MVA config failure: ")
-               << "Concerning " << getName() << getTag() << std::endl
+               << "Concerning ElectronMVAEstimatorRun2" << getTag() << std::endl
                << "Variable " << variableNamesInCategory[j]
                << " not found in variable definition file!" << std::endl;
         }
@@ -98,7 +97,7 @@ mvaValue( const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase & iEven
   }
 
   if(isDebug()) {
-    std::cout << " *** Inside " << getName() << getTag() << std::endl;
+    std::cout << " *** Inside ElectronMVAEstimatorRun2" << getTag() << std::endl;
     std::cout << " category " << iCategory << std::endl;
     for (int i = 0; i < nVariables_[iCategory]; ++i) {
         std::cout << " " << mvaVarMngr_.getName(variables_[iCategory][i]) << " " << vars[i] << std::endl;
@@ -134,7 +133,7 @@ int ElectronMVAEstimatorRun2::findCategory( const edm::Ptr<reco::GsfElectron>& g
 
   edm::LogWarning  ("MVA warning") <<
       "category not defined for particle with pt " << gsfPtr->pt() << " GeV, eta " <<
-          gsfPtr->superCluster()->eta() << " in " << getName() << getTag();
+          gsfPtr->superCluster()->eta() << " in ElectronMVAEstimatorRun2" << getTag();
 
   return -1;
 
