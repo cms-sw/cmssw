@@ -2,6 +2,9 @@
 // Date: 11/2018
 // Copyright CERN
 #include <vector>
+#include <set>
+#include <algorithm>
+
 #include "RecoHGCal/TICL/interface/TICLConstants.h"
 #include "PatternRecognitionbyCA.h"
 
@@ -36,24 +39,40 @@ void PatternRecognitionbyCA::makeTracksters(
     std::cout << "making Tracksters with CA" << std::endl;
     std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
     fillHistogram(layerClusters, mask);
-    theGraph_.makeAndConnectDoublets(histogram_, nEtaBins_, nPhiBins_, layerClusters, mask.size(), 2, 2, 0.95);
+    theGraph_.makeAndConnectDoublets(histogram_, nEtaBins_, nPhiBins_, layerClusters, 2, 2, 0.98);
     theGraph_.findNtuplets(foundNtuplets, 4);
-               #ifdef FP_DEBUG
-
+//#ifdef FP_DEBUG
     const auto &doublets = theGraph_.getAllDoublets();
     int tracksterId = 0;
     for (auto &ntuplet : foundNtuplets)
     {
+        std::set<unsigned int> effective_cluster_idx;
         for (auto &doublet : ntuplet)
         {
             auto innerCluster = doublets[doublet].getInnerClusterId();
             auto outerCluster = doublets[doublet].getOuterClusterId();
-            std::cout << "new doublet" << doublet <<std::endl;
-            std::cout << innerCluster << " " << layerClusters[innerCluster].x() << " " << layerClusters[innerCluster].y() << " " << layerClusters[innerCluster].z() << " " << std::endl;
-            std::cout  << layerClusters[outerCluster].x() << " " << layerClusters[outerCluster].y() << " " << layerClusters[outerCluster].z() << " " << tracksterId << std::endl;
+            effective_cluster_idx.insert(innerCluster);
+            effective_cluster_idx.insert(outerCluster);
+            std::cout << "new doublet " << doublet <<std::endl;
+            std::cout << innerCluster
+                      << " " << layerClusters[innerCluster].x()
+                      << " " << layerClusters[innerCluster].y()
+                      << " " << layerClusters[innerCluster].z()
+                      << " " << std::endl;
+            std::cout << outerCluster
+                      << " " << layerClusters[outerCluster].x()
+                      << " " << layerClusters[outerCluster].y()
+                      << " " << layerClusters[outerCluster].z()
+                      << " " << tracksterId << std::endl;
         }
+        // Put back indices, in the form of a Trackster, into the results vector
+        Trackster tmp;
+        tmp.vertices.reserve(effective_cluster_idx.size());
+        std::copy(std::begin(effective_cluster_idx),
+                  std::end(effective_cluster_idx),
+                  std::back_inserter(tmp.vertices));
+        result.push_back(tmp);
         tracksterId++;
     }
-
-    #endif
+//#endif
 }

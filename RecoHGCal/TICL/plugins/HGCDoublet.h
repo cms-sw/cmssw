@@ -84,7 +84,9 @@ class HGCDoublet
         theInnerNeighbors_.push_back(otherDoublet);
     }
 
-    bool checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets, const std::vector<int> &innerDoublets, float minCosTheta)
+    bool checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
+                                  const std::vector<int> &innerDoublets,
+                                  float minCosTheta)
     {
         int nDoublets = innerDoublets.size();
         int constexpr VSIZE = 4;

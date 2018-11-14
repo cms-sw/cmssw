@@ -33,7 +33,7 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps): myAlgo_(std
       ps.getParameter<edm::InputTag>("HGCLayerClusters"));
   filteredClustersMask_token = consumes<std::vector<std::pair<unsigned int, float>>>(
       ps.getParameter<edm::InputTag>("filteredLayerClusters"));
-  produces<std::vector<Trackster>>("TrackstersByMultiClusters");
+  produces<std::vector<Trackster>>("TrackstersByCA");
 }
 
 void TrackstersProducer::fillDescriptions(
@@ -62,6 +62,6 @@ void TrackstersProducer::produce(edm::Event& evt,
   std::unique_ptr<std::vector<std::pair<unsigned int, float>>> filteredLayerClusters;
   auto result = std::make_unique<std::vector<Trackster>>();;
   myAlgo_->makeTracksters(evt, es, layerClusters, inputClusterMask, *result);
-  evt.put(std::move(result), "TrackstersByMultiClusters");
+  evt.put(std::move(result), "TrackstersByCA");
 
 }
