@@ -9,16 +9,7 @@ from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoA
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
 
-from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection
-from RecoEgamma.PhotonIdentification.egmPhotonIDs_cfi import *
-from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import *
-from RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi import *
-from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import *
-egmPhotonIDSequence = cms.Sequence(cms.Task(egmPhotonIsolationMiniAODTask,photonIDValueMapProducer,photonMVAValueMapProducer,egmPhotonIDs))
-egmPhotonIDs.physicsObjectIDs = cms.VPSet()
-egmPhotonIDs.physicsObjectSrc = cms.InputTag('slimmedPhotons')
-
-_photon_id_vid_modules_WorkingPoints = cms.PSet(
+photon_id_modules_WorkingPoints_nanoAOD = cms.PSet(
     modules = cms.vstring(
         'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V1_TrueVtx_cff',
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1_cff',
@@ -30,7 +21,7 @@ _photon_id_vid_modules_WorkingPoints = cms.PSet(
 #    "egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V1-tight",
    )
 )
-run2_miniAOD_80XLegacy.toModify(_photon_id_vid_modules_WorkingPoints,
+run2_miniAOD_80XLegacy.toModify(photon_id_modules_WorkingPoints_nanoAOD,
     modules = cms.vstring(
         'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff',
@@ -41,7 +32,7 @@ run2_miniAOD_80XLegacy.toModify(_photon_id_vid_modules_WorkingPoints,
     "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight",
    )
 )
-run2_nanoAOD_94X2016.toModify(_photon_id_vid_modules_WorkingPoints,
+run2_nanoAOD_94X2016.toModify(photon_id_modules_WorkingPoints_nanoAOD,
     modules = cms.vstring(
         'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
    ),
@@ -54,18 +45,17 @@ run2_nanoAOD_94X2016.toModify(_photon_id_vid_modules_WorkingPoints,
 
 
 _bitmapVIDForPho_docstring = ''
-for modname in _photon_id_vid_modules_WorkingPoints.modules:
+for modname in photon_id_modules_WorkingPoints_nanoAOD.modules:
     ids= __import__(modname, globals(), locals(), ['idName','cutFlow'])
     for name in dir(ids):
         _id = getattr(ids,name)
         if hasattr(_id,'idName') and hasattr(_id,'cutFlow'):
-            setupVIDSelection(egmPhotonIDs,_id)
-            if (len(_photon_id_vid_modules_WorkingPoints.WorkingPoints)>0 and _id.idName==_photon_id_vid_modules_WorkingPoints.WorkingPoints[0].split(':')[-1]):
-                _bitmapVIDForPho_docstring = 'VID compressed bitmap (%s), %d bits per cut'%(','.join([cut.cutName.value() for cut in _id.cutFlow]),int(ceil(log(len(_photon_id_vid_modules_WorkingPoints.WorkingPoints)+1,2))))
+            if (len(photon_id_modules_WorkingPoints_nanoAOD.WorkingPoints)>0 and _id.idName==photon_id_modules_WorkingPoints_nanoAOD.WorkingPoints[0].split(':')[-1]):
+                _bitmapVIDForPho_docstring = 'VID compressed bitmap (%s), %d bits per cut'%(','.join([cut.cutName.value() for cut in _id.cutFlow]),int(ceil(log(len(photon_id_modules_WorkingPoints_nanoAOD.WorkingPoints)+1,2))))
 
 bitmapVIDForPho = cms.EDProducer("PhoVIDNestedWPBitmapProducer",
     src = cms.InputTag("slimmedPhotons"),
-    WorkingPoints = _photon_id_vid_modules_WorkingPoints.WorkingPoints,
+    WorkingPoints = photon_id_modules_WorkingPoints_nanoAOD.WorkingPoints,
 )
 
 isoForPho = cms.EDProducer("PhoIsoValueMapProducer",
@@ -224,7 +214,7 @@ photonMCTable = cms.EDProducer("CandMCMatchTableProducer",
     docString = cms.string("MC matching to status==1 photons or electrons"),
 )
 
-photonSequence = cms.Sequence(egmPhotonIDSequence + bitmapVIDForPho + isoForPho + slimmedPhotonsWithUserData + finalPhotons)
+photonSequence = cms.Sequence(bitmapVIDForPho + isoForPho + slimmedPhotonsWithUserData + finalPhotons)
 photonTables = cms.Sequence ( photonTable)
 photonMC = cms.Sequence(photonsMCMatchForTable + photonMCTable)
 
