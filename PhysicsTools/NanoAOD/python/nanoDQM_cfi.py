@@ -13,6 +13,14 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('sumEt', 'sumEt', 20, 200, 3000, 'scalar sum of Et'),
             )
         ),
+        ChsMET = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'raw chs PF MET phi'),
+                Plot1D('pt', 'pt', 20, 0, 400, 'raw chs PF MET pt'),
+                Plot1D('sumEt', 'sumEt', 20, 600, 5000, 'raw chs PF scalar sum of Et'),
+            )
+        ),
         Electron = cms.PSet(
             sels = cms.PSet(
                 Good = cms.string('pt > 15 && abs(dxy) < 0.2 && abs(dz) < 0.5 && cutBased >= 3 && miniPFRelIso_all < 0.4')
