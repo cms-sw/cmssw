@@ -175,15 +175,15 @@ def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
     return process
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
+#from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
 def nanoAOD_recalibrateMETs(process,isData):
     runMetCorAndUncFromMiniAOD(process,isData=isData)
     process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(jetSequence),cms.Sequence(process.fullPatMetSequence))
 #    makePuppiesFromMiniAOD(process,True) # call this before in the global customizer otherwise it would reset photon IDs in VID
-    runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi")
-    process.puppiNoLep.useExistingWeights = False
-    process.puppi.useExistingWeights = False
-    process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
+#    runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi")
+#    process.puppiNoLep.useExistingWeights = False
+#    process.puppi.useExistingWeights = False
+#    process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
     return process
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
@@ -198,7 +198,7 @@ def nanoAOD_activateVID(process):
         modifier.toModify(process.egmGsfElectronIDs, physicsObjectSrc = "slimmedElectronsUpdated")
         if hasattr(process,"heepIDVarValueMaps"):
             modifier.toModify(process.heepIDVarValueMaps, elesMiniAOD = "slimmedElectronsUpdated")
-#    switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD) # do not call this to avoid resetting photon IDs in VID (called before inside makePuppiesFromMiniAOD)
+    switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD) # do not call this to avoid resetting photon IDs in VID, if called before inside makePuppiesFromMiniAOD
     for modname in photon_id_modules_WorkingPoints_nanoAOD.modules:
         setupAllVIDIdsInModule(process,modname,setupVIDPhotonSelection)
     process.photonSequence.insert(process.photonSequence.index(bitmapVIDForPho),process.egmPhotonIDSequence)
@@ -226,7 +226,7 @@ def nanoAOD_addDeepBoostedJetForPre103X(process):
 
 
 def nanoAOD_customizeCommon(process):
-    makePuppiesFromMiniAOD(process,True) # call this here as it calls switchOnVIDPhotonIdProducer
+#    makePuppiesFromMiniAOD(process,True) # call this here as it calls switchOnVIDPhotonIdProducer
     process = nanoAOD_activateVID(process)
     nanoAOD_addDeepInfo_switch = cms.PSet(
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
