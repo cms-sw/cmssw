@@ -720,8 +720,8 @@ class TauIDEmbedder(object):
 
 
     def getDpfTauVersion(self, file_name):
-        version_search = re.search('201[125678]v([0-9]+)[\._]', file_name)
         """returns the DNN version. Expected that the file name contains a version number in the following format: {year}v{version}"""
+        version_search = re.search('201[125678]v([0-9]+)[\._]', file_name)
         if not version_search:
             raise RuntimeError('File "{}" has an invalid name pattern. Unable to extract version number.'.format(file_name))
         version = version_search.group(1)
