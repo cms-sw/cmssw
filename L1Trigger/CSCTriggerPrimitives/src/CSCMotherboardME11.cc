@@ -174,54 +174,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   } // end of ALCT-centric matching
 
   // reduction of nLCTs per each BX
-  /* comment out the old cross BX algorihtm---Tao
-  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++)
-  {
-    // counting
-    unsigned int nlct=0;
-    for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-      for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
-      {
-        int cbx = bx + mbx - match_trig_window_size/2;
-        if (allLCTs(bx,mbx,i).isValid())
-        {
-          nlct++;
-          if (infoV > 0) LogDebug("CSCMotherboardME11") << "LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs(bx,mbx,i);
-        }
-      }
-    if (infoV > 0 && nlct>0) LogDebug("CSCMotherboardME11") <<"bx "<<bx<<" nLCT: "<<nlct;
-
-    // some simple cross-bx sorting algorithms
-    if (tmb_cross_bx_algo == 1 && nlct>2 )
-    {
-      nlct=0;
-      for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-        for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
-        {
-          if (allLCTs(bx,pref[mbx],i).isValid())
-          {
-            nlct++;
-            if (nlct > CSCConstants::MAX_LCTS_PER_CSC) allLCTs(bx,pref[mbx],i).clear();
-          }
-        }
-
-      if (infoV > 0) LogDebug("CSCMotherboardME11") <<"After x-bx sorting:";
-      nlct=0;
-      for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-        for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
-        {
-          int cbx = bx + mbx - match_trig_window_size/2;
-          if (allLCTs(bx,mbx,i).isValid())
-          {
-            nlct++;
-            if (infoV > 0) LogDebug("CSCMotherboardME11") << "LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs(bx,mbx,i);
-          }
-        }
-      if (infoV > 0 && nlct>0) LogDebug("CSCMotherboardME11") <<"bx "<<bx<<" nnLCT: "<<nlct;
-    } // x-bx sorting
-  }*/
-
-  //add similar cross bx algorithm to standard TMB
+  //add similar cross bx algorithm to standard TMB in next step
   for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++)
   {
     // counting

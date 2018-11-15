@@ -1051,46 +1051,6 @@ void  CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire, in
 
 void CSCAnodeLCTProcessor::lctSearch()
 {
-  /*
-  // First modify the quality according accel_mode, then store all
-  // of the valid LCTs in an array.
-  std::vector<CSCALCTDigi> lct_list;
-
-  for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
-    // If there is either accelerator or collision, perform trigMode
-    // function before storing and sorting.
-    if (quality[i_wire][0] > 0 || quality[i_wire][1] > 0) {
-      trigMode(i_wire);
-
-      int bx  = first_bx[i_wire];
-      int fbx = first_bx_corrected[i_wire];
-      if (infoV>1) LogTrace("CSCAnodeLCTProcessor")<<" bx="<<bx<<" fbx="<<fbx;
-      if (use_corrected_bx) {
-        bx  = fbx;
-        fbx = first_bx[i_wire];
-      }
-      if (infoV>1) LogTrace("CSCAnodeLCTProcessor")<<" bx="<<bx<<" fbx="<<fbx;
-      // Store any valid accelerator pattern LCTs.
-      if (quality[i_wire][0] > 0) {
-        int qual = (quality[i_wire][0] & 0x03); // 2 LSBs
-        CSCALCTDigi lct_info(1, qual, 1, 0, i_wire, bx);
-        lct_info.setFullBX(fbx);
-        lct_list.push_back(lct_info);
-      }
-
-      // Store any valid collision pattern LCTs.
-      if (quality[i_wire][1] > 0) {
-        int qual = (quality[i_wire][1] & 0x03); // 2 LSBs
-        CSCALCTDigi lct_info(1, qual, 0, quality[i_wire][2], i_wire, bx);
-        //lct_info.setFullBX(fbx); // uncomment if one wants, e.g., to keep corrected time here
-        lct_list.push_back(lct_info);
-        if (infoV>1) LogTrace("CSCAnodeLCTProcessor")<<" got lct_info: "<<lct_info;
-      }
-
-      // Modify qualities according to accel_mode parameter.
-      //accelMode(i_wire);
-    }
-  }*/
 
   // Best track selector selects two collision and two accelerator ALCTs
   // with the best quality per time bin.
