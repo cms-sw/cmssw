@@ -15,7 +15,7 @@ double HGCalGeomTools::radius(double z, std::vector<double> const& zFront,
   unsigned int ik(0);
 #endif
   for (unsigned int k=0; k<slope.size(); ++k) {
-    if (z < zFront[k]) break;
+    if (z < zFront[k]+tol) break;
     r  = rFront[k] + (z - zFront[k]) * slope[k];
 #ifdef EDM_ML_DEBUG
     ik = k;
@@ -39,7 +39,7 @@ double HGCalGeomTools::radius(double z, int layer0, int layerf,
   for (unsigned int k=0; k<rFront.size(); ++k) {
     int k1 = layerf-layer0+(int)(k);
     if (k1 < (int)(zFront.size())) {
-      if (z < zFront[k1]) break;
+      if (z < zFront[k1]+tol) break;
       r  = rFront[k];
 #ifdef EDM_ML_DEBUG
       ik = k;

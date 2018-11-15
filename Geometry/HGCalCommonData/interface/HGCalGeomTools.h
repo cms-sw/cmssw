@@ -20,6 +20,9 @@ public:
 						double r, double R, 
 						double rMin, double rMax,
 						bool oldBug=false);
+
+private:
+  static constexpr double tol = 0.0001;
 };
 
 #endif
