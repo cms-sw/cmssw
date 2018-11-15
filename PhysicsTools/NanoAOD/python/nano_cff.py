@@ -81,14 +81,15 @@ btagWeightTable = cms.EDProducer("BTagSFProducer",
     sysTypes = cms.vstring("central","central","central")
 )
 
-run2_miniAOD_80XLegacy.toModify(btagWeightTable,                
-    cut = cms.string("pt > 25. && abs(eta) < 2.4"),             #80X corresponds to 2016, |eta| < 2.4
-    weightFiles = cms.vstring(                                  #80X corresponds to 2016 SFs
-        btagSFdir+"CSVv2_Moriond17_B_H.csv",            
-        "unavailable",                    
-        btagSFdir+"cMVAv2_Moriond17_B_H.csv"                                            
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016: # to be updated when SF for Summer16MiniAODv3 MC will be available
+    modifier.toModify(btagWeightTable,                
+        cut = cms.string("pt > 25. && abs(eta) < 2.4"),             #80X corresponds to 2016, |eta| < 2.4
+        weightFiles = cms.vstring(                                  #80X corresponds to 2016 SFs
+            btagSFdir+"CSVv2_Moriond17_B_H.csv",            
+            "unavailable",                    
+            btagSFdir+"cMVAv2_Moriond17_B_H.csv"                                            
+        )
     )
-)
 
 run2_nanoAOD_92X.toModify(btagWeightTable,                      #92X corresponds to MCv1, for which SFs are unavailable
     weightFiles = cms.vstring(
@@ -236,9 +237,7 @@ def nanoAOD_customizeCommon(process):
     for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(nanoAOD_addDeepInfo_switch, nanoAOD_addDeepFlavourTag_switch =  cms.untracked.bool(True))
     process = nanoAOD_addDeepInfo(process,nanoAOD_addDeepInfo_switch.nanoAOD_addDeepBTag_switch,nanoAOD_addDeepInfo_switch.nanoAOD_addDeepFlavourTag_switch)
-    for modifier in run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-        # FIXME: need to add the era modifier for 102X as well
-        modifier.toModify(process, nanoAOD_addDeepBoostedJetForPre103X)
+    process = nanoAOD_addDeepBoostedJetForPre103X(process) # will deactivate this in future miniAOD releases
     return process
 
 
