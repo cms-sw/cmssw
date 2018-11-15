@@ -641,11 +641,13 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
       for (unsigned int i = 0; i < bx_times.size(); i++) {
 	// Total number of time bins in DAQ readout is given by fifo_tbins,
 	// which thus determines the maximum length of time interval.
-	//
-	// In TMB07 version, better data-emulator agreement is
-	// achieved when hits in the first 2 time bins are excluded.
-	// As of May 2009, the reasons for this are not fully
-	// understood yet (the work is on-going).
+	// 
+	// In data, only the CLCT in the time bin that was matched with L1A are read out
+	// while comparator digi is read out by 12 time bin, which includes 12 time bin info
+	// in other word, CLCTs emulated from comparator digis usually showed the OTMB behavior in 12 time bin
+	// while CLCT from data only showed 1 time bin OTMB behavior
+	// the CLCT emulated from comparator digis usually is centering at time bin 7 (BX7) and 
+	// it is definitly safe to ignore any CLCTs in bx 0 or 1 and those CLCTs will never impacts on any triggers
 	if (bx_times[i] > 1 && bx_times[i] < static_cast<int>(fifo_tbins)) {
 
 	  if (i == 0 || (i > 0 && bx_times[i]-bx_times[i-1] >=
