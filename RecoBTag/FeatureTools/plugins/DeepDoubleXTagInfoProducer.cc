@@ -59,6 +59,7 @@ private:
     }
 
     const double jet_radius_;
+    const double min_jet_pt_;
     const double min_candidate_pt_;
 
     edm::EDGetTokenT<edm::View<reco::Jet>> jet_token_;
@@ -70,6 +71,7 @@ private:
 DeepDoubleXTagInfoProducer::DeepDoubleXTagInfoProducer(
     const edm::ParameterSet& iConfig)
     : jet_radius_(iConfig.getParameter<double>("jet_radius"))
+    , min_jet_pt_(iConfig.getParameter<double>("min_jet_pt"))
     , min_candidate_pt_(iConfig.getParameter<double>("min_candidate_pt"))
     , jet_token_(consumes<edm::View<reco::Jet>>(
           iConfig.getParameter<edm::InputTag>("jets")))
@@ -95,6 +97,7 @@ void DeepDoubleXTagInfoProducer::fillDescriptions(
     desc.add<edm::InputTag>("shallow_tag_infos",
         edm::InputTag("pfBoostedDoubleSVAK8TagInfos"));
     desc.add<double>("jet_radius", 0.8);
+    desc.add<double>("min_jet_pt", 150);
     desc.add<double>("min_candidate_pt", 0.95);
     desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
     desc.add<edm::InputTag>("secondary_vertices",
@@ -141,7 +144,11 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent,
 
         // reco jet reference (use as much as possible)
         const auto& jet = jets->at(jet_n);
+
         edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
+	if (jet.pt() > min_jet_pt_)
+        {
+          features.filled();
         // TagInfoCollection not in an associative container so search for matchs
         const edm::View<reco::BoostedDoubleSVTagInfo>& taginfos = *shallow_tag_infos;
         edm::Ptr<reco::BoostedDoubleSVTagInfo> match;
@@ -338,7 +345,7 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent,
                 }
             }
         }
-
+	}
         output_tag_infos->emplace_back(features, jet_ref);
     }
 
