@@ -150,6 +150,7 @@ namespace reco {
       float hcalDepth1OverEcalBc;
       float hcalDepth2OverEcalBc;
       std::vector<CaloTowerDetId> hcalTowersBehindClusters;
+      bool  invalidHcal;
       float effSigmaRR;
       float sigmaIetaIphi;
       float sigmaIphiIphi;
@@ -177,6 +178,7 @@ namespace reco {
 	  hcalDepth2OverEcal(0),
 	  hcalDepth1OverEcalBc(0),
           hcalDepth2OverEcalBc(0),
+          invalidHcal(false),
           effSigmaRR(std::numeric_limits<float>::max()),
           sigmaIetaIphi(std::numeric_limits<float>::max()),
           sigmaIphiIphi(std::numeric_limits<float>::max()),
@@ -206,6 +208,8 @@ namespace reco {
     float hadronicDepth1OverEm() const {return  showerShapeBlock_.hcalDepth1OverEcal  ;}
     /// the  hadronic release in depth2 over electromagnetic fraction
     float hadronicDepth2OverEm() const {return  showerShapeBlock_.hcalDepth2OverEcal  ;}
+    /// returns false if hadronicOverEm is not reliably estimated (e.g. because hcal was off or masked)
+    float hadronicOverEmValid() const {return !showerShapeBlock_.invalidHcal  ;}
 
     /// the ration of hadronic energy in towers behind the BCs in the SC  and the SC energy 
     float hadTowOverEm() const {return   showerShapeBlock_.hcalDepth1OverEcalBc + showerShapeBlock_.hcalDepth2OverEcalBc  ;}
@@ -214,6 +218,8 @@ namespace reco {
     /// the ration of hadronic energy in towers depth2 behind the BCs in the SC  and the SC energy 
     float hadTowDepth2OverEm() const {return  showerShapeBlock_.hcalDepth2OverEcalBc  ;}
     const std::vector<CaloTowerDetId> & hcalTowersBehindClusters() const { return showerShapeBlock_.hcalTowersBehindClusters ; }
+    /// returns false if hadTowOverEm is not reliably estimated (e.g. because hcal was off or masked)
+    float hadTowOverEmValid() const {return !showerShapeBlock_.invalidHcal  ;}
 
     ///  Shower shape variables
     float e1x5()            const {return showerShapeBlock_.e1x5;}

@@ -1,5 +1,5 @@
 <use   name="DataFormats/TrackerCommon"/>
-<use   name="tinyxml"/>
+<use   name="tinyxml2"/>
 <export>
   <lib   name="1"/>
 </export>

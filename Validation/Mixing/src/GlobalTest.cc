@@ -153,7 +153,7 @@ GlobalTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   // part id for each track
-  std::auto_ptr<MixCollection<SimTrack> > coltr(new MixCollection<SimTrack>(cf_track.product()));
+  std::unique_ptr<MixCollection<SimTrack> > coltr(new MixCollection<SimTrack>(cf_track.product()));
   MixCollection<SimTrack>::iterator cfitr;
   for (cfitr=coltr->begin(); cfitr!=coltr->end();cfitr++) {
     trackPartIdH_[cfitr.bunch()-minbunch_]->Fill(cfitr->type());
@@ -161,7 +161,7 @@ GlobalTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // energy sum
   double sumE[10]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
-  std::auto_ptr<MixCollection<PCaloHit> > colecalb(new MixCollection<PCaloHit>(cf_calohitB.product()));
+  std::unique_ptr<MixCollection<PCaloHit> > colecalb(new MixCollection<PCaloHit>(cf_calohitB.product()));
   MixCollection<PCaloHit>::iterator cfiecalb;
   for (cfiecalb=colecalb->begin(); cfiecalb!=colecalb->end();cfiecalb++) {
     sumE[cfiecalb.bunch()-minbunch_]+=cfiecalb->energy();
@@ -172,7 +172,7 @@ GlobalTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     caloEnergyEBH_[i-minbunch_]->Fill(sumE[i-minbunch_]);
   }
   double sumEE[10]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
-  std::auto_ptr<MixCollection<PCaloHit> > colecale(new MixCollection<PCaloHit>(cf_calohitE.product()));
+  std::unique_ptr<MixCollection<PCaloHit> > colecale(new MixCollection<PCaloHit>(cf_calohitE.product()));
   MixCollection<PCaloHit>::iterator cfiecale;
   for (cfiecale=colecale->begin(); cfiecale!=colecale->end();cfiecale++) {
     sumEE[cfiecale.bunch()-minbunch_]+=cfiecale->energy();

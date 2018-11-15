@@ -324,3 +324,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     ev.put(std::move(disabled_channelcollection));
   }
 }
+
+// declare this as a framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiPixelRawToDigi);

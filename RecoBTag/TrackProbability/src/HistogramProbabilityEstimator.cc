@@ -26,7 +26,7 @@ pair<bool,double> HistogramProbabilityEstimator::probability(bool quality, int i
       else if(ipType==1) {it=m_calibration2D->data.begin(); it_end=m_calibration2D->data.end(); }
       else return pair<bool,double>(probabilityHistogram ,trackProbability);
 
-      found = std::find_if(it,it_end,bind1st(TrackClassFilter(),input));
+      found = std::find_if(it,it_end,[&input](auto const& c) {return TrackClassFilter()(input,c);});
       if(found!=it_end) probabilityHistogram = &found->histogram;
      if(!probabilityHistogram)
        {

@@ -51,7 +51,7 @@ CaloGeometryLoader<T>::load( const DDCompactView*  cpv        ,
 			     const Alignments*     alignments ,
 			     const Alignments*     globals       ) 
 {
-   PtrType geom ( new T ) ;
+   PtrType geom = std::make_unique<T>();
 
    makeGeometry( cpv,
 		 dynamic_cast<T*>( geom.get() ),

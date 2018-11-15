@@ -116,7 +116,7 @@ EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    iEvent.getByLabel(EEDigis_, EEdigis);
    //cout << "event: " << eventNum << " digi collection size: " << digis->size() << endl;
 
-   auto_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
+   unique_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
 
    // Loop over the hits
    for(EcalUncalibratedRecHitCollection::const_iterator hitItr = EBHits->begin(); hitItr != EBHits->end(); ++hitItr)

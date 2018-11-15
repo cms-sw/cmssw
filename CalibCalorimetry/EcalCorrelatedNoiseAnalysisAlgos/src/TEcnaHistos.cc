@@ -205,9 +205,6 @@ void TEcnaHistos::Init()
   fCnaCommand  = 0;
   fCnaError    = 0;
 
-  fgMaxCar = (Int_t)512;
-  Int_t MaxCar = fgMaxCar;
-
   //------------------------------ initialisations ----------------------
   fTTBELL = '\007';
 
@@ -270,21 +267,17 @@ void TEcnaHistos::Init()
   fCanvSameH_HFN_RuDs = 0; fCanvSameH_SCs_RuDs = 0;
   //................. Flag Scale X anf Y set to "LIN" and flag color palete set to "Black/Red/Blue"
 
-  MaxCar = fgMaxCar;
-  fFlagScaleX.Resize(MaxCar);
+  fFlagScaleX.Resize(charArrLen);
   fFlagScaleX = "LIN";
 
-  MaxCar = fgMaxCar;                                     //   (Init)
-  fFlagScaleY.Resize(MaxCar);
+  fFlagScaleY.Resize(charArrLen);
   fFlagScaleY = "LIN";
 
-  MaxCar = fgMaxCar;
-  fFlagColPal.Resize(MaxCar);
+  fFlagColPal.Resize(charArrLen);
   fFlagColPal = "Black/Red/Blue";
 
   //................. Flag General Title set to empty string
-  MaxCar = fgMaxCar;
-  fFlagGeneralTitle.Resize(MaxCar);
+  fFlagGeneralTitle.Resize(charArrLen);
   fFlagGeneralTitle = "";
 
   //................. Init codes Options
@@ -297,29 +290,22 @@ void TEcnaHistos::Init()
   fOptVisPolm = 1102;
 
   //............................                                       (Init)
-  MaxCar = fgMaxCar;
-  fCovarianceMatrix.Resize(MaxCar);
+  fCovarianceMatrix.Resize(charArrLen);
   fCovarianceMatrix = "Cov";
-  MaxCar = fgMaxCar;
-  fCorrelationMatrix.Resize(MaxCar);
+  fCorrelationMatrix.Resize(charArrLen);
   fCorrelationMatrix = "Cor";
 
-  MaxCar = fgMaxCar;
-  fLFBetweenStins.Resize(MaxCar);
+  fLFBetweenStins.Resize(charArrLen);
   fLFBetweenStins = "MttLF";
-  MaxCar = fgMaxCar;
-  fHFBetweenStins.Resize(MaxCar);
+  fHFBetweenStins.Resize(charArrLen);
   fHFBetweenStins = "MttHF";
 
-  MaxCar = fgMaxCar;
-  fLFBetweenChannels.Resize(MaxCar);
+  fLFBetweenChannels.Resize(charArrLen);
   fLFBetweenChannels = "MccLF";
-  MaxCar = fgMaxCar;
-  fHFBetweenChannels.Resize(MaxCar);
+  fHFBetweenChannels.Resize(charArrLen);
   fHFBetweenChannels = "MccHF";
 
-  MaxCar = fgMaxCar;
-  fBetweenSamples.Resize(MaxCar);
+  fBetweenSamples.Resize(charArrLen);
   fBetweenSamples = "Mss";
 
   //.................................. text pave alignement for pave "SeveralChanging" (HistimePlot)
@@ -632,8 +618,7 @@ void TEcnaHistos::Init()
   fFapNbOfRuns    = -1;      // INIT NUMBER OF RUNS: set to -1
   fFapMaxNbOfRuns = -1;      // INIT MAXIMUM NUMBER OF RUNS: set to -1 
 
-  MaxCar = fgMaxCar;
-  fFapFileRuns.Resize(MaxCar);
+  fFapFileRuns.Resize(charArrLen);
   fFapFileRuns = "(file with list of runs parameters: no info)";
 
   fStartEvolTime = 0;
@@ -648,8 +633,7 @@ void TEcnaHistos::Init()
 
   fFapNbOfEvts = 0;
 
-  MaxCar = fgMaxCar;
-  fMyRootFileName.Resize(MaxCar);
+  fMyRootFileName.Resize(charArrLen);
   fMyRootFileName = "No ROOT file name available (fMyRootFileName).";
 
   fFapAnaType           = "Analysis name: not known"; // Init Type of analysis
@@ -679,22 +663,17 @@ void TEcnaHistos::SetEcalSubDetector(const TString& SubDet)
 {
  // Set Subdetector (EB or EE)
 
-  Int_t MaxCar = fgMaxCar;
-  fFlagSubDet.Resize(MaxCar);
+  fFlagSubDet.Resize(charArrLen);
   fFlagSubDet = fEcal->GetEcalSubDetector();      // fFlagSubDet = "EB" or "EE"
 
   //.................................. Init specific EB/EE parameters ( SetEcalSubDetector(...) )
-  MaxCar = fgMaxCar;
-  fFapStexName.Resize(MaxCar);
+  fFapStexName.Resize(charArrLen);
   fFapStexName = "no info for Stex";
-  MaxCar = fgMaxCar;
-  fFapStinName.Resize(MaxCar);
+  fFapStinName.Resize(charArrLen);
   fFapStinName = "no info for Stin";
-  MaxCar = fgMaxCar;
-  fFapXtalName.Resize(MaxCar);
+  fFapXtalName.Resize(charArrLen);
   fFapXtalName = "no info for Xtal";
-  MaxCar = fgMaxCar;
-  fFapEchaName.Resize(MaxCar);
+  fFapEchaName.Resize(charArrLen);
   fFapEchaName = "no info for Echa";
 
   if( fFlagSubDet == "EB" )
@@ -718,20 +697,16 @@ void TEcnaHistos::SetEcalSubDetector(const TString& SubDet)
     }
 
   //........................ init code plot type                     (SetEcalSubDetector)
-  MaxCar = fgMaxCar;
-  fOnlyOnePlot.Resize(MaxCar);
+  fOnlyOnePlot.Resize(charArrLen);
   fOnlyOnePlot = fCnaParHistos->GetCodeOnlyOnePlot();  // "ONLYONE"
 
-  MaxCar = fgMaxCar;
-  fSeveralPlot.Resize(MaxCar);
+  fSeveralPlot.Resize(charArrLen);
   fSeveralPlot = fCnaParHistos->GetCodeSeveralPlot();  // "SEVERAL"
 
-  MaxCar = fgMaxCar;
-  fSameOnePlot.Resize(MaxCar);
+  fSameOnePlot.Resize(charArrLen);
   fSameOnePlot = fCnaParHistos->GetCodeSameOnePlot();  // "SAME n";
 
-  MaxCar = fgMaxCar;
-  fAllXtalsInStinPlot.Resize(MaxCar);
+  fAllXtalsInStinPlot.Resize(charArrLen);
   fAllXtalsInStinPlot = fCnaParHistos->GetCodeAllXtalsInStinPlot();  // "SAME in Stin";
 
   fPlotAllXtalsInStin = fCnaParHistos->GetCodePlotAllXtalsInStin();  //  0
@@ -1568,7 +1543,7 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			  else
 			    {
 			      //......................... matrix title  (ViewMatrix)
-			      char* f_in_mat_tit = new char[fgMaxCar];               fCnew++;
+			      char f_in_mat_tit[charArrLen];
 			  
 			      if( BetweenWhat == fBetweenSamples && CorOrCov == fCovarianceMatrix )
 				{sprintf(f_in_mat_tit, "Covariance(Sample, Sample')");}
@@ -1613,8 +1588,8 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      TString axis_x_var_name;
 			      TString axis_y_var_name;
 			  
-			      char* f_in_axis_x = new char[fgMaxCar];               fCnew++;
-			      char* f_in_axis_y = new char[fgMaxCar];               fCnew++;
+			      char f_in_axis_x[charArrLen];
+			      char f_in_axis_y[charArrLen];
 			  
 			      if( BetweenWhat == fLFBetweenStins || BetweenWhat == fHFBetweenStins )
 				{
@@ -1757,15 +1732,14 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 				}
 			  
 			      // ----------------------------------------------- P L O T S  (ViewMatrix)
-			      char* f_in = new char[fgMaxCar];          fCnew++;
+			      char f_in[charArrLen];
 			      //...................... Taille/format canvas
 			      UInt_t canv_w = fCnaParHistos->CanvasFormatW("petit");
 			      UInt_t canv_h = fCnaParHistos->CanvasFormatH("petit");
 			  
 			      //............................. options generales 
 			      TString HistoType;
-			      Int_t MaxCar = fgMaxCar;
-			      HistoType.Resize(MaxCar);
+			      HistoType.Resize(charArrLen);
 			      HistoType = "(no quantity type info)";
 			  
 			      if (PlotOption == "COLZ"  ){HistoType = "colz";}
@@ -1792,15 +1766,13 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 
 			      //---------------------------------------- Canvas name (ViewMatrix)
 			      TString  name_cov_cor;
-			      MaxCar = fgMaxCar;
-			      name_cov_cor.Resize(MaxCar);
+			      name_cov_cor.Resize(charArrLen);
 			      name_cov_cor = "?";
 			      if( CorOrCov == fCovarianceMatrix){name_cov_cor = "Covariance";}
 			      if( CorOrCov == fCorrelationMatrix){name_cov_cor = "Correlation";}
 			  
 			      TString name_chan_samp;
-			      MaxCar = fgMaxCar;
-			      name_chan_samp.Resize(MaxCar);
+			      name_chan_samp.Resize(charArrLen);
 			      name_chan_samp = "?";
 			  
 			      if( BetweenWhat == fLFBetweenStins ){name_chan_samp = "LFccMos";}
@@ -1815,8 +1787,7 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 				}
 
 			      TString name_visu;
-			      MaxCar = fgMaxCar;
-			      name_visu.Resize(MaxCar);
+			      name_visu.Resize(charArrLen);
 			      name_visu = "?";
 			  
 			      name_visu = PlotOption;
@@ -1858,8 +1829,6 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      //      << fCurrentCanvasName << std::endl;
 			      // std::cout << "*TEcnaHistos::ViewMatrix(...)> fCurrentCanvas = " << fCurrentCanvas << std::endl;
 			  
-			      delete [] f_in; f_in = nullptr;                         fCdelete++;
-
 			      if( fPavComGeneralTitle != nullptr ){fPavComGeneralTitle->Draw();}
 			      fPavComStex->Draw();
 
@@ -1887,9 +1856,6 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      h_fbid0->Delete();  h_fbid0 = nullptr;              fCdeleteRoot++;
 			  
 			      //MainCanvas->Delete();                 fCdeleteRoot++;
-			      delete [] f_in_axis_x;  f_in_axis_x  = nullptr;       fCdelete++;
-			      delete [] f_in_axis_y;  f_in_axis_y  = nullptr;       fCdelete++;
-			      delete [] f_in_mat_tit; f_in_mat_tit = nullptr;       fCdelete++;
 			    }
 			} // end of if ( OKData == kTRUE )
 		      else
@@ -2092,7 +2058,7 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString& CorOrCov)
 		  fRunType   = fMyRootFile->GetRunType();
 	      
 		  //......................... matrix title                              (ViewStin)
-		  char* f_in_mat_tit = new char[fgMaxCar];               fCnew++;
+		  char f_in_mat_tit[charArrLen];
 	      
 		  if ( CorOrCov == fCovarianceMatrix )
 		    {sprintf(f_in_mat_tit, "Xtal's Cov(s,s') matrices in %s.",
@@ -2201,7 +2167,7 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString& CorOrCov)
 		  // =================================== P L O T S ========================  (ViewStin)
 		  if( i_data_exist > 0 )
 		    {		  
-		      char* f_in = new char[fgMaxCar];                           fCnew++;
+		      char f_in[charArrLen];
 
 		      //...................... Taille/format canvas  
 		      UInt_t canv_w = fCnaParHistos->CanvasFormatW("petit");
@@ -2212,15 +2178,13 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString& CorOrCov)
 		  
 		      //------------------------------------ Canvas name ----------------- (ViewStin)  
 		      TString name_cov_cor;
-		      Int_t MaxCar = fgMaxCar;
-		      name_cov_cor.Resize(MaxCar);
+		      name_cov_cor.Resize(charArrLen);
 		      name_cov_cor = "?";
 		      if( CorOrCov == fCovarianceMatrix ){name_cov_cor = "CovSS_Matrices_in_";}
 		      if( CorOrCov == fCorrelationMatrix){name_cov_cor = "CorSS_Matrices_in_";}
 		  
 		      TString name_visu;
-		      MaxCar = fgMaxCar;
-		      name_visu.Resize(MaxCar);
+		      name_visu.Resize(charArrLen);
 		      name_visu = "colz";
 		  
 		      sprintf(f_in, "%s_%s_%s_S1_%d_R%d_%d_%d_%s%d_%s%d_%s",
@@ -2236,8 +2200,6 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString& CorOrCov)
 		      fCurrentCanvas = MainCanvas; fCurrentCanvasName = f_in;
 		  
 		      // std::cout << "*TEcnaHistos::ViewStin(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
-		  
-		      delete [] f_in; f_in = nullptr;                                 fCdelete++;
 		  
 		      //------------------------ Canvas draw and update ------------ (ViewStin)  
 		      if( fPavComGeneralTitle != nullptr ){fPavComGeneralTitle->Draw();}
@@ -2268,7 +2230,6 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString& CorOrCov)
 
 		      //      delete MainCanvas;              fCdeleteRoot++;
 		    }
-		  delete [] f_in_mat_tit;   f_in_mat_tit = nullptr;        fCdelete++;
 		  
 		  h_geo_bid->Delete();   h_geo_bid = nullptr;             fCdeleteRoot++;
 		}
@@ -2368,7 +2329,7 @@ void TEcnaHistos::TowerCrystalNumbering(const Int_t& SMNumber, const Int_t& n1SM
 
       //-----------------  T R A C E  D E S   P L O T S ------ (TowerCrystalNumbering)
 
-      char* f_in = new char[fgMaxCar];                           fCnew++;
+      char f_in[charArrLen];
 	  
       //...................... Taille/format canvas
   
@@ -2429,25 +2390,25 @@ void TEcnaHistos::TowerCrystalNumbering(const Int_t& SMNumber, const Int_t& n1SM
       //      et des numeros SM des cristaux
 
       //............... prepa arguments fixes appels [TText]->DrawText()
-      char* f_in_elec = new char[fgMaxCar];                                         fCnew++;
+      char f_in_elec[charArrLen];
       TString TowerLvrbType = fEcalNumbering->GetTowerLvrbType(n1SMTow) ;
       TText *text_elec_num = new TText();                                           fCnewRoot++;
       if ( TowerLvrbType == "top"    ){text_elec_num->SetTextColor(couleur_rouge);}
       if ( TowerLvrbType == "bottom" ){text_elec_num->SetTextColor(couleur_bleu_fonce);}
       text_elec_num->SetTextSize(0.04);
 
-      char* f_in_sme = new char[fgMaxCar];                                         fCnew++;
+      char f_in_sme[charArrLen];
       TText *text_sme_num = new TText();                                           fCnewRoot++;
       if ( TowerLvrbType == "top"    ){text_sme_num->SetTextColor(couleur_rouge);}
       if ( TowerLvrbType == "bottom" ){text_sme_num->SetTextColor(couleur_bleu_fonce);}
       text_sme_num->SetTextSize(0.03);
 
-      char* f_in_sm = new char[fgMaxCar];                                             fCnew++;
+      char f_in_sm[charArrLen];
       TText *text_sm_num = new TText();                                               fCnewRoot++;
       text_sm_num->SetTextColor(couleur_noir);
       text_sm_num->SetTextSize(0.03);
 
-      char* f_in_hsd = new char[fgMaxCar];                                             fCnew++;
+      char f_in_hsd[charArrLen];
       TText *text_hsd_num = new TText();                                               fCnewRoot++;
       text_hsd_num->SetTextColor(couleur_noir);
       text_hsd_num->SetTextSize(0.03);
@@ -2510,10 +2471,6 @@ void TEcnaHistos::TowerCrystalNumbering(const Int_t& SMNumber, const Int_t& n1SM
 
       h_gbid->Delete();     h_gbid = nullptr;             fCdeleteRoot++;
 
-      delete [] f_in;       f_in      = nullptr;          fCdelete++; 
-      delete [] f_in_sm;    f_in_sm   = nullptr;          fCdelete++;
-      delete [] f_in_sme;   f_in_sme  = nullptr;          fCdelete++;
-      delete [] f_in_elec;  f_in_elec = nullptr;          fCdelete++;
     }
   else
     {
@@ -2565,7 +2522,7 @@ void TEcnaHistos::SCCrystalNumbering(const Int_t& DeeNumber, const Int_t& n1DeeS
 
       //-----------------  T R A C E  D E S   P L O T S ------ (SCCrystalNumbering)
 
-      char* f_in = new char[fgMaxCar];                           fCnew++;
+      char f_in[charArrLen];
 	  
       //...................... Taille/format canvas
   
@@ -2626,7 +2583,7 @@ void TEcnaHistos::SCCrystalNumbering(const Int_t& DeeNumber, const Int_t& n1DeeS
       TString DeeEndcap  = fEcalNumbering->GetEEDeeEndcap(DeeNumber);
       Color_t couleur_SC = GetSCColor(DeeEndcap, DeeDir, SCQuadType);
       //............... prepa arguments fixes appels [TText]->DrawText()
-      char* f_in_elec = new char[fgMaxCar];                                           fCnew++;
+      char f_in_elec[charArrLen];
       TText *text_elec_num   = new TText();                                           fCnewRoot++;
       text_elec_num->SetTextColor(couleur_SC);
       text_elec_num->SetTextSize(0.06);
@@ -2659,8 +2616,6 @@ void TEcnaHistos::SCCrystalNumbering(const Int_t& DeeNumber, const Int_t& n1DeeS
 
       h_gbid->Delete();     h_gbid = nullptr;                         fCdeleteRoot++;
 
-      delete [] f_in;       f_in      = nullptr;          fCdelete++; 
-      delete [] f_in_elec;  f_in_elec = nullptr;          fCdelete++;
     }
   else
     {
@@ -3100,7 +3055,7 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
       fStatusFileFound = kTRUE;
 
       //......................... matrix title    (ViewStex)
-      char* f_in_mat_tit = new char[fgMaxCar];               fCnew++;
+      char f_in_mat_tit[charArrLen];
       sprintf(f_in_mat_tit, "?");
 
       if (HistoCode == "D_NOE_ChNb") {sprintf(f_in_mat_tit, "Number of events");}
@@ -3232,7 +3187,7 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	  
 	  // =================================== P L O T S ========================   (ViewStex) 
 	  
-	  char* f_in = new char[fgMaxCar];                           fCnew++;
+	  char f_in[charArrLen];
 
 	  //...................... Taille/format canvas
 	  UInt_t canv_h = fCnaParHistos->CanvasFormatH("petit");
@@ -3250,8 +3205,7 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	  
 	  //------------------------------------ Canvas name ----------------- (ViewStex)  
 	  TString name_cov_cor;
-	  Int_t MaxCar = fgMaxCar;
-	  name_cov_cor.Resize(MaxCar);
+	  name_cov_cor.Resize(charArrLen);
 	  name_cov_cor = "?";
 
 	  if( HistoCode == "D_NOE_ChNb"){name_cov_cor = "Nb_Of_D_Adc_EvDs";}
@@ -3263,13 +3217,11 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	  if( HistoCode == "D_SCs_ChNb"){name_cov_cor = "Sigma_Corss";}
 	  
 	  TString name_visu;
-	  MaxCar = fgMaxCar;
-	  name_visu.Resize(MaxCar);
+	  name_visu.Resize(charArrLen);
 	  name_visu = "colz";
 	  
 	  TString flag_already_read;
-	  MaxCar = fgMaxCar;
-	  flag_already_read.Resize(MaxCar);
+	  flag_already_read.Resize(charArrLen);
 	  flag_already_read = "?";
 	  sprintf(f_in,"M%d", arg_AlreadyRead); flag_already_read = f_in;
 
@@ -3285,8 +3237,6 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	  fCurrentCanvas = MainCanvas; fCurrentCanvasName = f_in;
 
 	  // std::cout << "*TEcnaHistos::ViewStex(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
-	  
-	  delete [] f_in; f_in = nullptr;                                 fCdelete++;
 	  
 	  //------------------------ Canvas draw and update ------------ (ViewStex)  
 	  if( fPavComGeneralTitle != nullptr ){fPavComGeneralTitle->Draw();}
@@ -3327,7 +3277,6 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 
 	  //      delete MainCanvas;              fCdeleteRoot++;
 	}  // end of if OKData == kTRUE )
-      delete [] f_in_mat_tit;    f_in_mat_tit = nullptr;                        fCdelete++;
     } // end of if OKFileExists == kTRUE )
   else
     {
@@ -3370,7 +3319,7 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString& Freq)
       fRunType   = fMyRootFile->GetRunType();
       
       //......................... matrix title  
-      char* f_in_mat_tit = new char[fgMaxCar];               fCnew++;
+      char f_in_mat_tit[charArrLen];
       
       if( fFlagSubDet == "EB" && Freq == "LF" )
 	{sprintf(f_in_mat_tit, "LF Cor(Xtal,Xtal') for each tower in SM");}
@@ -3485,7 +3434,7 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString& Freq)
 	      
 	      // ----------------------------------- P L O T S   (StexHocoVecoLHFCorcc)
 	      
-	      char* f_in = new char[fgMaxCar];                           fCnew++;
+	      char f_in[charArrLen];
 	      
 	      //...................... Taille/format canvas
 	      
@@ -3504,14 +3453,12 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString& Freq)
 	      
 	      //----------------- Canvas name ------- (StexHocoVecoLHFCorcc)
 	      TString name_cov_cor;
-	      Int_t MaxCar = fgMaxCar;
-	      name_cov_cor.Resize(MaxCar);
+	      name_cov_cor.Resize(charArrLen);
 	      if( Freq == "LF" ){name_cov_cor = "StexLFCorcc";}
 	      if( Freq == "HF" ){name_cov_cor = "StexHFCorcc";}
 	      
 	      TString name_visu;
-	      MaxCar = fgMaxCar;
-	      name_visu.Resize(MaxCar);
+	      name_visu.Resize(charArrLen);
 	      name_visu = "colz";
 	      
 	      sprintf(f_in, "%s_%s_S1_%d_R%d_%d_%d_Stex%s%d_%s_HocoVeco",
@@ -3528,8 +3475,6 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString& Freq)
 	      // std::cout << "*TEcnaHistos::StexHocoVecoLHFCorcc(...)> Plot is displayed on canvas ----> "
 	      //      << f_in << std::endl;
 	      
-	      delete [] f_in; f_in = nullptr;                                 fCdelete++;
-	     
 	      //------------ Canvas draw and update ------ (StexHocoVecoLHFCorcc)  
 	      if( fPavComGeneralTitle != nullptr ){fPavComGeneralTitle->Draw();}
 	      fPavComStex->Draw();
@@ -3571,7 +3516,6 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString& Freq)
 	      //      delete MainCanvas;              fCdeleteRoot++;
 	    }
 	}
-      delete [] f_in_mat_tit;   f_in_mat_tit = nullptr;               fCdelete++;
     } // end of if ( fMyRootFile->LookAtRootFile() == kTRUE )
   else
     {
@@ -3704,7 +3648,7 @@ void TEcnaHistos::SMTowerNumbering(const Int_t& SMNumber)
       //------------------------------------------------------------------- SMTowerNumbering
   
       //............. matrices reading and histogram filling
-      char* f_in_mat_tit = new char[fgMaxCar];                           fCnew++;
+      char f_in_mat_tit[charArrLen];
 
       if( SMNumber <= fEcal->MaxSMPhiInEB() )
 	{sprintf(f_in_mat_tit, "               SM tower numbering");}
@@ -3723,7 +3667,7 @@ void TEcnaHistos::SMTowerNumbering(const Int_t& SMNumber)
 
       // ------------------------------------------------ P L O T S   (SMTowerNumbering)
   
-      char* f_in = new char[fgMaxCar];                           fCnew++;
+      char f_in[charArrLen];
   
       //...................... Taille/format canvas
   
@@ -3748,8 +3692,6 @@ void TEcnaHistos::SMTowerNumbering(const Int_t& SMNumber)
 
       // std::cout << "*TEcnaHistosEB::ViewSM(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
   
-      delete [] f_in; f_in = nullptr;                                 fCdelete++;
-
       //------------------------ Canvas draw and update ------------ (SMTowerNumbering)  
       fPavComStex->Draw();
   
@@ -3771,7 +3713,6 @@ void TEcnaHistos::SMTowerNumbering(const Int_t& SMNumber)
   
       //      delete MainCanvas;              fCdeleteRoot++;
   
-      delete [] f_in_mat_tit;  f_in_mat_tit = nullptr;         fCdelete++;
     }
   else
     {
@@ -3795,7 +3736,7 @@ void TEcnaHistos::ViewSMTowerNumberingPad(const Int_t& SMNumber)
 
   //..... Ecriture des numeros de tours dans la grille..... (ViewSMTowerNumberingPad)
 
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[charArrLen];
   gStyle->SetTextSize(0.075);
 
   // x_channel, y_channel: coordinates of the text "Txx"
@@ -3909,8 +3850,6 @@ void TEcnaHistos::ViewSMTowerNumberingPad(const Int_t& SMNumber)
   text_legend_bleu_expm->Draw();
   //text_legend_bleu_expl->Delete();   text_legend_bleu_expl = 0;          fCdeleteRoot++;
   
-  delete [] f_in;   f_in = nullptr;                                    fCdelete++;
-
   gStyle->SetTextColor(couleur_noir);
 }
 //---------------->  end of ViewSMTowerNumberingPad()
@@ -3975,7 +3914,7 @@ void TEcnaHistos::ViewSMGrid(const Int_t& SMNumber, const TString& c_option)
   gStyle->SetTextColor(coul_textmodu);
   gStyle->SetTextSize(0.075);
 
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[charArrLen];
 
   for( Int_t i = 0 ; i < max_x ; i++)
     {  
@@ -4016,7 +3955,6 @@ void TEcnaHistos::ViewSMGrid(const Int_t& SMNumber, const TString& c_option)
 	  //text_num_module->Delete();  text_num_module = 0;    fCdeleteRoot++;     
 	}
     }
-  delete [] f_in;   f_in = nullptr;    fCdelete++;
 
   //------------------ trace axes en eta et phi --------------- ViewSMGrid
 
@@ -4152,7 +4090,7 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
       //------------------------------------------------------------------- DeeSCNumbering
 
       //........................................... empty histogram filling
-      char* f_in_mat_tit = new char[fgMaxCar];                           fCnew++;
+      char f_in_mat_tit[charArrLen];
 
       sprintf(f_in_mat_tit, " Dee SC numbering ");
 
@@ -4162,8 +4100,6 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
 				   nb_binx, xinf_bid,  xsup_bid,
 				   nb_biny, yinf_bid,  ysup_bid);     fCnewRoot++;
   
-      delete [] f_in_mat_tit;  f_in_mat_tit = nullptr;         fCdelete++;
-
       h_empty_bid->Reset();
 
       h_empty_bid->GetXaxis()->SetTitle(axis_x_var_name);
@@ -4171,7 +4107,7 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
 
       // ------------------------------------------------ P L O T S   (DeeSCNumbering)
   
-      char* f_in = new char[fgMaxCar];                           fCnew++;
+      char f_in[charArrLen];
   
       //...................... Taille/format canvas
   
@@ -4193,8 +4129,6 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
 
       // std::cout << "*TEcnaHistosEE::ViewDee(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
   
-      delete [] f_in; f_in = nullptr;                                 fCdelete++;
-
       //------------------------ Canvas draw and update ------------ (DeeSCNumbering)  
       fPavComStex->Draw();
       fPavComCxyz->Draw();
@@ -4247,7 +4181,7 @@ void TEcnaHistos::ViewDeeSCNumberingPad(const Int_t&   DeeNumber)
 
   //..... SC numbers writing in the grid .... (ViewDeeSCNumberingPad)
 
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[charArrLen];
   gStyle->SetTextSize(0.0325);
 
   //------------------ LOOP ON THE Dee_SC NUMBER   (ViewDeeSCNumberingPad)
@@ -4555,8 +4489,6 @@ void TEcnaHistos::ViewDeeSCNumberingPad(const Int_t&   DeeNumber)
   text_colors->SetTextColor(coul_textcolors);
   text_colors->Draw();
 
-  delete [] f_in;  f_in = nullptr;                                     fCdelete++;
-
   Color_t couleur_noir = fCnaParHistos->ColorDefinition("noir");
   gStyle->SetTextColor(couleur_noir);
 }
@@ -4831,7 +4763,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 // (Hoco, Veco) matrices for all the Stex's of a Stas
 
   //......................... matrix title  
-  char* f_in_mat_tit = new char[fgMaxCar];               fCnew++;
+  char f_in_mat_tit[charArrLen];
 	  
   if (HistoCode == "D_NOE_ChNb"){sprintf(f_in_mat_tit, "Number of Events");}
   if (HistoCode == "D_Ped_ChNb"){sprintf(f_in_mat_tit, "Pedestals");}
@@ -5096,7 +5028,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 
       // =================================== P L O T S ========================   (ViewStas) 
 	  
-      char* f_in = new char[fgMaxCar];                           fCnew++;
+      char f_in[charArrLen];
 
       //...................... Taille/format canvas
       UInt_t canv_h = fCnaParHistos->CanvasFormatH("petit");
@@ -5114,8 +5046,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 
       //------------------------------------ Canvas name ----------------- (ViewStas)  
       TString name_cov_cor;
-      Int_t MaxCar = fgMaxCar;
-      name_cov_cor.Resize(MaxCar);
+      name_cov_cor.Resize(charArrLen);
       name_cov_cor = "?";
 	  
       if( HistoCode == "D_NOE_ChNb"){name_cov_cor = "Number_of_Events";}
@@ -5127,8 +5058,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
       if( HistoCode == "D_SCs_ChNb"){name_cov_cor = "Sigma_Corss";}
 	  
       TString name_visu;
-      MaxCar = fgMaxCar;
-      name_visu.Resize(MaxCar);
+      name_visu.Resize(charArrLen);
       name_visu = "colz";
 	  
       sprintf(f_in, "%s_%s_S1_%d_R%d_%d_%d_%s_%s_HocoVeco_R%d",
@@ -5144,8 +5074,6 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 
       // std::cout << "*TEcnaHistos::ViewStas(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
 	  
-      delete [] f_in; f_in = nullptr;                                 fCdelete++;
-
       //------------------------ Canvas draw and update ------------ (ViewStas)  
       if( fPavComGeneralTitle != nullptr ){fPavComGeneralTitle->Draw();}
 
@@ -5187,8 +5115,6 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
   h_geo_bid->SetStats(b_true);    
   h_geo_bid->Delete();  h_geo_bid = nullptr;              fCdeleteRoot++;
   
-  delete [] f_in_mat_tit;    f_in_mat_tit = nullptr;             fCdelete++;
-
 }  // end of ViewStas(...)
 
 //==================================================================================
@@ -5339,7 +5265,7 @@ void TEcnaHistos::ViewEBGrid()
   Double_t yTextTop = yline_top + (yline_top - yline_bot)/120.;
   xline = (Double_t)xinf_bid - (Double_t)size_x;
 
-  char* f_in = new char[fgMaxCar];                  fCnew++;
+  char f_in[charArrLen];
   TText *text_SM = new TText();              fCnewRoot++;
   for( Int_t i = 0 ; i < max_x ; i++)
     {  
@@ -5351,7 +5277,6 @@ void TEcnaHistos::ViewEBGrid()
       sprintf( f_in, "  %d", -i-1 );
       text_SM->DrawText(xline, yTextBot, f_in);
     }
-  delete [] f_in;                                   fCdelete++;
 
   //------------------ trace axes en eta et phi --------------- ViewEBGrid
 
@@ -5557,7 +5482,7 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
   BDeeExtTopRight->SetLineWidth(LineWidth);
   BDeeExtTopRight->DrawGraph(ngmax, XgDeeExtTopRight, YgDeeExtTopRight);
 
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[charArrLen];
   
   //............. Surlignage separateurs des secteurs en phi (Data sectors)
 
@@ -5830,8 +5755,6 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
   if( opt_plot == "EE" ){text_from_ip->SetTextSize(0.035);}
   text_from_ip->SetTextColor(coul_textfromIP);
   if( opt_plot == "Dee" || (opt_plot == "EE" && DeeNumber == 3) ){text_from_ip->Draw();}
-
-  delete [] f_in;      f_in = nullptr;                                 fCdelete++;
 
 }  // ------ end of EEDataSectors() ------
 
@@ -8792,12 +8715,10 @@ void TEcnaHistos::InitSpecParBeforeFileReading()
   // Init parameters that will be set by reading the info which are in the results ROOT file
   // SpecPar = Special Parameters (dates, times, run types)
 
-  Int_t MaxCar = fgMaxCar;
-  fStartDate.Resize(MaxCar);
+  fStartDate.Resize(charArrLen);
   fStartDate = "(date not found)";
 
-  MaxCar = fgMaxCar;
-  fStopDate.Resize(MaxCar);
+  fStopDate.Resize(charArrLen);
   fStopDate  = "(date not found)";
 
   fStartTime = (time_t)0;
@@ -9146,8 +9067,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
   UInt_t canv_h = fCnaParHistos->SetCanvasHeight(HistoCode.Data(), opt_plot);
 
   TString QuantityName = "                                ";
-  Int_t MaxCar = fgMaxCar;
-  QuantityName.Resize(MaxCar);
+  QuantityName.Resize(charArrLen);
   QuantityName = fCnaParHistos->GetQuantityName(HistoCode.Data());
 
 
@@ -9275,7 +9195,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	    {cTextPaveSize = 0.025;}
 	  main_pavtxt->SetTextSize(cTextPaveSize);
 
-	  char* f_in = new char[fgMaxCar];                            fCnew++;
+	  char f_in[charArrLen];
 
 	  //------------------------------------------------------------ titles pave "several" (HistoPlot)
 	  TString DecalStexName = "";
@@ -9381,8 +9301,6 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	  TText* tt = main_pavtxt->AddText(f_in);
 	  tt->SetTextColor(GetViewHistoColor(HistoCode, opt_plot));
 	  
-	  delete [] f_in;   f_in = nullptr;                                          fCdelete++;
-
 	  //---------------- Draw the "several changing" pave with its text in the Canvas (AT FIRST TIME)
 	  main_pavtxt->Draw();
 	  //---------------- Draw evol run pave if "EvolProj" (AT FIRST TIME)  
@@ -9439,7 +9357,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 		{cTextPaveSize = 0.025;}
 	      main_pavtxt->SetTextSize(cTextPaveSize);
 	      
-	      char* f_in = new char[fgMaxCar];                            fCnew++;
+	      char f_in[charArrLen];
 	      
 	      if( opt_plot == fSameOnePlot )
 		{
@@ -9506,7 +9424,6 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	      MainCanvas->cd(); gStyle->SetOptDate(0);
 	      main_pavtxt->Draw();
 
-	      delete [] f_in;   f_in = nullptr;                      fCdelete++;
 	    }
 	  
 	  main_subpad->cd();
@@ -9574,7 +9491,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	      ysup += (ysup-yinf)*MaxMarginFactor;       // ROOT default if ymin < ymax
 	    }
 
-	  char* f_in = new char[fgMaxCar];               fCnew++;
+	  char f_in[charArrLen];
 
 	  //.................... Vertical lines for Data sectors (EE Global plot only)
 	  if( fFlagSubDet == "EE" && fFapStexNumber == 0 )
@@ -9779,7 +9696,6 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 		  //text_legend_NotComplete->Draw("SAME");
 		}
 	    }
-	  delete [] f_in;   f_in = nullptr;                      fCdelete++;
 	} // end of if( ( opt_plot == fOnlyOnePlot )
 	  // || ( (opt_plot == fSeveralPlot || opt_plot == fSameOnePlot) && xMemoPlotSame == 0 ) )
 
@@ -10195,7 +10111,7 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 	  main_pavtxt->SetTextSize(fTextPaveSize);
 	  main_pavtxt->SetBorderSize(fTextBorderSize);
 
-	  char* f_in = new char[fgMaxCar];                            fCnew++;
+	  char f_in[charArrLen];
 
 	  TString DecalStexName = "";
 	  if( fFlagSubDet == "EB" ){DecalStexName = " ";}
@@ -10242,8 +10158,6 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 
 	  TText* tt = main_pavtxt->AddText(f_in);
 	  tt->SetTextColor(GetViewHistoColor(HistoCode, opt_plot));
-
-	  delete [] f_in;      f_in = nullptr;                                       fCdelete++;
 
 	  //---------- Draw the "several changing" pave with its text in the Canvas (FIRST TIME)	(HistimePlot)
 	  main_pavtxt->Draw();
@@ -10292,7 +10206,7 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 	      main_pavtxt->SetTextSize(fTextPaveSize);
 	      main_pavtxt->SetBorderSize(fTextBorderSize);
 
-	      char* f_in = new char[fgMaxCar];                            fCnew++;
+	      char f_in[charArrLen];
 	      
 	      if(opt_plot == fSeveralPlot )
 		{sprintf(f_in, "%-10s 1-%2d %5d-%5d  %7d %5s%6d%7d%6d",
@@ -10307,8 +10221,6 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 	      tt->SetTextColor(GetViewHistoColor(HistoCode, opt_plot));
 	      MainCanvas->cd(); gStyle->SetOptDate(0);
 	      main_pavtxt->Draw();
-
-	      delete [] f_in;    f_in = nullptr;                          fCdelete++;
 	    }
 	  main_subpad->cd();
 	  Double_t x_low = fCnaParHistos->BoxLeftX("bottom_left_box")   - 0.005;
@@ -10360,7 +10272,7 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 	      Double_t* coord_x = g_graph0->GetX();
 	      Double_t* coord_y = g_graph0->GetY();
 
-	      char* f_in = new char[fgMaxCar];                            fCnew++;
+	      char f_in[charArrLen];
 
 	      //................. display of the run numbers                                         (HistimePlot)
 	      Double_t interv_displayed = (coord_x[nb_pts-1] - coord_x[0])/(Double_t)nb_displayed;
@@ -10398,8 +10310,6 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 		      last_drawn_coordx = coord_x[i_run];                           //        (HistimePlot)
 		    }
 		}
-
-	      delete [] f_in;      f_in = nullptr;                                         fCdelete++;
 
 	    }
 	  if(opt_scale_y == fOptScaleLogy)
@@ -10542,8 +10452,7 @@ void TEcnaHistos::TopAxisForHistos(TH1D*        h_his0,              const TStri
       top_axis_x->SetLabelOffset((Float_t)(0.005));
 
       TString  x_var_name  = "?";
-      Int_t MaxCar = fgMaxCar;
-      x_var_name.Resize(MaxCar);
+      x_var_name.Resize(charArrLen);
       if( fFapStexNumber >  0 )
 	{
 	  if( fFlagSubDet == "EB"){x_var_name = "Tower number";}
@@ -10816,16 +10725,14 @@ TString TEcnaHistos::SetCanvasName(const TString& HistoCode,
   //          (for 2D histos, see inside ViewMatrix, ViewStex,...)
 
   TString canvas_name;
-  Int_t MaxCar = fgMaxCar;
-  canvas_name.Resize(MaxCar);
+  canvas_name.Resize(charArrLen);
   canvas_name = "?";
 
-  char* f_in = new char[fgMaxCar];               fCnew++;
+  char f_in[charArrLen];
 
   //......................... name_ opt_plot  (Set Canvas name)
   TString  name_opt_plot;
-  MaxCar = fgMaxCar;
-  name_opt_plot.Resize(MaxCar);
+  name_opt_plot.Resize(charArrLen);
   name_opt_plot = "?";
 
   //if(opt_plot == fOnlyOnePlot && arg_AlreadyRead == 0){name_opt_plot = "P0";}  // Only one plot
@@ -10891,13 +10798,11 @@ TString TEcnaHistos::SetCanvasName(const TString& HistoCode,
 
   //......................... name_visu (Set Canvas name)
   TString name_visu;
-  MaxCar = fgMaxCar;
-  name_visu.Resize(MaxCar);
+  name_visu.Resize(charArrLen);
   name_visu = "";
 	  
   TString name_line;
-  MaxCar = fgMaxCar;
-  name_line.Resize(MaxCar);
+  name_line.Resize(charArrLen);
   name_line = "Line_";
   TString HistoType = fCnaParHistos->GetHistoType(HistoCode.Data());
   if( HistoType == "Global" && (opt_plot == fSeveralPlot || opt_plot == fSameOnePlot) ){name_line = "Polm_";}
@@ -10909,8 +10814,7 @@ TString TEcnaHistos::SetCanvasName(const TString& HistoCode,
   name_visu.Append(t_line);
 
   TString name_scale_x;
-  MaxCar = fgMaxCar;
-  name_scale_x.Resize(MaxCar);
+  name_scale_x.Resize(charArrLen);
   name_scale_x = "?";
   if(opt_scale_x == fOptScaleLinx){name_scale_x = "LinX_";}
   if(opt_scale_x == fOptScaleLogx){name_scale_x = "LogX_";}
@@ -10918,8 +10822,7 @@ TString TEcnaHistos::SetCanvasName(const TString& HistoCode,
   name_visu.Append(t_scale_x);
 
   TString name_scale_y;
-  MaxCar = fgMaxCar;
-  name_scale_y.Resize(MaxCar);
+  name_scale_y.Resize(charArrLen);
   name_scale_y = "?";
   if(opt_scale_y == fOptScaleLiny){name_scale_y = "LinY";}
   if(opt_scale_y == fOptScaleLogy){name_scale_y = "LogY";}
@@ -10928,8 +10831,7 @@ TString TEcnaHistos::SetCanvasName(const TString& HistoCode,
 
   //...................................... name quantity (Set Canvas name)
   TString  name_quantity;
-  MaxCar = fgMaxCar;
-  name_quantity.Resize(MaxCar);
+  name_quantity.Resize(charArrLen);
   name_quantity = "?";
 
   if(HistoCode == "D_NOE_ChNb"){name_quantity = "Nb_of_evts_as_func_of_Xtal";}
@@ -11030,7 +10932,6 @@ TString TEcnaHistos::SetCanvasName(const TString& HistoCode,
     }
   
   canvas_name = f_in;
-  delete [] f_in;    f_in = nullptr;              fCdelete++;
   return canvas_name.Data();
   
 }  // end of CanvasName()
@@ -12292,8 +12193,7 @@ Int_t TEcnaHistos::GetNbBinsFromMemo(const TString& HistoCode, const TString& op
 TString TEcnaHistos::GetMemoFlag(const TString& opt_plot)
 {
   TString memo_flag;
-  Int_t MaxCar = fgMaxCar;
-  memo_flag.Resize(MaxCar);
+  memo_flag.Resize(charArrLen);
   memo_flag = "(no memo_flag info)";
 
   Int_t memo_flag_number = -1;
@@ -12317,8 +12217,7 @@ TString TEcnaHistos::GetMemoFlag(const TString& HistoCode, const TString& opt_pl
 // Get Memo Flag
 
   TString memo_flag;
-  Int_t MaxCar = fgMaxCar;
-  memo_flag.Resize(MaxCar);
+  memo_flag.Resize(charArrLen);
   memo_flag = "(no memo_flag info)";
 
   Int_t memo_flag_number = -1;

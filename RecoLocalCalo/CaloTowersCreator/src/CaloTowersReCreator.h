@@ -1,7 +1,7 @@
 #ifndef RECOLOCALCALO_CALOTOWERSCREATOR_CALOTOWERSRECREATOR_H
 #define RECOLOCALCALO_CALOTOWERSCREATOR_CALOTOWERSRECREATOR_H 1
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -16,7 +16,7 @@
 /** \class CaloTowersReCreator
   *  
   */
-class CaloTowersReCreator : public edm::EDProducer {
+class CaloTowersReCreator : public edm::stream::EDProducer<> {
 public:
   explicit CaloTowersReCreator(const edm::ParameterSet& ps);
   ~CaloTowersReCreator() override { }

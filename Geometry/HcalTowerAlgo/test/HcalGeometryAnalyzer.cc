@@ -22,12 +22,12 @@ public:
   void endJob() override {}
 
 private:
-  edm::ParameterSet ps0_;
+
   bool              useOld_;
   bool              geomDB_;
 };
 
-HcalGeometryAnalyzer::HcalGeometryAnalyzer( const edm::ParameterSet& iConfig ) : ps0_(iConfig) {
+HcalGeometryAnalyzer::HcalGeometryAnalyzer( const edm::ParameterSet& iConfig ) {
   useOld_ = iConfig.getParameter<bool>("UseOldLoader");
   geomDB_ = iConfig.getParameter<bool>("GeometryFromDB");
 }
@@ -51,10 +51,10 @@ HcalGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSet
     const CaloGeometry* geo = pG.product();
     caloGeom = (CaloSubdetectorGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
   } else if (useOld_) {
-    HcalHardcodeGeometryLoader m_loader(ps0_);
+    HcalHardcodeGeometryLoader m_loader;
     caloGeom = m_loader.load(topology);
   } else {
-    HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
+    HcalFlexiHardcodeGeometryLoader m_loader;
     caloGeom = m_loader.load(topology, hcons);
   }
   const std::vector<DetId>& ids = caloGeom->getValidDetIds();

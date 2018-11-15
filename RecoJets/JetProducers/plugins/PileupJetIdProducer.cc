@@ -24,7 +24,8 @@ GBRForestsAndConstants::GBRForestsAndConstants(edm::ParameterSet const& iConfig)
   inputIsCorrected_(iConfig.getParameter<bool>("inputIsCorrected")),
   applyJec_(iConfig.getParameter<bool>("applyJec")),
   jec_(iConfig.getParameter<std::string>("jec")),
-  residualsFromTxt_(iConfig.getParameter<bool>("residualsFromTxt")) {
+  residualsFromTxt_(iConfig.getParameter<bool>("residualsFromTxt")),
+  usePuppi_(iConfig.getParameter<bool>("usePuppi")) {
 
   if (residualsFromTxt_) {
     residualsTxt_ = iConfig.getParameter<edm::FileInPath>("residualsTxt");
@@ -167,7 +168,7 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		PileupJetIdentifier puIdentifier;
 		if( gc->produceJetIds() ) {
 		        // Compute the input variables
-		        puIdentifier = ialgo->computeIdVariables(theJet, jec,  &(*vtx), vertexes, rho);
+		        puIdentifier = ialgo->computeIdVariables(theJet, jec,  &(*vtx), vertexes, rho,gc->usePuppi());
 			ids.push_back( puIdentifier );
 		} else {
 		        // Or read it from the value map

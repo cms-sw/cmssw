@@ -42,7 +42,7 @@ int main() {
   CaloTDigitizer<ESDigitizerTraits> ESDigitizer(&ESResponse, &electronicsSim, addNoise);
   ESDigitizer.setDetIds(ESDetIds);
 
-  auto_ptr<ESDigiCollection> ESResult(new ESDigiCollection);
+  unique_ptr<ESDigiCollection> ESResult(new ESDigiCollection);
 
   MixCollection<PCaloHit> ESHitCollection(&crossingFrame);
 

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <iosfwd>
+#include <memory>
 #include <vector>
 
 #include "DetectorDescription/Core/interface/DDTranslation.h"
@@ -35,12 +36,10 @@ std::ostream & operator<<( std::ostream &, const DDSolid & );
     to the documentation of DDLogicalPart.   
 
 */
-class DDSolid : public DDBase<DDName, DDI::Solid*>
+class DDSolid : public DDBase< DDName, std::unique_ptr< DDI::Solid >>
 {
   friend std::ostream & operator <<( std::ostream &, const DDSolid & );
   friend struct DDSolidFactory;
-  friend class DDDToPersFactory;
-  friend class DDPersToDDDFactory;
     
 public: 
   //! Uninitialilzed solid reference-object; for further details on reference-objects see documentation of DDLogicalPart
@@ -67,7 +66,7 @@ public:
   DDSolidShape shape( void ) const;
   
 private:
-  DDSolid( const DDName &, DDI::Solid * );    
+  DDSolid( const DDName &, std::unique_ptr<DDI::Solid> );    
   DDSolid( const DDName &, DDSolidShape, const std::vector<double> & );
 };
 
@@ -196,7 +195,7 @@ public:
 
 private:
 
-  DDI::BooleanSolid * boolean_;  
+  const DDI::BooleanSolid & boolean_;  
 };
 
 class DDMultiUnionSolid : public DDSolid

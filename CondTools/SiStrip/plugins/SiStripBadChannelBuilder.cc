@@ -16,13 +16,11 @@ SiStripBadChannelBuilder::SiStripBadChannelBuilder(const edm::ParameterSet& iCon
 SiStripBadChannelBuilder::~SiStripBadChannelBuilder(){
 }
 
-void SiStripBadChannelBuilder::algoAnalyze(const edm::Event & event, const edm::EventSetup& iSetup){
+std::unique_ptr<SiStripBadStrip> SiStripBadChannelBuilder::getNewObject() {
   
-  unsigned int run=event.id().run();
-
-  edm::LogInfo("SiStripBadChannelBuilder") << "... creating dummy SiStripBadStrip Data for Run " << run << "\n " << std::endl;
+  edm::LogInfo("SiStripBadChannelBuilder") << "... creating dummy SiStripBadStrip Data" << std::endl;
   
-  SiStripBadStrip* obj = new SiStripBadStrip();
+  auto obj = std::make_unique<SiStripBadStrip>();
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
   
@@ -84,14 +82,16 @@ void SiStripBadChannelBuilder::algoAnalyze(const edm::Event & event, const edm::
 
   if( mydbservice.isAvailable() ){
     if ( mydbservice->isNewTagRequest("SiStripBadStripRcd") ){
-      mydbservice->createNewIOV<SiStripBadStrip>(obj,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripBadStripRcd");
+      mydbservice->createNewIOV<SiStripBadStrip>(obj.get(),mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripBadStripRcd");
     } else {
-      //mydbservice->createNewIOV<SiStripBadStrip>(obj,mydbservice->currentTime(),"SiStripBadStripRcd");
-      mydbservice->appendSinceTime<SiStripBadStrip>(obj,mydbservice->currentTime(),"SiStripBadStripRcd");
+      //mydbservice->createNewIOV<SiStripBadStrip>(obj.get(),mydbservice->currentTime(),"SiStripBadStripRcd");
+      mydbservice->appendSinceTime<SiStripBadStrip>(obj.get(),mydbservice->currentTime(),"SiStripBadStripRcd");
     }
   }else{
     edm::LogError("SiStripBadStripBuilder")<<"Service is unavailable"<<std::endl;
   }
+
+  return obj;
 
 }
 

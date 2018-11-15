@@ -339,6 +339,56 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
+                                QualityTestName = cms.string("uGTBoardComparison_MismatchRatioMax0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGT/uGTBoardComparisons/Board1vsBoard2/CaloLayer2/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("uGTBoardComparison_MismatchRatioMax0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGT/uGTBoardComparisons/Board1vsBoard3/CaloLayer2/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("uGTBoardComparison_MismatchRatioMax0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGT/uGTBoardComparisons/Board1vsBoard4/CaloLayer2/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("uGTBoardComparison_MismatchRatioMax0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGT/uGTBoardComparisons/Board1vsBoard5/CaloLayer2/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("uGTBoardComparison_MismatchRatioMax0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGT/uGTBoardComparisons/Board1vsBoard6/CaloLayer2/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("uGTBoardComparison_MismatchRatioMax0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGT/uGTBoardComparisons/Board1vsBoard2/Muons/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("uGTBoardComparison_MismatchRatioMax0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGT/uGTBoardComparisons/Board1vsBoard3/Muons/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("uGTBoardComparison_MismatchRatioMax0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGT/uGTBoardComparisons/Board1vsBoard4/Muons/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("uGTBoardComparison_MismatchRatioMax0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGT/uGTBoardComparisons/Board1vsBoard5/Muons/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("uGTBoardComparison_MismatchRatioMax0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGT/uGTBoardComparisons/Board1vsBoard6/Muons/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
                                 QualityTestName = cms.string("uGMTvsuGT_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGT/uGMToutput_vs_uGTinput/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)

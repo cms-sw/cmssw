@@ -5,9 +5,10 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsDetConstruction.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include <vector>
-
 #include "Geometry/TrackerNumberingBuilder/plugins/TrackerStablePhiSort.h"
+
+#include <functional>
+#include <vector>
 
 void CmsTrackerPixelPhase2RingBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
   CmsDetConstruction theCmsDetConstruction;
@@ -21,7 +22,7 @@ void CmsTrackerPixelPhase2RingBuilder::sortNS(DDFilteredView& fv, GeometricDet* 
 
    //increasing phi taking into account the sub-modules
 
-  TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi());
+  TrackerStablePhiSort(comp.begin(), comp.end(), std::function<double(const GeometricDet*)>(getPhi));
 
 
   for(uint32_t i=0; i<comp.size();i++){

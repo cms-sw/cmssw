@@ -57,7 +57,7 @@ class DBReader : public edm::EDAnalyzer
 
   //  uint32_t printdebug_;
   std::string type_;
-  //std::auto_ptr<BaseFunction> corrector_;
+  //std::unique_ptr<BaseFunction> corrector_;
   boost::shared_ptr<MomentumScaleCorrector> corrector_;
   boost::shared_ptr<ResolutionFunction> resolution_;
   boost::shared_ptr<BackgroundFunction> background_;

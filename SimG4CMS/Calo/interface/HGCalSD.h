@@ -32,6 +32,7 @@ public:
 protected:
 
   double                  getEnergyDeposit(const G4Step*) override;
+  using CaloSD::update;
   void                    update(const BeginOfJob *) override;
   void                    initRun() override;
   bool                    filterHit(CaloG4Hit*, double) override;
@@ -49,7 +50,7 @@ private:
   HGCalGeometryMode::GeometryMode       geom_mode_;
   double                                eminHit_, slopeMin_, distanceFromEdge_;
   double                                mouseBiteCut_, weight_;
-  int                                   levelT1_, levelT2_;
+  int                                   levelT1_, levelT2_, cornerMinMask_;
   bool                                  storeAllG4Hits_;
   bool                                  fiducialCut_, rejectMB_, waferRot_;
   const double                          tan30deg_;

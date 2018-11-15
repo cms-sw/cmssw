@@ -31,7 +31,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <time.h>
+#include <ctime>
 
 class CondDBApp {
 public:
@@ -208,7 +208,7 @@ public:
   }
 
 private:
-  std::auto_ptr<coral::ISessionProxy> m_proxy;
+  std::unique_ptr<coral::ISessionProxy> m_proxy;
 };
 
 

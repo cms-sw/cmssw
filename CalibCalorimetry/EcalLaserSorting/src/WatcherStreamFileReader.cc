@@ -394,7 +394,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 	cout << "[WatcherSource " << now() << "]" 
 	     << " Opening file " << fileName_ << "\n" << flush;
 	streamerInputFile_
-	  = auto_ptr<edm::StreamerInputFile>(new edm::StreamerInputFile(fileName_));
+	  = unique_ptr<edm::StreamerInputFile>(new edm::StreamerInputFile(fileName_));
 
 	ofstream f(".watcherfile");
 	f << fileName_;	

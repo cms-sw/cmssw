@@ -1,14 +1,13 @@
-#ifndef RECOPIXELVERTEXING_PIXELTRIPLETS_CACELL_h
-#define RECOPIXELVERTEXING_PIXELTRIPLETS_CACELL_h
+#ifndef RecoPixelVertexing_PixelTriplets_src_CACell_h
+#define RecoPixelVertexing_PixelTriplets_src_CACell_h
 
-#include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include <array>
+#include <cmath>
 
 #include "DataFormats/Math/interface/deltaPhi.h"
-
-#include <cmath>
-#include <array>
+#include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 class CACellStatus {
 
@@ -298,4 +297,4 @@ private:
 };
 
 
-#endif /*CACELL_H_ */
+#endif // RecoPixelVertexing_PixelTriplets_src_CACell_h

@@ -16,6 +16,7 @@ from RecoHI.Configuration.RecoHI_EventContent_cff import *       # heavy ion rec
 
 #RAW
 RecoHIRAWOutput=cms.untracked.vstring('keep FEDRawDataCollection_rawDataRepacker_*_*',
+                                      'keep FEDRawDataCollection_hybridRawDataRepacker_*_*',
                                       'keep FEDRawDataCollection_virginRawDataRepacker_*_*')
 
 RAWEventContent.outputCommands.extend(RecoHIRAWOutput)

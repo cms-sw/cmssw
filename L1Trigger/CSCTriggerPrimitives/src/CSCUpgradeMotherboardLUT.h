@@ -1,12 +1,36 @@
 #ifndef L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboardLUT_h
 #define L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboardLUT_h
 
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+
 #include <vector>
 #include <map>
 
 /** labels for ME1a and ME1B */
 enum CSCPart {ME1B = 1, ME1A=4, ME21=21, ME1Ag, ME11, ME31, ME41};
 enum Parity {Even=0, Odd=1};
+
+class CSCMotherboardLUTME11
+{
+ public:
+  CSCMotherboardLUTME11();
+  ~CSCMotherboardLUTME11() {}
+  bool doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c,
+                         int theEndcap, bool gangedME1a = false) const;
+ private:
+  // LUT for which ME1/1 wire group can cross which ME1/a halfstrip
+  // 1st index: WG number
+  // 2nd index: inclusive HS range
+  //with "ag" a modified LUT for ganged ME1a
+  std::vector<std::vector<double> > lut_wg_vs_hs_me1a;
+  std::vector<std::vector<double> > lut_wg_vs_hs_me1ag;
+  // LUT for which ME1/1 wire group can cross which ME1/b halfstrip
+  // 1st index: WG number
+  // 2nd index: inclusive HS range
+  std::vector<std::vector<double> > lut_wg_vs_hs_me1b;
+};
 
 class CSCGEMMotherboardLUT
 {
@@ -66,15 +90,6 @@ class CSCGEMMotherboardLUTME11 : public CSCGEMMotherboardLUT
 
   std::vector<int> get_gem_pad_to_csc_hs(Parity par, enum CSCPart) const override;
   std::vector<std::pair<int,int> > get_csc_hs_to_gem_pad(Parity par, enum CSCPart) const override;
-  std::vector<std::vector<double> > get_lut_wg_vs_hs(enum CSCPart) const;
-
-  // LUT for which ME1/1 wire group can cross which ME1/a halfstrip
-  // 1st index: WG number
-  // 2nd index: inclusive HS range
-  //with "ag" a modified LUT for ganged ME1a
-  std::vector<std::vector<double> > lut_wg_vs_hs_me1a;
-  std::vector<std::vector<double> > lut_wg_vs_hs_me1ag;
-  std::vector<std::vector<double> > lut_wg_vs_hs_me1b;
 
   // map of GEM pad to CSC HS for ME1a chambers
   std::vector<int> gem_pad_to_csc_hs_me1a_odd;

@@ -15,7 +15,7 @@ class csvLumibyLSParser(object):
         self.__result={}
         self.__strresult={}
         self.__filename=filename
-	self.__RunX=RunX
+        self.__RunX=RunX
         csvReader=csv.reader(open(filename),delimiter=',')
         oldRun=0
         runnumber=0
@@ -49,10 +49,10 @@ class csvLumibyLSParser(object):
                     oldRun = runnumber
 
             try:
-		if RunX=='Run2':
-                	delivered, recorded = float( row[4] ), float( row[5] )
-		if RunX=='Run1':
-			delivered, recorded = float( row[5] ), float( row[6] )
+                if RunX=='Run2':
+                    delivered, recorded = float( row[4] ), float( row[5] )
+                if RunX=='Run1':
+                    delivered, recorded = float( row[5] ), float( row[6] )
             except:
                 print('Record not parsed, Run = %d, LS = %d' % (runnumber, lsnumber))                
 
@@ -73,7 +73,7 @@ class csvLumibyLSParser(object):
 #                   # have to save lumi sections to fill once we get a non-zero lumi value
 #                   llist.append(lsnumber)
 #                   NonValidLumi=1
-                    
+
             elems = [ delivered,recorded ]
             ldict[lsnumber]=elems
 
@@ -93,7 +93,7 @@ class csvLumibyLSParser(object):
         return len(self.__result)
     def numls(self,run):
         return len(self.__result[run])
-        
+
 if __name__ == '__main__':
     result={}
     #filename='../test/lumi_by_LS_all.csv'

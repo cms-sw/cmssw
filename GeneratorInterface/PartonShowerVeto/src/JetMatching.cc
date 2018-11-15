@@ -44,11 +44,11 @@ std::set<std::string> JetMatching::capabilities() const
 	return result;
 }
 
-std::auto_ptr<JetMatching> JetMatching::create(const edm::ParameterSet &params)
+std::unique_ptr<JetMatching> JetMatching::create(const edm::ParameterSet &params)
 {
 	std::string scheme = params.getParameter<std::string>("scheme");
 
-	std::auto_ptr<JetMatching> matching;
+	std::unique_ptr<JetMatching> matching;
 
 	if (scheme == "Madgraph")
 	{

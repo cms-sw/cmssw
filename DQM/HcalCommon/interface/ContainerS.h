@@ -6,56 +6,38 @@
 
 namespace hcaldqm
 {
-	class ContainerS : public Container
-	{
-		public:
-			ContainerS():
-				Container()
-			{}
-			ContainerS(std::string const& folder, std::string const& name):
-				Container(folder, name)
-			{}
-			~ContainerS() override {}
-			
-			void initialize(std::string const& folder, 
-				std::string const& name, int debug=0) override
-			{
-				_folder = folder;
-				_qname = name;
-				_logger.set(_qname, debug);
-			}
+  class ContainerS : public Container
+  {
+  public:
+    ContainerS(): Container() {}
+    ContainerS(std::string const& folder, std::string const& name):
+      Container(folder, name)
+    {}
+    ~ContainerS() override {}
 
-			virtual void fill(std::string const& x)
-			{
-				_me->Fill((std::string&)x);
-			}
-			
-			virtual void book(DQMStore::IBooker &ib,
-				std::string subsystem="Hcal", std::string aux="")
-			{
-				ib.setCurrentFolder(subsystem+"/"+_folder+aux);
-				_me = ib.bookString(_qname, "NameToStart");
-			}
+    void initialize(std::string const& folder,
+                    std::string const& name, int debug=0) override
+    {
+      _folder = folder;
+      _qname = name;
+      _logger.set(_qname, debug);
+    }
 
-		protected:
-			MonitorElement			*_me;
-	};
+    virtual void fill(std::string const& x)
+    {
+      _me->Fill((std::string&)x);
+    }
+
+    virtual void book(DQMStore::IBooker &ib,
+                      std::string subsystem="Hcal", std::string aux="")
+    {
+      ib.setCurrentFolder(subsystem+"/"+_folder+aux);
+      _me = ib.bookString(_qname, "NameToStart");
+    }
+
+  protected:
+    MonitorElement* _me;
+  };
 }
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

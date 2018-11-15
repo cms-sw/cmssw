@@ -266,7 +266,7 @@ Calibration::MVAComputer *MVAComputer::readCalibration(std::istream &is)
 			static_cast<const void*>(buf.c_str())), kFALSE);
 	buffer.InitMap();
 
-	std::auto_ptr<Calibration::MVAComputer> calib(
+	std::unique_ptr<Calibration::MVAComputer> calib(
 					new Calibration::MVAComputer());
 	buffer.StreamObject(static_cast<void*>(calib.get()), rootClass);
 

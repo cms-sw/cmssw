@@ -267,9 +267,9 @@ G4VSolid * DDG4SolidConverter::unionsolid(const DDSolid & solid) {
     LogDebug("SimG4CoreGeometry") << "SolidB=" << bs.solidB();
     G4VSolid * sb = DDG4SolidConverter().convert(bs.solidB());
     LogDebug("SimG4CoreGeometry") << " name:" << solid.name() << " t=" << bs.translation() << std::flush;
-    LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation()->Inverse() << std::flush;
+    LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation().Inverse() << std::flush;
     std::vector<double> tdbl(9);
-    bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
+    bs.rotation().rotation().Inverse().GetComponents(tdbl.begin(), tdbl.end());
     CLHEP::HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
     CLHEP::Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
     us = new G4UnionSolid(solid.name().name(),
@@ -292,9 +292,9 @@ G4VSolid * DDG4SolidConverter::subtraction(const DDSolid & solid) {
     G4VSolid * sa = DDG4SolidConverter().convert(bs.solidA());
     G4VSolid * sb = DDG4SolidConverter().convert(bs.solidB());
     LogDebug("SimG4CoreGeometry") << " name:" << solid.name() << " t=" << bs.translation() << std::flush;
-    LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation()->Inverse() << std::flush;
+    LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation().Inverse() << std::flush;
     std::vector<double> tdbl(9);
-    bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
+    bs.rotation().rotation().Inverse().GetComponents(tdbl.begin(), tdbl.end());
     CLHEP::HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
     CLHEP::Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
     us = new G4SubtractionSolid(solid.name().name(),
@@ -315,9 +315,9 @@ G4VSolid * DDG4SolidConverter::intersection(const DDSolid & solid) {
     G4VSolid * sa = DDG4SolidConverter().convert(bs.solidA());
     G4VSolid * sb = DDG4SolidConverter().convert(bs.solidB());
     LogDebug("SimG4CoreGeometry") << " name:" << solid.name() << " t=" << bs.translation() << std::flush;
-    LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation()->Inverse() << std::flush;
+    LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation().Inverse() << std::flush;
     std::vector<double> tdbl(9);
-    bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
+    bs.rotation().rotation().Inverse().GetComponents(tdbl.begin(), tdbl.end());
     CLHEP::HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
     CLHEP::Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
     us = new G4IntersectionSolid(solid.name().name(),

@@ -50,3 +50,10 @@ ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.acoplanarDistance = 1 ##radian
 ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.numberOfCandidates = 1 	 
 
 seqALCARECOTkAlJpsiMuMu = cms.Sequence(ALCARECOTkAlJpsiMuMuHLT+ALCARECOTkAlJpsiMuMuDCSFilter+ALCARECOTkAlJpsiMuMuGoodMuons+ALCARECOTkAlJpsiMuMu)
+
+## customizations for the pp_on_AA eras
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(ALCARECOTkAlJpsiMuMuHLT,
+                                           eventSetupPathsKey='TkAlJpsiMuMuHI'
+                                           )

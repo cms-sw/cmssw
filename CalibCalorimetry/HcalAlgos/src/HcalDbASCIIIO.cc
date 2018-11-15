@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <sstream>
 #include <memory>
+#include <iostream>
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
@@ -161,8 +162,8 @@ bool from_string(T& t, const std::string& s, std::ios_base& (*f)(std::ios_base&)
   return !(iss >> f >> t).fail();
 }
 
-template <class T,class S> 
-bool getHcalObject (std::istream& fInput, T* fObject, S* fCondObject) {
+template <class S,class T> 
+bool getHcalObject (std::istream& fInput, T* fObject) {
   if (!fObject) return false; //fObject = new T;
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
@@ -179,11 +180,9 @@ bool getHcalObject (std::istream& fInput, T* fObject, S* fCondObject) {
 //      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
 //    else
 //      {
-	fCondObject = new S(id, atof (items [4].c_str()), atof (items [5].c_str()), 
-			   atof (items [6].c_str()), atof (items [7].c_str()));
-	fObject->addValues(*fCondObject);
-	delete fCondObject;
-	//      }
+    S fCondObject(id, atof (items [4].c_str()), atof (items [5].c_str()), atof (items [6].c_str()), atof (items [7].c_str()));
+    fObject->addValues(fCondObject);
+    //      }
   }
 
   return true;
@@ -210,8 +209,8 @@ bool dumpHcalObject (std::ostream& fOutput, const T& fObject) {
   return true;
 }
 
-template <class T,class S> 
-bool getHcalSingleFloatObject (std::istream& fInput, T* fObject, S* fCondObject) {
+template <class ObjectPrimitiveType, class S,class T> 
+bool getHcalSingleObject (std::istream& fInput, T* fObject) {
   if (!fObject) return false; //fObject = new T;
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
@@ -223,15 +222,17 @@ bool getHcalSingleFloatObject (std::istream& fInput, T* fObject, S* fCondObject)
       continue;
     }
     DetId id = HcalDbASCIIIO::getId (items);
-    
+
 //    if (fObject->exists(id) )
 //      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
 //    else
 //      {
-	fCondObject = new S(id, atof (items [4].c_str()) );
-	fObject->addValues(*fCondObject);
-	delete fCondObject;
-	//      }
+    std::stringstream ss(items[4]);
+    ObjectPrimitiveType x = 0; // usually int or float
+    ss >> x;
+    S fCondObject(id, x );
+    fObject->addValues(fCondObject);
+    //      }
   }
   return true;
 }
@@ -255,32 +256,6 @@ bool dumpHcalSingleFloatObject (std::ostream& fOutput, const T& fObject) {
   return true;
 }
 
-template <class T,class S> 
-bool getHcalSingleIntObject (std::istream& fInput, T* fObject, S* fCondObject) {
-  if (!fObject) return false; //fObject = new T;
-  char buffer [1024];
-  while (fInput.getline(buffer, 1024)) {
-    if (buffer [0] == '#') continue; //ignore comment
-    std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.empty()) continue; // blank line
-    if (items.size () < 5) {
-      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, value" << std::endl;
-      continue;
-    }
-    DetId id = HcalDbASCIIIO::getId (items);
-    
-//    if (fObject->exists(id) )
-//      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
-//    else
-//      {
-	fCondObject = new S(id, atoi (items [4].c_str()) );
-	fObject->addValues(*fCondObject);
-	delete fCondObject;
-	//      }
-  }
-  return true;
-}
-
 template <class T>
 bool dumpHcalSingleIntObject (std::ostream& fOutput, const T& fObject) {
   char buffer [1024];
@@ -300,7 +275,7 @@ bool dumpHcalSingleIntObject (std::ostream& fOutput, const T& fObject) {
   return true;
 }
 
-template <class T,class S>
+template <class S,class T>
 bool getHcalMatrixObject (std::istream& fInput, T* fObject, S* fCondObject) {
   if (!fObject) return false; //fObject = new T;
   char buffer [1024];
@@ -357,34 +332,36 @@ bool dumpHcalMatrixObject (std::ostream& fOutput, const T& fObject) {
 
 // ------------------------------ end templates ------------------------------
 
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalGains* fObject) {return getHcalObject (fInput, fObject, new HcalGain);}
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalGains& fObject) {return dumpHcalObject (fOutput, fObject);}
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalGainWidths* fObject) {return getHcalObject (fInput, fObject, new HcalGainWidth);}
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalGainWidths& fObject) {return dumpHcalObject (fOutput, fObject);}
+namespace HcalDbASCIIIO {
+    bool getObject (std::istream& fInput, HcalGains* fObject) {return getHcalObject<HcalGain> (fInput, fObject);}
+    bool dumpObject (std::ostream& fOutput, const HcalGains& fObject) {return dumpHcalObject (fOutput, fObject);}
+    bool getObject (std::istream& fInput, HcalGainWidths* fObject) {return getHcalObject<HcalGainWidth> (fInput, fObject);}
+    bool dumpObject (std::ostream& fOutput, const HcalGainWidths& fObject) {return dumpHcalObject (fOutput, fObject);}
 
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalRespCorrs* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalRespCorr); }
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalRespCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
+    bool getObject (std::istream& fInput, HcalRespCorrs* fObject) {return getHcalSingleObject<float,HcalRespCorr> (fInput, fObject); }
+    bool dumpObject (std::ostream& fOutput, const HcalRespCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
 
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalLUTCorrs* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalLUTCorr); }
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalLUTCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
+    bool getObject (std::istream& fInput, HcalLUTCorrs* fObject) {return getHcalSingleObject<float,HcalLUTCorr> (fInput, fObject); }
+    bool dumpObject (std::ostream& fOutput, const HcalLUTCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
 
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPFCorrs* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalPFCorr); }
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPFCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
+    bool getObject (std::istream& fInput, HcalPFCorrs* fObject) {return getHcalSingleObject<float,HcalPFCorr> (fInput, fObject); }
+    bool dumpObject (std::ostream& fOutput, const HcalPFCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
 
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTimeCorrs* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalTimeCorr); }
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTimeCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
+    bool getObject (std::istream& fInput, HcalTimeCorrs* fObject) {return getHcalSingleObject<float,HcalTimeCorr> (fInput, fObject); }
+    bool dumpObject (std::ostream& fOutput, const HcalTimeCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
 
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalZSThresholds* fObject) {return getHcalSingleIntObject (fInput, fObject, new HcalZSThreshold); }
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject) {return dumpHcalSingleIntObject (fOutput, fObject); }
+    bool getObject (std::istream& fInput, HcalZSThresholds* fObject) {return getHcalSingleObject<int,HcalZSThreshold> (fInput, fObject); }
+    bool dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject) {return dumpHcalSingleIntObject (fOutput, fObject); }
 
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalZDCLowGainFractions* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalZDCLowGainFraction); }
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZDCLowGainFractions& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
+    bool getObject (std::istream& fInput, HcalZDCLowGainFractions* fObject) {return getHcalSingleObject<float,HcalZDCLowGainFraction> (fInput, fObject); }
+    bool dumpObject (std::ostream& fOutput, const HcalZDCLowGainFractions& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
 
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalValidationCorrs* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalValidationCorr); }
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalValidationCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
+    bool getObject (std::istream& fInput, HcalValidationCorrs* fObject) {return getHcalSingleObject<float,HcalValidationCorr> (fInput, fObject); }
+    bool dumpObject (std::ostream& fOutput, const HcalValidationCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
 
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIETypes* fObject) {return getHcalSingleIntObject (fInput, fObject, new HcalQIEType); }
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIETypes& fObject) {return dumpHcalSingleIntObject (fOutput, fObject); }
+    bool getObject (std::istream& fInput, HcalQIETypes* fObject) {return getHcalSingleObject<int,HcalQIEType> (fInput, fObject); }
+    bool dumpObject (std::ostream& fOutput, const HcalQIETypes& fObject) {return dumpHcalSingleIntObject (fOutput, fObject); }
+}
 
 // ------------------------------ start specific implementations ------------------------------
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalRecoParams* fObject)

@@ -39,7 +39,7 @@ class AnnealingGhostTrackFitter : public SequentialGhostTrackFitter {
 			const GhostTrackPrediction &pred,
 			std::vector<GhostTrackState> &states) override;
 
-	std::auto_ptr<AnnealingSchedule>	annealing;
+	std::unique_ptr<AnnealingSchedule>	annealing;
 	bool					firstStep;
 };
 

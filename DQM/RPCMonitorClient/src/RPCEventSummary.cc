@@ -64,11 +64,11 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStor
     int defaultValue = 1;
     isIn_ = true;
 
-    if(nullptr != setup.find( recordKey ) ) {
+    if(auto runInfoRec = setup.tryToGet<RunInfoRcd>()) {
       defaultValue = -1;
       //get fed summary information
       edm::ESHandle<RunInfo> sumFED;
-      setup.get<RunInfoRcd>().get(sumFED);    
+      runInfoRec->get(sumFED);
       std::vector<int> FedsInIds= sumFED->m_fed_in;   
       unsigned int f = 0;
       isIn_ = false;

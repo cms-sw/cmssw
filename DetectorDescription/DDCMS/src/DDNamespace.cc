@@ -9,8 +9,6 @@
 using namespace std;
 using namespace cms;
 
-#define NAMESPACE_SEP '_'
-
 DDNamespace::DDNamespace( DDParsingContext* context, xml_h element )
   : context( context )
 {
@@ -96,16 +94,15 @@ DDNamespace::realName( const string& v ) const
   string val = v;
   while(( idx = val.find('[')) != string::npos )
   {
-    val.erase(idx,1);
-    idp = val.find(':');
-    idq = val.find(']');
-    val.erase(idq,1);
+    val.erase( idx, 1 );
+    idp = val.find( NAMESPACE_SEP, idx );
+    idq = val.find( ']', idx );
+    val.erase( idq, 1 );
     if( idp == string::npos || idp > idq )
       val.insert( idx, m_name );
     else if ( idp != string::npos && idp < idq )
       val[idp] = NAMESPACE_SEP;
   }
-  while(( idx = val.find(':')) != string::npos ) val[idx] = NAMESPACE_SEP;
   return val;
 }
 
@@ -113,9 +110,7 @@ string
 DDNamespace::nsName( const string& nam )
 {
   size_t idx;
-  if(( idx = nam.find(':')) != string::npos )
-    return nam.substr( 0, idx );
-  else if(( idx=nam.find('_')) != string::npos )
+  if(( idx = nam.find( NAMESPACE_SEP )) != string::npos )
     return nam.substr( 0, idx );
   return "";
 }
@@ -124,9 +119,7 @@ string
 DDNamespace::objName( const string& nam )
 {
   size_t idx;
-  if(( idx = nam.find(':')) != string::npos )
-    return nam.substr( idx + 1 );
-  else if (( idx=nam.find('_')) != string::npos )
+  if(( idx = nam.find( NAMESPACE_SEP )) != string::npos )
     return nam.substr( idx + 1 );
   return "";
 }
@@ -184,10 +177,10 @@ DDNamespace::rotation( const string& nam ) const
     return (*i).second;
   else if( nam == "NULL" )
     return s_null;
-  else if( nam.find("_NULL") == nam.length() - 5 )
+  else if( nam.find(":NULL") == nam.length() - 5 )
     return s_null;
   string n = nam;
-  if(( idx=nam.find(':')) != string::npos )
+  if(( idx = nam.find( NAMESPACE_SEP )) != string::npos )
   {
     n[idx] = NAMESPACE_SEP;
     i = context->rotations.find(n);
@@ -237,14 +230,14 @@ DDNamespace::volume( const string& nam, bool exc ) const
   if ( i != context->volumes.end() )  {
     return (*i).second;
   }
-  if ( (idx=nam.find(':')) != string::npos )  {
+  if(( idx = nam.find( NAMESPACE_SEP )) != string::npos )  {
     string n = nam;
     n[idx] = NAMESPACE_SEP;
-    i = context->volumes.find(n);
-    if ( i != context->volumes.end() )
+    i = context->volumes.find( n );
+    if( i != context->volumes.end())
       return (*i).second;
   }
-  if ( exc )  {
+  if( exc )  {
     throw runtime_error("Unknown volume identifier:"+nam);
   }
   return nullptr;
@@ -271,17 +264,17 @@ DDNamespace::solid( const string& nam ) const
 {
   size_t idx;
   string n = context->namespaces.back() + nam;
-  auto i = context->shapes.find(n);
-  if ( i != context->shapes.end() )
+  auto i = context->shapes.find( n );
+  if( i != context->shapes.end())
     return (*i).second;
-  if ( (idx=nam.find(':')) != string::npos )  {
-    n = realName(nam);
+  if(( idx = nam.find( NAMESPACE_SEP )) != string::npos ) {
+    n = realName( nam );
     n[idx] = NAMESPACE_SEP;
-    i = context->shapes.find(n);
+    i = context->shapes.find( n );
     if ( i != context->shapes.end() )
       return (*i).second;
   }  
   i = context->shapes.find(nam);
-  if ( i != context->shapes.end() ) return (*i).second;
+  if( i != context->shapes.end()) return (*i).second;
   throw runtime_error( "Unknown shape identifier:" + nam );
 }

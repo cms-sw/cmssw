@@ -15,8 +15,6 @@
 
 #include <string>
 
-#include <memory>
-
 class CSCGeometry;
 
 class CSCGeometryBuilder {
@@ -28,16 +26,14 @@ public:
   virtual ~CSCGeometryBuilder();
 
   /// Build the geometry
-  void build( const std::shared_ptr<CSCGeometry>& theGeometry
-		      , const RecoIdealGeometry& rig
-		      , const CSCRecoDigiParameters& cscpars ) ;
-
-protected:
+  void build( CSCGeometry& theGeometry
+              , const RecoIdealGeometry& rig
+              , const CSCRecoDigiParameters& cscpars ) ;
 
 private:
   /// Build one CSC chamber, and its component layers, and add them to the geometry
   void buildChamber (  
-		     const std::shared_ptr<CSCGeometry>& theGeometry        // the geometry container
+		     CSCGeometry& theGeometry        // the geometry container
 		     , CSCDetId chamberId              // the DetId of this chamber
 		     , const std::vector<float>& fpar  // volume parameters
 		     , const std::vector<float>& fupar // user parameters

@@ -108,7 +108,22 @@ l1EmulatorObjNoIsoEGQualityTests.qtestOnEndLumi = False
 # Mu quality tests
 l1EmulatorObjMuQualityTests.qtestOnEndLumi = False
 
+# stage 2
+from DQM.L1TMonitorClient.L1TStage2QualityTests_cff import *
+l1TStage2CaloLayer1QualityTests.qtestOnEndLumi = cms.untracked.bool(False)
+l1TStage2BMTFQualityTests.qtestOnEndLumi = cms.untracked.bool(False)
+l1TStage2OMTFQualityTests.qtestOnEndLumi = cms.untracked.bool(False)
+l1TStage2EMTFQualityTests.qtestOnEndLumi = cms.untracked.bool(False)
+l1TStage2uGMTQualityTests.qtestOnEndLumi = cms.untracked.bool(False)
+l1TStage2uGTQualityTests.qtestOnEndLumi = cms.untracked.bool(False)
+l1TStage2MuonQualityTests.qtestOnEndLumi = cms.untracked.bool(False)
+l1TStage2MuonQualityTestsCollisions.qtestOnEndLumi = cms.untracked.bool(False)
 
-
-
+from DQM.L1TMonitorClient.L1TStage2EmulatorQualityTests_cff import *
+l1TStage2CaloLayer1DEQualityTests.qtestOnEndLumi = cms.untracked.bool(False)
+l1TStage2BMTFDEQualityTests.qtestOnEndLumi = cms.untracked.bool(False)
+l1TStage2OMTFDEQualityTests.qtestOnEndLumi = cms.untracked.bool(False)
+l1TStage2EMTFDEQualityTests.qtestOnEndLumi = cms.untracked.bool(False)
+l1TStage2uGMTDEQualityTests.qtestOnEndLumi = cms.untracked.bool(False)
+l1TStage2uGTDEQualityTests.qtestOnEndLumi = cms.untracked.bool(False)
 

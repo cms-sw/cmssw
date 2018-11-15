@@ -90,6 +90,12 @@ private:
   std::string histoSuffix_;
   quant quantity_;
 
+  edm::InputTag metInputTag_;
+  edm::InputTag jetInputTag_;
+  edm::InputTag eleInputTag_;
+  edm::InputTag muoInputTag_;
+  edm::InputTag vtxInputTag_;
+
   edm::EDGetTokenT<reco::PFMETCollection>       metToken_;
   edm::EDGetTokenT< reco::JetView >  jetToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
@@ -124,7 +130,7 @@ private:
     Nbin_PHI, -MAXedge_PHI, MAXedge_PHI
   };
 
-
+  std::vector<bool> warningPrinted4token_;
 
 };
 

@@ -9,7 +9,6 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorECAL.h"
@@ -151,7 +150,8 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<
    if(!crossedRecHits.empty())
    {
      setCalo = true;
-     sort(crossedRecHits.begin(),crossedRecHits.end(),EcalRecHitLess());
+     sort(crossedRecHits.begin(),crossedRecHits.end(),
+             [](auto& x, auto& y){return (x.energy() > y.energy());});
      result.ecalCrossedEnergy = sumEnergy;
      result.ecalCrysCrossed = crossedRecHits.size();
      result.ecalDeDx = sumEnergy/sumTrackLength;

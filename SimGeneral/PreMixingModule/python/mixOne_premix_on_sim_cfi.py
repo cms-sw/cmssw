@@ -12,54 +12,13 @@ from SimGeneral.MixingModule.SiStripSimParameters_cfi import SiStripSimBlock
 from SimGeneral.MixingModule.SiPixelSimParameters_cfi import SiPixelSimBlock
 from SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi import phase2TrackerDigitizer, _premixStage1ModifyDict as _phase2TrackerPremixStage1ModifyDict
 from SimGeneral.MixingModule.ecalDigitizer_cfi import ecalDigitizer
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer, hfnoseDigitizer
 
-import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
-import EventFilter.ESRawToDigi.esRawToDigi_cfi
-import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
-import EventFilter.DTRawToDigi.dtunpacker_cfi
-import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
-import EventFilter.CSCRawToDigi.cscUnpacker_cfi
-import EventFilter.SiStripRawToDigi.SiStripDigis_cfi
-import EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi
-
-# content from Configuration/StandardSequences/DigiToRaw_cff.py
-
-ecalDigis = EventFilter.EcalRawToDigi.EcalUnpackerData_cfi.ecalEBunpacker.clone()
-
-ecalPreshowerDigis = EventFilter.ESRawToDigi.esRawToDigi_cfi.esRawToDigi.clone()
-
-hcalDigis = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
-
-muonCSCDigis = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone()
-
-muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
-
-siStripDigis = EventFilter.SiStripRawToDigi.SiStripDigis_cfi.siStripDigis.clone()
-
-siPixelDigis = EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi.siPixelDigis.clone()
-
-siPixelDigis.InputLabel = 'rawDataCollector'
-ecalDigis.InputLabel = 'rawDataCollector'
-ecalPreshowerDigis.sourceTag = 'rawDataCollector'
-hcalDigis.InputLabel = 'rawDataCollector'
-muonCSCDigis.InputObjects = 'rawDataCollector'
-muonDTDigis.inputLabel = 'rawDataCollector'
-
-hcalDigis.FilterDataQuality = cms.bool(False)
 hcalSimBlock.HcalPreMixStage2 = cms.bool(True)
 
 mixData = cms.EDProducer("PreMixingModule",
     input = cms.SecSource("EmbeddedRootSource",
-        producers = cms.VPSet(cms.convertToVPSet(
-                ecalDigis = ecalDigis,
-                ecalPreshowerDigis = ecalPreshowerDigis,
-                hcalDigis = hcalDigis,
-                muonDTDigis = muonDTDigis,
-                muonCSCDigis = muonCSCDigis,
-                siStripDigis = siStripDigis,
-                siPixelDigis = siPixelDigis,
-        )),
+        producers = cms.VPSet(),
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(1.0)
         ),
@@ -93,7 +52,7 @@ mixData = cms.EDProducer("PreMixingModule",
             ),
             workerType = cms.string("PreMixingSiPixelWorker"),
             pixeldigiCollectionSig = cms.InputTag("simSiPixelDigis"),
-            pixeldigiCollectionPile = cms.InputTag("siPixelDigis","","@MIXING"),
+            pixeldigiCollectionPile = cms.InputTag("simSiPixelDigis"),
             PixelDigiCollectionDM = cms.string('siPixelDigisDM'),                   
         ),
         strip = cms.PSet(
@@ -101,7 +60,7 @@ mixData = cms.EDProducer("PreMixingModule",
             workerType = cms.string("PreMixingSiStripWorker"),
 
             SistripLabelSig = cms.InputTag("simSiStripDigis","ZeroSuppressed"),
-            SiStripPileInputTag = cms.InputTag("siStripDigis","ZeroSuppressed","@MIXING"),
+            SiStripPileInputTag = cms.InputTag("simSiStripDigis","ZeroSuppressed"),
             # Dead APV Vector
             SistripAPVPileInputTag = cms.InputTag("mix","AffectedAPVList"),
             SistripAPVLabelSig = cms.InputTag("mix","AffectedAPVList"),
@@ -117,9 +76,9 @@ mixData = cms.EDProducer("PreMixingModule",
             EEdigiProducerSig = cms.InputTag("simEcalUnsuppressedDigis"),
             ESdigiProducerSig = cms.InputTag("simEcalPreshowerDigis"),
 
-            EBPileInputTag = cms.InputTag("ecalDigis","ebDigis","@MIXING"),
-            EEPileInputTag = cms.InputTag("ecalDigis","eeDigis","@MIXING"),
-            ESPileInputTag = cms.InputTag("ecalPreshowerDigis","","@MIXING"),
+            EBPileInputTag = cms.InputTag("simEcalDigis", "ebDigis"),
+            EEPileInputTag = cms.InputTag("simEcalDigis", "eeDigis"),
+            ESPileInputTag = cms.InputTag("simEcalUnsuppressedDigis"),
 
             EBDigiCollectionDM   = cms.string(''),
             EEDigiCollectionDM   = cms.string(''),
@@ -136,11 +95,11 @@ mixData = cms.EDProducer("PreMixingModule",
             QIE11digiCollectionSig = cms.InputTag("simHcalUnsuppressedDigis"),
             ZDCdigiCollectionSig   = cms.InputTag("simHcalUnsuppressedDigis"),
 
-            HBHEPileInputTag = cms.InputTag("hcalDigis","","@MIXING"),
-            HOPileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
-            HFPileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
-            QIE10PileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
-            QIE11PileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
+            HBHEPileInputTag = cms.InputTag("simHcalDigis"),
+            HOPileInputTag   = cms.InputTag("simHcalDigis"),
+            HFPileInputTag   = cms.InputTag("simHcalDigis"),
+            QIE10PileInputTag   = cms.InputTag("simHcalDigis", "HFQIE10DigiCollection"),
+            QIE11PileInputTag   = cms.InputTag("simHcalDigis", "HBHEQIE11DigiCollection"),
             ZDCPileInputTag  = cms.InputTag(""),
 
             HBHEDigiCollectionDM = cms.string(''),
@@ -151,34 +110,22 @@ mixData = cms.EDProducer("PreMixingModule",
             ZDCDigiCollectionDM  = cms.string('')
         ),
         dt = cms.PSet(
-            workerType = cms.string("PreMixingDTWorker"),
-            digiTagSig = cms.InputTag("simMuonDTDigis"),
-            pileInputTag = cms.InputTag("muonDTDigis","","@MIXING"),
-            collectionDM = cms.string(''),
+            workerType = cms.string("PreMixingCrossingFramePSimHitWorker"),
+            labelSig = cms.InputTag("mix", "g4SimHitsMuonDTHits"),
+            pileInputTag = cms.InputTag("mix", "g4SimHitsMuonDTHits"),
+            collectionDM = cms.string("g4SimHitsMuonDTHits"),
         ),
         rpc = cms.PSet(
-            workerType = cms.string("PreMixingRPCWorker"),
-            digiTagSig = cms.InputTag("simMuonRPCDigis"),                   
-            pileInputTag = cms.InputTag("simMuonRPCDigis",""),
-            collectionDM = cms.string(''),
+            workerType = cms.string("PreMixingCrossingFramePSimHitWorker"),
+            labelSig = cms.InputTag("mix", "g4SimHitsMuonRPCHits"),
+            pileInputTag = cms.InputTag("mix", "g4SimHitsMuonRPCHits"),
+            collectionDM = cms.string("g4SimHitsMuonRPCHits"),
         ),
         csc = cms.PSet(
-            workerType = cms.string("PreMixingCSCWorker"),
-            strip = cms.PSet(
-                digiTagSig = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
-                pileInputTag = cms.InputTag("muonCSCDigis","MuonCSCStripDigi","@MIXING"),
-                collectionDM = cms.string('MuonCSCStripDigisDM'),
-            ),
-            wire = cms.PSet(
-                digiTagSig = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
-                pileInputTag = cms.InputTag("muonCSCDigis","MuonCSCWireDigi","@MIXING"),
-                collectionDM = cms.string('MuonCSCWireDigisDM'),
-            ),
-            comparator = cms.PSet(
-                digiTagSig = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
-                pileInputTag = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi","@MIXING"),
-                collectionDM = cms.string('MuonCSCComparatorDigisDM'),
-            ),
+            workerType = cms.string("PreMixingCrossingFramePSimHitWorker"),
+            labelSig = cms.InputTag("mix", "g4SimHitsMuonCSCHits"),
+            pileInputTag = cms.InputTag("mix", "g4SimHitsMuonCSCHits"),
+            collectionDM = cms.string("g4SimHitsMuonCSCHits"),
         ),
         trackingTruth = cms.PSet(
             workerType = cms.string("PreMixingTrackingParticleWorker"),
@@ -198,30 +145,6 @@ mixData = cms.EDProducer("PreMixingModule",
             pileInputTag = cms.InputTag("simSiStripDigis"),
             collectionDM = cms.string('StripDigiSimLink'),
         ),
-        dtSimLink = cms.PSet(
-            workerType = cms.string("PreMixingDTDigiSimLinkWorker"),
-            labelSig = cms.InputTag("simMuonDTDigis"),
-            pileInputTag = cms.InputTag("simMuonDTDigis"),
-            collectionDM = cms.string('simMuonDTDigis'),
-        ),
-        rpcSimLink = cms.PSet(
-            workerType = cms.string("PreMixingRPCDigiSimLinkWorker"),
-            labelSig = cms.InputTag("simMuonRPCDigis","RPCDigiSimLink"),
-            pileInputTag = cms.InputTag("simMuonRPCDigis","RPCDigiSimLink"),
-            collectionDM = cms.string('RPCDigiSimLink'),
-        ),
-        cscStripSimLink = cms.PSet(
-            workerType = cms.string("PreMixingStripDigiSimLinkWorker"),
-            labelSig = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigiSimLinks"),
-            pileInputTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigiSimLinks"),
-            collectionDM = cms.string('MuonCSCStripDigiSimLinks'),
-        ),
-        cscWireSimLink = cms.PSet(
-            workerType = cms.string("PreMixingStripDigiSimLinkWorker"),
-            labelSig = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigiSimLinks"),
-            pileInputTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigiSimLinks"),
-            collectionDM = cms.string('MuonCSCWireDigiSimLinks'),
-        ),
     ),
 )
 
@@ -240,15 +163,44 @@ fastSim.toModify(mixData,
             accumulator = _recoTrackAccumulator.clone(
                 pileUpTracks = "mix:generalTracks"
             )
-        )
+        ),
+        dt = dict(
+            labelSig = "mix:MuonSimHitsMuonDTHits",
+            pileInputTag = "mix:MuonSimHitsMuonDTHits",
+            collectionDM = "MuonSimHitsMuonDTHits",
+        ),
+        rpc = dict(
+            labelSig = "mix:MuonSimHitsMuonRPCHits",
+            pileInputTag = "mix:MuonSimHitsMuonRPCHits",
+            collectionDM = "MuonSimHitsMuonRPCHits",
+        ),
+        csc = dict(
+            labelSig = "mix:MuonSimHitsMuonCSCHits",
+            pileInputTag = "mix:MuonSimHitsMuonCSCHits",
+            collectionDM = "MuonSimHitsMuonCSCHits",
+        ),
     ),
+)
+
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+(run2_GEM_2017 | run3_GEM).toModify(
+    mixData,
+    workers = dict(
+        gem = cms.PSet(
+            workerType = cms.string("PreMixingCrossingFramePSimHitWorker"),
+            labelSig = cms.InputTag("mix", "g4SimHitsMuonGEMHits"),
+            pileInputTag = cms.InputTag("mix", "g4SimHitsMuonGEMHits"),
+            collectionDM = cms.string("g4SimHitsMuonGEMHits"),
+        ),
+    )
 )
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-from Configuration.Eras.Modifier_phase2_ecal_cff import phase2_ecal
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_common.toModify(mixData, input = dict(producers = [])) # we use digis directly, no need for raw2digi producers
 
@@ -283,31 +235,10 @@ phase2_tracker.toModify(mixData,
 )
 
 # ECAL
-phase2_ecal.toModify(mixData,
-    workers = dict(
-        ecal = dict(
-            doES = False,
-            EBPileInputTag = "simEcalDigis:ebDigis",
-            EEPileInputTag = "simEcalDigis:eeDigis",
-        )
-    )
-)
+phase2_common.toModify (mixData, workers=dict(ecal=dict(doES=False)))
 phase2_hgcal.toModify(mixData, workers=dict(ecal=dict(doEE=False)))
 
-# HCAL
-phase2_hcal.toModify(mixData,
-    workers = dict(
-        hcal = dict(
-            HBHEPileInputTag = "simHcalDigis",
-            HOPileInputTag = "simHcalDigis",
-            HFPileInputTag = "simHcalDigis",
-            QIE10PileInputTag = "simHcalDigis:HFQIE10DigiCollection",
-            QIE11PileInputTag = "simHcalDigis:HBHEQIE11DigiCollection",
-            ZDCPileInputTag = "simHcalUnsuppressedDigis",
-        )
-    )
-)
-
+# HGCAL
 phase2_hgcal.toModify(mixData,
     workers = dict(
         hgcee = cms.PSet(
@@ -337,57 +268,26 @@ phase2_hgcal.toModify(mixData,
     )
 )
 
+phase2_hfnose.toModify(mixData,
+    workers = dict(
+        hfnose = cms.PSet(
+            hfnoseDigitizer,
+            workerType = cms.string("PreMixingHGCalWorker"),
+            digiTagSig = cms.InputTag("mix", "HFNoseDigis"),
+            pileInputTag = cms.InputTag("simHGCalUnsuppressedDigis", "HFNose"),
+        ),
+    )
+)
+
+
 # Muon
 phase2_muon.toModify(mixData,
     workers = dict(
-        dt = dict(pileInputTag = "simMuonDTDigis"),
-        rpc = dict(pileInputTag = "simMuonRPCDigis"),
-        csc = dict(
-            strip = dict(pileInputTag = "simMuonCSCDigis:MuonCSCStripDigi"),
-            wire = dict(pileInputTag = "simMuonCSCDigis:MuonCSCWireDigi"),
-            comparator = dict(pileInputTag = "simMuonCSCDigis:MuonCSCComparatorDigi"),
-        ),
-        gem = cms.PSet(
-            workerType = cms.string("PreMixingGEMWorker"),
-            digiTagSig = cms.InputTag("simMuonGEMDigis"),
-            pileInputTag = cms.InputTag("simMuonGEMDigis",""),
-            collectionDM = cms.string(''),
-        ),
         me0 = cms.PSet(
-            workerType = cms.string("PreMixingME0Worker"),
-            digiTagSig = cms.InputTag("simMuonME0Digis"),
-            pileInputTag = cms.InputTag("simMuonME0Digis",""),
-            collectionDM = cms.string(''),
-        ),
-        me0SimHit = cms.PSet(
             workerType = cms.string("PreMixingCrossingFramePSimHitWorker"),
             labelSig = cms.InputTag("mix", "g4SimHitsMuonME0Hits"),
             pileInputTag = cms.InputTag("mix", "g4SimHitsMuonME0Hits"),
             collectionDM = cms.string("g4SimHitsMuonME0Hits"),
-        ),
-        gemSimLink = cms.PSet(
-            workerType = cms.string("PreMixingGEMDigiSimLinkWorker"),
-            labelSig = cms.InputTag("simMuonGEMDigis"),
-            pileInputTag = cms.InputTag("simMuonGEMDigis"),
-            collectionDM = cms.string('GEMDigiSimLink'),
-        ),
-        gemStripSimLink = cms.PSet(
-            workerType = cms.string("PreMixingStripDigiSimLinkWorker"),
-            labelSig = cms.InputTag("simMuonGEMDigis"),
-            pileInputTag = cms.InputTag("simMuonGEMDigis"),
-            collectionDM = cms.string('GEMStripDigiSimLink'),
-        ),
-        me0SimLink = cms.PSet(
-            workerType = cms.string("PreMixingME0DigiSimLinkWorker"),
-            labelSig = cms.InputTag("simMuonMe0Digis"),
-            pileInputTag = cms.InputTag("simMuonME0Digis"),
-            collectionDM = cms.string('ME0DigiSimLink'),
-        ),
-        me0StripSimLink = cms.PSet(
-            workerType = cms.string("PreMixingStripDigiSimLinkWorker"),
-            labelSig = cms.InputTag("simMuonME0Digis"),
-            pileInputTag = cms.InputTag("simMuonME0Digis"),
-            collectionDM = cms.string('ME0StripDigiSimLink'),
         ),
     )
 )

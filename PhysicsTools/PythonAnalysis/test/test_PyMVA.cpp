@@ -1,7 +1,7 @@
 #include "TMVA/PyMethodBase.h"
 #include <iostream>
 
-void test()
+void test_PyMVA()
 {
   TMVA::PyMethodBase::PyInitialize();
   std::cout<<"TMVA::PyMethodBase::PyInitialize(): OK"<<std::endl;
@@ -10,6 +10,6 @@ void test()
 
 int main( int argc, char** argv )
 {
-  test();
+  test_PyMVA();
   return 0;
 }

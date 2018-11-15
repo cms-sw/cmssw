@@ -20,27 +20,27 @@
     <Numeric name="PosSensitive" value="0"/>
     <String name="Material"      value="materials:Silicon"/>
     <String name="FullCell"      value="HFNoseCellFull0Fine"/>
-    <String name="FullSensitive" value="HFNoseSensitiveFull0Fine"/>
+    <String name="FullSensitive" value="HGCalHFNoseSensitiveFull0Fine"/>
     <Vector name="TruncatedCell" type="string" nEntries="3">
        HFNoseCellTrunc01Fine, HFNoseCellTrunc02Fine,
        HFNoseCellTrunc03Fine</Vector>
     <Vector name="TruncatedSensitive" type="string" nEntries="3">
-      HFNoseSensitiveTrunc01Fine, HFNoseSensitiveTrunc02Fine,
-      HFNoseSensitiveTrunc03Fine</Vector>
+      HGCalHFNoseSensitiveTrunc01Fine, HGCalHFNoseSensitiveTrunc02Fine,
+      HGCalHFNoseSensitiveTrunc03Fine</Vector>
     <Vector name="ExtendedCell" type="string" nEntries="3">
        HFNoseCellExten01Fine, HFNoseCellExten02Fine,
        HFNoseCellExten03Fine</Vector>
     <Vector name="ExtendedSensitive" type="string" nEntries="3">
-      HFNoseSensitiveExten01Fine, HFNoseSensitiveExten02Fine,
-      HFNoseSensitiveExten03Fine</Vector>
+      HGCalHFNoseSensitiveExten01Fine, HGCalHFNoseSensitiveExten02Fine,
+      HGCalHFNoseSensitiveExten03Fine</Vector>
     <Vector name="CornerCell" type="string" nEntries="6">
        HFNoseCellCorner01Fine, HFNoseCellCorner02Fine,
        HFNoseCellCorner03Fine, HFNoseCellCorner04Fine,
        HFNoseCellCorner05Fine, HFNoseCellCorner06Fine</Vector>
     <Vector name="CornerSensitive" type="string" nEntries="6">
-      HFNoseSensitiveCorner01Fine, HFNoseSensitiveCorner02Fine,
-      HFNoseSensitiveCorner03Fine, HFNoseSensitiveCorner04Fine,
-      HFNoseSensitiveCorner05Fine, HFNoseSensitiveCorner06Fine</Vector>
+      HGCalHFNoseSensitiveCorner01Fine, HGCalHFNoseSensitiveCorner02Fine,
+      HGCalHFNoseSensitiveCorner03Fine, HGCalHFNoseSensitiveCorner04Fine,
+      HGCalHFNoseSensitiveCorner05Fine, HGCalHFNoseSensitiveCorner06Fine</Vector>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hfnoseWafer:HFNoseWafer"/>
@@ -51,27 +51,27 @@
     <Numeric name="PosSensitive" value="1"/>
     <String name="Material"      value="materials:Silicon"/>
     <String name="FullCell"      value="HFNoseCellFull1Fine"/>
-    <String name="FullSensitive" value="HFNoseSensitiveFull1Fine"/>
+    <String name="FullSensitive" value="HGCalHFNoseSensitiveFull1Fine"/>
     <Vector name="TruncatedCell" type="string" nEntries="3">
        HFNoseCellTrunc11Fine, HFNoseCellTrunc12Fine,
        HFNoseCellTrunc13Fine</Vector>
     <Vector name="TruncatedSensitive" type="string" nEntries="3">
-      HFNoseSensitiveTrunc11Fine, HFNoseSensitiveTrunc12Fine,
-      HFNoseSensitiveTrunc13Fine</Vector>
+      HGCalHFNoseSensitiveTrunc11Fine, HGCalHFNoseSensitiveTrunc12Fine,
+      HGCalHFNoseSensitiveTrunc13Fine</Vector>
     <Vector name="ExtendedCell" type="string" nEntries="3">
        HFNoseCellExten11Fine, HFNoseCellExten12Fine,
        HFNoseCellExten13Fine</Vector>
     <Vector name="ExtendedSensitive" type="string" nEntries="3">
-      HFNoseSensitiveExten11Fine, HFNoseSensitiveExten12Fine,
-      HFNoseSensitiveExten13Fine</Vector>
+      HGCalHFNoseSensitiveExten11Fine, HGCalHFNoseSensitiveExten12Fine,
+      HGCalHFNoseSensitiveExten13Fine</Vector>
     <Vector name="CornerCell" type="string" nEntries="6">
        HFNoseCellCorner11Fine, HFNoseCellCorner12Fine,
        HFNoseCellCorner13Fine, HFNoseCellCorner14Fine,
        HFNoseCellCorner15Fine, HFNoseCellCorner16Fine</Vector>
     <Vector name="CornerSensitive" type="string" nEntries="6">
-      HFNoseSensitiveCorner11Fine, HFNoseSensitiveCorner12Fine,
-      HFNoseSensitiveCorner13Fine, HFNoseSensitiveCorner14Fine,
-      HFNoseSensitiveCorner15Fine, HFNoseSensitiveCorner16Fine</Vector>
+      HGCalHFNoseSensitiveCorner11Fine, HGCalHFNoseSensitiveCorner12Fine,
+      HGCalHFNoseSensitiveCorner13Fine, HGCalHFNoseSensitiveCorner14Fine,
+      HGCalHFNoseSensitiveCorner15Fine, HGCalHFNoseSensitiveCorner16Fine</Vector>
   </Algorithm>
 </PosPartSection>
 

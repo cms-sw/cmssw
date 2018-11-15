@@ -56,17 +56,17 @@ EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const& _ps) :
   std::string userName(_ps.getUntrackedParameter<std::string>("userName"));
   std::string password(_ps.getUntrackedParameter<std::string>("password"));
 
-  std::auto_ptr<EcalCondDBInterface> db(nullptr);
+  std::unique_ptr<EcalCondDBInterface> db(nullptr);
 
   if(verbosity_ > 0) edm::LogInfo("EcalDQM") << "Establishing DB connection";
 
   try{
-    db = std::auto_ptr<EcalCondDBInterface>(new EcalCondDBInterface(DBName, userName, password));
+    db = std::unique_ptr<EcalCondDBInterface>(new EcalCondDBInterface(DBName, userName, password));
   }
   catch(std::runtime_error& re){
     if(!hostName.empty()){
       try{
-        db = std::auto_ptr<EcalCondDBInterface>(new EcalCondDBInterface(hostName, DBName, userName, password, hostPort));
+        db = std::unique_ptr<EcalCondDBInterface>(new EcalCondDBInterface(hostName, DBName, userName, password, hostPort));
       }
       catch(std::runtime_error& re2){
         throw cms::Exception("DBError") << re2.what();

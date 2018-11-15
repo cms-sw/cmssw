@@ -248,7 +248,7 @@ BeamHaloNavigationSchool::reachableFromHorizontal()
   FDLI end   = myRightLayers.end();
 
   //sort along Z to be sure
-  sort(begin, end, DetLessZ());
+  sort(begin, end, isDetLessZ);
 
   FDLC reachableFL;
 

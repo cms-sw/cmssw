@@ -66,8 +66,7 @@ namespace {
 	typedef ReferenceCountingPointer<LinearizedTrackState<5> >
 					RefCountedLinearizedTrackState;
 
-	struct VtxTrackIs : public std::unary_function<
-					RefCountedVertexTrack, bool> {
+	struct VtxTrackIs {
 		VtxTrackIs(const TransientTrack &track) : track(track) {}
 		bool operator()(const RefCountedVertexTrack &vtxTrack) const
 		{ return vtxTrack->linearizedTrack()->track() == track; }
@@ -306,7 +305,7 @@ GhostTrackFitter &GhostTrackVertexFinder::ghostTrackFitter() const
 
 VertexFitter<5> &GhostTrackVertexFinder::vertexFitter(bool primary) const
 {
-	std::auto_ptr<VertexFitter<5> > *ptr =
+	std::unique_ptr<VertexFitter<5> > *ptr =
 			primary ? &primVertexFitter_ : &secVertexFitter_;
 	if (!ptr->get())
 		ptr->reset(new AdaptiveVertexFitter(

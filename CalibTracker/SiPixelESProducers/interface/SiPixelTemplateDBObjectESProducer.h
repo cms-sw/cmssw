@@ -26,8 +26,8 @@ class SiPixelTemplateDBObjectESProducer : public edm::ESProducer  {
 
 public:
 
-	SiPixelTemplateDBObjectESProducer(const edm::ParameterSet& iConfig);
+  SiPixelTemplateDBObjectESProducer(const edm::ParameterSet& iConfig);
   ~SiPixelTemplateDBObjectESProducer() override;
-	std::shared_ptr<SiPixelTemplateDBObject> produce(const SiPixelTemplateDBObjectESProducerRcd &);
- };
+  std::shared_ptr<const SiPixelTemplateDBObject> produce(const SiPixelTemplateDBObjectESProducerRcd &);
+};
 #endif

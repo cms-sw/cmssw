@@ -41,8 +41,7 @@ DDLRotationSequence::processElement( const std::string& name, const std::string&
     R = myRotations->processOne(R, atts.find("axis")->second, atts.find("angle")->second);
   }
   
-  DDRotationMatrix* ddr = new DDRotationMatrix(R);
-  DDRotation rot = DDrot(getDDName(nmspace), ddr);
+  DDRotation rot = DDrot(getDDName(nmspace), std::make_unique<DDRotationMatrix>( R ));
 
   myRotations->clear();
   clear();

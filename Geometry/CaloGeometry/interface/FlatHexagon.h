@@ -24,6 +24,10 @@ public:
   typedef CaloCellGeometry::Pt3D     Pt3D     ;
   typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
   typedef CaloCellGeometry::Tr3D     Tr3D     ;
+
+  static constexpr uint32_t k_dZ   = 0;//Half-length along the z-axis
+  static constexpr uint32_t k_r    = 1;//Half length along x-axis
+  static constexpr uint32_t k_R    = 2;//Quarter of maximum dimension along y
   
   FlatHexagon( void );
   

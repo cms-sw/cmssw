@@ -22,7 +22,6 @@ CmsTrackerPixelPhase2EndcapBuilder::buildComponent( DDFilteredView& fv, Geometri
   CmsTrackerOTDiscBuilder  theCmsTrackerOTDiscBuilder;   
 
   GeometricDet * subdet = new GeometricDet( &fv, theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
-  std::string subdet_name = subdet->name();
   switch( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )))
   {
   case GeometricDet::PixelPhase2FullDisk:    
@@ -51,7 +50,7 @@ CmsTrackerPixelPhase2EndcapBuilder::sortNS( DDFilteredView& fv, GeometricDet* de
 {
   GeometricDet::ConstGeometricDetContainer & comp = det->components();
 
-  std::sort( comp.begin(), comp.end(), LessModZ());
+  std::sort( comp.begin(), comp.end(), isLessModZ);
   
   for( uint32_t i = 0; i < comp.size(); i++ )
   {

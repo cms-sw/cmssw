@@ -236,8 +236,10 @@ namespace edm {
     output_ << "\tdoErrorStuff\n";
   }
 
-  void MockEventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalTransitionSucceeded) {
+  void MockEventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalTransitionSucceeded,
+                                    bool& eventSetupForInstanceSucceeded) {
     output_ << "\tbeginRun " << run << "\n";
+    eventSetupForInstanceSucceeded = true;
     throwIfNeeded();
     globalTransitionSucceeded = true;
   }
@@ -247,10 +249,14 @@ namespace edm {
     output_ << "\tendRun " << run << postfix;
   }
 
-  void MockEventProcessor::endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalTransitionSucceeded, bool cleaningUpAfterException ) {
-    endRun(phid,run,globalTransitionSucceeded,cleaningUpAfterException);
-    if(globalTransitionSucceeded) {
-      writeRun(phid,run);
+  void MockEventProcessor::endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run,
+                                            bool globalTransitionSucceeded, bool cleaningUpAfterException,
+                                            bool eventSetupForInstanceSucceeded ) {
+    if (eventSetupForInstanceSucceeded) {
+      endRun(phid,run,globalTransitionSucceeded,cleaningUpAfterException);
+      if(globalTransitionSucceeded) {
+        writeRun(phid,run);
+      }
     }
     deleteRunFromCache(phid,run);
   }

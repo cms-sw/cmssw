@@ -157,10 +157,12 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             "jobmode":"interactive",
             "datadir":os.getcwd(),
             "logdir":os.getcwd(),
-            "eosdir": "",
             }
-        self.checkInput("general", knownSimpleOptions = defaults.keys())
-        general = self.getResultingSection( "general", defaultDict = defaults )
+	mandatories = [
+            "eosdir",
+        ]
+        self.checkInput("general", knownSimpleOptions = defaults.keys() + mandatories)
+        general = self.getResultingSection( "general", defaultDict = defaults, demandPars = mandatories )
         internal_section = "internals"
         if not self.has_section(internal_section):
             self.add_section(internal_section)

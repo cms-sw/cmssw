@@ -122,7 +122,7 @@ process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("ecalDigis:EcalTrigger
 process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("hcalDigis")
 
 # emulator ES
-process.load('L1Trigger.L1TCalorimeter.caloParams_2018_v1_3_cfi')
+process.load('L1Trigger.L1TCalorimeter.caloParams_2018_v1_4_cfi')
 
 # histograms
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')

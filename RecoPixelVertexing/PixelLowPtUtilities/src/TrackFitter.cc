@@ -1,37 +1,29 @@
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackFitter.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
-
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-
 #include "CommonTools/Statistics/interface/LinearFit.h"
+#include "CommonTools/Utils/interface/DynArray.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
-
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
-#include "RecoPixelVertexing/PixelTrackFitting/src/CircleFromThreePoints.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackFitter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/CircleFromThreePoints.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
+#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 using namespace std;
-#include "CommonTools/Utils/interface/DynArray.h"
-
 
 namespace {
+
 int getCharge
   (const DynArray<GlobalPoint> & points)
 {
@@ -42,8 +34,6 @@ int getCharge
    while (dphi < -M_PI) dphi += 2*M_PI;
    return (dphi > 0) ? -1 : 1;
 }
-
-
 
 }
 

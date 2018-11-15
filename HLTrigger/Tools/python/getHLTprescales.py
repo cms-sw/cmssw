@@ -25,28 +25,28 @@ def getPrescalesFromKey(key):
     res_split = res.split()
     psCols = []
     if len(res)>0:
-	for uu in range(3,len(res_split)-1):
-		if uu % 2 == 1:
-		   psCols.append(res_split[uu])
+        for uu in range(3,len(res_split)-1):
+            if uu % 2 == 1:
+                psCols.append(res_split[uu])
     return psCols
 
 from queryRR import queryRR
 
 def readIndex():
-	asciiFile=open("columns.txt","read")
-	mapIndex={}
-	fl="go"
-	while fl:
-	  fl=asciiFile.readline()
-	  if len(fl)>0:
-		ll=fl.split()
-		runnumber=ll[0]
-		pindex=ll[1]
-		mapIndex[runnumber]=pindex
-	asciiFile.close()
-	return mapIndex
+    asciiFile=open("columns.txt","read")
+    mapIndex={}
+    fl="go"
+    while fl:
+        fl=asciiFile.readline()
+        if len(fl)>0:
+            ll=fl.split()
+            runnumber=ll[0]
+            pindex=ll[1]
+            mapIndex[runnumber]=pindex
+    asciiFile.close()
+    return mapIndex
 
-	
+
 MapIndex=readIndex()
 runKeys = queryRR(options.firstRun,options.lastRun,options.groupName)
 prescaleTable = {}
@@ -61,34 +61,34 @@ for run in runs:
     psfactor = 1
     absent=0
     if len(prescaleTable[key]) == 0:
-	psfactor = 0
+        psfactor = 0
     else:
-    	if run in MapIndex:
-		index = int(MapIndex[run])
-		psfactor = prescaleTable[key][index]
-    	else:
-		if int(run) < 138564:
-			index = 0
-			psfactor = prescaleTable[key][index]
-		else:
-			#print "... the run ",run," is not found in columns.txt ... Index is set to zero, need to check independently..."
-			index=0
-			psfactor = prescaleTable[key][index]
-			Absent.append(run)
-			absent=1
+        if run in MapIndex:
+            index = int(MapIndex[run])
+            psfactor = prescaleTable[key][index]
+        else:
+            if int(run) < 138564:
+                index = 0
+                psfactor = prescaleTable[key][index]
+            else:
+                #print "... the run ",run," is not found in columns.txt ... Index is set to zero, need to check independently..."
+                index=0
+                psfactor = prescaleTable[key][index]
+                Absent.append(run)
+                absent=1
     if absent==0:
-    	print("%s\t%s" % (run, psfactor))
+        print("%s\t%s" % (run, psfactor))
     else:
-	print("%s\t%s\t (*)" % (run, psfactor))
+        print("%s\t%s\t (*)" % (run, psfactor))
     jsout[run] = psfactor
 
 if len(Absent)>0:
-	print("")
-	print("(*) The following runs were not found in columns.txt (the run may be too recent, or the prescale index is not in OMDS).")
-     	print("For these runs, the prescale_index was assumed to be zero. You need to check independently.")
-	for r in Absent:
-		print("\t",r)
-	print("")
+    print("")
+    print("(*) The following runs were not found in columns.txt (the run may be too recent, or the prescale index is not in OMDS).")
+    print("For these runs, the prescale_index was assumed to be zero. You need to check independently.")
+    for r in Absent:
+        print("\t",r)
+    print("")
 
 if options.jsonOut:
     stderr.write("Exporting to JSON file %s...\n" % (options.jsonOut))

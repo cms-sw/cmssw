@@ -15,16 +15,13 @@ MaterialBudgetHistos::MaterialBudgetHistos(std::shared_ptr<MaterialBudgetData> d
 
 void MaterialBudgetHistos::book() 
 {
-  std::cout << "=== booking user histos ===" << std::endl;
+  edm::LogInfo("MaterialBudget") << " MaterialBudgetHistos: Booking Histos";
   hmgr->addHistoProf1( new TProfile("10", "MB prof Eta ", 250, -5., 5. ) );
   hmgr->addHisto1( new TH1F("11", "Eta " , 501, -5., 5. ) );
   hmgr->addHistoProf1( new TProfile("20", "MB prof Phi ", 180, -3.1416, 3.1416 ) );
   hmgr->addHisto1( new TH1F("21", "Phi " , 360, -3.1416, 3.1416 ) );
   hmgr->addHistoProf2( new TProfile2D("30", "MB prof Eta  Phi ", 250, -5., 5., 180, -3.1416, 3.1416 ) );
   hmgr->addHisto2( new TH2F("31", "Eta vs Phi " , 501, -5., 5., 180, -3.1416, 3.1416 ) );
-
-  std::cout << "=== booking user histos done ===" << std::endl;
-
 }
 
 
@@ -53,10 +50,9 @@ void MaterialBudgetHistos::fillEndTrack()
 }
 
 
-void MaterialBudgetHistos::hend() 
+void MaterialBudgetHistos::endOfRun() 
 {
-  std::cout << "=== save user histos ===" << std::endl;
+  edm::LogInfo("MaterialBudget") << "MaterialBudgetHistos: Writing Histos ROOT file to" << theFileName;
   hmgr->save( theFileName );
-
 }
 

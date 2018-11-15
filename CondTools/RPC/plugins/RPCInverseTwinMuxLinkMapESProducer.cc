@@ -10,9 +10,8 @@
 #include "CondFormats/DataRecord/interface/RPCInverseTwinMuxLinkMapRcd.h"
 
 RPCInverseTwinMuxLinkMapESProducer::RPCInverseTwinMuxLinkMapESProducer(edm::ParameterSet const & _config)
-    : inverse_linkmap_(new RPCInverseAMCLinkMap())
 {
-    setWhatProduced(this, edm::eventsetup::dependsOn(&RPCInverseTwinMuxLinkMapESProducer::RPCTwinMuxLinkMapCallback));
+    setWhatProduced(this);
 }
 
 void RPCInverseTwinMuxLinkMapESProducer::fillDescriptions(edm::ConfigurationDescriptions & _descs)
@@ -21,9 +20,10 @@ void RPCInverseTwinMuxLinkMapESProducer::fillDescriptions(edm::ConfigurationDesc
     _descs.add("RPCInverseTwinMuxLinkMapESProducer", _desc);
 }
 
-void RPCInverseTwinMuxLinkMapESProducer::RPCTwinMuxLinkMapCallback(RPCTwinMuxLinkMapRcd const & _rcd)
+void RPCInverseTwinMuxLinkMapESProducer::setupRPCTwinMuxLinkMap(RPCTwinMuxLinkMapRcd const & _rcd,
+                                                                RPCInverseAMCLinkMap* inverse_linkmap)
 {
-    RPCInverseAMCLinkMap::map_type & _inverse_map(inverse_linkmap_->getMap());
+    RPCInverseAMCLinkMap::map_type & _inverse_map(inverse_linkmap->getMap());
     _inverse_map.clear();
 
     edm::ESHandle<RPCAMCLinkMap> _es_map;
@@ -36,7 +36,16 @@ void RPCInverseTwinMuxLinkMapESProducer::RPCTwinMuxLinkMapCallback(RPCTwinMuxLin
 
 std::shared_ptr<RPCInverseAMCLinkMap> RPCInverseTwinMuxLinkMapESProducer::produce(RPCInverseTwinMuxLinkMapRcd const & _rcd)
 {
-    return inverse_linkmap_;
+    auto host = holder_.makeOrGet([]() {
+        return new HostType;
+    });
+
+    host->ifRecordChanges<RPCTwinMuxLinkMapRcd>(_rcd,
+                                                [this,h=host.get()](auto const& rec) {
+        setupRPCTwinMuxLinkMap(rec, h);
+    });
+
+    return host;
 }
 
 //define this as a module

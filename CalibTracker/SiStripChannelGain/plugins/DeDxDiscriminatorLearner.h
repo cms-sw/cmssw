@@ -18,6 +18,8 @@
 #include "TFile.h"
 #include "TH3F.h"
 
+#include <memory>
+
 class DeDxDiscriminatorLearner : public ConditionDBWriter<PhysicsTools::Calibration::HistogramD3D> {
 
 public:
@@ -33,7 +35,7 @@ private:
   void         processHit(const TrackingRecHit* recHit, float trackMomentum, float& cosine,  const TrajectoryStateOnSurface& trajState);
   void         algoAnalyzeTheTree(const edm::EventSetup& iSetup);
 
-  PhysicsTools::Calibration::HistogramD3D * getNewObject() override;
+  std::unique_ptr<PhysicsTools::Calibration::HistogramD3D> getNewObject() override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<TrajTrackAssociationCollection>   m_trajTrackAssociationTag;

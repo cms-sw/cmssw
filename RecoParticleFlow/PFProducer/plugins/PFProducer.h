@@ -109,7 +109,7 @@ class PFProducer : public edm::stream::EDProducer<> {
   // std::vector<std::string> fToRead;
   
   /// particle flow algorithm
-  std::auto_ptr<PFAlgo>      pfAlgo_;
+  std::shared_ptr<PFAlgo>      pfAlgo_;
 
 };
 

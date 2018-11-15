@@ -68,7 +68,7 @@ from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _h
 detachedTripletStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "detachedTripletStepSeedLayers",
     trackingRegions = "detachedTripletStepTrackingRegions",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cfi import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
@@ -258,6 +258,10 @@ trackingPhase1.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1
      qualityCuts = [-0.2,0.3,0.8],
 ))
 highBetaStar_2018.toModify(detachedTripletStep,qualityCuts = [-0.5,0.0,0.5])
+pp_on_AA_2018.toModify(detachedTripletStep, 
+        mva = dict(GBRForestLabel = 'HIMVASelectorDetachedTripletStep_Phase1'),
+        qualityCuts = [-0.2, 0.4, 0.85],
+)
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

@@ -23,7 +23,7 @@ AlignmentParametersData::AlignmentParametersData( AlgebraicVector* param,
 {
   theNumSelected = std::count_if( theSelector->begin(),
 				  theSelector->end(),
-				  std::bind2nd( std::equal_to<bool>(), true ) );
+				  [](auto const &c){return c == true;});
 }
 
 
@@ -36,7 +36,7 @@ AlignmentParametersData::AlignmentParametersData( const AlgebraicVector& param,
 {
   theNumSelected = std::count_if( theSelector->begin(),
 				  theSelector->end(),
-				  std::bind2nd( std::equal_to<bool>(), true ) );
+				  [](auto const &c){return c == true;});
 }
 
 

@@ -10,7 +10,7 @@ XERCES_CPP_NAMESPACE_USE
 
 class HcalPatternXMLParserImpl {
 public:
-  std::auto_ptr<SAX2XMLReader> parser;
+  std::unique_ptr<SAX2XMLReader> parser;
 };
 
 HcalPatternXMLParser::HcalPatternXMLParser() {
@@ -153,7 +153,7 @@ void HcalPatternXMLParser::parse(const std::string& xmlDocument, std::map<std::s
     try {
       if (m_parser==nullptr) {
 	m_parser=new HcalPatternXMLParserImpl();
-	m_parser->parser=std::auto_ptr<xercesc::SAX2XMLReader>(xercesc::XMLReaderFactory::createXMLReader());
+	m_parser->parser=std::unique_ptr<xercesc::SAX2XMLReader>(xercesc::XMLReaderFactory::createXMLReader());
       }
 	 
       MemBufInputSource src((const unsigned char*)xmlDocument.c_str(), xmlDocument.length(),"hcal::PatternReader");

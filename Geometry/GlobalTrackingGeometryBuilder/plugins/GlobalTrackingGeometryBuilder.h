@@ -17,6 +17,7 @@ class CSCGeometry;
 class RPCGeometry;
 class GEMGeometry;
 class ME0Geometry;
+class MTDGeometry;
 
 class GlobalTrackingGeometryBuilder {
 public:
@@ -28,6 +29,7 @@ public:
 
   /// Build the geometry
   GlobalTrackingGeometry* build(const TrackerGeometry* tk, 
+				const MTDGeometry* mtd,
 				const DTGeometry* dt, 
                                 const CSCGeometry* csc, 
 				const RPCGeometry* rpc,

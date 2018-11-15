@@ -12,9 +12,8 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 RPCInverseLBLinkMapESProducer::RPCInverseLBLinkMapESProducer(edm::ParameterSet const & _config)
-    : inverse_linkmap_(new RPCInverseLBLinkMap())
 {
-    setWhatProduced(this, edm::eventsetup::dependsOn(&RPCInverseLBLinkMapESProducer::RPCLBLinkMapCallback));
+    setWhatProduced(this);
 }
 
 void RPCInverseLBLinkMapESProducer::fillDescriptions(edm::ConfigurationDescriptions & _descs)
@@ -23,9 +22,10 @@ void RPCInverseLBLinkMapESProducer::fillDescriptions(edm::ConfigurationDescripti
     _descs.add("RPCInverseLBLinkMapESProducer", _desc);
 }
 
-void RPCInverseLBLinkMapESProducer::RPCLBLinkMapCallback(RPCLBLinkMapRcd const & _rcd)
+void RPCInverseLBLinkMapESProducer::setupRPCLBLinkMap(RPCLBLinkMapRcd const & _rcd,
+                                                      RPCInverseLBLinkMap* inverse_linkmap)
 {
-    RPCInverseLBLinkMap::map_type & _inverse_map(inverse_linkmap_->getMap());
+    RPCInverseLBLinkMap::map_type & _inverse_map(inverse_linkmap->getMap());
     _inverse_map.clear();
 
     edm::ESHandle<RPCLBLinkMap> _es_map;
@@ -38,7 +38,16 @@ void RPCInverseLBLinkMapESProducer::RPCLBLinkMapCallback(RPCLBLinkMapRcd const &
 
 std::shared_ptr<RPCInverseLBLinkMap> RPCInverseLBLinkMapESProducer::produce(RPCInverseLBLinkMapRcd const & _rcd)
 {
-    return inverse_linkmap_;
+    auto host = holder_.makeOrGet([]() {
+        return new HostType;
+    });
+
+    host->ifRecordChanges<RPCLBLinkMapRcd>(_rcd,
+                                           [this,h=host.get()](auto const& rec) {
+        setupRPCLBLinkMap(rec, h);
+    });
+
+    return host;
 }
 
 //define this as a module

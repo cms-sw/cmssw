@@ -45,7 +45,11 @@ HFNoseSD::HFNoseSD(const std::string& name, const DDCompactView & cpv,
   storeAllG4Hits_  = m_HFN.getParameter<bool>("StoreAllG4Hits");
   rejectMB_        = m_HFN.getParameter<bool>("RejectMouseBite");
   waferRot_        = m_HFN.getParameter<bool>("RotatedWafer");
+  cornerMinMask_   = m_HFN.getParameter<int>("CornerMinMask");
   angles_          = m_HFN.getUntrackedParameter<std::vector<double>>("WaferAngles");
+
+  nameX_ = ((name.find("HFNoseHits")!=std::string::npos) ? 
+	    "HGCalHFNoseSensitive" : "HFNoseSensitive");
 
   if(storeAllG4Hits_) {
     setUseMap(false);
@@ -224,6 +228,9 @@ uint32_t HFNoseSD::setDetUnitId (int layer, int module, int cell, int iz,
 				G4ThreeVector &pos) {  
   uint32_t id = numberingScheme_ ? 
     numberingScheme_->getUnitID(layer, module, cell, iz, pos, weight_) : 0;
+  if (cornerMinMask_ > 2) {
+    if (hgcons_->maskCell(DetId(id), cornerMinMask_)) id = 0;
+  }
   return id;
 }
 

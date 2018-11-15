@@ -22,7 +22,7 @@ void CmsTrackerPetalBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   GeometricDet::ConstGeometricDetContainer & comp = det->components();
 
   if (comp.front()->type()==GeometricDet::ring)
-    std::sort(comp.begin(),comp.end(),LessR_module());
+    std::sort(comp.begin(),comp.end(),isLessRModule);
   else
     edm::LogError("CmsTrackerPetalBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
   

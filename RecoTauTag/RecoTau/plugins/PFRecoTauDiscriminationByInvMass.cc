@@ -1,5 +1,3 @@
-#include <boost/foreach.hpp>
-
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -25,7 +23,7 @@ class PFRecoTauDiscriminationByInvMass: public PFTauDiscriminationProducerBase {
         // Get decay mode specific cuts
         std::vector<std::string> decayModeCutNames =
             select.getParameterNamesForType<edm::ParameterSet>();
-        BOOST_FOREACH(const std::string& dmName, decayModeCutNames) {
+        for(auto const& dmName : decayModeCutNames) {
           const edm::ParameterSet &dmPSet =
               select.getParameter<edm::ParameterSet>(dmName);
           unsigned int nCharged = dmPSet.getParameter<unsigned int>("charged");

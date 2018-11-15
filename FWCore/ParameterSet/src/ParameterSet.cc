@@ -89,8 +89,6 @@ namespace edm {
     }
   }
 
-  ParameterSet::~ParameterSet() {}
-
   void
   ParameterSet::registerFromString(std::string const& rep) {
     // from coded string.  Will cause registration
@@ -105,19 +103,6 @@ namespace edm {
     cms::Digest newDigest;
     ParameterSet().toDigest(newDigest);
     return ParameterSetID(newDigest.digest().toString());
-  }
-
-  ParameterSet::ParameterSet(ParameterSet const& other)
-  : tbl_(other.tbl_),
-    psetTable_(other.psetTable_),
-    vpsetTable_(other.vpsetTable_),
-    id_(other.id_) {
-  }
-
-  ParameterSet& ParameterSet::operator=(ParameterSet const& other) {
-    ParameterSet temp(other);
-    swap(temp);
-    return *this;
   }
 
   void ParameterSet::copyForModify(ParameterSet const& other) {

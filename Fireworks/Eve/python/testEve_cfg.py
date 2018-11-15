@@ -1,14 +1,22 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process("DISPLAY")
 
+
+options = VarParsing.VarParsing ()
+options.register ('file',
+                  "xxx", # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "xrootd URL")
+
+
+options.parseArguments()
+
+
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
-### Expects test.root in current directory.
-process.source = cms.Source(
-    "PoolSource",
-    fileNames=cms.untracked.vstring('file:/home/alja/cms-dev/7.3/RelValZEE-reco.root')
-)
 
 # process.maxEvents = cms.untracked.PSet(
 #         input = cms.untracked.int32(1)
@@ -25,6 +33,11 @@ process.source = cms.Source(
 
 ### Request EveService
 process.EveService = cms.Service("EveService")
+
+process.source = cms.Source(
+    "PoolSource",
+    fileNames = cms.untracked.vstring('file:' + options.file)
+)
 
 ### Extractor of geometry needed to display it in Eve.
 ### Required for "DummyEvelyser".

@@ -1,7 +1,6 @@
 <use name="FWCore/Utilities"/>
+<use name="RecoBTag/FeatureTools"/>
 <use name="PhysicsTools/TensorFlow"/>
-<use name="TrackingTools/IPTools"/>
-<use name="CLHEP"/>
 <export>
   <lib name="1"/>
 </export>

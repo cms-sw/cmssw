@@ -69,7 +69,12 @@ void CaloTowerConstituentsMap::sort() {
 }
 
 std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId& id) const {
+#ifdef EDM_ML_DEBUG
+  std::cout << "Get constituent of " << std::hex << id.rawId() << std::dec
+	    << " ID " << id << " ieta " << id.ieta() << std::endl;
+#endif
   std::vector<DetId> items;
+  if (id.ieta() == 0) return items;
 
   // build reverse map if needed
   if(!m_reverseItems.load(std::memory_order_acquire)) {

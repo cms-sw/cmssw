@@ -4,7 +4,6 @@
 <use   name="CondFormats/PhysicsToolsObjects"/>
 <use   name="boost_serialization"/>
 
-<use   name="roottmva"/>
 <export>
   <lib   name="1"/>
 </export>

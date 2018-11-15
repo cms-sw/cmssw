@@ -27,3 +27,20 @@ summaryTemplate="cmsRun $CMSSW_BASE/src/Alignment/APEEstimation/test/cfgTemplate
 mergeTemplate="hadd {path}/allData.root {inputFiles}"
 
 localSettingTemplate="cmsRun $CMSSW_BASE/src/Alignment/APEEstimation/test/cfgTemplate/apeLocalSetting_cfg.py {inputCommands}"
+
+conditionsFileHeader="""
+import FWCore.ParameterSet.Config as cms
+def applyConditions(process):
+"""
+
+conditionsTemplate="""
+    import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+    process.my{record}Conditions = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
+    connect = cms.string('{connect}'),
+    toGet = cms.VPSet(cms.PSet(record = cms.string('{record}'),
+                            tag = cms.string('{tag}')
+                            )
+                    )
+    )
+    process.prefer_my{record}Conditions = cms.ESPrefer("PoolDBESSource", "my{record}Conditions")
+"""

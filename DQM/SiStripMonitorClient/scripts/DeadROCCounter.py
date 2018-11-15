@@ -16,8 +16,8 @@ def GetNonZeroOccNumber(histoname):
     nrocs=0
     histo=fin.Get(histoname)
     if not histo:
-	print("null histo")
-	return
+        print("null histo")
+        return
     nx=histo.GetNbinsX()
     ny=histo.GetNbinsY()
     for i in range(1,nx+1):

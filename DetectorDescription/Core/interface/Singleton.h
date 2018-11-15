@@ -7,7 +7,7 @@ namespace DDI {
  {
  public:
    typedef I value_type;
-   virtual ~Singleton() {}
+   virtual ~Singleton() = default;
    static value_type & instance();
    
    Singleton(void) = delete;

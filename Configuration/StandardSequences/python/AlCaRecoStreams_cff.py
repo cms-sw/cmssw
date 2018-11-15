@@ -38,6 +38,8 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelLorentzAngle_cff import *
 # AlCaReco for tracker calibration using MinBias events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasAAG_cff import *
+# AlCaReco for tracker ageing monitoring
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalSmallBiasScan_cff import *
 # AlCaReco for tracker calibration using ZeroBias events (noise)
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_cff import *
 # AlCaReco for SiPixel Bad Components using ZeroBias events in ExpressPhysics stream
@@ -165,6 +167,7 @@ pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM
 pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
 pathALCARECOSiStripCalMinBiasAAG = cms.Path(seqALCARECOSiStripCalMinBiasAAG*ALCARECOSiStripCalMinBiasAAGDQM)
+pathALCARECOSiStripCalSmallBiasScan = cms.Path(seqALCARECOSiStripCalSmallBiasScan)
 pathALCARECOSiStripCalZeroBias = cms.Path(seqALCARECOSiStripCalZeroBias*ALCARECOSiStripCalZeroBiasDQM)
 pathALCARECOSiPixelCalZeroBias = cms.Path(seqALCARECOSiPixelCalZeroBias)
 
@@ -350,6 +353,15 @@ ALCARECOStreamSiStripCalMinBias = cms.FilteredStream(
 	paths  = (pathALCARECOSiStripCalMinBias),
 	content = OutALCARECOSiStripCalMinBias.outputCommands,
 	selectEvents = OutALCARECOSiStripCalMinBias.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamSiStripCalSmallBiasScan = cms.FilteredStream(
+	responsible = 'Marco Musich',
+	name = 'SiStripCalSmallBiasScan',
+	paths  = (pathALCARECOSiStripCalSmallBiasScan),
+	content = OutALCARECOSiStripCalSmallBiasScan.outputCommands,
+	selectEvents = OutALCARECOSiStripCalSmallBiasScan.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

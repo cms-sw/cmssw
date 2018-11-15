@@ -1,0 +1,10 @@
+<library   name="RecoMTDDetLayersPlugins" file="*.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="Geometry/MTDGeometryBuilder"/>
+  <use   name="Geometry/Records"/>
+  <use   name="RecoMTD/DetLayers"/>
+  <use   name="RecoMTD/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

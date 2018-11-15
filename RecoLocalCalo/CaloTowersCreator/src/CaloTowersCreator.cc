@@ -8,6 +8,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
+//#define EDM_ML_DEBUG
 
 CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) : 
   algo_(conf.getParameter<double>("EBThreshold"),
@@ -92,6 +93,7 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 
 
 {
+  algo_.setMissingHcalRescaleFactorForEcal(conf.getParameter<double>("missingHcalRescaleFactorForEcal"));
 
   // register for data access
   tok_hbhe_ = consumes<HBHERecHitCollection>(conf.getParameter<edm::InputTag>("hbheInput"));
@@ -125,13 +127,13 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
   if (eScales_.instanceLabel.empty()) produces<CaloTowerCollection>();
   else produces<CaloTowerCollection>(eScales_.instanceLabel);
 
-  /*
+#ifdef EDM_ML_DEBUG
   std::cout << "VI Producer " 
 	    << (useRejectedHitsOnly_ ? "use rejectOnly " : " ")
 	    << (allowMissingInputs_ ? "allowMissing " : " " )
 	    <<  nLabels << ' ' << severitynames.size() 
 	    << std::endl;
-  */
+#endif
 }
 
 void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
@@ -199,7 +201,7 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   algo_.setUseRejectedRecoveredHcalHits(useRejectedRecoveredHcalHits_);
   algo_.setUseRejectedRecoveredEcalHits(useRejectedRecoveredEcalHits_);
 
-  /*
+#ifdef EDM_ML_DEBUG
   std::cout << "VI Produce: " 
 	    << (useRejectedHitsOnly_ ? "use rejectOnly " : " ")
 	    << (allowMissingInputs_ ? "allowMissing " : " " )
@@ -208,7 +210,7 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
 	    << ' ' << theEcalSeveritiesToBeExcluded_.size()
 	    << ' ' << theEcalSeveritiesToBeUsedInBadTowers_.size() 
 	    << std::endl;
-  */
+#endif
 
   algo_.begin(); // clear the internal buffer
 
@@ -283,12 +285,18 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   // Step C: Process
   algo_.finish(*prod);
 
-  /*
+#ifdef EDM_ML_DEBUG
   int totc=0; float totE=0;
   reco::LeafCandidate::LorentzVector totP4;
-  for (auto const & tw : (*prod) ) { totc += tw.constituents().size(); totE+=tw.energy(); totP4+=tw.p4();}
+  for (auto const & tw : (*prod) ) { 
+    totc += tw.constituents().size(); 
+    totE+=tw.energy(); 
+    totP4+=tw.p4();
+    std::cout << "CaloTowerCreator: " << tw.id() << " with E " << tw.energy()
+	      << " and " << tw.constituents().size() << " constituents\n";
+  }
   std::cout << "VI " << (*prod).size() << " " << totc << " " << totE << " " << totP4 << std::endl;
-  */
+#endif
 
   // Step D: Put into the event
   if (eScales_.instanceLabel.empty()) e.put(std::move(prod));
@@ -341,6 +349,7 @@ void CaloTowersCreator::fillDescriptions(edm::ConfigurationDescriptions& descrip
 	desc.add<bool>("UseRejectedHitsOnly", false);
 	desc.add<bool>("UseRejectedRecoveredHcalHits", true);
 	desc.add<bool>("UseRejectedRecoveredEcalHits", false);
+	desc.add<double>("missingHcalRescaleFactorForEcal", 0.0);
 	desc.add<bool>("AllowMissingInputs", false);
 	desc.add<std::vector<double> >("HBGrid", {-1.0, 1.0, 10.0, 100.0, 1000.0});
 	desc.add<std::vector<double> >("EEWeights", {1.0, 1.0, 1.0, 1.0, 1.0});

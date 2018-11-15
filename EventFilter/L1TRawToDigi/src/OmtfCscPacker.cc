@@ -2,6 +2,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/L1TMuon/interface/OMTF/OmtfCscDataWord64.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 
 namespace omtf {
 
@@ -19,7 +20,7 @@ void CscPacker::pack(const CSCCorrelatedLCTDigiCollection* prod, FedAmcRawsMap &
       CscDataWord64 data;
       data.hitNum_ = digi->getTrknmb();
       data.vp_ = digi->isValid();
-      data.bxNum_ = digi->getBX()-3;
+      data.bxNum_ = digi->getBX()-(CSCConstants::LCT_CENTRAL_BX-3);
       data.halfStrip_ = digi->getStrip();
       data.clctPattern_ = digi->getPattern();
       data.keyWG_ = digi->getKeyWG();

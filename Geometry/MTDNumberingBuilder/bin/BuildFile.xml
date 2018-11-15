@@ -1,0 +1,11 @@
+<library   name="GeometricTimingDetLoader" file="stubs/GeometricTimingDetLoader.cc">
+  <use   name="CondCore/DBOutputService"/>
+  <use   name="DetectorDescription/Core"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="Geometry/MTDNumberingBuilder"/>
+  <use   name="Geometry/Records"/>
+  <use   name="CondFormats/GeometryObjects"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

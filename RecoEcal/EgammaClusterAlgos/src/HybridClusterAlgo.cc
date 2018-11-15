@@ -3,12 +3,13 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+
 #include <iostream>
 #include <map>
 #include <vector>
 #include <set>
-#include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 
 //The real constructor
@@ -151,7 +152,7 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
   LogTrace("EcalClusters") << "Built vector of seeds, about to sort them..." ;
   
   //Needs three argument sort with seed comparison operator
-  sort(seeds.begin(), seeds.end(), less_mag());
+  sort(seeds.begin(), seeds.end(), [](auto const& x, auto const& y) { return x.energy() > y.energy() ; });
   
   LogTrace("EcalClusters") << "done" ;
   
@@ -171,7 +172,7 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
   }
   
   //Yay more sorting.
-  sort(basicClusters.rbegin(), basicClusters.rend(), ClusterEtLess() );
+  sort(basicClusters.rbegin(), basicClusters.rend(), isClusterEtLess );
   //Done!
   LogTrace("EcalClusters") << "returning to producer. ";
   
@@ -535,7 +536,7 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ca
                 LogTrace("EcalClusters") << "Made supercluster with energy E: " << suCl.energy() ;
 		
 	}//end loop over map
-	sort(SCcoll.rbegin(), SCcoll.rend(), ClusterEtLess());
+	sort(SCcoll.rbegin(), SCcoll.rend(), isClusterEtLess);
 	return SCcoll;
 }
 

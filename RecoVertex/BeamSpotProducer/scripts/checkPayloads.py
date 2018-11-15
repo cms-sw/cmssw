@@ -22,20 +22,20 @@ def getUploadedIOVs(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSP
             exit(dbError[1])
         else:
             exit("ERROR: Can\'t connect to db because:\n" + dbError[1])
-            
-            
+
+
     aCommand = listIOVCommand + " | grep DB= | awk \'{print $1}\'"
     #print aCommand
     output = commands.getstatusoutput( aCommand )
-            
+
     #WARNING when we pass to lumi IOV this should be long long
     if output[1] == '':
         exit("ERROR: The tag " + tagName + " exists but I can't get the value of the last IOV")
-                
+
     runs = []    
     for run in output[1].split('\n'):
         runs.append(long(run))
-                
+
     return runs
 
 #####################################################################################
@@ -75,7 +75,7 @@ def getListOfRunsAndLumiFromRR(firstRun=-1,error=""):
             tries += 1
             print("Trying to get run data. This fails only 2-3 times so don't panic yet...", tries, "/", maxAttempts)
             time.sleep(1)
-	    print("Exception type: ", sys.exc_info()[0])
+            print("Exception type: ", sys.exc_info()[0])
         if tries==maxAttempts:
             error = "Ok, now panic...run registry unaccessible...I'll get the runs from a json file!"
             print(error);
@@ -101,7 +101,7 @@ def getListOfRunsAndLumiFromRR(firstRun=-1,error=""):
             tries += 1
             print("I was able to get the list of runs and now I am trying to access the detector status", tries, "/", maxAttempts)
             time.sleep(1)
-	    print("Exception type: ", sys.exc_info()[0])
+            print("Exception type: ", sys.exc_info()[0])
 
         if tries==maxAttempts:
             error = "Ok, now panic...run registry unaccessible...I'll get the runs from a json file!"
@@ -125,12 +125,12 @@ def getListOfRunsAndLumiFromRR(firstRun=-1,error=""):
     #    if tries==maxAttempts:
     #        error = "Run registry unaccessible.....exiting now"
     #        sys.exit(error)
-                
-                
-                        
+
+
+
     selected_dcs={}
     jsonList=json.loads(dcs_data)
-    
+
     #for element in jsonList:
     for element in listOfRuns:
         #if element in listOfRuns:
@@ -188,7 +188,7 @@ def main():
     #142653 Strips not in data taking
     #143977 No Beam Strips and Pixels bad
     #148859 Strips and Pixels HV off waiting for beam 
-    
+
     knownMissingRunList = [132573,132958,133081,133242,133472,133473,136290,138560,138562,139455,140133,140182,142461,142465,142503,142653,143977,148859]
     tagName = "BeamSpotObjects_2009" + dbBase + sigmaZ + "_v" + tagNumber + "_offline"
     print("Checking payloads for tag " + tagName)
@@ -222,8 +222,8 @@ def main():
                 extraMsg = " but this run is know to be bad " #+ runErrors[run]
                 if not printExtra: continue
             print("Run: " + str(run) + " is missing for DB tag " + tagName + extraMsg) 
-    
+
 
 if __name__ == "__main__":
     main()
-            
+

@@ -11,85 +11,80 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/TT6CMNSubtractor.h"
 
 
-std::auto_ptr<SiStripRawProcessingAlgorithms> SiStripRawProcessingFactory::
-create(const edm::ParameterSet& conf) {
-  return std::auto_ptr<SiStripRawProcessingAlgorithms>(
-	           new SiStripRawProcessingAlgorithms(
-						      create_SubtractorPed(conf),
-						      create_SubtractorCMN(conf),
-						      create_Suppressor(conf),
-                                                      create_Restorer(conf),
-						      create_doAPVRestorer(conf),
-						      create_useCMMeanMap(conf)));
+std::unique_ptr<SiStripRawProcessingAlgorithms>
+SiStripRawProcessingFactory::create(const edm::ParameterSet& conf)
+{
+  return std::unique_ptr<SiStripRawProcessingAlgorithms>(
+      new SiStripRawProcessingAlgorithms(
+        std::move(create_SubtractorPed(conf)),
+        std::move(create_SubtractorCMN(conf)),
+        std::move(create_Suppressor(conf)),
+        std::move(create_Restorer(conf)),
+        conf.getParameter<bool>("doAPVRestore"),
+        conf.getParameter<bool>("useCMMeanMap")
+      ));
 }
 
-bool SiStripRawProcessingFactory::create_doAPVRestorer(const edm::ParameterSet& conf){
-   bool doAPVRestore = conf.getParameter<bool>("doAPVRestore");
-   return doAPVRestore; 
-}
-  
-bool SiStripRawProcessingFactory::create_useCMMeanMap(const edm::ParameterSet&conf){
-   bool useCMMeanMap = conf.getParameter<bool>("useCMMeanMap");
-   return useCMMeanMap; 
+std::unique_ptr<SiStripPedestalsSubtractor>
+SiStripRawProcessingFactory::create_SubtractorPed(const edm::ParameterSet& conf)
+{
+  return std::unique_ptr<SiStripPedestalsSubtractor>(new SiStripPedestalsSubtractor(
+      conf.getParameter<bool>("PedestalSubtractionFedMode")));
 }
 
-std::auto_ptr<SiStripPedestalsSubtractor> SiStripRawProcessingFactory::
-create_SubtractorPed(const edm::ParameterSet& conf) {
-  bool fedMode = conf.getParameter<bool>("PedestalSubtractionFedMode");
-  return std::auto_ptr<SiStripPedestalsSubtractor>( new SiStripPedestalsSubtractor(fedMode) );
-}
-
-std::auto_ptr<SiStripCommonModeNoiseSubtractor> SiStripRawProcessingFactory::
-create_SubtractorCMN(const edm::ParameterSet& conf) {
-  std::string mode = conf.getParameter<std::string>("CommonModeNoiseSubtractionMode");
+std::unique_ptr<SiStripCommonModeNoiseSubtractor>
+SiStripRawProcessingFactory::create_SubtractorCMN(const edm::ParameterSet& conf)
+{
+  const std::string mode = conf.getParameter<std::string>("CommonModeNoiseSubtractionMode");
 
   if ( mode == "Median")
-    return std::auto_ptr<SiStripCommonModeNoiseSubtractor>( new MedianCMNSubtractor() );
+    return std::unique_ptr<SiStripCommonModeNoiseSubtractor>(new MedianCMNSubtractor());
 
   if ( mode == "Percentile") {
-    double percentile = conf.getParameter<double>("Percentile");
-    return std::auto_ptr<SiStripCommonModeNoiseSubtractor>( new PercentileCMNSubtractor(percentile) );
+    return std::unique_ptr<SiStripCommonModeNoiseSubtractor>(
+        new PercentileCMNSubtractor(conf.getParameter<double>("Percentile")));
   }
 
   if ( mode == "IteratedMedian") {
-    double cutToAvoidSignal = conf.getParameter<double>("CutToAvoidSignal");
-    int iterations = conf.getParameter<int>("Iterations");
-    return std::auto_ptr<SiStripCommonModeNoiseSubtractor>( new IteratedMedianCMNSubtractor(cutToAvoidSignal,iterations) );
+    return std::unique_ptr<SiStripCommonModeNoiseSubtractor>(new IteratedMedianCMNSubtractor(
+          conf.getParameter<double>("CutToAvoidSignal"), conf.getParameter<int>("Iterations")));
   }
 
   if ( mode == "FastLinear")
-    return std::auto_ptr<SiStripCommonModeNoiseSubtractor>( new FastLinearCMNSubtractor() );
+    return std::unique_ptr<SiStripCommonModeNoiseSubtractor>(new FastLinearCMNSubtractor());
 
   if ( mode == "TT6") {
-    double cutToAvoidSignal = conf.getParameter<double>("CutToAvoidSignal");
-    return std::auto_ptr<SiStripCommonModeNoiseSubtractor>( new TT6CMNSubtractor(cutToAvoidSignal) );
+    return std::unique_ptr<SiStripCommonModeNoiseSubtractor>(new TT6CMNSubtractor(
+          conf.getParameter<double>("CutToAvoidSignal")));
   }
-  
+
   edm::LogError("SiStripRawProcessingFactory::create_SubtractorCMN")
-    << "Unregistered Algorithm: "<<mode<<". Use one of {Median, Percentile, IteratedMedian, FastLinear, TT6}";
-  return std::auto_ptr<SiStripCommonModeNoiseSubtractor>( new MedianCMNSubtractor() );
+    << "Unregistered Algorithm: " << mode << ". Use one of {Median, Percentile, IteratedMedian, FastLinear, TT6}";
+  return std::unique_ptr<SiStripCommonModeNoiseSubtractor>(new MedianCMNSubtractor());
 }
 
-std::auto_ptr<SiStripFedZeroSuppression> SiStripRawProcessingFactory::
-create_Suppressor(const edm::ParameterSet& conf) {
-  uint32_t mode = conf.getParameter<uint32_t>("SiStripFedZeroSuppressionMode");
-  bool trunc = conf.getParameter<bool>("TruncateInSuppressor");
-  switch(mode) {
+std::unique_ptr<SiStripFedZeroSuppression>
+SiStripRawProcessingFactory::create_Suppressor(const edm::ParameterSet& conf)
+{
+  const uint32_t mode = conf.getParameter<uint32_t>("SiStripFedZeroSuppressionMode");
+  const bool trunc = conf.getParameter<bool>("TruncateInSuppressor");
+  const bool trunc10bits = conf.getParameter<bool>("Use10bitsTruncation");
+  switch (mode) {
   case 1: case 2: case 3:  case 4:
-    return std::auto_ptr<SiStripFedZeroSuppression>( new SiStripFedZeroSuppression(mode,trunc));
+    return std::unique_ptr<SiStripFedZeroSuppression>(new SiStripFedZeroSuppression(mode, trunc, trunc10bits));
   default:
     edm::LogError("SiStripRawProcessingFactory::createSuppressor")
-      << "Unregistered mode: "<<mode<<". Use one of {1,2,3,4}.";
-    return std::auto_ptr<SiStripFedZeroSuppression>( new SiStripFedZeroSuppression(4,true));
+      << "Unregistered mode: " << mode << ". Use one of {1,2,3,4}.";
+    return std::unique_ptr<SiStripFedZeroSuppression>(new SiStripFedZeroSuppression(4, true, trunc10bits));
   }
 }
 
-std::auto_ptr<SiStripAPVRestorer> SiStripRawProcessingFactory::
-create_Restorer( const edm::ParameterSet& conf) {
-  if(!conf.exists("APVRestoreMode")) {
-    return std::auto_ptr<SiStripAPVRestorer>( nullptr );
+std::unique_ptr<SiStripAPVRestorer>
+SiStripRawProcessingFactory::create_Restorer(const edm::ParameterSet& conf)
+{
+  if ( ! conf.exists("APVRestoreMode") ) {
+    return std::unique_ptr<SiStripAPVRestorer>(nullptr);
   } else {
-    return std::auto_ptr<SiStripAPVRestorer> (new SiStripAPVRestorer(conf));
+    return std::unique_ptr<SiStripAPVRestorer>(new SiStripAPVRestorer(conf));
   }
 }
-

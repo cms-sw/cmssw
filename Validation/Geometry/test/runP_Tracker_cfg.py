@@ -26,6 +26,19 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 from Validation.Geometry.plot_utils import _LABELS2COMPS
 
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+
+process.MessageLogger = cms.Service(
+    "MessageLogger",
+    destinations   = cms.untracked.vstring('info'),
+    categories = cms.untracked.vstring('logMsg'),
+    info = cms.untracked.PSet(
+        threshold = cms.untracked.string("INFO"),
+        logMsg = cms.untracked.PSet(limit = cms.untracked.int32(1000))
+        )
+    )
+
+
 _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
 options = VarParsing('analysis')

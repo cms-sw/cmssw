@@ -32,6 +32,8 @@
 #include "TROOT.h"
 #include "Riostream.h"
 
+#include <memory>
+
 class TrackerTopology;
 
 class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle>
@@ -42,7 +44,7 @@ class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle>
   
   ~SiStripCalibLorentzAngle() override;
   
-  SiStripLorentzAngle* getNewObject() override;
+  std::unique_ptr<SiStripLorentzAngle> getNewObject() override;
   
   void algoBeginJob(const edm::EventSetup&) override;
   

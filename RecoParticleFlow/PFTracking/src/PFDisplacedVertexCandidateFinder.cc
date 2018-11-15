@@ -432,8 +432,8 @@ ostream& operator<<(std::ostream& out, const PFDisplacedVertexCandidateFinder& a
   }
 
 
-  const std::auto_ptr< reco::PFDisplacedVertexCandidateCollection >& vertexCandidates
-    = a.vertexCandidates(); 
+  const std::unique_ptr< reco::PFDisplacedVertexCandidateCollection >& vertexCandidates
+    = std::move(a.vertexCandidates()); 
     
   if(!vertexCandidates.get() ) {
     out<<"vertexCandidates already transfered"<<endl;

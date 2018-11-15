@@ -33,6 +33,7 @@ public:
     bool isGEM()          const;
     bool isME0()          const;
     bool isMuon()         const;
+    bool isTiming()       const;
 
 private:
 

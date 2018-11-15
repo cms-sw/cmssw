@@ -30,22 +30,22 @@ def matchObjectCollection3 ( objects, matchCollection, deltaRMax = 0.3, filter =
     #
     pairs = {}
     if len(objects)==0:
-            return pairs
+        return pairs
     if len(matchCollection)==0:
-            return dict( zip(objects, [None]*len(objects)) )
+        return dict( zip(objects, [None]*len(objects)) )
     # build all possible combinations
-                                                                                                                                                                                            
+
     allPairs = sorted([(deltaR2 (object.eta(), object.phi(), match.eta(), match.phi()), (object, match)) for object in objects for match in matchCollection if list(filter(object,match)) ])
     #
     # to flag already matched objects
     # FIXME this variable remains appended to the object, I do not like it 
-                                                                                                                                                      
+
     for object in objects:
         object.matched = False
     for match in matchCollection:
         match.matched = False
     #
-                                                                                                                                                                                                                            
+
     deltaR2Max = deltaRMax * deltaRMax
     for dR2, (object, match) in allPairs:
         if dR2 > deltaR2Max:
@@ -55,12 +55,12 @@ def matchObjectCollection3 ( objects, matchCollection, deltaRMax = 0.3, filter =
             match.matched = True
             pairs[object] = match
     #
-                                                                                                                                                                                                                            
+
     for object in objects:
-       if object.matched == False:
-           pairs[object] = None
+        if object.matched == False:
+            pairs[object] = None
     #
-                                                                                                                                                                                                                            
+
     return pairs
     # by now, the matched attribute remains in the objects, for future usage
     # one could remove it with delattr (object, attrname) 
@@ -148,12 +148,12 @@ def matchObjectCollection2 ( objects, matchCollection, deltaRMax = 0.3 ):
     Reco and Gen objects get the "matched" attribute, true if they are part of a matched tuple.
     By default, the matching is true only if delta R is smaller than 0.3.
     '''
-    
+
     pairs = {}
     if len(objects)==0:
-            return pairs
+        return pairs
     if len(matchCollection)==0:
-            return dict( zip(objects, [None]*len(objects)) )
+        return dict( zip(objects, [None]*len(objects)) )
     # build all possible combinations
     allPairs = sorted([(deltaR2 (object.eta(), object.phi(), match.eta(), match.phi()), (object, match)) for object in objects for match in matchCollection])
 
@@ -163,19 +163,19 @@ def matchObjectCollection2 ( objects, matchCollection, deltaRMax = 0.3 ):
         object.matched = False
     for match in matchCollection:
         match.matched = False
-    
+
     deltaR2Max = deltaRMax * deltaRMax
     for dR2, (object, match) in allPairs:
-	if dR2 > deltaR2Max:
-		break
+        if dR2 > deltaR2Max:
+            break
         if dR2 < deltaR2Max and object.matched == False and match.matched == False:
             object.matched = True
             match.matched = True
             pairs[object] = match
-    
+
     for object in objects:
-       if object.matched == False:
-	   pairs[object] = None
+        if object.matched == False:
+            pairs[object] = None
 
     return pairs
     # by now, the matched attribute remains in the objects, for future usage
@@ -191,6 +191,6 @@ if __name__ == '__main__':
 
     print('dR2 = ', deltaR2( *fargs ))
     print('dR = ', deltaR( *fargs ))
-    
 
-    
+
+

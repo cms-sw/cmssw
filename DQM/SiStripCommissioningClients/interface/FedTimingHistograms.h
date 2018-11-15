@@ -28,7 +28,7 @@ class FedTimingHistograms : public CommissioningHistograms {
 
   std::map<uint32_t,FedTimingAnalysis> data_;
 
-  std::auto_ptr<Factory> factory_;
+  std::unique_ptr<Factory> factory_;
   
   const float optimumSamplingPoint_;
   float minDelay_;

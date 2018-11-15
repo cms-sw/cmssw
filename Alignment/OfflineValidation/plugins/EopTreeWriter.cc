@@ -142,7 +142,7 @@ EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //      geo->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
 
    // temporary collection of EB+EE recHits
-   std::auto_ptr<EcalRecHitCollection> tmpEcalRecHitCollection(new EcalRecHitCollection);
+   std::unique_ptr<EcalRecHitCollection> tmpEcalRecHitCollection(new EcalRecHitCollection);
    std::vector<edm::InputTag> ecalLabels_;
 
    edm::Handle<EcalRecHitCollection> tmpEc;

@@ -22,9 +22,11 @@
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // PGartung needed for bloom filter loading
+extern "C" {
 #include "dablooms.h"
 #define CAPACITY 5000
 #define ERROR_RATE .0002
+}
 
 using namespace clang;
 using namespace llvm;
@@ -150,7 +152,7 @@ bool clangcms::support::isSafeClassName(const std::string &cname) {
 
 bool clangcms::support::isDataClass(const std::string & name) {
      CMS_THREAD_SAFE static std::string iname("");
-     if ( iname == "") {
+     if ( iname.empty()) {
           clang::FileSystemOptions FSO;
           clang::FileManager FM(FSO);
           const char * lPath = std::getenv("LOCALRT");

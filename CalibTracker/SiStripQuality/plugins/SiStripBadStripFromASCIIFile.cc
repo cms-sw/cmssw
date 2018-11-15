@@ -38,9 +38,9 @@ SiStripBadStripFromASCIIFile::SiStripBadStripFromASCIIFile( const edm::Parameter
  }
 
 
-SiStripBadStrip *SiStripBadStripFromASCIIFile::getNewObject() {
+std::unique_ptr<SiStripBadStrip> SiStripBadStripFromASCIIFile::getNewObject() {
 
-  SiStripBadStrip* SiStripBadStrip_ = new SiStripBadStrip();
+  auto SiStripBadStrip_ = std::make_unique<SiStripBadStrip>();
 
    // open file and fill DB
   ifstream infile((fp_.fullPath()).c_str());

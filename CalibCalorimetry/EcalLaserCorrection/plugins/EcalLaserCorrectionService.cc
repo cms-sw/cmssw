@@ -8,7 +8,6 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
@@ -16,8 +15,7 @@
 
 
 EcalLaserCorrectionService::EcalLaserCorrectionService( const edm::ParameterSet& fConfig)
-  : ESProducer(),
-    mService_ ( new EcalLaserDbService ())
+  : ESProducer()
     //    mDumpRequest (),
     //    mDumpStream(0)
 {
@@ -25,12 +23,7 @@ EcalLaserCorrectionService::EcalLaserCorrectionService( const edm::ParameterSet&
   // data is being produced
   //  setWhatProduced (this, (dependsOn (&EcalLaserCorrectionService::apdpnCallback)));
 
-  setWhatProduced (this, (dependsOn (&EcalLaserCorrectionService::alphaCallback) &
-     			  (&EcalLaserCorrectionService::apdpnRefCallback) &
-     			  (&EcalLaserCorrectionService::apdpnCallback) &
-                          (&EcalLaserCorrectionService::linearCallback)
-                          )
-     		   );
+  setWhatProduced (this);
 
   //now do what ever other initialization is needed
 
@@ -56,31 +49,59 @@ EcalLaserCorrectionService::~EcalLaserCorrectionService()
 //
 
 // ------------ method called to produce the data  ------------
-std::shared_ptr<EcalLaserDbService> EcalLaserCorrectionService::produce( const EcalLaserDbRecord& )
+std::shared_ptr<EcalLaserDbService> EcalLaserCorrectionService::produce( const EcalLaserDbRecord& record)
 {
-  return mService_;
+  auto host = holder_.makeOrGet([]() {
+    return new HostType;
+  });
+
+  host->ifRecordChanges<EcalLinearCorrectionsRcd>(record,
+                                                  [this,h=host.get()](auto const& rec) {
+    setupLinear(rec, *h);
+  });
+
+  host->ifRecordChanges<EcalLaserAPDPNRatiosRcd>(record,
+                                                 [this,h=host.get()](auto const& rec) {
+    setupApdpn(rec, *h);
+  });
+
+  host->ifRecordChanges<EcalLaserAPDPNRatiosRefRcd>(record,
+                                                    [this,h=host.get()](auto const& rec) {
+    setupApdpnRef(rec, *h);
+  });
+
+  host->ifRecordChanges<EcalLaserAlphasRcd>(record,
+                                            [this,h=host.get()](auto const& rec) {
+    setupAlpha(rec, *h);
+  });
+
+  return host; // automatically converts to std::shared_ptr<EcalLaserDbService>
 }
 
-void EcalLaserCorrectionService::alphaCallback (const EcalLaserAlphasRcd& fRecord) {
+void EcalLaserCorrectionService::setupAlpha(const EcalLaserAlphasRcd& fRecord,
+                                            EcalLaserDbService& service) {
   edm::ESHandle <EcalLaserAlphas> item;
   fRecord.get (item);
-  mService_->setAlphaData (item.product ());
+  service.setAlphaData (item.product ());
 }
 
-void EcalLaserCorrectionService::apdpnRefCallback (const EcalLaserAPDPNRatiosRefRcd& fRecord) {
+void EcalLaserCorrectionService::setupApdpnRef(const EcalLaserAPDPNRatiosRefRcd& fRecord,
+                                               EcalLaserDbService& service) {
   edm::ESHandle <EcalLaserAPDPNRatiosRef> item;
   fRecord.get (item);
-  mService_->setAPDPNRefData (item.product ());
+  service.setAPDPNRefData (item.product ());
 }
 
-void EcalLaserCorrectionService::apdpnCallback (const EcalLaserAPDPNRatiosRcd& fRecord) {
+void EcalLaserCorrectionService::setupApdpn(const EcalLaserAPDPNRatiosRcd& fRecord,
+                                            EcalLaserDbService& service) {
   edm::ESHandle <EcalLaserAPDPNRatios> item;
   fRecord.get (item);
-  mService_->setAPDPNData (item.product ());
+  service.setAPDPNData (item.product ());
 }
 
-void EcalLaserCorrectionService::linearCallback (const EcalLinearCorrectionsRcd& fRecord) {
+void EcalLaserCorrectionService::setupLinear(const EcalLinearCorrectionsRcd& fRecord,
+                                             EcalLaserDbService& service) {
   edm::ESHandle <EcalLinearCorrections> item;
   fRecord.get (item);
-  mService_->setLinearCorrectionsData (item.product ());
+  service.setLinearCorrectionsData (item.product ());
 }

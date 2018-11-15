@@ -27,7 +27,11 @@ namespace edm {
     VParameterSetEntry(std::vector<ParameterSet> const& vpset, bool isTracked);
     VParameterSetEntry(std::string const& rep);
 
-    ~VParameterSetEntry();
+    ~VParameterSetEntry() = default;
+    VParameterSetEntry(VParameterSetEntry const&) = default;
+    VParameterSetEntry(VParameterSetEntry&&) = default;
+    VParameterSetEntry& operator=(VParameterSetEntry const&) = default;
+    VParameterSetEntry& operator=(VParameterSetEntry&&) = default;
 
     std::string toString() const;
     void toString(std::string& result) const;

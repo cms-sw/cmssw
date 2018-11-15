@@ -35,7 +35,7 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
 										   , ps.getParameter<std::string>( "hitsProducer" ) + std::string( "EcalHitsES" )
 										   )
 								    )
-			       ), useDBShape(false) {
+			       ) {
 
 
   // needed for MixingModule checks
@@ -70,8 +70,8 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
 */
 
   theESShape = new ESShape();
-  theEBShape = new EBShape(useDBShape); 
-  theEEShape = new EEShape(useDBShape); 
+  theEBShape = new EBShape(true); 
+  theEEShape = new EEShape(true); 
 
   theESResponse = new CaloHitResponse(theParameterMap, theESShape);
   theEBResponse = new CaloHitResponse(theParameterMap, theEBShape);
@@ -136,11 +136,8 @@ EcalMixingModuleValidation::~EcalMixingModuleValidation(){}
 void EcalMixingModuleValidation::dqmBeginRun(edm::Run const&, edm::EventSetup const& c) {
 
   checkCalibrations(c);
-  if(useDBShape)
-  {
-    theEBShape->setEventSetup(c);
-    theEEShape->setEventSetup(c);
-  }
+  theEBShape->setEventSetup(c);
+  theEEShape->setEventSetup(c);
 }
 
 void EcalMixingModuleValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&){

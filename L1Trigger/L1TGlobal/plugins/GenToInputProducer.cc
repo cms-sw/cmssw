@@ -463,6 +463,16 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    int nTowers=4095*gRandom->Rndm();
    l1t::EtSum towerCounts(*p4, l1t::EtSum::EtSumType::kTowerCount,nTowers, 0, 0, 0);
 
+   //ccla Generate uniform distributions of AsymEt, AsymHt, AsymEtHF, AsymHtF
+   int nAsymEt=255*gRandom->Rndm();
+   l1t::EtSum AsymEt(*p4, l1t::EtSum::EtSumType::kAsymEt,nAsymEt, 0, 0, 0);
+   int nAsymHt=255*gRandom->Rndm();
+   l1t::EtSum AsymHt(*p4, l1t::EtSum::EtSumType::kAsymHt,nAsymHt, 0, 0, 0);
+   int nAsymEtHF=255*gRandom->Rndm();
+   l1t::EtSum AsymEtHF(*p4, l1t::EtSum::EtSumType::kAsymEtHF,nAsymEtHF, 0, 0, 0);
+   int nAsymHtHF=255*gRandom->Rndm();
+   l1t::EtSum AsymHtHF(*p4, l1t::EtSum::EtSumType::kAsymHtHF,nAsymHtHF, 0, 0, 0);
+
    pt  = convertPtToHW( sumEt*0.9, 2047, PtStep_ );
    l1t::EtSum htTotal(*p4, l1t::EtSum::EtSumType::kTotalHt,pt, 0, 0, 0); 
 
@@ -483,6 +493,27 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    if(hfM1val>15) hfM1val = 15;
    l1t::EtSum hfM1(*p4, l1t::EtSum::EtSumType::kMinBiasHFM1,hfM1val, 0, 0, 0); 
 
+// Do same for Centrality
+   int cent30val(0), cent74val(0);
+   int centa  = gRandom->Poisson(2.);
+   int centb  = gRandom->Poisson(2.);
+   if (centa >= centb) {
+     cent30val=centa;
+     cent74val=centb;
+   }else{
+     cent30val=centb;
+     cent74val=centa;
+   }
+
+   if(cent30val>15) cent30val = 15;
+   if(cent74val>15) cent74val = 15;
+
+   int shift = 4;
+   int centralval=0;
+   centralval |= cent30val & 0xF;
+   centralval |= (cent74val & 0xF ) << shift;
+
+   l1t::EtSum centrality(*p4, l1t::EtSum::EtSumType::kCentrality,centralval, 0, 0, 0); 
 
    int mpt = 0;
    int mphi= 0;
@@ -490,6 +521,9 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    int mphiHf= 0;   
    int mhpt = 0;
    int mhphi= 0;  
+   int mhptHf = 0;
+   int mhphiHf= 0;  
+
    edm::Handle<reco::GenMETCollection> genMet;
    // Make sure that you can get genMET
    if( iEvent.getByToken(genMetToken, genMet) ){
@@ -503,6 +537,10 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
      // Make Missing Ht slightly smaller and rotated (These are all fake inputs anyway...not supposed to be realistic)
      mhpt  = convertPtToHW( genMet->front().pt()*0.9, MaxEt_, PtStep_ );
      mhphi = convertPhiToHW( genMet->front().phi()+ 3.14/5., PhiStepCalo_ );
+
+     // Ditto with Hissing Ht with HF
+     mhptHf  = convertPtToHW( genMet->front().pt()*0.95, MaxEt_, PtStep_ );
+     mhphiHf = convertPhiToHW( genMet->front().phi()+ 3.14/6., PhiStepCalo_ );
    }
    else {
      LogTrace("GtGenToInputProducer") << ">>> GenMet collection not found!" << std::endl;
@@ -512,19 +550,31 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    l1t::EtSum etmiss(*p4, l1t::EtSum::EtSumType::kMissingEt,mpt, 0,mphi, 0); 
    l1t::EtSum etmissHF(*p4, l1t::EtSum::EtSumType::kMissingEtHF,mptHf, 0,mphiHf, 0);    
    l1t::EtSum htmiss(*p4, l1t::EtSum::EtSumType::kMissingHt,mhpt, 0,mhphi, 0); 
+   l1t::EtSum htmissHF(*p4, l1t::EtSum::EtSumType::kMissingHtHF,mhptHf, 0,mhphiHf, 0); 
 
 // Fill the EtSums in the Correct order
-   etsumVec.push_back(etTotal);
+   etsumVec.push_back(etTotal); 
    etsumVec.push_back(etEmTotal);
-   etsumVec.push_back(hfP0);
+   etsumVec.push_back(hfP0); // Frame0
+
    etsumVec.push_back(htTotal);
-   etsumVec.push_back(hfM0); 
-   etsumVec.push_back(etmiss);
-   etsumVec.push_back(hfP1);
-   etsumVec.push_back(htmiss);
-   etsumVec.push_back(hfM1);
-   etsumVec.push_back(etmissHF);
    etsumVec.push_back(towerCounts);
+   etsumVec.push_back(hfM0); //Frame1
+
+   etsumVec.push_back(etmiss);
+   etsumVec.push_back(AsymEt);
+   etsumVec.push_back(hfP1); //Frame2
+
+   etsumVec.push_back(htmiss);
+   etsumVec.push_back(AsymHt);
+   etsumVec.push_back(hfM1); //Frame3
+
+   etsumVec.push_back(etmissHF);
+   etsumVec.push_back(AsymEtHF); // Frame4
+
+   etsumVec.push_back(htmissHF); 
+   etsumVec.push_back(AsymHtHF);
+   etsumVec.push_back(centrality); // Frame5
  
 // Fill in some external conditions for testing
    if((iEvent.id().event())%2 == 0 ) {

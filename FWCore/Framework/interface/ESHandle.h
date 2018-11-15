@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     ESHandle
-// 
+//
 /**\class ESHandle ESHandle.h FWCore/Framework/interface/ESHandle.h
 
  Description: <one line class summary>
@@ -32,18 +32,16 @@ namespace edm {
 
 class ESHandleBase {
    public:
-      ESHandleBase() : data_(nullptr), description_(nullptr) {}
-      ESHandleBase(void const* iData, edm::eventsetup::ComponentDescription const* desc) 
+      ESHandleBase() = default;
+      ESHandleBase(void const* iData, edm::eventsetup::ComponentDescription const* desc)
            : data_(iData), description_(desc) {}
 
       ///Used when the attempt to get the data failed
       ESHandleBase(std::shared_ptr<ESHandleExceptionFactory>&& iWhyFailed) :
-        data_(nullptr),
-        description_(nullptr),
         whyFailedFactory_(std::move(iWhyFailed)) {}
 
       edm::eventsetup::ComponentDescription const* description() const;
-      
+
       bool isValid() const { return nullptr != data_ && nullptr != description_; }
 
       bool failedToGet() const { return bool(whyFailedFactory_); }
@@ -67,17 +65,17 @@ class ESHandleBase {
 
    private:
       // ---------- member data --------------------------------
-      void const* data_; 
-      edm::eventsetup::ComponentDescription const* description_;
-      std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory_;
+      void const* data_{nullptr};
+      edm::eventsetup::ComponentDescription const* description_{nullptr};
+      std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory_{nullptr};
 };
 
 template<typename T>
 class ESHandle : public ESHandleBase {
    public:
       typedef T value_type;
-   
-      ESHandle() : ESHandleBase() {}
+
+      ESHandle() = default;
       ESHandle(T const* iData) : ESHandleBase(iData, nullptr) {}
       ESHandle(T const* iData, edm::eventsetup::ComponentDescription const* desc) : ESHandleBase(iData, desc) {}
       ESHandle(std::shared_ptr<ESHandleExceptionFactory> &&);
@@ -87,11 +85,10 @@ class ESHandle : public ESHandleBase {
       T const* operator->() const { return product(); }
       T const& operator*() const { return *product(); }
       // ---------- static member functions --------------------
-      static const bool transientAccessOnly = false;
+      static constexpr bool transientAccessOnly = false;
 
       // ---------- member functions ---------------------------
-      
-   private:
+
 };
 
 template <class T>
@@ -102,7 +99,7 @@ ESHandle<T>::ESHandle(std::shared_ptr<edm::ESHandleExceptionFactory> && iWhyFail
   // Free swap function
   inline
   void
-  swap(ESHandleBase& a, ESHandleBase& b) 
+  swap(ESHandleBase& a, ESHandleBase& b)
   {
     a.swap(b);
   }

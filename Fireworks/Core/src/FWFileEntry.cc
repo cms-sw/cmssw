@@ -354,7 +354,7 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
 
    {
       TObjArray* branches = m_eventTree->GetListOfBranches();
-      std::auto_ptr<TIterator> pIt( branches->MakeIterator());
+      std::unique_ptr<TIterator> pIt( branches->MakeIterator());
       while (TObject* branchObj = pIt->Next())
       {
          TBranch* b = dynamic_cast<TBranch*> (branchObj);

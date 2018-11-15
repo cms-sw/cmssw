@@ -20,7 +20,7 @@ GEMGeometryBuilderFromCondDB::~GEMGeometryBuilderFromCondDB()
 { }
 
 void
-GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeometry,
+GEMGeometryBuilderFromCondDB::build(GEMGeometry& theGeometry,
 				    const RecoIdealGeometry& rgeo )
 {
   const std::vector<DetId>& detids( rgeo.detIds());
@@ -97,22 +97,22 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
 	      auto gep = gepIt->second;
 	      
 	      chamber->add(gep);
-	      theGeometry->add(gep);
+	      theGeometry.add(gep);
 	    }
 	    
 	    superChamber->add(chamber);
-	    theGeometry->add(chamber);
+	    theGeometry.add(chamber);
 	  }
 	  
 	  LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << scId << " to ring: " << std::endl;
 	  ring->add(superChamber);
-	  theGeometry->add(superChamber);
+	  theGeometry.add(superChamber);
 	} // end superChambers
 	
 	if (ring->nSuperChambers()){
 	  LogDebug("GEMGeometryBuilderFromDDD") << "Adding ring " <<  ri << " to station " << "re " << re << " st " << st << std::endl;
 	  station->add(ring);
-	  theGeometry->add(ring);
+	  theGeometry.add(ring);
 	}
 	else {
 	  delete ring;
@@ -122,7 +122,7 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
       if (station->nRings()){
 	LogDebug("GEMGeometryBuilderFromDDD") << "Adding station " << st << " to region " << re << std::endl;
 	region->add(station);
-	theGeometry->add(station);
+	theGeometry.add(station);
       }
       else {
 	delete station;
@@ -130,7 +130,7 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
     }// end station
     
     LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
-    theGeometry->add(region);
+    theGeometry.add(region);
   }
   
 }

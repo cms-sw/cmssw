@@ -11,6 +11,7 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCEEDigitizer.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCHEfrontDigitizer.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCHEbackDigitizer.h"
+#include "SimCalorimetry/HGCalSimProducers/interface/HFNoseDigitizer.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/HGCDigi/interface/PHGCSimAccumulator.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -73,6 +74,8 @@ public:
     return ((mySubDet_==ForwardSubdetector::HGCHEF)||(myDet_==DetId::HGCalHSi)); }
   bool producesHEbackDigis()   { 
     return ((mySubDet_==ForwardSubdetector::HGCHEB)||(myDet_==DetId::HGCalHSc)); }
+  bool producesHFNoseDigis()       { 
+    return ((mySubDet_==ForwardSubdetector::HFNose)&&(myDet_==DetId::Forward));}
   std::string digiCollection() { return digiCollection_; }
   int geometryType() { return geometryType_; }
 
@@ -117,6 +120,7 @@ private :
   std::unique_ptr<HGCEEDigitizer>      theHGCEEDigitizer_;
   std::unique_ptr<HGCHEbackDigitizer>  theHGCHEbackDigitizer_;
   std::unique_ptr<HGCHEfrontDigitizer> theHGCHEfrontDigitizer_;
+  std::unique_ptr<HFNoseDigitizer>     theHFNoseDigitizer_;
   
   //geometries
   std::unordered_set<DetId> validIds_;
@@ -137,7 +141,7 @@ private :
   float tofDelay_;
 
   //average occupancies
-  std::array<double,3> averageOccupancies_;
+  std::array<double,4> averageOccupancies_;
   uint32_t nEvents_;
 
   std::vector<float> cce_;

@@ -63,6 +63,7 @@ public:
   std::string const& jec() const { return jec_; }
   bool residualsFromTxt() const { return residualsFromTxt_; }
   edm::FileInPath const& residualsTxt() const { return residualsTxt_; }
+  bool usePuppi() const { return usePuppi_; }
 
 private:
 
@@ -75,6 +76,7 @@ private:
   std::string jec_;
   bool residualsFromTxt_;
   edm::FileInPath residualsTxt_;
+  bool usePuppi_;
 };
 
 class PileupJetIdProducer : public edm::stream::EDProducer<edm::GlobalCache<GBRForestsAndConstants>> {

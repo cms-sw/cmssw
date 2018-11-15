@@ -155,7 +155,8 @@ public:
    void sideload(SiPixelTemplateEntry2D* entry, int iDtype, float locBx, float locBz, float lorwdy, float lorwdx, float q50, float fbin[3], float xsize, float ysize, float zsize);
    
    //  Initialize things before interpolating
-   
+   bool getid(int id);
+
    bool interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx);
    
    // Interpolate input alpha and beta angles to produce a working template for each individual hit.

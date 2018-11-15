@@ -20,6 +20,11 @@ class EcalCondObjectContainer {
                 EcalCondObjectContainer() {};
                 ~EcalCondObjectContainer() {};
 
+                void clear() {
+                  eb_.clear();
+                  ee_.clear();
+                }
+
                 inline const Items & barrelItems() const { return eb_.items(); };
 
                 inline const Items & endcapItems() const { return ee_.items(); };

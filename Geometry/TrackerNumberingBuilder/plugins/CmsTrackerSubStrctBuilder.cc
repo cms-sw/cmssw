@@ -55,16 +55,16 @@ CmsTrackerSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   switch( comp.front()->type())
   {
   case GeometricDet::layer:
-    std::sort( comp.begin(), comp.end(), LessR());
-    break;	
+    std::sort( comp.begin(), comp.end(), isLessR);
+    break;
   case GeometricDet::OTPhase2Layer:
-    std::sort( comp.begin(), comp.end(), LessR());
+    std::sort( comp.begin(), comp.end(), isLessR);
     break;  
   case GeometricDet::wheel:
-    std::sort( comp.begin(), comp.end(), LessModZ());
-    break;	
+    std::sort( comp.begin(), comp.end(), isLessModZ);
+    break;
   case GeometricDet::disk:
-    std::sort( comp.begin(), comp.end(), LessModZ());
+    std::sort( comp.begin(), comp.end(), isLessModZ);
     break;
   default:
     edm::LogError( "CmsTrackerSubStrctBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type(); 

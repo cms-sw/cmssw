@@ -23,6 +23,9 @@ ak8PFJetsCHS = ak8PFJets.clone(
     src = cms.InputTag("pfNoPileUpJME")
     )
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(ak8PFJetsCHS,src = "pfNoPileUpJMEHI", inputEtMin = 9999)
+
 ak8PFJetsCS = ak8PFJets.clone(
     useConstituentSubtraction = cms.bool(True),    
     csRParam = cms.double(0.4),

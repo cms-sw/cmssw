@@ -64,8 +64,16 @@ eventSetup(const edm::EventSetup& es)
 
   eeLayers_ = geom_->eeTopology().dddConstants().layers(true);
   fhLayers_ = geom_->fhTopology().dddConstants().layers(true);
-  bhLayers_ = geom_->bhTopology().dddConstants()->getMaxDepth(1);
-  totalLayers_ =  eeLayers_ + fhLayers_ + bhLayers_;
+  if(geom_->isV9Geometry())
+  {
+    bhLayers_ = geom_->hscTopology().dddConstants().layers(true);
+    totalLayers_ =  eeLayers_ + fhLayers_;
+  }
+  else
+  {
+    bhLayers_ = geom_->bhTopology().dddConstants()->getMaxDepth(1);
+    totalLayers_ =  eeLayers_ + fhLayers_ + bhLayers_;
+  }
 }
 
 GlobalPoint HGCalTriggerTools::getTCPosition(const DetId& id) const {
@@ -128,7 +136,8 @@ layerWithOffset(const DetId& id) const {
     l += eeLayers_;
   } else if( (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) ||
              (id.det() == DetId::Forward && id.subdetId() == HGCHEB) ) {
-    l += eeLayers_ + fhLayers_;
+    if(geom_->isV9Geometry()) l += eeLayers_;
+    else l += eeLayers_ + fhLayers_;
   }
   return l;
 }
@@ -184,8 +193,17 @@ float HGCalTriggerTools::getLayerZ(const int& subdet, const unsigned& layer) con
   } else if(subdet == ForwardSubdetector::HGCHEF) {
     layerGlobalZ = geom_->fhTopology().dddConstants().waferZ(layer, true);
   } else if(subdet == HcalSubdetector::HcalEndcap || subdet == ForwardSubdetector::HGCHEB) {
-    std::pair<int,int> eta_range = geom_->bhTopology().dddConstants()->getEtaRange(1);
-    layerGlobalZ = geom_->bhTopology().dddConstants()->getRZ(HcalSubdetector::HcalEndcap,eta_range.second,layer);
+    if(geom_->isV9Geometry())
+    {
+      layerGlobalZ = geom_->hscTopology().dddConstants().waferZ(layer, true);
+    }
+    else
+    {
+      layerGlobalZ = geom_->bhTopology().dddConstants()->getRZ(
+          HcalSubdetector::HcalEndcap,
+          geom_->bhTopology().dddConstants()->getEtaRange(1).second,
+          layer);
+    }
   }
   return layerGlobalZ;
 }

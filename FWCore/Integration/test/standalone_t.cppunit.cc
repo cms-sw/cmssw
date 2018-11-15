@@ -10,7 +10,9 @@ if the MessageLogger is not runnning.
 ----------------------------------------------------------------------*/  
 
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 // #include "FWCore/Utilities/interface/Presence.h"
 // #include "FWCore/PluginManager/interface/PresenceFactory.h"
@@ -75,7 +77,7 @@ void testStandalone::writeAndReadFile()
                               "process.p = cms.Path(process.m1)\n"
                               "process.e = cms.EndPath(process.out)\n");
 
-    edm::EventProcessor proc(configuration, true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.beginJob();
     proc.run();
     proc.endJob();
@@ -92,7 +94,7 @@ void testStandalone::writeAndReadFile()
                               "process.add_(cms.Service('SiteLocalConfigService'))\n"
                              );
 
-    edm::EventProcessor proc(configuration, true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.beginJob();
     proc.run();
     proc.endJob();

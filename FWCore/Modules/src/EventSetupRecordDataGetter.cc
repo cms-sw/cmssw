@@ -2,7 +2,7 @@
 //
 // Package:    EventSetupRecordDataGetter
 // Class:      EventSetupRecordDataGetter
-// 
+//
 /**\class EventSetupRecordDataGetter EventSetupRecordDataGetter.cc src/EventSetupRecordDataGetter/src/EventSetupRecordDataGetter.cc
 
  Description: Can be configured to 'get' any Data in any EventSetup Record.  Primarily used for testing.
@@ -42,8 +42,8 @@ namespace edm {
 public:
      explicit EventSetupRecordDataGetter(ParameterSet const&);
      ~EventSetupRecordDataGetter() override;
-      
-      
+
+
      void analyze(Event const&, EventSetup const&) override;
      void beginRun(Run const&, EventSetup const&) override;
      void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
@@ -54,7 +54,7 @@ private:
      void doGet(EventSetup const&);
         // ----------member data ---------------------------
      const ParameterSet pSet_;
-      
+
      typedef std::map<eventsetup::EventSetupRecordKey, std::vector<eventsetup::DataKey> > RecordToDataKeys;
      RecordToDataKeys recordToDataKeys_;
      std::map<eventsetup::EventSetupRecordKey, unsigned long long> recordToCacheIdentifier_;
@@ -86,19 +86,19 @@ private:
 // ------------ method called to produce the data  ------------
    void EventSetupRecordDataGetter::fillDescriptions(ConfigurationDescriptions& descriptions) {
       descriptions.setComment("Retrieves specified data from the EventSetup sytem whenever that data changes.");
-      
+
       ParameterSetDescription desc;
       desc.addUntracked<bool>("verbose", false)->setComment("Print a message to the logger each time a data item is gotten.");
 
       ParameterSetDescription toGet;
       toGet.add<std::string>("record")->setComment("The name of an EventSetup record holding the data you want obtained.");
-      toGet.add<std::vector<std::string> >("data")->setComment("The identifier for the data you wish to retrieve. " 
+      toGet.add<std::vector<std::string> >("data")->setComment("The identifier for the data you wish to retrieve. "
                                                                "The identifier is in two parts separated by a backslash '/'. "
                                                                "The first part is the C++ class name of the data and the "
                                                                "second part is the label used when getting the data (blank is acceptable). "
                                                                "If there is no label, the backslash may be omitted."
       );
-      
+
       std::vector<edm::ParameterSet> emptyVect;
       desc.addVPSet("toGet", toGet,emptyVect)->setComment("The contained PSets must have the following structure.\n"
                                                 "A 'string' named 'record' that holds the name of an EventSetup record holding the data you want to obtain.\n"
@@ -112,35 +112,35 @@ private:
       descriptions.add("getEventSetupData", desc);
    }
 
-   void 
+   void
    EventSetupRecordDataGetter::beginRun(Run const&, EventSetup const& iSetup) {
       doGet(iSetup);
    }
 
-   void 
+   void
    EventSetupRecordDataGetter::beginLuminosityBlock(LuminosityBlock const&, EventSetup const& iSetup) {
       doGet(iSetup);
    }
-   
+
    void
    EventSetupRecordDataGetter::analyze(edm::Event const& /*iEvent*/, edm::EventSetup const& iSetup) {
       doGet(iSetup);
    }
-   
+
    void
-   EventSetupRecordDataGetter::doGet(EventSetup const& iSetup) {  
+   EventSetupRecordDataGetter::doGet(EventSetup const& iSetup) {
       if(recordToDataKeys_.empty()) {
          typedef std::vector<ParameterSet> Parameters;
          Parameters const& toGet = pSet_.getParameterSetVector("toGet");
-         
+
          for(Parameters::const_iterator itToGet = toGet.begin(), itToGetEnd = toGet.end(); itToGet != itToGetEnd; ++itToGet) {
             std::string recordName = itToGet->getParameter<std::string>("record");
-            
+
             eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType(recordName));
             if(recordKey.type() == eventsetup::EventSetupRecordKey::TypeTag()) {
               //record not found
               edm::LogWarning("DataGetter") <<"Record \""<< recordName <<"\" does not exist "<<std::endl;
-               
+
                continue;
             }
             typedef std::vector<std::string> Strings;
@@ -158,11 +158,11 @@ private:
                  //not found
                  edm::LogWarning("DataGetter") <<"data item of type \""<< datumName <<"\" does not exist"<<std::endl;
 
-                
+
                   continue;
                }
                eventsetup::DataKey datumKey(datumType, labelName.c_str());
-               dataKeys.push_back(datumKey); 
+               dataKeys.push_back(datumKey);
             }
             recordToDataKeys_.insert(std::make_pair(recordKey, dataKeys));
             recordToCacheIdentifier_.insert(std::make_pair(recordKey, 0));
@@ -175,21 +175,21 @@ private:
 
             for(std::vector<eventsetup::EventSetupRecordKey>::iterator itRKey = recordKeys.begin(), itRKeyEnd = recordKeys.end();
                 itRKey != itRKeyEnd;
-                ++itRKey) {               
+                ++itRKey) {
                auto record = iSetup.find(*itRKey);
                assert(record );
                dataKeys.clear();
                record->fillRegisteredDataKeys(dataKeys);
                recordToDataKeys_.insert(std::make_pair(*itRKey, dataKeys));
-               recordToCacheIdentifier_.insert(std::make_pair(*itRKey, 0));               
+               recordToCacheIdentifier_.insert(std::make_pair(*itRKey, 0));
             }
          }
       }
-      
+
       using namespace edm::eventsetup;
 
       //For each requested Record get the requested data only if the Record is in a new IOV
-      
+
       for(RecordToDataKeys::iterator itRecord = recordToDataKeys_.begin(), itRecordEnd = recordToDataKeys_.end();
            itRecord != itRecordEnd;
            ++itRecord) {
@@ -197,7 +197,7 @@ private:
          if(not pRecord) {
            edm::LogWarning("RecordNotInIOV") <<"The EventSetup Record '"<<itRecord->first.name()<<"' is not available for this IOV.";
          }
-         if(nullptr != pRecord && pRecord->cacheIdentifier() != recordToCacheIdentifier_[itRecord->first]) {
+         if(pRecord.has_value() && pRecord->cacheIdentifier() != recordToCacheIdentifier_[itRecord->first]) {
             recordToCacheIdentifier_[itRecord->first] = pRecord->cacheIdentifier();
             typedef std::vector<DataKey> Keys;
             Keys const& keys = itRecord->second;

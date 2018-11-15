@@ -16,11 +16,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "DetectorDescription/Core/interface/DDValue.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDExpandedNode.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
 
 #include "Geometry/MTDCommonData/interface/MTDBaseNumber.h"
 #include "Geometry/MTDCommonData/interface/BTLNumberingScheme.h"
@@ -52,6 +48,7 @@ private:
   std::string fname_;
   int nNodes_;
   std::string ddTopNodeName_;
+  uint32_t theLayout_;
 
   MTDBaseNumber thisN_;
   BTLNumberingScheme btlNS_;
@@ -65,6 +62,7 @@ TestMTDNumbering::TestMTDNumbering( const edm::ParameterSet& iConfig ) :
   fname_(iConfig.getUntrackedParameter<std::string>("outFileName", "GeoHistory")),
   nNodes_(iConfig.getUntrackedParameter<uint32_t>("numNodesToDump", 0)),
   ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "btl:BarrelTimingLayer")),
+  theLayout_(iConfig.getUntrackedParameter<uint32_t>("theLayout", 1)),
   thisN_(),btlNS_(),etlNS_()
 {
   if ( isMagField_ ) {
@@ -108,10 +106,14 @@ TestMTDNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSet
 void TestMTDNumbering::checkMTD ( const DDCompactView& cpv, std::string fname, int nVols , std::string ddtop_ ) {
 
   fname = "dump" + fname;
-  DDExpandedView epv(cpv);
-  edm::LogInfo("TestMTDNumbering") << "Top Most LogicalPart = " << epv.logicalPart();
-  typedef DDExpandedView::nav_type nav_type;
-  typedef std::map<nav_type,int> id_type;
+
+  DDPassAllFilter filter;
+  DDFilteredView fv(cpv, filter);
+
+  edm::LogInfo("TestMTDNumbering") << "Top Most LogicalPart = " << fv.logicalPart();
+
+  using nav_type =  DDFilteredView::nav_type;
+  using id_type = std::map<nav_type,int>;
   id_type idMap;
   int id=0;
   std::ofstream dump(fname.c_str());
@@ -122,12 +124,13 @@ void TestMTDNumbering::checkMTD ( const DDCompactView& cpv, std::string fname, i
   size_t limit = 0;
 
   do {
-    nav_type pos = epv.navPos();
+    nav_type pos = fv.navPos();
     idMap[pos]=id;
-    
-    size_t num = epv.geoHistory().size();
 
-    if ( epv.geoHistory()[num-1].logicalPart().name() == "btl:BarrelTimingLayer" ) {
+    size_t num = fv.geoHistory().size();
+
+    if ( num <= limit ) { write = false; }
+    if ( fv.geoHistory()[num-1].logicalPart().name() == "btl:BarrelTimingLayer" ) {
       isBarrel = true;
       limit = num;
       write = true;
@@ -135,7 +138,7 @@ void TestMTDNumbering::checkMTD ( const DDCompactView& cpv, std::string fname, i
       edm::LogInfo("TestMTDNumbering") << "isBarrel = " << isBarrel;
 #endif
     }
-    else if ( epv.geoHistory()[num-1].logicalPart().name() == "etl:EndcapTimingLayer" ) {
+    else if ( fv.geoHistory()[num-1].logicalPart().name() == "etl:EndcapTimingLayer" ) {
       isBarrel = false;
       limit = num;
       write = true;
@@ -146,15 +149,15 @@ void TestMTDNumbering::checkMTD ( const DDCompactView& cpv, std::string fname, i
 
     // Actions for MTD volumes: searchg for sensitive detectors
 
-    if ( write && epv.geoHistory()[limit-1].logicalPart().name() == ddtop_ ) { 
+    if ( write && fv.geoHistory()[limit-1].logicalPart().name() == ddtop_ ) { 
 
-      dump << " - " << epv.geoHistory();
+      dump << " - " << fv.geoHistory();
       dump << "\n";
 
       bool isSens = false;
 
-      if ( epv.geoHistory()[num-1].logicalPart().specifics().size() > 0 ) { 
-        for ( auto elem : *(epv.geoHistory()[num-1].logicalPart().specifics()[0]) ) {
+      if ( fv.geoHistory()[num-1].logicalPart().specifics().size() > 0 ) { 
+        for ( auto elem : *(fv.geoHistory()[num-1].logicalPart().specifics()[0]) ) {
           if ( elem.second.name() == "SensitiveDetector" ) { isSens = true; break; }
         }
       }
@@ -164,9 +167,26 @@ void TestMTDNumbering::checkMTD ( const DDCompactView& cpv, std::string fname, i
 
       if ( isSens ) { 
 
-        theBaseNumber( epv.geoHistory() );
+        theBaseNumber( fv.geoHistory() );
 
-        if ( isBarrel ) { BTLDetId theId(btlNS_.getUnitID(thisN_)); dump << theId; }
+        if ( isBarrel ) { 
+          BTLDetId::CrysLayout lay = static_cast< BTLDetId::CrysLayout >(theLayout_);
+          BTLDetId theId(btlNS_.getUnitID(thisN_)); 
+          int hIndex = theId.hashedIndex( lay );
+          BTLDetId theNewId( theId.getUnhashedIndex( hIndex ,  lay ) );
+          dump << theId; 
+          dump << "\n layout type = " << static_cast< int >(lay);
+          dump << "\n ieta        = " << theId.ieta( lay );
+          dump << "\n iphi        = " << theId.iphi( lay );
+          dump << "\n hashedIndex = " << theId.hashedIndex( lay );
+          dump << "\n BTLDetId hI = " << theNewId;
+          if ( theId.mtdSide() != theNewId.mtdSide() ) { dump << "\n DIFFERENCE IN SIDE"; }
+          if ( theId.mtdRR() != theNewId.mtdRR() ) { dump << "\n DIFFERENCE IN ROD"; }
+          if ( theId.module() != theNewId.module() ) { dump << "\n DIFFERENCE IN MODULE"; }
+          if ( theId.modType() != theNewId.modType() ) { dump << "\n DIFFERENCE IN MODTYPE"; }
+          if ( theId.crystal() != theNewId.crystal() ) { dump << "\n DIFFERENCE IN CRYSTAL"; }
+          dump << "\n";
+        }
         else { ETLDetId theId(etlNS_.getUnitID(thisN_)); dump << theId; }
         dump << "\n";
 
@@ -175,7 +195,7 @@ void TestMTDNumbering::checkMTD ( const DDCompactView& cpv, std::string fname, i
     }
     ++id;
     if ( nVols != 0 && id > nVols ) notReachedDepth = false;
-  } while (epv.next() && notReachedDepth);
+  } while (fv.next() && notReachedDepth);
   dump << std::flush;
   dump.close();
 }
@@ -186,7 +206,7 @@ void TestMTDNumbering::theBaseNumber( const DDGeoHistory& gh ) {
   thisN_.setSize( gh.size() );
 
   for ( uint i = gh.size(); i-- > 0; ) {
-    std::string name(gh[i].logicalPart().name());
+    std::string name(gh[i].logicalPart().name().fullname());
     int copyN(gh[i].copyno());
     thisN_.addLevel( name, copyN );
 #ifdef EDM_ML_DEBUG

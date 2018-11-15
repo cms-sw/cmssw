@@ -1,7 +1,7 @@
 /*
  * \file BeamSpotProblemMonitor.cc
  * \author Sushil S. Chauhan/UC Davis
- *        
+ *
  */
 
 
@@ -9,160 +9,122 @@
 
 #include "DQM/BeamMonitor/plugins/BeamSpotProblemMonitor.h"
 #include "DQMServices/Core/interface/QReport.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/Common/interface/View.h"
-#include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 #include "RecoVertex/BeamSpotProducer/interface/BeamSpotOnlineProducer.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
-#include "DQMServices/Core/interface/QReport.h"
 
 #include <numeric>
 #include <cmath>
-#include <TMath.h>
-#include <iostream>
-#include <TStyle.h>
 
 using namespace std;
 using namespace edm;
 
 
-#define buffTime (23)
-
 //
 // constructors and destructor
 //
 BeamSpotProblemMonitor::BeamSpotProblemMonitor( const ParameterSet& ps ) :
-  Ntracks_(0), fitNLumi_(0), ALARM_ON_(false), BeamSpotStatus_(0), BeamSpotFromDB_(0){
+  dcsStatus_{consumes<DcsStatusCollection>(
+                 ps.getUntrackedParameter<InputTag>("DCSStatus"))},
+  scalertag_{consumes<BeamSpotOnlineCollection>(
+                 ps.getUntrackedParameter<InputTag>("scalarBSCollection"))},
+  trkSrc_{consumes<reco::TrackCollection>(
+                ps.getUntrackedParameter<InputTag>("pixelTracks"))},
+  nTracks_{0},
+  nCosmicTrk_{ps.getUntrackedParameter<int>("nCosmicTrk")},
+  fitNLumi_{1},
+  debug_{ps.getUntrackedParameter<bool>("Debug")},
+  onlineMode_{ps.getUntrackedParameter<bool>("OnlineMode")},
+  doTest_{ps.getUntrackedParameter<bool>("doTest")},
+  alarmONThreshold_{ps.getUntrackedParameter<int>("AlarmONThreshold")},
+  alarmOFFThreshold_{ps.getUntrackedParameter<int>("AlarmOFFThreshold")},
+  lastlumi_{0},
+  nextlumi_{0},
+  processed_{false},
+  alarmOn_{false},
+  beamSpotStatus_{0},
+  beamSpotFromDB_{0}{
 
-  parameters_     = ps;
-  monitorName_    = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
-  nCosmicTrk_     = parameters_.getUntrackedParameter<int>("nCosmicTrk");
-  dcsStatus_      = consumes<DcsStatusCollection>(
-      parameters_.getUntrackedParameter<InputTag>("DCSStatus"));
-  scalertag_      = consumes<BeamSpotOnlineCollection>(
-      parameters_.getUntrackedParameter<InputTag>("scalarBSCollection"));
-  trkSrc_         = consumes<reco::TrackCollection>(
-      parameters_.getUntrackedParameter<InputTag>("pixelTracks"));
-  intervalInSec_  = parameters_.getUntrackedParameter<int>("timeInterval",920);//40 LS X 23"
-  debug_          = parameters_.getUntrackedParameter<bool>("Debug");
-  onlineMode_     = parameters_.getUntrackedParameter<bool>("OnlineMode");
-  alarmONThreshold_ = parameters_.getUntrackedParameter<int>("AlarmONThreshold");
-  alarmOFFThreshold_= parameters_.getUntrackedParameter<int>("AlarmOFFThreshold");
-  doTest_           =parameters_.getUntrackedParameter<bool>("doTest");
+  monitorName_    = ps.getUntrackedParameter<string>("monitorName");
 
-  dbe_            = Service<DQMStore>().operator->();
-  if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
-
-
-  if (fitNLumi_ <= 0) fitNLumi_ = 1;
-  lastlumi_ = 0;
-  nextlumi_ = 0;
-  processed_ = false;
+  if (not monitorName_.empty() ) monitorName_ +="/" ;
 }
 
+void
+BeamSpotProblemMonitor::fillDescriptions(ConfigurationDescriptions& oDesc ) {
+  ParameterSetDescription desc;
+  desc.addUntracked<string>("monitorName", "BeamSpotProblemMonitor");
+  desc.addUntracked<InputTag>("DCSStatus", edm::InputTag("scalersRawToDigi"));
+  desc.addUntracked<InputTag>("scalarBSCollection", edm::InputTag("scalersRawToDigi") );
+  desc.addUntracked<InputTag>("pixelTracks", edm::InputTag("pixelTracks") );
+  desc.addUntracked<int>("nCosmicTrk",10);
+  desc.addUntracked<bool>("Debug", false);
+  desc.addUntracked<bool>("OnlineMode", true);
+  desc.addUntracked<bool>("doTest", false);
+  desc.addUntracked<int>("AlarmONThreshold",10);
+  desc.addUntracked<int>("AlarmOFFThreshold",40);
 
-BeamSpotProblemMonitor::~BeamSpotProblemMonitor() {
+  oDesc.add("dqmBeamSpotProblemMonitor",desc);
 }
 
 
 //--------------------------------------------------------
-void BeamSpotProblemMonitor::beginJob() {
+void BeamSpotProblemMonitor::bookHistograms(DQMStore::IBooker& iB, const edm::Run&, const edm::EventSetup& ) {
 
 
   // create and cd into new folder
-  dbe_->setCurrentFolder(monitorName_+"FitFromScalars");
+  iB.setCurrentFolder(monitorName_+"FitFromScalars");
 
-  /* S.Dutta : Commenting out these variables are not used and giving error with "-Werror=unused-variable" option
-  int nbins = alarmOFFThreshold_; 
-  double hiRange = (alarmOFFThreshold_+0.5);*/
+  const string coord{"BeamSpotStatus"};
 
-  const int nvar_ = 1;
-  string coord[nvar_] = {"BeamSpotStatus"};
-  /* S.Dutta : Commenting out these variables are not used and giving error with "-Werror=unused-variable" option
-  string label[nvar_] = {"BeamSpotStatus "};*/
+  string histName(coord + "_lumi");
+  string histTitle(coord);
+  const string ytitle("Problem (-1)  /  OK (1)");
+  const string xtitle("Lumisection");
 
-  for (int i = 0; i < 1; i++) {
-    dbe_->setCurrentFolder(monitorName_+"FitFromScalars");
-    for (int ic=0; ic<nvar_; ++ic) {
-      TString histName(coord[ic]);
-      TString histTitle(coord[ic]);
-      string ytitle("Problem (-1)  /  OK (1)");
-      string xtitle("");
-      string options("E1");
-      bool createHisto = true;
-     switch(i){
+  beamSpotStatusLumi_ = iB.book1D(histName,histTitle,40,0.5,40.5);
+  beamSpotStatusLumi_->setAxisTitle(xtitle,1);
+  beamSpotStatusLumi_->setAxisTitle(ytitle,2);
 
-     case 0: 
-        histName += "_lumi";
-	xtitle = "Lumisection";
+  histName += "_all";
+  histTitle += " all";
+  beamSpotStatusLumiAll_ = iB.book1D(histName,histTitle,40,0.5,40.5);
+  beamSpotStatusLumiAll_->getTH1()->SetCanExtend(TH1::kAllAxes);
+  beamSpotStatusLumiAll_->setAxisTitle(xtitle,1);
+  beamSpotStatusLumiAll_->setAxisTitle(ytitle,2);
 
-      if (createHisto) {
-	hs[histName] = dbe_->book1D(histName,histTitle,40,0.5,40.5);
-	hs[histName]->setAxisTitle(xtitle,1);
-	hs[histName]->setAxisTitle(ytitle,2);
-
-        histName += "_all";
-        histTitle += " all";
-        hs[histName] = dbe_->book1D(histName,histTitle,40,0.5,40.5);
-        hs[histName]->getTH1()->SetCanExtend(TH1::kAllAxes);
-        hs[histName]->setAxisTitle(xtitle,1);
-        hs[histName]->setAxisTitle(ytitle,2);
-
-        }//create histo
-      }
-    }
-  }
-
-  BeamSpotError = dbe_->book1D("BeamSpotError","ERROR: Beamspot missing from scalars",20,0.5,20.5);
-  BeamSpotError->setAxisTitle("# of consecutive LSs with problem",1);
-  BeamSpotError->setAxisTitle("Problem with scalar BeamSpot",2);
-
-
-  dbe_->setCurrentFolder(monitorName_+"FitFromScalars");
-
-
-
-}
-
-//--------------------------------------------------------
-void BeamSpotProblemMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
-
-
-  if (debug_) {
-    edm::LogInfo("BeamSpotProblemMonitor") << "TimeOffset = ";
-  }
-
+  //NOTE: This in principal should be a Lumi only histogram since it gets reset at every
+  // beginLuminosityBlock call. However, it is also filled at that time and the DQMStore
+  // clears all lumi histograms at postGlobalBeginLuminosityBlock!
+  beamSpotError_ = iB.book1D("BeamSpotError","ERROR: Beamspot missing from scalars",20,0.5,20.5);
+  beamSpotError_->setAxisTitle("# of consecutive LSs with problem",1);
+  beamSpotError_->setAxisTitle("Problem with scalar BeamSpot",2);
 }
 
 //--------------------------------------------------------
 void BeamSpotProblemMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
-				       const EventSetup& context) {
-  int nthlumi = lumiSeg.luminosityBlock();
+                                                  const EventSetup& context) {
+  const int nthlumi = lumiSeg.luminosityBlock();
 
 
   if (onlineMode_) {
     if (nthlumi > nextlumi_) {
-        FillPlots(lumiSeg,lastlumi_,nextlumi_,nthlumi);
+        fillPlots(lastlumi_,nextlumi_,nthlumi);
         nextlumi_ = nthlumi;
       edm::LogInfo("BeamSpotProblemMonitor") << "beginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
     }
   }
   else{
-    if (processed_) FillPlots(lumiSeg,lastlumi_,nextlumi_,nthlumi);
+    if (processed_) fillPlots(lastlumi_,nextlumi_,nthlumi);
     nextlumi_ = nthlumi;
     edm::LogInfo("BeamSpotProblemMonitor") << " beginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
   }
@@ -176,9 +138,8 @@ void BeamSpotProblemMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg
 
 // ----------------------------------------------------------
 void BeamSpotProblemMonitor::analyze(const Event& iEvent,
-			  const EventSetup& iSetup ) {
+                                     const EventSetup& iSetup ) {
   const int nthlumi = iEvent.luminosityBlock();
-
 
   if (onlineMode_ && (nthlumi < nextlumi_)) {
     edm::LogInfo("BeamSpotProblemMonitor") << "analyze::  Spilt event from previous lumi section!" << std::endl;
@@ -189,182 +150,156 @@ void BeamSpotProblemMonitor::analyze(const Event& iEvent,
     return;
   }
 
-    BeamSpotStatus_ = 0.;
+  beamSpotStatus_ = 0.;
 
 
-    // Checking TK status
-    Handle<DcsStatusCollection> dcsStatus;
-    iEvent.getByToken(dcsStatus_, dcsStatus);
-    for (int i=0;i<6;i++) dcsTk[i]=true;
-    for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
-         dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
-      if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcsTk[0]=false;
-      if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcsTk[1]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TIBTID)) dcsTk[2]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TOB))    dcsTk[3]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TECp))   dcsTk[4]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TECm))   dcsTk[5]=false;
-    }  
+  // Checking TK status
+  Handle<DcsStatusCollection> dcsStatus;
+  iEvent.getByToken(dcsStatus_, dcsStatus);
+  std::array<bool,6> dcsTk;
+  for (auto &e: dcsTk) { e=true; }
+  for (auto const& status: *dcsStatus ) {
+    if (!status.ready(DcsStatus::BPIX))   dcsTk[0]=false;
+    if (!status.ready(DcsStatus::FPIX))   dcsTk[1]=false;
+    if (!status.ready(DcsStatus::TIBTID)) dcsTk[2]=false;
+    if (!status.ready(DcsStatus::TOB))    dcsTk[3]=false;
+    if (!status.ready(DcsStatus::TECp))   dcsTk[4]=false;
+    if (!status.ready(DcsStatus::TECm))   dcsTk[5]=false;
+  }
 
-     bool AllTkOn = true;
-        for (int i=0; i<5; i++) 
-            {
-              if (!dcsTk[i]) {
-                              AllTkOn = false;
-                       
-                             }
-            }
+  bool allTkOn = true;
+  for (auto status: dcsTk) {
+    if (!status) {
+      allTkOn = false;
+      break;
+    }
+  }
 
 
-     //If tracker is ON and collision is going on then must be few track ther
-     edm::Handle<reco::TrackCollection> TrackCollection;
-     iEvent.getByToken(trkSrc_, TrackCollection);
-     const reco::TrackCollection *tracks = TrackCollection.product();
-     for ( reco::TrackCollection::const_iterator track = tracks->begin();track != tracks->end();++track ) 
-      {
-         if(track->pt() > 1.0)Ntracks_++;
-          if(Ntracks_> 200) break;
-      }
+  //If tracker is ON and collision is going on then must be few track ther
+  edm::Handle<reco::TrackCollection> trackCollection;
+  iEvent.getByToken(trkSrc_, trackCollection);
+  for ( auto const&  track : *trackCollection) {
+    if(track.pt() > 1.0)nTracks_++;
+    if(nTracks_> 200) break;
+  }
 
 
 
   // get scalar collection and BeamSpot
   Handle<BeamSpotOnlineCollection> handleScaler;
   iEvent.getByToken( scalertag_, handleScaler);
-     
-   // beam spot scalar object
-   BeamSpotOnline spotOnline;
-     
-   bool fallBackToDB=false;
-        ALARM_ON_  = false;
 
- 
-   if (!handleScaler->empty())
-     {
-      spotOnline = * ( handleScaler->begin() );
+  // beam spot scalar object
+  BeamSpotOnline spotOnline;
+
+  bool fallBackToDB=false;
+  alarmOn_  = false;
+
+
+  if (!handleScaler->empty()) {
+    spotOnline = * ( handleScaler->begin() );
 
     // check if we have a valid beam spot fit result from online DQM thrugh scalars
     if ( spotOnline.x() == 0. &&
          spotOnline.y() == 0. &&
          spotOnline.z() == 0. &&
          spotOnline.width_x() == 0. &&
-         spotOnline.width_y() == 0. ) 
-      { 
-         fallBackToDB=true;
-        } 
-     }
+         spotOnline.width_y() == 0. ) {
+      fallBackToDB=true;
+    }
+  }
 
 
-   //For testing set it false for every LSs
-   if(doTest_)fallBackToDB= true;
- 
-    //based on last event of this lumi only as it overwrite it
-    if(AllTkOn && fallBackToDB){BeamSpotStatus_ = -1.;}    //i.e,from DB
-    if(AllTkOn && (!fallBackToDB)){BeamSpotStatus_ = 1.;}  //i.e,from online DQM
+  //For testing set it false for every LSs
+  if(doTest_)fallBackToDB= true;
 
+  //based on last event of this lumi only as it overwrite it
+  if(allTkOn && fallBackToDB){beamSpotStatus_ = -1.;}    //i.e,from DB
+  if(allTkOn && (!fallBackToDB)){beamSpotStatus_ = 1.;}  //i.e,from online DQM
 
-    //when collision at least few tracks should be there otherwise it give false ALARM  
-    if(AllTkOn && Ntracks_ < nCosmicTrk_)BeamSpotStatus_ = 0.;
-      
-
-    dbe_->setCurrentFolder(monitorName_+"FitFromScalars/");
-
+  //when collision at least few tracks should be there otherwise it give false ALARM
+  if(allTkOn && nTracks_ < nCosmicTrk_)beamSpotStatus_ = 0.;
 
   processed_ = true;
-
 }
 
 //--------------------------------------------------------
-void BeamSpotProblemMonitor::FillPlots(const LuminosityBlock& lumiSeg,int &lastlumi,int &nextlumi,int &nthlumi){
+void BeamSpotProblemMonitor::fillPlots(int &lastlumi,int &nextlumi,int nthlumi){
 
   if (onlineMode_ && (nthlumi <= nextlumi)) return;
 
   int currentlumi = nextlumi;
-      lastlumi = currentlumi;
+  lastlumi = currentlumi;
 
-    //Chcek status and if lumi are in succession when fall to DB
-   if(BeamSpotStatus_== -1.  && (lastlumi+1) == nthlumi)
-                             {BeamSpotFromDB_++;
-                                 }
-                                 else{
-                                        BeamSpotFromDB_=0;} //if not in succesion or status is ok then set zero
+  //Chcek status and if lumi are in succession when fall to DB
+  if(beamSpotStatus_== -1.  && (lastlumi+1) == nthlumi) {
+    beamSpotFromDB_++;
+  } else {
+    beamSpotFromDB_=0; //if not in succesion or status is ok then set zero
+  }
+
+  if(beamSpotFromDB_ >= alarmONThreshold_ ){
+    alarmOn_ =true; //set the audio alarm true after N successive LSs
+  }
+
+  if(beamSpotFromDB_ > alarmOFFThreshold_ ){
+    alarmOn_ =false; //set the audio alarm true after 10 successive LSs
+    beamSpotFromDB_=0; //reset it for new incident
+  }
 
 
-   if(BeamSpotFromDB_ >= alarmONThreshold_ ){ ALARM_ON_ =true; //set the audio alarm true after N successive LSs
-                                           }
 
-   if(BeamSpotFromDB_ > alarmOFFThreshold_ ){ ALARM_ON_ =false; //set the audio alarm true after 10 successive LSs
-                                               BeamSpotFromDB_=0; //reset it for new incident
-                                             }
+  if (onlineMode_)  { // filling LS gap For status plot
 
-
-
- if (onlineMode_) 
- { // filling LS gap For status plot
-    const int countLS_bs = hs["BeamSpotStatus_lumi"]->getTH1()->GetEntries();
+    const int countLS_bs = beamSpotStatusLumi_->getTH1()->GetEntries();
     int LSgap_bs = currentlumi/fitNLumi_ - countLS_bs;
     if (currentlumi%fitNLumi_ == 0)LSgap_bs--;
 
 
     // filling previous fits if LS gap ever exists
     for (int ig = 0; ig < LSgap_bs; ig++) {
-      hs["BeamSpotStatus_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );//x0 , x0err, fitNLumi_;  see DQMCore....
-     }
+      beamSpotStatusLumi_->ShiftFillLast( 0., 0., fitNLumi_ );//x0 , x0err, fitNLumi_;  see DQMCore....
+    }
 
-     hs["BeamSpotStatus_lumi"]->ShiftFillLast( BeamSpotStatus_, 0. , fitNLumi_ ); //BeamSpotStatus_ =>0. (no collision, no tracks); =>1 (OK from scaler), =>-1 (No scalar results) 
-     hs["BeamSpotStatus_lumi_all"]->setBinContent( currentlumi, BeamSpotStatus_);
-
-
- }//onlineMode_
- else { 
-      hs["BeamSpotStatus_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
-     }
-
-      //Reset it here for next lumi
-      BeamSpotError->Reset();
-      if(ALARM_ON_)BeamSpotError->Fill(BeamSpotFromDB_);
+    beamSpotStatusLumi_->ShiftFillLast( beamSpotStatus_, 0. , fitNLumi_ ); //beamSpotStatus_ =>0. (no collision, no tracks); =>1 (OK from scaler), =>-1 (No scalar results)
+    beamSpotStatusLumiAll_->setBinContent( currentlumi, beamSpotStatus_);
 
 
-    //Get quality report
-     MonitorElement* myQReport = dbe_->get(monitorName_+"FitFromScalars/BeamSpotError");
+  } else {
+    beamSpotStatusLumi_->ShiftFillLast( 0., 0., fitNLumi_ );
+  }//onlineMode_
 
-     const QReport * BeamSpotQReport = myQReport->getQReport("BeamSpotOnlineTest");  
-
-    if(BeamSpotQReport){  
-    		          /* S.Dutta : Commenting out these variables are not used and giving error with "-Werror=unused-variable" option
-    	                   float qtresult = BeamSpotQReport->getQTresult();
-                           int qtstatus   = BeamSpotQReport->getStatus() ; // get QT status value (see table below) */
-                      }
+   //Reset it here for next lumi
+  beamSpotError_->Reset();
+  if(alarmOn_)beamSpotError_->Fill(beamSpotFromDB_);
 
 
-   Ntracks_= 0;
+  //Get quality report
+  const QReport * beamSpotQReport = beamSpotError_->getQReport("BeamSpotOnlineTest");
 
+  if(beamSpotQReport){
+    /* S.Dutta : Commenting out these variables are not used and giving error with "-Werror=unused-variable" option
+    float qtresult = BeamSpotQReport->getQTresult();
+    int qtstatus   = BeamSpotQReport->getStatus() ; // get QT status value (see table below) */
+  }
+
+  nTracks_= 0;
 }
 
 //--------------------------------------------------------
 void BeamSpotProblemMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
-				     const EventSetup& iSetup) {
-  int nthlumi = lumiSeg.id().luminosityBlock();
+                                                const EventSetup& iSetup) {
+  const int nthlumi = lumiSeg.id().luminosityBlock();
   edm::LogInfo("BeamSpotProblemMonitor") << "endLuminosityBlock:: Lumi of the last event before endLuminosityBlock: " << nthlumi << endl;
-
-  if (onlineMode_ && nthlumi < nextlumi_) return;
-
 }
 //-------------------------------------------------------
 
 void BeamSpotProblemMonitor::endRun(const Run& r, const EventSetup& context){
 
-if(debug_)edm::LogInfo("BeamSpotProblemMonitor") << "endRun:: Clearing all the Maps "<<endl;
-     //Reset it end of job
-     BeamSpotError->Reset();
-}
-
-//--------------------------------------------------------
-void BeamSpotProblemMonitor::endJob(const LuminosityBlock& lumiSeg,
-			 const EventSetup& iSetup){
-  if (!onlineMode_) endLuminosityBlock(lumiSeg, iSetup);
-     //Reset it end of job
-     BeamSpotError->Reset();
+  if(debug_)edm::LogInfo("BeamSpotProblemMonitor") << "endRun:: Clearing all the Maps "<<endl;
+  //Reset it end of job
+  beamSpotError_->Reset();
 }
 
 DEFINE_FWK_MODULE(BeamSpotProblemMonitor);

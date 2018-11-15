@@ -730,8 +730,8 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    for(size_t i = 0; i<trackSize; ++i) {
      pixelClusterOntrackIndices.push_back(onTrack(pixelclusters,trackCollection[i],globaltrackid_[i]+1));
    }
-   nclustersOntrack_    = count_if(stripClusterOntrackIndices[0].begin(),stripClusterOntrackIndices[0].end(),bind2nd(not_equal_to<int>(), -1));
-   npixClustersOntrack_ = count_if(pixelClusterOntrackIndices[0].begin(),pixelClusterOntrackIndices[0].end(),bind2nd(not_equal_to<int>(), -1));
+   nclustersOntrack_    = count_if(stripClusterOntrackIndices[0].begin(),stripClusterOntrackIndices[0].end(),[](auto c){return c!=-1;});
+   npixClustersOntrack_ = count_if(pixelClusterOntrackIndices[0].begin(),pixelClusterOntrackIndices[0].end(),[](auto c){return c!=-1;});
 
    // iterate over tracks
    for (size_t coll = 0; coll<trackCollection.size(); ++coll) {

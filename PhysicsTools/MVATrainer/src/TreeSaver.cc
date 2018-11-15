@@ -108,22 +108,18 @@ void TreeSaver::configure(DOMElement *elem)
 {
 	std::vector<SourceVariable*> inputs = getInputs().get();
 
-	for(std::vector<SourceVariable*>::const_iterator iter = inputs.begin();
-	    iter != inputs.end(); iter++) {
-		std::string name = (const char*)(*iter)->getName();
+	for( auto const& input : inputs ) {
+		std::string name = static_cast<const char*>(input->getName());
 
 		if (std::find_if(vars.begin(), vars.end(),
-		                 std::bind2nd(std::mem_fun_ref(&Var::hasName),
-		                              name)) != vars.end()) {
+		                 [&name](auto const& c){return c.hasName(name);})
+		                 != vars.end()) {
 			for(unsigned i = 1;; i++) {
 				std::ostringstream ss;
 				ss << name << "_" << i;
 				if (std::find_if(vars.begin(), vars.end(),
-				                 std::bind2nd(
-							std::mem_fun_ref(
-								&Var::hasName),
-							ss.str())) ==
-				    vars.end()) {
+							 [&ss](auto c){return c.hasName(ss.str());})
+				                == vars.end()) {
 					name = ss.str();
 					break;
 				}

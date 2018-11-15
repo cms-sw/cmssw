@@ -8,18 +8,18 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 DDConstant::DDConstant()
-  : DDBase< DDName, double* >()
+  : DDBase< DDName, std::unique_ptr<double> >()
 { }
 
 DDConstant::DDConstant( const DDName & name )
-  : DDBase< DDName, double* >() 
+  : DDBase< DDName, std::unique_ptr<double> >() 
 {
   create( name );
 }
 
-DDConstant::DDConstant( const DDName & name, double* vals )
+DDConstant::DDConstant( const DDName & name, std::unique_ptr<double> vals )
 {
-  create( name, vals );
+  create( name, std::move( vals ));
 }  
 
 std::ostream & operator<<(std::ostream & os, const DDConstant & cons)
@@ -47,8 +47,6 @@ DDConstant::createConstantsFromEvaluator( ClhepEvaluator& eval )
   for( const auto& it : vars ) {
     auto found = it.find( "___" );
     DDName name( std::string( it, found + 3, it.size() - 1 ), std::string( it, 0, found ));       
-    double* dv = new double;
-    *dv = eval.eval( it.c_str());
-    DDConstant cst( name, dv );
+    DDConstant cst( name, std::make_unique<double>( eval.eval( it.c_str())));
   }
 }

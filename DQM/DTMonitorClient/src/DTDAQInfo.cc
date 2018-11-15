@@ -1,4 +1,3 @@
-
 /*
  *  See header file for a description of this class.
  *
@@ -77,10 +76,7 @@ DTDAQInfo::~DTDAQInfo() {}
   bookingdone = true; 
   }  //booking done
 
-  // create a record key for RunInfoRcd
-  eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-
-  if(setup.find(recordKey) != nullptr) { 
+  if(auto runInfoRec = setup.tryToGet<RunInfoRcd>()) {
     // reset to 0
     totalDAQFraction->Fill(0.);
     daqFractions[-2]->Fill(0.);
@@ -93,7 +89,7 @@ DTDAQInfo::~DTDAQInfo() {}
     daqMap->Reset();
     //get fed summary information
     ESHandle<RunInfo> sumFED;
-    setup.get<RunInfoRcd>().get(sumFED);    
+    runInfoRec->get(sumFED);
     vector<int> fedInIDs = sumFED->m_fed_in;   
 
     // the range of DT feds
@@ -136,7 +132,3 @@ DTDAQInfo::~DTDAQInfo() {}
 }
 
 void DTDAQInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}
-
-
-
-

@@ -66,17 +66,19 @@ namespace l1t {
 	   */
 
          return res;
-   }//getPackers
+      }//getPackers
 
       void
       BMTFSetup::registerProducts(edm::stream::EDProducerBase& prod)
       {
-	prod.produces<RegionalMuonCandBxCollection>("kBMTF");
 	prod.produces<RegionalMuonCandBxCollection>("BMTF");
-	//prod.produces<L1MuDTChambPhContainer>("PhiDigis");
-	//prod.produces<L1MuDTChambThContainer>("TheDigis");
+	prod.produces<RegionalMuonCandBxCollection>("BMTF2");
 	prod.produces<L1MuDTChambPhContainer>();
 	prod.produces<L1MuDTChambThContainer>();
+
+	// Depricated
+	//prod.produces<L1MuDTChambPhContainer>("PhiDigis");
+	//prod.produces<L1MuDTChambThContainer>("TheDigis");
       }
 
       std::unique_ptr<UnpackerCollections>
@@ -89,27 +91,37 @@ namespace l1t {
       BMTFSetup::getUnpackers(int fed, int board, int amc, unsigned int fw)
       {
 
-         auto outputMuon = std::make_shared<BMTFUnpackerOutput>();
-         auto outputKalmanMuon = std::make_shared<BMTFUnpackerOutput>(true);
          auto inputMuonsOld = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsOldQual");
          auto inputMuonsNew = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsNewQual");
 
+         auto outputMuon = std::make_shared<BMTFUnpackerOutput>(); //here is the triggering collection
+         auto outputMuon2 = std::make_shared<BMTFUnpackerOutput>(false); //here is the secondary
+         if (fw >= 2499805536) //this is in HEX '95000160'
+           outputMuon -> setKalmanAlgoTrue();
+         else
+           outputMuon2 -> setKalmanAlgoTrue();
+
          UnpackerMap res;
          if (fed == 1376 || fed == 1377) {
-            for (int iL = 0; iL <= 70; iL += 2) {
-               if (iL == 12 || iL == 14 || ( iL > 26 && iL < 32) || iL == 60 || iL == 62)
-                  continue;
 
-               if (fw < 2452619552){
-                  res[iL] = inputMuonsOld;
-	       }
-               else{
-                  res[iL] = inputMuonsNew;
-	       }
-	    }
-            res[123] = outputMuon;
-	    res[125] = outputKalmanMuon;
+           // Input links
+           for (int iL = 0; iL <= 70; iL += 2) {
+             if (iL == 12 || iL == 14 || ( iL > 26 && iL < 32) || iL == 60 || iL == 62)
+               continue;
+
+             if (fw < 2452619552){
+               res[iL] = inputMuonsOld;
+             }
+             else{
+               res[iL] = inputMuonsNew;
+             }
+           }
+
+           // Output links
+           res[123] = outputMuon;
+           res[125] = outputMuon2;
          }
+
          return res;
       };
    };

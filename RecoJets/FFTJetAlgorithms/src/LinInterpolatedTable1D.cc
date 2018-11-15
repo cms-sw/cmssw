@@ -43,12 +43,12 @@ namespace fftjetcms {
         return monotonous_;
     }
 
-    std::auto_ptr<LinInterpolatedTable1D> LinInterpolatedTable1D::inverse(
+    std::unique_ptr<LinInterpolatedTable1D> LinInterpolatedTable1D::inverse(
         const unsigned npoints, const bool leftExtrapolationLinear,
         const bool rightExtrapolationLinear) const
     {
         if (!isMonotonous())
-            return std::auto_ptr<LinInterpolatedTable1D>(nullptr);
+            return std::unique_ptr<LinInterpolatedTable1D>(nullptr);
 
         std::vector<std::pair<double,double> > points;
         points.reserve(npoints_);
@@ -68,7 +68,7 @@ namespace fftjetcms {
             points.push_back(std::pair<double,double>(data_[0], xmin_));
         }
 
-        return std::auto_ptr<LinInterpolatedTable1D>(
+        return std::unique_ptr<LinInterpolatedTable1D>(
             new LinInterpolatedTable1D(points, npoints,
                                        leftExtrapolationLinear,
                                        rightExtrapolationLinear));

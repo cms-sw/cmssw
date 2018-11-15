@@ -22,7 +22,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
 
@@ -43,7 +43,7 @@ FWHGTowerSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell)
    FWChangeSentry sentry(*(m_item->changeManager()));
    for(HGCRecHitCollection::const_iterator it = hits->begin(); it != hits->end(); ++it,++index)
    {
-      HGCalDetId id ((*it).detid().rawId());
+      DetId id ((*it).detid());
       if (findBinFromId(id, iCell.fTower) && 
           m_item->modelInfo(index).m_displayProperties.isVisible() &&
           !m_item->modelInfo(index).isSelected()) {
@@ -66,7 +66,7 @@ FWHGTowerSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell)
    FWChangeSentry sentry(*(m_item->changeManager()));
    for(HGCRecHitCollection::const_iterator it = hits->begin(); it != hits->end(); ++it,++index)
    {
-      HGCalDetId id ((*it).detid().rawId());
+      DetId id ((*it).detid());
       if (findBinFromId(id, iCell.fTower) && 
           m_item->modelInfo(index).m_displayProperties.isVisible() &&
           m_item->modelInfo(index).isSelected()) {
@@ -77,10 +77,10 @@ FWHGTowerSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell)
 }
 
 bool
-FWHGTowerSliceSelector::findBinFromId( HGCalDetId& detId, int tower) const
+FWHGTowerSliceSelector::findBinFromId( DetId& detId, int tower) const
 {    
    TEveCaloData::vCellId_t cellIds;
-   const float* corners = m_item->getGeom()->getCorners( detId.rawId());
+   const float* corners = m_item->getGeom()->getCorners( detId );
    if( corners == nullptr )
    {
      fwLog( fwlog::kInfo ) << "FWHGTowerSliceSelector cannot get geometry for DetId: "<< detId.rawId() << ". Ignored.\n";

@@ -249,16 +249,16 @@ cp  .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/MultiHistoO
 if [[ .oO[zmumureference]Oo. == *store* ]]; then xrdcp -f .oO[zmumureference]Oo. BiasCheck_Reference.root; else ln -fs .oO[zmumureference]Oo. ./BiasCheck_Reference.root; fi
 root -q -b -l MultiHistoOverlap_.oO[resonance]Oo..C
 
-eos mkdir -p /store/caf/user/$USER/.oO[eosdir]Oo./plots/
+eos mkdir -p /store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/
 for RootOutputFile in $(ls *root )
 do
-    xrdcp -f ${RootOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./
+    xrdcp -f ${RootOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./
     rfcp ${RootOutputFile}  .oO[workingdir]Oo.
 done
 
 mkdir -p .oO[plotsdir]Oo.
 for PngOutputFile in $(ls *png ); do
-    xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/
+    xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/
     rfcp ${PngOutputFile}  .oO[plotsdir]Oo.
 done
 

@@ -1,25 +1,19 @@
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
-
-#include "RecoPixelVertexing/PixelTrackFitting/src/CircleFromThreePoints.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/HitInfo.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/HitInfo.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/CircleFromThreePoints.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
-#include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 
 inline float sqr(float x) { return x*x; }
 

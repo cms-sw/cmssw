@@ -328,8 +328,8 @@ if options.noCSC: doCSC = False
 doDT = True
 if options.noDT: doDT = False
 if options.noCSC and options.noDT:
-  print("cannot do --noCSC and --noDT at the same time!")
-  sys.exit()
+    print("cannot do --noCSC and --noDT at the same time!")
+    sys.exit()
 
 json_file = options.json
 
@@ -338,10 +338,10 @@ fileNamesBlocks=[]
 execfile(INPUTFILES)
 njobs = options.subjobs
 if (options.inputInBlocks):
-  njobs = len(fileNamesBlocks)
-  if njobs==0:
-    print("while --inputInBlocks is specified, the INPUTFILES has no blocks!")
-    sys.exit()
+    njobs = len(fileNamesBlocks)
+    if njobs==0:
+        print("while --inputInBlocks is specified, the INPUTFILES has no blocks!")
+        sys.exit()
 
 stepsize = int(math.ceil(1.*len(fileNames)/options.subjobs))
 
@@ -358,13 +358,13 @@ if gprcdconnect[0:12] == "sqlite_file:": copytrackerdb += "%s " % gprcdconnect[1
 # step 0: convert initial geometry to xml
 INITIALXML = INITIALGEOM + '.xml'
 if INITIALGEOM[-3:]=='.db':
-  INITIALXML = INITIALGEOM[:-3] + '.xml'
+    INITIALXML = INITIALGEOM[:-3] + '.xml'
 print("Converting",INITIALGEOM,"to",INITIALXML," ...will be done in several seconds...")
 print("./Alignment/MuonAlignmentAlgorithms/scripts/convertSQLiteXML.py  %s %s --gprcdconnect %s --gprcd %s" % (INITIALGEOM,INITIALXML,gprcdconnect,gprcd))
 exit_code = os.system("./Alignment/MuonAlignmentAlgorithms/scripts/convertSQLiteXML.py  %s %s --gprcdconnect %s --gprcd %s" % (INITIALGEOM,INITIALXML,gprcdconnect,gprcd))
 if exit_code>0:
-  print("problem: conversion exited with code:", exit_code)
-  sys.exit()
+    print("problem: conversion exited with code:", exit_code)
+    sys.exit()
 
 #####################################################################
 
@@ -669,7 +669,7 @@ for iteration in range(1, ITERATIONS+1):
 
     dir_no_ = DIRNAME
     if DIRNAME[-1]=='_': dir_no_ = DIRNAME[:-1]
- 
+
     os.system("rm -rf %s; mkdir %s" % (directory, directory))
     os.system("cp Alignment/MuonAlignmentAlgorithms/python/gather_cfg.py %s" % directory)
     os.system("cp Alignment/MuonAlignmentAlgorithms/python/align_cfg.py %s" % directory)
@@ -686,10 +686,10 @@ for iteration in range(1, ITERATIONS+1):
     ### gather.sh runners for njobs
     for jobnumber in range(njobs):
         if not options.inputInBlocks:
-          inputfiles = " ".join(fileNames[jobnumber*stepsize:(jobnumber+1)*stepsize])
+            inputfiles = " ".join(fileNames[jobnumber*stepsize:(jobnumber+1)*stepsize])
         else:
-          inputfiles = " ".join(fileNamesBlocks[jobnumber])
-        
+            inputfiles = " ".join(fileNamesBlocks[jobnumber])
+
         if mapplots or segdiffplots or curvatureplots: copyplots = "plotting*.root"
         else: copyplots = ""
 
@@ -723,18 +723,18 @@ for iteration in range(1, ITERATIONS+1):
             station123params, station123params, useResiduals = tmp
     else:
         writeAlignCfg("%salign.sh" % directory, vars())
-    
+
     os.system("chmod +x %salign.sh" % directory)
 
     bsubfile.append("echo %salign.sh" % directory)
     if user_mail: bsubfile.append("bsub -R \"type==SLC6_64\" -q cmscaf1nd -J \"%s_align\" -u %s -w \"%s\" align.sh" % (director, user_mail, " && ".join(bsubnames)))
     else: bsubfile.append("bsub -R \"type==SLC6_64\" -q cmscaf1nd -J \"%s_align\" -w \"%s\" align.sh" % (director, " && ".join(bsubnames)))
-    
+
     #bsubfile.append("cd ..")
     bsubnames = []
     last_align = "%s_align" % director
-    
-    
+
+
     ### after the last iteration (optionally) do diagnostics run
     if len(validationLabel) and iteration == ITERATIONS:
         # do we have plotting files created?
@@ -743,10 +743,10 @@ for iteration in range(1, ITERATIONS+1):
 
         writeValidationCfg("%svalidation.sh" % directory, vars())
         os.system("chmod +x %svalidation.sh" % directory)
-        
+
         bsubfile.append("echo %svalidation.sh" % directory)
         if user_mail: bsubfile.append("bsub -R \"type==SLC6_64\" -q cmscaf1nd -J \"%s_validation\" -u %s -w \"ended(%s)\" validation.sh" % (director, user_mail, last_align))
-	else: bsubfile.append("bsub -R \"type==SLC6_64\" -q cmscaf1nd -J \"%s_validation\" -w \"ended(%s)\" validation.sh" % (director, last_align))
+        else: bsubfile.append("bsub -R \"type==SLC6_64\" -q cmscaf1nd -J \"%s_validation\" -w \"ended(%s)\" validation.sh" % (director, last_align))
 
     bsubfile.append("cd ..")
     bsubfile.append("")

@@ -29,7 +29,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -43,19 +43,17 @@
 // class declaration
 //
 
-class CaloTowersMerger : public edm::EDProducer {
-   public:
-      explicit CaloTowersMerger(const edm::ParameterSet&);
-      ~CaloTowersMerger() override;
+class CaloTowersMerger : public edm::stream::EDProducer<> {
+public:
+  explicit CaloTowersMerger(const edm::ParameterSet&);
+  ~CaloTowersMerger() override;
 
   CaloTower mergedTower(const CaloTower& t1, const CaloTower& t2);
 
-   private:
-      void beginJob() override ;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
       
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   edm::InputTag regularTowerTag,extraTowerTag;
   edm::EDGetTokenT<CaloTowerCollection> tok_reg_;
@@ -165,20 +163,6 @@ CaloTowersMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-CaloTowersMerger::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-CaloTowersMerger::endJob() {
-}
-
-
-
 
 
 // Make a new tower by merging two towers containing exclusive hits

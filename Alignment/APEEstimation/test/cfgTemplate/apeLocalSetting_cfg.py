@@ -67,7 +67,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     statistics = cms.untracked.vstring('cout', 'alignment'),
     categories = cms.untracked.vstring('Alignment'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
+        threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
     ),
     alignment = cms.untracked.PSet(

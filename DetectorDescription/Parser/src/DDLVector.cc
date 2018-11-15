@@ -136,10 +136,10 @@ DDLVector::processElement( const std::string& name, const std::string& nmspace, 
   else if (parent() == "ConstantsSection" || parent() == "DDDefinition")
   {
     if (atts.find("type") == atts.end() || atts.find("type")->second == "numeric") {
-      DDVector v(getDDName(nmspace), new std::vector<double>(pVector));
+      DDVector v( getDDName(nmspace), std::make_unique<std::vector<double>>( pVector ));
     }
     else {
-      DDStrVector v(getDDName(nmspace), new std::vector<std::string>(pStrVector));
+      DDStrVector v( getDDName(nmspace), std::make_unique<std::vector<std::string>>( pStrVector ));
     }
   }
   clear();

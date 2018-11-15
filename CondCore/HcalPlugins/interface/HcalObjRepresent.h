@@ -5,6 +5,13 @@
 
 //#include "CondCore/Utilities/interface/PayLoadInspector.h"
 //#include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
+#include "CondFormats/HcalObjects/interface/HcalDetIdRelationship.h"
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <string>
 #include <fstream>
@@ -14,16 +21,511 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 #include "TROOT.h"
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TColor.h"
 #include "TLine.h"
+#include "TLatex.h"
+#include "TProfile.h"
+#include "TPaveLabel.h"
 
 //functions for correct representation of data in summary and plot
 namespace HcalObjRepresent{
+
+       //used to produce all display objects for payload inspector
+       template<class Items, class Item>
+       class HcalDataContainer {
+       public : 
+
+           HcalDataContainer(std::shared_ptr<Items> payload, unsigned int run) : payload_(payload), run_(run) {
+                PlotMode_ = "Map";
+           }
+
+           virtual ~HcalDataContainer(){};
+           // For easier channel mapping
+           typedef std::tuple<int, int, int> Coord;
+           typedef std::map< Coord, Item > tHcalValCont;
+           // mapping of pair of subdetector name (e.g, "HE") and depth number (e.g. 3) to Histogram of data for that subdetector/depth pair
+           typedef std::map< std::pair< std::string, int >, TH2F* > DepthMap;
+
+
+
+
+
+
+           ///////////////// public Get functions  /////////////////
+           unsigned int GetRun() {return run_;}
+
+           std::string GetTopoMode() {return TopoMode_;}
+
+           std::map<std::string,int> GetSubDetDepths() {return subDetDepths_;}
+
+           DepthMap GetDepths() {
+             fillValConts();
+             //std::cout << "Got depths with run number = " << std::to_string(GetRun()) << std::endl;
+             return depths_;
+           }
+
+
+           ///////////////// setting object fields /////////////////
+
+           // Fills a tHcalValCont for each subdetector, setting Topology Mode along the way
+           void fillValConts(){
+               if(!depths_.empty()) return;
+               int iphi,ieta,depth;
+               HcalDetId detId;
+           
+               std::string subDetName;
+               std::vector<Item> itemsVec;
+               std::pair<std::string,int> depthKey;
+               const char* histLabel;
+               for(std::pair< std::string, std::vector<Item> > cont : (*payload_).getAllContainers()){
+                   subDetName = std::get<0>(cont);
+                   itemsVec = std::get<1>(cont);
+           
+                   auto valContainer = getContFromString(subDetName);
+                   
+                   for(Item item : itemsVec){
+                     detId = HcalDetId(item.rawId());
+                     iphi = detId.iphi();
+                     ieta = detId.ieta();
+                     depth = detId.depth();  
+                     Coord coord = std::make_tuple(depth,ieta,iphi);
+                     //Add hist if it's not there, AND if it is one we care about: HO,HB,HE,HF, AND it's not an empty entry (depth = 0 in HO)
+                     if(subDetName[0] == 'H' && depth != 0){
+                     valContainer->insert( std::pair<std::tuple<int,int,int>,Item>(coord,item));
+
+
+                     depthKey = std::make_pair(subDetName, depth);
+
+                     auto depthVal = depths_.find(depthKey);
+                       if(depthVal == depths_.end()){
+                         histLabel = ("run" + std::to_string(run_) + "_" + subDetName + "_d" + std::to_string(depth)).c_str();
+                         depths_.insert(std::make_pair(std::make_pair(subDetName, depth), new TH2F(histLabel,histLabel, 83, -42.5, 41.5, 71, 0.5, 71.5)));
+                       }    
+                       depths_[depthKey]->Fill(ieta, iphi, getValue(&item));
+                     }
+                   }
+               }
+
+               //Still need to know which hists to take when done; decide now
+               setTopoModeFromValConts();
+           }
+    
+           ////NOTE to be implemented in PayloadInspector classes
+           virtual float getValue(Item* item){throw cms::Exception ("Value definition not found") << "getValue definition not found for " << payload_->myname();};
+
+
+
+           //Gets Hcal Object at given coordinate
+           //Currently unused but remains as a potentially useful function
+           Item* getItemFromValCont(std::string subDetName, int depth, int ieta, int iphi, bool throwOnFail) {
+           
+             Item* cell = nullptr;
+             Coord coord = std::make_tuple(depth,ieta,iphi);
+             tHcalValCont* valContainer = getContFromString(subDetName);
+           
+             auto it = valContainer->find(coord);
+             if (it != valContainer->end()) cell = &it->second;
+            
+             if ((!cell)) {
+               if (throwOnFail) {
+                 throw cms::Exception ("Conditions not found") 
+           	<< "Unavailable Conditions of type " << payload_->myname() << " for cell " << subDetName << " (" << depth << ", " << ieta << ", " << iphi << ")";
+               } 
+             } 
+             return cell;
+           
+           }
+
+
+    
+
+
+
+           /////////////////// Building Graphics //////////////////////
+
+           //TODO: remove zero entries from doing divide and subtract
+
+           // To generate Ratios of two IOVs        
+           void Divide(HcalDataContainer* dataCont2) {
+
+             //TODO: Do something like looping over this and that depths setting every empty bin (which I think means content=0) to -999. Then replacing the divide call with another manual loop that sets all bins with content -999 to 0
+
+             PlotMode_ = "Ratio";
+             DepthMap::iterator depth1;
+             std::pair<std::string,int> key;
+             DepthMap myDepths = this->GetDepths();
+             DepthMap theirDepths = dataCont2->GetDepths();
+             for(depth1 = myDepths.begin(); depth1 != myDepths.end(); depth1++){
+               key = depth1->first;
+               if(theirDepths.count(key) != 0) {
+                 myDepths.at(key)->Divide((const TH1*)theirDepths.at(key));
+               } else {
+                 throw cms::Exception ("Unaligned Conditions") << "trying to plot conditions for " << payload_->myname() << "; found value for " << std::get<0>(key) << " depth " << std::to_string(std::get<1>(key)) << " in run " << GetRun() << " but not in run " << dataCont2->GetRun();
+               }
+             }
+           }
+
+
+
+           // To generate Diffs of two IOVs
+           void Subtract(HcalDataContainer* dataCont2) {
+             PlotMode_ = "Diff";
+             DepthMap::iterator depth1;
+             std::pair<std::string,int> key;
+             DepthMap myDepths = this->GetDepths();
+             DepthMap theirDepths = dataCont2->GetDepths();
+             for(depth1 = myDepths.begin(); depth1 != myDepths.end(); depth1++){
+               key = depth1->first;
+               if(theirDepths.count(key) != 0) {
+                 myDepths.at(key)->Add(myDepths.at(key), theirDepths.at(key), 1, -1);
+               } else {
+                 throw cms::Exception ("Unaligned Conditions") << "trying to plot conditions for " << payload_->myname() << "; found value for " << std::get<0>(key) << " depth " << std::to_string(std::get<1>(key)) << " in run " << GetRun() << " but not in run " << dataCont2->GetRun();
+               }
+             }
+           }
+
+
+           // wisely determines what range to set histogram axis to
+           std::pair< float, float > GetRange(TH1* hist) {
+
+               if(PlotMode_ == "Ratio") {
+                 float amp;
+                 Double_t adjustMin = 1; Double_t tempMin;
+                 int nBinsX = hist->GetXaxis()->GetNbins(); int nBinsY = hist->GetYaxis()->GetNbins();
+                 for(int i = 0; i < nBinsX; i++) {
+                   for(int j = 0; j < nBinsY; j++) {
+                     tempMin = hist->GetBinContent(i,j);
+                     if((tempMin != 0) && (tempMin < adjustMin)) adjustMin = tempMin;
+                   }
+                 }
+                 amp = std::max((1 - adjustMin),(hist->GetMaximum() - 1) );
+                 //amp = std::max((1 - hist->GetMinimum()),(hist->GetMaximum() - 1) );
+                 return std::make_pair( 1 - amp, 1 + amp);
+               } 
+               else if(PlotMode_ == "Diff") {
+                 float amp;
+                 amp = std::max((0 - hist->GetMinimum()),hist->GetMaximum() );
+                 return std::make_pair( (-1 * amp), amp);
+               } 
+               else {
+               Double_t adjustMin = 10000; Double_t tempMin;
+                 int nBinsX = hist->GetXaxis()->GetNbins(); int nBinsY = hist->GetYaxis()->GetNbins();
+                 for(int i = 0; i < nBinsX; i++) {
+                   for(int j = 0; j < nBinsY; j++) {
+                     tempMin = hist->GetBinContent(i,j);
+                     if((tempMin != 0) && (tempMin < adjustMin)) adjustMin = tempMin;
+                   }
+                 }
+               return std::make_pair(((adjustMin==10000) ? hist->GetMinimum() : adjustMin), hist->GetMaximum());
+               }
+           }
+
+           // set style
+           void initGraphics() {
+
+             gStyle->SetOptStat(0);
+             gStyle->SetPalette(1);
+             gStyle->SetOptFit(0);
+             gStyle->SetLabelFont(42);
+             gStyle->SetLabelFont(42);
+             gStyle->SetTitleFont(42);
+             gStyle->SetTitleFont(42);
+             gStyle->SetMarkerSize(0);
+             gStyle->SetTitleOffset(1.3,"Y");
+             gStyle->SetTitleOffset(1.0,"X");
+             gStyle->SetNdivisions(510);
+             gStyle->SetStatH(0.11);
+             gStyle->SetStatW(0.33);
+             gStyle->SetTitleW(0.4);
+             gStyle->SetTitleX(0.13);
+             gStyle->SetPadTickX(1);
+             gStyle->SetPadTickY(1);
+          }
+
+
+          TH1D* GetProjection(TH2F* hist, std::string plotType, const char* newName, std::string subDetName, int depth) {
+
+            //TODO: Also want average for standard projection of 2DHist (not ratio or diff)?
+            //if (PlotMode_ != "Ratio") return (plotType=="EtaProfile") ? ((TH2F*)(hist->Clone("temp")))->ProjectionX(newName) : ((TH2F*)(hist->Clone("temp")))->ProjectionY(newName);
+
+            //TH1D* projection = ((TH2F*)(depths_[std::make_pair(subDetName,depth)]->Clone("temp")))->ProjectionX(newName);
+
+
+
+            int xBins = (plotType=="EtaProfile") ? 83 : 71;
+            int etaMin = -42, etaMax = 42, phiMin = 1, phiMax = 72;
+            int xMin = (plotType=="EtaProfile") ? etaMin : phiMin;
+            int xMax = (plotType=="EtaProfile") ? etaMax : phiMax;
+            int otherMin = (plotType=="EtaProfile") ? phiMin : etaMin;
+            int otherMax = (plotType=="EtaProfile") ? phiMax : etaMax;
+            TH1D* retHist = new TH1D(newName,newName, xBins,xMin,xMax);
+            int numChannels;
+            Double_t sumVal;
+            Double_t channelVal;
+            int ieta, iphi;
+            int bin = 0;
+            for(int i = xMin; i <= xMax; i++ && bin++) { 
+              numChannels = 0; sumVal = 0;
+              for(int j = otherMin; j <= otherMax; j++) {
+                ieta = (plotType=="EtaProfile") ? i : j; ieta += 42;
+                iphi = (plotType=="EtaProfile") ? j : i; iphi += -1;
+                channelVal = hist->GetBinContent(ieta,iphi);
+                //std::cout << "(ieta, iphi)    :       (" << std::to_string(ieta) << ", " << std::to_string(iphi) << ")" << std::endl;
+                if(channelVal != 0 ) {
+                  sumVal += channelVal; 
+                  numChannels++;
+                }
+              }
+              //if(sumVal !=0) projection->SetBinContent(i, sumVal/((Double_t)numChannels));//retHist->Fill(i,sumVal/((Double_t)numChannels));
+              if(sumVal !=0) retHist->Fill(i,sumVal/((Double_t)numChannels));
+            }
+            return retHist; 
+            //return projection;
+          }
+
+
+          // fills a canvas with given subdetector information, plotting all depths
+          void FillCanv(TCanvas* canvas, std::string subDetName, int startDepth=1, int startCanv=1, std::string plotForm= "2DHist") {
+
+
+             const char* newName;
+             std::pair< float, float> range;
+             int padNum;
+             int maxDepth = (subDetName=="HO")?4:subDetDepths_[subDetName];
+             TH1D* projection;
+             TLatex label;
+             for(int i = startDepth; i <= maxDepth ; i++){
+               //skip if data not obtained; TODO: Maybe add text on plot saying data not found?
+               if(depths_.count(std::make_pair(subDetName,i)) == 0) {
+                 return; 
+               }
+
+               padNum = i+startCanv-1;
+               if(subDetName=="HO") padNum = padNum - 3;
+               canvas->cd(padNum);
+               canvas->GetPad(padNum)->SetGridx(1);
+               canvas->GetPad(padNum)->SetGridy(1);
+
+
+
+               if(plotForm == "2DHist"){
+                 canvas->GetPad(padNum)->SetRightMargin(0.13);
+                 range = GetRange( depths_[std::make_pair(subDetName,i)]);
+                 depths_[std::make_pair(subDetName,i)]->Draw("colz");
+                 depths_[std::make_pair(subDetName,i)]->SetContour(100);
+                 depths_[std::make_pair(subDetName,i)]->GetXaxis()->SetTitle("ieta");
+                 depths_[std::make_pair(subDetName,i)]->GetYaxis()->SetTitle("iphi");
+                 depths_[std::make_pair(subDetName,i)]->GetXaxis()->CenterTitle();
+                 depths_[std::make_pair(subDetName,i)]->GetYaxis()->CenterTitle();
+                 depths_[std::make_pair(subDetName,i)]->GetZaxis()->SetRangeUser(std::get<0>(range), std::get<1>(range));
+                 depths_[std::make_pair(subDetName,i)]->GetYaxis()->SetTitleSize(0.06);
+                 depths_[std::make_pair(subDetName,i)]->GetYaxis()->SetTitleOffset(0.80);
+                 depths_[std::make_pair(subDetName,i)]->GetXaxis()->SetTitleSize(0.06);
+                 depths_[std::make_pair(subDetName,i)]->GetXaxis()->SetTitleOffset(0.80);
+                 depths_[std::make_pair(subDetName,i)]->GetYaxis()->SetLabelSize(0.055);
+                 depths_[std::make_pair(subDetName,i)]->GetXaxis()->SetLabelSize(0.055);
+               } else {
+                 canvas->GetPad(padNum)->SetLeftMargin(0.152);
+                 canvas->GetPad(padNum)->SetRightMargin(0.02);
+                 //gStyle->SetTitleOffset(1.6,"Y");
+                 newName = ("run_" + std::to_string(run_) + "_" + subDetName + "_d" + std::to_string(i) + "_" + (plotForm=="EtaProfile" ? "ieta" : "iphi")).c_str();
+                 //projection = ((TH2F*)(depths_[std::make_pair(subDetName,i)]->Clone("temp")))->ProjectionX(newName);
+                 projection = GetProjection(depths_[std::make_pair(subDetName,i)],plotForm, newName, subDetName, i);
+                 range = GetRange(projection);
+                 projection->Draw("hist");
+                 projection->GetXaxis()->SetTitle((plotForm=="EtaProfile" ? "ieta" : "iphi"));
+                 projection->GetXaxis()->CenterTitle();
+                 projection->GetYaxis()->SetTitle((payload_->myname() + " " + (PlotMode_ == "Map" ? "" : PlotMode_) + " " + GetUnit(payload_->myname())).c_str());
+	         label.SetNDC();
+	         label.SetTextAlign(26);
+	         label.SetTextSize(0.05);
+	         label.DrawLatex(0.3, 0.95, ("run_" + std::to_string(run_) + "_" + subDetName + "_d" + std::to_string(i)).c_str());
+                 projection->GetYaxis()->CenterTitle();
+                 projection->GetXaxis()->SetTitleSize(0.06);
+                 projection->GetYaxis()->SetTitleSize(0.06);
+                 projection->GetXaxis()->SetTitleOffset(0.80);
+                 projection->GetXaxis()->SetLabelSize(0.055);
+                 projection->GetYaxis()->SetTitleOffset(1.34);
+                 projection->GetYaxis()->SetLabelSize(0.055);
+               }
+
+             }
+
+ 
+          }
+
+
+           //// functions called in Payload Inspector classes to import final canvases to be plotted
+
+           // profile = "EtaProfile" || "PhiProfile"
+           TCanvas* getCanvasAll(std::string profile="2DHist") {
+             fillValConts();
+             initGraphics();
+             TCanvas *HAll = new TCanvas("HAll", "HAll", 1680, (GetTopoMode()=="2015/2016")?1680:2500);
+             HAll->Divide(3, (GetTopoMode()=="2015/2016")?3:6, 0.02,0.01);
+             FillCanv(HAll,"HB",1,1,profile);
+             FillCanv(HAll,"HO",4,3,profile);
+             FillCanv(HAll,"HF",1,4,profile);
+             FillCanv(HAll,"HE",1,(GetTopoMode()=="2015/2016")?7:10,profile);
+             return HAll;
+           }           
+           
+           TCanvas* getCanvasHF() {
+           
+             fillValConts();
+             initGraphics();
+             TCanvas *HF = new TCanvas("HF", "HF", 1600, 1000);
+             HF->Divide(3, 2,0.02,0.01);
+             FillCanv(HF,"HF");
+             return HF;
+           }           
+           TCanvas* getCanvasHE() {
+           
+             fillValConts();
+             initGraphics();
+             TCanvas *HE = new TCanvas("HE", "HE", 1680, 1680);
+             HE->Divide(3, 3,0.02,0.01);
+             FillCanv(HE,"HE");
+             return HE;
+           }           
+           TCanvas* getCanvasHBHO() {
+             fillValConts();
+             initGraphics();
+             TCanvas *HBHO = new TCanvas("HBHO", "HBHO", 1680, 1680);
+             HBHO->Divide(3, 3,0.02,0.01);
+             FillCanv(HBHO,"HB");
+             FillCanv(HBHO,"HO",4,3);
+             FillCanv(HBHO,"HB",1,4,"EtaProfile");
+             FillCanv(HBHO,"HO",4,6,"EtaProfile");
+             FillCanv(HBHO,"HB",1,7,"PhiProfile");
+             FillCanv(HBHO,"HO",4,9,"PhiProfile");
+             return HBHO;
+           }           
+
+
+           std::string GetUnit(std::string type) { 
+             std::string unit =  units_[type];
+             if(unit.empty()) return "";
+             else return "("+unit+")";
+           }
+           
+
+       private:
+           DepthMap depths_;
+           std::shared_ptr<Items> payload_;
+           unsigned int run_;
+           std::string TopoMode_;
+           // "Map", "Ratio", or "Diff"
+           std::string PlotMode_;
+       
+           tHcalValCont HBvalContainer;
+           tHcalValCont HEvalContainer;
+           tHcalValCont HOvalContainer;
+           tHcalValCont HFvalContainer;
+           tHcalValCont HTvalContainer;
+           tHcalValCont ZDCvalContainer;
+           tHcalValCont CALIBvalContainer;
+           tHcalValCont CASTORvalContainer;
+           std::map<std::string,int> subDetDepths_;
+           std::map<std::string, std::string> units_ = {
+             { "HcalPedestals", "ADC" },
+             { "HcalGains",  ""},//dimensionless TODO: verify
+             { "HcalL1TriggerObjects", "" },//dimensionless TODO: Verify
+             { "HcalPedestalWidths", "ADC" },
+             { "HcalRespCorrs", "" },//dimensionless TODO: verify
+             { "Dark Current", "" },
+             { "fcByPE", "" },
+             { "crossTalk", "" },
+             { "parLin", "" }
+           };
+
+           tHcalValCont* getContFromString(std::string subDetString) {
+            
+             if(subDetString == "HB") return &HBvalContainer;
+             else if(subDetString == "HE") return &HEvalContainer;
+             else if(subDetString == "HF") return &HFvalContainer;
+             else if(subDetString == "HO") return &HOvalContainer;
+             else if(subDetString == "HT") return &HTvalContainer;
+             else if(subDetString == "CALIB") return &CALIBvalContainer;
+             else if(subDetString == "CASTOR") return &CASTORvalContainer;
+             //else return &ZDCvalContainer;
+             else if(subDetString == "ZDC_EM" || subDetString == "ZDC" || subDetString == "ZDC_HAD" || subDetString == "ZDC_LUM") return &ZDCvalContainer;
+             else throw cms::Exception ("subDetString "+subDetString+" not found in Item");
+             
+           }
+
+           void setTopoModeFromValConts(bool throwOnFail=false) {
+                
+
+             // Check HEP17 alternate channel for 2017, just by checking if the 7th depth is there, or if HF has 4 depths
+             if(depths_.count(std::make_pair("HF",4))!=0 || depths_.count(std::make_pair("HE",7))!=0) TopoMode_ = "2017";
+             // Check endcap depth unique to 2018
+             else if(HEvalContainer.count(std::make_tuple(7,-26,63))!=0) TopoMode_ = "2018";
+             // if not 2017 or 2018, 2015 and 2016 are the same
+             else TopoMode_ = "2015/2016"; 
+             //NOTE: HO's one depth is labeled depth 4
+             if(TopoMode_ == "2018" || TopoMode_ == "2017") {
+               subDetDepths_.insert(std::pair<std::string,int>("HB",2));
+               subDetDepths_.insert(std::pair<std::string,int>("HE",7));
+               subDetDepths_.insert(std::pair<std::string,int>("HF",4));
+               subDetDepths_.insert(std::pair<std::string,int>("HO",1));
+             } else if(TopoMode_ == "2015/2016") {
+               subDetDepths_.insert(std::pair<std::string,int>("HB",2));
+               subDetDepths_.insert(std::pair<std::string,int>("HE",3));
+               subDetDepths_.insert(std::pair<std::string,int>("HF",2));
+               subDetDepths_.insert(std::pair<std::string,int>("HO",1));
+             }
+    
+          }
+       };
+
+
+
+
+
+
+        void drawTable(int nbRows, int nbColumns){
+              TLine* l = new TLine;
+              l->SetLineWidth(1);
+              for (int i = 1; i < nbRows; i++) {
+                double y = (double) i;
+                l = new TLine(0., y, nbColumns, y);
+                l->Draw();
+              }
+      
+              for (int i = 1; i < nbColumns; i++) {
+                double x = (double) i;
+                double y = (double) nbRows;
+                l = new TLine(x, 0., x, y);
+                l->Draw();
+              }
+        }
+
+
+
+
+        std::string SciNotatStr(float num){
+
+            // Create an output string stream
+            std::ostringstream streamObj2;
+
+            if(num==-1) return "NOT FOUND";
+ 
+            //Add double to stream
+            streamObj2 << num;
+            // Get string from output string stream
+            std::string strObj2 = streamObj2.str();
+ 
+            return strObj2;
+        }
+
+
+
+
 	inline std::string IntToBinary(unsigned int number) {
 		std::stringstream ss;
 		unsigned int mask = 1<<31;
@@ -750,6 +1252,7 @@ namespace HcalObjRepresent{
 	{
 	public:
 		ADataRepr(unsigned int d):m_total(d){};
+		virtual ~ADataRepr(){};
 		unsigned int nr, id;
 		std::stringstream filename, rootname, plotname;
 
@@ -800,7 +1303,7 @@ namespace HcalObjRepresent{
 		int ieta, depth, iphi;
 
 
-		virtual void doFillIn(std::vector<TH2F> &graphData) = 0;
+	        virtual void doFillIn(std::vector<TH2F> &graphData) = 0;
 		
 	private:
 
@@ -823,19 +1326,19 @@ namespace HcalObjRepresent{
 
 
 		pad1.cd();
-		graphData[0].SetStats(0);
+		graphData[0].SetStats(false);
 		graphData[0].Draw("colz");
 
 		pad2.cd();
-		graphData[1].SetStats(0);
+		graphData[1].SetStats(false);
 		graphData[1].Draw("colz");
 
 		pad3.cd();
-		graphData[2].SetStats(0);
+		graphData[2].SetStats(false);
 		graphData[2].Draw("colz");
 
 		pad4.cd();
-		graphData[3].SetStats(0);
+		graphData[3].SetStats(false);
 		graphData[3].Draw("colz");
 
 		canvas.SaveAs(filename.c_str());

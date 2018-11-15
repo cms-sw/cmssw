@@ -24,15 +24,13 @@ RPCDaqInfo::~RPCDaqInfo(){}
 void RPCDaqInfo::beginJob(){}
 void RPCDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, edm::LuminosityBlock const & LB, edm::EventSetup const& iSetup){
   
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  
   if(!init_){this->myBooker(ibooker);}
 
-  if(nullptr != iSetup.find( recordKey ) ) {
+  if(auto runInfoRec = iSetup.tryToGet<RunInfoRcd>()) {
     
     //get fed summary information
     edm::ESHandle<RunInfo> sumFED;
-    iSetup.get<RunInfoRcd>().get(sumFED);    
+    runInfoRec->get(sumFED);
     std::vector<int> FedsInIds= sumFED->m_fed_in;   
 
     int FedCount=0;
@@ -119,7 +117,3 @@ void RPCDaqInfo::myBooker(DQMStore::IBooker & ibooker){
   init_=true;
 
 }
-
-
-
-

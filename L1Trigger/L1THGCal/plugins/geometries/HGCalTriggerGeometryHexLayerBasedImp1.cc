@@ -17,6 +17,9 @@ class HGCalTriggerGeometryHexLayerBasedImp1 : public HGCalTriggerGeometryBase
         HGCalTriggerGeometryHexLayerBasedImp1(const edm::ParameterSet& conf);
 
         void initialize(const edm::ESHandle<CaloGeometry>& ) final;
+        void initialize(const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&) final;
         void reset() final;
 
         unsigned getTriggerCellFromCell( const unsigned ) const final;
@@ -153,6 +156,17 @@ initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
     fillNeighborMaps(l1tCellNeighborsBHMapping_, trigger_cell_neighbors_bh_);
     fillInvalidTriggerCells();
 
+}
+
+void
+HGCalTriggerGeometryHexLayerBasedImp1::
+initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
+        const edm::ESHandle<HGCalGeometry>& hgc_hsi_geometry,
+        const edm::ESHandle<HGCalGeometry>& hgc_hsc_geometry
+        )
+{
+    throw cms::Exception("BadGeometry")
+        << "HGCalTriggerGeometryHexLayerBasedImp1 geometry cannot be initialized with the V9 HGCAL geometry";
 }
 
 unsigned 

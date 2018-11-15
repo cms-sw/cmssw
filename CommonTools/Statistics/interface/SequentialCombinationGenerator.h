@@ -99,7 +99,7 @@ private:
       }
       int mincnew2=cnew2[0];
       if (ss[n1-1]<mincnew2) return empty;
-      Vecint::iterator j1=find_if(ss.begin(),ss.end(),bind2nd(std::greater<int>(),mincnew2));
+      Vecint::iterator j1=find_if(ss.begin(),ss.end(), [&](auto c) { return c > mincnew2;});
       if (ss.end()-j1 < p[i]) return empty;
       Vecint sss(j1,ss.end());
       for (int j=0;j<p[i];j++){cnew[ip+j]=cnew2[j]=sss[j];}

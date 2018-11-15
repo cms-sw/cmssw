@@ -69,3 +69,8 @@ bool GeomDetType::isMuon() const
 {
   return GeomDetEnumerators::isMuon(theSubDet);
 }
+
+bool GeomDetType::isTiming() const
+{
+  return GeomDetEnumerators::isTiming(theSubDet);
+}

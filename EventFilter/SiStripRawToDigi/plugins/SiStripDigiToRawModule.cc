@@ -174,5 +174,9 @@ namespace sistrip {
   
   }
 
+  void DigiToRawModule::endStream()
+  {
+    digiToRaw_->printWarningSummary();
+  }
 }
 

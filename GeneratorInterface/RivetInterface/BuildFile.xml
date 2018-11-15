@@ -5,7 +5,6 @@
 <use name="boost"/>
 <use name="gsl"/>
 <use name="root"/>
-<use name="tinyxml"/>
 <use name="GeneratorInterface/Core"/>
 <use name="GeneratorInterface/Pythia6Interface"/>
 <flags   RIVET_PLUGIN="1"/>

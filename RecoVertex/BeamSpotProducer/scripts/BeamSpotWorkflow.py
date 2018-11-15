@@ -70,11 +70,11 @@ def getLastUploadedIOV(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEA
 
     aCommand = listIOVCommand + " | grep DB= | tail -1 | awk \'{print $1}\'"
     output = commands.getstatusoutput( aCommand )
-    
+
     #WARNING when we pass to lumi IOV this should be long long
     if output[1] == '':
-      exit("ERROR: The tag " + tagName + " exists but I can't get the value of the last IOV")
-      
+        exit("ERROR: The tag " + tagName + " exists but I can't get the value of the last IOV")
+
     return long(output[1])
 
 ########################################################################
@@ -109,7 +109,7 @@ def getListOfRunsAndLumiFromDBS(dataSet,lastRun=-1):
         print(" >> " + queryCommand)
         output = []
         for i in range(0,3):
-	    output = commands.getstatusoutput( queryCommand )
+            output = commands.getstatusoutput( queryCommand )
             if output[0] == 0 and not (output[1].find("ERROR") != -1 or output[1].find("Error") != -1) :
                 break
         if output[0] != 0:
@@ -173,7 +173,7 @@ def getListOfRunsAndLumiFromRR(firstRun=-1):
         if tries==maxAttempts:
             error = "Run registry unaccessible.....exiting now"
             return {};
-    
+
 
     listOfRuns=[]
     for line in run_data.split("\n"):
@@ -181,7 +181,7 @@ def getListOfRunsAndLumiFromRR(firstRun=-1):
         if run.isdigit():
             listOfRuns.append(run)
 
-    
+
     firstRun = listOfRuns[len(listOfRuns)-1];
     lastRun  = listOfRuns[0];
     sel_dcstable="{groupName} ='" + Group + "' and {runNumber} >= " + str(firstRun) + " and {runNumber} <= " + str(lastRun) + " and {parDcsBpix} = 1 and {parDcsFpix} = 1 and {parDcsTibtid} = 1 and {parDcsTecM} = 1 and {parDcsTecP} = 1 and {parDcsTob} = 1 and {parDcsEbminus} = 1 and {parDcsEbplus} = 1 and {parDcsEeMinus} = 1 and {parDcsEePlus} = 1 and {parDcsEsMinus} = 1 and {parDcsEsPlus} = 1 and {parDcsHbheA} = 1 and {parDcsHbheB} = 1 and {parDcsHbheC} = 1 and {parDcsH0} = 1 and {parDcsHf} = 1"
@@ -227,7 +227,7 @@ def getLastClosedRun(DBSListOfFiles):
     else:
         runs.sort()
         return long(runs[len(runs)-2])
-    
+
 ########################################################################
 def getRunNumberFromFileName(fileName):
 #    regExp = re.search('(\D+)_(\d+)_(\d+)_(\d+)',fileName)
@@ -242,7 +242,7 @@ def getRunNumberFromDBSName(fileName):
     if not regExp:
         return -1
     return long(regExp.group(3)+regExp.group(4))
-    
+
 ########################################################################
 def getNewRunList(fromDir,lastUploadedIOV):
     newRunList = []
@@ -341,7 +341,7 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                         else:
                             print("WARNING: Timeout DBS_VERY_BIG_MISMATCH_Run" + str(run) + " is in progress.")
                         return filesToProcess
-                    
+
             else:
                 timeoutManager("DBS_VERY_BIG_MISMATCH_Run"+str(run))
                 timeoutManager("DBS_MISMATCH_Run"+str(run))
@@ -374,7 +374,7 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                 #print errors
                 #print badProcessed
                 #print badRunRegistry
-                    
+
                 if len(badRRProcessed) != 0:    
                     print("I have not processed some of the lumis that are in the run registry for run: " + str(run))
                     for lumi in badDBSProcessed:
@@ -429,7 +429,7 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                 else:
                     print("WARNING: Timeout MISSING_RUNREGRUN_Run" + str(run) + " is in progress.")
                 return filesToProcess
-                    
+
     return filesToProcess
 ########################################################################
 def compareLumiLists(listA,listB,errors=[],tolerance=0):
@@ -467,7 +467,7 @@ def compareLumiLists(listA,listB,errors=[],tolerance=0):
             errors.append("Lumi (" + str(lumi) + ") is in listB but not in listA")
             badA.append(lumi)
             #print "Bad A: " + str(lumi)
-            
+
     return badA,badB
 
 ########################################################################
@@ -485,7 +485,7 @@ def removeUncompleteRuns(newRunList,dataSet):
             print("I haven't processed all files yet : " + str(processedRuns[run]) + " out of " + str(nFiles) + " for run: " + str(run))
         else:
             print("All files have been processed for run: " + str(run) + " (" + str(processedRuns[run]) + " out of " + str(nFiles) + ")")
-            
+
 ########################################################################
 def aselectFilesToProcess(listOfFilesToProcess,newRunList):
     selectedFiles = []
@@ -540,7 +540,7 @@ def main():
             return
         else:
             lock()
-            
+
 
     destDB = 'oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT'
     if option.Test:
@@ -581,12 +581,12 @@ def main():
     if archiveDir[len(archiveDir)-1] != '/':
         archiveDir = archiveDir + '/'
     if not os.path.isdir(archiveDir):
-	os.mkdir(archiveDir)
+        os.mkdir(archiveDir)
 
     if workingDir[len(workingDir)-1] != '/':
         workingDir = workingDir + '/'
     if not os.path.isdir(workingDir):
-	os.mkdir(workingDir)
+        os.mkdir(workingDir)
     else:
         os.system("rm -f "+ workingDir + "*") 
 
@@ -597,7 +597,7 @@ def main():
         lastUploadedIOV = getLastUploadedIOV(databaseTag)
     else:
         lastUploadedIOV = getLastUploadedIOV(databaseTag,destDB)
-        
+
     #lastUploadedIOV = 133885
     #lastUploadedIOV = 575216380019329
     if dbIOVBase == "lumiid":
@@ -627,7 +627,7 @@ def main():
     print("Getting list of files from DBS")
     listOfRunsAndLumiFromDBS = getListOfRunsAndLumiFromDBS(dataSet,lastUploadedIOV)
     if len(listOfRunsAndLumiFromDBS) == 0:
-       exit("There are no files in DBS to process") 
+        exit("There are no files in DBS to process") 
     print("Getting list of files from RR")
     listOfRunsAndLumiFromRR  = getListOfRunsAndLumiFromRR(lastUploadedIOV) 
     if(not listOfRunsAndLumiFromRR):
@@ -642,8 +642,8 @@ def main():
     print("Getting list of files to process")
     selectedFilesToProcess = selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,copiedFiles,archiveDir,dataSet,mailList,dbsTolerance,dbsTolerancePercent,rrTolerance,missingFilesTolerance,missingLumisTimeout)
     if len(selectedFilesToProcess) == 0:
-       exit("There are no files to process")
-        
+        exit("There are no files to process")
+
     #print selectedFilesToProcess
     ######### Copy files to working directory
     print("Copying files from archive to working directory")
@@ -675,12 +675,12 @@ def main():
     runBased = False
     if dbIOVBase == "runnumber":
         runBased = True
-        
+
     payloadList = createWeightedPayloads(workingDir+payloadFileName,beamSpotObjList,runBased)
     if len(payloadList) == 0:
         error = "WARNING: I wasn't able to create any payload even if I have some BeamSpot objects."
         exit(error)
-       
+
 
     tmpPayloadFileName = workingDir + "SingleTmpPayloadFile.txt"
     tmpSqliteFileName  = workingDir + "SingleTmpSqliteFile.db"
@@ -709,14 +709,14 @@ def main():
             error = "An error occurred while writing the sqlite file: " + tmpSqliteFileName
             exit(error)
         readSqliteFile(tmpSqliteFileName,databaseTag,readDBTemplate,workingDir)
-        
+
         ##############################################################
         #WARNING I am not sure if I am packing the right values
         if dbIOVBase == "runnumber":
             iov_since = str(payload.Run)
             iov_till  = iov_since
         elif dbIOVBase == "lumiid":
-	    iov_since = str( pack(int(payload.Run), int(payload.IOVfirst)) )
+            iov_since = str( pack(int(payload.Run), int(payload.IOVfirst)) )
             iov_till  = str( pack(int(payload.Run), int(payload.IOVlast)) )
         elif dbIOVBase == "timestamp":
             error = "ERROR: IOV " + dbIOVBase + " still not implemented."
@@ -729,11 +729,11 @@ def main():
             iovSinceFirst = iov_since
         if payloadNumber == len(payloadList)-1:
             iovTillLast   = iov_till
-            
+
         appendSqliteFile(final_sqlite_file_name + ".db", tmpSqliteFileName, databaseTag, iov_since, iov_till ,workingDir)
         os.system("rm -f " + tmpPayloadFileName + " " + tmpSqliteFileName)
 
-        
+
     #### CREATE payload for merged output
 
     print(" create MERGED payload card for dropbox ...")
@@ -756,10 +756,10 @@ def main():
         checkType = "hlt"
     dfile.write('IOVCheck ' + checkType + '\n')
     dfile.write('usertext Beam spot position\n')
-            
+
     dfile.close()
 
-                                                                                                
+
 
     if option.upload:
         print(" scp files to offline Drop Box")
@@ -768,7 +768,7 @@ def main():
             dropbox = "/DropBox_test"
         print("UPLOADING TO TEST DB")
         uploadSqliteFile(workingDir, final_sqlite_file_name, dropbox)
-                   
+
     archive_sqlite_file_name = "Payloads_" + iovSinceFirst + "_" + iovTillLast + "_" + final_sqlite_file_name
     archive_results_file_name = "Payloads_" + iovSinceFirst + "_" + iovTillLast + "_" + databaseTag + ".txt"
     if not os.path.isdir(archiveDir + 'payloads'):
@@ -776,11 +776,11 @@ def main():
     commands.getstatusoutput('mv ' + sqlite_file   + ' ' + archiveDir + 'payloads/' + archive_sqlite_file_name + '.db')
     commands.getstatusoutput('mv ' + metadata_file + ' ' + archiveDir + 'payloads/' + archive_sqlite_file_name + '.txt')
     commands.getstatusoutput('cp ' + workingDir + payloadFileName + ' ' + archiveDir + 'payloads/' + archive_results_file_name)
-  
+
     print(archiveDir + "payloads/" + archive_sqlite_file_name + '.db')
     print(archiveDir + "payloads/" + archive_sqlite_file_name + '.txt')
 
     rmLock()
-    
+
 if __name__ == '__main__':
     main()

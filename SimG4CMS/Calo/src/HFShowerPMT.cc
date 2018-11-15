@@ -55,10 +55,10 @@ HFShowerPMT::HFShowerPMT(const std::string & name, const DDCompactView & cpv,
       pmtFib2.push_back(ifib);
     }
 #ifdef DebugLog
-    edm::LogInfo("HFShower") << "HFShowerPMT: gets the Index matches for "
+    edm::LogVerbatim("HFShower") << "HFShowerPMT: gets the Index matches for "
                              << neta.size() << " PMTs";
     for (unsigned int ii=0; ii<neta.size(); ii++) {
-      edm::LogInfo("HFShower") << "HFShowerPMT: rIndexR[" << ii << "] = "
+      edm::LogVerbatim("HFShower") << "HFShowerPMT: rIndexR[" << ii << "] = "
                                << pmtR1[ii] << " fibreR[" << ii << "] = "
                                << pmtFib1[ii] << " rIndexL[" << ii << "] = "
                                << pmtR2[ii] << " fibreL[" << ii << "] = "
@@ -87,7 +87,7 @@ void HFShowerPMT::initRun(const HcalDDDSimConstants* hcons) {
     if(ig/10*10 == ig) { sss << "\n"; }
     sss << "  " << rTable[ig]/cm;
   }
-  edm::LogInfo("HFShowerPMT") << "HFShowerPMT: " << rTable.size() 
+  edm::LogVerbatim("HFShowerPMT") << "HFShowerPMT: " << rTable.size() 
                               << " rTable(cm):" << sss.str();
 }
 

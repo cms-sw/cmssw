@@ -13,13 +13,14 @@
 
 #include <cmath>
 
-CastorDbService::CastorDbService (const edm::ParameterSet& cfg)
+CastorDbService::CastorDbService ()
   : 
   mPedestals (nullptr),
   mPedestalWidths (nullptr),
   mGains (nullptr),
   mGainWidths (nullptr),
   mQIEData(nullptr),
+  mChannelQuality(nullptr),
   mElectronicsMap(nullptr)
  {}
 

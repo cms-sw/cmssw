@@ -1,4 +1,3 @@
-#include <boost/foreach.hpp>
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -58,7 +57,7 @@ double PFRecoTauDiscriminationByFlight::discriminate(
     tau->signalPFChargedHadrCands();
   std::vector<reco::TransientTrack> signalTransTracks;
   std::vector<reco::TrackRef> signalTrackPtrs;
-  BOOST_FOREACH(const reco::PFCandidatePtr& pftrack, signalTracks) {
+  for(auto const& pftrack : signalTracks) {
     if (pftrack->trackRef().isNonnull()) {
       signalTransTracks.push_back(
           builder_->build(pftrack->trackRef()));
@@ -86,7 +85,7 @@ double PFRecoTauDiscriminationByFlight::discriminate(
     if (uniquePVTracks.size() != pvTrackRefs.size()) {
       std::vector<reco::TransientTrack> pvTransTracks;
       // Build all our unique transient tracks in the PV
-      BOOST_FOREACH(const reco::TrackRef& track, pvTrackRefs) {
+      for(auto const& track : pvTrackRefs) {
         pvTransTracks.push_back(builder_->build(track));
       }
       // Refit our PV

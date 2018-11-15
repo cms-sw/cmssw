@@ -169,9 +169,8 @@ std::vector<l1t::RegionalMuonCand> OMTFSorter::candidates(unsigned int iProcesso
 
     int phiValue = myCand.getPhi();
     if(phiValue>= int(nPhiBins) ) phiValue-=nPhiBins;
-    ///conversion factor from OMTF to uGMT scale: 5400/576
-//    phiValue/=9.375;
-    phiValue *= (437./pow(2,12));    // ie. use as in hw: 9.3729977 
+    ///conversion factor from OMTF to uGMT scale is  5400/576 i.e. phiValue/=9.375;
+    phiValue = floor(phiValue*437./pow(2,12));    // ie. use as in hw: 9.3729977 
     candidate.setHwPhi(phiValue);
     
     candidate.setHwSign(myCand.getCharge()<0 ? 1:0  );

@@ -8,7 +8,7 @@
 */
 class CastorCalibrationWidths {
  public:
-  CastorCalibrationWidths () {};
+  CastorCalibrationWidths () : mGain{}, mPedestal{} {};
   CastorCalibrationWidths (const float fGain [4], const float fPedestal [4]);
   /// get gain width for capid=0..3
   double gain (int fCapId) const {return mGain [fCapId];}

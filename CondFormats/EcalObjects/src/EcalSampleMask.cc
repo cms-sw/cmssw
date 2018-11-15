@@ -7,12 +7,16 @@
 #include <cassert>
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
+using edm::LogError;
 
 EcalSampleMask::EcalSampleMask() 
 {
   // by default, all samples are set as active
   sampleMaskEB_=pow(2, EcalDataFrame::MAXSAMPLES)-1;
-  sampleMaskEB_=pow(2, EcalDataFrame::MAXSAMPLES)-1;
+  sampleMaskEE_=pow(2, EcalDataFrame::MAXSAMPLES)-1;
 }
 
 
@@ -24,7 +28,7 @@ EcalSampleMask::EcalSampleMask(const unsigned int ebmask, const unsigned int eem
 
 EcalSampleMask::EcalSampleMask( const std::vector<unsigned int> &ebmask, const std::vector<unsigned int> &eemask) {
   setEcalSampleMaskRecordEB( ebmask );
-  setEcalSampleMaskRecordEB( eemask );
+  setEcalSampleMaskRecordEE( eemask );
 }
 
 
@@ -37,7 +41,7 @@ void EcalSampleMask::setEcalSampleMaskRecordEB( const std::vector<unsigned int> 
   
   // check that size of the vector is adequate 
   if( ebmask.size() != static_cast<unsigned int>(EcalDataFrame::MAXSAMPLES) ){
-    std::cout << " in EcalSampleMask::setEcalSampleMaskRecordEB size of ebmask (" << ebmask.size() << ") need to be: " << EcalDataFrame::MAXSAMPLES 
+    LogError("DataMismatch")<< " in EcalSampleMask::setEcalSampleMaskRecordEB size of ebmask (" << ebmask.size() << ") need to be: " << EcalDataFrame::MAXSAMPLES 
 	      << ". Bailing out."<< std::endl;
     assert(0);
   }
@@ -46,7 +50,7 @@ void EcalSampleMask::setEcalSampleMaskRecordEB( const std::vector<unsigned int> 
   for (unsigned int s=0; s<ebmask.size(); s++ ) {
     if    ( ebmask.at(s)==0 || ebmask.at(s)==1  ) {;}
     else {
-      std::cout << "in EcalSampleMask::setEcalSampleMaskRecordEB ebmask can only have values 0 or 1, while " << ebmask.at(s) << " was found. Bailing out. " << std::endl;
+      LogError("DataMismatch")<< "in EcalSampleMask::setEcalSampleMaskRecordEB ebmask can only have values 0 or 1, while " << ebmask.at(s) << " was found. Bailing out. " << std::endl;
       assert(0);
     }
   }
@@ -65,7 +69,7 @@ void EcalSampleMask::setEcalSampleMaskRecordEE( const std::vector<unsigned int> 
 
   // check that size of the vector is adequate 
   if( eemask.size() != static_cast<unsigned int>(EcalDataFrame::MAXSAMPLES) ){
-    std::cout << " in EcalSampleMask::setEcalSampleMaskRecordEE size of eemask (" << eemask.size() << ") need to be: " << EcalDataFrame::MAXSAMPLES 
+      LogError("DataMismatch") << " in EcalSampleMask::setEcalSampleMaskRecordEE size of eemask (" << eemask.size() << ") need to be: " << EcalDataFrame::MAXSAMPLES 
 	      << ". Bailing out."<< std::endl;
     assert(0);
   }
@@ -74,7 +78,7 @@ void EcalSampleMask::setEcalSampleMaskRecordEE( const std::vector<unsigned int> 
   for (unsigned int s=0; s<eemask.size(); s++ ) {
     if    ( eemask.at(s)==0 || eemask.at(s)==1  ) {;}
     else {
-      std::cout << "in EcalSampleMask::setEcalSampleMaskRecordEE eemask can only have values 0 or 1, while " << eemask.at(s) << " was found. Bailing out. " << std::endl;
+      LogError("DataMismatch") << "in EcalSampleMask::setEcalSampleMaskRecordEE eemask can only have values 0 or 1, while " << eemask.at(s) << " was found. Bailing out. " << std::endl;
       assert(0);
     }
   }
@@ -93,7 +97,7 @@ void EcalSampleMask::setEcalSampleMaskRecordEE( const std::vector<unsigned int> 
 bool EcalSampleMask::useSampleEB (const int sampleId) const {
   
   if( sampleId >= EcalDataFrame::MAXSAMPLES ){
-    std::cout << "in EcalSampleMask::useSampleEB only sampleId up to: "  << EcalDataFrame::MAXSAMPLES 
+    LogError("DataMismatch")<< "in EcalSampleMask::useSampleEB only sampleId up to: "  << EcalDataFrame::MAXSAMPLES 
 	      << " can be used, while: " << sampleId << " was found. Bailing out." << std::endl;
     assert(0);
   }
@@ -109,7 +113,7 @@ bool EcalSampleMask::useSampleEB (const int sampleId) const {
 bool EcalSampleMask::useSampleEE (const int sampleId) const {
   
   if( sampleId >= EcalDataFrame::MAXSAMPLES ){
-    std::cout << "in EcalSampleMask::useSampleEE only sampleId up to: "  << EcalDataFrame::MAXSAMPLES 
+    LogError("DataMismatch")<< "in EcalSampleMask::useSampleEE only sampleId up to: "  << EcalDataFrame::MAXSAMPLES 
 	      << " can be used, while: " << sampleId << " was found. Bailing out." << std::endl;
     assert(0);
   }
@@ -125,7 +129,7 @@ bool EcalSampleMask::useSampleEE (const int sampleId) const {
 bool EcalSampleMask::useSample  (const int sampleId, DetId &theCrystalId) const {
   
   if( sampleId >= EcalDataFrame::MAXSAMPLES ){
-    std::cout << "in EcalSampleMask::useSample only sampleId up to: "  << EcalDataFrame::MAXSAMPLES 
+    LogError("DataMismatch")<< "in EcalSampleMask::useSample only sampleId up to: "  << EcalDataFrame::MAXSAMPLES 
 	      << " can be used, while: " << sampleId << " was found. Bailing out." << std::endl;
     assert(0);
   }
@@ -138,7 +142,7 @@ bool EcalSampleMask::useSample  (const int sampleId, DetId &theCrystalId) const 
     return useSampleEE ( sampleId );
   }
   else {
-    std::cout << "EcalSampleMaskuseSample::useSample can only be called for EcalBarrel or EcalEndcap DetID" << std::endl; 
+    LogError("DataMismatch")<< "EcalSampleMaskuseSample::useSample can only be called for EcalBarrel or EcalEndcap DetID" << std::endl; 
     assert(0);
   }
   

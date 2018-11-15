@@ -127,7 +127,7 @@ public:
 
   void nix();
   
-  const std::vector<std::pair<std::string,DDName> > &  ma();
+  const std::vector<std::pair<std::string,std::string> > &  ma();
 
   void report(const DDCompactView& cpv, std::ostream & o); 
 

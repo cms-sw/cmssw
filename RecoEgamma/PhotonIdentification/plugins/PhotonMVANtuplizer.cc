@@ -33,6 +33,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
+#include "RecoEgamma/EgammaTools/interface/MultiToken.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -62,21 +63,14 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
 
 
    private:
-      void beginJob() override;
       void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override;
+
+      // method called once each job just before starting event loop
+      void beginJob() override {};
+      // method called once each job just after ending the event loop
+      void endJob() override {};
 
       // ----------member data ---------------------------
-
-      // for AOD case
-      const edm::EDGetToken src_;
-      const edm::EDGetToken vertices_;
-      const edm::EDGetToken pileup_;
-
-      // for miniAOD case
-      const edm::EDGetToken srcMiniAOD_;
-      const edm::EDGetToken verticesMiniAOD_;
-      const edm::EDGetToken pileupMiniAOD_;
 
       // other
       TTree* tree_;
@@ -114,6 +108,12 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
       // config
       const bool isMC_;
       const double ptThreshold_;
+
+      // for AOD or MiniAOD case
+      MultiTokenT<edm::View<reco::Photon>>        src_;
+      MultiTokenT<std::vector<reco::Vertex>>      vertices_;
+      MultiTokenT<std::vector<PileupSummaryInfo>> pileup_;
+
 };
 
 //
@@ -128,24 +128,20 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
 // constructors and destructor
 //
 PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
- :
-  src_                   (consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("src"))),
-  vertices_              (consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertices"))),
-  pileup_                (consumes<std::vector< PileupSummaryInfo > >(iConfig.getParameter<edm::InputTag>("pileup"))),
-  srcMiniAOD_            (consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD"))),
-  verticesMiniAOD_       (consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("verticesMiniAOD"))),
-  pileupMiniAOD_         (consumes<std::vector< PileupSummaryInfo > >(iConfig.getParameter<edm::InputTag>("pileupMiniAOD"))),
-  phoMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAs")),
-  phoMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVALabels")),
-  nPhoMaps_              (phoMapBranchNames_.size()),
-  valMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAValMaps")),
-  valMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAValMapLabels")),
-  nValMaps_              (valMapBranchNames_.size()),
-  mvaCatTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVACats")),
-  mvaCatBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVACatLabels")),
-  nCats_                 (mvaCatBranchNames_.size()),
-  isMC_                  (iConfig.getParameter<bool>("isMC")),
-  ptThreshold_           (iConfig.getParameter<double>("ptThreshold"))
+ : phoMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAs"))
+ , phoMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVALabels"))
+ , nPhoMaps_              (phoMapBranchNames_.size())
+ , valMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAValMaps"))
+ , valMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAValMapLabels"))
+ , nValMaps_              (valMapBranchNames_.size())
+ , mvaCatTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVACats"))
+ , mvaCatBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVACatLabels"))
+ , nCats_                 (mvaCatBranchNames_.size())
+ , isMC_                  (iConfig.getParameter<bool>("isMC"))
+ , ptThreshold_           (iConfig.getParameter<double>("ptThreshold"))
+ , src_                   (consumesCollector(), iConfig, "src"     , "srcMiniAOD")
+ , vertices_        (src_, consumesCollector(), iConfig, "vertices", "verticesMiniAOD")
+ , pileup_          (src_, consumesCollector(), iConfig, "pileup"  , "pileupMiniAOD")
 {
     // phoMaps
     for (size_t k = 0; k < nPhoMaps_; ++k) {
@@ -225,28 +221,12 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     nRun_   = iEvent.id().run();
     nLumi_  = iEvent.luminosityBlock();
 
-
-    // Retrieve Vertecies
-    edm::Handle<reco::VertexCollection> vertices;
-    iEvent.getByToken(vertices_, vertices);
-    if( !vertices.isValid() ){
-      iEvent.getByToken(verticesMiniAOD_,vertices);
-      if( !vertices.isValid() )
-        throw cms::Exception(" Collection not found: ")
-          << " failed to find a standard AOD or miniAOD vertex collection " << std::endl;
-    }
+    // Get Handles
+    auto src      = src_.getValidHandle(iEvent);
+    auto vertices = vertices_.getValidHandle(iEvent);
+    auto pileup   = pileup_.getValidHandle(iEvent);
 
     vtxN_ = vertices->size();
-
-    // Retrieve Pileup Info
-    edm::Handle<std::vector< PileupSummaryInfo > >  pileup;
-    iEvent.getByToken(pileup_, pileup);
-    if( !pileup.isValid() ){
-      iEvent.getByToken(pileupMiniAOD_,pileup);
-      if( !pileup.isValid() )
-        throw cms::Exception(" Collection not found: ")
-          << " failed to find a standard AOD or miniAOD pileup collection " << std::endl;
-    }
 
     // Fill with true number of pileup
     if(isMC_) {
@@ -259,19 +239,6 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                break;
            }
        }
-    }
-
-    edm::Handle<edm::View<reco::Photon> > src;
-
-    // Retrieve the collection of particles from the event.
-    // If we fail to retrieve the collection with the standard AOD
-    // name, we next look for the one with the stndard miniAOD name.
-    iEvent.getByToken(src_, src);
-    if( !src.isValid() ){
-      iEvent.getByToken(srcMiniAOD_,src);
-      if( !src.isValid() )
-        throw cms::Exception(" Collection not found: ")
-          << " failed to find a standard AOD or miniAOD particle collection " << std::endl;
     }
 
     // Get MVA decisions
@@ -321,18 +288,6 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         tree_->Fill();
     }
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-PhotonMVANtuplizer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-PhotonMVANtuplizer::endJob()
-{
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

@@ -10,9 +10,8 @@
 #include "CondFormats/DataRecord/interface/RPCInverseOMTFLinkMapRcd.h"
 
 RPCInverseOMTFLinkMapESProducer::RPCInverseOMTFLinkMapESProducer(edm::ParameterSet const & _config)
-    : inverse_linkmap_(new RPCInverseAMCLinkMap())
 {
-    setWhatProduced(this, edm::eventsetup::dependsOn(&RPCInverseOMTFLinkMapESProducer::RPCOMTFLinkMapCallback));
+    setWhatProduced(this);
 }
 
 void RPCInverseOMTFLinkMapESProducer::fillDescriptions(edm::ConfigurationDescriptions & _descs)
@@ -21,9 +20,10 @@ void RPCInverseOMTFLinkMapESProducer::fillDescriptions(edm::ConfigurationDescrip
     _descs.add("RPCInverseOMTFLinkMapESProducer", _desc);
 }
 
-void RPCInverseOMTFLinkMapESProducer::RPCOMTFLinkMapCallback(RPCOMTFLinkMapRcd const & _rcd)
+void RPCInverseOMTFLinkMapESProducer::setupRPCOMTFLinkMap(RPCOMTFLinkMapRcd const & _rcd,
+                                                          RPCInverseAMCLinkMap* inverse_linkmap)
 {
-    RPCInverseAMCLinkMap::map_type & _inverse_map(inverse_linkmap_->getMap());
+    RPCInverseAMCLinkMap::map_type & _inverse_map(inverse_linkmap->getMap());
     _inverse_map.clear();
 
     edm::ESHandle<RPCAMCLinkMap> _es_map;
@@ -37,7 +37,16 @@ void RPCInverseOMTFLinkMapESProducer::RPCOMTFLinkMapCallback(RPCOMTFLinkMapRcd c
 
 std::shared_ptr<RPCInverseAMCLinkMap> RPCInverseOMTFLinkMapESProducer::produce(RPCInverseOMTFLinkMapRcd const & _rcd)
 {
-    return inverse_linkmap_;
+    auto host = holder_.makeOrGet([]() {
+        return new HostType;
+    });
+
+    host->ifRecordChanges<RPCOMTFLinkMapRcd>(_rcd,
+                                             [this,h=host.get()](auto const& rec) {
+        setupRPCOMTFLinkMap(rec, h);
+    });
+
+    return host;
 }
 
 //define this as a module

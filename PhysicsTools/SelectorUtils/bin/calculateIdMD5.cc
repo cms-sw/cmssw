@@ -5,7 +5,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 
 #include <openssl/md5.h>
 

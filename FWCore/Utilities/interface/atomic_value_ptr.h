@@ -71,7 +71,7 @@ namespace edm {
     }
 
     atomic_value_ptr(atomic_value_ptr&& orig) :
-      myP(orig.myP) { orig.myP.store(nullptr); }
+      myP(orig.myP.load()) { orig.myP.store(nullptr); }
 
     atomic_value_ptr& operator=(atomic_value_ptr&& orig) {
       atomic_value_ptr<T> local(orig);

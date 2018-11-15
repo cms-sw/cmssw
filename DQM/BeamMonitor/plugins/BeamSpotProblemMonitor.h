@@ -11,40 +11,32 @@
 #include <string>
 // CMS
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
-#include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
-#include <fstream>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 
 //
 // class declaration
 //
 
-class BeamSpotProblemMonitor : public edm::EDAnalyzer {
+class BeamSpotProblemMonitor : public DQMEDAnalyzer {
   public:
 
-    BeamSpotProblemMonitor( const edm::ParameterSet& );
-    ~BeamSpotProblemMonitor() override;
+    explicit BeamSpotProblemMonitor( const edm::ParameterSet& );
+    static void fillDescriptions(edm::ConfigurationDescriptions& );
 
   protected:
 
     //The order it runs
 
 
-    // BeginJob
-    void beginJob() override;
-
     // BeginRun
-    void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+    void bookHistograms(DQMStore::IBooker& i, const edm::Run& r, const edm::EventSetup& c) override;
     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
     void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
         const edm::EventSetup& context) override;
@@ -52,45 +44,38 @@ class BeamSpotProblemMonitor : public edm::EDAnalyzer {
         const edm::EventSetup& c) override;
     // EndRun
     void endRun(const edm::Run& r, const edm::EventSetup& c) override;
-    // Endjob
-    void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
 
-  
+
   private:
 
-    void FillPlots(const edm::LuminosityBlock& lumiSeg,int&,int&,int&);
-    edm::ParameterSet parameters_;
+    void fillPlots(int&,int&,int);
     std::string monitorName_;
-    edm::EDGetTokenT<DcsStatusCollection> dcsStatus_; // dcs status colleciton
-    edm::EDGetTokenT<BeamSpotOnlineCollection> scalertag_; // scalar colleciton
-    edm::EDGetTokenT<reco::TrackCollection> trkSrc_; //  track collection
+    const edm::EDGetTokenT<DcsStatusCollection> dcsStatus_; // dcs status collection
+    const edm::EDGetTokenT<BeamSpotOnlineCollection> scalertag_; // scalar collection
+    const edm::EDGetTokenT<reco::TrackCollection> trkSrc_; //  track collection
 
-    int Ntracks_;
-    int nCosmicTrk_;
-    int fitNLumi_;
-    int intervalInSec_;
-    bool debug_;
-    bool onlineMode_;
-    bool doTest_;
-    int  alarmONThreshold_;
-    int  alarmOFFThreshold_;
-
-    DQMStore* dbe_;
+    int nTracks_;
+    const int nCosmicTrk_;
+    const int fitNLumi_;
+    const bool debug_;
+    const bool onlineMode_;
+    const bool doTest_;
+    const int  alarmONThreshold_;
+    const int  alarmOFFThreshold_;
 
     int lastlumi_; // previous LS processed
     int nextlumi_; // next LS of Fit
-    int nFitElements_;
     bool processed_;
 
-    //Alarm Variable  
-    bool ALARM_ON_;
-    double BeamSpotStatus_;  
-    int BeamSpotFromDB_;
-    bool dcsTk[6];
+    //Alarm Variable
+    bool alarmOn_;
+    double beamSpotStatus_;
+    int beamSpotFromDB_;
 
     // MonitorElements:
-    std::map<TString, MonitorElement*> hs;
-    MonitorElement * BeamSpotError;
+    MonitorElement * beamSpotStatusLumi_ = nullptr;
+    MonitorElement * beamSpotStatusLumiAll_ = nullptr;
+    MonitorElement * beamSpotError_ = nullptr;
 
 };
 

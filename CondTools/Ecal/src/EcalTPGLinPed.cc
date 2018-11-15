@@ -29,8 +29,6 @@ void popcon::EcalTPGLinPed::getNewObjects() {
   max_since=tagInfo().lastInterval.first;
   Tm max_since_tm(max_since);
 
-  EcalTPGLinearizationConst *linC = new EcalTPGLinearizationConst;
-  EcalTPGPedestals* peds = new EcalTPGPedestals;
   int fileIOV;
   std::cout << "LinPed which input IOV do you want " << std::endl;
   std::cin >> fileIOV; 
@@ -49,6 +47,8 @@ void popcon::EcalTPGLinPed::getNewObjects() {
   char cryst[10];
   uint32_t  ped[kGains], mult[kGains], shift[kGains];
   uint32_t id;
+  EcalTPGLinearizationConst *linC = new EcalTPGLinearizationConst;
+  EcalTPGPedestals* peds = new EcalTPGPedestals;
   for (int iChannel = 0; iChannel < kEBChannels; iChannel++) {
     getline (fLin, line);
     sscanf(line.c_str(), "%s %u", cryst, &id);
@@ -104,8 +104,8 @@ void popcon::EcalTPGLinPed::getNewObjects() {
   }   // end loop over EE channels
   fLin.close();
   // for the time beeing just transfer pedestal
-  //  m_to_transfer.push_back(std::make_pair((EcalTPGLinearizationConst*)linC, fileIOV));
-  m_to_transfer.push_back(std::make_pair((EcalTPGPedestals*)peds, fileIOV));
+  //  m_to_transfer.push_back(std::make_pair(linC, fileIOV));
+  m_to_transfer.push_back(std::make_pair(peds, fileIOV));
 
   std::cout << "Ecal -> end of getNewObjects -----------\n";	
 }
