@@ -110,9 +110,9 @@ namespace edm {
       Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       Run const& cnstR = r;
-      this->doEndRun_(cnstR, c);
       r.setProducer(this);
       this->doEndRunProduce_(r, c);
+      this->doEndRun_(cnstR, c);
       commit_(r);
     }
     
@@ -133,10 +133,10 @@ namespace edm {
                                          ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
-      LuminosityBlock const& cnstLb = lb;
-      this->doEndLuminosityBlock_(cnstLb, c);
       lb.setProducer(this);
       this->doEndLuminosityBlockProduce_(lb, c);
+      LuminosityBlock const& cnstLb = lb;
+      this->doEndLuminosityBlock_(cnstLb, c);
       commit_(lb);
     }
     
