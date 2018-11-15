@@ -7,14 +7,9 @@
 #include <map>
 #include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
 // calibration headers, for future reference 
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"   
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h" 
@@ -245,7 +240,7 @@ namespace edm
     QIE11DigiPToken_ = iC.consumes<QIE11DigiCollection>(QIE11PileInputTag_);
 
     DoZDC_ = false;
-    if(ZDCPileInputTag_.label() != "") DoZDC_ = true;
+    if(!ZDCPileInputTag_.label().empty()) DoZDC_ = true;
 
     if(DoZDC_) { 
       ZDCDigiToken_ = iC.consumes<ZDCDigiCollection>(ZDCdigiCollectionSig_);
