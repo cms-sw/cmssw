@@ -35,6 +35,12 @@ public:
 
   align::ID rawId()  const { return m_rawId; }
 
+  // Implemented so this can be sorted by rawId
+  const bool operator < ( const AlignTransformErrorExtended & other ) const
+  {
+        return ( m_rawId < other.rawId() );
+  }
+
 private:
 
   //FIXME difference here 

@@ -181,7 +181,7 @@ namespace fit {
     std::map<std::string, size_t> parIndices_;
     bool initialized_;
     double minValue_;
-    std::auto_ptr<TMinuit> minuit_;
+    std::unique_ptr<TMinuit> minuit_;
     std::vector<boost::shared_ptr<double> > pars_;
     static std::vector<boost::shared_ptr<double> > *fPars_;
     bool verbose_;

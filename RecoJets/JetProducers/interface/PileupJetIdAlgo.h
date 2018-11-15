@@ -15,11 +15,6 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
-
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
@@ -34,7 +29,7 @@ public:
 	~PileupJetIdAlgo(); 
 	
 	PileupJetIdentifier computeIdVariables(const reco::Jet * jet, 
-					       float jec, const reco::Vertex *, const reco::VertexCollection &, double rho);
+					       float jec, const reco::Vertex *, const reco::VertexCollection &, double rho, bool usePuppi);
 
 	void set(const PileupJetIdentifier &);
         float getMVAval(const std::vector<std::string> &, const std::unique_ptr<const GBRForest> &);
@@ -80,10 +75,6 @@ public:
           array_t const& mvacut() const { return mvacut_; }
           array_t const& rmsCut() const { return rmsCut_; }
           array_t const& betaStarCut() const { return betaStarCut_; }
-
-          std::unique_ptr<const GBRForest> getMVA(std::vector<std::string> const& varList,
-                                                  std::string const& tmvaWeights,
-                                                  std::vector<std::string> const& tmvaSpectators);
 
         private:
 

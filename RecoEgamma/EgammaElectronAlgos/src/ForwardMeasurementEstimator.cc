@@ -19,7 +19,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 // zero value indicates incompatible ts - hit pair
@@ -111,7 +111,7 @@ bool ForwardMeasurementEstimator::estimate
   Range trajPhiRange(trajPos.phi() - std::abs(thePhiMin), trajPos.phi() + std::abs(thePhiMax));
 
   if(rangesIntersect(trajRRange, plane.rSpan()) &&
-     rangesIntersect(trajPhiRange, plane.phiSpan(), PhiLess()))
+     rangesIntersect(trajPhiRange, plane.phiSpan(), [](auto x,auto y){ return Geom::phiLess(x, y);}))
    { return true ; }
   else
    { return false ; }

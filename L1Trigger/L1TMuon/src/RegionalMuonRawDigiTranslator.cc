@@ -35,14 +35,11 @@ l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& mu, u
     int segSel = (rawTrackAddress >> bmtfTrAddrSegSelShift_) & bmtfTrAddrSegSelMask_;
     int detSide = (rawTrackAddress >> bmtfTrAddrDetSideShift_) & 0x1;
     int wheelNum = (rawTrackAddress >> bmtfTrAddrWheelShift_) & bmtfTrAddrWheelMask_;
-    int statAddr1 = ((rawTrackAddress >> bmtfTrAddrStat1Shift_) & bmtfTrAddrStat1Mask_)
-                  | ((segSel & 0x1) << 2);
-    int statAddr2 = ((rawTrackAddress >> bmtfTrAddrStat2Shift_) & bmtfTrAddrStat2Mask_)
-                  | ((segSel & 0x2) << 3);
-    int statAddr3 = ((rawTrackAddress >> bmtfTrAddrStat3Shift_) & bmtfTrAddrStat3Mask_)
-                  | ((segSel & 0x4) << 2);
-    int statAddr4 = ((rawTrackAddress >> bmtfTrAddrStat4Shift_) & bmtfTrAddrStat4Mask_)
-                  | ((segSel & 0x8) << 1);
+    int statAddr1 = ((rawTrackAddress >> bmtfTrAddrStat1Shift_) & bmtfTrAddrStat1Mask_);
+    int statAddr2 = ((rawTrackAddress >> bmtfTrAddrStat2Shift_) & bmtfTrAddrStat2Mask_);
+    int statAddr3 = ((rawTrackAddress >> bmtfTrAddrStat3Shift_) & bmtfTrAddrStat3Mask_);
+    int statAddr4 = ((rawTrackAddress >> bmtfTrAddrStat4Shift_) & bmtfTrAddrStat4Mask_);
+
     mu.setTrackSubAddress(RegionalMuonCand::kWheelSide, detSide);
     mu.setTrackSubAddress(RegionalMuonCand::kWheelNum, wheelNum);
     mu.setTrackSubAddress(RegionalMuonCand::kStat1, statAddr1);

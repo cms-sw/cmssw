@@ -1,5 +1,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -23,23 +24,23 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testDDStrVector);
 
 void
 testDDStrVector::buildIt() {
-  auto strVec = new std::vector<std::string>;
+  auto strVec = std::make_unique< std::vector< std::string >>();
   strVec->emplace_back("One");
   strVec->emplace_back("Two");
   strVec->emplace_back("Three");
   
-  DDStrVector testVec( "TestVector", strVec );
+  DDStrVector testVec( "TestVector", std::move( strVec ));
   std::cerr << testVec << std::endl;
 }
 
 void
 testDDStrVector::testloading() {
-  auto strVec = new std::vector<std::string>;
+  auto strVec = std::make_unique< std::vector< std::string >>();
   strVec->emplace_back("One");
   strVec->emplace_back("Two");
   strVec->emplace_back("Three");
   
-  DDStrVector testVec( "TestVector", strVec );
+  DDStrVector testVec( "TestVector", std::move( strVec ));
   std::ostringstream  os;
   os << testVec;
   std::string str( "DDStrVector name=GLOBAL:TestVector size=3 vals=( One Two Three )" );

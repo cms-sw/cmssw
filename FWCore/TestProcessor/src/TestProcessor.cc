@@ -33,7 +33,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/ParameterSetReader/interface/ProcessDescImpl.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 
@@ -90,7 +90,7 @@ TestProcessor::TestProcessor(Config const& iConfig):
   //Setup various singletons
   (void) oneTimeInitialization();
   
-  PythonProcessDesc desc(iConfig.pythonConfiguration());
+  ProcessDescImpl desc(iConfig.pythonConfiguration());
   
   auto psetPtr = desc.parameterSet();
   

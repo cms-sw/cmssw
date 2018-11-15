@@ -6,11 +6,10 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CommonTools/Utils/interface/TMVAZipReader.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 #include "TMatrixDSym.h"
 #include "TMatrixDSymEigen.h"
-#include "TMVA/MethodBDT.h"
 
 #include <utility>
 
@@ -30,8 +29,7 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
   betaStarCut_{}
  {
 
-  std::string tmvaWeights;
-  std::vector<std::string> tmvaEtaWeights;
+  std::vector<edm::FileInPath> tmvaEtaWeights;
   std::vector<std::string> tmvaSpectators;
   int version;
 
@@ -41,7 +39,7 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
       const std::vector<edm::ParameterSet>& trainings = ps.getParameter<std::vector <edm::ParameterSet> >("trainings");
       nEtaBins_ = ps.getParameter<int>("nEtaBins");
       for (int v = 0; v < nEtaBins_; v++) {
-        tmvaEtaWeights.push_back( edm::FileInPath(trainings.at(v).getParameter<std::string>("tmvaWeights")).fullPath() );
+        tmvaEtaWeights.push_back(trainings.at(v).getParameter<edm::FileInPath>("tmvaWeights"));
         jEtaMin_.push_back( trainings.at(v).getParameter<double>("jEtaMin") );
         jEtaMax_.push_back( trainings.at(v).getParameter<double>("jEtaMax") );
       }
@@ -49,7 +47,6 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
         tmvaEtaVariables_.push_back( trainings.at(v).getParameter<std::vector<std::string> >("tmvaVariables") );
       }
     } else {
-      tmvaWeights = edm::FileInPath(ps.getParameter<std::string>("tmvaWeights")).fullPath();
       tmvaVariables_ = ps.getParameter<std::vector<std::string> >("tmvaVariables");
     }
     tmvaMethod_ = ps.getParameter<std::string>("tmvaMethod");
@@ -102,33 +99,12 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
   if (( ! cutBased_ ) && (runMvas_)) {
     if (etaBinnedWeights_) {
       for (int v = 0; v < nEtaBins_; v++) {
-        etaReader_.push_back(getMVA(tmvaEtaVariables_.at(v), tmvaEtaWeights.at(v), tmvaSpectators));
+        etaReader_.push_back(createGBRForest(tmvaEtaWeights.at(v)));
       }
     } else {
-      reader_ = getMVA(tmvaVariables_, tmvaWeights, tmvaSpectators);
+      reader_ = createGBRForest(ps.getParameter<std::string>("tmvaWeights"));
     }
   }
-}
-
-std::unique_ptr<const GBRForest>
-PileupJetIdAlgo::AlgoGBRForestsAndConstants::getMVA(std::vector<std::string> const& varList,
-                                                    std::string const& tmvaWeights,
-                                                    std::vector<std::string> const& tmvaSpectators) {
-
-  // A temporary only to access the variables while calling TMVA AddVariable and TMVA AddSpectator.
-  PileupJetIdAlgo algo(nullptr);
-
-  TMVA::Reader tmpTMVAReader( "!Color:Silent:!Error" );
-  for (auto const& varName : varList) {
-    if ( tmvaNames_[varName].empty() ) tmvaNames_[varName] = varName;
-    tmpTMVAReader.AddVariable( varName, std::get<float *,float>(algo.getVariables().at(tmvaNames_[varName])) );
-  }
-  for (auto const& spectatorName : tmvaSpectators) {
-    if ( tmvaNames_[spectatorName].empty() ) tmvaNames_[spectatorName] = spectatorName;
-    tmpTMVAReader.AddSpectator( spectatorName, std::get<float *,float>(algo.getVariables().at(tmvaNames_[spectatorName])) );
-  }
-  reco::details::loadTMVAWeights(&tmpTMVAReader, tmvaMethod_, tmvaWeights);
-  return ( std::make_unique<const GBRForest> ( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(tmvaMethod_.c_str()) ) ) );
 }
 
 PileupJetIdAlgo::PileupJetIdAlgo(AlgoGBRForestsAndConstants const* cache) :
@@ -265,10 +241,8 @@ PileupJetIdentifier PileupJetIdAlgo::computeMva()
 
 // ------------------------------------------------------------------------------------------
 PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, float jec, const reco::Vertex * vtx,
-							const reco::VertexCollection & allvtx, double rho) 
+							const reco::VertexCollection & allvtx, double rho, bool usePuppi) 
 {
-
-	static std::atomic<int> printWarning{10};
 	
 	// initialize all variables to 0
 	resetVariables();
@@ -299,13 +273,14 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	TMatrixDSym covMatrix(2); covMatrix = 0.;
 	float jetPt = jet->pt() / jec; // use uncorrected pt for shape variables
 	float sumPt = 0., sumPt2 = 0., sumTkPt = 0.,sumPtCh=0,sumPtNe = 0;
+	float multNeut = 0.0;
 	setPtEtaPhi(*jet,internalId_.jetPt_,internalId_.jetEta_,internalId_.jetPhi_); // use corrected pt for jet kinematics
 	internalId_.jetM_ = jet->mass(); 
 	internalId_.nvtx_ = allvtx.size();
 	internalId_.rho_ = rho;
 
 	float dRmin(1000);
-	
+
 	for ( unsigned i = 0; i < jet->numberOfSourceCandidatePtrs(); ++i ) {
 	  reco::CandidatePtr pfJetConstituent = jet->sourceCandidatePtr(i);
   
@@ -316,8 +291,9 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	  if (lPack == nullptr){
 	    isPacked = false;
 	  }
-
-	    float candPt = icand->pt();
+	    float candPuppiWeight = 1.0;
+	    if (usePuppi && isPacked) candPuppiWeight = lPack->puppiWeight();
+	    float candPt = (icand->pt())*candPuppiWeight;
 	    float candPtFrac = candPt/jetPt;
 	    float candDr   = reco::deltaR(*icand,*jet);
 	    float candDeta = icand->eta() - jet->eta();
@@ -358,6 +334,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			if( icone < ncones ) { *coneNeutFracs[icone] += candPt; }
 			internalId_.ptDNe_    += candPt*candPt;
 			sumPtNe               += candPt;
+			multNeut += candPuppiWeight;
 		}
 		// EM candidated
 		if( icand->pdgId() == 22 ) {
@@ -367,7 +344,10 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			if( icone < ncones ) { *coneEmFracs[icone] += candPt; }
 			internalId_.ptDNe_    += candPt*candPt;
 			sumPtNe               += candPt;
+			multNeut += candPuppiWeight;
 		}
+		if((abs(icand->pdgId()) == 1) || (abs(icand->pdgId()) == 2)) multNeut += candPuppiWeight;
+
 		// Charged  particles
 		if(  icand->charge() != 0 ) {
 		        if (lLeadCh == nullptr || candPt > lLeadCh->pt()) { 
@@ -483,6 +463,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 				}
 			}
 		}
+
 		// trailing candidate
 		if( lTrail == nullptr || candPt < lTrail->pt() ) {
 			lTrail = icand; 
@@ -505,6 +486,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	 internalId_.neuEMfrac_   = patjet->neutralEmEnergy()    /jet->energy();
 	 internalId_.chgHadrfrac_ = patjet->chargedHadronEnergy()/jet->energy();
 	 internalId_.neuHadrfrac_ = patjet->neutralHadronEnergy()/jet->energy();
+	 if (usePuppi) internalId_.nNeutrals_ = multNeut;
 	} else {
 	 internalId_.nCharged_    = pfjet->chargedMultiplicity();
 	 internalId_.nNeutrals_   = pfjet->neutralMultiplicity();
@@ -525,7 +507,13 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
             continue;
 	  }
 
-	  float weight = part->pt();
+	  float partPuppiWeight=1.0;
+	  if (usePuppi){
+	    const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate *>( part.get() );
+	    if (partpack!=nullptr)  partPuppiWeight = partpack->puppiWeight();
+	  }
+
+	  float weight = (part->pt())*partPuppiWeight;
 	  float weight2 = weight * weight;
 	  sumW2        += weight2;
 	  float deta = part->eta() - jet->eta();
@@ -544,7 +532,14 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	  if (!(part.isAvailable() && part.isNonnull()) ){
             continue;
           }
-	  float weight =part->pt()*part->pt();
+ 
+	  float partPuppiWeight=1.0;
+	  if (usePuppi){
+	    const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate *>( part.get() );
+	    if (partpack!=nullptr)  partPuppiWeight = partpack->puppiWeight();
+	  }
+
+	  float weight = partPuppiWeight*(part->pt())*partPuppiWeight*(part->pt());
 	  float deta = part->eta() - jet->eta();
 	  float dphi = reco::deltaPhi(*part, *jet);
 	  float ddeta, ddphi, ddR;
@@ -597,7 +592,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	internalId_.dRMeanEm_   /= jetPt;
 	internalId_.dRMeanCh_   /= jetPt;
 	internalId_.dR2Mean_    /= sumPt2;
-	
+
 	for(size_t ic=0; ic<ncones; ++ic){
 		*coneFracs[ic]     /= jetPt;
 		*coneEmFracs[ic]   /= jetPt;

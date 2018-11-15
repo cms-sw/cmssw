@@ -124,7 +124,7 @@ namespace cms
     for(uint32_t i = 0; i< trackerContainers.size();i++){
       iEvent.getByLabel( trackerContainers[i], cf_simhit);
       cf_simhitvec.push_back(cf_simhit.product());   }
-    std::auto_ptr<DigiCollectionFP420 > digis(new DigiCollectionFP420(cf_simhitvec));
+    std::unique_ptr<DigiCollectionFP420 > digis(new DigiCollectionFP420(cf_simhitvec));
 
     std::vector<HDigiFP420> input;
     DigiCollectionFP420::iterator isim;

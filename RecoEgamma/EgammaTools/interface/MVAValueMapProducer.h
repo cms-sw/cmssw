@@ -1,127 +1,106 @@
 #ifndef __RecoEgamma_EgammaTools_MVAValueMapProducer_H__
 #define __RecoEgamma_EgammaTools_MVAValueMapProducer_H__
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
+#include "RecoEgamma/EgammaTools/interface/Utils.h"
+#include "RecoEgamma/EgammaTools/interface/MultiToken.h"
 
 #include <memory>
 #include <vector>
 #include <cmath>
 
 template <class ParticleType>
-class MVAValueMapProducer : public edm::stream::EDProducer<> {
+class MVAValueMapProducer : public edm::global::EDProducer<> {
 
   public:
 
   MVAValueMapProducer(const edm::ParameterSet&);
-  ~MVAValueMapProducer() override;
+  ~MVAValueMapProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  template<typename T>
-  void writeValueMap(edm::Event &iEvent,
-             const edm::Handle<edm::View<ParticleType> > & handle,
-             const std::vector<T> & values,
-             const std::string    & label) const ;
+  // for AOD and MiniAOD case
+  const MultiTokenT<edm::View<ParticleType>> src_;
 
-  // for AOD and miniAOD case
-  const edm::EDGetToken src_;
-  const edm::EDGetToken srcMiniAOD_;
-
-  // MVA estimator
-  std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators_;
+  // MVA estimators
+  const std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators_;
 
   // Value map names
-  std::vector <std::string> mvaValueMapNames_;
-  std::vector <std::string> mvaRawValueMapNames_;
-  std::vector <std::string> mvaCategoriesMapNames_;
-
+  const std::vector<std::string> mvaValueMapNames_;
+  const std::vector<std::string> mvaRawValueMapNames_;
+  const std::vector<std::string> mvaCategoriesMapNames_;
 };
+
+namespace {
+
+    auto getMVAEstimators(const edm::VParameterSet& vConfig, edm::ConsumesCollector&& cc)
+    {
+      std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators;
+
+      // Loop over the list of MVA configurations passed here from python and
+      // construct all requested MVA estimators.
+      for( auto &imva : vConfig )
+      {
+
+        // The factory below constructs the MVA of the appropriate type based
+        // on the "mvaName" which is the name of the derived MVA class (plugin)
+        if( !imva.empty() ) {
+
+          mvaEstimators.emplace_back(AnyMVAEstimatorRun2Factory::get()->create(
+                      imva.getParameter<std::string>("mvaName"), imva));
+
+        } else
+          throw cms::Exception(" MVA configuration not found: ")
+            << " failed to find proper configuration for one of the MVAs in the main python script " << std::endl;
+
+        mvaEstimators.back()->setConsumes(std::forward<edm::ConsumesCollector>(cc));
+      }
+
+      return mvaEstimators;
+    }
+
+    std::vector<std::string> getValueMapNames(const edm::VParameterSet& vConfig, std::string && suffix)
+    {
+      std::vector<std::string> names;
+      for( auto &imva : vConfig )
+      {
+        names.push_back(imva.getParameter<std::string>("mvaName") + imva.getParameter<std::string>("mvaTag") + suffix);
+      }
+
+      return names;
+    }
+}
 
 template <class ParticleType>
 MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& iConfig)
-  // Declare consummables, handle both AOD and miniAOD case
-  : src_        (mayConsume<edm::View<ParticleType> >(iConfig.getParameter<edm::InputTag>("src")))
-  , srcMiniAOD_ (mayConsume<edm::View<ParticleType> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD")))
+  : src_(consumesCollector(), iConfig, "src", "srcMiniAOD")
+  , mvaEstimators_(getMVAEstimators(iConfig.getParameterSetVector("mvaConfigurations"), consumesCollector()))
+  , mvaValueMapNames_     (getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "Values"    ))
+  , mvaRawValueMapNames_  (getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "RawValues" ))
+  , mvaCategoriesMapNames_(getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "Categories"))
+
+{
+  for( auto const& name : mvaValueMapNames_      ) produces<edm::ValueMap<float>>(name);
+  for( auto const& name : mvaRawValueMapNames_   ) produces<edm::ValueMap<float>>(name);
+  for( auto const& name : mvaCategoriesMapNames_ ) produces<edm::ValueMap<int  >>(name);
+}
+
+template <class ParticleType>
+void MVAValueMapProducer<ParticleType>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 
-  // Loop over the list of MVA configurations passed here from python and
-  // construct all requested MVA estimators.
-  const std::vector<edm::ParameterSet>& mvaEstimatorConfigs
-    = iConfig.getParameterSetVector("mvaConfigurations");
-
-  for( auto &imva : mvaEstimatorConfigs ){
-
-    // The factory below constructs the MVA of the appropriate type based
-    // on the "mvaName" which is the name of the derived MVA class (plugin)
-    if( !imva.empty() ) {
-
-      mvaEstimators_.emplace_back(AnyMVAEstimatorRun2Factory::get()->create(
-                  imva.getParameter<std::string>("mvaName"), imva));
-
-    } else
-      throw cms::Exception(" MVA configuration not found: ")
-        << " failed to find proper configuration for one of the MVAs in the main python script " << std::endl;
-
-    mvaEstimators_.back()->setConsumes( consumesCollector() );
-
-    //
-    // Compose and save the names of the value maps to be produced
-    //
-
-    const std::string fullName = ( mvaEstimators_.back()->getName() +
-                                   mvaEstimators_.back()->getTag()  );
-
-    const std::string thisValueMapName      = fullName + "Values";
-    const std::string thisRawValueMapName   = fullName + "RawValues";
-    const std::string thisCategoriesMapName = fullName + "Categories";
-
-    mvaValueMapNames_     .push_back( thisValueMapName      );
-    mvaRawValueMapNames_  .push_back( thisRawValueMapName   );
-    mvaCategoriesMapNames_.push_back( thisCategoriesMapName );
-
-    // Declare the maps to the framework
-    produces<edm::ValueMap<float>>(thisValueMapName     );
-    produces<edm::ValueMap<float>>(thisRawValueMapName  );
-    produces<edm::ValueMap<int>>  (thisCategoriesMapName);
-
-  }
-
-}
-
-template <class ParticleType>
-MVAValueMapProducer<ParticleType>::~MVAValueMapProducer() {
-}
-
-template <class ParticleType>
-void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
-  edm::Handle<edm::View<ParticleType> > src;
-
-  // Retrieve the collection of particles from the event.
-  // If we fail to retrieve the collection with the standard AOD
-  // name, we next look for the one with the stndard miniAOD name.
-  iEvent.getByToken(src_, src);
-  if( !src.isValid() ){
-    iEvent.getByToken(srcMiniAOD_,src);
-    if( !src.isValid() )
-      throw cms::Exception(" Collection not found: ")
-        << " failed to find a standard AOD or miniAOD particle collection " << std::endl;
-  }
+  edm::Handle<edm::View<ParticleType> > src = src_.getValidHandle(iEvent);
 
   // Loop over MVA estimators
   for( unsigned iEstimator = 0; iEstimator < mvaEstimators_.size(); iEstimator++ ){
@@ -146,19 +125,6 @@ void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::E
 
   } // end loop over estimators
 
-}
-
-template<class ParticleType> template<typename T>
-void MVAValueMapProducer<ParticleType>::writeValueMap(edm::Event &iEvent,
-                                                      const edm::Handle<edm::View<ParticleType> > & handle,
-                                                      const std::vector<T> & values,
-                                                      const std::string    & label) const
-{
-  auto valMap = std::make_unique<edm::ValueMap<T>>();
-  typename edm::ValueMap<T>::Filler filler(*valMap);
-  filler.insert(handle, values.begin(), values.end());
-  filler.fill();
-  iEvent.put(std::move(valMap), label);
 }
 
 template <class ParticleType>

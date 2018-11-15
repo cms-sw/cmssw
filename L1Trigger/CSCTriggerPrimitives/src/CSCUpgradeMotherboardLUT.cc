@@ -1,5 +1,101 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboardLUT.h"
 
+CSCMotherboardLUTME11::CSCMotherboardLUTME11()
+{
+  // Keep in mind that ME1A is considered an extension of ME1B
+  // This means that ME1A half-strips start at 128 and end at 223
+  lut_wg_vs_hs_me1a  =  {
+    {128,223},{128,223},{128,223},{128,223},{128,223},
+    {128,223},{128,223},{128,223},{128,223},{128,223},
+    {128,223},{128,223},{128,205},{128,189},{128,167},
+    {128,150},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
+    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
+    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
+    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
+    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
+    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
+    {-1,-1},{-1,-1},{-1,-1}
+  };
+  // When the half-strips are triple-ganged, (Run-1)
+  // ME1A half-strips go from 128 to 159
+  lut_wg_vs_hs_me1ag =  {
+    {128,159},{128,159},{128,159},{128,159},{128,159},
+    {128,159},{128,159},{128,159},{128,159},{128,159},
+    {128,159},{128,159},{128,159},{128,159},{128,159},
+    {128,150},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
+    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
+    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
+    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
+    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
+    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
+    {-1,-1},{-1,-1},{-1,-1}
+  };
+  // ME1B half-strips start at 0 and end at 127
+  lut_wg_vs_hs_me1b  =  {
+    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
+    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
+    {100, 127},{73, 127},{47, 127},{22, 127},{0, 127},
+    {0, 127},{0, 127},{0, 127},{0, 127},{0, 127},
+    {0, 127},{0, 127},{0, 127},{0, 127},{0, 127},
+    {0, 127},{0, 127},{0, 127},{0, 127},{0, 127},
+    {0, 127},{0, 127},{0, 127},{0, 127},{0, 127},
+    {0, 127},{0, 127},{0, 127},{0, 127},{0, 127},
+    {0, 127},{0, 127},{0, 127},{0, 127},{0, 105},
+    {0, 93},{0, 78},{0, 63}
+  };
+}
+
+bool
+CSCMotherboardLUTME11::doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c,
+                                         int theEndcap, bool gangedME1a) const
+ {
+   if ( !c.isValid() || !a.isValid() ) return false;
+   int key_hs = c.getKeyStrip();
+   int key_wg = a.getKeyWG();
+   // ME1/a half-strip starts at 128
+   if ( key_hs > CSCConstants::MAX_HALF_STRIP_ME1B )
+     {
+       if ( !gangedME1a )
+         {
+           // wrap around ME11 HS number for -z endcap
+           if (theEndcap==2) {
+             // first subtract 128
+             key_hs -= 1 + CSCConstants::MAX_HALF_STRIP_ME1B;
+             // flip the HS
+             key_hs = CSCConstants::MAX_HALF_STRIP_ME1A_UNGANGED - key_hs;
+             // then add 128 again
+             key_hs += 1 + CSCConstants::MAX_HALF_STRIP_ME1B;
+           }
+           if ( key_hs >= lut_wg_vs_hs_me1a[key_wg][0] &&
+                key_hs <= lut_wg_vs_hs_me1a[key_wg][1]    ) return true;
+           return false;
+         }
+       else
+         {
+           // wrap around ME11 HS number for -z endcap
+           if (theEndcap==2) {
+             // first subtract 128
+             key_hs -= 1 + CSCConstants::MAX_HALF_STRIP_ME1B;
+             // flip the HS
+             key_hs = CSCConstants::MAX_HALF_STRIP_ME1A_GANGED - key_hs;
+             // then add 128 again
+             key_hs += 1 + CSCConstants::MAX_HALF_STRIP_ME1B;
+           }
+           if ( key_hs >= lut_wg_vs_hs_me1ag[key_wg][0] &&
+                key_hs <= lut_wg_vs_hs_me1ag[key_wg][1]    ) return true;
+           return false;
+         }
+     }
+   // ME1/b half-strip ends at 127
+   if ( key_hs <= CSCConstants::MAX_HALF_STRIP_ME1B )
+     {
+       if (theEndcap==2) key_hs = CSCConstants::MAX_HALF_STRIP_ME1B - key_hs;
+       if ( key_hs >= lut_wg_vs_hs_me1b[key_wg][0] &&
+            key_hs <= lut_wg_vs_hs_me1b[key_wg][1]      ) return true;
+     }
+   return false;
+ }
+
 CSCGEMMotherboardLUT::CSCGEMMotherboardLUT()
   : lut_wg_eta_odd(0)
   , lut_wg_eta_even(0)
@@ -57,14 +153,6 @@ CSCGEMMotherboardLUTME11::get_csc_hs_to_gem_pad(Parity par, enum CSCPart p) cons
   else                  { return par==Parity::Even ? csc_hs_to_gem_pad_me1b_even : csc_hs_to_gem_pad_me1b_odd; }
 }
 
-std::vector<std::vector<double> >
-CSCGEMMotherboardLUTME11::get_lut_wg_vs_hs(enum CSCPart p) const
-{
-  if (p==CSCPart::ME1A)      { return lut_wg_vs_hs_me1a;  }
-  else if (p==CSCPart::ME1B) { return lut_wg_vs_hs_me1b;  }
-  else                       { return lut_wg_vs_hs_me1ag; }
-}
-
 CSCGEMMotherboardLUT::~CSCGEMMotherboardLUT()
 {
 }
@@ -104,45 +192,6 @@ CSCGEMMotherboardLUTME11::CSCGEMMotherboardLUTME11()
     {20, 0.00535176, 0.00276152},
     {30, 0.00389050, 0.00224959},
     {40, 0.00329539, 0.00204670}
-  };
-
-  lut_wg_vs_hs_me1a  =  {
-    {0, 95},{0, 95},{0, 95},{0, 95},{0, 95},
-    {0, 95},{0, 95},{0, 95},{0, 95},{0, 95},
-    {0, 95},{0, 95},{0, 77},{0, 61},{0, 39},
-    {0, 22},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-    {-1,-1},{-1,-1},{-1,-1}
-  };
-
-  lut_wg_vs_hs_me1ag =  {
-    {0, 31},{0, 31},{0, 31},{0, 31},{0, 31},
-    {0, 31},{0, 31},{0, 31},{0, 31},{0, 31},
-    {0, 31},{0, 31},{0, 31},{0, 31},{0, 31},
-    {0, 22},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-    {-1,-1},{-1,-1},{-1,-1}
-  };
-
-  lut_wg_vs_hs_me1b  =  {
-    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-    {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-    {100, 127},{73, 127},{47, 127},{22, 127},{0, 127},
-    {0, 127},{0, 127},{0, 127},{0, 127},{0, 127},
-    {0, 127},{0, 127},{0, 127},{0, 127},{0, 127},
-    {0, 127},{0, 127},{0, 127},{0, 127},{0, 127},
-    {0, 127},{0, 127},{0, 127},{0, 127},{0, 127},
-    {0, 127},{0, 127},{0, 127},{0, 127},{0, 127},
-    {0, 127},{0, 127},{0, 127},{0, 127},{0, 105},
-    {0, 93},{0, 78},{0, 63}
   };
 
   gem_roll_eta_limits_odd_l1 = {

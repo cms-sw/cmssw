@@ -19,7 +19,6 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDNodes.h"
-#include "DetectorDescription/Core/interface/DDNumberingScheme.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDScope.h"
@@ -68,7 +67,7 @@ DDTranslation calc(const DDGeoHistory & aHist)
     vt.emplace_back(h[1].posdata()->translation());
     unsigned int i = 1;
     for (; i <= sz-2; ++i) {
-      vr.emplace_back( vr.back() * *(h[i].posdata()->ddrot().rotation()) );
+      vr.emplace_back( vr.back() * h[i].posdata()->ddrot().rotation());
       vt.emplace_back(h[i+1].posdata()->translation());
     }
   }
@@ -388,7 +387,6 @@ void tutorial()
       std::cout << "creating the default numbering scheme ..." << std::endl;
   
       DDExpandedView eeeee(aaaaa);
-      DDDefaultNumberingScheme nums(eeeee);
   
       std::cout << "do sibling-stack navigation?";
       std::cin >> ans;
@@ -411,7 +409,6 @@ void tutorial()
 	  std::cout << "input=" << n << std::endl;
 	  if (e.goTo(n)) {
 	    std::cout << "node=" << e.geoHistory() << std::endl;
-	    std::cout << "  id=" << nums.id(e) << std::endl;  
 	  }
 	  else {
 	    std::cout << "no match!" << std::endl;
@@ -431,12 +428,6 @@ void tutorial()
 	  int s;
 	  std::cin >> s;
 	  go = (bool)s;
-	  if (nums.node(s,e)) {
-	    std::cout << "node=" << e.geoHistory() << std::endl;
-	  }
-	  else {
-	    std::cout << "no match!" << std::endl;
-	  }    
 	}
       }  
     }

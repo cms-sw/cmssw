@@ -41,7 +41,7 @@ def filesize1(n):
     info = os.stat(n)
     sz = info[stat.ST_SIZE]
     return sz
-            
+
 ### lumiCalc
 def printLumi(file,namefile):
     if(filesize1(file) != 0):
@@ -87,16 +87,16 @@ def makecff(file_list,namefile):
     stringS  = stringS + "secFiles = cms.untracked.vstring()\n"
     stringS  = stringS + "\n"
     file1.write(stringS)
-    
+
     filecount = 0
     extendOpen = 0
     for filename in file_list:
-        
+
         if extendOpen == 0:
             stringS  = "readFiles.extend([\n"
             file1.write(stringS)
             extendOpen = 1
-            
+
         stringS  =           "     '"
         stringS  = stringS + str(filename)
         stringS  = stringS + "',\n"
@@ -111,7 +111,7 @@ def makecff(file_list,namefile):
     if extendOpen == 1:
         stringS  =           "])\n\n"
         file1.write(stringS)
-    
+
     stringS  =           "process.source = cms.Source(\"PoolSource\",\n"
     stringS  = stringS + "         fileNames = readFiles,\n"
     stringS  = stringS + "         secondaryFileNames = secFiles\n"
@@ -137,7 +137,7 @@ def defineOptions():
                       dest="dataset", \
                       default="/MinimumBias/Run2010A-TkAlMinBias-Dec22ReReco_v1/ALCARECO",
                       help="For example : --datasetPath /MinimumBias/Run2010A-TkAlMinBias-Dec22ReReco_v1/ALCARECO")
-    
+
     parser.add_option("-s", "--site",
                       dest="site",
                       default="T2_CH_CAF",
@@ -148,15 +148,15 @@ def defineOptions():
                       dest="info",
                       default=False,
                       help="printout the column names on which it's possible to cut")
-    
+
     (options, args) = parser.parse_args()
     if len(sys.argv) == 1:
-	print("\nUsage: %s --help"%sys.argv[0])
+        print("\nUsage: %s --help"%sys.argv[0])
         sys.exit(0)
-    
+
     return options
 
-    
+
 def serverQuery(workspaceName,regexp):
 
     # get handler to RR XML-RPC server
@@ -190,7 +190,7 @@ def getData(doc,options,dataset,site):
     txtLongData=""
     txtkey=""
     lista=[]
-    
+
     sep="\t"
 
     for run in runs:
@@ -251,7 +251,7 @@ def getData(doc,options,dataset,site):
                         print("LUMI ZERO")
                     else:
                         file1.write(lumirun)
-               
+
         file1.close()
         string=""
         string="sed -i 's/}{/, /g'"
@@ -265,7 +265,7 @@ def getData(doc,options,dataset,site):
             if not (rootLSF in listaDBS2):
                 listaDBS2.append(rootLSF)
         makecff(listaDBS2,nameDBS)
-          
+
     return txtLongData
 
 #---------------------------------------------

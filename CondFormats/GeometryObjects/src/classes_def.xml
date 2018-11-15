@@ -10,6 +10,19 @@
  </class>
  <class name="PGeometricDetExtra::Item"/>
  <class name="std::vector<PGeometricDetExtra::Item>"/>
+
+ <class name="PGeometricTimingDet" class_version="0">
+   <field name="pgeomdets_" mapping="blob"/>
+ </class>
+ <class name="PGeometricTimingDet::Item"/>
+ <class name="std::vector<PGeometricTimingDet::Item>"/>
+
+ <class name="PGeometricTimingDetExtra" class_version="0">
+   <field name="pgdes_" mapping="blob"/>
+ </class>
+ <class name="PGeometricTimingDetExtra::Item"/>
+ <class name="std::vector<PGeometricTimingDetExtra::Item>"/>
+
  
  <class name="PCaloGeometry" class_version="0">
    <field name="m_translation" mapping="blob"/>
@@ -41,6 +54,13 @@
  </class>
  <class name="PTrackerParameters::Item"/>
  <class name="std::vector<PTrackerParameters::Item>"/>
+
+ <class name="PMTDParameters" class_version="0"> 
+   <field name="vitems" mapping="blob"/>
+   <field name="vpars" mapping="blob"/>
+ </class>
+ <class name="PMTDParameters::Item"/>
+ <class name="std::vector<PMTDParameters::Item>"/>
 
  <class name="HcalParameters" class_version="0"> 
    <field name="rHB"              mapping="blob"/>

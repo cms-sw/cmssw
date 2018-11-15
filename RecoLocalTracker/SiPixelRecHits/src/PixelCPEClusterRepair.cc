@@ -251,21 +251,6 @@ PixelCPEClusterRepair::localPosition(DetParam const & theDetParam, ClusterParam 
      //--- Did we find a cluster which has bad probability and not enough charge?
      if ( theClusterParam.recommended2D_ ) {
        //--- Yes. So run Template Reco 2d with cluster repair.
-       
-       // //--- Once again (!) copy clust's pixels (calibrated in electrons) into 
-       // //    clustMatrix.  We need to do that because the vanilla template reco
-       // //    will modify the ADC counts in situ (during decapitation)
-       // memset( clustMatrix, 0, sizeof(float)*mrow*mcol );   // Wipe it clean.
-       // for (int i=0 ; i!=theClusterParam.theCluster->size(); ++i )
-       // 	 {
-       // 	   auto pix = theClusterParam.theCluster->pixel(i);
-       // 	   int irow = int(pix.x) - row_offset;
-       // 	   int icol = int(pix.y) - col_offset;
-       // 	   // &&& Do we ever get pixels that are out of bounds ???  Need to check.
-       // 	   if ( (irow<mrow) & (icol<mcol) ) clustMatrix[irow][icol] =  float(pix.adc);
-       // 	 }
-       // // fillClustMatrix( float * clustMatrix );
-       
 
        //--- Call the Template Reco 2d with cluster repair
        callTempReco2D( theDetParam, theClusterParam, clusterPayload2d, ID, lp );
@@ -381,7 +366,7 @@ PixelCPEClusterRepair::callTempReco1D( DetParam const & theDetParam,
 
       //--- templ.clsleny() is the expected length of the cluster along y axis.
       if ( (theClusterParam.probabilityY_ < minProbY_ ) && (templ.clsleny() - nypix > 1) ) {
-	theClusterParam.recommended2D_ = true;
+	     theClusterParam.recommended2D_ = true;
       }
       
       //--- Go from microns to centimeters

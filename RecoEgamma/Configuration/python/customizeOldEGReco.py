@@ -61,14 +61,14 @@ def _configurePFForGEDEGamma(process):
 
     process.gedGsfElectronsTmp.useEcalRegression = cms.bool(False)
     process.gedGsfElectronsTmp.useCombinationRegression = cms.bool(False)
-        
+
     #for later
     process.particleFlowBlock.SCBarrel = cms.InputTag('correctedHybridSuperClusters')
     process.particleFlowBlock.SCEndcap = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
     process.particleFlowBlock.SuperClusterMatchByRef = cms.bool(False)
     #add in conversions
     ## for PF
-    
+
     process.allConversionSequence += process.allConversionOldEGSequence
     process.pfConversions.conversionCollection = cms.InputTag('allConversionsOldEG')
     process.photons.conversionProducer = cms.InputTag('oldegConversions')
@@ -87,7 +87,7 @@ def _configurePFForGEDEGamma(process):
     process.particleFlowTmp.usePFElectrons = cms.bool(True)
     process.particleFlowTmp.sumPtTrackIso = cms.double(2.0)
     process.particleFlowTmp.photon_HoE =  cms.double(0.10)
-    
+
     #re-route PF linker to use old EG collections
     process.particleFlow.GsfElectrons = cms.InputTag('gsfElectrons')
     process.particleFlow.Photons = cms.InputTag('pfPhotonTranslator:pfphot')
@@ -97,24 +97,24 @@ def _configurePFForGEDEGamma(process):
 
 def _customize_DQM(process):
     try:
-	process.ecalBarrelClusterTask.SuperClusterCollection = cms.InputTag("correctedHybridSuperClusters")
-	process.ecalBarrelClusterTask.BasicClusterCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
-	process.ecalEndcapClusterTask.SuperClusterCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapSuperClusters")
-	process.ecalEndcapClusterTask.BasicClusterCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters")
+        process.ecalBarrelClusterTask.SuperClusterCollection = cms.InputTag("correctedHybridSuperClusters")
+        process.ecalBarrelClusterTask.BasicClusterCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
+        process.ecalEndcapClusterTask.SuperClusterCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapSuperClusters")
+        process.ecalEndcapClusterTask.BasicClusterCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters")
     except AttributeError:
-	pass
+        pass
     try:
-	process.ecalBarrelClusterTaskExtras.SuperClusterCollection = cms.InputTag("correctedHybridSuperClusters")
-	process.ecalEndcapClusterTaskExtras.SuperClusterCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapSuperClusters")
+        process.ecalBarrelClusterTaskExtras.SuperClusterCollection = cms.InputTag("correctedHybridSuperClusters")
+        process.ecalEndcapClusterTaskExtras.SuperClusterCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapSuperClusters")
     except AttributeError:
-	pass
+        pass
     try:
-	process.ecalBarrelRecoSummary.superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters")
-	process.ecalBarrelRecoSummary.basicClusterCollection_EB = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
-	process.ecalEndcapRecoSummary.superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower")
-	process.ecalEndcapRecoSummary.basicClusterCollection_EE = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters")
+        process.ecalBarrelRecoSummary.superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters")
+        process.ecalBarrelRecoSummary.basicClusterCollection_EB = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
+        process.ecalEndcapRecoSummary.superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower")
+        process.ecalEndcapRecoSummary.basicClusterCollection_EE = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters")
     except AttributeError:
-	pass 
+        pass 
 
     return process
 
@@ -194,7 +194,7 @@ def _customize_FastSim(process):
     process.interestingGedEleIsoDetIdEE.emObjectLabel = cms.InputTag('gsfElectrons')
     process.interestingEgammaIsoDetIds.remove(process.interestingGedGamIsoDetIdEB)
     process.interestingEgammaIsoDetIds.remove(process.interestingGedGamIsoDetIdEE)
-        
+
     process.reducedEcalRecHitsEB.interestingDetIdCollections = cms.VInputTag(
         # ecal
         cms.InputTag("interestingEcalDetIdEB"),
@@ -255,7 +255,7 @@ def _customize_Reco(process):
     process.interestingGedEleIsoDetIdEE.emObjectLabel = cms.InputTag('gsfElectrons')
     process.interestingEgammaIsoDetIds.remove(process.interestingGedGamIsoDetIdEB)
     process.interestingEgammaIsoDetIds.remove(process.interestingGedGamIsoDetIdEE)
-    
+
     process.reducedEcalRecHitsEB.interestingDetIdCollections = cms.VInputTag(
         # ecal
         cms.InputTag("interestingEcalDetIdEB"),

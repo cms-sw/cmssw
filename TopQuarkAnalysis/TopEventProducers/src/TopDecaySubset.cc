@@ -172,7 +172,7 @@ const reco::GenParticle* TopDecaySubset::findPrimalW(
 			break;
 		}
 	}
-	return (reco::GenParticle*)top->daughter(w_index);
+	return static_cast<const reco::GenParticle*>(top->daughter(w_index));
 }
 
 /// find W bosons that come from top quark decays and decay themselves (end of the MC chain)
@@ -208,7 +208,7 @@ const reco::GenParticle* TopDecaySubset::findLastParticleInChain(
       if(p->status() == 3)
         return p;
     }
-    return findLastParticleInChain((reco::GenParticle*)p->daughter(d_idx));
+    return findLastParticleInChain(static_cast<const reco::GenParticle*>(p->daughter(d_idx)));
   }
 
 
@@ -489,7 +489,7 @@ void TopDecaySubset::fillListing(
 					// for radation to be added we first need to
 					// pick the last quark in the MC chain
 					const reco::GenParticle* last_q = findLastParticleInChain(
-							(reco::GenParticle*) &*td);
+							static_cast<const reco::GenParticle*>(&*td));
 					addRadiation(motherPartIdx_, last_q, target);
 				}
 			} else if (std::abs(td->pdgId()) == TopDecayID::WID) {
@@ -508,7 +508,7 @@ void TopDecaySubset::fillListing(
         // for Pythia 6 this is wrong as the last W has no daughters at all!
         // instead the status 3 W has 3 daughters: q qbar' and W (WTF??!)
 				const reco::GenParticle* decaying_W = findLastParticleInChain(
-						(reco::GenParticle*) &*td);
+						static_cast<const reco::GenParticle*>(&*td));
 				for (reco::GenParticle::const_iterator wd = decaying_W->begin();
 						wd != decaying_W->end(); ++wd) {
 					if (!(std::abs(wd->pdgId()) == TopDecayID::WID)) {
@@ -522,7 +522,7 @@ void TopDecaySubset::fillListing(
 						// increment & push index of the top daughter
 						wDaughters.push_back(++motherPartIdx_);
 						const reco::GenParticle* last_q = findLastParticleInChain(
-													(reco::GenParticle*) &*wd);
+													static_cast<const reco::GenParticle*>(&*wd));
 						addRadiation(motherPartIdx_, last_q, target);
 						if (std::abs(wd->pdgId()) == TopDecayID::tauID) {
 							// add tau daughters

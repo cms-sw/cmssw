@@ -38,7 +38,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.prodNose = cms.EDAnalyzer("HFNoseGeometryTester",
-                                  Detector   = cms.string("HFNoseSensitive"),
+                                  Detector   = cms.string("HGCalHFNoseSensitive"),
                                   )
 
 process.p1 = cms.Path(process.generator*process.prodNose)

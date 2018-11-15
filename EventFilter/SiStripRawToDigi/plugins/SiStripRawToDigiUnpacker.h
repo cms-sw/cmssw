@@ -7,10 +7,7 @@
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
-#include "boost/cstdint.hpp"
-#include <iostream>
-#include <string>
-#include <vector>
+#include "WarningSummary.h"
  
 /// sistrip classes
 namespace sistrip { class RawToClustersLazyUnpacker; }
@@ -149,23 +146,6 @@ namespace sistrip {
     std::vector<SiStripRawDigi> proc_work_digis_;
     std::vector<SiStripRawDigi> cm_work_digis_;
 
-    class WarningSummary {
-    public:
-      WarningSummary(const std::string& category, const std::string& name, bool debug=false)
-        : m_debug(debug)
-        , m_category(category)
-        , m_name(name)
-      {}
-
-      void add(const std::string& message, const std::string& details="");
-      void printSummary() const;
-
-    private:
-      bool m_debug;
-      std::string m_category;
-      std::string m_name;
-      std::vector<std::pair<std::string,std::size_t>> m_warnings;
-    };
     WarningSummary warnings_;
   };
 }

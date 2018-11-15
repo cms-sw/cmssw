@@ -31,7 +31,7 @@ from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import g
 (pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(lowPtQuadStepTrackingRegions, 
                 _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
                     fixedError = 0.5,
-                    ptMin = 0.3,
+                    ptMin = 0.49,
                     originRadius = 0.02
                 )
                                                             )
@@ -48,7 +48,7 @@ lowPtQuadStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "lowPtQuadStepSeedLayers",
     trackingRegions = "lowPtQuadStepTrackingRegions",
     layerPairs = [0,1,2], # layer pairs (0,1), (1,2), (2,3)
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
@@ -108,7 +108,7 @@ lowPtQuadStepTrajectoryFilterBase = _lowPtQuadStepTrajectoryFilterBase.clone(
 trackingPhase2PU140.toReplaceWith(lowPtQuadStepTrajectoryFilterBase, _lowPtQuadStepTrajectoryFilterBase)
 
 for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify(lowPtQuadStepTrajectoryFilterBase, minPt=0.3)
+    e.toModify(lowPtQuadStepTrajectoryFilterBase, minPt=0.49)
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 # Composite filter
@@ -203,6 +203,10 @@ lowPtQuadStep =  TrackMVAClassifierPrompt.clone(
 )
 fastSim.toModify(lowPtQuadStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 highBetaStar_2018.toModify(lowPtQuadStep,qualityCuts = [-0.9,-0.35,-0.15])
+pp_on_AA_2018.toModify(lowPtQuadStep, 
+        mva = dict(GBRForestLabel = 'HIMVASelectorLowPtQuadStep_Phase1'),
+        qualityCuts = [-0.9, -0.4, 0.3],
+)
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

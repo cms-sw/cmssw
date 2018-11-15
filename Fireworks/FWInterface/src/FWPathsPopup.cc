@@ -15,7 +15,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -25,7 +24,8 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
-
+#include "FWCore/PythonParameterSet/src/PythonWrapper.h"
+#include <boost/python/errors.hpp>
 #include "TGLabel.h"
 #include "KeySymbols.h"
 

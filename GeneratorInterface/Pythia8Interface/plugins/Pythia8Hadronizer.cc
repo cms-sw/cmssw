@@ -97,8 +97,8 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     
   private:
 
-    std::auto_ptr<Vincia::VinciaPlugin> fvincia;
-    std::auto_ptr<Pythia8::Dire> fDire;
+    std::unique_ptr<Vincia::VinciaPlugin> fvincia;
+    std::unique_ptr<Pythia8::Dire> fDire;
 
     void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8SetRandomEngine(v); }
     std::vector<std::string> const& doSharedResources() const override { return p8SharedResources; }
@@ -107,7 +107,7 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     double       comEnergy;
 
     std::string LHEInputFileName;
-    std::auto_ptr<LHAupLesHouches>  lhaUP;
+    std::unique_ptr<LHAupLesHouches>  lhaUP;
 
     enum { PP, PPbar, ElectronPositron };
     int  fInitialState ; // pp, ppbar, or e-e+
@@ -116,35 +116,35 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     double fBeam2PZ;
 
     //helper class to allow multiple user hooks simultaneously
-    std::auto_ptr<MultiUserHook> fMultiUserHook;
+    std::unique_ptr<MultiUserHook> fMultiUserHook;
     
     // Reweight user hooks
     //
-    std::auto_ptr<UserHooks> fReweightUserHook;
-    std::auto_ptr<UserHooks> fReweightEmpUserHook;
-    std::auto_ptr<UserHooks> fReweightRapUserHook;  
-    std::auto_ptr<UserHooks> fReweightPtHatRapUserHook;
+    std::unique_ptr<UserHooks> fReweightUserHook;
+    std::unique_ptr<UserHooks> fReweightEmpUserHook;
+    std::unique_ptr<UserHooks> fReweightRapUserHook;  
+    std::unique_ptr<UserHooks> fReweightPtHatRapUserHook;
         
     // PS matching prototype
     //
-    std::auto_ptr<JetMatchingHook> fJetMatchingHook;
-    std::auto_ptr<Pythia8::JetMatchingMadgraph> fJetMatchingPy8InternalHook;
-    std::auto_ptr<Pythia8::amcnlo_unitarised_interface> fMergingHook;
+    std::unique_ptr<JetMatchingHook> fJetMatchingHook;
+    std::unique_ptr<Pythia8::JetMatchingMadgraph> fJetMatchingPy8InternalHook;
+    std::unique_ptr<Pythia8::amcnlo_unitarised_interface> fMergingHook;
     
     // Emission Veto Hooks
     //
-    std::auto_ptr<PowhegHooks> fEmissionVetoHook;
-    std::auto_ptr<EmissionVetoHook1> fEmissionVetoHook1;
+    std::unique_ptr<PowhegHooks> fEmissionVetoHook;
+    std::unique_ptr<EmissionVetoHook1> fEmissionVetoHook1;
     
     // Resonance scale hook
-    std::auto_ptr<PowhegResHook> fPowhegResHook;
-    std::auto_ptr<PowhegHooksBB4L> fPowhegHooksBB4L;
+    std::unique_ptr<PowhegResHook> fPowhegResHook;
+    std::unique_ptr<PowhegHooksBB4L> fPowhegHooksBB4L;
     
     //resonance decay filter hook
-    std::auto_ptr<ResonanceDecayFilterHook> fResonanceDecayFilterHook;
+    std::unique_ptr<ResonanceDecayFilterHook> fResonanceDecayFilterHook;
  
     //PT filter hook
-    std::auto_ptr<PTFilterHook> fPTFilterHook;
+    std::unique_ptr<PTFilterHook> fPTFilterHook;
    
     int  EV1_nFinal;
     bool EV1_vetoOn;

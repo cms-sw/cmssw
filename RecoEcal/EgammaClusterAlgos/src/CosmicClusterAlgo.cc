@@ -9,7 +9,6 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-
 #include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
 
 
@@ -122,7 +121,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
     
   }
   
-   sort(seeds.begin(), seeds.end(), EcalRecHitLess());
+   sort(seeds.begin(), seeds.end(), [](auto const& x, auto const& y){return x.energy() > y.energy();});
 
    if (verbosity < pINFO)
    {
@@ -135,7 +134,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
    }
 
    mainSearch(geometry_p,topology_p,geometryES_p,ecalPart );
-   sort(clusters_v.rbegin(), clusters_v.rend(),ClusterEtLess());
+   std::sort(clusters_v.rbegin(), clusters_v.rend(),isClusterEtLess);
          
    if (verbosity < pINFO)
    {

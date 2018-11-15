@@ -47,16 +47,11 @@ void FastLineRecognition::Cluster::add(const Point *p1, const Point *p2, double 
   if (add2)
     contents.push_back(p2);
 
-  // update sums, mins and maxs
+  // update sums
   Saw += a*w;
   Sbw += b*w;
   Sw += w;
   S1 += 1.;
-
-  min_a = min(a, min_a);
-  min_b = min(b, min_b);
-  max_a = max(a, max_a);
-  max_b = max(b, max_b);
 }
 
 //----------------------------------------------------------------------------------------------------

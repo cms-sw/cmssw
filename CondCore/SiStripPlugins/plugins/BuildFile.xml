@@ -1,5 +1,3 @@
-<flags CXX_FLAGS="-Wno-unused-variable"/>
-
 <library   file="SiStripDetVOff_PayloadInspector.cc" name="SiStripDetVOff_PayloadInspector">
   <use   name="CondCore/Utilities"/>
   <use   name="CondCore/CondDB"/>
@@ -90,6 +88,16 @@
 </library>
 
 <library  file="SiStripLatency_PayloadInspector.cc" name="SiStripLatency_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CommonTools/TrackerMap"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/>
+  <use   name="boost_python"/>
+</library>
+
+<library  file="SiStripFedCabling_PayloadInspector.cc" name="SiStripFedCabling_PayloadInspector">
   <use   name="CondCore/Utilities"/>
   <use   name="CondCore/CondDB"/>
   <use   name="CondFormats/Common"/>

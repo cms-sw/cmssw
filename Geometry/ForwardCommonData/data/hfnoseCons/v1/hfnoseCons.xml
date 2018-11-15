@@ -3,8 +3,8 @@
 
 <SpecParSection label="hfnoseCons.xml" eval="true">
   <SpecPar name="hfnose">
-    <PartSelector path="//HFNoseSensitive.*"/>  
-    <Parameter name="Volume" value="HFNoseSensitive" eval="false"/>
+    <PartSelector path="//HGCalHFNoseSensitive.*"/>  
+    <Parameter name="Volume" value="HGCalHFNoseSensitive" eval="false"/>
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
     <Parameter name="LevelZSide"          value="2"/>
     <Parameter name="LevelTop"            value="4"/>
@@ -12,6 +12,9 @@
     <Parameter name="CellThickness"       value="[hfnose:CellThicknessFine]"/>
     <Parameter name="CellThickness"       value="[hfnose:CellThicknessFine]"/>
     <Parameter name="CellThickness"       value="[hfnose:CellThicknessFine]"/>
+    <Parameter name="FirstLayer"          value="1"/>
+    <Parameter name="FirstMixedLayer"     value="-1"/>
+    <Parameter name="DetectorType"        value="1"/>
     <Parameter name="Radius100to200"      value="[hfnose:HFNoseRMax3]"/>
     <Parameter name="Radius100to200"      value="0"/>
     <Parameter name="Radius100to200"      value="0"/>
@@ -27,10 +30,15 @@
     <Parameter name="RadiusCuts"          value="[hfnose:FracAreaMin]"/>
     <Parameter name="RadiusCuts"          value="[hfnose:HFNoseZ1]"/>
     <Parameter name="SlopeBottom"         value="[hfnose:HFNoseSlope1]"/>
+    <Parameter name="SlopeBottom"         value="[hfnose:HFNoseSlope1]"/>
+    <Parameter name="ZFrontBottom"        value="[hfnose:HFNoseZ1]"/>
+    <Parameter name="ZFrontBottom"        value="[hfnose:HFNoseZ3]"/>
+    <Parameter name="RMinFront"           value="([hfnose:HFNoseSlope1]*[hfnose:HFNoseZ1])"/>
+    <Parameter name="RMinFront"           value="([hfnose:HFNoseSlope1]*[hfnose:HFNoseZ3])"/>
     <Parameter name="SlopeTop"            value="[hfnose:HFNoseSlope2]"/>
     <Parameter name="SlopeTop"            value="[hfnose:HFNoseSlope2]"/>
-    <Parameter name="ZFront"              value="[hfnose:HFNoseZ1]"/>
-    <Parameter name="ZFront"              value="[hfnose:HFNoseZ3]"/>
+    <Parameter name="ZFrontTop"           value="[hfnose:HFNoseZ1]"/>
+    <Parameter name="ZFrontTop"           value="[hfnose:HFNoseZ3]"/>
     <Parameter name="RMaxFront"           value="[hfnose:HFNoseRMax1]"/>
     <Parameter name="RMaxFront"           value="[hfnose:HFNoseRMax3]"/>
   </SpecPar>

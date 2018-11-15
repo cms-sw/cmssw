@@ -11,7 +11,7 @@ class TreeAnalyzer(object):
         self.fileSizes = {}
         self.outFileName = outFileName
         print("going to write to:",self.outFileName)
-        
+
     def analyzePath(self, dirIn) :
 
         for (path, dirs, files) in os.walk(dirIn):
@@ -19,17 +19,17 @@ class TreeAnalyzer(object):
             if 'CVS' in path: continue
             if '.glimpse_' in path: continue
             if 'Configuration/PyReleaseValidation/data/run/' in path: continue
-            
+
             for file in files:
                 if '.glimpse_index' in file: continue
-            	fileName = os.path.join(path, file)
-            	fileSize = os.path.getsize(fileName)
-            	if path in self.dirSizes.keys() :
-            	    self.dirSizes[path] += fileSize
-            	else:
-            	    self.dirSizes[path] =  fileSize
-            	if os.path.isfile(fileName):
-            	    self.fileSizes[fileName] = fileSize
+                fileName = os.path.join(path, file)
+                fileSize = os.path.getsize(fileName)
+                if path in self.dirSizes.keys() :
+                    self.dirSizes[path] += fileSize
+                else:
+                    self.dirSizes[path] =  fileSize
+                if os.path.isfile(fileName):
+                    self.fileSizes[fileName] = fileSize
 
         try:
             import json
@@ -48,7 +48,7 @@ class TreeAnalyzer(object):
             print('treeInfo info  written to ', pklFileName)
         except Exception as e:
             print("error writing pkl file:", str(e))
-        
+
     def show(self):
 
         # for p,s in self.dirSizes.items():
@@ -76,7 +76,7 @@ class TreeAnalyzer(object):
 def main():
 
     import getopt
-    
+
     try:
         opts, args = getopt.getopt(sys.argv[1:], "c:o:", ['checkDir=', 'outFile='])
 

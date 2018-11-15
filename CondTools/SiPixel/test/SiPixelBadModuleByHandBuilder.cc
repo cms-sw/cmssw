@@ -16,9 +16,9 @@ SiPixelBadModuleByHandBuilder::SiPixelBadModuleByHandBuilder(const edm::Paramete
 SiPixelBadModuleByHandBuilder::~SiPixelBadModuleByHandBuilder(){
 }
 
-SiPixelQuality* SiPixelBadModuleByHandBuilder::getNewObject(){
+std::unique_ptr<SiPixelQuality> SiPixelBadModuleByHandBuilder::getNewObject(){
   
-  SiPixelQuality* obj = new SiPixelQuality();
+  auto obj = std::make_unique<SiPixelQuality>();
 
   for(Parameters::iterator it = BadModuleList_.begin(); it != BadModuleList_.end(); ++it) {
 

@@ -31,7 +31,7 @@ class IslandClusterProducer : public edm::stream::EDProducer<>
       IslandClusterProducer(const edm::ParameterSet& ps);
 
       ~IslandClusterProducer() override;
-
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
       void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:

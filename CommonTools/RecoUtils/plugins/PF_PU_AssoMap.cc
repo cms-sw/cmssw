@@ -85,15 +85,15 @@ PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	PF_PU_AssoMapAlgos::GetInputCollections(iEvent,iSetup);
 
-	if ( ( asstype == "TracksToVertex" ) || ( asstype == "Both" ) ) {
-	  unique_ptr<TrackToVertexAssMap> Track2Vertex = CreateTrackToVertexMap(trkcollH, iSetup);
-  	  iEvent.put( SortAssociationMap( &(*Track2Vertex) ) );
-	}
-
-	if ( ( asstype == "VertexToTracks" ) || ( asstype == "Both" ) ) {
-	  unique_ptr<VertexToTrackAssMap> Vertex2Track = CreateVertexToTrackMap(trkcollH, iSetup);
-	  iEvent.put(std::move(Vertex2Track));
-	}
+        if (asstype == "TracksToVertex" || asstype == "VertexToTracks" || asstype == "Both") {
+          auto mappings = createMappings(trkcollH, iSetup);
+          if (asstype == "TracksToVertex" || asstype == "Both") {
+            iEvent.put( SortAssociationMap( &(*mappings.first), trkcollH ) );
+          }
+          if (asstype == "VertexToTracks" || asstype == "Both") {
+            iEvent.put( std::move(mappings.second));
+          }
+        }
 
 }
 

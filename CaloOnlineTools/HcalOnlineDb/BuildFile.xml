@@ -15,6 +15,7 @@
 <use   name="Geometry/CaloTopology"/>
 <use   name="CondTools/Hcal"/>
 <use   name="OnlineDB/Oracle"/>
+<use   name="SimCalorimetry/HcalTrigPrimAlgos"/>
 <use   name="root"/>
 <use   name="rootgraphics"/>
 

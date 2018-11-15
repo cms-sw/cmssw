@@ -28,10 +28,6 @@ class CSCGEMMotherboardME21 : public CSCGEMMotherboard
   /** Default destructor. */
   ~CSCGEMMotherboardME21() override;
 
-  /** Clears correlated LCT and passes clear signal on to cathode and anode
-      LCT processors. */
-  void clear();
-
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
   void run(const CSCWireDigiCollection* wiredc,
@@ -56,15 +52,7 @@ class CSCGEMMotherboardME21 : public CSCGEMMotherboard
                         const GEMPadDigiIds& pads,
                         const GEMCoPadDigiIds& copads,
                         CSCCorrelatedLCTDigi& lct1,
-                        CSCCorrelatedLCTDigi& lct2,
-                        enum CSCPart p) const;
-
-  /** for the case when more than 2 LCTs/BX are allowed;
-      maximum match window = 15 */
-  LCTContainer allLCTs;
-
-  /* store the CLCTs found earlier */
-  std::vector<CSCCLCTDigi> clctV;
+                        CSCCorrelatedLCTDigi& lct2) const;
 
   // drop low quality stubs if they don't have GEMs
   bool dropLowQualityCLCTsNoGEMs_;

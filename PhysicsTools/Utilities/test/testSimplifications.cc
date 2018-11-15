@@ -21,54 +21,54 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testSimplifications);
 void testSimplifications::checkAll() {
   using namespace funct;
   using namespace boost;
-  BOOST_STATIC_ASSERT((is_same<
+  static_assert((is_same<
 		       Sum<Numerical<2>, Numerical<3> >::type, 
 		       Numerical<5>
 		       >::value));
   
-  BOOST_STATIC_ASSERT((is_same<
+  static_assert((is_same<
 		       Difference<Numerical<2>, Numerical<3> >::type, 
 		       Numerical<-1>
 		       >::value));
-  BOOST_STATIC_ASSERT((is_same<
+  static_assert((is_same<
 		       Product<Numerical<2>, Numerical<3> >::type, 
 		       Numerical<6>
 		       >::value));
-  BOOST_STATIC_ASSERT((is_same<
+  static_assert((is_same<
 		       Minus<Numerical<6> >::type, 
 		       Numerical<-6>
 		       >::value));
-  BOOST_STATIC_ASSERT((is_same<
+  static_assert((is_same<
 		       Fraction<2,4>::type,
 		       Fraction<1,2>::type
 		       >::value));
-  BOOST_STATIC_ASSERT((is_same<
+  static_assert((is_same<
 		       Fraction<-1,2>::type,
 		       Fraction<1,-2>::type
 		       >::value));
-  BOOST_STATIC_ASSERT((is_same<
+  static_assert((is_same<
 		       Fraction<4,2>::type,
 		       Numerical<2>
 		       >::value));
-  BOOST_STATIC_ASSERT((is_same<
+  static_assert((is_same<
 		       Fraction<3,4>::type,
 		       Fraction<21,28>::type
 		       >::value));
-  BOOST_STATIC_ASSERT((is_same<
+  static_assert((is_same<
 		       Fraction<3,1>::type,
 		       Numerical<3>
 		       >::value));
-  BOOST_STATIC_ASSERT((is_same<
+  static_assert((is_same<
 		       Product<Minus<X>::type, Minus<Y>::type>::type,
 		       Product<X, Y>::type
 		       >::value));
-  BOOST_STATIC_ASSERT((!Parametric<Power<X, Y>::type>::value));
-  BOOST_STATIC_ASSERT((is_same<
+  static_assert((!Parametric<Power<X, Y>::type>::value));
+  static_assert((is_same<
 		       Product<Power<X, Y>::type, Power<X, Z>::type>::type,
 		       Power<X, Sum<Y, Z>::type>::type
 		       >::value));
-  BOOST_STATIC_ASSERT((!Parametric<Ratio<Sin<X>::type, Cos<X>::type>::type>::value));
-  BOOST_STATIC_ASSERT((is_same<
+  static_assert((!Parametric<Ratio<Sin<X>::type, Cos<X>::type>::type>::value));
+  static_assert((is_same<
 		       Ratio<Sin<X>::type, Cos<X>::type>::type,
 		       Tan<X>::type
 		       >::value));

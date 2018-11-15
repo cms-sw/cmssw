@@ -32,14 +32,6 @@ namespace {
       return z - etaMax<Scalar>();
     }    
   }
-
-  inline void calculateREP(const math::XYZPoint& pos, double& rho, double& eta, double& phi) {
-    const double z = pos.z();
-    rho = pos.Rho();    
-    eta = Eta_FromRhoZ_fast<double>(rho,z);
-    phi = (pos.x()==0 && pos.y()==0) ? 0 : vdt::fast_atan2(pos.y(), pos.x());
-  }
-
 }
 
 using namespace std;

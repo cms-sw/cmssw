@@ -1,8 +1,7 @@
-#include <boost/foreach.hpp>
 #include "RecoTauTag/RecoTau/interface/RecoTauBinnedIsolationPlugin.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauIsolationMasking.h"
 
-namespace reco { namespace tau {
+namespace reco::tau {
 
 template<class Extractor>
 class RecoTauDiscriminationBinnedIsolationImpl
@@ -18,7 +17,7 @@ class RecoTauDiscriminationBinnedIsolationImpl
     Extractor extractor_;
 };
 
-}} // end namespace reco::tau
+} // end namespace reco::tau
 
 
 // Methods to get the right kind of canddiates
@@ -49,7 +48,7 @@ class MaskedECALExtractor {
       reco::tau::RecoTauIsolationMasking::IsoMaskResult
         result = mask_.mask(*tau);
       output.reserve(result.gammas.size());
-      BOOST_FOREACH(const reco::PFCandidatePtr gamma, result.gammas) {
+      for(auto const& gamma : result.gammas) {
         output.push_back(gamma);
       }
       return output;
@@ -75,7 +74,7 @@ class MaskedHCALExtractor {
       reco::tau::RecoTauIsolationMasking::IsoMaskResult
         result = mask_.mask(*tau);
       output.reserve(result.h0s.size());
-      BOOST_FOREACH(const reco::PFCandidatePtr h0, result.h0s) {
+      for(auto const& h0 : result.h0s) {
         output.push_back(h0);
       }
       return output;

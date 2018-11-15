@@ -67,10 +67,9 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::Produc
 // version for Pre-Mixing, for use outside of MixingModule
 EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params,  edm::ConsumesCollector& iC) :
    DigiAccumulatorMixMod(),
-   useDBShape         ( false) ,
-   m_APDShape         ( useDBShape ) ,
-   m_EBShape          ( useDBShape ) ,
-   m_EEShape          ( useDBShape ) ,
+   m_APDShape         ( true ) ,
+   m_EBShape          ( true ) ,
+   m_EEShape          ( true ) ,
    m_ESShape          (   ) ,
    m_EBdigiCollection ( params.getParameter<std::string>("EBdigiCollection") ) ,
    m_EEdigiCollection ( params.getParameter<std::string>("EEdigiCollection") ) ,
@@ -344,12 +343,15 @@ EcalDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const& eventSe
   // Step A: Get Inputs
   edm::Handle<std::vector<PCaloHit> > ebHandle;
   if(m_doEB) {
+    m_EBShape.setEventSetup(eventSetup);  // need to set the eventSetup here, otherwise pre-mixing module will not wrk
+    m_APDShape.setEventSetup(eventSetup); //
     edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
     e.getByLabel(ebTag, ebHandle);
   }
 
   edm::Handle<std::vector<PCaloHit> > eeHandle;
   if(m_doEE) {
+    m_EEShape.setEventSetup(eventSetup); // need to set the eventSetup here, otherwise pre-mixing module will not work
     edm::InputTag eeTag(m_hitsProducerTag, "EcalHitsEE");
     e.getByLabel(eeTag, eeHandle);
   }

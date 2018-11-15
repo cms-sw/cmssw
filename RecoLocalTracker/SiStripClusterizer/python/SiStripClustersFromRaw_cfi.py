@@ -7,5 +7,6 @@ SiStripClustersFromRawFacility = cms.EDProducer("SiStripClusterizerFromRaw",
                                                 Clusterizer = DefaultClusterizer,
                                                 Algorithms = DefaultAlgorithms,
                                                 DoAPVEmulatorCheck = cms.bool(False),
+                                                HybridZeroSuppressed = cms.bool(False),
                                                 ProductLabel = cms.InputTag('rawDataCollector')
                                                 )

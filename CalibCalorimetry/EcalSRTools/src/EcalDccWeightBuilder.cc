@@ -169,7 +169,7 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::Eve
 #endif
     
     try{
-      bool useDBShape = false;
+      bool useDBShape = true;
       EBShape ebShape(useDBShape);  
       EEShape eeShape(useDBShape); 
       EcalShapeBase* pShape;      

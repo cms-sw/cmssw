@@ -158,6 +158,8 @@ addMixingScenario("AVE_200_BX_25ns_m12p3",{'file': 'SimGeneral.MixingModule.mix_
 addMixingScenario("AVE_200_BX_25ns_m6p6",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-6,6), 'N': 200})
 addMixingScenario("AVE_140_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-3,3), 'N': 140})
 addMixingScenario("AVE_140_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-3,3), 'N': 140})
+addMixingScenario("AVE_250_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-3,3), 'N': 250})
+addMixingScenario("AVE_300_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-3,3), 'N': 300})
 addMixingScenario("AVE_140_BX_25ns_m12p3",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 140})
 addMixingScenario("AVE_140_BX_25ns_m6p6",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-6,6), 'N': 140})
 addMixingScenario("flatPU_0_10",{'file': 'SimGeneral.MixingModule.mix_flat_0_10_cfi'})

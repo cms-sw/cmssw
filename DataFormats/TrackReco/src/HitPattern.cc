@@ -5,6 +5,8 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
@@ -133,6 +135,29 @@ namespace {
         }
         return layer;
     }
+  uint16_t encodeTimingLayer(const DetId& id) {
+    uint16_t detid = id.det();
+    uint16_t subdet = id.subdetId();    
+    uint16_t layer = 0x0;
+    if( detid == DetId::Forward && subdet == FastTime ) {
+      MTDDetId mtdid(id);
+      switch( mtdid.mtdSubDetector() ) {
+      case MTDDetId::BTL:
+	layer = BTLDetId(id).modType();
+	break;
+      case MTDDetId::ETL:
+	layer = ETLDetId(id).mtdRR();
+	break;
+      default:
+	throw cms::Exception("HitPattern")
+	  << "Invalid MTD Subdetector " << mtdid.mtdSubDetector() << "!";
+      }	
+    } else {
+      throw cms::Exception("HitPattern")
+	<< "Invalid DetId for FastTime det= " <<detid << " subdet= " << subdet  << "!";
+    }    
+    return layer;
+  }
 }
 
 uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo)
@@ -146,14 +171,26 @@ uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType, const
         layer = ttopo.layer(id);
     } else if (detid == DetId::Muon) {
         layer = encodeMuonLayer(id);
+    } else if( detid == DetId::Forward && subdet == FastTime ) {
+        layer = encodeTimingLayer(id);
     }
 
     // adding mono/stereo bit
     uint16_t side = 0x0;
     if (detid == DetId::Tracker) {
         side = isStereo(id, ttopo);
-    } else if (detid == DetId::Muon) {
+    } else if (detid == DetId::Muon || (detid == DetId::Forward && subdet == FastTime) ) {
         side = 0x0;
+    }
+
+    // juggle the detid around to deal with the fact the bitwidth is larger
+    // DetId::Muon is 2 and DetId::Forward is 6, must map to 0 and 2 respectively
+    if( detid == DetId::Tracker ) {
+      detid = TRACKER_HIT;
+    } else if( detid == DetId::Muon ) {
+      detid = MUON_HIT; // DetId::Muon is 2 and needs to be reordered to match old encoding where it got masked
+    } else if( detid == DetId::Forward && subdet == FastTime ) {
+      detid = MTD_HIT; // since DetId::Forward is some other number, reorder it here
     }
 
     return encode(detid, subdet, layer, side, hitType);
@@ -162,17 +199,17 @@ uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType, const
 uint16_t HitPattern::encode(uint16_t det, uint16_t subdet, uint16_t layer, uint16_t side, TrackingRecHit::Type hitType) {
     uint16_t pattern = HitPattern::EMPTY_PATTERN;
 
-    // adding tracker/muon detector bit
+    // adding tracker/muon/mtd detector bits
     pattern |= (det & SubDetectorMask) << SubDetectorOffset;
 
-    // adding substructure (PXB, PXF, TIB, TID, TOB, TEC, or DT, CSC, RPC,GEM) bits
+    // adding substructure (PXB, PXF, TIB, TID, TOB, TEC, or DT, CSC, RPC,GEM, or BTL, ETL) bits
     pattern |= (subdet & SubstrMask) << SubstrOffset;
 
-    // adding layer/disk/wheel bits
+    // adding layer/disk/wheel/ring/modType bits
     pattern |= (layer & LayerMask) << LayerOffset;
 
     // adding mono/stereo bit
-    pattern |= (side & SideMask) << SideOffset;
+    pattern |= (side & SideMask) << SideOffset;    
 
     TrackingRecHit::Type patternHitType = (hitType == TrackingRecHit::missing_inner ||
                                            hitType == TrackingRecHit::missing_outer) ? TrackingRecHit::missing 
@@ -265,7 +302,7 @@ bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
 }
 
 bool HitPattern::appendTrackerHit(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType) {
-    return appendHit(encode(DetId::Tracker, subdet, layer, stereo, hitType), hitType);
+    return appendHit(encode(TRACKER_HIT, subdet, layer, stereo, hitType), hitType);
 }
 
 bool HitPattern::appendMuonHit(const DetId& id, TrackingRecHit::Type hitType) {
@@ -277,10 +314,9 @@ bool HitPattern::appendMuonHit(const DetId& id, TrackingRecHit::Type hitType) {
     if UNLIKELY(id.det() != DetId::Muon) {
         throw cms::Exception("HitPattern") << "Got DetId from det " << id.det() << " that is not Muon in appendMuonHit(), which should only be used for muon hits in the HitPattern IO rule";
     }
-
-    uint16_t detid = id.det();
+    
     uint16_t subdet = id.subdetId();
-    return appendHit(encode(detid, subdet, encodeMuonLayer(id), 0, hitType), hitType);
+    return appendHit(encode(MUON_HIT, subdet, encodeMuonLayer(id), 0, hitType), hitType);
 }
 
 uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
@@ -291,7 +327,7 @@ uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
     /*
     Note: you are not taking a consecutive sequence of HIT_LENGTH bits starting from position * HIT_LENGTH
      as the bit order in the words are reversed. 
-     e.g. if position = 0 you take the lowest 10 bits of the first word.
+     e.g. if position = 0 you take the lowest 12 bits of the first word.
 
      I hope this can clarify what is the memory layout of such thing
 
@@ -317,7 +353,7 @@ uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
       uint16_t myResult = (hitPattern[secondWord] >> lowBitsToTrash) & ((1 << HIT_LENGTH) - 1);
       return myResult;
     } else {
-      uint8_t  firstWordBits   = HIT_LENGTH - secondWordBits;
+      uint8_t firstWordBits   = HIT_LENGTH - secondWordBits;
       uint16_t firstWordBlock  = hitPattern[secondWord - 1] >> (16 - firstWordBits);
       uint16_t secondWordBlock = hitPattern[secondWord] & ((1 << secondWordBits) - 1);
       uint16_t myResult = firstWordBlock + (secondWordBlock << firstWordBits);
@@ -394,7 +430,8 @@ int HitPattern::numberOfValidStripLayersWithMonoAndStereo() const
    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
    for (int i = range.first; i < range.second; ++i) {
      auto pattern = getHitPatternByAbsoluteIndex(i);
-     if (pattern<minStripWord) continue;
+     if (pattern > maxTrackerWord) continue;
+     if (pattern < minStripWord) continue;
      uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
      if (hitType != HIT_TYPE::VALID) continue;
      auto apattern = (pattern-minTrackerWord) >> LayerOffset;
@@ -839,6 +876,8 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
         stream << "muon";
     } else if (trackerHitFilter(pattern)) {
         stream << "tracker";
+    } else if (timingHitFilter(pattern)) {
+        stream << "timing";
     }
 
     stream << "\tsubstructure " << getSubStructure(pattern);
@@ -860,6 +899,8 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
 	  stream << "(UNKNOWN Muon SubStructure!) \tsubsubstructure "
 		 << getSubStructure(pattern);
         }
+    } else if( timingHitFilter(pattern) ) {
+        stream << "\tdetector " << getSubStructure(pattern);
     } else {
         stream << "\tlayer " << getLayer(pattern);
     }
@@ -1022,7 +1063,7 @@ bool HitPattern::insertTrackHit(const uint16_t pattern)
         // before the first hit of this type is inserted, there are no hits
         endTrackHits = beginTrackHits;
     }
-
+    
     insertHit(pattern);
     endTrackHits++;
 

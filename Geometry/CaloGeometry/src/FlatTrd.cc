@@ -178,11 +178,11 @@ void FlatTrd::localCorners( Pt3DVec&        lc  ,
    assert( nullptr != pv ) ;
    assert( ncorner_ == lc.size() ) ;
 
-   const CCGFloat dz ( pv[0] ) ;
-   const CCGFloat h  ( pv[3] ) ;
-   const CCGFloat bl ( pv[4] ) ;
-   const CCGFloat tl ( pv[5] ) ;
-   const CCGFloat a1 ( pv[6] ) ;
+   const CCGFloat dz ( pv[FlatTrd::k_dZ] ) ;
+   const CCGFloat h  ( pv[FlatTrd::k_dY1] ) ;
+   const CCGFloat bl ( pv[FlatTrd::k_dX1] ) ;
+   const CCGFloat tl ( pv[FlatTrd::k_dX2] ) ;
+   const CCGFloat a1 ( pv[FlatTrd::k_Alp1] ) ;
   
    const CCGFloat ta1 ( tan( a1 ) ) ;
 
@@ -270,7 +270,7 @@ GlobalVector FlatTrd::makeAxis() {
 
 GlobalPoint FlatTrd::backCtr() const {
   float dz = (getCorners()[ncornerBy2_].z() > getCorners()[0].z()) ? 
-    param()[0] : -param()[0];
+    param()[FlatTrd::k_dZ] : -param()[FlatTrd::k_dZ];
   Pt3D local_b(m_local.x(),m_local.y(),m_local.z()+dz);
   Pt3D global_b = m_tr*local_b;
   GlobalPoint global(global_b.x(),global_b.y(),global_b.z());

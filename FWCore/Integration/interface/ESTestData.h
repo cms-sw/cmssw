@@ -14,7 +14,7 @@ namespace edmtest {
 
   class ESTestDataB {
   public:
-    ESTestDataB(int v) { value_ = v; }
+    ESTestDataB(int v = 0, int w = 0) { value_ = v + w; }
     int & value() { return value_; }
     int const& value() const { return value_; }
   private:

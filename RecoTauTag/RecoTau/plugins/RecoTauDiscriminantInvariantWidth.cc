@@ -8,15 +8,15 @@
  *
  */
 
-#include <boost/foreach.hpp>
 #include "RecoTauTag/RecoTau/interface/RecoTauDiscriminantPlugins.h"
 #include "RecoTauTag/RecoTau/interface/PFTauDecayModeTools.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include <TFormula.h>
 #include "RecoTauTag/RecoTau/interface/RecoTauDiscriminantFunctions.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
-namespace reco { namespace tau {
+#include <TFormula.h>
+
+namespace reco::tau {
 
 class RecoTauDiscriminantInvariantWidth : public RecoTauDiscriminantPlugin {
   public:
@@ -36,8 +36,7 @@ RecoTauDiscriminantInvariantWidth::RecoTauDiscriminantInvariantWidth(
     const edm::ParameterSet& pset):RecoTauDiscriminantPlugin(pset) {
   typedef std::vector<edm::ParameterSet> VPSet;
   // Add each of the transformations
-  BOOST_FOREACH(const edm::ParameterSet& dm,
-      pset.getParameter<VPSet>("decayModes")) {
+  for(auto const& dm : pset.getParameter<VPSet>("decayModes")) {
     uint32_t nCharged = dm.getParameter<uint32_t>("nCharged");
     uint32_t nPiZeros = dm.getParameter<uint32_t>("nPiZeros");
     MeanAndWidthFuncs functions;
@@ -74,7 +73,7 @@ std::vector<double> RecoTauDiscriminantInvariantWidth::operator()(
   return std::vector<double>(1, result);
 }
 
-}} // end namespace reco::tau
+} // end namespace reco::tau
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_EDM_PLUGIN(RecoTauDiscriminantPluginFactory,

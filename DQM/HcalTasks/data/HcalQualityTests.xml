@@ -1,0 +1,33 @@
+<TESTSCONFIGURATION>
+
+  <QTEST name="LEDMisfireThreshold">
+    <TYPE>ContentsYRange</TYPE>
+    <PARAM name="warning">0.</PARAM>
+    <PARAM name="error">1.</PARAM>
+    <PARAM name="ymin">0.0</PARAM>
+    <PARAM name="ymax">0.0</PARAM>
+    <PARAM name="useEmptyBins">0</PARAM>
+  </QTEST>
+  <LINK name="*Hcal/DigiTask/LED_CUCountvsLS/Subdet/*">
+    <TestName activate="true">LEDMisfireThreshold</TestName>
+  </LINK>
+  <LINK name="*Hcal/DigiTask/LED_CUCountvsLSmod60/Subdet/*">
+    <TestName activate="true">LEDMisfireThreshold</TestName>
+  </LINK>
+
+  <QTEST name="BadCapIDThreshold">
+    <TYPE>ContentsWithinExpected</TYPE>
+      <PARAM name="error">1.0</PARAM>
+      <PARAM name="warning">1.0</PARAM>
+      <PARAM name="minMean">-1.0</PARAM>
+      <PARAM name="maxMean">0.0</PARAM>
+      <PARAM name="minRMS">0.0</PARAM>
+      <PARAM name="maxRMS">0.0</PARAM>
+      <PARAM name="toleranceMean">-1.0</PARAM>
+      <PARAM name="minEntries">0</PARAM>
+      <PARAM name="useEmptyBins">1</PARAM>
+  </QTEST>
+  <LINK name="*Hcal/DigiTask/CapID/CapID_BadvsLS*">
+    <TestName activate="true">BadCapIDThreshold</TestName>
+  </LINK>
+</TESTSCONFIGURATION>

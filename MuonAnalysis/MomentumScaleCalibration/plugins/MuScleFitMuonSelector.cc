@@ -9,15 +9,15 @@ const unsigned int MuScleFitMuonSelector::motherPdgIdArray[] = {23, 100553, 1005
 const reco::Candidate* 
 MuScleFitMuonSelector::getStatus1Muon(const reco::Candidate* status3Muon){
   const reco::Candidate* tempMuon = status3Muon;
-  //  bool lastCopy = ((reco::GenParticle*)tempMuon)->isLastCopy();                      //  isLastCopy() likely not enough robust
-  bool isPromptFinalState = ((reco::GenParticle*)tempMuon)->isPromptFinalState();        //  pre-CMSSW_74X code: int status = tempStatus1Muon->status();
+  //  bool lastCopy = (static_cast<const reco::GenParticle*>(tempMuon))->isLastCopy();                      //  isLastCopy() likely not enough robust
+  bool isPromptFinalState = static_cast<const reco::GenParticle*>(tempMuon)->isPromptFinalState();        //  pre-CMSSW_74X code: int status = tempStatus1Muon->status();
   while(tempMuon == nullptr || tempMuon->numberOfDaughters()!=0){
     if ( isPromptFinalState ) break;                                                     //  pre-CMSSW_74X code: if (status == 1) break;
     //std::vector<const reco::Candidate*> daughters;
     for (unsigned int i=0; i<tempMuon->numberOfDaughters(); ++i){
       if ( tempMuon->daughter(i)->pdgId()==tempMuon->pdgId() ){
 	tempMuon = tempMuon->daughter(i);
-	isPromptFinalState = ((reco::GenParticle*)tempMuon)->isPromptFinalState(); 	 //  pre-CMSSW_74X code: status = tempStatus1Muon->status();
+	isPromptFinalState = static_cast<const reco::GenParticle*>(tempMuon)->isPromptFinalState(); 	 //  pre-CMSSW_74X code: status = tempStatus1Muon->status();
 	break;
       }else continue;
     }//for loop
@@ -29,14 +29,14 @@ MuScleFitMuonSelector::getStatus1Muon(const reco::Candidate* status3Muon){
 const reco::Candidate* 
 MuScleFitMuonSelector::getStatus3Muon(const reco::Candidate* status3Muon){
   const reco::Candidate* tempMuon = status3Muon;
-  bool lastCopy = ((reco::GenParticle*)tempMuon)->isLastCopyBeforeFSR();        //  pre-CMSSW_74X code: int status = tempStatus1Muon->status();
+  bool lastCopy = static_cast<const reco::GenParticle*>(tempMuon)->isLastCopyBeforeFSR();        //  pre-CMSSW_74X code: int status = tempStatus1Muon->status();
   while(tempMuon == nullptr || tempMuon->numberOfDaughters()!=0){
     if ( lastCopy ) break;                                                      //  pre-CMSSW_74X code: if (status == 3) break;
     //std::vector<const reco::Candidate*> daughters;
     for (unsigned int i=0; i<tempMuon->numberOfDaughters(); ++i){
       if ( tempMuon->daughter(i)->pdgId()==tempMuon->pdgId() ){
 	tempMuon = tempMuon->daughter(i);
-	lastCopy = ((reco::GenParticle*)tempMuon)->isLastCopyBeforeFSR(); 	//  pre-CMSSW_74X code: status = tempStatus1Muon->status();
+	lastCopy = static_cast<const reco::GenParticle*>(tempMuon)->isLastCopyBeforeFSR(); 	//  pre-CMSSW_74X code: status = tempStatus1Muon->status();
 	break;
       }else continue;
     }//for loop
@@ -93,8 +93,10 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<Mu
   MuScleFitPlotter * plotter)
 {
   edm::Handle<pat::CompositeCandidateCollection > collAll;
-  try { event.getByLabel("onia2MuMuPatTrkTrk", collAll); }
-  catch (...) { std::cout << "J/psi not present in event!" << std::endl; }
+  event.getByLabel("onia2MuMuPatTrkTrk", collAll);
+  if(!collAll.isValid()) {
+    edm::LogWarning("MuScleFitUtils") << "J/psi not present in event!";
+  }
   std::vector<const pat::Muon*> collMuSel;
 
   //================onia cuts===========================/
@@ -254,7 +256,7 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
 						 std::vector<GenMuonPair> & genPair,
 						 MuScleFitPlotter * plotter)
 {
-  reco::GenParticleCollection* genPatParticles = new reco::GenParticleCollection;
+  reco::GenParticleCollection genPatParticles{};
 
   //explicitly for JPsi but can be adapted!!!!!
   for(std::vector<pat::CompositeCandidate>::const_iterator it=collAll->begin();
@@ -262,7 +264,7 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
     reco::GenParticleRef genJpsi = it->genParticleRef();
     bool isMatched = (genJpsi.isAvailable() && genJpsi->pdgId() == 443);  
     if (isMatched){
-      genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genJpsi.get())));
+      genPatParticles.push_back(*genJpsi.get());
     }
   }
 
@@ -272,8 +274,8 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
     bool isMuMatched = (genMu1.isAvailable() && genMu2.isAvailable() && 
 			genMu1->pdgId()*genMu2->pdgId() == -169);
     if (isMuMatched) {
-      genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genMu1.get())));
-      genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genMu2.get())));
+      genPatParticles.push_back(*genMu1.get());
+      genPatParticles.push_back(*genMu2.get());
 
       unsigned int motherId = 0;
       if( genMu1->mother() != nullptr ) {
@@ -285,7 +287,7 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
 	// genPair.push_back(std::make_pair(genMu2.get()->p4(),genMu1.get()->p4()) );
 	genPair.push_back(GenMuonPair(genMu2.get()->p4(), genMu1.get()->p4(), motherId));
 
-      plotter->fillGen(const_cast <reco::GenParticleCollection*> (genPatParticles), true);
+      plotter->fillGen(genPatParticles, true);
 
       if (debug_>0) std::cout << "Found genParticles in PAT" << std::endl;
     }
@@ -326,13 +328,13 @@ void MuScleFitMuonSelector::selectGenSimMuons(const edm::Event & event,
   event.getByLabel( genParticlesName_, genParticles );
   if( evtMC.isValid() ) {
     genPair.push_back( findGenMuFromRes(evtMC.product()) );
-    plotter->fillGen(evtMC.product(), sherpa_);
+    plotter->fillGen(*evtMC, sherpa_);
     ifHepMC = true;
     if (debug_>0) std::cout << "Found hepMC" << std::endl;
   }
   else if( genParticles.isValid() ) {
     genPair.push_back( findGenMuFromRes(genParticles.product()) );
-    plotter->fillGen(genParticles.product());
+    plotter->fillGen(*genParticles);
     if (debug_>0) std::cout << "Found genParticles" << std::endl;
   }
   else {

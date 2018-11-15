@@ -189,7 +189,9 @@ vector<uint32_t> SiPixelPerformanceSummary::getAllDetIds() const {
 vector<float> SiPixelPerformanceSummary::getDetSummary(const uint32_t detId) const {
   vector<DetSummary>::const_iterator iDetSumm = find_if(allDetSummaries_.begin(), 
                                                         allDetSummaries_.end(), 
-							MatchDetSummaryDetId(detId));
+                                                        [&detId](const DetSummary& detSumm) -> bool
+                                                                {return detSumm.detId_ == detId;}
+                                                        );
   if (iDetSumm==allDetSummaries_.end()) { 
     vector<float> performanceValues; 
     cout << "cannot get DetSummary for detId = "<< detId; 

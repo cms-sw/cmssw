@@ -1,20 +1,25 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-import sys
+import sys, os
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
+from Configuration.Geometry.dict2023Geometry import detectorVersionDict
 
-varType = Enumerate ("Run1 2015 2017 2019 2023D17 2023D19 MaPSA")
+varType = Enumerate ("Run1 2015 2017 2019 2023 MaPSA")
+defaultVersion=str();
 
 def help():
    print("Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG ")
    print("   tag=tagname")
-   print("       indentify geometry condition database tag")
+   print("       identify geometry condition database tag")
    print("      ", varType.keys())
    print("")
+   print("   version=versionNumber")
+   print("       scenario version from 2023 dictionary")
+   print("")
    print("   tgeo=bool")
-   print("       dump in TGeo format to borwse it geomtery viewer")
-   print("       import this will in Fireworks with option --sim-geom-file")
+   print("       dump in TGeo format to browse in geometry viewer")
+   print("       import this in Fireworks with option --sim-geom-file")
    print("")
    print("   tracker=bool")
    print("       include Tracker subdetectors")
@@ -29,7 +34,14 @@ def help():
    print("       include Timing subdetectors")
    print("")
    print("")
-   exit(1);
+   os._exit(1);
+
+def versionCheck(ver):
+   if ver == "":
+      print("Please, specify 2023 scenario version\n")
+      print(sorted([x[1] for x in detectorVersionDict.items()]))
+      print("")
+      help()
 
 def recoGeoLoad(score):
     print("Loading configuration for tag ", options.tag ,"...\n")
@@ -64,10 +76,11 @@ def recoGeoLoad(score):
        process.CSCGeometryESModule.applyAlignment = cms.bool(False)
        
     elif "2023" in score:
+       versionCheck(options.version)
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run2_mc']
-       process.load('Configuration.Geometry.GeometryExtended'+score+'Reco_cff')
+       process.load('Configuration.Geometry.GeometryExtended2023'+options.version+'Reco_cff')
        
     elif score == "MaPSA":
        process.load('Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff')
@@ -113,6 +126,12 @@ options.register ('tag',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "tag info about geometry database conditions")
+
+options.register ('version',
+                  defaultVersion, # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "info about 2023 geometry scenario version")
 
 options.register ('tgeo',
                   False, # default value

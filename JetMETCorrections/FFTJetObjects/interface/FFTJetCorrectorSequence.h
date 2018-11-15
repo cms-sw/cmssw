@@ -56,6 +56,8 @@ public:
                                    const FinalConverter<Jet>& f)
         : cinit_(i), cfinal_(f) {}
 
+    void clear() { sequence_.clear(); }
+
     inline void addCorrector(const Corrector& c)
         {sequence_.push_back(c);}
 

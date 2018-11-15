@@ -64,7 +64,7 @@ def plotResLayer(fileName,sl,layer,
                 histoMean.SetBinError(binHistoNew,fitMeanErr)
                 histoSigma.SetBinContent(binHistoNew,fitSigma*corrFactor)
                 histoSigma.SetBinError(binHistoNew,fitSigmaErr*corrFactor)
-  
+
                 if sec == 1:
                     label = "Wheel %d" % wh
                     if wh == -2: label += " MB%d" % st  
@@ -115,7 +115,7 @@ def plot(fileName,sl,
 
     legend = ROOT.TLegend(0.4,0.7,0.95,0.8)
     for idx in range( len(histos) ):
-	histo = histos[idx]
+        histo = histos[idx]
         label = histo.GetName()
         if len(labels): label = labels[idx]
         legend.AddEntry(histo,label,"LP")
@@ -168,7 +168,7 @@ def plot(fileName,sl,
             histoAverage.SetBinContent(binHistoAve,averages[(st,wh)])
             histoAverage.SetBinError(binHistoAve,averagesErr[(st,wh)])
             print("Station %d, Wheel %d: %.4f +/- %.6f" % (st,wh,averages[(st,wh)],averagesErr[(st,wh)]))
-     
+
     canvasAverage = ROOT.TCanvas("c_" + histoAverage.GetName())
     canvasAverage.SetGridx()
     canvasAverage.SetGridy()
@@ -234,10 +234,10 @@ def plotSigmaAll(fileName,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',o
             histos[-1].Draw(option + "SAME")
 
         idx += 1
-        
+
     legend = ROOT.TLegend(0.4,0.7,0.95,0.8)
     for idx in range( len(histos) ):
-	histo = histos[idx]
+        histo = histos[idx]
         label = histo.GetName()
         if len(labels): label = labels[idx]
         legend.AddEntry(histo,label,"LP")
@@ -303,9 +303,9 @@ def plotFromFile(fileNames,labels=[]):
             histos_tmp.append( file.Get(var) )
             histos_tmp[-1].SetName( "%s_%d" % (histos_tmp[-1].GetName(),idx) )
             print("Created",histos_tmp[-1].GetName())
-	    histos_tmp[-1].SetLineColor(colors[ idx % len(colors) ]) 
-	    histos_tmp[-1].SetMarkerColor(colors[ idx % len(colors) ]) 
-	    histos_tmp[-1].SetMarkerStyle(markers[ idx % len(markers) ]) 
+            histos_tmp[-1].SetLineColor(colors[ idx % len(colors) ]) 
+            histos_tmp[-1].SetMarkerColor(colors[ idx % len(colors) ]) 
+            histos_tmp[-1].SetMarkerStyle(markers[ idx % len(markers) ]) 
             histos_tmp[-1].SetMarkerSize(1.4)
             idx += 1
         histos.append( histos_tmp )
@@ -320,19 +320,19 @@ def plotFromFile(fileNames,labels=[]):
         #histos.append( (histoData,histoMC) )
         histos[-1][0].Draw()
         for histo in histos[-1][1:]: histo.Draw("SAME")
-            
+
         if len(labels):
             #labelData = labels[0]
             #labelMC = labels[1]
-	    legends.append( ROOT.TLegend(0.4,0.7,0.95,0.8) )
+            legends.append( ROOT.TLegend(0.4,0.7,0.95,0.8) )
             idx = 0
             for histo in histos[-1]:
-		legends[-1].AddEntry(histo,labels[idx],"LP")
+                legends[-1].AddEntry(histo,labels[idx],"LP")
                 idx += 1
 
-	    legends[-1].SetFillColor( canvases[-1].GetFillColor() )
-	    legends[-1].Draw("SAME")
- 
+            legends[-1].SetFillColor( canvases[-1].GetFillColor() )
+            legends[-1].Draw("SAME")
+
         idx_var += 1
 
     if not objects: objects = [legends]

@@ -33,16 +33,16 @@ public:
   int nstrips() const;
 
   /// returns center of strip position for INTEGER strip number
-  /// that has a value range of [1, nstrip]
+  /// that has a value range of [0, nstrip-1]
   LocalPoint  centreOfStrip(int strip) const;
 
   /// returns center of strip position for FRACTIONAL strip number
-  /// that has a value range of [0., nstrip]
+  /// that has a value range of [0.0, nstrip)
   LocalPoint  centreOfStrip(float strip) const;
   LocalError  localError(float strip, float cluster_size= 1.) const;
-  /// returns fractional strip number [0..nstrips] for a LocalPoint
+  /// returns fractional strip number [0.0, nstrips) for a LocalPoint
   /// E.g., if local point hit strip #2, the fractional strip number would be
-  /// somewhere in the (1., 2] interval
+  /// somewhere in the [2.0, 3.0) interval
   float strip(const LocalPoint& lp) const;
 
   float pitch() const;
@@ -55,14 +55,14 @@ public:
   int npads() const;
 
   /// returns center of pad position for INTEGER pad number
-  /// that has a value range of [1, npads]
+  /// that has a value range of [0, npads-1]
   LocalPoint  centreOfPad(int pad) const;
 
   /// returns center of pad position for FRACTIONAL pad number
-  /// that has a value range of [0., npads]
+  /// that has a value range of [0., npads)
   LocalPoint  centreOfPad(float pad) const;
 
-  /// returns FRACTIONAL pad number [0.,npads] for a point
+  /// returns FRACTIONAL pad number [0.,npads) for a point
   float pad(const LocalPoint& lp) const;
 
   /// pad pitch in a center
@@ -73,13 +73,13 @@ public:
 
   // relations between strips and pads:
   
-  /// returns FRACTIONAL pad number [0.,npads] for an integer strip [1,nstrip]
+  /// returns FRACTIONAL pad number [0.,npads) for an integer strip [0,nstrip-1]
   float padOfStrip(int strip) const;
 
-  /// returns first strip (INT number [1,nstrip]) for pad (an integer [1,npads])
+  /// returns first strip (INT number [0,nstrip-1]) for pad (an integer [0,npads-1])
   int firstStripInPad(int pad) const;
 
-  /// returns last strip (INT number [1,nstrip]) for pad (an integer [1,npads])
+  /// returns last strip (INT number [0,nstrip-1]) for pad (an integer [0,npads-1])
   int lastStripInPad(int pad) const;
 
 private:

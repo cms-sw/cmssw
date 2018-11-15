@@ -151,7 +151,7 @@ bool DDHtmlRoDetails::details(ostream & os, const DDName & nm)
     return false;
   }
   DD3Vector x, y, z;
-  ddr.matrix()->GetComponents(x, y, z);
+  ddr.matrix().GetComponents(x, y, z);
   os << f_.h2("Rotation: " + nm.fullname());
   os << f_.h3("GEANT3 style:"); 
   os << "<table border=\"0\">" << endl

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Geometry.ForwardCommonData.hfnoseXML_cfi")
+process.load("Geometry.ForwardCommonData.testHFNoseXML_cfi")
 process.load("Geometry.ForwardCommonData.hfnoseParametersInitialization_cfi")
 process.load("Geometry.ForwardCommonData.hfnoseNumberingInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -35,7 +35,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.prodNose = cms.EDAnalyzer("HGCalNumberingTester",
-    NameSense     = cms.string("HFNoseSensitive"),
+    NameSense     = cms.string("HGCalHFNoseSensitive"),
     NameDevice    = cms.string("HFNose"),
     LocalPositionX= cms.vdouble(50.0,80.0,110.0,130.0),
     LocalPositionY= cms.vdouble(50.0,0.0,0.0,0.0),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-static_config = 'L1Trigger.L1TCalorimeter.caloParams_2018_v1_3_cfi'
+static_config = 'L1Trigger.L1TCalorimeter.caloParams_2018_v1_4_cfi'
 
 def hwEmulCompHistos(process):
     

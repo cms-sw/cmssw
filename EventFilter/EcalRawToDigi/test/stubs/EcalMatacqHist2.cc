@@ -20,7 +20,7 @@ EcalMatacqHist2::EcalMatacqHist2(const edm::ParameterSet& ps):
   hTTrigMax = ps.getUntrackedParameter<double>("hTTrigMax", 2000.);
   matacqProducer_ = ps.getParameter<std::string>("matacqProducer");
   TDirectory* dsave = gDirectory;
-  outFile = std::auto_ptr<TFile> (new TFile(outFileName.c_str(), "RECREATE"));
+  outFile = std::unique_ptr<TFile> (new TFile(outFileName.c_str(), "RECREATE"));
   if(outFile->IsZombie()){
     std::cout << "EcalMatacqHist2: Failed to create file " << outFileName
 	 << " No histogram will be created.\n";

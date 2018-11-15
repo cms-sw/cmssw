@@ -11,11 +11,16 @@
 
 BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) : 
   folderName_ ( iConfig.getParameter<std::string>("FolderName") )
-  , muoToken_ ( mayConsume<reco::MuonCollection> (iConfig.getParameter<edm::InputTag>("muons") ) )  
-  , bsToken_ ( mayConsume<reco::BeamSpot> (iConfig.getParameter<edm::InputTag>("beamSpot")))
-  , trToken_ ( mayConsume<reco::TrackCollection> (iConfig.getParameter<edm::InputTag>("tracks")))
-  , phToken_ ( mayConsume<reco::PhotonCollection> (iConfig.getParameter<edm::InputTag>("photons")))
-  , vtxToken_( mayConsume<reco::VertexCollection>( iConfig.getParameter<edm::InputTag>("offlinePVs") ) )
+  , muoInputTag_ ( iConfig.getParameter<edm::InputTag>("muons")      )
+  , bsInputTag_  ( iConfig.getParameter<edm::InputTag>("beamSpot")   )
+  , trInputTag_  ( iConfig.getParameter<edm::InputTag>("tracks")     )
+  , phInputTag_  ( iConfig.getParameter<edm::InputTag>("photons")    )
+  , vtxInputTag_ ( iConfig.getParameter<edm::InputTag>("offlinePVs") ) 
+  , muoToken_ ( mayConsume<reco::MuonCollection>   ( muoInputTag_ ) )
+  , bsToken_  ( mayConsume<reco::BeamSpot>         ( bsInputTag_ )  )
+  , trToken_  ( mayConsume<reco::TrackCollection>  ( trInputTag_ )  )
+  , phToken_  ( mayConsume<reco::PhotonCollection> ( phInputTag_ )  )
+  , vtxToken_ ( mayConsume<reco::VertexCollection> ( vtxInputTag_ ) ) 
   , phi_binning_ ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet> ("phiPSet") ) )
   , pt_binning_ ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet> ("ptPSet") ) )
   , dMu_pt_binning_ ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet> ("dMu_ptPSet") ) )
@@ -133,7 +138,12 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   DiMudR_.numerator = nullptr;
   DiMudR_.denominator = nullptr;
 
-
+  // this vector has to be alligned to the the number of Tokens accessed by this module
+  warningPrinted4token_.push_back(false); // MuonCollection
+  warningPrinted4token_.push_back(false); // BeamSpot
+  warningPrinted4token_.push_back(false); // TrackCollection
+  warningPrinted4token_.push_back(false); // PhotonCollection
+  warningPrinted4token_.push_back(false); // VertexCollection
 }
 
 BPHMonitor::~BPHMonitor()
@@ -364,13 +374,33 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken( bsToken_,  beamSpot);
+  if ( !beamSpot.isValid() ) {
+    if (!warningPrinted4token_[0]) {
+      warningPrinted4token_[0] = true;
+      edm::LogWarning("BPHMonitor") << "skipping events because the collection " << bsInputTag_.label().c_str() << " is not available";
+    }
+    return;
+  }
 
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
-
+  if ( !muoHandle.isValid() ) {
+    if (!warningPrinted4token_[1]) {
+      warningPrinted4token_[1] = true;
+      edm::LogWarning("BPHMonitor") << "skipping events because the collection " << muoInputTag_.label().c_str() << " is not available";
+    }
+    return;
+  }
 
   edm::Handle<reco::TrackCollection> trHandle;
   iEvent.getByToken( trToken_, trHandle );
+  if ( !trHandle.isValid() ) {
+    if (!warningPrinted4token_[2]) {
+      warningPrinted4token_[2] = true;
+      edm::LogWarning("BPHMonitor") << "skipping events because the collection " << trInputTag_.label().c_str() << " is not available";
+    }
+    return;
+  }
 
   edm::Handle<reco::PhotonCollection> phHandle;
   iEvent.getByToken( phToken_, phHandle );
@@ -658,25 +688,36 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           break;    
   
         case 7:
-
-          if (!phHandle->empty()) for (auto const & p : *phHandle) {
-	      
-	      if ( !matchToTrigger(hltpath,p) ) continue;
-
-	      phPhi_.denominator->Fill(p.phi());
-	      phEta_.denominator->Fill(p.eta());
-	      phPt_.denominator ->Fill(p.pt());
-
-	      if ( num_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->accept( iEvent, iSetup) ) {
-		if ( !matchToTrigger(hltpath1,p) ) continue;
-		if ( !matchToTrigger(hltpath1,m) ) continue;
-		if ( !matchToTrigger(hltpath1,m1) ) continue;
-		phPhi_.numerator->Fill(p.phi(),PrescaleWeight);
-		phEta_.numerator->Fill(p.eta(),PrescaleWeight);
-		phPt_.numerator ->Fill(p.pt(),PrescaleWeight);
+	  
+	  if ( phHandle.isValid() ) {
+	    if (!phHandle->empty()) for (auto const & p : *phHandle) {
+		
+		if ( !matchToTrigger(hltpath,p) ) continue;
+		
+		phPhi_.denominator->Fill(p.phi());
+		phEta_.denominator->Fill(p.eta());
+		phPt_.denominator ->Fill(p.pt());
+		
+		if ( num_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->accept( iEvent, iSetup) ) {
+		  if ( !matchToTrigger(hltpath1,p) ) continue;
+		  if ( !matchToTrigger(hltpath1,m) ) continue;
+		  if ( !matchToTrigger(hltpath1,m1) ) continue;
+		  phPhi_.numerator->Fill(p.phi(),PrescaleWeight);
+		  phEta_.numerator->Fill(p.eta(),PrescaleWeight);
+		  phPt_.numerator ->Fill(p.pt(),PrescaleWeight);
+		}		
 	      }
-              
+	  } else {
+	    if (!warningPrinted4token_[3]) {
+	      warningPrinted4token_[3] = true;
+	      if ( phInputTag_.label().empty() )
+		edm::LogWarning("BPHMonitor") << "PhotonCollection not set";
+	      else
+		edm::LogWarning("BPHMonitor") << "skipping events because the collection " << phInputTag_.label().c_str() << " is not available";
 	    }
+	    // if Handle is not valid, because the InputTag has been mis-configured, then skip the event
+	    if ( !phInputTag_.label().empty() ) return;
+	  }
 
           break;
           
@@ -721,7 +762,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           if (fabs(jpsi_cos)<mincos) continue;
           if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS) continue;
 
-      	  if (trHandle.isValid()) for (auto const & t : *trHandle) {
+	  if (trHandle.isValid()) for (auto const & t : *trHandle) {
 
 	      if (!trSelection_ref(t)) continue;
 	      const reco::Track& itrk1 = t;

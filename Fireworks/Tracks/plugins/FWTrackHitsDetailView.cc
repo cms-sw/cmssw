@@ -102,8 +102,9 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
    for( TEveElement::List_i i = m_modules->BeginChildren(), end = m_modules->EndChildren(); i != end; ++i )
    {
       TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
+       const auto & rhs = *(*(i));
       if (gs == nullptr && (*i != nullptr)) {
-        std::cerr << "Got a " << typeid(**i).name() << ", expecting TEveGeoShape. ignoring (it must be the clusters)." << std::endl;
+        std::cerr << "Got a " << typeid(rhs).name() << ", expecting TEveGeoShape. ignoring (it must be the clusters)." << std::endl;
         continue;
       }
       gs->SetMainTransparency(75);

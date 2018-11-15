@@ -120,8 +120,10 @@ void DTRangeT0Handler::getNewObjects() {
   cond::Time_t snc = runNumber;
   if ( runNumber > last )
        m_to_transfer.push_back( std::make_pair( t0Range, snc ) );
-  else
+  else {
        std::cout << "More recent data already present - skipped" << std::endl;
+       delete t0Range;
+  }
 
   return;
 

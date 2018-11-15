@@ -49,15 +49,13 @@ void  RPCDCSSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & 
 
 void  RPCDCSSummary::checkDCSbit( edm::EventSetup const& setup ){
 
- edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-
  defaultValue_ = 1.; 
  
- if(nullptr != setup.find( recordKey ) ) {
+ if(auto runInfoRec = setup.tryToGet<RunInfoRcd>()) {
    defaultValue_ = -1.;
    //get fed summary information
    edm::ESHandle<RunInfo> sumFED;
-   setup.get<RunInfoRcd>().get(sumFED);    
+   runInfoRec->get(sumFED);
    std::vector<int> FedsInIds= sumFED->m_fed_in;   
    unsigned int f = 0;
    bool flag = false;
@@ -149,8 +147,3 @@ void  RPCDCSSummary::myBooker(DQMStore::IBooker & ibooker ){
     dcsDiskFractions[i+2]->Fill(defaultValue_);
   }
 }
-
-
-
-
-

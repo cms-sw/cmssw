@@ -54,6 +54,7 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 #include "FWCore/Framework/interface/NoProxyException.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 
 // system include files
@@ -73,6 +74,8 @@ class testEventsetup;
 class testEventsetupRecord;
 
 namespace edm {
+   template<typename T>
+   class ESHandle;
    class ESHandleExceptionFactory;
    class ESInputTag;
    class EventSetup;
@@ -101,22 +104,14 @@ namespace edm {
          }
 
         void setImpl( EventSetupRecordImpl const* iImpl ) { impl_ = iImpl; }
-         template<typename HolderT>
-         void get(HolderT& iHolder) const {
-            typename HolderT::value_type const* value = nullptr;
-            ComponentDescription const* desc = nullptr;
-            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            impl_->getImplementation(value, "", desc, iHolder.transientAccessOnly, whyFailedFactory);
 
-            if(value) {
-              iHolder = HolderT(value, desc);
-            } else {
-              iHolder = HolderT(std::move(whyFailedFactory));
-            }
+         template<typename HolderT>
+         bool get(HolderT& iHolder) const {
+            return get("", iHolder);
          }
 
          template<typename HolderT>
-         void get(char const* iName, HolderT& iHolder) const {
+         bool get(char const* iName, HolderT& iHolder) const {
             typename HolderT::value_type const* value = nullptr;
             ComponentDescription const* desc = nullptr;
             std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
@@ -124,26 +119,19 @@ namespace edm {
 
             if(value) {
               iHolder = HolderT(value, desc);
+              return true;
             } else {
               iHolder = HolderT(std::move(whyFailedFactory));
+              return false;
             }
          }
          template<typename HolderT>
-         void get(std::string const& iName, HolderT& iHolder) const {
-            typename HolderT::value_type const* value = nullptr;
-            ComponentDescription const* desc = nullptr;
-            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            impl_->getImplementation(value, iName.c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
-
-            if(value) {
-              iHolder = HolderT(value, desc);
-            } else {
-              iHolder = HolderT(std::move(whyFailedFactory));
-            }
+         bool get(std::string const& iName, HolderT& iHolder) const {
+           return get(iName.c_str(), iHolder);
          }
 
          template<typename HolderT>
-         void get(ESInputTag const& iTag, HolderT& iHolder) const {
+         bool get(ESInputTag const& iTag, HolderT& iHolder) const {
             typename HolderT::value_type const* value = nullptr;
             ComponentDescription const* desc = nullptr;
             std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
@@ -152,9 +140,16 @@ namespace edm {
             if(value) {
               validate(desc, iTag);
               iHolder = HolderT(value, desc);
+              return true;
             } else {
               iHolder = HolderT(std::move(whyFailedFactory));
+              return false;
             }
+         }
+
+         template<typename T>
+         bool get(ESGetTokenT<T> const& iToken, ESHandle<T>& iHandle) const {
+            return get(iToken.m_tag, iHandle);
          }
 
          ///returns false if no data available for key
@@ -215,13 +210,13 @@ namespace edm {
          // ---------- member data --------------------------------
          EventSetupRecordImpl const* impl_ = nullptr;
       };
-     
+
      class EventSetupRecordGeneric : public EventSetupRecord {
      public:
        EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl) {
          setImpl(iImpl);
        }
-       
+
        EventSetupRecordKey key() const final {
          return impl()->key();
        }

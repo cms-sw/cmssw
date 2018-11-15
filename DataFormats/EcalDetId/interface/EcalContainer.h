@@ -29,6 +29,11 @@ class EcalContainer {
                    
                 EcalContainer() {checkAndResize();}
 
+                void clear() {
+                        m_items.clear();
+                        checkAndResize();
+                }
+
                 void insert(std::pair<uint32_t, Item> const &a) {
                         (*this)[a.first] = a.second;
                 }

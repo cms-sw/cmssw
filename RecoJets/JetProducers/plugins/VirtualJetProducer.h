@@ -224,7 +224,7 @@ protected:
   bool                  fromHTTTopJetProducer_ = false;   // for running the v2.0 HEPTopTagger
 
 private:
-  std::auto_ptr<AnomalousTower>   anomalousTowerDef_;  // anomalous tower definition
+  std::unique_ptr<AnomalousTower>   anomalousTowerDef_;  // anomalous tower definition
 
   // tokens for the data access
   edm::EDGetTokenT<reco::CandidateView> input_candidateview_token_;

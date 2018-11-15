@@ -10,7 +10,12 @@
 #include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
+#include "FWCore/ParameterSet/interface/ValidatedPluginMacros.h"
+#include "FWCore/ParameterSet/interface/ValidatedPluginFactoryMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -1227,7 +1232,126 @@ namespace testParameterSetDescription {
 
 // ---------------------------------------------------------------------------------
 
+  struct TestPluginBase {
+    virtual ~TestPluginBase() = default;
+  };
+  
+  struct ATestPlugin : public TestPluginBase {
+    static void fillPSetDescription( edm::ParameterSetDescription& iPS) {
+      iPS.add<int>("anInt",5);
+    }
+  };
+
+  struct BTestPlugin : public TestPluginBase {
+    static void fillPSetDescription( edm::ParameterSetDescription& iPS) {
+      iPS.add<double>("aDouble",0.5);
+    }
+  };
+
+  using TestPluginFactory = edmplugin::PluginFactory<testParameterSetDescription::TestPluginBase*()>;
+
+  void testPlugin() {
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
+    {
+      edm::ParameterSetDescription desc;
+      desc.addNode(edm::PluginDescription<TestPluginFactory>("type",true));
+
+      edm::ParameterSet pset1;
+      pset1.addParameter<std::string>("type", "ATestPlugin");
+      pset1.addParameter<int>("anInt",3);
+
+      desc.validate(pset1);
+    }
+
+    {
+      edm::ParameterSetDescription desc;
+      desc.addNode(edm::PluginDescription<TestPluginFactory>("type",true));
+      
+      edm::ParameterSet pset1;
+      pset1.addParameter<std::string>("type", "BTestPlugin");
+      pset1.addParameter<double>("aDouble",0.2);
+      
+      desc.validate(pset1);
+    }
+
+    {
+      //add defaults
+      edm::ParameterSetDescription desc;
+      desc.addNode(edm::PluginDescription<TestPluginFactory>("type",true));
+      
+      edm::ParameterSet pset1;
+      pset1.addParameter<std::string>("type", "ATestPlugin");
+      desc.validate(pset1);
+      assert(pset1.getParameter<int>("anInt") == 5);
+    }
+
+    {
+      //add defaults
+      edm::ParameterSetDescription desc;
+      desc.addNode(edm::PluginDescription<TestPluginFactory>("type","ATestPlugin", true));
+      
+      edm::ParameterSet pset1;
+      desc.validate(pset1);
+      assert(pset1.getParameter<int>("anInt") == 5);
+      assert(pset1.getParameter<std::string>("type") == "ATestPlugin");
+    }
+
+    {
+      //an additional parameter
+      edm::ParameterSetDescription desc;
+      desc.addNode(edm::PluginDescription<TestPluginFactory>("type",true));
+      
+      edm::ParameterSet pset1;
+      pset1.addParameter<std::string>("type", "ATestPlugin");
+      pset1.addParameter<int>("anInt",3);
+      pset1.addParameter<int>("NotRight",3);
+
+      try {
+        desc.validate(pset1);
+        assert(false);
+      }catch(edm::Exception const&iException) {
+      }
+    }
+
+    {
+      //missing type
+      edm::ParameterSetDescription desc;
+      desc.addNode(edm::PluginDescription<TestPluginFactory>("type",true));
+      
+      edm::ParameterSet pset1;
+      pset1.addParameter<int>("anInt",3);
+      
+      try {
+        desc.validate(pset1);
+        assert(false);
+      }catch(edm::Exception const&iException) {
+      }
+    }
+
+    {
+      //a non-existent type
+      edm::ParameterSetDescription desc;
+      desc.addNode(edm::PluginDescription<TestPluginFactory>("type",true));
+      
+      edm::ParameterSet pset1;
+      pset1.addParameter<std::string>("type", "ZTestPlugin");
+      
+      try {
+        desc.validate(pset1);
+        assert(false);
+      }catch(cms::Exception const&iException) {
+        //std::cout <<iException.what()<<std::endl;
+      }
+    }
+
+  }
 }
+using TestPluginFactory = testParameterSetDescription::TestPluginFactory;
+
+EDM_REGISTER_VALIDATED_PLUGINFACTORY(TestPluginFactory, "TestPluginFWCoreParameterSet");
+
+DEFINE_EDM_VALIDATED_PLUGIN(TestPluginFactory, testParameterSetDescription::ATestPlugin, "ATestPlugin");
+DEFINE_EDM_VALIDATED_PLUGIN(TestPluginFactory,testParameterSetDescription::BTestPlugin, "BTestPlugin");
 
 int main(int, char**) try {
 
@@ -1613,7 +1737,8 @@ int main(int, char**) try {
   testParameterSetDescription::testNoDefault();
   testParameterSetDescription::testWrongTrackiness();
   testParameterSetDescription::testWrongType();
-
+  testParameterSetDescription::testPlugin();
+  
   return 0;
 } catch(cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;

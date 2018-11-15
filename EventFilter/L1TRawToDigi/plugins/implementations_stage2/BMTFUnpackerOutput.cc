@@ -23,10 +23,10 @@ namespace l1t
 	bxBlocks = block.getBxBlocks((unsigned int)6, false);//it returnes 6-32bit bxBlocks originated from the amc13 Block
 			
       RegionalMuonCandBxCollection *res;
-      if (isKalman)
-	res = static_cast<BMTFCollections*>(coll)->getkBMTFMuons();
-      else
+      if (isTriggeringAlgo)
 	res = static_cast<BMTFCollections*>(coll)->getBMTFMuons();
+      else
+	res = static_cast<BMTFCollections*>(coll)->getBMTF2Muons();
 
       //BxBlocks changed the format of the blocks
       int firstBX = 0, lastBX = 0;
@@ -69,19 +69,17 @@ namespace l1t
 	  RegionalMuonCand muCand;
 	  RegionalMuonRawDigiTranslator::fillRegionalMuonCand(muCand, raw_first, raw_secnd, processor, tftype::bmtf);
 
-	  if (muCand.hwQual() == 0 && !isKalman)
-	    continue;//though away muons with Zero-Quality (ONLY BMTF)
+	  if (muCand.hwQual() == 0)
+	    continue;
 
+	  muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
 	  if (isKalman) {
-	    muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
 	    muCand.setHwPt2((raw_secnd >> 23) & 0xFF);
 	    muCand.setHwDXY((raw_secnd >> 2) & 0x3);
 	    LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi() << " diplacedPt = " << muCand.hwPt2();
 	  }
-	  else {
-	    muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
+	  else
 	    LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi();
-	  }
 
 	  res->push_back(ibx, muCand);
 

@@ -3,17 +3,17 @@
 #include <utility>
 
 DDMap::DDMap()
-  : DDBase<DDName,dd_map_type*>() { }
+  : DDBase< DDName, std::unique_ptr<dd_map_type>>() { }
 
 DDMap::DDMap( const DDName & name )
-  : DDBase< DDName, dd_map_type* >() 
+  : DDBase< DDName, std::unique_ptr<dd_map_type>>() 
 {
   create( name );
 }
 
-DDMap::DDMap( const DDName & name, dd_map_type* vals )
+DDMap::DDMap( const DDName & name, std::unique_ptr<dd_map_type> vals )
 {
-  create( name, vals );
+  create( name, std::move( vals ));
 }
 
 std::ostream & operator<<(std::ostream & os, const DDMap & cons)

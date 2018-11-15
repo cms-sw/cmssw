@@ -16,7 +16,7 @@
 ///
 
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -37,7 +37,7 @@
 class MagneticField;
 class Propagator;
 
-class CosmicGenFilterHelix : public edm::EDFilter {
+class CosmicGenFilterHelix : public edm::one::EDFilter<edm::one::SharedResources> {
  public:
   explicit CosmicGenFilterHelix(const edm::ParameterSet& config);
   ~CosmicGenFilterHelix() override;

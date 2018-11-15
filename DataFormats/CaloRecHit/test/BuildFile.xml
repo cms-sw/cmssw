@@ -4,10 +4,10 @@
   <use   name="DataFormats/Math"/>
   <use   name="cppunit"/>
 </bin>
-<architecture match="_amd64_">
+<iftool name="cuda-gcc-support">
 <bin name="test_calo_rechit" file="test_calo_rechit.cu">
     <use name="DataFormats/CaloRecHit"/>
     <use name="DataFormats/DetId"/>
     <use name="cuda"/>
 </bin>
-</architecture>
+</iftool>

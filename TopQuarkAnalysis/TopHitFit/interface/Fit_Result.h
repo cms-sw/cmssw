@@ -35,7 +35,6 @@
 #define HITFIT_FIT_RESULT_H
 
 
-#include "TopQuarkAnalysis/TopHitFit/interface/Refcount.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/Lepjets_Event.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/matutil.h"
 #include <iosfwd>
@@ -51,7 +50,6 @@ namespace hitfit {
 
  */
 class Fit_Result
-  : public hitfit::Refcount
 //
 // Purpose: Hold the result from a single kinematic fit.
 //

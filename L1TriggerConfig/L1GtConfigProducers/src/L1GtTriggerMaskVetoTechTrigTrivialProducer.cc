@@ -57,8 +57,8 @@ L1GtTriggerMaskVetoTechTrigTrivialProducer::~L1GtTriggerMaskVetoTechTrigTrivialP
 // member functions
 
 // method called to produce the data
-std::shared_ptr<L1GtTriggerMask> L1GtTriggerMaskVetoTechTrigTrivialProducer::produceTriggerMask(
+std::unique_ptr<L1GtTriggerMask> L1GtTriggerMaskVetoTechTrigTrivialProducer::produceTriggerMask(
         const L1GtTriggerMaskVetoTechTrigRcd& iRecord)
 {
-    return std::make_shared<L1GtTriggerMask>(m_triggerMask);
+    return std::make_unique<L1GtTriggerMask>(m_triggerMask);
 }

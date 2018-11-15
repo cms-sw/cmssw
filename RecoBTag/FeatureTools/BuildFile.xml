@@ -1,0 +1,8 @@
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/BTauReco"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
+<use name="TrackingTools/IPTools"/>
+<export>
+  <lib name="1"/>
+</export>

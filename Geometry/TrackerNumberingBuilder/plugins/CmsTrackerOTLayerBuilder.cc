@@ -7,8 +7,9 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/TrackerStablePhiSort.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <vector>
 
+#include <functional>
+#include <vector>
 #include <bitset>
 
 void CmsTrackerOTLayerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
@@ -61,7 +62,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       
   // negative rings 
   if(!ringsNeg.empty()){
-    std::sort(ringsNeg.begin(),ringsNeg.end(),LessZ());  
+    std::sort(ringsNeg.begin(),ringsNeg.end(),isLessZ);
     uint32_t  totalringsNeg = ringsNeg.size();
   
     LogTrace("DetConstruction") << " Neg rings ordered by z: ";
@@ -75,7 +76,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
   // rods 
   if(!rods.empty()){
-    TrackerStablePhiSort(rods.begin(), rods.end(), ExtractPhi());
+    TrackerStablePhiSort(rods.begin(), rods.end(), std::function<double(const GeometricDet*)>(getPhi));
     uint32_t  totalrods = rods.size();
   
     LogTrace("DetConstruction") << " Rods ordered by phi: ";
@@ -89,7 +90,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
   // positive rings 
   if(!ringsPos.empty()){
-    std::sort(ringsPos.begin(),ringsPos.end(),LessZ());  
+    std::sort(ringsPos.begin(),ringsPos.end(),isLessZ);
     uint32_t  totalringsPos = ringsPos.size();
   
   

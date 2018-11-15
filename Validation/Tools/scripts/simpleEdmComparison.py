@@ -72,7 +72,7 @@ def compareEvents(event1, event2, handleName, label, options):
             if val1 != val2:
                 mismatch += 1
                 logging.error("Comparison problem %s != %s" % (val1, val2))
-	logging.debug("Compared %s elements" % count)
+        logging.debug("Compared %s elements" % count)
         return (count, mismatch)
 
 if __name__ == "__main__":

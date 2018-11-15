@@ -15,7 +15,7 @@ namespace l1t {
             BMTFCollections(edm::Event& e) :
                UnpackerCollections(e),
                outputMuons_ (new RegionalMuonCandBxCollection()),
-	       outputKalmanMuons_ (new RegionalMuonCandBxCollection()),
+	       outputMuons2_ (new RegionalMuonCandBxCollection()),
                inputMuonsPh_ (new L1MuDTChambPhContainer),
                inputMuonsTh_ (new L1MuDTChambThContainer)
             {};
@@ -23,13 +23,13 @@ namespace l1t {
             ~BMTFCollections() override;
 
 	    inline RegionalMuonCandBxCollection* getBMTFMuons() {return outputMuons_.get();};
-	    inline RegionalMuonCandBxCollection* getkBMTFMuons() {return outputKalmanMuons_.get();};
+	    inline RegionalMuonCandBxCollection* getBMTF2Muons() {return outputMuons2_.get();};
 	    inline L1MuDTChambPhContainer* getInMuonsPh() { return inputMuonsPh_.get(); };
 	    inline L1MuDTChambThContainer* getInMuonsTh() { return inputMuonsTh_.get(); };
 
      private:
 	    std::unique_ptr<RegionalMuonCandBxCollection> outputMuons_;
-	    std::unique_ptr<RegionalMuonCandBxCollection> outputKalmanMuons_;
+	    std::unique_ptr<RegionalMuonCandBxCollection> outputMuons2_;
 	    std::unique_ptr<L1MuDTChambPhContainer> inputMuonsPh_;
 	    std::unique_ptr<L1MuDTChambThContainer> inputMuonsTh_;
       };

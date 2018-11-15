@@ -55,9 +55,16 @@ from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, 
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( theDigitizers,
-                            hgceeDigitizer = cms.PSet(hgceeDigitizer),
-                            hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
-                            hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
+                       hgceeDigitizer = cms.PSet(hgceeDigitizer),
+                       hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
+                       hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
+)
+
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hfnoseDigitizer
+
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+phase2_hfnose.toModify( theDigitizers,
+                        hfnoseDigitizer = cms.PSet(hfnoseDigitizer),
 )
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
@@ -86,6 +93,9 @@ premix_stage2.toModify(theDigitizers,
     hgceeDigitizer = dict(premixStage1 = True),
     hgchebackDigitizer = dict(premixStage1 = True),
     hgchefrontDigitizer = dict(premixStage1 = True),
+)
+(premix_stage2 & phase2_hfnose).toModify(theDigitizers,
+    hfnoseDigitizer = dict(premixStage1 = True),
 )
 
 theDigitizersValid = cms.PSet(theDigitizers)

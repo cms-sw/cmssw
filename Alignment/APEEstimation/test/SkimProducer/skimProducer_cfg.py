@@ -58,7 +58,7 @@ isMc = False
 if "iov" in  options.sample:
     isMultiIOV = True
     isData = True
-if options.sample == 'data1':
+elif options.sample == 'data1':
     isData1 = True
     isData = True
 elif options.sample == 'data2':

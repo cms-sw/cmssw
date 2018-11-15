@@ -9,7 +9,7 @@ muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
 # Use CSC examiner to check for corrupt or semi-corrupt data & avoid unpacker crashes
 muonCSCDigis.UseExaminer = cms.bool(True)
 # This mask is needed by the examiner 
-muonCSCDigis.ExaminerMask = cms.uint32(0x1FEBF3F6)
+muonCSCDigis.ExaminerMask = cms.uint32(0x1FEBF7F6)
 # Use Examiner to unpack good chambers and skip only bad ones
 muonCSCDigis.UseSelectiveUnpacking = cms.bool(True)
 # This mask simply reduces error reporting

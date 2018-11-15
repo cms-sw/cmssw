@@ -33,6 +33,8 @@
 // Class header file
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTIslandClusterProducer.h"
 
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
+
 EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::ParameterSet& ps)
   : doBarrel_   (ps.getParameter<bool>("doBarrel"))
   , doEndcaps_  (ps.getParameter<bool>("doEndcaps"))
@@ -65,6 +67,10 @@ EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::Parame
   , island_p (new IslandClusterAlgo(ps.getParameter<double>("IslandBarrelSeedThr"),
                                      ps.getParameter<double>("IslandEndcapSeedThr"),
                                      posCalculator_,
+                                     StringToEnumValue<EcalRecHit::Flags>(ps.getParameter<std::vector<std::string> >("SeedRecHitFlagToBeExcludedEB")),
+                                     StringToEnumValue<EcalRecHit::Flags>(ps.getParameter<std::vector<std::string> >("SeedRecHitFlagToBeExcludedEE")),
+                                     StringToEnumValue<EcalRecHit::Flags>(ps.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEB")),
+                                     StringToEnumValue<EcalRecHit::Flags>(ps.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEE")),
                                      verb_ == "DEBUG" ? IslandClusterAlgo::pDEBUG :
                                      (verb_ == "WARNING" ? IslandClusterAlgo::pWARNING :
                                       (verb_ == "INFO" ? IslandClusterAlgo::pINFO :
@@ -101,6 +107,10 @@ void EgammaHLTIslandClusterProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<double>("regionEtaMargin", 0.3);
   desc.add<double>("regionPhiMargin", 0.4);
   //desc.add<edm::ParameterSet>("posCalcParameters"), edm::ParameterSet());
+  desc.add<std::vector<std::string>>("SeedRecHitFlagToBeExcludedEB", {});
+  desc.add<std::vector<std::string>>("SeedRecHitFlagToBeExcludedEE", {});
+  desc.add<std::vector<std::string>>("RecHitFlagToBeExcludedEB", {});
+  desc.add<std::vector<std::string>>("RecHitFlagToBeExcludedEE", {});
   descriptions.add("hltEgammaHLTIslandClusterProducer", desc);  
 }
 

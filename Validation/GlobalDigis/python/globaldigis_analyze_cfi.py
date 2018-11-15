@@ -30,11 +30,3 @@ globaldigisanalyze = DQMEDAnalyzer('GlobalDigisAnalyzer',
     #InputTag HCalDigi  = simHcalUnsuppressedDigis
     HCalDigi = cms.InputTag("simHcalDigis")
 )
-
-from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-premix_stage2.toModify(globaldigisanalyze,
-    MuCSCStripSrc = "mixData:MuonCSCStripDigisDM",
-    MuCSCWireSrc = "mixData:MuonCSCWireDigisDM",
-    MuDTSrc = "mixData",
-    MuRPCSrc = "mixData",
-)

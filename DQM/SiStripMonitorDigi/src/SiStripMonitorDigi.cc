@@ -243,11 +243,10 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
     //const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
     //const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
 
-    edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-    if( es.find( recordKey ) != nullptr) {
+    if(auto runInfoRec = es.tryToGet<RunInfoRcd>()) {
 
       edm::ESHandle<RunInfo> sumFED;
-      es.get<RunInfoRcd>().get(sumFED);
+      runInfoRec->get(sumFED);
 
       if ( sumFED.isValid() ) {
 	std::vector<int> FedsInIds= sumFED->m_fed_in;

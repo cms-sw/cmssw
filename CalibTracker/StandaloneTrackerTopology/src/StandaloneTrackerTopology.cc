@@ -1,6 +1,6 @@
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
-#include "tinyxml.h"
+#include "tinyxml2.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace {
@@ -17,12 +17,12 @@ namespace {
     return out;
   }
 
-  class TrackerTopologyExtractor : public TiXmlVisitor
+  class TrackerTopologyExtractor : public tinyxml2::XMLVisitor
   {
     public:
-      bool VisitEnter(const TiXmlElement& elem, const TiXmlAttribute*) override
+    bool VisitEnter(const tinyxml2::XMLElement& elem, const tinyxml2::XMLAttribute*) override
       {
-        if ( elem.ValueStr() == "Vector" ) {
+        if ( std::strcmp(elem.Value(), "Vector") == 0 ) {
           const std::string att_type{elem.Attribute("type")};
           if ( att_type == "numeric" ) {
             const std::string att_name{elem.Attribute("name")};
@@ -168,24 +168,25 @@ namespace {
 
 namespace StandaloneTrackerTopology {
 TrackerTopology fromTrackerParametersXMLFile( const std::string& xmlFileName ) {
-  TiXmlDocument xmlDoc;
-  if ( xmlDoc.LoadFile(xmlFileName) ) {
+  tinyxml2::XMLDocument xmlDoc;
+  xmlDoc.LoadFile(xmlFileName.c_str());
+  if ( ! xmlDoc.Error() ) {
     TrackerTopologyExtractor extr{};
     xmlDoc.Accept(&extr);
     return extr.getTrackerTopology();
   } else {
-    throw cms::Exception("StandaloneTrackerTopology", std::string{"Failed to parse file "}+xmlFileName+": "+xmlDoc.ErrorDesc());
+    throw cms::Exception("StandaloneTrackerTopology", std::string{"Failed to parse file "}+xmlFileName+": "+xmlDoc.ErrorStr());
   }
 }
 TrackerTopology fromTrackerParametersXMLString( const std::string& xmlContent ) {
-  TiXmlDocument xmlDoc;
+  tinyxml2::XMLDocument xmlDoc;
   xmlDoc.Parse(xmlContent.c_str());
   if ( ! xmlDoc.Error() ) {
     TrackerTopologyExtractor extr{};
     xmlDoc.Accept(&extr);
     return extr.getTrackerTopology();
   } else {
-    throw cms::Exception("StandaloneTrackerTopology", std::string{"Error while parsing XML: "}+xmlDoc.ErrorDesc());
+    throw cms::Exception("StandaloneTrackerTopology", std::string{"Error while parsing XML: "}+xmlDoc.ErrorStr());
   }
 }
 }

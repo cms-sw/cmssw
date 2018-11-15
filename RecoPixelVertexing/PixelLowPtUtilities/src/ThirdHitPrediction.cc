@@ -1,19 +1,14 @@
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ThirdHitPrediction.h"
-
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-
-#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
-#include "RecoPixelVertexing/PixelTrackFitting/src/CircleFromThreePoints.h"
-
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ThirdHitPrediction.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/CircleFromThreePoints.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
+#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 inline float sqr(float x) { return x*x; }
 

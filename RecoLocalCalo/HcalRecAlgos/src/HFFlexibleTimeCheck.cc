@@ -2,6 +2,8 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
+#include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HFRecHitAuxSetter.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFFlexibleTimeCheck.h"
 
 // Phase 1 rechit status bit assignments
@@ -76,18 +78,33 @@ HFRecHit HFFlexibleTimeCheck::reconstruct(const HFPreRecHit& prehit,
     if (rh.id().rawId())
     {
         // Check the charge asymmetry between the two anodes
-        bool passesAsymmetryCut = true;
-        const std::pair<float,bool> qAsymm =
-            prehit.chargeAsymmetry(pmtInfo_->minChargeAsymm());
-        if (qAsymm.second)
+        bool setAsymmetryFlag = true;
+        if (!alwaysCalculatingQAsym())
         {
-            const float q = prehit.charge();
-            const float minAsymm = (pmtInfo_->cut(HFPhase1PMTData::ASYMM_MIN))(q);
-            const float maxAsymm = (pmtInfo_->cut(HFPhase1PMTData::ASYMM_MAX))(q);
-            passesAsymmetryCut = minAsymm <= qAsymm.first && qAsymm.first <= maxAsymm;
+            using namespace CaloRecHitAuxSetter;
+
+            const unsigned st0 = getField(rh.aux(), HFRecHitAuxSetter::MASK_STATUS,
+                                          HFRecHitAuxSetter::OFF_STATUS);
+            const unsigned st1 = getField(rh.getAuxHF(), HFRecHitAuxSetter::MASK_STATUS,
+                                          HFRecHitAuxSetter::OFF_STATUS);
+            setAsymmetryFlag = st0 == HFAnodeStatus::OK && st1 == HFAnodeStatus::OK;
         }
-        if (!passesAsymmetryCut)
-            rh.setFlagField(1U, HcalPhase1FlagLabels::HFSignalAsymmetry);
+
+        if (setAsymmetryFlag)
+        {
+            bool passesAsymmetryCut = true;
+            const std::pair<float,bool> qAsymm =
+                prehit.chargeAsymmetry(pmtInfo_->minChargeAsymm());
+            if (qAsymm.second)
+            {
+                const float q = prehit.charge();
+                const float minAsymm = (pmtInfo_->cut(HFPhase1PMTData::ASYMM_MIN))(q);
+                const float maxAsymm = (pmtInfo_->cut(HFPhase1PMTData::ASYMM_MAX))(q);
+                passesAsymmetryCut = minAsymm <= qAsymm.first && qAsymm.first <= maxAsymm;
+            }
+            if (!passesAsymmetryCut)
+                rh.setFlagField(1U, HcalPhase1FlagLabels::HFSignalAsymmetry);
+        }
     }
 
     return rh;

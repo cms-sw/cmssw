@@ -71,17 +71,17 @@ void RawDataCollectorByLabel::produce(Event & e, const EventSetup& c){
        if(verbose_ > 1) std::cout << "Copying data from FED #" << j << std::endl;
        FEDRawData & fedDataProd = producedData->FEDData(j);
        if ( fedDataProd.size() != 0 ) {
-	 if(verbose_ > 1) {
-	   std::cout << " More than one FEDRawDataCollection with data in FED ";
-	   std::cout << j << " Skipping the 2nd\n";
-	 }
-	 continue;
+        if(verbose_ > 1) {
+            std::cout << " More than one FEDRawDataCollection with data in FED ";
+            std::cout << j << " Skipping the 2nd\n";
+        }
+        continue;
        } 
        fedDataProd.resize(size);
        unsigned char *dataProd=fedDataProd.data();
        const unsigned char *data=fedData.data();
        for ( unsigned int k=0; k<size; ++k ) {
-	 dataProd[k]=data[k];
+         dataProd[k]=data[k];
        }
      }
    }

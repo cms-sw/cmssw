@@ -66,9 +66,9 @@ private:
 
    // ---------- member data --------------------------------
    
-   std::auto_ptr<FWFFNavigator>        m_navigator;
-   std::auto_ptr<FWFFMetadataManager>  m_metadataManager;
-   std::auto_ptr<fireworks::Context>   m_context;
+   std::unique_ptr<FWFFNavigator>        m_navigator;
+   std::unique_ptr<FWFFMetadataManager>  m_metadataManager;
+   std::unique_ptr<fireworks::Context>   m_context;
 
    FWFFHelper    m_appHelper;
    TEveManager  *m_EveManager;

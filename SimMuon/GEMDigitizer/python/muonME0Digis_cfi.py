@@ -38,6 +38,9 @@ me0DigiCommonParameters = cms.PSet(
     ME0NeuBkgParam3 = cms.double(-102098)
 )
 
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(me0DigiCommonParameters, mixLabel = "mixData")
+
 # Module to create simulated ME0 digis.
 simMuonME0Digis = cms.EDProducer("ME0DigiProducer",
     me0DigiCommonParameters

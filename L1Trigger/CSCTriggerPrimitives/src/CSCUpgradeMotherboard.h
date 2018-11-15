@@ -56,11 +56,14 @@ public:
     // get all LCTs in the 16 BX readout window
     void getMatched(std::vector<CSCCorrelatedLCTDigi>&) const;
 
+    // clear the array with stubs
+    void clear();
+
     // array with stored LCTs
     CSCCorrelatedLCTDigi data[CSCConstants::MAX_LCT_TBINS][15][2];
 
     // matching trigger window
-    const unsigned int match_trig_window_size;
+    const unsigned int match_trig_window_size_;
   };
 
   // standard constructor
@@ -72,6 +75,9 @@ public:
   CSCUpgradeMotherboard();
 
   ~CSCUpgradeMotherboard() override;
+
+  // Empty the LCT container
+  void clear();
 
   // Compare two matches of type <ID,DIGI>
   // The template is match<GEMPadDigi> or match<GEMCoPadDigi>
@@ -94,25 +100,30 @@ public:
                 bool (*sorter)(const CSCCorrelatedLCTDigi&,
                                const CSCCorrelatedLCTDigi&)) const;
 
+  /** get CSCPart from HS, station, ring number **/
+  enum CSCPart getCSCPart(int keystrip) const;
+
   // functions to setup geometry and LUTs
-  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
   void setupGeometry();
   void debugLUTs();
 
  protected:
+
+  void setPrefIndex();
+
+  /** for the case when more than 2 LCTs/BX are allowed;
+      maximum match window = 15 */
+  LCTContainer allLCTs;
 
   /** Chamber id (trigger-type labels). */
   unsigned theRegion;
   unsigned theChamber;
   Parity par;
 
-  edm::ParameterSet tmbParams_;
-  edm::ParameterSet commonParams_;
+  /** SLHC: special configuration parameters for ME11 treatment. */
+  bool disableME1a, gangedME1a;
 
-  const CSCGeometry* csc_g;
   const CSCChamber* cscChamber;
-
-  std::vector<CSCALCTDigi> alctV;
 
   std::unique_ptr<CSCUpgradeMotherboardLUTGenerator> generator_;
 
@@ -122,14 +133,7 @@ public:
   bool match_earliest_alct_only;
   bool match_earliest_clct_only;
 
-  /** if true: use regular CLCT-to-ALCT matching in TMB
-      if false: do ALCT-to-CLCT matching */
-  bool clct_to_alct;
-
-  /** whether to not reuse CLCTs that were used by previous matching ALCTs
-      in ALCT-to-CLCT algorithm */
-  bool drop_used_clcts;
-
+  /* type of algorithm to sort the stubs */
   unsigned int tmb_cross_bx_algo;
 
   /** maximum lcts per BX in MEX1: 2, 3, 4 or 999 */

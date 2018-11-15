@@ -28,5 +28,12 @@
   <class name="edm::Wrapper<edm::DetSetVector<FTLRecHit> >"/>
   <class name="edm::Wrapper<std::vector<std::vector<edm::DetSet<FTLRecHit> > > >"/>
 
+
+  <class name="FTLTrackingRecHitFromHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="3399436891"/>
+  </class>
+  <class name="FTLTrackingRecHitCollection"/>
+  <class name="edm::Wrapper<FTLTrackingRecHitCollection>"/>
+
   <enum name="FTLSeverityLevel::SeverityLevel"/> 
 </lcgdict>

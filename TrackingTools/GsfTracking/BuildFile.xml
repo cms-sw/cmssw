@@ -1,5 +1,4 @@
-<flags   CXXFLAGS="-Ofast"/>
-
+<use   name="ofast-flag"/>
 <use   name="boost"/>
 <use   name="CLHEP"/>
 <export>

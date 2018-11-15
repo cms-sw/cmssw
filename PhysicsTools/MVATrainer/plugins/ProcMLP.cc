@@ -63,7 +63,7 @@ class ProcMLP : public TrainProcessor {
 	unsigned int		steps;
 	unsigned int		count, row;
 	double			weightSum;
-	std::auto_ptr<MLP>	mlp;
+	std::unique_ptr<MLP>	mlp;
 	std::vector<double>	vars;
 	std::vector<double>	targets;
 	bool			needCleanup;
@@ -148,7 +148,7 @@ Calibration::VarProcessor *ProcMLP::getCalibration() const
 {
 	Calibration::ProcMLP *calib = new Calibration::ProcMLP;
 
-	std::auto_ptr<MLP> mlp(new MLP(getInputs().size() - (boost >= 0 ? 1 : 0),
+	std::unique_ptr<MLP> mlp(new MLP(getInputs().size() - (boost >= 0 ? 1 : 0),
 	                               getOutputs().size(), layout));
 	mlp->load(trainer->trainFileName(this, "txt"));
 
@@ -207,7 +207,7 @@ void ProcMLP::trainBegin()
 		break;
 	    case ITER_TRAIN:
 		try {
-			mlp = std::auto_ptr<MLP>(
+			mlp = std::unique_ptr<MLP>(
 					new MLP(getInputs().size() - (boost >= 0 ? 1 : 0),
 					getOutputs().size(), layout));
 			mlp->init(count);

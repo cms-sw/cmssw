@@ -112,6 +112,12 @@ private:
   std::string folderName_;
   std::string histoSuffix_;
 
+  edm::InputTag muoInputTag_;
+  edm::InputTag bsInputTag_;
+  edm::InputTag trInputTag_;
+  edm::InputTag phInputTag_;
+  edm::InputTag vtxInputTag_;
+
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
   edm::EDGetTokenT<reco::BeamSpot>        bsToken_;
   edm::EDGetTokenT<reco::TrackCollection>       trToken_;
@@ -218,6 +224,8 @@ private:
   HLTConfigProvider hltConfig_;
   edm::Handle<edm::TriggerResults> HLTR;
   std::string getTriggerName(std::string partialName);
+
+  std::vector<bool> warningPrinted4token_;
 };
 
 #endif // METMONITOR_H

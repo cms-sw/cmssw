@@ -7,7 +7,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -17,7 +17,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
-#include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"
+
 #include "RecoEgamma/EgammaTools/interface/SCEnergyCorrectorSemiParm.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -29,17 +29,8 @@
 
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 
-#include "TVector2.h"
-
-#include <string>
 #include <vector>
-#include <unordered_map>
-#include <set>
-
 #include <memory>
-
-class TFile;
-class TH2F;
 
 /// \ Algorithm for box particle flow super clustering in the ECAL
 /*!
@@ -84,7 +75,7 @@ class PFECALSuperClusterAlgo {
 
   void setUseETForSeeding(bool useET) { threshIsET_ = useET; } 
 
-  void setUseDynamicDPhi(bool useit) { _useDynamicDPhi = useit; } 
+  void setUseDynamicDPhi(bool useit) { useDynamicDPhi_ = useit; } 
 
   void setUseRegression(bool useRegression) { useRegression_ = useRegression; }
   
@@ -99,18 +90,13 @@ class PFECALSuperClusterAlgo {
   void setEtawidthSuperClusterBarrel( double etawidth ){ etawidthSuperClusterBarrel_ = etawidth;}
   void setPhiwidthSuperClusterEndcap( double phiwidth ){ phiwidthSuperClusterEndcap_ = phiwidth;}
   void setEtawidthSuperClusterEndcap( double etawidth ){ etawidthSuperClusterEndcap_ = etawidth;}
-  void setUsePS( bool useit ){ usePS = useit; }
 
   void setPFClusterCalibration(const std::shared_ptr<PFEnergyCalibration>&);
-  
-  void setThreshPFClusterES(double thresh){threshPFClusterES_ = thresh;}
   
   void setSatelliteMerging( const bool doit ) { doSatelliteClusterMerge_ = doit; }
   void setSatelliteThreshold( const double t ) { satelliteThreshold_ = t; }
   void setMajorityFraction( const double f ) { fractionForMajority_ = f; }
   void setDropUnseedable( const bool d ) { dropUnseedable_ = d; }
-  //void setThreshPFClusterMustacheOutBarrel(double thresh){ threshPFClusterMustacheOutBarrel_ = thresh;}
-  //void setThreshPFClusterMustacheOutEndcap(double thresh){ threshPFClusterMustacheOutEndcap_ = thresh;}
 
   void setIsOOTCollection( bool isOOTCollection ){ isOOTCollection_ = isOOTCollection; }
 
@@ -159,16 +145,10 @@ class PFECALSuperClusterAlgo {
   
   double threshSuperClusterEt_;  
 
-  double threshPFClusterSeed_;
-  double threshPFCluster_;
-  double etawidthSuperCluster_;
-  double phiwidthSuperCluster_;
-
   double threshPFClusterSeedBarrel_;
   double threshPFClusterBarrel_;
   double threshPFClusterSeedEndcap_;
   double threshPFClusterEndcap_;
-  double threshPFClusterES_;
 
   double phiwidthSuperClusterBarrel_;
   double etawidthSuperClusterBarrel_;
@@ -179,12 +159,10 @@ class PFECALSuperClusterAlgo {
   double satelliteThreshold_, fractionForMajority_;
   bool dropUnseedable_;
 
-  bool _useDynamicDPhi;
+  bool useDynamicDPhi_;
 
   bool applyCrackCorrections_;
   bool threshIsET_;
-
-  bool usePS;
 
   // OOT photons
   bool isOOTCollection_;

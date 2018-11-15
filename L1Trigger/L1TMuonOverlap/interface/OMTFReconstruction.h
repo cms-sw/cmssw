@@ -69,6 +69,7 @@ class OMTFReconstruction {
 
 
     bool dumpResultToXML, dumpDetailedResultToXML;
+    int bxMin, bxMax;
 
   ///OMTF objects
     OMTFConfiguration   *m_OMTFConfig;

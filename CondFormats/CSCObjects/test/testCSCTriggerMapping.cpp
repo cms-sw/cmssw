@@ -11,6 +11,8 @@
 #include <CondFormats/CSCObjects/interface/CSCTriggerMappingFromFile.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include <iostream>
 #include <cstdlib>
 
@@ -56,7 +58,7 @@ int testCSCTriggerMapping::runIt(const std::string& config){
   edm::AssertHandler ah;
   int rc=0;
   try {
-    edm::EventProcessor proc(config);
+    edm::EventProcessor proc(edm::getPSetFromConfig(config));
     proc.run();
   } catch (cms::Exception& e){
     std::cerr << "Exception caught:  " 

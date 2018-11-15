@@ -10,6 +10,3 @@ SiStripDigiToRaw = cms.EDProducer(
     CopyBufferHeader = cms.bool(False),
     RawDataTag = cms.InputTag('rawDataCollector')
     )
-
-from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
-premix_stage1.toModify(SiStripDigiToRaw, FedReadoutMode = 'PREMIX_RAW', PacketCode="")

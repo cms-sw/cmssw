@@ -283,10 +283,9 @@ void DeDxDiscriminatorLearner::algoAnalyzeTheTree(const edm::EventSetup& iSetup)
 }
 
 
-PhysicsTools::Calibration::HistogramD3D* DeDxDiscriminatorLearner::getNewObject()
+std::unique_ptr<PhysicsTools::Calibration::HistogramD3D> DeDxDiscriminatorLearner::getNewObject()
 {
-   PhysicsTools::Calibration::HistogramD3D* obj;
-   obj = new PhysicsTools::Calibration::HistogramD3D(
+   auto obj = std::make_unique<PhysicsTools::Calibration::HistogramD3D>(
                 Charge_Vs_Path->GetNbinsX(), Charge_Vs_Path->GetXaxis()->GetXmin(),  Charge_Vs_Path->GetXaxis()->GetXmax(),
                 Charge_Vs_Path->GetNbinsY(), Charge_Vs_Path->GetYaxis()->GetXmin(),  Charge_Vs_Path->GetYaxis()->GetXmax(),
 	        Charge_Vs_Path->GetNbinsZ(), Charge_Vs_Path->GetZaxis()->GetXmin(),  Charge_Vs_Path->GetZaxis()->GetXmax());

@@ -20,7 +20,7 @@ int main()
 
    const EcalSimParameterMap parameterMap ;
 
-   bool useDBShape = false; // this unit test is supposing the phase I hardcoded ECAL shapes
+   bool useDBShape = false; // for the purpose of testing the EcalShape class, doesn't need to (should not) fetch a shape from the DB but just to assume the testbeam one
    const APDShape theAPDShape(useDBShape) ;
    const EBShape theEBShape(useDBShape) ;
    const EEShape theEEShape(useDBShape) ;

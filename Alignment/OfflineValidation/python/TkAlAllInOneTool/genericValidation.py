@@ -398,7 +398,7 @@ class GenericValidationData(GenericValidation):
         outputfile = os.path.expandvars(replaceByMap(
                            "%s_%s_.oO[name]Oo..root" % (self.outputBaseName, self.name)
                                  , result))
-        resultfile = os.path.expandvars(replaceByMap(("/store/caf/user/$USER/.oO[eosdir]Oo./" +
+        resultfile = os.path.expandvars(replaceByMap(("/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./" +
                            "%s_%s_.oO[name]Oo..root" % (self.resultBaseName, self.name))
                                  , result))
         result.update({

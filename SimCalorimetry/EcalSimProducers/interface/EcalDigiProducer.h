@@ -87,7 +87,6 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
 
       void checkCalibrations(const edm::Event& event, const edm::EventSetup& eventSetup) ;
 
-      bool useDBShape;
       APDShape m_APDShape ;
       EBShape  m_EBShape  ;
       EEShape  m_EEShape  ;

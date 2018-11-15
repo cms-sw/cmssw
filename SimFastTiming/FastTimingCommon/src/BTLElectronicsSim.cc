@@ -28,9 +28,11 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset) :
   adcNbits_( pset.getParameter<uint32_t>("adcNbits") ),
   tdcNbits_( pset.getParameter<uint32_t>("tdcNbits") ),
   adcSaturation_MIP_( pset.getParameter<double>("adcSaturation_MIP") ),
-  adcLSB_MIP_( adcSaturation_MIP_/std::pow(2.,adcNbits_) ),
+  adcBitSaturation_( std::pow(2,adcNbits_)-1 ),
+  adcLSB_MIP_( adcSaturation_MIP_/adcBitSaturation_ ),
   adcThreshold_MIP_( pset.getParameter<double>("adcThreshold_MIP") ),
   toaLSB_ns_( pset.getParameter<double>("toaLSB_ns") ),
+  tdcBitSaturation_( std::pow(2,tdcNbits_)-1 ),
   CorrCoeff_( pset.getParameter<double>("CorrelationCoefficient") ),
   cosPhi_( 0.5*(sqrt(1.+CorrCoeff_)+sqrt(1.-CorrCoeff_)) ),
   sinPhi_( 0.5*CorrCoeff_/cosPhi_ ),
@@ -115,7 +117,7 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       const unsigned int ibucket = std::floor( finalToA1/bxTime_ );
       if ( (i+ibucket) >= chargeColl.size() ) continue;
       
-      chargeColl[i+ibucket] = Npe*Npe_to_pC_; // the p.e. number is here converted to pC
+      chargeColl[i+ibucket] += Npe*Npe_to_pC_; // the p.e. number is here converted to pC
       
       if ( toa1[i+ibucket] == 0. || (finalToA1-ibucket*bxTime_) < toa1[i+ibucket] ){
 	toa1[i+ibucket] = finalToA1 - ibucket*bxTime_;
@@ -148,12 +150,11 @@ void BTLElectronicsSim::runTrivialShaper(BTLDataFrame &dataFrame,
   //set new ADCs 
   for(int it=0; it<(int)(chargeColl.size()); it++) {
 
-    if ( chargeColl[it] == 0. ) continue;
+    //brute force saturation, maybe could to better with an exponential like saturation
+    const uint32_t adc = std::min( (uint32_t) std::floor(chargeColl[it]/adcLSB_MIP_), adcBitSaturation_ );
+    const uint32_t tdc_time1 = std::min( (uint32_t) std::floor(toa1[it]/toaLSB_ns_), tdcBitSaturation_);
+    const uint32_t tdc_time2 = std::min( (uint32_t) std::floor(toa2[it]/toaLSB_ns_), tdcBitSaturation_);
 
-    //brute force saturation, maybe could to better with an exponential like saturation      
-    const uint32_t adc=std::floor( std::min(chargeColl[it],adcSaturation_MIP_) / adcLSB_MIP_ );
-    const uint32_t tdc_time1=std::floor( toa1[it] / toaLSB_ns_ );
-    const uint32_t tdc_time2=std::floor( toa2[it] / toaLSB_ns_ );
     BTLSample newSample;
     newSample.set(chargeColl[it] > adcThreshold_MIP_,false,tdc_time2,tdc_time1,adc);
     dataFrame.setSample(it,newSample);

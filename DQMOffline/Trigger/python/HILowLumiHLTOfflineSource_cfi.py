@@ -224,7 +224,7 @@ def getFullTrackVPSet():
             combinedObjectDimension = cms.int32(1),
             combinedObjectDrawables =  cms.VPSet()
         )
-	ret.append(hltFullTrackMult)
+        ret.append(hltFullTrackMult)
 
     thresholds4 = [20, 30, 40]
     for t in thresholds4:
@@ -327,7 +327,7 @@ def getPAHighMultHighPtVPSet():
             combinedObjectDimension = cms.int32(1),
             combinedObjectDrawables =  cms.VPSet()
         )
-	ret.append(hltPAFullTracks)
+        ret.append(hltPAFullTracks)
 
     return ret
 
@@ -771,7 +771,7 @@ def getPAMBVPSet():
             cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
             cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
         ),
-	combinedObjectSelection =  cms.string("1==1"),
+        combinedObjectSelection =  cms.string("1==1"),
         combinedObjectSortCriteria = cms.string("at(0).pt"),
         combinedObjectDimension = cms.int32(1),
         combinedObjectDrawables =  cms.VPSet()
@@ -792,7 +792,7 @@ def getPAMBVPSet():
             cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
             cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
         ),
-	combinedObjectSelection =  cms.string("1==1"),
+        combinedObjectSelection =  cms.string("1==1"),
         combinedObjectSortCriteria = cms.string("at(0).pt"),
         combinedObjectDimension = cms.int32(1),
         combinedObjectDrawables =  cms.VPSet()
@@ -813,7 +813,7 @@ def getPAMBVPSet():
             cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
             cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
         ),
-	combinedObjectSelection =  cms.string("1==1"),
+        combinedObjectSelection =  cms.string("1==1"),
         combinedObjectSortCriteria = cms.string("at(0).pt"),
         combinedObjectDimension = cms.int32(1),
         combinedObjectDrawables =  cms.VPSet()

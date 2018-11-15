@@ -23,7 +23,7 @@ public:
 
 private:
 
-  SiPixelQuality* getNewObject();
+  std::unique_ptr<SiPixelQuality> getNewObject();
 
 private:
   bool printdebug_;

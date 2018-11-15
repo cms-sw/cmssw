@@ -21,7 +21,7 @@
 // system include files
 
 // user include files
-class HGCalDetId;
+class DetId;
 class TEveCaloDataVec;
 
 #include "Fireworks/Calo/src/FWFromSliceSelector.h"
@@ -40,7 +40,7 @@ public:
    void doUnselect(const TEveCaloData::CellId_t&) override;
    
 private:
-   bool findBinFromId(HGCalDetId& id, int tower) const;
+   bool findBinFromId(DetId& id, int tower) const;
    TEveCaloDataVec* m_vecData;
 };
 

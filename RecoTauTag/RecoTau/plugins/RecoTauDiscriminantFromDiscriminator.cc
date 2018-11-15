@@ -8,13 +8,12 @@
  *
  */
 
-#include <boost/foreach.hpp>
 #include <sstream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauDiscriminantPlugins.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
-namespace reco { namespace tau {
+namespace reco::tau {
 
 class RecoTauDiscriminantFromDiscriminator : public RecoTauDiscriminantPlugin{
   public:
@@ -48,7 +47,7 @@ RecoTauDiscriminantFromDiscriminator::RecoTauDiscriminantFromDiscriminator(
     // class might be dealing with multiple tau collections (training)
     std::vector<edm::InputTag> discriminators =
       pset.getParameter<std::vector<edm::InputTag> >("discSrc");
-    BOOST_FOREACH(const edm::InputTag& tag, discriminators) {
+    for(auto const& tag : discriminators) {
       discriminators_.push_back(std::make_pair(
             tag, edm::Handle<reco::PFTauDiscriminator>()));
     }
@@ -57,7 +56,7 @@ RecoTauDiscriminantFromDiscriminator::RecoTauDiscriminantFromDiscriminator(
 
 // Called by base class at the beginning of every event
 void RecoTauDiscriminantFromDiscriminator::beginEvent() {
-  BOOST_FOREACH(DiscInfo& discInfo, discriminators_) {
+  for(auto& discInfo : discriminators_) {
     evt()->getByLabel(discInfo.first, discInfo.second);
   }
 }
@@ -100,7 +99,7 @@ std::vector<double> RecoTauDiscriminantFromDiscriminator::operator()(
   return std::vector<double>(1, result);
 }
 
-}} // end namespace reco::tau
+} // end namespace reco::tau
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_EDM_PLUGIN(RecoTauDiscriminantPluginFactory,

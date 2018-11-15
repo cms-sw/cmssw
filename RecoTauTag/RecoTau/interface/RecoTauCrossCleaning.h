@@ -1,15 +1,13 @@
 #ifndef RecoTauTag_RecoTau_RecoTauCrossCleaning_h
 #define RecoTauTag_RecoTau_RecoTauCrossCleaning_h
 
-#include <boost/foreach.hpp>
-
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 
-namespace reco { namespace tau { namespace xclean {
+namespace reco::tau::xclean {
 
 /// Transform a pizero to remove given candidates
 template<typename PtrIter>
@@ -37,7 +35,7 @@ class CrossCleanPiZeros
   {
     PiZeroList output;
     output.reserve(input.size());
-    BOOST_FOREACH( const RecoTauPiZero& piZero, input ) {
+    for(auto const& piZero : input ) {
       const RecoTauPiZero::daughters& daughters = piZero.daughterPtrVector();
       std::set<reco::CandidatePtr> toCheck(daughters.begin(), daughters.end());
       std::vector<reco::CandidatePtr> cleanDaughters;
@@ -50,7 +48,7 @@ class CrossCleanPiZeros
 	RecoTauPiZero newPiZero = piZero;
 	newPiZero.clearDaughters();
 	// Add our cleaned daughters.
-	BOOST_FOREACH( const reco::CandidatePtr& ptr, cleanDaughters ) {
+	for(auto const& ptr : cleanDaughters ) {
 	  newPiZero.addDaughter(ptr);
 	}
 	// Check if the pizero is not empty.  If empty, forget it.
@@ -134,6 +132,6 @@ PredicateAND<P1, P2> makePredicateAND(const P1& p1, const P2& p2) {
   return PredicateAND<P1, P2>(p1, p2);
 }
 
-}}}
+}
 
 #endif

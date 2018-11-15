@@ -14,33 +14,30 @@ using namespace HepMC;
 
 
 PythiaHepMCFilterGammaGamma::PythiaHepMCFilterGammaGamma(const edm::ParameterSet& iConfig) :
-  maxEvents(iConfig.getUntrackedParameter<int>("maxEvents", 0)),
-  ptSeedThr(iConfig.getUntrackedParameter<double>("PtSeedThr")),
-  etaSeedThr(iConfig.getUntrackedParameter<double>("EtaSeedThr")),
-  ptGammaThr(iConfig.getUntrackedParameter<double>("PtGammaThr")),
-  etaGammaThr(iConfig.getUntrackedParameter<double>("EtaGammaThr")),
-  ptTkThr(iConfig.getUntrackedParameter<double>("PtTkThr")),
-  etaTkThr(iConfig.getUntrackedParameter<double>("EtaTkThr")),
-  ptElThr(iConfig.getUntrackedParameter<double>("PtElThr")),
-  etaElThr(iConfig.getUntrackedParameter<double>("EtaElThr")),
-  dRTkMax(iConfig.getUntrackedParameter<double>("dRTkMax")),
-  dRSeedMax(iConfig.getUntrackedParameter<double>("dRSeedMax")),
-  dPhiSeedMax(iConfig.getUntrackedParameter<double>("dPhiSeedMax")),
-  dEtaSeedMax(iConfig.getUntrackedParameter<double>("dEtaSeedMax")),
-  dRNarrowCone(iConfig.getUntrackedParameter<double>("dRNarrowCone")),
-  pTMinCandidate1(iConfig.getUntrackedParameter<double>("PtMinCandidate1")),
-  pTMinCandidate2(iConfig.getUntrackedParameter<double>("PtMinCandidate2")),
-  etaMaxCandidate(iConfig.getUntrackedParameter<double>("EtaMaxCandidate")),
-  invMassMin(iConfig.getUntrackedParameter<double>("InvMassMin")),
-  invMassMax(iConfig.getUntrackedParameter<double>("InvMassMax")),
-  energyCut(iConfig.getUntrackedParameter<double>("EnergyCut")),
-  nTkConeMax(iConfig.getUntrackedParameter<int>("NTkConeMax")),
-  nTkConeSum(iConfig.getUntrackedParameter<int>("NTkConeSum")),
-  acceptPrompts(iConfig.getUntrackedParameter<bool>("AcceptPrompts")), 
-  promptPtThreshold(iConfig.getUntrackedParameter<double>("PromptPtThreshold")) {
-  
-  if (maxEvents != 0) edm::LogInfo("PythiaFilterGammaGamma::PythiaFilterGammaGamma") << "WARNING, ignoring unsuported option, maxEvents = " << maxEvents << endl;
-  
+  ptSeedThr(iConfig.getParameter<double>("PtSeedThr")),
+  etaSeedThr(iConfig.getParameter<double>("EtaSeedThr")),
+  ptGammaThr(iConfig.getParameter<double>("PtGammaThr")),
+  etaGammaThr(iConfig.getParameter<double>("EtaGammaThr")),
+  ptTkThr(iConfig.getParameter<double>("PtTkThr")),
+  etaTkThr(iConfig.getParameter<double>("EtaTkThr")),
+  ptElThr(iConfig.getParameter<double>("PtElThr")),
+  etaElThr(iConfig.getParameter<double>("EtaElThr")),
+  dRTkMax(iConfig.getParameter<double>("dRTkMax")),
+  dRSeedMax(iConfig.getParameter<double>("dRSeedMax")),
+  dPhiSeedMax(iConfig.getParameter<double>("dPhiSeedMax")),
+  dEtaSeedMax(iConfig.getParameter<double>("dEtaSeedMax")),
+  dRNarrowCone(iConfig.getParameter<double>("dRNarrowCone")),
+  pTMinCandidate1(iConfig.getParameter<double>("PtMinCandidate1")),
+  pTMinCandidate2(iConfig.getParameter<double>("PtMinCandidate2")),
+  etaMaxCandidate(iConfig.getParameter<double>("EtaMaxCandidate")),
+  invMassMin(iConfig.getParameter<double>("InvMassMin")),
+  invMassMax(iConfig.getParameter<double>("InvMassMax")),
+  energyCut(iConfig.getParameter<double>("EnergyCut")),
+  nTkConeMax(iConfig.getParameter<int>("NTkConeMax")),
+  nTkConeSum(iConfig.getParameter<int>("NTkConeSum")),
+  acceptPrompts(iConfig.getParameter<bool>("AcceptPrompts")),
+  promptPtThreshold(iConfig.getParameter<double>("PromptPtThreshold")) {
+
 }
 
 PythiaHepMCFilterGammaGamma::~PythiaHepMCFilterGammaGamma() 
@@ -51,10 +48,22 @@ bool PythiaHepMCFilterGammaGamma::filter(const HepMC::GenEvent* myGenEvent) {
    
   bool accepted = false;
 
-  std::vector<const GenParticle*> seeds, egamma, stable; 
+  // electron/photon seeds
+  std::vector<const GenParticle*> seeds;
+
+  // other electrons/photons to be added to seeds
+  // to form candidates
+  std::vector<const GenParticle*> egamma;
+
+  // charged tracks to be taken into account in the isolation cones
+  // around candidates
+  std::vector<const GenParticle*> stable;
+
   std::vector<const GenParticle*>::const_iterator itPart, itStable, itEn;
 
- // Loop on egamma
+  //----------
+  // 1. find electron/photon seeds
+  //----------
   for(HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p) {
 
     if (
@@ -74,11 +83,11 @@ bool PythiaHepMCFilterGammaGamma::filter(const HepMC::GenEvent* myGenEvent) {
     if ((*p)->status() == 1) {
 
       // save charged stable tracks
-      if (abs((*p)->pdg_id()) == 211 ||
-          abs((*p)->pdg_id()) == 321 ||
-          abs((*p)->pdg_id()) == 11 ||
-          abs((*p)->pdg_id()) == 13 ||
-          abs((*p)->pdg_id()) == 15) {
+      if (abs((*p)->pdg_id()) == 211 || // charged pion
+          abs((*p)->pdg_id()) == 321 || // charged kaon
+          abs((*p)->pdg_id()) == 11 ||  // electron
+          abs((*p)->pdg_id()) == 13 ||  // muon
+          abs((*p)->pdg_id()) == 15) {  // tau
         // check if it passes the cut
         if ((*p)->momentum().perp() > ptTkThr &&
             fabs((*p)->momentum().eta()) < etaTkThr) {
@@ -102,8 +111,24 @@ bool PythiaHepMCFilterGammaGamma::filter(const HepMC::GenEvent* myGenEvent) {
 
   if (seeds.size() < 2) return accepted;
 
+  //----------
+  // 2. loop over seeds to build candidates
+  //
+  //    (adding nearby electrons/photons
+  //     to the seed electrons/photons to obtain the total
+  //     electromagnetic energy)
+  //----------
+
+  // number of tracks around each of the candidates
   std::vector<int> nTracks;
-  std::vector<TLorentzVector> candidate, candidateNarrow, candidateSeed;
+
+  // the candidates (four momenta) formed from the
+  // seed electrons/photons and nearby electrons/photons
+  std::vector<TLorentzVector> candidate;
+
+  // these are filled but then not used afterwards (could be removed)
+  std::vector<TLorentzVector> candidateNarrow, candidateSeed;
+
   std::vector<const GenParticle*>::iterator itSeed;
 
   const GenParticle* mom;
@@ -123,7 +148,8 @@ bool PythiaHepMCFilterGammaGamma::filter(const HepMC::GenEvent* myGenEvent) {
       double DEta = (*itEn)->momentum().eta()-(*itSeed)->momentum().eta();
       if(DPhi<0) DPhi=-DPhi;
       if(DEta<0) DEta=-DEta;
-	
+
+      // accept if within cone or within rectangular region around seed
       if (DR < dRSeedMax || (DPhi<dPhiSeedMax&&DEta<dEtaSeedMax)) {
 	energy += temp1;
       }
@@ -132,13 +158,16 @@ bool PythiaHepMCFilterGammaGamma::filter(const HepMC::GenEvent* myGenEvent) {
       }
     }
 
+    // number of stable charged particles found within dRTkMax
+    // around candidate
     int counter = 0;
 
     if ( energy.Et() != 0. ) {
       if (fabs(energy.Eta()) < etaMaxCandidate) {
 
 	temp2.SetXYZM(energy.Px(), energy.Py(), energy.Pz(), 0);        
-	
+
+        // count number of stable particles within cone around candidate
 	for(itStable = stable.begin(); itStable != stable.end(); ++itStable) {  
 	  temp1.SetXYZM((*itStable)->momentum().px(), (*itStable)->momentum().py(), (*itStable)->momentum().pz(), 0);        
 	  double DR = temp1.DeltaR(temp2);
@@ -149,6 +178,8 @@ bool PythiaHepMCFilterGammaGamma::filter(const HepMC::GenEvent* myGenEvent) {
 	 
 	    if ((*itSeed)->momentum().perp()>promptPtThreshold)
 	    {
+	      // check if *itSeed is a prompt particle
+
 	      bool isPrompt=true;
 	      this_id = (*itSeed)->pdg_id();
 	      mom = (*itSeed);
@@ -167,7 +198,7 @@ bool PythiaHepMCFilterGammaGamma::filter(const HepMC::GenEvent* myGenEvent) {
 	  
 	      if (mom->status() == 2 && std::abs(first_different_id)>100) isPrompt=false;
 	
-
+	      // ignore charged particles around prompt particles
 	      if(isPrompt) counter=0;
 	    }
 	}
@@ -184,6 +215,12 @@ bool PythiaHepMCFilterGammaGamma::filter(const HepMC::GenEvent* myGenEvent) {
 
   TLorentzVector minvMin, minvMax;
 
+  //----------
+  // 3. perform further checks on candidates
+  //
+  //    (energy, charged isolation requirements etc.)
+  //----------
+
   int i1, i2;
   for(unsigned int i=0; i<candidate.size()-1; ++i) {
     
@@ -192,12 +229,16 @@ bool PythiaHepMCFilterGammaGamma::filter(const HepMC::GenEvent* myGenEvent) {
     if (fabs(candidate[i].Eta()) > etaMaxCandidate) continue;
     
     for(unsigned int j=i+1; j<candidate.size(); ++j) { 
+
+      // check features of second candidate alone
       if (candidate[j].Energy() < energyCut) continue;
       if(nTracks[j]>nTkConeMax) continue;
       if (fabs(candidate[j].Eta()) > etaMaxCandidate) continue;
 	  
+      // check requirement on sum of tracks in both isolation cones
       if (nTracks[i] + nTracks[j] > nTkConeSum) continue;
 
+      // swap candidates to have pt[i1] >= pt[i2]
       if (candidate[i].Pt() > candidate[j].Pt()) {
 	i1 = i;
 	i2 = j;
@@ -207,8 +248,10 @@ bool PythiaHepMCFilterGammaGamma::filter(const HepMC::GenEvent* myGenEvent) {
 	i2 = i;
       }
 
+      // require minimum pt on leading and subleading candidate
       if (candidate[i1].Pt() < pTMinCandidate1 || candidate[i2].Pt() < pTMinCandidate2) continue;
 
+      // apply requirements on candidate pair mass
       minvMin = candidate[i] + candidate[j];
       if (minvMin.M() < invMassMin) continue;
         

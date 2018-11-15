@@ -303,6 +303,40 @@ doEffFromHitPatternVsBX             ['highPurityPV0p1'] = cms.bool(False)
 doEffFromHitPatternVsLumi           ['highPurityPV0p1'] = cms.bool(True)
 doStopSource                        ['highPurityPV0p1'] = cms.bool(True)
 
+#pixel tracks
+hiConformalPixelTracksQA = trackSelector.clone()
+hiConformalPixelTracksQA.src = cms.InputTag('hiConformalPixelTracks')
+hiConformalPixelTracksQA.cut = cms.string("chi2/ndof/hitPattern.trackerLayersWithMeasurement < 200")
+
+sequenceName    ['hiConformalPixelTracksQA'] = hiConformalPixelTracksQA
+allTrackProducer['hiConformalPixelTracksQA'] = 'generalTracks'
+mainfolderName  ['hiConformalPixelTracksQA'] = 'Tracking/TrackParameters/hiConformalPixelTracks'
+vertexfolderName['hiConformalPixelTracksQA'] = 'Tracking/PrimaryVertices/hiConformalPixelTracks'
+trackPtN        ['hiConformalPixelTracksQA'] = cms.int32(100)
+trackPtMin      ['hiConformalPixelTracksQA'] = cms.double(0.)
+trackPtMax      ['hiConformalPixelTracksQA'] = cms.double(10.)
+numCutString    ['hiConformalPixelTracksQA'] = cms.string(" pt >= 0 ") 
+denCutString    ['hiConformalPixelTracksQA'] = cms.string(" pt >= 0 ") 
+doPlotsPCA      ['hiConformalPixelTracksQA'] = cms.bool(False)
+doGoodTracksPlots                   ['hiConformalPixelTracksQA'] = cms.bool(False)
+doTrackerSpecific                   ['hiConformalPixelTracksQA'] = cms.bool(False)
+doHitPropertiesPlots                ['hiConformalPixelTracksQA'] = cms.bool(True)
+doGeneralPropertiesPlots            ['hiConformalPixelTracksQA'] = cms.bool(True)
+doBeamSpotPlots                     ['hiConformalPixelTracksQA'] = cms.bool(True)
+doSeedParameterHistos               ['hiConformalPixelTracksQA'] = cms.bool(False)
+doRecHitVsPhiVsEtaPerTrack          ['hiConformalPixelTracksQA'] = cms.bool(True)
+doRecHitVsPtVsEtaPerTrack           ['hiConformalPixelTracksQA'] = cms.bool(True)
+doGoodTrackRecHitVsPhiVsEtaPerTrack ['hiConformalPixelTracksQA'] = cms.bool(False)
+doLayersVsPhiVsEtaPerTrack          ['hiConformalPixelTracksQA'] = cms.bool(True)
+doGoodTrackLayersVsPhiVsEtaPerTrack ['hiConformalPixelTracksQA'] = cms.bool(False)
+doPUmonitoring                      ['hiConformalPixelTracksQA'] = cms.bool(True)
+doPlotsVsBXlumi                     ['hiConformalPixelTracksQA'] = cms.bool(False)
+doPlotsVsGoodPVtx                   ['hiConformalPixelTracksQA'] = cms.bool(True)
+doEffFromHitPatternVsPU             ['hiConformalPixelTracksQA'] = cms.bool(False)
+doEffFromHitPatternVsBX             ['hiConformalPixelTracksQA'] = cms.bool(False)
+doEffFromHitPatternVsLumi           ['hiConformalPixelTracksQA'] = cms.bool(False)
+doStopSource                        ['hiConformalPixelTracksQA'] = cms.bool(True)
+
 selectedTracks.extend( ['generalTracks'] )
 #selectedTracks.extend( ['highPurityPtRange0to1']  )
 #selectedTracks.extend( ['highPurityPtRange1to10'] )
@@ -321,3 +355,5 @@ selectedTracks.extend( ['highPurityPV0p1'] )
 #    if tracks != 'generalTracks':
 #        selectedTracks2runSequence+=sequenceName[tracks]
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(selectedTracks, func=lambda selectedTracks: selectedTracks.extend( ['hiConformalPixelTracksQA'] ))

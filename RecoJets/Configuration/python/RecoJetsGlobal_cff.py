@@ -11,17 +11,11 @@ from JetMETCorrections.Configuration.JetCorrectorsForReco_cff import *
 jetGlobalReco = cms.Sequence(recoJets*recoJetIds*recoTrackJets)
 jetHighLevelReco = cms.Sequence(recoPFJets*jetCorrectorsForReco*recoJetAssociations*recoJetAssociationsExplicit*recoJPTJets)
 
-from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
-#HI-specific algorithms needed in pp scenario special configurations
-from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
-
 from RecoHI.HiJetAlgos.hiFJGridEmptyAreaCalculator_cff import hiFJGridEmptyAreaCalculator
-pA_2016.toModify(hiFJGridEmptyAreaCalculator, doCentrality = False)
-
-kt4PFJetsForRho = kt4PFJets.clone(doAreaFastjet = True,
-                                  jetPtMin = 0.0,
-                                  GhostArea = 0.005)
-
+from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
+from RecoHI.HiJetAlgos.HiRecoPFJets_cff import kt4PFJetsForRho
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from RecoHI.HiCentralityAlgos.pACentrality_cfi import pACentrality
 pA_2016.toModify(pACentrality, producePixelTracks = False)
 
@@ -31,3 +25,9 @@ _jetHighLevelReco_pA += hiFJRhoProducer
 _jetHighLevelReco_pA += hiFJGridEmptyAreaCalculator
 _jetHighLevelReco_pA += pACentrality
 pA_2016.toReplaceWith(jetHighLevelReco, _jetHighLevelReco_pA)
+
+_jetGlobalReco_HI = cms.Sequence(recoJetsHI*recoJetIds)
+_jetHighLevelReco_HI = cms.Sequence(recoPFJetsHI*jetCorrectorsForReco*recoJetAssociations)
+
+pp_on_AA_2018.toReplaceWith(jetGlobalReco,_jetGlobalReco_HI)
+pp_on_AA_2018.toReplaceWith(jetHighLevelReco,_jetHighLevelReco_HI)

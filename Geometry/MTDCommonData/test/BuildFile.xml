@@ -7,3 +7,5 @@
 <flags   EDM_PLUGIN="1"/>
 <library   file="TestMTDNumbering.cc">
 </library>
+<library   file="TestMTDPosition.cc">
+</library>

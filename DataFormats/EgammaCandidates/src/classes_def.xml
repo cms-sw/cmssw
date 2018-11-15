@@ -38,7 +38,8 @@
   <class name="reco::Photon::FiducialFlags" ClassVersion="10">
    <version ClassVersion="10" checksum="2148735796"/>
   </class>
-  <class name="reco::Photon::ShowerShape" ClassVersion="12">
+  <class name="reco::Photon::ShowerShape" ClassVersion="13">
+   <version ClassVersion="13" checksum="641067911"/>
    <version ClassVersion="12" checksum="1586705784"/>
    <version ClassVersion="11" checksum="2494542444"/>
   </class>
@@ -161,7 +162,8 @@
   <class name="reco::GsfElectron::FiducialFlags" ClassVersion="10">
    <version ClassVersion="10" checksum="2564471186"/>
   </class>
-  <class name="reco::GsfElectron::ShowerShape" ClassVersion="13">
+  <class name="reco::GsfElectron::ShowerShape" ClassVersion="14">
+   <version ClassVersion="14" checksum="1877043619"/>
    <version ClassVersion="13" checksum="1955217576"/>
    <version ClassVersion="12" checksum="1486422105"/>
    <version ClassVersion="11" checksum="3451347438"/>

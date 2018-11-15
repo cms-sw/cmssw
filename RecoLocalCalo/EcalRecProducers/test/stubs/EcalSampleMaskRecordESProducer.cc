@@ -21,7 +21,7 @@ class EcalSampleMaskRecordESProducer : public edm::ESProducer {
 public:
   EcalSampleMaskRecordESProducer(const edm::ParameterSet& iConfig);
   
-  typedef std::shared_ptr<EcalSampleMask> ReturnType;
+  using ReturnType = std::unique_ptr<EcalSampleMask>;
   
   ReturnType produce(const EcalSampleMaskRcd& iRecord);
   
@@ -46,10 +46,7 @@ EcalSampleMaskRecordESProducer::EcalSampleMaskRecordESProducer(const edm::Parame
 EcalSampleMaskRecordESProducer::ReturnType
 EcalSampleMaskRecordESProducer::produce(const EcalSampleMaskRcd& iRecord){
 
-  ReturnType returnRcd (new EcalSampleMask(maskeb_,maskee_));
-
-  return returnRcd ;
-
+  return std::make_unique<EcalSampleMask>(maskeb_,maskee_);
 }
 
 

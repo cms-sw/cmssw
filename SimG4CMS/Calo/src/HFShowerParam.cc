@@ -44,7 +44,7 @@ HFShowerParam::HFShowerParam(const std::string & name, const DDCompactView & cpv
   aperture                = cos(asin(m_HF.getParameter<double>("Aperture")));
   applyFidCut             = m_HF.getParameter<bool>("ApplyFiducialCut");
   parametrizeLast         = m_HF.getUntrackedParameter<bool>("ParametrizeLast",false);
-  edm::LogInfo("HFShower") << "HFShowerParam::Use of shower library is set to "
+  edm::LogVerbatim("HFShower") << "HFShowerParam::Use of shower library is set to "
                            << useShowerLibrary << " Use of Gflash is set to "
                            << useGflash << " P.E. per GeV " << pePerGeV
                            << ", ref. index of fibre " << ref_index 
@@ -76,7 +76,7 @@ HFShowerParam::HFShowerParam(const std::string & name, const DDCompactView & cpv
     em_long_sl      = showerDir.make<TH1F>("em_long_sl","Longitudinal Profile From Shower Library;cm;Number of Spots",800,800.0,1600.0);
   } else {
     fillHisto = false;
-    edm::LogInfo("HFShower") << "HFShowerParam::No file is available for "
+    edm::LogVerbatim("HFShower") << "HFShowerParam::No file is available for "
                              << "saving histos so the flag is set to false";
   }
 #endif
@@ -85,7 +85,7 @@ HFShowerParam::HFShowerParam(const std::string & name, const DDCompactView & cpv
   if (useGflash)        gflash        = new HFGflash(p);
   fibre = new HFFibre(name, cpv, p);
   attLMeanInv = fibre->attLength(lambdaMean);
-  edm::LogInfo("HFShower") << "att. length used for (lambda=" << lambdaMean
+  edm::LogVerbatim("HFShower") << "att. length used for (lambda=" << lambdaMean
                            << ") = " << 1/(attLMeanInv*cm) << " cm";
 }
 
@@ -115,7 +115,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
   double zz     = std::abs(zint) - gpar[4];
 
 #ifdef DebugLog
-  edm::LogInfo("HFShower") << "HFShowerParam: getHits " 
+  edm::LogVerbatim("HFShower") << "HFShowerParam: getHits " 
                            << track->GetDefinition()->GetParticleName()
                            << " of energy " << pin << " GeV" 
                            << " Pos x,y,z = " << hitPoint.x() << "," 
@@ -134,7 +134,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
   double dirz  = (track->GetDynamicParticle()->GetMomentumDirection()).z();
   if (hitPoint.z() < 0) dirz *= -1.;
 #ifdef DebugLog
-  edm::LogInfo("HFShower") << "HFShowerParam: getHits Momentum " 
+  edm::LogVerbatim("HFShower") << "HFShowerParam: getHits Momentum " 
                            <<track->GetDynamicParticle()->GetMomentumDirection()
                            << " HitPoint " << hitPoint << " dirz " << dirz;
 #endif  
@@ -154,7 +154,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
     }
     std::string path = "ShowerLibrary";
 #ifdef DebugLog
-    edm::LogInfo("HFShower") << "HFShowerParam: getHits edep = " << edep
+    edm::LogVerbatim("HFShower") << "HFShowerParam: getHits edep = " << edep
                              << " weight " << weight << " final " <<edep*weight
                              << ", Kill = " << kill << ", pin = " << pin 
                              << ", edMin = " << edMin << " Other " << other;
@@ -167,7 +167,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
           for (unsigned int i=0; i<hitSL.size(); i++) {
             bool ok = true;
 #ifdef DebugLog
-            edm::LogInfo("HFShower") << "HFShowerParam: getHits applyFidCut = " << applyFidCut;
+            edm::LogVerbatim("HFShower") << "HFShowerParam: getHits applyFidCut = " << applyFidCut;
 #endif
             if (applyFidCut) { // @@ For showerlibrary no z-cut for Short (no z)
               int npmt = HFFibreFiducial:: PMTNumber(hitSL[i].position);
@@ -198,7 +198,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
               }
 #endif
 #ifdef DebugLog
-              edm::LogInfo("HFShower") << "HFShowerParam: Hit at depth " 
+              edm::LogVerbatim("HFShower") << "HFShowerParam: Hit at depth " 
                                        << hit.depth << " with edep " << hit.edep
                                        << " Time " << hit.time;
 #endif
@@ -223,12 +223,12 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
             if (ok && applyFidCut) {
               npmt = HFFibreFiducial:: PMTNumber(pe_effect);
 #ifdef DebugLog
-              edm::LogInfo("HFShower") << "HFShowerParam::getHits:#PMT= "
+              edm::LogVerbatim("HFShower") << "HFShowerParam::getHits:#PMT= "
                                        << npmt << ",z = " << zv;
 #endif
               if (npmt <= 0) {
 #ifdef DebugLog
-                edm::LogInfo("HFShower") << "-#PMT=0 cut-HFShowerParam::"
+                edm::LogVerbatim("HFShower") << "-#PMT=0 cut-HFShowerParam::"
                                          << "getHits: npmt = " << npmt;
 #endif
                 ok = false;
@@ -237,14 +237,14 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
                   depth = 2; 
                 } else {
 #ifdef DebugLog
-                  edm::LogInfo("HFShower") << "-SHORT cut-HFShowerParam::"
+                  edm::LogVerbatim("HFShower") << "-SHORT cut-HFShowerParam::"
                                            << "getHits:zMin=" << gpar[0];
 #endif
                   ok = false;
                 }
               }
 #ifdef DebugLog
-              edm::LogInfo("HFShower") << "HFShowerParam: npmt " << npmt 
+              edm::LogVerbatim("HFShower") << "HFShowerParam: npmt " << npmt 
                                        << " zv " << std::abs(pe_effect.z()) 
                                        << ":" << gpar[4] << ":" << zv << ":" 
                                        << gpar[0] << " ok " << ok << " depth "
@@ -258,7 +258,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
             double dist = fibre->zShift(localPoint,depth,0); // distance to PMT
             double r1   = G4UniformRand();
 #ifdef DebugLog
-            edm::LogInfo("HFShower") << "HFShowerParam:Distance to PMT (" <<npmt
+            edm::LogVerbatim("HFShower") << "HFShowerParam:Distance to PMT (" <<npmt
                                      << ") " << dist << ", exclusion flag " 
                                      << (r1 > exp(-attLMeanInv*zv));
 #endif
@@ -266,7 +266,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
             if (ok) {
               double r2   = G4UniformRand();
 #ifdef DebugLog
-              edm::LogInfo("HFShower") << "HFShowerParam:Extra exclusion "
+              edm::LogVerbatim("HFShower") << "HFShowerParam:Extra exclusion "
                                        << r2 << ">" << weight << " "
                                        << (r2 > weight);
 #endif
@@ -296,7 +296,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
                 }
 #endif
 #ifdef DebugLog
-                edm::LogInfo("HFShower") << "HFShowerParam: Hit at depth " 
+                edm::LogVerbatim("HFShower") << "HFShowerParam: Hit at depth " 
                                          << hit.depth << " with edep " 
                                          << hit.edep << " Time "  << hit.time;
 #endif
@@ -315,7 +315,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
           if (npmt <= 0) ok = false;
         } 
 #ifdef DebugLog
-        edm::LogInfo("HFShower") << "HFShowerParam: getHits hitPoint " << hitPoint << " flag " << ok;
+        edm::LogVerbatim("HFShower") << "HFShowerParam: getHits hitPoint " << hitPoint << " flag " << ok;
 #endif
         if (ok) {
           hit.depth     = 1;
@@ -323,7 +323,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
           hit.edep      = edep;
           hits.push_back(hit);
 #ifdef DebugLog
-          edm::LogInfo("HFShower") << "HFShowerParam: Hit at depth 1 with edep "
+          edm::LogVerbatim("HFShower") << "HFShowerParam: Hit at depth 1 with edep "
                                    << edep << " Time " << tSlice << ":" << time
                                    << ":" << hit.time;
 #endif
@@ -339,7 +339,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
             hit.time  = tSlice+time;
             hits.push_back(hit);
 #ifdef DebugLog
-            edm::LogInfo("HFShower") <<"HFShowerParam: Hit at depth 2 with edep "
+            edm::LogVerbatim("HFShower") <<"HFShowerParam: Hit at depth 2 with edep "
                                      << edep << " Time " << tSlice << ":" << time
                                      << hit.time;
 #endif
@@ -354,7 +354,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
 #ifdef DebugLog
       for (unsigned int ii=0; ii<hits.size(); ++ii) {
         double zv = std::abs(hits[ii].position.z());
-        if (zv > 12790) edm::LogInfo("HFShower")<< "HFShowerParam: Abnormal hit along " 
+        if (zv > 12790) edm::LogVerbatim("HFShower")<< "HFShowerParam: Abnormal hit along " 
                                                 << path << " in " 
                                                 << preStepPoint->GetPhysicalVolume()->GetLogicalVolume()->GetName()
                                                 << " at " << hits[ii].position << " zz " 
@@ -362,7 +362,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step * aStep,
                                                 <<track->GetDefinition()->GetParticleName()
                                                 << " time " << hit.time;
       }
-      edm::LogInfo("HFShower") << "HFShowerParam: getHits kill (" << kill
+      edm::LogVerbatim("HFShower") << "HFShowerParam: getHits kill (" << kill
                                << ") track " << track->GetTrackID() 
                                << " at " << hitPoint
                                << " and deposit " << edep << " " << hits.size()

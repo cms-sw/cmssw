@@ -81,19 +81,19 @@ void regressionTest_setup(ClhepEvaluator& eval) {
    cout << air << endl;   
 
    // Some rotations in the x-y plane (Unit, 30,60,90 degs)
-   DDRotationMatrix * r0  = new DDRotationMatrix();
-   DDRotationMatrix * r30 = new DDRotationMatrix(ROOT::Math::RotationZ(30._deg));   
-   DDRotationMatrix * r60 = new DDRotationMatrix(ROOT::Math::RotationZ(60._deg));   
-   DDRotationMatrix * r90 = new DDRotationMatrix(ROOT::Math::RotationZ(90._deg));   
+   std::unique_ptr<DDRotationMatrix> r0  = std::make_unique<DDRotationMatrix>();
+   std::unique_ptr<DDRotationMatrix> r30 = std::make_unique<DDRotationMatrix>(ROOT::Math::RotationZ( 30._deg ));
+   std::unique_ptr<DDRotationMatrix> r60 = std::make_unique<DDRotationMatrix>(ROOT::Math::RotationZ( 60._deg ));
+   std::unique_ptr<DDRotationMatrix> r90 = std::make_unique<DDRotationMatrix>(ROOT::Math::RotationZ( 90._deg ));
    
-   DDrot(DDName("Unit",ns),r0);
-   DDrot(DDName("R30",ns),r30);
-   DDrot(DDName("R60",ns),r60);
-   DDrot(DDName("R90",ns),r90);
+   DDrot( DDName( "Unit", ns ), std::move( r0 ));
+   DDrot( DDName( "R30", ns ), std::move( r30 ));
+   DDrot( DDName( "R60", ns ), std::move( r60 ));
+   DDrot( DDName( "R90", ns ), std::move( r90 ));
    
-   DDSolid collectorSolid = DDSolidFactory::shapeless(DDName("group",ns));
+   DDSolid collectorSolid = DDSolidFactory::shapeless( DDName( "group", ns ));
    
-   DDRootDef::instance().set(worldName);	      
+   DDRootDef::instance().set( worldName );
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -171,10 +171,10 @@ void regressionTest_first(ClhepEvaluator& eval ) {
   cpv.position(supportLP, part, std::string("3"), t4, r60);
   cpv.position(supportLP, part, std::string("4"), t5, r90);
    
-  DDRotationMatrix * rm = new DDRotationMatrix(ROOT::Math::AxisAngle(DD3Vector(1.,1.,1.),20._deg));
-  DDRotation rw= DDrot(DDName("group", ns), rm);
-  DDLogicalPart ws(DDName("world","setup"));
-  cpv.position(part, ws, std::string("1"), t0, rw);
+  std::unique_ptr<DDRotationMatrix> rm = std::make_unique<DDRotationMatrix>( ROOT::Math::AxisAngle( DD3Vector( 1., 1., 1. ), 20._deg ));
+  DDRotation rw = DDrot( DDName( "group", ns ), std::move( rm ));
+  DDLogicalPart ws( DDName( "world", "setup" ));
+  cpv.position( part, ws, std::string( "1" ), t0, rw );
 }
 
 

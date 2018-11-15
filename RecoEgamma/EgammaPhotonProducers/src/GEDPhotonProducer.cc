@@ -224,6 +224,9 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
     thePhotonIsolationCalculator_=nullptr;
     thePhotonMIPHaloTagger_=nullptr;
   }
+
+  checkHcalStatus_ = conf_.getParameter<bool>("checkHcalStatus");
+
   // Register the product
   produces< reco::PhotonCollection >(photonCollection_);
   if (not pfEgammaCandidates_.isUninitialized())
@@ -546,6 +549,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     std::vector<CaloTowerDetId> TowersBehindClus;
     float hcalDepth1OverEcalBc,hcalDepth2OverEcalBc;
     hcalDepth1OverEcalBc=hcalDepth2OverEcalBc=0.f;
+    bool invalidHcal = false;
 
     if (not hcalTowers_.isUninitialized()) {
       const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
@@ -559,6 +563,10 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       TowersBehindClus = towerIsoBehindClus.towersOf(*scRef);
       hcalDepth1OverEcalBc = towerIsoBehindClus.getDepth1HcalESum(TowersBehindClus)/scRef->energy();
       hcalDepth2OverEcalBc = towerIsoBehindClus.getDepth2HcalESum(TowersBehindClus)/scRef->energy();
+
+      if (checkHcalStatus_ && hcalDepth1OverEcalBc == 0 && hcalDepth2OverEcalBc == 0) {
+          invalidHcal = !towerIsoBehindClus.hasActiveHcal(TowersBehindClus);
+      }
     }
 
     //    std::cout << " GEDPhotonProducer calculation of HoE with towers in a cone " << HoE1  << "  " << HoE2 << std::endl;
@@ -634,6 +642,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.hcalDepth1OverEcalBc = hcalDepth1OverEcalBc;
     showerShape.hcalDepth2OverEcalBc = hcalDepth2OverEcalBc;
     showerShape.hcalTowersBehindClusters =  TowersBehindClus;
+    showerShape.invalidHcal = invalidHcal;
     /// fill extra shower shapes
     const float spp = (!edm::isFinite(locCov[2]) ? 0. : sqrt(locCov[2]));
     const float sep = locCov[1];

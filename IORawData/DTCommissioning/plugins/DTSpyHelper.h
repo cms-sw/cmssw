@@ -45,7 +45,6 @@ class DTCtcp
     unsigned long addr();
     int Send(char * buffer,int size); 
     int Receive(char *buffer,int size);
-    int WaitData(int timeout);
 
 };
 

@@ -100,7 +100,6 @@ DetId HcalHitRelabeller::relabel(const uint32_t testId, const HcalDDDRecConstant
 
 double HcalHitRelabeller::energyWt(const uint32_t testId) const {
 
-  HcalDetId hid;
   int       det, z, depth, eta, phi, layer;
   HcalTestNumbering::unpackHcalIndex(testId,det,z,depth,eta,phi,layer);
   int       zside = (z==0) ? (-1) : (1);

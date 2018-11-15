@@ -1,4 +1,4 @@
-#include "CircleFromThreePoints.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/CircleFromThreePoints.h"
 
 CircleFromThreePoints::CircleFromThreePoints( const GlobalPoint& inner,
                                     const GlobalPoint& mid,

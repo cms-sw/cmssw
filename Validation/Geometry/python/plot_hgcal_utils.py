@@ -1,3 +1,4 @@
+from __future__ import print_function
 from ROOT import TStyle, kWhite, kTRUE
 from ROOT import gROOT, gStyle
 from ROOT import kGray, kAzure, kMagenta, kOrange, kWhite
@@ -100,7 +101,7 @@ def TwikiPrintout(plotname, label, zoom):
     label = label.replace(" ", "_")
 
     zoomstring = ""
-    
+
     if zoom == "all":
         zoomstring = ""
         zoomtitle = "in all HGCal"
@@ -114,34 +115,34 @@ def TwikiPrintout(plotname, label, zoom):
         zoomtitle = "in Z- endcap of HGCal"
         zoomdir = "%s/ZMinusZoom/" % label
     else :
-        print "WRONG OPTION"
-    
+        print("WRONG OPTION")
+
 
     #Here for the hide button
     if plotname == "x_vs_z_vs_Rsum":
-        print "%%TWISTY{ mode=\"div\" showlink=\"Click to see the %s plots %s \" hidelink=\"Hide %s %s\" showimgright=\"%%ICONURLPATH{toggleopen-small}%%\" hideimgright=\"%%ICONURLPATH{toggleclose-small}%%\"}%%" % (label,zoomtitle, label, zoomtitle)
-    
+        print("%%TWISTY{ mode=\"div\" showlink=\"Click to see the %s plots %s \" hidelink=\"Hide %s %s\" showimgright=\"%%ICONURLPATH{toggleopen-small}%%\" hideimgright=\"%%ICONURLPATH{toggleclose-small}%%\"}%%" % (label,zoomtitle, label, zoomtitle))
+
     if "Rsum" in plotname and "x_vs" in plotname and not "cos" in plotname: 
-        print "| <img alt=\"HGCal_%s%s%s.png\" height=\"300\" width=\"550\" src=\"http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.png\" /> | The plot on the left shows the 2D profile histogram for *%s* %s that displays the mean value of the material budget in units of radiation length in each R-z cell. R-z cell is 1 cm x 1 mm. The plot depicts the accumulated material budget as seen by the track, as the track travels throughout the detector.[[http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.pdf][Click to enlarge plot]] |" % (plotname,label,zoomstring,zoomdir,plotname,label,zoomstring, label, zoomtitle,zoomdir,plotname,label,zoomstring)
+        print("| <img alt=\"HGCal_%s%s%s.png\" height=\"300\" width=\"550\" src=\"http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.png\" /> | The plot on the left shows the 2D profile histogram for *%s* %s that displays the mean value of the material budget in units of radiation length in each R-z cell. R-z cell is 1 cm x 1 mm. The plot depicts the accumulated material budget as seen by the track, as the track travels throughout the detector.[[http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.pdf][Click to enlarge plot]] |" % (plotname,label,zoomstring,zoomdir,plotname,label,zoomstring, label, zoomtitle,zoomdir,plotname,label,zoomstring))
 
     if "Rsum" in plotname and "l_vs" in plotname and not "cos" in plotname: 
-        print "| <img alt=\"HGCal_%s%s%s.png\" height=\"300\" width=\"550\" src=\"http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.png\" /> | The plot on the left shows the 2D profile histogram for *%s* %s that displays the mean value of the material budget in units of interaction length in each R-z cell. R-z cell is 1 cm x 1 mm. The plot depicts the accumulated material budget as seen by the track, as the track travels throughout the detector.[[http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.pdf][Click to enlarge plot]] |" % (plotname,label,zoomstring,zoomdir,plotname,label,zoomstring, label, zoomtitle,zoomdir,plotname,label,zoomstring)
-     
+        print("| <img alt=\"HGCal_%s%s%s.png\" height=\"300\" width=\"550\" src=\"http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.png\" /> | The plot on the left shows the 2D profile histogram for *%s* %s that displays the mean value of the material budget in units of interaction length in each R-z cell. R-z cell is 1 cm x 1 mm. The plot depicts the accumulated material budget as seen by the track, as the track travels throughout the detector.[[http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.pdf][Click to enlarge plot]] |" % (plotname,label,zoomstring,zoomdir,plotname,label,zoomstring, label, zoomtitle,zoomdir,plotname,label,zoomstring))
+
     if "Rsumcos" in plotname and "x_vs" in plotname: 
-        print "| <img alt=\"HGCal_%s%s%s.png\" height=\"300\" width=\"550\" src=\"http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.png\" /> | The plot on the left shows the 2D profile histogram for *%s* %s that displays the mean value of the material budget in units of radiation length in each R-z cell. R-z cell is 1 cm x 1 mm. The plot depicts the orthogonal accumulated material budget, that is cos(theta) what the track sees.[[http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.pdf][Click to enlarge plot]] |" % (plotname,label,zoomstring,zoomdir,plotname,label,zoomstring, label, zoomtitle,zoomdir,plotname,label,zoomstring)
+        print("| <img alt=\"HGCal_%s%s%s.png\" height=\"300\" width=\"550\" src=\"http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.png\" /> | The plot on the left shows the 2D profile histogram for *%s* %s that displays the mean value of the material budget in units of radiation length in each R-z cell. R-z cell is 1 cm x 1 mm. The plot depicts the orthogonal accumulated material budget, that is cos(theta) what the track sees.[[http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.pdf][Click to enlarge plot]] |" % (plotname,label,zoomstring,zoomdir,plotname,label,zoomstring, label, zoomtitle,zoomdir,plotname,label,zoomstring))
 
     if "Rsumcos" in plotname and "l_vs" in plotname: 
-        print "| <img alt=\"HGCal_%s%s%s.png\" height=\"300\" width=\"550\" src=\"http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.png\" /> | The plot on the left shows the 2D profile histogram for *%s* %s that displays the mean value of the material budget in units of interaction length in each R-z cell. R-z cell is 1 cm x 1 mm. The plot depicts the orthogonal accumulated material budget, that is cos(theta) what the track sees.[[http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.pdf][Click to enlarge plot]] |" % (plotname,label,zoomstring,zoomdir,plotname,label,zoomstring, label, zoomtitle,zoomdir,plotname,label,zoomstring)
-     
+        print("| <img alt=\"HGCal_%s%s%s.png\" height=\"300\" width=\"550\" src=\"http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.png\" /> | The plot on the left shows the 2D profile histogram for *%s* %s that displays the mean value of the material budget in units of interaction length in each R-z cell. R-z cell is 1 cm x 1 mm. The plot depicts the orthogonal accumulated material budget, that is cos(theta) what the track sees.[[http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.pdf][Click to enlarge plot]] |" % (plotname,label,zoomstring,zoomdir,plotname,label,zoomstring, label, zoomtitle,zoomdir,plotname,label,zoomstring))
+
     if "Rloc" in plotname and "x_vs" in plotname and not "cos" in plotname: 
-         print "| <img alt=\"HGCal_%s%s%s.png\" height=\"300\" width=\"550\" src=\"http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.png\" /> | The plot on the left shows the 2D profile histogram for *%s* %s that displays the local mean value of the material budget in units of radiation length in each R-z cell. R-z cell is 1 cm x 1 mm. The plot depicts the local material budget as seen by the track, as the track travels throughout the detector.[[http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.pdf][Click to enlarge plot]] |" % (plotname,label,zoomstring,zoomdir,plotname,label,zoomstring, label, zoomtitle,zoomdir,plotname,label,zoomstring)
+        print("| <img alt=\"HGCal_%s%s%s.png\" height=\"300\" width=\"550\" src=\"http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.png\" /> | The plot on the left shows the 2D profile histogram for *%s* %s that displays the local mean value of the material budget in units of radiation length in each R-z cell. R-z cell is 1 cm x 1 mm. The plot depicts the local material budget as seen by the track, as the track travels throughout the detector.[[http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.pdf][Click to enlarge plot]] |" % (plotname,label,zoomstring,zoomdir,plotname,label,zoomstring, label, zoomtitle,zoomdir,plotname,label,zoomstring))
 
     if "Rloc" in plotname and "l_vs" in plotname and not "cos" in plotname: 
-         print "| <img alt=\"HGCal_%s%s%s.png\" height=\"300\" width=\"550\" src=\"http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.png\" /> | The plot on the left shows the 2D profile histogram for *%s* %s that displays the local mean value of the material budget in units of interaction length in each R-z cell. R-z cell is 1 cm x 1 mm. The plot depicts the local material budget as seen by the track, as the track travels throughout the detector.[[http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.pdf][Click to enlarge plot]] |" % (plotname,label,zoomstring,zoomdir,plotname,label,zoomstring, label, zoomtitle,zoomdir,plotname,label,zoomstring)
+        print("| <img alt=\"HGCal_%s%s%s.png\" height=\"300\" width=\"550\" src=\"http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.png\" /> | The plot on the left shows the 2D profile histogram for *%s* %s that displays the local mean value of the material budget in units of interaction length in each R-z cell. R-z cell is 1 cm x 1 mm. The plot depicts the local material budget as seen by the track, as the track travels throughout the detector.[[http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.pdf][Click to enlarge plot]] |" % (plotname,label,zoomstring,zoomdir,plotname,label,zoomstring, label, zoomtitle,zoomdir,plotname,label,zoomstring))
 
     #Here again for the closing of the hide button
     if plotname == "l_vs_z_vs_Rloc":
-        print "%ENDTWISTY%"
+        print("%ENDTWISTY%")
 
     """ 
     I won't put the local cos plots for now, only the sum cos above
@@ -151,7 +152,7 @@ def TwikiPrintout(plotname, label, zoom):
     if "Rloccos" in plotname and "l_vs" in plotname: 
          print "| <img alt=\"HGCal_%s%s%s.png\" height=\"300\" width=\"550\" src=\"http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.png\" /> | The plot on the left shows the 2D profile histogram for *%s* %s that displays the local mean value of the material budget in units of interaction length in each R-z cell. R-z cell is 1 cm x 1 mm. The plot depicts the orthogonal accumulated material budget, that is cos(theta) what the track sees.[[http://apsallid.web.cern.ch/apsallid/HGCalMaterial/%sHGCal_%s%s%s.pdf][Click to enlarge plot]] |" % (plotname,label,zoomstring,zoomdir,plotname,label,zoomstring, label, zoomtitle,zoomdir,plotname,label,zoomstring)
     """
- 
+
 def acustompalette(): 
     NRGBs = 7
     NCont = 100

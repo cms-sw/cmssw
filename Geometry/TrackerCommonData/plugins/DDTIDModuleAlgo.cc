@@ -31,7 +31,7 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
   int i;
   genMat       = sArgs["GeneralMaterial"];
   detectorN    = (int)(nArgs["DetectorNumber"]);
-  DDName parentName = parent().name(); 
+  DDName parentName(parent().name()); 
 
   LogDebug("TIDGeom") << "DDTIDModuleAlgo debug: Parent " << parentName 
 		      << " General Material " << genMat 
@@ -158,8 +158,7 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
   
   LogDebug("TIDGeom") << "==>> Constructing DDTIDModuleAlgo...";
 
-  DDName parentName = parent().name(); 
-  DDName name;
+  DDName parentName(parent().name()); 
 
   double sidfr = sideFrameWidth - sideFrameOver;      // width of side frame on the sides of module 
   double botfr;                                       // width of side frame at the the bottom of the modules 
@@ -202,8 +201,7 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
   DDSolid solidUncut, solidCut;
   DDSolid    solid = DDSolidFactory::trap(parentName, dz, 0, 0,
 					  h1, bl1, bl1, 0, h1, bl2, bl2, 0);
-  DDName     matname = DDName(DDSplit(genMat).first, DDSplit(genMat).second);
-  DDMaterial matter  = DDMaterial(matname);
+  DDMaterial matter  = DDMaterial(DDName(DDSplit(genMat).first, DDSplit(genMat).second));
   DDLogicalPart module(solid.ddname(), matter, solid);
   LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
 		      << " Trap made of " << genMat << " of dimensions " << dz 
@@ -214,42 +212,39 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
   if (doComponents) {
 
     //Box frame
-    name    = DDName(DDSplit(boxFrameName).first,DDSplit(boxFrameName).second);
-    matname = DDName(DDSplit(boxFrameMat).first, DDSplit(boxFrameMat).second);
-    matter  = DDMaterial(matname);
+    matter  = DDMaterial(DDName(DDSplit(boxFrameMat).first, DDSplit(boxFrameMat).second));
     double dx = 0.5 * boxFrameWidth;
     double dy = 0.5 * boxFrameThick;
     double dz = 0.5 * boxFrameHeight; 
-    solid = DDSolidFactory::box(name, dx, dy, dz);
+    solid = DDSolidFactory::box(DDName(DDSplit( boxFrameName ).first, DDSplit( boxFrameName ).second ),
+				 dx, dy, dz);
     LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
-			<< " Box made of " << matname << " of dimensions " 
+			<< " Box made of " << matter.ddname() << " of dimensions " 
 			<< dx << ", " << dy << ", " << dz;
     DDLogicalPart boxFrame(solid.ddname(), matter, solid);
 
 
     // Hybrid
-    name    = DDName(DDSplit(hybridName).first, DDSplit(hybridName).second);
-    matname = DDName(DDSplit(hybridMat).first, DDSplit(hybridMat).second);
-    matter  = DDMaterial(matname);
+    matter  = DDMaterial(DDName(DDSplit(hybridMat).first, DDSplit(hybridMat).second));
     dx = 0.5 * hybridWidth;
     dy = 0.5 * hybridThick;
     dz        = 0.5 * hybridHeight;
-    solid = DDSolidFactory::box(name, dx, dy, dz);
+    solid = DDSolidFactory::box( DDName(DDSplit(hybridName).first, DDSplit(hybridName).second),
+				 dx, dy, dz);
     LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
-			<< " Box made of " << matname << " of dimensions " 
+			<< " Box made of " << matter.ddname() << " of dimensions " 
 			<< dx << ", " << dy << ", " << dz;
     DDLogicalPart hybrid(solid.ddname(), matter, solid);
 
     // Cool Insert
-    name    = DDName(DDSplit(coolName).first, DDSplit(coolName).second);
-    matname = DDName(DDSplit(coolMat).first, DDSplit(coolMat).second);
-    matter  = DDMaterial(matname);
+    matter  = DDMaterial(DDName(DDSplit(coolMat).first, DDSplit(coolMat).second));
     dx = 0.5 * coolWidth;
     dy = 0.5 * coolThick;
     dz        = 0.5 * coolHeight;
-    solid = DDSolidFactory::box(name, dx, dy, dz);
+    solid = DDSolidFactory::box(DDName(DDSplit(coolName).first, DDSplit(coolName).second),
+				dx, dy, dz);
     LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
-			<< " Box made of " << matname << " of dimensions " 
+			<< " Box made of " << matter.ddname() << " of dimensions " 
 			<< dx << ", " << dy << ", " << dz;
     DDLogicalPart cool(solid.ddname(), matter, solid);
 
@@ -259,11 +254,8 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
       double bbl1, bbl2; // perhaps useless (bl1 enough)
 
       // Frame Sides
-      name    = DDName(DDSplit(sideFrameName[k]).first,
-		       DDSplit(sideFrameName[k]).second);
-      matname = DDName(DDSplit(sideFrameMat).first,
-		       DDSplit(sideFrameMat).second);
-      matter  = DDMaterial(matname);
+      matter  = DDMaterial(DDName(DDSplit(sideFrameMat).first,
+				  DDSplit(sideFrameMat).second));
       if (dlHybrid > dlTop) {
 	// ring 1, ring 2
 	bbl1 = dxtop - (dxtop-dxbot)*(fullHeight+botfr)/fullHeight;
@@ -275,10 +267,12 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
       }
       h1 = 0.5 * sideFrameThick;
       dz = 0.5 * sideFrameHeight;
-      solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bbl1, bbl1, 0, 
+      solid = DDSolidFactory::trap(DDName(DDSplit(sideFrameName[k]).first,
+					  DDSplit(sideFrameName[k]).second),
+				   dz, 0, 0, h1, bbl1, bbl1, 0, 
 				   h1,  bbl2, bbl2, 0);
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
-			  << " Trap made of " << matname << " of dimensions "
+			  << " Trap made of " << matter.ddname() << " of dimensions "
 			  << dz << ", 0, 0, " << h1 << ", " << bbl1 << ", " 
 			  << bbl1 << ", 0, " << h1 << ", " << bbl2 << ", " 
 			  << bbl2 << ", 0";
@@ -288,10 +282,7 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
       DDRotation rot;
 
       // Hole in the frame below the wafer 
-      name    = DDName(DDSplit(holeFrameName[k]).first,
-		       DDSplit(holeFrameName[k]).second);
-      matname = DDName(DDSplit(genMat).first, DDSplit(genMat).second);
-      matter  = DDMaterial(matname);
+      matter  = DDMaterial(DDName(DDSplit(genMat).first, DDSplit(genMat).second));
       double xpos, zpos;
       dz        = fullHeight - bottomFrameOver - topFrameOver;
       bbl1     = dxbot - sideFrameWidth + bottomFrameOver*(dxtop-dxbot)/fullHeight;
@@ -304,10 +295,12 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
 	zpos    = bottomFrameHeight+0.5*dz-0.5*sideFrameHeight;
       }
       dz     /= 2.;
-      solid = DDSolidFactory::trap(name, dz, 0,0, h1,bbl1,bbl1, 0, 
+      solid = DDSolidFactory::trap(DDName(DDSplit(holeFrameName[k]).first,
+					  DDSplit(holeFrameName[k]).second),
+				   dz, 0,0, h1,bbl1,bbl1, 0, 
 				   h1,bbl2,bbl2, 0);
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
-			  << " Trap made of " << matname << " of dimensions "
+			  << " Trap made of " << matter.ddname() << " of dimensions "
 			  << dz << ", 0, 0, " << h1 << ", " << bbl1 << ", " 
 			  << bbl1 << ", 0, " << h1 << ", " << bbl2 << ", " 
 			  << bbl2 << ", 0";
@@ -320,15 +313,13 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
       } else {
 	rot     = DDRotation();
       }
-     cpv.position(holeFrame, sideFrame, 1, DDTranslation(0.0, 0.0, zpos), rot );   
+      cpv.position(holeFrame, sideFrame, 1, DDTranslation(0.0, 0.0, zpos), rot );   
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test: " << holeFrame.name() 
 			  << " number 1 positioned in " << sideFrame.name()
 			  << " at (0,0," << zpos << ") with no rotation";
 
       // Kapton circuit
-      //  name = DDName(DDSplit(kaptonName[k]).first,DDSplit(kaptonName[k]).second);
-      matname = DDName(DDSplit(kaptonMat).first,DDSplit(kaptonMat).second);
-      matter  = DDMaterial(matname);
+      matter  = DDMaterial(DDName(DDSplit(kaptonMat).first,DDSplit(kaptonMat).second));
       double kaptonExtraHeight=0;      // kapton extra height in the stereo
       if (dlHybrid > dlTop) {
 	// ring 1, ring 2
@@ -359,15 +350,13 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
       if ( k == 1 ) {
 	// Uncut solid
 	std::string kaptonUncutName=kaptonName[k]+"Uncut";
-	name    = DDName(DDSplit(kaptonUncutName).first,
-			 DDSplit(kaptonUncutName).second);
-	solidUncut = DDSolidFactory::trap(name, dz, 0, 0, h1, bbl1, bbl1, 0,
+	solidUncut = DDSolidFactory::trap(DDName(DDSplit(kaptonUncutName).first,
+						 DDSplit(kaptonUncutName).second),
+					  dz, 0, 0, h1, bbl1, bbl1, 0,
 					  h1,  bbl2, bbl2, 0);
 
 	// Piece to be cut
 	std::string kaptonCutName=kaptonName[k]+"Cut";
-	name    = DDName(DDSplit(kaptonCutName).first,
-			 DDSplit(kaptonCutName).second);	 
 
 	if (dlHybrid > dlTop) {
 	  dz   = 0.5 * dlTop;
@@ -378,7 +367,9 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
 	bbl1     =  fabs(dz*sin(detTilt));
 	bbl2     =  bbl1*0.000001;
 	double thet = atan((bbl1-bbl2)/(2*dz));	
-	solidCut  = DDSolidFactory::trap(name, dz, thet, 0, h1, bbl1, bbl1, 0,
+	solidCut  = DDSolidFactory::trap(DDName(DDSplit(kaptonCutName).first,
+						DDSplit(kaptonCutName).second),
+					 dz, thet, 0, h1, bbl1, bbl1, 0,
 					 h1, bbl2, bbl2, 0);
 
 	std::string aRot("tidmodpar:9PYX"); 
@@ -390,30 +381,27 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
 	zpos = 0.5 * kaptonHeight - bbl2;
 
 	// Subtraction Solid
-	name   = DDName(DDSplit(kaptonName[k]).first,
-			DDSplit(kaptonName[k]).second);  
-	solid  = DDSolidFactory::subtraction(name, solidUncut, solidCut, 
+	solid  = DDSolidFactory::subtraction(DDName(DDSplit(kaptonName[k]).first,
+						    DDSplit(kaptonName[k]).second),
+					     solidUncut, solidCut, 
 					     DDTranslation(xpos,0.0,zpos),rot);
       } else {
-	name   = DDName(DDSplit(kaptonName[k]).first,
-			DDSplit(kaptonName[k]).second);
-	solid  = DDSolidFactory::trap(name, dz, 0, 0, h1, bbl1, bbl1, 0, 
+	solid  = DDSolidFactory::trap(DDName(DDSplit(kaptonName[k]).first,
+					     DDSplit(kaptonName[k]).second),
+				      dz, 0, 0, h1, bbl1, bbl1, 0, 
 				      h1,  bbl2, bbl2, 0);
       }
 
       DDLogicalPart kapton(solid.ddname(), matter, solid);         
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
-			  << " SUBTRACTION SOLID Trap made of " << matname 
+			  << " SUBTRACTION SOLID Trap made of " << matter.ddname() 
 			  << " of dimensions " << dz << ", 0, 0, " << h1 
 			  << ", " << bbl1 << ", " << bbl1 << ", 0, " << h1 
 			  << ", " << bbl2 << ", " << bbl2 << ", 0";
 
 
       // Hole in the kapton below the wafer 
-      name    = DDName(DDSplit(holeKaptonName[k]).first,
-		       DDSplit(holeKaptonName[k]).second);
-      matname = DDName(DDSplit(genMat).first, DDSplit(genMat).second);
-      matter  = DDMaterial(matname);
+      matter  = DDMaterial(DDName(DDSplit(genMat).first, DDSplit(genMat).second));
       dz      = fullHeight - kaptonOver;
       xpos = 0; 
       if (dlHybrid > dlTop) {
@@ -432,10 +420,12 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
 	zpos = -0.5*(kaptonHeight-kaptonExtraHeight-dz);
       }
       dz     /= 2.;
-      solid = DDSolidFactory::trap(name, dz, 0,0, h1,bbl1,bbl1, 0, 
+      solid = DDSolidFactory::trap(DDName(DDSplit(holeKaptonName[k]).first,
+					  DDSplit(holeKaptonName[k]).second),
+				   dz, 0,0, h1,bbl1,bbl1, 0, 
 				   h1,bbl2,bbl2, 0);
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
-			  << " Trap made of " << matname << " of dimensions "
+			  << " Trap made of " << matter.ddname() << " of dimensions "
 			  << dz << ", 0, 0, " << h1 << ", " << bbl1 << ", " 
 			  << bbl1 << ", 0, " << h1 << ", " << bbl2 << ", " 
 			  << bbl2 << ", 0";
@@ -448,7 +438,7 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
       } else {
 	rot     = DDRotation();
       }
-     cpv.position(holeKapton, kapton, 1, DDTranslation(xpos, 0.0, zpos), rot );   
+      cpv.position(holeKapton, kapton, 1, DDTranslation(xpos, 0.0, zpos), rot );   
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test: " << holeKapton.name() 
 			  << " number 1 positioned in " << kapton.name()
 			  << " at (0,0," << zpos << ") with no rotation";
@@ -456,10 +446,7 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
 
 
       // Wafer
-      name    = DDName(DDSplit(waferName[k]).first,
-		       DDSplit(waferName[k]).second);
-      matname = DDName(DDSplit(waferMat).first, DDSplit(waferMat).second);
-      matter  = DDMaterial(matname);
+      matter  = DDMaterial(DDName(DDSplit(waferMat).first, DDSplit(waferMat).second));
       if (k == 0 && dlHybrid < dlTop) {
 	bl1     = 0.5 * dlTop;
 	bl2     = 0.5 * dlBottom;
@@ -469,19 +456,18 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
       }
       h1      = 0.5 * waferThick[k];
       dz      = 0.5 * fullHeight;
-      solid = DDSolidFactory::trap(name, dz, 0,0, h1,bl1,bl1,0, h1,bl2,bl2,0);
+      solid = DDSolidFactory::trap(DDName(DDSplit(waferName[k]).first,
+					  DDSplit(waferName[k]).second),
+				   dz, 0,0, h1,bl1,bl1,0, h1,bl2,bl2,0);
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
-			  << " Trap made of " << matname << " of dimensions "
+			  << " Trap made of " << matter.ddname() << " of dimensions "
 			  << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " 
 			  << bl1 << ", 0, " << h1 << ", " << bl2 << ", "
 			  << bl2 << ", 0";
       DDLogicalPart wafer(solid.ddname(), matter, solid);
 
       // Active
-      name    = DDName(DDSplit(activeName[k]).first,
-		       DDSplit(activeName[k]).second);
-      matname = DDName(DDSplit(activeMat).first, DDSplit(activeMat).second);
-      matter  = DDMaterial(matname);
+      matter  = DDMaterial(DDName(DDSplit(activeMat).first, DDSplit(activeMat).second));
       if (k == 0 && dlHybrid < dlTop) {
 	bl1    -= sideWidthTop;
 	bl2    -= sideWidthBottom;
@@ -492,9 +478,11 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
       }
       dz      = 0.5 * (waferThick[k] - backplaneThick[k]); // inactive backplane
       h1      = 0.5 * activeHeight;
-      solid = DDSolidFactory::trap(name, dz, 0,0, h1,bl2,bl1,0, h1,bl2,bl1,0);
+      solid = DDSolidFactory::trap(DDName(DDSplit(activeName[k]).first,
+					  DDSplit(activeName[k]).second),
+				   dz, 0,0, h1,bl2,bl1,0, h1,bl2,bl1,0);
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
-			  << " Trap made of " << matname << " of dimensions "
+			  << " Trap made of " << matter.ddname() << " of dimensions "
 			  << dz << ", 0, 0, " << h1 << ", " << bl2 << ", " 
 			  << bl1 << ", 0, " << h1 << ", " << bl2 << ", "
 			  << bl1 << ", 0";
@@ -507,16 +495,13 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
 	rot     = DDRotation();
       }
       DDTranslation tran(0.0,-0.5 * backplaneThick[k],0.0); // from the definition of the wafer local axes
-     cpv.position(active, wafer, 1, tran, rot);  // inactive backplane
+      cpv.position(active, wafer, 1, tran, rot);  // inactive backplane
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test: " << active.name() 
 			  << " number 1 positioned in " << wafer.name() 
 			  << " at " << tran << " with " << rot;
       
       //Pitch Adapter
-      name    = DDName(DDSplit(pitchName[k]).first,
-		       DDSplit(pitchName[k]).second);
-      matname = DDName(DDSplit(pitchMat).first, DDSplit(pitchMat).second);
-      matter  = DDMaterial(matname);
+      matter  = DDMaterial(DDName(DDSplit(pitchMat).first, DDSplit(pitchMat).second));
       if (dlHybrid > dlTop) {
 	dz   = 0.5 * dlTop;
       } else {
@@ -526,9 +511,11 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
 	dx      = dz;
 	dy      = 0.5 * pitchThick;
 	dz      = 0.5 * pitchHeight;
-	solid   = DDSolidFactory::box(name, dx, dy, dz);
+	solid   = DDSolidFactory::box(DDName(DDSplit(pitchName[k]).first,
+					     DDSplit(pitchName[k]).second),
+				      dx, dy, dz);
 	LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name()
-			    << " Box made of " << matname << " of dimensions"
+			    << " Box made of " << matter.ddname() << " of dimensions"
 			    << " " << dx << ", " << dy << ", " << dz;
       } else {
 	h1      = 0.5 * pitchThick;
@@ -540,10 +527,12 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
 	bl2-=pitchStereoTol;
 
 	double thet = atan((bl1-bl2)/(2.*dz));
-	solid   = DDSolidFactory::trap(name, dz, thet, 0, h1, bl1, bl1, 0, 
+	solid   = DDSolidFactory::trap(DDName(DDSplit(pitchName[k]).first,
+					     DDSplit(pitchName[k]).second),
+				       dz, thet, 0, h1, bl1, bl1, 0, 
 				       h1, bl2, bl2, 0);
 	LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
-			    << " Trap made of " << matname << " of "
+			    << " Trap made of " << matter.ddname() << " of "
 			    << "dimensions " << dz << ", " << thet/CLHEP::deg 
 			    << ", 0, " << h1 << ", " << bl1 << ", " << bl1 
 			    << ", 0, " << h1 << ", " << bl2 << ", " << bl2 

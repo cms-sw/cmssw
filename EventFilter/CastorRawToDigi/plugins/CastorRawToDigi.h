@@ -55,7 +55,7 @@ private:
   bool silent_;
   bool usenominalOrbitMessageTime_;
   int expectedOrbitMessageTime_;
-  std::auto_ptr<HcalElectronicsMap> myEMap;
+  std::unique_ptr<HcalElectronicsMap> myEMap;
   edm::EDGetTokenT<FEDRawDataCollection> tok_input_;
   edm::ParameterSet zdcemap;
 };

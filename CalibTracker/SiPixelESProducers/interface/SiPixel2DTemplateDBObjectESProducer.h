@@ -28,6 +28,6 @@ public:
 
 	SiPixel2DTemplateDBObjectESProducer(const edm::ParameterSet& iConfig);
         ~SiPixel2DTemplateDBObjectESProducer() override;
-	std::shared_ptr<SiPixel2DTemplateDBObject> produce(const SiPixel2DTemplateDBObjectESProducerRcd &);
+	std::shared_ptr<const SiPixel2DTemplateDBObject> produce(const SiPixel2DTemplateDBObjectESProducerRcd &);
  };
 #endif

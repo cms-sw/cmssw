@@ -609,6 +609,9 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
     showerShape.hcalTowersBehindClusters = generalData_->hcalHelperPflow->hcalTowersBehindClusters(*theClus) ;
     showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelperPflow->hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
     showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelperPflow->hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
+    showerShape.invalidHcal = (showerShape.hcalDepth1OverEcalBc == 0 && 
+                               showerShape.hcalDepth2OverEcalBc == 0 &&
+                               !generalData_->hcalHelperPflow->hasActiveHcal(*theClus));
    }
   else
    {
@@ -617,6 +620,9 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
     showerShape.hcalTowersBehindClusters = generalData_->hcalHelper->hcalTowersBehindClusters(*theClus) ;
     showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelper->hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
     showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelper->hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
+    showerShape.invalidHcal = (showerShape.hcalDepth1OverEcalBc == 0 && 
+                               showerShape.hcalDepth2OverEcalBc == 0 &&
+                               !generalData_->hcalHelper->hasActiveHcal(*theClus));
    }
   
   // extra shower shapes
@@ -684,6 +690,9 @@ void GsfElectronAlgo::calculateShowerShape_full5x5( const reco::SuperClusterRef 
     showerShape.hcalTowersBehindClusters = generalData_->hcalHelperPflow->hcalTowersBehindClusters(*theClus) ;
     showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelperPflow->hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
     showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelperPflow->hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
+    showerShape.invalidHcal = (showerShape.hcalDepth1OverEcalBc == 0 && 
+                               showerShape.hcalDepth2OverEcalBc == 0 &&
+                               !generalData_->hcalHelperPflow->hasActiveHcal(*theClus));
    }
   else
    {
@@ -692,6 +701,9 @@ void GsfElectronAlgo::calculateShowerShape_full5x5( const reco::SuperClusterRef 
     showerShape.hcalTowersBehindClusters = generalData_->hcalHelper->hcalTowersBehindClusters(*theClus) ;
     showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelper->hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
     showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelper->hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
+    showerShape.invalidHcal = (showerShape.hcalDepth1OverEcalBc == 0 && 
+                               showerShape.hcalDepth2OverEcalBc == 0 &&
+                               !generalData_->hcalHelper->hasActiveHcal(*theClus));
    }
   
   // extra shower shapes

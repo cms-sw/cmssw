@@ -8,11 +8,11 @@
 #include <vector>
 #include <algorithm>
 
-typedef CaloCellGeometry::CCGFloat CCGFloat ;
+using CCGFloat = CaloCellGeometry::CCGFloat;
 //#define DebugLog
 // ==============> Loader Itself <==========================
 
-HcalHardcodeGeometryLoader::HcalHardcodeGeometryLoader(const edm::ParameterSet& ) {
+HcalHardcodeGeometryLoader::HcalHardcodeGeometryLoader() {
 
   MAX_HCAL_PHI = 72;
   DEGREE2RAD = M_PI / 180.;

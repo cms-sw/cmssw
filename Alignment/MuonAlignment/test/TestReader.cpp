@@ -123,9 +123,9 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
   auto dtGeometry = std::make_shared<DTGeometry>();
-  DTGeometryBuilder.build(dtGeometry, &(*cpv), *mdc);
+  DTGeometryBuilder.build(*dtGeometry, &(*cpv), *mdc);
   auto cscGeometry = std::make_shared<CSCGeometry>();
-  CSCGeometryBuilder.build(cscGeometry, &(*cpv), *mdc);
+  CSCGeometryBuilder.build(*cscGeometry, &(*cpv), *mdc);
 
   AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*cscGeometry));
 

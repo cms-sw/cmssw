@@ -7,6 +7,6 @@ l1tStage2InputPatternWriter = cms.EDAnalyzer('L1TStage2InputPatternWriter',
     nChanPerQuad   = cms.untracked.uint32(4),
     nQuads         = cms.untracked.uint32(18),
     nHeaderFrames  = cms.untracked.uint32(1),
-    nPayloadFrames = cms.untracked.uint32(39),
-    nClearFrames   = cms.untracked.uint32(6)
+    nPayloadFrames = cms.untracked.uint32(40),
+    nClearFrames   = cms.untracked.uint32(13)
 )

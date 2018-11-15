@@ -3,6 +3,7 @@
 
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -38,7 +39,7 @@ std::ostream & operator<<( std::ostream &, const DDSpecifics & );
     DDSpecifics are lightweighted reference-objects. For further information concerning
     reference-objects refere to the documentation of DDLogicalPart. 
 */
-class DDSpecifics : public DDBase< DDName, DDI::Specific* >
+class DDSpecifics : public DDBase< DDName, std::unique_ptr<DDI::Specific> >
 {
   friend std::ostream & operator<<( std::ostream  &, const DDSpecifics &);
 

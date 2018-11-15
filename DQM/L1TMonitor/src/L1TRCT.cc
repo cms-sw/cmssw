@@ -16,22 +16,23 @@
 
 using namespace edm;
 
-const unsigned int PHIBINS = 18;
-const float PHIMIN = -0.5;
-const float PHIMAX = 17.5;
+namespace {
+constexpr unsigned int PHIBINS = 18;
+constexpr float PHIMIN = -0.5;
+constexpr float PHIMAX = 17.5;
 
 // Ranks 6, 10 and 12 bits
-const unsigned int R6BINS = 64;
-const float R6MIN = -0.5;
-const float R6MAX = 63.5;
-const unsigned int R10BINS = 1024;
-const float R10MIN = -0.5;
-const float R10MAX = 1023.5;
+constexpr unsigned int R6BINS = 64;
+constexpr float R6MIN = -0.5;
+constexpr float R6MAX = 63.5;
+constexpr unsigned int R10BINS = 1024;
+constexpr float R10MIN = -0.5;
+constexpr float R10MAX = 1023.5;
 
-const unsigned int ETABINS = 22;
-const float ETAMIN = -0.5;
-const float ETAMAX = 21.5;
-
+constexpr unsigned int ETABINS = 22;
+constexpr float ETAMIN = -0.5;
+constexpr float ETAMAX = 21.5;
+}
 
 
 L1TRCT::L1TRCT(const ParameterSet & ps) :
@@ -47,20 +48,6 @@ L1TRCT::L1TRCT(const ParameterSet & ps) :
 
   if (verbose_)
     std::cout << "L1TRCT: constructor...." << std::endl;
-
-  outputFile_ =
-      ps.getUntrackedParameter < std::string > ("outputFile", "");
-  if (!outputFile_.empty()) {
-    std::
-	cout << "L1T Monitoring histograms will be saved to " <<
-	outputFile_.c_str() << std::endl;
-  }
-
-  bool disable =
-      ps.getUntrackedParameter < bool > ("disableROOToutput", false);
-  if (disable) {
-    outputFile_ = "";
-  }
 }
 
 L1TRCT::~L1TRCT()
@@ -69,21 +56,8 @@ L1TRCT::~L1TRCT()
 
 
 
-void L1TRCT::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
-  //runId_->Fill(r.id().run());
-  //
-}
-
-void L1TRCT::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c){
-  //
-  //lumisecId_->Fill(l.id().luminosityBlock());
-}
-
-
 void L1TRCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&)
 {
-  nev_ = 0;
-  
   ibooker.setCurrentFolder(histFolder_);
 
   runId_=ibooker.bookInt("iRun");
@@ -134,7 +108,6 @@ void L1TRCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Ev
 
 void L1TRCT::analyze(const Event & e, const EventSetup & c)
 {
-  nev_++;
   if (verbose_) {
     std::cout << "L1TRCT: analyze...." << std::endl;
   }

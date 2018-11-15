@@ -21,10 +21,11 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
+#include "Geometry/Records/interface/PGeometricTimingDetExtraRcd.h"
 #include "boost/mpl/vector.hpp"
 
 class IdealGeometryRecord : public edm::eventsetup::DependentRecordImplementation<
-  IdealGeometryRecord, boost::mpl::vector<GeometryFileRcd, PGeometricDetExtraRcd> > { };
+IdealGeometryRecord, boost::mpl::vector<GeometryFileRcd, PGeometricDetExtraRcd, PGeometricTimingDetExtraRcd> > { };
 
 #endif /* RECORDS_IDEALGEOMETRYRECORD_H */
 

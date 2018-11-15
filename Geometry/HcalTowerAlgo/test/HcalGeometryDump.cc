@@ -15,24 +15,23 @@ class HcalGeometryDump : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalGeometryDump( const edm::ParameterSet& );
   ~HcalGeometryDump( void ) override;
-    
+
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
 
 private:
-  edm::ParameterSet ps0_;
   bool              geomDB_;
 };
 
-HcalGeometryDump::HcalGeometryDump( const edm::ParameterSet& iConfig ) : ps0_(iConfig) {
+HcalGeometryDump::HcalGeometryDump( const edm::ParameterSet& iConfig ) {
   geomDB_ = iConfig.getParameter<bool>("GeometryFromDB");
 }
 
 HcalGeometryDump::~HcalGeometryDump( void ) {}
 
 void
-HcalGeometryDump::analyze(const edm::Event& /*iEvent*/, 
+HcalGeometryDump::analyze(const edm::Event& /*iEvent*/,
 			  const edm::EventSetup& iSetup ) {
 
   edm::ESHandle<HcalDDDRecConstants> hDRCons;
@@ -49,7 +48,7 @@ HcalGeometryDump::analyze(const edm::Event& /*iEvent*/,
     const CaloGeometry* geo = pG.product();
     caloGeom = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
   } else {
-    HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
+    HcalFlexiHardcodeGeometryLoader m_loader;
     caloGeom = (HcalGeometry*)(m_loader.load(topology, hcons));
   }
 
@@ -67,12 +66,12 @@ HcalGeometryDump::analyze(const edm::Event& /*iEvent*/,
 	      << std::endl;
     std::sort(detIds.begin(), detIds.end());
     int counter = 0;
-    for (std::vector<unsigned int>::const_iterator i = detIds.begin();  
+    for (std::vector<unsigned int>::const_iterator i = detIds.begin();
 	 i != detIds.end(); ++i, ++counter)  {
       HcalDetId hid = HcalDetId(*i);
       auto cell = caloGeom->getGeometry(*i);
-      std::cout << hid << "\tCaloCellGeometry " << cell->getPosition() 
-		<< "\tHcalGeometry " << caloGeom->getPosition(hid) 
+      std::cout << hid << "\tCaloCellGeometry " << cell->getPosition()
+		<< "\tHcalGeometry " << caloGeom->getPosition(hid)
 		<< std::endl;
     }
   }

@@ -103,7 +103,7 @@ bool OMTFProcessor::addGP(GoldenPattern *aGP){
       <<" Reading two Golden Patterns with the same key: "
       <<aGP->key()<<std::endl;
   }
-  else theGPs[aGP->key()] = new GoldenPattern(*aGP);
+  else theGPs[aGP->key()] = aGP;
 
   for(auto & itRegion: myResults){
     OMTFResult aResult;

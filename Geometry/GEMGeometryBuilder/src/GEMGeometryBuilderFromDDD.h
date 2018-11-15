@@ -30,7 +30,7 @@ class GEMGeometryBuilderFromDDD
 
   ~GEMGeometryBuilderFromDDD();
 
-  void build(const std::shared_ptr<GEMGeometry>& theGeometry,
+  void build(GEMGeometry& theGeometry,
 	     const DDCompactView* cview, const MuonDDDConstants& muonConstants);
   
  private:

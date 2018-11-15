@@ -89,11 +89,11 @@ void SiStripGainRandomCalculator::algoAnalyze(const edm::Event & event, const ed
 }
 
 
-SiStripApvGain * SiStripGainRandomCalculator::getNewObject() {
+std::unique_ptr<SiStripApvGain> SiStripGainRandomCalculator::getNewObject() {
 
   std::cout<<"SiStripGainRandomCalculator::getNewObject called"<<std::endl;
 
-  SiStripApvGain * obj = new SiStripApvGain();
+  auto obj = std::make_unique<SiStripApvGain>();
 
   for(std::vector< pair<uint32_t,unsigned short> >::const_iterator it = detid_apvs_.begin(); it != detid_apvs_.end(); it++){
     //Generate Gain for det detid

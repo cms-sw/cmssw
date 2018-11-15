@@ -75,15 +75,15 @@ process.out.outputCommands += ['keep *_NjettinessAK8_*_*']
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #ECF
 
-process.load('RecoJets.JetProducers.ECF_cfi')
-patAlgosToolsTask.add(process.ECF)
-process.ECFAK8 = process.ECF.clone()
-patAlgosToolsTask.add(process.ECFAK8)
-process.ECFAK8.cone = cms.double(0.8)
-process.ECFAK8.src = cms.InputTag("slimmedJetsAK8")
+process.load('RecoJets.JetProducers.ECF_cff')
+patAlgosToolsTask.add(process.ecf)
+process.ecfAK8 = process.ecf.clone()
+patAlgosToolsTask.add(process.ecfAK8)
+#process.ecfAK8.cone = cms.double(0.8)
+process.ecfAK8.src = cms.InputTag("slimmedJetsAK8")
 
-patJetsAK8.userData.userFloats.src += ['ECFAK8:ecf1','ECFAK8:ecf2','ECFAK8:ecf3']
-process.out.outputCommands += ['keep *_ECFAK8_*_*']
+patJetsAK8.userData.userFloats.src += ['ecfAK8:ecf1','ecfAK8:ecf2','ecfAK8:ecf3']
+process.out.outputCommands += ['keep *_ecfAK8_*_*']
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #QJetsAdder
@@ -172,3 +172,4 @@ process.maxEvents.input = 5
 process.out.fileName = 'testJetTools.root'
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
+

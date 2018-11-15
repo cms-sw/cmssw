@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCPackingModule.h"
 #include "EventFilter/RPCRawToDigi/interface/DebugDigisPrintout.h"
@@ -19,10 +18,12 @@
 
 namespace omtf {
 
-void RpcUnpacker::initCabling(const edm::EventSetup & es) {
+void RpcUnpacker::initCabling(const edm::EventSetup & es) 
+{
   edm::ESTransientHandle<RPCEMap> readoutMapping;
   es.get<RPCEMapRcd>().get(readoutMapping);
-  thePactCabling = readoutMapping->convert();
+  thePactCabling.reset(readoutMapping->convert());
+
   LogDebug("OmtfUnpacker") <<" Has PACT readout map, VERSION: " << thePactCabling->version() << std::endl;
 }
 
@@ -31,7 +32,7 @@ void RpcUnpacker::init(const edm::EventSetup & es)
   initCabling(es);
   RpcLinkMap omtfLink2Ele;
   omtfLink2Ele.init(es);
-  theOmtf2Pact = translateOmtf2Pact(omtfLink2Ele,thePactCabling);
+  theOmtf2Pact = translateOmtf2Pact(omtfLink2Ele,thePactCabling.get());
 }
 
 void RpcUnpacker::init(const edm::EventSetup & es, const std::string & connectionFile)
@@ -39,7 +40,7 @@ void RpcUnpacker::init(const edm::EventSetup & es, const std::string & connectio
   initCabling(es);
   RpcLinkMap omtfLink2Ele;
   omtfLink2Ele.init(connectionFile);
-  theOmtf2Pact = translateOmtf2Pact(omtfLink2Ele,thePactCabling);
+  theOmtf2Pact = translateOmtf2Pact(omtfLink2Ele,thePactCabling.get());
 }
 
 void RpcUnpacker::unpack(int triggerBX, unsigned int fed, unsigned int amc, const RpcDataWord64 &data, RPCDigiCollection * prod)
@@ -49,7 +50,7 @@ void RpcUnpacker::unpack(int triggerBX, unsigned int fed, unsigned int amc, cons
 //  EleIndex omtfEle(fedHeader.sourceID(), bh.getAMCNumber()/2+1, data.linkNum());
   EleIndex omtfEle(fed, amc, data.linkNum());
   LinkBoardElectronicIndex rpcEle = theOmtf2Pact.at(omtfEle);
-  RPCRecordFormatter formater(rpcEle.dccId, thePactCabling);
+  RPCRecordFormatter formater(rpcEle.dccId, thePactCabling.get());
 
 
   rpcrawtodigi::EventRecords records(triggerBX);

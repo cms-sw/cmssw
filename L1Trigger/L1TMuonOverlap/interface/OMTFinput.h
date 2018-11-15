@@ -21,7 +21,7 @@ class OMTFinput{
   ///iInput marks input number (max 14 per layer)
   bool addLayerHit(unsigned int iLayer,
 		   unsigned int iInput,
-		   int iPhi, int iEta);
+		   int iPhi, int iEta, bool allowOverwrite=true);
 
   ///Reset vectors with data.
   void clear();
