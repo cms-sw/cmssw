@@ -11,7 +11,8 @@
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
       <PARAM name="xmin">0.0</PARAM>
-      <PARAM name="xmax">800.0</PARAM>
+<!--      <PARAM name="xmax">800.0</PARAM> pp parameter -->
+      <PARAM name="xmax">2000.0</PARAM>
 </QTEST>
 <QTEST name="XrangeWithin:NumberOfRecHitsPerTrack" activate="true"> 
      <TYPE>ContentsXRange</TYPE> 
