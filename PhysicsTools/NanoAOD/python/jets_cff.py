@@ -538,7 +538,7 @@ run2_miniAOD_80XLegacy.toReplaceWith(jetSequence, _jetSequence_80X)
 _jetSequence_94X2016 = jetSequence.copy()
 _jetSequence_94X2016.replace(tightJetIdLepVeto, looseJetId)
 _jetSequence_94X2016.replace(tightJetIdLepVetoAK8, looseJetIdAK8)
-run2_miniAOD_94X2016Legacy.toReplaceWith(jetSequence, _jetSequence_94X2016)
+run2_nanoAOD_94X2016.toReplaceWith(jetSequence, _jetSequence_94X2016)
 
 #after cross linkining
 jetTables = cms.Sequence(bjetMVA+bjetNN+jetTable+fatJetTable+subJetTable+saJetTable+saTable)
