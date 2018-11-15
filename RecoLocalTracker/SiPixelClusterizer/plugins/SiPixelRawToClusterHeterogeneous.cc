@@ -248,6 +248,12 @@ void SiPixelRawToClusterHeterogeneous::fillDescriptions(edm::ConfigurationDescri
   desc.add<int>("VCaltoElectronOffset_L1", -414);
   desc.addUntracked<bool>("MissCalibrate", true);
   desc.add<bool>("SplitClusters", false);
+  desc.add<double>("ElectronPerADCGain", 135.);
+  // Phase 2 clusterizer
+  desc.add<bool>("Phase2Calibration", false);
+  desc.add<int>("Phase2ReadoutMode", -1);
+  desc.add<double>("Phase2DigiBaseline", 1200.);
+  desc.add<int>("Phase2KinkADC", 8);
 
   desc.add<bool>("gpuEnableTransfer", true);
   desc.add<bool>("gpuEnableConversion", true);
