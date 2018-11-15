@@ -624,7 +624,6 @@ baseDataSetRelease=[
     'CMSSW_10_4_0_pre1-PU25ns_103X_mc2017_realistic_v1_FastSim-v2',# 18 - fastSim premix library UP17
     ]
 
-
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')} #was [0]
 steps['QCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -1339,6 +1338,18 @@ steps['Upsilon4swithBuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('
 steps['Upsilon4sBaBarExample_BpBm_Dstarpipi_D0Kpi_nonres_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('Upsilon4sBaBarExample_BpBm_Dstarpipi_D0Kpi_nonres_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
 steps['LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
 steps['BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
+
+
+# sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
+overrideFragments={'QQH1352T_13UP18INPUT':'2'}
+
+import re
+for key in overrideFragments:
+    for inI in steps[key]:
+        DSold=steps[key][inI].dataSet
+        DS = re.sub('v[0-9]*/','v'+overrideFragments[key]+'/',DSold.rstrip())
+        del steps[key]
+        steps[key]={'INPUT':InputInfo(dataSet=DS,location='STD')}
 
 
 #PU for FullSim
