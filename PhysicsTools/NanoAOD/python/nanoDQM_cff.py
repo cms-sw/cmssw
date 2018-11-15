@@ -21,6 +21,9 @@ eras.run2_miniAOD_80XLegacy.toModify(nanoDQM,
                                      vplots = _vplots80X
 )
 
+for modifier in eras.run2_nanoAOD_94XMiniAODv1, eras.run2_nanoAOD_94XMiniAODv2:
+    modifier.toModify(nanoDQM.vplots, METFixEE2017 = nanoDQM.vplots.MET.clone() )
+
 ## MC
 nanoDQMMC = nanoDQM.clone()
 nanoDQMMC.vplots.Electron.sels.Prompt = cms.string("genPartFlav == 1")
