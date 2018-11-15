@@ -776,7 +776,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
       if (best_halfstrip[0] >= 0) {
 	// Mark keys near best CLCT as busy by setting their quality to
 	// zero, and repeat the search.
-	markBusyKeys(best_halfstrip[0], best_pid[best_halfstrip[0]], quality);
+	  markBusyKeys(best_halfstrip[0], best_pid[best_halfstrip[0]], quality);
 
         for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
 	   hstrip < maxHalfStrips; hstrip++) {
@@ -793,7 +793,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
 	      << " best halfstrip = " << std::setw(3) << best_halfstrip[1]
 	      << " best quality = "   << std::setw(3) << best_quality[1];
 	  }
-	}
+	  }
 
 	// Pattern finder.
 	//bool ptn_trig = false;
@@ -832,6 +832,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
 	    lctList.push_back(thisLCT);
 	  }
 	}
+      }//find CLCT, end of best_halfstrip[0] >= 0
 
 	//if (ptn_trig) {
 	  // Once there was a trigger, CLCT pre-trigger state machine
@@ -867,8 +868,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
 	    }
 	  }
 	//}
-      }//pre_trig
-    }
+    }//pre_trig
     else {
       start_bx = first_bx + 1; // no dead time
     }
@@ -1041,10 +1041,10 @@ bool CSCCathodeLCTProcessor::patternFinding(
       // "absolute" halfstrip number for each.
       for (int strip_num = 0; strip_num < CSCConstants::MAX_HALFSTRIPS_IN_PATTERN; strip_num++)
       {
-	int this_layer = pattern2007[pid][strip_num];
+	  int this_layer = pattern2007[pid][strip_num];
         if (this_layer >= 0 && this_layer < CSCConstants::NUM_LAYERS)
         {
-	  int this_strip = pattern2007_offset[strip_num] + key_hstrip;
+	    int this_strip = pattern2007_offset[strip_num] + key_hstrip;
 	  if (this_strip >= 0 && this_strip < nStrips) {
 	    if (infoV > 3) LogTrace("CSCCathodeLCTProcessor")
 	      << " In patternFinding: key_strip = " << key_hstrip
@@ -1075,15 +1075,15 @@ bool CSCCathodeLCTProcessor::patternFinding(
               if (infoV > 2)
                 LogTrace("CSCCathodeLCTProcessor") << " 1st bx in layer: " << first_bx_layer << " sum bx: " << times_sum
                     << " #pat. hits: " << num_pattern_hits;
+	        }
+	      }
 	    }
-	  }
-	}
       } // end loop over strips in pretrigger pattern
 
       if (layers_hit > nhits[key_hstrip])
       {
-	best_pid[key_hstrip] = pid;
-	nhits[key_hstrip] = layers_hit;
+	  best_pid[key_hstrip] = pid;
+	  nhits[key_hstrip] = layers_hit;
 
         // calculate median
         const int sz = mset_for_median.size();
