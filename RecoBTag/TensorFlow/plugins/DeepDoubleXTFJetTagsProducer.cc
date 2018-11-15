@@ -252,6 +252,7 @@ void DeepDoubleXTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
 
       // jet and other global features
       const auto & features = tag_infos->at(jet_n).features();
+      if (features.empty()) continue ;
       db_tensor_filler(input_tensors.at(kGlobal).second, jet_bn, features);
 
         
@@ -283,6 +284,9 @@ void DeepDoubleXTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
 
       // global jet index (jet_bn is the jet batch index)
       std::size_t jet_n = batch_n*n_batch_jets + jet_bn;
+
+      const auto & features = tag_infos->at(jet_n).features();     
+      if (features.empty()) continue ;
 
       const auto & jet_ref = tag_infos->at(jet_n).jet();
       for (std::size_t flav_n=0; flav_n < flav_pairs_.size(); flav_n++) {
