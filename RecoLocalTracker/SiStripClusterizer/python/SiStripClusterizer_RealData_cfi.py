@@ -10,6 +10,8 @@ siStripClusters = cms.EDProducer("SiStripClusterizer",
     cms.InputTag('siStripZeroSuppression','ProcessedRaw'),
     cms.InputTag('siStripZeroSuppression','ScopeMode')),
                                )
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(siStripClusters, Clusterizer=DefaultClusterizer.clone(RemoveApvShots=False))
 
 # The SiStripClusters are not used anymore in phase2 tracking
 # This part has to be clean up when they will be officially removed from the entire flow
