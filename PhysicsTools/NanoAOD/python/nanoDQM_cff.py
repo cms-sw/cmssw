@@ -21,8 +21,14 @@ eras.run2_miniAOD_80XLegacy.toModify(nanoDQM,
                                      vplots = _vplots80X
 )
 
+_METFixEE2017_DQMentry = nanoDQM.vplots.MET.clone()
+_METFixEE2017_plots = cms.VPSet()
+for plot in _METFixEE2017_DQMentry.plots:
+    if plot.name.value().find("fiducial")>-1: continue
+    _METFixEE2017_plots.append(plot)
+_METFixEE2017_DQMentry.plots = _METFixEE2017_plots
 for modifier in eras.run2_nanoAOD_94XMiniAODv1, eras.run2_nanoAOD_94XMiniAODv2:
-    modifier.toModify(nanoDQM.vplots, METFixEE2017 = nanoDQM.vplots.MET.clone() )
+    modifier.toModify(nanoDQM.vplots, METFixEE2017 = _METFixEE2017_DQMentry)
 
 ## MC
 nanoDQMMC = nanoDQM.clone()
