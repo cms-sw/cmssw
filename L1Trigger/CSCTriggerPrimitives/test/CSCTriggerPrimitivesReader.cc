@@ -159,6 +159,7 @@ void TreePerStub::init(int run, int event){
   t_chambertype = -1;
   t_endcap = -2;
   
+  /*
   memset(t_quality, -1, sizeof(t_quality));
   memset(t_bend, -1, sizeof(t_bend));
   memset(t_bx, -1, sizeof(t_bx));
@@ -167,6 +168,7 @@ void TreePerStub::init(int run, int event){
   memset(t_key_hs, -1, sizeof(t_key_hs));
   memset(t_eta, -1., sizeof(t_eta));
   memset(t_phi, -1., sizeof(t_phi));
+ */
 }
 
 TTree *TreePerStub::bookTree(TTree *t, const std::string & name)
@@ -189,7 +191,7 @@ TTree *TreePerStub::bookTree(TTree *t, const std::string & name)
   t->Branch("t_station", &t_station, "t_station/I"); 
   t->Branch("t_chambertype", &t_chambertype, "t_chambertype/I");
 
-
+  /*
   t->Branch("t_quality", t_quality, "t_quality[t_nStubs]/I");
   t->Branch("t_bend", t_bend, "t_bend[t_nStubs]/I");
   t->Branch("t_bx", t_bx, "t_bx[t_nStubs]/I");
@@ -198,6 +200,7 @@ TTree *TreePerStub::bookTree(TTree *t, const std::string & name)
   t->Branch("t_key_hs", t_key_hs, "t_key_hs[t_nStubs]/I");
   t->Branch("t_eta", t_eta, "t_eta[t_nStubs]/F");
   t->Branch("t_phi", t_phi, "t_phi[t_nStubs]/F");
+  */
   return t;
 }
 
@@ -2085,8 +2088,8 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 		}//loop emul
 		if (debug and stubs_comparison[1].key_hs_data != stubs_comparison[1].key_hs_emul)
 		  LogTrace("CSCTriggerPrimitivesReader")
-		    <<" not matched CLCT from data "<<  (*pd)
-		    <<" stubs_comparison 1 key_hs_data "<<stubs_comparison[1].key_hs_data <<" key_hs_emul "<< stubs_comparison[1].key_hs_emul;
+		    <<"CSCDetid "<< detid <<" not matched CLCT from data "<<  (*pd)
+		    <<" stubs_comparison 1 key_hs_data "<<stubs_comparison[1].key_hs_data <<" key_hs_emul "<< stubs_comparison[1].key_hs_emul << endl;
 		//cout <<"CLCT data BX "<< stubs_comparison[1].bx_data <<" emul BX "<< stubs_comparison[1].bx_emul<<" emul BX corrected "<< stubs_comparison[1].bx_corr_emul << endl;
 		stub_tree[1]->Fill(); 
 	    }//loop data
@@ -2179,7 +2182,7 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 		  int bx_data = pd->getBX();
 		  int bx_corr = convertBXofLCT((*pe).getBX(), detid,
 			alcts_data, clcts_data);
-		  if ((bx_data == bx_corr and abs(pe->getBX()-8)<=1 ) or (abs(pe->getKeyWG() - pd->getKeyWG())<=2 ) ){
+		  if ((bx_data == bx_corr) or (abs(pe->getKeyWG() - pd->getKeyWG())<=2 ) ){
 		    nemul_readout++;
 		    break;
 		  }
@@ -2309,6 +2312,7 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 		stubs_comparison[2].quality_data = (*pd).getQuality(); 
 		stubs_comparison[2].key_WG_data = (*pd).getKeyWG();
 		stubs_comparison[2].key_hs_data = (*pd).getStrip();
+            //cout <<" CSC detid "<< detid <<" LCT in data "<< (*pd) <<" do doesALCTCrossCLCT "<< endl;
 		stubs_comparison[2].WGcrossHS_data = doesALCTCrossCLCT(detid,  (*pd).getKeyWG(),  (*pd).getStrip());
 		stubs_comparison[2].bend_data = (*pd).getBend();
 		stubs_comparison[2].pattern_data = (*pd).getCLCTPattern();
@@ -2382,6 +2386,7 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 		    stubs_comparison[2].bend_emul = (*pe).getBend();
 		    stubs_comparison[2].pattern_emul = (*pe).getCLCTPattern();
 		    stubs_comparison[2].bx_emul = (*pe).getBX();
+                //cout <<" CSC detid "<< detid <<" LCT in emul "<< (*pe) <<" do doesALCTCrossCLCT "<< endl;
 		    stubs_comparison[2].WGcrossHS_emul = doesALCTCrossCLCT(detid,  (*pe).getKeyWG(),  (*pe).getStrip());
 		    stubs_comparison[2].bx_corr_emul = emul_corr_bx;
 		    stubs_comparison[2].trknmb_emul = emul_trknmb;
@@ -2394,8 +2399,8 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 		}//loop emul
 		if (debug and stubs_comparison[2].key_hs_data != stubs_comparison[2].key_hs_emul)
 		  LogTrace("CSCTriggerPrimitivesReader")
-		    <<" not matched LCT from Data "<< (*pd)
-		    <<" stubs_comparison 2 key_hs_data "<<stubs_comparison[2].key_hs_data <<" key_hs_emul "<< stubs_comparison[2].key_hs_emul;
+		    <<"CSCDetid "<< detid <<" not matched LCT from Data "<< (*pd)
+		    <<" stubs_comparison 2 key_hs_data "<<stubs_comparison[2].key_hs_data <<" key_hs_emul "<< stubs_comparison[2].key_hs_emul << endl;
 		stub_tree[2]->Fill();
 	    }//loop data
 	    for (int k=0; k<nemul; k++){

@@ -61,6 +61,7 @@ struct TreePerStub{
   Int_t t_station;
   Int_t t_chambertype;
 
+  /*
   Int_t t_quality[MAXSTUBS];
   Int_t t_bend[MAXSTUBS];
   Int_t t_bx[MAXSTUBS];
@@ -69,6 +70,7 @@ struct TreePerStub{
   Int_t t_key_hs[MAXSTUBS];
   Float_t t_eta[MAXSTUBS];
   Float_t t_phi[MAXSTUBS]; 
+ */
 };
 
 
