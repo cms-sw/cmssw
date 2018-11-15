@@ -22,6 +22,9 @@ eras.run2_miniAOD_80XLegacy.toModify(nanoDQM,
                                      vplots = _vplots80X
 )
 
+for modifier in eras.run2_nanoAOD_94XMiniAODv1, eras.run2_nanoAOD_94XMiniAODv2:
+    modifier.toModify(nanoDQM.vplots, METFixEE2017 = nanoDQM.vplots.MET.clone() )
+
 _Electron_plots_with_eCorr = copy.deepcopy(nanoDQM.vplots.Electron.plots)
 _Electron_plots_with_eCorr.append(Plot1D('eCorr', 'eCorr', 20, 0.8, 1.2, 'ratio of the calibrated energy/miniaod energy'))
 
