@@ -383,7 +383,6 @@ run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau3, expr = cms.string("
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables, tau4 = None)
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables, n2b1 = None)
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables, n3b1 = None)
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables, btagCMVA = None, btagDeepB = None)
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
     modifier.toModify( fatJetTable.variables, jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"))
 
@@ -424,6 +423,7 @@ run2_miniAOD_80XLegacy.toModify( subJetTable.variables, tau3 = None)
 run2_miniAOD_80XLegacy.toModify( subJetTable.variables, tau4 = None)
 run2_miniAOD_80XLegacy.toModify( subJetTable.variables, n2b1 = None)
 run2_miniAOD_80XLegacy.toModify( subJetTable.variables, n3b1 = None)
+run2_miniAOD_80XLegacy.toModify( subJetTable.variables, btagCMVA = None, btagDeepB = None)
 
 run2_nanoAOD_92X.toModify( subJetTable.variables, tau4 = None)
 run2_nanoAOD_92X.toModify( subJetTable.variables, n2b1 = None)
