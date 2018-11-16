@@ -45,6 +45,8 @@ public:
   // clear stored pads and copads
   void clear();
 
+  using CSCUpgradeMotherboard::readoutLCTs;
+
   // run TMB with GEM pads as input
   using CSCUpgradeMotherboard::run;
   virtual void run(const CSCWireDigiCollection* wiredc,
