@@ -50,7 +50,7 @@ void PatternRecognitionbyCA::makeTracksters(
     std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
     fillHistogram(layerClusters, mask);
     theGraph_.makeAndConnectDoublets(histogram_, nEtaBins_, nPhiBins_, layerClusters, 2, 2, min_cos_theta_, missing_layers_);
-    theGraph_.findNtuplets(foundNtuplets, 4);
+    theGraph_.findNtuplets(foundNtuplets, min_clusters_per_ntuplet_);
 //#ifdef FP_DEBUG
     const auto &doublets = theGraph_.getAllDoublets();
     int tracksterId = 0;
@@ -64,17 +64,17 @@ void PatternRecognitionbyCA::makeTracksters(
             effective_cluster_idx.insert(innerCluster);
             effective_cluster_idx.insert(outerCluster);
             if (algo_verbosity_ > Advanced) {
-              std::cout << "New doublet " << doublet <<std::endl;
-              std::cout << innerCluster
-                << " " << layerClusters[innerCluster].x()
-                << " " << layerClusters[innerCluster].y()
-                << " " << layerClusters[innerCluster].z()
-                << " " << std::endl;
-              std::cout << outerCluster
-                << " " << layerClusters[outerCluster].x()
-                << " " << layerClusters[outerCluster].y()
-                << " " << layerClusters[outerCluster].z()
-                << " " << tracksterId << std::endl;
+              std::cout << "New doublet " << doublet
+                        << " for trackster: " << result.size()
+                        << " InnerCl " << innerCluster
+                        << " " << layerClusters[innerCluster].x()
+                        << " " << layerClusters[innerCluster].y()
+                        << " " << layerClusters[innerCluster].z()
+                        << " OuterCl " << outerCluster
+                        << " " << layerClusters[outerCluster].x()
+                        << " " << layerClusters[outerCluster].y()
+                        << " " << layerClusters[outerCluster].z()
+                        << " " << tracksterId << std::endl;
             }
         }
         // Put back indices, in the form of a Trackster, into the results vector
