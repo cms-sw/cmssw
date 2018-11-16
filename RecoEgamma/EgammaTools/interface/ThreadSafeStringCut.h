@@ -5,6 +5,7 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include <mutex>
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 /*
  * This class is a simple wrapper around either a StringObjectFunction or
