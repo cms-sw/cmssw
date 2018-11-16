@@ -203,7 +203,7 @@ def nanoAOD_activateVID(process):
     process.photonSequence.insert(process.photonSequence.index(bitmapVIDForPho),process.egmPhotonIDSequence)
     return process
 
-def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet):
+def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet,jecPayload):
     _btagDiscriminators=[]
     if addDeepBTag:
         print("Updating process to run DeepCSV btag to AK8 jets")
@@ -220,15 +220,15 @@ def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet):
        pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
        svSource = cms.InputTag('slimmedSecondaryVertices'),
        rParam = 0.8,
-       jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual']), 'None'),
+       jetCorrections = (jecPayload, cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']), 'None'),
        btagDiscriminators = _btagDiscriminators,
-       postfix='AK8Puppi',
+       postfix='AK8',
        printWarning = False
        )
-    process.looseJetIdAK8.src = "selectedUpdatedPatJetsAK8Puppi"
-    process.tightJetIdAK8.src = "selectedUpdatedPatJetsAK8Puppi"
-    process.tightJetIdLepVetoAK8.src = "selectedUpdatedPatJetsAK8Puppi"
-    process.slimmedJetsAK8WithUserData.src = "selectedUpdatedPatJetsAK8Puppi"
+    process.looseJetIdAK8.src = "selectedUpdatedPatJetsAK8"
+    process.tightJetIdAK8.src = "selectedUpdatedPatJetsAK8"
+    process.tightJetIdLepVetoAK8.src = "selectedUpdatedPatJetsAK8"
+    process.slimmedJetsAK8WithUserData.src = "selectedUpdatedPatJetsAK8"
     patAlgosToolsTask = getPatAlgosToolsTask(process)
     process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
@@ -247,8 +247,13 @@ def nanoAOD_customizeCommon(process):
     nanoAOD_addDeepInfoAK8_switch = cms.PSet(
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
         nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(True), # will deactivate this in future miniAOD releases
+        jecPayload = 'AK8PFPuppi'
         )
-    run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfoAK8_switch, nanoAOD_addDeepBTag_switch = cms.untracked.bool(True))
+    # deepAK8 should not run on 80X, that contains ak8PFJetsCHS jets
+    run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfoAK8_switch,
+                                    nanoAOD_addDeepBTag_switch = cms.untracked.bool(True),
+                                    nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(False),
+                                    jecPayload = 'AK8PFchs')
     process = nanoAOD_addDeepInfoAK8(process,addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch)
     return process
 
