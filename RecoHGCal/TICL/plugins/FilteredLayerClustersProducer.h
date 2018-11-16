@@ -17,7 +17,7 @@ private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   edm::EDGetTokenT<std::vector<float>> clustersMask_token_;
   std::string clusterFilter_;
-  std::string iterationLabel_;
+  std::string iteration_label_;
   const ClusterFilterBase* theFilter_ = nullptr;
 };
 
