@@ -61,6 +61,7 @@ for modifier in eras.run2_miniAOD_80XLegacy, eras.run2_nanoAOD_94X2016:
 eras.run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.FatJet, plots = _FatJet_plots_80x)
 eras.run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.Flag, plots = _Flag_plots_80x)
 
+eras.run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots, IsoTrack = None)
 
 ## MC
 nanoDQMMC = nanoDQM.clone()
