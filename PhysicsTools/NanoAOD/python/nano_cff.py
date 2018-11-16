@@ -170,8 +170,6 @@ def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
         process.pfDeepFlavourJetTags.graph_path = 'RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb'
         process.pfDeepFlavourJetTags.lp_names = ["cpf_input_batchnorm/keras_learning_phase"]
     patAlgosToolsTask = getPatAlgosToolsTask(process)
-    patAlgosToolsTask.add(process.updatedPatJets)
-    patAlgosToolsTask.add(process.patJetCorrFactors)
     process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
 
@@ -205,17 +203,25 @@ def nanoAOD_activateVID(process):
     process.photonSequence.insert(process.photonSequence.index(bitmapVIDForPho),process.egmPhotonIDSequence)
     return process
 
-def nanoAOD_addDeepBoostedJetForPre103X(process):
-    print("Updating process to run DeepBoostedJet on datasets before 103X")
-    from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
-    updateJetCollection( # does not conflict with anything for the moment, since it is called on AK8 jets
+def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet):
+    _btagDiscriminators=[]
+    if addDeepBTag:
+        print("Updating process to run DeepCSV btag to AK8 jets")
+        _btagDiscriminators += ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb']
+    if addDeepBoostedJet:
+        print("Updating process to run DeepBoostedJet on datasets before 103X")
+        from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
+        _btagDiscriminators += pfDeepBoostedJetTagsAll
+    if len(_btagDiscriminators)==0: return process
+    print("Will recalculate the following discriminators on AK8 jets: "+", ".join(_btagDiscriminators))
+    updateJetCollection(
        process,
        jetSource = cms.InputTag('slimmedJetsAK8'),
        pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
        svSource = cms.InputTag('slimmedSecondaryVertices'),
        rParam = 0.8,
        jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual']), 'None'),
-       btagDiscriminators = pfDeepBoostedJetTagsAll,
+       btagDiscriminators = _btagDiscriminators,
        postfix='AK8Puppi',
        printWarning = False
        )
@@ -223,8 +229,9 @@ def nanoAOD_addDeepBoostedJetForPre103X(process):
     process.tightJetIdAK8.src = "selectedUpdatedPatJetsAK8Puppi"
     process.tightJetIdLepVetoAK8.src = "selectedUpdatedPatJetsAK8Puppi"
     process.slimmedJetsAK8WithUserData.src = "selectedUpdatedPatJetsAK8Puppi"
+    patAlgosToolsTask = getPatAlgosToolsTask(process)
+    process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
-
 
 def nanoAOD_customizeCommon(process):
 #    makePuppiesFromMiniAOD(process,True) # call this here as it calls switchOnVIDPhotonIdProducer
@@ -236,8 +243,13 @@ def nanoAOD_customizeCommon(process):
     run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfo_switch, nanoAOD_addDeepBTag_switch = cms.untracked.bool(True))
     for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(nanoAOD_addDeepInfo_switch, nanoAOD_addDeepFlavourTag_switch =  cms.untracked.bool(True))
-    process = nanoAOD_addDeepInfo(process,nanoAOD_addDeepInfo_switch.nanoAOD_addDeepBTag_switch,nanoAOD_addDeepInfo_switch.nanoAOD_addDeepFlavourTag_switch)
-    process = nanoAOD_addDeepBoostedJetForPre103X(process) # will deactivate this in future miniAOD releases
+    process = nanoAOD_addDeepInfo(process,addDeepBTag=nanoAOD_addDeepInfo_switch.nanoAOD_addDeepBTag_switch,addDeepFlavour=nanoAOD_addDeepInfo_switch.nanoAOD_addDeepFlavourTag_switch)
+    nanoAOD_addDeepInfoAK8_switch = cms.PSet(
+        nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
+        nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(True), # will deactivate this in future miniAOD releases
+        )
+    run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfoAK8_switch, nanoAOD_addDeepBTag_switch = cms.untracked.bool(True))
+    process = nanoAOD_addDeepInfoAK8(process,addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch)
     return process
 
 
