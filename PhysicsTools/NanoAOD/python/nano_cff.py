@@ -233,6 +233,7 @@ def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet,jecPayload):
     process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
 
+
 def nanoAOD_customizeCommon(process):
 #    makePuppiesFromMiniAOD(process,True) # call this here as it calls switchOnVIDPhotonIdProducer
     process = nanoAOD_activateVID(process)
@@ -243,7 +244,9 @@ def nanoAOD_customizeCommon(process):
     run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfo_switch, nanoAOD_addDeepBTag_switch = cms.untracked.bool(True))
     for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(nanoAOD_addDeepInfo_switch, nanoAOD_addDeepFlavourTag_switch =  cms.untracked.bool(True))
-    process = nanoAOD_addDeepInfo(process,addDeepBTag=nanoAOD_addDeepInfo_switch.nanoAOD_addDeepBTag_switch,addDeepFlavour=nanoAOD_addDeepInfo_switch.nanoAOD_addDeepFlavourTag_switch)
+    process = nanoAOD_addDeepInfo(process,
+                                  addDeepBTag=nanoAOD_addDeepInfo_switch.nanoAOD_addDeepBTag_switch,
+                                  addDeepFlavour=nanoAOD_addDeepInfo_switch.nanoAOD_addDeepFlavourTag_switch)
     nanoAOD_addDeepInfoAK8_switch = cms.PSet(
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
         nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(True), # will deactivate this in future miniAOD releases
@@ -254,7 +257,10 @@ def nanoAOD_customizeCommon(process):
                                     nanoAOD_addDeepBTag_switch = cms.untracked.bool(True),
                                     nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(False),
                                     jecPayload = 'AK8PFchs')
-    process = nanoAOD_addDeepInfoAK8(process,addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch)
+    process = nanoAOD_addDeepInfoAK8(process,
+                                     addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,
+                                     addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
+                                     jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload)
     return process
 
 
