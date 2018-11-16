@@ -14,7 +14,9 @@
 // Filter clusters that belong to a specific algorithm
 class ClusterFilterByAlgo final : public ClusterFilterBase {
 public:
-  ClusterFilterByAlgo(const edm::ParameterSet & ps) : ClusterFilterBase(ps) {}
+  ClusterFilterByAlgo(const edm::ParameterSet & ps)
+    : ClusterFilterBase(ps),
+  algo_number_(ps.getParameter<int>("algo_number")){}
 
   std::unique_ptr<std::vector<std::pair<unsigned int, float> > >
     filter(const std::vector<reco::CaloCluster>& layerClusters,
@@ -22,12 +24,13 @@ public:
     {
       auto filteredLayerClusters = std::make_unique<std::vector<std::pair<unsigned int, float>>>();
       for (auto const & cl : availableLayerClusters) {
-        if (layerClusters[cl.first].algo() == 9)
+        if (layerClusters[cl.first].algo() == algo_number_)
           filteredLayerClusters->emplace_back(cl);
       }
       return filteredLayerClusters;
     }
 private:
+  int algo_number_;
 };
 
 #endif

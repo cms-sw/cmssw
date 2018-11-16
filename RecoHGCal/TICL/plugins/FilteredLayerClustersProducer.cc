@@ -31,8 +31,9 @@ FilteredLayerClustersProducer::FilteredLayerClustersProducer(
   clusterFilter_ =
     ps.getParameter<std::string>("ClusterFilter");
   theFilter_ = ClusterFilterFactory::get()->create(clusterFilter_, ps);
+  iteration_label_ = ps.getParameter<std::string>("iteration_label");
 
-  produces<std::vector<std::pair<unsigned int, float>>>("iterationLabelGoesHere");
+  produces<std::vector<std::pair<unsigned int, float>>>(iteration_label_);
 }
 
 void FilteredLayerClustersProducer::fillDescriptions(
@@ -44,8 +45,10 @@ void FilteredLayerClustersProducer::fillDescriptions(
   desc.add<edm::InputTag>(
       "LayerClustersInputMask",
       edm::InputTag("hgcalLayerClusters", "InitialLayerClustersMask"));
+  desc.add<std::string>("iteration_label", "iterationLabelGoesHere");
   desc.add<std::string>(
       "ClusterFilter", "ClusterFilterByAlgo");
+  desc.add<int>("algo_number", 9);
   descriptions.add("FilteredLayerClusters", desc);
 }
 
@@ -77,5 +80,5 @@ void FilteredLayerClustersProducer::produce(edm::Event& evt,
   {
     filteredLayerClusters = std::move(availableLayerClusters);
   }
-  evt.put(std::move(filteredLayerClusters), "iterationLabelGoesHere");
+  evt.put(std::move(filteredLayerClusters), iteration_label_);
 }
