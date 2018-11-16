@@ -19,6 +19,9 @@ class PatternRecognitionbyCA final : public PatternRecognitionAlgoBase {
 public:
     PatternRecognitionbyCA(const edm::ParameterSet& conf) : PatternRecognitionAlgoBase(conf) {
 
+      min_cos_theta_ = conf.getParameter<double>("min_cos_theta");
+      missing_layers_ = conf.getParameter<int>("missing_layers");
+      min_clusters_per_ntuplet_ = conf.getParameter<int>("min_clusters_per_ntuplet");
         // TODO get number of bins from configuration
         // eta min 1.5, max 3.0
         // phi min -pi, max +pi
@@ -84,6 +87,9 @@ private:
     const int nPhiBins_ = 126;
     const int nLayers_ = 104;
     HGCGraph theGraph_;
+    double min_cos_theta_;
+    int missing_layers_;
+    int min_clusters_per_ntuplet_;
 };
 
 #endif

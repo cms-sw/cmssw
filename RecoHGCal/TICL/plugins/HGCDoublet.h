@@ -86,7 +86,7 @@ class HGCDoublet
 
     bool checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
                                   const std::vector<int> &innerDoublets,
-                                  float minCosTheta)
+                                  float minCosTheta, bool debug=false)
     {
         int nDoublets = innerDoublets.size();
         int constexpr VSIZE = 4;
@@ -108,9 +108,13 @@ class HGCDoublet
                 yi[j] = otherDoublet.getInnerY();
                 zi[j] = otherDoublet.getInnerZ();
             }
-            for (int j = 0; j < vs; ++j)
-                ok[j] = areAligned(xi[j], yi[j], zi[j], xo, yo, zo, minCosTheta);
-
+            for (int j = 0; j < vs; ++j) {
+              ok[j] = areAligned(xi[j], yi[j], zi[j], xo, yo, zo, minCosTheta, debug);
+              if (debug) {
+                std::cout << "Are aligned for InnerDoubletId: " << i+j
+                          << " is " << ok[j] << std::endl;
+              }
+            }
             for (int j = 0; j < vs; ++j)
             {
                 auto otherDoubletId = innerDoublets[i + j];
@@ -127,10 +131,16 @@ class HGCDoublet
             loop(i, VSIZE);
         loop(lim, nDoublets - lim);
 
+        if (debug) {
+          std::cout << "Found " << theInnerNeighbors_.size()
+                    << " compatible doublets out of " << nDoublets << " considered" << std::endl;
+        }
         return theInnerNeighbors_.empty();
     }
 
-    int areAligned(double xi, double yi, double zi, double xo, double yo, double zo, float minCosTheta)
+    int areAligned(double xi, double yi, double zi,
+                   double xo, double yo, double zo,
+                   float minCosTheta, bool debug=false)
     {
 
         auto dx1 = xo-xi;
@@ -148,6 +158,14 @@ class HGCDoublet
         auto mag2 = std::sqrt(dx2*dx2 + dy2*dy2 + dz2*dz2);
         //angle between the vectors
         auto cosTheta = dot/(mag1*mag2);
+        if (debug) {
+          std::cout << "dot: " << dot
+                    << " mag1: " << mag1
+                    << " mag2: " << mag2
+                    << " cosTheta: " << cosTheta
+                    << " isWithinLimits: " << (cosTheta > minCosTheta)
+                    << std::endl;
+        }
         return cosTheta > minCosTheta;
     }
 
