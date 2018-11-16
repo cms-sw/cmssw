@@ -7,22 +7,27 @@
 
 #include <vector>
 #include <memory>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoHGCal/TICL/interface/Trackster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {class Event; class EventSetup;}
 
 
 class PatternRecognitionAlgoBase {
 public:
-  PatternRecognitionAlgoBase(const edm::ParameterSet& conf){}
+  PatternRecognitionAlgoBase(const edm::ParameterSet& conf)
+    : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
   virtual ~PatternRecognitionAlgoBase() {};
 
   virtual void makeTracksters(
       const edm::Event& ev,
       const edm::EventSetup& es,
       const std::vector<reco::CaloCluster>& layerClusters,
-      const std::vector<std::pair<unsigned int, float> >& mask, std::vector<Trackster>& result) {};
+      const std::vector<std::pair<unsigned int, float> >& mask, std::vector<Trackster>& result) = 0;
+  enum VerbosityLevel {None = 0, Basic, Advanced, Expert, Guru};
+protected:
+  int algo_verbosity_;
 };
 
 
