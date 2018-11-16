@@ -5,10 +5,10 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerRingBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPetalBuilder.h"
-#include "Geometry/TrackerNumberingBuilder/plugins/TrackerStablePhiSort.h"
+#include "Geometry/TrackerNumberingBuilder/interface/trackerStablePhiSort.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include<vector>
 
+#include <vector>
 #include <bitset>
 
 void CmsTrackerWheelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
@@ -46,8 +46,8 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 	}
       }    
       
-      TrackerStablePhiSort(compfw.begin(), compfw.end(), std::function<double(const GeometricDet*)>(getPhiModule));
-      TrackerStablePhiSort(compbw.begin(), compbw.end(), std::function<double(const GeometricDet*)>(getPhiModule));
+      trackerStablePhiSort(compfw.begin(), compfw.end(), getPhiModule);
+      trackerStablePhiSort(compbw.begin(), compbw.end(), getPhiModule);
       
       //
       // TEC
