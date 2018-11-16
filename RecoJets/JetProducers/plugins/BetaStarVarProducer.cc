@@ -21,10 +21,8 @@
 //
 
 
-// system include files
 #include <memory>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 
@@ -41,10 +39,6 @@
 #include "DataFormats/Common/interface/View.h"
 
 #include "PhysicsTools/NanoAOD/interface/MatchingUtils.h"
-
-//
-// class declaration
-//
 
 template <typename T>
 class BetaStarVarProducer : public edm::global::EDProducer<> {
@@ -66,27 +60,11 @@ class BetaStarVarProducer : public edm::global::EDProducer<> {
 
   std::tuple<float,float> calculateCHSEnergies( edm::Ptr<pat::Jet> const & jet, edm::View<T> const & cands) const;
 
-      // ----------member data ---------------------------
-
   edm::EDGetTokenT<edm::View<pat::Jet>> srcJet_;
   edm::EDGetTokenT<edm::View<T>> srcPF_;
   double maxDR_; 
 };
 
-//
-// constants, enums and typedefs
-//
-
-
-//
-// static data member definitions
-//
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 template <typename T>
 void
 BetaStarVarProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
@@ -176,7 +154,6 @@ BetaStarVarProducer<T>::calculateCHSEnergies( edm::Ptr<pat::Jet> const & ijet, e
   return std::tuple<float,float>(puf,chf);
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 template <typename T>
 void
 BetaStarVarProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -190,6 +167,5 @@ BetaStarVarProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
 typedef BetaStarVarProducer<pat::PackedCandidate> BetaStarPackedCandidateVarProducer;
 
-//define this as a plug-in
 DEFINE_FWK_MODULE(BetaStarPackedCandidateVarProducer);
 
