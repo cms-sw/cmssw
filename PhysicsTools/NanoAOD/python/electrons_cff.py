@@ -107,6 +107,9 @@ isoForEle = cms.EDProducer("EleIsoValueMapProducer",
 run2_miniAOD_80XLegacy.toModify(isoForEle, src = "slimmedElectronsUpdated",
                                 EAFile_MiniIso = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt",
                                 EAFile_PFIso = "RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt")
+run2_nanoAOD_94X2016.toModify(isoForEle,
+                                EAFile_MiniIso = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt",
+                                EAFile_PFIso = "RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt")
 run2_nanoAOD_92X.toModify(isoForEle, src = "slimmedElectronsUpdated")
 
 ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
