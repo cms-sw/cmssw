@@ -99,7 +99,6 @@ void HGCGraph::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
         if (tmpNtuplet.size() > minClustersPerNtuplet)
         {
             foundNtuplets.push_back(tmpNtuplet);
-
         }
     }
 }
