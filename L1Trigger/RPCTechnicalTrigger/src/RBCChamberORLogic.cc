@@ -14,20 +14,20 @@
 // Standard constructor, initializes variables
 //=============================================================================
 RBCChamberORLogic::RBCChamberORLogic(  ) {
-  
-  m_rbname.push_back(std::string("RB1InFw"));
-  m_rbname.push_back(std::string("RB1OutFw"));
-  m_rbname.push_back(std::string("RB22Fw"));
-  m_rbname.push_back(std::string("RB23Fw"));
-  m_rbname.push_back(std::string("RB23M"));
-  m_rbname.push_back(std::string("RB3Fw"));
-  m_rbname.push_back(std::string("RB4Fw"));
-  m_rbname.push_back(std::string("RB1InBk"));
-  m_rbname.push_back(std::string("RB1OutBk"));
-  m_rbname.push_back(std::string("RB22Bk"));
-  m_rbname.push_back(std::string("RB23Bk"));
-  m_rbname.push_back(std::string("RB3Bk"));
-  m_rbname.push_back(std::string("RB4Bk"));
+  m_rbname.reserve(13);
+  m_rbname.emplace_back("RB1InFw");
+  m_rbname.emplace_back("RB1OutFw");
+  m_rbname.emplace_back("RB22Fw");
+  m_rbname.emplace_back("RB23Fw");
+  m_rbname.emplace_back("RB23M");
+  m_rbname.emplace_back("RB3Fw");
+  m_rbname.emplace_back("RB4Fw");
+  m_rbname.emplace_back("RB1InBk");
+  m_rbname.emplace_back("RB1OutBk");
+  m_rbname.emplace_back("RB22Bk");
+  m_rbname.emplace_back("RB23Bk");
+  m_rbname.emplace_back("RB3Bk");
+  m_rbname.emplace_back("RB4Bk");
   
   itr2names itr = m_rbname.begin();
   
@@ -40,20 +40,7 @@ RBCChamberORLogic::RBCChamberORLogic(  ) {
   m_maxcb    = 13;
   m_maxlevel = 3; // 1 <= m <= 6
 
-  m_layersignal = new std::bitset<6>[2];
-  m_layersignal[0].reset();
-  m_layersignal[1].reset();
-  
 }
-
-//=============================================================================
-// Destructor
-//=============================================================================
-RBCChamberORLogic::~RBCChamberORLogic() {
-  
-  if ( m_layersignal ) delete[] m_layersignal;
-  
-} 
 
 //=============================================================================
 
