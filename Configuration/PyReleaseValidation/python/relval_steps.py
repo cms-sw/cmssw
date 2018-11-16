@@ -102,8 +102,12 @@ steps['RunPA2013']={'INPUT':InputInfo(dataSet='/PAMinBiasUPC/HIRun2013-v1/RAW',l
 Run2015HI={263400: [[65,904]]}
 steps['RunHI2015VR']={'INPUT':InputInfo(dataSet='/HITrackerVirginRaw/HIRun2015-v1/RAW',label='hi2015vr',events=10000,location='STD',ls=Run2015HI)}
 
-steps['RunHI2018']={'INPUT':InputInfo(dataSet='/HIMinimumBias0/Tier0_REPLAY_vocms015-v214/RAW',label='hi2018',run=[325174],events=10000,location='STD')}
-steps['RunHI2018Reduced']={'INPUT':InputInfo(dataSet='/HIMinimumBiasReducedFormat0/Tier0_REPLAY_vocms015-v214/RAW',label='hi2018reduced',run=[325174],events=10000,location='STD')}
+#steps['RunHI2018']={'INPUT':InputInfo(dataSet='/HIMinimumBias0/Tier0_REPLAY_vocms015-v214/RAW',label='hi2018',run=[325174],events=10000,location='STD')}
+#steps['RunHI2018Reduced']={'INPUT':InputInfo(dataSet='/HIMinimumBiasReducedFormat0/Tier0_REPLAY_vocms015-v214/RAW',label='hi2018reduced',run=[325174],events=10000,location='STD')}
+
+Run2018HI={326479: [[1,23]]}
+steps['RunHI2018']={'INPUT':InputInfo(dataSet='/HIHardProbes/HIRun2018A-v1/RAW',label='hi2018',events=10000,location='STD',ls=Run2018HI)}                                                                          
+steps['RunHI2018Reduced']={'INPUT':InputInfo(dataSet='/HIMinimumBiasReducedFormat0/HIRun2018A-v1/RAW',label='hi2018reduced',events=10000,location='STD',ls=Run2018HI)}
 
 Run2012A=[191226]
 Run2012ASk=Run2012A+[]
