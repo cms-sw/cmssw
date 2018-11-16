@@ -33,7 +33,7 @@ Implementation:
 // Include files From CMSSW
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -66,7 +66,7 @@ Implementation:
 
 //...........................................................................
 
-class RPCTechnicalTrigger : public edm::EDProducer {
+class RPCTechnicalTrigger : public edm::stream::EDProducer<> {
 public:
 
   explicit RPCTechnicalTrigger(const edm::ParameterSet&);
