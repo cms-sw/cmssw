@@ -249,18 +249,8 @@ public:
         desc.add<edm::InputTag>("electrons", edm::InputTag("slimmedElectrons"));
         desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
-<<<<<<< HEAD
-<<<<<<< HEAD
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb");
-        desc.add<bool>("memMapped", false);
-=======
-        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N.pb");
-=======
-        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb");
->>>>>>> a9f6b7c945b... Applied last comments
         desc.add<bool>("mem_mapped", false);
->>>>>>> c32912aefa5... Applied commets of previus PR
-
 
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
@@ -373,7 +363,7 @@ private:
         get(dnn::pt_weighted_dr_iso) = reco::tau::pt_weighted_dr_iso(tau, tau.decayMode());
         get(dnn::leadingTrackNormChi2) = tau.leadingTrackNormChi2();
         get(dnn::e_ratio) = reco::tau::eratio(tau);
-        get(dnn::gj_angle_diff) = CalculateGottfriedJacksonAngleDifference(tau);
+        get(dnn::gj_angle_diff) = calculateGottfriedJacksonAngleDifference(tau);
         get(dnn::n_photons) = reco::tau::n_photons_total(tau);
         get(dnn::emFraction) = tau.emFraction_MVA();
         get(dnn::has_gsf_track) = leadChargedHadrCand && std::abs(leadChargedHadrCand->pdgId()) == 11;
