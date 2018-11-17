@@ -61,7 +61,6 @@ int ProcessTestSignal::next()
 void ProcessTestSignal::showfirst() 
 {
   rewind();
-  std::vector<RPCData*>::iterator itr;
   for(auto& d: m_vecdata)
     std::cout << (*d);
   rewind();
