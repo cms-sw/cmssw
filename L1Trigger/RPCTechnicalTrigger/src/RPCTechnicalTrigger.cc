@@ -154,8 +154,6 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   //. distribute data to different TTU emulator instances and process it
   std::bitset<5> triggerbits;
   
-  std::vector<TTUEmulator::TriggerResponse*>::const_iterator outItr;
-
   std::vector<std::unique_ptr<TTUResults>> serializedInfoLine1;
   std::vector<std::unique_ptr<TTUResults>> serializedInfoLine2;
 
