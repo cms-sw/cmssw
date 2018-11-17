@@ -252,7 +252,6 @@ public:
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb");
         desc.add<bool>("mem_mapped", false);
 
-
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
         descWP.add<std::string>("VVLoose", "0");

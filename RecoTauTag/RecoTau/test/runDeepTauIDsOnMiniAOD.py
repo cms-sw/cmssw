@@ -8,8 +8,8 @@ import FWCore.ParameterSet.Config as cms
 # options.parseArguments()
 updatedTauName = "slimmedTausNewID"
 minimalOutput = True
-eventsToProcess = 100
-nThreads = 1
+eventsToProcess = 1000
+nThreads = 2
 
 process = cms.Process('TauID')
 process.load('Configuration.StandardSequences.MagneticField_cff')
@@ -33,11 +33,8 @@ tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
                     updatedTauName = updatedTauName,
                     toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
                                "deepTau2017v1",
-                               # "DPFTau_2016_v0",
+                               "DPFTau_2016_v0",
                                # "DPFTau_2016_v1",
-                               # "deepTau2017v1Q",
-                               "DPFTau_2016_v0Q",
-                               # "DPFTau_2016_v1Q",
                                ])
 tauIdEmbedder.runTauID()
 
