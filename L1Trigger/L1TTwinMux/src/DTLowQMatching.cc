@@ -19,7 +19,7 @@
 
 using namespace std;
 
-DTLowQMatching::DTLowQMatching(L1MuDTChambPhContainer* inphiDTDigis, L1MuDTChambPhContainer inphiRPCDigis): m_phiDTDigis(inphiDTDigis),m_phiRPCDigis(inphiRPCDigis) {
+DTLowQMatching::DTLowQMatching(L1MuDTChambPhContainer const* inphiDTDigis, L1MuDTChambPhContainer const& inphiRPCDigis): m_phiDTDigis(inphiDTDigis),m_phiRPCDigis(inphiRPCDigis) {
 // m_phiDTDigis=inphiDTDigis;
 // m_phiRPCDigis=inphiRPCDigis;
 };
