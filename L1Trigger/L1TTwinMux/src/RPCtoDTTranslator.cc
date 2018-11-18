@@ -34,6 +34,19 @@ namespace {
   constexpr int max_rpc_bx = 2; 
   constexpr int min_rpc_bx = -2;
 
+  struct rpc_hit
+  {
+    int bx;
+    int station;
+    int sector;
+    int wheel;
+    RPCDetId detid;
+    int strip;
+    int roll;
+    int layer;
+    //rpc_hit(int pbx, int pstation,int psector, int pwheel, RPCDetId pdet, int pstrip, int proll, int player) : bx(pbx),station(pstation),sector(psector),wheel(pwheel, detid(pdet),strip(pstrip),roll(proll),layer(player) {}
+  };
+
   //Need to shift the index so that index 0
   // corresponds to min_rpc_bx
   class BxToHit {

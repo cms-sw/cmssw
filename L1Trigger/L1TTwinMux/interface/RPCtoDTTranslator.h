@@ -53,18 +53,5 @@ private:
 
   const RPCDigiCollection& m_rpcDigis;
 
-  struct rpc_hit
-  {
-    int bx;
-    int station;
-    int sector;
-    int wheel;
-    RPCDetId detid;
-    int strip;
-    int roll;
-    int layer;
-    //rpc_hit(int pbx, int pstation,int psector, int pwheel, RPCDetId pdet, int pstrip, int proll, int player) : bx(pbx),station(pstation),sector(psector),wheel(pwheel, detid(pdet),strip(pstrip),roll(proll),layer(player) {}
-  };
-
 };
 #endif
