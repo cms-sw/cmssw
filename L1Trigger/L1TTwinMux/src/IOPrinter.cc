@@ -99,15 +99,15 @@ cout<<"======================================================"<<endl;
 }
 
 
-void IOPrinter::run(L1MuDTChambPhContainer* inphiDigis,const L1MuDTChambPhContainer & outphiDigis,RPCDigiCollection* rpcDigis,const edm::EventSetup& c) {
+void IOPrinter::run(L1MuDTChambPhContainer const* inphiDigis,const L1MuDTChambPhContainer & outphiDigis,RPCDigiCollection const* rpcDigis,const edm::EventSetup& c) {
 
   cout<<"======================================================"<<endl;
   int bx=0, wheel=0, sector=0, station=1;
   L1MuDTChambPhDigi const* dtts1=nullptr;
   L1MuDTChambPhDigi const* dtts2=nullptr;
-  L1MuTMChambPhContainer * inphiDigis_tm=nullptr;
+  L1MuTMChambPhContainer  inphiDigis_tm;
   const std::vector<L1MuDTChambPhDigi> * vInCon=inphiDigis->getContainer();
-  inphiDigis_tm->setContainer(*vInCon);
+  inphiDigis_tm.setContainer(*vInCon);
 
 
   ///Align track segments that are coming in bx-1.
@@ -121,7 +121,7 @@ void IOPrinter::run(L1MuDTChambPhContainer* inphiDigis,const L1MuDTChambPhContai
           int nhits = DTRPCBxCorrection::nRPCHits(*inphiDigis, bx, wheel, sector, station);
           for(int hit=0; hit<nhits; hit++){
             dtts1=nullptr;
-            dtts1 = inphiDigis_tm->chPhiSegm(wheel,station,sector,bx,hit);
+            dtts1 = inphiDigis_tm.chPhiSegm(wheel,station,sector,bx,hit);
             if(dtts1) {
               cout<<dtts1->bxNum()<<"\t"<<dtts1->whNum()<<"\t"<<dtts1->scNum()<<"\t"<<dtts1->stNum()<<"\t"<<dtts1->phi()<<"\t"<<dtts1->phiB()<<"\t"<<dtts1->code()<<"\t"<<dtts1->Ts2Tag()<<"\t"<<dtts1->BxCnt()<<"\t0"<<endl;
           }
