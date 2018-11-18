@@ -25,11 +25,9 @@
 
 using namespace std;
 
-
-RPCtoDTTranslator::RPCtoDTTranslator(RPCDigiCollection inrpcDigis){
-
-  m_rpcDigis = inrpcDigis;
-
+RPCtoDTTranslator::RPCtoDTTranslator(RPCDigiCollection const& inrpcDigis) :
+  m_rpcDigis{inrpcDigis}
+{
 }
 
 namespace {
