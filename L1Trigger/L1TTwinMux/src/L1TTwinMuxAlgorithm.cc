@@ -49,7 +49,7 @@ edm::Handle<L1MuDTChambThContainer> thetaDigis, edm::Handle<RPCDigiCollection> r
   ///Align track segments that are coming in bx-1.
   AlignTrackSegments alignedDTs{*inphiDigis};
   alignedDTs.run(c);
-  L1MuDTChambPhContainer phiDigis = alignedDTs.getDTContainer();
+  L1MuDTChambPhContainer const& phiDigis = alignedDTs.getDTContainer();
   //if only DTs are required without bx correction
   //return the aligned track segments
   if(onlyDT && !correctBX && !useLowQDT) {
