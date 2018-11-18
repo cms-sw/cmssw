@@ -44,7 +44,7 @@ namespace {
     int strip;
     int roll;
     int layer;
-    //rpc_hit(int pbx, int pstation,int psector, int pwheel, RPCDetId pdet, int pstrip, int proll, int player) : bx(pbx),station(pstation),sector(psector),wheel(pwheel, detid(pdet),strip(pstrip),roll(proll),layer(player) {}
+    rpc_hit(int pbx, int pstation,int psector, int pwheel, RPCDetId pdet, int pstrip, int proll, int player) : bx(pbx),station(pstation),sector(psector),wheel(pwheel), detid(pdet),strip(pstrip),roll(proll),layer(player) {}
   };
 
   //Need to shift the index so that index 0
@@ -81,10 +81,10 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
      for( auto digi = (*chamber).second.first ; digi != (*chamber).second.second; ++digi ) {
         if(detid.region()!=0 ) continue; //Region = 0 Barrel
         if(BxToHit::outOfRange(digi->bx())) continue;
-        if(detid.layer()==1) vrpc_hit_layer1.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
-        if(detid.station()==3) vrpc_hit_st3.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
-        if(detid.layer()==2) vrpc_hit_layer2.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
-        if(detid.station()==4) vrpc_hit_st4.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
+        if(detid.layer()==1) vrpc_hit_layer1.emplace_back(digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer());
+        if(detid.station()==3) vrpc_hit_st3.emplace_back(digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer());
+        if(detid.layer()==2) vrpc_hit_layer2.emplace_back(digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer());
+        if(detid.station()==4) vrpc_hit_st4.emplace_back(digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer());
      }
   }///for chamber
 
