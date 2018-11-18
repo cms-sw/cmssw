@@ -12,15 +12,15 @@ namespace btagbtvdeep {
 
 class DeepDoubleXFeatures {
 
-public:
+  public:
 
-  bool empty() const {
-    return is_empty_;
-  }
+    bool empty() const {
+      return is_empty_;
+    }  
   
-  void filled(){
+    void filled(){
       is_empty_ = false;
-  } 
+    } 
 
     JetFeatures jet_features;
     BoostedDoubleSVTagInfoFeatures tag_info_features;
@@ -31,11 +31,10 @@ public:
 
     std::size_t npv; // used by deep flavour     
 
-private:
-  bool is_empty_ = true;
+  private:
+    bool is_empty_ = true;
 
 };    
-
 
 }  
 
