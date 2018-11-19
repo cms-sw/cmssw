@@ -103,7 +103,6 @@ def custom_3dclustering_histoInterpolatedMax(process,
     process = custom_3dclustering_histoMax( process, distance, nBins_R, nBins_Phi, binSumsHisto )    
     parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
     parameters_c3d.type_multicluster = cms.string('HistoInterpolatedMaxC3d')
-    parameters_c3d.neighbour_weights = neighbour_weights
     return process
 
 def custom_3dclustering_histoInterpolatedMax1stOrder(process):
