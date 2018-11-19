@@ -1,5 +1,4 @@
 #include "CalibTracker/SiStripDCS/interface/SiStripDetVOffBuilder.h"
-#include "boost/foreach.hpp"
 #include <sys/stat.h>
 
 // constructor
@@ -45,12 +44,12 @@ SiStripDetVOffBuilder::SiStripDetVOffBuilder(const edm::ParameterSet& pset, cons
     tsetmin = coral::TimeStamp(tset_par[0],tset_par[1],tset_par[2],tset_par[3],tset_par[4],tset_par[5],tset_par[6]);
   }
   
-  if (onlineDbConnectionString == "") {
+  if (onlineDbConnectionString.empty()) {
     edm::LogError("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::SiStripDetVOffBuilder] DB name has not been set properly ... Returning ...";
     return;
   }
   
-  if (fromFile && whichTable == "LASTVALUE" && lastValueFileName == "") {
+  if (fromFile && whichTable == "LASTVALUE" && lastValueFileName.empty()) {
     edm::LogError("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::SiStripDetVOffBuilder] File expected for lastValue table, but filename not specified ... Returning ...";
     return;
   }
@@ -82,7 +81,7 @@ SiStripDetVOffBuilder::~SiStripDetVOffBuilder() {
 }
 
 void SiStripDetVOffBuilder::printPar(std::stringstream& ss, const std::vector<int>& par){
-  BOOST_FOREACH(int val, par){
+  for(int val : par){
     ss << val << " ";
   }
 }
@@ -194,7 +193,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
         // These modules are expected to not be in the PSU-DetId map, so they will never get any status change from the query.
         SiStripPsuDetIdMap map;
 	std::vector< std::pair<uint32_t, std::string> > excludedDetIdMap;
-        if( excludedDetIdListFile_ != "" ) {
+        if( !excludedDetIdListFile_.empty() ) {
           map.BuildMap(excludedDetIdListFile_, excludedDetIdMap);
         }
         for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = detInfos.begin(); it != detInfos.end(); ++it) {
@@ -599,7 +598,7 @@ void SiStripDetVOffBuilder::statusChange( cond::Time_t & lastTime, TimesAndValue
   tStruct.actualStatus.resize(tStruct.actualValue.size());
   tStruct.actualStatus.clear();
   
-  BOOST_FOREACH(float val, tStruct.actualValue) {
+  for(float val : tStruct.actualValue) {
     tStruct.actualStatus.push_back(static_cast<int>(val));
   }
 }
@@ -721,7 +720,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
 //It may make sense to split this method eventually.
 {
   SiStripPsuDetIdMap map_;
-  if( psuDetIdMapFile_ == "" ) {
+  if( psuDetIdMapFile_.empty() ) {
     std::cout<<"PLEASE provide the name of a valid PSUDetIDMapFile in the cfg: currently still necessary to have a file, soon will access the info straight from the DB!"<<endl;
     //map_.BuildMap();//This method is not currently used (it would try to build a map based on a query to SiStripConfigDB, and the info there is STALE!)
   }
@@ -751,7 +750,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
     std::ifstream ifs("HVUnmappedChannelState.dat");
     string line;
     while( getline( ifs, line ) ) {
-      if( line != "" ) {
+      if( !line.empty() ) {
 	// split the line and insert in the map
 	stringstream ss(line);
 	string PSUChannel;
@@ -812,7 +811,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
     std::ifstream ifs("HVCrosstalkingChannelState.dat");
     string line;
     while( getline( ifs, line ) ) {
-      if( line != "" ) {
+      if( !line.empty() ) {
 	// split the line and insert in the map
 	stringstream ss(line);
 	string PSUChannel;
@@ -1197,7 +1196,7 @@ pair<int, int> SiStripDetVOffBuilder::extractDetIdVector( const unsigned int i, 
     // TESTING WITHOUT THE FIX
     // -----------------------
 
-    if( psuDetIdMapFile_ == "" ) {
+    if( psuDetIdMapFile_.empty() ) {
       // temporary fix to handle the fact that we don't know which HV channel the detIDs are associated to
       if (i > 0) {
 	std::string iChannel = detIdStruct.psuName[i].substr( (detIdStruct.psuName[i].size()-3) );
