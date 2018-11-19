@@ -71,6 +71,7 @@ private:
     std::vector<unsigned> binsSumsHisto_;
     double histoThreshold_ = 20.;
     std::vector<double> neighbour_weights_;
+    unsigned neighbour_weights_size_ = 9;
 
     HGCalShowerShape shape_;
     HGCalTriggerTools triggerTools_;

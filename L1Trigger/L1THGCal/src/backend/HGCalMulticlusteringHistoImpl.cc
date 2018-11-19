@@ -34,6 +34,7 @@ HGCalMulticlusteringHistoImpl::HGCalMulticlusteringHistoImpl( const edm::Paramet
     id_.reset( HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT") );
     id_->initialize(conf.getParameter<edm::ParameterSet>("EGIdentification"));
     if(multiclusterAlgoType_.find("Histo")!=std::string::npos && nBinsRHisto_!=binsSumsHisto_.size()) throw cms::Exception("Inconsistent nBins_R_histo_multicluster and binSumsHisto size in HGCalMulticlustering");
+    if(neighbour_weights_.size()!=neighbour_weights_size_) throw cms::Exception("Inconsistent size of neighbour weights vector in HGCalMulticlustering");
 }
 
 
