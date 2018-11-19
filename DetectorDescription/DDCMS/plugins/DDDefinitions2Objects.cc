@@ -590,30 +590,34 @@ template <> void Converter<DDLTransform3D>::operator()(xml_h element) const {
 }
 
 /// Converter for <PosPart/> tags
-template <> void Converter<DDLPosPart>::operator()(xml_h element) const {
-  cms::DDNamespace ns(_param<cms::DDParsingContext>()); //, element, true );
-  xml_dim_t   e(element);
-  int         copy        = e.attr<int>(DD_CMU(copyNumber));
-  string      parent_nam  = ns.attr<string>(e.child(DD_CMU(rParent)),_U(name));
-  string      child_nam   = ns.attr<string>(e.child(DD_CMU(rChild)),_U(name));
-  Volume      parent      = ns.volume(parent_nam);
-  Volume      child       = ns.volume(child_nam, false);
+template <> void Converter<DDLPosPart>::operator()( xml_h element ) const {
+  cms::DDNamespace ns( _param<cms::DDParsingContext>()); //, element, true );
+  xml_dim_t   e( element );
+  int         copy        = e.attr<int>( DD_CMU( copyNumber ));
+  string      parentName  = ns.attr<string>( e.child( DD_CMU( rParent )), _U( name ));
+  string      childName   = ns.attr<string>( e.child( DD_CMU( rChild )), _U( name ));
+  Volume      parent      = ns.volume( parentName );
   
-  printout(ns.context()->debug_placements ? ALWAYS : DEBUG, "MyDDCMS",
-           "+++ %s Parent: %-24s [%s] Child: %-32s [%s] copy:%d",
-           e.tag().c_str(),
-           parent_nam.c_str(), parent.isValid() ? "VALID" : "INVALID",
-           child_nam.c_str(),  child.isValid()  ? "VALID" : "INVALID",
-           copy);
+  if( strchr( childName.c_str(), NAMESPACE_SEP ) == nullptr )
+    childName = ns.name() + childName;
+  Volume      child       = ns.volume( childName, false );
+  
+  printout( ns.context()->debug_placements ? ALWAYS : DEBUG, "MyDDCMS",
+	    "+++ %s Parent: %-24s [%s] Child: %-32s [%s] copy:%d",
+	    e.tag().c_str(),
+	    parentName.c_str(), parent.isValid() ? "VALID" : "INVALID",
+	    childName.c_str(),  child.isValid()  ? "VALID" : "INVALID",
+	    copy );
+  
   PlacedVolume pv;
-  if( child.isValid() )   {
-    Transform3D trafo;
-    Converter<DDLTransform3D>(description,param,&trafo)(element);
-    pv = parent.placeVolume(child,copy,trafo);
+  if( child.isValid()) {
+    Transform3D transform;
+    Converter<DDLTransform3D>( description, param, &transform )( element );
+    pv = parent.placeVolume( child, copy, transform );
   }
-  if( !pv.isValid() )   {
-    printout(ERROR,"MyDDCMS","+++ Placement FAILED! Parent:%s Child:%s Valid:%s",
-             parent.name(), child_nam.c_str(), yes_no(child.isValid()));
+  if( !pv.isValid()) {
+    printout( ERROR,"MyDDCMS","+++ Placement FAILED! Parent:%s Child:%s Valid:%s",
+	      parent.name(), childName.c_str(), yes_no( child.isValid()));
   }
 }
 
