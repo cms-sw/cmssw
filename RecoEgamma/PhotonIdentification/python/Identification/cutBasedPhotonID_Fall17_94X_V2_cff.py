@@ -22,7 +22,7 @@ from RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_tools \
 #
 
 # Loose working point Barrel and Endcap
-idName = "cutBasedPhotonID-Fall17-100X-V2-loose"
+idName = "cutBasedPhotonID-Fall17-94X-V2-loose"
 WP_Loose_EB = WorkingPoint_V2(
     idName    ,  # idName
     0.04596    ,  # hOverECut
@@ -51,7 +51,7 @@ WP_Loose_EE = WorkingPoint_V2(
     )
 
 # Medium working point Barrel and Endcap
-idName = "cutBasedPhotonID-Fall17-100X-V2-medium"
+idName = "cutBasedPhotonID-Fall17-94X-V2-medium"
 WP_Medium_EB = WorkingPoint_V2(
     idName    ,  # idName
     0.02197      ,  # hOverECut
@@ -81,7 +81,7 @@ WP_Medium_EE = WorkingPoint_V2(
     )
 
 # Tight working point Barrel and Endcap
-idName = "cutBasedPhotonID-Fall17-100X-V2-tight"
+idName = "cutBasedPhotonID-Fall17-94X-V2-tight"
 WP_Tight_EB = WorkingPoint_V2(
     idName    ,  # idName
     0.02148      ,  # hOverECut
@@ -131,9 +131,9 @@ isoInputs = IsolationCutInputs(
 #
 # Finally, set up VID configuration for all cuts
 #
-cutBasedPhotonID_Fall17_100X_V2_loose  = configureVIDCutBasedPhoID_V5 ( WP_Loose_EB, WP_Loose_EE, isoInputs)
-cutBasedPhotonID_Fall17_100X_V2_medium = configureVIDCutBasedPhoID_V5 ( WP_Medium_EB, WP_Medium_EE, isoInputs)
-cutBasedPhotonID_Fall17_100X_V2_tight  = configureVIDCutBasedPhoID_V5 ( WP_Tight_EB, WP_Tight_EE, isoInputs)
+cutBasedPhotonID_Fall17_94X_V2_loose  = configureVIDCutBasedPhoID_V5 ( WP_Loose_EB, WP_Loose_EE, isoInputs)
+cutBasedPhotonID_Fall17_94X_V2_medium = configureVIDCutBasedPhoID_V5 ( WP_Medium_EB, WP_Medium_EE, isoInputs)
+cutBasedPhotonID_Fall17_94X_V2_tight  = configureVIDCutBasedPhoID_V5 ( WP_Tight_EB, WP_Tight_EE, isoInputs)
 
 ## The MD5 sum numbers below reflect the exact set of cut variables
 # and values above. If anything changes, one has to 
@@ -142,13 +142,13 @@ cutBasedPhotonID_Fall17_100X_V2_tight  = configureVIDCutBasedPhoID_V5 ( WP_Tight
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 
-central_id_registry.register(cutBasedPhotonID_Fall17_100X_V2_loose.idName,
+central_id_registry.register(cutBasedPhotonID_Fall17_94X_V2_loose.idName,
                              '4578dfcceb0bfd1ba5ac28973c843fd0')
-central_id_registry.register(cutBasedPhotonID_Fall17_100X_V2_medium.idName,
+central_id_registry.register(cutBasedPhotonID_Fall17_94X_V2_medium.idName,
                              '28b186c301061395f394a81266c8d7de')
-central_id_registry.register(cutBasedPhotonID_Fall17_100X_V2_tight.idName,
+central_id_registry.register(cutBasedPhotonID_Fall17_94X_V2_tight.idName,
                              '6f4f0ed6a8bf2de8dcf0bc3349b0546d')
 
-cutBasedPhotonID_Fall17_100X_V2_loose.isPOGApproved = cms.untracked.bool(True)
-cutBasedPhotonID_Fall17_100X_V2_medium.isPOGApproved = cms.untracked.bool(True)
-cutBasedPhotonID_Fall17_100X_V2_tight.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_Fall17_94X_V2_loose.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_Fall17_94X_V2_medium.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_Fall17_94X_V2_tight.isPOGApproved = cms.untracked.bool(True)
