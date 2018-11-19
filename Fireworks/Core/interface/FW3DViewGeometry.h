@@ -48,9 +48,13 @@ public:
    void showTrackerBarrel( bool );
    void showTrackerEndcap( bool );
    void showHGCalEE( bool );
+   TEveElementList const * const getHGCalEE() { return m_HGCalEEElements; }
    void showHGCalHSi( bool );
+   TEveElementList const * const getHGCalHSi() { return m_HGCalHSiElements; }
    void showHGCalHSc( bool );
-private:
+   TEveElementList const * const getHGCalHSc() { return m_HGCalHScElements; }
+
+ private:
    FW3DViewGeometry(const FW3DViewGeometry&) = delete; // stop default
 
    const FW3DViewGeometry& operator=(const FW3DViewGeometry&) = delete; // stop default

@@ -10,6 +10,8 @@
 //         Created:  Thu Feb 21 11:22:41 EST 2008
 //
 #include <boost/bind.hpp>
+#include <string>
+#include <algorithm>
 
 // user include files
 
@@ -126,6 +128,8 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
    m_clipDelta1(this, "Clip Delta1", 0.2, 0.01, 2),
    m_clipDelta2(this, "Clip Delta2", 0.2, 0.01, 2),
    m_clipAppexOffset(this, "Appex Offset", 10l, 0l, 50l),
+   m_clipHGCalLayerBegin(this, "HGCal Lower Bound", 1l, 1l, 52l),
+   m_clipHGCalLayerEnd(this, "HGCal Upper Bound", 52l, 1l, 52l),
    m_DMT(nullptr),
    m_DMTline(nullptr)
 {
@@ -160,7 +164,8 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
    m_clipDelta1.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
    m_clipDelta2.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
    m_clipAppexOffset.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
-
+   m_clipHGCalLayerBegin.changed_.connect(boost::bind(&FW3DViewBase::updateHGCalVisibility,this, false));
+   m_clipHGCalLayerEnd.changed_.connect(boost::bind(&FW3DViewBase::updateHGCalVisibility,this, false));
 
     m_ecalBarrel = new TEveBoxSet("ecalBarrel"); 
     m_ecalBarrel->UseSingleColor();
@@ -255,6 +260,7 @@ FW3DViewBase::enableSceneClip( bool x)
    }
    eventScene()->GetGLScene()->SetClip(x ? m_glClip : nullptr);
    updateClipPlanes(true);
+   updateHGCalVisibility(false);
    viewerGL()->RequestDraw();
 }
 
@@ -393,10 +399,52 @@ FW3DViewBase::updateClipPlanes(bool resetCamera)
       else {
          eventScene()->Repaint();
       }
-         }
+   }
    
    gEve->Redraw3D();
 
+}
+
+void
+FW3DViewBase::updateHGCalVisibility(bool){
+
+   if (!m_clipEnable.value()) return;
+   
+   long lmin = m_clipHGCalLayerBegin.value();
+   long lmax = m_clipHGCalLayerEnd.value();
+
+   // real min, max
+   long r_lmin = std::min(lmin, lmax);
+   long r_lmax = std::max(lmin, lmax);
+
+   TEveElementList const * const HGCalEE = m_geometry->getHGCalEE();
+   if(HGCalEE){
+      for (const auto & it : HGCalEE->RefChildren()){
+         std::string title(it->GetElementTitle());
+         int layer = stoi(title.substr(title.length() - 2));
+         it->SetRnrState(layer >= r_lmin && layer <= r_lmax);
+      }
+   }
+
+   TEveElementList const * const HGCalHSi = m_geometry->getHGCalHSi();
+   if(HGCalHSi){
+      for (const auto & it : HGCalHSi->RefChildren()){
+         std::string title(it->GetElementTitle());
+         int layer = stoi(title.substr(title.length() - 2)) + 28;
+         it->SetRnrState(layer >= r_lmin && layer <= r_lmax);
+      }
+   }
+
+   TEveElementList const * const HGCalHSc = m_geometry->getHGCalHSc();
+   if(HGCalHSc){
+      for (const auto & it : HGCalHSc->RefChildren()){
+         std::string title(it->GetElementTitle());
+         int layer = stoi(title.substr(title.length() - 2)) + 28;
+         it->SetRnrState(layer >= r_lmin && layer <= r_lmax);
+      }
+   }
+
+   gEve->Redraw3D();
 }
 
 //______________________________________________________________________________
@@ -476,7 +524,9 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
       addParam(&m_clipPhi).
       addParam(&m_clipDelta1).
       addParam(&m_clipDelta2).
-      addParam(&m_clipAppexOffset);
+      addParam(&m_clipAppexOffset).
+      addParam(&m_clipHGCalLayerBegin).
+      addParam(&m_clipHGCalLayerEnd);
 
 
    gui.requestTab("Style").separator();

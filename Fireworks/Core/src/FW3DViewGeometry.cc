@@ -424,9 +424,9 @@ FW3DViewGeometry::showHGCalEE(bool showHGCalEE){
       for( const auto& id : m_geom->getMatchedIds( FWGeometry::HGCalEE ))
       {
          TEveGeoShape* shape = m_geom->getHGCSiliconEveShape( id );
-         shape->SetTitle(Form("HGCalEE %d",id));
+         const unsigned int layer = (id>>20)&0x1F;
+         shape->SetTitle(Form("HGCalEE %d", layer));
          {
-            const unsigned int layer = (id>>20)&0x1F;
             float color[3];
             color[0] = color[1] = color[2] = 0.3f + 0.7f*(1.0f-layer/28.0f); 
             color[1] = 0.5f*(layer&2U) + 0.5f*color[1];
@@ -455,9 +455,9 @@ FW3DViewGeometry::showHGCalHSi(bool showHGCalHSi){
     for( const auto& id : m_geom->getMatchedIds( FWGeometry::HGCalHSi ))
     {
         TEveGeoShape* shape = m_geom->getHGCSiliconEveShape( id );
-        shape->SetTitle(Form("HGCalHSi %d",id));
+        const unsigned int layer = (id>>20)&0x1F;
+        shape->SetTitle(Form("HGCalHSi %d",layer));
         {
-            const unsigned int layer = (id>>20)&0x1F;
             float color[3];
             color[0] = color[1] = color[2] = 0.3f + 0.7f*(1.0f-layer/28.0f); 
             color[0] = 0.5f*(layer&2U) + 0.5f*color[0];
@@ -480,13 +480,15 @@ FW3DViewGeometry::showHGCalHSi(bool showHGCalHSi){
 }
 
 void FW3DViewGeometry::showHGCalHSc(bool showHGCalHSc){
-   if( showHGCalHSc && ! m_HGCalHScElements )
+   if( showHGCalHSc && !m_HGCalHScElements )
    {
       m_HGCalHScElements = new TEveElementList( "HGCalHSc" );
       std::vector<unsigned int> ids = m_geom->getMatchedIds( FWGeometry::HGCalHSc );
       for( const auto& id : m_geom->getMatchedIds( FWGeometry::HGCalHSc ))
       {
-        TEveGeoShape* shape = m_geom->getHGCScintillatorEveShape( id ); 
+        TEveGeoShape* shape = m_geom->getHGCScintillatorEveShape( id );
+        const unsigned int layer = (id>>17)&0x1F;       
+        shape->SetTitle(Form("HGCalHSc %d", layer));
         addToCompound(shape, kFwHGCalHScColorIndex);
         m_HGCalHScElements->AddElement( shape );
       }
