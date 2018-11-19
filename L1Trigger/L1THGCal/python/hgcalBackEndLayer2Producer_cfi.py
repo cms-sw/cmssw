@@ -20,7 +20,11 @@ C3d_parValues = cms.PSet( type_multicluster = cms.string('dRC3d'),
                                                      3, 3, 3, 3, 3, 3, 3, 3  # 28 - 35
                                                      ),
                           threshold_histo_multicluster = cms.double(20.),
-                          EGIdentification=egamma_identification_drnn_cone.clone()
+                          EGIdentification=egamma_identification_drnn_cone.clone(),
+                          neighbour_weights=cms.vdouble(  0    , 0.25, 0   ,
+                                                          0.25 , 0  ,  0.25,
+                                                          0    , 0.25, 0
+                                                          )
  )
 
 be_proc = cms.PSet( ProcessorName  = cms.string('HGCalBackendLayer2Processor3DClustering'),

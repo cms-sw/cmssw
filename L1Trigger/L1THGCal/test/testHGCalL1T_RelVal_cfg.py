@@ -66,6 +66,18 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
 
+from L1Trigger.L1THGCal.customTriggerCellSelect import custom_triggercellselect_supertriggercell, custom_triggercellselect_threshold
+
+#process = custom_triggercellselect_supertriggercell(process)
+process = custom_triggercellselect_threshold(process)
+
+from L1Trigger.L1THGCal.customClustering import *
+
+#process = custom_3dclustering_histoRefinedMax(process)
+#process = custom_3dclustering_distance(process)
+process = custom_3dclustering_histoMax(process)
+
+
 # Change to V7 trigger geometry for older samples
 #  from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_ZoltanSplit_V7
 #  process = custom_geometry_ZoltanSplit_V7(process)
