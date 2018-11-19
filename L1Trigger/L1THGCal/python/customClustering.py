@@ -88,7 +88,7 @@ def custom_3dclustering_histoMax(process,
     return process
 
 
-def custom_3dclustering_histoInterpolatedMax1stOrder(process,
+def custom_3dclustering_histoInterpolatedMax(process,
         distance = 0.01,
         nBins_R = 36,
         nBins_Phi = 216,
@@ -99,12 +99,6 @@ def custom_3dclustering_histoInterpolatedMax1stOrder(process,
                                    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  # 13 - 27
                                    3, 3, 3, 3, 3, 3, 3, 3  # 28 - 35
                                    ),
-        neighbour_weights=cms.vdouble(  0    , 0.25, 0   ,
-                                        0.25 , 0  ,  0.25,
-                                        0    , 0.25, 0
-                                     )
-                                           
-
         ):
     process = custom_3dclustering_histoMax( process, distance, nBins_R, nBins_Phi, binSumsHisto )    
     parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
@@ -112,27 +106,26 @@ def custom_3dclustering_histoInterpolatedMax1stOrder(process,
     parameters_c3d.neighbour_weights = neighbour_weights
     return process
 
-def custom_3dclustering_histoInterpolatedMax2ndOrder(process,
-        distance = 0.01,
-        nBins_R = 36,
-        nBins_Phi = 216,
-        binSumsHisto = cms.vuint32(13,               #0
-                                   11, 11, 11,       # 1 - 3
-                                   9, 9, 9,          # 4 - 6
-                                   7, 7, 7, 7, 7, 7, # 7 - 12
-                                   5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  # 13 - 27
-                                   3, 3, 3, 3, 3, 3, 3, 3  # 28 - 35
-                                   ),
-        neighbour_weights=cms.vdouble( -0.25, 0.5, -0.25,
-                                        0.5 , 0  ,  0.5 ,
-                                       -0.25, 0.5, -0.25
-                                     )
+def custom_3dclustering_histoInterpolatedMax1stOrder(process):
 
-        ):
-    process = custom_3dclustering_histoMax( process, distance, nBins_R, nBins_Phi, binSumsHisto )    
     parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
-    parameters_c3d.type_multicluster = cms.string('HistoInterpolatedMaxC3d')
-    parameters_c3d.neighbour_weights = neighbour_weights
+    parameters_c3d.neighbour_weights=cms.vdouble(  0    , 0.25, 0   ,
+                                                   0.25 , 0   , 0.25,
+                                                   0    , 0.25, 0
+                                                )
+    process = custom_3dclustering_histoInterpolatedMax( process )    
+    return process
+
+
+
+def custom_3dclustering_histoInterpolatedMax2ndOrder(process):
+
+    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
+    parameters_c3d.neighbour_weights=cms.vdouble( -0.25, 0.5, -0.25,
+                                                   0.5 , 0  ,  0.5 ,
+                                                  -0.25, 0.5, -0.25
+                                                )
+    process = custom_3dclustering_histoInterpolatedMax( process )    
     return process
 
 
