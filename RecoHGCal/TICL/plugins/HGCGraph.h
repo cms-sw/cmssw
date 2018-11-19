@@ -13,7 +13,8 @@ class HGCGraph
 public:
   void makeAndConnectDoublets(const std::vector<std::vector<std::vector<unsigned int>>> &h, int nEtaBins,
                               int nPhiBins, const std::vector<reco::CaloCluster> &layerClusters,
-                              int deltaIEta, int deltaIPhi, float minCosThetai, int missing_layers);
+                              int deltaIEta, int deltaIPhi, float minCosThetai,
+                              float maxCosPointing, int missing_layers);
 
   std::vector<HGCDoublet> &getAllDoublets() { return allDoublets_; }
   void findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets, const unsigned int minClustersPerNtuplet);

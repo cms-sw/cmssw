@@ -86,7 +86,8 @@ class HGCDoublet
 
     bool checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
                                   const std::vector<int> &innerDoublets,
-                                  float minCosTheta, bool debug=false)
+                                  float minCosTheta, float minCosPointing = 1.,
+                                  bool debug=false)
     {
         int nDoublets = innerDoublets.size();
         int constexpr VSIZE = 4;
@@ -109,7 +110,7 @@ class HGCDoublet
                 zi[j] = otherDoublet.getInnerZ();
             }
             for (int j = 0; j < vs; ++j) {
-              ok[j] = areAligned(xi[j], yi[j], zi[j], xo, yo, zo, minCosTheta, debug);
+              ok[j] = areAligned(xi[j], yi[j], zi[j], xo, yo, zo, minCosTheta, minCosPointing, debug);
               if (debug) {
                 std::cout << "Are aligned for InnerDoubletId: " << i+j
                           << " is " << ok[j] << std::endl;
@@ -140,7 +141,8 @@ class HGCDoublet
 
     int areAligned(double xi, double yi, double zi,
                    double xo, double yo, double zo,
-                   float minCosTheta, bool debug=false)
+                   float minCosTheta, float minCosPointing,
+                   bool debug=false)
     {
 
         auto dx1 = xo-xi;
@@ -166,7 +168,25 @@ class HGCDoublet
                     << " isWithinLimits: " << (cosTheta > minCosTheta)
                     << std::endl;
         }
-        return cosTheta > minCosTheta;
+
+        // Now check the compatibility with the pointing origin.
+        // TODO(rovere): pass in also the origin, which is now fixed at (0,0,0)
+        // The compatibility is checked only for the innermost doublets: the
+        // one with the outer doublets comes in by the alignment requirement of
+        // the doublets themeselves
+        auto dot_pointing = dx2*xi + dy2*yi + dz2*zi;
+        auto mag_pointing = std::sqrt(xi*xi + yi*yi + zi*zi);
+        auto cosTheta_pointing = dot_pointing/(mag2*mag_pointing);
+        if (debug) {
+          std::cout << "dot_pointing: " << dot_pointing
+                    << " mag_pointing: " << mag_pointing
+                    << " mag2: " << mag2
+                    << " cosTheta_pointing: " << cosTheta_pointing
+                    << " isWithinLimits: " << (cosTheta_pointing < minCosPointing)
+                    << std::endl;
+        }
+
+        return (cosTheta > minCosTheta) && (cosTheta_pointing > minCosPointing);
     }
 
     void findNtuplets(std::vector<HGCDoublet> &allDoublets, HGCntuplet &tmpNtuplet)

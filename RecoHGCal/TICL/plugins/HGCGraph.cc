@@ -8,7 +8,8 @@
 
 void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<unsigned int>>> &h, int nEtaBins,
                                       int nPhiBins, const std::vector<reco::CaloCluster> &layerClusters,
-                                      int deltaIEta, int deltaIPhi, float minCosTheta, int missing_layers)
+                                      int deltaIEta, int deltaIPhi, float minCosTheta, float minCosPointing,
+                                      int missing_layers)
 {
   isOuterClusterOfDoublets_.clear();
   isOuterClusterOfDoublets_.resize(layerClusters.size());
@@ -67,7 +68,8 @@ void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<
                         << " with all possible inners doublets link by the innerClusterId: "
                         << innerClusterId << std::endl;
                     }
-                    bool isRootDoublet = thisDoublet.checkCompatibilityAndTag(allDoublets_, neigDoublets, minCosTheta, verbosity_ > Advanced);
+                    bool isRootDoublet = thisDoublet.checkCompatibilityAndTag(allDoublets_, neigDoublets,
+                        minCosTheta, minCosPointing, verbosity_ > Advanced);
                     if (isRootDoublet)
                       theRootDoublets_.push_back(doubletId);
                   }

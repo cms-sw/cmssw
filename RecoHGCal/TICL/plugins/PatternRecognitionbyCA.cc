@@ -49,7 +49,8 @@ void PatternRecognitionbyCA::makeTracksters(
     }
     std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
     fillHistogram(layerClusters, mask);
-    theGraph_.makeAndConnectDoublets(histogram_, nEtaBins_, nPhiBins_, layerClusters, 2, 2, min_cos_theta_, missing_layers_);
+    theGraph_.makeAndConnectDoublets(histogram_, nEtaBins_, nPhiBins_, layerClusters,
+        2, 2, min_cos_theta_, min_cos_pointing_, missing_layers_);
     theGraph_.findNtuplets(foundNtuplets, min_clusters_per_ntuplet_);
 //#ifdef FP_DEBUG
     const auto &doublets = theGraph_.getAllDoublets();
