@@ -12,6 +12,7 @@ process.test = cms.EDAnalyzer("DDCMSDetector",
                                                          'Geometry/CMSCommonData/data/cms.xml', 
                                                          'DetectorDescription/DDCMS/data/cmsMagneticField.xml', 
                                                          'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_1.xml',
+                                                         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_2.xml',
                                                          'Geometry/CMSCommonData/data/materials.xml'),
                               confGeomXMLFiles = cms.string('DetectorDescription/DDCMS/data/cms-mf-geometry.xml')
                               )
