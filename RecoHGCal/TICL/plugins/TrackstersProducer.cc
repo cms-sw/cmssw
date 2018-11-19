@@ -27,7 +27,8 @@
 
 DEFINE_FWK_MODULE(TrackstersProducer);
 
-TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps): myAlgo_(std::make_unique<PatternRecognitionbyCA>(ps))
+TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
+: myAlgo_(std::make_unique<PatternRecognitionbyCA>(ps))
 {
   clusters_token = consumes<std::vector<reco::CaloCluster>>(
       ps.getParameter<edm::InputTag>("HGCLayerClusters"));
@@ -46,6 +47,7 @@ void TrackstersProducer::fillDescriptions(
       edm::InputTag("FilteredLayerClusters","iterationLabelGoesHere"));
   desc.add<int>("algo_verbosity", 0);
   desc.add<double>("min_cos_theta", 0.915);
+  desc.add<double>("min_cos_pointing", -1.);
   desc.add<int>("missing_layers", 0);
   desc.add<int>("min_clusters_per_ntuplet", 10);
   descriptions.add("Tracksters", desc);
