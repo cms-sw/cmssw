@@ -197,7 +197,7 @@ namespace spr{
       std::cout << "eECALmatrix: with " << idEBEE.size() << " EB+EE hits and "
 		<< "spike flag " << flag << std::endl;
 #endif
-    double etot = (idEBEE.size() > 0) ?
+    double etot = (!idEBEE.empty()) ?
       spr::energyECAL(idEBEE,hitsEB,hitsEE,ebThr,eeThr,tMin,tMax,debug) : 0;
     return std::pair<double,bool>(etot,flag);
   }
