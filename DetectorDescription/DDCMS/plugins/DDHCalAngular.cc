@@ -37,13 +37,11 @@ static long  algorithm(dd4hep::Detector& /* description */,
 #endif
   double theta  = 90._deg;
   int    copy   = startCopyNo;
-  double phi    = startAngle;
+  double phix   = startAngle;
   for (int ii=0; ii<n; ++ii) {
-    double phix   = ConvertTo( phi, deg );
     double phiy   = phix + 90._deg;
     int    iphi   = (phix > 0) ? int(phix+0.1) : int(phix-0.1);
     if (iphi >= 360) iphi -= 360;
-    phix = iphi;
     dd4hep::Rotation3D rotation;
     if (iphi != 0) {
 #ifdef EDM_ML_DEBUG
@@ -54,8 +52,8 @@ static long  algorithm(dd4hep::Detector& /* description */,
       rotation = cms::makeRotation3D(theta, phix, theta, phiy, 0., 0.);
     }
 	
-    double xpos = shiftX*cos(phi) - shiftY*sin(phi);
-    double ypos = shiftX*sin(phi) + shiftY*cos(phi);
+    double xpos = shiftX*cos(phix) - shiftY*sin(phix);
+    double ypos = shiftX*sin(phix) + shiftY*cos(phix);
     dd4hep::Position tran(xpos, ypos, zoffset);
     mother.placeVolume(child, copy, dd4hep::Transform3D(rotation,tran));
 #ifdef EDM_ML_DEBUG
@@ -65,7 +63,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
 				 << " with " << rotation;
 #endif
     copy += incrCopyNo;
-    phi  += dphi;
+    phix += dphi;
   }
   return 1;
 }
