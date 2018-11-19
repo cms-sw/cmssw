@@ -221,7 +221,7 @@ mixPCFHepMCProducts = cms.PSet(
     type = cms.string('HepMCProductPCrossingFrame')
 )
 
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer, hfnoseDigitizer
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigitizer
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toModify( theMixObjects,
@@ -266,8 +266,10 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( theMixObjects,
     mixCH = dict(
         input = theMixObjects.mixCH.input + [ cms.InputTag("g4SimHits",hgceeDigitizer.hitCollection.value()),
+                                              cms.InputTag("g4SimHits",hgchebackDigitizer.hitCollection.value()),
                                               cms.InputTag("g4SimHits",hgchefrontDigitizer.hitCollection.value()) ],
         subdets = theMixObjects.mixCH.subdets + [ hgceeDigitizer.hitCollection.value(),
+                                                  hgchebackDigitizer.hitCollection.value(),
                                                   hgchefrontDigitizer.hitCollection.value() ],
     )
 )
