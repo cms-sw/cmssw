@@ -12,7 +12,7 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
                   "MuOnia"         : "TkAlUpsilonMuMu",
                   "NoBPTX"         : "TkAlCosmicsInCollisions",
                   "SingleElectron" : "EcalUncalWElectron+EcalUncalZElectron+HcalCalIterativePhiSym+EcalESAlign",
-                  "SingleMuon"     : "TkAlMuonIsolated+DtCalib+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalHO+HcalCalIterativePhiSym+HcalCalHBHEMuonFilter",
+                  "SingleMuon"     : "TkAlMuonIsolated+DtCalib+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalHO+HcalCalIterativePhiSym+HcalCalHBHEMuonFilter+HcalCalHEMuonFilter",
                   "SinglePhoton"   : "HcalCalGammaJet",
                   "ZeroBias"       : "SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias+AlCaPCCZeroBiasFromRECO", 
 
