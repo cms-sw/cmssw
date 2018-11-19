@@ -3,9 +3,9 @@
 // .L CalibTree.C+g
 //  Run(inFileName, dirName, treeName, outFileName, corrFileName, dupFileName,
 //      rcorFileName, useweight, useMean, nMin, inverse, ratMin, ratMax, 
-//      ietaMax, sysmode, puCorr, applyL1Cut, l1Cut, truncateFlag, maxIter, 
-//      useDepth, useGen, runlo, runhi, phimin, phimax, zside, nvxlo, nvxhi,
-//      rbx, exclude, higheta, fraction, writeDebugHisto, debug);
+//      ietaMax, ietaTrack, sysmode, puCorr, applyL1Cut, l1Cut, truncateFlag,
+//      maxIter, corForm, useGen, runlo, runhi, phimin, phimax, zside, nvxlo,
+//      nvxhi, rbx, exclude, higheta, fraction, writeDebugHisto, debug);
 //
 //  where:
 //
@@ -36,6 +36,8 @@
 //  ratMax          (double)  = Higher cut on E/p to select a track (3.0)
 //  ietaMax         (int)     = Maximum ieta value for which correcttion
 //                              factor is to be determined (23)
+//  ietaTrack       (int)     = Maximum track ieta (at HCAL) to be considered
+//                              for these; -1 means no check on track ieta (-1)
 //  sysmode         (int)     = systematic error study (-1 if default)
 //                              -1 loose, -2 flexible, > 0 for systematic
 //  puCorr          (int)     = PU correction to be applied or not: 0 no
@@ -53,9 +55,9 @@
 //                              in HB and HE with values > 1 as depth 2 (5)
 //                              (Default 0)
 //  maxIter         (int)     = number of iterations (30)
-//  useDepth        (bool)    = type of rcorFileName: true for depth dependent
-//                              corrections; false for Raddam correcttions
-//                              (false)
+//  rcorForm        (int)     = type of rcorFileName: (0) for Raddam correction,
+//                              (1) for depth dependent corrections; (2) for
+//                              RespCorr corrections; (0)
 //  useGen          (bool)    = use generator level momentum information (False)
 //  runlo           (int)     = lower value of run number to be included (+ve)
 //                              or excluded (-ve) (default 0)
@@ -112,20 +114,51 @@ void Run(const char *inFileName="Silver.root",
 	 const char *dupFileName="events_DXS2.txt", 
 	 const char *rcorFileName="",
 	 bool useweight=true, bool useMean=false, int nMin=0, bool inverse=true,
-	 double ratMin=0.25, double ratMax=3., int ietaMax=23, 
+	 double ratMin=0.25, double ratMax=3., int ietaMax=23, int ietaTrack=-1,
 	 int sysmode=-1, int puCorr=-2, int applyL1Cut=1, double l1Cut=0.5, 
-	 int truncateFlag=0, int maxIter=30, bool useDepth=false, 
-	 bool useGen=false, int runlo=0, int runhi=99999999, int phimin=1, 
-	 int phimax=72, int zside=0, int nvxlo=0, int nvxhi=1000, int rbx=0,
+	 int truncateFlag=0, int maxIter=30, int rcorForm=0, bool useGen=false,
+	 int runlo=0, int runhi=99999999, int phimin=1, int phimax=72, 
+	 int zside=0, int nvxlo=0, int nvxhi=1000, int rbx=0,
 	 bool exclude=true, int higheta=1, double fraction=1.0, 
 	 bool writeDebugHisto=false, bool debug=false);
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
 class CalibTree {
+
 public :
+
+  CalibTree(const char *dupFileName, const char* rcorFileName, int truncateFlag,
+	    bool useMean, int runlo, int runhi, int phimin, int phimax,
+	    int zside, int nvxlo, int nvxhi, int sysmode, int rbx, int puCorr,
+	    int rcorForm, bool useGen, bool exclude, int higheta, 
+	    TChain *tree);
+  virtual ~CalibTree();
+  virtual Int_t    Cut(Long64_t entry);
+  virtual Int_t    GetEntry(Long64_t entry);
+  virtual Long64_t LoadTree(Long64_t entry);
+  virtual void     Init(TChain *tree, const char *dupFileName);
+  virtual Double_t Loop(int k, TFile *fout, bool useweight, int nMin, 
+			bool inverse, double rMin, double rMax, int ietaMax,
+			int ietaTrack, int applyL1Cut, double l1Cut, bool last, 
+			double fraction, bool writeHisto, bool debug);
+  virtual Bool_t   Notify();
+  virtual void     Show(Long64_t entry = -1);
+  bool             goodTrack();
+  void             writeCorrFactor(const char *corrFileName, int ietaMax);
+  bool             selectPhi(unsigned int detId);
+  std::pair<double,double> fitMean(TH1D*, int);
+  void             makeplots(double rmin, double rmax, int ietaMax,
+			     bool useWeight, double fraction, bool debug);
+  void             fitPol0(TH1D* hist, bool debug);
+  void             highEtaFactors(int ietaMax, bool debug);
+
   TChain                    *fChain;  //!pointer to the analyzed TTree or TChain
   Int_t                      fCurrent;//!current Tree number in a TChain
+  TH1D                      *h_pbyE, *h_cvg;
+  TProfile                  *h_Ebyp_bfr, *h_Ebyp_aftr;
+
+private:
 
   // Declaration of leaf types
   Int_t                      t_Run;
@@ -207,8 +240,6 @@ public :
   TBranch                   *b_t_HitEnergies1;  //!
   TBranch                   *b_t_HitEnergies3;  //!
 
-  TH1D                                             *h_pbyE, *h_cvg;
-  TProfile                                         *h_Ebyp_bfr, *h_Ebyp_aftr;
   CalibCorr                                        *cFactor_;
   CalibSelectRBX                                   *cSelect_;
   const int                                         truncateFlag_;
@@ -217,7 +248,8 @@ public :
   const int                                         phimin_, phimax_;
   const int                                         zside_, nvxlo_, nvxhi_;
   const int                                         sysmode_, rbx_, puCorr_;
-  const bool                                        useDepth_, useGen_,exclude_;
+  const int                                         rcorForm_;
+  const bool                                        useGen_,exclude_;
   const int                                         higheta_;
   bool                                              includeRun_;
   double                                            log2by18_, eHcalDelta_;
@@ -233,30 +265,6 @@ public :
     double fact0, fact1, fact2;
   };
 
-  CalibTree(const char *dupFileName, const char* rcorFileName, int truncateFlag,
-	    bool useMean, int runlo, int runhi, int phimin, int phimax,
-	    int zside, int nvxlo, int nvxhi, int sysmode, int rbx, int puCorr,
-	    bool useDepth, bool useGen, bool exclude, int higheta, 
-	    TChain *tree);
-  virtual ~CalibTree();
-  virtual Int_t    Cut(Long64_t entry);
-  virtual Int_t    GetEntry(Long64_t entry);
-  virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TChain *tree, const char *dupFileName);
-  virtual Double_t Loop(int k, TFile *fout, bool useweight, int nMin, 
-			bool inverse, double rMin, double rMax, int ietaMax,
-			int applyL1Cut, double l1Cut, bool last, 
-			double fraction, bool writeHisto, bool debug);
-  virtual Bool_t   Notify();
-  virtual void     Show(Long64_t entry = -1);
-  bool             goodTrack();
-  void             writeCorrFactor(const char *corrFileName, int ietaMax);
-  bool             selectPhi(unsigned int detId);
-  std::pair<double,double> fitMean(TH1D*, int);
-  void             makeplots(double rmin, double rmax, int ietaMax,
-			     bool useWeight, double fraction, bool debug);
-  void             fitPol0(TH1D* hist, bool debug);
-  void             highEtaFactors(int ietaMax, bool debug);
 };
 
 
@@ -269,7 +277,7 @@ void doIt(const char* infile, const char* dup) {
     double lumi = (k==0) ? -1 : lumt;
     lumt *= fac;
     Run(infile,"HcalIsoTrkAnalyzer","CalibTree",outf1,outf2,dup,"",true,false,0,
-	true,0.25,3.0,23,-1,true,1,0.5,0,30,false,false,-1,99999999,1,72,0,0,
+	true,0.25,3.0,25,-1,-1,true,1,0.5,0,30,false,false,-1,99999999,1,72,0,0,
 	true,1,lumi,false,false);
   }
 }
@@ -278,11 +286,11 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 	 const char *outFileName, const char *corrFileName,
 	 const char *dupFileName, const char* rcorFileName, 
 	 bool useweight, bool useMean, int nMin, bool inverse, double ratMin, 
-	 double ratMax, int ietaMax, int sysmode, int puCorr, int applyL1Cut,
-	 double l1Cut, int truncateFlag, int maxIter, bool useDepth, 
-	 bool useGen, int runlo, int runhi, int phimin, int phimax, int zside,
-	 int nvxlo, int nvxhi, int rbx, bool exclude, int higheta, 
-	 double fraction, bool writeHisto, bool debug) {
+	 double ratMax, int ietaMax, int ietaTrack, int sysmode, int puCorr, 
+	 int applyL1Cut, double l1Cut, int truncateFlag, int maxIter, 
+	 int rcorForm, bool useGen, int runlo, int runhi, int phimin, 
+	 int phimax, int zside, int nvxlo, int nvxhi, int rbx, bool exclude,
+	 int higheta, double fraction, bool writeHisto, bool debug) {
  
   char    name[500];
   sprintf (name, "%s/%s", dirName, treeName);
@@ -303,7 +311,7 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
     unsigned int k(0), kmax(maxIter);
     CalibTree t(dupFileName, rcorFileName, truncateFlag, useMean, runlo, runhi, 
 		phimin, phimax, zside, nvxlo, nvxhi, sysmode, rbx, puCorr, 
-		useDepth, useGen, exclude, higheta, chain); 
+		rcorForm, useGen, exclude, higheta, chain); 
     t.h_pbyE      = new TH1D("pbyE", "pbyE", 100, -1.0, 9.0);
     t.h_Ebyp_bfr  = new TProfile("Ebyp_bfr","Ebyp_bfr",60,-30,30,0,10);
     t.h_Ebyp_aftr = new TProfile("Ebyp_aftr","Ebyp_aftr",60,-30,30,0,10);
@@ -320,8 +328,8 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
     for (; k<=kmax; ++k) {
       std::cout << "Calling Loop() "  << k << "th time" << std::endl; 
       double cvg = t.Loop(k, fout, useweight, nMin, inverse, ratMin, ratMax, 
-			  ietaMax, applyL1Cut, l1Cut, k==kmax, fraction, 
-			  writeHisto, debug);
+			  ietaMax, ietaTrack, applyL1Cut, l1Cut, k==kmax, 
+			  fraction, writeHisto, debug);
       itrs[k] = k;
       cvgs[k] = cvg;
       if (cvg < 0.00001) break;
@@ -345,7 +353,7 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 CalibTree::CalibTree(const char *dupFileName, const char* rcorFileName,
 		     int flag, bool useMean, int runlo, int runhi, int phimin,
 		     int phimax, int zside, int nvxlo, int nvxhi, int mode,
-		     int rbx, int pu, bool used, bool gen, bool excl, int heta,
+		     int rbx, int pu, int rForm, bool gen, bool excl, int heta,
 		     TChain *tree) : fChain(nullptr), cFactor_(nullptr),
 				     cSelect_(nullptr), truncateFlag_(flag),
 				     useMean_(useMean), runlo_(runlo), 
@@ -353,7 +361,7 @@ CalibTree::CalibTree(const char *dupFileName, const char* rcorFileName,
 				     phimax_(phimax), zside_(zside), 
 				     nvxlo_(nvxlo), nvxhi_(nvxhi), 
 				     sysmode_(mode), rbx_(rbx), puCorr_(pu),
-				     useDepth_(used), useGen_(gen), 
+				     rcorForm_(rForm), useGen_(gen), 
 				     exclude_(excl), higheta_(heta),
 				     includeRun_(true) {
   
@@ -368,8 +376,8 @@ CalibTree::CalibTree(const char *dupFileName, const char* rcorFileName,
 	    << " UseMean " << useMean_ << " Run Range " << runlo_ << ":"
 	    << runhi_ << " Phi Range " << phimin_ << ":" << phimax_ << ":" 
 	    << zside_ << " Vertex Range " << nvxlo_ << ":" << nvxhi_ 
-	    << " Mode " << sysmode_ << " PU " << puCorr_ << " UseDepth "
-	    << useDepth_ << " Gen " << useGen_ << " High Eta " << higheta_ 
+	    << " Mode " << sysmode_ << " PU " << puCorr_ << " rcorFormat "
+	    << rcorForm_ << " Gen " << useGen_ << " High Eta " << higheta_ 
 	    << std::endl;
   std::cout << "Duplicate events read from " << dupFileName 
 	    << " RadDam Corrections read from " << rcorFileName
@@ -377,7 +385,7 @@ CalibTree::CalibTree(const char *dupFileName, const char* rcorFileName,
 	    << std::endl;
   Init(tree, dupFileName);
   if (std::string(rcorFileName) != "") 
-    cFactor_ = new CalibCorr(rcorFileName,useDepth_,false);
+    cFactor_ = new CalibCorr(rcorFileName,rcorForm_,false);
   if (rbx != 0) cSelect_ = new CalibSelectRBX(rbx);
 }
 
@@ -469,19 +477,23 @@ void CalibTree::Init(TChain *tree, const char *dupFileName) {
   fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
   Notify();
 
-  ifstream infil1(dupFileName);
-  if (!infil1.is_open()) {
-    std::cout << "Cannot open " << dupFileName << std::endl;
-  } else {
-    while (1) {
-      Long64_t jentry;
-      infil1 >> jentry;
-      if (!infil1.good()) break;
-      entries.push_back(jentry);
+  if (std::string(dupFileName) != "") {
+    ifstream infil1(dupFileName);
+    if (!infil1.is_open()) {
+      std::cout << "Cannot open " << dupFileName << std::endl;
+    } else {
+      while (1) {
+	Long64_t jentry;
+	infil1 >> jentry;
+	if (!infil1.good()) break;
+	entries.push_back(jentry);
+      }
+      infil1.close();
+      std::cout << "Reads a list of " << entries.size() << " events from " 
+		<< dupFileName << std::endl;
     }
-    infil1.close();
-    std::cout << "Reads a list of " << entries.size() << " events from " 
-	      << dupFileName << std::endl;
+  } else {
+    std::cout << "No duplicate events in the input file" << std::endl;
   }
 }
 
@@ -511,7 +523,7 @@ Int_t CalibTree::Cut(Long64_t ) {
 
 Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 			 bool inverse, double rmin, double rmax, int ietaMax,
-			 int applyL1Cut, double l1Cut, bool last, 
+			 int ietaTrack, int applyL1Cut, double l1Cut, bool last,
 			 double fraction, bool writeHisto, bool debug) {
 
   if (fChain == 0) return 0;
@@ -530,7 +542,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       // Find DetIds contributing to the track
       bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) :
 		     ((t_Run < runlo_) || (t_Run > runhi_)));
-      if (selRun && (t_nVtx >= nvxlo_) && (t_nVtx <= nvxhi_)) {
+      bool selTrack = ((ietaTrack <= 0) || (abs(t_ieta) <= ietaTrack));
+      if (selRun && (t_nVtx >= nvxlo_) && (t_nVtx <= nvxhi_) && selTrack) {
 	bool isItRBX = (cSelect_ && exclude_ && cSelect_->isItRBX(t_DetIds));
 	++kprint;
 	if (!isItRBX) {
@@ -631,6 +644,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	if (!(cSelect_->isItRBX(t_ieta,t_iphi)))  continue;
       }
     }
+    bool selTrack = ((ietaTrack <= 0) || (abs(t_ieta) <= ietaTrack));
+    if (!selTrack)                                continue;
 
     if (debug) {
       std::cout << "***Entry (Track) Number : " << ientry << std::endl;
