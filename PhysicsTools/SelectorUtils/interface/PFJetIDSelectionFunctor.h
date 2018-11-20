@@ -75,28 +75,28 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       if ( params.exists("nNeutrals_FW") ) set("nNeutrals_FW", params.getParameter<int> ("nNeutrals_FW") );
     }
     if(version_ == WINTER16){
-      if ( params.exists("NHF_EC") ) set("NHF_EC", params.getParameter<int> ("NHF_EC") );
-      if ( params.exists("NEF_EC") ) set("NEF_EC", params.getParameter<int> ("NEF_EC") );
+      if ( params.exists("NHF_EC") ) set("NHF_EC", params.getParameter<double> ("NHF_EC") );
+      if ( params.exists("NEF_EC") ) set("NEF_EC", params.getParameter<double> ("NEF_EC") );
       if ( params.exists("nNeutrals_EC") ) set("nNeutrals_EC", params.getParameter<int> ("nNeutrals_EC") );
       if ( params.exists("NEF_FW") ) set("NEF_FW", params.getParameter<double> ("NEF_FW") );
       if ( params.exists("nNeutrals_FW") ) set("nNeutrals_FW", params.getParameter<int> ("nNeutrals_FW") );
     }
     if(version_ == WINTER17){
-      if ( params.exists("NEF_EC_L") ) set("NEF_EC_L", params.getParameter<int> ("NEF_EC_L") );
-      if ( params.exists("NEF_EC_U") ) set("NEF_EC_U", params.getParameter<int> ("NEF_EC_U") );
+      if ( params.exists("NEF_EC_L") ) set("NEF_EC_L", params.getParameter<double> ("NEF_EC_L") );
+      if ( params.exists("NEF_EC_U") ) set("NEF_EC_U", params.getParameter<double> ("NEF_EC_U") );
       if ( params.exists("nNeutrals_EC") ) set("nNeutrals_EC", params.getParameter<int> ("nNeutrals_EC") );
       if ( params.exists("NHF_FW") ) set("NHF_FW", params.getParameter<double> ("NHF_FW") );
       if ( params.exists("NEF_FW") ) set("NEF_FW", params.getParameter<double> ("NEF_FW") );
       if ( params.exists("nNeutrals_FW") ) set("nNeutrals_FW", params.getParameter<int> ("nNeutrals_FW") );
-      if ( quality_ == TIGHTLEPVETO ) {if ( params.exists("MUF") ) set("MUF", params.getParameter<int> ("MUF") );}
+      if ( quality_ == TIGHTLEPVETO ) {if ( params.exists("MUF") ) set("MUF", params.getParameter<double> ("MUF") );}
     }
     if(version_ == WINTER17PUPPI){
-      if ( params.exists("NHF_EC") ) set("NHF_EC", params.getParameter<int> ("NHF_EC") );
+      if ( params.exists("NHF_EC") ) set("NHF_EC", params.getParameter<double> ("NHF_EC") );
       if ( params.exists("NHF_FW") ) set("NHF_FW", params.getParameter<double> ("NHF_FW") );
       if ( params.exists("NEF_FW") ) set("NEF_FW", params.getParameter<double> ("NEF_FW") );
       if ( params.exists("nNeutrals_FW_L") ) set("nNeutrals_FW_L", params.getParameter<int> ("nNeutrals_FW_L") );
       if ( params.exists("nNeutrals_FW_U") ) set("nNeutrals_FW_U", params.getParameter<int> ("nNeutrals_FW_U") );
-      if ( quality_ == TIGHTLEPVETO ) {if ( params.exists("MUF") ) set("MUF", params.getParameter<int> ("MUF") );}
+      if ( quality_ == TIGHTLEPVETO ) {if ( params.exists("MUF") ) set("MUF", params.getParameter<double> ("MUF") );}
     }
 
 
