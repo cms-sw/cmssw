@@ -60,7 +60,7 @@ BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataFrame ) const {
 
   // Correct the time of the left SiPM for the time-walk
   if ( amplitude.first > 0. )
-    time.first -= timeCorr_p0_*pow(amplitude.first,timeCorr_p1_);
+    time.first -= timeCorr_p0_*pow(amplitude.first,timeCorr_p1_) + timeCorr_p2_;
 
 
   // --- If available, reconstruct the amplitude and time of the second SiPM
@@ -70,7 +70,7 @@ BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataFrame ) const {
     time.second      = float(sampleRight.toa()) * toaLSBToNS_;
 
     // Correct the time of the right SiPM for the time-walk
-    time.second -= timeCorr_p0_*pow(amplitude.second,timeCorr_p1_);
+    time.second -= timeCorr_p0_*pow(amplitude.second,timeCorr_p1_) + timeCorr_p2_;
 
   }
 
