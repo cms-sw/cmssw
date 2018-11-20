@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import math
 
 
-def custom_towers_etaphi(process, 
+def custom_towers_etaphi(process,
         minEta=1.479,
         maxEta=3.0,
         minPhi=-math.pi,
@@ -25,7 +25,7 @@ def custom_towers_etaphi(process,
     return process
 
 
-def custom_towers_map(process, 
+def custom_towers_map(process,
         towermapping='L1Trigger/L1THGCal/data/tower_mapping_hgcroc_eta-phi_v0.txt',
         minEta=1.41,
         maxEta=3.1,
@@ -44,3 +44,43 @@ def custom_towers_map(process,
     parameters_towers_2d.L1TTriggerTowerConfig.nBinsEta = cms.int32(nBinsEta)
     parameters_towers_2d.L1TTriggerTowerConfig.nBinsPhi = cms.int32(nBinsPhi)
     return process
+
+
+def custom_tower_map_hgcroc(process,
+        towermapping='L1Trigger/L1THGCal/data/tower_mapping_hgcroc_eta-phi_v3.txt',
+        minEta=1.479,
+        maxEta=3.0,
+        minPhi=-math.pi,
+        maxPhi=math.pi,
+        nBinsEta=18,
+        nBinsPhi=72
+        ):
+    return custom_towers_map(process,
+                             towermapping,
+                             minEta,
+                             maxEta,
+                             minPhi,
+                             maxPhi,
+                             nBinsEta,
+                             nBinsPhi
+                             )
+
+
+def custom_tower_map_wafer(process,
+        towermapping='L1Trigger/L1THGCal/data/tower_mapping_wafer_eta-phi_v3.txt',
+        minEta=1.479,
+        maxEta=3.0,
+        minPhi=-math.pi,
+        maxPhi=math.pi,
+        nBinsEta=18,
+        nBinsPhi=72
+        ):
+    return custom_towers_map(process,
+                             towermapping,
+                             minEta,
+                             maxEta,
+                             minPhi,
+                             maxPhi,
+                             nBinsEta,
+                             nBinsPhi
+                             )
