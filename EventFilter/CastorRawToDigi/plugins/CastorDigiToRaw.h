@@ -12,7 +12,7 @@
  *
  ************************************************************/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -23,20 +23,17 @@
 #include "EventFilter/CastorRawToDigi/interface/CastorCtdcPacker.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-class CastorDigiToRaw : public edm::EDProducer
+class CastorDigiToRaw : public edm::global::EDProducer<>
 {
 public:
   explicit CastorDigiToRaw(const edm::ParameterSet& ps);
-  ~CastorDigiToRaw() override;
-  void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const override;
 
 private:
-  CastorPacker packer_;
-  CastorCtdcPacker ctdcpacker_;
-  edm::InputTag castorTag_;
-  bool usingctdc_;
-  edm::EDGetTokenT<CastorDigiCollection> tok_input_;
-
+  const edm::InputTag castorTag_;
+  const bool usingctdc_;
+  const edm::EDGetTokenT<CastorDigiCollection> tok_input_;
+  const edm::EDPutTokenT<FEDRawDataCollection> tok_put_;
 };
 
 #endif
