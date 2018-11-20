@@ -175,8 +175,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   }
 #endif
 
-  TempTrajectoryContainer && candidates = 
-    addGroup(startingTrajectory,measGroups.begin(),measGroups.end());
+  TempTrajectoryContainer candidates = addGroup(startingTrajectory,measGroups.begin(),measGroups.end());
 
   if UNLIKELY(theDbgFlg) cout << "TSB: back with " << candidates.size() << " candidates" << endl;
 
