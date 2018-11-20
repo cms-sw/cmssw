@@ -26,9 +26,9 @@ def custom_towers_etaphi(process,
 
 
 def custom_towers_map(process,
-        towermapping='L1Trigger/L1THGCal/data/tower_mapping_hgcroc_eta-phi_v0.txt',
-        minEta=1.41,
-        maxEta=3.1,
+        towermapping='L1Trigger/L1THGCal/data/tower_mapping_hgcroc_eta-phi_v3.txt',
+        minEta=1.479,
+        maxEta=3.0,
         minPhi=-math.pi,
         maxPhi=math.pi,
         nBinsEta=18,
