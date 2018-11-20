@@ -268,7 +268,7 @@ AlCaHEMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   std::vector<std::string> triggers = {"HLT_IsoMu","HLT_Mu"};
-  desc.add<std::string>("pocessName","HLT");
+  desc.add<std::string>("processName","HLT");
   desc.add<edm::InputTag>("triggerResultLabel",edm::InputTag("TriggerResults","","HLT"));
   desc.add<edm::InputTag>("muonLabel",edm::InputTag("muons"));
   desc.add<double>("minimumMuonP",10.0);
