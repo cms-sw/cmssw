@@ -80,6 +80,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       if ( params.exists("nNeutrals_EC") ) set("nNeutrals_EC", params.getParameter<int> ("nNeutrals_EC") );
       if ( params.exists("NEF_FW") ) set("NEF_FW", params.getParameter<double> ("NEF_FW") );
       if ( params.exists("nNeutrals_FW") ) set("nNeutrals_FW", params.getParameter<int> ("nNeutrals_FW") );
+      if ( quality_ == TIGHTLEPVETO ) {if ( params.exists("MUF") ) set("MUF", params.getParameter<double> ("MUF") );}
     }
     if(version_ == WINTER17){
       if ( params.exists("NEF_EC_L") ) set("NEF_EC_L", params.getParameter<double> ("NEF_EC_L") );
