@@ -14,18 +14,14 @@ using namespace std;
 
 CastorDigiToRaw::CastorDigiToRaw(edm::ParameterSet const& conf) :
   castorTag_(conf.getParameter<edm::InputTag>("CASTOR")),
-  usingctdc_(conf.getParameter<bool>("CastorCtdc"))
-
+  usingctdc_(conf.getParameter<bool>("CastorCtdc")),
+  tok_input_(consumes<CastorDigiCollection>(castorTag_)),
+  tok_put_(produces<FEDRawDataCollection>())
 {
-  tok_input_ = consumes<CastorDigiCollection>(castorTag_);
-  produces<FEDRawDataCollection>();
 }
 
-// Virtual destructor needed.
-CastorDigiToRaw::~CastorDigiToRaw() { }  
-
 // Functions that gets called by framework every event
-void CastorDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
+void CastorDigiToRaw::produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const
 {
   CastorCollections colls;
  
@@ -40,24 +36,25 @@ void CastorDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
   es.get<CastorDbRecord>().get( pSetup );
   const CastorElectronicsMap* readoutMap=pSetup->getCastorMapping();
   // Step B: Create empty output
-  auto raw = std::make_unique<FEDRawDataCollection>();
+  FEDRawDataCollection raw;
 
-  const int ifed_first=FEDNumbering::MINCASTORFEDID;  //690
-  const int ifed_last=FEDNumbering::MAXCASTORFEDID;   //693
+  constexpr int ifed_first=FEDNumbering::MINCASTORFEDID;  //690
+  constexpr int ifed_last=FEDNumbering::MAXCASTORFEDID;   //693
 
   int orbitN=e.id().event();
   int bcnN=2000;
 
   // Step C: pack all requested FEDs
   for (int ifed=ifed_first; ifed<=ifed_last; ++ifed) {
-    FEDRawData& fed = raw->FEDData(ifed);
+    FEDRawData& fed = raw.FEDData(ifed);
     try {
-		if ( usingctdc_ ) {
-      ctdcpacker_.pack(ifed,ifed-ifed_first, e.id().event(),
-		   orbitN, bcnN, colls, *readoutMap, fed);
-		 } else {
-      packer_.pack(ifed,ifed-ifed_first, e.id().event(),
-		   orbitN, bcnN, colls, *readoutMap, fed);	 }
+      if ( usingctdc_ ) {
+        CastorCtdcPacker::pack(ifed,ifed-ifed_first, e.id().event(),
+                               orbitN, bcnN, colls, *readoutMap, fed);
+      } else {
+        CastorPacker::pack(ifed,ifed-ifed_first, e.id().event(),
+                           orbitN, bcnN, colls, *readoutMap, fed);
+      }
     } catch (cms::Exception& e) {
       edm::LogWarning("Unpacking error") << e.what();
     } catch (...) {
@@ -65,7 +62,7 @@ void CastorDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
     }
   }
 
-  e.put(std::move(raw));
+  e.emplace(tok_put_,std::move(raw));
 }
 
 
