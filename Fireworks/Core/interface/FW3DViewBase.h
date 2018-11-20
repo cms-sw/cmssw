@@ -83,6 +83,9 @@ private:
    FWBoolParameter m_showPixelEndcap;
    FWBoolParameter m_showTrackerBarrel;
    FWBoolParameter m_showTrackerEndcap;
+   FWBoolParameter m_showHGCalEE;
+   FWBoolParameter m_showHGCalHSi;
+   FWBoolParameter m_showHGCalHSc;
 
    TEveBoxSet* m_ecalBarrel;
    FWBoolParameter m_showEcalBarrel;
@@ -98,7 +101,8 @@ private:
    FWDoubleParameter m_clipDelta1;
    FWDoubleParameter m_clipDelta2;
    FWLongParameter   m_clipAppexOffset;
-
+   FWLongParameter   m_clipHGCalLayerBegin;
+   FWLongParameter   m_clipHGCalLayerEnd;
 
    FW3DViewDistanceMeasureTool* m_DMT;
    TEveLine* m_DMTline;
@@ -107,6 +111,7 @@ private:
 
    void enableSceneClip( bool );
    void updateClipPlanes(bool resetCamera);
+   void updateHGCalVisibility(bool);
 
    void rnrStyle(long);
    void showMuonBarrel( long );
