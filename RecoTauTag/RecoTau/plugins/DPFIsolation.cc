@@ -230,7 +230,6 @@ private:
                 pfCandHits = pfCandHits/30.;
 
                 if (pfCandPtRelPtRel > 1) pfCandPtRelPtRel = 1;
-                pfCandPtRelPtRel = pfCandPtRelPtRel;
 
                 if (pfCandD0 > 5.) pfCandD0 = 5.;
                 if (pfCandD0 < -5.) pfCandD0 = -5.;
