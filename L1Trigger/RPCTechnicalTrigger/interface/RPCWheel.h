@@ -24,8 +24,8 @@ class RPCWheel {
 public: 
   /// Standard constructor
   RPCWheel( );
-
-  virtual ~RPCWheel( ); ///< Destructor
+  RPCWheel(RPCWheel&&) = default;
+  RPCWheel& operator=(RPCWheel&&) = default;
   
   void setProperties( int );
   
@@ -47,30 +47,27 @@ public:
   
   void retrieveWheelMap( TTUInput & );
   
-  int  getid() { return m_id; };
+  int  getid() const { return m_id; };
   
-  void printinfo();
+  void printinfo() const;
 
-  void print_wheel(const TTUInput & );
+  void print_wheel(const TTUInput & ) const;
   
-  std::vector<RBCEmulator*> m_RBCE;
   
 protected:
   
 private:
+  std::vector<std::unique_ptr<RBCEmulator>> m_RBCE;
   
   int m_id;
-  int m_maxrbc;
-  int m_maxlayers;
-  int m_maxsectors;
-  
-  std::vector<int> m_sec1id;
-  std::vector<int> m_sec2id;
+  static constexpr int m_maxrbc = 6;
+  static constexpr int m_maxlayers = 6;
+  static constexpr int m_maxsectors = 12;
   
   //...
 
   std::bitset<12>  m_rbcDecision;
-  std::bitset<6> * m_wheelmap;
+  std::array<std::bitset<6>,12> m_wheelmap;
 
   bool m_debug;
     

@@ -17,36 +17,24 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-TTUTwoORLogic::TTUTwoORLogic(  ) {
+TTUTwoORLogic::TTUTwoORLogic(  ):
+  m_ttuLogic{},
+  m_rbcLogic{},
+  m_debug{false}
+ {
 
   m_triggersignal = false;
  
-  m_debug = false;
-
-  m_ttuLogic = new TTUTrackingAlg();
-  
-  m_rbcLogic = new TTUSectorORLogic();
-  
 }
-//=============================================================================
-// Destructor
-//=============================================================================
-TTUTwoORLogic::~TTUTwoORLogic() {
-
-  if ( m_ttuLogic ) delete m_ttuLogic;
-
-  if ( m_rbcLogic ) delete m_rbcLogic;
-  
-} 
 
 //=============================================================================
 
 void TTUTwoORLogic::setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & boardspecs ) 
 {
   
-  m_ttuLogic->setBoardSpecs( boardspecs );
+  m_ttuLogic.setBoardSpecs( boardspecs );
   
-  m_rbcLogic->setBoardSpecs( boardspecs );
+  m_rbcLogic.setBoardSpecs( boardspecs );
   
 }
 
@@ -58,12 +46,12 @@ bool TTUTwoORLogic::process( const TTUInput & inmap )
   m_triggersignal = false;
   
   
-  m_ttuLogic->process( inmap );
-  m_rbcLogic->process( inmap );
+  m_ttuLogic.process( inmap );
+  m_rbcLogic.process( inmap );
   
-  bool triggerFromTTU = m_ttuLogic->m_triggersignal;
+  bool triggerFromTTU = m_ttuLogic.m_triggersignal;
   
-  bool triggerFromRBC = m_rbcLogic->m_triggersignal;
+  bool triggerFromRBC = m_rbcLogic.m_triggersignal;
     
   m_triggersignal = triggerFromTTU || triggerFromRBC;
   

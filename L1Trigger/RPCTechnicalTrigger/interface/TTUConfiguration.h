@@ -16,23 +16,25 @@
  *  @author Andres Osorio
  *  @date   2008-10-29
  */
+#include <memory>
 
 class TTUConfiguration {
 public: 
-  virtual ~TTUConfiguration() {}
+  TTUConfiguration( const char*);
+  TTUConfiguration( const TTUBoardSpecs*);
+  virtual ~TTUConfiguration() = default;
   virtual bool initialise( int , int )=0;
   
   virtual void preprocess(TTUInput &)=0;
-  
-  TTULogicUnit  * m_ttulogic;
+
+  TTULogicUnit* ttulogic() { return &m_ttulogic; }
 
   const TTUBoardSpecs * m_ttuboardspecs;
-  
-  TTUBoardSpecs::TTUBoardConfig * m_ttuconf;
   
 protected:
   
 private:
+  TTULogicUnit  m_ttulogic;
   
 };
 #endif // INTERFACE_TTUCONFIGURATION_H
