@@ -38,18 +38,6 @@ TTUTrackingAlg::TTUTrackingAlg(  ) {
 // Destructor
 //=============================================================================
 TTUTrackingAlg::~TTUTrackingAlg() {
-
-  TracksItr itr1;
-  for (itr1=m_tracks.begin(); itr1!=m_tracks.end(); ++itr1)
-    delete (*itr1);
-  
-  SeedsItr itr2;
-  for (itr2=m_initialseeds.begin(); itr2!=m_initialseeds.end(); ++itr2)
-    delete (*itr2);
-  
-  //m_tracks.clear();
-  //m_initialseeds.clear();
-  
 } 
 
 //=============================================================================
@@ -67,53 +55,47 @@ bool TTUTrackingAlg::process( const TTUInput & inmap )
 
   m_triggersignal = false;
   
-  Track * initTrk = new Track();
+  auto  initTrk =std::make_unique<Track>();
   
   //.
   runSeedBuster( inmap );
   
   if ( !m_initialseeds.empty() && m_initialseeds.size() < 20 ) // if too much hits, then cannot process
-    initTrk->add( m_initialseeds[0] );
+    initTrk->add( m_initialseeds[0].get() );
   else {
     initTrk->addnone();
     if( m_debug) std::cout << "TTUTrackingAlg>process() ends: no initialseeds" << std::endl;
     return false;
   }
   
-
-
-
-
-  m_tracks.push_back( initTrk );
+  auto trk = m_tracks.emplace_back( std::move(initTrk) ).get();
   
   //..
-  SeedsItr _seed = m_initialseeds.begin();
+  auto _seed = m_initialseeds.begin();
   std::vector<Seed*> neighbors;
   
   while ( _seed != m_initialseeds.end() ) {
     
-    findNeighbors( (*_seed) , neighbors );
-    filter( initTrk, neighbors );
-    executeTracker( initTrk, neighbors );
-    ghostBuster( initTrk );
+    findNeighbors( (*_seed).get() , neighbors );
+    filter( trk, neighbors );
+    executeTracker( trk, neighbors );
+    ghostBuster( trk );
     
     ++_seed;
     
     if ( _seed != m_initialseeds.end() ) {
-      initTrk = new Track();
-      initTrk->add((*_seed));
-      m_tracks.push_back( initTrk );
+      auto initTrk = std::make_unique<Track>();
+      initTrk->add((*_seed).get());
+      m_tracks.emplace_back( std::move(initTrk) );
       
     }
 
   }
 
-  TracksItr itr;
-  
   if( m_debug) { 
     std::cout << "Total tracks: " << m_tracks.size() << std::endl;
-    for( itr = m_tracks.begin(); itr != m_tracks.end(); ++itr)
-      std::cout << "length: " << (*itr)->length() << '\t';
+    for( auto& tr : m_tracks)
+      std::cout << "length: " << tr->length() << '\t';
     std::cout << std::endl;
   }
   
@@ -123,7 +105,7 @@ bool TTUTrackingAlg::process( const TTUInput & inmap )
   //.... Look at the first track and compare its track length
   
   int tracklen(0);
-  itr = m_tracks.begin();
+  auto itr = m_tracks.begin();
   if ( itr != m_tracks.end() ) tracklen = (*itr)->length();
   
   if ( tracklen >= m_mintrklength )
@@ -166,8 +148,7 @@ void TTUTrackingAlg::runSeedBuster( const TTUInput & inmap )
       bool _hit = station[idy];
       
       if ( _hit ) {
-        Seed *_seed = new Seed( idx, idy, 0 );
-        m_initialseeds.push_back(_seed);
+        m_initialseeds.emplace_back(std::make_unique<Seed>(idx, idy, 0) );
       }
     }
   }
@@ -184,7 +165,7 @@ int TTUTrackingAlg::executeTracker( Track * _trk, std::vector<Seed*> & neighbors
   
   //...
   
-  SeedsItr _itr = neighbors.begin();
+  auto _itr = neighbors.begin();
   
   while( _itr != neighbors.end() ) {
   
@@ -223,7 +204,7 @@ void TTUTrackingAlg::findNeighbors( Seed  * _seed, std::vector<Seed*> & neighbor
 
   if( m_debug ) std::cout << "X: " << _xo+1 << " Y: " << _yo+1 << std::endl;
   
-  SeedsItr _itr = m_initialseeds.begin();
+  auto _itr = m_initialseeds.begin();
   
   while( _itr != m_initialseeds.end() ) {
     
@@ -238,7 +219,7 @@ void TTUTrackingAlg::findNeighbors( Seed  * _seed, std::vector<Seed*> & neighbor
          ((_difx == 1) && (_dify == 0)) ||
          ((_difx == 0) && (_dify == 1)) ) 
       
-      neighbors.push_back( (*_itr) );
+      neighbors.push_back( (*_itr).get() );
     
     ++_itr;
   }
@@ -254,11 +235,9 @@ void TTUTrackingAlg::filter( Track * _trk,
   //... filter: removes from neighbors list, seeds already present
   //...    in tracks
 
-  SeedsItr _itr;
-  
-  for( _itr = _trk->m_seeds.begin();_itr != _trk->m_seeds.end(); ++_itr) 
+  for( auto _itr = _trk->m_seeds.begin();_itr != _trk->m_seeds.end(); ++_itr) 
   {
-    SeedsItr _isalready = std::find( _nbrs.begin(),_nbrs.end(), (*_itr) );
+    auto _isalready = std::find( _nbrs.begin(),_nbrs.end(), (*_itr) );
     
     if( _isalready != _nbrs.end() ) { 
       _nbrs.erase( _isalready ); 
@@ -291,15 +270,14 @@ void TTUTrackingAlg::ghostBuster( Track * currentTrk )
 void TTUTrackingAlg::alignTracks()
 {
 
-  TracksItr itr;
-  CompareMechanism<Track> compare;
+  CompareMechanism<std::unique_ptr<Track>> compare;
   
   std::sort( m_tracks.begin(), m_tracks.end(), compare );
   std::reverse( m_tracks.begin(), m_tracks.end() );
   
   if( m_debug ) {
-    for( itr = m_tracks.begin(); itr != m_tracks.end(); ++itr )
-      std::cout << "Align tracks> trk len: " << (*itr)->length() << " ";
+    for( auto& tr : m_tracks)
+      std::cout << "Align tracks> trk len: " << tr->length() << " ";
     std::cout << std::endl;
   }
   
@@ -307,14 +285,6 @@ void TTUTrackingAlg::alignTracks()
 
 void TTUTrackingAlg::cleanUp()
 {
-  
-  TracksItr itr1;
-  for (itr1=m_tracks.begin(); itr1!=m_tracks.end(); ++itr1)
-    delete (*itr1);
-  
-  SeedsItr itr2;
-  for (itr2=m_initialseeds.begin(); itr2!=m_initialseeds.end(); ++itr2)
-    delete (*itr2);
   
   m_tracks.clear();
   m_initialseeds.clear();

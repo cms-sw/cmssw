@@ -24,14 +24,11 @@ namespace l1trigger {
   class Counters {
   public:
   
-    Counters() {};
-    Counters( int );
-  
-    virtual ~Counters();
+    explicit Counters( int );
   
     void incrementSector( int );
   
-    void printSummary();
+    void printSummary() const;
   
     void evalCounters();
   
@@ -46,18 +43,18 @@ namespace l1trigger {
 class RPCData {
 public: 
   /// Standard constructor
-  RPCData( ); 
-  virtual ~RPCData( ); ///< Destructor
+  RPCData( );
+  ~RPCData( ) = default; ///< Destructor
 
   int         m_wheel;
-  int      *  m_sec1;
-  int      *  m_sec2;
-  RBCInput *  m_orsignals;
+  std::array<int,6>  m_sec1;
+  std::array<int ,6> m_sec2;
+  std::array<RBCInput,6>  m_orsignals;
 
   friend std::istream& operator>>(std::istream &, RPCData &);
-  friend std::ostream& operator<<(std::ostream &, RPCData &);
+  friend std::ostream& operator<<(std::ostream &, RPCData const &);
   
-  int wheelIdx() //wheel index starts from 0
+  int wheelIdx() const //wheel index starts from 0
   {
     return (m_wheel + 2);
   }

@@ -28,6 +28,7 @@
 #include <cmath>
 #include <map>
 #include <vector>
+#include <memory>
 
 /** @class RBCProcessRPCSimDigis RBCProcessRPCSimDigis.h interface/RBCProcessRPCSimDigis.h
  *  
@@ -48,16 +49,12 @@ public:
   
   void reset();
   
-  void configure();
-  
-  void initialize( std::vector<RPCData*> & );
-  
   void builddata();
   
   void print_output();
   
   RPCInputSignal * retrievedata() override {
-    return  m_lbin;
+    return  m_lbin.get();
   };
   
   void rewind() {};
@@ -71,9 +68,11 @@ private:
   
   int getBarrelLayer(const int &, const int &);
   
-  void setDigiAt( int , int  );
+  void setDigiAt( int , int , RPCData& );
   
   void setInputBit( std::bitset<15> & , int );
+  
+  void initialize( std::vector<RPCData> & );
   
   const edm::ESHandle<RPCGeometry> * m_ptr_rpcGeom;
   const edm::Handle<edm::DetSetVector<RPCDigiSimLink> > * m_ptr_digiSimLink;
@@ -81,23 +80,15 @@ private:
   edm::DetSetVector<RPCDigiSimLink>::const_iterator m_linkItr;
   edm::DetSet<RPCDigiSimLink>::const_iterator m_digiItr;
     
-  RPCData  * m_block;
-  
-  RPCInputSignal * m_lbin;
-  
-  std::map<int, int> m_layermap;
+  std::unique_ptr<RPCInputSignal> m_lbin;
   
   std::map<int, RBCInput*> m_data;
   
-  std::map<int, std::vector<RPCData*> > m_vecDataperBx;
+  std::map<int, std::vector<RPCData> > m_vecDataperBx;
   
   bool m_debug;
   int m_maxBxWindow;
   
-  std::vector<int> m_wheelid;
-  std::vector<int> m_sec1id;
-  std::vector<int> m_sec2id;
-
   
 };
 #endif // INTERFACE_RBCPROCESSRPCSIMDIGIS_H
