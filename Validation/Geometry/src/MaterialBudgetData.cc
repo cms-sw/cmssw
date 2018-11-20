@@ -30,7 +30,11 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
   const G4ThreeVector& dir = aTrack->GetMomentum() ;
 
   if( myMaterialBudgetCategorizer == nullptr){
-    myMaterialBudgetCategorizer = std::make_unique<MaterialBudgetCategorizer>();
+    if(isHGCal){
+      myMaterialBudgetCategorizer = std::make_unique<MaterialBudgetCategorizer>("HGCal"); 
+    } else {
+      myMaterialBudgetCategorizer = std::make_unique<MaterialBudgetCategorizer>("Tracker"); 
+    }
   }
   
   theStepN=0;
@@ -226,13 +230,16 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
    
     if(!isCtgOk) 
       {
-	theOtherFractionMB = 1;
-	theOtherFractionIL = 1;
-
-	edm::LogWarning("MaterialBudget")
-	  << "MaterialBudgetData: Material forced to 'Other': " << materialName 
-	  << " in volume " << volumeName << ". Check Categorization.";
-
+	if(materialName.compare("Air") == 0){
+	  theAirFractionMB = 1;
+	  theAirFractionIL = 1;
+	} else {
+	  theOtherFractionMB = 1;
+	  theOtherFractionIL = 1;
+	  edm::LogWarning("MaterialBudget")
+	    << "MaterialBudgetData: Material forced to 'Other': " << materialName 
+	    << " in volume " << volumeName << ". Check Categorization.";
+	}
       }
     else 
       {
