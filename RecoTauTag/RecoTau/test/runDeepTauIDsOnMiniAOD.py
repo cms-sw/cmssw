@@ -17,12 +17,12 @@ process.load('Configuration.Geometry.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
-process.GlobalTag.globaltag = '101X_upgrade2018_realistic_v7'
+process.GlobalTag.globaltag = '103X_upgrade2018_realistic_v8'
 
 # Input source
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(
     # File from dataset DY1JetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8
-    '/store/mc/RunIISummer18MiniAOD/DY1JetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/101X_upgrade2018_realistic_v7-v1/20000/0617A8FC-1CA0-E811-9992-FA163E4CB6BE.root'
+    '/store/mc/RunIIFall17MiniAODv2/TTToHadronic_mtop169p5_TuneCP5_PSweights_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v3/100000/64BE09E8-76A8-E811-8602-FA163EC538AA.root'
 ))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eventsToProcess) )
@@ -34,7 +34,7 @@ tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
                     toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
                                "deepTau2017v1",
                                "DPFTau_2016_v0",
-                               #"DPFTau_2016_v1"
+                               # "DPFTau_2016_v1"
                                ])
 tauIdEmbedder.runTauID()
 
