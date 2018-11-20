@@ -91,7 +91,7 @@ xml_h DDAlgoArguments::rawArgument(const string& nam)  const   {
   for(xml_coll_t p(element,_U(star)); p; ++p)  {
     string n = p.attr<string>(_U(name));
     if ( n == nam )  {
-      return p;
+      return std::move( p );
     }
   }
   except("MyDDCMS","+++ Attempt to access non-existing algorithm option %s[%s]",name.c_str(),nam.c_str());
