@@ -49,6 +49,7 @@ void FilteredLayerClustersProducer::fillDescriptions(
   desc.add<std::string>(
       "ClusterFilter", "ClusterFilterByAlgo");
   desc.add<int>("algo_number", 9);
+  desc.add<int>("max_cluster_size", 9999);
   descriptions.add("FilteredLayerClusters", desc);
 }
 

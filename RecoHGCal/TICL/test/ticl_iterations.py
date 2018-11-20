@@ -19,6 +19,21 @@ from RecoHGCal.TICL.TrackstersToMultiCluster_cfi import TrackstersToMultiCluster
 def TICL_iterations(process):
   process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_TrackstersToMultiCluster*_*_*'])
 
+  process.FilteredLayerClustersMIP = FilteredLayerClusters.clone()
+  process.FilteredLayerClustersMIP.ClusterFilter = "ClusterFilterByAlgoOrSize"
+  process.FilteredLayerClustersMIP.algo_number = 9
+  process.FilteredLayerClustersMIP.max_cluster_size = 3 # inclusive
+  process.FilteredLayerClustersMIP.iteration_label = "MIP"
+  process.TrackstersMIP = Tracksters.clone()
+  process.TrackstersMIP.filteredLayerClusters = cms.InputTag("FilteredLayerClustersMIP", "MIP")
+  process.TrackstersMIP.algo_verbosity = 0
+  process.TrackstersMIP.missing_layers = 3
+  process.TrackstersMIP.min_clusters_per_ntuplet = 15
+  process.TrackstersMIP.min_cos_theta = 0.935
+  process.TrackstersToMultiClusterMIP = TrackstersToMultiCluster.clone()
+  process.TrackstersToMultiClusterMIP.label = "MIPMultiClustersFromTracksterByCA"
+  process.TrackstersToMultiClusterMIP.Tracksters = cms.InputTag("TrackstersMIP", "TrackstersByCA")
+
   process.FilteredLayerClusters = FilteredLayerClusters.clone()
   process.FilteredLayerClusters.algo_number = 8
   process.FilteredLayerClusters.iteration_label = "algo8"
@@ -32,18 +47,6 @@ def TICL_iterations(process):
   process.TrackstersToMultiCluster = TrackstersToMultiCluster.clone()
   process.TrackstersToMultiCluster.Tracksters = cms.InputTag("Tracksters", "TrackstersByCA")
 
-  process.FilteredLayerClustersMIP = FilteredLayerClusters.clone()
-  process.FilteredLayerClustersMIP.algo_number = 9
-  process.FilteredLayerClustersMIP.iteration_label = "algo9"
-  process.TrackstersMIP = Tracksters.clone()
-  process.TrackstersMIP.filteredLayerClusters = cms.InputTag("FilteredLayerClustersMIP", "algo9")
-  process.TrackstersMIP.algo_verbosity = 0
-  process.TrackstersMIP.missing_layers = 3
-  process.TrackstersMIP.min_clusters_per_ntuplet = 15
-  process.TrackstersMIP.min_cos_theta = 0.915
-  process.TrackstersToMultiClusterMIP = TrackstersToMultiCluster.clone()
-  process.TrackstersToMultiClusterMIP.label = "MIPMultiClustersFromTracksterByCA"
-  process.TrackstersToMultiClusterMIP.Tracksters = cms.InputTag("TrackstersMIP", "TrackstersByCA")
 
   process.HGCalUncalibRecHit = HGCalUncalibRecHit
   process.HGCalRecHit = HGCalRecHit
