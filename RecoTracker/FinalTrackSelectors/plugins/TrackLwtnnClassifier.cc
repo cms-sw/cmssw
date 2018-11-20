@@ -12,22 +12,6 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "lwtnn/LightweightNeuralNetwork.hh"
 
-//Used for manually accepting problematic short/detached tracks to general collection
-std::map<int, float> generalCollThresholds = 
-{
-{4,0.0}, 			//initialStep
-{5,0.2},			//lowPtTripletStep
-{6,-0.6}, 			//pixelPairStep
-{7,0.0},			//detachedTripletStep
-{8,-0.8},			//mixedTripletStep
-{9,-0.6},			//pixelLessStep
-{10,-0.4},			//tobTecStep
-{11,0.6},			//jetCoreRegionalStep
-{22,0.8},			//highPtTripletStep
-{23,0.2},			//lowPtQuadStep
-{24,-0.6},			//detachedQuadStep
-};
-
 namespace {
   struct lwtnn {
     lwtnn(const edm::ParameterSet& cfg):
@@ -47,7 +31,7 @@ namespace {
       neuralNetwork_ = lwtnnHandle.product();
     }
 
-    float operator()(reco::Track const & trk,
+    std::pair<float,bool> operator()(reco::Track const & trk,
                      reco::BeamSpot const & beamSpot,
                      reco::VertexCollection const & vertices,
                      lwt::ValueMap & inputs) const {
@@ -79,7 +63,7 @@ namespace {
       inputs["trk_nStripLay"] = trk.hitPattern().stripLayersWithMeasurement();
       inputs["trk_n3DLay"] = (trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()+trk.hitPattern().pixelLayersWithMeasurement());
       inputs["trk_nLostLay"] = trk.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
-      inputs["trk_algo"] = trk.algo(); // eventually move to originalAlgo
+      inputs["trk_algo"] = trk.algo();
 
       auto out = neuralNetwork_->compute(inputs);
       // there should only one output
@@ -87,27 +71,22 @@ namespace {
 
       float output = 2.0*out.begin()->second-1.0;
 
-      //Special clauses for special tracks
+
+      //Check if the network is known to be unreliable in that part of phase space. Hard cut values
+      //correspond to rare tracks known to be difficult for the Deep Neural Network classifier
+
+      bool isReliable = true;
       //T1qqqq
       if((std::abs(inputs["trk_dxy"])>=0.1) && (inputs["trk_etaErr"]<0.003) && (inputs["trk_dxyErr"]<0.03) &&(inputs["trk_ndof"]>3)){
-        //Set value to just above the threshold
-        if(generalCollThresholds[trk.algo()]){
-                float thres_ = generalCollThresholds[trk.algo()]+0.01;
-                return std::max(thres_,output);
-        }
+        isReliable = false;
       }
-
       //T5qqqqLL
       if((inputs["trk_pt"]>100.0)&&(inputs["trk_nChi2"]<4.0)&&(inputs["trk_etaErr"]<0.001)){
-        //Set value to just above the threshold
-        if(generalCollThresholds[trk.algo()]){
-                float thres_ = generalCollThresholds[trk.algo()]+0.01;
-                return std::max(thres_,output);
-        }
+        isReliable = false;
       }
 
-
-      return output;
+      std::pair<float, bool> return_ (output, isReliable);
+      return return_;
     }
 
 
@@ -122,3 +101,4 @@ namespace {
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(TrackLwtnnClassifier);
+

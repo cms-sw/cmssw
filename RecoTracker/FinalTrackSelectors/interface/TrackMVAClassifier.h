@@ -27,6 +27,10 @@ public:
 
   using MVACollection = std::vector<float>;
   using QualityMaskCollection = std::vector<unsigned char>;
+
+  //Collection with pairs <MVAOutput, isReliable>
+  using MVAPairCollection = std::vector<std::pair<float, bool>>;
+
 protected:
 
   static void fill( edm::ParameterSetDescription& desc);
@@ -37,7 +41,7 @@ protected:
   virtual void computeMVA(reco::TrackCollection const & tracks,
 			  reco::BeamSpot const & beamSpot,
 			  reco::VertexCollection const & vertices,
-			  MVACollection & mvas) const = 0;
+			  MVAPairCollection & mvas) const = 0;
 
 private:
   void produce(edm::Event& evt, const edm::EventSetup& es ) final;
@@ -64,13 +68,13 @@ namespace trackMVAClassifierImpl {
                     reco::TrackCollection const & tracks,
                     reco::BeamSpot const & beamSpot,
                     reco::VertexCollection const & vertices,
-                    TrackMVAClassifierBase::MVACollection & mvas) {
+                    TrackMVAClassifierBase::MVAPairCollection & mvas) {
 
       EventCache cache;
 
       size_t current = 0;
       for (auto const & trk : tracks) {
-        mvas[current++]= mva(trk,beamSpot,vertices,cache);
+	mvas[current++] = mva(trk,beamSpot,vertices,cache);
       }
     }
   };
@@ -82,11 +86,13 @@ namespace trackMVAClassifierImpl {
                     reco::TrackCollection const & tracks,
                     reco::BeamSpot const & beamSpot,
                     reco::VertexCollection const & vertices,
-                    TrackMVAClassifierBase::MVACollection & mvas) {
+                    TrackMVAClassifierBase::MVAPairCollection & mvas) {
 
       size_t current = 0;
       for (auto const & trk : tracks) {
-        mvas[current++]= mva(trk,beamSpot,vertices);
+        //BDT outputs are considered always reliable. Hence "true"
+	std::pair<float,bool> output (mva(trk,beamSpot,vertices), true);
+        mvas[current++]= output; 
       }
     }
   };
@@ -121,7 +127,7 @@ private:
     void computeMVA(reco::TrackCollection const & tracks,
 		    reco::BeamSpot const & beamSpot,
 		    reco::VertexCollection const & vertices,
-		    MVACollection & mvas) const final {
+		    MVAPairCollection & mvas) const final {
 
       trackMVAClassifierImpl::ComputeMVA<EventCache> computer;
       computer(mva, tracks, beamSpot, vertices, mvas);
