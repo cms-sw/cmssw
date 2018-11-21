@@ -33,8 +33,10 @@ for _eraName, _postfix, _era in _cfg.allEras():
         _trackProd = []
 
     locals()["_algos"+_postfix] = ["generalTracks"] + _cfg.iterationAlgos(_postfix) + ["duplicateMerge"]
-    locals()["_seedProducers"+_postfix] = _seedProd + _cfg.seedProducers(_postfix)
-    locals()["_trackProducers"+_postfix] = _trackProd + _cfg.trackProducers(_postfix)
+    locals()["_seedProducersPreSplitting"+_postfix] = _seedProd
+    locals()["_trackProducersPreSplitting"+_postfix] = _trackProd
+    locals()["_seedProducers"+_postfix] = _cfg.seedProducers(_postfix)
+    locals()["_trackProducers"+_postfix] = _cfg.trackProducers(_postfix)
 
     if _eraName != "trackingPhase2PU140":
         locals()["_electronSeedProducers"+_postfix] = ["tripletElectronSeeds", "pixelPairElectronSeeds", "stripPairElectronSeeds"]
@@ -447,6 +449,8 @@ for _eraName, _postfix, _era in _relevantEras:
     _setForEra(trackValidatorAllTPEffic, _eraName, _era, label = ["generalTracks", locals()["_generalTracksHp"+_postfix]])
 
 # Built tracks, in the standard sequence mainly for monitoring the track selection MVA
+tpClusterProducerPreSplitting = tpClusterProducer.clone(pixelClusterSrc = "siPixelClustersPreSplitting")
+quickTrackAssociatorByHitsPreSplitting = quickTrackAssociatorByHits.clone(cluster2TPSrc = "tpClusterProducerPreSplitting")
 _trackValidatorSeedingBuilding = trackValidator.clone( # common for built tracks and seeds (in trackingOnly)
     associators = ["quickTrackAssociatorByHits"],
     UseAssociators = True,
@@ -459,11 +463,17 @@ trackValidatorBuilding = _trackValidatorSeedingBuilding.clone(
     dirName = "Tracking/TrackBuilding/",
     doMVAPlots = True,
 )
+trackValidatorBuildingPreSplitting = trackValidatorBuilding.clone(
+    associators = ["quickTrackAssociatorByHitsPreSplitting"],
+    doMVAPlots = False,
+    doSummaryPlots = False,
+)
 for _eraName, _postfix, _era in _relevantErasAndFastSim:
     _setForEra(trackValidatorBuilding, _eraName, _era, label = locals()["_trackProducers"+_postfix])
 fastSim.toModify(trackValidatorBuilding, doMVAPlots=False)
 for _eraName, _postfix, _era in _relevantEras:
     _setForEra(trackValidatorBuilding, _eraName, _era, mvaLabels = locals()["_mvaSelectors"+_postfix])
+    _setForEra(trackValidatorBuildingPreSplitting, _eraName, _era, label = locals()["_trackProducersPreSplitting"+_postfix])
 
 
 # For conversions
@@ -544,7 +554,9 @@ tracksValidationSelectors = cms.Task(
 )
 tracksValidationTruth = cms.Task(
     tpClusterProducer,
+    tpClusterProducerPreSplitting,
     quickTrackAssociatorByHits,
+    quickTrackAssociatorByHitsPreSplitting,
     trackingParticleRecoTrackAsssociation,
     VertexAssociatorByPositionAndTracks,
     trackingParticleNumberOfLayersProducer
@@ -573,11 +585,13 @@ tracksValidation = cms.Sequence(
     trackValidatorFromPVAllTP +
     trackValidatorAllTPEffic +
     trackValidatorBuilding +
+    trackValidatorBuildingPreSplitting +
     trackValidatorConversion +
     trackValidatorGsfTracks,
     tracksPreValidation
 )
 fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
+    trackValidatorBuildingPreSplitting,
     trackValidatorConversion,
     trackValidatorGsfTracks,
 ]))
@@ -669,6 +683,8 @@ tracksValidationStandalone = cms.Sequence(
 # selectors
 tracksValidationSelectorsTrackingOnly = tracksValidationSelectors.copyAndExclude([ak4JetTracksAssociatorExplicitAll,cutsRecoTracksAK4PFJets]) # selectors using track information only (i.e. no PF)
 _taskForEachEra(_addSeedToTrackProducers, args=["_seedProducers"], names="_seedSelectors", task="_tracksValidationSeedSelectorsTrackingOnly", includeFastSim=True, modDict=globals())
+_taskForEachEra(_addSeedToTrackProducers, args=["_seedProducersPreSplitting"], names="_seedSelectorsPreSplitting", task="_tracksValidationSeedSelectorsPreSplittingTrackingOnly", modDict=globals())
+tracksValidationSeedSelectorsTrackingOnly.add(tracksValidationSeedSelectorsPreSplittingTrackingOnly)
 
 # MTV instances
 trackValidatorTrackingOnly = trackValidatorStandalone.clone(label = [ x for x in trackValidatorStandalone.label if x != "cutsRecoTracksAK4PFJets"] )
@@ -678,8 +694,16 @@ trackValidatorSeedingTrackingOnly = _trackValidatorSeedingBuilding.clone(
     label = _seedSelectors,
     doSeedPlots = True,
 )
+trackValidatorSeedingPreSplittingTrackingOnly = trackValidatorSeedingTrackingOnly.clone(
+    associators = ["quickTrackAssociatorByHitsPreSplitting"],
+    label = _seedSelectorsPreSplitting,
+    doSummaryPlots = False,
+
+)
 for _eraName, _postfix, _era in _relevantErasAndFastSim:
     _setForEra(trackValidatorSeedingTrackingOnly, _eraName, _era, label = locals()["_seedSelectors"+_postfix])
+for _eraName, _postfix, _era in _relevantEras:
+    _setForEra(trackValidatorSeedingPreSplittingTrackingOnly, _eraName, _era, label = locals()["_seedSelectorsPreSplitting"+_postfix])
 
 
 trackValidatorConversionTrackingOnly = trackValidatorConversion.clone(label = [x for x in trackValidatorConversion.label if x not in ["ckfInOutTracksFromConversions", "ckfOutInTracksFromConversions"]])
@@ -693,12 +717,18 @@ tracksPreValidationTrackingOnly.replace(tracksValidationSelectors, tracksValidat
 trackValidatorsTrackingOnly = _trackValidatorsBase.copy()
 trackValidatorsTrackingOnly.replace(trackValidatorStandalone, trackValidatorTrackingOnly)
 trackValidatorsTrackingOnly += trackValidatorSeedingTrackingOnly
+trackValidatorsTrackingOnly += trackValidatorSeedingPreSplittingTrackingOnly
 trackValidatorsTrackingOnly += trackValidatorBuilding
+trackValidatorsTrackingOnly += trackValidatorBuildingPreSplitting
 trackValidatorsTrackingOnly.replace(trackValidatorConversionStandalone, trackValidatorConversionTrackingOnly)
 trackValidatorsTrackingOnly.remove(trackValidatorGsfTracks)
 trackValidatorsTrackingOnly.replace(trackValidatorBHadronStandalone, trackValidatorBHadronTrackingOnly)
-fastSim.toModify(trackValidatorsTrackingOnly, lambda x: x.remove(trackValidatorConversionTrackingOnly))
-fastSim.toModify(trackValidatorsTrackingOnly, lambda x: x.remove(trackValidatorBHadronTrackingOnly))
+fastSim.toReplaceWith(trackValidatorsTrackingOnly, trackValidatorsTrackingOnly.copyAndExclude([
+    trackValidatorBuildingPreSplitting,
+    trackValidatorSeedingPreSplittingTrackingOnly,
+    trackValidatorConversionTrackingOnly,
+    trackValidatorBHadronTrackingOnly
+]))
 
 
 tracksValidationTrackingOnly = cms.Sequence(
@@ -710,15 +740,9 @@ tracksValidationTrackingOnly = cms.Sequence(
 
 
 ### Pixel tracking only mode (placeholder for now)
-tpClusterProducerPixelTrackingOnly = tpClusterProducer.clone(
-    pixelClusterSrc = "siPixelClustersPreSplitting"
-)
-quickTrackAssociatorByHitsPixelTrackingOnly = quickTrackAssociatorByHits.clone(
-    cluster2TPSrc = "tpClusterProducerPixelTrackingOnly"
-)
 trackingParticlePixelTrackAsssociation = trackingParticleRecoTrackAsssociation.clone(
     label_tr = "pixelTracks",
-    associator = "quickTrackAssociatorByHitsPixelTrackingOnly",
+    associator = "quickTrackAssociatorByHitsPreSplitting",
 )
 PixelVertexAssociatorByPositionAndTracks = VertexAssociatorByPositionAndTracks.clone(
     trackAssociation = "trackingParticlePixelTrackAsssociation"
@@ -736,8 +760,6 @@ trackValidatorPixelTrackingOnly = trackValidator.clone(
 )
 
 tracksValidationTruthPixelTrackingOnly = tracksValidationTruth.copy()
-tracksValidationTruthPixelTrackingOnly.replace(tpClusterProducer, tpClusterProducerPixelTrackingOnly)
-tracksValidationTruthPixelTrackingOnly.replace(quickTrackAssociatorByHits, quickTrackAssociatorByHitsPixelTrackingOnly)
 tracksValidationTruthPixelTrackingOnly.replace(trackingParticleRecoTrackAsssociation, trackingParticlePixelTrackAsssociation)
 tracksValidationTruthPixelTrackingOnly.replace(VertexAssociatorByPositionAndTracks, PixelVertexAssociatorByPositionAndTracks)
 tracksValidationPixelTrackingOnly = cms.Sequence(
