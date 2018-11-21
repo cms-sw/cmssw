@@ -14,10 +14,9 @@ public:
 
 private:
 
-  edm::EDGetTokenT<PatternRecognitionAlgoBase> patterRecognitionAlgoToken;
-
-  edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token;
-  edm::EDGetTokenT<std::vector<std::pair<unsigned int, float>>> filteredClustersMask_token;
+  edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
+  edm::EDGetTokenT<std::vector<std::pair<unsigned int, float>>> filtered_layerclusters_mask_token_;
+  edm::EDGetTokenT<std::vector<float>> original_layerclusters_mask_token_;
 
   std::unique_ptr<PatternRecognitionAlgoBase> myAlgo_;
 
