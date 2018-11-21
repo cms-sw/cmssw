@@ -7,43 +7,38 @@
 
 #include "Validation/Geometry/interface/MaterialBudgetFormat.h"
 
-//#include "HTL/Histograms.h" // Transient histograms.
-
-
 class MaterialBudgetTree : public MaterialBudgetFormat
 {
 public:
 
   MaterialBudgetTree( std::shared_ptr<MaterialBudgetData> data, const std::string& fileName );   
-  ~MaterialBudgetTree() override{ hend(); }
+  ~MaterialBudgetTree() override { }
 
   void fillStartTrack() override;
   void fillPerStep() override;
   void fillEndTrack() override;
+  void endOfRun() override;
   
 private:
   
-  virtual void book();  // user booking
-  virtual void hend();  // user ending
-  
- private:
-  TFile * theFile;
-  TTree* theTree; 
+  void book();  // user booking
+  std::unique_ptr<TFile> theFile;
+  std::unique_ptr<TTree> theTree;
 
   static const int MAXSTEPS = 10000;
+
   float t_MB;
   float t_IL;
-  //  float t_Eta;
-  //  float t_Phi;
-  // rr
+
   int   t_ParticleID;
   float t_ParticlePt;
   float t_ParticleEta;
   float t_ParticlePhi;
   float t_ParticleEnergy;
   float t_ParticleMass;
-  // rr
+
   int t_Nsteps;
+
   float t_DeltaMB[MAXSTEPS];
   float t_DeltaMB_SUP[MAXSTEPS];
   float t_DeltaMB_SEN[MAXSTEPS];
@@ -52,6 +47,7 @@ private:
   float t_DeltaMB_ELE[MAXSTEPS];
   float t_DeltaMB_OTH[MAXSTEPS];
   float t_DeltaMB_AIR[MAXSTEPS];
+
   float t_DeltaIL[MAXSTEPS];
   float t_DeltaIL_SUP[MAXSTEPS];
   float t_DeltaIL_SEN[MAXSTEPS];
@@ -60,13 +56,14 @@ private:
   float t_DeltaIL_ELE[MAXSTEPS];
   float t_DeltaIL_OTH[MAXSTEPS];
   float t_DeltaIL_AIR[MAXSTEPS];
+
   double t_InitialX[MAXSTEPS];
   double t_InitialY[MAXSTEPS];
   double t_InitialZ[MAXSTEPS];
   double t_FinalX[MAXSTEPS];
   double t_FinalY[MAXSTEPS];
   double t_FinalZ[MAXSTEPS];
-  // rr
+
   int    t_VolumeID[MAXSTEPS];
   const char*  t_VolumeName[MAXSTEPS];
   int    t_VolumeCopy[MAXSTEPS];
@@ -82,6 +79,7 @@ private:
   float  t_VolumeZaxis1[MAXSTEPS];
   float  t_VolumeZaxis2[MAXSTEPS];
   float  t_VolumeZaxis3[MAXSTEPS];
+
   int   t_MaterialID[MAXSTEPS];
   const char* t_MaterialName[MAXSTEPS];  
   float t_MaterialX0[MAXSTEPS];  
@@ -110,8 +108,7 @@ private:
   float t_ParticleStepFinalMass[MAXSTEPS];  
   int   t_ParticleStepPreInteraction[MAXSTEPS];  
   int   t_ParticleStepPostInteraction[MAXSTEPS];  
-  // rr
-};
 
+};
 
 #endif

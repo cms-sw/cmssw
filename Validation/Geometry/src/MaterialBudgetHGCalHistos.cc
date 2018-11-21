@@ -821,7 +821,7 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
  
 }
 
-void MaterialBudgetHGCalHistos::hend() 
+void MaterialBudgetHGCalHistos::endOfRun() 
 {
 
   hmgr->getHisto2(60)->Divide(hmgr->getHisto2(999));
