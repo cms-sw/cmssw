@@ -59,8 +59,9 @@
 //                               information (x=3/2/1/0 for having 1000/500/50/
 //                               100 bins for response distribution in (0:5);
 //                               m=1/0 for (not) making plots for each RBX;
-//                               l=1/0 for type of rcorFileName (1 for depth
-//                               dependent; 0 for raddam corrections);
+//                               l=2/1/0 for type of rcorFileName (2 for overall
+//                               response corrections; 1 for depth dependence
+//                               corrections; 0 for raddam corrections);
 //                               t=1/0 for applying cut or not on L1 closeness;
 //                               h = 0/1/2 for not creating / creating in 
 //                               recreate mode / creating in append mode
@@ -71,8 +72,9 @@
 //                               selection). Default = 1031
 //   flagC (int)               = 6 digit integer (mlthdo) with control
 //                               information (m=1/0 for making or not rechit
-//                               energy distributions;  l=1/0 for type of 
-//                               rcorFileName (1 for depth dependent; 0 for 
+//                               energy distributions;  l=2/1/0 for type of 
+//                               correction (2 for overall response corrections;
+//                               1 for depth dependence corrections; 0 for 
 //                               raddam corrections); t=1/0 for applying cut or
 //                               not on L1 closeness; h=1/0 for making or not
 //                               plots of momentum and total energies in the
@@ -335,7 +337,7 @@ CalibMonitor::CalibMonitor(const char*        fname,
   if (plotType_ < 0 || plotType_ > 3) plotType_ = 3;
   flexibleSelect_  = (((flag_/1) %10));
   cutL1T_          = ((flag_/1000) %10);
-  bool ifDepth     = (((flag_/10000) %10) > 0);
+  int ifDepth      = ((flag_/10000) %10);
   selRBX_          = (((flag_/100000) %10) > 0);
   coarseBin_       = ((flag_/1000000) %10);
   log2by18_        = std::log(2.5)/18.0;
@@ -349,17 +351,19 @@ CalibMonitor::CalibMonitor(const char*        fname,
   TChain    *chain = new TChain(treeName);
   std::cout << "Create a chain for " << treeName << " from " << fname
 	    << " flags " << flexibleSelect_ << "|" << plotType_ << "|"
-	    << corrPU_ << " cons " << log2by18_ << " eta range " << etalo_ 
+	    << corrPU_ << "\n cons " << log2by18_ << " eta range " << etalo_ 
 	    << ":" << etahi_ << " run range " << runlo_ << ":" << runhi_ 
-	    << " (inclusion flag " << includeRun_ << ") Selection of RBX " 
+	    << " (inclusion flag " << includeRun_ << ")\n Selection of RBX " 
 	    << selRBX_ << " Vertex Range " << nvxlo_ << ":" << nvxhi_ 
-	    << std::endl;
-  corrFactor_ = new CalibCorrFactor(corrFileName,useScale,scale,etam,false);
+	    << "\n corrFileName: " << corrFileName  << " useScale " 
+	    << useScale << ":" << scale << ":" << etam << "\n rcorFileName: "
+	    << rcorFileName << " flag " << ifDepth << std::endl;
   if (!fillChain(chain,fname)) {
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
   } else {
     std::cout << "Proceed with a tree chain with " << chain->GetEntries()
 	      << " entries" << std::endl;
+    corrFactor_ = new CalibCorrFactor(corrFileName,useScale,scale,etam,false);
     Init(chain,dupFileName,comFileName,outFName);
     if (std::string(rcorFileName) != "")
       cFactor_ = new CalibCorr(rcorFileName,ifDepth,false);
@@ -459,35 +463,43 @@ void CalibMonitor::Init(TChain *tree, const char* dupFileName,
   fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
   Notify();
 
-  ifstream infil1(dupFileName);
-  if (!infil1.is_open()) {
-    std::cout << "Cannot open duplicate file " << dupFileName << std::endl;
+  if (strcmp(dupFileName,"") != 0) {
+    ifstream infil1(dupFileName);
+    if (!infil1.is_open()) {
+      std::cout << "Cannot open duplicate file " << dupFileName << std::endl;
+    } else {
+      while (1) {
+	Long64_t jentry;
+	infil1 >> jentry;
+	if (!infil1.good()) break;
+	entries_.push_back(jentry);
+      }
+      infil1.close();
+      std::cout << "Reads a list of " << entries_.size() << " events from " 
+		<< dupFileName << std::endl;
+    } 
   } else {
-    while (1) {
-      Long64_t jentry;
-      infil1 >> jentry;
-      if (!infil1.good()) break;
-      entries_.push_back(jentry);
-    }
-    infil1.close();
-    std::cout << "Reads a list of " << entries_.size() << " events from " 
-	      << dupFileName << std::endl;
-  } 
+    std::cout << "No duplicate events in the input file" << std::endl;
+  }
   
-  ifstream infil2(comFileName);
-  if (!infil2.is_open()) {
-    std::cout << "Cannot open selection file " << comFileName << std::endl;
-  } else {
-    while (1) {
-      int irun, ievt;
-      infil2 >> irun >> ievt;
-      if (!infil2.good()) break;
-      std::pair<int,int> key(irun,ievt);
-      events_.push_back(key);
+  if (strcmp(comFileName,"") != 0) {
+    ifstream infil2(comFileName);
+    if (!infil2.is_open()) {
+      std::cout << "Cannot open selection file " << comFileName << std::endl;
+    } else {
+      while (1) {
+	int irun, ievt;
+	infil2 >> irun >> ievt;
+	if (!infil2.good()) break;
+	std::pair<int,int> key(irun,ievt);
+	events_.push_back(key);
+      }
+      infil2.close();
+      std::cout << "Reads a list of " << events_.size() << " events from " 
+		<< comFileName << std::endl;
     }
-    infil2.close();
-    std::cout << "Reads a list of " << events_.size() << " events from " 
-	      << comFileName << std::endl;
+  } else {
+    std::cout << "No event list provided for selection" << std::endl;
   }
 
   if (((flag_/100)%10)>0) {
@@ -878,17 +890,20 @@ void CalibMonitor::Loop() {
     
     // Selection of good track and energy measured in Hcal
     double rat(1.0), eHcal(t_eHcal);
-    if (corrFactor_-> doCorr()) {
+    if (corrFactor_-> doCorr() || (cFactor_ != 0)) {
       eHcal = 0;
       for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
 	// The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-	unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
-	double cfac     = corrFactor_->getCorr(id);
+	double cfac(1.0);
+	if (corrFactor_-> doCorr()) {
+	  unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
+	  cfac            = corrFactor_->getCorr(id);
+	}
 	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds)[k]);
 	eHcal += (cfac*((*t_HitEnergies)[k]));
 	if (debug) {
 	  int subdet,zside,ieta,iphi,depth;
-	  unpackDetId(id,subdet,zside,ieta,iphi,depth);
+	  unpackDetId((*t_DetIds)[k],subdet,zside,ieta,iphi,depth);
 	  std::cout << zside << ":" << ieta << ":" << depth  << " Corr " 
 		    << cfac << " " << (*t_HitEnergies)[k] << " Out " << eHcal
 		    << std::endl;
@@ -1933,7 +1948,7 @@ CalibPlotProperties::CalibPlotProperties(const char*        fname,
   plotBasic_       = (((flag_/10)%10) > 0);
   plotEnergy_      = (((flag_/10)%10) > 0);
   cutL1T_          = ((flag_/1000) %10);
-  bool ifDepth     = (((flag_/10000) %10) > 0);
+  int ifDepth      = ((flag_/10000) %10);
   plotHists_       = (((flag_/100000) %10) > 0);
   log2by18_        = std::log(2.5)/18.0;
   if (runlo_ < 0 || runhi_ < 0) {
@@ -1947,17 +1962,20 @@ CalibPlotProperties::CalibPlotProperties(const char*        fname,
   std::cout << "Create a chain for " << treeName << " from " << fname
 	    << " flags " << flexibleSelect_ << "|" << plotBasic_ << "|"
 	    << "|" << plotEnergy_ << "|" << plotHists_ << "|" 
-	    << corrPU_ << " cons " << log2by18_ << " eta range " << etalo_ 
+	    << corrPU_ << "\n cons " << log2by18_ << " eta range " << etalo_ 
 	    << ":" << etahi_ << " run range " << runlo_ << ":" << runhi_ 
-	    << " (inclusion flag " << includeRun_ << ") Vertex Range " << nvxlo_ << ":" << nvxhi_ 
-	    << std::endl;
-  corrFactor_ = new CalibCorrFactor(corrFileName,useScale,scl,etam,false);
+	    << " (inclusion flag " << includeRun_ << ")\n Selection of RBX"
+	    << rbx << " Vertex Range " << nvxlo_ << ":" << nvxhi_ 
+	    << "\n corrFileName: " << corrFileName  << " useScale " 
+	    << useScale << ":" << scl << ":" << etam << "\n rcorFileName: "
+	    << rcorFileName << " flag " << ifDepth << std::endl;
   if (!fillChain(chain,fname)) {
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
   } else {
     std::cout << "Proceed with a tree chain with " << chain->GetEntries()
 	      << " entries" << std::endl;
     Init(chain,dupFileName);
+    corrFactor_ = new CalibCorrFactor(corrFileName,useScale,scl,etam,false);
     if (std::string(rcorFileName) != "")
       cFactor_ = new CalibCorr(rcorFileName,ifDepth,false);
     if (rbx != 0) cSelect_ = new CalibSelectRBX(rbx, false);
@@ -2055,20 +2073,24 @@ void CalibPlotProperties::Init(TChain *tree, const char* dupFileName) {
   fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
   Notify();
 
-  ifstream infil1(dupFileName);
-  if (!infil1.is_open()) {
-    std::cout << "Cannot open duplicate file " << dupFileName << std::endl;
-  } else {
-    while (1) {
-      Long64_t jentry;
-      infil1 >> jentry;
-      if (!infil1.good()) break;
-      entries_.push_back(jentry);
+  if (std::string(dupFileName) != "") {
+    ifstream infil1(dupFileName);
+    if (!infil1.is_open()) {
+      std::cout << "Cannot open duplicate file " << dupFileName << std::endl;
+    } else {
+      while (1) {
+	Long64_t jentry;
+	infil1 >> jentry;
+	if (!infil1.good()) break;
+	entries_.push_back(jentry);
+      }
+      infil1.close();
+      std::cout << "Reads a list of " << entries_.size() << " events from " 
+		<< dupFileName << std::endl;
     }
-    infil1.close();
-    std::cout << "Reads a list of " << entries_.size() << " events from " 
-	      << dupFileName << std::endl;
-  } 
+  } else {
+    std::cout << "No duplicate events in the input file" << std::endl;
+  }
 
   int ipbin[npbin] = {20, 30, 40, 60, 100};
   for (unsigned int i=0; i<npbin; ++i) ps_.push_back((double)(ipbin[i]));
@@ -2358,17 +2380,20 @@ void CalibPlotProperties::Loop() {
 
     // Selection of good track and energy measured in Hcal
     double eHcal(t_eHcal);
-    if (corrFactor_-> doCorr()) {
+    if (corrFactor_-> doCorr() || (cFactor_ != 0)) {
       eHcal = 0;
       for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
 	// The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-	unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
-	double cfac     = corrFactor_->getCorr(id);
+	double cfac(1.0);
+	if (corrFactor_-> doCorr()) {
+	  unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
+	  cfac     = corrFactor_->getCorr(id);
+	}
 	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds)[k]);
 	eHcal += (cfac*((*t_HitEnergies)[k]));
 	if (debug) {
 	  int subdet,zside,ieta,iphi,depth;
-	  unpackDetId(id,subdet,zside,ieta,iphi,depth);
+	  unpackDetId((*t_DetIds)[k],subdet,zside,ieta,iphi,depth);
 	  std::cout << zside << ":" << ieta << ":" << depth  << " Corr " 
 		    << cfac << " " << (*t_HitEnergies)[k] << " Out " << eHcal
 		    << std::endl;
