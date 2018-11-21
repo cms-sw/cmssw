@@ -20,8 +20,8 @@ class HGCalConcentratorProcessorSelection : public HGCalConcentratorProcessorBas
   private:
     std::string choice_;
     
-    HGCalConcentratorSelectionImpl concentratorProcImpl_;
-    HGCalConcentratorSuperTriggerCellImpl concentratorSTCImpl_;
+    std::unique_ptr<HGCalConcentratorSelectionImpl> concentratorProcImpl_;
+    std::unique_ptr<HGCalConcentratorSuperTriggerCellImpl> concentratorSTCImpl_;
      
     HGCalTriggerTools triggerTools_;
 

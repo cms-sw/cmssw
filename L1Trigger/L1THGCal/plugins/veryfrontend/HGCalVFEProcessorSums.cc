@@ -12,12 +12,12 @@ DEFINE_EDM_PLUGIN(HGCalVFEProcessorBaseFactory,
 
 
 HGCalVFEProcessorSums::
-HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(conf),
-  vfeLinearizationImpl_(conf),
-  vfeSummationImpl_(conf),
-  vfeCompressionImpl_(conf),
-  calibration_( conf.getParameterSet("calib_parameters") )
+HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(conf)
 { 
+  vfeLinearizationImpl_ = std::make_unique<HGCalVFELinearizationImpl>(conf);
+  vfeSummationImpl_ = std::make_unique<HGCalVFESummationImpl>(conf);
+  vfeCompressionImpl_ = std::make_unique<HGCalVFECompressionImpl>(conf);
+  calibration_ = std::make_unique<HGCalTriggerCellCalibration>( conf.getParameterSet("calib_parameters") );
 }
 
 void
@@ -25,8 +25,8 @@ HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
                            l1t::HGCalTriggerCellBxCollection& triggerCellColl, 
                            const edm::EventSetup& es) 
 { 
-  vfeSummationImpl_.eventSetup(es);
-  calibration_.eventSetup(es);
+  vfeSummationImpl_->eventSetup(es);
+  calibration_->eventSetup(es);
 
   std::vector<HGCalDataFrame> dataframes;
   std::vector<std::pair<DetId, uint32_t >> linearized_dataframes;
@@ -46,9 +46,9 @@ HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
     }
   }
 
-  vfeLinearizationImpl_.linearize(dataframes, linearized_dataframes);
-  vfeSummationImpl_.triggerCellSums(*geometry_, linearized_dataframes, payload);  
-  vfeCompressionImpl_.compress(payload, compressed_payload);
+  vfeLinearizationImpl_->linearize(dataframes, linearized_dataframes);
+  vfeSummationImpl_->triggerCellSums(*geometry_, linearized_dataframes, payload);  
+  vfeCompressionImpl_->compress(payload, compressed_payload);
   
   // Transform map to trigger cell vector vector<HGCalTriggerCell>
   for(const auto& id_value : payload)
@@ -68,7 +68,7 @@ HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
       if( triggerCell.hwPt() > 0 )
       { 
         l1t::HGCalTriggerCell calibratedtriggercell( triggerCell );
-        calibration_.calibrateInGeV( calibratedtriggercell);     
+        calibration_->calibrateInGeV( calibratedtriggercell);     
         triggerCellColl.push_back(0, calibratedtriggercell);
       }
     }
