@@ -121,6 +121,8 @@
      <PARAM name="xmin">0</PARAM> 
      <PARAM name="xmax">10.0</PARAM> 
 </QTEST>
+
+<!--
 <QTEST name="XrangeWithin:NumberOfTracks" activate="true">
       <TYPE>ContentsXRange</TYPE>
       <PARAM name="error">0.85</PARAM>
@@ -149,6 +151,7 @@
      <PARAM name="xmin">0</PARAM> 
      <PARAM name="xmax">100.0</PARAM> 
 </QTEST>
+-->
 <LINK name="*nBadChannelStatusBits">
   <TestName activate="true">MeanWithinExpectedRange:nBadChannelStatusBits</TestName>
 </LINK>
@@ -182,6 +185,7 @@
 <LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__PLUS__wheel__*">
   <TestName activate="true">MeanWithinExpectedRange:StoNTID</TestName>
 </LINK>
+<!--
 <LINK name="*TrackParameters/GeneralProperties/NumberOfTracks_HeavyIonTk">
   <TestName activate="true">XrangeWithin:NumberOfTracks</TestName>
 </LINK>
@@ -195,3 +199,4 @@
   <TestName activate="true">XrangeWithin:TrackPt</TestName>
 </LINK>
 </TESTCONFIGURATION>
+-->
