@@ -141,7 +141,6 @@ nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnl
 
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
     _btagDiscriminators=[]
     if addDeepBTag:
@@ -169,10 +168,6 @@ def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
     if addDeepFlavour:
         process.pfDeepFlavourJetTagsWithDeepInfo.graph_path = 'RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb'
         process.pfDeepFlavourJetTagsWithDeepInfo.lp_names = ["cpf_input_batchnorm/keras_learning_phase"]
-    patAlgosToolsTask = getPatAlgosToolsTask(process)
-    patAlgosToolsTask.add(process.updatedPatJetsWithDeepInfo)
-    patAlgosToolsTask.add(process.patJetCorrFactorsWithDeepInfo)
-    process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
@@ -231,10 +226,6 @@ def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet,jecPayload):
     process.tightJetIdAK8.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
     process.tightJetIdLepVetoAK8.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
     process.slimmedJetsAK8WithUserData.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
-    patAlgosToolsTask = getPatAlgosToolsTask(process)
-    patAlgosToolsTask.add(process.updatedPatJetsAK8WithDeepInfo)
-    patAlgosToolsTask.add(process.patJetCorrFactorsAK8WithDeepInfo)
-    process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
