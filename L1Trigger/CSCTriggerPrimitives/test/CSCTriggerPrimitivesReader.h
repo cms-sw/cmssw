@@ -11,26 +11,26 @@
  *
  */
 
-#include <FWCore/Utilities/interface/EDGetToken.h>
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/Utilities/interface/InputTag.h>
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
-#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
-#include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h> // TMB07
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h" // TMB07
 
-#include <SimDataFormats/TrackingHit/interface/PSimHitContainer.h>
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include <TH1.h>
 #include <TH2.h>
@@ -69,7 +69,7 @@ struct TreePerStub{
   Int_t t_key_WG[MAXSTUBS];
   Int_t t_key_hs[MAXSTUBS];
   Float_t t_eta[MAXSTUBS];
-  Float_t t_phi[MAXSTUBS]; 
+  Float_t t_phi[MAXSTUBS];
  */
 };
 
@@ -107,9 +107,9 @@ struct MyStubComparison{
   Int_t maxquality_pretrig;
   Int_t bend_pretrig;
   Int_t bx_pretrig;
-  Int_t key_hs_pretrig;  
-  Int_t pattern_pretrig;  
-  Int_t maxpattern_pretrig;  
+  Int_t key_hs_pretrig;
+  Int_t pattern_pretrig;
+  Int_t maxpattern_pretrig;
   Int_t fullbx_data;
   Int_t fullbx_emul;
   Int_t pattern_data;
@@ -117,17 +117,17 @@ struct MyStubComparison{
   Bool_t WGcrossHS_data;
   Bool_t WGcrossHS_emul;
   Int_t key_WG_data;
-  Int_t key_WG_emul;  
+  Int_t key_WG_emul;
   Int_t key_hs_data;
-  Int_t key_hs_emul;  
+  Int_t key_hs_emul;
   Int_t trknmb_data;
   Int_t trknmb_emul;
   Float_t dphi_data;
   Float_t dphi_emul;
   Float_t eta_data;
   Float_t eta_emul;
-  Float_t phi_data; 
-  Float_t phi_emul; 
+  Float_t phi_data;
+  Float_t phi_emul;
 };
 
 class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
@@ -170,10 +170,6 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   bool dataLctsIn_;
   bool emulLctsIn_;
 
-  // Flag to indicate MTCC data (used only when dataLctsIn_ = true).
-  bool isMTCCData_;
-
-  bool isTMB07;
   bool gangedME1a;
 
   // Flag to plot or not plot ME1/A as a separate chamber.
@@ -275,7 +271,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   void bookEfficHistos();
   void drawEfficHistos();
   void drawHistosForTalks();
-  
+
   GlobalPoint getGlobalPosition(unsigned int rawId, int keWg, int keyHS) const;
   bool doesALCTCrossCLCT(CSCDetId id, int key_wg, int key_hs) const;
   int    getCSCType(const CSCDetId& id);
@@ -294,7 +290,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   void compareALCTs(const CSCALCTDigiCollection* alcts_data,
 		    const CSCALCTDigiCollection* alcts_emul);
   void compareCLCTs(const CSCCLCTDigiCollection* clcts_data,
-		    const CSCCLCTDigiCollection* clcts_emul, 
+		    const CSCCLCTDigiCollection* clcts_emul,
 		    const CSCCLCTPreTriggerDigiCollection* pretrigs_emul);
   void compareLCTs(const CSCCorrelatedLCTDigiCollection* lcts_data,
 		   const CSCCorrelatedLCTDigiCollection* lcts_emul,
