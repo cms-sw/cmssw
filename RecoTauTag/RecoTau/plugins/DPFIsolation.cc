@@ -226,7 +226,7 @@ private:
                 pfCandPt = std::min(pfCandPt, pfCandPt_max);
                 pfCandPt = pfCandPt/500.;
 
-                pfCandPz = std::min(pfCandPt, pfCandPz_max);
+                pfCandPz = std::min(pfCandPz, pfCandPz_max);
                 pfCandPz = pfCandPz/1000.;
 
                 pfCandPtRel = std::min(pfCandPtRel, pfCandPtRel_max);
