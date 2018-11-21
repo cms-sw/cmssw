@@ -28,10 +28,10 @@ class HGCalVFEProcessorSums : public HGCalVFEProcessorBase
 	             
   private:
           
-    HGCalVFELinearizationImpl vfeLinearizationImpl_;
-    HGCalVFESummationImpl vfeSummationImpl_; 
-    HGCalVFECompressionImpl vfeCompressionImpl_;
-    HGCalTriggerCellCalibration calibration_;
+    std::unique_ptr<HGCalVFELinearizationImpl> vfeLinearizationImpl_;
+    std::unique_ptr<HGCalVFESummationImpl> vfeSummationImpl_; 
+    std::unique_ptr<HGCalVFECompressionImpl> vfeCompressionImpl_;
+    std::unique_ptr<HGCalTriggerCellCalibration> calibration_;
 
 };    
     

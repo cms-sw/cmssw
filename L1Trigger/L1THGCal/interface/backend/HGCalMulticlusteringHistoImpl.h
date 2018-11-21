@@ -71,12 +71,12 @@ private:
     std::vector<unsigned> binsSumsHisto_;
     double histoThreshold_ = 20.;
     std::vector<double> neighbour_weights_;
-    static constexpr unsigned neighbour_weights_size_ = 9;
 
     HGCalShowerShape shape_;
     HGCalTriggerTools triggerTools_;
     std::unique_ptr<HGCalTriggerClusterIdentificationBase> id_;
 
+    static constexpr unsigned neighbour_weights_size_ = 9;
     static constexpr double kROverZMin_ = 0.09;
     static constexpr double kROverZMax_ = 0.52;
 

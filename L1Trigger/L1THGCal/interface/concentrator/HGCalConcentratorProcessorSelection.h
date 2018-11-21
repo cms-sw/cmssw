@@ -12,16 +12,23 @@
 class HGCalConcentratorProcessorSelection : public HGCalConcentratorProcessorBase 
 { 
 
+  private:
+    enum SelectionType{
+      thresholdSelect,
+      bestChoiceSelect,
+      superTriggerCellSelect
+    };
+
   public:
     HGCalConcentratorProcessorSelection(const edm::ParameterSet& conf);
   
     void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput, l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput, const edm::EventSetup& es) override;
 
   private:
-    std::string choice_;
+    SelectionType selectionType_;
     
-    HGCalConcentratorSelectionImpl concentratorProcImpl_;
-    HGCalConcentratorSuperTriggerCellImpl concentratorSTCImpl_;
+    std::unique_ptr<HGCalConcentratorSelectionImpl> concentratorProcImpl_;
+    std::unique_ptr<HGCalConcentratorSuperTriggerCellImpl> concentratorSTCImpl_;
      
     HGCalTriggerTools triggerTools_;
 
