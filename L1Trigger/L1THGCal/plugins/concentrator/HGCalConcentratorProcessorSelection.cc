@@ -8,11 +8,25 @@ DEFINE_EDM_PLUGIN(HGCalConcentratorFactory,
         "HGCalConcentratorProcessorSelection");
 
 HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const edm::ParameterSet& conf)  : 
-  HGCalConcentratorProcessorBase(conf),
-  choice_(conf.getParameter<std::string>("Method"))
+  HGCalConcentratorProcessorBase(conf)
 { 
-  concentratorProcImpl_ = std::make_unique<HGCalConcentratorSelectionImpl>(conf);
-  concentratorSTCImpl_ = std::make_unique<HGCalConcentratorSuperTriggerCellImpl>(conf);
+  std::string selectionType(conf.getParameter<std::string>("Method"));
+  if (selectionType == "thresholdSelect"){
+    selectionType_ = thresholdSelect;
+    concentratorProcImpl_ = std::make_unique<HGCalConcentratorSelectionImpl>(conf);
+  }
+  else if (selectionType == "bestChoiceSelect"){
+    selectionType_ = bestChoiceSelect;
+    concentratorProcImpl_ = std::make_unique<HGCalConcentratorSelectionImpl>(conf);
+  }
+  else if (selectionType == "superTriggerCellSelect"){
+    selectionType_ = superTriggerCellSelect;
+    concentratorSTCImpl_ = std::make_unique<HGCalConcentratorSuperTriggerCellImpl>(conf);
+  }
+  else{
+    throw cms::Exception("HGCTriggerParameterError")
+      << "Unknown type of concentrator selection '" << selectionType << "'";
+  }
 }
 
 void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput, 
@@ -27,37 +41,24 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
     tc_modules[module].push_back(trigCell);
   }
 
-  if (choice_ == "thresholdSelect")
-  {
-    for( const auto& module_trigcell : tc_modules ) {
-      std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;
-      concentratorProcImpl_->thresholdSelectImpl(module_trigcell.second, trigCellVecOutput);
-      // Push trigger Cells for each module from std::vector<l1t::HGCalTriggerCell> into the final collection
-      for( const auto& trigCell : trigCellVecOutput){
-        triggerCellCollOutput.push_back(0, trigCell);     
-      }
+  for( const auto& module_trigcell : tc_modules ) {
+    std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;
+    switch(selectionType_){
+      case thresholdSelect:
+        concentratorProcImpl_->thresholdSelectImpl(module_trigcell.second, trigCellVecOutput);
+        break;
+      case bestChoiceSelect:
+        concentratorProcImpl_->bestChoiceSelectImpl(module_trigcell.second, trigCellVecOutput);     
+        break;
+      case superTriggerCellSelect:
+        concentratorSTCImpl_->superTriggerCellSelectImpl(module_trigcell.second, trigCellVecOutput);
+        break;
+      default:
+        // Should not happen, selection type checked in constructor
+        break;
+    }
+    for( const auto& trigCell : trigCellVecOutput){
+      triggerCellCollOutput.push_back(0, trigCell);     
     }
   }
-  else if (choice_ == "bestChoiceSelect"){
-    for( const auto& module_trigcell : tc_modules ) {  
-      std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;
-      concentratorProcImpl_->bestChoiceSelectImpl(module_trigcell.second, trigCellVecOutput);     
-      // Push trigger Cells for each module from std::vector<l1t::HGCalTriggerCell> into the final collection
-      for( const auto& trigCell : trigCellVecOutput){
-        triggerCellCollOutput.push_back(0, trigCell);       
-      }
-    }
-  }
-  else if (choice_ == "superTriggerCellSelect"){
-    for( const auto& module_trigcell : tc_modules ) {  
-      std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;
-      concentratorSTCImpl_->superTriggerCellSelectImpl( module_trigcell.second, trigCellVecOutput);
-      
-      // Push trigger Cells for each module from std::vector<l1t::HGCalTriggerCell> into the final collection
-      for( auto trigCell = trigCellVecOutput.begin(); trigCell != trigCellVecOutput.end(); ++trigCell){
-        triggerCellCollOutput.push_back(0, *trigCell);       
-      }
-    }
-  }
-
 }
