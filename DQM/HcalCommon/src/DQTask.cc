@@ -69,30 +69,6 @@ namespace hcaldqm
 			}
 		}
 
-		//	get the Channel Quality Status for all the channels
-		edm::ESHandle<HcalChannelQuality> hcq;
-		es.get<HcalChannelQualityRcd>().get("withTopo", hcq);
-		const HcalChannelQuality *cq = hcq.product();
-		std::vector<DetId> detids = cq->getAllChannels();
-		for (std::vector<DetId>::const_iterator it=detids.begin();
-			it!=detids.end(); ++it)
-		{
-			//	if unknown skip
-			if (HcalGenericDetId(*it).genericSubdet()==
-				HcalGenericDetId::HcalGenUnknown)
-				continue;
-
-			if (HcalGenericDetId(*it).isHcalDetId())
-			{
-				HcalDetId did(*it);
-				uint32_t mask = (cq->getValues(did))->getValue();
-				if (mask!=0)
-				{
-					_xQuality.push(did, mask);
-				}
-			}
-		}
-
 		//	book some base guys
 		_cEvsTotal.book(ib, _subsystem);
 		_cEvsPerLS.book(ib, _subsystem);
@@ -133,7 +109,31 @@ namespace hcaldqm
 			this->_resetMonitors(f50LS);
 		if (_procLSs%100==0)
 			this->_resetMonitors(f100LS);
-			
+	
+		//	get the Channel Quality Status for all the channels
+		_xQuality.reset();
+		edm::ESHandle<HcalChannelQuality> hcq;
+		es.get<HcalChannelQualityRcd>().get("withTopo", hcq);
+		const HcalChannelQuality *cq = hcq.product();
+		std::vector<DetId> detids = cq->getAllChannels();
+		for (std::vector<DetId>::const_iterator it=detids.begin();
+			it!=detids.end(); ++it)
+		{
+			//	if unknown skip
+			if (HcalGenericDetId(*it).genericSubdet()==
+				HcalGenericDetId::HcalGenUnknown)
+				continue;
+
+			if (HcalGenericDetId(*it).isHcalDetId())
+			{
+				HcalDetId did(*it);
+				uint32_t mask = (cq->getValues(did))->getValue();
+				if (mask!=0)
+				{
+					_xQuality.push(did, mask);
+				}
+			}
+		}
 	}
 
 	/* virtual */ void DQTask::endLuminosityBlock(

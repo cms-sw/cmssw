@@ -87,8 +87,16 @@ namespace hcaldqm
 			}
 		}
 
-		//	get the Channel Quality masks
+		// Initialize channel quality masks, but do not load (changed for 10_4_X, moving to LS granularity)
 		_xQuality.initialize(hashfunctions::fDChannel);
+	}
+	
+	/* virtual */ void DQClient::beginLuminosityBlock(DQMStore::IBooker&,
+		DQMStore::IGetter&, edm::LuminosityBlock const& lb,
+		edm::EventSetup const& es)
+	{
+		//	get the Channel Quality masks
+		_xQuality.reset();
 		edm::ESHandle<HcalChannelQuality> hcq;
 		es.get<HcalChannelQualityRcd>().get("withTopo", hcq);
 		const HcalChannelQuality *cq = hcq.product();
