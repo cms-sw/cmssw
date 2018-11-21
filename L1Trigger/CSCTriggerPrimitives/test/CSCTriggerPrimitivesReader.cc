@@ -158,17 +158,6 @@ void TreePerStub::init(int run, int event){
   t_station = -1;
   t_chambertype = -1;
   t_endcap = -2;
-
-  /*
-    memset(t_quality, -1, sizeof(t_quality));
-    memset(t_bend, -1, sizeof(t_bend));
-    memset(t_bx, -1, sizeof(t_bx));
-    memset(t_fullbx, -1, sizeof(t_fullbx));
-    memset(t_key_WG, -1, sizeof(t_key_WG));
-    memset(t_key_hs, -1, sizeof(t_key_hs));
-    memset(t_eta, -1., sizeof(t_eta));
-    memset(t_phi, -1., sizeof(t_phi));
-  */
 }
 
 TTree *TreePerStub::bookTree(TTree *t, const std::string & name)
@@ -191,16 +180,6 @@ TTree *TreePerStub::bookTree(TTree *t, const std::string & name)
   t->Branch("t_station", &t_station, "t_station/I");
   t->Branch("t_chambertype", &t_chambertype, "t_chambertype/I");
 
-  /*
-    t->Branch("t_quality", t_quality, "t_quality[t_nStubs]/I");
-    t->Branch("t_bend", t_bend, "t_bend[t_nStubs]/I");
-    t->Branch("t_bx", t_bx, "t_bx[t_nStubs]/I");
-    t->Branch("t_fullbx", t_fullbx, "t_fullbx[t_nStubs]/I");
-    t->Branch("t_key_WG", t_key_WG, "t_key_WG[t_nStubs]/I");
-    t->Branch("t_key_hs", t_key_hs, "t_key_hs[t_nStubs]/I");
-    t->Branch("t_eta", t_eta, "t_eta[t_nStubs]/F");
-    t->Branch("t_phi", t_phi, "t_phi[t_nStubs]/F");
-  */
   return t;
 }
 
@@ -1192,8 +1171,8 @@ void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alc
     int nValidALCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id)) continue;
-    const CSCALCTDigiCollection::Range& range = (*detUnitIt).second;
-    for (CSCALCTDigiCollection::const_iterator digiIt = range.first;
+    const auto& range = (*detUnitIt).second;
+    for (auto digiIt = range.first;
          digiIt != range.second; digiIt++) {
 
       bool alct_valid = (*digiIt).isValid();
@@ -1241,7 +1220,7 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
     const CSCDetId& id = (*detUnitIt).first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id)) continue;
     const CSCCLCTDigiCollection::Range& range = (*detUnitIt).second;
-    for (CSCCLCTDigiCollection::const_iterator digiIt = range.first;
+    for (auto digiIt = range.first;
          digiIt != range.second; digiIt++) {
 
       bool clct_valid = (*digiIt).isValid();
@@ -1302,8 +1281,8 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
     int nValidLCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id)) continue;
-    const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
-    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first;
+    const auto& range = (*detUnitIt).second;
+    for (auto digiIt = range.first;
          digiIt != range.second; digiIt++) {
 
       bool lct_valid = (*digiIt).isValid();
@@ -1374,8 +1353,8 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
   for (detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) {
     const CSCDetId& id = (*detUnitIt).first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id)) continue;
-    const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
-    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first;
+    const auto& range = (*detUnitIt).second;
+    for (auto digiIt = range.first;
          digiIt != range.second; digiIt++) {
 
       bool lct_valid = (*digiIt).isValid();
@@ -1434,8 +1413,7 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
   numLCTMPC += nValidLCTs;
 }
 
-void CSCTriggerPrimitivesReader::compare(
-                                         const CSCALCTDigiCollection* alcts_data,
+void CSCTriggerPrimitivesReader::compare(const CSCALCTDigiCollection* alcts_data,
                                          const CSCALCTDigiCollection* alcts_emul,
                                          const CSCCLCTDigiCollection* clcts_data,
                                          const CSCCLCTDigiCollection* clcts_emul,
@@ -1453,8 +1431,7 @@ void CSCTriggerPrimitivesReader::compare(
   //compareMPCLCTs(mpclcts_data,  mpclcts_emul, alcts_data, clcts_data);
 }
 
-void CSCTriggerPrimitivesReader::compareALCTs(
-                                              const CSCALCTDigiCollection* alcts_data,
+void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts_data,
                                               const CSCALCTDigiCollection* alcts_emul) {
   int emul_corr_bx;
 
@@ -1473,7 +1450,6 @@ void CSCTriggerPrimitivesReader::compareALCTs(
   // empirically.
   int register_delay =  2;
   // Loop over all chambers in search for ALCTs.
-  CSCALCTDigiCollection::const_iterator digiIt;
   std::vector<CSCALCTDigi>::const_iterator pd, pe;
   for (int endc = 1; endc <= 2; endc++) {
     for (int stat = 1; stat <= 4; stat++) {
@@ -1485,16 +1461,16 @@ void CSCTriggerPrimitivesReader::compareALCTs(
           // Skip chambers marked as bad.
           if (checkBadChambers_ && badChambers_->isInBadChamber(detid)) continue;
           std::vector<CSCALCTDigi> alctV_data, alctV_emul;
-          const CSCALCTDigiCollection::Range& drange = alcts_data->get(detid);
-          for (digiIt = drange.first; digiIt != drange.second; digiIt++) {
+          const auto& drange = alcts_data->get(detid);
+          for (auto digiIt = drange.first; digiIt != drange.second; digiIt++) {
             if ((*digiIt).isValid()) {
               alctV_data.push_back(*digiIt);
             }
           }
 
-          const CSCALCTDigiCollection::Range& erange = alcts_emul->get(detid);
+          const auto& erange = alcts_emul->get(detid);
           std::vector<bool> bookedalctV_emul;
-          for (digiIt = erange.first; digiIt != erange.second; digiIt++) {
+          for (auto digiIt = erange.first; digiIt != erange.second; digiIt++) {
             if ((*digiIt).isValid()) {
               alctV_emul.push_back(*digiIt);
               bookedalctV_emul.push_back(false);
@@ -1743,8 +1719,7 @@ void CSCTriggerPrimitivesReader::compareALCTs(
   }
 }// compare ALCT
 
-void CSCTriggerPrimitivesReader::compareCLCTs(
-                                              const CSCCLCTDigiCollection* clcts_data,
+void CSCTriggerPrimitivesReader::compareCLCTs(const CSCCLCTDigiCollection* clcts_data,
                                               const CSCCLCTDigiCollection* clcts_emul,
                                               const CSCCLCTPreTriggerDigiCollection* pretrigs_emul) {
   // Number of Tbins before pre-trigger for raw cathode hits.
@@ -1753,7 +1728,6 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
   const int pretrig_trig_zone = 5;// max distance between CLCT key hs and pretrigger hs
 
   // Loop over all chambers in search for CLCTs.
-  CSCCLCTDigiCollection::const_iterator digiIt;
   std::vector<CSCCLCTDigi>::const_iterator pd, pe;
   CSCCLCTPreTriggerDigiCollection::const_iterator pretrigIt;
   std::vector<CSCCLCTPreTriggerDigi>::const_iterator pretrig;
@@ -1770,16 +1744,16 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
           if (checkBadChambers_ && badChambers_->isInBadChamber(detid)) continue;
 
           std::vector<CSCCLCTDigi> clctV_data, clctV_emul;
-          const CSCCLCTDigiCollection::Range& drange = clcts_data->get(detid);
-          for (digiIt = drange.first; digiIt != drange.second; digiIt++) {
+          const auto& drange = clcts_data->get(detid);
+          for (auto digiIt = drange.first; digiIt != drange.second; digiIt++) {
             if ((*digiIt).isValid()) {
               clctV_data.push_back(*digiIt);
             }
           }
 
-          const CSCCLCTDigiCollection::Range& erange = clcts_emul->get(detid);
+          const auto& erange = clcts_emul->get(detid);
           std::vector<bool> bookedclctV_emul;
-          for (digiIt = erange.first; digiIt != erange.second; digiIt++) {
+          for (auto digiIt = erange.first; digiIt != erange.second; digiIt++) {
             if ((*digiIt).isValid()) {
               for (auto pclct : clctV_emul){
                 if (digiIt->getBX() != pclct.getBX() and abs(digiIt->getBX() - pclct.getBX())< 5)
@@ -2100,15 +2074,13 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
   } // for all chambers
 } // compareCLCTs
 
-void CSCTriggerPrimitivesReader::compareLCTs(
-                                             const CSCCorrelatedLCTDigiCollection* lcts_data,
+void CSCTriggerPrimitivesReader::compareLCTs(const CSCCorrelatedLCTDigiCollection* lcts_data,
                                              const CSCCorrelatedLCTDigiCollection* lcts_emul,
                                              const CSCALCTDigiCollection* alcts_data,
                                              const CSCCLCTDigiCollection* clcts_data) {
   // Need ALCT and CLCT digi collections to convert emulator bx into
   // hardware bx.
   // Loop over all chambers in search for correlated LCTs.
-  CSCCorrelatedLCTDigiCollection::const_iterator digiIt;
   std::vector<CSCCorrelatedLCTDigi>::const_iterator pd, pe;
   for (int endc = 1; endc <= 2; endc++) {
     for (int stat = 1; stat <= 4; stat++) {
@@ -2122,17 +2094,15 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 
           std::vector<CSCCorrelatedLCTDigi> lctV_data, lctV_emul;
           std::vector<bool> bookedlctV_emul;
-          const CSCCorrelatedLCTDigiCollection::Range&
-            drange = lcts_data->get(detid);
-          for (digiIt = drange.first; digiIt != drange.second; digiIt++) {
+          const auto& drange = lcts_data->get(detid);
+          for (auto digiIt = drange.first; digiIt != drange.second; digiIt++) {
             if ((*digiIt).isValid()) {
               lctV_data.push_back(*digiIt);
             }
           }
 
-          const CSCCorrelatedLCTDigiCollection::Range&
-            erange = lcts_emul->get(detid);
-          for (digiIt = erange.first; digiIt != erange.second; digiIt++) {
+          const auto& erange = lcts_emul->get(detid);
+          for (auto digiIt = erange.first; digiIt != erange.second; digiIt++) {
             if ((*digiIt).isValid()) {
               lctV_emul.push_back(*digiIt);
               bookedlctV_emul.push_back(false);
@@ -2418,7 +2388,6 @@ void CSCTriggerPrimitivesReader::compareMPCLCTs(
   // Need ALCT and CLCT digi collections to convert emulator bx into
   // hardware bx.
   // Loop over all chambers in search for correlated LCTs.
-  CSCCorrelatedLCTDigiCollection::const_iterator digiIt;
   std::vector<CSCCorrelatedLCTDigi>::const_iterator pd, pe;
   for (int endc = 1; endc <= 2; endc++) {
     for (int stat = 1; stat <= 4; stat++) {
@@ -2432,17 +2401,15 @@ void CSCTriggerPrimitivesReader::compareMPCLCTs(
 
           std::vector<CSCCorrelatedLCTDigi> lctV_data, lctV_emul;
           std::vector<bool> bookedlctV_emul;
-          const CSCCorrelatedLCTDigiCollection::Range&
-            drange = lcts_data->get(detid);
-          for (digiIt = drange.first; digiIt != drange.second; digiIt++) {
+          const auto& drange = lcts_data->get(detid);
+          for (auto digiIt = drange.first; digiIt != drange.second; digiIt++) {
             if ((*digiIt).isValid()) {
               lctV_data.push_back(*digiIt);
             }
           }
 
-          const CSCCorrelatedLCTDigiCollection::Range&
-            erange = lcts_emul->get(detid);
-          for (digiIt = erange.first; digiIt != erange.second; digiIt++) {
+          const auto& erange = lcts_emul->get(detid);
+          for (auto digiIt = erange.first; digiIt != erange.second; digiIt++) {
             if ((*digiIt).isValid()) {
               lctV_emul.push_back(*digiIt);
               bookedlctV_emul.push_back(false);
@@ -2669,8 +2636,8 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(
   int tbin_anode_offset = 5; // 2007, run 14419.
 
   // Extract full 12-bit anode BX word from ALCT collections.
-  const CSCALCTDigiCollection::Range& arange = alcts_data->get(detid);
-  for (CSCALCTDigiCollection::const_iterator digiIt = arange.first;
+  const auto& arange = alcts_data->get(detid);
+  for (auto digiIt = arange.first;
        digiIt != arange.second; digiIt++) {
     if ((*digiIt).isValid()) {
       full_anode_bx = (*digiIt).getFullBX();
@@ -2679,8 +2646,8 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(
   }
 
   // Extract full 12-bit cathode BX word from CLCT collections.
-  const CSCCLCTDigiCollection::Range& crange = clcts_data->get(detid);
-  for (CSCCLCTDigiCollection::const_iterator digiIt = crange.first;
+  const auto& crange = clcts_data->get(detid);
+  for (auto digiIt = crange.first;
        digiIt != crange.second; digiIt++) {
     if ((*digiIt).isValid()) {
       //full_cathode_bx = (*digiIt).getFullBX();
@@ -2846,8 +2813,8 @@ void CSCTriggerPrimitivesReader::calcResolution(
   for (adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++) {
     const CSCDetId& id = (*adetUnitIt).first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id)) continue;
-    const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
-    for (CSCALCTDigiCollection::const_iterator digiIt = range.first;
+    const auto& range = (*adetUnitIt).second;
+    for (auto digiIt = range.first;
          digiIt != range.second; digiIt++) {
 
       bool alct_valid = (*digiIt).isValid();
@@ -2902,8 +2869,8 @@ void CSCTriggerPrimitivesReader::calcResolution(
   for (cdetUnitIt = clcts->begin(); cdetUnitIt != clcts->end(); cdetUnitIt++) {
     const CSCDetId& id = (*cdetUnitIt).first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id)) continue;
-    const CSCCLCTDigiCollection::Range& range = (*cdetUnitIt).second;
-    for (CSCCLCTDigiCollection::const_iterator digiIt = range.first;
+    const auto& range = (*cdetUnitIt).second;
+    for (auto digiIt = range.first;
          digiIt != range.second; digiIt++) {
 
       bool clct_valid = (*digiIt).isValid();
@@ -3131,8 +3098,8 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
            adetUnitIt++) {
         const CSCDetId& id = (*adetUnitIt).first;
         if (id == (*chamberIdIt)) {
-          const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
-          for (CSCALCTDigiCollection::const_iterator digiIt = range.first;
+          const auto& range = (*adetUnitIt).second;
+          for (auto digiIt = range.first;
                digiIt != range.second; digiIt++) {
             if (digiIt->isValid()) {
               // Check the distance??
@@ -3158,8 +3125,8 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
            cdetUnitIt++) {
         const CSCDetId& id = (*cdetUnitIt).first;
         if (id == (*chamberIdIt)) {
-          const CSCCLCTDigiCollection::Range& range = (*cdetUnitIt).second;
-          for (CSCCLCTDigiCollection::const_iterator digiIt = range.first;
+          const auto& range = (*cdetUnitIt).second;
+          for (auto digiIt = range.first;
                digiIt != range.second; digiIt++) {
             if (digiIt->isValid()) {
               // Check the distance??
@@ -4051,50 +4018,6 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   }
   page++;  c1->Update();
 
-  /* Old histos, separately for halfstrips and distrips */
-  /*
-    ps->NewPage();
-    c1->Clear();  c1->cd(0);
-    title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
-    "#phi_rec-#phi_sim (mrad), halfstrips only");
-    title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-    pad[page]->Draw();
-    pad[page]->Divide(2,5);
-    for (int idh = 0; idh < max_idh; idh++) {
-    if (!plotME1A && idh == 3) continue;
-    hPhiDiffCsc[idh][4]->GetYaxis()->SetTitle("Entries");
-    hPhiDiffCsc[idh][4]->GetYaxis()->SetTitleSize(0.07);
-    hPhiDiffCsc[idh][4]->GetXaxis()->SetLabelSize(0.07); // default=0.04
-    hPhiDiffCsc[idh][4]->GetYaxis()->SetLabelSize(0.07);
-    pad[page]->cd(idh+1);  hPhiDiffCsc[idh][4]->Draw();
-    if (hPhiDiffCsc[idh][4]->GetEntries() > 1)
-    hPhiDiffCsc[idh][4]->Fit("gaus","Q");
-    }
-    pad[page]->cd(10);  hResolDeltaPhiHS->Draw();
-    hResolDeltaPhiHS->Fit("gaus","Q");
-    page++;  c1->Update();
-    ps->NewPage();
-    c1->Clear();  c1->cd(0);
-    title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
-    "#phi_rec-#phi_sim (mrad), distrips only");
-    title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-    pad[page]->Draw();
-    pad[page]->Divide(2,5);
-    for (int idh = 0; idh < max_idh; idh++) {
-    if (!plotME1A && idh == 3) continue;
-    hPhiDiffCsc[idh][3]->GetXaxis()->SetLabelSize(0.07); // default=0.04
-    hPhiDiffCsc[idh][3]->GetYaxis()->SetLabelSize(0.07);
-    pad[page]->cd(idh+1);  hPhiDiffCsc[idh][3]->Draw();
-    if (hPhiDiffCsc[idh][3]->GetEntries() > 1)
-    hPhiDiffCsc[idh][3]->Fit("gaus","Q");
-    }
-    pad[page]->cd(10);  hResolDeltaPhiDS->Draw();
-    hResolDeltaPhiDS->Fit("gaus","Q");
-    page++;  c1->Update();
-  */
-
   ps->NewPage();
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
@@ -4173,28 +4096,6 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
     hPhiDiffVsStripCsc[idh][1]->Draw();
   }
   page++;  c1->Update();
-
-  /* Old histos for distrips */
-  /*
-    c1->Clear();  c1->cd(0);
-    title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
-    "#phi_rec-#phi_sim (mrad) vs distrip #");
-    title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-    pad[page]->Draw();
-    pad[page]->Divide(2,5);
-    for (int idh = 0; idh < max_idh; idh++) {
-    if (!plotME1A && idh == 3) continue;
-    pad[page]->cd(idh+1);  hPhiDiffVsStripCsc[idh][0]->SetMarkerSize(0.2);
-    hPhiDiffVsStripCsc[idh][0]->GetXaxis()->SetTitle("Distrip");
-    hPhiDiffVsStripCsc[idh][0]->GetXaxis()->SetTitleOffset(1.4);
-    hPhiDiffVsStripCsc[idh][0]->GetYaxis()->SetTitle("#phi_rec-#phi_sim (mrad)");
-    hPhiDiffVsStripCsc[idh][0]->GetXaxis()->SetLabelSize(0.07); // default=0.04
-    hPhiDiffVsStripCsc[idh][0]->GetYaxis()->SetLabelSize(0.07);
-    hPhiDiffVsStripCsc[idh][0]->Draw();
-    }
-    page++;  c1->Update();
-  */
 
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
