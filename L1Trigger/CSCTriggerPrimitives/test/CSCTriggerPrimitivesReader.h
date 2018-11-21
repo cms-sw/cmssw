@@ -213,7 +213,6 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   static const int NCHAMBERS[CSC_TYPES];
   static const int MAX_WG[CSC_TYPES];
   static const int MAX_HS[CSC_TYPES];
-  static const int ptype[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07];
   static const int ptype_TMB07[CSCConstants::NUM_CLCT_PATTERNS];
 
   static const int lut_wg_vs_hs_me1b[48][2];
@@ -267,46 +266,46 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   double getHsPerRad(const int idh);
 
   void compare(const CSCALCTDigiCollection* alcts_data,
-	       const CSCALCTDigiCollection* alcts_emul,
-	       const CSCCLCTDigiCollection* clcts_data,
-	       const CSCCLCTDigiCollection* clcts_emul,
-	       const CSCCLCTPreTriggerDigiCollection* pretrigs_emul,
-	       const CSCCorrelatedLCTDigiCollection* lcts_data,
-	       const CSCCorrelatedLCTDigiCollection* lcts_emul);//,
-	       //const CSCCorrelatedLCTDigiCollection* mpclcts_data,
-	       //const CSCCorrelatedLCTDigiCollection* mpclcts_emul);
+               const CSCALCTDigiCollection* alcts_emul,
+               const CSCCLCTDigiCollection* clcts_data,
+               const CSCCLCTDigiCollection* clcts_emul,
+               const CSCCLCTPreTriggerDigiCollection* pretrigs_emul,
+               const CSCCorrelatedLCTDigiCollection* lcts_data,
+               const CSCCorrelatedLCTDigiCollection* lcts_emul);//,
+  //const CSCCorrelatedLCTDigiCollection* mpclcts_data,
+  //const CSCCorrelatedLCTDigiCollection* mpclcts_emul);
   void bookCompHistos();
   void compareALCTs(const CSCALCTDigiCollection* alcts_data,
-		    const CSCALCTDigiCollection* alcts_emul);
+                    const CSCALCTDigiCollection* alcts_emul);
   void compareCLCTs(const CSCCLCTDigiCollection* clcts_data,
-		    const CSCCLCTDigiCollection* clcts_emul,
-		    const CSCCLCTPreTriggerDigiCollection* pretrigs_emul);
+                    const CSCCLCTDigiCollection* clcts_emul,
+                    const CSCCLCTPreTriggerDigiCollection* pretrigs_emul);
   void compareLCTs(const CSCCorrelatedLCTDigiCollection* lcts_data,
-		   const CSCCorrelatedLCTDigiCollection* lcts_emul,
-		   const CSCALCTDigiCollection* alcts_data,
-		   const CSCCLCTDigiCollection* clcts_data);
+                   const CSCCorrelatedLCTDigiCollection* lcts_emul,
+                   const CSCALCTDigiCollection* alcts_data,
+                   const CSCCLCTDigiCollection* clcts_data);
   void compareMPCLCTs(const CSCCorrelatedLCTDigiCollection* lcts_data,
-		   const CSCCorrelatedLCTDigiCollection* lcts_emul,
-		   const CSCALCTDigiCollection* alcts_data,
-		   const CSCCLCTDigiCollection* clcts_data);
+                      const CSCCorrelatedLCTDigiCollection* lcts_emul,
+                      const CSCALCTDigiCollection* alcts_data,
+                      const CSCCLCTDigiCollection* clcts_data);
   int  convertBXofLCT(const int emul_bx, const CSCDetId& detid,
-		      const CSCALCTDigiCollection* alcts_data,
-		      const CSCCLCTDigiCollection* clcts_data);
+                      const CSCALCTDigiCollection* alcts_data,
+                      const CSCCLCTDigiCollection* clcts_data);
   void drawCompHistos();
 
   void MCStudies(const edm::Event& ev,
-		 const CSCALCTDigiCollection* alcts,
-		 const CSCCLCTDigiCollection* clcts);
+                 const CSCALCTDigiCollection* alcts,
+                 const CSCCLCTDigiCollection* clcts);
 
   void calcResolution(const CSCALCTDigiCollection* alcts,
-		      const CSCCLCTDigiCollection* clcts,
-		      const CSCWireDigiCollection* wiredc,
-		      const CSCComparatorDigiCollection* compdc,
-		      const edm::PSimHitContainer* allSimHits);
+                      const CSCCLCTDigiCollection* clcts,
+                      const CSCWireDigiCollection* wiredc,
+                      const CSCComparatorDigiCollection* compdc,
+                      const edm::PSimHitContainer& allSimHits);
 
   void calcEfficiency(const CSCALCTDigiCollection* alcts,
-		      const CSCCLCTDigiCollection* clcts,
-		      const edm::PSimHitContainer* allSimHits);
+                      const CSCCLCTDigiCollection* clcts,
+                      const edm::PSimHitContainer& allSimHits);
 
   int maxRing(int station);
 
@@ -375,8 +374,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   TH1F *hClctCompFound;
   TH2F *hClctCompFound2;
   TH2F *hClctCompFound2x;
-  TH2F *hClctCompFound2i
-;
+  TH2F *hClctCompFound2i;
   TH1F *hClctCompSameN;
   TH2F *hClctCompSameN2;
   TH2F *hClctCompSameN2x;

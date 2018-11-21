@@ -78,8 +78,6 @@ const int CSCTriggerPrimitivesReader::MAX_WG[CSC_TYPES] = {
   48,  64,  32,  48, 112,  64,  96,  64,  96,  64};//max. number of wiregroups
 const int CSCTriggerPrimitivesReader::MAX_HS[CSC_TYPES] = {
   128, 160, 128,  96, 160, 160, 160, 160, 160, 160}; // max. # of halfstrips
-const int CSCTriggerPrimitivesReader::ptype[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07]= {
-  -999,  3, -3,  2, -2,  1, -1,  0};  // "signed" pattern (== phiBend)
 const int CSCTriggerPrimitivesReader::ptype_TMB07[CSCConstants::NUM_CLCT_PATTERNS]= {
   -999,  -5,  4, -4,  3, -3,  2, -2,  1, -1,  0}; // "signed" pattern (== phiBend)
 
@@ -1119,7 +1117,7 @@ void CSCTriggerPrimitivesReader::bookResolHistos() {
   int max_patterns, phibend;
   max_patterns = CSCConstants::NUM_CLCT_PATTERNS;
   for (int i = 0; i < max_patterns; i++) {
-    phibend = ptype[i];
+    phibend = ptype_TMB07[i];
     sprintf(histname, "#phi_rec-#phi_sim, bend = %d", phibend);
     hPhiDiffPattern[i] = fs->make<TH1F>("", histname, 100, PDMIN, PDMAX);
   }
@@ -1166,8 +1164,7 @@ void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alc
   if (!bookedALCTHistos) bookALCTHistos();
 
   int nValidALCTs = 0;
-  CSCALCTDigiCollection::DigiRangeIterator detUnitIt;
-  for (detUnitIt = alcts->begin(); detUnitIt != alcts->end(); detUnitIt++) {
+  for (auto detUnitIt = alcts->begin(); detUnitIt != alcts->end(); detUnitIt++) {
     int nValidALCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id)) continue;
@@ -1214,12 +1211,11 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
   if (!bookedCLCTHistos) bookCLCTHistos();
 
   int nValidCLCTs = 0;
-  CSCCLCTDigiCollection::DigiRangeIterator detUnitIt;
-  for (detUnitIt = clcts->begin(); detUnitIt != clcts->end(); detUnitIt++) {
+  for (auto detUnitIt = clcts->begin(); detUnitIt != clcts->end(); detUnitIt++) {
     int nValidCLCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id)) continue;
-    const CSCCLCTDigiCollection::Range& range = (*detUnitIt).second;
+    const auto& range = (*detUnitIt).second;
     for (auto digiIt = range.first;
          digiIt != range.second; digiIt++) {
 
@@ -1276,8 +1272,7 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
   int nValidLCTs = 0;
   bool alct_valid, clct_valid;
 
-  CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt;
-  for (detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) {
+  for (auto detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) {
     int nValidLCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id)) continue;
@@ -1349,8 +1344,7 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
   int nValidLCTs = 0;
   bool alct_valid, clct_valid;
 
-  CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt;
-  for (detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) {
+  for (auto detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) {
     const CSCDetId& id = (*detUnitIt).first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id)) continue;
     const auto& range = (*detUnitIt).second;
@@ -1729,7 +1723,6 @@ void CSCTriggerPrimitivesReader::compareCLCTs(const CSCCLCTDigiCollection* clcts
 
   // Loop over all chambers in search for CLCTs.
   std::vector<CSCCLCTDigi>::const_iterator pd, pe;
-  CSCCLCTPreTriggerDigiCollection::const_iterator pretrigIt;
   std::vector<CSCCLCTPreTriggerDigi>::const_iterator pretrig;
   perStub[2].init(RUN_, Event_);
   perStub[3].init(RUN_, Event_);
@@ -1765,8 +1758,8 @@ void CSCTriggerPrimitivesReader::compareCLCTs(const CSCCLCTDigiCollection* clcts
           }
 
           std::vector<CSCCLCTPreTriggerDigi> pretrigV_emul;
-          const CSCCLCTPreTriggerDigiCollection::Range& pretrigrange = pretrigs_emul->get(detid);
-          for (pretrigIt = pretrigrange.first; pretrigIt != pretrigrange.second; pretrigIt++){
+          const auto& pretrigrange = pretrigs_emul->get(detid);
+          for (auto pretrigIt = pretrigrange.first; pretrigIt != pretrigrange.second; pretrigIt++){
             if ((*pretrigIt).isValid()){
               pretrigV_emul.push_back(*pretrigIt);
             }
@@ -2637,8 +2630,7 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(
 
   // Extract full 12-bit anode BX word from ALCT collections.
   const auto& arange = alcts_data->get(detid);
-  for (auto digiIt = arange.first;
-       digiIt != arange.second; digiIt++) {
+  for (auto digiIt = arange.first; digiIt != arange.second; digiIt++) {
     if ((*digiIt).isValid()) {
       full_anode_bx = (*digiIt).getFullBX();
       break;
@@ -2647,8 +2639,7 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(
 
   // Extract full 12-bit cathode BX word from CLCT collections.
   const auto& crange = clcts_data->get(detid);
-  for (auto digiIt = crange.first;
-       digiIt != crange.second; digiIt++) {
+  for (auto digiIt = crange.first; digiIt != crange.second; digiIt++) {
     if ((*digiIt).isValid()) {
       //full_cathode_bx = (*digiIt).getFullBX();
       break;
@@ -2683,7 +2674,7 @@ void CSCTriggerPrimitivesReader::HotWires(const edm::Event& iEvent) {
   iEvent.getByToken(wireDigi_token_, wires);
 
   int serial_old=-1;
-  for (CSCWireDigiCollection::DigiRangeIterator dWDiter=wires->begin(); dWDiter!=wires->end(); dWDiter++) {
+  for (auto dWDiter=wires->begin(); dWDiter!=wires->end(); dWDiter++) {
     CSCDetId id = (CSCDetId)(*dWDiter).first;
     int serial = chamberSerial(id)-1;
     //     printf("serial %i\n",serial);
@@ -2751,7 +2742,7 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
     // and SimHits.
     edm::Handle<CSCWireDigiCollection>       wireDigis;
     edm::Handle<CSCComparatorDigiCollection> compDigis;
-    edm::Handle<edm::PSimHitContainer>       simHits;
+    edm::Handle<edm::PSimHitContainer>       simHitsH;
     //    ev.getByLabel(wireDigiProducer_.label(), wireDigiProducer_.instance(),
     //		  wireDigis);
     //    ev.getByLabel(compDigiProducer_.label(), compDigiProducer_.instance(),
@@ -2760,7 +2751,8 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
     //		  simHits);
     ev.getByToken(wireDigi_token_, wireDigis);
     ev.getByToken(compDigi_token_, compDigis);
-    ev.getByToken(simHit_token_, simHits);
+    ev.getByToken(simHit_token_, simHitsH);
+    const edm::PSimHitContainer& simHits = *simHitsH.product();
 
     if (!wireDigis.isValid()) {
       edm::LogWarning("L1CSCTPEmulatorWrongInput")
@@ -2776,7 +2768,7 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
         << " requested, but not found in the event... Skipping the rest +++\n";
       return;
     }
-    if (!simHits.isValid()) {
+    if (!simHitsH.isValid()) {
       edm::LogWarning("L1CSCTPEmulatorWrongInput")
         << "+++ Warning: Collection of SimHits with label"
         << simHitProducer_.label()
@@ -2786,22 +2778,21 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
 
 
     if (debug) LogTrace("CSCTriggerPrimitivesReader")
-                 << "   #CSC SimHits: " << simHits->size();
+                 << "   #CSC SimHits: " << simHits.size();
 
     // MC-based resolution studies.
     calcResolution(alcts, clcts, wireDigis.product(), compDigis.product(),
-                   simHits.product());
+                   simHits);
 
     // MC-based efficiency studies.
-    calcEfficiency(alcts, clcts, simHits.product());
+    calcEfficiency(alcts, clcts, simHits);
   }
 }
 
-void CSCTriggerPrimitivesReader::calcResolution(
-                                                const CSCALCTDigiCollection* alcts, const CSCCLCTDigiCollection* clcts,
+void CSCTriggerPrimitivesReader::calcResolution(const CSCALCTDigiCollection* alcts, const CSCCLCTDigiCollection* clcts,
                                                 const CSCWireDigiCollection* wiredc,
                                                 const CSCComparatorDigiCollection* compdc,
-                                                const edm::PSimHitContainer* allSimHits) {
+                                                const edm::PSimHitContainer& allSimHits) {
 
   // Book histos when called for the first time.
   if (!bookedResolHistos) bookResolHistos();
@@ -2809,8 +2800,8 @@ void CSCTriggerPrimitivesReader::calcResolution(
   // ALCT resolution
   CSCAnodeLCTAnalyzer alct_analyzer;
   alct_analyzer.setGeometry(geom_);
-  CSCALCTDigiCollection::DigiRangeIterator adetUnitIt;
-  for (adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++) {
+
+  for (auto adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++) {
     const CSCDetId& id = (*adetUnitIt).first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id)) continue;
     const auto& range = (*adetUnitIt).second;
@@ -2820,7 +2811,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
       bool alct_valid = (*digiIt).isValid();
       if (alct_valid) {
         vector<CSCAnodeLayerInfo> alctInfo =
-          alct_analyzer.getSimInfo(*digiIt, id, wiredc, allSimHits);
+          alct_analyzer.getSimInfo(*digiIt, id, wiredc, &allSimHits);
 
         double hitPhi = -999.0, hitEta = -999.0;
         int hitWG = alct_analyzer.nearestWG(alctInfo, hitPhi, hitEta);
@@ -2865,8 +2856,8 @@ void CSCTriggerPrimitivesReader::calcResolution(
   static const int key_layer = CSCConstants::KEY_CLCT_LAYER;
   CSCCathodeLCTAnalyzer clct_analyzer;
   clct_analyzer.setGeometry(geom_);
-  CSCCLCTDigiCollection::DigiRangeIterator cdetUnitIt;
-  for (cdetUnitIt = clcts->begin(); cdetUnitIt != clcts->end(); cdetUnitIt++) {
+
+  for (auto cdetUnitIt = clcts->begin(); cdetUnitIt != clcts->end(); cdetUnitIt++) {
     const CSCDetId& id = (*cdetUnitIt).first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id)) continue;
     const auto& range = (*cdetUnitIt).second;
@@ -2876,7 +2867,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
       bool clct_valid = (*digiIt).isValid();
       if (clct_valid) {
         vector<CSCCathodeLayerInfo> clctInfo =
-          clct_analyzer.getSimInfo(*digiIt, id, compdc, allSimHits);
+          clct_analyzer.getSimInfo(*digiIt, id, compdc, &allSimHits);
 
         double hitPhi = -999.0, hitEta = -999.0, deltaStrip = -999.0;
         int hitHS = clct_analyzer.nearestHS(clctInfo, hitPhi, hitEta);
@@ -2958,20 +2949,18 @@ void CSCTriggerPrimitivesReader::calcResolution(
         // positions in the first and in the sixth layers.
         double phi1 = -999.0, phi6 = -999.0;
         vector<CSCCathodeLayerInfo>::const_iterator pli;
-        edm::PSimHitContainer::const_iterator psh;
         for (pli = clctInfo.begin(); pli != clctInfo.end(); pli++) {
           CSCDetId layerId = pli->getId();
           int layer = layerId.layer();
           if (layer == 1 || layer == 6) {
             // Get simHits in this layer.
-            for (psh = allSimHits->begin(); psh != allSimHits->end(); psh++) {
+            for (const auto& psh : allSimHits) {
               // Find detId where simHit is located.
-              CSCDetId hitId = (CSCDetId)(*psh).detUnitId();
+              CSCDetId hitId = (CSCDetId)psh.detUnitId();
               if (hitId == layerId &&
-                  abs(psh->particleType()) == 13) { // muon hits only
+                  abs(psh.particleType()) == 13) { // muon hits only
                 const CSCLayer* csclayer = geom_->layer(layerId);
-                GlobalPoint thisPoint =
-                  csclayer->toGlobal(psh->localPosition());
+                const auto& thisPoint = csclayer->toGlobal(psh.localPosition());
                 double phi = thisPoint.phi();
                 if (layer == 1)      phi1 = phi;
                 else if (layer == 6) phi6 = phi;
@@ -2992,11 +2981,9 @@ void CSCTriggerPrimitivesReader::calcResolution(
   }
 }
 
-void CSCTriggerPrimitivesReader::calcEfficiency(
-                                                const CSCALCTDigiCollection* alcts, const CSCCLCTDigiCollection* clcts,
-                                                const edm::PSimHitContainer* allSimHits) {
-
-  edm::PSimHitContainer::const_iterator simHitIt;
+void CSCTriggerPrimitivesReader::calcEfficiency(const CSCALCTDigiCollection* alcts,
+                                                const CSCCLCTDigiCollection* clcts,
+                                                const edm::PSimHitContainer& allSimHits) {
 
   // Book histos when called for the first time.
   if (!bookedEfficHistos) bookEfficHistos();
@@ -3004,21 +2991,19 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
   // Create list of chambers having SimHits.
   vector<CSCDetId> chamberIds;
   vector<CSCDetId>::const_iterator chamberIdIt;
-  for (simHitIt = allSimHits->begin(); simHitIt != allSimHits->end();
-       simHitIt++) {
+  for (const auto& simHitIt : allSimHits) {
     // Find detId where simHit is located.
     bool sameId = false;
-    CSCDetId hitId = (CSCDetId)(*simHitIt).detUnitId();
+    CSCDetId hitId = (CSCDetId) simHitIt.detUnitId();
     // Skip chambers marked as bad (includes most of ME4/2 chambers).
     if (checkBadChambers_ && badChambers_->isInBadChamber(hitId)) continue;
     //if (hitId.ring() == 4) continue; // skip ME1/A for now.
     if (!plotME1A && hitId.ring() == 4) continue;
-    for (chamberIdIt = chamberIds.begin(); chamberIdIt != chamberIds.end();
-         chamberIdIt++) {
-      if ((*chamberIdIt).endcap()  == hitId.endcap() &&
-          (*chamberIdIt).station() == hitId.station() &&
-          (*chamberIdIt).ring()    == hitId.ring() &&
-          (*chamberIdIt).chamber() == hitId.chamber()) {
+    for (const auto& chamberId : chamberIds) {
+      if (chamberId.endcap()  == hitId.endcap() &&
+          chamberId.station() == hitId.station() &&
+          chamberId.ring()    == hitId.ring() &&
+          chamberId.chamber() == hitId.chamber()) {
         sameId = true;
         break;
       }
@@ -3034,8 +3019,7 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
 
   bool used[CSCConstants::NUM_LAYERS];
   vector<PSimHit> simHitsV[CSCConstants::NUM_LAYERS];
-  for (chamberIdIt = chamberIds.begin(); chamberIdIt != chamberIds.end();
-       chamberIdIt++) {
+  for (const auto& chamberId : chamberIds) {
     // Find out how many layers of this chamber have SimHits.
     int nLayers = 0;
     for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++) {
@@ -3043,20 +3027,19 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
       simHitsV[ilayer].clear();
     }
 
-    int endcap  = (*chamberIdIt).endcap();
-    int station = (*chamberIdIt).station();
-    int ring    = (*chamberIdIt).ring();
-    int chamber = (*chamberIdIt).chamber();
-    for (simHitIt = allSimHits->begin(); simHitIt != allSimHits->end();
-         simHitIt++) {
-      CSCDetId hitId = (CSCDetId)(*simHitIt).detUnitId();
+    int endcap  = chamberId.endcap();
+    int station = chamberId.station();
+    int ring    = chamberId.ring();
+    int chamber = chamberId.chamber();
+    for (const auto& simHitIt : allSimHits) {
+      CSCDetId hitId = (CSCDetId) simHitIt.detUnitId();
       if (hitId.endcap() == endcap && hitId.station() == station &&
           hitId.ring()   == ring   && hitId.chamber() == chamber) {
         int layer = hitId.layer() - 1;
-        if (!used[layer] && abs((*simHitIt).particleType()) == 13) {
+        if (!used[layer] && abs(simHitIt.particleType()) == 13) {
           nLayers++;
           used[layer] = true;
-          simHitsV[layer].push_back(*simHitIt);
+          simHitsV[layer].push_back(simHitIt);
         }
       }
     }
@@ -3093,8 +3076,7 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
       hEfficHitsEtaCsc[csctype]->Fill(fabs(hitEta));
 
       bool isALCT = false;
-      CSCALCTDigiCollection::DigiRangeIterator adetUnitIt;
-      for (adetUnitIt = alcts->begin(); adetUnitIt != alcts->end();
+      for (auto adetUnitIt = alcts->begin(); adetUnitIt != alcts->end();
            adetUnitIt++) {
         const CSCDetId& id = (*adetUnitIt).first;
         if (id == (*chamberIdIt)) {
@@ -3120,8 +3102,7 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
       }
 
       bool isCLCT = false;
-      CSCCLCTDigiCollection::DigiRangeIterator cdetUnitIt;
-      for (cdetUnitIt = clcts->begin(); cdetUnitIt != clcts->end();
+      for (auto cdetUnitIt = clcts->begin(); cdetUnitIt != clcts->end();
            cdetUnitIt++) {
         const CSCDetId& id = (*cdetUnitIt).first;
         if (id == (*chamberIdIt)) {
