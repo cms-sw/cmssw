@@ -22,9 +22,9 @@ inline int getPFCandidateIndex(const edm::Handle<pat::PackedCandidateCollection>
 
 class DPFIsolation : public deep_tau::DeepTauBase {
 public:
-    static OutputCollection& GetOutputs()
+    const OutputCollection& GetOutputs()
     {
-        static const size_t tau_index = 0;
+        const size_t tau_index = 0;
         static OutputCollection outputs_ = { { "VSall", Output({tau_index}, {}) } };
         return outputs_;
     };
@@ -224,14 +224,14 @@ private:
                 pfCandTauIndMatch = pfCandTauIndMatch_temp;
                 pfCandPtRelPtRel = pfCandPtRel*pfCandPtRel;
                 pfCandPt = std::min(pfCandPt, pfCandPt_max);
-                pfCandPt = pfCandPt/500.;
+                pfCandPt = pfCandPt/pfCandPt_max;
 
                 pfCandPz = std::min(pfCandPz, pfCandPz_max);
-                pfCandPz = pfCandPz/1000.;
+                pfCandPz = pfCandPz/pfCandPz_max;
 
                 pfCandPtRel = std::min(pfCandPtRel, pfCandPtRel_max);
                 pfCandPzRel = std::min(pfCandPzRel, pfCandPzRel_max);
-                pfCandPzRel = pfCandPzRel/100.;
+                pfCandPzRel = pfCandPzRel/pfCandPzRel_max;
                 pfCandDr   = pfCandDr/.5;
                 pfCandEta  = pfCandEta/2.75;
                 pfCandDEta = pfCandDEta/.5;
@@ -243,10 +243,10 @@ private:
                 pfCandPtRelPtRel = pfCandPtRelPtRel;
 
                 pfCandD0 = std::clamp(pfCandD0, -pfCandD0_max, pfCandD0_max);
-                pfCandD0 = pfCandD0/5.;
+                pfCandD0 = pfCandD0/pfCandD0_max;
 
                 pfCandDz = std::clamp(pfCandDz, -pfCandDz_max, pfCandDz_max);
-                pfCandDz = pfCandDz/5.;
+                pfCandDz = pfCandDz/pfCandDz_max;
 
                 if (pfCandD0Err > 1.) pfCandD0Err = 1.;
                 if (pfCandDzErr > 1.) pfCandDzErr = 1.;
@@ -260,16 +260,16 @@ private:
                 pfCandD0Dphi = pfCandD0*pfCandDPhi;
 
                 pfCandDVx_1 = std::clamp(pfCandDVx_1, -pfCandDVx_y_z_1_max, pfCandDVx_y_z_1_max);
-                pfCandDVx_1 = pfCandDVx_1/.05;
+                pfCandDVx_1 = pfCandDVx_1/pfCandDVx_y_z_1_max;
 
                 pfCandDVy_1 = std::clamp(pfCandDVy_1, -pfCandDVx_y_z_1_max, pfCandDVx_y_z_1_max);
-                pfCandDVy_1 = pfCandDVy_1/0.05;
+                pfCandDVy_1 = pfCandDVy_1/pfCandDVx_y_z_1_max;
 
                 pfCandDVz_1 = std::clamp(pfCandDVz_1, -pfCandDVx_y_z_1_max, pfCandDVx_y_z_1_max);
-                pfCandDVz_1 = pfCandDVz_1/0.05;
+                pfCandDVz_1 = pfCandDVz_1/pfCandDVx_y_z_1_max;
 
                 pfCandD_1 = std::clamp(pfCandD_1, -pfCandD_1_max, pfCandD_1_max);
-                pfCandD_1 = pfCandD_1/.1;
+                pfCandD_1 = pfCandD_1/ pfCandD_1_max;
 
                 if (graphVersion == 0) {
                     tensor.tensor<float,3>()( 0, 60-1-iPF, 0) = pfCandPt;
