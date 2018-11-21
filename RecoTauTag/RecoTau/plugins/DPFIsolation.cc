@@ -108,7 +108,7 @@ private:
         float pvz = !vertices->empty() ? (*vertices)[0].z() : -1;
 
         bool pfCandIsBarrel;
-        
+
         static constexpr float pfCandPt_max = 500.f;
         static constexpr float pfCandPz_max = 1000.f;
         static constexpr float pfCandPtRel_max = 1.f;
@@ -226,7 +226,7 @@ private:
                 pfCandPt = std::min(pfCandPt, pfCandPt_max);
                 pfCandPt = pfCandPt/500.;
 
-                pfCandPz = std::min(pfCandPt, pfCandPz_max);
+                pfCandPz = std::min(pfCandPz, pfCandPz_max);
                 pfCandPz = pfCandPz/1000.;
 
                 pfCandPtRel = std::min(pfCandPtRel, pfCandPtRel_max);
