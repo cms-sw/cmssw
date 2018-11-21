@@ -16,7 +16,6 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
-
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoHGCal/TICL/interface/Trackster.h"
 #include "RecoHGCal/TICL/plugins/TrackstersProducer.h"

@@ -15,6 +15,7 @@
 
 #include <string>
 #include <vector>
+#include <array>
 #include <algorithm>
 
 class TrackstersToMultiClusterProducer : public edm::stream::EDProducer<> {
@@ -75,12 +76,24 @@ void TrackstersToMultiClusterProducer::produce(edm::Event& evt, const edm::Event
 
   std::for_each(std::begin(tracksters), std::end(tracksters),
     [&](auto const & trackster) {
+      std::array<double, 3> baricenter{{0., 0., 0.}};
+      double total_weight = 0.;
       reco::HGCalMultiCluster temp;
       std::for_each(std::begin(trackster.vertices), std::end(trackster.vertices),
         [&](unsigned int idx) {
           temp.push_back(clusterPtrs[idx]);
-        }
+          auto weight = clusterPtrs[idx]->energy();
+          total_weight += weight;
+          baricenter[0] += clusterPtrs[idx]->x()*weight;
+          baricenter[1] += clusterPtrs[idx]->y()*weight;
+          baricenter[2] += clusterPtrs[idx]->z()*weight;
+        });
+      std::transform(std::begin(baricenter),
+        std::end(baricenter), std::begin(baricenter),
+        [&total_weight](double val)->double {return val/total_weight;}
       );
+      temp.setEnergy(total_weight);
+      temp.setPosition(math::XYZPoint(baricenter[0], baricenter[1], baricenter[2]));
       temp.setAlgoId(reco::CaloCluster::hgcal_mip);
       multiclusters->push_back(temp);
     }

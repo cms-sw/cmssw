@@ -19,7 +19,6 @@ private:
   edm::EDGetTokenT<std::vector<float>> original_layerclusters_mask_token_;
 
   std::unique_ptr<PatternRecognitionAlgoBase> myAlgo_;
-
 };
 
 
