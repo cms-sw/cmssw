@@ -230,7 +230,8 @@ void DeepDoubleXTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
   // count all jets to generate output_tags for each and set to default (-1)
   const int64_t n_jets_all = tag_infos->size();
   // either all jets or one per batch for the time being
-  const int64_t n_batch_jets = batch_eval_ ?  n_jets : 1;
+  const int64_t n_batch_jets = batch_eval_ ? n_jets_all : 1;
+  
   std::vector<tensorflow::TensorShape> input_sizes {
     {n_batch_jets, 1, 27},     // input_1 - global double-b features
     {n_batch_jets, 60, 8},     // input_2 - charged pf
