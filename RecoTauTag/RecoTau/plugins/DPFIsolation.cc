@@ -22,10 +22,10 @@ inline int getPFCandidateIndex(const edm::Handle<pat::PackedCandidateCollection>
 
 class DPFIsolation : public deep_tau::DeepTauBase {
 public:
-    const OutputCollection& GetOutputs()
+    static const OutputCollection& GetOutputs()
     {
         const size_t tau_index = 0;
-        static OutputCollection outputs_ = { { "VSall", Output({tau_index}, {}) } };
+        static const OutputCollection outputs_ = { { "VSall", Output({tau_index}, {}) } };
         return outputs_;
     };
 
