@@ -18,6 +18,7 @@ AlCa_EcalEtaEBonlyForHI_v*
 AlCa_EcalEtaEEonlyForHI_v*
 HLT_HICentralityVeto_v*
 HLT_HICentralityVeto_Beamspot_v*
+HLT_HICentrality30100_FirstCollisionAfterAbortGap_v*
 HLT_HICentralityTag20100_v*
 HLT_HICentralityTag30100_v*
 HLT_HICentralityTag50100_v*
@@ -197,6 +198,9 @@ HLT_HIL1MuOpen_Centrality_80_100_v*
 HLT_HIL2Mu3_NHitQ15_v*
 HLT_HIL2Mu5_NHitQ15_v*
 HLT_HIL2Mu7_NHitQ15_v*
+HLT_HIL2Mu3_NHitQ15_tagging_v*
+HLT_HIL2Mu5_NHitQ15_tagging_v*
+HLT_HIL2Mu7_NHitQ15_tagging_v*
 HLT_HIL3Mu2p5_L1DoubleMu0_v*
 HLT_HIL3Mu3_L1DoubleMuOpen_OS_v*
 HLT_HIL3Mu3NHitQ10_L1DoubleMuOpen_v*
@@ -207,6 +211,9 @@ HLT_HIL3Mu20_v*
 HLT_HIL3Mu3_NHitQ10_v*
 HLT_HIL3Mu5_NHitQ10_v*
 HLT_HIL3Mu7_NHitQ10_v*
+HLT_HIL3Mu3_NHitQ10_tagging_v*
+HLT_HIL3Mu5_NHitQ10_tagging_v*
+HLT_HIL3Mu7_NHitQ10_tagging_v*
 HLT_HIL1_ETT8_ETTAsym50_MinimumBiasHF1_OR_BptxAND_v*
 HLT_HIL1_ETT10_ETTAsym50_MinimumBiasHF1_OR_BptxAND_v*
 HLT_HIFullTracks_Multiplicity020_HF1AND_v*
@@ -316,6 +323,8 @@ HLT_HICastor_HighJet_BptxAND_v*
 HLT_HICastor_HighJet_MBHF1OR_BptxAND_v*
 HLT_HICastor_HighJet_NotMBHF2OR_v*
 HLT_HICastor_HighJet_NotMBHF2AND_v*
+HLT_HICastor_HighJet_MBHF1AND_BptxAND_v*
+HLT_HICastor_HighJet_MBHF2AND_BptxAND_v*
 HLT_HICastor_Muon_v*
 HLT_HICastor_Muon_BptxAND_v*
 HLT_HIIslandPhoton10_Eta2p4_Cent30_100_v*
@@ -372,6 +381,9 @@ HLT_HIUPC_ETT5_Asym50_NotMBHF2OR_SinglePixelTrack_v*
 HLT_HIL1NotBptxOR_v*
 HLT_HIL1UnpairedBunchBptxMinus_v*
 HLT_HIL1UnpairedBunchBptxPlus_v*
+
+HLT_HIL1_ZDC_AND_OR_MinimumBiasHF1_AND_BptxAND_v*
+HLT_HIL1_ZDC_AND_OR_MinimumBiasHF2_AND_BptxAND_v*
 
 HLTriggerFinalPath
 
