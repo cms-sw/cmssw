@@ -10,7 +10,7 @@ import copy # for deepcopy used below
 # See corresponding .cff files for examples.
 #
 # Note: following scenarios are and update for phase1 geometry of phase0 geometry scenarios defined in: 
-# https://github.com/cms-sw/cmssw/blob/master/Alignment/TrackerAlignment/python/Scenarios_cff_phase0.py
+# https://github.com/cms-sw/cmssw/blob/master/Alignment/TrackerAlignment/python/Scenarios_phase0_cff.py
 #
 # Updated Hierarchy levels:
 # P1PXBLadder
