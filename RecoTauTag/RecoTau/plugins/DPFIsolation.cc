@@ -239,9 +239,10 @@ private:
                 pfCandPixHits = pfCandPixHits/7.;
                 pfCandHits = pfCandHits/30.;
 
-
                 pfCandPtRelPtRel = std::min(pfCandPtRelPtRel, pfCandPtRelPtRel_max);
                 pfCandPtRelPtRel = pfCandPtRelPtRel;
+
+                if (pfCandPtRelPtRel > 1) pfCandPtRelPtRel = 1;
 
                 pfCandD0 = std::clamp(pfCandD0, -pfCandD0_max, pfCandD0_max);
                 pfCandD0 = pfCandD0/pfCandD0_max;
