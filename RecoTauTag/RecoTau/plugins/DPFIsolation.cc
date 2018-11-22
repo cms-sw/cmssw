@@ -132,7 +132,11 @@ private:
         for(size_t tau_index = 0; tau_index < taus->size(); tau_index++) {
             pat::Tau tau = taus->at(tau_index);
             bool isGoodTau = false;
-            if(tau.pt() >= 30 && std::abs(tau.eta()) < 2.3 && tau.isTauIDAvailable("againstMuonLoose3") &&
+            const float lepRecoPt = tau.pt();
+            const float lepRecoPz = std::abs(tau.pz());
+            const float lepRecoPhi = tau.phi();
+
+            if(lepRecoPt >= 30 && std::abs(tau.eta()) < 2.3 && tau.isTauIDAvailable("againstMuonLoose3") &&
                    tau.isTauIDAvailable("againstElectronVLooseMVA6")) {
                 isGoodTau = (tau.tauID("againstElectronVLooseMVA6") && tau.tauID("againstMuonLoose3") );
             }
@@ -143,10 +147,6 @@ private:
             }
 
             std::vector<unsigned int> signalCandidateInds;
-
-            const float lepRecoPt = tau.pt();
-            const float lepRecoPz = std::abs(tau.pz());
-            const float lepRecoPhi = tau.phi();
 
             for(const auto c : tau.signalCands())
                 signalCandidateInds.push_back(getPFCandidateIndex(pfcands,c));
