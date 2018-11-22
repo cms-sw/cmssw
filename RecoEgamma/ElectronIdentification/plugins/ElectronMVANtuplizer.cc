@@ -134,6 +134,9 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       MultiTokenT<std::vector<reco::Vertex>>      vertices_;
       MultiTokenT<std::vector<PileupSummaryInfo>> pileup_;
       MultiTokenT<edm::View<reco::GenParticle>>   genParticles_;
+
+      // To get the auxiliary MVA variables
+      const MVAVariableHelper<reco::GsfElectron> variableHelper_;
 };
 
 //
@@ -172,6 +175,7 @@ ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
   , vertices_        (src_, consumesCollector(), iConfig, "vertices"    , "verticesMiniAOD")
   , pileup_          (src_, consumesCollector(), iConfig, "pileup"      , "pileupMiniAOD")
   , genParticles_    (src_, consumesCollector(), iConfig, "genParticles", "genParticlesMiniAOD")
+  , variableHelper_(consumesCollector())
 {
     // eleMaps
     for (size_t k = 0; k < nEleMaps_; ++k) {
@@ -246,10 +250,6 @@ ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
    for (size_t k = 0; k < nCats_; ++k) {
        tree_->Branch(mvaCatBranchNames_[k].c_str() ,  &mvaCats_[k]);
    }
-
-   // All tokens for event content needed by this MVA
-   // Tags from the variable helper
-   mvaVarMngr_.setConsumes(consumesCollector());
 }
 
 
@@ -328,7 +328,8 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         }
 
         for (int iVar = 0; iVar < nVars_; ++iVar) {
-            vars_[iVar] = mvaVarMngr_.getValue(iVar, ele, iEvent);
+            std::vector<float> auxVariables = variableHelper_.getAuxVariables(ele, iEvent);
+            vars_[iVar] = mvaVarMngr_.getValue(iVar, &(*ele), auxVariables);
         }
 
         if (isMC_) {

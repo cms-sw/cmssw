@@ -22,17 +22,13 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
   void init(const std::vector<std::string> &weightFileNames);
 
   // Calculation of the MVA value
-  float mvaValue( const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent, int &iCategory) const override;
+  float mvaValue( const reco::Candidate* candidate, std::vector<float> const& auxVariables, int &iCategory) const override;
 
-  // Call this function once after the constructor to declare
-  // the needed event content pieces to the framework
-  void setConsumes(edm::ConsumesCollector&&) final;
-
-  int findCategory( const edm::Ptr<reco::Candidate>& candPtr) const override;
+  int findCategory( const reco::Candidate* candidate) const override;
 
  private:
 
-  int findCategory( const edm::Ptr<reco::GsfElectron>& gsfPtr) const;
+  int findCategory( const reco::GsfElectron* electron) const;
 
   std::vector<ThreadSafeStringCut<StringCutObjectSelector<reco::GsfElectron>, reco::GsfElectron>> categoryFunctions_;
   std::vector<int> nVariables_;
