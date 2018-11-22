@@ -129,7 +129,7 @@ namespace {
     {
       // Find the closest status 1 gen photon to the reco photon
       double dR = 999;
-      reco::GenParticle const * closestPhoton;
+      reco::GenParticle const * closestPhoton = &genParticles[0];
       for (auto & particle : genParticles) {
         // Drop everything that is not photon or not status 1
         if( abs(particle.pdgId()) != 22 || particle.status() != 1 ) continue;
