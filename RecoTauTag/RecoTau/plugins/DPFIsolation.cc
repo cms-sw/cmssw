@@ -109,6 +109,7 @@ private:
 
         bool pfCandIsBarrel;
 
+        // These variables define ranges further used for standardization
         static constexpr float pfCandPt_max = 500.f;
         static constexpr float pfCandPz_max = 1000.f;
         static constexpr float pfCandPtRel_max = 1.f;
@@ -118,6 +119,15 @@ private:
         static constexpr float pfCandDz_max = 5.f;
         static constexpr float pfCandDVx_y_z_1_max = 0.05f;
         static constexpr float pfCandD_1_max = 0.1f;
+        static constexpr float pfCandD0_z_Err_max = 1.f;
+        static constexpr float pfCandDzSig_max = 3.f;
+        static constexpr float pfCandD0Sig_max = 1.f;
+        static constexpr float pfCandDr_max = 0.5f;
+        static constexpr float pfCandEta_max = 2.75f;
+        static constexpr float pfCandDEta_max = 0.5f;
+        static constexpr float pfCandDPhi_max = 0.5f;
+        static constexpr float pfCandPixHits_max = 7.f;
+        static constexpr float pfCandHits_max = 30.f;
 
         for(size_t tau_index = 0; tau_index < taus->size(); tau_index++) {
             pat::Tau tau = taus->at(tau_index);
@@ -232,14 +242,14 @@ private:
                 pfCandPtRel = std::min(pfCandPtRel, pfCandPtRel_max);
                 pfCandPzRel = std::min(pfCandPzRel, pfCandPzRel_max);
                 pfCandPzRel = pfCandPzRel/pfCandPzRel_max;
-                pfCandDr   = pfCandDr/.5;
-                pfCandEta  = pfCandEta/2.75;
-                pfCandDEta = pfCandDEta/.5;
-                pfCandDPhi = pfCandDPhi/.5;
-                pfCandPixHits = pfCandPixHits/7.;
-                pfCandHits = pfCandHits/30.;
+                pfCandDr   = pfCandDr/pfCandDr_max;
+                pfCandEta  = pfCandEta/pfCandEta_max;
+                pfCandDEta = pfCandDEta/pfCandDEta_max;
+                pfCandDPhi = pfCandDPhi/pfCandDPhi_max;
+                pfCandPixHits = pfCandPixHits/pfCandPixHits_max;
+                pfCandHits = pfCandHits/pfCandHits_max;
 
-                if (pfCandPtRelPtRel > 1) pfCandPtRelPtRel = 1;
+                pfCandPtRelPtRel = std::min(pfCandPtRelPtRel, pfCandPtRelPtRel_max);
 
                 pfCandD0 = std::clamp(pfCandD0, -pfCandD0_max, pfCandD0_max);
                 pfCandD0 = pfCandD0/pfCandD0_max;
@@ -247,12 +257,12 @@ private:
                 pfCandDz = std::clamp(pfCandDz, -pfCandDz_max, pfCandDz_max);
                 pfCandDz = pfCandDz/pfCandDz_max;
 
-                if (pfCandD0Err > 1.) pfCandD0Err = 1.;
-                if (pfCandDzErr > 1.) pfCandDzErr = 1.;
-                if (pfCandDzSig > 3) pfCandDzSig = 3.;
-                pfCandDzSig = pfCandDzSig/3.;
+                if (pfCandD0Err > pfCandD0_z_Err_max) pfCandD0Err = pfCandD0_z_Err_max;
+                if (pfCandDzErr > pfCandD0_z_Err_max) pfCandDzErr = pfCandD0_z_Err_max;
+                if (pfCandDzSig > pfCandDzSig_max) pfCandDzSig = pfCandDzSig_max;
+                pfCandDzSig = pfCandDzSig/pfCandDzSig_max;
 
-                if (pfCandD0Sig > 1) pfCandD0Sig = 1.;
+                if (pfCandD0Sig > pfCandD0Sig_max) pfCandD0Sig = pfCandD0Sig_max;
                 pfCandD0D0 = pfCandD0*pfCandD0;
                 pfCandDzDz = pfCandDz*pfCandDz;
                 pfCandD0Dz = pfCandD0*pfCandDz;
