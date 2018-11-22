@@ -257,12 +257,12 @@ private:
                 pfCandDz = std::clamp(pfCandDz, -pfCandDz_max, pfCandDz_max);
                 pfCandDz = pfCandDz/pfCandDz_max;
 
-                if (pfCandD0Err > pfCandD0_z_Err_max) pfCandD0Err = pfCandD0_z_Err_max;
-                if (pfCandDzErr > pfCandD0_z_Err_max) pfCandDzErr = pfCandD0_z_Err_max;
-                if (pfCandDzSig > pfCandDzSig_max) pfCandDzSig = pfCandDzSig_max;
+                pfCandD0Err = std::min(pfCandD0Err, pfCandD0_z_Err_max);
+                pfCandDzErr = std::min(pfCandDzErr, pfCandD0_z_Err_max);
+                pfCandDzSig = std::min(pfCandDzSig, pfCandDzSig_max);
                 pfCandDzSig = pfCandDzSig/pfCandDzSig_max;
 
-                if (pfCandD0Sig > pfCandD0Sig_max) pfCandD0Sig = pfCandD0Sig_max;
+                pfCandD0Sig = std::min(pfCandD0Sig, pfCandD0Sig_max);
                 pfCandD0D0 = pfCandD0*pfCandD0;
                 pfCandDzDz = pfCandDz*pfCandDz;
                 pfCandD0Dz = pfCandD0*pfCandDz;
