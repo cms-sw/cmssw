@@ -144,11 +144,12 @@ private:
 
             std::vector<unsigned int> signalCandidateInds;
 
-            for(const auto c : tau.signalCands())
-                signalCandidateInds.push_back(getPFCandidateIndex(pfcands,c));
-
             const float lepRecoPt = tau.pt();
             const float lepRecoPz = std::abs(tau.pz());
+            const float lepRecoPhi = tau.phi();
+
+            for(const auto c : tau.signalCands())
+                signalCandidateInds.push_back(getPFCandidateIndex(pfcands,c));
 
             // Use of setZero results in warnings in eigen library during compilation.
             //tensor.flat<float>().setZero();
@@ -179,7 +180,7 @@ private:
 
                 pfCandDr = deltaR_tau_p;
                 pfCandDEta = std::abs(tau.eta() - p.eta());
-                pfCandDPhi = std::abs(deltaPhi(tau.phi(), p.phi()));
+                pfCandDPhi = std::abs(deltaPhi(lepRecoPhi, p.phi()));
                 pfCandEta = p.eta();
                 pfCandIsBarrel = (std::abs(pfCandEta) < 1.4);
                 pfCandPz = std::abs(std::sinh(pfCandEta)*pfCandPt);

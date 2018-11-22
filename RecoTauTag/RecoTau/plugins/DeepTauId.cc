@@ -587,7 +587,7 @@ private:
         static constexpr double min_pt = 30., min_radius = 0.05, cone_opening_coef = 3.;
         // This is equivalent of the original formula (std::max(std::min(0.1, 3.0/pt), 0.05)
         return std::max(cone_opening_coef / std::max(pt, min_pt), min_radius);
-        }
+    }
 
     // Copied from https://github.com/cms-sw/cmssw/blob/CMSSW_9_4_X/RecoTauTag/RecoTau/plugins/PATTauDiscriminationByMVAIsolationRun2.cc#L218
     static float calculateGottfriedJacksonAngleDifference(const pat::Tau& tau)
