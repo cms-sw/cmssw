@@ -74,7 +74,7 @@ namespace trackMVAClassifierImpl {
 
       size_t current = 0;
       for (auto const & trk : tracks) {
-	mvas[current++] = mva(trk,beamSpot,vertices,cache);
+        mvas[current++] = mva(trk,beamSpot,vertices,cache);
       }
     }
   };
@@ -91,7 +91,7 @@ namespace trackMVAClassifierImpl {
       size_t current = 0;
       for (auto const & trk : tracks) {
         //BDT outputs are considered always reliable. Hence "true"
-	std::pair<float,bool> output (mva(trk,beamSpot,vertices), true);
+        std::pair<float,bool> output (mva(trk,beamSpot,vertices), true);
         mvas[current++]= output; 
       }
     }

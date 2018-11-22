@@ -69,7 +69,7 @@ void TrackMVAClassifierBase::produce(edm::Event& evt, const edm::EventSetup& es 
   assert((*mvaPairs).size()==tracks.size());
 
   unsigned int k=0;
-  for (auto output : *mvaPairs) {
+  for (auto const& output : *mvaPairs) {
     if(output.second){
       (*mvas)[k] = output.first;
     }else{

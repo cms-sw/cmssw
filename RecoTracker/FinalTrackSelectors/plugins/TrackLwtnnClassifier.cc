@@ -77,7 +77,7 @@ namespace {
 
       bool isReliable = true;
       //T1qqqq
-      if((std::abs(inputs["trk_dxy"])>=0.1) && (inputs["trk_etaErr"]<0.003) && (inputs["trk_dxyErr"]<0.03) &&(inputs["trk_ndof"]>3)){
+      if(std::abs(inputs["trk_dxy"])>=0.1 && inputs["trk_etaErr"]<0.003 && inputs["trk_dxyErr"]<0.03 && inputs["trk_ndof"]>3){
         isReliable = false;
       }
       //T5qqqqLL
