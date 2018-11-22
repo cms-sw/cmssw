@@ -24,7 +24,7 @@ namespace track_associator {
     std::vector<OmniClusterRef> returnValue;
     for (iter iRecHit = begin; iRecHit != end; ++iRecHit) {
       const TrackingRecHit* rhit = getHitFromIter(iRecHit);
-      if (rhit->isValid() and  !trackerHitRTTI::isUndef(*rhit) ) {
+      if (trackerHitRTTI::isFromDet(*rhit) ) {
         int subdetid = rhit->geographicalId().subdetId();
         if (subdetid==PixelSubdetector::PixelBarrel||subdetid==PixelSubdetector::PixelEndcap) {
           const SiPixelRecHit* pRHit = dynamic_cast<const SiPixelRecHit*>(rhit);
