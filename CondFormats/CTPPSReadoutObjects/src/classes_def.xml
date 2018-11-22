@@ -1,4 +1,30 @@
 <lcgdict>
+    <class name="CTPPSBeamParameters"  class_version="0">
+      <field name="beam_momentum_45_"/>
+      <field name="beam_momentum_56_"/>
+      <field name="beta_star_x_45_"/>
+      <field name="beta_star_x_56_"/>
+      <field name="beta_star_y_45_"/>
+      <field name="beta_star_y_56_"/>
+      <field name="beam_divergence_x_45_"/>
+      <field name="beam_divergence_x_56_"/>
+      <field name="beam_divergence_y_45_"/>
+      <field name="beam_divergence_y_56_"/>
+      <field name="half_crossing_angle_x_45_"/>
+      <field name="half_crossing_angle_x_56_"/>
+      <field name="half_crossing_angle_y_45_"/>
+      <field name="half_crossing_angle_y_56_"/>
+      <field name="vtx_offset_x_45_"/>
+      <field name="vtx_offset_x_56_"/>
+      <field name="vtx_offset_y_45_"/>
+      <field name="vtx_offset_y_56_"/>
+      <field name="vtx_offset_z_45_"/>
+      <field name="vtx_offset_z_56_"/>
+      <field name="vtx_stddev_x_"/>
+      <field name="vtx_stddev_y_"/>
+      <field name="vtx_stddev_z_"/>
+    </class>
+    
     <class name="CTPPSPixelFramePosition"  class_version="0"/>
 
     <class name="CTPPSPixelROCInfo"  class_version="0"/>
