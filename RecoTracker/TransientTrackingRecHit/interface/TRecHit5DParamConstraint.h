@@ -1,7 +1,7 @@
 #ifndef RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit5DParamConstraint_H
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit5DParamConstraint_H
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/trackerHitRTTI.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/CLHEP/interface/Migration.h"
 
@@ -13,7 +13,8 @@ public:
 
   TRecHit5DParamConstraint( const TrajectoryStateOnSurface& tsos ) : tsos_( tsos ) {}
 
-  TRecHit5DParamConstraint(const GeomDet & idet,  const TrajectoryStateOnSurface& tsos ) : TrackingRecHit(idet), tsos_( tsos ) {}
+  TRecHit5DParamConstraint(const GeomDet & idet,  const TrajectoryStateOnSurface& tsos ) : 
+  TrackingRecHit(idet,int(trackerHitRTTI::notFromCluster)), tsos_( tsos ) {}
 
   TRecHit5DParamConstraint( const TRecHit5DParamConstraint& other ) = default;
   TRecHit5DParamConstraint( TRecHit5DParamConstraint&& other ) = default;

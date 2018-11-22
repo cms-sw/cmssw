@@ -200,7 +200,7 @@ namespace {
       for(unsigned int h=0;h<track.recHitsSize();h++){
         auto recHit = *(hb+h);
 	auto const & hit = *recHit;
-	if (!hit.isValid() or  trackerHitRTTI::isUndef(hit) ) continue;
+	if (!trackerHitRTTI::isFromDet(hit) ) continue;
 	if ( chi2sX5[h] > maxChi2x5_ ) continue; // skip outliers
         auto const & thit = reinterpret_cast<BaseTrackerRecHit const&>(hit);
         auto const & cluster = thit.firstClusterRef();
