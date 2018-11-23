@@ -8,7 +8,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -19,8 +19,10 @@
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 
-#include <FWCore/Framework/interface/ESHandle.h> // Handle to read geometry
+#include "FWCore/Framework/interface/ESHandle.h" // Handle to read geometry
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 
@@ -45,11 +47,9 @@
 
 //class RPCTriggerGeo;
 
-class RPCTrigger : public edm::EDProducer {
+class RPCTrigger : public edm::one::EDProducer<edm::one::SharedResources> {
   public:
     explicit RPCTrigger(const edm::ParameterSet&);
-    ~RPCTrigger() override;
-
 
     void produce(edm::Event&, const edm::EventSetup&) override;
   private:
@@ -60,18 +60,24 @@ class RPCTrigger : public edm::EDProducer {
 
     RPCPacManager<RPCPacData> m_pacManager;
     
-    RPCBasicTrigConfig* m_trigConfig;
+    std::unique_ptr<RPCBasicTrigConfig> m_trigConfig;
     
-    RPCPacTrigger* m_pacTrigger;
+    std::unique_ptr<RPCPacTrigger> m_pacTrigger;
  
-    bool m_firstRun;   
-    int m_triggerDebug;
+    const int m_triggerDebug;
     unsigned long long m_cacheID;
     // TODO keep L1MuRegionalCandVec equally as RPCDigiL1LinkVec
     std::vector<L1MuRegionalCand> giveFinallCandindates(const L1RpcTBMuonsVec& finalMuons, int type, int bx,   
                                      edm::Handle<RPCDigiCollection> rpcDigis, std::vector<RPCDigiL1Link> & retRPCDigiLink);
 
-    std::string m_label;
+    const std::string m_label;
+    const edm::EDGetTokenT<RPCDigiCollection> m_rpcDigiToken;
+
+    const edm::EDPutTokenT<std::vector<L1MuRegionalCand>> m_brlCandPutToken;
+    const edm::EDPutTokenT<std::vector<L1MuRegionalCand>> m_fwdCandPutToken;
+
+    const edm::EDPutTokenT<std::vector<RPCDigiL1Link>> m_brlLinksPutToken;
+    const edm::EDPutTokenT<std::vector<RPCDigiL1Link>> m_fwdLinksPutToken;
 
 };
 
