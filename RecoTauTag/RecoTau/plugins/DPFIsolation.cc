@@ -22,10 +22,10 @@ inline int getPFCandidateIndex(const edm::Handle<pat::PackedCandidateCollection>
 
 class DPFIsolation : public deep_tau::DeepTauBase {
 public:
-    static OutputCollection& GetOutputs()
+    static const OutputCollection& GetOutputs()
     {
-        static size_t tau_index = 0;
-        static OutputCollection outputs_ = { { "VSall", Output({tau_index}, {}) } };
+        const size_t tau_index = 0;
+        static const OutputCollection outputs_ = { { "VSall", Output({tau_index}, {}) } };
         return outputs_;
     };
 
@@ -109,10 +109,34 @@ private:
 
         bool pfCandIsBarrel;
 
+        // These variables define ranges further used for standardization
+        static constexpr float pfCandPt_max = 500.f;
+        static constexpr float pfCandPz_max = 1000.f;
+        static constexpr float pfCandPtRel_max = 1.f;
+        static constexpr float pfCandPzRel_max = 100.f;
+        static constexpr float pfCandPtRelPtRel_max = 1.f;
+        static constexpr float pfCandD0_max = 5.f;
+        static constexpr float pfCandDz_max = 5.f;
+        static constexpr float pfCandDVx_y_z_1_max = 0.05f;
+        static constexpr float pfCandD_1_max = 0.1f;
+        static constexpr float pfCandD0_z_Err_max = 1.f;
+        static constexpr float pfCandDzSig_max = 3.f;
+        static constexpr float pfCandD0Sig_max = 1.f;
+        static constexpr float pfCandDr_max = 0.5f;
+        static constexpr float pfCandEta_max = 2.75f;
+        static constexpr float pfCandDEta_max = 0.5f;
+        static constexpr float pfCandDPhi_max = 0.5f;
+        static constexpr float pfCandPixHits_max = 7.f;
+        static constexpr float pfCandHits_max = 30.f;
+
         for(size_t tau_index = 0; tau_index < taus->size(); tau_index++) {
             pat::Tau tau = taus->at(tau_index);
             bool isGoodTau = false;
-            if(tau.pt() >= 30 && std::abs(tau.eta()) < 2.3 && tau.isTauIDAvailable("againstMuonLoose3") &&
+            const float lepRecoPt = tau.pt();
+            const float lepRecoPz = std::abs(tau.pz());
+            const float lepRecoPhi = tau.phi();
+
+            if(lepRecoPt >= 30 && std::abs(tau.eta()) < 2.3 && tau.isTauIDAvailable("againstMuonLoose3") &&
                    tau.isTauIDAvailable("againstElectronVLooseMVA6")) {
                 isGoodTau = (tau.tauID("againstElectronVLooseMVA6") && tau.tauID("againstMuonLoose3") );
             }
@@ -126,9 +150,6 @@ private:
 
             for(const auto c : tau.signalCands())
                 signalCandidateInds.push_back(getPFCandidateIndex(pfcands,c));
-
-            float lepRecoPt = tau.pt();
-            float lepRecoPz = std::abs(tau.pz());
 
             // Use of setZero results in warnings in eigen library during compilation.
             //tensor.flat<float>().setZero();
@@ -159,11 +180,11 @@ private:
 
                 pfCandDr = deltaR_tau_p;
                 pfCandDEta = std::abs(tau.eta() - p.eta());
-                pfCandDPhi = std::abs(deltaPhi(tau.phi(), p.phi()));
+                pfCandDPhi = std::abs(deltaPhi(lepRecoPhi, p.phi()));
                 pfCandEta = p.eta();
                 pfCandIsBarrel = (std::abs(pfCandEta) < 1.4);
                 pfCandPz = std::abs(std::sinh(pfCandEta)*pfCandPt);
-                pfCandPzRel = std::abs(std::sinh(pfCandEta)*pfCandPt)/lepRecoPz;
+                pfCandPzRel = pfCandPz/lepRecoPz;
                 pfCandPdgID = std::abs(p.pdgId());
                 pfCandCharge = p.charge();
                 pfCandDVx_1 = p.vx() - pvx;
@@ -213,58 +234,52 @@ private:
 
                 pfCandTauIndMatch = pfCandTauIndMatch_temp;
                 pfCandPtRelPtRel = pfCandPtRel*pfCandPtRel;
-                if (pfCandPt > 500) pfCandPt = 500.;
-                pfCandPt = pfCandPt/500.;
+                pfCandPt = std::min(pfCandPt, pfCandPt_max);
+                pfCandPt = pfCandPt/pfCandPt_max;
 
-                if (pfCandPz > 1000) pfCandPz = 1000.;
-                pfCandPz = pfCandPz/1000.;
+                pfCandPz = std::min(pfCandPz, pfCandPz_max);
+                pfCandPz = pfCandPz/pfCandPz_max;
 
-                if ((pfCandPtRel) > 1 )  pfCandPtRel = 1.;
-                if ((pfCandPzRel) > 100 )  pfCandPzRel = 100.;
-                pfCandPzRel = pfCandPzRel/100.;
-                pfCandDr   = pfCandDr/.5;
-                pfCandEta  = pfCandEta/2.75;
-                pfCandDEta = pfCandDEta/.5;
-                pfCandDPhi = pfCandDPhi/.5;
-                pfCandPixHits = pfCandPixHits/7.;
-                pfCandHits = pfCandHits/30.;
+                pfCandPtRel = std::min(pfCandPtRel, pfCandPtRel_max);
+                pfCandPzRel = std::min(pfCandPzRel, pfCandPzRel_max);
+                pfCandPzRel = pfCandPzRel/pfCandPzRel_max;
+                pfCandDr   = pfCandDr/pfCandDr_max;
+                pfCandEta  = pfCandEta/pfCandEta_max;
+                pfCandDEta = pfCandDEta/pfCandDEta_max;
+                pfCandDPhi = pfCandDPhi/pfCandDPhi_max;
+                pfCandPixHits = pfCandPixHits/pfCandPixHits_max;
+                pfCandHits = pfCandHits/pfCandHits_max;
 
-                if (pfCandPtRelPtRel > 1) pfCandPtRelPtRel = 1;
+                pfCandPtRelPtRel = std::min(pfCandPtRelPtRel, pfCandPtRelPtRel_max);
 
-                if (pfCandD0 > 5.) pfCandD0 = 5.;
-                if (pfCandD0 < -5.) pfCandD0 = -5.;
-                pfCandD0 = pfCandD0/5.;
+                pfCandD0 = std::clamp(pfCandD0, -pfCandD0_max, pfCandD0_max);
+                pfCandD0 = pfCandD0/pfCandD0_max;
 
-                if (pfCandDz > 5.) pfCandDz = 5.;
-                if (pfCandDz < -5.) pfCandDz = -5.;
-                pfCandDz = pfCandDz/5.;
+                pfCandDz = std::clamp(pfCandDz, -pfCandDz_max, pfCandDz_max);
+                pfCandDz = pfCandDz/pfCandDz_max;
 
-                if (pfCandD0Err > 1.) pfCandD0Err = 1.;
-                if (pfCandDzErr > 1.) pfCandDzErr = 1.;
-                if (pfCandDzSig > 3) pfCandDzSig = 3.;
-                pfCandDzSig = pfCandDzSig/3.;
+                pfCandD0Err = std::min(pfCandD0Err, pfCandD0_z_Err_max);
+                pfCandDzErr = std::min(pfCandDzErr, pfCandD0_z_Err_max);
+                pfCandDzSig = std::min(pfCandDzSig, pfCandDzSig_max);
+                pfCandDzSig = pfCandDzSig/pfCandDzSig_max;
 
-                if (pfCandD0Sig > 1) pfCandD0Sig = 1.;
+                pfCandD0Sig = std::min(pfCandD0Sig, pfCandD0Sig_max);
                 pfCandD0D0 = pfCandD0*pfCandD0;
                 pfCandDzDz = pfCandDz*pfCandDz;
                 pfCandD0Dz = pfCandD0*pfCandDz;
                 pfCandD0Dphi = pfCandD0*pfCandDPhi;
 
-                if (pfCandDVx_1 > .05)  pfCandDVx_1 =  .05;
-                if (pfCandDVx_1 < -.05) pfCandDVx_1 = -.05;
-                pfCandDVx_1 = pfCandDVx_1/.05;
+                pfCandDVx_1 = std::clamp(pfCandDVx_1, -pfCandDVx_y_z_1_max, pfCandDVx_y_z_1_max);
+                pfCandDVx_1 = pfCandDVx_1/pfCandDVx_y_z_1_max;
 
-                if (pfCandDVy_1 > 0.05)  pfCandDVy_1 =  0.05;
-                if (pfCandDVy_1 < -0.05) pfCandDVy_1 = -0.05;
-                pfCandDVy_1 = pfCandDVy_1/0.05;
+                pfCandDVy_1 = std::clamp(pfCandDVy_1, -pfCandDVx_y_z_1_max, pfCandDVx_y_z_1_max);
+                pfCandDVy_1 = pfCandDVy_1/pfCandDVx_y_z_1_max;
 
-                if (pfCandDVz_1 > 0.05)  pfCandDVz_1 =  0.05;
-                if (pfCandDVz_1 < -0.05) pfCandDVz_1= -0.05;
-                pfCandDVz_1 = pfCandDVz_1/0.05;
+                pfCandDVz_1 = std::clamp(pfCandDVz_1, -pfCandDVx_y_z_1_max, pfCandDVx_y_z_1_max);
+                pfCandDVz_1 = pfCandDVz_1/pfCandDVx_y_z_1_max;
 
-                if (pfCandD_1 > 0.1)  pfCandD_1 = 0.1;
-                if (pfCandD_1 < -0.1) pfCandD_1 = -0.1;
-                pfCandD_1 = pfCandD_1/.1;
+                pfCandD_1 = std::clamp(pfCandD_1, -pfCandD_1_max, pfCandD_1_max);
+                pfCandD_1 = pfCandD_1/ pfCandD_1_max;
 
                 if (graphVersion == 0) {
                     tensor.tensor<float,3>()( 0, 60-1-iPF, 0) = pfCandPt;
