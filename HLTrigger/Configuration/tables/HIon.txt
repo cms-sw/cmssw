@@ -216,6 +216,8 @@ HLT_HIL3Mu5_NHitQ10_tagging_v*
 HLT_HIL3Mu7_NHitQ10_tagging_v*
 HLT_HIL1_ETT8_ETTAsym50_MinimumBiasHF1_OR_BptxAND_v*
 HLT_HIL1_ETT10_ETTAsym50_MinimumBiasHF1_OR_BptxAND_v*
+HLT_HIL1_ETT60_ETTAsym65_MinimumBiasHF2_OR_PixelTracks10_v*
+HLT_HIL1_ETT65_ETTAsym80_MinimumBiasHF2_OR_PixelTracks10_v*
 HLT_HIFullTracks_Multiplicity020_HF1AND_v*
 HLT_HIFullTracks_Multiplicity2040_HF1AND_v*
 HLT_HIFullTracks_Multiplicity4060_v*
@@ -384,6 +386,8 @@ HLT_HIL1UnpairedBunchBptxPlus_v*
 
 HLT_HIL1_ZDC_AND_OR_MinimumBiasHF1_AND_BptxAND_v*
 HLT_HIL1_ZDC_AND_OR_MinimumBiasHF2_AND_BptxAND_v*
+
+HLT_HIFullTracks_Multiplicity335_HF1OR_v*
 
 HLTriggerFinalPath
 
