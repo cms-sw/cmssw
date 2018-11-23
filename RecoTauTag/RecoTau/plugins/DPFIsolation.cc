@@ -145,9 +145,10 @@ private:
             bool isGoodTau = false;
             const float lepRecoPt = tau.pt();
             const float lepRecoPz = std::abs(tau.pz());
+            const float lepRecoEta = tau.eta();
             const float lepRecoPhi = tau.phi();
 
-            if(lepRecoPt >= 30 && std::abs(tau.eta()) < 2.3 && tau.isTauIDAvailable("againstMuonLoose3") &&
+            if(lepRecoPt >= 30 && std::abs(lepRecoEta) < 2.3 && tau.isTauIDAvailable("againstMuonLoose3") &&
                    tau.isTauIDAvailable("againstElectronVLooseMVA6")) {
                 isGoodTau = (tau.tauID("againstElectronVLooseMVA6") && tau.tauID("againstMuonLoose3") );
             }
@@ -190,7 +191,7 @@ private:
                 pfCandPtRel = p.pt()/lepRecoPt;
 
                 pfCandDr = deltaR_tau_p;
-                pfCandDEta = std::abs(tau.eta() - p.eta());
+                pfCandDEta = std::abs(lepRecoEta - p.eta());
                 pfCandDPhi = std::abs(deltaPhi(lepRecoPhi, p.phi()));
                 pfCandEta = p.eta();
                 pfCandIsBarrel = (std::abs(pfCandEta) < 1.4);
