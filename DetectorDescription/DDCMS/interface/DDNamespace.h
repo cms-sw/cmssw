@@ -60,13 +60,16 @@ namespace cms {
     const dd4hep::Rotation3D& rotation( const std::string& name ) const;
     void addRotation( const std::string& name, const dd4hep::Rotation3D& rot ) const;
     
-    DDParsingContext* context = nullptr;
+    DDParsingContext* const context() const { return m_context; }
+    DDParsingContext* setContext() { return m_context; }
     
     const std::string& name() const {
       return m_name;
     }
    
   private:
+
+    DDParsingContext* m_context = nullptr;
     std::string m_name;
     bool m_pop = false;
   };

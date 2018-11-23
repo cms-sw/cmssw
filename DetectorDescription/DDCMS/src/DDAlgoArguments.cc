@@ -65,7 +65,7 @@ string
 DDAlgoArguments::parentName() const {
   cms::DDNamespace n( context );
   xml_dim_t e( element );
-  string val = n.realName(xml_dim_t(e.child(_CMU(rParent))).nameStr());
+  string val = n.realName(xml_dim_t(e.child(DD_CMU(rParent))).nameStr());
   return val;
 }
 
@@ -91,7 +91,7 @@ xml_h DDAlgoArguments::rawArgument(const string& nam)  const   {
   for(xml_coll_t p(element,_U(star)); p; ++p)  {
     string n = p.attr<string>(_U(name));
     if ( n == nam )  {
-      return p;
+      return std::move( p );
     }
   }
   except("MyDDCMS","+++ Attempt to access non-existing algorithm option %s[%s]",name.c_str(),nam.c_str());
@@ -116,7 +116,7 @@ namespace {
     string val = xp.text();
     string nam = xp.nameStr();
     string typ = xp.typeStr();
-    int    num = xp.attr<int>(_CMU(nEntries));
+    int    num = xp.attr<int>(DD_CMU(nEntries));
     const BasicGrammar& gr = BasicGrammar::instance<vector<string> >();
 
     val = '['+ns.realName(val)+']';
@@ -149,7 +149,7 @@ namespace {
     string nam = xp.attr<string>(_U(name));
     string typ = xp.attr<string>(_U(type));
     string val = xp.text();
-    int    num = xp.attr<int>(_CMU(nEntries));
+    int    num = xp.attr<int>(DD_CMU(nEntries));
     if ( typ != req_typ )   {
       except("MyDDCMS",
              "+++ VectorParam<%s | %s>: %s -> <%s> %s [Incompatible vector-type]",
