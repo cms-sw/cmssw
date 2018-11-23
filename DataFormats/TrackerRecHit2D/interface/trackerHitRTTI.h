@@ -20,6 +20,7 @@ namespace trackerHitRTTI {
   inline bool isSingleType(TrackingRecHit const & hit)  { return (rtti(hit)>0) & (rtti(hit)<4) ;}
   inline bool isFromDet(TrackingRecHit const & hit)  { return (rtti(hit)>0) & (rtti(hit)<6) ;}
   inline bool isFast(TrackingRecHit const & hit)  { return (rtti(hit)>5) & (rtti(hit)<=9) ;}
+  inline bool isFromDetOrFast(TrackingRecHit const & hit)  { return (rtti(hit)>0) & (rtti(hit)<10) ;}
   inline unsigned int  projId(TrackingRecHit const & hit) { return hit.rawId()+int(rtti(hit))-1;}
 }
 
