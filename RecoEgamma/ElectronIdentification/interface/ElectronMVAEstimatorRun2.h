@@ -7,7 +7,13 @@
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
 #include "RecoEgamma/EgammaTools/interface/ThreadSafeStringCut.h"
 
-class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
+#include <TMath.h>
+
+class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
 
  public:
 
@@ -22,11 +28,44 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
                            const std::vector<std::string>& categoryCutStrings,
                            bool debug=false );
 
+  // For use with FWLite/Python
+  static std::vector<float> getExtraVars(reco::GsfElectron          const* ele,
+                                         reco::ConversionCollection const* conversions,
+                                         reco::BeamSpot             const* beamSpot,
+                                         double rho)
+  {
+      // Conversion vertex fit
+      reco::Conversion const* conv = ConversionTools::matchedConversion(*ele, *conversions, beamSpot->position());
+
+      float convVtxFitProb = -1.;
+      if(!(conv == nullptr)) {
+          const reco::Vertex &vtx = conv->conversionVertex();
+          if (vtx.isValid()) {
+              convVtxFitProb = TMath::Prob( vtx.chi2(),  vtx.ndof());
+          }
+      }
+
+      // kf track related variables
+      bool validKf=false;
+      reco::TrackRef trackRef = ele->closestCtfTrackRef();
+      validKf = trackRef.isAvailable();
+      validKf &= trackRef.isNonnull();
+      float kfchi2 = validKf ? trackRef->normalizedChi2() : 0 ; //ielectron->track()->normalizedChi2() : 0 ;
+      float kfhits = validKf ? trackRef->hitPattern().trackerLayersWithMeasurement() : -1. ;
+
+      return std::vector<float>{kfhits, kfchi2, convVtxFitProb, static_cast<float>(rho)};
+  }
 
   void init(const std::vector<std::string> &weightFileNames);
 
   // Calculation of the MVA value
   float mvaValue( const reco::Candidate* candidate, std::vector<float> const& auxVariables, int &iCategory) const override;
+
+  // Also implemented in AnyMVAEstimatorRun2Base, but reimplemented here for fwlite to use
+  float mvaValue( const reco::Candidate* candidate, std::vector<float> const& auxVariables) const {
+      int iCategory;
+      return mvaValue(candidate, auxVariables, iCategory);
+  };
 
   int findCategory( const reco::Candidate* candidate) const override;
 

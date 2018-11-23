@@ -19,14 +19,14 @@ class AnyMVAEstimatorRun2Base {
   {}
  
  AnyMVAEstimatorRun2Base(const::std::string& mvaName,
-			 const::std::string& mvaTag, 
-			 int nCategories, 
-			 bool debug)
-   : name_        (mvaName),
-    tag_         (mvaTag),
-    nCategories_ (nCategories),
-    methodName_  ("BDTG method"),
-    debug_       (debug)
+                         const::std::string& mvaTag, 
+                         int nCategories, 
+                         bool debug)
+    : name_        (mvaName)
+    , tag_         (mvaTag)
+    , nCategories_ (nCategories)
+    , methodName_  ("BDTG method")
+    , debug_       (debug)
   {}
   virtual ~AnyMVAEstimatorRun2Base(){};
 
