@@ -11,6 +11,8 @@ ________________________________________________________________**/
 #include <iostream> 
 #include <fstream> 
 #include <vector>
+#include <mutex>
+#include <cmath>
 #include "DataFormats/Luminosity/interface/PixelClusterCounts.h"
 #include "DataFormats/Luminosity/interface/LumiInfo.h"
 #include "DataFormats/Luminosity/interface/LumiConstants.h"
@@ -22,25 +24,21 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "TMath.h"
 
-class RawPCCProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProducer,
-    edm::one::WatchLuminosityBlocks> {
+class RawPCCProducer : public edm::global::EDProducer<edm::EndLuminosityBlockProducer> {
         public:
             explicit RawPCCProducer(const edm::ParameterSet&);
             ~RawPCCProducer() override;
 
         private:
-            void beginLuminosityBlock     (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
-            void endLuminosityBlock       (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
-            void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) final;
-            void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) final;
+            void globalEndLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) const final;
+            void produce                  (edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const final;
 
 
             edm::EDGetTokenT<reco::PixelClusterCounts>  pccToken_;
@@ -50,11 +48,10 @@ class RawPCCProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProduc
             const std::vector<int>   modVeto_;          //The list of modules to skip in the lumi calc. 
 
             const std::string csvOutLabel_;
+            mutable std::mutex fileLock_;
             const bool saveCSVFile_;
 
             const bool applyCorr_;
-
-            std::ofstream csvfile_;
     };
 
 //--------------------------------------------------------------------------------------------------
@@ -77,28 +74,13 @@ RawPCCProducer::~RawPCCProducer(){
 }
 
 //--------------------------------------------------------------------------------------------------
-void RawPCCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void RawPCCProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
 
 }
 
 //--------------------------------------------------------------------------------------------------
-void RawPCCProducer::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup){
-
-
-    if(saveCSVFile_){
-        csvfile_.open(csvOutLabel_, std::ios_base::app);
-        csvfile_<<std::to_string(lumiSeg.run())<<",";
-        csvfile_<<std::to_string(lumiSeg.luminosityBlock())<<",";
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-void RawPCCProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup){
-}
-
-//--------------------------------------------------------------------------------------------------
-void RawPCCProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){
+void RawPCCProducer::globalEndLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) const {
     float totalLumi=0.0; //The total raw luminosity from the pixel clusters - not scaled
     float statErrOnLumi=0.0; //the statistical error on the lumi - large num ie sqrt(N)
 
@@ -168,12 +150,12 @@ void RawPCCProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, co
                 // for ZeroBias or AlwaysTrue triggers.
                 // Random triggers will get all BXs.
                 corrClustersPerBXOutput[bx]/=float(events[bx]);
-                errorPerBX[bx]=1/TMath::Sqrt(float(events[bx]));
+                errorPerBX[bx]=1/sqrt(float(events[bx]));
             }
         }
         if (statErrOnLumi!=0) {
             totalLumi=totalLumi/statErrOnLumi*float(NActiveBX);
-            statErrOnLumi=1/TMath::Sqrt(statErrOnLumi)*totalLumi;
+            statErrOnLumi=1/sqrt(statErrOnLumi)*totalLumi;
         }
     }
 
@@ -187,18 +169,22 @@ void RawPCCProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, co
     outputLumiInfo.setInstLumiAllBX(corrClustersPerBXOutput);
 
     if(saveCSVFile_){
-        csvfile_<<std::to_string(totalLumi);
+        std::lock_guard<std::mutex> lock(fileLock_);
+        std::ofstream csfile(csvOutLabel_, std::ios_base::app);
+        csfile<<std::to_string(lumiSeg.run())<<",";
+        csfile<<std::to_string(lumiSeg.luminosityBlock())<<",";
+        csfile<<std::to_string(totalLumi);
         
         if(totalLumi>0){
             for(unsigned int bx=0;bx<LumiConstants::numBX;bx++){
-                csvfile_<<","<<std::to_string(corrClustersPerBXOutput[bx]);
+                csfile<<","<<std::to_string(corrClustersPerBXOutput[bx]);
             }
-            csvfile_<<std::endl;   
+            csfile<<std::endl;   
         } else if (totalLumi<0) {
             edm::LogInfo("WARNING")<<"WHY IS LUMI NEGATIVE?!?!?!? "<<totalLumi;
         }
 
-        csvfile_.close();
+        csfile.close();
     }
     lumiSeg.emplace(putToken_, std::move(outputLumiInfo) ); 
 
