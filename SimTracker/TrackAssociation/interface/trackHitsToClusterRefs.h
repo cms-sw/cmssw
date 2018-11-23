@@ -24,11 +24,11 @@ namespace track_associator {
     std::vector<OmniClusterRef> returnValue;
     for (iter iRecHit = begin; iRecHit != end; ++iRecHit) {
       const TrackingRecHit* rhit = getHitFromIter(iRecHit);
-      if (rhit->isValid()) {
+      if (trackerHitRTTI::isFromDet(*rhit) ) {
         int subdetid = rhit->geographicalId().subdetId();
         if (subdetid==PixelSubdetector::PixelBarrel||subdetid==PixelSubdetector::PixelEndcap) {
           const SiPixelRecHit* pRHit = dynamic_cast<const SiPixelRecHit*>(rhit);
-          if (!pRHit->cluster().isNonnull())
+          if (pRHit && !pRHit->cluster().isNonnull())
             edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
           returnValue.push_back(pRHit->omniClusterRef());
         }

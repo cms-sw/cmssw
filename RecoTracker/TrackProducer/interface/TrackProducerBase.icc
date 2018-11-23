@@ -180,8 +180,9 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
       //means  that the trajectory was fit/smoothed in a special case: not setting those pointers
 	edm::LogError("TrackProducer") << "the trajectory was fit/smoothed in a special case: not setting those pointers.\n"
 			<<" Filling the secondary hit patterns was requested. So I will bail out.";
-	throw cms::Exception("TrackProducerBase")<<"the trajectory was fit/smoothed in a special case: not setting those pointers.\n"
-			<<" Filling the secondary hit patterns was requested. So I will bail out.";
+//	throw cms::Exception("TrackProducerBase")<<"the trajectory was fit/smoothed in a special case: not setting those pointers.\n"
+//			<<" Filling the secondary hit patterns was requested. So I will bail out.";
+      return;
     }
     
     //WARNING: we are assuming that the hits were originally sorted along momentum (and therefore oppositeToMomentum after smoothing)
