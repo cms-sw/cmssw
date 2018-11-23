@@ -419,12 +419,6 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       quality_ = TIGHT;
       }
 
-   //if( (version_ != WINTER17 && version_ != WINTER17PUPPI) && quality_ ==  TIGHTLEPVETO){
-   //   edm::LogWarning("BadJetIDVersion") << "JetID version does not support the TIGHTLEPVETO operating point -- defaulting to TIGHT";
-   //   quality_ = TIGHT;
-   //   }
- 
-
     // Set some default cuts for LOOSE, TIGHT
     if ( quality_ == LOOSE ) {
       set("CHF", 0.0);
@@ -437,7 +431,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	set("NEF_FW",0.90);
 	set("nNeutrals_FW",10);
       }
-      if(version_ == WINTER16){
+      else if(version_ == WINTER16){
 	set("NHF_EC",0.98);
 	set("NEF_EC",0.01);
 	set("nNeutrals_EC",2);
@@ -457,14 +451,14 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	set("NEF_FW",0.90);
 	set("nNeutrals_FW",10);
       }
-      if(version_ == WINTER16){
+      else if(version_ == WINTER16){
 	set("NHF_EC",0.98);
 	set("NEF_EC",0.01);
 	set("nNeutrals_EC",2);
 	set("NEF_FW",0.90);
 	set("nNeutrals_FW",10);
       }
-      if(version_ == WINTER17){
+      else if(version_ == WINTER17){
 	set("NEF_EC_L",0.02);
 	set("NEF_EC_U",0.99);
 	set("nNeutrals_EC",2);
@@ -472,7 +466,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	set("NEF_FW",0.90);
 	set("nNeutrals_FW",10);
       }
-      if(version_ == WINTER17PUPPI){
+      else if(version_ == WINTER17PUPPI){
 	set("NHF_EC",0.99);
 	set("NHF_FW",0.02);
 	set("NEF_FW",0.90);
@@ -487,32 +481,32 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       set("NCH", 0);
       set("nConstituents", 1);
       if(version_ == WINTER17){
-        set("CEF", 0.8);
+	set("CEF", 0.8);
 	set("NEF_EC_L",0.02);
 	set("NEF_EC_U",0.99);
 	set("nNeutrals_EC",2);
 	set("NHF_FW",0.02);
 	set("NEF_FW",0.90);
 	set("nNeutrals_FW",10);
-        set("MUF", 0.8);
+	set("MUF", 0.8);
       }
-      if(version_ == WINTER17PUPPI){
-        set("CEF", 0.8);
+      else if(version_ == WINTER17PUPPI){
+	set("CEF", 0.8);
 	set("NHF_EC",0.99);
 	set("NHF_FW",0.02);
 	set("NEF_FW",0.90);
 	set("nNeutrals_FW_L",2);
 	set("nNeutrals_FW_U",15);
-        set("MUF", 0.8);
+	set("MUF", 0.8);
       }
-      if(version_ == WINTER16){
-        set("CEF", 0.9);
+      else if(version_ == WINTER16){
+	set("CEF", 0.9);
 	set("NEF_EC",0.01);
 	set("NHF_EC",0.98);
 	set("nNeutrals_EC",2);
 	set("nNeutrals_FW",10);
 	set("NEF_FW",0.90);
-        set("MUF", 0.8);
+	set("MUF", 0.8);
       }
 
     }
