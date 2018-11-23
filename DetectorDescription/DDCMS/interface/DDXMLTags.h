@@ -137,6 +137,11 @@ namespace cms  {
   UNICODE(rChild);
   UNICODE(Translation);
   
+  UNICODE(Division);
+  UNICODE(parent);
+  UNICODE(offset);
+  UNICODE(width);
+  
   UNICODE(Algorithm);
   UNICODE(String);
   UNICODE(Numeric);
@@ -170,6 +175,6 @@ namespace cms  {
 #undef UNICODE // Do not miss this one!
 #include "XML/XMLTags.h"
 
-#define _CMU(a) ::cms::Unicode_##a
+#define DD_CMU(a) ::cms::Unicode_##a
 
 #endif 
