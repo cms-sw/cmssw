@@ -26,6 +26,7 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
                            int nCategories,
                            const std::string& variableDefinition,
                            const std::vector<std::string>& categoryCutStrings,
+                           const std::vector<std::string> &weightFileNames,
                            bool debug=false );
 
   // For use with FWLite/Python
@@ -56,8 +57,6 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
       return std::vector<float>{kfhits, kfchi2, convVtxFitProb, static_cast<float>(rho)};
   }
 
-  void init(const std::vector<std::string> &weightFileNames);
-
   // Calculation of the MVA value
   float mvaValue( const reco::Candidate* candidate, std::vector<float> const& auxVariables, int &iCategory) const override;
 
@@ -70,6 +69,8 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
   int findCategory( const reco::Candidate* candidate) const override;
 
  private:
+
+  void init(const std::vector<std::string> &weightFileNames);
 
   int findCategory( const reco::GsfElectron* electron) const;
 

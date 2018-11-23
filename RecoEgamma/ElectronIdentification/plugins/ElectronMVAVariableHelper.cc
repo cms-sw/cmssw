@@ -28,7 +28,6 @@ private:
 
   // for AOD and MiniAOD case
   const MultiTokenT<edm::View<reco::GsfElectron>> electronsToken_;
-  const MultiTokenT<reco::VertexCollection>       vtxToken_;
   const MultiTokenT<reco::ConversionCollection>   conversionsToken_;
   const edm::EDGetTokenT<reco::BeamSpot>          beamSpotToken_;
 };

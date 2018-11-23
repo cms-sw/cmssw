@@ -5,11 +5,8 @@ ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(const edm::ParameterSet& conf
   mvaVarMngr_(conf.getParameter<std::string>("variableDefinition"))
 {
 
-  const std::vector <std::string> weightFileNames
-    = conf.getParameter<std::vector<std::string> >("weightFileNames");
-
-  const std::vector <std::string> categoryCutStrings
-    = conf.getParameter<std::vector<std::string> >("categoryCuts");
+  const auto weightFileNames = conf.getParameter<std::vector<std::string> >("weightFileNames");
+  const auto categoryCutStrings = conf.getParameter<std::vector<std::string> >("categoryCuts");
 
   if( (int)(categoryCutStrings.size()) != getNCategories() )
     throw cms::Exception("MVA config failure: ")
@@ -28,22 +25,18 @@ ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2( const std::string& mvaTag,
                                                     int nCategories,
                                                     const std::string& variableDefinition,
                                                     const std::vector<std::string>& categoryCutStrings,
-                                                    bool debug):
-  AnyMVAEstimatorRun2Base( mvaName, 
-			   mvaTag,
-			   nCategories, 
-			   debug ),
-  mvaVarMngr_             (variableDefinition)
+                                                    const std::vector<std::string> &weightFileNames,
+                                                    bool debug)
+  : AnyMVAEstimatorRun2Base( mvaName, mvaTag, nCategories, debug )
+  , mvaVarMngr_            (variableDefinition)
 {
   
   if( (int)(categoryCutStrings.size()) != getNCategories() )
     throw cms::Exception("MVA config failure: ")
       << "wrong number of category cuts in " << getName() << getTag() << std::endl;
   
-  for (int i = 0; i < getNCategories(); ++i) {
-    StringCutObjectSelector<reco::GsfElectron> select(categoryCutStrings[i]);
-    categoryFunctions_.push_back(select);
-  }
+  for (auto const& cut : categoryCutStrings) categoryFunctions_.emplace_back(cut);
+  init(weightFileNames);
 }
 
 
