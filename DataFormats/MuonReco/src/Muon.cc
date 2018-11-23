@@ -109,11 +109,7 @@ int Muon::numberOfMatches( unsigned int type ) const
 	     matches++;
 	     break;
 	   }
-         if(type > 1<<7)
-            if(segmentMatch->isMask(type)) {
-               matches++;
-               break;
-            }
+         
       }
    }
 
