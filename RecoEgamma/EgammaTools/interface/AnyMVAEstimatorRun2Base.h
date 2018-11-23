@@ -25,7 +25,6 @@ class AnyMVAEstimatorRun2Base {
     : name_        (mvaName)
     , tag_         (mvaTag)
     , nCategories_ (nCategories)
-    , methodName_  ("BDTG method")
     , debug_       (debug)
   {}
   virtual ~AnyMVAEstimatorRun2Base(){};
@@ -45,6 +44,7 @@ class AnyMVAEstimatorRun2Base {
   // This function determines the category for a given candidate.
   virtual int findCategory( const reco::Candidate* candidate) const = 0;
   int getNCategories() const { return nCategories_; }
+  const std::string& getName() const { return name_; }
   // An extra variable string set during construction that can be used
   // to distinguish different instances of the estimator configured with
   // different weight files. The tag can be used to construct names of ValueMaps, etc.
@@ -63,6 +63,7 @@ class AnyMVAEstimatorRun2Base {
   //
   // Data members
   //
+  const std::string name_;
 
   // MVA tag. This is an additional string variable to distinguish
   // instances of the estimator of this class configured with different

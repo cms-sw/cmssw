@@ -16,19 +16,14 @@ PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf)
       phoIsoCutoff_ = conf.getParameter<double>("phoIsoCutoff");
   }
 
-  const std::vector <std::string> weightFileNames
-    = conf.getParameter<std::vector<std::string> >("weightFileNames");
-
-  const std::vector <std::string> categoryCutStrings
-    = conf.getParameter<std::vector<std::string> >("categoryCuts");
+  const auto weightFileNames = conf.getParameter<std::vector<std::string> >("weightFileNames");
+  const auto categoryCutStrings = conf.getParameter<std::vector<std::string> >("categoryCuts");
 
   if( (int)(categoryCutStrings.size()) != getNCategories() )
     throw cms::Exception("MVA config failure: ")
       << "wrong number of category cuts in PhotonMVAEstimator" << getTag() << std::endl;
 
-  for (int i = 0; i < getNCategories(); ++i) {
-      categoryFunctions_.emplace_back(categoryCutStrings[i]);
-  }
+  for (auto const& cut : categoryCutStrings) categoryFunctions_.emplace_back(cut);
 
   // Initialize GBRForests
   if( static_cast<int>(weightFileNames.size()) != getNCategories() )

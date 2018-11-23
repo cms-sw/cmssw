@@ -411,24 +411,24 @@ void
 ElectronMVANtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("src");
-    desc.add<edm::InputTag>("vertices");
-    desc.add<edm::InputTag>("pileup");
-    desc.add<edm::InputTag>("genParticles");
-    desc.add<edm::InputTag>("srcMiniAOD");
-    desc.add<edm::InputTag>("verticesMiniAOD");
-    desc.add<edm::InputTag>("pileupMiniAOD");
-    desc.add<edm::InputTag>("genParticlesMiniAOD");
+    desc.add<edm::InputTag>("src",                 edm::InputTag("gedGsfElectrons"));
+    desc.add<edm::InputTag>("vertices",            edm::InputTag("offlinePrimaryVertices"));
+    desc.add<edm::InputTag>("pileup",              edm::InputTag("addPileupInfo"));
+    desc.add<edm::InputTag>("genParticles",        edm::InputTag("genParticles"));
+    desc.add<edm::InputTag>("srcMiniAOD",          edm::InputTag("slimmedElectrons"));
+    desc.add<edm::InputTag>("verticesMiniAOD",     edm::InputTag("offlineSlimmedPrimaryVertices"));
+    desc.add<edm::InputTag>("pileupMiniAOD",       edm::InputTag("slimmedAddPileupInfo"));
+    desc.add<edm::InputTag>("genParticlesMiniAOD", edm::InputTag("prunedGenParticles"));
     desc.add<std::string>("variableDefinition");
-    desc.add<bool>("isMC");
+    desc.add<bool>("isMC", true);
     desc.add<double>("deltaR", 0.1);
     desc.add<double>("ptThreshold", 5.0);
-    desc.addUntracked<std::vector<std::string>>("eleMVAs");
-    desc.addUntracked<std::vector<std::string>>("eleMVALabels");
-    desc.addUntracked<std::vector<std::string>>("eleMVAValMaps");
-    desc.addUntracked<std::vector<std::string>>("eleMVAValMapLabels");
-    desc.addUntracked<std::vector<std::string>>("eleMVACats");
-    desc.addUntracked<std::vector<std::string>>("eleMVACatLabels");
+    desc.addUntracked<std::vector<std::string>>("eleMVAs", {});
+    desc.addUntracked<std::vector<std::string>>("eleMVALabels", {});
+    desc.addUntracked<std::vector<std::string>>("eleMVAValMaps", {});
+    desc.addUntracked<std::vector<std::string>>("eleMVAValMapLabels", {});
+    desc.addUntracked<std::vector<std::string>>("eleMVACats", {});
+    desc.addUntracked<std::vector<std::string>>("eleMVACatLabels", {});
     descriptions.addDefault(desc);
 
 }
