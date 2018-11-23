@@ -53,6 +53,8 @@ TrajectoryFilter *BaseCkfTrajectoryBuilder::createTrajectoryFilter(const edm::Pa
   return TrajectoryFilterFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC);
 }
 
+#include "RecoTracker/TransientTrackingRecHit/interface/TRecHit5DParamConstraint.h"
+
 void
 BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTrajectory & result) const
 {
@@ -65,6 +67,12 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
   TSOS outerState = trajectoryStateTransform::transientState(pState, &(gdet->surface()),
 							     forwardPropagator(seed)->magneticField());
 
+  TrackingRecHit::RecHitPointer recHit(new TRecHit5DParamConstraint(*gdet,outerState));
+  TSOS invalidState(gdet->surface());
+  auto hitLayer = theMeasurementTracker->geometricSearchTracker()->detLayer(pState.detId());
+  result.emplace(invalidState, outerState, recHit, 0, hitLayer);
+
+  return;
 
   for (TrajectorySeed::const_iterator ihit = hitRange.first; ihit != hitRange.second; ihit++) {
  
