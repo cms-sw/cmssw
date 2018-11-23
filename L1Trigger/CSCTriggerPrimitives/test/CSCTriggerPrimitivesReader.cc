@@ -1429,10 +1429,6 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
                                               const CSCALCTDigiCollection* alcts_emul) {
   int emul_corr_bx;
 
-  // (Empirical) offset between 12-bit fullBX and Tbin0 of raw anode hits.
-  //int tbin_anode_offset = 4; // 2007, starting with run 539.
-  int tbin_anode_offset = 5; // 2007, run 14419.
-
   // Should be taken from config. parameters.
   int fifo_pretrig     = 10;
   int fpga_latency     =  6;
@@ -1579,7 +1575,6 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
             //int data_collB     = alctV_data[i].getCollisionB();
             int data_wiregroup = alctV_data[i].getKeyWG();
             int data_bx        = alctV_data[i].getBX();
-            int fullBX = alctV_data[i].getFullBX(); // full 12-bit BX
 
             stubs_comparison[0].init(RUN_, Event_);
             stubs_comparison[0].firstfill = firstfill;
