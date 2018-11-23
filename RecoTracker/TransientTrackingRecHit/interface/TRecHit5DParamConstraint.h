@@ -7,19 +7,18 @@
 
 
 
-class TRecHit5DParamConstraint final : public TransientTrackingRecHit {
+class TRecHit5DParamConstraint final : public TrackingRecHit {
 
 public:
 
-  TRecHit5DParamConstraint( const TrajectoryStateOnSurface& tsos ) : tsos_( tsos ) {}
+  TRecHit5DParamConstraint( const TrajectoryStateOnSurface& tsos ) : 
+    TrackingRecHit(0, int(trackerHitRTTI::notFromCluster)), tsos_( tsos ) {}
 
   TRecHit5DParamConstraint(const GeomDet & idet,  const TrajectoryStateOnSurface& tsos ) : 
-  TrackingRecHit(idet,int(trackerHitRTTI::notFromCluster)), tsos_( tsos ) {}
+    TrackingRecHit(idet,int(trackerHitRTTI::notFromCluster)), tsos_( tsos ) {}
 
   TRecHit5DParamConstraint( const TRecHit5DParamConstraint& other ) = default;
   TRecHit5DParamConstraint( TRecHit5DParamConstraint&& other ) = default;
-
-public:
 
   ~TRecHit5DParamConstraint() override {}
 
@@ -39,6 +38,8 @@ public:
   LocalError localPositionError() const override { return tsos_.localError().positionError(); }
 
   int charge() const { return tsos_.charge(); }
+  const TrajectoryStateOnSurface& trajectoryState() const { return tsos_; }
+
 
   bool canImproveWithTrack() const override { return false; }
 
@@ -74,8 +75,6 @@ private:
   TRecHit5DParamConstraint* clone() const override {
     return new TRecHit5DParamConstraint( *this );
   }
-
-  const TrajectoryStateOnSurface& trajectoryState() const { return tsos_; }
 
 };
 
