@@ -17,6 +17,17 @@ class AnyMVAEstimatorRun2Base {
     , nCategories_ (conf.getParameter<int>("nCategories"))
     , debug_       (conf.getUntrackedParameter<bool>("debug", false))
   {}
+ 
+ AnyMVAEstimatorRun2Base(const::std::string& mvaName,
+			 const::std::string& mvaTag, 
+			 int nCategories, 
+			 bool debug)
+   : name_        (mvaName),
+    tag_         (mvaTag),
+    nCategories_ (nCategories),
+    methodName_  ("BDTG method"),
+    debug_       (debug)
+  {}
   virtual ~AnyMVAEstimatorRun2Base(){};
 
   // Functions that must be provided in derived classes

@@ -15,9 +15,13 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
   ElectronMVAEstimatorRun2(const edm::ParameterSet& conf);
   ~ElectronMVAEstimatorRun2() override {};
   // For use with FWLite/Python
-  ElectronMVAEstimatorRun2(const std::string &mvaTag,
-                           const std::string &mvaName,
-                           const bool debug = false);
+  ElectronMVAEstimatorRun2(const std::string& mvaTag,
+                           const std::string& mvaName,
+                           int nCategories,
+                           const std::string& variableDefinition,
+                           const std::vector<std::string>& categoryCutStrings,
+                           bool debug=false );
+
 
   void init(const std::vector<std::string> &weightFileNames);
 
