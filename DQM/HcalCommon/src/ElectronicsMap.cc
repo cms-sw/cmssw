@@ -213,7 +213,7 @@ namespace hcaldqm
 		void ElectronicsMap::print()
 		{
 			std::cout << "Electronics HashMap Type=" << _etype  << std::endl;
-			BOOST_FOREACH(EMapType::value_type &v, _ids)
+			for(auto const& v : _ids)
 			{
 				std::cout << std::hex << v.first 
 					 << "  "<< v.second << std::dec << std::endl;

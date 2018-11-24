@@ -102,7 +102,7 @@ struct Plot_1D{
     }
   }
 
-  void plot(TString fitFormula=""){
+  void plot(TString fitFormula="", bool AutoSetRange=false){
     // Determine the plot ranges
     unsigned int nValidHistos = histogram.size();
     const unsigned int nValidHistosLimit = 4;
@@ -126,16 +126,31 @@ struct Plot_1D{
     }
     overallAvg /= overallSigmaSqInv;
 
+    // Update August 2018, implemented autorange for histograms
+    float MaxY=-1000.;
+    float MinY=1000.;
+
+
     for (unsigned int f=0; f<nValidHistos; f++){
       for (int bin=1; bin<=histogram.at(f)->GetNbinsX(); bin++){
         float bincontent = histogram.at(f)->GetBinContent(bin);
         float binerror = histogram.at(f)->GetBinError(bin);
         if (binerror==0 && bincontent==0) continue;
         if ((bincontent + binerror)>deviationThreshold*overallAvg) rangeMaxReduction = 0;
+	if(bincontent>=MaxY)MaxY=bincontent;
+	if(bincontent<=MinY)MinY=bincontent;
+
       }
     }
     if (nValidHistos>nValidHistosLimit && rangeMaxReduction!=0) dampingFactorEff = dampingFactorEff*0.7;
+    
+    float Yrange = MaxY-MinY; 
+    if(AutoSetRange){ // Overwtite fixed range for Y axis with the one computed for the current histogram
+      ymin=MinY-Yrange/10.;
+      ymax=Yrange*1.6+ymin;
+    }
 
+   
     if (ymin>=ymax){ // If range is not already set
       ymin = absMin/rangeFactor[0];
       ymax = absMax*(rangeFactor[1]+dampingFactorEff-rangeMaxReduction);
@@ -220,15 +235,15 @@ void splitOptionRecursive(string rawoption, vector<string>& splitoptions, char d
 }
 
 void getCustomRanges(TString type, TString resonance, int iP, float minmax_plot[2]);
-void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, string linestyles, string markerstyles, TString directory, TString resonance, TString type, bool switchONfit);
+void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, string linestyles, string markerstyles, TString directory, TString resonance, TString type, bool switchONfit, bool AutoSetRange=false, float CustomMinY=90.85, float CustomMaxY=91.4);
 
-void MultiHistoOverlapAll_Base(string files, string labels, string colors, string linestyles, string markerstyles, TString directory, TString resonance, bool switchONfit=false){
+void MultiHistoOverlapAll_Base(string files, string labels, string colors, string linestyles, string markerstyles, TString directory, TString resonance, bool switchONfit=false, bool AutoSetRange=false, float CustomMinY=90.85, float CustomMaxY=91.4){
   gSystem->mkdir(directory, true);
-  MultiHistoOverlapAll_Base_one(files, labels, colors, linestyles, markerstyles, directory, resonance, "mean", switchONfit);
-  MultiHistoOverlapAll_Base_one(files, labels, colors, linestyles, markerstyles, directory, resonance, "sigma", switchONfit);
+  MultiHistoOverlapAll_Base_one(files, labels, colors, linestyles, markerstyles, directory, resonance, "mean", switchONfit, AutoSetRange, CustomMinY, CustomMaxY);
+  MultiHistoOverlapAll_Base_one(files, labels, colors, linestyles, markerstyles, directory, resonance, "sigma", switchONfit, AutoSetRange, CustomMinY, CustomMaxY);
 }
 
-void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, string linestyles, string markerstyles, TString directory, TString resonance, TString type, bool switchONfit){
+void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, string linestyles, string markerstyles, TString directory, TString resonance, TString type, bool switchONfit, bool AutoSetRange, float CustomMinY, float CustomMaxY){
   gROOT->Reset();
   if (TkAlStyle::status() == NO_STATUS) TkAlStyle::set(INTERNAL);
   gROOT->ForceStyle();
@@ -266,6 +281,7 @@ void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, s
   }
 
   const int nhistos=8;
+  const int n2Dhistos = 2;
   TFile** file = new TFile*[nfiles];
   for (int f=0; f<nfiles; f++) file[f] = TFile::Open((strValidation_file[f]).c_str(), "read");
 
@@ -279,6 +295,10 @@ void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, s
     TString("MassVsCosThetaCS/allHistos/") + type + TString("Histo"),
     TString("MassVsPhiCS/allHistos/") + type + TString("Histo")
   };
+  TString histo2Dname[n2Dhistos] ={
+    TString("MassVsEtaPhiPlus/allHistos/") + type + TString("Histo"),
+    TString("MassVsEtaPhiMinus/allHistos/") + type + TString("Histo"),
+  };
   TString xtitle[nhistos] ={
     "p^{T}_{#mu} (GeV)",
     "#phi_{#mu+}",
@@ -288,6 +308,14 @@ void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, s
     "#eta_{#mu+} - #eta_{#mu-}",
     "cos #theta_{CS}",
     "#phi_{CS}"
+  };
+  TString x2Dtitle[n2Dhistos] ={
+    "#phi_{#mu+}",
+    "#phi_{#mu-}"
+  };
+  TString y2Dtitle[n2Dhistos] ={
+    "#eta_{#mu+}",
+    "#eta_{#mu-}"
   };
   TString ytitle;
   if (type=="mean") ytitle = "M_{#mu#mu} (GeV)";
@@ -301,6 +329,10 @@ void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, s
     type + "MassVsDeltaEta_ALL",
     type + "MassVsCosThetaCS_ALL",
     type + "MassVsPhiCS_ALL"
+  };
+  TString plotname2D[n2Dhistos] ={
+    type + "MassVsEtaPhiPlus",
+    type + "MassVsEtaPhiMinus"
   };
   TString fitFormula[nhistos]={
     "[0]+[1]*cos(x+[2])",
@@ -333,13 +365,76 @@ void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, s
     static_cast<float>(-TMath::Pi())
   };
 
+
+  // Plot 2D hystograms
+  // TO BE FIXED: something strange appears in the 2D plots for the sigma, this should be further investigated
+  Double_t zMass(91.1876);
+  Double_t Y1SMass(9.46);
+  Double_t maxDist(0.);
+  Double_t Mass=zMass;
+  Double_t fixrange=1.5;
+  if (resonance=="Y1S"){
+    Mass=Y1SMass;
+    fixrange=0.15;
+  }
+  for (int f=0; f<nfiles; f++){
+ 
+    if (file[f]!=0 && !file[f]->IsZombie()){
+
+      
+      TH2D* histo2D[2];
+      histo2D[0]= (TH2D*)file[f]->Get(histo2Dname[0]); //histoMassVsEtaPhiPlus
+      histo2D[1]= (TH2D*)file[f]->Get(histo2Dname[1]); //histoMassVsEtaPhiMinus
+      for(int s=0;s<2;s++){
+	TCanvas dummycanvas;
+	dummycanvas.SetFillColor(0);  
+	dummycanvas.cd()->SetTopMargin(0.07);
+	dummycanvas.cd()->SetRightMargin(0.15);
+	dummycanvas.cd()->SetLeftMargin(0.12);
+	histo2D[s]->SetTitle("");
+	histo2D[s]->GetZaxis()->SetLabelFont(42);
+	histo2D[s]->GetXaxis()->SetTitle(x2Dtitle[s]);
+	histo2D[s]->GetYaxis()->SetTitle(y2Dtitle[s]);
+	histo2D[s]->GetYaxis()->SetTitleOffset(0.9);
+	if(type=="mean"){//This is made to ensure that the range options are not used for the sigma
+	  Double_t zMin=Mass;
+	  Double_t zMax=Mass;
+ 
+	  for(int nbinX=1;nbinX<=histo2D[s]->GetNbinsX();nbinX++){
+	    for(int nbinY=1;nbinY<=histo2D[s]->GetNbinsY();nbinY++){
+	      Double_t value = histo2D[s]->GetBinContent(nbinX,nbinY);
+	      if(value<zMin)zMin=value;
+	      if(value>zMax)zMax=value;
+	    }
+	  }
+	  maxDist=fabs(zMax-Mass);
+	  if(fabs(Mass-zMin) >= maxDist) maxDist=fabs(Mass-zMin);
+	  histo2D[s]->GetZaxis()->SetRangeUser(Mass-fixrange,Mass+fixrange);//Default range Zmass +- 1.5 GeV (Ymass +- 0.15 GeV), NOTE: this will create empty bins when the bin content is either lower or higher than the fixed range
+	  if(AutoSetRange)histo2D[s]->GetZaxis()->SetRangeUser(zMin,zMax); //Set range automatically
+	  
+	}
+	histo2D[s]->Draw("COLZ");
+	TString alignment_label = strValidation_label.at(f);
+	alignment_label.ReplaceAll(" ","_");
+	dummycanvas.SaveAs(Form("%s/%sc%s%s%s", directory.Data(),alignment_label.Data(),"_", plotname2D[s].Data(), ".png"));
+	dummycanvas.SaveAs(Form("%s/%sc%s%s%s", directory.Data(),alignment_label.Data(),"_", plotname2D[s].Data(), ".pdf"));
+      }
+      
+    }
+
+  };
+  
+
   for (int iP=0; iP<nhistos; iP++){
     TString theFitFormula="";
     if (switchONfit && type=="mean") theFitFormula = fitFormula[iP];
 
     float minmax_plot[2]={ -1, -1 };
     //getCustomRanges(type, resonance, iP, minmax_plot);
-    
+    if (type=="mean") {
+      minmax_plot[0]=CustomMinY;
+      minmax_plot[1]=CustomMaxY;
+    }
     Plot_1D thePlot(directory, histoname[iP], plotname[iP], xtitle[iP], ytitle, plot_xmin[iP], plot_xmax[iP], minmax_plot[0], minmax_plot[1]);
     for (int f=0; f<nfiles; f++){
       int color=0, linestyle=0, markerstyle=0;
@@ -369,7 +464,9 @@ void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, s
       }
       thePlot.addHistogramFromFile(file[f], strValidation_label.at(f), color, linestyle, markerstyle);
     }
-    thePlot.plot(theFitFormula);
+    if(type=="mean")thePlot.plot(theFitFormula,AutoSetRange);
+    else thePlot.plot(theFitFormula,true);
+    
   }
   
   for (int f=nfiles-1; f>=0; f--){ if (file[f]!=0 && file[f]->IsOpen()) file[f]->Close(); }
@@ -523,4 +620,3 @@ void getCustomRanges(TString type, TString resonance, int iP, float minmax_plot[
   } // End custom ranges
 
 }
-

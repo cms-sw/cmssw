@@ -542,7 +542,7 @@ FWRecoGeometryESProducer::addCaloGeometry( FWRecoGeometry& fwRecoGeometry )
     unsigned int id = insert_id( it->rawId(), fwRecoGeometry);
     if( !((DetId::Forward == it->det()) || (DetId::HGCalEE == it->det()) ||
 	  (DetId::HGCalHSi == it->det()) || (DetId::HGCalHSc == it->det())) ) {
-      const CaloCellGeometry::CornersVec& cor = m_caloGeom->getGeometry( *it )->getCorners();      
+      const CaloCellGeometry::CornersVec& cor = m_caloGeom->getGeometry( *it )->getCorners();
       fillPoints( id, cor.begin(), cor.end(), fwRecoGeometry);
     } else {
       DetId::Detector det = it->det();
@@ -551,8 +551,25 @@ FWRecoGeometryESProducer::addCaloGeometry( FWRecoGeometry& fwRecoGeometry )
 			     (DetId::HGCalHSc == det)) ? ForwardEmpty :
 			     it->subdetId());
       const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(m_caloGeom->getSubdetectorGeometry(det,subdet));
-      const auto cor = geom->get8Corners( *it );
-      fillPoints( id, cor.begin(), cor.end(), fwRecoGeometry );
+      const auto cor = geom->getNewCorners( *it );
+
+      // roll = yaw = pitch = 0
+      fwRecoGeometry.idToName[id].matrix[0] = 1.0;
+      fwRecoGeometry.idToName[id].matrix[4] = 1.0;
+      fwRecoGeometry.idToName[id].matrix[8] = 1.0;
+
+      // corners of the front face
+      for(uint i = 0; i < (cor.size()-1); ++i){
+        fwRecoGeometry.idToName[id].points[i*3+0] = cor[i].x();
+        fwRecoGeometry.idToName[id].points[i*3+1] = cor[i].y();
+        fwRecoGeometry.idToName[id].points[i*3+2] = cor[i].z();
+      }
+
+      // thickness
+      fwRecoGeometry.idToName[id].shape[3] = cor[cor.size()-1].z();
+
+      // total points
+      fwRecoGeometry.idToName[id].topology[0] = cor.size() - 1;
     }
   }
 }

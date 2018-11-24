@@ -33,7 +33,6 @@
 
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
 
 #include "TDirectory.h"
 #include "TFile.h"

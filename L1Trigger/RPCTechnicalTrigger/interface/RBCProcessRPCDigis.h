@@ -39,8 +39,6 @@
 class RBCProcessRPCDigis : public ProcessInputSignal {
 public: 
   /// Standard constructor
-  RBCProcessRPCDigis( ) {};
-  
   RBCProcessRPCDigis( const edm::ESHandle<RPCGeometry> &, 
                       const edm::Handle<RPCDigiCollection> & );
   
@@ -52,14 +50,13 @@ public:
   
   void configure();
     
-  void initialize( std::vector<RPCData*> & );
   
   void builddata();
   
   void print_output();
   
   RPCInputSignal * retrievedata() override {
-    return  m_lbin;
+    return  m_lbin.get();
   };
   
   void rewind() {};
@@ -68,37 +65,27 @@ public:
 protected:
   
 private:
+  void initialize( std::vector<RPCData> & ) const;
   
   int getBarrelLayer(const int &, const int &);
   
-  void setDigiAt( int , int  );
+  void setDigiAt( int , int , RPCData& );
   
   void setInputBit( std::bitset<15> & , int );
   
   const edm::ESHandle<RPCGeometry>     * m_ptr_rpcGeom;
   const edm::Handle<RPCDigiCollection> * m_ptr_digiColl;
   
-  RPCDigiCollection::const_iterator m_digiItr;
-  RPCDigiCollection::DigiRangeIterator m_detUnitItr;
-  
-  RPCData  * m_block;
-  
-  RPCInputSignal * m_lbin;
-  
-  std::map<int, int> m_layermap;
+  std::unique_ptr<RPCInputSignal> m_lbin;
   
   std::map<int, RBCInput*> m_data;
   
-  std::map<int, std::vector<RPCData*> > m_vecDataperBx;
+  std::map<int, std::vector<RPCData> > m_vecDataperBx;
   
-  bool m_debug;
-  int m_maxBxWindow;
-  
-  std::vector<int> m_wheelid;
-  std::vector<int> m_sec1id;
-  std::vector<int> m_sec2id;
-  
-  std::map<int, l1trigger::Counters*> m_digiCounters;
+
+  std::map<int, l1trigger::Counters> m_digiCounters;
+  const int m_maxBxWindow;
+  const bool m_debug;
       
 };
 #endif // RBCPROCESSRPCDIGIS_H
