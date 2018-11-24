@@ -2,7 +2,6 @@
 #include <vector>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
-#include <boost/foreach.hpp>
 struct Connection{
   std::string name;
   struct AuthParam{
@@ -23,11 +22,11 @@ void loadxml(const std::string &filename,
 
     read_xml(filename, pt);
 
-    BOOST_FOREACH(ptree::value_type const&v,pt.get_child("connectionlist")){
+    for(auto const& v : pt.get_child("connectionlist")){
       if(v.first=="connection"){
 	std::string con=v.second.get<std::string>("<xmlattr>.name",std::string(""));
 	if(con==conn){
-	  BOOST_FOREACH(ptree::value_type const&p,v.second){
+	  for(auto const& p : v.second){
 	    if(p.first=="parameter"){
 	      std::string name=p.second.get<std::string>("<xmlattr>.name");
 	      std::string value=p.second.get<std::string>("<xmlattr>.value");

@@ -13,7 +13,6 @@
 
 #include <vector>
 #include <boost/unordered_set.hpp>
-#include <boost/foreach.hpp>
 
 namespace hcaldqm
 {

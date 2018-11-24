@@ -307,6 +307,6 @@ void TkAlMergeZmumuPlots(){
   TkAlStyle::legendheader = ".oO[legendheader]Oo.";
   TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.");
 
-  MultiHistoOverlapAll_.oO[resonance]Oo.(separatebycommas(filenames), separatebycommas(titles), separatebycommas(colors), separatebycommas(linestyles_new), separatebycommas(markerstyles_new), ".oO[datadir]Oo./.oO[PlotsDirName]Oo.", .oO[switchONfit]Oo.);
+  MultiHistoOverlapAll_.oO[resonance]Oo.(separatebycommas(filenames), separatebycommas(titles), separatebycommas(colors), separatebycommas(linestyles_new), separatebycommas(markerstyles_new), ".oO[datadir]Oo./.oO[PlotsDirName]Oo.", .oO[switchONfit]Oo., .oO[AutoSetRange]Oo., .oO[CustomMinY]Oo., .oO[CustomMaxY]Oo.);
 }
 """

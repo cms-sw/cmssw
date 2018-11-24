@@ -4,7 +4,6 @@
 #include "DQM/HcalCommon/interface/Quantity.h"
 #include "DQM/HcalCommon/interface/Flag.h"
 #include "boost/unordered_map.hpp"
-#include "boost/foreach.hpp"
 
 namespace hcaldqm
 {
@@ -560,7 +559,7 @@ namespace hcaldqm
 				{
 					std::vector<std::string> labels(_types.size());
 					std::cout << "SIZE = " << _types.size() << std::endl;
-					BOOST_FOREACH(TypeMap::value_type &v, _types)
+					for(auto const& v : _types)
 					{
 						labels[v.second] = utilities::ogtype2string((constants::OrbitGapType)v.first);
 					}
@@ -569,7 +568,7 @@ namespace hcaldqm
 				EventType* makeCopy() override
 				{
 					std::vector<uint32_t> vtypes;
-					BOOST_FOREACH(TypeMap::value_type &p, _types)
+					for(auto const& p : _types)
 					{
 						vtypes.push_back(p.first);
 					}

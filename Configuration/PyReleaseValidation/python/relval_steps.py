@@ -1698,7 +1698,8 @@ steps['RECOHID18']=merge([{ '--scenario':'pp',
                             '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiPixelCalZeroBias,SKIM:PbPbEMu+PbPbZEE+PbPbZMM+PbPbZMu,EI,DQM:@common+@standardDQM+@ExtraHLT',
                             '--datatier':'AOD,DQMIO',
                             '--eventcontent':'AOD,DQM',
-                            '--era':'Run2_2018_pp_on_AA'
+                            '--era':'Run2_2018_pp_on_AA',
+                            '-n':'10'
                             },steps['RECOHID15']])
 
 steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',

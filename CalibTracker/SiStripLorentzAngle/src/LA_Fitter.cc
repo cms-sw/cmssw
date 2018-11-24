@@ -2,7 +2,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <cmath>
-#include <boost/foreach.hpp>
 #include <boost/algorithm/string/erase.hpp>
 #include <TF1.h>
 
@@ -43,7 +42,7 @@ make_and_fit_symmchi2(Book& book) {
 
     const unsigned rebin = std::max( var_w2==book.end() ? 0 : find_rebin(var_w2->second), 
 				     var_w3==book.end() ? 0 : find_rebin(var_w3->second) );
-    BOOST_FOREACH(Book::iterator it, rebin_hists) if(it!=book.end()) it->second->Rebin( rebin>1 ? rebin<7 ? rebin : 6 : 1);
+    for(const auto& it : rebin_hists) if(it!=book.end()) it->second->Rebin( rebin>1 ? rebin<7 ? rebin : 6 : 1);
 
     TH1* const prob_w1 = w1==book.end()     ? nullptr : subset_probability( base+method(PROB1,false) ,w1->second,all->second);
     TH1* const rmsv_w2 = var_w2==book.end() ? nullptr :        rms_profile( base+method(RMSV2,false), (TProfile*const)var_w2->second);
@@ -70,7 +69,7 @@ make_and_fit_symmchi2(Book& book) {
     const unsigned guess = fit_hists[0]->FindBin(0);
     const std::pair<unsigned,unsigned> range(guess-bins/30,guess+bins/30);
 
-    BOOST_FOREACH(TH1*const hist, fit_hists) {
+    for(auto const& hist : fit_hists) {
       TH1*const chi2 = SymmetryFit::symmetryChi2(hist,range);
       if(chi2) {book.book(chi2->GetName(),chi2); chi2->SetTitle("Symmetry #chi^{2};tan#theta_{t}-(dx/dz)_{reco}");}
     }

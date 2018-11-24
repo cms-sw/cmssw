@@ -23,40 +23,23 @@
 
 
 RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
-   m_trigConfig(nullptr),m_pacTrigger(nullptr)
-{
-  produces<std::vector<L1MuRegionalCand> >("RPCb");
-  produces<std::vector<L1MuRegionalCand> >("RPCf");
-
-  produces<std::vector<RPCDigiL1Link> >("RPCb");
-  produces<std::vector<RPCDigiL1Link> >("RPCf");
-
-  m_firstRun = true;
-  m_cacheID = 0;
-
-
-  m_triggerDebug = iConfig.getUntrackedParameter<int>("RPCTriggerDebug",0);
-  
+  m_trigConfig(),m_pacTrigger(),
   // 0 - no debug
   // 1 - dump to xml
-  if ( m_triggerDebug != 1){
-     m_triggerDebug = 0;
-  }
-     
-   
-  m_label = iConfig.getParameter<std::string>("label");
-  consumes<RPCDigiCollection>(m_label);
+  m_triggerDebug{iConfig.getUntrackedParameter<int>("RPCTriggerDebug",0) == 1? 1 : 0},
+  m_cacheID{0},
+  m_label{iConfig.getParameter<std::string>("label")},
+  m_rpcDigiToken{consumes<RPCDigiCollection>(m_label)},
+
+  m_brlCandPutToken{produces<std::vector<L1MuRegionalCand> >("RPCb")},
+  m_fwdCandPutToken{produces<std::vector<L1MuRegionalCand> >("RPCf")},
+
+  m_brlLinksPutToken{produces<std::vector<RPCDigiL1Link> >("RPCb")},
+  m_fwdLinksPutToken{produces<std::vector<RPCDigiL1Link> >("RPCf")}
+{
+  //MuonsGrabber is a singleton
+  usesResource("MuonsGrabber");
 }
-
-
-
-
-RPCTrigger::~RPCTrigger(){ 
-   if (m_pacTrigger != nullptr) delete m_pacTrigger;
-   if (m_trigConfig != nullptr) delete m_trigConfig;
-}
-
-
 
 void
 RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -65,24 +48,6 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //static int ev=1;
   //std::cout << "----------------------------------- "  << ev++ << std::endl;
   if ( m_triggerDebug == 1)  MuonsGrabber::Instance().startNewEvent(iEvent.id().event(), iEvent.bunchCrossing());  
-
-  if (m_firstRun){
-
-     m_cacheID = iSetup.get<L1RPCConfigRcd>().cacheIdentifier();
-     m_firstRun = false;  
-     edm::ESHandle<L1RPCConfig> conf;
-     iSetup.get<L1RPCConfigRcd>().get(conf);
-     const L1RPCConfig *rpcconf = conf.product();
-
-
-     m_pacManager.init(rpcconf);
-     m_trigConfig = new RPCBasicTrigConfig(&m_pacManager);
-     m_trigConfig->setDebugLevel(m_triggerDebug);
-     m_pacTrigger = new RPCPacTrigger(m_trigConfig);
-     if ( m_triggerDebug == 1)  MuonsGrabber::Instance().setRPCBasicTrigConfig(m_trigConfig);
-
-      
-  }
 
   if (m_cacheID != iSetup.get<L1RPCConfigRcd>().cacheIdentifier()) {
 
@@ -94,37 +59,30 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      const L1RPCConfig *rpcconf = conf.product();
 
      m_pacManager.init(rpcconf);
-     delete m_trigConfig;
-     m_trigConfig = new RPCBasicTrigConfig(&m_pacManager);
+     m_trigConfig = std::make_unique<RPCBasicTrigConfig>(&m_pacManager);
      m_trigConfig->setDebugLevel(m_triggerDebug);
 
-     delete m_pacTrigger;
-     m_pacTrigger = new RPCPacTrigger(m_trigConfig);
+     m_pacTrigger = std::make_unique<RPCPacTrigger>(m_trigConfig.get());
 
-     if ( m_triggerDebug == 1)  MuonsGrabber::Instance().setRPCBasicTrigConfig(m_trigConfig);
-
-       
+     if ( m_triggerDebug == 1)  MuonsGrabber::Instance().setRPCBasicTrigConfig(m_trigConfig.get());
   }
 
- 
   
   edm::Handle<RPCDigiCollection> rpcDigis;
-//  iEvent.getByType(rpcDigis);
-  //iEvent.getByLabel("muonRPCDigis",rpcDigis);
-  iEvent.getByLabel(m_label, rpcDigis);
+  iEvent.getByToken(m_rpcDigiToken, rpcDigis);
 
-  std::unique_ptr<std::vector<L1MuRegionalCand> > candBarell(new std::vector<L1MuRegionalCand>);
-  std::unique_ptr<std::vector<L1MuRegionalCand> > candForward(new std::vector<L1MuRegionalCand>);
+  std::vector<L1MuRegionalCand> candBarell;
+  std::vector<L1MuRegionalCand> candForward;
   if (!rpcDigis.isValid()) 
   {
      LogDebug("RPCTrigger")
           << "\nWarning: RPCDigiCollection with input tag " << m_label
           << "\nrequested in configuration, but not found in the event. Emulator will produce empty collection \n ";
 
-          iEvent.put(std::move(candBarell), "RPCb");
-          iEvent.put(std::move(candForward), "RPCf");
- 
-          return;
+     iEvent.emplace(m_brlCandPutToken, std::move(candBarell) );
+     iEvent.emplace(m_fwdCandPutToken, std::move(candForward) );
+     
+     return;
   }
 
   
@@ -138,32 +96,29 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
-  std::unique_ptr<std::vector<RPCDigiL1Link> >  brlLinks(new std::vector<RPCDigiL1Link>);
-  std::unique_ptr<std::vector<RPCDigiL1Link> >  fwdLinks(new std::vector<RPCDigiL1Link>);
-    
+  std::vector<RPCDigiL1Link>  brlLinks;
+  std::vector<RPCDigiL1Link>  fwdLinks;
+  
+  edm::ESHandle<L1RPCConeBuilder> coneBuilder;
+  iSetup.get<L1RPCConeBuilderRcd>().get(coneBuilder);
+  
+  edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition;
+  iSetup.get<L1RPCConeDefinitionRcd>().get(l1RPCConeDefinition);
+  
+  edm::ESHandle<L1RPCHwConfig> hwConfig;
+  iSetup.get<L1RPCHwConfigRcd>().get(hwConfig);
+  
+  edm::ESHandle<L1RPCBxOrConfig> bxOrConfig;
+  iSetup.get<L1RPCBxOrConfigRcd>().get(bxOrConfig);
+
+  edm::ESHandle<L1RPCHsbConfig> hsbConfig;
+  iSetup.get<L1RPCHsbConfigRcd>().get(hsbConfig);
+
+  
   for (int iBx = -1; iBx < 2; ++ iBx) {
     
-    L1RpcLogConesVec ActiveCones;
-
-    edm::ESHandle<L1RPCConeBuilder> coneBuilder;
-    iSetup.get<L1RPCConeBuilderRcd>().get(coneBuilder);
-      
-    edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition;
-    iSetup.get<L1RPCConeDefinitionRcd>().get(l1RPCConeDefinition);
-
-    edm::ESHandle<L1RPCHwConfig> hwConfig;
-    iSetup.get<L1RPCHwConfigRcd>().get(hwConfig);
-
-    edm::ESHandle<L1RPCBxOrConfig> bxOrConfig;
-    iSetup.get<L1RPCBxOrConfigRcd>().get(bxOrConfig);
-
-
-
-    ActiveCones = m_theLinksystemFromES.getConesFromES(rpcDigis, coneBuilder, l1RPCConeDefinition, bxOrConfig, hwConfig, iBx);
+    L1RpcLogConesVec ActiveCones = m_theLinksystemFromES.getConesFromES(rpcDigis, coneBuilder, l1RPCConeDefinition, bxOrConfig, hwConfig, iBx);
     
-    edm::ESHandle<L1RPCHsbConfig> hsbConfig;
-    iSetup.get<L1RPCHsbConfigRcd>().get(hsbConfig);
-
     L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->runEvent(ActiveCones, hsbConfig);
   
     //int maxFiredPlanes = 0;
@@ -190,19 +145,19 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<L1MuRegionalCand> RPCf = giveFinallCandindates(finalMuons[1],3, iBx, rpcDigis, dlFwd);
       
     
-    brlLinks->insert(brlLinks->end(), dlBrl.begin(), dlBrl.end() );
-    fwdLinks->insert(fwdLinks->end(), dlFwd.begin(), dlFwd.end() );
+    brlLinks.insert(brlLinks.end(), dlBrl.begin(), dlBrl.end() );
+    fwdLinks.insert(fwdLinks.end(), dlFwd.begin(), dlFwd.end() );
 
-    candBarell->insert(candBarell->end(), RPCb.begin(), RPCb.end());
-    candForward->insert(candForward->end(), RPCf.begin(), RPCf.end());
+    candBarell.insert(candBarell.end(), RPCb.begin(), RPCb.end());
+    candForward.insert(candForward.end(), RPCf.begin(), RPCf.end());
 
     if ( m_triggerDebug == 1)  MuonsGrabber::Instance().writeDataForRelativeBX(iBx);  
   }  
 
-  iEvent.put(std::move(fwdLinks), "RPCf");
-  iEvent.put(std::move(brlLinks), "RPCb");
-  iEvent.put(std::move(candBarell), "RPCb");
-  iEvent.put(std::move(candForward), "RPCf");
+  iEvent.emplace(m_fwdLinksPutToken, std::move(fwdLinks));
+  iEvent.emplace(m_brlLinksPutToken, std::move(brlLinks));
+  iEvent.emplace(m_brlCandPutToken, std::move(candBarell));
+  iEvent.emplace(m_fwdCandPutToken, std::move(candForward));
   
 }
 ///////////////////////////////////////////////////////////////////////////////
