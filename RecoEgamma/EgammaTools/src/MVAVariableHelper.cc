@@ -5,13 +5,16 @@
 /////////////
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2.h"
 
 template<>
 MVAVariableHelper<reco::GsfElectron>::MVAVariableHelper(edm::ConsumesCollector && cc)
     : tokens_({
-            cc.consumes<edm::ValueMap<float>>(edm::InputTag("electronMVAVariableHelper", "kfhits")),
-            cc.consumes<edm::ValueMap<float>>(edm::InputTag("electronMVAVariableHelper", "kfchi2")),
-            cc.consumes<edm::ValueMap<float>>(edm::InputTag("electronMVAVariableHelper", "convVtxFitProb")),
+            cc.consumes<reco::ConversionCollection>(edm::InputTag("allConversions")),
+            cc.consumes<reco::ConversionCollection>(edm::InputTag("reducedEgamma:reducedConversions")),
+            cc.consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot")),
             cc.consumes<double>(edm::InputTag("fixedGridRhoFastjetAll"))
         })
 {}
@@ -20,12 +23,25 @@ template<>
 const std::vector<float> MVAVariableHelper<reco::GsfElectron>::getAuxVariables(
         edm::Ptr<reco::GsfElectron> const& particlePtr, const edm::Event& iEvent) const
 {
-    return std::vector<float> {
-        getVariableFromValueMapToken(particlePtr, tokens_[0], iEvent),
-        getVariableFromValueMapToken(particlePtr, tokens_[1], iEvent),
-        getVariableFromValueMapToken(particlePtr, tokens_[2], iEvent),
-        getVariableFromDoubleToken(tokens_[3], iEvent)
-    };
+    edm::Handle<reco::ConversionCollection> conversionsHandle;
+    edm::Handle<reco::BeamSpot> beamSpotHandle;
+    edm::Handle<double> rhoHandle;
+
+    iEvent.getByToken(tokens_[0], conversionsHandle);
+    if( !conversionsHandle.isValid() ) {
+      iEvent.getByToken(tokens_[1], conversionsHandle);
+      if( !conversionsHandle.isValid() )
+        throw cms::Exception(" Collection not found: ")
+            << " failed to find a standard AOD or miniAOD conversions collection " << std::endl;
+    }
+
+    iEvent.getByToken(tokens_[2], beamSpotHandle);
+    iEvent.getByToken(tokens_[3], rhoHandle);
+
+    return ElectronMVAEstimatorRun2::getExtraVars(*particlePtr,
+                                                  conversionsHandle.product(),
+                                                  beamSpotHandle.product(),
+                                                  *rhoHandle);
 }
 
 template<>
