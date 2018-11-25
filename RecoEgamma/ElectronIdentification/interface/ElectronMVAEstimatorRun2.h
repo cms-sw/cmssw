@@ -72,7 +72,7 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
 
   void init(const std::vector<std::string> &weightFileNames);
 
-  int findCategory( const reco::GsfElectron* electron) const;
+  int findCategory(reco::GsfElectron const& electron) const;
 
   std::vector<ThreadSafeStringCut<StringCutObjectSelector<reco::GsfElectron>, reco::GsfElectron>> categoryFunctions_;
   std::vector<int> nVariables_;

@@ -57,13 +57,13 @@ class MVAVariableManager {
         return nVars_;
     }
 
-    float getValue(int index, const ParticleType* particle, const std::vector<float>& auxVariables) const {
+    float getValue(int index, const ParticleType& particle, const std::vector<float>& auxVariables) const {
         float value;
 
         MVAVariableInfo varInfo = variableInfos_[index];
 
         if (varInfo.auxIndex >= 0) value = auxVariables[varInfo.auxIndex];
-        else value = functions_[index](*particle);
+        else value = functions_[index](particle);
 
         if (varInfo.hasLowerClip && value < varInfo.lowerClipValue) {
             value = varInfo.lowerClipValue;

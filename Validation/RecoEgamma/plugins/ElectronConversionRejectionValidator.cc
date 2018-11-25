@@ -218,9 +218,9 @@ void ElectronConversionRejectionValidator::analyze( const edm::Event& e, const e
 
 
     //find matching conversion if any
-    reco::ConversionRef convref = ConversionTools::matchedConversion(*iele,convHandle,thebs.position());
+    reco::Conversion const* conv = ConversionTools::matchedConversion(*iele,*convHandle,thebs.position());
     //fill information on passing electrons only if there is no matching conversion (electron passed the conversion rejection cut!)
-    if (convref.isNull()) {
+    if (conv == nullptr) {
       h_elePtPass_->Fill(iele->pt());
       h_eleEtaPass_->Fill(iele->eta());
       h_elePhiPass_->Fill(iele->phi());
@@ -237,19 +237,19 @@ void ElectronConversionRejectionValidator::analyze( const edm::Event& e, const e
       h_elePhiFail_->Fill(iele->phi());
 
       //fill conversion info
-      math::XYZVectorF convmom = convref->refittedPairMomentum();
+      math::XYZVectorF convmom = conv->refittedPairMomentum();
       h_convPt_->Fill(convmom.rho());
       h_convEta_->Fill(convmom.eta());
       h_convPhi_->Fill(convmom.phi());
-      h_convRho_->Fill(convref->conversionVertex().position().rho());
-      h_convZ_->Fill(convref->conversionVertex().position().z());
-      h_convProb_->Fill(ChiSquaredProbability(convref->conversionVertex().chi2(),convref->conversionVertex().ndof()));
+      h_convRho_->Fill(conv->conversionVertex().position().rho());
+      h_convZ_->Fill(conv->conversionVertex().position().z());
+      h_convProb_->Fill(ChiSquaredProbability(conv->conversionVertex().chi2(),conv->conversionVertex().ndof()));
 
       //fill information about conversion tracks
-      if (convref->tracks().size()<2) continue;
+      if (conv->tracks().size()<2) continue;
 
-      RefToBase<reco::Track> tk1 = convref->tracks().front();
-      RefToBase<reco::Track> tk2 = convref->tracks().back();
+      RefToBase<reco::Track> tk1 = conv->tracks().front();
+      RefToBase<reco::Track> tk2 = conv->tracks().back();
 
       RefToBase<reco::Track> tklead;
       RefToBase<reco::Track> tktrail;
