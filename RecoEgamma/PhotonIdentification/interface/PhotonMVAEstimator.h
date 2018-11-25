@@ -28,7 +28,7 @@ class PhotonMVAEstimator : public AnyMVAEstimatorRun2Base{
 
  private:
 
-  int findCategory( const reco::Photon* phoPtr ) const;
+  int findCategory(reco::Photon const& photon) const;
 
   // The number of categories and number of variables per category
   int nCategories_;

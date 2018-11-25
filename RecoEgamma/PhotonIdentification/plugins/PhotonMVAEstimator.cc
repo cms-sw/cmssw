@@ -72,7 +72,7 @@ mvaValue(const reco::Candidate* candPtr, std::vector<float> const& auxVars, int 
   std::vector<float> vars;
 
   for (int i = 0; i < nVariables_[iCategory]; ++i) {
-      vars.push_back(mvaVarMngr_.getValue(variables_[iCategory][i], phoPtr, auxVars));
+      vars.push_back(mvaVarMngr_.getValue(variables_[iCategory][i], *phoPtr, auxVars));
   }
 
   // Special case for Spring16!
@@ -110,19 +110,19 @@ int PhotonMVAEstimator::findCategory( const reco::Candidate* candPtr) const {
       << " but appears to be neither" << std::endl;
   }
 
-  return findCategory(phoPtr);
+  return findCategory(*phoPtr);
 
 }
 
-int PhotonMVAEstimator::findCategory( const reco::Photon* phoPtr) const {
+int PhotonMVAEstimator::findCategory(reco::Photon const& photon) const {
 
   for (int i = 0; i < getNCategories(); ++i) {
-      if (categoryFunctions_[i](*phoPtr)) return i;
+      if (categoryFunctions_[i](photon)) return i;
   }
 
   edm::LogWarning  ("MVA warning") <<
-      "category not defined for particle with pt " << phoPtr->pt() << " GeV, eta " <<
-          phoPtr->superCluster()->eta() << " in PhotonMVAEstimator" << getTag();
+      "category not defined for particle with pt " << photon.pt() << " GeV, eta " <<
+          photon.superCluster()->eta() << " in PhotonMVAEstimator" << getTag();
 
   return -1;
 

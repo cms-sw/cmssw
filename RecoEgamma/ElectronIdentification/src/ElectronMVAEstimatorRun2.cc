@@ -39,8 +39,6 @@ ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2( const std::string& mvaTag,
   init(weightFileNames);
 }
 
-
-
 void ElectronMVAEstimatorRun2::init(const std::vector<std::string> &weightFileNames) {
 
   if(isDebug()) {
@@ -105,7 +103,7 @@ mvaValue( const reco::Candidate* candidate, const std::vector<float>& auxVariabl
   std::vector<float> vars;
 
   for (int i = 0; i < nVariables_[iCategory]; ++i) {
-      vars.push_back(mvaVarMngr_.getValue(variables_[iCategory][i], electron, auxVariables));
+      vars.push_back(mvaVarMngr_.getValue(variables_[iCategory][i], *electron, auxVariables));
   }
 
   if(isDebug()) {
@@ -134,19 +132,19 @@ int ElectronMVAEstimatorRun2::findCategory( const reco::Candidate* candidate) co
       << " but appears to be neither" << std::endl;
   }
 
-  return findCategory(electron);
+  return findCategory(*electron);
 
 }
 
-int ElectronMVAEstimatorRun2::findCategory( const reco::GsfElectron* electron) const {
+int ElectronMVAEstimatorRun2::findCategory(reco::GsfElectron const& electron) const {
 
   for (int i = 0; i < getNCategories(); ++i) {
-      if (categoryFunctions_[i](*electron)) return i;
+      if (categoryFunctions_[i](electron)) return i;
   }
 
   edm::LogWarning  ("MVA warning") <<
-      "category not defined for particle with pt " << electron->pt() << " GeV, eta " <<
-          electron->superCluster()->eta() << " in ElectronMVAEstimatorRun2" << getTag();
+      "category not defined for particle with pt " << electron.pt() << " GeV, eta " <<
+          electron.superCluster()->eta() << " in ElectronMVAEstimatorRun2" << getTag();
 
   return -1;
 

@@ -14,7 +14,7 @@ mvaVariablesFile = "RecoEgamma/ElectronIdentification/data/ElectronIDVariables.t
 
 outputFile = "electron_ntuple.root"
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -40,6 +40,8 @@ my_id_modules = [
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V1_cff',
+        'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V2_cff',
+        'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff',
                  ]
 
 #add them to the VID producer
@@ -79,6 +81,10 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                           "Fall17isoV1wpLoose",
                                           ),
         eleMVAValMaps        = cms.untracked.vstring(
+                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values",
+                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1RawValues",
+                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values",
+                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1RawValues",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV2Values",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV2RawValues",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values",
@@ -87,6 +93,10 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV1Values",
                                            ),
         eleMVAValMapLabels   = cms.untracked.vstring(
+                                           "Spring16GPV1Vals",
+                                           "Spring16GPV1RawVals",
+                                           "Spring16HZZV1Vals",
+                                           "Spring16HZZV1RawVals",
                                            "Fall17NoIsoV2Vals",
                                            "Fall17NoIsoV2RawVals",
                                            "Fall17IsoV2Vals",
