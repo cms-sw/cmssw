@@ -12,7 +12,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 # File with the ID variables to include in the Ntuplizer
 mvaVariablesFile = "RecoEgamma/ElectronIdentification/data/ElectronIDVariables.txt"
 
-outputFile = "electron_validation_ntuple.root"
+outputFile = "electron_ntuple.root"
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
@@ -48,15 +48,49 @@ for idmod in my_id_modules:
 
 process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
         #
+        eleMVAs             = cms.untracked.vstring(
+                                          "egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wp80",
+                                          "egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wpLoose",
+                                          "egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wp90",
+                                          "egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wpHZZ",
+                                          "egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wp80",
+                                          "egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wpLoose",
+                                          "egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wp90",
+                                          "egmGsfElectronIDs:mvaEleID-Fall17-noIso-V1-wp90",
+                                          "egmGsfElectronIDs:mvaEleID-Fall17-noIso-V1-wp80",
+                                          "egmGsfElectronIDs:mvaEleID-Fall17-noIso-V1-wpLoose",
+                                          "egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wp90",
+                                          "egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wp80",
+                                          "egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wpLoose",
+                                          ),
+        eleMVALabels        = cms.untracked.vstring(
+                                          "Fall17noIsoV2wp80",
+                                          "Fall17noIsoV2wpLoose",
+                                          "Fall17noIsoV2wp90",
+                                          "Fall17isoV2wpHZZ",
+                                          "Fall17isoV2wp80",
+                                          "Fall17isoV2wpLoose",
+                                          "Fall17isoV2wp90",
+                                          "Fall17noIsoV1wp90",
+                                          "Fall17noIsoV1wp80",
+                                          "Fall17noIsoV1wpLoose",
+                                          "Fall17isoV1wp90",
+                                          "Fall17isoV1wp80",
+                                          "Fall17isoV1wpLoose",
+                                          ),
         eleMVAValMaps        = cms.untracked.vstring(
-                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values",
-                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values",
+                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV2Values",
+                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV2RawValues",
+                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values",
+                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2RawValues",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV1Values",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV1Values",
                                            ),
         eleMVAValMapLabels   = cms.untracked.vstring(
-                                           "Spring16GPVals",
-                                           "Spring16HZZVals",
+                                           "Fall17NoIsoV2Vals",
+                                           "Fall17NoIsoV2RawVals",
+                                           "Fall17IsoV2Vals",
+                                           "Fall17IsoV2RawVals",
                                            "Fall17IsoV1Vals",
                                            "Fall17NoIsoV1Vals",
                                            ),
