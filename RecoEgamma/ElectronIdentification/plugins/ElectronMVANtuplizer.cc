@@ -130,10 +130,10 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       const size_t nCats_;
 
       // Tokens for AOD and MiniAOD case
-      MultiTokenT<edm::View<reco::GsfElectron>>   src_;
-      MultiTokenT<std::vector<reco::Vertex>>      vertices_;
-      MultiTokenT<std::vector<PileupSummaryInfo>> pileup_;
-      MultiTokenT<edm::View<reco::GenParticle>>   genParticles_;
+      const MultiTokenT<edm::View<reco::GsfElectron>>   src_;
+      const MultiTokenT<std::vector<reco::Vertex>>      vertices_;
+      const MultiTokenT<std::vector<PileupSummaryInfo>> pileup_;
+      const MultiTokenT<edm::View<reco::GenParticle>>   genParticles_;
 
       // To get the auxiliary MVA variables
       const MVAVariableHelper<reco::GsfElectron> variableHelper_;
@@ -328,8 +328,8 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         }
 
         for (int iVar = 0; iVar < nVars_; ++iVar) {
-            std::vector<float> auxVariables = variableHelper_.getAuxVariables(ele, iEvent);
-            vars_[iVar] = mvaVarMngr_.getValue(iVar, &(*ele), auxVariables);
+            std::vector<float> extraVariables = variableHelper_.getAuxVariables(ele, iEvent);
+            vars_[iVar] = mvaVarMngr_.getValue(iVar, &(*ele), extraVariables);
         }
 
         if (isMC_) {
@@ -349,7 +349,7 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         // Look up and save the ID decisions
         //
         for (size_t k = 0; k < nEleMaps_; ++k) {
-          mvaPasses_[k] = (int)(*decisions[k])[ele];
+          mvaPasses_[k] = static_cast<int>((*decisions[k])[ele]);
         }
 
         for (size_t k = 0; k < nValMaps_; ++k) {
@@ -408,8 +408,8 @@ int ElectronMVANtuplizer::matchToTruth(const T &el, const V &genParticles, int &
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-ElectronMVANtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
+ElectronMVANtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("src",                 edm::InputTag("gedGsfElectrons"));
     desc.add<edm::InputTag>("vertices",            edm::InputTag("offlinePrimaryVertices"));
