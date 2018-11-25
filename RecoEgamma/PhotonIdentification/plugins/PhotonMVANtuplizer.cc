@@ -108,11 +108,13 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
       const double deltaR_;
 
       // for AOD or MiniAOD case
-      MultiTokenT<edm::View<reco::Photon>>        src_;
-      MultiTokenT<std::vector<reco::Vertex>>      vertices_;
-      MultiTokenT<std::vector<PileupSummaryInfo>> pileup_;
-      MultiTokenT<edm::View<reco::GenParticle>> genParticles_;
+      const MultiTokenT<edm::View<reco::Photon>>        src_;
+      const MultiTokenT<std::vector<reco::Vertex>>      vertices_;
+      const MultiTokenT<std::vector<PileupSummaryInfo>> pileup_;
+      const MultiTokenT<edm::View<reco::GenParticle>>   genParticles_;
 
+      // To get the auxiliary MVA variables
+      const MVAVariableHelper<reco::Photon> variableHelper_;
 };
 
 enum PhotonMatchType {
@@ -170,6 +172,7 @@ PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
  , vertices_        (src_, consumesCollector(), iConfig, "vertices", "verticesMiniAOD")
  , pileup_          (src_, consumesCollector(), iConfig, "pileup"  , "pileupMiniAOD")
  , genParticles_    (src_, consumesCollector(), iConfig, "genParticles", "genParticlesMiniAOD")
+ , variableHelper_(consumesCollector())
 {
     // phoMaps
     for (size_t k = 0; k < nPhoMaps_; ++k) {
@@ -234,10 +237,6 @@ PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
     for (size_t k = 0; k < nCats_; ++k) {
         tree_->Branch(mvaCatBranchNames_[k].c_str() ,  &mvaCats_[k]);
     }
-
-    // All tokens for event content needed by this MVA
-    // Tags from the variable helper
-    mvaVarMngr_.setConsumes(consumesCollector());
 }
 
 // ------------ method called for each event  ------------
@@ -302,7 +301,8 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
         // variables from the text file
         for (int iVar = 0; iVar < nVars_; ++iVar) {
-            vars_[iVar] = mvaVarMngr_.getValue(iVar, pho, iEvent);
+            std::vector<float> extraVariables = variableHelper_.getAuxVariables(pho, iEvent);
+            vars_[iVar] = mvaVarMngr_.getValue(iVar, &(*pho), extraVariables);
         }
 
         if (isMC_) {
@@ -313,7 +313,7 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         // Look up and save the ID decisions
         //
         for (size_t k = 0; k < nPhoMaps_; ++k) {
-            mvaPasses_[k] = (int)(*decisions[k])[pho];
+            mvaPasses_[k] = static_cast<int>((*decisions[k])[pho]);
         }
 
         for (size_t k = 0; k < nValMaps_; ++k) {
@@ -331,25 +331,25 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-PhotonMVANtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
+PhotonMVANtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("src");
-    desc.add<edm::InputTag>("vertices");
-    desc.add<edm::InputTag>("pileup");
-    desc.add<edm::InputTag>("genParticles");
-    desc.add<edm::InputTag>("srcMiniAOD");
-    desc.add<edm::InputTag>("verticesMiniAOD");
-    desc.add<edm::InputTag>("pileupMiniAOD");
-    desc.add<edm::InputTag>("genParticlesMiniAOD");
-    desc.addUntracked<std::vector<std::string>>("phoMVAs");
-    desc.addUntracked<std::vector<std::string>>("phoMVALabels");
-    desc.addUntracked<std::vector<std::string>>("phoMVAValMaps");
-    desc.addUntracked<std::vector<std::string>>("phoMVAValMapLabels");
-    desc.addUntracked<std::vector<std::string>>("phoMVACats");
-    desc.addUntracked<std::vector<std::string>>("phoMVACatLabels");
-    desc.add<bool>("isMC");
-    desc.add<double>("ptThreshold", 5.0);
+    desc.add<edm::InputTag>("src",                 edm::InputTag("gedPhotons"));
+    desc.add<edm::InputTag>("vertices",            edm::InputTag("offlinePrimaryVertices"));
+    desc.add<edm::InputTag>("pileup",              edm::InputTag("addPileupInfo"));
+    desc.add<edm::InputTag>("genParticles",        edm::InputTag("genParticles"));
+    desc.add<edm::InputTag>("srcMiniAOD",          edm::InputTag("slimmedPhotons"));
+    desc.add<edm::InputTag>("verticesMiniAOD",     edm::InputTag("offlineSlimmedPrimaryVertices"));
+    desc.add<edm::InputTag>("pileupMiniAOD",       edm::InputTag("slimmedAddPileupInfo"));
+    desc.add<edm::InputTag>("genParticlesMiniAOD", edm::InputTag("prunedGenParticles"));
+    desc.addUntracked<std::vector<std::string>>("phoMVAs", {});
+    desc.addUntracked<std::vector<std::string>>("phoMVALabels", {});
+    desc.addUntracked<std::vector<std::string>>("phoMVAValMaps", {});
+    desc.addUntracked<std::vector<std::string>>("phoMVAValMapLabels", {});
+    desc.addUntracked<std::vector<std::string>>("phoMVACats", {});
+    desc.addUntracked<std::vector<std::string>>("phoMVACatLabels", {});
+    desc.add<bool>("isMC", true);
+    desc.add<double>("ptThreshold", 15.0);
     desc.add<double>("deltaR", 0.1);
     desc.add<std::string>("variableDefinition");
     descriptions.addDefault(desc);
