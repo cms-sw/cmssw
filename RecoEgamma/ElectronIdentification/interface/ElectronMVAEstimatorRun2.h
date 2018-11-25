@@ -30,13 +30,13 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
                            bool debug=false );
 
   // For use with FWLite/Python
-  static std::vector<float> getExtraVars(reco::GsfElectron          const* ele,
+  static std::vector<float> getExtraVars(reco::GsfElectron          const& ele,
                                          reco::ConversionCollection const* conversions,
                                          reco::BeamSpot             const* beamSpot,
                                          double rho)
   {
       // Conversion vertex fit
-      reco::Conversion const* conv = ConversionTools::matchedConversion(*ele, *conversions, beamSpot->position());
+      reco::Conversion const* conv = ConversionTools::matchedConversion(ele, *conversions, beamSpot->position());
 
       float convVtxFitProb = -1.;
       if(!(conv == nullptr)) {
@@ -48,7 +48,7 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
 
       // kf track related variables
       bool validKf=false;
-      reco::TrackRef trackRef = ele->closestCtfTrackRef();
+      reco::TrackRef trackRef = ele.closestCtfTrackRef();
       validKf = trackRef.isAvailable();
       validKf &= trackRef.isNonnull();
       float kfchi2 = validKf ? trackRef->normalizedChi2() : 0 ; //ielectron->track()->normalizedChi2() : 0 ;
