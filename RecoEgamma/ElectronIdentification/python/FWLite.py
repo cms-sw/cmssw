@@ -1,6 +1,7 @@
 import ROOT
 import ctypes
 import pprint
+from numpy import exp
 
 # Python wrappers around the Electron MVAs.
 # Usage example in RecoEgamma/ElectronIdentification/test
@@ -61,10 +62,11 @@ class WorkingPoints(object):
     '''Working Points. Keeps track of the cuts associated to a given flavour of the MVA ID 
     for each working point and allows to test the working points'''
 
-    def __init__(self, name, tag, working_points):
+    def __init__(self, name, tag, working_points, logistic_transform=False):
         self.name = name 
         self.tag = tag
         self.working_points = self._reformat_cut_definitions(working_points)
+        self.logistic_transform = logistic_transform
 
     def _reformat_cut_definitions(self, working_points):
         new_definitions = dict()
@@ -80,7 +82,9 @@ class WorkingPoints(object):
     def passed(self, ele, mva, category, wp):
         '''return true if ele passes wp'''
         threshold = self.working_points[wp][category].Eval(ele.pt())
-        return mva > threshold  # or should it be >= ? 
+        if self.logistic_transform:
+            mva = 2.0/(1.0+exp(-2.0*mva))-1
+        return mva > threshold
 
 
 # Import information needed to construct the e/gamma MVAs
@@ -125,8 +129,8 @@ working_points = {
     "Fall17NoIsoV2" : WorkingPoints("ElectronMVAEstimatorRun2","Fall17NoIsoV2",
                                     Fall17_noIso_V2_workingPoints),
     "Spring16HZZV1" : WorkingPoints("ElectronMVAEstimatorRun2","Spring16HZZV1",
-                                    mvaSpring16HZZ_V1_workingPoints),
+                                    mvaSpring16HZZ_V1_workingPoints, logistic_transform=True),
     "Spring16GPV1"    : WorkingPoints("ElectronMVAEstimatorRun2","Spring16GeneralPurposeV1",
-                                    mvaSpring16GP_V1_workingPoints),
+                                    mvaSpring16GP_V1_workingPoints, logistic_transform=True),
 
     }

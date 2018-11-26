@@ -51,6 +51,9 @@ for idmod in my_id_modules:
 process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
         #
         eleMVAs             = cms.untracked.vstring(
+                                          "egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp80",
+                                          "egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90",
+                                          "egmGsfElectronIDs:mvaEleID-Spring16-HZZ-V1-wpLoose",
                                           "egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wp80",
                                           "egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wpLoose",
                                           "egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wp90",
@@ -66,6 +69,9 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                           "egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wpLoose",
                                           ),
         eleMVALabels        = cms.untracked.vstring(
+                                          "Spring16GPV1wp80",
+                                          "Spring16GPV1wp90",
+                                          "Spring16HZZV1wpLoose",
                                           "Fall17noIsoV2wp80",
                                           "Fall17noIsoV2wpLoose",
                                           "Fall17noIsoV2wp90",
@@ -112,6 +118,7 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                            ),
         #
         variableDefinition   = cms.string(mvaVariablesFile),
+        ptThreshold = cms.double(5.0),
         )
 
 process.TFileService = cms.Service("TFileService",
