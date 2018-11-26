@@ -33,6 +33,29 @@ cms::makeRotation3D( double thetaX, double phiX,
   return rotation;
 }
 
+// makes sure that the RotationMatrix built is
+// LEFT-handed coordinate system (i.e. reflected)
+dd4hep::Rotation3D
+cms::makeRotReflect( double thetaX, double phiX,
+		     double thetaY, double phiY,
+		     double thetaZ, double phiZ ) {
+  // define 3 unit std::vectors forming the new left-handed axes
+  DD3Vector x( cos( phiX ) * sin( thetaX ), sin( phiX ) * sin( thetaX ), cos( thetaX ));
+  DD3Vector y( cos( phiY ) * sin( thetaY ), sin( phiY ) * sin( thetaY ), cos( thetaY ));
+  DD3Vector z( cos( phiZ ) * sin( thetaZ ), sin( phiZ ) * sin( thetaZ ), cos( thetaZ ));
+
+  double tol = 1.0e-3; // Geant4 compatible
+  double check = ( x.Cross( y )).Dot( z ); // in case of a LEFT-handed orthogonal system this must be -1
+  if( fabs( 1. + check ) > tol ) {
+    except("MyDDCMS","+++ FAILED to construct Rotation is not LEFT-handed!");
+  }
+
+  dd4hep::Rotation3D rotation( x.x(), y.x(), z.x(),
+			       x.y(), y.y(), z.y(),
+			       x.z(), y.z(), z.z());  
+  return rotation;
+}
+
 dd4hep::Rotation3D
 cms::makeRotation3D( dd4hep::Rotation3D rotation, const std::string& axis, double angle )
 {

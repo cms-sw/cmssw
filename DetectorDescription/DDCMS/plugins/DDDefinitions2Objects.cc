@@ -10,6 +10,7 @@
 
 #include "XML/Utilities.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "DetectorDescription/DDCMS/interface/DDUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
 #include "DetectorDescription/DDCMS/interface/DDNamespace.h"
 #include "DetectorDescription/DDCMS/interface/DDParsingContext.h"
@@ -55,6 +56,7 @@ namespace dd4hep {
   
     class RotationSection;
     class DDLRotation;
+    class DDLReflectionRotation;
     class DDLRotationSequence;
     class DDLRotationByAxis;
     class DDLTransform3D;
@@ -118,6 +120,8 @@ namespace dd4hep {
   template <> void Converter<RotationSection>::operator()(xml_h element) const;
   /// Converter for <DDLRotation/> tags
   template <> void Converter<DDLRotation>::operator()(xml_h element) const;
+  /// Converter for <DDLReflectionRotation/> tags
+  template <> void Converter<DDLReflectionRotation>::operator()(xml_h element) const;
   /// Converter for <DDLRotationSequence/> tags
   template <> void Converter<DDLRotationSequence>::operator()(xml_h element) const;
   /// Converter for <DDLRotationByAxis/> tags
@@ -209,6 +213,7 @@ template <> void Converter<MaterialSection>::operator()(xml_h element) const   {
 template <> void Converter<RotationSection>::operator()(xml_h element) const   {
   cms::DDNamespace ns(_param<cms::DDParsingContext>(), element);
   xml_coll_t( element, DD_CMU(Rotation)).for_each(Converter<DDLRotation>(description,ns.context(),optional));
+  xml_coll_t( element, DD_CMU(ReflectionRotation)).for_each(Converter<DDLReflectionRotation>(description,ns.context(),optional));
   xml_coll_t( element, DD_CMU(RotationSequence)).for_each(Converter<DDLRotationSequence>(description,ns.context(),optional));
   xml_coll_t( element, DD_CMU(RotationByAxis)).for_each(Converter<DDLRotationByAxis>(description,ns.context(),optional));
 }
@@ -506,6 +511,25 @@ template <> void Converter<DDLRotation>::operator()(xml_h element) const  {
   ns.addRotation(nam, rot);
 }
 
+/// Converter for <ReflectionRotation/> tags
+template <> void Converter<DDLReflectionRotation>::operator()( xml_h element ) const {
+  cms::DDParsingContext* context = _param<cms::DDParsingContext>();
+  cms::DDNamespace ns( context );
+  xml_dim_t xrot( element );
+  string    name   = xrot.nameStr();
+  double    thetaX = xrot.hasAttr( DD_CMU( thetaX )) ? ns.attr<double>( xrot, DD_CMU( thetaX )) : 0e0;
+  double    phiX   = xrot.hasAttr( DD_CMU( phiX ))   ? ns.attr<double>( xrot, DD_CMU( phiX ))   : 0e0;
+  double    thetaY = xrot.hasAttr( DD_CMU( thetaY )) ? ns.attr<double>( xrot, DD_CMU( thetaY )) : 0e0;
+  double    phiY   = xrot.hasAttr( DD_CMU( phiY ))   ? ns.attr<double>( xrot, DD_CMU( phiY ))   : 0e0;
+  double    thetaZ = xrot.hasAttr( DD_CMU( thetaZ )) ? ns.attr<double>( xrot, DD_CMU( thetaZ )) : 0e0;
+  double    phiZ   = xrot.hasAttr( DD_CMU( phiZ ))   ? ns.attr<double>( xrot, DD_CMU( phiZ ))   : 0e0;
+  printout( context->debug_rotations ? ALWAYS : DEBUG,
+	    "MyDDCMS","+++ Adding reflection rotation: %-32s: (theta/phi)[rad] X: %6.3f %6.3f Y: %6.3f %6.3f Z: %6.3f %6.3f",
+	    ns.prepend( name ).c_str(), thetaX, phiX, thetaY, phiY, thetaZ, phiZ );
+  Rotation3D rot = makeRotReflect( thetaX, phiX, thetaY, phiY, thetaZ, phiZ );
+  ns.addRotation( name, rot );
+}
+
 /// Converter for <RotationSequence/> tags
 template <> void Converter<DDLRotationSequence>::operator()(xml_h element) const {
   cms::DDParsingContext* context = _param<cms::DDParsingContext>();
@@ -561,32 +585,36 @@ template <> void Converter<DDLLogicalPart>::operator()(xml_h element) const {
 }
 
 /// Helper converter
-template <> void Converter<DDLTransform3D>::operator()(xml_h element) const {
-  cms::DDNamespace    ns(_param<cms::DDParsingContext>());
+template <> void Converter<DDLTransform3D>::operator()( xml_h element ) const {
+  cms::DDNamespace ns( _param<cms::DDParsingContext>());
   Transform3D* tr = _option<Transform3D>();
   xml_dim_t   e(element);
-  xml_dim_t   translation = e.child(DD_CMU(Translation),false);
-  xml_dim_t   rotation    = e.child(DD_CMU(Rotation),false);
-  xml_dim_t   refRotation = e.child(DD_CMU(rRotation),false);
+  xml_dim_t   translation = e.child( DD_CMU( Translation ), false );
+  xml_dim_t   rotation    = e.child( DD_CMU( Rotation ), false );
+  xml_dim_t   refRotation = e.child( DD_CMU( rRotation ), false );
   Position    pos;
   Rotation3D  rot;
 
-  if( translation.ptr() )   {
-    double x = ns.attr<double>(translation,_U(x));
-    double y = ns.attr<double>(translation,_U(y));
-    double z = ns.attr<double>(translation,_U(z));
+  if( translation.ptr()) {
+    double x = ns.attr<double>( translation, _U( x ));
+    double y = ns.attr<double>( translation, _U( y ));
+    double z = ns.attr<double>( translation, _U( z ));
     pos = Position(x,y,z);
   }
-  if( rotation.ptr() )   {
-    double x = ns.attr<double>(rotation,_U(x));
-    double y = ns.attr<double>(rotation,_U(y));
-    double z = ns.attr<double>(rotation,_U(z));
+  if( rotation.ptr()) {
+    double x = ns.attr<double>( rotation, _U( x ));
+    double y = ns.attr<double>( rotation, _U( y ));
+    double z = ns.attr<double>( rotation, _U( z ));
     rot = RotationZYX(z,y,x);
   }
-  else if( refRotation.ptr() )   {
-    rot = ns.rotation(refRotation.nameStr());
+  else if( refRotation.ptr()) {
+    string rotName = refRotation.nameStr();
+    if( strchr( rotName.c_str(), NAMESPACE_SEP ) == nullptr )
+      rotName = ns.name() + rotName;
+
+    rot = ns.rotation( rotName );
   }
-  *tr = Transform3D(rot,pos);
+  *tr = Transform3D( rot, pos );
 }
 
 /// Converter for <PosPart/> tags
@@ -1001,24 +1029,28 @@ std::map<std::string, DDAxes> axesmap {{"x", DDAxes::x },
 	                               {"undefined", DDAxes::undefined }};
 }
 
-#include "DetectorDescription/DDCMS/interface/DDUnits.h"
-
 /// Converter for <Division/> tags
-template <> void Converter<DDLDivision>::operator()(xml_h element) const {
-  cms::DDNamespace ns(_param<cms::DDParsingContext>(), element);
-  xml_dim_t e(element);
+template <> void Converter<DDLDivision>::operator()( xml_h element ) const {
+  cms::DDNamespace ns( _param<cms::DDParsingContext>(), element );
+  xml_dim_t e( element );
   string childName = e.nameStr();
-  string parentName  = ns.attr<string>( e, DD_CMU(parent));
-  string axis = ns.attr<string>( e, DD_CMU(axis));
+  if( strchr( childName.c_str(), NAMESPACE_SEP ) == nullptr )
+    childName = ns.name() + childName;
+
+  string parentName  = ns.attr<string>( e, DD_CMU( parent ));
+  if( strchr( parentName.c_str(), NAMESPACE_SEP ) == nullptr )
+    parentName = ns.name() + parentName;
+  string axis = ns.attr<string>( e, DD_CMU( axis ));
   
   // If you divide a tube of 360 degrees the offset displaces
   // the starting angle, but you still fill the 360 degrees
-  double offset = e.hasAttr(DD_CMU(offset)) ? ns.attr<double>( e, DD_CMU(offset)) : 0e0;
-  double width = e.hasAttr(DD_CMU(width)) ? ns.attr<double>( e, DD_CMU(width)) : 0e0;
+  double offset = e.hasAttr( DD_CMU( offset )) ? ns.attr<double>( e, DD_CMU( offset )) : 0e0;
+  double width = e.hasAttr( DD_CMU( width )) ? ns.attr<double>( e, DD_CMU( width )) : 0e0;
+  int nReplicas = e.hasAttr( DD_CMU( nReplicas )) ? ns.attr<int>( e, DD_CMU( nReplicas )) : 0;
 
-  printout(ns.context()->debug_placements ? ALWAYS : DEBUG,
-	   "MyDDCMS","+++ Start executing Division of %s along %s (%d) with offset %6.3f and %6.3f to produce %s....",
-	   parentName.c_str(), axis.c_str(), axesmap[axis], offset, width, childName.c_str());
+  printout( ns.context()->debug_placements ? ALWAYS : DEBUG,
+	    "MyDDCMS","+++ Start executing Division of %s along %s (%d) with offset %6.3f and %6.3f to produce %s....",
+	    parentName.c_str(), axis.c_str(), axesmap[axis], offset, width, childName.c_str());
 
   Volume parent = ns.volume( parentName );
   
@@ -1028,21 +1060,42 @@ template <> void Converter<DDLDivision>::operator()(xml_h element) const {
     const TGeoTubeSeg* sh = ( const TGeoTubeSeg* )shape;
     double widthInDeg = ConvertTo( width, deg );
     double startInDeg = ConvertTo( offset, deg );
-    int numCopies = (int)(( sh->GetPhi2() - sh->GetPhi1())/ widthInDeg );
-    printout(ns.context()->debug_placements ? ALWAYS : DEBUG,
-	     "MyDDCMS","+++    ...divide %s along %s (%d) with offset %6.3f deg and %6.3f deg to produce %d copies",
-	     parent.solid().type(), axis.c_str(), axesmap[axis], startInDeg, widthInDeg, numCopies );
-    Volume child = parent->Divide( childName.c_str(), static_cast<int>(axesmap[axis]), numCopies, startInDeg, widthInDeg );
+    int numCopies = ( int )(( sh->GetPhi2() - sh->GetPhi1())/ widthInDeg );
+    printout( ns.context()->debug_placements ? ALWAYS : DEBUG,
+	      "MyDDCMS","+++    ...divide %s along %s (%d) with offset %6.3f deg and %6.3f deg to produce %d copies",
+	      parent.solid().type(), axis.c_str(), axesmap[axis], startInDeg, widthInDeg, numCopies );
+    Volume child = parent.divide( childName.c_str(), static_cast<int>( axesmap[axis]),
+				  numCopies, startInDeg, widthInDeg );
+
     ns.context()->volumes[childName] = child;
     
-    printout(ns.context()->debug_placements ? ALWAYS : DEBUG, "MyDDCMS",
-	     "+++ %s Parent: %-24s [%s] Child: %-32s [%s] is multivolume [%s]",
-	     e.tag().c_str(),
-	     parentName.c_str(), parent.isValid() ? "VALID" : "INVALID",
-	     child.name(),  child.isValid()  ? "VALID" : "INVALID",
-	     child->IsVolumeMulti() ? "YES" : "NO" );
+    printout( ns.context()->debug_placements ? ALWAYS : DEBUG, "MyDDCMS",
+	      "+++ %s Parent: %-24s [%s] Child: %-32s [%s] is multivolume [%s]",
+	      e.tag().c_str(),
+	      parentName.c_str(), parent.isValid() ? "VALID" : "INVALID",
+	      child.name(),  child.isValid()  ? "VALID" : "INVALID",
+	      child->IsVolumeMulti() ? "YES" : "NO" );
 
-    //assert( child.data());
+  } else if( cl == TGeoTrd2::Class()) {
+    double widthInCm = ConvertTo( width, cm );
+    double offsetInCm = ConvertTo( offset, cm );
+    printout( ns.context()->debug_placements ? ALWAYS : DEBUG,
+	      "MyDDCMS","+++    ...divide %s along %s (%d) with offset %6.3f cm and %6.3f cm to produce %d copies",
+	      parent.solid().type(), axis.c_str(), axesmap[axis], offsetInCm, widthInCm, nReplicas );
+    if( axesmap[axis] == DDAxes::y )
+      std::cout << "DDDividedTrdY\n";
+    // Only Z divisions are supported for TGeoTrd2
+    Volume child = parent.divide( childName.c_str(), 3 /*static_cast<int>( axesmap[axis])*/,
+				  nReplicas, offsetInCm, widthInCm );
+
+    ns.context()->volumes[childName] = child;
+    
+    printout( ns.context()->debug_placements ? ALWAYS : DEBUG, "MyDDCMS",
+	      "+++ %s Parent: %-24s [%s] Child: %-32s [%s] is multivolume [%s]",
+	      e.tag().c_str(),
+	      parentName.c_str(), parent.isValid() ? "VALID" : "INVALID",
+	      child.name(),  child.isValid()  ? "VALID" : "INVALID",
+	      child->IsVolumeMulti() ? "YES" : "NO" );
   }
   else {
     std::cout << "ERROR: Division of a " << parent.solid().type() << " is not implemented yet!\n";
