@@ -37,17 +37,17 @@
     <Include ref='Geometry/CMSCommonData/data/extend/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cms.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsMother.xml'/>
-    <!-- Include ref='Geometry/CMSCommonData/data/cmsTracker.xml'/ -->
-    <!-- Include ref='Geometry/CMSCommonData/data/caloBase.xml'/ -->
-    <!-- Include ref='Geometry/CMSCommonData/data/cmsCalo.xml'/ -->
+    <Include ref='Geometry/CMSCommonData/data/cmsTracker.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/caloBase.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cmsCalo.xml'/>
     <Include ref='Geometry/CMSCommonData/data/muonBase.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsMuon.xml'/>
     <Include ref='Geometry/CMSCommonData/data/mgnt.xml'/>
-    <!-- Include ref='Geometry/CMSCommonData/data/beampipe/2015/v1/beampipe.xml'/-->
+    <Include ref='Geometry/CMSCommonData/data/beampipe/2015/v1/beampipe.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsBeam.xml'/>
     <Include ref='Geometry/CMSCommonData/data/muonMB.xml'/>
     <Include ref='Geometry/CMSCommonData/data/muonMagnet.xml'/>
-    <!-- Include ref='Geometry/CMSCommonData/data/cavern.xml'/ -->
+    <Include ref='Geometry/CMSCommonData/data/cavern.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mbCommon/2015/v2/mbCommon.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml'/>
@@ -55,9 +55,9 @@
     <Include ref='Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml'/>
     <Include ref='Geometry/MuonCommonData/data/design/muonYoke.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mf/2015/v1/mf.xml'/>
-    <!-- Include ref='Geometry/MuonCommonData/data/rpcf/2015/v1/rpcf.xml'/ -->
-    <!-- Include ref='Geometry/MuonCommonData/data/csc/2015/v1/csc.xml'/-->
-    <!-- Include ref='Geometry/MuonCommonData/data/mfshield/2015/v1/mfshield.xml'/-->
+    <Include ref='Geometry/MuonCommonData/data/rpcf/2015/v1/rpcf.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/csc/2015/v2/csc.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mfshield/2015/v1/mfshield.xml'/>
   </IncludeSection>
   
   <PosPartSection label="">

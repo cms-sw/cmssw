@@ -26,6 +26,7 @@ namespace cms  {
   
   UNICODE(RotationSection);
   UNICODE(Rotation);
+  UNICODE(ReflectionRotation);
   UNICODE(RotationSequence);
   UNICODE(RotationByAxis);
   UNICODE(axis);
@@ -141,6 +142,7 @@ namespace cms  {
   UNICODE(parent);
   UNICODE(offset);
   UNICODE(width);
+  UNICODE(nReplicas);
   
   UNICODE(Algorithm);
   UNICODE(String);
