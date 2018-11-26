@@ -2,7 +2,7 @@ from __future__ import print_function
 from math import pi,floor
 
 
-print int(((-330+1024)*pi/(6.0*2048.0))/(0.625*pi/180.0))
+print(int(((-330+1024)*pi/(6.0*2048.0))/(0.625*pi/180.0)))
 
 
 
@@ -12,7 +12,7 @@ print int(((-330+1024)*pi/(6.0*2048.0))/(0.625*pi/180.0))
 #    p = int((i*2*pi/(6.0*2048.0))/(0.625*pi/180.0))
 #    phi.append(str(p))
 
-#print 'const ap_int<8> phiLUT[2047] = {'+','.join(phi)+'};'
+#print('const ap_int<8> phiLUT[2047] = {'+','.join(phi)+'};')
 #import pdb;pdb.set_trace()
 
 
@@ -66,7 +66,7 @@ for phi in range(-512,512):
     if phiNew < -8: 
         phiNew = -8;
     phiLUT[address]=(str(phiNew))
-print 'const ap_int<8> phiLUT[1024] = {'+','.join(phiLUT)+'};'
+print('const ap_int<8> phiLUT[1024] = {'+','.join(phiLUT)+'};')
     
 
 
@@ -110,4 +110,4 @@ for K in range(-2048,2048):
 
     
  
-print 'const ap_uint<9> ptLUT[4096] = {'+','.join(ptLUT)+'};'
+print('const ap_uint<9> ptLUT[4096] = {'+','.join(ptLUT)+'};')
