@@ -20,15 +20,24 @@ bs_handle   = Handle('reco::BeamSpot')
 
 n = 100000
 
-data = {"Fall17IsoV2"   : np.zeros(n),
+data = {"Fall17IsoV2"         : np.zeros(n),
+        "Fall17IsoV2-wp80"    : np.zeros(n, dtype=bool),
+        "Fall17IsoV2-wp90"    : np.zeros(n, dtype=bool),
+        "Fall17IsoV2-wpLoose" : np.zeros(n, dtype=bool),
+        "Fall17IsoV2-wpHZZ"   : np.zeros(n, dtype=bool),
 
-        "Fall17NoIsoV2" : np.zeros(n),
+        "Fall17NoIsoV2"         : np.zeros(n),
         "Fall17NoIsoV2-wp80"    : np.zeros(n, dtype=bool),
         "Fall17NoIsoV2-wp90"    : np.zeros(n, dtype=bool),
         "Fall17NoIsoV2-wpLoose" : np.zeros(n, dtype=bool),
 
-        "Spring16HZZV1" : np.zeros(n),
-        "Spring16GPV1"  : np.zeros(n),
+        "Spring16HZZV1"         : np.zeros(n),
+        "Spring16HZZV1-wpLoose" : np.zeros(n, dtype=bool),
+
+        "Spring16GPV1"         : np.zeros(n),
+        "Spring16GPV1-wp80"    : np.zeros(n, dtype=bool),
+        "Spring16GPV1-wp90"    : np.zeros(n, dtype=bool),
+
         "nEvent"        : -np.ones(n, dtype=int),
         "pt"            : np.zeros(n)}
 
@@ -67,16 +76,27 @@ for i,event in enumerate(events):
     data["nEvent"][i]           = nEvent
     data["pt"][i]               = ele.pt()
 
-    data["Fall17IsoV2"][i], _   = electron_mvas["Fall17IsoV2"](ele, convs, beam_spot, rho)
+    mva, category = electron_mvas["Fall17IsoV2"](ele, convs, beam_spot, rho)
+    data["Fall17IsoV2"][i] = mva
+    data["Fall17IsoV2-wp80"][i] = working_points["Fall17IsoV2"].passed(ele, mva, category, 'wp80')
+    data["Fall17IsoV2-wp90"][i] = working_points["Fall17IsoV2"].passed(ele, mva, category, 'wp90')
+    data["Fall17IsoV2-wpLoose"][i] = working_points["Fall17IsoV2"].passed(ele, mva, category, 'wpLoose')
+    data["Fall17IsoV2-wpHZZ"][i] = working_points["Fall17IsoV2"].passed(ele, mva, category, 'wpHZZ')
 
     mva, category = electron_mvas["Fall17NoIsoV2"](ele, convs, beam_spot, rho)
-    data["Fall17NoIsoV2"][i]      = mva
-    data["Fall17NoIsoV2-wp80"][i] = working_points['Fall17NoIsoV2'].passed(ele, mva, category, 'wp80')
-    data["Fall17NoIsoV2-wp90"][i] = working_points['Fall17NoIsoV2'].passed(ele, mva, category, 'wp90')
-    data["Fall17NoIsoV2-wpLoose"][i] = working_points['Fall17NoIsoV2'].passed(ele, mva, category, 'wpLoose')
+    data["Fall17NoIsoV2"][i] = mva
+    data["Fall17NoIsoV2-wp80"][i] = working_points["Fall17NoIsoV2"].passed(ele, mva, category, 'wp80')
+    data["Fall17NoIsoV2-wp90"][i] = working_points["Fall17NoIsoV2"].passed(ele, mva, category, 'wp90')
+    data["Fall17NoIsoV2-wpLoose"][i] = working_points["Fall17NoIsoV2"].passed(ele, mva, category, 'wpLoose')
 
-    data["Spring16HZZV1"][i], _ = electron_mvas["Spring16HZZV1"](ele, convs, beam_spot, rho)
-    data["Spring16GPV1"][i], _  = electron_mvas["Spring16GPV1"](ele, convs, beam_spot, rho)
+    mva, category = electron_mvas["Spring16HZZV1"](ele, convs, beam_spot, rho)
+    data["Spring16HZZV1"][i] = mva
+    data["Spring16HZZV1-wpLoose"][i] = working_points["Spring16HZZV1"].passed(ele, mva, category, 'wpLoose')
+
+    mva, category = electron_mvas["Spring16GPV1"](ele, convs, beam_spot, rho)
+    data["Spring16GPV1"][i] = mva
+    data["Spring16GPV1-wp80"][i] = working_points["Spring16GPV1"].passed(ele, mva, category, 'wp80')
+    data["Spring16GPV1-wp90"][i] = working_points["Spring16GPV1"].passed(ele, mva, category, 'wp90')
 
     accepted += 1
 
