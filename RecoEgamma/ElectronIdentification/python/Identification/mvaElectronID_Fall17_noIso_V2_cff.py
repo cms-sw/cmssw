@@ -48,6 +48,11 @@ mvaEleID_Fall17_noIso_V2_wp90_container = EleMVARaw_WP(
     cutCategory5 = "4.16921343208 - exp(-pt / 13.2017224621) * 9.00720913211", # EE_10
     )
 
+workingPoints = dict(
+    wp80 = mvaEleID_Fall17_noIso_V2_wp80_container,
+    wpLoose = mvaEleID_Fall17_noIso_V2_wpLoose_container,
+    wp90 = mvaEleID_Fall17_noIso_V2_wp90_container
+)
 
 mvaEleID_Fall17_noIso_V2_producer_config = cms.PSet(
     mvaName             = cms.string(mvaClassName),

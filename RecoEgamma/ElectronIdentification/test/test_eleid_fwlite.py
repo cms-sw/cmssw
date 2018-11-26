@@ -1,4 +1,4 @@
-from RecoEgamma.ElectronIdentification.FWLite import ElectronMVAs
+from RecoEgamma.ElectronIdentification.FWLite import electron_mvas, working_points
 from DataFormats.FWLite import Events, Handle
 
 # Small script to validate Electron MVA implementation in FWlite
@@ -21,7 +21,12 @@ bs_handle   = Handle('reco::BeamSpot')
 n = 100000
 
 data = {"Fall17IsoV2"   : np.zeros(n),
+
         "Fall17NoIsoV2" : np.zeros(n),
+        "Fall17NoIsoV2-wp80"    : np.zeros(n, dtype=bool),
+        "Fall17NoIsoV2-wp90"    : np.zeros(n, dtype=bool),
+        "Fall17NoIsoV2-wpLoose" : np.zeros(n, dtype=bool),
+
         "Spring16HZZV1" : np.zeros(n),
         "Spring16GPV1"  : np.zeros(n),
         "nEvent"        : -np.ones(n, dtype=int),
@@ -61,10 +66,17 @@ for i,event in enumerate(events):
 
     data["nEvent"][i]           = nEvent
     data["pt"][i]               = ele.pt()
-    data["Fall17IsoV2"][i], _   = ElectronMVAs["Fall17IsoV2"](ele, convs, beam_spot, rho)
-    data["Fall17NoIsoV2"][i], _ = ElectronMVAs["Fall17NoIsoV2"](ele, convs, beam_spot, rho)
-    data["Spring16HZZV1"][i], _ = ElectronMVAs["Spring16HZZV1"](ele, convs, beam_spot, rho)
-    data["Spring16GPV1"][i], _  = ElectronMVAs["Spring16GPV1"](ele, convs, beam_spot, rho)
+
+    data["Fall17IsoV2"][i], _   = electron_mvas["Fall17IsoV2"](ele, convs, beam_spot, rho)
+
+    mva, category = electron_mvas["Fall17NoIsoV2"](ele, convs, beam_spot, rho)
+    data["Fall17NoIsoV2"][i]      = mva
+    data["Fall17NoIsoV2-wp80"][i] = working_points['Fall17NoIsoV2'].passed(ele, mva, category, 'wp80')
+    data["Fall17NoIsoV2-wp90"][i] = working_points['Fall17NoIsoV2'].passed(ele, mva, category, 'wp90')
+    data["Fall17NoIsoV2-wpLoose"][i] = working_points['Fall17NoIsoV2'].passed(ele, mva, category, 'wpLoose')
+
+    data["Spring16HZZV1"][i], _ = electron_mvas["Spring16HZZV1"](ele, convs, beam_spot, rho)
+    data["Spring16GPV1"][i], _  = electron_mvas["Spring16GPV1"](ele, convs, beam_spot, rho)
 
     accepted += 1
 
