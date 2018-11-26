@@ -97,22 +97,22 @@ def deltaR2( e1, p1, e2, p2):
 
 
 def log(event,counter,mystubs,kmtf,bmtf):   
-    print "--------EVENT"+str(counter)+"------------"
-    print 'RUN={run} LUMI={lumi} EVENT={event}'.format(run=event.eventAuxiliary().id().run(),lumi=event.eventAuxiliary().id().luminosityBlock(),event=event.eventAuxiliary().id().event())
-    print "-----------------------------"
-    print "-----------------------------"
-    print 'Stubs:'
+    print("--------EVENT"+str(counter)+"------------")
+    print('RUN={run} LUMI={lumi} EVENT={event}'.format(run=event.eventAuxiliary().id().run(),lumi=event.eventAuxiliary().id().luminosityBlock(),event=event.eventAuxiliary().id().event()))
+    print("-----------------------------")
+    print("-----------------------------")
+    print('Stubs:')
     for stub in mystubs:
-        print 'wheel={w} sector={sc} station={st} high/low={ts} phi={phi} phiB={phiB} qual={qual} BX={BX}'.format(w=stub.whNum(),sc=stub.scNum(),st=stub.stNum(),ts=stub.Ts2Tag(),phi=stub.phi(),phiB=stub.phiB(),qual=stub.code(),BX=stub.bxNum())
-    print 'EMU:'
+        print('wheel={w} sector={sc} station={st} high/low={ts} phi={phi} phiB={phiB} qual={qual} BX={BX}'.format(w=stub.whNum(),sc=stub.scNum(),st=stub.stNum(),ts=stub.Ts2Tag(),phi=stub.phi(),phiB=stub.phiB(),qual=stub.code(),BX=stub.bxNum()))
+    print('EMU:')
     for g in bmtf :
-        print "EMU sector={sector} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF}".format(sector=g.processor(), pt=g.hwPt(),eta=g.hwEta(),phi=g.hwPhi(),qual=g.hwQual(),dxy=g.hwDXY(),pt2=g.hwPt2(),HF=g.hwHF())
-    print 'DATA:'
+        print("EMU sector={sector} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF}".format(sector=g.processor(), pt=g.hwPt(),eta=g.hwEta(),phi=g.hwPhi(),qual=g.hwQual(),dxy=g.hwDXY(),pt2=g.hwPt2(),HF=g.hwHF()))
+    print('DATA:')
     for g in kmtf :
-        print "DATA sector={sector} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF}".format(sector=g.processor(),pt=g.hwPt(),eta=g.hwEta(),phi=g.hwPhi(),qual=g.hwQual(),dxy=g.hwDXY(),pt2=g.hwPt2(),HF=g.hwHF())
-    print "-----------------------------"
-    print "-----------------------------"
-    print "c + enter to continue"
+        print("DATA sector={sector} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF}".format(sector=g.processor(),pt=g.hwPt(),eta=g.hwEta(),phi=g.hwPhi(),qual=g.hwQual(),dxy=g.hwDXY(),pt2=g.hwPt2(),HF=g.hwHF()))
+    print("-----------------------------")
+    print("-----------------------------")
+    print("c + enter to continue")
     import pdb;pdb.set_trace()
 
 ###############################
