@@ -25,6 +25,8 @@ TrajSeedMatcher::TrajSeedMatcher(const edm::ParameterSet& pset)
       minNrHits_(pset.getParameter<std::vector<unsigned int> >("minNrHits")),
       minNrHitsValidLayerBins_(pset.getParameter<std::vector<int> >("minNrHitsValidLayerBins")) {
   useRecoVertex_ = pset.getParameter<bool>("useRecoVertex");
+  enableHitSkipping_ = pset.getParameter<bool>("enableHitSkipping");
+  requireExactMatchCount_ = pset.getParameter<bool>("requireExactMatchCount");
   navSchoolLabel_ = pset.getParameter<std::string>("navSchool");
   detLayerGeomLabel_ = pset.getParameter<std::string>("detLayerGeom");
   const auto cutsPSets = pset.getParameter<std::vector<edm::ParameterSet> >("matchingCuts");
@@ -53,6 +55,8 @@ TrajSeedMatcher::TrajSeedMatcher(const edm::ParameterSet& pset)
 edm::ParameterSetDescription TrajSeedMatcher::makePSetDescription() {
   edm::ParameterSetDescription desc;
   desc.add<bool>("useRecoVertex", false);
+  desc.add<bool>("enableHitSkipping", false);
+  desc.add<bool>("requireExactMatchCount", false);
   desc.add<std::string>("navSchool", "SimpleNavigationSchool");
   desc.add<std::string>("detLayerGeom", "hltESPGlobalDetLayerGeometry");
   desc.add<std::vector<int> >("minNrHitsValidLayerBins", {4});
@@ -112,6 +116,7 @@ std::vector<TrajSeedMatcher::SeedWithInfo> TrajSeedMatcher::compatibleSeeds(cons
   for (const auto& seed : seeds) {
     std::vector<SCHitMatch> matchedHitsNeg = processSeed(seed, candPos, vprim, energy, -1);
     std::vector<SCHitMatch> matchedHitsPos = processSeed(seed, candPos, vprim, energy, +1);
+
     int nrValidLayersPos = 0;
     int nrValidLayersNeg = 0;
     if (matchedHitsNeg.size() >= 2) {
@@ -123,25 +128,21 @@ std::vector<TrajSeedMatcher::SeedWithInfo> TrajSeedMatcher::compatibleSeeds(cons
 
     int nrValidLayers = std::max(nrValidLayersNeg, nrValidLayersPos);
     size_t nrHitsRequired = getNrHitsRequired(nrValidLayers);
-    //so we require the number of hits to exactly match, this is because we currently do not
-    //do any duplicate cleaning for the input seeds
-    //this means is a hit pair with a 3rd hit will appear twice (or however many hits it has)
-    //so if you did >=nrHitsRequired, you would get the same seed multiple times
-    //ideally we should fix this and clean our input seed collection so each seed is only in once
-    //also it should be studied what impact having a 3rd hit has on a GsfTrack
-    //ie will we get a significantly different result seeding with a hit pair
-    //and the same the hit pair with a 3rd hit added
-    //in that case, perhaps it should be >=
-    if (matchedHitsNeg.size() == nrHitsRequired || matchedHitsPos.size() == nrHitsRequired) {
+    bool matchCountPasses;
+    if (requireExactMatchCount_) {
+      // If the input seed collection is not cross-cleaned, an exact match is necessary to
+      // prevent redundant seeds.
+      matchCountPasses = matchedHitsNeg.size() == nrHitsRequired || matchedHitsPos.size() == nrHitsRequired;
+    } else {
+      matchCountPasses = matchedHitsNeg.size() >= nrHitsRequired || matchedHitsPos.size() >= nrHitsRequired;
+    }
+    if (matchCountPasses) {
       matchedSeeds.push_back({seed, matchedHitsPos, matchedHitsNeg, nrValidLayers});
     }
   }
   return matchedSeeds;
 }
 
-//checks if the hits of the seed match within requested selection
-//matched hits are required to be consecutive, as soon as hit isnt matched,
-//the function returns, it doesnt allow skipping hits
 std::vector<TrajSeedMatcher::SCHitMatch> TrajSeedMatcher::processSeed(const TrajectorySeed& seed,
                                                                       const GlobalPoint& candPos,
                                                                       const GlobalPoint& vprim,
@@ -154,30 +155,35 @@ std::vector<TrajSeedMatcher::SCHitMatch> TrajSeedMatcher::processSeed(const Traj
   PerpendicularBoundPlaneBuilder bpb;
   TrajectoryStateOnSurface initialTrajState(trajStateFromVtx,
                                             *bpb(trajStateFromVtx.position(), trajStateFromVtx.momentum()));
-
   std::vector<SCHitMatch> matchedHits;
-  SCHitMatch firstHit = matchFirstHit(seed, initialTrajState, vprim, *backwardPropagator_);
-  firstHit.setExtra(candEt, candEta, candPos.phi(), charge, 1);
-  if (passesMatchSel(firstHit, 0)) {
-    matchedHits.push_back(firstHit);
-
-    //now we can figure out the z vertex
-    double zVertex = useRecoVertex_ ? vprim.z() : getZVtxFromExtrapolation(vprim, firstHit.hitPos(), candPos);
-    GlobalPoint vertex(vprim.x(), vprim.y(), zVertex);
-
-    FreeTrajectoryState firstHitFreeTraj =
-        FTSFromVertexToPointFactory::get(*magField_, firstHit.hitPos(), vertex, energy, charge);
-
-    GlobalPoint prevHitPos = firstHit.hitPos();
-    for (size_t hitNr = 1; hitNr < matchingCuts_.size() && hitNr < seed.nHits(); hitNr++) {
+  FreeTrajectoryState firstHitFreeTraj;
+  GlobalPoint prevHitPos;
+  GlobalPoint vertex;
+  for (size_t hitNr = 0; hitNr < matchingCuts_.size() && hitNr < seed.nHits(); hitNr++) {
+    bool matched = false;
+    if (matchedHits.empty()) {  // First hit is special
+      SCHitMatch firstHit = matchFirstHit(seed, initialTrajState, vprim, *backwardPropagator_);
+      firstHit.setExtra(candEt, candEta, candPos.phi(), charge, 1);
+      if (passesMatchSel(firstHit, 0)) {
+        matched = true;
+        matchedHits.push_back(firstHit);
+        //now we can figure out the z vertex
+        double zVertex = useRecoVertex_ ? vprim.z() : getZVtxFromExtrapolation(vprim, firstHit.hitPos(), candPos);
+        vertex = GlobalPoint(vprim.x(), vprim.y(), zVertex);
+        firstHitFreeTraj = FTSFromVertexToPointFactory::get(*magField_, firstHit.hitPos(), vertex, energy, charge);
+        prevHitPos = firstHit.hitPos();
+      }
+    } else {  // All subsequent hits are handled the same
       SCHitMatch hit = match2ndToNthHit(seed, firstHitFreeTraj, hitNr, prevHitPos, vertex, *forwardPropagator_);
       hit.setExtra(candEt, candEta, candPos.phi(), charge, 1);
-      if (passesMatchSel(hit, hitNr)) {
+      if (passesMatchSel(hit, matchedHits.size())) {
+        matched = true;
         matchedHits.push_back(hit);
         prevHitPos = hit.hitPos();
-      } else
-        break;
+      }
     }
+    if (!matched and !enableHitSkipping_)
+      break;
   }
   return matchedHits;
 }

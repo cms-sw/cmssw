@@ -259,6 +259,8 @@ private:
   std::string detLayerGeomLabel_;
 
   bool useRecoVertex_;
+  bool enableHitSkipping_;
+  bool requireExactMatchCount_;
   std::vector<std::unique_ptr<MatchingCuts> > matchingCuts_;
 
   //these two varibles determine how hits we require
