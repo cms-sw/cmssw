@@ -1,4 +1,5 @@
 import ROOT
+import ctypes
 
 # Python wrappers around the Electron MVAs.
 # Usage example in RecoEgamma/ElectronIdentification/test
@@ -29,7 +30,10 @@ class ElectronMVAID:
                 self.variablesFile, categoryCutStrings, self.xmls, self._debug)
             self._init = True
         extra_vars = self.estimator.getExtraVars(ele, convs, beam_spot, rho[0])
-        return self.estimator.mvaValue(ele, extra_vars)
+        category = ctypes.c_int(0)
+        mva = self.estimator.mvaValue(ele, extra_vars, category)
+        return mva, category
+
 
 # Import information needed to construct the e/gamma MVAs
 

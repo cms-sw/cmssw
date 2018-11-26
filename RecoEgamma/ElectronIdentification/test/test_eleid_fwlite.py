@@ -59,12 +59,12 @@ for i,event in enumerate(events):
     if ele.pt() in data["pt"][i-10:i]:
         continue
 
-    data["nEvent"][i]        = nEvent
-    data["pt"][i]            = ele.pt()
-    data["Fall17IsoV2"][i]   = ElectronMVAs["Fall17IsoV2"](ele, convs, beam_spot, rho)
-    data["Fall17NoIsoV2"][i] = ElectronMVAs["Fall17NoIsoV2"](ele, convs, beam_spot, rho)
-    data["Spring16HZZV1"][i] = ElectronMVAs["Spring16HZZV1"](ele, convs, beam_spot, rho)
-    data["Spring16GPV1"][i]  = ElectronMVAs["Spring16GPV1"](ele, convs, beam_spot, rho)
+    data["nEvent"][i]           = nEvent
+    data["pt"][i]               = ele.pt()
+    data["Fall17IsoV2"][i], _   = ElectronMVAs["Fall17IsoV2"](ele, convs, beam_spot, rho)
+    data["Fall17NoIsoV2"][i], _ = ElectronMVAs["Fall17NoIsoV2"](ele, convs, beam_spot, rho)
+    data["Spring16HZZV1"][i], _ = ElectronMVAs["Spring16HZZV1"](ele, convs, beam_spot, rho)
+    data["Spring16GPV1"][i], _  = ElectronMVAs["Spring16GPV1"](ele, convs, beam_spot, rho)
 
     accepted += 1
 
