@@ -7,8 +7,8 @@ Tracker:
 * T6: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.0.4) (TEDD slighly rotated + Inner Tracker barrel has lower radii than TDR T5 geometry)
 * T7: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.2.0) (same as T6 but 25x100 in 1x2 modules, 50x200 in 2x2 modules)
 * T8: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.2.1) (same as T6 but 25x100 in 1x2 modules, 100x100 in 2x2 modules)
-* T9: Same as T5, but with an increase of 20% of the material (stress test studies)
-* T10: Same as T5 but with an increase of 50% of the material (stress test studies) 
+* T9: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.6.1) (same as T6 but TBPX services directly routed towards TFPX)
+* T10: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.6.0) (same as T6 but TBPX services routed over TBPX)
 * T11: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.0.5) (same as T6 but 50x50 in all modules)
 
 Calorimeters:
