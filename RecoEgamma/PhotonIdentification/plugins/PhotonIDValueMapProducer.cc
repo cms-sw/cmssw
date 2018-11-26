@@ -123,9 +123,9 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   constexpr static char phoNeutralHadronIsolation_[] = "phoNeutralHadronIsolation";
   constexpr static char phoPhotonIsolation_[] = "phoPhotonIsolation";
   constexpr static char phoWorstChargedIsolation_[] = "phoWorstChargedIsolation";
-  constexpr static char phoWorstChargedIsolationWithConeVeto_[] = "phoWorstChargedIsolationWithConeVeto";
-  constexpr static char phoWorstChargedIsolationWithPVConstraint_[] = "phoWorstChargedIsolationWithPVConstraint";
-  constexpr static char phoWorstChargedIsolationWithConeVetoWithPVConstraint_[] = "phoWorstChargedIsolationWithConeVetoWithPVConstraint";
+  constexpr static char phoWorstChargedIsolationConeVeto_[] = "phoWorstChargedIsolationConeVeto";
+  constexpr static char phoWorstChargedIsolationConeVetoPVConstr_[] = "phoWorstChargedIsolationConeVetoPVConstr";
+  constexpr static char phoWorstChargedIsolationConeVetoWithPVConstraint_[] = "phoWorstChargedIsolationConeVetoWithPVConstraint";
 
   //PFCluster Isolation
   constexpr static char phoTrkIsolation_[] = "phoTrkIsolation";
@@ -151,9 +151,9 @@ constexpr char PhotonIDValueMapProducer::phoChargedIsolation_[];
 constexpr char PhotonIDValueMapProducer::phoNeutralHadronIsolation_[];
 constexpr char PhotonIDValueMapProducer::phoPhotonIsolation_[];
 constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolation_[];
-constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolationWithConeVeto_[];
-constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolationWithPVConstraint_[];
-constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolationWithConeVetoWithPVConstraint_[];
+constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolationConeVeto_[];
+constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolationConeVetoPVConstr_[];
+constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolationConeVetoWithPVConstraint_[];
 
 //PFCluster Isolation
 constexpr char PhotonIDValueMapProducer::phoTrkIsolation_[];
@@ -226,9 +226,9 @@ PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& iCon
   produces<edm::ValueMap<float> >(phoNeutralHadronIsolation_);  
   produces<edm::ValueMap<float> >(phoPhotonIsolation_);  
   produces<edm::ValueMap<float> >(phoWorstChargedIsolation_);  
-  produces<edm::ValueMap<float> >(phoWorstChargedIsolationWithConeVeto_);  
-  produces<edm::ValueMap<float> >(phoWorstChargedIsolationWithPVConstraint_);  
-  produces<edm::ValueMap<float> >(phoWorstChargedIsolationWithConeVetoWithPVConstraint_);  
+  produces<edm::ValueMap<float> >(phoWorstChargedIsolationConeVeto_);  
+  produces<edm::ValueMap<float> >(phoWorstChargedIsolationConeVetoPVConstr_);  
+  produces<edm::ValueMap<float> >(phoWorstChargedIsolationConeVetoWithPVConstraint_);  
 
   //PFCluster  Isolations
   produces<edm::ValueMap<float> >(phoTrkIsolation_);  
@@ -333,9 +333,9 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   std::vector<float> phoNeutralHadronIsolation;
   std::vector<float> phoPhotonIsolation;
   std::vector<float> phoWorstChargedIsolation;
-  std::vector<float> phoWorstChargedIsolationWithConeVeto;
-  std::vector<float> phoWorstChargedIsolationWithPVConstraint;
-  std::vector<float> phoWorstChargedIsolationWithConeVetoWithPVConstraint;
+  std::vector<float> phoWorstChargedIsolationConeVeto;
+  std::vector<float> phoWorstChargedIsolationConeVetoPVConstr;
+  std::vector<float> phoWorstChargedIsolationConeVetoWithPVConstraint;
 
   //PFCluster Isolations
   std::vector<float> phoTrkIsolation;
@@ -489,14 +489,14 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
       computeWorstPFChargedIsolation(iPho, pfCandidatesHandle, vertices, 
 				     isAOD, isPVConstraint,pv, coneSizeDR, dxyMax, dzMax,
 				     dRvetoBarrel, dRvetoEndcap, ptMin);
-    phoWorstChargedIsolationWithConeVeto .push_back( worstChargedIsoWithConeVeto );
+    phoWorstChargedIsolationConeVeto .push_back( worstChargedIsoWithConeVeto );
 
     isPVConstraint=true;
     float worstChargedIsoWithPVConstraint =
       computeWorstPFChargedIsolation(iPho, pfCandidatesHandle, vertices, 
 				     isAOD, isPVConstraint,pv,coneSizeDR, dxyMax, dzMax,
 				     dRvetoBarrel, dRvetoEndcap, ptMin);
-    phoWorstChargedIsolationWithPVConstraint .push_back( worstChargedIsoWithPVConstraint );
+    phoWorstChargedIsolationConeVetoPVConstr .push_back( worstChargedIsoWithPVConstraint );
 
     // Worst isolation computed with cone vetos and a ptMin cut, as in 
     // Run 2 Hgg code.
@@ -507,7 +507,7 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
       computeWorstPFChargedIsolation(iPho, pfCandidatesHandle, vertices, 
 				     isAOD,isPVConstraint, pv, coneSizeDR, dxyMax, dzMax,
 				     dRvetoBarrel, dRvetoEndcap, ptMin);
-    phoWorstChargedIsolationWithConeVetoWithPVConstraint .push_back( worstChargedIsoWithConeVetoWithPVConstraint );
+    phoWorstChargedIsolationConeVetoWithPVConstraint .push_back( worstChargedIsoWithConeVetoWithPVConstraint );
 
     
 
@@ -530,9 +530,9 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   writeValueMap(iEvent, src, phoNeutralHadronIsolation, phoNeutralHadronIsolation_);  
   writeValueMap(iEvent, src, phoPhotonIsolation, phoPhotonIsolation_);  
   writeValueMap(iEvent, src, phoWorstChargedIsolation, phoWorstChargedIsolation_);  
-  writeValueMap(iEvent, src, phoWorstChargedIsolationWithConeVeto, phoWorstChargedIsolationWithConeVeto_);  
-  writeValueMap(iEvent, src, phoWorstChargedIsolationWithPVConstraint, phoWorstChargedIsolationWithPVConstraint_);  
-  writeValueMap(iEvent, src, phoWorstChargedIsolationWithConeVetoWithPVConstraint, phoWorstChargedIsolationWithConeVetoWithPVConstraint_);  
+  writeValueMap(iEvent, src, phoWorstChargedIsolationConeVeto, phoWorstChargedIsolationConeVeto_);  
+  writeValueMap(iEvent, src, phoWorstChargedIsolationConeVetoPVConstr, phoWorstChargedIsolationConeVetoPVConstr_);  
+  writeValueMap(iEvent, src, phoWorstChargedIsolationConeVetoWithPVConstraint, phoWorstChargedIsolationConeVetoWithPVConstraint_);  
   //PFCluster  Isolation
   writeValueMap(iEvent, src, phoTrkIsolation, phoTrkIsolation_);  
   writeValueMap(iEvent, src, phoHcalPFClIsolation, phoHcalPFClIsolation_);  

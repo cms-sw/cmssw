@@ -34,10 +34,7 @@ wpConfig = [
 configs = configureFullVIDMVAPhoID(mvaTag=mvaTag,
                                    variablesFile=mvaVariablesFile,
                                    weightFiles=mvaWeightFiles,
-                                   wpConfig=wpConfig,
-                                   # Category parameters
-                                   nCategories         = cms.int32(2),
-                                   categoryCuts        = category_cuts)
+                                   wpConfig=wpConfig)
 mvaPhoID_RunIIFall17_v2_producer_config = configs["producer_config"]
 mvaPhoID_RunIIFall17_v2_wp90            = configs["VID_config"]["mvaPhoID-RunIIFall17-v2-wp90"]
 mvaPhoID_RunIIFall17_v2_wp80            = configs["VID_config"]["mvaPhoID-RunIIFall17-v2-wp80"]

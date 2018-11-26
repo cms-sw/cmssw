@@ -32,8 +32,8 @@ mvaTag = "Run2Spring15NonTrig50nsV2p1"
 #   1    endcap photons
 
 mvaSpring15NonTrigWeightFiles_V2p1 = cms.vstring(
-    "RecoEgamma/PhotonIdentification/data/Spring15/photon_general_MVA_Spring15_50ns_EB_V2.weights.xml",
-    "RecoEgamma/PhotonIdentification/data/Spring15/photon_general_MVA_Spring15_50ns_EE_V2.weights.xml"
+    path.join(weightFileBaseDir, "Spring15/50ns_EB_V2.weights.xml.gz"),
+    path.join(weightFileBaseDir, "Spring15/50ns_EE_V2.weights.xml.gz"),
     )
 
 # Load some common definitions for MVA machinery
