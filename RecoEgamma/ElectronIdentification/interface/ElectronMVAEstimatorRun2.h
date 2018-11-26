@@ -60,12 +60,6 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
   // Calculation of the MVA value
   float mvaValue( const reco::Candidate* candidate, std::vector<float> const& auxVariables, int &iCategory) const override;
 
-  // Also implemented in AnyMVAEstimatorRun2Base, but reimplemented here for fwlite to use
-  float mvaValue( const reco::Candidate* candidate, std::vector<float> const& auxVariables) const {
-      int iCategory;
-      return mvaValue(candidate, auxVariables, iCategory);
-  };
-
   int findCategory( const reco::Candidate* candidate) const override;
 
  private:
