@@ -142,7 +142,7 @@ from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
 #    pfClustersFromL1EGClusters +
 #    pfClustersFromCombinedCalo +
 #    l1pfProducer +
-#    l1pfProducerForMET     
+#    l1pfProducerTune2018     
 #)
 l1pfProducerTightTK = l1pfProducer.clone(trkMinStubs = 6)
 l1ParticleFlow += l1pfProducerTightTK
@@ -158,7 +158,7 @@ l1MetTK      = pfMet.clone(src = "l1pfProducer:TK")
 l1MetTKV     = pfMet.clone(src = "l1pfProducer:TKVtx")
 l1MetTightTK      = pfMet.clone(src = "l1pfProducerTightTK:TK")
 l1MetTightTKV     = pfMet.clone(src = "l1pfProducerTightTK:TKVtx")
-l1MetPF      = pfMet.clone(src = "l1pfProducerForMET:PF")
+l1MetPF      = pfMet.clone(src = "l1pfProducerTune2018:PF")
 l1MetPuppi   = pfMet.clone(src = "l1pfProducer:Puppi")
 l1PFMets = cms.Sequence( l1MetCalo + l1MetTK + l1MetTKV + l1MetPF + l1MetPuppi
                         + l1MetTightTK + l1MetTightTKV)
@@ -173,7 +173,7 @@ ak4L1TK      = ak4PFJets.clone(src = 'l1pfProducer:TK')
 ak4L1TKV     = ak4PFJets.clone(src = 'l1pfProducer:TKVtx')
 ak4L1TightTK      = ak4PFJets.clone(src = 'l1pfProducerTightTK:TK')
 ak4L1TightTKV     = ak4PFJets.clone(src = 'l1pfProducerTightTK:TKVtx')
-ak4L1PF      = ak4PFJets.clone(src = 'l1pfProducer:PF')
+ak4L1PF      = ak4PFJets.clone(src = 'l1pfProducerTune2018:PF')
 ak4L1Puppi   = ak4PFJets.clone(src = 'l1pfProducer:Puppi')
 l1PFJets = cms.Sequence( ak4L1Calo + ak4L1TK + ak4L1TKV + ak4L1PF + ak4L1Puppi
                         + ak4L1TightTK + ak4L1TightTKV)
