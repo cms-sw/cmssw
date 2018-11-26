@@ -45,7 +45,10 @@ MVA_WP80 = EleMVA_WP(
     cutCategory2 =  "0.758484721184", # EE
     )
 
-
+workingPoints = dict(
+    wp80 = MVA_WP80,
+    wp90 = MVA_WP90
+)
 
 #
 # Finally, set up VID configuration for all cuts

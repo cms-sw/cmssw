@@ -59,6 +59,13 @@ mvaEleID_Fall17_iso_V2_wp90_container = EleMVARaw_WP(
     )
 
 
+workingPoints = dict(
+    wpHZZ = mvaEleID_Fall17_iso_V2_wpHZZ_container,
+    wp80 = mvaEleID_Fall17_iso_V2_wp80_container,
+    wpLoose = mvaEleID_Fall17_iso_V2_wpLoose_container,
+    wp90 = mvaEleID_Fall17_iso_V2_wp90_container
+)
+
 mvaEleID_Fall17_iso_V2_producer_config = cms.PSet(
     mvaName             = cms.string(mvaClassName),
     mvaTag              = cms.string(mvaTag),
