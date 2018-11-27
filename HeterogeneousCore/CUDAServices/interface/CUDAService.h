@@ -4,12 +4,33 @@
 #include <utility>
 #include <vector>
 
+#include <cuda/api_wrappers.h>
+
 #include "FWCore/Utilities/interface/StreamID.h"
+
+#include "CUDADataFormats/Common/interface/device_unique_ptr.h"
+#include "CUDADataFormats/Common/interface/host_unique_ptr.h"
 
 namespace edm {
   class ParameterSet;
   class ActivityRegistry;
   class ConfigurationDescriptions;
+}
+
+namespace cudaserviceimpl {
+  template <typename T>
+  struct make_device_unique_selector { using non_array = edm::cuda::device::unique_ptr<T>; };
+  template <typename T>
+  struct make_device_unique_selector<T[]> { using unbounded_array = edm::cuda::device::unique_ptr<T[]>; };
+  template <typename T, size_t N>
+  struct make_device_unique_selector<T[N]> { struct bounded_array {}; };
+
+  template <typename T>
+  struct make_host_unique_selector { using non_array = edm::cuda::host::unique_ptr<T>; };
+  template <typename T>
+  struct make_host_unique_selector<T[]> { using unbounded_array = edm::cuda::host::unique_ptr<T[]>; };
+  template <typename T, size_t N>
+  struct make_host_unique_selector<T[N]> { struct bounded_array {}; };
 }
 
 /**
@@ -47,7 +68,73 @@ public:
   // Get the current device
   int getCurrentDevice() const;
 
+  // Allocate device memory
+  template <typename T>
+  typename cudaserviceimpl::make_device_unique_selector<T>::non_array
+  make_device_unique(cuda::stream_t<>& stream) {
+    int dev = getCurrentDevice();
+    void *mem = allocate_device(dev, sizeof(T), stream);
+    return typename cudaserviceimpl::make_device_unique_selector<T>::non_array(reinterpret_cast<T *>(mem),
+                                                                               [this, dev](void *ptr) {
+                                                                                 this->free_device(dev, ptr);
+                                                                               });
+  }
+
+  template <typename T>
+  typename cudaserviceimpl::make_device_unique_selector<T>::unbounded_array
+  make_device_unique(size_t n, cuda::stream_t<>& stream) {
+    int dev = getCurrentDevice();
+    using element_type = typename std::remove_extent<T>::type;
+    void *mem = allocate_device(dev, n*sizeof(element_type), stream);
+    return typename cudaserviceimpl::make_device_unique_selector<T>::unbounded_array(reinterpret_cast<element_type *>(mem),
+                                                                                     [this, dev](void *ptr) {
+                                                                                       this->free_device(dev, ptr);
+                                                                                     });
+  }
+
+  template <typename T, typename ...Args>
+  typename cudaserviceimpl::make_device_unique_selector<T>::bounded_array
+  make_device_unique(Args&&...) = delete;
+
+  // Allocate pinned host memory
+  template <typename T>
+  typename cudaserviceimpl::make_host_unique_selector<T>::non_array
+  make_host_unique(cuda::stream_t<>& stream) {
+    void *mem = allocate_host(sizeof(T), stream);
+    return typename cudaserviceimpl::make_host_unique_selector<T>::non_array(reinterpret_cast<T *>(mem),
+                                                                             [this](void *ptr) {
+                                                                               this->free_host(ptr);
+                                                                             });
+  }
+
+  template <typename T>
+  typename cudaserviceimpl::make_host_unique_selector<T>::unbounded_array
+  make_host_unique(size_t n, cuda::stream_t<>& stream) {
+    using element_type = typename std::remove_extent<T>::type;
+    void *mem = allocate_host(n*sizeof(element_type), stream);
+    return typename cudaserviceimpl::make_host_unique_selector<T>::unbounded_array(reinterpret_cast<element_type *>(mem),
+                                                                                   [this](void *ptr) {
+                                                                                     this->free_host(ptr);
+                                                                                   });
+  }
+
+  template <typename T, typename ...Args>
+  typename cudaserviceimpl::make_host_unique_selector<T>::bounded_array
+  make_host_unique(Args&&...) = delete;
+  
+  // Free device memory (to be called from unique_ptr)
+  void free_device(int device, void *ptr);
+
+  // Free pinned host memory (to be called from unique_ptr)
+  void free_host(void *ptr);
+
 private:
+  // PIMPL to hide details of allocator
+  struct Allocator;
+  std::unique_ptr<Allocator> allocator_;
+  void *allocate_device(int dev, size_t nbytes, cuda::stream_t<>& stream);
+  void *allocate_host(size_t nbytes, cuda::stream_t<>& stream);
+
   int numberOfDevices_ = 0;
   unsigned int numberOfStreamsTotal_ = 0;
   std::vector<std::pair<int, int>> computeCapabilities_;

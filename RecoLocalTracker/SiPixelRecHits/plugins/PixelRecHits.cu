@@ -127,10 +127,10 @@ namespace pixelgpudetails {
                                            pixelCPEforGPU::ParamsOnGPU const * cpeParams,
                                            bool transferToCPU,
                                            cuda::stream_t<>& stream) {
-   cudaCheck(cudaMemcpyAsync(gpu_.bs_d, bs, 3 * sizeof(float), cudaMemcpyDefault, stream.id()));
-   gpu_.hitsModuleStart_d = input.clusModuleStart_d;
-   gpu_.cpeParams = cpeParams; // copy it for use in clients
-   cudaCheck(cudaMemcpyAsync(gpu_d, &gpu_, sizeof(HitsOnGPU), cudaMemcpyDefault, stream.id()));
+    cudaCheck(cudaMemcpyAsync(gpu_.bs_d, bs, 3 * sizeof(float), cudaMemcpyDefault, stream.id()));
+    gpu_.hitsModuleStart_d = input.clusters_d.clusModuleStart();
+    gpu_.cpeParams = cpeParams; // copy it for use in clients
+    cudaCheck(cudaMemcpyAsync(gpu_d, &gpu_, sizeof(HitsOnGPU), cudaMemcpyDefault, stream.id()));
 
     int threadsPerBlock = 256;
     int blocks = input.nModules; // active modules (with digis)
@@ -141,11 +141,11 @@ namespace pixelgpudetails {
     gpuPixelRecHits::getHits<<<blocks, threadsPerBlock, 0, stream.id()>>>(
       cpeParams,
       gpu_.bs_d,
-      input.moduleInd_d,
-      input.xx_d, input.yy_d, input.adc_d,
-      input.moduleStart_d,
-      input.clusInModule_d, input.moduleId_d,
-      input.clus_d,
+      input.digis_d.moduleInd(),
+      input.digis_d.xx(), input.digis_d.yy(), input.digis_d.adc(),
+      input.clusters_d.moduleStart(),
+      input.clusters_d.clusInModule(), input.clusters_d.moduleId(),
+      input.clusters_d.clus(),
       input.nDigis,
       gpu_.hitsModuleStart_d,
       gpu_.charge_d,

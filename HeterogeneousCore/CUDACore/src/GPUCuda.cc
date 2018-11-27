@@ -74,15 +74,19 @@ namespace heterogeneous {
                                      waitingTaskHolder, // copy needed for the catch block
                                      locationSetter = iEvent.locationSetter()
                                      ](cuda::stream::id_t streamId, cuda::status_t status) mutable {
-                                      if(status == cudaSuccess) {
+                                      if (status == cudaSuccess) {
                                         locationSetter(HeterogeneousDeviceId(HeterogeneousDevice::kGPUCuda, deviceId));
                                         LogTrace("GPUCuda") << "  GPU kernel finished (in callback) device " << deviceId << " CUDA stream " << streamId;
                                         waitingTaskHolder.doneWaiting(nullptr);
-                                      }
-                                      else {
-                                        auto error = cudaGetErrorName(status);
-                                        auto message = cudaGetErrorString(status);
-                                        waitingTaskHolder.doneWaiting(std::make_exception_ptr(cms::Exception("CUDAError") << "Callback of CUDA stream " << streamId << " in device " << deviceId << " error " << error << ": " << message));
+                                      } else {
+                                        // wrap the exception in a try-catch block to let GDB "catch throw" break on it
+                                        try {
+                                          auto error = cudaGetErrorName(status);
+                                          auto message = cudaGetErrorString(status);
+                                          throw cms::Exception("CUDAError") << "Callback of CUDA stream " << streamId << " in device " << deviceId << " error " << error << ": " << message;
+                                        } catch(...) {
+                                          waitingTaskHolder.doneWaiting(std::current_exception());
+                                        }
                                       }
                                     });
     } catch(...) {

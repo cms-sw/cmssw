@@ -1,6 +1,8 @@
 #ifndef RecoLocalTracker_SiPixelClusterizer_SiPixelFedCablingMapGPUWrapper_h
 #define RecoLocalTracker_SiPixelClusterizer_SiPixelFedCablingMapGPUWrapper_h
 
+#include "CUDADataFormats/Common/interface/device_unique_ptr.h"
+#include "CUDADataFormats/Common/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAESProduct.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelFedCablingMapGPU.h"
@@ -33,7 +35,7 @@ public:
   // operations on the device memory have completed.
   class ModulesToUnpack {
   public:
-    ModulesToUnpack();
+    ModulesToUnpack(cuda::stream_t<>& cudaStream);
     ~ModulesToUnpack() = default;
 
     void fillAsync(SiPixelFedCablingMap const& cablingMap, std::set<unsigned int> const& modules, cuda::stream_t<>& cudaStream);
@@ -41,8 +43,8 @@ public:
     const unsigned char *get() const { return modToUnpDevice.get(); }
 
   private:
-    cuda::memory::device::unique_ptr<unsigned char[]> modToUnpDevice;
-    std::vector<unsigned char, CUDAHostAllocator<unsigned char>> modToUnpHost;
+    edm::cuda::device::unique_ptr<unsigned char[]> modToUnpDevice;
+    edm::cuda::host::unique_ptr<unsigned char[]> modToUnpHost;
   };
   
 private:
