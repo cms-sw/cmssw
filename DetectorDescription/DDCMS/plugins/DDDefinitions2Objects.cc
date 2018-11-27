@@ -672,19 +672,6 @@ template <> void Converter<DDLPosPart>::operator()( xml_h element ) const {
   }
 }
 
-// /// Converter for <SpecPar/> tags
-// template <> void Converter<SpecPar>::operator()( xml_h element ) const {
-//   cms::DDNamespace ns( _param<cms::DDParsingContext>()); //, element, true );
-//   xml_dim_t e( element );
-//   xml_dim_t par = e.parent();
-//   string   name = e.nameStr();
-//   bool     eval = par.hasAttr( _U( eval )) ? par.attr<bool>( _U( eval )) : false;
-//   string   type = eval ? "number" : "string";
-
-//   printout(ns.context()->debug_specpars ? ALWAYS : DEBUG, "MyDDCMS",
-//            "+++ SpecPar: %s to evaluate %s", name.c_str(), type.c_str());
-// }
-
 /// Converter for <PartSelector/> tags
 template <> void Converter<PartSelector>::operator()( xml_h element ) const {
   cms::DDNamespace ns( _param<cms::DDParsingContext>()); //, element, true );
