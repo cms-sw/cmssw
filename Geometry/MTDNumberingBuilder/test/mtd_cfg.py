@@ -30,6 +30,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
+process.MessageLogger.cerr.INFO.limit = -1
+
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
 process.prod = cms.EDAnalyzer("GeometricTimingDetAnalyzer")
