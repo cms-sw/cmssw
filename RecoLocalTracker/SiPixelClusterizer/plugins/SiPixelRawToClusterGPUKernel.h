@@ -5,6 +5,7 @@
 #include <cuda_runtime.h>
 #include "cuda/api_wrappers.h"
 
+#include "CUDADataFormats/Common/interface/host_unique_ptr.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
 #include "siPixelRawToClusterHeterogeneousProduct.h"
@@ -159,8 +160,43 @@ namespace pixelgpudetails {
 
     using GPUProduct = siPixelRawToClusterHeterogeneousProduct::GPUProduct;
 
-    SiPixelRawToClusterGPUKernel(cuda::stream_t<>& cudaStream);
-    ~SiPixelRawToClusterGPUKernel();
+    struct CPUData {
+      CPUData() = default;
+      ~CPUData() = default;
+
+      CPUData(const CPUData&) = delete;
+      CPUData& operator=(const CPUData&) = delete;
+      CPUData(CPUData&&) = default;
+      CPUData& operator=(CPUData&&) = default;
+      
+      edm::cuda::host::unique_ptr<uint32_t[]> nModules_Clusters; // These should really be part of the GPU product
+
+      edm::cuda::host::unique_ptr<pixelgpudetails::error_obj[]> data;
+      edm::cuda::host::unique_ptr<GPU::SimpleVector<pixelgpudetails::error_obj>> error;
+
+      edm::cuda::host::unique_ptr<uint32_t[]> pdigi;
+      edm::cuda::host::unique_ptr<uint32_t[]> rawIdArr;
+      edm::cuda::host::unique_ptr<uint16_t[]> adc;
+      edm::cuda::host::unique_ptr<int32_t[]> clus;
+    };
+
+    class WordFedAppender {
+    public:
+      WordFedAppender(cuda::stream_t<>& cudaStream);
+      ~WordFedAppender() = default;
+
+      void initializeWordFed(int fedId, unsigned int wordCounterGPU, const cms_uint32_t *src, unsigned int length);
+
+      const unsigned int *word() const { return word_.get(); }
+      const unsigned char *fedId() const { return fedId_.get(); }
+
+    private:
+      edm::cuda::host::unique_ptr<unsigned int[]> word_;
+      edm::cuda::host::unique_ptr<unsigned char[]> fedId_;
+    };
+
+    SiPixelRawToClusterGPUKernel() = default;
+    ~SiPixelRawToClusterGPUKernel() = default;
 
 
     SiPixelRawToClusterGPUKernel(const SiPixelRawToClusterGPUKernel&) = delete;
@@ -168,69 +204,35 @@ namespace pixelgpudetails {
     SiPixelRawToClusterGPUKernel& operator=(const SiPixelRawToClusterGPUKernel&) = delete;
     SiPixelRawToClusterGPUKernel& operator=(SiPixelRawToClusterGPUKernel&&) = delete;
 
-    void initializeWordFed(int fedId, unsigned int wordCounterGPU, const cms_uint32_t *src, unsigned int length);
-
     void makeClustersAsync(const SiPixelFedCablingMapGPU *cablingMap, const unsigned char *modToUnp,
                            const SiPixelGainForHLTonGPU *gains,
+                           const WordFedAppender& wordFed,
                            const uint32_t wordCounter, const uint32_t fedCounter, bool convertADCtoElectrons,
                            bool useQualityInfo, bool includeErrors, bool transferToCPU_, bool debug,
                            cuda::stream_t<>& stream);
 
-    auto getProduct() {
-      error_h->set_data(data_h);
-      return siPixelRawToClusterHeterogeneousProduct::GPUProduct{
-        pdigi_h, rawIdArr_h, clus_h, adc_h, error_h,
-        gpuProduct_d,
-        xx_d, yy_d, adc_d, moduleInd_d, moduleStart_d,clus_d, clusInModule_d, moduleId_d,
-        clusModuleStart_d,
-        nDigis, *nModulesActive, *nClusters
-      };
+    siPixelRawToClusterHeterogeneousProduct::GPUProduct getProduct() {
+      return siPixelRawToClusterHeterogeneousProduct::GPUProduct(
+        std::move(digis_d), std::move(clusters_d),
+        nDigis,
+        digis_clusters_h.nModules_Clusters[0],
+        digis_clusters_h.nModules_Clusters[1]
+      );
+    }
+
+    CPUData&& getCPUData() {
+      return std::move(digis_clusters_h);
     }
 
   private:
-    // input
-    unsigned int *word = nullptr;        // to hold input for rawtodigi
-    unsigned char *fedId_h = nullptr;    // to hold fed index for each word
-
-    // output
-    GPUProduct gpuProduct;
-    GPUProduct * gpuProduct_d;
-
-    // FIXME cleanup all these are in the gpuProduct above...
-
-    uint32_t *pdigi_h = nullptr, *rawIdArr_h = nullptr;                   // host copy of output
-    uint16_t *adc_h = nullptr; int32_t *clus_h = nullptr; // host copy of calib&clus output
-    pixelgpudetails::error_obj *data_h = nullptr;
-    GPU::SimpleVector<pixelgpudetails::error_obj> *error_h = nullptr;
-    GPU::SimpleVector<pixelgpudetails::error_obj> *error_h_tmp = nullptr;
-
     uint32_t nDigis = 0;
-    uint32_t *nModulesActive = nullptr;
-    uint32_t *nClusters = nullptr;
 
-    // scratch memory buffers
-    uint32_t * word_d;
-    uint8_t *  fedId_d;
-    uint32_t * pdigi_d;
-    uint16_t * xx_d;
-    uint16_t * yy_d;
-    uint16_t * adc_d;
-    uint16_t * moduleInd_d;
-    uint32_t * rawIdArr_d;
+    // CPU data
+    CPUData digis_clusters_h;
 
-    GPU::SimpleVector<error_obj> * error_d;
-    error_obj * data_d;
-
-    // these are for the clusterizer (to be moved)
-    uint32_t * moduleStart_d;
-    int32_t *  clus_d;
-    uint32_t * clusInModule_d;
-    uint32_t * moduleId_d;
-
-    // originally in rechit, moved here
-    uint32_t *clusModuleStart_d = nullptr;
-    void *tempScanStorage_d = nullptr;
-    size_t tempScanStorageSize = 0;
+    // Data to be put in the event
+    SiPixelDigisCUDA digis_d;
+    SiPixelClustersCUDA clusters_d;
   };
 
   // configuration and memory buffers alocated on the GPU
