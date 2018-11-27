@@ -70,7 +70,7 @@ MTDTopologyAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
   //
   edm::ESHandle<MTDTopology> mtdTopo;
   iSetup.get<MTDTopologyRcd>().get( mtdTopo );     
-  PRINT("MTDTopologyAnalyzer") << "MTD topology mode = " << mtdTopo->getMTDTopologyMode();
+  PRINT("MTDTopologyAnalyzer") << "MTD topology mode = " << mtdTopo->getMTDTopologyMode() << std::endl;
     
 }
 
