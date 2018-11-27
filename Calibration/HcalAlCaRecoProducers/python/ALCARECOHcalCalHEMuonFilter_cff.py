@@ -5,7 +5,8 @@ import FWCore.ParameterSet.Config as cms
 #-------------------------------------------------
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOHcalCalHEMuonFilterHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
-    eventSetupPathsKey = 'HcalCalHEMuonFilter',
+    HLTPaths           = cms.vstring('DoubleMuon'),
+    eventSetupPathsKey = cms.string('HcalCalHEMuonFilter'),
     throw = False #dont throw except on unknown path name
 )
 
