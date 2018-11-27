@@ -7,9 +7,9 @@ import sys
 oldargv = sys.argv[:]
 sys.argv = [ '-b-' ]
 from ROOT import TCanvas, TPad, TGaxis, TLegend, TPaveText, THStack, TFile, TLatex
-from ROOT import TProfile, TProfile2D, TH1D, TH2F, TPaletteAxis, TStyle
+from ROOT import TProfile, TProfile2D, TH1D, TH2F, TPaletteAxis, TStyle, TColor
 from ROOT import kBlack, kWhite, kOrange, kAzure, kBlue, kRed, kGreen
-from ROOT import kGreyScale
+from ROOT import kGreyScale, kTemperatureMap
 from ROOT import kTRUE, kFALSE
 from ROOT import gROOT, gStyle, gPad
 gROOT.SetBatch(True)
@@ -226,7 +226,7 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
         leftMargin = 0.12
         rightMargin = 0.12
         topMargin = 0.12
-        bottomMargin = 0.2
+        bottomMargin = 0.3
         for i in range(8):
             mainPad[i].SetLeftMargin(leftMargin)
             mainPad[i].SetRightMargin(rightMargin)
@@ -299,12 +299,24 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
         return title
 
     def setUpLegend(gOld,gNew,label):
-        legend = TLegend(0.4,0.6,0.7,0.8)
+        legend = TLegend(0.4,0.7,0.7,0.85)
         legend.AddEntry(gOld,"%s %s [%s]"%(detector,geometryOld,label),"F") #(F)illed Box
         legend.AddEntry(gNew,"%s %s [%s]"%(detector,geometryNew,label),"P") #(P)olymarker
         legend.SetTextFont(42)
         legend.SetTextSize(0.03)
         return legend
+
+    def setRanges(h):
+        legendSpace = 1. + 0.3 # 30%
+        minX = h.GetXaxis().GetXmin()
+        maxX = h.GetXaxis().GetXmax()
+        minY = h.GetYaxis().GetXmin()
+        maxY = h.GetBinContent(h.GetMaximumBin()) * legendSpace
+        h.GetYaxis().SetRangeUser(minY, maxY)
+        h.GetXaxis().SetRangeUser(minX, maxX)
+
+
+    ########### Ratio ###########
 
     counter = 0
     legends = OrderedDict() #KeepAlive
@@ -318,8 +330,7 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
         oldHistos[label].SetFillColor(color)
         oldHistos[label].SetLineColor(kBlack)
         oldHistos[label].SetLineWidth(1)
-        #https://root.cern.ch/doc/master/classTAttFill.html
-        oldHistos[label].SetFillStyle(3144)
+        setRanges(oldHistos[label])
         oldHistos[label].Draw("HIST")
 
         newHistos[label] = get1DHisto_(detector,
@@ -358,7 +369,6 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
     counter = 0
     for label, [num, color, leg] in six.iteritems(hist_label_to_num):
         mainPadDiff[counter].cd()
-        oldHistos[label].SetTitle('Difference%s'%(label))
         oldHistos[label].SetTitle(setUpTitle(detector,leg,plot))
         oldHistos[label].Draw("HIST")
         newHistos[label].Draw('SAME P')
@@ -435,13 +445,27 @@ def create2DPlotsGeometryComparison(detector, plot,
         old2DHisto.Rebin2D()
         new2DHisto.Rebin2D()
 
+    def setRanges(h):
+        h.GetXaxis().SetRangeUser(plots[plot].xmin, plots[plot].xmax)
+        h.GetYaxis().SetRangeUser(plots[plot].ymin, plots[plot].ymax)
+        if plots[plot].histoMin != -1.:
+            h.SetMinimum(plots[plot].histoMin)
+        if plots[plot].histoMax != -1.:
+            h.SetMaximum(plots[plot].histoMax)
+
     ratio2DHisto = copy.deepcopy(new2DHisto)
     ratio2DHisto.Divide(old2DHisto)
-    ratio2DHisto.SetMinimum(0.8) # plots[plot].histoMin
-    ratio2DHisto.SetMaximum(1.2) # plots[plot].histoMax
+    # Ratio and Difference have the same call
+    # But different 'Palette' range so we are
+    # setting the range only for the Ratio
+    ratio2DHisto.SetMinimum(0.2)
+    ratio2DHisto.SetMaximum(1.8)
+    setRanges(ratio2DHisto)
 
     diff2DHisto = copy.deepcopy(new2DHisto)
     diff2DHisto.Add(old2DHisto,-1.0)
+    setRanges(diff2DHisto)
+
 
     def setPadStyle():
         gPad.SetLeftMargin(0.05)
@@ -457,13 +481,15 @@ def create2DPlotsGeometryComparison(detector, plot,
     can.Divide(1,2)
     can.cd(1)
     setPadStyle()
+    gPad.SetLogz(plots[plot].zLog)
     
     gStyle.SetOptStat(0)
     gStyle.SetFillColor(kWhite)
-    #Style.SetPalette(kGreyScale)
+    gStyle.SetPalette(kTemperatureMap)
 
-    ratio2DHisto.SetTitle("%s/%s;%s;%s"
-                          %(geometryOld, geometryNew,
+    ratio2DHisto.SetTitle("%s, Ratio: %s/%s;%s;%s"
+                          %(plots[plot].quotaName,
+                            geometryOld, geometryNew,
                             plots[plot].abscissa,
                             plots[plot].ordinate))
     ratio2DHisto.Draw('COLZ')
@@ -478,8 +504,8 @@ def create2DPlotsGeometryComparison(detector, plot,
 
     can.cd(2)
 
-    diff2DHisto.SetTitle('%s - %s MaterialBudget %s;%s;%s'
-                         %(geometryNew,geometryOld,detector,
+    diff2DHisto.SetTitle('%s, Difference: %s - %s %s;%s;%s'
+                         %(plots[plot].quotaName,geometryNew,geometryOld,detector,
                            plots[plot].abscissa,plots[plot].ordinate))
     setPadStyle()
     diff2DHisto.Draw("COLZ")
@@ -788,11 +814,17 @@ def createCompoundPlots(detector, plot, geometry):
     hist_X0_elements = OrderedDict()
 
     # stack
-    stackTitle = "Material Budget %s;%s;%s" % (detector,
+    stackTitle = "%s;%s;%s" % (detector,
                                                plots[plot].abscissa,
                                                plots[plot].ordinate)
     stack_X0 = THStack("stack_X0", stackTitle);
     theLegend = TLegend(0.70, 0.70, 0.89, 0.89);
+
+    def setRanges(h):
+        legendSpace = 1. + 0.3 # 30%
+        minY = h.GetYaxis().GetXmin()
+        maxY = h.GetBinContent(h.GetMaximumBin()) * legendSpace
+        h.GetYaxis().SetRangeUser(minY, maxY)
 
     for label, [num, color, leg] in six.iteritems(hist_label_to_num):
         # We don't want the sum to be added as part of the stack
@@ -813,10 +845,30 @@ def createCompoundPlots(detector, plot, geometry):
     can.SetFillColor(kWhite)
     gStyle.SetOptStat(0)
 
+    setTDRStyle()
+
     # Draw
+    setRanges(stack_X0.GetStack().Last())
     stack_X0.Draw("HIST");
     theLegend.Draw();
 
+    cmsMark = TLatex()
+    cmsMark.SetNDC();
+    cmsMark.SetTextAngle(0);
+    cmsMark.SetTextColor(kBlack);    
+    cmsMark.SetTextFont(61)
+    cmsMark.SetTextSize(7e-2)
+    cmsMark.SetTextAlign(11)
+    cmsMark.DrawLatex(0.1,0.91,"CMS")
+
+    simuMark = TLatex()
+    simuMark.SetNDC();
+    simuMark.SetTextAngle(0);
+    simuMark.SetTextColor(kBlack);    
+    simuMark.SetTextSize(3e-2)
+    simuMark.SetTextAlign(11)
+    simuMark.DrawLatex(0.26,0.91,"#font[52]{Preliminary Simulation}")
+ 
     # Store
     can.Update();
     can.SaveAs( "%s/%s_%s_%s.pdf" 
@@ -848,7 +900,6 @@ def create2DPlots(detector, plot, geometry):
     hist_X0_total = get2DHisto_(detector,plots[plot].plotNumber,geometry)
 
     # # properties
-    gStyle.SetPalette(1)
     gStyle.SetStripDecimals(False)
     # #
 
@@ -890,7 +941,7 @@ def create2DPlots(detector, plot, geometry):
     gStyle.SetTitleBorderSize(0)
 
     # Color palette
-    gStyle.SetPalette(1)
+    gStyle.SetPalette(kGreyScale)
 
     # Log?
     can2.SetLogz(plots[plot].zLog)
@@ -1016,14 +1067,18 @@ if __name__ == '__main__':
     
     if args.geometry_comparison and args.geometry:
 
+        # For the definition of the properties of these graphs
+        # check plot_utils.py
+
         required_plots = ["x_vs_eta","x_vs_phi","x_vs_R",
                           "l_vs_eta","l_vs_phi","l_vs_R"]
         required_2Dplots = ["x_vs_eta_vs_phi",
                             "l_vs_eta_vs_phi",
                             "x_vs_z_vs_R",
-                            "l_vs_z_vs_R",
+                            "l_vs_z_vs_R_geocomp",
                             "x_vs_z_vs_Rsum",
                             "l_vs_z_vs_Rsum"]
+
         for p in required_plots:
             createCompoundPlotsGeometryComparison(args.detector, p, args.geometry,
                                                   args.geometry_comparison)
