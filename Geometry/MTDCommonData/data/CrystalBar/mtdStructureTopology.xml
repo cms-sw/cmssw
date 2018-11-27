@@ -29,10 +29,10 @@ note: see MTD_BARZFLAT_V0002_2018_11_26.cfg for full config files
 <SpecPar name="BarrelTimingLayerStackPar">
 <PartSelector path="//mtd:BModule1Layer1PositiveZ"/>
 <PartSelector path="//mtd:BModule1Layer1NegativeZ"/>
-<PartSelector path="//mtd:BModule15Layer1PositiveZ"/>
-<PartSelector path="//mtd:BModule15Layer1NegativeZ"/>
-<PartSelector path="//mtd:BModule29Layer1PositiveZ"/>
-<PartSelector path="//mtd:BModule29Layer1NegativeZ"/>
+<PartSelector path="//mtd:BModule19Layer1PositiveZ"/>
+<PartSelector path="//mtd:BModule19Layer1NegativeZ"/>
+<PartSelector path="//mtd:BModule37Layer1PositiveZ"/>
+<PartSelector path="//mtd:BModule37Layer1NegativeZ"/>
 <Parameter name="MtdDDDStructure" value="BarrelTimingLayerStack"/>
 </SpecPar>
 <SpecPar name="EndcapTimingRegionSubDetPar">
@@ -74,24 +74,24 @@ note: see MTD_BARZFLAT_V0002_2018_11_26.cfg for full config files
 <SpecPar name="BModule1Layer1TimingactivePar">
 <PartSelector path="//BModule1Layer1Timingactive"/>
 <Parameter name="MtdDDDStructure" value="Crystal"/>
-<Parameter name="PixelROCRows" value="4"/>
-<Parameter name="PixelROCCols" value="16"/>
+<Parameter name="PixelROCRows" value="16"/>
+<Parameter name="PixelROCCols" value="4"/>
 <Parameter name="PixelROC_X" value="1"/>
 <Parameter name="PixelROC_Y" value="1"/>
 </SpecPar>
-<SpecPar name="BModule15Layer1TimingactivePar">
-<PartSelector path="//BModule15Layer1Timingactive"/>
+<SpecPar name="BModule19Layer1TimingactivePar">
+<PartSelector path="//BModule19Layer1Timingactive"/>
 <Parameter name="MtdDDDStructure" value="Crystal"/>
-<Parameter name="PixelROCRows" value="4"/>
-<Parameter name="PixelROCCols" value="16"/>
+<Parameter name="PixelROCRows" value="16"/>
+<Parameter name="PixelROCCols" value="4"/>
 <Parameter name="PixelROC_X" value="1"/>
 <Parameter name="PixelROC_Y" value="1"/>
 </SpecPar>
-<SpecPar name="BModule29Layer1TimingactivePar">
-<PartSelector path="//BModule29Layer1Timingactive"/>
+<SpecPar name="BModule37Layer1TimingactivePar">
+<PartSelector path="//BModule37Layer1Timingactive"/>
 <Parameter name="MtdDDDStructure" value="Crystal"/>
-<Parameter name="PixelROCRows" value="4"/>
-<Parameter name="PixelROCCols" value="16"/>
+<Parameter name="PixelROCRows" value="16"/>
+<Parameter name="PixelROCCols" value="4"/>
 <Parameter name="PixelROC_X" value="1"/>
 <Parameter name="PixelROC_Y" value="1"/>
 </SpecPar>

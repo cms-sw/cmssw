@@ -73,7 +73,7 @@ MTDParametersFromDD::build( const DDCompactView* cvp,
   if (ok) {
     DDsvalues_type sv(fv1.mergedSpecifics());
     int topoMode = getMTDTopologyMode("TopologyMode", sv);
-    edm::LogWarning("MTDParametersFromDD") << "MTD scenario " << topoMode;
+    ptp.topologyMode_ = topoMode;
   } else {                
     throw cms::Exception( "MTDParametersFromDD" ) << "Not found "<< attribute.c_str() << " but needed.";  }
 
