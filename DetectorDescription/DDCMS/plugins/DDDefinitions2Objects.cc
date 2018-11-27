@@ -1112,7 +1112,7 @@ template <> void Converter<DDLDivision>::operator()( xml_h element ) const {
     printout( ns.context()->debug_placements ? ALWAYS : DEBUG,
 	      "MyDDCMS","+++    ...divide %s along %s (%d) with offset %6.3f deg and %6.3f deg to produce %d copies",
 	      parent.solid().type(), axis.c_str(), axesmap[axis], startInDeg, widthInDeg, numCopies );
-    Volume child = parent.divide( childName.c_str(), static_cast<int>( axesmap[axis]),
+    Volume child = parent.divide( childName, static_cast<int>( axesmap[axis]),
 				  numCopies, startInDeg, widthInDeg );
 
     ns.context()->volumes[childName] = child;
@@ -1133,7 +1133,7 @@ template <> void Converter<DDLDivision>::operator()( xml_h element ) const {
     if( axesmap[axis] == DDAxes::y )
       std::cout << "DDDividedTrdY\n";
     // Only Z divisions are supported for TGeoTrd2
-    Volume child = parent.divide( childName.c_str(), 3 /*static_cast<int>( axesmap[axis])*/,
+    Volume child = parent.divide( childName, 3 /*static_cast<int>( axesmap[axis])*/,
 				  nReplicas, offsetInCm, widthInCm );
 
     ns.context()->volumes[childName] = child;
