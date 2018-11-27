@@ -95,7 +95,7 @@ IsFromLostTrackMapProducer<T>::produce(edm::StreamID streamID, edm::Event& iEven
 
    // the map cannot be filled straight away, so create an intermediate vector
    unsigned int Nit = srcIsoTracks->size();
-   std::vector<bool> v_isFromLostTrack(Nit,-1);
+   std::vector<bool> v_isFromLostTrack(Nit,false);
 
    for (unsigned int iit=0; iit<Nit; iit++){
 
@@ -128,7 +128,7 @@ IsFromLostTrackMapProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<edm::InputTag>("lostTracks")->setComment("lost tracks collection");
 
   std::string modname;
-  modname="isFromLostTrack map producer ";
+  modname="isFromLostTrack map producer";
   descriptions.add(modname,desc);
 
 }
