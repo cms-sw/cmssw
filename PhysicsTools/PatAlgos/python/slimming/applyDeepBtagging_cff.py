@@ -42,6 +42,7 @@ def applyDeepBtagging( process, postfix="" ) :
     # delete module not used anymore (slimmedJets substitutes)
     delattr(process, 'selectedUpdatedPatJetsSlimmedDeepFlavour'+postfix)
 
+<<<<<<< HEAD
     #switch to True if needed for private tests
     enableDeepTags = False
     if enableDeepTags:
@@ -64,6 +65,16 @@ def applyDeepBtagging( process, postfix="" ) :
            btagDiscriminators = [
               'pfDeepDoubleBJetTags:probQ',
               'pfDeepDoubleBJetTags:probH',
+              'pfDeepDoubleCvLJetTags:probQCD',
+              'pfDeepDoubleCvLJetTags:probHcc',
+              'pfDeepDoubleCvBJetTags:probHbb',
+              'pfDeepDoubleCvBJetTags:probHcc',
+              'pfMassIndependentDeepDoubleBvLJetTags:probQCD',
+              'pfMassIndependentDeepDoubleBvLJetTags:probHbb',
+              'pfMassIndependentDeepDoubleCvLJetTags:probQCD',
+              'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
+              'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
+              'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
               ] + pfDeepBoostedJetTagsAll,
            postfix = 'SlimmedAK8DeepTags' + postfix,
            printWarning = False
