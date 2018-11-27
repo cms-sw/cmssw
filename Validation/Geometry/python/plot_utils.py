@@ -21,12 +21,13 @@ plots.setdefault('x_vs_R',   Plot_params(40, 'R [cm]', 'x/X_{0}', 0.0, 70.0, 0.0
 plots.setdefault('l_vs_eta', Plot_params(1010, '#eta', 'x/#lambda_{0}', 0.0, 0.73, -4.0, 4.0, '', 0, 0., 0., 0, 1))
 plots.setdefault('l_vs_phi', Plot_params(1020, '#varphi [rad]', 'x/#lambda_{0}', 0.0, 1.2, -4.0, 4.0, '', 0, 0., 0., 0, 1))
 plots.setdefault('l_vs_R',   Plot_params(1040, '#R [cm]', 'x/#lambda_{0}', 0.0, 7.5, 0.0, 1200.0, '', 0, 0., 0., 0, 1))
-plots.setdefault('x_vs_eta_vs_phi', Plot_params(30, '#eta', '#varphi', 0., 0., 0., 0., 'x/X_{0}', 0, -1., -1., 0, 1))
-plots.setdefault('l_vs_eta_vs_phi', Plot_params(1030, '#eta', '#varphi', 0., 0., 0., 0., 'x/#lambda_{0}', 0, -1, -1, 0, 1))
+plots.setdefault('x_vs_eta_vs_phi', Plot_params(30, '#eta', '#varphi', -3.2, 3.2, -5.0, 5.0, 'x/X_{0}', 0, -1., -1., 0, 1))
+plots.setdefault('l_vs_eta_vs_phi', Plot_params(1030, '#eta', '#varphi', -3.2, 3.2, -5.0, 5.0, 'x/#lambda_{0}', 0, -1, -1, 0, 1))
 plots.setdefault('x_vs_z_vs_Rsum', Plot_params(50, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '#Sigmax/X_{0}', 1, 0., 2.5, 0, 0))
 plots.setdefault('x_vs_z_vs_R', Plot_params(60, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '1/X_{0}', 1, 0.00001, 0.01, 1, 0))
 plots.setdefault('l_vs_z_vs_Rsum', Plot_params(1050, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '#Sigmax/#lambda_{0}', 1, 0., 1., 0, 0))
-plots.setdefault('l_vs_z_vs_R', Plot_params(1060, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '1/#lambda_{0}', 1, 0.001, 0.9, 1, 0))
+plots.setdefault('l_vs_z_vs_R', Plot_params(1060, 'z [mm]', 'R [mm]', 0., 1400., -3500., 3500., '1/#lambda_{0}', 1, 0.001, 0.9, 1, 0))
+plots.setdefault('l_vs_z_vs_R_geocomp', Plot_params(1060, 'z [mm]', 'R [mm]', 0., 1400., -3500., 3500., '1/#lambda_{0}', 1, 0.001, 0.9, 0, 0))
 # x_over_l_vs_eta is not extracted from the ROOT file 
 # but generated from 10 and 1010 in MaterialBudget.py
 plots.setdefault('x_over_l_vs_eta', Plot_params(10, '#eta', '(#frac{x}{X_{0}})/(#frac{x}{#lambda_{0}})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
@@ -140,10 +141,6 @@ def setTDRStyle():
 
     # For the Pad:
     tdrStyle.SetPadBorderMode(0)
-    tdrStyle.SetPadTopMargin(0.05)
-    tdrStyle.SetPadBottomMargin(0.15)
-    tdrStyle.SetPadLeftMargin(0.16)
-    tdrStyle.SetPadRightMargin(0.04)
     tdrStyle.SetPadColor(kWhite)
     tdrStyle.SetPadGridX(False)
     tdrStyle.SetPadGridY(False)
@@ -166,12 +163,12 @@ def setTDRStyle():
     tdrStyle.SetHistLineColor(1)
     tdrStyle.SetHistLineStyle(0)
     tdrStyle.SetHistLineWidth(1)
-    tdrStyle.SetEndErrorSize(2)
-    tdrStyle.SetErrorX(0.)
+    tdrStyle.SetEndErrorSize(1)
+    #tdrStyle.SetErrorX(0.)
     tdrStyle.SetMarkerStyle(20)
 
     #For the fit/function:
-    tdrStyle.SetOptFit(1)
+    tdrStyle.SetOptFit(0)
     tdrStyle.SetFitFormat("5.4g")
     tdrStyle.SetFuncColor(2)
     tdrStyle.SetFuncStyle(1)
@@ -193,31 +190,39 @@ def setTDRStyle():
     tdrStyle.SetStatW(0.15)
 
     # Margins:
-    tdrStyle.SetPadTopMargin(0.05)
-    tdrStyle.SetPadBottomMargin(0.13)
-    tdrStyle.SetPadLeftMargin(0.16)
-    tdrStyle.SetPadRightMargin(0.02)
+    tdrStyle.SetPadTopMargin(0.1)
+    tdrStyle.SetPadBottomMargin(0.1)
+    tdrStyle.SetPadLeftMargin(0.1)
+    tdrStyle.SetPadRightMargin(0.1)
 
     # For the Global title:
-    tdrStyle.SetOptTitle(0)
+    tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleFont(42)
     tdrStyle.SetTitleColor(1)
     tdrStyle.SetTitleTextColor(1)
     tdrStyle.SetTitleFillColor(10)
-    tdrStyle.SetTitleFontSize(0.05)
+    tdrStyle.SetTitleFontSize(0.0525)
+    tdrStyle.SetTitleH(0); # Set the height of the title box
+    tdrStyle.SetTitleW(0); # Set the width of the title box
+    tdrStyle.SetTitleX(0.5); # Set the position of the title box
+    tdrStyle.SetTitleY(1.0); # Set the position of the title box
+    tdrStyle.SetTitleStyle(1001);
+    tdrStyle.SetTitleBorderSize(0);
+    tdrStyle.SetTitleAlign(23)
 
     # For the axis titles:
     tdrStyle.SetTitleColor(1, "XYZ")
     tdrStyle.SetTitleFont(42, "XYZ")
-    tdrStyle.SetTitleSize(0.06, "XYZ")
-    tdrStyle.SetTitleXOffset(0.9)
-    tdrStyle.SetTitleYOffset(1.7)
+    tdrStyle.SetTitleSize(0.05, "XY")
+    tdrStyle.SetTitleSize(0.035, "Z")
+    tdrStyle.SetTitleXOffset(1.0)
+    tdrStyle.SetTitleYOffset(1.0)
 
     # For the axis labels:
     tdrStyle.SetLabelColor(1, "XYZ")
     tdrStyle.SetLabelFont(42, "XYZ")
-    tdrStyle.SetLabelOffset(0.007, "XYZ")
-    tdrStyle.SetLabelSize(0.05, "XYZ")
+    tdrStyle.SetLabelOffset(5e-3, "XYZ")
+    tdrStyle.SetLabelSize(0.03, "XYZ")
 
     # For the axis:
     tdrStyle.SetAxisColor(1, "XYZ")
