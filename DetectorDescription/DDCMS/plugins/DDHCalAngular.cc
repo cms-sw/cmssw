@@ -2,7 +2,7 @@
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 static long  algorithm(dd4hep::Detector& /* description */,
                        cms::DDParsingContext& ctxt,
@@ -39,11 +39,11 @@ static long  algorithm(dd4hep::Detector& /* description */,
   int    copy   = startCopyNo;
   double phix   = startAngle;
   for (int ii=0; ii<n; ++ii) {
+    if      (phix >= 2._pi) phix -= 2._pi;
+    else if (phix <  0)     phix += 2._pi;
     double phiy   = phix + 90._deg;
-    int    iphi   = (phix > 0) ? int(phix+0.1) : int(phix-0.1);
-    if (iphi >= 360) iphi -= 360;
     dd4hep::Rotation3D rotation;
-    if (iphi != 0) {
+    if (std::abs(phix) >= 0.1_deg) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalAngular::Creating a rotation:"
 				   << "\t90., " << phix << ", 90.," 
