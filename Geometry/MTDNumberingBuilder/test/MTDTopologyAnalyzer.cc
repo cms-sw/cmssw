@@ -1,19 +1,4 @@
-// -*- C++ -*-
-//
-// Package:    MTDTopologyAnalyzer
-// Class:      MTDTopologyAnalyzer
-// 
-/**\class MTDTopologyAnalyzer MTDTopologyAnalyzer.cc 
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-
 // system include files
-#include <memory>
 #include <iostream>
 
 // user include files
@@ -32,31 +17,20 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
+// class declaration
 //
-// class decleration
-//
-
-
-// #define PRINT(X) edm::LogInfo(X)
-#define PRINT(X) std::cout << X << ": "
 
 class MTDTopologyAnalyzer : public edm::one::EDAnalyzer<>
 {
 public:
-      explicit MTDTopologyAnalyzer( const edm::ParameterSet& );
-      ~MTDTopologyAnalyzer() override;
-
-  void beginJob() override {}
+  explicit MTDTopologyAnalyzer( const edm::ParameterSet& );
+  ~MTDTopologyAnalyzer() override = default;
+  
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
 
-private:
 };
 
 MTDTopologyAnalyzer::MTDTopologyAnalyzer( const edm::ParameterSet& iConfig )
-{}
-
-MTDTopologyAnalyzer::~MTDTopologyAnalyzer()
 {}
 
 // ------------ method called to produce the data  ------------
@@ -64,13 +38,9 @@ void
 MTDTopologyAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
 
-  PRINT("MTDTopologyAnalyzer")<< "Here I am" << std::endl;
-  //
-  // get the MTDTopology
-  //
   edm::ESHandle<MTDTopology> mtdTopo;
   iSetup.get<MTDTopologyRcd>().get( mtdTopo );     
-  PRINT("MTDTopologyAnalyzer") << "MTD topology mode = " << mtdTopo->getMTDTopologyMode() << std::endl;
+  edm::LogInfo("MTDTopologyAnalyzer") << "MTD topology mode = " << mtdTopo->getMTDTopologyMode();
     
 }
 
