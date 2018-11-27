@@ -44,9 +44,9 @@ cms::makeRotReflect( double thetaX, double phiX,
   DD3Vector y( cos( phiY ) * sin( thetaY ), sin( phiY ) * sin( thetaY ), cos( thetaY ));
   DD3Vector z( cos( phiZ ) * sin( thetaZ ), sin( phiZ ) * sin( thetaZ ), cos( thetaZ ));
 
-  double tol = 1.0e-3; // Geant4 compatible
+  constexpr double tol = 1.0e-3; // Geant4 compatible
   double check = ( x.Cross( y )).Dot( z ); // in case of a LEFT-handed orthogonal system this must be -1
-  if( fabs( 1. + check ) > tol ) {
+  if( abs( 1. + check ) > tol ) {
     except("MyDDCMS","+++ FAILED to construct Rotation is not LEFT-handed!");
   }
 
