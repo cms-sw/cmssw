@@ -21,12 +21,12 @@ for iev,event in enumerate(events_c):
 	if jet.mass() < 40 or jet.mass() > 200: continue
 
         print(jet.pt(), jet.mass())
-        print("DDB", jet.bDiscriminator("pfDeepDoubleBvLJetTags:probQCD"), jet.bDiscriminator("pfDeepDoubleBvLJetTags:probHbb") , jet.bDiscriminator("pfDeepDoubleBvLJetTags:probHcc"))
-        print("DDB", jet.bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probQCD"), jet.bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probHbb") , jet.bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probHcc"))
-        print("DDCvL", jet.bDiscriminator("pfDeepDoubleCvLJetTags:probQCD"), jet.bDiscriminator("pfDeepDoubleCvLJetTags:probHcc") , jet.bDiscriminator("pfDeepDoubleCvLJetTags:probHbb"))
-        print("DDCvL", jet.bDiscriminator("pfMassIndependentDeepDoubleCvLJetTags:probQCD"), jet.bDiscriminator("pfMassIndependentDeepDoubleCvLJetTags:probHcc") , jet.bDiscriminator("pfDeepDoubleMassIndependentCvLJetTags:probHbb"))
-        print("DDCvB", jet.bDiscriminator("pfDeepDoubleCvBJetTags:probHbb"), jet.bDiscriminator("pfDeepDoubleCvBJetTags:probHcc") , jet.bDiscriminator("pfDeepDoubleCvBJetTags:probQCD"))
-        print("DDCvB", jet.bDiscriminator("pfMassIndependentDeepDoubleCvBJetTags:probHbb"), jet.bDiscriminator("pfMassIndependentDeepDoubleCvBJetTags:probHcc") , jet.bDiscriminator("pfMassIndependentDeepDoubleCvBJetTags:probQCD"))
+        print("DDB", jet.bDiscriminator("pfDeepDoubleBvLJetTags:probQCD"), jet.bDiscriminator("pfDeepDoubleBvLJetTags:probHbb"))
+        print("DDB", jet.bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probQCD"), jet.bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probHbb"))
+        print("DDCvL", jet.bDiscriminator("pfDeepDoubleCvLJetTags:probQCD"), jet.bDiscriminator("pfDeepDoubleCvLJetTags:probHcc"))
+        print("DDCvL", jet.bDiscriminator("pfMassIndependentDeepDoubleCvLJetTags:probQCD"), jet.bDiscriminator("pfMassIndependentDeepDoubleCvLJetTags:probHcc"))
+        print("DDCvB", jet.bDiscriminator("pfDeepDoubleCvBJetTags:probHbb"), jet.bDiscriminator("pfDeepDoubleCvBJetTags:probHcc") )
+        print("DDCvB", jet.bDiscriminator("pfMassIndependentDeepDoubleCvBJetTags:probHbb"), jet.bDiscriminator("pfMassIndependentDeepDoubleCvBJetTags:probHcc"))
         h_probQ_ddb.Fill(jet.bDiscriminator("pfDeepDoubleBvLJetTags:probQCD"))
         h_probH_ddb.Fill(jet.bDiscriminator("pfDeepDoubleBvLJetTags:probHbb"))
         h_probQ_ddc.Fill(jet.bDiscriminator("pfDeepDoubleCvLJetTags:probQCD"))
