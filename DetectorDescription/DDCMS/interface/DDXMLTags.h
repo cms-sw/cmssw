@@ -137,6 +137,13 @@ namespace cms  {
   UNICODE(ChildName);
   UNICODE(rChild);
   UNICODE(Translation);
+
+  UNICODE(SpecParSection);
+  UNICODE(SpecPar);
+  UNICODE(PartSelector);
+  UNICODE(Parameter);
+  UNICODE(path);
+  UNICODE(value);
   
   UNICODE(Division);
   UNICODE(parent);
@@ -164,6 +171,7 @@ namespace cms  {
   UNICODE(debug_visattr);
   UNICODE(debug_includes);
   UNICODE(debug_algorithms);
+  UNICODE(debug_specpars);
   
   /// DD4hep specific
   UNICODE(open_geometry);
