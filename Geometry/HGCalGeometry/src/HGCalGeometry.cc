@@ -282,7 +282,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& detid) const {
   if      (cellIndex <  m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid);
     std::pair<double,double> rr = m_topology.dddConstants().cellSizeTrap(id.iType,id.iSec1);
-    float dr = 0.5*(rr.second-rr.first);
+    float dr = k_half*(rr.second-rr.first);
     float dfi= m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];
     float dz = id.zSide*m_cellVec2[cellIndex].param()[FlatTrd::k_dZ];
     float r  = v.perp();
@@ -305,7 +305,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& detid) const {
 						id.iCell1,id.iCell2,true,false);
     }
     float dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
-    float dy = 0.5*m_cellVec[cellIndex].param()[FlatHexagon::k_R];
+    float dy = k_half*m_cellVec[cellIndex].param()[FlatHexagon::k_R];
     float dz = m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
     static const int signx[] = {0,-1,-1,0,1,1,0,-1,-1,0,1,1};
     static const int signy[] = {-2,-1,1,2,1,-1,-2,-1,1,2,1,-1};
@@ -327,7 +327,7 @@ HGCalGeometry::CornersVec HGCalGeometry::get8Corners(const DetId& detid) const {
   if      (cellIndex <  m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid);
     std::pair<double,double> rr = m_topology.dddConstants().cellSizeTrap(id.iType,id.iSec1);
-    float dr = 0.5*(rr.second-rr.first);
+    float dr = k_half*(rr.second-rr.first);
     float dfi= m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];
     float dz = id.zSide*m_cellVec2[cellIndex].param()[FlatTrd::k_dZ];
     float r  = v.perp();
@@ -372,7 +372,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid) const
   if (cellIndex <  m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid);
     std::pair<double,double> rr = m_topology.dddConstants().cellSizeTrap(id.iType,id.iSec1);
-    float dr = 0.5*(rr.second-rr.first);
+    float dr = k_half*(rr.second-rr.first);
     float dfi= m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];
     float dz =-id.zSide*m_cellVec2[cellIndex].param()[FlatTrd::k_dZ];
     float r  = v.perp();
@@ -395,7 +395,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid) const
 						id.iCell1,id.iCell2,true,false);
     }
     float dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
-    float dy = 0.5*m_cellVec[cellIndex].param()[FlatHexagon::k_R];
+    float dy = k_half*m_cellVec[cellIndex].param()[FlatHexagon::k_R];
     float dz =-id.zSide*m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
     static const int signx[] = {0,-1,-1,0,1,1};
     static const int signy[] = {-2,-1,1,2,1,-1};
