@@ -31,6 +31,8 @@
 #include <cub/cub.cuh>
 
 // CMSSW includes
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuCalibPixel.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
@@ -48,114 +50,17 @@ namespace pixelgpudetails {
 
   // number of words for all the FEDs
   constexpr uint32_t MAX_FED_WORDS   = pixelgpudetails::MAX_FED * pixelgpudetails::MAX_WORD;
-  constexpr uint32_t MAX_WORD08_SIZE = MAX_FED_WORDS * sizeof(uint8_t);
-  constexpr uint32_t MAX_WORD32_SIZE = MAX_FED_WORDS * sizeof(uint32_t);
-  constexpr uint32_t MAX_WORD16_SIZE = MAX_FED_WORDS * sizeof(uint16_t);
   constexpr uint32_t MAX_ERROR_SIZE  = MAX_FED_WORDS * esize;
 
-  SiPixelRawToClusterGPUKernel::SiPixelRawToClusterGPUKernel(cuda::stream_t<>& cudaStream) {
-
-    cudaCheck(cudaMallocHost(&word,       MAX_FED_WORDS * sizeof(unsigned int)));
-    cudaCheck(cudaMallocHost(&fedId_h,    MAX_FED_WORDS * sizeof(unsigned char)));
-
-    // to store the output of RawToDigi
-    cudaCheck(cudaMallocHost(&pdigi_h,    MAX_FED_WORDS * sizeof(uint32_t)));
-    cudaCheck(cudaMallocHost(&rawIdArr_h, MAX_FED_WORDS * sizeof(uint32_t)));
-
-    cudaCheck(cudaMallocHost(&adc_h,      MAX_FED_WORDS * sizeof(uint16_t)));
-    cudaCheck(cudaMallocHost(&clus_h,     MAX_FED_WORDS * sizeof(int32_t)));
-
-    cudaCheck(cudaMallocHost(&error_h,     vsize));
-    cudaCheck(cudaMallocHost(&error_h_tmp, vsize));
-    cudaCheck(cudaMallocHost(&data_h, MAX_ERROR_SIZE));
-
-    cudaCheck(cudaMalloc((void**) & word_d,        MAX_WORD32_SIZE));
-    cudaCheck(cudaMalloc((void**) & fedId_d,       MAX_WORD08_SIZE));
-    cudaCheck(cudaMalloc((void**) & pdigi_d,       MAX_WORD32_SIZE)); // to store thepacked digi
-    cudaCheck(cudaMalloc((void**) & xx_d,          MAX_WORD16_SIZE)); // to store the x and y coordinate
-    cudaCheck(cudaMalloc((void**) & yy_d,          MAX_WORD16_SIZE));
-    cudaCheck(cudaMalloc((void**) & adc_d,         MAX_WORD16_SIZE));
-
-    cudaCheck(cudaMalloc((void**) & moduleInd_d,   MAX_WORD16_SIZE));
-    cudaCheck(cudaMalloc((void**) & rawIdArr_d,    MAX_WORD32_SIZE));
-    cudaCheck(cudaMalloc((void**) & error_d,       vsize));
-    cudaCheck(cudaMalloc((void**) & data_d,        MAX_ERROR_SIZE));
-    cudaCheck(cudaMemset(data_d, 0x00,             MAX_ERROR_SIZE));
-
-    // for the clusterizer
-    cudaCheck(cudaMalloc((void**) & clus_d,        MAX_WORD32_SIZE)); // cluser index in module
-
-    using namespace gpuClustering;
-    cudaCheck(cudaMalloc((void**) & moduleStart_d, (MaxNumModules+1)*sizeof(uint32_t) ));
-    cudaCheck(cudaMalloc((void**) & clusInModule_d,(MaxNumModules)*sizeof(uint32_t) ));
-    cudaCheck(cudaMalloc((void**) & moduleId_d,    (MaxNumModules)*sizeof(uint32_t) ));
-
-    new (error_h) GPU::SimpleVector<pixelgpudetails::error_obj>(MAX_FED_WORDS, data_h);
-    new (error_h_tmp) GPU::SimpleVector<pixelgpudetails::error_obj>(MAX_FED_WORDS, data_d);
-    assert(error_h->size() == 0);
-    assert(error_h->capacity() == static_cast<int>(MAX_FED_WORDS));
-    assert(error_h_tmp->size() == 0);
-    assert(error_h_tmp->capacity() == static_cast<int>(MAX_FED_WORDS));
-
-    // Need these in pinned memory to be truly asynchronous
-    cudaCheck(cudaMallocHost(&nModulesActive, sizeof(uint32_t)));
-    cudaCheck(cudaMallocHost(&nClusters, sizeof(uint32_t)));
-
-    cudaCheck(cudaMalloc((void**) & gpuProduct_d, sizeof(GPUProduct)));
-    gpuProduct = getProduct();
-    assert(xx_d==gpuProduct.xx_d);
-
-    cudaCheck(cudaMemcpyAsync(gpuProduct_d, &gpuProduct, sizeof(GPUProduct), cudaMemcpyDefault,cudaStream.id()));
-
-    // originally from rechits
-    cudaCheck(cudaMalloc((void**) & clusModuleStart_d, (MaxNumModules+1)*sizeof(uint32_t) ));
-    uint32_t *tmp = nullptr;
-    cudaCheck(cub::DeviceScan::InclusiveSum(nullptr, tempScanStorageSize, tmp, tmp, MaxNumModules));
-    cudaCheck(cudaMalloc(&tempScanStorage_d, tempScanStorageSize));
+  SiPixelRawToClusterGPUKernel::WordFedAppender::WordFedAppender(cuda::stream_t<>& cudaStream) {
+    edm::Service<CUDAService> cs;
+    word_ = cs->make_host_unique<unsigned int[]>(MAX_FED_WORDS, cudaStream);
+    fedId_ = cs->make_host_unique<unsigned char[]>(MAX_FED_WORDS, cudaStream);
   }
 
-  SiPixelRawToClusterGPUKernel::~SiPixelRawToClusterGPUKernel() {
-    // free the host memory
-    cudaCheck(cudaFreeHost(word));
-    cudaCheck(cudaFreeHost(fedId_h));
-    cudaCheck(cudaFreeHost(pdigi_h));
-    cudaCheck(cudaFreeHost(rawIdArr_h));
-    cudaCheck(cudaFreeHost(adc_h));
-    cudaCheck(cudaFreeHost(clus_h));
-    cudaCheck(cudaFreeHost(error_h));
-    cudaCheck(cudaFreeHost(error_h_tmp));
-    cudaCheck(cudaFreeHost(data_h));
-    cudaCheck(cudaFreeHost(nModulesActive));
-    cudaCheck(cudaFreeHost(nClusters));
-
-    // free device memory used for RawToDigi on GPU
-    // free the GPU memory
-    cudaCheck(cudaFree(word_d));
-    cudaCheck(cudaFree(fedId_d));
-    cudaCheck(cudaFree(pdigi_d));
-    cudaCheck(cudaFree(xx_d));
-    cudaCheck(cudaFree(yy_d));
-    cudaCheck(cudaFree(adc_d));
-    cudaCheck(cudaFree(moduleInd_d));
-    cudaCheck(cudaFree(rawIdArr_d));
-    cudaCheck(cudaFree(error_d));
-    cudaCheck(cudaFree(data_d));
-
-    // these are for the clusterizer
-    cudaCheck(cudaFree(moduleStart_d));
-    cudaCheck(cudaFree(clus_d));
-    cudaCheck(cudaFree(clusInModule_d));
-    cudaCheck(cudaFree(moduleId_d));
-    cudaCheck(cudaFree(gpuProduct_d));
-
-    // originally from rechits
-    cudaCheck(cudaFree(tempScanStorage_d));
-    cudaCheck(cudaFree(clusModuleStart_d));
-  }
-
-  void SiPixelRawToClusterGPUKernel::initializeWordFed(int fedId, unsigned int wordCounterGPU, const cms_uint32_t *src, unsigned int length) {
-    std::memcpy(word+wordCounterGPU, src, sizeof(cms_uint32_t)*length);
-    std::memset(fedId_h+wordCounterGPU/2, fedId - 1200, length/2);
+  void SiPixelRawToClusterGPUKernel::WordFedAppender::initializeWordFed(int fedId, unsigned int wordCounterGPU, const cms_uint32_t *src, unsigned int length) {
+    std::memcpy(word_.get()+wordCounterGPU, src, sizeof(cms_uint32_t)*length);
+    std::memset(fedId_.get()+wordCounterGPU/2, fedId - 1200, length/2);
   }
 
   ////////////////////
@@ -613,6 +518,7 @@ namespace pixelgpudetails {
       const SiPixelFedCablingMapGPU *cablingMap,
       const unsigned char *modToUnp,
       const SiPixelGainForHLTonGPU *gains,
+      const WordFedAppender& wordFed,
       const uint32_t wordCounter, const uint32_t fedCounter,
       bool convertADCtoElectrons,
       bool useQualityInfo, bool includeErrors, bool transferToCPU, bool debug,
@@ -620,52 +526,82 @@ namespace pixelgpudetails {
   {
     nDigis = wordCounter;
 
-    const int threadsPerBlock = 512;
-    const int blocks = (wordCounter + threadsPerBlock-1) /threadsPerBlock; // fill it all
+    constexpr uint32_t MAX_FED_WORDS   = pixelgpudetails::MAX_FED * pixelgpudetails::MAX_WORD;
+    digis_d = SiPixelDigisCUDA(MAX_FED_WORDS, stream);
+    clusters_d = SiPixelClustersCUDA(MAX_FED_WORDS, gpuClustering::MaxNumModules, stream);
 
-    assert(0 == wordCounter%2);
-    // wordCounter is the total no of words in each event to be trasfered on device
-    cudaCheck(cudaMemcpyAsync(&word_d[0],  &word[0],    wordCounter*sizeof(uint32_t),    cudaMemcpyDefault, stream.id()));
-    cudaCheck(cudaMemcpyAsync(&fedId_d[0], &fedId_h[0], wordCounter*sizeof(uint8_t) / 2, cudaMemcpyDefault, stream.id()));
-    cudaCheck(cudaMemcpyAsync(error_d, error_h_tmp, vsize, cudaMemcpyDefault, stream.id()));
+    edm::Service<CUDAService> cs;
+    digis_clusters_h.nModules_Clusters = cs->make_host_unique<uint32_t[]>(2, stream);
 
-    // Launch rawToDigi kernel
-    RawToDigi_kernel<<<blocks, threadsPerBlock, 0, stream.id()>>>(
-        cablingMap,
-        modToUnp,
-        wordCounter,
-        word_d,
-        fedId_d,
-        xx_d, yy_d, adc_d,
-        pdigi_d,
-        rawIdArr_d,
-        moduleInd_d,
-        error_d,
-        useQualityInfo,
-        includeErrors,
-        debug);
-    cudaCheck(cudaGetLastError());
+    {
+      const int threadsPerBlock = 512;
+      const int blocks = (wordCounter + threadsPerBlock-1) /threadsPerBlock; // fill it all
 
-    // copy data to host variable
-    if(transferToCPU) {
-      cudaCheck(cudaMemcpyAsync(pdigi_h, pdigi_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
-      cudaCheck(cudaMemcpyAsync(rawIdArr_h, rawIdArr_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+      assert(0 == wordCounter%2);
+      // wordCounter is the total no of words in each event to be trasfered on device
+      auto word_d = cs->make_device_unique<uint32_t[]>(wordCounter, stream);
+      auto fedId_d = cs->make_device_unique<uint8_t[]>(wordCounter, stream);
 
-      if (includeErrors) {
-        cudaCheck(cudaMemcpyAsync(error_h, error_d, vsize, cudaMemcpyDefault, stream.id()));
-        cudaCheck(cudaMemcpyAsync(data_h, data_d, MAX_ERROR_SIZE, cudaMemcpyDefault, stream.id()));
-        // If we want to transfer only the minimal amount of data, we
-        // need a synchronization point. A single ExternalWork (of
-        // SiPixelRawToClusterHeterogeneous) does not help because it is
-        // already used to synchronize the data movement. So we'd need
-        // two ExternalWorks (or explicit use of TBB tasks). The
-        // prototype of #100 would allow this easily (as there would be
-        // two ExternalWorks).
-        //
-        //error_h->set_data(data_h);
-        //cudaCheck(cudaStreamSynchronize(stream.id()));
-        //int size = error_h->size();
-        //cudaCheck(cudaMemcpyAsync(data_h, data_d, size*esize, cudaMemcpyDefault, stream.id()));
+      auto error_d = cs->make_device_unique<GPU::SimpleVector<pixelgpudetails::error_obj>>(stream);
+      auto data_d = cs->make_device_unique<pixelgpudetails::error_obj[]>(MAX_FED_WORDS, stream);
+      cudaCheck(cudaMemsetAsync(data_d.get(), 0x00, MAX_ERROR_SIZE, stream.id()));
+      auto error_h_tmp = cs->make_host_unique<GPU::SimpleVector<pixelgpudetails::error_obj>>(stream);
+      new (error_h_tmp.get()) GPU::SimpleVector<pixelgpudetails::error_obj>(MAX_FED_WORDS, data_d.get()); // should make_host_unique() call the constructor as well? note that even if std::make_unique does that, we can't do that in make_device_unique
+      assert(error_h_tmp->size() == 0);
+      assert(error_h_tmp->capacity() == static_cast<int>(MAX_FED_WORDS));
+
+      cudaCheck(cudaMemcpyAsync(word_d.get(),  wordFed.word(), wordCounter*sizeof(uint32_t),    cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpyAsync(fedId_d.get(), wordFed.fedId(), wordCounter*sizeof(uint8_t) / 2, cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpyAsync(error_d.get(), error_h_tmp.get(), vsize, cudaMemcpyDefault, stream.id()));
+
+      auto pdigi_d = cs->make_device_unique<uint32_t[]>(wordCounter, stream);
+      auto rawIdArr_d = cs->make_device_unique<uint32_t[]>(wordCounter, stream);
+
+      // Launch rawToDigi kernel
+      RawToDigi_kernel<<<blocks, threadsPerBlock, 0, stream.id()>>>(
+          cablingMap,
+          modToUnp,
+          wordCounter,
+          word_d.get(),
+          fedId_d.get(),
+          digis_d.xx(), digis_d.yy(), digis_d.adc(),
+          pdigi_d.get(),
+          rawIdArr_d.get(),
+          digis_d.moduleInd(),
+          error_d.get(),
+          useQualityInfo,
+          includeErrors,
+          debug);
+      cudaCheck(cudaGetLastError());
+
+      // copy data to host variable
+      if(transferToCPU) {
+        digis_clusters_h.pdigi = cs->make_host_unique<uint32_t[]>(MAX_FED_WORDS, stream);
+        digis_clusters_h.rawIdArr = cs->make_host_unique<uint32_t[]>(MAX_FED_WORDS, stream);
+        cudaCheck(cudaMemcpyAsync(digis_clusters_h.pdigi.get(), pdigi_d.get(), wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+        cudaCheck(cudaMemcpyAsync(digis_clusters_h.rawIdArr.get(), rawIdArr_d.get(), wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+
+        if (includeErrors) {
+          digis_clusters_h.data = cs->make_host_unique<pixelgpudetails::error_obj[]>(MAX_FED_WORDS, stream);
+          digis_clusters_h.error = cs->make_host_unique<GPU::SimpleVector<pixelgpudetails::error_obj>>(stream);
+          new (digis_clusters_h.error.get()) GPU::SimpleVector<pixelgpudetails::error_obj>(MAX_FED_WORDS, digis_clusters_h.data.get());
+          assert(digis_clusters_h.error->size() == 0);
+          assert(digis_clusters_h.error->capacity() == static_cast<int>(MAX_FED_WORDS));
+
+          cudaCheck(cudaMemcpyAsync(digis_clusters_h.error.get(), error_d.get(), vsize, cudaMemcpyDefault, stream.id()));
+          cudaCheck(cudaMemcpyAsync(digis_clusters_h.data.get(), data_d.get(), MAX_ERROR_SIZE, cudaMemcpyDefault, stream.id()));
+          // If we want to transfer only the minimal amount of data, we
+          // need a synchronization point. A single ExternalWork (of
+          // SiPixelRawToClusterHeterogeneous) does not help because it is
+          // already used to synchronize the data movement. So we'd need
+          // two ExternalWorks (or explicit use of TBB tasks). The
+          // prototype of #100 would allow this easily (as there would be
+          // two ExternalWorks).
+          //
+          //cudaCheck(cudaStreamSynchronize(stream.id()));
+          //int size = digis_clusters_h.error->size();
+          //cudaCheck(cudaMemcpyAsync(digis_clusters_h.data.get(), data_d.get(), size*esize, cudaMemcpyDefault, stream.id()));
+        }
       }
     }
     // End  of Raw2Digi and passing data for cluserisation
@@ -677,15 +613,16 @@ namespace pixelgpudetails {
       int blocks = (wordCounter + threadsPerBlock - 1) / threadsPerBlock;
 
       gpuCalibPixel::calibDigis<<<blocks, threadsPerBlock, 0, stream.id()>>>(
-          moduleInd_d,
-          xx_d, yy_d, adc_d,
+          digis_d.moduleInd(),
+          digis_d.c_xx(), digis_d.c_yy(), digis_d.adc(),
           gains,
           wordCounter);
       cudaCheck(cudaGetLastError());
 
       // calibrated adc
       if(transferToCPU) {
-        cudaCheck(cudaMemcpyAsync(adc_h, adc_d, wordCounter*sizeof(uint16_t), cudaMemcpyDefault, stream.id()));
+        digis_clusters_h.adc = cs->make_host_unique<uint16_t[]>(MAX_FED_WORDS, stream);
+        cudaCheck(cudaMemcpyAsync(digis_clusters_h.adc.get(), digis_d.adc(), wordCounter*sizeof(uint16_t), cudaMemcpyDefault, stream.id()));
       }
 
 #ifdef GPU_DEBUG
@@ -694,13 +631,13 @@ namespace pixelgpudetails {
          << " blocks of " << threadsPerBlock << " threads\n";
 #endif
 
-      cudaCheck(cudaMemsetAsync(moduleStart_d, 0x00, sizeof(uint32_t), stream.id()));
+      cudaCheck(cudaMemsetAsync(clusters_d.moduleStart(), 0x00, sizeof(uint32_t), stream.id()));
 
-      countModules<<<blocks, threadsPerBlock, 0, stream.id()>>>(moduleInd_d, moduleStart_d, clus_d, wordCounter);
+      countModules<<<blocks, threadsPerBlock, 0, stream.id()>>>(digis_d.c_moduleInd(), clusters_d.moduleStart(), clusters_d.clus(), wordCounter);
       cudaCheck(cudaGetLastError());
 
       // read the number of modules into a data member, used by getProduct())
-      cudaCheck(cudaMemcpyAsync(nModulesActive, moduleStart_d, sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpyAsync(&(digis_clusters_h.nModules_Clusters[0]), clusters_d.moduleStart(), sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
 
       threadsPerBlock = 256;
       blocks = MaxNumModules;
@@ -708,23 +645,23 @@ namespace pixelgpudetails {
          std::cout << "CUDA findClus kernel launch with " << blocks
          << " blocks of " << threadsPerBlock << " threads\n";
 #endif
-      cudaCheck(cudaMemsetAsync(clusInModule_d, 0, (MaxNumModules)*sizeof(uint32_t), stream.id()));
+      cudaCheck(cudaMemsetAsync(clusters_d.clusInModule(), 0, (MaxNumModules)*sizeof(uint32_t), stream.id()));
       findClus<<<blocks, threadsPerBlock, 0, stream.id()>>>(
-          moduleInd_d,
-          xx_d, yy_d,
-          moduleStart_d,
-          clusInModule_d, moduleId_d,
-          clus_d,
+          digis_d.c_moduleInd(),
+          digis_d.c_xx(), digis_d.c_yy(),
+          clusters_d.c_moduleStart(),
+          clusters_d.clusInModule(), clusters_d.moduleId(),
+          clusters_d.clus(),
           wordCounter);
       cudaCheck(cudaGetLastError());
 
       // apply charge cut
       clusterChargeCut<<<blocks, threadsPerBlock, 0, stream.id()>>>(
-          moduleInd_d,
-          adc_d,
-          moduleStart_d,
-          clusInModule_d, moduleId_d,
-          clus_d,
+          digis_d.moduleInd(),
+          digis_d.c_adc(),
+          clusters_d.c_moduleStart(),
+          clusters_d.clusInModule(), clusters_d.c_moduleId(),
+          clusters_d.clus(),
           wordCounter);
       cudaCheck(cudaGetLastError());
 
@@ -735,19 +672,27 @@ namespace pixelgpudetails {
       // available in the rechit producer without additional points of
       // synchronization/ExternalWork
       //
+      // Temporary storage
+      size_t tempScanStorageSize = 0;
+      {
+        uint32_t *tmp = nullptr;
+        cudaCheck(cub::DeviceScan::InclusiveSum(nullptr, tempScanStorageSize, tmp, tmp, MaxNumModules));
+      }
+      auto tempScanStorage_d = cs->make_device_unique<uint32_t[]>(tempScanStorageSize, stream);
       // Set first the first element to 0
-      cudaCheck(cudaMemsetAsync(clusModuleStart_d, 0, sizeof(uint32_t), stream.id()));
+      cudaCheck(cudaMemsetAsync(clusters_d.clusModuleStart(), 0, sizeof(uint32_t), stream.id()));
       // Then use inclusive_scan to get the partial sum to the rest
-      cudaCheck(cub::DeviceScan::InclusiveSum(tempScanStorage_d, tempScanStorageSize,
-                                              clusInModule_d, &clusModuleStart_d[1], gpuClustering::MaxNumModules,
+      cudaCheck(cub::DeviceScan::InclusiveSum(tempScanStorage_d.get(), tempScanStorageSize,
+                                              clusters_d.c_clusInModule(), &clusters_d.clusModuleStart()[1], gpuClustering::MaxNumModules,
                                               stream.id()));
       // last element holds the number of all clusters
-      cudaCheck(cudaMemcpyAsync(nClusters, clusModuleStart_d+gpuClustering::MaxNumModules, sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpyAsync(&(digis_clusters_h.nModules_Clusters[1]), clusters_d.clusModuleStart()+gpuClustering::MaxNumModules, sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
 
 
       // clusters
       if(transferToCPU) {
-        cudaCheck(cudaMemcpyAsync(clus_h, clus_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+        digis_clusters_h.clus = cs->make_host_unique<int32_t[]>(MAX_FED_WORDS, stream);
+        cudaCheck(cudaMemcpyAsync(digis_clusters_h.clus.get(), clusters_d.clus(), wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
       }
     } // end clusterizer scope
   }

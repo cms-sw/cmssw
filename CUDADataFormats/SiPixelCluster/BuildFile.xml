@@ -1,0 +1,8 @@
+<use name="FWCore/ServiceRegistry"/>
+<use name="HeterogeneousCore/CUDAServices"/>
+<use name="cuda-api-wrappers"/>
+
+<export>
+    <lib name="1"/>
+</export>
+

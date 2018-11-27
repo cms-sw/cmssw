@@ -7,6 +7,8 @@
 <use   name="RecoTracker/Record"/>
 <use   name="CalibTracker/SiPixelESProducers"/>
 <use   name="EventFilter/SiPixelRawToDigi"/>
+<use   name="CUDADataFormats/SiPixelDigi"/>
+<use   name="CUDADataFormats/SiPixelCluster"/>
 <use   name="HeterogeneousCore/Producer"/>
 <use   name="HeterogeneousCore/Product"/>
 <use   name="HeterogeneousCore/CUDACore"/>
