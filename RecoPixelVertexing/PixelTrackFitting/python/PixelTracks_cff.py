@@ -67,24 +67,26 @@ pixelTracks = _pixelTracks.clone(
 )
 trackingLowPU.toModify(pixelTracks, SeedingHitSets = "pixelTracksHitTriplets")
 
-pixelTracksSequence = cms.Sequence(
-    pixelTracksTrackingRegions +
-    pixelFitterByHelixProjections +
-    pixelTrackFilterByKinematics +
-    pixelTracksSeedLayers +
-    pixelTracksHitDoublets +
-    pixelTracksHitQuadruplets +
+pixelTracksTask = cms.Task(
+    pixelTracksTrackingRegions,
+    pixelFitterByHelixProjections,
+    pixelTrackFilterByKinematics,
+    pixelTracksSeedLayers,
+    pixelTracksHitDoublets,
+    pixelTracksHitQuadruplets,
     pixelTracks
 )
-_pixelTracksSequence_lowPU = pixelTracksSequence.copy()
-_pixelTracksSequence_lowPU.replace(pixelTracksHitQuadruplets, pixelTracksHitTriplets)
-trackingLowPU.toReplaceWith(pixelTracksSequence, _pixelTracksSequence_lowPU)
+_pixelTracksTask_lowPU = pixelTracksTask.copy()
+_pixelTracksTask_lowPU.replace(pixelTracksHitQuadruplets, pixelTracksHitTriplets)
+trackingLowPU.toReplaceWith(pixelTracksTask, _pixelTracksTask_lowPU)
 
 # Use Riemann fit and substitute previous Fitter producer with the Riemann one
 from Configuration.ProcessModifiers.riemannFit_cff import riemannFit
 from Configuration.ProcessModifiers.riemannFitGPU_cff import riemannFitGPU
 riemannFit.toModify(pixelTracks, Fitter = "pixelFitterByRiemannParaboloid")
 riemannFitGPU.toModify(pixelTracks, runOnGPU = True)
-_pixelTracksSequence_riemannFit = pixelTracksSequence.copy()
-_pixelTracksSequence_riemannFit.replace(pixelFitterByHelixProjections, pixelFitterByRiemannParaboloid)
-riemannFit.toReplaceWith(pixelTracksSequence, _pixelTracksSequence_riemannFit)
+_pixelTracksTask_riemannFit = pixelTracksTask.copy()
+_pixelTracksTask_riemannFit.replace(pixelFitterByHelixProjections, pixelFitterByRiemannParaboloid)
+riemannFit.toReplaceWith(pixelTracksTask, _pixelTracksTask_riemannFit)
+
+pixelTracksSequence = cms.Sequence(pixelTracksTask)

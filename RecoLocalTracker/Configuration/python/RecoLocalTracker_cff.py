@@ -13,9 +13,13 @@ from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerPreSplitting_cfi impo
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
 from RecoLocalTracker.SubCollectionProducers.clustersummaryproducer_cfi import *
 
-pixeltrackerlocalreco = cms.Sequence(siPixelClustersPreSplitting*siPixelRecHitsPreSplitting)
-striptrackerlocalreco = cms.Sequence(siStripZeroSuppression*siStripClusters*siStripMatchedRecHits)
-trackerlocalreco = cms.Sequence(pixeltrackerlocalreco*striptrackerlocalreco*clusterSummaryProducer)
+pixeltrackerlocalrecoTask = cms.Task(siPixelClustersPreSplitting,siPixelRecHitsPreSplitting)
+striptrackerlocalrecoTask = cms.Task(siStripZeroSuppression,siStripClusters,siStripMatchedRecHits)
+trackerlocalrecoTask = cms.Task(pixeltrackerlocalrecoTask,striptrackerlocalrecoTask,clusterSummaryProducer)
+
+pixeltrackerlocalreco = cms.Sequence(pixeltrackerlocalrecoTask)
+striptrackerlocalreco = cms.Sequence(striptrackerlocalrecoTask)
+trackerlocalreco = cms.Sequence(trackerlocalrecoTask)
 
 from Configuration.ProcessModifiers.gpu_cff import gpu
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitHeterogeneous_cfi import siPixelRecHitHeterogeneous as _siPixelRecHitHeterogeneous
@@ -24,15 +28,7 @@ gpu.toReplaceWith(siPixelRecHitsPreSplitting, _siPixelRecHitHeterogeneous)
 from RecoLocalTracker.SiPhase2Clusterizer.phase2TrackerClusterizer_cfi import *
 from RecoLocalTracker.Phase2TrackerRecHits.Phase2StripCPEGeometricESProducer_cfi import *
 
-phase2_tracker.toReplaceWith(pixeltrackerlocalreco,
-  cms.Sequence(
-          siPhase2Clusters +
-          siPixelClustersPreSplitting +
-          siPixelRecHitsPreSplitting
-  )
-)
-phase2_tracker.toReplaceWith(trackerlocalreco,
-  cms.Sequence(
-          pixeltrackerlocalreco*clusterSummaryProducer
-  )
-)
+_pixeltrackerlocalrecoTask_phase2 = pixeltrackerlocalrecoTask.copy()
+_pixeltrackerlocalrecoTask_phase2.add(siPhase2Clusters)
+phase2_tracker.toReplaceWith(pixeltrackerlocalrecoTask, _pixeltrackerlocalrecoTask_phase2)
+phase2_tracker.toReplaceWith(trackerlocalrecoTask, trackerlocalrecoTask.copyAndExclude([striptrackerlocalrecoTask]))
