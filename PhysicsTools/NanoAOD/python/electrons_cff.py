@@ -204,9 +204,9 @@ run2_nanoAOD_94X2016.toModify(slimmedElectronsWithUserData.userFloats,
     mvaFall17V2noIso = None,
 )
 run2_nanoAOD_94XMiniAODv1.toModify(slimmedElectronsWithUserData.userFloats,
-    ecalTrkEnergyErrPostCorr = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyErrPostCorr"),
-    ecalTrkEnergyPreCorr     = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPreCorr"),
-    ecalTrkEnergyPostCorr    = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPostCorr"),
+    ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyErrPostCorr"),
+    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPreCorr"),
+    ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPostCorr"),
 )
 
 #the94X miniAOD V2 had a bug in the scale and smearing for electrons in the E/p comb
@@ -214,7 +214,7 @@ run2_nanoAOD_94XMiniAODv1.toModify(slimmedElectronsWithUserData.userFloats,
 #for technical reasons
 run2_nanoAOD_94XMiniAODv2.toModify(slimmedElectronsWithUserData.userFloats,
     ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyErrPostCorr"),
-    ecalTrkEnergyPreCorrNew  = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPreCorr"),
+    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPreCorr"),
     ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPostCorr"),
 )
 
@@ -353,7 +353,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 # scale and smearing only when available
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94X2016:
+for modifier in run2_nanoAOD_94X2016,:
     modifier.toModify(electronTable.variables,
         pt = Var("pt*userFloat('ecalTrkEnergyPostCorr')/userFloat('ecalTrkEnergyPreCorr')", float, precision=-1, doc="p_{T}"),
         energyErr = Var("userFloat('ecalTrkEnergyErrPostCorr')", float, precision=6, doc="energy error of the cluster-track combination"),
@@ -363,11 +363,11 @@ for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94X2016:
 #the94X miniAOD V2 had a bug in the scale and smearing for electrons in the E/p comb
 #therefore we redo it but but we need use a new name for the userFloat as we cant override existing userfloats
 #for technical reasons
-
-run2_nanoAOD_94XMiniAODv2.toModify(electronTable.variables,
-    pt = Var("pt*userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
-    energyErr = Var("userFloat('ecalTrkEnergyErrPostCorrNew')", float, precision=6, doc="energy error of the cluster-track combination"),
-    eCorr = Var("userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, doc="ratio of the calibrated energy/miniaod energy"),
+for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,:
+    modifier.toModify(electronTable.variables,            
+        pt = Var("pt*userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
+        energyErr = Var("userFloat('ecalTrkEnergyErrPostCorrNew')", float, precision=6, doc="energy error of the cluster-track combination"),
+        eCorr = Var("userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, doc="ratio of the calibrated energy/miniaod energy"),
 )
 
 run2_nanoAOD_94X2016.toModify(electronTable.variables,
