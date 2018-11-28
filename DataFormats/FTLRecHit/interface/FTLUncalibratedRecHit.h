@@ -30,6 +30,8 @@ class FTLUncalibratedRecHit {
 
   float timeError() const {return timeError_; }
 
+  unsigned char flags() const { return flags_; };
+
   DetId  id() const { return id_; }
   int row() const { return row_; }
   int column() const { return column_; }
