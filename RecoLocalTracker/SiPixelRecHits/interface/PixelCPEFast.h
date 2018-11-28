@@ -41,7 +41,7 @@ public:
                    const SiPixelGenErrorDBObject *, const SiPixelLorentzAngle *);
    
    
-   ~PixelCPEFast();
+   ~PixelCPEFast() override;
 
     // The return value can only be used safely in kernels launched on
     // the same cudaStream, or after cudaStreamSynchronize.
