@@ -313,7 +313,6 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
     valid = false;
   }
-  reco::TrackCollection::const_iterator trkItr;
 
   edm::Handle<reco::VertexCollection> recVtxs;
   iEvent.getByToken(tok_recVtx_, recVtxs);  
@@ -557,8 +556,8 @@ AlCaIsoTracksProducer::select(edm::Handle<edm::TriggerResults>& triggerResults,
 				   (trkDetItr->pointHCAL).phi(),
 				   detId.ieta(), detId.iphi());
 	int indx(0);
-	reco::TrackCollection::const_iterator trkItr1;
-	for (trkItr1=trkCollection->begin(); trkItr1 != trkCollection->end(); ++trkItr1,++indx) {
+	for (reco::TrackCollection::const_iterator trkItr1=trkCollection->begin(); 
+	     trkItr1 != trkCollection->end(); ++trkItr1,++indx) {
 	  const reco::Track* pTrack1 = &(*trkItr1);
 	  if (pTrack1 == pTrack) {
 	    reco::TrackRef tRef = reco::TrackRef(trkCollection,indx);
