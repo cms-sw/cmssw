@@ -17,8 +17,8 @@ for iev,event in enumerate(events_c):
     event.getByLabel (labelJ, handleJ)
     jets = handleJ.product()
     for jet in jets  :
-	if jet.pt() < 300 or jet.pt() > 2000: continue
-	if jet.mass() < 40 or jet.mass() > 200: continue
+        if jet.pt() < 300 or jet.pt() > 2000: continue
+        if jet.mass() < 40 or jet.mass() > 200: continue
 
         print(jet.pt(), jet.mass())
         print("DDB", jet.bDiscriminator("pfDeepDoubleBvLJetTags:probQCD"), jet.bDiscriminator("pfDeepDoubleBvLJetTags:probHbb"))
