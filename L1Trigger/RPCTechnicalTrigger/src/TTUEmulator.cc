@@ -15,110 +15,56 @@
 // 2008-10-15 : Andres Osorio
 //-----------------------------------------------------------------------------
 
+namespace {
+  constexpr std::array<int, 6> wheelIds = { {1,  2, 0, 0, -1, -2} };
+}
+
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-TTUEmulator::TTUEmulator( int id, int mxw  ) 
+TTUEmulator::TTUEmulator( int id, int mxw  ):
+  m_maxWheels{mxw},
+  m_id{id},
+  m_mode{1},
+  m_line{1},
+  m_debug{ false }
 {
-  
-  m_id        = id;
-  m_maxWheels = mxw;
-  
-  int tmp[6]  = {1,  2, 0, 0, -1, -2};
-  m_wheelIds = new int[6];
-  for( int k=0; k < 6; ++k) m_wheelIds[k]=tmp[k];
-  
-  m_Wheels = new RPCWheel[2];
   for( int k=0; k < m_maxWheels; ++k ) 
-    m_Wheels[k].setProperties( m_wheelIds[(id*2)+(k-2)] );
-  
-  m_ttuin = new TTUInput[2];
-  
-  m_trigger.reset();
-  
-  m_mode = 1;
-  
-  m_debug = false;
-  
-  m_line = 1;
-  
+    m_Wheels[k].setProperties( wheelIds[(id*2)+(k-2)] );
 }
 
 
-TTUEmulator::TTUEmulator( int id, const char * rbclogic_type, const char * ttulogic_type, int mxw  ) 
+TTUEmulator::TTUEmulator( int id, const char * rbclogic_type, const char * ttulogic_type, int mxw  ):
+  m_maxWheels{mxw},
+  m_id{id},
+  m_mode{1},
+  m_line{1},
+  m_ttuconf{std::make_unique<TTUBasicConfig>(ttulogic_type)},
+  m_debug{false}
 {
-  
-  m_id        = id;
-  m_maxWheels = mxw;
-
-  int tmp[6]  = {1,  2, 0, 0, -1, -2};
-  m_wheelIds = new int[6];
-  for( int k=0; k < 6; ++k) m_wheelIds[k]=tmp[k];
-  
-  m_Wheels = new RPCWheel[2];
   for( int k=0; k < m_maxWheels; ++k ) 
-    m_Wheels[k].setProperties( m_wheelIds[(id*2)+(k-2)], rbclogic_type );
-  
-  m_ttuin = new TTUInput[2];
-  
-  m_ttuconf   = dynamic_cast<TTUConfiguration*> (new TTUBasicConfig (ttulogic_type));
-  
-  m_trigger.reset();
-  
-  m_mode = 1;
-
-  m_debug = false;
-
-  m_line = 1;
-  
+    m_Wheels[k].setProperties( wheelIds[(id*2)+(k-2)], rbclogic_type ); 
 }
 
 TTUEmulator::TTUEmulator( int id, const char * f_name, const char * rbclogic_type, 
-                          const char * ttulogic_type, int mxw  ) 
+                          const char * ttulogic_type, int mxw  ) :
+  m_maxWheels{mxw},
+  m_id{id},
+  m_mode{1},
+  m_line{1},
+  m_ttuconf{std::make_unique<TTUBasicConfig>(ttulogic_type)},
+  m_debug{false}
 {
   
-  m_id        = id;
-  m_maxWheels = mxw;
-
-  int tmp[6]  = {1,  2, 0, 0, -1, -2};
-  m_wheelIds = new int[6];
-  for( int k=0; k < 6; ++k) m_wheelIds[k]=tmp[k];
-  
-  m_Wheels = new RPCWheel[2];
   for( int k=0; k < m_maxWheels; ++k ) 
-    m_Wheels[k].setProperties( m_wheelIds[(id*2)+(k-2)], f_name, rbclogic_type );
-  
-  m_ttuin = new TTUInput[2];
-  
-  m_ttuconf   = dynamic_cast<TTUConfiguration*> (new TTUBasicConfig (ttulogic_type));
-  
-  m_trigger.reset();
-  
-  m_mode = 1;
-  
-  m_debug = false;
-
-  m_line = 1;
-  
+    m_Wheels[k].setProperties( wheelIds[(id*2)+(k-2)], f_name, rbclogic_type );
 }
-
-//=============================================================================
-// Destructor
-//=============================================================================
-TTUEmulator::~TTUEmulator() {
-
-  if ( m_wheelIds ) delete[] m_wheelIds;
-  if ( m_Wheels   ) delete[] m_Wheels;
-  if ( m_ttuin    ) delete[] m_ttuin;
-  if ( m_ttuconf  ) delete m_ttuconf;
-  
-} 
 
 //=============================================================================
 void TTUEmulator::setSpecifications( const TTUBoardSpecs * ttuspecs, const RBCBoardSpecs * rbcspecs) 
 {
   
-  m_ttuconf   = dynamic_cast<TTUConfiguration*> (new TTUBasicConfig (ttuspecs));
+  m_ttuconf   = std::make_unique<TTUBasicConfig>(ttuspecs);
   
   for( int k=0; k < m_maxWheels; ++k)
     m_Wheels[k].setSpecifications( rbcspecs );
@@ -190,9 +136,8 @@ void TTUEmulator::processTtu( RPCInputSignal * signal )
   bxItr = unique (bxVec.begin(), bxVec.end());
   bxVec.resize(bxItr - bxVec.begin());
   
+  m_triggerBxVec.reserve(m_triggerBxVec.size()+bxVec.size());
   for ( bxItr = bxVec.begin(); bxItr != bxVec.end(); ++bxItr) {
-    
-    TriggerResponse * triggerResponse = new TriggerResponse();
     
     for( int k=0; k < m_maxWheels; ++k )
     {
@@ -204,10 +149,10 @@ void TTUEmulator::processTtu( RPCInputSignal * signal )
         m_Wheels[k].retrieveWheelMap( (m_ttuin[k]) );
         
         //.. execute selected logic at Ttu level
-        m_ttuconf->m_ttulogic->run( (m_ttuin[k]) );
+        m_ttuconf->ttulogic()->run( (m_ttuin[k]) );
         
         //... and produce a Wheel level trigger
-        trg = m_ttuconf->m_ttulogic->isTriggered();
+        trg = m_ttuconf->ttulogic()->isTriggered();
         
         m_trigger.set(k,trg);
         
@@ -221,9 +166,9 @@ void TTUEmulator::processTtu( RPCInputSignal * signal )
       
     }
 
+    auto& triggerResponse = m_triggerBxVec.emplace_back();
     
-    triggerResponse->setTriggerBits( (*bxItr) , m_trigger );
-    m_triggerBxVec.push_back( triggerResponse );
+    triggerResponse.setTriggerBits( (*bxItr) , m_trigger );
     m_triggerBx[ (*bxItr) ] = m_trigger;
     
   }
@@ -272,10 +217,10 @@ void TTUEmulator::processTtu( RPCInputSignal * signal , int wedgeId )
   bxItr = unique (bxVec.begin(), bxVec.end());
   bxVec.resize(bxItr - bxVec.begin());
   
+  m_triggerBxVec.reserve(m_triggerBxVec.size()+bxVec.size());
+
   for ( bxItr = bxVec.begin(); bxItr != bxVec.end(); ++bxItr) {
-    
-    TriggerResponse * triggerResponse = new TriggerResponse();
-    
+        
     for( int k=0; k < m_maxWheels; ++k )
     {
       
@@ -286,10 +231,10 @@ void TTUEmulator::processTtu( RPCInputSignal * signal , int wedgeId )
         m_Wheels[k].retrieveWheelMap( (m_ttuin[k]) );
         
         //.. execute selected logic at Ttu level
-        m_ttuconf->m_ttulogic->run( (m_ttuin[k]) , wedgeId );
+        m_ttuconf->ttulogic()->run( (m_ttuin[k]) , wedgeId );
         
         //... and produce a Wheel-Wedge level trigger
-        trg = m_ttuconf->m_ttulogic->isTriggered();
+        trg = m_ttuconf->ttulogic()->isTriggered();
         
         m_trigger.set(k,trg);
         
@@ -303,10 +248,9 @@ void TTUEmulator::processTtu( RPCInputSignal * signal , int wedgeId )
       
     }
     
-    triggerResponse->setTriggerBits( (*bxItr) , wedgeId, m_trigger );
-    m_triggerBxVec.push_back( triggerResponse );
+    auto& triggerResponse = m_triggerBxVec.emplace_back();
+    triggerResponse.setTriggerBits( (*bxItr) , wedgeId, m_trigger );
     m_triggerBx[ (*bxItr) ] = m_trigger;
-    
   }
   
   if( m_debug ) std::cout << "TTUEmulator::processTtu (Pointing) > size of trigger map " 
@@ -323,17 +267,12 @@ void TTUEmulator::processTtu( RPCInputSignal * signal , int wedgeId )
 
 void TTUEmulator::clearTriggerResponse()
 {
-  
-  std::vector<TriggerResponse*>::iterator itr;
-  for ( itr = m_triggerBxVec.begin(); itr != m_triggerBxVec.end(); ++itr)
-    if ( (*itr) ) delete (*itr);
-  m_triggerBxVec.clear();
-  
+   m_triggerBxVec.clear();
 }
 
 //.................................................................
 
-void TTUEmulator::printinfo() 
+void TTUEmulator::printinfo() const 
 {
   
   std::cout << "TTUEmulator: " << m_id << '\n';

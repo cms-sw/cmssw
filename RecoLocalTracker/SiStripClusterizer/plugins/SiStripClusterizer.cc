@@ -3,7 +3,6 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/transform.h"
-#include "boost/foreach.hpp"
 
 
 SiStripClusterizer::
@@ -25,7 +24,7 @@ produce(edm::Event& event, const edm::EventSetup& es)  {
 
   algorithm->initialize(es);  
 
-  BOOST_FOREACH( const edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> >& token, inputTokens) {
+  for(auto const& token : inputTokens) {
     if(      findInput( token, inputOld, event) ) algorithm->clusterize(*inputOld, *output); 
 //     else if( findInput( tag, inputNew, event) ) algorithm->clusterize(*inputNew, *output);
     else edm::LogError("Input Not Found") << "[SiStripClusterizer::produce] ";// << tag;

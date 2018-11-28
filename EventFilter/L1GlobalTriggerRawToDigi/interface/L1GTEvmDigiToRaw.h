@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,7 +39,7 @@ class L1TcsWord;
 class L1GtFdlWord;
 
 // class declaration
-class L1GTEvmDigiToRaw : public edm::EDProducer
+class L1GTEvmDigiToRaw : public edm::stream::EDProducer<>
 {
 
 public:
@@ -47,13 +47,7 @@ public:
     /// constructor(s)
     explicit L1GTEvmDigiToRaw(const edm::ParameterSet&);
 
-    /// destructor
-    ~L1GTEvmDigiToRaw() override;
-
 private:
-
-    /// beginning of job stuff
-    void beginJob() override;
 
     /// loop over events
     void produce(edm::Event&, const edm::EventSetup&) override;
@@ -79,9 +73,6 @@ private:
     /// pack trailer word
     void packTrailer(unsigned char*, unsigned char*, int);
 
-    /// end of job stuff
-    void endJob() override;
-
 private:
 
     /// FED Id for GT EVM record
@@ -89,8 +80,8 @@ private:
     int m_evmGtFedId;
 
     /// input tag for GT EVM record
-    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_evmGtInputToken;
-    edm::InputTag m_evmGtInputTag;
+    const edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_evmGtInputToken;
+    const edm::InputTag m_evmGtInputTag;
 
     /// mask for active boards
     cms_uint16_t m_activeBoardsMaskGt;
@@ -112,8 +103,8 @@ private:
 private:
 
     /// verbosity level
-    int m_verbosity;
-    bool m_isDebugEnabled;
+    const int m_verbosity;
+    const bool m_isDebugEnabled;
 
 };
 

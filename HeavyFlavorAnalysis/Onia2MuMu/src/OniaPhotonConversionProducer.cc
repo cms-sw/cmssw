@@ -15,7 +15,6 @@
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 #include <TMath.h>
-#include <boost/foreach.hpp>
 #include <vector>
 
 
@@ -27,8 +26,8 @@ bool ConversionLessByChi2(const reco::Conversion& c1, const reco::Conversion& c2
 
 bool ConversionEqualByTrack(const reco::Conversion& c1, const reco::Conversion& c2){
   bool atLeastOneInCommon=false;
-  BOOST_FOREACH(const edm::RefToBase<reco::Track> tk1, c1.tracks()){
-    BOOST_FOREACH(const edm::RefToBase<reco::Track> tk2, c2.tracks()){
+  for(auto const& tk1 : c1.tracks()){
+    for(auto const& tk2 : c2.tracks()){
       if(tk1==tk2){
 	atLeastOneInCommon=true;
 	break;
@@ -229,10 +228,10 @@ void OniaPhotonConversionProducer::removeDuplicates(reco::ConversionCollection& 
 bool OniaPhotonConversionProducer::checkTkVtxCompatibility(const reco::Conversion& conv, const reco::VertexCollection& priVtxs) {
   std::vector< std::pair< double, short> > idx[2];
   short ik=-1;
-  BOOST_FOREACH(edm::RefToBase<reco::Track> tk, conv.tracks()){
+  for(auto const& tk : conv.tracks()){
     ik++;
     short count=-1;
-    BOOST_FOREACH(const reco::Vertex& vtx,priVtxs){
+    for(auto const& vtx : priVtxs){
       count++;
     
       double dz_= tk->dz(vtx.position());
@@ -281,18 +280,18 @@ HighpuritySubset(const reco::Conversion& conv, const reco::VertexCollection& pri
   // Find closest primary vertex
   int closest_pv_index = 0;
   int i=0;
-  BOOST_FOREACH(const reco::Vertex& vtx,priVtxs){
+  for(auto const& vtx : priVtxs){
     if( conv.zOfPrimaryVertexFromTracks( vtx.position() ) < conv.zOfPrimaryVertexFromTracks( priVtxs[closest_pv_index].position() ) ) closest_pv_index = i;
     i++;
   }
   // Now check impact parameter wtr with the just found closest primary vertex
-  BOOST_FOREACH(const edm::RefToBase<reco::Track> tk, conv.tracks()) if(-tk->dxy(priVtxs[closest_pv_index].position())*tk->charge()/tk->dxyError()<0) return false;
+  for(auto const& tk : conv.tracks()) if(-tk->dxy(priVtxs[closest_pv_index].position())*tk->charge()/tk->dxyError()<0) return false;
   
   // chi2 of single tracks
-  BOOST_FOREACH(const edm::RefToBase<reco::Track> tk, conv.tracks()) if(tk->normalizedChi2() > _trackchi2Cut) return false;
+  for(auto const& tk : conv.tracks()) if(tk->normalizedChi2() > _trackchi2Cut) return false;
 
   // dof for each track  
-  BOOST_FOREACH(const edm::RefToBase<reco::Track> tk, conv.tracks()) if(tk->ndof()< TkMinNumOfDOF_) return false;
+  for(auto const& tk : conv.tracks()) if(tk->ndof()< TkMinNumOfDOF_) return false;
   
   // distance of approach cut
   if (conv.distOfMinimumApproach() < _minDistanceOfApproachMinCut || conv.distOfMinimumApproach() > _minDistanceOfApproachMaxCut ) return false;
