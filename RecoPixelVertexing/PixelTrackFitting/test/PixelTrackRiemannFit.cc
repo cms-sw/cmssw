@@ -190,7 +190,7 @@ void test_helix_fit() {
     gen_par(4) = 10.;   // R (p_t)
     gen_par(5) = 1.;   // eta
     iteration = 1;
-    return_err = 1;
+    return_err = true;
     debug2 = 1;
 
     iteration *= 10;
