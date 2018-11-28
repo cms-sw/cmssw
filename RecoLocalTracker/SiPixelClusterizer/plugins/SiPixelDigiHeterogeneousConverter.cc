@@ -20,7 +20,7 @@
 class SiPixelDigiHeterogeneousConverter: public edm::global::EDProducer<> {
 public:
   explicit SiPixelDigiHeterogeneousConverter(edm::ParameterSet const& iConfig);
-  ~SiPixelDigiHeterogeneousConverter() = default;
+  ~SiPixelDigiHeterogeneousConverter() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

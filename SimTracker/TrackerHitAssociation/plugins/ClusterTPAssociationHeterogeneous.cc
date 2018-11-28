@@ -56,7 +56,7 @@ public:
   using PixelRecHitsH = siPixelRecHitsHeterogeneousProduct::HeterogeneousPixelRecHit;
 
   explicit ClusterTPAssociationHeterogeneous(const edm::ParameterSet&);
-  ~ClusterTPAssociationHeterogeneous() = default;
+  ~ClusterTPAssociationHeterogeneous() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

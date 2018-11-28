@@ -37,7 +37,7 @@ public:
 
 
   CAHitNtupletHeterogeneousEDProducer(const edm::ParameterSet &iConfig);
-  ~CAHitNtupletHeterogeneousEDProducer() = default;
+  ~CAHitNtupletHeterogeneousEDProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   void beginStreamGPUCuda(edm::StreamID streamId,

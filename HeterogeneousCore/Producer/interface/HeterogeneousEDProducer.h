@@ -172,7 +172,7 @@ public:
   explicit HeterogeneousEDProducer(const edm::ParameterSet& iConfig):
     Devices(iConfig.getUntrackedParameter<edm::ParameterSet>("heterogeneousEnabled_"))
   {}
-  ~HeterogeneousEDProducer() = default;
+  ~HeterogeneousEDProducer() override = default;
 
 protected:
   edm::EDGetTokenT<HeterogeneousProduct> consumesHeterogeneous(const edm::InputTag& tag) {
@@ -187,11 +187,11 @@ protected:
   }
 
 private:
-  void beginStream(edm::StreamID id) {
+  void beginStream(edm::StreamID id) override {
     Devices::call_beginStream(id);
   }
 
-  void acquire(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) override final {
+  void acquire(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) final {
     const HeterogeneousProductBase *input = nullptr;
 
     std::vector<const HeterogeneousProduct *> products;
@@ -213,7 +213,7 @@ private:
     Devices::call_acquire(input, eventWrapper, iSetup, std::move(waitingTaskHolder));
   }
 
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override final {
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) final {
     if(algoExecutionLocation_.deviceType() == HeterogeneousDeviceId::kInvalidDevice) {
       // TODO: eventually fall back to CPU
       throw cms::Exception("LogicError") << "Trying to produce(), but algorithm was not executed successfully anywhere?";

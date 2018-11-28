@@ -24,7 +24,7 @@ public:
   {
     produces<PixelFitter>();
   }
-  ~PixelFitterByRiemannParaboloidProducer() {}
+  ~PixelFitterByRiemannParaboloidProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -36,7 +36,7 @@ public:
 private:
   bool useErrors_;
   bool useMultipleScattering_;
-  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 };
 
 

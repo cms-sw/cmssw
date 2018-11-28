@@ -119,7 +119,7 @@ namespace heterogeneous {
     static bool call(const FunctionTuple& functionTuple, ProductTuple& productTuple, const BitSetArray& bitsetArray) {
       constexpr const auto index = std::tuple_size<BitSetArray>::value - sizeMinusIndex;
       if(bitsetArray[index].any()) {
-        const auto func = std::get<index>(functionTuple);
+        const auto& func = std::get<index>(functionTuple);
         if(!func) {
           throw cms::Exception("Assert") << "Attempted to call transfer-to-CPU function for device " << index << " but the std::function object is not valid!";
         }

@@ -142,18 +142,18 @@ struct CachingHostAllocator
             bytes(0),
             bin(INVALID_BIN),
             device(INVALID_DEVICE_ORDINAL),
-            associated_stream(0),
-            ready_event(0)
+            associated_stream(nullptr),
+            ready_event(nullptr)
         {}
 
         // Constructor (suitable for searching maps for a range of suitable blocks)
         BlockDescriptor() :
-            d_ptr(NULL),
+            d_ptr(nullptr),
             bytes(0),
             bin(INVALID_BIN),
             device(INVALID_DEVICE_ORDINAL),
-            associated_stream(0),
-            ready_event(0)
+            associated_stream(nullptr),
+            ready_event(nullptr)
         {}
 
         // Comparison functor for comparing host pointers
@@ -348,9 +348,9 @@ struct CachingHostAllocator
     cudaError_t HostAllocate(
         void            **d_ptr,            ///< [out] Reference to pointer to the allocation
         size_t          bytes,              ///< [in] Minimum number of bytes for the allocation
-        cudaStream_t    active_stream = 0)  ///< [in] The stream to be associated with this allocation
+        cudaStream_t    active_stream = nullptr)  ///< [in] The stream to be associated with this allocation
     {
-        *d_ptr                          = NULL;
+        *d_ptr                          = nullptr;
         int device                      = INVALID_DEVICE_ORDINAL;
         cudaError_t error               = cudaSuccess;
 

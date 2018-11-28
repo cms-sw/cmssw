@@ -147,7 +147,7 @@ void SiPixelFedCablingMapGPUWrapper::ModulesToUnpack::fillAsync(SiPixelFedCablin
         path = {fed, link, roc};
         const sipixelobjects::PixelROC* pixelRoc = cabling->findItem(path);
         if (pixelRoc != nullptr) {
-          modToUnpHost[index] = (modules.size() != 0) && (modules.find(pixelRoc->rawId()) == modules.end());
+          modToUnpHost[index] = (not modules.empty()) and (modules.find(pixelRoc->rawId()) == modules.end());
         } else { // store some dummy number
           modToUnpHost[index] = true;
         }

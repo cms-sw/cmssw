@@ -17,7 +17,7 @@ class TestGPUConcurrency: public HeterogeneousEDProducer<heterogeneous::Heteroge
                                                                        > > {
 public:
   explicit TestGPUConcurrency(edm::ParameterSet const& config);
-  ~TestGPUConcurrency() = default;
+  ~TestGPUConcurrency() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

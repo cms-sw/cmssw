@@ -16,7 +16,7 @@ public:
   using Product = ClusterTPAssociation;
 
   explicit ClusterTPAssociationHeterogeneousConverter(edm::ParameterSet const& iConfig);
-  ~ClusterTPAssociationHeterogeneousConverter() = default;
+  ~ClusterTPAssociationHeterogeneousConverter() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

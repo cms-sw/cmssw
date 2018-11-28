@@ -33,7 +33,7 @@ class TestHeterogeneousEDProducerGPU: public HeterogeneousEDProducer<heterogeneo
                                                                        > > {
 public:
   explicit TestHeterogeneousEDProducerGPU(edm::ParameterSet const& iConfig);
-  ~TestHeterogeneousEDProducerGPU() = default;
+  ~TestHeterogeneousEDProducerGPU() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

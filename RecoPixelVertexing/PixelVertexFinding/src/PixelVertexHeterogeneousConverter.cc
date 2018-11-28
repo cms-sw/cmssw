@@ -12,7 +12,7 @@
 class PixelVertexHeterogeneousConverter: public edm::global::EDProducer<> {
 public:
   explicit PixelVertexHeterogeneousConverter(edm::ParameterSet const& iConfig);
-  ~PixelVertexHeterogeneousConverter() = default;
+  ~PixelVertexHeterogeneousConverter() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

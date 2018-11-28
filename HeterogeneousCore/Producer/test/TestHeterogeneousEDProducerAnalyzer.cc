@@ -12,7 +12,7 @@
 class TestHeterogeneousEDProducerAnalyzer: public edm::global::EDAnalyzer<> {
 public:
   explicit TestHeterogeneousEDProducerAnalyzer(edm::ParameterSet const& iConfig);
-  ~TestHeterogeneousEDProducerAnalyzer() = default;
+  ~TestHeterogeneousEDProducerAnalyzer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

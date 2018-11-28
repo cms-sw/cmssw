@@ -26,7 +26,7 @@ class TestHeterogeneousEDProducerGPUMock: public HeterogeneousEDProducer<heterog
                                                                            > > {
 public:
   explicit TestHeterogeneousEDProducerGPUMock(edm::ParameterSet const& iConfig);
-  ~TestHeterogeneousEDProducerGPUMock() = default;
+  ~TestHeterogeneousEDProducerGPUMock() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -44,7 +44,7 @@ private:
   // simulating GPU memory
   unsigned int gpuOutput_;
 
-  void acquireGPUMock(const edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup, std::function<void()> callback);
+  void acquireGPUMock(const edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup, std::function<void()> callback) override;
 
   void produceCPU(edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup) override;
   void produceGPUMock(edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup) override;

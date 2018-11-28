@@ -34,7 +34,7 @@ PixelTrackReconstructionGPU::PixelTrackReconstructionGPU(const ParameterSet& cfg
     theCleanerName(cfg.getParameter<std::string>("Cleaner"))
 {
   edm::InputTag filterTag = cfg.getParameter<edm::InputTag>("Filter");
-  if(filterTag.label() != "") {
+  if(!filterTag.label().empty()) {
     theFilterToken = iC.consumes<PixelTrackFilter>(filterTag);
   }
 }
