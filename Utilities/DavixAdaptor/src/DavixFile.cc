@@ -33,8 +33,9 @@ DavixFile::~DavixFile(void) {
 
 void DavixFile::close(void) {
   if (m_davixPosix && m_fd) {
+    auto davixPosix = std::move(m_davixPosix);
     DavixError *err = nullptr;
-    m_davixPosix->close(m_fd, &err);
+    davixPosix->close(m_fd, &err);
     if (err) {
       std::unique_ptr<DavixError> davixErrManaged(err);
       cms::Exception ex("FileCloseError");
