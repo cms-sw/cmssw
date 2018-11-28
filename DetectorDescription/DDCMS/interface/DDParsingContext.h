@@ -52,6 +52,7 @@ namespace cms  {
     bool debug_namespaces   = false;
     bool debug_visattr      = false;
     bool debug_algorithms   = false;
+    bool debug_specpars     = false;
   };
 }
 

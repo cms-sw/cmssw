@@ -90,6 +90,11 @@ namespace dd4hep {
     
     class DDLAlgorithm;    
     class DDLVector;
+
+    class SpecParSection;
+    class SpecPar;
+    class PartSelector;
+    class Parameter;
     
     class vissection;
     class vis;
@@ -128,15 +133,22 @@ namespace dd4hep {
   template <> void Converter<DDLRotationByAxis>::operator()(xml_h element) const;
   template <> void Converter<DDLTransform3D>::operator()(xml_h element) const;
 
-  /// Generic converter for  <LogicalPartSection/> tags
+  /// Generic converter for <LogicalPartSection/> tags
   template <> void Converter<LogicalPartSection>::operator()(xml_h element) const;
   template <> void Converter<DDLLogicalPart>::operator()(xml_h element) const;
 
+  /// Generic converter for <PosPartSection/> tags
   template <> void Converter<PosPartSection>::operator()(xml_h element) const;
   /// Converter for <PosPart/> tags
   template <> void Converter<DDLPosPart>::operator()(xml_h element) const;
   /// Converter for <Division/> tags
   template <> void Converter<DDLDivision>::operator()(xml_h element) const;
+
+  /// Generic converter for <SpecParSection/> tags
+  template <> void Converter<SpecParSection>::operator()(xml_h element) const;
+  template <> void Converter<SpecPar>::operator()(xml_h element) const;
+  template <> void Converter<PartSelector>::operator()(xml_h element) const;
+  template <> void Converter<Parameter>::operator()(xml_h element) const;
   
   /// Generic converter for solids: <SolidSection/> tags
   template <> void Converter<SolidSection>::operator()(xml_h element) const;
@@ -190,11 +202,11 @@ namespace dd4hep {
 }
 
 /// Converter for <ConstantsSection/> tags
-template <> void Converter<ConstantsSection>::operator()(xml_h element) const  {
-  cms::DDNamespace ns(_param<cms::DDParsingContext>(), element);
+template <> void Converter<ConstantsSection>::operator()( xml_h element ) const {
+  cms::DDNamespace ns( _param<cms::DDParsingContext>(), element );
   cms::DDParsingContext* const context = ns.context();
-  xml_coll_t( element, DD_CMU(Constant)).for_each(Converter<DDLConstant>( description, context, optional ));
-  xml_coll_t( element, DD_CMU(Vector)).for_each(Converter<DDLVector>( description, context, optional ));
+  xml_coll_t( element, DD_CMU( Constant )).for_each( Converter<DDLConstant>( description, context, optional ));
+  xml_coll_t( element, DD_CMU( Vector )).for_each( Converter<DDLVector>( description, context, optional ));
 }
 
 /// Converter for <VisSection/> tags
@@ -218,11 +230,22 @@ template <> void Converter<RotationSection>::operator()(xml_h element) const   {
   xml_coll_t( element, DD_CMU(RotationByAxis)).for_each(Converter<DDLRotationByAxis>(description,ns.context(),optional));
 }
 
-template <> void Converter<PosPartSection>::operator()(xml_h element) const   {
-  cms::DDNamespace ns(_param<cms::DDParsingContext>(), element);
-  xml_coll_t( element, DD_CMU(Division)).for_each(Converter<DDLDivision>(description,ns.context(),optional));
-  xml_coll_t( element, DD_CMU(PosPart)).for_each(Converter<DDLPosPart>(description,ns.context(),optional));
-  xml_coll_t( element, DD_CMU(Algorithm)).for_each(Converter<DDLAlgorithm>(description,ns.context(),optional));
+template <> void Converter<PosPartSection>::operator()( xml_h element ) const {
+  cms::DDNamespace ns( _param<cms::DDParsingContext>(), element );
+  xml_coll_t( element, DD_CMU( Division )).for_each( Converter<DDLDivision>( description, ns.context(), optional ));
+  xml_coll_t( element, DD_CMU( PosPart )).for_each( Converter<DDLPosPart>( description, ns.context(), optional ));
+  xml_coll_t( element, DD_CMU( Algorithm )).for_each( Converter<DDLAlgorithm>( description, ns.context(), optional ));
+}
+
+template <> void Converter<SpecParSection>::operator()( xml_h element ) const {
+  cms::DDNamespace ns( _param<cms::DDParsingContext>(), element );
+  xml_coll_t( element, DD_CMU( SpecPar )).for_each( Converter<SpecPar>( description, ns.context(), optional ));
+}
+
+template <> void Converter<SpecPar>::operator()( xml_h element ) const {
+  cms::DDNamespace ns( _param<cms::DDParsingContext>(), element );
+  xml_coll_t( element, DD_CMU( PartSelector )).for_each( Converter<PartSelector>( description, ns.context(), optional ));
+  xml_coll_t( element, DD_CMU( Parameter )).for_each( Converter<Parameter>( description, ns.context(), optional ));
 }
 
 /// Generic converter for  <LogicalPartSection/> tags
@@ -324,15 +347,15 @@ template <> void Converter<DDLConstant>::operator()(xml_h element) const {
   if( constant.hasAttr(_U(type)) )
     typ = constant.typeStr();
 
-  if( idx == string::npos || typ == "string" )  {
-    try  {
-      ns.addConstant(nam, val, typ);
+  if( idx == string::npos || typ == "string" ) {
+    try {
+      ns.addConstant( nam, val, typ );
       res->allConst[real] = val;
       res->originalConst[real] = val;
     }
-    catch(const exception& e)   {
-      printout(INFO,"MyDDCMS","++ Unresolved constant: %s = %s [%s]. Try to resolve later. [%s]",
-               real.c_str(), val.c_str(), typ.c_str(), e.what());
+    catch( const exception& e ) {
+      printout( INFO, "MyDDCMS", "++ Unresolved constant: %s = %s [%s]. Try to resolve later. [%s]",
+		real.c_str(), val.c_str(), typ.c_str(), e.what());
     }
     return;
   }
@@ -647,6 +670,31 @@ template <> void Converter<DDLPosPart>::operator()( xml_h element ) const {
     printout( ERROR,"MyDDCMS","+++ Placement FAILED! Parent:%s Child:%s Valid:%s",
 	      parent.name(), childName.c_str(), yes_no( child.isValid()));
   }
+}
+
+/// Converter for <PartSelector/> tags
+template <> void Converter<PartSelector>::operator()( xml_h element ) const {
+  cms::DDNamespace ns( _param<cms::DDParsingContext>()); //, element, true );
+  xml_dim_t e( element );
+  xml_dim_t specPar = e.parent();
+  string specParName = specPar.attr<string>( _U( name ));
+  string path = e.attr<string>( DD_CMU( path ));
+
+  printout(ns.context()->debug_specpars ? ALWAYS : DEBUG, "MyDDCMS",
+           "+++ PartSelector for %s path: %s", specParName.c_str(), path.c_str());
+}
+
+/// Converter for <Parameter/> tags
+template <> void Converter<Parameter>::operator()( xml_h element ) const {
+  cms::DDNamespace ns( _param<cms::DDParsingContext>()); //, element, true );
+  xml_dim_t e( element );
+  string name = e.nameStr();
+  string value = e.attr<string>( DD_CMU( value ));
+  bool eval = e.hasAttr( _U( eval )) ? e.attr<bool>( _U( eval )) : false;
+  string type = eval ? "number" : "string";
+  
+  printout(ns.context()->debug_specpars ? ALWAYS : DEBUG, "MyDDCMS",
+           "+++ Parameter: %s value %s is %s", name.c_str(), value.c_str(), type.c_str());
 }
 
 template <typename TYPE>
@@ -1064,7 +1112,7 @@ template <> void Converter<DDLDivision>::operator()( xml_h element ) const {
     printout( ns.context()->debug_placements ? ALWAYS : DEBUG,
 	      "MyDDCMS","+++    ...divide %s along %s (%d) with offset %6.3f deg and %6.3f deg to produce %d copies",
 	      parent.solid().type(), axis.c_str(), axesmap[axis], startInDeg, widthInDeg, numCopies );
-    Volume child = parent.divide( childName.c_str(), static_cast<int>( axesmap[axis]),
+    Volume child = parent.divide( childName, static_cast<int>( axesmap[axis]),
 				  numCopies, startInDeg, widthInDeg );
 
     ns.context()->volumes[childName] = child;
@@ -1085,7 +1133,7 @@ template <> void Converter<DDLDivision>::operator()( xml_h element ) const {
     if( axesmap[axis] == DDAxes::y )
       std::cout << "DDDividedTrdY\n";
     // Only Z divisions are supported for TGeoTrd2
-    Volume child = parent.divide( childName.c_str(), 3 /*static_cast<int>( axesmap[axis])*/,
+    Volume child = parent.divide( childName, 3 /*static_cast<int>( axesmap[axis])*/,
 				  nReplicas, offsetInCm, widthInCm );
 
     ns.context()->volumes[childName] = child;
@@ -1103,30 +1151,30 @@ template <> void Converter<DDLDivision>::operator()( xml_h element ) const {
 }
 
 /// Converter for <Algorithm/> tags
-template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const  {
-  cms::DDNamespace ns(_param<cms::DDParsingContext>());
-  xml_dim_t e(element);
+template <> void Converter<DDLAlgorithm>::operator()( xml_h element ) const {
+  cms::DDNamespace ns( _param<cms::DDParsingContext>());
+  xml_dim_t e( element );
   string name = e.nameStr();
-  if( ns.context()->disabledAlgs.find(name) != ns.context()->disabledAlgs.end() )   {
-    printout(INFO,"MyDDCMS","+++ Skip disabled algorithms: %s",name.c_str());
+  if( ns.context()->disabledAlgs.find( name ) != ns.context()->disabledAlgs.end()) {
+    printout( INFO, "MyDDCMS", "+++ Skip disabled algorithms: %s", name.c_str());
     return;
   }
   try {
     size_t            idx;
     SensitiveDetector sd;
-    string            type = "DDCMS_"+ns.realName(name);
+    string            type = "DDCMS_" + ns.realName( name );
     while(( idx = type.find( NAMESPACE_SEP )) != string::npos ) type[idx] = '_';
 
     // SensitiveDetector and Segmentation currently are undefined. Let's keep it like this
     // until we found something better.....
-    printout(ns.context()->debug_algorithms ? ALWAYS : DEBUG,
-             "MyDDCMS","+++ Start executing algorithm %s....",type.c_str());
+    printout( ns.context()->debug_algorithms ? ALWAYS : DEBUG,
+	      "MyDDCMS","+++ Start executing algorithm %s....", type.c_str());
 
-    long ret = PluginService::Create<long>(type, &description, ns.context(), &element, &sd);
-    if( ret == 1 )    {
-      printout(ns.context()->debug_algorithms ? ALWAYS : DEBUG,
-               "MyDDCMS", "+++ Executed algorithm: %08lX = %s", ret, name.c_str());
-      return;      
+    long ret = PluginService::Create<long>( type, &description, ns.context(), &element, &sd );
+    if( ret == 1 ) {
+      printout( ns.context()->debug_algorithms ? ALWAYS : DEBUG,
+		"MyDDCMS", "+++ Executed algorithm: %08lX = %s", ret, name.c_str());
+      return;
     }
 #if 0
     Segmentation      seg;
@@ -1213,10 +1261,10 @@ template <> void Converter<DDLVector>::operator()( xml_h element ) const {
   cms::DDNamespace ns( _param<cms::DDParsingContext>());
   xml_dim_t e( element );
   string name = e.nameStr();
-  string type = ns.attr<string>(e,_U(type));
-  string nEntries = ns.attr<string>( e, DD_CMU(nEntries));
+  string type = ns.attr<string>( e, _U( type ));
+  string nEntries = ns.attr<string>( e, DD_CMU( nEntries ));
   string val = e.text();
-  val.erase( remove_if(  val.begin(), val.end(), [](unsigned char x){return isspace(x);}), val.end());
+  val.erase( remove_if(  val.begin(), val.end(), []( unsigned char x ){ return isspace( x ); }), val.end());
   
   printout( ns.context()->debug_constants ? ALWAYS : DEBUG,
 	    "MyDDCMS","+++ Vector<%s>:  %s[%s]: %s", type.c_str(), name.c_str(),
@@ -1242,51 +1290,51 @@ template <> void Converter<debug>::operator()(xml_h dbg) const {
   if( dbg.hasChild(DD_CMU(debug_namespaces)) ) ns.setContext()->debug_namespaces = true;
   if( dbg.hasChild(DD_CMU(debug_includes))   ) ns.setContext()->debug_includes   = true;
   if( dbg.hasChild(DD_CMU(debug_algorithms)) ) ns.setContext()->debug_algorithms = true;
+  if( dbg.hasChild(DD_CMU(debug_specpars))   ) ns.setContext()->debug_specpars   = true;
 }
 
 template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
   cms::DDParsingContext* context = _param<cms::DDParsingContext>();
   DDRegistry* res = _option<DDRegistry>();
-  cms::DDNamespace       ns(context);
+  cms::DDNamespace ns( context );
 
-  std::cout << "+++ RESOLVING " << res->unresolvedConst.size() << " constants.";
-  printout(context->debug_constants ? ALWAYS : DEBUG,
-           "MyDDCMS","+++ RESOLVING %ld unknown constants.....",res->unresolvedConst.size());
-  while ( !res->unresolvedConst.empty() )   {
-    for(auto i=res->unresolvedConst.begin(); i!=res->unresolvedConst.end(); ++i )   {
-      const string& n = (*i).first;
-      string  rep;
-      string& v   = (*i).second;
+  printout( context->debug_constants ? ALWAYS : DEBUG,
+	    "MyDDCMS","+++ RESOLVING %ld unknown constants.....", res->unresolvedConst.size());
+  while( !res->unresolvedConst.empty()) {
+    for( auto i : res->unresolvedConst ) {
+      const string& n = i.first;
+      string rep;
+      string& v = i.second;
       size_t idx, idq;
-      for(idx=v.find('[',0); idx != string::npos; idx = v.find('[',idx+1) )   {
-        idq = v.find(']',idx+1);
-        rep = v.substr(idx+1,idq-idx-1);
-        auto r = res->allConst.find(rep);
-        if( r != res->allConst.end() )  {
-          rep = "("+(*r).second+")";
-          v.replace(idx,idq-idx+1,rep);
+      for( idx = v.find( '[', 0 ); idx != string::npos; idx = v.find( '[', idx + 1 )) {
+        idq = v.find( ']', idx + 1 );
+        rep = v.substr( idx + 1, idq - idx - 1 );
+        auto r = res->allConst.find( rep );
+        if( r != res->allConst.end()) {
+          rep = "(" + (*r).second + ")";
+          v.replace( idx, idq - idx + 1, rep );
         }
       }
-      if( v.find(']') == string::npos )  {
-        if( v.find("-+") != string::npos || v.find("+-") != string::npos )   {
-          while ( (idx=v.find("-+")) != string::npos )
-            v.replace(idx,2,"-");
-          while ( (idx=v.find("+-")) != string::npos )
-            v.replace(idx,2,"-");
+      if( v.find(']') == string::npos ) {
+        if( v.find("-+") != string::npos || v.find("+-") != string::npos ) {
+          while(( idx = v.find( "-+" )) != string::npos )
+            v.replace( idx, 2, "-" );
+          while(( idx = v.find( "+-" )) != string::npos )
+            v.replace( idx, 2, "-" );
         }
-        printout(context->debug_constants ? ALWAYS : DEBUG,
-                 "MyDDCMS","+++ [%06ld] ----------  %-40s = %s",
-                 res->unresolvedConst.size()-1,n.c_str(),res->originalConst[n].c_str());
-        ns.addConstantNS(n, v, "number");
-        res->unresolvedConst.erase(i);
+        printout( context->debug_constants ? ALWAYS : DEBUG,
+		  "MyDDCMS","+++ [%06ld] ----------  %-40s = %s",
+		  res->unresolvedConst.size() - 1, n.c_str(), res->originalConst[n].c_str());
+        ns.addConstantNS( n, v, "number" );
+        res->unresolvedConst.erase( n );
         break;
       }
     }
   }
-  if( !res->unresolvedConst.empty() )   {
-    for(const auto& e : res->unresolvedConst )
-      printout(ERROR,"MyDDCMS","+++ Unresolved constant: %-40s = %s.",e.first.c_str(), e.second.c_str());
-    except("MyDDCMS","++ FAILED to resolve %ld constant entries:",res->unresolvedConst.size());
+  if( !res->unresolvedConst.empty()) {
+    for( const auto& e : res->unresolvedConst )
+      printout( ERROR, "MyDDCMS", "+++ Unresolved constant: %-40s = %s.", e.first.c_str(), e.second.c_str());
+    except( "MyDDCMS", "++ FAILED to resolve %ld constant entries:", res->unresolvedConst.size());
   }
   res->unresolvedConst.clear();
   res->originalConst.clear();
@@ -1364,6 +1412,10 @@ static long load_dddefinition(Detector& det, xml_h element) {
       print_doc((doc=d).root());
       xml_coll_t(d.root(), DD_CMU(PosPartSection)).for_each(Converter<PosPartSection>(det,&context));
     }
+    for(xml::Document d : res.includes )  {
+      print_doc((doc=d).root());
+      xml_coll_t(d.root(), DD_CMU(SpecParSection)).for_each(Converter<SpecParSection>(det,&context));
+    }
 
     /// Unload all XML files after processing
     for(xml::Document d : res.includes ) Converter<include_unload>(det,&context,&res)(d.root());
@@ -1374,6 +1426,7 @@ static long load_dddefinition(Detector& det, xml_h element) {
     xml_coll_t(dddef, DD_CMU(LogicalPartSection)).for_each(Converter<LogicalPartSection>(det,&context));
     xml_coll_t(dddef, DD_CMU(Algorithm)).for_each(Converter<DDLAlgorithm>(det,&context));
     xml_coll_t(dddef, DD_CMU(PosPartSection)).for_each(Converter<PosPartSection>(det,&context));
+    xml_coll_t(dddef, DD_CMU(SpecParSection)).for_each(Converter<SpecParSection>(det,&context));
   }
   catch(const exception& e)   {
     printout(ERROR,"MyDDCMS","Exception while processing xml source:%s",doc.uri().c_str());
