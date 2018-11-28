@@ -121,7 +121,7 @@ class BTLDetId : public MTDDetId {
   BTLDetId getUnhashedIndex( int hi, CrysLayout lay ) const ;
 
   /** create a Geographical DetId for Tracking **/
-  BTLDetId geographicalId() const;
+  BTLDetId geographicalId( CrysLayout lay ) const;
 
 };
 

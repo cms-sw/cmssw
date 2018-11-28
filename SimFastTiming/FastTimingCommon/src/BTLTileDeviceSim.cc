@@ -46,7 +46,7 @@ void BTLTileDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t
     if(id==0) continue; // to be ignored at RECO level                                                              
 
     BTLDetId btlid(detId);
-    int boundRef = BTLDetId::kTypeBoundariesReference[1];
+    const int boundRef = BTLDetId::kTypeBoundariesReference[1];
     DetId geoId = BTLDetId(btlid.mtdSide(),btlid.mtdRR(),btlid.module()+boundRef*(btlid.modType()-1),0,1);
     const MTDGeomDet* thedet = geom_->idToDet(geoId);
     

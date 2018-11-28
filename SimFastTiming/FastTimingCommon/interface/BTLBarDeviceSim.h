@@ -11,7 +11,9 @@
 
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
+#include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 
 #include <tuple>
 
@@ -37,7 +39,9 @@ class BTLBarDeviceSim {
  private:
 
   edm::ESWatcher<MTDDigiGeometryRecord> geomwatcher_;
+  edm::ESWatcher<MTDTopologyRcd> topowatcher_;
   const MTDGeometry* geom_;
+  const MTDTopology* topo_;
 
   const float bxTime_;
   const float LightYield_;

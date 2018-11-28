@@ -11,8 +11,10 @@
 
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
+#include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/MTDTrackingRecHit.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
@@ -37,7 +39,9 @@ class MTDRecHitProducer : public edm::stream::EDProducer<> {
   std::unique_ptr<MTDRecHitAlgoBase> barrel_,endcap_;
   
   edm::ESWatcher<MTDDigiGeometryRecord> geomwatcher_;
+  edm::ESWatcher<MTDTopologyRcd> topowatcher_;
   const MTDGeometry* geom_;
+  const MTDTopology* topo_;
 };
 
 MTDRecHitProducer::MTDRecHitProducer(const edm::ParameterSet& ps) :
@@ -73,6 +77,11 @@ MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   if( geomwatcher_.check(es) || geom_ == nullptr ) {
     es.get<MTDDigiGeometryRecord>().get(geom);
     geom_ = geom.product();
+  }
+  edm::ESHandle<MTDTopology> topo;
+  if ( topowatcher_.check(es) || topo_ == nullptr ) {
+    es.get<MTDTopologyRcd>().get(topo);
+    topo_ = topo.product();
   }
  
   // tranparently get things from event setup
@@ -124,7 +133,7 @@ MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   unsigned index = 0;
   for(const auto& hit : barrelHits) {    
     BTLDetId hitId(hit.detid());
-    DetId geoId = hitId.geographicalId();
+    DetId geoId = hitId.geographicalId(static_cast<BTLDetId::CrysLayout>(topo_->getMTDTopologyMode()));
     geoIdToIdx.emplace(geoId,index);
     geoIds.emplace(geoId);
     ++index;
