@@ -8,6 +8,7 @@
  ****************************************************************************/
 
 #include "RecoCTPPS/TotemRPLocal/interface/TotemTimingRecHitProducerAlgorithm.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //----------------------------------------------------------------------------------------------------
 

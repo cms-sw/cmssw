@@ -10,9 +10,8 @@
 #define Geometry_VeryForwardGeometryBuilder_DetGeomDesc
 
 #include <utility>
+#include <vector>
 
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include <Math/Rotation3D.h>
 
