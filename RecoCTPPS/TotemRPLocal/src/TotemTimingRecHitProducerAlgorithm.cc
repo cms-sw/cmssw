@@ -39,14 +39,7 @@ void TotemTimingRecHitProducerAlgorithm::build(
 
     if (det) {
       x_pos = det->translation().x(), y_pos = det->translation().y();
-      if (det->parents().empty())
-        edm::LogWarning("TotemTimingRecHitProducerAlgorithm")
-            << "The geometry element for " << detid
-            << " has no parents. Check the geometry hierarchy!";
-      else
-        z_pos = det->parents()[det->parents().size() - 1]
-                    .absTranslation()
-                    .z(); // retrieve the plane position;
+      z_pos = det->planeZPos(); // retrieve the plane position;
 
       x_width = 2.0 * det->params().at(0), // parameters stand for half the size
           y_width = 2.0 * det->params().at(1),
