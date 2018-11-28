@@ -56,6 +56,7 @@ run2_nanoAOD_94X2016.toModify(electron_id_modules_WorkingPoints_nanoAOD,
         'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronHLTPreselecition_Summer16_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff',
+        'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff',
     ),
     WorkingPoints = cms.vstring(
         "egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-veto",
@@ -131,8 +132,9 @@ energyCorrForEle80X =  cms.EDProducer("ElectronEnergyVarProducer",
     srcCorr = cms.InputTag("calibratedPatElectrons80X"),
 )
 import RecoEgamma.EgammaTools.calibratedEgammas_cff
-calibratedPatElectrons94Xv1 = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatElectrons.clone(
-    produceCalibratedObjs = False
+calibratedPatElectrons94X = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatElectrons.clone(
+    produceCalibratedObjs = False,
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc"),
 )
 
 slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
@@ -150,6 +152,7 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
         ptRatio = cms.InputTag("ptRatioRelForEle:ptRatio"),
         ptRel = cms.InputTag("ptRatioRelForEle:ptRel"),
         jetNDauChargedMVASel = cms.InputTag("ptRatioRelForEle:jetNDauChargedMVASel"),
+        dr03TkSumPtHEEP = cms.InputTag("heepIDVarValueMaps","eleTrkPtIso")
     ),
     userIntFromBools = cms.PSet(
 
@@ -202,10 +205,20 @@ run2_nanoAOD_94X2016.toModify(slimmedElectronsWithUserData.userFloats,
     mvaFall17V2noIso = None,
 )
 run2_nanoAOD_94XMiniAODv1.toModify(slimmedElectronsWithUserData.userFloats,
-    ecalTrkEnergyErrPostCorr = cms.InputTag("calibratedPatElectrons94Xv1","ecalTrkEnergyErrPostCorr"),
-    ecalTrkEnergyPreCorr     = cms.InputTag("calibratedPatElectrons94Xv1","ecalTrkEnergyPreCorr"),
-    ecalTrkEnergyPostCorr    = cms.InputTag("calibratedPatElectrons94Xv1","ecalTrkEnergyPostCorr"),
+    ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyErrPostCorr"),
+    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPreCorr"),
+    ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPostCorr"),
 )
+
+#the94X miniAOD V2 had a bug in the scale and smearing for electrons in the E/p comb
+#therefore we redo it but but we need use a new name for the userFloat as we cant override existing userfloats
+#for technical reasons
+run2_nanoAOD_94XMiniAODv2.toModify(slimmedElectronsWithUserData.userFloats,
+    ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyErrPostCorr"),
+    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPreCorr"),
+    ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPostCorr"),
+)
+
 run2_miniAOD_80XLegacy.toReplaceWith(slimmedElectronsWithUserData.userIntFromBools,
     cms.PSet(
         mvaSpring16GP_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90"),
@@ -327,6 +340,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         pfRelIso03_all = Var("userFloat('PFIsoAll')/pt",float,doc="PF relative isolation dR=0.3, total (with rho*EA PU corrections)"),
         jetRelIso = Var("?userCand('jetForLepJetVar').isNonnull()?(1./userFloat('ptRatio'))-1.:userFloat('PFIsoAll04')/pt",float,doc="Relative isolation in matched jet (1/ptRatio-1, pfRelIso04_all if no matched jet)",precision=8),
         dr03TkSumPt = Var("?pt>35?dr03TkSumPt():0",float,doc="Non-PF track isolation within a delta R cone of 0.3 with electron pt > 35 GeV",precision=8),
+        dr03TkSumPtHEEP = Var("?pt>35?userFloat('dr03TkSumPtHEEP'):0",float,doc="Non-PF track isolation within a delta R cone of 0.3 with electron pt > 35 GeV used in HEEP ID",precision=8),
         dr03EcalRecHitSumEt = Var("?pt>35?dr03EcalRecHitSumEt():0",float,doc="Non-PF Ecal isolation within a delta R cone of 0.3 with electron pt > 35 GeV",precision=8),
         dr03HcalDepth1TowerSumEt = Var("?pt>35?dr03HcalDepth1TowerSumEt():0",float,doc="Non-PF Hcal isolation within a delta R cone of 0.3 with electron pt > 35 GeV",precision=8),
         hoe = Var("hadronicOverEm()",float,doc="H over E",precision=8),
@@ -340,12 +354,23 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 # scale and smearing only when available
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016:
+for modifier in run2_nanoAOD_94X2016,:
     modifier.toModify(electronTable.variables,
         pt = Var("pt*userFloat('ecalTrkEnergyPostCorr')/userFloat('ecalTrkEnergyPreCorr')", float, precision=-1, doc="p_{T}"),
         energyErr = Var("userFloat('ecalTrkEnergyErrPostCorr')", float, precision=6, doc="energy error of the cluster-track combination"),
         eCorr = Var("userFloat('ecalTrkEnergyPostCorr')/userFloat('ecalTrkEnergyPreCorr')", float, doc="ratio of the calibrated energy/miniaod energy"),
     )
+
+#the94X miniAOD V2 had a bug in the scale and smearing for electrons in the E/p comb
+#therefore we redo it but but we need use a new name for the userFloat as we cant override existing userfloats
+#for technical reasons
+for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,:
+    modifier.toModify(electronTable.variables,            
+        pt = Var("pt*userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
+        energyErr = Var("userFloat('ecalTrkEnergyErrPostCorrNew')", float, precision=6, doc="energy error of the cluster-track combination"),
+        eCorr = Var("userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, doc="ratio of the calibrated energy/miniaod energy"),
+)
+
 run2_nanoAOD_94X2016.toModify(electronTable.variables,
     jetRelIso = Var("(1./userFloat('ptRatio'))-1.",float,doc="Relative isolation in matched jet (1/ptRatio-1, 0 if no matched jet (2016 definition))",precision=8),
     cutBased = Var("userInt('cutbasedID_veto')+userInt('cutbasedID_loose')+userInt('cutbasedID_medium')+userInt('cutbasedID_tight')",int,doc="cut-based Summer16 ID (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
@@ -445,9 +470,10 @@ _withUpdateAnd80XScale_sequence = _withUpdate_sequence.copy()
 _withUpdateAnd80XScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectrons80X + energyCorrForEle80X + bitmapVIDForEleSpring15 + slimmedElectronsWithUserData)
 run2_miniAOD_80XLegacy.toReplaceWith(electronSequence, _withUpdateAnd80XScale_sequence)
 
-_with94Xv1Scale_sequence = electronSequence.copy()
-_with94Xv1Scale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectrons94Xv1 + slimmedElectronsWithUserData)
-run2_nanoAOD_94XMiniAODv1.toReplaceWith(electronSequence, _with94Xv1Scale_sequence)
+_with94XScale_sequence = electronSequence.copy()
+_with94XScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectrons94X + slimmedElectronsWithUserData)
+run2_nanoAOD_94XMiniAODv1.toReplaceWith(electronSequence, _with94XScale_sequence)
+run2_nanoAOD_94XMiniAODv2.toReplaceWith(electronSequence, _with94XScale_sequence)
 
 _with_bitmapVIDForEleSpring15_sequence = electronSequence.copy()
 _with_bitmapVIDForEleSpring15_sequence.replace(slimmedElectronsWithUserData, bitmapVIDForEleSpring15 + slimmedElectronsWithUserData)
