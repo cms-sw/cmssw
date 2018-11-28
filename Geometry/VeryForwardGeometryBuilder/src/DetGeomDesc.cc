@@ -92,7 +92,7 @@ void DetGeomDesc::deepDeleteComponents()
 
 //----------------------------------------------------------------------------------------------------
 
-void DetGeomDesc::ApplyAlignment( const RPAlignmentCorrectionData &t )
+void DetGeomDesc::applyAlignment( const RPAlignmentCorrectionData &t )
 {
   //cout << " DetGeomDesc::ApplyAlignment > before: " << _trans << ",  " << _rot << endl;
   m_rot = t.getRotationMatrix() * m_rot;

@@ -117,7 +117,7 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
 
       if ( alignments.isValid() ) {
         const RPAlignmentCorrectionData& ac = alignments->getFullSensorCorrection( plId );
-        pD->ApplyAlignment( ac );
+        pD->applyAlignment( ac );
       }
     }
 
@@ -130,7 +130,7 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
 
       if ( alignments.isValid() ) {
         const RPAlignmentCorrectionData& ac = alignments->getRPCorrection( rpId );
-        pD->ApplyAlignment( ac );
+        pD->applyAlignment( ac );
       }
     }
 
