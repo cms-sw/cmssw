@@ -12,36 +12,33 @@
  *  @date   2008-11-24
  */
 class RPCWheelMap {
-public: 
-  /// Standard constructor
-  RPCWheelMap( ) {};
-
-  RPCWheelMap( int );
+private:
+  static constexpr int m_maxBx = 7;
+  static constexpr int m_maxSectors = 12;
+  static constexpr int m_maxBxWindow = 3; //... considering that we have a bxing in the range [-3,+3]
   
-  virtual ~RPCWheelMap( ); ///< Destructor
+public: 
+ 
+  RPCWheelMap( int );
   
   void addHit( int , int , int );
   
   void prepareData();
   
-  int wheelid() { return m_wheelid; };
+  int wheelid() const { return m_wheelid; };
   
-  int wheelIdx() { return (m_wheelid+2); };
+  int wheelIdx() const { return (m_wheelid+2); };
   
-  TTUInput * m_ttuinVec;
+  std::array<TTUInput,m_maxBx> m_ttuinVec;
   
 protected:
   
 private:
-  
   int m_bx;
   int m_wheelid;
-  int m_maxBx;
-  int m_maxSectors;
-  int m_maxBxWindow;
   
-  std::bitset<6> * m_wheelMap;
-  std::bitset<6> * m_wheelMapBx;
+  std::array<std::bitset<6>,m_maxSectors>  m_wheelMap;
+  std::array<std::bitset<6>,m_maxSectors * m_maxBx> m_wheelMapBx;
   
   bool m_debug;
   

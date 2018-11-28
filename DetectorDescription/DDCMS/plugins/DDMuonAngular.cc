@@ -22,7 +22,10 @@ static long algorithm( Detector& /* description */,
   double         zoffset     = args.value<double>("zoffset");
   string         rotns       = args.value<string>("RotNameSpace");
   Volume         mother      = ns.volume(args.parentName());
-  Volume         child       = ns.volume(args.value<string>("ChildName"));
+  string         childName   = args.value<string>("ChildName");
+  if( strchr( childName.c_str(), NAMESPACE_SEP ) == nullptr )
+    childName = ns.name() + childName;
+  Volume         child       = ns.volume( childName );
 
   LogDebug("DDAlgorithm") << "debug: Parameters for positioning:: n "
 			  << n << " Start, Step " 

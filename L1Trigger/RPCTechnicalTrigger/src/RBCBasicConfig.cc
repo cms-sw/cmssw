@@ -14,33 +14,15 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-RBCBasicConfig::RBCBasicConfig( const RBCBoardSpecs * rbcspecs , RBCId * info )
+RBCBasicConfig::RBCBasicConfig( const RBCBoardSpecs * rbcspecs , RBCId * info ) :
+  RBCConfiguration(rbcspecs),
+  m_debug{false}
 {
-  
-  m_rbcboardspecs  = rbcspecs;
-  m_rbclogic       = new RBCLogicUnit();
-  m_rbcinfo        = new RBCId( *info );
+}  
 
-  m_debug = false;
-    
-}
 
-RBCBasicConfig::RBCBasicConfig( const char * _logic ) {
-  
-  m_rbclogic  = new RBCLogicUnit( _logic );
-  
-}
-//=============================================================================
-// Destructor
-//=============================================================================
-RBCBasicConfig::~RBCBasicConfig() {
-  
-  if ( m_rbcinfo  ) delete m_rbcinfo;
-  if ( m_rbclogic ) delete m_rbclogic;
-
-  m_vecmask.clear();
-  m_vecforce.clear();
-  
+RBCBasicConfig::RBCBasicConfig( const char * _logic ):
+  RBCConfiguration(_logic) {
 }
 
 //=============================================================================

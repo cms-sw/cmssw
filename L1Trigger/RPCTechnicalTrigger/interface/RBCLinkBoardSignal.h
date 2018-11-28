@@ -13,16 +13,11 @@
  */
 class RBCLinkBoardSignal : public RPCInputSignal {
 public: 
-  /// Standard constructor
-  RBCLinkBoardSignal( ) {}; 
-
   RBCLinkBoardSignal( RBCInput * ); 
-  
-  ~RBCLinkBoardSignal( ) override; ///< Destructor
   
   void clear() override { };
 
-  RBCInput * m_linkboardin;
+  RBCInput   m_linkboardin;
   
 protected:
 

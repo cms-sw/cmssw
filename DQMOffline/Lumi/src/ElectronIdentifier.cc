@@ -17,7 +17,6 @@
 #include "DQMOffline/Lumi/interface/TTrigger.h"
 #include "DQMOffline/Lumi/interface/TriggerTools.h"
 
-#include <boost/foreach.hpp>
 #include <TLorentzVector.h>
 #include <TMath.h>
 #include <algorithm>

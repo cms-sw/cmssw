@@ -530,7 +530,7 @@ bool BeamFitter::runFitterNoTxt() {
     h1z = (TH1F*) myalgo->GetVzHisto();
 
     delete myalgo;
-    if ( fbeamspot.type() != 0 ) {// save all results except for Fake (all 0.)
+    if ( fbeamspot.type() > 0 ) {// save all results except for Fake and Unknown (all 0.)
       fit_ok = true;
       if (saveBeamFit_){
 	fx = fbeamspot.x0();

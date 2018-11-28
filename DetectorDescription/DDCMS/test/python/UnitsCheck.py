@@ -6,12 +6,12 @@ def index(line,substr):
     return result
 
 def errorPrint(line,indices):
-    print(line)
+    print(line.replace('\t',' '))
     ll = len(line)
-    errstr="_"*ll
+    errstr=" "*ll
     for i in indices:
-        errstr = errstr[:i] + '^' + errstr[i+1:]
-    print errstr
+        errstr = errstr[:i] + '^-----' + errstr[i+5:]
+    print(errstr)
     
 def findValuesWithUnits(line,ln):
     numList = re.findall(r"\d*?[\s,.]?\d*\*\w*", line)
@@ -20,7 +20,8 @@ def findValuesWithUnits(line,ln):
         errindices.append(match.start())
     l = len(numList)
     if l > 0:
-        print 'Line #',ln,'Units defined: '
+        text = fileinput.filename()+': line# '+str(ln)+' units defined: '
+        print(text)
         errorPrint(line,errindices)
     return l
 
@@ -39,7 +40,12 @@ def findValuesWithoutUnits(line,ln):
         errindices.append(match.start())
     l = len(numList)
     if l > 0:
-        print 'Line #', ln, 'WARNING: Numerical values without units: '
+        if 'MaterialFraction' in line:
+            return l
+        if '<?xml' in line:
+            return l
+        text = fileinput.filename()+': line# '+str(ln)+' warning: numerical value without units: '
+        print(text)
         errorPrint(line,errindices)
     return l
 
@@ -53,8 +59,6 @@ def process(line):
     ln = lineNumber(line)
     l = findValuesWithUnits(line,ln)
     k = findValuesWithoutUnits(line,ln)
-    if l > 0 or k > 0:
-        print ' '
 
 def check(line):
     return 0;

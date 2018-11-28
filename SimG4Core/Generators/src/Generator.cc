@@ -54,6 +54,8 @@ Generator::Generator(const ParameterSet & p) :
 
   double theDecLenCut = p.getParameter<double>("LDecLenCut")*cm;
 
+  fFiductialCuts = (fPCuts || fPtransCut || fEtaCuts || fPhiCuts);
+
   pdgFilter.resize(0);
   if ( p.exists("PDGselection") ) {
     pdgFilterSel = (p.getParameter<edm::ParameterSet>("PDGselection")).
@@ -85,14 +87,15 @@ Generator::Generator(const ParameterSet & p) :
 			    / ( 2*exp(-theEtaCutForHector) ) );
 
   edm::LogVerbatim("SimG4CoreGenerator") 
-    << " Rdecaycut= " << theRDecLenCut/cm 
+    << "SimG4Core/Generator: Rdecaycut= " << theRDecLenCut/cm 
     << " cm;  Zdecaycut= " << theDecLenCut/cm 
     << "Z_min= " << Z_lmin/cm << " cm; Z_max= " << Z_lmax 
     << " cm;  Z_hector = " << Z_hector << " cm\n"
-    << "ApplyPCuts: " << fPCuts << "  ApplyPtransCut: " << fPtransCut
-    << "  ApplyEtaCuts: " << fEtaCuts 
-    << "  ApplyPhiCuts: " << fPhiCuts
-    << "  ApplyLumiMonitorCuts: " << lumi;
+    << "                     ApplyCuts: " << fFiductialCuts
+    << "  PCuts: " << fPCuts << "  PtransCut: " << fPtransCut
+    << "  EtaCut: " << fEtaCuts 
+    << "  PhiCut: " << fPhiCuts
+    << "  LumiMonitorCut: " << lumi;
   if(lumi) { fLumiFilter->Describe(); }
 }
 
@@ -130,13 +133,9 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
                                      (*(evt->vertices_begin()))->position().z(),
                                      (*(evt->vertices_begin()))->position().t());
 
-  if(verbose > 0) {
-    edm::LogVerbatim("SimG4CoreGenerator") << &evt;
-    LogDebug("SimG4CoreGenerator") << "Primary Vertex = (" 
-				   << vtx_->x() << "," 
-				   << vtx_->y() << ","
-				   << vtx_->z() << ")";
-  }
+  edm::LogVerbatim("SimG4CoreGenerator") 
+    << "Generator: primary Vertex = (" 
+    << vtx_->x() << ", " << vtx_->y() << ", " << vtx_->z() << ")";
     
   unsigned int ng4vtx = 0;
 
@@ -243,12 +242,13 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       }
 
       edm::LogVerbatim("SimG4CoreGenerator") 
-	<< " pdg= " << pdg
+	<< "Generator: pdg= " << pdg
 	<< " status= " << status 
 	<< " hasPreDefinedDecay: " << hasDecayVertex
 	<< " isExotic: " << isExotic(pdg)
 	<< " isExoticNotDet: " << isExoticNonDetectable(pdg)
-	<< " isInTheList: " << IsInTheFilterList(pdg);
+	<< " isInTheList: " << IsInTheFilterList(pdg)
+	<< "\n         (x,y,z,t): (" << x1 << ","<< y1 << "," << z1 << "," << t1 << ")"; 
 
       if (status > 3 && isExotic(pdg) && (!(isExoticNonDetectable(pdg))) ) {
 	status = hasDecayVertex ? 2 : 1;
@@ -275,7 +275,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	decay_length = std::sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)+(z2-z1)*(z2-z1));
       } 
 
-      bool toBeAdded = false;
+      bool toBeAdded = (fFiductialCuts) ? false : true;
+
       double px = (*pitr)->momentum().px();
       double py = (*pitr)->momentum().py();
       double pz = (*pitr)->momentum().pz();
@@ -310,7 +311,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 
       // Particles of status 1 trasnported along the beam pipe for forward 
       // detectors (HECTOR) always pass to Geant4 without cuts 
-      if( 1 == status && 
+      if( 1 == status &&
 	  std::abs(zimpact) >= Z_hector && rimpact2 <= theDecRCut2) {
         toBeAdded = true;
         if ( verbose > 2 ) LogDebug("SimG4CoreGenerator") 
@@ -319,7 +320,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       } else {
 
 	// Standard case: particles not decayed by the generator
-	if(1 == status && 
+	if(1 == status &&
            (std::abs(zimpact) < Z_hector || rimpact2 > theDecRCut2)) {
 
 	  // Ptot cut for all particles
@@ -396,7 +397,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
             delete g4prim;
             continue;
 	  }
-          g4prim->SetCharge(charge);  
+          g4prim->SetCharge(charge);
         }
 
 	// V.I. do not use SetWeight but the same code
@@ -410,6 +411,9 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	}
         if ( verbose > 1 ) g4prim->Print();
         g4vtx->SetPrimary(g4prim);
+	edm::LogVerbatim("SimG4CoreGenerator") 
+	  << "Generator: new particle pdg= " << pdg << " Ptot(GeV/c)= " << ptot
+	  << " Pt= " << std::sqrt(px*px + py*py);
       }
     }
 

@@ -10,6 +10,7 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/HGCalCommonData/plugins/DDHGCalHEAlgo.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -483,7 +484,6 @@ void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
   double R    = 2.0*r/sqrt3;
   double dy   = 0.75*R;
   int    N    = (int)(0.5*rout/r) + 2;
-  double xc[6], yc[6];
 #ifdef EDM_ML_DEBUG
   int    ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
   std::vector<int>  ntype(6,0);
@@ -499,22 +499,12 @@ void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
       int nc =-2*u+v;
       double xpos = nc*r;
       double ypos = nr*dy;
-      xc[0] = xpos+r;  yc[0] = ypos+0.5*R;
-      xc[1] = xpos;    yc[1] = ypos+R;
-      xc[2] = xpos-r;  yc[2] = ypos+0.5*R;
-      xc[3] = xpos-r;  yc[3] = ypos-0.5*R;
-      xc[4] = xpos;    yc[4] = ypos-R;
-      xc[5] = xpos+r;  yc[5] = ypos-0.5*R;
-      bool cornerOne(false), cornerAll(true);
-      for (int k=0; k<6; ++k) {
-	double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
-	if (rpos >= rin && rpos <= rout) cornerOne = true;
-	else                             cornerAll = false;
-      }
+      std::pair<int,int> corner = 
+	HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
 #ifdef EDM_ML_DEBUG
       ++ntot;
 #endif
-      if (cornerOne) {
+      if (corner.first > 0) {
 	int type = waferType_->getType(xpos,ypos,zpos);
 	int copy = type*1000000 + iv*100 + iu;
 	if (u < 0) copy += 10000;
@@ -525,7 +515,7 @@ void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
 	kount++;
 	if (copies_.count(copy) == 0) copies_.insert(copy);
 #endif
-	if (cornerAll) {
+	if (corner.first == (int)(HGCalParameters::k_CornerSize)) {
 #ifdef EDM_ML_DEBUG
 	  if (iu > iumAll) iumAll = iu;
 	  if (iv > ivmAll) ivmAll = iv;
