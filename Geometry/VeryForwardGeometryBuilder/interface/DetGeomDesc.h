@@ -36,7 +36,6 @@ class RPAlignmentCorrectionData;
 class DetGeomDesc
 {
  public:
-  using ConstContainer = std::vector< const DetGeomDesc* >;
   using Container = std::vector< DetGeomDesc* >;
   using RotationMatrix = ROOT::Math::Rotation3D;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
@@ -53,10 +52,10 @@ class DetGeomDesc
   
   /// ID stuff
   void setGeographicalID(DetId id) { m_geographicalID = id; }
-  virtual DetId geographicalID() const { return m_geographicalID; }
+  DetId geographicalID() const { return m_geographicalID; }
   
   /// access to the tree structure
-  virtual Container components() const;
+  Container components() const;
   float planeZPos() const { return m_z; }
   
   /// components (children) management
@@ -68,15 +67,15 @@ class DetGeomDesc
   Translation		translation() const { return m_trans; }
   const std::string&	name() const {return m_name;};
   std::vector<double>	params() const {return m_params;}
-  virtual int		copyno() const {return m_copy;}
+  int                   copyno() const {return m_copy;}
   
   /// alignment
-  void ApplyAlignment(const RPAlignmentCorrectionData&);
+  void applyAlignment( const RPAlignmentCorrectionData& );
   
  private:
   DetGeomDesc() {}
   void deleteComponents(); /// deletes just the first daughters
-  void deepDeleteComponents(); ///traverses the treee and deletes all nodes.
+  void deepDeleteComponents(); /// traverses the treee and deletes all nodes.
   void clearComponents() { m_container.resize(0); }
   
   Container		 m_container;
