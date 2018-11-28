@@ -17,7 +17,7 @@ isoForIsoTk = cms.EDProducer("IsoTrackIsoValueMapProducer",
     EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt"),
 )
 
-isFromLostTrackForIsoTk = cms.EDProducer("IsoTkIsFromLostTrackMapProducer",
+isFromLostTrackForIsoTk = cms.EDProducer("IsFromLostTrackMapProducer",
     srcIsoTracks = cms.InputTag("finalIsolatedTracks"),
     packedPFCandidates = cms.InputTag("packedPFCandidates"),
     lostTracks = cms.InputTag("lostTracks"),
