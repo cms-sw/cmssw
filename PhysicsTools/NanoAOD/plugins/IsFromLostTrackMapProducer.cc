@@ -38,11 +38,10 @@
 // class declaration
 //
 
-template <typename T>
 class IsFromLostTrackMapProducer : public edm::global::EDProducer<> {
    public:
       explicit IsFromLostTrackMapProducer(const edm::ParameterSet& iConfig):
-        srcIsoTracks_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("srcIsoTracks"))), // final isolated tracks
+        srcIsoTracks_(consumes<edm::View<pat::IsolatedTrack>>(iConfig.getParameter<edm::InputTag>("srcIsoTracks"))), // final isolated tracks
         pc_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))), // pf candidates
         lt_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("lostTracks"))) // lost tracks
       {
@@ -76,9 +75,7 @@ class IsFromLostTrackMapProducer : public edm::global::EDProducer<> {
 //
 
 // ------------ method called to produce the data  ------------
-template <typename T>
-void
-IsFromLostTrackMapProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
+void IsFromLostTrackMapProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 
    // isolated tracks
@@ -118,9 +115,7 @@ IsFromLostTrackMapProducer<T>::produce(edm::StreamID streamID, edm::Event& iEven
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-template <typename T>
-void
-IsFromLostTrackMapProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void IsFromLostTrackMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("srcIsoTracks")->setComment("isolated track input collection");
@@ -133,7 +128,5 @@ IsFromLostTrackMapProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& 
 
 }
 
-typedef IsFromLostTrackMapProducer<pat::IsolatedTrack> IsoTkIsFromLostTrackMapProducer;
-
 //define this as a plug-in
-DEFINE_FWK_MODULE(IsoTkIsFromLostTrackMapProducer);
+DEFINE_FWK_MODULE(IsFromLostTrackMapProducer);
