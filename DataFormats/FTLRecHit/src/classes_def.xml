@@ -20,6 +20,16 @@
   <class name="edm::Ref<FTLRecHitCollection>"/>
   <class name="edm::RefVector<FTLRecHitCollection>"/>
   <class name="edm::RefProd<FTLRecHitCollection>"/>
+
+  <class name="FTLCluster" ClassVersion="6">
+    <version ClassVersion="6" checksum="1479089496"/>
+  </class>
+  <class name="std::vector<FTLCluster>"/>
+  <class name="FTLClusterCollection"/>
+  <class name="edm::Wrapper<FTLClusterCollection>" />
+  <class name="edm::Ref<FTLClusterCollection,FTLCluster>"/>
+  <class name="edm::RefVector<FTLClusterCollection>"/>
+  <class name="edm::RefProd<FTLClusterCollection>"/>
  
   <class name="edm::DetSet<FTLRecHit>"/>
   <class name="edm::DetSetVector<FTLRecHit>"/>
@@ -30,5 +40,26 @@
   <class name="edm::Wrapper<edm::DetSetVector<FTLRecHit> >"/>
   <class name="edm::Wrapper<std::vector<std::vector<edm::DetSet<FTLRecHit> > > >"/>
 
+  <class name="edm::DetSet<FTLCluster>"/>
+  <class name="edm::DetSetVector<FTLCluster>"/>
+  <class name="std::vector<edm::DetSet<FTLCluster> >"/>
+  <class name="std::vector<std::vector<edm::DetSet<FTLCluster> > >"/>
+  <class name="edm::Wrapper<edm::DetSet<FTLCluster> >"/>
+  <class name="edm::Wrapper<std::vector<edm::DetSet<FTLCluster> > >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<FTLCluster> >"/>
+  <class name="edm::Wrapper<std::vector<std::vector<edm::DetSet<FTLCluster> > > >"/>
+  
+  <class name="edmNew::DetSetVector<FTLCluster>"/>
+  <class name="edm::Wrapper<edmNew::DetSetVector<FTLCluster> >" />
+  <class name="edm::RefProd<edm::DetSetVector<FTLCluster> >" />
+  <class name="edm::Ref<edm::DetSetVector<FTLCluster>,FTLCluster,edm::refhelper::FindForDetSetVector<FTLCluster> >" />
+  <class name="FTLClusterRef" />
+  <class name="edm::Ref<edm::DetSetVector<FTLCluster>,edm::DetSet<FTLCluster>,edm::refhelper::FindDetSetForDetSetVector<FTLCluster,edm::DetSetVector<FTLCluster> > >" />
+  <class name="edm::DetSetRefVector<FTLCluster,edm::DetSetVector<FTLCluster> >" />
+
+  <class name="std::vector<edm::Ref<edmNew::DetSetVector<FTLCluster>,FTLCluster,edmNew::DetSetVector<FTLCluster>::FindForDetSetVector> >" />
+  <class name="edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<FTLCluster>,FTLCluster,edmNew::DetSetVector<FTLCluster>::FindForDetSetVector> >" />
+  <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<FTLCluster>,FTLCluster,edmNew::DetSetVector<FTLCluster>::FindForDetSetVector> > >" />
+  
   <enum name="FTLSeverityLevel::SeverityLevel"/> 
 </lcgdict>
