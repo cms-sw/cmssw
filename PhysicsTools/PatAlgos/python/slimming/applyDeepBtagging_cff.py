@@ -42,7 +42,6 @@ def applyDeepBtagging( process, postfix="" ) :
     # delete module not used anymore (slimmedJets substitutes)
     delattr(process, 'selectedUpdatedPatJetsSlimmedDeepFlavour'+postfix)
 
-<<<<<<< HEAD
     #switch to True if needed for private tests
     enableDeepTags = False
     if enableDeepTags:
