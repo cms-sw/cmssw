@@ -1,4 +1,4 @@
-from RecoBTag.TensorFlow.pfDeepDoubleBvLJetTags_cfi import pfDeepDoubleBvLJetTags
+from RecoBTag.TensorFlow.pfDeepDoubleBJetTags_cfi import pfDeepDoubleBJetTags
 from RecoBTag.TensorFlow.pfDeepDoubleCvBJetTags_cfi import pfDeepDoubleCvBJetTags
 from RecoBTag.TensorFlow.pfDeepDoubleCvLJetTags_cfi import pfDeepDoubleCvLJetTags
 

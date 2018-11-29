@@ -143,8 +143,10 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::string>("singleThreadPool", "no_threads");
 	
   edm::ParameterSetDescription psBvL;
-  psBvL.add<std::vector<unsigned int>>("probQCD", {0});
-  psBvL.add<std::vector<unsigned int>>("probHbb", {1});
+  psBvL.add<std::vector<unsigned int>>("probQ", {0});
+  psBvL.add<std::vector<unsigned int>>("probH", {1});
+  psBvL.addOptional<std::vector<unsigned int>>("probQCD", {0});
+  psBvL.addOptional<std::vector<unsigned int>>("probHbb", {1});
 
   edm::ParameterSetDescription psCvL;
   psCvL.add<std::vector<unsigned int>>("probQCD", {0});
@@ -168,7 +170,7 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   };
   auto descBvL(desc);
   descBvL.ifValue( edm::ParameterDescription<std::string>("flavor", "BvL", true), flavorCases());
-  descriptions.add("pfDeepDoubleBvLJetTags", descBvL);
+  descriptions.add("pfDeepDoubleBJetTags", descBvL);
 
   auto descCvL(desc);
   descCvL.ifValue( edm::ParameterDescription<std::string>("flavor", "CvL", true), flavorCases());
