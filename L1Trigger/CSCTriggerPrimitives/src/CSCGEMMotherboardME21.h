@@ -35,7 +35,7 @@ class CSCGEMMotherboardME21 : public CSCGEMMotherboard
            const GEMPadDigiCollection* gemPads) override;
 
   /* readout the two best LCTs in this CSC */
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const;
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const override;
 
  private:
 
