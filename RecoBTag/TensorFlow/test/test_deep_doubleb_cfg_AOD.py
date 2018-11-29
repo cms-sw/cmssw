@@ -70,8 +70,8 @@ addJetCollection(
    jetCorrections = ('AK8PFPuppi', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
    btagDiscriminators = [
       'pfBoostedDoubleSecondaryVertexAK8BJetTags',
-      'pfDeepDoubleBvLJetTags:probQCD', 
-      'pfDeepDoubleBvLJetTags:probHbb', 
+      'pfDeepDoubleBJetTags:probQ', 
+      'pfDeepDoubleBJetTags:probH', 
       ]
    )
 
