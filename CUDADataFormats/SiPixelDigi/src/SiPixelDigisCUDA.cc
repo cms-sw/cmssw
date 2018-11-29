@@ -2,6 +2,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include <cuda_runtime.h>
 
@@ -20,5 +21,5 @@ SiPixelDigisCUDA::SiPixelDigisCUDA(size_t nelements, cuda::stream_t<>& stream) {
   view->moduleInd_ = moduleInd_d.get();
 
   view_d = cs->make_device_unique<DeviceConstView>(stream);
-  cudaMemcpyAsync(view_d.get(), view.get(), sizeof(DeviceConstView), cudaMemcpyDefault, stream.id());
+  cudaCheck(cudaMemcpyAsync(view_d.get(), view.get(), sizeof(DeviceConstView), cudaMemcpyDefault, stream.id()));
 }

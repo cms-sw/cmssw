@@ -84,9 +84,9 @@ namespace pixelgpudetails {
     return (1==((rawId>>25)&0x7));
   }
 
-  __device__ pixelgpudetails::DetIdGPU getRawId(const SiPixelFedCablingMapGPU * Map, uint32_t fed, uint32_t link, uint32_t roc) {
+  __device__ pixelgpudetails::DetIdGPU getRawId(const SiPixelFedCablingMapGPU * cablingMap, uint32_t fed, uint32_t link, uint32_t roc) {
     uint32_t index = fed * MAX_LINK * MAX_ROC + (link-1) * MAX_ROC + roc;
-    pixelgpudetails::DetIdGPU detId = { Map->RawId[index], Map->rocInDet[index], Map->moduleId[index] };
+    pixelgpudetails::DetIdGPU detId = { cablingMap->RawId[index], cablingMap->rocInDet[index], cablingMap->moduleId[index] };
     return detId;
   }
 
@@ -165,7 +165,7 @@ namespace pixelgpudetails {
 
     uint32_t gRow = rowOffset+slopeRow*local.row;
     uint32_t gCol = colOffset+slopeCol*local.col;
-    //printf("Inside frameConversion row: %u, column: %u\n",gRow, gCol);
+    //printf("Inside frameConversion row: %u, column: %u\n", gRow, gCol);
     pixelgpudetails::Pixel global = {gRow, gCol};
     return global;
   }
@@ -219,7 +219,7 @@ namespace pixelgpudetails {
     return ((dcol < 26) &  (2 <= pxid) & (pxid < 162));
   }
 
-  __device__ uint32_t checkROC(uint32_t errorWord, uint32_t fedId, uint32_t link, const SiPixelFedCablingMapGPU *Map, bool debug = false)
+  __device__ uint32_t checkROC(uint32_t errorWord, uint32_t fedId, uint32_t link, const SiPixelFedCablingMapGPU *cablingMap, bool debug = false)
   {
     int errorType = (errorWord >> pixelgpudetails::ROC_shift) & pixelgpudetails::ERROR_mask;
     if (errorType < 25) return false;
@@ -229,8 +229,8 @@ namespace pixelgpudetails {
       case(25) : {
         errorFound = true;
         uint32_t index = fedId * MAX_LINK * MAX_ROC + (link-1) * MAX_ROC + 1;
-        if (index > 1 && index <= Map->size) {
-          if (!(link == Map->link[index] && 1 == Map->roc[index])) errorFound = false;
+        if (index > 1 && index <= cablingMap->size) {
+          if (!(link == cablingMap->link[index] && 1 == cablingMap->roc[index])) errorFound = false;
         }
         if (debug&errorFound) printf("Invalid ROC = 25 found (errorType = 25)\n");
         break;
@@ -283,7 +283,7 @@ namespace pixelgpudetails {
     return errorFound? errorType : 0;
   }
 
-  __device__ uint32_t getErrRawID(uint32_t fedId, uint32_t errWord, uint32_t errorType, const SiPixelFedCablingMapGPU *Map, bool debug = false)
+  __device__ uint32_t getErrRawID(uint32_t fedId, uint32_t errWord, uint32_t errorType, const SiPixelFedCablingMapGPU *cablingMap, bool debug = false)
   {
     uint32_t rID = 0xffffffff;
 
@@ -294,7 +294,7 @@ namespace pixelgpudetails {
         //cabling.pxid = 2;
         uint32_t roc  = 1;
         uint32_t link = (errWord >> pixelgpudetails::LINK_shift) & pixelgpudetails::LINK_mask;
-        uint32_t rID_temp = getRawId(Map, fedId, link, roc).RawId;
+        uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).RawId;
         if (rID_temp != 9999) rID = rID_temp;
         break;
       }
@@ -326,7 +326,7 @@ namespace pixelgpudetails {
         //cabling.pxid = 2;
         uint32_t roc  = 1;
         uint32_t link = chanNmbr;
-        uint32_t rID_temp = getRawId(Map, fedId, link, roc).RawId;
+        uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).RawId;
         if(rID_temp != 9999) rID = rID_temp;
         break;
       }
@@ -335,7 +335,7 @@ namespace pixelgpudetails {
         //cabling.pxid = 2;
         uint32_t roc  = (errWord >> pixelgpudetails::ROC_shift) & pixelgpudetails::ROC_mask;
         uint32_t link = (errWord >> pixelgpudetails::LINK_shift) & pixelgpudetails::LINK_mask;
-        uint32_t rID_temp = getRawId(Map, fedId, link, roc).RawId;
+        uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).RawId;
         if(rID_temp != 9999) rID = rID_temp;
         break;
       }
@@ -366,7 +366,7 @@ namespace pixelgpudetails {
   //   int gIndex = blockDim.x*blockIdx.x+tid;
   //   if (gIndex<wordCounter) {
   //     uint32_t adcOld = adc[gIndex];
-  //     const float gain = adcThreshold.theElectronPerADCGain_; // default: 1 ADC = 135 electrons
+  //     const float gain = adcThreshold.theElectronPerADCGain_; // default: 1 adc = 135 electrons
   //     const float pedestal = 0; //
   //     int adcNew = int(adcOld*gain+pedestal);
   //     // rare chance of entering into the if ()
@@ -393,23 +393,23 @@ namespace pixelgpudetails {
 
 
   // Kernel to perform Raw to Digi conversion
-  __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const unsigned char *modToUnp,
-      const uint32_t wordCounter, const uint32_t *Word, const uint8_t *fedIds,
-      uint16_t * XX, uint16_t * YY, uint16_t * ADC,
-      uint32_t * pdigi, uint32_t *rawIdArr, uint16_t * moduleId,
+  __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *cablingMap, const unsigned char *modToUnp,
+      const uint32_t wordCounter, const uint32_t *word, const uint8_t *fedIds,
+      uint16_t *xx, uint16_t *yy, uint16_t *adc,
+      uint32_t *pdigi, uint32_t *rawIdArr, uint16_t *moduleId,
       GPU::SimpleVector<pixelgpudetails::error_obj> *err,
       bool useQualityInfo, bool includeErrors, bool debug)
   {
-    uint32_t blockId  = blockIdx.x;
-    uint32_t threadId  = threadIdx.x;
+    //if (threadIdx.x==0) printf("Event: %u blockIdx.x: %u start: %u end: %u\n", eventno, blockIdx.x, begin, end);
 
+    auto gIndex  = threadIdx.x + blockIdx.x * blockDim.x;
+    xx[gIndex]   = 0;
+    yy[gIndex]   = 0;
+    adc[gIndex]  = 0;
     bool skipROC = false;
-    //if (threadId==0) printf("Event: %u blockId: %u start: %u end: %u\n", eventno, blockId, begin, end);
 
-    for (int aaa=0; aaa<1; ++aaa) {  // too many coninue below.... (to be fixed)
-      auto gIndex = threadId + blockId*blockDim.x;
+    do {  // too many coninue below.... (to be fixed)
       if (gIndex < wordCounter) {
-
         uint32_t fedId = fedIds[gIndex/2]; // +1200;
 
         // initialize (too many coninue below)
@@ -417,24 +417,21 @@ namespace pixelgpudetails {
         rawIdArr[gIndex] = 0;
         moduleId[gIndex] = 9999;
 
-        uint32_t ww = Word[gIndex]; // Array containing 32 bit raw data
+        uint32_t ww = word[gIndex]; // Array containing 32 bit raw data
         if (ww == 0) {
-          //noise and dead channels are ignored
-          XX[gIndex]    = 0;  // 0 is an indicator of a noise/dead channel
-          YY[gIndex]    = 0; // skip these pixels during clusterization
-          ADC[gIndex]   = 0;
-          continue; // 0: bad word
+          // 0 is an indicator of a noise/dead channel, skip these pixels during clusterization
+          continue;
         }
 
         uint32_t link  = getLink(ww);            // Extract link
         uint32_t roc   = getRoc(ww);             // Extract Roc in link
-        pixelgpudetails::DetIdGPU detId = getRawId(Map, fedId, link, roc);
+        pixelgpudetails::DetIdGPU detId = getRawId(cablingMap, fedId, link, roc);
 
-        uint32_t errorType = checkROC(ww, fedId, link, Map, debug);
+        uint32_t errorType = checkROC(ww, fedId, link, cablingMap, debug);
         skipROC = (roc < pixelgpudetails::maxROCIndex) ? false : (errorType != 0);
         if (includeErrors and skipROC)
         {
-          uint32_t rID = getErrRawID(fedId, ww, errorType, Map, debug);
+          uint32_t rID = getErrRawID(fedId, ww, errorType, cablingMap, debug);
           err->emplace_back(rID, ww, errorType, fedId);
           continue;
         }
@@ -445,16 +442,14 @@ namespace pixelgpudetails {
 
         uint32_t index = fedId * MAX_LINK * MAX_ROC + (link-1) * MAX_ROC + roc;
         if (useQualityInfo) {
-
-          skipROC = Map->badRocs[index];
+          skipROC = cablingMap->badRocs[index];
           if (skipROC) continue;
-
         }
         skipROC = modToUnp[index];
         if (skipROC) continue;
 
         uint32_t layer = 0;//, ladder =0;
-        int side = 0, panel = 0, module = 0;//disk = 0,blade = 0
+        int side = 0, panel = 0, module = 0;//disk = 0, blade = 0
 
         if (barrel)
         {
@@ -503,14 +498,14 @@ namespace pixelgpudetails {
         }
 
         pixelgpudetails::Pixel globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
-        XX[gIndex]    = globalPix.row;  // origin shifting by 1 0-159
-        YY[gIndex]    = globalPix.col;  // origin shifting by 1 0-415
-        ADC[gIndex]   = getADC(ww);
-        pdigi[gIndex] = pixelgpudetails::pack(globalPix.row,globalPix.col,ADC[gIndex]);
+        xx[gIndex]    = globalPix.row;  // origin shifting by 1 0-159
+        yy[gIndex]    = globalPix.col;  // origin shifting by 1 0-415
+        adc[gIndex]   = getADC(ww);
+        pdigi[gIndex] = pixelgpudetails::pack(globalPix.row, globalPix.col, adc[gIndex]);
         moduleId[gIndex] = detId.moduleId;
         rawIdArr[gIndex] = rawId;
       } // end of if (gIndex < end)
-    } // end fake loop
+    } while (false); // end fake loop
   } // end of Raw to Digi kernel
 
   // Interface to outside
