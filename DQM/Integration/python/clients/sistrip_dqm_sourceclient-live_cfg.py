@@ -552,7 +552,13 @@ if (process.runType.getRunType() == process.runType.hi_run):
         process.TrackingAnalyser.verbose = cms.untracked.bool(True)
     process.TrackingClient = cms.Sequence( process.TrackingAnalyser )
 
-    process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml')
+    process.stripQTester.qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_heavyion.xml')
+    process.stripQTester.prescaleFactor          = cms.untracked.int32(2)
+    process.stripQTester.getQualityTestsFromFile = cms.untracked.bool(True)
+    process.stripQTester.qtestOnEndLumi          = cms.untracked.bool(True)
+    process.stripQTester.qtestOnEndRun           = cms.untracked.bool(True)
+
+    process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_heavyion.xml')
     process.trackingQTester.prescaleFactor          = cms.untracked.int32(1)
     process.trackingQTester.getQualityTestsFromFile = cms.untracked.bool(True)
     process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
