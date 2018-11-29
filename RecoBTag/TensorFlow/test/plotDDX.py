@@ -17,18 +17,18 @@ for iev,event in enumerate(events_c):
     event.getByLabel (labelJ, handleJ)
     jets = handleJ.product()
     for jet in jets  :
-        if jet.pt() < 300 or jet.pt() > 2000: continue
-        if jet.mass() < 40 or jet.mass() > 200: continue
+        #if jet.pt() < 300 or jet.pt() > 2000: continue
+        #if jet.mass() < 40 or jet.mass() > 200: continue
 
         print(jet.pt(), jet.mass())
-        print("DDB", jet.bDiscriminator("pfDeepDoubleBvLJetTags:probQCD"), jet.bDiscriminator("pfDeepDoubleBvLJetTags:probHbb"))
+        print("DDB", jet.bDiscriminator("pfDeepDoubleBJetTags:probQCD"), jet.bDiscriminator("pfDeepDoubleBJetTags:probHbb"))
         print("DDB", jet.bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probQCD"), jet.bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probHbb"))
         print("DDCvL", jet.bDiscriminator("pfDeepDoubleCvLJetTags:probQCD"), jet.bDiscriminator("pfDeepDoubleCvLJetTags:probHcc"))
         print("DDCvL", jet.bDiscriminator("pfMassIndependentDeepDoubleCvLJetTags:probQCD"), jet.bDiscriminator("pfMassIndependentDeepDoubleCvLJetTags:probHcc"))
         print("DDCvB", jet.bDiscriminator("pfDeepDoubleCvBJetTags:probHbb"), jet.bDiscriminator("pfDeepDoubleCvBJetTags:probHcc") )
         print("DDCvB", jet.bDiscriminator("pfMassIndependentDeepDoubleCvBJetTags:probHbb"), jet.bDiscriminator("pfMassIndependentDeepDoubleCvBJetTags:probHcc"))
-        h_probQ_ddb.Fill(jet.bDiscriminator("pfDeepDoubleBvLJetTags:probQCD"))
-        h_probH_ddb.Fill(jet.bDiscriminator("pfDeepDoubleBvLJetTags:probHbb"))
+        h_probQ_ddb.Fill(jet.bDiscriminator("pfDeepDoubleBJetTags:probQ"))
+        h_probH_ddb.Fill(jet.bDiscriminator("pfDeepDoubleBJetTags:probH"))
         h_probQ_ddc.Fill(jet.bDiscriminator("pfDeepDoubleCvLJetTags:probQCD"))
         h_probH_ddc.Fill(jet.bDiscriminator("pfDeepDoubleCvLJetTags:probHcc"))
 

@@ -168,7 +168,7 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   };
   auto descBvL(desc);
   descBvL.ifValue( edm::ParameterDescription<std::string>("flavor", "BvL", true), flavorCases());
-  descriptions.add("pfDeepDoubleBvLJetTags", descBvL);
+  descriptions.add("pfDeepDoubleBJetTags", descBvL);
 
   auto descCvL(desc);
   descCvL.ifValue( edm::ParameterDescription<std::string>("flavor", "CvL", true), flavorCases());
