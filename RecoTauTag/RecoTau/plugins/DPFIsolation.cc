@@ -9,6 +9,7 @@
 #include "RecoTauTag/RecoTau/interface/DeepTauBase.h"
 
 namespace {
+
 inline int getPFCandidateIndex(const edm::Handle<pat::PackedCandidateCollection>& pfcands,
                                const reco::CandidatePtr& cptr)
 {
@@ -19,6 +20,16 @@ inline int getPFCandidateIndex(const edm::Handle<pat::PackedCandidateCollection>
     return -1;
 }
 } // anonymous namespace
+
+#if __cplusplus < 201703L
+namespace std {
+    template<class T>
+    inline constexpr const T& clamp( const T& v, const T& lo, const T& hi )
+    {
+        return (v < lo) ? lo : (v > hi)? hi : v;
+    }
+}
+#endif
 
 class DPFIsolation : public deep_tau::DeepTauBase {
 public:
