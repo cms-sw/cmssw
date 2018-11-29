@@ -320,13 +320,9 @@ private:
                                     const MuonCollection& muons) const
     {
         static constexpr bool check_all_set = false;
-<<<<<<< HEAD
-        static constexpr float magic_number = -42;
-        static const TauIdMVAAuxiliaries clusterVariables;
-=======
         static constexpr float default_value_for_set_check = -42;
->>>>>>> 60818853ba9... Applied @perrotta comments on 104X
-
+        static const TauIdMVAAuxiliaries clusterVariables;
+        
         tensorflow::Tensor inputs(tensorflow::DT_FLOAT, { 1, dnn_inputs_2017v1::NumberOfInputs});
         const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
         auto leadChargedHadrCand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get());
