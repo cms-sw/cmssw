@@ -8,8 +8,9 @@ fastTimingLocalReco = cms.Sequence(ftlUncalibratedRecHits*ftlRecHits)
 
 from RecoLocalFastTime.FTLRecProducers.mtdUncalibratedRecHits_cfi import mtdUncalibratedRecHits
 from RecoLocalFastTime.FTLRecProducers.mtdRecHits_cfi import mtdRecHits
+from RecoLocalFastTime.FTLClusterizer.mtdClusters_cfi import mtdClusters
 
-_phase2_timing_layer_fastTimingLocalReco = cms.Sequence(mtdUncalibratedRecHits*mtdRecHits)
+_phase2_timing_layer_fastTimingLocalReco = cms.Sequence(mtdUncalibratedRecHits*mtdRecHits*mtdClusters)
 
 from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
 from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar

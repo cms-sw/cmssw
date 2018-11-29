@@ -1,0 +1,12 @@
+<use   name="Geometry/CaloGeometry"/>
+<use   name="RecoLocalFastTime/FTLClusterizer"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/FTLRecHit"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/MessageService"/>
+<use   name="boost_serialization"/>
+<library   file="*.cc" name="RecoLocalFastTimeFTLClusterizerPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
