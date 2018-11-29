@@ -160,7 +160,7 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   using PDCases = edm::ParameterDescriptionCases<std::string>;
   auto flavorCases = [&](){ return
     "BvL" >> (PDPSD("flav_table", psBvL, true) and 
-              PDFIP("graph_path",  FIP("RecoBTag/Combined/data/DeepDoubleB/V01/constant_graph_PtCut_MassSculptPen.pb"), true)) or
+              PDFIP("graph_path",  FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDB.pb"), true) ) or
     "CvL" >> (PDPSD("flav_table", psCvL, true) and 
               PDFIP("graph_path",  FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC.pb"), true) ) or
     "CvB" >> (PDPSD("flav_table", psCvB, true) and 
