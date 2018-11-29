@@ -26,45 +26,23 @@ namespace {
   }
 }
 
-MTDParametersFromDD::MTDParametersFromDD(const edm::ParameterSet& pset) {
-  const edm::VParameterSet& items = 
-    pset.getParameterSetVector("vitems");
-  pars_ = pset.getParameter<std::vector<int32_t> >("vpars");
-
-  items_.resize(items.size());
-  for( unsigned i = 0; i < items.size(); ++i) {
-    auto& item = items_[i];
-    item.id_ = i+1;
-    item.vpars_ = items[i].getParameter<std::vector<int32_t> >("subdetPars");    
-  }
-}
-
 bool
 MTDParametersFromDD::build( const DDCompactView* cvp,
                             PMTDParameters& ptp)
 {
-  if( items_.empty() ) {
-    for( int subdet = 1; subdet <= 6; ++subdet )
-      {
-        std::stringstream sstm;
-        sstm << "Subdetector" << subdet;
-        std::string name = sstm.str();
-	
-        if( DDVectorGetter::check( name ))
-          {
-            std::vector<int> subdetPars = dbl_to_int( DDVectorGetter::get( name ));
-            putOne( subdet, subdetPars, ptp );
-          }
-      }
-  } else {
-    ptp.vitems_ = items_;
-  }
-
-  if( pars_.empty() ) {
-    ptp.vpars_ = dbl_to_int( DDVectorGetter::get( "vPars" ));
-  } else {
-    ptp.vpars_ = pars_;
-  }
+  std::list<std::string> mtdSubdet { "BTL", "ETL" };
+  int subdet(0);
+  for( auto name : mtdSubdet )
+    {
+      if( DDVectorGetter::check( name ))
+        {
+          subdet += 1;
+          std::vector<int> subdetPars = dbl_to_int( DDVectorGetter::get( name ));
+          putOne( subdet, subdetPars, ptp );
+        }
+    }
+  
+  ptp.vpars_ = dbl_to_int( DDVectorGetter::get( "vPars" ));
 
   std::string attribute = "OnlyForMTDRecNumbering"; 
   DDSpecificsHasNamedValueFilter filter1{attribute};
