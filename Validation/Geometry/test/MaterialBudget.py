@@ -901,13 +901,6 @@ def create2DPlots(detector, plot, geometry):
 
     # # properties
     gStyle.SetStripDecimals(False)
-    # #
-
-    # Create "null" histo
-    minX = 1.03*hist_X0_total.GetXaxis().GetXmin()
-    maxX = 1.03*hist_X0_total.GetXaxis().GetXmax()
-    minY = 1.03*hist_X0_total.GetYaxis().GetXmin()
-    maxY = 1.03*hist_X0_total.GetYaxis().GetXmax()
 
     # Ratio
     if plots[plot].iRebin:
@@ -928,7 +921,6 @@ def create2DPlots(detector, plot, geometry):
     if plots[plot].histoMax != -1.:
         hist_X0_total.SetMaximum(plots[plot].histoMax)
 
-    #
     can2name = "MBCan_2D_%s_%s" % (detector, plot)
     can2 = TCanvas(can2name, can2name, 2480+248, 580+58+58)
     can2.SetTopMargin(0.1)
