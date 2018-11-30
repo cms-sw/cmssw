@@ -306,7 +306,7 @@ private:
         tensorflow::Tensor predictions(tensorflow::DT_FLOAT, { static_cast<int>(taus->size()),
                                        dnn_inputs_2017v1::NumberOfOutputs});
         for(size_t tau_index = 0; tau_index < taus->size(); ++tau_index) {
-            const tensorflow::Tensor& inputs = CreateInputs<dnn_inputs_2017v1>(taus->at(tau_index), *electrons, *muons);
+            const tensorflow::Tensor& inputs = createInputs<dnn_inputs_2017v1>(taus->at(tau_index), *electrons, *muons);
             std::vector<tensorflow::Tensor> pred_vector;
             tensorflow::run(&(cache_->getSession()), { { input_layer, inputs } }, { output_layer }, &pred_vector);
             for(int k = 0; k < dnn_inputs_2017v1::NumberOfOutputs; ++k)
@@ -316,20 +316,20 @@ private:
     }
 
     template<typename dnn>
-    tensorflow::Tensor CreateInputs(const TauType& tau, const ElectronCollection& electrons,
+    tensorflow::Tensor createInputs(const TauType& tau, const ElectronCollection& electrons,
                                     const MuonCollection& muons) const
     {
         static constexpr bool check_all_set = false;
-        static constexpr float magic_number = -42;
+        static constexpr float default_value_for_set_check = -42;
         static const TauIdMVAAuxiliaries clusterVariables;
-
+        
         tensorflow::Tensor inputs(tensorflow::DT_FLOAT, { 1, dnn_inputs_2017v1::NumberOfInputs});
         const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
         auto leadChargedHadrCand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get());
 
         if(check_all_set) {
             for(int var_index = 0; var_index < dnn::NumberOfInputs; ++var_index) {
-                get(var_index) = magic_number;
+                get(var_index) = default_value_for_set_check;
             }
         }
 
@@ -476,7 +476,7 @@ private:
                                   get(dnn::signalGammaCands_nTotal_outerSigCone));
 
         LorentzVectorXYZ isolationChargedHadrCands_sum;
-        ProcessIsolationPFComponents(tau, tau.isolationChargedHadrCands(), isolationChargedHadrCands_sum,
+        processIsolationPFComponents(tau, tau.isolationChargedHadrCands(), isolationChargedHadrCands_sum,
                                      get(dnn::isolationChargedHadrCands_sum_pt),
                                      get(dnn::isolationChargedHadrCands_sum_dEta),
                                      get(dnn::isolationChargedHadrCands_sum_dPhi),
@@ -484,7 +484,7 @@ private:
                                      get(dnn::isolationChargedHadrCands_nTotal));
 
         LorentzVectorXYZ isolationNeutrHadrCands_sum;
-        ProcessIsolationPFComponents(tau, tau.isolationNeutrHadrCands(), isolationNeutrHadrCands_sum,
+        processIsolationPFComponents(tau, tau.isolationNeutrHadrCands(), isolationNeutrHadrCands_sum,
                                      get(dnn::isolationNeutrHadrCands_sum_pt),
                                      get(dnn::isolationNeutrHadrCands_sum_dEta),
                                      get(dnn::isolationNeutrHadrCands_sum_dPhi),
@@ -492,7 +492,7 @@ private:
                                      get(dnn::isolationNeutrHadrCands_nTotal));
 
         LorentzVectorXYZ isolationGammaCands_sum;
-        ProcessIsolationPFComponents(tau, tau.isolationGammaCands(), isolationGammaCands_sum,
+        processIsolationPFComponents(tau, tau.isolationGammaCands(), isolationGammaCands_sum,
                                      get(dnn::isolationGammaCands_sum_pt),
                                      get(dnn::isolationGammaCands_sum_dEta),
                                      get(dnn::isolationGammaCands_sum_dPhi),
@@ -503,7 +503,7 @@ private:
 
         if(check_all_set) {
             for(int var_index = 0; var_index < dnn::NumberOfInputs; ++var_index) {
-                if(get(var_index) == magic_number)
+                if(get(var_index) == default_value_for_set_check)
                     throw cms::Exception("DeepTauId: variable with index = ") << var_index << " is not set.";
             }
         }
@@ -566,7 +566,7 @@ private:
     }
 
     template<typename CandidateCollection>
-    static void ProcessIsolationPFComponents(const pat::Tau& tau, const CandidateCollection& candidates,
+    static void processIsolationPFComponents(const pat::Tau& tau, const CandidateCollection& candidates,
                                              LorentzVectorXYZ& p4, float& pt, float& d_eta, float& d_phi, float& m,
                                              float& n)
     {
@@ -586,7 +586,9 @@ private:
 
     static double getInnerSignalConeRadius(double pt)
     {
-        return std::max(.05, std::min(.1, 3./std::max(1., pt)));
+        static constexpr double min_pt = 30., min_radius = 0.05, cone_opening_coef = 3.;
+        // This is equivalent of the original formula (std::max(std::min(0.1, 3.0/pt), 0.05)
+        return std::max(cone_opening_coef / std::max(pt, min_pt), min_radius);
     }
 
     // Copied from https://github.com/cms-sw/cmssw/blob/CMSSW_9_4_X/RecoTauTag/RecoTau/plugins/PATTauDiscriminationByMVAIsolationRun2.cc#L218
