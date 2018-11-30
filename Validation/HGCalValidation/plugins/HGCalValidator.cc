@@ -41,13 +41,20 @@ void HGCalValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook, edm::Run 
     string dirName=dirName_;
     if (!algo.process().empty())
       dirName+=algo.process()+"_";
+    std::cout << dirName << std::endl; 
     if(!algo.label().empty())
       dirName+=algo.label()+"_";
+    std::cout << dirName << std::endl; 
     if(!algo.instance().empty())
       dirName+=algo.instance()+"_";
-    if (dirName.find("Tracks")<dirName.length()){
-      dirName.replace(dirName.find("Tracks"),6,"");
-    }
+    std::cout << dirName << std::endl; 
+    // if (dirName.find("Tracks")<dirName.length()){
+    //   dirName.replace(dirName.find("Tracks"),6,"");
+    // }
+
+    if (dirName.size () > 0){dirName.resize(dirName.size() - 1);}
+    
+    std::cout << dirName << std::endl; 
 
     ibook.setCurrentFolder(dirName);
 
@@ -84,7 +91,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event, const edm::EventSetup& 
 
     for (unsigned int layerclusterIndex = 0; layerclusterIndex < clusters.size(); layerclusterIndex++) {
 
-      std::cout << "TESTING HERE " << clusters[layerclusterIndex].eta() << std::endl;     
+      //std::cout << "TESTING HERE " << clusters[layerclusterIndex].eta() << std::endl;     
       histoProducerAlgo_->fill_cluster_histos(histograms.histoProducerAlgo,w,clusters[layerclusterIndex]);
       
     }
