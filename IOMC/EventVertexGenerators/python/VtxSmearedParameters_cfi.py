@@ -713,6 +713,19 @@ RealisticXeXeCollision2017VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.645)
 )
 
+# From fit to 5 TeV PbPb data
+RealisticPbPbCollision2018VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(50),
+    Emittance = cms.double(3.36e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(4.97),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.084),
+    Y0 = cms.double(-0.110),
+    Z0 = cms.double(-0.322)
+)
+
 # Estimate for 2015 pp collisions at 5.02 TeV, based on feedback from accelerator:  beta* ~ 400cm, normalized emittance = 2.5 um, SigmaZ similar to RunIIWinter15GS
 Nominal5TeVpp2015VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
