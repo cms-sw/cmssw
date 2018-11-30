@@ -12,29 +12,24 @@ namespace {
 inline int getPFCandidateIndex(const edm::Handle<pat::PackedCandidateCollection>& pfcands,
                                const reco::CandidatePtr& cptr)
 {
-    unsigned int pfInd = -1;
     for(unsigned int i = 0; i < pfcands->size(); ++i) {
-        pfInd++;
-        if(reco::CandidatePtr(pfcands,i) == cptr) {
-            pfInd = i;
-            break;
-        }
+        if(reco::CandidatePtr(pfcands,i) == cptr)
+            return i;
     }
-    return pfInd;
+    return -1;
 }
 } // anonymous namespace
 
-
 class DPFIsolation : public deep_tau::DeepTauBase {
 public:
-    static OutputCollection& GetOutputs()
+    static const OutputCollection& GetOutputs()
     {
-        static size_t tau_index = 0;
-        static OutputCollection outputs = { { "VSall", Output({tau_index}, {}) } };
-        return outputs;
+        const size_t tau_index = 0;
+        static const OutputCollection outputs_ = { { "VSall", Output({tau_index}, {}) } };
+        return outputs_;
     };
 
-    static unsigned GetNumberOfParticles(unsigned graphVersion)
+    static unsigned getNumberOfParticles(unsigned graphVersion)
     {
         static const std::map<unsigned, unsigned> nparticles { { 0, 60 }, { 1, 36 } };
         return nparticles.at(graphVersion);
@@ -52,7 +47,9 @@ public:
         desc.add<edm::InputTag>("pfcands", edm::InputTag("packedPFCandidates"));
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
         desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
-        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0.pb");
+        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb");
+        desc.add<unsigned>("version", 0);
+        desc.add<bool>("mem_mapped", false);
 
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
@@ -68,21 +65,24 @@ public:
         descriptions.add("DPFTau2016v0", desc);
     }
 
-    explicit DPFIsolation(const edm::ParameterSet& cfg) :
-        DeepTauBase(cfg, GetOutputs()),
+    explicit DPFIsolation(const edm::ParameterSet& cfg,const deep_tau::DeepTauCache* cache) :
+        DeepTauBase(cfg, GetOutputs(), cache),
         pfcand_token(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("pfcands"))),
-        vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices")))
+        vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
+        graphVersion(cfg.getParameter<unsigned>("version"))
     {
-        if(graphName.find("v0.pb") != std::string::npos)
-            graphVersion = 0;
-        else if(graphName.find("v1.pb") != std::string::npos)
-            graphVersion = 1;
-        else
-            throw cms::Exception("DPFIsolation") << "unknown version of the graph file.";
+        const auto& shape = cache_->getGraph().node(0).attr().at("shape").shape();
+
+        if(!(graphVersion == 1 || graphVersion == 0 ))
+            throw cms::Exception("DPFIsolation") << "unknown version of the graph_ file.";
+
+        if(!(shape.dim(1).size() == getNumberOfParticles(graphVersion) && shape.dim(2).size() == GetNumberOfFeatures(graphVersion)))
+            throw cms::Exception("DPFIsolation") << "number of inputs does not match the expected inputs for the given version";
+
     }
 
 private:
-    virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es,
+    virtual tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
                                               edm::Handle<TauCollection> taus) override
     {
         edm::Handle<pat::PackedCandidateCollection> pfcands;
@@ -92,11 +92,11 @@ private:
         event.getByToken(vtx_token, vertices);
 
         tensorflow::Tensor tensor(tensorflow::DT_FLOAT, {1,
-            static_cast<int>(GetNumberOfParticles(graphVersion)), static_cast<int>(GetNumberOfFeatures(graphVersion))});
+            static_cast<int>(getNumberOfParticles(graphVersion)), static_cast<int>(GetNumberOfFeatures(graphVersion))});
 
         tensorflow::Tensor predictions(tensorflow::DT_FLOAT, { static_cast<int>(taus->size()), 1});
 
-        std::vector<tensorflow::Tensor> outputs;
+        std::vector<tensorflow::Tensor> outputs_;
 
         float pfCandPt, pfCandPz, pfCandPtRel, pfCandPzRel, pfCandDr, pfCandDEta, pfCandDPhi, pfCandEta, pfCandDz,
               pfCandDzErr, pfCandD0, pfCandD0D0, pfCandD0Dz, pfCandD0Dphi, pfCandPuppiWeight,
@@ -109,10 +109,35 @@ private:
 
         bool pfCandIsBarrel;
 
+        // These variables define ranges further used for standardization
+        static constexpr float pfCandPt_max = 500.f;
+        static constexpr float pfCandPz_max = 1000.f;
+        static constexpr float pfCandPtRel_max = 1.f;
+        static constexpr float pfCandPzRel_max = 100.f;
+        static constexpr float pfCandPtRelPtRel_max = 1.f;
+        static constexpr float pfCandD0_max = 5.f;
+        static constexpr float pfCandDz_max = 5.f;
+        static constexpr float pfCandDVx_y_z_1_max = 0.05f;
+        static constexpr float pfCandD_1_max = 0.1f;
+        static constexpr float pfCandD0_z_Err_max = 1.f;
+        static constexpr float pfCandDzSig_max = 3.f;
+        static constexpr float pfCandD0Sig_max = 1.f;
+        static constexpr float pfCandDr_max = 0.5f;
+        static constexpr float pfCandEta_max = 2.75f;
+        static constexpr float pfCandDEta_max = 0.5f;
+        static constexpr float pfCandDPhi_max = 0.5f;
+        static constexpr float pfCandPixHits_max = 7.f;
+        static constexpr float pfCandHits_max = 30.f;
+
         for(size_t tau_index = 0; tau_index < taus->size(); tau_index++) {
             pat::Tau tau = taus->at(tau_index);
             bool isGoodTau = false;
-            if(tau.pt() >= 30 && std::abs(tau.eta()) < 2.3 && tau.isTauIDAvailable("againstMuonLoose3") &&
+            const float lepRecoPt = tau.pt();
+            const float lepRecoPz = std::abs(tau.pz());
+            const float lepRecoEta = tau.eta();
+            const float lepRecoPhi = tau.phi();
+
+            if(lepRecoPt >= 30 && std::abs(lepRecoEta) < 2.3 && tau.isTauIDAvailable("againstMuonLoose3") &&
                    tau.isTauIDAvailable("againstElectronVLooseMVA6")) {
                 isGoodTau = (tau.tauID("againstElectronVLooseMVA6") && tau.tauID("againstMuonLoose3") );
             }
@@ -124,20 +149,17 @@ private:
 
             std::vector<unsigned int> signalCandidateInds;
 
-            for(auto c : tau.signalCands())
+            for(const auto c : tau.signalCands())
                 signalCandidateInds.push_back(getPFCandidateIndex(pfcands,c));
-
-            float lepRecoPt = tau.pt();
-            float lepRecoPz = std::abs(tau.pz());
 
             // Use of setZero results in warnings in eigen library during compilation.
             //tensor.flat<float>().setZero();
-            const unsigned n_inputs = GetNumberOfParticles(graphVersion) * GetNumberOfFeatures(graphVersion);
+            const unsigned n_inputs = getNumberOfParticles(graphVersion) * GetNumberOfFeatures(graphVersion);
             for(unsigned input_idx = 0; input_idx < n_inputs; ++input_idx)
                 tensor.flat<float>()(input_idx) = 0;
 
             unsigned int iPF = 0;
-            const unsigned max_iPF = GetNumberOfParticles(graphVersion);
+            const unsigned max_iPF = getNumberOfParticles(graphVersion);
 
             std::vector<unsigned int> sorted_inds(pfcands->size());
             std::size_t n = 0;
@@ -153,19 +175,17 @@ private:
                 if (p.pt() < 0.5) continue;
                 if (p.fromPV() < 0) continue;
                 if (deltaR_tau_p > 0.5) continue;
-
-
                 if (p.fromPV() < 1 && p.charge() != 0) continue;
                 pfCandPt = p.pt();
                 pfCandPtRel = p.pt()/lepRecoPt;
 
                 pfCandDr = deltaR_tau_p;
-                pfCandDEta = std::abs(tau.eta() - p.eta());
-                pfCandDPhi = std::abs(deltaPhi(tau.phi(), p.phi()));
+                pfCandDEta = std::abs(lepRecoEta - p.eta());
+                pfCandDPhi = std::abs(deltaPhi(lepRecoPhi, p.phi()));
                 pfCandEta = p.eta();
                 pfCandIsBarrel = (std::abs(pfCandEta) < 1.4);
                 pfCandPz = std::abs(std::sinh(pfCandEta)*pfCandPt);
-                pfCandPzRel = std::abs(std::sinh(pfCandEta)*pfCandPt)/lepRecoPz;
+                pfCandPzRel = pfCandPz/lepRecoPz;
                 pfCandPdgID = std::abs(p.pdgId());
                 pfCandCharge = p.charge();
                 pfCandDVx_1 = p.vx() - pvx;
@@ -215,59 +235,52 @@ private:
 
                 pfCandTauIndMatch = pfCandTauIndMatch_temp;
                 pfCandPtRelPtRel = pfCandPtRel*pfCandPtRel;
-                if (pfCandPt > 500) pfCandPt = 500.;
-                pfCandPt = pfCandPt/500.;
+                pfCandPt = std::min(pfCandPt, pfCandPt_max);
+                pfCandPt = pfCandPt/pfCandPt_max;
 
-                if (pfCandPz > 1000) pfCandPz = 1000.;
-                pfCandPz = pfCandPz/1000.;
+                pfCandPz = std::min(pfCandPz, pfCandPz_max);
+                pfCandPz = pfCandPz/pfCandPz_max;
 
-                if ((pfCandPtRel) > 1 )  pfCandPtRel = 1.;
-                if ((pfCandPzRel) > 100 )  pfCandPzRel = 100.;
-                pfCandPzRel = pfCandPzRel/100.;
-                pfCandDr   = pfCandDr/.5;
-                pfCandEta  = pfCandEta/2.75;
-                pfCandDEta = pfCandDEta/.5;
-                pfCandDPhi = pfCandDPhi/.5;
-                pfCandPixHits = pfCandPixHits/7.;
-                pfCandHits = pfCandHits/30.;
+                pfCandPtRel = std::min(pfCandPtRel, pfCandPtRel_max);
+                pfCandPzRel = std::min(pfCandPzRel, pfCandPzRel_max);
+                pfCandPzRel = pfCandPzRel/pfCandPzRel_max;
+                pfCandDr   = pfCandDr/pfCandDr_max;
+                pfCandEta  = pfCandEta/pfCandEta_max;
+                pfCandDEta = pfCandDEta/pfCandDEta_max;
+                pfCandDPhi = pfCandDPhi/pfCandDPhi_max;
+                pfCandPixHits = pfCandPixHits/pfCandPixHits_max;
+                pfCandHits = pfCandHits/pfCandHits_max;
 
-                if (pfCandPtRelPtRel > 1) pfCandPtRelPtRel = 1;
-                pfCandPtRelPtRel = pfCandPtRelPtRel;
+                pfCandPtRelPtRel = std::min(pfCandPtRelPtRel, pfCandPtRelPtRel_max);
 
-                if (pfCandD0 > 5.) pfCandD0 = 5.;
-                if (pfCandD0 < -5.) pfCandD0 = -5.;
-                pfCandD0 = pfCandD0/5.;
+                pfCandD0 = std::clamp(pfCandD0, -pfCandD0_max, pfCandD0_max);
+                pfCandD0 = pfCandD0/pfCandD0_max;
 
-                if (pfCandDz > 5.) pfCandDz = 5.;
-                if (pfCandDz < -5.) pfCandDz = -5.;
-                pfCandDz = pfCandDz/5.;
+                pfCandDz = std::clamp(pfCandDz, -pfCandDz_max, pfCandDz_max);
+                pfCandDz = pfCandDz/pfCandDz_max;
 
-                if (pfCandD0Err > 1.) pfCandD0Err = 1.;
-                if (pfCandDzErr > 1.) pfCandDzErr = 1.;
-                if (pfCandDzSig > 3) pfCandDzSig = 3.;
-                pfCandDzSig = pfCandDzSig/3.;
+                pfCandD0Err = std::min(pfCandD0Err, pfCandD0_z_Err_max);
+                pfCandDzErr = std::min(pfCandDzErr, pfCandD0_z_Err_max);
+                pfCandDzSig = std::min(pfCandDzSig, pfCandDzSig_max);
+                pfCandDzSig = pfCandDzSig/pfCandDzSig_max;
 
-                if (pfCandD0Sig > 1) pfCandD0Sig = 1.;
+                pfCandD0Sig = std::min(pfCandD0Sig, pfCandD0Sig_max);
                 pfCandD0D0 = pfCandD0*pfCandD0;
                 pfCandDzDz = pfCandDz*pfCandDz;
                 pfCandD0Dz = pfCandD0*pfCandDz;
                 pfCandD0Dphi = pfCandD0*pfCandDPhi;
 
-                if (pfCandDVx_1 > .05)  pfCandDVx_1 =  .05;
-                if (pfCandDVx_1 < -.05) pfCandDVx_1 = -.05;
-                pfCandDVx_1 = pfCandDVx_1/.05;
+                pfCandDVx_1 = std::clamp(pfCandDVx_1, -pfCandDVx_y_z_1_max, pfCandDVx_y_z_1_max);
+                pfCandDVx_1 = pfCandDVx_1/pfCandDVx_y_z_1_max;
 
-                if (pfCandDVy_1 > 0.05)  pfCandDVy_1 =  0.05;
-                if (pfCandDVy_1 < -0.05) pfCandDVy_1 = -0.05;
-                pfCandDVy_1 = pfCandDVy_1/0.05;
+                pfCandDVy_1 = std::clamp(pfCandDVy_1, -pfCandDVx_y_z_1_max, pfCandDVx_y_z_1_max);
+                pfCandDVy_1 = pfCandDVy_1/pfCandDVx_y_z_1_max;
 
-                if (pfCandDVz_1 > 0.05)  pfCandDVz_1 =  0.05;
-                if (pfCandDVz_1 < -0.05) pfCandDVz_1= -0.05;
-                pfCandDVz_1 = pfCandDVz_1/0.05;
+                pfCandDVz_1 = std::clamp(pfCandDVz_1, -pfCandDVx_y_z_1_max, pfCandDVx_y_z_1_max);
+                pfCandDVz_1 = pfCandDVz_1/pfCandDVx_y_z_1_max;
 
-                if (pfCandD_1 > 0.1)  pfCandD_1 = 0.1;
-                if (pfCandD_1 < -0.1) pfCandD_1 = -0.1;
-                pfCandD_1 = pfCandD_1/.1;
+                pfCandD_1 = std::clamp(pfCandD_1, -pfCandD_1_max, pfCandD_1_max);
+                pfCandD_1 = pfCandD_1/ pfCandD_1_max;
 
                 if (graphVersion == 0) {
                     tensor.tensor<float,3>()( 0, 60-1-iPF, 0) = pfCandPt;
@@ -372,12 +385,10 @@ private:
                     tensor.tensor<float,3>()( 0, 36-1-iPF, 49) = pfCandPdgID==211;
                     tensor.tensor<float,3>()( 0, 36-1-iPF, 50) = pfCandTauIndMatch;
                 }
-
                 iPF++;
             }
-
-            tensorflow::Status status = session->Run( { {"input_1", tensor} }, {"output_node0"}, {}, &outputs);
-            predictions.matrix<float>()(tau_index, 0) = outputs[0].flat<float>()(0);
+            tensorflow::run(&(cache_->getSession()), { { "input_1", tensor } }, { "output_node0" }, {}, &outputs_);
+            predictions.matrix<float>()(tau_index, 0) = outputs_[0].flat<float>()(0);
         }
         return predictions;
     }

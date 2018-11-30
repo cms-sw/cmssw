@@ -34,7 +34,7 @@ tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
                     toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
                                "deepTau2017v1",
                                "DPFTau_2016_v0",
-                               #"DPFTau_2016_v1"
+                               # "DPFTau_2016_v1"
                                ])
 tauIdEmbedder.runTauID()
 
