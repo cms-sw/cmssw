@@ -19,6 +19,6 @@ trackTimeValueMapProducer = cms.EDProducer(
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(trackTimeValueMapProducer,
-    trackingParticleSrc = cms.InputTag("mixData:MergedTrackTruth"),
-    trackingVertexSrc = cms.InputTag("mixData:MergedTrackTruth"),
+    trackingParticleSrc = "mixData:MergedTrackTruth",
+    trackingVertexSrc = "mixData:MergedTrackTruth",
 )
