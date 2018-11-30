@@ -41,16 +41,16 @@ void DTRPCBxCorrection::run( const edm::EventSetup& c) {
 
 void DTRPCBxCorrection::BxCorrection(int track_seg){
 
-  auto m_phiDTDigis_tm=std::make_shared<L1MuTMChambPhContainer>();
+  L1MuTMChambPhContainer m_phiDTDigis_tm;
   //std::shared_ptr<L1MuTMChambPhContainer> m_phiDTDigis_tm (new L1MuTMChambPhContainer);
   const std::vector<L1MuDTChambPhDigi> *phiChambVectorDT;
   phiChambVectorDT= m_phiDTDigis.getContainer();
-  m_phiDTDigis_tm->setContainer(*phiChambVectorDT);
-  auto m_phiRPCDigis_tm=std::make_shared<L1MuTMChambPhContainer>();
+  m_phiDTDigis_tm.setContainer(*phiChambVectorDT);
+  L1MuTMChambPhContainer m_phiRPCDigis_tm;
   //std::shared_ptr<L1MuTMChambPhContainer> m_phiRPCDigis_tm (new L1MuTMChambPhContainer);
   const std::vector<L1MuDTChambPhDigi> *phiChambVectorRPC;
   phiChambVectorRPC= m_phiRPCDigis.getContainer();
-  m_phiRPCDigis_tm->setContainer(*phiChambVectorRPC);
+  m_phiRPCDigis_tm.setContainer(*phiChambVectorRPC);
 
   int ibx_dtm = 0, fbx_dtm = 0;
   int ibx_dtp = 0, fbx_dtp = 0;
@@ -68,12 +68,12 @@ void DTRPCBxCorrection::BxCorrection(int track_seg){
          for(int rpcbx=bx-1; rpcbx<=bx+1; rpcbx++){
            L1MuDTChambPhDigi * dtts=nullptr; 
            L1MuDTChambPhDigi * rpcts1=nullptr; 
-           dtts = m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx ,track_seg);
+           dtts = m_phiDTDigis_tm.chPhiSegm(wheel,station,sector,bx ,track_seg);
 
            if(!dtts ) continue;
-           int nhits = nRPCHits(*m_phiRPCDigis_tm, rpcbx, wheel, sector, station);
+           int nhits = nRPCHits(m_phiRPCDigis_tm, rpcbx, wheel, sector, station);
            for(int hit=0; hit<nhits; hit++){
-             rpcts1 = m_phiRPCDigis_tm->chPhiSegm(wheel, station, sector, rpcbx,hit);
+             rpcts1 = m_phiRPCDigis_tm.chPhiSegm(wheel, station, sector, rpcbx,hit);
              //Store in vectors the dphi of matched dt/rpc
              if(rpcts1 && dtts && dtts->code()<m_QualityLimit && deltaPhi(dtts->phi(),rpcts1->phi()) < m_DphiWindow){
                if((dtts->bxNum()-rpcbx)==-1  ) {
@@ -118,8 +118,8 @@ void DTRPCBxCorrection::BxCorrection(int track_seg){
           }
        else continue;
        //Primitve to be shifted in place of dttsnew
-       dtts = m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,init_bx,track_seg);
-       dttsnew = m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,final_bx,track_seg);
+       dtts = m_phiDTDigis_tm.chPhiSegm(wheel,station,sector,init_bx,track_seg);
+       dttsnew = m_phiDTDigis_tm.chPhiSegm(wheel,station,sector,final_bx,track_seg);
        bool shift_1 = false;
        if(dtts && dtts->code()<m_QualityLimit  && (!dttsnew  || shifted[final_bx+3] || dups[final_bx+3])) {
           dtts_sh = new L1MuDTChambPhDigi( final_bx , dtts->whNum(), dtts->scNum(), dtts->stNum(),dtts->phi(), dtts->phiB(), dtts->code(), dtts->Ts2Tag(), dtts->BxCnt(),1);
@@ -129,7 +129,7 @@ void DTRPCBxCorrection::BxCorrection(int track_seg){
        if(dtts && dtts->code()<m_QualityLimit && dttsnew) dups[init_bx+3] = true;
 
         //dtts exists and qual lt m_QualityLimit and dttsnew exists and the previous (shift_1) prim was not shifted and there is empty space in second TS
-       if(dtts && dtts->code()<m_QualityLimit && dttsnew && !shift_1 && !m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,final_bx,flipBit(track_seg)) ) {
+       if(dtts && dtts->code()<m_QualityLimit && dttsnew && !shift_1 && !m_phiDTDigis_tm.chPhiSegm(wheel,station,sector,final_bx,flipBit(track_seg)) ) {
         ///XXX: Source of discrepancies
         ///in order to send as second TS the two prims must come from different halves of the station
        ///this information does not exist in data
@@ -154,7 +154,7 @@ void DTRPCBxCorrection::BxCorrection(int track_seg){
                   continue;}
          if(dups[bx+3]) continue;
          ///if there is no shift then put the original primitive
-         dtts = m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx,track_seg);
+         dtts = m_phiDTDigis_tm.chPhiSegm(wheel,station,sector,bx,track_seg);
          if(!shifted[bx+3] && dtts) {
             m_l1ttma_out.push_back(*dtts);
          }
