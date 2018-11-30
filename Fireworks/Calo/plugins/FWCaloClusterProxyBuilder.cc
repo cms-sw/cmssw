@@ -35,34 +35,50 @@ FWCaloClusterProxyBuilder::build( const reco::CaloCluster& iData, unsigned int i
         it != itEnd; ++it )
    {
       const float* corners = item()->getGeom()->getCorners( it->first );
-      const float* parameters = item()->getGeom()->getParameters( it->first );
-      const float* shapes = item()->getGeom()->getShapePars(it->first);
 
-      if( corners == nullptr || parameters == nullptr || shapes == nullptr ) {
+      if( corners == nullptr ) {
          continue;
       }
 
-#if 0
-      const int total_points = parameters[0];
-      const int total_vertices = 3*total_points;
-#else // using broken boxes(half hexagon) until there's support for hexagons in TEveBoxSet
-      const int total_points = 4;
-      const int total_vertices = 3*total_points;
-
-      const float thickness = shapes[3];
-
       std::vector<float> pnts(24);
-      for(int i = 0; i < total_points; ++i){
-         pnts[i*3+0] = corners[i*3];
-         pnts[i*3+1] = corners[i*3+1];
-         pnts[i*3+2] = corners[i*3+2];
 
-         pnts[(i*3+0)+total_vertices] = corners[i*3];
-         pnts[(i*3+1)+total_vertices] = corners[i*3+1];
-         pnts[(i*3+2)+total_vertices] = corners[i*3+2]+thickness;
+      const uint type = ((it->first >> 28) & 0xF);
+      // HGCal
+      if(type >= 8 && type <= 10){
+
+         const float* parameters = item()->getGeom()->getParameters( it->first );
+         const float* shapes = item()->getGeom()->getShapePars(it->first);
+
+         if(parameters == nullptr || shapes == nullptr ){
+            continue;
+         }
+
+         #if 0
+               const int total_points = parameters[0];
+               const int total_vertices = 3*total_points;
+         #else // using broken boxes(half hexagon) until there's support for hexagons in TEveBoxSet
+               const int total_points = 4;
+               const int total_vertices = 3*total_points;
+
+               const float thickness = shapes[3];
+
+               for(int i = 0; i < total_points; ++i){
+                  pnts[i*3+0] = corners[i*3];
+                  pnts[i*3+1] = corners[i*3+1];
+                  pnts[i*3+2] = corners[i*3+2];
+
+                  pnts[(i*3+0)+total_vertices] = corners[i*3];
+                  pnts[(i*3+1)+total_vertices] = corners[i*3+1];
+                  pnts[(i*3+2)+total_vertices] = corners[i*3+2]+thickness;
+               }
+         #endif
+      } 
+      // Not HGCal
+      else {
+         fireworks::energyTower3DCorners(corners, (*it).second, pnts);
       }
+
       boxset->AddBox( &pnts[0]);
-#endif
    }
 
    boxset->RefitPlex();
