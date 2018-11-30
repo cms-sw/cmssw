@@ -5,6 +5,7 @@
 
 #include "L1Trigger/L1THGCal/interface/veryfrontend/HGCalVFELinearizationImpl.h"
 #include "L1Trigger/L1THGCal/interface/veryfrontend/HGCalVFESummationImpl.h"
+#include "L1Trigger/L1THGCal/interface/veryfrontend/HGCalVFECompressionImpl.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
@@ -27,9 +28,10 @@ class HGCalVFEProcessorSums : public HGCalVFEProcessorBase
 	             
   private:
           
-    HGCalVFELinearizationImpl vfeLinearizationImpl_;
-    HGCalVFESummationImpl vfeSummationImpl_; 
-    HGCalTriggerCellCalibration calibration_;
+    std::unique_ptr<HGCalVFELinearizationImpl> vfeLinearizationImpl_;
+    std::unique_ptr<HGCalVFESummationImpl> vfeSummationImpl_; 
+    std::unique_ptr<HGCalVFECompressionImpl> vfeCompressionImpl_;
+    std::unique_ptr<HGCalTriggerCellCalibration> calibration_;
 
 };    
     
