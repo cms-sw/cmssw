@@ -69,7 +69,9 @@ class MTDTopology {
   };
 
   
-  MTDTopology( const BTLValues& btl, const ETLValues& etl);
+  MTDTopology( const int& topologyMode, const BTLValues& btl, const ETLValues& etl);
+
+  int getMTDTopologyMode() const { return mtdTopologyMode_; }
 
   unsigned int side(const DetId &id) const;
   unsigned int layer(const DetId &id) const;
@@ -171,6 +173,8 @@ class MTDTopology {
   }
  
  private:
+
+  const int mtdTopologyMode_;
 
   const BTLValues btlVals_;
   const ETLValues etlVals_;

@@ -33,12 +33,14 @@ MTDTopologyEP::produce( const MTDTopologyRcd& iRecord )
   iRecord.getRecord<PMTDParametersRcd>().get( ptp );
   fillParameters( *ptp );
   
-  return std::make_unique<MTDTopology>( btlVals_, etlVals_ );
+  return std::make_unique<MTDTopology>( mtdTopologyMode_, btlVals_, etlVals_ );
 }
 
 void
 MTDTopologyEP::fillParameters( const PMTDParameters& ptp )
 {  
+  mtdTopologyMode_ = ptp.topologyMode_; 
+
   btlVals_.sideStartBit_ = ptp.vitems_[0].vpars_[0]; // 16
   btlVals_.layerStartBit_ = ptp.vitems_[0].vpars_[1]; // 16
   btlVals_.trayStartBit_ = ptp.vitems_[0].vpars_[2]; // 8
