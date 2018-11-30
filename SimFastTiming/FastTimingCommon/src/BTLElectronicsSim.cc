@@ -160,7 +160,7 @@ void BTLElectronicsSim::runTrivialShaper(BTLDataFrame &dataFrame,
   for(int it=0; it<(int)(chargeColl.size()); it++) {
 
     BTLSample newSample;
-    newSample.set(0,0,0,0,0,row,col);
+    newSample.set(false,false,0,0,0,row,col);
     
     //brute force saturation, maybe could to better with an exponential like saturation
     const uint32_t adc = std::min( (uint32_t) std::floor(chargeColl[it]/adcLSB_MIP_), adcBitSaturation_ );
