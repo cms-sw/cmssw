@@ -211,10 +211,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     // make a copy of the link data, which will be edited.
     //PFBlock::LinkData linkData =  block.linkData();
     
-    // keep track of the elements which are still active.
-    std::vector<bool> active( elements.size(), true );      
-    
-    pfeg_->RunPFEG(globalCache(),blockref,active);
+    pfeg_->RunPFEG(globalCache(),blockref);
 
     if( !pfeg_->getCandidates().empty() ) {
       LOGDRESSED("PFEGammaProducer")
