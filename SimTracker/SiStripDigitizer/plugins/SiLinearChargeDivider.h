@@ -46,7 +46,8 @@ class SiLinearChargeDivider : public SiChargeDivider{
   const int    chargedivisionsPerStrip;
   const double deltaCut ;
   const double cosmicShift;
-
+  std::vector<double> decoValues;
+  std::vector<double> peakValues;
   const ParticleDataTable * theParticleDataTable;
 
   // Geant4 engine used by fluctuateEloss()
@@ -65,10 +66,6 @@ class SiLinearChargeDivider : public SiChargeDivider{
   float PeakShape(const PSimHit*, const StripGeomDetUnit& det);
   // pulse shape in deconvolution mode
   float DeconvolutionShape( const PSimHit*, const StripGeomDetUnit& det);
-  // data table for pulse shape in peak mode
-  static float const peakValues[921];
-  // data table for pulse shape in deconvolution mode
-  static float const decoValues[651];
 
 };
 

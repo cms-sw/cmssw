@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import APVShape_default
 
 SiStripSimBlock = cms.PSet(
     #---SiLinearChargeDivider
@@ -7,6 +8,8 @@ SiStripSimBlock = cms.PSet(
     LandauFluctuations      = cms.bool(True),
     chargeDivisionsPerStrip = cms.int32(10),
     CosmicDelayShift        = cms.untracked.double(0.0), # also SiStripDigitizerAlgorithm
+    decoValues= cms.vdouble(APVShape_default.deco),
+    peakValues= cms.vdouble(APVShape_default.peak),
     #---SiHitDigitizer
     DepletionVoltage        = cms.double(170.0),
     AppliedVoltage          = cms.double(300.0),
