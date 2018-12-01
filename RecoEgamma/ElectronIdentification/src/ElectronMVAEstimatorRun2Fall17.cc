@@ -12,7 +12,8 @@ ElectronMVAEstimatorRun2Fall17::ElectronMVAEstimatorRun2Fall17(const edm::Parame
   ptSplit_                (conf.getParameter<double>                  ("ptSplit")),
   ebSplit_                (conf.getParameter<double>                  ("ebSplit")),
   ebeeSplit_              (conf.getParameter<double>                  ("ebeeSplit")),
-  varNames_               (conf.getParameter<std::vector<std::string>>("varNames"))
+  varNames_               (conf.getParameter<std::vector<std::string>>("varNames")),
+  absTrackClusterMatching_(tag_ == "V2")
 {
 
   const std::vector <std::string> weightFileNames
@@ -43,7 +44,8 @@ ElectronMVAEstimatorRun2Fall17::ElectronMVAEstimatorRun2Fall17(
   rhoLabel_               (edm::InputTag("fixedGridRhoFastjetAll")),
   ptSplit_                (ptSplit),
   ebSplit_                (ebSplit),
-  ebeeSplit_              (ebeeSplit)
+  ebeeSplit_              (ebeeSplit),
+  absTrackClusterMatching_(tag_ == "V2")
 {
 
   // Set if this is the ID with or without PF isolations
@@ -155,7 +157,7 @@ mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) con
 
 float ElectronMVAEstimatorRun2Fall17::
 mvaValue( const int iCategory, const std::vector<float> & vars) const  {
-  const float result = gbrForests_.at(iCategory)->GetClassifier(vars.data());
+  const float result = gbrForests_.at(iCategory)->GetResponse(vars.data()); // The BDT score
 
   if(debug_) {
     std::cout << " *** Inside the class methodName_ " << methodName_ << std::endl;
@@ -297,6 +299,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iE
 std::vector<float> ElectronMVAEstimatorRun2Fall17::
 fillMVAVariables(const reco::GsfElectron* eleRecoPtr, const edm::Handle<reco::ConversionCollection> conversions, const reco::BeamSpot *theBeamSpot, const edm::Handle<double> rho) const {
 
+  const int iCategory = findCategory( eleRecoPtr );
 
   // Both pat and reco particles have exactly the same accessors, so we use a reco ptr
   // throughout the code, with a single exception as of this writing, handled separately below.
@@ -359,7 +362,94 @@ fillMVAVariables(const reco::GsfElectron* eleRecoPtr, const edm::Handle<reco::Co
   float dphi            = eleRecoPtr->deltaPhiSuperClusterTrackAtVtx();
   float detacalo        = eleRecoPtr->deltaEtaSeedClusterTrackAtCalo();
 
-  if(withIso_)
+  // Required by V2 ID
+  if (absTrackClusterMatching_) {
+      deta     = std::abs(deta);
+      dphi     = std::abs(dphi);
+      detacalo = std::abs(detacalo);
+  }
+
+  if(tag_ == "V2" && withIso_)
+  {
+
+    // Isolation variables
+    float pfChargedHadIso   = (eleRecoPtr->pfIsolationVariables()).sumChargedHadronPt ; //chargedHadronIso();
+    float pfNeutralHadIso   = (eleRecoPtr->pfIsolationVariables()).sumNeutralHadronEt ; //neutralHadronIso();
+    float pfPhotonIso       = (eleRecoPtr->pfIsolationVariables()).sumPhotonEt; //photonIso();
+
+    if ((iCategory + 1) % 3 == 0) {
+        std::vector<float> vars = packMVAVariables(
+                                      see,                      // 0
+                                      spp,                      // 1
+                                      circularity,
+                                      r9,
+                                      etawidth,
+                                      phiwidth,                 // 5
+                                      hoe,
+                                      //Pure tracking variables
+                                      kfhits,
+                                      kfchi2,
+                                      gsfchi2,                  // 9
+                                      // Energy matching
+                                      fbrem,
+                                      gsfhits,
+                                      expectedMissingInnerHits,
+                                      convVtxFitProbability,     // 13
+                                      eop,
+                                      eleeopout,                // 15
+                                      oneOverEminusOneOverP,
+                                      // Geometrical matchings
+                                      deta,                     // 17
+                                      dphi,
+                                      detacalo,
+                                      // Pileup
+                                      (float)*rho,
+                                      // Endcap only
+                                      preShowerOverRaw,         // 24
+                                      // Isolation variables
+                                      pfPhotonIso,
+                                      pfChargedHadIso,
+                                      pfNeutralHadIso
+                                  );
+        constrainMVAVariables(vars);
+        return vars;
+    } else {
+        std::vector<float> vars = packMVAVariables(
+                                      see,                      // 0
+                                      spp,                      // 1
+                                      circularity,
+                                      r9,
+                                      etawidth,
+                                      phiwidth,                 // 5
+                                      hoe,
+                                      //Pure tracking variables
+                                      kfhits,
+                                      kfchi2,
+                                      gsfchi2,                  // 9
+                                      // Energy matching
+                                      fbrem,
+                                      gsfhits,
+                                      expectedMissingInnerHits,
+                                      convVtxFitProbability,     // 13
+                                      eop,
+                                      eleeopout,                // 15
+                                      oneOverEminusOneOverP,
+                                      // Geometrical matchings
+                                      deta,                     // 17
+                                      dphi,
+                                      detacalo,
+                                      // Pileup
+                                      (float)*rho,
+                                      // Isolation variables
+                                      pfPhotonIso,
+                                      pfChargedHadIso,
+                                      pfNeutralHadIso
+                                  );
+        constrainMVAVariables(vars);
+        return vars;
+    }
+  }
+  else if(withIso_)
   {
 
     // Isolation variables

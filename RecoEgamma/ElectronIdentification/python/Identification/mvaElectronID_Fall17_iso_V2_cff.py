@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import os.path
 
 # Documentation of the MVA
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2
@@ -10,11 +11,11 @@ import FWCore.ParameterSet.Config as cms
 #
 
 # This MVA implementation class name
-mvaFall17ClassName = "ElectronMVAEstimatorRun2Fall17NoIso"
+mvaFall17ClassName = "ElectronMVAEstimatorRun2Fall17Iso"
 # The tag is an extra string attached to the names of the products
 # such as ValueMaps that needs to distinguish cases when the same MVA estimator
 # class is used with different tuning/weights
-mvaTag = "V1"
+mvaTag = "V2"
 
 # The parameters according to which the training bins are split:
 ptSplit = 10.      # we have above and below 10 GeV categories
@@ -30,15 +31,16 @@ ebeeSplit = 1.479  # division between barrel and endcap
 #   4   EB2 (eta>=0.8) pt 10-inf GeV   |   pt >= ptSplit && |eta| >= ebSplit && |eta| < ebeeSplit
 #   5   EE             pt 10-inf GeV   |   pt >= ptSplit && |eta| >= ebeeSplit
 
+weightFileDir = "RecoEgamma/ElectronIdentification/data/MVAWeightFiles/Fall17IsoV2"
 
-mvaFall17WeightFiles_V1 = cms.vstring(
-    "RecoEgamma/ElectronIdentification/data/Fall17/EIDmva_EB1_5_2017_puinfo_BDT.weights.xml.gz",
-    "RecoEgamma/ElectronIdentification/data/Fall17/EIDmva_EB2_5_2017_puinfo_BDT.weights.xml.gz",
-    "RecoEgamma/ElectronIdentification/data/Fall17/EIDmva_EE_5_2017_puinfo_BDT.weights.xml.gz",
-    "RecoEgamma/ElectronIdentification/data/Fall17/EIDmva_EB1_10_2017_puinfo_BDT.weights.xml.gz",
-    "RecoEgamma/ElectronIdentification/data/Fall17/EIDmva_EB2_10_2017_puinfo_BDT.weights.xml.gz",
-    "RecoEgamma/ElectronIdentification/data/Fall17/EIDmva_EE_10_2017_puinfo_BDT.weights.xml.gz"
-    )
+mvaWeightFiles = cms.vstring(
+     os.path.join(weightFileDir, "EB1_5.weights.xml.gz"), # EB1_5
+     os.path.join(weightFileDir, "EB2_5.weights.xml.gz"), # EB2_5
+     os.path.join(weightFileDir, "EE_5.weights.xml.gz"), # EE_5
+     os.path.join(weightFileDir, "EB1_10.weights.xml.gz"), # EB1_10
+     os.path.join(weightFileDir, "EB2_10.weights.xml.gz"), # EB2_10
+     os.path.join(weightFileDir, "EE_10.weights.xml.gz"), # EE_10
+)
 
 # Load some common definitions for MVA machinery
 from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_tools \
@@ -50,77 +52,89 @@ from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_tools \
 # The names for the maps are "<module name>:<MVA class name>Values"
 # and "<module name>:<MVA class name>Categories"
 mvaProducerModuleLabel = "electronMVAValueMapProducer"
-mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaFall17ClassName + mvaTag + "Values"
+mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaFall17ClassName + mvaTag + "RawValues"
 mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaFall17ClassName + mvaTag + "Categories"
 
 ## The working point for this MVA that is expected to have about 90% signal
 # WP tuned to give about 90 and 80% signal efficiecny for electrons from Drell-Yan with pT > 25 GeV
 # The working point for the low pt categories is just taken over from the high pt
-idName90 = "mvaEleID-Fall17-noIso-V1-wp90"
+idName90 = "mvaEleID-Fall17-iso-V2-wp90"
 MVA_WP90 = EleMVA_WP(
     idName = idName90,
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0_C0 = 0.9165112826974601, # EB1 low pt
-    cutCategory0_C1 = 2.7381703555094217,
-    cutCategory0_C2 = 1.03549199648109,
-    cutCategory1_C0 = 0.8655738322220173, # EB2 low pt
-    cutCategory1_C1 = 2.4027944652597073,
-    cutCategory1_C2 = 0.7975615613282494,
-    cutCategory2_C0 = -3016.035055227131, # EE low pt
-    cutCategory2_C1 = -52140.61856333602,
-    cutCategory2_C2 = -3016.3029387236506,
-    cutCategory3_C0 = 0.9616542816132922, # EB1
-    cutCategory3_C1 = 8.757943837889817,
-    cutCategory3_C2 = 3.1390200321591206,
-    cutCategory4_C0 = 0.9319258011430132, # EB2
-    cutCategory4_C1 = 8.846057432565809,
-    cutCategory4_C2 = 3.5985063793347787,
-    cutCategory5_C0 = 0.8899260780999244, # EE
-    cutCategory5_C1 = 10.124234115859881,
-    cutCategory5_C2 = 4.352791250718547
-    )
+    cutCategory0_C0 = 2.84704783417, # EB1 low pt
+    cutCategory0_C1 = 3.32529515837,
+    cutCategory0_C2 = 9.38050947827,
+    cutCategory1_C0 = 2.03833922005, # EB2 low pt
+    cutCategory1_C1 = 1.93288758682,
+    cutCategory1_C2 = 15.364588247,
+    cutCategory2_C0 = 1.82704158461, # EE low pt
+    cutCategory2_C1 = 1.89796754399,
+    cutCategory2_C2 = 19.1236071158,
+    cutCategory3_C0 = 6.12931925263, # EB1
+    cutCategory3_C1 = 13.281753835,
+    cutCategory3_C2 = 8.71138432196,
+    cutCategory4_C0 = 5.26289004857, # EB2
+    cutCategory4_C1 = 13.2154971491,
+    cutCategory4_C2 = 8.0997882835,
+    cutCategory5_C0 = 4.37338792902, # EE
+    cutCategory5_C1 = 14.0776094696,
+    cutCategory5_C2 = 8.48513324496
+)
 
-idName80 = "mvaEleID-Fall17-noIso-V1-wp80"
+idName80 = "mvaEleID-Fall17-iso-V2-wp80"
 MVA_WP80 = EleMVA_WP(
     idName = idName80,
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0_C0 = 0.9530240956555949, # EB1 low pt
-    cutCategory0_C1 = 2.7591425841003647,
-    cutCategory0_C2 = 0.4669644718545271,
-    cutCategory1_C0 = 0.9336564763961019, # EB2 low pt
-    cutCategory1_C1 = 2.709276284272272,
-    cutCategory1_C2 = 0.33512286599215946,
-    cutCategory2_C0 = 0.9313133688365339, # EE low pt
-    cutCategory2_C1 = 1.5821934800715558,
-    cutCategory2_C2 = 3.8889462619659265,
-    cutCategory3_C0 = 0.9825268564943458, # EB1
-    cutCategory3_C1 = 8.702601455860762,
-    cutCategory3_C2 = 1.1974861596609097,
-    cutCategory4_C0 = 0.9727509457929913, # EB2
-    cutCategory4_C1 = 8.179525631018565,
-    cutCategory4_C2 = 1.7111755094657688,
-    cutCategory5_C0 = 0.9562619539540145, # EE
-    cutCategory5_C1 = 8.109845366281608,
-    cutCategory5_C2 = 3.013927699126942
+    cutCategory0_C0 = 3.53495358797, # EB1 low pt
+    cutCategory0_C1 = 3.07272325141,
+    cutCategory0_C2 = 9.94262764352,
+    cutCategory1_C0 = 3.06015605623, # EB2 low pt
+    cutCategory1_C1 = 1.95572234114,
+    cutCategory1_C2 = 14.3091184421,
+    cutCategory2_C0 = 3.02052519639, # EE low pt
+    cutCategory2_C1 = 1.59784164742,
+    cutCategory2_C2 = 28.719380105,
+    cutCategory3_C0 = 7.35752275071, # EB1
+    cutCategory3_C1 = 15.87907864,
+    cutCategory3_C2 = 7.61288809226,
+    cutCategory4_C0 = 6.41811074032, # EB2
+    cutCategory4_C1 = 14.730562874,
+    cutCategory4_C2 = 6.96387331587,
+    cutCategory5_C0 = 5.64936312428, # EE
+    cutCategory5_C1 = 16.3664949747,
+    cutCategory5_C2 = 7.19607610311
 )
 
 ### WP tuned for HZZ analysis with very high efficiency (about 98%)
 # The working points were found by requiring the same signal efficiencies in
 # each category as for the Spring 16 HZZ ID
-# (see RecoEgamma/ElectronIdentification/python/Identification/mvaElectronID_Spring16_HZZ_V1_cff.py)
-idNamewpLoose = "mvaEleID-Fall17-noIso-V1-wpLoose"
+# (see RecoEgamma/ElectronIdentification/python/Identification/mvaElectronID_Spring16_HZZ_V2_cff.py)
+idNamewpLoose = "mvaEleID-Fall17-iso-V2-wpLoose"
 MVA_WPLoose = EleMVA_WP(
     idName = idNamewpLoose,
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 =  -0.13285867293779202, # EB1 low pt
-    cutCategory1 =  -0.31765300958836074, # EB2 low pt
-    cutCategory2 =  -0.0799205914718861 , # EE low pt
-    cutCategory3 =  -0.856871961305474  , # EB1
-    cutCategory4 =  -0.8107642141584835 , # EB2
-    cutCategory5 =  -0.7179265933023059   # EE
+    cutCategory0 = 0.700642584415, # EB1_5
+    cutCategory1 = 0.739335420875, # EB2_5
+    cutCategory2 = 1.45390456109, # EE_5
+    cutCategory3 = -0.146270871164, # EB1_10
+    cutCategory4 = -0.0315850882679, # EB2_10
+    cutCategory5 = -0.0321841194737, # EE_10
+    )
+
+MVA_WPHZZ = EleMVA_WP(
+    idName = "mvaEleID-Fall17-iso-V2-wpHZZ",
+    mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
+    mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
+    cutCategory0 = 1.26402092475, # EB1_5
+    cutCategory1 = 1.17808089508, # EB2_5
+    cutCategory2 = 1.33051972806, # EE_5
+    cutCategory3 = 2.36464785939, # EB1_10
+    cutCategory4 = 2.07880614597, # EB2_10
+    cutCategory5 = 1.08080644615 # EE_10
     )
 
 #
@@ -150,6 +164,9 @@ variablesInfo = [
                  ("ele_deltaetain"                    , -0.06, 0.06),
                  ("ele_deltaphiin"                    ,  -0.6,  0.6),
                  ("ele_deltaetaseed"                  ,  -0.2,  0.2),
+                 ("ele_pfPhotonIso"                   ,  None, None), #
+                 ("ele_pfChargedHadIso"               ,  None, None), # PF isolations
+                 ("ele_pfNeutralHadIso"               ,  None, None), #
                  ("rho"                               ,  None, None),
                  ("ele_psEoverEraw"                   ,  None, None), # EE only
                 ]
@@ -167,7 +184,7 @@ for i, x in enumerate(clipUpper):
 #
 
 # Create the PSet that will be fed to the MVA value map producer
-mvaEleID_Fall17_noIso_V1_producer_config = cms.PSet(
+mvaEleID_Fall17_iso_V2_producer_config = cms.PSet(
     mvaName            = cms.string(mvaFall17ClassName),
     mvaTag             = cms.string(mvaTag),
     # This MVA uses conversion info, so configure several data items on that
@@ -183,13 +200,15 @@ mvaEleID_Fall17_noIso_V1_producer_config = cms.PSet(
     clipLower          = cms.vdouble(*clipLower),
     clipUpper          = cms.vdouble(*clipUpper),
     #
-    weightFileNames    = mvaFall17WeightFiles_V1
+    weightFileNames    = mvaWeightFiles
     )
 # Create the VPset's for VID cuts
-mvaEleID_Fall17_V1_wpLoose = configureVIDMVAEleID_V1( MVA_WPLoose )
-mvaEleID_Fall17_V1_wp90 = configureVIDMVAEleID_V1( MVA_WP90, cutName="GsfEleMVAExpoScalingCut")
-mvaEleID_Fall17_V1_wp80 = configureVIDMVAEleID_V1( MVA_WP80, cutName="GsfEleMVAExpoScalingCut")
+mvaEleID_Fall17_V2_wpLoose = configureVIDMVAEleID_V1( MVA_WPLoose )
+mvaEleID_Fall17_V2_wpHZZ = configureVIDMVAEleID_V1( MVA_WPHZZ )
+mvaEleID_Fall17_V2_wp90 = configureVIDMVAEleID_V1( MVA_WP90, cutName="GsfEleMVAExpoScalingCut")
+mvaEleID_Fall17_V2_wp80 = configureVIDMVAEleID_V1( MVA_WP80, cutName="GsfEleMVAExpoScalingCut")
 
-mvaEleID_Fall17_V1_wpLoose.isPOGApproved = cms.untracked.bool(True)
-mvaEleID_Fall17_V1_wp90.isPOGApproved = cms.untracked.bool(True)
-mvaEleID_Fall17_V1_wp80.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_Fall17_V2_wpLoose.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_Fall17_V2_wpHZZ.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_Fall17_V2_wp90.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_Fall17_V2_wp80.isPOGApproved = cms.untracked.bool(True)
