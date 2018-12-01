@@ -1,15 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
+from Validation.HGCalValidation.CaloParticleSelectionForEfficiency_cfi import *
 from Validation.HGCalValidation.HGVHistoProducerAlgoBlock_cfi import *
 
 hgcalValidator = cms.EDAnalyzer(
     "HGCalValidator",
 
+    ### general settings ###
+    # selection of CP for evaluation of efficiency #
+    CaloParticleSelectionForEfficiency,
+
     ### reco input configuration ###
     #2dlayerclusters, pfclusters, multiclusters
     #label = cms.VInputTag(cms.InputTag("hgcalLayerClusters"), cms.InputTag("particleFlowClusterHGCal"), cms.InputTag("hgcalMultiClusters") ),
     label = cms.VInputTag(cms.InputTag("hgcalLayerClusters")),
-
+    
+    #CaloParticle related plots
+    doCaloParticlePlots = cms.untracked.bool(True),
     dolayerclustersPlots = cms.untracked.bool(True),
 
     ### sim input configuration ###
