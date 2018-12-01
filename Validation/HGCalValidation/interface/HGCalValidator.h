@@ -17,9 +17,11 @@
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 
+
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 
 #include "Validation/HGCalValidation/interface/HGVHistoProducerAlgo.h"
+#include "Validation/HGCalValidation/interface/CaloParticleSelector.h"
 
 class PileupSummaryInfo;
 
@@ -43,22 +45,27 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
   void dqmAnalyze(const edm::Event&, const edm::EventSetup&, const Histograms& ) const override;
   /// Method called to book the DQM histograms
   void bookHistograms(DQMStore::ConcurrentBooker&, edm::Run const&, edm::EventSetup const&, Histograms&) const override;
+  
+  void cpParametersAndSelection(const Histograms& histograms, std::vector<CaloParticle> const & cPeff, std::vector<size_t>& selected_cPeff) const; 
 
 
  protected:
 
   std::vector<edm::InputTag> label;
+  const bool doCaloParticlePlots_;
   const bool dolayerclustersPlots_;
 
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection> > labelToken;
   edm::EDGetTokenT<std::vector<CaloParticle> > label_cp_effic;
   edm::EDGetTokenT<std::vector<CaloParticle> > label_cp_fake;
-
-
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
+
+
 
  private:
 
+  CaloParticleSelector cpSelector; 
+   std::vector<int> particles_to_monitor_;
   std::string dirName_;
 
 };
