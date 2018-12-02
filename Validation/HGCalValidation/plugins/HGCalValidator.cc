@@ -19,6 +19,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset):
   label_cp_effic = consumes<std::vector<CaloParticle> >(label_cp_effic_tag);
   label_cp_fake = consumes<std::vector<CaloParticle> >(label_cp_fake_tag);
 
+  simVertices_ = consumes<std::vector<SimVertex>>(pset.getParameter<edm::InputTag>("simVertices"));
+
   for (auto& itag : label) {
     labelToken.push_back(consumes<reco::CaloClusterCollection>(itag));
   }
@@ -28,6 +30,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset):
 				    pset.getParameter<double>("minRapidityCP"),
 				    pset.getParameter<double>("maxRapidityCP"),
 				    pset.getParameter<int>("minHitCP"),
+				    pset.getParameter<double>("tipCP"),
+				    pset.getParameter<double>("lipCP"),
 				    pset.getParameter<bool>("signalOnlyCP"),
 				    pset.getParameter<bool>("intimeOnlyCP"),
 				    pset.getParameter<bool>("chargedOnlyCP"),
@@ -93,6 +97,7 @@ void HGCalValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook, edm::Run 
 
 void HGCalValidator::cpParametersAndSelection(const Histograms& histograms,
 					      std::vector<CaloParticle> const & cPeff,
+					      std::vector<SimVertex> const & simVertices,
 					      std::vector<size_t>& selected_cPeff) const {
   selected_cPeff.reserve(cPeff.size());
 
@@ -100,10 +105,10 @@ void HGCalValidator::cpParametersAndSelection(const Histograms& histograms,
   for (auto const caloParticle : cPeff) {
     int id = caloParticle.pdgId();
     if(doCaloParticlePlots_) {
-      histoProducerAlgo_->fill_caloparticle_histos(histograms.histoProducerAlgo,id,caloParticle);
+      histoProducerAlgo_->fill_caloparticle_histos(histograms.histoProducerAlgo,id,caloParticle,simVertices);
     }
 
-    if(cpSelector(caloParticle)) {
+    if(cpSelector(caloParticle,simVertices)) {
       selected_cPeff.push_back(j);
     }
     ++j;
@@ -118,14 +123,22 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event, const edm::EventSetup& 
                              << "Analyzing new event" << "\n"
                              << "====================================================\n" << "\n";
 
+  
+  edm::Handle<std::vector<SimVertex>> simVerticesHandle;
+  event.getByToken(simVertices_, simVerticesHandle);
+  std::vector<SimVertex> const & simVertices = *simVerticesHandle;
+
+
   edm::Handle<std::vector<CaloParticle> > caloParticleHandle;
   event.getByToken(label_cp_effic, caloParticleHandle);
   std::vector<CaloParticle> const & caloParticles = *caloParticleHandle;
   
+  // ##############################################
   // fill caloparticles histograms 
+  // ##############################################
   LogTrace("HGCalValidator") << "\n# of CaloParticles: " << caloParticles.size() << "\n";
   std::vector<size_t> selected_cPeff;
-  cpParametersAndSelection(histograms, caloParticles, selected_cPeff);
+  cpParametersAndSelection(histograms, caloParticles, simVertices, selected_cPeff);
 
   
   int w=0; //counter counting the number of sets of histograms

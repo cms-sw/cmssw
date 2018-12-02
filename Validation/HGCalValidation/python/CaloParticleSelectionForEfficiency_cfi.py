@@ -5,6 +5,10 @@ CaloParticleSelectionForEfficiency = cms.PSet(
     ptMaxCP = cms.double(1e100),
     minRapidityCP = cms.double(-4.5),
     maxRapidityCP = cms.double(4.5),
+    #--z position of the origin vertex less than lipCP
+    lipCP = cms.double(30.0),
+    #-- transverse component squared sum less that tipCP*tipCP
+    tipCP = cms.double(60),
     chargedOnlyCP = cms.bool(True),
     stableOnlyCP = cms.bool(False),
     pdgIdCP = cms.vint32(11, -11, 13, -13, 22, 111, 211, -211, 321, -321),
