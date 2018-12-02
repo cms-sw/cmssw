@@ -813,6 +813,7 @@ timingDict = {
             'Geometry/MTDCommonData/data/etl.xml',
             'Geometry/MTDCommonData/data/CrystalTile/mtd.xml',
             'Geometry/MTDCommonData/data/CrystalTile/mtdStructureTopology.xml',
+            'Geometry/MTDCommonData/data/CrystalTile/mtdParameters.xml',
             ],
         3 : [
             'Geometry/MTDSimData/data/CrystalTile/mtdsens.xml'
@@ -840,6 +841,7 @@ timingDict = {
             'Geometry/MTDCommonData/data/etl.xml',
             'Geometry/MTDCommonData/data/CrystalBar/mtd.xml',
             'Geometry/MTDCommonData/data/CrystalBar/mtdStructureTopology.xml',
+            'Geometry/MTDCommonData/data/CrystalBar/mtdParameters.xml',
             ],
         3 : [
             'Geometry/MTDSimData/data/CrystalBar/mtdsens.xml'
@@ -867,6 +869,7 @@ timingDict = {
             'Geometry/MTDCommonData/data/etl.xml',
             'Geometry/MTDCommonData/data/CrystalBarZflat/mtd.xml',
             'Geometry/MTDCommonData/data/CrystalBarZflat/mtdStructureTopology.xml',
+            'Geometry/MTDCommonData/data/CrystalBarZflat/mtdParameters.xml',
             ],
         3 : [
             'Geometry/MTDSimData/data/CrystalBarZflat/mtdsens.xml'
@@ -894,6 +897,7 @@ timingDict = {
             'Geometry/MTDCommonData/data/etl.xml',
             'Geometry/MTDCommonData/data/CrystalBarZflatNOhole/mtd.xml',
             'Geometry/MTDCommonData/data/CrystalBarZflatNOhole/mtdStructureTopology.xml',
+            'Geometry/MTDCommonData/data/CrystalBarZflatNOhole/mtdParameters.xml',
             ],
         3 : [
             'Geometry/MTDSimData/data/CrystalBarZflat/mtdsens.xml'
