@@ -97,6 +97,7 @@ public:
   void produce(edm::Event &, edm::EventSetup const&) override;
   void endStream() override;
   static  void globalEndJob(const AlCaIsoTracks::Counters* counters);
+  static  void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  
 private:
 
@@ -107,19 +108,20 @@ private:
 
   // ----------member data ---------------------------
   HLTConfigProvider               hltConfig_;
-  std::vector<std::string>        trigNames_, HLTNames_;
   unsigned int                    nRun_, nAll_, nGood_, nRange_;
   spr::trackSelectionParameters   selectionParameter_;
-  std::string                     theTrackQuality_, processName_;
-  double                          maxRestrictionP_, slopeRestrictionP_;
-  double                          a_mipR_, a_coneR_, a_charIsoR_;
-  double                          pTrackMin_, eEcalMax_, eIsolate_;
-  double                          pTrackLow_, pTrackHigh_;
-  int                             preScale_;
-  edm::InputTag                   labelTriggerEvent_, labelTriggerResults_;
-  edm::InputTag                   labelGenTrack_, labelRecVtx_,  labelHltGT_;
-  edm::InputTag                   labelEB_, labelEE_, labelHBHE_, labelBS_;
-  std::string                     labelIsoTk_;
+  const std::vector<std::string>  trigNames_;
+  const std::string               theTrackQuality_, processName_;
+  const double                    a_coneR_, a_mipR_;
+  const double                    maxRestrictionP_, slopeRestrictionP_;
+  const double                    pTrackMin_, eEcalMax_, eIsolate_;
+  const double                    pTrackLow_, pTrackHigh_;
+  const int                       preScale_;
+  const edm::InputTag             labelGenTrack_, labelRecVtx_, labelBS_;
+  const edm::InputTag             labelEB_, labelEE_, labelHBHE_,  labelHltGT_;
+  const edm::InputTag             labelTriggerEvent_, labelTriggerResults_;
+  const std::string               labelIsoTk_;
+  double                          a_charIsoR_;
   const MagneticField            *bField;
   const CaloGeometry             *geo;
 
@@ -136,48 +138,48 @@ private:
 
 
 AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig, const AlCaIsoTracks::Counters* counters) :
-  nRun_(0), nAll_(0), nGood_(0), nRange_(0) {
-  //Get the run parameters
-  const double isolationRadius(28.9);
-  trigNames_                          = iConfig.getParameter<std::vector<std::string> >("Triggers");
-  theTrackQuality_                    = iConfig.getParameter<std::string>("TrackQuality");
-  processName_                        = iConfig.getParameter<std::string>("ProcessName");
-  selectionParameter_.minPt           = iConfig.getParameter<double>("MinTrackPt");;
-  selectionParameter_.minQuality      = reco::TrackBase::qualityByName(theTrackQuality_);
-  selectionParameter_.maxDxyPV        = iConfig.getParameter<double>("MaxDxyPV");
-  selectionParameter_.maxDzPV         = iConfig.getParameter<double>("MaxDzPV");
-  selectionParameter_.maxChi2         = iConfig.getParameter<double>("MaxChi2");
-  selectionParameter_.maxDpOverP      = iConfig.getParameter<double>("MaxDpOverP");
-  selectionParameter_.minOuterHit     = iConfig.getParameter<int>("MinOuterHit");
-  selectionParameter_.minLayerCrossed = iConfig.getParameter<int>("MinLayerCrossed");
-  selectionParameter_.maxInMiss       = iConfig.getParameter<int>("MaxInMiss");
-  selectionParameter_.maxOutMiss      = iConfig.getParameter<int>("MaxOutMiss");
-  a_coneR_                            = iConfig.getParameter<double>("ConeRadius");
-  a_charIsoR_                         = a_coneR_ + isolationRadius;
-  a_mipR_                             = iConfig.getParameter<double>("ConeRadiusMIP");
-  pTrackMin_                          = iConfig.getParameter<double>("MinimumTrackP");
-  eEcalMax_                           = iConfig.getParameter<double>("MaximumEcalEnergy");
+  nRun_(0), nAll_(0), nGood_(0), nRange_(0),
+  trigNames_(iConfig.getParameter<std::vector<std::string> >("triggers")),
+  theTrackQuality_(iConfig.getParameter<std::string>("trackQuality")),
+  processName_(iConfig.getParameter<std::string>("processName")),
+  a_coneR_(iConfig.getParameter<double>("coneRadius")),
+  a_mipR_(iConfig.getParameter<double>("coneRadiusMIP")),
+  maxRestrictionP_(iConfig.getParameter<double>("maxTrackP")),
+  slopeRestrictionP_(iConfig.getParameter<double>("slopeTrackP")),
+  pTrackMin_(iConfig.getParameter<double>("minimumTrackP")),
+  eEcalMax_(iConfig.getParameter<double>("maximumEcalEnergy")),
+  eIsolate_(iConfig.getParameter<double>("isolationEnergy")),
+  pTrackLow_(iConfig.getParameter<double>("momentumRangeLow")),
+  pTrackHigh_(iConfig.getParameter<double>("momentumRangeHigh")),
+  preScale_(iConfig.getParameter<int>("preScaleFactor")),
+  labelGenTrack_(iConfig.getParameter<edm::InputTag>("TrackLabel")),
+  labelRecVtx_(iConfig.getParameter<edm::InputTag>("VertexLabel")),
+  labelBS_(iConfig.getParameter<edm::InputTag>("BeamSpotLabel")),
+  labelEB_(iConfig.getParameter<edm::InputTag>("EBRecHitLabel")),
+  labelEE_(iConfig.getParameter<edm::InputTag>("EERecHitLabel")),
+  labelHBHE_(iConfig.getParameter<edm::InputTag>("HBHERecHitLabel")),
+  labelHltGT_(iConfig.getParameter<edm::InputTag>("L1GTSeedLabel")),
+  labelTriggerEvent_(iConfig.getParameter<edm::InputTag>("TriggerEventLabel")),
+  labelTriggerResults_(iConfig.getParameter<edm::InputTag>("TriggerResultLabel")),
+  labelIsoTk_(iConfig.getParameter<std::string>("IsoTrackLabel"))  {
+  // Get the run parameters
   // Different isolation cuts are described in DN-2016/029
   // Tight cut uses 2 GeV; Loose cut uses 10 GeV
   // Eta dependent cut uses (maxRestrictionP_ * exp(|ieta|*log(2.5)/18))
   // with the factor for exponential slopeRestrictionP_ = log(2.5)/18
   // maxRestrictionP_ = 8 GeV as came from a study
-  maxRestrictionP_                    = iConfig.getParameter<double>("MaxTrackP");
-  slopeRestrictionP_                  = iConfig.getParameter<double>("SlopeTrackP");
-  eIsolate_                           = iConfig.getParameter<double>("IsolationEnergy");
-  pTrackLow_                          = iConfig.getParameter<double>("MomentumRangeLow");
-  pTrackHigh_                         = iConfig.getParameter<double>("MomentumRangeHigh");
-  preScale_                           = iConfig.getParameter<int>("PreScaleFactor");
-  labelGenTrack_                      = iConfig.getParameter<edm::InputTag>("TrackLabel");
-  labelRecVtx_                        = iConfig.getParameter<edm::InputTag>("VertexLabel");
-  labelBS_                            = iConfig.getParameter<edm::InputTag>("BeamSpotLabel");
-  labelEB_                            = iConfig.getParameter<edm::InputTag>("EBRecHitLabel");
-  labelEE_                            = iConfig.getParameter<edm::InputTag>("EERecHitLabel");
-  labelHBHE_                          = iConfig.getParameter<edm::InputTag>("HBHERecHitLabel");
-  labelHltGT_                         = iConfig.getParameter<edm::InputTag>("L1GTSeedLabel");
-  labelTriggerEvent_                  = iConfig.getParameter<edm::InputTag>("TriggerEventLabel");
-  labelTriggerResults_                = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
-  labelIsoTk_                         = iConfig.getParameter<std::string>("IsoTrackLabel");
+  const double isolationRadius(28.9);
+  selectionParameter_.minPt           = iConfig.getParameter<double>("minTrackPt");;
+  selectionParameter_.minQuality      = reco::TrackBase::qualityByName(theTrackQuality_);
+  selectionParameter_.maxDxyPV        = iConfig.getParameter<double>("maxDxyPV");
+  selectionParameter_.maxDzPV         = iConfig.getParameter<double>("maxDzPV");
+  selectionParameter_.maxChi2         = iConfig.getParameter<double>("maxChi2");
+  selectionParameter_.maxDpOverP      = iConfig.getParameter<double>("maxDpOverP");
+  selectionParameter_.minOuterHit     = iConfig.getParameter<int>("minOuterHit");
+  selectionParameter_.minLayerCrossed = iConfig.getParameter<int>("minLayerCrossed");
+  selectionParameter_.maxInMiss       = iConfig.getParameter<int>("maxInMiss");
+  selectionParameter_.maxOutMiss      = iConfig.getParameter<int>("maxOutMiss");
+  a_charIsoR_                         = a_coneR_ + isolationRadius;
 
   // define tokens for access
   tok_hltGT_    = consumes<trigger::TriggerFilterObjectWithRefs>(labelHltGT_);
@@ -236,6 +238,49 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig, c
 
 AlCaIsoTracksProducer::~AlCaIsoTracksProducer() { }
 
+void AlCaIsoTracksProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  // producer for  (HCAL isolated tracks)
+  desc.add<edm::InputTag>("TrackLabel",   edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("VertexLabel",  edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("BeamSpotLabel",edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("EBRecHitLabel",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  desc.add<edm::InputTag>("EERecHitLabel",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  desc.add<edm::InputTag>("HBHERecHitLabel",edm::InputTag("hbhereco"));
+  desc.add<edm::InputTag>("L1GTSeedLabel",edm::InputTag("hltL1sV0SingleJet60"));
+  desc.add<edm::InputTag>("TriggerEventLabel",edm::InputTag("hltTriggerSummaryAOD","","HLT"));
+  desc.add<edm::InputTag>("TriggerResultLabel",edm::InputTag("TriggerResults","","HLT"));
+  desc.add<std::string>("IsoTrackLabel","HcalIsolatedTrackCollection");
+  std::vector<std::string> triggers = {"HLT_IsoTrackHB","HLT_IsoTrackHE"};
+  desc.add<std::vector<std::string> >("triggers", triggers);
+  desc.add<std::string>("processName", "HLT");
+  // following 10 parameters are parameters to select good tracks
+  desc.add<std::string>("trackQuality","highPurity");
+  desc.add<double>("minTrackPt",       1.0);
+  desc.add<double>("maxDxyPV",         10.0);
+  desc.add<double>("maxDzPV",          100.0);
+  desc.add<double>("maxChi2",          5.0);
+  desc.add<double>("maxDpOverP",       0.1);
+  desc.add<int>("minOuterHit",         4);
+  desc.add<int>("minLayerCrossed",     8);
+  desc.add<int>("maxInMiss",           2);
+  desc.add<int>("maxOutMiss",          2);
+  // Minimum momentum of selected isolated track and signal zone
+  desc.add<double>("coneRadius",       34.98);
+  desc.add<double>("minimumTrackP",    20.0);
+  // signal zone in ECAL and MIP energy cutoff
+  desc.add<double>("coneRadiusMIP",    14.0);
+  desc.add<double>("maximumEcalEnergy",2.0);
+  // following 3 parameters are for isolation cuts and described in the code
+  desc.add<double>("maxTrackP",        8.0);
+  desc.add<double>("slopeTrackP",      0.05090504066);
+  desc.add<double>("isolationEnergy",  10.0);
+  // Prescale events only containing isolated tracks in the range
+  desc.add<double>("momentumRangeLow", 20.0);
+  desc.add<double>("momentumRangeHigh",40.0);
+  desc.add<int>("preScaleFactor",      10);
+  descriptions.add("alcaisotrk",desc);
+}
 
 void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
 
@@ -268,7 +313,6 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
     valid = false;
   }
-  reco::TrackCollection::const_iterator trkItr;
 
   edm::Handle<reco::VertexCollection> recVtxs;
   iEvent.getByToken(tok_recVtx_, recVtxs);  
@@ -512,8 +556,8 @@ AlCaIsoTracksProducer::select(edm::Handle<edm::TriggerResults>& triggerResults,
 				   (trkDetItr->pointHCAL).phi(),
 				   detId.ieta(), detId.iphi());
 	int indx(0);
-	reco::TrackCollection::const_iterator trkItr1;
-	for (trkItr1=trkCollection->begin(); trkItr1 != trkCollection->end(); ++trkItr1,++indx) {
+	for (reco::TrackCollection::const_iterator trkItr1=trkCollection->begin(); 
+	     trkItr1 != trkCollection->end(); ++trkItr1,++indx) {
 	  const reco::Track* pTrack1 = &(*trkItr1);
 	  if (pTrack1 == pTrack) {
 	    reco::TrackRef tRef = reco::TrackRef(trkCollection,indx);
