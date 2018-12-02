@@ -16,7 +16,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
-
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 
@@ -46,7 +46,7 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
   /// Method called to book the DQM histograms
   void bookHistograms(DQMStore::ConcurrentBooker&, edm::Run const&, edm::EventSetup const&, Histograms&) const override;
   
-  void cpParametersAndSelection(const Histograms& histograms, std::vector<CaloParticle> const & cPeff, std::vector<size_t>& selected_cPeff) const; 
+  void cpParametersAndSelection(const Histograms& histograms, std::vector<CaloParticle> const & cPeff, std::vector<SimVertex> const & simVertices, std::vector<size_t>& selected_cPeff) const; 
 
 
  protected:
@@ -58,6 +58,7 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection> > labelToken;
   edm::EDGetTokenT<std::vector<CaloParticle> > label_cp_effic;
   edm::EDGetTokenT<std::vector<CaloParticle> > label_cp_fake;
+  edm::EDGetTokenT<std::vector<SimVertex> > simVertices_;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
 
 

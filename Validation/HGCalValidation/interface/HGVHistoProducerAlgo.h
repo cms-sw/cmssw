@@ -11,6 +11,7 @@
 #include <unordered_map>
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
@@ -20,6 +21,7 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<ConcurrentMonitorElement>  h_cluster_eta;
 
   std::unordered_map<int, ConcurrentMonitorElement > h_caloparticle_eta;
+  std::unordered_map<int, ConcurrentMonitorElement > h_caloparticle_eta_Zorigin;
 
 };
 
@@ -36,7 +38,8 @@ class HGVHistoProducerAlgo {
 
   void fill_caloparticle_histos(const Histograms& histograms,
 				int pdgid,
-				const CaloParticle & caloparticle) const ;
+				const CaloParticle & caloparticle,
+				std::vector<SimVertex> const & simVertices) const ;
     
   void fill_cluster_histos(const Histograms& histograms,
 			   int count,
@@ -48,6 +51,7 @@ class HGVHistoProducerAlgo {
 
   //private data members
   double minEta, maxEta;  int nintEta; bool useFabsEta;
+  double minZpos, maxZpos; int nintZpos;
 
 };
 

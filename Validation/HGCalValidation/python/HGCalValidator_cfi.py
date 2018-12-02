@@ -23,6 +23,8 @@ hgcalValidator = cms.EDAnalyzer(
     label_cp_effic = cms.InputTag("mix","MergedCaloTruth"),
     label_cp_fake = cms.InputTag("mix","MergedCaloTruth"),
 
+    simVertices = cms.InputTag("g4SimHits"),
+
     # HistoProducerAlgo. Defines the set of plots to be booked and filled
     histoProducerAlgoBlock = HGVHistoProducerAlgoBlock,
 

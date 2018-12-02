@@ -9,6 +9,7 @@
  *
  */
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -17,13 +18,11 @@ class CaloParticleSelector {
 
  public:
   CaloParticleSelector(){}
-  CaloParticleSelector ( double ptMin, double ptMax, double minRapidity,double maxRapidity,
+  CaloParticleSelector ( double ptMin, double ptMax, double minRapidity,double maxRapidity, double lip, double tip,
 			 int minHit, bool signalOnly, bool intimeOnly, bool chargedOnly, bool stableOnly,
 			 const std::vector<int>& pdgId = std::vector<int>(),
 			 double minPhi=-3.2, double maxPhi=3.2) :
-  ptMin2_( ptMin*ptMin ), ptMax2_( ptMax*ptMax ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
-    meanPhi_((minPhi+maxPhi)/2.), rangePhi_((maxPhi-minPhi)/2.),
-    minHit_( minHit ), signalOnly_(signalOnly), intimeOnly_(intimeOnly), chargedOnly_(chargedOnly), stableOnly_(stableOnly), pdgId_( pdgId ) {
+  ptMin2_( ptMin*ptMin ), ptMax2_( ptMax*ptMax ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ), lip_( lip ), tip2_( tip*tip ), meanPhi_((minPhi+maxPhi)/2.), rangePhi_((maxPhi-minPhi)/2.), minHit_( minHit ), signalOnly_(signalOnly), intimeOnly_(intimeOnly), chargedOnly_(chargedOnly), stableOnly_(stableOnly), pdgId_( pdgId ) {
     if(minPhi >= maxPhi) {
       throw cms::Exception("Configuration") << "CaloParticleSelector: minPhi (" << minPhi << ") must be smaller than maxPhi (" << maxPhi << "). The range is constructed from minPhi to maxPhi around their average.";
     }
@@ -37,7 +36,7 @@ class CaloParticleSelector {
 
   // Operator() performs the selection: e.g. if (cPSelector(cp)) {...}
   // For the moment there shouldn't be any SimTracks from different crossings in the CaloParticle.
-  bool operator()( const CaloParticle & tp ) const {
+  bool operator()( const CaloParticle & tp , std::vector<SimVertex> const & simVertices) const {
     // signal only means no PU particles
     if (signalOnly_ && !(tp.eventId().bunchCrossing()== 0 && tp.eventId().event() == 0)) return false;
     // intime only means no OOT PU particles
@@ -72,11 +71,14 @@ class CaloParticleSelector {
     auto etaOk = [&](const CaloParticle& p)->bool{ float eta= etaFromXYZ(p.px(),p.py(),p.pz()); return (eta>= minRapidity_) & (eta<=maxRapidity_);};
     auto phiOk = [&](const CaloParticle& p) { float dphi = deltaPhi(atan2f(p.py(),p.px()), meanPhi_); return dphi >= -rangePhi_ && dphi <= rangePhi_; };
     auto ptOk = [&](const CaloParticle& p) { double pt2 = tp.p4().perp2(); return pt2 >= ptMin2_ && pt2 <= ptMax2_; };
+
     return (
  	    tp.numberOfRecHits() >= minHit_ &&
             ptOk(tp) &&
             etaOk(tp) &&
-            phiOk(tp) 
+            phiOk(tp) &&
+	    std::abs( simVertices.at(tp.g4Tracks()[0].vertIndex()).position().z() ) <= lip_ && // vertex last to avoid to load it if not striclty necessary...
+	    simVertices.at(tp.g4Tracks()[0].vertIndex()).position().Perp2() <= tip2_
 	    );
   }
 
@@ -85,6 +87,8 @@ class CaloParticleSelector {
   double ptMax2_;
   float minRapidity_;
   float maxRapidity_;
+  double lip_;
+  double tip2_;
   float meanPhi_;
   float rangePhi_;
   int    minHit_;
@@ -93,7 +97,6 @@ class CaloParticleSelector {
   bool chargedOnly_;
   bool stableOnly_;
   std::vector<int> pdgId_;
-
 };
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -114,6 +117,8 @@ namespace reco {
 				    cfg.getParameter<double>( "ptMax" ),
 				    cfg.getParameter<double>( "minRapidity" ),
 				    cfg.getParameter<double>( "maxRapidity" ),
+				    cfg.getParameter<double>( "lip" ),
+				    cfg.getParameter<double>( "tip" ),
 				    cfg.getParameter<int>( "minHit" ),
 				    cfg.getParameter<bool>( "signalOnly" ),
 				    cfg.getParameter<bool>( "intimeOnly" ),
