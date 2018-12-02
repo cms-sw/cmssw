@@ -8,23 +8,30 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "RecoEgamma/EgammaTools/interface/MultiToken.h"
+#include "RecoEgamma/EgammaTools/interface/Utils.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 namespace {
-// This template function finds whether theCandidate is in thefootprint
-// collection. It is templated to be able to handle both reco and pat
-// photons (from AOD and miniAOD, respectively).
-template <class T, class U>
-bool isInFootprint(const T& footprint, const U& candidate)
-{
-    for (auto& it : footprint) {
-        if (it.key() == candidate.key())
-            return true;
-    }
-    return false;
-}
+
+  // This template function finds whether theCandidate is in thefootprint
+  // collection. It is templated to be able to handle both reco and pat
+  // photons (from AOD and miniAOD, respectively).
+  template <class T>
+  bool isInFootprint(const T& footprint,
+                     const edm::Ptr<reco::Candidate>& candidate)
+  {
+      for (auto& it : footprint) {
+          if (it.key() == candidate.key())
+              return true;
+      }
+      return false;
+  }
 
   struct CachingPtrCandidate {
     CachingPtrCandidate(const reco::Candidate* cPtr, bool isAOD) : 
@@ -49,18 +56,38 @@ bool isInFootprint(const T& footprint, const U& candidate)
     }
   }
 
+  // Some helper functions that are needed to access info in
+  // AOD vs miniAOD
+  reco::PFCandidate::ParticleType getCandidatePdgId(const reco::Candidate* candidate, bool isAOD)
+  {
+      if (isAOD)
+        return static_cast<const reco::PFCandidate*>(candidate)->particleId();
+
+      // the neutral hadrons and charged hadrons can be of pdgId types
+      // only 130 (K0L) and +-211 (pi+-) in packed candidates
+      const int pdgId = static_cast<const pat::PackedCandidate*>(candidate)->pdgId();
+      if (pdgId == 22)
+          return reco::PFCandidate::gamma;
+      else if (abs(pdgId) == 130) // PDG ID for K0L
+          return reco::PFCandidate::h0;
+      else if (abs(pdgId) == 211) // PDG ID for pi+-
+          return reco::PFCandidate::h;
+      else
+          return reco::PFCandidate::X;
+  }
+
 };
 
-class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
+class PhotonIDValueMapProducer : public edm::global::EDProducer<> {
 
 public:
     explicit PhotonIDValueMapProducer(const edm::ParameterSet&);
-    ~PhotonIDValueMapProducer() override;
+    ~PhotonIDValueMapProducer() override {}
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-    void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
     // This function computes charged hadron isolation with respect to multiple
     // PVs and returns the worst of the found isolation values. The function
@@ -68,45 +95,25 @@ private:
     // H->gamma gamma, specifically from the class CiCPhotonID of the
     // HiggsTo2photons anaysis code. Template is introduced to handle reco/pat
     // photons and aod/miniAOD PF candidates collections
-    template <class T, class U>
     float computeWorstPFChargedIsolation(
-            const T& photon,
-            const U& pfCands,
-            const edm::Handle<reco::VertexCollection> vertices,
+            const reco::Photon& photon,
+            const edm::View<reco::Candidate>& pfCands,
+            const reco::VertexCollection& vertices,
             const reco::Vertex& pv,
-            unsigned char options);
-
-    // Some helper functions that are needed to access info in
-    // AOD vs miniAOD
-    reco::PFCandidate::ParticleType candidatePdgId(const reco::Candidate* candidate);
-
-    const reco::Track* getTrackPointer(const edm::Ptr<reco::Candidate> candidate);
-
-    // The object that will compute 5x5 quantities
-    std::unique_ptr<noZS::EcalClusterLazyTools> lazyToolnoZS;
+            unsigned char options, bool isAOD) const;
 
     // check whether a non-null preshower is there
     const bool usesES_;
 
-    // for AOD case
-    const edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
-    const edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollection_;
-    const edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollection_;
-    const edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
-    const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationToken_;
-    const edm::EDGetTokenT<edm::View<reco::Candidate>> pfCandsToken_;
-    const edm::EDGetToken src_;
+    // Dual Tokens for AOD and MiniAOD case
+    const MultiTokenT<edm::View<reco::Photon>>    src_;
+    const MultiTokenT<EcalRecHitCollection>       ebRecHits_;
+    const MultiTokenT<EcalRecHitCollection>       eeRecHits_;
+    const MultiTokenT<EcalRecHitCollection>       esRecHits_;
+    const MultiTokenT<reco::VertexCollection>     vtxToken_;
+    const MultiTokenT<edm::View<reco::Candidate>> pfCandsToken_;
+    const edm::EDGetToken                         particleBasedIsolationToken_;
 
-    // for miniAOD case
-    const edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollectionMiniAOD_;
-    const edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollectionMiniAOD_;
-    const edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollectionMiniAOD_;
-    const edm::EDGetTokenT<reco::VertexCollection> vtxTokenMiniAOD_;
-    const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationTokenMiniAOD_;
-    const edm::EDGetTokenT<edm::View<reco::Candidate>> pfCandsTokenMiniAOD_;
-    const edm::EDGetToken srcMiniAOD_;
-
-    bool isAOD_;
 };
 
 constexpr int nVars_ = 19;
@@ -152,34 +159,14 @@ const unsigned char PT_MIN_THRESH = 0x8;
 PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& cfg)
     : usesES_(!cfg.getParameter<edm::InputTag>("esReducedRecHitCollection").label().empty()
           || !cfg.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD").label().empty())
-    // Declare consummables, handle both AOD and miniAOD case
-    , ebReducedRecHitCollection_(
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("ebReducedRecHitCollection")))
-    , eeReducedRecHitCollection_(
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("eeReducedRecHitCollection")))
-    , esReducedRecHitCollection_(
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("esReducedRecHitCollection")))
-    , vtxToken_(mayConsume<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices")))
-    // The particleBasedIsolation object is relevant only for AOD, RECO format
+    , src_(               consumesCollector(), cfg, "src", "srcMiniAOD")
+    , ebRecHits_   (src_, consumesCollector(), cfg, "ebReducedRecHitCollection", "ebReducedRecHitCollectionMiniAOD")
+    , eeRecHits_   (src_, consumesCollector(), cfg, "eeReducedRecHitCollection", "eeReducedRecHitCollectionMiniAOD")
+    , esRecHits_   (src_, consumesCollector(), cfg, "esReducedRecHitCollection", "esReducedRecHitCollectionMiniAOD")
+    , vtxToken_    (src_, consumesCollector(), cfg, "vertices", "verticesMiniAOD")
+    , pfCandsToken_(src_, consumesCollector(), cfg, "pfCandidates", "pfCandidatesMiniAOD")
     , particleBasedIsolationToken_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
-          cfg.getParameter<edm::InputTag>("particleBasedIsolation")))
-    // AOD has reco::PFCandidate vector, and miniAOD has pat::PackedCandidate
-    // vector. Both inherit from reco::Candidate, so we go to the base class.
-    // We can cast into the full type later if needed. Since the collection
-    // names are different, we introduce both collections
-    , pfCandsToken_(mayConsume<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("pfCandidates")))
-    // reco photons are castable into pat photons, so no need to handle reco/pat seprately
-    , src_(mayConsume<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("src")))
-    , ebReducedRecHitCollectionMiniAOD_(
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("ebReducedRecHitCollectionMiniAOD")))
-    , eeReducedRecHitCollectionMiniAOD_(
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("eeReducedRecHitCollectionMiniAOD")))
-    , esReducedRecHitCollectionMiniAOD_(
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD")))
-    , vtxTokenMiniAOD_(mayConsume<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("verticesMiniAOD")))
-    , pfCandsTokenMiniAOD_(
-          mayConsume<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("pfCandidatesMiniAOD")))
-    , srcMiniAOD_(mayConsume<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("srcMiniAOD")))
+          cfg.getParameter<edm::InputTag>("particleBasedIsolation")) /* ...only for AOD... */ )
 {
 
     // Declare producibles
@@ -187,68 +174,40 @@ PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& cfg)
         produces<edm::ValueMap<float>>(names[i]);
 }
 
-PhotonIDValueMapProducer::~PhotonIDValueMapProducer() {}
-
-void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
-    edm::Handle<edm::View<reco::Photon>> src;
+    // Get the handles
+    auto src           = src_.getValidHandle(iEvent);
+    auto vertices      = vtxToken_.getValidHandle(iEvent);
+    auto pfCandsHandle = pfCandsToken_.getValidHandle(iEvent);
 
-    isAOD_ = true;
-    iEvent.getByToken(src_, src);
-    if (!src.isValid()) {
-        isAOD_ = false;
-        iEvent.getByToken(srcMiniAOD_, src);
-    }
-    if (!src.isValid()) {
-        throw cms::Exception("IllDefinedDataTier") << "DataFormat does not contain a photon source!";
-    }
-
-    // Configure Lazy Tools
-    if (usesES_) {
-        if (isAOD_)
-            lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(
-                iEvent, iSetup, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
-        else
-            lazyToolnoZS
-                = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, ebReducedRecHitCollectionMiniAOD_,
-                    eeReducedRecHitCollectionMiniAOD_, esReducedRecHitCollectionMiniAOD_);
-    } else {
-        if (isAOD_)
-            lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(
-                iEvent, iSetup, ebReducedRecHitCollection_, eeReducedRecHitCollection_);
-        else
-            lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(
-                iEvent, iSetup, ebReducedRecHitCollectionMiniAOD_, eeReducedRecHitCollectionMiniAOD_);
-    }
-
-    // Get PV
-    edm::Handle<reco::VertexCollection> vertices;
-    iEvent.getByToken(vtxToken_, vertices);
-    if (!vertices.isValid())
-        iEvent.getByToken(vtxTokenMiniAOD_, vertices);
-    if (vertices->empty())
-        return; // skip the event if no PV found
-    const reco::Vertex& pv = vertices->front();
-
+    bool isAOD = src_.getGoodTokenIndex() == 0;
     edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationMap;
-    if (isAOD_) {
-        // this exists only in AOD
+    if (isAOD) { // this exists only in AOD
         iEvent.getByToken(particleBasedIsolationToken_, particleBasedIsolationMap);
-    }
-
-    edm::Handle<edm::View<reco::Candidate>> pfCandsHandle;
-
-    iEvent.getByToken(pfCandsToken_, pfCandsHandle);
-    if (!pfCandsHandle.isValid())
-        iEvent.getByToken(pfCandsTokenMiniAOD_, pfCandsHandle);
-
-    if (!isAOD_ && !src->empty()) {
+    } else if (!src->empty()) {
         edm::Ptr<pat::Photon> test(src->ptrAt(0));
         if (test.isNull() || !test.isAvailable()) {
             throw cms::Exception("InvalidConfiguration")
                 << "DataFormat is detected as miniAOD but cannot cast to pat::Photon!";
         }
     }
+
+    // Configure Lazy Tools, which will compute 5x5 quantities
+    std::unique_ptr<noZS::EcalClusterLazyTools> lazyToolnoZS;
+
+    if (usesES_) {
+        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(
+            iEvent, iSetup, ebRecHits_.get(iEvent), eeRecHits_.get(iEvent), esRecHits_.get(iEvent));
+    } else {
+        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(
+            iEvent, iSetup, ebRecHits_.get(iEvent), eeRecHits_.get(iEvent));
+    }
+
+    // Get PV
+    if (vertices->empty())
+        return; // skip the event if no PV found
+    const reco::Vertex& pv = vertices->front();
 
     std::vector<float> vars[nVars_];
 
@@ -266,7 +225,7 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
         // retrieve the full5x5 directly from the object with ->full5x5_sigmaIetaIeta()
         // for both formats.
         std::vector<float> vCov = lazyToolnoZS->localCovariances(theseed);
-        vars[0].push_back(isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
+        vars[0].push_back(edm::isNotFinite(vCov[0]) ? 0. : sqrt(vCov[0]));
         vars[1].push_back(vCov[1]);
         vars[2].push_back(lazyToolnoZS->e1x3(theseed));
         vars[3].push_back(lazyToolnoZS->e2x2(theseed));
@@ -308,7 +267,7 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
             // the PF collection do not contain the supercluser link, so can't
             // use that).
             //
-            // if( isAOD_ ) {
+            // if( isAOD ) {
             //     if( ((const edm::Ptr<reco::PFCandidate>)iCand)->superClusterRef() == iPho->superCluster() )
             //     continue;
             // }
@@ -319,7 +278,7 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
                 continue;
 
             // Check if this candidate is not in the footprint
-            if (isAOD_) {
+            if (isAOD) {
                 if(isInFootprint((*particleBasedIsolationMap)[iPho], iCand))
                     continue;
             } else {
@@ -329,7 +288,7 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
             }
 
             // Find candidate type
-            reco::PFCandidate::ParticleType thisCandidateType = candidatePdgId(&*iCand);
+            reco::PFCandidate::ParticleType thisCandidateType = getCandidatePdgId(&*iCand, isAOD);
 
             // Increment the appropriate isolation sum
             if (thisCandidateType == reco::PFCandidate::h) {
@@ -337,7 +296,8 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
                 // with the PV
                 float dxy = -999;
                 float dz = -999;
-                getImpactParameters(CachingPtrCandidate(&*iCand, isAOD_), pv, dxy, dz);
+
+                getImpactParameters(CachingPtrCandidate(&*iCand, isAOD), pv, dxy, dz);
 
                 if (fabs(dxy) > dxyMax || fabs(dz) > dzMax)
                     continue;
@@ -359,19 +319,19 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
         // Worst isolation computed with no vetos or ptMin cut, as in Run 1 Hgg code.
         unsigned char options = 0;
-        vars[13].push_back(computeWorstPFChargedIsolation(iPho, pfCandsHandle, vertices, pv, options));
+        vars[13].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD));
 
         // Worst isolation computed with cone vetos and a ptMin cut, as in Run 2 Hgg code.
         options |= PT_MIN_THRESH | DR_VETO;
-        vars[14].push_back(computeWorstPFChargedIsolation(iPho, pfCandsHandle, vertices, pv, options));
+        vars[14].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD));
 
         // Like before, but adding primary vertex constraint
         options |= PV_CONSTRAINT;
-        vars[15].push_back(computeWorstPFChargedIsolation(iPho, pfCandsHandle, vertices, pv, options));
+        vars[15].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD));
 
         // PFCluster Isolations
         vars[16].push_back(iPho->trkSumPtSolidConeDR04());
-        if (isAOD_) {
+        if (isAOD) {
             vars[17].push_back(0.f);
             vars[18].push_back(0.f);
         } else {
@@ -379,72 +339,65 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
             vars[17].push_back(patPhotonPtr->hcalPFClusterIso());
             vars[18].push_back(patPhotonPtr->ecalPFClusterIso());
         }
-
     }
 
     // write the value maps
     for (int i = 0; i < nVars_; ++i) {
-        auto valMap = std::make_unique<edm::ValueMap<float>>();
-        edm::ValueMap<float>::Filler filler(*valMap);
-        filler.insert(src, vars[i].begin(), vars[i].end());
-        filler.fill();
-        iEvent.put(std::move(valMap), names[i]);
+        writeValueMap(iEvent, src, vars[i], names[i]);
     }
 }
 
-void PhotonIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-{
-    // The following says we do not know what parameters are allowed so do no validation
-    // Please change this to state exactly what you do use, even if it is no parameters
-    edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("ebReducedRecHitCollection");
-    desc.add<edm::InputTag>("ebReducedRecHitCollectionMiniAOD");
-    desc.add<edm::InputTag>("eeReducedRecHitCollection");
-    desc.add<edm::InputTag>("eeReducedRecHitCollectionMiniAOD");
-    desc.add<edm::InputTag>("esReducedRecHitCollection", edm::InputTag("reducedEcalRecHitsES"));
-    desc.add<edm::InputTag>("esReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma:reducedESRecHits"));
-    desc.add<edm::InputTag>("vertices");
-    desc.add<edm::InputTag>("verticesMiniAOD");
-    desc.add<edm::InputTag>("src");
-    desc.add<edm::InputTag>("srcMiniAOD");
-    desc.add<edm::InputTag>("particleBasedIsolation");
-    desc.add<edm::InputTag>("pfCandidates");
-    desc.add<edm::InputTag>("pfCandidatesMiniAOD");
-    descriptions.addDefault(desc);
+void PhotonIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // photonIDValueMapProducer
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("particleBasedIsolation",           edm::InputTag("particleBasedIsolation","gedPhotons"));
+  desc.add<edm::InputTag>("src",                              edm::InputTag("gedPhotons"));
+  desc.add<edm::InputTag>("srcMiniAOD",                       edm::InputTag("slimmedPhotons","","@skipCurrentProcess"));
+  desc.add<edm::InputTag>("esReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedESRecHits"));
+  desc.add<edm::InputTag>("eeReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsEE"));
+  desc.add<edm::InputTag>("pfCandidates",                     edm::InputTag("particleFlow"));
+  desc.add<edm::InputTag>("vertices",                         edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("ebReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedEBRecHits"));
+  desc.add<edm::InputTag>("eeReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedEERecHits"));
+  desc.add<edm::InputTag>("esReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsES"));
+  desc.add<edm::InputTag>("pfCandidatesMiniAOD",              edm::InputTag("packedPFCandidates"));
+  desc.add<edm::InputTag>("verticesMiniAOD",                  edm::InputTag("offlineSlimmedPrimaryVertices"));
+  desc.add<edm::InputTag>("ebReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsEB"));
+  descriptions.add("photonIDValueMapProducer", desc);
 }
+
 
 // Charged isolation with respect to the worst vertex. See more
 // comments above at the function declaration.
-template <class T, class U>
-float PhotonIDValueMapProducer ::computeWorstPFChargedIsolation(const T& photon, const U& pfCands,
-    const edm::Handle<reco::VertexCollection> vertices, const reco::Vertex& pv, unsigned char options)
+float PhotonIDValueMapProducer::computeWorstPFChargedIsolation(const reco::Photon& photon, const edm::View<reco::Candidate>& pfCands,
+    const reco::VertexCollection& vertices, const reco::Vertex& pv, unsigned char options, bool isAOD) const
 {
     float worstIsolation = 0.0;
 
-    const float dRveto = photon->isEB() ? dRvetoBarrel : dRvetoEndcap;
+    const float dRveto = photon.isEB() ? dRvetoBarrel : dRvetoEndcap;
 
     std::vector<CachingPtrCandidate> chargedCands;
-    chargedCands.reserve(pfCands->size());
-    for (auto const& aCand : *pfCands){
+    chargedCands.reserve(pfCands.size());
+    for (auto const& aCand : pfCands){
       
       // require that PFCandidate is a charged hadron
-      reco::PFCandidate::ParticleType thisCandidateType = candidatePdgId(&aCand);
+      reco::PFCandidate::ParticleType thisCandidateType = getCandidatePdgId(&aCand, isAOD);
       if (thisCandidateType != reco::PFCandidate::h)
         continue;
       
       if ((options & PT_MIN_THRESH) && aCand.pt() < ptMin)
         continue;
 
-      chargedCands.emplace_back(&aCand, isAOD_);
+      chargedCands.emplace_back(&aCand, isAOD);
     }
 
     // Calculate isolation sum separately for each vertex
-    for (unsigned int ivtx = 0; ivtx < vertices->size(); ++ivtx) {
+    for (unsigned int ivtx = 0; ivtx < vertices.size(); ++ivtx) {
 
         // Shift the photon according to the vertex
-        reco::VertexRef vtx(vertices, ivtx);
-        math::XYZVector phoWrtVtx(photon->superCluster()->x() - vtx->x(),
-            photon->superCluster()->y() - vtx->y(), photon->superCluster()->z() - vtx->z());
+        const reco::VertexRef vtx(&vertices, ivtx);
+        math::XYZVector phoWrtVtx(photon.superCluster()->x() - vtx->x(),
+            photon.superCluster()->y() - vtx->y(), photon.superCluster()->z() - vtx->z());
 
         float sum = 0;
         // Loop over the PFCandidates
@@ -473,32 +426,6 @@ float PhotonIDValueMapProducer ::computeWorstPFChargedIsolation(const T& photon,
     }
 
     return worstIsolation;
-}
-
-reco::PFCandidate::ParticleType PhotonIDValueMapProducer::candidatePdgId(
-    const reco::Candidate* candidate)
-{
-    if (isAOD_)
-      return static_cast<const reco::PFCandidate*>(candidate)->particleId();
-
-    // the neutral hadrons and charged hadrons can be of pdgId types
-    // only 130 (K0L) and +-211 (pi+-) in packed candidates
-    const int pdgId = static_cast<const pat::PackedCandidate*>(candidate)->pdgId();
-    if (pdgId == 22)
-        return reco::PFCandidate::gamma;
-    else if (abs(pdgId) == 130) // PDG ID for K0L
-        return reco::PFCandidate::h0;
-    else if (abs(pdgId) == 211) // PDG ID for pi+-
-        return reco::PFCandidate::h;
-    else
-        return reco::PFCandidate::X;
-}
-
-const reco::Track* PhotonIDValueMapProducer::getTrackPointer(const edm::Ptr<reco::Candidate> candidate)
-{
-    return isAOD_ ?
-        &*(((const edm::Ptr<reco::PFCandidate>)candidate)->trackRef()) :
-        &(((const edm::Ptr<pat::PackedCandidate>)candidate)->pseudoTrack());
 }
 
 DEFINE_FWK_MODULE(PhotonIDValueMapProducer);
