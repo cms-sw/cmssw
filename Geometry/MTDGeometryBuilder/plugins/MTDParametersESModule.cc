@@ -25,7 +25,7 @@ void
 MTDParametersESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) 
 {
   edm::ParameterSetDescription desc;
-  descriptions.add( "mtdParametersBase", desc );
+  descriptions.add( "mtdParameters", desc );
 }
 
 MTDParametersESModule::ReturnType
