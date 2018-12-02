@@ -41,8 +41,8 @@
 
 namespace AlCaLowPUHBHEMuons {
   struct Counters {
-    Counters() : nAll_(0), nGood_(0), nFinal_(0) {}
-    mutable std::atomic<unsigned int> nAll_, nGood_, nFinal_;
+    Counters() : nAll_(0), nGood_(0) {}
+    mutable std::atomic<unsigned int> nAll_, nGood_;
   };
 }
 
@@ -72,7 +72,7 @@ private:
   bool                       pfCut_;
   double                     trackIsoCut_, caloIsoCut_, pfIsoCut_, minimumMuonpT_, minimumMuoneta_;
   int                        preScale_;
-  unsigned int               nRun_, nAll_, nGood_, nFinal_;
+  unsigned int               nRun_, nAll_, nGood_;
   edm::InputTag              triggerResults_, labelMuon_;
   edm::EDGetTokenT<trigger::TriggerEvent>  tok_trigEvt;
   edm::EDGetTokenT<edm::TriggerResults>    tok_trigRes_;
@@ -91,7 +91,7 @@ private:
 // constructors and destructor
 //
 AlCaLowPUHBHEMuonFilter::AlCaLowPUHBHEMuonFilter(edm::ParameterSet const& iConfig, const AlCaLowPUHBHEMuons::Counters* count) :
-  nRun_(0), nAll_(0), nGood_(0), nFinal_(0) {
+  nRun_(0), nAll_(0), nGood_(0) {
   //now do what ever initialization is needed
   trigNames_             = iConfig.getParameter<std::vector<std::string> >("triggers");
   processName_           = iConfig.getParameter<std::string>("processName");
@@ -211,7 +211,6 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
   // Step 4:  Return the acceptance flag
   if (accept) {
     ++nGood_;
-    ++nFinal_;
   }
   return accept;
 
@@ -221,13 +220,12 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
 void AlCaLowPUHBHEMuonFilter::endStream() {
   globalCache()->nAll_   += nAll_;
   globalCache()->nGood_  += nGood_;
-  globalCache()->nFinal_ += nFinal_;
 }
 
 void AlCaLowPUHBHEMuonFilter::globalEndJob(const AlCaLowPUHBHEMuons::Counters* count) {
-  edm::LogInfo("LowPUHBHEMuon") << "Selects " << count->nFinal_ << " out of "
-				<< count->nGood_ << " good events out of " 
-				<< count->nAll_ << " total # of events";
+  edm::LogInfo("LowPUHBHEMuon") << "Selects " << count->nGood_ 
+				<< " good events out of " << count->nAll_ 
+				<< " total # of events";
 }
 
 
