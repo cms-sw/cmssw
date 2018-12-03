@@ -52,15 +52,6 @@ namespace {
 
     return std::make_pair(projectedHitPos, rotatedError);
   }
-
-
-  inline
-  std::pair<LocalPoint,LocalError> projectedPos(const TrackingRecHit& hit,
-                           const GeomDet& det,
-                           const TrajectoryStateOnSurface& ts, const StripClusterParameterEstimator* cpe) {
-      GlobalVector gdir = ts.globalParameters().momentum();
-      return projectedPos(hit, det, gdir, cpe);
-  }
 }
 
 // #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
