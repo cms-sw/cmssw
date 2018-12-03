@@ -1,7 +1,7 @@
-#ifndef CalibMuon_DTT0CalibrationNew_H
-#define CalibMuon_DTT0CalibrationNew_H
+#ifndef CalibMuon_DTT0Calibration_H
+#define CalibMuon_DTT0Calibration_H
 
-/** \class DTT0CalibrationNew
+/** \class DTT0Calibration
  *  Analyzer class computes the mean and RMS of t0 from pulses.
  *  Those values are written in the DB with cell granularity. The
  *  mean value for each channel is normalized to a reference time common to all the sector.
@@ -33,13 +33,13 @@
 //class TSpectrum;
 class DTT0;
 
-class DTT0CalibrationNew : public edm::one::EDAnalyzer<> {
+class DTT0Calibration : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
-  DTT0CalibrationNew(const edm::ParameterSet& pset);
+  DTT0Calibration(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTT0CalibrationNew();
+  virtual ~DTT0Calibration();
 
   // Operations
 

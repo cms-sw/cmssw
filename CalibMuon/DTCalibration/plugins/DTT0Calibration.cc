@@ -7,7 +7,7 @@
  *  06/08/2008 Mofified by Antonio.Vilela.Pereira@cern.ch
  */
 
-#include "CalibMuon/DTCalibration/plugins/DTT0CalibrationNew.h"
+#include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -31,7 +31,7 @@ using namespace std;
 using namespace edm;
 
 // Constructor
-DTT0CalibrationNew::DTT0CalibrationNew(const edm::ParameterSet& pset) :
+DTT0Calibration::DTT0Calibration(const edm::ParameterSet& pset) :
    debug(pset.getUntrackedParameter<bool>("debug")),
    digiToken(consumes<DTDigiCollection>(pset.getUntrackedParameter<string>("digiLabel"))),
    theFile(pset.getUntrackedParameter<string>("rootFileName", "DTT0PerLayer.root").c_str(), "RECREATE"),
@@ -47,7 +47,7 @@ DTT0CalibrationNew::DTT0CalibrationNew(const edm::ParameterSet& pset) :
 {
    // Get the debug parameter for verbose output
    if(debug) 
-      cout << "[DTT0CalibrationNew]Constructor called!" << endl;
+      cout << "[DTT0Calibration]Constructor called!" << endl;
 
    theCalibWheel =  pset.getUntrackedParameter<string>("calibWheel", "All"); //FIXME amke a vector of integer instead of a string
    if(theCalibWheel != "All") {
@@ -55,7 +55,7 @@ DTT0CalibrationNew::DTT0CalibrationNew(const edm::ParameterSet& pset) :
       int selWheel;
       linestr << theCalibWheel;
       linestr >> selWheel;
-      cout << "[DTT0CalibrationNewPerLayer] chosen wheel " << selWheel << endl;
+      cout << "[DTT0CalibrationPerLayer] chosen wheel " << selWheel << endl;
    }
 
    // Sector/s to calibrate
@@ -65,7 +65,7 @@ DTT0CalibrationNew::DTT0CalibrationNew(const edm::ParameterSet& pset) :
       int selSector;
       linestr << theCalibSector;
       linestr >> selSector;
-      cout << "[DTT0CalibrationNewPerLayer] chosen sector " << selSector << endl;
+      cout << "[DTT0CalibrationPerLayer] chosen sector " << selSector << endl;
    }
 
    vector<string> defaultCell;
@@ -80,15 +80,15 @@ DTT0CalibrationNew::DTT0CalibrationNew(const edm::ParameterSet& pset) :
 }
 
 // Destructor
-DTT0CalibrationNew::~DTT0CalibrationNew(){
+DTT0Calibration::~DTT0Calibration(){
    if(debug) 
-      cout << "[DTT0CalibrationNew]Destructor called!" << endl;
+      cout << "[DTT0Calibration]Destructor called!" << endl;
 
    theFile.Close();
 }
 
 /// Perform the real analysis
-void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup& eventSetup) {
+void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& eventSetup) {
    nevents++;
 
    // Get the digis from the event
@@ -286,14 +286,14 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
    }
 }
 
-void DTT0CalibrationNew::endJob() {
+void DTT0Calibration::endJob() {
 
    std::cout << "Analyzed " << nevents << " events" << std::endl;
 
    DTT0* t0sWRTChamber = new DTT0();
 
    if(debug) 
-      cout << "[DTT0CalibrationNewPerLayer]Writing histos to file!" << endl;
+      cout << "[DTT0CalibrationPerLayer]Writing histos to file!" << endl;
 
    theFile.cd();
    //hT0SectorHisto->Write();
@@ -306,7 +306,7 @@ void DTT0CalibrationNew::endJob() {
    }  
 
    if(debug) 
-      cout << "[DTT0CalibrationNew] Compute and store t0 and sigma per wire" << endl;
+      cout << "[DTT0Calibration] Compute and store t0 and sigma per wire" << endl;
 
    // Calculate uncertainties per wire (counting experiment)
    for (auto& wiret0 : theAbsoluteT0PerWire)
@@ -457,7 +457,7 @@ void DTT0CalibrationNew::endJob() {
       const auto& chamber_id = wire_id.chamberId();
       const auto& t0 = wire_t0.second;
       theRelativeT0PerWire.emplace(wire_id, t0 - mean_per_chamber[chamber_id].first);
-      cout << "[DTT0CalibrationNew] Wire " << wire_id << " has    t0 "<< theRelativeT0PerWire[wire_id] << " (relative, after even-odd layer corrections)  "
+      cout << "[DTT0Calibration] Wire " << wire_id << " has    t0 "<< theRelativeT0PerWire[wire_id] << " (relative, after even-odd layer corrections)  "
          << "    sigma "<< sqrt(theSigmaT0PerWire[wire_id]) <<endl;
    }
 
@@ -474,7 +474,7 @@ void DTT0CalibrationNew::endJob() {
 
    ///Write the t0 map into DB
    if(debug) 
-      cout << "[DTT0CalibrationNew]Writing values in DB!" << endl;
+      cout << "[DTT0Calibration]Writing values in DB!" << endl;
    // FIXME: to be read from cfg?
    string t0Record = "DTT0Rcd";
    // Write the t0 map to DB
@@ -482,7 +482,7 @@ void DTT0CalibrationNew::endJob() {
    delete t0sWRTChamber;
 }
 
-string DTT0CalibrationNew::getHistoName(const DTWireId& wId) const {
+string DTT0Calibration::getHistoName(const DTWireId& wId) const {
    string histoName;
    stringstream theStream;
    theStream << "Ch_" << wId.wheel() << "_" << wId.station() << "_" << wId.sector()
@@ -491,7 +491,7 @@ string DTT0CalibrationNew::getHistoName(const DTWireId& wId) const {
    return histoName;
 }
 
-string DTT0CalibrationNew::getHistoName(const DTLayerId& lId) const {
+string DTT0Calibration::getHistoName(const DTLayerId& lId) const {
    string histoName;
    stringstream theStream;
    theStream << "Ch_" << lId.wheel() << "_" << lId.station() << "_" << lId.sector()
