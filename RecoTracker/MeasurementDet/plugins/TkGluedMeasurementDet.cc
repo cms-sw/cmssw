@@ -525,7 +525,7 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit
 
   std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, hit2d);
   if (diffEst.first)
-    target_.add(std::move(hit2d.cloneSH()),diffEst.second);
+    target_.add(hit2d.cloneSH(),diffEst.second);
 }
 
 

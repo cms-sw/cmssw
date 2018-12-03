@@ -94,11 +94,11 @@ MeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::EventSet
 
     // put into MTE
     // put into event
-    iEvent.put(std::move(
+    iEvent.put(
       std::make_unique<MeasurementTrackerEvent>(*measurementTracker, 
                                                 stripData.release(), pixelData.release(), phase2OTData.release(),
 	                                        stripClustersToSkip, pixelClustersToSkip, phase2ClustersToSkip)
-    ));
+    );
 }
 
 void 
