@@ -354,7 +354,7 @@ template <> void Converter<DDLConstant>::operator()(xml_h element) const {
       res->originalConst[real] = val;
     }
     catch( const exception& e ) {
-      printout( INFO, "MyDDCMS", "++ Unresolved constant: %s = %s [%s]. Try to resolve later. [%s]",
+      printout( INFO, "DD4CMS", "++ Unresolved constant: %s = %s [%s]. Try to resolve later. [%s]",
 		real.c_str(), val.c_str(), typ.c_str(), e.what());
     }
     return;
@@ -442,12 +442,12 @@ template <> void Converter<DDLElementaryMaterial>::operator()(xml_h element) con
     TGeoMixture*      mix = new TGeoMixture(nam.c_str(), 1, density);
     TGeoElement*      elt = tab->FindElement(xmat.nameStr().c_str());
 
-    printout(ns.context()->debug_materials ? ALWAYS : DEBUG, "MyDDCMS",
+    printout(ns.context()->debug_materials ? ALWAYS : DEBUG, "DD4CMS",
              "+++ Converting material %-48s  Density: %.3f.",
              ('"'+nam+'"').c_str(), density);
 
     if( !elt )  {
-      printout(WARNING,"MyDDCMS",
+      printout(WARNING,"DD4CMS",
                "+++ Converter<ElementaryMaterial> No element present with name:%s  [FAKE IT]",
                matname);
       int n = int(atomicNumber/2e0);
@@ -485,7 +485,7 @@ template <> void Converter<DDLCompositeMaterial>::operator()(xml_h element) cons
     xml_coll_t   composites(xmat,DD_CMU(MaterialFraction));
     TGeoMixture* mix = new TGeoMixture(nam.c_str(), composites.size(), density);
 
-    printout(ns.context()->debug_materials ? ALWAYS : DEBUG, "MyDDCMS",
+    printout(ns.context()->debug_materials ? ALWAYS : DEBUG, "DD4CMS",
              "++ Converting material %-48s  Density: %.3f.",
              ('"'+nam+'"').c_str(), density);
     
@@ -500,7 +500,7 @@ template <> void Converter<DDLCompositeMaterial>::operator()(xml_h element) cons
         mix->AddElement(frac_mat, fraction);
         continue;
       }
-      printout(WARNING,"MyDDCMS","+++ Composite material \"%s\" not present!",
+      printout(WARNING,"DD4CMS","+++ Composite material \"%s\" not present!",
                fracname.c_str());
     }
     mix->SetRadLen(0e0);
@@ -529,7 +529,7 @@ template <> void Converter<DDLRotation>::operator()(xml_h element) const  {
   double    phiZ   = xrot.hasAttr(DD_CMU(phiZ))   ? ns.attr<double>(xrot,DD_CMU(phiZ))   : 0e0;
   Rotation3D rot = makeRotation3D(thetaX, phiX, thetaY, phiY, thetaZ, phiZ);
   printout(context->debug_rotations ? ALWAYS : DEBUG,
-           "MyDDCMS","+++ Adding rotation: %-32s: (theta/phi)[rad] X: %6.3f %6.3f Y: %6.3f %6.3f Z: %6.3f %6.3f",
+           "DD4CMS","+++ Adding rotation: %-32s: (theta/phi)[rad] X: %6.3f %6.3f Y: %6.3f %6.3f Z: %6.3f %6.3f",
            ns.prepend(nam).c_str(),thetaX,phiX,thetaY,phiY,thetaZ,phiZ);
   ns.addRotation(nam, rot);
 }
@@ -547,7 +547,7 @@ template <> void Converter<DDLReflectionRotation>::operator()( xml_h element ) c
   double    thetaZ = xrot.hasAttr( DD_CMU( thetaZ )) ? ns.attr<double>( xrot, DD_CMU( thetaZ )) : 0e0;
   double    phiZ   = xrot.hasAttr( DD_CMU( phiZ ))   ? ns.attr<double>( xrot, DD_CMU( phiZ ))   : 0e0;
   printout( context->debug_rotations ? ALWAYS : DEBUG,
-	    "MyDDCMS","+++ Adding reflection rotation: %-32s: (theta/phi)[rad] X: %6.3f %6.3f Y: %6.3f %6.3f Z: %6.3f %6.3f",
+	    "DD4CMS","+++ Adding reflection rotation: %-32s: (theta/phi)[rad] X: %6.3f %6.3f Y: %6.3f %6.3f Z: %6.3f %6.3f",
 	    ns.prepend( name ).c_str(), thetaX, phiX, thetaY, phiY, thetaZ, phiZ );
   Rotation3D rot = makeRotReflect( thetaX, phiX, thetaY, phiY, thetaZ, phiZ );
   ns.addRotation( name, rot );
@@ -566,7 +566,7 @@ template <> void Converter<DDLRotationSequence>::operator()(xml_h element) const
     double    angle = ns.attr<double>(rotations,_U(angle));
     rot = makeRotation3D( rot, axis, angle );
     printout(context->debug_rotations ? ALWAYS : DEBUG,
-	     "MyDDCMS","+   Adding rotation to: %-29s: (axis/angle)[rad] Axis: %s Angle: %6.3f",
+	     "DD4CMS","+   Adding rotation to: %-29s: (axis/angle)[rad] Axis: %s Angle: %6.3f",
 	     nam.c_str(), axis.c_str(), angle);
   }
   double xx, xy, xz;
@@ -574,7 +574,7 @@ template <> void Converter<DDLRotationSequence>::operator()(xml_h element) const
   double zx, zy, zz;
   rot.GetComponents(xx,xy,xz,yx,yy,yz,zx,zy,zz);
   printout(context->debug_rotations ? ALWAYS : DEBUG,
-	   "MyDDCMS","+++ Adding rotation sequence: %-23s: %6.3f %6.3f %6.3f, %6.3f %6.3f %6.3f, %6.3f %6.3f %6.3f",
+	   "DD4CMS","+++ Adding rotation sequence: %-23s: %6.3f %6.3f %6.3f, %6.3f %6.3f %6.3f, %6.3f %6.3f %6.3f",
 	   ns.prepend(nam).c_str(), xx, xy, xz, yx, yy, yz, zx, zy, zz);
   ns.addRotation(nam, rot);
 }
@@ -592,7 +592,7 @@ template <> void Converter<DDLRotationByAxis>::operator()(xml_h element) const  
     Rotation3D rot;
     rot = makeRotation3D( rot, axis, angle );
     printout(context->debug_rotations ? ALWAYS : DEBUG,
-	     "MyDDCMS","+++ Adding rotation: %-32s: (axis/angle)[rad] Axis: %s Angle: %6.3f",
+	     "DD4CMS","+++ Adding rotation: %-32s: (axis/angle)[rad] Axis: %s Angle: %6.3f",
 	     ns.prepend(nam).c_str(), axis.c_str(), angle);
     ns.addRotation(nam, rot);
   }
@@ -653,7 +653,7 @@ template <> void Converter<DDLPosPart>::operator()( xml_h element ) const {
     childName = ns.name() + childName;
   Volume      child       = ns.volume( childName, false );
   
-  printout( ns.context()->debug_placements ? ALWAYS : DEBUG, "MyDDCMS",
+  printout( ns.context()->debug_placements ? ALWAYS : DEBUG, "DD4CMS",
 	    "+++ %s Parent: %-24s [%s] Child: %-32s [%s] copy:%d",
 	    e.tag().c_str(),
 	    parentName.c_str(), parent.isValid() ? "VALID" : "INVALID",
@@ -667,7 +667,7 @@ template <> void Converter<DDLPosPart>::operator()( xml_h element ) const {
     pv = parent.placeVolume( child, copy, transform );
   }
   if( !pv.isValid()) {
-    printout( ERROR,"MyDDCMS","+++ Placement FAILED! Parent:%s Child:%s Valid:%s",
+    printout( ERROR,"DD4CMS","+++ Placement FAILED! Parent:%s Child:%s Valid:%s",
 	      parent.name(), childName.c_str(), yes_no( child.isValid()));
   }
 }
@@ -680,7 +680,7 @@ template <> void Converter<PartSelector>::operator()( xml_h element ) const {
   string specParName = specPar.attr<string>( _U( name ));
   string path = e.attr<string>( DD_CMU( path ));
 
-  printout(ns.context()->debug_specpars ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_specpars ? ALWAYS : DEBUG, "DD4CMS",
            "+++ PartSelector for %s path: %s", specParName.c_str(), path.c_str());
 }
 
@@ -693,7 +693,7 @@ template <> void Converter<Parameter>::operator()( xml_h element ) const {
   bool eval = e.hasAttr( _U( eval )) ? e.attr<bool>( _U( eval )) : false;
   string type = eval ? "number" : "string";
   
-  printout(ns.context()->debug_specpars ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_specpars ? ALWAYS : DEBUG, "DD4CMS",
            "+++ Parameter: %s value %s is %s", name.c_str(), value.c_str(), type.c_str());
 }
 
@@ -715,9 +715,9 @@ static void convert_boolean(cms::DDParsingContext* context, xml_h element) {
     if( (solids[1] = ns.solid(e.attr<string>(DD_CMU(secondSolid)))).isValid() ) ++cnt;
   }
   if( cnt != 2 )   {
-    except("MyDDCMS","+++ Failed to create boolean solid %s. Found only %d parts.",nam.c_str(), cnt);
+    except("DD4CMS","+++ Failed to create boolean solid %s. Found only %d parts.",nam.c_str(), cnt);
   }
-  printout(ns.context()->debug_placements ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_placements ? ALWAYS : DEBUG, "DD4CMS",
            "+++ BooleanSolid: %s Left: %-32s Right: %-32s",
            nam.c_str(), solids[0]->GetName(), solids[1]->GetName());
 
@@ -727,7 +727,7 @@ static void convert_boolean(cms::DDParsingContext* context, xml_h element) {
     boolean = TYPE(solids[0],solids[1],trafo);
   }
   if( !boolean.isValid() )
-    except("MyDDCMS","+++ FAILED to construct subtraction solid: %s",nam.c_str());
+    except("DD4CMS","+++ FAILED to construct subtraction solid: %s",nam.c_str());
   ns.addSolid(nam,boolean);
 }
 
@@ -765,13 +765,13 @@ template <> void Converter<DDLPolycone>::operator()(xml_h element) const {
       rmax.emplace_back(ns.attr<double>(zplane,DD_CMU(rMax)));
       z.emplace_back(ns.attr<double>(zplane,_U(z)));
     }
-    printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+    printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
 	     "+   Polycone: startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]  %4ld z-planes",
 	     startPhi, deltaPhi, z.size());
     ns.addSolid(nam, Polycone(startPhi,deltaPhi,rmin,rmax,z));
   }
   else {
-    printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+    printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
 	     "+   Polycone: startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]  %4ld z-planes and %4ld radii",
 	     startPhi, deltaPhi, z.size(), r.size());
     ns.addSolid(nam, Polycone(startPhi,deltaPhi,r,z));
@@ -795,7 +795,7 @@ template <> void Converter<DDLExtrudedPolygon>::operator()(xml_h element) const 
     pt_x.emplace_back(ns.attr<double>(pt,_U(x)));
     pt_y.emplace_back(ns.attr<double>(pt,_U(y)));
   }
-  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
 	   "+   ExtrudedPolygon: %4ld points %4ld zxy sections",
 	   pt_x.size(), sec_z.size());
   ns.addSolid(nam,ExtrudedPolygon(pt_x,pt_y,sec_z,sec_x,sec_y,sec_scale));
@@ -821,7 +821,7 @@ template <> void Converter<DDLPolyhedra>::operator()(xml_h element) const {
     rmax.emplace_back(ns.attr<double>(zplane,DD_CMU(rMax)));
     z.emplace_back(ns.attr<double>(zplane,_U(z)));
   }
-  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
 	   "+   Polyhedra:startPhi=%8.3f [rad] deltaPhi=%8.3f [rad]  %4d sides %4ld z-planes",
 	   startPhi, deltaPhi, numSide, z.size());
   ns.addSolid(nam, Polyhedra(numSide,startPhi,deltaPhi,z,rmin,rmax));
@@ -838,7 +838,7 @@ template <> void Converter<DDLSphere>::operator()(xml_h element) const {
   double deltaPhi = ns.attr<double>( e, DD_CMU(deltaPhi));
   double startTheta = ns.attr<double>( e, DD_CMU(startTheta));
   double deltaTheta = ns.attr<double>( e, DD_CMU(deltaTheta));
-  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
 	   "+   Sphere:   r_inner=%8.3f [cm] r_outer=%8.3f [cm]"
 	   " startPhi=%8.3f [rad] deltaPhi=%8.3f startTheta=%8.3f delteTheta=%8.3f [rad]",
 	   rinner, router, startPhi, deltaPhi, startTheta, deltaTheta);
@@ -855,7 +855,7 @@ template <> void Converter<DDLTorus>::operator()(xml_h element) const   {
   double router   = ns.attr<double>( e, DD_CMU(outerRadius));
   double startPhi = ns.attr<double>( e, DD_CMU(startPhi));
   double deltaPhi = ns.attr<double>( e, DD_CMU(deltaPhi));
-  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
            "+   Torus:    r=%10.3f [cm] r_inner=%10.3f [cm] r_outer=%10.3f [cm]"
            " startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]",
            r, rinner, router, startPhi, deltaPhi);
@@ -874,7 +874,7 @@ template <> void Converter<DDLPseudoTrap>::operator()(xml_h element) const {
   double dz       = ns.attr<double>(e,_U(dz));
   double r        = ns.attr<double>(e,_U(radius));
   bool   atMinusZ = ns.attr<bool>  ( e, DD_CMU(atMinusZ));
-  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
 	   "+   Pseudotrap:  dz=%8.3f [cm] dx1:%.3f dy1:%.3f dx2=%.3f dy2=%.3f radius:%.3f atMinusZ:%s",
 	   dz, dx1, dy1, dx2, dy2, r, yes_no(atMinusZ));
   ns.addSolid(nam, PseudoTrap(dx1, dx2, dy1, dy2, dz, r, atMinusZ));
@@ -897,7 +897,7 @@ template <> void Converter<DDLTrapezoid>::operator()(xml_h element) const {
   double phi      = ns.attr<double>(e,_U(phi),0.0);
   double theta    = ns.attr<double>(e,_U(theta),0.0);
 
-  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
            "+   Trapezoid:  dz=%10.3f [cm] alp1:%.3f bl1=%.3f tl1=%.3f alp2=%.3f bl2=%.3f tl2=%.3f h2=%.3f phi=%.3f theta=%.3f",
            dz, alp1, bl1, tl1, h1, alp2, bl2, tl2, h2, phi, theta);
   ns.addSolid( nam, Trap( dz, theta, phi, h1, bl1, tl1, alp1, h2, bl2, tl2, alp2 ));
@@ -912,11 +912,12 @@ template <> void Converter<DDLTrd1>::operator()(xml_h element) const {
   double dy1      = ns.attr<double>( e, DD_CMU( dy1 ));
   double dx2      = ns.attr<double>( e, DD_CMU( dx2 ), 0.0 );
   double dy2      = ns.attr<double>( e, DD_CMU( dy2 ), dy1 );
+  assert( dy1 == dy2 );
   double dz       = ns.attr<double>( e, DD_CMU( dz ));
-  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
 	   "+   Trd1:       dz=%8.3f [cm] dx1:%.3f dy1:%.3f dx2:%.3f dy2:%.3f",
 	   dz, dx1, dy1, dx2, dy2);
-  ns.addSolid( nam, Trapezoid( dx1, dx2, dy1, dy2, dz ));
+  ns.addSolid( nam, Trd1( dx1, dx2, dy1, dz ));
 }
 
 /// Converter for <Tubs/> tags
@@ -929,7 +930,7 @@ template <> void Converter<DDLTubs>::operator()(xml_h element) const {
   double rmax     = ns.attr<double>( e, DD_CMU(rMax));
   double startPhi = ns.attr<double>( e, DD_CMU(startPhi),0.0);
   double deltaPhi = ns.attr<double>( e, DD_CMU(deltaPhi),2*M_PI);
-  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
 	   "+   Tubs:     dz=%8.3f [cm] rmin=%8.3f [cm] rmax=%8.3f [cm]"
 	   " startPhi=%8.3f [rad] deltaPhi=%8.3f [rad]", dz, rmin, rmax, startPhi, deltaPhi);
   ns.addSolid(nam, Tube(rmin,rmax,dz,startPhi,deltaPhi));
@@ -951,7 +952,7 @@ template <> void Converter<DDLCutTubs>::operator()(xml_h element) const {
   double tx       = ns.attr<double>( e, DD_CMU(tx));
   double ty       = ns.attr<double>( e, DD_CMU(ty));
   double tz       = ns.attr<double>( e, DD_CMU(tz));
-  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
 	   "+   CutTube:  dz=%8.3f [cm] rmin=%8.3f [cm] rmax=%8.3f [cm]"
 	   " startPhi=%8.3f [rad] deltaPhi=%8.3f [rad]...",
 	   dz, rmin, rmax, startPhi, deltaPhi);
@@ -971,7 +972,7 @@ template <> void Converter<DDLTruncTubs>::operator()(xml_h element) const {
   double cutAtStart = ns.attr<double>( e, DD_CMU(cutAtStart));
   double cutAtDelta = ns.attr<double>( e, DD_CMU(cutAtDelta));
   bool   cutInside  = ns.attr<bool>( e, DD_CMU(cutInside));
-  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
 	   "+   TruncTube:zHalf=%8.3f [cm] rmin=%8.3f [cm] rmax=%8.3f [cm]"
 	   " startPhi=%8.3f [rad] deltaPhi=%8.3f [rad] atStart=%8.3f [cm] atDelta=%8.3f [cm] inside:%s",
 	   zhalf, rmin, rmax, startPhi, deltaPhi, cutAtStart, cutAtDelta, yes_no(cutInside));
@@ -986,7 +987,7 @@ template <> void Converter<DDLEllipticalTube>::operator()(xml_h element) const  
   double dx  = ns.attr<double>( e, DD_CMU(xSemiAxis));
   double dy  = ns.attr<double>( e, DD_CMU(ySemiAxis));
   double dz  = ns.attr<double>( e, DD_CMU(zHeight));
-  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
 	   "+   EllipticalTube xSemiAxis=%8.3f [cm] ySemiAxis=%8.3f [cm] zHeight=%8.3f [cm]",dx,dy,dz);
   ns.addSolid(nam, EllipticalTube(dx,dy,dz));
 }
@@ -1004,7 +1005,7 @@ template <> void Converter<DDLCone>::operator()(xml_h element) const {
   double startPhi = ns.attr<double>( e, DD_CMU(startPhi));
   double deltaPhi = ns.attr<double>( e, DD_CMU(deltaPhi));
   double phi2     = startPhi + deltaPhi;
-  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
 	   "+   Cone:     dz=%8.3f [cm]"
 	   " rmin1=%8.3f [cm] rmax1=%8.3f [cm]"
 	   " rmin2=%8.3f [cm] rmax2=%8.3f [cm]"
@@ -1018,7 +1019,7 @@ template <> void Converter<DDLShapeless>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam = e.nameStr();
-  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
 	   "+   Shapeless: THIS ONE CAN ONLY BE USED AT THE VOLUME LEVEL -> Assembly%s", nam.c_str());
   ns.addSolid(nam, Box(1,1,1));
 }
@@ -1031,7 +1032,7 @@ template <> void Converter<DDLBox>::operator()(xml_h element) const {
   double dx  = ns.attr<double>( e, DD_CMU(dx));
   double dy  = ns.attr<double>( e, DD_CMU(dy));
   double dz  = ns.attr<double>( e, DD_CMU(dz));
-  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
            "+   Box:      dx=%10.3f [cm] dy=%10.3f [cm] dz=%10.3f [cm]", dx, dy, dz);
   ns.addSolid(nam, Box(dx,dy,dz));
 }
@@ -1043,7 +1044,7 @@ template <> void Converter<include_load>::operator()(xml_h element) const   {
   xml::Document doc;
   doc = xml::DocumentHandler().load( fp.fullPath());
   printout(_param<cms::DDParsingContext>()->debug_includes ? ALWAYS : DEBUG,
-           "MyDDCMS","+++ Processing the CMS detector description %s", fname.c_str());
+           "DD4CMS","+++ Processing the CMS detector description %s", fname.c_str());
   _option<DDRegistry>()->includes.emplace_back( doc );
 }
 
@@ -1052,7 +1053,7 @@ template <> void Converter<include_unload>::operator()(xml_h element) const   {
   string fname = xml::DocumentHandler::system_path(element);
   xml::DocumentHolder(xml_elt_t( element).document()).assign(nullptr);
   printout(_param<cms::DDParsingContext>()->debug_includes ? ALWAYS : DEBUG,
-           "MyDDCMS","+++ Finished processing %s",fname.c_str());
+           "DD4CMS","+++ Finished processing %s",fname.c_str());
 }
 
 /// DD4hep specific Converter for <Include/> tags: process only the constants
@@ -1097,7 +1098,7 @@ template <> void Converter<DDLDivision>::operator()( xml_h element ) const {
   int nReplicas = e.hasAttr( DD_CMU( nReplicas )) ? ns.attr<int>( e, DD_CMU( nReplicas )) : 0;
 
   printout( ns.context()->debug_placements ? ALWAYS : DEBUG,
-	    "MyDDCMS","+++ Start executing Division of %s along %s (%d) with offset %6.3f and %6.3f to produce %s....",
+	    "DD4CMS","+++ Start executing Division of %s along %s (%d) with offset %6.3f and %6.3f to produce %s....",
 	    parentName.c_str(), axis.c_str(), axesmap[axis], offset, width, childName.c_str());
 
   Volume parent = ns.volume( parentName );
@@ -1110,35 +1111,32 @@ template <> void Converter<DDLDivision>::operator()( xml_h element ) const {
     double startInDeg = ConvertTo( offset, deg );
     int numCopies = ( int )(( sh->GetPhi2() - sh->GetPhi1())/ widthInDeg );
     printout( ns.context()->debug_placements ? ALWAYS : DEBUG,
-	      "MyDDCMS","+++    ...divide %s along %s (%d) with offset %6.3f deg and %6.3f deg to produce %d copies",
+	      "DD4CMS","+++    ...divide %s along %s (%d) with offset %6.3f deg and %6.3f deg to produce %d copies",
 	      parent.solid().type(), axis.c_str(), axesmap[axis], startInDeg, widthInDeg, numCopies );
     Volume child = parent.divide( childName, static_cast<int>( axesmap[axis]),
 				  numCopies, startInDeg, widthInDeg );
 
     ns.context()->volumes[childName] = child;
     
-    printout( ns.context()->debug_placements ? ALWAYS : DEBUG, "MyDDCMS",
+    printout( ns.context()->debug_placements ? ALWAYS : DEBUG, "DD4CMS",
 	      "+++ %s Parent: %-24s [%s] Child: %-32s [%s] is multivolume [%s]",
 	      e.tag().c_str(),
 	      parentName.c_str(), parent.isValid() ? "VALID" : "INVALID",
 	      child.name(),  child.isValid()  ? "VALID" : "INVALID",
 	      child->IsVolumeMulti() ? "YES" : "NO" );
 
-  } else if( cl == TGeoTrd2::Class()) {
+  } else if( cl == TGeoTrd1::Class()) {
     double widthInCm = ConvertTo( width, cm );
     double offsetInCm = ConvertTo( offset, cm );
     printout( ns.context()->debug_placements ? ALWAYS : DEBUG,
-	      "MyDDCMS","+++    ...divide %s along %s (%d) with offset %6.3f cm and %6.3f cm to produce %d copies",
+	      "DD4CMS","+++    ...divide %s along %s (%d) with offset %6.3f cm and %6.3f cm to produce %d copies",
 	      parent.solid().type(), axis.c_str(), axesmap[axis], offsetInCm, widthInCm, nReplicas );
-    if( axesmap[axis] == DDAxes::y )
-      std::cout << "DDDividedTrdY\n";
-    // Only Z divisions are supported for TGeoTrd2
-    Volume child = parent.divide( childName, 3 /*static_cast<int>( axesmap[axis])*/,
+    Volume child = parent.divide( childName, static_cast<int>( axesmap[axis]),
 				  nReplicas, offsetInCm, widthInCm );
 
     ns.context()->volumes[childName] = child;
     
-    printout( ns.context()->debug_placements ? ALWAYS : DEBUG, "MyDDCMS",
+    printout( ns.context()->debug_placements ? ALWAYS : DEBUG, "DD4CMS",
 	      "+++ %s Parent: %-24s [%s] Child: %-32s [%s] is multivolume [%s]",
 	      e.tag().c_str(),
 	      parentName.c_str(), parent.isValid() ? "VALID" : "INVALID",
@@ -1146,7 +1144,7 @@ template <> void Converter<DDLDivision>::operator()( xml_h element ) const {
 	      child->IsVolumeMulti() ? "YES" : "NO" );
   }
   else {
-    std::cout << "ERROR: Division of a " << parent.solid().type() << " is not implemented yet!\n";
+    printout( ERROR, "DD4CMS", "++ FAILED Division of a %s is not implemented yet!", parent.solid().type());
   }
 }
 
@@ -1156,7 +1154,7 @@ template <> void Converter<DDLAlgorithm>::operator()( xml_h element ) const {
   xml_dim_t e( element );
   string name = e.nameStr();
   if( ns.context()->disabledAlgs.find( name ) != ns.context()->disabledAlgs.end()) {
-    printout( INFO, "MyDDCMS", "+++ Skip disabled algorithms: %s", name.c_str());
+    printout( INFO, "DD4CMS", "+++ Skip disabled algorithms: %s", name.c_str());
     return;
   }
   try {
@@ -1168,12 +1166,12 @@ template <> void Converter<DDLAlgorithm>::operator()( xml_h element ) const {
     // SensitiveDetector and Segmentation currently are undefined. Let's keep it like this
     // until we found something better.....
     printout( ns.context()->debug_algorithms ? ALWAYS : DEBUG,
-	      "MyDDCMS","+++ Start executing algorithm %s....", type.c_str());
+	      "DD4CMS","+++ Start executing algorithm %s....", type.c_str());
 
     long ret = PluginService::Create<long>( type, &description, ns.context(), &element, &sd );
     if( ret == 1 ) {
       printout( ns.context()->debug_algorithms ? ALWAYS : DEBUG,
-		"MyDDCMS", "+++ Executed algorithm: %08lX = %s", ret, name.c_str());
+		"DD4CMS", "+++ Executed algorithm: %08lX = %s", ret, name.c_str());
       return;
     }
 #if 0
@@ -1192,20 +1190,20 @@ template <> void Converter<DDLAlgorithm>::operator()( xml_h element ) const {
     if(!det.isValid())   {
       PluginDebug dbg;
       PluginService::Create<NamedObject*>(type, &description, ns.context, &element, &sd);
-      except("MyDDCMS","Failed to execute subdetector creation plugin. " + dbg.missingFactory(type));
+      except("DD4CMS","Failed to execute subdetector creation plugin. " + dbg.missingFactory(type));
     }
     description.addDetector(det);
 #endif
     ///description.addDetector(det);
-    printout(ERROR, "MyDDCMS", "++ FAILED  NOT ADDING SUBDETECTOR %08lX = %s",ret, name.c_str());
+    printout(ERROR, "DD4CMS", "++ FAILED  NOT ADDING SUBDETECTOR %08lX = %s",ret, name.c_str());
     return;
   }
   catch (const exception& exc)   {
-    printout(ERROR, "MyDDCMS", "++ FAILED    to convert subdetector: %s: %s", name.c_str(), exc.what());
+    printout(ERROR, "DD4CMS", "++ FAILED    to convert subdetector: %s: %s", name.c_str(), exc.what());
     terminate();
   }
   catch (...)   {
-    printout(ERROR, "MyDDCMS", "++ FAILED    to convert subdetector: %s: %s", name.c_str(), "UNKNONW Exception");
+    printout(ERROR, "DD4CMS", "++ FAILED    to convert subdetector: %s: %s", name.c_str(), "UNKNONW Exception");
     terminate();
   }
 }
@@ -1267,15 +1265,11 @@ template <> void Converter<DDLVector>::operator()( xml_h element ) const {
   val.erase( remove_if(  val.begin(), val.end(), []( unsigned char x ){ return isspace( x ); }), val.end());
   
   printout( ns.context()->debug_constants ? ALWAYS : DEBUG,
-	    "MyDDCMS","+++ Vector<%s>:  %s[%s]: %s", type.c_str(), name.c_str(),
+	    "DD4CMS","+++ Vector<%s>:  %s[%s]: %s", type.c_str(), name.c_str(),
 	    nEntries.c_str(), val.c_str());
 
   vector<double> results = splitNumeric( val );
   registry->insert( { name, results } );
-
-  for( auto it : results )
-    cout << it << " ";
-  cout << "\n";
 }
 
 template <> void Converter<debug>::operator()(xml_h dbg) const {
@@ -1299,7 +1293,7 @@ template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
   cms::DDNamespace ns( context );
 
   printout( context->debug_constants ? ALWAYS : DEBUG,
-	    "MyDDCMS","+++ RESOLVING %ld unknown constants.....", res->unresolvedConst.size());
+	    "DD4CMS","+++ RESOLVING %ld unknown constants.....", res->unresolvedConst.size());
   while( !res->unresolvedConst.empty()) {
     for( auto i : res->unresolvedConst ) {
       const string& n = i.first;
@@ -1323,7 +1317,7 @@ template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
             v.replace( idx, 2, "-" );
         }
         printout( context->debug_constants ? ALWAYS : DEBUG,
-		  "MyDDCMS","+++ [%06ld] ----------  %-40s = %s",
+		  "DD4CMS","+++ [%06ld] ----------  %-40s = %s",
 		  res->unresolvedConst.size() - 1, n.c_str(), res->originalConst[n].c_str());
         ns.addConstantNS( n, v, "number" );
         res->unresolvedConst.erase( n );
@@ -1333,8 +1327,8 @@ template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
   }
   if( !res->unresolvedConst.empty()) {
     for( const auto& e : res->unresolvedConst )
-      printout( ERROR, "MyDDCMS", "+++ Unresolved constant: %-40s = %s.", e.first.c_str(), e.second.c_str());
-    except( "MyDDCMS", "++ FAILED to resolve %ld constant entries:", res->unresolvedConst.size());
+      printout( ERROR, "DD4CMS", "+++ Unresolved constant: %-40s = %s.", e.first.c_str(), e.second.c_str());
+    except( "DD4CMS", "++ FAILED to resolve %ld constant entries:", res->unresolvedConst.size());
   }
   res->unresolvedConst.clear();
   res->originalConst.clear();
@@ -1344,7 +1338,7 @@ template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
 template <> void Converter<print_xml_doc>::operator()(xml_h element) const {
   string fname = xml::DocumentHandler::system_path(element);
   printout(_param<cms::DDParsingContext>()->debug_includes ? ALWAYS : DEBUG,
-           "MyDDCMS","+++ Processing data from: %s",fname.c_str());
+           "DD4CMS","+++ Processing data from: %s",fname.c_str());
 }
 
 /// Converter for <DDDefinition/> tags
@@ -1361,7 +1355,7 @@ static long load_dddefinition(Detector& det, xml_h element) {
   // Here we define the order how XML elements are processed.
   // Be aware of dependencies. This can only defined once.
   // At the end it is a limitation of DOM....
-  printout(INFO,"MyDDCMS","+++ Processing the CMS detector description %s",fname.c_str());
+  printout(INFO,"DD4CMS","+++ Processing the CMS detector description %s",fname.c_str());
 
   xml::Document doc;
   Converter<print_xml_doc> print_doc(det,&context);
@@ -1429,8 +1423,8 @@ static long load_dddefinition(Detector& det, xml_h element) {
     xml_coll_t(dddef, DD_CMU(SpecParSection)).for_each(Converter<SpecParSection>(det,&context));
   }
   catch(const exception& e)   {
-    printout(ERROR,"MyDDCMS","Exception while processing xml source:%s",doc.uri().c_str());
-    printout(ERROR,"MyDDCMS","----> %s", e.what());
+    printout(ERROR,"DD4CMS","Exception while processing xml source:%s",doc.uri().c_str());
+    printout(ERROR,"DD4CMS","----> %s", e.what());
     throw;
   }
 
