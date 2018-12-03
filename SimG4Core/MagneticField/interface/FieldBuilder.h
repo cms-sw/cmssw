@@ -33,7 +33,7 @@ namespace sim {
     G4Mag_UsualEqRhs *theFieldEquation;
     G4LogicalVolume  *theTopVolume;	 
     edm::ParameterSet thePSet;
-    double delta;
+    double theDelta;
   };
 };
 
