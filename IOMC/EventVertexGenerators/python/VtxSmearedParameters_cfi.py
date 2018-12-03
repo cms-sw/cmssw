@@ -714,6 +714,21 @@ RealisticXeXeCollision2017VtxSmearingParameters = cms.PSet(
 )
 
 # From fit to 5 TeV PbPb data
+# From 2018 PbPb  data
+# BS parameters extracted from run 327211, Fill 7471 (from StreamExpressAlignment, HP, BS):
+# X0         =  0.09443  [cm]
+# Y0         = -0.06377  [cm]
+# Z0         =  0.58067  [cm]
+# sigmaZ0    =  4.969    [cm]
+# BeamWidthX 0.0014392
+# BeamWidthY 0.0011545
+#
+# Emittance is 3.36e-8 cm. Calculated by  ((BeamWidthX + BeamWidth)/2)^2/BetaStar
+#
+# BPIX absolute position (from https://cms-conddb.cern.ch/cmsDbBrowser/payload_inspector/Prod):
+# X =  0.084335 cm
+# Y = -0.110381 cm
+# Z = -0.321904 cm
 RealisticPbPbCollision2018VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(50),
