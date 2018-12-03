@@ -23,7 +23,7 @@ namespace helpers {
     std::unique_ptr<reco::Candidate> release() {
       std::unique_ptr<reco::Candidate> ret( std::move(cmp_.get()) );
       cmp_.release();
-      return std::move(ret);
+      return ret;
     }
   };
 
