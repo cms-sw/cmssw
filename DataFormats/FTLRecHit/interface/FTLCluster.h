@@ -120,6 +120,10 @@ public:
       qm += float(theHitENERGY[i]) * theHitTIME[i];
     return qm/energy();
   }
+
+  float timeError() const {
+    return 0.;
+  }
   
   // Return number of hits.
   int size() const { return theHitENERGY.size();}

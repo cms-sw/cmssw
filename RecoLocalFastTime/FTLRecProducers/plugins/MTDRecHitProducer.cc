@@ -49,7 +49,7 @@ MTDRecHitProducer::MTDRecHitProducer(const edm::ParameterSet& ps) :
   
   produces< FTLRecHitCollection >(ftlbInstance_);
   produces< FTLRecHitCollection >(ftleInstance_);
-  produces< MTDTrackingDetSetVector >();
+  // produces< MTDTrackingDetSetVector >();
   
   auto sumes = consumesCollector();
 
@@ -108,7 +108,9 @@ MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // get the orphan handles so we can make refs for the tracking rechits
   auto barrelHandle = evt.put(std::move(barrelRechits), ftlbInstance_);
   auto endcapHandle = evt.put(std::move(endcapRechits), ftleInstance_);
-  
+
+  //now TrackingRecHits properly handled by the TrackingRecHitProducer using FTLCluster
+  /*  
   auto outputhits = std::make_unique<MTDTrackingDetSetVector>();
   auto& theoutputhits = *outputhits;
 
@@ -169,6 +171,7 @@ MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   }
 
   evt.put(std::move(outputhits));
+  */
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

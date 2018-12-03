@@ -82,7 +82,7 @@ public:
     return cluster_.phase2OTCluster();
   }
 
-  FTLRecHit const & mtdCluster() const {
+  FTLCluster const & mtdCluster() const {
     return cluster_.mtdCluster();
   }
 
