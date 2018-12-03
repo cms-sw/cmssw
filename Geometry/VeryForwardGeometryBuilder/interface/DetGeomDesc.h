@@ -55,7 +55,7 @@ class DetGeomDesc
   
   /// access to the tree structure
   Container components() const;
-  float planeZPos() const { return m_z; }
+  float parentZPosition() const { return m_z; }
   
   /// components (children) management
   void addComponent( DetGeomDesc* );
@@ -64,9 +64,9 @@ class DetGeomDesc
   /// geometry information
   RotationMatrix	rotation() const { return m_rot; }
   Translation		translation() const { return m_trans; }
-  const std::string&	name() const {return m_name;};
-  std::vector<double>	params() const {return m_params;}
-  int                   copyno() const {return m_copy;}
+  const std::string&	name() const { return m_name; }
+  std::vector<double>	params() const { return m_params; }
+  int copyno() const { return m_copy; }
   
   /// alignment
   void applyAlignment( const RPAlignmentCorrectionData& );
@@ -78,13 +78,13 @@ class DetGeomDesc
   void clearComponents() { m_container.resize(0); }
   
   Container		 m_container;
-  Translation            m_trans;
-  RotationMatrix         m_rot;
-  std::string            m_name;
-  std::vector<double>    m_params;
-  DetId 		 m_geographicalID;
-  int    		 m_copy;
-  float                  m_z;
+  Translation m_trans;
+  RotationMatrix m_rot;
+  std::string m_name;
+  std::vector<double> m_params;
+  DetId m_geographicalID;
+  int m_copy;
+  float m_z;
 };
 
 #endif
