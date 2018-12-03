@@ -17,7 +17,7 @@ process.load('Configuration.Geometry.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
-process.GlobalTag.globaltag = '102X_mc2017_realistic_v4'
+process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v12'
 
 # Input source
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(
