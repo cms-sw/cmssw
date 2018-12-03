@@ -355,14 +355,16 @@ def createModuleTiming(processingSteps, numStreams):
     for n,trans,s,time,isEvent in processingSteps:
         waitTime = None
         modulesOnStream = modulesActiveOnStream[s]
-        if trans == kStarted:
-            streamState[s] = 1
-            modulesOnStream[n]=time
-        elif trans == kFinished:
-            waitTime = time - modulesOnStream[n]
-            modulesOnStream.pop(n, None)
-            streamState[s] = 0
-            moduleTimings[n].append(float(waitTime/1000.))
+        if isEvent:
+            if trans == kStarted:
+                streamState[s] = 1
+                modulesOnStream[n]=time
+            elif trans == kFinished:
+                waitTime = time - modulesOnStream[n]
+                modulesOnStream.pop(n, None)
+                streamState[s] = 0
+                moduleTimings[n].append(float(waitTime/1000.))
+
     with open('module-timings.yaml', 'w') as outfile:
         outfile.write(yaml.dump(moduleTimings, default_flow_style=True))
 
