@@ -50,6 +50,9 @@ class MTDClusterProducer : public edm::stream::EDProducer<> {
     edm::EDGetTokenT< FTLRecHitCollection >  btlHits_;
     edm::EDGetTokenT< FTLRecHitCollection >  etlHits_;
 
+    std::string ftlbInstance_; // instance name of barrel clusters
+    std::string ftleInstance_; // instance name of endcap clusters
+
     const std::string clusterMode_;         // user's choice of the clusterizer
     MTDClusterizerBase * clusterizer_;    // what we got (for now, one ptr to base class)
     bool readyToCluster_;                   // needed clusterizers valid => good to go!

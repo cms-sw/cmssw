@@ -9,11 +9,10 @@
  */
 
 #include <vector>
-#include <iostream>
 #include <cstdint>
 #include <cassert>
 
-#include "DataFormats/ForwardDetId/interface/MTDDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 class FTLCluster {
 public:

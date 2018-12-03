@@ -20,6 +20,13 @@
 #include <atomic>
 using namespace std;
 
+//#define DEBUG_ENABLED 
+#ifdef DEBUG_ENABLED
+#define DEBUG(x) do { std::cout << x << std::endl; } while (0)
+#else
+#define DEBUG(x)
+#endif
+
 //----------------------------------------------------------------------------
 //! Constructor: 
 //----------------------------------------------------------------------------
@@ -44,6 +51,8 @@ MTDThresholdClusterizer::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("srcBarrel", edm::InputTag("mtdRecHits:FTLBarrel"));
   desc.add<edm::InputTag>("srcEndcap", edm::InputTag("mtdRecHits:FTLEndcap"));
+  desc.add<std::string>("BarrelClusterName", "FTLBarrel");
+  desc.add<std::string>("EndcapClusterName", "FTLEndcap");
   desc.add<double>("HitThreshold", 0.);
   desc.add<double>("SeedThreshold", 0.);
   desc.add<double>("ClusterThreshold", 0.);
@@ -59,38 +68,34 @@ bool MTDThresholdClusterizer::setup(const MTDGeometry* geom, const DetId& id)
 
   currentId=id;
   MTDDetId mtdid(id);    
-    //using geopraphicalId here
-    const auto& thedet = geom->idToDet(id);
-    if( thedet == nullptr ) {
-      throw cms::Exception("MTDThresholdClusterizer") << "GeographicalID: " << std::hex
-						      << id.rawId()
-						      << " is invalid!" << std::dec
-						      << std::endl;
+  //using geopraphicalId here
+  const auto& thedet = geom->idToDet(id);
+  if( thedet == nullptr ) {
+    throw cms::Exception("MTDThresholdClusterizer") << "GeographicalID: " << std::hex
+						    << id.rawId()
+						    << " is invalid!" << std::dec
+						    << std::endl;
     }
-    const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
-    const RectangularMTDTopology& topol = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());    
+  const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+  const RectangularMTDTopology& topol = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());    
   
-    // Get the new sizes.
-    int nrows = topol.nrows();      // rows in x
-    int ncols = topol.ncolumns();   // cols in y
+  // Get the new sizes.
+  int nrows = topol.nrows();      // rows in x
+  int ncols = topol.ncolumns();   // cols in y
   
-    theNumOfRows = nrows;  // Set new sizes
-    theNumOfCols = ncols;
-
-    std::cout << "Buffer size [" << theNumOfRows << "," << theNumOfCols << "]" << std::endl; 
+  theNumOfRows = nrows;  // Set new sizes
+  theNumOfCols = ncols;
+  
+  DEBUG("Buffer size [" << theNumOfRows << "," << theNumOfCols << "]");
+  
   if ( nrows > theBuffer.rows() || 
        ncols > theBuffer.columns() ) 
     { // change only when a larger is needed
-      //if( nrows != theNumOfRows || ncols != theNumOfCols ) {
-      //cout << " MTDThresholdClusterizer: hit buffer redefined to " 
-      // << nrows << " * " << ncols << endl;      
-      //theNumOfRows = nrows;  // Set new sizes
-      //theNumOfCols = ncols;
       // Resize the buffer
       theBuffer.setSize(nrows,ncols);  // Modify
       bufferAlreadySet = true;
     }
-
+  
   return true;   
 }
 //----------------------------------------------------------------------------
@@ -101,8 +106,8 @@ bool MTDThresholdClusterizer::setup(const MTDGeometry* geom, const DetId& id)
 //!  Input and output data stored in DetSet
 //----------------------------------------------------------------------------
 void MTDThresholdClusterizer::clusterize( const FTLRecHitCollection & input,
-						   const MTDGeometry* geom,
-                                                   FTLClusterCollection& output) {
+					  const MTDGeometry* geom,
+					  FTLClusterCollection& output) {
   
   FTLRecHitCollection::const_iterator begin = input.begin();
   FTLRecHitCollection::const_iterator end   = input.end();
@@ -114,7 +119,7 @@ void MTDThresholdClusterizer::clusterize( const FTLRecHitCollection & input,
       return;
     }
 
-  std::cout << "Input collection " << input.size() << std::endl;  
+  DEBUG("Input collection " << input.size());
   assert(output.empty());
 
   std::set<unsigned> geoIds; 
@@ -139,7 +144,6 @@ void MTDThresholdClusterizer::clusterize( const FTLRecHitCollection & input,
 	  geoIdToIdx.emplace(geoId,index);
 	  geoIds.emplace(geoId);
 	  ++index;
-	  std::cout << "I'm in BTL" << std::endl;
 	}
       else if ( mtdId.mtdSubDetector() == MTDDetId::ETL )
 	{
@@ -147,8 +151,7 @@ void MTDThresholdClusterizer::clusterize( const FTLRecHitCollection & input,
 	  DetId geoId = hitId.geographicalId();
 	  geoIdToIdx.emplace(geoId,index);
 	  geoIds.emplace(geoId);
-	++index;
-	  std::cout << "I'm in ETL" << std::endl;
+	  ++index;
 	}
       else
 	{
@@ -159,7 +162,6 @@ void MTDThresholdClusterizer::clusterize( const FTLRecHitCollection & input,
 	}
     }
 
-  std::cout << "geoIds " << geoIds.size() << std::endl;  
   //cluster hits within geoIds (modules)
   for(unsigned id : geoIds) {
     //  Set up the clusterization on this DetId.
@@ -167,7 +169,7 @@ void MTDThresholdClusterizer::clusterize( const FTLRecHitCollection & input,
       return;
     
     auto range = geoIdToIdx.equal_range(id);
-    std::cout << "Matching Ids for " << std::hex << id << std::dec << " [" <<  range.first->second << "," << range.second->second << "]" << std::endl;
+    DEBUG("Matching Ids for " << std::hex << id << std::dec << " [" <<  range.first->second << "," << range.second->second << "]");
     
     //  Copy MTDRecHits to the buffer array; select the seed hits
     //  on the way, and store them in theSeeds.
@@ -175,7 +177,6 @@ void MTDThresholdClusterizer::clusterize( const FTLRecHitCollection & input,
       const unsigned hitidx = itr->second;
       copy_to_buffer(begin+hitidx);
     }
-    std::cout <<  "Starting clusterization" << endl;
     
     FTLClusterCollection::FastFiller clustersOnDet(output,id);
 
@@ -189,7 +190,7 @@ void MTDThresholdClusterizer::clusterize( const FTLRecHitCollection & input,
 	    //  Check if the cluster is above threshold  
 	    if ( cluster.energy() > theClusterThreshold) 
 	      {
-		std::cout << "putting in this cluster " << i << " #hits:" << cluster.size() << " E:" << cluster.energy() << " T:" << cluster.time() << " X:" << cluster.x() << " Y:" << cluster.y() << endl;
+		DEBUG("putting in this cluster " << i << " #hits:" << cluster.size() << " E:" << cluster.energy() << " T:" << cluster.time() << " X:" << cluster.x() << " Y:" << cluster.y());
 		clustersOnDet.push_back( std::move(cluster) ); 
 	      }
 	  }
@@ -228,7 +229,7 @@ void MTDThresholdClusterizer::copy_to_buffer( RecHitIterator itr )
     float time = itr->time();
     float timeError = itr->timeError();
     
-    std::cout << "ROW " <<  row << " COL " << col << " ENERGY " << energy << " TIME " << time << std::endl;
+    DEBUG("ROW " <<  row << " COL " << col << " ENERGY " << energy << " TIME " << time);
     if ( energy > theHitThreshold) {
       theBuffer.set( row, col, energy , time, timeError); 
       if ( energy > theSeedThreshold) theSeeds.push_back( FTLCluster::FTLHitPos(row,col));
@@ -251,7 +252,6 @@ MTDThresholdClusterizer::make_cluster( const FTLCluster::FTLHitPos& hit )
   theBuffer.clear(hit);
   
   AccretionCluster acluster;
-  std::cout << "Seed X" << hit.row() << " Y " << hit.col() << " energy " << seed_energy << " time " << seed_time << std::endl;
   acluster.add(hit, seed_energy, seed_time, seed_time_error);
   
   //Here we search all hits adjacent to all hits in the cluster.
@@ -272,6 +272,5 @@ MTDThresholdClusterizer::make_cluster( const FTLCluster::FTLHitPos& hit )
  endClus:
 
   FTLCluster cluster( currentId, acluster.isize, acluster.energy, acluster.time, acluster.timeError, acluster.x,acluster.y, acluster.xmin, acluster.ymin);
-  std::cout << "My seed energy " << cluster.seed().energy << " time " << cluster.seed().time << " row " << cluster.seed().x<< " col " << cluster.seed().y << std::endl;
   return cluster;
 }
