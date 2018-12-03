@@ -7,9 +7,7 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-
-//spoof a MTD "cluster" with a rechit
-#include "DataFormats/FTLRecHit/interface/FTLRecHitCollections.h"
+#include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
 
 class OmniClusterRef {
 
@@ -28,7 +26,7 @@ public:
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster > ClusterPixelRef;
   typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > ClusterStripRef;
   typedef edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D> Phase2Cluster1DRef;
-  typedef edm::Ref<FTLRecHitCollection,FTLRecHit> ClusterMTDRef;
+  typedef edm::Ref<FTLClusterCollection,FTLCluster> ClusterMTDRef;
   
   OmniClusterRef() : me(edm::RefCore(),kInvalid) {}
   explicit OmniClusterRef(ClusterPixelRef const & ref, unsigned int subClus=0) : me(ref.refCore(), (ref.isNonnull() ? ref.key()                  | (subClus<<subClusShift) : kInvalid) ){  }
@@ -61,7 +59,7 @@ public:
   Phase2TrackerCluster1D const & phase2OTCluster() const {
     return *Phase2Cluster1DRef(me.toRefCore(),index());
   }
-  FTLRecHit const & mtdCluster() const {
+  FTLCluster const & mtdCluster() const {
     return *ClusterMTDRef(me.toRefCore(),index());
   }  
   

@@ -1,4 +1,6 @@
 <use   name="Geometry/CaloGeometry"/>
+<use   name="RecoLocalFastTime/Records"/>
+<use   name="RecoLocalFastTime/FTLClusterizer"/>
 <use   name="RecoLocalFastTime/FTLRecProducers"/>
 <use   name="RecoLocalFastTime/FTLCommonAlgos"/>
 <use   name="FWCore/Framework"/>

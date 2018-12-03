@@ -13,7 +13,7 @@ class MTDTrackingRecHit : public TrackerSingleRecHit {
         MTDTrackingRecHit() : TrackerSingleRecHit() {}
         
 	MTDTrackingRecHit(const LocalPoint& p, const LocalError& e,
-			  const GeomDet& idet, const FTLRecHitRef& objref) :
+			  const GeomDet& idet, const FTLClusterRef& objref) :
 	  TrackerSingleRecHit(p, e, idet, trackerHitRTTI::mipTiming, objref)
 	  {}
         
@@ -27,7 +27,6 @@ class MTDTrackingRecHit : public TrackerSingleRecHit {
 	
 	//specific timing stuff
         float energy() const { return omniCluster().mtdCluster().energy(); }
-	
 	float time() const { return omniCluster().mtdCluster().time(); }
 	float timeError() const { return omniCluster().mtdCluster().timeError(); }
 };
