@@ -49,7 +49,7 @@
 // class decleration
 //
 
-class SiPixelGainCalibrationReadDQMFile : public edm::one::EDAnalyzer<> {
+class SiPixelGainCalibrationReadDQMFile : public edm::one::EDAnalyzer<edm::one::SharedResources> {
    public:
       explicit SiPixelGainCalibrationReadDQMFile(const edm::ParameterSet&);
 

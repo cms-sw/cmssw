@@ -502,6 +502,8 @@ SiPixelGainCalibrationReadDQMFile::SiPixelGainCalibrationReadDQMFile(const edm::
 
 
 {
+  usesResource(TFileService::kSharedResource);
+
    //now do what ever initialization is needed
   ::putenv((char*)"CORAL_AUTH_USER=me");
   ::putenv((char*)"CORAL_AUTH_PASSWORD=test");   
