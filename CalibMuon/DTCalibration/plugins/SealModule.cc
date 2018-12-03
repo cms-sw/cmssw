@@ -11,7 +11,6 @@
 #include "CalibMuon/DTCalibration/plugins/DTTTrigCorrectionFirst.h"
 #include "CalibMuon/DTCalibration/plugins/DTT0CalibrationRMS.h"
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
-#include "CalibMuon/DTCalibration/plugins/DTT0CalibrationNew.h"
 #include "CalibMuon/DTCalibration/plugins/DTTPDeadWriter.h"
 #include "CalibMuon/DTCalibration/plugins/DTT0Correction.h"
 #include "CalibMuon/DTCalibration/plugins/DTVDriftCalibration.h"
@@ -51,7 +50,6 @@ DEFINE_FWK_MODULE(DTTTrigCorrection);
 DEFINE_FWK_MODULE(DTTTrigCorrectionFirst);
 DEFINE_FWK_MODULE(DTT0CalibrationRMS);
 DEFINE_FWK_MODULE(DTT0Calibration);
-DEFINE_FWK_MODULE(DTT0CalibrationNew);
 DEFINE_FWK_MODULE(DTTPDeadWriter);
 DEFINE_FWK_MODULE(DTT0Correction);
 DEFINE_FWK_MODULE(DTVDriftCalibration);
