@@ -226,10 +226,12 @@ bool HectorTransport::setBeamLine()
         return false;
     }
     if (m_verbosity) {
-          std::cout  << "====================================================================\n"
+          edm::LogInfo("HectorTransportSetup")
+                     << "====================================================================\n"
                      << "                  Forward beam line elements \n";
           m_beamline45->showElements();
-          std::cout << "====================================================================\n"
+          edm::LogInfo("HectorTransportSetup")
+                    << "====================================================================\n"
                     << "                 Backward beam line elements \n";
           m_beamline56->showElements();
     }
