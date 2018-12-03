@@ -1,0 +1,3 @@
+<bin name="cudaComputeCapabilities" file="cudaComputeCapabilities.cpp">
+  <use name="cuda"/>
+</bin>
