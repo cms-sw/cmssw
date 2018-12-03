@@ -65,7 +65,7 @@ MTDTrackingRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   edm::ESHandle<MTDClusterParameterEstimator> cpe;
   if( cpewatcher_.check(es) || cpe_ == nullptr ) {
-    es.get<MTDCPERecord>().get(cpe);
+    es.get<MTDCPERecord>().get("MTDCPEBase",cpe);
     cpe_ = dynamic_cast< const MTDCPEBase* >(cpe.product());
   }
 
