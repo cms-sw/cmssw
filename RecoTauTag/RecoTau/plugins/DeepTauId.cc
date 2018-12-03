@@ -252,7 +252,6 @@ public:
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb");
         desc.add<bool>("mem_mapped", false);
 
-
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
         descWP.add<std::string>("VVLoose", "0");
@@ -322,7 +321,7 @@ private:
         static constexpr bool check_all_set = false;
         static constexpr float default_value_for_set_check = -42;
         static const TauIdMVAAuxiliaries clusterVariables;
-        
+
         tensorflow::Tensor inputs(tensorflow::DT_FLOAT, { 1, dnn_inputs_2017v1::NumberOfInputs});
         const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
         auto leadChargedHadrCand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get());
