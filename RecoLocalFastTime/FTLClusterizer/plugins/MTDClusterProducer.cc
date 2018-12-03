@@ -33,9 +33,12 @@ MTDClusterProducer::MTDClusterProducer(edm::ParameterSet const& conf)
 {
   btlHits_ = consumes< FTLRecHitCollection >( conf.getParameter<edm::InputTag>("srcBarrel") );
   etlHits_ = consumes< FTLRecHitCollection >( conf.getParameter<edm::InputTag>("srcEndcap") );
+  ftlbInstance_ = conf.getParameter<std::string>("BarrelClusterName");
+  ftleInstance_ = conf.getParameter<std::string>("EndcapClusterName");
+
   //--- Declare to the EDM what kind of collections we will be making.
-  produces<FTLClusterCollection>("FTLBarrel"); 
-  produces<FTLClusterCollection>("FTLEndcap"); 
+  produces<FTLClusterCollection>(ftlbInstance_); 
+  produces<FTLClusterCollection>(ftleInstance_); 
   
   //--- Make the algorithm(s) according to what the user specified
   //--- in the ParameterSet.
@@ -74,8 +77,8 @@ void MTDClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
   run(*inputBarrel, *outputBarrel );
   run(*inputEndcap, *outputEndcap );
 
-  e.put(std::move(outputBarrel),"FTLBarrel");
-  e.put(std::move(outputEndcap),"FTLEndcap");
+  e.put(std::move(outputBarrel),ftlbInstance_);
+  e.put(std::move(outputEndcap),ftleInstance_);
 }
 
 //---------------------------------------------------------------------------
@@ -109,17 +112,7 @@ void MTDClusterProducer::run(const T                              & input,
     return;   // clusterizer is invalid, bail out
   }
   
-  int numberOfHits = input.size();
-  //  int numberOfClusters = 0;
-
   clusterizer_->clusterize( input , geom_, output);
-  
-  // if ((maxTotalClusters_ >= 0) && (numberOfClusters > maxTotalClusters_)) {
-  //     edm::LogError("TooManyClusters") <<  "Limit on the number of clusters exceeded. An empty cluster collection will be produced instead.\n";
-  //     edmNew::DetSetVector<MTDCluster> empty;
-  //     empty.swap(output);
-  //     break;
-  // }
   
   LogDebug ("MTDClusterProducer") << " Executing " 
 				  <<  clusterMode_ << " resulted in " << output.size()
