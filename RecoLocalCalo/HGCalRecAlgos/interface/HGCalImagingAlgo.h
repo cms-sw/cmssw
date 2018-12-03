@@ -49,13 +49,15 @@ public:
 
 enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
 
-HGCalImagingAlgo() : vecDeltas_(), kappa_(1.), ecut_(0.),
+ HGCalImagingAlgo() : W0threshold_(), positionDeltaRho_c_(),
+        vecDeltas_(), kappa_(1.), ecut_(0.),
         sigma2_(1.0),
         algoId_(reco::CaloCluster::undefined),
         verbosity_(pERROR),initialized_(false){
 }
 
-HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
+ HGCalImagingAlgo(const std::vector<double>& W0threshold_in, const std::vector<double>& positionDeltaRho_c_in,
+		 const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
                  reco::CaloCluster::AlgoId algoId_in,
                  bool dependSensor_in,
                  const std::vector<double>& dEdXweights_in,
@@ -65,6 +67,8 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
                  const std::vector<double>& nonAgedNoises_in,
                  double noiseMip_in,
                  VerbosityLevel the_verbosity = pERROR) :
+        W0threshold_(W0threshold_in),
+        positionDeltaRho_c_(positionDeltaRho_c_in),
         vecDeltas_(vecDeltas_in), kappa_(kappa_in),
         ecut_(ecut_in),
         sigma2_(1.0),
@@ -86,7 +90,8 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
 {
 }
 
-HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
+HGCalImagingAlgo(const std::vector<double>& W0threshold_in, const std::vector<double>& positionDeltaRho_c_in,
+		 const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
                  double showerSigma,
                  reco::CaloCluster::AlgoId algoId_in,
                  bool dependSensor_in,
@@ -96,7 +101,10 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
                  double fcPerEle_in,
                  const std::vector<double>& nonAgedNoises_in,
                  double noiseMip_in,
-                 VerbosityLevel the_verbosity = pERROR) : vecDeltas_(vecDeltas_in), kappa_(kappa_in),
+                 VerbosityLevel the_verbosity = pERROR) :
+        W0threshold_(W0threshold_in),
+	positionDeltaRho_c_(positionDeltaRho_c_in),
+        vecDeltas_(vecDeltas_in), kappa_(kappa_in),
         ecut_(ecut_in),
         sigma2_(std::pow(showerSigma,2.0)),
         algoId_(algoId_in),
@@ -164,6 +172,11 @@ private:
 // last layer per subdetector
 static const unsigned int lastLayerEE = 28;
 static const unsigned int lastLayerFH = 40;
+
+// To compute the cluster position
+//bool usePositionLogW_;
+std::vector<double> W0threshold_;
+std::vector<double> positionDeltaRho_c_;
 
 // The two parameters used to identify clusters
 std::vector<double> vecDeltas_;
