@@ -632,7 +632,6 @@ private:
     edm::EDGetTokenT<ElectronCollection> electrons_token;
     edm::EDGetTokenT<MuonCollection> muons_token;
     std::string input_layer, output_layer;
-    TauIdMVAAuxiliaries clusterVariables;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
