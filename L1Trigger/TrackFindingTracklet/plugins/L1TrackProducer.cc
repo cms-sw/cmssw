@@ -88,6 +88,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 //#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/StubPtConsistency.h"
+#include "L1Trigger/TrackTrigger/interface/StubPtConsistency.h"
 
 //////////////
 // STD HEADERS
@@ -593,13 +594,13 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     // pt consistency
-    //float consistency4par = StubPtConsistency::getConsistency(aTrack, theStackedGeometry, mMagneticFieldStrength, 4); 
-    //aTrack.setStubPtConsistency(consistency4par, 4);
-    aTrack.setStubPtConsistency(-1, 4);
+    float consistency4par = StubPtConsistency::getConsistency(aTrack, theTrackerGeom, tTopo, mMagneticFieldStrength, 4);
+    aTrack.setStubPtConsistency(consistency4par, 4);
+    //aTrack.setStubPtConsistency(-1, 4);
 
-    //float consistency5par = StubPtConsistency::getConsistency(aTrack, theStackedGeometry, mMagneticFieldStrength, 5); 
-    //aTrack.setStubPtConsistency(consistency5par,5);
-    aTrack.setStubPtConsistency(-1,5);
+    float consistency5par = StubPtConsistency::getConsistency(aTrack, theTrackerGeom, tTopo, mMagneticFieldStrength, 5);
+    aTrack.setStubPtConsistency(consistency5par,5);
+    //aTrack.setStubPtConsistency(-1,5);
 
 
     L1TkTracksForOutput->push_back(aTrack);
