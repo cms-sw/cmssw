@@ -40,7 +40,7 @@ void TotemTimingRecHitProducerAlgorithm::build(
 
     if (det) {
       x_pos = det->translation().x(), y_pos = det->translation().y();
-      z_pos = det->planeZPos(); // retrieve the plane position;
+      z_pos = det->parentZPosition(); // retrieve the plane position;
 
       x_width = 2.0 * det->params()[0], // parameters stand for half the size
           y_width = 2.0 * det->params()[1],
