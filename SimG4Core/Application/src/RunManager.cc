@@ -24,7 +24,6 @@
 #include "SimG4Core/CustomPhysics/interface/CMSExoticaPhysics.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
-#include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
 #include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 
@@ -141,7 +140,7 @@ RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC)
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
       m_g4overlap(p.getParameter<edm::ParameterSet>("G4CheckOverlap")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
-      m_p(p), m_chordFinderSetter(nullptr)
+      m_p(p)
 {    
   m_UIsession.reset(new CustomUIsession());
   m_kernel = new G4RunManagerKernel();
@@ -281,7 +280,7 @@ void RunManager::initG4(const edm::EventSetup & es)
   // exotic particle physics
   double monopoleMass = m_pPhysics.getUntrackedParameter<double>("MonopoleMass",0);
   if(monopoleMass > 0.0) {
-    phys->RegisterPhysics(new CMSMonopolePhysics(fPDGTable,m_chordFinderSetter,m_pPhysics));
+    phys->RegisterPhysics(new CMSMonopolePhysics(fPDGTable,m_pPhysics));
   }
   bool exotica = m_pPhysics.getUntrackedParameter<bool>("ExoticaTransport",false);
   if(exotica) { CMSExoticaPhysics exo(phys, m_pPhysics); }
