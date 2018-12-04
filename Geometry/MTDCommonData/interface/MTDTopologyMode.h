@@ -6,25 +6,13 @@
 #include <string>
 #include <algorithm>
 
-template< typename T >
-class MTDStringToEnumParser {
-  std::map< std::string, T > enumMap;
- public:
-     
-  MTDStringToEnumParser( void );
- 
-  T parseString( const std::string &value )  { 
-    typename std::map<std::string, T>::const_iterator iValue = enumMap.find( value );
-    if (iValue  == enumMap.end())
-      throw cms::Exception( "Configuration" )
-        << "the value " << value << " is not defined.";
-       
-    return iValue->second;
-  }
-};
- 
+
 namespace MTDTopologyMode {
-  enum Mode { tile=1, bar=2, barzflat=3 };
+  
+  enum class Mode { undefined=0, tile=1, bar=2, barzflat=3 };
+
+  Mode MTDStringToEnumParser( const std::string & ) ;
+    
 }
- 
+
 #endif // Geometry_MTDCommonData_MTDTopologyMode_H
