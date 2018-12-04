@@ -20,22 +20,14 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
-DetGeomDesc::DetGeomDesc( DDFilteredView* fv )
-{
-  m_params = ((fv->logicalPart()).solid()).parameters();
-  m_trans = fv->translation();
-  m_rot = fv->rotation();
-  m_name = ((fv->logicalPart()).ddname()).name();
-  m_copy = fv->copyno();
-  m_z = fv->geoHistory().back().absTranslation().z();
-}
-
-//----------------------------------------------------------------------------------------------------
-
-DetGeomDesc::DetGeomDesc( const DetGeomDesc &ref )
-{
-  (*this) = ref;
-}
+DetGeomDesc::DetGeomDesc( DDFilteredView* fv ) :
+  m_trans( fv->translation()),
+  m_rot( fv->rotation()),
+  m_name((( fv->logicalPart()).ddname()).name()),
+  m_params((( fv->logicalPart()).solid()).parameters()),
+  m_copy( fv->copyno()),
+  m_z( fv->geoHistory().back().absTranslation().z())
+{}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -84,7 +76,7 @@ void DetGeomDesc::deleteComponents()
 void DetGeomDesc::deepDeleteComponents()
 {
   for( auto & it : m_container ) {
-    ( const_cast<DetGeomDesc*>(it) )->deepDeleteComponents();
+    it->deepDeleteComponents();
     delete it;
   }
   clearComponents();
@@ -94,8 +86,6 @@ void DetGeomDesc::deepDeleteComponents()
 
 void DetGeomDesc::applyAlignment( const RPAlignmentCorrectionData &t )
 {
-  //cout << " DetGeomDesc::ApplyAlignment > before: " << _trans << ",  " << _rot << endl;
   m_rot = t.getRotationMatrix() * m_rot;
   m_trans = t.getTranslation() + m_trans;
-  //cout << " DetGeomDesc::ApplyAlignment > after: " << _trans << ",  " << _rot << endl;
 }
