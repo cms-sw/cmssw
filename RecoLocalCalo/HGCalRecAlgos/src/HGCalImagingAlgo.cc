@@ -194,8 +194,6 @@ HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v) const {
   unsigned int v_size = v.size();
   unsigned int maxEnergyIndex = 0;
   float maxEnergyValue = 0;
-  //  bool haloOnlyCluster = true;
-  //  unsigned int maxValidDistanceIndex = 0;
 
   // loop over hits in cluster candidate
   // determining the maximum energy hit
