@@ -62,10 +62,10 @@ MTDTopologyAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
     
   // Build DetIds based on DDD description, then extract information from topology and compare
 
-  std::string label_;
+  std::string label;
 
   edm::ESTransientHandle<DDCompactView> pDD;
-  iSetup.get<IdealGeometryRecord>().get(label_, pDD );
+  iSetup.get<IdealGeometryRecord>().get(label, pDD );
   if (pDD.description()) {
     edm::LogInfo("MTDTopologyAnalyzer") << pDD.description()->type_ << " label: " << pDD.description()->label_;
   } else {
@@ -84,7 +84,7 @@ MTDTopologyAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
   using id_type = std::map<nav_type,int>;
   id_type idMap;
   int id=0;
-  std::string ddtop_("");
+  std::string ddtop("");
   size_t limit = 0;
 
   bool isBarrel = false;
@@ -98,17 +98,17 @@ MTDTopologyAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
     if ( fv.geoHistory()[num-1].logicalPart().name() == "btl:BarrelTimingLayer" ) { 
       isBarrel = true;
       limit = num;
-      ddtop_ = "btl:BarrelTimingLayer";
+      ddtop = "btl:BarrelTimingLayer";
     }
     else if ( fv.geoHistory()[num-1].logicalPart().name() == "etl:EndcapTimingLayer" ) {
       isBarrel = false;
       limit = num;
-      ddtop_ = "etl:EndcapTimingLayer";
+      ddtop = "etl:EndcapTimingLayer";
     }
 
-    if ( num <= limit && fv.geoHistory()[num-1].logicalPart().name().fullname() != ddtop_ ) { ddtop_.clear(); }
+    if ( num <= limit && fv.geoHistory()[num-1].logicalPart().name().fullname() != ddtop ) { ddtop.clear(); }
 
-    if ( !ddtop_.empty() ) { 
+    if ( !ddtop.empty() ) { 
 
       // Actions for MTD volumes: searchg for sensitive detectors
     
@@ -130,13 +130,13 @@ MTDTopologyAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 
         if ( isBarrel ) { 
           BTLDetId theId(btlNS_.getUnitID(thisN_)); 
-          DetId localId_( theId.rawId() );
-          edm::LogInfo("MTDTopologAnalyzer") << mtdTopo->print(localId_) << "\n" << theId;;
+          DetId localId( theId.rawId() );
+          edm::LogInfo("MTDTopologAnalyzer") << mtdTopo->print(localId) << "\n" << theId;;
         }
         else { 
           ETLDetId theId(etlNS_.getUnitID(thisN_)); 
-          DetId localId_( theId.rawId() );
-          edm::LogInfo("MTDTopologAnalyzer") << mtdTopo->print(localId_) << "\n" << theId;;
+          DetId localId( theId.rawId() );
+          edm::LogInfo("MTDTopologAnalyzer") << mtdTopo->print(localId) << "\n" << theId;;
         }
       }
     }
