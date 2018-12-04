@@ -218,8 +218,12 @@ HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v) const {
 
       float rhEnergy = v[i].data.weight;
       total_weight += rhEnergy;
-      x += v[i].data.x * rhEnergy;
-      y += v[i].data.y * rhEnergy;
+      // just fill x, y for scintillator
+      // for Si it is overwritten later anyway
+      if(thick == -1){
+        x += v[i].data.x * rhEnergy;
+        y += v[i].data.y * rhEnergy;
+      }
     }
   }
   // just loop on reduced vector of interesting indices
@@ -233,7 +237,7 @@ HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v) const {
       float rhEnergy = v[idx].data.weight;
       if(total_weight == 0. || rhEnergy == 0.) continue;
       float W0_ = W0threshold_[thick];
-      Wi = (W0_ + log(rhEnergy/total_weight)) > 0 ? (W0_ + log(rhEnergy/total_weight)) : 0.;
+      Wi = std::max(W0_ + log(rhEnergy/total_weight), 0.);
       x_log += v[idx].data.x * Wi;
       y_log += v[idx].data.y * Wi;
       total_weight_log += Wi;
