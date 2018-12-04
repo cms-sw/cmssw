@@ -91,7 +91,7 @@ enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
 }
 
 HGCalImagingAlgo(const std::vector<double>& W0threshold_in, const std::vector<double>& positionDeltaRho_c_in,
-		 const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
+                 const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
                  double showerSigma,
                  reco::CaloCluster::AlgoId algoId_in,
                  bool dependSensor_in,
@@ -103,7 +103,7 @@ HGCalImagingAlgo(const std::vector<double>& W0threshold_in, const std::vector<do
                  double noiseMip_in,
                  VerbosityLevel the_verbosity = pERROR) :
         W0threshold_(W0threshold_in),
-	positionDeltaRho_c_(positionDeltaRho_c_in),
+        positionDeltaRho_c_(positionDeltaRho_c_in),
         vecDeltas_(vecDeltas_in), kappa_(kappa_in),
         ecut_(ecut_in),
         sigma2_(std::pow(showerSigma,2.0)),
@@ -118,10 +118,10 @@ HGCalImagingAlgo(const std::vector<double>& W0threshold_in, const std::vector<do
         verbosity_(the_verbosity),
         initialized_(false),
         points_(2*(maxlayer+1)),
-	minpos_(2*(maxlayer+1),{
+        minpos_(2*(maxlayer+1),{
                 {0.0f,0.0f}
         }),
-	maxpos_(2*(maxlayer+1),{ {0.0f,0.0f} })
+        maxpos_(2*(maxlayer+1),{ {0.0f,0.0f} })
 {
 }
 
