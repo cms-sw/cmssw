@@ -30,7 +30,7 @@ popcon::EcalPedestalsHandler::EcalPedestalsHandler(const edm::ParameterSet & ps)
 	m_runtype = ps.getUntrackedParameter<int>("RunType",1);
         m_corrected = ps.getUntrackedParameter<bool>("corrected",false);
 
-	edm::LogInfo("EcalPedestalsHandler")<<m_sid<<"/"<<m_user<<"/"<<m_pass<<"/"<<m_location<<"/"<<m_gentag;
+	edm::LogInfo("EcalPedestalsHandler")<<m_sid<<"/"<<"/"<<m_location<<"/"<<m_gentag;
 
 }
 
@@ -514,7 +514,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2() {
 
 	if (!econn)
 	  {
-	    edm::LogInfo(" connection parameters ") <<m_sid <<"/"<<m_user<<"/"<<m_pass;
+	    edm::LogInfo(" connection parameters ") <<m_sid;
 	    throw cms::Exception("OMDS not available");
 	  } 
 
