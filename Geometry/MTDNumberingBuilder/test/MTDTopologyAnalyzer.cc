@@ -1,3 +1,4 @@
+
 // system include files
 #include <iostream>
 
@@ -59,7 +60,7 @@ MTDTopologyAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
   edm::ESHandle<MTDTopology> mtdTopo;
   iSetup.get<MTDTopologyRcd>().get( mtdTopo );     
   edm::LogInfo("MTDTopologyAnalyzer") << "MTD topology mode = " << mtdTopo->getMTDTopologyMode();
-    
+ 
   // Build DetIds based on DDD description, then extract information from topology and compare
 
   std::string label;

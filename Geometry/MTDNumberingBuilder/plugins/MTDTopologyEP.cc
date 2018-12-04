@@ -7,6 +7,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/PMTDParametersRcd.h"
 
+//#define EDM_ML_DEBUG
+
 MTDTopologyEP::MTDTopologyEP( const edm::ParameterSet& conf )
 {
   edm::LogInfo("MTD") << "MTDTopologyEP::MTDTopologyEP";
@@ -58,6 +60,30 @@ MTDTopologyEP::fillParameters( const PMTDParameters& ptp )
   etlVals_.layerMask_ = ptp.vitems_[1].vpars_[5];
   etlVals_.ringMask_ = ptp.vitems_[1].vpars_[6];
   etlVals_.moduleMask_ = ptp.vitems_[1].vpars_[7];   
+
+#ifdef EDM_ML_DEBUG
+  
+  edm::LogInfo("MTDTopologyEP") <<  "BTL values = " 
+                                << btlVals_.sideStartBit_ << " " 
+                                << btlVals_.layerStartBit_ << " " 
+                                << btlVals_.trayStartBit_ << " " 
+                                << btlVals_.moduleStartBit_ << " " 
+                                << std::hex << btlVals_.sideMask_ << " " 
+                                << std::hex << btlVals_.layerMask_ << " " 
+                                << std::hex << btlVals_.trayMask_ << " " 
+                                << std::hex << btlVals_.moduleMask_ << " " ;
+  edm::LogInfo("MTDTopologyEP") << "ETL values = " 
+                                << etlVals_.sideStartBit_ << " " 
+                                << etlVals_.layerStartBit_ << " " 
+                                << etlVals_.ringStartBit_ << " " 
+                                << etlVals_.moduleStartBit_ << " " 
+                                << std::hex << etlVals_.sideMask_ << " " 
+                                << std::hex << etlVals_.layerMask_ << " " 
+                                << std::hex << etlVals_.ringMask_ << " " 
+                                << std::hex << etlVals_.moduleMask_ << " " ;
+
+#endif
+
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE( MTDTopologyEP);

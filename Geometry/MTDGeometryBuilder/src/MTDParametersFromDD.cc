@@ -31,9 +31,9 @@ bool
 MTDParametersFromDD::build( const DDCompactView* cvp,
                             PMTDParameters& ptp)
 {
-  std::list<std::string> mtdSubdet { "BTL", "ETL" };
+  std::array<std::string,2> mtdSubdet { { "BTL", "ETL" } };
   int subdet(0);
-  for( auto name : mtdSubdet )
+  for( const auto& name : mtdSubdet )
     {
       if( DDVectorGetter::check( name ))
         {
