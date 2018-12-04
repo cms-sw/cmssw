@@ -51,9 +51,12 @@ problem with it.  Can a Polycone come to a point "in the real world?" -->
       <ZXYSection z="60*cm" x="0*cm" y="30*cm" scale="1.2"/>
     </ExtrudedPolygon>
     <Trd1 name="trd1" dx1="1*m" dx2="1.3*m" dz="3*m" dy1="30*cm"/>
-    <Trd1 name="trd2" dx1="1*m" dx2="1.3*m" dz="3*m" dy1="30*cm" dy2="50*cm"/>
+    <Trd2 name="trd2" dx1="1*m" dx2="1.3*m" dz="3*m" dy1="30*cm" dy2="50*cm"/>
     <Tube name="tube1" rMin="1*m" rMax="1.5*m" dz="1*m"/>
     <Tubs name="tube2" rMin="1*m" rMax="2*m" dz="1*m" startPhi="30*deg" deltaPhi="150*deg"/>
+    <Tubs name="ZStopSpace" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="ZStop_1_ZStopSpaceDivision" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="346.25*deg" deltaPhi="3.0*deg"/>
+    <Tubs name="ZStop_2_ZStopSpaceDivision" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="10.75*deg" deltaPhi="3.0*deg"/>
     <CutTubs name="cuttubs" rMin="1*m" rMax="2*m" dz="1*m" startPhi="30*deg" deltaPhi="150*deg" lx="0" ly="-0.7" lz="-0.71" tx="0.7" ty="0" tz="0.71"/>
     <TruncTubs name="trunctubs1" zHalf="50*cm" rMin="20*cm" rMax="40*cm" startPhi="0*deg" deltaPhi="90*deg" cutAtStart="25*cm" cutAtDelta="35*cm" cutInside="true"/>
     <TruncTubs name="trunctubs2" rMin="6.9551*m" rMax="9*m" cutAtStart="6.9551*m" cutAtDelta="7.20045*m" cutInside="true" startPhi="0*deg" deltaPhi="15*deg" zHalf="6.57005*m"/>

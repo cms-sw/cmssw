@@ -78,6 +78,7 @@ namespace dd4hep {
     class DDLPolycone;
     class DDLTorus;
     class DDLTrd1;
+    class DDLTrd2;
     class DDLTruncTubs;
     class DDLCutTubs;
     class DDLTubs;
@@ -184,6 +185,8 @@ namespace dd4hep {
   template <> void Converter<DDLSphere>::operator()(xml_h element) const;
   /// Converter for <Trd1/> tags
   template <> void Converter<DDLTrd1>::operator()(xml_h element) const;
+  /// Converter for <Trd2/> tags
+  template <> void Converter<DDLTrd2>::operator()(xml_h element) const;
   /// Converter for <Cone/> tags
   template <> void Converter<DDLCone>::operator()(xml_h element) const;
   /// Converter for <DDLBox/> tags
@@ -290,6 +293,9 @@ template <> void Converter<SolidSection>::operator()(xml_h element) const   {
       break;
     case hash("Trd1"):
       Converter<DDLTrd1>(description,ns.context(),optional)(solid);
+      break;
+    case hash("Trd2"):
+      Converter<DDLTrd2>(description,ns.context(),optional)(solid);
       break;
     case hash("Cone"):
       Converter<DDLCone>(description,ns.context(),optional)(solid);
@@ -920,6 +926,22 @@ template <> void Converter<DDLTrd1>::operator()(xml_h element) const {
   ns.addSolid( nam, Trd1( dx1, dx2, dy1, dz ));
 }
 
+/// Converter for <Trd2/> tags
+template <> void Converter<DDLTrd2>::operator()(xml_h element) const {
+  cms::DDNamespace ns( _param<cms::DDParsingContext>());
+  xml_dim_t e( element );
+  string nam      = e.nameStr();
+  double dx1      = ns.attr<double>( e, DD_CMU( dx1 ));
+  double dy1      = ns.attr<double>( e, DD_CMU( dy1 ));
+  double dx2      = ns.attr<double>( e, DD_CMU( dx2 ), 0.0 );
+  double dy2      = ns.attr<double>( e, DD_CMU( dy2 ), dy1 );
+  double dz       = ns.attr<double>( e, DD_CMU( dz ));
+  printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
+	   "+   Trd1:       dz=%8.3f [cm] dx1:%.3f dy1:%.3f dx2:%.3f dy2:%.3f",
+	   dz, dx1, dy1, dx2, dy2);
+  ns.addSolid( nam, Trd2( dx1, dx2, dy1, dy2, dz ));
+}
+
 /// Converter for <Tubs/> tags
 template <> void Converter<DDLTubs>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());
@@ -932,8 +954,8 @@ template <> void Converter<DDLTubs>::operator()(xml_h element) const {
   double deltaPhi = ns.attr<double>( e, DD_CMU(deltaPhi),2*M_PI);
   printout(ns.context()->debug_shapes ? ALWAYS : DEBUG, "DD4CMS",
 	   "+   Tubs:     dz=%8.3f [cm] rmin=%8.3f [cm] rmax=%8.3f [cm]"
-	   " startPhi=%8.3f [rad] deltaPhi=%8.3f [rad]", dz, rmin, rmax, startPhi, deltaPhi);
-  ns.addSolid(nam, Tube(rmin,rmax,dz,startPhi,deltaPhi));
+	   " startPhi=%8.3f [rad] deltaPhi=%8.3f [rad]", dz, rmin, rmax, startPhi, deltaPhi );
+  ns.addSolid(nam, Tube( rmin, rmax, dz, startPhi, startPhi + deltaPhi ));
 }
  
 /// Converter for <CutTubs/> tags

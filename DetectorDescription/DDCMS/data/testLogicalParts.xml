@@ -131,6 +131,22 @@
       <rSolid name="testSolids:V_1101"/>
       <rMaterial name="materials:Air"/>
     </LogicalPart>
+    <LogicalPart name="ZStopSpace" category="unspecified">
+      <rSolid name="testSolids:ZStopSpace"/>
+      <rMaterial name="materials:ME_free_space"/>
+    </LogicalPart>
+    <LogicalPart name="ZStopSpace1" category="unspecified">
+      <rSolid name="testSolids:ZStopSpace"/>
+      <rMaterial name="materials:ME_free_space"/>
+    </LogicalPart>
+    <LogicalPart name="ZStop_1_ZStopSpaceDivision" category="unspecified">
+      <rSolid name="testSolids:ZStop_1_ZStopSpaceDivision"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="ZStop_2_ZStopSpaceDivision" category="unspecified">
+      <rSolid name="testSolids:ZStop_2_ZStopSpaceDivision"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
   </LogicalPartSection>
 
 </DDDefinition>
