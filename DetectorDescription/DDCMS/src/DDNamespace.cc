@@ -20,7 +20,7 @@ DDNamespace::DDNamespace( DDParsingContext* context, xml_h element )
       m_name = m_context->namespaces.back();
     }
     dd4hep::printout( m_context->debug_namespaces ? dd4hep::ALWAYS : dd4hep::DEBUG,
-  	      "MyDDCMS", "+++ Current namespace is now: %s", m_name.c_str());
+  	      "DD4CMS", "+++ Current namespace is now: %s", m_name.c_str());
     return;
   }
   if( has_label ) {
@@ -35,7 +35,7 @@ DDNamespace::DDNamespace( DDParsingContext* context, xml_h element )
   m_context->namespaces.emplace_back( m_name );
   m_pop = true;
   dd4hep::printout( m_context->debug_namespaces ? dd4hep::ALWAYS : dd4hep::DEBUG,
-	    "MyDDCMS","+++ Current namespace is now: %s", m_name.c_str());
+	    "DD4CMS","+++ Current namespace is now: %s", m_name.c_str());
   return;
 }
 
@@ -57,7 +57,7 @@ DDNamespace::DDNamespace( DDParsingContext& ctx, xml_h element, bool )
   m_context->namespaces.push_back( m_name );
   m_pop = true;
   dd4hep::printout( m_context->debug_namespaces ? dd4hep::ALWAYS : dd4hep::DEBUG,
-	    "MyDDCMS","+++ Current namespace is now: %s", m_name.c_str());
+	    "DD4CMS","+++ Current namespace is now: %s", m_name.c_str());
   return;
 }
 
@@ -77,7 +77,7 @@ DDNamespace::~DDNamespace() {
   if( m_pop ) {
     m_context->namespaces.pop_back();
     dd4hep::printout( m_context->debug_namespaces ? dd4hep::ALWAYS : dd4hep::DEBUG,
-	      "MyDDCMS","+++ Current namespace is now: %s", m_context->ns().c_str());
+	      "DD4CMS","+++ Current namespace is now: %s", m_context->ns().c_str());
   }
 }
 
@@ -136,7 +136,7 @@ DDNamespace::addConstantNS( const string& nam, const string& val, const string& 
   const string& v = val;
   const string& n = nam;
   dd4hep::printout( m_context->debug_constants ? dd4hep::ALWAYS : dd4hep::DEBUG,
-	    "MyDDCMS","+++ Add constant object: %-40s = %s [type:%s]",
+	    "DD4CMS","+++ Add constant object: %-40s = %s [type:%s]",
 	    n.c_str(), v.c_str(), typ.c_str());
   dd4hep::_toDictionary( n, v, typ );
   dd4hep::Constant c( n, v, typ );
@@ -149,7 +149,7 @@ DDNamespace::addVector( const string& name, const vector<double>& value ) const
   const vector<double>& v = value;
   const string& n = name;
   dd4hep::printout( m_context->debug_constants ? dd4hep::ALWAYS : dd4hep::DEBUG,
-		    "MyDDCMS","+++ Add constant object: %-40s = %s ",
+		    "DD4CMS","+++ Add constant object: %-40s = %s ",
 		    n.c_str(), "vector<double>");
   m_context->addVector( n, v );
 }
@@ -201,7 +201,7 @@ DDNamespace::addVolumeNS( dd4hep::Volume vol ) const
   dd4hep::Material m = vol.material();
   vol->SetName(n.c_str());
   m_context->volumes[n] = vol;
-  dd4hep::printout( m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG, "MyDDCMS",
+  dd4hep::printout( m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG, "DD4CMS",
            "+++ Add volume:%-38s Solid:%-26s[%-16s] Material:%s",
            vol.name(), s.name(), s.type(), m.name());
   return vol;
@@ -216,7 +216,7 @@ DDNamespace::addVolume( dd4hep::Volume vol ) const
   dd4hep::Material m = vol.material();
   vol->SetName(n.c_str());
   m_context->volumes[n] = vol;
-  dd4hep::printout( m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG, "MyDDCMS",
+  dd4hep::printout( m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG, "DD4CMS",
            "+++ Add volume:%-38s Solid:%-26s[%-16s] Material:%s",
            vol.name(), s.name(), s.type(), m.name());
   return vol;
@@ -246,7 +246,7 @@ DDNamespace::volume( const string& name, bool exc ) const
 dd4hep::Solid
 DDNamespace::addSolidNS( const string& name, dd4hep::Solid solid ) const
 {
-  dd4hep::printout( m_context->debug_shapes ? dd4hep::ALWAYS : dd4hep::DEBUG, "MyDDCMS",
+  dd4hep::printout( m_context->debug_shapes ? dd4hep::ALWAYS : dd4hep::DEBUG, "DD4CMS",
            "+++ Add shape of type %s : %s", solid->IsA()->GetName(), name.c_str());
 
   m_context->shapes.try_emplace( name,  solid.setName( name ));
