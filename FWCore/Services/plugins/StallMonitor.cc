@@ -35,7 +35,7 @@
 
 namespace {
 
-  using duration_t = std::chrono::milliseconds;
+  using duration_t = std::chrono::microseconds;
   using clock_t = std::chrono::steady_clock;
   auto now = clock_t::now;
 
@@ -343,7 +343,7 @@ void StallMonitor::fillDescriptions(ConfigurationDescriptions& descriptions)
                                                                            "information will be written to a dedicated file, but only the summary\n"
                                                                            "including stalling-modules information will be logged.");
   desc.addUntracked<double>("stallThreshold", threshold_default)->setComment("Threshold (in seconds) used to classify modules as stalled.\n"
-                                                                             "Millisecond granularity allowed.");
+                                                                             "Microsecond granularity allowed.");
   descriptions.add("StallMonitor", desc);
   descriptions.setComment("This service keeps track of various times in event-processing to determine which modules are stalling.");
 }
