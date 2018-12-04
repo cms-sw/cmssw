@@ -7,12 +7,13 @@ namespace MTDTopologyMode {
   Mode MTDStringToEnumParser( const std::string &value ) {
 
     std::string prefix("MTDTopologyMode::");
-    if ( value == prefix+"tile" ) { return Mode::tile; }
-    else if ( value == prefix+"bar" ) { return Mode::bar; }
-    else if ( value == prefix+"barzflat" ) { return Mode::barzflat; }
+    Mode output = Mode::undefined;
+    if ( value == prefix+"tile" ) { output = Mode::tile; }
+    else if ( value == prefix+"bar" ) { output = Mode::bar; }
+    else if ( value == prefix+"barzflat" ) { output = Mode::barzflat; }
     else { throw cms::Exception( "MTDTopologyModeError" ) 
-        << "the value " << value << " is not defined."; 
-      return Mode::undefined; }
+        << "the value " << value << " is not defined."; }
+    return output;
     
   }
 
