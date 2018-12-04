@@ -1148,13 +1148,12 @@ template <> void Converter<DDLDivision>::operator()( xml_h element ) const {
 	      child->IsVolumeMulti() ? "YES" : "NO" );
 
   } else if( cl == TGeoTrd1::Class()) {
-    double widthInCm = ConvertTo( width, cm );
-    double offsetInCm = ConvertTo( offset, cm );
+    double dy = static_cast<const TGeoTrd1*>(shape)->GetDy();
     printout( ns.context()->debug_placements ? ALWAYS : DEBUG,
-	      "DD4CMS","+++    ...divide %s along %s (%d) with offset %6.3f cm and %6.3f cm to produce %d copies",
-	      parent.solid().type(), axis.c_str(), axesmap[axis], offsetInCm, widthInCm, nReplicas );
+	      "DD4CMS","+++    ...divide %s along %s (%d) with offset %6.3f cm and %6.3f cm to produce %d copies in %6.3f",
+	      parent.solid().type(), axis.c_str(), axesmap[axis], -dy + offset + width, width, nReplicas, dy );
     Volume child = parent.divide( childName, static_cast<int>( axesmap[axis]),
-				  nReplicas, offsetInCm, widthInCm );
+				  nReplicas, -dy + offset + width, width );
 
     ns.context()->volumes[childName] = child;
     
