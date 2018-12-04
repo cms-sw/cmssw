@@ -43,7 +43,7 @@ class DetGeomDesc
   DetGeomDesc( DDFilteredView* fv );
   
   /// copy constructor and assignment operator
-  DetGeomDesc( const DetGeomDesc & );
+  DetGeomDesc( const DetGeomDesc & ) = default;
   DetGeomDesc& operator= ( const DetGeomDesc & );
   
   /// destructor
