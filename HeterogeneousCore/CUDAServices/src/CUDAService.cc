@@ -71,12 +71,12 @@ unsigned int getCudaCoresPerSM(unsigned int major, unsigned int minor) {
     return  64;
 
   // Turing architecture
-  case 80:  // SM 8.0: TU10x class
+  case 75:  // SM 7.5: TU10x class
     return  64;
 
-  // unknown architecture
+  // unknown architecture, return a default value
   default:
-    return   0;
+    return  64;
   }
 }
 
