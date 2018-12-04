@@ -99,11 +99,11 @@ class StandardTester(object):
         from Configuration.HLT.addOnTestsHLT import addOnTestsHLT
         hltTestsToAdd = addOnTestsHLT()
         for key in hltTestsToAdd:
-            if 'data' in key:
+            if '_data_' in key:
                 hltTests[key] = [hltTestsToAdd[key][0],
                                  'cmsRun '+self.file2Path(hltTestsToAdd[key][1])+hltFlag_data,
                                  hltTestsToAdd[key][2]]
-            elif 'mc' in key:
+            elif '_mc_' in key:
                 hltTests[key] = [hltTestsToAdd[key][0],
                                  'cmsRun '+self.file2Path(hltTestsToAdd[key][1])+hltFlag_mc,
                                  hltTestsToAdd[key][2]]
