@@ -230,7 +230,7 @@ bool MCParticlePairFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::
 	     charge1 = charge((*p)->pdg_id());
 	     //totmomentum = momentum1 + typeApassed[i]->momentum();
         //invmass = totmomentum.m();
-        HepMC::FourVector mom_i = MCFilterZboostHelper::zboost(mom_i,betaBoost);
+        HepMC::FourVector mom_i = MCFilterZboostHelper::zboost(typeApassed[i]->momentum(),betaBoost);
 	     tot_x += mom_i.px();
 	     tot_y += mom_i.py();
 	     tot_z += mom_i.pz();
