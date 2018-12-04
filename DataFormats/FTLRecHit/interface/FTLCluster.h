@@ -8,6 +8,7 @@
  * \author Paolo Meridiani
  */
 
+#include <cmath>
 #include <vector>
 #include <cstdint>
 #include <cassert>
@@ -122,7 +123,12 @@ public:
   }
 
   float timeError() const {
-    return 0.;
+    float qm=0;
+    float e=energy();
+    int isize = theHitENERGY.size();
+    for (int i=0; i<isize; ++i)
+      qm += float(theHitENERGY[i]*theHitENERGY[i]) * theHitTIME_ERROR[i]*theHitTIME_ERROR[i];
+    return sqrt(qm)/e;
   }
   
   // Return number of hits.
