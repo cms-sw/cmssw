@@ -4,13 +4,10 @@
 #include <string>
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include "TLorentzVector.h"
 
 
 class H_BeamParticle;
-namespace CLHEP
-{
-     class HepLorentzVector;
-}
 
 namespace HepMC
 {
@@ -27,17 +24,17 @@ const double   urad     = 1./1000000.;
 const double ProtonMass=CLHEP::proton_mass_c2/GeV;
 const double ProtonMassSQ=pow(ProtonMass,2);
 
-CLHEP::HepLorentzVector HectorParticle2LorentzVector(H_BeamParticle hp,int );
+TLorentzVector HectorParticle2LorentzVector(H_BeamParticle hp,int );
 
-H_BeamParticle LorentzVector2HectorParticle(CLHEP::HepLorentzVector p);
+H_BeamParticle LorentzVector2HectorParticle(TLorentzVector p);
 
 void LorentzBoost(H_BeamParticle& h_p,int dir, const std::string& frame);
 
-void LorentzBoost(CLHEP::HepLorentzVector& p_out, const std::string& frame);
+void LorentzBoost(TLorentzVector& p_out, const std::string& frame);
 
 void LorentzBoost(HepMC::GenParticle& p_out, const std::string& frame);
 
-void Get_t_and_xi(const CLHEP::HepLorentzVector* proton,double& t,double& xi) ;
+void Get_t_and_xi(const TLorentzVector* proton,double& t,double& xi) ;
 
 };
 #endif

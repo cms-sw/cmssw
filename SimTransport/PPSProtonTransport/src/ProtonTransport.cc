@@ -1,7 +1,6 @@
 #include "SimTransport/PPSProtonTransport/interface/ProtonTransport.h"
 #include "Utilities/PPS/interface/PPSUnitConversion.h"
 #include "CLHEP/Random/RandGauss.h"
-#include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
@@ -10,7 +9,7 @@ ProtonTransport::ProtonTransport() {};
 ProtonTransport::~ProtonTransport() {};
 void ProtonTransport::clear()
 {
-     for (std::map<unsigned int,CLHEP::HepLorentzVector* >::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) delete (*it).second;
+     for (std::map<unsigned int,TLorentzVector* >::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) delete (*it).second;
      m_beamPart.clear(); m_xAtTrPoint.clear(); m_yAtTrPoint.clear();
 };
 
@@ -18,7 +17,7 @@ void ProtonTransport::addPartToHepMC( HepMC::GenEvent * evt )
 {
     NEvent++;
     m_CorrespondenceMap.clear();
-    std::map< unsigned int, CLHEP::HepLorentzVector* >::iterator it;
+    std::map< unsigned int, TLorentzVector* >::iterator it;
 
     int direction=0;
     HepMC::GenParticle * gpart;
@@ -40,12 +39,12 @@ void ProtonTransport::addPartToHepMC( HepMC::GenEvent * evt )
 //
         if(ddd == 0.) continue;
         if(m_verbosity) {
-                LogDebug("HectorTransportEventProcessing") <<"HectorTransport:: x= "<< (*(m_xAtTrPoint.find(line))).second<< "\n"
-                        <<"HectorTransport:: y= "<< (*(m_yAtTrPoint.find(line))).second<< "\n"
-                        <<"HectorTransport:: z= "<< ddd * direction*m_to_mm << "\n"
-                        <<"HectorTransport:: t= "<< time;
+                LogDebug("ProtonTransportEventProcessing") <<"ProtonTransport:: x= "<< (*(m_xAtTrPoint.find(line))).second<< "\n"
+                        <<"ProtonTransport:: y= "<< (*(m_yAtTrPoint.find(line))).second<< "\n"
+                        <<"ProtonTransport:: z= "<< ddd * direction*m_to_mm << "\n"
+                        <<"ProtonTransport:: t= "<< time;
         }
-        CLHEP::HepLorentzVector* p_out = (it).second;
+        TLorentzVector* p_out = (it).second;
 
         HepMC::GenVertex * vert = new HepMC::GenVertex(
                         HepMC::FourVector( (*(m_xAtTrPoint.find(line))).second,
@@ -54,40 +53,40 @@ void ProtonTransport::addPartToHepMC( HepMC::GenEvent * evt )
 
         gpart->set_status( 2 );
         vert->add_particle_in( gpart );
-        vert->add_particle_out( new HepMC::GenParticle( HepMC::FourVector(p_out->px(),p_out->py(),p_out->pz(),p_out->e()), gpart->pdg_id(), 1, gpart->flow() )) ;
+        vert->add_particle_out( new HepMC::GenParticle( HepMC::FourVector(p_out->Px(),p_out->Py(),p_out->Pz(),p_out->E()), gpart->pdg_id(), 1, gpart->flow() )) ;
         evt->add_vertex( vert );
 
         int ingoing = (*vert->particles_in_const_begin())->barcode();
         int outgoing = (*vert->particles_out_const_begin())->barcode();
 
         LHCTransportLink theLink(ingoing,outgoing);
-        if (m_verbosity) LogDebug("HectorTransportEventProcessing") << "HectorTransport:addPartToHepMC: LHCTransportLink " << theLink;
+        if (m_verbosity) LogDebug("ProtonTransportEventProcessing") << "ProtonTransport:addPartToHepMC: LHCTransportLink " << theLink;
         m_CorrespondenceMap.push_back(theLink);
     }
 }
 void ProtonTransport::ApplyBeamCorrection(HepMC::GenParticle* p)
 {
-     CLHEP::HepLorentzVector p_out;
-     p_out.setPx(p->momentum().px());
-     p_out.setPy(p->momentum().py());
-     p_out.setPz(p->momentum().pz());
-     p_out.setE(p->momentum().e());
+     TLorentzVector p_out;
+     p_out.SetPx(p->momentum().px());
+     p_out.SetPy(p->momentum().py());
+     p_out.SetPz(p->momentum().pz());
+     p_out.SetE(p->momentum().e());
      ApplyBeamCorrection(p_out);
-     p->set_momentum(HepMC::FourVector(p_out.px(),p_out.py(),p_out.pz(),p_out.e()));
+     p->set_momentum(HepMC::FourVector(p_out.Px(),p_out.Py(),p_out.Pz(),p_out.E()));
 }
-void ProtonTransport::ApplyBeamCorrection(CLHEP::HepLorentzVector& p_out)
+void ProtonTransport::ApplyBeamCorrection(TLorentzVector& p_out)
 {
-    double theta  = p_out.theta();
-    double thetax = atan(p_out.px()/fabs(p_out.pz()));
-    double thetay = atan(p_out.py()/fabs(p_out.pz()));
-    double energy = p_out.e();
+    double theta  = p_out.Theta();
+    double thetax = atan(p_out.Px()/fabs(p_out.Pz()));
+    double thetay = atan(p_out.Py()/fabs(p_out.Pz()));
+    double energy = p_out.E();
     double urad = 1e-6;
 
-    int direction = (p_out.pz()>0)?1:-1;
+    int direction = (p_out.Pz()>0)?1:-1;
 
-    if (p_out.pz()<0) theta=CLHEP::pi-theta;
+    if (p_out.Pz()<0) theta=CLHEP::pi-theta;
 
-    if (MODE==TransportMode::TOTEM) thetax+=(p_out.pz()>0)?fCrossingAngle_45*urad:fCrossingAngle_56*urad;
+    if (MODE==TransportMode::TOTEM) thetax+=(p_out.Pz()>0)?fCrossingAngle_45*urad:fCrossingAngle_56*urad;
 
     double dtheta_x = (double)CLHEP::RandGauss::shoot(engine,0.,m_sigmaSTX);
     double dtheta_y = (double)CLHEP::RandGauss::shoot(engine,0.,m_sigmaSTY);
@@ -98,8 +97,8 @@ void ProtonTransport::ApplyBeamCorrection(CLHEP::HepLorentzVector& p_out)
     energy+=denergy;
     double p = sqrt(pow(energy,2)-pow(CLHEP::proton_mass_c2/GeV,2));
 
-    p_out.setPx((double)p*sin(s_theta)*cos(s_phi));
-    p_out.setPy((double)p*sin(s_theta)*sin(s_phi));
-    p_out.setPz((double)p*(cos(s_theta))*direction);
-    p_out.setE(energy);
+    p_out.SetPx((double)p*sin(s_theta)*cos(s_phi));
+    p_out.SetPy((double)p*sin(s_theta)*sin(s_phi));
+    p_out.SetPz((double)p*(cos(s_theta))*direction);
+    p_out.SetE(energy);
 }

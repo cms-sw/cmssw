@@ -1,9 +1,9 @@
 #include "Utilities/PPS/interface/PPSUtilities.h"
 #include "HepMC/GenParticle.h"
 #include "H_BeamParticle.h"
-#include <CLHEP/Vector/LorentzVector.h>
+#include "TLorentzVector.h"
 
-CLHEP::HepLorentzVector PPSTools::HectorParticle2LorentzVector(H_BeamParticle hp,int direction)
+TLorentzVector PPSTools::HectorParticle2LorentzVector(H_BeamParticle hp,int direction)
 {
      double partP = sqrt(pow(hp.getE(),2)-ProtonMassSQ);
      double theta = sqrt(pow(hp.getTX(),2)+pow(hp.getTY(),2))*urad;
@@ -11,31 +11,31 @@ CLHEP::HepLorentzVector PPSTools::HectorParticle2LorentzVector(H_BeamParticle hp
      double px = tan((double)hp.getTX()*urad)*pz;//it is equivalente to PartP*sin(theta)*cos(phi);
      double py = tan((double)hp.getTY()*urad)*pz;//it is equivalente to partP*sin(theta)*sin(phi);
      pz*=direction;
-     return CLHEP::HepLorentzVector(px,py,pz,hp.getE());
+     return TLorentzVector(px,py,pz,hp.getE());
 }
 
-H_BeamParticle PPSTools::LorentzVector2HectorParticle(CLHEP::HepLorentzVector p)
+H_BeamParticle PPSTools::LorentzVector2HectorParticle(TLorentzVector p)
 {
      H_BeamParticle h_p;
-     h_p.set4Momentum(p.px(),p.py(),abs(p.pz()),p.e());
+     h_p.set4Momentum(p.Px(),p.Py(),abs(p.Pz()),p.E());
      return h_p;
 }
 void PPSTools::LorentzBoost(HepMC::GenParticle& p, const string& frame)
 {
-     CLHEP::HepLorentzVector p_out;
-     p_out.setPx(p.momentum().px());
-     p_out.setPy(p.momentum().py());
-     p_out.setPz(p.momentum().pz());
+     TLorentzVector p_out;
+     p_out.SetPx(p.momentum().px());
+     p_out.SetPy(p.momentum().py());
+     p_out.SetPz(p.momentum().pz());
      LorentzBoost(p_out,frame);
-     p.set_momentum(HepMC::FourVector(p_out.px(),p_out.py(),p_out.pz(),p_out.e()));
+     p.set_momentum(HepMC::FourVector(p_out.Px(),p_out.Py(),p_out.Pz(),p_out.E()));
 }
 void PPSTools::LorentzBoost(H_BeamParticle& h_p, int dir , const string& frame)
 {
-     CLHEP::HepLorentzVector p_out=HectorParticle2LorentzVector(h_p,dir);
+     TLorentzVector p_out=HectorParticle2LorentzVector(h_p,dir);
      LorentzBoost(p_out,frame);
      h_p=LorentzVector2HectorParticle(p_out);
 }
-void PPSTools::LorentzBoost(CLHEP::HepLorentzVector& p_out, const string& frame) 
+void PPSTools::LorentzBoost(TLorentzVector& p_out, const string& frame)
 {
     const long double microrad = 1.e-6;
     //
@@ -52,24 +52,24 @@ void PPSTools::LorentzBoost(CLHEP::HepLorentzVector& p_out, const string& frame)
     py_P = 0.;
     py_N = 0.;
 
-    CLHEP::HepLorentzVector BeamP, BeamN, projVect;
-    BeamP.setPx(px_P);BeamP.setPy(py_P);BeamP.setPz(pz_P);BeamP.setE(fBeamEnergy);
-    BeamN.setPx(px_N);BeamN.setPy(py_N);BeamN.setPz(-pz_N);BeamN.setE(fBeamEnergy);
+    TLorentzVector BeamP, BeamN, projVect;
+    BeamP.SetPx(px_P);BeamP.SetPy(py_P);BeamP.SetPz(pz_P);BeamP.SetE(fBeamEnergy);
+    BeamN.SetPx(px_N);BeamN.SetPy(py_N);BeamN.SetPz(-pz_N);BeamN.SetE(fBeamEnergy);
     projVect = BeamP + BeamN;
-    CLHEP::Hep3Vector beta;
-    CLHEP::HepLorentzVector boosted = p_out;
-    beta = projVect.boostVector();
-    boosted.boost(beta);
+    TVector3 beta;
+    TLorentzVector boosted = p_out;
+    beta = projVect.BoostVector();
+    boosted.Boost(beta);
     p_out=boosted;
 }
-void PPSTools::Get_t_and_xi(const CLHEP::HepLorentzVector* proton,double& t,double& xi) {
+void PPSTools::Get_t_and_xi(const TLorentzVector* proton,double& t,double& xi) {
     t = 0.;
     xi = -1.;
     if (!proton) return;
-    double mom = sqrt((proton->px())*(proton->px())+(proton->py())*(proton->py())+(proton->pz())*(proton->pz()));
+    double mom = sqrt((proton->Px())*(proton->Px())+(proton->Py())*(proton->Py())+(proton->Pz())*(proton->Pz()));
     if (mom>fBeamMomentum) mom=fBeamMomentum;
-    double energy = proton->e();
-    double theta  = (proton->pz()>0)?proton->theta():CLHEP::pi-proton->theta();
+    double energy = proton->E();
+    double theta  = (proton->Pz()>0)?proton->Theta():CLHEP::pi-proton->Theta();
     t      = -2.*(ProtonMassSQ-fBeamEnergy*energy+fBeamMomentum*mom*cos(theta));
     xi     = (1.0-energy/fBeamEnergy);
 }

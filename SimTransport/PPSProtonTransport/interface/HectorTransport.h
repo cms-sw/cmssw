@@ -39,7 +39,6 @@
 
 namespace CLHEP
 {
-    class HepLorentzVector;
     class HepRandomEngine;
 }
 
@@ -48,7 +47,6 @@ class H_BeamLine;
 
 class HectorTransport: public ProtonTransport {
       public:
-            typedef CLHEP::HepLorentzVector LorentzVector;
 
             HectorTransport();
             HectorTransport(const edm::ParameterSet & ps, bool verbosity);

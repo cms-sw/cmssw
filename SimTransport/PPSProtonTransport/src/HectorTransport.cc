@@ -3,7 +3,7 @@
 #include <CLHEP/Units/GlobalSystemOfUnits.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Random/RandGauss.h>
-#include <CLHEP/Vector/LorentzVector.h>
+#include "TLorentzVector.h" 
 //Hector headers
 #include "H_BeamLine.h"
 #include "H_BeamParticle.h"
@@ -44,7 +44,10 @@ HectorTransport::HectorTransport(const edm::ParameterSet & param, bool verbosity
     fBeamYatIP      = hector_par.getUntrackedParameter<double>("BeamYatIP",fVtxMeanY);
     bApplyZShift    = hector_par.getParameter<bool>("ApplyZShift");
     //PPS
-
+    edm::LogInfo("ProtonTransport")
+         <<"=============================================================================\n"
+         <<"             Bulding LHC Proton transporter based on HECTOR model\n"
+         <<"=============================================================================\n";
     setBeamLine();
     PPSTools::fBeamMomentum=fBeamMomentum;
     PPSTools::fBeamEnergy=fBeamEnergy;
@@ -67,6 +70,7 @@ void HectorTransport::process( const HepMC::GenEvent * ev , const edm::EventSetu
 }
 bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
 {
+     edm::LogInfo("ProtonTransport")<<"Starting proton transport using HECTOR method\n";
      H_BeamParticle* h_p  = nullptr;
 
      double px,py,pz,e;
@@ -85,7 +89,7 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
      int direction = (pz>0)?1:-1;
 
      // Apply Beam and Crossing Angle Corrections
-     LorentzVector* p_out = new LorentzVector(px,py,pz,e);
+     TLorentzVector* p_out = new TLorentzVector(px,py,pz,e);
      PPSTools::LorentzBoost(*p_out,"LAB");
 
      ApplyBeamCorrection(*p_out);
@@ -96,7 +100,7 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
      double ZforPosition = gpart->production_vertex()->position().z()/cm;//cm
 
      h_p = new H_BeamParticle(mass,charge);
-     h_p->set4Momentum(-direction*p_out->px(), p_out->py(), fabs(p_out->pz()), p_out->e());
+     h_p->set4Momentum(-direction*p_out->Px(), p_out->Py(), fabs(p_out->Pz()), p_out->E());
 // shift the beam position to the given beam position at IP (in cm)
      XforPosition=(XforPosition-fVtxMeanX)+fBeamXatIP*mm_to_cm;
      YforPosition=(YforPosition-fVtxMeanY)+fBeamYatIP*mm_to_cm;
@@ -104,9 +108,9 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
 //
 // shift the starting position of the track to Z=0 if configured so (all the variables below are still in cm)
      if (bApplyZShift) {
-        double fCrossingAngle = (p_out->pz()>0)?fCrossingAngle_45:-fCrossingAngle_56;
-        XforPosition = XforPosition+(tan((long double)fCrossingAngle*urad)-((long double)p_out->px())/((long double)p_out->pz()))*ZforPosition;
-        YforPosition = YforPosition-((long double)p_out->py())/((long double)p_out->pz())*ZforPosition;
+        double fCrossingAngle = (p_out->Pz()>0)?fCrossingAngle_45:-fCrossingAngle_56;
+        XforPosition = XforPosition+(tan((long double)fCrossingAngle*urad)-((long double)p_out->Px())/((long double)p_out->Pz()))*ZforPosition;
+        YforPosition = YforPosition-((long double)p_out->Py())/((long double)p_out->Pz())*ZforPosition;
         ZforPosition = 0.;
      }
 
@@ -146,9 +150,9 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
      //
      h_p->propagate( _targetZ );
 
-     p_out = new LorentzVector(PPSTools::HectorParticle2LorentzVector(*h_p,direction));
+     p_out = new TLorentzVector(PPSTools::HectorParticle2LorentzVector(*h_p,direction));
 
-     p_out->setPx(direction*p_out->px());
+     p_out->SetPx(direction*p_out->Px());
      x1_ctpps = direction*h_p->getX()*um_to_mm; 
      y1_ctpps = h_p->getY()*um_to_mm;
 

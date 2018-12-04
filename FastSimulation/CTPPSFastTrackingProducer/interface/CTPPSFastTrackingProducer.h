@@ -52,15 +52,10 @@ class H_BeamParticle;
 class H_RecRPObject;
 class H_BeamLine;
 
-namespace CLHEP
-{
-     class HepLorentzVector;
-}
 class CTPPSFastTrackingProducer : public edm::stream::EDProducer<> {
     public:
         explicit CTPPSFastTrackingProducer(const edm::ParameterSet&);
         ~CTPPSFastTrackingProducer() override;
-        typedef CLHEP::HepLorentzVector LorentzVector;
 
     private:
         void beginStream(edm::StreamID) override;

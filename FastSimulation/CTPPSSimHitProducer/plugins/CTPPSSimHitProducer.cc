@@ -49,7 +49,6 @@ Implementation:
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 #include "Utilities/PPS/interface/PPSUnitConversion.h"
-#include <CLHEP/Vector/LorentzVector.h>
 
 //
 // class declaration
@@ -59,7 +58,6 @@ class CTPPSSimHitProducer : public edm::stream::EDProducer<> {
     public:
         explicit CTPPSSimHitProducer(const edm::ParameterSet&);
         ~CTPPSSimHitProducer() override;
-        typedef CLHEP::HepLorentzVector LorentzVector;
 
     private:
         void beginStream(edm::StreamID) override;
@@ -124,7 +122,7 @@ CTPPSSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(HepMC::GenEvent::vertex_const_iterator ivtx = Evt->vertices_begin();ivtx!=Evt->vertices_end();ivtx++) {
         if ((*ivtx)->id()!=0) continue;
         double prim_vtxZ=(*ivtx)->position().z()*mm_to_m; //in meters
-        // Get the vertices at the entrance of CTPPS and get the protons coming out of them (propagated by Hector) 
+        // Get the vertices at the entrance of CTPPS and get the protons coming out of them (propagated by Hector)
         for(HepMC::GenVertex::particles_out_const_iterator i=(*ivtx)->particles_out_const_begin(); i != (*ivtx)->particles_out_const_end();++i) {
             int pid = (*i)->pdg_id();
             if(pid!=2212) continue;
@@ -141,7 +139,7 @@ CTPPSSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             //  Convert to ns for internal calculations.
             const double c_light_s = 2.99792458e+11;// mm/s;
             const double s_to_ns = 1.e9;
-            const double m_to_mm = 1.e3; 
+            const double m_to_mm = 1.e3;
             double x_tr1 = 0. , x_tr2 = 0. , x_tof = 0., y_tr1 = 0. , y_tr2 = 0. , y_tof = 0., z_tr1 = 0.; 
             double z_tr2 = fz_tracker2; //m
             double z_tof = fz_timing; //m

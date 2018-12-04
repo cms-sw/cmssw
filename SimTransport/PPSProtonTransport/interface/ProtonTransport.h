@@ -7,11 +7,11 @@
 #include "SimDataFormats/Forward/interface/LHCTransportLink.h"
 #include <vector>
 #include <map>
+#include "TLorentzVector.h"
 
 namespace CLHEP
 {
     class HepRandomEngine;
-    class HepLorentzVector;
 }
 class ProtonTransport {
       public:
@@ -20,7 +20,7 @@ class ProtonTransport {
             std::vector<LHCTransportLink>& getCorrespondenceMap() { return m_CorrespondenceMap; }
             virtual void process(const HepMC::GenEvent * ev , const edm::EventSetup & es, CLHEP::HepRandomEngine * engine)=0;
             void ApplyBeamCorrection(HepMC::GenParticle* p);
-            void ApplyBeamCorrection(CLHEP::HepLorentzVector& p);
+            void ApplyBeamCorrection(TLorentzVector& p);
             void addPartToHepMC( HepMC::GenEvent * );
             void clear();
 
@@ -38,7 +38,7 @@ class ProtonTransport {
             double fCrossingAngle_56;
 
             std::vector<LHCTransportLink> m_CorrespondenceMap;
-            std::map<unsigned int, CLHEP::HepLorentzVector*> m_beamPart;
+            std::map<unsigned int, TLorentzVector*> m_beamPart;
             std::map<unsigned int, double> m_xAtTrPoint;
             std::map<unsigned int, double> m_yAtTrPoint;
 

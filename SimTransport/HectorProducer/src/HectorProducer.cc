@@ -5,6 +5,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "IOMC/RandomEngine/src/TRandomAdaptor.h"
 
 // SimpleConfigurable replacement
@@ -30,7 +31,7 @@
 class TRandom3;
 
 HectorProducer::HectorProducer(edm::ParameterSet const & p):
-  m_HepMC(consumes<edm::HepMCProduct>(p.getParameter<std::string>("HepMCProductLabel")))
+  m_HepMC(consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProductLabel")))
 {
   m_verbosity      = p.getParameter<bool>("Verbosity");
   m_FP420Transport = p.getParameter<bool>("FP420Transport");

@@ -23,12 +23,12 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/Forward/interface/LHCTransportLink.h"
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
@@ -58,7 +58,7 @@ class PPSSimTrackProducer : public edm::stream::EDProducer<> {
       // ----------member data ---------------------------
              bool m_verbosity;
              ProtonTransport* theTransporter = nullptr;
-             std::string m_InTag;
+             edm::InputTag  m_InTag;
              edm::EDGetTokenT<edm::HepMCProduct> m_InTagToken;
 
              std::string m_transportMethod;
@@ -82,7 +82,7 @@ PPSSimTrackProducer::PPSSimTrackProducer(const edm::ParameterSet& iConfig)
 {
    //now do what ever other initialization is needed
     // TransportHector
-    m_InTag          = iConfig.getParameter<std::string>("HepMCProductLabel") ;
+    m_InTag          = iConfig.getParameter<edm::InputTag>("HepMCProductLabel") ;
     m_InTagToken     = consumes<edm::HepMCProduct>(m_InTag);
 
     m_verbosity      = iConfig.getParameter<bool>("Verbosity");

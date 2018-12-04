@@ -4,6 +4,7 @@
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Random/RandGauss.h>
 #include <CLHEP/Vector/LorentzVector.h>
+#include "TLorentzVector.h"
 
 #include <cmath>
 
@@ -39,6 +40,10 @@ TotemTransport::TotemTransport(const edm::ParameterSet & iConfig, bool verbosity
         bApplyZShift    = m_parameters.getParameter<bool>("ApplyZShift");
 
         MODE = TransportMode::TOTEM;
+        edm::LogInfo("ProtonTransport")
+             <<"=============================================================================\n"
+             <<"             Bulding LHC Proton transporter based on TOTEM model\n"
+             <<"=============================================================================\n";
 
         fBeamMomentum        = sqrt(fBeamEnergy*fBeamEnergy - ProtonMassSQ);
 
@@ -49,7 +54,7 @@ TotemTransport::TotemTransport(const edm::ParameterSet & iConfig, bool verbosity
         m_aprox_ip_150_l = ReadParameterization(m_model_ip_150_l_name,m_model_root_file_l);
 
         if (m_aprox_ip_150_r == nullptr || m_aprox_ip_150_l == nullptr) {
-                edm::LogError("TotemTransport") << "Parameterisation "
+                edm::LogError("ProtonTransport") << "Parameterisation "
                         << m_model_ip_150_r_name << " or " << m_model_ip_150_l_name << " missing in file. Cannot proceed. ";
                 exit(1);
         }
@@ -76,6 +81,7 @@ void TotemTransport::process(const HepMC::GenEvent * evt , const edm::EventSetup
 }
 bool TotemTransport::transportProton( const HepMC::GenParticle* in_trk)
 {
+     edm::LogInfo("ProtonTransport")<<"Starting proton transport using TOTEM method\n";
      ApplyBeamCorrection(const_cast<HepMC::GenParticle*>(in_trk));
 
      const HepMC::GenVertex* in_pos = in_trk->production_vertex();
@@ -96,7 +102,7 @@ bool TotemTransport::transportProton( const HepMC::GenParticle* in_trk)
      double in_momentum[3] = {in_mom.x(), in_mom.y() , in_mom.z()};
      double out_position[3];
      double out_momentum[3];
-     edm::LogInfo("TotemTransport") << "before transport ->" <<
+     edm::LogInfo("ProtonTransport") << "before transport ->" <<
              " position: " << in_position[0] << ", " << in_position[1] << ", " << in_position[2] <<
              " momentum: " << in_momentum[0] << ", " << in_momentum[1] << ", " << in_momentum[2];
 
@@ -110,14 +116,14 @@ bool TotemTransport::transportProton( const HepMC::GenParticle* in_trk)
 
      if (!tracked) return false;
 
-     edm::LogInfo("TotemTransport") << "after transport -> " <<
+     edm::LogInfo("ProtonTransport") << "after transport -> " <<
              "position: " << out_position[0] << ", " << out_position[1] << ", " << out_position[2] <<
              "momentum: " << out_momentum[0] << ", " << out_momentum[1] << ", " << out_momentum[2];
 
      if (out_position[0] * out_position[0] + out_position[1] * out_position[1] >
                      m_beampipe_aperture_radius * m_beampipe_aperture_radius) {
-             edm::LogInfo("TotemTransport") << "Proton ouside beampipe";
-             edm::LogInfo("TotemTransport") << "===== END Transport " << "====================";
+             edm::LogInfo("ProtonTransport") << "Proton ouside beampipe";
+             edm::LogInfo("ProtonTransport") << "===== END Transport " << "====================";
              return false;
      }
 
@@ -129,14 +135,14 @@ bool TotemTransport::transportProton( const HepMC::GenParticle* in_trk)
      double py = out_momentum[1];  // this need to be checked again, since it seems an invertion is occuring in  the prop.
      double pz = out_momentum[2];
      double e = sqrt(px*px+py*py+pz*pz+ProtonMassSQ);
-     CLHEP::HepLorentzVector* p_out = new CLHEP::HepLorentzVector(px,py,pz,e);
+     TLorentzVector* p_out = new TLorentzVector(px,py,pz,e);
      double x1_ctpps = -out_position[0]*meter; // Totem parameterization uses meter, one need it in millimeter
      double y1_ctpps = -out_position[1]*meter;
 
      unsigned int line = in_trk->barcode();
 
-     if(m_verbosity) LogDebug("HectorTransportEventProcessing") <<
-             "HectorTransport:filterPPS: barcode = " << line << " x=  "<< x1_ctpps <<" y= " << y1_ctpps;
+     if(m_verbosity) LogDebug("ProtonTransportEventProcessing") <<
+             "ProtonTransport:filterPPS: barcode = " << line << " x=  "<< x1_ctpps <<" y= " << y1_ctpps;
 
      m_beamPart[line]    = p_out;
      m_xAtTrPoint[line]  = x1_ctpps;

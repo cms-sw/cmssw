@@ -25,7 +25,7 @@ Implementation:
 #include "Utilities/PPS/interface/PPSUtilities.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include <CLHEP/Vector/LorentzVector.h>
+#include "TLorentzVector.h"
 // hector includes
 #include "H_Parameters.h"
 #include "H_BeamLine.h"
@@ -340,12 +340,12 @@ void CTPPSFastTrackingProducer::FastReco(int Direction,H_RecRPObject* station)
                 double py = partP*sin(theta)*sin(phi);
                 double pz = partP*cos(theta);
                 double  e = sqrt(partP*partP+PPSTools::ProtonMassSQ);
-                LorentzVector p(px,py,pz,e);
+                TLorentzVector p(px,py,pz,e);
                 // Invert the Lorentz boost made to take into account the crossing angle during simulation
                 if (fCrossAngleCorr) PPSTools::LorentzBoost(p,"MC");
                 //Getting the Xi and t (squared four momentum transferred) of the reconstructed track
-                PPSTools::Get_t_and_xi(const_cast<CLHEP::HepLorentzVector*>(&p),t,xi);
-                double pxx = p.px(); double pyy = p.py(); double pzz = p.pz(); 
+                PPSTools::Get_t_and_xi(const_cast<TLorentzVector*>(&p),t,xi);
+                double pxx = p.Px(); double pyy = p.Py(); double pzz = p.Pz();
                 math::XYZVector momentum (pxx,pyy,pzz);
                 math::XYZPoint vertex (x0,y0,0);
 
