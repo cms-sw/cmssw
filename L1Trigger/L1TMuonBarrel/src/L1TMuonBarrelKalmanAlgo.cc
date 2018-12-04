@@ -57,7 +57,7 @@ std::pair<bool,uint> L1TMuonBarrelKalmanAlgo::getByCode(const L1MuKBMTrackCollec
 
 l1t::RegionalMuonCand  
 L1TMuonBarrelKalmanAlgo::convertToBMTF(const L1MuKBMTrack& track) {
-  int  K = fabs(track.curvatureAtVertex());
+  //  int  K = fabs(track.curvatureAtVertex());
 
   //calibration
   int sign,signValid;
@@ -75,21 +75,21 @@ L1TMuonBarrelKalmanAlgo::convertToBMTF(const L1MuKBMTrack& track) {
     signValid=1;
   }	  
 
-  if (K<22)
-    K=22;
+  // if (K<22)
+  //   K=22;
 
-  if (K>4095)
-    K=4095;
+  // if (K>4095)
+  //   K=4095;
 
   int pt = ptLUT(track.curvatureAtVertex());
 
 
-  int  K2 = fabs(track.curvatureAtMuon());
-  if (K2<22)
-    K2=22;
+  // int  K2 = fabs(track.curvatureAtMuon());
+  // if (K2<22)
+  //   K2=22;
 
-  if (K2>4095)
-    K2=4095;
+  // if (K2>4095)
+  //   K2=4095;
   int pt2 = ptLUT(track.curvatureAtMuon())/2;
   int eta  = track.hasFineEta() ? track.fineEta() : track.coarseEta();
 
