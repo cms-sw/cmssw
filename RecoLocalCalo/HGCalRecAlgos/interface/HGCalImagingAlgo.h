@@ -174,7 +174,6 @@ static const unsigned int lastLayerEE = 28;
 static const unsigned int lastLayerFH = 40;
 
 // To compute the cluster position
-//bool usePositionLogW_;
 std::vector<double> W0threshold_;
 std::vector<double> positionDeltaRho_c_;
 
