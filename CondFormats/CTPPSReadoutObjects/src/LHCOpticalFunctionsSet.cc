@@ -9,71 +9,56 @@
 
 //----------------------------------------------------------------------------------------------------
 
-LHCOpticalFunctionsSet::LHCOpticalFunctionsSet(const std::string &fileName, const std::string &directoryName)
+LHCOpticalFunctionsSet::LHCOpticalFunctionsSet(const std::string &fileName, const std::string &directoryName, const double &z) :
+  m_z(z)
 {
   TFile *f_in = TFile::Open(fileName.c_str());
   if (f_in == NULL)
     throw cms::Exception("LHCOpticalFunctionsSet") << "Cannot open file " << fileName << ".";
 
-  TGraph *g_x_D = (TGraph *) f_in->Get((directoryName + "/g_x_D_vs_xi").c_str());
-  if (g_x_D == NULL)
-    throw cms::Exception("LHCOpticalFunctionsSet") << "Cannot load object " << directoryName << "/g_x_D_vs_xi from file " << fileName << "."; 
+  std::vector<TGraph *> graphs(m_fcn_values.size());
+  for (unsigned int fi = 0; fi < m_fcn_values.size(); ++fi)
+  {
+    std::string tag;
+    if (fi == evx) tag = "v_x";
+    if (fi == eLx) tag = "L_x";
+    if (fi == e14) tag = "E_14";
+    if (fi == exd) tag = "x_D";
+    if (fi == evpx) tag = "vp_x";
+    if (fi == eLpx) tag = "Lp_x";
+    if (fi == e24) tag = "E_24";
+    if (fi == expd) tag = "xp_D";
+    if (fi == e32) tag = "E_32";
+    if (fi == evy) tag = "v_y";
+    if (fi == eLy) tag = "L_y";
+    if (fi == eyd) tag = "y_D";
+    if (fi == e42) tag = "E_42";
+    if (fi == evpy) tag = "vp_y";
+    if (fi == eLpy) tag = "Lp_y";
+    if (fi == eypd) tag = "yp_D";
 
-  TGraph *g_L_x = (TGraph *) f_in->Get((directoryName + "/g_L_x_vs_xi").c_str());
-  if (g_L_x == NULL)
-    throw cms::Exception("LHCOpticalFunctionsSet") << "Cannot load object " << directoryName << "/g_L_x_vs_xi from file " << fileName << "."; 
+    std::string objPath = directoryName + "/g_" + tag + "_vs_xi";
+    TGraph *g = (TGraph *) f_in->Get(objPath.c_str());
+    if (g == NULL)
+      throw cms::Exception("LHCOpticalFunctionsSet") << "Cannot load object " << objPath << " from file " << fileName << "."; 
 
-  TGraph *g_v_x = (TGraph *) f_in->Get((directoryName + "/g_v_x_vs_xi").c_str());
-  if (g_v_x == NULL)
-    throw cms::Exception("LHCOpticalFunctionsSet") << "Cannot load object " << directoryName << "/g_v_x_vs_xi from file " << fileName << "."; 
+    graphs[fi] = g;
+  }
 
-  TGraph *g_E_14 = (TGraph *) f_in->Get((directoryName + "/g_E_14_vs_xi").c_str());
-  if (g_E_14 == NULL)
-    throw cms::Exception("LHCOpticalFunctionsSet") << "Cannot load object " << directoryName << "/g_E_14_vs_xi from file " << fileName << "."; 
-
-  TGraph *g_y_D = (TGraph *) f_in->Get((directoryName + "/g_y_D_vs_xi").c_str());
-  if (g_y_D == NULL)
-    throw cms::Exception("LHCOpticalFunctionsSet") << "Cannot load object " << directoryName << "/g_y_D_vs_xi from file " << fileName << "."; 
-
-  TGraph *g_L_y = (TGraph *) f_in->Get((directoryName + "/g_L_y_vs_xi").c_str());
-  if (g_L_y == NULL)
-    throw cms::Exception("LHCOpticalFunctionsSet") << "Cannot load object " << directoryName << "/g_L_y_vs_xi from file " << fileName << "."; 
-
-  TGraph *g_v_y = (TGraph *) f_in->Get((directoryName + "/g_v_y_vs_xi").c_str());
-  if (g_v_y == NULL)
-    throw cms::Exception("LHCOpticalFunctionsSet") << "Cannot load object " << directoryName << "/g_v_y_vs_xi from file " << fileName << "."; 
-
-  TGraph *g_E_32 = (TGraph *) f_in->Get((directoryName + "/g_E_32_vs_xi").c_str());
-  if (g_E_32 == NULL)
-    throw cms::Exception("LHCOpticalFunctionsSet") << "Cannot load object " << directoryName << "/g_E_32_vs_xi from file " << fileName << "."; 
-
-  const unsigned int n = g_x_D->GetN();
+  const unsigned int n = graphs[0]->GetN();
 
   m_xi_values.resize(n);
-  m_x_D_values.resize(n);
-  m_L_x_values.resize(n);
-  m_v_x_values.resize(n);
-  m_E_14_values.resize(n);
 
-  m_y_D_values.resize(n);
-  m_L_y_values.resize(n);
-  m_v_y_values.resize(n);
-  m_E_32_values.resize(n);
+  for (unsigned int fi = 0; fi < m_fcn_values.size(); ++fi)
+    m_fcn_values[fi].resize(n);
 
-  for (unsigned int i = 0; i < n; ++i)
+  for (unsigned int pi = 0; pi < n; ++pi)
   {
-    const double xi = g_x_D->GetX()[i];
-    m_xi_values[i] = xi;
-   
-    m_x_D_values[i] = g_x_D->Eval(xi); 
-    m_L_x_values[i] = g_L_x->Eval(xi); 
-    m_v_x_values[i] = g_v_x->Eval(xi); 
-    m_E_14_values[i] = g_E_14->Eval(xi); 
-   
-    m_y_D_values[i] = g_y_D->Eval(xi); 
-    m_L_y_values[i] = g_L_y->Eval(xi); 
-    m_v_y_values[i] = g_v_y->Eval(xi); 
-    m_E_32_values[i] = g_E_32->Eval(xi); 
+    const double xi = graphs[0]->GetX()[pi];
+    m_xi_values[pi] = xi;
+
+    for (unsigned int fi = 0; fi < m_fcn_values.size(); ++fi)
+      m_fcn_values[fi][pi] = graphs[fi]->Eval(xi);
   }
 
   delete f_in;
@@ -81,86 +66,74 @@ LHCOpticalFunctionsSet::LHCOpticalFunctionsSet(const std::string &fileName, cons
 
 //----------------------------------------------------------------------------------------------------
 
-void LHCOpticalFunctionsSet::InitializeSplines()
+void LHCOpticalFunctionsSet::initializeSplines()
 {
   const unsigned int n = m_xi_values.size();
 
-  m_s_x_D_vs_xi = std::make_shared<TSpline3>("", m_xi_values.data(), m_x_D_values.data(), n);
-  m_s_L_x_vs_xi = std::make_shared<TSpline3>("", m_xi_values.data(), m_L_x_values.data(), n);
-  m_s_v_x_vs_xi = std::make_shared<TSpline3>("", m_xi_values.data(), m_v_x_values.data(), n);
-  m_s_E_14_vs_xi = std::make_shared<TSpline3>("", m_xi_values.data(), m_E_14_values.data(), n);
-
-  m_s_y_D_vs_xi = std::make_shared<TSpline3>("", m_xi_values.data(), m_y_D_values.data(), n);
-  m_s_L_y_vs_xi = std::make_shared<TSpline3>("", m_xi_values.data(), m_L_y_values.data(), n);
-  m_s_v_y_vs_xi = std::make_shared<TSpline3>("", m_xi_values.data(), m_v_y_values.data(), n);
-  m_s_E_32_vs_xi = std::make_shared<TSpline3>("", m_xi_values.data(), m_E_32_values.data(), n);
+  for (unsigned int i = 0; i < m_fcn_values.size(); ++i)
+    m_splines[i] = std::make_shared<TSpline3>("", m_xi_values.data(), m_fcn_values[i].data(), n);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void LHCOpticalFunctionsSet::Transport(const LHCOpticalFunctionsSet::Kinematics &input, LHCOpticalFunctionsSet::Kinematics &output) const
+void LHCOpticalFunctionsSet::transport(const LHCOpticalFunctionsSet::Kinematics &input,
+  LHCOpticalFunctionsSet::Kinematics &output, bool calculateAngles) const
 {
-  output.x = m_s_x_D_vs_xi->Eval(input.xi) + m_s_v_x_vs_xi->Eval(input.xi) * input.x
-    + m_s_L_x_vs_xi->Eval(input.xi) * input.th_x + m_s_E_14_vs_xi->Eval(input.xi) * input.th_y;
+  const double &xi = input.xi;
 
-  output.th_x = 0.;
+  output.x = m_splines[exd]->Eval(xi) + m_splines[evx]->Eval(xi) * input.x
+    + m_splines[eLx]->Eval(xi) * input.th_x + m_splines[e14]->Eval(xi) * input.th_y;
 
-  output.y = m_s_y_D_vs_xi->Eval(input.xi) + m_s_v_y_vs_xi->Eval(input.xi) * input.y
-    + m_s_L_y_vs_xi->Eval(input.xi) * input.th_y + m_s_E_32_vs_xi->Eval(input.xi) * input.th_x;
+  output.th_x = (!calculateAngles) ? 0. : m_splines[expd]->Eval(xi) + m_splines[evpx]->Eval(xi) * input.x
+    + m_splines[eLpx]->Eval(xi) * input.th_x + m_splines[e24]->Eval(xi) * input.th_y;
 
-  output.th_y = 0.;
+  output.y = m_splines[eyd]->Eval(xi) + m_splines[evy]->Eval(xi) * input.y
+    + m_splines[eLy]->Eval(xi) * input.th_y + m_splines[e32]->Eval(xi) * input.th_x;
+
+  output.th_y = (!calculateAngles) ? 0. : m_splines[eypd]->Eval(xi) + m_splines[evpy]->Eval(xi) * input.y
+    + m_splines[eLpy]->Eval(xi) * input.th_y + m_splines[e42]->Eval(xi) * input.th_x;
 
   output.xi = input.xi;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-LHCOpticalFunctionsSet* LHCOpticalFunctionsSet::Interpolate(double xangle1, const LHCOpticalFunctionsSet &of1,
+LHCOpticalFunctionsSet* LHCOpticalFunctionsSet::interpolate(double xangle1, const LHCOpticalFunctionsSet &of1,
   double xangle2, const LHCOpticalFunctionsSet &of2, double xangle)
 {
+  // check whether interpolation can be done
+  if (abs(xangle1 - xangle2) < 1e-6)
+  {
+    if (abs(xangle - xangle1) < 1e-6)
+      return new LHCOpticalFunctionsSet(of1);
+    else
+      throw cms::Exception("LHCOpticalFunctionsSet") << "Cannot interpolate from angles " << xangle1 <<
+        " and " << xangle2 << " to angle " << xangle << ".";
+  }
+
+  // do interpolation
   LHCOpticalFunctionsSet *output = new LHCOpticalFunctionsSet();
+
+  output->m_z = of1.m_z;
 
   const unsigned int n = of1.m_xi_values.size();
 
   output->m_xi_values.resize(n);
-  output->m_x_D_values.resize(n);
-  output->m_L_x_values.resize(n);
-  output->m_v_x_values.resize(n);
-  output->m_E_14_values.resize(n);
-  output->m_y_D_values.resize(n);
-  output->m_L_y_values.resize(n);
-  output->m_v_y_values.resize(n);
-  output->m_E_32_values.resize(n);
 
-  for (unsigned int i = 0; i < n; ++i)
+  for (unsigned int fi = 0; fi < of1.m_fcn_values.size(); ++fi)
   {
-    double xi = of1.m_xi_values[i];
+    output->m_fcn_values[fi].resize(n);
 
-    output->m_xi_values[i] = xi;
+    for (unsigned int pi = 0; pi < n; ++pi)
+    {
+      double xi = of1.m_xi_values[pi];
 
-    double x_D_1 = of1.m_s_x_D_vs_xi->Eval(xi), x_D_2 = of2.m_s_x_D_vs_xi->Eval(xi);
-    output->m_x_D_values[i] = x_D_2 + (x_D_2 - x_D_1) / (xangle2 - xangle1) * (xangle - xangle2);
+      output->m_xi_values[pi] = xi;
 
-    double L_x_1 = of1.m_s_L_x_vs_xi->Eval(xi), L_x_2 = of2.m_s_L_x_vs_xi->Eval(xi);
-    output->m_L_x_values[i] = L_x_2 + (L_x_2 - L_x_1) / (xangle2 - xangle1) * (xangle - xangle2);
-
-    double v_x_1 = of1.m_s_v_x_vs_xi->Eval(xi), v_x_2 = of2.m_s_v_x_vs_xi->Eval(xi);
-    output->m_v_x_values[i] = v_x_2 + (v_x_2 - v_x_1) / (xangle2 - xangle1) * (xangle - xangle2);
-
-    double E_14_1 = of1.m_s_E_14_vs_xi->Eval(xi), E_14_2 = of2.m_s_E_14_vs_xi->Eval(xi);
-    output->m_E_14_values[i] = E_14_2 + (E_14_2 - E_14_1) / (xangle2 - xangle1) * (xangle - xangle2);
-
-    double y_D_1 = of1.m_s_y_D_vs_xi->Eval(xi), y_D_2 = of2.m_s_y_D_vs_xi->Eval(xi);
-    output->m_y_D_values[i] = y_D_2 + (y_D_2 - y_D_1) / (xangle2 - xangle1) * (xangle - xangle2);
-
-    double L_y_1 = of1.m_s_L_y_vs_xi->Eval(xi), L_y_2 = of2.m_s_L_y_vs_xi->Eval(xi);
-    output->m_L_y_values[i] = L_y_2 + (L_y_2 - L_y_1) / (xangle2 - xangle1) * (xangle - xangle2);
-
-    double v_y_1 = of1.m_s_v_y_vs_xi->Eval(xi), v_y_2 = of2.m_s_v_y_vs_xi->Eval(xi);
-    output->m_v_y_values[i] = v_y_2 + (v_y_2 - v_y_1) / (xangle2 - xangle1) * (xangle - xangle2);
-
-    double E_32_1 = of1.m_s_E_32_vs_xi->Eval(xi), E_32_2 = of2.m_s_E_32_vs_xi->Eval(xi);
-    output->m_E_32_values[i] = E_32_2 + (E_32_2 - E_32_1) / (xangle2 - xangle1) * (xangle - xangle2);
+      double v1 = of1.m_splines[fi]->Eval(xi);
+      double v2 = of2.m_splines[fi]->Eval(xi);
+      output->m_fcn_values[fi][pi] = v1 + (v2 - v1) / (xangle2 - xangle1) * (xangle - xangle1);
+    }
   }
 
   return output;
