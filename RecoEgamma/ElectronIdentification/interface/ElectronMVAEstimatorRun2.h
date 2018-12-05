@@ -3,58 +3,76 @@
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
-#include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
+#include "RecoEgamma/EgammaTools/interface/ThreadSafeStringCut.h"
 
-class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
+#include <TMath.h>
+
+class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
 
  public:
 
   // Constructor and destructor
   ElectronMVAEstimatorRun2(const edm::ParameterSet& conf);
-  ~ElectronMVAEstimatorRun2() override;
+  ~ElectronMVAEstimatorRun2() override {};
   // For use with FWLite/Python
-  ElectronMVAEstimatorRun2(const std::string &mvaTag,
-                           const std::string &mvaName,
-                           const bool debug = false);
+  ElectronMVAEstimatorRun2(const std::string& mvaTag,
+                           const std::string& mvaName,
+                           int nCategories,
+                           const std::string& variableDefinition,
+                           const std::vector<std::string>& categoryCutStrings,
+                           const std::vector<std::string> &weightFileNames,
+                           bool debug=false );
 
-  void init(const std::vector<std::string> &weightFileNames);
+  // For use with FWLite/Python
+  static std::vector<float> getExtraVars(reco::GsfElectron          const& ele,
+                                         reco::ConversionCollection const* conversions,
+                                         reco::BeamSpot             const* beamSpot,
+                                         double rho)
+  {
+      // Conversion vertex fit
+      reco::Conversion const* conv = ConversionTools::matchedConversion(ele, *conversions, beamSpot->position());
+
+      float convVtxFitProb = -1.;
+      if(!(conv == nullptr)) {
+          const reco::Vertex &vtx = conv->conversionVertex();
+          if (vtx.isValid()) {
+              convVtxFitProb = TMath::Prob( vtx.chi2(),  vtx.ndof());
+          }
+      }
+
+      // kf track related variables
+      bool validKf=false;
+      reco::TrackRef trackRef = ele.closestCtfTrackRef();
+      validKf = trackRef.isAvailable();
+      validKf &= trackRef.isNonnull();
+      float kfchi2 = validKf ? trackRef->normalizedChi2() : 0 ; //ielectron->track()->normalizedChi2() : 0 ;
+      float kfhits = validKf ? trackRef->hitPattern().trackerLayersWithMeasurement() : -1. ;
+
+      return std::vector<float>{kfhits, kfchi2, convVtxFitProb, static_cast<float>(rho)};
+  }
 
   // Calculation of the MVA value
-  float mvaValue( const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent) const override;
+  float mvaValue( const reco::Candidate* candidate, std::vector<float> const& auxVariables, int &iCategory) const override;
 
-  // Utility functions
-  int getNCategories() const override { return nCategories_; }
-  const std::string& getName() const final { return name_; }
-  const std::string& getTag() const final { return tag_; }
-
-  int findCategory( const edm::Ptr<reco::Candidate>& candPtr) const override;
-
-  // Call this function once after the constructor to declare
-  // the needed event content pieces to the framework
-  void setConsumes(edm::ConsumesCollector&&) const final;
+  int findCategory( const reco::Candidate* candidate) const override;
 
  private:
 
-  // MVA name. This is a unique name for this MVA implementation.
-  // It will be used as part of ValueMap names.
-  // For simplicity, keep it set to the class name.
-  const std::string name_;
+  void init(const std::vector<std::string> &weightFileNames);
 
-  // MVA tag. This is an additional string variable to distinguish
-  // instances of the estimator of this class configured with different
-  // weight files.
-  const std::string tag_;
+  int findCategory(reco::GsfElectron const& electron) const;
 
-  // The number of categories and number of variables per category
-  int nCategories_;
-  std::vector<StringCutObjectSelector<reco::GsfElectron>> categoryFunctions_;
+  std::vector<ThreadSafeStringCut<StringCutObjectSelector<reco::GsfElectron>, reco::GsfElectron>> categoryFunctions_;
   std::vector<int> nVariables_;
 
   // Data members
   std::vector< std::unique_ptr<const GBRForest> > gbrForests_;
-
-  const std::string methodName_;
 
 
   // There might be different variables for each category, so the variables
@@ -62,8 +80,6 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
   std::vector<std::vector<int>> variables_;
 
   MVAVariableManager<reco::GsfElectron> mvaVarMngr_;
-
-  bool debug_;
 
 };
 

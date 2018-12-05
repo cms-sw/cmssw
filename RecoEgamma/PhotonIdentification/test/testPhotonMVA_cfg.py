@@ -4,20 +4,22 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 
 process = cms.Process("PhotonMVANtuplizer")
 
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
-process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-outputFile = "photon_validation_ntuple.root"
+# File with the ID variables form the text file to include in the Ntuplizer
+mvaVariablesFile = "RecoEgamma/PhotonIdentification/data/PhotonMVAEstimatorRun2VariablesFall17V1p1.txt"
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+outputFile = "photon_ntuple.root"
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-         '/store/mc/RunIIFall17MiniAOD/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/RECOSIMstep_94X_mc2017_realistic_v10-v1/00000/0293A280-B5F3-E711-8303-3417EBE33927.root'
+        '/store/mc/RunIIFall17MiniAODv2/GJet_Pt-20to40_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/00000/00AE0E2A-6F42-E811-8EA2-0025905B85AA.root'
     )
 )
 
@@ -46,18 +48,9 @@ for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
 
 process.ntuplizer = cms.EDAnalyzer('PhotonMVANtuplizer',
-        # AOD case
-        src                  = cms.InputTag('gedPhotons'),
-        vertices             = cms.InputTag('offlinePrimaryVertices'),
-        pileup               = cms.InputTag('addPileupInfo'),
-        # miniAOD case
-        srcMiniAOD           = cms.InputTag('slimmedPhotons'),
-        verticesMiniAOD      = cms.InputTag('offlineSlimmedPrimaryVertices'),
-        pileupMiniAOD        = cms.InputTag('slimmedAddPileupInfo'),
-        #
-        phoMVAs             = cms.untracked.vstring(
+        phoMVAs              = cms.untracked.vstring(
                                           ),
-        phoMVALabels        = cms.untracked.vstring(
+        phoMVALabels         = cms.untracked.vstring(
                                           ),
         phoMVAValMaps        = cms.untracked.vstring(
                                            "photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring16NonTrigV1Values",
@@ -77,7 +70,7 @@ process.ntuplizer = cms.EDAnalyzer('PhotonMVANtuplizer',
         phoMVACatLabels      = cms.untracked.vstring(
                                            "PhoMVACats",
                                            ),
-        isMC                 = cms.bool(True),
+        variableDefinition = cms.string(mvaVariablesFile),
         )
 
 process.TFileService = cms.Service("TFileService",

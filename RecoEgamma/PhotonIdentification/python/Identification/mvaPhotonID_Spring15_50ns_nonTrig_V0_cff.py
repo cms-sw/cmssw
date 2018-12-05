@@ -32,7 +32,7 @@ mvaSpring15NonTrigWeightFiles_V0 = cms.vstring(
 
 # The locatoins of value maps with the actual MVA values and categories
 # for all particles.
-# The names for the maps are "<module name>:<MVA class name>Values" 
+# The names for the maps are "<module name>:<MVA class name>Values"
 # and "<module name>:<MVA class name>Categories"
 mvaProducerModuleLabel = "photonMVAValueMapProducer"
 mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaSpring15NonTrigClassName + mvaTag + "Values"
@@ -55,18 +55,21 @@ MVA_WP90 = PhoMVA_2Categories_WP(
 #
 
 # Create the PSet that will be fed to the MVA value map producer
-mvaPhoID_Spring15_50ns_nonTrig_V0_producer_config = cms.PSet( 
+mvaPhoID_Spring15_50ns_nonTrig_V0_producer_config = cms.PSet(
     mvaName            = cms.string(mvaSpring15NonTrigClassName),
     mvaTag             = cms.string(mvaTag),
     weightFileNames    = mvaSpring15NonTrigWeightFiles_V0,
-    variableDefinition  = cms.string(mvaVariablesFile)
+    variableDefinition  = cms.string(mvaVariablesFile),
+    # Category parameters
+    nCategories         = cms.int32(2),
+    categoryCuts        = category_cuts
     )
 # Create the VPset's for VID cuts
 mvaPhoID_Spring15_50ns_nonTrig_V0_wp90 = configureVIDMVAPhoID_V1( MVA_WP90 )
 
 # The MD5 sum numbers below reflect the exact set of cut variables
-# and values above. If anything changes, one has to 
-# 1) comment out the lines below about the registry, 
+# and values above. If anything changes, one has to
+# 1) comment out the lines below about the registry,
 # 2) run "calculateMD5 <this file name> <one of the VID config names just above>
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #

@@ -38,6 +38,9 @@ configs = configureFullVIDMVAPhoID(mvaTag=mvaTag,
                                    variablesFile=mvaVariablesFile,
                                    weightFiles=mvaWeightFiles,
                                    wpConfig=wpConfig,
+    # Category parameters
+    nCategories         = cms.int32(2),
+    categoryCuts        = category_cuts,
     # In this MVA for endcap the corrected photon isolation is defined as
     # iso = max( photon_isolation_raw - rho*effArea - coeff*pt, cutoff)
     # as discussed in the indico presentations listed in the beginning of this file.

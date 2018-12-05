@@ -6,6 +6,11 @@ weightFileBaseDir = "RecoEgamma/PhotonIdentification/data/MVA"
 
 # division between barrel and endcap
 ebeeSplit = 1.479
+# categories
+category_cuts = cms.vstring(
+    "abs(superCluster.eta) <  1.479",
+    "abs(superCluster.eta) >= 1.479",
+    )
 
 # This MVA implementation class name
 mvaClassName = "PhotonMVAEstimator"
@@ -96,7 +101,6 @@ def configureFullVIDMVAPhoID(mvaTag, variablesFile, weightFiles, wpConfig, **add
         mvaTag              = cms.string(mvaTag),
         weightFileNames     = cms.vstring(*weightFiles),
         variableDefinition  = cms.string(variablesFile),
-        ebeeSplit           = cms.double(ebeeSplit),
         **addKwargsForValueProducer
         )
 
