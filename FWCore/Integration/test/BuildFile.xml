@@ -128,13 +128,20 @@
     <use   name="FWCore/Version"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <bin   file="SwitchProducer_t.cpp">
+    <use   name="FWCore/Framework"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="FWCore/TestProcessor"/>
+    <use   name="DataFormats/Provenance"/>
+    <use   name="catch2"/>
+  </bin>
   <library   file="TestPSetAnalyzer.cc" name="TestPSetAnalyzer">
     <flags   EDM_PLUGIN="1"/>
     <use   name="DataFormats/Provenance"/>
     <use   name="FWCore/ParameterSet"/>
     <use   name="FWCore/Framework"/>
   </library>
-  <library   file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,ThinningTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc,AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc, WaitingThreadIntProducer.cc, ThingAnalyzer.cc, TableTestModules.cc, AcquireIntProducer.cc, AcquireIntFilter.cc, AcquireIntStreamProducer.cc, AcquireIntStreamFilter.cc, TestGlobalOutput.cc, TestLimitedOutput.cc,PluginUsingProducer.cc" name="SomeTestModules">
+  <library   file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,ThinningTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc,AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc, WaitingThreadIntProducer.cc, ThingAnalyzer.cc, TableTestModules.cc, AcquireIntProducer.cc, AcquireIntFilter.cc, AcquireIntStreamProducer.cc, AcquireIntStreamFilter.cc, TestGlobalOutput.cc, TestLimitedOutput.cc,PluginUsingProducer.cc,SwitchProducerProvenanceAnalyzer.cc" name="SomeTestModules">
     <flags   EDM_PLUGIN="1"/>
     <lib   name="FWCoreIntegrationWaitingServer"/>
     <use   name="FWCore/Framework"/>
