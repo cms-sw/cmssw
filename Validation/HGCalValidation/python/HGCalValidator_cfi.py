@@ -24,6 +24,12 @@ hgcalValidator = cms.EDAnalyzer(
     label_cp_fake = cms.InputTag("mix","MergedCaloTruth"),
 
     simVertices = cms.InputTag("g4SimHits"),
+    
+    #Total number of layers of HGCal that we want to monitor
+    #Could get this also from HGCalImagingAlgo::maxlayer but better to get it from here
+    totallayers_to_monitor = cms.int32(52),
+    #Thicknesses we want to monitor. -1 is for scintillator
+    thicknesses_to_monitor = cms.vint32(120,200,300,-1),
 
     # HistoProducerAlgo. Defines the set of plots to be booked and filled
     histoProducerAlgoBlock = HGVHistoProducerAlgoBlock,

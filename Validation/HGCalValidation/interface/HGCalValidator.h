@@ -12,6 +12,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
@@ -66,7 +67,10 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
  private:
 
   CaloParticleSelector cpSelector; 
-   std::vector<int> particles_to_monitor_;
+  /* hgcal::RecHitTools* rechittools_; */
+  std::vector<int> particles_to_monitor_;
+  unsigned totallayers_to_monitor_;
+  std::vector<int> thicknesses_to_monitor_;
   std::string dirName_;
 
 };
