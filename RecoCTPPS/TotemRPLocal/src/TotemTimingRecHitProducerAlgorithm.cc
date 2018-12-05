@@ -32,8 +32,8 @@ void TotemTimingRecHitProducerAlgorithm::build(
   for (const auto &vec : input) {
     const TotemTimingDetId detid(vec.detId());
 
-    float x_pos = 0, y_pos = 0, z_pos = 0, x_width = 0, y_width = 0,
-          z_width = 0;
+    float x_pos = 0.0f, y_pos = 0.0f, z_pos = 0.0f, x_width = 0.0f, y_width = 0.0f, 
+          z_width = 0.0f;
 
     // retrieve the geometry element associated to this DetID ( if present )
     const DetGeomDesc *det = geom->getSensorNoThrow(detid);
@@ -43,7 +43,7 @@ void TotemTimingRecHitProducerAlgorithm::build(
       z_pos = det->parentZPosition(); // retrieve the plane position;
 
       x_width = 2.0 * det->params()[0], // parameters stand for half the size
-          y_width = 2.0 * det->params()[1],
+      y_width = 2.0 * det->params()[1],
       z_width = 2.0 * det->params()[2];
     } else
       edm::LogWarning("TotemTimingRecHitProducerAlgorithm")
@@ -102,17 +102,17 @@ TotemTimingRecHitProducerAlgorithm::simplifiedLinearRegression(
   auto d_begin = std::next(data.begin(), start_at);
   auto d_end = std::next(data.begin(), stop_at);
 
-  float sx = .0;
+  float sx = .0f;
   std::for_each(t_begin, t_end, [&](float value) { sx += value; });
-  float sxx = .0;
+  float sxx = .0f;
   std::for_each(t_begin, t_end, [&](float value) { sxx += value * value; });
 
-  float sy = .0;
+  float sy = .0f;
   std::for_each(d_begin, d_end, [&](float value) { sy += value; });
-  float syy = .0;
+  float syy = .0f;
   std::for_each(d_begin, d_end, [&](float value) { syy += value * value; });
 
-  float sxy = .0;
+  float sxy = .0f;
   for (unsigned int i = 0; i < realPoints; ++i)
     sxy += (time[i]) * (data[i]);
 
@@ -120,7 +120,7 @@ TotemTimingRecHitProducerAlgorithm::simplifiedLinearRegression(
   results.m = (sxy * realPoints - sx * sy) / (sxx * realPoints - sx * sx);
   results.q = sy / realPoints - results.m * sx / realPoints;
 
-  float correctedSyy = .0;
+  float correctedSyy = .0f;
   for (unsigned int i = 0; i < realPoints; ++i)
     correctedSyy += pow(data[i] - (results.m * time[i] + results.q), 2);
   results.rms = sqrt(correctedSyy / realPoints);
