@@ -6,6 +6,8 @@
 
 <use name="CondFormats/Serialization"/>
 <use name="boost_serialization"/>
+<use name="root"/>
+
 <export>
 	<lib name="1"/>
 </export>
