@@ -44,7 +44,7 @@ class HGCalConcentratorSuperTriggerCellImpl
         void assignEnergy(l1t::HGCalTriggerCell &c) const {
             c.setHwPt(sumHwPt_);
             c.setMipPt(sumMipPt_);
-            c.setPt( sumPt_ ); // there's no setPt
+            c.setPt( sumPt_ );
         }
         unsigned GetMaxId()const{return maxId_;}
     };
