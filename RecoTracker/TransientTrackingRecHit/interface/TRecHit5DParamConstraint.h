@@ -60,11 +60,11 @@ public:
 
 
   /// ????
-  virtual TransientTrackingRecHit::RecHitPointer clone( const TrajectoryStateOnSurface& tsos ) const {
+  virtual RecHitPointer clone( const TrajectoryStateOnSurface& tsos ) const {
     return RecHitPointer(new TRecHit5DParamConstraint( tsos ));
   }
 
-  static TransientTrackingRecHit::RecHitPointer build( const TrajectoryStateOnSurface& tsos ) {
+  static RecHitPointer build( const TrajectoryStateOnSurface& tsos ) {
     return RecHitPointer( new TRecHit5DParamConstraint( tsos ) );
   }
 
