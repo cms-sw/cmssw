@@ -1,7 +1,5 @@
 #include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDRecHitAlgoBase.h"
 
-#include <iostream>
-
 class MTDRecHitAlgo : public MTDRecHitAlgoBase {
  public:
   /// Constructor
