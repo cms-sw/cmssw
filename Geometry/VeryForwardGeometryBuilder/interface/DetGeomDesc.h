@@ -16,7 +16,7 @@
 #include <Math/Rotation3D.h>
 
 class DDFilteredView;
-class RPAlignmentCorrectionData;
+class CTPPSRPAlignmentCorrectionData;
 
 /**
  * \brief Geometrical description of a sensor.
@@ -69,7 +69,7 @@ class DetGeomDesc
   int copyno() const { return m_copy; }
   
   /// alignment
-  void applyAlignment( const RPAlignmentCorrectionData& );
+  void applyAlignment( const CTPPSRPAlignmentCorrectionData& );
   
  private:
   DetGeomDesc() {}
