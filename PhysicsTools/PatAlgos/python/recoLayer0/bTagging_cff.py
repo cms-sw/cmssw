@@ -43,6 +43,7 @@ supportedBtagInfos = [
   , 'pfNegativeDeepFlavourTagInfos'
     # DeepDoubleB/C tag infos
   , 'pfDeepDoubleXTagInfos'
+  , 'pfDeepDoubleXTagInfosNopt'
     # DeepBoostedJet tag infos
   , 'pfDeepBoostedJetTagInfos'
   ]
@@ -189,8 +190,10 @@ supportedBtagDiscr = {
   , 'pfNegativeDeepFlavourJetTags:probc'                            : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
   , 'pfNegativeDeepFlavourJetTags:probuds'                          : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
   , 'pfNegativeDeepFlavourJetTags:probg'                            : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
-  , 'pfDeepDoubleBJetTags:probQ'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
-  , 'pfDeepDoubleBJetTags:probH'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfDeepDoubleBJetTags:probQ'                     : [["pfDeepDoubleXTagInfosNopt"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfDeepDoubleBJetTags:probH'                     : [["pfDeepDoubleXTagInfosNopt"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfDeepDoubleBvLJetTags:probQCD'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfDeepDoubleBvLJetTags:probHbb'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
   , 'pfDeepDoubleCvLJetTags:probQCD'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
   , 'pfDeepDoubleCvLJetTags:probHcc'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
   , 'pfDeepDoubleCvBJetTags:probHbb'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]

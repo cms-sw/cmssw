@@ -142,11 +142,13 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<unsigned int>("nThreads", 1);
   desc.add<std::string>("singleThreadPool", "no_threads");
 	
+  edm::ParameterSetDescription psB;
+  psB.add<std::vector<unsigned int>>("probQ", {0});
+  psB.add<std::vector<unsigned int>>("probH", {1});
+  
   edm::ParameterSetDescription psBvL;
-  psBvL.add<std::vector<unsigned int>>("probQ", {0});
-  psBvL.add<std::vector<unsigned int>>("probH", {1});
-  psBvL.addOptional<std::vector<unsigned int>>("probQCD", {0});
-  psBvL.addOptional<std::vector<unsigned int>>("probHbb", {1});
+  psBvL.add<std::vector<unsigned int>>("probQCD", {0});
+  psBvL.add<std::vector<unsigned int>>("probHbb", {1});
 
   edm::ParameterSetDescription psCvL;
   psCvL.add<std::vector<unsigned int>>("probQCD", {0});
@@ -161,16 +163,22 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   using PDPSD = edm::ParameterDescription<edm::ParameterSetDescription>;
   using PDCases = edm::ParameterDescriptionCases<std::string>;
   auto flavorCases = [&](){ return
-    "BvL" >> (PDPSD("flav_table", psBvL, true) and 
+    "B" >> (PDPSD("flav_table", psB, true) and 
               PDFIP("graph_path",  FIP("RecoBTag/Combined/data/DeepDoubleB/V01/constant_graph_PtCut_MassSculptPen.pb"), true)) or
+    "BvL" >> (PDPSD("flav_table", psBvL, true) and 
+              PDFIP("graph_path",  FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDB.pb"), true)) or
     "CvL" >> (PDPSD("flav_table", psCvL, true) and 
               PDFIP("graph_path",  FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC.pb"), true) ) or
     "CvB" >> (PDPSD("flav_table", psCvB, true) and 
               PDFIP("graph_path",  FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.pb"), true)); 
   };
+  auto descB(desc);
+  descB.ifValue( edm::ParameterDescription<std::string>("flavor", "B", true), flavorCases());
+  descriptions.add("pfDeepDoubleBJetTags", descB);
+
   auto descBvL(desc);
   descBvL.ifValue( edm::ParameterDescription<std::string>("flavor", "BvL", true), flavorCases());
-  descriptions.add("pfDeepDoubleBJetTags", descBvL);
+  descriptions.add("pfDeepDoubleBvLJetTags", descBvL);
 
   auto descCvL(desc);
   descCvL.ifValue( edm::ParameterDescription<std::string>("flavor", "CvL", true), flavorCases());
