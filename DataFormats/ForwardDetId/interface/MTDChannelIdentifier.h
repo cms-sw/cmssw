@@ -69,16 +69,11 @@ class MTDChannelIdentifier{
   };
   
  public:
-  //#ifndef CMS_NOCXX11
+
   static Packing packing() { return Packing(6, 5, 12, 9);}
 
   static const Packing thePacking;
 
-  //#else
-  //static constexpr Packing packing() { return Packing(8, 9, 4, 11);}
-
-  //static constexpr Packing thePacking = packing();
-  //#endif
 };  
 
 
