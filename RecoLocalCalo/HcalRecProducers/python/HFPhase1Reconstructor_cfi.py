@@ -65,7 +65,7 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
 
         # If False, calculate charge asymmetry only when both PMT
         # anodes have "OK" status (or were mapped into "OK" status)
-        alwaysCalculateQAsymmetry = cms.bool(True)
+        alwaysCalculateQAsymmetry = cms.bool(False)
     ),
 
     # Reconstruction algorithm data to fetch from DB, if any
