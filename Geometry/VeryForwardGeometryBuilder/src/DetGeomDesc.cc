@@ -30,6 +30,12 @@ DetGeomDesc::DetGeomDesc( DDFilteredView* fv ) :
 {}
 
 //----------------------------------------------------------------------------------------------------
+DetGeomDesc::DetGeomDesc(const DetGeomDesc &ref)
+{
+	(*this) = ref;
+}
+
+//----------------------------------------------------------------------------------------------------
 
 DetGeomDesc& DetGeomDesc::operator= ( const DetGeomDesc &ref )
 {
