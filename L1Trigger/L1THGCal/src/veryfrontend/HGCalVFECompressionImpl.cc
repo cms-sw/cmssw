@@ -81,7 +81,7 @@ compress(const std::unordered_map<uint32_t, uint32_t>& payload,
     uint32_t compressed_value(0);
     compressSingle(value, code, compressed_value);
     std::array<uint32_t, 2> compressed_item = {{ code, compressed_value }};
-    compressed_payload.insert( std::make_pair(item.first, compressed_item) );
+    compressed_payload.emplace(item.first, compressed_item);
   }
 }
 
