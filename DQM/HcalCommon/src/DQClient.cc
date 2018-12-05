@@ -13,7 +13,7 @@ namespace hcaldqm
 		_name = name;
 	}
 
-	/* virtual */ void DQClient::beginRun(edm::Run const& r,
+	void DQClient::beginRun(edm::Run const& r,
 		edm::EventSetup const& es)
 	{
 		//	TEMPORARY
@@ -91,7 +91,7 @@ namespace hcaldqm
 		_xQuality.initialize(hashfunctions::fDChannel);
 	}
 	
-	/* virtual */ void DQClient::beginLuminosityBlock(DQMStore::IBooker&,
+	void DQClient::beginLuminosityBlock(DQMStore::IBooker&,
 		DQMStore::IGetter&, edm::LuminosityBlock const& lb,
 		edm::EventSetup const& es)
 	{
@@ -118,7 +118,7 @@ namespace hcaldqm
 		}
 	}
 
-	/* virtual */ void DQClient::endLuminosityBlock(DQMStore::IBooker&,
+	void DQClient::endLuminosityBlock(DQMStore::IBooker&,
 		DQMStore::IGetter&, edm::LuminosityBlock const& lb,
 		edm::EventSetup const&)
 	{
@@ -128,7 +128,7 @@ namespace hcaldqm
 			_maxProcessedLS=_currentLS;
 	}
 
-	/* virtual */ std::vector<flag::Flag> DQClient::endJob(DQMStore::IBooker&,
+	std::vector<flag::Flag> DQClient::endJob(DQMStore::IBooker&,
 		DQMStore::IGetter&)
 	{
 		return std::vector<flag::Flag>();

@@ -9,7 +9,7 @@ namespace hcaldqm
 		DQModule(ps)
 	{}
 
-	/* virtual */ void DQHarvester::beginRun(edm::Run const& r,
+	void DQHarvester::beginRun(edm::Run const& r,
 		edm::EventSetup const& es)
 	{
 		if (_ptype==fLocal)
@@ -94,7 +94,7 @@ namespace hcaldqm
 		_xQuality.initialize(hashfunctions::fDChannel);
 	}
 
-	/* virtual */ void DQHarvester::dqmBeginLuminosityBlock(
+	void DQHarvester::dqmBeginLuminosityBlock(
 		DQMStore::IBooker& ib, DQMStore::IGetter& ig,
 		edm::LuminosityBlock const& lb, edm::EventSetup const& es)
 	{
@@ -120,7 +120,7 @@ namespace hcaldqm
 		}
 	}
 
-	/* virtual */ void DQHarvester::dqmEndLuminosityBlock(
+	void DQHarvester::dqmEndLuminosityBlock(
 		DQMStore::IBooker& ib, DQMStore::IGetter& ig,
 		edm::LuminosityBlock const& lb, edm::EventSetup const& es)
 	{
@@ -129,7 +129,7 @@ namespace hcaldqm
 		_totalLS++;
 		_dqmEndLuminosityBlock(ib, ig, lb, es);
 	}
-	/* virtual */ void DQHarvester::dqmEndJob(DQMStore::IBooker& ib, 
+	void DQHarvester::dqmEndJob(DQMStore::IBooker& ib, 
 		DQMStore::IGetter& ig)
 	{
 		_dqmEndJob(ib, ig);
