@@ -1,0 +1,23 @@
+<lcgdict>
+  <class name="reco::ProtonTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="3525082585"/>
+  </class>
+  <class name="std::vector<reco::ProtonTrack>"/>
+  <class name="edm::Wrapper<std::vector<reco::ProtonTrack> >"/>
+  <class name="edm::RefProd<std::vector<reco::ProtonTrack> >"/>
+  <class name="edm::Ref<std::vector<reco::ProtonTrack>,reco::ProtonTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::ProtonTrack>,reco::ProtonTrack> >"/>
+  <class name="edm::RefVector<std::vector<reco::ProtonTrack>,reco::ProtonTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::ProtonTrack>,reco::ProtonTrack> >"/>
+
+  <class name="reco::ProtonTrackExtra" ClassVersion="3">
+    <version ClassVersion="3" checksum="1360045830"/>
+    <field name="contributing_rp_ids_" iotype="std::set<unsigned int>"/>
+  </class>
+  <class name="std::vector<reco::ProtonTrackExtra>"/>
+  <class name="edm::Wrapper<std::vector<reco::ProtonTrackExtra> >"/>
+  <class name="edm::RefProd<std::vector<reco::ProtonTrackExtra> >"/>
+  <class name="edm::Ref<std::vector<reco::ProtonTrackExtra>,reco::ProtonTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::ProtonTrackExtra>,reco::ProtonTrackExtra> >"/>
+  <class name="edm::RefVector<std::vector<reco::ProtonTrackExtra>,reco::ProtonTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::ProtonTrackExtra>,reco::ProtonTrackExtra> >"/>
+
+  <class name="std::set<unsigned int>"/>
+
+</lcgdict>
