@@ -1,6 +1,5 @@
 #include "RecoEgamma/EgammaTools/interface/EcalRegressionData.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -56,7 +55,7 @@ void EcalRegressionData::fill(const reco::SuperCluster& superClus,
   isEB_ = ( seedid.subdetId()==EcalBarrel );
   
   // skip HGCal
-  if( EcalTools::isHGCalDet(seedid.det()) ) return;
+  if( seedid.det() == DetId::Forward ) return;
   
   const EcalRecHitCollection* recHits = isEB_ ? ebRecHits : eeRecHits;
 

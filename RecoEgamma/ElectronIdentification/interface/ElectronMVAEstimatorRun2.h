@@ -3,7 +3,7 @@
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
-#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
+#include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
 #include "RecoEgamma/EgammaTools/interface/ThreadSafeStringCut.h"
 

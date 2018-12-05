@@ -11,7 +11,6 @@
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
 #include "CondFormats/EgammaObjects/interface/GBRForestD.h"
 #include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
 #include <vdt/vdtMath.h>
 
@@ -362,7 +361,7 @@ void EGRegressionModifierV2::modifyObject(reco::GsfElectron& ele) const {
   const edm::Ptr<reco::CaloCluster>& theseed = the_sc->seed();
 
   // skip HGCAL for now
-  if( EcalTools::isHGCalDet(theseed->seed().det()) ) return;
+  if( theseed->seed().det() == DetId::Forward ) return;
 
   const int numberOfClusters =  the_sc->clusters().size();
   const bool missing_clusters = !the_sc->clusters()[numberOfClusters-1].isAvailable();
@@ -562,7 +561,7 @@ void EGRegressionModifierV2::modifyObject(reco::Photon& pho) const {
   const edm::Ptr<reco::CaloCluster>& theseed = the_sc->seed();  
 
   // skip HGCAL for now
-  if( EcalTools::isHGCalDet(theseed->seed().det()) ) return;
+  if( theseed->seed().det() == DetId::Forward ) return;
 
   const int numberOfClusters =  the_sc->clusters().size();
   const bool missing_clusters = !the_sc->clusters()[numberOfClusters-1].isAvailable();

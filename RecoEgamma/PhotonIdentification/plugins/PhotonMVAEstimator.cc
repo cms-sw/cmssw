@@ -1,6 +1,6 @@
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMVAEstimator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
+#include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
 
 PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf)
   : AnyMVAEstimatorRun2Base(conf)

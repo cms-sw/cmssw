@@ -60,7 +60,7 @@ void ElectronMVAEstimatorRun2::init(const std::vector<std::string> &weightFileNa
     // when the vector clear() is called in the destructor
 
     std::vector<std::string> variableNamesInCategory;
-    gbrForests_.push_back(createGBRForest(weightFileNames[i], variableNamesInCategory));
+    gbrForests_.push_back(GBRForestTools::createGBRForest(weightFileNames[i], variableNamesInCategory));
 
     nVariables_.push_back(variableNamesInCategory.size());
 
