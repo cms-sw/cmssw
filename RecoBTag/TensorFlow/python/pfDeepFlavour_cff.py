@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoBTag.FeatureTools.pfDeepFlavourTagInfos_cfi import pfDeepFlavourTagInfos
 from RecoBTag.FeatureTools.pfNegativeDeepFlavourTagInfos_cfi import pfNegativeDeepFlavourTagInfos
 from RecoBTag.FeatureTools.pfDeepDoubleXTagInfos_cfi import pfDeepDoubleXTagInfos
+from RecoBTag.FeatureTools.pfDeepDoubleXTagInfosNopt_cfi import pfDeepDoubleXTagInfosNopt
 
 from RecoBTag.TensorFlow.pfDeepFlavourJetTags_cfi import pfDeepFlavourJetTags
 from RecoBTag.TensorFlow.pfNegativeDeepFlavourJetTags_cfi import pfNegativeDeepFlavourJetTags

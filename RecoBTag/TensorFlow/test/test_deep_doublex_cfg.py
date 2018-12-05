@@ -54,6 +54,8 @@ updateJetCollection(
       'pfBoostedDoubleSecondaryVertexAK8BJetTags',
       'pfDeepDoubleBJetTags:probQ', 
       'pfDeepDoubleBJetTags:probH',
+      'pfDeepDoubleBvLJetTags:probQCD',
+      'pfDeepDoubleBvLJetTags:probHbb',
       'pfDeepDoubleCvLJetTags:probQCD',
       'pfDeepDoubleCvLJetTags:probHcc',
       'pfDeepDoubleCvBJetTags:probHbb',

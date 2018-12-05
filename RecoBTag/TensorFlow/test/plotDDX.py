@@ -17,11 +17,12 @@ for iev,event in enumerate(events_c):
     event.getByLabel (labelJ, handleJ)
     jets = handleJ.product()
     for jet in jets  :
-        #if jet.pt() < 300 or jet.pt() > 2000: continue
-        #if jet.mass() < 40 or jet.mass() > 200: continue
+        if jet.pt() < 300 or jet.pt() > 2000: continue
+        if jet.mass() < 40 or jet.mass() > 200: continue
 
         print(jet.pt(), jet.mass())
-        print("DDB", jet.bDiscriminator("pfDeepDoubleBJetTags:probQ"), jet.bDiscriminator("pfDeepDoubleBJetTags:probH"))
+        print("DDBold", jet.bDiscriminator("pfDeepDoubleBJetTags:probQ"), jet.bDiscriminator("pfDeepDoubleBJetTags:probH"))
+        print("DDB", jet.bDiscriminator("pfDeepDoubleBvLJetTags:probQCD"), jet.bDiscriminator("pfDeepDoubleBvLJetTags:probHbb"))
         print("DDB", jet.bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probQCD"), jet.bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probHbb"))
         print("DDCvL", jet.bDiscriminator("pfDeepDoubleCvLJetTags:probQCD"), jet.bDiscriminator("pfDeepDoubleCvLJetTags:probHcc"))
         print("DDCvL", jet.bDiscriminator("pfMassIndependentDeepDoubleCvLJetTags:probQCD"), jet.bDiscriminator("pfMassIndependentDeepDoubleCvLJetTags:probHcc"))
