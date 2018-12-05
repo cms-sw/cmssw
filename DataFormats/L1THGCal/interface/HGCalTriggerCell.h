@@ -53,6 +53,8 @@ namespace l1t
 
             void     setCompressedCharge( uint32_t value ) { compressedCharge_ = value; }
             uint32_t compressedCharge() const              { return compressedCharge_;  }
+
+	    void setPt( double pT );
             
         private:
             
