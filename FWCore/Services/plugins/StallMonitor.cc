@@ -250,7 +250,7 @@ namespace edm {
 
 namespace {
   constexpr char const* filename_default {""};
-  constexpr double threshold_default {0.1};
+  constexpr double threshold_default {0.1}; //default threashold in seconds
   std::string const space {"  "};
 }
 
@@ -260,7 +260,7 @@ using namespace std::chrono;
 StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   : file_{iPS.getUntrackedParameter<std::string>("fileName", filename_default)}
   , validFile_{file_}
-  , stallThreshold_{static_cast<long int>(iPS.getUntrackedParameter<double>("stallThreshold")*1000)}
+  ,stallThreshold_{std::chrono::round<duration_t>(duration<double>(iPS.getUntrackedParameter<double>("stallThreshold"))) }
 {
   iRegistry.watchPreModuleConstruction(this, &StallMonitor::preModuleConstruction);
   iRegistry.watchPostBeginJob(this, &StallMonitor::postBeginJob);
