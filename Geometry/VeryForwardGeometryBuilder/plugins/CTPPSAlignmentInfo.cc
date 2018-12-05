@@ -17,7 +17,8 @@
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
 
-#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
+//#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -37,7 +38,7 @@ class CTPPSAlignmentInfo : public edm::one::EDAnalyzer<>
 
     void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
-    void printInfo(const RPAlignmentCorrectionsData &alignments, const edm::Event& event) const;
+    void printInfo(const CTPPSRPAlignmentCorrectionsData &alignments, const edm::Event& event) const;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -57,7 +58,7 @@ CTPPSAlignmentInfo::CTPPSAlignmentInfo( const edm::ParameterSet& iConfig ) :
 
 void CTPPSAlignmentInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  edm::ESHandle<RPAlignmentCorrectionsData> alignments;
+  edm::ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
   
   if ( alignmentType_ == "real" )
   {
@@ -84,7 +85,7 @@ void CTPPSAlignmentInfo::analyze( const edm::Event& iEvent, const edm::EventSetu
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSAlignmentInfo::printInfo(const RPAlignmentCorrectionsData &alignments, const edm::Event& event) const
+void CTPPSAlignmentInfo::printInfo(const CTPPSRPAlignmentCorrectionsData &alignments, const edm::Event& event) const
 {
   time_t unixTime = event.time().unixTime();
   char timeStr[50];

@@ -1,34 +1,32 @@
 /****************************************************************************
  *
- * This is a part of TOTEM offline software.
+ * This is a part of CMS-TOTEM  PPSoffline software.
  * Authors:
- *	Jan Kašpar (jan.kaspar@gmail.com)
- *
+ *  Jan Kašpar (jan.kaspar@gmail.com)
+ *  adapted for CondFormats by H. Malbouisson & C. Mora Herrera
  ****************************************************************************/
-
-#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
 
-#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 
 #include <set>
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionData&
-RPAlignmentCorrectionsData::getRPCorrection( unsigned int id )
+CTPPSRPAlignmentCorrectionData&
+CTPPSRPAlignmentCorrectionsData::getRPCorrection( unsigned int id )
 {
   return rps_[id];
 }
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionData
-RPAlignmentCorrectionsData::getRPCorrection( unsigned int id ) const
+CTPPSRPAlignmentCorrectionData
+CTPPSRPAlignmentCorrectionsData::getRPCorrection( unsigned int id ) const
 {
-  RPAlignmentCorrectionData align_corr;
+  CTPPSRPAlignmentCorrectionData align_corr;
   auto it = rps_.find( id );
   if ( it != rps_.end() )
     align_corr = it->second;
@@ -37,18 +35,18 @@ RPAlignmentCorrectionsData::getRPCorrection( unsigned int id ) const
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionData&
-RPAlignmentCorrectionsData::getSensorCorrection( unsigned int id )
+CTPPSRPAlignmentCorrectionData&
+CTPPSRPAlignmentCorrectionsData::getSensorCorrection( unsigned int id )
 {
   return sensors_[id];
 }
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionData
-RPAlignmentCorrectionsData::getSensorCorrection( unsigned int id ) const
+CTPPSRPAlignmentCorrectionData
+CTPPSRPAlignmentCorrectionsData::getSensorCorrection( unsigned int id ) const
 {
-  RPAlignmentCorrectionData align_corr;
+  CTPPSRPAlignmentCorrectionData align_corr;
   auto it = sensors_.find( id );
   if ( it != sensors_.end() )
     align_corr = it->second;
@@ -57,10 +55,10 @@ RPAlignmentCorrectionsData::getSensorCorrection( unsigned int id ) const
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionData
-RPAlignmentCorrectionsData::getFullSensorCorrection( unsigned int id, bool useRPErrors ) const
+CTPPSRPAlignmentCorrectionData
+CTPPSRPAlignmentCorrectionsData::getFullSensorCorrection( unsigned int id, bool useRPErrors ) const
 {
-  RPAlignmentCorrectionData align_corr;
+  CTPPSRPAlignmentCorrectionData align_corr;
 
   // try to get alignment correction of the full RP
   auto rpIt = rps_.find( CTPPSDetId( id ).getRPId() );
@@ -80,7 +78,7 @@ RPAlignmentCorrectionsData::getFullSensorCorrection( unsigned int id, bool useRP
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::setRPCorrection( unsigned int id, const RPAlignmentCorrectionData& ac )
+CTPPSRPAlignmentCorrectionsData::setRPCorrection( unsigned int id, const CTPPSRPAlignmentCorrectionData& ac )
 {
   rps_[id] = ac;
 }
@@ -88,7 +86,7 @@ RPAlignmentCorrectionsData::setRPCorrection( unsigned int id, const RPAlignmentC
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::setSensorCorrection( unsigned int id, const RPAlignmentCorrectionData& ac )
+CTPPSRPAlignmentCorrectionsData::setSensorCorrection( unsigned int id, const CTPPSRPAlignmentCorrectionData& ac )
 {
   sensors_[id] = ac;
 }
@@ -96,7 +94,7 @@ RPAlignmentCorrectionsData::setSensorCorrection( unsigned int id, const RPAlignm
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::addRPCorrection( unsigned int id, const RPAlignmentCorrectionData &a, bool sumErrors, bool addSh, bool addRot )
+CTPPSRPAlignmentCorrectionsData::addRPCorrection( unsigned int id, const CTPPSRPAlignmentCorrectionData &a, bool sumErrors, bool addSh, bool addRot )
 {
   auto it = rps_.find( id );
   if ( it == rps_.end() )
@@ -108,7 +106,7 @@ RPAlignmentCorrectionsData::addRPCorrection( unsigned int id, const RPAlignmentC
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::addSensorCorrection( unsigned int id, const RPAlignmentCorrectionData &a, bool sumErrors, bool addSh, bool addRot )
+CTPPSRPAlignmentCorrectionsData::addSensorCorrection( unsigned int id, const CTPPSRPAlignmentCorrectionData &a, bool sumErrors, bool addSh, bool addRot )
 {
   auto it = sensors_.find( id );
   if ( it == sensors_.end() )
@@ -120,7 +118,7 @@ RPAlignmentCorrectionsData::addSensorCorrection( unsigned int id, const RPAlignm
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::addCorrections( const RPAlignmentCorrectionsData &nac, bool sumErrors, bool addSh, bool addRot )
+CTPPSRPAlignmentCorrectionsData::addCorrections( const CTPPSRPAlignmentCorrectionsData &nac, bool sumErrors, bool addSh, bool addRot )
 {
   for ( const auto& it : nac.rps_ )
     addRPCorrection( it.first, it.second, sumErrors, addSh, addRot );
@@ -132,7 +130,7 @@ RPAlignmentCorrectionsData::addCorrections( const RPAlignmentCorrectionsData &na
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::clear()
+CTPPSRPAlignmentCorrectionsData::clear()
 {
   rps_.clear();
   sensors_.clear();
@@ -140,7 +138,7 @@ RPAlignmentCorrectionsData::clear()
 
 //----------------------------------------------------------------------------------------------------
 
-std::ostream& operator<<(std::ostream& s, const RPAlignmentCorrectionsData &corr)
+std::ostream& operator<<(std::ostream& s, const CTPPSRPAlignmentCorrectionsData &corr)
 {
   for (const auto &p : corr.getRPMap())
   {
@@ -156,5 +154,3 @@ std::ostream& operator<<(std::ostream& s, const RPAlignmentCorrectionsData &corr
 }
 
 //----------------------------------------------------------------------------------------------------
-
-TYPELOOKUP_DATA_REG( RPAlignmentCorrectionsData );

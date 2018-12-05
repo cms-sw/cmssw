@@ -19,7 +19,7 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 
-#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
@@ -27,6 +27,8 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
+//#include "CondFormats/AlignmentRecord/interface/CTPPSRPAlignmentCorrectionsDataRcd.h"
+
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -62,7 +64,7 @@ class CTPPSGeometryESModule : public edm::ESProducer
     std::unique_ptr<CTPPSGeometry> produceMisalignedTG( const VeryForwardMisalignedGeometryRecord& );
 
   protected:
-    static void applyAlignments( const edm::ESHandle<DetGeomDesc>&, const edm::ESHandle<RPAlignmentCorrectionsData>&, DetGeomDesc*& );
+    static void applyAlignments( const edm::ESHandle<DetGeomDesc>&, const edm::ESHandle<CTPPSRPAlignmentCorrectionsData>&, DetGeomDesc*& );
     static void buildDetGeomDesc( DDFilteredView* fv, DetGeomDesc* gd );
 
     unsigned int verbosity_;
@@ -90,7 +92,7 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig) :
 
 void
 CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealGD,
-                                        const edm::ESHandle<RPAlignmentCorrectionsData>& alignments,
+                                        const edm::ESHandle<CTPPSRPAlignmentCorrectionsData>& alignments,
                                         DetGeomDesc*& newGD )
 {
   newGD = new DetGeomDesc( *(idealGD.product()) );
@@ -307,7 +309,7 @@ CTPPSGeometryESModule::produceRealGD( const VeryForwardRealGeometryRecord& iReco
   iRecord.getRecord<IdealGeometryRecord>().get( idealGD );
 
   // load alignments
-  edm::ESHandle<RPAlignmentCorrectionsData> alignments;
+  edm::ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
   try { iRecord.getRecord<RPRealAlignmentRecord>().get( alignments ); }
   catch ( cms::Exception& ) {}
 
@@ -339,7 +341,7 @@ CTPPSGeometryESModule::produceMisalignedGD( const VeryForwardMisalignedGeometryR
   iRecord.getRecord<IdealGeometryRecord>().get( idealGD );
 
   // load alignments
-  edm::ESHandle<RPAlignmentCorrectionsData> alignments;
+  edm::ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
   try { iRecord.getRecord<RPMisalignedAlignmentRecord>().get( alignments ); }
   catch ( cms::Exception& ) {}
 
