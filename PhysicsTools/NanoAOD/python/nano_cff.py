@@ -161,7 +161,7 @@ def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
     process.tightJetIdLepVeto.src="selectedUpdatedPatJetsWithDeepInfo"
     process.bJetVars.src="selectedUpdatedPatJetsWithDeepInfo"
     process.slimmedJetsWithUserData.src="selectedUpdatedPatJetsWithDeepInfo"
-    process.qgtagger80x.srcJets="selectedUpdatedPatJetsWithDeepInfo"
+    process.qgtagger.srcJets="selectedUpdatedPatJetsWithDeepInfo"
     if addDeepFlavour:
         process.pfDeepFlavourJetTagsWithDeepInfo.graph_path = 'RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb'
         process.pfDeepFlavourJetTagsWithDeepInfo.lp_names = ["cpf_input_batchnorm/keras_learning_phase"]
