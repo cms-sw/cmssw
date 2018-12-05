@@ -39,7 +39,9 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset):
 				    pset.getParameter<std::vector<int> >("pdgIdCP"));
   
   particles_to_monitor_ = pset.getParameter<std::vector<int> >("pdgIdCP");
-  
+  totallayers_to_monitor_ = pset.getParameter<int>("totallayers_to_monitor");
+  thicknesses_to_monitor_ = pset.getParameter<std::vector<int> >("thicknesses_to_monitor");
+
   ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
   histoProducerAlgo_ = std::make_unique<HGVHistoProducerAlgo>(psetForHistoProducerAlgo);
 
@@ -53,6 +55,9 @@ HGCalValidator::~HGCalValidator() {}
 
 void HGCalValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook, edm::Run const&, edm::EventSetup const& setup, Histograms& histograms) const {
 
+  // rechittools_->getEventSetup(setup);
+  // histoProducerAlgo_->setRecHitTools(rechittools_);
+  
   if(doCaloParticlePlots_) {
     ibook.cd();
 
@@ -89,7 +94,7 @@ void HGCalValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook, edm::Run 
 
     //Booking histograms concerning with hgcal layer clusters
     if(dolayerclustersPlots_) {
-      histoProducerAlgo_->bookClusterHistos(ibook, histograms.histoProducerAlgo);
+      histoProducerAlgo_->bookClusterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_, thicknesses_to_monitor_);
     }
 
   }//end loop www
@@ -123,7 +128,10 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event, const edm::EventSetup& 
                              << "Analyzing new event" << "\n"
                              << "====================================================\n" << "\n";
 
-  
+  //For some reason the two lines below crash at running step and I had to use the EventSetup in the method below. 
+  //rechittools_->getEventSetup(setup);
+  //histoProducerAlgo_->setRecHitTools(rechittools_);
+
   edm::Handle<std::vector<SimVertex>> simVerticesHandle;
   event.getByToken(simVertices_, simVerticesHandle);
   std::vector<SimVertex> const & simVertices = *simVerticesHandle;
@@ -154,6 +162,8 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event, const edm::EventSetup& 
     // fill cluster histograms (LOOP OVER CLUSTERS)
     // ##############################################
     if(!dolayerclustersPlots_){continue;}
+
+    histoProducerAlgo_->fill_generic_cluster_histos(histograms.histoProducerAlgo,w,clusters,setup, totallayers_to_monitor_, thicknesses_to_monitor_);
 
     for (unsigned int layerclusterIndex = 0; layerclusterIndex < clusters.size(); layerclusterIndex++) {
 
