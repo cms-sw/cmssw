@@ -44,6 +44,7 @@ def getSkimDataTier(skimname):
 
 ### DPG skims ###
 from DPGAnalysis.Skims.Skims_DPG_cff import *
+from Configuration.Skimming.SkimBPark_cff import *
 
 
 ### Central Skims ###
