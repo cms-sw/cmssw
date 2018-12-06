@@ -36,7 +36,7 @@ run2_common.toModify(ecalBadCalibFilter, baddetEcal = [872439604,872422825,87242
                                                        872421694,872437056,872437057,872437313])
 
 
-ecalBadCalibReducedMINIAODFilter = cms.EDFilter(
+ecalBadCalibReducedMINIAODPre104XFilter = cms.EDFilter(
   "EcalBadCalibFilter",
  
   # use this if using AOD:
@@ -60,7 +60,7 @@ ecalBadCalibReducedMINIAODFilter = cms.EDFilter(
                                   872437185,872422564,872421566,872421695,
                                   872421955,872421567,872437184,872421951,
                                   872421694,872437056,872437057,872437313]),
-  taggingMode = cms.bool(True),
+  taggingMode = cms.bool(False),
   #prints debug info for each channel if set to true
   debug = cms.bool(False),
 )
