@@ -104,7 +104,7 @@ namespace l1t
       uint32_t detId() const { return detId_.rawId(); }
 
       void setPt(double pt) {
-	setP4( math::PtEtaPhiMLorentzVector(pt, eta(), phi(), mass() ) );
+        setP4( math::PtEtaPhiMLorentzVector(pt, eta(), phi(), mass() ) );
       }
 
       /* distance in 'cm' */

@@ -22,8 +22,8 @@ class HGCalConcentratorSuperTriggerCellImpl
   private:
 
     int getSuperTriggerCellId(int detid) const ;
-    static const int split = 0x3a;
-    static const int wafer_offset = 6;
+    static const int kSplit_ = 0x3a;
+    static const int kWafer_offset_ = 6;
 
     class SuperTriggerCell {
   
