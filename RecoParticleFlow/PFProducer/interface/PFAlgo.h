@@ -57,7 +57,7 @@ class PFAlgo {
   PFAlgo();
 
   /// destructor
-  virtual ~PFAlgo();
+  ~PFAlgo();
 
   void setHOTag(bool ho) { useHO_ = ho;}
   void setAlgo( int algo ) {algo_ = algo;}
@@ -185,7 +185,7 @@ class PFAlgo {
   void reconstructParticles( const reco::PFBlockHandle& blockHandle );
 
   /// reconstruct particles 
-  virtual void reconstructParticles( const reco::PFBlockCollection& blocks );
+  void reconstructParticles( const reco::PFBlockCollection& blocks );
   
   /// Check HF Cleaning
   void checkCleaning( const reco::PFRecHitCollection& cleanedHF );
@@ -241,11 +241,11 @@ class PFAlgo {
 
   friend std::ostream& operator<<(std::ostream& out, const PFAlgo& algo);
   
- protected:
+ private:
 
   /// process one block. can be reimplemented in more sophisticated 
   /// algorithms
-  virtual void processBlock( const reco::PFBlockRef& blockref,
+  void processBlock( const reco::PFBlockRef& blockref,
                              std::list<reco::PFBlockRef>& hcalBlockRefs, 
                              std::list<reco::PFBlockRef>& ecalBlockRefs ); 
   
@@ -314,10 +314,6 @@ class PFAlgo {
   // Post HF Cleaning
   void postCleaning();
 
-
-
-
- private:
   /// create a reference to a block, transient or persistent 
   /// depending on the needs
   reco::PFBlockRef createBlockRef( const reco::PFBlockCollection& blocks, 
