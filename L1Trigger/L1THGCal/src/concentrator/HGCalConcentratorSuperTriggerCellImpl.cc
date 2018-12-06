@@ -13,9 +13,7 @@ HGCalConcentratorSuperTriggerCellImpl::getSuperTriggerCellId(int detid) const {
     return TC_id.cell(); //scintillator
   } else {
     int TC_wafer = TC_id.wafer();
-    static const int split = 0x3a;
     int TC_12th = ( TC_id.cell() & split );
-    static const  wafer_offset = 6;
     return TC_wafer<<wafer_offset | TC_12th;
   }
   

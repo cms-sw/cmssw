@@ -22,6 +22,8 @@ class HGCalConcentratorSuperTriggerCellImpl
   private:
 
     int getSuperTriggerCellId(int detid) const ;
+    static const int split = 0x3a;
+    static const int wafer_offset = 6;
 
     class SuperTriggerCell {
   
@@ -29,7 +31,7 @@ class HGCalConcentratorSuperTriggerCellImpl
         float sumPt_, sumMipPt_;
         int sumHwPt_, maxHwPt_; 
         unsigned maxId_;
-
+    
     public:
         SuperTriggerCell(){  sumPt_=0, sumMipPt_=0, sumHwPt_=0, maxHwPt_=0, maxId_=0 ;}
         void add(const l1t::HGCalTriggerCell &c) {

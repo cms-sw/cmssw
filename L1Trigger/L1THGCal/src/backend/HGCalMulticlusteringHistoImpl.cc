@@ -26,18 +26,22 @@ HGCalMulticlusteringHistoImpl::HGCalMulticlusteringHistoImpl( const edm::Paramet
     } 
 
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster dR: " << dr_
-    <<"\nMulticluster minimum transverse-momentum: " << ptC3dThreshold_;
-    <<"\nMulticluster number of R-bins for the histo algorithm: " << nBinsRHisto_<<endl;
-    <<"\nMulticluster number of Phi-bins for the histo algorithm: " << nBinsPhiHisto_<<endl;
-    <<"\nMulticluster MIPT threshold for histo threshold algorithm: " << histoThreshold_<<endl;
+    <<"\nMulticluster minimum transverse-momentum: " << ptC3dThreshold_
+    <<"\nMulticluster number of R-bins for the histo algorithm: " << nBinsRHisto_
+    <<"\nMulticluster number of Phi-bins for the histo algorithm: " << nBinsPhiHisto_
+    <<"\nMulticluster MIPT threshold for histo threshold algorithm: " << histoThreshold_
     <<"\nMulticluster type of multiclustering algortihm: " << multiclusterAlgoType_;
 
     id_.reset( HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT") );
     id_->initialize(conf.getParameter<edm::ParameterSet>("EGIdentification"));
-    if(multiclusterAlgoType_.find("Histo")!=std::string::npos && nBinsRHisto_!=binsSumsHisto_.size()) 
-      throw cms::Exception("Inconsistent bin size") <<  "Inconsistent nBins_R_histo_multicluster ( " << nBinsRHisto_ << " ) and binSumsHisto ( " << binsSumsHisto_.size() << " ) size in HGCalMulticlustering\n");
-    if(neighbour_weights_.size()!=neighbour_weights_size_) 
+    if(multiclusterAlgoType_.find("Histo")!=std::string::npos && nBinsRHisto_!=binsSumsHisto_.size()){
+      throw cms::Exception("Inconsistent bin size") <<  "Inconsistent nBins_R_histo_multicluster ( " << nBinsRHisto_ << " ) and binSumsHisto ( " << binsSumsHisto_.size() << " ) size in HGCalMulticlustering\n";
+    }
+
+    if(neighbour_weights_.size()!=neighbour_weights_size_) {
       throw cms::Exception("Inconsistent vector size" ) << "Inconsistent size of neighbour weights vector in HGCalMulticlustering ( " << neighbour_weights_.size() << " ). Should be " << neighbour_weights_size_ << "\n" ;
+    }
+
 }
 
 
