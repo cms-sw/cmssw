@@ -12,9 +12,6 @@ public:
  
 protected:
    void getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const override; 
-
-private:
-   FWSimpleProxyHelper m_helper;
 };
 
 #endif

@@ -12,7 +12,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
 
-FWHGCalMultiClusterSliceSelector::FWHGCalMultiClusterSliceSelector(TH2F *h, const FWEventItem *i) : FWHistSliceSelector(h, i), m_helper(typeid(reco::HGCalMultiCluster))
+FWHGCalMultiClusterSliceSelector::FWHGCalMultiClusterSliceSelector(TH2F *h, const FWEventItem *i) : FWHistSliceSelector(h, i)
 {
 }
 
@@ -22,9 +22,13 @@ FWHGCalMultiClusterSliceSelector::~FWHGCalMultiClusterSliceSelector()
 
 void FWHGCalMultiClusterSliceSelector::getItemEntryEtaPhi(int itemIdx, float &eta, float &phi) const
 {
-    const void *modelData = m_item->modelData(itemIdx);
-    reco::HGCalMultiCluster tower  = *reinterpret_cast<const reco::HGCalMultiCluster*>(m_helper.offsetObject(modelData));
+    const std::vector<reco::HGCalMultiCluster>* towers=nullptr;
+    m_item->get(towers);
+    assert(nullptr!=towers);
 
-    eta = tower.eta();
-    phi = tower.phi();
+    std::vector<reco::HGCalMultiCluster>::const_iterator tower = towers->begin();
+    std::advance(tower, itemIdx);
+
+    eta = tower->eta();
+    phi = tower->phi();
 }
