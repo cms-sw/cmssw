@@ -133,6 +133,8 @@ private:
   std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index, const GlobalPoint& p) const;
   DetId getGeometryDetId(DetId detId) const;
 
+  static constexpr double         k_half = 0.5;
+
   const HGCalTopology&            m_topology;
   CellVec                         m_cellVec; 
   CellVec2                        m_cellVec2; 
