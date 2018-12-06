@@ -129,7 +129,7 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
 
   // pfDeepDoubleBvLJetTags
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleXTagInfos"));
+  //desc.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleXTagInfos"));
   desc.add<std::vector<std::string>>("input_names", 
     { "input_1", "input_2", "input_3" });
   desc.add<std::vector<std::string>>("lp_names",
@@ -160,16 +160,22 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
 
   using FIP = edm::FileInPath;
   using PDFIP = edm::ParameterDescription<edm::FileInPath>;
+  using IT = edm::InputTag;
+  using PDIT = edm::ParameterDescription<edm::InputTag>;
   using PDPSD = edm::ParameterDescription<edm::ParameterSetDescription>;
   using PDCases = edm::ParameterDescriptionCases<std::string>;
   auto flavorCases = [&](){ return
-    "B" >> (PDPSD("flav_table", psB, true) and 
+    "B"   >> (PDPSD("flav_table", psB  , true) and 
+	      PDIT("src", IT("pfDeepDoubleXTagInfosNopt"), true) and
               PDFIP("graph_path",  FIP("RecoBTag/Combined/data/DeepDoubleB/V01/constant_graph_PtCut_MassSculptPen.pb"), true)) or
     "BvL" >> (PDPSD("flav_table", psBvL, true) and 
+	      PDIT("src", IT("pfDeepDoubleXTagInfos"), true) and
               PDFIP("graph_path",  FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDB.pb"), true)) or
     "CvL" >> (PDPSD("flav_table", psCvL, true) and 
+	      PDIT("src", IT("pfDeepDoubleXTagInfos"), true) and
               PDFIP("graph_path",  FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC.pb"), true) ) or
     "CvB" >> (PDPSD("flav_table", psCvB, true) and 
+	      PDIT("src", IT("pfDeepDoubleXTagInfos"), true) and
               PDFIP("graph_path",  FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.pb"), true)); 
   };
   auto descB(desc);
