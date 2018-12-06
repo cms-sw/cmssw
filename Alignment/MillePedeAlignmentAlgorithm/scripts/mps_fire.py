@@ -296,7 +296,7 @@ if not args.fireMerge:
                     # need standard format for job number
                     lib.JOBSTATUS[i] = 'SUBTD'
                     lib.JOBID[i] = match.group(1)
-                if fire_htcondor: lib.JOBID[i] += ".0"
+                    if fire_htcondor: lib.JOBID[i] += ".0"
                 else:
                     print('Submission of %03d seems to have failed: %s' % (lib.JOBNUMBER[i],result), end=' ')
                 nSub +=1
