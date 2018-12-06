@@ -19,7 +19,7 @@ namespace {
  
       int result(-1);
       MTDTopologyMode::Mode eparser = MTDTopologyMode::MTDStringToEnumParser(fvec[0]);
-      result = (int)(eparser);
+      result = static_cast<int>(eparser);
       return result;
     } else {
       throw cms::Exception( "MTDParametersFromDD" ) << "Failed to get "<< s << " tag.";
