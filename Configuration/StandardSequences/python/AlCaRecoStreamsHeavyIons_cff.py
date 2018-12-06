@@ -62,6 +62,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsolatedBunchFilter_cff im
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsolatedBunchSelector_cff import *
 # HCAL calibration with muons in HB/HE
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHBHEMuonFilter_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalLowPUHBHEMuonFilter_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHEMuonFilter_cff import *
 
 ###############################################################
@@ -138,6 +139,7 @@ pathALCARECOHcalCalNoise = cms.Path(seqALCARECOHcalCalNoise)
 pathALCARECOHcalCalIsolatedBunchFilter = cms.Path(seqALCARECOHcalCalIsolatedBunchFilter)
 pathALCARECOHcalCalIsolatedBunchSelector = cms.Path(seqALCARECOHcalCalIsolatedBunchSelector*ALCARECOHcalCalIsolatedBunchDQM)
 pathALCARECOHcalCalHBHEMuonFilter = cms.Path(seqALCARECOHcalCalHBHEMuonFilter)
+pathALCARECOHcalCalLowPUHBHEMuonFilter = cms.Path(seqALCARECOHcalCalLowPUHBHEMuonFilter)
 pathALCARECOHcalCalHEMuonFilter = cms.Path(seqALCARECOHcalCalHEMuonFilter)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECOMuAlCalIsolatedMuDQM*ALCARECODTCalibrationDQM)
 pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu*ALCARECOMuAlZMuMuDQM)
@@ -356,6 +358,15 @@ ALCARECOStreamHcalCalHBHEMuonFilter = cms.FilteredStream(
 	paths  = (pathALCARECOHcalCalHBHEMuonFilter),
 	content = OutALCARECOHcalCalHBHEMuonFilter.outputCommands,
 	selectEvents = OutALCARECOHcalCalHBHEMuonFilter.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamHcalCalLowPUHBHEMuonFilter = cms.FilteredStream(
+	responsible = 'Nan Lu',
+	name = 'HcalCalLowPUHBHEMuonFilter',
+	paths  = (pathALCARECOHcalCalLowPUHBHEMuonFilter),
+	content = OutALCARECOHcalCalLowPUHBHEMuonFilter.outputCommands,
+	selectEvents = OutALCARECOHcalCalLowPUHBHEMuonFilter.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
