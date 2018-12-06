@@ -8,8 +8,9 @@ SiStripSimBlock = cms.PSet(
     LandauFluctuations      = cms.bool(True),
     chargeDivisionsPerStrip = cms.int32(10),
     CosmicDelayShift        = cms.untracked.double(0.0), # also SiStripDigitizerAlgorithm
-    decoValues= cms.vdouble(APVShape_default.deco),
-    peakValues= cms.vdouble(APVShape_default.peak),
+    peak = cms.PSet(t0Idx=cms.int32(APVShape_default.peakList.index(max(APVShape_default.peakList))), resolution=cms.double(2.), values=cms.vdouble(APVShape_default.peakList)),
+    deco = cms.PSet(t0Idx=cms.int32(APVShape_default.decoList.index(max(APVShape_default.decoList))), resolution=cms.double(10.), values=cms.vdouble(APVShape_default.decoList)),
+    
     #---SiHitDigitizer
     DepletionVoltage        = cms.double(170.0),
     AppliedVoltage          = cms.double(300.0),

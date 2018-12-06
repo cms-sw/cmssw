@@ -18,13 +18,30 @@ SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf) :
   //The value to be used it must be evaluated and depend on the volume defnition used
   //for the cosimc generation (Considering only the tracker the value is 11 ns)
   cosmicShift(conf.getUntrackedParameter<double>("CosmicDelayShift")),
-  decoValues(conf.getParameter<std::vector<double>>("decoValues")),
-  peakValues(conf.getParameter<std::vector<double>>("peakValues")),
-  theParticleDataTable(nullptr),
+  
   // Geant4 engine used to fluctuate the charge from segment to segment
-  fluctuate(new SiG4UniversalFluctuation()) {
-}
 
+  t0IdxPeak(conf.getParameter<edm::ParameterSet>("peak").getParameter<int>("t0Idx")),
+  resolutionPeak(conf.getParameter<edm::ParameterSet>("peak").getParameter<double>("resolution")),
+  valuesPeak(conf.getParameter<edm::ParameterSet>("peak").getParameter<std::vector<double> >("values")),
+
+  t0IdxDeco(conf.getParameter<edm::ParameterSet>("deco").getParameter<int>("t0Idx")),
+  resolutionDeco(conf.getParameter<edm::ParameterSet>("deco").getParameter<double>("resolution")),
+  valuesDeco(conf.getParameter<edm::ParameterSet>("deco").getParameter<std::vector<double> > ("values")),
+  
+  theParticleDataTable(nullptr),
+  fluctuate(new SiG4UniversalFluctuation())
+  
+{
+  if (peakMode){
+    if (valuesPeak.at(t0IdxPeak)!=1) edm::LogError("WrongAPVPulseShape")<<"The max value of the APV pulse shape stored in the valuesPeak vector in SimGeneral/MixingModule/python/SiStripSimParameters_cfi.py is not equal to 1. Need to be fixed."<<std::endl;
+  }
+
+  else{
+    if (valuesDeco.at(t0IdxDeco)!=1) edm::LogError("WrongAPVPulseShape")<<"The max value of the APV pulse shape stored in the valuesDeco vector in SimGeneral/MixingModule/python/SiStripSimParameters_cfi.py is not equal to 1. Need to be fixed."<<std::endl;   
+  }
+}
+    
 SiLinearChargeDivider::~SiLinearChargeDivider(){
 }
 
@@ -126,32 +143,20 @@ void SiLinearChargeDivider::fluctuateEloss(double particleMass, float particleMo
   return;
 }
 
-float SiLinearChargeDivider::PeakShape(const PSimHit* hit, const StripGeomDetUnit& det){
-  // x is difference between the tof and the tof for a photon (reference)
-  // converted into a bin number
-  std::vector<double>::iterator itr = std::find(peakValues.begin(), peakValues.end(), 1);
-  int x;
-  if (itr!=peakValues.end()) x = int(((det.surface().toGlobal(hit->localPosition()).mag()/30.) + cosmicShift - hit->tof())*2)+(std::distance(peakValues.begin(),itr)-1);
-  else
-    {
-      x = int(((det.surface().toGlobal(hit->localPosition()).mag()/30.) + cosmicShift - hit->tof())*2)+120;
-      edm::LogWarning("MissingValue")<<"1 not found in the vector peakValues, default value used to shift"<<std::endl;
-    }
-  if(x < 0 || x >= int(peakValues.size())) return 0;
-  return hit->energyLoss()*peakValues[x];
-}
+ float SiLinearChargeDivider::PeakShape(const PSimHit* hit, const StripGeomDetUnit& det){
+   // x is difference between the tof and the tof for a photon (reference)
+   // converted into a bin number
+   const auto dTOF = det.surface().toGlobal(hit->localPosition()).mag()/30. + cosmicShift - hit->tof();
+   const int x= int(dTOF*resolutionPeak) + t0IdxPeak;
+   if(x < 0 || x >= int(valuesPeak.size())) return 0;
+   return hit->energyLoss()*valuesPeak[std::size_t(x)];
+ }
 
-float SiLinearChargeDivider::DeconvolutionShape(const PSimHit* hit, const StripGeomDetUnit& det){
-  // x is difference between the tof and the tof for a photon (reference)
-  // converted into a bin number
-  std::vector<double>::iterator itr = std::find(decoValues.begin(), decoValues.end(), 1);
-  int x;
-  if (itr!=decoValues.end()) x = int(((det.surface().toGlobal(hit->localPosition()).mag()/30.) + cosmicShift - hit->tof())*10)+(std::distance(decoValues.begin(),itr)-1);
-  else 
-    {
-      x = int(((det.surface().toGlobal(hit->localPosition()).mag()/30.) + cosmicShift - hit->tof())*10)+300;
-      edm::LogWarning("MissingValue")<<"1 not found in the vector decoValues, default value used to shift"<<std::endl;
-    }
-  if(x < 0 || x >= int(decoValues.size())) return 0;
-  return hit->energyLoss()*decoValues[x];
-}
+ float SiLinearChargeDivider::DeconvolutionShape(const PSimHit* hit, const StripGeomDetUnit& det){
+   // x is difference between the tof and the tof for a photon (reference)
+   // converted into a bin number
+   const auto dTOF = det.surface().toGlobal(hit->localPosition()).mag()/30. + cosmicShift - hit->tof();
+   const int x= int(dTOF*resolutionDeco) + t0IdxDeco;
+   if(x < 0 || x >= int(valuesDeco.size())) return 0;
+   return hit->energyLoss()*valuesDeco[std::size_t(x)];
+ }
