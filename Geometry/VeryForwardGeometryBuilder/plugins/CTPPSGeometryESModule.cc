@@ -105,7 +105,7 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
     buffer.pop_front();
     bufferNew.pop_front();
 
-    const std::string name = pD->name().name();
+    const std::string name = pD->name();
 
     // Is it sensor? If yes, apply full sensor alignments
     if ( name == DDD_TOTEM_RP_SENSOR_NAME
@@ -117,7 +117,7 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
 
       if ( alignments.isValid() ) {
         const RPAlignmentCorrectionData& ac = alignments->getFullSensorCorrection( plId );
-        pD->ApplyAlignment( ac );
+        pD->applyAlignment( ac );
       }
     }
 
@@ -130,7 +130,7 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
 
       if ( alignments.isValid() ) {
         const RPAlignmentCorrectionData& ac = alignments->getRPCorrection( rpId );
-        pD->ApplyAlignment( ac );
+        pD->applyAlignment( ac );
       }
     }
 
