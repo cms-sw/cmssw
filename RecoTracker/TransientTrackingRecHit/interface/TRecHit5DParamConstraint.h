@@ -2,6 +2,7 @@
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit5DParamConstraint_H
 
 #include "DataFormats/TrackerRecHit2D/interface/trackerHitRTTI.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/CLHEP/interface/Migration.h"
 
