@@ -6,6 +6,8 @@
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 
+using namespace MTDTopologyMode;
+
 namespace {
   int getMTDTopologyMode(const char* s, const DDsvalues_type & sv) {
     DDValue val( s );
@@ -16,9 +18,8 @@ namespace {
       }
  
       int result(-1);
-      MTDStringToEnumParser<MTDTopologyMode::Mode> eparser;
-      MTDTopologyMode::Mode mode = (MTDTopologyMode::Mode) eparser.parseString(fvec[0]);
-      result = (int)(mode);
+      MTDTopologyMode::Mode eparser = MTDTopologyMode::MTDStringToEnumParser(fvec[0]);
+      result = static_cast<int>(eparser);
       return result;
     } else {
       throw cms::Exception( "MTDParametersFromDD" ) << "Failed to get "<< s << " tag.";
@@ -26,45 +27,23 @@ namespace {
   }
 }
 
-MTDParametersFromDD::MTDParametersFromDD(const edm::ParameterSet& pset) {
-  const edm::VParameterSet& items = 
-    pset.getParameterSetVector("vitems");
-  pars_ = pset.getParameter<std::vector<int32_t> >("vpars");
-
-  items_.resize(items.size());
-  for( unsigned i = 0; i < items.size(); ++i) {
-    auto& item = items_[i];
-    item.id_ = i+1;
-    item.vpars_ = items[i].getParameter<std::vector<int32_t> >("subdetPars");    
-  }
-}
-
 bool
 MTDParametersFromDD::build( const DDCompactView* cvp,
                             PMTDParameters& ptp)
 {
-  if( items_.empty() ) {
-    for( int subdet = 1; subdet <= 6; ++subdet )
-      {
-        std::stringstream sstm;
-        sstm << "Subdetector" << subdet;
-        std::string name = sstm.str();
-	
-        if( DDVectorGetter::check( name ))
-          {
-            std::vector<int> subdetPars = dbl_to_int( DDVectorGetter::get( name ));
-            putOne( subdet, subdetPars, ptp );
-          }
-      }
-  } else {
-    ptp.vitems_ = items_;
-  }
-
-  if( pars_.empty() ) {
-    ptp.vpars_ = dbl_to_int( DDVectorGetter::get( "vPars" ));
-  } else {
-    ptp.vpars_ = pars_;
-  }
+  std::array<std::string,2> mtdSubdet { { "BTL", "ETL" } };
+  int subdet(0);
+  for( const auto& name : mtdSubdet )
+    {
+      if( DDVectorGetter::check( name ))
+        {
+          subdet += 1;
+          std::vector<int> subdetPars = dbl_to_int( DDVectorGetter::get( name ));
+          putOne( subdet, subdetPars, ptp );
+        }
+    }
+  
+  ptp.vpars_ = dbl_to_int( DDVectorGetter::get( "vPars" ));
 
   std::string attribute = "OnlyForMTDRecNumbering"; 
   DDSpecificsHasNamedValueFilter filter1{attribute};
