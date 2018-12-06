@@ -129,7 +129,6 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
 
   // pfDeepDoubleBvLJetTags
   edm::ParameterSetDescription desc;
-  //desc.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleXTagInfos"));
   desc.add<std::vector<std::string>>("input_names", 
     { "input_1", "input_2", "input_3" });
   desc.add<std::vector<std::string>>("lp_names",
