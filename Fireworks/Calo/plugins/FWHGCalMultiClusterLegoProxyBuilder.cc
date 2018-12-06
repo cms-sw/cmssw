@@ -21,7 +21,7 @@
 
 #include "TEveCompound.h"
 
-FWHGCalMultiClusterLegoProxyBuilder::FWHGCalMultiClusterLegoProxyBuilder() : FWCaloDataHistProxyBuilder(), m_helper(typeid(reco::HGCalMultiCluster))
+FWHGCalMultiClusterLegoProxyBuilder::FWHGCalMultiClusterLegoProxyBuilder() : FWCaloDataHistProxyBuilder(), m_towers(nullptr)
 {
 }
 
@@ -31,49 +31,12 @@ FWHGCalMultiClusterLegoProxyBuilder::~FWHGCalMultiClusterLegoProxyBuilder()
 
 void FWHGCalMultiClusterLegoProxyBuilder::build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc)
 {
-   setCaloData(iItem->context());
-   assertCaloDataSlice();
-
-   //--------------------------------------------------
-
-   m_hist->Reset();
-   if (item()->defaultDisplayProperties().isVisible())
+   m_towers=nullptr;
+   if (iItem)
    {
-      size_t size = iItem->size();
-      TEveElement::List_i pIdx = product->BeginChildren();
-      for (int index = 0; index < static_cast<int>(size); ++index)
-      {
-         TEveElement *itemHolder = nullptr;
-         if (index < product->NumChildren())
-         {
-            itemHolder = *pIdx;
-            itemHolder->SetRnrSelfChildren(true, true);
-            ++pIdx;
-         }
-         else
-         {
-            itemHolder = createCompound();
-            product->AddElement(itemHolder);
-         }
-         if (iItem->modelInfo(index).displayProperties().isVisible())
-         {
-            const void *modelData = iItem->modelData(index);
-            build(*reinterpret_cast<const reco::HGCalMultiCluster *>(m_helper.offsetObject(modelData)), index, *itemHolder, vc);
-         }
-      }
+      iItem->get(m_towers);
+      FWCaloDataProxyBuilderBase::build(iItem, product, vc);
    }
-
-   m_caloData->SetSliceColor(m_sliceIndex, item()->defaultDisplayProperties().color());
-   m_caloData->SetSliceTransparency(m_sliceIndex, item()->defaultDisplayProperties().transparency());
-   m_caloData->DataChanged();
-   m_caloData->CellSelectionChanged();
-}
-
-void FWHGCalMultiClusterLegoProxyBuilder::build(const reco::HGCalMultiCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc)
-{
-   const FWEventItem::ModelInfo &info = item()->modelInfo(iIndex);
-   if (info.displayProperties().isVisible())
-      addEntryToTEveCaloData(iData.eta(), iData.phi(), iData.pt(), info.isSelected());
 }
 
 FWHistSliceSelector *
@@ -82,10 +45,23 @@ FWHGCalMultiClusterLegoProxyBuilder::instantiateSliceSelector()
    return new FWHGCalMultiClusterSliceSelector(m_hist, item());
 }
 
-// std::string
-// FWHGCalMultiClusterLegoProxyBuilder::typeOfBuilder()
-// {
-//    return std::string("simple#");
-// }
+void
+FWHGCalMultiClusterLegoProxyBuilder::fillCaloData()
+{
+   m_hist->Reset();
+
+   if (m_towers)
+   {
+      if(item()->defaultDisplayProperties().isVisible()) {
+         unsigned int index=0;
+         for(std::vector<reco::HGCalMultiCluster>::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower,++index) {
+            const FWEventItem::ModelInfo& info = item()->modelInfo(index);
+            if(info.displayProperties().isVisible()) {
+               addEntryToTEveCaloData(tower->eta(), tower->phi(), tower->pt(), info.isSelected());
+            }
+         }
+      }
+   }
+}
 
 REGISTER_FWPROXYBUILDER(FWHGCalMultiClusterLegoProxyBuilder, std::vector<reco::HGCalMultiCluster>, "CaloFTW2", FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits);
