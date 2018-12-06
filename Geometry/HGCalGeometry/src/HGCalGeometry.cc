@@ -282,7 +282,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& detid) const {
   if      (cellIndex <  m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid);
     std::pair<double,double> rr = m_topology.dddConstants().cellSizeTrap(id.iType,id.iSec1);
-    float dr = 0.5*(rr.second-rr.first);
+    float dr = k_half*(rr.second-rr.first);
     float dfi= m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];
     float dz = id.zSide*m_cellVec2[cellIndex].param()[FlatTrd::k_dZ];
     float r  = v.perp();
@@ -305,7 +305,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& detid) const {
 						id.iCell1,id.iCell2,true,false);
     }
     float dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
-    float dy = m_cellVec[cellIndex].param()[FlatHexagon::k_R];
+    float dy = k_half*m_cellVec[cellIndex].param()[FlatHexagon::k_R];
     float dz = m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
     static const int signx[] = {0,-1,-1,0,1,1,0,-1,-1,0,1,1};
     static const int signy[] = {-2,-1,1,2,1,-1,-2,-1,1,2,1,-1};
@@ -327,7 +327,7 @@ HGCalGeometry::CornersVec HGCalGeometry::get8Corners(const DetId& detid) const {
   if      (cellIndex <  m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid);
     std::pair<double,double> rr = m_topology.dddConstants().cellSizeTrap(id.iType,id.iSec1);
-    float dr = 0.5*(rr.second-rr.first);
+    float dr = k_half*(rr.second-rr.first);
     float dfi= m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];
     float dz = id.zSide*m_cellVec2[cellIndex].param()[FlatTrd::k_dZ];
     float r  = v.perp();
@@ -372,7 +372,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid) const
   if (cellIndex <  m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid);
     std::pair<double,double> rr = m_topology.dddConstants().cellSizeTrap(id.iType,id.iSec1);
-    float dr = 0.5*(rr.second-rr.first);
+    float dr = k_half*(rr.second-rr.first);
     float dfi= m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];
     float dz =-id.zSide*m_cellVec2[cellIndex].param()[FlatTrd::k_dZ];
     float r  = v.perp();
@@ -395,7 +395,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid) const
 						id.iCell1,id.iCell2,true,false);
     }
     float dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
-    float dy = m_cellVec[cellIndex].param()[FlatHexagon::k_R];
+    float dy = k_half*m_cellVec[cellIndex].param()[FlatHexagon::k_R];
     float dz =-id.zSide*m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
     static const int signx[] = {0,-1,-1,0,1,1};
     static const int signy[] = {-2,-1,1,2,1,-1};
@@ -428,11 +428,15 @@ DetId HGCalGeometry::neighborZ(const DetId& idin,
     GlobalPoint v = getPosition(idin);
     double      z = id.zSide*m_topology.dddConstants().waferZ(lay,true); 
     double   grad = (z - v.z())/momentum.z();
-    GlobalPoint r(v.x()+grad*momentum.x(),v.y()+grad*momentum.y(),z);
-    idnew         = getClosestCell(r);
+    GlobalPoint p(v.x()+grad*momentum.x(),v.y()+grad*momentum.y(),z);
+    double      r = p.perp();
+    auto rlimit   = topology().dddConstants().rangeR(z,true);
+    if (r >= rlimit.first && r <= rlimit.second) idnew = getClosestCell(p);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "neighborz1:: Position " << v << " New Z "
-				<< z << ":" << grad << " new position " << r;
+				<< z << ":" << grad << " new position " << p
+				<< " r-limit " << rlimit.first << ":" 
+				<< rlimit.second;
 #endif
   }
   return idnew;
@@ -463,15 +467,18 @@ DetId HGCalGeometry::neighborZ(const DetId& idin,
 					      Plane::RotationType());
     AnalyticalPropagator myAP (bField, alongMomentum, 2*M_PI);
     TrajectoryStateOnSurface tsos = myAP.propagate(fts, *nPlane);
-    GlobalPoint r;
+    GlobalPoint p;
+    auto rlimit   = topology().dddConstants().rangeR(z,true);
     if (tsos.isValid()) {
-      r      = tsos.globalPosition();
-      idnew  = getClosestCell(r);
+      p      = tsos.globalPosition();
+      double      r = p.perp();
+      if (r >= rlimit.first && r <= rlimit.second) idnew = getClosestCell(p);
     }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "neighborz2:: Position " << v << " New Z "
 				<< z << ":" << charge << ":" << tsos.isValid()
-				<< " new position " << r;
+				<< " new position " << p << " r limits "
+				<< rlimit.first << ":" << rlimit.second;
 #endif
   }
   return idnew;
