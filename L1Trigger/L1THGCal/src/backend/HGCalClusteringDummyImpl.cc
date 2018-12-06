@@ -63,11 +63,6 @@ void HGCalClusteringDummyImpl::calibratePt( l1t::HGCalCluster & cluster ){
 
     }
 
-    math::PtEtaPhiMLorentzVector calibP4( calibPt,
-                                          cluster.eta(),
-                                          cluster.phi(),
-                                          0. );
-
-    cluster.setP4( calibP4 );
+    cluster.setPt( calibPt );
 
 }

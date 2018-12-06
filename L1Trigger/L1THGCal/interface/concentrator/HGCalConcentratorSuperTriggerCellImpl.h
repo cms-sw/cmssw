@@ -22,6 +22,8 @@ class HGCalConcentratorSuperTriggerCellImpl
   private:
 
     int getSuperTriggerCellId(int detid) const ;
+    static const int kSplit_ = 0x3a;
+    static const int kWafer_offset_ = 6;
 
     class SuperTriggerCell {
   
@@ -29,7 +31,7 @@ class HGCalConcentratorSuperTriggerCellImpl
         float sumPt_, sumMipPt_;
         int sumHwPt_, maxHwPt_; 
         unsigned maxId_;
-
+    
     public:
         SuperTriggerCell(){  sumPt_=0, sumMipPt_=0, sumHwPt_=0, maxHwPt_=0, maxId_=0 ;}
         void add(const l1t::HGCalTriggerCell &c) {
@@ -44,7 +46,7 @@ class HGCalConcentratorSuperTriggerCellImpl
         void assignEnergy(l1t::HGCalTriggerCell &c) const {
             c.setHwPt(sumHwPt_);
             c.setMipPt(sumMipPt_);
-            c.setP4(math::PtEtaPhiMLorentzVector(sumPt_, c.eta(), c.phi(), 0.)); // there's no setPt
+            c.setPt( sumPt_ );
         }
         unsigned GetMaxId()const{return maxId_;}
     };
