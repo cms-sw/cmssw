@@ -1,7 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
-#include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"  //PFMuons
+#include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"  
 #include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"    
 #include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
@@ -41,14 +41,11 @@
 #include "Math/SMatrix.h"
 #include "TDecompChol.h"
 
-#include "boost/graph/adjacency_matrix.hpp" 
-#include "boost/graph/graph_utility.hpp" 
 #include <numeric>
 
 
 using namespace std;
 using namespace reco;
-using namespace boost;
 
 
 PFAlgo::PFAlgo()
@@ -73,8 +70,8 @@ PFAlgo::~PFAlgo() {
 void
 PFAlgo::setParameters(double nSigmaECAL,
                       double nSigmaHCAL, 
-                      const boost::shared_ptr<PFEnergyCalibration>& calibration,
-		      const boost::shared_ptr<PFEnergyCalibrationHF>&  thepfEnergyCalibrationHF) {
+                      const std::shared_ptr<PFEnergyCalibration>& calibration,
+		      const std::shared_ptr<PFEnergyCalibrationHF>&  thepfEnergyCalibrationHF) {
 
   nSigmaECAL_ = nSigmaECAL;
   nSigmaHCAL_ = nSigmaHCAL;
@@ -94,8 +91,8 @@ void
 PFAlgo::setPFEleParameters(double mvaEleCut,
 			   string mvaWeightFileEleID,
 			   bool usePFElectrons,
-			   const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-			   const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+			   const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+			   const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			   double sumEtEcalIsoForEgammaSC_barrel,
 			   double sumEtEcalIsoForEgammaSC_endcap,
 			   double coneEcalIsoForEgammaSC,
@@ -158,7 +155,7 @@ PFAlgo::setPFPhotonParameters(bool usePFPhotons,
 			      double mvaConvCut,
 			      bool useReg,
 			      std::string X0_Map,
-			      const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+			      const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			      double sumPtTrackIsoForPhoton,
 			      double sumPtTrackIsoSlopeForPhoton)
  {
