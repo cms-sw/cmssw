@@ -66,7 +66,7 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
   timeOffset(ps.getParameter<double>("timeOffset")),
   verbosity((HGCalImagingAlgo::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity",3)){
   double ecut = ps.getParameter<double>("ecut");
-  std::vector<double> W0threshold = ps.getParameter<std::vector<double> >("W0threshold");
+  std::vector<double> thresholdW0 = ps.getParameter<std::vector<double> >("thresholdW0");
   std::vector<double> positionDeltaRho_c = ps.getParameter<std::vector<double> >("positionDeltaRho_c");
   std::vector<double> vecDeltas = ps.getParameter<std::vector<double> >("deltac");
   double kappa = ps.getParameter<double>("kappa");
@@ -98,10 +98,10 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
 
   if(doSharing){
     double showerSigma =  ps.getParameter<double>("showerSigma");
-    algo = std::make_unique<HGCalImagingAlgo>(W0threshold, positionDeltaRho_c,
+    algo = std::make_unique<HGCalImagingAlgo>(thresholdW0, positionDeltaRho_c,
 					      vecDeltas, kappa, ecut, showerSigma, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
   }else{
-    algo = std::make_unique<HGCalImagingAlgo>(W0threshold, positionDeltaRho_c,
+    algo = std::make_unique<HGCalImagingAlgo>(thresholdW0, positionDeltaRho_c,
 					      vecDeltas, kappa, ecut, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
   }
 
@@ -119,7 +119,7 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   edm::ParameterSetDescription desc;
   desc.add<std::string>("detector", "all");
   desc.add<bool>("doSharing", false);
-  desc.add<std::vector<double>>("W0threshold", {
+  desc.add<std::vector<double>>("thresholdW0", {
     2.9,
     2.9,
     2.9

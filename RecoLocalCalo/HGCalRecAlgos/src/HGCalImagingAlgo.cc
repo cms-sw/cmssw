@@ -190,7 +190,7 @@ HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v) const {
   float total_weight = 0.f;
   float x = 0.f;
   float y = 0.f;
-  float z = 0.f;
+
   unsigned int v_size = v.size();
   unsigned int maxEnergyIndex = 0;
   float maxEnergyValue = 0;
@@ -204,8 +204,8 @@ HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v) const {
     }
   }
 
- // Si cell or Scintillator. Used to set approach and parameters
- int thick = rhtools_.getSiThickIndex(v[maxEnergyIndex].data.detid);
+  // Si cell or Scintillator. Used to set approach and parameters
+  int thick = rhtools_.getSiThickIndex(v[maxEnergyIndex].data.detid);
 
   // for hits within positionDeltaRho_c_ from maximum energy hit
   // build up weight for energy-weighted position
@@ -213,7 +213,7 @@ HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v) const {
   std::vector<unsigned int> innerIndices;
   for (unsigned int i = 0; i < v_size; i++) {
     if (thick == -1 ||
-	distance2(v[i].data, v[maxEnergyIndex].data) < positionDeltaRho_c_[thick]){
+        distance2(v[i].data, v[maxEnergyIndex].data) < positionDeltaRho_c_[thick]){
       innerIndices.push_back(i);
 
       float rhEnergy = v[i].data.weight;
@@ -228,16 +228,14 @@ HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v) const {
   }
   // just loop on reduced vector of interesting indices
   // to compute log weighting
-  if(thick != -1){ // Silicon case
+  if(thick != -1 && total_weight != 0.){ // Silicon case
     float total_weight_log = 0.f;
     float x_log = 0.f;
     float y_log = 0.f;
-    float Wi = 0.f;
     for (auto idx : innerIndices) {
       float rhEnergy = v[idx].data.weight;
-      if(total_weight == 0. || rhEnergy == 0.) continue;
-      float W0_ = W0threshold_[thick];
-      Wi = std::max(W0_ + log(rhEnergy/total_weight), 0.);
+      if(rhEnergy == 0.) continue;
+      float Wi = std::max(thresholdW0_[thick] + log(rhEnergy/total_weight), 0.);
       x_log += v[idx].data.x * Wi;
       y_log += v[idx].data.y * Wi;
       total_weight_log += Wi;
@@ -246,10 +244,12 @@ HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v) const {
     x = x_log;
     y = y_log;
   }
-  z = v[maxEnergyIndex].data.z;
-  if (total_weight != 0) {
+
+  if (total_weight != 0.) {
     auto inv_tot_weight = 1. / total_weight;
-    return math::XYZPoint(x * inv_tot_weight, y * inv_tot_weight, z);
+    return math::XYZPoint(x * inv_tot_weight,
+                          y * inv_tot_weight,
+                          v[maxEnergyIndex].data.z);
   }
   return math::XYZPoint(0, 0, 0);
 }

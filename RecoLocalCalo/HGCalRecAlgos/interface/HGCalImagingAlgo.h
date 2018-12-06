@@ -49,14 +49,14 @@ public:
 
 enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
 
- HGCalImagingAlgo() : W0threshold_(), positionDeltaRho_c_(),
+ HGCalImagingAlgo() : thresholdW0_(), positionDeltaRho_c_(),
         vecDeltas_(), kappa_(1.), ecut_(0.),
         sigma2_(1.0),
         algoId_(reco::CaloCluster::undefined),
         verbosity_(pERROR),initialized_(false){
 }
 
- HGCalImagingAlgo(const std::vector<double>& W0threshold_in, const std::vector<double>& positionDeltaRho_c_in,
+ HGCalImagingAlgo(const std::vector<double>& thresholdW0_in, const std::vector<double>& positionDeltaRho_c_in,
 		 const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
                  reco::CaloCluster::AlgoId algoId_in,
                  bool dependSensor_in,
@@ -67,7 +67,7 @@ enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
                  const std::vector<double>& nonAgedNoises_in,
                  double noiseMip_in,
                  VerbosityLevel the_verbosity = pERROR) :
-        W0threshold_(W0threshold_in),
+        thresholdW0_(thresholdW0_in),
         positionDeltaRho_c_(positionDeltaRho_c_in),
         vecDeltas_(vecDeltas_in), kappa_(kappa_in),
         ecut_(ecut_in),
@@ -90,7 +90,7 @@ enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
 {
 }
 
-HGCalImagingAlgo(const std::vector<double>& W0threshold_in, const std::vector<double>& positionDeltaRho_c_in,
+HGCalImagingAlgo(const std::vector<double>& thresholdW0_in, const std::vector<double>& positionDeltaRho_c_in,
                  const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
                  double showerSigma,
                  reco::CaloCluster::AlgoId algoId_in,
@@ -102,7 +102,7 @@ HGCalImagingAlgo(const std::vector<double>& W0threshold_in, const std::vector<do
                  const std::vector<double>& nonAgedNoises_in,
                  double noiseMip_in,
                  VerbosityLevel the_verbosity = pERROR) :
-        W0threshold_(W0threshold_in),
+        thresholdW0_(thresholdW0_in),
         positionDeltaRho_c_(positionDeltaRho_c_in),
         vecDeltas_(vecDeltas_in), kappa_(kappa_in),
         ecut_(ecut_in),
@@ -174,7 +174,7 @@ static const unsigned int lastLayerEE = 28;
 static const unsigned int lastLayerFH = 40;
 
 // To compute the cluster position
-std::vector<double> W0threshold_;
+std::vector<double> thresholdW0_;
 std::vector<double> positionDeltaRho_c_;
 
 // The two parameters used to identify clusters
