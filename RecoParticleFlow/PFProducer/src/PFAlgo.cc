@@ -1612,39 +1612,40 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  (*pfCandidates_)[tmpj].setPs2Energy( 0. );
 	  (*pfCandidates_)[tmpj].addElementInBlock(blockref, iEcal);
 	  bNeutralProduced = true;
-      for(unsigned iTrack : kTrack) (*pfCandidates_)[tmpj].addElementInBlock( blockref, iTrack ); 
+	  for (unsigned ic=0; ic<kTrack.size();++ic) 
+	    (*pfCandidates_)[tmpj].addElementInBlock( blockref, kTrack[ic] ); 
 	} // End neutral energy
 
 	// Set elements in blocks and ECAL energies to all tracks
-      	for (unsigned ic : tmpi) { 
+      	for (unsigned ic=0; ic<tmpi.size();++ic) { 
 	  
 	  // Skip muons
-	  if ( (*pfCandidates_)[ic].particleId() == reco::PFCandidate::mu ) continue; 
+	  if ( (*pfCandidates_)[tmpi[ic]].particleId() == reco::PFCandidate::mu ) continue; 
 
-	  double fraction = trackMomentum > 0 ? (*pfCandidates_)[ic].trackRef()->p()/trackMomentum : 0;
+	  double fraction = trackMomentum > 0 ? (*pfCandidates_)[tmpi[ic]].trackRef()->p()/trackMomentum : 0;
 	  double ecalCal = bNeutralProduced ? 
 	    (calibEcal-neutralEnergy*slopeEcal)*fraction : calibEcal*fraction;
 	  double ecalRaw = totalEcal*fraction;
 
 	  if (debug_) cout << "The fraction after photon supression is " << fraction << " calibrated ecal = " << ecalCal << endl;
 
-	  (*pfCandidates_)[ic].setEcalEnergy( ecalRaw, ecalCal );
-	  (*pfCandidates_)[ic].setHcalEnergy( 0., 0. );
-	  (*pfCandidates_)[ic].setHoEnergy( 0., 0. );
-	  (*pfCandidates_)[ic].setPs1Energy( 0 );
-	  (*pfCandidates_)[ic].setPs2Energy( 0 );
-	  (*pfCandidates_)[ic].addElementInBlock( blockref, kTrack[ic] );
+	  (*pfCandidates_)[tmpi[ic]].setEcalEnergy( ecalRaw, ecalCal );
+	  (*pfCandidates_)[tmpi[ic]].setHcalEnergy( 0., 0. );
+	  (*pfCandidates_)[tmpi[ic]].setHoEnergy( 0., 0. );
+	  (*pfCandidates_)[tmpi[ic]].setPs1Energy( 0 );
+	  (*pfCandidates_)[tmpi[ic]].setPs2Energy( 0 );
+	  (*pfCandidates_)[tmpi[ic]].addElementInBlock( blockref, kTrack[ic] );
 	}
 
       } // End connected ECAL
 
       // Fill the element_in_block for tracks that are eventually linked to no ECAL clusters at all.
-      for(unsigned ic : tmpi) {
-	const PFCandidate& pfc = (*pfCandidates_)[ic];
+      for (unsigned ic=0; ic<tmpi.size();++ic) { 
+	const PFCandidate& pfc = (*pfCandidates_)[tmpi[ic]];
 	const PFCandidate::ElementsInBlocks& eleInBlocks = pfc.elementsInBlocks();
 	if ( eleInBlocks.empty() ) { 
 	  if ( debug_ )std::cout << "Single track / Fill element in block! " << std::endl;
-	  (*pfCandidates_)[ic].addElementInBlock( blockref, kTrack[ic] );
+	  (*pfCandidates_)[tmpi[ic]].addElementInBlock( blockref, kTrack[ic] );
 	}
       }
 
