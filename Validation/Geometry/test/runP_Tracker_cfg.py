@@ -28,17 +28,6 @@ from Validation.Geometry.plot_utils import _LABELS2COMPS
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    destinations   = cms.untracked.vstring('info'),
-    categories = cms.untracked.vstring('logMsg'),
-    info = cms.untracked.PSet(
-        threshold = cms.untracked.string("INFO"),
-        logMsg = cms.untracked.PSet(limit = cms.untracked.int32(1000))
-        )
-    )
-
-
 _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
 options = VarParsing('analysis')
@@ -60,6 +49,17 @@ options.setDefault('inputFiles', ['file:single_neutrino_random.root'])
 
 options.parseArguments()
 # Option validation
+
+process.MessageLogger = cms.Service(
+    "MessageLogger",
+    destinations   = cms.untracked.vstring('info'),
+    categories = cms.untracked.vstring('logMsg'),
+    info = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO'),
+        filename = cms.untracked.string('Log_%s_%s' % (options.label,options.geom)),
+        logMsg = cms.untracked.PSet(limit = cms.untracked.int32(-1))
+        )
+    )
 
 if options.label not in _ALLOWED_LABELS:
     print "\n*** Error, '%s' not registered as a valid components to monitor." % options.label
@@ -123,7 +123,8 @@ process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('MaterialBudgetAction'),
     MaterialBudgetAction = cms.PSet(
-        HistosFile = cms.string('matbdg_%s.root' % options.label),
+        HistosFile = cms.string('matbdg_%s_%s.root' % (options.label,
+                                                       options.geom)),
         AllStepsToTree = cms.bool(True),
         HistogramList = cms.string('Tracker'),
         SelectedVolumes = cms.vstring(_components),
