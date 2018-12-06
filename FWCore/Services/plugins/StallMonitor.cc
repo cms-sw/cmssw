@@ -35,6 +35,7 @@
 
 namespace {
 
+  using duration_t = std::chrono::microseconds;
   using clock_t = std::chrono::steady_clock;
   auto now = clock_t::now;
 
@@ -60,7 +61,6 @@ namespace {
     std::string const& label() const { return label_; }
     unsigned numberOfStalls() const { return stallCounter_; }
 
-    using duration_t = std::chrono::milliseconds;
     using rep_t = duration_t::rep;
 
     duration_t totalStalledTime() const { return duration_t{totalTime_.load()}; }
@@ -69,7 +69,7 @@ namespace {
     // Modifiers
     void setLabel(std::string const& label) { label_ = label; }
 
-    void update(std::chrono::milliseconds const ms)
+    void update(duration_t const ms)
     {
       ++stallCounter_;
       auto const thisTime = ms.count();
@@ -228,7 +228,7 @@ namespace edm {
 
       ThreadSafeOutputFileStream file_;
       bool const validFile_; // Separate data member from file to improve efficiency.
-      std::chrono::milliseconds const stallThreshold_;
+      duration_t const stallThreshold_;
       decltype(now()) beginTime_ {};
 
       // There can be multiple modules per stream.  Therefore, we need
@@ -250,7 +250,7 @@ namespace edm {
 
 namespace {
   constexpr char const* filename_default {""};
-  constexpr double threshold_default {0.1};
+  constexpr double threshold_default {0.1}; //default threashold in seconds
   std::string const space {"  "};
 }
 
@@ -260,7 +260,7 @@ using namespace std::chrono;
 StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   : file_{iPS.getUntrackedParameter<std::string>("fileName", filename_default)}
   , validFile_{file_}
-  , stallThreshold_{static_cast<long int>(iPS.getUntrackedParameter<double>("stallThreshold")*1000)}
+  ,stallThreshold_{std::chrono::round<duration_t>(duration<double>(iPS.getUntrackedParameter<double>("stallThreshold"))) }
 {
   iRegistry.watchPreModuleConstruction(this, &StallMonitor::preModuleConstruction);
   iRegistry.watchPostBeginJob(this, &StallMonitor::postBeginJob);
@@ -343,7 +343,7 @@ void StallMonitor::fillDescriptions(ConfigurationDescriptions& descriptions)
                                                                            "information will be written to a dedicated file, but only the summary\n"
                                                                            "including stalling-modules information will be logged.");
   desc.addUntracked<double>("stallThreshold", threshold_default)->setComment("Threshold (in seconds) used to classify modules as stalled.\n"
-                                                                             "Millisecond granularity allowed.");
+                                                                             "Microsecond granularity allowed.");
   descriptions.add("StallMonitor", desc);
   descriptions.setComment("This service keeps track of various times in event-processing to determine which modules are stalling.");
 }
@@ -410,21 +410,21 @@ void StallMonitor::postBeginJob()
 
 void StallMonitor::preSourceEvent(StreamID const sid)
 {
-  auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto const t = duration_cast<duration_t>(now()-beginTime_).count();
   auto msg = assembleMessage<step::preSourceEvent>(sid.value(), t);
   file_.write(std::move(msg));
 }
 
 void StallMonitor::postSourceEvent(StreamID const sid)
 {
-  auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto const t = duration_cast<duration_t>(now()-beginTime_).count();
   auto msg = assembleMessage<step::postSourceEvent>(sid.value(), t);
   file_.write(std::move(msg));
 }
 
 void StallMonitor::preEvent(StreamContext const& sc)
 {
-  auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto const t = duration_cast<duration_t>(now()-beginTime_).count();
   auto const& eid = sc.eventID();
   auto msg = assembleMessage<step::preEvent>(stream_id(sc), eid.run(), eid.luminosityBlock(), eid.event(), t);
   file_.write(std::move(msg));
@@ -437,7 +437,7 @@ void StallMonitor::postModuleEventPrefetching(StreamContext const& sc, ModuleCal
   auto start = stallStart_[std::make_pair(sid,mid)] = std::make_pair(now(), false);
 
   if (validFile_) {
-    auto const t = duration_cast<milliseconds>(start.first - beginTime_).count();
+    auto const t = duration_cast<duration_t>(start.first - beginTime_).count();
     auto msg = assembleMessage<step::postModuleEventPrefetching>(sid, mid, t);
     file_.write(std::move(msg));
   }
@@ -452,13 +452,13 @@ void StallMonitor::preModuleEventAcquire(StreamContext const& sc, ModuleCallingC
   auto startT = start.first.time_since_epoch();
   start.second = true; // record so the preModuleEvent knows that acquire was called
   if (validFile_) {
-    auto t = duration_cast<milliseconds>(preModEventAcquire - beginTime_).count();
+    auto t = duration_cast<duration_t>(preModEventAcquire - beginTime_).count();
     auto msg = assembleMessage<step::preModuleEventAcquire>(sid, mid, t);
     file_.write(std::move(msg));
   }
   // Check for stalls if prefetch was called
-  if( milliseconds::duration::zero() != startT) {
-    auto const preFetch_to_preModEventAcquire = duration_cast<milliseconds>(preModEventAcquire - start.first);
+  if( duration_t::duration::zero() != startT) {
+    auto const preFetch_to_preModEventAcquire = duration_cast<duration_t>(preModEventAcquire - start.first);
     if (preFetch_to_preModEventAcquire < stallThreshold_) return;
     moduleStats_[mid].update(preFetch_to_preModEventAcquire);
   }
@@ -466,7 +466,7 @@ void StallMonitor::preModuleEventAcquire(StreamContext const& sc, ModuleCallingC
 
 void StallMonitor::postModuleEventAcquire(StreamContext const& sc, ModuleCallingContext const& mcc)
 {
-  auto const postModEventAcquire = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto const postModEventAcquire = duration_cast<duration_t>(now()-beginTime_).count();
   auto msg = assembleMessage<step::postModuleEventAcquire>(stream_id(sc), module_id(mcc), postModEventAcquire);
   file_.write(std::move(msg));
 }
@@ -479,13 +479,13 @@ void StallMonitor::preModuleEvent(StreamContext const& sc, ModuleCallingContext 
   auto const& start = stallStart_[std::make_pair(sid,mid)];
   auto startT = start.first.time_since_epoch();
   if (validFile_) {
-    auto t = duration_cast<milliseconds>(preModEvent-beginTime_).count();
+    auto t = duration_cast<duration_t>(preModEvent-beginTime_).count();
     auto msg = assembleMessage<step::preModuleEvent>(sid, mid, static_cast<std::underlying_type_t<Phase>>(Phase::Event), t);
     file_.write(std::move(msg));
   }
   // Check for stalls if prefetch was called and we did not already check before acquire
-  if( milliseconds::duration::zero() != startT && !start.second) {
-    auto const preFetch_to_preModEvent = duration_cast<milliseconds>(preModEvent-start.first);
+  if( duration_t::duration::zero() != startT && !start.second) {
+    auto const preFetch_to_preModEvent = duration_cast<duration_t>(preModEvent-start.first);
     if (preFetch_to_preModEvent < stallThreshold_) return;
     moduleStats_[mid].update(preFetch_to_preModEvent);
   }
@@ -496,55 +496,55 @@ void StallMonitor::preModuleStreamTransition(StreamContext const& sc, ModuleCall
   auto const tNow = now();
   auto const sid = stream_id(sc);
   auto const mid = module_id(mcc);
-  auto t = duration_cast<milliseconds>(tNow-beginTime_).count();
+  auto t = duration_cast<duration_t>(tNow-beginTime_).count();
   auto msg = assembleMessage<step::preModuleEvent>(sid, mid, toTransition(sc), t);
   file_.write(std::move(msg));
 }
     
 void StallMonitor::postModuleStreamTransition(StreamContext const& sc, ModuleCallingContext const& mcc)
 {
-  auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto const t = duration_cast<duration_t>(now()-beginTime_).count();
   auto msg = assembleMessage<step::postModuleEvent>(stream_id(sc), module_id(mcc), toTransition(sc), t);
   file_.write(std::move(msg));
 }
 
 
 void StallMonitor::preModuleGlobalTransition(GlobalContext const& gc, ModuleCallingContext const& mcc) {
-  auto t = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto t = duration_cast<duration_t>(now()-beginTime_).count();
   auto msg = assembleMessage<step::preModuleEvent>(numStreams_, module_id(mcc), toTransition(gc), t);
   file_.write(std::move(msg));
 }
 
 void StallMonitor::postModuleGlobalTransition(GlobalContext const& gc, ModuleCallingContext const& mcc) {
-  auto const postModTime = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto const postModTime = duration_cast<duration_t>(now()-beginTime_).count();
   auto msg = assembleMessage<step::postModuleEvent>(numStreams_, module_id(mcc), toTransition(gc), postModTime);
   file_.write(std::move(msg));
 }
 
 void StallMonitor::preEventReadFromSource(StreamContext const& sc, ModuleCallingContext const& mcc)
 {
-  auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto const t = duration_cast<duration_t>(now()-beginTime_).count();
   auto msg = assembleMessage<step::preEventReadFromSource>(stream_id(sc), module_id(mcc), t);
   file_.write(std::move(msg));
 }
 
 void StallMonitor::postEventReadFromSource(StreamContext const& sc, ModuleCallingContext const& mcc)
 {
-  auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto const t = duration_cast<duration_t>(now()-beginTime_).count();
   auto msg = assembleMessage<step::postEventReadFromSource>(stream_id(sc), module_id(mcc), t);
   file_.write(std::move(msg));
 }
 
 void StallMonitor::postModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc)
 {
-  auto const postModEvent = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto const postModEvent = duration_cast<duration_t>(now()-beginTime_).count();
   auto msg = assembleMessage<step::postModuleEvent>(stream_id(sc), module_id(mcc), static_cast<std::underlying_type_t<Phase>>(Phase::Event), postModEvent);
   file_.write(std::move(msg));
 }
 
 void StallMonitor::postEvent(StreamContext const& sc)
 {
-  auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto const t = duration_cast<duration_t>(now()-beginTime_).count();
   auto const& eid = sc.eventID();
   auto msg = assembleMessage<step::postEvent>(stream_id(sc), eid.run(), eid.luminosityBlock(), eid.event(), t);
   file_.write(std::move(msg));
