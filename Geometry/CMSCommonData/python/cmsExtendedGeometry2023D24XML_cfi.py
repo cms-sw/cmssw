@@ -92,6 +92,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/MTDCommonData/data/etl.xml',
         'Geometry/MTDCommonData/data/CrystalTile/mtd.xml',
         'Geometry/MTDCommonData/data/CrystalTile/mtdStructureTopology.xml',
+        'Geometry/MTDCommonData/data/CrystalTile/mtdParameters.xml',
     )+
     cms.vstring(
         'Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/muonNumbering.xml',
