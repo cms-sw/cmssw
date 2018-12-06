@@ -26,8 +26,6 @@ RPixPlaneCombinatoryTracking::RPixPlaneCombinatoryTracking(edm::ParameterSet con
                                                          << "tracking is not possible with " 
                                                          << trackMinNumberOfPoints_ << " hits";
   }
- 
-  
 }
 
 //------------------------------------------------------------------------------------------------//
@@ -38,7 +36,7 @@ RPixPlaneCombinatoryTracking::~RPixPlaneCombinatoryTracking() {
 
 //------------------------------------------------------------------------------------------------//
 
-void RPixPlaneCombinatoryTracking::initialize(){
+void RPixPlaneCombinatoryTracking::initialize() {
  
   uint32_t numberOfCombinations = factorial(numberOfPlanesPerPot_)/
                                   (factorial(numberOfPlanesPerPot_-trackMinNumberOfPoints_)
@@ -56,7 +54,6 @@ void RPixPlaneCombinatoryTracking::initialize(){
       edm::LogInfo("RPixPlaneCombinatoryTracking");
     }
   }
-
 }
 
 //------------------------------------------------------------------------------------------------//
@@ -303,7 +300,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
         //This avoids to convert the global plane-line intersection in order not to call the the geometry 
         math::Vector<3>::type maxGlobalPointDistance(maximumXLocalDistanceFromTrack_,maximumYLocalDistanceFromTrack_,0.);
         
-        DDRotationMatrix theRotationMatrix = geometry_->getSensor(tmpPlaneId)->rotation();
+        DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->getSensor(tmpPlaneId)->rotation();
         AlgebraicMatrix33 tmpPlaneRotationMatrixMap;
         theRotationMatrix.GetComponents(tmpPlaneRotationMatrixMap(0, 0), tmpPlaneRotationMatrixMap(0, 1), tmpPlaneRotationMatrixMap(0, 2),
                                         tmpPlaneRotationMatrixMap(1, 0), tmpPlaneRotationMatrixMap(1, 1), tmpPlaneRotationMatrixMap(1, 2),
@@ -470,7 +467,7 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
   math::Vector<3>::type pointOnPlane(tmpPointOnPlane.x(), tmpPointOnPlane.y(), tmpPointOnPlane.z());
   math::Vector<3>::type planeUnitVector(0.,0.,1.);
 
-  DDRotationMatrix theRotationMatrix = geometry_->getSensor(planeId)->rotation();
+  DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->getSensor(planeId)->rotation();
   AlgebraicMatrix33 tmpPlaneRotationMatrixMap;
   theRotationMatrix.GetComponents(tmpPlaneRotationMatrixMap(0, 0), tmpPlaneRotationMatrixMap(0, 1), tmpPlaneRotationMatrixMap(0, 2),
                                   tmpPlaneRotationMatrixMap(1, 0), tmpPlaneRotationMatrixMap(1, 1), tmpPlaneRotationMatrixMap(1, 2),
