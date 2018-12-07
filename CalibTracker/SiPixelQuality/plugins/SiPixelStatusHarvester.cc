@@ -104,6 +104,9 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
   iSetup.get<SiPixelFedCablingMapRcd>().get(pixelCabling);
   cablingMap_ = pixelCabling.product();
 
+  // Pixel Phase-1 helper class
+  coord_.init(iSetup);
+
   for (TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->dets().begin(); it != trackerGeometry_->dets().end(); it++){
 
        const PixelGeomDetUnit *pgdu = dynamic_cast<const PixelGeomDetUnit*>((*it));
@@ -381,6 +384,9 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                int detid = itMod->first; 
                uint32_t detId = uint32_t(detid);
 
+               int layer = coord_.layer(DetId(detid)); int ring = coord_.ring(DetId(detid));
+               double DetAverage_local = SiPixelStatusHarvester::perLayerRingAverage(detid,tmpSiPixelStatus);
+
                BadModulePCL.DetID = uint32_t(detid); BadModuleOther.DetID = uint32_t(detid);
                BadModulePCL.errorType = 3; BadModuleOther.errorType = 3;
                BadModulePCL.BadRocs = 0; BadModuleOther.BadRocs = 0;
@@ -396,7 +402,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                    unsigned int rocOccupancy = modStatus.digiOccROC(iroc);
 
                    // Bad ROC are from low DIGI Occ ROCs
-                   if(rocOccupancy<1.e-4*DetAverage){ // if BAD
+                   if(rocOccupancy<1.e-2*DetAverage_local){ // if BAD
 
                      std::map<int, std::pair<int,int> > rocToOfflinePixel = pixelO2O_[detid];
                      int row = rocToOfflinePixel[iroc].first;
@@ -622,5 +628,31 @@ void SiPixelStatusHarvester::constructTag(std::map<int,SiPixelQuality*>siPixelQu
      }
 
 }
+
+double SiPixelStatusHarvester::perLayerRingAverage(int detid, SiPixelDetectorStatus tmpSiPixelStatus) {
+
+          unsigned long int ave(0);
+          int nrocs(0);
+
+          int layer = coord_.layer(DetId(detid));
+          int ring = coord_.ring(DetId(detid));
+
+          std::map<int, SiPixelModuleStatus> detectorStatus = tmpSiPixelStatus.getDetectorStatus();
+          std::map<int, SiPixelModuleStatus>::iterator itModEnd = detectorStatus.end();
+          for (std::map<int, SiPixelModuleStatus>::iterator itMod = detectorStatus.begin(); itMod != itModEnd; ++itMod) {
+
+               if( layer != coord_.layer(DetId(itMod->first)) ) continue;
+               if( ring != coord_.ring(DetId(itMod->first)) ) continue;
+                
+               unsigned long int inc = itMod->second.digiOccMOD();
+               ave += inc;
+               nrocs += itMod->second.nrocs();
+          }
+
+          if(nrocs>0)
+            return ave*1.0/nrocs;
+          else return 0.0;
+
+}     
 
 DEFINE_FWK_MODULE(SiPixelStatusHarvester);
