@@ -442,7 +442,7 @@ void *CUDAService::allocate_device(int dev, size_t nbytes, cuda::stream_t<>& str
 }
 
 void CUDAService::free_device(int device, void *ptr) {
-  allocator_->deviceAllocator.DeviceFree(device, ptr);
+  cuda::throw_if_error(allocator_->deviceAllocator.DeviceFree(device, ptr));
 }
 
 void *CUDAService::allocate_host(size_t nbytes, cuda::stream_t<>& stream) {
@@ -456,5 +456,5 @@ void *CUDAService::allocate_host(size_t nbytes, cuda::stream_t<>& stream) {
 }
 
 void CUDAService::free_host(void *ptr) {
-  allocator_->hostAllocator.HostFree(ptr);
+  cuda::throw_if_error(allocator_->hostAllocator.HostFree(ptr));
 }

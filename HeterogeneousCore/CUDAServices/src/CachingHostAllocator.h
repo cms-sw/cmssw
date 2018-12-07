@@ -395,14 +395,23 @@ struct CachingHostAllocator
                     found = true;
                     search_key = *block_itr;
                     search_key.associated_stream = active_stream;
+                    if(search_key.device != device) {
+                      // If "associated" device changes, need to re-create the event on the right device
+                      if (CubDebug(error = cudaSetDevice(search_key.device))) return error;
+                      if (CubDebug(error = cudaEventDestroy(search_key.ready_event))) return error;
+                      if (CubDebug(error = cudaSetDevice(device))) return error;
+                      if (CubDebug(error = cudaEventCreateWithFlags(&search_key.ready_event, cudaEventDisableTiming))) return error;
+                      search_key.device = device;
+                    }
+
                     live_blocks.insert(search_key);
 
                     // Remove from free blocks
                     cached_bytes.free -= search_key.bytes;
                     cached_bytes.live += search_key.bytes;
 
-                    if (debug) _CubLog("\tHost reused cached block at %p (%lld bytes) for stream %lld (previously associated with stream %lld).\n",
-                        search_key.d_ptr, (long long) search_key.bytes, (long long) search_key.associated_stream, (long long)  block_itr->associated_stream);
+                    if (debug) _CubLog("\tHost reused cached block at %p (%lld bytes) for stream %lld on device %lld (previously associated with stream %lld).\n",
+                        search_key.d_ptr, (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) search_key.device, (long long)  block_itr->associated_stream);
 
                     cached_blocks.erase(block_itr);
 
@@ -423,8 +432,8 @@ struct CachingHostAllocator
             if (CubDebug(error = cudaHostAlloc(&search_key.d_ptr, search_key.bytes, cudaHostAllocDefault)) == cudaErrorMemoryAllocation)
             {
                 // The allocation attempt failed: free all cached blocks on device and retry
-                if (debug) _CubLog("\tHost failed to allocate %lld bytes for stream %lld, retrying after freeing cached allocations",
-                      (long long) search_key.bytes, (long long) search_key.associated_stream);
+                if (debug) _CubLog("\tHost failed to allocate %lld bytes for stream %lld on device %lld, retrying after freeing cached allocations",
+                      (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) search_key.device);
 
                 error = cudaSuccess;    // Reset the error we will return
                 cudaGetLastError();     // Reset CUDART's error
@@ -476,8 +485,8 @@ struct CachingHostAllocator
             cached_bytes.live += search_key.bytes;
             mutex.Unlock();
 
-            if (debug) _CubLog("\tHost allocated new host block at %p (%lld bytes associated with stream %lld).\n",
-                      search_key.d_ptr, (long long) search_key.bytes, (long long) search_key.associated_stream);
+            if (debug) _CubLog("\tHost allocated new host block at %p (%lld bytes associated with stream %lld on device %lld).\n",
+                      search_key.d_ptr, (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) search_key.device);
         }
 
         // Copy host pointer to output parameter
@@ -523,8 +532,8 @@ struct CachingHostAllocator
                 cached_blocks.insert(search_key);
                 cached_bytes.free += search_key.bytes;
 
-                if (debug) _CubLog("\tHost returned %lld bytes from associated stream %lld.\n\t\t %lld available blocks cached (%lld bytes), %lld live blocks outstanding. (%lld bytes)\n",
-                    (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) cached_blocks.size(),
+                if (debug) _CubLog("\tHost returned %lld bytes from associated stream %lld on device %lld.\n\t\t %lld available blocks cached (%lld bytes), %lld live blocks outstanding. (%lld bytes)\n",
+                    (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) search_key.device, (long long) cached_blocks.size(),
                     (long long) cached_bytes.free, (long long) live_blocks.size(), (long long) cached_bytes.live);
             }
         }
@@ -547,8 +556,8 @@ struct CachingHostAllocator
             if (CubDebug(error = cudaFreeHost(d_ptr))) return error;
             if (CubDebug(error = cudaEventDestroy(search_key.ready_event))) return error;
 
-            if (debug) _CubLog("\tHost freed %lld bytes from associated stream %lld.\n\t\t  %lld available blocks cached (%lld bytes), %lld live blocks (%lld bytes) outstanding.\n",
-                (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) cached_blocks.size(), (long long) cached_bytes.free, (long long) live_blocks.size(), (long long) cached_bytes.live);
+            if (debug) _CubLog("\tHost freed %lld bytes from associated stream %lld on device %lld.\n\t\t  %lld available blocks cached (%lld bytes), %lld live blocks (%lld bytes) outstanding.\n",
+                (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) search_key.device, (long long) cached_blocks.size(), (long long) cached_bytes.free, (long long) live_blocks.size(), (long long) cached_bytes.live);
         }
 
         // Reset device
