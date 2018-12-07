@@ -30,8 +30,10 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
         maxDeltaEtaEndcaps = cms.double(0.02),
         maxDeltaPhiBarrel = cms.double(0.15),
         maxDeltaPhiEndcaps = cms.double(0.15),
-        maxHOverEBarrel = cms.double(0.15),
-        maxHOverEEndcaps = cms.double(0.15),
+        maxHOverEBarrelCone = cms.double(0.15),
+        maxHOverEEndcapsCone = cms.double(0.15),
+        maxHOverEBarrelTower = cms.double(0.15),
+        maxHOverEEndcapsTower = cms.double(0.15),
     ),
 
     # Ecal rec hits configuration
