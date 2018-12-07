@@ -28,26 +28,12 @@ public:
   // returns pointer to GPU memory
   const SiPixelFedCablingMapGPU *getGPUProductAsync(cuda::stream_t<>& cudaStream) const;
 
+  // returns pointer to GPU memory
+  const unsigned char *getModToUnpAllAsync(cuda::stream_t<>& cudaStream) const;
+  edm::cuda::device::unique_ptr<unsigned char[]> getModToUnpRegionalAsync(std::set<unsigned int> const& modules, cuda::stream_t<>& cudaStream) const;
 
-  // Allocates host and device memory, converts data to host memory,
-  // copies host memory to device memory asynchronously. It is the
-  // caller's responsibility to have this object to live until all
-  // operations on the device memory have completed.
-  class ModulesToUnpack {
-  public:
-    ModulesToUnpack(cuda::stream_t<>& cudaStream);
-    ~ModulesToUnpack() = default;
-
-    void fillAsync(SiPixelFedCablingMap const& cablingMap, std::set<unsigned int> const& modules, cuda::stream_t<>& cudaStream);
-
-    const unsigned char *get() const { return modToUnpDevice.get(); }
-
-  private:
-    edm::cuda::device::unique_ptr<unsigned char[]> modToUnpDevice;
-    edm::cuda::host::unique_ptr<unsigned char[]> modToUnpHost;
-  };
-  
 private:
+  const SiPixelFedCablingMap *cablingMap_;
   std::vector<unsigned int,  CUDAHostAllocator<unsigned int>>  fedMap;
   std::vector<unsigned int,  CUDAHostAllocator<unsigned int>>  linkMap;
   std::vector<unsigned int,  CUDAHostAllocator<unsigned int>>  rocMap;
@@ -55,6 +41,7 @@ private:
   std::vector<unsigned int,  CUDAHostAllocator<unsigned int>>  rocInDet;
   std::vector<unsigned int,  CUDAHostAllocator<unsigned int>>  moduleId;
   std::vector<unsigned char, CUDAHostAllocator<unsigned char>> badRocs;
+  std::vector<unsigned char, CUDAHostAllocator<unsigned char>> modToUnpDefault;
   unsigned int size;
   bool hasQuality_;
 
@@ -64,6 +51,12 @@ private:
     SiPixelFedCablingMapGPU *cablingMapDevice = nullptr; // same internal pointers as above, struct itself is on GPU
   };
   CUDAESProduct<GPUData> gpuData_;
+
+  struct ModulesToUnpack {
+    ~ModulesToUnpack();
+    unsigned char *modToUnpDefault = nullptr; // pointer to GPU
+  };
+  CUDAESProduct<ModulesToUnpack> modToUnp_;
 };
 
 

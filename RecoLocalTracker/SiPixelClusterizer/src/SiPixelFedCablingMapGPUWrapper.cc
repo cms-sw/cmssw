@@ -21,9 +21,10 @@
 SiPixelFedCablingMapGPUWrapper::SiPixelFedCablingMapGPUWrapper(SiPixelFedCablingMap const& cablingMap,
                                                                TrackerGeometry const& trackerGeom,
                                                                SiPixelQuality const *badPixelInfo):
+  cablingMap_(&cablingMap),
   fedMap(pixelgpudetails::MAX_SIZE), linkMap(pixelgpudetails::MAX_SIZE), rocMap(pixelgpudetails::MAX_SIZE),
   RawId(pixelgpudetails::MAX_SIZE), rocInDet(pixelgpudetails::MAX_SIZE), moduleId(pixelgpudetails::MAX_SIZE),
-  badRocs(pixelgpudetails::MAX_SIZE),
+  badRocs(pixelgpudetails::MAX_SIZE), modToUnpDefault(pixelgpudetails::MAX_SIZE),
   hasQuality_(badPixelInfo != nullptr)
 {
   std::vector<unsigned int> const& fedIds = cablingMap.fedIds();
@@ -46,6 +47,7 @@ SiPixelFedCablingMapGPUWrapper::SiPixelFedCablingMapGPUWrapper(SiPixelFedCabling
         if (pixelRoc != nullptr) {
           RawId[index] = pixelRoc->rawId();
           rocInDet[index] = pixelRoc->idInDetUnit();
+          modToUnpDefault[index] = false;
           if (badPixelInfo != nullptr)
             badRocs[index] = badPixelInfo->IsRocBad(pixelRoc->rawId(), pixelRoc->idInDetUnit());
           else
@@ -54,6 +56,7 @@ SiPixelFedCablingMapGPUWrapper::SiPixelFedCablingMapGPUWrapper(SiPixelFedCabling
           RawId[index] = 9999;
           rocInDet[index] = 9999;
           badRocs[index] = true;
+          modToUnpDefault[index] = true;
         }
         index++;
       }
@@ -124,16 +127,21 @@ const SiPixelFedCablingMapGPU *SiPixelFedCablingMapGPUWrapper::getGPUProductAsyn
   return data.cablingMapDevice;
 }
 
-SiPixelFedCablingMapGPUWrapper::ModulesToUnpack::ModulesToUnpack(cuda::stream_t<>& cudaStream)
-{
-  edm::Service<CUDAService> cs;
-  modToUnpDevice = cs->make_device_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
-  modToUnpHost = cs->make_host_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
+const unsigned char *SiPixelFedCablingMapGPUWrapper::getModToUnpAllAsync(cuda::stream_t<>& cudaStream) const {
+  const auto& data = modToUnp_.dataForCurrentDeviceAsync(cudaStream, [this](ModulesToUnpack& data, cuda::stream_t<>& stream) {
+      cudaCheck(cudaMalloc((void**) & data.modToUnpDefault, pixelgpudetails::MAX_SIZE_BYTE_BOOL));
+      cudaCheck(cudaMemcpyAsync(data.modToUnpDefault, this->modToUnpDefault.data(), this->modToUnpDefault.size() * sizeof(unsigned char), cudaMemcpyDefault, stream.id()));
+    });
+  return data.modToUnpDefault;
 }
 
-void SiPixelFedCablingMapGPUWrapper::ModulesToUnpack::fillAsync(SiPixelFedCablingMap const& cablingMap, std::set<unsigned int> const& modules, cuda::stream_t<>& cudaStream) {
-  std::vector<unsigned int> const& fedIds = cablingMap.fedIds();
-  std::unique_ptr<SiPixelFedCablingTree> const& cabling = cablingMap.cablingTree();
+edm::cuda::device::unique_ptr<unsigned char[]> SiPixelFedCablingMapGPUWrapper::getModToUnpRegionalAsync(std::set<unsigned int> const& modules, cuda::stream_t<>& cudaStream) const {
+  edm::Service<CUDAService> cs;
+  auto modToUnpDevice = cs->make_device_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
+  auto modToUnpHost = cs->make_host_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
+
+  std::vector<unsigned int> const& fedIds = cablingMap_->fedIds();
+  std::unique_ptr<SiPixelFedCablingTree> const& cabling = cablingMap_->cablingTree();
 
   unsigned int startFed = *(fedIds.begin());
   unsigned int endFed   = *(fedIds.end() - 1);
@@ -157,6 +165,7 @@ void SiPixelFedCablingMapGPUWrapper::ModulesToUnpack::fillAsync(SiPixelFedCablin
   }
 
   cuda::memory::async::copy(modToUnpDevice.get(), modToUnpHost.get(), pixelgpudetails::MAX_SIZE * sizeof(unsigned char), cudaStream.id());
+  return modToUnpDevice;
 }
 
 
@@ -172,4 +181,8 @@ SiPixelFedCablingMapGPUWrapper::GPUData::~GPUData() {
     cudaCheck(cudaFreeHost(cablingMapHost));
   }
   cudaCheck(cudaFree(cablingMapDevice));
+}
+
+SiPixelFedCablingMapGPUWrapper::ModulesToUnpack::~ModulesToUnpack() {
+  cudaCheck(cudaFree(modToUnpDefault));
 }
