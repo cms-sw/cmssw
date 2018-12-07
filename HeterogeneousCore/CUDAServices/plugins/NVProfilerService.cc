@@ -732,13 +732,11 @@ NVProfilerService::postEvent(edm::StreamContext const& sc) {
 
 void
 NVProfilerService::prePathEvent(edm::StreamContext const& sc, edm::PathContext const& pc) {
-  auto sid = sc.streamID();
   nvtxDomainMark(global_domain(), ("before path "s + pc.pathName()).c_str());
 }
 
 void
 NVProfilerService::postPathEvent(edm::StreamContext const& sc, edm::PathContext const& pc, edm::HLTPathStatus const& hlts) {
-  auto sid = sc.streamID();
   nvtxDomainMark(global_domain(), ("after path "s + pc.pathName()).c_str());
 }
 
