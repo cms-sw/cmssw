@@ -9,16 +9,15 @@
 #include <cuda.h>
 
 namespace GPU {
-
 template <class T> struct SimpleVector {
-  // Constructors
-  constexpr SimpleVector(int capacity, T *data) // ownership of m_data stays within the caller
-      : m_size(0), m_capacity(capacity), m_data(data)
-  {
-    static_assert(std::is_trivially_destructible<T>::value);
-  }
+  constexpr SimpleVector() = default;
 
-  constexpr SimpleVector() : SimpleVector(0) {}
+  // ownership of m_data stays within the caller
+  constexpr void construct(int capacity, T *data) {
+    m_size = 0;
+    m_capacity = capacity;
+    m_data = data;
+  }
 
   inline constexpr int push_back_unsafe(const T &element) {
     auto previousSize = m_size;
@@ -97,6 +96,22 @@ private:
 
   T *m_data;
 };
+
+  // ownership of m_data stays within the caller
+  template <class T>
+  SimpleVector<T> make_SimpleVector(int capacity, T *data) {
+    SimpleVector<T> ret;
+    ret.construct(capacity, data);
+    return ret;
+  }
+
+  // ownership of m_data stays within the caller
+  template <class T>
+  SimpleVector<T> *make_SimpleVector(SimpleVector<T> *mem, int capacity, T *data) {
+    auto ret = new(mem) SimpleVector<T>();
+    ret->construct(capacity, data);
+    return ret;
+  }
 
 } // namespace GPU
 

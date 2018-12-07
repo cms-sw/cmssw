@@ -36,10 +36,10 @@ int main() {
   cudaCheck(cudaMallocHost(&data_ptr, maxN * sizeof(int)));
   cudaCheck(cudaMalloc(&d_data_ptr, maxN * sizeof(int)));
 
-  auto v = new (obj_ptr) GPU::SimpleVector<int>(maxN, data_ptr);
+  auto v = GPU::make_SimpleVector(obj_ptr, maxN, data_ptr);
 
   cudaCheck(cudaMallocHost(&tmp_obj_ptr, sizeof(GPU::SimpleVector<int>)));
-  new (tmp_obj_ptr) GPU::SimpleVector<int>(maxN, d_data_ptr);
+  GPU::make_SimpleVector(tmp_obj_ptr, maxN, d_data_ptr);
   assert(tmp_obj_ptr->size() == 0);
   assert(tmp_obj_ptr->capacity() == static_cast<int>(maxN));
 

@@ -46,10 +46,10 @@ public:
     friend class SiPixelDigisCUDA;
 
   private:
-    uint16_t const *xx_ = nullptr;
-    uint16_t const *yy_ = nullptr;
-    uint16_t const *adc_ = nullptr;
-    uint16_t const *moduleInd_ = nullptr;
+    uint16_t const *xx_;
+    uint16_t const *yy_;
+    uint16_t const *adc_;
+    uint16_t const *moduleInd_;
   };
 
   const DeviceConstView *view() const { return view_d.get(); }

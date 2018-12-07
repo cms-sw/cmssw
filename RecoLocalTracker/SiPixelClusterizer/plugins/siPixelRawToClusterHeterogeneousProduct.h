@@ -15,14 +15,6 @@ namespace siPixelRawToClusterHeterogeneousProduct {
     uint32_t word;
     unsigned char errorType;
     unsigned char fedId;
-
-    constexpr
-    error_obj(uint32_t a, uint32_t b, unsigned char c, unsigned char d):
-      rawId(a),
-      word(b),
-      errorType(c),
-      fedId(d)
-    { }
   };
 
   // FIXME split in two

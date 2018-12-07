@@ -72,6 +72,7 @@ public:
   template <typename T>
   typename cudaserviceimpl::make_device_unique_selector<T>::non_array
   make_device_unique(cuda::stream_t<>& stream) {
+    static_assert(std::is_trivially_constructible<T>::value, "Allocating with non-trivial constructor on the device memory is not supported");
     int dev = getCurrentDevice();
     void *mem = allocate_device(dev, sizeof(T), stream);
     return typename cudaserviceimpl::make_device_unique_selector<T>::non_array(reinterpret_cast<T *>(mem),
@@ -83,8 +84,9 @@ public:
   template <typename T>
   typename cudaserviceimpl::make_device_unique_selector<T>::unbounded_array
   make_device_unique(size_t n, cuda::stream_t<>& stream) {
-    int dev = getCurrentDevice();
     using element_type = typename std::remove_extent<T>::type;
+    static_assert(std::is_trivially_constructible<element_type>::value, "Allocating with non-trivial constructor on the device memory is not supported");
+    int dev = getCurrentDevice();
     void *mem = allocate_device(dev, n*sizeof(element_type), stream);
     return typename cudaserviceimpl::make_device_unique_selector<T>::unbounded_array(reinterpret_cast<element_type *>(mem),
                                                                                      [this, dev](void *ptr) {
@@ -100,6 +102,7 @@ public:
   template <typename T>
   typename cudaserviceimpl::make_host_unique_selector<T>::non_array
   make_host_unique(cuda::stream_t<>& stream) {
+    static_assert(std::is_trivially_constructible<T>::value, "Allocating with non-trivial constructor on the pinned host memory is not supported");
     void *mem = allocate_host(sizeof(T), stream);
     return typename cudaserviceimpl::make_host_unique_selector<T>::non_array(reinterpret_cast<T *>(mem),
                                                                              [this](void *ptr) {
@@ -111,6 +114,7 @@ public:
   typename cudaserviceimpl::make_host_unique_selector<T>::unbounded_array
   make_host_unique(size_t n, cuda::stream_t<>& stream) {
     using element_type = typename std::remove_extent<T>::type;
+    static_assert(std::is_trivially_constructible<element_type>::value, "Allocating with non-trivial constructor on the pinned host memory is not supported");
     void *mem = allocate_host(n*sizeof(element_type), stream);
     return typename cudaserviceimpl::make_host_unique_selector<T>::unbounded_array(reinterpret_cast<element_type *>(mem),
                                                                                    [this](void *ptr) {
