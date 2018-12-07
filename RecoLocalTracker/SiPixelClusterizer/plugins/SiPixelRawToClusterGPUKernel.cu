@@ -432,7 +432,7 @@ namespace pixelgpudetails {
         if (includeErrors and skipROC)
         {
           uint32_t rID = getErrRawID(fedId, ww, errorType, cablingMap, debug);
-          err->emplace_back(rID, ww, errorType, fedId);
+          err->push_back(pixelgpudetails::error_obj{rID, ww, errorType, fedId});
           continue;
         }
 
@@ -476,7 +476,7 @@ namespace pixelgpudetails {
           if (includeErrors) {
             if (not rocRowColIsValid(row, col)) {
               uint32_t error = conversionError(fedId, 3, debug); //use the device function and fill the arrays
-              err->emplace_back(rawId, ww, error, fedId);
+              err->push_back(pixelgpudetails::error_obj{rawId, ww, error, fedId});
               if(debug) printf("BPIX1  Error status: %i\n", error);
               continue;
             }
@@ -491,7 +491,7 @@ namespace pixelgpudetails {
           localPix.col = col;
           if (includeErrors and not dcolIsValid(dcol, pxid)) {
             uint32_t error = conversionError(fedId, 3, debug);
-            err->emplace_back(rawId, ww, error, fedId);
+            err->push_back(pixelgpudetails::error_obj{rawId, ww, error, fedId});
             if(debug) printf("Error status: %i %d %d %d %d\n", error, dcol, pxid, fedId, roc);
             continue;
           }
@@ -541,7 +541,7 @@ namespace pixelgpudetails {
       auto data_d = cs->make_device_unique<pixelgpudetails::error_obj[]>(MAX_FED_WORDS, stream);
       cudaCheck(cudaMemsetAsync(data_d.get(), 0x00, MAX_ERROR_SIZE, stream.id()));
       auto error_h_tmp = cs->make_host_unique<GPU::SimpleVector<pixelgpudetails::error_obj>>(stream);
-      new (error_h_tmp.get()) GPU::SimpleVector<pixelgpudetails::error_obj>(MAX_FED_WORDS, data_d.get()); // should make_host_unique() call the constructor as well? note that even if std::make_unique does that, we can't do that in make_device_unique
+      GPU::make_SimpleVector(error_h_tmp.get(), MAX_FED_WORDS, data_d.get());
       assert(error_h_tmp->size() == 0);
       assert(error_h_tmp->capacity() == static_cast<int>(MAX_FED_WORDS));
 
@@ -579,7 +579,7 @@ namespace pixelgpudetails {
         if (includeErrors) {
           digis_clusters_h.data = cs->make_host_unique<pixelgpudetails::error_obj[]>(MAX_FED_WORDS, stream);
           digis_clusters_h.error = cs->make_host_unique<GPU::SimpleVector<pixelgpudetails::error_obj>>(stream);
-          new (digis_clusters_h.error.get()) GPU::SimpleVector<pixelgpudetails::error_obj>(MAX_FED_WORDS, digis_clusters_h.data.get());
+          GPU::make_SimpleVector(digis_clusters_h.error.get(), MAX_FED_WORDS, digis_clusters_h.data.get());
           assert(digis_clusters_h.error->size() == 0);
           assert(digis_clusters_h.error->capacity() == static_cast<int>(MAX_FED_WORDS));
 

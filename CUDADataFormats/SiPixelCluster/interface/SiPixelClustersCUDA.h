@@ -49,11 +49,11 @@ public:
     friend SiPixelClustersCUDA;
 
   private:
-    uint32_t const *moduleStart_ = nullptr;
-    int32_t  const *clus_ = nullptr;
-    uint32_t const *clusInModule_ = nullptr;
-    uint32_t const *moduleId_ = nullptr;
-    uint32_t const *clusModuleStart_ = nullptr;
+    uint32_t const *moduleStart_;
+    int32_t  const *clus_;
+    uint32_t const *clusInModule_;
+    uint32_t const *moduleId_;
+    uint32_t const *clusModuleStart_;
   };
 
   DeviceConstView *view() const { return view_d.get(); }
