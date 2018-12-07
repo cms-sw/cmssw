@@ -14,12 +14,12 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
     outputBaseName = "ZMuMuValidation"
     defaults = {
         "zmumureference": ("/store/caf/user/emiglior/Alignment/TkAlDiMuonValidation/Reference/BiasCheck_DYToMuMu_Summer12_TkAlZMuMu_IDEAL.root"),
-        "minpt" : 0.,
-        "maxpt" : 1000.,
-        "etamaxneg" : 2.4,
-        "etaminneg" : -2.4,
-        "etamaxpos" : 2.4,
-        "etaminpos" : -2.4,
+        "minpt" : "0.",
+        "maxpt" : "1000.",
+        "etamaxneg" : "2.4",
+        "etaminneg" : "-2.4",
+        "etamaxpos" : "2.4",
+        "etaminpos" : "-2.4",
         }
     deprecateddefaults = {
         "resonance": "",
