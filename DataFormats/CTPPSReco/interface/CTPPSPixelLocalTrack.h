@@ -86,7 +86,7 @@ class CTPPSPixelLocalTrack
     }
 
     CTPPSPixelLocalTrack(float z0, const ParameterVector & track_params_vector,
-      const CovarianceMatrix &par_covariance_matrix, float chiSquared);
+      const CovarianceMatrix &par_covariance_matrix, float chiSquared, unsigned short recoInfo_=0);
 
     ~CTPPSPixelLocalTrack() {}
 
@@ -159,6 +159,10 @@ class CTPPSPixelLocalTrack
     inline void setValid(bool valid) { valid_ = valid; }
 
     bool operator< (const CTPPSPixelLocalTrack &r);
+
+    inline unsigned short getRecoInfo() const { return recoInfo_; }
+
+    inline unsigned short getNumberOfPointUsedForFit() const { return (unsigned short) numberOfPointUsedForFit_; }
     
   private:
     edm::DetSetVector<CTPPSPixelFittedRecHit> track_hits_vector_;
@@ -178,8 +182,15 @@ class CTPPSPixelLocalTrack
     /// fit valid?
     bool valid_;
 
+    /// number of points used for the track fit
     int numberOfPointUsedForFit_;
 
+    /// Track information byte for bx-shifted runs: 
+    /// reco_info = 0 -> Default value for tracks reconstructed in non-bx-shifted ROCs
+    /// reco_info = 1 -> Track reconstructed in a bx-shifted ROC with bx-shifted planes only
+    /// reco_info = 2 -> Track reconstructed in a bx-shifted ROC with non-bx-shifted planes only
+    /// reco_info = 3 -> Track reconstructed in a bx-shifted ROC both with bx-shifted and non-bx-shifted planes
+    unsigned short recoInfo_;
 };
 
 #endif

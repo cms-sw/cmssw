@@ -28,6 +28,7 @@ class RPixPlaneCombinatoryTracking : public RPixDetTrackFinder{
     ~RPixPlaneCombinatoryTracking() override;
     void initialize() override;
     void findTracks() override;
+    void addRecoInfo(int run) override;
 
   private:
     typedef std::vector<std::vector<uint32_t> > PlaneCombinations;
