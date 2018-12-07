@@ -149,6 +149,10 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              cosmicDCTracksSeq
                              )
 
+# LowPtGsfElectrons
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSequence_cff import *
+highlevelreco *= lowPtGsfElectronSequence
+
 # AA data with pp reco
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
