@@ -17,7 +17,7 @@ ProtonTrack::ProtonTrack() :
   xi_( 0. )
 {}
 
-ProtonTrack::ProtonTrack( double chi2, double ndof, const Point& vtx, const Vector& dir, float xi, const CovarianceMatrix& cov ) :
-  Track( chi2, ndof, vtx, dir, +1, cov ), xi_( xi )
+ProtonTrack::ProtonTrack( double chi2, double ndof, const Point& vtx, const Vector& momentum, float xi, const CovarianceMatrix& cov ) :
+  Track( chi2, ndof, vtx, momentum, +1, cov ), xi_( xi )
 {}
 
