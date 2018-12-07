@@ -230,7 +230,6 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
     for(const auto & hit : pattern){
       CTPPSPixelDetId hitDetId = CTPPSPixelDetId(hit.detId);
       CTPPSPixelDetId tmpRomanPotId = hitDetId.getRPId();
-      
 
       if(tmpRomanPotId!=romanPotId){ //check that the hits belong to the same tracking station
         throw cms::Exception("CTPPSPixelLocalTrackProducer") << "Hits in the pattern must belong to the same tracking station";
@@ -251,6 +250,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
     trackFinder_->setGeometry(&geometry);
     trackFinder_->setZ0(geometry.getRPTranslation(romanPotId).z());
     trackFinder_->findTracks();
+    trackFinder_->addRecoInfo(iEvent.getRun().id().run());
     std::vector<CTPPSPixelLocalTrack> tmpTracksVector = trackFinder_->getLocalTracks();
 
     if(verbosity_>2)edm::LogInfo("CTPPSPixelLocalTrackProducer")<<"tmpTracksVector = "<<tmpTracksVector.size();
@@ -258,7 +258,6 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
       if(verbosity_>2)edm::LogInfo("CTPPSPixelLocalTrackProducer")<<" ---> To many tracks in the pattern, cleared";
       continue;
     }
-
 
     for(const auto & track : tmpTracksVector){
       ++numberOfTracks;
@@ -274,7 +273,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
   for(const auto & track : foundTracks){
     if(verbosity_>1) edm::LogInfo("CTPPSPixelLocalTrackProducer")<<"Track found in detId = "<<track.detId()<< " number = " << track.size() ;
     if(maxTrackPerRomanPot_>=0 && track.size()>(uint32_t)maxTrackPerRomanPot_){
-      if(verbosity_>1) edm::LogInfo("CTPPSPixelLocalTrackProducer")<<" ---> To many tracks in the pot, cleared";
+      if(verbosity_>1) edm::LogInfo("CTPPSPixelLocalTrackProducer")<<" ---> Too many tracks in the pot, cleared";
       CTPPSPixelDetId tmpRomanPotId = CTPPSPixelDetId(track.detId());
       edm::DetSet<CTPPSPixelLocalTrack> &tmpDetSet = foundTracks[tmpRomanPotId];
       tmpDetSet.clear();

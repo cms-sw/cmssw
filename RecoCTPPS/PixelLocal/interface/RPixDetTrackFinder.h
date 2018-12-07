@@ -33,6 +33,7 @@ class RPixDetTrackFinder{
     void setHits(std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> > *hitMap) {hitMap_ = hitMap; }
     virtual void findTracks()=0;
     virtual void initialize()=0;
+    virtual void addRecoInfo(int run)=0;
     void clear(){
       localTrackVector_.clear();
     }
