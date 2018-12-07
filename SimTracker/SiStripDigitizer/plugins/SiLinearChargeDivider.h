@@ -46,13 +46,10 @@ class SiLinearChargeDivider : public SiChargeDivider{
   const int    chargedivisionsPerStrip;
   const double deltaCut ;
   const double cosmicShift;
-  const int t0IdxPeak;
-  const double resolutionPeak;
-  std::vector<double> valuesPeak;
-  const int t0IdxDeco;
-  const double resolutionDeco;
-  std::vector<double> valuesDeco;
   const ParticleDataTable * theParticleDataTable;
+  int t0Idx;
+  double resolution;
+  std::vector<double> values;
 
   // Geant4 engine used by fluctuateEloss()
   std::unique_ptr<SiG4UniversalFluctuation> fluctuate; 
