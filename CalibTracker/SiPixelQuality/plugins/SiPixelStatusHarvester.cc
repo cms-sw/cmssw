@@ -379,6 +379,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                int detid = itMod->first; 
                uint32_t detId = uint32_t(detid);
 
+               //int layer = coord_.layer(DetId(detid)); int ring = coord_.ring(DetId(detid));
                double DetAverage_local = SiPixelStatusHarvester::perLayerRingAverage(detid,tmpSiPixelStatus);
 
                BadModulePCL.DetID = uint32_t(detid); BadModuleOther.DetID = uint32_t(detid);
@@ -625,7 +626,7 @@ void SiPixelStatusHarvester::constructTag(std::map<int,SiPixelQuality*>siPixelQu
 
 }
 
-//--------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------
 double SiPixelStatusHarvester::perLayerRingAverage(int detid, SiPixelDetectorStatus tmpSiPixelStatus) {
 
           unsigned long int ave(0);
