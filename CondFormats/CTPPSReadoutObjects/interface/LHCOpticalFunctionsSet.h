@@ -17,6 +17,9 @@
 class LHCOpticalFunctionsSet
 {
   public:
+    /// indeces for m_fcn_values and m_splines data members
+    enum { evx, eLx, e14, exd, evpx, eLpx, e24, expd, e32, evy, eLy, eyd, e42, evpy, eLpy, eypd };
+
     LHCOpticalFunctionsSet() {}
 
     /// fills m_*_values fields from a ROOT file
@@ -26,6 +29,12 @@ class LHCOpticalFunctionsSet
 
     /// returns the position of the scoring plane (LHC/TOTEM convention)
     double getScoringPlaneZ() const { return m_z; }
+
+    const std::vector<double>& getXiValues() const { return m_xi_values; }
+
+    const std::array<std::vector<double>, 16>& getFcnValues() const { return m_fcn_values; }
+
+    const std::array<std::shared_ptr<TSpline3>, 16>& getSplines() const { return m_splines; }
   
     /// builds splines from m_*_values fields
     void initializeSplines();
@@ -52,8 +61,6 @@ class LHCOpticalFunctionsSet
     double m_z;
 
     std::vector<double> m_xi_values;
-
-    enum { evx, eLx, e14, exd, evpx, eLpx, e24, expd, e32, evy, eLy, eyd, e42, evpy, eLpy, eypd };
 
     std::array<std::vector<double>, 16> m_fcn_values;
 
