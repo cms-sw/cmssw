@@ -1114,7 +1114,7 @@ bool GsfElectronAlgo::isPreselected( GsfElectron * ele )
  {
 	bool passCutBased=ele->passingCutBasedPreselection();
 	bool passPF=ele->passingPflowPreselection(); //it is worth nothing for gedGsfElectrons, this does nothing as its not set till GedGsfElectron finaliser, this is always false
-        if(generalData_->strategyCfg.gedElectronMode){
+	if(generalData_->strategyCfg.gedElectronMode){
          	bool passmva=ele->passingMvaPreselection();
 		if(!ele->ecalDrivenSeed()){
 		  if(ele->pt() > generalData_->strategyCfg.MaxElePtForOnlyMVA) 
@@ -1185,8 +1185,14 @@ void GsfElectronAlgo::setCutBasedPreselectionFlag( GsfElectron * ele, const reco
   int detector = seedCluster.hitsAndFractions()[0].first.subdetId() ;
   bool HoEveto = false ;
   double scle = ele->superCluster()->energy();
-  if (detector==EcalBarrel && (hoeCone*scle<cfg->maxHBarrelCone || hoeTower*scle<cfg->maxHBarrelTower || hoeCone<cfg->maxHOverEBarrelCone || hoeTower<cfg->maxHOverEBarrelTower)) HoEveto=true;
-  else if (detector==EcalEndcap && (hoeCone*scle<cfg->maxHEndcapsCone || hoeTower*scle<cfg->maxHEndcapsTower || hoeCone<cfg->maxHOverEEndcapsCone || hoeTower<cfg->maxHOverEEndcapsTower)) HoEveto=true;
+
+  if (detector==EcalBarrel) HoEveto =
+      hoeCone*scle<cfg->maxHBarrelCone || hoeTower*scle<cfg->maxHBarrelTower ||
+     hoeCone<cfg->maxHOverEBarrelCone || hoeTower<cfg->maxHOverEBarrelTower;
+  else if (detector==EcalEndcap) HoEveto =
+      hoeCone*scle<cfg->maxHEndcapsCone || hoeTower*scle<cfg->maxHEndcapsTower ||
+     hoeCone<cfg->maxHOverEEndcapsCone || hoeTower<cfg->maxHOverEEndcapsTower;
+
   if ( !HoEveto ) return ;
   LogTrace("GsfElectronAlgo") << "H/E criteria are satisfied";
 
