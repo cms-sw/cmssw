@@ -57,24 +57,17 @@ public:
       m_COLS_PER_ROC( COLS_PER_ROC ),     // Num of Cols per ROC
       m_ROCS_X( ROCS_X ), // 2 for SLHC
       m_ROCS_Y( ROCS_Y ),  // 8 for SLHC
-      m_upgradeGeometry( upgradeGeometry )
-    {
-      // Calculate the edge of the active sensor with respect to the center,
-      // that is simply the half-size.       
-      // Take into account large pixels
-      m_xoffset = -(m_nrows + BIG_PIX_PER_ROC_X*m_nrows/ROWS_PER_ROC)/2. * 
-		  m_pitchx;
-      m_yoffset = -(m_ncols + BIG_PIX_PER_ROC_Y*m_ncols/COLS_PER_ROC)/2. * 
-		  m_pitchy;
+      m_upgradeGeometry( upgradeGeometry ) {
 
-      LogDebug("RectangularMTDTopology") 
-      	<< "nrows " << m_nrows << ", ncols " << m_ncols << ", pitchx "
-	<< m_pitchx << ", pitchy " << m_pitchy << ", xoffset "
-	<< m_xoffset << ", yoffset " << m_yoffset << ", BIG_PIX_PER_ROC_X "
-	<< BIG_PIX_PER_ROC_X << ", BIG_PIX_PER_ROC_Y " << BIG_PIX_PER_ROC_Y << ", ROWS_PER_ROC "
-	<< ROWS_PER_ROC << ", COLS_PER_ROC " << COLS_PER_ROC << ", ROCS_X " << ROCS_X << ", ROCS_Y " << ROCS_Y
-	<< "\nNROWS " << m_ROWS_PER_ROC * m_ROCS_X << ", NCOL " << m_COLS_PER_ROC * m_ROCS_Y;      
-    }
+	setOffset(BIG_PIX_PER_ROC_X, BIG_PIX_PER_ROC_Y, ROWS_PER_ROC, COLS_PER_ROC);
+
+      }
+
+
+  // Edge of the active sensor with respect to the center
+  void setOffset(const int& BIG_PIX_PER_ROC_X, const int& BIG_PIX_PER_ROC_Y,
+		 const int& ROWS_PER_ROC, const int& COLS_PER_ROC);
+
 
   // Topology interface, go from Masurement to Local module corrdinates
   // pixel coordinates (mp) -> cm (LocalPoint)

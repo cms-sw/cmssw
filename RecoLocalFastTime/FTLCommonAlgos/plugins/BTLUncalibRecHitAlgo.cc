@@ -57,20 +57,22 @@ BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataFrame ) const {
   const auto& sampleLeft  = dataFrame.sample(0);
   const auto& sampleRight = dataFrame.sample(1);
   
-  amplitude.first = float(sampleLeft.data()) * adcLSB_;
-  time.first      = float(sampleLeft.toa()) * toaLSBToNS_;
+  if ( sampleLeft.data() > 0 ) {
 
-  // Correct the time of the left SiPM for the time-walk
-  if ( amplitude.first > 0. ){
+    amplitude.first = float(sampleLeft.data()) * adcLSB_;
+    time.first      = float(sampleLeft.toa()) * toaLSBToNS_;
+
+    // Correct the time of the left SiPM for the time-walk
     time.first -= timeCorr_p0_*pow(amplitude.first,timeCorr_p1_) + timeCorr_p2_;
     flag |= 0x1;
+
   }
 
   // --- If available, reconstruct the amplitude and time of the second SiPM
   if ( sampleRight.data() > 0 ) {
 
-    amplitude.second = float(sampleRight.data()) * adcLSB_;
-    time.second      = float(sampleRight.toa()) * toaLSBToNS_;
+    amplitude.second = sampleRight.data() * adcLSB_;
+    time.second      = sampleRight.toa() * toaLSBToNS_;
 
     // Correct the time of the right SiPM for the time-walk
     time.second -= timeCorr_p0_*pow(amplitude.second,timeCorr_p1_) + timeCorr_p2_;

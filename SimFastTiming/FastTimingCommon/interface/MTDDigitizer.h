@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -91,8 +90,8 @@ namespace mtd_digitizer {
     void endRun() override {}
     
   private :
-    
-    edm::ESWatcher<MTDDigiGeometryRecord> geomwatcher_;
+
+    edm::ESWatcher<MTDDigiGeometryRecord> geomwatcher_;   
     const MTDGeometry* geom_;
 
     void resetSimHitDataAccumulator() {

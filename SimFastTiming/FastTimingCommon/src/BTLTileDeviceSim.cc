@@ -32,11 +32,10 @@ void BTLTileDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t
 				       CLHEP::HepRandomEngine *hre){
 
   //loop over sorted simHits
-  const int nchits = hitRefs.size();
-  for(int ihit=0; ihit<nchits; ++ihit) {
+  for (auto const& hitRef: hitRefs) {
 
-    const int hitidx   = std::get<0>(hitRefs[ihit]);
-    const uint32_t id  = std::get<1>(hitRefs[ihit]);
+    const int hitidx   = std::get<0>(hitRef);
+    const uint32_t id  = std::get<1>(hitRef);
     const MTDDetId detId(id);
     const PSimHit &hit = hits->at( hitidx );     
     
@@ -83,7 +82,7 @@ void BTLTileDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t
     float Npe = 1000.*hit.energyLoss()*LightYield_*LightCollEff_*PDE_;
 
     // --- Get the simHit time of arrival and add the light collection time
-    float toa = std::get<2>(hitRefs[ihit]) + LightCollTime_;
+    float toa = std::get<2>(hitRef) + LightCollTime_;
 
     if ( smearLightCollTime_ > 0. )
       toa += CLHEP::RandGaussQ::shoot(hre, 0., smearLightCollTime_);
@@ -96,6 +95,6 @@ void BTLTileDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t
     if( (simHitIt->second).hit_info[1][0] == 0 )
       (simHitIt->second).hit_info[1][0] = toa;
 
-  } // ihit loop
+  } // hitRef loop
 
 }

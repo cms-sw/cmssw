@@ -21,12 +21,12 @@ BTLBarDeviceSim::BTLBarDeviceSim(const edm::ParameterSet& pset) :
 
 void BTLBarDeviceSim::getEventSetup(const edm::EventSetup& evs) {
   edm::ESHandle<MTDGeometry> geom;
-  if( geomwatcher_.check(evs) || geom_ == nullptr ) {
+  if( geom_ == nullptr ) {
     evs.get<MTDDigiGeometryRecord>().get(geom);
     geom_ = geom.product();
   }
   edm::ESHandle<MTDTopology> mtdTopo;
-  if ( topowatcher_.check(evs) || topo_ == nullptr ) {
+  if ( topo_ == nullptr ) {
     evs.get<MTDTopologyRcd>().get(mtdTopo);
     topo_ = mtdTopo.product();
   }
@@ -38,11 +38,10 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,
 				      CLHEP::HepRandomEngine *hre){
 
   //loop over sorted simHits
-  const int nchits = hitRefs.size();
-  for(int ihit=0; ihit<nchits; ++ihit) {
+  for (auto const& hitRef: hitRefs) {
 
-    const int hitidx   = std::get<0>(hitRefs[ihit]);
-    const uint32_t id  = std::get<1>(hitRefs[ihit]);
+    const int hitidx   = std::get<0>(hitRef);
+    const uint32_t id  = std::get<1>(hitRef);
     const MTDDetId detId(id);
     const PSimHit &hit = hits->at( hitidx );     
     
@@ -91,7 +90,7 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,
     float Npe = 1000.*hit.energyLoss()*LightYield_*LightCollEff_*PDE_;
 
     // --- Get the simHit time of arrival
-    float toa = std::get<2>(hitRefs[ihit]);
+    float toa = std::get<2>(hitRef);
 
     // --- Accumulate the energy of simHits in the same crystal
     if ( toa < bxTime_ ){  // this is to simulate the charge integration in a 25 ns window
@@ -102,21 +101,17 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,
     // --- Store the time of the first SimHit
     if( (simHitIt->second).hit_info[1][0] == 0 ){
 
-      double distR = 0.5*topo.pitch().second - 0.1*hit.localPosition().y();
-      double distL = 0.5*topo.pitch().second + 0.1*hit.localPosition().y();
+      // This is to account for the two possible bar orientations:
+      double barLength = std::max(topo.pitch().first, topo.pitch().second);
 
-      // This is for the layout with bars along phi
-      if ( topo_->getMTDTopologyMode() == (int ) BTLDetId::CrysLayout::bar ){
-
-	distR = 0.5*topo.pitch().first - 0.1*hit.localPosition().x();
-	distL = 0.5*topo.pitch().first + 0.1*hit.localPosition().x();
-      }
+      double distR = 0.5*barLength - 0.1*hit.localPosition().y();
+      double distL = 0.5*barLength + 0.1*hit.localPosition().y();
 
       (simHitIt->second).hit_info[1][0] = toa + LightCollSlopeR_*distR;
       (simHitIt->second).hit_info[1][1] = toa + LightCollSlopeL_*distL;
 
     }
 
-  } // ihit loop
+  } // hitRef loop
 
 }

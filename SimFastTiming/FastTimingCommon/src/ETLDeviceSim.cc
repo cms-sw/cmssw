@@ -4,7 +4,6 @@
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
@@ -36,7 +35,8 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,flo
 
     // Safety check (this should never happen, it should be an exception
     if ( detId.det()!=DetId::Forward || detId.mtdSubDetector()!=2 ) {
-      throw cms::Exception("ETLDeviceSim") << "got a DetId that was not ETL!!!";
+      throw cms::Exception("ETLDeviceSim") << "got a DetId that was not ETL: Det = " <<  detId.det()
+					   << "  subDet = " <<  detId.mtdSubDetector();
     }
     
     if(id==0) continue; // to be ignored at RECO level

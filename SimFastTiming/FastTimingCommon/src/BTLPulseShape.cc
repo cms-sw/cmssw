@@ -2813,6 +2813,8 @@ void BTLPulseShape::fillShape( MTDShapeBase::DVec& aVec ) const
 	   2.4209006813e-04, // time = 27.94 ns
 	   1.5274821072e-04, // time = 27.95 ns
 	   6.3517924480e-05, // time = 27.96 ns
-	   0.              };// time = 27.97 ns
+	   2.2443663380e-06, // time = 27.97 ns
+	   0.,               // time = 27.98 ns
+	   0.              };// time = 27.99 ns
 
 }

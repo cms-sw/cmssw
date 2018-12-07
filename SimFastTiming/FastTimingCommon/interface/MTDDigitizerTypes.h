@@ -38,13 +38,17 @@ namespace mtd_digitizer {
 
 namespace std
 {
+
+  constexpr int kRowOffset = 32;
+  constexpr int kColOffset = 40;
+
   template<> struct hash<mtd_digitizer::MTDCellId>
     {
       typedef mtd_digitizer::MTDCellId argument_type;
       typedef std::size_t result_type;
       result_type operator()(argument_type const& s) const noexcept
       {
-	uint64_t input = (uint64_t)s.detid_ | ((uint64_t)s.row_) << 32 | ((uint64_t)s.column_) << 40;
+	uint64_t input = (uint64_t)s.detid_ | ((uint64_t)s.row_) << kRowOffset | ((uint64_t)s.column_) << kColOffset;
 	return std::hash<uint64_t>()(input); 
       }
     };
