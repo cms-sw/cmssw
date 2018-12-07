@@ -224,10 +224,14 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   cutsCfg_.minEOverPEndcaps = cfg.getParameter<double>("minEOverPEndcaps") ;
 
   // H/E
-  cutsCfg_.maxHOverEBarrel = cfg.getParameter<double>("maxHOverEBarrel") ;
-  cutsCfg_.maxHOverEEndcaps = cfg.getParameter<double>("maxHOverEEndcaps") ;
-  cutsCfg_.maxHBarrel = cfg.getParameter<double>("maxHBarrel") ;
-  cutsCfg_.maxHEndcaps = cfg.getParameter<double>("maxHEndcaps") ;
+  cutsCfg_.maxHOverEBarrelCone = cfg.getParameter<double>("maxHOverEBarrelCone") ;
+  cutsCfg_.maxHOverEEndcapsCone = cfg.getParameter<double>("maxHOverEEndcapsCone") ;
+  cutsCfg_.maxHBarrelCone = cfg.getParameter<double>("maxHBarrelCone") ;
+  cutsCfg_.maxHEndcapsCone = cfg.getParameter<double>("maxHEndcapsCone") ;
+  cutsCfg_.maxHOverEBarrelTower = cfg.getParameter<double>("maxHOverEBarrelTower") ;
+  cutsCfg_.maxHOverEEndcapsTower = cfg.getParameter<double>("maxHOverEEndcapsTower") ;
+  cutsCfg_.maxHBarrelTower = cfg.getParameter<double>("maxHBarrelTower") ;
+  cutsCfg_.maxHEndcapsTower = cfg.getParameter<double>("maxHEndcapsTower") ;
 
   cutsCfg_.maxDeltaEtaBarrel = cfg.getParameter<double>("maxDeltaEtaBarrel") ;
   cutsCfg_.maxDeltaEtaEndcaps = cfg.getParameter<double>("maxDeltaEtaEndcaps") ;
@@ -253,10 +257,14 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   cutsCfgPflow_.minEOverPEndcaps = cfg.getParameter<double>("minEOverPEndcapsPflow") ;
 
   // H/E
-  cutsCfgPflow_.maxHOverEBarrel = cfg.getParameter<double>("maxHOverEBarrelPflow") ;
-  cutsCfgPflow_.maxHOverEEndcaps = cfg.getParameter<double>("maxHOverEEndcapsPflow") ;
-  cutsCfgPflow_.maxHBarrel = cfg.getParameter<double>("maxHBarrelPflow") ;
-  cutsCfgPflow_.maxHEndcaps = cfg.getParameter<double>("maxHEndcapsPflow") ;
+  cutsCfgPflow_.maxHOverEBarrelCone = cfg.getParameter<double>("maxHOverEBarrelPflowCone") ;
+  cutsCfgPflow_.maxHOverEEndcapsCone = cfg.getParameter<double>("maxHOverEEndcapsPflowCone") ;
+  cutsCfgPflow_.maxHBarrelCone = cfg.getParameter<double>("maxHBarrelPflowCone") ;
+  cutsCfgPflow_.maxHEndcapsCone = cfg.getParameter<double>("maxHEndcapsPflowCone") ;
+  cutsCfgPflow_.maxHOverEBarrelTower = cfg.getParameter<double>("maxHOverEBarrelPflowTower") ;
+  cutsCfgPflow_.maxHOverEEndcapsTower = cfg.getParameter<double>("maxHOverEEndcapsPflowTower") ;
+  cutsCfgPflow_.maxHBarrelTower = cfg.getParameter<double>("maxHBarrelPflowTower") ;
+  cutsCfgPflow_.maxHEndcapsTower = cfg.getParameter<double>("maxHEndcapsPflowTower") ;
 
   cutsCfgPflow_.maxDeltaEtaBarrel = cfg.getParameter<double>("maxDeltaEtaBarrelPflow") ;
   cutsCfgPflow_.maxDeltaEtaEndcaps = cfg.getParameter<double>("maxDeltaEtaEndcapsPflow") ;
@@ -443,10 +451,10 @@ void GsfElectronBaseProducer::checkEcalSeedingParameters( edm::ParameterSet cons
    {
     if ((hcalCfg_.hOverEConeSize!=0)&&(hcalCfg_.hOverEConeSize!=seedConfiguration.getParameter<double>("hOverEConeSize")))
      { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The H/E cone size ("<<hcalCfg_.hOverEConeSize<<") is different from ecal seeding ("<<seedConfiguration.getParameter<double>("hOverEConeSize")<<")." ; }
-    if (cutsCfg_.maxHOverEBarrel<seedConfiguration.getParameter<double>("maxHOverEBarrel"))
-     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max barrel H/E is lower than during ecal seeding." ; }
-    if (cutsCfg_.maxHOverEEndcaps<seedConfiguration.getParameter<double>("maxHOverEEndcaps"))
-     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max endcaps H/E is lower than during ecal seeding." ; }
+    if (cutsCfg_.maxHOverEBarrelCone<seedConfiguration.getParameter<double>("maxHOverEBarrel"))
+     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max barrel cone H/E is lower than during ecal seeding." ; }
+    if (cutsCfg_.maxHOverEEndcapsCone<seedConfiguration.getParameter<double>("maxHOverEEndcaps"))
+     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max endcaps cone H/E is lower than during ecal seeding." ; }
    }
 
   if (cutsCfg_.minSCEtBarrel<seedConfiguration.getParameter<double>("SCEtCut"))
