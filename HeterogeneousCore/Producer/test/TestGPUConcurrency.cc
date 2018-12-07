@@ -21,7 +21,7 @@ void TestGPUConcurrency::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<uint32_t>("blocks", 100);
   desc.add<uint32_t>("threads", 256);
   desc.add<uint32_t>("sleep", 1000000);
-  descriptions.add("testHeterogeneousEDProducerGPU", desc);
+  descriptions.add("testGPUConcurrency", desc);
 }
 
 void TestGPUConcurrency::beginStreamGPUCuda(edm::StreamID streamId, cuda::stream_t<>& cudaStream)

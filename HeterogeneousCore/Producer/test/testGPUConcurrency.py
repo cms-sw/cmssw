@@ -18,8 +18,8 @@ process.options = cms.untracked.PSet(
 )
 
 # Path and EndPath definitions
-from HeterogeneousCore.Producer.testHeterogeneousEDProducerGPU_cfi import testHeterogeneousEDProducerGPU
-process.testGPU = testHeterogeneousEDProducerGPU.clone()
+from HeterogeneousCore.Producer.testGPUConcurrency_cfi import testGPUConcurrency
+process.testGPU = testGPUConcurrency.clone()
 process.testGPU.sleep = 1000000
 process.testGPU.blocks = 100000
 process.testGPU.threads = 256
