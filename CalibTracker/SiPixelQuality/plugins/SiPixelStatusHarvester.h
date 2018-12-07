@@ -13,6 +13,8 @@
 
 // PixelDQM Framework
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
+// PixelPhase1 HelperClass
+#include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
 
 class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks>,
                                private HistogramManagerHolder {
@@ -61,10 +63,14 @@ private:
   const SiPixelFedCabling* cablingMap_ = nullptr;
   std::map<int, unsigned int> sensorSize_;
 
+  SiPixelCoordinates coord_;
+
   // pixel online to offline pixel row/column
   std::map<int, std::map<int, std::pair<int, int> > > pixelO2O_;
 
   //Helper functions
+
+  double perLayerRingAverage(int detid, SiPixelDetectorStatus tmpSiPixelStatus);
 
   // "step function" for IOV
   edm::LuminosityBlockNumber_t stepIOV(edm::LuminosityBlockNumber_t pin,
