@@ -1,0 +1,5 @@
+<use  name="HeterogeneousCore/CUDAServices"/>
+<use  name="cuda"/>
+<bin  file="testCUDAService.cpp test_main.cpp" name="testCUDAService">
+  <use name="catch2"/>
+</bin>

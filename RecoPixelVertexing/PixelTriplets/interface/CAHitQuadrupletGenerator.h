@@ -41,7 +41,7 @@ public:
     ~CAHitQuadrupletGenerator() = default;
 
     static void fillDescriptions(edm::ParameterSetDescription& desc);
-    static const char *fillDescriptionsLabel() { return "caHitQuadruplet"; }
+    static const char *fillDescriptionsLabel() { return "caHitQuadrupletDefault"; }
 
     void initEvent(const edm::Event& ev, const edm::EventSetup& es);
 

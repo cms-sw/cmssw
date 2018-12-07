@@ -63,6 +63,10 @@ def _allToBTV(s):
     return s.replace("All", "BTV-like")
 def _ptCut(s):
     return s.replace("Tracks", "Tracks pT &gt; 0.9 GeV").replace("tracks", "tracks pT &gt; 0.9 GeV")
+def _allToPixel(s):
+    return s.replace("All", "Pixel")
+def _toPixel(s):
+    return s.replace("Tracks", "Pixel tracks")
 _trackQualityNameOrder = collections.OrderedDict([
     ("seeding_seeds", "Seeds"),
     ("seeding_seedsa", "Seeds A"),
@@ -194,6 +198,9 @@ _sectionNameMapOrder = collections.OrderedDict([
     ("bhadron_highPurity", _allToHP(_bhadronName)),
     # Pixel tracks
     ("pixel", "Pixel tracks"),
+    ("pixelFromPV", _toPixel(_fromPVName)),
+    ("pixelFromPVAllTP", _toPixel(_fromPVAllTPName)),
+    ("pixelbhadron", _allToPixel(_bhadronName)),
     # These are for vertices
     ("genvertex", "Gen vertices"),
     ("pixelVertices", "Pixel vertices"),
@@ -242,6 +249,9 @@ def _sectionNameLegend():
         "bhadron_": _bhadronLegend,
         "bhadron_highPurity": _allToHP(_bhadronLegend),
         "bhadron_btvLike": _bhadronLegend.replace("All tracks", _btvLegend),
+        "pixelFromPV": _fromPVLegend,
+        "pixelFromPVAllTP": _fromPVAllTPLegend,
+        "pixelbhadron": _bhadronLegend,
     }
 
 class Table:
