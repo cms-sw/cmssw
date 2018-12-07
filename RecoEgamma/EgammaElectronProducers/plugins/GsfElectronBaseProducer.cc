@@ -103,10 +103,14 @@ void GsfElectronBaseProducer::fillDescriptions( edm::ConfigurationDescriptions &
     psd0.add<double>("maxDeltaPhiEndcaps", 999999999.0);
     psd0.add<double>("hOverEConeSize", 0.15);
     psd0.add<double>("hOverEPtMin", 0.0);
-    psd0.add<double>("maxHOverEBarrel", 999999999.0);
-    psd0.add<double>("maxHOverEEndcaps", 999999999.0);
-    psd0.add<double>("maxHBarrel", 0.0);
-    psd0.add<double>("maxHEndcaps", 0.0);
+    psd0.add<double>("maxHOverEBarrelCone", 999999999.0);
+    psd0.add<double>("maxHOverEEndcapsCone", 999999999.0);
+    psd0.add<double>("maxHBarrelCone", 0.0);
+    psd0.add<double>("maxHEndcapsCone", 0.0);
+    psd0.add<double>("maxHOverEBarrelTower", 999999999.0);
+    psd0.add<double>("maxHOverEEndcapsTower", 999999999.0);
+    psd0.add<double>("maxHBarrelTower", 0.0);
+    psd0.add<double>("maxHEndcapsTower", 0.0);
     psd0.add<double>("maxSigmaIetaIetaBarrel", 999999999.0);
     psd0.add<double>("maxSigmaIetaIetaEndcaps", 999999999.0);
     psd0.add<double>("maxFbremBarrel", 999999999.0);
@@ -180,10 +184,14 @@ namespace {
         .maxEOverPEndcaps = pset.getParameter<double>("maxEOverPEndcaps"),
         .minEOverPBarrel = pset.getParameter<double>("minEOverPBarrel"),
         .minEOverPEndcaps = pset.getParameter<double>("minEOverPEndcaps"),
-        .maxHOverEBarrel = pset.getParameter<double>("maxHOverEBarrel"),
-        .maxHOverEEndcaps = pset.getParameter<double>("maxHOverEEndcaps"),
-        .maxHBarrel = pset.getParameter<double>("maxHBarrel"),
-        .maxHEndcaps = pset.getParameter<double>("maxHEndcaps"),
+        .maxHOverEBarrelCone = pset.getParameter<double>("maxHOverEBarrelCone"),
+        .maxHOverEEndcapsCone = pset.getParameter<double>("maxHOverEEndcapsCone"),
+        .maxHBarrelCone = pset.getParameter<double>("maxHBarrelCone"),
+        .maxHEndcapsCone = pset.getParameter<double>("maxHEndcapsCone"),
+        .maxHOverEBarrelTower = pset.getParameter<double>("maxHOverEBarrelTower"),
+        .maxHOverEEndcapsTower = pset.getParameter<double>("maxHOverEEndcapsTower"),
+        .maxHBarrelTower = pset.getParameter<double>("maxHBarrelTower"),
+        .maxHEndcapsTower = pset.getParameter<double>("maxHEndcapsTower"),
         .maxDeltaEtaBarrel = pset.getParameter<double>("maxDeltaEtaBarrel"),
         .maxDeltaEtaEndcaps = pset.getParameter<double>("maxDeltaEtaEndcaps"),
         .maxDeltaPhiBarrel = pset.getParameter<double>("maxDeltaPhiBarrel"),
@@ -394,10 +402,10 @@ void GsfElectronBaseProducer::checkEcalSeedingParameters( edm::ParameterSet cons
    {
     if ((hcalCfg_.hOverEConeSize!=0)&&(hcalCfg_.hOverEConeSize!=seedConfiguration.getParameter<double>("hOverEConeSize")))
      { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The H/E cone size ("<<hcalCfg_.hOverEConeSize<<") is different from ecal seeding ("<<seedConfiguration.getParameter<double>("hOverEConeSize")<<")." ; }
-    if (cutsCfg_.maxHOverEBarrel<seedConfiguration.getParameter<double>("maxHOverEBarrel"))
-     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max barrel H/E is lower than during ecal seeding." ; }
-    if (cutsCfg_.maxHOverEEndcaps<seedConfiguration.getParameter<double>("maxHOverEEndcaps"))
-     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max endcaps H/E is lower than during ecal seeding." ; }
+    if (cutsCfg_.maxHOverEBarrelCone<seedConfiguration.getParameter<double>("maxHOverEBarrel"))
+     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max barrel cone H/E is lower than during ecal seeding." ; }
+    if (cutsCfg_.maxHOverEEndcapsCone<seedConfiguration.getParameter<double>("maxHOverEEndcaps"))
+     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max endcaps cone H/E is lower than during ecal seeding." ; }
    }
 
   if (cutsCfg_.minSCEtBarrel<seedConfiguration.getParameter<double>("SCEtCut"))
