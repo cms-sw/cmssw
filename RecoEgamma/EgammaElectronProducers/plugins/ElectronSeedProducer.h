@@ -64,7 +64,6 @@ class ElectronSeedProducer : public edm::stream::EDProducer<>
     
     edm::EDGetTokenT<reco::SuperClusterCollection> superClusters_[2] ;
     std::vector<edm::EDGetTokenT<TrajectorySeedCollection>> initialSeeds_ ;
-    edm::EDGetTokenT<std::vector<reco::Vertex> > filterVtxTag_;
     edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_ ;
     edm::EDGetTokenT<EcalRecHitCollection> ebRecHitCollection_;
     edm::EDGetTokenT<EcalRecHitCollection> eeRecHitCollection_;
