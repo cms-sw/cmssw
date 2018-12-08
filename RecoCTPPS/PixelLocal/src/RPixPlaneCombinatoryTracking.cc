@@ -523,26 +523,54 @@ void RPixPlaneCombinatoryTracking::addRecoInfo(int run)
   unsigned short recoInfo = 0;
 
   std::vector<CTPPSPixelLocalTrack> localTrackVectorWithRecoInfo;
-  std::vector<int> periodLimits = {300802,303338,305169,305965};
-  std::map< unsigned short, std::map< CTPPSPixelDetId,std::vector<bool> > > isPlaneShifted;
-  unsigned short shiftedROC = -1;
+
+  // These variables hold the information of the runs when the detector was taking data in 3+3 Mode and which planes were bx-shifted
+  // These values will never be changed and the 3+3 Mode will never be used again in the future
+  const std::vector<int> periodLimits = {300802,303338,305169,305965};
+  const std::map< unsigned short, std::map< CTPPSPixelDetId,std::vector<bool> > > isPlaneShifted =
+  {
+    {
+      0,{
+        {CTPPSPixelDetId(0,2,3),{0,0,0,0,0,0}}, // Shift Period 0 Sec45
+        {CTPPSPixelDetId(1,2,3),{0,0,0,0,0,0}}  // Shift Period 1 Sec45
+      }
+    },
+    {
+      1,{
+        {CTPPSPixelDetId(0,2,3),{1,0,1,1,0,0}}, // Shift Period 1 Sec45
+        {CTPPSPixelDetId(1,2,3),{0,0,0,0,0,0}}  // Shift Period 1 Sec56
+      }
+    },
+    {
+      2,{
+        {CTPPSPixelDetId(0,2,3),{0,0,0,0,0,0}}, // Shift Period 2 Sec45
+        {CTPPSPixelDetId(1,2,3),{0,0,0,0,0,0}}  // Shift Period 2 Sec56
+      }
+    },
+    {
+      3,{
+        {CTPPSPixelDetId(0,2,3),{0,1,0,1,0,1}}, // Shift Period 3 Sec45
+        {CTPPSPixelDetId(1,2,3),{0,0,0,0,0,0}}  // Shift Period 3 Sec56
+      }
+    },
+    {
+      4,{
+        {CTPPSPixelDetId(0,2,3),{0,1,0,1,0,1}}, // Shift Period 4 Sec45
+        {CTPPSPixelDetId(1,2,3),{0,0,1,0,1,1}}  // Shift Period 4 Sec56
+      }
+    }
+  };
+  unsigned short shiftedROC = 10;
   CTPPSPixelIndices pixelIndices;
 
   // Selecting the shifted ROC
   if(romanPotId_.arm() == 0) shiftedROC = 0;
-  else shiftedROC = 5;
+  if(romanPotId_.arm() == 1) shiftedROC = 5;
 
-  // Setting the shifted planes during Shift Periods
-  isPlaneShifted[0][CTPPSPixelDetId(0,2,3)] = {0,0,0,0,0,0}; // Shift Period 0 Sec45
-  isPlaneShifted[0][CTPPSPixelDetId(1,2,3)] = {0,0,0,0,0,0}; // Shift Period 0 Sec56
-  isPlaneShifted[1][CTPPSPixelDetId(0,2,3)] = {1,0,1,1,0,0}; // Shift Period 1 Sec45
-  isPlaneShifted[1][CTPPSPixelDetId(1,2,3)] = {0,0,0,0,0,0}; // Shift Period 1 Sec56
-  isPlaneShifted[2][CTPPSPixelDetId(0,2,3)] = {0,0,0,0,0,0}; // Shift Period 2 Sec45
-  isPlaneShifted[2][CTPPSPixelDetId(1,2,3)] = {0,0,0,0,0,0}; // Shift Period 2 Sec56
-  isPlaneShifted[3][CTPPSPixelDetId(0,2,3)] = {0,1,0,1,0,1}; // Shift Period 3 Sec45
-  isPlaneShifted[3][CTPPSPixelDetId(1,2,3)] = {0,0,0,0,0,0}; // Shift Period 3 Sec56
-  isPlaneShifted[4][CTPPSPixelDetId(0,2,3)] = {0,1,0,1,0,1}; // Shift Period 4 Sec45
-  isPlaneShifted[4][CTPPSPixelDetId(1,2,3)] = {0,0,1,0,1,1}; // Shift Period 4 Sec56
+  if(shiftedROC == 10){
+      edm::LogError("RPixPlaneCombinatoryTracking") << "Error in RPixPlaneCombinatoryTracking::addRecoInfo -> " << "Unidentified ROC to be shifted, skipping addRecoInfo.";
+      return;
+  }
 
   for(const auto & limit : periodLimits){
     if (run >= limit) shiftPeriod++;
@@ -568,7 +596,7 @@ void RPixPlaneCombinatoryTracking::addRecoInfo(int run)
       for(const auto & hit : planeHits){
         if(hit.getIsUsedForFit()){
           if(pixelIndices.getROCId(hit.minPixelCol(),hit.minPixelRow()) == shiftedROC) hitInShiftedROC++; // Count how many hits are in the shifted ROC
-          if(isPlaneShifted[shiftPeriod][romanPotId_].at(plane)) bxShiftedPlanesUsed++; // Count how many bx-shifted planes are used
+          if(isPlaneShifted.at(shiftPeriod).at(romanPotId_).at(plane)) bxShiftedPlanesUsed++; // Count how many bx-shifted planes are used
           else bxNonShiftedPlanesUsed++; // Count how many non-bx-shifted planes are used
         }
       }
