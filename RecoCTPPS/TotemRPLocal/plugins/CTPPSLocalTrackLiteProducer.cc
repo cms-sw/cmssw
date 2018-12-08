@@ -172,8 +172,8 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
   desc.add<bool>( "doNothing", true ) // disable the module by default
     ->setComment( "disable the module" );
 
-  desc.add<std::vector<double> >("pixelTrackTxRange",std::vector<double>({-0.03,0.03}) );
-  desc.add<std::vector<double> >("pixelTrackTyRange",std::vector<double>({-0.04,0.04}) );
+  desc.add<std::vector<double> >("pixelTrackTxRange",std::vector<double>({-10.0,10.0}) );
+  desc.add<std::vector<double> >("pixelTrackTyRange",std::vector<double>({-10.0,10.0}) );
 
   descr.add( "ctppsLocalTrackLiteDefaultProducer", desc );
 }
