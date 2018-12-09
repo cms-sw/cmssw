@@ -22,6 +22,7 @@ from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
+from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -139,6 +140,9 @@ nanoSequenceFS = cms.Sequence(genParticleSequence + particleLevelSequence + nano
 nanoSequenceMC = nanoSequenceFS.copy()
 nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnlyFullSim)
 
+extraFlagsProducersNano102x = extraFlagsProducers.copy()
+extraFlagsProducersNano102x.insert(extraFlagsProducers.index(BadChargedCandidateTagger)+1,ecalBadCalibFilterTagger)
+run2_nanoAOD_102Xv1.toModify(extraFlagsTable, variables = dict(Flag_EcalBadCalibFlag = ExtVar(cms.InputTag("ecalBadCalibFilterTagger"), bool, doc = "Bad ECAL calib flag")))
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
@@ -295,3 +299,11 @@ _80x_sequence.insert(_80x_sequence.index(jetSequence), extraFlagsProducers)
 _80x_sequence.insert(_80x_sequence.index(simpleCleanerTable)+1, extraFlagsTable)
 
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceCommon, _80x_sequence)
+
+_102x_sequence = nanoSequenceCommon.copy()
+#add stuff
+_102x_sequence.insert(_102x_sequence.index(jetSequence),extraFlagsProducersNano102x)
+_102x_sequence.insert(_102x_sequence.index(simpleCleanerTable)+1,extraFlagsTable)
+
+run2_nanoAOD_102Xv1.toReplaceWith(nanoSequenceCommon, _102x_sequence)
+
