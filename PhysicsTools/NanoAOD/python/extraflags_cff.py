@@ -36,3 +36,9 @@ extraFlagsTable = cms.EDProducer("GlobalVariablesTableProducer",
 )
 
 extraFlagsProducers = cms.Sequence(badGlobalMuonTagger + cloneGlobalMuonTagger + BadPFMuonTagger + BadChargedCandidateTagger)
+
+from RecoMET.METFilters.ecalBadCalibFilter_cfi import *
+ecalBadCalibFilterTagger = ecalBadCalibFilter.clone(
+    taggingMode = cms.bool(True)
+)
+
