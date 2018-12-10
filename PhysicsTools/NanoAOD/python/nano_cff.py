@@ -140,9 +140,9 @@ nanoSequenceFS = cms.Sequence(genParticleSequence + particleLevelSequence + nano
 nanoSequenceMC = nanoSequenceFS.copy()
 nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnlyFullSim)
 
-extraFlagsProducersNano102x = extraFlagsProducers.copy()
-extraFlagsProducersNano102x.insert(extraFlagsProducers.index(BadChargedCandidateTagger)+1,ecalBadCalibFilterTagger)
-run2_nanoAOD_102Xv1.toModify(extraFlagsTable, variables = dict(Flag_EcalBadCalibFlag = ExtVar(cms.InputTag("ecalBadCalibFilterTagger"), bool, doc = "Bad ECAL calib flag")))
+# modify extraFlagsTable to store ecalBadCalibFilter decision which is re-run with updated bad crystal list when modifier run2_nanoAOD_102xv1 is activated
+run2_nanoAOD_102Xv1.toModify(extraFlagsTable, variables= cms.PSet())
+run2_nanoAOD_102Xv1.toModify(extraFlagsTable, variables = dict(Flag_ecalBadCalibFilter = ExtVar(cms.InputTag("ecalBadCalibFilterTagger"), bool, doc = "Bad ECAL calib flag")))
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
@@ -302,7 +302,7 @@ run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceCommon, _80x_sequence)
 
 _102x_sequence = nanoSequenceCommon.copy()
 #add stuff
-_102x_sequence.insert(_102x_sequence.index(jetSequence),extraFlagsProducersNano102x)
+_102x_sequence.insert(_102x_sequence.index(jetSequence),extraFlagsProducers102x)
 _102x_sequence.insert(_102x_sequence.index(simpleCleanerTable)+1,extraFlagsTable)
 
 run2_nanoAOD_102Xv1.toReplaceWith(nanoSequenceCommon, _102x_sequence)
