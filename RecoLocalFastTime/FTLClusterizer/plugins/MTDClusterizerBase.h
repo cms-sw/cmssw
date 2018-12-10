@@ -8,6 +8,7 @@
 #include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
 
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 
 #include <vector>
 
@@ -59,6 +60,7 @@ public:
   // Build clusters 
   virtual void clusterize( const FTLRecHitCollection & input,	
 			   const MTDGeometry* geom,
+			   const MTDTopology* topo,
 			   FTLClusterCollection& output) = 0;  
 };
 

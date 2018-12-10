@@ -57,6 +57,7 @@ class MTDThresholdClusterizer : public MTDClusterizerBase {
   // Full I/O in DetSet
   void clusterize( const FTLRecHitCollection & input,	
 		   const MTDGeometry * geom,
+		   const MTDTopology * topo,
 		   FTLClusterCollection& output) override; 
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
@@ -80,7 +81,7 @@ class MTDThresholdClusterizer : public MTDClusterizerBase {
 
   DetId currentId;
 
-  bool setup(const MTDGeometry * geometry, const DetId& id);
+  bool setup(const MTDGeometry * geometry, const MTDTopology * topo, const DetId& id);
   void copy_to_buffer( RecHitIterator itr);   
   void clear_buffer( RecHitIterator itr);
   FTLCluster make_cluster( const FTLCluster::FTLHitPos& hit );
