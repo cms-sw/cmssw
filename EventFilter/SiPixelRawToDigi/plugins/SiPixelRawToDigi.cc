@@ -59,7 +59,10 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   }
   tFEDRawDataCollection = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("InputLabel"));
   
-  theBadPixelFEDChannelsLabel = consumes<PixelFEDChannelCollection>(edm::InputTag("simSiPixelDigisPixelFEDChannelCollection"));
+  //theBadPixelFEDChannelsLabel = consumes<PixelFEDChannelCollection>(edm::InputTag("simSiPixelDigis"));
+  theBadPixelFEDChannelsLabel = consumes<PixelFEDChannelCollection>(edm::InputTag("mix"));
+  
+  //  theBadPixelFEDChannelsLabel = consumes<PixelFEDChannelCollection>(edm::InputTag("PixelFEDChannelCollection","simSiPixelDigis"));
   //start counters
   ndigis = 0;
   nwords = 0;
@@ -323,6 +326,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   edm::Handle<PixelFEDChannelCollection> pixelFEDChannelCollectionHandle;
   std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_ = nullptr;  
   if (ev.getByToken(theBadPixelFEDChannelsLabel, pixelFEDChannelCollectionHandle)){
+    
     const PixelFEDChannelCollection * pfcc= pixelFEDChannelCollectionHandle.product();
     PixelFEDChannelCollection_ = std::make_unique<PixelFEDChannelCollection>(*pfcc);
   }

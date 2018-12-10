@@ -102,7 +102,8 @@ namespace cms
     
     mixMod.produces<edm::DetSetVector<PixelDigi> >().setBranchAlias(alias);
     mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >().setBranchAlias(alias + "siPixelDigiSimLink");
-    mixMod.produces<PixelFEDChannelCollection>().setBranchAlias(alias + "PixelFEDChannelCollection");
+    
+
     for(auto const& trackerContainer : trackerContainers) {
       edm::InputTag tag(hitsProducer, trackerContainer);
       iC.consumes<std::vector<PSimHit> >(edm::InputTag(hitsProducer, trackerContainer));
@@ -116,6 +117,9 @@ namespace cms
     }
 
     _pixeldigialgo.reset(new SiPixelDigitizerAlgorithm(iConfig));
+    if (_pixeldigialgo->killBadFEDChannels()){
+      mixMod.produces<PixelFEDChannelCollection>().setBranchAlias(alias + "PixelFEDChannelCollection");
+    }
   }
   
   SiPixelDigitizer::~SiPixelDigitizer(){  
