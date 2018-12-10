@@ -76,7 +76,7 @@ namespace {
                      const std::vector<float>& mvas,
                      unsigned int selectsLoose, unsigned int selectsHP) {
     // Fill MVA1 histos with all tracks, MVA2 histos only with tracks
-    // not selected by MVA1, etc. 
+    // not selected by MVA1, etc.
     for(size_t i=0; i<mvas.size(); ++i) {
       if(i<=selectsLoose) {
         h_mva[i].fill(mvas[i]);
@@ -170,6 +170,11 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   mindr  = pset.getParameter<double>("mindr");
   maxdr  = pset.getParameter<double>("maxdr");
   nintdr = pset.getParameter<int>("nintdr");
+
+  //parameters for _vs_dR_jet plots
+  mindrj  = pset.getParameter<double>("mindrj");
+  maxdrj  = pset.getParameter<double>("maxdrj");
+  nintdrj = pset.getParameter<int>("nintdrj");
 
   // paramers for _vs_chi2 plots
   minChi2  = pset.getParameter<double>("minChi2");
@@ -404,6 +409,9 @@ void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::ConcurrentBook
 
   histograms.h_assocdr.push_back( make1DIfLogX(ibook, true, "num_assoc(simToReco)_dr","N of associated tracks (simToReco) vs dR",nintdr,log10(mindr),log10(maxdr)) );
   histograms.h_simuldr.push_back( make1DIfLogX(ibook, true, "num_simul_dr","N of simulated tracks vs dR",nintdr,log10(mindr),log10(maxdr)) );
+  histograms.h_simuldrj.push_back( make1DIfLogX(ibook, true, "num_simul_drj","N of simulated tracks vs dR(trak,jet)",nintdrj,log10(mindrj),log10(maxdrj)) );
+  histograms.h_assocdr.push_back( make1DIfLogX(ibook, true, "num_assoc(simToReco)_drj","N of associated tracks (simToReco) vs dR(trak,jet)",nintdrj,log10(mindrj),log10(maxdrj)) );
+
 
   histograms.h_simul_simpvz.push_back( ibook.book1D("num_simul_simpvz", "N of simulated tracks vs. sim PV z", nintPVz, minPVz, maxPVz) );
   histograms.h_assoc_simpvz.push_back( ibook.book1D("num_assoc(simToReco)_simpvz", "N of associated tracks (simToReco) vs. sim PV z", nintPVz, minPVz, maxPVz) );
@@ -882,6 +890,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(const H
 									 const reco::Track* track,
 									 int numVertices,
 									 double dR,
+                   double dRJet,
 									 const math::XYZPoint *pvPosition,
                                                                          const TrackingVertex::LorentzVector *simPVPosition,
                                                                          const math::XYZPoint& bsPosition,
@@ -942,6 +951,9 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(const H
     //efficiency vs dR
     histograms.h_simuldr[count].fill(dR);
     if (isMatched) histograms.h_assocdr[count].fill(dR);
+    //efficiency vs dR jet
+    histograms.h_simuldrj[count].fill(dRJet);
+    if (isMatched) histograms.h_assocdrj[count].fill(dRJet);
   }
 
   if((*TpSelectorForEfficiencyVsPt)(tp)){

@@ -11,17 +11,17 @@ multiTrackValidator = cms.EDAnalyzer(
     ### general settings ###
     # selection of TP for evaluation of efficiency #
     TrackingParticleSelectionForEfficiency,
-    
+
     # HistoProducerAlgo. Defines the set of plots to be booked and filled
     histoProducerAlgoBlock = MTVHistoProducerAlgoForTrackerBlock,
 
     # set true if you do not want that MTV launch an exception
     # if the track collectio is missing (e.g. HLT):
     ignoremissingtrackcollection=cms.untracked.bool(False),
-    
+
     useGsf=cms.bool(False),
 
-    
+
     ### matching configuration ###
     # Example of TP-Track map
     associators = cms.untracked.VInputTag("trackingParticleRecoTrackAsssociation"),
@@ -70,7 +70,7 @@ multiTrackValidator = cms.EDAnalyzer(
     ### dE/dx configuration ###
     dEdx1Tag = cms.InputTag("dedxHarmonic2"),
     dEdx2Tag = cms.InputTag("dedxTruncated40"),
-    
+
     ### output configuration
     dirName = cms.string('Tracking/Track/'),
 
@@ -98,6 +98,9 @@ multiTrackValidator = cms.EDAnalyzer(
 
     ### do resolution plots only for these labels (or all if empty)
     doResolutionPlotsForLabels = cms.VInputTag(),
+
+    cores = cms.InputTag("ak4CaloJets"),
+    ptMinJet= cms.double(500)
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
