@@ -30,7 +30,7 @@
 class DDDetectorESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
 public:
   DDDetectorESProducer(const edm::ParameterSet&);
-  ~DDDetectorESProducer();
+  ~DDDetectorESProducer() override;
   
   using ReturnType = std::unique_ptr<cms::DDDetector>;
   

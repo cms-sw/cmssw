@@ -21,10 +21,10 @@ namespace {
   class VolumeProcessor : public dd4hep::PlacedVolumeProcessor {
   public:
     VolumeProcessor() = default;
-    virtual ~VolumeProcessor() = default;
+    ~VolumeProcessor() override = default;
     
     /// Callback to retrieve PlacedVolume information of an entire Placement
-    virtual int process(dd4hep::PlacedVolume pv, int level, bool recursive) {
+    int process(dd4hep::PlacedVolume pv, int level, bool recursive) override {
       m_volumes.emplace_back(pv.name());
       int ret = dd4hep::PlacedVolumeProcessor::process(pv, level, recursive);
       m_volumes.pop_back();
@@ -32,7 +32,7 @@ namespace {
     }
     
     /// Volume callback
-    virtual int operator()(dd4hep::PlacedVolume pv, int level) {
+    int operator()(dd4hep::PlacedVolume pv, int level) override {
       dd4hep::Volume vol = pv.volume();
       cout << "Hierarchical level:" << level << "   Placement:";
       for(const auto& i : m_volumes) cout << "/" << i;
