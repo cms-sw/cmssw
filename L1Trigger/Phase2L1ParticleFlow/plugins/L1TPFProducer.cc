@@ -18,6 +18,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/RegionMapper.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/PFAlgoBase.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/PFAlgo3.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/PFAlgo2HGC.h"
 
 //--------------------------------------------------------------------------------------------------
 class L1TPFProducer : public edm::stream::EDProducer<> {
@@ -92,6 +93,8 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig):
     auto algo = linkcfg.getParameter<std::string>("algo");
     if (algo == "PFAlgo3") {
         l1pfalgo_.reset(new l1tpf_impl::PFAlgo3(iConfig));
+    } else if (algo == "PFAlgo2HGC") {
+        l1pfalgo_.reset(new l1tpf_impl::PFAlgo2HGC(iConfig));
     } else if (algo == "BitwisePF") { // FIXME add back
         throw cms::Exception("Configuration", "FIXME: recover Bitwise PF");
     } else throw cms::Exception("Configuration", "Unsupported PFAlgo");
