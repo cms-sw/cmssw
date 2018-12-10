@@ -16,7 +16,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/LowPtGsfElectronSeedHeavyObjectCache.h"
@@ -43,7 +43,7 @@ class LowPtGsfElectronSeedProducer final : public edm::stream::EDProducer< edm::
 
   void produce( edm::Event&, const edm::EventSetup& ) override;
   
-  static void fillDescription( edm::ParameterSetDescription& );
+  static void fillDescriptions( edm::ConfigurationDescriptions& );
   
  private: // member functions
   
