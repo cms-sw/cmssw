@@ -12,9 +12,10 @@
 #include "DataFormats/FTLRecHit/interface/FTLRecHitCollections.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
+#include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
-
+#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 
 #include "MTDClusterizerBase.h"
 
@@ -28,7 +29,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/ESWatcher.h"
-#include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 
 class MTDClusterProducer : public edm::stream::EDProducer<> {
   public:
@@ -59,6 +59,8 @@ class MTDClusterProducer : public edm::stream::EDProducer<> {
 
     edm::ESWatcher<MTDDigiGeometryRecord> geomwatcher_;
     const MTDGeometry* geom_;
+    edm::ESWatcher<MTDTopologyRcd> topowatcher_;
+    const MTDTopology* topo_;
 };
 
 #endif

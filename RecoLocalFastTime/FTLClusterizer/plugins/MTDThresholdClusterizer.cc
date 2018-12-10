@@ -63,11 +63,10 @@ MTDThresholdClusterizer::fillDescriptions(edm::ConfigurationDescriptions& descri
 //!  Prepare the Clusterizer to work on a particular DetUnit.  Re-init the
 //!  size of the panel/plaquette (so update nrows and ncols), 
 //----------------------------------------------------------------------------
-bool MTDThresholdClusterizer::setup(const MTDGeometry* geom, const DetId& id) 
+bool MTDThresholdClusterizer::setup(const MTDGeometry* geom, const MTDTopology* topo, const DetId& id) 
 {
-
   currentId=id;
-  MTDDetId mtdid(id);    
+  MTDDetId mtdid(id);
   //using geopraphicalId here
   const auto& thedet = geom->idToDet(id);
   if( thedet == nullptr ) {
@@ -107,6 +106,7 @@ bool MTDThresholdClusterizer::setup(const MTDGeometry* geom, const DetId& id)
 //----------------------------------------------------------------------------
 void MTDThresholdClusterizer::clusterize( const FTLRecHitCollection & input,
 					  const MTDGeometry* geom,
+					  const MTDTopology* topo,
 					  FTLClusterCollection& output) {
   
   FTLRecHitCollection::const_iterator begin = input.begin();
@@ -140,7 +140,7 @@ void MTDThresholdClusterizer::clusterize( const FTLRecHitCollection & input,
       if ( mtdId.mtdSubDetector() == MTDDetId::BTL )
 	{
 	  BTLDetId hitId(hit.detid());
-	  DetId geoId = hitId.geographicalId();
+	  DetId geoId = hitId.geographicalId( (BTLDetId::CrysLayout) topo->getMTDTopologyMode() ); //for BTL topology gives different layout id
 	  geoIdToIdx.emplace(geoId,index);
 	  geoIds.emplace(geoId);
 	  ++index;
@@ -165,7 +165,7 @@ void MTDThresholdClusterizer::clusterize( const FTLRecHitCollection & input,
   //cluster hits within geoIds (modules)
   for(unsigned id : geoIds) {
     //  Set up the clusterization on this DetId.
-    if ( !setup(geom,DetId(id)) ) 
+    if ( !setup(geom,topo,DetId(id)) ) 
       return;
     
     auto range = geoIdToIdx.equal_range(id);

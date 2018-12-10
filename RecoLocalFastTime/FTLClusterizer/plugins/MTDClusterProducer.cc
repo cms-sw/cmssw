@@ -69,6 +69,11 @@ void MTDClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
     es.get<MTDDigiGeometryRecord>().get(geom);
     geom_ = geom.product();
   }
+  edm::ESHandle<MTDTopology> topo;
+  if( topowatcher_.check(es) || topo_ == nullptr ) {
+    es.get<MTDTopologyRcd>().get(topo);
+    topo_ = topo.product();
+  }
   
   // Step B: create the final output collection
   auto outputBarrel = std::make_unique< FTLClusterCollection>();
@@ -112,7 +117,7 @@ void MTDClusterProducer::run(const T                              & input,
     return;   // clusterizer is invalid, bail out
   }
   
-  clusterizer_->clusterize( input , geom_, output);
+  clusterizer_->clusterize( input , geom_, topo_, output);
   
   LogDebug ("MTDClusterProducer") << " Executing " 
 				  <<  clusterMode_ << " resulted in " << output.size()
