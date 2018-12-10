@@ -178,13 +178,14 @@ namespace mtd_digitizer {
 
   template<class Traits>
   void MTDDigitizer<Traits>::beginRun(const edm::EventSetup & es) {    
+
     edm::ESHandle<MTDGeometry> geom;
-    if( geom_ == nullptr ) {
-      es.get<MTDDigiGeometryRecord>().get(geom);
-      geom_ = geom.product();
-    }
+    es.get<MTDDigiGeometryRecord>().get(geom);
+    geom_ = geom.product();
+
     deviceSim_.getEventSetup(es);
     electronicsSim_.getEventSetup(es);
+
   }
 }
 

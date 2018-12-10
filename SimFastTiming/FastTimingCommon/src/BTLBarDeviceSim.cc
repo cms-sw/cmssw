@@ -22,16 +22,15 @@ BTLBarDeviceSim::BTLBarDeviceSim(const edm::ParameterSet& pset) :
   PDE_(pset.getParameter<double>("PhotonDetectionEff")) { }
 
 void BTLBarDeviceSim::getEventSetup(const edm::EventSetup& evs) {
+ 
   edm::ESHandle<MTDGeometry> geom;
-  if( geom_ == nullptr ) {
-    evs.get<MTDDigiGeometryRecord>().get(geom);
-    geom_ = geom.product();
-  }
+  evs.get<MTDDigiGeometryRecord>().get(geom);
+  geom_ = geom.product();
+
   edm::ESHandle<MTDTopology> mtdTopo;
-  if ( topo_ == nullptr ) {
-    evs.get<MTDTopologyRcd>().get(mtdTopo);
-    topo_ = mtdTopo.product();
-  }
+  evs.get<MTDTopologyRcd>().get(mtdTopo);
+  topo_ = mtdTopo.product();
+
 }
 
 void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,float> > &hitRefs, 

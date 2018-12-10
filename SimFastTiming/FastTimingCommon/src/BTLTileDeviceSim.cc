@@ -20,11 +20,11 @@ BTLTileDeviceSim::BTLTileDeviceSim(const edm::ParameterSet& pset) :
   PDE_(pset.getParameter<double>("PhotonDetectionEff")) { }
 
 void BTLTileDeviceSim::getEventSetup(const edm::EventSetup& evs) {
+
   edm::ESHandle<MTDGeometry> geom;
-  if ( geom_ == nullptr ) {
-    evs.get<MTDDigiGeometryRecord>().get(geom);
-    geom_ = geom.product();
-  }
+  evs.get<MTDDigiGeometryRecord>().get(geom);
+  geom_ = geom.product();
+
 }
 
 void BTLTileDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,float> > &hitRefs, 
