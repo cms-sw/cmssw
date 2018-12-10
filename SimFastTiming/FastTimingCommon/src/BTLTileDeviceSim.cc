@@ -11,6 +11,7 @@
 #include "CLHEP/Random/RandGaussQ.h"
 
 BTLTileDeviceSim::BTLTileDeviceSim(const edm::ParameterSet& pset) : 
+  geom_(nullptr),
   bxTime_(pset.getParameter<double>("bxTime") ),
   LightYield_(pset.getParameter<double>("LightYield")),
   LightCollEff_(pset.getParameter<double>("LightCollectionEff")),
@@ -20,7 +21,7 @@ BTLTileDeviceSim::BTLTileDeviceSim(const edm::ParameterSet& pset) :
 
 void BTLTileDeviceSim::getEventSetup(const edm::EventSetup& evs) {
   edm::ESHandle<MTDGeometry> geom;
-  if( geomwatcher_.check(evs) || geom_ == nullptr ) {
+  if ( geom_ == nullptr ) {
     evs.get<MTDDigiGeometryRecord>().get(geom);
     geom_ = geom.product();
   }

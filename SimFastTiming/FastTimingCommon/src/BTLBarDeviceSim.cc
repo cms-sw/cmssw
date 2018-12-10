@@ -12,6 +12,8 @@
 #include "CLHEP/Random/RandGaussQ.h"
 
 BTLBarDeviceSim::BTLBarDeviceSim(const edm::ParameterSet& pset) : 
+  geom_(nullptr),
+  topo_(nullptr),
   bxTime_(pset.getParameter<double>("bxTime") ),
   LightYield_(pset.getParameter<double>("LightYield")),
   LightCollEff_(pset.getParameter<double>("LightCollectionEff")),
@@ -21,12 +23,12 @@ BTLBarDeviceSim::BTLBarDeviceSim(const edm::ParameterSet& pset) :
 
 void BTLBarDeviceSim::getEventSetup(const edm::EventSetup& evs) {
   edm::ESHandle<MTDGeometry> geom;
-  if( geomwatcher_.check(evs) || geom_ == nullptr ) {
+  if( geom_ == nullptr ) {
     evs.get<MTDDigiGeometryRecord>().get(geom);
     geom_ = geom.product();
   }
   edm::ESHandle<MTDTopology> mtdTopo;
-  if ( topowatcher_.check(evs) || topo_ == nullptr ) {
+  if ( topo_ == nullptr ) {
     evs.get<MTDTopologyRcd>().get(mtdTopo);
     topo_ = mtdTopo.product();
   }

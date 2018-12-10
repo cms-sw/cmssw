@@ -15,7 +15,7 @@ ETLDeviceSim::ETLDeviceSim(const edm::ParameterSet& pset) :
 
 void ETLDeviceSim::getEventSetup(const edm::EventSetup& evs) {
   edm::ESHandle<MTDGeometry> geom;
-  if( geomwatcher_.check(evs) || geom_ == nullptr ) {
+  if ( geom_ == nullptr ) {
     evs.get<MTDDigiGeometryRecord>().get(geom);
     geom_ = geom.product();
   }  

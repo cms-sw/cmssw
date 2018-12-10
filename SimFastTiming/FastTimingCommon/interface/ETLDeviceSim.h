@@ -9,7 +9,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerTypes.h"
 
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 
@@ -36,7 +35,6 @@ class ETLDeviceSim {
 
  private:
 
-  edm::ESWatcher<MTDDigiGeometryRecord> geomwatcher_;
   const MTDGeometry* geom_;
 
   float MIPPerMeV_;

@@ -9,7 +9,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerTypes.h"
 
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
@@ -38,8 +37,6 @@ class BTLBarDeviceSim {
   
  private:
 
-  edm::ESWatcher<MTDDigiGeometryRecord> geomwatcher_;
-  edm::ESWatcher<MTDTopologyRcd> topowatcher_;
   const MTDGeometry* geom_;
   const MTDTopology* topo_;
 

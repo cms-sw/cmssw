@@ -11,7 +11,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
@@ -64,6 +63,7 @@ namespace mtd_digitizer {
 	       edm::ConsumesCollector& iC,
 	       edm::ProducerBase& parent) :
     MTDDigitizerBase(config,iC,parent),
+    geom_(nullptr),
     deviceSim_( config.getParameterSet("DeviceSimulation") ),
     electronicsSim_( config.getParameterSet("ElectronicsSimulation") ),        
     maxSimHitsAccTime_( config.getParameter< uint32_t >("maxSimHitsAccTime") ) { }
@@ -91,13 +91,12 @@ namespace mtd_digitizer {
     
   private :
 
-    edm::ESWatcher<MTDDigiGeometryRecord> geomwatcher_;   
-    const MTDGeometry* geom_;
-
     void resetSimHitDataAccumulator() {
       MTDSimHitDataAccumulator().swap(simHitAccumulator_);
     }
     
+    const MTDGeometry* geom_;
+
     // implementations
     DeviceSim deviceSim_;           // processes a given simhit into an entry in a MTDSimHitDataAccumulator
     ElectronicsSim electronicsSim_; // processes a MTDSimHitDataAccumulator into a BTLDigiCollection/ETLDigiCollection
@@ -180,7 +179,7 @@ namespace mtd_digitizer {
   template<class Traits>
   void MTDDigitizer<Traits>::beginRun(const edm::EventSetup & es) {    
     edm::ESHandle<MTDGeometry> geom;
-    if( geomwatcher_.check(es) || geom_ == nullptr ) {
+    if( geom_ == nullptr ) {
       es.get<MTDDigiGeometryRecord>().get(geom);
       geom_ = geom.product();
     }
