@@ -6,7 +6,13 @@
 
 //****************************************************************************//
 void SiPixelQualityProbabilities::setProbabilities(const unsigned int &puBin, const probabilityVec &theProbabilities) {
-  m_probabilities[puBin]=theProbabilities;
+
+  if( m_probabilities.find(puBin) != m_probabilities.end()){
+    edm::LogWarning("SiPixelQualityProbabilities") << "PU bin: " << puBin <<" is already in the map!"<<std::endl;
+    return;
+  } else {
+    m_probabilities.emplace(puBin,theProbabilities);
+  }
 }
 
 //****************************************************************************//
@@ -22,6 +28,10 @@ SiPixelQualityProbabilities::probabilityVec SiPixelQualityProbabilities::getProb
 
 //****************************************************************************//
 SiPixelQualityProbabilities::probabilityVec& SiPixelQualityProbabilities::getProbabilities(const unsigned int &puBin) {
+
+  if( m_probabilities.find(puBin) == m_probabilities.end()){
+    throw cms::Exception("SiPixelQualityProbabilities") << "PU bin: " << puBin <<" is not found in the map!"<<std::endl;
+  }
   return m_probabilities[puBin];
 }
 
@@ -41,6 +51,19 @@ void SiPixelQualityProbabilities::printAll() const {
 }
 
 //****************************************************************************//
+void SiPixelQualityProbabilities::print(std::stringstream & ss) const {
+
+  for(auto it = m_probabilities.begin(); it != m_probabilities.end() ; ++it){
+    ss<< "PU :"<< it->first << "  \n ";
+    for (const auto &entry : it->second){
+      ss<<"SiPixelQuality snapshot: " <<  entry.first << " |probability: " << entry.second <<  std::endl;
+    }
+  }
+
+}
+
+
+//****************************************************************************//
 std::vector<unsigned int> SiPixelQualityProbabilities::getPileUpBins() const {
   std::vector<unsigned int> bins;
   bins.reserve(m_probabilities.size());
@@ -49,4 +72,12 @@ std::vector<unsigned int> SiPixelQualityProbabilities::getPileUpBins() const {
     bins.push_back(it->first);
   }
   return bins;
+}
+
+//****************************************************************************//
+std::ostream & operator<<( std::ostream & os, SiPixelQualityProbabilities theProbabilities) {
+  std::stringstream ss;
+  theProbabilities.print( ss );
+  os << ss.str();
+  return os;
 }
