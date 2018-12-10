@@ -19,6 +19,7 @@
 <use   name="FastSimulation/CaloGeometryTools"/>
 <use   name="CalibFormats/CaloTPG"/>
 <use   name="L1Trigger/L1CaloTrigger"/>
+<use   name="DataFormats/L1THGCal"/>
 <use   name="root"/>
 <use   name="boost"/>
 <flags EDM_PLUGIN="1"/>

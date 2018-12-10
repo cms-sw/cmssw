@@ -51,6 +51,8 @@ Implementation:
 #include "DataFormats/Phase2L1CaloTrig/interface/L1CaloTower.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "DataFormats/L1THGCal/interface/HGCalTower.h"
+#include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -92,6 +94,8 @@ class L1CaloJetProducer : public edm::EDProducer {
         //double EtminForStore;
         double HcalTpEtMin;
         double EcalTpEtMin;
+        double HGCalHadTpEtMin;
+        double HGCalEmTpEtMin;
         double EtMinForSeedHit;
 
         // For fetching calibrations
@@ -110,6 +114,14 @@ class L1CaloJetProducer : public edm::EDProducer {
         edm::EDGetTokenT<l1slhc::L1EGCrystalClusterCollection> crystalClustersToken_;
         edm::Handle<l1slhc::L1EGCrystalClusterCollection> crystalClustersHandle;
         l1slhc::L1EGCrystalClusterCollection crystalClusters;
+
+        //edm::EDGetTokenT<l1t::HGCalMulticlusterBxCollection> hgcalClustersToken_;
+        //edm::Handle<l1t::HGCalMulticlusterBxCollection> hgcalClustersHandle;
+        //l1t::HGCalMulticlusterBxCollection hgcalClusters;
+
+        edm::EDGetTokenT<l1t::HGCalTowerBxCollection> hgcalTowersToken_;
+        edm::Handle<l1t::HGCalTowerBxCollection> hgcalTowersHandle;
+        l1t::HGCalTowerBxCollection hgcalTowers;
 
         edm::ESHandle<CaloGeometry> caloGeometry_;
         const CaloSubdetectorGeometry * hbGeometry;
@@ -281,6 +293,8 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     //EtminForStore(iConfig.getParameter<double>("EtminForStore")),
     HcalTpEtMin(iConfig.getParameter<double>("HcalTpEtMin")), // Should default to 0 MeV
     EcalTpEtMin(iConfig.getParameter<double>("EcalTpEtMin")), // Should default to 0 MeV
+    HGCalHadTpEtMin(iConfig.getParameter<double>("HGCalHadTpEtMin")), // Should default to 0 MeV
+    HGCalEmTpEtMin(iConfig.getParameter<double>("HGCalEmTpEtMin")), // Should default to 0 MeV
     EtMinForSeedHit(iConfig.getParameter<double>("EtMinForSeedHit")), // Should default to 2.5 GeV
     emFractionBins(iConfig.getParameter<std::vector<double>>("emFractionBins")),
     absEtaBins(iConfig.getParameter<std::vector<double>>("absEtaBins")),
@@ -288,7 +302,9 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     jetCalibrations(iConfig.getParameter<std::vector<double>>("jetCalibrations")),
     debug(iConfig.getParameter<bool>("debug")),
     l1TowerToken_(consumes< L1CaloTowerCollection >(iConfig.getParameter<edm::InputTag>("l1CaloTowers"))),
-    crystalClustersToken_(consumes<l1slhc::L1EGCrystalClusterCollection>(iConfig.getParameter<edm::InputTag>("L1CrystalClustersInputTag")))
+    crystalClustersToken_(consumes<l1slhc::L1EGCrystalClusterCollection>(iConfig.getParameter<edm::InputTag>("L1CrystalClustersInputTag"))),
+    //hgcalClustersToken_(consumes<l1t::HGCalMulticlusterBxCollection>(iConfig.getParameter<edm::InputTag>("L1HgcalClustersInputTag"))),
+    hgcalTowersToken_(consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("L1HgcalTowersInputTag")))
 
 {
     produces<l1slhc::L1CaloJetsCollection>("L1CaloJetsNoCuts");
@@ -370,6 +386,13 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     iEvent.getByToken(crystalClustersToken_,crystalClustersHandle);
     crystalClusters = (*crystalClustersHandle.product());
 
+
+    // HGCal into
+    iEvent.getByToken(hgcalTowersToken_,hgcalTowersHandle);
+    hgcalTowers = (*hgcalTowersHandle.product());
+    //iEvent.getByToken(hgcalClustersToken_,hgcalClustersHandle);
+    //hgcalClusters = (*hgcalClustersHandle.product());
+
     
     // Load the ECAL+HCAL tower sums coming from L1EGammaCrystalsEmulatorProducer.cc
     std::vector< SimpleCaloHit > l1CaloTowers;
@@ -393,6 +416,23 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         if (debug) printf("Tower iEta %i iPhi %i eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", (int)l1Hit.tower_iEta, (int)l1Hit.tower_iPhi, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
     }
 
+    // Loop over HGCalTowers and create SimpleCaloHits for them and add to collection
+    for (auto it = hgcalTowers.begin(0), ed = hgcalTowers.end(0); it != ed; ++it)
+    {
+        // skip lowest ET towers
+        if (it->etEm() < HGCalEmTpEtMin && it->etHad() < HGCalHadTpEtMin) continue;
+
+        SimpleCaloHit l1Hit;
+        l1Hit.ecal_tower_et  = it->etEm();
+        l1Hit.hcal_tower_et  = it->etHad();
+        l1Hit.total_tower_et  = l1Hit.ecal_tower_et + l1Hit.hcal_tower_et;
+        l1Hit.tower_iEta  = -9999;
+        l1Hit.tower_iPhi  = -9999;
+        l1Hit.tower_eta  = it->eta();
+        l1Hit.tower_phi  = it->phi();
+        l1CaloTowers.push_back( l1Hit );
+        if (debug) printf("Tower iEta %i iPhi %i eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", (int)l1Hit.tower_iEta, (int)l1Hit.tower_iPhi, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
+    }
 
     // Make simple L1objects from the L1EG input collection with marker for 'stale'
     // FIXME could later add quality criteria here to help differentiate likely
