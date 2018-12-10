@@ -792,14 +792,11 @@ bool SiPixelDigitizerAlgorithm::killBadFEDChannels(){return KillBadFEDChannels;}
 
 void SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine  *engine, std::unique_ptr<PixelFEDChannelCollection> &PixelFEDChannelCollection_){
   
-  std::cout << "Choose Scenario" << std::endl;
   //Determine snapshot to use for the current event based on pileup information
   
   if (puInfo) {
     const std::vector<int>& bunchCrossing = puInfo->getMix_bunchCrossing();
     const std::vector<float>& TrueInteractionList = puInfo->getMix_TrueInteractions();    
-    //const std::vector<int>& nInteractionsList = puInfo->getMix_Ninteractions(); 
-    //const int bunchSpacing = puInfo->getMix_bunchSpacing();
     
     int pui = 0, p = 0;
     std::vector<int>::const_iterator pu;
@@ -825,7 +822,6 @@ void SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo, CLHE
 	probabilities.push_back(it->second);
       }
       
-      
       CLHEP::RandGeneral randGeneral(*engine, &(probabilities.front()), probabilities.size());	
       double x = randGeneral.shoot();
       unsigned int index = x * probabilities.size() - 1;
@@ -837,7 +833,6 @@ void SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo, CLHE
     }
   }    
 }
-
 
 //============================================================================
 void SiPixelDigitizerAlgorithm::setSimAccumulator(const std::map<uint32_t, std::map<int, int> >& signalMap) {
@@ -1836,11 +1831,14 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
 	 || (pixelBig.count(chipIndex) && pixelBig[chipIndex] == 0)	 
 	 || (badRocsFromFEDChannels.at(chipIndex) == 1))
 	{
-	  //====================================================================	  
+	  //============================================================	  
 	  // make pixel amplitude =0, pixel will be lost at clusterization
-	  i->second.set(0.); // reset amplitude,      
+	  i->second.set(0.); // reset amplitude,      	  
 	} // end if
     } // is Phase 1
+    if (KillBadFEDChannels && badRocsFromFEDChannels.at(chipIndex) == 1){
+      i->second.set(0.);
+    }
   } // end pixel loop
 } // end pixel_indefficiency
 
