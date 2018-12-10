@@ -12,7 +12,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
-                                   reportEvery = cms.untracked.int32(100)
+                                   reportEvery = cms.untracked.int32(1000)
                                    ),                                                      
     SiPixelFEDChannelContainerTestWriter = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     SiPixelFEDChannelContainer           = cms.untracked.PSet( limit = cms.untracked.int32(-1))
@@ -29,8 +29,8 @@ process.source = cms.Source("EmptySource",
                             numberEventsInLuminosityBlock = cms.untracked.uint32(1),
                             )
 
-#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(25000000))
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(25000000))
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000))
 
 ##
 ## Database output service

@@ -54,6 +54,7 @@ class SiPixelFEDChannelContainerTestWriter : public edm::one::EDAnalyzer<>  {
       // ----------member data ---------------------------
       const std::string m_record;
       const bool printdebug_;
+      const bool isMC_;
       SiPixelFEDChannelContainer* myQualities;
 
       int IOVcount_;
@@ -66,7 +67,8 @@ class SiPixelFEDChannelContainerTestWriter : public edm::one::EDAnalyzer<>  {
 //
 SiPixelFEDChannelContainerTestWriter::SiPixelFEDChannelContainerTestWriter(const edm::ParameterSet& iConfig):
   m_record(iConfig.getParameter<std::string>("record")),
-  printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false))
+  printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false)),
+  isMC_(iConfig.getUntrackedParameter<bool>("isMC",true))
 {
   //now do what ever initialization is needed
   myQualities = new SiPixelFEDChannelContainer();
@@ -112,13 +114,6 @@ SiPixelFEDChannelContainerTestWriter::analyze(const edm::Event& iEvent, const ed
      IOVcount_++;
 
    }
-   
-   if(printdebug_){
-     edm::LogInfo("SiPixelFEDChannelContainerTestWriter")<<"Content of SiPixelFEDChannelContainer "<<std::endl;
-
-     // use built-in method in the CondFormat
-     myQualities->printAll();
-   }
 }
    
 // ------------ method called once each job just before starting event loop  ------------
@@ -163,25 +158,37 @@ SiPixelFEDChannelContainerTestWriter::createFromSiPixelQuality(const SiPixelQual
 	continue;
       }
 	    
-      edm::LogVerbatim("SiPixelFEDChannelContainerTestWriter") << "passed" << std::endl;
+      if(printdebug_){      
+	edm::LogVerbatim("SiPixelFEDChannelContainerTestWriter") << "passed" << std::endl;
+      }
+
       unsigned int link_id = 99999;
       unsigned int fed_id = 99999;
 	    
-      for (auto const&  p: path){
-	//std::cout << p.fed << " " << p.link << " " << p.roc << std::endl;
-	if (p.roc == bad_rocs[first_idx]){
+      for (auto const& p: path){
+	const sipixelobjects::PixelFEDCabling * aFed = cabling_->fed(p.fed);
+	const sipixelobjects::PixelFEDLink * link = aFed->link(p.link);
+	const sipixelobjects::PixelROC * roc = link->roc(p.roc);
+	unsigned int first_roc = roc->idInDetUnit();
+	
+	if (first_roc == first_idx){	
 	  link_id = p.link;
 	  fed_id = p.fed;
 	  break; 
 	}
       }
 
-      edm::LogVerbatim("SiPixelFEDChannelContainerTestWriter") << " " << fed_id << " " << link_id << " " << first_idx << "  " << sec_idx << std::endl;
-	 
+      if(printdebug_){
+	edm::LogVerbatim("SiPixelFEDChannelContainerTestWriter") << " " << fed_id << " " << link_id << " " << first_idx << "  " << sec_idx << std::endl;
+      }	 
+
       PixelFEDChannel ch = {fed_id, link_id, first_idx, sec_idx};
       disabledChannelsDetSet.push_back(ch);
-      edm::LogVerbatim("SiPixelFEDChannelContainerTestWriter") << i_roc << " " << coded_badRocs <<  " " << first_idx << " " << sec_idx << std::endl;
-      edm::LogVerbatim("SiPixelFEDChannelContainerTestWriter") << "=======================================" << std::endl;
+      
+      if(printdebug_){
+	edm::LogVerbatim("SiPixelFEDChannelContainerTestWriter") << i_roc << " " << coded_badRocs <<  " " << first_idx << " " << sec_idx << std::endl;
+	edm::LogVerbatim("SiPixelFEDChannelContainerTestWriter") << "=======================================" << std::endl;
+      }
     }
     
     if (!disabledChannelsDetSet.empty()) {
@@ -205,12 +212,24 @@ SiPixelFEDChannelContainerTestWriter::endJob()
   edm::LogInfo("SiPixelFEDChannelContainerTestWriter")<<"Analyzed "<<IOVcount_<<" IOVs"<<std::endl;
   edm::LogInfo("SiPixelFEDChannelContainerTestWriter")<<"Size of SiPixelFEDChannelContainer object "<< myQualities->size() <<std::endl<<std::endl;
 
+  if(printdebug_){
+    edm::LogInfo("SiPixelFEDChannelContainerTestWriter")<<"Content of SiPixelFEDChannelContainer "<<std::endl;
+
+    // use built-in method in the CondFormat
+     myQualities->printAll();
+  }
+
   // Form the data here
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if( poolDbService.isAvailable() ){
     cond::Time_t valid_time = poolDbService->currentTime(); 
     // this writes the payload to begin in current run defined in cfg
-    poolDbService->writeOne(myQualities,valid_time, m_record);
+    if(!isMC_){
+      poolDbService->writeOne(myQualities,valid_time, m_record);
+    } else {
+      // for MC IOV since=1
+      poolDbService->writeOne(myQualities,1, m_record);
+    }
   } 
 }
 
