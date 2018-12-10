@@ -71,7 +71,7 @@ void
 PFAlgo::setParameters(double nSigmaECAL,
                       double nSigmaHCAL, 
                       const std::shared_ptr<PFEnergyCalibration>& calibration,
-		      const std::shared_ptr<PFEnergyCalibrationHF>&  thepfEnergyCalibrationHF) {
+                      const std::shared_ptr<PFEnergyCalibrationHF>&  thepfEnergyCalibrationHF) {
 
   nSigmaECAL_ = nSigmaECAL;
   nSigmaHCAL_ = nSigmaHCAL;
@@ -747,12 +747,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  // The electron is considered safe for JetMET and the additional tracks pointing to it are locked
 	  if(lockTracks) {
 	    const PFCandidate::ElementsInBlocks& extraTracks = myPFElectron.egammaExtraRef()->extraNonConvTracks();
-	    for (auto const& trk : extraTracks) {
-              if(egmLocalBlockDebug||(debug_&&egmLocalDebug))
+        for (auto const& trk : extraTracks) {
+              if(egmLocalBlockDebug||(debug_&&egmLocalDebug)) {
                   cout << " Extra locked track " <<  trk.second << endl;
-	      active[trk.second] = false;
-	    }
-	  }
+              }
+              active[trk.second] = false;
+        }
+      }
 
 	  pfCandidates_->push_back(myPFElectron);
 
@@ -1491,9 +1492,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
         const double previousSlopeEcal = slopeEcal;
         calibEcal = std::max(totalEcal,0.);
         calibHcal = 0.;
-        calibration_->energyEmHad(trackMomentum,calibEcal,calibHcal,
-                      clusterRef->positionREP().Eta(),
-                      clusterRef->positionREP().Phi());
+        calibration_->energyEmHad( trackMomentum,calibEcal,calibHcal,
+                                   clusterRef->positionREP().Eta(),
+                                   clusterRef->positionREP().Phi() );
         if ( totalEcal > 0.) slopeEcal = calibEcal/totalEcal;
 
         if ( debug_ )
@@ -1515,9 +1516,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
           // Find the associated tracks
           std::multimap<double, unsigned> assTracks;
           block.associatedElements( index,  linkData,
-                        assTracks,
-                        reco::PFBlockElement::TRACK,
-                        reco::PFBlock::LINKTEST_ALL );
+                                    assTracks,
+                                    reco::PFBlockElement::TRACK,
+                                    reco::PFBlock::LINKTEST_ALL );
 
           auto& ecalCand = (*pfCandidates_)[reconstructCluster( *clusterRef, ecalEnergy )];
           ecalCand.setEcalEnergy( clusterRef->energy(), ecalEnergy );
@@ -2239,9 +2240,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       calibHcal = std::max(0.,totalHcal);
       hadronAtECAL = calibHcal * hadronDirection;
       // Calibrate ECAL and HCAL energy under the hadron hypothesis.
-      calibration_->energyEmHad(totalChargedMomentum,calibEcal,calibHcal,
-				hclusterref->positionREP().Eta(),
-				hclusterref->positionREP().Phi());
+      calibration_->energyEmHad( totalChargedMomentum,calibEcal,calibHcal,
+                                 hclusterref->positionREP().Eta(),
+                                 hclusterref->positionREP().Phi() );
       caloEnergy = calibEcal+calibHcal;
       if ( totalEcal > 0.) slopeEcal = calibEcal/totalEcal;
 
@@ -2249,15 +2250,15 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       
       // Continue looping until all closest clusters are exhausted and as long as
       // the calorimetric energy does not saturate the total momentum.
-      if ( ecalSatellite.first < 0. || caloEnergy - totalChargedMomentum <= 0. ) { 
-	if(debug_) cout<<"\t\t\tactive, adding "<<ecalSatellite.second.second
-		       <<" to ECAL energy, and locking"<<endl;
-	active[ecalSatellite.second.first] = false;
+      if ( ecalSatellite.first < 0. || caloEnergy - totalChargedMomentum <= 0. ) {
+        if(debug_) std::cout << "\t\t\tactive, adding " << ecalSatellite.second.second
+                             << " to ECAL energy, and locking" << endl;
+        active[ecalSatellite.second.first] = false;
         double clusterEnergy=sqrt(ecalSatellite.second.second.Mag2());
         if(clusterEnergy>50) {
           ecalClusters.push_back(ecalSatellite.second);
           sumEcalClusters+=clusterEnergy;
-	}
+        }
         continue;
       }
 
@@ -2307,88 +2308,88 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       */
       // First consider loose muons
       if ( nMuons > 0 ) { 
-    for(auto const& trk : associatedTracks) {
-	  unsigned iTrack = trk.second.first;
-	  // Only active tracks
-	  if ( !active[iTrack] ) continue;
-	  // Only muons
-	  if ( !trk.second.second ) continue;
+        for(auto const& trk : associatedTracks) {
 
-	  double trackMomentum = elements[trk.second.first].trackRef()->p();
+          // Only muons
+          if ( !trk.second.second ) continue;
 
-	  // look for ECAL elements associated to iTrack (associated to iHcal)
-	  std::multimap<double, unsigned> sortedEcals;
-	  block.associatedElements( iTrack,  linkData,
-				    sortedEcals,
-				    reco::PFBlockElement::ECAL,
-				    reco::PFBlock::LINKTEST_ALL );
-	  std::multimap<double, unsigned> sortedHOs;
-	  block.associatedElements( iTrack,  linkData,
-				    sortedHOs,
-				    reco::PFBlockElement::HO,
-				    reco::PFBlock::LINKTEST_ALL );
+          const unsigned int iTrack = trk.second.first;
+          // Only active tracks
+          if ( !active[iTrack] ) continue;
 
-	  //Here allow for loose muons! 
-	  unsigned tmpi = reconstructTrack( elements[iTrack],true);
+          const double trackMomentum = elements[trk.second.first].trackRef()->p();
 
-	  (*pfCandidates_)[tmpi].addElementInBlock( blockref, iTrack );
-	  (*pfCandidates_)[tmpi].addElementInBlock( blockref, iHcal );
-	  double muonHcal = std::min(muonHCAL_[0]+muonHCAL_[1],totalHcal-totalHO);
-	  double muonHO = 0.;
-	  (*pfCandidates_)[tmpi].setHcalEnergy(totalHcal,muonHcal);
-	  if( !sortedEcals.empty() ) { 
-	    unsigned iEcal = sortedEcals.begin()->second; 
-	    PFClusterRef eclusterref = elements[iEcal].clusterRef();
-	    (*pfCandidates_)[tmpi].addElementInBlock( blockref, iEcal);
-	    double muonEcal = std::min(muonECAL_[0]+muonECAL_[1],eclusterref->energy());
-	    (*pfCandidates_)[tmpi].setEcalEnergy(eclusterref->energy(),muonEcal);
-	  }
-	  if( useHO_ && !sortedHOs.empty() ) { 
-	    unsigned iHO = sortedHOs.begin()->second; 
-	    PFClusterRef hoclusterref = elements[iHO].clusterRef();
-	    (*pfCandidates_)[tmpi].addElementInBlock( blockref, iHO);
-	    muonHO = std::min(muonHO_[0]+muonHO_[1],hoclusterref->energy());
-	    (*pfCandidates_)[tmpi].setHcalEnergy(max(totalHcal-totalHO,0.0),muonHcal);
-	    (*pfCandidates_)[tmpi].setHoEnergy(hoclusterref->energy(),muonHO);
-	  }
-          setHcalDepthInfo((*pfCandidates_)[tmpi], *hclusterref);
-	  // Remove it from the block
-	  const ::math::XYZPointF& chargedPosition = 
-	    dynamic_cast<const reco::PFBlockElementTrack*>(&elements[trk.second.first])->positionAtECALEntrance();	  
-	  ::math::XYZVector chargedDirection(chargedPosition.X(), chargedPosition.Y(), chargedPosition.Z());
-	  chargedDirection = chargedDirection.Unit();
-	  totalChargedMomentum -= trackMomentum;
-	  // Update the calo energies
-	  if ( totalEcal > 0. ) 
-	    calibEcal -= std::min(calibEcal,muonECAL_[0]*calibEcal/totalEcal);
-	  if ( totalHcal > 0. ) 
-	    calibHcal -= std::min(calibHcal,muonHCAL_[0]*calibHcal/totalHcal);
-	  totalEcal -= std::min(totalEcal,muonECAL_[0]);
-	  totalHcal -= std::min(totalHcal,muonHCAL_[0]);
-	  if ( totalEcal > muonECAL_[0] ) photonAtECAL -= muonECAL_[0] * chargedDirection;
-	  if ( totalHcal > muonHCAL_[0] ) hadronAtECAL -= muonHCAL_[0]*calibHcal/totalHcal * chargedDirection;
-	  caloEnergy = calibEcal+calibHcal;
-	  muonHCALEnergy += muonHCAL_[0];
-	  muonHCALError += muonHCAL_[1]*muonHCAL_[1];
-	  if ( muonHO > 0. ) { 
-	    muonHCALEnergy += muonHO_[0];
-	    muonHCALError += muonHO_[1]*muonHO_[1];
-	    if ( totalHcal > 0. ) { 
-	      calibHcal -= std::min(calibHcal,muonHO_[0]*calibHcal/totalHcal);
-	      totalHcal -= std::min(totalHcal,muonHO_[0]);
-	    }
-	  }
-	  muonECALEnergy += muonECAL_[0];
-	  muonECALError += muonECAL_[1]*muonECAL_[1];
-	  active[iTrack] = false;
-	  // Stop the loop whenever enough muons are removed
-	  //Commented out: Keep looking for muons since they often come in pairs -Matt
-	  //if ( totalChargedMomentum < caloEnergy ) break;	
-	}
-	// New calo resolution.
-	Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
-	Caloresolution *= totalChargedMomentum;
-	Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
+          // look for ECAL elements associated to iTrack (associated to iHcal)
+          std::multimap<double, unsigned> sortedEcals;
+          block.associatedElements( iTrack,  linkData,
+                                    sortedEcals,
+                                    reco::PFBlockElement::ECAL,
+                                    reco::PFBlock::LINKTEST_ALL );
+          std::multimap<double, unsigned> sortedHOs;
+          block.associatedElements( iTrack,  linkData,
+                                    sortedHOs,
+                                    reco::PFBlockElement::HO,
+                                    reco::PFBlock::LINKTEST_ALL );
+
+          //Here allow for loose muons! 
+          auto& muon = (*pfCandidates_)[reconstructTrack( elements[iTrack],true)];
+
+          muon.addElementInBlock( blockref, iTrack );
+          muon.addElementInBlock( blockref, iHcal );
+          const double muonHcal = std::min(muonHCAL_[0]+muonHCAL_[1],totalHcal-totalHO);
+          double muonHO = 0.;
+          muon.setHcalEnergy(totalHcal,muonHcal);
+          if( !sortedEcals.empty() ) { 
+            const unsigned int iEcal = sortedEcals.begin()->second; 
+            PFClusterRef eclusterref = elements[iEcal].clusterRef();
+            muon.addElementInBlock( blockref, iEcal);
+            const double muonEcal = std::min(muonECAL_[0]+muonECAL_[1],eclusterref->energy());
+            muon.setEcalEnergy(eclusterref->energy(),muonEcal);
+          }
+          if( useHO_ && !sortedHOs.empty() ) { 
+            const unsigned int iHO = sortedHOs.begin()->second; 
+            PFClusterRef hoclusterref = elements[iHO].clusterRef();
+            muon.addElementInBlock( blockref, iHO);
+            muonHO = std::min(muonHO_[0]+muonHO_[1],hoclusterref->energy());
+            muon.setHcalEnergy(max(totalHcal-totalHO,0.0),muonHcal);
+            muon.setHoEnergy(hoclusterref->energy(),muonHO);
+          }
+          setHcalDepthInfo(muon, *hclusterref);
+          // Remove it from the block
+          const ::math::XYZPointF& chargedPosition = 
+            dynamic_cast<const reco::PFBlockElementTrack*>(&elements[trk.second.first])->positionAtECALEntrance(); 
+          ::math::XYZVector chargedDirection(chargedPosition.X(), chargedPosition.Y(), chargedPosition.Z());
+          chargedDirection = chargedDirection.Unit();
+          totalChargedMomentum -= trackMomentum;
+          // Update the calo energies
+          if ( totalEcal > 0. ) calibEcal -= std::min(calibEcal,muonECAL_[0]*calibEcal/totalEcal);
+          if ( totalHcal > 0. ) calibHcal -= std::min(calibHcal,muonHCAL_[0]*calibHcal/totalHcal);
+          totalEcal -= std::min(totalEcal,muonECAL_[0]);
+          totalHcal -= std::min(totalHcal,muonHCAL_[0]);
+          if ( totalEcal > muonECAL_[0] ) photonAtECAL -= muonECAL_[0] * chargedDirection;
+          if ( totalHcal > muonHCAL_[0] ) hadronAtECAL -= muonHCAL_[0]*calibHcal/totalHcal * chargedDirection;
+          caloEnergy = calibEcal + calibHcal;
+          muonHCALEnergy += muonHCAL_[0];
+          muonHCALError += muonHCAL_[1] * muonHCAL_[1];
+          if ( muonHO > 0. ) { 
+            muonHCALEnergy += muonHO_[0];
+            muonHCALError += muonHO_[1] * muonHO_[1];
+            if ( totalHcal > 0. ) { 
+              calibHcal -= std::min(calibHcal,muonHO_[0] * calibHcal/totalHcal);
+              totalHcal -= std::min(totalHcal,muonHO_[0]);
+            }
+          }
+          muonECALEnergy += muonECAL_[0];
+          muonECALError += muonECAL_[1] * muonECAL_[1];
+          active[iTrack] = false;
+          // Stop the loop whenever enough muons are removed
+          //Commented out: Keep looking for muons since they often come in pairs -Matt
+          //if ( totalChargedMomentum < caloEnergy ) break;	
+        }
+        // New calo resolution.
+        Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
+        Caloresolution *= totalChargedMomentum;
+        Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
       }
     }
           
@@ -2797,48 +2798,48 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // reference to the pivotal cluster. 
       
       for ( unsigned iPivot=0; iPivot<iPivotal.size(); ++iPivot ) { 
-	
-	if ( particleEnergy[iPivot] < 0. ) 
-	  std::cout << "ALARM = Negative energy ! " 
-		    << particleEnergy[iPivot] << std::endl;
-	
-	bool useDirection = true;
-	unsigned tmpi = reconstructCluster( *pivotalClusterRef[iPivot], 
-					    particleEnergy[iPivot], 
-					    useDirection,
-	                                    particleDirection[iPivot].X(),
-					    particleDirection[iPivot].Y(),
-					    particleDirection[iPivot].Z()); 
 
-      
-	(*pfCandidates_)[tmpi].setEcalEnergy( rawecalEnergy[iPivot],ecalEnergy[iPivot] );
-	if ( !useHO_ ) { 
-	  (*pfCandidates_)[tmpi].setHcalEnergy( rawhcalEnergy[iPivot],hcalEnergy[iPivot] );
-	  (*pfCandidates_)[tmpi].setHoEnergy(0., 0.);
-	} else { 
-	  (*pfCandidates_)[tmpi].setHcalEnergy( max(rawhcalEnergy[iPivot]-totalHO,0.0),hcalEnergy[iPivot]*(1.-totalHO/rawhcalEnergy[iPivot]));
-	  (*pfCandidates_)[tmpi].setHoEnergy(totalHO, totalHO * hcalEnergy[iPivot]/rawhcalEnergy[iPivot]);
-	} 
-	(*pfCandidates_)[tmpi].setPs1Energy( 0. );
-	(*pfCandidates_)[tmpi].setPs2Energy( 0. );
-	(*pfCandidates_)[tmpi].set_mva_nothing_gamma( -1. );
-	//       (*pfCandidates_)[tmpi].addElement(&elements[iPivotal]);
-	// (*pfCandidates_)[tmpi].addElementInBlock(blockref, iPivotal[iPivot]);
-	(*pfCandidates_)[tmpi].addElementInBlock( blockref, iHcal );
-    for (unsigned iTrack : chargedHadronsInBlock) {
-	  (*pfCandidates_)[tmpi].addElementInBlock( blockref, iTrack );
-	  // Assign the position of the track at the ECAL entrance
-	  const ::math::XYZPointF& chargedPosition = 
-	    dynamic_cast<const reco::PFBlockElementTrack*>(&elements[iTrack])->positionAtECALEntrance();
-	  (*pfCandidates_)[tmpi].setPositionAtECALEntrance(chargedPosition);
+        if ( particleEnergy[iPivot] < 0. ) 
+          std::cout << "ALARM = Negative energy ! " 
+                << particleEnergy[iPivot] << std::endl;
+        
+        const bool useDirection = true;
+        auto& neutral = (*pfCandidates_)[reconstructCluster( *pivotalClusterRef[iPivot], 
+                                                             particleEnergy[iPivot], 
+                                                             useDirection,
+                                                             particleDirection[iPivot].X(),
+                                                             particleDirection[iPivot].Y(),
+                                                             particleDirection[iPivot].Z() )];
 
-	  auto myEcals = associatedEcals.equal_range(iTrack);
-	  for (auto ii=myEcals.first; ii!=myEcals.second; ++ii ) { 
-	    unsigned iEcal = ii->second.second;
-	    if ( active[iEcal] ) continue;
-	    (*pfCandidates_)[tmpi].addElementInBlock( blockref, iEcal );
-	  }
-	}
+          
+        neutral.setEcalEnergy( rawecalEnergy[iPivot],ecalEnergy[iPivot] );
+        if ( !useHO_ ) { 
+          neutral.setHcalEnergy( rawhcalEnergy[iPivot],hcalEnergy[iPivot] );
+          neutral.setHoEnergy(0., 0.);
+        } else { 
+          neutral.setHcalEnergy( max(rawhcalEnergy[iPivot]-totalHO,0.0),hcalEnergy[iPivot]*(1.-totalHO/rawhcalEnergy[iPivot]));
+          neutral.setHoEnergy(totalHO, totalHO * hcalEnergy[iPivot]/rawhcalEnergy[iPivot]);
+        } 
+        neutral.setPs1Energy( 0. );
+        neutral.setPs2Energy( 0. );
+        neutral.set_mva_nothing_gamma( -1. );
+        //       neutral.addElement(&elements[iPivotal]);
+        // neutral.addElementInBlock(blockref, iPivotal[iPivot]);
+        neutral.addElementInBlock( blockref, iHcal );
+        for (unsigned iTrack : chargedHadronsInBlock) {
+          neutral.addElementInBlock( blockref, iTrack );
+          // Assign the position of the track at the ECAL entrance
+          const ::math::XYZPointF& chargedPosition = 
+            dynamic_cast<const reco::PFBlockElementTrack*>(&elements[iTrack])->positionAtECALEntrance();
+          neutral.setPositionAtECALEntrance(chargedPosition);
+
+          auto myEcals = associatedEcals.equal_range(iTrack);
+          for (auto ii=myEcals.first; ii!=myEcals.second; ++ii ) { 
+            unsigned iEcal = ii->second.second;
+            if ( active[iEcal] ) continue;
+            neutral.addElementInBlock( blockref, iEcal );
+          }
+        }
 
       }
 
@@ -3001,9 +3002,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // Check if not closer from another free HCAL 
       std::multimap<double, unsigned> hcalElems;
       block.associatedElements( iEcal,  linkData,
-				hcalElems ,
-				reco::PFBlockElement::HCAL,
-				reco::PFBlock::LINKTEST_ALL );
+                                hcalElems ,
+                                reco::PFBlockElement::HCAL,
+                                reco::PFBlock::LINKTEST_ALL );
 
       const bool isClosest = std::none_of(hcalElems.begin(), hcalElems.end(), [&](auto const& hcal){
                   return active[hcal.second] && hcal.first < dist;
@@ -3026,8 +3027,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       //          << ", " << ps1Ene[0] << ", " << ps2Ene[0] << std::endl;
       totalEcal += ecalEnergy;
       if ( ecalEnergy > ecalMax ) { 
-	ecalMax = ecalEnergy;
-	eClusterRef = eclusterRef;
+        ecalMax = ecalEnergy;
+        eClusterRef = eclusterRef;
       }
       
       ecalRefs.push_back(iEcal);
@@ -3043,9 +3044,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     if (useHO_) {
       std::multimap<double, unsigned> hoElems;
       block.associatedElements( iHcal,  linkData,
-				hoElems ,
-				reco::PFBlockElement::HO,
-				reco::PFBlock::LINKTEST_ALL );
+                                hoElems ,
+                                reco::PFBlockElement::HO,
+                                reco::PFBlock::LINKTEST_ALL );
       
       // Loop on these HO elements
       //      double totalHO = 0.;
@@ -3053,62 +3054,51 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       //      unsigned jHO = 0;
       reco::PFClusterRef hoClusterRef;
       for(auto const& ho : hoElems) {
-	
-	unsigned iHO = ho.second;
-	double dist = ho.first;
-	PFBlockElement::Type type = elements[iHO].type();
-	assert( type == PFBlockElement::HO );
-	
-	// Check if already used
-	if( !active[iHO] ) continue;
-	
-	// Check the distance (one HCALPlusHO tower, roughly)
-	// if ( dist > 0.15 ) continue;
-	
-	// Check if not closer from another free HCAL 
-	std::multimap<double, unsigned> hcalElems;
-	block.associatedElements( iHO,  linkData,
-				  hcalElems ,
-				  reco::PFBlockElement::HCAL,
-				  reco::PFBlock::LINKTEST_ALL );
-	
-	bool isClosest = true;
-    for(auto const& hcal : hcalElems) {
-	  
-	  unsigned jHcal = hcal.second;
-	  double distH = hcal.first;
-	  
-	  if ( !active[jHcal] ) continue;
-	  
-	  if ( distH < dist ) { 
-	    isClosest = false;
-	    break;
-	  }
-	  
-	}
-	
-	if (!isClosest) continue;
-	
-	if(debug_ && useHO_) {
-	  cout<<"\telement "<<elements[iHO]<<" linked with dist "<< dist<<endl;
-	  cout<<"Added to HCAL cluster to form a neutral hadron"<<endl;
-	}
-	
-	reco::PFClusterRef hoclusterRef = elements[iHO].clusterRef();
-	assert( !hoclusterRef.isNull() );
-	
-	double hoEnergy = hoclusterRef->energy(); // calibration_->energyEm(*hoclusterRef,ps1Ene,ps2Ene,crackCorrection);
-	
-	totalHO += hoEnergy;
-	if ( hoEnergy > hoMax ) { 
-	  hoMax = hoEnergy;
-	  hoClusterRef = hoclusterRef;
-	  //jHO = iHO;
-	}
-	
-	hoRefs.push_back(iHO);
-	active[iHO] = false;
-	
+
+        unsigned iHO = ho.second;
+        double dist = ho.first;
+        PFBlockElement::Type type = elements[iHO].type();
+        assert( type == PFBlockElement::HO );
+        
+        // Check if already used
+        if( !active[iHO] ) continue;
+        
+        // Check the distance (one HCALPlusHO tower, roughly)
+        // if ( dist > 0.15 ) continue;
+        
+        // Check if not closer from another free HCAL 
+        std::multimap<double, unsigned> hcalElems;
+        block.associatedElements( iHO,  linkData,
+                                  hcalElems ,
+                                  reco::PFBlockElement::HCAL,
+                                  reco::PFBlock::LINKTEST_ALL );
+        
+        const bool isClosest = std::none_of(hcalElems.begin(), hcalElems.end(), [&](auto const& hcal){
+                    return active[hcal.second] && hcal.first < dist;
+                });
+        
+        if (!isClosest) continue;
+        
+        if(debug_ && useHO_) {
+          cout<<"\telement "<<elements[iHO]<<" linked with dist "<< dist<<endl;
+          cout<<"Added to HCAL cluster to form a neutral hadron"<<endl;
+        }
+        
+        reco::PFClusterRef hoclusterRef = elements[iHO].clusterRef();
+        assert( !hoclusterRef.isNull() );
+        
+        double hoEnergy = hoclusterRef->energy(); // calibration_->energyEm(*hoclusterRef,ps1Ene,ps2Ene,crackCorrection);
+        
+        totalHO += hoEnergy;
+        if ( hoEnergy > hoMax ) { 
+          hoMax = hoEnergy;
+          hoClusterRef = hoclusterRef;
+          //jHO = iHO;
+        }
+        
+        hoRefs.push_back(iHO);
+        active[iHO] = false;
+
       }// End loop HO
     }
 
@@ -3148,35 +3138,28 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     // double particleEnergy = totalEcal + calibHcal;
     // particleEnergy /= (1.-0.724/sqrt(particleEnergy)-0.0226/particleEnergy);
 
-    unsigned tmpi = reconstructCluster( *hclusterRef, 
-                                        calibEcal+calibHcal ); 
-
+    auto& cand = (*pfCandidates_)[reconstructCluster( *hclusterRef, calibEcal+calibHcal )];
     
-    (*pfCandidates_)[tmpi].setEcalEnergy( totalEcal, calibEcal );
+    cand.setEcalEnergy( totalEcal, calibEcal );
     if ( !useHO_ ) { 
-      (*pfCandidates_)[tmpi].setHcalEnergy( totalHcal, calibHcal );
-      (*pfCandidates_)[tmpi].setHoEnergy(0.,0.);
+      cand.setHcalEnergy( totalHcal, calibHcal );
+      cand.setHoEnergy(0.,0.);
     } else { 
-      (*pfCandidates_)[tmpi].setHcalEnergy( max(totalHcal-totalHO,0.0), calibHcal*(1.-totalHO/totalHcal));
-      (*pfCandidates_)[tmpi].setHoEnergy(totalHO,totalHO*calibHcal/totalHcal);
+      cand.setHcalEnergy( max(totalHcal-totalHO,0.0), calibHcal*(1.-totalHO/totalHcal));
+      cand.setHoEnergy(totalHO,totalHO*calibHcal/totalHcal);
     }
-    (*pfCandidates_)[tmpi].setPs1Energy( 0. );
-    (*pfCandidates_)[tmpi].setPs2Energy( 0. );
-    (*pfCandidates_)[tmpi].addElementInBlock( blockref, iHcal );
-    for (unsigned iec=0; iec<ecalRefs.size(); ++iec) 
-      (*pfCandidates_)[tmpi].addElementInBlock( blockref, ecalRefs[iec] );
-    for (unsigned iho=0; iho<hoRefs.size(); ++iho) 
-      (*pfCandidates_)[tmpi].addElementInBlock( blockref, hoRefs[iho] );
+    cand.setPs1Energy( 0. );
+    cand.setPs2Energy( 0. );
+    cand.addElementInBlock( blockref, iHcal );
+    for (auto const& ec : ecalRefs) cand.addElementInBlock( blockref, ec );
+    for (auto const& ho : hoRefs) cand.addElementInBlock( blockref, ho );
       
   }//loop hcal elements
 
 
 
 
-  if(debug_) { 
-    cout<<endl;
-    if(debug_) cout<<endl<<"---- loop ecal------- "<<endl;
-  }
+  if(debug_) std::cout << std::endl << std::endl << "---- loop ecal------- " << std::endl;
   
   // for each ecal element iEcal = ecalIs[i] in turn:
 
@@ -3204,16 +3187,14 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     // float ecalEnergy = calibration_->energyEm( clusterref->energy() );
     double particleEnergy = ecalEnergy;
     
-    unsigned tmpi = reconstructCluster( *clusterref, 
-                                        particleEnergy );
+    auto& cand = (*pfCandidates_)[reconstructCluster( *clusterref, particleEnergy )];
  
-    (*pfCandidates_)[tmpi].setEcalEnergy( clusterref->energy(),ecalEnergy );
-    (*pfCandidates_)[tmpi].setHcalEnergy( 0., 0. );
-    (*pfCandidates_)[tmpi].setHoEnergy( 0., 0. );
-    (*pfCandidates_)[tmpi].setPs1Energy( 0. );
-    (*pfCandidates_)[tmpi].setPs2Energy( 0. );
-    (*pfCandidates_)[tmpi].addElementInBlock( blockref, iEcal );
-    
+    cand.setEcalEnergy( clusterref->energy(),ecalEnergy );
+    cand.setHcalEnergy( 0., 0. );
+    cand.setHoEnergy( 0., 0. );
+    cand.setPs1Energy( 0. );
+    cand.setPs2Energy( 0. );
+    cand.addElementInBlock( blockref, iEcal ); 
 
   }  // end loop on ecal elements iEcal = ecalIs[i]
 
