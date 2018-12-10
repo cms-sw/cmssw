@@ -142,7 +142,7 @@ nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnl
 
 # modify extraFlagsTable to store ecalBadCalibFilter decision which is re-run with updated bad crystal list when modifier run2_nanoAOD_102xv1 is activated
 run2_nanoAOD_102Xv1.toModify(extraFlagsTable, variables= cms.PSet())
-run2_nanoAOD_102Xv1.toModify(extraFlagsTable, variables = dict(Flag_ecalBadCalibFilter = ExtVar(cms.InputTag("ecalBadCalibFilterTagger"), bool, doc = "Bad ECAL calib flag")))
+run2_nanoAOD_102Xv1.toModify(extraFlagsTable, variables = dict(Flag_ecalBadCalibFilterV2 = ExtVar(cms.InputTag("ecalBadCalibFilterNanoTagger"), bool, doc = "Bad ECAL calib flag (updated xtal list)")))
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
