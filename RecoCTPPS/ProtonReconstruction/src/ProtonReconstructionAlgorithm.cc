@@ -1,10 +1,7 @@
 /****************************************************************************
- *
- * This is a part of CTPPS offline software.
  * Authors:
  *   Jan Kašpar
  *   Laurent Forthomme
- *
  ****************************************************************************/
 
 #include "RecoCTPPS/ProtonReconstruction/interface/ProtonReconstructionAlgorithm.h"
@@ -146,8 +143,11 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const dou
 
 //----------------------------------------------------------------------------------------------------
 
-void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CTPPSLocalTrackLite*> &tracks,
-  vector<reco::ProtonTrack> &out, const LHCInfo &lhcInfo) const
+void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
+  const reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector &tracks,
+  std::vector<reco::ProtonTrack> &output,
+  std::vector<reco::ProtonTrackExtra> &outputExtra,
+  const LHCInfo &lhcInfo) const
 {
   if (!initialized_)
     return;
@@ -236,9 +236,10 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
     th_y_init = (y[1]/L_y[1] + y[0]/L_y[0]) / 2.;
   }
 
+  unsigned int armId = CTPPSDetId((*tracks.begin())->getRPId()).arm();
+
   if (verbosity_)
   {
-    unsigned int armId = CTPPSDetId((*tracks.begin())->getRPId()).arm();
     printf("* ProtonReconstructionAlgorithm::reconstructFromMultiRP(%u)\n", armId);
     printf("    initial estimate: xi_init = %f, th_x_init = %E, th_y_init = %E, vtx_y_init = %E\n", xi_init, th_x_init, th_y_init, vtx_y_init);
   }
@@ -274,53 +275,59 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const vector<const CT
     printf("    fit: xi = %f, th_x = %E, th_y = %E, vtx_y = %E, chiSq = %.0f\n", params[0], params[1], params[2], params[3], result.Chi2());
 
   // save reco candidate
-  reco::ProtonTrack pt;
-  // TODO
-  /*
-  pt.method = reco::ProtonTrack::rmMultiRP;
-  pt.halfCrossingAngleSector45 = halfCrossingAngleSector45_;
-  pt.halfCrossingAngleSector56 = halfCrossingAngleSector56_;
+  using EX = reco::ProtonTrackExtra;
+  using PT = reco::ProtonTrack;
 
-  pt.fitChiSq = result.Chi2();
-  pt.fitNDF = 2.*tracks.size() - ((fitVtxY_) ? 4. : 3.);
-  pt.lhcSector = (CTPPSDetId(tracks[0]->getRPId()).arm() == 0) ? reco::ProtonTrack::sector45 : reco::ProtonTrack::sector56;
+  reco::ProtonTrackExtra ptExtra(result.IsValid(), EX::ReconstructionMethod::multiRP, tracks);
 
-  pt.setVertex(Local3DPoint(0., params[3]*1E3, 0.));  // vertext in mm
-
-  const double p_nom = 6500.;  // GeV
-  const double p = p_nom *  (1. - params[0]);
+  const double sign_z = (armId == 0) ? +1. : -1.;  // CMS convention
+  const reco::Track::Point vertex(0., params[3]*1E2, 0.);  // vertex in cm
+  const double xi = params[0];
   const double th_x = params[1];
   const double th_y = params[2];
   const double cos_th = sqrt(1. - th_x*th_x - th_y*th_y);
-  const double sign_z_lhc = (pt.lhcSector == reco::ProtonTrack::sector45) ? -1. : +1.;
-
-  pt.setXi(params[0]);
-
-  pt.setDirection(Local3DVector(
+  const double p = lhcInfo.energy() * (1. - xi);
+  const reco::Track::Vector momentum(
     - p * th_x,   // the signs reflect change LHC --> CMS convention
     + p * th_y,
-    - sign_z_lhc * p * cos_th
-  ));
+    sign_z * p * cos_th
+  );
+  signed int ndf = 2.*tracks.size() - ((fitVtxY_) ? 4. : 3.);
 
-  for (const auto &track : tracks)
-    pt.contributingRPIds.insert(track->getRPId());
+  map<unsigned int, signed int> index_map = {
+    {(unsigned int) reco::ProtonTrack::Index::xi, 0},
+    {(unsigned int) reco::ProtonTrack::Index::th_x, 1},
+    {(unsigned int) reco::ProtonTrack::Index::th_y, 2},
+    {(unsigned int) reco::ProtonTrack::Index::vtx_y, ((fitVtxY_) ? 3 : -1)},
+    {(unsigned int) reco::ProtonTrack::Index::vtx_x, -1},
+  };
 
-  const double max_chi_sq = 2.;
+  reco::TrackBase::CovarianceMatrix cm;
+  for (unsigned int i = 0; i < (unsigned int) reco::ProtonTrack::Index::num_indices; ++i)
+  {
+    signed int fit_i = index_map[i];
 
-  const bool valid = result.IsValid() && pt.fitChiSq < max_chi_sq;
-  pt.setValid(valid);
+    for (unsigned int j = 0; j < (unsigned int) reco::ProtonTrack::Index::num_indices; ++j)
+    {
+      signed int fit_j = index_map[j];
 
-  if (verbosity && !valid)
-    printf("WARNING: invalid proton-reconstruction fit (result.IsValid = %u, fitChiSq = %.2E).\n", result.IsValid(), pt.fitChiSq);
-  */
+      cm(i, j) = (fit_i >= 0 && fit_j >= 0) ? result.CovMatrix(fit_i, fit_j) : 0.;
+    }
+  }
 
-  out.push_back(move(pt));
+  reco::ProtonTrack pt(result.Chi2(), ndf, vertex, momentum, xi, cm);
+
+  output.push_back(move(pt));
+  outputExtra.push_back(move(ptExtra));
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const vector<const CTPPSLocalTrackLite*> &tracks,
-  vector<reco::ProtonTrack> &out, const LHCInfo &lhcInfo) const
+void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
+  const reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector &tracks,
+  std::vector<reco::ProtonTrack> &output,
+  std::vector<reco::ProtonTrackExtra> &outputExtra,
+  const LHCInfo &lhcInfo) const
 {
   if (!initialized_)
     return;
@@ -344,30 +351,42 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const vector<const C
       printf("* reconstructFromSingleRP(%u)\n", decRPId);
 
     auto oit = m_rp_optics_.find(track->getRPId());
-    const double xi = oit->second.s_xi_vs_x_d->Eval(track->getX() * 1E-3 + oit->second.x0); // conversions mm --> m
+    const double x_full = track->getX() * 1E-3 + oit->second.x0; // conversions mm --> m
+    const double xi = oit->second.s_xi_vs_x_d->Eval(x_full);
     const double L_y = oit->second.s_L_y_vs_xi->Eval(xi);
     const double th_y = track->getY() * 1E-3 / L_y;
 
-    if (verbosity_)
-      printf("    xi = %f, th_y = %E\n", xi, th_y);
+    const double ep_x = 1E-6;
+    const double dxi_dx = (oit->second.s_xi_vs_x_d->Eval(x_full + ep_x) - xi) / ep_x;
+    const double xi_unc = abs(dxi_dx) * track->getXUnc() * 1E-3;
 
-    using ex = reco::ProtonTrackExtra;
+    const double ep_xi = 1E-4;
+    const double dL_y_dxi = ( oit->second.s_L_y_vs_xi->Eval(xi + ep_xi) - L_y ) / ep_xi;
+    const double th_y_unc = th_y * sqrt( pow(track->getYUnc() / track->getY(), 2.) + pow(dL_y_dxi * xi_unc / L_y, 2.) );
+
+    if (verbosity_)
+      printf("    xi = %f +- %f, th_y = %E +- %E\n", xi, xi_unc, th_y, th_y_unc);
+
+    using EX = reco::ProtonTrackExtra;
+    using PT = reco::ProtonTrack;
 
     // save proton candidate
-    auto lhcSector = (CTPPSDetId(track->getRPId()).arm() == 0) ? ex::LHCSector::sector45 : ex::LHCSector::sector56;
-    ex::RPList rpList;
-    rpList.insert(track->getRPId());
-    reco::ProtonTrackExtra ptExtra(true, ex::ReconstructionMethod::singleRP, lhcSector, rpList);
+    const bool valid = true;
+    reco::ProtonTrackExtra ptExtra(valid, EX::ReconstructionMethod::singleRP, { track });
 
-    const double sign_z_lhc = (lhcSector == ex::LHCSector::sector45) ? -1. : +1.;
-    const reco::Track::Point vtx(0., 0., 0.);
-    const reco::Track::Vector direction(0., th_y, - sign_z_lhc);
+    const double sign_z = (CTPPSDetId(track->getRPId()).arm() == 0) ? +1. : -1.;  // CMS convention
+    const reco::Track::Point vertex(0., 0., 0.);
+    const double cos_th = sqrt(1. - th_y*th_y);
     const double p = lhcInfo.energy() * (1. - xi);
-    reco::ProtonTrack pt(0., 0, vtx, p * direction, xi);  // TODO: covariance matrix
+    const reco::Track::Vector momentum(0., p * th_y, sign_z * p * cos_th);
 
-    // TODO: fix this
-    //pt.setProtonTrackExtra(ptExtra);
+    reco::TrackBase::CovarianceMatrix cm;
+    cm((int)PT::Index::xi, (int)PT::Index::xi) = xi_unc * xi_unc;
+    cm((int)PT::Index::th_y, (int)PT::Index::th_y) = th_y_unc * th_y_unc;
 
-    out.push_back(move(pt));
+    reco::ProtonTrack pt(0., 0, vertex, momentum, xi, cm);
+
+    output.push_back(move(pt));
+    outputExtra.push_back(move(ptExtra));
   }
 }
