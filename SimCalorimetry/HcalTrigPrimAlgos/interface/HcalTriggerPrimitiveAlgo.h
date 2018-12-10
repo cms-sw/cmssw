@@ -25,7 +25,7 @@ class IntegerCaloSamples;
 class HcalTriggerPrimitiveAlgo {
 public:
   HcalTriggerPrimitiveAlgo(bool pf, const std::vector<double>& w, int latency,
-                           uint32_t FG_threshold, uint32_t FG_HF_threshold, uint32_t ZS_threshold,
+                           uint32_t FG_threshold, const std::vector<uint32_t>& FG_HF_thresholds, uint32_t ZS_threshold,
                            int numberOfSamples,   int numberOfPresamples,
                            int numberOfSamplesHF, int numberOfPresamplesHF, bool useTDCInMinBiasBits,
                            uint32_t minSignalThreshold=0, uint32_t PMT_NoiseThreshold=0);
@@ -118,7 +118,7 @@ public:
   std::vector<double> weights_;
   int latency_;
   uint32_t FG_threshold_;
-  uint32_t FG_HF_threshold_;
+  std::vector<uint32_t> FG_HF_thresholds_;
   uint32_t ZS_threshold_;
   int ZS_threshold_I_;
   int numberOfSamples_;
@@ -158,7 +158,7 @@ public:
      IntegerCaloSamples samples;
      QIE10DataFrame digi;
      std::vector<bool> validity;
-     std::vector<bool> fgbit;
+     std::vector<std::bitset<2>> fgbits;
      std::vector<bool> passTDC;
   };
   typedef std::map<HcalTrigTowerDetId, std::map<uint32_t, std::array<HFUpgradeDetails, 4>>> HFUpgradeDetailMap;

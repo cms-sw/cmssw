@@ -29,7 +29,7 @@ int main(int argc, char **argv) try {
     config = std::string(argv[1]);
   }
 
-  std::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(config);
+  std::shared_ptr<edm::ParameterSet> parameterSet = edm::boost_python::readConfig(config);
   parameterSet->registerIt();
   std::cout << parameterSet->id() << std::endl;
   return 0;

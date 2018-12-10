@@ -41,7 +41,7 @@ from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _h
 initialStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "initialStepSeedLayers",
     trackingRegions = "initialStepTrackingRegions",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer

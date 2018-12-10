@@ -31,7 +31,7 @@ SiPixel2DTemplateDBObjectESProducer::~SiPixel2DTemplateDBObjectESProducer(){
 
 
 
-std::shared_ptr<SiPixel2DTemplateDBObject> SiPixel2DTemplateDBObjectESProducer::produce(const SiPixel2DTemplateDBObjectESProducerRcd & iRecord) {
+std::shared_ptr<const SiPixel2DTemplateDBObject> SiPixel2DTemplateDBObjectESProducer::produce(const SiPixel2DTemplateDBObjectESProducerRcd & iRecord) {
 	
 	ESHandle<MagneticField> magfield;
 	iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
@@ -58,7 +58,7 @@ std::shared_ptr<SiPixel2DTemplateDBObject> SiPixel2DTemplateDBObjectESProducer::
 	if(std::fabs(theMagField-dbobject->sVector()[22])>0.1)
 		edm::LogWarning("UnexpectedMagneticFieldUsingNonIdealPixel2DTemplate") << "Magnetic field is " << theMagField << " Template Magnetic field is " << dbobject->sVector()[22];
 	
-	return std::shared_ptr<SiPixel2DTemplateDBObject>(const_cast<SiPixel2DTemplateDBObject*>(&(*dbobject)), edm::do_nothing_deleter());
+	return std::shared_ptr<const SiPixel2DTemplateDBObject>(&(*dbobject), edm::do_nothing_deleter());
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiPixel2DTemplateDBObjectESProducer);

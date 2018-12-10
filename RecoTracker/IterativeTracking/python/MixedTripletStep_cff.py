@@ -119,7 +119,7 @@ from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _h
 mixedTripletStepHitDoubletsA = _hitPairEDProducer.clone(
     seedingLayers = "mixedTripletStepSeedLayersA",
     trackingRegions = "mixedTripletStepTrackingRegionsA",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cfi import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer

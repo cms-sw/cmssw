@@ -40,12 +40,14 @@
 // Created:     Thu Apr  7 07:59:56 CDT 2005
 //
 
-// system include files
-
-// user include files
-
-// forward declarations
 namespace edm {
+
+  template <typename T>
+  class ESHandle;
+
+  // Special class to denote that the default record should be used.
+  struct DefaultRecord {};
+
    namespace eventsetup {
       template< class T> struct MUST_GET_RECORD_FROM_EVENTSETUP_TO_GET_DATA;
       
@@ -55,11 +57,19 @@ namespace edm {
          //NOTE: by default, a data item does not have a default record
          typedef MUST_GET_RECORD_FROM_EVENTSETUP_TO_GET_DATA<DataT> type;
       };
+
+    template <typename T>
+    struct default_record {
+      using data_type = typename T::value_type;
+      using RecordT = typename eventsetup::data_default_record_trait<data_type>::type;
+    };
+
+    template <typename T>
+    using default_record_t = typename default_record<T>::RecordT;
    }
 }
 
-
 #define EVENTSETUP_DATA_DEFAULT_RECORD(_data_, _record_) \
-namespace edm { namespace eventsetup { template<> struct data_default_record_trait<_data_>{ typedef _record_ type; }; } }
+  namespace edm::eventsetup { template<> struct data_default_record_trait<_data_>{ typedef _record_ type; }; }
 
 #endif

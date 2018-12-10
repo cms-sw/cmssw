@@ -1,6 +1,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
-<use name="CommonTools/Utils"/>
+<use name="CommonTools/MVAUtils"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/VertexReco"/>

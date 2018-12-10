@@ -1,19 +1,14 @@
 #ifndef __RecoEgamma_EgammaTools_MVAValueMapProducer_H__
 #define __RecoEgamma_EgammaTools_MVAValueMapProducer_H__
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
-
 #include "RecoEgamma/EgammaTools/interface/Utils.h"
 #include "RecoEgamma/EgammaTools/interface/MultiToken.h"
 
@@ -22,87 +17,88 @@
 #include <cmath>
 
 template <class ParticleType>
-class MVAValueMapProducer : public edm::stream::EDProducer<> {
+class MVAValueMapProducer : public edm::global::EDProducer<> {
 
   public:
 
   MVAValueMapProducer(const edm::ParameterSet&);
-  ~MVAValueMapProducer() override;
+  ~MVAValueMapProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // for AOD and MiniAOD case
-  MultiTokenT<edm::View<ParticleType>> src_;
+  const MultiTokenT<edm::View<ParticleType>> src_;
 
-  // MVA estimator
-  std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators_;
+  // MVA estimators
+  const std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators_;
 
   // Value map names
-  std::vector <std::string> mvaValueMapNames_;
-  std::vector <std::string> mvaRawValueMapNames_;
-  std::vector <std::string> mvaCategoriesMapNames_;
-
+  const std::vector<std::string> mvaValueMapNames_;
+  const std::vector<std::string> mvaRawValueMapNames_;
+  const std::vector<std::string> mvaCategoriesMapNames_;
 };
+
+namespace {
+
+    auto getMVAEstimators(const edm::VParameterSet& vConfig, edm::ConsumesCollector&& cc)
+    {
+      std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators;
+
+      // Loop over the list of MVA configurations passed here from python and
+      // construct all requested MVA estimators.
+      for( auto &imva : vConfig )
+      {
+
+        // The factory below constructs the MVA of the appropriate type based
+        // on the "mvaName" which is the name of the derived MVA class (plugin)
+        if( !imva.empty() ) {
+
+          mvaEstimators.emplace_back(AnyMVAEstimatorRun2Factory::get()->create(
+                      imva.getParameter<std::string>("mvaName"), imva));
+
+        } else
+          throw cms::Exception(" MVA configuration not found: ")
+            << " failed to find proper configuration for one of the MVAs in the main python script " << std::endl;
+
+        mvaEstimators.back()->setConsumes(std::forward<edm::ConsumesCollector>(cc));
+      }
+
+      return mvaEstimators;
+    }
+
+    std::vector<std::string> getValueMapNames(const edm::VParameterSet& vConfig, std::string && suffix)
+    {
+      std::vector<std::string> names;
+      for( auto &imva : vConfig )
+      {
+        names.push_back(imva.getParameter<std::string>("mvaName") + imva.getParameter<std::string>("mvaTag") + suffix);
+      }
+
+      return names;
+    }
+}
 
 template <class ParticleType>
 MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& iConfig)
   : src_(consumesCollector(), iConfig, "src", "srcMiniAOD")
+  , mvaEstimators_(getMVAEstimators(iConfig.getParameterSetVector("mvaConfigurations"), consumesCollector()))
+  , mvaValueMapNames_     (getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "Values"    ))
+  , mvaRawValueMapNames_  (getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "RawValues" ))
+  , mvaCategoriesMapNames_(getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "Categories"))
 
 {
-  // Loop over the list of MVA configurations passed here from python and
-  // construct all requested MVA estimators.
-  const std::vector<edm::ParameterSet>& mvaEstimatorConfigs
-    = iConfig.getParameterSetVector("mvaConfigurations");
-
-  for( auto &imva : mvaEstimatorConfigs ){
-
-    // The factory below constructs the MVA of the appropriate type based
-    // on the "mvaName" which is the name of the derived MVA class (plugin)
-    if( !imva.empty() ) {
-
-      mvaEstimators_.emplace_back(AnyMVAEstimatorRun2Factory::get()->create(
-                  imva.getParameter<std::string>("mvaName"), imva));
-
-    } else
-      throw cms::Exception(" MVA configuration not found: ")
-        << " failed to find proper configuration for one of the MVAs in the main python script " << std::endl;
-
-    mvaEstimators_.back()->setConsumes( consumesCollector() );
-
-    //
-    // Compose and save the names of the value maps to be produced
-    //
-
-    const std::string fullName = ( mvaEstimators_.back()->getName() +
-                                   mvaEstimators_.back()->getTag()  );
-
-    const std::string thisValueMapName      = fullName + "Values";
-    const std::string thisRawValueMapName   = fullName + "RawValues";
-    const std::string thisCategoriesMapName = fullName + "Categories";
-
-    mvaValueMapNames_     .push_back( thisValueMapName      );
-    mvaRawValueMapNames_  .push_back( thisRawValueMapName   );
-    mvaCategoriesMapNames_.push_back( thisCategoriesMapName );
-
-    // Declare the maps to the framework
-    produces<edm::ValueMap<float>>(thisValueMapName     );
-    produces<edm::ValueMap<float>>(thisRawValueMapName  );
-    produces<edm::ValueMap<int>>  (thisCategoriesMapName);
-
-  }
-
+  for( auto const& name : mvaValueMapNames_      ) produces<edm::ValueMap<float>>(name);
+  for( auto const& name : mvaRawValueMapNames_   ) produces<edm::ValueMap<float>>(name);
+  for( auto const& name : mvaCategoriesMapNames_ ) produces<edm::ValueMap<int  >>(name);
 }
 
 template <class ParticleType>
-MVAValueMapProducer<ParticleType>::~MVAValueMapProducer() {
-}
-
-template <class ParticleType>
-void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void MVAValueMapProducer<ParticleType>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
+{
 
   edm::Handle<edm::View<ParticleType> > src = src_.getValidHandle(iEvent);
 

@@ -264,18 +264,17 @@ void MODCCSHFDat::populateClob (Clob &clob, std::string fname, unsigned int clob
       cout << "Populating the Clob using writeBuffer(Stream) method" << endl;
       std::cout<<"we are here0"<<std::endl; 
 
-      char *file = (char *)fname.c_str();
       std::cout<<"we are here0.5 file is:"<<fname<<std::endl; 
 
       ifstream inFile;
-      inFile.open(file,ios::in);
+      inFile.open(fname.c_str(),ios::in);
       if (!inFile)
 	{
           cout << fname<<" file not found\n";
 	  inFile.close();
 
 	  std::string fname2="/u1/fra/null_file.txt";
-	  inFile.open((char*)fname2.c_str(),ios::in);
+	  inFile.open(fname2.c_str(),ios::in);
 	  
 
           

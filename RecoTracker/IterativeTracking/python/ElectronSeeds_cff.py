@@ -107,7 +107,7 @@ from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _h
 tripletElectronHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "tripletElectronSeedLayers",
     trackingRegions = "tripletElectronTrackingRegions",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
@@ -179,6 +179,7 @@ pixelPairElectronHitDoublets = _hitPairEDProducer.clone(
     trackingRegions = "pixelPairElectronTrackingRegions",
     maxElement = 1000000,
     produceSeedingHitSets = True,
+    maxElementTotal = 12000000,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 pixelPairElectronSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
@@ -230,6 +231,7 @@ stripPairElectronHitDoublets = _hitPairEDProducer.clone(
     trackingRegions = "stripPairElectronTrackingRegions",
     maxElement = 1000000,
     produceSeedingHitSets = True,
+    maxElementTotal = 12000000,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 stripPairElectronSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(

@@ -42,7 +42,7 @@ public:
   HGCalGeometryESProducer( const edm::ParameterSet& iP );
   ~HGCalGeometryESProducer() override ;
 
-  typedef std::shared_ptr<HGCalGeometry> ReturnType;
+  using ReturnType = std::unique_ptr<HGCalGeometry>;
 
   ReturnType produce(const IdealGeometryRecord&);
 
@@ -56,7 +56,7 @@ HGCalGeometryESProducer::HGCalGeometryESProducer(const edm::ParameterSet& iConfi
 
   name_     = iConfig.getUntrackedParameter<std::string>("Name");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") <<"constructing HGCalGeometry for " << name_ << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "Constructing HGCalGeometry for " << name_;
 #endif
   setWhatProduced(this, name_);
 }
@@ -81,8 +81,7 @@ HGCalGeometryESProducer::produce(const IdealGeometryRecord& iRecord ) {
 #endif
 
   HGCalGeometryLoader builder;
-  ReturnType ct(builder.build(*topo));
-  return ct ;
+  return ReturnType(builder.build(*topo));
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(HGCalGeometryESProducer);

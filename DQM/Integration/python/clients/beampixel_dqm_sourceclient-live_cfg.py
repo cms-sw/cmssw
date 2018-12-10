@@ -64,23 +64,8 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 
 #----------------------------
-# Tracking Configuration
+# Tracking General Configuration
 #----------------------------
-process.castorDigis.InputLabel           = cms.InputTag("rawDataRepacker")
-process.csctfDigis.producer              = cms.InputTag("rawDataRepacker")
-process.dttfDigis.DTTF_FED_Source        = cms.InputTag("rawDataRepacker")
-process.ecalDigis.InputLabel             = cms.InputTag("rawDataRepacker")
-process.ecalPreshowerDigis.sourceTag     = cms.InputTag("rawDataRepacker")
-process.gctDigis.inputLabel              = cms.InputTag("rawDataRepacker")
-process.gtDigis.DaqGtInputTag            = cms.InputTag("rawDataRepacker")
-process.hcalDigis.InputLabel             = cms.InputTag("rawDataRepacker")
-process.muonCSCDigis.InputObjects        = cms.InputTag("rawDataRepacker")
-process.muonDTDigis.inputLabel           = cms.InputTag("rawDataRepacker")
-process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataRepacker")
-process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-process.siPixelDigis.InputLabel          = cms.InputTag("rawDataRepacker")
-process.siStripDigis.ProductLabel        = cms.InputTag("rawDataRepacker")
-
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
@@ -94,11 +79,11 @@ process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(sr
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
 process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
 process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
-process.pixelTracksTrackingRegions.RegionPSet.originRadius     = 0.4
-process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 15.
-process.pixelTracksTrackingRegions.RegionPSet.originXPos       = 0.08
-process.pixelTracksTrackingRegions.RegionPSet.originYPos       = -0.03
-process.pixelTracksTrackingRegions.RegionPSet.originZPos       = 0.
+process.pixelTracksTrackingRegions.RegionPSet.originRadius     = cms.double(0.4)
+process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = cms.double(15.)
+process.pixelTracksTrackingRegions.RegionPSet.originXPos       = cms.double(0.08)
+process.pixelTracksTrackingRegions.RegionPSet.originYPos       = cms.double(-0.03)
+process.pixelTracksTrackingRegions.RegionPSet.originZPos       = cms.double(0.)
 
 
 #----------------------------
@@ -110,6 +95,25 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     print("[beampixel_dqm_sourceclient-live_cfg]::running pp")
 
 
+    #----------------------------
+    # Tracking Configuration
+    #----------------------------
+    process.castorDigis.InputLabel           = cms.InputTag("rawDataCollector")
+    process.csctfDigis.producer              = cms.InputTag("rawDataCollector")
+    process.dttfDigis.DTTF_FED_Source        = cms.InputTag("rawDataCollector")
+    process.ecalDigis.InputLabel             = cms.InputTag("rawDataCollector")
+    process.ecalPreshowerDigis.sourceTag     = cms.InputTag("rawDataCollector")
+    process.gctDigis.inputLabel              = cms.InputTag("rawDataCollector")
+    process.gtDigis.DaqGtInputTag            = cms.InputTag("rawDataCollector")
+    process.hcalDigis.InputLabel             = cms.InputTag("rawDataCollector")
+    process.muonCSCDigis.InputObjects        = cms.InputTag("rawDataCollector")
+    process.muonDTDigis.inputLabel           = cms.InputTag("rawDataCollector")
+    process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataCollector")
+    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
+    process.siPixelDigis.InputLabel          = cms.InputTag("rawDataCollector")
+    process.siStripDigis.ProductLabel        = cms.InputTag("rawDataCollector")
+
+    
     #----------------------------
     # pixelVertexDQM Config
     #----------------------------
@@ -145,6 +149,25 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 
     #----------------------------
+    # Tracking Configuration
+    #----------------------------
+    process.castorDigis.InputLabel           = cms.InputTag("rawDataRepacker")
+    process.csctfDigis.producer              = cms.InputTag("rawDataRepacker")
+    process.dttfDigis.DTTF_FED_Source        = cms.InputTag("rawDataRepacker")
+    process.ecalDigis.InputLabel             = cms.InputTag("rawDataRepacker")
+    process.ecalPreshowerDigis.sourceTag     = cms.InputTag("rawDataRepacker")
+    process.gctDigis.inputLabel              = cms.InputTag("rawDataRepacker")
+    process.gtDigis.DaqGtInputTag            = cms.InputTag("rawDataRepacker")
+    process.hcalDigis.InputLabel             = cms.InputTag("rawDataRepacker")
+    process.muonCSCDigis.InputObjects        = cms.InputTag("rawDataRepacker")
+    process.muonDTDigis.inputLabel           = cms.InputTag("rawDataRepacker")
+    process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataRepacker")
+    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.InputLabel          = cms.InputTag("rawDataRepacker")
+    process.siStripDigis.ProductLabel        = cms.InputTag("rawDataRepacker")
+
+
+    #----------------------------
     # pixelVertexDQM Config
     #----------------------------
     process.pixelVertexDQM = DQMEDAnalyzer('Vx3DHLTAnalyzer',
@@ -169,40 +192,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
                                             fileName           = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"))
-
-
-    #----------------------------
-    # Pixel-Tracks&Vertices Config
-    #----------------------------
-    from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA_vectParameters
-    offlinePrimaryVertices = cms.EDProducer(
-        "PrimaryVertexProducer",
-        verbose       = cms.untracked.bool(False),
-        TrackLabel    = cms.InputTag("generalTracks"),
-        beamSpotLabel = cms.InputTag("offlineBeamSpot"),
-        TkFilterParameters           = cms.PSet(
-            algorithm                = cms.string('filter'),
-            maxNormalizedChi2        = cms.double(10.0),
-            minPixelLayersWithHits   = cms.int32(2),
-            minSiliconLayersWithHits = cms.int32(5),
-            maxD0Significance        = cms.double(4.0), 
-            minPt                    = cms.double(0.0),
-            maxEta                   = cms.double(2.4),
-            trackQuality             = cms.string("any")),
-        TkClusParameters  = DA_vectParameters,
-        vertexCollections = cms.VPSet(
-            [cms.PSet(label             = cms.string(""),
-                      algorithm         = cms.string("AdaptiveVertexFitter"),
-                      chi2cutoff        = cms.double(2.5),
-                      minNdof           = cms.double(0.0),
-                      useBeamConstraint = cms.bool(False),
-                      maxDistanceToBeam = cms.double(1.0)),
-             cms.PSet(label             = cms.string("WithBS"),
-                      algorithm         = cms.string('AdaptiveVertexFitter'),
-                      chi2cutoff        = cms.double(2.5),
-                      minNdof           = cms.double(2.0),
-                      useBeamConstraint = cms.bool(True),
-                      maxDistanceToBeam = cms.double(1.0))]))
 
 
 #----------------------------

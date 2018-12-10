@@ -5,7 +5,6 @@
 #include "RooRealProxy.h"
 #include "RooAbsReal.h"
 #include <vector>
-#include <boost/static_assert.hpp>
 #include <boost/type_traits.hpp>
 #include <iostream>
 namespace root {

@@ -52,9 +52,9 @@
 #include <memory>
 
 namespace cond {
-  template <> std::shared_ptr<BaseKeyed> deserialize<BaseKeyed>( const std::string& payloadType,
-						 const Binary& payloadData,
-						 const Binary& streamerInfoData ){
+  template <> std::unique_ptr<BaseKeyed> deserialize<BaseKeyed>( const std::string& payloadType,
+                                                                 const Binary& payloadData,
+                                                                 const Binary& streamerInfoData ){
     DESERIALIZE_BASE_CASE( BaseKeyed );                                                                                                                                                                                                             
     DESERIALIZE_POLIMORPHIC_CASE( BaseKeyed, DTKeyedConfig );
 

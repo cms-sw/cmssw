@@ -10,7 +10,7 @@
       <rMaterial name="materials:Copper"/>
     </MaterialFraction>
   </CompositeMaterial>
-  <CompositeMaterial name="HGC_G10-FR4" density="1.85*g/cm3" symbol=" " method="mixture by weight">
+  <CompositeMaterial name="HGC_G10-FR4" density="1.70*g/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="0.18077359">
     <rMaterial name="materials:Silicon"/>
    </MaterialFraction>

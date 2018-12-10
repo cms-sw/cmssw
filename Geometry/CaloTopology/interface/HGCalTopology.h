@@ -82,6 +82,8 @@ public:
     return vNeighborsDetId;
   }
 
+  std::vector<DetId> neighbors(const DetId& id) const;
+
   ///Geometry mode
   HGCalGeometryMode::GeometryMode geomMode() const {return mode_;}
 
@@ -126,6 +128,12 @@ public:
 	     (subdet_ == ForwardSubdetector::HFNose)) ?  true : false);
   }
 private:
+  /// add DetId of Scintillator and Silicon type if valid
+  void addHGCSCintillatorId(std::vector<DetId>& ids, int zside, int type,
+			    int lay, int iradius, int iphi) const;
+  void addHGCSiliconId(std::vector<DetId>& ids, int det, int zside,
+		       int type,  int lay, int waferU, int waferV, 
+		       int cellU, int cellV) const;
 
   /// move the nagivator along x, y
   DetId changeXY(const DetId& id, int nrStepsX, int nrStepsY) const ;

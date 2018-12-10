@@ -12,77 +12,93 @@
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
+#include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
+
+#include "FWCore/Common/interface/EventBase.h"
+
+#include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 #include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 #include "Fireworks/Core/interface/FWParameters.h"
 
+#include "TGeoBBox.h"
+#include "TGeoXtru.h"
+
+#include "TEveGeoShape.h"
 #include "TEveTrack.h"
 #include "TEveBoxSet.h"
 
-class FWCaloParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<CaloParticle>
+class FWCaloParticleProxyBuilder : public FWProxyBuilderBase
 {
 public:
    FWCaloParticleProxyBuilder( void ) {}
    ~FWCaloParticleProxyBuilder( void ) override {}
 
-   void setItem(const FWEventItem* iItem) override {
-      FWProxyBuilderBase::setItem(iItem);
-      iItem->getConfig()->assertParam("Point Size", 1l, 3l, 1l);
-   }
-
    REGISTER_PROXYBUILDER_METHODS();
-
 private:
    // Disable default copy constructor
    FWCaloParticleProxyBuilder( const FWCaloParticleProxyBuilder& ) = delete;
    // Disable default assignment operator
    const FWCaloParticleProxyBuilder& operator=( const FWCaloParticleProxyBuilder& ) = delete;
 
-   using FWSimpleProxyBuilderTemplate<CaloParticle>::build;
-   void build( const CaloParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
+   void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 };
 
 void
-FWCaloParticleProxyBuilder::build( const CaloParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
-{
-   TEveRecTrack t;
-   t.fBeta = 1.0;
-   t.fP = TEveVector( iData.px(), iData.py(), iData.pz() );
-   t.fV = TEveVector( iData.g4Tracks()[0].trackerSurfacePosition().x(),
-                      iData.g4Tracks()[0].trackerSurfacePosition().y(),
-                      iData.g4Tracks()[0].trackerSurfacePosition().z() );
-   t.fSign = iData.charge();
+FWCaloParticleProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ){
+   const CaloParticleCollection* collection = nullptr;
+   iItem->get( collection );
 
-   TEveTrack* track = new TEveTrack(&t, context().getTrackPropagator());
-   if( t.fSign == 0 )
-      track->SetLineStyle( 7 );
+   if( collection == nullptr ) return;
 
-   track->MakeTrack();
-   setupAddElement( track, &oItemHolder );
-   TEveBoxSet* boxset = new TEveBoxSet();
-   boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
-   boxset->UseSingleColor();
-   boxset->SetPickable(true);
-   for (const auto & c : iData.simClusters())
+   for( const auto & iData : *collection )
    {
-     auto clusterDetIds = (*c).hits_and_fractions();
+      TEveBoxSet* boxset = new TEveBoxSet();
+      boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
+      boxset->UseSingleColor();
+      boxset->SetPickable(true);
 
+      for (const auto & c : iData.simClusters())
+      {
+         for( const auto & it : (*c).hits_and_fractions() )
+         {  
+            const float* corners = item()->getGeom()->getCorners( it.first );
+            const float* parameters = item()->getGeom()->getParameters( it.first );
+            const float* shapes = item()->getGeom()->getShapePars(it.first);
 
-     for( auto it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
-         it != itEnd; ++it )
-     {
-       const float* corners = item()->getGeom()->getCorners( (*it).first );
-       if( corners == nullptr ) {
-         continue;
-       }
-       std::vector<float> pnts(24);
-       fireworks::energyTower3DCorners(corners, (*it).second, pnts);
-       boxset->AddBox( &pnts[0]);
-     }
+            if( corners == nullptr || parameters == nullptr || shapes == nullptr ) {
+               continue;
+            }
+
+#if 0
+            const int total_points = parameters[0];
+            const int total_vertices = 3*total_points;
+#else // using broken boxes(half hexagon) until there's support for hexagons in TEveBoxSet
+            const int total_points = 4;
+            const int total_vertices = 3*total_points;
+
+            const float thickness = shapes[3];
+
+            std::vector<float> pnts(24);
+            for(int i = 0; i < total_points; ++i){
+               pnts[i*3+0] = corners[i*3];
+               pnts[i*3+1] = corners[i*3+1];
+               pnts[i*3+2] = corners[i*3+2];
+
+               pnts[(i*3+0)+total_vertices] = corners[i*3];
+               pnts[(i*3+1)+total_vertices] = corners[i*3+1];
+               pnts[(i*3+2)+total_vertices] = corners[i*3+2]+thickness;
+            }
+            boxset->AddBox( &pnts[0]);
+#endif
+
+         }
+      }
+      boxset->RefitPlex();
+      setupAddElement(boxset, product);
    }
-   boxset->RefitPlex();
-   setupAddElement(boxset, &oItemHolder);
 }
 
-REGISTER_FWPROXYBUILDER( FWCaloParticleProxyBuilder, CaloParticle, "CaloParticles", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER( FWCaloParticleProxyBuilder, CaloParticleCollection, "CaloFTW", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

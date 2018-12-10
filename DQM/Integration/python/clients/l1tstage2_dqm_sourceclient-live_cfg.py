@@ -139,7 +139,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
     process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
-    process.RPCTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
     process.bmtfDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.omtfStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
     process.emtfStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
@@ -154,6 +153,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.l1tStage2BmtfZeroSupp.rawData = cms.InputTag("rawDataRepacker")
     process.l1tStage2BmtfZeroSuppFatEvts.rawData = cms.InputTag("rawDataRepacker")
     process.selfFatEventFilter.rawInput = cms.InputTag("rawDataRepacker")
+    process.rpcTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
+    process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
 
 #--------------------------------------------------
 # L1T Online DQM Schedule

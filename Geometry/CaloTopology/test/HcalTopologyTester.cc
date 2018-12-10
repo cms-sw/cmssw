@@ -116,8 +116,8 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
   int maxDepthHE = topology.maxDepthHE();
   for (int det = 1; det <= HcalForward; det++) {
     for (int eta = -HcalDetId::kHcalEtaMask2; 
-	 eta <= HcalDetId::kHcalEtaMask2; eta++) {
-      for (int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
+	 eta <= (int)(HcalDetId::kHcalEtaMask2); eta++) {
+      for (unsigned int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
 	for (int depth = 1; depth < maxDepthHB + maxDepthHE; depth++) {
 	  HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
 	  if (topology.valid(cell)) {
@@ -140,7 +140,7 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
   std::cout << "\nCheck list of Depths" << std::endl
 	    << "====================" << std::endl;
   for (int eta=topology.lastHERing()-2; eta<=topology.lastHERing(); ++eta) {
-    for (int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
+    for (unsigned int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
       for (int depth = 1; depth <=  maxDepthHE; depth++) {
 	HcalDetId cell (HcalEndcap, eta, phi, depth);
 	if (topology.valid(cell)) {

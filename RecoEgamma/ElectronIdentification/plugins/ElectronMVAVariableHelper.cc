@@ -6,7 +6,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoEgamma/EgammaTools/interface/MultiToken.h"
@@ -14,23 +14,23 @@
 
 #include <TMath.h>
 
-class ElectronMVAVariableHelper : public edm::stream::EDProducer<> {
+class ElectronMVAVariableHelper : public edm::global::EDProducer<> {
  public:
 
   explicit ElectronMVAVariableHelper(const edm::ParameterSet & iConfig);
-  ~ElectronMVAVariableHelper() override ;
+  ~ElectronMVAVariableHelper() override {}
 
-  void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+  void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
 
   // for AOD and MiniAOD case
-  MultiTokenT<edm::View<reco::GsfElectron>> electronsToken_;
-  MultiTokenT<reco::VertexCollection>       vtxToken_;
-  MultiTokenT<reco::ConversionCollection>   conversionsToken_;
-  edm::EDGetTokenT<reco::BeamSpot>          beamSpotToken_;
+  const MultiTokenT<edm::View<reco::GsfElectron>> electronsToken_;
+  const MultiTokenT<reco::VertexCollection>       vtxToken_;
+  const MultiTokenT<reco::ConversionCollection>   conversionsToken_;
+  const edm::EDGetTokenT<reco::BeamSpot>          beamSpotToken_;
 };
 
 ElectronMVAVariableHelper::ElectronMVAVariableHelper(const edm::ParameterSet & iConfig)
@@ -44,10 +44,8 @@ ElectronMVAVariableHelper::ElectronMVAVariableHelper(const edm::ParameterSet & i
   produces<edm::ValueMap<float>>("kfchi2");
 }
 
-ElectronMVAVariableHelper::~ElectronMVAVariableHelper()
-{}
-
-void ElectronMVAVariableHelper::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+void ElectronMVAVariableHelper::produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const
+{
 
   // get Handles
   auto electrons      = electronsToken_.getValidHandle(iEvent);

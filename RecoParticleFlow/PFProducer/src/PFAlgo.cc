@@ -1851,8 +1851,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     
     // A temporary maps for ECAL satellite clusters
     std::multimap<double,std::pair<unsigned,::math::XYZVector> > ecalSatellites;
-    std::pair<unsigned,::math::XYZVector> fakeSatellite = make_pair(iHcal,::math::XYZVector(0.,0.,0.));
-    ecalSatellites.insert( make_pair(-1., fakeSatellite) );
+    std::pair<unsigned,::math::XYZVector> fakeSatellite(iHcal,::math::XYZVector(0.,0.,0.));
+    ecalSatellites.emplace(-1., fakeSatellite);
 
     std::multimap< unsigned, std::pair<double, unsigned> > associatedHOs;
     
@@ -2104,8 +2104,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       if ( isPrimaryOrSecondary ) blowError = 1.;
 
-      std::pair<unsigned,bool> tkmuon = make_pair(iTrack,thisIsALooseMuon);
-      associatedTracks.insert( make_pair(-Dpt*blowError, tkmuon) );     
+      std::pair<unsigned,bool> tkmuon(iTrack,thisIsALooseMuon);
+      associatedTracks.emplace(-Dpt*blowError, tkmuon);
  
       // Also keep the total track momentum error for comparison with the calo energy
       double Dp = trackRef->qoverpError()*trackMomentum*trackMomentum;
@@ -2167,21 +2167,18 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	      // PJ 1st-April-09 : To be done somewhere !!! (Had to comment it, but it is needed)
 	      // currentChargedHadron.addElementInBlock( blockref, iEcal );
        
-	      std::pair<unsigned,::math::XYZVector> satellite = 
-		make_pair(iEcal,ecalEnergyCalibrated*photonDirection);
-	      ecalSatellites.insert( make_pair(-1., satellite) );
+	      std::pair<unsigned,::math::XYZVector> satellite(iEcal,ecalEnergyCalibrated*photonDirection);
+	      ecalSatellites.emplace(-1., satellite);
 
 	    } else { // Keep satellite clusters for later
 	      
-	      std::pair<unsigned,::math::XYZVector> satellite = 
-		make_pair(iEcal,ecalEnergyCalibrated*photonDirection);
-	      ecalSatellites.insert( make_pair(dist, satellite) );
+	      std::pair<unsigned,::math::XYZVector> satellite(iEcal,ecalEnergyCalibrated*photonDirection);
+	      ecalSatellites.emplace(dist, satellite);
 	      
 	    }
 	    
-	    std::pair<double, unsigned> associatedEcal 
-	      = make_pair( distEcal, iEcal );
-	    associatedEcals.insert( make_pair(iTrack, associatedEcal) );
+	    std::pair<double, unsigned> associatedEcal( distEcal, iEcal );
+	    associatedEcals.emplace(iTrack, associatedEcal);
 
 	  } // End loop ecal associated to iTrack
 	} // end case: at least one ecal element associated to iTrack
@@ -2225,9 +2222,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    totalHO += hoclusterref->energy();
 	    active[iHO] = false;
 	    // Keep track for later reference in the PFCandidate.
-	    std::pair<double, unsigned> associatedHO
-	      = make_pair( distHO, iHO );
-	    associatedHOs.insert( make_pair(iTrack, associatedHO) );
+	    std::pair<double, unsigned> associatedHO( distHO, iHO );
+	    associatedHOs.emplace(iTrack, associatedHO);
 	    
 	  } // End loop ho associated to iTrack
 	} // end case: at least one ho element associated to iTrack
@@ -2794,7 +2790,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
           // make only one merged photon if less than 2 ecal clusters
           if ( ecalClusters.size()<=1 ) {
             ecalClusters.clear();
-            ecalClusters.push_back(make_pair(maxiEcal, photonAtECAL));
+            ecalClusters.emplace_back(maxiEcal, photonAtECAL);
             sumEcalClusters=sqrt(photonAtECAL.Mag2());
           }
 	  for(std::vector<std::pair<unsigned,::math::XYZVector> >::const_iterator pae = ecalClusters.begin(); pae != ecalClusters.end(); ++pae ) {
@@ -2815,7 +2811,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
           // make only one merged neutral hadron if less than 2 ecal clusters
           if ( ecalClusters.size()<=1 ) {
               ecalClusters.clear();
-              ecalClusters.push_back(make_pair(iHcal, hadronAtECAL));
+              ecalClusters.emplace_back(iHcal, hadronAtECAL);
               sumEcalClusters=sqrt(hadronAtECAL.Mag2());
           }
           for(std::vector<std::pair<unsigned,::math::XYZVector> >::const_iterator pae = ecalClusters.begin(); pae != ecalClusters.end(); ++pae ) {

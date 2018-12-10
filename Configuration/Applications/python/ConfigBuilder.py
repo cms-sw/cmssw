@@ -928,6 +928,7 @@ class ConfigBuilder(object):
         self.L1MENUDefaultCFF="Configuration/StandardSequences/L1TriggerDefaultMenu_cff"
         self.HLTDefaultCFF="Configuration/StandardSequences/HLTtable_cff"
         self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
+        if self._options.isRepacked: self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_DataMapper_cff"
         self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
         self.L1TrackTriggerDefaultCFF="Configuration/StandardSequences/L1TrackTrigger_cff"
         self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_Data_cff"
@@ -1105,6 +1106,7 @@ class ConfigBuilder(object):
             self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
             self.RECOBEFMIXDefaultCFF = 'FastSimulation.Configuration.Reconstruction_BefMix_cff'
             self.RECOBEFMIXDefaultSeq = 'reconstruction_befmix'
+            self.NANODefaultSeq = 'nanoSequenceFS'
             self.DQMOFFLINEDefaultCFF="FastSimulation.Configuration.DQMOfflineMC_cff"
 
         # Mixing
@@ -1206,7 +1208,11 @@ class ConfigBuilder(object):
                     setattr(self.process,prefix,getattr(cms,what)( getattr(self.process, s) ))
                 else:
                     p=getattr(self.process,prefix)
-                    p+=getattr(self.process, s)
+                    tmp = getattr(self.process, s)
+                    if isinstance(tmp, cms.Task):
+                        p.associate(tmp)
+                    else:
+                        p+=tmp
             self.schedule.append(getattr(self.process,prefix))
             return
         else:
@@ -1549,7 +1555,7 @@ class ConfigBuilder(object):
     def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
         self.loadDefaultOrSpecifiedCFF(sequence,self.RAW2DIGIDefaultCFF)
         self.scheduleSequence(sequence,'raw2digi_step')
-        #	    if self._options.isRepacked:
+         #          if self._options.isRepacked:
         #self.renameInputTagsInSequence(sequence)
         return
 
@@ -1817,7 +1823,7 @@ class ConfigBuilder(object):
         if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
             #will get in the schedule, smoothly
             for (i,s) in enumerate(valSeqName):
-                getattr(self.process,'validation_step%s'%NFI(i))._seq = self.process.genstepfilter * getattr(self.process,'validation_step%s'%NFI(i))._seq
+                getattr(self.process,'validation_step%s'%NFI(i)).insert(0, self.process.genstepfilter)
 
         return
 
@@ -2219,8 +2225,8 @@ class ConfigBuilder(object):
         if self._options.isRepacked:
             self.pythonCfgCode +="\n"
             self.pythonCfgCode +="from Configuration.Applications.ConfigBuilder import MassReplaceInputTag\n"
-            self.pythonCfgCode +="MassReplaceInputTag(process)\n"
-            MassReplaceInputTag(self.process)
+            self.pythonCfgCode +="MassReplaceInputTag(process, new=\"rawDataMapperByLabel\", old=\"rawDataCollector\")\n"
+            MassReplaceInputTag(self.process, new="rawDataMapperByLabel", old="rawDataCollector")
 
         # special treatment in case of production filter sequence 2/2
         if self.productionFilterSequence:
@@ -2230,12 +2236,12 @@ class ConfigBuilder(object):
                 self.pythonCfgCode +='\tif not path in %s: continue\n'%str(self.conditionalPaths)
             if len(self.excludedPaths):
                 self.pythonCfgCode +='\tif path in %s: continue\n'%str(self.excludedPaths)			
-            self.pythonCfgCode +='\tgetattr(process,path)._seq = process.%s * getattr(process,path)._seq \n'%(self.productionFilterSequence,)
+            self.pythonCfgCode +='\tgetattr(process,path).insert(0, process.%s)\n'%(self.productionFilterSequence,)
             pfs = getattr(self.process,self.productionFilterSequence)
             for path in self.process.paths:
                 if not path in self.conditionalPaths: continue
                 if path in self.excludedPaths: continue
-                getattr(self.process,path)._seq = pfs * getattr(self.process,path)._seq
+                getattr(self.process,path).insert(0, pfs)
 
 
         # dump customise fragment

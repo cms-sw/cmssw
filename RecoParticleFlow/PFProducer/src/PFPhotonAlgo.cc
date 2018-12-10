@@ -871,7 +871,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     std::multimap<float, unsigned int>OrderedClust;
     for(unsigned int i=0; i<PFClusters.size(); ++i){  
       float et=PFClusters[i].energy()*sin(PFClusters[i].position().theta());
-      OrderedClust.insert(make_pair(et, i));
+      OrderedClust.emplace(et, i);
     }
     std::multimap<float, unsigned int>::reverse_iterator rit;
     rit=OrderedClust.rbegin();
@@ -943,7 +943,7 @@ float PFPhotonAlgo::EvaluateResMVA(const reco::PFCandidate& photon, const std::v
   Must.MustacheClust(PFClusters,insideMust, outsideMust );
   for(unsigned int i=0; i<insideMust.size(); ++i){
     int index=insideMust[i];
-    OrderedClust.insert(make_pair(PFClusters[index].energy(),index));
+    OrderedClust.emplace(PFClusters[index].energy(),index);
   }
   std::multimap<float, unsigned int>::iterator it;
   it=OrderedClust.begin();
@@ -1048,7 +1048,7 @@ float PFPhotonAlgo::EvaluateGCorrMVA(const reco::PFCandidate& photon, const std:
   Must.MustacheClust(PFClusters,insideMust, outsideMust );
   for(unsigned int i=0; i<insideMust.size(); ++i){
     int index=insideMust[i];
-    OrderedClust.insert(make_pair(PFClusters[index].energy(),index));
+    OrderedClust.emplace(PFClusters[index].energy(),index);
   }
   std::multimap<float, unsigned int>::iterator it;
   it=OrderedClust.begin();

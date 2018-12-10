@@ -10,8 +10,7 @@
 #include "Geometry/MTDGeometryBuilder/interface/MTDParametersFromDD.h"
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
 
-MTDParametersESModule::MTDParametersESModule( const edm::ParameterSet& pset) :
-  builder(pset)
+MTDParametersESModule::MTDParametersESModule( const edm::ParameterSet& pset) 
 {
   edm::LogInfo("TRACKER") << "MTDParametersESModule::MTDParametersESModule";
 
@@ -26,11 +25,7 @@ void
 MTDParametersESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) 
 {
   edm::ParameterSetDescription desc;
-  edm::ParameterSetDescription vpdesc;
-  vpdesc.add("subdetPars",std::vector<int>());
-  desc.addVPSet("vitems",vpdesc,edm::VParameterSet());
-  desc.add("vpars",std::vector<int>());
-  descriptions.add( "mtdParametersBase", desc );
+  descriptions.add( "mtdParameters", desc );
 }
 
 MTDParametersESModule::ReturnType
@@ -40,10 +35,10 @@ MTDParametersESModule::produce( const PMTDParametersRcd& iRecord )
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
     
-  PMTDParameters* ptp = new PMTDParameters();
+  auto ptp = std::make_unique<PMTDParameters>();
   builder.build( &(*cpv), *ptp );
   
-  return ReturnType( ptp ) ;
+  return ptp;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE( MTDParametersESModule);

@@ -63,17 +63,16 @@ class ElectronSeedProducer : public edm::stream::EDProducer<>
     void filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs);
     
     edm::EDGetTokenT<reco::SuperClusterCollection> superClusters_[2] ;
-    edm::EDGetTokenT<TrajectorySeedCollection> initialSeeds_ ;
-    edm::EDGetTokenT<std::vector<reco::Vertex> > filterVtxTag_;
+    std::vector<edm::EDGetTokenT<TrajectorySeedCollection>> initialSeeds_ ;
     edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_ ;
     edm::EDGetTokenT<EcalRecHitCollection> ebRecHitCollection_;
     edm::EDGetTokenT<EcalRecHitCollection> eeRecHitCollection_;
 
-    edm::ParameterSet conf_ ;
     ElectronSeedGenerator * matcher_ ;
     std::unique_ptr<SeedFilter> seedFilter_;
 
-    TrajectorySeedCollection * theInitialSeedColl ;
+    TrajectorySeedCollection * theInitialSeedColl ;//created on the fly
+    std::vector<const TrajectorySeedCollection *> theInitialSeedColls ;
 
     // for the filter
     // H/E

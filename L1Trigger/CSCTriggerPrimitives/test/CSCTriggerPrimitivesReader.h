@@ -20,9 +20,10 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
-
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
@@ -31,12 +32,92 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include "TH1.h"
-#include "TH2.h"
+#include <TH1.h>
+#include <TH2.h>
+#include <TTree.h>
+#include <sstream>
+#define MAXSTUBS 100
 
 class CSCGeometry;
 class CSCBadChambers;
 class TFile;
+
+struct TreePerStub{
+  void init(int run, int event); // initialize to default values
+  TTree *bookTree(TTree *t, const std::string & name = "TreePerStub");
+
+  Int_t t_EventNumberAnalyzed;
+  Int_t t_RUN;
+  Int_t t_Event;
+  Int_t t_nStubs;
+  Int_t t_nStubs_readout;//only for emulation
+  Int_t t_nStubs_ME119;
+  Int_t t_nStubs_ME11no911;
+  Int_t t_nStubs_noMEpm11;
+
+  Int_t t_chamber;
+  Int_t t_ring;
+  Int_t t_endcap;
+  Int_t t_station;
+  Int_t t_chambertype;
+};
+
+
+struct MyStubComparison{
+  void init(int run, int event); // initialize to default values
+  TTree *bookTree(TTree *t, const std::string & name = "Stub_compare");
+
+  Int_t nEvents;
+  Int_t nRUN;
+  Int_t nEvent;
+  Bool_t firstfill;
+  Int_t totStubs_data;
+  Int_t totStubs_emul;
+  Int_t totStubs_emul_readout;
+  Int_t nStub_data;
+  Int_t nStub_emul;
+  Int_t chamber;
+  Int_t ring;
+  Int_t endcap;
+  Int_t station;
+  Int_t chambertype;
+  Bool_t has_data;
+  Bool_t has_emul;
+
+  Int_t quality_data;
+  Int_t bend_data;
+  Int_t bx_data;
+  Int_t quality_emul;
+  Int_t bend_emul;
+  Int_t bx_emul;
+  Int_t bx_corr_emul;//corrected
+  Int_t npretrig;
+  Int_t quality_pretrig;
+  Int_t maxquality_pretrig;
+  Int_t bend_pretrig;
+  Int_t bx_pretrig;
+  Int_t key_hs_pretrig;
+  Int_t pattern_pretrig;
+  Int_t maxpattern_pretrig;
+  Int_t fullbx_data;
+  Int_t fullbx_emul;
+  Int_t pattern_data;
+  Int_t pattern_emul;
+  Bool_t WGcrossHS_data;
+  Bool_t WGcrossHS_emul;
+  Int_t key_WG_data;
+  Int_t key_WG_emul;
+  Int_t key_hs_data;
+  Int_t key_hs_emul;
+  Int_t trknmb_data;
+  Int_t trknmb_emul;
+  Float_t dphi_data;
+  Float_t dphi_emul;
+  Float_t eta_data;
+  Float_t eta_emul;
+  Float_t phi_data;
+  Float_t phi_emul;
+};
 
 class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
 {
@@ -62,7 +143,10 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   int eventsAnalyzed;       // event number
   bool debug;               // on/off switch
   std::string rootFileName; // root file name
-  //  TFile *theFile;
+
+  // Run number, Event number
+  int RUN_;
+  int Event_;
 
   // Cache geometry for current event
   const CSCGeometry* geom_;
@@ -75,6 +159,8 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   bool dataLctsIn_;
   bool emulLctsIn_;
 
+  bool gangedME1a;
+
   // Flag to plot or not plot ME1/A as a separate chamber.
   bool plotME1A;
 
@@ -83,6 +169,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
 
   // Producer's labels
   std::string   lctProducerData_;
+  std::string   mpclctProducerData_;
   std::string   lctProducerEmul_;
   edm::InputTag simHitProducer_;
   edm::InputTag wireDigiProducer_;
@@ -95,8 +182,10 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   edm::EDGetTokenT<CSCALCTDigiCollection> alcts_d_token_;
   edm::EDGetTokenT<CSCCLCTDigiCollection> clcts_d_token_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_tmb_d_token_;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_mpc_d_token_;
   edm::EDGetTokenT<CSCALCTDigiCollection> alcts_e_token_;
   edm::EDGetTokenT<CSCCLCTDigiCollection> clcts_e_token_;
+  edm::EDGetTokenT<CSCCLCTPreTriggerDigiCollection> pretrigs_e_token_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_tmb_e_token_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_mpc_e_token_;
 
@@ -126,6 +215,9 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   static const int MAX_HS[CSC_TYPES];
   static const int ptype_TMB07[CSCConstants::NUM_CLCT_PATTERNS];
 
+  static const int lut_wg_vs_hs_me1b[48][2];
+  static const int lut_wg_vs_hs_me1a[48][2];
+  static const int lut_wg_vs_hs_me1ag[48][2];
   // LCT counters
   static int numALCT;
   static int numCLCT;
@@ -144,6 +236,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   static bool bookedEfficHistos;
 
   static bool printps;
+
 
   void setRootStyle();
 
@@ -167,50 +260,68 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   void drawEfficHistos();
   void drawHistosForTalks();
 
+  GlobalPoint getGlobalPosition(unsigned int rawId, int keWg, int keyHS) const;
+  bool doesALCTCrossCLCT(CSCDetId id, int key_wg, int key_hs) const;
   int    getCSCType(const CSCDetId& id);
   double getHsPerRad(const int idh);
 
   void compare(const CSCALCTDigiCollection* alcts_data,
-	       const CSCALCTDigiCollection* alcts_emul,
-	       const CSCCLCTDigiCollection* clcts_data,
-	       const CSCCLCTDigiCollection* clcts_emul,
-	       const CSCCorrelatedLCTDigiCollection* lcts_data,
-	       const CSCCorrelatedLCTDigiCollection* lcts_emul);
+               const CSCALCTDigiCollection* alcts_emul,
+               const CSCCLCTDigiCollection* clcts_data,
+               const CSCCLCTDigiCollection* clcts_emul,
+               const CSCCLCTPreTriggerDigiCollection* pretrigs_emul,
+               const CSCCorrelatedLCTDigiCollection* lcts_data,
+               const CSCCorrelatedLCTDigiCollection* lcts_emul);//,
+  //const CSCCorrelatedLCTDigiCollection* mpclcts_data,
+  //const CSCCorrelatedLCTDigiCollection* mpclcts_emul);
   void bookCompHistos();
   void compareALCTs(const CSCALCTDigiCollection* alcts_data,
-		    const CSCALCTDigiCollection* alcts_emul);
+                    const CSCALCTDigiCollection* alcts_emul);
   void compareCLCTs(const CSCCLCTDigiCollection* clcts_data,
-		    const CSCCLCTDigiCollection* clcts_emul);
+                    const CSCCLCTDigiCollection* clcts_emul,
+                    const CSCCLCTPreTriggerDigiCollection* pretrigs_emul);
   void compareLCTs(const CSCCorrelatedLCTDigiCollection* lcts_data,
-		   const CSCCorrelatedLCTDigiCollection* lcts_emul,
-		   const CSCALCTDigiCollection* alcts_data,
-		   const CSCCLCTDigiCollection* clcts_data);
+                   const CSCCorrelatedLCTDigiCollection* lcts_emul,
+                   const CSCALCTDigiCollection* alcts_data,
+                   const CSCCLCTDigiCollection* clcts_data);
+  void compareMPCLCTs(const CSCCorrelatedLCTDigiCollection* lcts_data,
+                      const CSCCorrelatedLCTDigiCollection* lcts_emul,
+                      const CSCALCTDigiCollection* alcts_data,
+                      const CSCCLCTDigiCollection* clcts_data);
   int  convertBXofLCT(const int emul_bx, const CSCDetId& detid,
-		      const CSCALCTDigiCollection* alcts_data,
-		      const CSCCLCTDigiCollection* clcts_data);
+                      const CSCALCTDigiCollection* alcts_data,
+                      const CSCCLCTDigiCollection* clcts_data);
   void drawCompHistos();
 
   void MCStudies(const edm::Event& ev,
-		 const CSCALCTDigiCollection* alcts,
-		 const CSCCLCTDigiCollection* clcts);
+                 const CSCALCTDigiCollection* alcts,
+                 const CSCCLCTDigiCollection* clcts);
 
   void calcResolution(const CSCALCTDigiCollection* alcts,
-		      const CSCCLCTDigiCollection* clcts,
-		      const CSCWireDigiCollection* wiredc,
-		      const CSCComparatorDigiCollection* compdc,
-		      const edm::PSimHitContainer* allSimHits);
+                      const CSCCLCTDigiCollection* clcts,
+                      const CSCWireDigiCollection* wiredc,
+                      const CSCComparatorDigiCollection* compdc,
+                      const edm::PSimHitContainer& allSimHits);
 
   void calcEfficiency(const CSCALCTDigiCollection* alcts,
-		      const CSCCLCTDigiCollection* clcts,
-		      const edm::PSimHitContainer* allSimHits);
+                      const CSCCLCTDigiCollection* clcts,
+                      const edm::PSimHitContainer& allSimHits);
 
   int maxRing(int station);
 
 
+  //fill 3 Trees
+  MyStubComparison stubs_comparison[4];
+  TTree *stub_tree[4];
+  //fill 3 Trees: alct, clct, lct for data and emul
+  TreePerStub perStub[6];
+  TTree *event_tree[6];
+
   // Histograms
   //Hot wires
   TH1F *hHotWire1, *hHotCham1;
-  // ALCTs
+
+  // ALCTs, data
   TH1F *hAlctPerEvent, *hAlctPerChamber, *hAlctPerCSC;
   TH1F *hAlctCsc[MAX_ENDCAPS][CSC_TYPES];
   TH1F *hAlctValid, *hAlctQuality, *hAlctAccel, *hAlctCollis, *hAlctKeyGroup;
@@ -263,8 +374,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   TH1F *hClctCompFound;
   TH2F *hClctCompFound2;
   TH2F *hClctCompFound2x;
-  TH2F *hClctCompFound2i
-;
+  TH2F *hClctCompFound2i;
   TH1F *hClctCompSameN;
   TH2F *hClctCompSameN2;
   TH2F *hClctCompSameN2x;

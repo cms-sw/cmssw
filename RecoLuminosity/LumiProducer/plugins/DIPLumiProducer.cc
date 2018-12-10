@@ -50,7 +50,6 @@ Description: A essource/esproducer for lumi values from DIP via runtime logger D
 #include <vector>
 #include <cstring>
 #include <iterator>
-#include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -74,7 +73,7 @@ DIPLumiProducer::produceSummary(const DIPLuminosityRcd&)
   unsigned int currentrun=m_pcurrentTime->eventID().run();
   unsigned int currentls=m_pcurrentTime->luminosityBlockNumber();
   if(currentls==0||currentls==4294967295){ 
-    return std::make_shared<DIPLumiSummary>();
+    return std::make_shared<const DIPLumiSummary>();
   }
   if(m_summarycachedrun!=currentrun){//i'm in a new run
     fillsummarycache(currentrun,currentls);//starting ls
@@ -84,11 +83,11 @@ DIPLumiProducer::produceSummary(const DIPLuminosityRcd&)
     }
   }
   if(m_summarycache.empty()){
-    return std::make_shared<DIPLumiSummary>();
+    return std::make_shared<const DIPLumiSummary>();
   }
   if(m_summarycache.find(currentls)==m_summarycache.end()){
     std::vector<unsigned int> v;
-    for(std::map<unsigned int,std::shared_ptr<DIPLumiSummary> >::iterator it=m_summarycache.begin();it!=m_summarycache.end();++it){
+    for(std::map<unsigned int,std::shared_ptr<const DIPLumiSummary> >::iterator it=m_summarycache.begin();it!=m_summarycache.end();++it){
       v.push_back(it->first);
     }
     m_summaryresult=m_summarycache[v.back()];
@@ -96,7 +95,7 @@ DIPLumiProducer::produceSummary(const DIPLuminosityRcd&)
     m_summaryresult=m_summarycache[currentls];
   }
   if(m_summaryresult.get()==nullptr){
-    return std::make_shared<DIPLumiSummary>();
+    return std::make_shared<const DIPLumiSummary>();
   }
   return m_summaryresult;
 }
@@ -106,7 +105,7 @@ DIPLumiProducer::produceDetail(const DIPLuminosityRcd&)
   unsigned int currentrun=m_pcurrentTime->eventID().run();
   unsigned int currentls=m_pcurrentTime->luminosityBlockNumber();
   if(currentls==0||currentls==4294967295){ 
-    return std::make_shared<DIPLumiDetail>();
+    return std::make_shared<const DIPLumiDetail>();
   }
   if(m_detailcachedrun!=currentrun){//i'm in a new run
     filldetailcache(currentrun,currentls);//starting ls
@@ -116,11 +115,11 @@ DIPLumiProducer::produceDetail(const DIPLuminosityRcd&)
     }
   }
   if(m_detailcache.empty()){
-    return std::make_shared<DIPLumiDetail>();
+    return std::make_shared<const DIPLumiDetail>();
   }
   if(m_detailcache.find(currentls)==m_detailcache.end()){
     std::vector<unsigned int> v;
-    for(std::map<unsigned int,std::shared_ptr<DIPLumiDetail> >::iterator it=m_detailcache.begin();it!=m_detailcache.end();++it){
+    for(std::map<unsigned int,std::shared_ptr<const DIPLumiDetail> >::iterator it=m_detailcache.begin();it!=m_detailcache.end();++it){
       v.push_back(it->first);
     }
     m_detailresult=m_detailcache[v.back()];
@@ -128,7 +127,7 @@ DIPLumiProducer::produceDetail(const DIPLuminosityRcd&)
     m_detailresult=m_detailcache[currentls];
   }
   if(m_detailresult.get()==nullptr){
-    return std::make_shared<DIPLumiDetail>();
+    return std::make_shared<const DIPLumiDetail>();
   }
   return m_detailresult;
 }
@@ -224,10 +223,11 @@ DIPLumiProducer::fillsummarycache(unsigned int runnumber,unsigned int currentlsn
       if(!row["CMS_ACTIVE"].isNull()){
 	cmsalive=row["CMS_ACTIVE"].data<unsigned short>();
       }
-      auto tmpls = std::make_shared<DIPLumiSummary>(instlumi,intgdellumi,intgreclumi,cmsalive);
+      auto tmpls = std::make_unique<DIPLumiSummary>(instlumi,intgdellumi,intgreclumi,cmsalive);
       tmpls->setOrigin(m_summarycachedrun,lsnum);
       //std::cout<<"filling "<<lsnum<<std::endl;
-      m_summarycache.insert(std::make_pair(lsnum,tmpls));
+      std::shared_ptr<const DIPLumiSummary> const_tmpls = std::move(tmpls);
+      m_summarycache.insert(std::make_pair(lsnum,const_tmpls));
     }
     delete lumisummaryQuery;
     session->transaction().commit();
@@ -266,6 +266,8 @@ void
 DIPLumiProducer::filldetailcache(unsigned int runnumber,unsigned int currentlsnum){
   m_detailcache.clear();
   m_detailcachedrun=runnumber;
+
+  std::map< unsigned int,std::unique_ptr<DIPLumiDetail> > detailcache;
   //
   //queries once per cache refill
   //
@@ -318,9 +320,9 @@ DIPLumiProducer::filldetailcache(unsigned int runnumber,unsigned int currentlsnu
     while( lumidetailcursor.next() ){
       const coral::AttributeList& row=lumidetailcursor.currentRow();
       unsigned int lsnum=row["LUMISECTION"].data<unsigned int>();
-      if(m_detailcache.find(lsnum)==m_detailcache.end()){
-	m_detailcache.insert(std::make_pair(lsnum,std::make_shared<DIPLumiDetail>()));
-	m_detailcache[lsnum]->setOrigin(m_detailcachedrun,lsnum);
+      if(detailcache.find(lsnum)==detailcache.end()){
+	detailcache.insert(std::make_pair(lsnum,std::make_unique<DIPLumiDetail>()));
+	detailcache[lsnum]->setOrigin(m_detailcachedrun,lsnum);
       }
       if(!row["BUNCH"].isNull()){
 	unsigned int bxidx=row["BUNCH"].data<unsigned int>();
@@ -328,8 +330,11 @@ DIPLumiProducer::filldetailcache(unsigned int runnumber,unsigned int currentlsnu
 	if(!row["BUNCHLUMI"].isNull()){
 	  bxlumi=row["BUNCHLUMI"].data<float>();//Hz/ub
 	}
-	m_detailcache[lsnum]->fillbxdata(bxidx,bxlumi);
+	detailcache[lsnum]->fillbxdata(bxidx,bxlumi);
       }
+    }
+    for(auto & item : detailcache) {
+      m_detailcache[item.first] = std::move(item.second);
     }
     delete lumidetailQuery;
     session->transaction().commit();

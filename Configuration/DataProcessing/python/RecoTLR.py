@@ -95,8 +95,9 @@ def customisePostEra_Run2_2018_pp_on_AA(process):
 
 def customisePostEra_Run2_2018_pp_on_AA_express_trackingOnly(process):
     customisePostEra_Run2_2018_express_trackingOnly(process)
+    from DQM.TrackingMonitorSource.PPonAATrackingOnly_custom import customise_PPonAATrackingOnlyDQM as _customise_PPonAATrackingOnlyDQM
+    _customise_PPonAATrackingOnlyDQM(process)
     return process
-
 
 ##############################################################################
 def customisePPData(process):

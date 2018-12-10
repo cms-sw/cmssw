@@ -135,8 +135,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
     process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
-    process.RPCTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
     process.bmtfDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.valBmtfAlgoSel.feds = cms.InputTag("rawDataRepacker")
     process.omtfStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
     process.emtfStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.gmtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
@@ -147,6 +147,9 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.l1tdeStage2CaloLayer1.fedRawDataLabel = cms.InputTag("rawDataRepacker")
     process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.selfFatEventFilter.rawInput = cms.InputTag("rawDataRepacker")
+    process.rpcTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
+    process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
+    process.hltFatEventFilter.HLTPaths.append('HLT_HIPhysics_v*')
 
 #--------------------------------------------------
 # L1T Emulator Online DQM Schedule

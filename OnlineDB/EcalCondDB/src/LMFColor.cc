@@ -104,7 +104,7 @@ bool LMFColor::isValid() {
   boost::ptr_list<LMFUnique>::const_iterator e = listOfValidColors.end();
   bool ret = false;
   while (i != e) {
-    LMFColor *c = (LMFColor*)&(*i);
+    const LMFColor *c = static_cast<const LMFColor*>(&(*i));
     if (c->getShortName() == getShortName()) {
       ret = true;
       i = e;

@@ -29,7 +29,7 @@ def unpack_legacy():
     gctDigis.inputLabel = 'rawDataCollector'
     gtDigis.DaqGtInputTag = 'rawDataCollector'
     gtEvmDigis.EvmGtInputTag = 'rawDataCollector'
-    L1TRawToDigi_Legacy = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+gtEvmDigis)
+    L1TRawToDigi_Legacy = cms.Task(csctfDigis,dttfDigis,gctDigis,gtDigis,gtEvmDigis)
     
 
 def unpack_stage1():
@@ -53,12 +53,13 @@ def unpack_stage1():
     import EventFilter.GctRawToDigi.l1GctHwDigis_cfi
     gctDigis = EventFilter.GctRawToDigi.l1GctHwDigis_cfi.l1GctHwDigis.clone()
     gctDigis.inputLabel = 'rawDataCollector'
-    L1TRawToDigi_Stage1 = cms.Sequence(csctfDigis+dttfDigis+gtDigis+caloStage1Digis+caloStage1FinalDigis+caloStage1LegacyFormatDigis+gctDigis)    
+    L1TRawToDigi_Stage1 = cms.Task(csctfDigis,dttfDigis,gtDigis,caloStage1Digis,caloStage1FinalDigis,caloStage1LegacyFormatDigis,gctDigis)    
 
 def unpack_stage2():
     global L1TRawToDigi_Stage2
-    global RPCTwinMuxRawToDigi, twinMuxStage2Digis, bmtfDigis, omtfStage2Digis, emtfStage2Digis, caloLayer1Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
-    from EventFilter.RPCRawToDigi.RPCTwinMuxRawToDigi_cfi import RPCTwinMuxRawToDigi
+    global rpcTwinMuxRawToDigi, twinMuxStage2Digis, bmtfDigis, omtfStage2Digis, rpcCPPFRawToDigi, emtfStage2Digis, caloLayer1Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
+    from EventFilter.RPCRawToDigi.rpcTwinMuxRawToDigi_cfi import rpcTwinMuxRawToDigi
+    from EventFilter.RPCRawToDigi.RPCCPPFRawToDigi_cfi import rpcCPPFRawToDigi
     from EventFilter.L1TRawToDigi.bmtfDigis_cfi import bmtfDigis 
     from EventFilter.L1TRawToDigi.omtfStage2Digis_cfi import omtfStage2Digis
     from EventFilter.L1TRawToDigi.emtfStage2Digis_cfi import emtfStage2Digis
@@ -67,7 +68,7 @@ def unpack_stage2():
     from EventFilter.L1TRawToDigi.gmtStage2Digis_cfi import gmtStage2Digis
     from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import gtStage2Digis
     from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import twinMuxStage2Digis
-    L1TRawToDigi_Stage2 = cms.Sequence(RPCTwinMuxRawToDigi + twinMuxStage2Digis * bmtfDigis + omtfStage2Digis + emtfStage2Digis + caloLayer1Digis + caloStage2Digis + gmtStage2Digis + gtStage2Digis)
+    L1TRawToDigi_Stage2 = cms.Task(rpcTwinMuxRawToDigi, twinMuxStage2Digis, bmtfDigis, omtfStage2Digis, rpcCPPFRawToDigi, emtfStage2Digis, caloLayer1Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis)
     
 #
 # Legacy Trigger:
@@ -76,14 +77,14 @@ from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
     unpack_legacy()
-    L1TRawToDigi = cms.Sequence(L1TRawToDigi_Legacy);
+    L1TRawToDigiTask = cms.Task(L1TRawToDigi_Legacy);
 
 #
 # Stage-1 Trigger
 #
 if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
     unpack_stage1()
-    L1TRawToDigi = cms.Sequence(L1TRawToDigi_Stage1)
+    L1TRawToDigiTask = cms.Task(L1TRawToDigi_Stage1)
 
 #
 # Stage-2 Trigger:  fow now, unpack Stage 1 and Stage 2 (in case both available)
@@ -91,9 +92,11 @@ if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
 if stage2L1Trigger.isChosen():
     unpack_stage1()
     unpack_stage2()
-    L1TRawToDigi = cms.Sequence(L1TRawToDigi_Stage1+L1TRawToDigi_Stage2)
+    L1TRawToDigiTask = cms.Task(L1TRawToDigi_Stage1,L1TRawToDigi_Stage2)
     # we only warn if it is stage-2 era and it is an essential, always present, stage-2 payload:
     caloStage2Digis.MinFeds = cms.uint32(1)
     gmtStage2Digis.MinFeds = cms.uint32(1)
     gtStage2Digis.MinFeds = cms.uint32(1)
     
+
+L1TRawToDigi = cms.Sequence(L1TRawToDigiTask)

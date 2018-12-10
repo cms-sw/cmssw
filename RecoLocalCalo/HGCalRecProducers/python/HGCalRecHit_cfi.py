@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import *
 from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import *
 
-dEdX_weights = cms.vdouble(0.0,   # there is no layer zero
+dEdX = cms.PSet(
+weights = cms.vdouble(0.0,   # there is no layer zero
                            8.603, # Mev
                            8.0675,
                            8.0675,
@@ -55,6 +56,62 @@ dEdX_weights = cms.vdouble(0.0,   # there is no layer zero
                            92.196,
                            92.196,
                            46.098)
+)
+
+dEdX_weights_v9 = cms.vdouble(0.0,      # there is no layer zero
+                              8.366557, # Mev
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              31.497849,  
+                              51.205434,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              71.265149,  
+                              90.499812,  
+                              90.894274,  
+                              90.537470,  
+                              89.786205,  
+                              89.786205,  
+                              89.786205,  
+                              89.786205,  
+                              89.786205,  
+                              89.786205,  
+                              89.786205,  
+                              89.786205,  
+                              89.786205)
+
 
 # HGCAL rechit producer
 HGCalRecHit = cms.EDProducer(
@@ -81,7 +138,7 @@ HGCalRecHit = cms.EDProducer(
 
 
     # EM Scale calibrations
-    layerWeights = dEdX_weights,
+    layerWeights = dEdX.weights,
 
     thicknessCorrection = cms.vdouble(1.132,1.092,1.084), # 100, 200, 300 um
     HGCEE_noise_fC = hgceeDigitizer.digiCfg.noise_fC,
@@ -94,4 +151,6 @@ HGCalRecHit = cms.EDProducer(
 
     )
 
-
+from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+phase2_hgcalV9.toModify( dEdX, weights = dEdX_weights_v9 ) 
+phase2_hgcalV9.toModify( HGCalRecHit , thicknessCorrection = cms.vdouble(0.759,0.760,0.773) ) #120um, 200um, 300um

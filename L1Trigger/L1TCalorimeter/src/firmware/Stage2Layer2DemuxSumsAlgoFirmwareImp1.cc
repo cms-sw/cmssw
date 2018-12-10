@@ -32,6 +32,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   unsigned int mbp0(0), mbm0(0), mbp1(0), mbm1(0);
   unsigned int ntow(0);
 
+  bool etSat(false), etHFSat(false), htSat(false), htHFSat(false);
   bool metSat(false), metHFSat(false), mhtSat(false), mhtHFSat(false);
 
   // Add up the x, y and scalar components
@@ -40,6 +41,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
       switch (eSum.getType()) {
 
       case l1t::EtSum::EtSumType::kTotalEt:
+	if(eSum.hwPt()==0xffff) etSat=true;
 	et += eSum.hwPt();
 	if(posEt) etPos = eSum.hwPt();
 	else {
@@ -49,6 +51,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
         break;
 
       case l1t::EtSum::EtSumType::kTotalEtHF:
+	if(eSum.hwPt()==0xffff) etHFSat=true;
         etHF += eSum.hwPt();
 	if(posEtHF) etHFPos = eSum.hwPt();
 	else {
@@ -72,6 +75,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
         break;
 
       case l1t::EtSum::EtSumType::kTotalHt:
+	if(eSum.hwPt()==0xffff) htSat=true;
         ht += eSum.hwPt();
 	if(posHt) htPos = eSum.hwPt();
 	else {
@@ -81,6 +85,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
         break;
 
       case l1t::EtSum::EtSumType::kTotalHtHF:
+	if(eSum.hwPt()==0xffff) htHFSat=true;
         htHF += eSum.hwPt();
 	if(posHtHF) htHFPos = eSum.hwPt();
 	else {
@@ -152,6 +157,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
       cent |= 1 << i;
     }
   }
+  if(etHFSat) cent = 0x80;
 
   // calculate HI imbalance
   asymEt   = l1t::CaloTools::gloriousDivision(abs(etPos-etNeg), et);
@@ -159,18 +165,17 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   asymHt   = l1t::CaloTools::gloriousDivision(abs(htPos-htNeg), ht);
   asymHtHF = l1t::CaloTools::gloriousDivision(abs(htHFPos-htHFNeg), htHF);
 
+  if(etSat) asymEt   = 0xFF;
+  if(etHFSat) asymEtHF = 0xFF;
+  if(htSat) asymHt   = 0xFF;
+  if(htHFSat) asymHtHF = 0xFF;
+
   if (et>0xFFF)   et   = 0xFFF;
   if (etHF>0xFFF) etHF = 0xFFF;
   if (etem>0xFFF) etem = 0xFFF;
   if (ht>0xFFF)   ht   = 0xFFF;
   if (htHF>0xFFF) htHF = 0xFFF;
 
-  if(et == 0xFFF) asymEt   = 0xFF;
-  if(etHF == 0xFFF) asymEtHF = 0xFF;
-  if(ht == 0xFFF) asymHt   = 0xFF;
-  if(htHF == 0xFFF) asymHtHF = 0xFF;
-  if((etHF == 0xFFF) || (et == 0xFFF)) cent = 0x80;
-  
   //if (mhtx>0xFFF) mhtx = 0xFFF;
   //if (mhty>0xFFF) mhty = 0xFFF;
 
@@ -198,11 +203,10 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   if ( (mhtxHF != 0 || mhtyHF != 0) && !mhtHFSat ) cordic_( mhtxHF , mhtyHF , mhtPhiHF , mhtHF );
   mhtHF >>= 6; 
 
-
-  if(metSat) met=0xFFF;
-  if(metHFSat) metHF=0xFFF;
-  if(mhtSat) mht=0xFFF;
-  if(mhtHFSat) mhtHF=0xFFF;
+  if(metSat || met > 0xFFF) met=0xFFF;
+  if(metHFSat || metHF > 0xFFF) metHF=0xFFF;
+  if(mhtSat || mht > 0xFFF) mht=0xFFF;
+  if(mhtHFSat || mhtHF > 0xFFF) mhtHF=0xFFF;
 
   // Make final collection
   math::XYZTLorentzVector p4;

@@ -1,13 +1,13 @@
 #ifndef RecoEgamma_EgammaTools_MVAVariableManager_H
 #define RecoEgamma_EgammaTools_MVAVariableManager_H
 
-#include "CommonTools/Utils/interface/StringObjectFunction.h"                                                        
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "RecoEgamma/EgammaTools/interface/ThreadSafeStringCut.h"
 
 #include <fstream>
 
@@ -19,8 +19,7 @@ class MVAVariableManager {
       : nVars_ (0)
       , nHelperVars_ (0)
       , nGlobalVars_ (0)
-    {
-    };
+    {}
 
     MVAVariableManager(const std::string &variableDefinitionFileName) {
         init(variableDefinitionFileName);
@@ -164,12 +163,12 @@ class MVAVariableManager {
         int isGlobalVariable = formula.find("Rho") != std::string::npos;
 
         if ( !(fromVariableHelper || isGlobalVariable) ) {
-            functions_.push_back(StringObjectFunction<ParticleType>(formula));
+            functions_.emplace_back(formula);
         } else {
             // Push back a dummy function since we won't use the
             // StringObjectFunction to evaluate a variable form the helper or a
             // global variable
-            functions_.push_back(StringObjectFunction<ParticleType>("pt"));
+            functions_.emplace_back("pt");
         }
 
         formulas_.push_back(formula);
@@ -203,7 +202,7 @@ class MVAVariableManager {
     int nGlobalVars_;
 
     std::vector<MVAVariableInfo> variableInfos_;
-    std::vector<StringObjectFunction<ParticleType>> functions_;
+    std::vector<ThreadSafeStringCut<StringObjectFunction<ParticleType>, ParticleType>> functions_;
     std::vector<std::string> formulas_;
     std::vector<std::string> names_;
     std::map<std::string, int> indexMap_;

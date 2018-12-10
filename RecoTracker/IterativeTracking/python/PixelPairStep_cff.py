@@ -91,6 +91,7 @@ pixelPairStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "pixelPairStepSeedLayers",
     trackingRegions = "pixelPairStepTrackingRegions",
     produceSeedingHitSets = True,
+    maxElementTotal = 12000000,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 pixelPairStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(

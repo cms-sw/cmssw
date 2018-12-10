@@ -14,9 +14,9 @@
 #include "CondCore/CondDB/interface/Serialization.h"
 
 namespace cond {
-  template <> std::shared_ptr<PerformancePayload> deserialize<PerformancePayload>( const std::string& payloadType, 
-										     const Binary& payloadData, 
-										     const Binary& streamerInfoData ){
+  template <> std::unique_ptr<PerformancePayload> deserialize<PerformancePayload>( const std::string& payloadType,
+                                                                                   const Binary& payloadData,
+                                                                                   const Binary& streamerInfoData ){
     // DESERIALIZE_BASE_CASE( PerformancePayload );  abstract 
     DESERIALIZE_POLIMORPHIC_CASE( PerformancePayload, PerformancePayloadFromTFormula ); 
     DESERIALIZE_POLIMORPHIC_CASE( PerformancePayload, PerformancePayloadFromBinnedTFormula ); 

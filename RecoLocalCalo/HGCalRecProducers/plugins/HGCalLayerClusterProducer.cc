@@ -26,6 +26,9 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/ComputeClusterTime.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
 
 class HGCalLayerClusterProducer : public edm::stream::EDProducer<> {
  public:
@@ -47,6 +50,9 @@ class HGCalLayerClusterProducer : public edm::stream::EDProducer<> {
   bool doSharing;
   std::string detector;
 
+  std::string timeClname;
+  double timeOffset;
+
   HGCalImagingAlgo::VerbosityLevel verbosity;
 };
 
@@ -56,6 +62,8 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
   algoId(reco::CaloCluster::undefined),
   doSharing(ps.getParameter<bool>("doSharing")),
   detector(ps.getParameter<std::string >("detector")), // one of EE, FH, BH or "all"
+  timeClname(ps.getParameter<std::string >("timeClname")),
+  timeOffset(ps.getParameter<double>("timeOffset")),
   verbosity((HGCalImagingAlgo::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity",3)){
   double ecut = ps.getParameter<double>("ecut");
   std::vector<double> vecDeltas = ps.getParameter<std::vector<double> >("deltac");
@@ -96,6 +104,8 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
 
   produces<std::vector<reco::BasicCluster> >();
   produces<std::vector<reco::BasicCluster> >("sharing");
+  //time for layer clusters
+  produces<edm::ValueMap<float> > (timeClname);
 
 }
 
@@ -113,6 +123,8 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<bool>("dependSensor", true);
   desc.add<double>("ecut", 3.0);
   desc.add<double>("kappa", 9.0);
+  desc.add<std::string>("timeClname", "timeLayerCluster");
+  desc.add<double>("timeOffset",0.0);
   desc.addUntracked<unsigned int>("verbosity", 3);
   desc.add<edm::InputTag>("HGCEEInput", edm::InputTag("HGCalRecHit","HGCEERecHits"));
   desc.add<edm::InputTag>("HGCFHInput", edm::InputTag("HGCalRecHit","HGCHEFRecHits"));
@@ -147,16 +159,23 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
 
   algo->getEventSetup(es);
 
+  //make a map detid-rechit
+  // NB for the moment just host EE and FH hits
+  // timing in digi for BH not implemented for now
+  std::unordered_map<uint32_t, float> hitmap;
+
   switch(algoId){
   case reco::CaloCluster::hgcal_em:
     evt.getByToken(hits_ee_token,ee_hits);
     algo->populate(*ee_hits);
+    for(auto const& it: *ee_hits) hitmap[it.detid().rawId()] = it.time();
     break;
   case  reco::CaloCluster::hgcal_had:
     evt.getByToken(hits_fh_token,fh_hits);
     evt.getByToken(hits_bh_token,bh_hits);
     if( fh_hits.isValid() ) {
       algo->populate(*fh_hits);
+      for(auto const& it: *fh_hits) hitmap[it.detid().rawId()] = it.time();
     } else if ( bh_hits.isValid() ) {
       algo->populate(*bh_hits);
     }
@@ -164,8 +183,14 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
   case reco::CaloCluster::hgcal_mixed:
     evt.getByToken(hits_ee_token,ee_hits);
     algo->populate(*ee_hits);
+    for(auto const& it: *ee_hits){
+      hitmap[it.detid().rawId()] = it.time();
+    }
     evt.getByToken(hits_fh_token,fh_hits);
     algo->populate(*fh_hits);
+    for(auto const& it: *fh_hits){
+      hitmap[it.detid().rawId()] = it.time();
+    }
     evt.getByToken(hits_bh_token,bh_hits);
     algo->populate(*bh_hits);
     break;
@@ -180,10 +205,38 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
   auto clusterHandle = evt.put(std::move(clusters));
   auto clusterHandleSharing = evt.put(std::move(clusters_sharing),"sharing");
   edm::PtrVector<reco::BasicCluster> clusterPtrs, clusterPtrsSharing;
+
+  std::vector<float> times;
+  times.reserve(clusterHandle->size());
+
   for( unsigned i = 0; i < clusterHandle->size(); ++i ) {
     edm::Ptr<reco::BasicCluster> ptr(clusterHandle,i);
     clusterPtrs.push_back(ptr);
+
+    float timeCl = -99.;
+    const reco::CaloCluster &sCl = (*clusterHandle)[i];
+    if(sCl.size() >= 3){
+      std::vector<float> timeClhits;
+
+      for(auto const& hit : sCl.hitsAndFractions()){
+        auto finder = hitmap.find(hit.first);
+        if(finder == hitmap.end()) continue;
+
+        //time is computed wrt  0-25ns + offset and set to -1 if no time
+        float rhTime = finder->second;
+        if(rhTime < 0.) continue;
+        timeClhits.push_back(rhTime - timeOffset);
+      }
+      if(timeClhits.size() >= 3) timeCl = hgcalsimclustertime::fixSizeHighestDensity(timeClhits);
+    }
+    times.push_back(timeCl);
   }
+
+  auto timeCl = std::make_unique<edm::ValueMap<float>>();
+  edm::ValueMap<float>::Filler filler(*timeCl);
+  filler.insert(clusterHandle, times.begin(), times.end());
+  filler.fill();
+  evt.put(std::move(timeCl), timeClname);
 
   if(doSharing){
     for( unsigned i = 0; i < clusterHandleSharing->size(); ++i ) {

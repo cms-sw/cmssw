@@ -88,7 +88,9 @@ namespace edm {
     EDFilterBase::doPreallocate(PreallocationConfiguration const&iPrealloc) {
       auto const nThreads = iPrealloc.numberOfThreads();
       preallocThreads(nThreads);
+      preallocLumis(iPrealloc.numberOfLuminosityBlocks());
     }
+    void EDFilterBase::preallocLumis(unsigned int) {};
 
     void
     EDFilterBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,

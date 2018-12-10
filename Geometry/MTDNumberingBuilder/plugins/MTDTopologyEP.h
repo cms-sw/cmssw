@@ -17,7 +17,7 @@ public:
   MTDTopologyEP( const edm::ParameterSet & );
   ~MTDTopologyEP( void ) override;
 
-  typedef std::shared_ptr<MTDTopology> ReturnType;
+  using ReturnType = std::unique_ptr<MTDTopology>;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
     
@@ -25,7 +25,8 @@ public:
 
 private:
   void fillParameters( const PMTDParameters& );
-    
+
+  int mtdTopologyMode_;
   MTDTopology::BTLValues btlVals_;
   MTDTopology::ETLValues etlVals_;
 };

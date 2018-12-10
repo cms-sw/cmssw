@@ -87,7 +87,7 @@ highPtTripletStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "highPtTripletStepSeedLayers",
     trackingRegions = "highPtTripletStepTrackingRegions",
     layerPairs = [0,1], # layer pairs (0,1), (1,2)
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer

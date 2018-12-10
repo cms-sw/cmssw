@@ -9,7 +9,7 @@ class L1TMuonEndCapObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBaseExt {
 private:
     bool transactionSafe;
 public:
-    void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+    void fillObjectKeys( L1TriggerKeyExt* pL1TriggerKey ) override ;
 
     L1TMuonEndCapObjectKeysOnlineProd(const edm::ParameterSet&);
     ~L1TMuonEndCapObjectKeysOnlineProd(void) override{}
@@ -22,7 +22,7 @@ L1TMuonEndCapObjectKeysOnlineProd::L1TMuonEndCapObjectKeysOnlineProd(const edm::
 }
 
 
-void L1TMuonEndCapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey ){
+void L1TMuonEndCapObjectKeysOnlineProd::fillObjectKeys( L1TriggerKeyExt* pL1TriggerKey ){
 
     std::string EMTFKey = pL1TriggerKey->subsystemKey( L1TriggerKeyExt::kEMTF ) ;
 

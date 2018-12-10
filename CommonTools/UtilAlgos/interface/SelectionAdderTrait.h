@@ -11,7 +11,6 @@
 #include "DataFormats/Common/interface/RefToBaseProd.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
-#include <boost/static_assert.hpp>
 
 namespace helper {
 
@@ -79,7 +78,7 @@ namespace helper {
 
   template<typename InputCollection, typename StoreContainer>
   struct SelectionAdderTrait {
-    BOOST_STATIC_ASSERT(sizeof(InputCollection) == 0); 
+    static_assert(sizeof(InputCollection) == 0); 
   };
 
   template<typename InputCollection, typename T>
