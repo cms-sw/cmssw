@@ -42,3 +42,4 @@ ecalBadCalibFilterTagger = ecalBadCalibFilter.clone(
     taggingMode = cms.bool(True)
 )
 
+extraFlagsProducers102x = cms.Sequence(ecalBadCalibFilterTagger)
