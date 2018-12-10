@@ -1,13 +1,14 @@
 <use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="dd4hep"/>
 <use name="DetectorDescription/DDCMS"/>
 
-<library name="DetectorDescriptionTestPlugins" file="DDTestVectors.cc,DDTestDumpFile.cc,DDTestDumpGeometry.cc" >
+<library name="DetectorDescriptionTestPlugins" file="DDTestVectors.cc,DDTestDumpFile.cc,DDTestDumpGeometry.cc,DDTestNavigateGeometry.cc" >
   <lib name="Geom"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-<library name="DetectorDescriptionPlugins" file="DDCMSDetector.cc" >
+<library name="DetectorDescriptionPlugins" file="DDCMSDetector.cc,DDDetectorESProducer.cc" >
   <lib name="Geom"/>
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -16,6 +17,8 @@
   <flags SKIP_FILE="DDTestVector.cc"/>
   <flags SKIP_FILE="DDTestDumpFile.cc"/>
   <flags SKIP_FILE="DDTestDumpGeometry.cc"/>
+  <flags SKIP_FILE="DDTestNavigateGeometry.cc"/>
+  <flags SKIP_FILE="DDDetectorESProducer.cc"/>
   <use name="rootgeom"/>
   <flags DD4HEP_PLUGIN="1"/>
 </library>
