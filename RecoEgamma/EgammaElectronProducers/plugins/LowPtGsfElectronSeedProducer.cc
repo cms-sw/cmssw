@@ -37,8 +37,6 @@
 //
 LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer( const edm::ParameterSet& conf, 
 							    const lowptgsfeleseed::HeavyObjectCache* ) :
-  kfTracks_{consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks"))},
-  pfTracks_{consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("pfTracks"))},
   ecalClusters_{consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("ecalClusters"))},
   hcalClusters_{consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("hcalClusters"))},
   ebRecHits_{consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EBRecHits"))},
@@ -53,6 +51,8 @@ LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer( const edm::Parameter
   minPtThreshold_(conf.getParameter<double>("MinPtThreshold")),
   maxPtThreshold_(conf.getParameter<double>("MaxPtThreshold"))
 {
+  if ( usePfTracks_ ) { pfTracks_ = consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("pfTracks")); }
+  else                { kfTracks_ = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks")); }
   produces<reco::ElectronSeedCollection>();
   produces<reco::PreIdCollection>();
   produces<reco::PreIdCollection>("HCAL");
@@ -83,11 +83,11 @@ void LowPtGsfElectronSeedProducer::produce( edm::Event& event,
   
   // KF tracks
   edm::Handle<reco::TrackCollection> kfTracks;
-  event.getByToken(kfTracks_, kfTracks);
+  if ( !usePfTracks_ ) { event.getByToken(kfTracks_, kfTracks); }
 
   // PF tracks
   edm::Handle<reco::PFRecTrackCollection> pfTracks;
-  event.getByToken(pfTracks_, pfTracks);
+  if ( usePfTracks_ ) { event.getByToken(pfTracks_, pfTracks); }
 
   // ECAL clusters
   edm::Handle<reco::PFClusterCollection> ecalClusters;

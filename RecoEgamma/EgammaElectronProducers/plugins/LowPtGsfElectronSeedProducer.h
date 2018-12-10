@@ -110,8 +110,8 @@ class LowPtGsfElectronSeedProducer final : public edm::stream::EDProducer< edm::
  private: // member data
   
   edm::ESHandle<MagneticField> field_;
-  const edm::EDGetTokenT<reco::TrackCollection> kfTracks_;
-  const edm::EDGetTokenT<reco::PFRecTrackCollection> pfTracks_;
+  edm::EDGetTokenT<reco::TrackCollection> kfTracks_;
+  edm::EDGetTokenT<reco::PFRecTrackCollection> pfTracks_;
   const edm::EDGetTokenT<reco::PFClusterCollection> ecalClusters_;
   const edm::EDGetTokenT<reco::PFClusterCollection> hcalClusters_;
   const edm::EDGetTokenT<EcalRecHitCollection> ebRecHits_;
