@@ -271,17 +271,6 @@ void  PFAlgo::setEGammaCollections(const edm::View<reco::PFCandidate> & pfEgamma
 }
 
 
-
-/*
-void PFAlgo::setPFPhotonRegWeights(
-		  const GBRForest *LCorrForest,
-		  const GBRForest *GCorrForest,
-		  const GBRForest *ResForest
-		  ) {
-  if(usePFPhotons_)
-    pfpho_->setGBRForest(LCorrForest, GCorrForest, ResForest);
-}
-*/
 void PFAlgo::setPFPhotonRegWeights(
 				   const GBRForest *LCorrForestEB,
 				   const GBRForest *LCorrForestEE,
@@ -296,17 +285,7 @@ void PFAlgo::setPFPhotonRegWeights(
 }
 void
 PFAlgo::setPFMuonAndFakeParameters(const edm::ParameterSet& pset)
-				   //				   std::vector<double> muonHCAL,
-				   //				   std::vector<double> muonECAL,
-				   //				   std::vector<double> muonHO,
-				   //				   double nSigmaTRACK,
-				   //				   double ptError,
-				   //				   std::vector<double> factors45)
 {
-
-
-
-
   pfmu_ = new PFMuonAlgo();
   pfmu_->setParameters(pset);
 
@@ -319,7 +298,6 @@ PFAlgo::setPFMuonAndFakeParameters(const edm::ParameterSet& pset)
   ptError_= pset.getParameter<double>("pt_Error");
   factors45_ = pset.getParameter<std::vector<double> >("factors_45");
   assert ( factors45_.size() == 2 );
-
 }
 
 void
