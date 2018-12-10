@@ -66,7 +66,9 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   doPVAssociationPlots_(pset.getUntrackedParameter<bool>("doPVAssociationPlots")),
   doSeedPlots_(pset.getUntrackedParameter<bool>("doSeedPlots")),
   doMVAPlots_(pset.getUntrackedParameter<bool>("doMVAPlots")),
-  simPVMaxZ_(pset.getUntrackedParameter<double>("simPVMaxZ"))
+  simPVMaxZ_(pset.getUntrackedParameter<double>("simPVMaxZ")),
+  cores_(consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("cores"))),
+  ptMinJet_(pset.getParameter<double>("ptMinJet"))
 {
   if(label.empty()) {
     // Disable prefetching of everything if there are no track collections
@@ -203,7 +205,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
     for (auto const& src: associators) {
       associatorTokens.push_back(consumes<reco::TrackToTrackingParticleAssociator>(src));
     }
-  } else {   
+  } else {
     for (auto const& src: associators) {
       associatormapStRs.push_back(consumes<reco::SimToRecoCollection>(src));
       associatormapRtSs.push_back(consumes<reco::RecoToSimCollection>(src));
@@ -459,6 +461,44 @@ size_t MultiTrackValidator::tpDR(const TrackingParticleRefVector& tPCeff,
   return n_selTP_dr;
 }
 
+
+size_t MultiTrackValidator::tpDR_jet(const TrackingParticleRefVector& tPCeff,
+                                 const std::vector<size_t>& selected_tPCeff,
+                                 DynArray<float>& dR_tPCeff_jet,
+                                 const edm::View<reco::Candidate>* const & cores) const {
+  float etaL[tPCeff.size()], phiL[tPCeff.size()];
+  size_t n_selTP_dr = 0;
+  for(size_t iTP: selected_tPCeff) {
+    //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
+    auto const& tp2 = *(tPCeff[iTP]);
+    auto  && p = tp2.momentum();
+    etaL[iTP] = etaFromXYZ(p.x(),p.y(),p.z());
+    phiL[iTP] = atan2f(p.y(),p.x());
+  }
+  for(size_t iTP1: selected_tPCeff) {
+    auto const& tp = *(tPCeff[iTP1]);
+    double dR = std::numeric_limits<double>::max();
+    if(dRtpSelector(tp)) {//only for those needed for efficiency!
+      ++n_selTP_dr;
+      float eta = etaL[iTP1];
+      float phi = phiL[iTP1];
+      for (unsigned int ji = 0; ji < cores->size(); ji++) {//jet loop
+        if((*cores)[ji].pt() > ptMinJet_){
+          const reco::Candidate& jet = (*cores)[ji];
+          double jet_eta = jet.eta();
+          double jet_phi = jet.phi();
+          auto dR_tmp = reco::deltaR2(eta, phi, jet_eta, jet_phi);
+          if (dR_tmp<dR) dR=dR_tmp;
+        }
+      } //jet cores
+      dR_tPCeff_jet[iTP1] = std::sqrt(dR);
+    }
+  }  // tp
+  return n_selTP_dr;
+}
+
+
+
 void MultiTrackValidator::trackDR(const edm::View<reco::Track>& trackCollection, const edm::View<reco::Track>& trackCollectionDr, DynArray<float>& dR_trk) const {
   int i=0;
   float etaL[trackCollectionDr.size()];
@@ -637,6 +677,13 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSe
   declareDynArray(float, tPCeff.size(), dR_tPCeff);
   size_t n_selTP_dr = tpDR(tPCeff, selected_tPCeff, dR_tPCeff);
 
+  //calculate dR_jet for TPs
+  Handle<edm::View<reco::Candidate> > cores;
+  event.getByToken(cores_, cores);
+  const auto & coresVector = cores.product();
+  declareDynArray(float, tPCeff.size(), dR_tPCeff_jet);
+  size_t n_selTP_dr_jet = tpDR_jet(tPCeff, selected_tPCeff, dR_tPCeff_jet, coresVector);
+
   edm::Handle<View<Track> >  trackCollectionForDrCalculation;
   if(calculateDrSingleCollection_) {
     event.getByToken(labelTokenForDrCalculation, trackCollectionForDrCalculation);
@@ -731,7 +778,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSe
 
       reco::RecoToSimCollection const & recSimColl = *recSimCollP;
       reco::SimToRecoCollection const & simRecColl = *simRecCollP;
- 
+
       // read MVA collections
       if(doMVAPlots_ && !mvaQualityCollectionTokens_[www].empty()) {
         edm::Handle<MVACollection> hmva;
@@ -776,6 +823,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSe
         double dxyPVSim = 0;
         double dzPVSim = 0;
 	double dR=dR_tPCeff[iTP];
+  double dR_jet=dR_tPCeff_jet[iTP];
 
 	//---------- THIS PART HAS TO BE CLEANED UP. THE PARAMETER DEFINER WAS NOT MEANT TO BE USED IN THIS WAY ----------
 	//If the TrackingParticle is collison like, get the momentum and vertex at production state
@@ -877,7 +925,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSe
         int nSimLayers = nLayers_tPCeff[tpr];
         int nSimPixelLayers = nPixelLayers_tPCeff[tpr];
         int nSimStripMonoAndStereoLayers = nStripMonoAndStereoLayers_tPCeff[tpr];
-        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(histograms.histoProducerAlgo,w,tp,momentumTP,vertexTP,dxySim,dzSim,dxyPVSim,dzPVSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR, thePVposition, theSimPVPosition, bs.position(), mvaValues, selectsLoose, selectsHP);
+        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(histograms.histoProducerAlgo,w,tp,momentumTP,vertexTP,dxySim,dzSim,dxyPVSim,dzPVSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR, dR_jet, thePVposition, theSimPVPosition, bs.position(), mvaValues, selectsLoose, selectsHP);
         mvaValues.clear();
 
         if(matchedTrackPointer && matchedSecondTrackPointer) {
@@ -928,7 +976,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSe
 	rT++;
         if(trackFromSeedFitFailed(*track)) ++seed_fit_failed;
         if((*dRTrackSelector)(*track, bs.position())) ++n_selTrack_dr;
- 
+
 	bool isSigSimMatched(false);
 	bool isSimMatched(false);
         bool isChargeMatched(true);

@@ -23,6 +23,8 @@
 #include "SimTracker/TrackAssociation/interface/ParametersDefinerForTP.h"
 #include "CommonTools/Utils/interface/DynArray.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+
 
 class PileupSummaryInfo;
 namespace reco {
@@ -40,7 +42,7 @@ class MultiTrackValidator : public DQMGlobalEDAnalyzer<MultiTrackValidatorHistog
 
   /// Constructor
   MultiTrackValidator(const edm::ParameterSet& pset);
-  
+
   /// Destructor
   ~MultiTrackValidator() override;
 
@@ -105,6 +107,10 @@ class MultiTrackValidator : public DQMGlobalEDAnalyzer<MultiTrackValidatorHistog
   size_t tpDR(const TrackingParticleRefVector& tPCeff,
               const std::vector<size_t>& selected_tPCeff,
               DynArray<float>& dR_tPCeff) const;
+  size_t tpDR_jet(const TrackingParticleRefVector& tPCeff,
+              const std::vector<size_t>& selected_tPCeff,
+              DynArray<float>& dR_tPCeff,
+              const edm::View<reco::Candidate>* const & cores) const;
   void trackDR(const edm::View<reco::Track>& trackCollection,
                const edm::View<reco::Track>& trackCollectionDr,
                DynArray<float>& dR_trk) const;
@@ -126,11 +132,14 @@ class MultiTrackValidator : public DQMGlobalEDAnalyzer<MultiTrackValidatorHistog
 
   bool useGsf;
   const double simPVMaxZ_;
-  // select tracking particles 
+
+  edm::EDGetTokenT<edm::View<reco::Candidate> > cores_;
+  double ptMinJet_;
+  // select tracking particles
   //(i.e. "denominator" of the efficiency ratio)
-  TrackingParticleSelector tpSelector;				      
+  TrackingParticleSelector tpSelector;
   CosmicTrackingParticleSelector cosmictpSelector;
-  TrackingParticleSelector dRtpSelector;				      
+  TrackingParticleSelector dRtpSelector;
   std::unique_ptr<RecoTrackSelectorBase> dRTrackSelector;
 
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;

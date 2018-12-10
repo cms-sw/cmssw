@@ -26,6 +26,7 @@
 
 #include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 struct MTVHistoProducerAlgoForTrackerHistograms {
   //sim
@@ -50,7 +51,7 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
 
   std::vector<ConcurrentMonitorElement> h_recovertpos, h_assocvertpos, h_assoc2vertpos, h_simulvertpos, h_loopervertpos, h_pileupvertpos;
   std::vector<ConcurrentMonitorElement> h_recozpos, h_assoczpos, h_assoc2zpos, h_simulzpos, h_looperzpos, h_pileupzpos;
-  std::vector<ConcurrentMonitorElement> h_assocdr, h_assoc2dr, h_simuldr, h_recodr, h_looperdr, h_pileupdr;
+  std::vector<ConcurrentMonitorElement> h_assocdr, h_assocdrj, h_assoc2dr, h_simuldr, h_simuldrj, h_recodr, h_looperdr, h_pileupdr;
   std::vector<ConcurrentMonitorElement> h_recochi2, h_assoc2chi2, h_looperchi2, h_misidchi2, h_pileupchi2;
   std::vector<ConcurrentMonitorElement> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
   std::vector<ConcurrentMonitorElement> h_assoc2_itpu_eta, h_assoc2_itpu_sig_eta, h_assoc2eta_sig;
@@ -159,6 +160,7 @@ class MTVHistoProducerAlgoForTracker {
 					   const reco::Track* track,
 					   int numVertices,
 					   double dR,
+             double dR_jet,
 					   const math::XYZPoint *pvPosition,
                                            const TrackingVertex::LorentzVector *simPVPosition,
                                            const math::XYZPoint& bsPosition,
@@ -268,6 +270,7 @@ class MTVHistoProducerAlgoForTracker {
   double minVertpos, maxVertpos;  int nintVertpos; bool useLogVertpos;
   double minZpos, maxZpos;  int nintZpos;
   double mindr, maxdr;  int nintdr;
+  double mindrj, maxdrj;  int nintdrj;
   double minChi2, maxChi2; int nintChi2;
   double minDeDx, maxDeDx;  int nintDeDx;
   double minVertcount, maxVertcount;  int nintVertcount;
