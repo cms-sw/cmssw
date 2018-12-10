@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 trackExtender = cms.EDProducer(
     'TrackExtenderWithMTD',
     tracksSrc = cms.InputTag("generalTracks"),
-    hitsSrc = cms.InputTag("mtdRecHits"),
+    hitsSrc = cms.InputTag("mtdTrackingRecHits"),
     beamSpotSrc = cms.InputTag("offlineBeamSpot"),
     updateTrackTrajectory = cms.bool(False),
     updateTrackExtra = cms.bool(True),
