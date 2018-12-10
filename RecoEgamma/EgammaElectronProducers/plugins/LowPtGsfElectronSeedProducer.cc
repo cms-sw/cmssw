@@ -20,6 +20,7 @@
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FastSimulation/Particle/interface/RawParticle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoEgamma/EgammaElectronProducers/plugins/LowPtGsfElectronSeedProducer.h"
@@ -506,8 +507,9 @@ bool LowPtGsfElectronSeedProducer::decision( const reco::TrackRef& kfTrackRef,
  
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-void LowPtGsfElectronSeedProducer::fillDescription( edm::ParameterSetDescription& desc ) 
+void LowPtGsfElectronSeedProducer::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
 {
+  edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("pfTracks",edm::InputTag("lowPtGsfElePfTracks"));
   desc.add<edm::InputTag>("ecalClusters",edm::InputTag("particleFlowClusterECAL"));
@@ -521,9 +523,10 @@ void LowPtGsfElectronSeedProducer::fillDescription( edm::ParameterSetDescription
   desc.add<std::string>("TTRHBuilder","WithAngleAndTemplate");
   desc.add< std::vector<std::string> >("ModelNames",std::vector<std::string>());
   desc.add< std::vector<std::string> >("ModelWeights",std::vector<std::string>());
-  desc.add< std::vector<double> >("ModelThrsholds",std::vector<double>());
+  desc.add< std::vector<double> >("ModelThresholds",std::vector<double>());
   desc.add<bool>("PassThrough",false);
   desc.add<bool>("UsePfTracks",false);
   desc.add<double>("MinPtThreshold",0.5);
   desc.add<double>("MaxPtThreshold",15.);
+  descriptions.add("produceLowPtGsfElectronSeeds",desc);
 }
