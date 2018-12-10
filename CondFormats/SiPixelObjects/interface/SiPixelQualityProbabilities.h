@@ -13,6 +13,7 @@ public:
   typedef std::map<unsigned int,probabilityVec> probabilityMap; 
   
   SiPixelQualityProbabilities(){}
+  SiPixelQualityProbabilities( const SiPixelQualityProbabilities& rhs ){ m_probabilities = rhs.getProbability_Map(); };
   virtual ~SiPixelQualityProbabilities(){}
 
   void setProbabilities(const unsigned int &puBin, const probabilityVec &theProbabilities);
@@ -28,6 +29,9 @@ public:
 
   void printAll() const;
 
+  //dumping values on output stream
+  void print(std::stringstream & ss) const;
+
 private:
 
   probabilityMap m_probabilities;
@@ -36,4 +40,6 @@ private:
 
 };
 
-#endif
+std::ostream & operator<<( std::ostream &, SiPixelQualityProbabilities theProbabilities);
+
+#endif //CondFormats_SiPixelObjects_SiPixelQualityProbabilities_h
