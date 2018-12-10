@@ -18,7 +18,7 @@ CTPPSDiamondLocalTrack::CTPPSDiamondLocalTrack() :
 
 CTPPSDiamondLocalTrack::CTPPSDiamondLocalTrack( const math::XYZPoint& pos0, const math::XYZPoint& pos0_sigma,
                                                 float t, float t_sigma, int oot_idx, int mult_hits ) :
-  CTPPSTimingLocalTrack(pos0, pos0_sigma, t, t_sigma), ts_index_(oot_idx), mh_(mult_hits)
+  CTPPSTimingLocalTrack( pos0, pos0_sigma, t, t_sigma ), ts_index_( oot_idx ), mh_( mult_hits )
 {}
 
 //--- interface member functions
