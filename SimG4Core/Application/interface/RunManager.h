@@ -25,10 +25,6 @@ namespace edm {
   class HepMCProduct;
 }
 
-namespace sim {
-  class ChordFinderSetter;
-}
-
 class PrimaryTransformer;
 class Generator;
 class PhysicsList;
@@ -154,7 +150,6 @@ private:
   std::vector<std::shared_ptr<SimProducer> > m_producers;
     
   std::unique_ptr<SimTrackManager> m_trackManager;
-  sim::ChordFinderSetter        *m_chordFinderSetter;
     
   edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
   edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
