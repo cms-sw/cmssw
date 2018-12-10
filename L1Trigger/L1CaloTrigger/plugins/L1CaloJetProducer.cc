@@ -135,6 +135,7 @@ class L1CaloJetProducer : public edm::EDProducer {
         class l1CaloJetObj
         {
             public:
+                bool barrelSeeded = true; // default to barrel seeded
                 reco::Candidate::PolarLorentzVector jetCluster;
                 reco::Candidate::PolarLorentzVector hcalJetCluster;
                 reco::Candidate::PolarLorentzVector ecalJetCluster;
@@ -286,6 +287,7 @@ class L1CaloJetProducer : public edm::EDProducer {
                 float total_tower_et=0.;
                 float total_tower_plus_L1EGs_et=0.;
                 bool stale=false; // Hits become stale once used in clustering algorithm to prevent overlap in clusters
+                bool isBarrel=true; // Defaults to a barrel hit
         };
 };
 
@@ -417,21 +419,22 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
 
     // Loop over HGCalTowers and create SimpleCaloHits for them and add to collection
+    // This iterator is taken from the PF P2 group
+    // https://github.com/p2l1pfp/cmssw/blob/170808db68038d53794bc65fdc962f8fc337a24d/L1Trigger/Phase2L1ParticleFlow/plugins/L1TPFCaloProducer.cc#L278-L289
     for (auto it = hgcalTowers.begin(0), ed = hgcalTowers.end(0); it != ed; ++it)
     {
         // skip lowest ET towers
         if (it->etEm() < HGCalEmTpEtMin && it->etHad() < HGCalHadTpEtMin) continue;
 
         SimpleCaloHit l1Hit;
+        l1Hit.isBarrel = false;
         l1Hit.ecal_tower_et  = it->etEm();
         l1Hit.hcal_tower_et  = it->etHad();
         l1Hit.total_tower_et  = l1Hit.ecal_tower_et + l1Hit.hcal_tower_et;
-        l1Hit.tower_iEta  = -9999;
-        l1Hit.tower_iPhi  = -9999;
         l1Hit.tower_eta  = it->eta();
         l1Hit.tower_phi  = it->phi();
         l1CaloTowers.push_back( l1Hit );
-        if (debug) printf("Tower iEta %i iPhi %i eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", (int)l1Hit.tower_iEta, (int)l1Hit.tower_iPhi, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
+        if (debug) printf("Tower isBarrel %d eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", l1Hit.isBarrel, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
     }
 
     // Make simple L1objects from the L1EG input collection with marker for 'stale'
@@ -578,6 +581,9 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 l1CaloTower.stale = true;
                 n_stale++;
 
+                // Set seed location, default is barrel (true)
+                if (!l1CaloTower.isBarrel) caloJetObj.barrelSeeded = false;
+
                 // 3 4-vectors for ECAL, HCAL, ECAL+HCAL for adding together
                 reco::Candidate::PolarLorentzVector hcalP4( l1CaloTower.hcal_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
                 reco::Candidate::PolarLorentzVector ecalP4( l1CaloTower.ecal_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
@@ -653,14 +659,14 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             int hit_iPhi = l1CaloTower.tower_iPhi;
             int d_iEta = tower_diEta( caloJetObj.seed_iEta, l1CaloTower.tower_iEta );
             int d_iPhi = tower_diPhi( caloJetObj.seed_iPhi, hit_iPhi );
-            //if ( abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 4 ) // 9x9 HCAL Trigger Towers
-            if ( abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3 ) // 7x7 HCAL Trigger Towers
-            //if ( (abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3) ||
-            //        (abs( d_iEta ) <= 1 && abs( d_iPhi ) <= 4) ||
-            //        (abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 1)) // circle small HCAL Trigger Towers
-            //if ( (abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3) ||
-            //        (abs( d_iEta ) <= 2 && abs( d_iPhi ) <= 4) ||
-            //        (abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 2)) // circle larger HCAL Trigger Towers
+            float d_eta = caloJetObj.seedTower.eta() - l1CaloTower.tower_eta;
+            float d_phi = reco::deltaPhi( caloJetObj.seedTower.phi(), l1CaloTower.tower_phi );
+
+            // 7x7 HCAL Trigger Towers
+            // If seeded in barrel and hit is barrel then we can compare iEta/iPhi, else need to use eta/phi
+            // in HGCal / transition region
+            if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3) ||
+                    ( fabs( d_eta ) < 0.3 && fabs( d_phi ) < 0.3 ) )
             {
 
                 // 3 4-vectors for ECAL, HCAL, ECAL+HCAL for adding together
@@ -783,14 +789,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             int d_iEta = tower_diEta( caloJetObj.seed_iEta, l1CaloTower.tower_iEta );
             int d_iPhi = tower_diPhi( caloJetObj.seed_iPhi, hit_iPhi );
             if ( ( abs( d_iEta ) <= 7 && abs( d_iPhi ) <= 7 ) && // 15x15 TT Outer perimeter
-            //    ( abs( d_iEta ) > 4 || abs( d_iPhi ) > 4 ) ) // exclude 9x9 central region
                 ( abs( d_iEta ) > 3 || abs( d_iPhi ) > 3 ) ) // 7x7 HCAL Trigger Towers
-            //    ( (abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3) ||
-            //         (abs( d_iEta ) <= 1 && abs( d_iPhi ) <= 4) ||
-            //         (abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 1)) // circle small HCAL Trigger Towers
-            //    ( (abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3) ||
-            //         (abs( d_iEta ) <= 2 && abs( d_iPhi ) <= 4) ||
-            //         (abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 2)) // circle larger HCAL Trigger Towers
             {
 
                 if (l1CaloTower.hcal_tower_et > 0)
@@ -809,14 +808,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             float d_eta = caloJetObj.seedTower.eta() - l1eg.eta();
             float d_phi = reco::deltaPhi( caloJetObj.seedTower.phi(), l1eg.phi() );
             if ( ( fabs( d_eta ) < 0.65 && fabs( d_phi ) < 0.65 ) && // within 15x15
-                //( fabs( d_eta ) > 0.4 || fabs( d_phi ) > 0.4 ) ) // not 9x9
                 ( fabs( d_eta ) > 0.3 || fabs( d_phi ) > 0.3 ) ) // 7x7
-            //if (!( ( fabs( d_eta ) < 0.3 && fabs( d_phi ) < 0.3 ) ||
-            //        ( fabs( d_eta ) < 0.4 && fabs( d_phi ) < 0.13 ) ||
-            //        ( fabs( d_eta ) < 0.13 && fabs( d_phi ) < 0.4 ) ) ) continue; // circle small
-            //if (!( ( fabs( d_eta ) < 0.3 && fabs( d_phi ) < 0.3 ) ||
-            //        ( fabs( d_eta ) < 0.4 && fabs( d_phi ) < 0.22 ) ||
-            //        ( fabs( d_eta ) < 0.22 && fabs( d_phi ) < 0.4 ) ) ) continue; // circle larger
             {
                 caloJetObj.l1EGjetPUET += l1eg.pt();
             }
@@ -867,14 +859,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             float d_phi = reco::deltaPhi( caloJetObj.seedTower.phi(), l1eg.phi() );
             float d_eta_to_leading = -99;
             float d_phi_to_leading = -99;
-            //if ( fabs( d_eta ) > 0.4 || fabs( d_phi ) > 0.4 ) continue; // 9x9
             if ( fabs( d_eta ) > 0.3 || fabs( d_phi ) > 0.3 ) continue; // 7x7
-            //if (!( ( fabs( d_eta ) < 0.3 && fabs( d_phi ) < 0.3 ) ||
-            //        ( fabs( d_eta ) < 0.4 && fabs( d_phi ) < 0.13 ) ||
-            //        ( fabs( d_eta ) < 0.13 && fabs( d_phi ) < 0.4 ) ) ) continue; // circle small
-            //if (!( ( fabs( d_eta ) < 0.3 && fabs( d_phi ) < 0.3 ) ||
-            //        ( fabs( d_eta ) < 0.4 && fabs( d_phi ) < 0.22 ) ||
-            //        ( fabs( d_eta ) < 0.22 && fabs( d_phi ) < 0.4 ) ) ) continue; // circle larger
 
             if (caloJetObj.leadingL1EGET == 0.0) // this is the first L1EG to seed the L1EG ecal jet
             {
@@ -956,12 +941,13 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         // Do barrel to HGCal transition calibrations for situation when
         // only a portion of the jet can be clustered.
         // This is temporary until there is a HGCal method to stitch them.
-        params["transition_calibration"] = apply_barrel_HGCal_boundary_calibration(
-            caloJetObj.jetClusterET,
-            caloJetObj.hcalJetClusterET,
-            caloJetObj.ecalJetClusterET,
-            caloJetObj.l1EGjetET,
-            caloJetObj.seed_iEta );
+        // FIXME commented this out to test initial performance w/ HGCal
+        //params["transition_calibration"] = apply_barrel_HGCal_boundary_calibration(
+        //    caloJetObj.jetClusterET,
+        //    caloJetObj.hcalJetClusterET,
+        //    caloJetObj.ecalJetClusterET,
+        //    caloJetObj.l1EGjetET,
+        //    caloJetObj.seed_iEta );
 
 
         params["hcal_PU_cor_pt"] = hcal_tmp;
@@ -1187,6 +1173,7 @@ L1CaloJetProducer::get_hcal_calibration( float &jet_pt, float &ecal_pt,
     if (tmp_jet_pt > 499) tmp_jet_pt = 499;
 
     // Treat anything beyond the barrel as boundary
+    // FIXME with HGCal calibrations
     if(abs_eta > 1.5) abs_eta = 1.5;
 
     size_t em_index = 0;
