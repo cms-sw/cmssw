@@ -7,11 +7,13 @@
  *
  ****************************************************************************/
 
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -26,10 +28,14 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
+#include "CondFormats/RunInfo/interface/LHCInfo.h"
+#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+
 #include "CondFormats/DataRecord/interface/CTPPSOpticsRcd.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsCollection.h"
 
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSBeamParameters.h"
+#include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
@@ -107,7 +113,9 @@ class CTPPSDirectProtonSimulation : public edm::stream::EDProducer<>
 
     // ------------ internal parameters ------------
 
-    std::unordered_map<unsigned int, LHCOpticalFunctionsSet> opticalFunctions;
+    edm::ESWatcher<LHCInfoRcd> lhcInfoWatcher_;
+
+    std::unordered_map<unsigned int, LHCOpticalFunctionsSet> opticalFunctions_;
 
     /// internal variable: v position of strip 0, in mm
     double stripZeroPosition_;
@@ -162,30 +170,26 @@ void CTPPSDirectProtonSimulation::produce( edm::Event& iEvent, const edm::EventS
   iEvent.getByToken(hepMCToken_, hepmc_prod);
 
   // get conditions
+  edm::ESHandle<LHCInfo> hLHCInfo;
+  iSetup.get<LHCInfoRcd>().get(hLHCInfo);
+
+  edm::ESHandle<CTPPSBeamParameters> hBeamParameters;
+  iSetup.get<CTPPSBeamParametersRcd>().get(hBeamParameters);
+
   edm::ESHandle<LHCOpticalFunctionsCollection> opticalFunctionCollection;
   iSetup.get<CTPPSOpticsRcd>().get(opticalFunctionCollection);
 
   edm::ESHandle<CTPPSGeometry> geometry;
   iSetup.get<VeryForwardMisalignedGeometryRecord>().get(geometry);
 
-  // make static beam parameter object
-  // TODO: replace with proper EventSetup mechanism
-  CTPPSBeamParameters beamParameters;
-  beamParameters.setBeamMom45(6500.);
-  beamParameters.setBeamMom56(6500.);
-  beamParameters.setHalfXangleX45(185.);
-  beamParameters.setHalfXangleX56(185.);
-
   // prepare optical functions
-  // TODO: proper condition (with ES watcher)
-  if (true)
+  if (lhcInfoWatcher_.check(iSetup))
   {
-    opticalFunctions.clear();
+    opticalFunctions_.clear();
 
-    // TODO: solve 45/56 asymmetry, also nominal/determined mismatch
-    opticalFunctionCollection->interpolateFunctions(beamParameters.getHalfXangleX45(), opticalFunctions);
+    opticalFunctionCollection->interpolateFunctions(hLHCInfo->crossingAngle(), opticalFunctions_);
 
-    for (auto &p : opticalFunctions)
+    for (auto &p : opticalFunctions_)
       p.second.initializeSplines();
   }
 
@@ -214,7 +218,7 @@ void CTPPSDirectProtonSimulation::produce( edm::Event& iEvent, const edm::EventS
       if ( part->status() != 1 && part->status() < 83 )
         continue;
 
-      processProton(vtx, part, *geometry, beamParameters, *pTracks, *pStripRecHits, *pPixelRecHits, *pDiamondRecHits);
+      processProton(vtx, part, *geometry, *hBeamParameters, *pTracks, *pStripRecHits, *pPixelRecHits, *pDiamondRecHits);
     }
   }
 
@@ -294,7 +298,7 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
   }
   
   // transport the proton into each pot/scoring plane
-  for (const auto &ofp : opticalFunctions)
+  for (const auto &ofp : opticalFunctions_)
   {
     CTPPSDetId rpId(ofp.first);
     const unsigned int rpDecId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
