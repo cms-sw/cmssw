@@ -59,10 +59,8 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   }
   tFEDRawDataCollection = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("InputLabel"));
   
-  //theBadPixelFEDChannelsLabel = consumes<PixelFEDChannelCollection>(edm::InputTag("simSiPixelDigis"));
   theBadPixelFEDChannelsLabel = consumes<PixelFEDChannelCollection>(edm::InputTag("mix"));
   
-  //  theBadPixelFEDChannelsLabel = consumes<PixelFEDChannelCollection>(edm::InputTag("PixelFEDChannelCollection","simSiPixelDigis"));
   //start counters
   ndigis = 0;
   nwords = 0;
