@@ -196,7 +196,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
   {
     if (vertex_set)
     {
-      printf("ERROR: multiple vertices found.\n");
+      LogError("CTPPSProtonReconstructionSimulationValidator") << "Multiple vertices found.";
       return;
     }
 
@@ -233,7 +233,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
       // 45
       if (proton_45_set)
       {
-        printf("ERROR: multiple protons in sector 45 found.\n");
+        LogError("CTPPSProtonReconstructionSimulationValidator") << "Found multiple protons in sector 45.";
         return;
       }
 
@@ -243,7 +243,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
       // 56
       if (proton_56_set)
       {
-        printf("ERROR: multiple protons in sector 56 found.\n");
+        LogError("CTPPSProtonReconstructionSimulationValidator") << "Found multiple protons in sector 56.";
         return;
       }
 

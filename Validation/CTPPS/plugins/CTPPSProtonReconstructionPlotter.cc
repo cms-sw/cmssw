@@ -1,8 +1,6 @@
 /****************************************************************************
-*
 * Authors:
 *  Jan Kašpar (jan.kaspar@gmail.com)
-*
 ****************************************************************************/
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -498,7 +496,7 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
 
 void CTPPSProtonReconstructionPlotter::endJob()
 {
-  printf(">> CTPPSProtonReconstructionPlotter: n_non_empty_events = %u\n", n_non_empty_events_);
+  LogInfo("CTPPSProtonReconstructionPlotter") << "n_non_empty_events = " << n_non_empty_events_;
 
   TFile *f_out = TFile::Open(outputFile_.c_str(), "recreate");
 

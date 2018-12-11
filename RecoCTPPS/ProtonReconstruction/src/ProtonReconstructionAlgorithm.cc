@@ -147,7 +147,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   const reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector &tracks,
   std::vector<reco::ProtonTrack> &output,
   std::vector<reco::ProtonTrackExtra> &outputExtra,
-  const LHCInfo &lhcInfo) const
+  const LHCInfo &lhcInfo, std::stringstream &ssLog) const
 {
   if (!initialized_)
     return;
@@ -240,8 +240,10 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
 
   if (verbosity_)
   {
-    printf("* ProtonReconstructionAlgorithm::reconstructFromMultiRP(%u)\n", armId);
-    printf("    initial estimate: xi_init = %f, th_x_init = %E, th_y_init = %E, vtx_y_init = %E\n", xi_init, th_x_init, th_y_init, vtx_y_init);
+    ssLog << std::endl
+      << "ProtonReconstructionAlgorithm::reconstructFromMultiRP(" << armId << ")" << std::endl
+      << "    initial estimate: xi_init = " << xi_init << ", th_x_init = " << th_x_init
+      << ", th_y_init = " << th_y_init << ", vtx_y_init = " << vtx_y_init << "" << std::endl;
   }
 
   // minimisation
@@ -264,15 +266,12 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   const double *params = result.GetParams();
 
   if (verbosity_)
-    edm::LogInfo("ProtonReconstructionAlgorithm")
-      << "at reconstructed level: "
-      << "xi=" << params[0] << ", "
-      << "theta_x=" << params[1] << ", "
-      << "theta_y=" << params[2] << ", "
-      << "vertex_y=" << params[3] << "\n";
-
-  if (verbosity_)
-    printf("    fit: xi = %f, th_x = %E, th_y = %E, vtx_y = %E, chiSq = %.0f\n", params[0], params[1], params[2], params[3], result.Chi2());
+    ssLog << "    fit: "
+      << "xi=" << params[0] << " +- " << result.Error(0)
+      << ", th_x=" << params[1] << " +-" << result.Error(1)
+      << ", th_y=" << params[2] << " +-" << result.Error(2)
+      << ", vtx_y=" << params[3] << " +-" << result.Error(3)
+      << ", chiSq = " << result.Chi2() << std::endl;
 
   // save reco candidate
   using EX = reco::ProtonTrackExtra;
@@ -327,7 +326,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
   const reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector &tracks,
   std::vector<reco::ProtonTrack> &output,
   std::vector<reco::ProtonTrackExtra> &outputExtra,
-  const LHCInfo &lhcInfo) const
+  const LHCInfo &lhcInfo, std::stringstream &ssLog) const
 {
   if (!initialized_)
     return;
@@ -348,7 +347,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     unsigned int decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
 
     if (verbosity_)
-      printf("* reconstructFromSingleRP(%u)\n", decRPId);
+      ssLog << std::endl << "reconstructFromSingleRP(" << decRPId << ")" << endl;
 
     auto oit = m_rp_optics_.find(track->getRPId());
     const double x_full = track->getX() * 1E-3 + oit->second.x0; // conversions mm --> m
@@ -365,7 +364,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     const double th_y_unc = th_y * sqrt( pow(track->getYUnc() / track->getY(), 2.) + pow(dL_y_dxi * xi_unc / L_y, 2.) );
 
     if (verbosity_)
-      printf("    xi = %f +- %f, th_y = %E +- %E\n", xi, xi_unc, th_y, th_y_unc);
+      ssLog << "    xi = " << xi << " +- " << xi_unc << ", th_y = " << th_y << " +- " << th_y_unc << "" << endl;
 
     using EX = reco::ProtonTrackExtra;
     using PT = reco::ProtonTrack;

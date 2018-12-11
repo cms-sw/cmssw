@@ -112,9 +112,6 @@ void CTPPSProtonReconstruction::fillDescriptions(ConfigurationDescriptions& desc
 
 void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSetup)
 {
-  if (verbosity_)
-    printf("\n---------- %u:%llu ----------\n", event.id().run(), event.id().event());
-
   // get conditions
   edm::ESHandle<LHCInfo> hLHCInfo;
   eventSetup.get<LHCInfoRcd>().get(hLHCInfo);
@@ -137,7 +134,7 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
       }
 
       if (verbosity_)
-        printf("CTPPSProtonReconstruction::produce >> Setting crossing angle %.1f\n", currentCrossingAngle_);
+        edm::LogInfo("CTPPSProtonReconstruction") << "Setting crossing angle " << currentCrossingAngle_;
 
       // interpolate optical functions
       opticalFunctions_.clear();
@@ -149,6 +146,12 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
       algorithm_.init(opticalFunctions_);
     }
   }
+
+  // prepare log
+  std::stringstream ssLog;
+
+  if (verbosity_)
+    ssLog << "input tracks:" << std::endl;
 
   // get input
   Handle<vector<CTPPSLocalTrackLite>> hTracks;
@@ -167,7 +170,9 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
     if (verbosity_)
     {
       unsigned int decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
-      printf("%u (%u): x=%.3f, y=%.3f mm\n", tr.getRPId(), decRPId, tr.getX(), tr.getY());
+      ssLog << "    " << tr.getRPId() << " (" << decRPId << "): "
+        << "x = " << tr.getX() << " +- " << tr.getXUnc() << " mm"
+        << ", y=" << tr.getY() << " +- " << tr.getYUnc() << " mm" << std::endl;
     }
 
     if (rpId.arm() == 0)
@@ -198,8 +203,8 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
     unique_ptr<vector<reco::ProtonTrack>> output(new vector<reco::ProtonTrack>);
     unique_ptr<vector<reco::ProtonTrackExtra>> outputExtra(new vector<reco::ProtonTrackExtra>);
 
-    algorithm_.reconstructFromSingleRP(tracks_45, *output, *outputExtra, *hLHCInfo);
-    algorithm_.reconstructFromSingleRP(tracks_56, *output, *outputExtra, *hLHCInfo);
+    algorithm_.reconstructFromSingleRP(tracks_45, *output, *outputExtra, *hLHCInfo, ssLog);
+    algorithm_.reconstructFromSingleRP(tracks_56, *output, *outputExtra, *hLHCInfo, ssLog);
 
     auto ohExtra = event.put(move(outputExtra), singleRPLabel);
 
@@ -216,9 +221,9 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
     unique_ptr<vector<reco::ProtonTrackExtra>> outputExtra(new vector<reco::ProtonTrackExtra>);
 
     if (singleTrack_45)
-      algorithm_.reconstructFromMultiRP(tracks_45, *output, *outputExtra, *hLHCInfo);
+      algorithm_.reconstructFromMultiRP(tracks_45, *output, *outputExtra, *hLHCInfo, ssLog);
     if (singleTrack_56)
-      algorithm_.reconstructFromMultiRP(tracks_56, *output, *outputExtra, *hLHCInfo);
+      algorithm_.reconstructFromMultiRP(tracks_56, *output, *outputExtra, *hLHCInfo, ssLog);
 
     auto ohExtra = event.put(move(outputExtra), multiRPLabel);
 
@@ -227,6 +232,9 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
 
     event.put(move(output), multiRPLabel);
   }
+
+  if (verbosity_)
+    edm::LogInfo("CTPPSProtonReconstruction") << ssLog.str();
 }
 
 //----------------------------------------------------------------------------------------------------

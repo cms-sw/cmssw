@@ -1,9 +1,6 @@
 /****************************************************************************
- *
- * This is a part of CTPPS offline software.
  * Authors:
  *   Jan Kašpar
- *
  ****************************************************************************/
 
 #ifndef RandomXiThetaGunProducer_H

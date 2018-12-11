@@ -1,9 +1,6 @@
 /****************************************************************************
- *
- * This is a part of CTPPS offline software.
  * Authors:
  *   Jan Kašpar
- *
  ****************************************************************************/
 
 #include "IOMC/ParticleGuns/interface/RandomXiThetaGunProducer.h"
@@ -47,9 +44,6 @@ RandomXiThetaGunProducer::RandomXiThetaGunProducer(const edm::ParameterSet& pset
 
 void RandomXiThetaGunProducer::produce(edm::Event &e, const edm::EventSetup& es) 
 {
-  if (verbosity)
-    printf("===================== %u:%llu =====================\n", e.id().run(), e.id().event());
-
   // get conditions
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
@@ -98,7 +92,8 @@ void RandomXiThetaGunProducer::GenerateParticle(double z_sign, double mass, unsi
   const double theta_y = CLHEP::RandGauss::shoot(engine, theta_y_mean, theta_y_sigma);
 
   if (verbosity)
-    printf("xi = %.4f, theta_x = %E, theta_y = %E, z_sign = %.0f\n", xi, theta_x, theta_y, z_sign);
+    LogInfo("RandomXiThetaGunProducer") << "xi = " << xi << ", theta_x = " << theta_x
+      << ", theta_y" << theta_y << ", z_sign = " << z_sign;
 
   const double cos_theta = sqrt(1. - theta_x*theta_x - theta_y*theta_y);
 
