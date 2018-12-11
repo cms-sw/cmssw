@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import APVShape_default
 
 SiStripSimBlock = cms.PSet(
     #---SiLinearChargeDivider
@@ -8,8 +7,16 @@ SiStripSimBlock = cms.PSet(
     LandauFluctuations      = cms.bool(True),
     chargeDivisionsPerStrip = cms.int32(10),
     CosmicDelayShift        = cms.untracked.double(0.0), # also SiStripDigitizerAlgorithm
-    peak = cms.PSet(t0Idx=cms.int32(APVShape_default.peakList.index(max(APVShape_default.peakList))), resolution=cms.double(2.), values=cms.vdouble(APVShape_default.peakList)),
-    deco = cms.PSet(t0Idx=cms.int32(APVShape_default.decoList.index(max(APVShape_default.decoList))), resolution=cms.double(10.), values=cms.vdouble(APVShape_default.decoList)),
+    
+    # Automatically generated using parametrizePulse::generateCode(low=-30, high=35, step=0.1)
+    # That pulse shapes correspond to the ones described in CMS NOTE 2007/027
+    # with tau=50ns and delta=20ns
+    # It is fairly similar to the previous analytical forms, except in the tails
+    # The max value has to be 1
+    APVShapePeakFile= cms.FileInPath('SimGeneral/MixingModule/test/APVShapePeak_default.txt'),
+    APVShapeDecoFile= cms.FileInPath('SimGeneral/MixingModule/test/APVShapeDeco_default.txt'),
+    resolutionPeak=cms.double(0.5), # time in ns
+    resolutionDeco=cms.double(0.1), # time in ns
     
     #---SiHitDigitizer
     DepletionVoltage        = cms.double(170.0),

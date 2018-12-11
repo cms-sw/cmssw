@@ -19,25 +19,34 @@ SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf) :
   //for the cosimc generation (Considering only the tracker the value is 11 ns)
   cosmicShift(conf.getUntrackedParameter<double>("CosmicDelayShift")),
   theParticleDataTable(nullptr),
+  resolution(peakMode?(conf.getParameter<double>("resolutionPeak")):(conf.getParameter<double>("resolutionDeco"))),
   // Geant4 engine used to fluctuate the charge from segment to segment
   fluctuate(new SiG4UniversalFluctuation())
+
   
 {
-  if (peakMode){
-    t0Idx=conf.getParameter<edm::ParameterSet>("peak").getParameter<int>("t0Idx");
-    resolution=conf.getParameter<edm::ParameterSet>("peak").getParameter<double>("resolution");
-    values=conf.getParameter<edm::ParameterSet>("peak").getParameter<std::vector<double> >("values");
-    if (values.at(t0Idx)!=1) edm::LogError("WrongAPVPulseShape")<<"The max value of the APV pulse shape stored in the valuesPeak vector in SimGeneral/MixingModule/python/SiStripSimParameters_cfi.py is not equal to 1. Need to be fixed."<<std::endl;
+  std::ifstream APVShapeReadFile(peakMode?(conf.getParameter<edm::FileInPath>("APVShapePeakFile").fullPath().c_str()):(conf.getParameter<edm::FileInPath>("APVShapeDecoFile").fullPath().c_str()));
+  if (!APVShapeReadFile.good()){ 
+    if(peakMode){
+      edm::LogError("FileError") << "Problem opening APV Shape file: "<<conf.getParameter<edm::FileInPath>("APVShapePeakFile").fullPath();
+      return;
+    }
+    else {
+      edm::LogError("FileError") << "Problem opening APV Shape file: "<<conf.getParameter<edm::FileInPath>("APVShapeDecoFile").fullPath();
+      return;
+    }
   }
-
-  else{
-    t0Idx=conf.getParameter<edm::ParameterSet>("deco").getParameter<int>("t0Idx");
-    resolution=conf.getParameter<edm::ParameterSet>("deco").getParameter<double>("resolution");
-    values=conf.getParameter<edm::ParameterSet>("deco").getParameter<std::vector<double> >("values");
-    if (values.at(t0Idx)!=1) edm::LogError("WrongAPVPulseShape")<<"The max value of the APV pulse shape stored in the valuesDeco vector in SimGeneral/MixingModule/python/SiStripSimParameters_cfi.py is not equal to 1. Need to be fixed."<<std::endl;   
+  while(!APVShapeReadFile.eof()){
+    APVShapeReadFile>>value;
+    valuesVector.push_back(value);
+  }
+  t0Idx=std::distance(valuesVector.begin(),std::find(valuesVector.begin(), valuesVector.end(), 1));
+  if(t0Idx==valuesVector.size()){
+    edm::LogError("WrongAPVPulseShape")<<"The max value of the APV pulse shape stored in the text file used in SimGeneral/MixingModule/python/SiStripSimParameters_cfi.py is not equal to 1. Need to be fixed.";
+    return;
   }
 }
-    
+
 SiLinearChargeDivider::~SiLinearChargeDivider(){
 }
 
@@ -143,16 +152,16 @@ void SiLinearChargeDivider::fluctuateEloss(double particleMass, float particleMo
    // x is difference between the tof and the tof for a photon (reference)
    // converted into a bin number
    const auto dTOF = det.surface().toGlobal(hit->localPosition()).mag()/30. + cosmicShift - hit->tof();
-   const int x= int(dTOF*resolution) + t0Idx;
-   if(x < 0 || x >= int(values.size())) return 0;
-   return hit->energyLoss()*values[std::size_t(x)];
+   const int x= int(dTOF/resolution) + t0Idx;
+   if(x < 0 || x >= int(valuesVector.size())) return 0;
+   return hit->energyLoss()*valuesVector[std::size_t(x)];
  }
 
  float SiLinearChargeDivider::DeconvolutionShape(const PSimHit* hit, const StripGeomDetUnit& det){
    // x is difference between the tof and the tof for a photon (reference)
    // converted into a bin number
    const auto dTOF = det.surface().toGlobal(hit->localPosition()).mag()/30. + cosmicShift - hit->tof();
-   const int x= int(dTOF*resolution) + t0Idx;
-   if(x < 0 || x >= int(values.size())) return 0;
-   return hit->energyLoss()*values[std::size_t(x)];
+   const int x= int(dTOF/resolution) + t0Idx;
+   if(x < 0 || x >= int(valuesVector.size())) return 0;
+   return hit->energyLoss()*valuesVector[std::size_t(x)];
  }

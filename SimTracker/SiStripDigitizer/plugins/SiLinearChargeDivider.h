@@ -13,6 +13,9 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+#include <fstream>
+#include <string>
+
 namespace CLHEP{
   class HepRandomEngine;
 }
@@ -47,10 +50,11 @@ class SiLinearChargeDivider : public SiChargeDivider{
   const double deltaCut ;
   const double cosmicShift;
   const ParticleDataTable * theParticleDataTable;
-  int t0Idx;
-  double resolution;
-  std::vector<double> values;
-
+  const double resolution;
+  unsigned int t0Idx;
+  std::vector<double> valuesVector;
+  double value;
+  
   // Geant4 engine used by fluctuateEloss()
   std::unique_ptr<SiG4UniversalFluctuation> fluctuate; 
   // utility: drifts the charge to the surface to estimate the number of relevant strips
