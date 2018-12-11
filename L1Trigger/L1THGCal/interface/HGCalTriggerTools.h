@@ -41,6 +41,7 @@ class HGCalTriggerTools {
     unsigned layers(ForwardSubdetector type) const;
     unsigned layer(const DetId&) const;
     unsigned layerWithOffset(const DetId&) const;
+    int zside(const DetId&) const;
     int thicknessIndex(const DetId&) const;
 
     unsigned lastLayerEE() const {return eeLayers_;}

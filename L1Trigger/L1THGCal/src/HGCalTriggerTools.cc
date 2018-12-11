@@ -97,12 +97,14 @@ unsigned
 HGCalTriggerTools::
 layer(const DetId& id) const {
   unsigned int layer = std::numeric_limits<unsigned int>::max();
-  if( id.det() == DetId::Forward) {
-    const HGCalDetId hid(id);
-    layer = hid.layer();
-  } else if( id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
-    const HcalDetId hcid(id);
-    layer = hcid.depth();
+  if (id.det() == DetId::Forward) {
+    layer = HGCalDetId(id).layer();
+  } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
+    layer = HcalDetId(id).depth();
+  } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
+    layer = HGCSiliconDetId(id).layer();
+  } else if (id.det() == DetId::HGCalHSc) {
+    layer = HGCScintillatorDetId(id).layer();
   }
   return layer;
 }
@@ -119,6 +121,22 @@ layerWithOffset(const DetId& id) const {
     else l += eeLayers_ + fhLayers_;
   }
   return l;
+}
+
+int
+HGCalTriggerTools::
+zside(const DetId& id) const {
+  int zside = 0;
+  if (id.det() == DetId::Forward) {
+    zside = HGCalDetId(id).zside();
+  } else if( id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
+    zside = HcalDetId(id).zside();
+  } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
+    zside = HGCSiliconDetId(id).zside();
+  } else if (id.det() == DetId::HGCalHSc) {
+    zside = HGCScintillatorDetId(id).zside();
+  }
+  return zside;
 }
 
 int
