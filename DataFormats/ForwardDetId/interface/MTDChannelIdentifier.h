@@ -10,7 +10,7 @@ class MTDChannelIdentifier {
   public:
 
     static const MTDChannelIdentifier& GetInstance() {
-      static MTDChannelIdentifier instance(6, 5, 12, 9);
+      static const MTDChannelIdentifier instance(6, 5, 12, 9);
       return instance;
     }
 
