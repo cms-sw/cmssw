@@ -1659,7 +1659,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
 	    if( myroc->idInDetUnit() == static_cast<unsigned int>(i_roc)) {
 	      LocalPixel::RocRowCol  local = {39, 25};//corresponding to center of ROC row,col
 	      GlobalPixel global = myroc->toGlobal( LocalPixel(local) );
-	      int chipIndex, colROC, rowROC;
+	      int chipIndex(0), colROC(0), rowROC(0);
 	      pIndexConverter->transformToROC(global.col,global.row,chipIndex,colROC,rowROC);
 	      badRocsFromFEDChannels.at(chipIndex) = 1;	
 	    }
