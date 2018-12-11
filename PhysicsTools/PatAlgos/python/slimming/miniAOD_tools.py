@@ -329,7 +329,7 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
     run2_miniAOD_devel.toModify(photon_id_config, photon_ids = photon_id_config.photon_ids + \
             ["RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff",
-             "RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V2_cff"]
+             "RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V2_cff"])
 
     switchOnVIDPhotonIdProducer(process,DataFormat.AOD, task) 
     process.egmPhotonIsolation.srcToIsolate = \
