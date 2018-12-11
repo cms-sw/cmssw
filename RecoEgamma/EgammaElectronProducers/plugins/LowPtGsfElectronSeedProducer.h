@@ -48,7 +48,6 @@ class LowPtGsfElectronSeedProducer final : public edm::stream::EDProducer< edm::
  private: // member functions
   
   template <typename T> void loop( const edm::Handle< std::vector<T> >& handle,
-				   edm::Handle<reco::PFClusterCollection>& ecalClusters,
 				   edm::Handle<reco::PFClusterCollection>& hcalClusters,
 				   reco::ElectronSeedCollection& seeds,
 				   reco::PreIdCollection& ecalPreIds, 
@@ -113,7 +112,7 @@ class LowPtGsfElectronSeedProducer final : public edm::stream::EDProducer< edm::
   edm::EDGetTokenT<reco::TrackCollection> kfTracks_;
   edm::EDGetTokenT<reco::PFRecTrackCollection> pfTracks_;
   const edm::EDGetTokenT<reco::PFClusterCollection> ecalClusters_;
-  const edm::EDGetTokenT<reco::PFClusterCollection> hcalClusters_;
+  edm::EDGetTokenT<reco::PFClusterCollection> hcalClusters_;
   const edm::EDGetTokenT<EcalRecHitCollection> ebRecHits_;
   const edm::EDGetTokenT<EcalRecHitCollection> eeRecHits_;
   const edm::EDGetTokenT<double> rho_;
