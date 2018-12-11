@@ -157,7 +157,7 @@ bool ElectronIdentifier::passID(const reco::GsfElectronPtr& ele,edm::Handle<reco
    if( isolation(ele)/ele->pt()                         > cuts_[EleIDCutNames::ISO][ID_][region]) return false;
    if( std::abs(1.0 - ele->eSuperClusterOverP())/ele->ecalEnergy()  > cuts_[EleIDCutNames::ONEOVERE][ID_][region]) return false;
    if( (ele->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS)) > cuts_[EleIDCutNames::MISSINGHITS][ID_][region]) return false;
-   if( ConversionTools::hasMatchedConversion(*ele,conversions,beamspot->position())) return false;
+   if( ConversionTools::hasMatchedConversion(*ele,*conversions,beamspot->position())) return false;
 
    return true;
 }

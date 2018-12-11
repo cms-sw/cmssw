@@ -85,7 +85,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 				if(!patelec->passConversionVeto()) continue;
 			}
 			else{
-				if(ConversionTools::hasMatchedConversion(*(recoelectron),hConversions,beamspot.position())) continue;
+				if(ConversionTools::hasMatchedConversion(*(recoelectron),*hConversions,beamspot.position())) continue;
 			}
 			//Make sure that the electron is inside the jet
 			if(reco::deltaR2((*recoelectron),(*jetRef))>DeltaRElectronJet*DeltaRElectronJet) continue;
