@@ -1,10 +1,7 @@
 /****************************************************************************
- *
- * This is a part of CTPPS offline software
  * Authors:
  *   Jan Kašpar
  *   Laurent Forthomme
- *
  ****************************************************************************/
 
 
@@ -242,6 +239,8 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
 {
   /// xi is positive for diffractive protons, thus proton momentum p = (1-xi) * p_nom
   /// horizontal component of proton momentum: p_x = th_x * (1-xi) * p_nom
+
+  std::stringstream ssLog;
   
   // vectors in CMS convention
   const HepMC::FourVector vtx_cms = in_vtx->position(); // in mm
@@ -285,8 +284,8 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
 
   if (verbosity_)
   {
-    printf("simu: xi=%.4f, th_x=%.3E, %.3E, vtx_lhc_eff_x=%.3E, vtx_lhc_eff_y=%.3E\n",
-      xi, th_x_phys, th_y_phys, vtx_lhc_eff_x, vtx_lhc_eff_y);
+    ssLog << "simu: xi = " << xi << ", th_x_phys = " << th_x_phys << ", th_y_phys = " << th_y_phys
+      << ", vtx_lhc_eff_x = " << vtx_lhc_eff_x << ", vtx_lhc_eff_y = " << vtx_lhc_eff_y << std::endl;
   }
 
   // check empirical aperture
@@ -294,7 +293,15 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
   {
     const double xi_th = empiricalAperture_xi0 + th_x_phys * empiricalAperture_a;
     if (xi > xi_th)
+    {
+      if (verbosity_)
+      {
+        ssLog << "stop because of empirical appertures";
+        edm::LogInfo("CTPPSDirectProtonSimulation") << ssLog.str();
+      }
+
       return;
+    }
   }
   
   // transport the proton into each pot/scoring plane
@@ -302,13 +309,13 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
   {
     CTPPSDetId rpId(ofp.first);
     const unsigned int rpDecId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
-  
-    if (verbosity_)
-      printf("  RP %u\n", rpDecId);
 
     // first check the arm
     if (rpId.arm() != arm)
       continue;
+
+    if (verbosity_)
+      ssLog << "  RP " << rpDecId << std::endl;
 
     // transport proton
     LHCOpticalFunctionsSet::Kinematics k_in = { vtx_lhc_eff_x * 1E-3, th_x_phys, vtx_lhc_eff_y * 1E-3, th_y_phys, xi }; // conversions: mm -> m
@@ -334,8 +341,8 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
 
     if (verbosity_)
     {
-      printf("    proton transported: a_x = %.3E rad, a_y = %.3E rad, b_x = %.3f mm, b_y = %.3f mm, z = %.3f mm\n",
-        a_x, a_y, b_x, b_y, z_scoringPlane);
+      ssLog << "    proton transported: a_x = " << a_x << " rad, a_y = " << a_y << " rad, b_x = " << b_x <<
+        " mm, b_y = " << b_y << " mm, z = " << z_scoringPlane << " mm" << std::endl;
     }
 
     // save scoring plane hit
@@ -375,10 +382,10 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
 
       if (verbosity_)
       {
-        printf("\n");
-        printf("    de z = %f mm, p1 = %f mm, p2 = %f mm\n", P(0), P(1), P(2));
-        printf("    h_glo: x = %f mm, y = %f mm, z = %f mm\n", h_glo.x(), h_glo.y(), h_glo.z());
-        printf("    h_loc: c1 = %f mm, c2 = %f mm, c3 = %f mm\n", h_loc.x(), h_loc.y(), h_loc.z());
+        ssLog << std::endl
+          << "    de z = " << P(0) << " mm, p1 = " << P(1) << " mm, p2 = " << P(2) << " mm" << std::endl
+          << "    h_glo: x = " << h_glo.x() << " mm, y = " << h_glo.y() << " mm, z = " << h_glo.z() << " mm" << std::endl
+          << "    h_loc: c1 = " << h_loc.x() << " mm, c2 = " << h_loc.y() << " mm, c3 = " << h_loc.z() << " mm" << std::endl;
       }
 
       // strips
@@ -388,13 +395,13 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
         double v = h_loc.y();
 
         if (verbosity_ > 5)
-          printf("            u=%+8.4f, v=%+8.4f", u, v);
+          ssLog << "            u=" << u << ", v=" << v;
 
         // is it within detector?
         if (checkIsHit_  && !RPTopology::IsHit(u, v, insensitiveMarginStrips_))
         {
           if (verbosity_ > 5)
-            printf(" | no hit\n");
+            ssLog << " | no hit" << std::endl;
           continue;
         } 
 
@@ -407,13 +414,13 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
           v = stripZeroPosition_ - pitchStrips_ * strip;
 
           if (verbosity_ > 5)
-            printf(" | strip=%+4i", strip);
+            ssLog << " | strip=" << strip;
         }
 
         double sigma = pitchStrips_ / sqrt(12.);
 
         if (verbosity_ > 5)
-          printf(" | m=%+8.4f, sigma=%+8.4f\n", v, sigma);
+          ssLog << " | m=" << v << ", sigma=" << sigma << std::endl;
 
         edm::DetSet<TotemRPRecHit> &hits = out_strip_hits.find_or_insert(detId);
         hits.push_back(TotemRPRecHit(v, sigma));
@@ -431,7 +438,8 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
         if (verbosity_)
         {
           CTPPSPixelDetId pixelDetId(detIdInt);
-          printf("    pixel plane %u: local hit x = %.3f mm, y = %.3f mm, z = %.1E mm\n", pixelDetId.plane(), h_loc.x(), h_loc.y(), h_loc.z());
+          ssLog << "    pixel plane " << pixelDetId.plane() << ": local hit x = " << h_loc.x()
+            << " mm, y = " << h_loc.y() << " mm, z = " << h_loc.z() << " mm" << std::endl;
         }
 
         if (checkIsHit_  && !isPixelHit(h_loc.x(), h_loc.y()))
@@ -444,7 +452,7 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
         }
 
         if (verbosity_ > 5)
-          printf("            hit accepted: m1 = %.3f mm, m2 = %.3f mm\n", h_loc.x(), h_loc.y());
+          ssLog << "            hit accepted: m1 = " << h_loc.x() << " mm, m2 = " << h_loc.y() << " mm" << std::endl;
 
         const double sigmaHor = pitchPixelsHor_ / sqrt(12.);
         const double sigmaVer = pitchPixelsVer_ / sqrt(12.);
@@ -457,6 +465,9 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
       } 
     }
   }
+
+  if (verbosity_)
+    edm::LogInfo("CTPPSDirectProtonSimulation") << ssLog.str();
 }
 
 //----------------------------------------------------------------------------------------------------

@@ -1,11 +1,7 @@
 /****************************************************************************
- *
- * This is a part of CTPPS validation software
  * Authors:
  *   Jan Kašpar
- *
  ****************************************************************************/
-
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
@@ -197,8 +193,6 @@ CTPPSAcceptancePlotter::~CTPPSAcceptancePlotter()
 
 void CTPPSAcceptancePlotter::analyze(const edm::Event& iEvent, const edm::EventSetup&)
 {
-  //printf("------------------------ run=%u, event=%llu -----------------------\n", iEvent.id().run(), iEvent.id().event());
-
   // get input
   edm::Handle<edm::HepMCProduct> hHepMC;
   iEvent.getByToken(tokenHepMC, hHepMC);
@@ -236,7 +230,7 @@ void CTPPSAcceptancePlotter::analyze(const edm::Event& iEvent, const edm::EventS
       // 45
       if (proton_45_set)
       {
-        printf("ERROR: multiple protons in sector 45 found.\n");
+        LogError("CTPPSAcceptancePlotter") << "Multiple protons found in sector 45.";
         return;
       }
 
@@ -246,7 +240,7 @@ void CTPPSAcceptancePlotter::analyze(const edm::Event& iEvent, const edm::EventS
       // 56
       if (proton_56_set)
       {
-        printf("ERROR: multiple protons in sector 56 found.\n");
+        LogError("CTPPSAcceptancePlotter") << "Multiple protons found in sector 56.";
         return;
       }
 
