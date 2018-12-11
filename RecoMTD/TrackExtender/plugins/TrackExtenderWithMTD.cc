@@ -245,13 +245,13 @@ TrackExtenderWithMTDT<TrackCollection>::tryBTLLayers(const TrackType& track,
 
   auto tTrack = builder->build(track);
 
+  PropagatorWithMaterial prop(anyDirection,0.13957018,field,1.6,false,0.1,true);
+
   for (const DetLayer* ilay : layers) {
     const MTDTrayBarrelLayer* layer = (const MTDTrayBarrelLayer*) (ilay);
     
     // get the outermost trajectory point on the track    
     TrajectoryStateOnSurface tsos = tTrack.outermostMeasurementState();
-    PropagatorWithMaterial prop(anyDirection,0.13957018,field,1.6,false,0.1,true);
-
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos,prop,*theEstimator);
     if( comp.first ) {
       
@@ -295,8 +295,11 @@ TrackExtenderWithMTDT<TrackCollection>::tryETLLayers(const TrackType& track,
 
   auto tTrack = builder->build(track);
 
+  PropagatorWithMaterial prop(anyDirection,0.13957018,field,1.6,false,0.1,true);
+
   for (const DetLayer*& ilay : layers) {
     const MTDRingForwardDoubleLayer* layer = (const MTDRingForwardDoubleLayer*) (ilay);
+
     const BoundDisk& disk = layer->specificSurface();
     const double diskZ = disk.position().z();
 
@@ -304,7 +307,6 @@ TrackExtenderWithMTDT<TrackCollection>::tryETLLayers(const TrackType& track,
     TrajectoryStateOnSurface tsos = tTrack.outermostMeasurementState();
     if( tsos.globalPosition().z() * diskZ < 0 ) continue; // only propagate to the disk that's on the same side
 
-    PropagatorWithMaterial prop(anyDirection,0.13957018,field,1.6,false,0.1,true);
 
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos,prop,*theEstimator);
     if( comp.first ) {
@@ -343,7 +345,7 @@ TrackExtenderWithMTDT<TrackCollection>::tryETLLayers(const TrackType& track,
 template<class TrackCollection>
 reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track& orig,
 							       const Trajectory& traj,
-                                   const Trajectory& trajWithMtd,
+							       const Trajectory& trajWithMtd,
 							       const reco::BeamSpot& bs,
 							       const MagneticField* field,
 							       bool hasMTD) const {  
@@ -388,11 +390,9 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
     double pathlength = 0.;
     double pathlength1 = 0.;
     double pathlength2 = 0.;
-    double pathlength3 = 0.;
-    for (auto it=traj.measurements().begin(); it!=traj.measurements().end()-1; ++it) {
+    for (auto it=trajWithMtd.measurements().begin(); it!=trajWithMtd.measurements().end()-1; ++it) {
        const auto &propresult = thePropagator.propagateWithPath(it->updatedState(), (it+1)->updatedState().surface());
        double layerpathlength = std::abs(propresult.second);
-//        printf("layerpathlength = %5f\n",layerpathlength);
        if (layerpathlength==0.) {
          validpropagation = false;
        }
@@ -406,17 +406,12 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       for (auto it=trajWithMtd.measurements().begin(); it!=trajWithMtd.measurements().end(); ++it) {
         bool ismtd = it->recHit()->geographicalId().det() == DetId::Forward && ForwardSubdetector(it->recHit()->geographicalId().subdetId()) == FastTime;
         if (ismtd) {
-//           const auto &propresult = thePropagator.propagateWithPath(tscbl.trackStateAtPCA(), it->updatedState().surface());
-//           pathlength = propresult.second;
-//           const auto &propresult1 = thePropagator.propagateWithPath(tscbl.trackStateAtPCA(), traj.lastMeasurement().updatedState().surface());
           const auto &propresult2 = thePropagator.propagateWithPath(tscbl.trackStateAtPCA(), traj.firstMeasurement().updatedState().surface());
-          const auto &propresult3 = thePropagator.propagateWithPath(traj.lastMeasurement().updatedState(), it->updatedState().surface());
-          pathlength2 = propresult2.second;
-          pathlength3 = propresult3.second;
-          if (pathlength2 == 0. || pathlength3 == 0.) {
+	  pathlength2 = propresult2.second;
+          if (pathlength2 == 0.) {
             validpropagation = false;
           }
-          pathlength = pathlength1 + pathlength2 + pathlength3;
+          pathlength = pathlength1 + pathlength2; 
           const MTDTrackingRecHit *mtdhit = static_cast<const MTDTrackingRecHit*>(it->recHit()->hit());
           thit = mtdhit->time();
           thiterror = mtdhit->timeError();
@@ -429,16 +424,12 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       for (auto it=trajWithMtd.measurements().rbegin(); it!=trajWithMtd.measurements().rend(); ++it) {
         bool ismtd = it->recHit()->geographicalId().det() == DetId::Forward && ForwardSubdetector(it->recHit()->geographicalId().subdetId()) == FastTime;
         if (ismtd) {
-//           const auto &propresult = thePropagator.propagateWithPath(tscbl.trackStateAtPCA(), it->updatedState().surface());
-//           pathlength = propresult.second;
           const auto &propresult2 = thePropagator.propagateWithPath(tscbl.trackStateAtPCA(), traj.lastMeasurement().updatedState().surface());
-          const auto &propresult3 = thePropagator.propagateWithPath(traj.firstMeasurement().updatedState(), it->updatedState().surface());
           pathlength2 = propresult2.second;
-          pathlength3 = propresult3.second;
-          if (pathlength2 == 0. || pathlength3 == 0.) {
+          if (pathlength2 == 0.) {
             validpropagation = false;
           }
-          pathlength = pathlength1 + pathlength2 + pathlength3;
+          pathlength = pathlength1 + pathlength2;
           const MTDTrackingRecHit *mtdhit = static_cast<const MTDTrackingRecHit*>(it->recHit()->hit());
           thit = mtdhit->time();
           thiterror = mtdhit->timeError();
@@ -456,7 +447,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       double dt = pathlength/beta/c;
       t0 = thit - dt;
       covt0t0 = thiterror*thiterror;
-      printf("Propagation to MTD with pathlength1 = %5f, pathlength2 = %5f, pathlength3 = %5f, path length = %5f, beta = %5f, thit = %5f, dt = %5f, t0 = %5f\n", pathlength1, pathlength2,pathlength3, pathlength,beta,thit,dt,t0);
+      //printf("Propagation to MTD with pathlength1 = %5f, pathlength2 = %5f, path length = %5f, beta = %5f, thit = %5f, dt = %5f, t0 = %5f\n", pathlength1, pathlength2,pathlength,beta,thit,dt,t0);
     }
   }
   
