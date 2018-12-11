@@ -75,9 +75,6 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
 
     nnlsWork_.amplitudes.coeffRef(iTS) = charge - ped;
    
-    // protect from negativity by putting 0 when charge - ped < 0
-    if(nnlsWork_.amplitudes.coeffRef(iTS)<0) nnlsWork_.amplitudes.coeffRef(iTS)=0; 
-
     //ADC granularity
     double noiseADC = (1./sqrt(12))*channelData.tsDFcPerADC(iTS);
 
