@@ -11,6 +11,7 @@
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 #include "RecoEgamma/EgammaTools/interface/Utils.h"
 #include "RecoEgamma/EgammaTools/interface/MultiToken.h"
+#include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
 
 #include <memory>
 #include <vector>
@@ -40,11 +41,15 @@ class MVAValueMapProducer : public edm::global::EDProducer<> {
   const std::vector<std::string> mvaValueMapNames_;
   const std::vector<std::string> mvaRawValueMapNames_;
   const std::vector<std::string> mvaCategoriesMapNames_;
+
+  // To get the auxiliary MVA variables
+  const MVAVariableHelper<ParticleType> variableHelper_;
+
 };
 
 namespace {
 
-    auto getMVAEstimators(const edm::VParameterSet& vConfig, edm::ConsumesCollector&& cc)
+    auto getMVAEstimators(const edm::VParameterSet& vConfig)
     {
       std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators;
 
@@ -63,8 +68,6 @@ namespace {
         } else
           throw cms::Exception(" MVA configuration not found: ")
             << " failed to find proper configuration for one of the MVAs in the main python script " << std::endl;
-
-        mvaEstimators.back()->setConsumes(std::forward<edm::ConsumesCollector>(cc));
       }
 
       return mvaEstimators;
@@ -85,11 +88,11 @@ namespace {
 template <class ParticleType>
 MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& iConfig)
   : src_(consumesCollector(), iConfig, "src", "srcMiniAOD")
-  , mvaEstimators_(getMVAEstimators(iConfig.getParameterSetVector("mvaConfigurations"), consumesCollector()))
+  , mvaEstimators_(getMVAEstimators(iConfig.getParameterSetVector("mvaConfigurations")))
   , mvaValueMapNames_     (getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "Values"    ))
   , mvaRawValueMapNames_  (getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "RawValues" ))
   , mvaCategoriesMapNames_(getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "Categories"))
-
+  , variableHelper_(consumesCollector())
 {
   for( auto const& name : mvaValueMapNames_      ) produces<edm::ValueMap<float>>(name);
   for( auto const& name : mvaRawValueMapNames_   ) produces<edm::ValueMap<float>>(name);
@@ -110,10 +113,14 @@ void MVAValueMapProducer<ParticleType>::produce(edm::StreamID, edm::Event& iEven
     std::vector<int>   mvaCategories;
 
     // Loop over particles
-    for (size_t i = 0; i < src->size(); ++i){
+    for (size_t i = 0; i < src->size(); ++i)
+    {
       auto iCand = src->ptrAt(i);
+
+      std::vector<float> auxVariables = variableHelper_.getAuxVariables(iCand, iEvent);
+
       int cat = -1; // Passed by reference to the mvaValue function to store the category
-      const float response = mvaEstimators_[iEstimator]->mvaValue( iCand, iEvent, cat );
+      const float response = mvaEstimators_[iEstimator]->mvaValue( &(*iCand), auxVariables, cat );
       mvaRawValues.push_back( response ); // The MVA score
       mvaValues.push_back( 2.0/(1.0+exp(-2.0*response))-1 ); // MVA output between -1 and 1
       mvaCategories.push_back( cat );

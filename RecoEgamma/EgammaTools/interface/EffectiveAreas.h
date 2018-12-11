@@ -10,7 +10,6 @@ class EffectiveAreas {
 public:
   // Constructor, destructor
   EffectiveAreas(const std::string& filename);
-  ~EffectiveAreas();
 
   // Accessors
   const float getEffectiveArea(float eta) const;
