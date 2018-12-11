@@ -136,9 +136,9 @@ class CTPPSLocalTrackLite
     /// reco_info = 3 -> Track reconstructed in a bx-shifted ROC both with bx-shifted and non-bx-shifted planes
     unsigned short reco_info;
 
-   	/// number of points used for fit
-   	unsigned short numberOfPointUsedForFit; 
-   	
+    /// number of points used for fit
+    unsigned short numberOfPointUsedForFit; 
+
     /// time information and uncertainty
     float time, time_unc;
 

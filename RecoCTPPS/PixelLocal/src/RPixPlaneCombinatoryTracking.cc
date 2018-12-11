@@ -520,7 +520,7 @@ void RPixPlaneCombinatoryTracking::addRecoInfo(int run)
   // 4 -> Starting from run 305965: Sec45 St2 Rp3 Pl 1,3,5 ROC 0 shifted & Sec56 St2 Rp3 Pl 2,4,5 ROC 5 shifted.
 
   unsigned short shiftPeriod = 0;
-  unsigned short recoInfo = 0;
+  unsigned short recoInfo = -1; // Dummy initiation value
 
   std::vector<CTPPSPixelLocalTrack> localTrackVectorWithRecoInfo;
 
@@ -597,15 +597,17 @@ void RPixPlaneCombinatoryTracking::addRecoInfo(int run)
         if(hit.getIsUsedForFit()){
           if(pixelIndices.getROCId(hit.minPixelCol(),hit.minPixelRow()) == shiftedROC) hitInShiftedROC++; // Count how many hits are in the shifted ROC
           if(isPlaneShifted.at(shiftPeriod).at(romanPotId_).at(plane)) bxShiftedPlanesUsed++; // Count how many bx-shifted planes are used
-          else bxNonShiftedPlanesUsed++; // Count how many non-bx-shifted planes are used
+          else if(isPlaneShifted.at(shiftPeriod).at(romanPotId_) != std::vector<bool>(6,0)) bxNonShiftedPlanesUsed++; // Count how many non-bx-shifted planes are used, only if there are shifted planes 
         }
       }
     }
 
     // Set recoInfo_ value
-    if(bxShiftedPlanesUsed == 3 && bxNonShiftedPlanesUsed == 0 && hitInShiftedROC > 3) recoInfo= 1;
-    if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 3 && hitInShiftedROC > 3) recoInfo= 2;
-    if(bxShiftedPlanesUsed >  0 && bxNonShiftedPlanesUsed >  0 && hitInShiftedROC > 3) recoInfo= 3;
+    if(hitInShiftedROC < 3) recoInfo = 0;
+    if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 0 && hitInShiftedROC >= 3) recoInfo = 0; // Default value for runs without bx-shift
+    if(bxShiftedPlanesUsed == 3 && bxNonShiftedPlanesUsed == 0 && hitInShiftedROC >= 3) recoInfo = 1; // Track reconstructed in a shifted ROC, only with bx-shifted planes
+    if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 3 && hitInShiftedROC >= 3) recoInfo = 2; // Track reconstructed in a shifted ROC, only with non-bx-shifted planes
+    if(bxShiftedPlanesUsed >  0 && bxNonShiftedPlanesUsed >  0 && hitInShiftedROC >= 3) recoInfo = 3; // Track reconstructed in a shifted ROC, with mixed planes
     
     if(bxShiftedPlanesUsed + bxNonShiftedPlanesUsed > 6) {
       edm::LogError("RPixPlaneCombinatoryTracking") << "Error in RPixPlaneCombinatoryTracking::addRecoInfo -> " << "More than 6 points found for a track, skipping.";
