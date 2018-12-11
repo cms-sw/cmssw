@@ -62,17 +62,17 @@
 
 
 namespace cond {
-  template <> std::shared_ptr<CSCReadoutMapping> deserialize<CSCReadoutMapping>( const std::string& payloadType,
-										   const Binary& payloadData,
-										   const Binary& streamerInfoData ){
+  template <> std::unique_ptr<CSCReadoutMapping> deserialize<CSCReadoutMapping>( const std::string& payloadType,
+                                                                                 const Binary& payloadData,
+                                                                                 const Binary& streamerInfoData ){
     // DESERIALIZE_BASE_CASE( CSCReadoutMapping ); abstract
     DESERIALIZE_POLIMORPHIC_CASE( CSCReadoutMapping, CSCReadoutMappingFromFile );
     // here we come if none of the deserializations above match the payload type:
     throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"", "deserialize<>" );
   }
-  template <> std::shared_ptr<CSCReadoutMappingForSliceTest> deserialize<CSCReadoutMappingForSliceTest>( const std::string& payloadType,
-													   const Binary& payloadData,
-													   const Binary& streamerInfoData ){
+  template <> std::unique_ptr<CSCReadoutMappingForSliceTest> deserialize<CSCReadoutMappingForSliceTest>( const std::string& payloadType,
+                                                                                                         const Binary& payloadData,
+                                                                                                         const Binary& streamerInfoData ){
     // DESERIALIZE_BASE_CASE( CSCReadoutMappingForSliceTest ); abstract
     DESERIALIZE_POLIMORPHIC_CASE( CSCReadoutMappingForSliceTest, CSCReadoutMappingFromFile );
     // here we come if none of the deserializations above match the payload type:

@@ -17,11 +17,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "DetectorDescription/Core/interface/DDValue.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDExpandedNode.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 
@@ -100,10 +96,14 @@ TestMTDPosition::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 void TestMTDPosition::checkMTD ( const DDCompactView& cpv, std::string fname, int nVols , std::string ddtop_ ) {
 
   fname = "dump" + fname;
-  DDExpandedView epv(cpv);
-  edm::LogInfo("TestMTDPosition") << "Top Most LogicalPart = " << epv.logicalPart();
-  typedef DDExpandedView::nav_type nav_type;
-  typedef std::map<nav_type,int> id_type;
+
+  DDPassAllFilter filter;
+  DDFilteredView fv(cpv, filter);
+
+  edm::LogInfo("TestMTDPosition") << "Top Most LogicalPart = " << fv.logicalPart();
+
+  using nav_type =  DDFilteredView::nav_type;
+  using id_type = std::map<nav_type,int>;
   id_type idMap;
   int id=0;
   std::ofstream dump(fname.c_str());
@@ -113,29 +113,29 @@ void TestMTDPosition::checkMTD ( const DDCompactView& cpv, std::string fname, in
   size_t limit = 0;
 
   do {
-    nav_type pos = epv.navPos();
+    nav_type pos = fv.navPos();
     idMap[pos]=id;
     
-    size_t num = epv.geoHistory().size();
+    size_t num = fv.geoHistory().size();
 
     if ( num <= limit ) { write = false; }
-    if ( epv.geoHistory()[num-1].logicalPart().name() == "btl:BarrelTimingLayer" || 
-         epv.geoHistory()[num-1].logicalPart().name() == "etl:EndcapTimingLayer" ) {
+    if ( fv.geoHistory()[num-1].logicalPart().name() == "btl:BarrelTimingLayer" || 
+         fv.geoHistory()[num-1].logicalPart().name() == "etl:EndcapTimingLayer" ) {
       limit = num;
       write = true;
     }
 
     // Actions for MTD volumes: searchg for sensitive detectors
 
-    if ( write && epv.geoHistory()[limit-1].logicalPart().name() == ddtop_ ) { 
+    if ( write && fv.geoHistory()[limit-1].logicalPart().name() == ddtop_ ) { 
 
-      dump << " - " << epv.geoHistory();
+      dump << " - " << fv.geoHistory();
       dump << "\n";
 
       bool isSens = false;
 
-      if ( epv.geoHistory()[num-1].logicalPart().specifics().size() > 0 ) { 
-        for ( auto elem : *(epv.geoHistory()[num-1].logicalPart().specifics()[0]) ) {
+      if ( fv.geoHistory()[num-1].logicalPart().specifics().size() > 0 ) { 
+        for ( auto elem : *(fv.geoHistory()[num-1].logicalPart().specifics()[0]) ) {
           if ( elem.second.name() == "SensitiveDetector" ) { isSens = true; break; }
         }
       }
@@ -145,16 +145,16 @@ void TestMTDPosition::checkMTD ( const DDCompactView& cpv, std::string fname, in
 
       if ( isSens ) { 
         
-        DDBox mySens = epv.geoHistory()[num-1].logicalPart().solid();
+        DDBox mySens = fv.geoHistory()[num-1].logicalPart().solid();
         dump << "Solid shape name: " << DDSolidShapesName::name(mySens.shape()) << "\n";
         if ( static_cast<int>(mySens.shape()) != 1 ) { throw cms::Exception("TestMTDPosition") << "MTD sensitive element not a DDBox"; break; }
         dump << "Box dimensions: " << mySens.halfX() << " " << mySens.halfY() << " " << mySens.halfZ() << "\n";
         
         char buf[256];
         DD3Vector x, y, z;
-        epv.rotation().GetComponents(x,y,z);
+        fv.rotation().GetComponents(x,y,z);
         size_t s = snprintf(buf, 256, ",%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f",
-                            epv.translation().x(),  epv.translation().y(),  epv.translation().z(),
+                            fv.translation().x(),  fv.translation().y(),  fv.translation().z(),
                             x.X(), y.X(), z.X(), 
                             x.Y(), y.Y(), z.Y(),
                             x.Z(), y.Z(), z.Z());
@@ -165,8 +165,8 @@ void TestMTDPosition::checkMTD ( const DDCompactView& cpv, std::string fname, in
         DD3Vector zeroLocal(0.,0.,0.);
         DD3Vector cn1Local(mySens.halfX(),mySens.halfY(),mySens.halfZ());
         double distLocal = cn1Local.R();
-        DD3Vector zeroGlobal = (epv.rotation())(zeroLocal) + epv.translation();
-        DD3Vector cn1Global = (epv.rotation())(cn1Local) + epv.translation();;
+        DD3Vector zeroGlobal = (fv.rotation())(zeroLocal) + fv.translation();
+        DD3Vector cn1Global = (fv.rotation())(cn1Local) + fv.translation();;
         double distGlobal = std::sqrt(std::pow(zeroGlobal.X()-cn1Global.X(),2)
                                       +std::pow(zeroGlobal.Y()-cn1Global.Y(),2)
                                       +std::pow(zeroGlobal.Z()-cn1Global.Z(),2));
@@ -195,7 +195,7 @@ void TestMTDPosition::checkMTD ( const DDCompactView& cpv, std::string fname, in
     }
     ++id;
     if ( nVols != 0 && id > nVols ) notReachedDepth = false;
-  } while (epv.next() && notReachedDepth);
+  } while (fv.next() && notReachedDepth);
   dump << std::flush;
   dump.close();
 }

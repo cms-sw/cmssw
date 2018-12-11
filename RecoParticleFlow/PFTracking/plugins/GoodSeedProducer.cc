@@ -26,6 +26,7 @@
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -33,7 +34,6 @@
 #include <string>
 #include "TMath.h"
 #include "Math/VectorUtil.h"
-#include "TMVA/MethodBDT.h"
 
 using namespace edm;
 using namespace std;
@@ -490,7 +490,6 @@ namespace goodseedhelpers {
     const bool useTmva = conf.getUntrackedParameter<bool>("UseTMVA",false);
     
     if( useTmva ) {
-      const std::string method_ = conf.getParameter<string>("TMVAMethod");
       std::array<edm::FileInPath,kMaxWeights> weights = {{ edm::FileInPath(conf.getParameter<string>("Weights1")),
                                                            edm::FileInPath(conf.getParameter<string>("Weights2")),
                                                            edm::FileInPath(conf.getParameter<string>("Weights3")),
@@ -502,22 +501,7 @@ namespace goodseedhelpers {
                                                            edm::FileInPath(conf.getParameter<string>("Weights9")) }};
             
       for(UInt_t j = 0; j < gbr.size(); ++j){
-        TMVA::Reader reader("!Color:Silent");
-                
-        reader.AddVariable("NHits", &nhit);
-        reader.AddVariable("NormChi", &chikfred);
-        reader.AddVariable("dPtGSF", &dpt);
-        reader.AddVariable("EoP", &eP);
-        reader.AddVariable("ChiRatio", &chiRatio);
-        reader.AddVariable("RedChi", &chired);
-        reader.AddVariable("EcalDEta", &trk_ecalDeta);
-        reader.AddVariable("EcalDPhi", &trk_ecalDphi);
-        reader.AddVariable("pt", &pt);
-        reader.AddVariable("eta", &eta);
-        
-        reader.BookMVA(method_, weights[j].fullPath().c_str());
-        
-        gbr[j].reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( reader.FindMVA(method_) ) ) );
+        gbr[j] = createGBRForest( weights[j] );
       }    
     }
   }

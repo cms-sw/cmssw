@@ -30,26 +30,21 @@
  * Removing usage of outdated class CSCTriggerGeometry by Sven Dildick (TAMU)
  */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigi.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCBaseboard.h"
 
 #include <vector>
 
-class CSCGeometry;
-
-class CSCCathodeLCTProcessor
+class CSCCathodeLCTProcessor : public CSCBaseboard
 {
  public:
   /** Normal constructor. */
   CSCCathodeLCTProcessor(unsigned endcap, unsigned station, unsigned sector,
                          unsigned subsector, unsigned chamber,
-                         const edm::ParameterSet& conf,
-                         const edm::ParameterSet& comm,
-                         const edm::ParameterSet& ctmb);
+                         const edm::ParameterSet& conf);
 
   /** Default constructor. Used for testing. */
   CSCCathodeLCTProcessor();
@@ -60,8 +55,6 @@ class CSCCathodeLCTProcessor
   /** Clears the LCT containers. */
   void clear();
 
-  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
-
   /** Runs the LCT processor code. Called in normal running -- gets info from
       a collection of comparator digis. */
   std::vector<CSCCLCTDigi> run(const CSCComparatorDigiCollection* compdc);
@@ -70,9 +63,20 @@ class CSCCathodeLCTProcessor
       finding. */
   void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
-  /** Access routines to comparator digis. */
-  bool getDigis(const CSCComparatorDigiCollection* compdc);
-  void getDigis(const CSCComparatorDigiCollection* compdc, const CSCDetId& id);
+  /** Returns vector of CLCTs in the read-out time window, if any. */
+  std::vector<CSCCLCTDigi> readoutCLCTs() const;
+  std::vector<CSCCLCTDigi> readoutCLCTsME1a() const;
+  std::vector<CSCCLCTDigi> readoutCLCTsME1b() const;
+
+  /** Returns vector of all found CLCTs, if any. */
+  std::vector<CSCCLCTDigi> getCLCTs() const;
+
+  std::vector<int> preTriggerBXs() const {return thePreTriggerBXs;}
+
+  /** read out CLCTs in ME1a , ME1b */
+  std::vector<CSCCLCTPreTriggerDigi> preTriggerDigis() const {return thePreTriggerDigis; }
+  std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1a() const;
+  std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1b() const;
 
   /** Best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_TBINS];
@@ -80,28 +84,75 @@ class CSCCathodeLCTProcessor
   /** Second best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
 
-  /** Returns vector of CLCTs in the read-out time window, if any. */
-  std::vector<CSCCLCTDigi> readoutCLCTs();
+ protected:
 
-  /** read out CLCTs in ME1a , ME1b */
-  std::vector<CSCCLCTDigi> readoutCLCTsME1a();
-  std::vector<CSCCLCTDigi> readoutCLCTsME1b();
+  /** Access routines to comparator digis. */
+  bool getDigis(const CSCComparatorDigiCollection* compdc);
+  void getDigis(const CSCComparatorDigiCollection* compdc, const CSCDetId& id);
 
-  /** Returns vector of all found CLCTs, if any. */
-  std::vector<CSCCLCTDigi> getCLCTs();
+  /** Set default values for configuration parameters. */
+  void setDefaultConfigParameters();
 
-  std::vector<int> preTriggerBXs() const {return thePreTriggerBXs;}
+  /** Make sure that the parameter values are within the allowed range. */
+  void checkConfigParameters();
 
-  std::vector<CSCCLCTPreTriggerDigi> preTriggerDigis() const {return thePreTriggerDigis; }
+  //---------------- Methods common to all firmware versions ------------------
+  // Single-argument version for TMB07 (halfstrip-only) firmware.
+  // Takes the comparator & time info and stuffs it into halfstrip vector.
+  // Multiple hits on the same strip are allowed.
+  void readComparatorDigis(std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
+  void pulseExtension(const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+                      const int nStrips,
+                      unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
-  /** read out CLCTs in ME1a , ME1b */
-  std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1a();
-  std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1b();
+  //--------------- Functions for post-2007 version of the firmware -----------
+  virtual std::vector<CSCCLCTDigi> findLCTs(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
+  /* Check all half-strip pattern envelopes simultaneously, on every clock cycle, for a matching pattern */
+  virtual bool preTrigger(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+                  const int start_bx, int& first_bx);
+
+  /* For a given clock cycle, check each half-strip if a pattern matches */
+  bool patternFinding(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+                        const int nStrips, const unsigned int bx_time);
+
+  /* Mark the half-strips around the best half-strip as busy */
+  void markBusyKeys(const int best_hstrip, const int best_patid,
+                    int quality[CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
+
+  //--------------------------- Auxiliary methods -----------------------------
+  /** Dump CLCT configuration parameters. */
+  void dumpConfigParams() const;
+
+  /** Dump half-strip digis */
+  void dumpDigis(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+                 const int nStrips) const;
+
+  //--------------------------- Member variables -----------------------------
+
+  /* best pattern Id for a given half-strip */
+  unsigned int best_pid[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+
+  /* number of layers hit on a given half-strip */
+  unsigned int nhits[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+
+  int first_bx_corrected[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+
+  /* does a given half-strip have a pre-trigger? */
+  bool ispretrig[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+
+
+ public:
   /** Pre-defined patterns. */
+  // New set of halfstrip patterns for 2007 version of the algorithm.
+  // For the given pattern, set the unused parts of the pattern to 999.
+  // Pattern[i][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN] contains bend direction.
+  // Bend of 0 is right/straight and bend of 1 is left.
+  // Pattern[i][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN+1] contains pattern maximum width
   static const int pattern2007_offset[CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
   static const int pattern2007[CSCConstants::NUM_CLCT_PATTERNS][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN+2];
 
+ protected:
   // we use these next ones to address the various bits inside the array that's
   // used to make the cathode LCTs.
   enum CLCT_INDICES {CLCT_PATTERN,
@@ -113,41 +164,15 @@ class CSCCathodeLCTProcessor
                      CLCT_CFEB,
                      CLCT_NUM_QUANTITIES= 7};
 
- private:
-  /** Verbosity level: 0: no print (default).
-   *                   1: print only CLCTs found.
-   *                   2: info at every step of the algorithm.
-   *                   3: add special-purpose prints. */
-  int infoV;
-
-  /** Chamber id (trigger-type labels). */
-  const unsigned theEndcap;
-  const unsigned theStation;
-  const unsigned theSector;
-  const unsigned theSubsector;
-  const unsigned theTrigChamber;
-
-  const CSCGeometry* csc_g;
-
-  // holders for easy access:
-  unsigned int theRing;
-  unsigned int theChamber;
-  bool isME11;
-
+  /* number of strips used in this processor */
   int numStrips;
+
+  /* Is the layer in the chamber staggered? */
   int stagger[CSCConstants::NUM_LAYERS];
 
   std::vector<CSCComparatorDigi> digiV[CSCConstants::NUM_LAYERS];
   std::vector<int> thePreTriggerBXs;
   std::vector<CSCCLCTPreTriggerDigi> thePreTriggerDigis;
-
-  /** Flag for SLHC studies. */
-  bool isSLHC;
-
-  /** Offset between ALCT and CLCT in simulation.
-   *  This is important when ALCTs (at BX0=8) and CLCTs (at BX0=7)
-   *  are correlated in the trigger motherboard. */
-  unsigned int alctClctOffset;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins,  fifo_pretrig; // only for test beam mode.
@@ -159,22 +184,8 @@ class CSCCathodeLCTProcessor
   /** VK: some quick and dirty fix to reduce CLCT deadtime */
   int start_bx_shift;
 
-  /** VK: special configuration parameters for ME1a treatment */
-  bool disableME1a, gangedME1a;
-
   /** VK: separate handle for early time bins */
   int early_tbins;
-
-  /** VK: use of localized dead-time zones */
-  bool use_dead_time_zoning;
-  unsigned int clct_state_machine_zone; // +- around a keystrip
-  bool dynamic_state_machine_zone;  //use a pattern dependent zone
-
-  /** VK: allow triggers only in +-pretrig_trig_zone around pretriggers */
-  unsigned int pretrig_trig_zone;
-
-  /** VK: whether to use corrected_bx instead of pretrigger BX */
-  bool use_corrected_bx;
 
   /** VK: whether to readout only the earliest two LCTs in readout window */
   bool readout_earliest_2;
@@ -186,44 +197,6 @@ class CSCCathodeLCTProcessor
   static const unsigned int def_nplanes_hit_pattern;
   static const unsigned int def_pid_thresh_pretrig, def_min_separation;
   static const unsigned int def_tmb_l1a_window_size;
-
-  /** Set default values for configuration parameters. */
-  void setDefaultConfigParameters();
-
-  /** Make sure that the parameter values are within the allowed range. */
-  void checkConfigParameters();
-
-  //---------------- Methods common to all firmware versions ------------------
-  void readComparatorDigis(std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
-  void pulseExtension(const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-                      const int nStrips,
-                      unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
-
-  //--------------- Functions for 2007 version of the firmware ----------------
-  std::vector<CSCCLCTDigi> findLCTs(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
-  bool preTrigger(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-                  const int start_bx, int& first_bx);
-  bool ptnFinding(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-                  const int nStrips, const unsigned int bx_time);
-  void markBusyKeys(const int best_hstrip, const int best_patid,
-                    int quality[CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
-
-  unsigned int best_pid[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
-  unsigned int nhits[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
-  int first_bx_corrected[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
-
-  //--------------- Functions for SLHC studies ----------------
-  std::vector<CSCCLCTDigi> findLCTsSLHC(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
-
-  bool ispretrig[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
-
-  //--------------------------- Auxiliary methods -----------------------------
-  /** Dump CLCT configuration parameters. */
-  void dumpConfigParams() const;
-
-  /** Dump half-strip digis */
-  void dumpDigis(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-                 const int nStrips) const;
 };
 
 #endif

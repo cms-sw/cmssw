@@ -3,7 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CommonTools/Utils/interface/TMVAEvaluator.h"
+#include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"

@@ -49,6 +49,8 @@ CosmicGenFilterHelix::CosmicGenFilterHelix(const edm::ParameterSet& cfg)
 {
   theSrcToken = consumes<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("src"));
 
+  usesResource(TFileService::kSharedResource);
+
   if (theIds.size() != theCharges.size()) {
     throw cms::Exception("BadConfig") << "CosmicGenFilterHelix: "
 				      << "'pdgIds' and 'charges' need same length.";

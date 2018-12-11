@@ -633,6 +633,9 @@ void testdependentrecord::getTest()
       const DepRecord& depRecord = eventSetup.get<DepRecord>();
 
       depRecord.getRecord<DummyRecord>();
+
+      auto dr = depRecord.tryToGetRecord<DummyRecord>();
+      CPPUNIT_ASSERT(dr.has_value());
    }
    {
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 4)));

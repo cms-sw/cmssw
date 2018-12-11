@@ -40,6 +40,14 @@ process.WatchLumiBlockProd = cms.EDProducer("edmtest::one::WatchLumiBlocksProduc
     transitions = cms.int32(nEvt+2*(nEvt/nEvtLumi))
 )
 
+process.RunCacheProd = cms.EDProducer("edmtest::one::RunCacheProducer",
+                                    transitions = cms.int32(nEvt+2*(nEvt/nEvtRun))
+                                    )
+
+process.LumiBlockCacheProd = cms.EDProducer("edmtest::one::LumiBlockCacheProducer",
+                                          transitions = cms.int32(nEvt+2*(nEvt/nEvtLumi))
+                                          )
+
 process.BeginRunProd = cms.EDProducer("edmtest::one::TestBeginRunProducer",
     transitions = cms.int32(nEvt+(nEvt/nEvtRun))
 )
@@ -69,6 +77,14 @@ process.WatchLumiBlockAn = cms.EDAnalyzer("edmtest::one::WatchLumiBlocksAnalyzer
     transitions = cms.int32(nEvt+2*(nEvt/nEvtLumi))
 )
 
+process.RunCacheAn = cms.EDAnalyzer("edmtest::one::RunCacheAnalyzer",
+                                    transitions = cms.int32(nEvt+2*(nEvt/nEvtRun))
+                                    )
+
+process.LumiBlockCacheAn = cms.EDAnalyzer("edmtest::one::LumiBlockCacheAnalyzer",
+                                          transitions = cms.int32(nEvt+2*(nEvt/nEvtLumi))
+                                          )
+
 process.SharedResFil = cms.EDFilter("edmtest::one::SharedResourcesFilter",
     transitions = cms.int32(nEvt)
 )
@@ -80,6 +96,13 @@ process.WatchRunFil = cms.EDFilter("edmtest::one::WatchRunsFilter",
 process.WatchLumiBlockFil = cms.EDFilter("edmtest::one::WatchLumiBlocksFilter",
     transitions = cms.int32(nEvt+2*(nEvt/nEvtLumi))
 )
+process.RunCacheFil = cms.EDFilter("edmtest::one::RunCacheFilter",
+                                    transitions = cms.int32(nEvt+2*(nEvt/nEvtRun))
+                                    )
+
+process.LumiBlockCacheFil = cms.EDFilter("edmtest::one::LumiBlockCacheFilter",
+                                          transitions = cms.int32(nEvt+2*(nEvt/nEvtLumi))
+                                          )
 
 process.BeginRunFil = cms.EDFilter("edmtest::one::BeginRunFilter",
     transitions = cms.int32(nEvt+(nEvt/nEvtRun))
@@ -113,6 +136,6 @@ process.testFilterModule = cms.EDFilter("TestFilterModule",
 process.task = cms.Task(process.TestAccumulator1)
 
 
-process.p = cms.Path(process.SharedResProd+process.WatchRunProd+process.WatchLumiBlockProd+process.BeginRunProd+process.BeginLumiBlockProd+process.EndRunProd+process.EndLumiBlockProd+process.SharedResAn+process.WatchRunAn+process.WatchLumiBlockAn+process.SharedResFil+process.WatchRunFil+process.WatchLumiBlockFil+process.BeginRunFil+process.BeginLumiBlockFil+process.EndRunFil+process.EndLumiBlockFil+process.testFilterModule+process.TestAccumulator2, process.task)
+process.p = cms.Path(process.SharedResProd+process.WatchRunProd+process.WatchLumiBlockProd+process.RunCacheProd+process.LumiBlockCacheProd+process.BeginRunProd+process.BeginLumiBlockProd+process.EndRunProd+process.EndLumiBlockProd+process.SharedResAn+process.WatchRunAn+process.WatchLumiBlockAn+process.RunCacheAn+process.LumiBlockCacheAn+process.SharedResFil+process.WatchRunFil+process.WatchLumiBlockFil+process.RunCacheFil+process.LumiBlockCacheFil+process.BeginRunFil+process.BeginLumiBlockFil+process.EndRunFil+process.EndLumiBlockFil+process.testFilterModule+process.TestAccumulator2, process.task)
 
 

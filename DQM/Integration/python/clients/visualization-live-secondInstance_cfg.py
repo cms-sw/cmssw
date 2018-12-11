@@ -38,8 +38,15 @@ kwds = {
    'globalTagConnect': GlobalTag.connect.value()
 }
 
+# explicitly select the input collection, since we get multiple in online
+from EventFilter.RawDataCollector.rawDataMapperByLabel_cfi import rawDataMapperByLabel
+rawDataMapperByLabel.rawCollectionList = [cms.InputTag("rawDataRepacker")]
+
 # example of how to add a filer IN FRONT of all the paths, eg for HLT selection
-#kwds['preFilter'] = 'DQM/Integration/python/config/visualizationPreFilter.hltfilter'
+#kwds['preFilter'] = 'DQM/Integration/config/visualizationPreFilter.hltfilter'
+
+# The following filter was used during 2018 high pile up (HPU) run.
+#kwds['preFilter'] = 'DQM/Integration/config/visualizationPreFilter.pixelClusterFilter'
 
 process = scenario.visualizationProcessing(writeTiers=['FEVT'], **kwds)
 
@@ -74,6 +81,7 @@ oldo = process._Process__outputmodules["FEVToutput"]
 del process._Process__outputmodules["FEVToutput"]
 
 process.FEVToutput = cms.OutputModule("JsonWritingTimeoutPoolOutputModule",
+    SelectEvents = oldo.SelectEvents,
     splitLevel = oldo.splitLevel,
     outputCommands = oldo.outputCommands,
     fileName = oldo.fileName,

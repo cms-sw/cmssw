@@ -126,7 +126,7 @@ void L1MuBMWedgeSorter::run() {
   // sort candidates by pt and quality and copy the 2 best candidates
   partial_sort_copy( wedgecands.begin(), wedgecands.end(),
                      m_TrackCands.begin(), m_TrackCands.end(),
-                     L1MuBMTrack::Rank() );
+                     L1MuBMTrack::rank );
 
   if ( L1MuBMTFConfig::Debug(4) ) {
     cout << "Wedge Sorter " << m_wsid << " output: " << endl;

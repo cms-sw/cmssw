@@ -30,6 +30,13 @@ namespace edm {
     class EDAnalyzer : public virtual EDAnalyzerBase,
                        public analyzer::AbilityToImplementor<T>::Type... { 
     public:
+      static_assert(not (CheckAbility<module::Abilities::kRunCache,T...>::kHasIt and
+                        CheckAbility<module::Abilities::kOneWatchRuns,T...>::kHasIt),
+                   "Cannot use both WatchRuns and RunCache");
+      static_assert(not (CheckAbility<module::Abilities::kLuminosityBlockCache,T...>::kHasIt and
+                        CheckAbility<module::Abilities::kOneWatchLuminosityBlocks,T...>::kHasIt),
+                   "Cannot use both WatchLuminosityBlocks and LuminosityBLockCache");
+
       EDAnalyzer() = default;
 #ifdef __INTEL_COMPILER
       virtual ~EDAnalyzer() = default;
@@ -54,8 +61,8 @@ namespace edm {
       const EDAnalyzer& operator=(const EDAnalyzer&) = delete;
       
       // ---------- member data --------------------------------
-      impl::OptionalSerialTaskQueueHolder<WantsGlobalRunTransitions<T...>::value> globalRunsQueue_;
-      impl::OptionalSerialTaskQueueHolder<WantsGlobalLuminosityBlockTransitions<T...>::value> globalLuminosityBlocksQueue_;
+      impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalRunTransitions<T...>::value> globalRunsQueue_;
+      impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalLuminosityBlockTransitions<T...>::value> globalLuminosityBlocksQueue_;
 
     };
     

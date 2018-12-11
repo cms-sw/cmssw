@@ -61,6 +61,10 @@ dataCertificationJetMET = DQMEDHarvester('DataCertificationJetMET',
                               tcMETMeanTest           = cms.untracked.bool(False),
                               tcMETKSTest             = cms.untracked.bool(False),
 
+                              isHI                    = cms.untracked.bool(False),
 )
 
-
+dataCertificationJetMETHI = dataCertificationJetMET.clone(
+    isHI    = cms.untracked.bool(True),
+    jetAlgo = cms.untracked.string("ak"),
+)

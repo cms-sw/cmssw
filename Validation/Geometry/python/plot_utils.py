@@ -18,17 +18,21 @@ plots = {}
 plots.setdefault('x_vs_eta', Plot_params(10, '#eta', 'x/X_{0}', 0.0, 2.575, -4.0, 4.0, '', 0, 0., 0., 0, 1))
 plots.setdefault('x_vs_phi', Plot_params(20, '#varphi [rad]', 'x/X_{0}', 0.0, 6.2, -4.0, 4.0, '', 0, 0., 0., 0, 1))
 plots.setdefault('x_vs_R',   Plot_params(40, 'R [cm]', 'x/X_{0}', 0.0, 70.0, 0.0, 1200.0, '', 0, 0., 0., 0, 1))
-plots.setdefault('l_vs_eta', Plot_params(1010, '#eta', 'x/#lambda_{I}', 0.0, 0.73, -4.0, 4.0, '', 0, 0., 0., 0, 1))
-plots.setdefault('l_vs_phi', Plot_params(1020, '#varphi [rad]', 'x/#lambda_{I}', 0.0, 1.2, -4.0, 4.0, '', 0, 0., 0., 0, 1))
-plots.setdefault('l_vs_R',   Plot_params(1040, '#R [cm]', 'x/#lambda_{I}', 0.0, 7.5, 0.0, 1200.0, '', 0, 0., 0., 0, 1))
-plots.setdefault('x_vs_eta_vs_phi', Plot_params(30, '#eta', '#varphi', 0., 0., 0., 0., 'x/X_{0}', 0, -1., -1., 0, 1))
-plots.setdefault('l_vs_eta_vs_phi', Plot_params(1030, '#eta', '#varphi', 0., 0., 0., 0., 'x/#lambda_{I}', 0, -1, -1, 0, 1))
+plots.setdefault('l_vs_eta', Plot_params(1010, '#eta', 'x/#lambda_{0}', 0.0, 0.73, -4.0, 4.0, '', 0, 0., 0., 0, 1))
+plots.setdefault('l_vs_phi', Plot_params(1020, '#varphi [rad]', 'x/#lambda_{0}', 0.0, 1.2, -4.0, 4.0, '', 0, 0., 0., 0, 1))
+plots.setdefault('l_vs_R',   Plot_params(1040, '#R [cm]', 'x/#lambda_{0}', 0.0, 7.5, 0.0, 1200.0, '', 0, 0., 0., 0, 1))
+plots.setdefault('x_vs_eta_vs_phi', Plot_params(30, '#eta', '#varphi', -3.2, 3.2, -5.0, 5.0, 'x/X_{0}', 0, -1., -1., 0, 1))
+plots.setdefault('l_vs_eta_vs_phi', Plot_params(1030, '#eta', '#varphi', -3.2, 3.2, -5.0, 5.0, 'x/#lambda_{0}', 0, -1, -1, 0, 1))
 plots.setdefault('x_vs_z_vs_Rsum', Plot_params(50, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '#Sigmax/X_{0}', 1, 0., 2.5, 0, 0))
 plots.setdefault('x_vs_z_vs_R', Plot_params(60, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '1/X_{0}', 1, 0.00001, 0.01, 1, 0))
-plots.setdefault('l_vs_z_vs_Rsum', Plot_params(1050, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '#Sigmax/#lambda_{I}', 1, 0., 1., 0, 0))
-plots.setdefault('l_vs_z_vs_R', Plot_params(1060, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '1/#lambda_{I}', 1, 0.001, 0.9, 1, 0))
-plots.setdefault('x_over_l_vs_eta', Plot_params(10, '#eta', '(x/X_{0})/(x/#lambda_{I})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
-plots.setdefault('x_over_l_vs_phi', Plot_params(20, '#varphi [rad]', '(x/X_{0})/(x/#lambda_{I})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
+plots.setdefault('l_vs_z_vs_Rsum', Plot_params(1050, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '#Sigmax/#lambda_{0}', 1, 0., 1., 0, 0))
+plots.setdefault('l_vs_z_vs_R', Plot_params(1060, 'z [mm]', 'R [mm]', 0., 1400., -3500., 3500., '1/#lambda_{0}', 1, 0.001, 0.9, 1, 0))
+plots.setdefault('l_vs_z_vs_R_geocomp', Plot_params(1060, 'z [mm]', 'R [mm]', 0., 1400., -3500., 3500., '1/#lambda_{0}', 1, 0.001, 0.9, 0, 0))
+# x_over_l_vs_eta is not extracted from the ROOT file 
+# but generated from 10 and 1010 in MaterialBudget.py
+plots.setdefault('x_over_l_vs_eta', Plot_params(10, '#eta', '(#frac{x}{X_{0}})/(#frac{x}{#lambda_{0}})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
+# same goes with x_over_l_vs_phi 20/1020
+plots.setdefault('x_over_l_vs_phi', Plot_params(20, '#varphi [rad]', '(#frac{x}{X_{0}})/(#frac{x}{#lambda_{0}})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
 
 # Conversion name from the label (key) to the components in CMSSW/Geometry
 _LABELS2COMPS = {'BeamPipe': 'BEAM',
@@ -108,11 +112,12 @@ sDETS["TOB"] = kOrange
 sDETS["TEC"] = kPink
 
 # hist_label_to_num contains the logical names of the Tracker detector
-# that holds material. They are therefor not aware of which detector
+# that holds material. They are therefore not aware of which detector
 # they belong to, but they are stored in specific plots in all the
 # mat*root files produced. The numbering of the plots is identical
 # across all files.
 hist_label_to_num = OrderedDict()
+hist_label_to_num['SUM'] = [0, kGreen+1, 'Total']
 hist_label_to_num['SUP'] = [100, 13, 'Support'] # [Index , color, legend label]
 hist_label_to_num['SEN'] = [200, 27, 'Sensitive']
 hist_label_to_num['CAB'] = [300, 46, 'Cables']
@@ -139,9 +144,11 @@ def setTDRStyle():
     tdrStyle.SetPadColor(kWhite)
     tdrStyle.SetPadGridX(False)
     tdrStyle.SetPadGridY(False)
-    tdrStyle.SetGridColor(0)
+    tdrStyle.SetGridColor(kWhite)
     tdrStyle.SetGridStyle(3)
     tdrStyle.SetGridWidth(1)
+    tdrStyle.SetPadTickX(True)
+    tdrStyle.SetPadTickY(True)
 
     # For the frame:
     tdrStyle.SetFrameBorderMode(0)
@@ -150,18 +157,18 @@ def setTDRStyle():
     tdrStyle.SetFrameFillStyle(0)
     tdrStyle.SetFrameLineColor(1)
     tdrStyle.SetFrameLineStyle(1)
-    tdrStyle.SetFrameLineWidth(1)
+    tdrStyle.SetFrameLineWidth(0)
 
     # For the histo:
     tdrStyle.SetHistLineColor(1)
     tdrStyle.SetHistLineStyle(0)
     tdrStyle.SetHistLineWidth(1)
-    tdrStyle.SetEndErrorSize(2)
-    tdrStyle.SetErrorX(0.)
+    tdrStyle.SetEndErrorSize(1)
+    #tdrStyle.SetErrorX(0.)
     tdrStyle.SetMarkerStyle(20)
 
     #For the fit/function:
-    tdrStyle.SetOptFit(1)
+    tdrStyle.SetOptFit(0)
     tdrStyle.SetFitFormat("5.4g")
     tdrStyle.SetFuncColor(2)
     tdrStyle.SetFuncStyle(1)
@@ -183,31 +190,39 @@ def setTDRStyle():
     tdrStyle.SetStatW(0.15)
 
     # Margins:
-    tdrStyle.SetPadTopMargin(0.05)
-    tdrStyle.SetPadBottomMargin(0.13)
-    tdrStyle.SetPadLeftMargin(0.16)
-    tdrStyle.SetPadRightMargin(0.02)
+    tdrStyle.SetPadTopMargin(0.1)
+    tdrStyle.SetPadBottomMargin(0.1)
+    tdrStyle.SetPadLeftMargin(0.1)
+    tdrStyle.SetPadRightMargin(0.1)
 
     # For the Global title:
-    tdrStyle.SetOptTitle(0)
+    tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleFont(42)
     tdrStyle.SetTitleColor(1)
     tdrStyle.SetTitleTextColor(1)
     tdrStyle.SetTitleFillColor(10)
-    tdrStyle.SetTitleFontSize(0.05)
+    tdrStyle.SetTitleFontSize(0.0525)
+    tdrStyle.SetTitleH(0); # Set the height of the title box
+    tdrStyle.SetTitleW(0); # Set the width of the title box
+    tdrStyle.SetTitleX(0.5); # Set the position of the title box
+    tdrStyle.SetTitleY(1.0); # Set the position of the title box
+    tdrStyle.SetTitleStyle(1001);
+    tdrStyle.SetTitleBorderSize(0);
+    tdrStyle.SetTitleAlign(23)
 
     # For the axis titles:
     tdrStyle.SetTitleColor(1, "XYZ")
     tdrStyle.SetTitleFont(42, "XYZ")
-    tdrStyle.SetTitleSize(0.06, "XYZ")
-    tdrStyle.SetTitleXOffset(0.9)
-    tdrStyle.SetTitleYOffset(1.25)
+    tdrStyle.SetTitleSize(0.05, "XY")
+    tdrStyle.SetTitleSize(0.035, "Z")
+    tdrStyle.SetTitleXOffset(1.0)
+    tdrStyle.SetTitleYOffset(1.0)
 
     # For the axis labels:
     tdrStyle.SetLabelColor(1, "XYZ")
     tdrStyle.SetLabelFont(42, "XYZ")
-    tdrStyle.SetLabelOffset(0.007, "XYZ")
-    tdrStyle.SetLabelSize(0.05, "XYZ")
+    tdrStyle.SetLabelOffset(5e-3, "XYZ")
+    tdrStyle.SetLabelSize(0.03, "XYZ")
 
     # For the axis:
     tdrStyle.SetAxisColor(1, "XYZ")
@@ -221,6 +236,9 @@ def setTDRStyle():
     tdrStyle.SetOptLogx(0)
     tdrStyle.SetOptLogy(0)
     tdrStyle.SetOptLogz(0)
+
+    # Miscellaneous
+    tdrStyle.SetLegendBorderSize(0)
 
     # Postscript options:
     tdrStyle.SetPaperSize(20.,20.)
@@ -239,14 +257,11 @@ def drawEtaValues():
 
     # Add eta labels
     keep_alive = []
-    etas = [-3.4, -3.0, -2.8, -2.6, -2.4, -2.2,
-            -2.0, -1.8, -1.6, -1.4, -1.2, -1., -0.8, -0.6, -0.4, -0.2, 0., 0.2,
-            0.4, 0.6, 0.8, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3.0,
-            3.4]
+    etas = [ 0.2*i for i in range(-17,18) ]
 
-    etax = 2940.
+    etax = 2850.
     etay = 1240.
-    lineL = 100.
+    lineL = 110.
     offT = 10.
 
     for ieta in etas:

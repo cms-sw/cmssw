@@ -56,10 +56,6 @@ protected:
 
 // BeginJob
   void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-
- void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
-
 
 private:
 
@@ -88,11 +84,7 @@ private:
 
   int nev_; // Number of events processed
   int nevRPC_; // Number of events processed where muon was found by rpc trigger
-  std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
-  bool monitorDaemon_;
-  //bool m_rpcDigiFine;
-  //bool m_useRpcDigi;
 
   long long int m_lastUsedBxInBxdiff;
   std::string output_dir_;

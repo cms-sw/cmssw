@@ -79,9 +79,9 @@ void FineDelayTask::fill( const SiStripEventSummary& summary,
 			  const edm::DetSet<SiStripRawDigi>& digis ) {
   LogDebug("Commissioning") << "[FineDelayTask::fill]";
   // retrieve the delay from the EventSummary
-  float delay = const_cast<SiStripEventSummary&>(summary).ttcrx();
-  uint32_t latencyCode = (const_cast<SiStripEventSummary&>(summary).layerScanned()>>24)&0xff;
-  LogDebug("Commissioning") << "[FineDelayTask::fill]: layerScanned() is " << const_cast<SiStripEventSummary&>(summary).layerScanned();
+  float delay = summary.ttcrx();
+  uint32_t latencyCode = (summary.layerScanned()>>24)&0xff;
+  LogDebug("Commissioning") << "[FineDelayTask::fill]: layerScanned() is " << summary.layerScanned();
   int latencyShift = latencyCode & 0x3f;             // number of bunch crossings between current value and start of scan... must be positive
   if(latencyShift>32) latencyShift -=64;             // allow negative values: we cover [-32,32].. should not be needed.
   if((latencyCode>>6)==2) latencyShift -= 3;         // layer in deconv, rest in peak

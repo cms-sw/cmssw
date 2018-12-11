@@ -53,31 +53,31 @@ IdealZPrism::~IdealZPrism()
 CCGFloat 
 IdealZPrism::dEta() const 
 {
-   return param()[0] ;
+   return param()[IdealZPrism::k_dEta] ;
 }
 
 CCGFloat 
 IdealZPrism::dPhi() const 
 { 
-   return param()[1] ;
+   return param()[IdealZPrism::k_dPhi] ;
 }
 
 CCGFloat 
 IdealZPrism::dz()   const 
 { 
-   return param()[2] ;
+   return param()[IdealZPrism::k_dZ] ;
 }
 
 CCGFloat 
 IdealZPrism::eta()  const 
 {
-   return param()[3] ; 
+   return param()[IdealZPrism::k_Eta] ; 
 }
 
 CCGFloat 
 IdealZPrism::z()    const 
 { 
-   return param()[4] ;
+   return param()[IdealZPrism::k_Z] ;
 }
 
 void 
@@ -126,11 +126,11 @@ IdealZPrism::localCorners( Pt3DVec&        lc  ,
    assert( 8 == lc.size() ) ;
    assert( nullptr != pv ) ;
    
-   const CCGFloat dEta ( pv[0] ) ;
-   const CCGFloat dPhi ( pv[1] ) ;
-   const CCGFloat dz   ( pv[2] ) ;
-   const CCGFloat eta  ( pv[3] ) ;
-   const CCGFloat z    ( pv[4] ) ;
+   const CCGFloat dEta ( pv[IdealZPrism::k_dEta] ) ;
+   const CCGFloat dPhi ( pv[IdealZPrism::k_dPhi] ) ;
+   const CCGFloat dz   ( pv[IdealZPrism::k_dZ] ) ;
+   const CCGFloat eta  ( pv[IdealZPrism::k_Eta] ) ;
+   const CCGFloat z    ( pv[IdealZPrism::k_Z] ) ;
    
    std::vector<GlobalPoint> gc ( 8, GlobalPoint(0,0,0) ) ;
    

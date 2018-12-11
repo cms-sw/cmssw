@@ -63,7 +63,11 @@ void PixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
 
 PixelDigitizerAlgorithm::PixelDigitizerAlgorithm(const edm::ParameterSet& conf) :
   Phase2TrackerDigitizerAlgorithm(conf.getParameter<ParameterSet>("AlgorithmCommon"),
-				  conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm"))
+				  conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm")),
+  odd_row_interchannelCoupling_next_row(conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm").getParameter<double>("Odd_row_interchannelCoupling_next_row")),
+  even_row_interchannelCoupling_next_row(conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm").getParameter<double>("Even_row_interchannelCoupling_next_row")),
+  odd_column_interchannelCoupling_next_column(conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm").getParameter<double>("Odd_column_interchannelCoupling_next_column")),
+  even_column_interchannelCoupling_next_column(conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm").getParameter<double>("Even_column_interchannelCoupling_next_column"))
 {
   pixelFlag = true;
   LogInfo("PixelDigitizerAlgorithm") << "Algorithm constructed "
@@ -117,3 +121,80 @@ void PixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iter
     }
   }
 }
+// ======================================================================
+//
+//  Add  Cross-talk contribution
+//
+// ======================================================================
+void PixelDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetUnit* pixdet) {
+  if (!pixelFlag) return;
+
+  const Phase2TrackerTopology* topol = &pixdet->specificTopology();
+
+  // cross-talk calculation valid for the case of 25x100 pixels
+  const float pitch_first = 0.0025;
+  const float pitch_second = 0.0100;
+
+  if ( topol->pitch().first != pitch_first || topol->pitch().second != pitch_second ) return;  // please check that units are really cm!
+
+  uint32_t detID = pixdet->geographicalId().rawId();
+  signal_map_type& theSignal = _signal[detID];
+  signal_map_type signalNew;
+  int numRows = topol->nrows();
+  int numColumns = topol->ncolumns();
+
+  for (auto & s : theSignal) {
+    float signalInElectrons = s.second.ampl();   // signal in electrons
+    
+    auto hitChan = PixelDigi::channelToPixel(s.first);
+
+    float signalInElectrons_odd_row_Xtalk_next_row = signalInElectrons * odd_row_interchannelCoupling_next_row; 
+    float signalInElectrons_even_row_Xtalk_next_row = signalInElectrons * even_row_interchannelCoupling_next_row;    
+    float signalInElectrons_odd_column_Xtalk_next_column = signalInElectrons * odd_column_interchannelCoupling_next_column;   
+    float signalInElectrons_even_column_Xtalk_next_column = signalInElectrons * even_column_interchannelCoupling_next_column;
+    
+    //subtract the charge which will be shared 
+    s.second.set(signalInElectrons-signalInElectrons_odd_row_Xtalk_next_row-signalInElectrons_even_row_Xtalk_next_row-signalInElectrons_odd_column_Xtalk_next_column-signalInElectrons_even_column_Xtalk_next_column);
+         
+    if (hitChan.first != 0) {	
+      auto XtalkPrev = std::make_pair(hitChan.first-1, hitChan.second);
+      int chanXtalkPrev = (pixelFlag) ? PixelDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second)
+	: Phase2TrackerDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second);
+      if (hitChan.first % 2 == 1) signalNew.emplace(chanXtalkPrev, DigitizerUtility::Amplitude(signalInElectrons_even_row_Xtalk_next_row, nullptr, -1.0));
+      else signalNew.emplace(chanXtalkPrev, DigitizerUtility::Amplitude(signalInElectrons_odd_row_Xtalk_next_row, nullptr, -1.0));
+    }
+    if (hitChan.first < (numRows-1)) {
+      auto XtalkNext = std::make_pair(hitChan.first+1, hitChan.second);
+      int chanXtalkNext = (pixelFlag) ? PixelDigi::pixelToChannel(XtalkNext.first, XtalkNext.second)
+	: Phase2TrackerDigi::pixelToChannel(XtalkNext.first, XtalkNext.second);
+      if (hitChan.first % 2 == 1) signalNew.emplace(chanXtalkNext, DigitizerUtility::Amplitude(signalInElectrons_odd_row_Xtalk_next_row, nullptr, -1.0));
+      else signalNew.emplace(chanXtalkNext, DigitizerUtility::Amplitude(signalInElectrons_even_row_Xtalk_next_row, nullptr, -1.0));
+    }
+      
+    if (hitChan.second != 0) {	
+      auto XtalkPrev = std::make_pair(hitChan.first, hitChan.second-1);
+      int chanXtalkPrev = (pixelFlag) ? PixelDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second)
+	: Phase2TrackerDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second);
+      if (hitChan.second % 2 == 1) signalNew.emplace(chanXtalkPrev, DigitizerUtility::Amplitude(signalInElectrons_even_column_Xtalk_next_column, nullptr, -1.0));
+      else signalNew.emplace(chanXtalkPrev, DigitizerUtility::Amplitude(signalInElectrons_odd_column_Xtalk_next_column, nullptr, -1.0));
+    }
+    if (hitChan.second < (numColumns-1)) {
+      auto XtalkNext = std::make_pair(hitChan.first, hitChan.second+1);
+      int chanXtalkNext = (pixelFlag) ? PixelDigi::pixelToChannel(XtalkNext.first, XtalkNext.second)
+	: Phase2TrackerDigi::pixelToChannel(XtalkNext.first, XtalkNext.second);
+      if (hitChan.second % 2 == 1) signalNew.emplace(chanXtalkNext, DigitizerUtility::Amplitude(signalInElectrons_odd_column_Xtalk_next_column, nullptr, -1.0));
+      else signalNew.emplace(chanXtalkNext, DigitizerUtility::Amplitude(signalInElectrons_even_column_Xtalk_next_column, nullptr, -1.0));
+    }
+  }
+  for (auto const & l : signalNew) {
+    int chan = l.first;
+    auto iter = theSignal.find(chan);
+    if (iter != theSignal.end()) {
+      theSignal[chan] += l.second.ampl();
+    }  else {
+      theSignal.emplace(chan, DigitizerUtility::Amplitude(l.second.ampl(), nullptr, -1.0));
+    }
+  } 
+}
+
+

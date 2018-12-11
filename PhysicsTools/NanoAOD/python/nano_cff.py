@@ -195,7 +195,6 @@ def nanoAOD_activateVID(process):
     process.electronSequence.insert(process.electronSequence.index(bitmapVIDForEle),process.egmGsfElectronIDSequence)
     for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_92X:
         modifier.toModify(process.electronMVAValueMapProducer, srcMiniAOD = "slimmedElectronsUpdated")
-        modifier.toModify(process.electronMVAVariableHelper, srcMiniAOD = "slimmedElectronsUpdated")
         modifier.toModify(process.egmGsfElectronIDs, physicsObjectSrc = "slimmedElectronsUpdated")
         if hasattr(process,"heepIDVarValueMaps"):
             modifier.toModify(process.heepIDVarValueMaps, elesMiniAOD = "slimmedElectronsUpdated")

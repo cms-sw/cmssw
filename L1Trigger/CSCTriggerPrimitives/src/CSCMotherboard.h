@@ -37,12 +37,9 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCBaseboard.h"
 
-class CSCGeometry;
-
-class CSCMotherboard
+class CSCMotherboard : public CSCBaseboard
 {
  public:
   /** Normal constructor. */
@@ -54,14 +51,14 @@ class CSCMotherboard
   CSCMotherboard();
 
   /** Default destructor. */
-  virtual ~CSCMotherboard() = default;
+  ~CSCMotherboard() override = default;
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
-  void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
+  virtual void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
 
   /** Returns vector of correlated LCTs in the read-out time window, if any. */
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const;
+  virtual std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const;
 
   /** Returns vector of all found correlated LCTs, if any. */
   std::vector<CSCCorrelatedLCTDigi> getLCTs() const;
@@ -72,8 +69,6 @@ class CSCMotherboard
 
   /** Set configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
-
-  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
 
   /** Anode LCT processor. */
   std::unique_ptr<CSCAnodeLCTProcessor> alctProc;
@@ -94,40 +89,8 @@ class CSCMotherboard
   /** Container for second correlated LCT. */
   CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
 
-  // Parameters common for all boards
-  edm::ParameterSet commonParams_;
-
-  // Parameters for processors
-  edm::ParameterSet alctParams_;
-  edm::ParameterSet clctParams_;
-
-  // Motherboard parameters:
-  edm::ParameterSet tmbParams_;
-
   // helper function to return ALCT with correct central BX
   CSCALCTDigi getBXShiftedALCT(const CSCALCTDigi&) const;
-
-  /** Verbosity level: 0: no print (default).
-   *                   1: print LCTs found. */
-  int infoV;
-
-  /** Chamber id (trigger-type labels). */
-  const unsigned theEndcap;
-  const unsigned theStation;
-  const unsigned theSector;
-  const unsigned theSubsector;
-  const unsigned theTrigChamber;
-  unsigned theRing;
-
-  const CSCGeometry* csc_g;
-
-  /** Flag for SLHC studies. */
-  bool isSLHC_;
-
-  /* Flags to run upgrade algorithms */
-  bool runME11ILT_;
-  bool runME21ILT_;
-  bool runME3141ILT_;
 
   /** Configuration parameters. */
   unsigned int mpc_block_me1a;
@@ -149,8 +112,6 @@ class CSCMotherboard
   /** if true: use regular CLCT-to-ALCT matching in TMB
       if false: do ALCT-to-CLCT matching */
   bool clct_to_alct;
-
-  unsigned int alctClctOffset;
 
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;
