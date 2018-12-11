@@ -76,20 +76,16 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
         EAFile_PFIso_Pho = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfPhotons_90percentBased.txt"),
     )
 
-import EgammaAnalysis.ElectronTools.calibratedPhotonsRun2_cfi
-calibratedPatPhotons80X = EgammaAnalysis.ElectronTools.calibratedPhotonsRun2_cfi.calibratedPatPhotons.clone(
-    correctionFile = cms.string("PhysicsTools/NanoAOD/data/80X_ichepV2_2016_pho"), # hack, should go somewhere in EgammaAnalysis
-    semiDeterministic = cms.bool(True),
-)
-energyCorrForPhoton80X = cms.EDProducer("PhotonEnergyVarProducer",
-    srcRaw = cms.InputTag("slimmedPhotons"),
-    srcCorr = cms.InputTag("calibratedPatPhotons80X"),
-)
 import RecoEgamma.EgammaTools.calibratedEgammas_cff
 calibratedPatPhotons94Xv1 = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatPhotons.clone(
-    produceCalibratedObjs = False
+    produceCalibratedObjs = False,
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc")
 )
 
+calibratedPatPhotons80XLegacy = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatPhotons.clone(
+    produceCalibratedObjs = False,
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc"),
+)
 
 slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
     src = cms.InputTag("slimmedPhotons"),
@@ -111,7 +107,6 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
 )
 run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userFloats,
     mvaID = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring16NonTrigV1Values"),
-    eCorr = cms.InputTag("energyCorrForPhoton80X","eCorr")
 )
 run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userIntFromBools,
     cutbasedID_loose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose"),
@@ -131,10 +126,15 @@ run2_nanoAOD_94X2016.toModify(slimmedPhotonsWithUserData.userIntFromBools,
     mvaID_WP80 = None,
 )
 
+run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userFloats,
+    ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotons80XLegacy","ecalEnergyErrPostCorr"),
+    ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotons80XLegacy","ecalEnergyPreCorr"),
+    ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotons80XLegacy","ecalEnergyPostCorr"),
+)
 run2_nanoAOD_94XMiniAODv1.toModify(slimmedPhotonsWithUserData.userFloats,
-    ecalEnergyErrPostCorr = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyErrPostCorr"),
-    ecalEnergyPreCorr     = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPreCorr"),
-    ecalEnergyPostCorr    = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPostCorr"),
+    ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyErrPostCorr"),
+    ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPreCorr"),
+    ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPostCorr"),
 )
 
 finalPhotons = cms.EDFilter("PATPhotonRefSelector",
@@ -169,12 +169,24 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         isScEtaEE = Var("abs(superCluster().eta()) > 1.566 && abs(superCluster().eta()) < 2.5",bool,doc="is supercluster eta within endcap acceptance"),
     )
 )
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016:
+
+#these eras have the energy correction in the mini
+for modifier in run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016:
     modifier.toModify(photonTable.variables,
         pt = Var("pt*userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')", float, precision=-1, doc="p_{T}"),
         energyErr = Var("userFloat('ecalEnergyErrPostCorr')",float,doc="energy error of the cluster from regression",precision=6),
         eCorr = Var("userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
     )
+
+#these eras need to make the energy correction, hence the "New"
+for modifier in run2_nanoAOD_94XMiniAODv1, run2_miniAOD_80XLegacy:
+    modifier.toModify(photonTable.variables,
+        pt = Var("pt*userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
+        energyErr = Var("userFloat('ecalEnergyErrPostCorrNew')",float,doc="energy error of the cluster from regression",precision=6),
+        eCorr = Var("userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')",float,doc="ratio of the calibrated energy/miniaod energy"),
+    )
+
+
 run2_nanoAOD_94X2016.toModify(photonTable.variables,
     cutBased = Var("userInt('cutbasedID_loose')+userInt('cutbasedID_medium')+userInt('cutbasedID_tight')",int,doc="cut-based Spring16-V2p2 ID (0:fail, 1::loose, 2:medium, 3:tight)"),
     cutBased17Bitmap = Var("photonID('cutBasedPhotonID-Fall17-94X-V1-loose')+2*photonID('cutBasedPhotonID-Fall17-94X-V1-medium')+4*photonID('cutBasedPhotonID-Fall17-94X-V1-tight')",int,doc="cut-based Fall17-94X-V1 ID bitmap, 2^(0:loose, 1:medium, 2:tight)"),
@@ -188,9 +200,6 @@ run2_nanoAOD_94X2016.toModify(photonTable.variables,
 run2_miniAOD_80XLegacy.toModify(photonTable.variables,
     cutBasedBitmap = None,
     cutBased = Var("userInt('cutbasedID_loose')+userInt('cutbasedID_medium')+userInt('cutbasedID_tight')",int,doc="cut-based ID (0:fail, 1::loose, 2:medium, 3:tight)"),
-    pt = Var("pt*userFloat('eCorr')",  float, precision=-1, doc="p_{T} (no energy correction & smearing)"),
-    energyErr = Var("getCorrectedEnergyError('regression2')*userFloat('eCorr')",float,doc="energy error of the cluster from regression",precision=6),
-    eCorr = Var("userFloat('eCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
 )
 
 
@@ -220,7 +229,7 @@ photonTables = cms.Sequence ( photonTable)
 photonMC = cms.Sequence(photonsMCMatchForTable + photonMCTable)
 
 _with80XScale_sequence = photonSequence.copy()
-_with80XScale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotons80X + energyCorrForPhoton80X + slimmedPhotonsWithUserData)
+_with80XScale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotons80XLegacy  + slimmedPhotonsWithUserData)
 run2_miniAOD_80XLegacy.toReplaceWith(photonSequence, _with80XScale_sequence)
 
 _with94Xv1Scale_sequence = photonSequence.copy()
