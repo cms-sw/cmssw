@@ -293,8 +293,6 @@ def miniAOD_customizeCommon(process):
     switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD, task)
     process.egmGsfElectronIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
-    process.electronMVAVariableHelper.src = \
-        cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     process.electronMVAValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     for idmod in electron_ids:

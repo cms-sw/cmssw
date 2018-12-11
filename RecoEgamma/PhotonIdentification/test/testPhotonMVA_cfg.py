@@ -48,17 +48,6 @@ for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
 
 process.ntuplizer = cms.EDAnalyzer('PhotonMVANtuplizer',
-        # AOD case
-        src                  = cms.InputTag('gedPhotons'),
-        vertices             = cms.InputTag('offlinePrimaryVertices'),
-        pileup               = cms.InputTag('addPileupInfo'),
-        genParticles         = cms.InputTag('genParticles'),         
-        # miniAOD case
-        srcMiniAOD           = cms.InputTag('slimmedPhotons'),
-        verticesMiniAOD      = cms.InputTag('offlineSlimmedPrimaryVertices'),
-        pileupMiniAOD        = cms.InputTag('slimmedAddPileupInfo'),
-        genParticlesMiniAOD  = cms.InputTag('prunedGenParticles'),
-        #
         phoMVAs              = cms.untracked.vstring(
                                           ),
         phoMVALabels         = cms.untracked.vstring(
@@ -81,9 +70,6 @@ process.ntuplizer = cms.EDAnalyzer('PhotonMVANtuplizer',
         phoMVACatLabels      = cms.untracked.vstring(
                                            "PhoMVACats",
                                            ),
-        isMC                 = cms.bool(True),
-        ptThreshold          = cms.double(15.0),
-        deltaR               = cms.double(0.1),
         variableDefinition = cms.string(mvaVariablesFile),
         )
 

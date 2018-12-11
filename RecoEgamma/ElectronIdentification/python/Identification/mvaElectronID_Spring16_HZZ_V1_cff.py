@@ -51,6 +51,10 @@ MVA_WPLoose = EleMVA_WP(
     cutCategory5 =  "-0.763"  # EE
     )
 
+workingPoints = dict(
+    wpLoose = MVA_WPLoose
+)
+
 
 #
 # Finally, set up VID configuration for all cuts
@@ -62,7 +66,7 @@ mvaEleID_Spring16_HZZ_V1_producer_config = cms.PSet(
     mvaTag             = cms.string(mvaTag),
     # Category parameters
     nCategories         = cms.int32(6),
-    categoryCuts        = EleMVA_6CategoriesCuts,
+    categoryCuts        = cms.vstring(*EleMVA_6CategoriesCuts),
     # Weight files and variable definitions
     weightFileNames     = mvaSpring16WeightFiles_V1,
     variableDefinition  = cms.string(mvaVariablesFile)
