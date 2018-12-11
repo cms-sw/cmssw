@@ -93,6 +93,16 @@ class BTLDetId : public MTDDetId {
   
   /** Returns BTL crystal number. */
   inline int crystal() const { return ((id_>>kBTLCrystalOffset)&kBTLCrystalMask) + 1; }
+  
+  /** return the row in GeomDet language **/
+  inline int row(unsigned nrows=16) const { 
+    return (crystal()-1)%nrows; // anything else for now
+  }
+  
+  /** return the column in GeomDetLanguage **/
+  inline int column(unsigned nrows=16) const {     
+    return (crystal()-1)/nrows; 
+  }
 
   /** Returns BTL iphi index for crystal according to type tile or bar */
   int iphi( CrysLayout lay ) const ;
@@ -109,6 +119,9 @@ class BTLDetId : public MTDDetId {
 
   /** get a DetId from a compact index for arrays */
   BTLDetId getUnhashedIndex( int hi, CrysLayout lay ) const ;
+
+  /** create a Geographical DetId for Tracking **/
+  BTLDetId geographicalId( CrysLayout lay ) const;
 
 };
 

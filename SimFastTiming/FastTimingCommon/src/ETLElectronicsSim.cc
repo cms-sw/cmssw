@@ -61,8 +61,8 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
     }
 
     // run the shaper to create a new data frame
-    ETLDataFrame rawDataFrame( it->first );    
-    runTrivialShaper(rawDataFrame,chargeColl,toa);
+    ETLDataFrame rawDataFrame( it->first.detid_ );    
+    runTrivialShaper(rawDataFrame,chargeColl,toa, it->first.row_, it->first.column_);
     updateOutput(output,rawDataFrame);
     
   }
@@ -72,7 +72,8 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
   
 void ETLElectronicsSim::runTrivialShaper(ETLDataFrame &dataFrame, 
 					 const mtd::MTDSimHitData& chargeColl,
-					 const mtd::MTDSimHitData& toa) const {
+					 const mtd::MTDSimHitData& toa,
+					 const uint8_t row, const uint8_t col) const {
     bool debug = debug_;
 #ifdef EDM_ML_DEBUG  
   for(int it=0; it<(int)(chargeColl.size()); it++) debug |= (chargeColl[it]>adcThreshold_fC_);
@@ -87,7 +88,7 @@ void ETLElectronicsSim::runTrivialShaper(ETLDataFrame &dataFrame,
       const uint32_t adc=std::floor( std::min(chargeColl[it],adcSaturation_MIP_) / adcLSB_MIP_ );
       const uint32_t tdc_time=std::floor( toa[it] / toaLSB_ns_ );
       ETLSample newSample;
-      newSample.set(chargeColl[it] > adcThreshold_MIP_,false,tdc_time,adc);
+      newSample.set(chargeColl[it] > adcThreshold_MIP_,false,tdc_time,adc,row,col);
       dataFrame.setSample(it,newSample);
 
       if(debug) edm::LogVerbatim("ETLElectronicsSim") << adc << " (" << chargeColl[it] << "/" << adcLSB_MIP_ << ") ";
