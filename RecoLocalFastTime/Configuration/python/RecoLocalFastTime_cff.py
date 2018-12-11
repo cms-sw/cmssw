@@ -14,6 +14,9 @@ _phase2_timing_layer_fastTimingLocalReco = cms.Sequence(mtdUncalibratedRecHits*m
 from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
 from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
 
-(phase2_timing_layer_bar | phase2_timing_layer_tile).toReplaceWith(fastTimingLocalReco, _phase2_timing_layer_fastTimingLocalReco)
+(phase2_timing_layer_bar | phase2_timing_layer_tile).toReplaceWith(fastTimingLocalReco, 
+                                                                   _phase2_timing_layer_fastTimingLocalReco)
 
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(mtdRecHits, barrelUncalibratedRecHits = 'mtdUncalibratedRecHits:FTLBarrel', endcapUncalibratedRecHits = 'mtdUncalibratedRecHits:FTLEndcap')
+(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(mtdRecHits, 
+                                                              barrelUncalibratedRecHits = 'mtdUncalibratedRecHits:FTLBarrel', 
+                                                              endcapUncalibratedRecHits = 'mtdUncalibratedRecHits:FTLEndcap')
