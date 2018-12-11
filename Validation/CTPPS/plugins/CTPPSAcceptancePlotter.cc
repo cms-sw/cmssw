@@ -231,9 +231,6 @@ void CTPPSAcceptancePlotter::analyze(const edm::Event& iEvent, const edm::EventS
     if (mom.e() < 4500.)
       continue;
 
-    // TODO
-    //printf("    status = %u, mom = %E, %E, %E\n", part->status(), mom.x(), mom.y(), mom.z());
-
     if (mom.z() > 0)
     {
       // 45

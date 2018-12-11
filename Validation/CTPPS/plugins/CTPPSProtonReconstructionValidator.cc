@@ -3,8 +3,6 @@
  *   Jan Kašpar
  ****************************************************************************/
 
-
-// TODO: clean
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -16,8 +14,6 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 
@@ -28,9 +24,6 @@
 
 #include "TFile.h"
 #include "TH1D.h"
-#include "TH2D.h"
-#include "TProfile.h"
-#include "TGraphErrors.h"
 
 #include <map>
 #include <string>
