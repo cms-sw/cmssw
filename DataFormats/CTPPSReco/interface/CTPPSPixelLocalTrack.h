@@ -86,7 +86,7 @@ class CTPPSPixelLocalTrack
     }
 
     CTPPSPixelLocalTrack(float z0, const ParameterVector & track_params_vector,
-      const CovarianceMatrix &par_covariance_matrix, float chiSquared, unsigned short recoInfo);
+      const CovarianceMatrix &par_covariance_matrix, float chiSquared, unsigned short recoInfo = 5);
 
     ~CTPPSPixelLocalTrack() {}
 
