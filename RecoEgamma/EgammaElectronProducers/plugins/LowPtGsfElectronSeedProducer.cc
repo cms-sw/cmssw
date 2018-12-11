@@ -39,7 +39,6 @@
 LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer( const edm::ParameterSet& conf, 
 							    const lowptgsfeleseed::HeavyObjectCache* ) :
   ecalClusters_{consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("ecalClusters"))},
-  hcalClusters_{consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("hcalClusters"))},
   ebRecHits_{consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EBRecHits"))},
   eeRecHits_{consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EERecHits"))},
   rho_(consumes<double>(conf.getParameter<edm::InputTag>("rho"))),
@@ -52,8 +51,13 @@ LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer( const edm::Parameter
   minPtThreshold_(conf.getParameter<double>("MinPtThreshold")),
   maxPtThreshold_(conf.getParameter<double>("MaxPtThreshold"))
 {
-  if ( usePfTracks_ ) { pfTracks_ = consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("pfTracks")); }
-  else                { kfTracks_ = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks")); }
+  if ( usePfTracks_ ) {
+    pfTracks_ = consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("pfTracks")); 
+    hcalClusters_ = consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("hcalClusters"));
+  }
+  else {
+    kfTracks_ = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks")); 
+  }
   produces<reco::ElectronSeedCollection>();
   produces<reco::PreIdCollection>();
   produces<reco::PreIdCollection>("HCAL");
@@ -82,40 +86,37 @@ void LowPtGsfElectronSeedProducer::produce( edm::Event& event,
   auto ecalPreIds = std::make_unique<reco::PreIdCollection>();
   auto hcalPreIds = std::make_unique<reco::PreIdCollection>();
   
-  // KF tracks
-  edm::Handle<reco::TrackCollection> kfTracks;
-  if ( !usePfTracks_ ) { event.getByToken(kfTracks_, kfTracks); }
-
-  // PF tracks
-  edm::Handle<reco::PFRecTrackCollection> pfTracks;
-  if ( usePfTracks_ ) { event.getByToken(pfTracks_, pfTracks); }
-
-  // ECAL clusters
-  edm::Handle<reco::PFClusterCollection> ecalClusters;
-  event.getByToken(ecalClusters_,ecalClusters);
-
   // HCAL clusters (only used with PF tracks)
   edm::Handle<reco::PFClusterCollection> hcalClusters;
-  event.getByToken(hcalClusters_,hcalClusters);
 
   if ( usePfTracks_ ) { 
+
+    edm::Handle<reco::PFRecTrackCollection> pfTracks;
+    event.getByToken(pfTracks_, pfTracks);
+
+    event.getByToken(hcalClusters_,hcalClusters);
+
     loop(pfTracks, // PF tracks
-	 ecalClusters,
 	 hcalClusters,
 	 *seeds,
 	 *ecalPreIds,
 	 *hcalPreIds,
 	 event,
 	 setup);
+
   } else { 
+
+    edm::Handle<reco::TrackCollection> kfTracks;
+    event.getByToken(kfTracks_, kfTracks); 
+
     loop(kfTracks, // KF tracks
-	 ecalClusters,
 	 hcalClusters,
 	 *seeds,
 	 *ecalPreIds,
 	 *hcalPreIds,
 	 event,
 	 setup);
+
   }
 
   event.put(std::move(seeds));
@@ -141,7 +142,6 @@ reco::TrackRef LowPtGsfElectronSeedProducer::getBaseRef( edm::Handle< std::vecto
 // Template function, instantiated for both reco::Tracks and reco::PFRecTracks 
 template <typename T>
 void LowPtGsfElectronSeedProducer::loop( const edm::Handle< std::vector<T> >& handle, // PF or KF tracks
-					 edm::Handle<reco::PFClusterCollection>& ecalClusters,
 					 edm::Handle<reco::PFClusterCollection>& hcalClusters,
 					 reco::ElectronSeedCollection& seeds,
 					 reco::PreIdCollection& ecalPreIds, 
@@ -157,7 +157,11 @@ void LowPtGsfElectronSeedProducer::loop( const edm::Handle< std::vector<T> >& ha
   // Beam spot
   edm::Handle<reco::BeamSpot> spot;
   event.getByToken(beamSpot_,spot);
-  
+
+  // ECAL clusters
+  edm::Handle<reco::PFClusterCollection> ecalClusters;
+  event.getByToken(ecalClusters_,ecalClusters);
+
   // Utility to access to shower shape vars
   noZS::EcalClusterLazyTools ecalTools(event,setup,ebRecHits_,eeRecHits_);
   
@@ -220,7 +224,6 @@ void LowPtGsfElectronSeedProducer::loop( const edm::Handle< std::vector<T> >& ha
 // Template instantiation for reco::Tracks
 template 
 void LowPtGsfElectronSeedProducer::loop<reco::Track>( const edm::Handle< std::vector<reco::Track> >&,
-						      edm::Handle<reco::PFClusterCollection>& ecalClusters,
 						      edm::Handle<reco::PFClusterCollection>& hcalClusters,
 						      reco::ElectronSeedCollection& seeds,
 						      reco::PreIdCollection& ecalPreIds, 
@@ -232,7 +235,6 @@ void LowPtGsfElectronSeedProducer::loop<reco::Track>( const edm::Handle< std::ve
 // Template instantiation for reco::PFRecTracks
 template 
 void LowPtGsfElectronSeedProducer::loop<reco::PFRecTrack>( const edm::Handle< std::vector<reco::PFRecTrack> >&,
-							   edm::Handle<reco::PFClusterCollection>& ecalClusters,
 							   edm::Handle<reco::PFClusterCollection>& hcalClusters,
 							   reco::ElectronSeedCollection& seeds,
 							   reco::PreIdCollection& ecalPreIds, 
