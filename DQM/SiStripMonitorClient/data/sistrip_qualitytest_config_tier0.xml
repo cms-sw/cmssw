@@ -54,8 +54,7 @@
         <PARAM name="MaxRel">5.</PARAM>
         <PARAM name="UseEmptyBins">0</PARAM>
         <PARAM name="MinAbs">0.001</PARAM>
-<!--        <PARAM name="MaxAbs">40.</PARAM> pp parameter-->
-        <PARAM name="MaxAbs">70.</PARAM> 
+        <PARAM name="MaxAbs">40.</PARAM>
 	<PARAM name="error">0.30</PARAM>
         <PARAM name="warning">0.70</PARAM>
         <PARAM name="StatCut">100</PARAM>
@@ -67,8 +66,7 @@
         <PARAM name="MaxRel">5.</PARAM>
         <PARAM name="UseEmptyBins">0</PARAM>
         <PARAM name="MinAbs">0.01</PARAM>
-<!--        <PARAM name="MaxAbs">90.</PARAM> pp parameter -->
-        <PARAM name="MaxAbs">180.</PARAM>
+        <PARAM name="MaxAbs">90.</PARAM>
         <PARAM name="error">0.30</PARAM>
         <PARAM name="warning">0.70</PARAM>
         <PARAM name="StatCut">200</PARAM>
@@ -83,8 +81,7 @@
       <PARAM name="useRange">1</PARAM>
       <PARAM name="minEntries">0</PARAM>
       <PARAM name="xmin">15.0</PARAM>
-<!--      <PARAM name="xmax">50.0</PARAM> pp parameter -->
-      <PARAM name="xmax">80.0</PARAM>
+      <PARAM name="xmax">50.0</PARAM>
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:StoNTOB" activate="true">
       <TYPE>MeanWithinExpected</TYPE>
@@ -96,8 +93,7 @@
       <PARAM name="useRange">1</PARAM>
       <PARAM name="minEntries">0</PARAM>
       <PARAM name="xmin">15.0</PARAM>
-<!--      <PARAM name="xmax">50.0</PARAM> pp parameter -->
-      <PARAM name="xmax">80.0</PARAM>
+      <PARAM name="xmax">50.0</PARAM>
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:StoNTEC" activate="true">
       <TYPE>MeanWithinExpected</TYPE>
@@ -109,8 +105,7 @@
       <PARAM name="useRange">1</PARAM>
       <PARAM name="minEntries">0</PARAM>
       <PARAM name="xmin">15.0</PARAM>
-<!--      <PARAM name="xmax">50.0</PARAM> pp parameter -->
-      <PARAM name="xmax">80.0</PARAM>
+      <PARAM name="xmax">50.0</PARAM>
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:StoNTID" activate="true">
       <TYPE>MeanWithinExpected</TYPE>
@@ -122,8 +117,7 @@
       <PARAM name="useRange">1</PARAM>
       <PARAM name="minEntries">0</PARAM>
       <PARAM name="xmin">15.0</PARAM>
-<!--      <PARAM name="xmax">50.0</PARAM> pp parameter -->
-      <PARAM name="xmax">80.0</PARAM>
+      <PARAM name="xmax">50.0</PARAM>
 </QTEST>
 <QTEST name="XrangeWithin:0-10.0" activate="false"> 
      <TYPE>ContentsXRange</TYPE> 
