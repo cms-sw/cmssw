@@ -2,7 +2,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <cmath>
-#include <boost/foreach.hpp>
 #include <boost/regex.hpp> 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/erase.hpp>
@@ -86,9 +85,9 @@ summarize_ensembles(Book& book) const {
   for(int m = FIRST_METHOD; m <= LAST_METHOD; m<<=1)
     if(methods_ & m) { results_t g = ensemble_results(book,(Method)(m)); results.insert(g.begin(),g.end());}
   
-  BOOST_FOREACH(const results_t::value_type group, results) {
+  for(auto const& group : results) {
     const std::string name = group.first;
-    BOOST_FOREACH(const Result p, group.second) {
+    for(auto const& p : group.second) {
       const float pad = (ensembleUp_-ensembleLow_)/10;
       book.fill( p.reco.first,      name+"_ensembleReco", 12*ensembleBins_, ensembleLow_-pad, ensembleUp_+pad );
       book.fill( p.measured.first,  name+"_measure",      12*ensembleBins_, ensembleLow_-pad, ensembleUp_+pad );
@@ -132,7 +131,7 @@ std::pair<std::pair<float,float>, std::pair<float,float> > LA_Filler_Fitter::
 offset_slope(const std::vector<LA_Filler_Fitter::EnsembleSummary>& ensembles) { 
   try {
     std::vector<float> x,y,xerr,yerr;
-    BOOST_FOREACH(EnsembleSummary ensemble, ensembles) {
+    for(auto const& ensemble : ensembles) {
       x.push_back(ensemble.truth);
       xerr.push_back(0);
       y.push_back(ensemble.meanMeasured.first);
@@ -155,7 +154,7 @@ offset_slope(const std::vector<LA_Filler_Fitter::EnsembleSummary>& ensembles) {
 float LA_Filler_Fitter::
 pull(const std::vector<LA_Filler_Fitter::EnsembleSummary>& ensembles) {
   float p(0),w(0);
-  BOOST_FOREACH(EnsembleSummary ensemble, ensembles) {
+  for(auto const& ensemble : ensembles) {
     const float unc2 = pow(ensemble.pull.second,2);
     p+=  ensemble.pull.first / unc2;
     w+= 1/unc2;

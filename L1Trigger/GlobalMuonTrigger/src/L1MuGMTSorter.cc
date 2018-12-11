@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <functional>
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -91,7 +92,9 @@ void L1MuGMTSorter::run() {
     iter++;
   }
   // sort by rank
-  stable_sort( my_brl_cands.begin(), my_brl_cands.end(), L1MuGMTExtendedCand::Rank() );
+  std::function<bool(const L1MuGMTExtendedCand* first,
+                     const L1MuGMTExtendedCand* second)> rankFunction{L1MuGMTExtendedCand::compareRank};
+  stable_sort( my_brl_cands.begin(), my_brl_cands.end(), rankFunction );
 
   // copy best four of brl to main sorter
   iter = my_brl_cands.begin();
@@ -119,7 +122,7 @@ void L1MuGMTSorter::run() {
     iter++;
   }
    // sort by rank
-  stable_sort( my_fwd_cands.begin(), my_fwd_cands.end(), L1MuGMTExtendedCand::Rank() );
+  stable_sort( my_fwd_cands.begin(), my_fwd_cands.end(), rankFunction );
 
 
   // copy best four of fwd to main sorter
@@ -147,7 +150,7 @@ void L1MuGMTSorter::run() {
   }
   
   // sort by rank
-  stable_sort( mycands.begin(), mycands.end(), L1MuGMTExtendedCand::Rank() );
+  stable_sort( mycands.begin(), mycands.end(), rankFunction );
 
   // copy the best 4 candidates
   int number_of_cands = 0;

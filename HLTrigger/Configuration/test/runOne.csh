@@ -13,7 +13,7 @@ echo Starting $0 $1 $2
 if ( $2 == "" ) then
   set tables = ( GRun )
 else if ( ($2 == all) || ($2 == ALL) ) then
-  set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 2018v36 )
+  set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 )
 else if ( ($2 == ib) || ($2 == IB) ) then
   set tables = ( GRun HIon PIon PRef )
 else if ( ($2 == dev) || ($2 == DEV) ) then
@@ -23,7 +23,7 @@ else if ( ($2 == full) || ($2 == FULL) ) then
 else if ( ($2 == fake) || ($2 == FAKE) ) then
   set tables = ( Fake Fake1 Fake2 )
 else if ( ($2 == frozen) || ($2 == FROZEN) ) then
-  set tables = ( Fake Fake1 Fake2 2018v36 )
+  set tables = ( Fake Fake1 Fake2 )
 else
   set tables = ( $2 )
 endif

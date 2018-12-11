@@ -16,7 +16,6 @@
 
 #include "SimG4Core/PhysicsLists/interface/MonopoleTransportation.h"
 #include "SimG4Core/Physics/interface/Monopole.h"
-#include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
 #include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 
 #include "G4ProductionCutsTable.hh"
@@ -31,12 +30,9 @@ class G4VSensitiveDetector;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-MonopoleTransportation::MonopoleTransportation(const Monopole* mpl, 
-					       sim::ChordFinderSetter* chordFinderSetter,
-                                               G4int verb)
+MonopoleTransportation::MonopoleTransportation(const Monopole* mpl, G4int verb)
   : G4VProcess( G4String("MonopoleTransportation"), fTransportation ),
     fParticleDef(mpl),
-    fChordFinderSetter(chordFinderSetter),
     fieldMgrCMS(nullptr),
     fLinearNavigator(nullptr),
     fFieldPropagator(nullptr),
@@ -132,7 +128,7 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
   // Get initial Energy/Momentum of the track
   //
   const G4DynamicParticle* pParticle      = track.GetDynamicParticle() ;
-  const G4ThreeVector& startMomentumDir          = pParticle->GetMomentumDirection() ;
+  const G4ThreeVector& startMomentumDir   = pParticle->GetMomentumDirection() ;
   G4ThreeVector startPosition             = track.GetPosition() ;
 
   // The Step Point safety can be limited by other geometries and/or the 
@@ -326,9 +322,6 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
   //
   if( currentSafety < endpointDistance ) 
   {
-      // if( particleMagneticCharge == 0.0 ) 
-      //    G4cout  << "  Avoiding call to ComputeSafety : charge = 0.0 " << G4endl;
- 
       if( particleMagneticCharge != 0.0 ) {
 
          G4double endSafety =
@@ -381,9 +374,6 @@ G4VParticleChange* MonopoleTransportation::AlongStepDoIt( const G4Track& track,
   G4double deltaTime = 0.0 ;
 
   // Calculate  Lab Time of Flight (ONLY if field Equations used it!)
-     // G4double endTime   = fCandidateEndGlobalTime;
-     // G4double delta_time = endTime - startTime;
-
   G4double startTime = track.GetGlobalTime() ;
   
   if (!fEndGlobalTimeComputed)
@@ -395,7 +385,6 @@ G4VParticleChange* MonopoleTransportation::AlongStepDoIt( const G4Track& track,
      G4double stepLength      = track.GetStepLength() ;
 
      deltaTime= 0.0;  // in case initialVelocity = 0 
-     //const G4DynamicParticle* fpDynamicParticle = track.GetDynamicParticle();
      if (finalVelocity > 0.0)
      {
         G4double meanInverseVelocity ;
@@ -556,9 +545,6 @@ G4VParticleChange* MonopoleTransportation::PostStepDoIt( const G4Track& track,
     pNewSensitiveDetector= pNewVol->GetLogicalVolume()->GetSensitiveDetector();
   }
 
-  // ( <const_cast> pNewMaterial ) ;
-  // ( <const_cast> pNewSensitiveDetector) ;
-
   fParticleChange.SetMaterialInTouchable( 
                      (G4Material *) pNewMaterial ) ;
   fParticleChange.SetSensitiveDetectorInTouchable( 
@@ -625,8 +611,6 @@ MonopoleTransportation::StartTracking(G4Track* aTrack)
   // reset looping counter -- for motion in field
   fNoLooperTrials= 0; 
   // Must clear this state .. else it depends on last track's value
-  //  --> a better solution would set this from state of suspended track TODO ? 
-  // Was if( aTrack->GetCurrentStepNumber()==1 ) { .. }
 
   // ChordFinder reset internal state
   //
@@ -646,6 +630,38 @@ MonopoleTransportation::StartTracking(G4Track* aTrack)
   // Update the current touchable handle  (from the track's)
   //
   fCurrentTouchableHandle = aTrack->GetTouchableHandle();
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4double MonopoleTransportation::AtRestGetPhysicalInteractionLength(
+                             const G4Track& ,
+                             G4ForceCondition*) 
+{ 
+  return -1.0; 
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4VParticleChange* MonopoleTransportation::AtRestDoIt(const G4Track&,
+                                                      const G4Step&)
+{
+  return nullptr;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void MonopoleTransportation::ResetKilledStatistics(G4int report)
+// Statistics for tracks killed (currently due to looping in field)
+{
+  if( report ) { 
+    G4cout << " MonopoleTransportation: Statistics for looping particles " << G4endl;
+    G4cout << "   Sum of energy of loopers killed: " <<  fSumEnergyKilled << G4endl;
+    G4cout << "   Max energy of loopers killed: " <<  fMaxEnergyKilled << G4endl;
+  } 
+
+  fSumEnergyKilled= 0;
+  fMaxEnergyKilled= -1.0*CLHEP::GeV;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

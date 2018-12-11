@@ -70,7 +70,7 @@ HerwigUIProvider::HerwigUIProvider(const edm::ParameterSet &pset, std::string in
 
 
   // run name tag (default given in ggo file)
-  if ( pset.getUntrackedParameter<std::string>("runTag", "") != "")
+  if ( !pset.getUntrackedParameter<std::string>("runTag", "").empty())
     tag_ = pset.getUntrackedParameter<std::string>("runTag", "Tag1");
 
   // Debugging level
@@ -97,7 +97,7 @@ HerwigUIProvider::HerwigUIProvider(const edm::ParameterSet &pset, std::string in
     seed_ = pset.getUntrackedParameter<int>("seed", 0);
 
   // run modification file
-  if ( pset.getUntrackedParameter<std::string>("setupFile", "") != "" )
+  if ( !pset.getUntrackedParameter<std::string>("setupFile", "").empty() )
     setupfile_ = pset.getUntrackedParameter<std::string>("setupFile", "");
 
   // parallel jobs
@@ -121,7 +121,7 @@ HerwigUIProvider::HerwigUIProvider(const edm::ParameterSet &pset, std::string in
  
 
   // integration list
-  if ( pset.getUntrackedParameter<std::string>("integrationList", "") != "" ) {
+  if ( !pset.getUntrackedParameter<std::string>("integrationList", "").empty() ) {
     integrationList_ = "integrationJob" + pset.getUntrackedParameter<std::string>("integrationList", "1");
   }
 
@@ -183,7 +183,6 @@ void HerwigUIProvider::setRunMode(RunMode::Mode runMode, const edm::ParameterSet
 		ThePEG::SamplerBase::setIntegrationJobs(maxjobs_);
 	}
 }
-
 // End Herwig namespace
 }
 

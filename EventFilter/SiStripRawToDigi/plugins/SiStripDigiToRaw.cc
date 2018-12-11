@@ -157,6 +157,11 @@ namespace sistrip {
                         << std::endl;
             }
 
+            if ( fedbuffer->headerType() == sistrip::HEADER_TYPE_INVALID ) {
+              warnings_.add("Invalid header type for FED, skipping", (boost::format("id %1%") % *ifed).str());
+              continue;
+            }
+
             if ( edm::isDebugEnabled() ) {
               edm::LogWarning("DigiToRaw")
                 << "[sistrip::DigiToRaw::createFedBuffers_]"

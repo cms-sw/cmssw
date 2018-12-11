@@ -10,12 +10,10 @@
 #define Geometry_VeryForwardGeometryBuilder_DetGeomDesc
 
 #include <utility>
+#include <vector>
 
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Core/interface/DDTranslation.h"
-#include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include <Math/Rotation3D.h>
 
 class DDFilteredView;
 class RPAlignmentCorrectionData;
@@ -36,82 +34,57 @@ class RPAlignmentCorrectionData;
 
 class DetGeomDesc
 {
-	public:
-		typedef std::vector< const DetGeomDesc*>  ConstContainer;
-		typedef std::vector< DetGeomDesc*>  Container;
-		typedef DDExpandedView::nav_type nav_type;
-		
-		/// a type (not used in the moment, left for the future)
-		typedef unsigned int GeometricEnumType;
-		
-		///Constructors to be used when looping over DDD
-		DetGeomDesc(nav_type navtype, GeometricEnumType dd = 0);
-		DetGeomDesc(DDExpandedView* ev, GeometricEnumType dd = 0);
-		DetGeomDesc(DDFilteredView* fv, GeometricEnumType dd = 0);
-		
-		/// copy constructor and assignment operator
-		DetGeomDesc(const DetGeomDesc &);
-		DetGeomDesc& operator= (const DetGeomDesc &);
+ public:
+  using Container = std::vector< DetGeomDesc* >;
+  using RotationMatrix = ROOT::Math::Rotation3D;
+  using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
-		/// destructor
-		virtual ~DetGeomDesc();
-		
-		/// ID stuff
-		void setGeographicalID(DetId id) { _geographicalID = id; }
-		virtual DetId geographicalID() const { return _geographicalID; }
-
-		/// access to the tree structure
-		virtual ConstContainer components() const;
-		virtual Container components();
-		virtual ConstContainer deepComponents() const;				/// returns all the components below
-		virtual std::vector< DDExpandedNode > parents() const		/// retuns the geometrical history
-			{ return _parents; }
-
-		/// components (children) management
-		void setComponents(Container cont)
-			{ _container = std::move(cont); }
-		void addComponents(Container cont);
-		void addComponent(DetGeomDesc*);
-		void clearComponents()
-			{ _container.resize(0);} 
-		void deleteComponents(); 									/// deletes just the first daughters
-		void deepDeleteComponents();  								///traverses the treee and deletes all nodes.
-		bool isLeaf() const 
-			{ return (_container.empty()); }
-		
-		/// geometry information
-		DDRotationMatrix	rotation() const {return _rot;}
-		DDTranslation		translation() const {return _trans;}
-		DDSolidShape		shape() const  {return _shape;}
-		GeometricEnumType	type() const {return _type;}
-		DDName				name() const {return _name;};
-		nav_type			navType() const {return _ddd;}
-		std::vector<double>	params() const {return _params;}
-		virtual int			copyno() const {return _copy;}
-		virtual double		volume() const {return _volume;}
-		virtual double		density() const {return _density;}
-		virtual double		weight() const {return _weight;}
-		virtual std::string	material() const {return _material;}
-
-		/// alignment
-		void ApplyAlignment(const RPAlignmentCorrectionData&);
-		
-	private:
-		Container						_container;
-		nav_type 						_ddd;	
-		DDTranslation 					_trans;
-		DDRotationMatrix				_rot;
-		DDSolidShape					_shape;
-		std::string 					_name;
-		GeometricEnumType 				_type;
-		std::vector<double>				_params;
-		DetId 							_geographicalID;
-		std::vector< DDExpandedNode >	_parents;
-		double 							_volume;
-		double 							_density;
-		double 							_weight;
-		int    							_copy;
-		std::string 					_material;
+  ///Constructors to be used when looping over DDD
+  DetGeomDesc( DDFilteredView* fv );
+  
+  /// copy constructor and assignment operator
+  DetGeomDesc( const DetGeomDesc & );
+  DetGeomDesc& operator= ( const DetGeomDesc & );
+  
+  /// destructor
+  virtual ~DetGeomDesc();
+  
+  /// ID stuff
+  void setGeographicalID(DetId id) { m_geographicalID = id; }
+  DetId geographicalID() const { return m_geographicalID; }
+  
+  /// access to the tree structure
+  Container components() const;
+  float parentZPosition() const { return m_z; }
+  
+  /// components (children) management
+  void addComponent( DetGeomDesc* );
+  bool isLeaf() const { return m_container.empty(); }
+  
+  /// geometry information
+  RotationMatrix	rotation() const { return m_rot; }
+  Translation		translation() const { return m_trans; }
+  const std::string&	name() const { return m_name; }
+  std::vector<double>	params() const { return m_params; }
+  int copyno() const { return m_copy; }
+  
+  /// alignment
+  void applyAlignment( const RPAlignmentCorrectionData& );
+  
+ private:
+  DetGeomDesc() {}
+  void deleteComponents(); /// deletes just the first daughters
+  void deepDeleteComponents(); /// traverses the treee and deletes all nodes.
+  void clearComponents() { m_container.resize(0); }
+  
+  Container		 m_container;
+  Translation m_trans;
+  RotationMatrix m_rot;
+  std::string m_name;
+  std::vector<double> m_params;
+  DetId m_geographicalID;
+  int m_copy;
+  float m_z;
 };
 
 #endif

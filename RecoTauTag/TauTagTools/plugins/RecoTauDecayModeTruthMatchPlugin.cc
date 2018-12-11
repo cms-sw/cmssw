@@ -21,9 +21,6 @@
 
 #include "RecoTauTag/RecoTau/interface/PFTauDecayModeTools.h"
 
-#include <boost/foreach.hpp>
-
-
 namespace tautools {
 
 class RecoTauDecayModeTruthMatchPlugin : public reco::tau::RecoTauCleanerPlugin

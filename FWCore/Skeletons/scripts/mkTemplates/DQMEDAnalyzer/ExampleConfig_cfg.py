@@ -16,4 +16,6 @@ process.source = cms.Source("PoolSource",
 process.load("__subsys__.__pkgname__.__class_lowercase___cfi")
 process.DQMStore = cms.Service("DQMStore")
 
-process.p = cms.Path(process.__class_lowercase__)
+process.load("DQMServices.FileIO.DQMFileSaverOnline_cfi")
+
+process.p = cms.Path(process.__class_lowercase__ + process.dqmSaver)

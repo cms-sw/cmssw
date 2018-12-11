@@ -66,6 +66,11 @@ trackingQTester = cms.EDAnalyzer("QualityTester",
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(trackingQTester,
+                       qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_tier0_heavyions.xml')
+                       )
+
 from DQM.TrackingMonitorClient.TrackingEffFromHitPatternClientConfig_cff import trackingEffFromHitPattern
 
 from DQM.TrackingMonitorClient.V0MonitoringClient_cff import *

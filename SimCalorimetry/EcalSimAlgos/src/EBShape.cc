@@ -22,6 +22,7 @@ EBShape::fillShape( float &time_interval, double &m_thresh, EcalShapeBase::DVec&
 
     } else   // use old hardcoded arrays
     {
+        m_thresh = 0.00013;
         time_interval = 1.0; 
         aVec.reserve(500);
      	aVec = {6.94068e-05,

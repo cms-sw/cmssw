@@ -145,7 +145,7 @@ def getFullListOfParameters(aModule):
       (('demux', 'sdfile'),  None, ''),
       (('demux', 'algoRev'), None, 0xcafe),
       (('demux', 'ET_centralityLowerThresholds'), 'CentralityLowerThrs.mif', [ int(round(loBound / aModule.etSumLsb.value())) for loBound in aModule.etSumCentralityLower.value()]),
-      (('demux', 'ET_centralityUpperThresholds'), 'CentralityUpperThrs.mif', [ int(round(upBound / aModule.etSumLsb.value())) for upBound in aModule.etSumCentralityUpper.value()])
+      (('demux', 'ET_centralityUpperThresholds'), 'CentralityUpperThrs.mif', [ int(round(upBound / aModule.etSumLsb.value())) for upBound in aModule.etSumCentralityUpper.value()]),
       (('demux', 'MET_energyCalibLUT'),       'M_METnoHFenergyCalibration_12to18.mif',     parseOfflineLUTfile(aModule.metCalibrationLUTFile.value(), 4096, aTruncate = True)),
       (('demux', 'METHF_energyCalibLUT'),     'M_METwithHFenergyCalibration_12to18.mif',   parseOfflineLUTfile(aModule.metHFCalibrationLUTFile.value(), 4096, aTruncate = True)),
       (('demux', 'ET_energyCalibLUT'),        'S_ETcalibration_12to18.mif',       parseOfflineLUTfile(aModule.etSumEttCalibrationLUTFile.value(), 4096, aTruncate = True)),

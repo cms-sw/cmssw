@@ -45,6 +45,7 @@ HGCalSD::HGCalSD(const std::string& name, const DDCompactView & cpv,
   storeAllG4Hits_  = m_HGC.getParameter<bool>("StoreAllG4Hits");
   rejectMB_        = m_HGC.getParameter<bool>("RejectMouseBite");
   waferRot_        = m_HGC.getParameter<bool>("RotatedWafer");
+  cornerMinMask_   = m_HGC.getParameter<int>("CornerMinMask");
   angles_          = m_HGC.getUntrackedParameter<std::vector<double>>("WaferAngles");
 
   if(storeAllG4Hits_) {
@@ -193,6 +194,9 @@ uint32_t HGCalSD::setDetUnitId(const G4Step * aStep) {
 #endif
     }
   }
+#ifdef EDM_ML_DEBUG
+  if (id != 0) edm::LogVerbatim("HGCSim") << HGCSiliconDetId(id);
+#endif
   return id;
 }
 
@@ -237,6 +241,9 @@ uint32_t HGCalSD::setDetUnitId (int layer, int module, int cell, int iz,
 				G4ThreeVector &pos) {  
   uint32_t id = numberingScheme_ ? 
     numberingScheme_->getUnitID(layer, module, cell, iz, pos, weight_) : 0;
+  if (cornerMinMask_ > 2) {
+    if (hgcons_->maskCell(DetId(id), cornerMinMask_)) id = 0;
+  }
   return id;
 }
 

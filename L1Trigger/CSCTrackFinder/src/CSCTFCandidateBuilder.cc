@@ -1,8 +1,8 @@
-#include <L1Trigger/CSCTrackFinder/src/CSCTFCandidateBuilder.h>
+#include "L1Trigger/CSCTrackFinder/src/CSCTFCandidateBuilder.h"
 
-CSCTFCandidateBuilder::CSCTFCandidateBuilder(const edm::ParameterSet& pset)
+CSCTFCandidateBuilder::CSCTFCandidateBuilder(const edm::ParameterSet& pset):
+  m_muonsorter{pset}
 {
-  m_muonsorter = new CSCTFMuonSorter(pset);
 }
 
 void CSCTFCandidateBuilder::buildCandidates(const L1CSCTrackCollection* trks, 
@@ -18,7 +18,7 @@ void CSCTFCandidateBuilder::buildCandidates(const L1CSCTrackCollection* trks,
       stripped_tracks.push_back(tmp_trk->first);
     }
 
-  result = m_muonsorter->run(stripped_tracks);
+  result = m_muonsorter.run(stripped_tracks);
 
   cands->insert(cands->end(), result.begin(), result.end());
 }

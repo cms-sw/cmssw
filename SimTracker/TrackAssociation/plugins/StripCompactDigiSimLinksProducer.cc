@@ -14,9 +14,6 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripCompactDigiSimLinks.h"
 
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
-
 #ifdef SCDSL_DEBUG
   #define DEBUG(X) X
 #else
@@ -60,7 +57,7 @@ StripCompactDigiSimLinksProducer::produce(edm::Event & iEvent, const edm::EventS
     std::vector<StripCompactDigiSimLinks::key_type> thisStripSignals;      // particles on this strip
     std::vector<StripCompactDigiSimLinks::key_type> previousStripSignals;  // particles on the previous strip
 
-    foreach(const DetSet<StripDigiSimLink> &det, *src) {
+    for(auto const& det : *src) {
         DEBUG(std::cerr << "\n\nProcessing detset " << det.detId() << ", size = " << det.size() << std::endl;)
         previousStrip     = -2; // previous strip with at least one link (might not be the strip of the previous link there are overlapping clusters)
         previousLinkStrip = -2; // strip of the previous link (can be the same as the one of this link if there are overlapping clusters)
@@ -75,8 +72,8 @@ StripCompactDigiSimLinksProducer::produce(edm::Event & iEvent, const edm::EventS
                 thisStripSignals.clear();
             }
             DEBUG(std::cerr << "    previous strip " << previousStrip << ", previous link strip " << previousLinkStrip << std::endl;)
-            //DEBUG(std::cerr << "    on previous strip: "; foreach(StripCompactDigiSimLinks::key_type k, previousStripSignals) { std::cerr << "(ev " << k.first.rawId() << ", id " << k.second << ") "; } std::cerr << std::endl;)
-            //DEBUG(std::cerr << "    on this strip: ";     foreach(StripCompactDigiSimLinks::key_type k,     thisStripSignals) { std::cerr << "(ev " << k.first.rawId() << ", id " << k.second << ") "; } std::cerr << std::endl;)
+            //DEBUG(std::cerr << "    on previous strip: "; for(auto const& k : previousStripSignals) { std::cerr << "(ev " << k.first.rawId() << ", id " << k.second << ") "; } std::cerr << std::endl;)
+            //DEBUG(std::cerr << "    on this strip: ";     for(auto const& k :     thisStripSignals) { std::cerr << "(ev " << k.first.rawId() << ", id " << k.second << ") "; } std::cerr << std::endl;)
             StripCompactDigiSimLinks::key_type key(it->eventId(), it->SimTrackId());
             bool alreadyClusterized = false;
             if (int(it->channel()) == previousStrip+1) {
@@ -109,8 +106,8 @@ StripCompactDigiSimLinksProducer::produce(edm::Event & iEvent, const edm::EventS
             }
             thisStripSignals.push_back(key);
             DEBUG(std::cerr << "    ending state " << previousStrip << ", previous link strip " << previousLinkStrip << std::endl;)
-            //DEBUG(std::cerr << "    on previous strip: "; foreach(StripCompactDigiSimLinks::key_type k, previousStripSignals) { std::cerr << "(ev " << k.first.rawId() << ", id " << k.second << ") "; } std::cerr << std::endl;)
-            //DEBUG(std::cerr << "    on this strip: ";     foreach(StripCompactDigiSimLinks::key_type k,     thisStripSignals) { std::cerr << "(ev " << k.first.rawId() << ", id " << k.second << ") "; } std::cerr << std::endl;)
+            //DEBUG(std::cerr << "    on previous strip: "; for(auto const& k : previousStripSignals) { std::cerr << "(ev " << k.first.rawId() << ", id " << k.second << ") "; } std::cerr << std::endl;)
+            //DEBUG(std::cerr << "    on this strip: ";     for(auto const& k :     thisStripSignals) { std::cerr << "(ev " << k.first.rawId() << ", id " << k.second << ") "; } std::cerr << std::endl;)
             DEBUG(std::cerr << std::endl;)
         }
     }

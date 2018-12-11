@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -83,6 +84,12 @@ namespace edm {
       this->endJob();
     }
     
+    void
+    EDAnalyzerBase::doPreallocate(PreallocationConfiguration const&iPrealloc) {
+      preallocLumis(iPrealloc.numberOfLuminosityBlocks());
+    }
+    void EDAnalyzerBase::preallocLumis(unsigned int) {};
+
     void
     EDAnalyzerBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                                ModuleCallingContext const* mcc) {

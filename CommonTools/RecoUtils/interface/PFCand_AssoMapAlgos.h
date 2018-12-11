@@ -47,6 +47,10 @@ class PFCand_AssoMapAlgos : public PF_PU_AssoMapAlgos  {
    //get all needed collections at the beginning
    void GetInputCollections(edm::Event&, const edm::EventSetup&) override;
 
+   //create the pf candidate to vertex association and the inverse map
+   std::pair<std::unique_ptr<PFCandToVertexAssMap>, std::unique_ptr<VertexToPFCandAssMap>>
+     createMappings(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup);
+
    //create the pf candidate to vertex association map
    std::unique_ptr<PFCandToVertexAssMap> CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollection>, const edm::EventSetup&);
 
