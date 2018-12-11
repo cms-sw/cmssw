@@ -88,12 +88,24 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction(const edm::ParameterSet& iC
 
 void CTPPSProtonReconstruction::fillDescriptions(ConfigurationDescriptions& descriptions)
 {
-  // TODO: fill in
-  // TODO: then remove the static cfi file
-
   ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+
+  desc.addUntracked<unsigned int>("verbosity", 0)
+    ->setComment("verbosity level");
+
+  desc.add<edm::InputTag>("tagLocalTrackLite", edm::InputTag("ctppsLocalTrackLiteProducer"))
+    ->setComment("specification of the input lite-track collection");
+
+  desc.add<bool>("doSingleRPReconstruction", true)
+    ->setComment("flag whether to apply single-RP reconstruction strategy");
+
+  desc.add<bool>("doMultiRPReconstruction", true)
+    ->setComment("flag whether to apply multi-RP reconstruction strategy");
+
+  desc.add<bool>("fitVtxY", true)
+    ->setComment("for multi-RP reconstruction, flag whether y* should be free fit parameter");
+
+  descriptions.add("ctppsProtonReconstruction", desc);
 }
 
 //----------------------------------------------------------------------------------------------------
