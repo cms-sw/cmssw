@@ -17,6 +17,10 @@ process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
     # more at: https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&input=file+dataset%3D%2FBTagCSV%2FRun2016C-07Aug17-v1%2FAOD
     "/store/data/Run2016C/BTagCSV/AOD/07Aug17-v1/110000/0026FCD2-369A-E711-920C-0025905A607E.root"
+  ),
+  inputCommands = cms.untracked.vstring(
+    "keep *",
+    "drop CTPPSLocalTrackLites_*_*_*"
   )
 )
 
@@ -24,16 +28,8 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(-1)
 )
 
-# load LHCInfo
-process.load("Validation.CTPPS.year_2016.ctppsLHCInfoESSource_cfi")
-
-# load optics
-process.load("Validation.CTPPS.year_2016.ctppsOpticalFunctionsESSource_cfi")
-
 # load reconstruction sequences
 process.load("RecoCTPPS.Configuration.recoCTPPS_sequences_cff")
-
-process.ctppsLocalTrackLiteProducer.includeStrips = True
 process.ctppsLocalTrackLiteProducer.includeDiamonds = False
 process.ctppsLocalTrackLiteProducer.includePixels = False 
 
@@ -41,9 +37,6 @@ process.ctppsProtonReconstruction.verbosity = 0
 
 # load geometry
 process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi") # 2017 is OK here
-
-# load alignment corrections
-process.ctppsIncludeAlignmentsFromXML.RealFiles += cms.vstring("Validation/CTPPS/test/year_2016/alignment_export_2018_12_07.1.xml")
 
 # reconstruction validator
 process.ctppsProtonReconstructionValidator = cms.EDAnalyzer("CTPPSProtonReconstructionValidator",
@@ -71,9 +64,10 @@ process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstruc
 
 # processing sequence
 process.p = cms.Path(
-    process.totemRPUVPatternFinder
-    * process.totemRPLocalTrackFitter
-
+    process.totemRPLocalReconstruction
+    * process.ctppsDiamondLocalReconstruction
+    #* process.totemTimingLocalReconstruction
+    #* process.ctppsPixelLocalReconstruction
     * process.ctppsLocalTrackLiteProducer
     * process.ctppsProtonReconstruction
 
