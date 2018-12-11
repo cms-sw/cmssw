@@ -520,7 +520,13 @@ void RPixPlaneCombinatoryTracking::addRecoInfo(int run)
   // 4 -> Starting from run 305965: Sec45 St2 Rp3 Pl 1,3,5 ROC 0 shifted & Sec56 St2 Rp3 Pl 2,4,5 ROC 5 shifted.
 
   unsigned short shiftPeriod = 0;
-  unsigned short recoInfo = -1; // Dummy initiation value
+  unsigned short recoInfo = 5; // Dummy initiation value
+
+  // Track information byte for bx-shifted runs: 
+  // reco_info = 0 -> Default value for tracks reconstructed in non-bx-shifted ROCs
+  // reco_info = 1 -> Track reconstructed in a bx-shifted ROC with bx-shifted planes only
+  // reco_info = 2 -> Track reconstructed in a bx-shifted ROC with non-bx-shifted planes only
+  // reco_info = 3 -> Track reconstructed in a bx-shifted ROC both with bx-shifted and non-bx-shifted plane
 
   std::vector<CTPPSPixelLocalTrack> localTrackVectorWithRecoInfo;
 
