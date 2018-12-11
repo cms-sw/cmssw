@@ -97,6 +97,7 @@ class L1CaloJetProducer : public edm::EDProducer {
         double HGCalHadTpEtMin;
         double HGCalEmTpEtMin;
         double EtMinForSeedHit;
+        double EtMinForCollection;
 
         // For fetching calibrations
         std::vector< double > emFractionBins;
@@ -154,10 +155,10 @@ class L1CaloJetProducer : public edm::EDProducer {
                 float l1EGjetPUET = 0.;
 
                 // Matrices to map energy per included tower in ET
-                float total_map[9][9]; // 9x9 array
-                float ecal_map[9][9]; // 9x9 array
-                float hcal_map[9][9]; // 9x9 array
-                float l1eg_map[9][9]; // 9x9 array
+                //float total_map[9][9]; // 9x9 array
+                //float ecal_map[9][9]; // 9x9 array
+                //float hcal_map[9][9]; // 9x9 array
+                //float l1eg_map[9][9]; // 9x9 array
 
                 int seed_iEta = -99;
                 int seed_iPhi = -99;
@@ -298,6 +299,7 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     HGCalHadTpEtMin(iConfig.getParameter<double>("HGCalHadTpEtMin")), // Should default to 0 MeV
     HGCalEmTpEtMin(iConfig.getParameter<double>("HGCalEmTpEtMin")), // Should default to 0 MeV
     EtMinForSeedHit(iConfig.getParameter<double>("EtMinForSeedHit")), // Should default to 2.5 GeV
+    EtMinForCollection(iConfig.getParameter<double>("EtMinForCollection")), // Testing 10 GeV
     emFractionBins(iConfig.getParameter<std::vector<double>>("emFractionBins")),
     absEtaBins(iConfig.getParameter<std::vector<double>>("absEtaBins")),
     jetPtBins(iConfig.getParameter<std::vector<double>>("jetPtBins")),
@@ -309,10 +311,11 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     hgcalTowersToken_(consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("L1HgcalTowersInputTag")))
 
 {
+    printf("L1CaloJetProducer setup\n");
     produces<l1slhc::L1CaloJetsCollection>("L1CaloJetsNoCuts");
     produces<l1slhc::L1CaloJetsCollection>("L1CaloJetsWithCuts");
     //produces<l1extra::L1JetParticleCollection>("L1CaloClusterCollectionWithCuts");
-    produces< BXVector<l1t::Jet> >("L1CaloClusterCollectionBXVWithCuts");
+    //produces< BXVector<l1t::Jet> >("L1CaloClusterCollectionBXVWithCuts");
 
 
     //// Fit parameters measured on 11 Aug 2018, using 500 MeV threshold for ECAL TPs
@@ -366,16 +369,19 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
         calibrations.push_back( eta_bins );
     }
     if(debug) printf("\nLoading calibrations: Loaded %i values vs. size() of input calibration file: %i", index, int(jetCalibrations.size()));
+    printf("L1CaloJetProducer end\n");
 }
 
 void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+    printf("begin L1CaloJetProducer\n");
+
     // Output collections
     std::unique_ptr<l1slhc::L1CaloJetsCollection> L1CaloJetsNoCuts (new l1slhc::L1CaloJetsCollection );
     std::unique_ptr<l1slhc::L1CaloJetsCollection> L1CaloJetsWithCuts( new l1slhc::L1CaloJetsCollection );
     //std::unique_ptr<l1extra::L1JetParticleCollection> L1CaloClusterCollectionWithCuts( new l1extra::L1JetParticleCollection );
-    std::unique_ptr<BXVector<l1t::Jet>> L1CaloClusterCollectionBXVWithCuts(new l1t::JetBxCollection);
+    //std::unique_ptr<BXVector<l1t::Jet>> L1CaloClusterCollectionBXVWithCuts(new l1t::JetBxCollection);
 
 
 
@@ -389,7 +395,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     crystalClusters = (*crystalClustersHandle.product());
 
 
-    // HGCal into
+    // HGCal info
     iEvent.getByToken(hgcalTowersToken_,hgcalTowersHandle);
     hgcalTowers = (*hgcalTowersHandle.product());
     //iEvent.getByToken(hgcalClustersToken_,hgcalClustersHandle);
@@ -421,6 +427,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     // Loop over HGCalTowers and create SimpleCaloHits for them and add to collection
     // This iterator is taken from the PF P2 group
     // https://github.com/p2l1pfp/cmssw/blob/170808db68038d53794bc65fdc962f8fc337a24d/L1Trigger/Phase2L1ParticleFlow/plugins/L1TPFCaloProducer.cc#L278-L289
+    printf("begin loop hgcal tower\n");
     for (auto it = hgcalTowers.begin(0), ed = hgcalTowers.end(0); it != ed; ++it)
     {
         // skip lowest ET towers
@@ -436,6 +443,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         l1CaloTowers.push_back( l1Hit );
         if (debug) printf("Tower isBarrel %d eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", l1Hit.isBarrel, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
     }
+    printf("end loop hgcal tower\n");
 
     // Make simple L1objects from the L1EG input collection with marker for 'stale'
     // FIXME could later add quality criteria here to help differentiate likely
@@ -590,10 +598,10 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 reco::Candidate::PolarLorentzVector totalP4( l1CaloTower.total_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
 
                 // Map center at 4,4
-                caloJetObj.total_map[4][4] = l1CaloTower.total_tower_et; // 9x9 array
-                caloJetObj.ecal_map[4][4]  = l1CaloTower.ecal_tower_et; // 9x9 array
-                caloJetObj.hcal_map[4][4]  = l1CaloTower.hcal_tower_et; // 9x9 array
-                caloJetObj.l1eg_map[4][4]  = l1CaloTower.total_tower_plus_L1EGs_et - l1CaloTower.total_tower_et; // 9x9 array
+                //caloJetObj.total_map[4][4] = l1CaloTower.total_tower_et; // 9x9 array
+                //caloJetObj.ecal_map[4][4]  = l1CaloTower.ecal_tower_et; // 9x9 array
+                //caloJetObj.hcal_map[4][4]  = l1CaloTower.hcal_tower_et; // 9x9 array
+                //caloJetObj.l1eg_map[4][4]  = l1CaloTower.total_tower_plus_L1EGs_et - l1CaloTower.total_tower_et; // 9x9 array
 
                 if (hcalP4.energy() > 0)
                 {
@@ -674,10 +682,10 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 reco::Candidate::PolarLorentzVector ecalP4( l1CaloTower.ecal_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
                 reco::Candidate::PolarLorentzVector totalP4( l1CaloTower.total_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
 
-                caloJetObj.total_map[4+d_iEta][4+d_iPhi] = l1CaloTower.total_tower_et; // 9x9 array
-                caloJetObj.ecal_map[4+d_iEta][4+d_iPhi]  = l1CaloTower.ecal_tower_et; // 9x9 array
-                caloJetObj.hcal_map[4+d_iEta][4+d_iPhi]  = l1CaloTower.hcal_tower_et; // 9x9 array
-                caloJetObj.l1eg_map[4+d_iEta][4+d_iPhi]  = l1CaloTower.total_tower_plus_L1EGs_et - l1CaloTower.total_tower_et; // 9x9 array
+                //caloJetObj.total_map[4+d_iEta][4+d_iPhi] = l1CaloTower.total_tower_et; // 9x9 array
+                //caloJetObj.ecal_map[4+d_iEta][4+d_iPhi]  = l1CaloTower.ecal_tower_et; // 9x9 array
+                //caloJetObj.hcal_map[4+d_iEta][4+d_iPhi]  = l1CaloTower.hcal_tower_et; // 9x9 array
+                //caloJetObj.l1eg_map[4+d_iEta][4+d_iPhi]  = l1CaloTower.total_tower_plus_L1EGs_et - l1CaloTower.total_tower_et; // 9x9 array
 
                 if (hcalP4.energy() > 0)
                 {
@@ -1072,22 +1080,26 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         float totalPtPUcorr = -1;
         l1slhc::L1CaloJet caloJet(caloJetObj.jetCluster, calibratedPt, hovere, ECalIsolation, totalPtPUcorr);
         caloJet.SetExperimentalParams(params);
-        for (int i = 0; i < 9; i++)
+        //for (int i = 0; i < 9; i++)
+        //{
+        //    for (int j = 0; j < 9; j++)
+        //    {
+        //        caloJet.total_map[i][j] = caloJetObj.total_map[i][j];
+        //        caloJet.ecal_map[i][j] = caloJetObj.ecal_map[i][j];
+        //        caloJet.hcal_map[i][j] = caloJetObj.hcal_map[i][j];
+        //        caloJet.l1eg_map[i][j] = caloJetObj.l1eg_map[i][j];
+        //    }
+        //}
+
+        // Only store jets passing ET threshold and within Barrel
+        if (caloJetObj.jetClusterET >= EtMinForCollection)
         {
-            for (int j = 0; j < 9; j++)
-            {
-                caloJet.total_map[i][j] = caloJetObj.total_map[i][j];
-                caloJet.ecal_map[i][j] = caloJetObj.ecal_map[i][j];
-                caloJet.hcal_map[i][j] = caloJetObj.hcal_map[i][j];
-                caloJet.l1eg_map[i][j] = caloJetObj.l1eg_map[i][j];
-            }
+            L1CaloJetsNoCuts->push_back( caloJet );
+            // Same for the moment...
+            L1CaloJetsWithCuts->push_back( caloJet );
+
+            if (debug) printf("Made a Jet, eta %f phi %f pt %f\n", caloJetObj.jetCluster.eta(), caloJetObj.jetCluster.phi(), caloJetObj.jetClusterET);
         }
-
-        L1CaloJetsNoCuts->push_back( caloJet );
-        // Same for the moment...
-        L1CaloJetsWithCuts->push_back( caloJet );
-
-        if (debug) printf("Made a Jet, eta %f phi %f pt %f\n", caloJetObj.jetCluster.eta(), caloJetObj.jetCluster.phi(), caloJetObj.jetClusterET);
 
 
     } // end jetClusters loop
@@ -1096,7 +1108,9 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     iEvent.put(std::move(L1CaloJetsNoCuts),"L1CaloJetsNoCuts");
     iEvent.put(std::move(L1CaloJetsWithCuts), "L1CaloJetsWithCuts" );
     //iEvent.put(std::move(L1CaloClusterCollectionWithCuts), "L1CaloClusterCollectionWithCuts" );
-    iEvent.put(std::move(L1CaloClusterCollectionBXVWithCuts),"L1CaloClusterCollectionBXVWithCuts");
+    //iEvent.put(std::move(L1CaloClusterCollectionBXVWithCuts),"L1CaloClusterCollectionBXVWithCuts");
+
+    printf("end L1CaloJetProducer\n");
 }
 
 
