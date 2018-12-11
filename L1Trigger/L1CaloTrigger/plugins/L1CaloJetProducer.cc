@@ -375,7 +375,7 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
 void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-    printf("begin L1CaloJetProducer\n");
+    //printf("begin L1CaloJetProducer\n");
 
     // Output collections
     std::unique_ptr<l1slhc::L1CaloJetsCollection> L1CaloJetsNoCuts (new l1slhc::L1CaloJetsCollection );
@@ -410,6 +410,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     {
 
         SimpleCaloHit l1Hit;
+        l1Hit.isBarrel = true;  // this is already default
         l1Hit.ecal_tower_et  = hit.ecal_tower_et;
         l1Hit.hcal_tower_et  = hit.hcal_tower_et;
         // Add min ET thresholds for tower ET
@@ -418,6 +419,13 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         l1Hit.total_tower_et  = l1Hit.ecal_tower_et + l1Hit.hcal_tower_et;
         l1Hit.tower_iEta  = hit.tower_iEta;
         l1Hit.tower_iPhi  = hit.tower_iPhi;
+
+        // FIXME There is an error in the L1EGammaCrystalsEmulatorProducer.cc which is
+        // returning towers with minimal ECAL energy, and no HCAL energy with these
+        // iEta/iPhi coordinates and eta = -88.653152 and phi = -99.000000.
+        // Skip these for the time being until the upstream code has been debugged
+        if ((int)l1Hit.tower_iEta == -1016 && (int)l1Hit.tower_iPhi == -962) continue;
+
         l1Hit.tower_eta  = hit.tower_eta;
         l1Hit.tower_phi  = hit.tower_phi;
         l1CaloTowers.push_back( l1Hit );
@@ -427,7 +435,6 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     // Loop over HGCalTowers and create SimpleCaloHits for them and add to collection
     // This iterator is taken from the PF P2 group
     // https://github.com/p2l1pfp/cmssw/blob/170808db68038d53794bc65fdc962f8fc337a24d/L1Trigger/Phase2L1ParticleFlow/plugins/L1TPFCaloProducer.cc#L278-L289
-    printf("begin loop hgcal tower\n");
     for (auto it = hgcalTowers.begin(0), ed = hgcalTowers.end(0); it != ed; ++it)
     {
         // skip lowest ET towers
@@ -443,7 +450,6 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         l1CaloTowers.push_back( l1Hit );
         if (debug) printf("Tower isBarrel %d eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", l1Hit.isBarrel, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
     }
-    printf("end loop hgcal tower\n");
 
     // Make simple L1objects from the L1EG input collection with marker for 'stale'
     // FIXME could later add quality criteria here to help differentiate likely
@@ -589,8 +595,9 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 l1CaloTower.stale = true;
                 n_stale++;
 
-                // Set seed location, default is barrel (true)
-                if (!l1CaloTower.isBarrel) caloJetObj.barrelSeeded = false;
+                // Set seed location needed for delta iEta/iPhi, eta/phi comparisons later
+                if (l1CaloTower.isBarrel) caloJetObj.barrelSeeded = true;
+                else caloJetObj.barrelSeeded = false;
 
                 // 3 4-vectors for ECAL, HCAL, ECAL+HCAL for adding together
                 reco::Candidate::PolarLorentzVector hcalP4( l1CaloTower.hcal_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
@@ -664,11 +671,23 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             }
 
             // Unused l1CaloTowers which are not the initial seed
-            int hit_iPhi = l1CaloTower.tower_iPhi;
-            int d_iEta = tower_diEta( caloJetObj.seed_iEta, l1CaloTower.tower_iEta );
-            int d_iPhi = tower_diPhi( caloJetObj.seed_iPhi, hit_iPhi );
-            float d_eta = caloJetObj.seedTower.eta() - l1CaloTower.tower_eta;
-            float d_phi = reco::deltaPhi( caloJetObj.seedTower.phi(), l1CaloTower.tower_phi );
+            // Depending on seed and tower locations calculate iEta/iPhi or eta/phi comparisons
+            int hit_iPhi = 99;
+            int d_iEta = 99;
+            int d_iPhi = 99;
+            float d_eta = 99;
+            float d_phi = 99;
+            if ( caloJetObj.barrelSeeded && l1CaloTower.isBarrel ) // use iEta/iPhi comparisons 
+            {
+                hit_iPhi = l1CaloTower.tower_iPhi;
+                d_iEta = tower_diEta( caloJetObj.seed_iEta, l1CaloTower.tower_iEta );
+                d_iPhi = tower_diPhi( caloJetObj.seed_iPhi, hit_iPhi );
+            }
+            else // either seed or tower are in HGCal, use eta/phi
+            {
+                d_eta = caloJetObj.seedTower.eta() - l1CaloTower.tower_eta;
+                d_phi = reco::deltaPhi( caloJetObj.seedTower.phi(), l1CaloTower.tower_phi );
+            }
 
             // 7x7 HCAL Trigger Towers
             // If seeded in barrel and hit is barrel then we can compare iEta/iPhi, else need to use eta/phi
@@ -1110,7 +1129,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     //iEvent.put(std::move(L1CaloClusterCollectionWithCuts), "L1CaloClusterCollectionWithCuts" );
     //iEvent.put(std::move(L1CaloClusterCollectionBXVWithCuts),"L1CaloClusterCollectionBXVWithCuts");
 
-    printf("end L1CaloJetProducer\n");
+    //printf("end L1CaloJetProducer\n");
 }
 
 
