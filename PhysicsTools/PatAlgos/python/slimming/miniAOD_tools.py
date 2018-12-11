@@ -318,10 +318,8 @@ def miniAOD_customizeCommon(process):
     #VID Photon IDs
     process.patPhotons.addPhotonID = cms.bool(True)
     photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V1_TrueVtx_cff',
-                  'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V2_cff',
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1_cff', 
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1p1_cff', 
-                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff',
                   'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff']
     switchOnVIDPhotonIdProducer(process,DataFormat.AOD, task) 
@@ -342,6 +340,24 @@ def miniAOD_customizeCommon(process):
         cms.InputTag('reducedEgamma','reducedGedPhotons')
     for idmod in photon_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False,task)
+
+    # add Fall17V2 photon IDs only when a specific modifier is active.
+    # This is done by configuring all IDs plus Fall17 V2 in a separate temporary process,
+    # from which the configuration is taken to modify the actual process.
+    tmp_process = cms.Process("PhotonMVANtuplizer2")
+    photon_ids = photon_ids + ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V2_cff',
+                               'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff']
+    switchOnVIDPhotonIdProducer(tmp_process,DataFormat.AOD)
+    for idmod in photon_ids:
+        setupAllVIDIdsInModule(tmp_process,idmod,setupVIDPhotonSelection)
+
+    from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+    run2_miniAOD_devel.toModify(process.photonMVAValueMapProducer,
+                                mvaConfigurations = tmp_process.photonMVAValueMapProducer.mvaConfigurations)
+
+    run2_miniAOD_devel.toModify(process.egmPhotonIDs,
+                                physicsObjectIDs = tmp_process.egmPhotonIDs.physicsObjectIDs)
+    del tmp_process
  
     #add the cut base IDs bitmaps of which cuts passed
     from RecoEgamma.EgammaTools.egammaObjectModifications_tools import makeVIDBitsModifier
