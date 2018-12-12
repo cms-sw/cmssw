@@ -18,9 +18,9 @@ class PartonShowerCsHepMCFilter : public BaseHepMCFilter{
 public:
 
   PartonShowerCsHepMCFilter( const edm::ParameterSet & );
-  ~PartonShowerCsHepMCFilter();
+  ~PartonShowerCsHepMCFilter() override;
 
-  virtual bool filter(const HepMC::GenEvent* evt);
+  bool filter(const HepMC::GenEvent* evt) override;
 
 private:
 
