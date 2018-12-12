@@ -13,32 +13,31 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
+namespace CLHEP { class HepRandomEngine; }
 namespace edm {
   
 class RandomXiThetaGunProducer : public one::EDProducer<>
 {
-
   public:
-    RandomXiThetaGunProducer(const ParameterSet &);
-
-    virtual ~RandomXiThetaGunProducer();
+    RandomXiThetaGunProducer(const ParameterSet&);
+    ~RandomXiThetaGunProducer() override = default;
 
   private:
-    virtual void produce(Event & e, const EventSetup& es) override;
-    
-    void GenerateParticle(double z_sign, double mass, unsigned int barcode, CLHEP::HepRandomEngine* engine, HepMC::GenVertex *vtx) const;
+    virtual void produce(Event&, const EventSetup&) override;
+    void generateParticle(double z_sign, double mass, unsigned int barcode, HepMC::GenVertex *vtx) const;
 
-    unsigned int verbosity;
+    unsigned int verbosity_;
+    unsigned int particleId_;
 
-    unsigned int particleId;
+    double energy_;
+    double xi_min_, xi_max_;
+    double theta_x_mean_, theta_x_sigma_;
+    double theta_y_mean_, theta_y_sigma_;
 
-    double energy;
-    double xi_min, xi_max;
-    double theta_x_mean, theta_x_sigma;
-    double theta_y_mean, theta_y_sigma;
+    unsigned int nParticlesSector45_;
+    unsigned int nParticlesSector56_;
 
-    unsigned int nParticlesSector45;
-    unsigned int nParticlesSector56;
+    CLHEP::HepRandomEngine* engine_;
 };
 
 } 
