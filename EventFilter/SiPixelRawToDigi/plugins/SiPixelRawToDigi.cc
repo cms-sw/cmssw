@@ -154,7 +154,7 @@ SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<bool>("UsePhase1",false)->setComment("##  Use phase1");
   desc.add<std::string>("CablingMapLabel","")->setComment("CablingMap label"); //Tav
   desc.addOptional<bool>("CheckPixelOrder");  // never used, kept for back-compatibility
-  desc.add<edm::InputTag>("BadPixelFEDChannelsInputLabel",edm::InputTag("mixData"));  
+  desc.add<edm::InputTag>("BadPixelFEDChannelsInputLabel",edm::InputTag("mix"));  
   descriptions.add("siPixelRawToDigi",desc);
   
 }
