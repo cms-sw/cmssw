@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TMath.h"
+#include "TLatex.h"
 #include <TF1.h>
 
 using namespace std;
@@ -149,12 +150,10 @@ void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
 void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histograms,
 						       int count,
 						       const reco::CaloClusterCollection &clusters, 
-						       const edm::EventSetup& setup,
 						       unsigned layers, 
 						       std::vector<int> thicknesses) const {
   
   
-  // recHitTools_->getEventSetup(setup);
   //To keep track of total num of layer clusters per layer
   //tnlcpl[lay]
   std::vector<int> tnlcpl; tnlcpl.clear(); tnlcpl.reserve(100);
@@ -176,9 +175,9 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
     
     const std::vector<std::pair<DetId, float> > hits_and_fractions = clusters[layerclusterIndex].hitsAndFractions();
 
-    const DetId seedid = clusters[layerclusterIndex].seed();
-    const double seedx = recHitTools_->getPosition(seedid).x();
-    const double seedy = recHitTools_->getPosition(seedid).y();
+    // const DetId seedid = clusters[layerclusterIndex].seed();
+    // const double seedx = recHitTools_->getPosition(seedid).x();
+    // const double seedy = recHitTools_->getPosition(seedid).y();
     // const DetId maxid = clusters[layerclusterIndex].max();
     // double maxx = recHitTools_->getPosition(maxid).x();
     // double maxy = recHitTools_->getPosition(maxid).y();
@@ -198,7 +197,16 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
       //The layer that the current hit belongs to
       //I do not know why but it returns also 101 and 104 as values
       int lay = recHitTools_->getLayerWithOffset(rh_detid);
-      thickness = (rh_detid.det() == DetId::Forward || rh_detid.det() == DetId::HGCalEE || rh_detid.det() == DetId::HGCalHSi) ? recHitTools_->getSiThickness(rh_detid) : -1;
+      if (rh_detid.det() == DetId::Forward || rh_detid.det() == DetId::HGCalEE || rh_detid.det() == DetId::HGCalHSi){
+	thickness = recHitTools_->getSiThickness(rh_detid);
+      } else if (rh_detid.det() == DetId::HGCalHSc){
+	thickness = -1;
+      } else {
+	std::cout << "These are HGCal layer clusters, you shouldn't be here !!! " << lay  << std::endl;
+	continue;
+      }
+
+      // thickness = (rh_detid.det() == DetId::Forward || rh_detid.det() == DetId::HGCalEE || rh_detid.det() == DetId::HGCalHSi) ? recHitTools_->getSiThickness(rh_detid) : -1;
       //Count here only once the layer cluster and save the combination thick_lay
       std::string curistr = std::to_string( (int) thickness )  + std::to_string(lay);
       if (cluslay){ tnlcpl[lay]++; istr = curistr; cluslay = false; }
@@ -209,12 +217,13 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
  
       //Here for the per cell plots
       //----
-      const double hit_x = recHitTools_->getPosition(rh_detid).x();
-      const double hit_y = recHitTools_->getPosition(rh_detid).y();
-      double distancetoseed = distance(seedx, seedy, hit_x, hit_y);
-      if (histograms.h_distancetoseedcell_perthickperlayer.count(curistr)){ 
-      	histograms.h_distancetoseedcell_perthickperlayer.at(curistr).fill( distancetoseed  );    
-      } 
+      // const double hit_x = recHitTools_->getPosition(rh_detid).x();
+      // const double hit_y = recHitTools_->getPosition(rh_detid).y();
+      // double distancetoseed = distance(seedx, seedy, hit_x, hit_y);
+      // std::cout << " DISTANCETOSEED " << distancetoseed << std::endl;
+      // if (histograms.h_distancetoseedcell_perthickperlayer.count(curistr)){ 
+      // 	histograms.h_distancetoseedcell_perthickperlayer.at(curistr).fill( distancetoseed  );    
+      // } 
       //----
       // if (histograms.h_distancetoseedcell_perthickperlayer_eneweighted.count(curistr)){ 
       // 	histograms.h_distancetoseedcell_perthickperlayer_eneweighted.at(curistr).fill( distance(seedx,seedy,recHitTools_->getPosition(rh_detid).x(),recHitTools_->getPosition(rh_detid).y()) , ENERGYOFRECHITHERE );    } 
@@ -246,6 +255,9 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
       
 
   }//end of loop through clusters of the event
+
+  //For the mixed hits we want to know the percent
+  // std::cout << std::accumulate(tnlcpl.begin(), tnlcpl.end(), 0) << ;
 
   //After the end of the event we can now fill with the results. 
   //Per layer
