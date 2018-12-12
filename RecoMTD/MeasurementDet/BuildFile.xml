@@ -1,8 +1,4 @@
 <use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="DataFormats/MuonDetId"/>
-<use   name="DataFormats/DTRecHit"/>
-<use   name="DataFormats/CSCRecHit"/>
-<use   name="DataFormats/GEMRecHit"/>
 <use   name="TrackingTools/DetLayers"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
