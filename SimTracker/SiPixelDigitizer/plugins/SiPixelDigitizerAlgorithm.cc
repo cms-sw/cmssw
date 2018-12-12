@@ -816,7 +816,7 @@ void SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo, CLHE
     if (pu0!=bunchCrossing.end()) {
       
       unsigned int PUBin = TrueInteractionList.at(p); // case delta PU=1, fix me      
-      auto theProbabilitiesPerScenario = scenarioProbabilityHandle.product()->getProbabilities(PUBin);      
+      const auto& theProbabilitiesPerScenario = scenarioProbabilityHandle->getProbabilities(PUBin);
       std::vector<double> probabilities;
       for (auto it = theProbabilitiesPerScenario.begin(); it != theProbabilitiesPerScenario.end(); it++){
 	probabilities.push_back(it->second);
