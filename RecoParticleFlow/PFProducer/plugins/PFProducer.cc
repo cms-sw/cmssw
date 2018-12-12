@@ -204,6 +204,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     ele_iso_combIso_barrel(0.0), ele_iso_combIso_endcap(0.0), 
     ele_noniso_mva(0.0);
   unsigned int ele_missinghits(0);
+  double ele_ecalDrivenHademPreselCut(0.0);
+  double ele_maxElePtForOnlyMVAPresel(0.0);
   double ph_MinEt(0.0), ph_combIso(0.0), ph_HoE(0.0), 
     ph_sietaieta_eb(0.0),ph_sietaieta_ee(0.0);
   string ele_iso_mvaWeightFile(""), ele_iso_path_mvaWeightFile("");
@@ -222,6 +224,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
    ele_iso_combIso_endcap = iConfig.getParameter<double>("electron_iso_combIso_endcap");
    ele_noniso_mva = iConfig.getParameter<double>("electron_noniso_mvaCut");
    ele_missinghits = iConfig.getParameter<unsigned int>("electron_missinghits"); 
+   ele_ecalDrivenHademPreselCut = iConfig.getParameter<double>("electron_ecalDrivenHademPreselCut");
+   ele_maxElePtForOnlyMVAPresel = iConfig.getParameter<double>("electron_maxElePtForOnlyMVAPresel");
    ph_MinEt  = iConfig.getParameter<double>("photon_MinEt");
    ph_combIso  = iConfig.getParameter<double>("photon_combIso");
    ph_HoE = iConfig.getParameter<double>("photon_HoE");
@@ -331,6 +335,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 				ele_iso_combIso_endcap,
 				ele_noniso_mva,
 				ele_missinghits,
+				ele_ecalDrivenHademPreselCut,
+				ele_maxElePtForOnlyMVAPresel,
 				useProtectionsForJetMET,
 				ele_protectionsForJetMET,
 				ele_protectionsForBadHcal,
