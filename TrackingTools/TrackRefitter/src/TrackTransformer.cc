@@ -22,6 +22,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 using namespace std;
 using namespace edm;
 
@@ -41,6 +43,17 @@ TrackTransformer::TrackTransformer(const ParameterSet& parameterSet):
 /// Destructor
 TrackTransformer::~TrackTransformer(){}
 
+void TrackTransformer::fillDescriptions(edm::ParameterSetDescription& desc) {
+  desc.add<bool>("DoPredictionsOnly",false);
+  desc.add<std::string>("Fitter",std::string("KFFitterForRefitInsideOut"));
+  desc.add<std::string>("Smoother",std::string("KFSmootherForRefitInsideOut"));
+  desc.add<std::string>("Propagator",std::string("SmartPropagatorAnyRK"));
+  desc.add<std::string>("RefitDirection",std::string("alongMomentum"));  
+  desc.add<bool>("RefitRPCHits",true);
+  desc.add<std::string>("TrackerRecHitBuilder",std::string("WithTrackAngle"));
+  desc.add<std::string>("MuonRecHitBuilder",std::string("MuonRecHitBuilder"));
+  desc.add<std::string>("MTDRecHitBuilder",std::string("MTDRecHitBuilder"));
+}
 
 void TrackTransformer::setServices(const EventSetup& setup){
   
@@ -85,7 +98,7 @@ void TrackTransformer::setServices(const EventSetup& setup){
     setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
     setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
     setup.get<TransientRecHitRecord>().get(theMTDRecHitBuilderName,theMTDRecHitBuilder);
-    mtdAvailable = theMTDRecHitBuilder.isValid();
+    theMtdAvailable = theMTDRecHitBuilder.isValid();
     hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
   }
   theFitter->setHitCloner(&hitCloner);
@@ -118,7 +131,7 @@ TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
 	result.push_back(theMuonRecHitBuilder->build(&**hit));
       } else if ( (*hit)->geographicalId().det() == DetId::Forward && 
 		  (*hit)->geographicalId().subdetId() == FastTime  ) {
-	if (  mtdAvailable ) result.push_back(theMTDRecHitBuilder->build(&**hit));
+	if (  theMtdAvailable ) result.push_back(theMTDRecHitBuilder->build(&**hit));
 	else throw cms::Exception("TrackTransformer") << "MTD hit encountered but MTD not available!";
       }
     }
