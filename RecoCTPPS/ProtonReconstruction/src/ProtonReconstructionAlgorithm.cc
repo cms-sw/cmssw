@@ -22,8 +22,7 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(bool fit_vtx_y, uns
   verbosity_(verbosity),
   fitVtxY_(fit_vtx_y),
   initialized_(false),
-  fitter_(std::make_unique<ROOT::Fit::Fitter>()),
-  chiSquareCalculator_(std::make_unique<ChiSquareCalculator>())
+  fitter_(new ROOT::Fit::Fitter), chiSquareCalculator_(new ChiSquareCalculator)
 {
   // initialise fitter
   double pStart[] = { 0, 0, 0, 0 };
@@ -108,12 +107,11 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const dou
   // calculate chi^2 by looping over hits
   double S2 = 0.;
 
-  for (const auto &track : *tracks_)
-  {
+  for (const auto &track : *tracks) {
     const CTPPSDetId rpId(track->getRPId());
 
     // transport proton to the RP
-    auto oit = m_rp_optics_->find(rpId);
+    auto oit = m_rp_optics->find(rpId);
     LHCOpticalFunctionsSet::Kinematics k_out;
     oit->second.optics->transport(k_in, k_out);
 
@@ -147,7 +145,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   const reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector &tracks,
   std::vector<reco::ProtonTrack> &output,
   std::vector<reco::ProtonTrackExtra> &outputExtra,
-  const LHCInfo &lhcInfo, std::stringstream &ssLog) const
+  const LHCInfo &lhcInfo) const
 {
   if (!initialized_)
     return;
@@ -239,12 +237,10 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   unsigned int armId = CTPPSDetId((*tracks.begin())->getRPId()).arm();
 
   if (verbosity_)
-  {
-    ssLog << std::endl
+    LogDebug("ProtonReconstructionAlgorithm")
       << "ProtonReconstructionAlgorithm::reconstructFromMultiRP(" << armId << ")" << std::endl
       << "    initial estimate: xi_init = " << xi_init << ", th_x_init = " << th_x_init
-      << ", th_y_init = " << th_y_init << ", vtx_y_init = " << vtx_y_init << "" << std::endl;
-  }
+      << ", th_y_init = " << th_y_init << ", vtx_y_init = " << vtx_y_init << ".";
 
   // minimisation
   fitter_->Config().ParSettings(0).Set("xi", xi_init, 0.005);
@@ -255,8 +251,8 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   if (!fitVtxY_)
     fitter_->Config().ParSettings(3).Fix();
 
-  chiSquareCalculator_->tracks_ = &tracks;
-  chiSquareCalculator_->m_rp_optics_ = &m_rp_optics_;
+  chiSquareCalculator_->tracks = &tracks;
+  chiSquareCalculator_->m_rp_optics = &m_rp_optics_;
 
   fitter_->FitFCN();
   fitter_->FitFCN();  // second minimisation in case the first one had troubles
@@ -266,12 +262,12 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   const double *params = result.GetParams();
 
   if (verbosity_)
-    ssLog << "    fit: "
+    LogDebug("ProtonReconstructionAlgorithm") << "    fit: "
       << "xi=" << params[0] << " +- " << result.Error(0)
       << ", th_x=" << params[1] << " +-" << result.Error(1)
       << ", th_y=" << params[2] << " +-" << result.Error(2)
       << ", vtx_y=" << params[3] << " +-" << result.Error(3)
-      << ", chiSq = " << result.Chi2() << std::endl;
+      << ", chiSq = " << result.Chi2();
 
   // save reco candidate
   using EX = reco::ProtonTrackExtra;
@@ -326,7 +322,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
   const reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector &tracks,
   std::vector<reco::ProtonTrack> &output,
   std::vector<reco::ProtonTrackExtra> &outputExtra,
-  const LHCInfo &lhcInfo, std::stringstream &ssLog) const
+  const LHCInfo &lhcInfo) const
 {
   if (!initialized_)
     return;
@@ -347,7 +343,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     unsigned int decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
 
     if (verbosity_)
-      ssLog << std::endl << "reconstructFromSingleRP(" << decRPId << ")" << endl;
+      LogDebug("ProtonReconstructionAlgorithm") << "reconstructFromSingleRP(" << decRPId << ")";
 
     auto oit = m_rp_optics_.find(track->getRPId());
     const double x_full = track->getX() * 1E-3 + oit->second.x0; // conversions mm --> m
@@ -364,7 +360,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     const double th_y_unc = th_y * sqrt( pow(track->getYUnc() / track->getY(), 2.) + pow(dL_y_dxi * xi_unc / L_y, 2.) );
 
     if (verbosity_)
-      ssLog << "    xi = " << xi << " +- " << xi_unc << ", th_y = " << th_y << " +- " << th_y_unc << "" << endl;
+      LogDebug("ProtonReconstructionAlgorithm") << "    xi = " << xi << " +- " << xi_unc << ", th_y = " << th_y << " +- " << th_y_unc << ".";
 
     using EX = reco::ProtonTrackExtra;
     using PT = reco::ProtonTrack;
@@ -389,3 +385,4 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     outputExtra.push_back(move(ptExtra));
   }
 }
+
