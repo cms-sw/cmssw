@@ -259,7 +259,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
   // Control the pixel inefficiency
   AddPixelInefficiency(conf.getParameter<bool>("AddPixelInefficiency")),
-  KillBadFEDChannels(conf.exists("KillBadFEDChannels")?conf.getParameter<bool>("KillBadFEDChannels"):false),
+  KillBadFEDChannels(conf.getParameter<bool>("KillBadFEDChannels")),
   
   // Add threshold gaussian smearing:
   addThresholdSmearing(conf.getParameter<bool>("AddThresholdSmearing")),
@@ -268,7 +268,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   doMissCalibrate(conf.getParameter<bool>("MissCalibrate")), // Enable miss-calibration
   theGainSmearing(conf.getParameter<double>("GainSmearing")), // sigma of the gain smearing
   theOffsetSmearing(conf.getParameter<double>("OffsetSmearing")), //sigma of the offset smearing
-
+  
   // Add pixel radiation damage for upgrade studies
   AddPixelAging(conf.getParameter<bool>("DoPixelAging")),
   UseReweighting(conf.getParameter<bool>("UseReweighting")),
@@ -790,10 +790,13 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(const std::vector<Pileup
 bool SiPixelDigitizerAlgorithm::killBadFEDChannels() const {return KillBadFEDChannels;}
 
 
-void SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine  *engine, std::unique_ptr<PixelFEDChannelCollection> &PixelFEDChannelCollection_){
+//void SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine  *engine, std::unique_ptr<PixelFEDChannelCollection> &PixelFEDChannelCollect
+std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine *engine){
   
-  //Determine snapshot to use for the current event based on pileup information
-  
+  //Determine scenario to use for the current event based on pileup information
+
+  std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_ = nullptr;      
+  pixelEfficiencies_.PixelFEDChannelCollection_ = nullptr;    
   if (puInfo) {
     const std::vector<int>& bunchCrossing = puInfo->getMix_bunchCrossing();
     const std::vector<float>& TrueInteractionList = puInfo->getMix_TrueInteractions();    
@@ -810,15 +813,13 @@ void SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo, CLHE
       pui++;
     }    
     
-    PixelFEDChannelCollection_ = nullptr;
-    pixelEfficiencies_.PixelFEDChannelCollection_ = nullptr;
-    
     if (pu0!=bunchCrossing.end()) {
       
       unsigned int PUBin = TrueInteractionList.at(p); // case delta PU=1, fix me      
+      PUBin = 27;
       const auto& theProbabilitiesPerScenario = scenarioProbabilityHandle->getProbabilities(PUBin);
       std::vector<double> probabilities;
-      probabilities.reserve(theProbabilitiesPerScenario.size);
+      probabilities.reserve(theProbabilitiesPerScenario.size());
       for (auto it = theProbabilitiesPerScenario.begin(); it != theProbabilitiesPerScenario.end(); it++){
 	probabilities.push_back(it->second);
       }
@@ -826,13 +827,14 @@ void SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo, CLHE
       CLHEP::RandGeneral randGeneral(*engine, &(probabilities.front()), probabilities.size());	
       double x = randGeneral.shoot();
       unsigned int index = x * probabilities.size() - 1;
-      const std::string& scenario = theProbabilitiesPerScenario.at(index).first;      
+      const std::string& scenario = theProbabilitiesPerScenario.at(index).first;    
       
       PixelFEDChannelCollection_ = qualityCollectionHandle->getDetSetBadPixelFedChannels(scenario);
-      pixelEfficiencies_.PixelFEDChannelCollection_ = qualityCollectionHandle->getDetSetBadPixelFedChannels(scenario);      
+      pixelEfficiencies_.PixelFEDChannelCollection_ = qualityCollectionHandle->getDetSetBadPixelFedChannels(scenario);
       
     }
   }    
+  return PixelFEDChannelCollection_;
 }
 
 //============================================================================
@@ -1648,20 +1650,20 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   auto pIndexConverter = PixelIndices(numColumns,numRows);
   
   std::vector<int> badRocsFromFEDChannels(16,0);  
-  if (eff.PixelFEDChannelCollection_ != nullptr){
+  if (eff.PixelFEDChannelCollection_ != nullptr){  
     PixelFEDChannelCollection::const_iterator it = eff.PixelFEDChannelCollection_->find(detID);
+    
     if (it != eff.PixelFEDChannelCollection_->end()){      
       for(const auto& ch: *it) {	
 	for (unsigned int i_roc = ch.roc_first; i_roc <= ch.roc_last; ++i_roc){
 	  std::vector<CablingPathToDetUnit> path = map_->pathToDetUnit(detID);
-	  typedef  std::vector<CablingPathToDetUnit>::const_iterator IT;
-	  for  (IT it = path.begin(); it != path.end(); ++it) {
-	    const PixelROC* myroc = map_.product()->findItem(*it);
+	  for(const auto p : path){
+	    const PixelROC* myroc = map_.product()->findItem(p);
 	    if( myroc->idInDetUnit() == static_cast<unsigned int>(i_roc)) {
 	      LocalPixel::RocRowCol  local = {39, 25};//corresponding to center of ROC row,col
 	      GlobalPixel global = myroc->toGlobal( LocalPixel(local) );
 	      int chipIndex(0), colROC(0), rowROC(0);
-	      pIndexConverter->transformToROC(global.col,global.row,chipIndex,colROC,rowROC);
+	      pIndexConverter.transformToROC(global.col,global.row,chipIndex,colROC,rowROC);
 	      badRocsFromFEDChannels.at(chipIndex) = 1;	
 	    }
 	  }
@@ -1745,7 +1747,6 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   
   // Initilize the index converter
   //PixelIndices indexConverter(numColumns,numRows);
-  //std::unique_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));
 
   int chipIndex = 0;
   int rowROC = 0;
@@ -1762,10 +1763,10 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     int row = ip.first;  // X in row
     int col = ip.second; // Y is in col
     //transform to ROC index coordinates
-    pIndexConverter->transformToROC(col,row,chipIndex,colROC,rowROC);
-    int dColInChip = pIndexConverter->DColumn(colROC); // get ROC dcol from ROC col
+    pIndexConverter.transformToROC(col,row,chipIndex,colROC,rowROC);
+    int dColInChip = pIndexConverter.DColumn(colROC); // get ROC dcol from ROC col
     //dcol in mod
-    int dColInDet = pIndexConverter->DColumnInModule(dColInChip,chipIndex);
+    int dColInDet = pIndexConverter.DColumnInModule(dColInChip,chipIndex);
     
     chips[chipIndex]++;
     columns[dColInDet]++;
@@ -1813,10 +1814,10 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     int row = ip.first;  // X in row
     int col = ip.second; // Y is in col
     //transform to ROC index coordinates
-    pIndexConverter->transformToROC(col,row,chipIndex,colROC,rowROC);
-    int dColInChip = pIndexConverter->DColumn(colROC); //get ROC dcol from ROC col
+    pIndexConverter.transformToROC(col,row,chipIndex,colROC,rowROC);
+    int dColInChip = pIndexConverter.DColumn(colROC); //get ROC dcol from ROC col
     //dcol in mod
-    int dColInDet = pIndexConverter->DColumnInModule(dColInChip,chipIndex);
+    int dColInDet = pIndexConverter.DColumnInModule(dColInChip,chipIndex);
     
     //float rand  = RandFlat::shoot();
     float rand  = CLHEP::RandFlat::shoot(engine);
