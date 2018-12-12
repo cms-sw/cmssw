@@ -22,10 +22,10 @@ public:
 
   const SiPixelBadFEDChannelsScenarioMap& getScenarioMap () const  {return m_scenarioMap;}
 
-  SiPixelFEDChannelCollection   getSiPixelBadFedChannels(const std::string &ScenarioId) const;
-  SiPixelFEDChannelCollection & getSiPixelBadFedChannels(const std::string &ScenarioId);
+  SiPixelFEDChannelCollection getSiPixelBadFedChannels(const std::string &ScenarioId) const;
+  const SiPixelFEDChannelCollection & getSiPixelBadFedChannels(const std::string &ScenarioId);
 
-  std::vector<PixelFEDChannel>& getSiPixelBadFedChannelsInDetId(const std::string &theScenarioId,DetId theDetId);
+  const std::vector<PixelFEDChannel>& getSiPixelBadFedChannelsInDetId(const std::string &theScenarioId,DetId theDetId);
 
   std::unique_ptr<PixelFEDChannelCollection> getDetSetBadPixelFedChannels(const std::string &ScenarioId) const;
   
@@ -35,7 +35,7 @@ public:
   void printAll() const;
 
   //dumping values on output stream
-  void print(std::stringstream & ss) const;
+  void print(std::ostream & os) const;
 
 private:
 
