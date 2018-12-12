@@ -20,12 +20,14 @@ class CTPPSOpticalFunctionsESSource: public edm::ESProducer, public edm::EventSe
 {
   public:
     CTPPSOpticalFunctionsESSource(const edm::ParameterSet &);
-
-    ~CTPPSOpticalFunctionsESSource() {};
+    ~CTPPSOpticalFunctionsESSource() = default;
 
     edm::ESProducts<std::unique_ptr<LHCOpticalFunctionsCollection>> produce(const CTPPSOpticsRcd &);
+    static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
+
     double m_xangle1, m_xangle2;
     std::string m_fileName1, m_fileName2;
 
@@ -34,10 +36,7 @@ class CTPPSOpticalFunctionsESSource: public edm::ESProducer, public edm::EventSe
       std::string dirName;
       double scoringPlaneZ;
     };
-
     std::unordered_map<unsigned int, RPInfo> m_rpInfo;
-
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -65,15 +64,15 @@ CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::Paramete
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSOpticalFunctionsESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
-  const edm::IOVSyncValue& iosv, edm::ValidityInterval& oValidity)
+                                                   const edm::IOVSyncValue& iosv, edm::ValidityInterval& oValidity)
 {
   oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }
 
 //----------------------------------------------------------------------------------------------------
 
-edm::ESProducts< std::unique_ptr<LHCOpticalFunctionsCollection> >
-  CTPPSOpticalFunctionsESSource::produce(const CTPPSOpticsRcd &)
+edm::ESProducts<std::unique_ptr<LHCOpticalFunctionsCollection> >
+CTPPSOpticalFunctionsESSource::produce(const CTPPSOpticsRcd &)
 {
   // fill the output
   auto output = std::make_unique<LHCOpticalFunctionsCollection>();
@@ -98,4 +97,27 @@ edm::ESProducts< std::unique_ptr<LHCOpticalFunctionsCollection> >
 
 //----------------------------------------------------------------------------------------------------
 
+void
+CTPPSOpticalFunctionsESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
+  edm::ParameterSetDescription desc;
+  desc.add<double>("xangle1", 185.)->setComment("half crossing angle for sector 45");
+  desc.add<edm::FileInPath>("fileName1", edm::FileInPath())->setComment("optical functions input file for sector 45");
+  desc.add<double>("xangle2", 185.)->setComment("half crossing angle for sector 56");
+  desc.add<edm::FileInPath>("fileName2", edm::FileInPath())->setComment("optical functions input file for sector 56");
+
+  //--- information about scoring planes
+  edm::ParameterSetDescription sp_desc;
+  sp_desc.add<unsigned int>("rpId")->setComment("associated detector DetId");
+  sp_desc.add<std::string>("dirName")->setComment("associated path to the optical functions file");
+  sp_desc.add<double>("z")->setComment("longitudinal position at scoring plane/detector");
+  std::vector<edm::ParameterSet> sp;
+  desc.addVPSet("scoringPlanes", sp_desc, sp)->setComment("list of sensitive planes/detectors stations");
+
+  descriptions.add("ctppsOpticalFunctionsESSource", desc);
+}
+
+//----------------------------------------------------------------------------------------------------
+
 DEFINE_FWK_EVENTSETUP_SOURCE(CTPPSOpticalFunctionsESSource);
+

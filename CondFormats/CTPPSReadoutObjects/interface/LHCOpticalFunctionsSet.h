@@ -11,31 +11,24 @@
 
 #include "TSpline.h"
 
-/**
- \brief Set of optical functions corresponding to one scoring plane along LHC.
-**/
+/// Set of optical functions corresponding to one scoring plane along LHC.
 class LHCOpticalFunctionsSet
 {
   public:
-    /// indeces for m_fcn_values and m_splines data members
+    /// indices for m_fcn_values and m_splines data members
     enum { evx, eLx, e14, exd, evpx, eLpx, e24, expd, e32, evy, eLy, eyd, e42, evpy, eLpy, eypd };
 
-    LHCOpticalFunctionsSet() {}
-
+    LHCOpticalFunctionsSet() = default;
     /// fills m_*_values fields from a ROOT file
-    LHCOpticalFunctionsSet(const std::string &fileName, const std::string &directoryName, const double &z);
-
-    ~LHCOpticalFunctionsSet() {}
+    LHCOpticalFunctionsSet(const std::string &fileName, const std::string &directoryName, double z);
+    ~LHCOpticalFunctionsSet() = default;
 
     /// returns the position of the scoring plane (LHC/TOTEM convention)
     double getScoringPlaneZ() const { return m_z; }
-
     const std::vector<double>& getXiValues() const { return m_xi_values; }
-
     const std::array<std::vector<double>, 16>& getFcnValues() const { return m_fcn_values; }
-
     const std::array<std::shared_ptr<TSpline3>, 16>& getSplines() const { return m_splines; }
-  
+
     /// builds splines from m_*_values fields
     void initializeSplines();
 
@@ -48,7 +41,7 @@ class LHCOpticalFunctionsSet
       double th_y;  // physics scattering angle, rad
       double xi;    // relative momentum loss (positive for diffractive protons)
     };
-  
+
     /// transports proton according to the splines
     void transport(const Kinematics &input, Kinematics &output, bool calculateAngles = false) const;
 
@@ -59,14 +52,12 @@ class LHCOpticalFunctionsSet
   private:
     /// position of the scoring plane, in LHC/TOTEM convention, m
     double m_z;
-
     std::vector<double> m_xi_values;
-
     std::array<std::vector<double>, 16> m_fcn_values;
-
     std::array<std::shared_ptr<TSpline3>, 16> m_splines;
-    
+
     COND_SERIALIZABLE;
 };
 
 #endif
+
