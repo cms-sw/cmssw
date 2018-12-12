@@ -1653,7 +1653,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     if (it != eff.PixelFEDChannelCollection_->end()){      
       for(const auto& ch: *it) {	
 	for (unsigned int i_roc = ch.roc_first; i_roc <= ch.roc_last; ++i_roc){
-	  std::vector<CablingPathToDetUnit> path = map_.product()->pathToDetUnit(detID);
+	  std::vector<CablingPathToDetUnit> path = map_->pathToDetUnit(detID);
 	  typedef  std::vector<CablingPathToDetUnit>::const_iterator IT;
 	  for  (IT it = path.begin(); it != path.end(); ++it) {
 	    const PixelROC* myroc = map_.product()->findItem(*it);
