@@ -64,4 +64,4 @@ FWHGCalMultiClusterLegoProxyBuilder::fillCaloData()
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWHGCalMultiClusterLegoProxyBuilder, std::vector<reco::HGCalMultiCluster>, "CaloFTW2", FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits);
+REGISTER_FWPROXYBUILDER(FWHGCalMultiClusterLegoProxyBuilder, std::vector<reco::HGCalMultiCluster>, "HGCMultiClusterLego", FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits);
