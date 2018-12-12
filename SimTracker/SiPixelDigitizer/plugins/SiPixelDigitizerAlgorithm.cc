@@ -1645,7 +1645,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   std::vector<double> pixelEfficiencyROCStdPixels(16,1);
   std::vector<double> pixelEfficiencyROCBigPixels(16,1);
   
-  std::unique_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));  
+  auto pIndexConverter = PixelIndices(numColumns,numRows);
   
   std::vector<int> badRocsFromFEDChannels(16,0);  
   if (eff.PixelFEDChannelCollection_ != nullptr){
