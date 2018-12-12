@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco2D.cc (Version 2.60)
+//  SiPixelTemplateReco2D.cc (Version 2.90)
 //  Updated to work with the 2D template generation code
 //  Include all bells and whistles for edge clusters
 //  2.10 - Add y-lorentz drift to estimate starting point [for FPix]
@@ -11,6 +11,9 @@
 //  2.55 - Fix another double pixel flag problem and a small pseudopixel problem in the edgegflagy = 3 case.
 //  2.60 - Modify the algorithm to return the point with the best chi2 from the starting point scan when
 //         the iterative procedure does not converge [eg 1 pixel clusters]
+//  2.70 - Change convergence criterion to require it in both planes [it was either]
+//  2.80 - Change 3D to 2D
+//  2.90 - Fix divide by zero for separate 1D convergence branch
 //
 //
 //
@@ -92,7 +95,7 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta
    
    const int nilist = 9, njlist = 5;
    const float ilist[nilist] = {0.f, -1.f, -0.75f, -0.5f, -0.25f, 0.25f, 0.5f, 0.75f, 1.f};
-   const float jlist[njlist] = {0.f, -0.5f, -0.25f, 0.25f, 0.5f};
+   const float jlist[njlist] = {0.f, -0.5f, -0.25f, 0.25f, 0.50f};
    
    
    // Extract some relevant info from the 2D template
@@ -227,6 +230,17 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta
          }
       }
    }
+
+// Make sure that we find at least one pixel   
+   if(npixel < 1) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+      throw cms::Exception("DataCorrupt") << "PixelTemplateReco2D::number of pixels above threshold = " << npixel << std::endl;
+#else
+      std::cout << "PixelTemplateReco2D::number of pixels above threshold = " << npixel << std::endl;
+#endif
+      return 1;
+   }
+
 // Get the shifted coordinates of the cluster ends
    xlow0 = xe[jmin];
    xhigh0 = xe[jmax+1];
@@ -330,7 +344,7 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta
    float chi2min[2], xerr2[2], yerr2[2];
    float x2D0[2], y2D0[2], qtfrac0[2];
    int ipass, tpixel;
-   // niter0[ipass] = niter;   // Not used -- comment out for now.
+   //int niter0[2];
    
    for(ipass = 0; ipass < npass; ++ipass) {
       
@@ -443,11 +457,13 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta
       
       chi2min[ipass] = 1000000.f;
       float chi2, qtemplate, qactive, qtfrac = 0.f, x2D = 0.f, y2D = 0.f;
-    
+//  Scale the y search grid for long clusters [longer than 7 pixels]
+      float ygridscale = 0.271*cotbeta;
+      if(ygridscale < 1.f) ygridscale = 1.f;
       for(int is = 0; is<nilist; ++is) {
          for(int js = 0; js<njlist; ++js) {
             float xtry = x0 + jlist[js]*xsize;
-            float ytry = y0 + ilist[is]*ysize;
+            float ytry = y0 + ilist[is]*ygridscale*ysize;
             chi2 = 0.f;
             qactive = 0.f;
             for(int j=0; j<BXM2; ++j) {for(int i=0; i<BYM2; ++i) {template2d[j][i] = 0.f;}}
@@ -473,8 +489,7 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta
       float xstep = 1.0f, ystep = 1.0f;
       float minv11 = 1000.f, minv12 = 1000.f, minv22 = 1000.f;
       chi2 = chi2min[ipass];
-      // int niter0[2];
-      while(chi2 <= chi2min[ipass] && niter < 15 && (niter < 2 || (fabs(xstep) > 0.2 && fabs(ystep) > 0.2))) {
+      while(chi2 <= chi2min[ipass] && niter < 15 && (niter < 2 || (fabs(xstep) > 0.2 || fabs(ystep) > 0.2))) {
          
          // Remember the present parameters
          x2D0[ipass] = x2D;
@@ -483,6 +498,7 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta
          xerr2[ipass] = minv11;
          yerr2[ipass] = minv22;
          chi2min[ipass] = chi2;
+         //niter0[ipass] = niter;
          
          // Calculate the initial template which also allows the error calculation for the struck pixels
          
@@ -531,9 +547,11 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta
             ystep = minv12*sumptdt1 + minv22*sumptdt2;
 
          } else {
+
 //  Assume alternately that ystep = 0 and then xstep = 0
-            xstep = sumptdt1/sumdtdt11;
-            ystep = sumptdt2/sumdtdt22;  
+
+            if(fabs(sumdtdt11) > 0.0001f) {xstep = sumptdt1/sumdtdt11;} else {xstep = 0.f;}
+            if(fabs(sumdtdt22) > 0.0001f) {ystep = sumptdt2/sumdtdt22;} else {ystep = 0.f;}
          }     
          xstep *= 0.9f;     
          ystep *= 0.9f;
@@ -545,19 +563,17 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta
    }
    
    ipass = 0;
-
-//--- Somewhat experimental, keep this commented out:
 //   if(npass == 1) {
-//      // one pass, require that it have iterated
+      // one pass, require that it have iterated
 //      if(niter0[0] == 0) {return 2;}
 //   } else {
-//      // two passes
+      // two passes
 //      if(niter0[0] == 0 && niter0[1] == 0) {return 2;}
 //      if(niter0[0] > 0 && niter0[1] > 0) {
-//         // if both have iterated, take the smaller chi2
+         // if both have iterated, take the smaller chi2
 //         if(chi2min[1] < chi2min[0]) {ipass = 1;}
 //      } else {
-//         // if one has iterated, take it
+         // if one has iterated, take it
 //         if(niter0[1] > 0) {ipass = 1;}
 //      }
 //   }

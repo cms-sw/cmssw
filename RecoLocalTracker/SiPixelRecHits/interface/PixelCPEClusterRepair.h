@@ -96,8 +96,8 @@ private:
    std::string templateDir_ ;
 
    // Configure 2D reco.
-   float minProbY_ ;
-   int   maxSizeMismatchInY_ ;
+   float minChargeRatio_;
+   float maxSizeMismatchInY_ ;
    
    //bool DoCosmics_;
    //bool LoadTemplatesFromDB_;
