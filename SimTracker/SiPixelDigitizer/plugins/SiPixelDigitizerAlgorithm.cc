@@ -1654,9 +1654,9 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     PixelFEDChannelCollection::const_iterator it = eff.PixelFEDChannelCollection_->find(detID);
     
     if (it != eff.PixelFEDChannelCollection_->end()){      
+      const std::vector<CablingPathToDetUnit> &path = map_->pathToDetUnit(detID);
       for(const auto& ch: *it) {	
 	for (unsigned int i_roc = ch.roc_first; i_roc <= ch.roc_last; ++i_roc){
-	  std::vector<CablingPathToDetUnit> path = map_->pathToDetUnit(detID);
 	  for(const auto p : path){
 	    const PixelROC* myroc = map_.product()->findItem(p);
 	    if( myroc->idInDetUnit() == static_cast<unsigned int>(i_roc)) {
@@ -1672,8 +1672,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     } // detID in PixelFEDChannelCollection_
   } // has PixelFEDChannelCollection_
   
-  
-
+ 
   if (eff.FromConfig) {
     // setup the chip indices conversion
     if    (pixdet->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel ||
