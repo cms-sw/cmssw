@@ -58,8 +58,8 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
     usererrorlist = config_.getParameter<std::vector<int> > ("UserErrorList");
   }
   tFEDRawDataCollection = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("InputLabel"));
-  
-  theBadPixelFEDChannelsLabel = consumes<PixelFEDChannelCollection>(edm::InputTag("mix"));
+  //  theBadPixelFEDChannelsLabel = consumes<PixelFEDChannelCollection>(edm::InputTag("mix"));
+  theBadPixelFEDChannelsLabel = consumes<PixelFEDChannelCollection>(config_.getParameter<edm::InputTag>("BadPixelFEDChannelsInputLabel"));
   
   //start counters
   ndigis = 0;
@@ -154,6 +154,7 @@ SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<bool>("UsePhase1",false)->setComment("##  Use phase1");
   desc.add<std::string>("CablingMapLabel","")->setComment("CablingMap label"); //Tav
   desc.addOptional<bool>("CheckPixelOrder");  // never used, kept for back-compatibility
+  desc.add<edm::InputTag>("BadPixelFEDChannelsInputLabel",edm::InputTag("mixData"));  
   descriptions.add("siPixelRawToDigi",desc);
   
 }

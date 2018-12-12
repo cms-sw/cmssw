@@ -108,6 +108,7 @@ premix_stage1.toModify(SiPixelSimBlock,
     AddNoise = True,
     AddNoisyPixels = False,
     AddPixelInefficiency = False, #done in second step
+    KillBadFEDChannels = False, #done in second step
 )
 
 # Threshold in electrons are the Official CRAFT09 numbers:
