@@ -9,10 +9,10 @@
 
 class MTDTrackingRecHit : public TrackerSingleRecHit {
     public:
-        
+
         MTDTrackingRecHit() : TrackerSingleRecHit() {}
         
-	MTDTrackingRecHit(const LocalPoint& p, const LocalError& e,
+        MTDTrackingRecHit(const LocalPoint& p, const LocalError& e,
 			  const GeomDet& idet, const FTLClusterRef& objref) :
 	  TrackerSingleRecHit(p, e, idet, trackerHitRTTI::mipTiming, objref)
 	  {}

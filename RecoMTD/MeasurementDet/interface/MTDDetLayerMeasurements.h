@@ -29,14 +29,10 @@ class DetLayer;
 class GeomDet;
 class TrajectoryMeasurement;
 
-
-//FIXME: these typedefs MUST GO inside the scope of MTDDetLayerMeasurements
-typedef std::vector<TrajectoryMeasurement>          MeasurementContainer;
-typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
-
-
 class MTDDetLayerMeasurements {
  public:
+  typedef std::vector<TrajectoryMeasurement>          MeasurementContainer;
+  typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
   typedef std::vector<GenericTransientTrackingRecHit::RecHitPointer> MTDRecHitContainer;
 
   MTDDetLayerMeasurements(edm::InputTag mtdlabel,

@@ -2,12 +2,12 @@
  *
  */
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/stream/EDProducer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 #include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
@@ -26,11 +26,9 @@
 #include "RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h"
 #include "RecoMTD/DetLayers/interface/MTDDetRing.h"
 
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-
-#include <DataFormats/ForwardDetId/interface/BTLDetId.h>
-#include <DataFormats/ForwardDetId/interface/ETLDetId.h>
-#include <DataFormats/ForwardDetId/interface/MTDChannelIdentifier.h>
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
+#include "DataFormats/ForwardDetId/interface/MTDChannelIdentifier.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -50,8 +48,6 @@
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 
 #include <sstream>
-
-#include "CLHEP/Random/RandFlat.h"
 
 #include "Geometry/CommonTopologies/interface/Topology.h"
 
@@ -196,7 +192,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce( edm::Event& ev,
     if( ordering == RefitDirection::insideOut) {
           for( auto& ahit : mtdthits ) thits.push_back(ahit);    
     } else {
-          std::reverse(mtdthits.begin(),mtdthits.end());
+      std::reverse(mtdthits.begin(),mtdthits.end());
       for( auto& ahit : thits ) mtdthits.push_back(ahit);
       thits.swap(mtdthits);
     }
@@ -205,7 +201,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce( edm::Event& ev,
       
       const auto& thetrj = (updateTraj_ ? trj : trajs.front());
       reco::Track result = buildTrack(track, thetrj, trj, bs, magfield.product(), !mtdthits.empty());
-      if( result.ndof() > 0 ) {
+      if( result.ndof() >= 0 ) {
         /// setup the track extras
         reco::TrackExtra::TrajParams trajParams;
         reco::TrackExtra::Chi2sFive chi2s; 
@@ -249,8 +245,8 @@ TrackExtenderWithMTDT<TrackCollection>::tryBTLLayers(const TrackType& track,
 
   auto tTrack = builder->build(track);
 
-  for (auto ilay = layers.begin(); ilay!=layers.end(); ++ilay) {
-    const MTDTrayBarrelLayer* layer = (const MTDTrayBarrelLayer*) (*ilay);
+  for (const DetLayer* ilay : layers) {
+    const MTDTrayBarrelLayer* layer = (const MTDTrayBarrelLayer*) (ilay);
     
     // get the outermost trajectory point on the track    
     TrajectoryStateOnSurface tsos = tTrack.outermostMeasurementState();
@@ -299,8 +295,8 @@ TrackExtenderWithMTDT<TrackCollection>::tryETLLayers(const TrackType& track,
 
   auto tTrack = builder->build(track);
 
-  for (auto ilay = layers.begin(); ilay!=layers.end(); ++ilay) {
-    const MTDRingForwardDoubleLayer* layer = (const MTDRingForwardDoubleLayer*) (*ilay);
+  for (const DetLayer*& ilay : layers) {
+    const MTDRingForwardDoubleLayer* layer = (const MTDRingForwardDoubleLayer*) (ilay);
     const BoundDisk& disk = layer->specificSurface();
     const double diskZ = disk.position().z();
 
@@ -465,7 +461,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
   }
   
   return reco::Track(traj.chiSquared(),
-		     int(ndof),//FIXME fix weight() in TrackingRecHit
+		     int(ndof),
 		     pos, mom, tscbl.trackStateAtPCA().charge(), 
 		     tscbl.trackStateAtPCA().curvilinearError(),
 		     orig.algo(),reco::TrackBase::undefQuality,t0,0,covt0t0,-1.);
@@ -474,7 +470,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
 template<class TrackCollection>
 reco::TrackExtra TrackExtenderWithMTDT<TrackCollection>::buildTrackExtra(const Trajectory& trajectory) const {
 
-  const string metname = "MTD|RecoMTD|TrackExtenderWithMTD";
+  static const string metname = "MTD|RecoMTD|TrackExtenderWithMTD";
 
   const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
   
@@ -566,7 +562,5 @@ string TrackExtenderWithMTDT<TrackCollection>::dumpLayer(const DetLayer* layer) 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 typedef TrackExtenderWithMTDT<reco::TrackCollection> TrackExtenderWithMTD;
-//typedef TrackExtenderWithMTDT<reco::GsfTrackCollection> GSFTrackExtenderWithMTD;
 
 DEFINE_FWK_MODULE(TrackExtenderWithMTD);
-//DEFINE_FWK_MODULE(GSFTrackExtenderWithMTD);
