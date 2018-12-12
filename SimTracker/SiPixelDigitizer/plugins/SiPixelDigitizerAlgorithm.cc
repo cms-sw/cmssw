@@ -787,7 +787,7 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(const std::vector<Pileup
 
 // ==========  StuckTBMs 
 
-bool SiPixelDigitizerAlgorithm::killBadFEDChannels(){return KillBadFEDChannels;}
+bool SiPixelDigitizerAlgorithm::killBadFEDChannels() const {return KillBadFEDChannels;}
 
 
 void SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine  *engine, std::unique_ptr<PixelFEDChannelCollection> &PixelFEDChannelCollection_){
