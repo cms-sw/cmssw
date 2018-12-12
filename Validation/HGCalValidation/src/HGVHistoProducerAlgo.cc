@@ -176,9 +176,9 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
     
     const std::vector<std::pair<DetId, float> > hits_and_fractions = clusters[layerclusterIndex].hitsAndFractions();
 
-    // const DetId seedid = clusters[layerclusterIndex].seed();
-    // const double seedx = recHitTools_->getPosition(seedid).x();
-    // const double seedy = recHitTools_->getPosition(seedid).y();
+    const DetId seedid = clusters[layerclusterIndex].seed();
+    const double seedx = recHitTools_->getPosition(seedid).x();
+    const double seedy = recHitTools_->getPosition(seedid).y();
     // const DetId maxid = clusters[layerclusterIndex].max();
     // double maxx = recHitTools_->getPosition(maxid).x();
     // double maxy = recHitTools_->getPosition(maxid).y();
