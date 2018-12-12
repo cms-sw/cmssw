@@ -60,7 +60,6 @@ class HGVHistoProducerAlgo {
   void fill_generic_cluster_histos(const Histograms& histograms,
 				   int count,
 				   const reco::CaloClusterCollection &clusters,
-				   const edm::EventSetup& setup,
 				   unsigned layers, 
 				   std::vector<int> thicknesses) const ;
 

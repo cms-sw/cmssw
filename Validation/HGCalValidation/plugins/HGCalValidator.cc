@@ -147,7 +147,6 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event, const edm::EventSetup& 
   LogTrace("HGCalValidator") << "\n# of CaloParticles: " << caloParticles.size() << "\n";
   std::vector<size_t> selected_cPeff;
   cpParametersAndSelection(histograms, caloParticles, simVertices, selected_cPeff);
-
   
   int w=0; //counter counting the number of sets of histograms
   for (unsigned int www=0;www<label.size();www++, w++){ // need to increment w here, since there will be many continues in the loop body
@@ -157,13 +156,12 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event, const edm::EventSetup& 
     event.getByToken(labelToken[www],clusterHandle);
     const reco::CaloClusterCollection &clusters = *clusterHandle;
 
-
     // ##############################################
     // fill cluster histograms (LOOP OVER CLUSTERS)
     // ##############################################
     if(!dolayerclustersPlots_){continue;}
 
-    histoProducerAlgo_->fill_generic_cluster_histos(histograms.histoProducerAlgo,w,clusters,setup, totallayers_to_monitor_, thicknesses_to_monitor_);
+    histoProducerAlgo_->fill_generic_cluster_histos(histograms.histoProducerAlgo,w,clusters,totallayers_to_monitor_, thicknesses_to_monitor_);
 
     for (unsigned int layerclusterIndex = 0; layerclusterIndex < clusters.size(); layerclusterIndex++) {
 
