@@ -27,30 +27,26 @@ class ProtonReconstructionAlgorithm
 {
   public:
     ProtonReconstructionAlgorithm(bool fit_vtx_y, unsigned int verbosity);
+    ~ProtonReconstructionAlgorithm() = default;
 
-    ~ProtonReconstructionAlgorithm() {}
+    void init(const std::unordered_map<unsigned int, LHCOpticalFunctionsSet> &opticalFunctions);
+    void release();
 
-    /// runs proton reconstruction using single-RP strategy
+    /// run proton reconstruction using single-RP strategy
     void reconstructFromSingleRP(const reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector &input,
       std::vector<reco::ProtonTrack> &output,
       std::vector<reco::ProtonTrackExtra> &outputExtra,
-      const LHCInfo &lhcInfo, std::stringstream &ssLog) const;
+      const LHCInfo &lhcInfo) const;
 
-    /// runs proton reconstruction using multiple-RP strategy
+    /// run proton reconstruction using multiple-RP strategy
     void reconstructFromMultiRP(const reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector &input,
       std::vector<reco::ProtonTrack> &output,
       std::vector<reco::ProtonTrackExtra> &outputExtra,
-      const LHCInfo &lhcInfo, std::stringstream &ssLog) const;
-
-    void init(const std::unordered_map<unsigned int, LHCOpticalFunctionsSet> &opticalFunctions);
-
-    void release();
+      const LHCInfo &lhcInfo) const;
 
   private:
     unsigned int verbosity_;
-
     bool fitVtxY_;
-
     bool initialized_;
 
     /// optics data associated with 1 RP
@@ -58,9 +54,12 @@ class ProtonReconstructionAlgorithm
     {
       const LHCOpticalFunctionsSet *optics;
       std::shared_ptr<TSpline3> s_xi_vs_x_d, s_y_d_vs_xi, s_v_y_vs_xi, s_L_y_vs_xi;
-      double x0, y0;  // beam position, m
-      double ch0, ch1;  // linear approximation (intercept and slope) of x(xi)
-      double la0, la1;  // linear approximation (intercept and slope) of L_x(xi)
+      double x0; ///< beam horizontal position, m
+      double y0; ///< beam vertical position, m
+      double ch0; ///< intercept for linear approximation of \f$x(\xi)\f$
+      double ch1; ///< slope for linear approximation of \f$x(\xi)\f$
+      double la0; ///< intercept for linear approximation of \f$L_x(\xi)\f$
+      double la1; ///< slope for linear approximation of \f$L_x(\xi)\f$
     };
 
     /// map: RP id --> optics data
@@ -70,12 +69,12 @@ class ProtonReconstructionAlgorithm
     class ChiSquareCalculator
     {
       public:
-        ChiSquareCalculator() {}
+        ChiSquareCalculator() = default;
 
         double operator() (const double *parameters) const;
 
-        const reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector *tracks_;
-        const std::map<unsigned int, RPOpticsData> *m_rp_optics_;
+        const reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector* tracks;
+        const std::map<unsigned int, RPOpticsData>* m_rp_optics;
     };
 
     /// fitter object
@@ -86,3 +85,4 @@ class ProtonReconstructionAlgorithm
 };
 
 #endif
+
