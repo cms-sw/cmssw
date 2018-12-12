@@ -5,7 +5,7 @@
 #include <iomanip>      // std::setw
 
 //****************************************************************************//
-void SiPixelQualityProbabilities::setProbabilities(const unsigned int &puBin, const probabilityVec &theProbabilities) {
+void SiPixelQualityProbabilities::setProbabilities(const unsigned int puBin, const probabilityVec &theProbabilities) {
 
   if( m_probabilities.find(puBin) != m_probabilities.end()){
     edm::LogWarning("SiPixelQualityProbabilities") << "PU bin: " << puBin <<" is already in the map!"<<std::endl;
@@ -16,7 +16,7 @@ void SiPixelQualityProbabilities::setProbabilities(const unsigned int &puBin, co
 }
 
 //****************************************************************************//
-SiPixelQualityProbabilities::probabilityVec SiPixelQualityProbabilities::getProbabilities(const unsigned int &puBin) const {
+SiPixelQualityProbabilities::probabilityVec SiPixelQualityProbabilities::getProbabilities(const unsigned int puBin) const {
   probabilityMap::const_iterator it = m_probabilities.find(puBin);
 
   if (it != m_probabilities.end()){
@@ -27,12 +27,15 @@ SiPixelQualityProbabilities::probabilityVec SiPixelQualityProbabilities::getProb
 }
 
 //****************************************************************************//
-SiPixelQualityProbabilities::probabilityVec& SiPixelQualityProbabilities::getProbabilities(const unsigned int &puBin) {
+const SiPixelQualityProbabilities::probabilityVec& SiPixelQualityProbabilities::getProbabilities(const unsigned int puBin) {
+  probabilityMap::const_iterator it = m_probabilities.find(puBin);
 
-  if( m_probabilities.find(puBin) == m_probabilities.end()){
-    throw cms::Exception("SiPixelQualityProbabilities") << "PU bin: " << puBin <<" is not found in the map!"<<std::endl;
+  if (it != m_probabilities.end()){
+    return it->second;
+  } else {
+    throw cms::Exception("SiPixelQualityProbabilities")<< "No Probabilities are defined for PU bin " << puBin << "\n";
   }
-  return m_probabilities[puBin];
+
 }
 
 
@@ -51,12 +54,12 @@ void SiPixelQualityProbabilities::printAll() const {
 }
 
 //****************************************************************************//
-void SiPixelQualityProbabilities::print(std::stringstream & ss) const {
+void SiPixelQualityProbabilities::print(std::ostream & os) const {
 
   for(auto it = m_probabilities.begin(); it != m_probabilities.end() ; ++it){
-    ss<< "PU :"<< it->first << "  \n ";
+    os<< "PU :"<< it->first << "  \n ";
     for (const auto &entry : it->second){
-      ss<<"SiPixelQuality snapshot: " <<  entry.first << " |probability: " << entry.second <<  std::endl;
+      os<<"SiPixelQuality snapshot: " <<  entry.first << " |probability: " << entry.second <<  std::endl;
     }
   }
 
