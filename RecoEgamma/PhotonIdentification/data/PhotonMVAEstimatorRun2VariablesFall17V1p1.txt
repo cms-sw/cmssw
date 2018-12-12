@@ -22,7 +22,7 @@ s4                        full5x5_showerShapeVariables.e2x2/full5x5_showerShapeV
 scEta                     superCluster.eta                                                    None None
 rho                       fixedGridRhoAll                                                     None None
 esEffSigmaRR              full5x5_showerShapeVariables.effSigmaRR                             None None
-esEnergy/SCRawE           superCluster.preshowerEnergy/superCluster.rawEnergy                 None None
+esEnergyOverRawE          superCluster.preshowerEnergy/superCluster.rawEnergy                 None None
 phoIso03                  photonIDValueMapProducer:phoPhotonIsolation                         None None
 chgIsoWrtChosenVtx        photonIDValueMapProducer:phoChargedIsolation                        None None
 chgIsoWrtWorstVtx         photonIDValueMapProducer:phoWorstChargedIsolation                   None None

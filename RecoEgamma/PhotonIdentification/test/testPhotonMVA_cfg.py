@@ -38,6 +38,7 @@ my_id_modules = [
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff',
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1_cff',
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1p1_cff',
+        'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff',
                  ]
 
 #add them to the VID producer
@@ -62,11 +63,13 @@ process.ntuplizer = cms.EDAnalyzer('PhotonMVANtuplizer',
                                            "photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring16NonTrigV1Values",
                                            "photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1Values",
                                            "photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1p1Values",
+                                           "photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v2Values",
                                            ),
         phoMVAValMapLabels   = cms.untracked.vstring(
                                            "Spring16NonTrigV1",
                                            "Fall17v1",
                                            "Fall17v1p1",
+                                           "Fall17v2",
                                            ),
         phoMVACats           = cms.untracked.vstring(
                                            "photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1Categories",
