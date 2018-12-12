@@ -30,11 +30,10 @@ GlobalDetLayerGeometryESProducer::produce(const RecoGeometryRecord & iRecord){
   
   // get the MTD if it is available
   if(auto mtdRecord = iRecord.tryToGetRecord<MTDRecoGeometryRecord>()) {
-    mtdRecord->get(mtd) {
-      if(!mtd.isValid()) {
-        LogInfo("GlobalDetLayergGeometryBuilder") << "No MTD geometry is available.";
-      }
-    }
+    mtdRecord->get(mtd);
+    if(!mtd.isValid()) {
+      LogInfo("GlobalDetLayergGeometryBuilder") << "No MTD geometry is available.";
+    } 
   } else {
     LogInfo("GlobalDetLayerGeometryBuilder") << "No MTDDigiGeometryRecord is available.";
   }

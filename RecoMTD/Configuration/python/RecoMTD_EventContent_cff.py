@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #FEVT
 RecoMTDFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep *_mtdTrackExtender_*_*',
+        'keep *_mtdTrackExtender_*_*'        
         )
 )
 #RECO content

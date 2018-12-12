@@ -17,6 +17,8 @@
 
 typedef std::shared_ptr<GenericTransientTrackingRecHit> MTDRecHitPointer;
 typedef std::vector<GenericTransientTrackingRecHit::RecHitPointer> MTDRecHitContainer;
+typedef MTDDetLayerMeasurements::MeasurementContainer MeasurementContainer;
+
 
 MTDDetLayerMeasurements::MTDDetLayerMeasurements(edm::InputTag mtdlabel,
 						 edm::ConsumesCollector& iC): 
@@ -146,7 +148,7 @@ MTDDetLayerMeasurements::fastMeasurements( const DetLayer* layer,
 					   const edm::Event& iEvent) {
   MeasurementContainer result;
   MTDRecHitContainer rhs = recHits(layer, iEvent);
-  for (auto* irh: rhs) {
+  for (MTDRecHitContainer::value_type irh: rhs) {
     MeasurementEstimator::HitReturnType estimate = est.estimate(theStateOnDet, (*irh));
     if (estimate.first)
       {
@@ -209,7 +211,7 @@ MTDDetLayerMeasurements::groupedMeasurements(const DetLayer* layer,
     if (!groupMeasurements.empty()) 
       std::sort( groupMeasurements.begin(), groupMeasurements.end(), TrajMeasLessEstim());  
     
-    result.push_back(TrajectoryMeasurementGroup(groupMeasurements, *grp));
+    result.push_back(TrajectoryMeasurementGroup(groupMeasurements, grp));
   }
 
   return result;
