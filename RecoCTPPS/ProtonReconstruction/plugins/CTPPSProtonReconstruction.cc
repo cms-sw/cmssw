@@ -141,6 +141,11 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
     }
   }
 
+  // prepare log
+  std::ostringstream ssLog;
+  if (verbosity_)
+    ssLog << "input tracks:";
+
   // get input
   Handle<std::vector<CTPPSLocalTrackLite> > hTracks;
   event.getByToken(tracksToken_, hTracks);
@@ -155,10 +160,10 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
       continue;
 
     if (verbosity_)
-      LogDebug("CTPPSProtonReconstruction")
+      ssLog << "\n"
         << "    " << tr.getRPId() << " (" << (rpId.arm()*100 + rpId.station()*10 + rpId.rp()) << "): "
         << "x = " << tr.getX() << " +- " << tr.getXUnc() << " mm"
-        << ", y=" << tr.getY() << " +- " << tr.getYUnc() << " mm" << std::endl;
+        << ", y=" << tr.getY() << " +- " << tr.getYUnc() << " mm";
 
     if (rpId.arm() == 0)
       tracks_45.emplace_back(hTracks, idx);
@@ -170,23 +175,23 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
 
   // for the moment: check whether there is no more than 1 track in each arm
   bool singleTrack_45 = true, singleTrack_56 = true;
-  for_each(nTracksPerRP.begin(), nTracksPerRP.end(), [&singleTrack_45,&singleTrack_56](const auto& p) {
-    if (p.second > 1) {
-      CTPPSDetId rpId(p.first);
+  for (const auto& detid_num : nTracksPerRP) {
+    if (detid_num.second > 1) {
+      CTPPSDetId rpId(detid_num.first);
       if (rpId.arm() == 0)
         singleTrack_45 = false;
       if (rpId.arm() == 1)
         singleTrack_56 = false;
     }
-  });
+  }
 
   // single-RP reconstruction
   if (doSingleRPReconstruction_) {
     unique_ptr<reco::ProtonTrackCollection> output(new reco::ProtonTrackCollection);
     unique_ptr<reco::ProtonTrackExtraCollection> outputExtra(new reco::ProtonTrackExtraCollection);
 
-    algorithm_.reconstructFromSingleRP(tracks_45, *output, *outputExtra, *hLHCInfo);
-    algorithm_.reconstructFromSingleRP(tracks_56, *output, *outputExtra, *hLHCInfo);
+    algorithm_.reconstructFromSingleRP(tracks_45, *output, *outputExtra, *hLHCInfo, ssLog);
+    algorithm_.reconstructFromSingleRP(tracks_56, *output, *outputExtra, *hLHCInfo, ssLog);
 
     auto ohExtra = event.put(move(outputExtra), singleRPLabel_);
 
@@ -202,9 +207,9 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
     unique_ptr<reco::ProtonTrackExtraCollection> outputExtra(new reco::ProtonTrackExtraCollection);
 
     if (singleTrack_45)
-      algorithm_.reconstructFromMultiRP(tracks_45, *output, *outputExtra, *hLHCInfo);
+      algorithm_.reconstructFromMultiRP(tracks_45, *output, *outputExtra, *hLHCInfo, ssLog);
     if (singleTrack_56)
-      algorithm_.reconstructFromMultiRP(tracks_56, *output, *outputExtra, *hLHCInfo);
+      algorithm_.reconstructFromMultiRP(tracks_56, *output, *outputExtra, *hLHCInfo, ssLog);
 
     auto ohExtra = event.put(move(outputExtra), multiRPLabel_);
 
@@ -213,6 +218,9 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
 
     event.put(move(output), multiRPLabel_);
   }
+
+  if (verbosity_)
+    edm::LogInfo("CTPPSProtonReconstruction") << ssLog.str();
 }
 
 //----------------------------------------------------------------------------------------------------

@@ -145,7 +145,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   const reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector &tracks,
   std::vector<reco::ProtonTrack> &output,
   std::vector<reco::ProtonTrackExtra> &outputExtra,
-  const LHCInfo &lhcInfo) const
+  const LHCInfo &lhcInfo, std::ostream& os) const
 {
   if (!initialized_)
     return;
@@ -237,7 +237,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   unsigned int armId = CTPPSDetId((*tracks.begin())->getRPId()).arm();
 
   if (verbosity_)
-    LogDebug("ProtonReconstructionAlgorithm")
+    os << "\n"
       << "ProtonReconstructionAlgorithm::reconstructFromMultiRP(" << armId << ")" << std::endl
       << "    initial estimate: xi_init = " << xi_init << ", th_x_init = " << th_x_init
       << ", th_y_init = " << th_y_init << ", vtx_y_init = " << vtx_y_init << ".";
@@ -262,7 +262,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   const double *params = result.GetParams();
 
   if (verbosity_)
-    LogDebug("ProtonReconstructionAlgorithm") << "    fit: "
+    os << "\n"
       << "xi=" << params[0] << " +- " << result.Error(0)
       << ", th_x=" << params[1] << " +-" << result.Error(1)
       << ", th_y=" << params[2] << " +-" << result.Error(2)
@@ -322,7 +322,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
   const reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector &tracks,
   std::vector<reco::ProtonTrack> &output,
   std::vector<reco::ProtonTrackExtra> &outputExtra,
-  const LHCInfo &lhcInfo) const
+  const LHCInfo &lhcInfo, std::ostream& os) const
 {
   if (!initialized_)
     return;
@@ -343,7 +343,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     unsigned int decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
 
     if (verbosity_)
-      LogDebug("ProtonReconstructionAlgorithm") << "reconstructFromSingleRP(" << decRPId << ")";
+      os << "\nreconstructFromSingleRP(" << decRPId << ")";
 
     auto oit = m_rp_optics_.find(track->getRPId());
     const double x_full = track->getX() * 1E-3 + oit->second.x0; // conversions mm --> m
@@ -360,7 +360,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     const double th_y_unc = th_y * sqrt( pow(track->getYUnc() / track->getY(), 2.) + pow(dL_y_dxi * xi_unc / L_y, 2.) );
 
     if (verbosity_)
-      LogDebug("ProtonReconstructionAlgorithm") << "    xi = " << xi << " +- " << xi_unc << ", th_y = " << th_y << " +- " << th_y_unc << ".";
+      os << "\n    xi = " << xi << " +- " << xi_unc << ", th_y = " << th_y << " +- " << th_y_unc << ".";
 
     using EX = reco::ProtonTrackExtra;
     using PT = reco::ProtonTrack;
