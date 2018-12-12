@@ -406,7 +406,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       for (auto it=trajWithMtd.measurements().begin(); it!=trajWithMtd.measurements().end(); ++it) {
         bool ismtd = it->recHit()->geographicalId().det() == DetId::Forward && ForwardSubdetector(it->recHit()->geographicalId().subdetId()) == FastTime;
         if (ismtd) {
-          const auto &propresult2 = thePropagator.propagateWithPath(tscbl.trackStateAtPCA(), traj.firstMeasurement().updatedState().surface());
+          const auto &propresult2 = thePropagator.propagateWithPath(tscbl.trackStateAtPCA(), trajWithMtd.firstMeasurement().updatedState().surface());
 	  pathlength2 = propresult2.second;
           if (pathlength2 == 0.) {
             validpropagation = false;
@@ -424,7 +424,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       for (auto it=trajWithMtd.measurements().rbegin(); it!=trajWithMtd.measurements().rend(); ++it) {
         bool ismtd = it->recHit()->geographicalId().det() == DetId::Forward && ForwardSubdetector(it->recHit()->geographicalId().subdetId()) == FastTime;
         if (ismtd) {
-          const auto &propresult2 = thePropagator.propagateWithPath(tscbl.trackStateAtPCA(), traj.lastMeasurement().updatedState().surface());
+          const auto &propresult2 = thePropagator.propagateWithPath(tscbl.trackStateAtPCA(), trajWithMtd.lastMeasurement().updatedState().surface());
           pathlength2 = propresult2.second;
           if (pathlength2 == 0.) {
             validpropagation = false;
