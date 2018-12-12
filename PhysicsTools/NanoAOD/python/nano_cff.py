@@ -20,6 +20,8 @@ from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -79,14 +81,15 @@ btagWeightTable = cms.EDProducer("BTagSFProducer",
     sysTypes = cms.vstring("central","central","central")
 )
 
-run2_miniAOD_80XLegacy.toModify(btagWeightTable,                
-    cut = cms.string("pt > 25. && abs(eta) < 2.4"),             #80X corresponds to 2016, |eta| < 2.4
-    weightFiles = cms.vstring(                                  #80X corresponds to 2016 SFs
-        btagSFdir+"CSVv2_Moriond17_B_H.csv",            
-        "unavailable",                    
-        btagSFdir+"cMVAv2_Moriond17_B_H.csv"                                            
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016: # to be updated when SF for Summer16MiniAODv3 MC will be available
+    modifier.toModify(btagWeightTable,                
+        cut = cms.string("pt > 25. && abs(eta) < 2.4"),             #80X corresponds to 2016, |eta| < 2.4
+        weightFiles = cms.vstring(                                  #80X corresponds to 2016 SFs
+            btagSFdir+"CSVv2_Moriond17_B_H.csv",            
+            "unavailable",                    
+            btagSFdir+"cMVAv2_Moriond17_B_H.csv"                                            
+        )
     )
-)
 
 run2_nanoAOD_92X.toModify(btagWeightTable,                      #92X corresponds to MCv1, for which SFs are unavailable
     weightFiles = cms.vstring(
@@ -121,72 +124,153 @@ lheInfoTable = cms.EDProducer("LHETablesProducer",
 
 l1bits=cms.EDProducer("L1TriggerResultsConverter", src=cms.InputTag("gtStage2Digis"), legacyL1=cms.bool(False))
 
-nanoSequence = cms.Sequence(
-        nanoMetadata + jetSequence + muonSequence + tauSequence + electronSequence+photonSequence+vertexSequence+metSequence+
+nanoSequenceCommon = cms.Sequence(
+        nanoMetadata + jetSequence + muonSequence + tauSequence + electronSequence+photonSequence+vertexSequence+
         isoTrackSequence + # must be after all the leptons 
         linkedObjects  +
-        jetTables + muonTables + tauTables + electronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + triggerObjectTables + isoTrackTables +
-	l1bits)
+        jetTables + muonTables + tauTables + electronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + isoTrackTables
+        )
+nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTables + l1bits)
 
-nanoSequenceMC = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
+nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyFullSim)
+
+nanoSequenceFS = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequenceCommon + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
+
+nanoSequenceMC = nanoSequenceFS.copy()
+nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnlyFullSim)
 
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
-def nanoAOD_addDeepBTagFor80X(process):
-    print("Updating process to run DeepCSV btag on legacy 80X datasets")
+def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
+    _btagDiscriminators=[]
+    if addDeepBTag:
+        print("Updating process to run DeepCSV btag")
+        _btagDiscriminators += ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc']
+    if addDeepFlavour:
+        print("Updating process to run DeepFlavour btag")
+        _btagDiscriminators += ['pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb']
+    if len(_btagDiscriminators)==0: return process
+    print("Will recalculate the following discriminators: "+", ".join(_btagDiscriminators))
     updateJetCollection(
                process,
                jetSource = cms.InputTag('slimmedJets'),
                jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual']), 'None'),
-               btagDiscriminators = ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc'], ## to add discriminators
-               btagPrefix = ''
+               btagDiscriminators = _btagDiscriminators,
+               postfix = 'WithDeepInfo',
            )
     process.load("Configuration.StandardSequences.MagneticField_cff")
-    process.looseJetId.src="selectedUpdatedPatJets"
-    process.tightJetId.src="selectedUpdatedPatJets"
-    process.tightJetIdLepVeto.src="selectedUpdatedPatJets"
-    process.bJetVars.src="selectedUpdatedPatJets"
-    process.slimmedJetsWithUserData.src="selectedUpdatedPatJets"
-    process.qgtagger80x.srcJets="selectedUpdatedPatJets"
+    process.looseJetId.src="selectedUpdatedPatJetsWithDeepInfo"
+    process.tightJetId.src="selectedUpdatedPatJetsWithDeepInfo"
+    process.tightJetIdLepVeto.src="selectedUpdatedPatJetsWithDeepInfo"
+    process.bJetVars.src="selectedUpdatedPatJetsWithDeepInfo"
+    process.slimmedJetsWithUserData.src="selectedUpdatedPatJetsWithDeepInfo"
+    process.qgtagger80x.srcJets="selectedUpdatedPatJetsWithDeepInfo"
+    if addDeepFlavour:
+        process.pfDeepFlavourJetTagsWithDeepInfo.graph_path = 'RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb'
+        process.pfDeepFlavourJetTagsWithDeepInfo.lp_names = ["cpf_input_batchnorm/keras_learning_phase"]
     patAlgosToolsTask = getPatAlgosToolsTask(process)
-    patAlgosToolsTask .add(process.updatedPatJets)
-    patAlgosToolsTask .add(process.patJetCorrFactors)
+    patAlgosToolsTask.add(process.updatedPatJetsWithDeepInfo)
+    patAlgosToolsTask.add(process.patJetCorrFactorsWithDeepInfo)
     process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
-def nanoAOD_addDeepFlavourTagFor94X2016(process):
-    print("Updating process to run DeepCSV btag on 94X re-miniAOD of legacy 80X datasets")
+
+from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+#from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
+def nanoAOD_recalibrateMETs(process,isData):
+    runMetCorAndUncFromMiniAOD(process,isData=isData)
+    process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(jetSequence),cms.Sequence(process.fullPatMetSequence))
+#    makePuppiesFromMiniAOD(process,True) # call this before in the global customizer otherwise it would reset photon IDs in VID
+#    runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi")
+#    process.puppiNoLep.useExistingWeights = False
+#    process.puppi.useExistingWeights = False
+#    process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
+    return process
+
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+def nanoAOD_activateVID(process):
+    switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD)
+    for modname in electron_id_modules_WorkingPoints_nanoAOD.modules:
+        setupAllVIDIdsInModule(process,modname,setupVIDElectronSelection)
+    process.electronSequence.insert(process.electronSequence.index(bitmapVIDForEle),process.egmGsfElectronIDSequence)
+    for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_92X:
+        modifier.toModify(process.electronMVAValueMapProducer, srcMiniAOD = "slimmedElectronsUpdated")
+        modifier.toModify(process.electronMVAVariableHelper, srcMiniAOD = "slimmedElectronsUpdated")
+        modifier.toModify(process.egmGsfElectronIDs, physicsObjectSrc = "slimmedElectronsUpdated")
+        if hasattr(process,"heepIDVarValueMaps"):
+            modifier.toModify(process.heepIDVarValueMaps, elesMiniAOD = "slimmedElectronsUpdated")
+    switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD) # do not call this to avoid resetting photon IDs in VID, if called before inside makePuppiesFromMiniAOD
+    for modname in photon_id_modules_WorkingPoints_nanoAOD.modules:
+        setupAllVIDIdsInModule(process,modname,setupVIDPhotonSelection)
+    process.photonSequence.insert(process.photonSequence.index(bitmapVIDForPho),process.egmPhotonIDSequence)
+    return process
+
+def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet,jecPayload):
+    _btagDiscriminators=[]
+    if addDeepBTag:
+        print("Updating process to run DeepCSV btag to AK8 jets")
+        _btagDiscriminators += ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb']
+    if addDeepBoostedJet:
+        print("Updating process to run DeepBoostedJet on datasets before 103X")
+        from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
+        _btagDiscriminators += pfDeepBoostedJetTagsAll
+    if len(_btagDiscriminators)==0: return process
+    print("Will recalculate the following discriminators on AK8 jets: "+", ".join(_btagDiscriminators))
     updateJetCollection(
-               process,
-               jetSource = cms.InputTag('slimmedJets'),
-               jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual']), 'None'),
-               btagDiscriminators = ['pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb'], ## to add discriminators
-               btagPrefix = ''
-           )
-    process.load("Configuration.StandardSequences.MagneticField_cff")
-    process.looseJetId.src="selectedUpdatedPatJets"
-    process.tightJetId.src="selectedUpdatedPatJets"
-    process.tightJetIdLepVeto.src="selectedUpdatedPatJets"
-    process.bJetVars.src="selectedUpdatedPatJets"
-    process.slimmedJetsWithUserData.src="selectedUpdatedPatJets"
-    process.qgtagger80x.srcJets="selectedUpdatedPatJets"
-    process.pfDeepFlavourJetTags.graph_path = 'RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb'
-    process.pfDeepFlavourJetTags.lp_names = ["cpf_input_batchnorm/keras_learning_phase"]
+       process,
+       jetSource = cms.InputTag('slimmedJetsAK8'),
+       pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+       svSource = cms.InputTag('slimmedSecondaryVertices'),
+       rParam = 0.8,
+       jetCorrections = (jecPayload.value(), cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']), 'None'),
+       btagDiscriminators = _btagDiscriminators,
+       postfix='AK8WithDeepInfo',
+       printWarning = False
+       )
+    process.looseJetIdAK8.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
+    process.tightJetIdAK8.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
+    process.tightJetIdLepVetoAK8.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
+    process.slimmedJetsAK8WithUserData.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
     patAlgosToolsTask = getPatAlgosToolsTask(process)
-    patAlgosToolsTask .add(process.updatedPatJets)
-    patAlgosToolsTask .add(process.patJetCorrFactors)
+    patAlgosToolsTask.add(process.updatedPatJetsAK8WithDeepInfo)
+    patAlgosToolsTask.add(process.patJetCorrFactorsAK8WithDeepInfo)
     process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
 
 
 def nanoAOD_customizeCommon(process):
-    run2_miniAOD_80XLegacy.toModify(process, nanoAOD_addDeepBTagFor80X)
-    run2_nanoAOD_94X2016.toModify(process, nanoAOD_addDeepFlavourTagFor94X2016)
+#    makePuppiesFromMiniAOD(process,True) # call this here as it calls switchOnVIDPhotonIdProducer
+    process = nanoAOD_activateVID(process)
+    nanoAOD_addDeepInfo_switch = cms.PSet(
+        nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
+        nanoAOD_addDeepFlavourTag_switch = cms.untracked.bool(False),
+        )
+    run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfo_switch, nanoAOD_addDeepBTag_switch = cms.untracked.bool(True))
+    for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
+        modifier.toModify(nanoAOD_addDeepInfo_switch, nanoAOD_addDeepFlavourTag_switch =  cms.untracked.bool(True))
+    process = nanoAOD_addDeepInfo(process,
+                                  addDeepBTag=nanoAOD_addDeepInfo_switch.nanoAOD_addDeepBTag_switch,
+                                  addDeepFlavour=nanoAOD_addDeepInfo_switch.nanoAOD_addDeepFlavourTag_switch)
+    nanoAOD_addDeepInfoAK8_switch = cms.PSet(
+        nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
+        nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(True), # will deactivate this in future miniAOD releases
+        jecPayload = cms.untracked.string('AK8PFPuppi')
+        )
+    # deepAK8 should not run on 80X, that contains ak8PFJetsCHS jets
+    run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfoAK8_switch,
+                                    nanoAOD_addDeepBTag_switch = cms.untracked.bool(True),
+                                    nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(False),
+                                    jecPayload = cms.untracked.string('AK8PFchs'))
+    process = nanoAOD_addDeepInfoAK8(process,
+                                     addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,
+                                     addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
+                                     jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload)
     return process
 
 
 def nanoAOD_customizeData(process):
     process = nanoAOD_customizeCommon(process)
+    process = nanoAOD_recalibrateMETs(process,isData=True)
     if hasattr(process,'calibratedPatElectrons80X'):
         process.calibratedPatElectrons80X.isMC = cms.bool(False)
         process.calibratedPatPhotons80X.isMC = cms.bool(False)
@@ -194,21 +278,19 @@ def nanoAOD_customizeData(process):
 
 def nanoAOD_customizeMC(process):
     process = nanoAOD_customizeCommon(process)
+    process = nanoAOD_recalibrateMETs(process,isData=False)
     if hasattr(process,'calibratedPatElectrons80X'):
         process.calibratedPatElectrons80X.isMC = cms.bool(True)
         process.calibratedPatPhotons80X.isMC = cms.bool(True)
     return process
 
 ### Era dependent customization
-_80x_sequence = nanoSequence.copy()
+_80x_sequence = nanoSequenceCommon.copy()
 #remove stuff 
-_80x_sequence.remove(isoTrackTable)
+_80x_sequence.remove(isoTrackTables)
 _80x_sequence.remove(isoTrackSequence)
 #add stuff
 _80x_sequence.insert(_80x_sequence.index(jetSequence), extraFlagsProducers)
-_80x_sequence.insert(_80x_sequence.index(l1bits)+1, extraFlagsTable)
+_80x_sequence.insert(_80x_sequence.index(simpleCleanerTable)+1, extraFlagsTable)
 
-run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
-
-	
-
+run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceCommon, _80x_sequence)
