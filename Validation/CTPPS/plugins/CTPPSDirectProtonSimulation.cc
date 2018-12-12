@@ -241,7 +241,7 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
   /// horizontal component of proton momentum: p_x = th_x * (1-xi) * p_nom
 
   std::stringstream ssLog;
-  
+
   // vectors in CMS convention
   const HepMC::FourVector vtx_cms = in_vtx->position(); // in mm
   const HepMC::FourVector mom_cms = in_trk->momentum();
@@ -303,7 +303,7 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
       return;
     }
   }
-  
+
   // transport the proton into each pot/scoring plane
   for (const auto &ofp : opticalFunctions_)
   {
@@ -403,7 +403,7 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
           if (verbosity_ > 5)
             ssLog << " | no hit" << std::endl;
           continue;
-        } 
+        }
 
         // round the measurement
         if (roundToPitch_)
@@ -462,7 +462,7 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
 
         edm::DetSet<CTPPSPixelRecHit> &hits = out_pixel_hits.find_or_insert(detId);
         hits.push_back(CTPPSPixelRecHit(lp, le));
-      } 
+      }
     }
   }
 
@@ -475,8 +475,24 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
 void CTPPSDirectProtonSimulation::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
 {
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault( desc );
+  desc.add<unsigned int>("verbosity", 0);
+  desc.add<edm::InputTag>("hepMCTag", edm::InputTag("generator", "unsmeared"));
+  desc.add<bool>("produceScoringPlaneHits", true);
+  desc.add<bool>("produceRecHits", true);
+  desc.add<bool>("useEmpiricalApertures", false);
+  desc.add<double>("empiricalAperture45_xi0", 0.);
+  desc.add<double>("empiricalAperture45_a", 0.);
+  desc.add<double>("empiricalAperture56_xi0", 0.);
+  desc.add<double>("empiricalAperture56_a", 0.);
+  desc.add<bool>("produceHitsRelativeToBeam", false);
+  desc.add<bool>("roundToPitch", true);
+  desc.add<bool>("checkIsHit", true);
+  desc.add<double>("pitchStrips", 66.e-3); // in mm
+  desc.add<double>("insensitiveMarginStrips", 34.e-3); // in mm
+  desc.add<double>("pitchPixelsHor", 100.e-3)->setComment("x in local coordinates, in mm");
+  desc.add<double>("pitchPixelsVer", 150.e-3)->setComment("y in local coordinates, in mm");
+
+  descriptions.add("ctppsDirectProtonSimulation", desc);
 }
 
 //----------------------------------------------------------------------------------------------------
