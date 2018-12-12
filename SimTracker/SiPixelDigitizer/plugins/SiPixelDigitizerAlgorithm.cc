@@ -826,7 +826,7 @@ void SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo, CLHE
       CLHEP::RandGeneral randGeneral(*engine, &(probabilities.front()), probabilities.size());	
       double x = randGeneral.shoot();
       unsigned int index = x * probabilities.size() - 1;
-      const std::string scenario = theProbabilitiesPerScenario.at(index).first;      
+      const std::string& scenario = theProbabilitiesPerScenario.at(index).first;      
       
       PixelFEDChannelCollection_ = qualityCollectionHandle.product()->getDetSetBadPixelFedChannels(scenario);
       pixelEfficiencies_.PixelFEDChannelCollection_ = qualityCollectionHandle.product()->getDetSetBadPixelFedChannels(scenario);      
