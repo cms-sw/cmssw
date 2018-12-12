@@ -49,6 +49,8 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
    
    EdgeClusterErrorX_ = conf.getParameter<double>("EdgeClusterErrorX");
    EdgeClusterErrorY_ = conf.getParameter<double>("EdgeClusterErrorY");
+   Layer1EdgeClusterErrorX_ = conf.getParameter<double>("Layer1EdgeClusterErrorX");
+   Layer1EdgeClusterErrorY_ = conf.getParameter<double>("Layer1EdgeClusterErrorY");
    
    // Externally settable flags to inflate errors
    inflate_errors = conf.getParameter<bool>("inflate_errors");
@@ -577,12 +579,23 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
 {
    
    ClusterParamGeneric & theClusterParam = static_cast<ClusterParamGeneric &>(theClusterParamBase);
+   DetId id = (theDetParam.theDet->geographicalId());
+   bool isBarrel  = GeomDetEnumerators::isBarrel(theDetParam.thePart);
+   int layer=ttopo_.layer(id);
    
    const bool localPrint = false;
    // Default errors are the maximum error used for edge clusters.
    // These are determined by looking at residuals for edge clusters
-   float xerr = EdgeClusterErrorX_ * micronsToCm;
-   float yerr = EdgeClusterErrorY_ * micronsToCm;
+   float xerr, yerr; 
+   if(isBarrel && layer == 1){
+       //special edge cluster errors for layer 1 
+       xerr = Layer1EdgeClusterErrorX_ * micronsToCm;
+       yerr = Layer1EdgeClusterErrorY_ * micronsToCm;
+   }
+   else{
+       xerr = EdgeClusterErrorX_ * micronsToCm;
+       yerr = EdgeClusterErrorY_ * micronsToCm;
+   }
    
    
    // Find if cluster is at the module edge.
@@ -646,10 +659,7 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
       //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;
       
       if ( GeomDetEnumerators::isTrackerPixel(theDetParam.thePart) ) {
-         if(GeomDetEnumerators::isBarrel(theDetParam.thePart)) {
-            
-            DetId id = (theDetParam.theDet->geographicalId());
-            int layer=ttopo_.layer(id);
+         if(isBarrel) {
             if ( layer==1 ) {
                if ( !edgex ) {
                   if ( sizex<=xerr_barrel_l1_.size() ) xerr=xerr_barrel_l1_[sizex-1];

@@ -7,6 +7,12 @@ templates2 = cms.ESProducer("PixelCPEClusterRepairESProducer",
     Alpha2Order = cms.bool(True),
     UseClusterSplitter = cms.bool(False),
 
+    # parameters to select which clusters we believe are truncated from dead double columns
+    # Be careful modifying these!
+    MaxSizeMismatchInY = 0.3,
+    MinChargeRatio = 0.8,
+    
+
     # petar, for clusterProbability() from TTRHs
     ClusterProbComputationFlag = cms.int32(0),
     # gavril
