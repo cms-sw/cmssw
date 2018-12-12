@@ -9,9 +9,9 @@ _barrelAlgo = cms.PSet(
     adcSaturation = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.adcSaturation_MIP,
     toaLSB_ns = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.toaLSB_ns,
     timeResolutionInNs = cms.double(0.025),
-    timeCorr_p0 = cms.double(24.8997),
-    timeCorr_p1 = cms.double(-0.911385),
-    timeCorr_p2 = cms.double( 3.3744717)
+    timeCorr_p0 = cms.double( 2.21103),
+    timeCorr_p1 = cms.double(-0.933552),
+    timeCorr_p2 = cms.double( 0.)
 )
 
 
