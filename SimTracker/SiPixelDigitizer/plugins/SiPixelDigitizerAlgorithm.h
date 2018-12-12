@@ -87,7 +87,7 @@ class SiPixelDigitizerAlgorithm  {
   void chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine *, 
 		      std::unique_ptr<PixelFEDChannelCollection> &PixelFEDChannelCollection_);
   
-  bool killBadFEDChannels();
+  bool killBadFEDChannels() const;
   
  private:
   
