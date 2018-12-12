@@ -36,13 +36,13 @@ class ProtonReconstructionAlgorithm
     void reconstructFromSingleRP(const reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector &input,
       std::vector<reco::ProtonTrack> &output,
       std::vector<reco::ProtonTrackExtra> &outputExtra,
-      const LHCInfo &lhcInfo) const;
+      const LHCInfo &lhcInfo, std::ostream& os) const;
 
     /// run proton reconstruction using multiple-RP strategy
     void reconstructFromMultiRP(const reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector &input,
       std::vector<reco::ProtonTrack> &output,
       std::vector<reco::ProtonTrackExtra> &outputExtra,
-      const LHCInfo &lhcInfo) const;
+      const LHCInfo &lhcInfo, std::ostream& os) const;
 
   private:
     unsigned int verbosity_;

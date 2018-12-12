@@ -184,7 +184,7 @@ void
 CTPPSBeamParametersESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& key,
                                              const edm::IOVSyncValue& iosv, edm::ValidityInterval& oValidity )
 {
-  LogDebug("CTPPSBeamParametersESSource")
+  edm::LogInfo("CTPPSBeamParametersESSource")
     << ">> CTPPSBeamParametersESSource::setIntervalFor(" << key.name() << ")\n"
     << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event();
 
