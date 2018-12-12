@@ -24,6 +24,8 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
 				 float ele_iso_combIso_ee,
 				 float ele_noniso_mva,
 				 unsigned int ele_missinghits,
+				 float ele_ecalDrivenHademPreselCut,
+				 float ele_maxElePtForOnlyMVAPresel,
 				 const string& ele_iso_path_mvaWeightFile,
 				 const edm::ParameterSet& ele_protectionsForJetMET,
 		                 const edm::ParameterSet& ele_protectionsForBadHcal
@@ -42,6 +44,8 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
   ele_iso_combIso_ee_(ele_iso_combIso_ee),
   ele_noniso_mva_(ele_noniso_mva),
   ele_missinghits_(ele_missinghits),
+  ele_ecalDrivenHademPreselCut_(ele_ecalDrivenHademPreselCut),
+  ele_maxElePtForOnlyMVAPresel_(ele_maxElePtForOnlyMVAPresel),
   ele_maxNtracks(ele_protectionsForJetMET.getParameter<double>("maxNtracks")), 
   ele_maxHcalE(ele_protectionsForJetMET.getParameter<double>("maxHcalE")), 
   ele_maxTrackPOverEele(ele_protectionsForJetMET.getParameter<double>("maxTrackPOverEele")), 
@@ -171,8 +175,9 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
     }
   }
   
-  return passEleSelection;
+  return passEleSelection && passGsfElePreSelWithOnlyConeHadem(electron);
 }
+
 
 bool PFEGammaFilters::isElectron(const reco::GsfElectron & electron) {
  
@@ -419,3 +424,18 @@ bool PFEGammaFilters::isPhotonSafeForJetMET(const reco::Photon & photon, const r
   return isSafeForJetMET;
 }
 
+//in CMSSW_10_4_0 we changed the electron preselection to be  H/E(cone 0.15) < 0.15 
+//OR H/E(single tower) < 0.15, with the tower being new.
+//However CMS is scared of making any change to the PF content and therefore 
+//we have to explicitly reject them here
+//has to be insync here with GsfElectronAlgo::isPreselected 
+bool PFEGammaFilters::passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron & ele)
+{
+  bool passCutBased=ele.passingCutBasedPreselection();
+  if(ele.hadronicOverEm()>ele_ecalDrivenHademPreselCut_) passCutBased = false;
+  bool passMVA = ele.passingMvaPreselection();
+  if(!ele.ecalDrivenSeed()){
+    if(ele.pt() > ele_maxElePtForOnlyMVAPresel_) return passMVA && passCutBased;
+    else return passMVA;
+  }else return passCutBased || passMVA;
+}
