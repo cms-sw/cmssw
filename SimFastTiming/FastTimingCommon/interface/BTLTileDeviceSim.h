@@ -1,5 +1,5 @@
-#ifndef __SimFastTiming_FastTimingCommon_BTLDeviceSim_h__
-#define __SimFastTiming_FastTimingCommon_BTLDeviceSim_h__
+#ifndef __SimFastTiming_FastTimingCommon_BTLTileDeviceSim_h__
+#define __SimFastTiming_FastTimingCommon_BTLTileDeviceSim_h__
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -9,21 +9,24 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerTypes.h"
 
+#include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+
 #include <tuple>
 
 namespace CLHEP {
   class HepRandomEngine;
 }
 
-class BTLDeviceSim {
+class BTLTileDeviceSim {
 
  public:
 
-  BTLDeviceSim(const edm::ParameterSet& pset);
+  BTLTileDeviceSim(const edm::ParameterSet& pset);
   
   void getEvent(const edm::Event& evt) { }
 
-  void getEventSetup(const edm::EventSetup& evt) { }
+  void getEventSetup(const edm::EventSetup& evt);
 
   void getHitsResponse(const std::vector<std::tuple<int,uint32_t,float> > &hitRefs, 
 		       const edm::Handle<edm::PSimHitContainer> &hits,
@@ -31,6 +34,8 @@ class BTLDeviceSim {
 		       CLHEP::HepRandomEngine *hre);
   
  private:
+
+  const MTDGeometry* geom_;
 
   const float bxTime_;
   const float LightYield_;

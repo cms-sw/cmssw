@@ -5,6 +5,7 @@
 <use name="DetectorDescription/Core"/>
 <use name="DetectorDescription/Parser"/>
 <use name="DetectorDescription/OfflineDBLoader"/>
+<use name="SimG4CMS/Calo"/>
 <use name="CondFormats/GeometryObjects"/>
 <use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/Candidate"/>
@@ -12,5 +13,6 @@
 <use name="SimGeneral/MixingModule"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="SimFastTiming/FastTimingCommon"/>
+<use name="Geometry/HGCalCommonData"/>
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>
