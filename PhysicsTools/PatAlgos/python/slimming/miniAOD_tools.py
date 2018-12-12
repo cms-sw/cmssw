@@ -317,11 +317,20 @@ def miniAOD_customizeCommon(process):
 
     #VID Photon IDs
     process.patPhotons.addPhotonID = cms.bool(True)
-    photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V1_TrueVtx_cff',
+
+    photon_id_config = cms.PSet(photon_ids = cms.vstring([
+                  'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V1_TrueVtx_cff',
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1_cff', 
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1p1_cff', 
                   'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
-                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff']
+                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff',
+                     ]))
+
+    from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+    run2_miniAOD_devel.toModify(photon_id_config, photon_ids = photon_id_config.photon_ids + \
+            ["RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff",
+             "RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V2_cff"])
+
     switchOnVIDPhotonIdProducer(process,DataFormat.AOD, task) 
     process.egmPhotonIsolation.srcToIsolate = \
         cms.InputTag("reducedEgamma","reducedGedPhotons")  
@@ -338,9 +347,9 @@ def miniAOD_customizeCommon(process):
         cms.InputTag("reducedEgamma","reducedPhotonPfCandMap")
     process.photonMVAValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedPhotons')
-    for idmod in photon_ids:
+    for idmod in photon_id_config.photon_ids.value():
         setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False,task)
- 
+
     #add the cut base IDs bitmaps of which cuts passed
     from RecoEgamma.EgammaTools.egammaObjectModifications_tools import makeVIDBitsModifier
     egamma_modifications.append(makeVIDBitsModifier(process,"egmGsfElectronIDs","egmPhotonIDs"))

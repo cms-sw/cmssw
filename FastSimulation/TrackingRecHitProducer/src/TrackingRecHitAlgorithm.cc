@@ -77,6 +77,15 @@ void TrackingRecHitAlgorithm::beginStream(const edm::StreamID& id)
   _randomEngine = std::make_shared<RandomEngineAndDistribution>(id);
 }
 
+
+void TrackingRecHitAlgorithm::beginRun(edm::Run const& run, const edm::EventSetup& eventSetup,
+				       const SiPixelTemplateDBObject * pixelTemplateDBObjectPtr,
+				       std::vector< SiPixelTemplateStore > & tempStoreRef )
+{
+  // The default is to do nothing.
+}
+
+
 void TrackingRecHitAlgorithm::beginEvent(edm::Event& event, const edm::EventSetup& eventSetup)
 {
     edm::ESHandle<TrackerTopology> trackerTopologyHandle;

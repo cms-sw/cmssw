@@ -31,14 +31,13 @@
 
 class RPCtoDTTranslator  {
 public:
-  RPCtoDTTranslator(RPCDigiCollection inrpcDigis);
-  ~RPCtoDTTranslator() {};
+  RPCtoDTTranslator(const RPCDigiCollection& inrpcDigis);
 
   void run(const edm::EventSetup& c);
 
  ///Return Output PhContainer
- L1MuDTChambPhContainer getDTContainer(){  return m_rpcdt_translated;}
- L1MuDTChambPhContainer getDTRPCHitsContainer(){  return m_rpchitsdt_translated;}
+ L1MuDTChambPhContainer const& getDTContainer() const {  return m_rpcdt_translated;}
+ L1MuDTChambPhContainer const&  getDTRPCHitsContainer() const {  return m_rpchitsdt_translated;}
 
  static int radialAngle(RPCDetId , const edm::EventSetup& , int);
  static int bendingAngle(int, int, int);
@@ -52,21 +51,7 @@ private:
   L1MuDTChambPhContainer m_rpcdt_translated;
   L1MuDTChambPhContainer m_rpchitsdt_translated;
 
-  RPCDigiCollection m_rpcDigis;
-
-  struct rpc_hit
-  {
-    int bx;
-    int station;
-    int sector;
-    int wheel;
-    RPCDetId detid;
-    int strip;
-    int roll;
-    int layer;
-    //rpc_hit(int pbx, int pstation,int psector, int pwheel, RPCDetId pdet, int pstrip, int proll, int player) : bx(pbx),station(pstation),sector(psector),wheel(pwheel, detid(pdet),strip(pstrip),roll(proll),layer(player) {}
-  };
-
+  const RPCDigiCollection& m_rpcDigis;
 
 };
 #endif

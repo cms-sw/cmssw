@@ -1,6 +1,4 @@
-from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
-
-import FWCore.ParameterSet.Config as cms
+from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools import *
 
 mvaVariablesFile        = "RecoEgamma/PhotonIdentification/data/PhotonMVAEstimatorRun2VariablesSpring15.txt"
 
@@ -32,12 +30,9 @@ mvaTag = "Run2Spring15NonTrig50nsV2p1"
 #   1    endcap photons
 
 mvaSpring15NonTrigWeightFiles_V2p1 = cms.vstring(
-    "RecoEgamma/PhotonIdentification/data/Spring15/photon_general_MVA_Spring15_50ns_EB_V2.weights.xml",
-    "RecoEgamma/PhotonIdentification/data/Spring15/photon_general_MVA_Spring15_50ns_EE_V2.weights.xml"
+    path.join(weightFileBaseDir, "Spring15/50ns_EB_V2.weights.xml.gz"),
+    path.join(weightFileBaseDir, "Spring15/50ns_EE_V2.weights.xml.gz"),
     )
-
-# Load some common definitions for MVA machinery
-from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools import *
 
 # The locatoins of value maps with the actual MVA values and categories
 # for all particles.
