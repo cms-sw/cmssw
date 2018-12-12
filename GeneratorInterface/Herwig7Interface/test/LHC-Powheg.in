@@ -1,0 +1,105 @@
+# -*- ThePEG-repository -*-
+
+##################################################
+# Example generator based on LHC parameters
+# using NLO matrix elements and matching in
+# the Powheg formalism
+# usage: Herwig read LHC.in
+##################################################
+
+read snippets/PPCollider.in
+
+##################################################
+#  Need to use an NLO PDF
+##################################################
+set /Herwig/Particles/p+:PDF    /Herwig/Partons/HardNLOPDF
+set /Herwig/Particles/pbar-:PDF /Herwig/Partons/HardNLOPDF
+set /Herwig/Shower/ShowerHandler:PDFA /Herwig/Partons/ShowerLOPDF
+set /Herwig/Shower/ShowerHandler:PDFB /Herwig/Partons/ShowerLOPDF
+set /Herwig/Partons/MPIExtractor:FirstPDF  /Herwig/Partons/MPIPDF
+set /Herwig/Partons/MPIExtractor:SecondPDF /Herwig/Partons/MPIPDF
+set /Herwig/Partons/PPExtractor:FirstPDF  /Herwig/Partons/HardNLOPDF
+set /Herwig/Partons/PPExtractor:SecondPDF /Herwig/Partons/HardNLOPDF
+
+##################################################
+#  Setup the POWHEG shower
+##################################################
+cd /Herwig/Shower
+set ShowerHandler:HardEmission POWHEG
+read Matchbox/Powheg-Default-ShowerAlphaSTune.in
+
+##################################################
+# LHC physics parameters (override defaults here) 
+##################################################
+cd /Herwig/Generators
+set EventGenerator:EventHandler:LuminosityFunction:Energy 13000.0
+
+# Intrinsic pT tune extrapolated to LHC energy
+set /Herwig/Shower/ShowerHandler:IntrinsicPtGaussian 2.2*GeV
+
+##################################################
+# Matrix Elements for hadron-hadron collisions 
+# (by default only gamma/Z switched on)
+##################################################
+cd /Herwig/MatrixElements/
+
+# Drell-Yan Z/gamma
+insert SubProcess:MatrixElements[0] PowhegMEqq2gZ2ff
+#
+# Drell-Yan W
+# insert SubProcess:MatrixElements[0] PowhegMEqq2W2ff
+# higgs + W (N.B. if considering all W decay modes useful to set )
+#           (jet pT cut to zero so no cut on W decay products    )
+# insert SubProcess:MatrixElements[0] PowhegMEPP2WH
+# set /Herwig/Cuts/JetKtCut:MinKT 0.0*GeV
+#
+# higgs + Z (N.B. if considering all Z decay modes useful to set )
+#           (jet pT cut to zero so no cut on Z decay products    )
+# insert SubProcess:MatrixElements[0] PowhegMEPP2ZH
+# set /Herwig/Cuts/JetKtCut:MinKT 0.0*GeV
+#
+# gg/qqbar -> Higgs
+# insert SubProcess:MatrixElements[0] PowhegMEHiggs
+#
+# Weak boson pair production: WW / ZZ / WZ / W+Z [WpZ] / W-Z [WmZ]
+# needs the gauge bosons decayed before the shower 
+# create Herwig::HwDecayHandler /Herwig/NewPhysics/DecayHandler
+# set /Herwig/NewPhysics/DecayHandler:NewStep No
+# insert /Herwig/NewPhysics/DecayHandler:Excluded 0 /Herwig/Particles/tau-
+# insert /Herwig/NewPhysics/DecayHandler:Excluded 1 /Herwig/Particles/tau+
+# insert /Herwig/EventHandlers/EventHandler:PreCascadeHandlers 0 /Herwig/NewPhysics/DecayHandler
+# insert SubProcess:MatrixElements[0] PowhegMEPP2VV
+# set PowhegMEPP2VV:Process WpZ
+#
+# Higgs production via VBF
+#insert SubProcess:MatrixElements[0] PowhegMEPP2HiggsVBF
+
+cd /Herwig/Generators
+##################################################
+#  Useful analysis handlers for hadron-hadron physics
+##################################################
+# analysis of W/Z events
+# insert EventGenerator:AnalysisHandlers 0 /Herwig/Analysis/DrellYan
+
+##################################################
+## prepare for Rivet analysis or HepMC output
+## when running with parton shower
+##################################################
+#read snippets/Rivet.in
+#insert /Herwig/Analysis/Rivet:Analyses 0 XXX_2015_ABC123
+#read snippets/HepMC.in
+#set /Herwig/Analysis/HepMC:PrintEvent NNN
+
+##################################################
+## prepare for Rivet analysis or HepMC output
+## when running at fixed order (NO shower)
+##################################################
+#read snippets/RivetFixedOrder.in
+#insert /Herwig/Analysis/RivetFixedOrder:Analyses 0 XXX_2015_ABC123
+#read snippets/HepMCFixedOrder.in
+#set /Herwig/Analysis/HepMCFixedOrder:PrintEvent NNN
+
+##################################################
+# Save run for later usage with 'Herwig run'
+##################################################
+saverun LHC-Powheg EventGenerator
