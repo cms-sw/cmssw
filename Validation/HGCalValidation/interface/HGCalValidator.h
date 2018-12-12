@@ -67,7 +67,7 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
  private:
 
   CaloParticleSelector cpSelector; 
-  /* hgcal::RecHitTools* rechittools_; */
+  std::shared_ptr<hgcal::RecHitTools> tools_;
   std::vector<int> particles_to_monitor_;
   unsigned totallayers_to_monitor_;
   std::vector<int> thicknesses_to_monitor_;

@@ -7,6 +7,10 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     nintEta = cms.int32(100),
     useFabsEta = cms.bool(False),
 
+    minMixedHitsCluster = cms.double(0.),
+    maxMixedHitsCluster = cms.double(5.),
+    nintMixedHitsCluster = cms.int32(5),
+
     #z position of vertex 
     minZpos = cms.double(-550.),
     maxZpos = cms.double(550.),

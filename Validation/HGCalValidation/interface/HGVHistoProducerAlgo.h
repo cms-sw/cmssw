@@ -21,6 +21,7 @@
 struct HGVHistoProducerAlgoHistograms {
   //1D
   std::vector<ConcurrentMonitorElement>  h_cluster_eta;
+  std::vector<ConcurrentMonitorElement>  h_mixedhitscluster;
   std::unordered_map<int, ConcurrentMonitorElement > h_clusternum_perlayer;
   std::unordered_map<int, ConcurrentMonitorElement > h_clusternum_perthick;
   std::unordered_map<int, ConcurrentMonitorElement > h_cellsenedens_perthick;
@@ -66,16 +67,22 @@ class HGVHistoProducerAlgo {
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
   double distance(const double x1, const double y1, const double x2, const double y2) const;
 
-  void setRecHitTools(hgcal::RecHitTools * recHitTools );
+  /* void setRecHitTools(const hgcal::RecHitTools * recHitTools ); */
+  void setRecHitTools(std::shared_ptr<hgcal::RecHitTools> recHitTools );
 
  private:
 
   double getEta(double eta) const;
+
+  std::shared_ptr<hgcal::RecHitTools> recHitTools_;
+
  
-  hgcal::RecHitTools * recHitTools_;
-  
+  /* const hgcal::RecHitTools * recHitTools_; */
+  /* const hgcal::RecHitTools * recHitTools_; */
+
   //private data members
   double minEta, maxEta;  int nintEta; bool useFabsEta;
+  double minMixedHitsCluster, maxMixedHitsCluster;  int nintMixedHitsCluster; 
   double minZpos, maxZpos; int nintZpos;
   double minTotNClsperlay, maxTotNClsperlay; int nintTotNClsperlay;
   double minTotNClsperthick, maxTotNClsperthick; int nintTotNClsperthick;

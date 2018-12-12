@@ -38,6 +38,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset):
 				    pset.getParameter<bool>("stableOnlyCP"),
 				    pset.getParameter<std::vector<int> >("pdgIdCP"));
   
+  tools_.reset(new hgcal::RecHitTools());
+  
   particles_to_monitor_ = pset.getParameter<std::vector<int> >("pdgIdCP");
   totallayers_to_monitor_ = pset.getParameter<int>("totallayers_to_monitor");
   thicknesses_to_monitor_ = pset.getParameter<std::vector<int> >("thicknesses_to_monitor");
@@ -128,18 +130,16 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event, const edm::EventSetup& 
                              << "Analyzing new event" << "\n"
                              << "====================================================\n" << "\n";
 
-  //For some reason the two lines below crash at running step and I had to use the EventSetup in the method below. 
-  //rechittools_->getEventSetup(setup);
-  //histoProducerAlgo_->setRecHitTools(rechittools_);
-
   edm::Handle<std::vector<SimVertex>> simVerticesHandle;
   event.getByToken(simVertices_, simVerticesHandle);
   std::vector<SimVertex> const & simVertices = *simVerticesHandle;
 
-
   edm::Handle<std::vector<CaloParticle> > caloParticleHandle;
   event.getByToken(label_cp_effic, caloParticleHandle);
   std::vector<CaloParticle> const & caloParticles = *caloParticleHandle;
+  
+  tools_->getEventSetup(setup);
+  histoProducerAlgo_->setRecHitTools(tools_);
   
   // ##############################################
   // fill caloparticles histograms 
