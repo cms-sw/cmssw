@@ -118,7 +118,7 @@ namespace cms
 
     _pixeldigialgo.reset(new SiPixelDigitizerAlgorithm(iConfig));
     if (_pixeldigialgo->killBadFEDChannels()){
-      mixMod.produces<PixelFEDChannelCollection>().setBranchAlias(alias + "PixelFEDChannelCollection");
+      mixMod.produces<PixelFEDChannelCollection>();
     }
   }
   
@@ -126,7 +126,7 @@ namespace cms
     edm::LogInfo ("PixelDigitizer ") <<"Destruct the Pixel Digitizer";
   }
 
-
+  
   //
   // member functions
   //
@@ -264,19 +264,20 @@ namespace cms
     _pixeldigialgo->calculateInstlumiFactor(PileupInfo_.get());
     
     if (_pixeldigialgo->killBadFEDChannels()){
-      std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_;
-      _pixeldigialgo->chooseScenario(PileupInfo_.get(), randomEngine_, PixelFEDChannelCollection_);   
-      if (PixelFEDChannelCollection_ != nullptr){
-      	iEvent.put(std::move(PixelFEDChannelCollection_));      
-      }
-    }    
+      std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_ = _pixeldigialgo->chooseScenario(PileupInfo_.get(), randomEngine_);         					    
+      if (PixelFEDChannelCollection_ == nullptr){
+	throw cms::Exception("NullPointerError") << "PixelFEDChannelCollection not set in chooseScenario function.\n";
+      }      
+      iEvent.put(std::move(PixelFEDChannelCollection_));      
+    }
+    
     
     for( const auto& iu : pDD->detUnits()) {
       
       if(iu->type().isTrackerPixel()) {
-
+	
 	//
-
+	
         edm::DetSet<PixelDigi> collector(iu->geographicalId().rawId());
         edm::DetSet<PixelDigiSimLink> linkcollector(iu->geographicalId().rawId());
         

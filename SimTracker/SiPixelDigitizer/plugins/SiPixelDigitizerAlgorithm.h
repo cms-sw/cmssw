@@ -84,9 +84,9 @@ class SiPixelDigitizerAlgorithm  {
   void calculateInstlumiFactor(const std::vector<PileupSummaryInfo> &ps, int bunchSpacing); // TODO: try to remove the duplication of logic...
   void setSimAccumulator(const std::map<uint32_t, std::map<int, int> >& signalMap);
   
-  void chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine *, 
-		      std::unique_ptr<PixelFEDChannelCollection> &PixelFEDChannelCollection_);
-  
+  //void chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine *, 
+  //		      std::unique_ptr<PixelFEDChannelCollection> &PixelFEDChannelCollection_);
+  std::unique_ptr<PixelFEDChannelCollection> chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine *);
   bool killBadFEDChannels() const;
   
  private:
@@ -282,7 +282,6 @@ class SiPixelDigitizerAlgorithm  {
      void init_from_db(const edm::ESHandle<TrackerGeometry>&, const edm::ESHandle<SiPixelDynamicInefficiency>&);
      bool matches(const DetId&, const DetId&, const std::vector<uint32_t >&);     
      std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_;
-     
    };
 
  //
