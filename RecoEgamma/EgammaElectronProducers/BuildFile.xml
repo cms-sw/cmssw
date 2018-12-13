@@ -5,7 +5,6 @@
 <use name="DataFormats/TrackReco"/>
 <use name="FWCore/ParameterSet"/>
 <use name="RecoEcal/EgammaCoreTools"/>
-<!--<use name="roottmva"/>-->
 <export>
   <lib name="RecoEgammaEgammaElectronProducers"/>
 </export>
