@@ -62,7 +62,7 @@ class Matching {
 		SortComparator			&sort;
 	};
 
-	struct AlwaysTrue : public std::unary_function<Delta, bool> {
+	struct AlwaysTrue {
 		inline bool operator () (Delta dummy) { return true; }
 	};
 

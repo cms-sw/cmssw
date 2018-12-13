@@ -50,8 +50,7 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 			void analyze(const edm::Event&, const edm::EventSetup&) override;
 			void bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun,edm::EventSetup const &  iSetup ) override;
 
-		struct JetRefCompare :
-			public std::binary_function<edm::RefToBase<reco::Jet>, edm::RefToBase<reco::Jet>, bool> {
+		struct JetRefCompare {
 				inline bool operator () (const edm::RefToBase<reco::Jet> &j1,
 						const edm::RefToBase<reco::Jet> &j2) const
 				{ return j1.id() < j2.id() || (j1.id() == j2.id() && j1.key() < j2.key()); }

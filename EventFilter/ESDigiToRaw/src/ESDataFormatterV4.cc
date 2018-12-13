@@ -183,18 +183,16 @@ struct ltfiber
 };
 
 
-struct ltstrip : public binary_function<ESDataFormatterV4::Word64&, ESDataFormatterV4::Word64&,bool> {   
-  bool operator()(const ESDataFormatterV4::Word64& s1, const ESDataFormatterV4::Word64& s2) 
-  {
-    ESDataFormatterV4::Word64 PACESTRIP_MASK = 0x00ff000000000000ull; 
-    ESDataFormatterV4::Word64 PACESTRIP_OFFSET = 48ull; 
+bool ltstrip(const ESDataFormatterV4::Word64& s1, const ESDataFormatterV4::Word64& s2) 
+{
+  ESDataFormatterV4::Word64 PACESTRIP_MASK = 0x00ff000000000000ull; 
+  ESDataFormatterV4::Word64 PACESTRIP_OFFSET = 48ull; 
 
-    ESDataFormatterV4::Word64 val1 = (s1 & PACESTRIP_MASK) >> PACESTRIP_OFFSET ; 
-    ESDataFormatterV4::Word64 val2 = (s2 & PACESTRIP_MASK) >> PACESTRIP_OFFSET ;
+  ESDataFormatterV4::Word64 val1 = (s1 & PACESTRIP_MASK) >> PACESTRIP_OFFSET ; 
+  ESDataFormatterV4::Word64 val2 = (s2 & PACESTRIP_MASK) >> PACESTRIP_OFFSET ;
 
-    return (val1 < val2);  
-  } 
-}; 
+  return (val1 < val2);  
+} 
 
 
 
@@ -313,7 +311,7 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawDa
 	  vector<Word64> & data = map_data[kchip_fiber.first];
 	  
 	  // sort against stripid field, as hardware gives this order to strip data : 
-	  sort(data.begin(), data.end(), ltstrip());
+	  sort(data.begin(), data.end(), ltstrip);
 	  
 	  for (unsigned int id=0; id<data.size(); ++id) {
 	    if (debug_) cout<<"Data  : "<<print(data[id])<<endl;

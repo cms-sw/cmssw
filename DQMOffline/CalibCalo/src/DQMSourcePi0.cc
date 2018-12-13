@@ -426,7 +426,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
 
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
-      sort(seeds.begin(), seeds.end(), ecalRecHitLess());
+      sort(seeds.begin(), seeds.end(), ecalRecHitGreater);
 
       for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); itseed++) {
 	EBDetId seed_id = itseed->id();
@@ -722,7 +722,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
       nClus=0;
 
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
-      sort(seeds.begin(), seeds.end(), ecalRecHitLess());
+      sort(seeds.begin(), seeds.end(), ecalRecHitGreater);
 
       for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); itseed++) {
 	EBDetId seed_id = itseed->id();
@@ -1033,7 +1033,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
   
   
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
-      sort(seedsEndCap.begin(), seedsEndCap.end(), ecalRecHitLess());
+      sort(seedsEndCap.begin(), seedsEndCap.end(), ecalRecHitGreater);
   
       for (std::vector<EcalRecHit>::iterator itseed=seedsEndCap.begin(); itseed!=seedsEndCap.end(); itseed++) {
 	EEDetId seed_id = itseed->id();
@@ -1287,7 +1287,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
   
   
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
-      sort(seedsEndCap.begin(), seedsEndCap.end(), ecalRecHitLess());
+      sort(seedsEndCap.begin(), seedsEndCap.end(), ecalRecHitGreater);
   
       for (std::vector<EcalRecHit>::iterator itseed=seedsEndCap.begin(); itseed!=seedsEndCap.end(); itseed++) {
 	EEDetId seed_id = itseed->id();

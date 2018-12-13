@@ -1,7 +1,6 @@
 #ifndef DataFormats_Common_RefTraits_h
 #define DataFormats_Common_RefTraits_h
 
-#include <functional>
 #include <algorithm>
 
 namespace edm {
@@ -16,19 +15,19 @@ namespace edm {
       typedef T const*              result_type;
 
       result_type operator()(first_argument_type iContainer, second_argument_type iIndex) {
-	typename C::const_iterator it = iContainer.begin();
-	std::advance(it, static_cast<typename C::size_type>(iIndex));
-	return it.operator->();
+        typename C::const_iterator it = iContainer.begin();
+        std::advance(it, static_cast<typename C::size_type>(iIndex));
+        return it.operator->();
       }
     };
     
     template<typename REFV>
-    struct FindRefVectorUsingAdvance : public std::binary_function<REFV const&, 
-								   typename REFV::key_type, 
-								   typename REFV::member_type const*> {
-      typedef FindRefVectorUsingAdvance<REFV> self;
-      typename self::result_type operator()(typename self::first_argument_type iContainer,
-                                            typename self::second_argument_type iIndex) {
+    struct FindRefVectorUsingAdvance {
+      using first_argument_type  = REFV const&;
+      using second_argument_type = typename REFV::key_type;
+      using result_type          = typename REFV::member_type const*;
+
+      result_type operator()(first_argument_type iContainer, second_argument_type iIndex) {
         typename REFV::const_iterator it = iContainer.begin();
         std::advance(it, iIndex);
         return it.operator->()->get();
