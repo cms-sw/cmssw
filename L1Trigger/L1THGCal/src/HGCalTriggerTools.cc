@@ -95,6 +95,33 @@ layers(ForwardSubdetector type) const
 
 unsigned
 HGCalTriggerTools::
+layers(DetId::Detector type) const
+{
+
+  unsigned layers = 0;
+  switch (type)
+  {
+    case DetId::HGCalEE:
+      layers = eeLayers_;
+      break;
+    case DetId::HGCalHSi:
+      layers = fhLayers_;
+      break;
+    case DetId::HGCalHSc:
+      layers = bhLayers_;
+      break;
+    case DetId::Forward:
+      layers = totalLayers_;
+      break;
+    default:
+      break;
+  }
+  return layers;
+}
+
+
+unsigned
+HGCalTriggerTools::
 layer(const DetId& id) const {
   unsigned int layer = std::numeric_limits<unsigned int>::max();
   if (id.det() == DetId::Forward) {

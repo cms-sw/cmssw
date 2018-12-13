@@ -18,6 +18,7 @@
 #include <vector>
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
@@ -39,6 +40,7 @@ class HGCalTriggerTools {
     void eventSetup(const edm::EventSetup&);
     GlobalPoint getTCPosition(const DetId& id) const;
     unsigned layers(ForwardSubdetector type) const;
+    unsigned layers(DetId::Detector type) const ;
     unsigned layer(const DetId&) const;
     unsigned layerWithOffset(const DetId&) const;
     int zside(const DetId&) const;
