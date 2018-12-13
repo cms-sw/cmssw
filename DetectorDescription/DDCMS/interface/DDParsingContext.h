@@ -11,7 +11,6 @@ namespace cms  {
   class DDParsingContext {
 
   public:
-    using VecDouble = std::vector<double>;
     
     DDParsingContext( dd4hep::Detector* det )
       : description( det ) {
@@ -25,17 +24,14 @@ namespace cms  {
       rotations.clear();
       shapes.clear();
       volumes.clear();
-      numVectors.clear();
     };
     
     const std::string& ns() const { return namespaces.back(); }
-    void addVector( const std::string& name, const VecDouble& value );
     
     dd4hep::Detector* description;
     std::unordered_map< std::string, dd4hep::Rotation3D > rotations;
     std::unordered_map< std::string, dd4hep::Solid > shapes;
     std::unordered_map< std::string, dd4hep::Volume > volumes;
-    std::unordered_map< std::string, VecDouble > numVectors;
     std::set< std::string > disabledAlgs;
     std::vector< std::string > namespaces;
 

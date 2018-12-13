@@ -7,6 +7,7 @@
     <Trapezoid name="trap2" alp1="10*deg" alp2="10*deg" bl1="50*cm" bl2="75*cm" dz="1*m" h1="20*cm" h2="40*cm" tl1="50*cm" tl2="75*cm"/>
     <PseudoTrap name="ptrap1" dx1="10*cm" dx2="3*cm" dy1="30*cm" dy2="10*cm" dz="30*cm" radius="10*cm" atMinusZ="false"/>
     <PseudoTrap name="ptrap2" dx1="10*cm" dx2="3*cm" dy1="30*cm" dy2="10*cm" dz="30*cm" radius="10*cm" atMinusZ="true"/>
+    <PseudoTrap name="YE1_b" dx1="0.293734*m" dx2="1.86356*m" dy1="0.3000*m" dy2="0.3000*m" dz="2.92934*m" radius="-1.1350*m" atMinusZ="true"/>
     <Box name="box1" dx="10*cm" dy="10*cm" dz="10*cm"/>
     <Cone name="cone1" dz="1*m" rMin1="50*cm" rMax1="100*cm" rMin2="75*cm" rMax2="125*cm" startPhi="0*deg" deltaPhi="360*deg"/>
     <Cone name="cone2" dz="1*m" rMin1="50*cm" rMax1="100*cm" rMin2="50*cm" rMax2="100*cm" startPhi="0*deg" deltaPhi="360*deg"/>

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DDCMSDetectorTest")
+process = cms.Process("DDVectorsTest")
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
@@ -13,6 +13,6 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
 
 process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer")
 
-process.test = cms.EDAnalyzer("DDTestNavigateGeometry")
+process.test = cms.EDAnalyzer("DDTestVectors")
 
 process.p = cms.Path(process.test)

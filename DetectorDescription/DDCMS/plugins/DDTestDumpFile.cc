@@ -1,6 +1,9 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DetectorDescription/DDCMS/interface/DDRegistry.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
+#include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DD4hep/Detector.h"
 #include "DD4hep/DD4hepRootPersistency.h"
 
@@ -10,6 +13,10 @@
 
 #include <iostream>
 #include <string>
+
+using namespace std;
+using namespace cms;
+using namespace dd4hep;
 
 class DDTestDumpFile : public edm::one::EDAnalyzer<> {
 public:
@@ -24,18 +31,20 @@ private:
   std::string m_outputFileName;
 };
 
-DDTestDumpFile::DDTestDumpFile( const edm::ParameterSet& iConfig )
+DDTestDumpFile::DDTestDumpFile(const edm::ParameterSet& iConfig)
 {
   m_tag =  iConfig.getUntrackedParameter<std::string>( "tag", "unknown" );
   m_outputFileName = iConfig.getUntrackedParameter<std::string>( "outputFileName", "cmsDD4HepGeom.root" );
 }
 
 void
-DDTestDumpFile::analyze( const edm::Event&, const edm::EventSetup& )
+DDTestDumpFile::analyze(const edm::Event&, const edm::EventSetup& iEventSetup)
 {
   std::cout << "DDTestDumpFile::analyze:\n";
-  dd4hep::Detector& description = dd4hep::Detector::getInstance();
-  TGeoManager& geom = description.manager();
+  edm::ESTransientHandle<DDDetector> description;
+  iEventSetup.get<DetectorDescriptionRcd>().get(description);
+
+  TGeoManager& geom = description->description().manager();
   
   int level = 1 + geom.GetTopVolume()->CountNodes( 100, 3 );
   
