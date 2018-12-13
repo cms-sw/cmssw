@@ -705,6 +705,283 @@ class TauIDEmbedder(object):
             self.process.rerunMvaIsolationTask.add(self.process.dpfTau2016v1)
             self.process.rerunMvaIsolationSequence += self.process.dpfTau2016v1
 
+        if "againstEle2018" in self.toKeep:
+            antiElectronDiscrMVA6_version = "MVA6v3_noeveto"
+            ### Define new anti-e discriminants
+            ## Raw
+            from RecoTauTag.RecoTau.PATTauDiscriminationAgainstElectronMVA6_cfi import patTauDiscriminationAgainstElectronMVA6
+            self.process.patTauDiscriminationByElectronRejectionMVA62018Raw = patTauDiscriminationAgainstElectronMVA6.clone(
+                Prediscriminants = noPrediscriminants, #already selected for MiniAOD
+                vetoEcalCracks = self.cms.bool(False), #keep taus in EB-EE cracks
+                mvaName_NoEleMatch_wGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL',
+                mvaName_NoEleMatch_wGwoGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_EC',
+                mvaName_NoEleMatch_woGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_BL',
+                mvaName_NoEleMatch_woGwoGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_EC',
+                mvaName_wGwGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_BL',
+                mvaName_wGwGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_EC',
+                mvaName_woGwGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_BL',
+                mvaName_woGwGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_EC'
+            )
+            ## WPs
+            from RecoTauTag.RecoTau.PATTauDiscriminantCutMultiplexer_cfi import patTauDiscriminantCutMultiplexer
+            # VLoose
+            self.process.patTauDiscriminationByVLooseElectronRejectionMVA62018 = patTauDiscriminantCutMultiplexer.clone(
+                PATTauProducer = self.process.patTauDiscriminationByElectronRejectionMVA62018Raw.PATTauProducer,
+                Prediscriminants = self.process.patTauDiscriminationByElectronRejectionMVA62018Raw.Prediscriminants,
+                toMultiplex = self.cms.InputTag("patTauDiscriminationByElectronRejectionMVA62018Raw"),
+                key = self.cms.InputTag("patTauDiscriminationByElectronRejectionMVA62018Raw","category"),
+                mapping = self.cms.VPSet(
+                    self.cms.PSet(
+                        category = self.cms.uint32(0),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_BL_WPeff98'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(2),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL_WPeff98'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(5),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_BL_WPeff98'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(7),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_BL_WPeff98'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(8),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_EC_WPeff98'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(10),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_EC_WPeff98'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(13),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_EC_WPeff98'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(15),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_EC_WPeff98'),
+                        variable = self.cms.string('pt')
+                    )
+                )
+            )
+            # Loose
+            self.process.patTauDiscriminationByLooseElectronRejectionMVA62018 = self.process.patTauDiscriminationByVLooseElectronRejectionMVA62018.clone(
+                mapping = self.cms.VPSet(
+                    self.cms.PSet(
+                        category = self.cms.uint32(0),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_BL_WPeff90'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(2),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL_WPeff90'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(5),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_BL_WPeff90'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(7),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_BL_WPeff90'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(8),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_EC_WPeff90'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(10),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_EC_WPeff90'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(13),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_EC_WPeff90'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(15),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_EC_WPeff90'),
+                        variable = self.cms.string('pt')
+                    )
+                )
+            )
+            # Medium
+            self.process.patTauDiscriminationByMediumElectronRejectionMVA62018 = self.process.patTauDiscriminationByVLooseElectronRejectionMVA62018.clone(
+                mapping = self.cms.VPSet(
+                    self.cms.PSet(
+                        category = self.cms.uint32(0),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_BL_WPeff80'),
+                        variable = self.cms.string('pt')
+                     ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(2),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL_WPeff80'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(5),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_BL_WPeff80'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(7),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_BL_WPeff80'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(8),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_EC_WPeff80'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(10),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_EC_WPeff80'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(13),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_EC_WPeff80'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(15),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_EC_WPeff80'),
+                        variable = self.cms.string('pt')
+                    )
+                )
+            )
+            # Tight
+            self.process.patTauDiscriminationByTightElectronRejectionMVA62018 = self.process.patTauDiscriminationByVLooseElectronRejectionMVA62018.clone(
+                mapping = self.cms.VPSet(
+                    self.cms.PSet(
+                        category = self.cms.uint32(0),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_BL_WPeff70'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(2),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL_WPeff70'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(5),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_BL_WPeff70'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(7),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_BL_WPeff70'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(8),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_EC_WPeff70'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(10),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_EC_WPeff70'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(13),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_EC_WPeff70'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(15),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_EC_WPeff70'),
+                        variable = self.cms.string('pt')
+                    )
+                )
+            )
+            # VTight
+            self.process.patTauDiscriminationByVTightElectronRejectionMVA62018 = self.process.patTauDiscriminationByVLooseElectronRejectionMVA62018.clone(
+                mapping = self.cms.VPSet(
+                    self.cms.PSet(
+                        category = self.cms.uint32(0),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_BL_WPeff60'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(2),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL_WPeff60'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(5),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_BL_WPeff60'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(7),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_BL_WPeff60'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(8),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_EC_WPeff60'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(10),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_EC_WPeff60'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(13),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_EC_WPeff60'),
+                        variable = self.cms.string('pt')
+                    ),
+                    self.cms.PSet(
+                        category = self.cms.uint32(15),
+                        cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_EC_WPeff60'),
+                        variable = self.cms.string('pt')
+                    )
+                )
+            )
+            ### Put all new anti-e discrminats to a sequence
+            self.process.patTauDiscriminationByElectronRejectionMVA62018Task = self.cms.Task(
+                self.process.patTauDiscriminationByElectronRejectionMVA62018Raw,
+                self.process.patTauDiscriminationByVLooseElectronRejectionMVA62018,
+                self.process.patTauDiscriminationByLooseElectronRejectionMVA62018,
+                self.process.patTauDiscriminationByMediumElectronRejectionMVA62018,
+                self.process.patTauDiscriminationByTightElectronRejectionMVA62018,
+                self.process.patTauDiscriminationByVTightElectronRejectionMVA62018
+            )
+            self.process.patTauDiscriminationByElectronRejectionMVA62018Seq = self.cms.Sequence(self.process.patTauDiscriminationByElectronRejectionMVA62018Task)
+            self.process.rerunMvaIsolationTask.add(self.process.patTauDiscriminationByElectronRejectionMVA62018Task)
+            self.process.rerunMvaIsolationSequence += self.process.patTauDiscriminationByElectronRejectionMVA62018Seq
+
+            _againstElectronTauIDSources = self.cms.PSet(
+                againstElectronMVA6Raw2018 = self.cms.InputTag("patTauDiscriminationByElectronRejectionMVA62018Raw"),
+                againstElectronMVA6category2018 = self.cms.InputTag("patTauDiscriminationByElectronRejectionMVA62018Raw","category"),
+                againstElectronVLooseMVA62018 = self.cms.InputTag("patTauDiscriminationByVLooseElectronRejectionMVA62018"),
+                againstElectronLooseMVA62018 = self.cms.InputTag("patTauDiscriminationByLooseElectronRejectionMVA62018"),
+                againstElectronMediumMVA62018 = self.cms.InputTag("patTauDiscriminationByMediumElectronRejectionMVA62018"),
+                againstElectronTightMVA62018 = self.cms.InputTag("patTauDiscriminationByTightElectronRejectionMVA62018"),
+                againstElectronVTightMVA62018 = self.cms.InputTag("patTauDiscriminationByVTightElectronRejectionMVA62018")
+            )
+            _tauIDSourcesWithAgainistEle = self.cms.PSet(
+                tauIDSources.clone(),
+                _againstElectronTauIDSources
+            )
+            tauIDSources =_tauIDSourcesWithAgainistEle.clone()
+
+        ##
         print('Embedding new TauIDs into \"'+self.updatedTauName+'\"')
         embedID = self.cms.EDProducer("PATTauIDEmbedder",
             src = self.cms.InputTag('slimmedTaus'),
