@@ -30,12 +30,12 @@ class CTPPSHepMCDistributionPlotter : public edm::one::EDAnalyzer<>
   public:
     explicit CTPPSHepMCDistributionPlotter(const edm::ParameterSet&);
 
-    ~CTPPSHepMCDistributionPlotter() {}
+    ~CTPPSHepMCDistributionPlotter() override {}
 
   private:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    virtual void endJob() override;
+    void endJob() override;
 
     edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC_;
 

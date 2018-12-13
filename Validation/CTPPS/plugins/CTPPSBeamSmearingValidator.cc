@@ -24,12 +24,12 @@ class CTPPSBeamSmearingValidator : public edm::one::EDAnalyzer<>
   public:
     explicit CTPPSBeamSmearingValidator( const edm::ParameterSet& );
 
-    ~CTPPSBeamSmearingValidator() {}
+    ~CTPPSBeamSmearingValidator() override {}
 
   private:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    virtual void endJob() override;
+    void endJob() override;
 
     edm::EDGetTokenT<edm::HepMCProduct> tokenBeforeSmearing_;
     edm::EDGetTokenT<edm::HepMCProduct> tokenAfterSmearing_;
@@ -40,9 +40,9 @@ class CTPPSBeamSmearingValidator : public edm::one::EDAnalyzer<>
 
     struct SectorPlots
     {
-      TH1D *h_de_th_x = NULL;
-      TH1D *h_de_th_y = NULL;
-      TH1D *h_de_p = NULL;
+      TH1D *h_de_th_x = nullptr;
+      TH1D *h_de_th_y = nullptr;
+      TH1D *h_de_p = nullptr;
 
       void init()
       {

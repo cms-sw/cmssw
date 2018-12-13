@@ -33,12 +33,12 @@ class CTPPSTrackDistributionPlotter : public edm::one::EDAnalyzer<>
   public:
     explicit CTPPSTrackDistributionPlotter(const edm::ParameterSet&);
 
-    ~CTPPSTrackDistributionPlotter() {}
+    ~CTPPSTrackDistributionPlotter() override {}
 
   private:
-    virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+    void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
-    virtual void endJob() override;
+    void endJob() override;
 
     edm::EDGetTokenT< std::vector<CTPPSLocalTrackLite> > tracksToken_;
 
@@ -59,7 +59,7 @@ class CTPPSTrackDistributionPlotter : public edm::one::EDAnalyzer<>
 
       void fill(double x, double y)
       {
-        if (h2_y_vs_x == NULL)
+        if (h2_y_vs_x == nullptr)
           init();
 
         h2_y_vs_x->Fill(x, y);
@@ -91,7 +91,7 @@ class CTPPSTrackDistributionPlotter : public edm::one::EDAnalyzer<>
 
       void fill(double x_N, double y_N, double x_F, double y_F)
       {
-        if (p2_de_x_vs_x_y == NULL)
+        if (p2_de_x_vs_x_y == nullptr)
           init();
 
         p2_de_x_vs_x_y->Fill(x_N, y_N, x_F - x_N);

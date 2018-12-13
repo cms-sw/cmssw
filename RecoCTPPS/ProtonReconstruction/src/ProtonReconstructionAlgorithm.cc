@@ -170,7 +170,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   if (use_improved_estimate)
   {
     double x_N = 0., x_F = 0.;
-    const RPOpticsData *i_N = NULL, *i_F = NULL;
+    const RPOpticsData *i_N = nullptr, *i_F = nullptr;
     unsigned int idx = 0;
     for (const auto &track : tracks)
     {

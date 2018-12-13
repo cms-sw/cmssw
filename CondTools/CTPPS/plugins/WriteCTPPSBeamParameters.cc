@@ -31,16 +31,16 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSBeamParameters.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 
-#include <stdint.h>
+#include <cstdint>
 
 class WriteCTPPSBeamParameters : public edm::one::EDAnalyzer<>
 {
   public:
     WriteCTPPSBeamParameters(const edm::ParameterSet&) {}
-    ~WriteCTPPSBeamParameters() = default;
+    ~WriteCTPPSBeamParameters() override = default;
 
   private:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 };
 
 //---------------------------------------------------------------------------------------
