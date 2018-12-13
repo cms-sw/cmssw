@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
+#include "DetectorDescription/DDCMS/interface/DDVectorRegistryRcd.h"
+#include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
 #include "DD4hep/Detector.h"
 #include "DD4hep/DD4hepRootPersistency.h"
 #include "DD4hep/DetectorTools.h"
@@ -66,6 +68,18 @@ void
 DDTestNavigateGeometry::analyze(const edm::Event&, const edm::EventSetup& iEventSetup)
 {
   cout << "DDTestNavigateGeometry::analyze:\n";
+
+  const DDVectorRegistryRcd& regRecord = iEventSetup.get<DDVectorRegistryRcd>();
+  edm::ESTransientHandle<DDVectorRegistry> reg;
+  regRecord.get(reg);
+
+  for( const auto& p: reg->vectors ) {
+    std::cout << " " << p.first << " => ";
+    for( const auto& i : p.second )
+      std::cout << i << ", ";
+    std::cout << '\n';
+  }
+  
   const DetectorDescriptionRcd& ddRecord = iEventSetup.get<DetectorDescriptionRcd>();
   edm::ESTransientHandle<DDDetector> ddd;
   ddRecord.get(ddd);

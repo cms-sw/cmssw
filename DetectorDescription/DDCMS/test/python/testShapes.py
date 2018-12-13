@@ -7,6 +7,12 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
+process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
+                                            confGeomXMLFiles = cms.string('DetectorDescription/DDCMS/data/cms-test-shapes.xml')
+                                            )
+
+process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer")
+
 process.test = cms.EDAnalyzer("DDCMSDetector",
                               geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/materials.xml',
                                                          'Geometry/CMSCommonData/data/rotations.xml',

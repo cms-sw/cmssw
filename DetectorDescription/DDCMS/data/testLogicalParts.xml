@@ -131,6 +131,10 @@
       <rSolid name="testSolids:V_1101"/>
       <rMaterial name="materials:Air"/>
     </LogicalPart>
+    <LogicalPart name="YE1_b" category="unspecified">
+      <rSolid name="testSolids:YE1_b"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
     <LogicalPart name="ZStopSpace" category="unspecified">
       <rSolid name="testSolids:ZStopSpace"/>
       <rMaterial name="materials:ME_free_space"/>
