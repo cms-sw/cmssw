@@ -137,8 +137,9 @@ initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
     bhOffset_ = fhOffset_ + fhTopology().dddConstants().layers(true);
     totalLayers_ =  bhOffset_ + bhTopology().dddConstants()->getMaxDepth(1);
     trigger_layers_.resize(totalLayers_+1);
-    unsigned trigger_layer = 0;
-    for(unsigned layer=0; layer<trigger_layers_.size(); layer++)
+    trigger_layers_[0] = 0; // layer number 0 doesn't exist
+    unsigned trigger_layer = 1;
+    for(unsigned layer=1; layer<trigger_layers_.size(); layer++)
     {
         if(disconnected_layers_.find(layer)==disconnected_layers_.end())
         {
