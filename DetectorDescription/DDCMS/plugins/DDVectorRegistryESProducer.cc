@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
-// Package:    DetectorDescription/DDDetectorESProducer
-// Class:      DDDetectorESProducer
+// Package:    DetectorDescription/DDCMS
+// Class:      DDVectorRegistryESProducer
 // 
 /**\class DDDetectorESProducer
 
