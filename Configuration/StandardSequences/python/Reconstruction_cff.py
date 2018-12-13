@@ -152,6 +152,8 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
 # LowPtGsfElectrons
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSequence_cff import *
 highlevelreco *= lowPtGsfElectronSequence
+highlevelreco *= conversionOpenTrackSequence
+highlevelreco *= gsfTracksOpenConversionSequence
 
 # AA data with pp reco
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017

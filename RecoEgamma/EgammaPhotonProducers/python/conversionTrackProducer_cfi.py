@@ -1,12 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 conversionTrackProducer = cms.EDProducer("ConversionTrackProducer",
+                                         ComponentName = cms.string(''),
                                          #input collection of tracks or gsf tracks
                                          TrackProducer = cms.string(''),
                                          #control whether to get ref to Trajectory (only available in reco job)
                                          useTrajectory = cms.bool(False),
                                          #control which flags are set in output collection
                                          setTrackerOnly = cms.bool(False),
+                                         setIsGsfTrackOpen = cms.bool(False),
                                          setArbitratedEcalSeeded = cms.bool(False),
                                          setArbitratedMerged = cms.bool(True),
                                          setArbitratedMergedEcalGeneral = cms.bool(False),

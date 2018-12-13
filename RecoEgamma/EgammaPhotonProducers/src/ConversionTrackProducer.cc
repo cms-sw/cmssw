@@ -38,6 +38,7 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
   trackProducer ( conf.getParameter<std::string>("TrackProducer") ),
   useTrajectory ( conf.getParameter<bool>("useTrajectory") ),
   setTrackerOnly ( conf.getParameter<bool>("setTrackerOnly") ),
+  setIsGsfTrackOpen ( conf.getParameter<bool>("setIsGsfTrackOpen") ),
   setArbitratedEcalSeeded ( conf.getParameter<bool>("setArbitratedEcalSeeded") ),    
   setArbitratedMerged ( conf.getParameter<bool>("setArbitratedMerged") ),
   setArbitratedMergedEcalGeneral ( conf.getParameter<bool>("setArbitratedMergedEcalGeneral") ),
@@ -45,6 +46,8 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
   filterOnConvTrackHyp( conf.getParameter<bool>("filterOnConvTrackHyp") ),
   minConvRadius( conf.getParameter<double>("minConvRadius") )
 {
+
+
   edm::InputTag thetp(trackProducer);
   genericTracks =
     consumes<edm::View<reco::Track> >(thetp);
@@ -66,6 +69,8 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
     //get input collection (through edm::View)
     edm::Handle<edm::View<reco::Track> > hTrks;
     e.getByToken(genericTracks, hTrks);
+
+
 
     //get association maps between trajectories and tracks and build temporary maps
     edm::Handle< TrajTrackAssociationCollection > hTTAss;
@@ -103,8 +108,10 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
     }
 
     // Step B: create empty output collection
+    
+     
     outputTrks = std::make_unique<reco::ConversionTrackCollection>();    
-
+ 
     //--------------------------------------------------
     //Added by D. Giordano
     // 2011/08/05
@@ -144,6 +151,7 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
 
       reco::ConversionTrack convTrack(trackBaseRef);
       convTrack.setIsTrackerOnly(setTrackerOnly);
+      convTrack.setIsGsfTrackOpen(setIsGsfTrackOpen);
       convTrack.setIsArbitratedEcalSeeded(setArbitratedEcalSeeded);
       convTrack.setIsArbitratedMerged(setArbitratedMerged);
       convTrack.setIsArbitratedMergedEcalGeneral(setArbitratedMergedEcalGeneral);
@@ -160,6 +168,8 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
       
       outputTrks->push_back(convTrack);
     }
+
+
     
     e.put(std::move(outputTrks));
     return;

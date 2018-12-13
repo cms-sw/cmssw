@@ -74,10 +74,14 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
   theVertexFinder_(nullptr)
 
 {
+
+  componentName_=  iConfig.getParameter<std::string>( "ComponentName" ); 
   algoName_ = iConfig.getParameter<std::string>( "AlgorithmName" );
 
   src_ = 
     consumes<edm::View<reco::ConversionTrack> >(iConfig.getParameter<edm::InputTag>("src"));
+
+
 
   maxNumOfTrackInPU_ = iConfig.getParameter<int>("maxNumOfTrackInPU");
   maxTrackRho_ = iConfig.getParameter<double>("maxTrackRho");
@@ -192,6 +196,7 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   edm::Handle<edm::View<reco::ConversionTrack> > trackCollectionHandle;
   iEvent.getByToken(src_,trackCollectionHandle);    
+
 
   //build map of ConversionTracks ordered in eta
   std::multimap<float, edm::Ptr<reco::ConversionTrack> > convTrackMap;
@@ -571,19 +576,22 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
       if ( matchingSC ( superClusterPtrs, newCandidate, scPtrVec) ) 
         newCandidate.setMatchingSuperCluster( scPtrVec);
           
-      //std::cout << " ConversionProducer  scPtrVec.size " <<  scPtrVec.size() << std::endl;
-          
+              
       newCandidate.setQuality(reco::Conversion::highPurity,  highPurityPair);
       bool generalTracksOnly = ll->second->isTrackerOnly() && rr->second->isTrackerOnly() && !dynamic_cast<const reco::GsfTrack*>(ll->second->trackRef().get()) && !dynamic_cast<const reco::GsfTrack*>(rr->second->trackRef().get());
+      bool gsfTracksOpenOnly = ll->second->isGsfTrackOpen() && rr->second->isGsfTrackOpen();
       bool arbitratedEcalSeeded = ll->second->isArbitratedEcalSeeded() && rr->second->isArbitratedEcalSeeded();
       bool arbitratedMerged = ll->second->isArbitratedMerged() && rr->second->isArbitratedMerged();
-      bool arbitratedMergedEcalGeneral = ll->second->isArbitratedMergedEcalGeneral() && rr->second->isArbitratedMergedEcalGeneral();          
-          
+      bool arbitratedMergedEcalGeneral = ll->second->isArbitratedMergedEcalGeneral() && rr->second->isArbitratedMergedEcalGeneral();    
+
+
       newCandidate.setQuality(reco::Conversion::generalTracksOnly,  generalTracksOnly);
+      newCandidate.setQuality(reco::Conversion::gsfTracksOpenOnly,  gsfTracksOpenOnly);
       newCandidate.setQuality(reco::Conversion::arbitratedEcalSeeded,  arbitratedEcalSeeded);
       newCandidate.setQuality(reco::Conversion::arbitratedMerged,  arbitratedMerged);
       newCandidate.setQuality(reco::Conversion::arbitratedMergedEcalGeneral,  arbitratedMergedEcalGeneral);          
           
+
       outputConvPhotonCollection.push_back(newCandidate);
 
     }

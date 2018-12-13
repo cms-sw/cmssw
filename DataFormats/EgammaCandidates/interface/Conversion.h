@@ -35,6 +35,8 @@ namespace reco {
 			      arbitratedEcalSeeded=1, 
 			      arbitratedMerged=2,
 			      arbitratedMergedEcalGeneral=3,
+                              gsfTracksOnly=4,
+                              gsfTracksOpenOnly=5,
 			      highPurity=8, 
 			      highEfficiency=9,
 			      ecalMatched1Track=10,
