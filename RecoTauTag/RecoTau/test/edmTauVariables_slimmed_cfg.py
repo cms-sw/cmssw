@@ -51,6 +51,7 @@ process.out.outputCommands += [
   "keep *_hpsPFTauFootprintCorrection_*_*",
   "keep *_hpsPFTauTransverseImpactParameters_*_*",
   ]
+
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
 #                                         ##
