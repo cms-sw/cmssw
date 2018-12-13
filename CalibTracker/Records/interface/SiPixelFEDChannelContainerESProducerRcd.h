@@ -6,6 +6,6 @@
 #include "boost/mpl/vector.hpp"
 #include "CondFormats/DataRecord/interface/SiPixelStatusScenariosRcd.h" 
 
-class SiPixelFEDChannelContainerESProducerRcd : public edm::eventsetup::DependentRecordImplementation<SiPixelStatusScenariosRcd,boost::mpl::vector<SiPixelStatusScenariosRcd> > {};
+class SiPixelFEDChannelContainerESProducerRcd : public edm::eventsetup::DependentRecordImplementation<SiPixelFEDChannelContainerESProducerRcd,boost::mpl::vector<SiPixelStatusScenariosRcd> > {};
 
 #endif 

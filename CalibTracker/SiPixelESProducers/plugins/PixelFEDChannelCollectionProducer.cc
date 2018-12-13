@@ -20,11 +20,11 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "CondFormats/DataRecord/interface/SiPixelStatusScenariosRcd.h" 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFEDChannelContainer.h"
 #include "CalibTracker/Records/interface/SiPixelFEDChannelContainerESProducerRcd.h"
@@ -42,7 +42,6 @@ class PixelFEDChannelCollectionProducer : public edm::ESProducer {
       ~PixelFEDChannelCollectionProducer();
 
       typedef std::unordered_map<std::string,PixelFEDChannelCollection> PixelFEDChannelCollectionMap;
-
       using ReturnType = std::unique_ptr<PixelFEDChannelCollectionMap>;
 
       ReturnType produce(const SiPixelFEDChannelContainerESProducerRcd &);
