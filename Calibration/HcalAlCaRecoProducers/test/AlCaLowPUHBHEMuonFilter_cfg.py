@@ -18,8 +18,8 @@ process.load("Configuration.EventContent.AlCaRecoOutput_cff")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-        'file:/eos/user/s/shghosh/FORSUNANDASIR/F256E27E-0930-E811-BE1A-FA163EBF1F42.root',
-#       'root://cms-xrd-global.cern.ch///store/mc/RunIISpring18DR/DYToMuMu_M-20_13TeV_pythia8/GEN-SIM-RECO/NoPU_100X_upgrade2018_realistic_v10-v1/100000/F256E27E-0930-E811-BE1A-FA163EBF1F42.root'
+#       'file:/eos/user/s/shghosh/FORSUNANDASIR/F256E27E-0930-E811-BE1A-FA163EBF1F42.root',
+        'root://cms-xrd-global.cern.ch///store/mc/RunIISpring18DR/DYToMuMu_M-20_13TeV_pythia8/GEN-SIM-RECO/NoPU_100X_upgrade2018_realistic_v10-v1/100000/F256E27E-0930-E811-BE1A-FA163EBF1F42.root'
         )
 )
 
