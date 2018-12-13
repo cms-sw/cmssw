@@ -33,11 +33,6 @@ namespace reco
 
       // vertex position can be obtained via TrackBase::vx() and vy() functions
 
-      /// compute the squared four-momentum transfer from incident and scattered momenta, and angular information
-      static float calculateT( double beam_mom, double proton_mom, double theta );
-
-      /// four-momentum transfer squared, in GeV^2
-      float t() const;
       /// uncertainty on longitudinal fractional momentum loss
       float xiError() const { return error( (int)Index::xi ); }
       /// uncertainty on fitted momentum horizontal angle opening
@@ -48,6 +43,15 @@ namespace reco
       float vertexXError() const { return error( (int)Index::vtx_x ); }
       /// uncertainty on fitted vertex vertical position
       float vertexYError() const { return error( (int)Index::vtx_y ); }
+
+      /// proton mass in GeV
+      static float mass() { return mass_; }
+
+      /// compute the squared four-momentum transfer from incident and scattered momenta, and angular information
+      static float calculateT( double beam_mom, double proton_mom, double theta );
+
+      /// four-momentum transfer squared, in GeV^2
+      float t() const;
 
       /// LHC sector
       enum class LHCSector { invalid = -1, sector45, sector56 };
@@ -69,6 +73,9 @@ namespace reco
     private:
       float xi_; ///< fractional momentum loss (positive for diffractive protons)
       ProtonTrackExtraRef pt_extra_; ///< Additional information on proton track
+
+      static constexpr float mass_ = 0.938272046; ///< proton mass, GeV
+      static constexpr float massSquared_ = 0.88035443; ///< proton mass squared, GeV^2
   };
 }
 
