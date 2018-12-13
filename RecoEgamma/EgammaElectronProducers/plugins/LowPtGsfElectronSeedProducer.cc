@@ -285,6 +285,7 @@ void LowPtGsfElectronSeedProducer::propagateTrackToCalo( const reco::PFRecTrackR
     for ( unsigned int iclu = 0; iclu < clusters.product()->size(); iclu++ ) {
 
       if ( std::find( matched.begin(), matched.end(), iclu ) == matched.end() ) {
+
 	reco::PFClusterRef cluRef(clusters,iclu);
 
 	// Determine deta, dphi, dr
@@ -342,7 +343,7 @@ void LowPtGsfElectronSeedProducer::propagateTrackToCalo( const reco::TrackRef& k
   } info;
 
   // Propagate 'electron' to ECAL surface
-  float energy = sqrt( pow(0.000511,2.) + kfTrackRef->outerMomentum().Mag2() );
+  float energy = sqrt( mass_ + kfTrackRef->outerMomentum().Mag2() );
   XYZTLorentzVector mom = XYZTLorentzVector( kfTrackRef->outerMomentum().x(),
 					     kfTrackRef->outerMomentum().y(),
 					     kfTrackRef->outerMomentum().z(),
@@ -361,8 +362,9 @@ void LowPtGsfElectronSeedProducer::propagateTrackToCalo( const reco::TrackRef& k
   GlobalPoint ecal_pos(particle.vertex().x(),
 		       particle.vertex().y(),
 		       particle.vertex().z());
+
   // Preshower limit
-  bool below_ps = pow(ecal_pos.z(),2.) > pow(2.50746495928f,2.)*ecal_pos.perp2();
+  bool below_ps = pow(ecal_pos.z(),2.) > boundary_*ecal_pos.perp2();
   
   // Iterate through ECAL clusters 
   for ( unsigned int iclu = 0; iclu < ecalClusters.product()->size(); iclu++ ) {
