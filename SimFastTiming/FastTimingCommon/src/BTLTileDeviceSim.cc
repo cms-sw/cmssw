@@ -88,14 +88,16 @@ void BTLTileDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t
     if ( smearLightCollTime_ > 0. )
       toa += CLHEP::RandGaussQ::shoot(hre, 0., smearLightCollTime_);
 
-    // --- Accumulate the energy of simHits in the same crystal
-    if ( toa < bxTime_ )  // this is to simulate the charge integration in a 25 ns window
-      (simHitIt->second).hit_info[0][0] += Npe;
+    if ( toa > bxTime_ || toa < 0 ) //just consider BX==0
+      continue;
 
+    (simHitIt->second).hit_info[0][0] += Npe;
+    
     // --- Store the time of the first SimHit
-    if( (simHitIt->second).hit_info[1][0] == 0 )
+    if( (simHitIt->second).hit_info[1][0] == 0 ||
+	toa < (simHitIt->second).hit_info[1][0]
+	)
       (simHitIt->second).hit_info[1][0] = toa;
-
+    
   } // hitRef loop
-
 }
