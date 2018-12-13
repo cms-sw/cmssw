@@ -39,7 +39,7 @@ public:
   using DDVectorsMap = cms::DDDetector::DDVectorsMap;
 
   DDVectorRegistryESProducer(const edm::ParameterSet&);
-  ~DDVectorRegistryESProducer();
+  ~DDVectorRegistryESProducer() override;
   
   using ReturnType = unique_ptr<DDVectorRegistry>;
 
