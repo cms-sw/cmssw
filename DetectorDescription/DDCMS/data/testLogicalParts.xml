@@ -65,10 +65,11 @@
     <LogicalPart name="trd1">
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:trd1"/>
-    </LogicalPart> 
+    </LogicalPart>
+    <!-- Trd2 is don defined in CMS DD -->
     <LogicalPart name="trd2">
       <rMaterial name="testMaterials:Air"/>
-      <rSolid name="testSolids:trd2"/>
+      <rSolid name="testSolids:trd1"/>
     </LogicalPart> 
     <LogicalPart name="tube1">
       <rMaterial name="testMaterials:Air"/>
