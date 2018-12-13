@@ -33,7 +33,7 @@ namespace lowptgsfeleseed {
     float ktf_ecal_cluster_covEtaPhi_ = -1.;
     float ktf_ecal_cluster_covPhiPhi_ = -1.;
     float ktf_ecal_cluster_r9_ = -1.;
-    float ktf_ecal_cluster_circularity_ = -1.;
+    float ktf_ecal_cluster_circularity_ = -0.1;
     float ktf_hcal_cluster_e_ = -1.;
     float ktf_hcal_cluster_deta_ = -1.;
     float ktf_hcal_cluster_dphi_ = -1.;
