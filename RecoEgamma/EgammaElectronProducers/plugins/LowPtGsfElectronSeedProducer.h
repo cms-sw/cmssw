@@ -125,6 +125,11 @@ class LowPtGsfElectronSeedProducer final : public edm::stream::EDProducer< edm::
   const double minPtThreshold_;
   const double maxPtThreshold_;
 
+  // pow( sinh(1.65), 2. )
+  static constexpr double boundary_ = 2.50746495928*2.50746495928;
+  // pow( ele_mass, 2. )
+  static constexpr double mass_ = 0.000511*0.000511;
+
 };
 
 #endif // RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedProducer_h
