@@ -29,16 +29,16 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSBeamParameters.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 
-#include <stdint.h>
+#include <cstdint>
 
 class RetrieveCTPPSBeamParameters : public edm::one::EDAnalyzer<>
 {
   public:
     explicit RetrieveCTPPSBeamParameters(const edm::ParameterSet&);
-    ~RetrieveCTPPSBeamParameters() = default;
+    ~RetrieveCTPPSBeamParameters() override = default;
 
   private:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
     std::string label_;
 };
 

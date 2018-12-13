@@ -20,7 +20,7 @@ class CTPPSOpticalFunctionsESSource: public edm::ESProducer, public edm::EventSe
 {
   public:
     CTPPSOpticalFunctionsESSource(const edm::ParameterSet &);
-    ~CTPPSOpticalFunctionsESSource() = default;
+    ~CTPPSOpticalFunctionsESSource() override = default;
 
     edm::ESProducts<std::unique_ptr<LHCOpticalFunctionsCollection>> produce(const CTPPSOpticsRcd &);
     static void fillDescriptions(edm::ConfigurationDescriptions&);

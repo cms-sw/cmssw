@@ -50,12 +50,12 @@ class CTPPSDirectProtonSimulation : public edm::stream::EDProducer<>
 {
   public:
     explicit CTPPSDirectProtonSimulation( const edm::ParameterSet& );
-    ~CTPPSDirectProtonSimulation() {}
+    ~CTPPSDirectProtonSimulation() override {}
 
     static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
   private:
-    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+    void produce( edm::Event&, const edm::EventSetup& ) override;
 
     void processProton(const HepMC::GenVertex* in_vtx, const HepMC::GenParticle* in_trk,
       const CTPPSGeometry &geometry, const CTPPSBeamParameters &beamParameters,
@@ -243,8 +243,8 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
   std::stringstream ssLog;
 
   // vectors in CMS convention
-  const HepMC::FourVector vtx_cms = in_vtx->position(); // in mm
-  const HepMC::FourVector mom_cms = in_trk->momentum();
+  const HepMC::FourVector& vtx_cms = in_vtx->position(); // in mm
+  const HepMC::FourVector& mom_cms = in_trk->momentum();
 
   // transformation to LHC/TOTEM convention
   HepMC::FourVector vtx_lhc(-vtx_cms.x(), vtx_cms.y(), -vtx_cms.z(), vtx_cms.t());

@@ -35,12 +35,12 @@ class CTPPSProtonReconstructionSimulationValidator : public edm::one::EDAnalyzer
   public:
     explicit CTPPSProtonReconstructionSimulationValidator(const edm::ParameterSet&);
 
-    ~CTPPSProtonReconstructionSimulationValidator() {}
+    ~CTPPSProtonReconstructionSimulationValidator() override {}
 
   private:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    virtual void endJob() override;
+    void endJob() override;
 
     void fillPlots(unsigned int meth_idx, unsigned int idx, const reco::ProtonTrack &rec_pr,
       const HepMC::FourVector &vtx, const HepMC::FourVector &mom, const LHCInfo &lhcInfo);
@@ -55,20 +55,20 @@ class CTPPSProtonReconstructionSimulationValidator : public edm::one::EDAnalyzer
 
     struct PlotGroup
     {
-      TH1D *h_de_xi = NULL;
+      TH1D *h_de_xi = nullptr;
       TProfile *p_de_xi_vs_xi_simu;
       TH2D *h_xi_reco_vs_xi_simu;
 
-      TH1D *h_de_th_x = NULL;
+      TH1D *h_de_th_x = nullptr;
       TProfile *p_de_th_x_vs_xi_simu;
 
-      TH1D *h_de_th_y = NULL;
+      TH1D *h_de_th_y = nullptr;
       TProfile *p_de_th_y_vs_xi_simu;
 
-      TH1D *h_de_vtx_y = NULL;
+      TH1D *h_de_vtx_y = nullptr;
       TProfile *p_de_vtx_y_vs_xi_simu;
 
-      TH1D *h_de_t = NULL;
+      TH1D *h_de_t = nullptr;
       TProfile *p_de_t_vs_xi_simu;
       TProfile *p_de_t_vs_t_simu;
 
@@ -319,7 +319,7 @@ void CTPPSProtonReconstructionSimulationValidator::fillPlots(unsigned int meth_i
   const double t_reco = - rec_pr.t();
 
   auto &p = plots_[meth_idx][idx];
-  if (p.h_de_xi == NULL)
+  if (p.h_de_xi == nullptr)
     p.init();
 
   p.h_xi_reco_vs_xi_simu->Fill(xi_simu, xi_reco);

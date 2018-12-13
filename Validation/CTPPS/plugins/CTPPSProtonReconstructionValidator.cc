@@ -35,12 +35,12 @@ class CTPPSProtonReconstructionValidator : public edm::one::EDAnalyzer<>
   public:
     explicit CTPPSProtonReconstructionValidator(const edm::ParameterSet&);
 
-    ~CTPPSProtonReconstructionValidator() {}
+    ~CTPPSProtonReconstructionValidator() override {}
 
   private:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    virtual void endJob() override;
+    void endJob() override;
 
     edm::EDGetTokenT<std::vector<reco::ProtonTrack>> tokenRecoProtons_;
 
@@ -55,7 +55,7 @@ class CTPPSProtonReconstructionValidator : public edm::one::EDAnalyzer<>
 
     struct RPPlots
     {
-      TH1D *h_de_x = NULL, *h_de_y;
+      TH1D *h_de_x = nullptr, *h_de_y;
 
       void init()
       {
@@ -65,7 +65,7 @@ class CTPPSProtonReconstructionValidator : public edm::one::EDAnalyzer<>
 
       void fill(double de_x, double de_y)
       {
-        if (h_de_x == NULL)
+        if (h_de_x == nullptr)
           init();
 
         h_de_x->Fill(de_x);

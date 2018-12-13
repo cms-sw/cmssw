@@ -32,12 +32,12 @@ class CTPPSProtonReconstruction : public edm::stream::EDProducer<>
 {
   public:
     explicit CTPPSProtonReconstruction(const edm::ParameterSet&);
-    ~CTPPSProtonReconstruction() = default;
+    ~CTPPSProtonReconstruction() override = default;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     edm::EDGetTokenT<std::vector<CTPPSLocalTrackLite> > tracksToken_;
 

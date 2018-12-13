@@ -13,7 +13,7 @@ LHCOpticalFunctionsSet::LHCOpticalFunctionsSet(const std::string &fileName, cons
   m_z(z)
 {
   TFile *f_in = TFile::Open(fileName.c_str());
-  if (f_in == NULL)
+  if (f_in == nullptr)
     throw cms::Exception("LHCOpticalFunctionsSet") << "Cannot open file " << fileName << ".";
 
   std::vector<TGraph*> graphs(m_fcn_values.size());

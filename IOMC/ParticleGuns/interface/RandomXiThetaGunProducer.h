@@ -23,7 +23,7 @@ class RandomXiThetaGunProducer : public one::EDProducer<>
     ~RandomXiThetaGunProducer() override = default;
 
   private:
-    virtual void produce(Event&, const EventSetup&) override;
+    void produce(Event&, const EventSetup&) override;
     void generateParticle(double z_sign, double mass, unsigned int barcode, HepMC::GenVertex *vtx) const;
 
     unsigned int verbosity_;

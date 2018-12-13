@@ -31,14 +31,14 @@ class CTPPSDirectProtonSimulationValidator : public edm::one::EDAnalyzer<>
 {
   public:
     explicit CTPPSDirectProtonSimulationValidator( const edm::ParameterSet& );
-    ~CTPPSDirectProtonSimulationValidator();
+    ~CTPPSDirectProtonSimulationValidator() override;
 
   private:
-    virtual void beginJob() override;
+    void beginJob() override;
 
-    virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+    void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
-    virtual void endJob() override;
+    void endJob() override;
 
     edm::EDGetTokenT< std::vector<CTPPSLocalTrackLite> > simuTracksToken_;
     edm::EDGetTokenT< std::vector<CTPPSLocalTrackLite> > recoTracksToken_;
@@ -47,7 +47,7 @@ class CTPPSDirectProtonSimulationValidator : public edm::one::EDAnalyzer<>
 
     struct RPPlots
     {
-      TH2D *h2_xr_vs_xs=NULL, *h2_yr_vs_ys=NULL;
+      TH2D *h2_xr_vs_xs=nullptr, *h2_yr_vs_ys=nullptr;
       TH1D *h_de_x, *h_de_y;
 
       void init()
@@ -60,7 +60,7 @@ class CTPPSDirectProtonSimulationValidator : public edm::one::EDAnalyzer<>
 
       void fill(double simu_x, double simu_y, double reco_x, double reco_y)
       {
-        if (h2_xr_vs_xs == NULL)
+        if (h2_xr_vs_xs == nullptr)
           init();
 
         h2_xr_vs_xs->Fill(simu_x, reco_x);

@@ -28,14 +28,14 @@ class CTPPSAcceptancePlotter : public edm::one::EDAnalyzer<>
 {
   public:
     explicit CTPPSAcceptancePlotter( const edm::ParameterSet& );
-    ~CTPPSAcceptancePlotter();
+    ~CTPPSAcceptancePlotter() override;
 
   private:
-    virtual void beginJob() override;
+    void beginJob() override;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    virtual void endJob() override;
+    void endJob() override;
 
     edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC;
     edm::EDGetTokenT< std::vector<CTPPSLocalTrackLite> > tokenTracks;
@@ -46,7 +46,7 @@ class CTPPSAcceptancePlotter : public edm::one::EDAnalyzer<>
 
     struct SingleArmPlots
     {
-      TH1D *h_xi_all = NULL, *h_xi_acc = NULL;
+      TH1D *h_xi_all = nullptr, *h_xi_acc = nullptr;
 
       void Init()
       {
@@ -56,7 +56,7 @@ class CTPPSAcceptancePlotter : public edm::one::EDAnalyzer<>
 
       void Fill(double xi, bool acc)
       {
-        if (h_xi_all == NULL)
+        if (h_xi_all == nullptr)
           Init();
 
         h_xi_all->Fill(xi); 
@@ -80,7 +80,7 @@ class CTPPSAcceptancePlotter : public edm::one::EDAnalyzer<>
 
     struct DoubleArmPlots
     {
-      TH1D *h_m_all = NULL, *h_m_acc = NULL;
+      TH1D *h_m_all = nullptr, *h_m_acc = nullptr;
       TH2D *h2_xi_45_vs_xi_56_all, *h2_xi_45_vs_xi_56_acc;
       TH2D *h2_y_vs_m_all, *h2_y_vs_m_acc;
 
@@ -98,7 +98,7 @@ class CTPPSAcceptancePlotter : public edm::one::EDAnalyzer<>
 
       void Fill(double xi_45, double xi_56, bool acc)
       {
-        if (h_m_all == NULL)
+        if (h_m_all == nullptr)
           Init();
 
         const double p_nom = 6500.;
@@ -314,7 +314,7 @@ void CTPPSAcceptancePlotter::endJob()
     string dirName;
     for (const auto &rpId : p.first)
     {
-      if (dirName.size() > 0)
+      if (!dirName.empty())
         dirName += ",";
       char buf[100];
       sprintf(buf, "%u", rpId);
@@ -330,7 +330,7 @@ void CTPPSAcceptancePlotter::endJob()
     string dirName;
     for (const auto &rpId : p.first)
     {
-      if (dirName.size() > 0)
+      if (!dirName.empty())
         dirName += ",";
       char buf[100];
       sprintf(buf, "%u", rpId);

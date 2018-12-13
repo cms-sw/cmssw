@@ -29,12 +29,12 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
 {
   public:
     explicit CTPPSProtonReconstructionPlotter(const edm::ParameterSet&);
-    ~CTPPSProtonReconstructionPlotter() {}
+    ~CTPPSProtonReconstructionPlotter() override {}
 
   private:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    virtual void endJob() override;
+    void endJob() override;
 
     edm::EDGetTokenT<std::vector<CTPPSLocalTrackLite>> tokenTracks_;
     edm::EDGetTokenT<std::vector<reco::ProtonTrack>> tokenRecoProtonsSingleRP_;
@@ -70,10 +70,10 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
 
     struct SingleRPPlots
     {
-      TH1D *h_xi = NULL;
+      TH1D *h_xi = nullptr;
 
-      TH2D *h2_th_y_vs_xi = NULL;
-      TProfile *p_th_y_vs_xi = NULL;
+      TH2D *h2_th_y_vs_xi = nullptr;
+      TProfile *p_th_y_vs_xi = nullptr;
 
       void init()
       {
@@ -111,10 +111,10 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
 
     struct MultiRPPlots
     {
-      TH1D *h_xi=NULL, *h_th_x=NULL, *h_th_y=NULL, *h_vtx_y=NULL, *h_t=NULL, *h_chi_sq=NULL, *h_chi_sq_norm=NULL;
-      TH1D *h_t_xi_range1=NULL, *h_t_xi_range2=NULL, *h_t_xi_range3=NULL;
-      TH2D *h2_th_x_vs_xi = NULL, *h2_th_y_vs_xi = NULL, *h2_vtx_y_vs_xi = NULL, *h2_t_vs_xi;
-      TProfile *p_th_x_vs_xi = NULL, *p_th_y_vs_xi = NULL, *p_vtx_y_vs_xi = NULL;
+      TH1D *h_xi=nullptr, *h_th_x=nullptr, *h_th_y=nullptr, *h_vtx_y=nullptr, *h_t=nullptr, *h_chi_sq=nullptr, *h_chi_sq_norm=nullptr;
+      TH1D *h_t_xi_range1=nullptr, *h_t_xi_range2=nullptr, *h_t_xi_range3=nullptr;
+      TH2D *h2_th_x_vs_xi = nullptr, *h2_th_y_vs_xi = nullptr, *h2_vtx_y_vs_xi = nullptr, *h2_t_vs_xi;
+      TProfile *p_th_x_vs_xi = nullptr, *p_th_y_vs_xi = nullptr, *p_vtx_y_vs_xi = nullptr;
 
       void init()
       {
@@ -236,14 +236,14 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
 
     struct SingleMultiCorrelationPlots
     {
-      TH2D *h2_xi_mu_vs_xi_si = NULL;
-      TH1D *h_xi_diff_mu_si = NULL;
-      TH1D *h_xi_diff_si_mu = NULL;
+      TH2D *h2_xi_mu_vs_xi_si = nullptr;
+      TH1D *h_xi_diff_mu_si = nullptr;
+      TH1D *h_xi_diff_si_mu = nullptr;
 
-      TH2D *h2_xi_diff_si_mu_vs_xi_mu = NULL;
-      TProfile *p_xi_diff_si_mu_vs_xi_mu = NULL;
+      TH2D *h2_xi_diff_si_mu_vs_xi_mu = nullptr;
+      TProfile *p_xi_diff_si_mu_vs_xi_mu = nullptr;
 
-      TH2D *h2_th_y_mu_vs_th_y_si = NULL;
+      TH2D *h2_th_y_mu_vs_th_y_si = nullptr;
 
       void init()
       {
@@ -295,11 +295,11 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
 
     struct ArmCorrelationPlots
     {
-      TH1D *h_xi_si_diffNF = NULL;
-      TProfile *p_xi_si_diffNF_vs_xi_mu = NULL;
+      TH1D *h_xi_si_diffNF = nullptr;
+      TProfile *p_xi_si_diffNF_vs_xi_mu = nullptr;
 
-      TH1D *h_th_y_si_diffNF = NULL;
-      TProfile *p_th_y_si_diffNF_vs_xi_mu = NULL;
+      TH1D *h_th_y_si_diffNF = nullptr;
+      TProfile *p_th_y_si_diffNF_vs_xi_mu = nullptr;
 
       void init()
       {
@@ -389,17 +389,17 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
   Handle<vector<reco::ProtonTrack>> hRecoProtonsMultiRP;
   event.getByToken(tokenRecoProtonsMultiRP_, hRecoProtonsMultiRP);
 
-  if (hRecoProtonsSingleRP->size() > 0)
+  if (!hRecoProtonsSingleRP->empty())
     n_non_empty_events_++;
 
   if (maxNonEmptyEvents_ > 0 && n_non_empty_events_ > maxNonEmptyEvents_)
     throw cms::Exception("CTPPSProtonReconstructionPlotter") << "Number of non empty events reached maximum.";
 
   // track plots
-  const CTPPSLocalTrackLite *tr_L_N = NULL;
-  const CTPPSLocalTrackLite *tr_L_F = NULL;
-  const CTPPSLocalTrackLite *tr_R_N = NULL;
-  const CTPPSLocalTrackLite *tr_R_F = NULL;
+  const CTPPSLocalTrackLite *tr_L_N = nullptr;
+  const CTPPSLocalTrackLite *tr_L_F = nullptr;
+  const CTPPSLocalTrackLite *tr_R_N = nullptr;
+  const CTPPSLocalTrackLite *tr_R_F = nullptr;
 
   for (const auto &tr : *hTracks)
   {
@@ -461,8 +461,8 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
   }
 
   // arm correlation plots
-  const reco::ProtonTrack *p_arm0_s_N = NULL, *p_arm0_s_F = NULL, *p_arm0_m = NULL;
-  const reco::ProtonTrack *p_arm1_s_N = NULL, *p_arm1_s_F = NULL, *p_arm1_m = NULL;
+  const reco::ProtonTrack *p_arm0_s_N = nullptr, *p_arm0_s_F = nullptr, *p_arm0_m = nullptr;
+  const reco::ProtonTrack *p_arm1_s_N = nullptr, *p_arm1_s_F = nullptr, *p_arm1_m = nullptr;
 
   for (const auto &proton : *hRecoProtonsSingleRP)
   {

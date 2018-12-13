@@ -21,7 +21,7 @@ class CTPPSLHCInfoESSource: public edm::ESProducer, public edm::EventSetupRecord
   public:
     CTPPSLHCInfoESSource(const edm::ParameterSet &);
 
-    ~CTPPSLHCInfoESSource() {};
+    ~CTPPSLHCInfoESSource() override {};
 
     edm::ESProducts<std::unique_ptr<LHCInfo>> produce(const LHCInfoRcd &);
 
