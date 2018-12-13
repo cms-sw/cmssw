@@ -20,10 +20,7 @@ ProtonTrack::ProtonTrack( double chi2, double ndof, const Point& vtx, const Vect
 
 float ProtonTrack::calculateT( double beam_mom, double proton_mom, double theta )
 {
-  const double m = 0.938; // GeV
-  //FIXME necessarily hardcoded? may be moved to a static const(expr) value? or method argument?
-
-  const double t0 = 2.*m*m + 2.*beam_mom*proton_mom - 2.*sqrt( (m*m + beam_mom*beam_mom) * (m*m + proton_mom*proton_mom) );
+  const double t0 = 2.*massSquared_ + 2.*beam_mom*proton_mom - 2.*sqrt( (massSquared_ + beam_mom*beam_mom) * (massSquared_ + proton_mom*proton_mom) );
   const double S = sin(theta/2.);
   return t0 - 4. * beam_mom * proton_mom * S*S;
 }
