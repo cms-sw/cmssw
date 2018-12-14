@@ -37,8 +37,15 @@ process.options = cms.untracked.PSet(
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # input data
+import os
+relativeFileName = 'IOPool/Input/testdata/rawData_empty_CMSSW_10_2_0.root'
+absoluteFileName = os.environ['CMSSW_BASE'] + '/src/' + relativeFileName
+if not os.path.isfile(absoluteFileName):
+  absoluteFileName = os.environ['CMSSW_RELEASE_BASE'] + '/src/' + relativeFileName
+physicalFileName = 'file:' + absoluteFileName
+
 process.source = cms.Source('PoolSource',
-    fileNames = cms.untracked.vstring('/store/data/Run2018B/ZeroBias/RAW/v1/000/317/435/00000/10FA8B3F-5A68-E811-A1D9-FA163E481185.root')
+    fileNames = cms.untracked.vstring(physicalFileName)
 )
 
 from FWCore.Modules.bunchCrossingFilter_cfi import bunchCrossingFilter as _bunchCrossingFilter
