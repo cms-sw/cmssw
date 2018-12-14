@@ -623,15 +623,20 @@ void RPixPlaneCombinatoryTracking::addRecoInfo(int run)
     }
 
     if(verbosity_>=2){
-      edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Analyzing run: "<<run;
-      edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Shift period: "<<shiftPeriod;
-      edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Tracks belong to Arm "<<romanPotId_.arm()<<" Station "<<romanPotId_.station();
-      if(shiftPeriod != 0 && shiftPeriod !=  5)edm::LogInfo("RPixPlaneCombinatoryTracking")<<"The shifted ROC is ROC"<<shiftedROC;
-      edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Track reconstructed with: "<<bxShiftedPlanesUsed<<" bx-shifted planes, "<<bxNonShiftedPlanesUsed<<" non-bx-shifted planes, "<<hitInShiftedROC<<" hits in the bx-shifted ROC";
-      edm::LogInfo("RPixPlaneCombinatoryTracking")<<"recoInfo = "<<recoInfo;
+      edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Analyzing run: "<<run<<"\nShift period: "<<shiftPeriod<<" Track belongs to Arm "<<romanPotId_.arm()<<" Station "<<romanPotId_.station()
+      <<"\nTrack reconstructed with: "<<bxShiftedPlanesUsed<<" bx-shifted planes, "<<bxNonShiftedPlanesUsed<<" non-bx-shifted planes, "<<hitInShiftedROC<<" hits in the bx-shifted ROC"<<"\nrecoInfo = "<<recoInfo;
+      if(shiftPeriod != 0 && shiftPeriod != 2 && shiftPeriod !=  5)edm::LogInfo("RPixPlaneCombinatoryTracking")<<"The shifted ROC is ROC"<<shiftedROC;
     }
+    
     // Create new track with recoInfo_, put it in localTrackVectorWithRecoInfo and assign localTrackVectorWithRecoInfo to localTrackVector_
-    localTrackVectorWithRecoInfo.push_back(CTPPSPixelLocalTrack(track.getZ0(), track.getParameterVector(), track.getCovarianceMatrix(), track.getChiSquared(), recoInfo));
+    CTPPSPixelLocalTrack trackWithRecoInfo(track.getZ0(), track.getParameterVector(), track.getCovarianceMatrix(), track.getChiSquared(), recoInfo);
+    for(const auto & planeHits : fittedHits){
+      CTPPSPixelDetId hitId = CTPPSPixelDetId(planeHits.detId());
+      for(const auto & hit : planeHits){
+        trackWithRecoInfo.addHit(hitId,hit);
+      }
+    }
+    localTrackVectorWithRecoInfo.push_back(trackWithRecoInfo);
   }
 
   localTrackVector_ = localTrackVectorWithRecoInfo;
