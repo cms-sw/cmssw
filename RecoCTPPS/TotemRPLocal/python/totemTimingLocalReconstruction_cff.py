@@ -7,7 +7,7 @@ totemTimingRecHits.cfdFraction = cms.double(0.3)
 totemTimingRecHits.smoothingPoints = cms.int32(20)
 totemTimingRecHits.lowPassFrequency = cms.double(0.7)
 totemTimingRecHits.hysteresis = cms.double(5e-3)
-totemTimingRecHits.calibrationFile = cms.FileInPath('RecoCTPPS/TotemRPLocal/data/run2_timing_offsets_cal_aug18.json')
+totemTimingRecHits.calibrationFile = cms.FileInPath('RecoCTPPS/TotemRPLocal/data/timing_offsets_ufsd_2018.dec18.cal.json')
 totemTimingRecHits.mergeTimePeaks = cms.bool(True);
 
 # local track fitting
