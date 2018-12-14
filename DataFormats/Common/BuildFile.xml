@@ -3,6 +3,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="DataFormats/StdDictionaries"/>
 <use   name="boost"/>
+<flags GENREFLEX_ARGS="--deep -cxxmodule"/>
 <export>
   <lib   name="1"/>
 </export>
