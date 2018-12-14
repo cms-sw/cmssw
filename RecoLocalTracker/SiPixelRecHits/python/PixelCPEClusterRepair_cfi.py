@@ -9,8 +9,8 @@ templates2 = cms.ESProducer("PixelCPEClusterRepairESProducer",
 
     # parameters to select which clusters we believe are truncated from dead double columns
     # Be careful modifying these!
-    MaxSizeMismatchInY = 0.3,
-    MinChargeRatio = 0.8,
+    MaxSizeMismatchInY = cms.double(0.3),
+    MinChargeRatio = cms.double(0.8),
     
 
     # petar, for clusterProbability() from TTRHs

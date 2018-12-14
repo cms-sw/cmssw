@@ -80,6 +80,15 @@ private:
 			ClusterParamTemplate & theClusterParam, 
 			SiPixelTemplateReco2D::ClusMatrix & clusterPayload,
 			int ID, LocalPoint & lp ) const;
+
+   //Helper function to see if 2D reco should be run
+   void checkRecommend2D( DetParam const & theDetParam, 
+			ClusterParamTemplate & theClusterParam, 
+			SiPixelTemplateReco::ClusMatrix & clusterPayload,
+			int ID) const;
+
+
+
    
 
    // Template storage
