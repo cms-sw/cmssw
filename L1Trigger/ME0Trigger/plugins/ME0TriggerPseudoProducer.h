@@ -18,7 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class ME0TriggerBuilder;
+class ME0TriggerPseudoBuilder;
 
 class ME0TriggerPseudoProducer : public edm::global::EDProducer<>
 {
