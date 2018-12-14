@@ -918,10 +918,10 @@ def listGTs_(args):
     session = connection.session()
     GlobalTag = session.get_dbtype(conddb.GlobalTag)
     output_table(args,
-        session.query(GlobalTag.name, GlobalTag.description, GlobalTag.release, GlobalTag.insertion_time).\
+        session.query(GlobalTag.name, GlobalTag.description, GlobalTag.release, GlobalTag.snapshot_time, GlobalTag.insertion_time).\
             order_by(GlobalTag.insertion_time, GlobalTag.name).\
             all(),
-        ['GT_name', 'Description', 'Release', 'Insertion_time'],
+        ['GT_name', 'Description', 'Release', 'Snapshot_time', 'Insertion_time'],
     )
 
 def listRuns_(args):
@@ -1539,7 +1539,7 @@ def copy(args):
         GlobalTag2 = session2.get_dbtype(conddb.GlobalTag)
         GlobalTagMap1 = session1.get_dbtype(conddb.GlobalTagMap)
         GlobalTagMap2 = session2.get_dbtype(conddb.GlobalTagMap)
-        # Copy the global tag
+        # Prepare the copy
         global_tag = _rawdict(session1.query(GlobalTag1).get(args.first))
         global_tag['name'] = args.second
         global_tag['validity'] = 0 # XXX: SQLite does not work with long ints...
@@ -1549,11 +1549,11 @@ def copy(args):
             global_tag['snapshot_time'] = _parse_timestamp(args.snapshot)
         if _exists(session2, GlobalTag2.name, args.second):
             raise Exception('A GlobalTag named "%s" already exists in %s' %(args.second, args.destdb))   
-        session2.add(GlobalTag2(**global_tag))
 
         # Copy the tags of the global tag
         logging.debug('Creating query for tag %s filter %s ...', GlobalTagMap1.tag_name, args.first)
         query = session1.query(GlobalTagMap1.tag_name).filter(GlobalTagMap1.global_tag_name == args.first).distinct()
+        copyTime = datetime.datetime.utcnow()
         for (tag, ) in query:
             logging.debug('Copying tag %s to %s for GT %s ...', str_db_object(args.db, tag), str_db_object(args.destdb, tag), str_db_object(args.destdb, args.second))
             Tag2 = session2.get_dbtype(conddb.Tag)
@@ -1561,9 +1561,14 @@ def copy(args):
                 logging.warn('Skipping copy of tag %s to %s since it already exists... *The tags may differ in content*', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
             else:
                 logging.debug('going to copy tag %s to %s ... ', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
-                copyTime = datetime.datetime.utcnow()
                 _copy_tag(args, copyTime, session1, session2, tag, tag, timeMap=timeMap)
 
+        # Copy the global tag
+        global_tag2 = GlobalTag2(**global_tag)
+        copyTime = datetime.datetime.utcnow()
+        global_tag2.snapshot_time = copyTime
+        global_tag2.insertion_time = copyTime
+        session2.add(global_tag2)
         # Copy the map of the global tag
         query = session1.query(GlobalTagMap1).filter(GlobalTagMap1.global_tag_name == args.first)
         for map_ in query:
