@@ -97,7 +97,6 @@ unsigned
 HGCalTriggerTools::
 layers(DetId::Detector type) const
 {
-
   unsigned layers = 0;
   switch (type)
   {

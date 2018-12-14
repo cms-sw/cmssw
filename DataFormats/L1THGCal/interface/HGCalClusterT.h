@@ -150,8 +150,6 @@ namespace l1t
       }
 
       uint32_t subdetId() const {return detId_.subdetId();} 
-      // uint32_t layer() const {return detId_.layer();}
-      // int32_t zside() const {return detId_.zside();}
 
 
       //shower shape

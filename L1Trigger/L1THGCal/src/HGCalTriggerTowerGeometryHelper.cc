@@ -3,7 +3,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/DetId/interface/DetId.h"
-// #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cmath>

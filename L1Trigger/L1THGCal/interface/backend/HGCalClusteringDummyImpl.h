@@ -6,7 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
-//#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"

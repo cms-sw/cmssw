@@ -6,7 +6,6 @@
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/DetId/interface/DetId.h"
-//#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 namespace l1t 
 {
@@ -39,12 +38,6 @@ namespace l1t
             int subdetId() const {                
                 return detid_.subdetId();               
             }
-            // int zside() const {                
-                // return detid_.zside();               
-            // }
-            // int layer() const {                
-                // return detid_.layer();               
-            // }
             
             void   setMipPt( double value ) { mipPt_ = value; }
             double mipPt() const            { return mipPt_;  }
