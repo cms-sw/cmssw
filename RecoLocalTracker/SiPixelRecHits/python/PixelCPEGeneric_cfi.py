@@ -14,13 +14,9 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     size_cutX = cms.double(3.0),
     size_cutY = cms.double(3.0),
 
-    # Edge cluster errors in microns for non-layer 1 (determined by looking at residual RMS) 
+    # Edge cluster errors in microns (determined by looking at residual RMS) 
     EdgeClusterErrorX = cms.double( 50.0 ),                                      
     EdgeClusterErrorY = cms.double( 85.0 ),                                                     
-
-    # Edge cluster errors in microns for layer 1 (determined by looking at residual RMS) 
-    Layer1EdgeClusterErrorX = cms.double( 50.0 ),                                      
-    Layer1EdgeClusterErrorY = cms.double( 180.0 ),                                                     
 
     # ggiurgiu@jhu.edu
     inflate_errors = cms.bool(False),

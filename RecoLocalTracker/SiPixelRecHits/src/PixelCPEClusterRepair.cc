@@ -88,8 +88,8 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
 
 
 
-   maxSizeMismatchInY_ = conf.getParameter<int>("MaxSizeMismatchInY");
-   minChargeRatio_ = conf.getParameter<int>("MinChargeRatio");
+   maxSizeMismatchInY_ = conf.getParameter<double>("MaxSizeMismatchInY");
+   minChargeRatio_ = conf.getParameter<double>("MinChargeRatio");
 
 }
 
@@ -129,9 +129,6 @@ PixelCPEClusterRepair::localPosition(DetParam const & theDetParam, ClusterParam 
       throw cms::Exception("PixelCPEClusterRepair::localPosition :")
       << "A non-pixel detector type in here?";
 
-   DetId id = (theDetParam.theDet->geographicalId());
-   bool isBarrel  = GeomDetEnumerators::isBarrel(theDetParam.thePart);
-   int layer=ttopo_.layer(id);
    
    int ID = -9999;
    if ( LoadTemplatesFromDB_ ) {
@@ -234,29 +231,17 @@ PixelCPEClusterRepair::localPosition(DetParam const & theDetParam, ClusterParam 
 
 
 
-   //--- Are we on edge?
-   if ( theClusterParam.edgeTypeY_ ) {
-     //--- Call the Template Reco 2d with cluster repair.0
+   //--- Should we run the 2D reco?
+   checkRecommend2D(theDetParam, theClusterParam, clusterPayload, ID);
+   if ( theClusterParam.recommended2D_ ) {
+     //--- Call the Template Reco 2d with cluster repair
      filled_from_2d = true;
      callTempReco2D( theDetParam, theClusterParam, clusterPayload2d, ID, lp );
    }
    else {
-     theClusterParam.recommended2D_ = false;
      //--- Call the vanilla Template Reco
      callTempReco1D( theDetParam, theClusterParam, clusterPayload, ID, lp );
-
-     //for now, don't try to fix any clusters in layer 1
-     if( isBarrel && layer == 1 ) theClusterParam.recommended2D_ = false;
-
-     //--- Did we find a cluster which has bad probability and not enough charge?
-     if ( theClusterParam.recommended2D_ ) {
-       //--- Yes. So run Template Reco 2d with cluster repair.
-
-       //--- Call the Template Reco 2d with cluster repair
-       callTempReco2D( theDetParam, theClusterParam, clusterPayload2d, ID, lp );
-       filled_from_2d = true;
-     }
-
+     filled_from_2d = false;
    }
 
    //--- Make sure cluster repair returns all info about the hit back up to caller
@@ -365,41 +350,6 @@ PixelCPEClusterRepair::callTempReco1D( DetParam const & theDetParam,
        theClusterParam.hasFilledProb_ = true;
 
        
-       //--- templ.clsleny() is the expected length of the cluster along y axis.
-       //--- templ.qavg() is the expected total charge of the cluster
-       //--- theClusterParam.theCluster->charge() is the total charge of this cluster
-       Double_t nydiff = templ.clsleny() - nypix;
-       Double_t qratio = theClusterParam.theCluster->charge()/templ.qavg();
-
-       if ( nydiff > maxSizeMismatchInY_  && qratio < minChargeRatio_){
-       //--- If the cluster is shorter than expected and has less charge, likely
-       //    due to truncated cluster, try 2D reco
-       //
-           theClusterParam.recommended2D_ = true;
-           theClusterParam.hasBadPixels_ = true;
-           // Truncated clusters usually come from dead double columns
-           // 
-           // Cluster is of even length, so either both of or neither of beginning and ending
-           // edge are on a double column, so we cannot figure out the likely edge of
-           // truncation, let the 2D algorithm try extending on both sides (option 3)
-           if(theClusterParam.theCluster->sizeY() % 2 == 0) theClusterParam.edgeTypeY_ = 3;
-           else{
-               //The cluster is of odd length, only one of the edges can end on
-               //a double column, this is the likely edge of truncation
-               //Double columns always start on even indexes
-               int min_col = theClusterParam.theCluster->minPixelCol();
-               if(min_col %2 ==0){
-                   //begining edge is at a double column (end edge cannot be,
-                   //because odd length) so likely truncated at small y (option 1) 
-                   theClusterParam.edgeTypeY_ = 1;
-               }
-               else{ 
-                   //end edge is at a double column (beginning edge cannot be,
-                   //because odd length) so likely truncated at large y (option 2) 
-                   theClusterParam.edgeTypeY_ = 2;
-               }
-           }
-       }
 
            //--- Go from microns to centimeters
       theClusterParam.templXrec_ *= micronsToCm;
@@ -531,6 +481,73 @@ PixelCPEClusterRepair::callTempReco2D( DetParam const & theDetParam,
       theClusterParam.templYrec_ += lp.y();
    }
    return;
+}
+//---------------------------------------------------------------------------------
+// Helper function to see if we should recommend 2D reco to be run on this
+// cluster
+// ---------------------------------------------------------------------------------
+void PixelCPEClusterRepair::checkRecommend2D( DetParam const & theDetParam, ClusterParamTemplate & theClusterParam, 
+			SiPixelTemplateReco::ClusMatrix & clusterPayload, int ID ) const
+
+{
+    if(theClusterParam.edgeTypeY_){
+        // For clusters that have edges in Y, run 2d reco.
+        // Flags already set by CPEBase
+        theClusterParam.recommended2D_ = true;
+        return;
+    }
+    // The 1d pixel template
+    SiPixelTemplate templ(thePixelTemp_);
+
+    //length of the cluster taking into account double sized pixels
+    float nypix = clusterPayload.mcol;
+    for(int i=0; i<clusterPayload.mcol; i++){
+        if(clusterPayload.ydouble[i]) nypix+=1.;
+    }
+
+    // templ.clsleny() is the expected length of the cluster along y axis.
+    // templ.qavg() is the expected total charge of the cluster
+    // theClusterParam.theCluster->charge() is the total charge of this cluster
+    Double_t nydiff = templ.clsleny() - nypix;
+    Double_t qratio = theClusterParam.theCluster->charge()/templ.qavg();
+
+    if ( nydiff > maxSizeMismatchInY_  && qratio < minChargeRatio_){
+        // If the cluster is shorter than expected and has less charge, likely
+        // due to truncated cluster, try 2D reco
+        
+        theClusterParam.recommended2D_ = true;
+        theClusterParam.hasBadPixels_ = true;
+
+        //for now, don't try to fix any clusters in layer 1
+        DetId id = (theDetParam.theDet->geographicalId());
+        bool isBarrel  = GeomDetEnumerators::isBarrel(theDetParam.thePart);
+        int layer=ttopo_.layer(id);
+        if( isBarrel && layer == 1 ) theClusterParam.recommended2D_ = false;
+
+        // Figure out what edge flags to set for truncated cluster
+        // Truncated clusters usually come from dead double columns
+        // 
+        // If cluster is of even length,  either both of or neither of beginning and ending
+        // edge are on a double column, so we cannot figure out the likely edge of
+        // truncation, let the 2D algorithm try extending on both sides (option 3)
+        if(theClusterParam.theCluster->sizeY() % 2 == 0) theClusterParam.edgeTypeY_ = 3;
+        else{
+            //If the cluster is of odd length, only one of the edges can end on
+            //a double column, this is the likely edge of truncation
+            //Double columns always start on even indexes
+            int min_col = theClusterParam.theCluster->minPixelCol();
+            if(min_col %2 ==0){
+                //begining edge is at a double column (end edge cannot be,
+                //because odd length) so likely truncated at small y (option 1) 
+                theClusterParam.edgeTypeY_ = 1;
+            }
+            else{ 
+                //end edge is at a double column (beginning edge cannot be,
+                //because odd length) so likely truncated at large y (option 2) 
+                theClusterParam.edgeTypeY_ = 2;
+            }
+        }
+    }
 }
 
 
