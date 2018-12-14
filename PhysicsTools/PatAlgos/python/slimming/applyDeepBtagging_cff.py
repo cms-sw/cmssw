@@ -65,7 +65,8 @@ def applyDeepBtagging( process, postfix="" ) :
             'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
             'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
             'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
-            ] + pfDeepBoostedJetTagsAll)
+            ] # + pfDeepBoostedJetTagsAll
+	    )
     updateJetCollection(
        process,
        jetSource = cms.InputTag('slimmedJetsAK8NoDeepTags'),
@@ -78,8 +79,8 @@ def applyDeepBtagging( process, postfix="" ) :
        elSource = cms.InputTag('slimmedElectrons'),
        rParam = 0.8,
        jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
-       btagDiscriminators = _btagDiscriminators.names
-       ,postfix = 'SlimmedAK8DeepTags'+postfix,
+       btagDiscriminators = _btagDiscriminators.namesi,
+       postfix = 'SlimmedAK8DeepTags'+postfix,
        printWarning = False
     )
 
