@@ -45,12 +45,13 @@ class ME0TriggerPseudoBuilder
   static const int max_endcap;
   static const int min_chamber;
   static const int max_chamber;
+  static const unsigned int ME0KeyLayer;
+  static const int ME0TriggerCentralBX;
 
   const ME0Geometry* me0_g;
   
   int info_;
 
-  double phiresolution_; // unit: trigger pad
   double dphiresolution_;//unit: trigger pad
 
   ME0TriggerDigi segmentConversion(const ME0Segment segment);
