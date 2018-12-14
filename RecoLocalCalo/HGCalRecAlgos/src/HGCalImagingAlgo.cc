@@ -117,7 +117,7 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
       Point position;
       
       //Will save the maximum density hit of the cluster
-      std::vector<size_t> rs = sorted_indices(clsOnLayer[i]);
+      size_t rsmax = max_index(clsOnLayer[i]);
 
       if (doSharing) {
 
@@ -161,8 +161,8 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
           }
           clusters_v_.emplace_back(energy, position, caloID, thisCluster,
                                   algoId_);
-	if (!clusters_v_.empty()){ clusters_v_.back().setSeed( clsOnLayer[i][rs[0]].data.detid); }
-          thisCluster.clear();
+	  if (!clusters_v_.empty()){ clusters_v_.back().setSeed( clsOnLayer[i][rsmax].data.detid); }
+	  thisCluster.clear();
         }
       } else {
         position = calculatePosition(clsOnLayer[i]); // energy-weighted position
@@ -182,7 +182,7 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
           std::cout << "*****************************" << std::endl;
         }
         clusters_v_.emplace_back(energy, position, caloID, thisCluster, algoId_);
-	if (!clusters_v_.empty()){ clusters_v_.back().setSeed( clsOnLayer[i][rs[0]].data.detid); }
+	if (!clusters_v_.empty()){ clusters_v_.back().setSeed( clsOnLayer[i][rsmax].data.detid); }
         thisCluster.clear();
       }
     }
