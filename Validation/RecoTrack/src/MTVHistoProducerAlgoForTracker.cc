@@ -410,7 +410,7 @@ void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::ConcurrentBook
   histograms.h_assocdr.push_back( make1DIfLogX(ibook, true, "num_assoc(simToReco)_dr","N of associated tracks (simToReco) vs dR",nintdr,log10(mindr),log10(maxdr)) );
   histograms.h_simuldr.push_back( make1DIfLogX(ibook, true, "num_simul_dr","N of simulated tracks vs dR",nintdr,log10(mindr),log10(maxdr)) );
   histograms.h_simuldrj.push_back( make1DIfLogX(ibook, true, "num_simul_drj","N of simulated tracks vs dR(trak,jet)",nintdrj,log10(mindrj),log10(maxdrj)) );
-  histograms.h_assocdr.push_back( make1DIfLogX(ibook, true, "num_assoc(simToReco)_drj","N of associated tracks (simToReco) vs dR(trak,jet)",nintdrj,log10(mindrj),log10(maxdrj)) );
+  histograms.h_assocdrj.push_back( make1DIfLogX(ibook, true, "num_assoc(simToReco)_drj","N of associated tracks (simToReco) vs dR(trak,jet)",nintdrj,log10(mindrj),log10(maxdrj)) );
 
 
   histograms.h_simul_simpvz.push_back( ibook.book1D("num_simul_simpvz", "N of simulated tracks vs. sim PV z", nintPVz, minPVz, maxPVz) );
