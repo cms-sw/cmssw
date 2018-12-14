@@ -47,7 +47,7 @@ process.dbInput = cms.ESSource("PoolDBESSource",
 ##
 process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
                              toGet = cms.VPSet(cms.PSet(record = cms.string('SiPixelStatusScenarioProbabilityRcd'),
-                                                        data = cms.vstring('SiPixelQualityProbabilities_v0_mc')
+                                                        data = cms.vstring('SiPixelQualityProbabilities')
                                                         )
                                                ),
                              verbose = cms.untracked.bool(True)
