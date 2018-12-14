@@ -89,8 +89,7 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig):
         hadCands_.push_back(consumes<l1t::PFClusterCollection>(tag));
     }
 
-    edm::ParameterSet linkcfg = iConfig.getParameter<edm::ParameterSet>("linking");
-    auto algo = linkcfg.getParameter<std::string>("algo");
+    const std::string & algo = iConfig.getParameter<std::string>("pfAlgo");
     if (algo == "PFAlgo3") {
         l1pfalgo_.reset(new l1tpf_impl::PFAlgo3(iConfig));
     } else if (algo == "PFAlgo2HGC") {

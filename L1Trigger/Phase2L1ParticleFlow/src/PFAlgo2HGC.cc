@@ -355,6 +355,7 @@ void PFAlgo2HGC::linkedtk_algo(Region & r, const std::vector<int> & tk2calo, con
         auto & p = addTrackToPF(r, tk);
         tk.used = true;
         const auto & calo = r.calo[tk2calo[itk]];
+        if (calo.isEM) p.hwId = l1t::PFCandidate::Electron;
         p.cluster.src = calo.src;
         if (calo.hwFlags == 1) {
             // can do weighted average if there's just one track
@@ -372,13 +373,13 @@ void PFAlgo2HGC::linkedtk_algo(Region & r, const std::vector<int> & tk2calo, con
                                     itk, tk.floatPt(), tk.floatPtErr(), tk2calo[itk], calo.floatPt(), tk.floatCaloPtErr(), ptavg );
             } else {
                 p.hwStatus = GoodTK_Calo_TkPt;
-                if (debug_) printf("PFAlgo2HGC \t track %3d (pt %7.2f) linked to calo %3d promoted to charged hadron\n", itk, tk.floatPt(), tk2calo[itk]);
+                if (debug_) printf("PFAlgo2HGC \t track %3d (pt %7.2f) linked to calo %3d promoted to %s\n", itk, tk.floatPt(), tk2calo[itk], (p.hwId == l1t::PFCandidate::Electron ? "electron" : "charged hadron"));
             }
         } else if (calo.hwFlags == 2) {
             // must rescale
             p.setFloatPt(tk.floatPt() * calo2alpha[tk2calo[itk]]); 
             p.hwStatus = GoodTk_Calo_CaloPt;
-            if (debug_) printf("PFAlgo2HGC \t track %3d (pt %7.2f, stubs %2d chi2 %7.1f) linked to calo %3d promoted to charged hadron with pt %7.2f after maybe rescaling\n", itk, tk.floatPt(), int(tk.hwStubs), tk.hwChi2*0.1f, tk2calo[itk], p.floatPt());
+            if (debug_) printf("PFAlgo2HGC \t track %3d (pt %7.2f, stubs %2d chi2 %7.1f) linked to calo %3d promoted to %s with pt %7.2f after maybe rescaling\n", itk, tk.floatPt(), int(tk.hwStubs), tk.hwChi2*0.1f, tk2calo[itk], (p.hwId == l1t::PFCandidate::Electron ? "electron" : "charged hadron"), p.floatPt());
         }
     }
 }

@@ -21,8 +21,8 @@ l1pfProducer = cms.EDProducer("L1TPFProducer",
      vtxRes      = cms.double(0.333),
      vtxAlgo     = cms.string("TP"),
      vtxAdaptiveCut = cms.bool(True),
+     pfAlgo = cms.string("PFAlgo3"),
      linking = cms.PSet(
-        algo = cms.string("PFAlgo3"),
         # track -> mu linking configurables
         trackMuDR    = cms.double(0.2), # accounts for poor resolution of standalone, and missing propagations
         trackMuMatch = cms.string("boxBestByPtRatio"), # also drBestByPtRatio
