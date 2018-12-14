@@ -74,7 +74,7 @@ def applyDeepBtagging( process, postfix="" ) :
        elSource = cms.InputTag('slimmedElectrons'),
        rParam = 0.8,
        jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
-       btagDiscriminators = _btagDiscriminators.names,
+       btagDiscriminators = _btagDiscriminators.names.value(),
        postfix = 'SlimmedAK8DeepTags'+postfix,
        printWarning = False
     )
