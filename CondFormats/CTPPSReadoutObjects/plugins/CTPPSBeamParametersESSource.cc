@@ -106,7 +106,7 @@ CTPPSBeamParametersESSource::produce( const CTPPSBeamParametersRcd & )
 
   edm::LogInfo("CTPPSBeamParametersESSource::produce") << "\n" << *bp;
 
-  return std::move( bp );
+  return bp;
 }
 
 //----------------------------------------------------------------------------------------------------

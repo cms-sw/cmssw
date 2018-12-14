@@ -102,8 +102,8 @@ LHCOpticalFunctionsSet* LHCOpticalFunctionsSet::interpolate(double xangle1, cons
   double xangle2, const LHCOpticalFunctionsSet &of2, double xangle)
 {
   // check whether interpolation can be done
-  if (abs(xangle1 - xangle2) < 1e-6) {
-    if (abs(xangle - xangle1) < 1e-6)
+  if (std::abs(xangle1 - xangle2) < 1e-6) {
+    if (std::abs(xangle - xangle1) < 1e-6)
       return new LHCOpticalFunctionsSet(of1);
     else
       throw cms::Exception("LHCOpticalFunctionsSet") << "Cannot interpolate from angles " << xangle1 <<
