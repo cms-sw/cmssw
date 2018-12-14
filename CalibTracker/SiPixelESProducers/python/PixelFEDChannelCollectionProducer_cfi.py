@@ -1,3 +1,3 @@
 import FWCore.ParameterSet.Config as cms
 
-SiPixelFEDChannelContainerESProducer = cms.ESProducer("SiPixelFEDChannelContainerESProducer")
+SiPixelFEDChannelContainerESProducer = cms.ESProducer("PixelFEDChannelCollectionProducer")
