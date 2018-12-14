@@ -65,7 +65,7 @@ def applyDeepBtagging( process, postfix="" ) :
             'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
             'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
             'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
-            ] # + pfDeepBoostedJetTagsAll
+            ] + pfDeepBoostedJetTagsAll
 	    )
     updateJetCollection(
        process,
