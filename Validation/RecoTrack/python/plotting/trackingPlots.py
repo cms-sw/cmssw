@@ -1348,11 +1348,19 @@ _appendTrackingPlots("TrackConversion", "conversion", _simBasedPlots+_recoBasedP
 _appendTrackingPlots("TrackGsf", "gsf", _simBasedPlots+_recoBasedPlots, onlyForElectron=True, rawSummary=True, highPuritySummary=False)
 _appendTrackingPlots("TrackBHadron", "bhadron", _simBasedPlots+_recoBasedPlots, onlyForBHadron=True)
 # Pixel tracks
-_common = dict(purpose=PlotPurpose.Pixel, page="pixel")
-plotter.append("pixelTrack", _trackingFolders("PixelTrack"), TrackingPlotFolder(*(_simBasedPlots+_recoBasedPlots), **_common))
-plotterExt.append("pixelTrack", _trackingFolders("PixelTrack"), TrackingPlotFolder(*_extendedPlots, **_common))
-plotter.append("pixelTrack_summary",  _trackingFolders("PixelTrack"), PlotFolder(_summaryRaw, _summaryRawN, loopSubFolders=False, purpose=PlotPurpose.TrackingSummary, page="summary", section="pixel"))
-plotter.appendTable("pixelTrack_summary", _trackingFolders("PixelTrack"), TrackingSummaryTable(section="pixel", collection=TrackingSummaryTable.Pixel))
+def _appendPixelTrackingPlots(lastDirName, name):
+    _common = dict(section=name, purpose=PlotPurpose.Pixel, page="pixel")
+    _folders = _trackingFolders(lastDirName)
+
+    plotter.append(name, _folders, TrackingPlotFolder(*(_simBasedPlots+_recoBasedPlots), **_common))
+    plotterExt.append(name, _folders, TrackingPlotFolder(*_extendedPlots, **_common))
+
+    plotter.append(name+"_summary",  _folders, PlotFolder(_summaryRaw, _summaryRawN, loopSubFolders=False, purpose=PlotPurpose.TrackingSummary, page="summary", section=name))
+    plotter.appendTable(name+"_summary", _folders, TrackingSummaryTable(section=name, collection=TrackingSummaryTable.Pixel))
+_appendPixelTrackingPlots("PixelTrack", "pixel")
+_appendPixelTrackingPlots("PixelTrackFromPV", "pixelFromPV")
+_appendPixelTrackingPlots("PixelTrackFromPVAllTP", "pixelFromPVAllTP")
+_appendPixelTrackingPlots("PixelTrackBHadron", "pixelbhadron")
 
 
 # MiniAOD

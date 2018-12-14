@@ -348,6 +348,9 @@ workflows[136.861] = ['',['RunHLTPhy2018B','HLTDR2_2018','RECODR2_2018reHLT_Prom
 workflows[136.862] = ['',['RunEGamma2018B','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM']]
 workflows[136.863] = ['',['RunDoubleMuon2018B','HLTDR2_2018','RECODR2_2018reHLT_Prompt','HARVEST2018']]
 workflows[136.864] = ['',['RunJetHT2018B','HLTDR2_2018','RECODR2_2018reHLT_skimJetHT_Prompt','HARVEST2018']]
+workflows[136.8645] = ['',['RunJetHT2018B','HLTDR2_2018','RECODR2_2018reHLT_Prompt_pixelTrackingOnly','HARVEST2018_pixelTrackingOnly']]
+workflows[136.8648] = ['',['RunJetHT2018B','HLTDR2_2018','RECODR2_2018reHLT_Prompt_pixelTrackingOnlyGPU','HARVEST2018_pixelTrackingOnly']]
+
 workflows[136.865] = ['',['RunMET2018B','HLTDR2_2018','RECODR2_2018reHLT_skimMET_Prompt','HARVEST2018']]
 workflows[136.866] = ['',['RunMuonEG2018B','HLTDR2_2018','RECODR2_2018reHLT_skimMuonEG_Prompt','HARVEST2018']]
 workflows[136.867] = ['',['RunSingleMu2018B','HLTDR2_2018','RECODR2_2018reHLT_skimSingleMu_Prompt_Lumi','HARVEST2018_L1TMuDQM']]
