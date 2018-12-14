@@ -1,0 +1,6 @@
+import FWCore.ParameterSet.Config as cms
+
+from RecoPixelVertexing.PixelTrackFitting.pixelFitterByRiemannParaboloidDefault_cfi import pixelFitterByRiemannParaboloidDefault
+
+pixelFitterByRiemannParaboloid = pixelFitterByRiemannParaboloidDefault.clone()
+
