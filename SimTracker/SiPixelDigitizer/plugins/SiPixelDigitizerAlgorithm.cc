@@ -790,8 +790,6 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(const std::vector<Pileup
 
 bool SiPixelDigitizerAlgorithm::killBadFEDChannels() const {return KillBadFEDChannels;}
 
-
-//void SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine  *engine, std::unique_ptr<PixelFEDChannelCollection> &PixelFEDChannelCollect
 std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine *engine){
   
   //Determine scenario to use for the current event based on pileup information
@@ -817,7 +815,6 @@ std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScen
     if (pu0!=bunchCrossing.end()) {
       
       unsigned int PUBin = TrueInteractionList.at(p); // case delta PU=1, fix me      
-      PUBin = 27;
       const auto& theProbabilitiesPerScenario = scenarioProbabilityHandle->getProbabilities(PUBin);
       std::vector<double> probabilities;
       probabilities.reserve(theProbabilitiesPerScenario.size());
