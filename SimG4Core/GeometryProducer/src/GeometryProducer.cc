@@ -139,7 +139,7 @@ void GeometryProducer::produce(edm::Event & e, const edm::EventSetup & es)
        {
            std::pair< std::vector<SensitiveTkDetector*>,
                std::vector<SensitiveCaloDetector*> > 
-             sensDets = m_attach->create(*world,(*pDD),catalog_,m_p,m_trackManager.get(),m_registry);
+             sensDets = m_attach->create((*pDD),catalog_,m_p,m_trackManager.get(),m_registry);
           
            m_sensTkDets.swap(sensDets.first);
            m_sensCaloDets.swap(sensDets.second);

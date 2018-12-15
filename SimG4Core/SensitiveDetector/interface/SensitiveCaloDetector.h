@@ -13,7 +13,7 @@ public:
   explicit SensitiveCaloDetector(const std::string & iname, const DDCompactView & cpv,
 				 const SensitiveDetectorCatalog & clg,
 				 edm::ParameterSet const & p) :
-  SensitiveDetector(iname,cpv,clg,p) {}
+  SensitiveDetector(iname,cpv,clg,p,true) {};
 
   virtual void fillHits(edm::PCaloHitContainer &, const std::string& hname) = 0;
 };
