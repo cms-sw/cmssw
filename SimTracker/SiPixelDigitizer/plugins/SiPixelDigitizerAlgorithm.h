@@ -18,6 +18,7 @@
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
+#include "CalibTracker/Records/interface/SiPixelFEDChannelContainerESProducerRcd.h"
 #include "boost/multi_array.hpp"
 
 typedef boost::multi_array<float, 2> array_2d;
@@ -88,7 +89,9 @@ class SiPixelDigitizerAlgorithm  {
   //		      std::unique_ptr<PixelFEDChannelCollection> &PixelFEDChannelCollection_);
   std::unique_ptr<PixelFEDChannelCollection> chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine *);
   bool killBadFEDChannels() const;
-  
+  typedef std::unordered_map<std::string,PixelFEDChannelCollection> PixelFEDChannelCollectionMap;
+  const PixelFEDChannelCollectionMap* quality_map;
+
  private:
   
   //Accessing Lorentz angle from DB:
@@ -105,9 +108,8 @@ class SiPixelDigitizerAlgorithm  {
   edm::ESHandle<SiPixelDynamicInefficiency> SiPixelDynamicInefficiency_;
   
   // For BadFEDChannel simulation 
-  edm::ESHandle<SiPixelFEDChannelContainer> qualityCollectionHandle;
   edm::ESHandle<SiPixelQualityProbabilities> scenarioProbabilityHandle;
-  
+  edm::ESHandle<PixelFEDChannelCollectionMap> PixelFEDChannelCollectionMapHandle;
   // Define internal classes
 
   // definition class

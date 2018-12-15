@@ -130,7 +130,8 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
 
   if (KillBadFEDChannels){
     es.get<SiPixelStatusScenarioProbabilityRcd>().get(scenarioProbabilityHandle);
-    es.get<SiPixelStatusScenariosRcd>().get(qualityCollectionHandle);
+    es.get<SiPixelFEDChannelContainerESProducerRcd>().get(PixelFEDChannelCollectionMapHandle);
+    quality_map = PixelFEDChannelCollectionMapHandle.product();
   }
   
   // Read template files for charge reweighting
@@ -829,9 +830,8 @@ std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScen
       unsigned int index = x * probabilities.size() - 1;
       const std::string& scenario = theProbabilitiesPerScenario.at(index).first;    
       
-      PixelFEDChannelCollection_ = qualityCollectionHandle->getDetSetBadPixelFedChannels(scenario);
-      pixelEfficiencies_.PixelFEDChannelCollection_ = qualityCollectionHandle->getDetSetBadPixelFedChannels(scenario);
-      
+      PixelFEDChannelCollection_ = std::make_unique<PixelFEDChannelCollection>(quality_map->at(scenario));
+      pixelEfficiencies_.PixelFEDChannelCollection_ = std::make_unique<PixelFEDChannelCollection>(quality_map->at(scenario));
     }
   }    
   return PixelFEDChannelCollection_;
