@@ -39,7 +39,7 @@
 class PixelFEDChannelCollectionProducer : public edm::ESProducer {
    public:
       PixelFEDChannelCollectionProducer(const edm::ParameterSet&);
-      ~PixelFEDChannelCollectionProducer();
+      ~PixelFEDChannelCollectionProducer() override;
 
       typedef std::unordered_map<std::string,PixelFEDChannelCollection> PixelFEDChannelCollectionMap;
       using ReturnType = std::unique_ptr<PixelFEDChannelCollectionMap>;
