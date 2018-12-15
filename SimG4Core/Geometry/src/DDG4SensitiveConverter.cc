@@ -5,8 +5,8 @@
 
 #include "G4LogicalVolume.hh"
 
-using std::string;
-using std::vector;
+//using std::string;
+//using std::vector;
 
 DDG4SensitiveConverter::DDG4SensitiveConverter() {}
 
@@ -35,22 +35,21 @@ SensitiveDetectorCatalog DDG4SensitiveConverter::upDate(const DDG4DispContainer 
   return catalog;
 }
 
-std::string DDG4SensitiveConverter::getString(const std::string & s, 
+std::string DDG4SensitiveConverter::getString(const std::string & ss, 
 					      const DDLogicalPart * part) {
   std::vector<std::string> temp;
-  DDValue val(s);
+  DDValue val(ss);
   std::vector<const DDsvalues_type *> result = part->specifics();
-  std::vector<const DDsvalues_type *>::iterator it = result.begin();
   bool foundIt = false;
-  for (; it != result.end(); ++it) {
-    foundIt = DDfetch(*it,val);
+  for (auto stype : result) {
+    foundIt = DDfetch(stype,val);
     if (foundIt) break;
   }    
   if (foundIt) { 
     temp = val.strings(); 
     if (temp.size() != 1) {
-      edm::LogError("SimG4CoreGeometry") << "DDG4SensitiveConverter - ERROR: I need 1 " << s << " tags" ;
-      throw cms::Exception("SimG4CoreGeometry", " DDG4SensitiveConverter::getString Problem with Region tags - one and only one allowed: " + s);
+      edm::LogError("SimG4CoreGeometry") << "DDG4SensitiveConverter - ERROR: I need 1 " << ss << " tags" ;
+      throw cms::Exception("SimG4CoreGeometry", " DDG4SensitiveConverter::getString Problem with Region tags - one and only one allowed: " + ss);
     }
     return temp[0]; 
   }

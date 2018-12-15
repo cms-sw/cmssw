@@ -25,7 +25,9 @@ public:
   explicit SensitiveDetector(const std::string & iname, 
                              const DDCompactView & cpv,
 			     const SensitiveDetectorCatalog &,
-			     edm::ParameterSet const & p);
+			     edm::ParameterSet const & p,
+                             bool calo = false);
+
   ~SensitiveDetector() override;
 
   void Initialize(G4HCofThisEvent * eventHC) override;
@@ -37,6 +39,8 @@ public:
 
   inline const std::vector<std::string>& getNames() const { return namesOfSD; }
  
+  inline bool isCaloSD() const { return isCalo; }
+
 protected:
 
   // generic geometry methods, all coordinates in mm
@@ -60,6 +64,7 @@ private:
   void AssignSD(const std::string & vname);
 
   std::vector<std::string> namesOfSD;
+  bool isCalo;
 };
 
 #endif

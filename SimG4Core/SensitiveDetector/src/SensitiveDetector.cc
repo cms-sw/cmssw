@@ -18,8 +18,9 @@
 SensitiveDetector::SensitiveDetector(const std::string & iname, 
 				     const DDCompactView & cpv,
 				     const SensitiveDetectorCatalog & clg,
-				     edm::ParameterSet const & p) :
-  G4VSensitiveDetector(iname) 
+				     edm::ParameterSet const & p,
+				     bool calo) :
+  G4VSensitiveDetector(iname), isCalo(calo)
 {
   // for CMS hits
   namesOfSD.push_back(iname);
