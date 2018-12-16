@@ -58,7 +58,6 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
     usererrorlist = config_.getParameter<std::vector<int> > ("UserErrorList");
   }
   tFEDRawDataCollection = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("InputLabel"));
-  //  theBadPixelFEDChannelsLabel = consumes<PixelFEDChannelCollection>(edm::InputTag("mix"));
   theBadPixelFEDChannelsLabel = consumes<PixelFEDChannelCollection>(config_.getParameter<edm::InputTag>("BadPixelFEDChannelsInputLabel"));
   
   //start counters
