@@ -58,7 +58,7 @@ namespace ComparisonHelper {
   }
 }
 
-class L1TStage2CaloLayer1 : public DQMEDAnalyzer {
+class L1TStage2CaloLayer1 : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   public:
     L1TStage2CaloLayer1(const edm::ParameterSet& ps);
     ~L1TStage2CaloLayer1() override;

@@ -1,4 +1,4 @@
-#include "DQMServices/Components/src/DQMDaqInfo.h"
+#include "DQMDaqInfo.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 DQMDaqInfo::DQMDaqInfo(const edm::ParameterSet& iConfig)  

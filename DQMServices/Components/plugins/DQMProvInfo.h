@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-class DQMProvInfo : public DQMEDAnalyzer {
+class DQMProvInfo : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
  public:
   // Constructor
   DQMProvInfo(const edm::ParameterSet& ps);

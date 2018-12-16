@@ -6,7 +6,7 @@
  * Description: Print out statistics of histograms in DQMStore
 */
 
-#include "DQMServices/Components/src/DQMStoreStats.h"
+#include "DQMStoreStats.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 

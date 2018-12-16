@@ -29,17 +29,16 @@ DQMEventInfo::DQMEventInfo(const edm::ParameterSet& ps){
   struct timeval now;
   gettimeofday(&now, nullptr);
 
-  parameters_ = ps;
   pEvent_ = 0;
   evtRateCount_ = 0;
   lastAvgTime_ = currentTime_ = stampToReal(now);
 
   // read config parms
-  std::string folder = parameters_.getUntrackedParameter<std::string>("eventInfoFolder", "EventInfo") ;
-  subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
+  std::string folder = ps.getUntrackedParameter<std::string>("eventInfoFolder", "EventInfo") ;
+  subsystemname_ = ps.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
 
   eventInfoFolder_ = subsystemname_ + "/" +  folder ;
-  evtRateWindow_ = parameters_.getUntrackedParameter<double>("eventRateWindow", 0.5);
+  evtRateWindow_ = ps.getUntrackedParameter<double>("eventRateWindow", 0.5);
   if(evtRateWindow_<=0.15) evtRateWindow_=0.15;
 
 }
@@ -127,13 +126,11 @@ void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
 }
 
 
-void DQMEventInfo::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c)
-{
-  lumisecId_->Fill(l.id().luminosityBlock());
-}
-
 void DQMEventInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
 
+  //Filling lumi here guarantees that the lumi number corresponds to the event when
+  // using multiple concurrent lumis in a job
+  lumisecId_->Fill(e.id().luminosityBlock());
   eventId_->Fill(e.id().event()); // Handing edm::EventNumber_t to Fill method which will handle further casting
   eventTimeStamp_->Fill(stampToReal(e.time()));
 

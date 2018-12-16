@@ -26,9 +26,8 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-using namespace l1t;
 
-class L1TdeStage2CaloLayer1 : public DQMEDAnalyzer {
+class L1TdeStage2CaloLayer1 : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   public:
     L1TdeStage2CaloLayer1(const edm::ParameterSet& ps);
     ~L1TdeStage2CaloLayer1() override;
@@ -44,9 +43,9 @@ class L1TdeStage2CaloLayer1 : public DQMEDAnalyzer {
     void updateMismatch(const edm::Event& e, int mismatchType);
     // Input and config info 
     edm::InputTag dataLabel_;
-    edm::EDGetTokenT<CaloTowerBxCollection> dataSource_;
+    edm::EDGetTokenT<l1t::CaloTowerBxCollection> dataSource_;
     edm::InputTag emulLabel_;
-    edm::EDGetTokenT<CaloTowerBxCollection> emulSource_;
+    edm::EDGetTokenT<l1t::CaloTowerBxCollection> emulSource_;
     edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTowers_;
     edm::EDGetTokenT<FEDRawDataCollection> fedRawData_;
     std::string histFolder_;
