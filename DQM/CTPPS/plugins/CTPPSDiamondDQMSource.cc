@@ -56,7 +56,15 @@ bool channelAlignedWithTrack( const CTPPSGeometry* geom, const CTPPSDiamondDetId
 }
 
 
-class CTPPSDiamondDQMSource : public DQMEDAnalyzer
+namespace dds {
+  struct Cache {
+    std::unordered_map<unsigned int, std::unique_ptr<TH2F>> hitDistribution2dMap;
+
+    std::unordered_map<unsigned int, unsigned long> hitsCounterMap;
+  };
+}
+
+class CTPPSDiamondDQMSource : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<dds::Cache>>
 {
   public:
     CTPPSDiamondDQMSource( const edm::ParameterSet& );
@@ -66,8 +74,8 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     void dqmBeginRun( const edm::Run&, const edm::EventSetup& ) override;
     void bookHistograms( DQMStore::IBooker&, const edm::Run&, const edm::EventSetup& ) override;
     void analyze( const edm::Event&, const edm::EventSetup& ) override;
-    void beginLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) override;
-    void endLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) override;
+    std::shared_ptr<dds::Cache> globalBeginLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) const override;
+    void globalEndLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) override;
     void endRun( const edm::Run&, const edm::EventSetup& ) override;
 
   private:
@@ -194,11 +202,10 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
       MonitorElement* leadingWithoutTrailing = nullptr;
       MonitorElement* pixelTomography_far = nullptr;
       MonitorElement* hit_rate = nullptr;
-      unsigned long hitsCounterPerLumisection;
 
       unsigned int HitCounter, MHCounter, LeadingOnlyCounter, TrailingOnlyCounter, CompleteCounter;
 
-      ChannelPlots() : hitsCounterPerLumisection( 0 ) {}
+      ChannelPlots() {}
       ChannelPlots( DQMStore::IBooker &ibooker, unsigned int id );
     };
 
@@ -328,7 +335,7 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots( DQMStore::IBooker& ibooker, unsig
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots( DQMStore::IBooker& ibooker, unsigned int id ) : hitsCounterPerLumisection(0), HitCounter(0), MHCounter(0), LeadingOnlyCounter(0), TrailingOnlyCounter(0), CompleteCounter(0)
+CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots( DQMStore::IBooker& ibooker, unsigned int id ) : HitCounter(0), MHCounter(0), LeadingOnlyCounter(0), TrailingOnlyCounter(0), CompleteCounter(0)
 {
   std::string path, title;
   CTPPSDiamondDetId( id ).channelName( path, CTPPSDiamondDetId::nPath );
@@ -444,11 +451,14 @@ CTPPSDiamondDQMSource::bookHistograms( DQMStore::IBooker& ibooker, const edm::Ru
 
 //----------------------------------------------------------------------------------------------------
 
-void
-CTPPSDiamondDQMSource::beginLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& )
+std::shared_ptr<dds::Cache>
+CTPPSDiamondDQMSource::globalBeginLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) const
 {
+  auto d = std::make_shared<dds::Cache>();
+  d->hitDistribution2dMap.reserve(potPlots_.size());
   for ( auto& plot : potPlots_ )
-    plot.second.hitDistribution2d_lumisection->Reset();
+    d->hitDistribution2dMap[plot.first] = std::unique_ptr<TH2F>(static_cast<TH2F*>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
+  return d;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -596,6 +606,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   std::unordered_map<unsigned int, std::set<unsigned int> > planes_inclusive;
 
 
+  auto lumiCache = luminosityBlockCache(event.getLuminosityBlock().index());
   for ( const auto& rechits : *diamondRecHits ) {
     CTPPSDiamondDetId detId_pot( rechits.detId() );
     detId_pot.setPlane( 0 );
@@ -621,8 +632,8 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
         for ( int i=0; i<numOfBins; ++i) {
           hitHistoTmp->Fill( detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin+i) );
         }
-
-        hitHistoTmp = potPlots_[detId_pot].hitDistribution2d_lumisection->getTH2F();
+        
+        hitHistoTmp = lumiCache->hitDistribution2dMap[detId_pot].get();
         hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
         startBin = hitHistoTmpYAxis->FindBin( rechit.getX() - horizontalShiftOfDiamond_ - 0.5*rechit.getXWidth() );
         numOfBins = rechit.getXWidth()*INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
@@ -922,6 +933,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   }
 
   // Using CTPPSDiamondRecHit
+  
   for ( const auto& rechits : *diamondRecHits ) {
     CTPPSDiamondDetId detId( rechits.detId() );
     for ( const auto& rechit : rechits ) {
@@ -931,7 +943,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
           channelPlots_[detId].leadingEdgeCumulative_both->Fill( rechit.getT() + 25*rechit.getOOTIndex() );
           channelPlots_[detId].TimeOverThresholdCumulativePerChannel->Fill( rechit.getToT() );
         }
-        ++(channelPlots_[detId].hitsCounterPerLumisection);
+        ++(lumiCache->hitsCounterMap[detId]);
       }
 
       if ( rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && rechit.getOOTIndex() < (int) channelPlots_[detId].activity_per_bx.size() )
@@ -966,13 +978,18 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
 //----------------------------------------------------------------------------------------------------
 
 void
-CTPPSDiamondDQMSource::endLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& )
+CTPPSDiamondDQMSource::globalEndLuminosityBlock( const edm::LuminosityBlock& iLumi, const edm::EventSetup& )
 {
+
+  auto lumiCache = luminosityBlockCache(iLumi.index());
+  for ( auto& plot : potPlots_ ) {
+    *(plot.second.hitDistribution2d_lumisection->getTH2F())=*(lumiCache->hitDistribution2dMap[plot.first]);
+  }
   for ( auto& plot : channelPlots_ ) {
-    if ( plot.second.hitsCounterPerLumisection != 0 ) {
-      plot.second.hit_rate->Fill( (double) plot.second.hitsCounterPerLumisection / SEC_PER_LUMI_SECTION );
+    auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[plot.first];
+    if ( hitsCounterPerLumisection != 0 ) {
+      plot.second.hit_rate->Fill( (double) hitsCounterPerLumisection / SEC_PER_LUMI_SECTION );
     }
-    plot.second.hitsCounterPerLumisection = 0;
 
     double HundredOverHitCounter = .0;
     if ( plot.second.HitCounter != 0 )
@@ -1004,7 +1021,7 @@ CTPPSDiamondDQMSource::endLuminosityBlock( const edm::LuminosityBlock&, const ed
 
   // Efficiencies of single channels
   for ( auto& plot : potPlots_ ) {
-  plot.second.EfficiencyOfChannelsInPot->Reset();
+    plot.second.EfficiencyOfChannelsInPot->Reset();
     for ( auto& element : plot.second.effTriplecountingChMap ) {
       if ( plot.second.effDoublecountingChMap[ element.first ] > 0) {
         int plane = element.first / 100;

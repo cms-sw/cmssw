@@ -14,7 +14,7 @@
 // PixelDQM Framework
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 
-class SiPixelStatusHarvester : public SiPixelPhase1Base {
+class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks>, private HistogramManagerHolder {
     enum {
       BADROC,
       PERMANENTBADROC,
@@ -35,6 +35,7 @@ class SiPixelStatusHarvester : public SiPixelPhase1Base {
   // Operations
   void beginJob            () override;
   void endJob              () override;  
+  void bookHistograms      (DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const& iSetup ) final;
   void endRunProduce       (edm::Run&, const edm::EventSetup&) final;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) final;
 

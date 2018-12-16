@@ -8,7 +8,7 @@
  *
 */
 
-#include "DQMServices/Components/src/DQMFEDIntegrityClient.h"
+#include "DQMFEDIntegrityClient.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 // -----------------------------

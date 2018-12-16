@@ -138,7 +138,7 @@ class TH2FFiller : public FillerBase {
 };
 }
 
-class DummyBookFillDQMStoreMultiThread :  public DQMEDAnalyzer {
+class DummyBookFillDQMStoreMultiThread :  public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
  public:
   using PSets = std::vector<edm::ParameterSet>;
   explicit DummyBookFillDQMStoreMultiThread(const edm::ParameterSet&);
@@ -147,9 +147,9 @@ class DummyBookFillDQMStoreMultiThread :  public DQMEDAnalyzer {
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  virtual void beginJob();
+  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob();
+  void endJob() override;
 
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   void beginLuminosityBlock(edm::LuminosityBlock const&,

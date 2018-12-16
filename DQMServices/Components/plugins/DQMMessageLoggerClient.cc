@@ -1,4 +1,4 @@
-#include "DQMServices/Components/src/DQMMessageLoggerClient.h"
+#include "DQMMessageLoggerClient.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <string>
 #include <vector>
