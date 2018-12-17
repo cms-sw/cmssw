@@ -8,6 +8,8 @@
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/TrackRefitter"/>
 <use   name="Utilities/General"/>
+<use   name="TrackPropagation/SteppingHelixPropagator"/>
+
 <export>
   <lib   name="1"/>
 </export>

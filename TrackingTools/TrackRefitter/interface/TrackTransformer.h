@@ -46,7 +46,7 @@ public:
   ~TrackTransformer() override;
 
   /// fillDescriptions
-  static void fillDescriptions(edm::ParameterSetDescription& descriptions);
+  static void fillPSetDescriptions(edm::ParameterSetDescription& descriptions);
   
   // Operations
 

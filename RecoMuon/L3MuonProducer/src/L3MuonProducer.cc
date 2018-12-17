@@ -269,17 +269,7 @@ void L3MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
     psd0.add<double>("PCut", 2.5);
     {
       edm::ParameterSetDescription psd1;
-      TrackTransformer::fillDescriptions(psd1);
-      /*
-      psd1.add<bool>("DoPredictionsOnly", false);
-      psd1.add<std::string>("Fitter", "hltESPL3MuKFTrajectoryFitter");
-      psd1.add<std::string>("TrackerRecHitBuilder", "hltESPTTRHBWithTrackAngle");
-      psd1.add<std::string>("Smoother", "hltESPKFTrajectorySmootherForMuonTrackLoader");
-      psd1.add<std::string>("MuonRecHitBuilder", "hltESPMuonTransientTrackingRecHitBuilder");
-      psd1.add<std::string>("RefitDirection", "insideOut");
-      psd1.add<bool>("RefitRPCHits", true);
-      psd1.add<std::string>("Propagator", "hltESPSmartPropagatorAny");
-      */
+      TrackTransformer::fillPSetDescriptions(psd1);
       psd0.add<edm::ParameterSetDescription>("TrackTransformer", psd1);
     }
     {

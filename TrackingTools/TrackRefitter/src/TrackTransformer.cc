@@ -43,7 +43,7 @@ TrackTransformer::TrackTransformer(const ParameterSet& parameterSet):
 /// Destructor
 TrackTransformer::~TrackTransformer(){}
 
-void TrackTransformer::fillDescriptions(edm::ParameterSetDescription& desc) {
+void TrackTransformer::fillPSetDescriptions(edm::ParameterSetDescription& desc) {
   desc.add<bool>("DoPredictionsOnly",false);
   desc.add<std::string>("Fitter",std::string("KFFitterForRefitInsideOut"));
   desc.add<std::string>("Smoother",std::string("KFSmootherForRefitInsideOut"));

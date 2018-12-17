@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-MTDTransientTrackingRecHitBuilderESProducer = cms.ESProducer("MTDTransientTrackingRecHitBuilderESProducer",
+MTDTransientTrackingRecHitBuilder = cms.ESProducer("MTDTransientTrackingRecHitBuilderESProducer",
     ComponentName = cms.string('MTDRecHitBuilder')
 )
 
