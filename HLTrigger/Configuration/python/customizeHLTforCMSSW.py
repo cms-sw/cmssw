@@ -33,11 +33,11 @@ def customiseForUncollapsed(process):
 
     for producer in producers_by_type(process, "PFMultiDepthClusterProducer"):
         producer.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector[1].logWeightDenominator = _thresholdsHEphase1HCAL
-    
+
     for producer in producers_by_type(process, "PFRecHitProducer"):
         if producer.producers[0].name.value() == 'PFHBHERecHitCreator':
             producer.producers[0].qualityTests[0].cuts[1].threshold = _thresholdsHEphase1Rec
-    
+
     for producer in producers_by_type(process, "CaloTowersCreator"):
         producer.HcalPhase     = cms.int32(1)
         producer.HESThreshold1 = cms.double(0.1)
@@ -52,8 +52,13 @@ def customiseForUncollapsed(process):
     process.HLTStoppedHSCPLocalHcalReco = cms.Sequence( process.hltHcalDigis + process.hltHbhereco )
 
 
-    return process    
+    return process
 
+# Set new variable use8ts for Mahi
+def customiseFor25469(process):
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.use8ts                = cms.bool(False)
+    return process
 
 def customiseFor21664_forMahiOn(process):
     for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
@@ -96,23 +101,23 @@ def customiseFor2017DtUnpacking(process):
 # particleFlowRechitECAL new default value "false" flag to be added
 def customiseForEcalTestPR22254Default(process):
 
-    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
-        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
+    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']:
+        if hasattr(process,hltParticleFlowRecHitECAL):
             module = getattr(process,hltParticleFlowRecHitECAL)
 
-            for producer in module.producers: 
+            for producer in module.producers:
                 if hasattr(producer,'srFlags'):
                     producer.srFlags = cms.InputTag("")
                 if hasattr(producer,'qualityTests'):
                     for qualityTest in producer.qualityTests:
                         if hasattr(qualityTest,'thresholds'):
                             qualityTest.applySelectionsToAllCrystals = cms.bool(True)
-                        
+
     return process
 
 
 
-# 
+#
 # The three different set of thresholds will be used to study
 # possible new thresholds of pfrechits and effects on high level objects
 # The values proposed (A, B, C) are driven by expected noise levels
@@ -123,22 +128,22 @@ def customiseForEcalTestPR22254thresholdA(process):
     from Configuration.Eras.Modifier_run2_ECAL_2017_cff import run2_ECAL_2017
     from RecoParticleFlow.PFClusterProducer.particleFlowZeroSuppressionECAL_cff import _particle_flow_zero_suppression_ECAL_2018_A
 
-    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
-        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
+    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']:
+        if hasattr(process,hltParticleFlowRecHitECAL):
             module = getattr(process,hltParticleFlowRecHitECAL)
 
-            for producer in module.producers: 
+            for producer in module.producers:
                 if hasattr(producer,'srFlags'):
                     producer.srFlags = cms.InputTag("")
                 if hasattr(producer,'qualityTests'):
                     for qualityTest in producer.qualityTests:
                         if hasattr(qualityTest,'thresholds'):
-                            qualityTest.thresholds = _particle_flow_zero_suppression_ECAL_2018_A.thresholds 
+                            qualityTest.thresholds = _particle_flow_zero_suppression_ECAL_2018_A.thresholds
                             qualityTest.applySelectionsToAllCrystals = cms.bool(True)
-                        
+
     return process
 
-                   
+
 
 
 
@@ -147,19 +152,19 @@ def customiseForEcalTestPR22254thresholdB(process):
     from Configuration.Eras.Modifier_run2_ECAL_2017_cff import run2_ECAL_2017
     from RecoParticleFlow.PFClusterProducer.particleFlowZeroSuppressionECAL_cff import _particle_flow_zero_suppression_ECAL_2018_B
 
-    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
-        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
+    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']:
+        if hasattr(process,hltParticleFlowRecHitECAL):
             module = getattr(process,hltParticleFlowRecHitECAL)
 
-            for producer in module.producers: 
+            for producer in module.producers:
                 if hasattr(producer,'srFlags'):
                     producer.srFlags = cms.InputTag("")
                 if hasattr(producer,'qualityTests'):
                     for qualityTest in producer.qualityTests:
                         if hasattr(qualityTest,'thresholds'):
-                            qualityTest.thresholds = _particle_flow_zero_suppression_ECAL_2018_B.thresholds 
+                            qualityTest.thresholds = _particle_flow_zero_suppression_ECAL_2018_B.thresholds
                             qualityTest.applySelectionsToAllCrystals = cms.bool(True)
-                        
+
     return process
 
 
@@ -170,19 +175,19 @@ def customiseForEcalTestPR22254thresholdC(process):
     from Configuration.Eras.Modifier_run2_ECAL_2017_cff import run2_ECAL_2017
     from RecoParticleFlow.PFClusterProducer.particleFlowZeroSuppressionECAL_cff import _particle_flow_zero_suppression_ECAL_2018_C
 
-    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
-        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
+    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']:
+        if hasattr(process,hltParticleFlowRecHitECAL):
             module = getattr(process,hltParticleFlowRecHitECAL)
 
-            for producer in module.producers: 
+            for producer in module.producers:
                 if hasattr(producer,'srFlags'):
                     producer.srFlags = cms.InputTag("")
                 if hasattr(producer,'qualityTests'):
                     for qualityTest in producer.qualityTests:
                         if hasattr(qualityTest,'thresholds'):
-                            qualityTest.thresholds = _particle_flow_zero_suppression_ECAL_2018_C.thresholds 
+                            qualityTest.thresholds = _particle_flow_zero_suppression_ECAL_2018_C.thresholds
                             qualityTest.applySelectionsToAllCrystals = cms.bool(True)
-                        
+
     return process
 
 
@@ -191,5 +196,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+    process = customiseFor25469(process)
 
     return process
