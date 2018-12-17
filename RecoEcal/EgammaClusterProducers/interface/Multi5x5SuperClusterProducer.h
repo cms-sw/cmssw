@@ -23,48 +23,40 @@ class Multi5x5SuperClusterProducer : public edm::stream::EDProducer<>
 
       Multi5x5SuperClusterProducer(const edm::ParameterSet& ps);
 
-      ~Multi5x5SuperClusterProducer() override;
-
       void produce(edm::Event&, const edm::EventSetup&) override;
       void endStream() override;
 
    private:
 
-      int nMaxPrintout_; // max # of printouts
-      int nEvt_;         // internal counter of events
- 
-	  edm::EDGetTokenT<reco::BasicClusterCollection> eeClustersToken_; 
-	  edm::EDGetTokenT<reco::BasicClusterCollection> ebClustersToken_; 
+      edm::EDGetTokenT<reco::BasicClusterCollection> eeClustersToken_; 
+      edm::EDGetTokenT<reco::BasicClusterCollection> ebClustersToken_; 
+      edm::EDPutTokenT<reco::SuperClusterCollection> endcapPutToken_;
+      edm::EDPutTokenT<reco::SuperClusterCollection> barrelPutToken_;
 
-      std::string endcapSuperclusterCollection_;
-      std::string barrelSuperclusterCollection_;
+      const float barrelEtaSearchRoad_;
+      const float barrelPhiSearchRoad_;
+      const float endcapEtaSearchRoad_; 
+      const float endcapPhiSearchRoad_;
+      const float seedTransverseEnergyThreshold_;
 
-      float barrelEtaSearchRoad_;
-      float barrelPhiSearchRoad_;
-      float endcapEtaSearchRoad_; 
-      float endcapPhiSearchRoad_;
-      float seedTransverseEnergyThreshold_;
+      const bool doBarrel_;
+      const bool doEndcaps_;
 
-      bool doBarrel_;
-      bool doEndcaps_;
-
-      Multi5x5BremRecoveryClusterAlgo * bremAlgo_p;
+      std::unique_ptr<Multi5x5BremRecoveryClusterAlgo>  bremAlgo_p;
 
       double totalE;
       int noSuperClusters;
 
-      
-      void getClusterPtrVector(edm::Event& evt, 
-							   const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
-							   reco::CaloClusterPtrVector *);
+      reco::CaloClusterPtrVector
+      getClusterPtrVector(edm::Event& evt, 
+                          const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken) const;
   
       void produceSuperclustersForECALPart(edm::Event& evt, 
-							   const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
-							   std::string superclusterColection);
+                                           const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
+                                           const edm::EDPutTokenT<reco::SuperClusterCollection>& putToken);
 
       void outputValidationInfo(reco::SuperClusterCollection &superclusterCollection);
     
-      bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}
 };
 
 #endif
