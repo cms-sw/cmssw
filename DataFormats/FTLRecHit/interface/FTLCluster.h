@@ -12,6 +12,8 @@
 #include <vector>
 #include <cstdint>
 #include <cassert>
+#include <algorithm>
+#include <functional>
 
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -94,51 +96,38 @@ public:
     packCol(ymin,maxCol);
 
     if (maxHit>=0)
-      seed_=(uint8_t)std::min(uint8_t(MAXSPAN),uint8_t(maxHit));
+      seed_=std::min(uint8_t(MAXSPAN),uint8_t(maxHit));
   }
   
   // linear average position (barycenter) 
-  float x() const {
-    float qm = 0.0;
-    int isize = theHitENERGY.size();
-    for (int i=0; i<isize; ++i)
-      qm += float(theHitENERGY[i]) * (theHitOffset[i*2] + minHitRow() + 0.5f);
-    return qm/energy();
+  inline float x() const {
+    auto x_pos=[this](unsigned int i) { return this->theHitOffset[i*2] + minHitRow() + 0.5f; };
+    return weighted_mean(this->theHitENERGY,x_pos);
   }
   
-  float y() const {
-    float qm = 0.0;
-    int isize = theHitENERGY.size();
-    for (int i=0; i<isize; ++i)
-      qm += float(theHitENERGY[i]) * (theHitOffset[i*2+1]  + minHitCol() + 0.5f);
-    return qm/energy();
+  inline float y() const {
+    auto y_pos=[this](unsigned int i) { return this->theHitOffset[i*2+1] + minHitCol() + 0.5f; };
+    return weighted_mean(this->theHitENERGY,y_pos);
   }
 
-  float time() const {
-    float qm = 0.0;
-    int isize = theHitENERGY.size();
-    for (int i=0; i<isize; ++i)
-      qm += float(theHitENERGY[i]) * theHitTIME[i];
-    return qm/energy();
+  inline float time() const {
+    auto t=[this](unsigned int i) { return this->theHitTIME[i]; };
+    return weighted_mean(this->theHitENERGY,t);
   }
 
-  float timeError() const {
-    float qm=0;
-    float e=energy();
-    int isize = theHitENERGY.size();
-    for (int i=0; i<isize; ++i)
-      qm += float(theHitENERGY[i]*theHitENERGY[i]) * theHitTIME_ERROR[i]*theHitTIME_ERROR[i];
-    return sqrt(qm)/e;
+  inline float timeError() const {
+    auto t_err=[this](unsigned int i) { return this->theHitTIME_ERROR[i]; };
+    return weighted_mean_error(this->theHitENERGY,t_err);
   }
   
   // Return number of hits.
-  int size() const { return theHitENERGY.size();}
+  inline int size() const { return theHitENERGY.size();}
   
   // Return cluster dimension in the x direction.
-  int sizeX() const { return rowSpan() +1;}
+  inline int sizeX() const { return rowSpan() +1;}
   
   // Return cluster dimension in the y direction.
-  int sizeY() const { return colSpan() +1;}
+  inline int sizeY() const { return colSpan() +1;}
   
   
   inline float energy() const {
@@ -158,18 +147,7 @@ public:
   const std::vector<float> & hitENERGY() const { return theHitENERGY;}
   const std::vector<float> & hitTIME() const { return theHitTIME;}
   const std::vector<float> & hitTIME_ERROR() const { return theHitTIME_ERROR;}
-  
-  // obsolete, use single hit access below
-  const std::vector<FTLHit> hits() const {
-    std::vector<FTLHit> oldHitVector;
-    int isize = theHitENERGY.size();
-    oldHitVector.reserve(isize); 
-    for(int i=0; i<isize; ++i) {
-      oldHitVector.push_back(hit(i));
-    }
-    return oldHitVector;
-  }
-  
+    
   // infinite faster than above...
   FTLHit hit(int i) const {
     return FTLHit(minHitRow() + theHitOffset[i*2],
@@ -187,7 +165,33 @@ public:
 
 private:
   
-  static int overflow_(uint16_t span) { return span==uint16_t(MAXSPAN);}
+  float weighted_sum(const std::vector<float>& weights, const std::function<float (unsigned int i)>& sumFunc, const std::function<float (float,float)>& outFunc) const 
+  {
+    float tot=0;
+    float sumW=0;
+    for (unsigned int i=0; i<weights.size(); ++i)
+      {
+	tot += sumFunc(i);
+	sumW += weights[i];
+      }
+    return outFunc(tot,sumW);
+  }
+
+  float weighted_mean(const std::vector<float>& weights, const std::function<float (unsigned int)>& value) const
+  {
+    auto sumFunc=[weights,value](unsigned int i) { return weights[i]*value(i); } ;
+    auto outFunc=[](float x,float y) { if (y>0) return (float)x/y; else return -999.f; };
+    return weighted_sum(weights,sumFunc,outFunc);
+  }
+
+  float weighted_mean_error(const std::vector<float>& weights, const std::function<float (unsigned int)>& err) const
+  {
+    auto sumFunc=[weights,err](unsigned int i) { return weights[i]*weights[i]*err(i)*err(i); } ;
+    auto outFunc=[](float x,float y) { if (y>0) return (float)sqrt(x)/y; else return -999.f; };
+    return weighted_sum(weights,sumFunc,outFunc);
+  }
+
+  static int overflow_(uint16_t span) { return span==uint16_t(MAXSPAN);} 
 
 public:
   
@@ -222,23 +226,23 @@ public:
   
 private:
 
-  DetId id_;
-
-  std::vector<uint8_t>  theHitOffset;
-  std::vector<float> theHitENERGY;
-  std::vector<float> theHitTIME;
-  std::vector<float> theHitTIME_ERROR;
-    
-  uint16_t theMinHitRow=MAXPOS; // Minimum hit index in the x direction (low edge).
-  uint16_t theMinHitCol=MAXPOS; // Minimum hit index in the y direction (left edge).
-  uint8_t theHitRowSpan=0; // Span hit index in the x direction (low edge).
-  uint8_t theHitColSpan=0; // Span hit index in the y direction (left edge).
-  
-  float err_x=-99999.9f;
-  float err_y=-99999.9f;
-  float err_time=-99999.9f;
-
-  uint8_t seed_;
+   DetId id_;
+   
+   std::vector<uint8_t>  theHitOffset;
+   std::vector<float> theHitENERGY;
+   std::vector<float> theHitTIME;
+   std::vector<float> theHitTIME_ERROR;
+   
+   uint16_t theMinHitRow=MAXPOS; // Minimum hit index in the x direction (low edge).
+   uint16_t theMinHitCol=MAXPOS; // Minimum hit index in the y direction (left edge).
+   uint8_t theHitRowSpan=0; // Span hit index in the x direction (low edge).
+   uint8_t theHitColSpan=0; // Span hit index in the y direction (left edge).
+   
+   float err_x=-99999.9f;
+   float err_y=-99999.9f;
+   float err_time=-99999.9f;
+   
+   uint8_t seed_;
 };
 
 

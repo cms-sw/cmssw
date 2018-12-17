@@ -1,11 +1,6 @@
-//----------------------------------------------------------------------------
-//! \class MTDThresholdClusterizer
-//! \brief A specific threshold-based MTD clustering algorithm
-//----------------------------------------------------------------------------
-
 // Our own includes
-#include "MTDThresholdClusterizer.h"
 #include "MTDArrayBuffer.h"
+#include "MTDThresholdClusterizer.h"
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
@@ -66,7 +61,6 @@ MTDThresholdClusterizer::fillDescriptions(edm::ConfigurationDescriptions& descri
 bool MTDThresholdClusterizer::setup(const MTDGeometry* geom, const MTDTopology* topo, const DetId& id) 
 {
   currentId=id;
-  MTDDetId mtdid(id);
   //using geopraphicalId here
   const auto& thedet = geom->idToDet(id);
   if( thedet == nullptr ) {
@@ -74,7 +68,8 @@ bool MTDThresholdClusterizer::setup(const MTDGeometry* geom, const MTDTopology* 
 						    << id.rawId()
 						    << " is invalid!" << std::dec
 						    << std::endl;
-    }
+    return false;
+  }
   const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
   const RectangularMTDTopology& topol = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());    
   
@@ -255,21 +250,24 @@ MTDThresholdClusterizer::make_cluster( const FTLCluster::FTLHitPos& hit )
   acluster.add(hit, seed_energy, seed_time, seed_time_error);
   
   //Here we search all hits adjacent to all hits in the cluster.
-  while ( ! acluster.empty()) 
+  try
     {
-      //This is the standard algorithm to find and add a hit
-      auto curInd = acluster.top(); acluster.pop();
-      for ( auto c = std::max(0,int(acluster.y[curInd])-1); c < std::min(int(acluster.y[curInd])+2,theBuffer.columns()) ; ++c) {
-	for ( auto r = std::max(0,int(acluster.x[curInd])-1); r < std::min(int(acluster.x[curInd])+2,theBuffer.rows()); ++r)  {
-	  if ( theBuffer.energy(r,c) > theHitThreshold) {
-	    FTLCluster::FTLHitPos newhit(r,c);
-	    if (!acluster.add( newhit, theBuffer.energy(r,c), theBuffer.time(r,c), theBuffer.time_error(r,c))) goto endClus;
-	    theBuffer.clear(newhit);
+      while ( ! acluster.empty()) 
+	{
+	  //This is the standard algorithm to find and add a hit
+	  auto curInd = acluster.top(); acluster.pop();
+	  for ( auto c = std::max(0,int(acluster.y[curInd])-1); c < std::min(int(acluster.y[curInd])+2,theBuffer.columns()) ; ++c) {
+	    for ( auto r = std::max(0,int(acluster.x[curInd])-1); r < std::min(int(acluster.x[curInd])+2,theBuffer.rows()); ++r)  {
+	      if ( theBuffer.energy(r,c) > theHitThreshold) {
+		FTLCluster::FTLHitPos newhit(r,c);
+		if (!acluster.add( newhit, theBuffer.energy(r,c), theBuffer.time(r,c), theBuffer.time_error(r,c))) throw EndClus();
+		theBuffer.clear(newhit);
+	      }
+	    }
 	  }
-	}
-      }
-    }  // while accretion
- endClus:
+	}  // while accretion
+    }
+  catch (EndClus&) {};
 
   FTLCluster cluster( currentId, acluster.isize, acluster.energy, acluster.time, acluster.timeError, acluster.x,acluster.y, acluster.xmin, acluster.ymin);
   return cluster;

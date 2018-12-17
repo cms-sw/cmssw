@@ -6,6 +6,7 @@
 //-----------------------------------------------------------------------------
 
 #include <utility>
+#include <memory>
 #include <vector>
 #include "TMath.h"
 
@@ -28,8 +29,6 @@
 
 #include <iostream>
 
-
-class RectangularMTDlTopology;
 
 class MTDCPEBase : public MTDClusterParameterEstimator
 {
@@ -66,14 +65,14 @@ public:
    {
       
       DetParam const & theDetParam = detParam(det);
-      ClusterParam * theClusterParam = createClusterParam(cl);
+      std::unique_ptr<ClusterParam> theClusterParam = createClusterParam(cl);
       setTheClu( theDetParam, *theClusterParam );
-      LocalPoint lp = localPosition(theDetParam, *theClusterParam);
-      LocalError le = localError(theDetParam, *theClusterParam);
-      TimeValue  t=clusterTime(theDetParam, *theClusterParam);
-      TimeValue  te=clusterTimeError(theDetParam, *theClusterParam);
-      auto tuple = std::make_tuple(lp, le , t, te);
-      delete theClusterParam;
+      auto tuple = std::make_tuple(
+				   localPosition(theDetParam, *theClusterParam),
+				   localError(theDetParam, *theClusterParam),
+				   clusterTime(theDetParam, *theClusterParam),
+				   clusterTimeError(theDetParam, *theClusterParam)
+				   );
       return tuple;
    }
    
@@ -90,7 +89,7 @@ public:
    
    
 private:
-   virtual ClusterParam * createClusterParam(const FTLCluster & cl) const;
+   virtual std::unique_ptr<ClusterParam> createClusterParam(const FTLCluster & cl) const;
    
    //--------------------------------------------------------------------------
    // This is where the action happens.
@@ -110,9 +109,6 @@ protected:
    //--- Global quantities   
    const MTDGeometry & geom_;          // geometry
    
-   //---------------------------------------------------------------------------
-   //  Geometrical services to subclasses.
-   //---------------------------------------------------------------------------
 protected:
    
    void  setTheClu( DetParam const &, ClusterParam & theClusterParam ) const ;   

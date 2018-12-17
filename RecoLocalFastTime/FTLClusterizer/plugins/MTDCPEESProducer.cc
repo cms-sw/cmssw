@@ -1,21 +1,46 @@
-#include "RecoLocalFastTime/FTLClusterizer/plugins/MTDCPEESProducer.h"
+#include "RecoLocalFastTime/Records/interface/MTDCPERecord.h"
+#include "RecoLocalFastTime/FTLClusterizer/interface/MTDClusterParameterEstimator.h"
 #include "RecoLocalFastTime/FTLClusterizer/interface/MTDCPEBase.h"
+
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
 #include <memory>
 
 using namespace edm;
 
+class  MTDCPEESProducer: public edm::ESProducer
+{
+ public:
+  MTDCPEESProducer(const edm::ParameterSet & p);
+  ~MTDCPEESProducer() override; 
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
+  std::unique_ptr<MTDClusterParameterEstimator> produce(const MTDCPERecord &);
+  
+ private:
+  edm::ParameterSet pset_;
+};
+
+
 MTDCPEESProducer::MTDCPEESProducer(const edm::ParameterSet & p) 
 {
   pset_ = p;
   setWhatProduced(this,"MTDCPEBase");
+}
+
+// Configuration descriptions
+void
+MTDCPEESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.add("MTDCPEESProducer", desc);
 }
 
 MTDCPEESProducer::~MTDCPEESProducer() {}

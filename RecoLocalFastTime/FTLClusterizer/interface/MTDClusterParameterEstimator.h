@@ -45,13 +45,13 @@ class MTDClusterParameterEstimator
   virtual VLocalValues localParametersV(const FTLCluster& cluster, const GeomDetUnit& gd) const {
     VLocalValues vlp;
     ReturnType tuple = getParameters(cluster, gd);
-    vlp.push_back(std::make_pair(std::get<0>(tuple), std::get<1>(tuple)));
+    vlp.emplace_back(std::make_pair(std::get<0>(tuple), std::get<1>(tuple)));
     return vlp;
   }
   virtual VLocalValues localParametersV(const FTLCluster& cluster, const GeomDetUnit& gd, TrajectoryStateOnSurface& tsos) const {
     VLocalValues vlp;
     ReturnType tuple = getParameters(cluster,  gd, tsos);
-    vlp.push_back(std::make_pair(std::get<0>(tuple), std::get<1>(tuple)));
+    vlp.emplace_back(std::make_pair(std::get<0>(tuple), std::get<1>(tuple)));
     return vlp;
   }
 

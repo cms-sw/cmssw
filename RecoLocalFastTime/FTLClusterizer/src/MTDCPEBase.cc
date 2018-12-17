@@ -41,21 +41,12 @@ void MTDCPEBase::fillDetParams()
       auto & p=m_DetParams[i];
       p.theDet = dynamic_cast<const MTDGeomDetUnit*>(dus[i]);
       assert(p.theDet);
-      //      assert(p.theDet->index()==int(i));
       
       p.theOrigin = p.theDet->surface().toLocal(GlobalPoint(0,0,0));
       
       //--- p.theDet->type() returns a GeomDetType, which implements subDetector()
       p.thePart = p.theDet->type().subDetector();
-      
-      //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
-      //--- The call goes via BoundSurface, returned by p.theDet->surface(), but
-      //--- position() is implemented in GloballyPositioned<> template
-      //--- ( BoundSurface : Surface : GloballyPositioned<float> )
-      //p.theDetR = p.theDet->surface().position().perp();  //Not used, AH
-      //p.theDetZ = p.theDet->surface().position().z();  //Not used, AH
-      //--- Define parameters for chargewidth calculation
-      
+            
       //--- bounds() is implemented in BoundSurface itself.
       p.theThickness = p.theDet->surface().bounds().thickness();
       
@@ -66,8 +57,6 @@ void MTDCPEBase::fillDetParams()
       assert(p.theRecTopol);
       
       //--- The geometrical description of one module/plaquette
-      //p.theNumOfRow = p.theRecTopol->nrows();	// rows in x //Not used, AH. PM: leave commented out.
-      //p.theNumOfCol = p.theRecTopol->ncolumns();	// cols in y //Not used, AH. PM: leave commented out.
       std::pair<float,float> pitchxy = p.theRecTopol->pitch();
       p.thePitchX = pitchxy.first;	     // pitch along x
       p.thePitchY = pitchxy.second;	     // pitch along y
@@ -88,9 +77,9 @@ MTDCPEBase::setTheClu( DetParam const & theDetParam, ClusterParam & theClusterPa
 {   
 }
 
-MTDCPEBase::ClusterParam* MTDCPEBase::createClusterParam(const FTLCluster & cl) const
+std::unique_ptr<MTDCPEBase::ClusterParam> MTDCPEBase::createClusterParam(const FTLCluster & cl) const
 {
-   return new ClusterParam(cl);
+  return std::unique_ptr<ClusterParam>(new ClusterParam(cl));
 }
 
 
@@ -98,9 +87,7 @@ MTDCPEBase::ClusterParam* MTDCPEBase::createClusterParam(const FTLCluster & cl) 
 MTDCPEBase::DetParam const & MTDCPEBase::detParam(const GeomDetUnit & det) const 
 {
    auto i = det.index();
-   //cout << "get parameters of detector " << i << endl;
    assert(i<int(m_DetParams.size()));
-   //if (i>=int(m_DetParams.size())) m_DetParams.resize(i+1);  // should never happen!
    const DetParam & p = m_DetParams[i];
    return p;
 }
@@ -116,7 +103,7 @@ MTDCPEBase::localPosition(DetParam const & theDetParam, ClusterParam & theCluste
 LocalError
 MTDCPEBase::localError(DetParam const & theDetParam,  ClusterParam & theClusterParamBase) const
 {
-  double one_over_twelve = 1./12.;
+  constexpr double one_over_twelve = 1./12.;
   MeasurementPoint pos(theClusterParamBase.theCluster->x(),theClusterParamBase.theCluster->y());
   MeasurementError simpleRect(one_over_twelve,0,one_over_twelve);
   return theDetParam.theTopol->localError(pos,simpleRect);
