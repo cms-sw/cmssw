@@ -5,9 +5,6 @@
 
 #include "G4LogicalVolume.hh"
 
-//using std::string;
-//using std::vector;
-
 DDG4SensitiveConverter::DDG4SensitiveConverter() {}
 
 DDG4SensitiveConverter::~DDG4SensitiveConverter() {}
@@ -17,8 +14,7 @@ SensitiveDetectorCatalog DDG4SensitiveConverter::upDate(const DDG4DispContainer 
   LogDebug("SimG4CoreGeometry") <<" DDG4SensitiveConverter::upDate() starts" ;
   SensitiveDetectorCatalog catalog;
 
-  for (unsigned int i=0; i<ddg4s.size(); i++)  {
-    DDG4Dispatchable * ddg4 = ddg4s[i];
+  for (auto ddg4 : ddg4s)  {
     const DDLogicalPart * part   = (ddg4->getDDLogicalPart());
     G4LogicalVolume *     result = (ddg4->getG4LogicalVolume());
   
@@ -27,7 +23,7 @@ SensitiveDetectorCatalog DDG4SensitiveConverter::upDate(const DDG4DispContainer 
     std::string fff        = result->GetName();
     if (sClassName != "NotFound") {
       LogDebug("SimG4CoreGeometry") << " DDG4SensitiveConverter: Sensitive " << fff
-				    << " Class Name " << sClassName << " ROU Name " << sROUName ;	    
+				    << " Class Name " << sClassName << " ROU Name " << sROUName;
       fff = result->GetName();
       catalog.insert(sClassName,sROUName,fff);
     }

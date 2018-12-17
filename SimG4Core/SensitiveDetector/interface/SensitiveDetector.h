@@ -24,9 +24,9 @@ class SensitiveDetector : public G4VSensitiveDetector
 public:
   explicit SensitiveDetector(const std::string & iname, 
                              const DDCompactView & cpv,
-			     const SensitiveDetectorCatalog &,
-			     edm::ParameterSet const & p,
-                             bool calo = false);
+                             const SensitiveDetectorCatalog &,
+                             edm::ParameterSet const & p,
+                             bool calo);
 
   ~SensitiveDetector() override;
 
@@ -37,9 +37,9 @@ public:
   virtual uint32_t setDetUnitId(const G4Step * step) = 0;
   virtual void clearHits() = 0;
 
-  inline const std::vector<std::string>& getNames() const { return namesOfSD; }
+  inline const std::vector<std::string>& getNames() const { return m_namesOfSD; }
  
-  inline bool isCaloSD() const { return isCalo; }
+  inline bool isCaloSD() const { return m_isCalo; }
 
 protected:
 
@@ -48,6 +48,7 @@ protected:
   Local3DPoint InitialStepPosition(const G4Step * step, coordinates) const;
   Local3DPoint FinalStepPosition(const G4Step * step, coordinates) const;
 
+  // local coordinates to the volume, in which the step is done
   Local3DPoint LocalPreStepPosition(const G4Step * step) const;
   Local3DPoint LocalPostStepPosition(const G4Step * step) const;
 
@@ -63,8 +64,8 @@ private:
 
   void AssignSD(const std::string & vname);
 
-  std::vector<std::string> namesOfSD;
-  bool isCalo;
+  std::vector<std::string> m_namesOfSD;
+  bool m_isCalo;
 };
 
 #endif
