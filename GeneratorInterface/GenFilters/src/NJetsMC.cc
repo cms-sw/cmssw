@@ -60,14 +60,14 @@ private:
   
   // ----------member data ---------------------------
   
-  edm::InputTag GenHandle_;
+  edm::EDGetTokenT<reco::GenJetCollection> GenToken_;
   Int_t  njets_;
   double minpt_;
 
 };
 
 NJetsMC::NJetsMC(const edm::ParameterSet& iConfig):
-  GenHandle_(iConfig.getUntrackedParameter<InputTag>("GenTag")),
+  GenToken_(consumes<reco::GenJetCollection>(iConfig.getUntrackedParameter<edm::InputTag>("GenTag"))),
   njets_(iConfig.getParameter<int32_t>("Njets")),
   minpt_(iConfig.getParameter<double>("MinPt"))
 {
@@ -83,7 +83,7 @@ bool NJetsMC::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    
    Handle<reco::GenJetCollection> GenJets;
-   iEvent.getByLabel(GenHandle_, GenJets);
+   iEvent.getByToken(GenToken_, GenJets);
 
    Int_t count = 0;
    bool result = false;
