@@ -21,47 +21,42 @@
 #include "RecoEcal/EgammaClusterProducers/interface/Multi5x5SuperClusterProducer.h"
 
 
-Multi5x5SuperClusterProducer::Multi5x5SuperClusterProducer(const edm::ParameterSet& ps)
+Multi5x5SuperClusterProducer::Multi5x5SuperClusterProducer(const edm::ParameterSet& ps):
+  barrelEtaSearchRoad_{static_cast<float>(ps.getParameter<double>("barrelEtaSearchRoad"))},
+  barrelPhiSearchRoad_{static_cast<float>(ps.getParameter<double>("barrelPhiSearchRoad"))},
+  endcapEtaSearchRoad_{static_cast<float>(ps.getParameter<double>("endcapEtaSearchRoad"))},
+  endcapPhiSearchRoad_{static_cast<float>(ps.getParameter<double>("endcapPhiSearchRoad"))},
+  seedTransverseEnergyThreshold_{static_cast<float>(ps.getParameter<double>("seedTransverseEnergyThreshold"))},
+  doBarrel_{ps.getParameter<bool>("doBarrel")},
+  doEndcaps_{ps.getParameter<bool>("doEndcaps")},
+  totalE{0.},
+  noSuperClusters{0}
 {
 
-  eeClustersToken_ = 
-	  consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("endcapClusterTag"));
-  ebClustersToken_ = 
-	  consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("barrelClusterTag"));
-
-
-  endcapSuperclusterCollection_ = ps.getParameter<std::string>("endcapSuperclusterCollection");
-  barrelSuperclusterCollection_ = ps.getParameter<std::string>("barrelSuperclusterCollection");
-
-  doBarrel_ = ps.getParameter<bool>("doBarrel");
-  doEndcaps_ = ps.getParameter<bool>("doEndcaps");
-
-  barrelEtaSearchRoad_ = ps.getParameter<double>("barrelEtaSearchRoad");
-  barrelPhiSearchRoad_ = ps.getParameter<double>("barrelPhiSearchRoad");
-  endcapEtaSearchRoad_ = ps.getParameter<double>("endcapEtaSearchRoad");
-  endcapPhiSearchRoad_ = ps.getParameter<double>("endcapPhiSearchRoad");
-  seedTransverseEnergyThreshold_ = ps.getParameter<double>("seedTransverseEnergyThreshold");
+  if(doEndcaps_) {
+    eeClustersToken_ = 
+      consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("endcapClusterTag"));
+  }
+  if(doBarrel_) {
+    ebClustersToken_ = 
+      consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("barrelClusterTag"));
+  }
 
   const edm::ParameterSet bremRecoveryPset = ps.getParameter<edm::ParameterSet>("bremRecoveryPset");
   bool dynamicPhiRoad = ps.getParameter<bool>("dynamicPhiRoad");
 
-  bremAlgo_p = new Multi5x5BremRecoveryClusterAlgo(bremRecoveryPset, barrelEtaSearchRoad_, barrelPhiSearchRoad_, 
-					 endcapEtaSearchRoad_, endcapPhiSearchRoad_, 
-                                         dynamicPhiRoad, seedTransverseEnergyThreshold_);
+  bremAlgo_p = std::make_unique<Multi5x5BremRecoveryClusterAlgo>(bremRecoveryPset, barrelEtaSearchRoad_, barrelPhiSearchRoad_, 
+                                                                 endcapEtaSearchRoad_, endcapPhiSearchRoad_, 
+                                                                 dynamicPhiRoad, seedTransverseEnergyThreshold_);
 
-  produces< reco::SuperClusterCollection >(endcapSuperclusterCollection_);
-  produces< reco::SuperClusterCollection >(barrelSuperclusterCollection_);
-
-  totalE = 0;
-  noSuperClusters = 0;
-  nEvt_ = 0;
+  if(doEndcaps_) {
+   endcapPutToken_ =  produces< reco::SuperClusterCollection >(ps.getParameter<std::string>("endcapSuperclusterCollection"));
+  }
+  if(doBarrel_) {
+    barrelPutToken_ = produces< reco::SuperClusterCollection >(ps.getParameter<std::string>("barrelSuperclusterCollection"));
+  }
 }
 
-
-Multi5x5SuperClusterProducer::~Multi5x5SuperClusterProducer()
-{
-  delete bremAlgo_p;
-}
 
 void
 Multi5x5SuperClusterProducer::endStream() {
@@ -82,52 +77,49 @@ Multi5x5SuperClusterProducer::endStream() {
 void Multi5x5SuperClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   if(doEndcaps_)
-    produceSuperclustersForECALPart(evt, eeClustersToken_, endcapSuperclusterCollection_);
+    produceSuperclustersForECALPart(evt, eeClustersToken_, endcapPutToken_);
 
   if(doBarrel_)
-    produceSuperclustersForECALPart(evt, ebClustersToken_, barrelSuperclusterCollection_);
-
-  nEvt_++;
+    produceSuperclustersForECALPart(evt, ebClustersToken_, barrelPutToken_);
 }
 
 
 void Multi5x5SuperClusterProducer::
 produceSuperclustersForECALPart(edm::Event& evt, 
-								const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
-								std::string superclusterCollection)
+                                const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
+                                const edm::EDPutTokenT<reco::SuperClusterCollection>& putToken)
 {
   // get the cluster collection out and turn it to a BasicClusterRefVector:
-  reco::CaloClusterPtrVector *clusterPtrVector_p = new reco::CaloClusterPtrVector;
-  getClusterPtrVector(evt, clustersToken, clusterPtrVector_p);
+  reco::CaloClusterPtrVector clusterPtrVector_p=getClusterPtrVector(evt, clustersToken);
 
   // run the brem recovery and get the SC collection
-  auto superclusters_ap = std::make_unique<reco::SuperClusterCollection>(bremAlgo_p->makeSuperClusters(*clusterPtrVector_p));
+  reco::SuperClusterCollection superclusters_ap(bremAlgo_p->makeSuperClusters(clusterPtrVector_p));
 
   // count the total energy and the number of superclusters
-  reco::SuperClusterCollection::iterator it;
-  for (it = superclusters_ap->begin(); it != superclusters_ap->end(); it++)
+  for (auto const& sc: superclusters_ap)
     {
-      totalE += it->energy();
+      totalE += sc.energy();
       noSuperClusters++;
     }
 
   // put the SC collection in the event
-  evt.put(std::move(superclusters_ap), superclusterCollection);
+  evt.emplace(putToken,std::move(superclusters_ap));
 
-  delete clusterPtrVector_p;
 }
 
-
-void Multi5x5SuperClusterProducer::getClusterPtrVector(edm::Event& evt, 
-													   const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken, 
-													   reco::CaloClusterPtrVector *clusterPtrVector_p)
+reco::CaloClusterPtrVector
+Multi5x5SuperClusterProducer::getClusterPtrVector(edm::Event& evt, 
+                                                  const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken) const
 {  
+  reco::CaloClusterPtrVector clusterPtrVector_p;
   edm::Handle<reco::BasicClusterCollection> bccHandle;
   evt.getByToken(clustersToken, bccHandle);
   
   const reco::BasicClusterCollection *clusterCollection_p = bccHandle.product();
+  clusterPtrVector_p.reserve(clusterCollection_p->size());
   for (unsigned int i = 0; i < clusterCollection_p->size(); i++)
     {
-      clusterPtrVector_p->push_back(reco::CaloClusterPtr(bccHandle, i));
+      clusterPtrVector_p.push_back(reco::CaloClusterPtr(bccHandle, i));
     }
+  return clusterPtrVector_p;
 }                               
