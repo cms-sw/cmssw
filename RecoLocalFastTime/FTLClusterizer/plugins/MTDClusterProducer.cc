@@ -1,16 +1,15 @@
-/** MTDClusterProducer.cc
- */
-
+//---------------------------------------------------------------------------
+//! \class MTDClusterProducer
+//!
+//! \brief EDProducer to cluster FTLRecHits into FTLClusters.
+//!
+//---------------------------------------------------------------------------
 // Our own stuff
-#include "MTDClusterProducer.h"
 #include "MTDThresholdClusterizer.h"
+#include "MTDClusterizerBase.h"
 
 // Data Formats
 #include "DataFormats/FTLRecHit/interface/FTLRecHit.h"
-
-// Framework
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 // STL
 #include <vector>
@@ -20,6 +19,55 @@
 
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
+#include "DataFormats/FTLRecHit/interface/FTLRecHitCollections.h"
+#include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
+#include "Geometry/Records/interface/MTDTopologyRcd.h"
+#include "Geometry/CommonTopologies/interface/Topology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+class MTDClusterProducer : public edm::stream::EDProducer<> {
+  public:
+    //--- Constructor, virtual destructor (just in case)
+    explicit MTDClusterProducer(const edm::ParameterSet& conf);
+    ~MTDClusterProducer() override;
+
+    //--- The top-level event method.
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+    //--- Execute the algorithm(s).
+    template<typename T>
+    void run(const T& input,
+             FTLClusterCollection & output);
+
+    void setupClusterizer(const edm::ParameterSet& conf);
+
+  private:
+    edm::EDGetTokenT< FTLRecHitCollection >  btlHits_;
+    edm::EDGetTokenT< FTLRecHitCollection >  etlHits_;
+
+    std::string ftlbInstance_; // instance name of barrel clusters
+    std::string ftleInstance_; // instance name of endcap clusters
+
+    const std::string clusterMode_;         // user's choice of the clusterizer
+    std::unique_ptr<MTDClusterizerBase> clusterizer_;    // what we got (for now, one ptr to base class)
+    bool readyToCluster_;                   // needed clusterizers valid => good to go!
+
+    edm::ESWatcher<MTDDigiGeometryRecord> geomwatcher_;
+    const MTDGeometry* geom_;
+    edm::ESWatcher<MTDTopologyRcd> topowatcher_;
+    const MTDTopology* topo_;
+};
 
 
 //---------------------------------------------------------------------------
@@ -47,8 +95,6 @@ MTDClusterProducer::MTDClusterProducer(edm::ParameterSet const& conf)
 
 // Destructor
 MTDClusterProducer::~MTDClusterProducer() { 
-  delete clusterizer_;
-  
 }  
 
   
@@ -90,15 +136,15 @@ void MTDClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
 void MTDClusterProducer::setupClusterizer(const edm::ParameterSet& conf)  {
 
     if ( clusterMode_ == "MTDThresholdClusterizer" ) {
-      clusterizer_ = new MTDThresholdClusterizer(conf);
+      clusterizer_ = std::unique_ptr<MTDClusterizerBase>(new MTDThresholdClusterizer(conf));
       readyToCluster_ = true;
     } 
     else {
-      edm::LogError("MTDClusterProducer") << "[MTDClusterProducer]:"
-		<<" choice " << clusterMode_ << " is invalid.\n"
-		<< "Possible choices:\n" 
-		<< "    MTDThresholdClusterizer";
       readyToCluster_ = false;
+      throw cms::Exception("MTDClusterProducer") << "[MTDClusterProducer]:"
+						 <<" choice " << clusterMode_ << " is invalid.\n"
+						 << "Possible choices:\n" 
+						 << "    MTDThresholdClusterizer";
     }
 }
 

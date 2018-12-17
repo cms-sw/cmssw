@@ -80,6 +80,7 @@ class MTDThresholdClusterizer : public MTDClusterizerBase {
   int  theNumOfCols;
 
   DetId currentId;
+  struct EndClus {};
 
   bool setup(const MTDGeometry * geometry, const MTDTopology * topo, const DetId& id);
   void copy_to_buffer( RecHitIterator itr);   
