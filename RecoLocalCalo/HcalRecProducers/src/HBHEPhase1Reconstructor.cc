@@ -338,7 +338,7 @@ private:
                      HBHEChannelInfo* info,
                      HBHEChannelInfoCollection* infoColl,
                      HBHERecHitCollection* rechits,
-                     const bool use8ts_);
+                     const bool use8ts);
 
     // Methods for setting rechit status bits
     void setAsicSpecificBits(const HBHEDataFrame& frame, const HcalCoder& coder,
@@ -510,9 +510,9 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
         const int nCycles = maxTS - shiftOneTS;
 
         // Go over time slices and fill the samples
-        for (int ts = shiftOneTS; ts < nCycles; ++ts)
+        for (int inputTS = shiftOneTS; inputTS < nCycles; ++inputTS)
         {
-            auto s(frame[ts]);
+            auto s(frame[inputTS]);
             const uint8_t adc = s.adc();
             const int capid = s.capid();
             //optionally store "effective" pedestal (measured with bias voltage on)
@@ -522,21 +522,24 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
             const double gain = calib.respcorrgain(capid);
             const double gainWidth = calibWidth.gain(capid);
             //always use QIE-only pedestal for this computation
-            const double rawCharge = rcfs.getRawCharge(cs[ts], calib.pedestal(capid));
+            const double rawCharge = rcfs.getRawCharge(cs[inputTS], calib.pedestal(capid));
             const float t = getTDCTimeFromSample(s);
             const float dfc = getDifferentialChargeGain(*channelCoder, *shape, adc,
-                                                        capid, channelInfo->hasTimeInfo());
-            channelInfo->setSample(ts-shiftOneTS, adc, dfc, rawCharge,
+                                                        capid, channelInfo->hasTimeInfo()); 
+            const int fitTS = inputTS-shiftOneTS;
+            channelInfo->setSample(fitTS, adc, dfc, rawCharge,
                                    pedestal, pedestalWidth,
                                    gain, gainWidth, t);
-            if (ts == soi)
+            if (inputTS == soi)
                 soiCapid = capid;
         }
 
-        // Fill the overall channel info items
+        // Fill the overall channel info items 
+        const int maxFitTS = maxTS-2*shiftOneTS;
+        const int fitSoi = soi-shiftOneTS;
         const int pulseShapeID = param_ts->pulseShapeID();
         const std::pair<bool,bool> hwerr = findHWErrors(frame, maxTS);
-        channelInfo->setChannelInfo(cell, pulseShapeID, maxTS-2*shiftOneTS, soi-shiftOneTS, soiCapid,
+        channelInfo->setChannelInfo(cell, pulseShapeID, maxFitTS, fitSoi, soiCapid,
                                     darkCurrent, fcByPE, lambda,
                                     hwerr.first, hwerr.second,
                                     taggedBadByDb || dropByZS);
