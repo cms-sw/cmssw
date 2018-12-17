@@ -301,6 +301,7 @@ private:
     bool tsFromDB_;
     bool recoParamsFromDB_;
     bool saveEffectivePedestal_;
+    bool use8ts_;
     int sipmQTSShift_;
     int sipmQNTStoSum_;
 
@@ -336,7 +337,8 @@ private:
                      const bool isRealData,
                      HBHEChannelInfo* info,
                      HBHEChannelInfoCollection* infoColl,
-                     HBHERecHitCollection* rechits);
+                     HBHERecHitCollection* rechits,
+                     const bool use8ts_);
 
     // Methods for setting rechit status bits
     void setAsicSpecificBits(const HBHEDataFrame& frame, const HcalCoder& coder,
@@ -365,6 +367,7 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
       tsFromDB_(conf.getParameter<bool>("tsFromDB")),
       recoParamsFromDB_(conf.getParameter<bool>("recoParamsFromDB")),
       saveEffectivePedestal_(conf.getParameter<bool>("saveEffectivePedestal")),
+      use8ts_(conf.getParameter<bool>("use8ts")),
       sipmQTSShift_(conf.getParameter<int>("sipmQTSShift")),
       sipmQNTStoSum_(conf.getParameter<int>("sipmQNTStoSum")),
       setNegativeFlagsQIE8_(conf.getParameter<bool>("setNegativeFlagsQIE8")),
@@ -436,7 +439,8 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
                                           const bool isRealData,
                                           HBHEChannelInfo* channelInfo,
                                           HBHEChannelInfoCollection* infos,
-                                          HBHERecHitCollection* rechits)
+                                          HBHERecHitCollection* rechits,
+                                          const bool use8ts_)
 {
     // If "saveDroppedInfos_" flag is set, fill the info with something
     // meaningful even if the database tells us to drop this channel.
@@ -500,10 +504,16 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
         const RawChargeFromSample<DFrame> rcfs(sipmQTSShift_, sipmQNTStoSum_, 
                                                cond, cell, cs, soi, frame, maxTS);
         int soiCapid = 4;
+        
+        // Use only 8 TSs when there are 10 TSs 
+        int shiftOneTS = 0;
+        if(use8ts_ && maxTS==10) shiftOneTS = 1;
 
         // Go over time slices and fill the samples
         for (int ts = 0; ts < maxTS; ++ts)
         {
+            if(use8ts_ && maxTS==10 && (ts==0 || ts==(maxTS-1))) continue;
+
             auto s(frame[ts]);
             const uint8_t adc = s.adc();
             const int capid = s.capid();
@@ -518,17 +528,17 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
             const float t = getTDCTimeFromSample(s);
             const float dfc = getDifferentialChargeGain(*channelCoder, *shape, adc,
                                                         capid, channelInfo->hasTimeInfo());
-            channelInfo->setSample(ts, adc, dfc, rawCharge,
+            channelInfo->setSample(ts-shiftOneTS, adc, dfc, rawCharge,
                                    pedestal, pedestalWidth,
                                    gain, gainWidth, t);
-            if (ts == soi)
+            if ((ts-shiftOneTS) == (soi-shiftOneTS))
                 soiCapid = capid;
         }
 
         // Fill the overall channel info items
         const int pulseShapeID = param_ts->pulseShapeID();
         const std::pair<bool,bool> hwerr = findHWErrors(frame, maxTS);
-        channelInfo->setChannelInfo(cell, pulseShapeID, maxTS, soi, soiCapid,
+        channelInfo->setChannelInfo(cell, pulseShapeID, maxTS-2*shiftOneTS, soi-shiftOneTS, soiCapid,
                                     darkCurrent, fcByPE, lambda,
                                     hwerr.first, hwerr.second,
                                     taggedBadByDb || dropByZS);
@@ -672,7 +682,7 @@ HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetu
 
         HBHEChannelInfo channelInfo(false,false);
         processData<HBHEDataFrame>(*hbDigis, *conditions, *p, *mycomputer,
-                                   isData, &channelInfo, infos.get(), out.get());
+                                   isData, &channelInfo, infos.get(), out.get(), use8ts_);
         if (setNoiseFlagsQIE8_)
             hbheFlagSetterQIE8_->SetFlagsFromRecHits(*out);
     }
@@ -684,7 +694,7 @@ HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetu
 
         HBHEChannelInfo channelInfo(true,saveEffectivePedestal_);
         processData<QIE11DataFrame>(*heDigis, *conditions, *p, *mycomputer,
-                                    isData, &channelInfo, infos.get(), out.get());
+                                    isData, &channelInfo, infos.get(), out.get(), use8ts_);
         if (setNoiseFlagsQIE11_)
             hbheFlagSetterQIE11_->SetFlagsFromRecHits(*out);
     }
@@ -765,6 +775,7 @@ HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& descri
     desc.add<bool>("tsFromDB");
     desc.add<bool>("recoParamsFromDB");
     desc.add<bool>("saveEffectivePedestal", false);
+    desc.add<bool>("use8ts");
     desc.add<int>("sipmQTSShift", 0);
     desc.add<int>("sipmQNTStoSum", 3);
     desc.add<bool>("setNegativeFlagsQIE8");
