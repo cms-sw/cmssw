@@ -506,14 +506,12 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
         int soiCapid = 4;
         
         // Use only 8 TSs when there are 10 TSs 
-        int shiftOneTS = 0;
-        if(use8ts_ && maxTS==10) shiftOneTS = 1;
+        const int shiftOneTS = use8ts_ && maxTS == static_cast<int>(HBHEChannelInfo::MAXSAMPLES) ? 1 : 0;
+        const int nCycles = maxTS - shiftOneTS;
 
         // Go over time slices and fill the samples
-        for (int ts = 0; ts < maxTS; ++ts)
+        for (int ts = shiftOneTS; ts < nCycles; ++ts)
         {
-            if(use8ts_ && maxTS==10 && (ts==0 || ts==(maxTS-1))) continue;
-
             auto s(frame[ts]);
             const uint8_t adc = s.adc();
             const int capid = s.capid();
@@ -531,7 +529,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
             channelInfo->setSample(ts-shiftOneTS, adc, dfc, rawCharge,
                                    pedestal, pedestalWidth,
                                    gain, gainWidth, t);
-            if ((ts-shiftOneTS) == (soi-shiftOneTS))
+            if (ts == soi)
                 soiCapid = capid;
         }
 
@@ -775,7 +773,7 @@ HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& descri
     desc.add<bool>("tsFromDB");
     desc.add<bool>("recoParamsFromDB");
     desc.add<bool>("saveEffectivePedestal", false);
-    desc.add<bool>("use8ts");
+    desc.add<bool>("use8ts", false);
     desc.add<int>("sipmQTSShift", 0);
     desc.add<int>("sipmQNTStoSum", 3);
     desc.add<bool>("setNegativeFlagsQIE8");
