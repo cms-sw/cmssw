@@ -4,6 +4,7 @@
 
 #include "DataFormats/FTLRecHit/interface/FTLCluster.h"
 #include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
+#include "DataFormats/FTLRecHit/interface/FTLTrackingRecHit.h"
 #include "DataFormats/FTLRecHit/interface/FTLSeverityLevel.h"
 #include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -48,6 +49,11 @@ namespace DataFormats_FTLRecHit {
     std::vector<edm::Ref<edmNew::DetSetVector<FTLCluster>,FTLCluster,edmNew::DetSetVector<FTLCluster>::FindForDetSetVector> > dsvr_v;
     edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<FTLCluster>,FTLCluster,edmNew::DetSetVector<FTLCluster>::FindForDetSetVector> > dsvr;
     edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<FTLCluster>,FTLCluster,edmNew::DetSetVector<FTLCluster>::FindForDetSetVector> > > dsvr_w;
+
+    FTLTrackingRecHitFromHit _FTLTTrackingRecHitFromRef;
+    FTLTrackingRecHitCollection _FTLTTrackingRecHitCollection;
+    edm::Wrapper<FTLTrackingRecHitCollection> _FTLTTrackingRecHitProd;
+
   };
 }
 

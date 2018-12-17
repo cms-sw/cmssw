@@ -5,7 +5,7 @@ from RecoMTD.TrackExtender.PropagatorWithMaterialForMTD_cfi import *
 _mtdRecHitBuilder = cms.string('MTDRecHitBuilder')
 _mtdPropagator = cms.string('PropagatorWithMaterialForMTD')
 
-mtdTrackExtender = cms.EDProducer(
+trackExtenderWithMTD = cms.EDProducer(
     'TrackExtenderWithMTD',
     tracksSrc = cms.InputTag("generalTracks"),
     hitsSrc = cms.InputTag("mtdTrackingRecHits"),

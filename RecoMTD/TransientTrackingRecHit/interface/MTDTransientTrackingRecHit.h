@@ -1,5 +1,5 @@
-#ifndef MTDTransientTrackingRecHit_h
-#define MTDTransientTrackingRecHit_h
+#ifndef RecoMTD_TransientTrackingRecHit_MTDTransientTrackingRecHit_h
+#define RecoMTD_TransientTrackingRecHit_MTDTransientTrackingRecHit_h
 
 /** \class MTDTransientTrackingRecHit
  *
@@ -38,7 +38,7 @@ public:
   }
 
   static MTDRecHitPointer specificBuild(const GeomDet * geom, const TrackingRecHit* rh) {
-    LogDebug("MTD|RecoMTD|MTDTransientTrackingRecHit") << "Getting specificBuild"<<std::endl;
+    LogDebug("MTDTransientTrackingRecHit") << "Getting specificBuild"<<std::endl;
     return MTDRecHitPointer(new MTDTransientTrackingRecHit(geom, rh));
   }
 

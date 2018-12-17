@@ -1,6 +1,7 @@
 <use   name="DataFormats/CaloRecHit"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/ForwardDetId"/>
+<use   name="DataFormats/TrackingRecHit"/>
 
 <export>
   <lib   name="1"/>

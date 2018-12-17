@@ -61,5 +61,11 @@
   <class name="edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<FTLCluster>,FTLCluster,edmNew::DetSetVector<FTLCluster>::FindForDetSetVector> >" />
   <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<FTLCluster>,FTLCluster,edmNew::DetSetVector<FTLCluster>::FindForDetSetVector> > >" />
   
+  <class name="FTLTrackingRecHitFromHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="3399436891"/>
+  </class>
+  <class name="FTLTrackingRecHitCollection"/>
+  <class name="edm::Wrapper<FTLTrackingRecHitCollection>"/>
+
   <enum name="FTLSeverityLevel::SeverityLevel"/> 
 </lcgdict>
