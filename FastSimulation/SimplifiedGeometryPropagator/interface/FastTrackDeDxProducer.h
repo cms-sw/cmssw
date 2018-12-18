@@ -56,12 +56,12 @@
 class FastTrackDeDxProducer : public edm::stream::EDProducer<> {
 public:
   explicit FastTrackDeDxProducer(const edm::ParameterSet&);
-  ~FastTrackDeDxProducer();
+  ~FastTrackDeDxProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   void   makeCalibrationMap(const TrackerGeometry& tkGeom);
   void   processHit(const FastTrackerRecHit & recHit, float trackMomentum, float& cosine, reco::DeDxHitCollection& dedxHits, int& NClusterSaturating);
