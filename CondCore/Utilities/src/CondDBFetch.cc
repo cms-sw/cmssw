@@ -276,6 +276,8 @@ namespace cond {
       FETCH_PAYLOAD_CASE( SiPixelLorentzAngle )
       FETCH_PAYLOAD_CASE( SiPixelDynamicInefficiency )
       FETCH_PAYLOAD_CASE( SiPixelQuality )
+      FETCH_PAYLOAD_CASE( SiPixelFEDChannelContainer )
+      FETCH_PAYLOAD_CASE( SiPixelQualityProbabilities )
       FETCH_PAYLOAD_CASE( SiPixelTemplateDBObject )
       FETCH_PAYLOAD_CASE( SiPixel2DTemplateDBObject )
       FETCH_PAYLOAD_CASE( SiStripApvGain )

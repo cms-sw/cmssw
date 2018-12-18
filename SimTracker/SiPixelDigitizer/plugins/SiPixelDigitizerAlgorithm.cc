@@ -55,6 +55,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGeneral.h"
 
 //#include "PixelIndices.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -76,7 +77,8 @@
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h"
-
+#include "CondFormats/DataRecord/interface/SiPixelStatusScenarioProbabilityRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelStatusScenariosRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixel2DTemplateDBObjectRcd.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
@@ -89,7 +91,8 @@
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
-
+#include "CondFormats/SiPixelObjects/interface/SiPixelFEDChannelContainer.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQualityProbabilities.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h" 
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
@@ -105,8 +108,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-
-
 
 using namespace edm;
 using namespace sipixelobjects;
@@ -127,6 +128,12 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
   es.get<SiPixelFedCablingMapRcd>().get(map_);
   es.get<TrackerDigiGeometryRecord>().get(geom_);
 
+  if (KillBadFEDChannels){
+    es.get<SiPixelStatusScenarioProbabilityRcd>().get(scenarioProbabilityHandle);
+    es.get<SiPixelFEDChannelContainerESProducerRcd>().get(PixelFEDChannelCollectionMapHandle);
+    quality_map = PixelFEDChannelCollectionMapHandle.product();
+  }
+  
   // Read template files for charge reweighting
   if (UseReweighting){
     edm::ESHandle<SiPixel2DTemplateDBObject> SiPixel2DTemp_den;
@@ -253,7 +260,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
   // Control the pixel inefficiency
   AddPixelInefficiency(conf.getParameter<bool>("AddPixelInefficiency")),
-
+  KillBadFEDChannels(conf.getParameter<bool>("KillBadFEDChannels")),
+  
   // Add threshold gaussian smearing:
   addThresholdSmearing(conf.getParameter<bool>("AddThresholdSmearing")),
 
@@ -261,7 +269,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   doMissCalibrate(conf.getParameter<bool>("MissCalibrate")), // Enable miss-calibration
   theGainSmearing(conf.getParameter<double>("GainSmearing")), // sigma of the gain smearing
   theOffsetSmearing(conf.getParameter<double>("OffsetSmearing")), //sigma of the offset smearing
-
+  
   // Add pixel radiation damage for upgrade studies
   AddPixelAging(conf.getParameter<bool>("DoPixelAging")),
   UseReweighting(conf.getParameter<bool>("UseReweighting")),
@@ -776,6 +784,54 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(const std::vector<Pileup
       pixelEfficiencies_.pu_scale[i] = 1.;
     }
   }
+}
+
+// ==========  StuckTBMs 
+
+bool SiPixelDigitizerAlgorithm::killBadFEDChannels() const {return KillBadFEDChannels;}
+
+std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine *engine){
+  
+  //Determine scenario to use for the current event based on pileup information
+
+  std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_ = nullptr;      
+  pixelEfficiencies_.PixelFEDChannelCollection_ = nullptr;    
+  if (puInfo) {
+    const std::vector<int>& bunchCrossing = puInfo->getMix_bunchCrossing();
+    const std::vector<float>& TrueInteractionList = puInfo->getMix_TrueInteractions();    
+    
+    int pui = 0, p = 0;
+    std::vector<int>::const_iterator pu;
+    std::vector<int>::const_iterator pu0 = bunchCrossing.end();
+    
+    for (pu=bunchCrossing.begin(); pu!=bunchCrossing.end(); ++pu) {      
+      if (*pu==0) {	
+	pu0 = pu;
+	p = pui;
+      }
+      pui++;
+    }    
+    
+    if (pu0!=bunchCrossing.end()) {
+      
+      unsigned int PUBin = TrueInteractionList.at(p); // case delta PU=1, fix me      
+      const auto& theProbabilitiesPerScenario = scenarioProbabilityHandle->getProbabilities(PUBin);
+      std::vector<double> probabilities;
+      probabilities.reserve(theProbabilitiesPerScenario.size());
+      for (auto it = theProbabilitiesPerScenario.begin(); it != theProbabilitiesPerScenario.end(); it++){
+	probabilities.push_back(it->second);
+      }
+      
+      CLHEP::RandGeneral randGeneral(*engine, &(probabilities.front()), probabilities.size());	
+      double x = randGeneral.shoot();
+      unsigned int index = x * probabilities.size() - 1;
+      const std::string& scenario = theProbabilitiesPerScenario.at(index).first;    
+      
+      PixelFEDChannelCollection_ = std::make_unique<PixelFEDChannelCollection>(quality_map->at(scenario));
+      pixelEfficiencies_.PixelFEDChannelCollection_ = std::make_unique<PixelFEDChannelCollection>(quality_map->at(scenario));
+    }
+  }    
+  return PixelFEDChannelCollection_;
 }
 
 //============================================================================
@@ -1588,6 +1644,32 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   std::vector<double> pixelEfficiencyROCStdPixels(16,1);
   std::vector<double> pixelEfficiencyROCBigPixels(16,1);
   
+  auto pIndexConverter = PixelIndices(numColumns,numRows);
+  
+  std::vector<int> badRocsFromFEDChannels(16,0);  
+  if (eff.PixelFEDChannelCollection_ != nullptr){  
+    PixelFEDChannelCollection::const_iterator it = eff.PixelFEDChannelCollection_->find(detID);
+    
+    if (it != eff.PixelFEDChannelCollection_->end()){      
+      const std::vector<CablingPathToDetUnit> &path = map_->pathToDetUnit(detID);
+      for(const auto& ch: *it) {	
+	for (unsigned int i_roc = ch.roc_first; i_roc <= ch.roc_last; ++i_roc){
+	  for(const auto p : path){
+	    const PixelROC* myroc = map_.product()->findItem(p);
+	    if( myroc->idInDetUnit() == static_cast<unsigned int>(i_roc)) {
+	      LocalPixel::RocRowCol  local = {39, 25};//corresponding to center of ROC row,col
+	      GlobalPixel global = myroc->toGlobal( LocalPixel(local) );
+	      int chipIndex(0), colROC(0), rowROC(0);
+	      pIndexConverter.transformToROC(global.col,global.row,chipIndex,colROC,rowROC);
+	      badRocsFromFEDChannels.at(chipIndex) = 1;	
+	    }
+	  }
+	}
+      } // loop over channels
+    } // detID in PixelFEDChannelCollection_
+  } // has PixelFEDChannelCollection_
+  
+ 
   if (eff.FromConfig) {
     // setup the chip indices conversion
     if    (pixdet->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel ||
@@ -1661,7 +1743,6 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   
   // Initilize the index converter
   //PixelIndices indexConverter(numColumns,numRows);
-  std::unique_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));
 
   int chipIndex = 0;
   int rowROC = 0;
@@ -1678,10 +1759,10 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     int row = ip.first;  // X in row
     int col = ip.second; // Y is in col
     //transform to ROC index coordinates
-    pIndexConverter->transformToROC(col,row,chipIndex,colROC,rowROC);
-    int dColInChip = pIndexConverter->DColumn(colROC); // get ROC dcol from ROC col
+    pIndexConverter.transformToROC(col,row,chipIndex,colROC,rowROC);
+    int dColInChip = pIndexConverter.DColumn(colROC); // get ROC dcol from ROC col
     //dcol in mod
-    int dColInDet = pIndexConverter->DColumnInModule(dColInChip,chipIndex);
+    int dColInDet = pIndexConverter.DColumnInModule(dColInChip,chipIndex);
     
     chips[chipIndex]++;
     columns[dColInDet]++;
@@ -1729,10 +1810,10 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     int row = ip.first;  // X in row
     int col = ip.second; // Y is in col
     //transform to ROC index coordinates
-    pIndexConverter->transformToROC(col,row,chipIndex,colROC,rowROC);
-    int dColInChip = pIndexConverter->DColumn(colROC); //get ROC dcol from ROC col
+    pIndexConverter.transformToROC(col,row,chipIndex,colROC,rowROC);
+    int dColInChip = pIndexConverter.DColumn(colROC); //get ROC dcol from ROC col
     //dcol in mod
-    int dColInDet = pIndexConverter->DColumnInModule(dColInChip,chipIndex);
+    int dColInDet = pIndexConverter.DColumnInModule(dColInChip,chipIndex);
     
     //float rand  = RandFlat::shoot();
     float rand  = CLHEP::RandFlat::shoot(engine);
@@ -1745,11 +1826,17 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     } // end if
     if (isPhase1){
       if((pixelStd.count(chipIndex) && pixelStd[chipIndex] == 0)
-	 || (pixelBig.count(chipIndex) && pixelBig[chipIndex] == 0)) {
-	// make pixel amplitude =0, pixel will be lost at clusterization
-	i->second.set(0.); // reset amplitude,      
-      } // end if
+	 || (pixelBig.count(chipIndex) && pixelBig[chipIndex] == 0)	 
+	 || (badRocsFromFEDChannels.at(chipIndex) == 1))
+	{
+	  //============================================================	  
+	  // make pixel amplitude =0, pixel will be lost at clusterization
+	  i->second.set(0.); // reset amplitude,      	  
+	} // end if
     } // is Phase 1
+    if (KillBadFEDChannels && badRocsFromFEDChannels.at(chipIndex) == 1){
+      i->second.set(0.);
+    }
   } // end pixel loop
 } // end pixel_indefficiency
 
