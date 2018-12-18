@@ -14,7 +14,7 @@
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
 #include "DetectorDescription/DDCMS/interface/DDNamespace.h"
 #include "DetectorDescription/DDCMS/interface/DDParsingContext.h"
-#include "DetectorDescription/DDCMS/interface/DDRegistry.h"
+#include "DetectorDescription/DDCMS/interface/DDDetector.h"
 
 #include "TGeoManager.h"
 #include "TGeoMaterial.h"
@@ -30,6 +30,8 @@ using namespace std;
 using namespace dd4hep;
 using namespace cms;
 
+using DDVectorsMap = cms::DDDetector::DDVectorsMap;
+
 namespace dd4hep {
 
   namespace {
@@ -44,8 +46,7 @@ namespace dd4hep {
     
     class ConstantsSection;
     class DDLConstant;
-    class DDRegistry {
-    public:
+    struct DDRegistry {
       std::vector<xml::Document> includes;
       std::map<std::string, std::string> unresolvedConst, allConst, originalConst;
     };
@@ -1275,9 +1276,9 @@ splitString( const string& str, const string& delims = "," )
 /// Converter for <Vector/> tags
 /// FIXME: Check if(parent() == "Algorithm" || parent() == "SpecPar")
 template <> void Converter<DDLVector>::operator()( xml_h element ) const {
-  DDVectorRegistry registry;
-
   cms::DDNamespace ns( _param<cms::DDParsingContext>());
+  cms::DDParsingContext* const context = ns.context();
+  DDVectorsMap* registry = context->description->extension<DDVectorsMap>();
   xml_dim_t e( element );
   string name = e.nameStr();
   string type = ns.attr<string>( e, _U( type ));
@@ -1315,6 +1316,9 @@ template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
 
   printout( context->debug_constants ? ALWAYS : DEBUG,
 	    "DD4CMS","+++ RESOLVING %ld unknown constants.....", res->unresolvedConst.size());
+
+  // FIXME: Avoid an infinite loop in a case
+  // when a referred constant is not defined
   while( !res->unresolvedConst.empty()) {
     for( auto i : res->unresolvedConst ) {
       const string& n = i.first;
@@ -1341,7 +1345,7 @@ template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
 		  "DD4CMS","+++ [%06ld] ----------  %-40s = %s",
 		  res->unresolvedConst.size() - 1, n.c_str(), res->originalConst[n].c_str());
         ns.addConstantNS( n, v, "number" );
-        res->unresolvedConst.erase( n );
+        res->unresolvedConst.erase(n);
         break;
       }
     }
@@ -1366,6 +1370,13 @@ template <> void Converter<print_xml_doc>::operator()(xml_h element) const {
 static long load_dddefinition(Detector& det, xml_h element) {
   static cms::DDParsingContext context(&det);
   cms::DDNamespace ns(context);
+  ns.addConstantNS( "world_x", "5*m", "number" );
+  ns.addConstantNS( "world_y", "5*m", "number" );
+  ns.addConstantNS( "world_z", "5*m", "number" );
+  ns.addConstantNS( "Air", "materials:Air", "string" );
+  ns.addConstantNS( "Vacuum", "materials:Vacuum", "string" );
+  ns.addConstantNS( "fm", "1e-12*m", "number" );
+  
   xml_elt_t dddef(element);
   string fname = xml::DocumentHandler::system_path(element);
   bool open_geometry  = dddef.hasChild(DD_CMU(open_geometry));

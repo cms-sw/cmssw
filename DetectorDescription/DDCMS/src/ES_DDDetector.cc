@@ -1,7 +1,10 @@
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 
-TYPELOOKUP_DATA_REG( cms::DDDetector );
+TYPELOOKUP_DATA_REG(cms::DDDetector);
+
+#include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
+TYPELOOKUP_DATA_REG(cms::DDVectorRegistry);
 
 #include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
 
@@ -9,4 +12,7 @@ TYPELOOKUP_DATA_REG( cms::DDDetector );
 EVENTSETUP_RECORD_REG(DetectorDescriptionRcd);
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
-EVENTSETUP_DATA_DEFAULT_RECORD( cms::DDDetector, DetectorDescriptionRcd )
+EVENTSETUP_DATA_DEFAULT_RECORD(cms::DDDetector, DetectorDescriptionRcd);
+
+#include "DetectorDescription/DDCMS/interface/DDVectorRegistryRcd.h"
+EVENTSETUP_RECORD_REG(DDVectorRegistryRcd);
