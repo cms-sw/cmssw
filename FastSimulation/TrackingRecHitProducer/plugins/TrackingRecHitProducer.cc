@@ -246,7 +246,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
                     }
                     (*output_recHitRefs)[simHitId] = FastTrackerRecHitRef(output_recHits_refProd,output_recHits->size()-1);
                 }
-                ((FastSingleTrackerRecHit*)&(*output_recHits)[output_recHits->size()-1])->setEnergyLoss(energyLoss_tot);//
+                static_cast<FastSingleTrackerRecHit&>(output_recHits->back()).setEnergyLoss(energyLoss_tot);        
             }
         }
         else
