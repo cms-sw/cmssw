@@ -148,7 +148,6 @@ RecoTauDiscriminantCutMultiplexer::RecoTauDiscriminantCutMultiplexer(const edm::
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
 
-
   loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
   if ( !loadMVAfromDB_ ) {
     if(cfg.exists("inputFileName")){
@@ -182,8 +181,6 @@ RecoTauDiscriminantCutMultiplexer::RecoTauDiscriminantCutMultiplexer(const edm::
     cuts_[category] = std::move(cut);
   }
 
-  verbosity_ = ( cfg.exists("verbosity") ) ?
-    cfg.getParameter<int>("verbosity") : 0;
   if(verbosity_) std::cout << "constructed " << moduleLabel_ << std::endl;
 }
 
