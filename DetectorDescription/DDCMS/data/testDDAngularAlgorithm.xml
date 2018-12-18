@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd">
   <SolidSection>
     <Box name="MotherOfAllBoxes" dx="10*m" dy="10*m" dz="10*m"/>
-    <TruncTubs name="testDDAngularAlgorithm:V_1101" rMin="6.9551*m" rMax="9*m" cutAtStart="6.9551*m" cutAtDelta="7.20045*m" cutInside="true"
+    <TruncTubs name="V_1101" rMin="6.9551*m" rMax="9*m" cutAtStart="6.9551*m" cutAtDelta="7.20045*m" cutInside="true"
 	       startPhi="0*deg" deltaPhi="15*deg" zHalf="6.57005*m"/>
   </SolidSection>
   <LogicalPartSection>
@@ -10,13 +10,13 @@
       <rMaterial name="materials:Air"/>
       <rSolid name="MotherOfAllBoxes"/>
     </LogicalPart> 
-    <LogicalPart name="testDDAngularAlgorithm:V_1101" category="unspecified">
-      <rSolid name="testDDAngularAlgorithm:V_1101"/>
+    <LogicalPart name="V_1101" category="unspecified">
+      <rSolid name="V_1101"/>
       <rMaterial name="materials:Air"/>
     </LogicalPart>
   </LogicalPartSection>
   <Algorithm name="global:DDAngular">
-    <rParent name="MotherOfAllBoxes"/>
+    <rParent name="testDDAngularAlgorithm:MotherOfAllBoxes"/>
     <String name="ChildName" value="testDDAngularAlgorithm:V_1101"/>
     <Numeric name="N" value="12"/>
     <Numeric name="StartCopyNo" value="14"/>
@@ -28,7 +28,7 @@
     <Vector name="RotateSolid" type="numeric" nEntries="3"> 0, 0, 0*deg </Vector>
   </Algorithm>
   <Algorithm name="global:DDAngular">
-    <rParent name="MotherOfAllBoxes"/>
+    <rParent name="testDDAngularAlgorithm:MotherOfAllBoxes"/>
     <String name="ChildName" value="testDDAngularAlgorithm:V_1101"/>
     <Numeric name="N" value="12"/>
     <Numeric name="StartCopyNo" value="1"/>
@@ -42,10 +42,10 @@
   <PosPartSection label="">
     <PosPart copyNumber="2">
       <rParent name="world_volume"/>
-      <rChild name="MotherOfAllBoxes"/>
+      <rChild name="testDDAngularAlgorithm:MotherOfAllBoxes"/>
     </PosPart>
     <PosPart copyNumber="13">
-      <rParent name="MotherOfAllBoxes"/>
+      <rParent name="testDDAngularAlgorithm:MotherOfAllBoxes"/>
       <rChild name="testDDAngularAlgorithm:V_1101"/>
       <Translation z="17.4299*m" y="0.*m" x="0."/>
     </PosPart>

@@ -12,25 +12,8 @@ using namespace cms;
 DDNamespace::DDNamespace( DDParsingContext* context, xml_h element )
   : m_context( context )
 {
-  xml_dim_t elt( element );
-  bool has_label = elt.hasAttr(_U(label));
-  m_name = has_label ? elt.labelStr() : "";
-  if( !has_label ) {
-    if( !m_context->namespaces.empty()) {
-      m_name = m_context->namespaces.back();
-    }
-    dd4hep::printout( m_context->debug_namespaces ? dd4hep::ALWAYS : dd4hep::DEBUG,
-  	      "DD4CMS", "+++ Current namespace is now: %s", m_name.c_str());
-    return;
-  }
-  if( has_label ) {
-    size_t idx = m_name.find('.');
-    m_name = m_name.substr( 0, idx );
-  }
-  else {
-    dd4hep::Path path( xml_handler_t::system_path( element ));
-    m_name = path.filename().substr( 0, path.filename().rfind('.'));
-  }
+  dd4hep::Path path( xml_handler_t::system_path( element ));
+  m_name = path.filename().substr( 0, path.filename().rfind('.'));
   if ( !m_name.empty()) m_name += NAMESPACE_SEP;
   m_context->namespaces.emplace_back( m_name );
   m_pop = true;
@@ -42,17 +25,8 @@ DDNamespace::DDNamespace( DDParsingContext* context, xml_h element )
 DDNamespace::DDNamespace( DDParsingContext& ctx, xml_h element, bool )
   : m_context( &ctx )
 {
-  xml_dim_t elt(element);
-  bool has_label = elt.hasAttr(_U(label));
-  m_name = has_label ? elt.labelStr() : "";
-  if( has_label ) {
-    size_t idx = m_name.find('.');
-    m_name = m_name.substr(0,idx);
-  }
-  else {
-    dd4hep::Path path( xml_handler_t::system_path( element ));
-    m_name = path.filename().substr( 0, path.filename().rfind('.'));
-  }
+  dd4hep::Path path( xml_handler_t::system_path( element ));
+  m_name = path.filename().substr( 0, path.filename().rfind('.'));
   if( !m_name.empty()) m_name += NAMESPACE_SEP;
   m_context->namespaces.push_back( m_name );
   m_pop = true;
@@ -141,17 +115,6 @@ DDNamespace::addConstantNS( const string& nam, const string& val, const string& 
   dd4hep::_toDictionary( n, v, typ );
   dd4hep::Constant c( n, v, typ );
   m_context->description->addConstant( c );
-}
-
-void
-DDNamespace::addVector( const string& name, const vector<double>& value ) const
-{
-  const vector<double>& v = value;
-  const string& n = name;
-  dd4hep::printout( m_context->debug_constants ? dd4hep::ALWAYS : dd4hep::DEBUG,
-		    "DD4CMS","+++ Add constant object: %-40s = %s ",
-		    n.c_str(), "vector<double>");
-  m_context->addVector( n, v );
 }
 
 dd4hep::Material

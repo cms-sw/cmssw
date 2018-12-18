@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DetectorDescription/DDCMS/interface/DDRegistry.h"
 #include "DD4hep/Detector.h"
 #include "DD4hep/DD4hepRootPersistency.h"
 

@@ -17,17 +17,17 @@
 //
 
 #include <memory>
-#include <iostream>
 
-#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
-class DDDetectorESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
+class DDDetectorESProducer : public edm::ESProducer,
+			     public edm::EventSetupRecordIntervalFinder {
 public:
   DDDetectorESProducer(const edm::ParameterSet&);
   ~DDDetectorESProducer() override;
@@ -38,7 +38,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+		      const edm::IOVSyncValue&, edm::ValidityInterval&) override;
   
 private:
   std::string m_confGeomXMLFiles;
@@ -65,7 +66,8 @@ DDDetectorESProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
 }
 
 void
-DDDetectorESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval) {
+DDDetectorESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
+				     const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval) {
   oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime()); //infinite
 }
 
@@ -77,5 +79,4 @@ DDDetectorESProducer::produce(const DetectorDescriptionRcd& iRecord)
   return product;
 }
 
-#include "FWCore/Framework/interface/SourceFactory.h"
 DEFINE_FWK_EVENTSETUP_SOURCE(DDDetectorESProducer);
