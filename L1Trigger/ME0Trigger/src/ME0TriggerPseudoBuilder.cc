@@ -3,7 +3,8 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
-
+#include <iostream>
+#include <assert.h>  
 
 const unsigned int ME0TriggerPseudoBuilder::ME0KeyLayer = 3;
 const int ME0TriggerPseudoBuilder::ME0TriggerCentralBX = 8;
@@ -23,6 +24,7 @@ ME0TriggerPseudoBuilder::~ME0TriggerPseudoBuilder()
 void ME0TriggerPseudoBuilder::build(const ME0SegmentCollection* me0Segments,
 			      ME0TriggerDigiCollection& oc_trig)
 {
+  if (info_ > 2) dumpAllME0Segments( *me0Segments);
   for (int endc = 0; endc < 2; endc++)
   {
     for (int cham = 0; cham < 18; cham++)
@@ -35,7 +37,7 @@ void ME0TriggerPseudoBuilder::build(const ME0SegmentCollection* me0Segments,
       std::vector<ME0TriggerDigi> trigV;
       for (auto digiIt = drange.first; digiIt != drange.second; digiIt++) {
             if (info_ > 1 ) LogTrace("L1ME0Trigger") << "ME0TriggerPseudoBuilder id "<< detid
-                              <<" ME0 segment "<< *digiIt <<" to be converted\n";
+                              <<" ME0 segment "<< *digiIt <<" to be converted into trigger digi\n";
             ME0TriggerDigi trig = segmentConversion(*digiIt);
             if (trig.isValid()) trigV.push_back(trig);
             if (info_ > 1 and trig.isValid()) LogTrace("L1ME0Trigger") <<" ME0trigger "<< trig <<"\n";
@@ -71,14 +73,17 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
         rolls.push_back(rechit.me0Id().roll());
   }
   if (rolls.size() > 2 or rolls.size() == 0) LogTrace("L1ME0Trigger") << " ME0 segment is crossing "<< rolls.size() <<" roll !!! \n";
+  assert( rolls.size() <=2 );
   if (rolls.size() == 0 ) return ME0TriggerDigi();
-  int partition = (rolls[0] << 1) -1;//counting from 1
-  if (rolls.size() == 2 and rolls[0] > rolls[1]) partition = partition+1;
-  else if (rolls.size() == 2 and rolls[0] < rolls[1]) partition = partition-1;
+  if (rolls[0] < 1)  LogTrace("L1ME0Trigger") << " ME0 segment has wrong roll number "<< rolls[0] <<" which should be >= 1 \n !!!";
+  assert(rolls[0] >= 1);
+  int partition = (rolls[0] -1 )<< 1;//roll from detid counts from 1
+  if (rolls.size() == 2 and rolls[0] > rolls[1]) partition = partition-1;
+  else if (rolls.size() == 2 and rolls[0] < rolls[1]) partition = partition+1;
   
-  if (partition <= 0 or partition >= 2*totRolls){
-     LogTrace("L1ME0Trigger") << " ME0 segment roll "<<  rolls[0] <<" and ME0 trigger roll is "
-                              << partition-1 <<" max expected "<< 2*totRolls <<"\n";
+  if (partition < 0 or partition >= 2*totRolls){
+     LogTrace("L1ME0Trigger") << " ME0 segment rolls size of all hits "<< rolls.size() <<" rolls[0] "<< rolls[0] <<" rolls.back() "<< rolls.back()
+                              <<" and ME0 trigger roll is "<< partition <<" max expected "<< 2*totRolls-1 <<"\n";
      return ME0TriggerDigi();
   }
   
@@ -86,14 +91,51 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
   float strippitch = etapart->localPitch(segment.localPosition());
   float strip = etapart->strip(segment.localPosition());
   int totstrip = etapart->nstrips();
-  int phiposition = static_cast<int>(strip);
+  int istrip = static_cast<int>(strip);
+  int phiposition  = istrip;
   if (phiposition > totstrip)  LogTrace("L1ME0Trigger")<<" ME0 segment strip number is "<< phiposition <<" larger than nstrip "<< totstrip <<" !!! \n";
-  int phiposition2 = (static_cast<int>((strip - phiposition)/(strippitch)) & 3);
+  int phiposition2 = (static_cast<int>((strip - phiposition)/(strippitch/2.0)) & 3);// half-strip resolution
   phiposition = (phiposition << 2) | phiposition2;
   int idphi = static_cast<int>(fabs(dphi)/(strippitch*dphiresolution_));
+  int max_idphi = 512;
+  if (idphi >= 512){ 
+     LogTrace("L1ME0Trigger")<<" ME0 segment dphi "<< dphi <<" and int type: "<< idphi <<" larger than max allowed: "<< max_idphi <<" !!! \n";
+     idphi = max_idphi -1;
+  }
   int quality = nrechits;// attention: not the same as discussed in meeting
   int BX = (static_cast<int>(fabs(time)/25.0))*sign_time + ME0TriggerPseudoBuilder::ME0TriggerCentralBX;
   int bend = (dphi > 0.0) ? 0 : 1;
+  if (info_ > 2) LogTrace("L1ME0Trigger") <<" ME0trigger in conversion function:\n "
+                    <<"\t chamber(1-18) "<< detid.chamber() <<" chamber id "<< chamberid <<" \n"
+                    <<"\t rolls size of all hits "<< rolls.size() <<" rolls[0] "<< rolls[0] <<" rolls.back() "<< rolls.back() <<" roll "<< partition <<" \n"
+                    <<"\t nRechits "<< nrechits <<" quality "<< quality <<" \n"
+                    <<"\t strip(float) "<< strip <<" (int) "<< istrip<<" phiposition "<< phiposition <<" resolution "<< strippitch/2.0 <<" \n"
+                    <<"\t deltaphi(float) "<< dphi <<" (int) "<< idphi <<" resolution "<< strippitch*dphiresolution_ <<" bend "<< bend <<" \n "
+                    <<"\t time (ns, float) "<< time <<" BX "<< BX <<" \n";
   
-  return ME0TriggerDigi(chamberid, quality, phiposition, partition-1, idphi, bend, BX);
+  ME0TriggerDigi result =  ME0TriggerDigi(chamberid, quality, phiposition, partition, idphi, bend, BX);
+  result.setStrip(istrip);
+  return result;
 }
+
+
+
+
+void ME0TriggerPseudoBuilder::dumpAllME0Segments(const ME0SegmentCollection& segments) const
+{
+    LogTrace("L1ME0Trigger")<<"dumpt all ME0 Segments" << std::endl;
+    for(auto iC = segments.id_begin(); iC != segments.id_end(); ++iC){
+	auto ch_segs = segments.get(*iC);
+	for(auto iS = ch_segs.first; iS != ch_segs.second; ++iS){
+	    LogTrace("L1ME0Trigger") <<"ME0Detid "<< iS->me0DetId()<<" segment "<< *iS << std::endl;
+	    auto recHits(iS->recHits());
+	    LogTrace("L1ME0Trigger") << "\t has " << recHits.size() << " me0 rechits"<< std::endl;
+            for (auto& rh: recHits) {
+	          const ME0RecHit* me0rh(dynamic_cast<const ME0RecHit*>(rh));
+	          LogTrace("L1ME0Trigger") <<"\t  detid "<< me0rh->me0Id()<<" rechit "<< *me0rh << std::endl;
+	        }
+        }
+    }
+
+}
+
