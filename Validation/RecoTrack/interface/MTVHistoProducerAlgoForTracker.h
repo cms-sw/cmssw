@@ -26,7 +26,6 @@
 
 #include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 
 struct MTVHistoProducerAlgoForTrackerHistograms {
   //sim
@@ -160,7 +159,7 @@ class MTVHistoProducerAlgoForTracker {
 					   const reco::Track* track,
 					   int numVertices,
 					   double dR,
-             double dR_jet,
+                                           double dR_jet,
 					   const math::XYZPoint *pvPosition,
                                            const TrackingVertex::LorentzVector *simPVPosition,
                                            const math::XYZPoint& bsPosition,

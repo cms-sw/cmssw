@@ -107,7 +107,7 @@ class MultiTrackValidator : public DQMGlobalEDAnalyzer<MultiTrackValidatorHistog
   size_t tpDR(const TrackingParticleRefVector& tPCeff,
               const std::vector<size_t>& selected_tPCeff,
               DynArray<float>& dR_tPCeff) const;
-  size_t tpDR_jet(const TrackingParticleRefVector& tPCeff,
+  void tpDR_jet(const TrackingParticleRefVector& tPCeff,
               const std::vector<size_t>& selected_tPCeff,
               DynArray<float>& dR_tPCeff,
               const edm::View<reco::Candidate>* const & cores) const;
