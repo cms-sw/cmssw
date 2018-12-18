@@ -134,7 +134,7 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
   }
   else {
     bxSize = bxSizeConf_;
-    nnlsWork_.bxOffset = bxOffsetConf_;
+    nnlsWork_.bxOffset = bxOffsetConf_ + (nnlsWork_.tsOffset + activeBXs_[0]);
   }
 
   nnlsWork_.nPulseTot = bxSize;
@@ -147,7 +147,7 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
   }
   else {
     for (unsigned int iBX=0; iBX<bxSize; ++iBX) {
-      nnlsWork_.bxs.coeffRef(iBX) = activeBXs_[iBX];
+      nnlsWork_.bxs.coeffRef(iBX) = activeBXs_[iBX] - ( nnlsWork_.tsOffset + activeBXs_[0]);
     }
   }
 
@@ -275,12 +275,12 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
 
   //in the 2018+ case where the sample of interest (SOI) is in TS3, add an extra offset to align 
   //with previous SOI=TS4 case assumed by psfPtr_->getPulseShape()
-  int delta =nnlsWork_. tsOffset == 3 ? 1 : 0;
+  int delta =  4 - nnlsWork_. tsOffset;
 
   for (unsigned int iTS=0; iTS<nnlsWork_.tsSize; ++iTS) {
 
     pulseShape.coeffRef(iTS+nnlsWork_.maxoffset) = nnlsWork_.pulseN[iTS+delta];
-    pulseDeriv.coeffRef(iTS+nnlsWork_.maxoffset) = 0.5*(nnlsWork_.pulseM[iTS+delta]+nnlsWork_.pulseP[iTS+delta])/(2*nnlsWork_.dt);
+    pulseDeriv.coeffRef(iTS+nnlsWork_.maxoffset) = 0.5*(nnlsWork_.pulseM[iTS+delta]-nnlsWork_.pulseP[iTS+delta])/(2*nnlsWork_.dt);
 
     nnlsWork_.pulseM[iTS] -= nnlsWork_.pulseN[iTS];
     nnlsWork_.pulseP[iTS] -= nnlsWork_.pulseN[iTS];
