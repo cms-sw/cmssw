@@ -12,6 +12,7 @@
 #include "DataFormats/GEMDigi/interface/ME0TriggerDigiCollection.h"
 #include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 #include "DataFormats/GEMRecHit/interface/ME0Segment.h"
+#include "DataFormats/GEMRecHit/interface/ME0RecHit.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ME0Geometry;
@@ -33,6 +34,9 @@ class ME0TriggerPseudoBuilder
 
   /** set geometry for the matching needs */
   void setME0Geometry(const ME0Geometry *g) { me0_g = g; }
+
+  /* print all ME0 segments in the event */
+  void dumpAllME0Segments(const ME0SegmentCollection& segments) const;
 
   /** Max values of trigger labels for all ME0s; 
    *  used to construct TMB processors. 
