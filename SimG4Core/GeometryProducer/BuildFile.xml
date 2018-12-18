@@ -5,7 +5,8 @@
 <use   name="SimG4Core/Geometry"/>
 <use   name="SimG4Core/SensitiveDetector"/>
 <use   name="SimG4Core/MagneticField"/>
-<use   name="SimG4Core/Application"/>
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/Records"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>

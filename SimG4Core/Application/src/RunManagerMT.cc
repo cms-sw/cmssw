@@ -111,8 +111,8 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
     << "RunManagerMT: start initialisation of geometry";
   
   // DDDWorld: get the DDCV from the ES and use it to build the World
-  G4LogicalVolumeToDDLogicalPartMap map_;
-  m_world.reset(new DDDWorld(pDD, map_, m_catalog, false));
+  G4LogicalVolumeToDDLogicalPartMap map_lv;
+  m_world.reset(new DDDWorld(pDD, map_lv, m_catalog, false));
   m_registry.dddWorldSignal_(m_world.get());
 
   // setup the magnetic field
@@ -177,7 +177,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   m_physicsList->SetCutsWithDefault();
 
   if(m_pPhysics.getParameter<bool>("CutsPerRegion")) {
-    m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));	
+    m_prodCuts.reset(new DDG4ProductionCuts(map_lv, verb, m_pPhysics));	
     m_prodCuts->update();
   }
   
@@ -288,8 +288,9 @@ void RunManagerMT::DumpMagneticField(const G4Field* field) const
       << " RunManager WARNING : "
       << "error opening file <" << m_FieldFile << "> for magnetic field";
   } else {
+    // CMS magnetic field volume
     double rmax = 9000*mm;
-    double zmax = 16000*mm;
+    double zmax = 24000*mm;
 
     double dr = 5*cm;
     double dz = 20*cm;

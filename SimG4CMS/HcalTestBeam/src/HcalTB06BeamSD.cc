@@ -13,7 +13,7 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Exception.h" 
 
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -89,7 +89,6 @@ HcalTB06BeamSD::HcalTB06BeamSD(const std::string& name,
   } else {
     matName = "Not Found";
   }
-
   edm::LogInfo("HcalTB06BeamSD") << "HcalTB06BeamSD: Material name for " 
 				 << attribute << " = " << name << ":" 
 				 << matName;
