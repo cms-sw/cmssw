@@ -5,6 +5,7 @@ mtdClusters = cms.EDProducer("MTDClusterProducer",
     srcEndcap = cms.InputTag("mtdRecHits:FTLEndcap"),
     BarrelClusterName = cms.string('FTLBarrel'),
     EndcapClusterName = cms.string('FTLEndcap'),
+    ClusterMode = cms.string('MTDThresholdClusterizer'),
     HitThreshold = cms.double(0.),
     SeedThreshold = cms.double(0.),
     ClusterThreshold = cms.double(0.)
