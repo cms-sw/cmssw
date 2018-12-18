@@ -27,8 +27,6 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-bool nothick = false;
-
 
 //void yuval(const std::string& a);
 
@@ -48,13 +46,10 @@ void FastTrackDeDxProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("fraction", 0.4);
   desc.add<double>("exponent",-2.0);
   desc.add<bool>("convertFromGeV2MeV",true);
-
+  desc.add<bool>("nothick",false);  
   desc.add<edm::InputTag>("simHits");
   desc.add<edm::InputTag>("simHit2RecHitMap");
- 
-
   descriptions.add("FastTrackDeDxProducer",desc);
-  //yuval("hello");
 }
 
 
@@ -73,6 +68,7 @@ FastTrackDeDxProducer::FastTrackDeDxProducer(const edm::ParameterSet& iConfig)
   else if(estimatorName == "btagDiscrim")         m_estimator = new BTagLikeDeDxDiscriminator(iConfig);
   else if(estimatorName == "smirnovDiscrim")      m_estimator = new SmirnovDeDxDiscriminator(iConfig);
   else if(estimatorName == "asmirnovDiscrim")     m_estimator = new ASmirnovDeDxDiscriminator(iConfig);
+  else throw cms::Exception("fastsim::SimplifiedGeometry::FastTrackDeDxProducer.cc") << " estimator name does not exist";
 
   //Commented for now, might be used in the future
   //   MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  255);
@@ -92,9 +88,11 @@ FastTrackDeDxProducer::FastTrackDeDxProducer(const edm::ParameterSet& iConfig)
   m_calibrationPath = iConfig.getParameter<string>("calibrationPath");
 
   convertFromGeV2MeV = iConfig.getParameter<bool>("convertFromGeV2MeV");
+  nothick = iConfig.getParameter<bool>("nothick");  
 
   if(!usePixel && !useStrip)
-    edm::LogWarning("DeDxHitsProducer") << "Pixel Hits AND Strip Hits will not be used to estimate dEdx --> BUG, Please Update the config file";
+  	throw cms::Exception("fastsim::SimplifiedGeometry::FastTrackDeDxProducer.cc") << " Pixel Hits AND Strip Hits will not be used to estimate dEdx --> BUG, Please Update the config file";
+
 
 }
 
@@ -128,7 +126,9 @@ void FastTrackDeDxProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByToken(m_tracksTag,trackCollectionHandle);
-  std::vector<DeDxData> dedxEstimate( trackCollectionHandle->size() );
+  //std::vector<DeDxData> dedxEstimate( trackCollectionHandle->size() );
+  const auto& trackCollection = *trackCollectionHandle;
+  std::vector<DeDxData> dedxEstimate( trackCollection.size() );
 
 
 
@@ -136,32 +136,28 @@ void FastTrackDeDxProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     const reco::TrackRef track = reco::TrackRef( trackCollectionHandle.product(), j );
     
     int NClusterSaturating = 0; 
-      DeDxHitCollection dedxHits;
+    DeDxHitCollection dedxHits;
       
-      auto const & trajParams = track->extra()->trajParams();
-      assert(trajParams.size()==track->recHitsSize());
+    auto const & trajParams = track->extra()->trajParams();
+    assert(trajParams.size()==track->recHitsSize());
       
-      //std::cout << "track->recHitsSize() = " << track->recHitsSize() << std::endl;
-      
-      auto hb = track->recHitsBegin();
-      dedxHits.reserve(track->recHitsSize()/2);
-      for(unsigned int h=0;h<track->recHitsSize();h++){
+    auto hb = track->recHitsBegin();
+    dedxHits.reserve(track->recHitsSize()/2);
+    for(unsigned int h=0;h<track->recHitsSize();h++){
 	const FastTrackerRecHit recHit = static_cast< const FastTrackerRecHit & >(*(*(hb+h)));
-      //FastTrackerRecHit recHit = *(hb+h);
-	if(!recHit.isValid()) continue;
+	if(!recHit.isValid()) continue;//FastTrackerRecHit recHit = *(hb+h);
 	
 	auto trackDirection = trajParams[h].direction();         
 	float cosine = trackDirection.z()/trackDirection.mag();
 	processHit(recHit, track->p(), cosine, dedxHits, NClusterSaturating);
-       }
+    }
   
-       sort(dedxHits.begin(),dedxHits.end(),less<DeDxHit>());   
-       std::pair<float,float> val_and_error = m_estimator->dedx(dedxHits);
-       
-       //WARNING: Since the dEdX Error is not properly computed for the moment
-       //It was decided to store the number of saturating cluster in that dataformat
-       val_and_error.second = NClusterSaturating; 
-       dedxEstimate[j] = DeDxData(val_and_error.first, val_and_error.second, dedxHits.size() );
+    sort(dedxHits.begin(),dedxHits.end(),less<DeDxHit>());   
+    std::pair<float,float> val_and_error = m_estimator->dedx(dedxHits);
+    //WARNING: Since the dEdX Error is not properly computed for the moment
+    //It was decided to store the number of saturating cluster in that dataformat
+    val_and_error.second = NClusterSaturating; 
+    dedxEstimate[j] = DeDxData(val_and_error.first, val_and_error.second, dedxHits.size() );
     }
 
 
