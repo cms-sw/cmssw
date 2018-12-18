@@ -26,6 +26,7 @@
 #include <typeinfo>
 #include <sstream>
 
+const Int_t kEBStrips = 12240, kEEStrips = 2936;
 
 popcon::EcalTPGWeightGroupHandler::EcalTPGWeightGroupHandler(const edm::ParameterSet & ps)
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalTPGWeightGroupHandler")) {
@@ -40,17 +41,23 @@ popcon::EcalTPGWeightGroupHandler::EcalTPGWeightGroupHandler(const edm::Paramete
         m_location=ps.getParameter<std::string>("Location");
         m_gentag=ps.getParameter<std::string>("GenTag");
         m_runtype=ps.getParameter<std::string>("RunType");
+	m_file_type = ps.getParameter<std::string>("fileType");           // xml/txt
+	m_file_name = ps.getParameter<std::string>("fileName");
 
         edm::LogInfo("EcalTPGWeightGroupHandler") << m_sid<<"/"<<m_user<<"/"<<m_location<<"/"<<m_gentag;
 }
 
-popcon::EcalTPGWeightGroupHandler::~EcalTPGWeightGroupHandler()
-{
+popcon::EcalTPGWeightGroupHandler::~EcalTPGWeightGroupHandler() {
 }
 
-void popcon::EcalTPGWeightGroupHandler::getNewObjects()
-{
-
+void popcon::EcalTPGWeightGroupHandler::getNewObjects() {
+  if(m_file_type == "txt") {
+    readtxtFile();
+  }
+  else if(m_file_type == "xml") {
+    readxmlFile();
+  }
+  else {
 	edm::LogInfo("EcalTPGWeightGroupHandler") << "Started GetNewObjects!!!";
 
 	//check whats already inside of database
@@ -316,9 +323,93 @@ void popcon::EcalTPGWeightGroupHandler::getNewObjects()
 	}
 	  
 	delete econn;
+  }  // usual way
+  edm::LogInfo("EcalTPGWeightGroupHandler") << "Ecal - > end of getNewObjects -----------";
+}
 
-	edm::LogInfo("EcalTPGWeightGroupHandler") << "Ecal - > end of getNewObjects -----------";
-	
+void  popcon::EcalTPGWeightGroupHandler::readtxtFile() {
+  std::cout << " reading the input file " << m_file_name <<  std::endl;
+  std::ifstream fInput;
+  fInput.open(m_file_name);
+  if(!fInput.is_open()) {
+    std::cout << "ERROR : cannot open file " << m_file_name << std::endl;
+    exit (1);
+  }
+  int weightGroup, stripEBId, stripEEId;
+  EcalTPGWeightGroup* weightG = new EcalTPGWeightGroup;
+  for (int strip = 0; strip < kEBStrips; strip++) {
+    fInput >> stripEBId >> weightGroup;
+    weightG->setValue(stripEBId,weightGroup);
+  }
+  for (int strip = 0; strip < kEEStrips; strip++) {
+    fInput >> stripEEId >> weightGroup;
+    weightG->setValue(stripEEId,weightGroup);
+  }
+  try { 
+    Time_t snc = (Time_t) m_firstRun; 	      
+    m_to_transfer.push_back(std::make_pair((EcalTPGWeightGroup*)weightG, snc));
+  } catch (std::exception &e) { 
+    std::cout << "EcalTPGWeightGroupHandler::readtxtFile error : " << e.what() << std::endl;
+  }
+  std::cout<<" **************** "<<std::endl;
+}
+
+void  popcon::EcalTPGWeightGroupHandler::readxmlFile() {
+  std::cout << " reading the input file " << m_file_name <<  std::endl;
+  std::ifstream fxml;
+  fxml.open(m_file_name);
+  if(!fxml.is_open()) {
+    std::cout << "ERROR : cannot open file " << m_file_name << std::endl;
+    exit (1);
+  }
+  std::string dummyLine, bid;
+  int weightGroup, stripEBId, stripEEId;
+  EcalTPGWeightGroup* weightG = new EcalTPGWeightGroup;
+  for(int i = 0; i < 6; i++) std::getline(fxml, dummyLine);   // skip first lines
+  fxml >> bid;
+  //  std::cout << bid << std::endl;
+  std::size_t found = bid.find("</");
+  std::string stt = bid.substr(7, found - 7);
+  for(int i = 0; i < 2; i++) std::getline(fxml, dummyLine);    //    <item_version>0</item_version>
+  for (int strip = 0; strip < kEBStrips; strip++) {
+    std::getline(fxml, dummyLine);  //    <item
+    fxml >> bid;                    //    <first
+    found = bid.find("</");
+    stt = bid.substr(7, found - 7);
+    std::istringstream sg1(stt);
+    sg1 >> stripEBId;
+    std::getline(fxml, dummyLine);
+    fxml >> bid;                    //    <second
+    found = bid.find("</");
+    stt = bid.substr(8, found - 8);
+    std::istringstream sg2(stt);
+    sg2 >> weightGroup;
+    weightG->setValue(stripEBId,weightGroup);
+    for(int i = 0; i < 2; i++) std::getline(fxml, dummyLine);    //    </item>
+  }
+  for (int strip = 0; strip < kEEStrips; strip++) {
+    std::getline(fxml, dummyLine);  //    <item
+    fxml >> bid;                    //    <first
+    found = bid.find("</");
+    stt = bid.substr(7, found - 7);
+    std::istringstream sg1(stt);
+    sg1 >> stripEEId;
+    std::getline(fxml, dummyLine);
+    fxml >> bid;                    //    <second
+    found = bid.find("</");
+    stt = bid.substr(8, found - 8);
+    std::istringstream sg2(stt);
+    sg2 >> weightGroup;
+    weightG->setValue(stripEEId,weightGroup);
+    for(int i = 0; i < 2; i++) std::getline(fxml, dummyLine);    //    </item>
+  }
+  try { 
+    Time_t snc = (Time_t) m_firstRun; 	      
+    m_to_transfer.push_back(std::make_pair((EcalTPGWeightGroup*)weightG, snc));
+  } catch (std::exception &e) { 
+    std::cout << "EcalTPGWeightGroupHandler::readtxtFile error : " << e.what() << std::endl;
+  }
+  std::cout<<" **************** "<<std::endl;
 }
 
 void  popcon::EcalTPGWeightGroupHandler::readFromFile(const char* inputFile) {
