@@ -32,8 +32,7 @@ namespace edm {
     Provenance const& provenance() const { return prov_;}
     
     WrapperBase const* wrapper() const { return wrapper_.get();}
-    WrapperBase* wrapper() { return wrapper_.get(); }
-    WrapperBase* unsafe_wrapper() const { return wrapper_.get(); }
+    WrapperBase* unsafe_wrapper() const { return const_cast<WrapperBase*>(wrapper_.get()); }
     std::shared_ptr<WrapperBase const> sharedConstWrapper() const {
       return wrapper_;
     }
@@ -79,7 +78,7 @@ namespace edm {
 
   private:
     // "non-const data" (updated every event)
-    mutable std::shared_ptr<WrapperBase> wrapper_;
+    mutable std::shared_ptr<WrapperBase const> wrapper_;
     Provenance prov_;
   };
 
