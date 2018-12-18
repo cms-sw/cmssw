@@ -64,14 +64,14 @@ public:
                                    const GeomDetUnit    & det ) const override
    {
       
-      DetParam const & theDetParam = detParam(det);
-      std::unique_ptr<ClusterParam> theClusterParam = createClusterParam(cl);
-      setTheClu( theDetParam, *theClusterParam );
+      DetParam const & dp = detParam(det);
+      std::unique_ptr<ClusterParam> cp = createClusterParam(cl);
+      setTheClu( dp, *cp );
       auto tuple = std::make_tuple(
-				   localPosition(theDetParam, *theClusterParam),
-				   localError(theDetParam, *theClusterParam),
-				   clusterTime(theDetParam, *theClusterParam),
-				   clusterTimeError(theDetParam, *theClusterParam)
+				   localPosition(dp, *cp),
+				   localError(dp, *cp),
+				   clusterTime(dp, *cp),
+				   clusterTimeError(dp, *cp)
 				   );
       return tuple;
    }
@@ -94,10 +94,10 @@ private:
    //--------------------------------------------------------------------------
    // This is where the action happens.
    //--------------------------------------------------------------------------
-   virtual LocalPoint localPosition(DetParam const & theDetParam, ClusterParam & theClusterParam) const;
-   virtual LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const;
-   virtual TimeValue  clusterTime(DetParam const & theDetParam, ClusterParam & theClusterParam) const;
-   virtual TimeValueError  clusterTimeError(DetParam const & theDetParam, ClusterParam & theClusterParam) const;
+   virtual LocalPoint localPosition(DetParam const & dp, ClusterParam & cp) const;
+   virtual LocalError localError   (DetParam const & dp, ClusterParam & cp) const;
+   virtual TimeValue  clusterTime(DetParam const & dp, ClusterParam & cp) const;
+   virtual TimeValueError  clusterTimeError(DetParam const & dp, ClusterParam & cp) const;
    
    void fillDetParams();
    
@@ -111,7 +111,7 @@ protected:
    
 protected:
    
-   void  setTheClu( DetParam const &, ClusterParam & theClusterParam ) const ;   
+   void  setTheClu( DetParam const & dp, ClusterParam & cp ) const ;   
    
    //---------------------------------------------------------------------------
    //  Cluster-level services.
@@ -120,7 +120,7 @@ protected:
    DetParam const & detParam(const GeomDetUnit & det) const;
    
    using DetParams=std::vector<DetParam>;
-   DetParams m_DetParams=DetParams(1440);
+   DetParams m_DetParams;
    
 };
 

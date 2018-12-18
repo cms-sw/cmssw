@@ -1,3 +1,3 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalFastTime.FTLClusterizer.MTDCPEBase_cfi import *
+from RecoLocalFastTime.FTLClusterizer.MTDCPEESProducer_cfi import *

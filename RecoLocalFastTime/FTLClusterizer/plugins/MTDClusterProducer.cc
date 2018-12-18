@@ -32,8 +32,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 class MTDClusterProducer : public edm::stream::EDProducer<> {
@@ -41,16 +41,16 @@ class MTDClusterProducer : public edm::stream::EDProducer<> {
     //--- Constructor, virtual destructor (just in case)
     explicit MTDClusterProducer(const edm::ParameterSet& conf);
     ~MTDClusterProducer() override;
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     //--- The top-level event method.
     void produce(edm::Event& e, const edm::EventSetup& c) override;
 
-    //--- Execute the algorithm(s).
+  
+  //--- Execute the algorithm(s).
     template<typename T>
     void run(const T& input,
              FTLClusterCollection & output);
-
-    void setupClusterizer(const edm::ParameterSet& conf);
 
   private:
     edm::EDGetTokenT< FTLRecHitCollection >  btlHits_;
@@ -61,11 +61,8 @@ class MTDClusterProducer : public edm::stream::EDProducer<> {
 
     const std::string clusterMode_;         // user's choice of the clusterizer
     std::unique_ptr<MTDClusterizerBase> clusterizer_;    // what we got (for now, one ptr to base class)
-    bool readyToCluster_;                   // needed clusterizers valid => good to go!
 
-    edm::ESWatcher<MTDDigiGeometryRecord> geomwatcher_;
     const MTDGeometry* geom_;
-    edm::ESWatcher<MTDTopologyRcd> topowatcher_;
     const MTDTopology* topo_;
 };
 
@@ -75,14 +72,13 @@ class MTDClusterProducer : public edm::stream::EDProducer<> {
 //---------------------------------------------------------------------------
 MTDClusterProducer::MTDClusterProducer(edm::ParameterSet const& conf) 
   : 
-  clusterMode_( conf.getUntrackedParameter<std::string>("ClusterMode","MTDThresholdClusterizer") ),
-  clusterizer_(nullptr),          // the default, in case we fail to make one
-  readyToCluster_(false)   // since we obviously aren't
+  btlHits_(consumes< FTLRecHitCollection >( conf.getParameter<edm::InputTag>("srcBarrel"))),
+  etlHits_(consumes< FTLRecHitCollection >( conf.getParameter<edm::InputTag>("srcEndcap"))),
+  ftlbInstance_(conf.getParameter<std::string>("BarrelClusterName")),
+  ftleInstance_(conf.getParameter<std::string>("EndcapClusterName")),
+  clusterMode_( conf.getParameter<std::string>("ClusterMode") ),
+  clusterizer_(nullptr)          // the default, in case we fail to make one
 {
-  btlHits_ = consumes< FTLRecHitCollection >( conf.getParameter<edm::InputTag>("srcBarrel") );
-  etlHits_ = consumes< FTLRecHitCollection >( conf.getParameter<edm::InputTag>("srcEndcap") );
-  ftlbInstance_ = conf.getParameter<std::string>("BarrelClusterName");
-  ftleInstance_ = conf.getParameter<std::string>("EndcapClusterName");
 
   //--- Declare to the EDM what kind of collections we will be making.
   produces<FTLClusterCollection>(ftlbInstance_); 
@@ -90,13 +86,35 @@ MTDClusterProducer::MTDClusterProducer(edm::ParameterSet const& conf)
   
   //--- Make the algorithm(s) according to what the user specified
   //--- in the ParameterSet.
-  setupClusterizer(conf);
+  if ( clusterMode_ == "MTDThresholdClusterizer" ) {
+    clusterizer_ = std::unique_ptr<MTDClusterizerBase>(new MTDThresholdClusterizer(conf));
+  } 
+  else {
+    throw cms::Exception("MTDClusterProducer") << "[MTDClusterProducer]:"
+					       <<" choice " << clusterMode_ << " is invalid.\n"
+					       << "Possible choices:\n" 
+					       << "    MTDThresholdClusterizer";
+  }
 }
 
 // Destructor
 MTDClusterProducer::~MTDClusterProducer() { 
 }  
 
+// Configuration descriptions
+void
+MTDClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("srcBarrel", edm::InputTag("mtdRecHits:FTLBarrel"));
+  desc.add<edm::InputTag>("srcEndcap", edm::InputTag("mtdRecHits:FTLEndcap"));
+  desc.add<std::string>("BarrelClusterName", "FTLBarrel");
+  desc.add<std::string>("EndcapClusterName", "FTLEndcap");
+  desc.add<std::string>("ClusterMode","MTDThresholdClusterizer");
+  desc.add<double>("HitThreshold", 0.);
+  desc.add<double>("SeedThreshold", 0.);
+  desc.add<double>("ClusterThreshold", 0.);
+  descriptions.add("MTDClusterProducer", desc);
+}
   
 //---------------------------------------------------------------------------
 //! The "Event" entrypoint: gets called by framework for every event
@@ -111,15 +129,12 @@ void MTDClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
       
   // Step A.2: get event setup
   edm::ESHandle<MTDGeometry> geom;
-  if( geomwatcher_.check(es) || geom_ == nullptr ) {
-    es.get<MTDDigiGeometryRecord>().get(geom);
-    geom_ = geom.product();
-  }
-  edm::ESHandle<MTDTopology> topo;
-  if( topowatcher_.check(es) || topo_ == nullptr ) {
-    es.get<MTDTopologyRcd>().get(topo);
-    topo_ = topo.product();
-  }
+  es.get<MTDDigiGeometryRecord>().get(geom);
+  geom_ = geom.product();
+
+  edm::ESHandle<MTDTopology> mtdTopo;
+  es.get<MTDTopologyRcd>().get(mtdTopo);
+  topo_ = mtdTopo.product();
   
   // Step B: create the final output collection
   auto outputBarrel = std::make_unique< FTLClusterCollection>();
@@ -132,21 +147,6 @@ void MTDClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
   e.put(std::move(outputEndcap),ftleInstance_);
 }
 
-//---------------------------------------------------------------------------
-void MTDClusterProducer::setupClusterizer(const edm::ParameterSet& conf)  {
-
-    if ( clusterMode_ == "MTDThresholdClusterizer" ) {
-      clusterizer_ = std::unique_ptr<MTDClusterizerBase>(new MTDThresholdClusterizer(conf));
-      readyToCluster_ = true;
-    } 
-    else {
-      readyToCluster_ = false;
-      throw cms::Exception("MTDClusterProducer") << "[MTDClusterProducer]:"
-						 <<" choice " << clusterMode_ << " is invalid.\n"
-						 << "Possible choices:\n" 
-						 << "    MTDThresholdClusterizer";
-    }
-}
 
 
 //---------------------------------------------------------------------------
@@ -156,7 +156,7 @@ template<typename T>
 void MTDClusterProducer::run(const T                              & input, 
 			     FTLClusterCollection & output) 
 {
-  if ( ! readyToCluster_ ) {
+  if ( ! clusterizer_ ) {
     edm::LogError("MTDClusterProducer")
       <<" at least one clusterizer is not ready -- can't run!" ;
     // TO DO: throw an exception here?  The user may want to know...

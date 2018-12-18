@@ -43,9 +43,6 @@ namespace DataFormats_FTLRecHit {
     FTLClusterRefs _FTLClusterRefs;
     FTLClustersRef _FTLClustersRef;        
 
-    edm::DetSet<FTLCluster> ds1;
-    std::vector<edm::DetSet<FTLCluster> > vds1;
-    edm::Ref<edm::DetSetVector<FTLCluster>,edm::DetSet<FTLCluster>,edm::refhelper::FindDetSetForDetSetVector<FTLCluster,edm::DetSetVector<FTLCluster> > > boguscrap;
     std::vector<edm::Ref<edmNew::DetSetVector<FTLCluster>,FTLCluster,edmNew::DetSetVector<FTLCluster>::FindForDetSetVector> > dsvr_v;
     edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<FTLCluster>,FTLCluster,edmNew::DetSetVector<FTLCluster>::FindForDetSetVector> > dsvr;
     edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<FTLCluster>,FTLCluster,edmNew::DetSetVector<FTLCluster>::FindForDetSetVector> > > dsvr_w;

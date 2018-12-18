@@ -1,5 +1,5 @@
-#ifndef RecoLocalTracker_MTDClusterizer_MTDThresholdClusterizer_H
-#define RecoLocalTracker_MTDClusterizer_MTDThresholdClusterizer_H
+#ifndef RecoLocalTracker_FTLClusterizer_MTDThresholdClusterizer_H
+#define RecoLocalTracker_FTLClusterizer_MTDThresholdClusterizer_H
 
 //-----------------------------------------------------------------------
 //! \class MTDThresholdClusterizer
@@ -60,13 +60,10 @@ class MTDThresholdClusterizer : public MTDClusterizerBase {
 		   const MTDTopology * topo,
 		   FTLClusterCollection& output) override; 
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ParameterSetDescription& desc);
 
  private:
 
-  //! Data storage
-  MTDArrayBuffer               theBuffer;         // internal nrow * ncol matrix
-  bool                             bufferAlreadySet;  // status of the buffer array
   std::vector<FTLCluster::FTLHitPos>  theSeeds;          // cached seed pixels
   std::vector<FTLCluster>            theClusters;       // resulting clusters  
   
@@ -79,8 +76,11 @@ class MTDThresholdClusterizer : public MTDClusterizerBase {
   int  theNumOfRows;
   int  theNumOfCols;
 
-  DetId currentId;
-  struct EndClus {};
+  DetId theCurrentId;
+
+  //! Data storage
+  MTDArrayBuffer               theBuffer;         // internal nrow * ncol matrix
+  bool                             bufferAlreadySet;  // status of the buffer array
 
   bool setup(const MTDGeometry * geometry, const MTDTopology * topo, const DetId& id);
   void copy_to_buffer( RecHitIterator itr);   

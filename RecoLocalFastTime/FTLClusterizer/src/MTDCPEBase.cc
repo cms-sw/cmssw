@@ -33,10 +33,10 @@ MTDCPEBase::MTDCPEBase(edm::ParameterSet const & conf,
 void MTDCPEBase::fillDetParams()
 {
   auto const & dus = geom_.detUnits();
-  unsigned m_detectors = dus.size();
-  m_DetParams.resize(m_detectors);
-  LogDebug("MTDCPEBase::fillDetParams():") <<"caching "<<m_detectors<<"MTD detectors"<<endl;
-  for (unsigned i=0; i!=m_detectors;++i) 
+  unsigned detectors = dus.size();
+  m_DetParams.resize(detectors);
+  LogDebug("MTDCPEBase::fillDetParams():") <<"caching "<<detectors<<"MTD detectors"<<endl;
+  for (unsigned i=0; i!=detectors;++i) 
     {
       auto & p=m_DetParams[i];
       p.theDet = dynamic_cast<const MTDGeomDetUnit*>(dus[i]);
@@ -73,7 +73,7 @@ void MTDCPEBase::fillDetParams()
 //  One function to cache the variables common for one DetUnit.
 //-----------------------------------------------------------------------------
 void
-MTDCPEBase::setTheClu( DetParam const & theDetParam, ClusterParam & theClusterParam ) const
+MTDCPEBase::setTheClu( DetParam const & dp, ClusterParam & cp ) const
 {   
 }
 
@@ -86,38 +86,35 @@ std::unique_ptr<MTDCPEBase::ClusterParam> MTDCPEBase::createClusterParam(const F
 //------------------------------------------------------------------------
 MTDCPEBase::DetParam const & MTDCPEBase::detParam(const GeomDetUnit & det) const 
 {
-   auto i = det.index();
-   assert(i<int(m_DetParams.size()));
-   const DetParam & p = m_DetParams[i];
-   return p;
+  return m_DetParams.at(det.index());
 }
 
 LocalPoint
-MTDCPEBase::localPosition(DetParam const & theDetParam, ClusterParam & theClusterParamBase) const
+MTDCPEBase::localPosition(DetParam const & dp, ClusterParam & cp) const
 {
   //remember measurement point is row(col)+0.5f
-  MeasurementPoint pos(theClusterParamBase.theCluster->x(),theClusterParamBase.theCluster->y());
-  return theDetParam.theTopol->localPosition(pos);
+  MeasurementPoint pos(cp.theCluster->x(),cp.theCluster->y());
+  return dp.theTopol->localPosition(pos);
 }
 
 LocalError
-MTDCPEBase::localError(DetParam const & theDetParam,  ClusterParam & theClusterParamBase) const
+MTDCPEBase::localError(DetParam const & dp,  ClusterParam & cp) const
 {
   constexpr double one_over_twelve = 1./12.;
-  MeasurementPoint pos(theClusterParamBase.theCluster->x(),theClusterParamBase.theCluster->y());
+  MeasurementPoint pos(cp.theCluster->x(),cp.theCluster->y());
   MeasurementError simpleRect(one_over_twelve,0,one_over_twelve);
-  return theDetParam.theTopol->localError(pos,simpleRect);
+  return dp.theTopol->localError(pos,simpleRect);
 }
 
 MTDCPEBase::TimeValue
-MTDCPEBase::clusterTime(DetParam const & theDetParam, ClusterParam & theClusterParamBase) const
+MTDCPEBase::clusterTime(DetParam const & dp, ClusterParam & cp) const
 {
-  return theClusterParamBase.theCluster->time();
+  return cp.theCluster->time();
 }
 
 
 MTDCPEBase::TimeValueError
-MTDCPEBase::clusterTimeError(DetParam const & theDetParam, ClusterParam & theClusterParamBase) const
+MTDCPEBase::clusterTimeError(DetParam const & dp, ClusterParam & cp) const
 {
-  return theClusterParamBase.theCluster->timeError();
+  return cp.theCluster->timeError();
 }

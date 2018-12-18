@@ -1,5 +1,5 @@
-#ifndef DataFormats_FTL_Cluster_FTLCluster_h
-#define DataFormats_FTL_Cluster_FTLCluster_h
+#ifndef DataFormats_FTLRecHit_FTLCluster_h
+#define DataFormats_FTLRecHit_FTLCluster_h
 
 /** \class FTLCluster
  *  
@@ -24,14 +24,20 @@ public:
 
   class FTLHit {
   public:
-    constexpr FTLHit() : x(0), y(0), energy(0),  time(0), time_error(0) {}; // for root
-    constexpr FTLHit(int hit_x, int hit_y, float hit_energy, float hit_time, float hit_time_error) :
-    x(hit_x), y(hit_y), energy(hit_energy), time(hit_time), time_error(hit_time_error) {};
-    uint16_t x; //row
-    uint16_t y; //col
-    float energy;
-    float time;
-    float time_error;
+    constexpr FTLHit() : x_(0), y_(0), energy_(0),  time_(0), time_error_(0) {}
+    constexpr FTLHit(uint16_t hit_x, uint16_t hit_y, float hit_energy, float hit_time, float hit_time_error) :
+    x_(hit_x), y_(hit_y), energy_(hit_energy), time_(hit_time), time_error_(hit_time_error) {}
+    constexpr uint16_t x() { return x_; }
+    constexpr uint16_t y() { return y_; }
+    constexpr uint16_t energy() { return energy_; }
+    constexpr uint16_t time() { return time_; }
+    constexpr uint16_t time_error() { return time_error_; }
+  private:
+    uint16_t x_; //row
+    uint16_t y_; //col
+    float energy_;
+    float time_;
+    float time_error_;
   };
   
   //--- Integer shift in x and y directions.
@@ -60,9 +66,7 @@ public:
     int row_;
     int col_;
   };
-  
-  
-  
+    
   static constexpr unsigned int MAXSPAN=255;
   static constexpr unsigned int MAXPOS=2047;
   
@@ -71,10 +75,10 @@ public:
    */
   FTLCluster() {}
   
- FTLCluster(DetId id, unsigned int isize, float const * energys, float const* times, float const* time_errors,
+  FTLCluster(DetId id, unsigned int isize, float const * energys, float const* times, float const* time_errors,
 	    uint16_t const * xpos,  uint16_t const * ypos, 
 	    uint16_t const  xmin,  uint16_t const  ymin) :   
-  id_(id), theHitOffset(2*isize), theHitENERGY(energys,energys+isize), theHitTIME(times,times+isize), theHitTIME_ERROR(time_errors,time_errors+isize)  {
+  theid(id), theHitOffset(2*isize), theHitENERGY(energys,energys+isize), theHitTIME(times,times+isize), theHitTIME_ERROR(time_errors,time_errors+isize)  {
     uint16_t maxCol = 0;
     uint16_t maxRow = 0;
     int maxHit=-1;
@@ -163,43 +167,13 @@ public:
     return hit(seed_);
   }
 
-private:
-  
-  float weighted_sum(const std::vector<float>& weights, const std::function<float (unsigned int i)>& sumFunc, const std::function<float (float,float)>& outFunc) const 
-  {
-    float tot=0;
-    float sumW=0;
-    for (unsigned int i=0; i<weights.size(); ++i)
-      {
-	tot += sumFunc(i);
-	sumW += weights[i];
-      }
-    return outFunc(tot,sumW);
-  }
-
-  float weighted_mean(const std::vector<float>& weights, const std::function<float (unsigned int)>& value) const
-  {
-    auto sumFunc=[weights,value](unsigned int i) { return weights[i]*value(i); } ;
-    auto outFunc=[](float x,float y) { if (y>0) return (float)x/y; else return -999.f; };
-    return weighted_sum(weights,sumFunc,outFunc);
-  }
-
-  float weighted_mean_error(const std::vector<float>& weights, const std::function<float (unsigned int)>& err) const
-  {
-    auto sumFunc=[weights,err](unsigned int i) { return weights[i]*weights[i]*err(i)*err(i); } ;
-    auto outFunc=[](float x,float y) { if (y>0) return (float)sqrt(x)/y; else return -999.f; };
-    return weighted_sum(weights,sumFunc,outFunc);
-  }
-
-  static int overflow_(uint16_t span) { return span==uint16_t(MAXSPAN);} 
-
 public:
   
   int colSpan() const {return theHitColSpan; }
   
   int rowSpan() const { return theHitRowSpan; }
   
-  const DetId& id() const { return id_; }
+  const DetId& id() const { return theid; }
   const DetId& detid() const { return id(); }
 
   bool overflowCol() const { return overflow_(theHitColSpan); }
@@ -226,7 +200,7 @@ public:
   
 private:
 
-   DetId id_;
+   DetId theid;
    
    std::vector<uint8_t>  theHitOffset;
    std::vector<float> theHitENERGY;
@@ -243,6 +217,35 @@ private:
    float err_time=-99999.9f;
    
    uint8_t seed_;
+   
+   float weighted_sum(const std::vector<float>& weights, const std::function<float (unsigned int i)>& sumFunc, const std::function<float (float,float)>& outFunc) const 
+   {
+     float tot=0;
+     float sumW=0;
+     for (unsigned int i=0; i<weights.size(); ++i)
+       {
+	 tot += sumFunc(i);
+	 sumW += weights[i];
+       }
+     return outFunc(tot,sumW);
+   }
+   
+   float weighted_mean(const std::vector<float>& weights, const std::function<float (unsigned int)>& value) const
+   {
+     auto sumFunc=[weights,value](unsigned int i) { return weights[i]*value(i); } ;
+     auto outFunc=[](float x,float y) { if (y>0) return (float)x/y; else return -999.f; };
+     return weighted_sum(weights,sumFunc,outFunc);
+   }
+   
+   float weighted_mean_error(const std::vector<float>& weights, const std::function<float (unsigned int)>& err) const
+   {
+     auto sumFunc=[weights,err](unsigned int i) { return weights[i]*weights[i]*err(i)*err(i); } ;
+     auto outFunc=[](float x,float y) { if (y>0) return (float)sqrt(x)/y; else return -999.f; };
+     return weighted_sum(weights,sumFunc,outFunc);
+   }
+   
+   static int overflow_(uint16_t span) { return span==uint16_t(MAXSPAN);} 
+   
 };
 
 
