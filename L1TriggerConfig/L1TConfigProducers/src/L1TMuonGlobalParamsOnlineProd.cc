@@ -16,7 +16,7 @@ class L1TMuonGlobalParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonGl
 private:
     bool transactionSafe;
 public:
-    std::shared_ptr<L1TMuonGlobalParams> newObject(const std::string& objectKey, const L1TMuonGlobalParamsO2ORcd &record) override ;
+    std::unique_ptr<const L1TMuonGlobalParams> newObject(const std::string& objectKey, const L1TMuonGlobalParamsO2ORcd &record) override ;
 
     L1TMuonGlobalParamsOnlineProd(const edm::ParameterSet&);
     ~L1TMuonGlobalParamsOnlineProd(void) override{}
@@ -26,8 +26,7 @@ L1TMuonGlobalParamsOnlineProd::L1TMuonGlobalParamsOnlineProd(const edm::Paramete
     transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 
-std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonGlobalParamsO2ORcd &record) {
-    using namespace edm::es;
+std::unique_ptr<const L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonGlobalParamsO2ORcd &record) {
 
     const L1TMuonGlobalParamsRcd& baseRcd = record.template getRecord< L1TMuonGlobalParamsRcd >() ;
     edm::ESHandle< L1TMuonGlobalParams > baseSettings ;
@@ -39,7 +38,7 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
             throw std::runtime_error("SummaryForFunctionManager: uGMT  | Faulty  | Empty objectKey");
         else {
             edm::LogError( "L1-O2O: L1TMuonGlobalParams" ) << "returning unmodified prototype of L1TMuonGlobalParams";
-            return std::make_shared< L1TMuonGlobalParams>( *(baseSettings.product()) ) ;
+            return std::make_unique< const L1TMuonGlobalParams>( *(baseSettings.product()) ) ;
         }
     }
 
@@ -102,7 +101,7 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
             throw std::runtime_error("SummaryForFunctionManager: uGMT  | Faulty  | Broken key");
         else {
             edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonGlobalParams";
-            return std::make_shared< L1TMuonGlobalParams >( *(baseSettings.product()) ) ;
+            return std::make_unique< const L1TMuonGlobalParams >( *(baseSettings.product()) ) ;
         }
     }
 
@@ -148,7 +147,7 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
             throw std::runtime_error("SummaryForFunctionManager: uGMT  | Faulty  | Cannot parse XMLs");
         else {
             edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonGlobalParams";
-            return std::make_shared< L1TMuonGlobalParams >( *(baseSettings.product()) ) ;
+            return std::make_unique< const L1TMuonGlobalParams >( *(baseSettings.product()) ) ;
         }
     }
 
@@ -161,11 +160,11 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
             throw std::runtime_error("SummaryForFunctionManager: uGMT  | Faulty  | Cannot run helper");
         else {
             edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonGlobalParams";
-            return std::make_shared< L1TMuonGlobalParams >( *(baseSettings.product()) ) ;
+            return std::make_unique< const L1TMuonGlobalParams >( *(baseSettings.product()) ) ;
         }
     }
 
-    std::shared_ptr< L1TMuonGlobalParams > retval = std::make_shared< L1TMuonGlobalParams >( cast_to_L1TMuonGlobalParams(m_params_helper) );
+    auto retval = std::make_unique< const L1TMuonGlobalParams >( cast_to_L1TMuonGlobalParams(m_params_helper) );
 
     edm::LogInfo( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "SummaryForFunctionManager: uGMT  | OK      | All looks good";
     return retval ;

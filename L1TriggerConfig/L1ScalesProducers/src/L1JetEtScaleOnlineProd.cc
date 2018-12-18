@@ -36,8 +36,8 @@ class L1JetEtScaleOnlineProd :
       L1JetEtScaleOnlineProd(const edm::ParameterSet&);
       ~L1JetEtScaleOnlineProd() override;
 
-  std::shared_ptr< L1CaloEtScale > newObject(
-    const std::string& objectKey ) override ;
+      std::unique_ptr< L1CaloEtScale > newObject(
+         const std::string& objectKey ) override ;
 
 
    private:
@@ -74,11 +74,9 @@ L1JetEtScaleOnlineProd::~L1JetEtScaleOnlineProd()
 
 }
 
-std::shared_ptr< L1CaloEtScale >
+std::unique_ptr< L1CaloEtScale >
 L1JetEtScaleOnlineProd::newObject( const std::string& objectKey )
 {
-     using namespace edm::es;
-
      // get scales keys
      l1t::OMDSReader::QueryResults scalesKeyResults =
        m_omdsReader.basicQuery(
@@ -237,7 +235,7 @@ L1JetEtScaleOnlineProd::newObject( const std::string& objectKey )
      }
 
      // return object
-     return std::make_shared<L1CaloEtScale>( rgnEtLsb, thresholds );
+     return std::make_unique<L1CaloEtScale>( rgnEtLsb, thresholds );
 }
 
 

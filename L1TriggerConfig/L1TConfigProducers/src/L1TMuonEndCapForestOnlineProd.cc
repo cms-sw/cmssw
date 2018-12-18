@@ -11,7 +11,7 @@ class L1TMuonEndCapForestOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonEn
 private:
     bool transactionSafe;
 public:
-    std::shared_ptr<L1TMuonEndCapForest> newObject(const std::string& objectKey, const L1TMuonEndCapForestO2ORcd& record) override ;
+    std::unique_ptr<const L1TMuonEndCapForest> newObject(const std::string& objectKey, const L1TMuonEndCapForestO2ORcd& record) override ;
 
     L1TMuonEndCapForestOnlineProd(const edm::ParameterSet&);
     ~L1TMuonEndCapForestOnlineProd(void) override{}
@@ -21,14 +21,14 @@ L1TMuonEndCapForestOnlineProd::L1TMuonEndCapForestOnlineProd(const edm::Paramete
     transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 
-std::shared_ptr<L1TMuonEndCapForest> L1TMuonEndCapForestOnlineProd::newObject(const std::string& objectKey, const L1TMuonEndCapForestO2ORcd& record) {
+std::unique_ptr<const L1TMuonEndCapForest> L1TMuonEndCapForestOnlineProd::newObject(const std::string& objectKey, const L1TMuonEndCapForestO2ORcd& record) {
 
     edm::LogError( "L1-O2O" ) << "L1TMuonEndCapForest object with key " << objectKey << " not in ORCON!" ;
 
     if( transactionSafe )
         throw std::runtime_error("SummaryForFunctionManager: EMTF  | Faulty  | You are never supposed to get Forests online producer running!");
 
-    std::shared_ptr< L1TMuonEndCapForest > retval = std::make_shared< L1TMuonEndCapForest >();
+    auto retval = std::make_unique< const L1TMuonEndCapForest >();
 
     edm::LogError( "L1-O2O: L1TMuonEndCapForestOnlineProd" ) << "SummaryForFunctionManager: EMTF  | Faulty  | You are never supposed to get Forests online producer running; returning empty L1TMuonEndCapForest";
     return retval;

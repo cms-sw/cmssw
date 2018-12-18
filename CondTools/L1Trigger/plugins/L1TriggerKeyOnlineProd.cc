@@ -73,8 +73,6 @@ L1TriggerKeyOnlineProd::~L1TriggerKeyOnlineProd()
 L1TriggerKeyOnlineProd::ReturnType
 L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
 {
-   using namespace edm::es;
-
    // Start with "SubsystemKeysOnly"
    edm::ESHandle< L1TriggerKey > subsystemKeys ;
    try
