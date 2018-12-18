@@ -197,7 +197,7 @@ void PATTauDiscriminantCutMultiplexer::beginEvent(const edm::Event& evt, const e
     //Only open the file once and we can close it when this routine is done
     // since all objects gotten from the file will have been copied
     std::unique_ptr<TFile> inputFile;
-    if ( mvaOutputNormalizationName_ != "" ) {
+    if ( !mvaOutputNormalizationName_.empty() ) {
       if ( !loadMVAfromDB_ ) {
 	inputFile = openInputFile(inputFileName_);
 	mvaOutput_normalization_ = loadObjectFromFile<TFormula>(*inputFile, mvaOutputNormalizationName_);
