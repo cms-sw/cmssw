@@ -11,8 +11,6 @@
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
-#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
 
@@ -313,55 +311,39 @@ HGCalTriggerNtupleHGCDigis::
 simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, std::unordered_map<uint32_t, double>& simhits_fh, std::unordered_map<uint32_t, double>& simhits_bh)
 {
 
-      edm::Handle<edm::PCaloHitContainer> ee_simhits_h;
-      e.getByToken(SimHits_inputee_,ee_simhits_h);
-      const edm::PCaloHitContainer& ee_simhits = *ee_simhits_h;
-      edm::Handle<edm::PCaloHitContainer> fh_simhits_h;
-      e.getByToken(SimHits_inputfh_,fh_simhits_h);
-      const edm::PCaloHitContainer& fh_simhits = *fh_simhits_h;
-      edm::Handle<edm::PCaloHitContainer> bh_simhits_h;
-      e.getByToken(SimHits_inputbh_,bh_simhits_h);
-      const edm::PCaloHitContainer& bh_simhits = *bh_simhits_h;
+    edm::Handle<edm::PCaloHitContainer> ee_simhits_h;
+    e.getByToken(SimHits_inputee_,ee_simhits_h);
+    const edm::PCaloHitContainer& ee_simhits = *ee_simhits_h;
+    edm::Handle<edm::PCaloHitContainer> fh_simhits_h;
+    e.getByToken(SimHits_inputfh_,fh_simhits_h);
+    const edm::PCaloHitContainer& fh_simhits = *fh_simhits_h;
+    edm::Handle<edm::PCaloHitContainer> bh_simhits_h;
+    e.getByToken(SimHits_inputbh_,bh_simhits_h);
+    const edm::PCaloHitContainer& bh_simhits = *bh_simhits_h;
 
-      //EE
-      int layer=0,cell=0, sec=0, subsec=0, zp=0,subdet=0;
-      ForwardSubdetector mysubdet;
-
-      for( const auto& simhit : ee_simhits ) {
-        HGCalTestNumbering::unpackHexagonIndex(simhit.id(), subdet, zp, layer, sec, subsec, cell);
-        mysubdet = (ForwardSubdetector)(subdet);
-        std::pair<int,int> recoLayerCell = triggerGeometry_->eeTopology().dddConstants().simToReco(cell,layer,sec,triggerGeometry_->eeTopology().detectorType());
-        cell  = recoLayerCell.first;
-        layer = recoLayerCell.second;
-        if (layer<0 || cell<0) {
-          continue;
-        }
-        auto itr_insert = simhits_ee.emplace(HGCalDetId(mysubdet,zp,layer,subsec,sec,cell), 0.);
+    //EE
+    for( const auto& simhit : ee_simhits ) {
+        DetId id = triggerTools_.simToReco(simhit.id(), triggerGeometry_->eeTopology());
+        if(id.rawId()==0) continue;
+        auto itr_insert = simhits_ee.emplace(id, 0.);
         itr_insert.first->second += simhit.energy();
-      }
-
-      //  FH
-      layer=0; cell=0; sec=0; subsec=0; zp=0; subdet=0;
-
-      for( const auto& simhit : fh_simhits ) {
-        HGCalTestNumbering::unpackHexagonIndex(simhit.id(), subdet, zp, layer, sec, subsec, cell);
-        mysubdet = (ForwardSubdetector)(subdet);
-        std::pair<int,int> recoLayerCell = triggerGeometry_->fhTopology().dddConstants().simToReco(cell,layer,sec,triggerGeometry_->fhTopology().detectorType());
-        cell  = recoLayerCell.first;
-        layer = recoLayerCell.second;
-        if (layer<0 || cell<0) {
-          continue;
-        }
-        auto itr_insert = simhits_fh.emplace(HGCalDetId(mysubdet,zp,layer,subsec,sec,cell), 0.);
+    }
+    //  FH
+    for( const auto& simhit : fh_simhits ) {
+        DetId id = triggerTools_.simToReco(simhit.id(), triggerGeometry_->fhTopology());
+        if(id.rawId()==0) continue;
+        auto itr_insert = simhits_fh.emplace(id, 0.);
         itr_insert.first->second += simhit.energy();
-      }
-      //  BH
-      for( const auto& simhit : bh_simhits ) {
-        HcalDetId id = HcalHitRelabeller::relabel(simhit.id(), triggerGeometry_->bhTopology().dddConstants());
-        if (id.subdetId()!=HcalEndcap) continue;
+    }
+    //  BH
+    for( const auto& simhit : bh_simhits ) {
+        DetId id = (triggerGeometry_->isV9Geometry() ?
+                triggerTools_.simToReco(simhit.id(), triggerGeometry_->hscTopology()) :
+                triggerTools_.simToReco(simhit.id(), triggerGeometry_->bhTopology()) );
+        if(id.rawId()==0) continue;
         auto itr_insert = simhits_bh.emplace(id, 0.);
         itr_insert.first->second += simhit.energy();
-      }
+    }
 }
 
 

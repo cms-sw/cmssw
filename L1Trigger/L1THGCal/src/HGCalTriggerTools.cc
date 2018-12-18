@@ -5,10 +5,10 @@
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -257,4 +257,49 @@ float HGCalTriggerTools::getLayerZ(const int& subdet, const unsigned& layer) con
     }
   }
   return layerGlobalZ;
+}
+
+
+DetId
+HGCalTriggerTools::
+simToReco(const DetId& simid, const HGCalTopology& topo) const 
+{
+    DetId recoid(0);
+    const auto& dddConst = topo.dddConstants();
+    // V9
+    if (dddConst.geomMode() == HGCalGeometryMode::Hexagon8 ||
+        dddConst.geomMode() == HGCalGeometryMode::Hexagon8Full ||
+        dddConst.geomMode() == HGCalGeometryMode::Trapezoid)
+    {
+        recoid = simid;
+    }
+    // V8
+    else
+    {
+        int subdet(simid.subdetId());
+        int layer=0, cell=0, sec=0, subsec=0, zp=0;
+        HGCalTestNumbering::unpackHexagonIndex(simid, subdet, zp, layer, sec, subsec, cell);
+        //sec is wafer and subsec is celltype
+        //skip this hit if after ganging it is not valid
+        auto recoLayerCell = dddConst.simToReco(cell,layer,sec,topo.detectorType());
+        cell  = recoLayerCell.first;
+        layer = recoLayerCell.second;
+        if (layer>=0 && cell>=0) 
+        {
+            recoid = HGCalDetId((ForwardSubdetector)subdet,zp,layer,subsec,sec,cell);
+        }
+    }
+    return recoid;
+}
+
+
+DetId
+HGCalTriggerTools::
+simToReco(const DetId& simid, const HcalTopology& topo) const 
+{
+    DetId recoid(0);
+    const auto& dddConst = topo.dddConstants();
+    HcalDetId id = HcalHitRelabeller::relabel(simid,dddConst);
+    if (id.subdet()==int(HcalEndcap)) recoid = id;
+    return recoid;
 }
