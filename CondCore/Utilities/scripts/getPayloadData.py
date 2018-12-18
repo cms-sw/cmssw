@@ -251,9 +251,9 @@ if __name__ == '__main__':
             
             try:
                 filename = json.loads( result )['file']
-            except ValueError as e:
+            except ValueError, e:
                 os.write( 2, 'Value error when getting image name: %s\n' % str( e ))
-            except KeyError as e:
+            except KeyError, e:
                 os.write( 2, 'Key error when getting image name: %s\n' % str( e ))
 
             if not filename or not os.path.isfile( filename ):
@@ -262,7 +262,7 @@ if __name__ == '__main__':
             try:
                 with open( filename, 'r' ) as f:
                     shutil.copyfileobj( f, sys.stdout )
-            except IOError as e:
+            except IOError, e:
                 os.write( 2, 'IO error when streaming image: %s' % str( e ))
             finally:
                 os.remove( filename )

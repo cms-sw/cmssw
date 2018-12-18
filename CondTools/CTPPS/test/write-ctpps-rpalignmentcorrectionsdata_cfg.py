@@ -31,7 +31,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     toPut = cms.VPSet(
     cms.PSet(
         record = cms.string('CTPPSRPAlignmentCorrectionsDataRcd'),
-        tag = cms.string('CTPPSRPAlignment_v1'),
+        tag = cms.string('CTPPSRPAlignment'),
     )
   )
 )

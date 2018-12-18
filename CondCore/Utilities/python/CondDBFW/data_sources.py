@@ -128,9 +128,9 @@ class json_data_node(object):
 	# be created in code that shouldn't be doing it.
 	@staticmethod
 	def make(data):
-		if isinstance(data, list):
+		if type(data) == list:
 			return json_list(data)
-		elif isinstance(data, dict):
+		elif type(data) == dict:
 			return json_dict(data)
 		else:
 			return json_basic(data)
@@ -158,12 +158,12 @@ class json_data_node(object):
 		# traverse json_data_node structure, and find all lists
 		# if this node in the structure is a list, return all sub lists
 		lists = []
-		if isinstance(self._data, type_name):
+		if type(self._data) == type_name:
 			lists.append(self._data)
-		if isinstance(self._data, list):
+		if type(self._data) == list:
 			for item in self._data:
 				lists += json_data_node.make(item).find(type_name)
-		elif isinstance(self._data, dict):
+		elif type(self._data) == dict:
 			for key in self._data:
 				lists += json_data_node.make(self._data[key]).find(type_name)
 		return lists
