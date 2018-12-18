@@ -462,12 +462,11 @@ size_t MultiTrackValidator::tpDR(const TrackingParticleRefVector& tPCeff,
 }
 
 
-size_t MultiTrackValidator::tpDR_jet(const TrackingParticleRefVector& tPCeff,
+void MultiTrackValidator::tpDR_jet(const TrackingParticleRefVector& tPCeff,
                                  const std::vector<size_t>& selected_tPCeff,
                                  DynArray<float>& dR_tPCeff_jet,
                                  const edm::View<reco::Candidate>* const & cores) const {
   float etaL[tPCeff.size()], phiL[tPCeff.size()];
-  size_t n_selTP_dr = 0;
   for(size_t iTP: selected_tPCeff) {
     //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
     auto const& tp2 = *(tPCeff[iTP]);
@@ -479,7 +478,6 @@ size_t MultiTrackValidator::tpDR_jet(const TrackingParticleRefVector& tPCeff,
     auto const& tp = *(tPCeff[iTP1]);
     double dR = std::numeric_limits<double>::max();
     if(dRtpSelector(tp)) {//only for those needed for efficiency!
-      ++n_selTP_dr;
       float eta = etaL[iTP1];
       float phi = phiL[iTP1];
       for (unsigned int ji = 0; ji < cores->size(); ji++) {//jet loop
@@ -494,7 +492,6 @@ size_t MultiTrackValidator::tpDR_jet(const TrackingParticleRefVector& tPCeff,
       dR_tPCeff_jet[iTP1] = std::sqrt(dR);
     }
   }  // tp
-  return n_selTP_dr;
 }
 
 
@@ -682,7 +679,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSe
   event.getByToken(cores_, cores);
   const auto & coresVector = cores.product();
   declareDynArray(float, tPCeff.size(), dR_tPCeff_jet);
-  size_t n_selTP_dr_jet = tpDR_jet(tPCeff, selected_tPCeff, dR_tPCeff_jet, coresVector);
+  /*size_t n_selTP_dr_jet =*/ tpDR_jet(tPCeff, selected_tPCeff, dR_tPCeff_jet, coresVector);
 
   edm::Handle<View<Track> >  trackCollectionForDrCalculation;
   if(calculateDrSingleCollection_) {
@@ -823,7 +820,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSe
         double dxyPVSim = 0;
         double dzPVSim = 0;
 	double dR=dR_tPCeff[iTP];
-  double dR_jet=dR_tPCeff_jet[iTP];
+        double dR_jet=dR_tPCeff_jet[iTP];
 
 	//---------- THIS PART HAS TO BE CLEANED UP. THE PARAMETER DEFINER WAS NOT MEANT TO BE USED IN THIS WAY ----------
 	//If the TrackingParticle is collison like, get the momentum and vertex at production state
