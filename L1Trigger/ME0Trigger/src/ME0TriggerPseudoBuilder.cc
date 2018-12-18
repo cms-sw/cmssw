@@ -94,8 +94,9 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
   int istrip = static_cast<int>(strip);
   int phiposition  = istrip;
   if (phiposition > totstrip)  LogTrace("L1ME0Trigger")<<" ME0 segment strip number is "<< phiposition <<" larger than nstrip "<< totstrip <<" !!! \n";
-  int phiposition2 = (static_cast<int>((strip - phiposition)/(strippitch/2.0)) & 3);// half-strip resolution
-  phiposition = (phiposition << 2) | phiposition2;
+  float phi_resolution = 0.5;//halfstrip
+  int phiposition2 = (static_cast<int>((strip - phiposition)/phi_resolution) & 1);// half-strip resolution
+  phiposition = (phiposition << 1) | phiposition2;
   int idphi = static_cast<int>(fabs(dphi)/(strippitch*dphiresolution_));
   int max_idphi = 512;
   if (idphi >= 512){ 
@@ -109,7 +110,7 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
                     <<"\t chamber(1-18) "<< detid.chamber() <<" chamber id "<< chamberid <<" \n"
                     <<"\t rolls size of all hits "<< rolls.size() <<" rolls[0] "<< rolls[0] <<" rolls.back() "<< rolls.back() <<" roll "<< partition <<" \n"
                     <<"\t nRechits "<< nrechits <<" quality "<< quality <<" \n"
-                    <<"\t strip(float) "<< strip <<" (int) "<< istrip<<" phiposition "<< phiposition <<" resolution "<< strippitch/2.0 <<" \n"
+                    <<"\t strip(float) "<< strip <<" (int) "<< istrip<<" phiposition "<< phiposition <<" resolution (in term of strip) "<< phi_resolution <<" \n"
                     <<"\t deltaphi(float) "<< dphi <<" (int) "<< idphi <<" resolution "<< strippitch*dphiresolution_ <<" bend "<< bend <<" \n "
                     <<"\t time (ns, float) "<< time <<" BX "<< BX <<" \n";
   
