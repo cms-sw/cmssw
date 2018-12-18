@@ -36,8 +36,8 @@ class L1EmEtScaleOnlineProd :
       L1EmEtScaleOnlineProd(const edm::ParameterSet&);
       ~L1EmEtScaleOnlineProd() override;
 
-  std::shared_ptr< L1CaloEtScale > newObject(
-    const std::string& objectKey ) override ;
+      std::unique_ptr< L1CaloEtScale > newObject(
+         const std::string& objectKey ) override ;
 
 
    private:
@@ -74,11 +74,9 @@ L1EmEtScaleOnlineProd::~L1EmEtScaleOnlineProd()
 
 }
 
-std::shared_ptr< L1CaloEtScale >
+std::unique_ptr< L1CaloEtScale >
 L1EmEtScaleOnlineProd::newObject( const std::string& objectKey )
 {
-     using namespace edm::es;
-
      // ~~~~~~~~~ Cut values ~~~~~~~~~
 
 
@@ -170,7 +168,7 @@ L1EmEtScaleOnlineProd::newObject( const std::string& objectKey )
 	 scaleResults.numberRows() != 1 ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1EmEtScale key." ;
-	 return std::shared_ptr< L1CaloEtScale >() ;
+	 return std::unique_ptr< L1CaloEtScale >() ;
        }
      std::vector<double> m_thresholds;
 
@@ -192,7 +190,7 @@ L1EmEtScaleOnlineProd::newObject( const std::string& objectKey )
 	 lsbResults.numberRows() != 1 ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1EmEtScale key." ;
-	 return std::shared_ptr< L1CaloEtScale >() ;
+	 return std::unique_ptr< L1CaloEtScale >() ;
        }
 
      double m_lsb = 0.;
@@ -204,7 +202,7 @@ L1EmEtScaleOnlineProd::newObject( const std::string& objectKey )
 
      // Default objects for Lindsey 
 
-     return std::make_shared<L1CaloEtScale>(m_lsb,m_thresholds);
+     return std::make_unique<L1CaloEtScale>(m_lsb,m_thresholds);
 }
 
 

@@ -111,10 +111,8 @@ const string PhiScaleHelper::LowMarkColumn = "PHI_DEG_BIN_LOW_0";
 const string PhiScaleHelper::StepColumn = "PHI_DEG_BIN_STEP";
 
 // ------------ method called to produce the data  ------------
-std::shared_ptr<L1MuTriggerScales> L1MuTriggerScalesOnlineProducer::newObject(const std::string& objectKey ) 
+std::unique_ptr<L1MuTriggerScales> L1MuTriggerScalesOnlineProducer::newObject(const std::string& objectKey ) 
 {
-   using namespace edm::es;   
-
    // The key we get from the O2O subsystem is the CMS_GMT.L1T_SCALES key,
    // but the eta/phi scales have their own subtables, so let's find 
    // out.
@@ -198,5 +196,5 @@ std::shared_ptr<L1MuTriggerScales> L1MuTriggerScalesOnlineProducer::newObject(co
 
    m_scales.setPhiScale(*ptrPhiScale);
 
-   return std::make_shared<L1MuTriggerScales>(m_scales);
+   return std::make_unique<L1MuTriggerScales>(m_scales);
 }

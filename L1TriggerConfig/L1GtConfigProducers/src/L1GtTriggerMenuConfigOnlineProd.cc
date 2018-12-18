@@ -79,14 +79,13 @@ void L1GtTriggerMenuConfigOnlineProd::init(const int numberConditionChips) {
 
 }
 
-std::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
+std::unique_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
         const std::string& objectKey) {
 
     // FIXME seems to not work anymore in constructor...
     m_isDebugEnabled = edm::isDebugEnabled();
 
-    // shared pointer for L1GtTriggerMenu - empty menu
-    auto pL1GtTriggerMenuEmpty = std::make_shared<L1GtTriggerMenu>();
+    auto pL1GtTriggerMenuEmpty = std::make_unique<L1GtTriggerMenu>();
 
     // FIXME get it from L1GtStableParameters?
     //       initialize once, from outside
@@ -152,7 +151,7 @@ std::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
     addConditions();
 
     // fill the record
-    auto pL1GtTriggerMenu = std::make_shared<L1GtTriggerMenu>(
+    auto pL1GtTriggerMenu = std::make_unique<L1GtTriggerMenu>(
                         menuName, numberConditionChips,
                         m_vecMuonTemplate,
                         m_vecCaloTemplate,

@@ -8,11 +8,11 @@ class L1MuGMTChannelMaskOnlineProducer : public L1ConfigOnlineProdBase< L1MuGMTC
          : L1ConfigOnlineProdBase< L1MuGMTChannelMaskRcd, L1MuGMTChannelMask >( iConfig ) {}
       ~L1MuGMTChannelMaskOnlineProducer() override {}
 
-      std::shared_ptr< L1MuGMTChannelMask > newObject( const std::string& objectKey ) override ;
+      std::unique_ptr< L1MuGMTChannelMask > newObject( const std::string& objectKey ) override ;
    private:
 };
 
-std::shared_ptr< L1MuGMTChannelMask >
+std::unique_ptr< L1MuGMTChannelMask >
 L1MuGMTChannelMaskOnlineProducer::newObject( const std::string& objectKey )
 {
 
@@ -35,7 +35,7 @@ L1MuGMTChannelMaskOnlineProducer::newObject( const std::string& objectKey )
    if( results.queryFailed() ) // check if query was successful
    {
       edm::LogError( "L1-O2O" ) << "L1MuGMTChannelMaskOnlineProducer: Problem getting " << objectKey << " key from GMT_RUN_SETTING." ;
-      return std::shared_ptr< L1MuGMTChannelMask >() ;
+      return std::unique_ptr< L1MuGMTChannelMask >() ;
    }
 
    unsigned mask = 0;
@@ -49,7 +49,7 @@ L1MuGMTChannelMaskOnlineProducer::newObject( const std::string& objectKey )
    results.fillVariable( "ENABLE_RPCF", maskaux ) ;
    if(!maskaux) mask|=8;
 
-   auto gmtchanmask = std::make_shared< L1MuGMTChannelMask >();
+   auto gmtchanmask = std::make_unique< L1MuGMTChannelMask >();
 
    gmtchanmask->setSubsystemMask(mask);
    

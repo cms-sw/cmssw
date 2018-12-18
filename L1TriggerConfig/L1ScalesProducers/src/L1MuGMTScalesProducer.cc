@@ -66,10 +66,6 @@ L1MuGMTScalesProducer::~L1MuGMTScalesProducer() {}
 std::unique_ptr<L1MuGMTScales> 
 L1MuGMTScalesProducer::produceL1MuGMTScales(const L1MuGMTScalesRcd& iRecord)
 {
-   using namespace edm::es;
-
-   std::unique_ptr<L1MuGMTScales> l1muscale = std::unique_ptr<L1MuGMTScales>( new L1MuGMTScales( m_scales ) );
-
-   return l1muscale ;
+  return std::make_unique<L1MuGMTScales>(m_scales);
 }
 
