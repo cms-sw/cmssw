@@ -77,8 +77,6 @@ class FastTrackerRecHit : public BaseTrackerRecHit
     /// Steers behaviour of hit in track fit.
     /// FastSim hit smearing assumes
     bool canImproveWithTrack() const override {return false;}
-    
-    bool testbool() const {return false;}
 
     /* getters */
 
