@@ -292,7 +292,6 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
       double tmp = 0.5*( nnlsWork_.pulseP[iTS+delta]*nnlsWork_.pulseP[jTS+delta] +
 			 nnlsWork_.pulseM[iTS+delta]*nnlsWork_.pulseM[jTS+delta] );
 
-      pulseCov(iTS+nnlsWork_.maxoffset,jTS+nnlsWork_.maxoffset) += tmp;
       pulseCov(jTS+nnlsWork_.maxoffset,iTS+nnlsWork_.maxoffset) += tmp;      
       
     }
@@ -572,7 +571,7 @@ void MahiFit::phase1Debug(const HBHEChannelInfo& channelData,
     else if (nnlsWork_.bxs.coeff(iBX)==1) {
       mdi.nEnergy=nnlsWork_.ampVec.coeff(iBX);
       for(unsigned int iTS=0; iTS<nnlsWork_.tsSize; ++iTS){
-	mdi.nPulse[iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
+        mdi.nPulse[iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
       }
     }
   }  
