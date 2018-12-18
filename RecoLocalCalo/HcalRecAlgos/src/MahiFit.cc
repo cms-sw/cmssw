@@ -291,8 +291,9 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
       
       double tmp = 0.5*( nnlsWork_.pulseP[iTS+delta]*nnlsWork_.pulseP[jTS+delta] +
 			 nnlsWork_.pulseM[iTS+delta]*nnlsWork_.pulseM[jTS+delta] );
-
+  
       pulseCov(jTS+nnlsWork_.maxoffset,iTS+nnlsWork_.maxoffset) += tmp;      
+      if(iTS!=jTS) pulseCov(iTS+nnlsWork_.maxoffset,jTS+nnlsWork_.maxoffset) += tmp;
       
     }
   }
