@@ -1,5 +1,7 @@
-#ifndef TrackRecoDeDx_FastTrackDeDxProducer_H
-#define TrackRecoDeDx_FastTrackDeDxProducer_H
+#ifndef FASTSIM_TRACKRECODEDX_FASTTRACKDEDXPRODUCER_H
+#define FASTSIM_TRACKRECODEDX_FASTTRACKDEDXPRODUCER_H
+
+
 // user include files
 
 #include <memory>
@@ -15,8 +17,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h" 
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
-
-
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
@@ -35,7 +35,6 @@
 #include "RecoTracker/DeDx/interface/SmirnovDeDxDiscriminator.h"
 #include "RecoTracker/DeDx/interface/ASmirnovDeDxDiscriminator.h"
 #include "RecoTracker/DeDx/interface/BTagLikeDeDxDiscriminator.h"
-
 
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
 

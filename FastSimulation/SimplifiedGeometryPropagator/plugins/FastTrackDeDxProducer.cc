@@ -188,24 +188,17 @@ void FastTrackDeDxProducer::processHit(const FastTrackerRecHit &recHit, float tr
     auto& detUnit     = *(recHit.detUnit());
     float pathLen     = detUnit.surface().bounds().thickness()/fabs(cosine);
     if (nothick) pathLen = 1.0;
-    // float chargeAbs   = clus.pixelCluster().charge();
-    // float charge      = meVperADCPixel*chargeAbs/pathLen;
     float charge = recHit.energyLoss()/pathLen;
     if (convertFromGeV2MeV) charge*=1000;
-    //std::cout << "pixel charge = " << charge << endl;
     dedxHits.push_back( DeDxHit( charge, trackMomentum, pathLen, thit.geographicalId()) );
   }
   else if(!recHit.isPixel()){// && !thit.isMatched()){//check what thit.isMatched is doing
-    //std::cout << "we got strips 1" << std::endl;
     if(!useStrip) return;
     auto& detUnit     = *(recHit.detUnit());
     float pathLen     = detUnit.surface().bounds().thickness()/fabs(cosine);
     if (nothick) pathLen = 1.0;
-    //float chargeAbs   = DeDxTools::getCharge(&(recHit.stripCluster()),NSaturating, detUnit, calibGains, m_off);
-    //float charge      = meVperADCStrip*chargeAbs/pathLen;
     float dedxOfRecHit = recHit.energyLoss()/pathLen;
     if (convertFromGeV2MeV) dedxOfRecHit*=1000;
-    //std::cout << "strip charge = " << charge << endl;
     if(!shapetest ){
       dedxHits.push_back( DeDxHit( dedxOfRecHit, trackMomentum, pathLen, thit.geographicalId()) );
     }
