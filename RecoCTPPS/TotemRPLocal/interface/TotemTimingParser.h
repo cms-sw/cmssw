@@ -23,7 +23,7 @@ class TotemTimingParser
     void print();
 
     std::vector<double> getParameters(int db, int sampic, int channel, int cell) const;
-    inline std::string getFormula() const { return formula_; }
+    inline const std::string& getFormula() const { return formula_; }
     double getTimeOffset(int db, int sampic, int channel) const;
     double getTimePrecision(int db, int sampic, int channel) const;
 

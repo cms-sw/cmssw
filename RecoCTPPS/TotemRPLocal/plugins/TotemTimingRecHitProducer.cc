@@ -68,7 +68,7 @@ TotemTimingRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& i
   iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
 
   // produce the rechits collection
-  algo_.build( geometry.product(), *( digis ), *( pOut ) );
+  algo_.build( geometry.product(), *digis, *pOut );
 
   iEvent.put( std::move( pOut ) );
 }

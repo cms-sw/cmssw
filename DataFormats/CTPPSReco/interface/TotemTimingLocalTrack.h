@@ -18,11 +18,7 @@
 class TotemTimingLocalTrack : public CTPPSTimingLocalTrack
 {
   public:
-    TotemTimingLocalTrack() {}
-    TotemTimingLocalTrack( const math::XYZPoint& pos0, const math::XYZPoint& pos0_sigma,
-                           float t, float t_sigma ) :
-      CTPPSTimingLocalTrack( pos0, pos0_sigma, t, t_sigma ) {}
-
+    using CTPPSTimingLocalTrack::CTPPSTimingLocalTrack;
     // no specific class members yet
 };
 

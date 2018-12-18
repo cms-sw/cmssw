@@ -23,7 +23,7 @@ class CTPPSTimingLocalTrack
     CTPPSTimingLocalTrack();
     CTPPSTimingLocalTrack( const math::XYZPoint& pos0, const math::XYZPoint& pos0_sigma,
                            float t, float t_sigma );
-    virtual ~CTPPSTimingLocalTrack() {}
+    virtual ~CTPPSTimingLocalTrack() = default;
 
     enum CheckDimension { CHECK_X, CHECK_Y, CHECK_ALL };
     bool containsHit( const CTPPSTimingRecHit& recHit, float tolerance = 0.1, CheckDimension check = CHECK_ALL ) const;

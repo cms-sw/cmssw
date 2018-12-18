@@ -47,7 +47,7 @@ TotemTimingParser::parseFile(const std::string& file_name)
         key.cell = cell_ct;
 
         for (pt::ptree::value_type& param : cell.second)
-          values.push_back(std::stod(param.second.data(), nullptr));
+          values.emplace_back(std::stod(param.second.data(), nullptr));
         parameters_[key] = values;
         cell_ct++;
       }
