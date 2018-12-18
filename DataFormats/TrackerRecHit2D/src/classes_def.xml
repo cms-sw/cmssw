@@ -131,17 +131,17 @@
 
   // fastsim containers
   
-  <class name="FastTrackerRecHit" ClassVersion="10">
-    <version ClassVersion="10" checksum="1775447631"/>
+  <class name="FastTrackerRecHit" ClassVersion="13">
+    <version ClassVersion="13" checksum="1771133479"/>
   </class>
-  <class name="FastSingleTrackerRecHit" ClassVersion="10">
-    <version ClassVersion="10" checksum="640282606"/>
+  <class name="FastSingleTrackerRecHit" ClassVersion="13">
+    <version ClassVersion="13" checksum="1553028806"/>
   </class>
-  <class name="FastMatchedTrackerRecHit" ClassVersion="10">
-   <version ClassVersion="10" checksum="4015701870"/>
+  <class name="FastMatchedTrackerRecHit" ClassVersion="14">
+   <version ClassVersion="14" checksum="412726454"/>
   </class>
-  <class name="FastProjectedTrackerRecHit" ClassVersion="10">
-   <version ClassVersion="10" checksum="2372844383"/>
+  <class name="FastProjectedTrackerRecHit" ClassVersion="13">
+   <version ClassVersion="13" checksum="3790581543"/>
   </class>
 
   <class name="std::vector<edm::OwnVector<FastTrackerRecHit,edm::ClonePolicy<FastTrackerRecHit> > >"/>

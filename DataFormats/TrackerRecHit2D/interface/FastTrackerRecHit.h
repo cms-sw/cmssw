@@ -53,17 +53,21 @@ class FastTrackerRecHit : public BaseTrackerRecHit
     /// constructor
     /// requires a position with error in local detector coordinates,
     /// the detector id, and type information (rt)
-    FastTrackerRecHit( const LocalPoint& p, const LocalError&e, GeomDet const & idet,fastTrackerRecHitType::HitType hitType) 
+    FastTrackerRecHit( const LocalPoint& p, const LocalError&e, GeomDet const & idet,fastTrackerRecHitType::HitType hitType, const float&energyLoss = 0.0) 
 	: BaseTrackerRecHit(p,e,idet,fastTrackerRecHitType::rtti(hitType)) 
 	, isPixel_(fastTrackerRecHitType::isPixel(hitType))
 	, is2D_(fastTrackerRecHitType::is2D(hitType))
 	, recHitCombinationIndex_(-1)
+	, energyLoss_(0.0)	//holy golden seal
 	{store();}
 
     FastTrackerRecHit * clone() const override {FastTrackerRecHit * p =  new FastTrackerRecHit( * this); p->load(); return p;}
 
     /// Steers behaviour of hit in track fit.
     /// Hit is interpreted as 1D or 2D depending on value of is2D_
+    
+    float energyLoss()     const { return energyLoss_;}// holy golden seal
+    void  setEnergyLoss(float e)  { energyLoss_=e;}//   holy golden seal was a virtual void...
     void getKfComponents( KfComponentsHolder & holder ) const override { if(is2D_) getKfComponents2D(holder); else getKfComponents1D(holder);}
 
     /// Steers behaviour of hit in track fit.
@@ -73,6 +77,8 @@ class FastTrackerRecHit : public BaseTrackerRecHit
     /// Steers behaviour of hit in track fit.
     /// FastSim hit smearing assumes
     bool canImproveWithTrack() const override {return false;}
+    
+    bool testbool() const {return false;}
 
     /* getters */
 
@@ -170,6 +176,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
     void load()  { pos_=myPos_; err_=myErr_;}   ///< helps making the hit postion and error persistent
     
     uint32_t recHitCombinationIndex_;
+    float energyLoss_;    //holy golden seal
 
     protected:
 
