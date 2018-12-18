@@ -40,6 +40,6 @@ namespace edm {
   }
 
   void ProductData::unsafe_setWrapper(std::shared_ptr<WrapperBase const> iValue) const {
-    wrapper_ = std::const_pointer_cast<WrapperBase>(std::move(iValue));
+    wrapper_ = std::move(iValue);
   }
 }
