@@ -22,7 +22,6 @@
 #include "DataFormats/CTPPSReco/interface/TotemTimingLocalTrack.h"
 #include "RecoCTPPS/TotemRPLocal/interface/CTPPSTimingTrackRecognition.h"
 
-
 #include <string>
 #include <cmath>
 #include <set>
