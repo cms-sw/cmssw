@@ -66,29 +66,31 @@ private:
   void   processHit(const FastTrackerRecHit & recHit, float trackMomentum, float& cosine, reco::DeDxHitCollection& dedxHits, int& NClusterSaturating);
 
   // ----------member data ---------------------------
-  BaseDeDxEstimator*                m_estimator;
+BaseDeDxEstimator*               m_estimator;
 
   edm::EDGetTokenT<reco::TrackCollection>  m_tracksTag;
 
-  bool usePixel;
-  bool useStrip;
+
+  
   float meVperADCPixel;
   float meVperADCStrip;
 
   unsigned int MaxNrStrips;
 
   std::string                       m_calibrationPath;
-  bool                              useCalibration;
-  bool                              shapetest;
 
   std::vector< std::vector<float> > calibGains; 
   unsigned int m_off;
-
-  bool convertFromGeV2MeV;
-
-
-    edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken; 
-    edm::EDGetTokenT<FastTrackerRecHitRefCollection> simHit2RecHitMapToken;
+  
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken; 
+  edm::EDGetTokenT<FastTrackerRecHitRefCollection> simHit2RecHitMapToken;
+  
+  bool usePixel;
+  bool useStrip;
+  bool                              useCalibration;
+  bool                              shapetest;
+  bool convertFromGeV2MeV;  
+  bool nothick;
 
 
 };
