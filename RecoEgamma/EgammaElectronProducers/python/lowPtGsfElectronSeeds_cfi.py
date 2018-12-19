@@ -30,3 +30,15 @@ lowPtGsfElectronSeeds = cms.EDProducer(
     MinPtThreshold = cms.double(0.5),
     MaxPtThreshold = cms.double(15.),
     )
+# copying from RecoParticleFlow/PFTracking/python/trackerDrivenElectronSeeds_cfi.py
+# inFastSim jobs, trajectories are only available for the 'before mixing' track collections
+# Therefore we let the seeds depend on the 'before mixing' generalTracks collection
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+lowPtGsfElectronSeedsTmp = lowPtGsfElectronSeeds.clone(tracks = cms.InputTag("generalTracksBeforeMixing"))
+import FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi
+_fastSim_lowPtGsfElectronSeeds = FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi.fixedTrackerDrivenElectronSeeds.clone()
+_fastSim_lowPtGsfElectronSeeds.seedCollection = cms.InputTag("lowPtGsfElectronSeedsTmp","")
+_fastSim_lowPtGsfElectronSeeds.idCollection = cms.VInputTag("lowPtGsfElectronSeedsTmp","lowPtGsfElectronSeedsTmp:HCAL")
+_fastSim_lowPtGsfElectronSeeds.PreIdLabel = cms.vstring("","HCAL")
+_fastSim_lowPtGsfElectronSeeds.PreGsfLabel = cms.string("")
+fastSim.toReplaceWith(lowPtGsfElectronSeeds,_fastSim_lowPtGsfElectronSeeds)
