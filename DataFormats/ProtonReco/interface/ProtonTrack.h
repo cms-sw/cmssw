@@ -53,6 +53,10 @@ namespace reco
       /// four-momentum transfer squared, in GeV^2
       float t() const;
 
+      /// conveniece getters for time of proton arrival at RPs
+      float time() const { return t0(); }
+      float timeError() const { return t0Error(); }
+
       /// LHC sector
       enum class LHCSector { invalid = -1, sector45, sector56 };
       LHCSector lhcSector() const
