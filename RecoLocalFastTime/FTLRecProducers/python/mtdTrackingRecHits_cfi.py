@@ -1,7 +1,4 @@
 import FWCore.ParameterSet.Config as cms
+from RecoLocalFastTime.FTLRecProducers.mtdTrackingRecHitProducer_cfi import mtdTrackingRecHitProducer
 
-mtdTrackingRecHits = cms.EDProducer(
-    "MTDTrackingRecHitProducer",
-    barrelClusters = cms.InputTag('mtdClusters:FTLBarrel'),
-    endcapClusters = cms.InputTag('mtdClusters:FTLEndcap'),
-)
+mtdTrackingRecHits = mtdTrackingRecHitProducer.clone()
