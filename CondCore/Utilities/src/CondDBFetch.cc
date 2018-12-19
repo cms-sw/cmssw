@@ -2,8 +2,7 @@
 
 #define FETCH_PAYLOAD_CASE( TYPENAME ) \
   if( payloadTypeName == #TYPENAME ){ \
-    auto payload = deserialize<TYPENAME>( payloadTypeName, data, streamerInfo ); \
-    payloadPtr = payload; \
+    payloadPtr = deserialize<TYPENAME>( payloadTypeName, data, streamerInfo ); \
     match = true; \
   }
 
@@ -277,6 +276,8 @@ namespace cond {
       FETCH_PAYLOAD_CASE( SiPixelLorentzAngle )
       FETCH_PAYLOAD_CASE( SiPixelDynamicInefficiency )
       FETCH_PAYLOAD_CASE( SiPixelQuality )
+      FETCH_PAYLOAD_CASE( SiPixelFEDChannelContainer )
+      FETCH_PAYLOAD_CASE( SiPixelQualityProbabilities )
       FETCH_PAYLOAD_CASE( SiPixelTemplateDBObject )
       FETCH_PAYLOAD_CASE( SiPixel2DTemplateDBObject )
       FETCH_PAYLOAD_CASE( SiStripApvGain )
@@ -305,18 +306,15 @@ namespace cond {
 
       //   
       if( payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){    
-	auto payload = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data, streamerInfo );
-	payloadPtr = payload;
+	payloadPtr = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data, streamerInfo );
 	match = true;
       }
       if( payloadTypeName == "PhysicsTools::Calibration::Histogram2D<double,double,double>" ){    
-	auto payload = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data, streamerInfo );
-	payloadPtr = payload;
+	payloadPtr = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data, streamerInfo );
 	match = true;
       }
       if( payloadTypeName == "std::vector<unsignedlonglong,std::allocator<unsignedlonglong>>" ){
-	auto payload = deserialize<std::vector<unsigned long long> >( payloadTypeName, data, streamerInfo );
-	payloadPtr = payload;
+	payloadPtr = deserialize<std::vector<unsigned long long> >( payloadTypeName, data, streamerInfo );
 	match = true;
       }
   

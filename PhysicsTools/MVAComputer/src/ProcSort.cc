@@ -16,7 +16,6 @@
 
 #include <cstdlib>
 #include <algorithm>
-#include <functional>
 #include <iterator>
 #include <vector>
 
@@ -71,7 +70,7 @@ void ProcSort::configure(ConfIterator iter, unsigned int n)
 }
 
 namespace { // anonymous
-	struct LeaderLookup : public std::unary_function<int, double> {
+	struct LeaderLookup {
 		inline LeaderLookup() {}
 		inline LeaderLookup(const double *values) : values(values) {}
 

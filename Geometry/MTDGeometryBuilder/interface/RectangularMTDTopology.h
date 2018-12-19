@@ -33,7 +33,7 @@
 // Add big pixel flags for cluster range 15/3/07 V.Chiochia
 
 # include "Geometry/CommonTopologies/interface/PixelTopology.h"
-# include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
+# include "DataFormats/ForwardDetId/interface/MTDChannelIdentifier.h"
 # include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -57,28 +57,22 @@ public:
       m_COLS_PER_ROC( COLS_PER_ROC ),     // Num of Cols per ROC
       m_ROCS_X( ROCS_X ), // 2 for SLHC
       m_ROCS_Y( ROCS_Y ),  // 8 for SLHC
-      m_upgradeGeometry( upgradeGeometry )
-    {
-      // Calculate the edge of the active sensor with respect to the center,
-      // that is simply the half-size.       
-      // Take into account large pixels
-      m_xoffset = -(m_nrows + BIG_PIX_PER_ROC_X*m_nrows/ROWS_PER_ROC)/2. * 
-		  m_pitchx;
-      m_yoffset = -(m_ncols + BIG_PIX_PER_ROC_Y*m_ncols/COLS_PER_ROC)/2. * 
-		  m_pitchy;
+      m_upgradeGeometry( upgradeGeometry ) {
 
-      LogDebug("RectangularMTDTopology") << "nrows " << m_nrows << ", ncols " << m_ncols << ", pitchx "
-					   << m_pitchx << ", pitchy " << m_pitchy << ", xoffset "
-					   << m_xoffset << ", yoffset " << m_yoffset << ", BIG_PIX_PER_ROC_X "
-					   << BIG_PIX_PER_ROC_X << ", BIG_PIX_PER_ROC_Y " << BIG_PIX_PER_ROC_Y << ", ROWS_PER_ROC "
-					   << ROWS_PER_ROC << ", COLS_PER_ROC " << COLS_PER_ROC << ", ROCS_X " << ROCS_X << ", ROCS_Y " << ROCS_Y
-					   << "\nNROWS " << m_ROWS_PER_ROC * m_ROCS_X << ", NCOL " << m_COLS_PER_ROC * m_ROCS_Y;
-    }
+	setOffset(BIG_PIX_PER_ROC_X, BIG_PIX_PER_ROC_Y, ROWS_PER_ROC, COLS_PER_ROC);
 
-  // Topology interface, go from Masurement to Local corrdinates
+      }
+
+
+  // Edge of the active sensor with respect to the center
+  void setOffset(const int& BIG_PIX_PER_ROC_X, const int& BIG_PIX_PER_ROC_Y,
+		 const int& ROWS_PER_ROC, const int& COLS_PER_ROC);
+
+
+  // Topology interface, go from Masurement to Local module corrdinates
   // pixel coordinates (mp) -> cm (LocalPoint)
   LocalPoint localPosition( const MeasurementPoint& mp ) const override;
-
+  
   // Transform LocalPoint to Measurement. Call pixel().
   MeasurementPoint measurementPosition( const LocalPoint& lp ) 
       const override {
@@ -93,18 +87,37 @@ public:
   // Errors
   // Error in local (cm) from the masurement errors
   LocalError localError( const MeasurementPoint&,
-				 const MeasurementError& ) const override;
+			 const MeasurementError& ) const override;
   // Errors in pitch units from localpoint error (in cm)
   MeasurementError measurementError( const LocalPoint&, 
-					     const LocalError& ) const override;
+				     const LocalError& ) const override;
   
   //-------------------------------------------------------------
   // Transform LocalPoint to channel. Call pixel()
   //
   int channel( const LocalPoint& lp ) const override {
     std::pair<float,float> p = pixel( lp );
-    return PixelChannelIdentifier::pixelToChannel( int( p.first ), 
-						   int( p.second ));
+    return MTDChannelIdentifier::pixelToChannel( int( p.first ), 
+						 int( p.second ));
+  }
+
+  //----
+  // Transforms between module-local coordinates and pixel-local coordinates
+  // don't need a transform for errors, same units
+  LocalPoint moduleToPixelLocalPoint(const LocalPoint& mlp) const {
+    std::pair<float,float> p = pixel( mlp );
+    return LocalPoint( mlp.x() - (m_xoffset + (int(p.first)+0.5f)*m_pitchx),
+		       mlp.y() - (m_yoffset + (int(p.second)+0.5f)*m_pitchy),
+		       mlp.z());
+  }
+  LocalPoint pixelToModuleLocalPoint(const LocalPoint& plp, int row, int col) const {    
+    return LocalPoint( plp.x() + (m_xoffset + (row+0.5f)*m_pitchx),
+		       plp.y() + (m_yoffset + (col+0.5f)*m_pitchy),
+		       plp.z()); 
+  }
+  LocalPoint pixelToModuleLocalPoint(const LocalPoint& plp, int channel) const {
+    std::pair<int,int> p = MTDChannelIdentifier::channelToPixel(channel);
+    return pixelToModuleLocalPoint(plp,p.first,p.second);
   }
 
   //-------------------------------------------------------------

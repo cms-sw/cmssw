@@ -18,11 +18,12 @@
 SensitiveDetector::SensitiveDetector(const std::string & iname, 
 				     const DDCompactView & cpv,
 				     const SensitiveDetectorCatalog & clg,
-				     edm::ParameterSet const & p) :
-  G4VSensitiveDetector(iname) 
+				     edm::ParameterSet const & p,
+				     bool calo) :
+  G4VSensitiveDetector(iname), m_isCalo(calo)
 {
   // for CMS hits
-  namesOfSD.push_back(iname);
+  m_namesOfSD.push_back(iname);
 
   // Geant4 hit collection
   collectionName.insert(iname);
@@ -111,8 +112,8 @@ TrackInformation* SensitiveDetector::cmsTrackInformation(const G4Track* aTrack)
 
 void SensitiveDetector::setNames(const std::vector<std::string>& hnames)
 {
-  namesOfSD.clear();
-  namesOfSD = hnames;
+  m_namesOfSD.clear();
+  m_namesOfSD = hnames;
 }
 
 void SensitiveDetector::NaNTrap(const G4Step* aStep) const

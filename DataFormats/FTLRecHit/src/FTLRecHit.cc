@@ -8,13 +8,17 @@ namespace {
   constexpr float timereso_max = 10000;
 }
 
-FTLRecHit::FTLRecHit() : id_(DetId()), energy_(-1.f), time_(-1.f), timeError_(-1.f), flagBits_(std::numeric_limits<unsigned char>::max()) 
+FTLRecHit::FTLRecHit() : id_(DetId()), energy_(-1.f), time_(-1.f), timeError_(-1.f), row_(0), column_(0), flagBits_(std::numeric_limits<unsigned char>::max()) 
 {}
 
 FTLRecHit::FTLRecHit(const DetId& id, float energy, float time, float timeError, uint32_t flagBits) :
-  id_(id), energy_(energy), time_(time), timeError_(timeError), flagBits_(flagBits) 
+  id_(id), energy_(energy), time_(time), timeError_(timeError), row_(0), column_(0), flagBits_(flagBits) 
 {}
 
+FTLRecHit::FTLRecHit(const DetId& id, uint8_t row, uint8_t column, float energy, 
+		     float time, float timeError, uint32_t flagBits) :
+  id_(id), energy_(energy), time_(time), timeError_(timeError), row_(row), column_(column), flagBits_(flagBits)
+{}
 
 bool FTLRecHit::isTimeValid() const {
   if(timeError() < 0)

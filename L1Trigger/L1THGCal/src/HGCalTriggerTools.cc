@@ -16,10 +16,6 @@
 
 
 namespace {
-  constexpr char hgcalee_sens[] = "HGCalEESensitive";
-  constexpr char hgcalfh_sens[] = "HGCalHESiliconSensitive";
-
-
   template<typename DDD>
   inline void check_ddd(const DDD* ddd) {
     if( nullptr == ddd ) {
@@ -35,23 +31,6 @@ namespace {
         << "Geometry not provided yet to hgcal::HGCalTriggerTools!";
     }
   }
-
-  inline const HcalDDDRecConstants* get_ddd(const CaloSubdetectorGeometry* geom,
-					    const HcalDetId& detid) {
-    const HcalGeometry* hc = static_cast<const HcalGeometry*>(geom);
-    const HcalDDDRecConstants* ddd = hc->topology().dddConstants();
-    check_ddd(ddd);
-    return ddd;
-  }
-
-  inline const HGCalDDDConstants* get_ddd(const CaloSubdetectorGeometry* geom,
-					  const HGCalDetId& detid) {
-    const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom);
-    const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
-    check_ddd(ddd);
-    return ddd;
-  }
-
 }
 
 void 

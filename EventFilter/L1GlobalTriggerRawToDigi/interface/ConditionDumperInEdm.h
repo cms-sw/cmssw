@@ -45,14 +45,21 @@
 // class declaration
 //
 
-class ConditionDumperInEdm : public edm::one::EDProducer<edm::EndRunProducer,
+class ConditionDumperInEdm : public edm::one::EDProducer<edm::RunCache<edm::ConditionsInRunBlock>,
+                                                         edm::LuminosityBlockCache<edm::ConditionsInLumiBlock>,
+                                                         edm::EndRunProducer,
                                                          edm::EndLuminosityBlockProducer> {
    public:
       explicit ConditionDumperInEdm(const edm::ParameterSet&);
       ~ConditionDumperInEdm() override;
 
    private:
+      std::shared_ptr<edm::ConditionsInLumiBlock> 
+        globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const final;
+      void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final {}
       void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) final;
+      std::shared_ptr<edm::ConditionsInRunBlock> globalBeginRun(edm::Run const& , const edm::EventSetup&) const final;
+      void globalEndRun(edm::Run const& , const edm::EventSetup&) final {}
       void endRunProduce(edm::Run& , const edm::EventSetup&) final;
       void produce(edm::Event&, const edm::EventSetup&) final;
 
@@ -65,15 +72,14 @@ class ConditionDumperInEdm : public edm::one::EDProducer<edm::EndRunProducer,
 
   // ----------member data ---------------------------
 
-  edm::InputTag gtEvmDigisLabel_;
+  const  edm::InputTag gtEvmDigisLabel_;
 
-  edm::ConditionsInLumiBlock lumiBlock_;
-  edm::ConditionsInRunBlock runBlock_;
   edm::ConditionsInEventBlock eventBlock_;
 
-  edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> gtEvmDigisLabelToken_;
-
-
+  const edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> gtEvmDigisLabelToken_;
+  const edm::EDPutTokenT<edm::ConditionsInLumiBlock> lumiToken_;
+  const edm::EDPutTokenT<edm::ConditionsInRunBlock> runToken_;
+  const edm::EDPutTokenT<edm::ConditionsInEventBlock> eventToken_;
 };
 
 #endif

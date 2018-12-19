@@ -19,13 +19,13 @@ Implementation:
 #include <unordered_set>
 
 namespace {
-	struct ptr_hash : public std::unary_function<reco::CandidatePtr, std::size_t> {
-		std::size_t operator()(const reco::CandidatePtr& k) const
-		{
-			if(k.refCore().isTransient()) return (unsigned long)k.refCore().productPtr() ^ k.key();
-			else return k.refCore().id().processIndex() ^ k.refCore().id().productIndex() ^ k.key();
-		}
-	};
+    struct ptr_hash {
+        std::size_t operator()(const reco::CandidatePtr& k) const
+        {
+            if(k.refCore().isTransient()) return (unsigned long)k.refCore().productPtr() ^ k.key();
+            else return k.refCore().id().processIndex() ^ k.refCore().id().productIndex() ^ k.key();
+        }
+    };
 }
 
 metsig::METSignificance::METSignificance(const edm::ParameterSet& iConfig) {

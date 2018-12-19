@@ -482,7 +482,9 @@ workflows[34] = ['', ['QQH1352T','DIGI','RECO','HARVEST']]
 
 workflows[7]  = ['', ['Cosmics','DIGICOS','RECOCOS','ALCACOS','HARVESTCOS']]
 workflows[7.1]= ['', ['CosmicsSPLoose','DIGICOS','RECOCOS','ALCACOS','HARVESTCOS']]
-workflows[7.2] = ['', ['Cosmics_UP18','DIGICOS_UP18','RECOCOS_UP18','ALCACOS_UP18','HARVESTCOS_UP18']]
+workflows[7.20] = ['', ['Cosmics_UP18','DIGICOS_UP18','RECOCOS_UP18','ALCACOS_UP18','HARVESTCOS_UP18']]#2018
+workflows[7.21] = ['', ['Cosmics_UP17','DIGICOS_UP17','RECOCOS_UP17','ALCACOS_UP17','HARVESTCOS_UP17']]#2017
+workflows[7.22] = ['', ['Cosmics_UP16','DIGICOS_UP16','RECOCOS_UP16','ALCACOS_UP16','HARVESTCOS_UP16']]#2016
 workflows[7.3] = ['', ['CosmicsSPLoose_UP18','DIGICOS_UP18','RECOCOS_UP18','ALCACOS_UP18','HARVESTCOS_UP18']]
 workflows[7.4] = ['', ['Cosmics_UP18','DIGICOSPEAK_UP18','RECOCOSPEAK_UP18','ALCACOS_UP18','HARVESTCOS_UP18']]
 
@@ -537,7 +539,6 @@ workflows[1325.6] = ['', ['TTbar_13_94Xv1NanoAODINPUT','NANOAODMC2017_94XMiniAOD
 # nanoaod wf with intermediate EDM and merge step, starting from existing MINIAOD inputs
 workflows[1325.7] = ['', ['TTbar_13_94Xv2NanoAODINPUT','NANOEDMMC2017_94XMiniAODv2','HARVESTNANOAODMC2017_94XMiniAODv2']]
 workflows[1325.8] = ['', ['TTbar_13_94Xv1NanoAODINPUT','NANOEDMMC2017_94XMiniAODv1','HARVESTNANOAODMC2017_94XMiniAODv1']]
-workflows[1325.9] = ['', ['TTbar_13_92XNanoAODINPUT','NANOEDMMC2017_92X','HARVESTNANOAODMC2017_92X']]
 #using ZEE as I cannot find TT at CERN
 workflows[1329.1] = ['', ['ZEE_13_80XNanoAODINPUT','NANOEDMMC2016_80X','HARVESTNANOAODMC2016_80X']]
 

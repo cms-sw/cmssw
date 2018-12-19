@@ -19,8 +19,14 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
     # Parameters common for all boards
     commonParam = cms.PSet(
-        # Flag for SLHC studies (upgraded ME11, MPC)
+        # Master flag for SLHC studies
         isSLHC = cms.bool(False),
+        
+        # Debug
+        verbosity = cms.int32(0),
+
+        ## Whether or not to use the SLHC ALCT algorithm
+        enableAlctSLHC = cms.bool(False),
 
         ## During Run-1, ME1a strips were triple-ganged
         ## Effectively, this means there were only 16 strips
@@ -34,6 +40,11 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         # offset between the ALCT and CLCT central BX in simulation
         alctClctOffset = cms.uint32(1),
+
+        runME11Up = cms.bool(False),
+        runME21Up = cms.bool(False),
+        runME31Up = cms.bool(False),
+        runME41Up = cms.bool(False),
     ),
 
     # Parameters for ALCT processors: 2007 and later
@@ -145,8 +156,8 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         clctDriftDelay  = cms.uint32(2),
         clctNplanesHitPretrig = cms.uint32(3),
         clctNplanesHitPattern = cms.uint32(4),
-        # increase pattern ID threshold from 2 to 4 to trigger higher pt tracks
-        clctPidThreshPretrig  = cms.uint32(4),
+        # increase pattern ID threshold from 2 to 4 to trigger higher pt tracks,ignored--Tao
+        clctPidThreshPretrig  = cms.uint32(2),
         # decrease possible minimal #HS distance between two CLCTs in a BX from 10 to 5:
         clctMinSeparation     = cms.uint32(5),
         # Debug
@@ -159,22 +170,24 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         useDeadTimeZoning = cms.bool(True),
 
         # Width (in #HS) of a fixed dead zone around a key HS:
-        clctStateMachineZone = cms.uint32(8),
+        clctStateMachineZone = cms.uint32(4),
 
         # Enables the algo which instead of using the fixed dead zone width,
         # varies it depending on the width of a triggered CLCT pattern
         # (if True, the clctStateMachineZone is ignored):
-        useDynamicStateMachineZone = cms.bool(True),
+        useDynamicStateMachineZone = cms.bool(False),
 
         # Pretrigger HS +- clctPretriggerTriggerZone sets the trigger matching zone
         # which defines how far from pretrigger HS the TMB may look for a trigger HS
         # (it becomes important to do so with localized dead-time zoning):
-        clctPretriggerTriggerZone = cms.uint32(5),
+        # not implemented yet, 2018-10-18, Tao
+        clctPretriggerTriggerZone = cms.uint32(224),
 
         # whether to store the "corrected" CLCT stub time
         # (currently it is median time of all hits in a pattern) into the CSCCLCTDigi bx,
         # and temporary store the regular "key layer hit" time into the CSCCLCTDigi fullBX:
-        clctUseCorrectedBx = cms.bool(True)
+        # not feasible --Tao
+        clctUseCorrectedBx = cms.bool(False)
     ),
 
     tmbParam = cms.PSet(
@@ -397,7 +410,7 @@ me21tmbSLHCGEM = cms.PSet(
 )
 
 # to be used by ME31-ME41 chambers
-me3141tmbSLHC = cms.PSet(
+meX1tmbSLHC = cms.PSet(
     mpcBlockMe1a    = cms.uint32(0),
     alctTrigEnable  = cms.uint32(0),
     clctTrigEnable  = cms.uint32(0),
@@ -423,10 +436,10 @@ me3141tmbSLHC = cms.PSet(
 ## unganging in ME1/a
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( cscTriggerPrimitiveDigis,
-                           debugParameters = True,
-                           checkBadChambers = False,
-                           commonParam = dict(gangedME1a = False)
-                           )
+                      debugParameters = True,
+                      checkBadChambers = False,
+                      commonParam = dict(gangedME1a = False),
+                      )
 
 ## GEM-CSC ILT in ME1/1
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
@@ -434,8 +447,10 @@ run3_GEM.toModify( cscTriggerPrimitiveDigis,
                    GEMPadDigiProducer = cms.InputTag("simMuonGEMPadDigis"),
                    GEMPadDigiClusterProducer = cms.InputTag("simMuonGEMPadDigiClusters"),
                    commonParam = dict(isSLHC = True,
+                                      runME11Up = cms.bool(True),
                                       runME11ILT = cms.bool(True),
-                                      useClusters = cms.bool(False)),
+                                      useClusters = cms.bool(False),
+                                      enableAlctSLHC = cms.bool(True)),
                    clctSLHC = dict(clctNplanesHitPattern = 3),
                    me11tmbSLHCGEM = me11tmbSLHCGEM,
                    copadParamGE11 = copadParamGE11
@@ -444,14 +459,18 @@ run3_GEM.toModify( cscTriggerPrimitiveDigis,
 ## GEM-CSC ILT in ME2/1, CSC in ME3/1 and ME4/1
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( cscTriggerPrimitiveDigis,
-                      commonParam = dict(runME21ILT = cms.bool(True),
-                                         runME3141ILT = cms.bool(True)),
+                      commonParam = dict(runME21Up = cms.bool(True),
+                                         runME21ILT = cms.bool(True),
+                                         runME31Up = cms.bool(True),
+                                         runME41Up = cms.bool(True)),
+                      tmbSLHC = dict(ignoreAlctCrossClct = cms.bool(True)),
+                      clctSLHC = dict(useDynamicStateMachineZone = cms.bool(True)),
                       alctSLHCME21 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 3),
                       clctSLHCME21 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 3),
                       me21tmbSLHCGEM = me21tmbSLHCGEM,
                       alctSLHCME3141 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 4),
                       clctSLHCME3141 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 4),
-                      me3141tmbSLHC = me3141tmbSLHC,
+                      meX1tmbSLHC = meX1tmbSLHC,
                       copadParamGE11 = copadParamGE11,
                       copadParamGE21 = copadParamGE21
 )

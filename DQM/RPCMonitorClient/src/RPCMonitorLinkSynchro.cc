@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "DQM/RPCMonitorClient/interface/RPCMonitorLinkSynchro.h"
 #include "DQM/RPCMonitorClient/interface/RPCLinkSynchroHistoMaker.h"
 
@@ -37,10 +39,9 @@ void RPCMonitorLinkSynchro::dqmBeginRun(const edm::Run& r, const edm::EventSetup
   if (theCablingWatcher.check(es)) {
     edm::ESTransientHandle<RPCEMap> readoutMapping;
     es.get<RPCEMapRcd>().get(readoutMapping);
-    RPCReadOutMapping const* cabling = readoutMapping->convert();
+    std::unique_ptr<RPCReadOutMapping const> cabling{ readoutMapping->convert() };
     edm::LogInfo("RPCMonitorLinkSynchro") << "RPCMonitorLinkSynchro - record has CHANGED!!, read map, VERSION: " << cabling->version();
-    theSynchroStat.init(cabling, theConfig.getUntrackedParameter<bool>("dumpDelays"));
-    delete cabling;
+    theSynchroStat.init(cabling.get(), theConfig.getUntrackedParameter<bool>("dumpDelays"));
   }
 }
 

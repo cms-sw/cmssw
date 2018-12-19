@@ -49,7 +49,7 @@ class DTT0;
 class DQMStore;
 class MonitorElement;
 
-class DTDigiTask: public DQMEDAnalyzer{
+class DTDigiTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 
 public:
 
@@ -74,6 +74,7 @@ protected:
 
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)  override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)  final {}
 
   /// To map real channels
   void channelsMap(const DTChamberId& dtCh, std::string histoTag);

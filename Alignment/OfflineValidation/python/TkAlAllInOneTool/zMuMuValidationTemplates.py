@@ -155,8 +155,8 @@ process.looper = cms.Looper(
 
     ########## TO BE ENABLED ################################
     # Set the cuts on muons to be used in the fit
-    MinMuonPt = cms.untracked.double(0.),
-    MaxMuonPt = cms.untracked.double(1000.),
+    MinMuonPt = cms.untracked.double(.oO[minpt]Oo.),
+    MaxMuonPt = cms.untracked.double(.oO[maxpt]Oo.),
     MinMuonEtaFirstRange = cms.untracked.double(.oO[etaminneg]Oo.),
     MaxMuonEtaFirstRange = cms.untracked.double(.oO[etamaxneg]Oo.),
     MinMuonEtaSecondRange = cms.untracked.double(.oO[etaminpos]Oo.),
@@ -307,6 +307,6 @@ void TkAlMergeZmumuPlots(){
   TkAlStyle::legendheader = ".oO[legendheader]Oo.";
   TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.");
 
-  MultiHistoOverlapAll_.oO[resonance]Oo.(separatebycommas(filenames), separatebycommas(titles), separatebycommas(colors), separatebycommas(linestyles_new), separatebycommas(markerstyles_new), ".oO[datadir]Oo./.oO[PlotsDirName]Oo.", .oO[switchONfit]Oo.);
+  MultiHistoOverlapAll_.oO[resonance]Oo.(separatebycommas(filenames), separatebycommas(titles), separatebycommas(colors), separatebycommas(linestyles_new), separatebycommas(markerstyles_new), ".oO[datadir]Oo./.oO[PlotsDirName]Oo.", .oO[switchONfit]Oo., .oO[AutoSetRange]Oo., .oO[CustomMinY]Oo., .oO[CustomMaxY]Oo.);
 }
 """

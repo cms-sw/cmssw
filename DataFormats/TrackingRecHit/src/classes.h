@@ -22,7 +22,7 @@ namespace DataFormats_TrackingRecHit {
                              edm::ClonePolicy<TrackingRecHit> >::const_iterator,
               edm::OwnVector<TrackingRecHit,
                              edm::ClonePolicy<TrackingRecHit> >::const_iterator> pr1;    
-    std::auto_ptr<TrackingRecHitRef> ap1;
+    std::unique_ptr<TrackingRecHitRef> ap1;
     edm::Wrapper<TrackingRecHitCollection> w1;
   };
 }

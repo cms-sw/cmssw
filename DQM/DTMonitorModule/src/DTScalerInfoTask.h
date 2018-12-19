@@ -35,7 +35,7 @@
 
 class DTTimeEvolutionHisto;
 
-class DTScalerInfoTask: public DQMEDAnalyzer{
+class DTScalerInfoTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 
   friend class DTMonitorModule;
 

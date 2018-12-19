@@ -1,10 +1,11 @@
 #include "Rtypes.h"
-#include <map>
-#include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+
+#include <map>
+#include <vector>
 
 namespace edm {
    class EventBase;
@@ -14,18 +15,6 @@ class FWGeometry;
 class TEveCaloData;
 class TEveCaloDataVec;
 class TEveCaloLego;
-/*
-
-// Less than operator for sorting clusters according to eta
-class superClsterEtaLess : public std::binary_function<const reco::CaloCluster&, const reco::CaloCluster&, bool>
-{
-public:
-   bool operator()(const reco::CaloCluster &lhs, const reco::CaloCluster &rhs)
-   {
-      return ( lhs.eta() < rhs.eta()) ;
-   }
-};
-*/
 
 // builder class for ecal detail view
 class FWECALCaloDataDetailViewBuilder {

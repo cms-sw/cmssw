@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
+from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
 from PhysicsTools.NanoAOD.common_cff import *
 import PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi
 
@@ -23,6 +24,7 @@ isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
     EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
 )
 run2_miniAOD_80XLegacy.toModify(isoForMu, src = "slimmedMuonsUpdated", EAFile_MiniIso = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt")
+run2_nanoAOD_94X2016.toModify(isoForMu, EAFile_MiniIso = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt")
 run2_nanoAOD_92X.toModify(isoForMu, src = "slimmedMuonsUpdated")
 
 ptRatioRelForMu = cms.EDProducer("MuonJetVarProducer",
@@ -75,13 +77,15 @@ muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
         LepGood_segmentCompatibility = cms.string("segmentCompatibility"),
     )
 )
-run2_miniAOD_80XLegacy.toModify(muonMVATTH.variables,
-    LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1"),
-)
-run2_miniAOD_80XLegacy.toModify(muonMVATTH,
-    weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG.weights.xml",
-    variablesOrder = ["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetPtRatio","LepGood_jetBTagCSV","LepGood_sip3d","LepGood_dxy","LepGood_dz","LepGood_segmentCompatibility"],
-)
+
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
+    modifier.toModify(muonMVATTH.variables,
+        LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1"),
+    )
+    modifier.toModify(muonMVATTH,
+        weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG.weights.xml",
+        variablesOrder = ["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetPtRatio","LepGood_jetBTagCSV","LepGood_sip3d","LepGood_dxy","LepGood_dz","LepGood_segmentCompatibility"],
+    )
 
 muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("linkedObjects","muons"),
@@ -107,17 +111,34 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         pfRelIso03_chg = Var("pfIsolationR03().sumChargedHadronPt/pt",float,doc="PF relative isolation dR=0.3, charged component"),
         pfRelIso03_all = Var("(pfIsolationR03().sumChargedHadronPt + max(pfIsolationR03().sumNeutralHadronEt + pfIsolationR03().sumPhotonEt - pfIsolationR03().sumPUPt/2,0.0))/pt",float,doc="PF relative isolation dR=0.3, total (deltaBeta corrections)"),
         pfRelIso04_all = Var("(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt",float,doc="PF relative isolation dR=0.4, total (deltaBeta corrections)"),
+        jetRelIso = Var("?userCand('jetForLepJetVar').isNonnull()?(1./userFloat('ptRatio'))-1.:(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt",float,doc="Relative isolation in matched jet (1/ptRatio-1, pfRelIso04_all if no matched jet)",precision=8),
         tightCharge = Var("?(muonBestTrack().ptError()/muonBestTrack().pt() < 0.2)?2:0",int,doc="Tight charge criterion using pterr/pt of muonBestTrack (0:fail, 2:pass)"),
         isPFcand = Var("isPFMuon",bool,doc="muon is PF candidate"),
+        isGlobal = Var("isGlobalMuon",bool,doc="muon is global muon"),
+        isTracker = Var("isTrackerMuon",bool,doc="muon is tracker muon"),
         mediumId = Var("passed('CutBasedIdMedium')",bool,doc="cut-based ID, medium WP"),
+        mediumPromptId = Var("passed('CutBasedIdMediumPrompt')",bool,doc="cut-based ID, medium prompt WP"),
         tightId = Var("passed('CutBasedIdTight')",bool,doc="cut-based ID, tight WP"),
         softId = Var("passed('SoftCutBasedId')",bool,doc="soft cut-based ID"),
+        softMvaId = Var("passed('SoftMvaId')",bool,doc="soft MVA ID"),
         highPtId = Var("?passed('CutBasedIdGlobalHighPt')?2:passed('CutBasedIdTrkHighPt')","uint8",doc="high-pT cut-based ID (1 = tracker high pT, 2 = global high pT, which includes tracker high pT)"),
+        pfIsoId = Var("passed('PFIsoVeryLoose')+passed('PFIsoLoose')+passed('PFIsoMedium')+passed('PFIsoTight')+passed('PFIsoVeryTight')+passed('PFIsoVeryVeryTight')","uint8",doc="PFIso ID from miniAOD selector (1=PFIsoVeryLoose, 2=PFIsoLoose, 3=PFIsoMedium, 4=PFIsoTight, 5=PFIsoVeryTight, 6=PFIsoVeryVeryTight)"),
+        tkIsoId = Var("?passed('TkIsoTight')?2:passed('TkIsoLoose')","uint8",doc="TkIso ID (1=TkIsoLoose, 2=TkIsoTight)"),
+        mvaId = Var("passed('MvaLoose')+passed('MvaMedium')+passed('MvaTight')","uint8",doc="Mva ID from miniAOD selector (1=MvaLoose, 2=MvaMedium, 3=MvaTight)"),
+        miniIsoId = Var("passed('MiniIsoLoose')+passed('MiniIsoMedium')+passed('MiniIsoTight')+passed('MiniIsoVeryTight')","uint8",doc="MiniIso ID from miniAOD selector (1=MiniIsoLoose, 2=MiniIsoMedium, 3=MiniIsoTight, 4=MiniIsoVeryTight)"),
+        multiIsoId = Var("?passed('MultiIsoMedium')?2:passed('MultiIsoLoose')","uint8",doc="MultiIsoId from miniAOD selector (1=MultiIsoLoose, 2=MultiIsoMedium)"),
+        triggerIdLoose = Var("passed('TriggerIdLoose')",bool,doc="TriggerIdLoose ID"),
+        inTimeMuon = Var("passed('InTimeMuon')",bool,doc="inTimeMuon ID"),
     ),
     externalVariables = cms.PSet(
         mvaTTH = ExtVar(cms.InputTag("muonMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
     ),
 )
+
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
+    modifier.toModify(muonTable.variables,
+        jetRelIso = Var("(1./userFloat('ptRatio'))-1.",float,doc="Relative isolation in matched jet (1/ptRatio-1, 0 if no matched jet (2016 definition))",precision=8),
+    )
 
 muonsMCMatchForTable = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src         = muonTable.src,                         # final reco collection

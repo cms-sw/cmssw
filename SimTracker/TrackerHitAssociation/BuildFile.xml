@@ -1,5 +1,6 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
 <use   name="DataFormats/Common"/>
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimDataFormats/TrackingHit"/>

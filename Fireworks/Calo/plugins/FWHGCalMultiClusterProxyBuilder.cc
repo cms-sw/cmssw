@@ -38,13 +38,35 @@ FWHGCalMultiClusterProxyBuilder::build( const reco::HGCalMultiCluster& iData, un
       for( std::vector<std::pair<DetId, float> >::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
 	   it != itEnd; ++it )
 	{
-	  const float* corners = item()->getGeom()->getCorners( (*it).first );
-	  if( corners == nullptr ) {
-	    continue;
-	  }
-	  std::vector<float> pnts(24);
-	  fireworks::energyTower3DCorners(corners, (*it).second, pnts);
-	  boxset->AddBox( &pnts[0]);
+      const float* corners = item()->getGeom()->getCorners( it->first );
+      const float* parameters = item()->getGeom()->getParameters( it->first );
+      const float* shapes = item()->getGeom()->getShapePars(it->first);
+
+      if( corners == nullptr || parameters == nullptr || shapes == nullptr ) {
+         continue;
+      }
+
+#if 0
+      const int total_points = parameters[0];
+      const int total_vertices = 3*total_points;
+#else // using broken boxes(half hexagon) until there's support for hexagons in TEveBoxSet
+      const int total_points = 4;
+      const int total_vertices = 3*total_points;
+
+      const float thickness = shapes[3];
+
+      std::vector<float> pnts(24);
+      for(int i = 0; i < total_points; ++i){
+         pnts[i*3+0] = corners[i*3];
+         pnts[i*3+1] = corners[i*3+1];
+         pnts[i*3+2] = corners[i*3+2];
+
+         pnts[(i*3+0)+total_vertices] = corners[i*3];
+         pnts[(i*3+1)+total_vertices] = corners[i*3+1];
+         pnts[(i*3+2)+total_vertices] = corners[i*3+2]+thickness;
+      }
+      boxset->AddBox( &pnts[0]);
+#endif
 	}
     }
    boxset->RefitPlex();

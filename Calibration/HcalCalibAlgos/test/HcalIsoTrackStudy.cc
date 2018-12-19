@@ -190,7 +190,7 @@ private:
   int                        t_Run, t_Event, t_DataType, t_ieta, t_iphi; 
   int                        t_goodPV, t_nVtx, t_nTrk;
   double                     t_EventWeight, t_p, t_pt, t_phi;
-  double                     t_mapP,t_mapPt,t_mapEta,t_mapPhi;
+  std::vector<double>       *t_mapP,*t_mapPt,*t_mapEta,*t_mapPhi;
   double                     t_l1pt, t_l1eta, t_l1phi;
   double                     t_l3pt, t_l3eta, t_l3phi;
   double                     t_mindR1, t_mindR2;
@@ -731,10 +731,15 @@ void HcalIsoTrackStudy::beginJob() {
   tree->Branch("t_p",           &t_p,           "t_p/D");
   tree->Branch("t_pt",          &t_pt,          "t_pt/D");
   tree->Branch("t_phi",         &t_phi,         "t_phi/D");
-  tree->Branch("t_mapP",        &t_mapP,        "t_mapP/D");
-  tree->Branch("t_mapPt",       &t_mapPt,       "t_mapPt/D");
-  tree->Branch("t_mapEta",      &t_mapEta,      "t_mapEta/D");
-  tree->Branch("t_mapPhi",      &t_mapPhi,      "t_mapPhi/D");
+
+  t_mapP         = new std::vector<double>();
+  t_mapPt        = new std::vector<double>();
+  t_mapEta       = new std::vector<double>();
+  t_mapPhi       = new std::vector<double>();
+  tree->Branch("t_mapP",      "std::vector<double>", &t_mapP);
+  tree->Branch("t_mapPt",     "std::vector<double>", &t_mapPt);
+  tree->Branch("t_mapEta",    "std::vector<double>", &t_mapEta);
+  tree->Branch("t_mapPhi",    "std::vector<double>", &t_mapPhi);
 
   tree->Branch("t_mindR1",      &t_mindR1,      "t_mindR1/D");
   tree->Branch("t_mindR2",      &t_mindR2,      "t_mindR2/D");
@@ -1067,6 +1072,7 @@ std::array<int,3> HcalIsoTrackStudy::fillTree(std::vector< math::XYZTLorentzVect
 	t_DetIds3->clear(); t_HitEnergies3->clear();
 	t_DetIdEC->clear(); t_HitEnergyEC->clear(); t_HitDistEC->clear();
 	t_DetIdHC->clear(); t_HitEnergyHC->clear(); t_HitDistHC->clear();
+	t_mapP->clear();t_mapPt->clear();t_mapEta->clear();t_mapPhi->clear();
 
 	int nRecHits(-999), nRecHits1(-999), nRecHits3(-999);
 	std::vector<DetId>  ids, ids1, ids3;
@@ -1419,10 +1425,10 @@ void HcalIsoTrackStudy::TrackMap(unsigned int trkIndex,
 	  const reco::Track* pTrack = &(*(trkDirs[indx].trkItr));
 	  TVector3 point(trkDirs[indx].pointHCAL.x(),trkDirs[indx].pointHCAL.y(),trkDirs[indx].pointHCAL.z());
 
-	  t_mapP = pTrack->p();
-	  t_mapPt = pTrack->pt();
-	  t_mapEta = point.Eta();
-	  t_mapPhi = point.Phi();
+	  t_mapP  ->emplace_back(pTrack->p());
+	  t_mapPt ->emplace_back(pTrack->pt());
+	  t_mapEta->emplace_back(point.Eta());
+	  t_mapPhi->emplace_back(point.Phi());
 	}
       }
     }

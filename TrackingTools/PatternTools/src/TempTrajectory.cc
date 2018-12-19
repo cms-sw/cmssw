@@ -133,7 +133,7 @@ bool TempTrajectory::lost( const TrackingRecHit& hit)
 }
 
 bool TempTrajectory::badForCCC(const TrajectoryMeasurement &tm) {
-  if (trackerHitRTTI::isUndef(*tm.recHit())) return false;
+  if (!trackerHitRTTI::isFromDet(*tm.recHit())) return false;
   auto const * thit = static_cast<const BaseTrackerRecHit*>( tm.recHit()->hit() );
   if (!thit)
     return false;

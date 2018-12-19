@@ -1,6 +1,5 @@
 #include "EventFilter/L1TRawToDigi/interface/MP7PacketReader.h"
 
-#include <boost/foreach.hpp>
 #include <iostream>
 
 using std::cout;
@@ -53,7 +52,7 @@ MP7PacketReader::load() {
         data.packets_.reserve(pr.size());
         
         // loop over the ranges to build packets
-        BOOST_FOREACH(PacketRange p, pr) {
+        for(auto const& p : pr) {
             
             // Check if the header/footer zeroed the packet
             if ( p.second-p.first-header_-footer_<= 0 ) {

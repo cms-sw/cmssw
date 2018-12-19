@@ -22,9 +22,9 @@
 
 
 namespace cond {
-  template <> std::shared_ptr<condex::Efficiency> deserialize<condex::Efficiency>( const std::string& payloadType,
-                                                                                     const Binary& payloadData,
-                                                                                     const Binary& streamerInfoData ){
+  template <> std::unique_ptr<condex::Efficiency> deserialize<condex::Efficiency>( const std::string& payloadType,
+                                                                                   const Binary& payloadData,
+                                                                                   const Binary& streamerInfoData ){
     // DESERIALIZE_BASE_CASE( condex::Efficiency ); abstract 
     DESERIALIZE_POLIMORPHIC_CASE( condex::Efficiency, condex::ParametricEfficiencyInPt );
     DESERIALIZE_POLIMORPHIC_CASE( condex::Efficiency, condex::ParametricEfficiencyInEta );
@@ -36,9 +36,9 @@ namespace cond {
 
 
 namespace cond {
-  template <> std::shared_ptr<BaseKeyed> deserialize<BaseKeyed>( const std::string& payloadType,
-								   const Binary& payloadData,
-								   const Binary& streamerInfoData ){
+  template <> std::unique_ptr<BaseKeyed> deserialize<BaseKeyed>( const std::string& payloadType,
+                                                                 const Binary& payloadData,
+                                                                 const Binary& streamerInfoData ){
     DESERIALIZE_BASE_CASE( BaseKeyed );
     DESERIALIZE_POLIMORPHIC_CASE( BaseKeyed, condex::ConfI );
     DESERIALIZE_POLIMORPHIC_CASE( BaseKeyed, condex::ConfI );

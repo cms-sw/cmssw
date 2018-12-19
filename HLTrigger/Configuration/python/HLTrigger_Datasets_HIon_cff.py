@@ -3,6 +3,126 @@
 import FWCore.ParameterSet.Config as cms
 
 
+# stream PhysicsHIMinimumBias10
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHIMinimumBias10_datasetHIMinimumBias10_selector
+streamPhysicsHIMinimumBias10_datasetHIMinimumBias10_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHIMinimumBias10_datasetHIMinimumBias10_selector.l1tResults = cms.InputTag('')
+streamPhysicsHIMinimumBias10_datasetHIMinimumBias10_selector.throw      = cms.bool(False)
+streamPhysicsHIMinimumBias10_datasetHIMinimumBias10_selector.triggerConditions = cms.vstring(
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixBypass_part10_v1', 
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixGated_part10_v1'
+)
+
+
+# stream PhysicsHIMinimumBias11
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHIMinimumBias11_datasetHIMinimumBias11_selector
+streamPhysicsHIMinimumBias11_datasetHIMinimumBias11_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHIMinimumBias11_datasetHIMinimumBias11_selector.l1tResults = cms.InputTag('')
+streamPhysicsHIMinimumBias11_datasetHIMinimumBias11_selector.throw      = cms.bool(False)
+streamPhysicsHIMinimumBias11_datasetHIMinimumBias11_selector.triggerConditions = cms.vstring(
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixBypass_part11_v1', 
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixGated_part11_v1'
+)
+
+
+# stream PhysicsHIMinimumBias12
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHIMinimumBias12_datasetHIMinimumBias12_selector
+streamPhysicsHIMinimumBias12_datasetHIMinimumBias12_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHIMinimumBias12_datasetHIMinimumBias12_selector.l1tResults = cms.InputTag('')
+streamPhysicsHIMinimumBias12_datasetHIMinimumBias12_selector.throw      = cms.bool(False)
+streamPhysicsHIMinimumBias12_datasetHIMinimumBias12_selector.triggerConditions = cms.vstring(
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixBypass_part12_v1', 
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixGated_part12_v1'
+)
+
+
+# stream PhysicsHIMinimumBias13
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHIMinimumBias13_datasetHIMinimumBias13_selector
+streamPhysicsHIMinimumBias13_datasetHIMinimumBias13_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHIMinimumBias13_datasetHIMinimumBias13_selector.l1tResults = cms.InputTag('')
+streamPhysicsHIMinimumBias13_datasetHIMinimumBias13_selector.throw      = cms.bool(False)
+streamPhysicsHIMinimumBias13_datasetHIMinimumBias13_selector.triggerConditions = cms.vstring(
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixBypass_part13_v1', 
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixGated_part13_v1'
+)
+
+
+# stream PhysicsHIMinimumBias14
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHIMinimumBias14_datasetHIMinimumBias14_selector
+streamPhysicsHIMinimumBias14_datasetHIMinimumBias14_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHIMinimumBias14_datasetHIMinimumBias14_selector.l1tResults = cms.InputTag('')
+streamPhysicsHIMinimumBias14_datasetHIMinimumBias14_selector.throw      = cms.bool(False)
+streamPhysicsHIMinimumBias14_datasetHIMinimumBias14_selector.triggerConditions = cms.vstring(
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixBypass_part14_v1', 
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixGated_part14_v1'
+)
+
+
+# stream PhysicsHIMinimumBias15
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHIMinimumBias15_datasetHIMinimumBias15_selector
+streamPhysicsHIMinimumBias15_datasetHIMinimumBias15_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHIMinimumBias15_datasetHIMinimumBias15_selector.l1tResults = cms.InputTag('')
+streamPhysicsHIMinimumBias15_datasetHIMinimumBias15_selector.throw      = cms.bool(False)
+streamPhysicsHIMinimumBias15_datasetHIMinimumBias15_selector.triggerConditions = cms.vstring(
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixBypass_part15_v1', 
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixGated_part15_v1'
+)
+
+
+# stream PhysicsHIMinimumBias16
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHIMinimumBias16_datasetHIMinimumBias16_selector
+streamPhysicsHIMinimumBias16_datasetHIMinimumBias16_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHIMinimumBias16_datasetHIMinimumBias16_selector.l1tResults = cms.InputTag('')
+streamPhysicsHIMinimumBias16_datasetHIMinimumBias16_selector.throw      = cms.bool(False)
+streamPhysicsHIMinimumBias16_datasetHIMinimumBias16_selector.triggerConditions = cms.vstring(
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixBypass_part16_v1', 
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixGated_part16_v1'
+)
+
+
+# stream PhysicsHIMinimumBias17
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHIMinimumBias17_datasetHIMinimumBias17_selector
+streamPhysicsHIMinimumBias17_datasetHIMinimumBias17_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHIMinimumBias17_datasetHIMinimumBias17_selector.l1tResults = cms.InputTag('')
+streamPhysicsHIMinimumBias17_datasetHIMinimumBias17_selector.throw      = cms.bool(False)
+streamPhysicsHIMinimumBias17_datasetHIMinimumBias17_selector.triggerConditions = cms.vstring(
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixBypass_part17_v1', 
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixGated_part17_v1'
+)
+
+
+# stream PhysicsHIMinimumBias18
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHIMinimumBias18_datasetHIMinimumBias18_selector
+streamPhysicsHIMinimumBias18_datasetHIMinimumBias18_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHIMinimumBias18_datasetHIMinimumBias18_selector.l1tResults = cms.InputTag('')
+streamPhysicsHIMinimumBias18_datasetHIMinimumBias18_selector.throw      = cms.bool(False)
+streamPhysicsHIMinimumBias18_datasetHIMinimumBias18_selector.triggerConditions = cms.vstring(
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixBypass_part18_v1', 
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixGated_part18_v1'
+)
+
+
+# stream PhysicsHIMinimumBias19
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHIMinimumBias19_datasetHIMinimumBias19_selector
+streamPhysicsHIMinimumBias19_datasetHIMinimumBias19_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHIMinimumBias19_datasetHIMinimumBias19_selector.l1tResults = cms.InputTag('')
+streamPhysicsHIMinimumBias19_datasetHIMinimumBias19_selector.throw      = cms.bool(False)
+streamPhysicsHIMinimumBias19_datasetHIMinimumBias19_selector.triggerConditions = cms.vstring(
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixBypass_part19_v1', 
+    'HLT_HIMinimumBias_SinglePixelTrack_NpixGated_part19_v1'
+)
+
+
 # stream PhysicsHIMinimumBiasReducedFormat0
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHIMinimumBiasReducedFormat0_datasetHIMinimumBiasReducedFormat0_selector

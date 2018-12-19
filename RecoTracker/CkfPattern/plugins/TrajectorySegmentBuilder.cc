@@ -2,7 +2,6 @@
 
 #include "TrajectorySegmentBuilder.h"
 
-#include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -176,8 +175,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   }
 #endif
 
-  TempTrajectoryContainer && candidates = 
-    addGroup(startingTrajectory,measGroups.begin(),measGroups.end());
+  TempTrajectoryContainer candidates = addGroup(startingTrajectory,measGroups.begin(),measGroups.end());
 
   if UNLIKELY(theDbgFlg) cout << "TSB: back with " << candidates.size() << " candidates" << endl;
 

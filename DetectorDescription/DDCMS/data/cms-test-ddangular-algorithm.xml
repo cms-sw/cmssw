@@ -31,7 +31,7 @@
   </ConstantsSection>
 
   <IncludeSection>
-    <Include ref="DetectorDescription/DDCMS/data/testDDAnguarAlgorithm.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/testDDAngularAlgorithm.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/materials.xml"/>
   </IncludeSection>
   

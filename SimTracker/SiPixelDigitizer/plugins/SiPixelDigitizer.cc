@@ -63,7 +63,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
-
+#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 //Random Number
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -102,6 +102,8 @@ namespace cms
     
     mixMod.produces<edm::DetSetVector<PixelDigi> >().setBranchAlias(alias);
     mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >().setBranchAlias(alias + "siPixelDigiSimLink");
+    
+
     for(auto const& trackerContainer : trackerContainers) {
       edm::InputTag tag(hitsProducer, trackerContainer);
       iC.consumes<std::vector<PSimHit> >(edm::InputTag(hitsProducer, trackerContainer));
@@ -115,13 +117,16 @@ namespace cms
     }
 
     _pixeldigialgo.reset(new SiPixelDigitizerAlgorithm(iConfig));
+    if (_pixeldigialgo->killBadFEDChannels()){
+      mixMod.produces<PixelFEDChannelCollection>();
+    }
   }
   
   SiPixelDigitizer::~SiPixelDigitizer(){  
     edm::LogInfo ("PixelDigitizer ") <<"Destruct the Pixel Digitizer";
   }
 
-
+  
   //
   // member functions
   //
@@ -250,21 +255,29 @@ namespace cms
 
     std::vector<edm::DetSet<PixelDigi> > theDigiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
- 
-    PileupInfo_ = getEventPileupInfo();
+    
     if (firstFinalizeEvent_) {
       const unsigned int bunchspace = PileupInfo_->getMix_bunchSpacing();
       _pixeldigialgo->init_DynIneffDB(iSetup, bunchspace);
       firstFinalizeEvent_ = false;
     }
-    _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);   
-
+    _pixeldigialgo->calculateInstlumiFactor(PileupInfo_.get());
+    
+    if (_pixeldigialgo->killBadFEDChannels()){
+      std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_ = _pixeldigialgo->chooseScenario(PileupInfo_.get(), randomEngine_);         					    
+      if (PixelFEDChannelCollection_ == nullptr){
+	throw cms::Exception("NullPointerError") << "PixelFEDChannelCollection not set in chooseScenario function.\n";
+      }      
+      iEvent.put(std::move(PixelFEDChannelCollection_));      
+    }
+    
+    
     for( const auto& iu : pDD->detUnits()) {
       
       if(iu->type().isTrackerPixel()) {
-
+	
 	//
-
+	
         edm::DetSet<PixelDigi> collector(iu->geographicalId().rawId());
         edm::DetSet<PixelDigiSimLink> linkcollector(iu->geographicalId().rawId());
         

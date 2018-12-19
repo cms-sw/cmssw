@@ -44,6 +44,8 @@
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
+#include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
+#include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
 #include "G4Event.hh"
 #include "G4Run.hh"
@@ -245,10 +247,7 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   AttachSD attach;
   std::pair< std::vector<SensitiveTkDetector*>,
     std::vector<SensitiveCaloDetector*> > sensDets =
-    attach.create(runManagerMaster.world(),
-                  (*pDD),
-                  runManagerMaster.catalog(),
-                  m_p,
+    attach.create(*pDD, runManagerMaster.catalog(), m_p,
                   m_tls->trackManager.get(),
                   *(m_tls->registry.get()));
 

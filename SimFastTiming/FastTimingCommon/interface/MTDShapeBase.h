@@ -27,7 +27,7 @@ class MTDShapeBase : public CaloVShape
 				    const float threshold1, 
 				    const float threshold2) const;
 
-      static constexpr unsigned int kReadoutTimeInterval = 31;    // in nsec
+      static constexpr unsigned int kReadoutTimeInterval = 28;    // in nsec
       static constexpr unsigned int kNBinsPerNSec        = 100;   // granularity of internal array
       static constexpr unsigned int k1NSecBinsTotal      = kReadoutTimeInterval*kNBinsPerNSec;
 

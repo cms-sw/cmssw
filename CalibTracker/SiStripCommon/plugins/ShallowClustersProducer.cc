@@ -8,7 +8,6 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "boost/foreach.hpp"
 
 ShallowClustersProducer::ShallowClustersProducer(const edm::ParameterSet& iConfig) 
   : Prefix(iConfig.getParameter<std::string>("Prefix") )

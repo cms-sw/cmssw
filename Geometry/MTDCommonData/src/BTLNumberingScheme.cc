@@ -58,7 +58,9 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
   const uint32_t zside = ( pos <= strlen(modName.c_str()) ? 1 : 0 );
   std::string baseName = modName.substr(modName.find(":")+1);
-  const int modtyp ( ::atoi( (baseName.substr(8,1)).c_str() ) == 9 ?
+
+  // trick to accomodate both 54 and 42 modules designs
+  const int modtyp ( ::atoi( (baseName.substr(8,1)).c_str() ) == 9 || ::atoi( (baseName.substr(8,1)).c_str() ) == 5 ?
                      ::atoi( (baseName.substr(7,1)).c_str() ) + 1 : ::atoi( (baseName.substr(7,1)).c_str() ) ) ;
   
   // error checking

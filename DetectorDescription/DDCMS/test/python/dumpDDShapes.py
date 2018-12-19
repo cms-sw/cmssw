@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SHAPESDUMP")
 process.source = cms.Source("EmptySource")
 process.load("DetectorDescription.DDCMS.cmsShapesXML_cfi")
-##process.load("Geometry.CMSCommonData.cmsAllGeometryXML_cfi")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 

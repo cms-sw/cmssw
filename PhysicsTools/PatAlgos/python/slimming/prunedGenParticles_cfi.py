@@ -25,8 +25,9 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
 # keep light-flavour quarks and gluons for parton-based jet flavour
 	"keep (1 <= abs(pdgId) <= 3 || pdgId = 21) & (status = 2 || status = 11 || status = 71 || status = 72) && pt>5", 
 # keep onia states, phi, X(3872), Z(4430)+ and psi(4040)
+        "keep  abs(pdgId) == 323  && abs(eta) < 2.5 && pt > 1",
         "keep+ abs(pdgId) == 333",
-        "keep+ abs(pdgId) == 9920443 || abs(pdgId) == 9042413 || abs(pdgId) == 9000443",
+        "keep+ abs(pdgId) == 9920443 || abs(pdgId) == 9042413 || abs(pdgId) == 9000443 || abs(pdgId) == 100541 || abs(pdgId) == 100543",
         "keep+ abs(pdgId) == 443 || abs(pdgId) == 100443 || abs(pdgId) == 10441 || abs(pdgId) == 20443 || abs(pdgId) == 445 || abs(pdgId) == 30443",
         "keep+ abs(pdgId) == 553 || abs(pdgId) == 100553 || abs(pdgId) == 200553 || abs(pdgId) == 10551 || abs(pdgId) == 20553 || abs(pdgId) == 555",
 # additional c hadrons for jet fragmentation studies

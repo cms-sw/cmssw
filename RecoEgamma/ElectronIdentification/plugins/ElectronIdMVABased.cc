@@ -1,15 +1,4 @@
-// -*- C++ -*-
 //
-// Package:    ElectronIdMVABased
-// Class:      ElectronIdMVABased
-//
-/**\class ElectronIdMVABased ElectronIdMVABased.cc MyAnalyzer/ElectronIdMVABased/src/ElectronIdMVABased.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
 //
 // Original Author:  Zablocki Jakub
 //         Created:  Thu Feb  9 10:47:50 CST 2012
@@ -22,7 +11,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,104 +26,58 @@
 // class declaration
 //
 
-using namespace std;
-using namespace reco;
-
-namespace gsfidhelper {
-  class HeavyObjectCache {
-  public:
-    HeavyObjectCache(const edm::ParameterSet& config) {
-      std::vector<std::string> mvaWeightFileEleID = 
-        config.getParameter<std::vector<std::string> >("HZZmvaWeightFile");
-      ElectronMVAEstimator::Configuration cfg;
-      cfg.vweightsfiles = mvaWeightFileEleID;
-      mvaID_.reset( new ElectronMVAEstimator(cfg) );
-    }
-    std::unique_ptr<const ElectronMVAEstimator> mvaID_;
-  };
-}
-
-class ElectronIdMVABased : public edm::stream::EDProducer< edm::GlobalCache<gsfidhelper::HeavyObjectCache> > {
+class ElectronIdMVABased : public edm::global::EDProducer<> {
 public:
-  explicit ElectronIdMVABased(const edm::ParameterSet&, const gsfidhelper::HeavyObjectCache*);
-  ~ElectronIdMVABased() override;
-  
-  
-  static std::unique_ptr<gsfidhelper::HeavyObjectCache> 
-  initializeGlobalCache( const edm::ParameterSet& conf ) {
-    return std::make_unique<gsfidhelper::HeavyObjectCache>(conf);
-  }
-  
-  static void globalEndJob(gsfidhelper::HeavyObjectCache const* ) {
-  }
-  
+  explicit ElectronIdMVABased(const edm::ParameterSet&);
+  ~ElectronIdMVABased() override {}
+
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  
-  
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
   // ----------member data ---------------------------
-  edm::EDGetTokenT<reco::VertexCollection> vertexToken;
-  edm::EDGetTokenT<reco::GsfElectronCollection> electronToken;
-  std::vector<string> mvaWeightFileEleID;
-  string path_mvaWeightFileEleID;
-  double thresholdBarrel;
-  double thresholdEndcap;
-  double thresholdIsoBarrel;
-  double thresholdIsoEndcap;
+  const edm::EDGetTokenT<reco::VertexCollection> vertexToken;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> electronToken;
+  const std::vector<std::string> mvaWeightFileEleID;
+  const std::string path_mvaWeightFileEleID;
+  const double thresholdBarrel;
+  const double thresholdEndcap;
+  const double thresholdIsoBarrel;
+  const double thresholdIsoEndcap;
+
+  const std::unique_ptr<const ElectronMVAEstimator> mvaID_;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-ElectronIdMVABased::ElectronIdMVABased(const edm::ParameterSet& iConfig, const gsfidhelper::HeavyObjectCache*) {
-  vertexToken = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexTag"));
-  electronToken = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronTag"));
-  thresholdBarrel = iConfig.getParameter<double>("thresholdBarrel");
-  thresholdEndcap = iConfig.getParameter<double>("thresholdEndcap");
-  thresholdIsoBarrel = iConfig.getParameter<double>("thresholdIsoDR03Barrel");
-  thresholdIsoEndcap = iConfig.getParameter<double>("thresholdIsoDR03Endcap");
-  
+// constructor
+ElectronIdMVABased::ElectronIdMVABased(const edm::ParameterSet& iConfig)
+  : vertexToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexTag")))
+  , electronToken(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronTag")))
+  , thresholdBarrel   (iConfig.getParameter<double>("thresholdBarrel"))
+  , thresholdEndcap   (iConfig.getParameter<double>("thresholdEndcap"))
+  , thresholdIsoBarrel(iConfig.getParameter<double>("thresholdIsoDR03Barrel"))
+  , thresholdIsoEndcap(iConfig.getParameter<double>("thresholdIsoDR03Endcap"))
+  , mvaID_(new ElectronMVAEstimator(ElectronMVAEstimator::Configuration{
+              .vweightsfiles = iConfig.getParameter<std::vector<std::string> >("HZZmvaWeightFile")}))
+{
   produces<reco::GsfElectronCollection>();
 }
 
-
-ElectronIdMVABased::~ElectronIdMVABased()
-{
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
-
-//
-// member functions
-//
-
 // ------------ method called on each new Event  ------------
-void ElectronIdMVABased::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
+void ElectronIdMVABased::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
+{
 
   constexpr double etaEBEE = 1.485;
-  
+
   auto mvaElectrons = std::make_unique<reco::GsfElectronCollection>();
-  
-  Handle<reco::VertexCollection>  vertexCollection;
+
+  edm::Handle<reco::VertexCollection>  vertexCollection;
   iEvent.getByToken(vertexToken, vertexCollection);
   int nVtx = vertexCollection->size();
-  
-  Handle<reco::GsfElectronCollection> egCollection;
+
+  edm::Handle<reco::GsfElectronCollection> egCollection;
   iEvent.getByToken(electronToken,egCollection);
   const reco::GsfElectronCollection egCandidates = (*egCollection.product());
   for ( reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end(); ++egIter) {
-    double mvaVal = globalCache()->mvaID_->mva( *egIter, nVtx );
+    double mvaVal = mvaID_->mva( *egIter, nVtx );
     double isoDr03 = egIter->dr03TkSumPt() + egIter->dr03EcalRecHitSumEt() + egIter->dr03HcalTowerSumEt();
     double eleEta = fabs(egIter->eta());
     if (eleEta <= etaEBEE && mvaVal > thresholdBarrel && isoDr03 < thresholdIsoBarrel) {
@@ -150,9 +93,9 @@ void ElectronIdMVABased::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       mvaElectrons->back().setMvaOutput(myMvaOutput);
     }
   }
-    
+
   iEvent.put(std::move(mvaElectrons));
-  
+
 }
 
 //define this as a plug-in

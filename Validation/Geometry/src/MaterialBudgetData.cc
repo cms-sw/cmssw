@@ -14,9 +14,7 @@ MaterialBudgetData::MaterialBudgetData()
   densityConvertionFactor = 6.24E18;
 }
 
-MaterialBudgetData::~MaterialBudgetData() {
-
-}
+MaterialBudgetData::~MaterialBudgetData() = default;
 
 void MaterialBudgetData::SetAllStepsToTree()
 {
@@ -30,7 +28,11 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
   const G4ThreeVector& dir = aTrack->GetMomentum() ;
 
   if( myMaterialBudgetCategorizer == nullptr){
-    myMaterialBudgetCategorizer = std::make_unique<MaterialBudgetCategorizer>();
+    if(isHGCal){
+      myMaterialBudgetCategorizer = std::make_unique<MaterialBudgetCategorizer>("HGCal"); 
+    } else {
+      myMaterialBudgetCategorizer = std::make_unique<MaterialBudgetCategorizer>("Tracker"); 
+    }
   }
   
   theStepN=0;
@@ -43,71 +45,71 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
   theEnergy=0;
   theMass=0;
  
-  theSupportMB     = 0.;
-  theSensitiveMB   = 0.;
-  theCoolingMB     = 0.;
-  theElectronicsMB = 0.;
-  theOtherMB       = 0.;
+  theSupportMB     = 0.f;
+  theSensitiveMB   = 0.f;
+  theCoolingMB     = 0.f;
+  theElectronicsMB = 0.f;
+  theOtherMB       = 0.f;
 
   //HGCal
-  theAirMB              = 0.;
-  theCablesMB           = 0.;
-  theCopperMB           = 0.;
-  theH_ScintillatorMB   = 0.;
-  theLeadMB             = 0.;
-  theM_NEMA_FR4_plateMB = 0.;
-  theSiliconMB          = 0.;
-  theStainlessSteelMB   = 0.;
-  theWCuMB              = 0.;
+  theAirMB              = 0.f;
+  theCablesMB           = 0.f;
+  theCopperMB           = 0.f;
+  theH_ScintillatorMB   = 0.f;
+  theLeadMB             = 0.f;
+  theM_NEMA_FR4_plateMB = 0.f;
+  theSiliconMB          = 0.f;
+  theStainlessSteelMB   = 0.f;
+  theWCuMB              = 0.f;
 
-  theSupportIL     = 0.;
-  theSensitiveIL   = 0.;
-  theCoolingIL     = 0.;
-  theElectronicsIL = 0.;
-  theOtherIL       = 0.;
+  theSupportIL     = 0.f;
+  theSensitiveIL   = 0.f;
+  theCoolingIL     = 0.f;
+  theElectronicsIL = 0.f;
+  theOtherIL       = 0.f;
 
   //HGCal
-  theAirIL              = 0.;
-  theCablesIL           = 0.;
-  theCopperIL           = 0.;
-  theH_ScintillatorIL   = 0.;
-  theLeadIL             = 0.;
-  theM_NEMA_FR4_plateIL = 0.;
-  theSiliconIL          = 0.;
-  theStainlessSteelIL   = 0.;
-  theWCuIL              = 0.;
+  theAirIL              = 0.f;
+  theCablesIL           = 0.f;
+  theCopperIL           = 0.f;
+  theH_ScintillatorIL   = 0.f;
+  theLeadIL             = 0.f;
+  theM_NEMA_FR4_plateIL = 0.f;
+  theSiliconIL          = 0.f;
+  theStainlessSteelIL   = 0.f;
+  theWCuIL              = 0.f;
   
-  theSupportFractionMB     = 0.;
-  theSensitiveFractionMB   = 0.;
-  theCoolingFractionMB     = 0.;
-  theElectronicsFractionMB = 0.;
-  theOtherFractionMB       = 0.;
+  theSupportFractionMB     = 0.f;
+  theSensitiveFractionMB   = 0.f;
+  theCoolingFractionMB     = 0.f;
+  theElectronicsFractionMB = 0.f;
+  theOtherFractionMB       = 0.f;
   //HGCal
-  theAirFractionMB               = 0.;         
-  theCablesFractionMB            = 0.;            
-  theCopperFractionMB            = 0.;               
-  theH_ScintillatorFractionMB    = 0.;          
-  theLeadFractionMB              = 0.;              
-  theM_NEMA_FR4_plateFractionMB  = 0.;         
-  theSiliconFractionMB           = 0.;               
-  theStainlessSteelFractionMB    = 0.;          
-  theWCuFractionMB               = 0.;                   
+  theAirFractionMB               = 0.f;
+  theCablesFractionMB            = 0.f;
+  theCopperFractionMB            = 0.f;
+  theH_ScintillatorFractionMB    = 0.f;
+  theLeadFractionMB              = 0.f;
+  theM_NEMA_FR4_plateFractionMB  = 0.f;
+  theSiliconFractionMB           = 0.f;
+  theStainlessSteelFractionMB    = 0.f;
+  theWCuFractionMB               = 0.f;
 
-  theSupportFractionIL     = 0.;
-  theSensitiveFractionIL   = 0.;
-  theCoolingFractionIL     = 0.;
-  theElectronicsFractionIL = 0.;
-  theOtherFractionIL       = 0.;
+  theSupportFractionIL     = 0.f;
+  theSensitiveFractionIL   = 0.f;
+  theCoolingFractionIL     = 0.f;
+  theElectronicsFractionIL = 0.f;
+  theOtherFractionIL       = 0.f;
   //HGCal
-  theAirFractionIL               = 0.;         
-  theCablesFractionIL            = 0.;            
-  theCopperFractionIL            = 0.;               
-  theH_ScintillatorFractionIL    = 0.;          
-  theLeadFractionIL              = 0.;              
-  theM_NEMA_FR4_plateFractionIL  = 0.;         
-  theSiliconFractionIL           = 0.;               
-  theStainlessSteelFractionIL    = 0.;          
-  theWCuFractionIL               = 0.;                   
+  theAirFractionIL               = 0.f;
+  theCablesFractionIL            = 0.f;
+  theCopperFractionIL            = 0.f;
+  theH_ScintillatorFractionIL    = 0.f;
+  theLeadFractionIL              = 0.f;
+  theM_NEMA_FR4_plateFractionIL  = 0.f;
+  theSiliconFractionIL           = 0.f;
+  theStainlessSteelFractionIL    = 0.f;
+  theWCuFractionIL               = 0.f;
   
   theID = (int)(aTrack->GetDefinition()->GetPDGEncoding());
   thePt = dir.perp();
@@ -226,13 +228,16 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
    
     if(!isCtgOk) 
       {
-	theOtherFractionMB = 1;
-	theOtherFractionIL = 1;
-
-	edm::LogWarning("MaterialBudget")
-	  << "MaterialBudgetData: Material forced to 'Other': " << materialName 
-	  << " in volume " << volumeName << ". Check Categorization.";
-
+	if(materialName.compare("Air") == 0){
+	  theAirFractionMB = 1.f;
+	  theAirFractionIL = 1.f;
+	} else {
+	  theOtherFractionMB = 1.f;
+	  theOtherFractionIL = 1.f;
+	  edm::LogWarning("MaterialBudget")
+	    << "MaterialBudgetData: Material forced to 'Other': " << materialName 
+	    << " in volume " << volumeName << ". Check Categorization.";
+	}
       }
     else 
       {
@@ -244,7 +249,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	theOtherFractionMB       = myMaterialBudgetCategorizer->x0fraction(materialName)[5];
 	theAirFractionMB         = myMaterialBudgetCategorizer->x0fraction(materialName)[6];
       
-	if(theOtherFractionMB!=0) 
+	if(theOtherFractionMB > 0.f)
 	  edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName 
 					    << " in volume " << volumeName;
 
@@ -256,7 +261,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	theOtherFractionIL       = myMaterialBudgetCategorizer->l0fraction(materialName)[5];
 	theAirFractionIL         = myMaterialBudgetCategorizer->l0fraction(materialName)[6];
 
-	if(theOtherFractionIL!=0) 
+	if(theOtherFractionIL > 0.f)
 	  edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName 
 					    << " in volume " << volumeName;
       }
@@ -266,8 +271,8 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     bool isHGCall0fractionEmpty = myMaterialBudgetCategorizer->HGCall0fraction(materialName).empty();
     
     if( isHGCalx0fractionEmpty && isHGCall0fractionEmpty ) {
-      theOtherFractionMB = 1;
-      theOtherFractionIL = 1;
+      theOtherFractionMB = 1.f;
+      theOtherFractionIL = 1.f;
 
       edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material forced to 'Other': " << materialName 
 					<< " in volume " << volumeName;
