@@ -29,6 +29,7 @@
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+#include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
 
 /// TOTEM/PPS timing detectors digi-to-rechits conversion module
 class TotemTimingRecHitProducer : public edm::stream::EDProducer<>
@@ -59,6 +60,10 @@ TotemTimingRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& i
 {
   std::unique_ptr<edm::DetSetVector<TotemTimingRecHit> > pOut( new edm::DetSetVector<TotemTimingRecHit> );
 
+  // get timing calibration parameters
+  edm::ESHandle<PPSTimingCalibration> hTimingCalib;
+  iSetup.get<PPSTimingCalibrationRcd>().get( hTimingCalib );
+
   // get the digi collection
   edm::Handle<edm::DetSetVector<TotemTimingDigi> > digis;
   iEvent.getByToken( digiToken_, digis );
@@ -68,6 +73,7 @@ TotemTimingRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& i
   iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
 
   // produce the rechits collection
+  algo_.setCalibrations( *hTimingCalib );
   algo_.build( geometry.product(), *digis, *pOut );
 
   iEvent.put( std::move( pOut ) );
