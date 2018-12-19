@@ -134,7 +134,7 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
   }
   else {
     bxSize = bxSizeConf_;
-    nnlsWork_.bxOffset = bxOffsetConf_ + ((static_cast<int>(nnlsWork_.tsOffset) + activeBXs_[0]) >= 0 ? 0 : (nnlsWork_.tsOffset + activeBXs_[0]));
+    nnlsWork_.bxOffset = static_cast<int>(nnlsWork_.tsOffset) >= bxOffsetConf_ ? bxOffsetConf_ : nnlsWork_.tsOffset;
   }
 
   nnlsWork_.nPulseTot = bxSize;
