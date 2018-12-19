@@ -25,42 +25,43 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 
-class TotemTimingRecHitProducerAlgorithm {
-public:
-  TotemTimingRecHitProducerAlgorithm(const edm::ParameterSet &conf);
+class TotemTimingRecHitProducerAlgorithm
+{
+  public:
+    TotemTimingRecHitProducerAlgorithm(const edm::ParameterSet &conf);
 
-  void build(const CTPPSGeometry *, const edm::DetSetVector<TotemTimingDigi> &,
-             edm::DetSetVector<TotemTimingRecHit> &);
+    void setCalibrations(const PPSTimingCalibration&);
+    void build(const CTPPSGeometry*, const edm::DetSetVector<TotemTimingDigi>&,
+               edm::DetSetVector<TotemTimingRecHit>&);
 
-  struct RegressionResults {
-    float m;
-    float q;
-    float rms;
-    RegressionResults() : m(0), q(0), rms(0){};
-  };
+    struct RegressionResults
+    {
+      float m, q, rms;
+      RegressionResults() : m(0.), q(0.), rms(0.) {}
+    };
 
-private:
-  static const float SINC_COEFFICIENT;
+  private:
+    RegressionResults simplifiedLinearRegression(const std::vector<float> &time,
+                                                 const std::vector<float> &data,
+                                                 const unsigned int start_at,
+                                                 const unsigned int points) const;
 
-  TotemTimingConversions sampicConversions_;
-  int baselinePoints_;
-  double saturationLimit_;
-  double cfdFraction_;
-  int smoothingPoints_;
-  double lowPassFrequency_;
-  double hysteresis_;
-  TotemTimingRecHit::TimingAlgorithm mode_;
+    int fastDiscriminator(const std::vector<float>& data, float threshold) const;
 
-  RegressionResults simplifiedLinearRegression(const std::vector<float> &time,
-                                               const std::vector<float> &data,
-                                               const unsigned int start_at,
-                                               const unsigned int points) const;
+    float constantFractionDiscriminator(const std::vector<float>& time,
+                                        const std::vector<float>& data);
 
-  int fastDiscriminator(const std::vector<float> &data,
-                        const float &threshold) const;
+    static const float SINC_COEFFICIENT;
 
-  float constantFractionDiscriminator(const std::vector<float> &time,
-                                      const std::vector<float> &data);
+    std::unique_ptr<TotemTimingConversions> sampicConversions_;
+    bool mergeTimePeaks_;
+    int baselinePoints_;
+    double saturationLimit_;
+    double cfdFraction_;
+    int smoothingPoints_;
+    double lowPassFrequency_;
+    double hysteresis_;
+    TotemTimingRecHit::TimingAlgorithm mode_;
 };
 
 #endif
