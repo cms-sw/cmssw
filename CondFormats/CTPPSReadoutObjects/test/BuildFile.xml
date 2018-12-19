@@ -1,0 +1,3 @@
+<bin file="testSerializationPPSTimingCalibration.cc">
+  <use name="CondFormats/CTPPSReadoutObjects"/>
+</bin>

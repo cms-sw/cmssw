@@ -12,7 +12,7 @@
 //--------------------------------------------------------------------------
 
 bool
-PPSTimingCalibration::CalibrationKey::operator<( const PPSTimingCalibration::CalibrationKey& rhs ) const
+PPSTimingCalibration::Key::operator<( const PPSTimingCalibration::Key& rhs ) const
 {
   if ( db == rhs.db ) {
     if ( sampic == rhs.sampic ) {
@@ -26,7 +26,7 @@ PPSTimingCalibration::CalibrationKey::operator<( const PPSTimingCalibration::Cal
 }
 
 std::ostream&
-operator<<( std::ostream& os, const PPSTimingCalibration::CalibrationKey& key )
+operator<<( std::ostream& os, const PPSTimingCalibration::Key& key )
 {
   return os << key.db << " " << key.sampic << " " << key.channel << " " << key.cell;
 }
@@ -36,7 +36,7 @@ operator<<( std::ostream& os, const PPSTimingCalibration::CalibrationKey& key )
 std::vector<double>
 PPSTimingCalibration::getParameters( int db, int sampic, int channel, int cell ) const
 {
-  CalibrationKey key( db, sampic, channel, cell );
+  Key key{ db, sampic, channel, cell };
   auto out = parameters_.find( key );
   if ( out == parameters_.end() )
     return {};
@@ -46,7 +46,7 @@ PPSTimingCalibration::getParameters( int db, int sampic, int channel, int cell )
 double
 PPSTimingCalibration::getTimeOffset( int db, int sampic, int channel ) const
 {
-  CalibrationKey key( db, sampic, channel );
+  Key key{ db, sampic, channel, -1 };
   auto out = timeInfo_.find( key );
   if ( out == timeInfo_.end() )
     return 0.;
@@ -56,7 +56,7 @@ PPSTimingCalibration::getTimeOffset( int db, int sampic, int channel ) const
 double
 PPSTimingCalibration::getTimePrecision( int db, int sampic, int channel ) const
 {
-  CalibrationKey key( db, sampic, channel );
+  Key key{ db, sampic, channel, -1 };
   auto out = timeInfo_.find( key );
   if ( out == timeInfo_.end() )
     return 0.;
@@ -71,9 +71,10 @@ operator<<( std::ostream& os, const PPSTimingCalibration& data )
     os << kv.first <<" [";
     for ( size_t i = 0; i < kv.second.size(); ++i )
       os << ( i > 0 ? ", " : "" ) << kv.second.at( i );
-    PPSTimingCalibration::CalibrationKey k = kv.first;
+    PPSTimingCalibration::Key k = kv.first;
     k.cell = -1;
-    os << "] " << data.timeInfo_.at( k ).first << " " <<  data.timeInfo_.at( k ).second << "\n";
+    const auto& time = data.timeInfo_.at( k );
+    os << "] " << time.first << " " <<  time.second << "\n";
   }
   return os;
 }

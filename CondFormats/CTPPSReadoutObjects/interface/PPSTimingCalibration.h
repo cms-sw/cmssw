@@ -19,21 +19,21 @@ class PPSTimingCalibrationESSource;
 class PPSTimingCalibration
 {
   public:
-    /// Helper structure for storing calibration data
-    struct CalibrationKey
+    /// Helper structure for indexing calibration data
+    struct Key
     {
-      CalibrationKey( int db = -1, int sampic = -1, int channel = -1, int cell = -1 ) :
-        db( db ), sampic( sampic ), channel( channel ), cell( cell ) {}
-      /// Comparison operator
-      bool operator<( const CalibrationKey& rhs ) const;
-      friend std::ostream& operator<<( std::ostream& os, const CalibrationKey& key );
-
       int db, sampic, channel, cell;
+
+      /// Comparison operator
+      bool operator<( const Key& rhs ) const;
+      friend std::ostream& operator<<( std::ostream& os, const Key& key );
+
+      COND_SERIALIZABLE;
     };
     //--------------------------------------------------------------------------
 
-    typedef std::map<CalibrationKey,std::vector<double> > ParametersMap;
-    typedef std::map<CalibrationKey,std::pair<double,double> > TimingMap;
+    using ParametersMap = std::map<Key,std::vector<double> >;
+    using TimingMap = std::map<Key,std::pair<double,double> >;
 
     PPSTimingCalibration() = default;
     PPSTimingCalibration( const std::string& formula, const ParametersMap& params, const TimingMap& timeinfo ) :
@@ -54,7 +54,7 @@ class PPSTimingCalibration
     ParametersMap parameters_;
     TimingMap timeInfo_;
 
-    COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif
