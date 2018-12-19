@@ -95,12 +95,6 @@ using namespace edm;
 CTPPSRPAlignmentCorrectionsDataESSourceXML::CTPPSRPAlignmentCorrectionsDataESSourceXML(const edm::ParameterSet &pSet) :
   verbosity(pSet.getUntrackedParameter<unsigned int>("verbosity", 0))
 {
-  /*std::string measuredFiles;
-  const auto &f= pSet.getParameter<std::string>("XMLFiles");
-  measuredFiles=edm::FileInPath(f).fullPath();
-  acMeasured =  CTPPSRPAlignmentCorrectionsMethods::loadFromXML(measuredFiles);
-  */
-
   std::vector<std::string> measuredFiles;
   for (const auto &f: pSet.getParameter< vector<string> >("MeasuredFiles"))
     measuredFiles.push_back(edm::FileInPath(f).fullPath());
@@ -116,7 +110,6 @@ CTPPSRPAlignmentCorrectionsDataESSourceXML::CTPPSRPAlignmentCorrectionsDataESSou
     misalignedFiles.push_back(edm::FileInPath(f).fullPath());
   PrepareSequence("Misaligned", acsMisaligned, misalignedFiles);
 
-
   setWhatProduced(this, &CTPPSRPAlignmentCorrectionsDataESSourceXML::produceMeasured);
   setWhatProduced(this, &CTPPSRPAlignmentCorrectionsDataESSourceXML::produceReal);
   setWhatProduced(this, &CTPPSRPAlignmentCorrectionsDataESSourceXML::produceMisaligned);
@@ -127,7 +120,6 @@ CTPPSRPAlignmentCorrectionsDataESSourceXML::CTPPSRPAlignmentCorrectionsDataESSou
 }
 
 //----------------------------------------------------------------------------------------------------
-
 
 CTPPSRPAlignmentCorrectionsDataESSourceXML::~CTPPSRPAlignmentCorrectionsDataESSourceXML()
 {

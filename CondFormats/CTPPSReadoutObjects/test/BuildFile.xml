@@ -1,4 +1,6 @@
 <bin file="testSerializationPPSTimingCalibration.cc">
   <use name="CondFormats/CTPPSReadoutObjects"/>
 </bin>
+<use name="Geometry/VeryForwardGeometryBuilder"/>
+<bin name="alignment_xml_io_test" file="alignment_xml_io_test.cc"/>
 
