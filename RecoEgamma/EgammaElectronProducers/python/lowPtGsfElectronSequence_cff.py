@@ -21,10 +21,9 @@ lowPtGsfEleCkfTrackCandidates = electronCkfTrackCandidates.clone()
 lowPtGsfEleCkfTrackCandidates.TrajectoryBuilderPSet.refToPSet_ = 'lowPtGsfEleTrajectoryBuilder'
 lowPtGsfEleCkfTrackCandidates.src = 'lowPtGsfElectronSeeds'
 
+# Modifiers for FastSim
 import FastSimulation.Tracking.electronCkfTrackCandidates_cff
 fastLowPtGsfTkfTrackCandidates = FastSimulation.Tracking.electronCkfTrackCandidates_cff.electronCkfTrackCandidates.clone(src = cms.InputTag("lowPtGsfElectronSeeds"))
-
-
 
 # GsfTracks
 from TrackingTools.GsfTracking.GsfElectronGsfFit_cff import *
@@ -35,7 +34,6 @@ from TrackingTools.GsfTracking.GsfElectronGsfFit_cff import *
 lowPtGsfEleGsfTracks = electronGsfTracks.clone()
 lowPtGsfEleGsfTracks.Fitter = 'lowPtGsfEleFittingSmoother'
 lowPtGsfEleGsfTracks.src = 'lowPtGsfEleCkfTrackCandidates'
-
 
 # GsfPFRecTracks
 from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
@@ -53,12 +51,11 @@ lowPtGsfElectronTask = cms.Task(lowPtGsfElePfTracks,
                                 lowPtGsfElePfGsfTracks)
 lowPtGsfElectronSequence = cms.Sequence(lowPtGsfElectronTask)
 
-
+# Modifiers for FastSim
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 _fastSim_lowPtGsfElectronTask = lowPtGsfElectronTask.copy()
 _fastSim_lowPtGsfElectronTask.replace(lowPtGsfElectronSeeds, cms.Task(lowPtGsfElectronSeedsTmp,lowPtGsfElectronSeeds))
 _fastSim_lowPtGsfElectronTask.replace(lowPtGsfEleCkfTrackCandidates, fastLowPtGsfTkfTrackCandidates)
-
 fastSim.toReplaceWith(lowPtGsfElectronTask, _fastSim_lowPtGsfElectronTask)
 fastSim.toModify(lowPtGsfElePfTracks,TkColList = ['generalTracksBeforeMixing'])
 fastSim.toModify(lowPtGsfEleGsfTracks,src = cms.InputTag("fastLowPtGsfTkfTrackCandidates"))
