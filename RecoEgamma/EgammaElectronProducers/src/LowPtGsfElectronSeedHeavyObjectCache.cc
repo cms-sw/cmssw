@@ -47,8 +47,8 @@ namespace lowptgsfeleseed {
   
   ////////////////////////////////////////////////////////////////////////////////
   //
-  void Features::set( reco::PreId& ecal, 
-		      reco::PreId& hcal,
+  void Features::set( const reco::PreId& ecal,
+		      const reco::PreId& hcal,
 		      double rho,
 		      const reco::BeamSpot& spot,
 		      noZS::EcalClusterLazyTools& tools ) {

@@ -43,8 +43,8 @@ namespace lowptgsfeleseed {
     float trk_dxy_sig_ = -1.; // must be last (not used by unbiased model)
   public:
     std::vector<float> get();
-    void set( reco::PreId& ecal, 
-	      reco::PreId& hcal,
+    void set( const reco::PreId& ecal,
+	      const reco::PreId& hcal,
 	      double rho,
 	      const reco::BeamSpot& spot,
 	      noZS::EcalClusterLazyTools& ecalTools );
