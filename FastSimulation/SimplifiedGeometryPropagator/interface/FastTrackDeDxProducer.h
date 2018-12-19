@@ -39,7 +39,6 @@
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -66,10 +65,7 @@ private:
   void   processHit(const FastTrackerRecHit & recHit, float trackMomentum, float& cosine, reco::DeDxHitCollection& dedxHits, int& NClusterSaturating);
 
   // ----------member data ---------------------------
-BaseDeDxEstimator*               m_estimator;
-
-//std::unique_ptr<BaseDeDxEstimator> m_estimator;
-
+  BaseDeDxEstimator* m_estimator;
   edm::EDGetTokenT<reco::TrackCollection>  m_tracksTag;
 
 
