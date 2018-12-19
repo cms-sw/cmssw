@@ -21,6 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
+#include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -35,8 +36,11 @@ class PPSTimingCalibrationESSource : public edm::ESProducer, public edm::EventSe
     PPSTimingCalibrationESSource( const edm::ParameterSet& );
     ~PPSTimingCalibrationESSource() override = default;
 
+    edm::ESProducts<std::unique_ptr<PPSTimingCalibration> > produce( const PPSTimingCalibrationRcd& );
+
+    static void fillDescriptions( edm::ConfigurationDescriptions& );
+
   private:
-    edm::ESProducts<std::unique_ptr<PPSTimingCalibration> > produce();
     void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval& ) override;
 
     /// Extract calibration data from JSON file
@@ -48,13 +52,16 @@ class PPSTimingCalibrationESSource : public edm::ESProducer, public edm::EventSe
 //------------------------------------------------------------------------------
 
 PPSTimingCalibrationESSource::PPSTimingCalibrationESSource( const edm::ParameterSet& iConfig ) :
-  filename_( iConfig.getParameter<edm::FileInPath>( "filename" ).fullPath() )
-{}
+  filename_( iConfig.getParameter<edm::FileInPath>( "calibrationFile" ).fullPath() )
+{
+  setWhatProduced( this );
+  findingRecord<PPSTimingCalibrationRcd>();
+}
 
 //------------------------------------------------------------------------------
 
 edm::ESProducts<std::unique_ptr<PPSTimingCalibration> >
-PPSTimingCalibrationESSource::produce()
+PPSTimingCalibrationESSource::produce( const PPSTimingCalibrationRcd& )
 {
   return edm::es::products( std::move( parseJsonFile() ) );
 }
@@ -106,4 +113,16 @@ PPSTimingCalibrationESSource::parseJsonFile() const
   }
   return std::make_unique<PPSTimingCalibration>( formula, params, time_info );
 }
+
+void
+PPSTimingCalibrationESSource::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
+{
+  edm::ParameterSetDescription desc;
+  desc.add<edm::FileInPath>( "calibrationFile", edm::FileInPath() )
+    ->setComment( "file with SAMPIC calibrations, ADC and INL; if empty or corrupted, no calibration will be applied" );
+
+  descriptions.add( "ppsTimingCalibrationESSource", desc );
+}
+
+DEFINE_FWK_EVENTSETUP_SOURCE( PPSTimingCalibrationESSource );
 
