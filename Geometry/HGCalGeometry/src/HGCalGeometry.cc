@@ -300,19 +300,29 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& detid) const {
     if ((mode_ == HGCalGeometryMode::Hexagon) ||
 	(mode_ == HGCalGeometryMode::HexagonFull)) {
       xy = m_topology.dddConstants().locateCellHex(id.iCell1,id.iSec1,true);
+      float dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
+      float dy = k_half*m_cellVec[cellIndex].param()[FlatHexagon::k_R];
+      float dz = m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
+      static const int signx[] = {0,-1,-1,0,1,1,0,-1,-1,0,1,1};
+      static const int signy[] = {-2,-1,1,2,1,-1,-2,-1,1,2,1,-1};
+      static const int signz[] = {-1,-1,-1,-1,-1,-1,1,1,1,1,1,1};
+      for (unsigned int i = 0; i < ncorner; ++i) {
+	const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dy,signz[i]*dz);
+	co[i] = m_cellVec[cellIndex].getPosition(lcoord);
+      }
     } else {
       xy = m_topology.dddConstants().locateCell(id.iLay,id.iSec1,id.iSec2,
 						id.iCell1,id.iCell2,true,false);
-    }
-    float dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
-    float dy = k_half*m_cellVec[cellIndex].param()[FlatHexagon::k_R];
-    float dz = m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
-    static const int signx[] = {0,-1,-1,0,1,1,0,-1,-1,0,1,1};
-    static const int signy[] = {-2,-1,1,2,1,-1,-2,-1,1,2,1,-1};
-    static const int signz[] = {-1,-1,-1,-1,-1,-1,1,1,1,1,1,1};
-    for (unsigned int i = 0; i < ncorner; ++i) {
-      const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dy,signz[i]*dz);
-      co[i] = m_cellVec[cellIndex].getPosition(lcoord);
+      float dx = k_fac2*m_cellVec[cellIndex].param()[FlatHexagon::k_r];
+      float dy = k_fac1*m_cellVec[cellIndex].param()[FlatHexagon::k_R];
+      float dz =-id.zSide*m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
+      static const int signx[] = {1,-1,-2,-1, 1,2,1,-1,-2,-1, 1,2};
+      static const int signy[] = {1, 1, 0,-1,-1,0,1, 1, 0,-1,-1,0};
+      static const int signz[] = {-1,-1,-1,-1,-1,-1,1,1,1,1,1,1};
+      for (unsigned int i = 0; i < ncorner; ++i) {
+	const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dy,signz[i]*dz);
+	co[i] = m_cellVec[cellIndex].getPosition(lcoord);
+      }
     }
   }
   return co;
@@ -342,17 +352,19 @@ HGCalGeometry::CornersVec HGCalGeometry::get8Corners(const DetId& detid) const {
     }
   } else if (cellIndex <  m_cellVec.size() && m_det != DetId::HGCalHSc) {
     std::pair<float,float> xy;
+    float                  dx(0);
     if ((mode_ == HGCalGeometryMode::Hexagon) ||
 	(mode_ == HGCalGeometryMode::HexagonFull)) {
       xy = m_topology.dddConstants().locateCellHex(id.iCell1,id.iSec1,true);
+      dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
     } else {
       xy = m_topology.dddConstants().locateCell(id.iLay,id.iSec1,id.iSec2,
 						id.iCell1,id.iCell2,true,false);
+      dx = k_fac2*m_cellVec[cellIndex].param()[FlatHexagon::k_r];
     }
     static const int signx[] = {-1,-1,1,1,-1,-1,1,1};
     static const int signy[] = {-1,1,1,-1,-1,1,1,-1};
     static const int signz[] = {-1,-1,-1,-1,1,1,1,1};
-    float dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
     float dz = m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
     for (unsigned int i = 0; i < ncorner; ++i) {
       const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,
@@ -394,11 +406,11 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid) const
       xy = m_topology.dddConstants().locateCell(id.iLay,id.iSec1,id.iSec2,
 						id.iCell1,id.iCell2,true,false);
     }
-    float dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
-    float dy = k_half*m_cellVec[cellIndex].param()[FlatHexagon::k_R];
+    float dx = k_fac2*m_cellVec[cellIndex].param()[FlatHexagon::k_r];
+    float dy = k_fac1*m_cellVec[cellIndex].param()[FlatHexagon::k_R];
     float dz =-id.zSide*m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
-    static const int signx[] = {0,-1,-1,0,1,1};
-    static const int signy[] = {-2,-1,1,2,1,-1};
+    static const int signx[] = {1,-1,-2,-1, 1,2};
+    static const int signy[] = {1, 1, 0,-1,-1,0};
     for (unsigned int i = 0; i < ncorner-1; ++i) {
       const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dy,dz);
       co[i] = m_cellVec[cellIndex].getPosition(lcoord);

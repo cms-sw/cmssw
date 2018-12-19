@@ -134,6 +134,8 @@ private:
   DetId getGeometryDetId(DetId detId) const;
 
   static constexpr double         k_half = 0.5;
+  static constexpr double         k_fac1 = 0.5;
+  static constexpr double         k_fac2 = 1.0/3.0;
 
   const HGCalTopology&            m_topology;
   CellVec                         m_cellVec; 
