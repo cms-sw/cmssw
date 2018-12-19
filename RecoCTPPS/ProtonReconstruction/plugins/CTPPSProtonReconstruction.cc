@@ -125,19 +125,19 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
       {
         LogWarning("CTPPSProtonReconstruction") << "Invalid crossing angle, reconstruction disabled.";
         algorithm_.release();
+      } else {
+        if (verbosity_)
+          edm::LogInfo("CTPPSProtonReconstruction") << "Setting crossing angle " << currentCrossingAngle_;
+
+        // interpolate optical functions
+        opticalFunctions_.clear();
+        hOpticalFunctionCollection->interpolateFunctions(currentCrossingAngle_, opticalFunctions_);
+        for (auto &p : opticalFunctions_)
+          p.second.initializeSplines();
+
+        // reinitialise algorithm
+        algorithm_.init(opticalFunctions_);
       }
-
-      if (verbosity_)
-        edm::LogInfo("CTPPSProtonReconstruction") << "Setting crossing angle " << currentCrossingAngle_;
-
-      // interpolate optical functions
-      opticalFunctions_.clear();
-      hOpticalFunctionCollection->interpolateFunctions(currentCrossingAngle_, opticalFunctions_);
-      for (auto &p : opticalFunctions_)
-        p.second.initializeSplines();
-
-      // reinitialise algorithm
-      algorithm_.init(opticalFunctions_);
     }
   }
 
