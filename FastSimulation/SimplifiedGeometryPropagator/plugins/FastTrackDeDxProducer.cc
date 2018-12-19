@@ -59,14 +59,14 @@ FastTrackDeDxProducer::FastTrackDeDxProducer(const edm::ParameterSet& iConfig)
   produces<ValueMap<DeDxData> >();
 
   string estimatorName = iConfig.getParameter<string>("estimator");
-  if     (estimatorName == "median")              m_estimator = new MedianDeDxEstimator(iConfig);
-  else if(estimatorName == "generic")             m_estimator = new GenericAverageDeDxEstimator  (iConfig);
-  else if(estimatorName == "truncated")           m_estimator = new TruncatedAverageDeDxEstimator(iConfig);
-  //else if(estimatorName == "unbinnedFit")         m_estimator = new UnbinnedFitDeDxEstimator(iConfig);//estimator used in FullSimVersion
-  else if(estimatorName == "productDiscrim")      m_estimator = new ProductDeDxDiscriminator(iConfig);
-  else if(estimatorName == "btagDiscrim")         m_estimator = new BTagLikeDeDxDiscriminator(iConfig);
-  else if(estimatorName == "smirnovDiscrim")      m_estimator = new SmirnovDeDxDiscriminator(iConfig);
-  else if(estimatorName == "asmirnovDiscrim")     m_estimator = new ASmirnovDeDxDiscriminator(iConfig);
+  if     (estimatorName == "median")              m_estimator = std::unique_ptr<BaseDeDxEstimator> (new MedianDeDxEstimator(iConfig));
+  else if(estimatorName == "generic")             m_estimator = std::unique_ptr<BaseDeDxEstimator> (new GenericAverageDeDxEstimator  (iConfig));
+  else if(estimatorName == "truncated")           m_estimator = std::unique_ptr<BaseDeDxEstimator> (new TruncatedAverageDeDxEstimator(iConfig));
+  //else if(estimatorName == "unbinnedFit")         m_estimator = std::unique_ptr<BaseDeDxEstimator> (new UnbinnedFitDeDxEstimator(iConfig));//estimator used in FullSimVersion
+  else if(estimatorName == "productDiscrim")      m_estimator = std::unique_ptr<BaseDeDxEstimator> (new ProductDeDxDiscriminator(iConfig));
+  else if(estimatorName == "btagDiscrim")         m_estimator = std::unique_ptr<BaseDeDxEstimator> (new BTagLikeDeDxDiscriminator(iConfig));
+  else if(estimatorName == "smirnovDiscrim")      m_estimator = std::unique_ptr<BaseDeDxEstimator> (new SmirnovDeDxDiscriminator(iConfig));
+  else if(estimatorName == "asmirnovDiscrim")     m_estimator = std::unique_ptr<BaseDeDxEstimator> (new ASmirnovDeDxDiscriminator(iConfig));
   else throw cms::Exception("fastsim::SimplifiedGeometry::FastTrackDeDxProducer.cc") << " estimator name does not exist";
 
   //Commented for now, might be used in the future
@@ -93,12 +93,6 @@ FastTrackDeDxProducer::FastTrackDeDxProducer(const edm::ParameterSet& iConfig)
   	throw cms::Exception("fastsim::SimplifiedGeometry::FastTrackDeDxProducer.cc") << " Pixel Hits AND Strip Hits will not be used to estimate dEdx --> BUG, Please Update the config file";
 
 
-}
-
-
-FastTrackDeDxProducer::~FastTrackDeDxProducer()
-{
-  delete m_estimator;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -131,7 +125,7 @@ void FastTrackDeDxProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
 
 
-  for(unsigned int j=0;j<trackCollectionHandle->size();j++){            
+  for(unsigned int j=0;j<trackCollection.size();j++){            
     const reco::TrackRef track = reco::TrackRef( trackCollectionHandle.product(), j );
     
     int NClusterSaturating = 0; 
@@ -172,11 +166,7 @@ void FastTrackDeDxProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 void FastTrackDeDxProducer::processHit(const FastTrackerRecHit &recHit, float trackMomentum, float& cosine, reco::DeDxHitCollection& dedxHits, int& NClusterSaturating){
 
 
-  auto const & thit = static_cast<BaseTrackerRecHit const&>(recHit);
-  //const TrackerSingleRecHit thit = static_cast<TrackerSingleRecHit const&>(recHit);//playing now
-
-
-  if(!thit.isValid())return;
+  if(!recHit.isValid())return;
 
   if(recHit.isPixel()){
     if(!usePixel) return;
@@ -186,9 +176,9 @@ void FastTrackDeDxProducer::processHit(const FastTrackerRecHit &recHit, float tr
     if (nothick) pathLen = 1.0;
     float charge = recHit.energyLoss()/pathLen;
     if (convertFromGeV2MeV) charge*=1000;
-    dedxHits.push_back( DeDxHit( charge, trackMomentum, pathLen, thit.geographicalId()) );
+    dedxHits.push_back( DeDxHit( charge, trackMomentum, pathLen, recHit.geographicalId()) );
   }
-  else if(!recHit.isPixel()){// && !thit.isMatched()){//check what thit.isMatched is doing
+  else if(!recHit.isPixel()){// && !recHit.isMatched()){//check what recHit.isMatched is doing
     if(!useStrip) return;
     auto& detUnit     = *(recHit.detUnit());
     float pathLen     = detUnit.surface().bounds().thickness()/fabs(cosine);
@@ -196,7 +186,7 @@ void FastTrackDeDxProducer::processHit(const FastTrackerRecHit &recHit, float tr
     float dedxOfRecHit = recHit.energyLoss()/pathLen;
     if (convertFromGeV2MeV) dedxOfRecHit*=1000;
     if(!shapetest ){
-      dedxHits.push_back( DeDxHit( dedxOfRecHit, trackMomentum, pathLen, thit.geographicalId()) );
+      dedxHits.push_back( DeDxHit( dedxOfRecHit, trackMomentum, pathLen, recHit.geographicalId()) );
     }
   }
 }
