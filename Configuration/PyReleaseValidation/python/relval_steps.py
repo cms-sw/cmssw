@@ -2894,6 +2894,15 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
+    upgradeStepDict['DigiKillPixelStuckTBM'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:%s'%(hltversion),
+                                                   '--conditions':gt,
+                                                   '--datatier':'GEN-SIM-DIGI-RAW',
+                                                   '-n':'10',
+                                                   '--eventcontent':'FEVTDEBUGHLT',
+                                                   '--geometry' : geom,
+                                                   '--customise_commands':'"process.mix.digitizers.pixel.KillBadFEDChannels = cms.bool(True); process.GlobalTag.toGet = cms.VPSet(cms.PSet(record = cms.string(\'SiPixelStatusScenarioProbabilityRcd\'),tag = cms.string(\'SiPixelQualityProbabilities_noPU_v0_mc\'),connect = cms.string(\'sqlite_file:/afs/cern.ch/user/m/musich/public/forStuckTBM/SiPixelStatusScenarioProbabilities_noPU_2018.db\')),cms.PSet(record = cms.string(\'SiPixelStatusScenariosRcd\'),tag = cms.string(\'SiPixelFEDChannelContainer_StuckTBM_2018_v1_mc\'),connect = cms.string(\'sqlite_file:/afs/cern.ch/user/m/musich/public/forStuckTBM/SiPixelStatusScenarios_v1.db\')))"'
+                                      }
+
     # Adding Track trigger step in step2
     upgradeStepDict['DigiFullTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:%s'%(hltversion),
                                       '--conditions':gt,
