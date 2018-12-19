@@ -20,8 +20,6 @@
 #include <string>
 #include <vector>
 
-#include <memory>
-
 class TotemTimingConversions
 {
   public:
