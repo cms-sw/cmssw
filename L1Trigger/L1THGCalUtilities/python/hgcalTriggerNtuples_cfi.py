@@ -50,7 +50,7 @@ ntuple_digis = cms.PSet(
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
-    isSimhitComp = cms.bool(True)
+    isSimhitComp = cms.bool(False)
 )
 
 ntuple_triggercells = cms.PSet(
@@ -60,7 +60,7 @@ ntuple_triggercells = cms.PSet(
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
-    FillSimEnergy = cms.bool(True),
+    FillSimEnergy = cms.bool(False),
     fcPerMip = fcPerMip,
     keV2fC = keV2fC,
     layerWeights = layerWeights,
