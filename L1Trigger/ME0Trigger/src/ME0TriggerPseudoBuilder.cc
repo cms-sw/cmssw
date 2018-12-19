@@ -97,6 +97,14 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
   float phi_resolution = 0.5;//halfstrip
   int phiposition2 = (static_cast<int>((strip - phiposition)/phi_resolution) & 1);// half-strip resolution
   phiposition = (phiposition << 1) | phiposition2;
+  
+  //globalpoint from ME0 segment
+  GlobalPoint gp = me0_g->idToDet(segment.me0DetId())->surface().toGlobal(segment.localPosition());
+  //gloablpoint from ME0 trigger digi
+  float centreOfStrip = istrip + 0.25 +phiposition2*0.5;
+  GlobalPoint gp_digi = etapart->toGlobal(etapart->centreOfStrip(centreOfStrip));
+
+
   int idphi = static_cast<int>(fabs(dphi)/(strippitch*dphiresolution_));
   int max_idphi = 512;
   if (idphi >= 512){ 
@@ -106,12 +114,13 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
   int quality = nrechits;// attention: not the same as discussed in meeting
   int BX = (static_cast<int>(fabs(time)/25.0))*sign_time + ME0TriggerPseudoBuilder::ME0TriggerCentralBX;
   int bend = (dphi > 0.0) ? 0 : 1;
-  if (info_ > 2) LogTrace("L1ME0Trigger") <<" ME0trigger in conversion function:\n "
+  if (info_ > 2) LogTrace("L1ME0Trigger") <<" ME0trigger in conversion function:\n"
                     <<"\t chamber(1-18) "<< detid.chamber() <<" chamber id "<< chamberid <<" \n"
                     <<"\t rolls size of all hits "<< rolls.size() <<" rolls[0] "<< rolls[0] <<" rolls.back() "<< rolls.back() <<" roll "<< partition <<" \n"
                     <<"\t nRechits "<< nrechits <<" quality "<< quality <<" \n"
                     <<"\t strip(float) "<< strip <<" (int) "<< istrip<<" phiposition "<< phiposition <<" resolution (in term of strip) "<< phi_resolution <<" \n"
-                    <<"\t deltaphi(float) "<< dphi <<" (int) "<< idphi <<" resolution "<< strippitch*dphiresolution_ <<" bend "<< bend <<" \n "
+                    <<"\t deltaphi(float) "<< dphi <<" (int) "<< idphi <<" resolution "<< strippitch*dphiresolution_ <<" bend "<< bend <<" \n"
+                    <<"\t global point eta "<< gp.eta() <<" phi "<< gp.phi() <<" trigger digi eta "<< gp_digi.eta() <<" phi "<< gp_digi.phi() <<" \n"
                     <<"\t time (ns, float) "<< time <<" BX "<< BX <<" \n";
   
   ME0TriggerDigi result =  ME0TriggerDigi(chamberid, quality, phiposition, partition, idphi, bend, BX);
@@ -128,7 +137,8 @@ void ME0TriggerPseudoBuilder::dumpAllME0Segments(const ME0SegmentCollection& seg
     for(auto iC = segments.id_begin(); iC != segments.id_end(); ++iC){
 	auto ch_segs = segments.get(*iC);
 	for(auto iS = ch_segs.first; iS != ch_segs.second; ++iS){
-	    LogTrace("L1ME0Trigger") <<"ME0Detid "<< iS->me0DetId()<<" segment "<< *iS << std::endl;
+        GlobalPoint gp = me0_g->idToDet(iS->me0DetId())->surface().toGlobal(iS->localPosition());
+	    LogTrace("L1ME0Trigger") <<"ME0Detid "<< iS->me0DetId()<<" segment "<< *iS <<" eta "<< gp.eta() <<" phi "<< gp.phi()<< std::endl;
 	    auto recHits(iS->recHits());
 	    LogTrace("L1ME0Trigger") << "\t has " << recHits.size() << " me0 rechits"<< std::endl;
             for (auto& rh: recHits) {
