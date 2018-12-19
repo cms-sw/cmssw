@@ -20,9 +20,9 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap, unsigned station,
 				      conf.getParameter<edm::ParameterSet>("copadParamGE21"));
   coPadProcessor.reset( new GEMCoPadProcessor(endcap, station, chamber, coPadParams) );
 
-  maxDeltaPadL1_ = (par ? tmbParams_.getParameter<int>("maxDeltaPadL1Even") :
+  maxDeltaPadL1_ = (theParity ? tmbParams_.getParameter<int>("maxDeltaPadL1Even") :
 		    tmbParams_.getParameter<int>("maxDeltaPadL1Odd") );
-  maxDeltaPadL2_ = (par ? tmbParams_.getParameter<int>("maxDeltaPadL2Even") :
+  maxDeltaPadL2_ = (theParity ? tmbParams_.getParameter<int>("maxDeltaPadL2Even") :
 		    tmbParams_.getParameter<int>("maxDeltaPadL2Odd") );
 }
 
@@ -165,7 +165,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     auto p(getCSCPart(-1));//use -1 as fake halfstrip, it returns ME11 if station==1 && (ring==1 or ring==4)
     if (p == CSCPart::ME11 and alct.getKeyWG() <= 15)
       p = CSCPart::ME1B;
-    const auto& mymap1 = getLUT()->get_gem_pad_to_csc_hs(par, p);
+    const auto& mymap1 = getLUT()->get_gem_pad_to_csc_hs(theParity, p);
     pattern = promoteALCTGEMpattern_ ? 10 : 0;
     quality = promoteALCTGEMquality_ ? 15 : 11;
     bx = alct.getBX();
@@ -179,7 +179,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
   }
   else if (clct.isValid() and gem2.isValid() and not alct.isValid()) {
     auto p(getCSCPart(clct.getKeyStrip()));
-    const auto& mymap2 = getLUT()->get_gem_roll_to_csc_wg(par, p);
+    const auto& mymap2 = getLUT()->get_gem_roll_to_csc_wg(theParity, p);
     pattern = encodePattern(clct.getPattern());
     quality = promoteCLCTGEMquality_ ? 15 : 11;
     bx = gem2.bx(1) + CSCConstants::LCT_CENTRAL_BX;
@@ -218,7 +218,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
 bool CSCGEMMotherboard::isPadInOverlap(int roll) const
 {
   // this only works for ME1A!
-  const auto& mymap = (getLUT()->get_csc_wg_to_gem_roll(par));
+  const auto& mymap = (getLUT()->get_csc_wg_to_gem_roll(theParity));
   for (unsigned i=0; i<mymap.size(); i++) {
     // overlap region are WGs 10-15
     if ((i < 10) or (i > 15)) continue;
@@ -255,7 +255,7 @@ int CSCGEMMotherboard::getRoll(const GEMCoPadDigiId& p) const
 
 int CSCGEMMotherboard::getRoll(const CSCALCTDigi& alct) const
 {
-  return (getLUT()->get_csc_wg_to_gem_roll(par))[alct.getKeyWG()].first;
+  return (getLUT()->get_csc_wg_to_gem_roll(theParity))[alct.getKeyWG()].first;
 }
 
 float CSCGEMMotherboard::getPad(const GEMPadDigi& p) const
@@ -271,7 +271,7 @@ float CSCGEMMotherboard::getPad(const GEMCoPadDigi& p) const
 
 float CSCGEMMotherboard::getPad(const CSCCLCTDigi& clct, enum CSCPart part) const
 {
-  const auto& mymap = (getLUT()->get_csc_hs_to_gem_pad(par, part));
+  const auto& mymap = (getLUT()->get_csc_hs_to_gem_pad(theParity, part));
   return 0.5*(mymap[clct.getKeyStrip()].first + mymap[clct.getKeyStrip()].second);
 }
 

@@ -49,15 +49,6 @@ public:
       m_tkLength  = _tl;
     };
   
-    ~Seed() {};
-    
-    Seed( const Seed & _seed) 
-    {
-      m_sectorId  = _seed.m_sectorId;
-      m_stationId = _seed.m_stationId;
-      m_tkLength  = _seed.m_tkLength;
-    };
-    
     bool operator==(const Seed & rhs) 
     {
       return (m_sectorId == rhs.m_sectorId) 
@@ -75,25 +66,22 @@ public:
   public:
     
     Track() { m_tracklength = 0; };
-    ~Track() { 
-      if ( m_tracklength < 0 ) delete m_seeds[0];
-      m_seeds.clear();
-    };
-    
-    Track( const Track & trk ) 
-    {
-      m_seeds = trk.m_seeds;
-      m_tracklength = trk.m_tracklength;
-    };
-    
+
+    Track( const Track&) = delete;
+    Track(Track&&) = delete;
+    Track& operator=(Track const&) = delete;
+    Track& operator=(Track&&) = delete;
+
     void add( Seed * sd ) { 
       m_seeds.push_back(sd); 
       ++m_tracklength;
     };
     
-    void addnone() { 
-      Seed *_sd = new Seed(0,0,0);
-      m_seeds.push_back(_sd); 
+    void addnone() {
+      if(not m_none) {
+        m_none = std::make_unique<Seed>(0,0,0);
+      }
+      m_seeds.push_back(m_none.get()); 
       m_tracklength = -1;
     };
 
@@ -110,14 +98,11 @@ public:
     std::vector<Seed*> m_seeds;
     
   private:
-    
+    std::unique_ptr<Seed> m_none;
     int m_tracklength;
         
   };
   
-  typedef std::vector<Seed*>::iterator SeedsItr;
-  typedef std::vector<Track*>::iterator TracksItr;
-
   void setMinTrkLength( int val ) 
   {
     m_mintrklength = val;
@@ -126,7 +111,7 @@ public:
   template< class T>
   struct CompareMechanism
   {
-    bool operator()( T* a, T* b ) { return (*a) < (*b) ; }
+    bool operator()( T const& a, T const& b ) { return (*a) < (*b) ; }
   };
     
 protected:
@@ -153,9 +138,9 @@ private:
 
   int m_mintrklength;
 
-  std::vector<Track*> m_tracks;
+  std::vector<std::unique_ptr<Track>> m_tracks;
   
-  std::vector<Seed*>  m_initialseeds;
+  std::vector<std::unique_ptr<Seed>>  m_initialseeds;
   
   struct CompareSeeds {
     bool operator()( const Seed * a, const Seed * b )

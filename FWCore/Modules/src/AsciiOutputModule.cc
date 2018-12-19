@@ -14,6 +14,9 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
 
 namespace edm {
 
@@ -69,13 +72,39 @@ namespace edm {
     LogAbsolute("AsciiOut") << '\n' << e.id() << '\n';
 
     // Loop over products, and write some output for each...
+    Service<ConstProductRegistry> reg;
+    for(auto const& prod: reg->productList()) {
+      BranchDescription const& desc = prod.second;
+      if(selected(desc)) {
+        if(desc.isAlias()) {
+          LogAbsolute("AsciiOut") << "ModuleLabel " << desc.moduleLabel() << " is an alias for";
+        }
 
-    std::vector<Provenance const*> provs;
-    e.getAllProvenance(provs);
-    for(auto const& prov : provs) {
-      BranchDescription const& desc = prov->branchDescription();
-      if (selected(desc)) {
-        LogAbsolute("AsciiOut") << *prov << '\n';
+        auto const& prov = e.getProvenance(desc.originalBranchID());
+        LogAbsolute("AsciiOut") << prov;
+
+        if(verbosity_ > 2) {
+          BranchDescription const& desc2 = prov.branchDescription();
+          std::string const& process = desc2.processName();
+          std::string const& label = desc2.moduleLabel();
+          ProcessHistory const* processHistory = prov.processHistoryPtr();
+
+          if (processHistory) {
+            for (ProcessConfiguration const& pc : *processHistory) {
+              if (pc.processName() == process) {
+                ParameterSetID const& psetID = pc.parameterSetID();
+                pset::Registry const* psetRegistry = pset::Registry::instance();
+                ParameterSet const* processPset = psetRegistry->getMapped(psetID);
+                if (processPset) {
+                  if(desc.isAlias()) {
+                    LogAbsolute("AsciiOut") << "Alias PSet\n" << processPset->getParameterSet(desc.moduleLabel());
+                  }
+                  LogAbsolute("AsciiOut") << processPset->getParameterSet(label) << "\n";
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -89,7 +118,8 @@ namespace edm {
     desc.addUntracked("verbosity", 1U)
         ->setComment("0: no output\n"
                      "1: event ID and timestamp only\n"
-                     ">1: full output");
+                     "2: provenance for each kept product\n"
+                     ">2: PSet and provenance for each kept product");
     OutputModule::fillDescription(desc);
     descriptions.add("asciiOutput", desc);
   }

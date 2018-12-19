@@ -63,7 +63,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-class HLTScalers : public DQMEDAnalyzer {
+class HLTScalers : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
  public:
   HLTScalers(const edm::ParameterSet &ps);
   ~HLTScalers() override = default;

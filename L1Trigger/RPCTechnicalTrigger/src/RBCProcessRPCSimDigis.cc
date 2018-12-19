@@ -4,12 +4,15 @@
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCProcessRPCSimDigis.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCLinkBoardGLSignal.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "GeometryConstants.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : RBCProcessRPCSimDigis
 //
 // 2009-09-20 : Andres Felipe Osorio Oliveros
 //-----------------------------------------------------------------------------
+using namespace rpctechnicaltrigger;
+
 
 RBCProcessRPCSimDigis::RBCProcessRPCSimDigis( const edm::ESHandle<RPCGeometry> & rpcGeom, 
                                               const edm::Handle<edm::DetSetVector<RPCDigiSimLink> > & digiSimLink)
@@ -18,59 +21,9 @@ RBCProcessRPCSimDigis::RBCProcessRPCSimDigis( const edm::ESHandle<RPCGeometry> &
   m_ptr_rpcGeom  = & rpcGeom;
   m_ptr_digiSimLink = & digiSimLink;
   
-  m_lbin = dynamic_cast<RPCInputSignal*>( new RBCLinkBoardGLSignal( &m_data ) );
+  m_lbin = std::make_unique<RBCLinkBoardGLSignal>( &m_data ) ;
   
   m_debug = false;
-  
-  configure();
-  
-}
-
-void RBCProcessRPCSimDigis::configure() 
-{
-  
-  m_wheelid.push_back(-2); //-2
-  m_wheelid.push_back(-1); //-1
-  m_wheelid.push_back(0);  // 0
-  m_wheelid.push_back( 1); //+1
-  m_wheelid.push_back( 2); //+2
-  
-  m_sec1id.push_back(12);
-  m_sec2id.push_back(1);
-  m_sec1id.push_back(2);
-  m_sec2id.push_back(3);
-  m_sec1id.push_back(4);
-  m_sec2id.push_back(5);
-  m_sec1id.push_back(6);
-  m_sec2id.push_back(7);
-  m_sec1id.push_back(8);
-  m_sec2id.push_back(9);
-  m_sec1id.push_back(10);
-  m_sec2id.push_back(11);
-  
-  m_layermap[113]     = 0;  //RB1InFw
-  m_layermap[123]     = 1;  //RB1OutFw
-  
-  m_layermap[20213]   = 2;  //RB22Fw
-  m_layermap[20223]   = 2;  //RB22Fw
-  m_layermap[30223]   = 3;  //RB23Fw
-  m_layermap[30213]   = 3;  //RB23Fw
-  m_layermap[30212]   = 4;  //RB23M
-  m_layermap[30222]   = 4;  //RB23M
-  
-  m_layermap[313]     = 5;  //RB3Fw
-  m_layermap[413]     = 6;  //RB4Fw
-  m_layermap[111]     = 7;  //RB1InBk
-  m_layermap[121]     = 8;  //RB1OutBk
-  
-  m_layermap[20211]   = 9;  //RB22Bw
-  m_layermap[20221]   = 9;  //RB22Bw
-  m_layermap[30211]   = 10; //RB23Bw
-  m_layermap[30221]   = 10; //RB23Bw
-  
-  m_layermap[311]     = 11; //RB3Bk
-  m_layermap[411]     = 12; //RB4Bk
-  
   m_maxBxWindow = 3;
   
 }
@@ -79,16 +32,7 @@ void RBCProcessRPCSimDigis::configure()
 // Destructor
 //=============================================================================
 RBCProcessRPCSimDigis::~RBCProcessRPCSimDigis() {
-  
-  if ( m_lbin ) delete m_lbin;
-
-  m_sec1id.clear();
-  m_sec2id.clear();
-  m_wheelid.clear();
-  m_layermap.clear();
-
   reset();
-  
 } 
 
 //=============================================================================
@@ -156,20 +100,18 @@ int RBCProcessRPCSimDigis::next() {
                                << "Digi at: " << digipos << '\n';
       
       //... Construct the RBCinput objects
-      std::map<int,std::vector<RPCData*> >::iterator itr;
-      itr = m_vecDataperBx.find( bx );
+      auto itr = m_vecDataperBx.find( bx );
       
       if ( itr == m_vecDataperBx.end() ) {
         if ( m_debug ) std::cout << "Found a new Bx: " << bx << std::endl;
-        std::vector<RPCData*> wheelData;
+        auto& wheelData = m_vecDataperBx[bx];
         initialize(wheelData);
-        m_vecDataperBx[bx] = wheelData; 
-        this->m_block = wheelData[ (wheel + 2) ];
-        setDigiAt( sector, digipos );
+        auto& block = wheelData[ (wheel + 2) ];
+        setDigiAt( sector, digipos, block );
       }
       else{
-        this->m_block = (*itr).second[ (wheel + 2) ];
-        setDigiAt( sector, digipos );
+        auto& block = (*itr).second[ (wheel + 2) ];
+        setDigiAt( sector, digipos, block );
       }
       
       if ( m_debug ) std::cout << "looping over digis 2 ..." << std::endl;
@@ -201,43 +143,34 @@ int RBCProcessRPCSimDigis::next() {
 void RBCProcessRPCSimDigis::reset()
 {
   
-  std::map<int,std::vector<RPCData*> >::iterator itr1;
-  for( itr1 = m_vecDataperBx.begin(); itr1 != m_vecDataperBx.end(); ++itr1) {
-    std::vector<RPCData*>::iterator itr2;
-    for(itr2 = (*itr1).second.begin(); itr2 != (*itr1).second.end();++itr2 )
-      if ( (*itr2) ) delete *itr2;
-    (*itr1).second.clear();
-  }
   m_vecDataperBx.clear();
   
 }
 
 
-void RBCProcessRPCSimDigis::initialize( std::vector<RPCData*> & dataVec ) 
+void RBCProcessRPCSimDigis::initialize( std::vector<RPCData> & dataVec ) 
 {
   
   if ( m_debug ) std::cout << "initialize" << std::endl;
   
-  int maxWheels = 5;
-  int maxRbcBrds = 6;
+  constexpr int maxWheels = 5;
+  constexpr int maxRbcBrds = 6;
   
+  dataVec.reserve(maxWheels);
   for(int i=0; i < maxWheels; ++i) {
     
-    m_block = new RPCData();
+    auto& block = dataVec.emplace_back();
     
-    m_block->m_wheel = m_wheelid[i];
+    block.m_wheel = s_wheelid[i];
     
     for(int j=0; j < maxRbcBrds; ++j) {
-      m_block->m_sec1[j] = m_sec1id[j];
-      m_block->m_sec2[j] = m_sec2id[j];
-      m_block->m_orsignals[j].input_sec[0].reset();
-      m_block->m_orsignals[j].input_sec[1].reset();
-      m_block->m_orsignals[j].needmapping = false;
-      m_block->m_orsignals[j].hasData = false;
+      block.m_sec1[j] = s_sec1id[j];
+      block.m_sec2[j] = s_sec2id[j];
+      block.m_orsignals[j].input_sec[0].reset();
+      block.m_orsignals[j].input_sec[1].reset();
+      block.m_orsignals[j].needmapping = false;
+      block.m_orsignals[j].hasData = false;
     }
-
-    dataVec.push_back( m_block );
-    
   }
   
   if ( m_debug ) std::cout << "initialize: completed" << std::endl;
@@ -247,33 +180,27 @@ void RBCProcessRPCSimDigis::initialize( std::vector<RPCData*> & dataVec )
 void RBCProcessRPCSimDigis::builddata() 
 {
   
-  int bx(0);
   int code(0);
-  int bxsign(1);
-  std::vector<RPCData*>::iterator itr;
-  std::map<int, std::vector<RPCData*> >::iterator itr2;
   
-  itr2 = m_vecDataperBx.begin();
-  if( itr2 == ( m_vecDataperBx.end() ) ) return;
-  
-  while ( itr2 != m_vecDataperBx.end() ) {
+  for(auto& dataPerBx: m_vecDataperBx) {
     
-    bx = (*itr2).first;
+    int bx = dataPerBx.first;
     
+    int bxsign;
     if ( bx != 0 ) bxsign = ( bx / abs(bx) );
     else bxsign = 1;
     
-    for(itr = (*itr2).second.begin(); itr != (*itr2).second.end(); ++itr) {
+    for(auto& item : dataPerBx.second) {
       
       for(int k=0; k < 6; ++k) {
         
         code = bxsign * ( 1000000*abs(bx)
-                          + 10000*(*itr)->wheelIdx()
-                          + 100  *(*itr)->m_sec1[k]
-                          + 1    *(*itr)->m_sec2[k] );
+                          + 10000*item.wheelIdx()
+                          + 100  *item.m_sec1[k]
+                          + 1    *item.m_sec2[k] );
 
         
-        RBCInput * signal = & (*itr)->m_orsignals[k];
+        RBCInput * signal = & item.m_orsignals[k];
         signal->needmapping = false;
         
         if ( signal->hasData )
@@ -281,12 +208,9 @@ void RBCProcessRPCSimDigis::builddata()
         
       }
     }
-    
-    ++itr2;
-    
   }
   
-  if ( m_debug ) std::cout << "builddata: completed. size of data: " << m_data.size() << std::endl;
+  if ( m_debug and not m_vecDataperBx.empty()) std::cout << "builddata: completed. size of data: " << m_data.size() << std::endl;
   
 }
 
@@ -308,7 +232,7 @@ int RBCProcessRPCSimDigis::getBarrelLayer( const int & _layer, const int & _stat
 }
 
 
-void RBCProcessRPCSimDigis::setDigiAt( int sector, int digipos )
+void RBCProcessRPCSimDigis::setDigiAt( int sector, int digipos, RPCData& block )
 {
   
   int pos   = 0;
@@ -316,26 +240,25 @@ void RBCProcessRPCSimDigis::setDigiAt( int sector, int digipos )
 
   if ( m_debug ) std::cout << "setDigiAt" << std::endl;
   
-  std::vector<int>::const_iterator itr;
-  itr = std::find( m_sec1id.begin(), m_sec1id.end(), sector );
+  auto itr = std::find( s_sec1id.begin(), s_sec1id.end(), sector );
   
-  if ( itr == m_sec1id.end()) {
-    itr = std::find( m_sec2id.begin(), m_sec2id.end(), sector );
+  if ( itr == s_sec1id.end()) {
+    itr = std::find( s_sec2id.begin(), s_sec2id.end(), sector );
     isAoB = 1;
   } 
   
   for ( pos = 0; pos < 6; ++pos ) {
-    if (this->m_block->m_sec1[pos] == sector || this->m_block->m_sec2[pos] == sector )
+    if (block.m_sec1[pos] == sector || block.m_sec2[pos] == sector )
       break;
   }
   
-  if ( m_debug ) std::cout << this->m_block->m_orsignals[pos];
+  if ( m_debug ) std::cout << block.m_orsignals[pos];
   
-  setInputBit( this->m_block->m_orsignals[pos].input_sec[ isAoB ] , digipos );
+  setInputBit( block.m_orsignals[pos].input_sec[ isAoB ] , digipos );
   
-  this->m_block->m_orsignals[pos].hasData = true;
+  block.m_orsignals[pos].hasData = true;
   
-  if ( m_debug ) std::cout << this->m_block->m_orsignals[pos];
+  if ( m_debug ) std::cout << block.m_orsignals[pos];
   
   if ( m_debug ) std::cout << "setDigiAt completed" << std::endl;
   
@@ -344,7 +267,7 @@ void RBCProcessRPCSimDigis::setDigiAt( int sector, int digipos )
 void RBCProcessRPCSimDigis::setInputBit( std::bitset<15> & signals , int digipos ) 
 {
   
-  int bitpos = m_layermap[digipos];
+  int bitpos = s_layermap.at(digipos);
   if( m_debug ) std::cout << "Bitpos: " << bitpos << std::endl;
   signals.set( bitpos , true );
   

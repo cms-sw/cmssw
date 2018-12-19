@@ -36,7 +36,7 @@ class DTTFMasksOnlineProd :
       DTTFMasksOnlineProd(const edm::ParameterSet&);
       ~DTTFMasksOnlineProd() override;
 
-      std::shared_ptr< L1MuDTTFMasks > newObject(
+      std::unique_ptr< L1MuDTTFMasks > newObject(
         const std::string& objectKey ) override ;
 
    private:
@@ -66,12 +66,10 @@ DTTFMasksOnlineProd::~DTTFMasksOnlineProd()
 
 }
 
-std::shared_ptr< L1MuDTTFMasks >
+std::unique_ptr< L1MuDTTFMasks >
 DTTFMasksOnlineProd::newObject( const std::string& objectKey )
 {
-     using namespace edm::es;
-
-     auto pDTTFMasks = std::make_shared< L1MuDTTFMasks >() ;
+     auto pDTTFMasks = std::make_unique< L1MuDTTFMasks >() ;
 
      pDTTFMasks->reset() ;
 
@@ -104,7 +102,7 @@ DTTFMasksOnlineProd::newObject( const std::string& objectKey )
        {
 	 edm::LogError( "L1-O2O" )
 	   << "Problem with L1MuDTTFMasks key " << objectKey ;
-	 return std::shared_ptr< L1MuDTTFMasks >() ;
+	 return std::unique_ptr< L1MuDTTFMasks >() ;
        }
 
      // Cache crate masks

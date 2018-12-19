@@ -22,6 +22,9 @@ namespace hcaldqm
 			~DQHarvester() override {}
 
 			void beginRun(edm::Run const&, edm::EventSetup const&) override;
+			void dqmBeginLuminosityBlock(
+				DQMStore::IBooker& ib, DQMStore::IGetter& ig,
+				edm::LuminosityBlock const& lb, edm::EventSetup const& es);
 			void dqmEndLuminosityBlock(
 				DQMStore::IBooker&, DQMStore::IGetter&, 
 				edm::LuminosityBlock const&, edm::EventSetup const&) override;

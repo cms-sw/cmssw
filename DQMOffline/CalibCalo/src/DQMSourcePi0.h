@@ -24,17 +24,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-typedef std::map<DetId, EcalRecHit> RecHitsMap;
 // Less than operator for sorting EcalRecHits according to energy.
-class ecalRecHitLess : public std::binary_function<EcalRecHit, EcalRecHit, bool> 
-{
-public:
-  bool operator()(EcalRecHit x, EcalRecHit y) 
-  { 
-    return (x.energy() > y.energy()); 
-  }
-};
-
+bool ecalRecHitGreater(EcalRecHit x, EcalRecHit y) 
+{ 
+  return (x.energy() > y.energy()); 
+}
 
 
 

@@ -39,7 +39,7 @@
 
 /// This checks a slew of possible overlaps for FwdPtr<Candidate> and derivatives.
 template < class Top, class Bottom>
-  class TopProjectorFwdPtrOverlap : public std::unary_function<edm::FwdPtr<Top>, bool > {
+  class TopProjectorFwdPtrOverlap {
 
   public:
     typedef edm::FwdPtr<Top> TopFwdPtr;
@@ -101,7 +101,7 @@ template < class Top, class Bottom>
 
 /// This checks matching based on delta R
 template < class Top, class Bottom>
-  class TopProjectorDeltaROverlap : public std::unary_function<edm::FwdPtr<Top>, bool > {
+  class TopProjectorDeltaROverlap {
 
   public:
     typedef edm::FwdPtr<Top> TopFwdPtr;

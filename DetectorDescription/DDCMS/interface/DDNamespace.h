@@ -46,7 +46,6 @@ namespace cms {
     
     void addConstant( const std::string& name, const std::string& value, const std::string& type ) const;
     void addConstantNS( const std::string& name, const std::string& value, const std::string& type ) const;
-    void addVector( const std::string& name, const std::vector<double>& value ) const;
     
     dd4hep::Material material( const std::string& name ) const;
     dd4hep::Solid solid( const std::string& name ) const;
@@ -60,13 +59,16 @@ namespace cms {
     const dd4hep::Rotation3D& rotation( const std::string& name ) const;
     void addRotation( const std::string& name, const dd4hep::Rotation3D& rot ) const;
     
-    DDParsingContext* context = nullptr;
+    DDParsingContext* const context() const { return m_context; }
+    DDParsingContext* setContext() { return m_context; }
     
     const std::string& name() const {
       return m_name;
     }
    
   private:
+
+    DDParsingContext* m_context = nullptr;
     std::string m_name;
     bool m_pop = false;
   };

@@ -69,7 +69,7 @@ class RateBuffer{
   
 };
 
-class L1TBPTX : public DQMEDAnalyzer {
+class L1TBPTX : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 
   public:
 

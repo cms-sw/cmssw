@@ -76,6 +76,7 @@ equivDict = \
          {'TauReco'               : ['reco::PFJetRef']},
          {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
          {'HGCDigi'               : ['HGCSample']},
+         {'SiPixelObjects'        : ['SiPixelQuality.*']},
      ]
 
 ignoreEdmDP = {

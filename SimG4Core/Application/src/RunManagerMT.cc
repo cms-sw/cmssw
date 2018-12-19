@@ -18,7 +18,6 @@
 
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
-#include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
 #include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 
@@ -84,7 +83,6 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
 
   m_runInterface.reset(nullptr);
   m_prodCuts.reset(nullptr);
-  m_chordFinderSetter.reset(nullptr);
   m_userRunAction = nullptr;
   m_currentRun = nullptr;
 
@@ -113,8 +111,8 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
     << "RunManagerMT: start initialisation of geometry";
   
   // DDDWorld: get the DDCV from the ES and use it to build the World
-  G4LogicalVolumeToDDLogicalPartMap map_;
-  m_world.reset(new DDDWorld(pDD, map_, m_catalog, false));
+  G4LogicalVolumeToDDLogicalPartMap map_lv;
+  m_world.reset(new DDDWorld(pDD, map_lv, m_catalog, false));
   m_registry.dddWorldSignal_(m_world.get());
 
   // setup the magnetic field
@@ -155,7 +153,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   // exotic particle physics
   double monopoleMass = m_pPhysics.getUntrackedParameter<double>("MonopoleMass",0);
   if(monopoleMass > 0.0) {
-    phys->RegisterPhysics(new CMSMonopolePhysics(fPDGTable,m_chordFinderSetter.get(),m_pPhysics));
+    phys->RegisterPhysics(new CMSMonopolePhysics(fPDGTable,m_pPhysics));
   }
   bool exotica = m_pPhysics.getUntrackedParameter<bool>("ExoticaTransport",false);
   if(exotica) { CMSExoticaPhysics exo(phys, m_pPhysics); }
@@ -179,7 +177,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   m_physicsList->SetCutsWithDefault();
 
   if(m_pPhysics.getParameter<bool>("CutsPerRegion")) {
-    m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));	
+    m_prodCuts.reset(new DDG4ProductionCuts(map_lv, verb, m_pPhysics));	
     m_prodCuts->update();
   }
   
@@ -290,8 +288,9 @@ void RunManagerMT::DumpMagneticField(const G4Field* field) const
       << " RunManager WARNING : "
       << "error opening file <" << m_FieldFile << "> for magnetic field";
   } else {
+    // CMS magnetic field volume
     double rmax = 9000*mm;
-    double zmax = 16000*mm;
+    double zmax = 24000*mm;
 
     double dr = 5*cm;
     double dz = 20*cm;

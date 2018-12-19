@@ -84,7 +84,7 @@ GsfConstraintAtVertex::constrainAtPoint (const reco::GsfTrack& track,
   // RecHit from beam spot
   //
   LocalError bsCovLocal = ErrorFrameTransformer().transform(globalError,tipState.surface());
-  TransientTrackingRecHit::RecHitPointer bsHit = 
+  auto bsHit = 
     TRecHit2DPosConstraint::build(tipState.surface().toLocal(globalPosition),
 				  bsCovLocal,&tipState.surface());
   //

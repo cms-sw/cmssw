@@ -188,20 +188,22 @@ private:
 
 class CalibCorr {
 public :
-  CalibCorr(const char* infile, bool useDepth, bool debug);
+  CalibCorr(const char* infile, int flag, bool debug);
   ~CalibCorr() {}
 
   float getCorr(int run, unsigned int id);
 private:
-  void                     readCorr(const char* infile);
+  void                     readCorrRun(const char* infile);
   void                     readCorrDepth(const char* infile);
+  void                     readCorrResp(const char* infile);
   unsigned int getDetIdHE(int ieta, int iphi, int depth);
   unsigned int getDetId(int subdet, int ieta, int iphi, int depth);
   unsigned int correctDetId(const unsigned int& detId);
 
   static const     unsigned int nmax_=10;
-  bool                          ifDepth_, debug_;
-  std::map<unsigned int,float>  corrFac_[nmax_], corrFacN_;
+  int                           flag_;
+  bool                          debug_;
+  std::map<unsigned int,float>  corrFac_[nmax_], corrFacDepth_, corrFacResp_;
   std::vector<int>              runlow_;
 };
 
@@ -224,11 +226,18 @@ CalibCorrFactor::CalibCorrFactor(const char* infile, int useScale, double scale,
   useScale_(useScale), scale_(scale), etaMax_(etamax), debug_(debug), 
   etamp_(0), etamn_(0), cfacmp_(1), cfacmn_(1) {
 
-  corrE_ = readCorrFactor(infile);
-  std::cout << "Reads " << cfactors_.size() << " correction factors from " 
-	    << infile << " with flag " << corrE_ << std::endl 
-	    << " Flag for scale " << useScale_ << " with scale " << scale_ 
-	    << " and flag for etaMax " << etaMax_ << std::endl;
+  if (std::string(infile) != "") {
+    corrE_ = readCorrFactor(infile);
+    std::cout << "Reads " << cfactors_.size() << " correction factors from " 
+	      << infile << " with flag " << corrE_ << std::endl 
+	      << "Flag for scale " << useScale_ << " with scale " << scale_ 
+	      << " and flag for etaMax " << etaMax_ << std::endl;
+  } else {
+    corrE_ = false;
+    std::cout << "No correction factors provided; Flag for scale " 
+	      << useScale_ << " with scale " << scale_ 
+	      << " and flag for etaMax " << etaMax_ << std::endl;
+  }
 }
 
 double CalibCorrFactor::getCorr(unsigned int id) {
@@ -303,19 +312,24 @@ double CalibCorrFactor::getFactor(const int& ieta) {
   return scale;
 }
 
-
-CalibCorr::CalibCorr(const char* infile, bool ifDepth, bool debug) : 
-  ifDepth_(ifDepth), debug_(debug) {
-  if (ifDepth_) readCorrDepth(infile);
-  else          readCorr(infile);
+CalibCorr::CalibCorr(const char* infile, int flag, bool debug) : 
+  flag_(flag), debug_(debug) {
+  std::cout << "CalibCorr is created with flag " << flag << ":" << flag_ 
+	    << " for i/p file " << infile << std::endl;
+  if      (flag == 1) readCorrDepth(infile);
+  else if (flag == 2) readCorrResp(infile);
+  else                readCorrRun(infile);
 }
 
 float CalibCorr::getCorr(int run, unsigned int id) {
   float cfac(1.0);
   unsigned idx = correctDetId(id);
-  if (ifDepth_) {
-    std::map<unsigned int,float>::iterator itr = corrFacN_.find(idx);
-    if (itr != corrFacN_.end()) cfac = itr->second;
+  if (flag_ == 1) {
+    std::map<unsigned int,float>::iterator itr = corrFacDepth_.find(idx);
+    if (itr != corrFacDepth_.end()) cfac = itr->second;
+  } else if (flag_ == 2) {
+    std::map<unsigned int,float>::iterator itr = corrFacResp_.find(idx);
+    if (itr != corrFacResp_.end()) cfac = itr->second;
   } else {
     int ip(-1);
     for (unsigned int k=0; k<runlow_.size(); ++k) {
@@ -342,54 +356,9 @@ float CalibCorr::getCorr(int run, unsigned int id) {
   return cfac;
 }
 
-void CalibCorr::readCorrDepth(const char* infile) {
+void CalibCorr::readCorrRun(const char* infile) {
 
-  std::ifstream fInput(infile);
-  if (!fInput.good()) {
-    std::cout << "Cannot open file " << infile << std::endl;
-  } else {
-    char buffer [1024];
-    unsigned int all(0), good(0);
-    while (fInput.getline(buffer, 1024)) {
-      ++all;
-      std::string bufferString(buffer);
-      if (bufferString.substr(0,5) == "depth") {
-	continue; //ignore other comments
-      } else {
-	std::vector<std::string> items = splitString(bufferString);
-	if (items.size () != 3) {
-	  std::cout << "Ignore  line: " << buffer << " Size " << items.size();
-	  for (unsigned int k=0; k<items.size(); ++k)
-	    std::cout << " [" << k << "] : " << items[k];
-	  std::cout << std::endl;
-	} else {
-	  ++good;
-	  int   ieta  = std::atoi (items[1].c_str());
-	  int   depth = std::atoi (items[0].c_str());
-	  float corrf = std::atof (items[2].c_str());
-	  int   nphi  = (std::abs(ieta) > 20) ? 36 : 72;
-	  for (int i=1; i<=nphi; ++i) {
-	    int        iphi = (nphi > 36) ? i : (2*i-1);
-	    unsigned int id = getDetIdHE(ieta,iphi,depth);
-	    corrFacN_[id]   = corrf;
-	    if (debug_) {
-	      std::cout << "ID " << std::hex << id << std::dec << ":" << id
-			<< " (eta " << ieta << " phi " << iphi << " depth " 
-			<< depth << ") " << corrFacN_[id] << std::endl;
-	    }
-	  }
-	}
-      }
-    }
-    fInput.close();
-    std::cout << "Reads total of " << all << " and " << good 
-	      << " good records of depth dependent factors from " << infile 
-	      << std::endl;
-  }
-}
-
-void CalibCorr::readCorr(const char* infile) {
-
+  std::cout << "Enters readCorrRun for " << infile << std::endl;
   std::ifstream fInput(infile);
   unsigned int ncorr(0);
   if (!fInput.good()) {
@@ -442,6 +411,101 @@ void CalibCorr::readCorr(const char* infile) {
     fInput.close();
     std::cout << "Reads total of " << all << " and " << good 
 	      << " good records of run dependent corrections from "
+	      << infile << std::endl;
+  }
+}
+
+void CalibCorr::readCorrDepth(const char* infile) {
+
+  std::cout << "Enters readCorrDepth for " << infile << std::endl;
+  std::ifstream fInput(infile);
+  if (!fInput.good()) {
+    std::cout << "Cannot open file " << infile << std::endl;
+  } else {
+    char buffer [1024];
+    unsigned int all(0), good(0);
+    while (fInput.getline(buffer, 1024)) {
+      ++all;
+      std::string bufferString(buffer);
+      if (bufferString.substr(0,5) == "depth") {
+	continue; //ignore other comments
+      } else {
+	std::vector<std::string> items = splitString(bufferString);
+	if (items.size () != 3) {
+	  std::cout << "Ignore  line: " << buffer << " Size " << items.size();
+	  for (unsigned int k=0; k<items.size(); ++k)
+	    std::cout << " [" << k << "] : " << items[k];
+	  std::cout << std::endl;
+	} else {
+	  ++good;
+	  int   ieta  = std::atoi (items[1].c_str());
+	  int   depth = std::atoi (items[0].c_str());
+	  float corrf = std::atof (items[2].c_str());
+	  int   nphi  = (std::abs(ieta) > 20) ? 36 : 72;
+	  for (int i=1; i<=nphi; ++i) {
+	    int        iphi = (nphi > 36) ? i : (2*i-1);
+	    unsigned int id = getDetIdHE(ieta,iphi,depth);
+	    corrFacDepth_[id]   = corrf;
+	    if (debug_) {
+	      std::cout << "ID " << std::hex << id << std::dec << ":" << id
+			<< " (eta " << ieta << " phi " << iphi << " depth " 
+			<< depth << ") " << corrFacDepth_[id] << std::endl;
+	    }
+	  }
+	}
+      }
+    }
+    fInput.close();
+    std::cout << "Reads total of " << all << " and " << good 
+	      << " good records of depth dependent factors from " << infile 
+	      << std::endl;
+  }
+}
+
+void CalibCorr::readCorrResp(const char* infile) {
+
+  std::cout << "Enters readCorrResp for " << infile << std::endl;
+  std::ifstream fInput(infile);
+  if (!fInput.good()) {
+    std::cout << "Cannot open file " << infile << std::endl;
+  } else {
+    char buffer [1024];
+    unsigned int all(0), good(0), other(0);
+    while (fInput.getline(buffer, 1024)) {
+      ++all;
+      std::string bufferString(buffer);
+      if (bufferString.substr(0,1) == "#") {
+	continue; //ignore other comments
+      } else {
+	std::vector<std::string> items = splitString(bufferString);
+	if (items.size () < 5) {
+	  std::cout << "Ignore  line: " << buffer << " Size " << items.size();
+	  for (unsigned int k=0; k<items.size(); ++k)
+	    std::cout << " [" << k << "] : " << items[k];
+	  std::cout << std::endl;
+	} else if (items[3] == "HB" || items[3] == "HE") {
+	  ++good;
+	  int   ieta  = std::atoi (items[0].c_str());
+	  int   iphi  = std::atoi (items[1].c_str());
+	  int   depth = std::atoi (items[2].c_str());
+	  int   subdet= (items[3] == "HE") ? 2 : 1;
+	  float corrf = std::atof (items[4].c_str());
+	  unsigned int id = getDetId(subdet,ieta,iphi,depth);
+	  corrFacResp_[id] = corrf;
+	  if (debug_) {
+	    std::cout << "ID " << std::hex << id << std::dec << ":" << id
+		      << " (subdet " << items[3] << ":" << subdet << " eta " 
+		      << ieta << " phi " << iphi << " depth " << depth 
+		      << ") " << corrFacResp_[id] << std::endl;
+	  }
+	} else {
+	  ++other;
+	}
+      }
+    }
+    fInput.close();
+    std::cout << "Reads total of " << all << " and " << good << " good and "
+	      << other << " detector records of depth dependent factors from "
 	      << infile << std::endl;
   }
 }
@@ -547,4 +611,18 @@ bool CalibSelectRBX::isItRBX(const int ieta, const int iphi) {
 	      << std::endl;
   }
   return ok;
+}
+
+void CalibCorrTest(const char* infile, int flag) {
+
+  CalibCorr* c1 = new CalibCorr(infile, flag, true);
+  for (int ieta = 1; ieta < 29; ++ieta) {
+    int subdet = (ieta > 16) ? 2 : 1;
+    int depth  = (ieta > 16) ? 2 : 1;
+    unsigned int id1 = ((4<<28)|((subdet&0x7)<<25));
+    id1 |= ((0x1000000) | ((depth&0xF)<<20) | (ieta<<10) | 1);
+    c1->getCorr(0, id1);
+    id1 |= (0x80000);
+    c1->getCorr(0, id1);
+  }
 }

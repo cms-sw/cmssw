@@ -44,9 +44,9 @@ G4LogicalVolume * DDG4Builder::convertLV(const DDLogicalPart & part) {
   LogDebug("SimG4CoreGeometry") << "DDG4Builder::convertLV(): DDLogicalPart = " << part << "\n";
   G4LogicalVolume * result = logs_[part];
   if (!result) {
-    G4VSolid * s   = convertSolid(part.solid());
-    G4Material * m = convertMaterial(part.material());
-    result = new G4LogicalVolume(s,m,part.name().name());
+    G4VSolid * g4s   = convertSolid(part.solid());
+    G4Material * g4m = convertMaterial(part.material());
+    result = new G4LogicalVolume(g4s,g4m,part.name().name());
     map_.insert(result,part);
     DDG4Dispatchable * disp = new DDG4Dispatchable(&part,result);	
     theVectorOfDDG4Dispatchables_->push_back(disp);
@@ -194,42 +194,40 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
   return DDGeometryReturnType(world,map_,catalog);    
 }
 
-int DDG4Builder::getInt(const std::string & s, const DDLogicalPart & part)
+int DDG4Builder::getInt(const std::string & ss, const DDLogicalPart & part)
 {
-  DDValue val(s);
+  DDValue val(ss);
   std::vector<const DDsvalues_type *> result = part.specifics();
-  std::vector<const DDsvalues_type *>::iterator it = result.begin();
   bool foundIt = false;
-  for (; it != result.end(); ++it) {
-    foundIt = DDfetch(*it,val);
+  for (auto stype : result) {
+    foundIt = DDfetch(stype,val);
     if (foundIt) break;
   }    
   if (foundIt) { 
     std::vector<double> temp = val.doubles();
     if (temp.size() != 1) {
-      edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << s;
-      throw cms::Exception("SimG4CoreGeometry", " DDG4Builder::getInt() Problem with Region tags - one and only one allowed: " + s);
+      edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << ss;
+      throw cms::Exception("SimG4CoreGeometry", " DDG4Builder::getInt() Problem with Region tags - one and only one allowed: " + ss);
     }      
     return int(temp[0]);
   }
   else return 0;
 }
 
-double DDG4Builder::getDouble(const std::string & s, 
+double DDG4Builder::getDouble(const std::string & ss, 
 			      const DDLogicalPart & part) {
-  DDValue val(s);
+  DDValue val(ss);
   std::vector<const DDsvalues_type *> result = part.specifics();
-  std::vector<const DDsvalues_type *>::iterator it = result.begin();
   bool foundIt = false;
-  for (; it != result.end(); ++it) {
-    foundIt = DDfetch(*it,val);
+  for (auto stype : result) {
+    foundIt = DDfetch(stype,val);
     if (foundIt) break;
   }    
   if (foundIt) { 
     std::vector<std::string> temp = val.strings();
     if (temp.size() != 1) {
-      edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << s ;
-      throw cms::Exception("SimG4CoreGeometry", " DDG4Builder::getDouble() Problem with Region tags - one and only one allowed: " + s);
+      edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << ss;
+      throw cms::Exception("SimG4CoreGeometry", " DDG4Builder::getDouble() Problem with Region tags - one and only one allowed: " + ss);
     }
     double v;
     std::string unit;

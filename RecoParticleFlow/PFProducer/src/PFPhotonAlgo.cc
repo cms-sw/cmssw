@@ -32,7 +32,7 @@ PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,
 			   bool useReg,
 			   std::string X0_Map,
 			   const reco::Vertex& primary,
-			   const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+			   const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
                            double sumPtTrackIsoForPhoton,
                            double sumPtTrackIsoSlopeForPhoton
 			   ) : 

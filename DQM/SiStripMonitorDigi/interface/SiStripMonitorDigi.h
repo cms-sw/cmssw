@@ -32,7 +32,7 @@ class EventWithHistory;
 class L1GlobalTriggerEvmReadoutRecord;
 class APVCyclePhaseCollection;
 
-class SiStripMonitorDigi : public DQMEDAnalyzer {
+class SiStripMonitorDigi : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
  public:
   explicit SiStripMonitorDigi(const edm::ParameterSet&);
   ~SiStripMonitorDigi() override;

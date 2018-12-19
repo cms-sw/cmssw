@@ -9,7 +9,7 @@ namespace hcaldqm
 		DQModule(ps)
 	{}
 
-	/* virtual */ void DQHarvester::beginRun(edm::Run const& r,
+	void DQHarvester::beginRun(edm::Run const& r,
 		edm::EventSetup const& es)
 	{
 		if (_ptype==fLocal)
@@ -90,8 +90,15 @@ namespace hcaldqm
 			}
 		}
 
-		//	get the Hcal Channels Quality for channels that are not 0
+		// Initialize channel quality masks, but do not load (changed for 10_4_X, moving to LS granularity)
 		_xQuality.initialize(hashfunctions::fDChannel);
+	}
+
+	void DQHarvester::dqmBeginLuminosityBlock(
+		DQMStore::IBooker& ib, DQMStore::IGetter& ig,
+		edm::LuminosityBlock const& lb, edm::EventSetup const& es)
+	{
+		//	get the Hcal Channels Quality for channels that are not 0
 		edm::ESHandle<HcalChannelQuality> hcq;
 		es.get<HcalChannelQualityRcd>().get("withTopo", hcq);
 		const HcalChannelQuality *cq = hcq.product();
@@ -113,7 +120,7 @@ namespace hcaldqm
 		}
 	}
 
-	/* virtual */ void DQHarvester::dqmEndLuminosityBlock(
+	void DQHarvester::dqmEndLuminosityBlock(
 		DQMStore::IBooker& ib, DQMStore::IGetter& ig,
 		edm::LuminosityBlock const& lb, edm::EventSetup const& es)
 	{
@@ -122,7 +129,7 @@ namespace hcaldqm
 		_totalLS++;
 		_dqmEndLuminosityBlock(ib, ig, lb, es);
 	}
-	/* virtual */ void DQHarvester::dqmEndJob(DQMStore::IBooker& ib, 
+	void DQHarvester::dqmEndJob(DQMStore::IBooker& ib, 
 		DQMStore::IGetter& ig)
 	{
 		_dqmEndJob(ib, ig);

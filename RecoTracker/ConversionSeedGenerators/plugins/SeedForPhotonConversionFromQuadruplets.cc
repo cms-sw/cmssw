@@ -1056,7 +1056,7 @@ double SeedForPhotonConversionFromQuadruplets::getSqrEffectiveErrorOnZ(const See
 
 bool SeedForPhotonConversionFromQuadruplets::similarQuadExist(Quad & thisQuad, std::vector<Quad>& quadV){
 
-  BOOST_FOREACH( Quad quad, quadV )
+  for(auto const& quad : quadV )
     {
       double dx = thisQuad.x-quad.x;
       double dy = thisQuad.y-quad.y;

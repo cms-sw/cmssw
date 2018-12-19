@@ -42,16 +42,17 @@ class ETLDetId : public MTDDetId {
       ( ring& kRodRingMask ) << kRodRingOffset |
       ( module& kETLmoduleMask ) << kETLmoduleOffset |
       ( modtyp& kETLmodTypeMask ) << kETLmodTypeOffset ;
-}
+  }
+  
+  // ---------- Common methods ----------
+  
+  /** Returns ETL module number. */
+  inline int module() const { return (id_>>kETLmoduleOffset)&kETLmoduleMask; }
+  
+  /** Returns ETL crystal type number. */
+  inline int modType() const { return (id_>>kETLmodTypeOffset)&kETLmodTypeMask; }
 
-// ---------- Common methods ----------
-
-/** Returns ETL module number. */
-inline int module() const { return (id_>>kETLmoduleOffset)&kETLmoduleMask; }
-
-/** Returns ETL crystal type number. */
-inline int modType() const { return (id_>>kETLmodTypeOffset)&kETLmodTypeMask; }
-
+  ETLDetId geographicalId() const;
 };
 
 std::ostream& operator<< ( std::ostream&, const ETLDetId& );

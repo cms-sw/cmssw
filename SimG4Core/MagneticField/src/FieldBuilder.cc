@@ -14,9 +14,7 @@
 #include "G4ClassicalRK4.hh"
 #include "G4PropagatorInField.hh"
 #include "G4FieldManager.hh"
-#include "G4TransportationManager.hh"
 #include "G4ChordFinder.hh"
-#include "G4UniformMagField.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -25,8 +23,8 @@ using namespace sim;
 FieldBuilder::FieldBuilder(const MagneticField * f, const edm::ParameterSet & p) 
   : theTopVolume(nullptr),thePSet(p) 
 {
-  delta = p.getParameter<double>("delta")*CLHEP::mm;
-  theField = new Field(f, delta);
+  theDelta = p.getParameter<double>("delta")*CLHEP::mm;
+  theField = new Field(f, theDelta);
   theFieldEquation = new G4Mag_UsualEqRhs(theField);
 }
 
@@ -37,9 +35,7 @@ void FieldBuilder::build( CMSFieldManager* fM, G4PropagatorInField* fP)
 {    
   edm::ParameterSet thePSetForGMFM =
     thePSet.getParameter<edm::ParameterSet>("ConfGlobalMFM");
-
-  std::string volName = thePSetForGMFM.getParameter< std::string >("Volume");
-  
+  std::string volName = thePSetForGMFM.getParameter< std::string >("Volume");  
   edm::ParameterSet volPSet =
     thePSetForGMFM.getParameter< edm::ParameterSet >( volName );
     
@@ -66,29 +62,15 @@ void FieldBuilder::configureForVolume( const std::string& volName,
   std::string stepper   = volPSet.getParameter<std::string>("Stepper");
 
   edm::ParameterSet stpPSet = volPSet.getParameter<edm::ParameterSet>("StepperParam");
-  double minStep = stpPSet.getParameter<double>("MinStep") ;
-  int maxLoopCount = 
-    (int)stpPSet.getUntrackedParameter<double>("MaximumLoopCounts",1000);
-  double minEpsilonStep = 
-    stpPSet.getUntrackedParameter<double>("MinimumEpsilonStep",0.00001);
-  double maxEpsilonStep = 
-    stpPSet.getUntrackedParameter<double>("MaximumEpsilonStep",0.01);
+  double minStep = stpPSet.getParameter<double>("MinStep")*CLHEP::mm;
 
-  FieldStepper * theStepper = new FieldStepper(theFieldEquation, delta);
-  theStepper->select(stepper);
-  G4ChordFinder * cf = new G4ChordFinder(theField,minStep,theStepper);
+  FieldStepper* dStepper = new FieldStepper(theFieldEquation, theDelta, stepper);
+  G4ChordFinder* cf = new G4ChordFinder(theField,minStep,dStepper);
 
   MonopoleEquation* monopoleEquation = new MonopoleEquation(theField);
-  G4MagIntegratorStepper* theStepperMon = new G4ClassicalRK4(monopoleEquation,8);
-  G4ChordFinder * cfmon = new G4ChordFinder(theField,minStep,theStepperMon);
+  G4MagIntegratorStepper* mStepper = new G4ClassicalRK4(monopoleEquation,8);
+  G4ChordFinder* cfmon = new G4ChordFinder(theField, minStep, mStepper);
 
   fM->InitialiseForVolume(stpPSet, theField, cf, cfmon, volName, 
-			  fieldType, stepper, delta, minStep); 
-
-  if(fP) {
-    fP->SetMaxLoopCount(maxLoopCount);
-    fP->SetMinimumEpsilonStep(minEpsilonStep);
-    fP->SetMaximumEpsilonStep(maxEpsilonStep);
-    //fP->SetVerboseLevel(0);
-  }
+                          fieldType, stepper, theDelta, fP);
 }

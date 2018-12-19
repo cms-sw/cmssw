@@ -44,7 +44,7 @@
 #include <string>
 #include <vector>
 
-class L1TSync : public DQMEDAnalyzer {
+class L1TSync : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 
   public:
 
