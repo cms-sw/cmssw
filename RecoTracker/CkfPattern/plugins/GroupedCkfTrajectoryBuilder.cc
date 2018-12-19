@@ -817,8 +817,7 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
   return result;
 */
   theTrajectories.erase(std::remove_if( theTrajectories.begin(),theTrajectories.end(),
-                                        std::not1(std::mem_fun_ref(&TempTrajectory::isValid))),
- //                                     boost::bind(&TempTrajectory::isValid,_1)), 
+                                        std::not_fn(&TempTrajectory::isValid)),
                         theTrajectories.end());
 }
 
@@ -890,8 +889,8 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
   //
   result.swap(rebuiltTrajectories);
   result.erase(std::remove_if( result.begin(),result.end(),
-			       std::not1(std::mem_fun_ref(&TempTrajectory::isValid))),
-	       result.end());
+                               std::not_fn(&TempTrajectory::isValid)),
+               result.end());
 }
 
 int
