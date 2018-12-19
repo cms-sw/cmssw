@@ -26,18 +26,18 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
     
   // ----------member data ---------------------------
-  edm::EDGetTokenT<reco::TrackCollection > newTracksToken;
-  edm::EDGetTokenT<reco::TrackCollection > oldTracksToken;
-  edm::EDGetTokenT<reco::ElectronSeedCollection > seedsToken;
-  edm::EDGetTokenT<reco::PreIdCollection > idsToken;
-  edm::EDGetTokenT<edm::ValueMap<reco::PreIdRef>  > idMapToken;
+  edm::EDGetTokenT<reco::TrackCollection > newTracksToken_;
+  edm::EDGetTokenT<reco::TrackCollection > oldTracksToken_;
+  edm::EDGetTokenT<reco::ElectronSeedCollection > seedsToken_;
+  std::vector<edm::EDGetTokenT<reco::PreIdCollection > > idsToken_;
+  std::vector<edm::EDGetTokenT<edm::ValueMap<reco::PreIdRef>  > > idMapToken_;
 
-  std::string preidgsfLabel;
-  std::string preidLabel;
-  edm::InputTag oldTracksTag;
-  edm::InputTag newTracksTag;
-  edm::InputTag seedsTag;
-  edm::InputTag idsTag;
+  std::string preidgsfLabel_;
+  std::vector<std::string> preidLabel_;
+  edm::InputTag oldTracksTag_;
+  edm::InputTag newTracksTag_;
+  edm::InputTag seedsTag_;
+  std::vector<edm::InputTag> idsTag_;
   
 };
 
