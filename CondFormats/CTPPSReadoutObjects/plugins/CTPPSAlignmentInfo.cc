@@ -17,7 +17,6 @@
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
 
-//#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 
 //----------------------------------------------------------------------------------------------------

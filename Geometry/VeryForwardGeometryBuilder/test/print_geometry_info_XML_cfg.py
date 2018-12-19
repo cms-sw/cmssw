@@ -14,11 +14,12 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi")
 
 # load alignment correction
-process.load("Geometry.VeryForwardGeometryBuilder.ctppsIncludeAlignmentsFromXML_cfi")
-process.ctppsIncludeAlignmentsFromXML.RealFiles = cms.vstring(
+process.load("CondFormats.CTPPSReadoutObjects.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
+process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = cms.vstring(
+    "Geometry/VeryForwardGeometryBuilder/test/CTPPSIncludeAlignmentCorrectionsXML/alignment_file_1.xml",
     "Geometry/VeryForwardGeometryBuilder/test/CTPPSIncludeAlignmentCorrectionsXML/alignment_file_2.xml",
 )
-process.ctppsIncludeAlignmentsFromXML.verbosity = 1
+process.ctppsRPAlignmentCorrectionsDataESSourceXML.verbosity = 1
 
 # no events to process
 process.source = cms.Source("EmptySource",
