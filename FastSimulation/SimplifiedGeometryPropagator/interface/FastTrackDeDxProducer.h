@@ -54,7 +54,7 @@
 class FastTrackDeDxProducer : public edm::stream::EDProducer<> {
 public:
   explicit FastTrackDeDxProducer(const edm::ParameterSet&);
-  ~FastTrackDeDxProducer() override;
+  ~FastTrackDeDxProducer() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
@@ -65,7 +65,10 @@ private:
   void   processHit(const FastTrackerRecHit & recHit, float trackMomentum, float& cosine, reco::DeDxHitCollection& dedxHits, int& NClusterSaturating);
 
   // ----------member data ---------------------------
-  BaseDeDxEstimator* m_estimator;
+//BaseDeDxEstimator*               m_estimator;
+
+std::unique_ptr<BaseDeDxEstimator> m_estimator;
+
   edm::EDGetTokenT<reco::TrackCollection>  m_tracksTag;
 
 
