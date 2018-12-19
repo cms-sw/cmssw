@@ -59,7 +59,7 @@ MTDTrackingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("barrelClusters", edm::InputTag("mtdClusters:FTLBarrel"));
   desc.add<edm::InputTag>("endcapClusters", edm::InputTag("mtdClusters:FTLEndcap"));
-  descriptions.add("MTDTrackingRecHitProducer", desc);
+  descriptions.add("mtdTrackingRecHitProducer", desc);
 }
 
 MTDTrackingRecHitProducer::~MTDTrackingRecHitProducer() {

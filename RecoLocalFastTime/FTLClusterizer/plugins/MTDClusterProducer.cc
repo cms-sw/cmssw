@@ -113,7 +113,7 @@ MTDClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("HitThreshold", 0.);
   desc.add<double>("SeedThreshold", 0.);
   desc.add<double>("ClusterThreshold", 0.);
-  descriptions.add("MTDClusterProducer", desc);
+  descriptions.add("mtdClusterProducer", desc);
 }
   
 //---------------------------------------------------------------------------
