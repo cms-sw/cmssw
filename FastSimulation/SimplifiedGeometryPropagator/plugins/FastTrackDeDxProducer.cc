@@ -143,13 +143,15 @@ void FastTrackDeDxProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       
     auto hb = track->recHitsBegin();
     dedxHits.reserve(track->recHitsSize()/2);
+    
+
+    
     for(unsigned int h=0;h<track->recHitsSize();h++){
-	const FastTrackerRecHit recHit = static_cast< const FastTrackerRecHit & >(*(*(hb+h)));
-	if(!recHit.isValid()) continue;//FastTrackerRecHit recHit = *(hb+h);
-	
-	auto trackDirection = trajParams[h].direction();         
-	float cosine = trackDirection.z()/trackDirection.mag();
-	processHit(recHit, track->p(), cosine, dedxHits, NClusterSaturating);
+		const FastTrackerRecHit recHit = static_cast< const FastTrackerRecHit & >(*(*(hb+h)));
+		if(!recHit.isValid()) continue;//FastTrackerRecHit recHit = *(hb+h);
+		auto trackDirection = trajParams[h].direction();         
+		float cosine = trackDirection.z()/trackDirection.mag();
+		processHit(recHit, track->p(), cosine, dedxHits, NClusterSaturating);
     }
   
     sort(dedxHits.begin(),dedxHits.end(),less<DeDxHit>());   
