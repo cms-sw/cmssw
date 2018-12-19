@@ -134,7 +134,7 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
   }
   else {
     bxSize = bxSizeConf_;
-    nnlsWork_.bxOffset = bxOffsetConf_ + (nnlsWork_.tsOffset + activeBXs_[0]);
+    nnlsWork_.bxOffset = bxOffsetConf_ + ((static_cast<int>(nnlsWork_.tsOffset) + activeBXs_[0]) >= 0 ? 0 : (nnlsWork_.tsOffset + activeBXs_[0]));
   }
 
   nnlsWork_.nPulseTot = bxSize;
@@ -147,7 +147,7 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
   }
   else {
     for (unsigned int iBX=0; iBX<bxSize; ++iBX) {
-      nnlsWork_.bxs.coeffRef(iBX) = activeBXs_[iBX] - ( nnlsWork_.tsOffset + activeBXs_[0]);
+      nnlsWork_.bxs.coeffRef(iBX) = activeBXs_[iBX] - ((static_cast<int>(nnlsWork_.tsOffset) + activeBXs_[0]) >= 0 ? 0 : (nnlsWork_.tsOffset + activeBXs_[0]));
     }
   }
 
@@ -172,13 +172,11 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
       nnlsWork_.pulseMat.col(iBX) = SampleVector::Ones(nnlsWork_.tsSize);
     }
     else {
-
       updatePulseShape(nnlsWork_.amplitudes.coeff(nnlsWork_.tsOffset + offset), 
 		       nnlsWork_.pulseShapeArray[iBX], 
 		       nnlsWork_.pulseDerivArray[iBX],
 		       nnlsWork_.pulseCovArray[iBX]);
       
-
       nnlsWork_.pulseMat.col(iBX) = nnlsWork_.pulseShapeArray[iBX].segment(nnlsWork_.maxoffset - offset, nnlsWork_.tsSize);
     }
   }
