@@ -2900,7 +2900,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                                    '-n':'10',
                                                    '--eventcontent':'FEVTDEBUGHLT',
                                                    '--geometry' : geom,
-                                                   '--customise_commands':'"process.mix.digitizers.pixel.KillBadFEDChannels = cms.bool(True); process.GlobalTag.toGet = cms.VPSet(cms.PSet(record = cms.string(\'SiPixelStatusScenarioProbabilityRcd\'),tag = cms.string(\'SiPixelQualityProbabilities_noPU_v0_mc\'),connect = cms.string(\'sqlite_file:/afs/cern.ch/user/m/musich/public/forStuckTBM/SiPixelStatusScenarioProbabilities_noPU_2018.db\')),cms.PSet(record = cms.string(\'SiPixelStatusScenariosRcd\'),tag = cms.string(\'SiPixelFEDChannelContainer_StuckTBM_2018_v1_mc\'),connect = cms.string(\'sqlite_file:/afs/cern.ch/user/m/musich/public/forStuckTBM/SiPixelStatusScenarios_v1.db\')))"'
+                                                   '--customise_commands':'"process.mix.digitizers.pixel.KillBadFEDChannels = cms.bool(True); process.GlobalTag.toGet = cms.VPSet(cms.PSet(record = cms.string(\'SiPixelStatusScenarioProbabilityRcd\'),tag = cms.string(\'SiPixelQualityProbabilities_2018_noPU_v0_mc\'),connect = cms.string(\'frontier://FrontierPrep/CMS_CONDITIONS\')),cms.PSet(record = cms.string(\'SiPixelStatusScenariosRcd\'),tag = cms.string(\'SiPixelFEDChannelContainer_StuckTBM_2018_v0_mc\'),connect = cms.string(\'frontier://FrontierPrep/CMS_CONDITIONS\')))"'
                                       }
 
     # Adding Track trigger step in step2
