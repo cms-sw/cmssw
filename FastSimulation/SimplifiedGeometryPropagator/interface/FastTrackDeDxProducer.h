@@ -68,6 +68,8 @@ private:
   // ----------member data ---------------------------
 BaseDeDxEstimator*               m_estimator;
 
+//std::unique_ptr<BaseDeDxEstimator> m_estimator;
+
   edm::EDGetTokenT<reco::TrackCollection>  m_tracksTag;
 
 
