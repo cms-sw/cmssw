@@ -43,16 +43,25 @@ TrackTransformer::TrackTransformer(const ParameterSet& parameterSet):
 /// Destructor
 TrackTransformer::~TrackTransformer(){}
 
-void TrackTransformer::fillPSetDescriptions(edm::ParameterSetDescription& desc) {
-  desc.add<bool>("DoPredictionsOnly",false);
-  desc.add<std::string>("Fitter",std::string("KFFitterForRefitInsideOut"));
-  desc.add<std::string>("Smoother",std::string("KFSmootherForRefitInsideOut"));
-  desc.add<std::string>("Propagator",std::string("SmartPropagatorAnyRK"));
-  desc.add<std::string>("RefitDirection",std::string("alongMomentum"));  
-  desc.add<bool>("RefitRPCHits",true);
-  desc.add<std::string>("TrackerRecHitBuilder",std::string("WithTrackAngle"));
-  desc.add<std::string>("MuonRecHitBuilder",std::string("MuonRecHitBuilder"));
-  desc.add<std::string>("MTDRecHitBuilder",std::string("MTDRecHitBuilder"));
+void TrackTransformer::fillPSetDescription(edm::ParameterSetDescription& desc,
+					   bool DoPredictionsOnly,
+					   const std::string& Fitter,
+					   const std::string& Smoother,
+					   const std::string& Propagator,
+					   const std::string& RefitDirection,
+					   bool RefitRPCHits,
+					   const std::string& TrackerRecHitBuilder,
+					   const std::string& MuonRecHitBuilder,
+					   const std::string& MTDRecHitBuilder) {
+  desc.add<bool>("DoPredictionsOnly",DoPredictionsOnly);
+  desc.add<std::string>("Fitter",Fitter);
+  desc.add<std::string>("Smoother",Smoother);
+  desc.add<std::string>("Propagator",Propagator);
+  desc.add<std::string>("RefitDirection",RefitDirection);  
+  desc.add<bool>("RefitRPCHits",RefitRPCHits);
+  desc.add<std::string>("TrackerRecHitBuilder",TrackerRecHitBuilder);
+  desc.add<std::string>("MuonRecHitBuilder",MuonRecHitBuilder);
+  desc.add<std::string>("MTDRecHitBuilder",MTDRecHitBuilder);
 }
 
 void TrackTransformer::setServices(const EventSetup& setup){

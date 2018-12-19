@@ -1,7 +1,3 @@
-/** \file
- *
- */
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -133,8 +129,8 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
   mtdRecHitBuilder_(iConfig.getParameter<std::string>("MTDRecHitBuilder")),
   propagator_(iConfig.getParameter<std::string>("Propagator")),
   transientTrackBuilder_(iConfig.getParameter<std::string>("TransientTrackBuilder")) {
-  float maxChi2=25.;
-  float nSigma=3.;
+  constexpr float maxChi2=25.;
+  constexpr float nSigma=3.;
   theEstimator = std::make_unique<Chi2MeasurementEstimator>(maxChi2,nSigma);
   
   theTransformer = std::make_unique<TrackTransformer>(iConfig.getParameterSet("TrackTransformer"));
