@@ -14,14 +14,18 @@
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 
 #include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
-#include "RecoCTPPS/TotemRPLocal/interface/TotemTimingParser.h"
+//#include "RecoCTPPS/TotemRPLocal/interface/TotemTimingParser.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
+
+#include <string>
+#include <vector>
 
 #include <memory>
 
 class TotemTimingConversions
 {
   public:
-    TotemTimingConversions(bool mergeTimePeaks, const std::string& calibrationFile = "");
+    TotemTimingConversions(bool mergeTimePeaks, const PPSTimingCalibration& calibration);
 
     float getTimeOfFirstSample(const TotemTimingDigi& digi) const;
     float getTriggerTime(const TotemTimingDigi& digi) const;
@@ -37,8 +41,7 @@ class TotemTimingConversions
     static const int ACCEPTED_TIME_RADIUS;
     static const unsigned long CELL0_MASK;
 
-    bool calibrationFileOpened_;
-    TotemTimingParser parsedData_;
+    PPSTimingCalibration calibration_;
     bool mergeTimePeaks_;
     std::unique_ptr<reco::FormulaEvaluator> calibrationFunction_;
 };
