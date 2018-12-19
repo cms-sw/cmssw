@@ -33,7 +33,7 @@
 // Base class, defines FTLRecHit and FLTCluster.  The latter includes
 // FTLHit, FTLHitPos and Shift as inner classes.
 //
-#include "MTDClusterizerBase.h"
+#include "RecoLocalFastTime/FTLClusterizer/interface/MTDClusterizerBase.h"
 
 // The private pixel buffer
 #include "MTDArrayBuffer.h"

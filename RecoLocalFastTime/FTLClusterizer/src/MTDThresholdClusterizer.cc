@@ -1,6 +1,6 @@
 // Our own includes
-#include "MTDArrayBuffer.h"
-#include "MTDThresholdClusterizer.h"
+#include "RecoLocalFastTime/FTLClusterizer/interface/MTDArrayBuffer.h"
+#include "RecoLocalFastTime/FTLClusterizer/interface/MTDThresholdClusterizer.h"
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"

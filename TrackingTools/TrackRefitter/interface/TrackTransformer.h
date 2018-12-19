@@ -46,7 +46,16 @@ public:
   ~TrackTransformer() override;
 
   /// fillDescriptions
-  static void fillPSetDescriptions(edm::ParameterSetDescription& descriptions);
+  static void fillPSetDescription(edm::ParameterSetDescription& descriptions,
+				  bool DoPredictionsOnly=false,
+				  const std::string& Fitter="KFFitterForRefitInsideOut",
+				  const std::string& Smoother="KFSmootherForRefitInsideOut",
+				  const std::string& Propagator="SmartPropagatorAnyRK",
+				  const std::string& RefitDirection="alongMomentum",
+				  bool RefitRPCHits=true,
+				  const std::string& TrackerRecHitBuilder="WithTrackAngle",
+				  const std::string& MuonRecHitBuilder="MuonRecHitBuilder",
+				  const std::string& MTDRecHitBuilder="MTDRecHitBuilder");
   
   // Operations
 
