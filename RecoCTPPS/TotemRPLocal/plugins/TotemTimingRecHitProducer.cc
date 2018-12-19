@@ -86,8 +86,6 @@ TotemTimingRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& des
 
   desc.add<edm::InputTag>( "digiTag", edm::InputTag( "totemTimingRawToDigi", "TotemTiming" ) )
     ->setComment( "input digis collection to retrieve" );
-  desc.add<edm::FileInPath>( "calibrationFile", edm::FileInPath( "RecoCTPPS/TotemRPLocal/data/timing_offsets_ufsd_2018.dec18.cal.json" ) )
-    ->setComment( "file with SAMPIC calibrations, ADC and INL; if empty or corrupted, no calibration will be applied" );
   desc.add<int>( "baselinePoints", 8 )
     ->setComment( "number of points to be used for the baseline" );
   desc.add<double>( "saturationLimit", 0.85 )
