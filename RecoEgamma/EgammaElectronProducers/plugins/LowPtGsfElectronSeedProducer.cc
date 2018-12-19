@@ -297,7 +297,7 @@ void LowPtGsfElectronSeedProducer::propagateTrackToCalo( const reco::PFRecTrackR
 	  info.dr2min = dr2;
 	  info.cluRef = cluRef;
 	  info.deta = deta;
-	  info.dphi = dphi;
+	  info.dphi = dphi * pfTrackRef->trackRef()->charge();
 	  info.showerPos = point.position();
 	}
 
@@ -389,7 +389,7 @@ void LowPtGsfElectronSeedProducer::propagateTrackToCalo( const reco::TrackRef& k
       info.dr2min = dr2;
       info.cluRef = cluRef;
       info.deta = deta;
-      info.dphi = dphi;
+      info.dphi = dphi * kfTrackRef->charge();
       info.showerPos = showerPos;
     }
   
