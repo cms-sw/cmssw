@@ -270,12 +270,12 @@ void TrackExtenderWithMTDT<TrackCollection>::produce( edm::Event& ev,
         for(unsigned ihit = hitsstart; ihit < hitsend; ++ihit) {
           backtrack.appendHitPattern((*outhits)[ihit],ttopo);
         }
-      }
-      pathLengthsOrigTrkRaw.push_back(pathLengthMap);
-      betaOrigTrkRaw.push_back(betaMap);
-      t0OrigTrkRaw.push_back(t0Map);
-      covt0t0OrigTrkRaw.push_back(covt0t0Map);
+      }      
     }
+    pathLengthsOrigTrkRaw.push_back(pathLengthMap);
+    betaOrigTrkRaw.push_back(betaMap);
+    t0OrigTrkRaw.push_back(t0Map);
+    covt0t0OrigTrkRaw.push_back(covt0t0Map);
     ++itrack;
   }
 
