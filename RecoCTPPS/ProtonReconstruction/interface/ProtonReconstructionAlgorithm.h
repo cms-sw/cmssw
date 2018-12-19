@@ -53,7 +53,7 @@ class ProtonReconstructionAlgorithm
     struct RPOpticsData
     {
       const LHCOpticalFunctionsSet *optics;
-      std::shared_ptr<TSpline3> s_xi_vs_x_d, s_y_d_vs_xi, s_v_y_vs_xi, s_L_y_vs_xi;
+      std::shared_ptr<const TSpline3> s_xi_vs_x_d, s_y_d_vs_xi, s_v_y_vs_xi, s_L_y_vs_xi;
       double x0; ///< beam horizontal position, m
       double y0; ///< beam vertical position, m
       double ch0; ///< intercept for linear approximation of \f$x(\xi)\f$
