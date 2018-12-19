@@ -88,7 +88,7 @@ PPSTimingCalibrationESSource::parseJsonFile() const
   PPSTimingCalibration::TimingMap time_info;
 
   for ( pt::ptree::value_type& par : node.get_child( "parameters" ) ) {
-    PPSTimingCalibration::CalibrationKey key;
+    PPSTimingCalibration::Key key;
     key.db = (int)strtol( par.first.data(), nullptr, 10 );
 
     for (pt::ptree::value_type &board : par.second) {
