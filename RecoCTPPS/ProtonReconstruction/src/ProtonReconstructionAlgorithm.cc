@@ -12,6 +12,7 @@
 #include "DataFormats/ProtonReco/interface/ProtonTrackExtra.h"
 
 #include "TF1.h"
+#include "TMinuitMinimizer.h"
 
 using namespace std;
 using namespace edm;
@@ -24,6 +25,9 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(bool fit_vtx_y, uns
   initialized_(false),
   fitter_(new ROOT::Fit::Fitter), chiSquareCalculator_(new ChiSquareCalculator)
 {
+  // needed for thread safety
+  TMinuitMinimizer::UseStaticMinuit(false);
+
   // initialise fitter
   double pStart[] = { 0, 0, 0, 0 };
   fitter_->SetFCN(4, *chiSquareCalculator_, pStart, 0, true);
@@ -36,8 +40,8 @@ void ProtonReconstructionAlgorithm::init(const std::unordered_map<unsigned int, 
   // reset cache
   release();
 
-  // prepare helper objects
-  unique_ptr<TF1> ff(new TF1("ff", "[0] + [1]*x"));
+  // prepare helper objects (special flag needed for thread safety)
+  unique_ptr<TF1> ff(new TF1("ff", "[0] + [1]*x", 0., 1., TF1::EAddToList::kNo));
 
   // build optics data for each object
   for (const auto &p : opticalFunctions)
@@ -48,7 +52,7 @@ void ProtonReconstructionAlgorithm::init(const std::unordered_map<unsigned int, 
     RPOpticsData rpod;
     rpod.optics = &p.second;
     rpod.s_xi_vs_x_d = make_shared<TSpline3>("",
-      (double *) ofs.getFcnValues()[LHCOpticalFunctionsSet::exd].data(),
+      (double *) ofs.getFcnValues()[LHCOpticalFunctionsSet::exd].data(),  // const cast away necessary due to the ROOT interface
       (double *) ofs.getXiValues().data(), ofs.getXiValues().size());
     rpod.s_y_d_vs_xi = ofs.getSplines()[LHCOpticalFunctionsSet::eyd];
     rpod.s_v_y_vs_xi = ofs.getSplines()[LHCOpticalFunctionsSet::evy];
@@ -61,11 +65,12 @@ void ProtonReconstructionAlgorithm::init(const std::unordered_map<unsigned int, 
     rpod.x0 = k_out.x;
     rpod.y0 = k_out.y;
 
+    // TODO: the fits below could be replaced with simple algebra in order to avoid
+    // the relatively heavy creation of TGraph and fit with TF1
+
     unique_ptr<TGraph> g_x_d_vs_xi = make_unique<TGraph>(ofs.getXiValues().size(), ofs.getXiValues().data(),
       ofs.getFcnValues()[LHCOpticalFunctionsSet::exd].data());
     ff->SetParameters(0., 0.);
-    g_x_d_vs_xi->Fit(ff.get(), "Q");
-    g_x_d_vs_xi->Fit(ff.get(), "Q");
     g_x_d_vs_xi->Fit(ff.get(), "Q");
     rpod.ch0 = ff->GetParameter(0) - rpod.x0;
     rpod.ch1 = ff->GetParameter(1);
@@ -73,8 +78,6 @@ void ProtonReconstructionAlgorithm::init(const std::unordered_map<unsigned int, 
     unique_ptr<TGraph> g_L_x_vs_xi = make_unique<TGraph>(ofs.getXiValues().size(), ofs.getXiValues().data(),
       ofs.getFcnValues()[LHCOpticalFunctionsSet::eLx].data());
     ff->SetParameters(0., 0.);
-    g_L_x_vs_xi->Fit(ff.get(), "Q");
-    g_L_x_vs_xi->Fit(ff.get(), "Q");
     g_L_x_vs_xi->Fit(ff.get(), "Q");
     rpod.la0 = ff->GetParameter(0);
     rpod.la1 = ff->GetParameter(1);

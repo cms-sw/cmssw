@@ -27,7 +27,7 @@ class LHCOpticalFunctionsSet
     double getScoringPlaneZ() const { return m_z; }
     const std::vector<double>& getXiValues() const { return m_xi_values; }
     const std::array<std::vector<double>, 16>& getFcnValues() const { return m_fcn_values; }
-    const std::array<std::shared_ptr<TSpline3>, 16>& getSplines() const { return m_splines; }
+    const std::array<std::shared_ptr<const TSpline3>, 16>& getSplines() const { return m_splines; }
 
     /// builds splines from m_*_values fields
     void initializeSplines();
@@ -54,7 +54,7 @@ class LHCOpticalFunctionsSet
     double m_z;
     std::vector<double> m_xi_values;
     std::array<std::vector<double>, 16> m_fcn_values;
-    std::array<std::shared_ptr<TSpline3>, 16> m_splines;
+    std::array<std::shared_ptr<const TSpline3>, 16> m_splines;
 
     COND_SERIALIZABLE;
 };
