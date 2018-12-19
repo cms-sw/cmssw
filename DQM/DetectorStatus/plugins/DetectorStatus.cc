@@ -36,16 +36,16 @@
 class DetectorStatus : public DQMEDAnalyzer {
 public:
   explicit DetectorStatus(const edm::ParameterSet&);
-  ~DetectorStatus();
+  ~DetectorStatus() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void bookHistograms(DQMStore::IBooker &,
+  void bookHistograms(DQMStore::IBooker &,
                               edm::Run const&,
                               edm::EventSetup const&) override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ------------ member data ------------
 
