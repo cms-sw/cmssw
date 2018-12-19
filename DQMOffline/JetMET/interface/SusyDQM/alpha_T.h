@@ -14,7 +14,7 @@ struct alpha_T {
     if( p4s.size() < 2 ) return 0;
     
     std::vector<double> pTs;  
-    transform( p4s.begin(), p4s.end(), back_inserter(pTs), std::mem_fun_ref(&LorentzV::Pt));
+    transform( p4s.begin(), p4s.end(), back_inserter(pTs), std::mem_fn(&LorentzV::Pt));
     
     const double DsumPT = minimum_deltaSumPT( pTs );
     const double sumPT = accumulate( pTs.begin(), pTs.end(), double(0) );
