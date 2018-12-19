@@ -20,7 +20,6 @@
 
 
 // system include files
-//#include "RecoTracker/DeDx/plugins/DeDxEstimatorProducer.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/FastTrackDeDxProducer.h"
 
 using namespace reco;
@@ -63,7 +62,7 @@ FastTrackDeDxProducer::FastTrackDeDxProducer(const edm::ParameterSet& iConfig)
   if     (estimatorName == "median")              m_estimator = new MedianDeDxEstimator(iConfig);
   else if(estimatorName == "generic")             m_estimator = new GenericAverageDeDxEstimator  (iConfig);
   else if(estimatorName == "truncated")           m_estimator = new TruncatedAverageDeDxEstimator(iConfig);
-  //else if(estimatorName == "unbinnedFit")         m_estimator = new UnbinnedFitDeDxEstimator(iConfig);
+  //else if(estimatorName == "unbinnedFit")         m_estimator = new UnbinnedFitDeDxEstimator(iConfig);//estimator used in FullSimVersion
   else if(estimatorName == "productDiscrim")      m_estimator = new ProductDeDxDiscriminator(iConfig);
   else if(estimatorName == "btagDiscrim")         m_estimator = new BTagLikeDeDxDiscriminator(iConfig);
   else if(estimatorName == "smirnovDiscrim")      m_estimator = new SmirnovDeDxDiscriminator(iConfig);
@@ -147,7 +146,7 @@ void FastTrackDeDxProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     
     for(unsigned int h=0;h<track->recHitsSize();h++){
-		const FastTrackerRecHit recHit = static_cast< const FastTrackerRecHit & >(*(*(hb+h)));
+		const FastTrackerRecHit& recHit = static_cast< const FastTrackerRecHit & >(*(*(hb+h)));
 		if(!recHit.isValid()) continue;//FastTrackerRecHit recHit = *(hb+h);
 		auto trackDirection = trajParams[h].direction();         
 		float cosine = trackDirection.z()/trackDirection.mag();
@@ -180,7 +179,6 @@ void FastTrackDeDxProducer::processHit(const FastTrackerRecHit &recHit, float tr
   if(!thit.isValid())return;
 
   if(recHit.isPixel()){
-    //std::cout << "we got pixels" << std::endl;
     if(!usePixel) return;
 
     auto& detUnit     = *(recHit.detUnit());
