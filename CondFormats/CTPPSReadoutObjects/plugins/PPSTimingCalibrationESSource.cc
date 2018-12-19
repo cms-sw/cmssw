@@ -37,25 +37,41 @@ class PPSTimingCalibrationESSource : public edm::ESProducer, public edm::EventSe
 
   private:
     edm::ESProducts<std::unique_ptr<PPSTimingCalibration> > produce();
-    /// Extracts calibration data from JSON file
-    void parseJsonFile();
+    void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval& ) override;
+
+    /// Extract calibration data from JSON file
+    std::unique_ptr<PPSTimingCalibration> parseJsonFile() const;
 
     const std::string filename_;
-    PPSTimingCalibration calib_;
 };
 
 //------------------------------------------------------------------------------
 
 PPSTimingCalibrationESSource::PPSTimingCalibrationESSource( const edm::ParameterSet& iConfig ) :
   filename_( iConfig.getParameter<edm::FileInPath>( "filename" ).fullPath() )
+{}
+
+//------------------------------------------------------------------------------
+
+edm::ESProducts<std::unique_ptr<PPSTimingCalibration> >
+PPSTimingCalibrationESSource::produce()
 {
-  parseJsonFile();
+  return edm::es::products( std::move( parseJsonFile() ) );
 }
 
 //------------------------------------------------------------------------------
 
 void
-PPSTimingCalibrationESSource::parseJsonFile()
+PPSTimingCalibrationESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&,
+                                           edm::ValidityInterval& oValidity )
+{
+  oValidity = edm::ValidityInterval( edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime() );
+}
+
+//------------------------------------------------------------------------------
+
+std::unique_ptr<PPSTimingCalibration>
+PPSTimingCalibrationESSource::parseJsonFile() const
 {
   pt::ptree node;
   pt::read_json( filename_, node );
@@ -88,6 +104,6 @@ PPSTimingCalibrationESSource::parseJsonFile()
       }
     }
   }
-  calib_ = PPSTimingCalibration( formula, params, time_info );
+  return std::make_unique<PPSTimingCalibration>( formula, params, time_info );
 }
 
