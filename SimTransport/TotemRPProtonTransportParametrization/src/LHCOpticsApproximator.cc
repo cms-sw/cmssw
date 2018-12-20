@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include "TROOT.h"
+#include "TFile.h"
 #include <memory>
 #include "TMatrixD.h"
 #include "TMath.h"
@@ -386,7 +387,7 @@ void LHCOpticsApproximator::Train(TTree *inp_tree, std::string data_prefix, poly
     }
   }
 
-  edm::LogInfo("HCOpticsApproximator")<<"Optical functions parametrizations from "<<s_begin_<<" to "<<s_end_<<"\n";
+  edm::LogInfo("LHCOpticsApproximator")<<"Optical functions parametrizations from "<<s_begin_<<" to "<<s_end_<<"\n";
   PrintInputRange();
   for(int i=0; i<4; i++)
   {
@@ -394,9 +395,9 @@ void LHCOpticsApproximator::Train(TTree *inp_tree, std::string data_prefix, poly
     if(prec)
       best_precision = prec[i];
     out_polynomials[i]->FindParameterization(best_precision);
-    edm::LogInfo("HCOpticsApproximator")<<"Out variable "<<coord_names[i]<<" polynomial"<<"\n";
+    edm::LogInfo("LHCOpticsApproximator")<<"Out variable "<<coord_names[i]<<" polynomial"<<"\n";
     out_polynomials[i]->PrintPolynomialsSpecial("M");
-    edm::LogInfo("HCOpticsApproximator")<<"\n";
+    edm::LogInfo("LHCOpticsApproximator")<<"\n";
   }
 
   trained_ = true;
@@ -939,12 +940,12 @@ void LHCOpticsApproximator::PrintInputRange()
   const TVectorD* min_var = x_parametrisation.GetMinVariables();
   const TVectorD* max_var = x_parametrisation.GetMaxVariables();
 
-  edm::LogInfo("HCOpticsApproximator")<<"Covered input parameters range:"<<"\n";
+  edm::LogInfo("LHCOpticsApproximator")<<"Covered input parameters range:"<<"\n";
   for(int i=0; i<5; i++)
   {
-    edm::LogInfo("HCOpticsApproximator")<<(*min_var)(i)<<" < "<<coord_names[i]<<" < "<<(*max_var)(i)<<"\n";
+    edm::LogInfo("LHCOpticsApproximator")<<(*min_var)(i)<<" < "<<coord_names[i]<<" < "<<(*max_var)(i)<<"\n";
   }
-  edm::LogInfo("HCOpticsApproximator")<<"\n";
+  edm::LogInfo("LHCOpticsApproximator")<<"\n";
 }
 
 
@@ -1018,7 +1019,7 @@ bool LHCApertureApproximator::CheckAperture(const double *in, bool invert_beam_c
 
 void LHCOpticsApproximator::PrintOpticalFunctions()
 {
-  edm::LogInfo("HCOpticsApproximator")<<std::endl<<"Linear terms of optical functions:"<<"\n";
+  edm::LogInfo("LHCOpticsApproximator")<<std::endl<<"Linear terms of optical functions:"<<"\n";
   for(int i=0; i<4; i++)
   {
     PrintCoordinateOpticalFunctions(*out_polynomials[i], coord_names[i], coord_names);
@@ -1049,12 +1050,12 @@ void LHCOpticsApproximator::PrintCoordinateOpticalFunctions(TMultiDimFet &parame
     d_out_d_in[i] = d_out_d_in[i] - parametrization.Eval(in);
     d_out_d_in[i] = d_out_d_in[i]/d_par;
   }
-  edm::LogInfo("HCOpticsApproximator")<<coord_name<<" = "<<bias;
+  edm::LogInfo("LHCOpticsApproximator")<<coord_name<<" = "<<bias;
   for(int i=0; i<5; i++)
   {
-    edm::LogInfo("HCOpticsApproximator")<<" + "<<d_out_d_in[i]<<"*"<<input_vars[i];
+    edm::LogInfo("LHCOpticsApproximator")<<" + "<<d_out_d_in[i]<<"*"<<input_vars[i];
   }
-  edm::LogInfo("HCOpticsApproximator")<<"\n";
+  edm::LogInfo("LHCOpticsApproximator")<<"\n";
 }
 
 void LHCOpticsApproximator::GetLinearApproximation(double atPoint[], double &Cx, double &Lx, double &vx, double &Cy, double &Ly, double &vy, double &D, double ep)

@@ -69,7 +69,7 @@ void PPSTools::Get_t_and_xi(const TLorentzVector* proton,double& t,double& xi) {
     double mom = sqrt((proton->Px())*(proton->Px())+(proton->Py())*(proton->Py())+(proton->Pz())*(proton->Pz()));
     if (mom>fBeamMomentum) mom=fBeamMomentum;
     double energy = proton->E();
-    double theta  = (proton->Pz()>0)?proton->Theta():CLHEP::pi-proton->Theta();
+    double theta  = (proton->Pz()>0)?proton->Theta():TMath::Pi()-proton->Theta();
     t      = -2.*(ProtonMassSQ-fBeamEnergy*energy+fBeamMomentum*mom*cos(theta));
     xi     = (1.0-energy/fBeamEnergy);
 }

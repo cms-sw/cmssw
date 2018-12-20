@@ -1,7 +1,5 @@
 #include "SimTransport/PPSProtonTransport/interface/HectorTransport.h"
 #include "Utilities/PPS/interface/PPSUtilities.h"
-#include <CLHEP/Units/GlobalSystemOfUnits.h>
-#include <CLHEP/Units/GlobalPhysicalConstants.h>
 #include <CLHEP/Random/RandGauss.h>
 #include "TLorentzVector.h" 
 //Hector headers

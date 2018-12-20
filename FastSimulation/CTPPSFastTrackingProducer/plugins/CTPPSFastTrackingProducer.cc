@@ -23,8 +23,6 @@ Implementation:
 // user include files
 #include "FastSimulation/CTPPSFastTrackingProducer/interface/CTPPSFastTrackingProducer.h"
 #include "Utilities/PPS/interface/PPSUtilities.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "TLorentzVector.h"
 // hector includes
 #include "H_Parameters.h"
@@ -331,7 +329,7 @@ void CTPPSFastTrackingProducer::FastReco(int Direction,H_RecRPObject* station)
                     MatchCellId(cellId, recCellId_F, recTof_F, matchCellId, recTof); 
                 } 
                 else if (Direction<0) { 
-                    theta = CLHEP::pi - sqrt(thx*thx+thy*thy)*urad;
+                    theta = TMath::Pi() - sqrt(thx*thx+thy*thy)*urad;
                     MatchCellId(cellId, recCellId_B, recTof_B, matchCellId, recTof); 
                 }
                 phi = atan2(thy,thx); // at this point, thx is already in the cms ref. frame

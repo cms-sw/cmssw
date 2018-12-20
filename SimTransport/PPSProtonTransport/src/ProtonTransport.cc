@@ -1,8 +1,7 @@
 #include "SimTransport/PPSProtonTransport/interface/ProtonTransport.h"
 #include "Utilities/PPS/interface/PPSUnitConversion.h"
-#include "CLHEP/Random/RandGauss.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Random/RandGauss.h>
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
 
 
 ProtonTransport::ProtonTransport() {};
@@ -84,7 +83,7 @@ void ProtonTransport::ApplyBeamCorrection(TLorentzVector& p_out)
 
     int direction = (p_out.Pz()>0)?1:-1;
 
-    if (p_out.Pz()<0) theta=CLHEP::pi-theta;
+    if (p_out.Pz()<0) theta=TMath::Pi()-theta;
 
     if (MODE==TransportMode::TOTEM) thetax+=(p_out.Pz()>0)?fCrossingAngle_45*urad:fCrossingAngle_56*urad;
 
@@ -95,7 +94,7 @@ void ProtonTransport::ApplyBeamCorrection(TLorentzVector& p_out)
     double s_theta = sqrt(pow(thetax+dtheta_x*urad,2)+pow(thetay+dtheta_y*urad,2));
     double s_phi = atan2(thetay+dtheta_y*urad,thetax+dtheta_x*urad);
     energy+=denergy;
-    double p = sqrt(pow(energy,2)-pow(CLHEP::proton_mass_c2/GeV,2));
+    double p = sqrt(pow(energy,2)-ProtonMassSQ);
 
     p_out.SetPx((double)p*sin(s_theta)*cos(s_phi));
     p_out.SetPy((double)p*sin(s_theta)*sin(s_phi));

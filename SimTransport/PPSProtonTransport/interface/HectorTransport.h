@@ -6,18 +6,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-
-#include <TMath.h>
-#include <TMatrixT.h>
-#include <TH2F.h>
-#include <TFile.h>
-#include <TEllipse.h>
 
 #include <cmath>
 #include <iomanip>
@@ -31,11 +24,7 @@
 #include "HepMC/SimpleVector.h"
 
 // user include files
-#include <vector>
 #include <string>
-#include <map>
-#include <cmath>
-#include <tuple>
 
 namespace CLHEP
 {

@@ -22,7 +22,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
-#include "CLHEP/Random/RandomEngine.h"
+#include <CLHEP/Random/RandomEngine.h>
 
 #include <iostream>
 #include <memory>

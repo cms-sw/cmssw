@@ -13,11 +13,11 @@
 
 #include "Riostream.h"
 #include "SimTransport/TotemRPProtonTransportParametrization/interface/TMultiDimFet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TMath.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TROOT.h"
-//#include "TBrowser.h"
 #include "TDecompChol.h"
 #include <iostream>
 #include <map>
@@ -375,59 +375,6 @@ void TMultiDimFet::AddTestRow(const Double_t *x, Double_t D, Double_t E)
 
 
 //____________________________________________________________________
-/*
-void TMultiDimFet::Browse(TBrowser* b)
-{
-   // Browse the TMultiDimFet object in the TBrowser.
-   if (fHistograms) {
-      TIter next(fHistograms);
-      TH1* h = nullptr;
-      while ((h = (TH1*)next()))
-         b->Add(h,h->GetName());
-   }
-   if (fVariables.IsValid())
-      b->Add(&fVariables, "Variables (Training)");
-   if (fQuantity.IsValid())
-      b->Add(&fQuantity, "Quantity (Training)");
-   if (fSqError.IsValid())
-      b->Add(&fSqError, "Error (Training)");
-   if (fMeanVariables.IsValid())
-      b->Add(&fMeanVariables, "Mean of Variables (Training)");
-   if (fMaxVariables.IsValid())
-      b->Add(&fMaxVariables, "Mean of Variables (Training)");
-   if (fMinVariables.IsValid())
-      b->Add(&fMinVariables, "Min of Variables (Training)");
-   if (fTestVariables.IsValid())
-      b->Add(&fTestVariables, "Variables (Test)");
-   if (fTestQuantity.IsValid())
-      b->Add(&fTestQuantity, "Quantity (Test)");
-   if (fTestSqError.IsValid())
-      b->Add(&fTestSqError, "Error (Test)");
-   if (fFunctions.IsValid())
-      b->Add(&fFunctions, "Functions");
-   if(fCoefficients.IsValid())
-      b->Add(&fCoefficients,"Coefficients");
-   if(fCoefficientsRMS.IsValid())
-      b->Add(&fCoefficientsRMS,"Coefficients Errors");
-   if (fOrthFunctions.IsValid())
-      b->Add(&fOrthFunctions, "Orthogonal Functions");
-   if (fOrthFunctionNorms.IsValid())
-      b->Add(&fOrthFunctionNorms, "Orthogonal Functions Norms");
-   if (fResiduals.IsValid())
-      b->Add(&fResiduals, "Residuals");
-   if(fOrthCoefficients.IsValid())
-      b->Add(&fOrthCoefficients,"Orthogonal Coefficients");
-   if (fOrthCurvatureMatrix.IsValid())
-      b->Add(&fOrthCurvatureMatrix,"Orthogonal curvature matrix");
-   if(fCorrelationMatrix.IsValid())
-      b->Add(&fCorrelationMatrix,"Correlation Matrix");
-   if (fFitter)
-      b->Add(fFitter, fFitter->GetName());
-}
-*/
-
-
-//____________________________________________________________________
 void TMultiDimFet::Clear(Option_t *option)
 {
    // Clear internal structures and variables
@@ -591,7 +538,7 @@ void TMultiDimFet::ZeroDoubiousCoefficients(double error)
   fCoefficients.ResizeTo(fNCoefficients);
   fCoefficients = fCoefficients_new;
   fPowerIndex = fPowerIndex_new;
-  std::cout<<deleted_terms_count<<" terms removed"<<std::endl;
+  edm::LogInfo("TMultiDimFet")<<deleted_terms_count<<" terms removed"<<"\n";
 }
 
 
@@ -1502,8 +1449,8 @@ void TMultiDimFet::MakeParameterization()
 
       // Print a happy message
       if (fIsVerbose && studied == 1)
-         std::cout << "Coeff   SumSqRes    Contrib   Angle      QM   Func"
-         << "     Value        W^2  Powers" << std::endl;
+         edm::LogInfo("TMultiDimFet") << "Coeff   SumSqRes    Contrib   Angle      QM   Func"
+         << "     Value        W^2  Powers" << "\n";
 
       // Make the Gram-Schmidt
       Double_t dResidur = MakeGramSchmidt(i);
@@ -1550,7 +1497,7 @@ void TMultiDimFet::MakeParameterization()
 
       // Print the statistics about this function
       if (fIsVerbose) {
-         std::cout << std::setw(5)  << fNCoefficients << " "
+         edm::LogVerbatim("TMultiDimFet") << std::setw(5)  << fNCoefficients << " "
             << std::setw(10) << std::setprecision(4) << squareResidual << " "
             << std::setw(10) << std::setprecision(4) << dResidur << " "
             << std::setw(7)  << std::setprecision(3) << fMaxAngle << " "
@@ -1562,8 +1509,8 @@ void TMultiDimFet::MakeParameterization()
             << fOrthFunctionNorms(fNCoefficients-1) << " "
             << std::flush;
          for (j = 0; j < fNVariables; j++)
-            std::cout << " " << fPowers[i * fNVariables + j] - 1 << std::flush;
-         std::cout << std::endl;
+            edm::LogInfo("TMultiDimFet") << " " << fPowers[i * fNVariables + j] - 1 << std::flush;
+         edm::LogInfo("TMultiDimFet") << "\n";
       }
 
       if (fNCoefficients >= fMaxTerms /* && fIsVerbose */) {
@@ -1610,158 +1557,158 @@ void TMultiDimFet::MakeRealCode(const char *filename,
    }
 
    if (fIsVerbose)
-      std::cout << "Writing on file \"" << filename << "\" ... " << std::flush;
+      edm::LogInfo("TMultiDimFet") << "Writing on file \"" << filename << "\" ... " << std::flush;
    //
    // Write header of file
    //
    // Emacs mode line ;-)
-   outFile << "// -*- mode: c++ -*-" << std::endl;
+   outFile << "// -*- mode: c++ -*-" << "\n";
    // Info about creator
-   outFile << "// " << std::endl
+   outFile << "// " << "\n"
       << "// File " << filename
-      << " generated by TMultiDimFet::MakeRealCode" << std::endl;
+      << " generated by TMultiDimFet::MakeRealCode" << "\n";
    // Time stamp
    TDatime date;
-   outFile << "// on " << date.AsString() << std::endl;
+   outFile << "// on " << date.AsString() << "\n";
    // ROOT version info
    outFile << "// ROOT version " << gROOT->GetVersion()
-      << std::endl << "//" << std::endl;
+      << "\n" << "//" << "\n";
    // General information on the code
-   outFile << "// This file contains the function " << std::endl
-      << "//" << std::endl
-      << "//    double  " << prefix << "MDF(double *x); " << std::endl
-      << "//" << std::endl
-      << "// For evaluating the parameterization obtained" << std::endl
-      << "// from TMultiDimFet and the point x" << std::endl
-      << "// " << std::endl
+   outFile << "// This file contains the function " << "\n"
+      << "//" << "\n"
+      << "//    double  " << prefix << "MDF(double *x); " << "\n"
+      << "//" << "\n"
+      << "// For evaluating the parameterization obtained" << "\n"
+      << "// from TMultiDimFet and the point x" << "\n"
+      << "// " << "\n"
       << "// See TMultiDimFet class documentation for more "
-      << "information " << std::endl << "// " << std::endl;
+      << "information " << "\n" << "// " << "\n";
    // Header files
    if (isMethod)
       // If these are methods, we need the class header
-      outFile << "#include \"" << classname << ".h\"" << std::endl;
+      outFile << "#include \"" << classname << ".h\"" << "\n";
 
    //
    // Now for the data
    //
-   outFile << "//" << std::endl
-      << "// Static data variables"  << std::endl
-      << "//" << std::endl;
+   outFile << "//" << "\n"
+      << "// Static data variables"  << "\n"
+      << "//" << "\n";
    outFile << cv_qual << "int    " << prefix << "gNVariables    = "
-      << fNVariables << ";" << std::endl;
+      << fNVariables << ";" << "\n";
    outFile << cv_qual << "int    " << prefix << "gNCoefficients = "
-      << fNCoefficients << ";" << std::endl;
+      << fNCoefficients << ";" << "\n";
    outFile << cv_qual << "double " << prefix << "gDMean         = "
-      << fMeanQuantity << ";" << std::endl;
+      << fMeanQuantity << ";" << "\n";
 
    // Assignment to mean vector.
-   outFile << "// Assignment to mean vector." << std::endl;
+   outFile << "// Assignment to mean vector." << "\n";
    outFile << cv_qual << "double " << prefix
-      << "gXMean[] = {" << std::endl;
+      << "gXMean[] = {" << "\n";
    for (i = 0; i < fNVariables; i++)
       outFile << (i != 0 ? ", " : "  ") << fMeanVariables(i) << std::flush;
-   outFile << " };" << std::endl << std::endl;
+   outFile << " };" << "\n" << "\n";
 
    // Assignment to minimum vector.
-   outFile << "// Assignment to minimum vector." << std::endl;
+   outFile << "// Assignment to minimum vector." << "\n";
    outFile << cv_qual << "double " << prefix
-      << "gXMin[] = {" << std::endl;
+      << "gXMin[] = {" << "\n";
    for (i = 0; i < fNVariables; i++)
       outFile << (i != 0 ? ", " : "  ") << fMinVariables(i) << std::flush;
-   outFile << " };" << std::endl << std::endl;
+   outFile << " };" << "\n" << "\n";
 
    // Assignment to maximum vector.
-   outFile << "// Assignment to maximum vector." << std::endl;
+   outFile << "// Assignment to maximum vector." << "\n";
    outFile << cv_qual << "double " << prefix
-      << "gXMax[] = {" << std::endl;
+      << "gXMax[] = {" << "\n";
    for (i = 0; i < fNVariables; i++)
       outFile << (i != 0 ? ", " : "  ") << fMaxVariables(i) << std::flush;
-   outFile << " };" << std::endl << std::endl;
+   outFile << " };" << "\n" << "\n";
 
    // Assignment to coefficients vector.
-   outFile << "// Assignment to coefficients vector." << std::endl;
+   outFile << "// Assignment to coefficients vector." << "\n";
    outFile << cv_qual << "double " << prefix
       << "gCoefficient[] = {" << std::flush;
    for (i = 0; i < fNCoefficients; i++)
-      outFile << (i != 0 ? "," : "") << std::endl
+      outFile << (i != 0 ? "," : "") << "\n"
       << "  " << fCoefficients(i) << std::flush;
-   outFile << std::endl << " };" << std::endl << std::endl;
+   outFile << "\n" << " };" << "\n" << "\n";
 
    // Assignment to powers vector.
-   outFile << "// Assignment to powers vector." << std::endl
-      << "// The powers are stored row-wise, that is" << std::endl
+   outFile << "// Assignment to powers vector." << "\n"
+      << "// The powers are stored row-wise, that is" << "\n"
       << "//  p_ij = " << prefix
-      << "gPower[i * NVariables + j];" << std::endl;
+      << "gPower[i * NVariables + j];" << "\n";
    outFile << cv_qual << "int    " << prefix
       << "gPower[] = {" << std::flush;
    for (i = 0; i < fNCoefficients; i++) {
       for (j = 0; j < fNVariables; j++) {
          if (j != 0) outFile << std::flush << "  ";
-         else        outFile << std::endl << "  ";
+         else        outFile << "\n" << "  ";
          outFile << fPowers[fPowerIndex[i] * fNVariables + j]
          << (i == fNCoefficients - 1 && j == fNVariables - 1 ? "" : ",")
             << std::flush;
       }
    }
-   outFile << std::endl << "};" << std::endl << std::endl;
+   outFile << "\n" << "};" << "\n" << "\n";
 
 
    //
    // Finally we reach the function itself
    //
-   outFile << "// " << std::endl
+   outFile << "// " << "\n"
       << "// The "
       << (isMethod ? "method " : "function ")
       << "  double " << prefix
       << "MDF(double *x)"
-      << std::endl << "// " << std::endl;
+      << "\n" << "// " << "\n";
    outFile << "double " << prefix
-      << "MDF(double *x) {" << std::endl
-      << "  double returnValue = " << prefix << "gDMean;" << std::endl
-      << "  int    i = 0, j = 0, k = 0;" << std::endl
+      << "MDF(double *x) {" << "\n"
+      << "  double returnValue = " << prefix << "gDMean;" << "\n"
+      << "  int    i = 0, j = 0, k = 0;" << "\n"
       << "  for (i = 0; i < " << prefix << "gNCoefficients ; i++) {"
-      << std::endl
-      << "    // Evaluate the ith term in the expansion" << std::endl
+      << "\n"
+      << "    // Evaluate the ith term in the expansion" << "\n"
       << "    double term = " << prefix << "gCoefficient[i];"
-      << std::endl
+      << "\n"
       << "    for (j = 0; j < " << prefix << "gNVariables; j++) {"
-      << std::endl
-      << "      // Evaluate the polynomial in the jth variable." << std::endl
+      << "\n"
+      << "      // Evaluate the polynomial in the jth variable." << "\n"
       << "      int power = "<< prefix << "gPower["
-      << prefix << "gNVariables * i + j]; " << std::endl
-      << "      double p1 = 1, p2 = 0, p3 = 0, r = 0;" << std::endl
+      << prefix << "gNVariables * i + j]; " << "\n"
+      << "      double p1 = 1, p2 = 0, p3 = 0, r = 0;" << "\n"
       << "      double v =  1 + 2. / ("
       << prefix << "gXMax[j] - " << prefix
-      << "gXMin[j]) * (x[j] - " << prefix << "gXMax[j]);" << std::endl
-      << "      // what is the power to use!" << std::endl
-      << "      switch(power) {" << std::endl
-      << "      case 1: r = 1; break; " << std::endl
-      << "      case 2: r = v; break; " << std::endl
-      << "      default: " << std::endl
-      << "        p2 = v; " << std::endl
-      << "        for (k = 3; k <= power; k++) { " << std::endl
-      << "          p3 = p2 * v;" << std::endl;
+      << "gXMin[j]) * (x[j] - " << prefix << "gXMax[j]);" << "\n"
+      << "      // what is the power to use!" << "\n"
+      << "      switch(power) {" << "\n"
+      << "      case 1: r = 1; break; " << "\n"
+      << "      case 2: r = v; break; " << "\n"
+      << "      default: " << "\n"
+      << "        p2 = v; " << "\n"
+      << "        for (k = 3; k <= power; k++) { " << "\n"
+      << "          p3 = p2 * v;" << "\n";
    if (fPolyType == kLegendre)
       outFile << "          p3 = ((2 * i - 3) * p2 * v - (i - 2) * p1)"
-      << " / (i - 1);" << std::endl;
+      << " / (i - 1);" << "\n";
    if (fPolyType == kChebyshev)
-      outFile << "          p3 = 2 * v * p2 - p1; " << std::endl;
-   outFile << "          p1 = p2; p2 = p3; " << std::endl << "        }" << std::endl
-      << "        r = p3;" << std::endl << "      }" << std::endl
-      << "      // multiply this term by the poly in the jth var" << std::endl
-      << "      term *= r; " << std::endl << "    }" << std::endl
-      << "    // Add this term to the final result" << std::endl
-      << "    returnValue += term;" << std::endl << "  }" << std::endl
-      << "  return returnValue;" << std::endl << "}" << std::endl << std::endl;
+      outFile << "          p3 = 2 * v * p2 - p1; " << "\n";
+   outFile << "          p1 = p2; p2 = p3; " << "\n" << "        }" << "\n"
+      << "        r = p3;" << "\n" << "      }" << "\n"
+      << "      // multiply this term by the poly in the jth var" << "\n"
+      << "      term *= r; " << "\n" << "    }" << "\n"
+      << "    // Add this term to the final result" << "\n"
+      << "    returnValue += term;" << "\n" << "  }" << "\n"
+      << "  return returnValue;" << "\n" << "}" << "\n" << "\n";
 
    // EOF
-   outFile << "// EOF for " << filename << std::endl;
+   outFile << "// EOF for " << filename << "\n";
 
    // Close the file
    outFile.close();
 
    if (fIsVerbose)
-      std::cout << "done" << std::endl;
+      edm::LogInfo("TMultiDimFet") << "done" << "\n";
 }
 
 
@@ -1786,191 +1733,191 @@ void TMultiDimFet::Print(Option_t *option) const
 
    if (opt.Contains("p")) {
       // Print basic parameters for this object
-      std::cout << "User parameters:" << std::endl
-         << "----------------" << std::endl
-         << " Variables:                    " << fNVariables << std::endl
-         << " Data points:                  " << fSampleSize << std::endl
-         << " Max Terms:                    " << fMaxTerms << std::endl
-         << " Power Limit Parameter:        " << fPowerLimit << std::endl
-         << " Max functions:                " << fMaxFunctions << std::endl
-         << " Max functions to study:       " << fMaxStudy << std::endl
-         << " Max angle (optional):         " << fMaxAngle << std::endl
-         << " Min angle:                    " << fMinAngle << std::endl
-         << " Relative Error accepted:      " << fMinRelativeError << std::endl
+      edm::LogInfo("TMultiDimFet") << "User parameters:" << "\n"
+         << "----------------" << "\n"
+         << " Variables:                    " << fNVariables << "\n"
+         << " Data points:                  " << fSampleSize << "\n"
+         << " Max Terms:                    " << fMaxTerms << "\n"
+         << " Power Limit Parameter:        " << fPowerLimit << "\n"
+         << " Max functions:                " << fMaxFunctions << "\n"
+         << " Max functions to study:       " << fMaxStudy << "\n"
+         << " Max angle (optional):         " << fMaxAngle << "\n"
+         << " Min angle:                    " << fMinAngle << "\n"
+         << " Relative Error accepted:      " << fMinRelativeError << "\n"
          << " Maximum Powers:               " << std::flush;
       for (i = 0; i < fNVariables; i++)
-         std::cout << " " << fMaxPowers[i] - 1 << std::flush;
-      std::cout << std::endl << std::endl
+         edm::LogInfo("TMultiDimFet") << " " << fMaxPowers[i] - 1 << std::flush;
+      edm::LogInfo("TMultiDimFet") << "\n" << "\n"
          << " Parameterisation will be done using " << std::flush;
       if (fPolyType == kChebyshev)
-         std::cout << "Chebyshev polynomials" << std::endl;
+         edm::LogInfo("TMultiDimFet") << "Chebyshev polynomials" << "\n";
       else if (fPolyType == kLegendre)
-         std::cout << "Legendre polynomials" << std::endl;
+         edm::LogInfo("TMultiDimFet") << "Legendre polynomials" << "\n";
       else
-         std::cout << "Monomials" << std::endl;
-      std::cout << std::endl;
+         edm::LogInfo("TMultiDimFet") << "Monomials" << "\n";
+      edm::LogInfo("TMultiDimFet") << "\n";
    }
 
    if (opt.Contains("s")) {
       // Print statistics for read data
-      std::cout << "Sample statistics:" << std::endl
-         << "------------------" << std::endl
+      edm::LogInfo("TMultiDimFet") << "Sample statistics:" << "\n"
+         << "------------------" << "\n"
          << "                 D"  << std::flush;
       for (i = 0; i < fNVariables; i++)
-         std::cout << " " << std::setw(10) << i+1 << std::flush;
-      std::cout << std::endl << " Max:   " << std::setw(10) << std::setprecision(7)
+         edm::LogInfo("TMultiDimFet") << " " << std::setw(10) << i+1 << std::flush;
+      edm::LogInfo("TMultiDimFet") << "\n" << " Max:   " << std::setw(10) << std::setprecision(7)
          << fMaxQuantity << std::flush;
       for (i = 0; i < fNVariables; i++)
-         std::cout << " " << std::setw(10) << std::setprecision(4)
+         edm::LogInfo("TMultiDimFet") << " " << std::setw(10) << std::setprecision(4)
          << fMaxVariables(i) << std::flush;
-      std::cout << std::endl << " Min:   " << std::setw(10) << std::setprecision(7)
+      edm::LogInfo("TMultiDimFet") << "\n" << " Min:   " << std::setw(10) << std::setprecision(7)
          << fMinQuantity << std::flush;
       for (i = 0; i < fNVariables; i++)
-         std::cout << " " << std::setw(10) << std::setprecision(4)
+         edm::LogInfo("TMultiDimFet") << " " << std::setw(10) << std::setprecision(4)
          << fMinVariables(i) << std::flush;
-      std::cout << std::endl << " Mean:  " << std::setw(10) << std::setprecision(7)
+      edm::LogInfo("TMultiDimFet") << "\n" << " Mean:  " << std::setw(10) << std::setprecision(7)
          << fMeanQuantity << std::flush;
       for (i = 0; i < fNVariables; i++)
-         std::cout << " " << std::setw(10) << std::setprecision(4)
+         edm::LogInfo("TMultiDimFet") << " " << std::setw(10) << std::setprecision(4)
          << fMeanVariables(i) << std::flush;
-      std::cout << std::endl << " Function Sum Squares:         " << fSumSqQuantity
-         << std::endl << std::endl;
+      edm::LogInfo("TMultiDimFet") << "\n" << " Function Sum Squares:         " << fSumSqQuantity
+         << "\n" << "\n";
    }
 
    if (opt.Contains("r")) {
-      std::cout << "Results of Parameterisation:" << std::endl
-         << "----------------------------" << std::endl
+      edm::LogInfo("TMultiDimFet") << "Results of Parameterisation:" << "\n"
+         << "----------------------------" << "\n"
          << " Total reduction of square residuals    "
-         << fSumSqResidual << std::endl
+         << fSumSqResidual << "\n"
          << " Relative precision obtained:           "
-         << fPrecision   << std::endl
+         << fPrecision   << "\n"
          << " Error obtained:                        "
-         << fError << std::endl
+         << fError << "\n"
          << " Multiple correlation coefficient:      "
-         << fCorrelationCoeff   << std::endl
+         << fCorrelationCoeff   << "\n"
          << " Reduced Chi square over sample:        "
-         << fChi2 / (fSampleSize - fNCoefficients) << std::endl
+         << fChi2 / (fSampleSize - fNCoefficients) << "\n"
          << " Maximum residual value:                "
-         << fMaxResidual << std::endl
+         << fMaxResidual << "\n"
          << " Minimum residual value:                "
-         << fMinResidual << std::endl
+         << fMinResidual << "\n"
          << " Estimated root mean square:            "
-         << fRMS << std::endl
+         << fRMS << "\n"
          << " Maximum powers used:                   " << std::flush;
       for (j = 0; j < fNVariables; j++)
-         std::cout << fMaxPowersFinal[j] << " " << std::flush;
-      std::cout << std::endl
-         << " Function codes of candidate functions." << std::endl
+         edm::LogInfo("TMultiDimFet") << fMaxPowersFinal[j] << " " << std::flush;
+      edm::LogInfo("TMultiDimFet") << "\n"
+         << " Function codes of candidate functions." << "\n"
          << "  1: considered,"
          << "  2: too little contribution,"
          << "  3: accepted." << std::flush;
       for (i = 0; i < fMaxFunctions; i++) {
          if (i % 60 == 0)
-            std::cout << std::endl << " " << std::flush;
+            edm::LogInfo("TMultiDimFet") << "\n" << " " << std::flush;
          else if (i % 10 == 0)
-            std::cout << " " << std::flush;
-         std::cout << fFunctionCodes[i];
+            edm::LogInfo("TMultiDimFet") << " " << std::flush;
+         edm::LogInfo("TMultiDimFet") << fFunctionCodes[i];
       }
-      std::cout << std::endl << " Loop over candidates stopped because " << std::flush;
+      edm::LogInfo("TMultiDimFet") << "\n" << " Loop over candidates stopped because " << std::flush;
       switch(fParameterisationCode){
          case PARAM_MAXSTUDY:
-            std::cout << "max allowed studies reached" << std::endl; break;
+            edm::LogInfo("TMultiDimFet") << "max allowed studies reached" << "\n"; break;
          case PARAM_SEVERAL:
-            std::cout << "all candidates considered several times" << std::endl; break;
+            edm::LogInfo("TMultiDimFet") << "all candidates considered several times" << "\n"; break;
          case PARAM_RELERR:
-            std::cout << "wanted relative error obtained" << std::endl; break;
+            edm::LogInfo("TMultiDimFet") << "wanted relative error obtained" << "\n"; break;
          case PARAM_MAXTERMS:
-            std::cout << "max number of terms reached" << std::endl; break;
+            edm::LogInfo("TMultiDimFet") << "max number of terms reached" << "\n"; break;
          default:
-            std::cout << "some unknown reason" << std::endl;
+            edm::LogInfo("TMultiDimFet") << "some unknown reason" << "\n";
             break;
       }
-      std::cout << std::endl;
+      edm::LogInfo("TMultiDimFet") << "\n";
    }
 
    if (opt.Contains("f")) {
-      std::cout << "Results of Fit:" << std::endl
-         << "---------------" << std::endl
+      edm::LogInfo("TMultiDimFet") << "Results of Fit:" << "\n"
+         << "---------------" << "\n"
          << " Test sample size:                      "
-         << fTestSampleSize << std::endl
+         << fTestSampleSize << "\n"
          << " Multiple correlation coefficient:      "
-         << fTestCorrelationCoeff << std::endl
+         << fTestCorrelationCoeff << "\n"
          << " Relative precision obtained:           "
-         << fTestPrecision   << std::endl
+         << fTestPrecision   << "\n"
          << " Error obtained:                        "
-         << fTestError << std::endl
+         << fTestError << "\n"
          << " Reduced Chi square over sample:        "
-         << fChi2 / (fSampleSize - fNCoefficients) << std::endl
-         << std::endl;
+         << fChi2 / (fSampleSize - fNCoefficients) << "\n"
+         << "\n";
 /*
       if (fFitter) {
          fFitter->PrintResults(1,1);
-         std::cout << std::endl;
+         edm::LogInfo("TMultiDimFet") << "\n";
       }
 */
    }
 
    if (opt.Contains("c")){
-      std::cout << "Coefficients:" << std::endl
-         << "-------------" << std::endl
-         << "   #         Value        Error   Powers" << std::endl
-         << " ---------------------------------------" << std::endl;
+      edm::LogInfo("TMultiDimFet") << "Coefficients:" << "\n"
+         << "-------------" << "\n"
+         << "   #         Value        Error   Powers" << "\n"
+         << " ---------------------------------------" << "\n";
       for (i = 0; i < fNCoefficients; i++) {
-         std::cout << " " << std::setw(3) << i << "  "
+         edm::LogInfo("TMultiDimFet") << " " << std::setw(3) << i << "  "
             << std::setw(12) << fCoefficients(i) << "  "
             << std::setw(12) << fCoefficientsRMS(i) << "  " << std::flush;
          for (j = 0; j < fNVariables; j++)
-            std::cout << " " << std::setw(3)
+            edm::LogInfo("TMultiDimFet") << " " << std::setw(3)
             << fPowers[fPowerIndex[i] * fNVariables + j] - 1 << std::flush;
-         std::cout << std::endl;
+         edm::LogInfo("TMultiDimFet") << "\n";
       }
-      std::cout << std::endl;
+      edm::LogInfo("TMultiDimFet") << "\n";
    }
    if (opt.Contains("k") && fCorrelationMatrix.IsValid()) {
-      std::cout << "Correlation Matrix:" << std::endl
+      edm::LogInfo("TMultiDimFet") << "Correlation Matrix:" << "\n"
          << "-------------------";
       fCorrelationMatrix.Print();
    }
 
    if (opt.Contains("m")) {
-      std::cout.precision(25);
-      std::cout << "Parameterization:" << std::endl
-         << "-----------------" << std::endl
-         << "  Normalised variables: " << std::endl;
+      edm::LogInfo("TMultiDimFet")<<std::setprecision(25);
+      edm::LogInfo("TMultiDimFet") << "Parameterization:" << "\n"
+         << "-----------------" << "\n"
+         << "  Normalised variables: " << "\n";
       for (i = 0; i < fNVariables; i++)
-         std::cout << "\ty" << i << "\t:= 1 + 2 * (x" << i << " - "
+         edm::LogInfo("TMultiDimFet") << "\ty" << i << "\t:= 1 + 2 * (x" << i << " - "
          << fMaxVariables(i) << ") / (" 
          << fMaxVariables(i) << " - " << fMinVariables(i) << ")" 
-         << std::endl;
-      std::cout << std::endl
+         << "\n";
+      edm::LogInfo("TMultiDimFet") << "\n"
          << "  f[";
       for (i = 0; i < fNVariables; i++) {
-         std::cout << "y" << i;
-         if (i != fNVariables-1) std::cout << ", ";
+         edm::LogInfo("TMultiDimFet") << "y" << i;
+         if (i != fNVariables-1) edm::LogInfo("TMultiDimFet") << ", ";
       }
-      std::cout << "] := ";
+      edm::LogInfo("TMultiDimFet") << "] := ";
       for (Int_t i = 0; i < fNCoefficients; i++) {
          if (i != 0)
-            std::cout << " " << (fCoefficients(i) < 0 ? "- " : "+ ")
+            edm::LogInfo("TMultiDimFet") << " " << (fCoefficients(i) < 0 ? "- " : "+ ")
             << TMath::Abs(fCoefficients(i));
          else 
-            std::cout << fCoefficients(i);
+            edm::LogInfo("TMultiDimFet") << fCoefficients(i);
          for (Int_t j = 0; j < fNVariables; j++) {
             Int_t p = fPowers[fPowerIndex[i] * fNVariables + j];
             switch (p) { 
                case 1: break;
-               case 2: std::cout << " * y" << j; break;
+               case 2: edm::LogInfo("TMultiDimFet") << " * y" << j; break;
                default:
                   switch(fPolyType) {
-                     case kLegendre:  std::cout << " * L" << p-1 << "(y" << j << ")"; break;
-                     case kChebyshev: std::cout << " * C" << p-1 << "(y" << j << ")"; break;
-                     default:         std::cout << " * y" << j << "^" << p-1; break;
+                     case kLegendre:  edm::LogInfo("TMultiDimFet") << " * L" << p-1 << "(y" << j << ")"; break;
+                     case kChebyshev: edm::LogInfo("TMultiDimFet") << " * C" << p-1 << "(y" << j << ")"; break;
+                     default:         edm::LogInfo("TMultiDimFet") << " * y" << j << "^" << p-1; break;
                   }
             }
 
          }
       }
-      std::cout << std::endl;
+      edm::LogInfo("TMultiDimFet") << "\n";
    }
 }
 
@@ -1986,45 +1933,45 @@ void TMultiDimFet::PrintPolynomialsSpecial(Option_t *option) const
    opt.ToLower();
 
    if (opt.Contains("m")) {
-      std::cout.precision(25);
-      std::cout << "Parameterization:" << std::endl
-         << "-----------------" << std::endl
-         << "  Normalised variables: " << std::endl;
+      edm::LogInfo("TMultiDimFet")<<std::setprecision(25);
+      edm::LogInfo("TMultiDimFet") << "Parameterization:" << "\n"
+         << "-----------------" << "\n"
+         << "  Normalised variables: " << "\n";
       for (i = 0; i < fNVariables; i++)
-         std::cout << "\tdouble y" << i << "\t=1+2*(x" << i << "-"
+         edm::LogInfo("TMultiDimFet") << "\tdouble y" << i << "\t=1+2*(x" << i << "-"
          << fMaxVariables(i) << ")/("
          << fMaxVariables(i) << "-" << fMinVariables(i) <<");"
-         << std::endl;
-      std::cout << std::endl
+         << "\n";
+      edm::LogInfo("TMultiDimFet") << "\n"
          << "  f[";
       for (i = 0; i < fNVariables; i++) {
-         std::cout << "y" << i;
-         if (i != fNVariables-1) std::cout << ", ";
+         edm::LogInfo("TMultiDimFet") << "y" << i;
+         if (i != fNVariables-1) edm::LogInfo("TMultiDimFet") << ", ";
       }
-      std::cout << "] := "<<fMeanQuantity<<" + ";
+      edm::LogInfo("TMultiDimFet") << "] := "<<fMeanQuantity<<" + ";
       for (Int_t i = 0; i < fNCoefficients; i++) {
          if (i != 0)
-            std::cout << " " << (fCoefficients(i) < 0 ? "-" : "+")
+            edm::LogInfo("TMultiDimFet") << " " << (fCoefficients(i) < 0 ? "-" : "+")
             << TMath::Abs(fCoefficients(i));
          else
-            std::cout << fCoefficients(i);
+            edm::LogInfo("TMultiDimFet") << fCoefficients(i);
          for (Int_t j = 0; j < fNVariables; j++) {
             Int_t p = fPowers[fPowerIndex[i] * fNVariables + j];
             switch (p) {
                case 1: break;
-               case 2: std::cout << "*y" << j; break;
+               case 2: edm::LogInfo("TMultiDimFet") << "*y" << j; break;
                default:
                   switch(fPolyType) {
-                     case kLegendre:  std::cout << "*Leg(" << p-1 << ",y" << j << ")"; break;
-                     case kChebyshev: std::cout << "*C" << p-1 << "(y" << j << ")"; break;
-                     default:         std::cout << "*y" << j << "**" << p-1; break;
+                     case kLegendre:  edm::LogInfo("TMultiDimFet") << "*Leg(" << p-1 << ",y" << j << ")"; break;
+                     case kChebyshev: edm::LogInfo("TMultiDimFet") << "*C" << p-1 << "(y" << j << ")"; break;
+                     default:         edm::LogInfo("TMultiDimFet") << "*y" << j << "**" << p-1; break;
                   }
             }
 
          }
-   std::cout<<std::endl;
+   edm::LogInfo("TMultiDimFet")<<"\n";
       }
-      std::cout << std::endl;
+      edm::LogInfo("TMultiDimFet") << "\n";
    }
 }
 
