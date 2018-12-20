@@ -370,40 +370,20 @@ std::vector<const reco::CaloCluster*> InOutConversionSeedFinder::getSecondCaloCl
   
   std::vector<const reco::CaloCluster*> result;
   
- //std::cout << "InOutConversionSeedFinder::getSecondCaloClusters" <<  "\n"; 
-  
-  Geom::Phi<float> theConvPhi(conversionPosition.phi() );
+  Geom::Phi<float> convPhi(conversionPosition.phi() );
 
-  for (unsigned i = 0; i < bcCollection_->size(); ++i ) {
+  for(auto const& bc : bcCollection_->ptrs())
+  {
+    Geom::Phi<float> bcPhi( bc->position().phi() );
     
-    Geom::Phi<float> theBcPhi( bcCollection_->ptrAt(i)->position().phi()   );
-   //std::cout<< "InOutConversionSeedFinder::getSecondCaloClusters  BC energy " <<  bcCollection_->ptrAt(i)->energy() << " Calo cluster phi " << theBcPhi << " " <<  bcCollection_->ptrAt(i)->position().phi()<<  " theConvPhi " << theConvPhi << "\n";
+    // Require phi of cluster to be consistent with the conversion position and the track charge
     
-    // Require phi of cluster to be consistent with the conversion 
-    // position and the track charge
-    
-    
-    if (fabs(theBcPhi-theConvPhi ) < .5 &&
-        ((charge<0 && theBcPhi-theConvPhi >-.5) || 
-         (charge>0 && theBcPhi-theConvPhi <.5))){
-      ////std::cout << "InOutConversionSeedFinder::getSecondCaloClusters  Adding bc pointer " << &(*bcItr) << "  to vector:" << "\n";
-      
-      //result.push_back(&(*bcItr));
-
-      result.push_back(&(*(bcCollection_->ptrAt(i))  ));
-
-    }
-    
-    
-    
-    
+    if (std::abs(bcPhi-convPhi ) < .5 &&
+        ((charge<0 && bcPhi-convPhi >-.5) || 
+         (charge>0 && bcPhi-convPhi <.5))) result.push_back(bc.get());
   }
-  
-  
-  
+
   return result;
-  
-  
 }
 
 

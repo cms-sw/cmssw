@@ -212,8 +212,7 @@ void EGRegressionModifierV1::setEvent(const edm::Event& evt) {
     edm::Handle<edm::View<pat::Electron> > eles;
     evt.getByToken(e_conf.tok_electron_src, eles);
     
-    for( unsigned i = 0; i < eles->size(); ++i ) {
-      edm::Ptr<pat::Electron> ptr = eles->ptrAt(i);
+    for(auto const& ptr : eles->ptrs()) {
       eles_by_oop[ptr->originalObjectRef().key()] = ptr;
     }    
   }
@@ -234,8 +233,7 @@ void EGRegressionModifierV1::setEvent(const edm::Event& evt) {
     edm::Handle<edm::View<pat::Photon> > phos;
     evt.getByToken(ph_conf.tok_photon_src,phos);
   
-    for( unsigned i = 0; i < phos->size(); ++i ) {
-      edm::Ptr<pat::Photon> ptr = phos->ptrAt(i);
+    for(auto const& ptr : phos->ptrs()) {
       phos_by_oop[ptr->originalObjectRef().key()] = ptr;
     }
   }

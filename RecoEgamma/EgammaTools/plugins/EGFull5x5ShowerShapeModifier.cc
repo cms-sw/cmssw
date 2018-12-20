@@ -82,9 +82,9 @@ public:
 private:
   electron_config e_conf;
   photon_config   ph_conf;
-  std::unordered_map<unsigned,edm::Ptr<reco::GsfElectron> > eles_by_oop; // indexed by original object ptr
+  std::vector<edm::Ptr<reco::GsfElectron>> eles_by_oop; // indexed by original object ptr
   std::unordered_map<unsigned,edm::Handle<edm::ValueMap<float> > > ele_vmaps;
-  std::unordered_map<unsigned,edm::Ptr<reco::Photon> > phos_by_oop;
+  std::vector<edm::Ptr<reco::Photon>> phos_by_oop;
   std::unordered_map<unsigned,edm::Handle<edm::ValueMap<float> > > pho_vmaps;
   mutable unsigned ele_idx,pho_idx; // hack here until we figure out why some slimmedPhotons don't have original object ptrs
 };
@@ -151,10 +151,8 @@ setEvent(const edm::Event& evt) {
     edm::Handle<edm::View<pat::Electron> > eles;
     evt.getByToken(e_conf.tok_electron_src,eles);
     
-    for( unsigned i = 0; i < eles->size(); ++i ) {
-      edm::Ptr<pat::Electron> ptr = eles->ptrAt(i);
-      eles_by_oop[i] = ptr;
-    }
+    eles_by_oop.resize(eles->size());
+    std::copy(eles->ptrs().begin(), eles->ptrs().end(), eles_by_oop.begin());
   }
 
   get_product(evt,e_conf.tok_sigmaEtaEta,ele_vmaps);
@@ -173,10 +171,8 @@ setEvent(const edm::Event& evt) {
     edm::Handle<edm::View<pat::Photon> > phos;
     evt.getByToken(ph_conf.tok_photon_src,phos);
 
-    for( unsigned i = 0; i < phos->size(); ++i ) {
-      edm::Ptr<pat::Photon> ptr = phos->ptrAt(i);
-      phos_by_oop[i] = ptr;
-    }
+    phos_by_oop.resize(phos->size());
+    std::copy(phos->ptrs().begin(), phos->ptrs().end(), phos_by_oop.begin());
   }
 
   get_product(evt,ph_conf.tok_sigmaEtaEta,pho_vmaps);
@@ -246,15 +242,7 @@ modifyObject(pat::Electron& ele) const {
   // and the value maps are to the reducedEG object, can use original object ptr
   // or we are running MINIAOD->MINIAOD and we need to fetch the pat objects to reference    
   edm::Ptr<reco::Candidate> ptr(ele.originalObjectRef());
-  if( !e_conf.tok_electron_src.isUninitialized() ) {
-    auto key = eles_by_oop.find(ele_idx);
-    if( key != eles_by_oop.end() ) {
-      ptr = key->second;
-    } else {
-      throw cms::Exception("BadElectronKey")
-        << "Original object pointer with key = " << ele.originalObjectRef().key() << " not found in cache!";
-    }
-  }
+  if( !e_conf.tok_electron_src.isUninitialized() ) ptr = eles_by_oop.at(ele_idx);
   //now we go through and modify the objects using the valuemaps we read in
   auto full5x5 = ele.full5x5_showerShape();
   assignValue(ptr,e_conf.tok_sigmaEtaEta,ele_vmaps,full5x5.sigmaEtaEta);
@@ -280,15 +268,7 @@ modifyObject(pat::Photon& pho) const {
   // and the value maps are to the reducedEG object, can use original object ptr
   // or we are running MINIAOD->MINIAOD and we need to fetch the pat objects to reference
   edm::Ptr<reco::Candidate> ptr(pho.originalObjectRef());
-  if( !ph_conf.tok_photon_src.isUninitialized() ) {
-    auto key = phos_by_oop.find(pho_idx);
-    if( key != phos_by_oop.end() ) {
-      ptr = key->second;
-    } else {
-      throw cms::Exception("BadPhotonKey")
-        << "Original object pointer with key = " << pho.originalObjectRef().key() << " not found in cache!";
-    }
-  }
+  if( !ph_conf.tok_photon_src.isUninitialized() ) ptr = phos_by_oop.at(pho_idx);
   //now we go through and modify the objects using the valuemaps we read in
   auto full5x5 = pho.full5x5_showerShapeVariables();
   assignValue(ptr,ph_conf.tok_sigmaEtaEta,pho_vmaps,full5x5.sigmaEtaEta);
