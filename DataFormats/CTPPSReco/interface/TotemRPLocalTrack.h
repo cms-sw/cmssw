@@ -115,6 +115,8 @@ class TotemRPLocalTrack
 
     inline double getChiSquaredOverNDF() const { return chiSquared_ / (track_hits_vector_.size() - 4); }
 
+    inline unsigned short getNumberOfPointsUsedForFit() const { return track_hits_vector_.size(); }
+
     /// returns (x, y) vector
     inline TVector2 getTrackPoint(double z) const 
     {

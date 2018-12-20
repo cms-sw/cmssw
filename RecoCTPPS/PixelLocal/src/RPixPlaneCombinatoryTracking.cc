@@ -520,15 +520,6 @@ void RPixPlaneCombinatoryTracking::addRecoInfo(int run)
   // 4 -> Starting from run 305965: Sec45 St2 Rp3 Pl 1,3,5 ROC 0 shifted & Sec56 St2 Rp3 Pl 2,4,5 ROC 5 shifted.
     
   unsigned short shiftPeriod = 0;
-  unsigned short recoInfo = 5; // Dummy initiation value
-
-  // Track information byte for bx-shifted runs: 
-  // reco_info = 0 -> Default value for tracks reconstructed in non-bx-shifted ROCs
-  // reco_info = 1 -> Track reconstructed in a bx-shifted ROC with bx-shifted planes only
-  // reco_info = 2 -> Track reconstructed in a bx-shifted ROC with non-bx-shifted planes only
-  // reco_info = 3 -> Track reconstructed in a bx-shifted ROC both with bx-shifted and non-bx-shifted plane
-
-  std::vector<CTPPSPixelLocalTrack> localTrackVectorWithRecoInfo;
 
   // These variables hold the information of the runs when the detector was taking data in 3+3 Mode and which planes were bx-shifted
   // These values will never be changed and the 3+3 Mode will never be used again in the future
@@ -589,7 +580,7 @@ void RPixPlaneCombinatoryTracking::addRecoInfo(int run)
   }
 
   // Loop over found tracks to set recoInfo_
-  for(const auto & track : localTrackVector_){
+  for(auto & track : localTrackVector_){
     if(romanPotId_ != CTPPSPixelDetId(0,2,3) && romanPotId_ != CTPPSPixelDetId(1,2,3)){
       continue;
     }
@@ -611,35 +602,26 @@ void RPixPlaneCombinatoryTracking::addRecoInfo(int run)
     }
 
     // Set recoInfo_ value
-    if(hitInShiftedROC < 3) recoInfo = 0;
-    if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 0 && hitInShiftedROC >= 3) recoInfo = 0; // Default value for runs without bx-shift
-    if(bxShiftedPlanesUsed == 3 && bxNonShiftedPlanesUsed == 0 && hitInShiftedROC >= 3) recoInfo = 1; // Track reconstructed in a shifted ROC, only with bx-shifted planes
-    if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 3 && hitInShiftedROC >= 3) recoInfo = 2; // Track reconstructed in a shifted ROC, only with non-bx-shifted planes
-    if(bxShiftedPlanesUsed >  0 && bxNonShiftedPlanesUsed >  0 && hitInShiftedROC >= 3) recoInfo = 3; // Track reconstructed in a shifted ROC, with mixed planes
+    track.setRecoInfo(CTPPSPixelLocalTrack::invalid); // Initially setting it as invalid. It has to match one of the following options.
+    if(hitInShiftedROC < 3) track.setRecoInfo(CTPPSPixelLocalTrack::notShiftedRun); 
+    if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 0 && hitInShiftedROC >= 3) track.setRecoInfo(CTPPSPixelLocalTrack::notShiftedRun);    // Default value for runs without bx-shift
+    if(bxShiftedPlanesUsed == 3 && bxNonShiftedPlanesUsed == 0 && hitInShiftedROC >= 3) track.setRecoInfo(CTPPSPixelLocalTrack::allShiftedPlanes); // Track reconstructed in a shifted ROC, only with bx-shifted planes
+    if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 3 && hitInShiftedROC >= 3) track.setRecoInfo(CTPPSPixelLocalTrack::noShiftedPlanes);  // Track reconstructed in a shifted ROC, only with non-bx-shifted planes
+    if(bxShiftedPlanesUsed >  0 && bxNonShiftedPlanesUsed >  0 && hitInShiftedROC >= 3) track.setRecoInfo(CTPPSPixelLocalTrack::mixedPlanes);      // Track reconstructed in a shifted ROC, with mixed planes
     
-    if(bxShiftedPlanesUsed + bxNonShiftedPlanesUsed > 6) {
-      edm::LogInfo("RPixPlaneCombinatoryTracking")<< "Error in RPixPlaneCombinatoryTracking::addRecoInfo -> " << "More than 6 points found for a track, skipping.";
+    if(bxShiftedPlanesUsed + bxNonShiftedPlanesUsed > 6){
+      edm::LogError("RPixPlaneCombinatoryTracking")<< "Error in RPixPlaneCombinatoryTracking::addRecoInfo -> " << "More than 6 points found for a track, skipping.";
       continue;
+    }
+    if(track.getRecoInfo() == CTPPSPixelLocalTrack::invalid){
+      edm::LogError("RPixPlaneCombinatoryTracking")<<"Error in RPixPlaneCombinatoryTracking::addRecoInfo -> " << "recoInfo has not been set properly.";
     }
 
     if(verbosity_>=2){
       edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Analyzing run: "<<run<<"\nShift period: "<<shiftPeriod<<" Track belongs to Arm "<<romanPotId_.arm()<<" Station "<<romanPotId_.station()
-      <<"\nTrack reconstructed with: "<<bxShiftedPlanesUsed<<" bx-shifted planes, "<<bxNonShiftedPlanesUsed<<" non-bx-shifted planes, "<<hitInShiftedROC<<" hits in the bx-shifted ROC"<<"\nrecoInfo = "<<recoInfo;
+      <<"\nTrack reconstructed with: "<<bxShiftedPlanesUsed<<" bx-shifted planes, "<<bxNonShiftedPlanesUsed<<" non-bx-shifted planes, "<<hitInShiftedROC<<" hits in the bx-shifted ROC"<<"\nrecoInfo = "<<(unsigned short)track.getRecoInfo();
       if(shiftPeriod != 0 && shiftPeriod != 2 && shiftPeriod !=  5)edm::LogInfo("RPixPlaneCombinatoryTracking")<<"The shifted ROC is ROC"<<shiftedROC;
     }
-    
-    // Create new track with recoInfo_, put it in localTrackVectorWithRecoInfo and assign localTrackVectorWithRecoInfo to localTrackVector_
-    CTPPSPixelLocalTrack trackWithRecoInfo(track.getZ0(), track.getParameterVector(), track.getCovarianceMatrix(), track.getChiSquared(), recoInfo);
-    for(const auto & planeHits : fittedHits){
-      CTPPSPixelDetId hitId = CTPPSPixelDetId(planeHits.detId());
-      for(const auto & hit : planeHits){
-        trackWithRecoInfo.addHit(hitId,hit);
-      }
-    }
-    localTrackVectorWithRecoInfo.push_back(trackWithRecoInfo);
   }
-
-  localTrackVector_ = localTrackVectorWithRecoInfo;
-
   return;
 }

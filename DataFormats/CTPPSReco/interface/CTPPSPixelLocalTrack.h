@@ -73,6 +73,14 @@ class CTPPSPixelLocalTrack
   
   enum TrackPar {x0 = 0, y0 = 1, tx = 2, ty = 3}; 
 
+  /// Track information byte for bx-shifted runs: 
+  /// reco_info = notShiftedRun    -> Default value for tracks reconstructed in non-bx-shifted ROCs
+  /// reco_info = allShiftedPlanes -> Track reconstructed in a bx-shifted ROC with bx-shifted planes only
+  /// reco_info = noShiftedPlanes  -> Track reconstructed in a bx-shifted ROC with non-bx-shifted planes only
+  /// reco_info = mixedPlanes      -> Track reconstructed in a bx-shifted ROC both with bx-shifted and non-bx-shifted planes
+  /// reco_info = invalid          -> Dummy value. Assigned when reco_info is not computed
+  enum reconstructionInfo: unsigned short {notShiftedRun = 0, allShiftedPlanes = 1, noShiftedPlanes = 2, mixedPlanes = 3, invalid = 5};
+
     ///< parameter vector size
     static constexpr int dimension = 4;
     typedef math::Error<dimension>::type CovarianceMatrix;
@@ -81,20 +89,20 @@ class CTPPSPixelLocalTrack
     ///< covariance matrix size
     static constexpr int covarianceSize = dimension * dimension;
 
-    CTPPSPixelLocalTrack() : z0_(0), chiSquared_(0), valid_(false), numberOfPointUsedForFit_(0)
+    CTPPSPixelLocalTrack() : z0_(0), chiSquared_(0), valid_(false), numberOfPointsUsedForFit_(0),recoInfo_(reconstructionInfo::invalid)
     {
     }
 
     CTPPSPixelLocalTrack(float z0, const ParameterVector & track_params_vector,
-      const CovarianceMatrix &par_covariance_matrix, float chiSquared, unsigned short recoInfo = 5);
+      const CovarianceMatrix &par_covariance_matrix, float chiSquared);
 
-    ~CTPPSPixelLocalTrack() {}
+    ~CTPPSPixelLocalTrack(){}
 
     inline const edm::DetSetVector<CTPPSPixelFittedRecHit>& getHits() const { return track_hits_vector_; }
     inline void addHit(unsigned int detId, const CTPPSPixelFittedRecHit &hit)
     {
       track_hits_vector_.find_or_insert(detId).push_back(hit);
-      if(hit.getIsUsedForFit()) ++numberOfPointUsedForFit_;
+      if(hit.getIsUsedForFit()) ++numberOfPointsUsedForFit_;
     }
 
     inline float getX0() const { return track_params_vector_[TrackPar::x0]; }
@@ -131,11 +139,11 @@ class CTPPSPixelLocalTrack
     inline float getChiSquared() const { return chiSquared_; }
 
     inline float getChiSquaredOverNDF() const { 
-      if(numberOfPointUsedForFit_<= dimension/2) return -999.;
-      else return chiSquared_ / (2*numberOfPointUsedForFit_ - dimension); 
+      if(numberOfPointsUsedForFit_<= dimension/2) return -999.;
+      else return chiSquared_ / (2*numberOfPointsUsedForFit_ - dimension); 
     }
 
-    inline int getNDF() const {return (2*numberOfPointUsedForFit_ - dimension); }
+    inline int getNDF() const {return (2*numberOfPointsUsedForFit_ - dimension); }
 
     /// returns the point from which the track is passing by at the selected z
     inline GlobalPoint getTrackPoint(float z) const 
@@ -160,9 +168,10 @@ class CTPPSPixelLocalTrack
 
     bool operator< (const CTPPSPixelLocalTrack &r);
 
-    inline unsigned short getRecoInfo() const { return recoInfo_; }
+    inline reconstructionInfo getRecoInfo() const { return recoInfo_; }
+    inline void setRecoInfo(reconstructionInfo recoInfo) { recoInfo_ = recoInfo; }
 
-    inline unsigned short getNumberOfPointUsedForFit() const { return (unsigned short) numberOfPointUsedForFit_; }
+    inline unsigned short getNumberOfPointsUsedForFit() const { return (unsigned short) numberOfPointsUsedForFit_; }
     
   private:
     edm::DetSetVector<CTPPSPixelFittedRecHit> track_hits_vector_;
@@ -183,14 +192,9 @@ class CTPPSPixelLocalTrack
     bool valid_;
 
     /// number of points used for the track fit
-    int numberOfPointUsedForFit_;
+    int numberOfPointsUsedForFit_;
 
-    /// Track information byte for bx-shifted runs: 
-    /// reco_info = 0 -> Default value for tracks reconstructed in non-bx-shifted ROCs
-    /// reco_info = 1 -> Track reconstructed in a bx-shifted ROC with bx-shifted planes only
-    /// reco_info = 2 -> Track reconstructed in a bx-shifted ROC with non-bx-shifted planes only
-    /// reco_info = 3 -> Track reconstructed in a bx-shifted ROC both with bx-shifted and non-bx-shifted planes
-    unsigned short recoInfo_;
+    reconstructionInfo recoInfo_;
 };
 
 #endif
