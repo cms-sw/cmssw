@@ -17,12 +17,13 @@
 class CTPPSLocalTrackLite
 {
   public:
-    CTPPSLocalTrackLite() : rpId(0), x(0.), x_unc(-1.), y(0.), y_unc(-1.), tx(999.), tx_unc(-1.), ty(999.), ty_unc(-1.), chiSquaredOverNDF(-1.), reco_info(4), numberOfPointUsedForFit(0), time(0.), time_unc(-1.)
+
+    CTPPSLocalTrackLite() : rpId(0), x(0.), x_unc(-1.), y(0.), y_unc(-1.), tx(999.), tx_unc(-1.), ty(999.), ty_unc(-1.), chiSquaredOverNDF(-1.), reco_info(CTPPSPixelLocalTrack::invalid), numberOfPointsUsedForFit(0), time(0.), time_unc(-1.)
     {
     }
 
-    CTPPSLocalTrackLite(uint32_t pid, float px, float pxu, float py, float pyu, float ptx=999., float ptxu=-1., float pty=999., float ptyu=-1., float pchiSquaredOverNDF=-1., unsigned short preco_info=4, unsigned short pNumberOfPointUsedForFit=-1, float pt=0., float ptu=-1.)
-      : rpId(pid), x(px), x_unc(pxu), y(py), y_unc(pyu), tx(ptx), tx_unc(ptxu), ty(pty), ty_unc(ptyu), chiSquaredOverNDF(pchiSquaredOverNDF), reco_info(preco_info), numberOfPointUsedForFit(pNumberOfPointUsedForFit), time(pt), time_unc(ptu)
+    CTPPSLocalTrackLite(uint32_t pid, float px, float pxu, float py, float pyu, float ptx, float ptxu, float pty, float ptyu, float pchiSquaredOverNDF, CTPPSPixelLocalTrack::reconstructionInfo preco_info, unsigned short pNumberOfPointsUsedForFit, float pt, float ptu)
+      : rpId(pid), x(px), x_unc(pxu), y(py), y_unc(pyu), tx(ptx), tx_unc(ptxu), ty(pty), ty_unc(ptyu), chiSquaredOverNDF(pchiSquaredOverNDF), reco_info(preco_info), numberOfPointsUsedForFit(pNumberOfPointsUsedForFit), time(pt), time_unc(ptu)
     { 
     }
 
@@ -99,7 +100,7 @@ class CTPPSLocalTrackLite
     }
 
     /// returns the track reconstruction info byte
-    inline unsigned int getReco_info() const
+    inline unsigned int getRecoInfo() const
     {
         return reco_info;
     }
@@ -107,12 +108,17 @@ class CTPPSLocalTrackLite
     /// returns the number of points used for fit
     inline unsigned short getNumberOfPointsUsedForFit() const
     {
-        return numberOfPointUsedForFit;
+        return numberOfPointsUsedForFit;
     }   
 
   protected:
     /// RP id
     uint32_t rpId;
+
+    /// local track parameterization
+    /// x = x0 + tx*(z-z0), y = y0 + ty*(z-z0)
+    /// x0, y0, z-z0 in mm
+    /// z0: position of the reference scoring plane (in the middle of the RP)
 
     /// horizontal hit position and uncertainty, mm
     float x, x_unc;
@@ -130,14 +136,15 @@ class CTPPSLocalTrackLite
     float chiSquaredOverNDF;
 
     /// Track information byte for bx-shifted runs: 
-    /// reco_info = 0 -> Default value for tracks reconstructed in non-bx-shifted ROCs
-    /// reco_info = 1 -> Track reconstructed in a bx-shifted ROC with bx-shifted planes only
-    /// reco_info = 2 -> Track reconstructed in a bx-shifted ROC with non-bx-shifted planes only
-    /// reco_info = 3 -> Track reconstructed in a bx-shifted ROC both with bx-shifted and non-bx-shifted planes
-    unsigned short reco_info;
+    /// reco_info = notShiftedRun    -> Default value for tracks reconstructed in non-bx-shifted ROCs
+    /// reco_info = allShiftedPlanes -> Track reconstructed in a bx-shifted ROC with bx-shifted planes only
+    /// reco_info = noShiftedPlanes  -> Track reconstructed in a bx-shifted ROC with non-bx-shifted planes only
+    /// reco_info = mixedPlanes      -> Track reconstructed in a bx-shifted ROC both with bx-shifted and non-bx-shifted planes
+    /// reco_info = invalid          -> Dummy value. Assigned when reco_info is not computed (i.e. non-pixel tracks)
+    CTPPSPixelLocalTrack::reconstructionInfo reco_info;
 
     /// number of points used for fit
-    unsigned short numberOfPointUsedForFit; 
+    unsigned short numberOfPointsUsedForFit; 
 
     /// time information and uncertainty
     float time, time_unc;
