@@ -67,12 +67,15 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   doSeedPlots_(pset.getUntrackedParameter<bool>("doSeedPlots")),
   doMVAPlots_(pset.getUntrackedParameter<bool>("doMVAPlots")),
   simPVMaxZ_(pset.getUntrackedParameter<double>("simPVMaxZ")),
-  cores_(consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("cores"))),
   ptMinJet_(pset.getParameter<double>("ptMinJet"))
 {
+  if(not (pset.getParameter<edm::InputTag>("cores").label()=="")){
+    cores_ = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("cores"));
+  }
   if(label.empty()) {
     // Disable prefetching of everything if there are no track collections
     return;
+
   }
 
   const edm::InputTag& label_tp_effic_tag = pset.getParameter< edm::InputTag >("label_tp_effic");
@@ -434,7 +437,7 @@ size_t MultiTrackValidator::tpDR(const TrackingParticleRefVector& tPCeff,
                                  const std::vector<size_t>& selected_tPCeff,
                                  DynArray<float>& dR_tPCeff,
                                  DynArray<float>& dR_tPCeff_jet,
-                                 const edm::View<reco::Candidate>* const & cores) const {
+                                 const edm::View<reco::Candidate>* cores) const {
   float etaL[tPCeff.size()], phiL[tPCeff.size()];
   size_t n_selTP_dr = 0;
   for(size_t iTP: selected_tPCeff) {
@@ -477,46 +480,11 @@ size_t MultiTrackValidator::tpDR(const TrackingParticleRefVector& tPCeff,
   return n_selTP_dr;
 }
 
-
-// void MultiTrackValidator::tpDR_jet(const TrackingParticleRefVector& tPCeff,
-//                                  const std::vector<size_t>& selected_tPCeff,
-//                                  DynArray<float>& dR_tPCeff_jet,
-//                                  const edm::View<reco::Candidate>* const & cores) const {
-//   float etaL[tPCeff.size()], phiL[tPCeff.size()];
-//   for(size_t iTP: selected_tPCeff) {
-//     //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
-//     auto const& tp2 = *(tPCeff[iTP]);
-//     auto  && p = tp2.momentum();
-//     etaL[iTP] = etaFromXYZ(p.x(),p.y(),p.z());
-//     phiL[iTP] = atan2f(p.y(),p.x());
-//   }
-//   for(size_t iTP1: selected_tPCeff) {
-//     auto const& tp = *(tPCeff[iTP1]);
-//     double dR = std::numeric_limits<double>::max();
-//     if(dRtpSelector(tp)) {//only for those needed for efficiency!
-//       float eta = etaL[iTP1];
-//       float phi = phiL[iTP1];
-//       for (unsigned int ji = 0; ji < cores->size(); ji++) {//jet loop
-//         if((*cores)[ji].pt() > ptMinJet_){
-//           const reco::Candidate& jet = (*cores)[ji];
-//           double jet_eta = jet.eta();
-//           double jet_phi = jet.phi();
-//           auto dR_tmp = reco::deltaR2(eta, phi, jet_eta, jet_phi);
-//           if (dR_tmp<dR) dR=dR_tmp;
-//         }
-//       } //jet cores
-//       dR_tPCeff_jet[iTP1] = std::sqrt(dR);
-//     }
-//   }  // tp
-// }
-
-
-
 void MultiTrackValidator::trackDR(const edm::View<reco::Track>& trackCollection,
                                   const edm::View<reco::Track>& trackCollectionDr,
                                   DynArray<float>& dR_trk,
                                   DynArray<float>& dR_trk_jet,
-                                  const edm::View<reco::Candidate>* const & cores) const {
+                                  const edm::View<reco::Candidate>* cores) const {
   int i=0;
   float etaL[trackCollectionDr.size()];
   float phiL[trackCollectionDr.size()];
@@ -709,11 +677,13 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSe
   declareDynArray(float, tPCeff.size(), dR_tPCeff);
 
   //calculate dR_jet for TPs
-  Handle<edm::View<reco::Candidate> > cores;
-  event.getByToken(cores_, cores);
-  const auto & coresVector = cores.product();
+  const edm::View<reco::Candidate>* coresVector = nullptr;
+  if(not cores_.isUninitialized()){
+    Handle<edm::View<reco::Candidate> > cores;
+    event.getByToken(cores_, cores);
+    coresVector= cores.product();
+  }
   declareDynArray(float, tPCeff.size(), dR_tPCeff_jet);
-  // /*size_t n_selTP_dr_jet =*/ tpDR_jet(tPCeff, selected_tPCeff, dR_tPCeff_jet, coresVector);
 
   size_t n_selTP_dr = tpDR(tPCeff, selected_tPCeff, dR_tPCeff, dR_tPCeff_jet, coresVector);
 
