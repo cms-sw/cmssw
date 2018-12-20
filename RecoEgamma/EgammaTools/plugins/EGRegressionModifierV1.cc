@@ -27,16 +27,10 @@ namespace {
 
 class EGRegressionModifierV1 : public ModifyObjectValueBase {
 public:
-  typedef edm::EDGetTokenT<edm::ValueMap<float> > ValMapFloatToken;
-  typedef edm::EDGetTokenT<edm::ValueMap<int> > ValMapIntToken;
-  typedef std::pair<edm::InputTag, ValMapFloatToken> ValMapFloatTagTokenPair;
-  typedef std::pair<edm::InputTag, ValMapIntToken> ValMapIntTagTokenPair;
 
   struct electron_config {
     edm::InputTag electron_src;
     edm::EDGetTokenT<edm::View<pat::Electron> > tok_electron_src;
-    std::unordered_map<std::string, ValMapFloatTagTokenPair> tag_float_token_map;
-    std::unordered_map<std::string, ValMapIntTagTokenPair> tag_int_token_map;
 
     std::vector<std::string> condnames_mean_50ns;
     std::vector<std::string> condnames_sigma_50ns;
@@ -49,8 +43,6 @@ public:
   struct photon_config {
     edm::InputTag photon_src;
     edm::EDGetTokenT<edm::View<pat::Photon> > tok_photon_src;
-    std::unordered_map<std::string, ValMapFloatTagTokenPair> tag_float_token_map;
-    std::unordered_map<std::string, ValMapIntTagTokenPair> tag_int_token_map;
 
     std::vector<std::string> condnames_mean_50ns;
     std::vector<std::string> condnames_sigma_50ns;
@@ -59,7 +51,6 @@ public:
   };
 
   EGRegressionModifierV1(const edm::ParameterSet& conf);
-  ~EGRegressionModifierV1() override {};
     
   void setEvent(const edm::Event&) final;
   void setEventContent(const edm::EventSetup&) final;
@@ -69,18 +60,12 @@ public:
   void modifyObject(reco::Photon&) const final;
   
   // just calls reco versions
-  void modifyObject(pat::Electron&) const final; 
-  void modifyObject(pat::Photon&) const final;
+  void modifyObject(pat::Electron& ele) const final { modifyObject(static_cast<reco::GsfElectron&>(ele)); }
+  void modifyObject(pat::Photon& pho) const final { modifyObject(static_cast<reco::Photon&>(pho)); }
 
 private:
   electron_config e_conf;
   photon_config   ph_conf;
-  std::unordered_map<unsigned,edm::Ptr<reco::GsfElectron> > eles_by_oop; // indexed by original object ptr
-  std::unordered_map<unsigned,edm::Handle<edm::ValueMap<float> > > ele_vmaps;
-  std::unordered_map<unsigned,edm::Handle<edm::ValueMap<int> > > ele_int_vmaps;
-  std::unordered_map<unsigned,edm::Ptr<reco::Photon> > phos_by_oop;
-  std::unordered_map<unsigned,edm::Handle<edm::ValueMap<float> > > pho_vmaps;
-  std::unordered_map<unsigned,edm::Handle<edm::ValueMap<int> > > pho_int_vmaps;
 
   bool autoDetectBunchSpacing_;
   int bunchspacing_;
@@ -124,33 +109,15 @@ EGRegressionModifierV1::EGRegressionModifierV1(const edm::ParameterSet& conf) :
     bunchspacing_ = conf.getParameter<int>("manualBunchSpacing");
   }
 
-  constexpr char electronSrc[] =  "electronSrc";
-  constexpr char photonSrc[] =  "photonSrc";
-
   if(conf.exists("electron_config")) {
     const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
-    if( electrons.exists(electronSrc) ) 
-      e_conf.electron_src = electrons.getParameter<edm::InputTag>(electronSrc);
+    if( electrons.exists("electronSrc") ) 
+      e_conf.electron_src = electrons.getParameter<edm::InputTag>("electronSrc");
     
     std::vector<std::string> intValueMaps;
     if ( electrons.existsAs<std::vector<std::string> >("intValueMaps")) 
       intValueMaps = electrons.getParameter<std::vector<std::string> >("intValueMaps");
 
-    const std::vector<std::string> parameters = electrons.getParameterNames();
-    for( const std::string& name : parameters ) {
-      if( std::string(electronSrc) == name ) 
-	continue;
-      if( electrons.existsAs<edm::InputTag>(name)) {
-	for (auto vmp : intValueMaps) {
-	  if (name == vmp) {
-	    e_conf.tag_int_token_map[name] = ValMapIntTagTokenPair(electrons.getParameter<edm::InputTag>(name), ValMapIntToken());
-	    break;
-	  } 
-	}
-	e_conf.tag_float_token_map[name] = ValMapFloatTagTokenPair(electrons.getParameter<edm::InputTag>(name), ValMapFloatToken());
-      }
-    }
-    
     e_conf.condnames_mean_50ns  = electrons.getParameter<std::vector<std::string> >("regressionKey_50ns");
     e_conf.condnames_sigma_50ns = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_50ns");
     e_conf.condnames_mean_25ns  = electrons.getParameter<std::vector<std::string> >("regressionKey_25ns");
@@ -162,27 +129,12 @@ EGRegressionModifierV1::EGRegressionModifierV1(const edm::ParameterSet& conf) :
   if( conf.exists("photon_config") ) { 
     const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("photon_config");
 
-    if( photons.exists(photonSrc) ) 
-      ph_conf.photon_src = photons.getParameter<edm::InputTag>(photonSrc);
+    if( photons.exists("photonSrc") ) 
+      ph_conf.photon_src = photons.getParameter<edm::InputTag>("photonSrc");
 
     std::vector<std::string> intValueMaps;
     if ( photons.existsAs<std::vector<std::string> >("intValueMaps")) 
       intValueMaps = photons.getParameter<std::vector<std::string> >("intValueMaps");
-
-    const std::vector<std::string> parameters = photons.getParameterNames();
-    for( const std::string& name : parameters ) {
-      if( std::string(photonSrc) == name ) 
-	continue;
-      if( photons.existsAs<edm::InputTag>(name)) {
-	for (auto vmp : intValueMaps) {
-	  if (name == vmp) {
-	    ph_conf.tag_int_token_map[name] = ValMapIntTagTokenPair(photons.getParameter<edm::InputTag>(name), ValMapIntToken());
-	    break;
-	  } 
-	}
-	ph_conf.tag_float_token_map[name] = ValMapFloatTagTokenPair(photons.getParameter<edm::InputTag>(name), ValMapFloatToken());
-      }
-    }
 
     ph_conf.condnames_mean_50ns = photons.getParameter<std::vector<std::string>>("regressionKey_50ns");
     ph_conf.condnames_sigma_50ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_50ns");
@@ -191,66 +143,18 @@ EGRegressionModifierV1::EGRegressionModifierV1(const edm::ParameterSet& conf) :
   }
 }
 
-namespace {
-  template<typename T>
-  inline void get_product(const edm::Event& evt,
-                          const edm::EDGetTokenT<edm::ValueMap<T> >& tok,
-                          std::unordered_map<unsigned, edm::Handle<edm::ValueMap<T> > >& map) {
-    evt.getByToken(tok,map[tok.index()]);
-  }
-}
-
 void EGRegressionModifierV1::setEvent(const edm::Event& evt) {
-  eles_by_oop.clear();
-  phos_by_oop.clear();  
-  ele_vmaps.clear();
-  ele_int_vmaps.clear();
-  pho_vmaps.clear();
-  pho_int_vmaps.clear();
   
   if( !e_conf.tok_electron_src.isUninitialized() ) {
     edm::Handle<edm::View<pat::Electron> > eles;
     evt.getByToken(e_conf.tok_electron_src, eles);
-    
-    for(auto const& ptr : eles->ptrs()) {
-      eles_by_oop[ptr->originalObjectRef().key()] = ptr;
-    }    
   }
 
-  for (std::unordered_map<std::string, ValMapFloatTagTokenPair>::iterator imap = e_conf.tag_float_token_map.begin(); 
-       imap != e_conf.tag_float_token_map.end(); 
-       imap++) {
-    get_product(evt, imap->second.second, ele_vmaps);
-  }
-
-  for (std::unordered_map<std::string, ValMapIntTagTokenPair>::iterator imap = e_conf.tag_int_token_map.begin(); 
-       imap != e_conf.tag_int_token_map.end(); 
-       imap++) {
-    get_product(evt, imap->second.second, ele_int_vmaps);
-  }
-  
   if( !ph_conf.tok_photon_src.isUninitialized() ) {
     edm::Handle<edm::View<pat::Photon> > phos;
     evt.getByToken(ph_conf.tok_photon_src,phos);
-  
-    for(auto const& ptr : phos->ptrs()) {
-      phos_by_oop[ptr->originalObjectRef().key()] = ptr;
-    }
   }
    
-
-  for (std::unordered_map<std::string, ValMapFloatTagTokenPair>::iterator imap = ph_conf.tag_float_token_map.begin(); 
-       imap != ph_conf.tag_float_token_map.end(); 
-       imap++) {
-    get_product(evt, imap->second.second, pho_vmaps);
-  }
-
-  for (std::unordered_map<std::string, ValMapIntTagTokenPair>::iterator imap = ph_conf.tag_int_token_map.begin(); 
-       imap != ph_conf.tag_int_token_map.end(); 
-       imap++) {
-    get_product(evt, imap->second.second, pho_int_vmaps);
-  }
-  
   if (autoDetectBunchSpacing_) {
       edm::Handle<unsigned int> bunchSpacingH;
       evt.getByToken(bunchSpacingToken_,bunchSpacingH);
@@ -299,20 +203,6 @@ void EGRegressionModifierV1::setEventContent(const edm::EventSetup& evs) {
   }
 }
 
-namespace {
-  template<typename T, typename U, typename V>
-  inline void make_consumes(T& tag,U& tok,V& sume) { 
-    if(!(empty_tag == tag)) 
-      tok = sume.template consumes<edm::ValueMap<float> >(tag); 
-  }
-
-  template<typename T, typename U, typename V>
-  inline void make_int_consumes(T& tag,U& tok,V& sume) { 
-    if(!(empty_tag == tag)) 
-      tok = sume.template consumes<edm::ValueMap<int> >(tag); 
-  }
-}
-
 void EGRegressionModifierV1::setConsumes(edm::ConsumesCollector& sumes) {
  
   rhoToken_ = sumes.consumes<double>(rhoTag_);
@@ -325,40 +215,10 @@ void EGRegressionModifierV1::setConsumes(edm::ConsumesCollector& sumes) {
   if(!(empty_tag == e_conf.electron_src))
     e_conf.tok_electron_src = sumes.consumes<edm::View<pat::Electron> >(e_conf.electron_src);  
 
-  for ( std::unordered_map<std::string, ValMapFloatTagTokenPair>::iterator imap = e_conf.tag_float_token_map.begin(); 
-	imap != e_conf.tag_float_token_map.end(); 
-	imap++) {
-    make_consumes(imap->second.first, imap->second.second, sumes);
-  }  
-
-  for ( std::unordered_map<std::string, ValMapIntTagTokenPair>::iterator imap = e_conf.tag_int_token_map.begin(); 
-	imap != e_conf.tag_int_token_map.end(); 
-	imap++) {
-    make_int_consumes(imap->second.first, imap->second.second, sumes);
-  }  
-  
   // setup photons 
   if(!(empty_tag == ph_conf.photon_src)) 
     ph_conf.tok_photon_src = sumes.consumes<edm::View<pat::Photon> >(ph_conf.photon_src);
 
-  for ( std::unordered_map<std::string, ValMapFloatTagTokenPair>::iterator imap = ph_conf.tag_float_token_map.begin(); 
-	imap != ph_conf.tag_float_token_map.end(); 
-	imap++) {
-    make_consumes(imap->second.first, imap->second.second, sumes);
-  }  
-
-  for ( std::unordered_map<std::string, ValMapIntTagTokenPair>::iterator imap = ph_conf.tag_int_token_map.begin(); 
-	imap != ph_conf.tag_int_token_map.end(); 
-	imap++) {
-    make_int_consumes(imap->second.first, imap->second.second, sumes);
-  }  
-}
-
-namespace {
-  template<typename T, typename U, typename V, typename Z>
-  inline void assignValue(const T& ptr, const U& tok, const V& map, Z& value) {
-    if( !tok.isUninitialized() ) value = map.find(tok.index())->second->get(ptr.id(),ptr.key());
-  }
 }
 
 void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
@@ -555,10 +415,6 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
   ele.correctMomentum(newMomentum, ele.trackMomentumError(), combinedMomentumError);
 }
 
-void EGRegressionModifierV1::modifyObject(pat::Electron& ele) const {
-  modifyObject(static_cast<reco::GsfElectron&>(ele));
-}
-
 void EGRegressionModifierV1::modifyObject(reco::Photon& pho) const {
   // regression calculation needs no additional valuemaps
   
@@ -658,8 +514,4 @@ void EGRegressionModifierV1::modifyObject(reco::Photon& pho) const {
 
   double sigmacor = sigma*ecor;
   pho.setCorrectedEnergy(reco::Photon::P4type::regression2, ecor, sigmacor, true);     
-}
-
-void EGRegressionModifierV1::modifyObject(pat::Photon& pho) const {
-  modifyObject(static_cast<reco::Photon&>(pho));
 }
