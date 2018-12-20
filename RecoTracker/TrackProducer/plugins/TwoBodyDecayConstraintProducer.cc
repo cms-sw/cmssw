@@ -10,7 +10,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,17 +36,17 @@
 // #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayModel.h"
 
 
-class TwoBodyDecayConstraintProducer: public edm::stream::EDProducer<>
+class TwoBodyDecayConstraintProducer: public edm::global::EDProducer<>
 {
 
 public:
 
   explicit TwoBodyDecayConstraintProducer(const edm::ParameterSet&);
-  ~TwoBodyDecayConstraintProducer() override;
+  ~TwoBodyDecayConstraintProducer() override = default;
 
 private:
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID streamid, edm::Event&, const edm::EventSetup&) const override;
 
   std::pair<bool, TrajectoryStateOnSurface> innermostState( const reco::TransientTrack& ttrack ) const;
   bool match( const TrajectoryStateOnSurface& newTsos, const TrajectoryStateOnSurface& oldTsos ) const;
@@ -98,18 +98,7 @@ TwoBodyDecayConstraintProducer::TwoBodyDecayConstraintProducer( const edm::Param
 }
 
 
-TwoBodyDecayConstraintProducer::~TwoBodyDecayConstraintProducer()
-{
-//   // debug
-//   TFile* f = new TFile( "producer.root", "RECREATE" );
-//   f->cd();
-//   for ( std::map<std::string, TH1F*>::iterator it = histos_.begin(); it != histos_.end(); ++it ) { it->second->Write(); delete it->second; }
-//   f->Close();
-//   delete f;
-}
-
-
-void TwoBodyDecayConstraintProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
+void TwoBodyDecayConstraintProducer::produce(edm::StreamID streamid, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace edm;
 

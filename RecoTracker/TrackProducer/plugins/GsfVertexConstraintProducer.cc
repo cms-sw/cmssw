@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -18,13 +18,13 @@
 // class decleration
 //
 
-class GsfVertexConstraintProducer: public edm::stream::EDProducer<> {
+class GsfVertexConstraintProducer: public edm::global::EDProducer<> {
 public:
   explicit GsfVertexConstraintProducer(const edm::ParameterSet&);
-  ~GsfVertexConstraintProducer() override;
+  ~GsfVertexConstraintProducer() override = default;
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID streamid, edm::Event&, const edm::EventSetup&) const override;
       
   // ----------member data ---------------------------
   const edm::InputTag srcTrkTag_;
@@ -57,19 +57,12 @@ srcTrkTag_(iConfig.getParameter<edm::InputTag>("src"))
 }
 
 
-GsfVertexConstraintProducer::~GsfVertexConstraintProducer()
-{
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void GsfVertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void GsfVertexConstraintProducer::produce(edm::StreamID streamid, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace edm;
 

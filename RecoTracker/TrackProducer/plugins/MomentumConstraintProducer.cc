@@ -25,7 +25,7 @@ Implementation:
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,13 +38,13 @@ Implementation:
 // class declaration
 //
 
-class MomentumConstraintProducer: public edm::stream::EDProducer<> {
+class MomentumConstraintProducer: public edm::global::EDProducer<> {
 public:
   explicit MomentumConstraintProducer(const edm::ParameterSet&);
-  ~MomentumConstraintProducer() override;
+  ~MomentumConstraintProducer() override = default;
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID streamid, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
   const edm::InputTag srcTag_;
@@ -80,19 +80,12 @@ MomentumConstraintProducer::MomentumConstraintProducer(const edm::ParameterSet& 
 }
 
 
-MomentumConstraintProducer::~MomentumConstraintProducer()
-{
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void MomentumConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void MomentumConstraintProducer::produce(edm::StreamID streamid, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace edm;
 
