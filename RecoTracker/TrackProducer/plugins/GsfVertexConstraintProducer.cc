@@ -21,10 +21,10 @@
 class GsfVertexConstraintProducer: public edm::stream::EDProducer<> {
 public:
   explicit GsfVertexConstraintProducer(const edm::ParameterSet&);
-  ~GsfVertexConstraintProducer();
+  ~GsfVertexConstraintProducer() override;
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
       
   // ----------member data ---------------------------
   const edm::InputTag srcTrkTag_;

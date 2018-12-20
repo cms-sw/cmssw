@@ -43,10 +43,10 @@ Implementation:
 class VertexConstraintProducer: public edm::stream::EDProducer<> {
 public:
   explicit VertexConstraintProducer(const edm::ParameterSet&);
-  ~VertexConstraintProducer();
+  ~VertexConstraintProducer() override;
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
       
   // ----------member data ---------------------------
   const edm::InputTag srcTrkTag_;
@@ -114,7 +114,7 @@ void VertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup
   
   //primary vertex extraction
 
-  if (theVertexHandle->size()>0){
+  if (!theVertexHandle->empty()){
     const reco::Vertex& pv = theVertexHandle->front();
     for (reco::TrackCollection::const_iterator i=theTCollection->begin(); i!=theTCollection->end();i++) {
       VertexConstraint tmp(

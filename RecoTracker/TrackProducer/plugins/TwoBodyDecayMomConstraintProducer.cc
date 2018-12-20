@@ -43,11 +43,11 @@ class TwoBodyDecayMomConstraintProducer: public edm::stream::EDProducer<>
 public:
 
   explicit TwoBodyDecayMomConstraintProducer(const edm::ParameterSet&);
-  ~TwoBodyDecayMomConstraintProducer();
+  ~TwoBodyDecayMomConstraintProducer() override;
 
 private:
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::pair<double, double> momentaAtVertex( const TwoBodyDecay& tbd ) const;
 
