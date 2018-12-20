@@ -432,7 +432,9 @@ void MultiTrackValidator::tpParametersAndSelection(const Histograms& histograms,
 
 size_t MultiTrackValidator::tpDR(const TrackingParticleRefVector& tPCeff,
                                  const std::vector<size_t>& selected_tPCeff,
-                                 DynArray<float>& dR_tPCeff) const {
+                                 DynArray<float>& dR_tPCeff,
+                                 DynArray<float>& dR_tPCeff_jet,
+                                 const edm::View<reco::Candidate>* const & cores) const {
   float etaL[tPCeff.size()], phiL[tPCeff.size()];
   size_t n_selTP_dr = 0;
   for(size_t iTP: selected_tPCeff) {
@@ -445,6 +447,7 @@ size_t MultiTrackValidator::tpDR(const TrackingParticleRefVector& tPCeff,
   for(size_t iTP1: selected_tPCeff) {
     auto const& tp = *(tPCeff[iTP1]);
     double dR = std::numeric_limits<double>::max();
+    double dR_jet = std::numeric_limits<double>::max();
     if(dRtpSelector(tp)) {//only for those needed for efficiency!
       ++n_selTP_dr;
       float eta = etaL[iTP1];
@@ -455,48 +458,65 @@ size_t MultiTrackValidator::tpDR(const TrackingParticleRefVector& tPCeff,
         auto dR_tmp = reco::deltaR2(eta, phi, etaL[iTP2], phiL[iTP2]);
         if (dR_tmp<dR) dR=dR_tmp;
       }  // ttp2 (iTP)
+      if(cores != nullptr){
+        for (unsigned int ji = 0; ji < cores->size(); ji++) {//jet loop
+          if((*cores)[ji].pt() > ptMinJet_){
+            const reco::Candidate& jet = (*cores)[ji];
+            double jet_eta = jet.eta();
+            double jet_phi = jet.phi();
+            auto dR_jet_tmp = reco::deltaR2(eta, phi, jet_eta, jet_phi);
+            if (dR_jet_tmp<dR_jet) dR_jet=dR_jet_tmp;
+          }
+        }
+      }
     }
     dR_tPCeff[iTP1] = std::sqrt(dR);
+    dR_tPCeff_jet[iTP1] = std::sqrt(dR_jet);
+
   }  // tp
   return n_selTP_dr;
 }
 
 
-void MultiTrackValidator::tpDR_jet(const TrackingParticleRefVector& tPCeff,
-                                 const std::vector<size_t>& selected_tPCeff,
-                                 DynArray<float>& dR_tPCeff_jet,
-                                 const edm::View<reco::Candidate>* const & cores) const {
-  float etaL[tPCeff.size()], phiL[tPCeff.size()];
-  for(size_t iTP: selected_tPCeff) {
-    //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
-    auto const& tp2 = *(tPCeff[iTP]);
-    auto  && p = tp2.momentum();
-    etaL[iTP] = etaFromXYZ(p.x(),p.y(),p.z());
-    phiL[iTP] = atan2f(p.y(),p.x());
-  }
-  for(size_t iTP1: selected_tPCeff) {
-    auto const& tp = *(tPCeff[iTP1]);
-    double dR = std::numeric_limits<double>::max();
-    if(dRtpSelector(tp)) {//only for those needed for efficiency!
-      float eta = etaL[iTP1];
-      float phi = phiL[iTP1];
-      for (unsigned int ji = 0; ji < cores->size(); ji++) {//jet loop
-        if((*cores)[ji].pt() > ptMinJet_){
-          const reco::Candidate& jet = (*cores)[ji];
-          double jet_eta = jet.eta();
-          double jet_phi = jet.phi();
-          auto dR_tmp = reco::deltaR2(eta, phi, jet_eta, jet_phi);
-          if (dR_tmp<dR) dR=dR_tmp;
-        }
-      } //jet cores
-      dR_tPCeff_jet[iTP1] = std::sqrt(dR);
-    }
-  }  // tp
-}
+// void MultiTrackValidator::tpDR_jet(const TrackingParticleRefVector& tPCeff,
+//                                  const std::vector<size_t>& selected_tPCeff,
+//                                  DynArray<float>& dR_tPCeff_jet,
+//                                  const edm::View<reco::Candidate>* const & cores) const {
+//   float etaL[tPCeff.size()], phiL[tPCeff.size()];
+//   for(size_t iTP: selected_tPCeff) {
+//     //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
+//     auto const& tp2 = *(tPCeff[iTP]);
+//     auto  && p = tp2.momentum();
+//     etaL[iTP] = etaFromXYZ(p.x(),p.y(),p.z());
+//     phiL[iTP] = atan2f(p.y(),p.x());
+//   }
+//   for(size_t iTP1: selected_tPCeff) {
+//     auto const& tp = *(tPCeff[iTP1]);
+//     double dR = std::numeric_limits<double>::max();
+//     if(dRtpSelector(tp)) {//only for those needed for efficiency!
+//       float eta = etaL[iTP1];
+//       float phi = phiL[iTP1];
+//       for (unsigned int ji = 0; ji < cores->size(); ji++) {//jet loop
+//         if((*cores)[ji].pt() > ptMinJet_){
+//           const reco::Candidate& jet = (*cores)[ji];
+//           double jet_eta = jet.eta();
+//           double jet_phi = jet.phi();
+//           auto dR_tmp = reco::deltaR2(eta, phi, jet_eta, jet_phi);
+//           if (dR_tmp<dR) dR=dR_tmp;
+//         }
+//       } //jet cores
+//       dR_tPCeff_jet[iTP1] = std::sqrt(dR);
+//     }
+//   }  // tp
+// }
 
 
 
-void MultiTrackValidator::trackDR(const edm::View<reco::Track>& trackCollection, const edm::View<reco::Track>& trackCollectionDr, DynArray<float>& dR_trk) const {
+void MultiTrackValidator::trackDR(const edm::View<reco::Track>& trackCollection,
+                                  const edm::View<reco::Track>& trackCollectionDr,
+                                  DynArray<float>& dR_trk,
+                                  DynArray<float>& dR_trk_jet,
+                                  const edm::View<reco::Candidate>* const & cores) const {
   int i=0;
   float etaL[trackCollectionDr.size()];
   float phiL[trackCollectionDr.size()];
@@ -511,6 +531,7 @@ void MultiTrackValidator::trackDR(const edm::View<reco::Track>& trackCollection,
   for(View<reco::Track>::size_type i=0; i<trackCollection.size(); ++i){
     auto const &  track = trackCollection[i];
     auto dR = std::numeric_limits<float>::max();
+    auto dR_jet = std::numeric_limits<float>::max();
     if(!trackFromSeedFitFailed(track)) {
       auto  && p = track.momentum();
       float eta = etaFromXYZ(p.x(),p.y(),p.z());
@@ -520,8 +541,22 @@ void MultiTrackValidator::trackDR(const edm::View<reco::Track>& trackCollection,
         auto dR_tmp = reco::deltaR2(eta, phi, etaL[j], phiL[j]);
         if ( (dR_tmp<dR) & (dR_tmp>std::numeric_limits<float>::min())) dR=dR_tmp;
       }
+      if(cores != nullptr){
+        for (unsigned int ji = 0; ji < cores->size(); ji++) {//jet loop
+          if((*cores)[ji].pt() > ptMinJet_){
+            const reco::Candidate& jet = (*cores)[ji];
+            double jet_eta = jet.eta();
+            double jet_phi = jet.phi();
+            auto dR_jet_tmp = reco::deltaR2(eta, phi, jet_eta, jet_phi);
+            if (dR_jet_tmp<dR_jet) dR_jet=dR_jet_tmp;
+          }
+        }
+      }
+
     }
     dR_trk[i] = std::sqrt(dR);
+    dR_trk_jet[i] = std::sqrt(dR_jet);
+
   }
 }
 
@@ -672,14 +707,15 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSe
 
   //calculate dR for TPs
   declareDynArray(float, tPCeff.size(), dR_tPCeff);
-  size_t n_selTP_dr = tpDR(tPCeff, selected_tPCeff, dR_tPCeff);
 
   //calculate dR_jet for TPs
   Handle<edm::View<reco::Candidate> > cores;
   event.getByToken(cores_, cores);
   const auto & coresVector = cores.product();
   declareDynArray(float, tPCeff.size(), dR_tPCeff_jet);
-  /*size_t n_selTP_dr_jet =*/ tpDR_jet(tPCeff, selected_tPCeff, dR_tPCeff_jet, coresVector);
+  // /*size_t n_selTP_dr_jet =*/ tpDR_jet(tPCeff, selected_tPCeff, dR_tPCeff_jet, coresVector);
+
+  size_t n_selTP_dr = tpDR(tPCeff, selected_tPCeff, dR_tPCeff, dR_tPCeff_jet, coresVector);
 
   edm::Handle<View<Track> >  trackCollectionForDrCalculation;
   if(calculateDrSingleCollection_) {
@@ -966,7 +1002,8 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSe
         trackCollectionDr = trackCollectionForDrCalculation.product();
       }
       declareDynArray(float, trackCollection.size(), dR_trk);
-      trackDR(trackCollection, *trackCollectionDr, dR_trk);
+      declareDynArray(float, trackCollection.size(), dR_trk_jet);
+      trackDR(trackCollection, *trackCollectionDr, dR_trk, dR_trk_jet, coresVector);
 
       for(View<Track>::size_type i=0; i<trackCollection.size(); ++i){
         auto track = trackCollection.refAt(i);
@@ -1024,7 +1061,8 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSe
         }
 
 	double dR=dR_trk[i];
-	histoProducerAlgo_->fill_generic_recoTrack_histos(histograms.histoProducerAlgo,w,*track, ttopo, bs.position(), thePVposition, theSimPVPosition, isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction, dR, mvaValues, selectsLoose, selectsHP);
+  double dR_jet=dR_trk_jet[i];
+	histoProducerAlgo_->fill_generic_recoTrack_histos(histograms.histoProducerAlgo,w,*track, ttopo, bs.position(), thePVposition, theSimPVPosition, isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction, dR, dR_jet, mvaValues, selectsLoose, selectsHP);
         mvaValues.clear();
 
         if(doSummaryPlots_) {
