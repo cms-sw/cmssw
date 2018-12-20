@@ -10,13 +10,13 @@
 #include <vector>
 #include <map>
 
-static const float epsilon = 0.001;
+constexpr float epsilon = 0.001;
 
 /** Hard-wired numbers defining the surfaces on which the crystal front faces lie. */
-static float barrelRadius() {return 129.f;} //p81, p50, ECAL TDR
-static float barrelHalfLength() {return 270.9f;} //p81, p50, ECAL TDR
-static float endcapRadius() {return 171.1f;} // fig 3.26, p81, ECAL TDR
-static float endcapZ() {return 320.5f;} // fig 3.26, p81, ECAL TDR
+constexpr float barrelRadius     =  129.f; // p81, p50, ECAL TDR
+constexpr float barrelHalfLength = 270.9f; // p81, p50, ECAL TDR
+constexpr float endcapRadius     = 171.1f; // fig 3.26, p81, ECAL TDR
+constexpr float endcapZ          = 320.5f; // fig 3.26, p81, ECAL TDR
 
 
 
@@ -24,24 +24,24 @@ static BoundCylinder* initBarrel() {
   Surface::RotationType rot; // unit rotation matrix
 
 
-  return new Cylinder(barrelRadius(), Surface::PositionType(0,0,0), rot, 
-				 new SimpleCylinderBounds( barrelRadius()-epsilon, 
-				       		       barrelRadius()+epsilon, 
-						       -barrelHalfLength(), 
-						       barrelHalfLength()));
+  return new Cylinder(barrelRadius, Surface::PositionType(0,0,0), rot, 
+				 new SimpleCylinderBounds( barrelRadius-epsilon, 
+				       		       barrelRadius+epsilon, 
+						       -barrelHalfLength, 
+						       barrelHalfLength));
 }
 
 static BoundDisk* initNegative() {
   Surface::RotationType rot; // unit rotation matrix
-  return new BoundDisk( Surface::PositionType( 0, 0, -endcapZ()), rot, 
-		   new SimpleDiskBounds( 0, endcapRadius(), -epsilon, epsilon));
+  return new BoundDisk( Surface::PositionType( 0, 0, -endcapZ), rot, 
+		   new SimpleDiskBounds( 0, endcapRadius, -epsilon, epsilon));
 }
 
 static BoundDisk* initPositive() {
   Surface::RotationType rot; // unit rotation matrix
 
-  return new BoundDisk( Surface::PositionType( 0, 0, endcapZ()), rot, 
-		   new SimpleDiskBounds( 0, endcapRadius(), -epsilon, epsilon));
+  return new BoundDisk( Surface::PositionType( 0, 0, endcapZ), rot, 
+		   new SimpleDiskBounds( 0, endcapRadius, -epsilon, epsilon));
   
 }
 
@@ -80,10 +80,10 @@ std::vector<math::XYZPointF> ConversionTrackEcalImpactPoint::find( const std::ve
 
 
   int iTrk=0;
-  for (    std::vector<reco::TransientTrack>::const_iterator iTk=tracks.begin(); iTk!=tracks.end(); ++iTk) {
+  for(auto const& track : tracks) {
 
     math::XYZPointF ecalImpactPosition(0.,0.,0.);
-    const TrajectoryStateOnSurface myTSOS=(*iTk).innermostMeasurementState();
+    const TrajectoryStateOnSurface myTSOS = track.innermostMeasurementState();
     if ( !( myTSOS.isValid() ) ) continue; 
 
     stateAtECAL_= forwardPropagator_->propagate( myTSOS, barrel() );
@@ -92,7 +92,7 @@ std::vector<math::XYZPointF> ConversionTrackEcalImpactPoint::find( const std::ve
     if (!stateAtECAL_.isValid() || ( stateAtECAL_.isValid() && fabs(stateAtECAL_.globalPosition().eta() ) >1.479 )  ) {
     
          
-      if ( (*iTk).innermostMeasurementState().globalPosition().eta() > 0.) {
+      if ( track.innermostMeasurementState().globalPosition().eta() > 0.) {
 	stateAtECAL_= forwardPropagator_->propagate( myTSOS, positiveEtaEndcap());
 
       } else {
@@ -116,9 +116,9 @@ std::vector<math::XYZPointF> ConversionTrackEcalImpactPoint::find( const std::ve
       int ibc=0;
       goodBC=0;
 
-      for(auto const& bc : bcHandle->ptrs()) {
-        float dEta= bc->position().eta() - ecalImpactPosition.eta();
-        float dPhi= bc->position().phi() - ecalImpactPosition.phi();
+      for(auto const& bc : *bcHandle) {
+        float dEta= bc.position().eta() - ecalImpactPosition.eta();
+        float dPhi= bc.position().phi() - ecalImpactPosition.phi();
         if ( sqrt(dEta*dEta + dPhi*dPhi)  <  bcDistanceToTrack ) {
           goodBC=ibc;
           bcDistanceToTrack = sqrt(dEta*dEta + dPhi*dPhi);

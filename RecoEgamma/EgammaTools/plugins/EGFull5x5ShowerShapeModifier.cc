@@ -242,7 +242,13 @@ modifyObject(pat::Electron& ele) const {
   // and the value maps are to the reducedEG object, can use original object ptr
   // or we are running MINIAOD->MINIAOD and we need to fetch the pat objects to reference    
   edm::Ptr<reco::Candidate> ptr(ele.originalObjectRef());
+
+
+  // The calls to this function should be matched to the order of the electrons
+  // in eles_by_oop. In case it is called too many times, it will throw thanks
+  // to the use of std::vector<T>::at().
   if( !e_conf.tok_electron_src.isUninitialized() ) ptr = eles_by_oop.at(ele_idx);
+
   //now we go through and modify the objects using the valuemaps we read in
   auto full5x5 = ele.full5x5_showerShape();
   assignValue(ptr,e_conf.tok_sigmaEtaEta,ele_vmaps,full5x5.sigmaEtaEta);
@@ -268,7 +274,12 @@ modifyObject(pat::Photon& pho) const {
   // and the value maps are to the reducedEG object, can use original object ptr
   // or we are running MINIAOD->MINIAOD and we need to fetch the pat objects to reference
   edm::Ptr<reco::Candidate> ptr(pho.originalObjectRef());
+
+  // The calls to this function should be matched to the order of the electrons
+  // in eles_by_oop. In case it is called too many times, it will throw thanks
+  // to the use of std::vector<T>::at().
   if( !ph_conf.tok_photon_src.isUninitialized() ) ptr = phos_by_oop.at(pho_idx);
+
   //now we go through and modify the objects using the valuemaps we read in
   auto full5x5 = pho.full5x5_showerShapeVariables();
   assignValue(ptr,ph_conf.tok_sigmaEtaEta,pho_vmaps,full5x5.sigmaEtaEta);

@@ -372,15 +372,15 @@ std::vector<const reco::CaloCluster*> InOutConversionSeedFinder::getSecondCaloCl
   
   Geom::Phi<float> convPhi(conversionPosition.phi() );
 
-  for(auto const& bc : bcCollection_->ptrs())
+  for(auto const& bc : *bcCollection_)
   {
-    Geom::Phi<float> bcPhi( bc->position().phi() );
+    Geom::Phi<float> bcPhi( bc.position().phi() );
     
     // Require phi of cluster to be consistent with the conversion position and the track charge
     
     if (std::abs(bcPhi-convPhi ) < .5 &&
         ((charge<0 && bcPhi-convPhi >-.5) || 
-         (charge>0 && bcPhi-convPhi <.5))) result.push_back(bc.get());
+         (charge>0 && bcPhi-convPhi <.5))) result.push_back(&bc);
   }
 
   return result;
