@@ -31,7 +31,7 @@
 class Trajectory;
 class TrajectoryMeasurement;
 class PSimHit;
-class MeasurementTracker;
+class MeasurementTrackerEvent;
 class TrajectoryStateOnSurface;
 class MagneticField;
 class Chi2MeasurementEstimator;
@@ -57,7 +57,7 @@ class CkfDebugger {
 
   bool analyseCompatibleMeasurements( const Trajectory&,
 				      const std::vector<TrajectoryMeasurement>&,
-				      const MeasurementTracker*,
+				      const MeasurementTrackerEvent*,
 				      const Propagator*,
 				      const Chi2MeasurementEstimatorBase*,
 				      const TransientTrackingRecHitBuilder*);
@@ -103,7 +103,7 @@ class CkfDebugger {
   const Propagator*                theForwardPropagator;
   TrackerHitAssociator::Config     trackerHitAssociatorConfig_; 
   TrackerHitAssociator*      hitAssociator;
-  const MeasurementTracker*        theMeasurementTracker;
+  const MeasurementTrackerEvent*   theMeasurementTracker;
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
   const TrackerTopology *theTopo;
   NavigationSchool const * theNavSchool;
