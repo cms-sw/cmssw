@@ -13,17 +13,13 @@ namespace reco::tau::disc {
 // Helper functions
 namespace {
 
+template<class T> T const& removePtr(T const& t) { return t; }
+template<class T> T const& removePtr(edm::Ptr<T> const& t) { return *t; }
+
 template<class T, class F>
 VDouble extract(std::vector<T> const& cands, F f) {
   VDouble output( cands.size() );
-  for(auto const& x : cands) output.push_back(f(x));
-  return output;
-}
-
-template<class T, class F>
-VDouble extract(std::vector<edm::Ptr<T>> const& cands, F f) {
-  VDouble output( cands.size() );
-  for(auto const& x : cands) output.push_back(f(*x));
+  for(auto const& x : cands) output.push_back(f(removePtr(x)));
   return output;
 }
 
