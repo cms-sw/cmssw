@@ -216,8 +216,7 @@ void ElectronHEEPIDValueMapProducer::produce(edm::Event& iEvent, const edm::Even
   
   std::vector<float> eleTrkPtIso;
   std::vector<int> eleNrSaturateIn5x5;
-  for(size_t eleNr=0;eleNr<eleHandle->size();eleNr++){
-    auto elePtr = eleHandle->ptrAt(eleNr);
+  for(auto const& elePtr : eleHandle->ptrs()) {
     eleTrkPtIso.push_back(calTrkIso(*elePtr,*eleHandle,candHandles,candVetos));
     eleNrSaturateIn5x5.push_back(nrSaturatedCrysIn5x5(*elePtr,ebRecHitHandle,eeRecHitHandle,caloTopoHandle));    
   }

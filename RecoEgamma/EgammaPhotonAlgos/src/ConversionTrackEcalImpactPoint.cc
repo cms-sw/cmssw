@@ -116,15 +116,14 @@ std::vector<math::XYZPointF> ConversionTrackEcalImpactPoint::find( const std::ve
       int ibc=0;
       goodBC=0;
 
-      for (unsigned i = 0; i < bcHandle->size(); ++i ) {
-	float dEta= bcHandle->ptrAt(i)->position().eta() - ecalImpactPosition.eta()  ;
-	float dPhi= bcHandle->ptrAt(i)->position().phi() - ecalImpactPosition.phi()  ;
-	if ( sqrt(dEta*dEta + dPhi*dPhi)  <  bcDistanceToTrack ) {
+      for(auto const& bc : bcHandle->ptrs()) {
+        float dEta= bc->position().eta() - ecalImpactPosition.eta();
+        float dPhi= bc->position().phi() - ecalImpactPosition.phi();
+        if ( sqrt(dEta*dEta + dPhi*dPhi)  <  bcDistanceToTrack ) {
           goodBC=ibc;
-	  bcDistanceToTrack=sqrt(dEta*dEta + dPhi*dPhi);
-	} 
-        ibc++;	
-
+          bcDistanceToTrack = sqrt(dEta*dEta + dPhi*dPhi);
+        } 
+        ibc++;
       }
 
       matchingBC[iTrk]=bcHandle->ptrAt(goodBC);
