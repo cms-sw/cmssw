@@ -34,29 +34,29 @@ namespace edm {
     VParameterSetEntry& operator=(VParameterSetEntry&&) = default;
 
     std::string toString() const;
-    void toString(std::string& result) const;
-    void toDigest(cms::Digest& digest) const;
+    void        toString(std::string& result) const;
+    void        toDigest(cms::Digest& digest) const;
 
     bool isTracked() const { return tracked_; }
 
     /// returns the VPSet
     std::vector<ParameterSet> const& vpset() const;
-    std::vector<ParameterSet>& vpsetForUpdate();
+    std::vector<ParameterSet>&       vpsetForUpdate();
     /// reconstitutes the VPSet from the registry
-    void fillVPSet() const;
+    void          fillVPSet() const;
     ParameterSet& psetInVector(int i);
 
     std::vector<ParameterSet>::size_type size() const;
 
     void registerPsetsAndUpdateIDs();
 
-    std::string dump(unsigned int indent = 0) const;
+    std::string          dump(unsigned int indent = 0) const;
     friend std::ostream& operator<<(std::ostream& os, VParameterSetEntry const& vpsetEntry);
 
   private:
-    bool tracked_;
+    bool                                                 tracked_;
     mutable atomic_value_ptr<std::vector<ParameterSet> > theVPSet_;
-    value_ptr<std::vector<ParameterSetID> > theIDs_;
+    value_ptr<std::vector<ParameterSetID> >              theIDs_;
   };
 }  // namespace edm
 #endif

@@ -46,7 +46,7 @@ namespace edm {
       template <class DepRecordT>
       const DepRecordT getRecord() const {
         // Make sure that DepRecordT is a type in ListT
-        typedef typename boost::mpl::end<ListT>::type EndItrT;
+        typedef typename boost::mpl::end<ListT>::type              EndItrT;
         typedef typename boost::mpl::find<ListT, DepRecordT>::type FoundItrT;
         static_assert(
             !std::is_same<FoundItrT, EndItrT>::value,
@@ -65,7 +65,7 @@ namespace edm {
       template <class DepRecordT>
       std::optional<DepRecordT> tryToGetRecord() const {
         // Make sure that DepRecordT is a type in ListT
-        typedef typename boost::mpl::end<ListT>::type EndItrT;
+        typedef typename boost::mpl::end<ListT>::type              EndItrT;
         typedef typename boost::mpl::find<ListT, DepRecordT>::type FoundItrT;
         static_assert(
             !std::is_same<FoundItrT, EndItrT>::value,

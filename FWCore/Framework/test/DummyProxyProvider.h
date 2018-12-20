@@ -36,7 +36,7 @@ namespace edm::eventsetup::test {
 
   protected:
     const value_type* make(const record_type&, const DataKey&) { return data_; }
-    void invalidateCache() {}
+    void              invalidateCache() {}
 
   private:
     const DummyData* data_;

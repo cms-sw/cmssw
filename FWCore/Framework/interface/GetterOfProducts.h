@@ -183,14 +183,14 @@ namespace edm {
     }
 
     std::vector<edm::EDGetTokenT<T>> const& tokens() const { return *tokens_; }
-    edm::BranchType branchType() const { return branchType_; }
+    edm::BranchType                         branchType() const { return branchType_; }
 
   private:
     std::function<EDGetTokenT<T>(BranchDescription const&)> matcher_;
     // A shared pointer is needed because objects of this type get assigned
     // to std::function's and we want the copies in those to share the same vector.
     std::shared_ptr<std::vector<edm::EDGetTokenT<T>>> tokens_;
-    edm::BranchType branchType_;
+    edm::BranchType                                   branchType_;
   };
 }  // namespace edm
 #endif

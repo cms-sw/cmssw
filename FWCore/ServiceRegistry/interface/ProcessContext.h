@@ -28,11 +28,11 @@ namespace edm {
   public:
     ProcessContext();
 
-    std::string const& processName() const { return processConfiguration_->processName(); }
-    ParameterSetID const& parameterSetID() const { return processConfiguration_->parameterSetID(); }
+    std::string const&          processName() const { return processConfiguration_->processName(); }
+    ParameterSetID const&       parameterSetID() const { return processConfiguration_->parameterSetID(); }
     ProcessConfiguration const* processConfiguration() const { return processConfiguration_; }
-    bool isSubProcess() const { return parentProcessContext_ != nullptr; }
-    ProcessContext const& parentProcessContext() const;
+    bool                        isSubProcess() const { return parentProcessContext_ != nullptr; }
+    ProcessContext const&       parentProcessContext() const;
 
     void setProcessConfiguration(ProcessConfiguration const* processConfiguration);
     void setParentProcessContext(ProcessContext const* parentProcessContext);

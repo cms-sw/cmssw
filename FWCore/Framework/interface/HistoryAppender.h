@@ -18,8 +18,8 @@ namespace edm {
     // Used to append the current process to the process history
     // when necessary. Optimized to cache the results so it
     // does not need to repeat the same calculations many times.
-    std::shared_ptr<ProcessHistory const> appendToProcessHistory(ProcessHistoryID const& inputPHID,
-                                                                 ProcessHistory const* inputProcessHistory,
+    std::shared_ptr<ProcessHistory const> appendToProcessHistory(ProcessHistoryID const&     inputPHID,
+                                                                 ProcessHistory const*       inputProcessHistory,
                                                                  ProcessConfiguration const& pc);
 
   private:
@@ -30,7 +30,7 @@ namespace edm {
     // process history
     void checkProcessHistory(ProcessHistory const& ph, ProcessConfiguration const& pc) const;
 
-    ProcessHistoryID m_cachedInputPHID;
+    ProcessHistoryID                      m_cachedInputPHID;
     std::shared_ptr<ProcessHistory const> m_cachedHistory;
   };
 }  // namespace edm

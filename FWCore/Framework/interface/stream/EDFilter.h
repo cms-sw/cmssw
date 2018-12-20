@@ -39,13 +39,13 @@ namespace edm {
     public:
       typedef CacheContexts<T...> CacheTypes;
 
-      typedef typename CacheTypes::GlobalCache GlobalCache;
-      typedef typename CacheTypes::RunCache RunCache;
-      typedef typename CacheTypes::LuminosityBlockCache LuminosityBlockCache;
-      typedef RunContextT<RunCache, GlobalCache> RunContext;
+      typedef typename CacheTypes::GlobalCache                                     GlobalCache;
+      typedef typename CacheTypes::RunCache                                        RunCache;
+      typedef typename CacheTypes::LuminosityBlockCache                            LuminosityBlockCache;
+      typedef RunContextT<RunCache, GlobalCache>                                   RunContext;
       typedef LuminosityBlockContextT<LuminosityBlockCache, RunCache, GlobalCache> LuminosityBlockContext;
-      typedef typename CacheTypes::RunSummaryCache RunSummaryCache;
-      typedef typename CacheTypes::LuminosityBlockSummaryCache LuminosityBlockSummaryCache;
+      typedef typename CacheTypes::RunSummaryCache                                 RunSummaryCache;
+      typedef typename CacheTypes::LuminosityBlockSummaryCache                     LuminosityBlockSummaryCache;
 
       typedef AbilityChecker<T...> HasAbility;
 

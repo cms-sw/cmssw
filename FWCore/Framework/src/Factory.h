@@ -31,9 +31,9 @@ namespace edm {
 
   private:
     Factory();
-    Maker* findMaker(const MakeModuleParams& p) const;
+    Maker*               findMaker(const MakeModuleParams& p) const;
     static Factory const singleInstance_;
-    mutable MakerMap makers_;
+    mutable MakerMap     makers_;
   };
 
 }  // namespace edm

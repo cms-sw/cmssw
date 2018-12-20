@@ -49,8 +49,8 @@ namespace edmplugin {
     friend class DummyFriend;
 
   public:
-    typedef std::vector<std::string> SearchPath;
-    typedef std::vector<PluginInfo> Infos;
+    typedef std::vector<std::string>     SearchPath;
+    typedef std::vector<PluginInfo>      Infos;
     typedef std::map<std::string, Infos> CategoryToInfos;
 
     class Config {
@@ -61,13 +61,13 @@ namespace edmplugin {
         return *this;
       }
       const SearchPath& searchPath() const { return m_path; }
-      void allowNoCache() { m_mustHaveCache = false; }
+      void              allowNoCache() { m_mustHaveCache = false; }
 
       bool mustHaveCache() const { return m_mustHaveCache; }
 
     private:
       SearchPath m_path;
-      bool m_mustHaveCache = true;
+      bool       m_mustHaveCache = true;
     };
 
     ~PluginManager();
@@ -98,8 +98,8 @@ namespace edmplugin {
     static bool isAvailable();
 
     // ---------- member functions ---------------------------
-    edm::signalslot::Signal<void(const boost::filesystem::path&)> goingToLoad_;
-    edm::signalslot::Signal<void(const SharedLibrary&)> justLoaded_;
+    edm::signalslot::Signal<void(const boost::filesystem::path&)>         goingToLoad_;
+    edm::signalslot::Signal<void(const SharedLibrary&)>                   justLoaded_;
     edm::signalslot::Signal<void(const std::string&, const std::string&)> askedToLoadCategoryWithPlugin_;
 
   private:
@@ -108,21 +108,21 @@ namespace edmplugin {
 
     const PluginManager& operator=(const PluginManager&) = delete;  // stop default
 
-    void newFactory(const PluginFactoryBase*);
-    static std::string& loadingLibraryNamed_();
+    void                   newFactory(const PluginFactoryBase*);
+    static std::string&    loadingLibraryNamed_();
     static PluginManager*& singleton();
 
     std::recursive_mutex& pluginLoadMutex() { return pluginLoadMutex_; }
 
     const boost::filesystem::path& loadableFor_(const std::string& iCategory,
                                                 const std::string& iPlugin,
-                                                bool& ioThrowIfFailElseSucceedStatus);
+                                                bool&              ioThrowIfFailElseSucceedStatus);
     // ---------- member data --------------------------------
     SearchPath searchPath_;
     tbb::concurrent_unordered_map<boost::filesystem::path, std::shared_ptr<SharedLibrary>, PluginManagerPathHasher>
         loadables_;
 
-    CategoryToInfos categoryToInfos_;
+    CategoryToInfos      categoryToInfos_;
     std::recursive_mutex pluginLoadMutex_;
   };
 

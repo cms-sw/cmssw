@@ -20,7 +20,7 @@ namespace edm {
 
     std::vector<std::string> const& logicalFileNames() const { return catalog_.logicalFileNames(); }
     std::vector<std::string> const& fileNames() const { return catalog_.fileNames(); }
-    InputFileCatalog& catalog() { return catalog_; }
+    InputFileCatalog&               catalog() { return catalog_; }
 
     static void fillDescription(ParameterSetDescription& desc);
 
@@ -30,7 +30,7 @@ namespace edm {
 
   private:
     InputFileCatalog catalog_;
-    size_t fileIndex_;
+    size_t           fileIndex_;
   };
 }  // namespace edm
 #endif

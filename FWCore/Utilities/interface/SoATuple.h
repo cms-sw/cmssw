@@ -163,7 +163,7 @@ namespace edm {
     typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type const* begin()
         const {
       typedef soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type> Helper;
-      typedef typename Helper::Type ReturnType;
+      typedef typename Helper::Type                                                                 ReturnType;
 #if GCC_PREREQUISITE(4, 7, 0)
       return static_cast<ReturnType const*>(__builtin_assume_aligned(m_values[I], Helper::kAlignment));
 #else
@@ -228,7 +228,7 @@ namespace edm {
     template <unsigned int I>
     typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type* begin() {
       typedef soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type> Helper;
-      typedef typename Helper::Type ReturnType;
+      typedef typename Helper::Type                                                                 ReturnType;
 #if GCC_PREREQUISITE(4, 7, 0)
       return static_cast<ReturnType*>(__builtin_assume_aligned(m_values[I], Helper::kAlignment));
 #else
@@ -270,8 +270,8 @@ namespace edm {
           AlignedType;
       // If needed, pad the number of items by 1
       const size_t itemsNeeded = (memoryNeededInBytes + max_alignment - 1) / sizeof(AlignedType);
-      char* newMemory = static_cast<char*>(static_cast<void*>(new AlignedType[itemsNeeded]));
-      void* oldMemory = m_values[0];
+      char*        newMemory = static_cast<char*>(static_cast<void*>(new AlignedType[itemsNeeded]));
+      void*        oldMemory = m_values[0];
       soahelper::SoATupleHelper<sizeof...(Args), Args...>::moveToNew(newMemory, m_size, iToSize, m_values);
       m_reserved = iToSize;
       delete[] static_cast<AlignedType*>(oldMemory);
@@ -279,7 +279,7 @@ namespace edm {
     // ---------- member data --------------------------------
     // Pointers to where each column starts in the shared memory array
     // m_values[0] also points to the beginning of the shared memory area
-    void* m_values[sizeof...(Args)];
+    void*  m_values[sizeof...(Args)];
     size_t m_size;
     size_t m_reserved;
   };

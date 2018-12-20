@@ -24,15 +24,15 @@ namespace edm {
   class ProductSelectorRules {
   public:
     ProductSelectorRules(ParameterSet const& pset,
-                         std::string const& parameterName,
-                         std::string const& parameterOwnerName);
+                         std::string const&  parameterName,
+                         std::string const&  parameterOwnerName);
     //--------------------------------------------------
     // BranchSelectState is a struct which associates a BranchDescription
     // (*desc) with a bool indicating whether or not the branch with
     // that name is to be selected.  Note that desc may not be null.
     struct BranchSelectState {
       edm::BranchDescription const* desc;
-      bool selectMe;
+      bool                          selectMe;
 
       // N.B.: We assume bd is not null.
       explicit BranchSelectState(edm::BranchDescription const* bd) : desc(bd), selectMe(false) {}
@@ -42,8 +42,8 @@ namespace edm {
 
     bool keepAll() const { return keepAll_; }
 
-    static void fillDescription(ParameterSetDescription& desc,
-                                char const* parameterName,
+    static void fillDescription(ParameterSetDescription&        desc,
+                                char const*                     parameterName,
                                 std::vector<std::string> const& defaultStrings = defaultSelectionStrings());
 
     static const std::vector<std::string>& defaultSelectionStrings();
@@ -74,7 +74,7 @@ namespace edm {
     private:
       // selectflag_ carries the value to which we should set the 'select
       // bit' if this rule matches.
-      bool selectflag_;
+      bool       selectflag_;
       std::regex productType_;
       std::regex moduleLabel_;
       std::regex instanceName_;
@@ -83,9 +83,9 @@ namespace edm {
 
   private:
     std::vector<Rule> rules_;
-    std::string parameterName_;
-    std::string parameterOwnerName_;
-    bool keepAll_;
+    std::string       parameterName_;
+    std::string       parameterOwnerName_;
+    bool              keepAll_;
   };
 
 }  // namespace edm

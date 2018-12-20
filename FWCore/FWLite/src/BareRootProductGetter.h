@@ -70,7 +70,7 @@ public:
   // to the same thinned container.
   void getThinnedProducts(edm::ProductID const&,
                           std::vector<edm::WrapperBase const*>& foundContainers,
-                          std::vector<unsigned int>& keys) const override;
+                          std::vector<unsigned int>&            keys) const override;
 
 private:
   // ---------- static member functions --------------------
@@ -86,9 +86,9 @@ private:
     Buffer() : product_(), branch_(), address_(), eventEntry_(-1), class_(nullptr) {}
 
     std::shared_ptr<edm::WrapperBase const> product_;
-    edm::propagate_const<TBranch*> branch_;
-    void* address_;      // the address to pass to Root since as of 5.13 they cache that info
-    Long_t eventEntry_;  // the event Entry used with the last GetEntry call
+    edm::propagate_const<TBranch*>          branch_;
+    void*                         address_;     // the address to pass to Root since as of 5.13 they cache that info
+    Long_t                        eventEntry_;  // the event Entry used with the last GetEntry call
     edm::propagate_const<TClass*> class_;
   };
 
@@ -96,13 +96,13 @@ private:
 
   BareRootProductGetter const& operator=(BareRootProductGetter const&) = delete;  // stop default
 
-  Buffer* createNewBuffer(edm::BranchID const&) const;
+  Buffer*                        createNewBuffer(edm::BranchID const&) const;
   edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID, Long_t eventEntry) const;
 
   // ---------- member data --------------------------------
 
   typedef std::map<edm::BranchID, Buffer> IdToBuffers;
-  mutable IdToBuffers idToBuffers_;
-  mutable fwlite::BranchMapReader branchMap_;
+  mutable IdToBuffers                     idToBuffers_;
+  mutable fwlite::BranchMapReader         branchMap_;
 };
 #endif

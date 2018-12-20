@@ -41,15 +41,15 @@ namespace edm {
       ESProducerInfo(ParameterSet const* ps, std::shared_ptr<DataProxyProvider> const& pr)
           : pset_(ps), provider_(pr), subProcessIndexes_() {}
 
-      ParameterSet const* pset() const { return pset_; }
+      ParameterSet const*                       pset() const { return pset_; }
       std::shared_ptr<DataProxyProvider> const& provider() const { return provider_; }
-      std::vector<unsigned>& subProcessIndexes() { return subProcessIndexes_; }
-      std::vector<unsigned> const& subProcessIndexes() const { return subProcessIndexes_; }
+      std::vector<unsigned>&                    subProcessIndexes() { return subProcessIndexes_; }
+      std::vector<unsigned> const&              subProcessIndexes() const { return subProcessIndexes_; }
 
     private:
-      ParameterSet const* pset_;
+      ParameterSet const*                pset_;
       std::shared_ptr<DataProxyProvider> provider_;
-      std::vector<unsigned> subProcessIndexes_;
+      std::vector<unsigned>              subProcessIndexes_;
     };
 
     class ESSourceInfo {
@@ -57,15 +57,15 @@ namespace edm {
       ESSourceInfo(ParameterSet const* ps, std::shared_ptr<EventSetupRecordIntervalFinder> const& fi)
           : pset_(ps), finder_(fi), subProcessIndexes_() {}
 
-      ParameterSet const* pset() const { return pset_; }
+      ParameterSet const*                                    pset() const { return pset_; }
       std::shared_ptr<EventSetupRecordIntervalFinder> const& finder() const { return finder_; }
-      std::vector<unsigned>& subProcessIndexes() { return subProcessIndexes_; }
-      std::vector<unsigned> const& subProcessIndexes() const { return subProcessIndexes_; }
+      std::vector<unsigned>&                                 subProcessIndexes() { return subProcessIndexes_; }
+      std::vector<unsigned> const&                           subProcessIndexes() const { return subProcessIndexes_; }
 
     private:
-      ParameterSet const* pset_;
+      ParameterSet const*                             pset_;
       std::shared_ptr<EventSetupRecordIntervalFinder> finder_;
-      std::vector<unsigned> subProcessIndexes_;
+      std::vector<unsigned>                           subProcessIndexes_;
     };
 
     class EventSetupsController {
@@ -81,38 +81,38 @@ namespace edm {
       void forceCacheClear() const;
 
       std::shared_ptr<DataProxyProvider> getESProducerAndRegisterProcess(ParameterSet const& pset,
-                                                                         unsigned subProcessIndex);
-      void putESProducer(ParameterSet const& pset,
-                         std::shared_ptr<DataProxyProvider> const& component,
-                         unsigned subProcessIndex);
+                                                                         unsigned            subProcessIndex);
+      void                               putESProducer(ParameterSet const&                       pset,
+                                                       std::shared_ptr<DataProxyProvider> const& component,
+                                                       unsigned                                  subProcessIndex);
 
       std::shared_ptr<EventSetupRecordIntervalFinder> getESSourceAndRegisterProcess(ParameterSet const& pset,
                                                                                     unsigned subProcessIndex);
-      void putESSource(ParameterSet const& pset,
-                       std::shared_ptr<EventSetupRecordIntervalFinder> const& component,
-                       unsigned subProcessIndex);
+      void                                            putESSource(ParameterSet const&                                    pset,
+                                                                  std::shared_ptr<EventSetupRecordIntervalFinder> const& component,
+                                                                  unsigned                                               subProcessIndex);
 
       void clearComponents();
 
       unsigned indexOfNextProcess() const { return providers_.size(); }
 
       void lookForMatches(ParameterSetID const& psetID,
-                          unsigned subProcessIndex,
-                          unsigned precedingProcessIndex,
-                          bool& firstProcessWithThisPSet,
-                          bool& precedingHasMatchingPSet) const;
+                          unsigned              subProcessIndex,
+                          unsigned              precedingProcessIndex,
+                          bool&                 firstProcessWithThisPSet,
+                          bool&                 precedingHasMatchingPSet) const;
 
       bool isFirstMatch(ParameterSetID const& psetID, unsigned subProcessIndex, unsigned precedingProcessIndex) const;
 
       bool isLastMatch(ParameterSetID const& psetID, unsigned subProcessIndex, unsigned precedingProcessIndex) const;
 
       bool isMatchingESSource(ParameterSetID const& psetID,
-                              unsigned subProcessIndex,
-                              unsigned precedingProcessIndex) const;
+                              unsigned              subProcessIndex,
+                              unsigned              precedingProcessIndex) const;
 
       bool isMatchingESProducer(ParameterSetID const& psetID,
-                                unsigned subProcessIndex,
-                                unsigned precedingProcessIndex) const;
+                                unsigned              subProcessIndex,
+                                unsigned              precedingProcessIndex) const;
 
       ParameterSet const* getESProducerPSet(ParameterSetID const& psetID, unsigned subProcessIndex) const;
 
@@ -145,7 +145,7 @@ namespace edm {
       // a pointer to the full validated ParameterSet and a shared_ptr
       // to the component.
       std::multimap<ParameterSetID, ESProducerInfo> esproducers_;
-      std::multimap<ParameterSetID, ESSourceInfo> essources_;
+      std::multimap<ParameterSetID, ESSourceInfo>   essources_;
 
       bool mustFinishConfiguration_;
     };

@@ -82,14 +82,14 @@ namespace edm {
     EDLooperBase(EDLooperBase const&) = delete;             // Disallow copying and moving
     EDLooperBase& operator=(EDLooperBase const&) = delete;  // Disallow copying and moving
 
-    void doStartingNewLoop();
+    void   doStartingNewLoop();
     Status doDuringLoop(EventPrincipal& eventPrincipal, EventSetup const& es, ProcessingController&, StreamContext*);
     Status doEndOfLoop(EventSetup const& es);
-    void prepareForNextLoop(eventsetup::EventSetupProvider* esp);
-    void doBeginRun(RunPrincipal&, EventSetup const&, ProcessContext*);
-    void doEndRun(RunPrincipal&, EventSetup const&, ProcessContext*);
-    void doBeginLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&, ProcessContext*);
-    void doEndLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&, ProcessContext*);
+    void   prepareForNextLoop(eventsetup::EventSetupProvider* esp);
+    void   doBeginRun(RunPrincipal&, EventSetup const&, ProcessContext*);
+    void   doEndRun(RunPrincipal&, EventSetup const&, ProcessContext*);
+    void   doBeginLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&, ProcessContext*);
+    void   doEndLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&, ProcessContext*);
 
     // This interface is deprecated
     virtual void beginOfJob(EventSetup const&);
@@ -142,13 +142,13 @@ namespace edm {
     /// Called after all event modules have processed the end of a LuminosityBlock
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&);
 
-    unsigned int iCounter_;
+    unsigned int                  iCounter_;
     ExceptionToActionTable const* act_table_;
 
     edm::propagate_const<std::unique_ptr<ScheduleInfo>> scheduleInfo_;
-    edm::propagate_const<ModuleChanger*> moduleChanger_;
+    edm::propagate_const<ModuleChanger*>                moduleChanger_;
 
-    ModuleDescription moduleDescription_;
+    ModuleDescription    moduleDescription_;
     ModuleCallingContext moduleCallingContext_;
   };
 }  // namespace edm

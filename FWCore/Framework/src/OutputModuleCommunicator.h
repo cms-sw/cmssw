@@ -52,13 +52,13 @@ namespace edm {
 
     virtual void openFile(FileBlock const& fb) = 0;
 
-    virtual void writeRunAsync(WaitingTaskHolder iTask,
+    virtual void writeRunAsync(WaitingTaskHolder   iTask,
                                RunPrincipal const& rp,
                                ProcessContext const*,
                                ActivityRegistry*,
                                MergeableRunProductMetadata const*) = 0;
 
-    virtual void writeLumiAsync(WaitingTaskHolder iTask,
+    virtual void writeLumiAsync(WaitingTaskHolder               iTask,
                                 LuminosityBlockPrincipal const& lbp,
                                 ProcessContext const*,
                                 ActivityRegistry*) = 0;
@@ -74,7 +74,7 @@ namespace edm {
 
     virtual void setEventSelectionInfo(
         std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
-        bool anyProductProduced) = 0;
+        bool                                                                     anyProductProduced) = 0;
 
     virtual ModuleDescription const& description() const = 0;
 

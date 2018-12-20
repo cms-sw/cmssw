@@ -95,12 +95,12 @@ public:
     return edm::LuminosityBlockRange(start, startSub, end, endSub);
   }
 
-  edm::EventRange newEventRange(edm::RunNumber_t start,
+  edm::EventRange newEventRange(edm::RunNumber_t             start,
                                 edm::LuminosityBlockNumber_t startLumi,
-                                edm::EventNumber_t startSub,
-                                edm::RunNumber_t end,
+                                edm::EventNumber_t           startSub,
+                                edm::RunNumber_t             end,
                                 edm::LuminosityBlockNumber_t endLumi,
-                                edm::EventNumber_t endSub) {
+                                edm::EventNumber_t           endSub) {
     return edm::EventRange(start, startLumi, startSub, end, endLumi, endSub);
   }
 

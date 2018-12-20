@@ -35,8 +35,8 @@ namespace edm {
     struct TypeLabelItem {
       TypeLabelItem(Transition const& transition, TypeID const& tid, std::string pin)
           : transition_(transition), typeID_(tid), productInstanceName_(std::move(pin)), branchAlias_() {}
-      Transition transition_;
-      TypeID typeID_;
+      Transition  transition_;
+      TypeID      typeID_;
       std::string productInstanceName_;
       std::string branchAlias_;
     };
@@ -49,7 +49,7 @@ namespace edm {
         return *this;
       }
       TypeLabelItem& value_;
-      EDPutToken token_;
+      EDPutToken     token_;
 
       operator EDPutToken() { return token_; }
     };
@@ -80,10 +80,10 @@ namespace edm {
 
     static void addToRegistry(TypeLabelList::const_iterator const& iBegin,
                               TypeLabelList::const_iterator const& iEnd,
-                              ModuleDescription const& iDesc,
-                              ProductRegistry& iReg,
-                              ProductRegistryHelper* iProd,
-                              bool iIsListener = false);
+                              ModuleDescription const&             iDesc,
+                              ProductRegistry&                     iReg,
+                              ProductRegistryHelper*               iProd,
+                              bool                                 iIsListener = false);
 
     /// declare what type of product will make and with which optional label
     /** the statement
@@ -127,15 +127,15 @@ namespace edm {
     }
 
     BranchAliasSetter produces(const TypeID& id,
-                               std::string instanceName = std::string(),
-                               bool recordProvenance = true) {
+                               std::string   instanceName = std::string(),
+                               bool          recordProvenance = true) {
       return produces<Transition::Event>(id, std::move(instanceName), recordProvenance);
     }
 
     template <BranchType B>
     BranchAliasSetter produces(const TypeID& id,
-                               std::string instanceName = std::string(),
-                               bool recordProvenance = true) {
+                               std::string   instanceName = std::string(),
+                               bool          recordProvenance = true) {
       unsigned int index = typeLabelList_.size();
       typeLabelList_.emplace_back(convertToTransition(B), id, std::move(instanceName));
       recordProvenanceList_.push_back(recordProvenance and B == InEvent);
@@ -143,8 +143,8 @@ namespace edm {
     }
     template <Transition B>
     BranchAliasSetter produces(const TypeID& id,
-                               std::string instanceName = std::string(),
-                               bool recordProvenance = true) {
+                               std::string   instanceName = std::string(),
+                               bool          recordProvenance = true) {
       unsigned int index = typeLabelList_.size();
       typeLabelList_.emplace_back(B, id, std::move(instanceName));
       recordProvenanceList_.push_back(recordProvenance and B == Transition::Event);
@@ -156,7 +156,7 @@ namespace edm {
     virtual bool hasAbilityToProduceInLumis() const { return false; }
 
   private:
-    TypeLabelList typeLabelList_;
+    TypeLabelList     typeLabelList_;
     std::vector<bool> recordProvenanceList_;
   };
 

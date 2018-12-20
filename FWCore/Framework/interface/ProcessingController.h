@@ -93,10 +93,10 @@ namespace edm {
     // ---------- member data --------------------------------
     ForwardState forwardState_;
     ReverseState reverseState_;
-    Transition transition_;
-    EventID specifiedEvent_;
-    bool canRandomAccess_;
-    bool lastOperationSucceeded_;
+    Transition   transition_;
+    EventID      specifiedEvent_;
+    bool         canRandomAccess_;
+    bool         lastOperationSucceeded_;
   };
 }  // namespace edm
 #endif

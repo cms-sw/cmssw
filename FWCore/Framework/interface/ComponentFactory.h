@@ -44,14 +44,14 @@ namespace edm {
       ComponentFactory() : makers_() {}
       //~ComponentFactory();
 
-      typedef ComponentMakerBase<T> Maker;
+      typedef ComponentMakerBase<T>                          Maker;
       typedef std::map<std::string, std::shared_ptr<Maker> > MakerMap;
-      typedef typename T::base_type base_type;
+      typedef typename T::base_type                          base_type;
       // ---------- const member functions ---------------------
-      std::shared_ptr<base_type> addTo(EventSetupsController& esController,
-                                       EventSetupProvider& iProvider,
+      std::shared_ptr<base_type> addTo(EventSetupsController&   esController,
+                                       EventSetupProvider&      iProvider,
                                        edm::ParameterSet const& iConfiguration,
-                                       bool replaceExisting = false) const {
+                                       bool                     replaceExisting = false) const {
         std::string modtype = iConfiguration.template getParameter<std::string>("@module_type");
         // cerr << "Factory: module_type = " << modtype << endl;
         typename MakerMap::iterator it = makers_.find(modtype);
@@ -86,8 +86,8 @@ namespace edm {
             return it->second->addTo(esController, iProvider, iConfiguration, replaceExisting);
           });
         } catch (cms::Exception& iException) {
-          std::string edmtype = iConfiguration.template getParameter<std::string>("@module_edm_type");
-          std::string label = iConfiguration.template getParameter<std::string>("@module_label");
+          std::string        edmtype = iConfiguration.template getParameter<std::string>("@module_edm_type");
+          std::string        label = iConfiguration.template getParameter<std::string>("@module_label");
           std::ostringstream ost;
           ost << "Constructing " << edmtype << ": class=" << modtype << " label='" << label << "'";
           iException.addContext(ost.str());

@@ -77,8 +77,8 @@ namespace edm {
 
   template <typename ForwardSequence, typename Datum, typename Predicate>
   inline typename ForwardSequence::const_iterator lower_bound_all(ForwardSequence const& s,
-                                                                  Datum const& d,
-                                                                  Predicate p) {
+                                                                  Datum const&           d,
+                                                                  Predicate              p) {
     return std::lower_bound(s.begin(), s.end(), d, p);
   }
 

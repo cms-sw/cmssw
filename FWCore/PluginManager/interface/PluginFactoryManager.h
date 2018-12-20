@@ -44,7 +44,7 @@ namespace edmplugin {
     static PluginFactoryManager* get();
 
     // ---------- member functions ---------------------------
-    void addFactory(const PluginFactoryBase*);
+    void                                                    addFactory(const PluginFactoryBase*);
     edm::signalslot::Signal<void(const PluginFactoryBase*)> newFactory_;
 
   private:

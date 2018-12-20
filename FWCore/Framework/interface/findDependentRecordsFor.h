@@ -49,9 +49,9 @@ namespace edm {
     template <typename T>
     struct FindDependenciesFromDependentRecord {
       inline static void dependentRecords(std::set<EventSetupRecordKey>& oSet) {
-        typedef typename T::list_type list_type;
+        typedef typename T::list_type                      list_type;
         const typename boost::mpl::begin<list_type>::type* begin(nullptr);
-        const typename boost::mpl::end<list_type>::type* end(nullptr);
+        const typename boost::mpl::end<list_type>::type*   end(nullptr);
         addRecordToDependencies(begin, end, oSet);
       }
     };

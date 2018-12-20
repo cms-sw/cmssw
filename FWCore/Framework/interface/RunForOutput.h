@@ -38,18 +38,18 @@ namespace edm {
 
   class RunForOutput : public OccurrenceForOutput {
   public:
-    RunForOutput(RunPrincipal const& rp,
+    RunForOutput(RunPrincipal const&      rp,
                  ModuleDescription const& md,
                  ModuleCallingContext const*,
                  bool isAtEnd,
                  MergeableRunProductMetadata const* = nullptr);
     ~RunForOutput() override;
 
-    RunAuxiliary const& runAuxiliary() const { return aux_; }
-    RunID const& id() const { return aux_.id(); }
-    RunNumber_t run() const { return aux_.run(); }
-    Timestamp const& beginTime() const { return aux_.beginTime(); }
-    Timestamp const& endTime() const { return aux_.endTime(); }
+    RunAuxiliary const&                runAuxiliary() const { return aux_; }
+    RunID const&                       id() const { return aux_.id(); }
+    RunNumber_t                        run() const { return aux_.run(); }
+    Timestamp const&                   beginTime() const { return aux_.beginTime(); }
+    Timestamp const&                   endTime() const { return aux_.endTime(); }
     MergeableRunProductMetadata const* mergeableRunProductMetadata() const { return mergeableRunProductMetadata_; }
 
   private:

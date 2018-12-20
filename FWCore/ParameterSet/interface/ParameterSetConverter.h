@@ -19,18 +19,18 @@ namespace edm {
   struct MainParameterSet {
     MainParameterSet(ParameterSetID const& oldID, std::string const& psetString);
     ~MainParameterSet();
-    ParameterSetID oldID_;
-    ParameterSet parameterSet_;
-    StringVector paths_;
-    StringVector endPaths_;
+    ParameterSetID        oldID_;
+    ParameterSet          parameterSet_;
+    StringVector          paths_;
+    StringVector          endPaths_;
     std::set<std::string> triggerPaths_;
   };
 
   struct TriggerPath {
     TriggerPath(ParameterSet const& pset);
     ~TriggerPath();
-    ParameterSet parameterSet_;
-    StringVector tPaths_;
+    ParameterSet          parameterSet_;
+    StringVector          tPaths_;
     std::set<std::string> triggerPaths_;
   };
 
@@ -40,24 +40,24 @@ namespace edm {
   typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
   class ParameterSetConverter : private boost::noncopyable {
   public:
-    typedef std::list<std::string> StringList;
-    typedef std::map<std::string, std::string> StringMap;
+    typedef std::list<std::string>                             StringList;
+    typedef std::map<std::string, std::string>                 StringMap;
     typedef std::list<std::pair<std::string, ParameterSetID> > StringWithIDList;
-    typedef std::map<ParameterSetID, ParameterSetID> ParameterSetIdConverter;
-    ParameterSetConverter(ParameterSetMap const& psetMap,
+    typedef std::map<ParameterSetID, ParameterSetID>           ParameterSetIdConverter;
+    ParameterSetConverter(ParameterSetMap const&   psetMap,
                           ParameterSetIdConverter& idConverter,
-                          bool alreadyByReference);
+                          bool                     alreadyByReference);
     ~ParameterSetConverter();
     ParameterSetIdConverter const& parameterSetIdConverter() const { return parameterSetIdConverter_; }
 
   private:
-    void convertParameterSets();
-    void noConvertParameterSets();
-    StringWithIDList parameterSets_;
+    void                          convertParameterSets();
+    void                          noConvertParameterSets();
+    StringWithIDList              parameterSets_;
     std::vector<MainParameterSet> mainParameterSets_;
-    std::vector<TriggerPath> triggerPaths_;
-    StringMap replace_;
-    ParameterSetIdConverter& parameterSetIdConverter_;
+    std::vector<TriggerPath>      triggerPaths_;
+    StringMap                     replace_;
+    ParameterSetIdConverter&      parameterSetIdConverter_;
   };
 }  // namespace edm
 #endif

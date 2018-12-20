@@ -19,8 +19,8 @@ namespace edmtest {
 
   private:
     mutable std::atomic<long> offset_;
-    const long offsetDelta_;
-    const int nThings_;
+    const long                offsetDelta_;
+    const int                 nThings_;
   };
 
 }  // namespace edmtest

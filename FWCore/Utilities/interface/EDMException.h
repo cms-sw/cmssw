@@ -97,7 +97,7 @@ namespace edm {
 
     static const std::string& codeToString(Code);
 
-    static void throwThis(Code category,
+    static void throwThis(Code        category,
                           char const* message0 = "",
                           char const* message1 = "",
                           char const* message2 = "",
@@ -109,7 +109,7 @@ namespace edm {
 
   private:
     void rethrow() override;
-    int returnCode_() const override;
+    int  returnCode_() const override;
 
     Code category_;
   };

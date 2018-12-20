@@ -46,35 +46,35 @@ namespace edm {
   class EventPrincipal : public Principal {
   public:
     typedef EventAuxiliary Auxiliary;
-    typedef Principal Base;
+    typedef Principal      Base;
 
     typedef Base::ConstProductResolverPtr ConstProductResolverPtr;
-    static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
-    static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
-    EventPrincipal(std::shared_ptr<ProductRegistry const> reg,
-                   std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
+    static int const                      invalidBunchXing = EventAuxiliary::invalidBunchXing;
+    static int const                      invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
+    EventPrincipal(std::shared_ptr<ProductRegistry const>           reg,
+                   std::shared_ptr<BranchIDListHelper const>        branchIDListHelper,
                    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
-                   ProcessConfiguration const& pc,
-                   HistoryAppender* historyAppender,
-                   unsigned int streamIndex = 0,
-                   bool isForPrimaryProcess = true);
+                   ProcessConfiguration const&                      pc,
+                   HistoryAppender*                                 historyAppender,
+                   unsigned int                                     streamIndex = 0,
+                   bool                                             isForPrimaryProcess = true);
     ~EventPrincipal() override {}
 
-    void fillEventPrincipal(EventAuxiliary const& aux,
+    void fillEventPrincipal(EventAuxiliary const&         aux,
                             ProcessHistoryRegistry const& processHistoryRegistry,
-                            DelayedReader* reader = nullptr);
-    void fillEventPrincipal(EventAuxiliary const& aux,
+                            DelayedReader*                reader = nullptr);
+    void fillEventPrincipal(EventAuxiliary const&         aux,
                             ProcessHistoryRegistry const& processHistoryRegistry,
-                            EventSelectionIDVector&& eventSelectionIDs,
-                            BranchListIndexes&& branchListIndexes);
+                            EventSelectionIDVector&&      eventSelectionIDs,
+                            BranchListIndexes&&           branchListIndexes);
     // provRetriever is changed via a call to ProductProvenanceRetriever::deepSwap
-    void fillEventPrincipal(EventAuxiliary const& aux,
-                            ProcessHistoryRegistry const& processHistoryRegistry,
-                            EventSelectionIDVector&& eventSelectionIDs,
-                            BranchListIndexes&& branchListIndexes,
+    void fillEventPrincipal(EventAuxiliary const&             aux,
+                            ProcessHistoryRegistry const&     processHistoryRegistry,
+                            EventSelectionIDVector&&          eventSelectionIDs,
+                            BranchListIndexes&&               branchListIndexes,
                             ProductProvenanceRetriever const& provRetriever,
-                            DelayedReader* reader = nullptr,
-                            bool deepCopyRetriever = true);
+                            DelayedReader*                    reader = nullptr,
+                            bool                              deepCopyRetriever = true);
 
     void clearEventPrincipal();
 
@@ -121,21 +121,21 @@ namespace edm {
 
     BasicHandle getByProductID(ProductID const& oid) const;
 
-    void put(BranchDescription const& bd,
+    void put(BranchDescription const&     bd,
              std::unique_ptr<WrapperBase> edp,
-             ProductProvenance const& productProvenance) const;
+             ProductProvenance const&     productProvenance) const;
 
     void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp, ParentageID productProvenance) const;
 
-    void putOnRead(BranchDescription const& bd,
+    void putOnRead(BranchDescription const&     bd,
                    std::unique_ptr<WrapperBase> edp,
-                   ProductProvenance const* productProvenance) const;
+                   ProductProvenance const*     productProvenance) const;
 
     WrapperBase const* getIt(ProductID const& pid) const override;
     WrapperBase const* getThinnedProduct(ProductID const& pid, unsigned int& key) const override;
-    void getThinnedProducts(ProductID const& pid,
-                            std::vector<WrapperBase const*>& foundContainers,
-                            std::vector<unsigned int>& keys) const override;
+    void               getThinnedProducts(ProductID const&                 pid,
+                                          std::vector<WrapperBase const*>& foundContainers,
+                                          std::vector<unsigned int>&       keys) const override;
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 
@@ -167,7 +167,7 @@ namespace edm {
 
     EventSelectionIDVector eventSelectionIDs_;
 
-    std::shared_ptr<BranchIDListHelper const> branchIDListHelper_;
+    std::shared_ptr<BranchIDListHelper const>        branchIDListHelper_;
     std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper_;
 
     BranchListIndexes branchListIndexes_;

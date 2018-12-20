@@ -55,7 +55,7 @@ namespace edm {
   private:
     virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType,
                                        std::type_info const& iProductType,
-                                       const InputTag& iTag) const = 0;
+                                       const InputTag&       iTag) const = 0;
   };
 
   template <class T>

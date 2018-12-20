@@ -16,9 +16,9 @@ namespace edmtest {
     /// Runs the algorithm and returns a list of OtherThings
     /// The user declares the vector and calls this method.
     void run(edm::Handle<ThingCollection> const& iThingHandle,
-             OtherThingCollection& otherThingCollection,
-             bool useRefs = true,
-             bool refsAreTransient = false) const;
+             OtherThingCollection&               otherThingCollection,
+             bool                                useRefs = true,
+             bool                                refsAreTransient = false) const;
 
   private:
     int theDebugLevel;

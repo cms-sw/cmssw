@@ -25,7 +25,7 @@ namespace edmtest {
 
   private:
     bool useLogFlush;
-    int queueFillers;
+    int  queueFillers;
   };
 
 }  // namespace edmtest

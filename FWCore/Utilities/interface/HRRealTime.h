@@ -37,7 +37,7 @@ namespace edm {
 
     static __inline__ unsigned long long rdtsc(void) {
       unsigned long long int result = 0;
-      unsigned long int upper, lower, tmp;
+      unsigned long int      upper, lower, tmp;
       __asm__ volatile(
           "0:                  \n"
           "\tmftbu   %0           \n"
@@ -84,7 +84,7 @@ namespace edm {
 
 namespace edm {
 
-  typedef long long int HRTimeDiffType;
+  typedef long long int          HRTimeDiffType;
   typedef unsigned long long int HRTimeType;
 
   // High Precision real time in clock-units

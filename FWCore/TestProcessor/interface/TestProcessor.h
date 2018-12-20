@@ -85,7 +85,7 @@ namespace edm {
     public:
       TestProcessorConfig(std::string const& iPythonConfiguration) : config_(iPythonConfiguration) {}
       std::string const& pythonConfiguration() const { return config_; }
-      void setPythonConfiguration(std::string iConfig) { config_ = std::move(iConfig); }
+      void               setPythonConfiguration(std::string iConfig) { config_ = std::move(iConfig); }
 
       /** add a Process name to the Process history. If multiple calls are made to addProcess,
        then the call order will be the order of the Processes in the history.*/
@@ -100,8 +100,8 @@ namespace edm {
        The use of any other name requires that it is first added via `addExtraProcess`.
        */
       template <typename T>
-      edm::EDPutTokenT<T> produces(std::string iModuleLabel,
-                                   std::string iProductInstanceLabel = std::string(),
+      edm::EDPutTokenT<T> produces(std::string  iModuleLabel,
+                                   std::string  iProductInstanceLabel = std::string(),
                                    ProcessToken iToken = ProcessToken()) {
         produceEntries_.emplace_back(edm::TypeID(typeid(T)), std::move(iModuleLabel), std::move(iProductInstanceLabel),
                                      processName(iToken));
@@ -110,7 +110,7 @@ namespace edm {
 
       template <typename REC, typename T>
       edm::test::ESPutTokenT<T> esProduces(std::string iLabel = std::string()) {
-        auto rk = eventsetup::EventSetupRecordKey::makeKey<REC>();
+        auto                rk = eventsetup::EventSetupRecordKey::makeKey<REC>();
         eventsetup::DataKey dk(eventsetup::DataKey::makeTypeTag<T>(), iLabel.c_str());
         esProduceEntries_.emplace_back(rk, dk, std::make_shared<TestDataProxy<T>>());
         return edm::test::ESPutTokenT<T>(esProduceEntries_.size() - 1);
@@ -118,9 +118,9 @@ namespace edm {
 
       struct ProduceEntry {
         ProduceEntry(edm::TypeID const& iType,
-                     std::string moduleLabel,
-                     std::string instanceLabel,
-                     std::string processName)
+                     std::string        moduleLabel,
+                     std::string        instanceLabel,
+                     std::string        processName)
             : type_{iType},
               moduleLabel_{std::move(moduleLabel)},
               instanceLabel_{std::move(instanceLabel)},
@@ -136,9 +136,9 @@ namespace edm {
       std::vector<ESProduceEntry> const& esProduceEntries() const { return esProduceEntries_; }
 
     private:
-      std::string config_;
-      std::vector<std::string> extraProcesses_;
-      std::vector<ProduceEntry> produceEntries_;
+      std::string                 config_;
+      std::vector<std::string>    extraProcesses_;
+      std::vector<ProduceEntry>   produceEntries_;
       std::vector<ESProduceEntry> esProduceEntries_;
 
       std::string processName(ProcessToken iToken) {
@@ -236,41 +236,41 @@ namespace edm {
       void endJob();
 
       // ---------- member data --------------------------------
-      std::string labelOfTestModule_;
+      std::string                       labelOfTestModule_;
       std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is
                                                   // mutable.
-      std::shared_ptr<ProductRegistry> preg_;
-      std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
-      std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
-      ServiceToken serviceToken_;
+      std::shared_ptr<ProductRegistry>                   preg_;
+      std::shared_ptr<BranchIDListHelper>                branchIDListHelper_;
+      std::shared_ptr<ThinnedAssociationsHelper>         thinnedAssociationsHelper_;
+      ServiceToken                                       serviceToken_;
       std::unique_ptr<eventsetup::EventSetupsController> espController_;
-      std::shared_ptr<eventsetup::EventSetupProvider> esp_;
-      std::shared_ptr<EventSetupTestHelper> esHelper_;
+      std::shared_ptr<eventsetup::EventSetupProvider>    esp_;
+      std::shared_ptr<EventSetupTestHelper>              esHelper_;
 
       std::unique_ptr<ExceptionToActionTable const> act_table_;
-      std::shared_ptr<ProcessConfiguration const> processConfiguration_;
-      ProcessContext processContext_;
+      std::shared_ptr<ProcessConfiguration const>   processConfiguration_;
+      ProcessContext                                processContext_;
 
-      ProcessHistoryRegistry processHistoryRegistry_;
+      ProcessHistoryRegistry           processHistoryRegistry_;
       std::unique_ptr<HistoryAppender> historyAppender_;
 
-      PrincipalCache principalCache_;
+      PrincipalCache             principalCache_;
       PreallocationConfiguration preallocations_;
 
-      std::shared_ptr<ModuleRegistry> moduleRegistry_;
-      std::unique_ptr<Schedule> schedule_;
+      std::shared_ptr<ModuleRegistry>           moduleRegistry_;
+      std::unique_ptr<Schedule>                 schedule_;
       std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
 
       std::vector<std::pair<edm::BranchDescription, std::unique_ptr<WrapperBase>>> dataProducts_;
 
-      RunNumber_t runNumber_ = 1;
+      RunNumber_t             runNumber_ = 1;
       LuminosityBlockNumber_t lumiNumber_ = 1;
-      EventNumber_t eventNumber_ = 1;
-      bool beginJobCalled_ = false;
-      bool beginRunCalled_ = false;
-      bool beginLumiCalled_ = false;
-      bool newRun_ = true;
-      bool newLumi_ = true;
+      EventNumber_t           eventNumber_ = 1;
+      bool                    beginJobCalled_ = false;
+      bool                    beginRunCalled_ = false;
+      bool                    beginLumiCalled_ = false;
+      bool                    newRun_ = true;
+      bool                    newLumi_ = true;
     };
   }  // namespace test
 }  // namespace edm

@@ -45,8 +45,8 @@ namespace edm {
 
   private:
     std::array<std::atomic<int>, N> m_buffer;
-    std::atomic<int> m_mean;
-    std::atomic<int> m_curr;
+    std::atomic<int>                m_mean;
+    std::atomic<int>                m_curr;
   };
 }  // namespace edm
 

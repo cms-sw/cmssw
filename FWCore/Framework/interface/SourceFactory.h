@@ -40,7 +40,7 @@ namespace edm {
     template <class T>
     void addProviderTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent, const DataProxyProvider*) {
       std::shared_ptr<DataProxyProvider> pProvider(iComponent);
-      ComponentDescription description = pProvider->description();
+      ComponentDescription               description = pProvider->description();
       description.isSource_ = true;
       pProvider->setDescription(description);
       iProvider.add(pProvider);
@@ -52,12 +52,12 @@ namespace edm {
 
     struct SourceMakerTraits {
       typedef EventSetupRecordIntervalFinder base_type;
-      static std::string name();
+      static std::string                     name();
       template <class T>
       static void addTo(EventSetupProvider& iProvider,
-                        std::shared_ptr<T> iComponent,
+                        std::shared_ptr<T>  iComponent,
                         ParameterSet const& iConfiguration,
-                        bool matchesPreceding) {
+                        bool                matchesPreceding) {
         if (matchesPreceding) {
           logInfoWhenSharing(iConfiguration);
         }
@@ -66,14 +66,14 @@ namespace edm {
         std::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
         iProvider.add(pFinder);
       }
-      static void replaceExisting(EventSetupProvider& iProvider,
+      static void replaceExisting(EventSetupProvider&                             iProvider,
                                   std::shared_ptr<EventSetupRecordIntervalFinder> iComponent);
 
       static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
-                                                                       ParameterSet const& iConfiguration);
+                                                                       ParameterSet const&    iConfiguration);
 
-      static void putComponent(EventSetupsController& esController,
-                               ParameterSet const& iConfiguration,
+      static void putComponent(EventSetupsController&            esController,
+                               ParameterSet const&               iConfiguration,
                                std::shared_ptr<base_type> const& component);
 
       static void logInfoWhenSharing(ParameterSet const& iConfiguration);

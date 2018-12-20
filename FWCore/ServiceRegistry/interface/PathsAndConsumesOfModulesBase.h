@@ -74,10 +74,10 @@ namespace edm {
     std::vector<ConsumesInfo> consumesInfo(unsigned int moduleID) const { return doConsumesInfo(moduleID); }
 
   private:
-    virtual std::vector<std::string> const& doPaths() const = 0;
-    virtual std::vector<std::string> const& doEndPaths() const = 0;
+    virtual std::vector<std::string> const&              doPaths() const = 0;
+    virtual std::vector<std::string> const&              doEndPaths() const = 0;
     virtual std::vector<ModuleDescription const*> const& doAllModules() const = 0;
-    virtual ModuleDescription const* doModuleDescription(unsigned int moduleID) const = 0;
+    virtual ModuleDescription const*                     doModuleDescription(unsigned int moduleID) const = 0;
     virtual std::vector<ModuleDescription const*> const& doModulesOnPath(unsigned int pathIndex) const = 0;
     virtual std::vector<ModuleDescription const*> const& doModulesOnEndPath(unsigned int endPathIndex) const = 0;
     virtual std::vector<ModuleDescription const*> const& doModulesWhoseProductsAreConsumedBy(

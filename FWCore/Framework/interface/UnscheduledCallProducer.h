@@ -57,13 +57,13 @@ namespace edm {
     const_iterator end() const { return unscheduledWorkers_.end(); }
 
     template <typename T, typename U>
-    void runNowAsync(WaitingTask* task,
-                     typename T::MyPrincipal& p,
-                     EventSetup const& es,
-                     ServiceToken const& token,
-                     StreamID streamID,
+    void runNowAsync(WaitingTask*               task,
+                     typename T::MyPrincipal&   p,
+                     EventSetup const&          es,
+                     ServiceToken const&        token,
+                     StreamID                   streamID,
                      typename T::Context const* topContext,
-                     U const* context) const {
+                     U const*                   context) const {
       // do nothing for event since we will run when requested
       if (!T::isEvent_) {
         for (auto worker : unscheduledWorkers_) {
@@ -80,13 +80,13 @@ namespace edm {
     }
 
     template <typename T>
-    void runAccumulatorsAsync(WaitingTask* task,
+    void runAccumulatorsAsync(WaitingTask*                   task,
                               typename T::MyPrincipal const& ep,
-                              EventSetup const& es,
-                              ServiceToken const& token,
-                              StreamID streamID,
-                              ParentContext const& parentContext,
-                              typename T::Context const* context) {
+                              EventSetup const&              es,
+                              ServiceToken const&            token,
+                              StreamID                       streamID,
+                              ParentContext const&           parentContext,
+                              typename T::Context const*     context) {
       for (auto worker : accumulatorWorkers_) {
         worker->doWorkAsync<T>(task, ep, es, token, streamID, parentContext, context);
       }
@@ -99,8 +99,8 @@ namespace edm {
       ost << "Processing " << T::transitionName() << " " << id;
       ex.addContext(ost.str());
     }
-    worker_container unscheduledWorkers_;
-    worker_container accumulatorWorkers_;
+    worker_container     unscheduledWorkers_;
+    worker_container     accumulatorWorkers_;
     UnscheduledAuxiliary aux_;
   };
 

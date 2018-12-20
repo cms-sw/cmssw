@@ -10,9 +10,9 @@ namespace edm {
     // A union is used to avoid possible copies during the triple cast that would otherwise be needed.
     // std::unique_ptr<T> edp(static_cast<T*>(static_cast<void *>(static_cast<unsigned char *>(p) + offset)));
     union {
-      void* vp;
+      void*          vp;
       unsigned char* ucp;
-      T* tp;
+      T*             tp;
     } pointerUnion;
     assert(p != nullptr);
     pointerUnion.vp = p;

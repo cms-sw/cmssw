@@ -31,19 +31,19 @@ namespace edm {
 
     void init();
 
-    bool brief() const { return brief_; }
+    bool   brief() const { return brief_; }
     size_t lineWidth() const { return lineWidth_; }
-    int indentation() const { return indentation_; }
-    int startColumn2() const { return startColumn2_; }
+    int    indentation() const { return indentation_; }
+    int    startColumn2() const { return startColumn2_; }
 
     void setBrief(bool value) { brief_ = value; }
     void setLineWidth(size_t value) { lineWidth_ = value; }
     void setIndentation(int value) { indentation_ = value; }
 
     std::string const& section() const { return section_; }
-    void setSection(std::string const& value) { section_ = value; }
+    void               setSection(std::string const& value) { section_ = value; }
 
-    int pass() const { return pass_; }
+    int  pass() const { return pass_; }
     void setPass(int value) { pass_ = value; }
 
     size_t column1() const { return column1_; }
@@ -63,13 +63,13 @@ namespace edm {
         column3_ = width;
     }
 
-    int counter() const { return counter_; }
+    int  counter() const { return counter_; }
     void setCounter(int value) { counter_ = value; }
     void incrementCounter() { ++counter_; }
     void decrementCounter() { --counter_; }
 
     DescriptionParent parent() const { return parent_; }
-    void setParent(DescriptionParent value) { parent_ = value; }
+    void              setParent(DescriptionParent value) { parent_ = value; }
 
     size_t commentWidth() const;
 
@@ -83,9 +83,9 @@ namespace edm {
     static int offsetSectionContent() { return 4; }
 
   private:
-    bool brief_;
+    bool   brief_;
     size_t lineWidth_;
-    int indentation_;
+    int    indentation_;
     size_t startColumn2_;
 
     std::string section_;

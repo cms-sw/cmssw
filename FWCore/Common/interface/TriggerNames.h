@@ -54,7 +54,7 @@ namespace edm {
 
   class TriggerNames {
   public:
-    typedef std::vector<std::string> Strings;
+    typedef std::vector<std::string>            Strings;
     typedef std::map<std::string, unsigned int> IndexMap;
 
     // Users should not construct these.  Instead they should
@@ -82,7 +82,7 @@ namespace edm {
   private:
     ParameterSetID psetID_;
 
-    Strings triggerNames_;
+    Strings  triggerNames_;
     IndexMap indexMap_;
   };
 }  // namespace edm

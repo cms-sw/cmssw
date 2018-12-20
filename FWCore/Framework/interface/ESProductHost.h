@@ -101,9 +101,9 @@ namespace edm {
 
     template <typename RecordType, typename ContainingRecordType, typename FUNC>
     void ifRecordChanges(ContainingRecordType const& containingRecord, FUNC func) {
-      RecordType const& record = containingRecord.template getRecord<RecordType>();
+      RecordType const&  record = containingRecord.template getRecord<RecordType>();
       unsigned long long cacheIdentifier = record.cacheIdentifier();
-      std::size_t iRecord = index<RecordType>();
+      std::size_t        iRecord = index<RecordType>();
       if (cacheIdentifier != cacheIDs_[iRecord]) {
         cacheIDs_[iRecord] = cacheIdentifier;
         func(record);

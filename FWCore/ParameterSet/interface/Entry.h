@@ -165,8 +165,8 @@ namespace edm {
     // encode
 
     std::string toString() const;
-    void toString(std::string& result) const;
-    void toDigest(cms::Digest& digest) const;
+    void        toString(std::string& result) const;
+    void        toDigest(cms::Digest& digest) const;
 
     size_t sizeOfString() const { return rep.size() + 4; }
 
@@ -180,8 +180,8 @@ namespace edm {
   private:
     std::string name_;
     std::string rep;
-    char type;
-    char tracked;
+    char        type;
+    char        tracked;
 
     // verify class invariant
     void validate() const;

@@ -88,10 +88,10 @@ namespace edm {
     InputSource(InputSource const&) = delete;             // Disallow copying and moving
     InputSource& operator=(InputSource const&) = delete;  // Disallow copying and moving
 
-    static void fillDescriptions(ConfigurationDescriptions& descriptions);
+    static void               fillDescriptions(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
-    static void fillDescription(ParameterSetDescription& desc);
-    static void prevalidate(ConfigurationDescriptions&);
+    static void               fillDescription(ParameterSetDescription& desc);
+    static void               prevalidate(ConfigurationDescriptions&);
 
     /// Advances the source to the next item
     ItemType nextItemType();
@@ -149,11 +149,11 @@ namespace edm {
 
     /// Accessors for product registry
     std::shared_ptr<ProductRegistry const> productRegistry() const { return get_underlying_safe(productRegistry_); }
-    std::shared_ptr<ProductRegistry>& productRegistry() { return get_underlying_safe(productRegistry_); }
+    std::shared_ptr<ProductRegistry>&      productRegistry() { return get_underlying_safe(productRegistry_); }
 
     /// Accessors for process history registry.
     ProcessHistoryRegistry const& processHistoryRegistry() const { return *processHistoryRegistry_; }
-    ProcessHistoryRegistry& processHistoryRegistry() { return *processHistoryRegistry_; }
+    ProcessHistoryRegistry&       processHistoryRegistry() { return *processHistoryRegistry_; }
 
     /// Accessors for branchIDListHelper
     std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {
@@ -241,7 +241,7 @@ namespace edm {
     /// Called by the framework to merge or insert lumi in principal cache.
     std::shared_ptr<LuminosityBlockAuxiliary> luminosityBlockAuxiliary() const { return lumiAuxiliary_; }
 
-    bool randomAccess() const;
+    bool                               randomAccess() const;
     ProcessingController::ForwardState forwardState() const;
     ProcessingController::ReverseState reverseState() const;
 
@@ -255,7 +255,7 @@ namespace edm {
 
     private:
       InputSource const& source_;
-      StreamContext& sc_;
+      StreamContext&     sc_;
     };
 
     class LumiSourceSentry {
@@ -267,7 +267,7 @@ namespace edm {
       LumiSourceSentry& operator=(LumiSourceSentry const&) = delete;  // Disallow copying and moving
 
     private:
-      InputSource const& source_;
+      InputSource const&   source_;
       LuminosityBlockIndex index_;
     };
 
@@ -281,7 +281,7 @@ namespace edm {
 
     private:
       InputSource const& source_;
-      RunIndex index_;
+      RunIndex           index_;
     };
 
     class FileOpenSentry {
@@ -294,9 +294,9 @@ namespace edm {
       FileOpenSentry& operator=(FileOpenSentry const&) = delete;  // Disallow copying and moving
 
     private:
-      Sig& post_;
+      Sig&               post_;
       std::string const& lfn_;
-      bool usedFallback_;
+      bool               usedFallback_;
     };
 
     class FileCloseSentry {
@@ -309,9 +309,9 @@ namespace edm {
       FileCloseSentry& operator=(FileCloseSentry const&) = delete;  // Disallow copying and moving
 
     private:
-      Sig& post_;
+      Sig&               post_;
       std::string const& lfn_;
-      bool usedFallback_;
+      bool               usedFallback_;
     };
 
     signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> preEventReadFromSourceSignal_;
@@ -323,10 +323,10 @@ namespace edm {
     /// To set the current time, as seen by the input source
     void setTimestamp(Timestamp const& theTime) { time_ = theTime; }
 
-    ProductRegistry& productRegistryUpdate() { return *productRegistry_; }
+    ProductRegistry&        productRegistryUpdate() { return *productRegistry_; }
     ProcessHistoryRegistry& processHistoryRegistryForUpdate() { return *processHistoryRegistry_; }
-    ItemType state() const { return state_; }
-    void setRunAuxiliary(RunAuxiliary* rp) {
+    ItemType                state() const { return state_; }
+    void                    setRunAuxiliary(RunAuxiliary* rp) {
       runAuxiliary_.reset(rp);
       newRun_ = newLumi_ = true;
     }
@@ -378,53 +378,53 @@ namespace edm {
       }
       return false;
     }
-    bool limitReached() const { return eventLimitReached() || lumiLimitReached(); }
-    virtual ItemType getNextItemType() = 0;
-    ItemType nextItemType_();
+    bool                                  limitReached() const { return eventLimitReached() || lumiLimitReached(); }
+    virtual ItemType                      getNextItemType() = 0;
+    ItemType                              nextItemType_();
     virtual std::shared_ptr<RunAuxiliary> readRunAuxiliary_() = 0;
     virtual std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() = 0;
-    virtual void readRun_(RunPrincipal& runPrincipal);
-    virtual void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
-    virtual void readEvent_(EventPrincipal& eventPrincipal) = 0;
+    virtual void                                      readRun_(RunPrincipal& runPrincipal);
+    virtual void                                      readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
+    virtual void                                      readEvent_(EventPrincipal& eventPrincipal) = 0;
     virtual bool readIt(EventID const& id, EventPrincipal& eventPrincipal, StreamContext& streamContext);
-    virtual std::unique_ptr<FileBlock> readFile_();
-    virtual void closeFile_() {}
-    virtual bool goToEvent_(EventID const& eventID);
-    virtual void setRun(RunNumber_t r);
-    virtual void setLumi(LuminosityBlockNumber_t lb);
-    virtual void rewind_();
-    virtual void beginJob();
-    virtual void endJob();
+    virtual std::unique_ptr<FileBlock>                                 readFile_();
+    virtual void                                                       closeFile_() {}
+    virtual bool                                                       goToEvent_(EventID const& eventID);
+    virtual void                                                       setRun(RunNumber_t r);
+    virtual void                                                       setLumi(LuminosityBlockNumber_t lb);
+    virtual void                                                       rewind_();
+    virtual void                                                       beginJob();
+    virtual void                                                       endJob();
     virtual std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> resourceSharedWithDelayedReader_();
 
-    virtual bool randomAccess_() const;
+    virtual bool                               randomAccess_() const;
     virtual ProcessingController::ForwardState forwardState_() const;
     virtual ProcessingController::ReverseState reverseState_() const;
 
   private:
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
-    int maxEvents_;
-    int remainingEvents_;
-    int maxLumis_;
-    int remainingLumis_;
-    int readCount_;
-    int maxSecondsUntilRampdown_;
-    std::chrono::time_point<std::chrono::steady_clock> processingStart_;
-    ProcessingMode processingMode_;
-    ModuleDescription const moduleDescription_;
-    edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
-    edm::propagate_const<std::unique_ptr<ProcessHistoryRegistry>> processHistoryRegistry_;
-    edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    int                               maxEvents_;
+    int                               remainingEvents_;
+    int                               maxLumis_;
+    int                               remainingLumis_;
+    int                               readCount_;
+    int                               maxSecondsUntilRampdown_;
+    std::chrono::time_point<std::chrono::steady_clock>               processingStart_;
+    ProcessingMode                                                   processingMode_;
+    ModuleDescription const                                          moduleDescription_;
+    edm::propagate_const<std::shared_ptr<ProductRegistry>>           productRegistry_;
+    edm::propagate_const<std::unique_ptr<ProcessHistoryRegistry>>    processHistoryRegistry_;
+    edm::propagate_const<std::shared_ptr<BranchIDListHelper>>        branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
-    std::string processGUID_;
-    Timestamp time_;
-    mutable bool newRun_;
-    mutable bool newLumi_;
-    bool eventCached_;
-    mutable ItemType state_;
-    mutable std::shared_ptr<RunAuxiliary> runAuxiliary_;
-    mutable std::shared_ptr<LuminosityBlockAuxiliary> lumiAuxiliary_;
-    std::string statusFileName_;
+    std::string                                                      processGUID_;
+    Timestamp                                                        time_;
+    mutable bool                                                     newRun_;
+    mutable bool                                                     newLumi_;
+    bool                                                             eventCached_;
+    mutable ItemType                                                 state_;
+    mutable std::shared_ptr<RunAuxiliary>                            runAuxiliary_;
+    mutable std::shared_ptr<LuminosityBlockAuxiliary>                lumiAuxiliary_;
+    std::string                                                      statusFileName_;
 
     unsigned int numberOfEventsBeforeBigSkip_;
   };

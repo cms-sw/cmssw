@@ -67,12 +67,12 @@ namespace edm {
     void pushAndWait(T&& iAction);
 
     unsigned long outstandingTasks() const { return m_outstandingTasks; }
-    std::size_t numberOfQueues() const { return m_queues.size(); }
+    std::size_t   numberOfQueues() const { return m_queues.size(); }
 
   private:
     // ---------- member data --------------------------------
     std::vector<std::shared_ptr<SerialTaskQueue>> m_queues;
-    std::atomic<unsigned long> m_outstandingTasks{0};
+    std::atomic<unsigned long>                    m_outstandingTasks{0};
 
     template <typename T>
     void passDownChain(unsigned int iIndex, T&& iAction);
@@ -100,10 +100,10 @@ namespace edm {
     waitTask->set_ref_count(3);
 
     std::exception_ptr ptr;
-    auto waitTaskPtr = waitTask.get();
+    auto               waitTaskPtr = waitTask.get();
     push([waitTaskPtr, iAction, &ptr]() {
       // must wait until exception ptr would be set
-      auto dec = [](tbb::task* iTask) { iTask->decrement_ref_count(); };
+      auto                                      dec = [](tbb::task* iTask) { iTask->decrement_ref_count(); };
       std::unique_ptr<tbb::task, decltype(dec)> sentry(waitTaskPtr, dec);
       try {
         iAction();

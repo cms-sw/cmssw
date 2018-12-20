@@ -25,10 +25,10 @@ namespace edmtest {
     virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
 
   private:
-    static int nevent;
-    std::vector<double> memoryPattern;
-    void initializeMemoryPattern(int pattern);
-    double vsize;
+    static int                  nevent;
+    std::vector<double>         memoryPattern;
+    void                        initializeMemoryPattern(int pattern);
+    double                      vsize;
     edm::propagate_const<char*> last_Allocation;
   };
 

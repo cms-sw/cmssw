@@ -44,13 +44,13 @@ namespace edm {
 
   protected:
     void setIntervalFor(const eventsetup::EventSetupRecordKey& iKey,
-                        const IOVSyncValue& iTime,
-                        ValidityInterval& oInterval) override;
+                        const IOVSyncValue&                    iTime,
+                        ValidityInterval&                      oInterval) override;
 
     // use this to 'snoop' on what records are being used by the Producer
-    void registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord,
+    void registerFactoryWithKey(const eventsetup::EventSetupRecordKey&        iRecord,
                                 std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
-                                const std::string& iLabel = std::string()) override;
+                                const std::string&                            iLabel = std::string()) override;
 
   private:
     ESProducerLooper(const ESProducerLooper&) = delete;  // stop default

@@ -29,7 +29,7 @@ namespace edm {
     ParameterDescriptionNode* clone() const override { return new ORGroupDescription(*this); }
 
   private:
-    void checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+    void checkAndGetLabelsAndTypes_(std::set<std::string>&    usedLabels,
                                     std::set<ParameterTypes>& parameterTypes,
                                     std::set<ParameterTypes>& wildcardTypes) const override;
 

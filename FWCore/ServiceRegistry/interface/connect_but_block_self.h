@@ -52,7 +52,7 @@ namespace edm {
       bool startBlocking() { return 1 == ++numBlocks_; }
       void unblock() { --numBlocks_; }
       Func func_;
-      int numBlocks_;
+      int  numBlocks_;
     };
 
     template <class Func, class Signal>

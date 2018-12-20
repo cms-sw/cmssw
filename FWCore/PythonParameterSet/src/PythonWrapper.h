@@ -23,8 +23,8 @@ namespace edm {
   // and back.  Destroys the input via pop()s
   template <typename T>
   std::vector<T> toVector(boost::python::list& l) {
-    std::vector<T> result;
-    unsigned n = PyList_Size(l.ptr());
+    std::vector<T>        result;
+    unsigned              n = PyList_Size(l.ptr());
     boost::python::object iter_obj(boost::python::handle<>(PyObject_GetIter(l.ptr())));
     for (unsigned i = 0; i < n; ++i) {
       boost::python::object obj = boost::python::extract<boost::python::object>(iter_obj.attr("next")());

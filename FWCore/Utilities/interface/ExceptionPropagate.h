@@ -5,7 +5,7 @@
 
 namespace edm {
   namespace threadLocalException {
-    void setException(std::exception_ptr e);
+    void               setException(std::exception_ptr e);
     std::exception_ptr getException();
   }  // namespace threadLocalException
 }  // namespace edm

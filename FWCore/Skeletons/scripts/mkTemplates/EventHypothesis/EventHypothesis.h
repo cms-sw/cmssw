@@ -31,13 +31,13 @@ namespace pat {
   class __class__ : public HardEventHypothesis {
   public:
     // This will return static event-wide definitions of the candidate roles.
-    static const int N_ROLES = 0;
-    static const char* candidateRoles[N_ROLES];
-    static const bool isVector[N_ROLES];
-    virtual int getNCandidateRoles() const { return N_ROLES; }
+    static const int    N_ROLES = 0;
+    static const char*  candidateRoles[N_ROLES];
+    static const bool   isVector[N_ROLES];
+    virtual int         getNCandidateRoles() const { return N_ROLES; }
     virtual const char* getCandidateRole(int i = 0) const;
-    virtual bool getIsVector(int i = 0) const;
-    virtual int getSize(int i = 0) const;
+    virtual bool        getIsVector(int i = 0) const;
+    virtual int         getSize(int i = 0) const;
 
     __class__() {}
     virtual ~__class__() {}

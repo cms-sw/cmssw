@@ -93,11 +93,11 @@ namespace edm {
       // ---  handle severity information:
       //
       ELseverityLevel checkSeverity();
-      int severityCount(const ELseverityLevel& sev) const;
-      int severityCount(const ELseverityLevel& from, const ELseverityLevel& to) const;
-      void resetSeverityCount(const ELseverityLevel& sev);
-      void resetSeverityCount(const ELseverityLevel& from, const ELseverityLevel& to);
-      void resetSeverityCount();  // reset all
+      int             severityCount(const ELseverityLevel& sev) const;
+      int             severityCount(const ELseverityLevel& from, const ELseverityLevel& to) const;
+      void            resetSeverityCount(const ELseverityLevel& sev);
+      void            resetSeverityCount(const ELseverityLevel& from, const ELseverityLevel& to);
+      void            resetSeverityCount();  // reset all
 
       // ---  apply the following actions to all attached destinations:
       //
@@ -117,7 +117,7 @@ namespace edm {
       const ELseverityLevel& abortThreshold() const;
       const ELseverityLevel& exitThreshold() const;
       const ELseverityLevel& highSeverity() const;
-      int severityCounts(int lev) const;
+      int                    severityCounts(int lev) const;
 
     protected:
       // ---  traditional birth/death, but disallowed to users:
@@ -128,8 +128,8 @@ namespace edm {
       // ---  traditional member data:
       //
       std::list<edm::propagate_const<std::shared_ptr<ELdestination>>> sinks_;
-      ELseverityLevel highSeverity_;
-      int severityCounts_[ELseverityLevel::nLevels];
+      ELseverityLevel                                                 highSeverity_;
+      int                                                             severityCounts_[ELseverityLevel::nLevels];
 
       std::map<ELstring, edm::propagate_const<std::shared_ptr<ELdestination>>> attachedDestinations_;
 

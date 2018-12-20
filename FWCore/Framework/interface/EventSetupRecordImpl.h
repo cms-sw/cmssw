@@ -143,7 +143,7 @@ namespace edm {
       void validate(ComponentDescription const*, ESInputTag const&) const;
 
       void addTraceInfoToCmsException(cms::Exception& iException,
-                                      char const* iName,
+                                      char const*     iName,
                                       ComponentDescription const*,
                                       DataKey const&) const;
       void changeStdExceptionToCmsException(char const* iExceptionWhatMessage,
@@ -158,15 +158,15 @@ namespace edm {
 
       EventSetupRecordImpl const& operator=(EventSetupRecordImpl const&) = delete;
 
-      void const* getFromProxy(DataKey const& iKey,
+      void const* getFromProxy(DataKey const&               iKey,
                                ComponentDescription const*& iDesc,
-                               bool iTransientAccessOnly) const;
+                               bool                         iTransientAccessOnly) const;
 
       template <typename DataT>
-      void getImplementation(DataT const*& iData,
-                             char const* iName,
-                             ComponentDescription const*& iDesc,
-                             bool iTransientAccessOnly,
+      void getImplementation(DataT const*&                              iData,
+                             char const*                                iName,
+                             ComponentDescription const*&               iDesc,
+                             bool                                       iTransientAccessOnly,
                              std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory) const {
         DataKey dataKey(DataKey::makeTypeTag<DataT>(), iName, DataKey::kDoNotCopyMemory);
 
@@ -181,12 +181,12 @@ namespace edm {
       }
 
       // ---------- member data --------------------------------
-      ValidityInterval validity_;
-      EventSetupRecordKey key_;
+      ValidityInterval                    validity_;
+      EventSetupRecordKey                 key_;
       std::map<DataKey, DataProxy const*> proxies_;
-      EventSetup const* eventSetup_;
-      unsigned long long cacheIdentifier_;
-      mutable std::atomic<bool> transientAccessRequested_;
+      EventSetup const*                   eventSetup_;
+      unsigned long long                  cacheIdentifier_;
+      mutable std::atomic<bool>           transientAccessRequested_;
     };
   }  // namespace eventsetup
 }  // namespace edm

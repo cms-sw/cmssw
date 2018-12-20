@@ -72,25 +72,25 @@ namespace edm {
 
       struct Category {
         std::string threshold;
-        int limit;
-        int reportEvery;
-        int timespan;
+        int         limit;
+        int         reportEvery;
+        int         timespan;
         Category() : threshold(""), limit(NO_VALUE_SET), reportEvery(NO_VALUE_SET), timespan(NO_VALUE_SET) {}
       };
 
       struct Destination {
-        std::string threshold;
+        std::string                     threshold;
         std::map<std::string, Category> category;
         std::map<std::string, Category> sev;
-        std::string output;
+        std::string                     output;
       };
 
       // publicly available collections and structures
 
-      std::vector<std::string> categories;
-      std::vector<std::string> destinations;
-      std::vector<std::string> fwkJobReports;
-      std::vector<std::string> statistics;
+      std::vector<std::string>           categories;
+      std::vector<std::string>           destinations;
+      std::vector<std::string>           fwkJobReports;
+      std::vector<std::string>           statistics;
       std::map<std::string, Destination> destination;
 
       // access to values set

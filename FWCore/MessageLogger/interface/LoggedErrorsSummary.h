@@ -48,9 +48,9 @@
 
 namespace edm {
 
-  bool EnableLoggedErrorsSummary();
-  bool DisableLoggedErrorsSummary();
-  bool FreshErrorsExist(unsigned int iStreamID);
+  bool                           EnableLoggedErrorsSummary();
+  bool                           DisableLoggedErrorsSummary();
+  bool                           FreshErrorsExist(unsigned int iStreamID);
   std::vector<ErrorSummaryEntry> LoggedErrorsSummary(unsigned int iStreamID);      // Errors and Warnings
   std::vector<ErrorSummaryEntry> LoggedErrorsOnlySummary(unsigned int iStreamID);  // Errors only
 

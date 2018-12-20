@@ -13,7 +13,7 @@ namespace edm {
     // if the label is all uppercase, change it to all lowercase
     // if the label starts with more than one uppercase letter, change n-1 to lowercase
     // otherwise, change the first letter to lowercase
-    unsigned int ups = 0;
+    unsigned intups = 0;
     for (char c : label)
       if (std::isupper(c))
         ++ups;

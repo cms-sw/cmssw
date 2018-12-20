@@ -88,8 +88,8 @@ namespace edm {
     virtual ParameterDescriptionNode* clone() const = 0;
 
     std::string const& comment() const { return comment_; }
-    void setComment(std::string const& value);
-    void setComment(char const* value);
+    void               setComment(std::string const& value);
+    void               setComment(char const* value);
 
     // The validate function should do one of three things, find that the
     // node "exists", make the node "exist" by inserting missing parameters
@@ -202,7 +202,7 @@ namespace edm {
     The names and types in a nested ParameterSet will not interfere with names
     in the containing ParameterSet.
     */
-    void checkAndGetLabelsAndTypes(std::set<std::string>& usedLabels,
+    void checkAndGetLabelsAndTypes(std::set<std::string>&    usedLabels,
                                    std::set<ParameterTypes>& parameterTypes,
                                    std::set<ParameterTypes>& wildcardTypes) const {
       checkAndGetLabelsAndTypes_(usedLabels, parameterTypes, wildcardTypes);
@@ -211,7 +211,7 @@ namespace edm {
     static void printSpaces(std::ostream& os, int n);
 
   protected:
-    virtual void checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+    virtual void checkAndGetLabelsAndTypes_(std::set<std::string>&    usedLabels,
                                             std::set<ParameterTypes>& parameterTypes,
                                             std::set<ParameterTypes>& wildcardTypes) const = 0;
 
@@ -237,7 +237,7 @@ namespace edm {
   template <>
   struct value_ptr_traits<ParameterDescriptionNode> {
     static ParameterDescriptionNode* clone(ParameterDescriptionNode const* p) { return p->clone(); }
-    static void destroy(ParameterDescriptionNode* p) { delete p; }
+    static void                      destroy(ParameterDescriptionNode* p) { delete p; }
   };
 
   // operator>> ---------------------------------------------
@@ -246,16 +246,16 @@ namespace edm {
 
   std::unique_ptr<ParameterDescriptionCases<int> > operator>>(int caseValue, ParameterDescriptionNode const& node);
 
-  std::unique_ptr<ParameterDescriptionCases<std::string> > operator>>(std::string const& caseValue,
+  std::unique_ptr<ParameterDescriptionCases<std::string> > operator>>(std::string const&              caseValue,
                                                                       ParameterDescriptionNode const& node);
 
-  std::unique_ptr<ParameterDescriptionCases<std::string> > operator>>(char const* caseValue,
+  std::unique_ptr<ParameterDescriptionCases<std::string> > operator>>(char const*                     caseValue,
                                                                       ParameterDescriptionNode const& node);
 
-  std::unique_ptr<ParameterDescriptionCases<bool> > operator>>(bool caseValue,
+  std::unique_ptr<ParameterDescriptionCases<bool> > operator>>(bool                                      caseValue,
                                                                std::unique_ptr<ParameterDescriptionNode> node);
 
-  std::unique_ptr<ParameterDescriptionCases<int> > operator>>(int caseValue,
+  std::unique_ptr<ParameterDescriptionCases<int> > operator>>(int                                       caseValue,
                                                               std::unique_ptr<ParameterDescriptionNode> node);
 
   std::unique_ptr<ParameterDescriptionCases<std::string> > operator>>(std::string const& caseValue,
@@ -270,9 +270,9 @@ namespace edm {
                                                        ParameterDescriptionNode const& node_right);
 
   std::unique_ptr<ParameterDescriptionNode> operator&&(std::unique_ptr<ParameterDescriptionNode> node_left,
-                                                       ParameterDescriptionNode const& node_right);
+                                                       ParameterDescriptionNode const&           node_right);
 
-  std::unique_ptr<ParameterDescriptionNode> operator&&(ParameterDescriptionNode const& node_left,
+  std::unique_ptr<ParameterDescriptionNode> operator&&(ParameterDescriptionNode const&           node_left,
                                                        std::unique_ptr<ParameterDescriptionNode> node_right);
 
   std::unique_ptr<ParameterDescriptionNode> operator&&(std::unique_ptr<ParameterDescriptionNode> node_left,
@@ -284,9 +284,9 @@ namespace edm {
                                                        ParameterDescriptionNode const& node_right);
 
   std::unique_ptr<ParameterDescriptionNode> operator||(std::unique_ptr<ParameterDescriptionNode> node_left,
-                                                       ParameterDescriptionNode const& node_right);
+                                                       ParameterDescriptionNode const&           node_right);
 
-  std::unique_ptr<ParameterDescriptionNode> operator||(ParameterDescriptionNode const& node_left,
+  std::unique_ptr<ParameterDescriptionNode> operator||(ParameterDescriptionNode const&           node_left,
                                                        std::unique_ptr<ParameterDescriptionNode> node_right);
 
   std::unique_ptr<ParameterDescriptionNode> operator||(std::unique_ptr<ParameterDescriptionNode> node_left,
@@ -298,9 +298,9 @@ namespace edm {
                                                       ParameterDescriptionNode const& node_right);
 
   std::unique_ptr<ParameterDescriptionNode> operator^(std::unique_ptr<ParameterDescriptionNode> node_left,
-                                                      ParameterDescriptionNode const& node_right);
+                                                      ParameterDescriptionNode const&           node_right);
 
-  std::unique_ptr<ParameterDescriptionNode> operator^(ParameterDescriptionNode const& node_left,
+  std::unique_ptr<ParameterDescriptionNode> operator^(ParameterDescriptionNode const&           node_left,
                                                       std::unique_ptr<ParameterDescriptionNode> node_right);
 
   std::unique_ptr<ParameterDescriptionNode> operator^(std::unique_ptr<ParameterDescriptionNode> node_left,

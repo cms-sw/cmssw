@@ -35,72 +35,72 @@ namespace edm {
   template <typename T>
   struct GlobalCache {
     static constexpr module::Abilities kAbilities = module::Abilities::kGlobalCache;
-    typedef T Type;
+    typedef T                          Type;
   };
 
   template <typename T>
   struct StreamCache {
     static constexpr module::Abilities kAbilities = module::Abilities::kStreamCache;
-    typedef T Type;
+    typedef T                          Type;
   };
 
   template <typename T>
   struct RunCache {
     static constexpr module::Abilities kAbilities = module::Abilities::kRunCache;
-    typedef T Type;
+    typedef T                          Type;
   };
 
   template <typename T>
   struct LuminosityBlockCache {
     static constexpr module::Abilities kAbilities = module::Abilities::kLuminosityBlockCache;
-    typedef T Type;
+    typedef T                          Type;
   };
 
   template <typename T>
   struct RunSummaryCache {
     static constexpr module::Abilities kAbilities = module::Abilities::kRunSummaryCache;
-    typedef T Type;
+    typedef T                          Type;
   };
 
   template <typename T>
   struct LuminosityBlockSummaryCache {
     static constexpr module::Abilities kAbilities = module::Abilities::kLuminosityBlockSummaryCache;
-    typedef T Type;
+    typedef T                          Type;
   };
 
   struct BeginRunProducer {
     static constexpr module::Abilities kAbilities = module::Abilities::kBeginRunProducer;
-    typedef module::Empty Type;
+    typedef module::Empty              Type;
   };
 
   struct EndRunProducer {
     static constexpr module::Abilities kAbilities = module::Abilities::kEndRunProducer;
-    typedef module::Empty Type;
+    typedef module::Empty              Type;
   };
 
   struct BeginLuminosityBlockProducer {
     static constexpr module::Abilities kAbilities = module::Abilities::kBeginLuminosityBlockProducer;
-    typedef module::Empty Type;
+    typedef module::Empty              Type;
   };
 
   struct EndLuminosityBlockProducer {
     static constexpr module::Abilities kAbilities = module::Abilities::kEndLuminosityBlockProducer;
-    typedef module::Empty Type;
+    typedef module::Empty              Type;
   };
 
   struct WatchInputFiles {
     static constexpr module::Abilities kAbilities = module::Abilities::kWatchInputFiles;
-    typedef module::Empty Type;
+    typedef module::Empty              Type;
   };
 
   struct ExternalWork {
     static constexpr module::Abilities kAbilities = module::Abilities::kExternalWork;
-    typedef module::Empty Type;
+    typedef module::Empty              Type;
   };
 
   struct Accumulator {
     static constexpr module::Abilities kAbilities = module::Abilities::kAccumulator;
-    typedef module::Empty Type;
+    typedef module::Empty              Type;
   };
 
   // Recursively checks VArgs template arguments looking for the ABILITY
@@ -118,7 +118,7 @@ namespace edm {
   // End of the recursion
   template <module::Abilities ABILITY>
   struct CheckAbility<ABILITY> {
-    static constexpr bool kHasIt = false;
+    static constexpr bool      kHasIt = false;
     typedef edm::module::Empty Type;
   };
 

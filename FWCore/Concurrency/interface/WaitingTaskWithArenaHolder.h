@@ -69,7 +69,7 @@ namespace edm {
 
   private:
     // ---------- member data --------------------------------
-    WaitingTask* m_task;
+    WaitingTask*                     m_task;
     std::shared_ptr<tbb::task_arena> m_arena;
   };
 }  // namespace edm

@@ -44,7 +44,7 @@ namespace edm {
 
   template <typename TFirst, typename TEnd>
   void print_eventsetup_record_dependencies(std::ostream& oStream,
-                                            std::string iIndent,
+                                            std::string   iIndent,
                                             TFirst const*,
                                             TEnd const* iEnd) {
     iIndent += " ";
@@ -55,19 +55,19 @@ namespace edm {
 
   namespace rec_dep {
     boost::mpl::false_ inherits_from_DependentRecordTag(void const*) { return boost::mpl::false_(); }
-    boost::mpl::true_ inherits_from_DependentRecordTag(edm::eventsetup::DependentRecordTag const*) {
+    boost::mpl::true_  inherits_from_DependentRecordTag(edm::eventsetup::DependentRecordTag const*) {
       return boost::mpl::true_();
     }
   }  // namespace rec_dep
 
   template <typename RecordT>
-  void print_eventsetup_record_dependencies_recursive(std::ostream& oStream,
+  void print_eventsetup_record_dependencies_recursive(std::ostream&      oStream,
                                                       std::string const& iIndent,
                                                       boost::mpl::true_) {
     typedef typename RecordT::list_type list_type;
 
     typename boost::mpl::begin<list_type>::type const* begin(nullptr);
-    typename boost::mpl::end<list_type>::type const* end(nullptr);
+    typename boost::mpl::end<list_type>::type const*   end(nullptr);
     print_eventsetup_record_dependencies(oStream, iIndent, begin, end);
   }
 

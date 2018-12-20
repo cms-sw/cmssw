@@ -23,22 +23,22 @@ namespace edm {
   class ConsumesInfo {
   public:
     ConsumesInfo(TypeID const& iType,
-                 char const* iLabel,
-                 char const* iInstance,
-                 char const* iProcess,
-                 BranchType iBranchType,
-                 KindOfType iKindOfType,
-                 bool iAlwaysGets,
-                 bool iSkipCurrentProcess_);
+                 char const*   iLabel,
+                 char const*   iInstance,
+                 char const*   iProcess,
+                 BranchType    iBranchType,
+                 KindOfType    iKindOfType,
+                 bool          iAlwaysGets,
+                 bool          iSkipCurrentProcess_);
 
-    TypeID const& type() const { return type_; }
+    TypeID const&      type() const { return type_; }
     std::string const& label() const { return label_; }
     std::string const& instance() const { return instance_; }
     std::string const& process() const { return process_; }
-    BranchType branchType() const { return branchType_; }
-    KindOfType kindOfType() const { return kindOfType_; }
-    bool alwaysGets() const { return alwaysGets_; }
-    bool skipCurrentProcess() const { return skipCurrentProcess_; }
+    BranchType         branchType() const { return branchType_; }
+    KindOfType         kindOfType() const { return kindOfType_; }
+    bool               alwaysGets() const { return alwaysGets_; }
+    bool               skipCurrentProcess() const { return skipCurrentProcess_; }
 
     // This provides information from EDConsumerBase
     // There a couple cases that need explanation.
@@ -51,14 +51,14 @@ namespace edm {
     //    from and it is possible for this to vary from event to event)
 
   private:
-    TypeID type_;
+    TypeID      type_;
     std::string label_;
     std::string instance_;
     std::string process_;
-    BranchType branchType_;
-    KindOfType kindOfType_;
-    bool alwaysGets_;
-    bool skipCurrentProcess_;
+    BranchType  branchType_;
+    KindOfType  kindOfType_;
+    bool        alwaysGets_;
+    bool        skipCurrentProcess_;
   };
 }  // namespace edm
 #endif

@@ -13,7 +13,7 @@ namespace edm {
     class EventSetupsController;
 
     std::unique_ptr<EventSetupProvider> makeEventSetupProvider(ParameterSet const& params,
-                                                               unsigned subProcessIndex,
+                                                               unsigned            subProcessIndex,
                                                                ActivityRegistry*);
 
     void fillEventSetupProvider(EventSetupsController& esController, EventSetupProvider& cp, ParameterSet& params);

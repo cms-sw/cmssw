@@ -52,8 +52,8 @@ namespace edm {
       EDProducerBase();
       ~EDProducerBase() override;
 
-      static void fillDescriptions(ConfigurationDescriptions& descriptions);
-      static void prevalidate(ConfigurationDescriptions& descriptions);
+      static void               fillDescriptions(ConfigurationDescriptions& descriptions);
+      static void               prevalidate(ConfigurationDescriptions& descriptions);
       static const std::string& baseType();
 
       // Warning: the returned moduleDescription will be invalid during construction
@@ -78,9 +78,9 @@ namespace edm {
 
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) { moduleDescriptionPtr_ = iDesc; }
       // ---------- member data --------------------------------
-      std::vector<BranchID> previousParentage_;
-      std::vector<BranchID> gotBranchIDsFromAcquire_;
-      ParentageID previousParentageId_;
+      std::vector<BranchID>    previousParentage_;
+      std::vector<BranchID>    gotBranchIDsFromAcquire_;
+      ParentageID              previousParentageId_;
       ModuleDescription const* moduleDescriptionPtr_;
     };
 

@@ -46,11 +46,11 @@ namespace edm {
     template <class T>
     class ComponentMakerBase : public ComponentMakerBaseHelper {
     public:
-      typedef typename T::base_type base_type;
+      typedef typename T::base_type      base_type;
       virtual std::shared_ptr<base_type> addTo(EventSetupsController& esController,
-                                               EventSetupProvider& iProvider,
-                                               ParameterSet const& iConfiguration,
-                                               bool replaceExisting) const = 0;
+                                               EventSetupProvider&    iProvider,
+                                               ParameterSet const&    iConfiguration,
+                                               bool                   replaceExisting) const = 0;
     };
 
     template <class T, class TComponent>
@@ -62,9 +62,9 @@ namespace edm {
 
       // ---------- const member functions ---------------------
       std::shared_ptr<base_type> addTo(EventSetupsController& esController,
-                                       EventSetupProvider& iProvider,
-                                       ParameterSet const& iConfiguration,
-                                       bool replaceExisting) const override;
+                                       EventSetupProvider&    iProvider,
+                                       ParameterSet const&    iConfiguration,
+                                       bool                   replaceExisting) const override;
 
       // ---------- static member functions --------------------
 
@@ -94,9 +94,9 @@ namespace edm {
     template <class T, class TComponent>
     std::shared_ptr<typename ComponentMaker<T, TComponent>::base_type> ComponentMaker<T, TComponent>::addTo(
         EventSetupsController& esController,
-        EventSetupProvider& iProvider,
-        ParameterSet const& iConfiguration,
-        bool replaceExisting) const {
+        EventSetupProvider&    iProvider,
+        ParameterSet const&    iConfiguration,
+        bool                   replaceExisting) const {
       // This adds components to the EventSetupProvider for the process. It might
       // make a new component then add it or reuse a component from an earlier
       // SubProcess or the top level process and add that.
@@ -118,7 +118,7 @@ namespace edm {
       }
 
       std::shared_ptr<TComponent> component = std::make_shared<TComponent>(iConfiguration);
-      ComponentDescription description = this->createComponentDescription(iConfiguration);
+      ComponentDescription        description = this->createComponentDescription(iConfiguration);
 
       this->setDescription(component.get(), description);
       this->setDescriptionForFinder(component.get(), description);

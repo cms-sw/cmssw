@@ -10,7 +10,7 @@ namespace edm {
   template <>
   struct value_ptr_traits<ParameterSetDescription> {
     static ParameterSetDescription* clone(ParameterSetDescription const* p);
-    static void destroy(ParameterSetDescription* p);
+    static void                     destroy(ParameterSetDescription* p);
   };
 }  // namespace edm
 #endif

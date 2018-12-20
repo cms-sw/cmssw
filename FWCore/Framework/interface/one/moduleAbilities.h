@@ -29,17 +29,17 @@ namespace edm {
   namespace one {
     struct SharedResources {
       static constexpr module::Abilities kAbilities = module::Abilities::kOneSharedResources;
-      typedef module::Empty Type;
+      typedef module::Empty              Type;
     };
 
     struct WatchRuns {
       static constexpr module::Abilities kAbilities = module::Abilities::kOneWatchRuns;
-      typedef module::Empty Type;
+      typedef module::Empty              Type;
     };
 
     struct WatchLuminosityBlocks {
       static constexpr module::Abilities kAbilities = module::Abilities::kOneWatchLuminosityBlocks;
-      typedef module::Empty Type;
+      typedef module::Empty              Type;
     };
 
     template <typename... VArgs>

@@ -18,7 +18,7 @@ namespace edm {
     ~AllowedLabelsDescriptionBase() override;
 
     ParameterTypes type() const { return type_; }
-    bool isTracked() const { return isTracked_; }
+    bool           isTracked() const { return isTracked_; }
 
   protected:
     AllowedLabelsDescriptionBase(std::string const& label, ParameterTypes iType, bool isTracked);
@@ -28,7 +28,7 @@ namespace edm {
     void printNestedContentBase_(std::ostream& os, bool optional, DocFormatHelper& dfh) const;
 
   private:
-    void checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+    void checkAndGetLabelsAndTypes_(std::set<std::string>&    usedLabels,
                                     std::set<ParameterTypes>& parameterTypes,
                                     std::set<ParameterTypes>& wildcardTypes) const override;
 
@@ -48,13 +48,13 @@ namespace edm {
 
     int howManyXORSubNodesExist_(ParameterSet const& pset) const override;
 
-    virtual void validateAllowedLabel_(std::string const& allowedLabel,
-                                       ParameterSet& pset,
+    virtual void validateAllowedLabel_(std::string const&     allowedLabel,
+                                       ParameterSet&          pset,
                                        std::set<std::string>& validatedLabels) const = 0;
 
     ParameterDescription<std::vector<std::string> > parameterHoldingLabels_;
-    ParameterTypes type_;
-    bool isTracked_;
+    ParameterTypes                                  type_;
+    bool                                            isTracked_;
   };
 }  // namespace edm
 

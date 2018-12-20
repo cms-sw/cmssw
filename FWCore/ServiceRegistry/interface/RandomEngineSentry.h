@@ -65,10 +65,10 @@ namespace edm {
     }
 
     CLHEP::HepRandomEngine const* randomEngine() const { return get_underlying_safe(engine_); }
-    CLHEP::HepRandomEngine*& randomEngine() { return get_underlying_safe(engine_); }
+    CLHEP::HepRandomEngine*&      randomEngine() { return get_underlying_safe(engine_); }
 
   private:
-    edm::propagate_const<T*> t_;
+    edm::propagate_const<T*>                      t_;
     edm::propagate_const<CLHEP::HepRandomEngine*> engine_;
   };
 }  // namespace edm

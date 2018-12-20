@@ -35,12 +35,12 @@ namespace edm {
     ~ParameterDescriptionBase() override;
 
     std::string const& label() const { return label_; }
-    ParameterTypes type() const { return type_; }
-    bool isTracked() const { return isTracked_; }
-    bool hasDefault() const { return hasDefault_; }
+    ParameterTypes     type() const { return type_; }
+    bool               isTracked() const { return isTracked_; }
+    bool               hasDefault() const { return hasDefault_; }
 
     virtual ParameterSetDescription const* parameterSetDescription() const { return nullptr; }
-    virtual ParameterSetDescription* parameterSetDescription() { return nullptr; }
+    virtual ParameterSetDescription*       parameterSetDescription() { return nullptr; }
 
   protected:
     void throwParameterWrongTrackiness() const;
@@ -54,7 +54,7 @@ namespace edm {
         char const* iLabel, ParameterTypes iType, bool isTracked, bool hasDefault, Comment const& iComment);
 
   private:
-    void checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+    void checkAndGetLabelsAndTypes_(std::set<std::string>&    usedLabels,
                                     std::set<ParameterTypes>& parameterTypes,
                                     std::set<ParameterTypes>& wildcardTypes) const override;
 
@@ -81,10 +81,10 @@ namespace edm {
 
     virtual void insertDefault_(ParameterSet& pset) const = 0;
 
-    std::string label_;
+    std::string    label_;
     ParameterTypes type_;
-    bool isTracked_;
-    bool hasDefault_;
+    bool           isTracked_;
+    bool           hasDefault_;
   };
 }  // namespace edm
 #endif

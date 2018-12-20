@@ -39,7 +39,7 @@ namespace edm {
 
     template <typename T, typename TConcrete>
     struct MakerBase {
-      typedef T interface_t;
+      typedef T         interface_t;
       typedef TConcrete concrete_t;
     };
 
@@ -74,9 +74,9 @@ namespace edm {
       std::type_info const& serviceType() const override { return typeid(T); }
 
       bool make(ParameterSet const& iPS, ActivityRegistry& iAR, ServicesManager& oSM) const override {
-        TMaker maker;
+        TMaker             maker;
         std::unique_ptr<T> pService(maker.make(iPS, iAR));
-        auto ptr = std::make_shared<ServiceWrapper<T> >(std::move(pService));
+        auto               ptr = std::make_shared<ServiceWrapper<T> >(std::move(pService));
         return oSM.put(ptr);
       }
 

@@ -26,7 +26,7 @@
 // forward declarations
 namespace edmplugin {
   struct PluginInfo {
-    std::string name_;
+    std::string             name_;
     boost::filesystem::path loadable_;
   };
 }  // namespace edmplugin

@@ -43,12 +43,12 @@ namespace edm {
       template <typename... Args>
       Node(Node* iNext, Args&&... args);
       Node const* next() const { return next_; }
-      void setNext(Node* v) { next_ = v; }
-      T* address() { return &data_; }
+      void        setNext(Node* v) { next_ = v; }
+      T*          address() { return &data_; }
 
     private:
       Node* next_;
-      T data_;
+      T     data_;
     };
 
     std::atomic<Node*> front_;

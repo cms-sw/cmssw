@@ -64,15 +64,15 @@ namespace edm {
       bool hasAccumulator() const final { return T::HasAbility::kAccumulator; }
 
     private:
-      typedef CallGlobal<T> MyGlobal;
-      typedef CallGlobalRun<T> MyGlobalRun;
-      typedef CallGlobalRunSummary<T> MyGlobalRunSummary;
-      typedef CallBeginRunProduce<T> MyBeginRunProduce;
-      typedef CallEndRunProduce<T> MyEndRunProduce;
-      typedef CallGlobalLuminosityBlock<T> MyGlobalLuminosityBlock;
+      typedef CallGlobal<T>                       MyGlobal;
+      typedef CallGlobalRun<T>                    MyGlobalRun;
+      typedef CallGlobalRunSummary<T>             MyGlobalRunSummary;
+      typedef CallBeginRunProduce<T>              MyBeginRunProduce;
+      typedef CallEndRunProduce<T>                MyEndRunProduce;
+      typedef CallGlobalLuminosityBlock<T>        MyGlobalLuminosityBlock;
       typedef CallGlobalLuminosityBlockSummary<T> MyGlobalLuminosityBlockSummary;
-      typedef CallBeginLuminosityBlockProduce<T> MyBeginLuminosityBlockProduce;
-      typedef CallEndLuminosityBlockProduce<T> MyEndLuminosityBlockProduce;
+      typedef CallBeginLuminosityBlockProduce<T>  MyBeginLuminosityBlockProduce;
+      typedef CallEndLuminosityBlockProduce<T>    MyEndLuminosityBlockProduce;
 
       void setupStreamModules() final {
         this->createStreamModules([this]() -> M* {
@@ -90,7 +90,7 @@ namespace edm {
       void doEndJob() final { MyGlobal::endJob(m_global.get()); }
       void setupRun(M* iProd, RunIndex iIndex) final { MyGlobalRun::set(iProd, m_runs[iIndex].get()); }
       void streamEndRunSummary(M* iProd, edm::Run const& iRun, edm::EventSetup const& iES) final {
-        auto s = m_runSummaries[iRun.index()].get();
+        auto                                        s = m_runSummaries[iRun.index()].get();
         std::lock_guard<decltype(m_runSummaryLock)> guard(m_runSummaryLock);
         MyGlobalRunSummary::streamEndRunSummary(iProd, iRun, iES, s);
       }
@@ -98,10 +98,10 @@ namespace edm {
       void setupLuminosityBlock(M* iProd, LuminosityBlockIndex iIndex) final {
         MyGlobalLuminosityBlock::set(iProd, m_lumis[iIndex].get());
       }
-      void streamEndLuminosityBlockSummary(M* iProd,
+      void streamEndLuminosityBlockSummary(M*                          iProd,
                                            edm::LuminosityBlock const& iLumi,
-                                           edm::EventSetup const& iES) final {
-        auto s = m_lumiSummaries[iLumi.index()].get();
+                                           edm::EventSetup const&      iES) final {
+        auto                                         s = m_lumiSummaries[iLumi.index()].get();
         std::lock_guard<decltype(m_lumiSummaryLock)> guard(m_lumiSummaryLock);
         MyGlobalLuminosityBlockSummary::streamEndLuminosityBlockSummary(iProd, iLumi, iES, s);
       }
@@ -112,7 +112,7 @@ namespace edm {
           r.setConsumer(this->consumer());
           r.setProducer(this->producer());
           Run const& cnstR = r;
-          RunIndex ri = rp.index();
+          RunIndex   ri = rp.index();
           MyGlobalRun::beginRun(cnstR, c, m_global.get(), m_runs[ri]);
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
           MyGlobalRunSummary::beginRun(cnstR, c, &rc, m_runSummaries[ri]);
@@ -128,7 +128,7 @@ namespace edm {
           r.setConsumer(this->consumer());
           r.setProducer(this->producer());
 
-          RunIndex ri = rp.index();
+          RunIndex               ri = rp.index();
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
           if (T::HasAbility::kEndRunProducer) {
             MyEndRunProduce::produce(r, c, &rc, m_runSummaries[ri].get());
@@ -140,16 +140,16 @@ namespace edm {
       }
 
       void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                  EventSetup const& c,
-                                  ModuleCallingContext const* mcc) final {
+                                  EventSetup const&               c,
+                                  ModuleCallingContext const*     mcc) final {
         if (T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or
             T::HasAbility::kBeginLuminosityBlockProducer) {
           LuminosityBlock lb(lbp, this->moduleDescription(), mcc, false);
           lb.setConsumer(this->consumer());
           lb.setProducer(this->producer());
           LuminosityBlock const& cnstLb = lb;
-          LuminosityBlockIndex li = lbp.index();
-          RunIndex ri = lbp.runPrincipal().index();
+          LuminosityBlockIndex   li = lbp.index();
+          RunIndex               ri = lbp.runPrincipal().index();
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
           MyGlobalLuminosityBlock::beginLuminosityBlock(cnstLb, c, &rc, m_lumis[li]);
           typename T::LuminosityBlockContext lc(m_lumis[li].get(), m_runs[ri].get(), m_global.get());
@@ -161,16 +161,16 @@ namespace edm {
         }
       }
       void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                EventSetup const& c,
-                                ModuleCallingContext const* mcc) final {
+                                EventSetup const&               c,
+                                ModuleCallingContext const*     mcc) final {
         if (T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or
             T::HasAbility::kEndLuminosityBlockProducer) {
           LuminosityBlock lb(lbp, this->moduleDescription(), mcc, true);
           lb.setConsumer(this->consumer());
           lb.setProducer(this->producer());
 
-          LuminosityBlockIndex li = lbp.index();
-          RunIndex ri = lbp.runPrincipal().index();
+          LuminosityBlockIndex               li = lbp.index();
+          RunIndex                           ri = lbp.runPrincipal().index();
           typename T::LuminosityBlockContext lc(m_lumis[li].get(), m_runs[ri].get(), m_global.get());
           if (T::HasAbility::kEndLuminosityBlockProducer) {
             MyEndLuminosityBlockProduce::produce(lb, c, &lc, m_lumiSummaries[li].get());
@@ -186,14 +186,14 @@ namespace edm {
       const ProducingModuleAdaptor& operator=(const ProducingModuleAdaptor&) = delete;  // stop default
 
       // ---------- member data --------------------------------
-      typename impl::choose_unique_ptr<typename T::GlobalCache>::type m_global;
-      typename impl::choose_shared_vec<typename T::RunCache const>::type m_runs;
-      typename impl::choose_shared_vec<typename T::LuminosityBlockCache const>::type m_lumis;
-      typename impl::choose_shared_vec<typename T::RunSummaryCache>::type m_runSummaries;
-      typename impl::choose_mutex<typename T::RunSummaryCache>::type m_runSummaryLock;
+      typename impl::choose_unique_ptr<typename T::GlobalCache>::type                 m_global;
+      typename impl::choose_shared_vec<typename T::RunCache const>::type              m_runs;
+      typename impl::choose_shared_vec<typename T::LuminosityBlockCache const>::type  m_lumis;
+      typename impl::choose_shared_vec<typename T::RunSummaryCache>::type             m_runSummaries;
+      typename impl::choose_mutex<typename T::RunSummaryCache>::type                  m_runSummaryLock;
       typename impl::choose_shared_vec<typename T::LuminosityBlockSummaryCache>::type m_lumiSummaries;
-      typename impl::choose_mutex<typename T::LuminosityBlockSummaryCache>::type m_lumiSummaryLock;
-      ParameterSet const* m_pset;
+      typename impl::choose_mutex<typename T::LuminosityBlockSummaryCache>::type      m_lumiSummaryLock;
+      ParameterSet const*                                                             m_pset;
     };
   }  // namespace stream
 }  // namespace edm

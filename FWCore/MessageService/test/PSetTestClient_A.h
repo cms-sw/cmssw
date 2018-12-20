@@ -24,8 +24,8 @@ namespace edmtest {
   private:
     edm::ParameterSet a;
     edm::ParameterSet b;
-    int xa;
-    int xb;
+    int               xa;
+    int               xb;
   };
 
 }  // namespace edmtest

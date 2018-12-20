@@ -43,7 +43,7 @@ namespace edm {
       template <>
       struct OptionalSerialTaskQueueHolder<true> {
         edm::SerialTaskQueue* queue() { return &queue_; }
-        edm::SerialTaskQueue queue_;
+        edm::SerialTaskQueue  queue_;
       };
 
       template <>
@@ -67,7 +67,7 @@ namespace edm {
 
       private:
         SharedResourcesAcquirer createAcquirer() override;
-        std::set<std::string> resourceNames_;
+        std::set<std::string>   resourceNames_;
       };
 
       template <typename T>
@@ -167,7 +167,7 @@ namespace edm {
         ~RunCacheHolder() noexcept(false) override{};
 
       protected:
-        C* runCache(edm::RunIndex iID) { return cache_.get(); }
+        C*       runCache(edm::RunIndex iID) { return cache_.get(); }
         C const* runCache(edm::RunIndex iID) const { return cache_.get(); }
 
       private:
@@ -178,7 +178,7 @@ namespace edm {
         }
 
         virtual std::shared_ptr<C> globalBeginRun(edm::Run const&, edm::EventSetup const&) const = 0;
-        virtual void globalEndRun(edm::Run const&, edm::EventSetup const&) = 0;
+        virtual void               globalEndRun(edm::Run const&, edm::EventSetup const&) = 0;
         // When threaded we will have a container for N items whre N is # of simultaneous runs
         edm::propagate_const<std::shared_ptr<C>> cache_;
       };
@@ -195,7 +195,7 @@ namespace edm {
         void preallocLumis(unsigned int iNLumis) final { caches_.reset(new std::shared_ptr<C>[iNLumis]); }
 
         C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return caches_[iID].get(); }
-        C* luminosityBlockCache(edm::LuminosityBlockIndex iID) { return caches_[iID].get(); }
+        C*       luminosityBlockCache(edm::LuminosityBlockIndex iID) { return caches_[iID].get(); }
 
       private:
         void doBeginLuminosityBlock_(LuminosityBlock const& lp, EventSetup const& c) final {
@@ -208,7 +208,7 @@ namespace edm {
 
         virtual std::shared_ptr<C> globalBeginLuminosityBlock(edm::LuminosityBlock const&,
                                                               edm::EventSetup const&) const = 0;
-        virtual void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
+        virtual void               globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
         std::unique_ptr<std::shared_ptr<C>[]> caches_;
       };
 

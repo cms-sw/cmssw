@@ -48,8 +48,8 @@ namespace edm {
       ProcInfo fetch() const;
 
     private:
-      double pg_size_;
-      int fd_;
+      double       pg_size_;
+      int          fd_;
       mutable char buf_[500];
     };
   }  // namespace service

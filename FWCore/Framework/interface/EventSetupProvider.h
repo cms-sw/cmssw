@@ -49,21 +49,21 @@ namespace edm {
 
     class EventSetupProvider {
     public:
-      typedef std::string RecordName;
-      typedef std::string DataType;
-      typedef std::string DataLabel;
-      typedef std::pair<DataType, DataLabel> DataKeyInfo;
-      typedef std::multimap<RecordName, DataKeyInfo> RecordToDataMap;
+      typedef std::string                                     RecordName;
+      typedef std::string                                     DataType;
+      typedef std::string                                     DataLabel;
+      typedef std::pair<DataType, DataLabel>                  DataKeyInfo;
+      typedef std::multimap<RecordName, DataKeyInfo>          RecordToDataMap;
       typedef std::map<ComponentDescription, RecordToDataMap> PreferredProviderInfo;
 
       EventSetupProvider(ActivityRegistry*,
-                         unsigned subProcessIndex = 0U,
+                         unsigned                     subProcessIndex = 0U,
                          PreferredProviderInfo const* iInfo = nullptr);
       virtual ~EventSetupProvider();
 
       // ---------- const member functions ---------------------
       std::set<ComponentDescription> proxyProviderDescriptions() const;
-      bool isWithinValidityInterval(IOVSyncValue const&) const;
+      bool                           isWithinValidityInterval(IOVSyncValue const&) const;
 
       // ---------- static member functions --------------------
 
@@ -88,15 +88,15 @@ namespace edm {
       void forceCacheClear();
 
       void checkESProducerSharing(
-          EventSetupProvider& precedingESProvider,
-          std::set<ParameterSetIDHolder>& sharingCheckDone,
+          EventSetupProvider&                                                       precedingESProvider,
+          std::set<ParameterSetIDHolder>&                                           sharingCheckDone,
           std::map<EventSetupRecordKey, std::vector<ComponentDescription const*> >& referencedESProducers,
-          EventSetupsController& esController);
+          EventSetupsController&                                                    esController);
 
-      bool doRecordsMatch(EventSetupProvider& precedingESProvider,
-                          EventSetupRecordKey const& eventSetupRecordKey,
+      bool doRecordsMatch(EventSetupProvider&                  precedingESProvider,
+                          EventSetupRecordKey const&           eventSetupRecordKey,
                           std::map<EventSetupRecordKey, bool>& allComponentsMatch,
-                          EventSetupsController const& esController);
+                          EventSetupsController const&         esController);
 
       void fillReferencedDataKeys(EventSetupRecordKey const& eventSetupRecordKey);
 
@@ -119,23 +119,23 @@ namespace edm {
       void insert(EventSetupRecordKey const&, std::unique_ptr<EventSetupRecordProvider>);
 
       // ---------- member data --------------------------------
-      EventSetup eventSetup_;
+      EventSetup                                                                        eventSetup_;
       typedef std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordProvider> > Providers;
-      Providers providers_;
-      std::unique_ptr<EventSetupKnownRecordsSupplier> knownRecordsSupplier_;
-      bool mustFinishConfiguration_;
-      unsigned subProcessIndex_;
+      Providers                                                                         providers_;
+      std::unique_ptr<EventSetupKnownRecordsSupplier>                                   knownRecordsSupplier_;
+      bool                                                                              mustFinishConfiguration_;
+      unsigned                                                                          subProcessIndex_;
 
       // The following are all used only during initialization and then cleared.
 
-      std::unique_ptr<PreferredProviderInfo> preferredProviderInfo_;
+      std::unique_ptr<PreferredProviderInfo>                                          preferredProviderInfo_;
       std::unique_ptr<std::vector<std::shared_ptr<EventSetupRecordIntervalFinder> > > finders_;
-      std::unique_ptr<std::vector<std::shared_ptr<DataProxyProvider> > > dataProviders_;
+      std::unique_ptr<std::vector<std::shared_ptr<DataProxyProvider> > >              dataProviders_;
       std::unique_ptr<std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription const*> > >
           referencedDataKeys_;
       std::unique_ptr<std::map<EventSetupRecordKey, std::vector<std::shared_ptr<EventSetupRecordIntervalFinder> > > >
-          recordToFinders_;
-      std::unique_ptr<std::map<ParameterSetIDHolder, std::set<EventSetupRecordKey> > > psetIDToRecordKey_;
+                                                                                                recordToFinders_;
+      std::unique_ptr<std::map<ParameterSetIDHolder, std::set<EventSetupRecordKey> > >          psetIDToRecordKey_;
       std::unique_ptr<std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription> > > recordToPreferred_;
       std::unique_ptr<std::set<EventSetupRecordKey> > recordsWithALooperProxy_;
     };

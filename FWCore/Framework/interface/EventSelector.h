@@ -48,10 +48,10 @@ namespace edm {
 
     // 29-Jan-2008, KAB - added methods for testing and using
     // trigger selections (pathspecs).
-    static bool selectionIsValid(Strings const& pathspec, Strings const& fullPathList);
-    static evtSel::OverlapResult testSelectionOverlap(Strings const& pathspec1,
-                                                      Strings const& pathspec2,
-                                                      Strings const& fullPathList);
+    static bool                     selectionIsValid(Strings const& pathspec, Strings const& fullPathList);
+    static evtSel::OverlapResult    testSelectionOverlap(Strings const& pathspec1,
+                                                         Strings const& pathspec2,
+                                                         Strings const& fullPathList);
     std::shared_ptr<TriggerResults> maskTriggerResults(TriggerResults const& inputResults);
     static std::vector<std::string> getEventSelectionVString(edm::ParameterSet const& pset);
 
@@ -63,21 +63,21 @@ namespace edm {
       BitInfo() : pos_(), accept_state_() {}
 
       unsigned int pos_;
-      bool accept_state_;
+      bool         accept_state_;
     };
 
     // These three data members never change after being initialized.
     Strings const pathspecs_;
-    bool const results_from_current_process_;
-    bool const accept_all_;
+    bool const    results_from_current_process_;
+    bool const    accept_all_;
 
     typedef std::vector<BitInfo> Bits;
 
-    Bits absolute_acceptors_;               // change 3
-    Bits conditional_acceptors_;            // change 3
-    Bits exception_acceptors_;              // change 3
-    std::vector<Bits> all_must_fail_;       // change 1
-    std::vector<Bits> all_must_fail_noex_;  // change 3
+    Bits              absolute_acceptors_;     // change 3
+    Bits              conditional_acceptors_;  // change 3
+    Bits              exception_acceptors_;    // change 3
+    std::vector<Bits> all_must_fail_;          // change 1
+    std::vector<Bits> all_must_fail_noex_;     // change 3
 
     ParameterSetID psetID_;
 
@@ -100,14 +100,14 @@ namespace edm {
 
     bool selectionDecision(HLTGlobalStatus const& tr) const;
 
-    static std::string glob2reg(std::string const& s);
+    static std::string                          glob2reg(std::string const& s);
     static std::vector<Strings::const_iterator> matching_triggers(Strings const& trigs, std::string const& s);
 
-    static bool identical(std::vector<bool> const& a, std::vector<bool> const& b);
-    static bool identical(EventSelector const& a, EventSelector const& b, unsigned int N);
+    static bool              identical(std::vector<bool> const& a, std::vector<bool> const& b);
+    static bool              identical(EventSelector const& a, EventSelector const& b, unsigned int N);
     static std::vector<bool> expandDecisionList(Bits const& b, bool PassOrFail, unsigned int n);
-    static bool overlapping(std::vector<bool> const& a, std::vector<bool> const& b);
-    static bool subset(std::vector<bool> const& a, std::vector<bool> const& b);
+    static bool              overlapping(std::vector<bool> const& a, std::vector<bool> const& b);
+    static bool              subset(std::vector<bool> const& a, std::vector<bool> const& b);
     static std::vector<bool> combine(std::vector<bool> const& a, std::vector<bool> const& b);
   };
 }  // namespace edm

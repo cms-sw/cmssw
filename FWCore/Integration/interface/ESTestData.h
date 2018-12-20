@@ -6,7 +6,7 @@ namespace edmtest {
   class ESTestDataA {
   public:
     ESTestDataA(int v) { value_ = v; }
-    int& value() { return value_; }
+    int&       value() { return value_; }
     int const& value() const { return value_; }
 
   private:
@@ -16,7 +16,7 @@ namespace edmtest {
   class ESTestDataB {
   public:
     ESTestDataB(int v = 0, int w = 0) { value_ = v + w; }
-    int& value() { return value_; }
+    int&       value() { return value_; }
     int const& value() const { return value_; }
 
   private:
@@ -26,7 +26,7 @@ namespace edmtest {
   class ESTestDataC {
   public:
     ESTestDataC(int v) { value_ = v; }
-    int& value() { return value_; }
+    int&       value() { return value_; }
     int const& value() const { return value_; }
 
   private:
@@ -36,7 +36,7 @@ namespace edmtest {
   class ESTestDataD {
   public:
     ESTestDataD(int v) { value_ = v; }
-    int& value() { return value_; }
+    int&       value() { return value_; }
     int const& value() const { return value_; }
 
   private:
@@ -46,7 +46,7 @@ namespace edmtest {
   class ESTestDataE {
   public:
     ESTestDataE(int v) { value_ = v; }
-    int& value() { return value_; }
+    int&       value() { return value_; }
     int const& value() const { return value_; }
 
   private:
@@ -56,7 +56,7 @@ namespace edmtest {
   class ESTestDataF {
   public:
     ESTestDataF(int v) { value_ = v; }
-    int& value() { return value_; }
+    int&       value() { return value_; }
     int const& value() const { return value_; }
 
   private:
@@ -66,7 +66,7 @@ namespace edmtest {
   class ESTestDataG {
   public:
     ESTestDataG(int v) { value_ = v; }
-    int& value() { return value_; }
+    int&       value() { return value_; }
     int const& value() const { return value_; }
 
   private:
@@ -76,7 +76,7 @@ namespace edmtest {
   class ESTestDataH {
   public:
     ESTestDataH(int v) { value_ = v; }
-    int& value() { return value_; }
+    int&       value() { return value_; }
     int const& value() const { return value_; }
 
   private:
@@ -86,7 +86,7 @@ namespace edmtest {
   class ESTestDataI {
   public:
     ESTestDataI(int v) { value_ = v; }
-    int& value() { return value_; }
+    int&       value() { return value_; }
     int const& value() const { return value_; }
 
   private:
@@ -96,7 +96,7 @@ namespace edmtest {
   class ESTestDataJ {
   public:
     ESTestDataJ(int v) { value_ = v; }
-    int& value() { return value_; }
+    int&       value() { return value_; }
     int const& value() const { return value_; }
 
   private:
@@ -106,7 +106,7 @@ namespace edmtest {
   class ESTestDataK {
   public:
     ESTestDataK(int v) { value_ = v; }
-    int& value() { return value_; }
+    int&       value() { return value_; }
     int const& value() const { return value_; }
 
   private:
@@ -116,7 +116,7 @@ namespace edmtest {
   class ESTestDataZ {
   public:
     ESTestDataZ(int v) { value_ = v; }
-    int& value() { return value_; }
+    int&       value() { return value_; }
     int const& value() const { return value_; }
 
   private:

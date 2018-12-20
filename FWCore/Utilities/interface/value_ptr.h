@@ -49,7 +49,7 @@ namespace edm {
 
   template <typename T>
   struct value_ptr_traits {
-    static T* clone(T const* p) { return new T(*p); }
+    static T*   clone(T const* p) { return new T(*p); }
     static void destroy(T* p) { delete p; }
   };
 
@@ -102,9 +102,9 @@ namespace edm {
     // --------------------------------------------------
 
     T const& operator*() const { return *myP; }
-    T& operator*() { return *myP; }
+    T&       operator*() { return *myP; }
     T const* operator->() const { return get_underlying_safe(myP); }
-    T* operator->() { return get_underlying_safe(myP); }
+    T*       operator->() { return get_underlying_safe(myP); }
 
     // --------------------------------------------------
     // Manipulation:

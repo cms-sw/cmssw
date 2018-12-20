@@ -72,7 +72,7 @@ namespace edm::eventsetup {
     // ---------- member data --------------------------------
     TypeTag type_{};
     NameTag name_{};
-    bool ownMemory_{false};
+    bool    ownMemory_{false};
   };
 
   // Free swap function

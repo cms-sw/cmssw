@@ -31,12 +31,12 @@ namespace edm {
 
     template <typename T>
     size_t loopOverEvents(EventPrincipal& cache,
-                          size_t& fileNameHash,
-                          size_t number,
-                          T eventOperator,
+                          size_t&         fileNameHash,
+                          size_t          number,
+                          T               eventOperator,
                           CLHEP::HepRandomEngine* = nullptr,
                           EventID const* id = nullptr,
-                          bool recycleFiles = true);
+                          bool           recycleFiles = true);
 
     template <typename T, typename Iterator>
     size_t loopSpecified(
@@ -51,10 +51,10 @@ namespace edm {
     void doEndJob();
 
     std::shared_ptr<ProductRegistry const> productRegistry() const { return get_underlying_safe(productRegistry_); }
-    std::shared_ptr<ProductRegistry>& productRegistry() { return get_underlying_safe(productRegistry_); }
-    ProductRegistry& productRegistryUpdate() { return *productRegistry_; }
-    ProcessHistoryRegistry const& processHistoryRegistry() const { return *processHistoryRegistry_; }
-    ProcessHistoryRegistry& processHistoryRegistryForUpdate() { return *processHistoryRegistry_; }
+    std::shared_ptr<ProductRegistry>&      productRegistry() { return get_underlying_safe(productRegistry_); }
+    ProductRegistry&                       productRegistryUpdate() { return *productRegistry_; }
+    ProcessHistoryRegistry const&          processHistoryRegistry() const { return *processHistoryRegistry_; }
+    ProcessHistoryRegistry&                processHistoryRegistryForUpdate() { return *processHistoryRegistry_; }
 
   private:
     void clearEventPrincipal(EventPrincipal& cache);
@@ -62,10 +62,10 @@ namespace edm {
   private:
     virtual bool readOneEvent(
         EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id, bool recycleFiles) = 0;
-    virtual void readOneSpecified(EventPrincipal& cache,
-                                  size_t& fileNameHash,
+    virtual void readOneSpecified(EventPrincipal&                    cache,
+                                  size_t&                            fileNameHash,
                                   SecondaryEventIDAndFileInfo const& event) = 0;
-    void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, EventID const& event) {
+    void         readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, EventID const& event) {
       SecondaryEventIDAndFileInfo info(event, fileNameHash);
       readOneSpecified(cache, fileNameHash, info);
     }
@@ -74,18 +74,18 @@ namespace edm {
     virtual void beginJob() = 0;
     virtual void endJob() = 0;
 
-    edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
+    edm::propagate_const<std::shared_ptr<ProductRegistry>>        productRegistry_;
     edm::propagate_const<std::unique_ptr<ProcessHistoryRegistry>> processHistoryRegistry_;
   };
 
   template <typename T>
-  size_t VectorInputSource::loopOverEvents(EventPrincipal& cache,
-                                           size_t& fileNameHash,
-                                           size_t number,
-                                           T eventOperator,
+  size_t VectorInputSource::loopOverEvents(EventPrincipal&         cache,
+                                           size_t&                 fileNameHash,
+                                           size_t                  number,
+                                           T                       eventOperator,
                                            CLHEP::HepRandomEngine* engine,
-                                           EventID const* id,
-                                           bool recycleFiles) {
+                                           EventID const*          id,
+                                           bool                    recycleFiles) {
     size_t i = 0U;
     for (; i < number; ++i) {
       clearEventPrincipal(cache);

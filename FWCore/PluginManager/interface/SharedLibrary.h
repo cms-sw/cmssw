@@ -32,7 +32,7 @@ namespace edmplugin {
     ~SharedLibrary();
 
     // ---------- const member functions ---------------------
-    bool symbol(const std::string& iSymbolName, void*& iSymbol) const;
+    bool                           symbol(const std::string& iSymbolName, void*& iSymbol) const;
     const boost::filesystem::path& path() const { return path_; }
 
     // ---------- static member functions --------------------
@@ -45,7 +45,7 @@ namespace edmplugin {
     const SharedLibrary& operator=(const SharedLibrary&) = delete;  // stop default
 
     // ---------- member data --------------------------------
-    void* libraryHandle_;
+    void*                   libraryHandle_;
     boost::filesystem::path path_;
   };
 

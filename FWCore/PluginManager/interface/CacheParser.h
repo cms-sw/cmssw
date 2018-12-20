@@ -40,8 +40,8 @@ namespace edmplugin {
   class CacheParser {
   public:
     typedef std::map<std::string, std::vector<PluginInfo> > CategoryToInfos;
-    typedef std::pair<std::string, std::string> NameAndType;
-    typedef std::vector<NameAndType> NameAndTypes;
+    typedef std::pair<std::string, std::string>             NameAndType;
+    typedef std::vector<NameAndType>                        NameAndTypes;
     typedef std::map<boost::filesystem::path, NameAndTypes> LoadableToPlugins;
 
     // ---------- const member functions ---------------------
@@ -66,11 +66,11 @@ namespace edmplugin {
 
     const CacheParser& operator=(const CacheParser&) = delete;  // stop default
 
-    static bool readline(std::istream& iIn,
-                         const boost::filesystem::path& iDirectory,
-                         unsigned long iRecordNumber,
-                         PluginInfo& oInfo,
-                         std::string& oPluginType);
+    static bool         readline(std::istream&                  iIn,
+                                 const boost::filesystem::path& iDirectory,
+                                 unsigned long                  iRecordNumber,
+                                 PluginInfo&                    oInfo,
+                                 std::string&                   oPluginType);
     static std::string& replaceSpaces(std::string& io);
     static std::string& restoreSpaces(std::string& io);
 

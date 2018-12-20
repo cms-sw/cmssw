@@ -101,9 +101,9 @@ namespace edm {
 
     private:
       // --- convenience typedefs
-      typedef std::string String;
+      typedef std::string         String;
       typedef std::vector<String> vString;
-      typedef ParameterSet PSet;
+      typedef ParameterSet        PSet;
 
       // --- log one consumed message
       void log(ErrorObj* errorobj_p);
@@ -164,7 +164,7 @@ namespace edm {
 #else  // Do not tolerate errors
       template <class T>
       T getAparameter(PSet const& p, std::string const& id, T const& def) {  // changelog 7
-        T t;
+        Tt;
         try {
           t = p.template getUntrackedParameter<T>(id, def);
         } catch (cms::Exception& e) {
@@ -204,22 +204,22 @@ namespace edm {
       void parseCategories(std::string const& s, std::vector<std::string>& cats);
 
       // --- data:
-      edm::propagate_const<std::shared_ptr<ELadministrator>> admin_p;
-      std::shared_ptr<ELdestination> early_dest;
+      edm::propagate_const<std::shared_ptr<ELadministrator>>            admin_p;
+      std::shared_ptr<ELdestination>                                    early_dest;
       std::vector<edm::propagate_const<std::shared_ptr<std::ofstream>>> file_ps;
-      edm::propagate_const<std::shared_ptr<PSet>> job_pset_p;
-      std::map<String, edm::propagate_const<std::ostream*>> stream_ps;
-      std::vector<String> ordinary_destination_filenames;
-      std::vector<std::shared_ptr<ELstatistics>> statisticsDestControls;
-      std::vector<bool> statisticsResets;
-      bool clean_slate_configuration;
-      value_ptr<MessageLoggerDefaults> messageLoggerDefaults;
-      bool active;
-      bool singleThread;                                           // changeLog 9
-      bool done;                                                   // changeLog 9
-      bool purge_mode;                                             // changeLog 9
-      int count;                                                   // changeLog 9
-      edm::propagate_const<std::shared_ptr<ThreadQueue>> m_queue;  // changeLog 12
+      edm::propagate_const<std::shared_ptr<PSet>>                       job_pset_p;
+      std::map<String, edm::propagate_const<std::ostream*>>             stream_ps;
+      std::vector<String>                                               ordinary_destination_filenames;
+      std::vector<std::shared_ptr<ELstatistics>>                        statisticsDestControls;
+      std::vector<bool>                                                 statisticsResets;
+      bool                                                              clean_slate_configuration;
+      value_ptr<MessageLoggerDefaults>                                  messageLoggerDefaults;
+      bool                                                              active;
+      bool                                                              singleThread;  // changeLog 9
+      bool                                                              done;          // changeLog 9
+      bool                                                              purge_mode;    // changeLog 9
+      int                                                               count;         // changeLog 9
+      edm::propagate_const<std::shared_ptr<ThreadQueue>>                m_queue;       // changeLog 12
 
     };  // MessageLoggerScribe
 

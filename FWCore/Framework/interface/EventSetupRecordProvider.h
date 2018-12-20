@@ -51,11 +51,11 @@ namespace edm {
 
       // ---------- const member functions ---------------------
 
-      ValidityInterval const& validityInterval() const { return validityInterval_; }
+      ValidityInterval const&    validityInterval() const { return validityInterval_; }
       EventSetupRecordKey const& key() const { return key_; }
 
       EventSetupRecordImpl const& record() const { return record_; }
-      EventSetupRecordImpl& record() { return record_; }
+      EventSetupRecordImpl&       record() { return record_; }
 
       /// Returns the list of Records the provided Record depends on (usually none)
       std::set<EventSetupRecordKey> dependentRecords() const;
@@ -97,7 +97,7 @@ namespace edm {
       void resetProxies();
 
       std::shared_ptr<EventSetupRecordIntervalFinder const> finder() const { return get_underlying_safe(finder_); }
-      std::shared_ptr<EventSetupRecordIntervalFinder>& finder() { return get_underlying_safe(finder_); }
+      std::shared_ptr<EventSetupRecordIntervalFinder>&      finder() { return get_underlying_safe(finder_); }
 
       void getReferencedESProducers(
           std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers);
@@ -108,7 +108,7 @@ namespace edm {
 
     protected:
       void addProxiesToRecordHelper(edm::propagate_const<std::shared_ptr<DataProxyProvider>>& dpp,
-                                    DataToPreferredProviderMap const& mp) {
+                                    DataToPreferredProviderMap const&                         mp) {
         addProxiesToRecord(get_underlying_safe(dpp), mp);
       }
       void addProxiesToRecord(std::shared_ptr<DataProxyProvider>, DataToPreferredProviderMap const&);
@@ -127,13 +127,13 @@ namespace edm {
       void resetTransients();
       bool checkResetTransients();
       // ---------- member data --------------------------------
-      EventSetupRecordImpl record_;
-      EventSetupRecordKey const key_;
-      ValidityInterval validityInterval_;
+      EventSetupRecordImpl                                                  record_;
+      EventSetupRecordKey const                                             key_;
+      ValidityInterval                                                      validityInterval_;
       edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> finder_;
       std::vector<edm::propagate_const<std::shared_ptr<DataProxyProvider>>> providers_;
       std::unique_ptr<std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>>
-          multipleFinders_;
+           multipleFinders_;
       bool lastSyncWasBeginOfRun_;
     };
   }  // namespace eventsetup

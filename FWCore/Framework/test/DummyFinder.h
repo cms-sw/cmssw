@@ -35,7 +35,7 @@ public:
 protected:
   virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                               const edm::IOVSyncValue& iTime,
-                              edm::ValidityInterval& iInterval) {
+                              edm::ValidityInterval&   iInterval) {
     if (interval_.validFor(iTime)) {
       iInterval = interval_;
     } else {

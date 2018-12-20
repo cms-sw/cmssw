@@ -60,10 +60,10 @@ namespace edm {
 
       // ---------- member data --------------------------------
       typedef std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordProvider>>> Providers;
-      Providers providers_;
+      Providers                                                                            providers_;
 
       edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> alternate_;
-      std::vector<ValidityInterval> previousIOVs_;
+      std::vector<ValidityInterval>                                         previousIOVs_;
     };
 
   }  // namespace eventsetup

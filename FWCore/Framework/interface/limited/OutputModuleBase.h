@@ -89,15 +89,15 @@ namespace edm {
 
       bool selected(BranchDescription const& desc) const;
 
-      void selectProducts(ProductRegistry const& preg, ThinnedAssociationsHelper const&);
+      void               selectProducts(ProductRegistry const& preg, ThinnedAssociationsHelper const&);
       std::string const& processName() const { return process_name_; }
-      SelectedProductsForBranchType const& keptProducts() const { return keptProducts_; }
+      SelectedProductsForBranchType const&    keptProducts() const { return keptProducts_; }
       std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const { return hasNewlyDroppedBranch_; }
 
-      static void fillDescription(ParameterSetDescription& desc);
-      static void fillDescriptions(ConfigurationDescriptions& descriptions);
+      static void               fillDescription(ParameterSetDescription& desc);
+      static void               fillDescriptions(ConfigurationDescriptions& descriptions);
       static const std::string& baseType();
-      static void prevalidate(ConfigurationDescriptions&);
+      static void               prevalidate(ConfigurationDescriptions&);
 
       bool wantAllEvents() const { return wantAllEvents_; }
 
@@ -108,8 +108,8 @@ namespace edm {
       const ModuleDescription& moduleDescription() const { return moduleDescription_; }
 
       // Output modules always need writeRun and writeLumi to be called
-      bool wantsGlobalRuns() const { return true; }
-      bool wantsGlobalLuminosityBlocks() const { return true; }
+      bool         wantsGlobalRuns() const { return true; }
+      bool         wantsGlobalLuminosityBlocks() const { return true; }
       virtual bool wantsStreamRuns() const = 0;
       virtual bool wantsStreamLuminosityBlocks() const = 0;
 
@@ -131,31 +131,31 @@ namespace edm {
       void doEndStream(StreamID id);
       void doStreamBeginRun(StreamID id, RunPrincipal& ep, EventSetup const& c, ModuleCallingContext const*);
       void doStreamEndRun(StreamID id, RunPrincipal& ep, EventSetup const& c, ModuleCallingContext const*);
-      void doStreamBeginLuminosityBlock(StreamID id,
+      void doStreamBeginLuminosityBlock(StreamID                  id,
                                         LuminosityBlockPrincipal& ep,
-                                        EventSetup const& c,
+                                        EventSetup const&         c,
                                         ModuleCallingContext const*);
-      void doStreamEndLuminosityBlock(StreamID id,
+      void doStreamEndLuminosityBlock(StreamID                  id,
                                       LuminosityBlockPrincipal& ep,
-                                      EventSetup const& c,
+                                      EventSetup const&         c,
                                       ModuleCallingContext const*);
 
       bool doEvent(EventPrincipal const& ep, EventSetup const& c, ActivityRegistry*, ModuleCallingContext const*);
       // For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask*                iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,
-                                                    Principal const& iPrincipal) const {}
+                                                    Principal const&            iPrincipal) const {}
 
       bool doBeginRun(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const*);
       bool doEndRun(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const*);
       bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                  EventSetup const& c,
+                                  EventSetup const&               c,
                                   ModuleCallingContext const*);
       bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c, ModuleCallingContext const*);
 
       void setEventSelectionInfo(
           std::map<std::string, std::vector<std::pair<std::string, int>>> const& outputModulePathPositions,
-          bool anyProductProduced);
+          bool                                                                   anyProductProduced);
 
       void configure(OutputModuleDescription const& desc);
 
@@ -164,7 +164,7 @@ namespace edm {
       }
 
     private:
-      int maxEvents_;
+      int              maxEvents_;
       std::atomic<int> remainingEvents_;
 
       // TODO: Give OutputModule
@@ -182,17 +182,17 @@ namespace edm {
       // the branches we are to write.
       //
       // We do not own the BranchDescriptions to which we point.
-      SelectedProductsForBranchType keptProducts_;
+      SelectedProductsForBranchType    keptProducts_;
       std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
-      std::string process_name_;
+      std::string          process_name_;
       ProductSelectorRules productSelectorRules_;
-      ProductSelector productSelector_;
-      ModuleDescription moduleDescription_;
+      ProductSelector      productSelector_;
+      ModuleDescription    moduleDescription_;
 
-      bool wantAllEvents_;
+      bool                                                  wantAllEvents_;
       std::vector<detail::TriggerResultsBasedEventSelector> selectors_;
-      ParameterSet selectEvents_;
+      ParameterSet                                          selectEvents_;
       // ID of the ParameterSet that configured the event selector
       // subsystem.
       ParameterSetID selector_config_id_;
@@ -201,11 +201,11 @@ namespace edm {
       // filled in only if key and value are different.
       std::map<BranchID::value_type, BranchID::value_type> droppedBranchIDToKeptBranchID_;
       edm::propagate_const<std::unique_ptr<BranchIDLists>> branchIDLists_;
-      BranchIDLists const* origBranchIDLists_;
+      BranchIDLists const*                                 origBranchIDLists_;
 
       edm::propagate_const<std::unique_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
-      std::map<BranchID, bool> keepAssociation_;
-      LimitedTaskQueue queue_;
+      std::map<BranchID, bool>                                         keepAssociation_;
+      LimitedTaskQueue                                                 queue_;
 
       //------------------------------------------------------------------
       // private member functions
@@ -227,7 +227,7 @@ namespace edm {
 
       void registerProductsAndCallbacks(OutputModuleBase const*, ProductRegistry const*) {}
 
-      bool needToRunSelection() const;
+      bool                                        needToRunSelection() const;
       std::vector<ProductResolverIndexAndSkipBit> productsUsedBySelection() const;
       bool prePrefetchSelection(StreamID id, EventPrincipal const&, ModuleCallingContext const*);
 
@@ -274,9 +274,9 @@ namespace edm {
       bool hasAcquire() const { return false; }
       bool hasAccumulator() const { return false; }
 
-      void keepThisBranch(BranchDescription const& desc,
+      void keepThisBranch(BranchDescription const&                      desc,
                           std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
-                          std::set<BranchID>& keptProductsInEvent);
+                          std::set<BranchID>&                           keptProductsInEvent);
 
       void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
 

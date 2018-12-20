@@ -10,7 +10,7 @@ namespace edm {
     int operator()() { return value_; }
 
     const char* cvalue_;
-    int value_;
+    int         value_;
   };
 
   CMS_THREAD_SAFE extern debugvalue debugit;

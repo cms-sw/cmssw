@@ -23,7 +23,7 @@ namespace edmtest {
 
   private:
     double radius_;
-    alg_1 outer_alg_;
+    alg_1  outer_alg_;
   };
 }  // namespace edmtest
 #endif

@@ -86,12 +86,12 @@ namespace edm {
     void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
 
     typedef ProductLabels Labels;
-    void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
+    void                  labelsForToken(EDGetToken iToken, Labels& oLabels) const;
 
-    void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
-                                         ProductRegistry const& preg,
+    void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>&                 modules,
+                                         ProductRegistry const&                                 preg,
                                          std::map<std::string, ModuleDescription const*> const& labelsToDesc,
-                                         std::string const& processName) const;
+                                         std::string const&                                     processName) const;
 
     /// Convert "@currentProcess" in InputTag process names to the actual current process name.
     void convertCurrentProcessAlias(std::string const& processName);
@@ -176,19 +176,19 @@ namespace edm {
     struct TokenLookupInfo {
       TokenLookupInfo(edm::TypeID const& iID, ProductResolverIndex iIndex, bool skipCurrentProcess, BranchType iBranch)
           : m_type(iID), m_index(iIndex, skipCurrentProcess), m_branchType(iBranch) {}
-      edm::TypeID m_type;
+      edm::TypeID                    m_type;
       ProductResolverIndexAndSkipBit m_index;
-      BranchType m_branchType;
+      BranchType                     m_branchType;
     };
 
     struct LabelPlacement {
-      LabelPlacement(unsigned int iStartOfModuleLabel,
+      LabelPlacement(unsigned int   iStartOfModuleLabel,
                      unsigned short iDeltaToProductInstance,
                      unsigned short iDeltaToProcessName)
           : m_startOfModuleLabel(iStartOfModuleLabel),
             m_deltaToProductInstance(iDeltaToProductInstance),
             m_deltaToProcessName(iDeltaToProcessName) {}
-      unsigned int m_startOfModuleLabel;
+      unsigned int   m_startOfModuleLabel;
       unsigned short m_deltaToProductInstance;
       unsigned short m_deltaToProcessName;
     };

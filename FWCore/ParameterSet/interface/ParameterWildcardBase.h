@@ -20,8 +20,8 @@ namespace edm {
   public:
     ~ParameterWildcardBase() override;
 
-    ParameterTypes type() const { return type_; }
-    bool isTracked() const { return isTracked_; }
+    ParameterTypes             type() const { return type_; }
+    bool                       isTracked() const { return isTracked_; }
     WildcardValidationCriteria criteria() const { return criteria_; }
 
   protected:
@@ -31,11 +31,11 @@ namespace edm {
     void throwIfInvalidPattern(std::string const& pattern) const;
 
     void validateMatchingNames(std::vector<std::string> const& matchingNames,
-                               std::set<std::string>& validatedLabels,
-                               bool optional) const;
+                               std::set<std::string>&          validatedLabels,
+                               bool                            optional) const;
 
   private:
-    void checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+    void checkAndGetLabelsAndTypes_(std::set<std::string>&    usedLabels,
                                     std::set<ParameterTypes>& parameterTypes,
                                     std::set<ParameterTypes>& wildcardTypes) const override;
 
@@ -47,8 +47,8 @@ namespace edm {
 
     int howManyXORSubNodesExist_(ParameterSet const& pset) const override;
 
-    ParameterTypes type_;
-    bool isTracked_;
+    ParameterTypes             type_;
+    bool                       isTracked_;
     WildcardValidationCriteria criteria_;
 
     // In the future we may want to add a string for the label if

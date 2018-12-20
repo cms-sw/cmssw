@@ -13,7 +13,7 @@ AlignAfterOpenBracket: Align
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 BinPackParameters: false
-#AlignConsecutiveDeclarations: true
+AlignConsecutiveDeclarations: true
 #above are changes from CMSSW core sw meeting discussions (last 171128)
 
 #things unchanged

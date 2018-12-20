@@ -82,9 +82,9 @@ namespace edm {
 
     using ModuleToResolverIndicies =
         std::unordered_multimap<std::string, std::tuple<edm::TypeID const*, const char*, edm::ProductResolverIndex>>;
-    void resolvePutIndicies(BranchType iBranchType,
+    void resolvePutIndicies(BranchType                      iBranchType,
                             ModuleToResolverIndicies const& iIndicies,
-                            std::string const& moduleLabel);
+                            std::string const&              moduleLabel);
 
     std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const {
       return putIndicies_[iBranchType];
@@ -117,9 +117,9 @@ namespace edm {
       iPrincipal.commit_(putIndicies_[producerbasehelper::PrincipalTraits<P>::kBranchType], iID);
     }
 
-    std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
+    std::function<void(BranchDescription const&)>                           callWhenNewProductsRegistered_;
     std::array<std::vector<edm::ProductResolverIndex>, edm::NumBranchTypes> putIndicies_;
-    std::vector<edm::ProductResolverIndex> putTokenToResolverIndex_;
+    std::vector<edm::ProductResolverIndex>                                  putTokenToResolverIndex_;
   };
 }  // namespace edm
 #endif

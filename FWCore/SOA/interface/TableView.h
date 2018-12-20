@@ -78,7 +78,7 @@ namespace edm {
 
     private:
       std::array<void const*, sizeof...(Args)> m_values;
-      unsigned int m_size;
+      unsigned int                             m_size;
 
       template <typename U>
       void const* columnAddress() const {

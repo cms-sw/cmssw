@@ -68,7 +68,7 @@ namespace edm {
     struct FactoryInfo {
       FactoryInfo() : key_(), factory_() {}
       FactoryInfo(const DataKey& iKey, std::shared_ptr<ProxyFactoryBase> iFactory) : key_(iKey), factory_(iFactory) {}
-      DataKey key_;
+      DataKey                                                 key_;
       edm::propagate_const<std::shared_ptr<ProxyFactoryBase>> factory_;
     };
   }  // namespace eventsetup
@@ -103,9 +103,9 @@ namespace edm {
                              std::move(temp), iLabel);
     }
 
-    virtual void registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord,
+    virtual void registerFactoryWithKey(const eventsetup::EventSetupRecordKey&        iRecord,
                                         std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
-                                        const std::string& iLabel = std::string());
+                                        const std::string&                            iLabel = std::string());
 
   private:
     ESProxyFactoryProducer(const ESProxyFactoryProducer&) = delete;  // stop default

@@ -14,10 +14,10 @@ namespace edm {
   class IterWithDictBase {
   private:
     TIter iter_;
-    bool atEnd_;
+    bool  atEnd_;
 
   protected:
-    void advance();
+    void         advance();
     TIter const& iter() const;
 
   public:

@@ -22,22 +22,22 @@ namespace edm {
   struct WorkerParams {
     WorkerParams() : pset_(nullptr), reg_(nullptr), preallocate_(nullptr), processConfiguration_(), actions_(nullptr) {}
 
-    WorkerParams(ParameterSet* pset,
-                 ProductRegistry& reg,
-                 PreallocationConfiguration const* prealloc,
+    WorkerParams(ParameterSet*                               pset,
+                 ProductRegistry&                            reg,
+                 PreallocationConfiguration const*           prealloc,
                  std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                 ExceptionToActionTable const& actions)
+                 ExceptionToActionTable const&               actions)
         : pset_(pset),
           reg_(&reg),
           preallocate_(prealloc),
           processConfiguration_(processConfiguration),
           actions_(&actions) {}
 
-    ParameterSet* pset_;
-    ProductRegistry* reg_;
-    PreallocationConfiguration const* preallocate_;
+    ParameterSet*                               pset_;
+    ProductRegistry*                            reg_;
+    PreallocationConfiguration const*           preallocate_;
     std::shared_ptr<ProcessConfiguration const> processConfiguration_;
-    ExceptionToActionTable const* actions_;
+    ExceptionToActionTable const*               actions_;
   };
 }  // namespace edm
 

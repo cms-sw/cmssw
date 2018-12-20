@@ -141,57 +141,57 @@ namespace edm {
 
     private:
       // We own none of these resources.
-      ActivityRegistry* a_;  // We do not use propagate_const because the registry itself is mutable.
+      ActivityRegistry*          a_;  // We do not use propagate_const because the registry itself is mutable.
       typename T::Context const* context_;
-      bool allowThrow_;
+      bool                       allowThrow_;
     };
   }  // namespace
 
   class StreamSchedule {
   public:
-    typedef std::vector<std::string> vstring;
-    typedef std::vector<Path> TrigPaths;
-    typedef std::vector<Path> NonTrigPaths;
-    typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
+    typedef std::vector<std::string>               vstring;
+    typedef std::vector<Path>                      TrigPaths;
+    typedef std::vector<Path>                      NonTrigPaths;
+    typedef std::shared_ptr<HLTGlobalStatus>       TrigResPtr;
     typedef std::shared_ptr<HLTGlobalStatus const> TrigResConstPtr;
-    typedef std::shared_ptr<Worker> WorkerPtr;
-    typedef std::vector<Worker*> AllWorkers;
+    typedef std::shared_ptr<Worker>                WorkerPtr;
+    typedef std::vector<Worker*>                   AllWorkers;
 
     typedef std::vector<Worker*> Workers;
 
     typedef std::vector<WorkerInPath> PathWorkers;
 
-    StreamSchedule(std::shared_ptr<TriggerResultInserter> inserter,
-                   std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
+    StreamSchedule(std::shared_ptr<TriggerResultInserter>                                     inserter,
+                   std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>&    pathStatusInserters,
                    std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
                    std::shared_ptr<ModuleRegistry>,
-                   ParameterSet& proc_pset,
-                   service::TriggerNamesService const& tns,
-                   PreallocationConfiguration const& prealloc,
-                   ProductRegistry& pregistry,
-                   BranchIDListHelper& branchIDListHelper,
-                   ExceptionToActionTable const& actions,
-                   std::shared_ptr<ActivityRegistry> areg,
+                   ParameterSet&                         proc_pset,
+                   service::TriggerNamesService const&   tns,
+                   PreallocationConfiguration const&     prealloc,
+                   ProductRegistry&                      pregistry,
+                   BranchIDListHelper&                   branchIDListHelper,
+                   ExceptionToActionTable const&         actions,
+                   std::shared_ptr<ActivityRegistry>     areg,
                    std::shared_ptr<ProcessConfiguration> processConfiguration,
-                   bool allowEarlyDelete,
-                   StreamID streamID,
-                   ProcessContext const* processContext);
+                   bool                                  allowEarlyDelete,
+                   StreamID                              streamID,
+                   ProcessContext const*                 processContext);
 
     StreamSchedule(StreamSchedule const&) = delete;
 
     void processOneEventAsync(
-        WaitingTaskHolder iTask,
-        EventPrincipal& ep,
-        EventSetup const& es,
-        ServiceToken const& token,
+        WaitingTaskHolder                                                       iTask,
+        EventPrincipal&                                                         ep,
+        EventSetup const&                                                       es,
+        ServiceToken const&                                                     token,
         std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters);
 
     template <typename T>
-    void processOneStreamAsync(WaitingTaskHolder iTask,
+    void processOneStreamAsync(WaitingTaskHolder        iTask,
                                typename T::MyPrincipal& principal,
-                               EventSetup const& eventSetup,
-                               ServiceToken const& token,
-                               bool cleaningUpAfterException = false);
+                               EventSetup const&        eventSetup,
+                               ServiceToken const&      token,
+                               bool                     cleaningUpAfterException = false);
 
     void beginStream();
     void endStream();
@@ -212,13 +212,13 @@ namespace edm {
     /// adds to oLabelsToFill in execution order the labels of all modules in path iPathLabel
     void modulesInPath(std::string const& iPathLabel, std::vector<std::string>& oLabelsToFill) const;
 
-    void moduleDescriptionsInPath(std::string const& iPathLabel,
+    void moduleDescriptionsInPath(std::string const&                     iPathLabel,
                                   std::vector<ModuleDescription const*>& descriptions,
-                                  unsigned int hint) const;
+                                  unsigned int                           hint) const;
 
-    void moduleDescriptionsInEndPath(std::string const& iEndPathLabel,
+    void moduleDescriptionsInEndPath(std::string const&                     iEndPathLabel,
                                      std::vector<ModuleDescription const*>& descriptions,
-                                     unsigned int hint) const;
+                                     unsigned int                           hint) const;
 
     /// Return the number of events this StreamSchedule has tried to process
     /// (inclues both successes and failures, including failures due
@@ -276,7 +276,7 @@ namespace edm {
 
     private:
       edm::ActivityRegistry* reg_;  // We do not use propagate_const because the registry itself is mutable.
-      StreamContext const* context_;
+      StreamContext const*   context_;
     };
 
     /// returns the action table
@@ -289,57 +289,57 @@ namespace edm {
 
     void reportSkipped(EventPrincipal const& ep) const;
 
-    void fillWorkers(ParameterSet& proc_pset,
-                     ProductRegistry& preg,
-                     PreallocationConfiguration const* prealloc,
+    void fillWorkers(ParameterSet&                               proc_pset,
+                     ProductRegistry&                            preg,
+                     PreallocationConfiguration const*           prealloc,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                     std::string const& name,
-                     bool ignoreFilters,
-                     PathWorkers& out,
-                     std::vector<std::string> const& endPathNames);
-    void fillTrigPath(ParameterSet& proc_pset,
-                      ProductRegistry& preg,
-                      PreallocationConfiguration const* prealloc,
+                     std::string const&                          name,
+                     bool                                        ignoreFilters,
+                     PathWorkers&                                out,
+                     std::vector<std::string> const&             endPathNames);
+    void fillTrigPath(ParameterSet&                               proc_pset,
+                      ProductRegistry&                            preg,
+                      PreallocationConfiguration const*           prealloc,
                       std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                      int bitpos,
-                      std::string const& name,
+                      int                                         bitpos,
+                      std::string const&                          name,
                       TrigResPtr,
                       std::vector<std::string> const& endPathNames);
-    void fillEndPath(ParameterSet& proc_pset,
-                     ProductRegistry& preg,
-                     PreallocationConfiguration const* prealloc,
+    void fillEndPath(ParameterSet&                               proc_pset,
+                     ProductRegistry&                            preg,
+                     PreallocationConfiguration const*           prealloc,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                     int bitpos,
-                     std::string const& name,
-                     std::vector<std::string> const& endPathNames);
+                     int                                         bitpos,
+                     std::string const&                          name,
+                     std::vector<std::string> const&             endPathNames);
 
     void addToAllWorkers(Worker* w);
 
     void resetEarlyDelete();
-    void initializeEarlyDelete(ModuleRegistry& modReg,
-                               edm::ParameterSet const& opts,
+    void initializeEarlyDelete(ModuleRegistry&             modReg,
+                               edm::ParameterSet const&    opts,
                                edm::ProductRegistry const& preg,
-                               bool allowEarlyDelete);
+                               bool                        allowEarlyDelete);
 
     TrigResConstPtr results() const { return get_underlying_safe(results_); }
-    TrigResPtr& results() { return get_underlying_safe(results_); }
+    TrigResPtr&     results() { return get_underlying_safe(results_); }
 
     void makePathStatusInserters(
-        std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
+        std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>&    pathStatusInserters,
         std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
-        ExceptionToActionTable const& actions);
+        ExceptionToActionTable const&                                              actions);
 
-    WorkerManager workerManager_;
+    WorkerManager                     workerManager_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
 
     edm::propagate_const<TrigResPtr> results_;
 
-    edm::propagate_const<WorkerPtr> results_inserter_;
+    edm::propagate_const<WorkerPtr>              results_inserter_;
     std::vector<edm::propagate_const<WorkerPtr>> pathStatusInserterWorkers_;
     std::vector<edm::propagate_const<WorkerPtr>> endPathStatusInserterWorkers_;
 
-    TrigPaths trig_paths_;
-    TrigPaths end_paths_;
+    TrigPaths        trig_paths_;
+    TrigPaths        end_paths_;
     std::vector<int> empty_trig_paths_;
     std::vector<int> empty_end_paths_;
 
@@ -358,13 +358,13 @@ namespace edm {
     // has been marked for early deletion
     std::vector<EarlyDeleteHelper> earlyDeleteHelpers_;
 
-    int total_events_;
-    int total_passed_;
+    int          total_events_;
+    int          total_passed_;
     unsigned int number_of_unscheduled_modules_;
 
-    StreamID streamID_;
-    StreamContext streamContext_;
-    volatile bool endpathsAreActive_;
+    StreamID          streamID_;
+    StreamContext     streamContext_;
+    volatile bool     endpathsAreActive_;
     std::atomic<bool> skippingEvent_;
   };
 
@@ -374,11 +374,11 @@ namespace edm {
   }
 
   template <typename T>
-  void StreamSchedule::processOneStreamAsync(WaitingTaskHolder iHolder,
+  void StreamSchedule::processOneStreamAsync(WaitingTaskHolder        iHolder,
                                              typename T::MyPrincipal& ep,
-                                             EventSetup const& es,
-                                             ServiceToken const& token,
-                                             bool cleaningUpAfterException) {
+                                             EventSetup const&        es,
+                                             ServiceToken const&      token,
+                                             bool                     cleaningUpAfterException) {
     T::setStreamContext(streamContext_, ep);
 
     auto id = ep.id();

@@ -63,7 +63,7 @@ namespace edm {
     template <typename T, unsigned int ALIGNMENT>
     struct Aligned {
       static const unsigned int kAlignment = ALIGNMENT;
-      typedef T Type;
+      typedef T                 Type;
     };
 
     /** Class used by SoATupleHelper to determine the proper alignment of the requested type.
@@ -73,7 +73,7 @@ namespace edm {
     template <typename T>
     struct AlignmentHelper {
       static const std::size_t kAlignment = alignof(T);
-      typedef T Type;
+      typedef T                Type;
     };
 
     /** Specialization of ALignmentHelper for Aligned<T, ALIGNMENT>. This allows users
@@ -82,7 +82,7 @@ namespace edm {
     template <typename T, unsigned int ALIGNMENT>
     struct AlignmentHelper<Aligned<T, ALIGNMENT>> {
       static const std::size_t kAlignment = ALIGNMENT;
-      typedef T Type;
+      typedef T                Type;
     };
 
     /**Implements most of the internal functions used by SoATuple. The argument I is used to recursively step
@@ -92,8 +92,8 @@ namespace edm {
     template <unsigned int I, typename... Args>
     struct SoATupleHelper {
       typedef AlignmentHelper<typename std::tuple_element<I - 1, std::tuple<Args...>>::type> AlignmentInfo;
-      typedef typename AlignmentInfo::Type Type;
-      typedef SoATupleHelper<I - 1, Args...> NextHelper;
+      typedef typename AlignmentInfo::Type                                                   Type;
+      typedef SoATupleHelper<I - 1, Args...>                                                 NextHelper;
 
       static const std::size_t max_alignment =
           AlignmentInfo::kAlignment > NextHelper::max_alignment ? AlignmentInfo::kAlignment : NextHelper::max_alignment;
@@ -102,7 +102,7 @@ namespace edm {
       static size_t moveToNew(char* iNewMemory, size_t iSize, size_t iReserve, void** oToSet);
       static size_t copyToNew(char* iNewMemory, size_t iSize, size_t iReserve, void* const* iFrom, void** oToSet);
       static size_t spaceNeededFor(unsigned int iNElements);
-      static void push_back(void** iToSet, size_t iSize, std::tuple<Args...> const& iValues);
+      static void   push_back(void** iToSet, size_t iSize, std::tuple<Args...> const& iValues);
       template <typename... FArgs>
       static void emplace_back(void** iToSet, size_t iSize, FArgs... iValues);
       static void destroy(void** iToSet, size_t iSize);
@@ -117,7 +117,7 @@ namespace edm {
     template <typename... Args>
     struct SoATupleHelper<0, Args...> {
       static const std::size_t max_alignment = 0;
-      static void destroy(void** /*iToSet*/, size_t /*iSize*/) {}
+      static void              destroy(void** /*iToSet*/, size_t /*iSize*/) {}
 
       static void push_back(void** /*iToSet*/, size_t /*iSize*/, std::tuple<Args...> const& /*values*/) {}
 
@@ -188,9 +188,9 @@ namespace edm {
 
     template <unsigned int I, typename... Args>
     size_t SoATupleHelper<I, Args...>::spaceNeededFor(unsigned int iNElements) {
-      size_t usedSoFar = NextHelper::spaceNeededFor(iNElements);
+      size_t             usedSoFar = NextHelper::spaceNeededFor(iNElements);
       const unsigned int boundary = AlignmentInfo::kAlignment;
-      unsigned int additionalSize = padding_needed(usedSoFar, boundary) + iNElements * sizeof(Type);
+      unsigned int       additionalSize = padding_needed(usedSoFar, boundary) + iNElements * sizeof(Type);
       return usedSoFar + additionalSize;
     }
 
@@ -213,7 +213,7 @@ namespace edm {
     template <unsigned int I, typename... Args>
     void SoATupleHelper<I, Args...>::destroy(void** iToSet, size_t iSize) {
       void** start = iToSet + I - 1;
-      Type* values = static_cast<Type*>(*start);
+      Type*  values = static_cast<Type*>(*start);
 
       for (auto it = values; it != values + iSize; ++it) {
         it->~Type();

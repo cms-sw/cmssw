@@ -73,15 +73,15 @@ namespace edm {
         }
 
         virtual std::unique_ptr<C> beginStream(edm::StreamID) const = 0;
-        virtual void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const {}
-        virtual void streamBeginLuminosityBlock(edm::StreamID,
-                                                edm::LuminosityBlock const&,
-                                                edm::EventSetup const&) const {}
-        virtual void streamEndLuminosityBlock(edm::StreamID,
-                                              edm::LuminosityBlock const&,
-                                              edm::EventSetup const&) const {}
-        virtual void streamEndRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const {}
-        virtual void endStream(edm::StreamID) const {}
+        virtual void               streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const {}
+        virtual void               streamBeginLuminosityBlock(edm::StreamID,
+                                                              edm::LuminosityBlock const&,
+                                                              edm::EventSetup const&) const {}
+        virtual void               streamEndLuminosityBlock(edm::StreamID,
+                                                            edm::LuminosityBlock const&,
+                                                            edm::EventSetup const&) const {}
+        virtual void               streamEndRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const {}
+        virtual void               endStream(edm::StreamID) const {}
 
         // When threaded we will have a container for N items whre N is # of streams
         std::vector<C*> caches_;
@@ -106,7 +106,7 @@ namespace edm {
         }
 
         virtual std::shared_ptr<C> globalBeginRun(edm::Run const&, edm::EventSetup const&) const = 0;
-        virtual void globalEndRun(edm::Run const&, edm::EventSetup const&) const = 0;
+        virtual void               globalEndRun(edm::Run const&, edm::EventSetup const&) const = 0;
         // When threaded we will have a container for N items whre N is # of simultaneous runs
         edm::propagate_const<std::shared_ptr<C>> cache_;
       };
@@ -164,13 +164,13 @@ namespace edm {
         void doEndRunSummary_(Run const& rp, EventSetup const& c) final { globalEndRunSummary(rp, c, cache_.get()); }
 
         virtual std::shared_ptr<C> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const = 0;
-        virtual void streamEndRunSummary(StreamID, edm::Run const&, edm::EventSetup const&, C*) const = 0;
+        virtual void               streamEndRunSummary(StreamID, edm::Run const&, edm::EventSetup const&, C*) const = 0;
 
         virtual void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, C*) const = 0;
 
         // When threaded we will have a container for N items where N is # of simultaneous runs
         std::shared_ptr<C> cache_;
-        std::mutex mutex_;
+        std::mutex         mutex_;
       };
 
       template <typename T, typename C>
@@ -201,16 +201,16 @@ namespace edm {
 
         virtual std::shared_ptr<C> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
                                                                      edm::EventSetup const&) const = 0;
-        virtual void streamEndLuminosityBlockSummary(StreamID,
-                                                     edm::LuminosityBlock const&,
-                                                     edm::EventSetup const&,
-                                                     C*) const = 0;
+        virtual void               streamEndLuminosityBlockSummary(StreamID,
+                                                                   edm::LuminosityBlock const&,
+                                                                   edm::EventSetup const&,
+                                                                   C*) const = 0;
 
         virtual void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, C*) const = 0;
 
         // When threaded we will have a container for N items where N is # of simultaneous Lumis
         std::shared_ptr<C> cache_;
-        std::mutex mutex_;
+        std::mutex         mutex_;
       };
 
       template <typename T>
@@ -266,7 +266,7 @@ namespace edm {
         ~BeginLuminosityBlockProducer() noexcept(false) override{};
 
       private:
-        void doBeginLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) final;
+        void         doBeginLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) final;
         virtual void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const = 0;
       };
 
@@ -279,7 +279,7 @@ namespace edm {
         ~EndLuminosityBlockProducer() noexcept(false) override{};
 
       private:
-        void doEndLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) final;
+        void         doEndLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) final;
         virtual void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const = 0;
       };
 

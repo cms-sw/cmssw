@@ -38,13 +38,13 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    ThingAlgorithm alg_;
+    ThingAlgorithm                    alg_;
     edm::EDPutTokenT<ThingCollection> evToken_;
     edm::EDPutTokenT<ThingCollection> brToken_;
     edm::EDPutTokenT<ThingCollection> erToken_;
     edm::EDPutTokenT<ThingCollection> blToken_;
     edm::EDPutTokenT<ThingCollection> elToken_;
-    bool noPut_;
+    bool                              noPut_;
   };
 }  // namespace edmtest
 #endif

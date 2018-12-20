@@ -35,7 +35,7 @@ public:
 
 private:
   // ----------member data ---------------------------
-  int whichFailure_;
+  int                whichFailure_;
   unsigned long long eventToThrow_;
 };
 

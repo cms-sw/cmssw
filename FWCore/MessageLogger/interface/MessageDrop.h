@@ -91,29 +91,29 @@ namespace edm {
   public:
     ~MessageDrop();  // change log 10
     static MessageDrop* instance();
-    std::string moduleContext();
+    std::string         moduleContext();
     void setModuleWithPhase(std::string const& name, std::string const& label, unsigned int moduleID, const char* phase);
     void setPath(const char* type, std::string const& pathname);
     void setSinglet(const char* sing);
     void clear();
 
-    std::string runEvent;
+    std::string  runEvent;
     unsigned int streamID;
-    bool debugEnabled;    // change log 8
-    bool infoEnabled;     // change log 8
-    bool warningEnabled;  // change log 8
-    bool errorEnabled;    // change log 8, 12
+    bool         debugEnabled;    // change log 8
+    bool         infoEnabled;     // change log 8
+    bool         warningEnabled;  // change log 8
+    bool         errorEnabled;    // change log 8, 12
 
-    CMS_THREAD_SAFE static std::string jobMode;                         // change log 6
+    CMS_THREAD_SAFE static std::string   jobMode;                       // change log 6
     CMS_THREAD_SAFE static unsigned char messageLoggerScribeIsRunning;  // change log 7
-    CMS_THREAD_SAFE static bool debugAlwaysSuppressed;                  // change log 9
-    CMS_THREAD_SAFE static bool infoAlwaysSuppressed;                   // change log 9
-    CMS_THREAD_SAFE static bool warningAlwaysSuppressed;                // change log 9
+    CMS_THREAD_SAFE static bool          debugAlwaysSuppressed;         // change log 9
+    CMS_THREAD_SAFE static bool          infoAlwaysSuppressed;          // change log 9
+    CMS_THREAD_SAFE static bool          warningAlwaysSuppressed;       // change log 9
   private:
     edm::propagate_const<messagedrop::StringProducerWithPhase*> spWithPhase;
-    edm::propagate_const<messagedrop::StringProducerPath*> spPath;
-    edm::propagate_const<messagedrop::StringProducerSinglet*> spSinglet;
-    messagedrop::StringProducer const* moduleNameProducer;
+    edm::propagate_const<messagedrop::StringProducerPath*>      spPath;
+    edm::propagate_const<messagedrop::StringProducerSinglet*>   spSinglet;
+    messagedrop::StringProducer const*                          moduleNameProducer;
   };
 
   static const unsigned char MLSCRIBE_RUNNING_INDICATOR = 29;  // change log 7

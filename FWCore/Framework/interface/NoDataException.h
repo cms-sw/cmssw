@@ -78,15 +78,15 @@ namespace edm {
     class NoDataExceptionBase : public cms::Exception {
     public:
       NoDataExceptionBase(const EventSetupRecordKey& iRecordKey,
-                          const DataKey& iDataKey,
-                          const char* category_name = "NoDataException");
+                          const DataKey&             iDataKey,
+                          const char*                category_name = "NoDataException");
       ~NoDataExceptionBase() noexcept override;
       const DataKey& dataKey() const;
 
     protected:
       static std::string providerButNoDataMessage(const EventSetupRecordKey& iKey);
       static std::string noProxyMessage();
-      void constructMessage(const char* iClassName, const std::string& iExtraInfo);
+      void               constructMessage(const char* iClassName, const std::string& iExtraInfo);
 
     private:
       void beginDataTypeMessage(std::string&) const;
@@ -98,23 +98,23 @@ namespace edm {
 
       // ---------- data members -------------------------------
       EventSetupRecordKey record_;
-      DataKey dataKey_;
+      DataKey             dataKey_;
     };
 
     template <class T>
     class NoDataException : public NoDataExceptionBase {
     public:
       NoDataException(const EventSetupRecordKey& iRecordKey,
-                      const DataKey& iDataKey,
-                      const char* category_name = "NoDataException")
+                      const DataKey&             iDataKey,
+                      const char*                category_name = "NoDataException")
           : NoDataExceptionBase(iRecordKey, iDataKey, category_name) {
         constructMessage(heterocontainer::className<T>(), providerButNoDataMessage(iRecordKey));
       }
 
       NoDataException(const EventSetupRecordKey& iRecordKey,
-                      const DataKey& iDataKey,
-                      const char* category_name,
-                      const std::string& iExtraInfo)
+                      const DataKey&             iDataKey,
+                      const char*                category_name,
+                      const std::string&         iExtraInfo)
           : NoDataExceptionBase(iRecordKey, iDataKey, category_name) {
         constructMessage(heterocontainer::className<T>(), iExtraInfo);
       }

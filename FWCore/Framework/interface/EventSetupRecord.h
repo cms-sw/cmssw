@@ -109,8 +109,8 @@ namespace edm {
 
       template <typename HolderT>
       bool get(char const* iName, HolderT& iHolder) const {
-        typename HolderT::value_type const* value = nullptr;
-        ComponentDescription const* desc = nullptr;
+        typename HolderT::value_type const*       value = nullptr;
+        ComponentDescription const*               desc = nullptr;
         std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
         impl_->getImplementation(value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory);
 
@@ -129,8 +129,8 @@ namespace edm {
 
       template <typename HolderT>
       bool get(ESInputTag const& iTag, HolderT& iHolder) const {
-        typename HolderT::value_type const* value = nullptr;
-        ComponentDescription const* desc = nullptr;
+        typename HolderT::value_type const*       value = nullptr;
+        ComponentDescription const*               desc = nullptr;
         std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
         impl_->getImplementation(value, iTag.data().c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
 
@@ -188,7 +188,7 @@ namespace edm {
       void validate(ComponentDescription const*, ESInputTag const&) const;
 
       void addTraceInfoToCmsException(cms::Exception& iException,
-                                      char const* iName,
+                                      char const*     iName,
                                       ComponentDescription const*,
                                       DataKey const&) const;
       void changeStdExceptionToCmsException(char const* iExceptionWhatMessage,
@@ -199,9 +199,9 @@ namespace edm {
       EventSetupRecordImpl const* impl() const { return impl_; }
 
     private:
-      void const* getFromProxy(DataKey const& iKey,
+      void const* getFromProxy(DataKey const&               iKey,
                                ComponentDescription const*& iDesc,
-                               bool iTransientAccessOnly) const;
+                               bool                         iTransientAccessOnly) const;
 
       // ---------- member data --------------------------------
       EventSetupRecordImpl const* impl_ = nullptr;

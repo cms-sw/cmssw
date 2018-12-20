@@ -117,45 +117,45 @@ namespace edm {
 
   class Schedule {
   public:
-    typedef std::vector<std::string> vstring;
-    typedef std::vector<Worker*> AllWorkers;
+    typedef std::vector<std::string>                                                     vstring;
+    typedef std::vector<Worker*>                                                         AllWorkers;
     typedef std::vector<edm::propagate_const<std::shared_ptr<OutputModuleCommunicator>>> AllOutputModuleCommunicators;
 
     typedef std::vector<Worker*> Workers;
 
-    Schedule(ParameterSet& proc_pset,
-             service::TriggerNamesService const& tns,
-             ProductRegistry& pregistry,
-             BranchIDListHelper& branchIDListHelper,
-             ThinnedAssociationsHelper& thinnedAssociationsHelper,
-             SubProcessParentageHelper const* subProcessParentageHelper,
-             ExceptionToActionTable const& actions,
-             std::shared_ptr<ActivityRegistry> areg,
+    Schedule(ParameterSet&                         proc_pset,
+             service::TriggerNamesService const&   tns,
+             ProductRegistry&                      pregistry,
+             BranchIDListHelper&                   branchIDListHelper,
+             ThinnedAssociationsHelper&            thinnedAssociationsHelper,
+             SubProcessParentageHelper const*      subProcessParentageHelper,
+             ExceptionToActionTable const&         actions,
+             std::shared_ptr<ActivityRegistry>     areg,
              std::shared_ptr<ProcessConfiguration> processConfiguration,
-             bool hasSubprocesses,
-             PreallocationConfiguration const& config,
-             ProcessContext const* processContext);
+             bool                                  hasSubprocesses,
+             PreallocationConfiguration const&     config,
+             ProcessContext const*                 processContext);
 
-    void processOneEventAsync(WaitingTaskHolder iTask,
-                              unsigned int iStreamID,
-                              EventPrincipal& principal,
-                              EventSetup const& eventSetup,
+    void processOneEventAsync(WaitingTaskHolder   iTask,
+                              unsigned int        iStreamID,
+                              EventPrincipal&     principal,
+                              EventSetup const&   eventSetup,
                               ServiceToken const& token);
 
     template <typename T>
-    void processOneGlobalAsync(WaitingTaskHolder iTask,
+    void processOneGlobalAsync(WaitingTaskHolder        iTask,
                                typename T::MyPrincipal& principal,
-                               EventSetup const& eventSetup,
-                               ServiceToken const& token,
-                               bool cleaningUpAfterException = false);
+                               EventSetup const&        eventSetup,
+                               ServiceToken const&      token,
+                               bool                     cleaningUpAfterException = false);
 
     template <typename T>
-    void processOneStreamAsync(WaitingTaskHolder iTask,
-                               unsigned int iStreamID,
+    void processOneStreamAsync(WaitingTaskHolder        iTask,
+                               unsigned int             iStreamID,
                                typename T::MyPrincipal& principal,
-                               EventSetup const& eventSetup,
-                               ServiceToken const& token,
-                               bool cleaningUpAfterException = false);
+                               EventSetup const&        eventSetup,
+                               ServiceToken const&      token,
+                               bool                     cleaningUpAfterException = false);
 
     void beginJob(ProductRegistry const&);
     void endJob(ExceptionCollector& collector);
@@ -164,13 +164,13 @@ namespace edm {
     void endStream(unsigned int);
 
     // Write the luminosity block
-    void writeLumiAsync(WaitingTaskHolder iTask,
+    void writeLumiAsync(WaitingTaskHolder               iTask,
                         LuminosityBlockPrincipal const& lbp,
                         ProcessContext const*,
                         ActivityRegistry*);
 
     // Write the run
-    void writeRunAsync(WaitingTaskHolder iTask,
+    void writeRunAsync(WaitingTaskHolder   iTask,
                        RunPrincipal const& rp,
                        ProcessContext const*,
                        ActivityRegistry*,
@@ -215,20 +215,20 @@ namespace edm {
 
     /// adds the ModuleDescriptions into the vector for the modules scheduled in path iPathLabel
     /// hint is a performance optimization if you might know the position of the module in the path
-    void moduleDescriptionsInPath(std::string const& iPathLabel,
+    void moduleDescriptionsInPath(std::string const&                     iPathLabel,
                                   std::vector<ModuleDescription const*>& descriptions,
-                                  unsigned int hint) const;
+                                  unsigned int                           hint) const;
 
     /// adds the ModuleDescriptions into the vector for the modules scheduled in path iEndPathLabel
     /// hint is a performance optimization if you might know the position of the module in the path
-    void moduleDescriptionsInEndPath(std::string const& iEndPathLabel,
+    void moduleDescriptionsInEndPath(std::string const&                     iEndPathLabel,
                                      std::vector<ModuleDescription const*>& descriptions,
-                                     unsigned int hint) const;
+                                     unsigned int                           hint) const;
 
-    void fillModuleAndConsumesInfo(std::vector<ModuleDescription const*>& allModuleDescriptions,
+    void fillModuleAndConsumesInfo(std::vector<ModuleDescription const*>&              allModuleDescriptions,
                                    std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
                                    std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedBy,
-                                   ProductRegistry const& preg) const;
+                                   ProductRegistry const&                              preg) const;
 
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due
@@ -276,55 +276,55 @@ namespace edm {
     void convertCurrentProcessAlias(std::string const& processName);
 
   private:
-    void limitOutput(ParameterSet const& proc_pset,
-                     BranchIDLists const& branchIDLists,
+    void limitOutput(ParameterSet const&              proc_pset,
+                     BranchIDLists const&             branchIDLists,
                      SubProcessParentageHelper const* subProcessParentageHelper);
 
     std::shared_ptr<TriggerResultInserter const> resultsInserter() const {
       return get_underlying_safe(resultsInserter_);
     }
     std::shared_ptr<TriggerResultInserter>& resultsInserter() { return get_underlying_safe(resultsInserter_); }
-    std::shared_ptr<ModuleRegistry const> moduleRegistry() const { return get_underlying_safe(moduleRegistry_); }
-    std::shared_ptr<ModuleRegistry>& moduleRegistry() { return get_underlying_safe(moduleRegistry_); }
+    std::shared_ptr<ModuleRegistry const>   moduleRegistry() const { return get_underlying_safe(moduleRegistry_); }
+    std::shared_ptr<ModuleRegistry>&        moduleRegistry() { return get_underlying_safe(moduleRegistry_); }
 
-    edm::propagate_const<std::shared_ptr<TriggerResultInserter>> resultsInserter_;
-    std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>> pathStatusInserters_;
+    edm::propagate_const<std::shared_ptr<TriggerResultInserter>>              resultsInserter_;
+    std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>    pathStatusInserters_;
     std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>> endPathStatusInserters_;
-    edm::propagate_const<std::shared_ptr<ModuleRegistry>> moduleRegistry_;
-    std::vector<edm::propagate_const<std::shared_ptr<StreamSchedule>>> streamSchedules_;
+    edm::propagate_const<std::shared_ptr<ModuleRegistry>>                     moduleRegistry_;
+    std::vector<edm::propagate_const<std::shared_ptr<StreamSchedule>>>        streamSchedules_;
     // In the future, we will have one GlobalSchedule per simultaneous transition
     edm::propagate_const<std::unique_ptr<GlobalSchedule>> globalSchedule_;
 
     AllOutputModuleCommunicators all_output_communicators_;
-    PreallocationConfiguration preallocConfig_;
+    PreallocationConfiguration   preallocConfig_;
 
     edm::propagate_const<std::unique_ptr<SystemTimeKeeper>> summaryTimeKeeper_;
 
     std::vector<std::string> const* pathNames_;
     std::vector<std::string> const* endPathNames_;
-    bool wantSummary_;
+    bool                            wantSummary_;
 
     volatile bool endpathsAreActive_;
   };
 
   template <typename T>
-  void Schedule::processOneStreamAsync(WaitingTaskHolder iTaskHolder,
-                                       unsigned int iStreamID,
+  void Schedule::processOneStreamAsync(WaitingTaskHolder        iTaskHolder,
+                                       unsigned int             iStreamID,
                                        typename T::MyPrincipal& ep,
-                                       EventSetup const& es,
-                                       ServiceToken const& token,
-                                       bool cleaningUpAfterException) {
+                                       EventSetup const&        es,
+                                       ServiceToken const&      token,
+                                       bool                     cleaningUpAfterException) {
     assert(iStreamID < streamSchedules_.size());
     streamSchedules_[iStreamID]->processOneStreamAsync<T>(std::move(iTaskHolder), ep, es, token,
                                                           cleaningUpAfterException);
   }
 
   template <typename T>
-  void Schedule::processOneGlobalAsync(WaitingTaskHolder iTaskHolder,
+  void Schedule::processOneGlobalAsync(WaitingTaskHolder        iTaskHolder,
                                        typename T::MyPrincipal& ep,
-                                       EventSetup const& es,
-                                       ServiceToken const& token,
-                                       bool cleaningUpAfterException) {
+                                       EventSetup const&        es,
+                                       ServiceToken const&      token,
+                                       bool                     cleaningUpAfterException) {
     globalSchedule_->processOneGlobalAsync<T>(iTaskHolder, ep, es, token, cleaningUpAfterException);
   }
 

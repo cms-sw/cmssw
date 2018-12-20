@@ -6,7 +6,7 @@
 
 namespace edm {
   class ParameterSet;
-  std::string moduleName(Provenance const& provenance);
+  std::string         moduleName(Provenance const& provenance);
   ParameterSet const& parameterSet(Provenance const& provenance);
 }  // namespace edm
 #endif

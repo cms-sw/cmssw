@@ -40,10 +40,10 @@ namespace edm {
     void addException(cms::Exception const& exception);
 
   private:
-    std::string initialMessage_;
+    std::string                     initialMessage_;
     std::unique_ptr<cms::Exception> firstException_;
     std::unique_ptr<cms::Exception> accumulatedExceptions_;
-    int nExceptions_;
+    int                             nExceptions_;
   };
 }  // namespace edm
 

@@ -22,10 +22,10 @@ namespace edm {
   public:
     BaseWithDict();
     explicit BaseWithDict(TBaseClass*);
-    bool isPublic() const;
-    std::string name() const;
+    bool         isPublic() const;
+    std::string  name() const;
     TypeWithDict typeOf() const;
-    size_t offset() const;
+    size_t       offset() const;
   };
 
 }  // namespace edm

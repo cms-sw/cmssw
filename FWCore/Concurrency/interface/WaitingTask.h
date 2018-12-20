@@ -59,7 +59,7 @@ namespace edm {
      */
     void dependentTaskFailed(std::exception_ptr iPtr) {
       if (iPtr and not m_ptr) {
-        auto temp = std::make_unique<std::exception_ptr>(iPtr);
+        auto                temp = std::make_unique<std::exception_ptr>(iPtr);
         std::exception_ptr* expected = nullptr;
         if (m_ptr.compare_exchange_strong(expected, temp.get())) {
           temp.release();

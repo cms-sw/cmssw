@@ -168,7 +168,7 @@ namespace edm {
 
     friend class TaskBase;
 
-    void pushTask(TaskBase*);
+    void       pushTask(TaskBase*);
     tbb::task* pushAndGetNextTask(TaskBase*);
     tbb::task* finishedTask();
     // returns nullptr if a task is already being processed
@@ -178,8 +178,8 @@ namespace edm {
 
     // ---------- member data --------------------------------
     tbb::concurrent_queue<TaskBase*> m_tasks;
-    std::atomic<bool> m_taskChosen;
-    std::atomic<unsigned long> m_pauseCount;
+    std::atomic<bool>                m_taskChosen;
+    std::atomic<unsigned long>       m_pauseCount;
   };
 
   template <typename T>

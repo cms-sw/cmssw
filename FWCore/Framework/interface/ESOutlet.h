@@ -44,7 +44,7 @@ namespace edm {
         return &(*data);
       }
       const edm::EventSetup* es_;
-      const std::string label_;
+      const std::string      label_;
     };
 
   public:

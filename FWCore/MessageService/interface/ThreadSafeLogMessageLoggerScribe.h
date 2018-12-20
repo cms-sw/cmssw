@@ -52,9 +52,9 @@ namespace edm {
 
     private:
       // --- convenience typedefs
-      typedef std::string String;
+      typedef std::string         String;
       typedef std::vector<String> vString;
-      typedef ParameterSet PSet;
+      typedef ParameterSet        PSet;
 
       // --- log one consumed message
       void log(ErrorObj* errorobj_p);
@@ -90,23 +90,23 @@ namespace edm {
       void parseCategories(std::string const& s, std::vector<std::string>& cats);
 
       // --- data:
-      edm::propagate_const<std::shared_ptr<ELadministrator>> admin_p;
-      std::shared_ptr<ELdestination> early_dest;
+      edm::propagate_const<std::shared_ptr<ELadministrator>>            admin_p;
+      std::shared_ptr<ELdestination>                                    early_dest;
       std::vector<edm::propagate_const<std::shared_ptr<std::ofstream>>> file_ps;
-      edm::propagate_const<std::shared_ptr<PSet>> job_pset_p;
-      std::map<String, edm::propagate_const<std::ostream*>> stream_ps;
-      std::vector<String> ordinary_destination_filenames;
-      std::vector<std::shared_ptr<ELstatistics>> statisticsDestControls;
-      std::vector<bool> statisticsResets;
-      bool clean_slate_configuration;
-      value_ptr<MessageLoggerDefaults> messageLoggerDefaults;
-      bool active;
-      std::atomic<bool> purge_mode;  // changeLog 9
-      std::atomic<int> count;        // changeLog 9
-      std::atomic<bool> m_messageBeingSent;
-      tbb::concurrent_queue<ErrorObj*> m_waitingMessages;
-      size_t m_waitingThreshold;
-      std::atomic<unsigned long> m_tooManyWaitingMessagesCount;
+      edm::propagate_const<std::shared_ptr<PSet>>                       job_pset_p;
+      std::map<String, edm::propagate_const<std::ostream*>>             stream_ps;
+      std::vector<String>                                               ordinary_destination_filenames;
+      std::vector<std::shared_ptr<ELstatistics>>                        statisticsDestControls;
+      std::vector<bool>                                                 statisticsResets;
+      bool                                                              clean_slate_configuration;
+      value_ptr<MessageLoggerDefaults>                                  messageLoggerDefaults;
+      bool                                                              active;
+      std::atomic<bool>                                                 purge_mode;  // changeLog 9
+      std::atomic<int>                                                  count;       // changeLog 9
+      std::atomic<bool>                                                 m_messageBeingSent;
+      tbb::concurrent_queue<ErrorObj*>                                  m_waitingMessages;
+      size_t                                                            m_waitingThreshold;
+      std::atomic<unsigned long>                                        m_tooManyWaitingMessagesCount;
 
     };  // ThreadSafeLogMessageLoggerScribe
 

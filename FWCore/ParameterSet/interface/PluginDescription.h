@@ -117,7 +117,7 @@ namespace edm {
     ParameterDescriptionNode* clone() const final { return new PluginDescription<T>(*this); }
 
   protected:
-    void checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+    void checkAndGetLabelsAndTypes_(std::set<std::string>&    usedLabels,
                                     std::set<ParameterTypes>& parameterTypes,
                                     std::set<ParameterTypes>& wildcardTypes) const final {}
 
@@ -167,7 +167,7 @@ namespace edm {
 
       // loop over all possible plugins
       unsigned int pluginCount = 0;
-      std::string previousName;
+      std::string  previousName;
       for (auto const& info :
            edmplugin::PluginManager::get()->categoryToInfos().find(Factory::get()->category())->second) {
         // We only want to print the first instance of each plugin name
@@ -247,9 +247,9 @@ namespace edm {
 
     // ---------- member data --------------------------------
     mutable std::shared_ptr<ParameterSetDescription> cache_;
-    std::string typeLabel_;
-    std::string defaultType_;
-    bool typeLabelIsTracked_;
+    std::string                                      typeLabel_;
+    std::string                                      defaultType_;
+    bool                                             typeLabelIsTracked_;
   };
 }  // namespace edm
 

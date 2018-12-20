@@ -13,8 +13,8 @@ namespace edm {
     public:
       ParameterSetIDHolder(ParameterSetID const& psetID) : psetID_(psetID) {}
       ParameterSetID const& psetID() const { return psetID_; }
-      bool operator<(ParameterSetIDHolder const& other) const { return psetID() < other.psetID(); }
-      bool operator==(ParameterSetIDHolder const& other) const { return psetID() == other.psetID(); }
+      bool                  operator<(ParameterSetIDHolder const& other) const { return psetID() < other.psetID(); }
+      bool                  operator==(ParameterSetIDHolder const& other) const { return psetID() == other.psetID(); }
 
     private:
       ParameterSetID psetID_;

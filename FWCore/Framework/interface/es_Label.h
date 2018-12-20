@@ -41,8 +41,8 @@ namespace edm::es {
     explicit L(std::unique_ptr<T> iP) : product_{std::move(iP)} {}
     explicit L(T* iP) : product_(iP) {}
 
-    T& operator*() { return *product_; }
-    T* operator->() { return product_.get(); }
+    T&                         operator*() { return *product_; }
+    T*                         operator->() { return product_.get(); }
     mutable std::shared_ptr<T> product_{nullptr};
   };
 
@@ -85,7 +85,7 @@ namespace edm::es {
     }
 
     std::vector<std::string> labels_{};
-    std::string default_{};
+    std::string              default_{};
   };
 
   inline Label label(const std::string& iString, int iIndex) { return Label(iString, iIndex); }

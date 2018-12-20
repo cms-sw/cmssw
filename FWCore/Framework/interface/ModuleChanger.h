@@ -51,7 +51,7 @@ namespace edm {
 
     // ---------- member data --------------------------------
     edm::propagate_const<Schedule*> schedule_;
-    ProductRegistry const* registry_;
+    ProductRegistry const*          registry_;
   };
 }  // namespace edm
 #endif

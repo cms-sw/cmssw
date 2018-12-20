@@ -25,10 +25,10 @@ namespace edm {
   public:
     // -----  Publicly accessible data members:
     //
-    ELstring id;
+    ELstring        id;
     ELseverityLevel severity;
-    ELstring module;
-    ELstring subroutine;
+    ELstring        module;
+    ELstring        subroutine;
 
     // -----  Comparator:
     //

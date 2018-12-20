@@ -89,11 +89,11 @@ namespace cms {
 
     virtual std::string explainSelf() const;
 
-    std::string const& category() const;
-    std::string message() const;
+    std::string const&            category() const;
+    std::string                   message() const;
     std::list<std::string> const& context() const;
     std::list<std::string> const& additionalInfo() const;
-    int returnCode() const;
+    int                           returnCode() const;
 
     void raise() { rethrow(); }
 
@@ -173,17 +173,17 @@ namespace cms {
     std::list<std::string> history() const;
 
   private:
-    void init(std::string const& message);
+    void         init(std::string const& message);
     virtual void rethrow();
-    virtual int returnCode_() const;
+    virtual int  returnCode_() const;
 
     // data members
-    std::ostringstream ost_;
-    std::string category_;
-    mutable std::string what_;
+    std::ostringstream     ost_;
+    std::string            category_;
+    mutable std::string    what_;
     std::list<std::string> context_;
     std::list<std::string> additionalInfo_;
-    bool alreadyPrinted_;
+    bool                   alreadyPrinted_;
   };
 
   inline std::ostream& operator<<(std::ostream& ost, Exception const& e) {

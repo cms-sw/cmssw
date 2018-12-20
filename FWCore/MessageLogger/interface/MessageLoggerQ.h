@@ -85,8 +85,8 @@ namespace edm {
 
     // --- data:
     CMS_THREAD_SAFE static std::shared_ptr<edm::service::AbstractMLscribe> mlscribe_ptr;
-    CMS_THREAD_SAFE static edm::ELseverityLevel threshold;
-    CMS_THREAD_SAFE static std::set<std::string> squelchSet;
+    CMS_THREAD_SAFE static edm::ELseverityLevel                            threshold;
+    CMS_THREAD_SAFE static std::set<std::string>                           squelchSet;
 
   };  // MessageLoggerQ
 

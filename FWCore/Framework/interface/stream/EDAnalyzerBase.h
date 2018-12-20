@@ -42,8 +42,8 @@ namespace edm {
       EDAnalyzerBase();
       ~EDAnalyzerBase() override;
 
-      static void fillDescriptions(ConfigurationDescriptions& descriptions);
-      static void prevalidate(ConfigurationDescriptions& descriptions);
+      static void               fillDescriptions(ConfigurationDescriptions& descriptions);
+      static void               prevalidate(ConfigurationDescriptions& descriptions);
       static const std::string& baseType();
 
       // Warning: the returned moduleDescription will be invalid during construction
@@ -69,7 +69,7 @@ namespace edm {
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) { moduleDescriptionPtr_ = iDesc; }
       // ---------- member data --------------------------------
       std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
-      ModuleDescription const* moduleDescriptionPtr_;
+      ModuleDescription const*                      moduleDescriptionPtr_;
     };
 
   }  // namespace stream

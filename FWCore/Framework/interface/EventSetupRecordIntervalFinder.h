@@ -70,7 +70,7 @@ namespace edm {
     virtual void delaySettingRecords();
     // ---------- member data --------------------------------
     typedef std::map<eventsetup::EventSetupRecordKey, ValidityInterval> Intervals;
-    Intervals intervals_;
+    Intervals                                                           intervals_;
 
     eventsetup::ComponentDescription description_;
   };

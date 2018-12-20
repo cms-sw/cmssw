@@ -76,7 +76,7 @@ namespace edm {
      denote that you have not yet checked the value.
      */
     typedef unsigned long CacheIdentifier_t;
-    CacheIdentifier_t cacheIdentifier() const;
+    CacheIdentifier_t     cacheIdentifier() const;
 
     template <typename PROD>
     bool getByLabel(std::string const& label, Handle<PROD>& result) const;
@@ -150,7 +150,7 @@ namespace edm {
     // Override version from RunBase class
     BasicHandle getByLabelImpl(std::type_info const& iWrapperType,
                                std::type_info const& iProductType,
-                               InputTag const& iTag) const override;
+                               InputTag const&       iTag) const override;
 
     template <typename PROD>
     void putImpl(EDPutToken::value_type token, std::unique_ptr<PROD> product);
@@ -159,8 +159,8 @@ namespace edm {
     void emplaceImpl(EDPutToken::value_type token, Args&&... args);
 
     typedef std::vector<edm::propagate_const<std::unique_ptr<WrapperBase>>> ProductPtrVec;
-    ProductPtrVec& putProducts() { return putProducts_; }
-    ProductPtrVec const& putProducts() const { return putProducts_; }
+    ProductPtrVec&                                                          putProducts() { return putProducts_; }
+    ProductPtrVec const&                                                    putProducts() const { return putProducts_; }
 
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any
@@ -173,9 +173,9 @@ namespace edm {
 
     void commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut);
 
-    PrincipalGetAdapter provRecorder_;
-    ProductPtrVec putProducts_;
-    RunAuxiliary const& aux_;
+    PrincipalGetAdapter         provRecorder_;
+    ProductPtrVec               putProducts_;
+    RunAuxiliary const&         aux_;
     ModuleCallingContext const* moduleCallingContext_;
     SharedResourcesAcquirer* sharedResourcesAcquirer_;  // We do not use propagate_const because the acquirer is itself
                                                         // mutable.

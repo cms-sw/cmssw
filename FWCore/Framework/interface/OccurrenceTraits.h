@@ -34,7 +34,7 @@ namespace edm {
   class OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> {
   public:
     typedef EventPrincipal MyPrincipal;
-    typedef StreamContext Context;
+    typedef StreamContext  Context;
     static BranchType constexpr branchType_ = InEvent;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = true;
@@ -64,7 +64,7 @@ namespace edm {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> {
   public:
-    typedef RunPrincipal MyPrincipal;
+    typedef RunPrincipal  MyPrincipal;
     typedef GlobalContext Context;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = true;
@@ -84,13 +84,13 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                GlobalContext const* globalContext,
+    static void preModuleSignal(ActivityRegistry*           a,
+                                GlobalContext const*        globalContext,
                                 ModuleCallingContext const* moduleCallingContext) {
       a->preModuleGlobalBeginRunSignal_(*globalContext, *moduleCallingContext);
     }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 GlobalContext const* globalContext,
+    static void postModuleSignal(ActivityRegistry*           a,
+                                 GlobalContext const*        globalContext,
                                  ModuleCallingContext const* moduleCallingContext) {
       a->postModuleGlobalBeginRunSignal_(*globalContext, *moduleCallingContext);
     }
@@ -100,7 +100,7 @@ namespace edm {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> {
   public:
-    typedef RunPrincipal MyPrincipal;
+    typedef RunPrincipal  MyPrincipal;
     typedef StreamContext Context;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = true;
@@ -122,13 +122,13 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                StreamContext const* streamContext,
+    static void preModuleSignal(ActivityRegistry*           a,
+                                StreamContext const*        streamContext,
                                 ModuleCallingContext const* moduleCallingContext) {
       a->preModuleStreamBeginRunSignal_(*streamContext, *moduleCallingContext);
     }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 StreamContext const* streamContext,
+    static void postModuleSignal(ActivityRegistry*           a,
+                                 StreamContext const*        streamContext,
                                  ModuleCallingContext const* moduleCallingContext) {
       a->postModuleStreamBeginRunSignal_(*streamContext, *moduleCallingContext);
     }
@@ -138,7 +138,7 @@ namespace edm {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> {
   public:
-    typedef RunPrincipal MyPrincipal;
+    typedef RunPrincipal  MyPrincipal;
     typedef StreamContext Context;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = false;
@@ -160,13 +160,13 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                StreamContext const* streamContext,
+    static void preModuleSignal(ActivityRegistry*           a,
+                                StreamContext const*        streamContext,
                                 ModuleCallingContext const* moduleCallingContext) {
       a->preModuleStreamEndRunSignal_(*streamContext, *moduleCallingContext);
     }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 StreamContext const* streamContext,
+    static void postModuleSignal(ActivityRegistry*           a,
+                                 StreamContext const*        streamContext,
                                  ModuleCallingContext const* moduleCallingContext) {
       a->postModuleStreamEndRunSignal_(*streamContext, *moduleCallingContext);
     }
@@ -176,7 +176,7 @@ namespace edm {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> {
   public:
-    typedef RunPrincipal MyPrincipal;
+    typedef RunPrincipal  MyPrincipal;
     typedef GlobalContext Context;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = false;
@@ -195,13 +195,13 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                GlobalContext const* globalContext,
+    static void preModuleSignal(ActivityRegistry*           a,
+                                GlobalContext const*        globalContext,
                                 ModuleCallingContext const* moduleCallingContext) {
       a->preModuleGlobalEndRunSignal_(*globalContext, *moduleCallingContext);
     }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 GlobalContext const* globalContext,
+    static void postModuleSignal(ActivityRegistry*           a,
+                                 GlobalContext const*        globalContext,
                                  ModuleCallingContext const* moduleCallingContext) {
       a->postModuleGlobalEndRunSignal_(*globalContext, *moduleCallingContext);
     }
@@ -212,7 +212,7 @@ namespace edm {
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> {
   public:
     typedef LuminosityBlockPrincipal MyPrincipal;
-    typedef GlobalContext Context;
+    typedef GlobalContext            Context;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = false;
@@ -230,13 +230,13 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                GlobalContext const* globalContext,
+    static void preModuleSignal(ActivityRegistry*           a,
+                                GlobalContext const*        globalContext,
                                 ModuleCallingContext const* moduleCallingContext) {
       a->preModuleGlobalBeginLumiSignal_(*globalContext, *moduleCallingContext);
     }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 GlobalContext const* globalContext,
+    static void postModuleSignal(ActivityRegistry*           a,
+                                 GlobalContext const*        globalContext,
                                  ModuleCallingContext const* moduleCallingContext) {
       a->postModuleGlobalBeginLumiSignal_(*globalContext, *moduleCallingContext);
     }
@@ -247,7 +247,7 @@ namespace edm {
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> {
   public:
     typedef LuminosityBlockPrincipal MyPrincipal;
-    typedef StreamContext Context;
+    typedef StreamContext            Context;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = false;
@@ -268,13 +268,13 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                StreamContext const* streamContext,
+    static void preModuleSignal(ActivityRegistry*           a,
+                                StreamContext const*        streamContext,
                                 ModuleCallingContext const* moduleCallingContext) {
       a->preModuleStreamBeginLumiSignal_(*streamContext, *moduleCallingContext);
     }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 StreamContext const* streamContext,
+    static void postModuleSignal(ActivityRegistry*           a,
+                                 StreamContext const*        streamContext,
                                  ModuleCallingContext const* moduleCallingContext) {
       a->postModuleStreamBeginLumiSignal_(*streamContext, *moduleCallingContext);
     }
@@ -285,7 +285,7 @@ namespace edm {
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> {
   public:
     typedef LuminosityBlockPrincipal MyPrincipal;
-    typedef StreamContext Context;
+    typedef StreamContext            Context;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = false;
     static bool constexpr isEvent_ = false;
@@ -308,13 +308,13 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                StreamContext const* streamContext,
+    static void preModuleSignal(ActivityRegistry*           a,
+                                StreamContext const*        streamContext,
                                 ModuleCallingContext const* moduleCallingContext) {
       a->preModuleStreamEndLumiSignal_(*streamContext, *moduleCallingContext);
     }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 StreamContext const* streamContext,
+    static void postModuleSignal(ActivityRegistry*           a,
+                                 StreamContext const*        streamContext,
                                  ModuleCallingContext const* moduleCallingContext) {
       a->postModuleStreamEndLumiSignal_(*streamContext, *moduleCallingContext);
     }
@@ -325,7 +325,7 @@ namespace edm {
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> {
   public:
     typedef LuminosityBlockPrincipal MyPrincipal;
-    typedef GlobalContext Context;
+    typedef GlobalContext            Context;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = false;
     static bool constexpr isEvent_ = false;
@@ -343,13 +343,13 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                GlobalContext const* globalContext,
+    static void preModuleSignal(ActivityRegistry*           a,
+                                GlobalContext const*        globalContext,
                                 ModuleCallingContext const* moduleCallingContext) {
       a->preModuleGlobalEndLumiSignal_(*globalContext, *moduleCallingContext);
     }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 GlobalContext const* globalContext,
+    static void postModuleSignal(ActivityRegistry*           a,
+                                 GlobalContext const*        globalContext,
                                  ModuleCallingContext const* moduleCallingContext) {
       a->postModuleGlobalEndLumiSignal_(*globalContext, *moduleCallingContext);
     }

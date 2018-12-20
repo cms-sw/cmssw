@@ -68,7 +68,7 @@ namespace edm {
         }
 
         virtual std::shared_ptr<C> globalBeginRun(RunForOutput const&) const = 0;
-        virtual void globalEndRun(RunForOutput const&) const = 0;
+        virtual void               globalEndRun(RunForOutput const&) const = 0;
         // When threaded we will have a container for N items whre N is # of simultaneous runs
         edm::propagate_const<std::shared_ptr<C>> cache_;
       };
@@ -82,7 +82,7 @@ namespace edm {
         ~LuminosityBlockCacheHolder() noexcept(false) override{};
 
       protected:
-        void preallocLumis(unsigned int iNLumis) final { caches_.reset(new std::shared_ptr<C>[iNLumis]); }
+        void     preallocLumis(unsigned int iNLumis) final { caches_.reset(new std::shared_ptr<C>[iNLumis]); }
         C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return caches_[iID].get(); }
 
       private:
@@ -95,7 +95,7 @@ namespace edm {
         }
 
         virtual std::shared_ptr<C> globalBeginLuminosityBlock(LuminosityBlockForOutput const&) const = 0;
-        virtual void globalEndLuminosityBlock(LuminosityBlockForOutput const&) const = 0;
+        virtual void               globalEndLuminosityBlock(LuminosityBlockForOutput const&) const = 0;
         // When threaded we will have a container for N items whre N is # of simultaneous runs
         std::unique_ptr<std::shared_ptr<C>[]> caches_;
       };

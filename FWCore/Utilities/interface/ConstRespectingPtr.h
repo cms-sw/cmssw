@@ -42,7 +42,7 @@ namespace edm {
 
     void set(std::unique_ptr<T> iNewValue);
 
-    T* release();
+    T*   release();
     void reset();
 
   private:

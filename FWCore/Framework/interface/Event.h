@@ -80,11 +80,11 @@ namespace edm {
 
     void setProducerCommon(ProducerBase const* iProd, std::vector<BranchID>* previousParentage);
 
-    void setProducer(ProducerBase const* iProd,
+    void setProducer(ProducerBase const*    iProd,
                      std::vector<BranchID>* previousParentage,
                      std::vector<BranchID>* gotBranchIDsFromAcquire = nullptr);
 
-    void setProducerForAcquire(ProducerBase const* iProd,
+    void setProducerForAcquire(ProducerBase const*    iProd,
                                std::vector<BranchID>* previousParentage,
                                std::vector<BranchID>& gotBranchIDsFromAcquire);
 
@@ -107,7 +107,7 @@ namespace edm {
      denote that you have not yet checked the value.
      */
     typedef unsigned long CacheIdentifier_t;
-    CacheIdentifier_t cacheIdentifier() const;
+    CacheIdentifier_t     cacheIdentifier() const;
 
     template <typename PROD>
     bool get(ProductID const& oid, Handle<PROD>& result) const;
@@ -183,8 +183,8 @@ namespace edm {
     bool getByLabel(std::string const& label, Handle<View<ELEMENT>>& result) const;
 
     template <typename ELEMENT>
-    bool getByLabel(std::string const& label,
-                    std::string const& productInstanceName,
+    bool getByLabel(std::string const&     label,
+                    std::string const&     productInstanceName,
                     Handle<View<ELEMENT>>& result) const;
 
     template <typename ELEMENT>
@@ -224,7 +224,7 @@ namespace edm {
     size_t size() const;
 
     edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
-    TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
+    TriggerResultsByName     triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
 
     ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
 
@@ -248,7 +248,7 @@ namespace edm {
     // override used by EventBase class
     BasicHandle getByLabelImpl(std::type_info const& iWrapperType,
                                std::type_info const& iProductType,
-                               InputTag const& iTag) const override;
+                               InputTag const&       iTag) const override;
 
     // override used by EventBase class
     BasicHandle getImpl(std::type_info const& iProductType, ProductID const& pid) const override;
@@ -275,7 +275,7 @@ namespace edm {
 
     BasicHandle getByProductID_(ProductID const& oid) const;
 
-    ProductPtrVec& putProducts() { return putProducts_; }
+    ProductPtrVec&       putProducts() { return putProducts_; }
     ProductPtrVec const& putProducts() const { return putProducts_; }
 
     PrincipalGetAdapter provRecorder_;
@@ -285,7 +285,7 @@ namespace edm {
     //
     ProductPtrVec putProducts_;
 
-    EventAuxiliary const& aux_;
+    EventAuxiliary const&                        aux_;
     std::shared_ptr<LuminosityBlock const> const luminosityBlock_;
 
     // gotBranchIDs_ must be mutable because it records all 'gets',
@@ -293,10 +293,10 @@ namespace edm {
     // merely a cache reflecting what has been retrieved from the
     // Principal class.
     typedef std::unordered_set<BranchID::value_type> BranchIDSet;
-    mutable BranchIDSet gotBranchIDs_;
-    mutable std::vector<bool> gotBranchIDsFromPrevious_;
-    std::vector<BranchID>* previousBranchIDs_ = nullptr;
-    std::vector<BranchID>* gotBranchIDsFromAcquire_ = nullptr;
+    mutable BranchIDSet                              gotBranchIDs_;
+    mutable std::vector<bool>                        gotBranchIDsFromPrevious_;
+    std::vector<BranchID>*                           previousBranchIDs_ = nullptr;
+    std::vector<BranchID>*                           gotBranchIDsFromAcquire_ = nullptr;
 
     void addToGotBranchIDs(Provenance const& prov) const;
     void addToGotBranchIDs(BranchID const& branchID) const;
@@ -304,7 +304,7 @@ namespace edm {
     // We own the retrieved Views, and have to destroy them.
     mutable std::vector<std::shared_ptr<ViewBase>> gotViews_;
 
-    StreamID streamID_;
+    StreamID                    streamID_;
     ModuleCallingContext const* moduleCallingContext_;
 
     static const std::string emptyString_;
@@ -351,7 +351,7 @@ namespace edm {
     assert(index < putProducts().size());
 
     std::unique_ptr<Wrapper<PROD>> wp(new Wrapper<PROD>(std::move(product)));
-    PROD const* prod = wp->product();
+    PROD const*                    prod = wp->product();
 
     putProducts()[index] = std::move(wp);
     auto const& prodID = provRecorder_.getProductID(index);
@@ -542,8 +542,8 @@ namespace edm {
   }
 
   template <typename ELEMENT>
-  bool Event::getByLabel(std::string const& moduleLabel,
-                         std::string const& productInstanceName,
+  bool Event::getByLabel(std::string const&     moduleLabel,
+                         std::string const&     productInstanceName,
                          Handle<View<ELEMENT>>& result) const {
     result.clear();
     BasicHandle bh = provRecorder_.getMatchingSequenceByLabel_(
@@ -591,7 +591,7 @@ namespace edm {
   template <typename ELEMENT>
   void Event::fillView_(BasicHandle& bh, Handle<View<ELEMENT>>& result) const {
     std::vector<void const*> pointersToElements;
-    FillViewHelperVector helpers;
+    FillViewHelperVector     helpers;
     // the following must initialize the
     //  fill the helper vector
     bh.wrapper()->fillView(bh.id(), pointersToElements, helpers);

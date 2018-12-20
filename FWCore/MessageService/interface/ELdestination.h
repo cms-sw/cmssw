@@ -97,8 +97,8 @@ namespace edm {
       virtual void attachTime();
       virtual void separateEpilogue();
       virtual void attachEpilogue();
-      virtual int setLineLength(int len);
-      virtual int getLineLength() const;
+      virtual int  setLineLength(int len);
+      virtual int  getLineLength() const;
 
       virtual void wipe();
       virtual void zero();
@@ -115,16 +115,16 @@ namespace edm {
       virtual void flush();
 
     protected:
-      ELseverityLevel threshold;
-      ELseverityLevel traceThreshold;
-      ELlimitsTable limits;
-      ELstring preamble;
-      ELstring newline;
-      ELstring indent;
-      int lineLength;
-      bool ignoreMostModules;
+      ELseverityLevel                 threshold;
+      ELseverityLevel                 traceThreshold;
+      ELlimitsTable                   limits;
+      ELstring                        preamble;
+      ELstring                        newline;
+      ELstring                        indent;
+      int                             lineLength;
+      bool                            ignoreMostModules;
       std::unordered_set<std::string> respondToThese;
-      bool respondToMostModules;
+      bool                            respondToMostModules;
       std::unordered_set<std::string> ignoreThese;
       // Fix $001 2/13/01 mf
 #ifndef DEFECT_NO_STATIC_CONST_INIT

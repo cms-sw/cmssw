@@ -79,8 +79,8 @@ namespace edm {
       virtual bool wantsGlobalLuminosityBlocks() const = 0;
       virtual bool hasAcquire() const = 0;
       virtual bool hasAccumulator() const = 0;
-      bool wantsStreamRuns() const { return true; }
-      bool wantsStreamLuminosityBlocks() const { return true; }
+      bool         wantsStreamRuns() const { return true; }
+      bool         wantsStreamLuminosityBlocks() const { return true; }
 
       void registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg);
 
@@ -90,10 +90,10 @@ namespace edm {
 
       void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
 
-      void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
-                                           ProductRegistry const& preg,
+      void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>&                 modules,
+                                           ProductRegistry const&                                 preg,
                                            std::map<std::string, ModuleDescription const*> const& labelsToDesc,
-                                           std::string const& processName) const;
+                                           std::string const&                                     processName) const;
 
       void convertCurrentProcessAlias(std::string const& processName);
 
@@ -102,9 +102,9 @@ namespace edm {
       using ModuleToResolverIndicies =
           std::unordered_multimap<std::string, std::tuple<edm::TypeID const*, const char*, edm::ProductResolverIndex>>;
 
-      void resolvePutIndicies(BranchType iBranchType,
+      void resolvePutIndicies(BranchType                      iBranchType,
                               ModuleToResolverIndicies const& iIndicies,
-                              std::string const& moduleLabel);
+                              std::string const&              moduleLabel);
 
       std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const;
 
@@ -133,10 +133,10 @@ namespace edm {
 
       const ProducingModuleAdaptorBase& operator=(const ProducingModuleAdaptorBase&) = delete;  // stop default
 
-      void doPreallocate(PreallocationConfiguration const&);
+      void         doPreallocate(PreallocationConfiguration const&);
       virtual void preallocLumis(unsigned int) {}
       virtual void setupStreamModules() = 0;
-      void doBeginJob();
+      void         doBeginJob();
       virtual void doEndJob() = 0;
 
       void doBeginStream(StreamID id);
@@ -146,24 +146,24 @@ namespace edm {
       void doStreamEndRun(StreamID id, RunPrincipal const& ep, EventSetup const& c, ModuleCallingContext const*);
       virtual void streamEndRunSummary(T*, edm::Run const&, edm::EventSetup const&) = 0;
 
-      void doStreamBeginLuminosityBlock(StreamID id,
-                                        LuminosityBlockPrincipal const& ep,
-                                        EventSetup const& c,
-                                        ModuleCallingContext const*);
+      void         doStreamBeginLuminosityBlock(StreamID                        id,
+                                                LuminosityBlockPrincipal const& ep,
+                                                EventSetup const&               c,
+                                                ModuleCallingContext const*);
       virtual void setupLuminosityBlock(T*, LuminosityBlockIndex) = 0;
-      void doStreamEndLuminosityBlock(StreamID id,
-                                      LuminosityBlockPrincipal const& ep,
-                                      EventSetup const& c,
-                                      ModuleCallingContext const*);
+      void         doStreamEndLuminosityBlock(StreamID                        id,
+                                              LuminosityBlockPrincipal const& ep,
+                                              EventSetup const&               c,
+                                              ModuleCallingContext const*);
       virtual void streamEndLuminosityBlockSummary(T*, edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
 
       virtual void doBeginRun(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const*) = 0;
       virtual void doEndRun(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const*) = 0;
       virtual void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                          EventSetup const& c,
+                                          EventSetup const&               c,
                                           ModuleCallingContext const*) = 0;
       virtual void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                        EventSetup const& c,
+                                        EventSetup const&               c,
                                         ModuleCallingContext const*) = 0;
 
       // For now, the following are just dummy implemenations with no ability for users to override
@@ -172,7 +172,7 @@ namespace edm {
       void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&);
 
       // ---------- member data --------------------------------
-      void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
+      void              setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
       ModuleDescription moduleDescription_;
 
     protected:

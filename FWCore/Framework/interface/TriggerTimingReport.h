@@ -15,31 +15,31 @@ reporting on the timing of the trigger.
 namespace edm {
 
   struct EventTimingSummary {
-    int totalEvents = 0;
+    int    totalEvents = 0;
     double cpuTime = 0.;
     double realTime = 0.;
     double sumStreamRealTime = 0.;
   };
 
   struct ModuleInPathTimingSummary {
-    int timesVisited = 0;
+    int    timesVisited = 0;
     double realTime = 0.;
 
     std::string moduleLabel;
   };
 
   struct PathTimingSummary {
-    int bitPosition = 0;
-    int timesRun = 0;
+    int    bitPosition = 0;
+    int    timesRun = 0;
     double realTime = 0.;
 
-    std::string name;
+    std::string                            name;
     std::vector<ModuleInPathTimingSummary> moduleInPathSummaries;
   };
 
   struct WorkerTimingSummary {
-    int timesVisited = 0;
-    int timesRun = 0;
+    int    timesVisited = 0;
+    int    timesRun = 0;
     double realTime = 0.;
 
     std::string moduleLabel;
@@ -50,9 +50,9 @@ namespace edm {
   }
 
   struct TriggerTimingReport {
-    EventTimingSummary eventSummary;
-    std::vector<PathTimingSummary> trigPathSummaries;
-    std::vector<PathTimingSummary> endPathSummaries;
+    EventTimingSummary               eventSummary;
+    std::vector<PathTimingSummary>   trigPathSummaries;
+    std::vector<PathTimingSummary>   endPathSummaries;
     std::vector<WorkerTimingSummary> workerSummaries;
   };
 

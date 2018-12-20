@@ -26,7 +26,7 @@ namespace edm {
     class Registry {
     public:
       typedef edm::ParameterSetID key_type;
-      typedef edm::ParameterSet value_type;
+      typedef edm::ParameterSet   value_type;
 
       static Registry* instance();
 
@@ -58,7 +58,7 @@ namespace edm {
         std::size_t operator()(key_type const& iKey) const { return iKey.smallHash(); }
       };
       typedef tbb::concurrent_unordered_map<key_type, value_type, key_hash> map_type;
-      typedef map_type::const_iterator const_iterator;
+      typedef map_type::const_iterator                                      const_iterator;
 
       const_iterator begin() const { return m_map.begin(); }
 
@@ -71,7 +71,7 @@ namespace edm {
       /// Fill the given map with the persistent form of each
       /// ParameterSet in the registry.
       typedef std::map<ParameterSetID, ParameterSetBlob> regmap_type;
-      void fillMap(regmap_type& fillme) const;
+      void                                               fillMap(regmap_type& fillme) const;
 
       void print(std::ostream& os) const;
 

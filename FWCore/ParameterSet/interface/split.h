@@ -67,7 +67,7 @@ FwdIter edm::contextual_find_not(FwdIter b, FwdIter e, char /* first */, char se
 template <class OutIter>
 bool edm::split(OutIter dest, std::string const& s, char first, char sep, char last) {
   typedef std::string::const_iterator str_c_iter;
-  str_c_iter b = s.begin(), e = s.end();
+  str_c_iter                          b = s.begin(), e = s.end();
 
   if (static_cast<unsigned int>(e - b) < 2u)
     return false;

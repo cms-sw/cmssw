@@ -99,10 +99,10 @@ namespace edm {
       const Callback& operator=(const Callback&) = delete;  // stop default
 
       std::array<void*, produce::size<TReturn>::value> proxyData_;
-      edm::propagate_const<T*> producer_;
-      method_type method_;
-      bool wasCalledForThisRecord_;
-      TDecorator decorator_;
+      edm::propagate_const<T*>                         producer_;
+      method_type                                      method_;
+      bool                                             wasCalledForThisRecord_;
+      TDecorator                                       decorator_;
     };
   }  // namespace eventsetup
 }  // namespace edm

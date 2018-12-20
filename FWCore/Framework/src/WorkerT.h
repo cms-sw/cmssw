@@ -30,7 +30,7 @@ namespace edm {
   template <typename T>
   class WorkerT : public Worker {
   public:
-    typedef T ModuleType;
+    typedef T          ModuleType;
     typedef WorkerT<T> WorkerType;
     WorkerT(std::shared_ptr<T>, ModuleDescription const&, ExceptionToActionTable const* actions);
 
@@ -75,7 +75,7 @@ namespace edm {
         D, StreamID id, LuminosityBlockPrincipal const& rp, EventSetup const& c, ModuleCallingContext const* mcc);
 
   protected:
-    T& module() { return *module_; }
+    T&       module() { return *module_; }
     T const& module() const { return *module_; }
 
   private:
@@ -84,33 +84,33 @@ namespace edm {
     void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const final;
     bool implNeedToRunSelection() const final;
 
-    void implDoAcquire(EventPrincipal const& ep,
-                       EventSetup const& c,
+    void implDoAcquire(EventPrincipal const&       ep,
+                       EventSetup const&           c,
                        ModuleCallingContext const* mcc,
                        WaitingTaskWithArenaHolder& holder) final;
 
     bool implDoPrePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) override;
     bool implDoBegin(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const* mcc) override;
-    bool implDoStreamBegin(StreamID id,
-                           RunPrincipal const& rp,
-                           EventSetup const& c,
+    bool implDoStreamBegin(StreamID                    id,
+                           RunPrincipal const&         rp,
+                           EventSetup const&           c,
                            ModuleCallingContext const* mcc) override;
-    bool implDoStreamEnd(StreamID id,
-                         RunPrincipal const& rp,
-                         EventSetup const& c,
+    bool implDoStreamEnd(StreamID                    id,
+                         RunPrincipal const&         rp,
+                         EventSetup const&           c,
                          ModuleCallingContext const* mcc) override;
     bool implDoEnd(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const* mcc) override;
     bool implDoBegin(LuminosityBlockPrincipal const& lbp,
-                     EventSetup const& c,
-                     ModuleCallingContext const* mcc) override;
-    bool implDoStreamBegin(StreamID id,
+                     EventSetup const&               c,
+                     ModuleCallingContext const*     mcc) override;
+    bool implDoStreamBegin(StreamID                        id,
                            LuminosityBlockPrincipal const& lbp,
-                           EventSetup const& c,
-                           ModuleCallingContext const* mcc) override;
-    bool implDoStreamEnd(StreamID id,
+                           EventSetup const&               c,
+                           ModuleCallingContext const*     mcc) override;
+    bool implDoStreamEnd(StreamID                        id,
                          LuminosityBlockPrincipal const& lbp,
-                         EventSetup const& c,
-                         ModuleCallingContext const* mcc) override;
+                         EventSetup const&               c,
+                         ModuleCallingContext const*     mcc) override;
     bool implDoEnd(LuminosityBlockPrincipal const& lbp, EventSetup const& c, ModuleCallingContext const* mcc) override;
     void implBeginJob() override;
     void implEndJob() override;
@@ -119,12 +119,12 @@ namespace edm {
     void implRespondToOpenInputFile(FileBlock const& fb) override;
     void implRespondToCloseInputFile(FileBlock const& fb) override;
     void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) override;
-    std::string workerType() const override;
+    std::string      workerType() const override;
     TaskQueueAdaptor serializeRunModule() override;
 
     void modulesWhoseProductsAreConsumed(
-        std::vector<ModuleDescription const*>& modules,
-        ProductRegistry const& preg,
+        std::vector<ModuleDescription const*>&                 modules,
+        ProductRegistry const&                                 preg,
         std::map<std::string, ModuleDescription const*> const& labelsToDesc) const override {
       module_->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, module_->moduleDescription().processName());
     }
@@ -149,9 +149,9 @@ namespace edm {
 
     std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const override;
 
-    void preActionBeforeRunEventAsync(WaitingTask* iTask,
+    void preActionBeforeRunEventAsync(WaitingTask*                iTask,
                                       ModuleCallingContext const& iModuleCallingContext,
-                                      Principal const& iPrincipal) const override {
+                                      Principal const&            iPrincipal) const override {
       module_->preActionBeforeRunEventAsync(iTask, iModuleCallingContext, iPrincipal);
     }
 

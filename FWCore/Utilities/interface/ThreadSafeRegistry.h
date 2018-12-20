@@ -33,10 +33,10 @@ namespace edm {
     template <typename KEY, typename T>
     class ThreadSafeRegistry {
     public:
-      typedef KEY key_type;
-      typedef T value_type;
+      typedef KEY                                     key_type;
+      typedef T                                       value_type;
       typedef typename std::map<key_type, value_type> collection_type;
-      typedef typename collection_type::size_type size_type;
+      typedef typename collection_type::size_type     size_type;
 
       typedef typename std::vector<value_type> vector_type;
 
@@ -90,7 +90,7 @@ namespace edm {
       ThreadSafeRegistry<KEY, T>& operator=(ThreadSafeRegistry<KEY, T> const&) = delete;
 
       mutable std::mutex mutex_;
-      collection_type data_;
+      collection_type    data_;
     };
 
     template <typename KEY, typename T, typename E>

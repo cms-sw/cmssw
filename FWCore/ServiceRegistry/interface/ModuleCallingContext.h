@@ -38,24 +38,24 @@ namespace edm {
 
     ModuleCallingContext(ModuleDescription const* moduleDescription);
 
-    ModuleCallingContext(ModuleDescription const* moduleDescription,
-                         State state,
-                         ParentContext const& parent,
+    ModuleCallingContext(ModuleDescription const*    moduleDescription,
+                         State                       state,
+                         ParentContext const&        parent,
                          ModuleCallingContext const* previousOnThread);
 
     void setContext(State state, ParentContext const& parent, ModuleCallingContext const* previousOnThread);
 
     void setState(State state) { state_ = state; }
 
-    ModuleDescription const* moduleDescription() const { return moduleDescription_; }
-    State state() const { return state_; }
-    Type type() const { return parent_.type(); }
-    ParentContext const& parent() const { return parent_; }
+    ModuleDescription const*    moduleDescription() const { return moduleDescription_; }
+    State                       state() const { return state_; }
+    Type                        type() const { return parent_.type(); }
+    ParentContext const&        parent() const { return parent_; }
     ModuleCallingContext const* moduleCallingContext() const { return parent_.moduleCallingContext(); }
-    PlaceInPathContext const* placeInPathContext() const { return parent_.placeInPathContext(); }
-    StreamContext const* streamContext() const { return parent_.streamContext(); }
-    GlobalContext const* globalContext() const { return parent_.globalContext(); }
-    InternalContext const* internalContext() const { return parent_.internalContext(); }
+    PlaceInPathContext const*   placeInPathContext() const { return parent_.placeInPathContext(); }
+    StreamContext const*        streamContext() const { return parent_.streamContext(); }
+    GlobalContext const*        globalContext() const { return parent_.globalContext(); }
+    InternalContext const*      internalContext() const { return parent_.internalContext(); }
 
     // These functions will iterate up a series of linked context objects
     // to find the StreamContext or GlobalContext at the top of the series.
@@ -76,9 +76,9 @@ namespace edm {
 
   private:
     ModuleCallingContext const* previousModuleOnThread_;
-    ModuleDescription const* moduleDescription_;
-    ParentContext parent_;
-    State state_;
+    ModuleDescription const*    moduleDescription_;
+    ParentContext               parent_;
+    State                       state_;
   };
 
   std::ostream& operator<<(std::ostream&, ModuleCallingContext const&);

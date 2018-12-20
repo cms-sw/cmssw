@@ -44,13 +44,13 @@ namespace edm {
 
     void openFile(edm::FileBlock const& fb) override;
 
-    void writeRunAsync(WaitingTaskHolder iTask,
+    void writeRunAsync(WaitingTaskHolder        iTask,
                        edm::RunPrincipal const& rp,
                        ProcessContext const*,
                        ActivityRegistry*,
                        MergeableRunProductMetadata const*) override;
 
-    void writeLumiAsync(WaitingTaskHolder iTask,
+    void writeLumiAsync(WaitingTaskHolder                    iTask,
                         edm::LuminosityBlockPrincipal const& lbp,
                         ProcessContext const*,
                         ActivityRegistry*) override;
@@ -66,7 +66,7 @@ namespace edm {
 
     void setEventSelectionInfo(
         std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
-        bool anyProductProduced) override;
+        bool                                                                     anyProductProduced) override;
 
     ModuleDescription const& description() const override;
 
@@ -76,7 +76,7 @@ namespace edm {
 
   private:
     inline T& module() const { return *module_; }
-    T* module_;
+    T*        module_;
   };
 }  // namespace edm
 #endif

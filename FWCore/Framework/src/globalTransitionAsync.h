@@ -35,44 +35,44 @@ namespace edm {
   class RunPrincipal;
 
   // This is code in common between beginStreamRun and beginGlobalLuminosityBlock
-  inline void subProcessDoGlobalBeginTransitionAsync(WaitingTaskHolder iHolder,
-                                                     SubProcess& iSubProcess,
+  inline void subProcessDoGlobalBeginTransitionAsync(WaitingTaskHolder         iHolder,
+                                                     SubProcess&               iSubProcess,
                                                      LuminosityBlockPrincipal& iPrincipal,
-                                                     IOVSyncValue const& iTS) {
+                                                     IOVSyncValue const&       iTS) {
     iSubProcess.doBeginLuminosityBlockAsync(std::move(iHolder), iPrincipal, iTS);
   }
 
-  inline void subProcessDoGlobalBeginTransitionAsync(WaitingTaskHolder iHolder,
-                                                     SubProcess& iSubProcess,
-                                                     RunPrincipal& iPrincipal,
+  inline void subProcessDoGlobalBeginTransitionAsync(WaitingTaskHolder   iHolder,
+                                                     SubProcess&         iSubProcess,
+                                                     RunPrincipal&       iPrincipal,
                                                      IOVSyncValue const& iTS) {
     iSubProcess.doBeginRunAsync(std::move(iHolder), iPrincipal, iTS);
   }
 
-  inline void subProcessDoGlobalEndTransitionAsync(WaitingTaskHolder iHolder,
-                                                   SubProcess& iSubProcess,
+  inline void subProcessDoGlobalEndTransitionAsync(WaitingTaskHolder         iHolder,
+                                                   SubProcess&               iSubProcess,
                                                    LuminosityBlockPrincipal& iPrincipal,
-                                                   IOVSyncValue const& iTS,
-                                                   bool cleaningUpAfterException) {
+                                                   IOVSyncValue const&       iTS,
+                                                   bool                      cleaningUpAfterException) {
     iSubProcess.doEndLuminosityBlockAsync(std::move(iHolder), iPrincipal, iTS, cleaningUpAfterException);
   }
 
-  inline void subProcessDoGlobalEndTransitionAsync(WaitingTaskHolder iHolder,
-                                                   SubProcess& iSubProcess,
-                                                   RunPrincipal& iPrincipal,
+  inline void subProcessDoGlobalEndTransitionAsync(WaitingTaskHolder   iHolder,
+                                                   SubProcess&         iSubProcess,
+                                                   RunPrincipal&       iPrincipal,
                                                    IOVSyncValue const& iTS,
-                                                   bool cleaningUpAfterException) {
+                                                   bool                cleaningUpAfterException) {
     iSubProcess.doEndRunAsync(std::move(iHolder), iPrincipal, iTS, cleaningUpAfterException);
   }
 
   template <typename Traits, typename P, typename SC>
-  void beginGlobalTransitionAsync(WaitingTaskHolder iWait,
-                                  Schedule& iSchedule,
-                                  P& iPrincipal,
+  void beginGlobalTransitionAsync(WaitingTaskHolder   iWait,
+                                  Schedule&           iSchedule,
+                                  P&                  iPrincipal,
                                   IOVSyncValue const& iTS,
-                                  EventSetup const& iES,
+                                  EventSetup const&   iES,
                                   ServiceToken const& token,
-                                  SC& iSubProcesses) {
+                                  SC&                 iSubProcesses) {
     // When we are done processing the global for this process,
     // we need to run the global for all SubProcesses
     auto subs = make_waiting_task(
@@ -98,14 +98,14 @@ namespace edm {
   }
 
   template <typename Traits, typename P, typename SC>
-  void endGlobalTransitionAsync(WaitingTaskHolder iWait,
-                                Schedule& iSchedule,
-                                P& iPrincipal,
+  void endGlobalTransitionAsync(WaitingTaskHolder   iWait,
+                                Schedule&           iSchedule,
+                                P&                  iPrincipal,
                                 IOVSyncValue const& iTS,
-                                EventSetup const& iES,
+                                EventSetup const&   iES,
                                 ServiceToken const& token,
-                                SC& iSubProcesses,
-                                bool cleaningUpAfterException) {
+                                SC&                 iSubProcesses,
+                                bool                cleaningUpAfterException) {
     // When we are done processing the global for this process,
     // we need to run the global for all SubProcesses
     auto subs = make_waiting_task(

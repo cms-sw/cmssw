@@ -37,9 +37,9 @@ namespace edm {
     IOVSyncValue(const EventID& iID, const Timestamp& iTime);
 
     // ---------- const member functions ---------------------
-    const EventID& eventID() const { return eventID_; }
+    const EventID&          eventID() const { return eventID_; }
     LuminosityBlockNumber_t luminosityBlockNumber() const { return eventID_.luminosityBlock(); }
-    const Timestamp& time() const { return time_; }
+    const Timestamp&        time() const { return time_; }
 
     bool operator==(const IOVSyncValue& iRHS) const { return comparable(iRHS) && doOp<std::equal_to>(iRHS); }
     bool operator!=(const IOVSyncValue& iRHS) const { return (!comparable(iRHS)) || doOp<std::not_equal_to>(iRHS); }
@@ -97,10 +97,10 @@ namespace edm {
     }
 
     // ---------- member data --------------------------------
-    EventID eventID_;
+    EventID   eventID_;
     Timestamp time_;
-    bool haveID_;
-    bool haveTime_;
+    bool      haveID_;
+    bool      haveTime_;
   };
 
 }  // namespace edm

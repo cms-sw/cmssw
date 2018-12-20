@@ -51,7 +51,7 @@ namespace edm {
       // --- buffer parameters:  (were private but needed by MainTrhreadMLscribe
       static const int buf_depth = 500;
       static const int buf_size = sizeof(MessageLoggerQ::OpCode) + sizeof(void*);
-      SingleConsumerQ m_buf;
+      SingleConsumerQ  m_buf;
     };
 
   }  // end namespace service

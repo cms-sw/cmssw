@@ -51,7 +51,7 @@ namespace edm {
     }
 
   private:
-    std::atomic<int> m_ntimes;
+    std::atomic<int>  m_ntimes;
     std::atomic<bool> m_done;
   };
 }  // namespace edm

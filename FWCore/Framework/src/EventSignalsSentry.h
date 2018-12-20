@@ -37,7 +37,7 @@ namespace edm {
 
   private:
     // ---------- member data --------------------------------
-    ActivityRegistry* m_reg;  // We do not use propagate_const because the registry itself is mutable.
+    ActivityRegistry*           m_reg;  // We do not use propagate_const because the registry itself is mutable.
     ModuleCallingContext const* m_context;
   };
 }  // namespace edm

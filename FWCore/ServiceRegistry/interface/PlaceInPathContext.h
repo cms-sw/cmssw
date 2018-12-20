@@ -20,13 +20,13 @@ namespace edm {
   public:
     PlaceInPathContext(unsigned int);
 
-    unsigned int placeInPath() const { return placeInPath_; }
+    unsigned int       placeInPath() const { return placeInPath_; }
     PathContext const* pathContext() const { return pathContext_; }
 
     void setPathContext(PathContext const* v) { pathContext_ = v; }
 
   private:
-    unsigned int placeInPath_;
+    unsigned int       placeInPath_;
     PathContext const* pathContext_;
   };
 

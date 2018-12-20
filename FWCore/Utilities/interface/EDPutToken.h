@@ -48,7 +48,7 @@ namespace edm {
 
     // ---------- const member functions ---------------------
     value_type index() const { return m_value; }
-    bool isUninitialized() const { return m_value == s_uninitializedValue; }
+    bool       isUninitialized() const { return m_value == s_uninitializedValue; }
 
   private:
     // for testing
@@ -75,7 +75,7 @@ namespace edm {
 
     // ---------- const member functions ---------------------
     value_type index() const { return m_value; }
-    bool isUninitialized() const { return m_value == s_uninitializedValue; }
+    bool       isUninitialized() const { return m_value == s_uninitializedValue; }
 
   private:
     // for testing

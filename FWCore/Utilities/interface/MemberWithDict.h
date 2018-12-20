@@ -23,16 +23,16 @@ namespace edm {
   public:
     MemberWithDict();
     explicit MemberWithDict(TDataMember*);
-    explicit operator bool() const;
-    std::string name() const;
-    bool isArray() const;
-    bool isConst() const;
-    bool isPublic() const;
-    bool isStatic() const;
-    bool isTransient() const;
-    size_t offset() const;
-    TypeWithDict declaringType() const;
-    TypeWithDict typeOf() const;
+    explicit       operator bool() const;
+    std::string    name() const;
+    bool           isArray() const;
+    bool           isConst() const;
+    bool           isPublic() const;
+    bool           isStatic() const;
+    bool           isTransient() const;
+    size_t         offset() const;
+    TypeWithDict   declaringType() const;
+    TypeWithDict   typeOf() const;
     ObjectWithDict get() const;
     ObjectWithDict get(ObjectWithDict const&) const;
   };

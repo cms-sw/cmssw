@@ -45,19 +45,19 @@ namespace edm {
   public:
     typedef hlt::HLTState State;
 
-    typedef std::vector<WorkerInPath> WorkersInPath;
-    typedef WorkersInPath::size_type size_type;
+    typedef std::vector<WorkerInPath>        WorkersInPath;
+    typedef WorkersInPath::size_type         size_type;
     typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
-    Path(int bitpos,
-         std::string const& path_name,
-         WorkersInPath const& workers,
-         TrigResPtr trptr,
-         ExceptionToActionTable const& actions,
+    Path(int                               bitpos,
+         std::string const&                path_name,
+         WorkersInPath const&              workers,
+         TrigResPtr                        trptr,
+         ExceptionToActionTable const&     actions,
          std::shared_ptr<ActivityRegistry> reg,
-         StreamContext const* streamContext,
-         std::atomic<bool>* stopProcessEvent,
-         PathContext::PathType pathType);
+         StreamContext const*              streamContext,
+         std::atomic<bool>*                stopProcessEvent,
+         PathContext::PathType             pathType);
 
     Path(Path const&);
 
@@ -76,7 +76,7 @@ namespace edm {
                                    StreamID const&,
                                    StreamContext const*);
 
-    int bitPosition() const { return bitpos_; }
+    int                bitPosition() const { return bitpos_; }
     std::string const& name() const { return pathContext_.pathName(); }
 
     void clearCounters();
@@ -88,11 +88,11 @@ namespace edm {
     // int abortWorker() const { return abortWorker_; }
     State state() const { return state_; }
 
-    size_type size() const { return workers_.size(); }
-    int timesVisited(size_type i) const { return workers_.at(i).timesVisited(); }
-    int timesPassed(size_type i) const { return workers_.at(i).timesPassed(); }
-    int timesFailed(size_type i) const { return workers_.at(i).timesFailed(); }
-    int timesExcept(size_type i) const { return workers_.at(i).timesExcept(); }
+    size_type     size() const { return workers_.size(); }
+    int           timesVisited(size_type i) const { return workers_.at(i).timesVisited(); }
+    int           timesPassed(size_type i) const { return workers_.at(i).timesPassed(); }
+    int           timesFailed(size_type i) const { return workers_.at(i).timesFailed(); }
+    int           timesExcept(size_type i) const { return workers_.at(i).timesExcept(); }
     Worker const* getWorker(size_type i) const { return workers_.at(i).getWorker(); }
 
     void setEarlyDeleteHelpers(std::map<const Worker*, EarlyDeleteHelper*> const&);
@@ -111,47 +111,47 @@ namespace edm {
     // int abortWorker_;
     State state_;
 
-    int bitpos_;
-    TrigResPtr trptr_;
+    int                               bitpos_;
+    TrigResPtr                        trptr_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
-    ExceptionToActionTable const* act_table_;
+    ExceptionToActionTable const*     act_table_;
 
-    WorkersInPath workers_;
+    WorkersInPath                   workers_;
     std::vector<EarlyDeleteHelper*> earlyDeleteHelpers_;
 
-    PathContext pathContext_;
-    WaitingTaskList waitingTasks_;
+    PathContext        pathContext_;
+    WaitingTaskList    waitingTasks_;
     std::atomic<bool>* stopProcessingEvent_;
 
     PathStatusInserter* pathStatusInserter_;
-    Worker* pathStatusInserterWorker_;
+    Worker*             pathStatusInserterWorker_;
 
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)
-    bool handleWorkerFailure(cms::Exception& e,
-                             int nwrwue,
-                             bool isEvent,
-                             bool begin,
-                             BranchType branchType,
-                             ModuleDescription const&,
-                             std::string const& id);
+    bool        handleWorkerFailure(cms::Exception& e,
+                                    int             nwrwue,
+                                    bool            isEvent,
+                                    bool            begin,
+                                    BranchType      branchType,
+                                    ModuleDescription const&,
+                                    std::string const& id);
     static void exceptionContext(cms::Exception& ex,
-                                 bool isEvent,
-                                 bool begin,
-                                 BranchType branchType,
+                                 bool            isEvent,
+                                 bool            begin,
+                                 BranchType      branchType,
                                  ModuleDescription const&,
                                  std::string const& id,
                                  PathContext const&);
-    void recordStatus(int nwrwue, bool isEvent);
-    void updateCounters(bool succeed, bool isEvent);
+    void        recordStatus(int nwrwue, bool isEvent);
+    void        updateCounters(bool succeed, bool isEvent);
 
-    void finished(int iModuleIndex,
+    void finished(int  iModuleIndex,
                   bool iSucceeded,
                   std::exception_ptr,
                   StreamContext const*,
                   EventPrincipal const& iEP,
-                  EventSetup const& iES,
-                  StreamID const& streamID);
+                  EventSetup const&     iES,
+                  StreamID const&       streamID);
 
     void handleEarlyFinish(EventPrincipal const&);
     void handleEarlyFinish(RunPrincipal const&) {}
@@ -159,12 +159,12 @@ namespace edm {
 
     // Handle asynchronous processing
     void workerFinished(std::exception_ptr const* iException,
-                        unsigned int iModuleIndex,
-                        EventPrincipal const& iEP,
-                        EventSetup const& iES,
-                        ServiceToken const& iToken,
-                        StreamID const& iID,
-                        StreamContext const* iContext);
+                        unsigned int              iModuleIndex,
+                        EventPrincipal const&     iEP,
+                        EventSetup const&         iES,
+                        ServiceToken const&       iToken,
+                        StreamID const&           iID,
+                        StreamContext const*      iContext);
     void runNextWorkerAsync(unsigned int iNextModuleIndex,
                             EventPrincipal const&,
                             EventSetup const&,
@@ -177,10 +177,10 @@ namespace edm {
     template <typename T>
     class PathSignalSentry {
     public:
-      PathSignalSentry(ActivityRegistry* a,
-                       int const& nwrwue,
+      PathSignalSentry(ActivityRegistry*    a,
+                       int const&           nwrwue,
                        hlt::HLTState const& state,
-                       PathContext const* pathContext)
+                       PathContext const*   pathContext)
           : a_(a), nwrwue_(nwrwue), state_(state), pathContext_(pathContext) {
         if (a_)
           T::prePathSignal(a_, pathContext_);
@@ -192,20 +192,20 @@ namespace edm {
       }
 
     private:
-      ActivityRegistry* a_;  // We do not use propagate_const because the registry itself is mutable.
-      int const& nwrwue_;
+      ActivityRegistry*    a_;  // We do not use propagate_const because the registry itself is mutable.
+      int const&           nwrwue_;
       hlt::HLTState const& state_;
-      PathContext const* pathContext_;
+      PathContext const*   pathContext_;
     };
   }  // namespace
 
   template <typename T>
-  void Path::runAllModulesAsync(WaitingTask* task,
+  void Path::runAllModulesAsync(WaitingTask*                   task,
                                 typename T::MyPrincipal const& p,
-                                EventSetup const& es,
-                                ServiceToken const& token,
-                                StreamID const& streamID,
-                                typename T::Context const* context) {
+                                EventSetup const&              es,
+                                ServiceToken const&            token,
+                                StreamID const&                streamID,
+                                typename T::Context const*     context) {
     for (auto& worker : workers_) {
       worker.runWorkerAsync<T>(task, p, es, token, streamID, context);
     }

@@ -25,11 +25,11 @@ namespace edm {
       void operator=(MessageServicePresence const&) = delete;          // Disallow copying
 
       std::shared_ptr<ThreadQueue const> queue() const { return get_underlying_safe(m_queue); }
-      std::shared_ptr<ThreadQueue>& queue() { return get_underlying_safe(m_queue); }
+      std::shared_ptr<ThreadQueue>&      queue() { return get_underlying_safe(m_queue); }
 
       // --- data:
       edm::propagate_const<std::shared_ptr<ThreadQueue>> m_queue;
-      boost::thread m_scribeThread;
+      boost::thread                                      m_scribeThread;
 
     };  // MessageServicePresence
 

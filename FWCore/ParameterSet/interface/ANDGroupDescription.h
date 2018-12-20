@@ -20,9 +20,9 @@ namespace edm {
     ANDGroupDescription(ParameterDescriptionNode const& node_left, ParameterDescriptionNode const& node_right);
 
     ANDGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
-                        ParameterDescriptionNode const& node_right);
+                        ParameterDescriptionNode const&           node_right);
 
-    ANDGroupDescription(ParameterDescriptionNode const& node_left,
+    ANDGroupDescription(ParameterDescriptionNode const&           node_left,
                         std::unique_ptr<ParameterDescriptionNode> node_right);
 
     ANDGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
@@ -31,7 +31,7 @@ namespace edm {
     ParameterDescriptionNode* clone() const override { return new ANDGroupDescription(*this); }
 
   private:
-    void checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+    void checkAndGetLabelsAndTypes_(std::set<std::string>&    usedLabels,
                                     std::set<ParameterTypes>& parameterTypes,
                                     std::set<ParameterTypes>& wildcardTypes) const override;
 

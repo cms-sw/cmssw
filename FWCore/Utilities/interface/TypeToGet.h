@@ -39,7 +39,7 @@ namespace edm {
 
     // ---------- const member functions ---------------------
     TypeID const& type() const { return m_type; }
-    KindOfType kind() const { return m_kind; }
+    KindOfType    kind() const { return m_kind; }
 
     // ---------- static member functions --------------------
     template <typename T>
@@ -71,7 +71,7 @@ namespace edm {
     TypeToGet() = delete;
 
     // ---------- member data --------------------------------
-    TypeID m_type;
+    TypeID     m_type;
     KindOfType m_kind;
   };
 }  // namespace edm

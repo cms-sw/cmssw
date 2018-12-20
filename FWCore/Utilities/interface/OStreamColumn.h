@@ -47,7 +47,7 @@ namespace edm {
   template <typename T>
   struct OStreamColumnEntry {
     OStreamColumn const& col;
-    T t;
+    T                    t;
   };
 
   class OStreamColumn {

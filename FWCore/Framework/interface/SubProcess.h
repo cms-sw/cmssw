@@ -43,18 +43,18 @@ namespace edm {
   }
   class SubProcess : public EDConsumerBase {
   public:
-    SubProcess(ParameterSet& parameterSet,
-               ParameterSet const& topLevelParameterSet,
-               std::shared_ptr<ProductRegistry const> parentProductRegistry,
+    SubProcess(ParameterSet&                             parameterSet,
+               ParameterSet const&                       topLevelParameterSet,
+               std::shared_ptr<ProductRegistry const>    parentProductRegistry,
                std::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
-               ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
-               SubProcessParentageHelper const& parentSubProcessParentageHelper,
-               eventsetup::EventSetupsController& esController,
-               ActivityRegistry& parentActReg,
-               ServiceToken const& token,
-               serviceregistry::ServiceLegacy iLegacy,
-               PreallocationConfiguration const& preallocConfig,
-               ProcessContext const* parentProcessContext);
+               ThinnedAssociationsHelper const&          parentThinnedAssociationsHelper,
+               SubProcessParentageHelper const&          parentSubProcessParentageHelper,
+               eventsetup::EventSetupsController&        esController,
+               ActivityRegistry&                         parentActReg,
+               ServiceToken const&                       token,
+               serviceregistry::ServiceLegacy            iLegacy,
+               PreallocationConfiguration const&         preallocConfig,
+               ProcessContext const*                     parentProcessContext);
 
     ~SubProcess() override;
 
@@ -64,9 +64,9 @@ namespace edm {
     SubProcess& operator=(SubProcess&&) = default;      // Allow moving
 
     // From OutputModule
-    void selectProducts(ProductRegistry const& preg,
+    void selectProducts(ProductRegistry const&           preg,
                         ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
-                        std::map<BranchID, bool>& keepAssociation);
+                        std::map<BranchID, bool>&        keepAssociation);
 
     SelectedProductsForBranchType const& keptProducts() const { return keptProducts_; }
 
@@ -77,43 +77,43 @@ namespace edm {
 
     void doBeginRunAsync(WaitingTaskHolder iHolder, RunPrincipal const& principal, IOVSyncValue const& ts);
 
-    void doEndRunAsync(WaitingTaskHolder iHolder,
+    void doEndRunAsync(WaitingTaskHolder   iHolder,
                        RunPrincipal const& principal,
                        IOVSyncValue const& ts,
-                       bool cleaningUpAfterException);
+                       bool                cleaningUpAfterException);
 
-    void doBeginLuminosityBlockAsync(WaitingTaskHolder iHolder,
+    void doBeginLuminosityBlockAsync(WaitingTaskHolder               iHolder,
                                      LuminosityBlockPrincipal const& principal,
-                                     IOVSyncValue const& ts);
+                                     IOVSyncValue const&             ts);
 
-    void doEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
+    void doEndLuminosityBlockAsync(WaitingTaskHolder               iHolder,
                                    LuminosityBlockPrincipal const& principal,
-                                   IOVSyncValue const& ts,
-                                   bool cleaningUpAfterException);
+                                   IOVSyncValue const&             ts,
+                                   bool                            cleaningUpAfterException);
 
     void doBeginStream(unsigned int);
     void doEndStream(unsigned int);
-    void doStreamBeginRunAsync(WaitingTaskHolder iHolder,
-                               unsigned int iID,
+    void doStreamBeginRunAsync(WaitingTaskHolder   iHolder,
+                               unsigned int        iID,
                                RunPrincipal const& principal,
                                IOVSyncValue const& ts);
 
-    void doStreamEndRunAsync(WaitingTaskHolder iHolder,
-                             unsigned int iID,
+    void doStreamEndRunAsync(WaitingTaskHolder   iHolder,
+                             unsigned int        iID,
                              RunPrincipal const& principal,
                              IOVSyncValue const& ts,
-                             bool cleaningUpAfterException);
+                             bool                cleaningUpAfterException);
 
-    void doStreamBeginLuminosityBlockAsync(WaitingTaskHolder iHolder,
-                                           unsigned int iID,
+    void doStreamBeginLuminosityBlockAsync(WaitingTaskHolder               iHolder,
+                                           unsigned int                    iID,
                                            LuminosityBlockPrincipal const& principal,
-                                           IOVSyncValue const& ts);
+                                           IOVSyncValue const&             ts);
 
-    void doStreamEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
-                                         unsigned int iID,
+    void doStreamEndLuminosityBlockAsync(WaitingTaskHolder               iHolder,
+                                         unsigned int                    iID,
                                          LuminosityBlockPrincipal const& principal,
-                                         IOVSyncValue const& ts,
-                                         bool cleaningUpAfterException);
+                                         IOVSyncValue const&             ts,
+                                         bool                            cleaningUpAfterException);
 
     // Write the luminosity block
     void writeLumiAsync(WaitingTaskHolder, LuminosityBlockPrincipal&);
@@ -123,7 +123,7 @@ namespace edm {
     // Write the run
     void writeRunAsync(WaitingTaskHolder,
                        ProcessHistoryID const& parentPhID,
-                       int runNumber,
+                       int                     runNumber,
                        MergeableRunProductMetadata const*);
 
     void deleteRunFromCache(ProcessHistoryID const& parentPhID, int runNumber);
@@ -248,9 +248,9 @@ namespace edm {
     void propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const;
     void fixBranchIDListsForEDAliases(
         std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
-    void keepThisBranch(BranchDescription const& desc,
+    void keepThisBranch(BranchDescription const&                      desc,
                         std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
-                        std::set<BranchID>& keptProductsInEvent);
+                        std::set<BranchID>&                           keptProductsInEvent);
 
     std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID() {
       return droppedBranchIDToKeptBranchID_;
@@ -268,42 +268,42 @@ namespace edm {
     }
 
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
-    ServiceToken serviceToken_;
-    std::shared_ptr<ProductRegistry const> parentPreg_;
-    std::shared_ptr<ProductRegistry const> preg_;
-    edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    ServiceToken                      serviceToken_;
+    std::shared_ptr<ProductRegistry const>                           parentPreg_;
+    std::shared_ptr<ProductRegistry const>                           preg_;
+    edm::propagate_const<std::shared_ptr<BranchIDListHelper>>        branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     edm::propagate_const<std::shared_ptr<SubProcessParentageHelper>> subProcessParentageHelper_;
-    std::unique_ptr<ExceptionToActionTable const> act_table_;
-    std::shared_ptr<ProcessConfiguration const> processConfiguration_;
-    ProcessContext processContext_;
-    PathsAndConsumesOfModules pathsAndConsumesOfModules_;
+    std::unique_ptr<ExceptionToActionTable const>                    act_table_;
+    std::shared_ptr<ProcessConfiguration const>                      processConfiguration_;
+    ProcessContext                                                   processContext_;
+    PathsAndConsumesOfModules                                        pathsAndConsumesOfModules_;
     // We require 1 history for each Run, Lumi and Stream
     // The vectors first hold Stream info, then Lumi then Run
-    unsigned int historyLumiOffset_;
-    unsigned int historyRunOffset_;
+    unsigned int                        historyLumiOffset_;
+    unsigned int                        historyRunOffset_;
     std::vector<ProcessHistoryRegistry> processHistoryRegistries_;
-    std::vector<HistoryAppender> historyAppenders_;
-    PrincipalCache principalCache_;
+    std::vector<HistoryAppender>        historyAppenders_;
+    PrincipalCache                      principalCache_;
     // vector index is principal lumi's index value
-    std::vector<std::shared_ptr<LuminosityBlockPrincipal>> inUseLumiPrincipals_;
+    std::vector<std::shared_ptr<LuminosityBlockPrincipal>>                inUseLumiPrincipals_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
-    edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
-    std::map<ProcessHistoryID, ProcessHistoryID> parentToChildPhID_;
-    std::vector<SubProcess> subProcesses_;
-    edm::propagate_const<std::unique_ptr<ParameterSet>> processParameterSet_;
+    edm::propagate_const<std::unique_ptr<Schedule>>                       schedule_;
+    std::map<ProcessHistoryID, ProcessHistoryID>                          parentToChildPhID_;
+    std::vector<SubProcess>                                               subProcesses_;
+    edm::propagate_const<std::unique_ptr<ParameterSet>>                   processParameterSet_;
 
     // keptProducts_ are pointers to the BranchDescription objects describing
     // the branches we are to write.
     //
     // We do not own the BranchDescriptions to which we point.
     SelectedProductsForBranchType keptProducts_;
-    ProductSelectorRules productSelectorRules_;
-    ProductSelector productSelector_;
+    ProductSelectorRules          productSelectorRules_;
+    ProductSelector               productSelector_;
 
     // EventSelection
-    bool wantAllEvents_;
-    ParameterSetID selector_config_id_;
+    bool                                             wantAllEvents_;
+    ParameterSetID                                   selector_config_id_;
     mutable detail::TriggerResultsBasedEventSelector selectors_;
 
     // needed because of possible EDAliases.

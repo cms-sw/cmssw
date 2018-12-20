@@ -61,8 +61,8 @@ namespace edm {
       EDProducerBase(ParameterSet const& pset);
       ~EDProducerBase() override;
 
-      static void fillDescriptions(ConfigurationDescriptions& descriptions);
-      static void prevalidate(ConfigurationDescriptions& descriptions);
+      static void               fillDescriptions(ConfigurationDescriptions& descriptions);
+      static void               prevalidate(ConfigurationDescriptions& descriptions);
       static const std::string& baseType();
 
       // Warning: the returned moduleDescription will be invalid during construction
@@ -87,19 +87,19 @@ namespace edm {
       void doEndStream(StreamID id);
       void doStreamBeginRun(StreamID id, RunPrincipal const& ep, EventSetup const& c, ModuleCallingContext const*);
       void doStreamEndRun(StreamID id, RunPrincipal const& ep, EventSetup const& c, ModuleCallingContext const*);
-      void doStreamBeginLuminosityBlock(StreamID id,
+      void doStreamBeginLuminosityBlock(StreamID                        id,
                                         LuminosityBlockPrincipal const& ep,
-                                        EventSetup const& c,
+                                        EventSetup const&               c,
                                         ModuleCallingContext const*);
-      void doStreamEndLuminosityBlock(StreamID id,
+      void doStreamEndLuminosityBlock(StreamID                        id,
                                       LuminosityBlockPrincipal const& ep,
-                                      EventSetup const& c,
+                                      EventSetup const&               c,
                                       ModuleCallingContext const*);
 
       void doBeginRun(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const*);
       void doEndRun(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const*);
       void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                  EventSetup const& c,
+                                  EventSetup const&               c,
                                   ModuleCallingContext const*);
       void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c, ModuleCallingContext const*);
 
@@ -115,9 +115,9 @@ namespace edm {
 
       virtual void produce(StreamID, Event&, EventSetup const&) const = 0;
       // For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask*                iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,
-                                                    Principal const& iPrincipal) const {}
+                                                    Principal const&            iPrincipal) const {}
 
       virtual void beginJob() {}
       virtual void endJob() {}
@@ -152,11 +152,11 @@ namespace edm {
 
       bool hasAcquire() const { return false; }
 
-      void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
+      void              setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
       ModuleDescription moduleDescription_;
       std::unique_ptr<std::vector<BranchID>[]> previousParentages_;
-      std::unique_ptr<ParentageID[]> previousParentageIds_;
-      LimitedTaskQueue queue_;
+      std::unique_ptr<ParentageID[]>           previousParentageIds_;
+      LimitedTaskQueue                         queue_;
     };
 
   }  // namespace limited

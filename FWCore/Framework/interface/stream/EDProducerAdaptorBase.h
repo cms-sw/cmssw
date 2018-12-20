@@ -80,9 +80,9 @@ namespace edm {
                      WaitingTaskWithArenaHolder&);
 
       // For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask*                iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,
-                                                    Principal const& iPrincipal) const {}
+                                                    Principal const&            iPrincipal) const {}
     };
   }  // namespace stream
 }  // namespace edm

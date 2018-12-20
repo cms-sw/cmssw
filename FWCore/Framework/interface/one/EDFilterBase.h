@@ -56,8 +56,8 @@ namespace edm {
       EDFilterBase();
       ~EDFilterBase() override;
 
-      static void fillDescriptions(ConfigurationDescriptions& descriptions);
-      static void prevalidate(ConfigurationDescriptions& descriptions);
+      static void               fillDescriptions(ConfigurationDescriptions& descriptions);
+      static void               prevalidate(ConfigurationDescriptions& descriptions);
       static const std::string& baseType();
 
       // Warning: the returned moduleDescription will be invalid during construction
@@ -65,8 +65,8 @@ namespace edm {
 
       virtual bool wantsGlobalRuns() const = 0;
       virtual bool wantsGlobalLuminosityBlocks() const = 0;
-      bool wantsStreamRuns() const { return false; }
-      bool wantsStreamLuminosityBlocks() const { return false; };
+      bool         wantsStreamRuns() const { return false; }
+      bool         wantsStreamLuminosityBlocks() const { return false; };
 
       virtual SerialTaskQueue* globalRunsQueue();
       virtual SerialTaskQueue* globalLuminosityBlocksQueue();
@@ -74,19 +74,19 @@ namespace edm {
     private:
       bool doEvent(EventPrincipal const& ep, EventSetup const& c, ActivityRegistry*, ModuleCallingContext const*);
       // For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask*                iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,
-                                                    Principal const& iPrincipal) const {}
+                                                    Principal const&            iPrincipal) const {}
 
-      void doPreallocate(PreallocationConfiguration const&);
+      void         doPreallocate(PreallocationConfiguration const&);
       virtual void preallocLumis(unsigned int);
-      void doBeginJob();
-      void doEndJob();
+      void         doBeginJob();
+      void         doEndJob();
 
       void doBeginRun(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const*);
       void doEndRun(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const*);
       void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                  EventSetup const& c,
+                                  EventSetup const&               c,
                                   ModuleCallingContext const*);
       void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c, ModuleCallingContext const*);
 
@@ -123,10 +123,10 @@ namespace edm {
 
       virtual SharedResourcesAcquirer createAcquirer();
 
-      void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
-      ModuleDescription moduleDescription_;
+      void                  setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
+      ModuleDescription     moduleDescription_;
       std::vector<BranchID> previousParentage_;
-      ParentageID previousParentageId_;
+      ParentageID           previousParentageId_;
 
       SharedResourcesAcquirer resourcesAcquirer_;
     };

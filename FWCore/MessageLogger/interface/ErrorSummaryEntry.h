@@ -35,10 +35,10 @@
 namespace edm {
 
   struct ErrorSummaryEntry {
-    std::string category;
-    std::string module;
+    std::string     category;
+    std::string     module;
     ELseverityLevel severity;
-    unsigned int count;
+    unsigned int    count;
     ErrorSummaryEntry(std::string const& cat, std::string const& mod, ELseverityLevel sev, unsigned int cnt = 0)
         : category(cat), module(mod), severity(sev), count(cnt) {}
     ErrorSummaryEntry() : category(), module(), severity(), count(0) {}

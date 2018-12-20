@@ -39,21 +39,21 @@ namespace edm {
 
     bool isAtEndTransition() const;
 
-    GlobalContext const* globalContext() const;
-    InternalContext const* internalContext() const;
+    GlobalContext const*        globalContext() const;
+    InternalContext const*      internalContext() const;
     ModuleCallingContext const* moduleCallingContext() const;
-    PlaceInPathContext const* placeInPathContext() const;
-    StreamContext const* streamContext() const;
+    PlaceInPathContext const*   placeInPathContext() const;
+    StreamContext const*        streamContext() const;
 
   private:
     Type type_;
 
     union Parent {
-      GlobalContext const* global;
-      InternalContext const* internal;
+      GlobalContext const*        global;
+      InternalContext const*      internal;
       ModuleCallingContext const* module;
-      PlaceInPathContext const* placeInPath;
-      StreamContext const* stream;
+      PlaceInPathContext const*   placeInPath;
+      StreamContext const*        stream;
     } parent_;
   };
 

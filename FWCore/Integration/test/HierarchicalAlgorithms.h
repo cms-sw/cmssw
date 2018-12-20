@@ -19,7 +19,7 @@ namespace edmtest {
 
   private:
     std::string flavor_;
-    int debugLevel_;
+    int         debugLevel_;
   };
 
   class alg_1 {
@@ -28,7 +28,7 @@ namespace edmtest {
         : count_(ps.getParameter<int>("count")), inner_alg_(ps.getParameterSet("nest_2")) {}
 
   private:
-    int count_;
+    int   count_;
     alg_2 inner_alg_;
   };
 

@@ -15,7 +15,7 @@ namespace edm {
     const unsigned int mask = 0x7f800000;
     union {
       unsigned int l;
-      float d;
+      float        d;
     } v;
     v.d = x;
     return (v.l & mask) != mask;
@@ -26,7 +26,7 @@ namespace edm {
     const unsigned long long mask = 0x7FF0000000000000LL;
     union {
       unsigned long long l;
-      double d;
+      double             d;
     } v;
     v.d = x;
     return (v.l & mask) != mask;

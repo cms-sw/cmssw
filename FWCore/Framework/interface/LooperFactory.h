@@ -41,7 +41,7 @@ namespace edm {
       template <class T>
       void addProviderTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent, const DataProxyProvider*) {
         std::shared_ptr<DataProxyProvider> pProvider(iComponent);
-        ComponentDescription description = pProvider->description();
+        ComponentDescription               description = pProvider->description();
         description.isSource_ = true;
         description.isLooper_ = true;
         if (description.label_ == "@main_looper") {
@@ -58,7 +58,7 @@ namespace edm {
 
       template <class T>
       void addFinderTo(EventSetupProvider& iProvider,
-                       std::shared_ptr<T> iComponent,
+                       std::shared_ptr<T>  iComponent,
                        const EventSetupRecordIntervalFinder*) {
         std::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
 
@@ -80,7 +80,7 @@ namespace edm {
     }  // namespace looper
     struct LooperMakerTraits {
       typedef EDLooperBase base_type;
-      static std::string name();
+      static std::string   name();
       template <class T>
       static void addTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent, ParameterSet const&, bool) {
         // a looper does not always have to be a provider or a finder
@@ -91,10 +91,10 @@ namespace edm {
       static void replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<EDLooperBase> iComponent);
 
       static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
-                                                                       ParameterSet const& iConfiguration);
-      static void putComponent(EventSetupsController& esController,
-                               ParameterSet const& iConfiguration,
-                               std::shared_ptr<base_type> const& component);
+                                                                       ParameterSet const&    iConfiguration);
+      static void                       putComponent(EventSetupsController&            esController,
+                                                     ParameterSet const&               iConfiguration,
+                                                     std::shared_ptr<base_type> const& component);
     };
     template <class TType>
     struct LooperMaker : public ComponentMaker<edm::eventsetup::LooperMakerTraits, TType> {};

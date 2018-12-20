@@ -59,21 +59,21 @@ namespace edm {
   public:
     typedef std::vector<propagate_const<std::shared_ptr<ProductResolverBase>>> ProductResolverCollection;
     typedef boost::filter_iterator<FilledProductPtr, ProductResolverCollection::const_iterator> const_iterator;
-    typedef boost::filter_iterator<FilledProductPtr, ProductResolverCollection::iterator> iterator;
-    typedef ProcessHistory::const_iterator ProcessNameConstIterator;
-    typedef ProductResolverBase const* ConstProductResolverPtr;
-    typedef std::vector<BasicHandle> BasicHandleVec;
+    typedef boost::filter_iterator<FilledProductPtr, ProductResolverCollection::iterator>       iterator;
+    typedef ProcessHistory::const_iterator       ProcessNameConstIterator;
+    typedef ProductResolverBase const*           ConstProductResolverPtr;
+    typedef std::vector<BasicHandle>             BasicHandleVec;
     typedef ProductResolverCollection::size_type size_type;
 
     typedef std::shared_ptr<ProductResolverBase> SharedProductPtr;
-    typedef std::string ProcessName;
+    typedef std::string                          ProcessName;
 
-    Principal(std::shared_ptr<ProductRegistry const> reg,
+    Principal(std::shared_ptr<ProductRegistry const>            reg,
               std::shared_ptr<ProductResolverIndexHelper const> productLookup,
-              ProcessConfiguration const& pc,
-              BranchType bt,
-              HistoryAppender* historyAppender,
-              bool isForPrimaryProcess = true);
+              ProcessConfiguration const&                       pc,
+              BranchType                                        bt,
+              HistoryAppender*                                  historyAppender,
+              bool                                              isForPrimaryProcess = true);
 
     ~Principal() override;
 
@@ -101,40 +101,40 @@ namespace edm {
     //      c.  typeID is the same as or a public base of
     //      this value_type,
 
-    BasicHandle getByLabel(KindOfType kindOfType,
-                           TypeID const& typeID,
-                           InputTag const& inputTag,
-                           EDConsumerBase const* consumes,
-                           SharedResourcesAcquirer* sra,
+    BasicHandle getByLabel(KindOfType                  kindOfType,
+                           TypeID const&               typeID,
+                           InputTag const&             inputTag,
+                           EDConsumerBase const*       consumes,
+                           SharedResourcesAcquirer*    sra,
                            ModuleCallingContext const* mcc) const;
 
-    BasicHandle getByLabel(KindOfType kindOfType,
-                           TypeID const& typeID,
-                           std::string const& label,
-                           std::string const& instance,
-                           std::string const& process,
-                           EDConsumerBase const* consumes,
-                           SharedResourcesAcquirer* sra,
+    BasicHandle getByLabel(KindOfType                  kindOfType,
+                           TypeID const&               typeID,
+                           std::string const&          label,
+                           std::string const&          instance,
+                           std::string const&          process,
+                           EDConsumerBase const*       consumes,
+                           SharedResourcesAcquirer*    sra,
                            ModuleCallingContext const* mcc) const;
 
-    BasicHandle getByToken(KindOfType kindOfType,
-                           TypeID const& typeID,
-                           ProductResolverIndex index,
-                           bool skipCurrentProcess,
-                           bool& ambiguous,
-                           SharedResourcesAcquirer* sra,
+    BasicHandle getByToken(KindOfType                  kindOfType,
+                           TypeID const&               typeID,
+                           ProductResolverIndex        index,
+                           bool                        skipCurrentProcess,
+                           bool&                       ambiguous,
+                           SharedResourcesAcquirer*    sra,
                            ModuleCallingContext const* mcc) const;
 
-    void prefetchAsync(WaitingTask* waitTask,
-                       ProductResolverIndex index,
-                       bool skipCurrentProcess,
-                       ServiceToken const& token,
+    void prefetchAsync(WaitingTask*                waitTask,
+                       ProductResolverIndex        index,
+                       bool                        skipCurrentProcess,
+                       ServiceToken const&         token,
                        ModuleCallingContext const* mcc) const;
 
-    void getManyByType(TypeID const& typeID,
-                       BasicHandleVec& results,
-                       EDConsumerBase const* consumes,
-                       SharedResourcesAcquirer* sra,
+    void getManyByType(TypeID const&               typeID,
+                       BasicHandleVec&             results,
+                       EDConsumerBase const*       consumes,
+                       SharedResourcesAcquirer*    sra,
                        ModuleCallingContext const* mcc) const;
 
     ProcessHistory const& processHistory() const { return *processHistoryPtr_; }
@@ -181,14 +181,14 @@ namespace edm {
 
     // This will never return 0 so you can use 0 to mean unset
     typedef unsigned long CacheIdentifier_t;
-    CacheIdentifier_t cacheIdentifier() const { return cacheIdentifier_; }
+    CacheIdentifier_t     cacheIdentifier() const { return cacheIdentifier_; }
 
     DelayedReader* reader() const { return reader_; }
 
     ConstProductResolverPtr getProductResolver(BranchID const& oid) const;
 
-    ProductData const* findProductByTag(TypeID const& typeID,
-                                        InputTag const& tag,
+    ProductData const* findProductByTag(TypeID const&               typeID,
+                                        InputTag const&             tag,
                                         ModuleCallingContext const* mcc) const;
 
     void readAllFromSourceAndMergeImmediately(MergeableRunProductMetadata const* mergeableRunProductMetadata = nullptr);
@@ -201,9 +201,9 @@ namespace edm {
     // ----- Add a new ProductResolver
     // *this takes ownership of the ProductResolver, which in turn owns its
     // data.
-    void addProduct_(std::unique_ptr<ProductResolverBase> phb);
-    void addProductOrThrow(std::unique_ptr<ProductResolverBase> phb);
-    ProductResolverBase* getExistingProduct(BranchID const& branchID);
+    void                       addProduct_(std::unique_ptr<ProductResolverBase> phb);
+    void                       addProductOrThrow(std::unique_ptr<ProductResolverBase> phb);
+    ProductResolverBase*       getExistingProduct(BranchID const& branchID);
     ProductResolverBase const* getExistingProduct(BranchID const& branchID) const;
     ProductResolverBase const* getExistingProduct(ProductResolverBase const& phb) const;
 
@@ -227,30 +227,30 @@ namespace edm {
 
     WrapperBase const* getIt(ProductID const&) const override;
     WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
-    void getThinnedProducts(ProductID const&,
-                            std::vector<WrapperBase const*>&,
-                            std::vector<unsigned int>&) const override;
+    void               getThinnedProducts(ProductID const&,
+                                          std::vector<WrapperBase const*>&,
+                                          std::vector<unsigned int>&) const override;
 
     void findProducts(std::vector<ProductResolverBase const*> const& holders,
-                      TypeID const& typeID,
-                      BasicHandleVec& results,
-                      SharedResourcesAcquirer* sra,
-                      ModuleCallingContext const* mcc) const;
+                      TypeID const&                                  typeID,
+                      BasicHandleVec&                                results,
+                      SharedResourcesAcquirer*                       sra,
+                      ModuleCallingContext const*                    mcc) const;
 
-    ProductData const* findProductByLabel(KindOfType kindOfType,
-                                          TypeID const& typeID,
-                                          InputTag const& inputTag,
-                                          EDConsumerBase const* consumer,
-                                          SharedResourcesAcquirer* sra,
+    ProductData const* findProductByLabel(KindOfType                  kindOfType,
+                                          TypeID const&               typeID,
+                                          InputTag const&             inputTag,
+                                          EDConsumerBase const*       consumer,
+                                          SharedResourcesAcquirer*    sra,
                                           ModuleCallingContext const* mcc) const;
 
-    ProductData const* findProductByLabel(KindOfType kindOfType,
-                                          TypeID const& typeID,
-                                          std::string const& label,
-                                          std::string const& instance,
-                                          std::string const& process,
-                                          EDConsumerBase const* consumer,
-                                          SharedResourcesAcquirer* sra,
+    ProductData const* findProductByLabel(KindOfType                  kindOfType,
+                                          TypeID const&               typeID,
+                                          std::string const&          label,
+                                          std::string const&          instance,
+                                          std::string const&          process,
+                                          EDConsumerBase const*       consumer,
+                                          SharedResourcesAcquirer*    sra,
                                           ModuleCallingContext const* mcc) const;
 
     void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* productResolver) const;
@@ -267,11 +267,11 @@ namespace edm {
 
     // Pointer to the product registry. There is one entry in the registry
     // for each EDProduct in the event.
-    std::shared_ptr<ProductRegistry const> preg_;
+    std::shared_ptr<ProductRegistry const>            preg_;
     std::shared_ptr<ProductResolverIndexHelper const> productLookup_;
 
     std::vector<unsigned int> lookupProcessOrder_;
-    ProcessHistoryID orderProcessHistoryID_;
+    ProcessHistoryID          orderProcessHistoryID_;
 
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store. This 'source' is owned by the input source.
@@ -288,10 +288,10 @@ namespace edm {
   };
 
   template <typename PROD>
-  inline std::shared_ptr<Wrapper<PROD> const> getProductByTag(Principal const& ep,
-                                                              InputTag const& tag,
+  inline std::shared_ptr<Wrapper<PROD> const> getProductByTag(Principal const&            ep,
+                                                              InputTag const&             tag,
                                                               ModuleCallingContext const* mcc) {
-    TypeID tid = TypeID(typeid(PROD));
+    TypeID             tid = TypeID(typeid(PROD));
     ProductData const* result = ep.findProductByTag(tid, tag, mcc);
     if (result == nullptr) {
       return std::shared_ptr<Wrapper<PROD> const>();

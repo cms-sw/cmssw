@@ -37,8 +37,8 @@ namespace edmtest {
     virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
 
   private:
-    int identifier;
-    int ev;
+    int  identifier;
+    int  ev;
     void printLES(std::vector<edm::ErrorSummaryEntry> const& v);
   };
 

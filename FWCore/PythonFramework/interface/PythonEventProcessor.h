@@ -55,7 +55,7 @@ private:
   const PythonEventProcessor& operator=(const PythonEventProcessor&) = delete;  // stop default
 
   // ---------- member data --------------------------------
-  int forcePluginSetupFirst_;
+  int                 forcePluginSetupFirst_;
   edm::EventProcessor processor_;
 };
 

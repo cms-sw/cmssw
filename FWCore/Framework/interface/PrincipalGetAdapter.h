@@ -115,13 +115,13 @@ namespace edm {
   class ProducerBase;
 
   namespace principal_get_adapter_detail {
-    void throwOnPutOfNullProduct(char const* principalType,
-                                 TypeID const& productType,
+    void throwOnPutOfNullProduct(char const*        principalType,
+                                 TypeID const&      productType,
                                  std::string const& productInstanceName);
     void throwOnPutOfUninitializedToken(char const* principalType, std::type_info const& productType);
     void throwOnPutOfWrongType(std::type_info const& wrongType, TypeID const& rightType);
-    void throwOnPrematureRead(char const* principalType,
-                              TypeID const& productType,
+    void throwOnPrematureRead(char const*        principalType,
+                              TypeID const&      productType,
                               std::string const& moduleLabel,
                               std::string const& productInstanceName);
     void throwOnPrematureRead(char const* principalType, TypeID const& productType);
@@ -166,12 +166,12 @@ namespace edm {
 
     EDPutToken::value_type getPutTokenIndex(TypeID const& type, std::string const& productInstanceName) const;
 
-    TypeID const& getTypeIDForPutTokenIndex(EDPutToken::value_type index) const;
-    std::string const& productInstanceLabel(EDPutToken) const;
+    TypeID const&                    getTypeIDForPutTokenIndex(EDPutToken::value_type index) const;
+    std::string const&               productInstanceLabel(EDPutToken) const;
     typedef std::vector<BasicHandle> BasicHandleVec;
 
     BranchDescription const& getBranchDescription(unsigned int iPutTokenIndex) const;
-    ProductID const& getProductID(unsigned int iPutTokenIndex) const;
+    ProductID const&         getProductID(unsigned int iPutTokenIndex) const;
 
     std::vector<edm::ProductResolverIndex> const& putTokenIndexToProductResolverIndex() const;
 
@@ -186,25 +186,25 @@ namespace edm {
 
     BasicHandle getByLabel_(TypeID const& tid, InputTag const& tag, ModuleCallingContext const* mcc) const;
 
-    BasicHandle getByLabel_(TypeID const& tid,
-                            std::string const& label,
-                            std::string const& instance,
-                            std::string const& process,
+    BasicHandle getByLabel_(TypeID const&               tid,
+                            std::string const&          label,
+                            std::string const&          instance,
+                            std::string const&          process,
                             ModuleCallingContext const* mcc) const;
 
-    BasicHandle getByToken_(TypeID const& id,
-                            KindOfType kindOfType,
-                            EDGetToken token,
+    BasicHandle getByToken_(TypeID const&               id,
+                            KindOfType                  kindOfType,
+                            EDGetToken                  token,
                             ModuleCallingContext const* mcc) const;
 
-    BasicHandle getMatchingSequenceByLabel_(TypeID const& typeID,
-                                            InputTag const& tag,
+    BasicHandle getMatchingSequenceByLabel_(TypeID const&               typeID,
+                                            InputTag const&             tag,
                                             ModuleCallingContext const* mcc) const;
 
-    BasicHandle getMatchingSequenceByLabel_(TypeID const& typeID,
-                                            std::string const& label,
-                                            std::string const& instance,
-                                            std::string const& process,
+    BasicHandle getMatchingSequenceByLabel_(TypeID const&               typeID,
+                                            std::string const&          label,
+                                            std::string const&          instance,
+                                            std::string const&          process,
                                             ModuleCallingContext const* mcc) const;
 
     void getManyByType_(TypeID const& tid, BasicHandleVec& results, ModuleCallingContext const* mcc) const;
@@ -238,11 +238,11 @@ namespace edm {
     // "transaction" which the PrincipalGetAdapter represents.
     ModuleDescription const& md_;
 
-    EDConsumerBase const* consumer_;
+    EDConsumerBase const*    consumer_;
     SharedResourcesAcquirer* resourcesAcquirer_;  // We do not use propagate_const because the acquirer is itself
                                                   // mutable.
     ProducerBase const* prodBase_ = nullptr;
-    bool isComplete_;
+    bool                isComplete_;
   };
 
   template <typename PROD>

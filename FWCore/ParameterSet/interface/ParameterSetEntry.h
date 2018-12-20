@@ -34,8 +34,8 @@ namespace edm {
     ParameterSetEntry& operator=(ParameterSetEntry&&) = default;
 
     std::string toString() const;
-    void toString(std::string& result) const;
-    void toDigest(cms::Digest& digest) const;
+    void        toString(std::string& result) const;
+    void        toDigest(cms::Digest& digest) const;
 
     bool isTracked() const { return isTracked_; }
     void setIsTracked(bool v) { isTracked_ = v; }
@@ -44,13 +44,13 @@ namespace edm {
 
     /// returns the PSet
     ParameterSet const& pset() const;
-    ParameterSet& psetForUpdate();
+    ParameterSet&       psetForUpdate();
     /// reconstitutes the PSet from the registry
     void fillPSet() const;
 
     void updateID();
 
-    std::string dump(unsigned int indent = 0) const;
+    std::string          dump(unsigned int indent = 0) const;
     friend std::ostream& operator<<(std::ostream& os, ParameterSetEntry const& psetEntry);
 
   private:

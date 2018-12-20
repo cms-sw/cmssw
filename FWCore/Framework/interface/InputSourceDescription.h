@@ -26,15 +26,15 @@ namespace edm {
           maxLumis_(-1),
           allocations_(nullptr) {}
 
-    InputSourceDescription(ModuleDescription const& md,
-                           std::shared_ptr<ProductRegistry> preg,
-                           std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+    InputSourceDescription(ModuleDescription const&                   md,
+                           std::shared_ptr<ProductRegistry>           preg,
+                           std::shared_ptr<BranchIDListHelper>        branchIDListHelper,
                            std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
-                           std::shared_ptr<ActivityRegistry> areg,
-                           int maxEvents,
-                           int maxLumis,
-                           int maxSecondsUntilRampdown,
-                           PreallocationConfiguration const& allocations)
+                           std::shared_ptr<ActivityRegistry>          areg,
+                           int                                        maxEvents,
+                           int                                        maxLumis,
+                           int                                        maxSecondsUntilRampdown,
+                           PreallocationConfiguration const&          allocations)
         : moduleDescription_(md),
           productRegistry_(preg),
           branchIDListHelper_(branchIDListHelper),
@@ -45,14 +45,14 @@ namespace edm {
           maxSecondsUntilRampdown_(maxSecondsUntilRampdown),
           allocations_(&allocations) {}
 
-    ModuleDescription moduleDescription_;
-    std::shared_ptr<ProductRegistry> productRegistry_;
-    std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
+    ModuleDescription                          moduleDescription_;
+    std::shared_ptr<ProductRegistry>           productRegistry_;
+    std::shared_ptr<BranchIDListHelper>        branchIDListHelper_;
     std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
-    int maxEvents_;
-    int maxLumis_;
-    int maxSecondsUntilRampdown_;
+    int                               maxEvents_;
+    int                               maxLumis_;
+    int                               maxSecondsUntilRampdown_;
     PreallocationConfiguration const* allocations_;
   };
 }  // namespace edm

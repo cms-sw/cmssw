@@ -41,10 +41,10 @@ namespace edm {
       std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions) const;
 
       virtual ModuleDescription const& moduleDescription() const = 0;
-      virtual void setModuleDescription(ModuleDescription const& iDesc) = 0;
-      virtual void preallocate(PreallocationConfiguration const&) = 0;
-      virtual void registerProductsAndCallbacks(ProductRegistry*) = 0;
-      virtual void replaceModuleFor(Worker*) const = 0;
+      virtual void                     setModuleDescription(ModuleDescription const& iDesc) = 0;
+      virtual void                     preallocate(PreallocationConfiguration const&) = 0;
+      virtual void                     registerProductsAndCallbacks(ProductRegistry*) = 0;
+      virtual void                     replaceModuleFor(Worker*) const = 0;
 
       virtual std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator() = 0;
 
@@ -58,7 +58,7 @@ namespace edm {
       ModuleHolderT(std::shared_ptr<T> iModule, Maker const* iMaker) : ModuleHolder(iMaker), m_mod(iModule) {}
       ~ModuleHolderT() override {}
       std::shared_ptr<T> module() const { return m_mod; }
-      void replaceModuleFor(Worker* iWorker) const override {
+      void               replaceModuleFor(Worker* iWorker) const override {
         auto w = dynamic_cast<WorkerT<T>*>(iWorker);
         assert(nullptr != w);
         w->setModule(m_mod);

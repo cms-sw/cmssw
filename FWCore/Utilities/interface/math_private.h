@@ -24,7 +24,7 @@ namespace edm {
 
     // A union which permits us to convert between a float and a 32 bit int.
     typedef union {
-      float value;
+      float     value;
       u_int32_t word;
     } ieee_float_shape_type;
 
@@ -41,9 +41,9 @@ namespace edm {
     typedef union {
       long double value;
       struct {
-        u_int32_t lsw;
-        u_int32_t msw;
-        int sign_exponent : 16;
+        u_int32_t    lsw;
+        u_int32_t    msw;
+        int          sign_exponent : 16;
         unsigned int empty : 16;
         // unsigned int empty1:32;   // maybe needed for 128-bit long double ? (x86-64 and/or -m128bit-long-double)
       } parts;

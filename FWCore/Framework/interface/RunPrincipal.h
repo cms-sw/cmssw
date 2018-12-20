@@ -33,15 +33,15 @@ namespace edm {
   class RunPrincipal : public Principal {
   public:
     typedef RunAuxiliary Auxiliary;
-    typedef Principal Base;
+    typedef Principal    Base;
 
-    RunPrincipal(std::shared_ptr<RunAuxiliary> aux,
+    RunPrincipal(std::shared_ptr<RunAuxiliary>          aux,
                  std::shared_ptr<ProductRegistry const> reg,
-                 ProcessConfiguration const& pc,
-                 HistoryAppender* historyAppender,
-                 unsigned int iRunIndex,
-                 bool isForPrimaryProcess = true,
-                 MergeableRunProductProcesses const* mergeableRunProductProcesses = nullptr);
+                 ProcessConfiguration const&            pc,
+                 HistoryAppender*                       historyAppender,
+                 unsigned int                           iRunIndex,
+                 bool                                   isForPrimaryProcess = true,
+                 MergeableRunProductProcesses const*    mergeableRunProductProcesses = nullptr);
     ~RunPrincipal() override;
 
     void fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = nullptr);
@@ -83,8 +83,8 @@ namespace edm {
     unsigned int transitionIndex_() const override;
 
     edm::propagate_const<std::shared_ptr<RunAuxiliary>> aux_;
-    ProcessHistoryID m_reducedHistoryID;
-    RunIndex index_;
+    ProcessHistoryID                                    m_reducedHistoryID;
+    RunIndex                                            index_;
 
     // For the primary input RunPrincipals created by the EventProcessor,
     // there should be one MergeableRunProductMetadata object created

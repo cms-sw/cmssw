@@ -50,11 +50,11 @@ namespace edm {
     ~PrincipalCache();
     PrincipalCache(PrincipalCache&&) = default;
 
-    RunPrincipal& runPrincipal(ProcessHistoryID const& phid, RunNumber_t run) const;
+    RunPrincipal&                        runPrincipal(ProcessHistoryID const& phid, RunNumber_t run) const;
     std::shared_ptr<RunPrincipal> const& runPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run) const;
-    RunPrincipal& runPrincipal() const;
+    RunPrincipal&                        runPrincipal() const;
     std::shared_ptr<RunPrincipal> const& runPrincipalPtr() const;
-    bool hasRunPrincipal() const { return bool(runPrincipal_); }
+    bool                                 hasRunPrincipal() const { return bool(runPrincipal_); }
 
     std::shared_ptr<LuminosityBlockPrincipal> getAvailableLumiPrincipalPtr();
 
@@ -83,9 +83,9 @@ namespace edm {
 
     // These are explicitly cleared when finished with the run,
     // lumi, or event
-    std::shared_ptr<RunPrincipal> runPrincipal_;
+    std::shared_ptr<RunPrincipal>                       runPrincipal_;
     edm::ReusableObjectHolder<LuminosityBlockPrincipal> lumiHolder_;
-    std::vector<std::shared_ptr<EventPrincipal>> eventPrincipals_;
+    std::vector<std::shared_ptr<EventPrincipal>>        eventPrincipals_;
 
     // This is just an accessor to the registry owned by the input source.
     ProcessHistoryRegistry const* processHistoryRegistry_;  // We don't own this
@@ -97,9 +97,9 @@ namespace edm {
     // expect that very often these ID's will not change from one
     // principal to the next and a good amount of CPU can be saved
     // by not recalculating.
-    ProcessHistoryID inputProcessHistoryID_;
-    ProcessHistoryID reducedInputProcessHistoryID_;
-    RunNumber_t run_;
+    ProcessHistoryID        inputProcessHistoryID_;
+    ProcessHistoryID        reducedInputProcessHistoryID_;
+    RunNumber_t             run_;
     LuminosityBlockNumber_t lumi_;
   };
 }  // namespace edm

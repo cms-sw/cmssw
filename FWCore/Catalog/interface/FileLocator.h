@@ -25,13 +25,13 @@ namespace edm {
     static int s_numberOfInstances;
 
     struct Rule {
-      std::regex pathMatch;
-      std::regex destinationMatch;
+      std::regex  pathMatch;
+      std::regex  destinationMatch;
       std::string result;
       std::string chain;
     };
 
-    typedef std::vector<Rule> Rules;
+    typedef std::vector<Rule>            Rules;
     typedef std::map<std::string, Rules> ProtocolRules;
 
     void init(std::string const& catUrl, bool fallback);
@@ -39,10 +39,10 @@ namespace edm {
     void parseRule(xercesc::DOMNode* ruleNode, ProtocolRules& rules);
 
     std::string applyRules(ProtocolRules const& protocolRules,
-                           std::string const& protocol,
-                           std::string const& destination,
-                           bool direct,
-                           std::string name) const;
+                           std::string const&   protocol,
+                           std::string const&   destination,
+                           bool                 direct,
+                           std::string          name) const;
 
     std::string convert(std::string const& input, ProtocolRules const& rules, bool direct) const;
 
@@ -51,10 +51,10 @@ namespace edm {
     /** Inverse rules are used to do the mapping from PFN to LFN*/
     ProtocolRules m_inverseRules;
 
-    std::string m_fileType;
-    std::string m_filename;
+    std::string              m_fileType;
+    std::string              m_filename;
     std::vector<std::string> m_protocols;
-    std::string m_destination;
+    std::string              m_destination;
   };
 }  // namespace edm
 

@@ -44,8 +44,8 @@ namespace edm {
     EDProducer();
     ~EDProducer() override;
 
-    static void fillDescriptions(ConfigurationDescriptions& descriptions);
-    static void prevalidate(ConfigurationDescriptions& descriptions);
+    static void               fillDescriptions(ConfigurationDescriptions& descriptions);
+    static void               prevalidate(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
 
     // Warning: the returned moduleDescription will be invalid during construction
@@ -62,9 +62,9 @@ namespace edm {
   private:
     bool doEvent(EventPrincipal const& ep, EventSetup const& c, ActivityRegistry* act, ModuleCallingContext const* mcc);
     // Needed by WorkerT but not supported
-    void preActionBeforeRunEventAsync(WaitingTask* iTask,
+    void preActionBeforeRunEventAsync(WaitingTask*                iTask,
                                       ModuleCallingContext const& iModuleCallingContext,
-                                      Principal const& iPrincipal) const {}
+                                      Principal const&            iPrincipal) const {}
 
     void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
@@ -72,11 +72,11 @@ namespace edm {
     void doBeginRun(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const* mcc);
     void doEndRun(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const* mcc);
     void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                EventSetup const& c,
-                                ModuleCallingContext const* mcc);
+                                EventSetup const&               c,
+                                ModuleCallingContext const*     mcc);
     void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                              EventSetup const& c,
-                              ModuleCallingContext const* mcc);
+                              EventSetup const&               c,
+                              ModuleCallingContext const*     mcc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
@@ -102,13 +102,13 @@ namespace edm {
     bool hasAcquire() const { return false; }
     bool hasAccumulator() const { return false; }
 
-    void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
-    ModuleDescription moduleDescription_;
-    std::vector<BranchID> previousParentage_;
+    void                    setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
+    ModuleDescription       moduleDescription_;
+    std::vector<BranchID>   previousParentage_;
     SharedResourcesAcquirer resourceAcquirer_;
-    SerialTaskQueue runQueue_;
-    SerialTaskQueue luminosityBlockQueue_;
-    ParentageID previousParentageId_;
+    SerialTaskQueue         runQueue_;
+    SerialTaskQueue         luminosityBlockQueue_;
+    ParentageID             previousParentageId_;
   };
 }  // namespace edm
 

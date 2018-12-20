@@ -537,7 +537,7 @@ namespace edm {
 
   private:
     MessageSender ap;
-    std::string stripLeadingDirectoryTree(const std::string& file) const;
+    std::string   stripLeadingDirectoryTree(const std::string& file) const;
     // change log 10
   };  // LogDebug_
 

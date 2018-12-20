@@ -39,51 +39,51 @@ namespace edm {
       EDGetTokenT<TriggerResults> const& token() const { return token_; }
 
     private:
-      InputTag inputTag_;
+      InputTag                    inputTag_;
       EDGetTokenT<TriggerResults> token_;
-      EventSelector eventSelector_;
+      EventSelector               eventSelector_;
     };
 
     class TriggerResultsBasedEventSelector {
     public:
       TriggerResultsBasedEventSelector();
-      typedef detail::handle_t handle_t;
-      typedef std::vector<NamedEventSelector> selectors_t;
+      typedef detail::handle_t                    handle_t;
+      typedef std::vector<NamedEventSelector>     selectors_t;
       typedef std::pair<std::string, std::string> parsed_path_spec_t;
 
       void setupDefault();
 
       void setup(std::vector<parsed_path_spec_t> const& path_specs,
-                 std::vector<std::string> const& triggernames,
-                 std::string const& process_name,
-                 ConsumesCollector&& iC);
+                 std::vector<std::string> const&        triggernames,
+                 std::string const&                     process_name,
+                 ConsumesCollector&&                    iC);
 
       bool wantEvent(EventForOutput const& e);
 
       unsigned int numberOfTokens() const { return selectors_.size(); }
-      EDGetToken token(unsigned int index) const { return selectors_[index].token(); }
+      EDGetToken   token(unsigned int index) const { return selectors_[index].token(); }
 
     private:
       selectors_t selectors_;
-      bool wantAllEvents_;
+      bool        wantAllEvents_;
     };
 
     /** Handles the final initialization of the TriggerResutsBasedEventSelector
      \return true if all events will be selected
      */
-    bool configureEventSelector(edm::ParameterSet const& iPSet,
-                                std::string const& iProcessName,
-                                std::vector<std::string> const& iAllTriggerNames,
+    bool configureEventSelector(edm::ParameterSet const&                       iPSet,
+                                std::string const&                             iProcessName,
+                                std::vector<std::string> const&                iAllTriggerNames,
                                 edm::detail::TriggerResultsBasedEventSelector& oSelector,
-                                ConsumesCollector&& iC);
+                                ConsumesCollector&&                            iC);
     /** Takes the user specified SelectEvents PSet and creates a new one
      which conforms to the canonical format required for provenance
      */
     ParameterSetID registerProperSelectionInfo(
-        edm::ParameterSet const& iInitial,
-        std::string const& iLabel,
+        edm::ParameterSet const&                                                 iInitial,
+        std::string const&                                                       iLabel,
         std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
-        bool anyProductProduced);
+        bool                                                                     anyProductProduced);
 
   }  // namespace detail
 }  // namespace edm

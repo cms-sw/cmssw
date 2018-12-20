@@ -24,10 +24,10 @@ namespace edm {
   template <class T>
   class ParameterSwitch : public ParameterSwitchBase {
   public:
-    typedef std::map<T, edm::value_ptr<ParameterDescriptionNode> > CaseMap;
+    typedef std::map<T, edm::value_ptr<ParameterDescriptionNode> >                          CaseMap;
     typedef typename std::map<T, edm::value_ptr<ParameterDescriptionNode> >::const_iterator CaseMapConstIter;
 
-    ParameterSwitch(ParameterDescription<T> const& switchParameter,
+    ParameterSwitch(ParameterDescription<T> const&                 switchParameter,
                     std::unique_ptr<ParameterDescriptionCases<T> > cases)
         : switch_(switchParameter), cases_(*cases->caseMap()) {
       if (cases->duplicateCaseValues()) {
@@ -38,10 +38,10 @@ namespace edm {
     ParameterDescriptionNode* clone() const override { return new ParameterSwitch(*this); }
 
   private:
-    void checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+    void checkAndGetLabelsAndTypes_(std::set<std::string>&    usedLabels,
                                     std::set<ParameterTypes>& parameterTypes,
                                     std::set<ParameterTypes>& wildcardTypes) const override {
-      std::set<std::string> caseLabels;
+      std::set<std::string>    caseLabels;
       std::set<ParameterTypes> caseParameterTypes;
       std::set<ParameterTypes> caseWildcardTypes;
       for_all(cases_, std::bind(&ParameterSwitch::checkCaseLabels, std::placeholders::_1, std::ref(caseLabels),
@@ -124,14 +124,14 @@ namespace edm {
     bool exists_(ParameterSet const& pset) const override { return switch_.exists(pset); }
 
     static void checkCaseLabels(std::pair<T, edm::value_ptr<ParameterDescriptionNode> > const& thePair,
-                                std::set<std::string>& labels,
-                                std::set<ParameterTypes>& parameterTypes,
-                                std::set<ParameterTypes>& wildcardTypes) {
+                                std::set<std::string>&                                         labels,
+                                std::set<ParameterTypes>&                                      parameterTypes,
+                                std::set<ParameterTypes>&                                      wildcardTypes) {
       thePair.second->checkAndGetLabelsAndTypes(labels, parameterTypes, wildcardTypes);
     }
 
     ParameterDescription<T> switch_;
-    CaseMap cases_;
+    CaseMap                 cases_;
   };
 }  // namespace edm
 #endif

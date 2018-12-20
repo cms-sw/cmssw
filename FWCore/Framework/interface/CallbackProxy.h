@@ -70,7 +70,7 @@ namespace edm::eventsetup {
     const CallbackProxy& operator=(const CallbackProxy&) = delete;
 
   private:
-    DataT data_{};
+    DataT                                            data_{};
     edm::propagate_const<std::shared_ptr<CallbackT>> callback_;
   };
 

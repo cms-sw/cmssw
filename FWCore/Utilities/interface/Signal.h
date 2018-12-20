@@ -34,7 +34,7 @@ namespace edm {
     template <typename T>
     class Signal {
     public:
-      typedef std::function<T> slot_type;
+      typedef std::function<T>       slot_type;
       typedef std::vector<slot_type> slot_list_type;
 
       Signal() = default;

@@ -26,7 +26,7 @@ namespace edm {
    */
   template <typename T, unsigned int N>
   class VecArray {
-    T data_[N];
+    T            data_[N];
     unsigned int size_;
 
   public:
@@ -55,19 +55,19 @@ namespace edm {
     reference back() { return data_[size_ - 1]; }
     // Undefined behaviour if size()==0
     const_reference back() const { return data_[size_ - 1]; }
-    pointer data() { return data_; }
-    const_pointer data() const { return data_; }
+    pointer         data() { return data_; }
+    const_pointer   data() const { return data_; }
 
-    iterator begin() noexcept { return data_; }
+    iterator       begin() noexcept { return data_; }
     const_iterator begin() const noexcept { return data_; }
     const_iterator cbegin() const noexcept { return data_; }
 
-    iterator end() noexcept { return begin() + size_; }
+    iterator       end() noexcept { return begin() + size_; }
     const_iterator end() const noexcept { return begin() + size_; }
     const_iterator cend() const noexcept { return cbegin() + size_; }
 
-    constexpr bool empty() const noexcept { return size_ == 0; }
-    constexpr size_type size() const noexcept { return size_; }
+    constexpr bool             empty() const noexcept { return size_ == 0; }
+    constexpr size_type        size() const noexcept { return size_; }
     static constexpr size_type capacity() noexcept { return N; }
 
     void clear() { size_ = 0; }

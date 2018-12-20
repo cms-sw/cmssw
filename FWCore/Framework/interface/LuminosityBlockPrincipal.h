@@ -32,17 +32,17 @@ namespace edm {
   class LuminosityBlockPrincipal : public Principal {
   public:
     typedef LuminosityBlockAuxiliary Auxiliary;
-    typedef Principal Base;
+    typedef Principal                Base;
     LuminosityBlockPrincipal(std::shared_ptr<ProductRegistry const> reg,
-                             ProcessConfiguration const& pc,
-                             HistoryAppender* historyAppender,
-                             unsigned int index,
-                             bool isForPrimaryProcess = true);
+                             ProcessConfiguration const&            pc,
+                             HistoryAppender*                       historyAppender,
+                             unsigned int                           index,
+                             bool                                   isForPrimaryProcess = true);
 
     ~LuminosityBlockPrincipal() override {}
 
     void fillLuminosityBlockPrincipal(ProcessHistoryRegistry const& processHistoryRegistry,
-                                      DelayedReader* reader = nullptr);
+                                      DelayedReader*                reader = nullptr);
 
     RunPrincipal const& runPrincipal() const { return *runPrincipal_; }
 
@@ -62,7 +62,7 @@ namespace edm {
 
     LuminosityBlockNumber_t luminosityBlock() const { return aux().luminosityBlock(); }
 
-    void setAux(LuminosityBlockAuxiliary iAux) { aux_ = std::move(iAux); }
+    void                            setAux(LuminosityBlockAuxiliary iAux) { aux_ = std::move(iAux); }
     LuminosityBlockAuxiliary const& aux() const { return aux_; }
 
     RunNumber_t run() const { return aux().run(); }

@@ -51,10 +51,10 @@ namespace edm {
     void writeValue(std::ostream& os, int indentation, long long const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, std::vector<long long> const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, unsigned long long const& value_, ValueFormat format);
-    void writeValue(std::ostream& os,
-                    int indentation,
+    void writeValue(std::ostream&                          os,
+                    int                                    indentation,
                     std::vector<unsigned long long> const& value_,
-                    ValueFormat format);
+                    ValueFormat                            format);
     void writeValue(std::ostream& os, int indentation, double const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, std::vector<double> const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, bool const& value_, ValueFormat format);
@@ -65,10 +65,10 @@ namespace edm {
     void writeValue(std::ostream& os, int indentation, LuminosityBlockID const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, std::vector<LuminosityBlockID> const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, LuminosityBlockRange const& value_, ValueFormat format);
-    void writeValue(std::ostream& os,
-                    int indentation,
+    void writeValue(std::ostream&                            os,
+                    int                                      indentation,
                     std::vector<LuminosityBlockRange> const& value_,
-                    ValueFormat format);
+                    ValueFormat                              format);
     void writeValue(std::ostream& os, int indentation, EventRange const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, std::vector<EventRange> const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, InputTag const& value_, ValueFormat format);
@@ -193,20 +193,20 @@ namespace edm {
   template <>
   class ParameterDescription<ParameterSetDescription> : public ParameterDescriptionBase {
   public:
-    ParameterDescription(std::string const& iLabel,
+    ParameterDescription(std::string const&             iLabel,
                          ParameterSetDescription const& value,
-                         bool isTracked,
-                         Comment const& iComment = Comment());
+                         bool                           isTracked,
+                         Comment const&                 iComment = Comment());
 
-    ParameterDescription(char const* iLabel,
+    ParameterDescription(char const*                    iLabel,
                          ParameterSetDescription const& value,
-                         bool isTracked,
-                         Comment const& iComment = Comment());
+                         bool                           isTracked,
+                         Comment const&                 iComment = Comment());
 
     ~ParameterDescription() override;
 
     ParameterSetDescription const* parameterSetDescription() const override;
-    ParameterSetDescription* parameterSetDescription() override;
+    ParameterSetDescription*       parameterSetDescription() override;
 
     ParameterDescriptionNode* clone() const override { return new ParameterDescription(*this); }
 
@@ -235,32 +235,32 @@ namespace edm {
   template <>
   class ParameterDescription<std::vector<ParameterSet> > : public ParameterDescriptionBase {
   public:
-    ParameterDescription(std::string const& iLabel,
-                         ParameterSetDescription const& psetDesc,
-                         bool isTracked,
+    ParameterDescription(std::string const&               iLabel,
+                         ParameterSetDescription const&   psetDesc,
+                         bool                             isTracked,
                          std::vector<ParameterSet> const& vPset,
-                         Comment const& iComment = Comment());
+                         Comment const&                   iComment = Comment());
 
-    ParameterDescription(char const* iLabel,
-                         ParameterSetDescription const& psetDesc,
-                         bool isTracked,
+    ParameterDescription(char const*                      iLabel,
+                         ParameterSetDescription const&   psetDesc,
+                         bool                             isTracked,
                          std::vector<ParameterSet> const& vPset,
-                         Comment const& iComment = Comment());
+                         Comment const&                   iComment = Comment());
 
-    ParameterDescription(std::string const& iLabel,
+    ParameterDescription(std::string const&             iLabel,
                          ParameterSetDescription const& psetDesc,
-                         bool isTracked,
-                         Comment const& iComment = Comment());
+                         bool                           isTracked,
+                         Comment const&                 iComment = Comment());
 
-    ParameterDescription(char const* iLabel,
+    ParameterDescription(char const*                    iLabel,
                          ParameterSetDescription const& psetDesc,
-                         bool isTracked,
-                         Comment const& iComment = Comment());
+                         bool                           isTracked,
+                         Comment const&                 iComment = Comment());
 
     ~ParameterDescription() override;
 
     ParameterSetDescription const* parameterSetDescription() const override;
-    ParameterSetDescription* parameterSetDescription() override;
+    ParameterSetDescription*       parameterSetDescription() override;
 
     ParameterDescriptionNode* clone() const override { return new ParameterDescription(*this); }
 
@@ -286,13 +286,13 @@ namespace edm {
     void insertDefault_(ParameterSet& pset) const override;
 
     static void writeOneElementToCfi(ParameterSet const& pset,
-                                     std::ostream& os,
-                                     int indentation,
-                                     bool& nextOneStartsWithAComma);
+                                     std::ostream&       os,
+                                     int                 indentation,
+                                     bool&               nextOneStartsWithAComma);
 
     value_ptr<ParameterSetDescription> psetDesc_;
-    std::vector<ParameterSet> vPset_;
-    bool partOfDefaultOfVPSet_;
+    std::vector<ParameterSet>          vPset_;
+    bool                               partOfDefaultOfVPSet_;
   };
 }  // namespace edm
 #endif

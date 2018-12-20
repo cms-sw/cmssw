@@ -14,8 +14,8 @@
 namespace tfwliteselectortest {
   struct ThingsWorker {
     ThingsWorker(const TList*, TList&);
-    void process(const edm::Event& iEvent);
-    void postProcess(TList&);
+    void                        process(const edm::Event& iEvent);
+    void                        postProcess(TList&);
     edm::propagate_const<TH1F*> h_a;
     edm::propagate_const<TH1F*> h_refA;
   };

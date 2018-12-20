@@ -29,8 +29,8 @@ namespace edm {
   class DelayedReader {
   public:
     virtual ~DelayedReader();
-    std::unique_ptr<WrapperBase> getProduct(BranchID const& k,
-                                            EDProductGetter const* ep,
+    std::unique_ptr<WrapperBase> getProduct(BranchID const&             k,
+                                            EDProductGetter const*      ep,
                                             ModuleCallingContext const* mcc = nullptr);
 
     void mergeReaders(DelayedReader* other) { mergeReaders_(other); }
@@ -45,8 +45,8 @@ namespace edm {
 
   private:
     virtual std::unique_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) = 0;
-    virtual void mergeReaders_(DelayedReader*) = 0;
-    virtual void reset_() = 0;
+    virtual void                         mergeReaders_(DelayedReader*) = 0;
+    virtual void                         reset_() = 0;
     virtual std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> sharedResources_() const;
   };
 }  // namespace edm

@@ -25,41 +25,41 @@ namespace edm {
   }  // namespace dqh
 
   struct DaqProvenanceHelper {
-    typedef std::map<ProcessHistoryID, ProcessHistoryID> ProcessHistoryIDMap;
+    typedef std::map<ProcessHistoryID, ProcessHistoryID>                                 ProcessHistoryIDMap;
     typedef tbb::concurrent_unordered_map<ParentageID, ParentageID, dqh::parentage_hash> ParentageIDMap;
     explicit DaqProvenanceHelper(TypeID const& rawDataType);
     ProcessHistoryID daqInit(ProductRegistry& productRegistry, ProcessHistoryRegistry& processHistoryRegistry) const;
-    void saveInfo(BranchDescription const& oldBD, BranchDescription const& newBD) {
+    void             saveInfo(BranchDescription const& oldBD, BranchDescription const& newBD) {
       oldProcessName_ = oldBD.processName();
       oldBranchID_ = oldBD.branchID();
       newBranchID_ = newBD.branchID();
     }
-    bool matchProcesses(ProcessConfiguration const& pc, ProcessHistory const& ph) const;
-    void fixMetaData(ProcessConfigurationVector& pcv, std::vector<ProcessHistory>& phv);
-    void fixMetaData(std::vector<BranchID>& branchIDs) const;
-    void fixMetaData(BranchIDLists const&) const;
-    void fixMetaData(BranchChildren& branchChildren) const;
+    bool                    matchProcesses(ProcessConfiguration const& pc, ProcessHistory const& ph) const;
+    void                    fixMetaData(ProcessConfigurationVector& pcv, std::vector<ProcessHistory>& phv);
+    void                    fixMetaData(std::vector<BranchID>& branchIDs) const;
+    void                    fixMetaData(BranchIDLists const&) const;
+    void                    fixMetaData(BranchChildren& branchChildren) const;
     ProcessHistoryID const& mapProcessHistoryID(ProcessHistoryID const& phid);
-    ParentageID const& mapParentageID(ParentageID const& phid) const;
-    BranchID const& mapBranchID(BranchID const& branchID) const;
+    ParentageID const&      mapParentageID(ParentageID const& phid) const;
+    BranchID const&         mapBranchID(BranchID const& branchID) const;
 
     BranchDescription const& branchDescription() const { return constBranchDescription_; }
-    ProcessHistoryID const* oldProcessHistoryID() const { return oldProcessHistoryID_; }
+    ProcessHistoryID const*  oldProcessHistoryID() const { return oldProcessHistoryID_; }
     ProductProvenance const& dummyProvenance() const { return dummyProvenance_; }
 
     void setOldParentageIDToNew(ParentageID const& iOld, ParentageID const& iNew);
 
   private:
     BranchDescription const constBranchDescription_;
-    ProductProvenance dummyProvenance_;
-    ParameterSet processParameterSet_;
+    ProductProvenance       dummyProvenance_;
+    ParameterSet            processParameterSet_;
 
-    std::string oldProcessName_;
-    BranchID oldBranchID_;
-    BranchID newBranchID_;
+    std::string             oldProcessName_;
+    BranchID                oldBranchID_;
+    BranchID                newBranchID_;
     ProcessHistoryID const* oldProcessHistoryID_;
-    ProcessHistoryIDMap phidMap_;
-    ParentageIDMap parentageIDMap_;
+    ProcessHistoryIDMap     phidMap_;
+    ParentageIDMap          parentageIDMap_;
   };
 }  // namespace edm
 #endif

@@ -35,49 +35,49 @@ namespace edm {
   class RunPrincipal;
 
   // This is code in common between beginStreamRun and beginStreamLuminosityBlock
-  inline void subProcessDoStreamBeginTransitionAsync(WaitingTaskHolder iHolder,
-                                                     SubProcess& iSubProcess,
-                                                     unsigned int i,
+  inline void subProcessDoStreamBeginTransitionAsync(WaitingTaskHolder         iHolder,
+                                                     SubProcess&               iSubProcess,
+                                                     unsigned int              i,
                                                      LuminosityBlockPrincipal& iPrincipal,
-                                                     IOVSyncValue const& iTS) {
+                                                     IOVSyncValue const&       iTS) {
     iSubProcess.doStreamBeginLuminosityBlockAsync(std::move(iHolder), i, iPrincipal, iTS);
   }
 
-  inline void subProcessDoStreamBeginTransitionAsync(WaitingTaskHolder iHolder,
-                                                     SubProcess& iSubProcess,
-                                                     unsigned int i,
-                                                     RunPrincipal& iPrincipal,
+  inline void subProcessDoStreamBeginTransitionAsync(WaitingTaskHolder   iHolder,
+                                                     SubProcess&         iSubProcess,
+                                                     unsigned int        i,
+                                                     RunPrincipal&       iPrincipal,
                                                      IOVSyncValue const& iTS) {
     iSubProcess.doStreamBeginRunAsync(std::move(iHolder), i, iPrincipal, iTS);
   }
 
-  inline void subProcessDoStreamEndTransitionAsync(WaitingTaskHolder iHolder,
-                                                   SubProcess& iSubProcess,
-                                                   unsigned int i,
+  inline void subProcessDoStreamEndTransitionAsync(WaitingTaskHolder         iHolder,
+                                                   SubProcess&               iSubProcess,
+                                                   unsigned int              i,
                                                    LuminosityBlockPrincipal& iPrincipal,
-                                                   IOVSyncValue const& iTS,
-                                                   bool cleaningUpAfterException) {
+                                                   IOVSyncValue const&       iTS,
+                                                   bool                      cleaningUpAfterException) {
     iSubProcess.doStreamEndLuminosityBlockAsync(std::move(iHolder), i, iPrincipal, iTS, cleaningUpAfterException);
   }
 
-  inline void subProcessDoStreamEndTransitionAsync(WaitingTaskHolder iHolder,
-                                                   SubProcess& iSubProcess,
-                                                   unsigned int i,
-                                                   RunPrincipal& iPrincipal,
+  inline void subProcessDoStreamEndTransitionAsync(WaitingTaskHolder   iHolder,
+                                                   SubProcess&         iSubProcess,
+                                                   unsigned int        i,
+                                                   RunPrincipal&       iPrincipal,
                                                    IOVSyncValue const& iTS,
-                                                   bool cleaningUpAfterException) {
+                                                   bool                cleaningUpAfterException) {
     iSubProcess.doStreamEndRunAsync(std::move(iHolder), i, iPrincipal, iTS, cleaningUpAfterException);
   }
 
   template <typename Traits, typename P, typename SC>
-  void beginStreamTransitionAsync(WaitingTaskHolder iWait,
-                                  Schedule& iSchedule,
-                                  unsigned int iStreamIndex,
-                                  P& iPrincipal,
+  void beginStreamTransitionAsync(WaitingTaskHolder   iWait,
+                                  Schedule&           iSchedule,
+                                  unsigned int        iStreamIndex,
+                                  P&                  iPrincipal,
                                   IOVSyncValue const& iTS,
-                                  EventSetup const& iES,
+                                  EventSetup const&   iES,
                                   ServiceToken const& token,
-                                  SC& iSubProcesses) {
+                                  SC&                 iSubProcesses) {
     // When we are done processing the stream for this process,
     // we need to run the stream for all SubProcesses
     // NOTE: The subprocesses set their own service tokens
@@ -104,14 +104,14 @@ namespace edm {
   }
 
   template <typename Traits, typename P, typename SC>
-  void beginStreamsTransitionAsync(WaitingTask* iWait,
-                                   Schedule& iSchedule,
-                                   unsigned int iNStreams,
-                                   P& iPrincipal,
+  void beginStreamsTransitionAsync(WaitingTask*        iWait,
+                                   Schedule&           iSchedule,
+                                   unsigned int        iNStreams,
+                                   P&                  iPrincipal,
                                    IOVSyncValue const& iTS,
-                                   EventSetup const& iES,
+                                   EventSetup const&   iES,
                                    ServiceToken const& token,
-                                   SC& iSubProcesses) {
+                                   SC&                 iSubProcesses) {
     WaitingTaskHolder holdUntilAllStreamsCalled(iWait);
     for (unsigned int i = 0; i < iNStreams; ++i) {
       beginStreamTransitionAsync<Traits>(WaitingTaskHolder(iWait), iSchedule, i, iPrincipal, iTS, iES, token,
@@ -120,15 +120,15 @@ namespace edm {
   }
 
   template <typename Traits, typename P, typename SC>
-  void endStreamTransitionAsync(WaitingTaskHolder iWait,
-                                Schedule& iSchedule,
-                                unsigned int iStreamIndex,
-                                P& iPrincipal,
+  void endStreamTransitionAsync(WaitingTaskHolder   iWait,
+                                Schedule&           iSchedule,
+                                unsigned int        iStreamIndex,
+                                P&                  iPrincipal,
                                 IOVSyncValue const& iTS,
-                                EventSetup const& iES,
+                                EventSetup const&   iES,
                                 ServiceToken const& token,
-                                SC& iSubProcesses,
-                                bool cleaningUpAfterException) {
+                                SC&                 iSubProcesses,
+                                bool                cleaningUpAfterException) {
     // When we are done processing the stream for this process,
     // we need to run the stream for all SubProcesses
     // NOTE: The subprocesses set their own service tokens
@@ -158,15 +158,15 @@ namespace edm {
   }
 
   template <typename Traits, typename P, typename SC>
-  void endStreamsTransitionAsync(WaitingTaskHolder iWait,
-                                 Schedule& iSchedule,
-                                 unsigned int iNStreams,
-                                 P& iPrincipal,
+  void endStreamsTransitionAsync(WaitingTaskHolder   iWait,
+                                 Schedule&           iSchedule,
+                                 unsigned int        iNStreams,
+                                 P&                  iPrincipal,
                                  IOVSyncValue const& iTS,
-                                 EventSetup const& iES,
+                                 EventSetup const&   iES,
                                  ServiceToken const& iToken,
-                                 SC& iSubProcesses,
-                                 bool cleaningUpAfterException) {
+                                 SC&                 iSubProcesses,
+                                 bool                cleaningUpAfterException) {
     for (unsigned int i = 0; i < iNStreams; ++i) {
       endStreamTransitionAsync<Traits>(iWait, iSchedule, i, iPrincipal, iTS, iES, iToken, iSubProcesses,
                                        cleaningUpAfterException);

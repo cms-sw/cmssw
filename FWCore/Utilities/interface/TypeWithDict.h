@@ -43,12 +43,12 @@ namespace edm {
     typedef enum {} dummyType;        // Tag for valid type, but no type_info information
     typedef dummyType** invalidType;  // Tag for invalid type
   private:
-    std::type_info const* ti_;
-    TClass* class_;
-    TEnum* enum_;
-    TDataType* dataType_;
+    std::type_info const*           ti_;
+    TClass*                         class_;
+    TEnum*                          enum_;
+    TDataType*                      dataType_;
     value_ptr<std::vector<size_t> > arrayDimensions_;
-    long property_;
+    long                            property_;
 
   public:
     static TypeWithDict byName(std::string const& name);
@@ -72,41 +72,41 @@ namespace edm {
     explicit TypeWithDict(TMethodArg* arg, long property);
 
   public:
-    TypeWithDict& operator=(TypeWithDict const&);
-    TypeWithDict& stripConstRef();
-    explicit operator bool() const;
-    bool invalidTypeInfo() const;
+    TypeWithDict&         operator=(TypeWithDict const&);
+    TypeWithDict&         stripConstRef();
+    explicit              operator bool() const;
+    bool                  invalidTypeInfo() const;
     std::type_info const& typeInfo() const;
     // Do not check is 'invalidTypeInfo()' would return true
     std::type_info const& unvalidatedTypeInfo() const { return *ti_; }
-    TClass* getClass() const;
-    TEnum* getEnum() const;
-    TDataType* getDataType() const;
-    long getProperty() const;
-    bool isClass() const;
-    bool isConst() const;
-    bool isArray() const;
-    bool isEnum() const;
-    bool isFundamental() const;
-    bool isPointer() const;
-    bool isReference() const;
-    bool isTemplateInstance() const;
-    bool isTypedef() const;
-    bool isVirtual() const;
-    std::string qualifiedName() const;
-    std::string cppName() const;
-    std::string unscopedName() const;
-    std::string name() const;
-    std::string userClassName() const;
-    std::string friendlyClassName() const;
-    std::string templateName() const;
-    size_t size() const;
-    size_t arrayLength() const;
-    size_t arrayDimension() const;
-    size_t maximumIndex(size_t dim) const;
-    size_t dataMemberSize() const;
-    size_t functionMemberSize() const;
-    MemberWithDict dataMemberByName(std::string const&) const;
+    TClass*               getClass() const;
+    TEnum*                getEnum() const;
+    TDataType*            getDataType() const;
+    long                  getProperty() const;
+    bool                  isClass() const;
+    bool                  isConst() const;
+    bool                  isArray() const;
+    bool                  isEnum() const;
+    bool                  isFundamental() const;
+    bool                  isPointer() const;
+    bool                  isReference() const;
+    bool                  isTemplateInstance() const;
+    bool                  isTypedef() const;
+    bool                  isVirtual() const;
+    std::string           qualifiedName() const;
+    std::string           cppName() const;
+    std::string           unscopedName() const;
+    std::string           name() const;
+    std::string           userClassName() const;
+    std::string           friendlyClassName() const;
+    std::string           templateName() const;
+    size_t                size() const;
+    size_t                arrayLength() const;
+    size_t                arrayDimension() const;
+    size_t                maximumIndex(size_t dim) const;
+    size_t                dataMemberSize() const;
+    size_t                functionMemberSize() const;
+    MemberWithDict        dataMemberByName(std::string const&) const;
     // Note: Used only by FWCore/Modules/src/EventContentAnalyzer.cc
     FunctionWithDict functionMemberByName(std::string const&) const;
     // Note: Used only by Fireworks/Core/src/FWModelContextMenuHandler.cc:262
@@ -114,22 +114,22 @@ namespace edm {
     // TypeMemberQuery memberQuery) const;
     // Note: Used only by CondFormats/PhysicsToolsObjects/src/MVAComputer.cc
     FunctionWithDict functionMemberByName(std::string const& name, std::string const& proto, bool isConst) const;
-    TypeWithDict nestedType(char const*) const;
-    TypeWithDict nestedType(std::string const&) const;
-    TypeWithDict finalType() const;
-    TypeWithDict toType() const;
-    void print(std::ostream& os) const;
-    bool hasBase(std::string const&) const;
-    bool hasBase(TypeWithDict const& basety) const;
-    int getBaseClassOffset(TypeWithDict const& baseClass) const;
-    TypeWithDict templateArgumentAt(size_t index) const;
-    void const* pointerToBaseType(void const* ptr, TypeWithDict const& derivedType) const;
-    void const* pointerToContainedType(void const* ptr, TypeWithDict const& derivedType) const;
-    int stringToEnumValue(std::string const&) const;
-    void* allocate() const;
-    void deallocate(void* address) const;
-    ObjectWithDict construct() const;
-    void destruct(void* address, bool dealloc = true) const;
+    TypeWithDict     nestedType(char const*) const;
+    TypeWithDict     nestedType(std::string const&) const;
+    TypeWithDict     finalType() const;
+    TypeWithDict     toType() const;
+    void             print(std::ostream& os) const;
+    bool             hasBase(std::string const&) const;
+    bool             hasBase(TypeWithDict const& basety) const;
+    int              getBaseClassOffset(TypeWithDict const& baseClass) const;
+    TypeWithDict     templateArgumentAt(size_t index) const;
+    void const*      pointerToBaseType(void const* ptr, TypeWithDict const& derivedType) const;
+    void const*      pointerToContainedType(void const* ptr, TypeWithDict const& derivedType) const;
+    int              stringToEnumValue(std::string const&) const;
+    void*            allocate() const;
+    void             deallocate(void* address) const;
+    ObjectWithDict   construct() const;
+    void             destruct(void* address, bool dealloc = true) const;
   };
 
   // A related free function
@@ -159,7 +159,7 @@ namespace edm {
     explicit TypeBases(TypeWithDict const&);
     IterWithDict<TBaseClass> begin() const;
     IterWithDict<TBaseClass> end() const;
-    size_t size() const;
+    size_t                   size() const;
   };
 
   class TypeDataMembers {
@@ -170,7 +170,7 @@ namespace edm {
     explicit TypeDataMembers(TypeWithDict const&);
     IterWithDict<TDataMember> begin() const;
     IterWithDict<TDataMember> end() const;
-    size_t size() const;
+    size_t                    size() const;
   };
 
   class TypeFunctionMembers {
@@ -181,7 +181,7 @@ namespace edm {
     explicit TypeFunctionMembers(TypeWithDict const&);
     IterWithDict<TMethod> begin() const;
     IterWithDict<TMethod> end() const;
-    size_t size() const;
+    size_t                size() const;
   };
 
 }  // namespace edm

@@ -25,9 +25,9 @@ namespace edmtest {
     virtual void analyze(edm::Event const &e, edm::EventSetup const &c);
 
   private:
-    int identifier;
+    int         identifier;
     static bool enableNotYetCalled;
-    static int n;
+    static int  n;
   };
 
   class UTC_SL2 : public edm::EDAnalyzer {
@@ -39,7 +39,7 @@ namespace edmtest {
     virtual void analyze(edm::Event const &e, edm::EventSetup const &c);
 
   private:
-    int identifier;
+    int        identifier;
     static int n;
   };
 

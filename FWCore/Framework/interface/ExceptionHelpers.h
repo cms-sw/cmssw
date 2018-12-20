@@ -47,8 +47,8 @@ namespace edm {
 
   template <typename TReturn>
   TReturn callWithTryCatchAndPrint(std::function<TReturn(void)> iFunc,
-                                   char const* context = nullptr,
-                                   bool disablePrint = false) {
+                                   char const*                  context = nullptr,
+                                   bool                         disablePrint = false) {
     try {
       return convertException::wrap([iFunc]() { return iFunc(); });
     } catch (cms::Exception& ex) {

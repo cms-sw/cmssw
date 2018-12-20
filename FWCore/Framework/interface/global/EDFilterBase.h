@@ -58,8 +58,8 @@ namespace edm {
       EDFilterBase();
       ~EDFilterBase() override;
 
-      static void fillDescriptions(ConfigurationDescriptions& descriptions);
-      static void prevalidate(ConfigurationDescriptions& descriptions);
+      static void               fillDescriptions(ConfigurationDescriptions& descriptions);
+      static void               prevalidate(ConfigurationDescriptions& descriptions);
       static const std::string& baseType();
 
       // Warning: the returned moduleDescription will be invalid during construction
@@ -78,9 +78,9 @@ namespace edm {
                      ModuleCallingContext const*,
                      WaitingTaskWithArenaHolder&);
       // For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask*                iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,
-                                                    Principal const& iPrincipal) const {}
+                                                    Principal const&            iPrincipal) const {}
 
       void doPreallocate(PreallocationConfiguration const&);
       void doBeginJob();
@@ -90,19 +90,19 @@ namespace edm {
       void doEndStream(StreamID id);
       void doStreamBeginRun(StreamID id, RunPrincipal const& ep, EventSetup const& c, ModuleCallingContext const*);
       void doStreamEndRun(StreamID id, RunPrincipal const& ep, EventSetup const& c, ModuleCallingContext const*);
-      void doStreamBeginLuminosityBlock(StreamID id,
+      void doStreamBeginLuminosityBlock(StreamID                        id,
                                         LuminosityBlockPrincipal const& ep,
-                                        EventSetup const& c,
+                                        EventSetup const&               c,
                                         ModuleCallingContext const*);
-      void doStreamEndLuminosityBlock(StreamID id,
+      void doStreamEndLuminosityBlock(StreamID                        id,
                                       LuminosityBlockPrincipal const& ep,
-                                      EventSetup const& c,
+                                      EventSetup const&               c,
                                       ModuleCallingContext const*);
 
       void doBeginRun(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const*);
       void doEndRun(RunPrincipal const& rp, EventSetup const& c, ModuleCallingContext const*);
       void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                  EventSetup const& c,
+                                  EventSetup const&               c,
                                   ModuleCallingContext const*);
       void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c, ModuleCallingContext const*);
 
@@ -147,15 +147,15 @@ namespace edm {
       virtual void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
 
       virtual bool hasAcquire() const { return false; }
-      bool hasAccumulator() const { return false; }
+      bool         hasAccumulator() const { return false; }
 
       virtual void doAcquire_(StreamID, Event const&, edm::EventSetup const&, WaitingTaskWithArenaHolder&);
 
-      void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
+      void              setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
       ModuleDescription moduleDescription_;
       std::unique_ptr<std::vector<BranchID>[]> previousParentages_;  // Per stream in the future?
       std::unique_ptr<std::vector<BranchID>[]> gotBranchIDsFromAcquire_;
-      std::unique_ptr<ParentageID[]> previousParentageIds_;
+      std::unique_ptr<ParentageID[]>           previousParentageIds_;
     };
   }  // namespace global
 }  // namespace edm

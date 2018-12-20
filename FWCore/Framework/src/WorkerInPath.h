@@ -33,7 +33,7 @@ namespace edm {
                         typename T::MyPrincipal const&,
                         EventSetup const&,
                         ServiceToken const&,
-                        StreamID streamID,
+                        StreamID                   streamID,
                         typename T::Context const* context);
 
     bool checkResultsOfRunWorker(bool wasEvent);
@@ -50,7 +50,7 @@ namespace edm {
     int timesExcept() const { return timesExcept_; }
 
     FilterAction filterAction() const { return filterAction_; }
-    Worker* getWorker() const { return worker_; }
+    Worker*      getWorker() const { return worker_; }
 
     void setPathContext(PathContext const* v) { placeInPathContext_.setPathContext(v); }
 
@@ -61,7 +61,7 @@ namespace edm {
     int timesExcept_;
 
     FilterAction filterAction_;
-    Worker* worker_;
+    Worker*      worker_;
 
     PlaceInPathContext placeInPathContext_;
   };
@@ -103,12 +103,12 @@ namespace edm {
   }
 
   template <typename T>
-  void WorkerInPath::runWorkerAsync(WaitingTask* iTask,
+  void WorkerInPath::runWorkerAsync(WaitingTask*                   iTask,
                                     typename T::MyPrincipal const& ep,
-                                    EventSetup const& es,
-                                    ServiceToken const& token,
-                                    StreamID streamID,
-                                    typename T::Context const* context) {
+                                    EventSetup const&              es,
+                                    ServiceToken const&            token,
+                                    StreamID                       streamID,
+                                    typename T::Context const*     context) {
     if (T::isEvent_) {
       ++timesVisited_;
     }

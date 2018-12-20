@@ -151,7 +151,7 @@ namespace edm {
   private:
     EventSetup(ActivityRegistry const*);
 
-    ActivityRegistry const* activityRegistry() const { return activityRegistry_; }
+    ActivityRegistry const*                 activityRegistry() const { return activityRegistry_; }
     eventsetup::EventSetupRecordImpl const* findImpl(const eventsetup::EventSetupRecordKey&) const;
 
     void insert(const eventsetup::EventSetupRecordKey&, const eventsetup::EventSetupRecordImpl*);
@@ -160,8 +160,8 @@ namespace edm {
 
     // NOTE: the records are not owned
     std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecordImpl const*> recordMap_;
-    eventsetup::EventSetupKnownRecordsSupplier const* knownRecords_;
-    ActivityRegistry const* activityRegistry_;
+    eventsetup::EventSetupKnownRecordsSupplier const*                                  knownRecords_;
+    ActivityRegistry const*                                                            activityRegistry_;
   };
 
   // Free functions to retrieve an object from the EventSetup.

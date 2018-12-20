@@ -37,7 +37,7 @@ namespace edmplugin {
 
     // ---------- const member functions ---------------------
     std::vector<PluginInfo> available() const override;
-    const std::string& category() const override;
+    const std::string&      category() const override;
 
     // ---------- static member functions --------------------
     static PluginCapabilities* get();

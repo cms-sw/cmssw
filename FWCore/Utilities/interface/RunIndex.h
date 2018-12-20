@@ -37,7 +37,7 @@ namespace edm {
 
     // ---------- const member functions ---------------------
     bool operator==(const RunIndex& iIndex) const { return value() == iIndex.value(); }
-    operator unsigned int() const { return value_; }
+         operator unsigned int() const { return value_; }
 
     /** \return value ranging from 0 to one less than max number of simultaneous runs.
      */

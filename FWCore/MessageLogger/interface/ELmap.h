@@ -52,13 +52,13 @@ namespace edm {
 
   class CountAndLimit {
   public:
-    int n;
-    int aggregateN;
+    int    n;
+    int    aggregateN;
     time_t lastTime;
-    int limit;
-    int timespan;
-    int interval;
-    int skipped;
+    int    limit;
+    int    timespan;
+    int    interval;
+    int    skipped;
 
     CountAndLimit(int lim = -1, int ts = -1, int ivl = -1);
     bool add();
@@ -67,9 +67,9 @@ namespace edm {
 
   class StatsCount {
   public:
-    int n;
-    int aggregateN;
-    bool ignoredFlag;
+    int      n;
+    int      aggregateN;
+    bool     ignoredFlag;
     ELstring context1;
     ELstring context2;
     ELstring contextLast;

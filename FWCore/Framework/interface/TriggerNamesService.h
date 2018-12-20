@@ -41,9 +41,9 @@ namespace edm {
   namespace service {
     class TriggerNamesService {
     public:
-      typedef std::vector<std::string> Strings;
+      typedef std::vector<std::string>            Strings;
       typedef std::map<std::string, unsigned int> PosMap;
-      typedef PosMap::size_type size_type;
+      typedef PosMap::size_type                   size_type;
 
       explicit TriggerNamesService(ParameterSet const& proc_pset);
       // Default copy, copy assignment, d'tor all do the right thing.
@@ -51,10 +51,10 @@ namespace edm {
       // trigger names for the current process
 
       // Return the number of trigger paths in the current process.
-      size_type size() const { return trignames_.size(); }
-      Strings const& getTrigPaths() const { return trignames_; }
+      size_type          size() const { return trignames_.size(); }
+      Strings const&     getTrigPaths() const { return trignames_; }
       std::string const& getTrigPath(size_type const i) const { return trignames_.at(i); }
-      size_type findTrigPath(std::string const& name) const { return find(trigpos_, name); }
+      size_type          findTrigPath(std::string const& name) const { return find(trigpos_, name); }
 
       // Get the ordered vector of trigger names that corresponds to the bits
       // in the TriggerResults object.  Unlike the other functions in this class,
@@ -71,9 +71,9 @@ namespace edm {
       // the trigger names were stored inside of the TriggerResults object.
       bool getTrigPaths(TriggerResults const& triggerResults, Strings& trigPaths, bool& fromPSetRegistry);
 
-      Strings const& getEndPaths() const { return end_names_; }
+      Strings const&     getEndPaths() const { return end_names_; }
       std::string const& getEndPath(size_type const i) const { return end_names_.at(i); }
-      size_type findEndPath(std::string const& name) const { return find(end_pos_, name); }
+      size_type          findEndPath(std::string const& name) const { return find(end_pos_, name); }
 
       Strings const& getTrigPathModules(std::string const& name) const { return modulenames_.at(find(trigpos_, name)); }
       Strings const& getTrigPathModules(size_type const i) const { return modulenames_.at(i); }
@@ -87,7 +87,7 @@ namespace edm {
       Strings const& getEndPathModules(std::string const& name) const {
         return end_modulenames_.at(find(end_pos_, name));
       }
-      Strings const& getEndPathModules(size_type const i) const { return end_modulenames_.at(i); }
+      Strings const&     getEndPathModules(size_type const i) const { return end_modulenames_.at(i); }
       std::string const& getEndPathModule(std::string const& name, size_type const j) const {
         return (end_modulenames_.at(find(end_pos_, name))).at(j);
       }
@@ -105,7 +105,7 @@ namespace edm {
       }
 
       std::string const& getProcessName() const { return process_name_; }
-      bool wantSummary() const { return wantSummary_; }
+      bool               wantSummary() const { return wantSummary_; }
 
       // Parameter set containing the trigger paths
       edm::ParameterSet const& getTriggerPSet() const { return trigger_pset_; }
@@ -121,15 +121,15 @@ namespace edm {
       edm::ParameterSet trigger_pset_;
 
       Strings trignames_;
-      PosMap trigpos_;
+      PosMap  trigpos_;
       Strings end_names_;
-      PosMap end_pos_;
+      PosMap  end_pos_;
 
       std::vector<Strings> modulenames_;      // modules on trigger paths
       std::vector<Strings> end_modulenames_;  // modules on endpaths
 
       std::string process_name_;
-      bool wantSummary_;
+      bool        wantSummary_;
     };
   }  // namespace service
 }  // namespace edm

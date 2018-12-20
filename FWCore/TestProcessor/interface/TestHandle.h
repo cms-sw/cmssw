@@ -55,7 +55,7 @@ namespace edm {
         throw *(whyFailedFactory_->make());
       }
 
-      T const* product_;
+      T const*                                product_;
       std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
     };
 

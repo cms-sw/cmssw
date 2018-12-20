@@ -31,12 +31,12 @@ namespace edm {
     namespace impl {
       struct dummy_ptr {
         void* get() { return nullptr; }
-        void reset(void*) {}
+        void  reset(void*) {}
         void* release() { return nullptr; }
       };
 
       struct dummy_vec {
-        void resize(size_t) {}
+        void      resize(size_t) {}
         dummy_ptr operator[](unsigned int) { return dummy_ptr(); }
       };
 

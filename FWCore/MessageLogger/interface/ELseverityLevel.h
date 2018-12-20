@@ -78,7 +78,7 @@ namespace edm {
 
     // --- forwarding:
     //
-    int getLevel() const;
+    int            getLevel() const;
     const ELstring getSymbol() const;
     const ELstring getName() const;
     const ELstring getInputStr() const;
@@ -135,7 +135,7 @@ namespace edm {
 
     // -----  Accessors:
     //
-    int getLevel() const;
+    int            getLevel() const;
     const ELstring getSymbol() const;    // example: "-e"
     const ELstring getName() const;      // example: "Error"
     const ELstring getInputStr() const;  // example: "ERROR"
@@ -158,28 +158,28 @@ namespace edm {
   // one generator function and one proxy per non-default ELsev_:
   // ----------------------------------------------------------------------
 
-  extern ELslGen ELzeroSeverityGen;
+  extern ELslGen                            ELzeroSeverityGen;
   extern ELslProxy<ELzeroSeverityGen> const ELzeroSeverity;
 
-  extern ELslGen ELdebugGen;
+  extern ELslGen                     ELdebugGen;
   extern ELslProxy<ELdebugGen> const ELdebug;
 
-  extern ELslGen ELinfoGen;
+  extern ELslGen                    ELinfoGen;
   extern ELslProxy<ELinfoGen> const ELinfo;
 
-  extern ELslGen ELwarningGen;
+  extern ELslGen                       ELwarningGen;
   extern ELslProxy<ELwarningGen> const ELwarning;
 
-  extern ELslGen ELerrorGen;
+  extern ELslGen                     ELerrorGen;
   extern ELslProxy<ELerrorGen> const ELerror;
 
-  extern ELslGen ELunspecifiedGen;
+  extern ELslGen                           ELunspecifiedGen;
   extern ELslProxy<ELunspecifiedGen> const ELunspecified;
 
-  extern ELslGen ELsevereGen;
+  extern ELslGen                      ELsevereGen;
   extern ELslProxy<ELsevereGen> const ELsevere;
 
-  extern ELslGen ELhighestSeverityGen;
+  extern ELslGen                               ELhighestSeverityGen;
   extern ELslProxy<ELhighestSeverityGen> const ELhighestSeverity;
 #else
   ELseverityLevel const ELzeroSeverity;

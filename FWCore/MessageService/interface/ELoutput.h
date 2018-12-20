@@ -93,8 +93,8 @@ namespace edm {
       // --- member data:
       //
       std::shared_ptr<std::ostream> os;
-      int charsOnLine;
-      edm::ELextendedID xid;
+      int                           charsOnLine;
+      edm::ELextendedID             xid;
 
       bool wantTimestamp, wantModule, wantSubroutine, wantText, wantSomeContext, wantSerial, wantFullContext,
           wantTimeSeparate, wantEpilogueSeparate, preambleMode;

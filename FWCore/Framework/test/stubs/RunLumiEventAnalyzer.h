@@ -28,16 +28,16 @@ namespace edmtest {
     virtual void endJob();
 
   private:
-    std::vector<unsigned long long> expectedRunLumisEvents0_;
-    std::vector<unsigned long long> expectedRunLumisEvents1_;
+    std::vector<unsigned long long>                        expectedRunLumisEvents0_;
+    std::vector<unsigned long long>                        expectedRunLumisEvents1_;
     edm::propagate_const<std::vector<unsigned long long>*> expectedRunLumisEvents_;
-    int index_;
-    bool verbose_;
-    bool dumpTriggerResults_;
-    int expectedEndingIndex0_;
-    int expectedEndingIndex1_;
-    int expectedEndingIndex_;
-    edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+    int                                                    index_;
+    bool                                                   verbose_;
+    bool                                                   dumpTriggerResults_;
+    int                                                    expectedEndingIndex0_;
+    int                                                    expectedEndingIndex1_;
+    int                                                    expectedEndingIndex_;
+    edm::EDGetTokenT<edm::TriggerResults>                  triggerResultsToken_;
   };
 }  // namespace edmtest
 

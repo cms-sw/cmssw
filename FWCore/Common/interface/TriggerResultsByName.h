@@ -107,7 +107,7 @@ namespace edm {
     void throwTriggerNamesMissing() const;
 
     TriggerResults const* triggerResults_;
-    TriggerNames const* triggerNames_;
+    TriggerNames const*   triggerNames_;
   };
 }  // namespace edm
 #endif

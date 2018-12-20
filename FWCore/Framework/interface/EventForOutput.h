@@ -52,11 +52,11 @@ namespace edm {
     EventForOutput(EventPrincipal const& ep, ModuleDescription const& md, ModuleCallingContext const*);
     ~EventForOutput() override;
 
-    EventAuxiliary const& eventAuxiliary() const { return aux_; }
-    EventID const& id() const { return aux_.id(); }
-    EventNumber_t event() const { return aux_.event(); }
+    EventAuxiliary const&   eventAuxiliary() const { return aux_; }
+    EventID const&          id() const { return aux_.id(); }
+    EventNumber_t           event() const { return aux_.event(); }
     LuminosityBlockNumber_t luminosityBlock() const { return aux_.luminosityBlock(); }
-    Timestamp const& time() const { return aux_.time(); }
+    Timestamp const&        time() const { return aux_.time(); }
 
     ///\return The id for the particular Stream processing the Event
     StreamID streamID() const { return streamID_; }
@@ -78,7 +78,7 @@ namespace edm {
 
     EventPrincipal const& eventPrincipal() const;
 
-    EventAuxiliary const& aux_;
+    EventAuxiliary const&                                 aux_;
     std::shared_ptr<LuminosityBlockForOutput const> const luminosityBlock_;
 
     StreamID streamID_;

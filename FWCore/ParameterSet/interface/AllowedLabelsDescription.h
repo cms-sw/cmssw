@@ -33,8 +33,8 @@ namespace edm {
     ParameterDescriptionNode* clone() const override { return new AllowedLabelsDescription(*this); }
 
   private:
-    void validateAllowedLabel_(std::string const& allowedLabel,
-                               ParameterSet& pset,
+    void validateAllowedLabel_(std::string const&     allowedLabel,
+                               ParameterSet&          pset,
                                std::set<std::string>& validatedLabels) const override {
       if (pset.existsAs<T>(allowedLabel, isTracked())) {
         validatedLabels.insert(allowedLabel);
@@ -60,8 +60,8 @@ namespace edm {
   private:
     void printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& helper) const override;
 
-    void validateAllowedLabel_(std::string const& allowedLabel,
-                               ParameterSet& pset,
+    void validateAllowedLabel_(std::string const&     allowedLabel,
+                               ParameterSet&          pset,
                                std::set<std::string>& validatedLabels) const override;
 
     value_ptr<ParameterSetDescription> psetDesc_;
@@ -85,8 +85,8 @@ namespace edm {
   private:
     void printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& helper) const override;
 
-    void validateAllowedLabel_(std::string const& allowedLabel,
-                               ParameterSet& pset,
+    void validateAllowedLabel_(std::string const&     allowedLabel,
+                               ParameterSet&          pset,
                                std::set<std::string>& validatedLabels) const override;
 
     value_ptr<ParameterSetDescription> psetDesc_;

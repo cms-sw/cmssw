@@ -30,8 +30,8 @@ namespace edm {
     struct ComponentDescription {
       std::string label_;  // A human friendly string that uniquely identifies the label
       std::string type_;   // A human friendly string that uniquely identifies the name
-      bool isSource_;
-      bool isLooper_;
+      bool        isSource_;
+      bool        isLooper_;
 
       // ID of parameter set of the creator
       ParameterSetID pid_;

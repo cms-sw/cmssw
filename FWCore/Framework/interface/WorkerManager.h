@@ -35,43 +35,43 @@ namespace edm {
     WorkerManager(std::shared_ptr<ActivityRegistry> actReg, ExceptionToActionTable const& actions);
     WorkerManager(WorkerManager&&) = default;
 
-    WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
+    WorkerManager(std::shared_ptr<ModuleRegistry>   modReg,
                   std::shared_ptr<ActivityRegistry> actReg,
-                  ExceptionToActionTable const& actions);
-    void addToUnscheduledWorkers(ParameterSet& pset,
-                                 ProductRegistry& preg,
-                                 PreallocationConfiguration const* prealloc,
+                  ExceptionToActionTable const&     actions);
+    void addToUnscheduledWorkers(ParameterSet&                         pset,
+                                 ProductRegistry&                      preg,
+                                 PreallocationConfiguration const*     prealloc,
                                  std::shared_ptr<ProcessConfiguration> processConfiguration,
-                                 std::string label,
-                                 std::set<std::string>& unscheduledLabels,
-                                 std::vector<std::string>& shouldBeUsedLabels);
+                                 std::string                           label,
+                                 std::set<std::string>&                unscheduledLabels,
+                                 std::vector<std::string>&             shouldBeUsedLabels);
 
     void setOnDemandProducts(ProductRegistry& pregistry, std::set<std::string> const& unscheduledLabels) const;
 
     template <typename T, typename U>
-    void processOneOccurrence(typename T::MyPrincipal& principal,
-                              EventSetup const& eventSetup,
-                              StreamID streamID,
+    void processOneOccurrence(typename T::MyPrincipal&   principal,
+                              EventSetup const&          eventSetup,
+                              StreamID                   streamID,
                               typename T::Context const* topContext,
-                              U const* context,
-                              bool cleaningUpAfterException = false);
+                              U const*                   context,
+                              bool                       cleaningUpAfterException = false);
     template <typename T, typename U>
-    void processOneOccurrenceAsync(WaitingTask* task,
-                                   typename T::MyPrincipal& principal,
-                                   EventSetup const& eventSetup,
-                                   ServiceToken const& token,
-                                   StreamID streamID,
+    void processOneOccurrenceAsync(WaitingTask*               task,
+                                   typename T::MyPrincipal&   principal,
+                                   EventSetup const&          eventSetup,
+                                   ServiceToken const&        token,
+                                   StreamID                   streamID,
                                    typename T::Context const* topContext,
-                                   U const* context);
+                                   U const*                   context);
 
     template <typename T>
-    void processAccumulatorsAsync(WaitingTask* task,
+    void processAccumulatorsAsync(WaitingTask*                   task,
                                   typename T::MyPrincipal const& ep,
-                                  EventSetup const& es,
-                                  ServiceToken const& token,
-                                  StreamID streamID,
-                                  ParentContext const& parentContext,
-                                  typename T::Context const* context);
+                                  EventSetup const&              es,
+                                  ServiceToken const&            token,
+                                  StreamID                       streamID,
+                                  ParentContext const&           parentContext,
+                                  typename T::Context const*     context);
 
     void setupOnDemandSystem(Principal& principal, EventSetup const& es);
 
@@ -88,29 +88,29 @@ namespace edm {
 
     ExceptionToActionTable const& actionTable() const { return *actionTable_; }
 
-    Worker* getWorker(ParameterSet& pset,
-                      ProductRegistry& preg,
-                      PreallocationConfiguration const* prealloc,
+    Worker* getWorker(ParameterSet&                               pset,
+                      ProductRegistry&                            preg,
+                      PreallocationConfiguration const*           prealloc,
                       std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                      std::string const& label);
+                      std::string const&                          label);
 
     void resetAll();
 
   private:
-    WorkerRegistry workerReg_;
+    WorkerRegistry                workerReg_;
     ExceptionToActionTable const* actionTable_;
-    AllWorkers allWorkers_;
-    UnscheduledCallProducer unscheduled_;
-    void const* lastSetupEventPrincipal_;
+    AllWorkers                    allWorkers_;
+    UnscheduledCallProducer       unscheduled_;
+    void const*                   lastSetupEventPrincipal_;
   };
 
   template <typename T, typename U>
-  void WorkerManager::processOneOccurrence(typename T::MyPrincipal& ep,
-                                           EventSetup const& es,
-                                           StreamID streamID,
+  void WorkerManager::processOneOccurrence(typename T::MyPrincipal&   ep,
+                                           EventSetup const&          es,
+                                           StreamID                   streamID,
                                            typename T::Context const* topContext,
-                                           U const* context,
-                                           bool cleaningUpAfterException) {
+                                           U const*                   context,
+                                           bool                       cleaningUpAfterException) {
     this->resetAll();
 
     auto waitTask = make_empty_waiting_task();
@@ -134,25 +134,25 @@ namespace edm {
   }
 
   template <typename T, typename U>
-  void WorkerManager::processOneOccurrenceAsync(WaitingTask* task,
-                                                typename T::MyPrincipal& ep,
-                                                EventSetup const& es,
-                                                ServiceToken const& token,
-                                                StreamID streamID,
+  void WorkerManager::processOneOccurrenceAsync(WaitingTask*               task,
+                                                typename T::MyPrincipal&   ep,
+                                                EventSetup const&          es,
+                                                ServiceToken const&        token,
+                                                StreamID                   streamID,
                                                 typename T::Context const* topContext,
-                                                U const* context) {
+                                                U const*                   context) {
     // make sure the unscheduled items see this run or lumi transition
     unscheduled_.runNowAsync<T, U>(task, ep, es, token, streamID, topContext, context);
   }
 
   template <typename T>
-  void WorkerManager::processAccumulatorsAsync(WaitingTask* task,
+  void WorkerManager::processAccumulatorsAsync(WaitingTask*                   task,
                                                typename T::MyPrincipal const& ep,
-                                               EventSetup const& es,
-                                               ServiceToken const& token,
-                                               StreamID streamID,
-                                               ParentContext const& parentContext,
-                                               typename T::Context const* context) {
+                                               EventSetup const&              es,
+                                               ServiceToken const&            token,
+                                               StreamID                       streamID,
+                                               ParentContext const&           parentContext,
+                                               typename T::Context const*     context) {
     unscheduled_.runAccumulatorsAsync<T>(task, ep, es, token, streamID, parentContext, context);
   }
 }  // namespace edm

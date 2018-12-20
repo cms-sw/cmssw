@@ -65,9 +65,9 @@ namespace edm {
     private:
       // ---------- member data --------------------------------
       EventPrincipal const* principal_;
-      std::string label_;
-      std::string processName_;
-      bool modulePassed_;
+      std::string           label_;
+      std::string           processName_;
+      bool                  modulePassed_;
     };
   }  // namespace test
 }  // namespace edm

@@ -59,7 +59,7 @@ namespace edm {
 
   private:
     virtual const T* getImpl() const { return value_; }
-    const T* value_;
+    const T*         value_;
   };
 }  // namespace edm
 

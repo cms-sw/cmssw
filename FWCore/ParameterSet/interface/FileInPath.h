@@ -110,13 +110,13 @@ namespace edm {
     static void disableFileLookup();
 
   private:
-    std::string relativePath_;
-    std::string canonicalFilename_;
+    std::string  relativePath_;
+    std::string  canonicalFilename_;
     LocationCode location_;
-    std::string localTop_;
-    std::string releaseTop_;
-    std::string dataTop_;
-    std::string searchPath_;
+    std::string  localTop_;
+    std::string  releaseTop_;
+    std::string  dataTop_;
+    std::string  searchPath_;
 
     // Helper function for construction.
     void getEnvironment();

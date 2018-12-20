@@ -29,7 +29,7 @@ namespace edm {
   class EventPrincipal;
 
   struct BranchToCount {
-    edm::BranchID const branch;
+    edm::BranchID const       branch;
     std::atomic<unsigned int> count;
 
     BranchToCount(edm::BranchID id, unsigned int count) : branch(id), count(count) {}
@@ -39,8 +39,8 @@ namespace edm {
 
   class EarlyDeleteHelper {
   public:
-    EarlyDeleteHelper(unsigned int* iBeginIndexItr,
-                      unsigned int* iEndIndexItr,
+    EarlyDeleteHelper(unsigned int*               iBeginIndexItr,
+                      unsigned int*               iEndIndexItr,
                       std::vector<BranchToCount>* iBranchCounts);
     EarlyDeleteHelper(const EarlyDeleteHelper&);
     EarlyDeleteHelper& operator=(const EarlyDeleteHelper&) = default;
@@ -63,11 +63,11 @@ namespace edm {
 
   private:
     // ---------- member data --------------------------------
-    unsigned int* pBeginIndex_;
-    unsigned int* pEndIndex_;
+    unsigned int*               pBeginIndex_;
+    unsigned int*               pEndIndex_;
     std::vector<BranchToCount>* pBranchCounts_;
-    std::atomic<unsigned int> pathsLeftToComplete_;
-    unsigned int nPathsOn_;
+    std::atomic<unsigned int>   pathsLeftToComplete_;
+    unsigned int                nPathsOn_;
   };
 }  // namespace edm
 

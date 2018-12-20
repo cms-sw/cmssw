@@ -152,9 +152,9 @@ namespace edm {
     void announce();
 
     struct WaitNode {
-      WaitingTask* m_task;
+      WaitingTask*           m_task;
       std::atomic<WaitNode*> m_next;
-      bool m_fromCache;
+      bool                   m_fromCache;
 
       void setNextNode(WaitNode* iNext) { m_next = iNext; }
 
@@ -164,12 +164,12 @@ namespace edm {
     WaitNode* createNode(WaitingTask* iTask);
 
     // ---------- member data --------------------------------
-    std::atomic<WaitNode*> m_head;
+    std::atomic<WaitNode*>      m_head;
     std::unique_ptr<WaitNode[]> m_nodeCache;
     CMS_THREAD_GUARD(m_waiting) std::exception_ptr m_exceptionPtr;
-    unsigned int m_nodeCacheSize;
+    unsigned int              m_nodeCacheSize;
     std::atomic<unsigned int> m_lastAssignedCacheIndex;
-    std::atomic<bool> m_waiting;
+    std::atomic<bool>         m_waiting;
   };
 }  // namespace edm
 

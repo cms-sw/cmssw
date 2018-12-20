@@ -46,9 +46,9 @@ namespace edm {
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
-    void start();
+    void   start();
     double stop();  // returns delta time
-    void reset();
+    void   reset();
 
     void add(double t);
 

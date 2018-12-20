@@ -22,10 +22,10 @@ namespace edm {
    */
   class Guid {  // size is 16
   public:
-    unsigned int Data1;
+    unsigned int   Data1;
     unsigned short Data2;
     unsigned short Data3;
-    unsigned char Data4[8];
+    unsigned char  Data4[8];
 
     /// Standard constructor (With initializaton)
     Guid() { init(); }
@@ -43,7 +43,7 @@ namespace edm {
         Data1 = g.Data1;
         Data2 = g.Data2;
         Data3 = g.Data3;
-        unsigned int* p = reinterpret_cast<unsigned int*>(&Data4[0]);
+        unsigned int*       p = reinterpret_cast<unsigned int*>(&Data4[0]);
         unsigned int const* q = reinterpret_cast<unsigned int const*>(&g.Data4[0]);
         *(p + 1) = *(q + 1);
         *p = *q;

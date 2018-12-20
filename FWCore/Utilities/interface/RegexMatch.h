@@ -14,10 +14,10 @@ namespace edm {
   std::string glob2reg(std::string const& pattern);
 
   std::vector<std::vector<std::string>::const_iterator> regexMatch(std::vector<std::string> const& strings,
-                                                                   std::regex const& regexp);
+                                                                   std::regex const&               regexp);
 
   std::vector<std::vector<std::string>::const_iterator> regexMatch(std::vector<std::string> const& strings,
-                                                                   std::string const& pattern);
+                                                                   std::string const&              pattern);
 }  // namespace edm
 
 #endif  // FWCore_Utilities_RegexMatch_h

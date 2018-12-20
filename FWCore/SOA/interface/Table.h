@@ -209,7 +209,7 @@ namespace edm {
         return MutableColumnValues<typename U::type>{static_cast<typename U::type*>(columnAddress<U>()), m_size};
       }
 
-      RowView<Args...> row(size_t iRow) const { return *(begin() + iRow); }
+      RowView<Args...>        row(size_t iRow) const { return *(begin() + iRow); }
       MutableRowView<Args...> row(size_t iRow) { return *(begin() + iRow); }
 
       const_iterator begin() const {
@@ -239,7 +239,7 @@ namespace edm {
 
     private:
       // Member data
-      unsigned int m_size = 0;
+      unsigned int                       m_size = 0;
       std::array<void*, sizeof...(Args)> m_values = {{nullptr}};  //! keep ROOT from trying to store this
 
       template <typename U>
@@ -276,7 +276,7 @@ namespace edm {
         static void ctrFiller(std::array<void*, sizeof...(Args)>& oValues, size_t iSize, T const& iContainer, U... iU) {
           assert(iContainer.size() == iSize);
           using Type = typename std::tuple_element<I, Layout>::type::type;
-          Type* temp = new Type[iSize];
+          Type*        temp = new Type[iSize];
           unsigned int index = 0;
           for (auto const& v : iContainer) {
             temp[index] = v;
@@ -339,9 +339,9 @@ namespace edm {
         }
 
         template <int I, typename E, typename F>
-        static void fillElementUsingFiller(F& iFiller,
-                                           E const& iItem,
-                                           size_t iIndex,
+        static void fillElementUsingFiller(F&                                  iFiller,
+                                           E const&                            iItem,
+                                           size_t                              iIndex,
                                            std::array<void*, sizeof...(Args)>& oValues) {
           if constexpr (I < sizeof...(Args)) {
             using Layout = std::tuple<Args...>;
@@ -355,17 +355,17 @@ namespace edm {
       };
 
       template <size_t... I>
-      static void copyFromToWithResizeAll(size_t iNElements,
+      static void copyFromToWithResizeAll(size_t                                    iNElements,
                                           std::array<void*, sizeof...(Args)> const& iFrom,
-                                          std::array<void*, sizeof...(Args)>& oTo,
+                                          std::array<void*, sizeof...(Args)>&       oTo,
                                           std::index_sequence<I...>) {
         (copyFromToWithResize<I>(iNElements, iFrom, oTo), ...);
       }
 
       template <int I>
-      static void copyFromToWithResize(size_t iNElements,
+      static void copyFromToWithResize(size_t                                    iNElements,
                                        std::array<void*, sizeof...(Args)> const& iFrom,
-                                       std::array<void*, sizeof...(Args)>& oTo) {
+                                       std::array<void*, sizeof...(Args)>&       oTo) {
         using Layout = std::tuple<Args...>;
         using Type = typename std::tuple_element<I, Layout>::type::type;
         Type* oldPtr = static_cast<Type*>(oTo[I]);
@@ -381,8 +381,8 @@ namespace edm {
           using Layout = std::tuple<Args...>;
           using Type = typename std::tuple_element<I, Layout>::type::type;
           Type* oldPtr = static_cast<Type*>(ioArray[I]);
-          auto ptr = new Type[iNewSize];
-          auto nToCopy = std::min(iOldSize, iNewSize);
+          auto  ptr = new Type[iNewSize];
+          auto  nToCopy = std::min(iOldSize, iNewSize);
           std::copy(static_cast<Type const*>(ioArray[I]), static_cast<Type const*>(ioArray[I]) + nToCopy, ptr);
           resizeFromTo<I + 1>(iOldSize, iNewSize, ioArray);
 

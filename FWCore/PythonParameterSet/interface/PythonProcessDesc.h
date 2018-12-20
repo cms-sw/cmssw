@@ -47,7 +47,7 @@ private:
   void readFile(std::string const& fileName);
   void readString(std::string const& pyConfig);
 
-  PythonParameterSet theProcessPSet;
+  PythonParameterSet    theProcessPSet;
   boost::python::object theMainModule;
   boost::python::object theMainNamespace;
 };

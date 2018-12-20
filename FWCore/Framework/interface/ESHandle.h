@@ -63,9 +63,9 @@ namespace edm {
 
   private:
     // ---------- member data --------------------------------
-    void const* data_{nullptr};
+    void const*                                  data_{nullptr};
     edm::eventsetup::ComponentDescription const* description_{nullptr};
-    std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory_{nullptr};
+    std::shared_ptr<ESHandleExceptionFactory>    whyFailedFactory_{nullptr};
   };
 
   template <typename T>

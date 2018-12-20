@@ -47,12 +47,12 @@ namespace edm {
         bool add(ServicesManager&) const;
 
         edm::propagate_const<std::shared_ptr<ServiceMakerBase>> maker_;
-        ParameterSet* pset_;
+        ParameterSet*                                           pset_;
         ActivityRegistry* registry_;  // We do not use propagate_const because the registry itself is mutable
-        mutable bool wasAdded_;
+        mutable bool      wasAdded_;
       };
       typedef std::map<TypeIDBase, std::shared_ptr<ServiceWrapperBase>> Type2Service;
-      typedef std::map<TypeIDBase, MakerHolder> Type2Maker;
+      typedef std::map<TypeIDBase, MakerHolder>                         Type2Maker;
 
       ServicesManager(std::vector<ParameterSet>& iConfiguration);
 
@@ -60,10 +60,10 @@ namespace edm {
           Conflicts over Services provided by both the iToken and iConfiguration
           are resolved based on the value of iLegacy
       */
-      ServicesManager(ServiceToken iToken,
-                      ServiceLegacy iLegacy,
+      ServicesManager(ServiceToken               iToken,
+                      ServiceLegacy              iLegacy,
                       std::vector<ParameterSet>& iConfiguration,
-                      bool associate = true);
+                      bool                       associate = true);
 
       ~ServicesManager();
 
@@ -71,7 +71,7 @@ namespace edm {
       template <typename T>
       T& get() const {
         Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
-        Type2Maker::const_iterator itFoundMaker;
+        Type2Maker::const_iterator   itFoundMaker;
         if (itFound == type2Service_.end()) {
           // do on demand building of the service
           if (nullptr == type2Maker_.get() ||
@@ -96,7 +96,7 @@ namespace edm {
       template <typename T>
       bool isAvailable() const {
         Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
-        Type2Maker::const_iterator itFoundMaker;
+        Type2Maker::const_iterator   itFoundMaker;
         if (itFound == type2Service_.end()) {
           // do on demand building of the service
           if (nullptr == type2Maker_.get() ||
@@ -156,11 +156,11 @@ namespace edm {
       // the correct order.
       edm::propagate_const<std::shared_ptr<ServicesManager>> associatedManager_;
 
-      ActivityRegistry registry_;
-      Type2Service type2Service_;
+      ActivityRegistry                                  registry_;
+      Type2Service                                      type2Service_;
       edm::propagate_const<std::unique_ptr<Type2Maker>> type2Maker_;
-      std::vector<TypeIDBase> requestedCreationOrder_;
-      std::vector<TypeIDBase> actualCreationOrder_;
+      std::vector<TypeIDBase>                           requestedCreationOrder_;
+      std::vector<TypeIDBase>                           actualCreationOrder_;
     };
   }  // namespace serviceregistry
 }  // namespace edm

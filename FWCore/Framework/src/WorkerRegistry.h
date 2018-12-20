@@ -50,7 +50,7 @@ namespace edm {
         create it
         @note Workers are owned by this class, do not delete them*/
     Worker* getWorker(WorkerParams const& p, std::string const& moduleLabel);
-    void clear();
+    void    clear();
 
   private:
     /// the container of workers
@@ -59,7 +59,7 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<ModuleRegistry>> modRegistry_;
 
     /// internal map of registered workers (owned).
-    WorkerMap m_workerMap;
+    WorkerMap                         m_workerMap;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
 
   };  // WorkerRegistry

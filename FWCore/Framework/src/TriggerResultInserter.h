@@ -43,7 +43,7 @@ namespace edm {
   private:
     std::vector<edm::propagate_const<TrigResPtr>> resultsPerStream_;
 
-    ParameterSetID pset_id_;
+    ParameterSetID              pset_id_;
     EDPutTokenT<TriggerResults> token_;
   };
 }  // namespace edm

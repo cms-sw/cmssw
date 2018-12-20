@@ -12,7 +12,7 @@ namespace edm {
       bool operator<(DecomposedReleaseVersion const& other) const;
 
     private:
-      bool irregular_;
+      bool         irregular_;
       unsigned int major_;
       unsigned int minor_;
       //      unsigned int point_;

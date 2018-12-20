@@ -33,26 +33,26 @@ namespace edm {
     ScheduleItems(ScheduleItems const&) = delete;             // Disallow copying and moving
     ScheduleItems& operator=(ScheduleItems const&) = delete;  // Disallow copying and moving
 
-    ServiceToken initServices(std::vector<ParameterSet>& servicePSets,
-                              ParameterSet& processPSet,
-                              ServiceToken const& iToken,
+    ServiceToken initServices(std::vector<ParameterSet>&     servicePSets,
+                              ParameterSet&                  processPSet,
+                              ServiceToken const&            iToken,
                               serviceregistry::ServiceLegacy iLegacy,
-                              bool associate);
+                              bool                           associate);
 
     ServiceToken addCPRandTNS(ParameterSet const& parameterSet, ServiceToken const& token);
 
     std::shared_ptr<CommonParams> initMisc(ParameterSet& parameterSet);
 
-    std::unique_ptr<Schedule> initSchedule(ParameterSet& parameterSet,
-                                           bool hasSubprocesses,
+    std::unique_ptr<Schedule> initSchedule(ParameterSet&                     parameterSet,
+                                           bool                              hasSubprocesses,
                                            PreallocationConfiguration const& iAllocConfig,
                                            ProcessContext const*);
 
     void clear();
 
     std::shared_ptr<SignallingProductRegistry const> preg() const { return get_underlying_safe(preg_); }
-    std::shared_ptr<SignallingProductRegistry>& preg() { return get_underlying_safe(preg_); }
-    std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {
+    std::shared_ptr<SignallingProductRegistry>&      preg() { return get_underlying_safe(preg_); }
+    std::shared_ptr<BranchIDListHelper const>        branchIDListHelper() const {
       return get_underlying_safe(branchIDListHelper_);
     }
     std::shared_ptr<BranchIDListHelper>& branchIDListHelper() { return get_underlying_safe(branchIDListHelper_); }
@@ -72,11 +72,11 @@ namespace edm {
 
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     edm::propagate_const<std::shared_ptr<SignallingProductRegistry>> preg_;
-    edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<BranchIDListHelper>>        branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     edm::propagate_const<std::shared_ptr<SubProcessParentageHelper>> subProcessParentageHelper_;
-    std::unique_ptr<ExceptionToActionTable const> act_table_;
-    edm::propagate_const<std::shared_ptr<ProcessConfiguration>> processConfiguration_;
+    std::unique_ptr<ExceptionToActionTable const>                    act_table_;
+    edm::propagate_const<std::shared_ptr<ProcessConfiguration>>      processConfiguration_;
   };
 }  // namespace edm
 #endif

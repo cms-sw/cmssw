@@ -50,18 +50,18 @@ namespace edm {
     virtual ~ErrorObj();
 
     ErrorObj& operator=(const ErrorObj& other);
-    void swap(ErrorObj& other);
+    void      swap(ErrorObj& other);
     // --- accessors:
     //
-    int serial() const;
-    const ELextendedID& xid() const;
-    const ELstring& idOverflow() const;
-    time_t timestamp() const;
+    int                  serial() const;
+    const ELextendedID&  xid() const;
+    const ELstring&      idOverflow() const;
+    time_t               timestamp() const;
     const ELlist_string& items() const;
-    bool reactedTo() const;
-    ELstring fullText() const;
-    ELstring context() const;
-    bool is_verbatim() const;
+    bool                 reactedTo() const;
+    ELstring             fullText() const;
+    ELstring             context() const;
+    bool                 is_verbatim() const;
 
     // mutators:
     //
@@ -75,7 +75,7 @@ namespace edm {
     //
     template <class T>
     inline ErrorObj& opltlt(const T& t);
-    ErrorObj& opltlt(const char s[]);
+    ErrorObj&        opltlt(const char s[]);
     inline ErrorObj& operator<<(std::ostream& (*f)(std::ostream&));
     inline ErrorObj& operator<<(std::ios_base& (*f)(std::ios_base&));
 
@@ -90,16 +90,16 @@ namespace edm {
   private:
     // ---  data members:
     //
-    int mySerial;
-    ELextendedID myXid;
-    ELstring myIdOverflow;
-    time_t myTimestamp;
-    ELlist_string myItems;
-    bool myReactedTo;
-    ELstring myContext;
+    int                mySerial;
+    ELextendedID       myXid;
+    ELstring           myIdOverflow;
+    time_t             myTimestamp;
+    ELlist_string      myItems;
+    bool               myReactedTo;
+    ELstring           myContext;
     std::ostringstream myOs;
-    std::string emptyString;
-    bool verbatim;
+    std::string        emptyString;
+    bool               verbatim;
 
   };  // ErrorObj
 

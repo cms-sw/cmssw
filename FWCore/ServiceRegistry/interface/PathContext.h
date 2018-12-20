@@ -27,18 +27,18 @@ namespace edm {
 
     PathContext(std::string const& pathName, StreamContext const* streamContext, unsigned int pathID, PathType pathType);
 
-    std::string const& pathName() const { return pathName_; }
+    std::string const&   pathName() const { return pathName_; }
     StreamContext const* streamContext() const { return streamContext_; }
-    unsigned int pathID() const { return pathID_; }
-    PathType pathType() const { return pathType_; }
+    unsigned int         pathID() const { return pathID_; }
+    PathType             pathType() const { return pathType_; }
 
     bool isEndPath() const { return pathType_ == PathType::kEndPath; }
 
   private:
-    std::string pathName_;
+    std::string          pathName_;
     StreamContext const* streamContext_;
-    unsigned int pathID_;
-    PathType pathType_;
+    unsigned int         pathID_;
+    PathType             pathType_;
   };
 
   std::ostream& operator<<(std::ostream&, PathContext const&);

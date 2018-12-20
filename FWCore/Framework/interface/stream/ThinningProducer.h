@@ -36,15 +36,15 @@ namespace edm {
 
     virtual void produce(Event& event, EventSetup const& eventSetup) override;
 
-    virtual void registerThinnedAssociations(ProductRegistry const& productRegistry,
+    virtual void registerThinnedAssociations(ProductRegistry const&     productRegistry,
                                              ThinnedAssociationsHelper& thinnedAssociationsHelper) override;
 
   private:
     edm::propagate_const<std::unique_ptr<Selector>> selector_;
-    edm::EDGetTokenT<Collection> inputToken_;
-    edm::InputTag inputTag_;
-    edm::EDPutTokenT<Collection> outputToken_;
-    edm::EDPutTokenT<ThinnedAssociation> thinnedOutToken_;
+    edm::EDGetTokenT<Collection>                    inputToken_;
+    edm::InputTag                                   inputTag_;
+    edm::EDPutTokenT<Collection>                    outputToken_;
+    edm::EDPutTokenT<ThinnedAssociation>            thinnedOutToken_;
   };
 
   template <typename Collection, typename Selector>
@@ -77,7 +77,7 @@ namespace edm {
     edm::Event const& constEvent = event;
     selector_->preChoose(inputCollection, constEvent, eventSetup);
 
-    Collection thinnedCollection;
+    Collection         thinnedCollection;
     ThinnedAssociation thinnedAssociation;
 
     unsigned int iIndex = 0;

@@ -26,7 +26,7 @@ namespace edm {
 
     EDGetTokenT<T> operator()(BranchDescription const& branchDescription) {
       if (match_(branchDescription)) {
-        auto transition = branchDescription.branchType();
+        auto          transition = branchDescription.branchType();
         edm::InputTag tag{branchDescription.moduleLabel(), branchDescription.productInstanceName(),
                           branchDescription.processName()};
         if (transition == edm::InEvent) {
@@ -42,7 +42,7 @@ namespace edm {
 
   private:
     std::function<bool(BranchDescription const&)> match_;
-    EDConsumerBase* module_;
+    EDConsumerBase*                               module_;
   };
 }  // namespace edm
 #endif

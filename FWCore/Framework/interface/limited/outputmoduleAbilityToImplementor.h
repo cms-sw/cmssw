@@ -67,7 +67,7 @@ namespace edm {
         }
 
         virtual std::shared_ptr<C> globalBeginRun(RunForOutput const&) const = 0;
-        virtual void globalEndRun(RunForOutput const&) const = 0;
+        virtual void               globalEndRun(RunForOutput const&) const = 0;
         // When threaded we will have a container for N items whre N is # of simultaneous runs
         edm::propagate_const<std::shared_ptr<C>> cache_;
       };
@@ -94,7 +94,7 @@ namespace edm {
         }
 
         virtual std::shared_ptr<C> globalBeginLuminosityBlock(LuminosityBlockForOutput const&) const = 0;
-        virtual void globalEndLuminosityBlock(LuminosityBlockForOutput const&) const = 0;
+        virtual void               globalEndLuminosityBlock(LuminosityBlockForOutput const&) const = 0;
         // When threaded we will have a container for N items whre N is # of simultaneous runs
         std::unique_ptr<std::shared_ptr<C>[]> caches_;
       };

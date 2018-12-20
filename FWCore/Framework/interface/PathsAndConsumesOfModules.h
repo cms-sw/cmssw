@@ -37,7 +37,7 @@ namespace edm {
     std::vector<std::string> const& doEndPaths() const override { return endPaths_; }
 
     std::vector<ModuleDescription const*> const& doAllModules() const override { return allModuleDescriptions_; }
-    ModuleDescription const* doModuleDescription(unsigned int moduleID) const override;
+    ModuleDescription const*                     doModuleDescription(unsigned int moduleID) const override;
 
     std::vector<ModuleDescription const*> const& doModulesOnPath(unsigned int pathIndex) const override;
     std::vector<ModuleDescription const*> const& doModulesOnEndPath(unsigned int endPathIndex) const override;
@@ -64,7 +64,7 @@ namespace edm {
 
     std::vector<std::vector<ModuleDescription const*> > modulesWhoseProductsAreConsumedBy_;
 
-    Schedule const* schedule_;
+    Schedule const*                        schedule_;
     std::shared_ptr<ProductRegistry const> preg_;
   };
 

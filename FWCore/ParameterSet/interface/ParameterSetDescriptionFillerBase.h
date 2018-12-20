@@ -69,7 +69,7 @@ namespace edm {
     virtual ~ParameterSetDescriptionFillerBase();
 
     // ---------- const member functions ---------------------
-    virtual void fill(ConfigurationDescriptions& descriptions) const = 0;
+    virtual void               fill(ConfigurationDescriptions& descriptions) const = 0;
     virtual const std::string& baseType() const = 0;
     virtual const std::string& extendedBaseType() const = 0;
 

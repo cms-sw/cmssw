@@ -30,19 +30,19 @@ namespace edm {
     virtual std::string const lookupCalibConnect(std::string const& input) const = 0;
     virtual std::string const rfioType(void) const = 0;
 
-    virtual std::string const* sourceCacheTempDir() const = 0;
-    virtual double const* sourceCacheMinFree() const = 0;
-    virtual std::string const* sourceCacheHint() const = 0;
-    virtual std::string const* sourceCloneCacheHint() const = 0;
-    virtual std::string const* sourceReadHint() const = 0;
-    virtual unsigned int const* sourceTTreeCacheSize() const = 0;
-    virtual unsigned int const* sourceTimeout() const = 0;
-    virtual bool enablePrefetching() const = 0;
-    virtual unsigned int debugLevel() const = 0;
+    virtual std::string const*              sourceCacheTempDir() const = 0;
+    virtual double const*                   sourceCacheMinFree() const = 0;
+    virtual std::string const*              sourceCacheHint() const = 0;
+    virtual std::string const*              sourceCloneCacheHint() const = 0;
+    virtual std::string const*              sourceReadHint() const = 0;
+    virtual unsigned int const*             sourceTTreeCacheSize() const = 0;
+    virtual unsigned int const*             sourceTimeout() const = 0;
+    virtual bool                            enablePrefetching() const = 0;
+    virtual unsigned int                    debugLevel() const = 0;
     virtual std::vector<std::string> const* sourceNativeProtocols() const = 0;
-    virtual struct addrinfo const* statisticsDestination() const = 0;
-    virtual std::set<std::string> const* statisticsInfo() const = 0;
-    virtual std::string const& siteName(void) const = 0;
+    virtual struct addrinfo const*          statisticsDestination() const = 0;
+    virtual std::set<std::string> const*    statisticsInfo() const = 0;
+    virtual std::string const&              siteName(void) const = 0;
 
     // implicit copy constructor
     // implicit assignment operator

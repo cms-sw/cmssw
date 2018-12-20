@@ -51,7 +51,7 @@ namespace edm {
     // ---------- member functions ---------------------------
     bool check(const edm::EventSetup& iSetup) {
       const T& record = iSetup.template get<T>();
-      bool result = cacheId_ != record.cacheIdentifier();
+      bool     result = cacheId_ != record.cacheIdentifier();
       if (result) {
         callback_(record);
       }
@@ -66,7 +66,7 @@ namespace edm {
 
     // ---------- member data --------------------------------
     std::function<void(const T&)> callback_;
-    unsigned long long cacheId_;
+    unsigned long long            cacheId_;
   };
 }  // namespace edm
 

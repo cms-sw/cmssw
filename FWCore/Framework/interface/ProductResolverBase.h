@@ -57,25 +57,25 @@ namespace edm {
     ProductResolverBase(ProductResolverBase const&) = delete;             // Disallow copying and moving
     ProductResolverBase& operator=(ProductResolverBase const&) = delete;  // Disallow copying and moving
 
-    Resolution resolveProduct(Principal const& principal,
-                              bool skipCurrentProcess,
-                              SharedResourcesAcquirer* sra,
+    Resolution resolveProduct(Principal const&            principal,
+                              bool                        skipCurrentProcess,
+                              SharedResourcesAcquirer*    sra,
                               ModuleCallingContext const* mcc) const {
       return resolveProduct_(principal, skipCurrentProcess, sra, mcc);
     }
 
     /** oDataFetchedIsValid is allowed to be nullptr in which case no value will be assigned
      */
-    void prefetchAsync(WaitingTask* waitTask,
-                       Principal const& principal,
-                       bool skipCurrentProcess,
-                       ServiceToken const& token,
-                       SharedResourcesAcquirer* sra,
+    void prefetchAsync(WaitingTask*                waitTask,
+                       Principal const&            principal,
+                       bool                        skipCurrentProcess,
+                       ServiceToken const&         token,
+                       SharedResourcesAcquirer*    sra,
                        ModuleCallingContext const* mcc) const {
       return prefetchAsync_(waitTask, principal, skipCurrentProcess, token, sra, mcc);
     }
 
-    void retrieveAndMerge(Principal const& principal,
+    void retrieveAndMerge(Principal const&                   principal,
                           MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
       retrieveAndMerge_(principal, mergeableRunProductMetadata);
     }
@@ -138,8 +138,8 @@ namespace edm {
     // Initializes the event independent portion of the provenance, plus the process history ID, the product ID, and the
     // provRetriever.
     void setProvenance(ProductProvenanceRetriever const* provRetriever,
-                       ProcessHistory const& ph,
-                       ProductID const& pid) {
+                       ProcessHistory const&             ph,
+                       ProductID const&                  pid) {
       setProvenance_(provRetriever, ph, pid);
     }
 
@@ -166,7 +166,7 @@ namespace edm {
     void putProduct(std::unique_ptr<WrapperBase> edp) const { putProduct_(std::move(edp)); }
 
     // If the product already exists we merge, else will put
-    void putOrMergeProduct(std::unique_ptr<WrapperBase> edp,
+    void putOrMergeProduct(std::unique_ptr<WrapperBase>       edp,
                            MergeableRunProductMetadata const* mergeableRunProductMetadata = nullptr) const {
       putOrMergeProduct_(std::move(edp), mergeableRunProductMetadata);
     }
@@ -175,18 +175,18 @@ namespace edm {
     virtual void setupUnscheduled(UnscheduledConfigurator const&);
 
   private:
-    virtual Resolution resolveProduct_(Principal const& principal,
-                                       bool skipCurrentProcess,
-                                       SharedResourcesAcquirer* sra,
+    virtual Resolution resolveProduct_(Principal const&            principal,
+                                       bool                        skipCurrentProcess,
+                                       SharedResourcesAcquirer*    sra,
                                        ModuleCallingContext const* mcc) const = 0;
-    virtual void prefetchAsync_(WaitingTask* waitTask,
-                                Principal const& principal,
-                                bool skipCurrentProcess,
-                                ServiceToken const& token,
-                                SharedResourcesAcquirer* sra,
-                                ModuleCallingContext const* mcc) const = 0;
+    virtual void       prefetchAsync_(WaitingTask*                waitTask,
+                                      Principal const&            principal,
+                                      bool                        skipCurrentProcess,
+                                      ServiceToken const&         token,
+                                      SharedResourcesAcquirer*    sra,
+                                      ModuleCallingContext const* mcc) const = 0;
 
-    virtual void retrieveAndMerge_(Principal const& principal,
+    virtual void retrieveAndMerge_(Principal const&                   principal,
                                    MergeableRunProductMetadata const* mergeableRunProductMetadata) const;
 
     virtual bool unscheduledWasNotRun_() const = 0;
@@ -195,21 +195,21 @@ namespace edm {
     virtual bool productWasDeleted_() const = 0;
     virtual bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const = 0;
 
-    virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
-    virtual void putOrMergeProduct_(std::unique_ptr<WrapperBase> edp,
-                                    MergeableRunProductMetadata const* mergeableRunProductMetadata) const = 0;
+    virtual void                     putProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
+    virtual void                     putOrMergeProduct_(std::unique_ptr<WrapperBase>       edp,
+                                                        MergeableRunProductMetadata const* mergeableRunProductMetadata) const = 0;
     virtual BranchDescription const& branchDescription_() const = 0;
-    virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) = 0;
-    virtual Provenance const* provenance_() const = 0;
-    virtual std::string const& resolvedModuleLabel_() const = 0;
-    virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever,
-                                ProcessHistory const& ph,
-                                ProductID const& pid) = 0;
-    virtual void setMergeableRunProductMetadata_(MergeableRunProductMetadata const*);
-    virtual void setProcessHistory_(ProcessHistory const& ph) = 0;
+    virtual void                     resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) = 0;
+    virtual Provenance const*        provenance_() const = 0;
+    virtual std::string const&       resolvedModuleLabel_() const = 0;
+    virtual void                     setProvenance_(ProductProvenanceRetriever const* provRetriever,
+                                                    ProcessHistory const&             ph,
+                                                    ProductID const&                  pid) = 0;
+    virtual void                     setMergeableRunProductMetadata_(MergeableRunProductMetadata const*);
+    virtual void                     setProcessHistory_(ProcessHistory const& ph) = 0;
     virtual ProductProvenance const* productProvenancePtr_() const = 0;
-    virtual void resetProductData_(bool deleteEarly) = 0;
-    virtual bool singleProduct_() const = 0;
+    virtual void                     resetProductData_(bool deleteEarly) = 0;
+    virtual bool                     singleProduct_() const = 0;
   };
 
   inline std::ostream& operator<<(std::ostream& os, ProductResolverBase const& phb) {

@@ -42,9 +42,9 @@ namespace edmtest {
   private:
     typedef std::vector<std::string>::const_iterator Iter;
 
-    bool changeIsEqualValue_;
+    bool                     changeIsEqualValue_;
     std::vector<std::string> labelsToGet_;
-    bool noPut_;
+    bool                     noPut_;
   };
 }  // namespace edmtest
 

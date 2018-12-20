@@ -40,8 +40,8 @@ namespace edm {
     using EdgeToPathMap = std::map<SimpleEdge, std::vector<unsigned int>>;
 
     void throwIfImproperDependencies(EdgeToPathMap const&,
-                                     std::vector<std::vector<unsigned int>> const& iPathIndexToModuleIndexOrder,
-                                     std::vector<std::string> const& iPathNames,
+                                     std::vector<std::vector<unsigned int>> const&        iPathIndexToModuleIndexOrder,
+                                     std::vector<std::string> const&                      iPathNames,
                                      std::unordered_map<unsigned int, std::string> const& iModuleIndexToNames);
   }  // namespace graph
 };   // namespace edm

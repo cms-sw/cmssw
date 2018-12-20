@@ -30,10 +30,10 @@ namespace edm {
 
     void runToCompletion();
 
-    InputSource::ItemType nextTransitionType();
-    InputSource::ItemType lastTransitionType() const;
+    InputSource::ItemType                              nextTransitionType();
+    InputSource::ItemType                              lastTransitionType() const;
     std::pair<edm::ProcessHistoryID, edm::RunNumber_t> nextRunID();
-    edm::LuminosityBlockNumber_t nextLuminosityBlockID();
+    edm::LuminosityBlockNumber_t                       nextLuminosityBlockID();
 
     void readFile();
     void closeInputFile(bool cleaningUpAfterException);
@@ -52,31 +52,31 @@ namespace edm {
     void doErrorStuff();
 
     void beginRun(ProcessHistoryID const& phid,
-                  RunNumber_t run,
-                  bool& globalTransitionSucceeded,
-                  bool& eventSetupForInstanceSucceeded);
+                  RunNumber_t             run,
+                  bool&                   globalTransitionSucceeded,
+                  bool&                   eventSetupForInstanceSucceeded);
     void endUnfinishedRun(ProcessHistoryID const& phid,
-                          RunNumber_t run,
-                          bool globalTranstitionSucceeded,
-                          bool cleaningUpAfterException,
-                          bool eventSetupForInstanceSucceeded);
+                          RunNumber_t             run,
+                          bool                    globalTranstitionSucceeded,
+                          bool                    cleaningUpAfterException,
+                          bool                    eventSetupForInstanceSucceeded);
 
     void endRun(ProcessHistoryID const& phid,
-                RunNumber_t run,
-                bool globalTranstitionSucceeded,
-                bool cleaningUpAfterException);
+                RunNumber_t             run,
+                bool                    globalTranstitionSucceeded,
+                bool                    cleaningUpAfterException);
 
     InputSource::ItemType processLumis(std::shared_ptr<void>);
-    void endUnfinishedLumi();
+    void                  endUnfinishedLumi();
 
     std::pair<ProcessHistoryID, RunNumber_t> readRun();
     std::pair<ProcessHistoryID, RunNumber_t> readAndMergeRun();
-    int readLuminosityBlock(LuminosityBlockProcessingStatus&);
-    int readAndMergeLumi(LuminosityBlockProcessingStatus&);
-    void writeRun(ProcessHistoryID const& phid, RunNumber_t run);
-    void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run);
-    void writeLumi(LuminosityBlockProcessingStatus&);
-    void deleteLumiFromCache(LuminosityBlockProcessingStatus&);
+    int                                      readLuminosityBlock(LuminosityBlockProcessingStatus&);
+    int                                      readAndMergeLumi(LuminosityBlockProcessingStatus&);
+    void                                     writeRun(ProcessHistoryID const& phid, RunNumber_t run);
+    void                                     deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run);
+    void                                     writeLumi(LuminosityBlockProcessingStatus&);
+    void                                     deleteLumiFromCache(LuminosityBlockProcessingStatus&);
 
     bool shouldWeStop() const;
 
@@ -88,16 +88,16 @@ namespace edm {
 
   private:
     InputSource::ItemType readAndProcessEvents();
-    void readAndProcessEvent();
-    void throwIfNeeded();
-    void endLumi();
+    void                  readAndProcessEvent();
+    void                  throwIfNeeded();
+    void                  endLumi();
 
-    std::string mockData_;
-    std::ostream& output_;
+    std::string        mockData_;
+    std::ostream&      output_;
     std::istringstream input_;
 
     std::shared_ptr<LuminosityBlockProcessingStatus> lumiStatus_;
-    InputSource::ItemType lastTransition_;
+    InputSource::ItemType                            lastTransition_;
 
     int run_;
     int lumi_;

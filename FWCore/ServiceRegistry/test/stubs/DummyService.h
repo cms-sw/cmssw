@@ -53,7 +53,7 @@ namespace testserviceregistry {
     const DummyService& operator=(const DummyService&);  // stop default
 
     // ---------- member data --------------------------------
-    int value_;
+    int  value_;
     bool beginJobCalled_;
   };
 }  // namespace testserviceregistry

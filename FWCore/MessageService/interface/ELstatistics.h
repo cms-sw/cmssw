@@ -93,20 +93,20 @@ namespace edm {
       // from base class
 
     protected:
-      int tableLimit;
-      ELmap_stats stats;
-      bool updatedStats;
+      int           tableLimit;
+      ELmap_stats   stats;
+      bool          updatedStats;
       std::ostream& termStream;
 
       bool printAtTermination;
 
-      CMS_THREAD_SAFE static std::set<std::string> groupedCategories;  // 8/16/07 mf
-      static ELstring formSummary(ELmap_stats& stats);                 // 8/16/07 mf
+      CMS_THREAD_SAFE static std::set<std::string> groupedCategories;                // 8/16/07 mf
+      static ELstring                              formSummary(ELmap_stats& stats);  // 8/16/07 mf
 
       // ----  Helper methods specific to MessageLogger applicaton
       //
     private:
-      std::string dualLogName(std::string const& s);
+      std::string   dualLogName(std::string const& s);
       ELstatistics& operator=(const ELstatistics& orig) = delete;  // verboten
 
       void summary(std::ostream& os, const ELstring& title);

@@ -148,18 +148,18 @@ namespace edm {
       // concurrent lumi info is next
       // concurrent run info is last
       std::vector<std::string> transitionInfoCache_;
-      unsigned int lumiInfoBegin_ = 0;
-      unsigned int runInfoBegin_ = 0;
+      unsigned int             lumiInfoBegin_ = 0;
+      unsigned int             runInfoBegin_ = 0;
 
-      std::set<std::string> debugEnabledModules_;
+      std::set<std::string>                  debugEnabledModules_;
       std::map<std::string, ELseverityLevel> suppression_levels_;
-      bool debugEnabled_;
-      CMS_THREAD_SAFE static bool anyDebugEnabled_;
-      CMS_THREAD_SAFE static bool everyDebugEnabled_;
+      bool                                   debugEnabled_;
+      CMS_THREAD_SAFE static bool            anyDebugEnabled_;
+      CMS_THREAD_SAFE static bool            everyDebugEnabled_;
 
       CMS_THREAD_SAFE static bool fjrSummaryRequested_;
-      bool messageServicePSetHasBeenValidated_;
-      std::string messageServicePSetValidatationResults_;
+      bool                        messageServicePSetHasBeenValidated_;
+      std::string                 messageServicePSetValidatationResults_;
 
       bool nonModule_debugEnabled;
       bool nonModule_infoEnabled;

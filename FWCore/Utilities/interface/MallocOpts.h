@@ -55,10 +55,10 @@ namespace edm {
     typedef MallocOpts::opt_type opt_type;
     MallocOptionSetter();
 
-    bool retrieveFromCpuType();
-    bool retrieveFromEnv();
-    void adjustMallocParams();
-    bool hasErrors() const { return !error_message_.empty(); }
+    bool        retrieveFromCpuType();
+    bool        retrieveFromEnv();
+    void        adjustMallocParams();
+    bool        hasErrors() const { return !error_message_.empty(); }
     std::string error_message() const { return error_message_; }
 
     void set_mmap_max(opt_type mmap_max) {
@@ -81,7 +81,7 @@ namespace edm {
     MallocOpts get() const { return values_; }
 
   private:
-    bool changed_;
+    bool       changed_;
     MallocOpts values_;
 
     std::string error_message_;

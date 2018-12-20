@@ -44,7 +44,7 @@ namespace edm {
       std::string operator()(ParameterSet const& pset);
 
     private:
-      typedef std::string String;
+      typedef std::string         String;
       typedef std::vector<String> vString;
 
       void messageLoggerPSet(ParameterSet const& pset);
@@ -53,8 +53,8 @@ namespace edm {
       bool validateThreshold(std::string const& thresh, std::string const& psetName);
       bool checkThreshold(std::string const& thresh);
       void noDuplicates(vString const& v, std::string const& psetName, std::string const& parameterLabel);
-      void noDuplicates(vString const& v1,
-                        vString const& v2,
+      void noDuplicates(vString const&     v1,
+                        vString const&     v2,
                         std::string const& psetName,
                         std::string const& p1,
                         std::string const& p2);
@@ -62,11 +62,11 @@ namespace edm {
       void noKeywords(vString const& v, std::string const& psetName, std::string const& parameterLabel);
       bool keywordCheck(std::string const& word);
       void noNonPSetUsage(ParameterSet const& pset,
-                          vString const& v,
-                          std::string const& psetName,
-                          std::string const& parameterLabel);
-      void noBadParams(vString const& v,
-                       vString const& params,
+                          vString const&      v,
+                          std::string const&  psetName,
+                          std::string const&  parameterLabel);
+      void noBadParams(vString const&     v,
+                       vString const&     params,
                        std::string const& psetName,
                        std::string const& parameterLabel,
                        std::string const& type);
@@ -88,9 +88,9 @@ namespace edm {
       void catInts(ParameterSet const& pset, std::string const& psetName, std::string const& categoryName);
       void catNoPSets(ParameterSet const& pset, std::string const& psetName, std::string const& categoryName);
       void catBoolRestriction(ParameterSet const& pset,
-                              std::string const& psetName,
-                              std::string const& categoryName,
-                              std::string const& type);
+                              std::string const&  psetName,
+                              std::string const&  categoryName,
+                              std::string const&  type);
 
       template <typename T>
       T check(ParameterSet const& pset, std::string const& psetName, std::string const& parameterLabel) {
@@ -119,10 +119,10 @@ namespace edm {
 
       template <typename T>
       void disallowedParam(ParameterSet const& pset,
-                           vString const& v,
-                           std::string const& psetName,
-                           std::string const& parameterLabel,
-                           std::string const& type) {
+                           vString const&      v,
+                           std::string const&  psetName,
+                           std::string const&  parameterLabel,
+                           std::string const&  type) {
         vString params = pset.getParameterNamesForType<T>(true);
         noBadParams(v, params, psetName, parameterLabel, type);
         params = pset.getParameterNamesForType<T>(false);
@@ -131,7 +131,7 @@ namespace edm {
 
       template <typename T>
       void noneExcept(ParameterSet const& pset, std::string const& psetName, std::string const& type) {
-        vString x = pset.template getParameterNamesForType<T>(false);
+        vString                 x = pset.template getParameterNamesForType<T>(false);
         vString::const_iterator end = x.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
           flaws << psetName << " PSet: \n"
@@ -152,10 +152,10 @@ namespace edm {
 
       template <typename T>
       void noneExcept(ParameterSet const& pset,
-                      std::string const& psetName,
-                      std::string const& type,
-                      std::string const& ok) {
-        vString x = pset.template getParameterNamesForType<T>(false);
+                      std::string const&  psetName,
+                      std::string const&  type,
+                      std::string const&  ok) {
+        vString                 x = pset.template getParameterNamesForType<T>(false);
         vString::const_iterator end = x.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
           std::string val = (*i);
@@ -179,7 +179,7 @@ namespace edm {
       template <typename T>
       void noneExcept(
           ParameterSet const& pset, std::string const& psetName, std::string const& type, T const& ok1, T const& ok2) {
-        vString x = pset.template getParameterNamesForType<T>(false);
+        vString                 x = pset.template getParameterNamesForType<T>(false);
         vString::const_iterator end = x.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
           std::string val = (*i);
@@ -202,10 +202,10 @@ namespace edm {
 
       template <typename T>
       void noneExcept(ParameterSet const& pset,
-                      std::string const& psetName,
-                      std::string const& type,
-                      vString const& vok) {
-        vString x = pset.template getParameterNamesForType<T>(false);
+                      std::string const&  psetName,
+                      std::string const&  type,
+                      vString const&      vok) {
+        vString                 x = pset.template getParameterNamesForType<T>(false);
         vString::const_iterator end = x.end();
         vString::const_iterator vend = vok.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
@@ -233,10 +233,10 @@ namespace edm {
 
       template <typename T>
       void catNone(ParameterSet const& pset,
-                   std::string const& psetName,
-                   std::string const& categoryName,
-                   std::string const& type) {
-        vString x = pset.template getParameterNamesForType<T>(false);
+                   std::string const&  psetName,
+                   std::string const&  categoryName,
+                   std::string const&  type) {
+        vString                 x = pset.template getParameterNamesForType<T>(false);
         vString::const_iterator end = x.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
           flaws << categoryName << " category PSet nested in " << psetName << " PSet: \n"
@@ -254,7 +254,7 @@ namespace edm {
       }  // catNone()
 
       // private data
-      std::ostringstream flaws;
+      std::ostringstream       flaws;
       std::vector<std::string> destinations;
       std::vector<std::string> statistics;
       std::vector<std::string> fwkJobReports;

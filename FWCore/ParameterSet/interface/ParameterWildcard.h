@@ -62,13 +62,13 @@ namespace edm {
     ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked);
     ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked);
 
-    ParameterWildcard(std::string const& pattern,
-                      WildcardValidationCriteria criteria,
-                      bool isTracked,
+    ParameterWildcard(std::string const&             pattern,
+                      WildcardValidationCriteria     criteria,
+                      bool                           isTracked,
                       ParameterSetDescription const& desc);
-    ParameterWildcard(char const* pattern,
-                      WildcardValidationCriteria criteria,
-                      bool isTracked,
+    ParameterWildcard(char const*                    pattern,
+                      WildcardValidationCriteria     criteria,
+                      bool                           isTracked,
                       ParameterSetDescription const& desc);
 
     ~ParameterWildcard() override;
@@ -95,13 +95,13 @@ namespace edm {
     ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked);
     ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked);
 
-    ParameterWildcard(std::string const& pattern,
-                      WildcardValidationCriteria criteria,
-                      bool isTracked,
+    ParameterWildcard(std::string const&             pattern,
+                      WildcardValidationCriteria     criteria,
+                      bool                           isTracked,
                       ParameterSetDescription const& desc);
-    ParameterWildcard(char const* pattern,
-                      WildcardValidationCriteria criteria,
-                      bool isTracked,
+    ParameterWildcard(char const*                    pattern,
+                      WildcardValidationCriteria     criteria,
+                      bool                           isTracked,
                       ParameterSetDescription const& desc);
 
     ~ParameterWildcard() override;

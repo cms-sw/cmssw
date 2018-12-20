@@ -37,7 +37,7 @@ namespace edm {
     int timesFailed = 0;
     int timesExcept = 0;
 
-    std::string name;
+    std::string                      name;
     std::vector<ModuleInPathSummary> moduleInPathSummaries;
   };
 
@@ -54,9 +54,9 @@ namespace edm {
   inline bool operator<(WorkerSummary const& a, WorkerSummary const& b) { return a.moduleLabel < b.moduleLabel; }
 
   struct TriggerReport {
-    EventSummary eventSummary;
-    std::vector<PathSummary> trigPathSummaries;
-    std::vector<PathSummary> endPathSummaries;
+    EventSummary               eventSummary;
+    std::vector<PathSummary>   trigPathSummaries;
+    std::vector<PathSummary>   endPathSummaries;
     std::vector<WorkerSummary> workerSummaries;
   };
 

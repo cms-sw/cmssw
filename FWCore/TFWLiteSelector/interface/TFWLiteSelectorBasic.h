@@ -84,19 +84,19 @@ private:
 
   const TFWLiteSelectorBasic& operator=(const TFWLiteSelectorBasic&);  // stop default
 
-  void Begin(TTree*) override;
-  void SlaveBegin(TTree*) override;
-  void Init(TTree*) override;
+  void   Begin(TTree*) override;
+  void   SlaveBegin(TTree*) override;
+  void   Init(TTree*) override;
   Bool_t Notify() override;
   Bool_t Process(Long64_t /*entry*/) override;
-  void SlaveTerminate() override;
-  void Terminate() override;
-  Int_t Version() const override { return 1; }
+  void   SlaveTerminate() override;
+  void   Terminate() override;
+  Int_t  Version() const override { return 1; }
 
   void setupNewFile(TFile&);
   // ---------- member data --------------------------------
   edm::propagate_const<std::shared_ptr<edm::root::TFWLiteSelectorMembers>> m_;
-  bool everythingOK_;
+  bool                                                                     everythingOK_;
 
   ClassDefOverride(TFWLiteSelectorBasic, 2)
 };

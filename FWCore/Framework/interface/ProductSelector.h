@@ -37,11 +37,11 @@ namespace edm {
 
     bool initialized() const { return initialized_; }
 
-    static void checkForDuplicateKeptBranch(BranchDescription const& desc,
+    static void checkForDuplicateKeptBranch(BranchDescription const&                      desc,
                                             std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc);
 
-    static void fillDroppedToKept(ProductRegistry const& preg,
-                                  std::map<BranchID, BranchDescription const*> const& trueBranchIDToKeptBranchDesc,
+    static void fillDroppedToKept(ProductRegistry const&                                preg,
+                                  std::map<BranchID, BranchDescription const*> const&   trueBranchIDToKeptBranchDesc,
                                   std::map<BranchID::value_type, BranchID::value_type>& droppedBranchIDToKeptBranchID_);
 
   private:
@@ -55,7 +55,7 @@ namespace edm {
     // that are managed by the ProductRegistry used to initialize the
     // entity that contains this ProductSelector.
     std::vector<std::string> productsToSelect_;
-    bool initialized_;
+    bool                     initialized_;
   };
 
   std::ostream& operator<<(std::ostream& os, const ProductSelector& gs);

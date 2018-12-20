@@ -39,7 +39,7 @@ namespace edm {
   template <typename T>
   class propagate_const {
   public:
-    friend T& get_underlying<T>(propagate_const<T>&);
+    friend T&       get_underlying<T>(propagate_const<T>&);
     friend T const& get_underlying<T>(propagate_const<T> const&);
 
     using element_type = typename std::remove_reference<decltype(*std::declval<T&>())>::type;

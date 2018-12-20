@@ -76,7 +76,7 @@ namespace edm {
     private:
       T* callee_;
       void (T::*method_)(const TDependsOnRecord&);
-      TCallerChain chain_;
+      TCallerChain       chain_;
       unsigned long long cacheID_;
     };
 
@@ -98,7 +98,7 @@ namespace edm {
       // class to hold onto one member method pointer
       template <class T, class TDependsOnRecord>
       struct OneHolder {
-        typedef T Prod_t;
+        typedef T                Prod_t;
         typedef TDependsOnRecord DependsOnRecord_t;
 
         OneHolder(void (T::*iHoldee)(const TDependsOnRecord&)) : holdee_(iHoldee) {}

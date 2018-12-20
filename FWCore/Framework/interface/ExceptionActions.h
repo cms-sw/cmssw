@@ -21,11 +21,11 @@ namespace edm {
     explicit ExceptionToActionTable(const ParameterSet&);
     ~ExceptionToActionTable();
 
-    void add(const std::string& category, exception_actions::ActionCodes code);
+    void                           add(const std::string& category, exception_actions::ActionCodes code);
     exception_actions::ActionCodes find(const std::string& category) const;
 
   private:
-    void addDefaults();
+    void      addDefaults();
     ActionMap map_;
   };
 }  // namespace edm

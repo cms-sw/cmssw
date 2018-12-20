@@ -142,7 +142,7 @@ namespace edm {
     }
 
     tbb::concurrent_queue<T*> m_availableQueue;
-    std::atomic<size_t> m_outstandingObjects;
+    std::atomic<size_t>       m_outstandingObjects;
   };
 
 }  // namespace edm

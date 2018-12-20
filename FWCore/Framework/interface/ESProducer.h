@@ -146,7 +146,7 @@ namespace edm {
     template <typename T, typename TReturn, typename TRecord, typename TArg>
     ESConsumesCollector setWhatProduced(T* iThis,
                                         TReturn (T ::*iMethod)(const TRecord&),
-                                        const TArg& iDec,
+                                        const TArg&      iDec,
                                         const es::Label& iLabel = {}) {
       auto callback =
           std::make_shared<eventsetup::Callback<T, TReturn, TRecord,
@@ -165,7 +165,7 @@ namespace edm {
     template <typename CallbackT, typename TList, typename TRecord>
     void registerProducts(std::shared_ptr<CallbackT> iCallback,
                           const TList*,
-                          const TRecord* iRecord,
+                          const TRecord*   iRecord,
                           const es::Label& iLabel) {
       registerProduct(iCallback, static_cast<const typename TList::tail_type*>(nullptr), iRecord, iLabel);
       registerProducts(iCallback, static_cast<const typename TList::head_type*>(nullptr), iRecord, iLabel);
@@ -178,7 +178,7 @@ namespace edm {
 
     template <typename T, typename TProduct, typename TRecord>
     void registerProduct(std::shared_ptr<T> iCallback, const TProduct*, const TRecord*, const es::Label& iLabel) {
-      typedef eventsetup::CallbackProxy<T, TRecord, TProduct> ProxyType;
+      typedef eventsetup::CallbackProxy<T, TRecord, TProduct>                         ProxyType;
       typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, std::shared_ptr<T>> FactoryType;
       registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.default_);
     }
@@ -192,7 +192,7 @@ namespace edm {
         Exception::throwThis(errors::Configuration, "Unnamed Label\nthe index ", IIndex,
                              " was never assigned a name in the 'setWhatProduced' method");
       }
-      typedef eventsetup::CallbackProxy<T, TRecord, es::L<TProduct, IIndex>> ProxyType;
+      typedef eventsetup::CallbackProxy<T, TRecord, es::L<TProduct, IIndex>>          ProxyType;
       typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, std::shared_ptr<T>> FactoryType;
       registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.labels_[IIndex]);
     }

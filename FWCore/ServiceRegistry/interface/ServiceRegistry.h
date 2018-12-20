@@ -46,7 +46,7 @@ namespace edm {
     private:
       Operate(Operate const&) = delete;                   // stop default
       Operate const& operator=(Operate const&) = delete;  // stop default
-      ServiceToken oldToken_;
+      ServiceToken   oldToken_;
     };
 
     friend class edm::FwkImpl;
@@ -96,14 +96,14 @@ namespace edm {
     template <typename T>
     static ServiceToken createContaining(std::unique_ptr<T> iService) {
       std::vector<edm::ParameterSet> config;
-      auto manager = std::make_shared<serviceregistry::ServicesManager>(config);
+      auto                           manager = std::make_shared<serviceregistry::ServicesManager>(config);
       auto wrapper = std::make_shared<serviceregistry::ServiceWrapper<T> >(std::move(iService));
       manager->put(wrapper);
       return manager;
     }
     template <typename T>
-    static ServiceToken createContaining(std::unique_ptr<T> iService,
-                                         ServiceToken iToken,
+    static ServiceToken createContaining(std::unique_ptr<T>             iService,
+                                         ServiceToken                   iToken,
                                          serviceregistry::ServiceLegacy iLegacy) {
       std::vector<edm::ParameterSet> config;
       auto manager = std::make_shared<serviceregistry::ServicesManager>(iToken, iLegacy, config);
@@ -115,14 +115,14 @@ namespace edm {
     template <typename T>
     static ServiceToken createContaining(std::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper) {
       std::vector<edm::ParameterSet> config;
-      auto manager = std::make_shared<serviceregistry::ServicesManager>(config);
+      auto                           manager = std::make_shared<serviceregistry::ServicesManager>(config);
       manager->put(iWrapper);
       return manager;
     }
     template <typename T>
     static ServiceToken createContaining(std::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper,
-                                         ServiceToken iToken,
-                                         serviceregistry::ServiceLegacy iLegacy) {
+                                         ServiceToken                                         iToken,
+                                         serviceregistry::ServiceLegacy                       iLegacy) {
       std::vector<edm::ParameterSet> config;
       auto manager = std::make_shared<serviceregistry::ServicesManager>(iToken, iLegacy, config);
       manager->put(iWrapper);
@@ -132,7 +132,7 @@ namespace edm {
   private:
     // returns old token
     ServiceToken setContext(ServiceToken const& iNewToken);
-    void unsetContext(ServiceToken const& iOldToken);
+    void         unsetContext(ServiceToken const& iOldToken);
 
     ServiceRegistry();
     ServiceRegistry(ServiceRegistry const&) = delete;  // stop default

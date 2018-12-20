@@ -25,7 +25,7 @@ namespace edm {
     std::shared_ptr<maker::ModuleHolder> makeModule(MakeModuleParams const&,
                                                     signalslot::Signal<void(ModuleDescription const&)>& iPre,
                                                     signalslot::Signal<void(ModuleDescription const&)>& iPost) const;
-    std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const*, maker::ModuleHolder const*) const;
+    std::unique_ptr<Worker>              makeWorker(ExceptionToActionTable const*, maker::ModuleHolder const*) const;
 
     std::shared_ptr<maker::ModuleHolder> makeReplacementModule(edm::ParameterSet const& p) const {
       return makeModule(p);
@@ -41,12 +41,12 @@ namespace edm {
     void validateEDMType(std::string const& edmType, MakeModuleParams const& p) const;
 
   private:
-    virtual void fillDescriptions(ConfigurationDescriptions& iDesc) const = 0;
+    virtual void                                 fillDescriptions(ConfigurationDescriptions& iDesc) const = 0;
     virtual std::shared_ptr<maker::ModuleHolder> makeModule(edm::ParameterSet const& p) const = 0;
-    virtual std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions,
-                                               ModuleDescription const& md,
-                                               maker::ModuleHolder const* mod) const = 0;
-    virtual const std::string& baseType() const = 0;
+    virtual std::unique_ptr<Worker>              makeWorker(ExceptionToActionTable const* actions,
+                                                            ModuleDescription const&      md,
+                                                            maker::ModuleHolder const*    mod) const = 0;
+    virtual const std::string&                   baseType() const = 0;
   };
 
   template <class T>
@@ -56,12 +56,12 @@ namespace edm {
     explicit WorkerMaker();
 
   private:
-    void fillDescriptions(ConfigurationDescriptions& iDesc) const override;
-    std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions,
-                                       ModuleDescription const& md,
-                                       maker::ModuleHolder const* mod) const override;
+    void                                 fillDescriptions(ConfigurationDescriptions& iDesc) const override;
+    std::unique_ptr<Worker>              makeWorker(ExceptionToActionTable const* actions,
+                                                    ModuleDescription const&      md,
+                                                    maker::ModuleHolder const*    mod) const override;
     std::shared_ptr<maker::ModuleHolder> makeModule(edm::ParameterSet const& p) const override;
-    const std::string& baseType() const override;
+    const std::string&                   baseType() const override;
   };
 
   template <class T>
@@ -75,9 +75,9 @@ namespace edm {
 
   template <class T>
   std::shared_ptr<maker::ModuleHolder> WorkerMaker<T>::makeModule(edm::ParameterSet const& p) const {
-    typedef T UserType;
+    typedef T                             UserType;
     typedef typename UserType::ModuleType ModuleType;
-    typedef MakeModuleHelper<ModuleType> MakerHelperType;
+    typedef MakeModuleHelper<ModuleType>  MakerHelperType;
 
     return std::shared_ptr<maker::ModuleHolder>(
         std::make_shared<maker::ModuleHolderT<ModuleType> >(MakerHelperType::template makeModule<UserType>(p), this));
@@ -85,11 +85,11 @@ namespace edm {
 
   template <class T>
   std::unique_ptr<Worker> WorkerMaker<T>::makeWorker(ExceptionToActionTable const* actions,
-                                                     ModuleDescription const& md,
-                                                     maker::ModuleHolder const* mod) const {
-    typedef T UserType;
+                                                     ModuleDescription const&      md,
+                                                     maker::ModuleHolder const*    mod) const {
+    typedef T                             UserType;
     typedef typename UserType::ModuleType ModuleType;
-    typedef edm::WorkerT<ModuleType> WorkerType;
+    typedef edm::WorkerT<ModuleType>      WorkerType;
 
     maker::ModuleHolderT<ModuleType> const* h = dynamic_cast<maker::ModuleHolderT<ModuleType> const*>(mod);
     return std::make_unique<WorkerType>(h->module(), md, actions);

@@ -20,9 +20,9 @@ namespace edm {
     IfExistsDescription(ParameterDescriptionNode const& node_left, ParameterDescriptionNode const& node_right);
 
     IfExistsDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
-                        ParameterDescriptionNode const& node_right);
+                        ParameterDescriptionNode const&           node_right);
 
-    IfExistsDescription(ParameterDescriptionNode const& node_left,
+    IfExistsDescription(ParameterDescriptionNode const&           node_left,
                         std::unique_ptr<ParameterDescriptionNode> node_right);
 
     IfExistsDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
@@ -31,7 +31,7 @@ namespace edm {
     ParameterDescriptionNode* clone() const override { return new IfExistsDescription(*this); }
 
   private:
-    void checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+    void checkAndGetLabelsAndTypes_(std::set<std::string>&    usedLabels,
                                     std::set<ParameterTypes>& parameterTypes,
                                     std::set<ParameterTypes>& wildcardTypes) const override;
 

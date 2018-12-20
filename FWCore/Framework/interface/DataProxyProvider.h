@@ -41,9 +41,9 @@ namespace edm {
 
     class DataProxyProvider {
     public:
-      typedef std::vector<EventSetupRecordKey> Keys;
+      typedef std::vector<EventSetupRecordKey>                                                  Keys;
       typedef std::vector<std::pair<DataKey, edm::propagate_const<std::shared_ptr<DataProxy>>>> KeyedProxies;
-      typedef std::map<EventSetupRecordKey, KeyedProxies> RecordProxies;
+      typedef std::map<EventSetupRecordKey, KeyedProxies>                                       RecordProxies;
 
       DataProxyProvider();
       virtual ~DataProxyProvider() noexcept(false);
@@ -97,15 +97,15 @@ namespace edm {
       const DataProxyProvider& operator=(const DataProxyProvider&);  // stop default
 
       // ---------- member data --------------------------------
-      RecordProxies recordProxies_;
+      RecordProxies        recordProxies_;
       ComponentDescription description_;
-      std::string appendToDataLabel_;
+      std::string          appendToDataLabel_;
     };
 
     template <class ProxyT>
     inline void insertProxy(DataProxyProvider::KeyedProxies& iList,
-                            std::shared_ptr<ProxyT> iProxy,
-                            const char* iName = "") {
+                            std::shared_ptr<ProxyT>          iProxy,
+                            const char*                      iName = "") {
       iList.push_back(DataProxyProvider::KeyedProxies::value_type(
           DataKey(DataKey::makeTypeTag<typename ProxyT::value_type>(), iName), iProxy));
     }

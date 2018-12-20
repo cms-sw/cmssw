@@ -43,7 +43,7 @@ namespace edm {
 
         // ---------- const member functions ---------------------
         std::type_info const& value() const { return typeInfo(); }
-        char const* name() const { return m_name; }
+        char const*           name() const { return m_name; }
 
         /// find a type based on the types name, if not found will return default HCTypeTag
         static HCTypeTag findType(char const* iTypeName);

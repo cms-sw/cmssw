@@ -39,12 +39,12 @@ namespace edm {
 
   class ModuleRegistry {
   public:
-    std::shared_ptr<maker::ModuleHolder> getModule(MakeModuleParams const& p,
-                                                   std::string const& moduleLabel,
+    std::shared_ptr<maker::ModuleHolder> getModule(MakeModuleParams const&                             p,
+                                                   std::string const&                                  moduleLabel,
                                                    signalslot::Signal<void(ModuleDescription const&)>& iPre,
                                                    signalslot::Signal<void(ModuleDescription const&)>& iPost);
 
-    maker::ModuleHolder* replaceModule(std::string const& iModuleLabel,
+    maker::ModuleHolder* replaceModule(std::string const&       iModuleLabel,
                                        edm::ParameterSet const& iPSet,
                                        edm::PreallocationConfiguration const&);
 

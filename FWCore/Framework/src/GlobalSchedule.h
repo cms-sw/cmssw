@@ -56,9 +56,9 @@ namespace edm {
 
     private:
       // We own none of these resources.
-      ActivityRegistry* a_;  // We do not use propagate_const because the registry itself is mutable.
+      ActivityRegistry*          a_;  // We do not use propagate_const because the registry itself is mutable.
       typename T::Context const* context_;
-      bool allowThrow_;
+      bool                       allowThrow_;
     };
   }  // namespace
 
@@ -75,30 +75,30 @@ namespace edm {
   class GlobalSchedule {
   public:
     typedef std::vector<std::string> vstring;
-    typedef std::vector<Worker*> AllWorkers;
-    typedef std::shared_ptr<Worker> WorkerPtr;
-    typedef std::vector<Worker*> Workers;
+    typedef std::vector<Worker*>     AllWorkers;
+    typedef std::shared_ptr<Worker>  WorkerPtr;
+    typedef std::vector<Worker*>     Workers;
 
-    GlobalSchedule(std::shared_ptr<TriggerResultInserter> inserter,
-                   std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
+    GlobalSchedule(std::shared_ptr<TriggerResultInserter>                                     inserter,
+                   std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>&    pathStatusInserters,
                    std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
-                   std::shared_ptr<ModuleRegistry> modReg,
-                   std::vector<std::string> const& modulesToUse,
-                   ParameterSet& proc_pset,
-                   ProductRegistry& pregistry,
-                   PreallocationConfiguration const& prealloc,
-                   ExceptionToActionTable const& actions,
-                   std::shared_ptr<ActivityRegistry> areg,
-                   std::shared_ptr<ProcessConfiguration> processConfiguration,
-                   ProcessContext const* processContext);
+                   std::shared_ptr<ModuleRegistry>                                            modReg,
+                   std::vector<std::string> const&                                            modulesToUse,
+                   ParameterSet&                                                              proc_pset,
+                   ProductRegistry&                                                           pregistry,
+                   PreallocationConfiguration const&                                          prealloc,
+                   ExceptionToActionTable const&                                              actions,
+                   std::shared_ptr<ActivityRegistry>                                          areg,
+                   std::shared_ptr<ProcessConfiguration>                                      processConfiguration,
+                   ProcessContext const*                                                      processContext);
     GlobalSchedule(GlobalSchedule const&) = delete;
 
     template <typename T>
-    void processOneGlobalAsync(WaitingTaskHolder holder,
+    void processOneGlobalAsync(WaitingTaskHolder        holder,
                                typename T::MyPrincipal& principal,
-                               EventSetup const& eventSetup,
-                               ServiceToken const& token,
-                               bool cleaningUpAfterException = false);
+                               EventSetup const&        eventSetup,
+                               ServiceToken const&      token,
+                               bool                     cleaningUpAfterException = false);
 
     void beginJob(ProductRegistry const&);
     void endJob(ExceptionCollector& collector);
@@ -142,24 +142,24 @@ namespace edm {
 
     private:
       edm::ActivityRegistry* reg_;  // We do not use propagate_const because the registry itself is mutable.
-      GlobalContext const* context_;
+      GlobalContext const*   context_;
     };
 
     /// returns the action table
     ExceptionToActionTable const& actionTable() const { return workerManagers_[0].actionTable(); }
 
-    std::vector<WorkerManager> workerManagers_;
+    std::vector<WorkerManager>        workerManagers_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
-    ProcessContext const* processContext_;
+    ProcessContext const*                        processContext_;
   };
 
   template <typename T>
-  void GlobalSchedule::processOneGlobalAsync(WaitingTaskHolder iHolder,
+  void GlobalSchedule::processOneGlobalAsync(WaitingTaskHolder        iHolder,
                                              typename T::MyPrincipal& ep,
-                                             EventSetup const& es,
-                                             ServiceToken const& token,
-                                             bool cleaningUpAfterException) {
+                                             EventSetup const&        es,
+                                             ServiceToken const&      token,
+                                             bool                     cleaningUpAfterException) {
     try {
       // need the doneTask to own the memory
       auto globalContext = std::make_shared<GlobalContext>(T::makeGlobalContext(ep, processContext_));
@@ -215,7 +215,7 @@ namespace edm {
 
       // make sure the task doesn't get run until all workers have beens started
       WaitingTaskHolder holdForLoop(doneTask);
-      auto& aw = workerManagers_[ep.index()].allWorkers();
+      auto&             aw = workerManagers_[ep.index()].allWorkers();
       for (Worker* worker : boost::adaptors::reverse(aw)) {
         worker->doWorkAsync<T>(doneTask, ep, es, token, StreamID::invalidStreamID(), parentContext,
                                globalContext.get());

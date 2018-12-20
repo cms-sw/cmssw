@@ -56,17 +56,17 @@ namespace edm {
     bool get(ProductID const&, Handle<T>&) const;
 
     // AUX functions.
-    edm::EventID id() const { return eventAuxiliary().id(); }
-    edm::Timestamp time() const { return eventAuxiliary().time(); }
-    edm::LuminosityBlockNumber_t luminosityBlock() const { return eventAuxiliary().luminosityBlock(); }
-    bool isRealData() const { return eventAuxiliary().isRealData(); }
+    edm::EventID                        id() const { return eventAuxiliary().id(); }
+    edm::Timestamp                      time() const { return eventAuxiliary().time(); }
+    edm::LuminosityBlockNumber_t        luminosityBlock() const { return eventAuxiliary().luminosityBlock(); }
+    bool                                isRealData() const { return eventAuxiliary().isRealData(); }
     edm::EventAuxiliary::ExperimentType experimentType() const { return eventAuxiliary().experimentType(); }
-    int bunchCrossing() const { return eventAuxiliary().bunchCrossing(); }
-    int orbitNumber() const { return eventAuxiliary().orbitNumber(); }
-    virtual edm::EventAuxiliary const& eventAuxiliary() const = 0;
+    int                                 bunchCrossing() const { return eventAuxiliary().bunchCrossing(); }
+    int                                 orbitNumber() const { return eventAuxiliary().orbitNumber(); }
+    virtual edm::EventAuxiliary const&  eventAuxiliary() const = 0;
 
-    virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const = 0;
-    virtual TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const = 0;
+    virtual TriggerNames const&   triggerNames(edm::TriggerResults const& triggerResults) const = 0;
+    virtual TriggerResultsByName  triggerResultsByName(edm::TriggerResults const& triggerResults) const = 0;
     virtual ProcessHistory const& processHistory() const = 0;
 
     virtual edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const = 0;
@@ -83,7 +83,7 @@ namespace edm {
 
     virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType,
                                        std::type_info const& iProductType,
-                                       InputTag const& iTag) const = 0;
+                                       InputTag const&       iTag) const = 0;
     virtual BasicHandle getImpl(std::type_info const& iProductType, ProductID const& iTag) const = 0;
     // ---------- member data --------------------------------
   };

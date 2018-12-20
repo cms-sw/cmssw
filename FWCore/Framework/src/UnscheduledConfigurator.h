@@ -56,7 +56,7 @@ namespace edm {
 
     // ---------- member data --------------------------------
     std::unordered_map<std::string, Worker*> m_labelToWorker;
-    UnscheduledAuxiliary const* m_aux;
+    UnscheduledAuxiliary const*              m_aux;
   };
 }  // namespace edm
 

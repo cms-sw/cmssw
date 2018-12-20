@@ -92,13 +92,13 @@ namespace edm {
   private:
     // ---------- member data --------------------------------
     std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
-    std::shared_ptr<void> run_;
-    LimitedTaskQueue::Resumer globalLumiQueueResumer_;
-    EventProcessor* eventProcessor_ = nullptr;
-    IOVSyncValue nextSyncValue_;
+    std::shared_ptr<void>                     run_;
+    LimitedTaskQueue::Resumer                 globalLumiQueueResumer_;
+    EventProcessor*                           eventProcessor_ = nullptr;
+    IOVSyncValue                              nextSyncValue_;
     std::atomic<unsigned int> nStreamsStillProcessingLumi_{0};  // read/write as streams finish lumi so must be atomic
-    edm::Timestamp endTime_{};
-    std::atomic<char> endTimeSetStatus_{0};
+    edm::Timestamp            endTime_{};
+    std::atomic<char>         endTimeSetStatus_{0};
     bool stopProcessingEvents_{false};  // read/write in m_sourceQueue OR from main thread when no tasks running
     bool lumiEnding_{false};  // read/write in m_sourceQueue NOTE: This is a useful cache instead of recalculating each
                               // call

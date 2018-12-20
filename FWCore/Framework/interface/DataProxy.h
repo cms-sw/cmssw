@@ -42,13 +42,13 @@ namespace edm {
       // ---------- const member functions ---------------------
       bool cacheIsValid() const { return cacheIsValid_.load(std::memory_order_acquire); }
 
-      void doGet(EventSetupRecordImpl const& iRecord,
-                 DataKey const& iKey,
-                 bool iTransiently,
-                 ActivityRegistry const*) const;
+      void        doGet(EventSetupRecordImpl const& iRecord,
+                        DataKey const&              iKey,
+                        bool                        iTransiently,
+                        ActivityRegistry const*) const;
       void const* get(EventSetupRecordImpl const&,
                       DataKey const& iKey,
-                      bool iTransiently,
+                      bool           iTransiently,
                       ActivityRegistry const*) const;
 
       /// returns the description of the DataProxyProvider which owns this Proxy
@@ -95,9 +95,9 @@ namespace edm {
 
       // ---------- member data --------------------------------
       CMS_THREAD_SAFE mutable void const* cache_;  // protected by a global mutex
-      mutable std::atomic<bool> cacheIsValid_;
-      mutable std::atomic<bool> nonTransientAccessRequested_;
-      ComponentDescription const* description_;
+      mutable std::atomic<bool>           cacheIsValid_;
+      mutable std::atomic<bool>           nonTransientAccessRequested_;
+      ComponentDescription const*         description_;
     };
   }  // namespace eventsetup
 }  // namespace edm

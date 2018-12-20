@@ -21,7 +21,7 @@ namespace edm {
     VectorInputSourceDescription(std::shared_ptr<ProductRegistry> preg, PreallocationConfiguration const& allocations)
         : productRegistry_(preg), allocations_(&allocations) {}
 
-    std::shared_ptr<ProductRegistry> productRegistry_;
+    std::shared_ptr<ProductRegistry>  productRegistry_;
     PreallocationConfiguration const* allocations_;
   };
 }  // namespace edm

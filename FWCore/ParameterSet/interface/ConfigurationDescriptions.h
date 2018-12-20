@@ -43,8 +43,8 @@ namespace edm {
     // ---------------------------------------------------------
 
     std::string const& comment() const { return comment_; }
-    void setComment(std::string const& value);
-    void setComment(char const* value);
+    void               setComment(std::string const& value);
+    void               setComment(char const* value);
 
     void add(std::string const& label, ParameterSetDescription const& psetDescription);
     void add(char const* label, ParameterSetDescription const& psetDescription);
@@ -54,8 +54,8 @@ namespace edm {
 
     /// Returns 0 if no default has been assigned
     ParameterSetDescription* defaultDescription();
-    iterator begin();
-    iterator end();
+    iterator                 begin();
+    iterator                 end();
 
     // ---------------------------------------------------------
     // These functions use the information in the descriptions
@@ -65,13 +65,13 @@ namespace edm {
 
     void writeCfis(std::set<std::string>& usedCfiFileNames) const;
 
-    void print(std::ostream& os,
+    void print(std::ostream&      os,
                std::string const& moduleLabel,
-               bool brief,
-               bool printOnlyLabels,
-               size_t lineWidth,
-               int indentation,
-               int iPlugin) const;
+               bool               brief,
+               bool               printOnlyLabels,
+               size_t             lineWidth,
+               int                indentation,
+               int                iPlugin) const;
 
     // ---------------------------------------------------------
 
@@ -84,28 +84,28 @@ namespace edm {
     };
 
     static void writeCfiForLabel(std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
-                                 std::string const& baseType,
-                                 std::string const& pluginName,
-                                 std::set<std::string>& usedCfiFileNames);
+                                 std::string const&                                     baseType,
+                                 std::string const&                                     pluginName,
+                                 std::set<std::string>&                                 usedCfiFileNames);
 
     void printForLabel(std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
-                       std::ostream& os,
-                       std::string const& moduleLabel,
-                       bool brief,
-                       bool printOnlyLabels,
-                       size_t lineWidth,
-                       int indentationn,
-                       DescriptionCounter& counter) const;
+                       std::ostream&                                          os,
+                       std::string const&                                     moduleLabel,
+                       bool                                                   brief,
+                       bool                                                   printOnlyLabels,
+                       size_t                                                 lineWidth,
+                       int                                                    indentationn,
+                       DescriptionCounter&                                    counter) const;
 
-    void printForLabel(std::ostream& os,
-                       std::string const& label,
+    void printForLabel(std::ostream&                  os,
+                       std::string const&             label,
                        ParameterSetDescription const& description,
-                       std::string const& moduleLabel,
-                       bool brief,
-                       bool printOnlyLabels,
-                       size_t lineWidth,
-                       int indentationn,
-                       DescriptionCounter& counter) const;
+                       std::string const&             moduleLabel,
+                       bool                           brief,
+                       bool                           printOnlyLabels,
+                       size_t                         lineWidth,
+                       int                            indentationn,
+                       DescriptionCounter&            counter) const;
 
     std::string baseType_;
     std::string pluginName_;
@@ -115,7 +115,7 @@ namespace edm {
     ParameterSetDescription defaultDesc_;
 
     std::string comment_;
-    bool defaultDescDefined_;
+    bool        defaultDescDefined_;
   };
 }  // namespace edm
 

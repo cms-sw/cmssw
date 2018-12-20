@@ -85,7 +85,7 @@ namespace edm {
 
     bool isValid() const { return prod_ && nullptr != prov_; }
 
-    bool failedToGet() const { return bool(whyFailedFactory_); }
+    bool                  failedToGet() const { return bool(whyFailedFactory_); }
     ObjectWithDict const* product() const {
       if (this->failedToGet()) {
         whyFailedFactory_->make()->raise();
@@ -96,7 +96,7 @@ namespace edm {
     ObjectWithDict const& operator*() const { return *(this->product()); }
 
     TypeWithDict const& type() const { return type_; }
-    Provenance const* provenance() const { return prov_; }
+    Provenance const*   provenance() const { return prov_; }
 
     ProductID id() const { return prov_->productID(); }
 
@@ -110,9 +110,9 @@ namespace edm {
     }
 
   private:
-    TypeWithDict type_;
-    ObjectWithDict prod_;
-    Provenance const* prov_;
+    TypeWithDict                            type_;
+    ObjectWithDict                          prod_;
+    Provenance const*                       prov_;
     std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
   };
 
@@ -123,8 +123,8 @@ namespace edm {
 
   /// Specialize the Event's getByLabel method to work with a Handle<GenericObject>
   template <>
-  bool edm::Event::getByLabel<GenericObject>(std::string const& label,
-                                             std::string const& productInstanceName,
+  bool edm::Event::getByLabel<GenericObject>(std::string const&     label,
+                                             std::string const&     productInstanceName,
                                              Handle<GenericObject>& result) const;
 
   template <>

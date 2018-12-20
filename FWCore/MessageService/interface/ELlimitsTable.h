@@ -92,7 +92,7 @@ namespace edm {
       int wildcardInterval;
       int wildcardTimespan;
 
-      int tableLimit;
+      int          tableLimit;
       ELmap_limits limits;
       ELmap_counts counts;
 

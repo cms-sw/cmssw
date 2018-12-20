@@ -36,8 +36,8 @@ namespace edm {
     virtual ~RunBase();
 
     // AUX functions.
-    RunID const& id() const { return runAuxiliary().id(); }
-    RunNumber_t run() const { return runAuxiliary().run(); }
+    RunID const&     id() const { return runAuxiliary().id(); }
+    RunNumber_t      run() const { return runAuxiliary().run(); }
     Timestamp const& beginTime() const { return runAuxiliary().beginTime(); }
     Timestamp const& endTime() const { return runAuxiliary().endTime(); }
 
@@ -50,7 +50,7 @@ namespace edm {
   private:
     virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType,
                                        std::type_info const& iProductType,
-                                       InputTag const& iTag) const = 0;
+                                       InputTag const&       iTag) const = 0;
   };
 
   template <typename T>
