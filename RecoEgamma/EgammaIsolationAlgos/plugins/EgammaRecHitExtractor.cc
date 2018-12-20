@@ -220,7 +220,6 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
 	  continue;
       }
 
-      std::vector<int>::const_iterator vit;
       if (barrel) {
 	// new rechit flag checks
 	//vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), j->recoFlag());
