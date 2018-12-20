@@ -22,7 +22,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -40,13 +40,13 @@ Implementation:
 // class decleration
 //
 
-class VertexConstraintProducer: public edm::stream::EDProducer<> {
+class VertexConstraintProducer: public edm::global::EDProducer<> {
 public:
   explicit VertexConstraintProducer(const edm::ParameterSet&);
-  ~VertexConstraintProducer() override;
+  ~VertexConstraintProducer() override = default;
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID streamid, edm::Event&, const edm::EventSetup&) const override;
       
   // ----------member data ---------------------------
   const edm::InputTag srcTrkTag_;
@@ -84,19 +84,12 @@ srcVtxTag_(iConfig.getParameter<edm::InputTag>("srcVtx"))
 }
 
 
-VertexConstraintProducer::~VertexConstraintProducer()
-{
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void VertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void VertexConstraintProducer::produce(edm::StreamID streamid, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace edm;
 
