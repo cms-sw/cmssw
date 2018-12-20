@@ -97,11 +97,13 @@ def _setupEgammaEnergyCorrections(process,eleSrc=cms.InputTag('gedGsfElectrons')
     process.calibratedElectrons.correctionFile = energyCorrectionFile
     process.calibratedPhotons.correctionFile = energyCorrectionFile
 
-    if applyEPCombBug:
-        process.calibratedElectrons.useSmearCorrEcalEnergyErrInComb=True
-    else:
-        process.calibratedElectrons.useSmearCorrEcalEnergyErrInComb=False
-
+    
+    if applyEPCombBug and hasattr(process.calibratedPatElectrons,"useSmearCorrEcalEnergyErrInComb"):
+        process.calibratedPatElectrons.useSmearCorrEcalEnergyErrInComb=True
+    elif hasattr(process.calibratedPatElectrons,"useSmearCorrEcalEnergyErrInComb"):
+        process.calibratedPatElectrons.useSmearCorrEcalEnergyErrInComb=False
+    elif applyEPCombBug:
+        raise RuntimeError('Error in postRecoEgammaTools, the E/p combination bug can not be applied in >= 10_2_X, it is only possible to emulate in 9_4_X')
 
 def _setupEgammaPostRECOSequence(process,applyEnergyCorrections=False,applyVIDOnCorrectedEgamma=False,era="2017-Nov17ReReco",runVID=True,runEnergyCorrections=True,applyEPCombBug=False):
     
@@ -135,7 +137,9 @@ def _setupEgammaPostRECOSequence(process,applyEnergyCorrections=False,applyVIDOn
     if runVID:
         process.egmGsfElectronIDs.physicsObjectSrc = eleSrc
         process.egmPhotonIDs.physicsObjectSrc = phoSrc
-        process.electronMVAValueMapProducer.src = eleSrc
+        process.electronMVAValueMapProducer.src = eleSrc  
+        if hasattr(process,'electronMVAVariableHelper'):
+            process.electronMVAVariableHelper.srcMiniAOD = eleSrc
         process.photonMVAValueMapProducer.src = phoSrc
         process.photonIDValueMapProducer.src = phoSrc
         process.egmPhotonIsolation.srcToIsolate = phoSrc
@@ -163,17 +167,18 @@ def _setupEgammaEnergyCorrectionsMiniAOD(process,eleSrc,phoSrc,applyEnergyCorrec
     energyCorrectionFile = _getEnergyCorrectionFile(era)
     process.calibratedPatElectrons.correctionFile = energyCorrectionFile
     process.calibratedPatPhotons.correctionFile = energyCorrectionFile
-    if applyEPCombBug:
-        process.calibratedPatElectrons.useSmearCorrEcalEnergyErrInComb=True
-    else:
-        process.calibratedPatElectrons.useSmearCorrEcalEnergyErrInComb=False
 
-    if applyEnergyCorrections and applyVIDOnCorrectedEgamma:
-        phoSrc = cms.InputTag('calibratedPatPhotons')
-        eleSrc = cms.InputTag('calibratedPatElectrons') 
+    if applyEPCombBug and hasattr(process.calibratedPatElectrons,'useSmearCorrEcalEnergyErrInComb'):
+        process.calibratedPatElectrons.useSmearCorrEcalEnergyErrInComb=True
+    elif hasattr(process.calibratedPatElectrons,'useSmearCorrEcalEnergyErrInComb'):
+        process.calibratedPatElectrons.useSmearCorrEcalEnergyErrInComb=False
+    elif applyEPCombBug:
+        raise RuntimeError('Error in postRecoEgammaTools, the E/p combination bug can not be applied in >= 10_2_X, it is only possible to emulate in 9_4_X')
+
+    if applyEnergyCorrections or applyVIDOnCorrectedEgamma:
         process.calibratedPatElectrons.produceCalibratedObjs = True
         process.calibratedPatPhotons.produceCalibratedObjs = True
-    if not applyEnergyCorrections:
+    else:
         process.calibratedPatElectrons.produceCalibratedObjs = False 
         process.calibratedPatPhotons.produceCalibratedObjs = False 
 
@@ -194,19 +199,37 @@ def _setupEgammaPostRECOSequenceMiniAOD(process,applyEnergyCorrections=False,app
 
     phoSrc = cms.InputTag('slimmedPhotons',processName=cms.InputTag.skipCurrentProcess())
     eleSrc = cms.InputTag('slimmedElectrons',processName=cms.InputTag.skipCurrentProcess())
+    phoCalibSrc = cms.InputTag('calibratedPatPhotons')
+    eleCalibSrc = cms.InputTag('calibratedPatElectrons')
 
     _setupEgammaEnergyCorrectionsMiniAOD(process,eleSrc=eleSrc,phoSrc=phoSrc,applyEnergyCorrections=applyEnergyCorrections,applyVIDOnCorrectedEgamma=applyVIDOnCorrectedEgamma,era=era,runEnergyCorrections=runEnergyCorrections,applyEPCombBug=applyEPCombBug)
 
+    if applyVIDOnCorrectedEgamma:
+        phoVIDSrc = phoCalibSrc
+        eleVIDSrc = eleCalibSrc
+    else:
+        phoVIDSrc = phoSrc
+        eleVIDSrc = eleSrc
+
+    if applyEnergyCorrections:
+        phoNewSrc = phoCalibSrc
+        eleNewSrc = eleCalibSrc
+    else:
+        phoNewSrc = phoSrc
+        eleNewSrc = eleSrc
+
     if runVID:
-        process.egmGsfElectronIDs.physicsObjectSrc = eleSrc
-        process.egmPhotonIDs.physicsObjectSrc = phoSrc
-        process.electronMVAValueMapProducer.srcMiniAOD = eleSrc
-        process.photonMVAValueMapProducer.srcMiniAOD = phoSrc
-        process.photonIDValueMapProducer.srcMiniAOD = phoSrc
-        process.egmPhotonIsolation.srcToIsolate = phoSrc
+        process.egmGsfElectronIDs.physicsObjectSrc = eleVIDSrc
+        process.egmPhotonIDs.physicsObjectSrc = phoVIDSrc
+        process.electronMVAValueMapProducer.srcMiniAOD = eleVIDSrc
+        if hasattr(process,'electronMVAVariableHelper'):
+            process.electronMVAVariableHelper.srcMiniAOD = eleVIDSrc
+        process.photonMVAValueMapProducer.srcMiniAOD = phoVIDSrc
+        process.photonIDValueMapProducer.srcMiniAOD = phoVIDSrc
+        process.egmPhotonIsolation.srcToIsolate = phoVIDSrc
 
     if runVID and hasattr(process,'heepIDVarValueMaps'):
-        process.heepIDVarValueMaps.elesMiniAOD = eleSrc
+        process.heepIDVarValueMaps.elesMiniAOD = eleVIDSrc
         process.heepIDVarValueMaps.dataFormat = 2
 
 
@@ -232,17 +255,17 @@ def _setupEgammaPostRECOSequenceMiniAOD(process,applyEnergyCorrections=False,app
 
     for pset in egamma_modifications:
         pset.overrideExistingValues = cms.bool(True)
-        if hasattr(pset,"electron_config"): pset.electron_config.electronSrc = eleSrc
-        if hasattr(pset,"photon_config"): pset.photon_config.photonSrc = phoSrc
+        if hasattr(pset,"electron_config"): pset.electron_config.electronSrc = eleNewSrc
+        if hasattr(pset,"photon_config"): pset.photon_config.photonSrc = phoNewSrc
 
     process.slimmedElectrons = cms.EDProducer("ModifiedElectronProducer",
-                                              src=eleSrc,
+                                              src=eleNewSrc,
                                               modifierConfig = cms.PSet(
                                                   modifications = egamma_modifications
                                                   )
                                               )
     process.slimmedPhotons = cms.EDProducer("ModifiedPhotonProducer",
-                                            src=phoSrc,
+                                            src=phoNewSrc,
                                             modifierConfig = cms.PSet(
                                                 modifications = egamma_modifications
                                                 )
