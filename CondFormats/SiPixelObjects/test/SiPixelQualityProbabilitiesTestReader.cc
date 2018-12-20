@@ -46,11 +46,11 @@ SiPixelQualityProbabilitiesTestReader::analyze(const edm::Event& e, const edm::E
   edm::LogInfo("SiPixelQualityProbabilitiesTestReader") <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
   edm::LogInfo("SiPixelQualityProbabilitiesTestReader") <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
   
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("SiPixelStatusScenariosRcd"));
+  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("SiPixelStatusScenarioProbabilityRcd"));
     
   if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
     //record not found
-    edm::LogInfo("SiPixelQualityProbabilitiesTestReader") <<"Record \"SiPixelStatusScenariosRcd"<<"\" does not exist "<<std::endl;
+    edm::LogInfo("SiPixelQualityProbabilitiesTestReader") <<"Record \"SiPixelStatusScenarioProbabilityRcd"<<"\" does not exist "<<std::endl;
   }
   
   //this part gets the handle of the event source and the record (i.e. the Database)
@@ -62,8 +62,7 @@ SiPixelQualityProbabilitiesTestReader::analyze(const edm::Event& e, const edm::E
 
   const SiPixelQualityProbabilities* myProbabilities=scenarioProbabilityHandle.product();
   edm::LogInfo("SiPixelQualityProbabilitiesTestReader") <<"got SiPixelQualityProbabilities* "<< std::endl;
-  edm::LogInfo("SiPixelQualityProbabilitiesTestReader") << "print  pointer address : " ;
-  edm::LogInfo("SiPixelQualityProbabilitiesTestReader") << myProbabilities << std::endl;
+  edm::LogInfo("SiPixelQualityProbabilitiesTestReader") << "print  pointer address : " << myProbabilities << std::endl ;
   
   edm::LogInfo("SiPixelQualityProbabilitiesTestReader") << "Size "  << myProbabilities->size() << std::endl;     
   edm::LogInfo("SiPixelQualityProbabilitiesTestReader") <<"Content of my Probabilities "<<std::endl;
