@@ -110,10 +110,10 @@ class MultiTrackValidator : public DQMGlobalEDAnalyzer<MultiTrackValidatorHistog
               DynArray<float>& dR_tPCeff_jet,
               const edm::View<reco::Candidate>* cores) const;
   void trackDR(const edm::View<reco::Track>& trackCollection,
-                                    const edm::View<reco::Track>& trackCollectionDr,
-                                    DynArray<float>& dR_trk,
-                                    DynArray<float>& dR_trk_jet,
-                                    const edm::View<reco::Candidate>* cores) const;
+               const edm::View<reco::Track>& trackCollectionDr,
+               DynArray<float>& dR_trk,
+               DynArray<float>& dR_trk_jet,
+               const edm::View<reco::Candidate>* cores) const;
 
   std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator>> associatorTokens;
   std::vector<edm::EDGetTokenT<reco::SimToRecoCollection>> associatormapStRs;

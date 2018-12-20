@@ -214,8 +214,8 @@ _effandfakePos = PlotGroup("effandfakePos",
 )
 _effandfakeDeltaRPU = PlotGroup("effandfakeDeltaRPU",
                                 _makeEffFakeDupPlots("dr"     , "#DeltaR", effopts=dict(xtitle="TP min #DeltaR"), fakeopts=dict(xtitle="track min #DeltaR"), common=dict(xlog=True)) +
-                                _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)) +
-                                _makeEffFakeDupPlots("drj"     , "#DeltaR(track, jet)", common=dict(xtitle="#DeltaR(track, jet)", xlog=True)),
+                                _makeEffFakeDupPlots("drj"     , "#DeltaR(track, jet)", common=dict(xtitle="#DeltaR(track, jet)", xlog=True))+
+                                _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
                                 legendDy=_legendDy_3rows
 )
 
@@ -260,8 +260,8 @@ _dupandfakePos = PlotGroup("dupandfakePos",
 )
 _dupandfakeDeltaRPU = PlotGroup("dupandfakeDeltaRPU",
                                 _makeFakeDupPileupPlots("dr"     , "#DeltaR", xquantity="min #DeltaR", common=dict(xlog=True)) +
-                                _makeFakeDupPileupPlots("pu"     , "PU"     , xtitle="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)) +
-                                _makeFakeDupPileupPlots("drj"     , "#DeltaR(track, jet)", common=dict(xtitle="#DeltaR(track, jet)", xlog=True)),
+                                _makeFakeDupPileupPlots("drj"     , "#DeltaR(track, jet)", common=dict(xtitle="#DeltaR(track, jet)", xlog=True)) +
+                                _makeFakeDupPileupPlots("pu"     , "PU"     , xtitle="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)),
                                 ncols=3, legendDy=_legendDy_2rows_3cols
 )
 _seedingLayerSet_common = dict(removeEmptyBins=True, xbinlabelsize=8, xbinlabeloption="d", adjustMarginRight=0.1)

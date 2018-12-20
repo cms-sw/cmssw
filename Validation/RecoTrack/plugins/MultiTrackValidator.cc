@@ -69,7 +69,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   simPVMaxZ_(pset.getUntrackedParameter<double>("simPVMaxZ")),
   ptMinJet_(pset.getParameter<double>("ptMinJet"))
 {
-  if(not (pset.getParameter<edm::InputTag>("cores").label()=="")){
+  if(not (pset.getParameter<edm::InputTag>("cores").label().empty())){
     cores_ = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("cores"));
   }
   if(label.empty()) {
@@ -1031,7 +1031,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSe
         }
 
 	double dR=dR_trk[i];
-  double dR_jet=dR_trk_jet[i];
+        double dR_jet=dR_trk_jet[i];
 	histoProducerAlgo_->fill_generic_recoTrack_histos(histograms.histoProducerAlgo,w,*track, ttopo, bs.position(), thePVposition, theSimPVPosition, isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction, dR, dR_jet, mvaValues, selectsLoose, selectsHP);
         mvaValues.clear();
 
