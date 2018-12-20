@@ -50,7 +50,7 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
 
   std::vector<ConcurrentMonitorElement> h_recovertpos, h_assocvertpos, h_assoc2vertpos, h_simulvertpos, h_loopervertpos, h_pileupvertpos;
   std::vector<ConcurrentMonitorElement> h_recozpos, h_assoczpos, h_assoc2zpos, h_simulzpos, h_looperzpos, h_pileupzpos;
-  std::vector<ConcurrentMonitorElement> h_assocdr, h_assocdrj, h_assoc2dr, h_simuldr, h_simuldrj, h_recodr, h_looperdr, h_pileupdr;
+  std::vector<ConcurrentMonitorElement> h_assocdr, h_assoc2dr, h_simuldr, h_recodr, h_looperdr, h_pileupdr, h_assocdrj, h_assoc2drj, h_simuldrj , h_recodrj, h_looperdrj, h_pileupdrj;
   std::vector<ConcurrentMonitorElement> h_recochi2, h_assoc2chi2, h_looperchi2, h_misidchi2, h_pileupchi2;
   std::vector<ConcurrentMonitorElement> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
   std::vector<ConcurrentMonitorElement> h_assoc2_itpu_eta, h_assoc2_itpu_sig_eta, h_assoc2eta_sig;
@@ -194,6 +194,7 @@ class MTVHistoProducerAlgoForTracker {
 				     int nSimHits,
 				     double sharedFraction,
 				     double dR,
+                                     double dR_jet,
                                      const std::vector<float>& mvas,
                                      unsigned int selectsLoose, unsigned int selectsHP) const;
 

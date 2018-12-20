@@ -409,8 +409,9 @@ void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::ConcurrentBook
 
   histograms.h_assocdr.push_back( make1DIfLogX(ibook, true, "num_assoc(simToReco)_dr","N of associated tracks (simToReco) vs dR",nintdr,log10(mindr),log10(maxdr)) );
   histograms.h_simuldr.push_back( make1DIfLogX(ibook, true, "num_simul_dr","N of simulated tracks vs dR",nintdr,log10(mindr),log10(maxdr)) );
-  histograms.h_simuldrj.push_back( make1DIfLogX(ibook, true, "num_simul_drj","N of simulated tracks vs dR(trak,jet)",nintdrj,log10(mindrj),log10(maxdrj)) );
+
   histograms.h_assocdrj.push_back( make1DIfLogX(ibook, true, "num_assoc(simToReco)_drj","N of associated tracks (simToReco) vs dR(trak,jet)",nintdrj,log10(mindrj),log10(maxdrj)) );
+  histograms.h_simuldrj.push_back( make1DIfLogX(ibook, true, "num_simul_drj","N of simulated tracks vs dR(trak,jet)",nintdrj,log10(mindrj),log10(maxdrj)) );
 
 
   histograms.h_simul_simpvz.push_back( ibook.book1D("num_simul_simpvz", "N of simulated tracks vs. sim PV z", nintPVz, minPVz, maxPVz) );
@@ -560,6 +561,11 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::ConcurrentBooker& 
   histograms.h_assoc2dr.push_back( make1DIfLogX(ibook, true, "num_assoc(recoToSim)_dr","N of associated tracks (recoToSim) vs dR",nintdr,log10(mindr),log10(maxdr)) );
   histograms.h_looperdr.push_back( make1DIfLogX(ibook, true, "num_duplicate_dr","N of associated (recoToSim) looper tracks vs dR",nintdr,log10(mindr),log10(maxdr)) );
   histograms.h_pileupdr.push_back( make1DIfLogX(ibook, true, "num_pileup_dr","N of associated (recoToSim) pileup tracks vs dR",nintdr,log10(mindr),log10(maxdr)) );
+
+  histograms.h_recodrj.push_back( make1DIfLogX(ibook, true, "num_reco_drj","N of reconstructed tracks vs dR(track,jet)",nintdrj,log10(mindrj),log10(maxdrj)) );
+  histograms.h_assoc2drj.push_back( make1DIfLogX(ibook, true, "num_assoc(recoToSim)_drj","N of associated tracks (recoToSim) vs dR(track,jet)",nintdrj,log10(mindrj),log10(maxdrj)) );
+  histograms.h_looperdrj.push_back( make1DIfLogX(ibook, true, "num_duplicate_drj","N of associated (recoToSim) looper tracks vs dR(track,jet)",nintdrj,log10(mindrj),log10(maxdrj)) );
+  histograms.h_pileupdrj.push_back( make1DIfLogX(ibook, true, "num_pileup_drj","N of associated (recoToSim) pileup tracks vs dR(track,jet)",nintdrj,log10(mindrj),log10(maxdrj)) );
 
   histograms.h_reco_simpvz.push_back( ibook.book1D("num_reco_simpvz", "N of reco track vs. sim PV z", nintPVz, minPVz, maxPVz) );
   histograms.h_assoc2_simpvz.push_back( ibook.book1D("num_assoc(recoToSim)_simpvz", "N of associated tracks (recoToSim) vs. sim PV z", nintPVz, minPVz, maxPVz) );
@@ -1059,6 +1065,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
 								   int nSimHits,
 								   double sharedFraction,
 								   double dR,
+                                                                   double dRJet,
                                                                    const std::vector<float>& mvas,
                                                                    unsigned int selectsLoose, unsigned int selectsHP) const {
 
@@ -1099,6 +1106,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
     histograms.h_recovertpos[count].fill(vertxy);
     histograms.h_recozpos[count].fill(vertz);
     histograms.h_recodr[count].fill(dR);
+    histograms.h_recodrj[count].fill(dRJet);
     if(fillSeedingLayerSets) histograms.h_reco_seedingLayerSet[count].fill(seedingLayerSetBin);
     if(pvPosition) {
       histograms.h_recodxypv[count].fill(dxypv);
@@ -1144,6 +1152,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
       histograms.h_assoc2vertpos[count].fill(vertxy);
       histograms.h_assoc2zpos[count].fill(vertz);
       histograms.h_assoc2dr[count].fill(dR);
+      histograms.h_assoc2drj[count].fill(dRJet);
       if(fillSeedingLayerSets) histograms.h_assoc2_seedingLayerSet[count].fill(seedingLayerSetBin);
       if(pvPosition) {
         histograms.h_assoc2dxypv[count].fill(dxypv);
@@ -1204,6 +1213,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
         histograms.h_loopervertpos[count].fill(vertxy);
         histograms.h_looperzpos[count].fill(vertz);
         histograms.h_looperdr[count].fill(dR);
+        histograms.h_looperdrj[count].fill(dRJet);
         if(fillSeedingLayerSets) histograms.h_looper_seedingLayerSet[count].fill(seedingLayerSetBin);
         if(pvPosition) {
           histograms.h_looperdxypv[count].fill(dxypv);
@@ -1232,6 +1242,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
         histograms.h_pileupvertpos[count].fill(vertxy);
         histograms.h_pileupzpos[count].fill(vertz);
         histograms.h_pileupdr[count].fill(dR);
+        histograms.h_pileupdrj[count].fill(dRJet);
         if(fillSeedingLayerSets) histograms.h_pileup_seedingLayerSet[count].fill(seedingLayerSetBin);
         if(pvPosition) {
           histograms.h_pileupdxypv[count].fill(dxypv);
