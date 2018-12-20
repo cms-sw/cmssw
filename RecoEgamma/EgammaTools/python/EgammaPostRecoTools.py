@@ -22,8 +22,11 @@ _defaultPhoIDModules =  [ 'RecoEgamma.PhotonIdentification.Identification.cutBas
 #the new Fall17V2 modules are loaded as default if they exist in the release
 #we do it this way as we can use the same script for all releases and people who
 #dont want V2 can still use this script
-_fall17V2PhoIDModules = [
+_fall17V2PhoMVAIDModules = [
     'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff'
+    ]
+_fall17V2PhoCutIDModules = [
+    'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V2_cff'
     ]
 _fall17V2EleIDModules = [
     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff',
@@ -35,12 +38,17 @@ import pkgutil
 if pkgutil.find_loader(_fall17V2EleIDModules[0]) != None:
     _defaultEleIDModules.extend(_fall17V2EleIDModules)
 else:
-    print "EgammaPostRecoTools: Fall17V2 electron modules not found, running ID without them. If you want Fall17V2 IDs, please merge the approprate PR"
+    print "EgammaPostRecoTools: Fall17V2 electron modules not found, running ID without them. If you want Fall17V2 IDs, please merge the approprate PR\n  94X:  git cms-merge-topic cms-egamma/EgammaID_949"
 
-if pkgutil.find_loader(_fall17V2PhoIDModules[0]) != None:
-    _defaultPhoIDModules.extend(_fall17V2PhoIDModules)
+if pkgutil.find_loader(_fall17V2PhoMVAIDModules[0]) != None:
+    _defaultPhoIDModules.extend(_fall17V2PhoMVAIDModules)
 else:
-    print "EgammaPostRecoTools: Fall17V2 photons modules not found, running ID without them. If you want Fall17V2 IDs, please merge the approprate PR"
+    print "EgammaPostRecoTools: Fall17V2 MVA photon modules not found, running ID without them. If you want Fall17V2 MVA Photon IDs, please merge the approprate PR\n  94X:  git cms-merge-topic cms-egamma/EgammaID_949\n  102X: git cms-merge-topic cms-egamma/EgammaID_1023"
+
+if pkgutil.find_loader(_fall17V2PhoCutIDModules[0]) != None:
+    _defaultPhoIDModules.extend(_fall17V2PhoCutIDModules)
+else:
+    print "EgammaPostRecoTools: Fall17V2 cut based Photons ID modules not found, running ID without them. If you want Fall17V2 CutBased Photon IDs, please merge the approprate PR\n  94X:  git cms-merge-topic cms-egamma/EgammaID_949\n  102X: git cms-merge-topic cms-egamma/EgammaID_1023"
 
 def _getEnergyCorrectionFile(era):
     if era=="2017-Nov17ReReco":
@@ -103,7 +111,7 @@ def _setupEgammaEnergyCorrections(process,eleSrc=cms.InputTag('gedGsfElectrons')
     elif hasattr(process.calibratedPatElectrons,"useSmearCorrEcalEnergyErrInComb"):
         process.calibratedPatElectrons.useSmearCorrEcalEnergyErrInComb=False
     elif applyEPCombBug:
-        raise RuntimeError('Error in postRecoEgammaTools, the E/p combination bug can not be applied in >= 10_2_X, it is only possible to emulate in 9_4_X')
+        raise RuntimeError('Error in postRecoEgammaTools, the E/p combination bug can not be applied in >= 10_2_X (applyEPCombBug must be False), it is only possible to emulate in 9_4_X')
 
 def _setupEgammaPostRECOSequence(process,applyEnergyCorrections=False,applyVIDOnCorrectedEgamma=False,era="2017-Nov17ReReco",runVID=True,runEnergyCorrections=True,applyEPCombBug=False):
     
@@ -173,7 +181,7 @@ def _setupEgammaEnergyCorrectionsMiniAOD(process,eleSrc,phoSrc,applyEnergyCorrec
     elif hasattr(process.calibratedPatElectrons,'useSmearCorrEcalEnergyErrInComb'):
         process.calibratedPatElectrons.useSmearCorrEcalEnergyErrInComb=False
     elif applyEPCombBug:
-        raise RuntimeError('Error in postRecoEgammaTools, the E/p combination bug can not be applied in >= 10_2_X, it is only possible to emulate in 9_4_X')
+        raise RuntimeError('Error in postRecoEgammaTools, the E/p combination bug can not be applied in >= 10_2_X (applyEPCombBug must be False) , it is only possible to emulate in 9_4_X')
 
     if applyEnergyCorrections or applyVIDOnCorrectedEgamma:
         process.calibratedPatElectrons.produceCalibratedObjs = True
