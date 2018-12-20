@@ -1,28 +1,13 @@
-#include "CommonTools/CandAlgos/interface/ModifyObjectValueBase.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-
-#include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
-
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-
-#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
-
-#include <vdt/vdtMath.h>
+#include "RecoEgamma/EgammaTools/plugins/EGRegressionModifier.h"
 
 class EGRegressionModifierV1 : public ModifyObjectValueBase {
 public:
 
-  struct electron_config {
+  struct ElectronConfig {
     std::vector<std::string> condnames_mean_50ns;
     std::vector<std::string> condnames_sigma_50ns;
     std::vector<std::string> condnames_mean_25ns;
@@ -31,7 +16,7 @@ public:
     std::string condnames_weight_25ns;
   };
 
-  struct photon_config {
+  struct PhotonConfig {
     std::vector<std::string> condnames_mean_50ns;
     std::vector<std::string> condnames_sigma_50ns;
     std::vector<std::string> condnames_mean_25ns;
@@ -52,8 +37,8 @@ public:
   void modifyObject(pat::Photon& pho) const final { modifyObject(static_cast<reco::Photon&>(pho)); }
 
 private:
-  electron_config e_conf;
-  photon_config   ph_conf;
+  ElectronConfig e_conf;
+  PhotonConfig   ph_conf;
 
   bool autoDetectBunchSpacing_;
   int bunchspacing_;
@@ -95,7 +80,7 @@ EGRegressionModifierV1::EGRegressionModifierV1(const edm::ParameterSet& conf) :
     bunchspacing_ = conf.getParameter<int>("manualBunchSpacing");
   }
 
-  const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
+  const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("ElectronConfig");
   e_conf.condnames_mean_50ns  = electrons.getParameter<std::vector<std::string> >("regressionKey_50ns");
   e_conf.condnames_sigma_50ns = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_50ns");
   e_conf.condnames_mean_25ns  = electrons.getParameter<std::vector<std::string> >("regressionKey_25ns");
@@ -103,7 +88,7 @@ EGRegressionModifierV1::EGRegressionModifierV1(const edm::ParameterSet& conf) :
   e_conf.condnames_weight_50ns  = electrons.getParameter<std::string>("combinationKey_50ns");
   e_conf.condnames_weight_25ns  = electrons.getParameter<std::string>("combinationKey_25ns");
   
-  const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("photon_config");
+  const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("PhotonConfig");
   ph_conf.condnames_mean_50ns = photons.getParameter<std::vector<std::string>>("regressionKey_50ns");
   ph_conf.condnames_sigma_50ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_50ns");
   ph_conf.condnames_mean_25ns = photons.getParameter<std::vector<std::string>>("regressionKey_25ns");
@@ -126,38 +111,20 @@ void EGRegressionModifierV1::setEvent(const edm::Event& evt)
   nVtx_ = vtxH_->size();
 }
 
-void EGRegressionModifierV1::setEventContent(const edm::EventSetup& evs) {
-
+void EGRegressionModifierV1::setEventContent(const edm::EventSetup& evs)
+{
   iSetup_ = &evs;
 
-  edm::ESHandle<GBRForestD> forestDEH;
+  ph_forestH_mean_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? ph_conf.condnames_mean_25ns  : ph_conf.condnames_mean_50ns);
+  ph_forestH_sigma_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? ph_conf.condnames_sigma_25ns  : ph_conf.condnames_sigma_50ns);
+
+  e_forestH_mean_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? e_conf.condnames_mean_25ns  : e_conf.condnames_mean_50ns);
+  e_forestH_sigma_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? e_conf.condnames_sigma_25ns  : e_conf.condnames_sigma_50ns);
+
   edm::ESHandle<GBRForest> forestEH;
-
-  const std::vector<std::string> ph_condnames_mean  = (bunchspacing_ == 25) ? ph_conf.condnames_mean_25ns  : ph_conf.condnames_mean_50ns;
-  const std::vector<std::string> ph_condnames_sigma = (bunchspacing_ == 25) ? ph_conf.condnames_sigma_25ns : ph_conf.condnames_sigma_50ns;
-
-  unsigned int ncor = ph_condnames_mean.size();
-  for (unsigned int icor=0; icor<ncor; ++icor) {
-    evs.get<GBRDWrapperRcd>().get(ph_condnames_mean[icor], forestDEH);
-    ph_forestH_mean_.push_back(forestDEH.product());
-    evs.get<GBRDWrapperRcd>().get(ph_condnames_sigma[icor], forestDEH);
-    ph_forestH_sigma_.push_back(forestDEH.product());
-  } 
-
-  const std::vector<std::string> e_condnames_mean  = (bunchspacing_ == 25) ? e_conf.condnames_mean_25ns  : e_conf.condnames_mean_50ns;
-  const std::vector<std::string> e_condnames_sigma = (bunchspacing_ == 25) ? e_conf.condnames_sigma_25ns : e_conf.condnames_sigma_50ns;
   const std::string ep_condnames_weight  = (bunchspacing_ == 25) ? e_conf.condnames_weight_25ns  : e_conf.condnames_weight_50ns;
-
-  unsigned int encor = e_condnames_mean.size();
   evs.get<GBRWrapperRcd>().get(ep_condnames_weight, forestEH);
   ep_forestH_weight_ = forestEH.product(); 
-    
-  for (unsigned int icor=0; icor<encor; ++icor) {
-    evs.get<GBRDWrapperRcd>().get(e_condnames_mean[icor], forestDEH);
-    e_forestH_mean_.push_back(forestDEH.product());
-    evs.get<GBRDWrapperRcd>().get(e_condnames_sigma[icor], forestDEH);
-    e_forestH_sigma_.push_back(forestDEH.product());
-  }
 }
 
 void EGRegressionModifierV1::setConsumes(edm::ConsumesCollector& sumes) {
@@ -215,12 +182,9 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
   
   size_t iclus = 0;
   float maxDR = 0;
-  edm::Ptr<reco::CaloCluster> pclus;
   // loop over all clusters that aren't the seed  
-  auto clusend = the_sc->clustersEnd();
-  for( auto clus = the_sc->clustersBegin(); clus != clusend; ++clus ) {
-    pclus = *clus;
-    
+  for (auto const& pclus : the_sc->clusters())
+  {
     if(theseed == pclus ) 
       continue;
     clusterRawEnergy[iclus]  = pclus->energy();
@@ -310,8 +274,7 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
   ele.setCorrectedEcalEnergyError(sigmacor);
     
   // E-p combination 
-  //std::array<float, 11> eval_ep;
-  float eval_ep[11];
+  std::array<float, 11> eval_ep;
 
   const float ep = ele.trackMomentumAtVtx().R();
   const float tot_energy = the_sc->rawEnergy()+the_sc->preshowerEnergy();
@@ -343,11 +306,7 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
        (!applyExtraHighEnergyProtection_ || ((momentumError < 10.*ep) || (ecor < 200.)))
        ) {
     // protection against crazy track measurement
-    weight = ep_forestH_weight_->GetResponse(eval_ep);
-    if(weight>1.) 
-      weight = 1.;
-    else if(weight<0.) 
-      weight = 0.;
+    weight = std::clamp(ep_forestH_weight_->GetResponse(eval_ep.data()), 0., 1.);
   }
 
   double combinedMomentum = weight*ele.trackMomentumAtVtx().R() + (1.-weight)*ecor;
@@ -417,7 +376,6 @@ void EGRegressionModifierV1::modifyObject(reco::Photon& pho) const {
     int signieta = ieta > 0 ? +1 : -1; /// this is 1*abs(ieta)/ieta in original training
     eval[29] = (ieta-signieta)%5;
     eval[30] = (iphi-1)%2;
-    //    eval[31] = (abs(ieta)<=25)*((ieta-signieta)%25) + (abs(ieta)>25)*((ieta-26*signieta)%20); //%25 is unnescessary in this formula
     eval[31] = (abs(ieta)<=25)*((ieta-signieta)) + (abs(ieta)>25)*((ieta-26*signieta)%20);  
     eval[32] = (iphi-1)%20;
     eval[33] = ieta;  /// duplicated variables but this was trained like that
