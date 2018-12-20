@@ -65,13 +65,13 @@ public:
    {
       
       DetParam const & dp = detParam(det);
-      std::unique_ptr<ClusterParam> cp = createClusterParam(cl);
-      setTheClu( dp, *cp );
+      ClusterParam cp(cl);
+      setTheClu( dp, cp );
       auto tuple = std::make_tuple(
-				   localPosition(dp, *cp),
-				   localError(dp, *cp),
-				   clusterTime(dp, *cp),
-				   clusterTimeError(dp, *cp)
+				   localPosition(dp, cp),
+				   localError(dp, cp),
+				   clusterTime(dp, cp),
+				   clusterTimeError(dp, cp)
 				   );
       return tuple;
    }
@@ -89,8 +89,6 @@ public:
    
    
 private:
-   virtual std::unique_ptr<ClusterParam> createClusterParam(const FTLCluster & cl) const;
-   
    //--------------------------------------------------------------------------
    // This is where the action happens.
    //--------------------------------------------------------------------------
