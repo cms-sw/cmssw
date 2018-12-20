@@ -143,7 +143,6 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
                     return;
                 }
 
-                std::vector<int>::const_iterator vit;
                 if (isBarrel) {
                   // new rechit flag checks
                   //vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), recIt->recoFlag());
