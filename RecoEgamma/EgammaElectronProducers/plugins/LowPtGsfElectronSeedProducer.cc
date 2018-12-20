@@ -288,16 +288,16 @@ void LowPtGsfElectronSeedProducer::propagateTrackToCalo( const reco::PFRecTrackR
 
 	reco::PFClusterRef cluRef(clusters,iclu);
 
-	// Determine deta, dphi, dr
-	float deta = cluRef->positionREP().eta() - point.positionREP().eta();
-	float dphi = reco::deltaPhi( cluRef->positionREP().phi(), point.positionREP().phi() );
+	// Determine dR squared
 	float dr2 = reco::deltaR2( cluRef->positionREP(), point.positionREP() );
 
 	if ( dr2 < info.dr2min ) {
 	  info.dr2min = dr2;
 	  info.cluRef = cluRef;
-	  info.deta = deta;
-	  info.dphi = dphi * pfTrackRef->trackRef()->charge();
+	  info.deta = cluRef->positionREP().eta() - point.positionREP().eta();
+	  info.dphi = 
+	    reco::deltaPhi( cluRef->positionREP().phi(), point.positionREP().phi() ) *
+	    pfTrackRef->trackRef()->charge();
 	  info.showerPos = point.position();
 	}
 
@@ -379,17 +379,17 @@ void LowPtGsfElectronSeedProducer::propagateTrackToCalo( const reco::TrackRef& k
 		   particle.momentum().y(),
 		   particle.momentum().z()).unit() * shower_depth;
 
-    // Determine deta, dphi, dr
-    float deta = std::abs( cluRef->positionREP().eta() - showerPos.eta() );
-    float dphi = std::abs( reco::deltaPhi( cluRef->positionREP().phi(), showerPos.phi() ));
+    // Determine dR squared
     float dr2 = reco::deltaR2( cluRef->positionREP(), showerPos );
 
     // Find nearest ECAL cluster
     if ( dr2 < info.dr2min ) {
       info.dr2min = dr2;
       info.cluRef = cluRef;
-      info.deta = deta;
-      info.dphi = dphi * kfTrackRef->charge();
+      info.deta = std::abs( cluRef->positionREP().eta() - showerPos.eta() );
+      info.dphi = 
+	std::abs( reco::deltaPhi( cluRef->positionREP().phi(), showerPos.phi() )) * 
+	kfTrackRef->charge();
       info.showerPos = showerPos;
     }
   
@@ -464,8 +464,8 @@ bool LowPtGsfElectronSeedProducer::lightGsfTracking( reco::PreId& preId,
   if ( !traj2.isValid() ) {  return false; }
 
   // Set PreId content
-  float chi2Ratio = traj2.chiSquared() / trackRef->chi2();
-  float gsfReducedChi2 = chi2Ratio * trackRef->normalizedChi2();
+  float chi2Ratio = trackRef->chi2() > 0. ? traj2.chiSquared() / trackRef->chi2() : -1.;
+  float gsfReducedChi2 = chi2Ratio > -1. ? chi2Ratio * trackRef->normalizedChi2() : -1.;
   float ptOut = traj2.firstMeasurement().updatedState().globalMomentum().perp();
   float ptIn = traj2.lastMeasurement().updatedState().globalMomentum().perp();
   float gsfDpt = ( ptIn > 0 ) ? fabs( ptOut - ptIn ) / ptIn : 0.;
