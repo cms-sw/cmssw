@@ -54,27 +54,16 @@
 //     Therefore, any changes made to these variables externally during the lifetime of
 //     a FileInPath object will have no effect.
 
-
 // TODO: Find the correct package for this class to reside. It
 // doesn't seem well-suited for ParameterSet.
-
 
 #include <iosfwd>
 #include <string>
 
-
-namespace edm
-{
-  class FileInPath
-  {
+namespace edm {
+  class FileInPath {
   public:
-
-    enum LocationCode {
-      Unknown = 0,
-      Local = 1,
-      Release = 2,
-      Data = 3
-    };
+    enum LocationCode { Unknown = 0, Local = 1, Release = 2, Data = 3 };
 
     /// Default c'tor does no file-existence check; what file would it
     /// check for existence?
@@ -85,7 +74,7 @@ namespace edm
     explicit FileInPath(const char* r);
 
     FileInPath(FileInPath const& other);
-    FileInPath& operator=( FileInPath const& other);
+    FileInPath& operator=(FileInPath const& other);
     ~FileInPath();
     void swap(FileInPath& other);
 
@@ -98,7 +87,7 @@ namespace edm
     LocationCode location() const;
 
     /// Return a string that can be used to open the referenced
-    /// file. 
+    /// file.
     ///
     /// Note that operations on this file may fail, including
     /// testing for existence. This is because the state of a
@@ -110,7 +99,7 @@ namespace edm
     /// Write contents to the given ostream.
     /// Writing errors are reflected in the state of the stream.
     void write(std::ostream& os) const;
-    
+
     /// Read from the given istream, and set contents accordingly.
     /// Reading errors are reflected in the state of the stream.
     void read(std::istream& is);
@@ -121,13 +110,13 @@ namespace edm
     static void disableFileLookup();
 
   private:
-    std::string    relativePath_;
-    std::string    canonicalFilename_;
-    LocationCode   location_;
-    std::string    localTop_;
-    std::string    releaseTop_;
-    std::string    dataTop_;
-    std::string    searchPath_;
+    std::string relativePath_;
+    std::string canonicalFilename_;
+    LocationCode location_;
+    std::string localTop_;
+    std::string releaseTop_;
+    std::string dataTop_;
+    std::string searchPath_;
 
     // Helper function for construction.
     void getEnvironment();
@@ -135,34 +124,22 @@ namespace edm
   };
 
   // Free swap function
-  inline
-  void
-  swap(FileInPath& a, FileInPath& b) 
-  {
-    a.swap(b);
-  }
+  inline void swap(FileInPath& a, FileInPath& b) { a.swap(b); }
 
-  inline  std::ostream& 
-  operator<< (std::ostream& os, const edm::FileInPath& fip)
-  {
+  inline std::ostream& operator<<(std::ostream& os, const edm::FileInPath& fip) {
     fip.write(os);
     return os;
   }
 
-  inline std::istream&
-  operator>> (std::istream& is, FileInPath& fip)
-  {
+  inline std::istream& operator>>(std::istream& is, FileInPath& fip) {
     fip.read(is);
     return is;
   }
 
-  inline bool
-  operator== (edm::FileInPath const& a,
-	      edm::FileInPath const& b)
-  {
-    return a.location() == b.location() && a.relativePath() == b.relativePath();      
+  inline bool operator==(edm::FileInPath const& a, edm::FileInPath const& b) {
+    return a.location() == b.location() && a.relativePath() == b.relativePath();
   }
 
-}
+}  // namespace edm
 
 #endif

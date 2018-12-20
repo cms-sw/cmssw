@@ -27,7 +27,7 @@ namespace edm {
 
   // A ESGetToken is created by calls to 'esConsumes' from an EDM
   // module.
-  template<typename ESProduct>
+  template <typename ESProduct>
   class ESGetTokenT {
     friend class EDConsumerBase;
     friend class ESProducer;
@@ -44,6 +44,6 @@ namespace edm {
     ESInputTag m_tag{};
   };
 
-}
+}  // namespace edm
 
 #endif

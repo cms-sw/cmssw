@@ -17,9 +17,8 @@ namespace edm {
     std::mutex m;
     std::condition_variable c;
     edm::Place_for_passing_exception_ptr epp;
-    explicit ConfigurationHandshake 
-      (void* p_in, Place_for_passing_exception_ptr epp_in) : 
-    			      p(p_in), m(), c(), epp(epp_in) {}   
-  };  
+    explicit ConfigurationHandshake(void* p_in, Place_for_passing_exception_ptr epp_in)
+        : p(p_in), m(), c(), epp(epp_in) {}
+  };
 }  // namespace edm
 #endif  // FWCore_MessageLogger_ConfigurationHandshake_h

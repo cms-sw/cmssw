@@ -13,5 +13,5 @@ namespace edm {
   void fillMaxEventsDescription(ParameterSetDescription& description);
   void fillMaxLuminosityBlocksDescription(ParameterSetDescription& description);
   void fillMaxSecondsUntilRampdownDescription(ParameterSetDescription& description);
-}
+}  // namespace edm
 #endif

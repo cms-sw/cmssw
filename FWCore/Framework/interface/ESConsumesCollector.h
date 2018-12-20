@@ -37,7 +37,6 @@
 namespace edm {
   class ESConsumesCollector {
   public:
-
     ESConsumesCollector() = delete;
     ESConsumesCollector(ESConsumesCollector const&) = default;
     ESConsumesCollector(ESConsumesCollector&&) = default;
@@ -61,17 +60,14 @@ namespace edm {
     }
 
   private:
-    //only ESProducer is allowed to make an instance of this class
+    // only ESProducer is allowed to make an instance of this class
     friend class ESProducer;
 
-    explicit ESConsumesCollector(ESProducer* const iConsumer) :
-      m_consumer{iConsumer}
-    {}
+    explicit ESConsumesCollector(ESProducer* const iConsumer) : m_consumer{iConsumer} {}
 
     // ---------- member data --------------------------------
     edm::propagate_const<ESProducer*> m_consumer{nullptr};
   };
-}
-
+}  // namespace edm
 
 #endif

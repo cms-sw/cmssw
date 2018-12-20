@@ -31,51 +31,43 @@
 
 namespace edm {
 
-  template<typename T>
+  template <typename T>
   class ParameterDescriptionCases {
   public:
     typedef std::map<T, edm::value_ptr<ParameterDescriptionNode> > CaseMap;
 
     void insert(T caseValue, std::unique_ptr<ParameterDescriptionNode> node) {
-      std::pair<T, edm::value_ptr<ParameterDescriptionNode> > casePair(caseValue,edm::value_ptr<ParameterDescriptionNode>());
-      std::pair<typename CaseMap::iterator,bool> status;
+      std::pair<T, edm::value_ptr<ParameterDescriptionNode> > casePair(caseValue,
+                                                                       edm::value_ptr<ParameterDescriptionNode>());
+      std::pair<typename CaseMap::iterator, bool> status;
       status = caseMap_->insert(casePair);
       (*caseMap_)[caseValue] = std::move(node);
-      if (status.second == false) duplicateCaseValues_ = true;
+      if (status.second == false)
+        duplicateCaseValues_ = true;
     }
 
     std::unique_ptr<CaseMap> caseMap() { return std::move(caseMap_); }
     bool duplicateCaseValues() const { return duplicateCaseValues_; }
 
   private:
+    friend std::unique_ptr<ParameterDescriptionCases<bool> > operator>>(bool caseValue,
+                                                                        std::unique_ptr<ParameterDescriptionNode> node);
 
-    friend
-    std::unique_ptr<ParameterDescriptionCases<bool> >
-    operator>>(bool caseValue,
-               std::unique_ptr<ParameterDescriptionNode> node);
+    friend std::unique_ptr<ParameterDescriptionCases<int> > operator>>(int caseValue,
+                                                                       std::unique_ptr<ParameterDescriptionNode> node);
 
-    friend
-    std::unique_ptr<ParameterDescriptionCases<int> >
-    operator>>(int caseValue,
-               std::unique_ptr<ParameterDescriptionNode> node);
+    friend std::unique_ptr<ParameterDescriptionCases<std::string> > operator>>(
+        std::string const& caseValue, std::unique_ptr<ParameterDescriptionNode> node);
 
-    friend
-    std::unique_ptr<ParameterDescriptionCases<std::string> >
-    operator>>(std::string const& caseValue,
-               std::unique_ptr<ParameterDescriptionNode> node);
-
-    friend
-    std::unique_ptr<ParameterDescriptionCases<std::string> >
-    operator>>(char const* caseValue,
-               std::unique_ptr<ParameterDescriptionNode> node);
+    friend std::unique_ptr<ParameterDescriptionCases<std::string> > operator>>(
+        char const* caseValue, std::unique_ptr<ParameterDescriptionNode> node);
 
     // The constructor is intentionally private so that only the operator>> functions
-    // can create these. 
-    ParameterDescriptionCases(T const& caseValue, std::unique_ptr<ParameterDescriptionNode> node) :
-      caseMap_(new CaseMap),
-      duplicateCaseValues_(false)
-    {
-      std::pair<T, edm::value_ptr<ParameterDescriptionNode> > casePair(caseValue,edm::value_ptr<ParameterDescriptionNode>());
+    // can create these.
+    ParameterDescriptionCases(T const& caseValue, std::unique_ptr<ParameterDescriptionNode> node)
+        : caseMap_(new CaseMap), duplicateCaseValues_(false) {
+      std::pair<T, edm::value_ptr<ParameterDescriptionNode> > casePair(caseValue,
+                                                                       edm::value_ptr<ParameterDescriptionNode>());
       caseMap_->insert(casePair);
       (*caseMap_)[caseValue] = std::move(node);
     }
@@ -84,16 +76,14 @@ namespace edm {
     bool duplicateCaseValues_;
   };
 
-  std::unique_ptr<ParameterDescriptionCases<bool> >
-  operator||(std::unique_ptr<ParameterDescriptionCases<bool> >,
-             std::unique_ptr<ParameterDescriptionCases<bool> >);
+  std::unique_ptr<ParameterDescriptionCases<bool> > operator||(std::unique_ptr<ParameterDescriptionCases<bool> >,
+                                                               std::unique_ptr<ParameterDescriptionCases<bool> >);
 
-  std::unique_ptr<ParameterDescriptionCases<int> >
-  operator||(std::unique_ptr<ParameterDescriptionCases<int> >,
-             std::unique_ptr<ParameterDescriptionCases<int> >);
+  std::unique_ptr<ParameterDescriptionCases<int> > operator||(std::unique_ptr<ParameterDescriptionCases<int> >,
+                                                              std::unique_ptr<ParameterDescriptionCases<int> >);
 
-  std::unique_ptr<ParameterDescriptionCases<std::string> >
-  operator||(std::unique_ptr<ParameterDescriptionCases<std::string> >,
-	     std::unique_ptr<ParameterDescriptionCases<std::string> >);
-}
+  std::unique_ptr<ParameterDescriptionCases<std::string> > operator||(
+      std::unique_ptr<ParameterDescriptionCases<std::string> >,
+      std::unique_ptr<ParameterDescriptionCases<std::string> >);
+}  // namespace edm
 #endif

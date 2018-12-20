@@ -4,13 +4,13 @@
 //
 // Package:     Framework
 // Module:      EDLooper
-// 
+//
 /**\class EDLooper EDLooper.h FWCore/Framework/interface/EDLooper.h
 
  Description: Standard base class for looping components
- 
+
  This abstract class forms the basis of being able to loop through a list of events multiple times.
- 
+
 */
 //
 // Author:      Valentin Kuznetsov
@@ -24,28 +24,23 @@
 
 namespace edm {
 
-  class EDLooper : public EDLooperBase
-  {
-    public:
+  class EDLooper : public EDLooperBase {
+  public:
+    EDLooper();
+    ~EDLooper() override;
 
-      EDLooper();
-      ~EDLooper() override;
+    EDLooper(EDLooper const&) = delete;             // Disallow copying and moving
+    EDLooper& operator=(EDLooper const&) = delete;  // Disallow copying and moving
 
-      EDLooper(EDLooper const&) = delete; // Disallow copying and moving
-      EDLooper& operator=(EDLooper const&) = delete; // Disallow copying and moving
-
-    private:
-
+  private:
     /**Called after all event modules have had a chance to process the edm::Event.
      */
-    virtual Status duringLoop(const edm::Event&, const edm::EventSetup&) = 0; 
-    
+    virtual Status duringLoop(const edm::Event&, const edm::EventSetup&) = 0;
+
     /**override base class interface and just call the above duringLoop
      */
-    Status duringLoop(const edm::Event&, const edm::EventSetup&, ProcessingController& ) override;
-    
-    
+    Status duringLoop(const edm::Event&, const edm::EventSetup&, ProcessingController&) override;
   };
-}
+}  // namespace edm
 
 #endif

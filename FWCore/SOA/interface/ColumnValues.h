@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/SOA
 // Class  :     ColumnValues
-// 
+//
 /**\class ColumnValues ColumnValues.h "ColumnValues.h"
 
  Description: Provides container like access to a column of a Table
@@ -24,38 +24,35 @@
 // forward declarations
 #include <cstddef>
 namespace edm {
-namespace soa {
+  namespace soa {
 
-  
-template<typename T>
-class ColumnValues {
-public:
-  ColumnValues(T const* iBegin, size_t iSize):
-  m_begin(iBegin), m_end(iBegin+iSize) {}
-  
-  T const* begin() const { return m_begin; }
-  T const* end() const { return m_end; }
-  
-private:
-  T const* m_begin = nullptr;
-  T const* m_end = nullptr;
-};
+    template <typename T>
+    class ColumnValues {
+    public:
+      ColumnValues(T const* iBegin, size_t iSize) : m_begin(iBegin), m_end(iBegin + iSize) {}
 
-template<typename T>
-class MutableColumnValues {
-public:
-  MutableColumnValues(T* iBegin, size_t iSize):
-  m_begin(iBegin), m_end(iBegin+iSize) {}
-  
-  T* begin() const { return m_begin; }
-  T* end() const { return m_end; }
+      T const* begin() const { return m_begin; }
+      T const* end() const { return m_end; }
 
-private:
-  T* m_begin = nullptr;
-  T* m_end = nullptr;
-};
+    private:
+      T const* m_begin = nullptr;
+      T const* m_end = nullptr;
+    };
 
-}
-}
+    template <typename T>
+    class MutableColumnValues {
+    public:
+      MutableColumnValues(T* iBegin, size_t iSize) : m_begin(iBegin), m_end(iBegin + iSize) {}
+
+      T* begin() const { return m_begin; }
+      T* end() const { return m_end; }
+
+    private:
+      T* m_begin = nullptr;
+      T* m_end = nullptr;
+    };
+
+  }  // namespace soa
+}  // namespace edm
 
 #endif

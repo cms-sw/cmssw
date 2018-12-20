@@ -5,4 +5,4 @@ namespace FWCore_MessageLogger {
   struct dictionary {
     std::vector<edm::ErrorSummaryEntry> w_v_es;
   };
-}
+}  // namespace FWCore_MessageLogger

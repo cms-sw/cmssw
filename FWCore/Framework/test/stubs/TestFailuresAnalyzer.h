@@ -4,7 +4,7 @@
 //
 // Package:     test
 // Class  :     TestFailuresAnalyzer
-// 
+//
 /**\class TestFailuresAnalyzer TestFailuresAnalyzer.h Framework/test/interface/TestFailuresAnalyzer.h
 
  Description: <one line class summary>
@@ -25,20 +25,18 @@
 // forward declarations
 class TestFailuresAnalyzer : public edm::EDAnalyzer {
 public:
-   explicit TestFailuresAnalyzer(const edm::ParameterSet&);
-   ~TestFailuresAnalyzer();
-   
-   
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-   
-   virtual void beginJob();
-   virtual void endJob();
-   
-private:
-      // ----------member data ---------------------------
-      int whichFailure_;
-      unsigned long long eventToThrow_;
-};
+  explicit TestFailuresAnalyzer(const edm::ParameterSet&);
+  ~TestFailuresAnalyzer();
 
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+  virtual void beginJob();
+  virtual void endJob();
+
+private:
+  // ----------member data ---------------------------
+  int whichFailure_;
+  unsigned long long eventToThrow_;
+};
 
 #endif /* test_TestFailuresAnalyzer_h */

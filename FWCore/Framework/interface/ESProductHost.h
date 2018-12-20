@@ -89,23 +89,19 @@ namespace edm {
   // selected does not mattter, just that some order exists
   // so we know which cacheID corresponds to which type.
 
-  template <typename Product, typename ... RecordTypes>
+  template <typename Product, typename... RecordTypes>
   class ESProductHost final : public Product {
-
   public:
-
     template <typename... Args>
-    ESProductHost(Args&&... args) : Product(std::forward<Args>(args)...),
-                                    cacheIDs_(numberOfRecordTypes(), 0) { }
+    ESProductHost(Args&&... args) : Product(std::forward<Args>(args)...), cacheIDs_(numberOfRecordTypes(), 0) {}
 
     // Execute FUNC if the cacheIdentifier in the EventSetup RecordType
     // has changed since the last time we called FUNC for
     // this EventSetup product.
 
     template <typename RecordType, typename ContainingRecordType, typename FUNC>
-    void ifRecordChanges(ContainingRecordType const& containingRecord,
-                         FUNC func) {
-      RecordType const& record = containingRecord. template getRecord<RecordType>();
+    void ifRecordChanges(ContainingRecordType const& containingRecord, FUNC func) {
+      RecordType const& record = containingRecord.template getRecord<RecordType>();
       unsigned long long cacheIdentifier = record.cacheIdentifier();
       std::size_t iRecord = index<RecordType>();
       if (cacheIdentifier != cacheIDs_[iRecord]) {
@@ -141,17 +137,16 @@ namespace edm {
         return I;
       } else {
         static_assert(I + 1 < numberOfRecordTypes(), "unknown record type passed to ESProductHost::index");
-        return indexLoop<I+1, U, M...>();
+        return indexLoop<I + 1, U, M...>();
       }
     }
 
   private:
-
     // Data member, this holds the cache identifiers from the record which
     // are used to determine whether the EventSetup cache for that record has
     // been updated since this Product was lasted updated.
 
     std::vector<unsigned long long> cacheIDs_;
   };
-}
+}  // namespace edm
 #endif

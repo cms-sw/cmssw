@@ -29,47 +29,40 @@ namespace edm {
 
     class NamedEventSelector {
     public:
-      NamedEventSelector(std::string const& n, EventSelector const& s, ConsumesCollector&& iC) :
-	inputTag_("TriggerResults", "", n),
-        token_(iC.consumes<TriggerResults>(inputTag_)),
-	eventSelector_(s)
-      { }
+      NamedEventSelector(std::string const& n, EventSelector const& s, ConsumesCollector&& iC)
+          : inputTag_("TriggerResults", "", n), token_(iC.consumes<TriggerResults>(inputTag_)), eventSelector_(s) {}
 
-      bool match(TriggerResults const& product) {
-	return eventSelector_.acceptEvent(product);
-      }
+      bool match(TriggerResults const& product) { return eventSelector_.acceptEvent(product); }
 
-      InputTag const& inputTag() const {
-        return inputTag_;
-      }
+      InputTag const& inputTag() const { return inputTag_; }
 
-      EDGetTokenT<TriggerResults> const& token() const {
-        return token_;
-      }
+      EDGetTokenT<TriggerResults> const& token() const { return token_; }
+
     private:
-      InputTag            inputTag_;
+      InputTag inputTag_;
       EDGetTokenT<TriggerResults> token_;
-      EventSelector       eventSelector_;
+      EventSelector eventSelector_;
     };
 
     class TriggerResultsBasedEventSelector {
     public:
       TriggerResultsBasedEventSelector();
-      typedef detail::handle_t                    handle_t;
-      typedef std::vector<NamedEventSelector>     selectors_t;
+      typedef detail::handle_t handle_t;
+      typedef std::vector<NamedEventSelector> selectors_t;
       typedef std::pair<std::string, std::string> parsed_path_spec_t;
 
       void setupDefault();
 
       void setup(std::vector<parsed_path_spec_t> const& path_specs,
-		 std::vector<std::string> const& triggernames,
+                 std::vector<std::string> const& triggernames,
                  std::string const& process_name,
                  ConsumesCollector&& iC);
 
       bool wantEvent(EventForOutput const& e);
 
-      unsigned int numberOfTokens() const { return selectors_.size();}
-      EDGetToken token(unsigned int index) const {return selectors_[index].token();}
+      unsigned int numberOfTokens() const { return selectors_.size(); }
+      EDGetToken token(unsigned int index) const { return selectors_[index].token(); }
+
     private:
       selectors_t selectors_;
       bool wantAllEvents_;
@@ -86,12 +79,13 @@ namespace edm {
     /** Takes the user specified SelectEvents PSet and creates a new one
      which conforms to the canonical format required for provenance
      */
-    ParameterSetID registerProperSelectionInfo(edm::ParameterSet const& iInitial,
-                                               std::string const& iLabel,
-                                               std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
-                                               bool anyProductProduced);
+    ParameterSetID registerProperSelectionInfo(
+        edm::ParameterSet const& iInitial,
+        std::string const& iLabel,
+        std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
+        bool anyProductProduced);
 
-  }
-}
+  }  // namespace detail
+}  // namespace edm
 
 #endif

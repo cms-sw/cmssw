@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     DataKeyTags
-// 
+//
 /**\class DataKeyTags DataKeyTags.h FWCore/Framework/interface/DataKeyTags.h
 
  Description: <one line class summary>
@@ -25,30 +25,30 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-      
-      typedef heterocontainer::HCTypeTag TypeTag;
-      
-      class SimpleStringTag {
-        public:
-         SimpleStringTag(const char* iString) : tag_(iString) {}
-         SimpleStringTag() : tag_("") {}
-         bool operator==(const SimpleStringTag& iRHS) const ;
-         bool operator<(const SimpleStringTag& iRHS) const ;
-         
-         const char* value() const { return tag_; }
-         
-        private:
-         const char* tag_;
-      };
+  namespace eventsetup {
 
-      class NameTag : public SimpleStringTag {
-       public:
-         NameTag(const char* iUsage) : SimpleStringTag(iUsage) {}
-         NameTag() : SimpleStringTag() {}
-      };
-      
-      typedef NameTag IdTags;
-   }
-}
+    typedef heterocontainer::HCTypeTag TypeTag;
+
+    class SimpleStringTag {
+    public:
+      SimpleStringTag(const char* iString) : tag_(iString) {}
+      SimpleStringTag() : tag_("") {}
+      bool operator==(const SimpleStringTag& iRHS) const;
+      bool operator<(const SimpleStringTag& iRHS) const;
+
+      const char* value() const { return tag_; }
+
+    private:
+      const char* tag_;
+    };
+
+    class NameTag : public SimpleStringTag {
+    public:
+      NameTag(const char* iUsage) : SimpleStringTag(iUsage) {}
+      NameTag() : SimpleStringTag() {}
+    };
+
+    typedef NameTag IdTags;
+  }  // namespace eventsetup
+}  // namespace edm
 #endif

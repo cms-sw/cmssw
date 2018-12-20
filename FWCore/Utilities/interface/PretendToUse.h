@@ -7,6 +7,7 @@
 /// out compilers that complain about unused variables.
 //
 
-template <typename T> inline void pretendToUse(T const&) { }
+template <typename T>
+inline void pretendToUse(T const&) {}
 
 #endif

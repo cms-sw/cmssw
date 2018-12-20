@@ -40,13 +40,11 @@
 
 namespace edm {
 
-  class SingleConsumerQ
-  {
+  class SingleConsumerQ {
   public:
-    struct Buffer
-    {
-      Buffer():ptr_(),len_() { }
-      Buffer(void* p,int len):ptr_(p),len_(len) { }
+    struct Buffer {
+      Buffer() : ptr_(), len_() {}
+      Buffer(void* p, int len) : ptr_(p), len_(len) {}
 
       void* ptr_;
       int len_;
@@ -55,37 +53,32 @@ namespace edm {
     SingleConsumerQ(int max_event_size, int max_queue_depth);
     ~SingleConsumerQ();
 
-    struct ConsumerType
-    {
-      static SingleConsumerQ::Buffer get(SingleConsumerQ& b)
-      { return b.getConsumerBuffer(); }
-      static void release(SingleConsumerQ& b, void* v)
-      { b.releaseConsumerBuffer(v); }
-      static void commit(SingleConsumerQ& b, void* v,int size)
-      { b.commitConsumerBuffer(v,size); }
+    struct ConsumerType {
+      static SingleConsumerQ::Buffer get(SingleConsumerQ& b) { return b.getConsumerBuffer(); }
+      static void release(SingleConsumerQ& b, void* v) { b.releaseConsumerBuffer(v); }
+      static void commit(SingleConsumerQ& b, void* v, int size) { b.commitConsumerBuffer(v, size); }
     };
-    struct ProducerType
-    {
-      static SingleConsumerQ::Buffer get(SingleConsumerQ& b)
-      { return b.getProducerBuffer(); }
-      static void release(SingleConsumerQ& b, void* v)
-      { b.releaseProducerBuffer(v); }
-      static void commit(SingleConsumerQ& b, void* v,int size)
-      { b.commitProducerBuffer(v,size); }
+    struct ProducerType {
+      static SingleConsumerQ::Buffer get(SingleConsumerQ& b) { return b.getProducerBuffer(); }
+      static void release(SingleConsumerQ& b, void* v) { b.releaseProducerBuffer(v); }
+      static void commit(SingleConsumerQ& b, void* v, int size) { b.commitProducerBuffer(v, size); }
     };
 
     template <class T>
-    class OperateBuffer
-    {
+    class OperateBuffer {
     public:
-      explicit OperateBuffer(SingleConsumerQ& b):
-	b_(b),v_(T::get(b)),committed_(false) { }
-      ~OperateBuffer()
-      { if(!committed_) T::release(b_,v_.ptr_); }
+      explicit OperateBuffer(SingleConsumerQ& b) : b_(b), v_(T::get(b)), committed_(false) {}
+      ~OperateBuffer() {
+        if (!committed_)
+          T::release(b_, v_.ptr_);
+      }
 
       void* buffer() const { return v_.ptr_; }
       int size() const { return v_.len_; }
-      void commit(int theSize=0) { T::commit(b_, v_.ptr_, theSize); committed_=true; }
+      void commit(int theSize = 0) {
+        T::commit(b_, v_.ptr_, theSize);
+        committed_ = true;
+      }
 
     private:
       SingleConsumerQ& b_;
@@ -98,11 +91,11 @@ namespace edm {
 
     Buffer getProducerBuffer();
     void releaseProducerBuffer(void*);
-    void commitProducerBuffer(void*,int);
+    void commitProducerBuffer(void*, int);
 
     Buffer getConsumerBuffer();
     void releaseConsumerBuffer(void*);
-    void commitConsumerBuffer(void*,int);
+    void commitConsumerBuffer(void*, int);
 
     int maxEventSize() const { return max_event_size_; }
     int maxQueueDepth() const { return max_queue_depth_; }
@@ -120,20 +113,18 @@ namespace edm {
 
     int max_event_size_;
     int max_queue_depth_;
-    int pos_; // use pool as stack of avaiable buffers
+    int pos_;  // use pool as stack of avaiable buffers
     ByteArray mem_;
     Pool buffer_pool_;
     Queue queue_;
-    unsigned int fpos_, bpos_; // positions for queue - front and back
+    unsigned int fpos_, bpos_;  // positions for queue - front and back
 
     std::mutex pool_lock_;
     std::mutex queue_lock_;
     std::condition_variable pool_cond_;
     std::condition_variable pop_cond_;
     std::condition_variable push_cond_;
-
   };
 
-
-}
+}  // namespace edm
 #endif

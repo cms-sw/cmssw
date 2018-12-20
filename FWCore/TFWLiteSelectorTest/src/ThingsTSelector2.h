@@ -13,25 +13,24 @@
 
 namespace tfwliteselectortest {
   struct ThingsWorker {
-	ThingsWorker(const TList*, TList&);
-	void process( const edm::Event& iEvent );
-	void postProcess(TList&);
-        edm::propagate_const<TH1F*> h_a;
-        edm::propagate_const<TH1F*> h_refA;
+    ThingsWorker(const TList*, TList&);
+    void process(const edm::Event& iEvent);
+    void postProcess(TList&);
+    edm::propagate_const<TH1F*> h_a;
+    edm::propagate_const<TH1F*> h_refA;
   };
 
   class ThingsTSelector2 : public TFWLiteSelector<ThingsWorker> {
-public :
+  public:
     ThingsTSelector2() {}
     void begin(TList*&) override;
     void terminate(TList&) override;
-    
-private:
-    
+
+  private:
     ThingsTSelector2(ThingsTSelector2 const&);
     ThingsTSelector2 operator=(ThingsTSelector2 const&);
-    
-    ClassDefOverride(ThingsTSelector2,2)
+
+    ClassDefOverride(ThingsTSelector2, 2)
   };
-}
+}  // namespace tfwliteselectortest
 #endif

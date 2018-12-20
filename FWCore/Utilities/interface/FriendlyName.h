@@ -13,5 +13,5 @@ namespace edm {
   namespace friendlyname {
     std::string friendlyName(std::string const& iFullName);
   }
-}
+}  // namespace edm
 #endif

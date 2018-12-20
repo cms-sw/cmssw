@@ -4,7 +4,7 @@
 //
 // Package:     MessageService
 // Class  :     ThreadQueue
-// 
+//
 /**\class ThreadQueue ThreadQueue.h FWCore/MessageService/interface/ThreadQueue.h
 
  Description: <one line class summary>
@@ -21,16 +21,11 @@
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/Utilities/interface/SingleConsumerQ.h"
 
-
-
-
 namespace edm {
-namespace service {
+  namespace service {
 
-class ThreadQueue
-{
-
-   public:
+    class ThreadQueue {
+    public:
       ThreadQueue();
       virtual ~ThreadQueue();
 
@@ -40,29 +35,26 @@ class ThreadQueue
 
       // ---------- member functions ---------------------------
 
-  // ---  obtain a message from the queue:
-  void  consume( MessageLoggerQ::OpCode & opcode, void * & operand );
+      // ---  obtain a message from the queue:
+      void consume(MessageLoggerQ::OpCode& opcode, void*& operand);
 
-  // ---  place a message onto the queue:
-  void  produce( MessageLoggerQ::OpCode opcode, void *   operand );
+      // ---  place a message onto the queue:
+      void produce(MessageLoggerQ::OpCode opcode, void* operand);
 
- 
-   private:
-      ThreadQueue(const ThreadQueue&) = delete; // stop default
+    private:
+      ThreadQueue(const ThreadQueue&) = delete;  // stop default
 
-      const ThreadQueue& operator=(const ThreadQueue&) = delete; // stop default
+      const ThreadQueue& operator=(const ThreadQueue&) = delete;  // stop default
 
       // ---------- member data --------------------------------
 
-  // --- buffer parameters:  (were private but needed by MainTrhreadMLscribe
-  static  const int  buf_depth = 500;
-  static  const int  buf_size  = sizeof(MessageLoggerQ::OpCode)
-                               + sizeof(void *);
-  SingleConsumerQ  m_buf;
+      // --- buffer parameters:  (were private but needed by MainTrhreadMLscribe
+      static const int buf_depth = 500;
+      static const int buf_size = sizeof(MessageLoggerQ::OpCode) + sizeof(void*);
+      SingleConsumerQ m_buf;
+    };
 
-};
-
-} // end namespace service
-} // end namespace edm
+  }  // end namespace service
+}  // end namespace edm
 
 #endif

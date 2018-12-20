@@ -26,44 +26,30 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-      struct ComponentDescription {
-         std::string label_; // A human friendly string that uniquely identifies the label
-         std::string type_;  // A human friendly string that uniquely identifies the name
-         bool isSource_;
-         bool isLooper_;
+  namespace eventsetup {
+    struct ComponentDescription {
+      std::string label_;  // A human friendly string that uniquely identifies the label
+      std::string type_;   // A human friendly string that uniquely identifies the name
+      bool isSource_;
+      bool isLooper_;
 
-         // ID of parameter set of the creator
-         ParameterSetID pid_;
+      // ID of parameter set of the creator
+      ParameterSetID pid_;
 
-         /* ----------- end of provenance information ------------- */
+      /* ----------- end of provenance information ------------- */
 
-         ComponentDescription() :
-             label_(),
-             type_(),
-             isSource_(false),
-             isLooper_(false),
-             pid_() {}
+      ComponentDescription() : label_(), type_(), isSource_(false), isLooper_(false), pid_() {}
 
-         ComponentDescription(std::string const& iType,
-                              std::string const& iLabel,
-                              bool iIsSource,
-                              bool iIsLooper = false) :
-                                label_(iLabel),
-                                type_(iType),
-                                isSource_(iIsSource),
-                                isLooper_(iIsLooper),
-                                pid_() {}
+      ComponentDescription(std::string const& iType, std::string const& iLabel, bool iIsSource, bool iIsLooper = false)
+          : label_(iLabel), type_(iType), isSource_(iIsSource), isLooper_(iIsLooper), pid_() {}
 
-         bool operator<(ComponentDescription const& iRHS) const {
-            return (type_ == iRHS.type_) ? (label_ < iRHS.label_) : (type_<iRHS.type_);
-         }
-         bool operator==(ComponentDescription const& iRHS) const {
-            return label_ == iRHS.label_ &&
-            type_ == iRHS.type_ &&
-            isSource_ == iRHS.isSource_;
-         }
-      };
-   }
-}
+      bool operator<(ComponentDescription const& iRHS) const {
+        return (type_ == iRHS.type_) ? (label_ < iRHS.label_) : (type_ < iRHS.type_);
+      }
+      bool operator==(ComponentDescription const& iRHS) const {
+        return label_ == iRHS.label_ && type_ == iRHS.type_ && isSource_ == iRHS.isSource_;
+      }
+    };
+  }  // namespace eventsetup
+}  // namespace edm
 #endif

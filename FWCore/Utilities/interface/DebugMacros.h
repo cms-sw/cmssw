@@ -5,18 +5,19 @@
 
 namespace edm {
   struct debugvalue {
-
     debugvalue();
 
     int operator()() { return value_; }
-    
+
     const char* cvalue_;
     int value_;
   };
 
-CMS_THREAD_SAFE extern debugvalue debugit;
-}
+  CMS_THREAD_SAFE extern debugvalue debugit;
+}  // namespace edm
 
-#define FDEBUG(lev) if(lev <= debugit()) std::cerr
+#define FDEBUG(lev)     \
+  if (lev <= debugit()) \
+  std::cerr
 
 #endif

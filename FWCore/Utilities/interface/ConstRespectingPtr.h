@@ -25,9 +25,7 @@ namespace edm {
 
   template <typename T>
   class ConstRespectingPtr {
-
   public:
-
     ConstRespectingPtr();
     explicit ConstRespectingPtr(T*);
     ~ConstRespectingPtr();
@@ -48,44 +46,45 @@ namespace edm {
     void reset();
 
   private:
-
     ConstRespectingPtr(ConstRespectingPtr<T> const&) = delete;
     ConstRespectingPtr& operator=(ConstRespectingPtr<T> const&) = delete;
 
     edm::propagate_const<T*> m_data;
   };
 
-  template<typename T>
+  template <typename T>
   ConstRespectingPtr<T>::ConstRespectingPtr() : m_data(nullptr) {}
 
-  template<typename T>
+  template <typename T>
   ConstRespectingPtr<T>::ConstRespectingPtr(T* v) : m_data(v) {}
 
-  template<typename T>
+  template <typename T>
   ConstRespectingPtr<T>::~ConstRespectingPtr() {
     delete m_data.get();
   }
 
-  template<typename T>
-  bool ConstRespectingPtr<T>::isSet() const { return nullptr != m_data; }
+  template <typename T>
+  bool ConstRespectingPtr<T>::isSet() const {
+    return nullptr != m_data;
+  }
 
-  template<typename T>
+  template <typename T>
   void ConstRespectingPtr<T>::set(std::unique_ptr<T> iNewValue) {
     delete m_data;
     m_data = iNewValue.release();
   }
 
-  template<typename T>
+  template <typename T>
   T* ConstRespectingPtr<T>::release() {
     T* tmp = m_data;
     m_data = nullptr;
     return tmp;
   }
 
-  template<typename T>
+  template <typename T>
   void ConstRespectingPtr<T>::reset() {
     delete m_data;
     m_data = nullptr;
   }
-}
+}  // namespace edm
 #endif

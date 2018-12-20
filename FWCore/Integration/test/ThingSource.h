@@ -3,7 +3,7 @@
 
 /** \class ThingSource
  *
- * \version   1st Version Dec. 27, 2005  
+ * \version   1st Version Dec. 27, 2005
 
  *
  ************************************************************/
@@ -15,7 +15,6 @@
 namespace edmtest {
   class ThingSource : public edm::ProducerSourceBase {
   public:
-
     // The following is not yet used, but will be the primary
     // constructor when the parameter set system is available.
     //
@@ -23,7 +22,9 @@ namespace edmtest {
 
     ~ThingSource() override;
 
-    bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override {return true;}
+    bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override {
+      return true;
+    }
 
     void produce(edm::Event& e) override;
 
@@ -31,13 +32,12 @@ namespace edmtest {
 
     void beginLuminosityBlock(edm::LuminosityBlock& lb) override;
 
-
   private:
-    //called internally, not by the framework
+    // called internally, not by the framework
     void endRun(edm::Run& r);
     void endLuminosityBlock(edm::LuminosityBlock& lb);
-    
+
     ThingAlgorithm alg_;
   };
-}
+}  // namespace edmtest
 #endif

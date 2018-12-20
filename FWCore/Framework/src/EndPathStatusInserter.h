@@ -13,12 +13,12 @@ namespace edm {
 
   class EndPathStatusInserter : public global::EDProducer<> {
   public:
-
     explicit EndPathStatusInserter(unsigned int numberOfStreams);
 
     void produce(StreamID, Event&, EventSetup const&) const final;
+
   private:
     EDPutTokenT<EndPathStatus> token_;
   };
-}
+}  // namespace edm
 #endif

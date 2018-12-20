@@ -26,35 +26,18 @@
 
 // forward declarations
 namespace edm::eventsetup {
-  class DataKey
-  {
-
+  class DataKey {
     friend void swap(DataKey&, DataKey&);
+
   public:
     enum DoNotCopyMemory { kDoNotCopyMemory };
 
     DataKey();
-    DataKey(const TypeTag& iType,
-            const IdTags& iId) :
-      type_(iType),
-      name_(iId),
-      ownMemory_() {
-      makeCopyOfMemory();
-    }
+    DataKey(const TypeTag& iType, const IdTags& iId) : type_(iType), name_(iId), ownMemory_() { makeCopyOfMemory(); }
 
-    DataKey(const TypeTag& iType,
-            const IdTags& iId,
-            DoNotCopyMemory) :
-      type_(iType),
-      name_(iId),
-      ownMemory_(false) {}
+    DataKey(const TypeTag& iType, const IdTags& iId, DoNotCopyMemory) : type_(iType), name_(iId), ownMemory_(false) {}
 
-    DataKey(const DataKey& iRHS) :
-      type_(iRHS.type_),
-      name_(iRHS.name_),
-      ownMemory_() {
-      makeCopyOfMemory();
-    }
+    DataKey(const DataKey& iRHS) : type_(iRHS.type_), name_(iRHS.name_), ownMemory_() { makeCopyOfMemory(); }
 
     DataKey& operator=(const DataKey&);
 
@@ -68,7 +51,7 @@ namespace edm::eventsetup {
     bool operator<(const DataKey& iRHS) const;
 
     // ---------- static member functions --------------------
-    template<class T>
+    template <class T>
     static TypeTag makeTypeTag() {
       return heterocontainer::HCTypeTag::make<T>();
     }
@@ -78,7 +61,7 @@ namespace edm::eventsetup {
   private:
     void makeCopyOfMemory();
     void releaseMemory() {
-      if(ownMemory_) {
+      if (ownMemory_) {
         deleteMemory();
         ownMemory_ = false;
       }
@@ -93,11 +76,6 @@ namespace edm::eventsetup {
   };
 
   // Free swap function
-  inline
-  void
-  swap(DataKey& a, DataKey& b)
-  {
-    a.swap(b);
-  }
-}
+  inline void swap(DataKey& a, DataKey& b) { a.swap(b); }
+}  // namespace edm::eventsetup
 #endif

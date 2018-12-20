@@ -4,7 +4,7 @@
 //
 // Package:     MessageLogger
 // Class  :     SilentMLscribe
-// 
+//
 /**\class SilentMLscribe SilentMLscribe.h FWCore/MessageLogger/interface/SilentMLscribe.h
 
  Description: <one line class summary>
@@ -25,27 +25,24 @@
 
 // forward declarations
 namespace edm {
-   namespace service {
-      class SilentMLscribe : public AbstractMLscribe {
-         
-      public:
-         SilentMLscribe();
-         ~SilentMLscribe() override;
-         
-         
-         // ---------- member functions ---------------------------
-         
-         void  runCommand(MessageLoggerQ::OpCode  opcode, void * operand) override;
-         
-      private:
-         SilentMLscribe(const SilentMLscribe&) = delete; // stop default
-         
-         const SilentMLscribe& operator=(const SilentMLscribe&) = delete; // stop default
-         
-         // ---------- member data --------------------------------
-         
-      };      
-   }
-}
+  namespace service {
+    class SilentMLscribe : public AbstractMLscribe {
+    public:
+      SilentMLscribe();
+      ~SilentMLscribe() override;
+
+      // ---------- member functions ---------------------------
+
+      void runCommand(MessageLoggerQ::OpCode opcode, void* operand) override;
+
+    private:
+      SilentMLscribe(const SilentMLscribe&) = delete;  // stop default
+
+      const SilentMLscribe& operator=(const SilentMLscribe&) = delete;  // stop default
+
+      // ---------- member data --------------------------------
+    };
+  }  // namespace service
+}  // namespace edm
 
 #endif

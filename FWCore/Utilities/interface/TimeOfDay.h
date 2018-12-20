@@ -10,12 +10,12 @@ namespace edm {
     explicit TimeOfDay(struct timeval const& tv);
 
     struct timeval tv_;
+
   private:
     static struct timeval setTime_();
   };
 
-  std::ostream&
-  operator<<(std::ostream& os, TimeOfDay const& tod);
-}
+  std::ostream& operator<<(std::ostream& os, TimeOfDay const& tod);
+}  // namespace edm
 
 #endif

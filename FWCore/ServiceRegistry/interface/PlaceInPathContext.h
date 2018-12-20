@@ -17,9 +17,7 @@ namespace edm {
   class PathContext;
 
   class PlaceInPathContext {
-
   public:
-
     PlaceInPathContext(unsigned int);
 
     unsigned int placeInPath() const { return placeInPath_; }
@@ -33,5 +31,5 @@ namespace edm {
   };
 
   std::ostream& operator<<(std::ostream&, PlaceInPathContext const&);
-}
+}  // namespace edm
 #endif

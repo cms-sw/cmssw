@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     ModuleFactory
-// 
+//
 /**\class ModuleFactory ModuleFactory.h FWCore/Framework/interface/ModuleFactory.h
 
  Description: Factory which is dynamically loadable and used to create an eventstore module
@@ -28,38 +28,37 @@
 
 // forward declarations
 namespace edm {
-   class ParameterSet;
+  class ParameterSet;
 
-   namespace eventsetup {
-      class DataProxyProvider;
-      class EventSetupsController;
+  namespace eventsetup {
+    class DataProxyProvider;
+    class EventSetupsController;
 
-      struct ModuleMakerTraits {
-         typedef DataProxyProvider base_type;
-        
-         static std::string name();
-         static void addTo(EventSetupProvider& iProvider,
-                           std::shared_ptr<DataProxyProvider> iComponent,
-                           ParameterSet const&,
-                           bool);
-         static void replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<DataProxyProvider> iComponent); 
-         static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
-                                                                            ParameterSet const& iConfiguration);
-         static void putComponent(EventSetupsController& esController,
-                                  ParameterSet const& iConfiguration,
-                                  std::shared_ptr<base_type> const& component);
-      };
-      template< class TType>
-         struct ModuleMaker : public ComponentMaker<edm::eventsetup::ModuleMakerTraits,TType> {};
-      
-      typedef  ComponentFactory<ModuleMakerTraits> ModuleFactory ;
-      typedef edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<ModuleMakerTraits>* ()> ModulePluginFactory;
-   }
-}
+    struct ModuleMakerTraits {
+      typedef DataProxyProvider base_type;
 
-#define DEFINE_FWK_EVENTSETUP_MODULE(type) \
-DEFINE_EDM_PLUGIN (edm::eventsetup::ModulePluginFactory,edm::eventsetup::ModuleMaker<type>,#type); \
-DEFINE_DESC_FILLER_FOR_ESPRODUCERS(type)
+      static std::string name();
+      static void addTo(EventSetupProvider& iProvider,
+                        std::shared_ptr<DataProxyProvider> iComponent,
+                        ParameterSet const&,
+                        bool);
+      static void replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<DataProxyProvider> iComponent);
+      static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
+                                                                       ParameterSet const& iConfiguration);
+      static void putComponent(EventSetupsController& esController,
+                               ParameterSet const& iConfiguration,
+                               std::shared_ptr<base_type> const& component);
+    };
+    template <class TType>
+    struct ModuleMaker : public ComponentMaker<edm::eventsetup::ModuleMakerTraits, TType> {};
+
+    typedef ComponentFactory<ModuleMakerTraits> ModuleFactory;
+    typedef edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<ModuleMakerTraits>*()> ModulePluginFactory;
+  }  // namespace eventsetup
+}  // namespace edm
+
+#define DEFINE_FWK_EVENTSETUP_MODULE(type)                                                            \
+  DEFINE_EDM_PLUGIN(edm::eventsetup::ModulePluginFactory, edm::eventsetup::ModuleMaker<type>, #type); \
+  DEFINE_DESC_FILLER_FOR_ESPRODUCERS(type)
 
 #endif
-

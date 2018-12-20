@@ -19,6 +19,6 @@ namespace edm {
     friend class SubProcess;
     friend class ParameterSetDescription;
   };
-}
+}  // namespace edm
 
 #endif

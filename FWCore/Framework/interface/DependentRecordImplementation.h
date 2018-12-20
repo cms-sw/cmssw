@@ -4,8 +4,9 @@
 //
 // Package:     Framework
 // Class  :     DependentRecordImplementation
-// 
-/**\class DependentRecordImplementation DependentRecordImplementation.h FWCore/Framework/interface/DependentRecordImplementation.h
+//
+/**\class DependentRecordImplementation DependentRecordImplementation.h
+ FWCore/Framework/interface/DependentRecordImplementation.h
 
  Description: <one line class summary>
 
@@ -32,41 +33,43 @@
 
 // forward declarations
 namespace edm {
-namespace eventsetup {
-   
-template< class RecordT, class ListT>
-class DependentRecordImplementation : public EventSetupRecordImplementation<RecordT>, public DependentRecordTag
-{
+  namespace eventsetup {
 
-   public:
+    template <class RecordT, class ListT>
+    class DependentRecordImplementation : public EventSetupRecordImplementation<RecordT>, public DependentRecordTag {
+    public:
       DependentRecordImplementation() {}
       typedef ListT list_type;
-      //virtual ~DependentRecordImplementation();
-      
+      // virtual ~DependentRecordImplementation();
+
       // ---------- const member functions ---------------------
-      template<class DepRecordT>
+      template <class DepRecordT>
       const DepRecordT getRecord() const {
-        //Make sure that DepRecordT is a type in ListT
-        typedef typename boost::mpl::end< ListT >::type EndItrT;
-        typedef typename boost::mpl::find< ListT, DepRecordT>::type FoundItrT;
-        static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a Record from another Record where the second Record is not dependent on the first Record.");
+        // Make sure that DepRecordT is a type in ListT
+        typedef typename boost::mpl::end<ListT>::type EndItrT;
+        typedef typename boost::mpl::find<ListT, DepRecordT>::type FoundItrT;
+        static_assert(
+            !std::is_same<FoundItrT, EndItrT>::value,
+            "Trying to get a Record from another Record where the second Record is not dependent on the first Record.");
         try {
           EventSetup const& eventSetupT = this->eventSetup();
           return eventSetupT.get<DepRecordT>();
-        } catch(cms::Exception& e) {
+        } catch (cms::Exception& e) {
           std::ostringstream sstrm;
-          sstrm <<"While getting dependent Record from Record "<<this->key().type().name();
+          sstrm << "While getting dependent Record from Record " << this->key().type().name();
           e.addContext(sstrm.str());
           throw;
         }
       }
 
-      template<class DepRecordT>
+      template <class DepRecordT>
       std::optional<DepRecordT> tryToGetRecord() const {
-        //Make sure that DepRecordT is a type in ListT
-        typedef typename boost::mpl::end< ListT >::type EndItrT;
-        typedef typename boost::mpl::find< ListT, DepRecordT>::type FoundItrT;
-        static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a Record from another Record where the second Record is not dependent on the first Record.");
+        // Make sure that DepRecordT is a type in ListT
+        typedef typename boost::mpl::end<ListT>::type EndItrT;
+        typedef typename boost::mpl::find<ListT, DepRecordT>::type FoundItrT;
+        static_assert(
+            !std::is_same<FoundItrT, EndItrT>::value,
+            "Trying to get a Record from another Record where the second Record is not dependent on the first Record.");
         EventSetup const& eventSetupT = this->eventSetup();
         return eventSetupT.tryToGet<DepRecordT>();
       }
@@ -75,13 +78,11 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
 
       // ---------- member functions ---------------------------
 
-   private:
-
+    private:
       // ---------- member data --------------------------------
+    };
 
-};
-
-  }
-}
+  }  // namespace eventsetup
+}  // namespace edm
 
 #endif

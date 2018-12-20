@@ -64,22 +64,21 @@ namespace edm {
   class SharedResourcesAcquirer;
 
   namespace stream {
-    template< typename T> class ProducingModuleAdaptorBase;
+    template <typename T>
+    class ProducingModuleAdaptorBase;
   }
 
   class Event : public EventBase {
   public:
-    Event(EventPrincipal const& ep, ModuleDescription const& md,
-          ModuleCallingContext const*);
+    Event(EventPrincipal const& ep, ModuleDescription const& md, ModuleCallingContext const*);
     ~Event() override;
 
-    //Used in conjunction with EDGetToken
+    // Used in conjunction with EDGetToken
     void setConsumer(EDConsumerBase const* iConsumer);
 
-    void setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer);
+    void setSharedResourcesAcquirer(SharedResourcesAcquirer* iResourceAcquirer);
 
-    void setProducerCommon(ProducerBase const* iProd,
-                           std::vector<BranchID>* previousParentage);
+    void setProducerCommon(ProducerBase const* iProd, std::vector<BranchID>* previousParentage);
 
     void setProducer(ProducerBase const* iProd,
                      std::vector<BranchID>* previousParentage,
@@ -90,23 +89,16 @@ namespace edm {
                                std::vector<BranchID>& gotBranchIDsFromAcquire);
 
     // AUX functions are defined in EventBase
-    EventAuxiliary const& eventAuxiliary() const override {return aux_;}
+    EventAuxiliary const& eventAuxiliary() const override { return aux_; }
 
     ///\return The id for the particular Stream processing the Event
-    StreamID streamID() const {
-      return streamID_;
-    }
+    StreamID streamID() const { return streamID_; }
 
-    LuminosityBlock const&
-    getLuminosityBlock() const {
-      return *luminosityBlock_;
-    }
+    LuminosityBlock const& getLuminosityBlock() const { return *luminosityBlock_; }
 
-    Run const&
-    getRun() const;
+    Run const& getRun() const;
 
-    RunNumber_t
-    run() const {return id().run();}
+    RunNumber_t run() const { return id().run(); }
 
     /**If you are caching data from the Event, you should also keep
      this number.  If this number changes then you know that
@@ -115,151 +107,119 @@ namespace edm {
      denote that you have not yet checked the value.
      */
     typedef unsigned long CacheIdentifier_t;
-    CacheIdentifier_t
-    cacheIdentifier() const;
+    CacheIdentifier_t cacheIdentifier() const;
 
-    template<typename PROD>
-    bool
-    get(ProductID const& oid, Handle<PROD>& result) const;
+    template <typename PROD>
+    bool get(ProductID const& oid, Handle<PROD>& result) const;
 
     // Template member overload to deal with Views.
-    template<typename ELEMENT>
-    bool
-    get(ProductID const& oid, Handle<View<ELEMENT> >& result) const ;
+    template <typename ELEMENT>
+    bool get(ProductID const& oid, Handle<View<ELEMENT>>& result) const;
 
     EventSelectionIDVector const& eventSelectionIDs() const;
 
     ProcessHistoryID const& processHistoryID() const;
 
-    ///Put a new product.
-    template<typename PROD>
-    OrphanHandle<PROD>
-    put(std::unique_ptr<PROD> product) {return put<PROD>(std::move(product), std::string());}
+    /// Put a new product.
+    template <typename PROD>
+    OrphanHandle<PROD> put(std::unique_ptr<PROD> product) {
+      return put<PROD>(std::move(product), std::string());
+    }
 
-    ///Put a new product with a 'product instance name'
-    template<typename PROD>
-    OrphanHandle<PROD>
-    put(std::unique_ptr<PROD> product, std::string const& productInstanceName);
+    /// Put a new product with a 'product instance name'
+    template <typename PROD>
+    OrphanHandle<PROD> put(std::unique_ptr<PROD> product, std::string const& productInstanceName);
 
-    template<typename PROD>
-    OrphanHandle<PROD>
-    put(EDPutToken token, std::unique_ptr<PROD> product);
+    template <typename PROD>
+    OrphanHandle<PROD> put(EDPutToken token, std::unique_ptr<PROD> product);
 
-    template<typename PROD>
-    OrphanHandle<PROD>
-    put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product);
+    template <typename PROD>
+    OrphanHandle<PROD> put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product);
 
-    ///puts a new product
-    template<typename PROD, typename... Args>
-    OrphanHandle<PROD>
-    emplace(EDPutTokenT<PROD> token, Args&&... args);
+    /// puts a new product
+    template <typename PROD, typename... Args>
+    OrphanHandle<PROD> emplace(EDPutTokenT<PROD> token, Args&&... args);
 
-    template<typename PROD, typename... Args>
-    OrphanHandle<PROD>
-    emplace(EDPutToken token, Args&&... args);
+    template <typename PROD, typename... Args>
+    OrphanHandle<PROD> emplace(EDPutToken token, Args&&... args);
 
-
-    ///Returns a RefProd to a product before that product has been placed into the Event.
+    /// Returns a RefProd to a product before that product has been placed into the Event.
     /// The RefProd (and any Ref's made from it) will no work properly until after the
     /// Event has been committed (which happens after leaving the EDProducer::produce method)
-    template<typename PROD>
-    RefProd<PROD>
-    getRefBeforePut() {return getRefBeforePut<PROD>(std::string());}
+    template <typename PROD>
+    RefProd<PROD> getRefBeforePut() {
+      return getRefBeforePut<PROD>(std::string());
+    }
 
-    template<typename PROD>
-    RefProd<PROD>
-    getRefBeforePut(std::string const& productInstanceName);
+    template <typename PROD>
+    RefProd<PROD> getRefBeforePut(std::string const& productInstanceName);
 
-    template<typename PROD>
-    RefProd<PROD>
-    getRefBeforePut(EDPutTokenT<PROD>);
+    template <typename PROD>
+    RefProd<PROD> getRefBeforePut(EDPutTokenT<PROD>);
 
-    template<typename PROD>
-    RefProd<PROD>
-    getRefBeforePut(EDPutToken);
+    template <typename PROD>
+    RefProd<PROD> getRefBeforePut(EDPutToken);
 
-    template<typename PROD>
-    bool
-    getByLabel(InputTag const& tag, Handle<PROD>& result) const;
+    template <typename PROD>
+    bool getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
-    template<typename PROD>
-    bool
-    getByLabel(std::string const& label, Handle<PROD>& result) const;
+    template <typename PROD>
+    bool getByLabel(std::string const& label, Handle<PROD>& result) const;
 
-    template<typename PROD>
-    bool
-    getByLabel(std::string const& label, std::string const& productInstanceName, Handle<PROD>& result) const;
+    template <typename PROD>
+    bool getByLabel(std::string const& label, std::string const& productInstanceName, Handle<PROD>& result) const;
 
-    template<typename PROD>
-    void
-    getManyByType(std::vector<Handle<PROD> >& results) const;
+    template <typename PROD>
+    void getManyByType(std::vector<Handle<PROD>>& results) const;
 
-    template<typename PROD>
-    bool
-    getByToken(EDGetToken token, Handle<PROD>& result) const;
+    template <typename PROD>
+    bool getByToken(EDGetToken token, Handle<PROD>& result) const;
 
-    template<typename PROD>
-    bool
-    getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const;
+    template <typename PROD>
+    bool getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const;
 
     // Template member overload to deal with Views.
-    template<typename ELEMENT>
-    bool
-    getByLabel(std::string const& label,
-               Handle<View<ELEMENT> >& result) const;
+    template <typename ELEMENT>
+    bool getByLabel(std::string const& label, Handle<View<ELEMENT>>& result) const;
 
-    template<typename ELEMENT>
-    bool
-    getByLabel(std::string const& label,
-               std::string const& productInstanceName,
-               Handle<View<ELEMENT> >& result) const;
+    template <typename ELEMENT>
+    bool getByLabel(std::string const& label,
+                    std::string const& productInstanceName,
+                    Handle<View<ELEMENT>>& result) const;
 
-    template<typename ELEMENT>
-    bool
-    getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const;
+    template <typename ELEMENT>
+    bool getByLabel(InputTag const& tag, Handle<View<ELEMENT>>& result) const;
 
-    template<typename ELEMENT>
-    bool
-    getByToken(EDGetToken token, Handle<View<ELEMENT>>& result) const;
+    template <typename ELEMENT>
+    bool getByToken(EDGetToken token, Handle<View<ELEMENT>>& result) const;
 
-    template<typename ELEMENT>
-    bool
-    getByToken(EDGetTokenT<View<ELEMENT>> token, Handle<View<ELEMENT>>& result) const;
+    template <typename ELEMENT>
+    bool getByToken(EDGetTokenT<View<ELEMENT>> token, Handle<View<ELEMENT>>& result) const;
 
+    template <typename ELEMENT>
+    void fillView_(BasicHandle& bh, Handle<View<ELEMENT>>& result) const;
 
-    template<typename ELEMENT>
-    void
-    fillView_(BasicHandle& bh,
-              Handle<View<ELEMENT> >& result) const;
+    Provenance getProvenance(BranchID const& theID) const;
 
-    Provenance
-    getProvenance(BranchID const& theID) const;
-
-    Provenance
-    getProvenance(ProductID const& theID) const;
+    Provenance getProvenance(ProductID const& theID) const;
 
     // Get the provenance for all products that may be in the event
-    void
-    getAllProvenance(std::vector<Provenance const*>& provenances) const;
+    void getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
     // Get the provenance for all products that may be in the event,
     // excluding the per-event provenance (the parentage information).
     // The excluded information may change from event to event.
-    void
-    getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
+    void getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 
     // Return true if this Event has been subjected to a process with
     // the given processName, and false otherwise.
     // If true is returned, then ps is filled with the ParameterSet
     // used to configure the identified process.
-    bool
-    getProcessParameterSet(std::string const& processName, ParameterSet& ps) const;
+    bool getProcessParameterSet(std::string const& processName, ParameterSet& ps) const;
 
-    ProcessHistory const&
-    processHistory() const override;
+    ProcessHistory const& processHistory() const override;
 
-    edm::ParameterSet const*
-    parameterSet(edm::ParameterSetID const& psID) const override;
+    edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const override;
 
     size_t size() const;
 
@@ -268,37 +228,36 @@ namespace edm {
 
     ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
 
-    void labelsForToken(EDGetToken const& iToken, ProductLabels& oLabels) const { provRecorder_.labelsForToken(iToken, oLabels); }
+    void labelsForToken(EDGetToken const& iToken, ProductLabels& oLabels) const {
+      provRecorder_.labelsForToken(iToken, oLabels);
+    }
 
     typedef std::vector<edm::propagate_const<std::unique_ptr<WrapperBase>>> ProductPtrVec;
 
-    EDProductGetter const&
-    productGetter() const;
+    EDProductGetter const& productGetter() const;
 
   private:
-    //for testing
+    // for testing
     friend class ::testEventGetRefBeforePut;
     friend class ::testEvent;
-    
-    EventPrincipal const&
-    eventPrincipal() const;
 
-    ProductID
-    makeProductID(BranchDescription const& desc) const;
+    EventPrincipal const& eventPrincipal() const;
 
-    //override used by EventBase class
-    BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const override;
+    ProductID makeProductID(BranchDescription const& desc) const;
 
-    //override used by EventBase class
+    // override used by EventBase class
+    BasicHandle getByLabelImpl(std::type_info const& iWrapperType,
+                               std::type_info const& iProductType,
+                               InputTag const& iTag) const override;
+
+    // override used by EventBase class
     BasicHandle getImpl(std::type_info const& iProductType, ProductID const& pid) const override;
 
-    template<typename PROD>
-    OrphanHandle<PROD>
-    putImpl(EDPutToken::value_type token, std::unique_ptr<PROD> product);
+    template <typename PROD>
+    OrphanHandle<PROD> putImpl(EDPutToken::value_type token, std::unique_ptr<PROD> product);
 
-    template<typename PROD, typename... Args>
-    OrphanHandle<PROD>
-    emplaceImpl(EDPutToken::value_type token, Args&&... args);
+    template <typename PROD, typename... Args>
+    OrphanHandle<PROD> emplaceImpl(EDPutToken::value_type token, Args&&... args);
 
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any
@@ -308,16 +267,16 @@ namespace edm {
     friend class InputSource;
     friend class RawInputSource;
     friend class ProducerBase;
-    template<typename T> friend class stream::ProducingModuleAdaptorBase;
+    template <typename T>
+    friend class stream::ProducingModuleAdaptorBase;
 
     void commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut, ParentageID* previousParentageId = nullptr);
     void commit_aux(ProductPtrVec& products, ParentageID* previousParentageId = nullptr);
 
-    BasicHandle
-    getByProductID_(ProductID const& oid) const;
+    BasicHandle getByProductID_(ProductID const& oid) const;
 
-    ProductPtrVec& putProducts() {return putProducts_;}
-    ProductPtrVec const& putProducts() const {return putProducts_;}
+    ProductPtrVec& putProducts() { return putProducts_; }
+    ProductPtrVec const& putProducts() const { return putProducts_; }
 
     PrincipalGetAdapter provRecorder_;
 
@@ -343,7 +302,7 @@ namespace edm {
     void addToGotBranchIDs(BranchID const& branchID) const;
 
     // We own the retrieved Views, and have to destroy them.
-    mutable std::vector<std::shared_ptr<ViewBase> > gotViews_;
+    mutable std::vector<std::shared_ptr<ViewBase>> gotViews_;
 
     StreamID streamID_;
     ModuleCallingContext const* moduleCallingContext_;
@@ -351,188 +310,163 @@ namespace edm {
     static const std::string emptyString_;
   };
 
-  template<typename PROD>
-  bool
-  Event::get(ProductID const& oid, Handle<PROD>& result) const {
+  template <typename PROD>
+  bool Event::get(ProductID const& oid, Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = this->getByProductID_(oid);
     convert_handle(std::move(bh), result);  // throws on conversion error
-    if(result.failedToGet()) {
+    if (result.failedToGet()) {
       return false;
     }
     addToGotBranchIDs(*bh.provenance());
     return true;
   }
 
-  template<typename ELEMENT>
-  bool
-  Event::get(ProductID const& oid, Handle<View<ELEMENT> >& result) const {
-      result.clear();
-      BasicHandle bh = this->getByProductID_(oid);
+  template <typename ELEMENT>
+  bool Event::get(ProductID const& oid, Handle<View<ELEMENT>>& result) const {
+    result.clear();
+    BasicHandle bh = this->getByProductID_(oid);
 
-      if(bh.failedToGet()) {
-          Handle<View<ELEMENT> > temp(makeHandleExceptionFactory([oid]()->std::shared_ptr<cms::Exception> {
-            std::shared_ptr<cms::Exception> whyFailed = std::make_shared<edm::Exception>(edm::errors::ProductNotFound);
-            *whyFailed
-            << "get View by ID failed: no product with ID = " << oid <<"\n";
-            return whyFailed;
-          }));
-          result.swap(temp);
-          return false;
-      }
+    if (bh.failedToGet()) {
+      Handle<View<ELEMENT>> temp(makeHandleExceptionFactory([oid]() -> std::shared_ptr<cms::Exception> {
+        std::shared_ptr<cms::Exception> whyFailed = std::make_shared<edm::Exception>(edm::errors::ProductNotFound);
+        *whyFailed << "get View by ID failed: no product with ID = " << oid << "\n";
+        return whyFailed;
+      }));
+      result.swap(temp);
+      return false;
+    }
 
-      fillView_(bh, result);
-      return true;
+    fillView_(bh, result);
+    return true;
   }
 
-  template<typename PROD>
-  OrphanHandle<PROD>
-  Event::putImpl(EDPutToken::value_type index, std::unique_ptr<PROD> product) {
+  template <typename PROD>
+  OrphanHandle<PROD> Event::putImpl(EDPutToken::value_type index, std::unique_ptr<PROD> product) {
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
-    std::conditional_t<detail::has_postinsert<PROD>::value,
-    DoPostInsert<PROD>,
-    DoNotPostInsert<PROD>> maybe_inserter;
+    std::conditional_t<detail::has_postinsert<PROD>::value, DoPostInsert<PROD>, DoNotPostInsert<PROD>> maybe_inserter;
     maybe_inserter(product.get());
-    
+
     assert(index < putProducts().size());
-    
-    std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(std::move(product)));
+
+    std::unique_ptr<Wrapper<PROD>> wp(new Wrapper<PROD>(std::move(product)));
     PROD const* prod = wp->product();
-    
-    putProducts()[index]=std::move(wp);
+
+    putProducts()[index] = std::move(wp);
     auto const& prodID = provRecorder_.getProductID(index);
-    return(OrphanHandle<PROD>(prod, prodID));
+    return (OrphanHandle<PROD>(prod, prodID));
   }
 
-  template<typename PROD>
-  OrphanHandle<PROD>
-  Event::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
-    if(UNLIKELY(product.get() == nullptr)) {                // null pointer is illegal
+  template <typename PROD>
+  OrphanHandle<PROD> Event::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
+    if (UNLIKELY(product.get() == nullptr)) {  // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, productInstanceName);
     }
 
-    auto index =
-      provRecorder_.getPutTokenIndex(TypeID(*product), productInstanceName);
+    auto index = provRecorder_.getPutTokenIndex(TypeID(*product), productInstanceName);
     return putImpl(index, std::move(product));
   }
 
-  template<typename PROD>
-  OrphanHandle<PROD>
-  Event::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
-    if(UNLIKELY(product.get() == 0)) {                // null pointer is illegal
+  template <typename PROD>
+  OrphanHandle<PROD> Event::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
+    if (UNLIKELY(product.get() == 0)) {  // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, provRecorder_.productInstanceLabel(token));
     }
-    if(UNLIKELY(token.isUninitialized())) {
+    if (UNLIKELY(token.isUninitialized())) {
       principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
     }
-    return putImpl(token.index(),std::move(product));
+    return putImpl(token.index(), std::move(product));
   }
 
-  template<typename PROD>
-  OrphanHandle<PROD>
-  Event::put(EDPutToken token, std::unique_ptr<PROD> product) {
-    if(UNLIKELY(product.get() == 0)) {                // null pointer is illegal
+  template <typename PROD>
+  OrphanHandle<PROD> Event::put(EDPutToken token, std::unique_ptr<PROD> product) {
+    if (UNLIKELY(product.get() == 0)) {  // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, provRecorder_.productInstanceLabel(token));
     }
-    if(UNLIKELY(token.isUninitialized())) {
+    if (UNLIKELY(token.isUninitialized())) {
       principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
     }
-    if(UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
-      principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD), provRecorder_.getTypeIDForPutTokenIndex(token.index()));
+    if (UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
+      principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD),
+                                                          provRecorder_.getTypeIDForPutTokenIndex(token.index()));
     }
 
-    return putImpl(token.index(),std::move(product));
+    return putImpl(token.index(), std::move(product));
   }
 
-  template<typename PROD, typename... Args>
-  OrphanHandle<PROD>
-  Event::emplace(EDPutTokenT<PROD> token, Args&&... args) {
-    if(UNLIKELY(token.isUninitialized())) {
+  template <typename PROD, typename... Args>
+  OrphanHandle<PROD> Event::emplace(EDPutTokenT<PROD> token, Args&&... args) {
+    if (UNLIKELY(token.isUninitialized())) {
       principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
     }
-    return emplaceImpl<PROD>(token.index(),std::forward<Args>(args)...);
+    return emplaceImpl<PROD>(token.index(), std::forward<Args>(args)...);
   }
 
-  template<typename PROD, typename... Args>
-  OrphanHandle<PROD>
-  Event::emplace(EDPutToken token, Args&&... args) {
-    if(UNLIKELY(token.isUninitialized())) {
+  template <typename PROD, typename... Args>
+  OrphanHandle<PROD> Event::emplace(EDPutToken token, Args&&... args) {
+    if (UNLIKELY(token.isUninitialized())) {
       principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
     }
-    if(UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
-      principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD), provRecorder_.getTypeIDForPutTokenIndex(token.index()));
+    if (UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
+      principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD),
+                                                          provRecorder_.getTypeIDForPutTokenIndex(token.index()));
     }
-    
-    return emplaceImpl(token.index(),std::forward<Args>(args)...);
+
+    return emplaceImpl(token.index(), std::forward<Args>(args)...);
   }
 
-  template<typename PROD, typename... Args>
-  OrphanHandle<PROD>
-  Event::emplaceImpl(EDPutToken::value_type index, Args&&... args) {
-    
+  template <typename PROD, typename... Args>
+  OrphanHandle<PROD> Event::emplaceImpl(EDPutToken::value_type index, Args&&... args) {
     assert(index < putProducts().size());
-    
-    std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(WrapperBase::Emplace{}, std::forward<Args>(args)...));
+
+    std::unique_ptr<Wrapper<PROD>> wp(new Wrapper<PROD>(WrapperBase::Emplace{}, std::forward<Args>(args)...));
 
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
-    std::conditional_t<detail::has_postinsert<PROD>::value,
-    DoPostInsert<PROD>,
-    DoNotPostInsert<PROD>> maybe_inserter;
+    std::conditional_t<detail::has_postinsert<PROD>::value, DoPostInsert<PROD>, DoNotPostInsert<PROD>> maybe_inserter;
     maybe_inserter(&(wp->bareProduct()));
 
     PROD const* prod = wp->product();
-    
-    putProducts()[index]=std::move(wp);
+
+    putProducts()[index] = std::move(wp);
     auto const& prodID = provRecorder_.getProductID(index);
-    return(OrphanHandle<PROD>(prod, prodID));
+    return (OrphanHandle<PROD>(prod, prodID));
   }
 
-  
-  template<typename PROD>
-  RefProd<PROD>
-  Event::getRefBeforePut(std::string const& productInstanceName) {
-    auto index =
-    provRecorder_.getPutTokenIndex(TypeID{typeid(PROD)},
-                                   productInstanceName);
+  template <typename PROD>
+  RefProd<PROD> Event::getRefBeforePut(std::string const& productInstanceName) {
+    auto index = provRecorder_.getPutTokenIndex(TypeID{typeid(PROD)}, productInstanceName);
 
-    //should keep track of what Ref's have been requested and make sure they are 'put'
-    return RefProd<PROD>(provRecorder_.getProductID(index),
-                         provRecorder_.prodGetter());
+    // should keep track of what Ref's have been requested and make sure they are 'put'
+    return RefProd<PROD>(provRecorder_.getProductID(index), provRecorder_.prodGetter());
   }
 
-  template<typename PROD>
-  RefProd<PROD>
-  Event::getRefBeforePut(EDPutTokenT<PROD> token)
-  {
-    if(UNLIKELY(token.isUninitialized())) {
+  template <typename PROD>
+  RefProd<PROD> Event::getRefBeforePut(EDPutTokenT<PROD> token) {
+    if (UNLIKELY(token.isUninitialized())) {
       principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
     }
-   return RefProd<PROD>(provRecorder_.getProductID(token.index()),
-                         provRecorder_.prodGetter());
-  }
-  
-  template<typename PROD>
-  RefProd<PROD>
-  Event::getRefBeforePut(EDPutToken token)
-  {
-    if(UNLIKELY(token.isUninitialized())) {
-      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
-    }
-    if(UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
-      principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD), provRecorder_.getTypeIDForPutTokenIndex(token.index()));
-    }
-    return RefProd<PROD>(provRecorder_.getProductID(token.index()),
-                         provRecorder_.prodGetter());
+    return RefProd<PROD>(provRecorder_.getProductID(token.index()), provRecorder_.prodGetter());
   }
 
-  template<typename PROD>
-  bool
-  Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
+  template <typename PROD>
+  RefProd<PROD> Event::getRefBeforePut(EDPutToken token) {
+    if (UNLIKELY(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
+    }
+    if (UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
+      principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD),
+                                                          provRecorder_.getTypeIDForPutTokenIndex(token.index()));
+    }
+    return RefProd<PROD>(provRecorder_.getProductID(token.index()), provRecorder_.prodGetter());
+  }
+
+  template <typename PROD>
+  bool Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), tag, moduleCallingContext_);
     convert_handle(std::move(bh), result);  // throws on conversion error
@@ -543,13 +477,11 @@ namespace edm {
     return true;
   }
 
-  template<typename PROD>
-  bool
-  Event::getByLabel(std::string const& label,
-                    std::string const& productInstanceName,
-                    Handle<PROD>& result) const {
+  template <typename PROD>
+  bool Event::getByLabel(std::string const& label, std::string const& productInstanceName, Handle<PROD>& result) const {
     result.clear();
-    BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, emptyString_, moduleCallingContext_);
+    BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, emptyString_,
+                                               moduleCallingContext_);
     convert_handle(std::move(bh), result);  // throws on conversion error
     if (result.failedToGet()) {
       return false;
@@ -558,27 +490,24 @@ namespace edm {
     return true;
   }
 
-  template<typename PROD>
-  bool
-  Event::getByLabel(std::string const& label, Handle<PROD>& result) const {
+  template <typename PROD>
+  bool Event::getByLabel(std::string const& label, Handle<PROD>& result) const {
     return getByLabel(label, emptyString_, result);
   }
 
-  template<typename PROD>
-  void
-  Event::getManyByType(std::vector<Handle<PROD> >& results) const {
+  template <typename PROD>
+  void Event::getManyByType(std::vector<Handle<PROD>>& results) const {
     provRecorder_.getManyByType(results, moduleCallingContext_);
-    for(typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
-        it != itEnd; ++it) {
+    for (typename std::vector<Handle<PROD>>::const_iterator it = results.begin(), itEnd = results.end(); it != itEnd;
+         ++it) {
       addToGotBranchIDs(*it->provenance());
     }
   }
 
-  template<typename PROD>
-  bool
-  Event::getByToken(EDGetToken token, Handle<PROD>& result) const {
+  template <typename PROD>
+  bool Event::getByToken(EDGetToken token, Handle<PROD>& result) const {
     result.clear();
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)), PRODUCT_TYPE, token, moduleCallingContext_);
     convert_handle(std::move(bh), result);  // throws on conversion error
     if (result.failedToGet()) {
       return false;
@@ -587,11 +516,10 @@ namespace edm {
     return true;
   }
 
-  template<typename PROD>
-  bool
-  Event::getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const {
+  template <typename PROD>
+  bool Event::getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const {
     result.clear();
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)), PRODUCT_TYPE, token, moduleCallingContext_);
     convert_handle(std::move(bh), result);  // throws on conversion error
     if (result.failedToGet()) {
       return false;
@@ -600,14 +528,12 @@ namespace edm {
     return true;
   }
 
-
-  template<typename ELEMENT>
-  bool
-  Event::getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const {
+  template <typename ELEMENT>
+  bool Event::getByLabel(InputTag const& tag, Handle<View<ELEMENT>>& result) const {
     result.clear();
     BasicHandle bh = provRecorder_.getMatchingSequenceByLabel_(TypeID(typeid(ELEMENT)), tag, moduleCallingContext_);
-    if(bh.failedToGet()) {
-      Handle<View<ELEMENT> > h(std::move(bh.whyFailedFactory()));
+    if (bh.failedToGet()) {
+      Handle<View<ELEMENT>> h(std::move(bh.whyFailedFactory()));
       h.swap(result);
       return false;
     }
@@ -615,15 +541,15 @@ namespace edm {
     return true;
   }
 
-  template<typename ELEMENT>
-  bool
-  Event::getByLabel(std::string const& moduleLabel,
-                    std::string const& productInstanceName,
-                    Handle<View<ELEMENT> >& result) const {
+  template <typename ELEMENT>
+  bool Event::getByLabel(std::string const& moduleLabel,
+                         std::string const& productInstanceName,
+                         Handle<View<ELEMENT>>& result) const {
     result.clear();
-    BasicHandle bh = provRecorder_.getMatchingSequenceByLabel_(TypeID(typeid(ELEMENT)), moduleLabel, productInstanceName, emptyString_, moduleCallingContext_);
-    if(bh.failedToGet()) {
-      Handle<View<ELEMENT> > h(std::move(bh.whyFailedFactory()));
+    BasicHandle bh = provRecorder_.getMatchingSequenceByLabel_(
+        TypeID(typeid(ELEMENT)), moduleLabel, productInstanceName, emptyString_, moduleCallingContext_);
+    if (bh.failedToGet()) {
+      Handle<View<ELEMENT>> h(std::move(bh.whyFailedFactory()));
       h.swap(result);
       return false;
     }
@@ -631,19 +557,17 @@ namespace edm {
     return true;
   }
 
-  template<typename ELEMENT>
-  bool
-  Event::getByLabel(std::string const& moduleLabel, Handle<View<ELEMENT> >& result) const {
+  template <typename ELEMENT>
+  bool Event::getByLabel(std::string const& moduleLabel, Handle<View<ELEMENT>>& result) const {
     return getByLabel(moduleLabel, emptyString_, result);
   }
 
-  template<typename ELEMENT>
-  bool
-  Event::getByToken(EDGetToken token, Handle<View<ELEMENT>>& result) const {
+  template <typename ELEMENT>
+  bool Event::getByToken(EDGetToken token, Handle<View<ELEMENT>>& result) const {
     result.clear();
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(ELEMENT)),ELEMENT_TYPE, token, moduleCallingContext_);
-    if(bh.failedToGet()) {
-      Handle<View<ELEMENT> > h(std::move(bh.whyFailedFactory()));
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(ELEMENT)), ELEMENT_TYPE, token, moduleCallingContext_);
+    if (bh.failedToGet()) {
+      Handle<View<ELEMENT>> h(std::move(bh.whyFailedFactory()));
       h.swap(result);
       return false;
     }
@@ -651,13 +575,12 @@ namespace edm {
     return true;
   }
 
-  template<typename ELEMENT>
-  bool
-  Event::getByToken(EDGetTokenT<View<ELEMENT>> token, Handle<View<ELEMENT>>& result) const {
+  template <typename ELEMENT>
+  bool Event::getByToken(EDGetTokenT<View<ELEMENT>> token, Handle<View<ELEMENT>>& result) const {
     result.clear();
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(ELEMENT)),ELEMENT_TYPE, token, moduleCallingContext_);
-    if(bh.failedToGet()) {
-      Handle<View<ELEMENT> > h(std::move(bh.whyFailedFactory()));
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(ELEMENT)), ELEMENT_TYPE, token, moduleCallingContext_);
+    if (bh.failedToGet()) {
+      Handle<View<ELEMENT>> h(std::move(bh.whyFailedFactory()));
       h.swap(result);
       return false;
     }
@@ -665,21 +588,19 @@ namespace edm {
     return true;
   }
 
-
-  template<typename ELEMENT>
-  void
-  Event::fillView_(BasicHandle& bh, Handle<View<ELEMENT> >& result) const {
+  template <typename ELEMENT>
+  void Event::fillView_(BasicHandle& bh, Handle<View<ELEMENT>>& result) const {
     std::vector<void const*> pointersToElements;
     FillViewHelperVector helpers;
     // the following must initialize the
     //  fill the helper vector
     bh.wrapper()->fillView(bh.id(), pointersToElements, helpers);
 
-    auto newview = std::make_shared<View<ELEMENT> >(pointersToElements, helpers, &(productGetter()));
+    auto newview = std::make_shared<View<ELEMENT>>(pointersToElements, helpers, &(productGetter()));
 
     addToGotBranchIDs(*bh.provenance());
     gotViews_.push_back(newview);
-    Handle<View<ELEMENT> > h(&*newview, bh.provenance());
+    Handle<View<ELEMENT>> h(&*newview, bh.provenance());
     result.swap(h);
   }
 
@@ -691,7 +612,7 @@ namespace edm {
     Handle<T> handle;
     event.getByLabel(tag, handle);
     // throw if the handle is not valid
-    return * handle.product();
+    return *handle.product();
   }
 
   template <typename T>
@@ -699,7 +620,7 @@ namespace edm {
     Handle<T> handle;
     event.getByToken(token, handle);
     // throw if the handle is not valid
-    return * handle.product();
+    return *handle.product();
   }
 
   template <typename T>
@@ -707,9 +628,9 @@ namespace edm {
     Handle<T> handle;
     event.getByToken(token, handle);
     // throw if the handle is not valid
-    return * handle.product();
+    return *handle.product();
   }
 
-}
+}  // namespace edm
 
-#endif // FWCore_Framework_Event_h
+#endif  // FWCore_Framework_Event_h

@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     EDFilterAdaptor
-// 
+//
 /**\class edm::stream::EDFilterAdaptor EDFilterAdaptor.h "EDFilterAdaptor.h"
 
  Description: Adapts an edm::stream::EDFilter<> to work with an edm::Worker
@@ -30,28 +30,31 @@
 namespace edm {
   namespace stream {
 
-    template<typename T> using EDFilterAdaptor = ProducingModuleAdaptor<T,EDFilterBase, EDFilterAdaptorBase>;
+    template <typename T>
+    using EDFilterAdaptor = ProducingModuleAdaptor<T, EDFilterBase, EDFilterAdaptorBase>;
 
-    template<typename ABase, typename ModType> struct BaseToAdaptor;
+    template <typename ABase, typename ModType>
+    struct BaseToAdaptor;
 
-    template<typename ModType> struct BaseToAdaptor<EDFilterAdaptorBase,ModType> {
+    template <typename ModType>
+    struct BaseToAdaptor<EDFilterAdaptorBase, ModType> {
       typedef EDFilterAdaptor<ModType> Type;
     };
-  }
-  
-  template<>
-  class MakeModuleHelper<edm::stream::EDFilterAdaptorBase>
-  {
+  }  // namespace stream
+
+  template <>
+  class MakeModuleHelper<edm::stream::EDFilterAdaptorBase> {
     typedef edm::stream::EDFilterAdaptorBase Base;
+
   public:
-    template<typename ModType>
+    template <typename ModType>
     static std::unique_ptr<Base> makeModule(ParameterSet const& pset) {
-      typedef typename stream::BaseToAdaptor<Base,ModType>::Type Adaptor;
+      typedef typename stream::BaseToAdaptor<Base, ModType>::Type Adaptor;
       auto module = std::make_unique<Adaptor>(pset);
       return std::unique_ptr<Base>(module.release());
     }
   };
 
-}
+}  // namespace edm
 
 #endif
