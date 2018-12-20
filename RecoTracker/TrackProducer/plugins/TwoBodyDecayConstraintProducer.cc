@@ -10,7 +10,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,7 +36,7 @@
 // #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayModel.h"
 
 
-class TwoBodyDecayConstraintProducer: public edm::EDProducer
+class TwoBodyDecayConstraintProducer: public edm::stream::EDProducer<>
 {
 
 public:
@@ -47,7 +47,6 @@ public:
 private:
 
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
 
   std::pair<bool, TrajectoryStateOnSurface> innermostState( const reco::TransientTrack& ttrack ) const;
   bool match( const TrajectoryStateOnSurface& newTsos, const TrajectoryStateOnSurface& oldTsos ) const;
@@ -194,9 +193,6 @@ void TwoBodyDecayConstraintProducer::produce( edm::Event& iEvent, const edm::Eve
   iEvent.put(std::move(pairs));
   iEvent.put(std::move(output));
 }
-
-
-void TwoBodyDecayConstraintProducer::endJob() {}
 
 
 std::pair<bool, TrajectoryStateOnSurface>

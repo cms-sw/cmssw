@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -18,14 +18,13 @@
 // class decleration
 //
 
-class GsfVertexConstraintProducer: public edm::EDProducer {
+class GsfVertexConstraintProducer: public edm::stream::EDProducer<> {
 public:
   explicit GsfVertexConstraintProducer(const edm::ParameterSet&);
   ~GsfVertexConstraintProducer();
 
 private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
       
   // ----------member data ---------------------------
   const edm::InputTag srcTrkTag_;
@@ -91,10 +90,6 @@ void GsfVertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSe
   
   iEvent.put(std::move(pairs));
   iEvent.put(std::move(output));
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void GsfVertexConstraintProducer::endJob() {
 }
 
 //define this as a plug-in

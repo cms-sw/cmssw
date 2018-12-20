@@ -22,7 +22,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -40,14 +40,13 @@ Implementation:
 // class decleration
 //
 
-class VertexConstraintProducer: public edm::EDProducer {
+class VertexConstraintProducer: public edm::stream::EDProducer<> {
 public:
   explicit VertexConstraintProducer(const edm::ParameterSet&);
   ~VertexConstraintProducer();
 
 private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
       
   // ----------member data ---------------------------
   const edm::InputTag srcTrkTag_;
@@ -135,9 +134,6 @@ void VertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup
   iEvent.put(std::move(pairs));
   iEvent.put(std::move(output));
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void VertexConstraintProducer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(VertexConstraintProducer);
