@@ -1,6 +1,15 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
-#include "RecoEgamma/EgammaTools/plugins/EGRegressionModifier.h"
+#include "RecoEgamma/EgammaTools/plugins/EGRegressionModifierHelpers.h"
+#include "CommonTools/CandAlgos/interface/ModifyObjectValueBase.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
+
+#include <vdt/vdtMath.h>
 
 class EGRegressionModifierV2 : public ModifyObjectValueBase {
 

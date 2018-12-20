@@ -2,7 +2,16 @@
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "RecoEgamma/EgammaTools/plugins/EGRegressionModifier.h"
+#include "RecoEgamma/EgammaTools/plugins/EGRegressionModifierHelpers.h"
+#include "CommonTools/CandAlgos/interface/ModifyObjectValueBase.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
+
+#include <vdt/vdtMath.h>
 
 class EGRegressionModifierV1 : public ModifyObjectValueBase {
 public:
