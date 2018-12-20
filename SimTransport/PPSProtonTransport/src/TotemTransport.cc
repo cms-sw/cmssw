@@ -2,7 +2,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <CLHEP/Units/GlobalSystemOfUnits.h>
 #include <CLHEP/Random/RandGauss.h>
-#include <CLHEP/Vector/LorentzVector.h>
 #include "TLorentzVector.h"
 #include "TFile.h"
 
@@ -127,10 +126,10 @@ bool TotemTransport::transportProton( const HepMC::GenParticle* in_trk)
              return false;
      }
 
-    CLHEP::Hep3Vector out_pos(out_position[0] * meter, out_position[1] * meter, out_position[2] * meter);
-    CLHEP::Hep3Vector out_mom(out_momentum[0], out_momentum[1], out_momentum[2]);
-    edm::LogInfo("TotemRPProtonTransportModel") << "output -> " <<
-    "position: " << out_pos << " momentum: " << out_mom << std::endl;
+    TVector3 out_pos(out_position[0] * meter, out_position[1] * meter, out_position[2] * meter);
+    TVector3 out_mom(out_momentum[0], out_momentum[1], out_momentum[2]);
+    edm::LogInfo("TotemRPProtonTransportModel") << "output -> " << "position: ";out_pos.Print();
+    edm::LogInfo("TotemRPProtonTransportModel") << " momentum: ";out_mom.Print();
      double px = -out_momentum[0];
      double py = out_momentum[1];  // this need to be checked again, since it seems an invertion is occuring in  the prop.
      double pz = out_momentum[2];
