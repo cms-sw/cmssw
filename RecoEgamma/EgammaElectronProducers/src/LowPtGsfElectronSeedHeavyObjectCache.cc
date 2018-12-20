@@ -1,9 +1,11 @@
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/ParticleFlowReco/interface/PreId.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PreId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/LowPtGsfElectronSeedHeavyObjectCache.h"
 #include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
 #include "TMVA/MethodBDT.h"
@@ -63,9 +65,10 @@ namespace lowptgsfeleseed {
       trk_nhits_ = static_cast<float>(trk->found());
       trk_high_quality_ = static_cast<float>(trk->quality(reco::TrackBase::qualityByName("highPurity")));
       trk_chi2red_ = trk->normalizedChi2();
-      if ( trk->dxyError() > 0. ) {
-	trk_dxy_sig_ = trk->dxy(spot) / trk->dxyError();
+      if ( trk->dxy(spot) > 0. ) {
+	trk_dxy_sig_ = trk->dxyError() / trk->dxy(spot); //@@ to be consistent with the training based on 94X MC
       }
+      ktf_ecal_cluster_dphi_ *= trk->charge(); //@@ to be consistent with the training based on 94X MC
     }
     
     // Rho
@@ -96,7 +99,7 @@ namespace lowptgsfeleseed {
     // HCAL clusters
     reco::PFClusterRef hcal_clu = hcal.clusterRef();
     if ( hcal_clu.isNonnull() ) {
-      ktf_ecal_cluster_e_ = hcal_clu->energy();
+      ktf_hcal_cluster_e_ = hcal_clu->energy();
       ktf_hcal_cluster_deta_ = hcal.geomMatching()[0];
       ktf_hcal_cluster_dphi_ = hcal.geomMatching()[1];
     }
@@ -140,7 +143,7 @@ namespace lowptgsfeleseed {
 
   ////////////////////////////////////////////////////////////////////////////////
   //
-  bool HeavyObjectCache::eval( std::string name,
+  bool HeavyObjectCache::eval( const std::string& name,
 			       reco::PreId& ecal, 
 			       reco::PreId& hcal,
 			       double rho,
