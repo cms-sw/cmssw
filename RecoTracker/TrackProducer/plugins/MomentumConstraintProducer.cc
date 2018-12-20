@@ -25,7 +25,7 @@ Implementation:
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,14 +38,13 @@ Implementation:
 // class declaration
 //
 
-class MomentumConstraintProducer: public edm::EDProducer {
+class MomentumConstraintProducer: public edm::stream::EDProducer<> {
 public:
   explicit MomentumConstraintProducer(const edm::ParameterSet&);
   ~MomentumConstraintProducer();
 
 private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
 
   // ----------member data ---------------------------
   const edm::InputTag srcTag_;
@@ -121,10 +120,6 @@ void MomentumConstraintProducer::produce(edm::Event& iEvent, const edm::EventSet
   iEvent.put(std::move(pairs));
   iEvent.put(std::move(output));
 
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void MomentumConstraintProducer::endJob() {
 }
 
 //define this as a plug-in

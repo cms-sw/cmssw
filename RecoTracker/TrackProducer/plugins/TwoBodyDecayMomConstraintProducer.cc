@@ -10,7 +10,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,7 +37,7 @@
 // #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayModel.h"
 
 
-class TwoBodyDecayMomConstraintProducer: public edm::EDProducer
+class TwoBodyDecayMomConstraintProducer: public edm::stream::EDProducer<>
 {
 
 public:
@@ -48,7 +48,6 @@ public:
 private:
 
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
 
   std::pair<double, double> momentaAtVertex( const TwoBodyDecay& tbd ) const;
 
@@ -208,9 +207,6 @@ void TwoBodyDecayMomConstraintProducer::produce( edm::Event& iEvent, const edm::
   iEvent.put(std::move(pairs));
   iEvent.put(std::move(output));
 }
-
-
-void TwoBodyDecayMomConstraintProducer::endJob() {}
 
 
 std::pair<double, double>
