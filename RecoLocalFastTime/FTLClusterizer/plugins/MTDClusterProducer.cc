@@ -5,8 +5,8 @@
 //!
 //---------------------------------------------------------------------------
 // Our own stuff
-#include "MTDThresholdClusterizer.h"
-#include "MTDClusterizerBase.h"
+#include "RecoLocalFastTime/FTLClusterizer/interface/MTDThresholdClusterizer.h"
+#include "RecoLocalFastTime/FTLClusterizer/interface/MTDClusterizerBase.h"
 
 // Data Formats
 #include "DataFormats/FTLRecHit/interface/FTLRecHit.h"
@@ -53,11 +53,11 @@ class MTDClusterProducer : public edm::stream::EDProducer<> {
              FTLClusterCollection & output);
 
   private:
-    edm::EDGetTokenT< FTLRecHitCollection >  btlHits_;
-    edm::EDGetTokenT< FTLRecHitCollection >  etlHits_;
+    const edm::EDGetTokenT< FTLRecHitCollection >  btlHits_;
+    const edm::EDGetTokenT< FTLRecHitCollection >  etlHits_;
 
-    std::string ftlbInstance_; // instance name of barrel clusters
-    std::string ftleInstance_; // instance name of endcap clusters
+    const std::string ftlbInstance_; // instance name of barrel clusters
+    const std::string ftleInstance_; // instance name of endcap clusters
 
     const std::string clusterMode_;         // user's choice of the clusterizer
     std::unique_ptr<MTDClusterizerBase> clusterizer_;    // what we got (for now, one ptr to base class)
@@ -87,7 +87,7 @@ MTDClusterProducer::MTDClusterProducer(edm::ParameterSet const& conf)
   //--- Make the algorithm(s) according to what the user specified
   //--- in the ParameterSet.
   if ( clusterMode_ == "MTDThresholdClusterizer" ) {
-    clusterizer_ = std::unique_ptr<MTDClusterizerBase>(new MTDThresholdClusterizer(conf));
+    clusterizer_ = std::make_unique<MTDThresholdClusterizer>(conf);
   } 
   else {
     throw cms::Exception("MTDClusterProducer") << "[MTDClusterProducer]:"
@@ -137,8 +137,8 @@ void MTDClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
   topo_ = mtdTopo.product();
   
   // Step B: create the final output collection
-  auto outputBarrel = std::make_unique< FTLClusterCollection>();
-  auto outputEndcap = std::make_unique< FTLClusterCollection>();
+  auto outputBarrel = std::make_unique<FTLClusterCollection>();
+  auto outputEndcap = std::make_unique<FTLClusterCollection>();
   
   run(*inputBarrel, *outputBarrel );
   run(*inputEndcap, *outputEndcap );
@@ -153,14 +153,12 @@ void MTDClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
 //!  Iterate over DetUnits, and invoke the PixelClusterizer on each.
 //---------------------------------------------------------------------------
 template<typename T>
-void MTDClusterProducer::run(const T                              & input, 
+void MTDClusterProducer::run(const T& input, 
 			     FTLClusterCollection & output) 
 {
   if ( ! clusterizer_ ) {
-    edm::LogError("MTDClusterProducer")
+    throw cms::Exception("MTDClusterProducer")
       <<" at least one clusterizer is not ready -- can't run!" ;
-    // TO DO: throw an exception here?  The user may want to know...
-    return;   // clusterizer is invalid, bail out
   }
   
   clusterizer_->clusterize( input , geom_, topo_, output);

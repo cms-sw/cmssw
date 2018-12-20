@@ -166,8 +166,6 @@ public:
   FTLHit seed() const {
     return hit(seed_);
   }
-
-public:
   
   int colSpan() const {return theHitColSpan; }
   
