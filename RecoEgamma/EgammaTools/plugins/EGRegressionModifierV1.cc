@@ -19,19 +19,10 @@
 
 #include <vdt/vdtMath.h>
 
-namespace {
-  const edm::InputTag empty_tag;
-}
-
-#include <unordered_map>
-
 class EGRegressionModifierV1 : public ModifyObjectValueBase {
 public:
 
   struct electron_config {
-    edm::InputTag electron_src;
-    edm::EDGetTokenT<edm::View<pat::Electron> > tok_electron_src;
-
     std::vector<std::string> condnames_mean_50ns;
     std::vector<std::string> condnames_sigma_50ns;
     std::vector<std::string> condnames_mean_25ns;
@@ -41,9 +32,6 @@ public:
   };
 
   struct photon_config {
-    edm::InputTag photon_src;
-    edm::EDGetTokenT<edm::View<pat::Photon> > tok_photon_src;
-
     std::vector<std::string> condnames_mean_50ns;
     std::vector<std::string> condnames_sigma_50ns;
     std::vector<std::string> condnames_mean_25ns;
@@ -89,9 +77,7 @@ private:
   const GBRForest* ep_forestH_weight_;
 };
 
-DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
-		  EGRegressionModifierV1,
-		  "EGRegressionModifierV1");
+DEFINE_EDM_PLUGIN(ModifyObjectValueFactory, EGRegressionModifierV1, "EGRegressionModifierV1");
 
 EGRegressionModifierV1::EGRegressionModifierV1(const edm::ParameterSet& conf) :
   ModifyObjectValueBase(conf) {
@@ -109,52 +95,23 @@ EGRegressionModifierV1::EGRegressionModifierV1(const edm::ParameterSet& conf) :
     bunchspacing_ = conf.getParameter<int>("manualBunchSpacing");
   }
 
-  if(conf.exists("electron_config")) {
-    const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
-    if( electrons.exists("electronSrc") ) 
-      e_conf.electron_src = electrons.getParameter<edm::InputTag>("electronSrc");
-    
-    std::vector<std::string> intValueMaps;
-    if ( electrons.existsAs<std::vector<std::string> >("intValueMaps")) 
-      intValueMaps = electrons.getParameter<std::vector<std::string> >("intValueMaps");
-
-    e_conf.condnames_mean_50ns  = electrons.getParameter<std::vector<std::string> >("regressionKey_50ns");
-    e_conf.condnames_sigma_50ns = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_50ns");
-    e_conf.condnames_mean_25ns  = electrons.getParameter<std::vector<std::string> >("regressionKey_25ns");
-    e_conf.condnames_sigma_25ns = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_25ns");
-    e_conf.condnames_weight_50ns  = electrons.getParameter<std::string>("combinationKey_50ns");
-    e_conf.condnames_weight_25ns  = electrons.getParameter<std::string>("combinationKey_25ns");
-  }
+  const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
+  e_conf.condnames_mean_50ns  = electrons.getParameter<std::vector<std::string> >("regressionKey_50ns");
+  e_conf.condnames_sigma_50ns = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_50ns");
+  e_conf.condnames_mean_25ns  = electrons.getParameter<std::vector<std::string> >("regressionKey_25ns");
+  e_conf.condnames_sigma_25ns = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_25ns");
+  e_conf.condnames_weight_50ns  = electrons.getParameter<std::string>("combinationKey_50ns");
+  e_conf.condnames_weight_25ns  = electrons.getParameter<std::string>("combinationKey_25ns");
   
-  if( conf.exists("photon_config") ) { 
-    const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("photon_config");
-
-    if( photons.exists("photonSrc") ) 
-      ph_conf.photon_src = photons.getParameter<edm::InputTag>("photonSrc");
-
-    std::vector<std::string> intValueMaps;
-    if ( photons.existsAs<std::vector<std::string> >("intValueMaps")) 
-      intValueMaps = photons.getParameter<std::vector<std::string> >("intValueMaps");
-
-    ph_conf.condnames_mean_50ns = photons.getParameter<std::vector<std::string>>("regressionKey_50ns");
-    ph_conf.condnames_sigma_50ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_50ns");
-    ph_conf.condnames_mean_25ns = photons.getParameter<std::vector<std::string>>("regressionKey_25ns");
-    ph_conf.condnames_sigma_25ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_25ns");
-  }
+  const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("photon_config");
+  ph_conf.condnames_mean_50ns = photons.getParameter<std::vector<std::string>>("regressionKey_50ns");
+  ph_conf.condnames_sigma_50ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_50ns");
+  ph_conf.condnames_mean_25ns = photons.getParameter<std::vector<std::string>>("regressionKey_25ns");
+  ph_conf.condnames_sigma_25ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_25ns");
 }
 
-void EGRegressionModifierV1::setEvent(const edm::Event& evt) {
-  
-  if( !e_conf.tok_electron_src.isUninitialized() ) {
-    edm::Handle<edm::View<pat::Electron> > eles;
-    evt.getByToken(e_conf.tok_electron_src, eles);
-  }
-
-  if( !ph_conf.tok_photon_src.isUninitialized() ) {
-    edm::Handle<edm::View<pat::Photon> > phos;
-    evt.getByToken(ph_conf.tok_photon_src,phos);
-  }
-   
+void EGRegressionModifierV1::setEvent(const edm::Event& evt)
+{
   if (autoDetectBunchSpacing_) {
       edm::Handle<unsigned int> bunchSpacingH;
       evt.getByToken(bunchSpacingToken_,bunchSpacingH);
@@ -210,15 +167,6 @@ void EGRegressionModifierV1::setConsumes(edm::ConsumesCollector& sumes) {
 
   if (autoDetectBunchSpacing_)
     bunchSpacingToken_ = sumes.consumes<unsigned int>(bunchspacingTag_);
-
-  //setup electrons
-  if(!(empty_tag == e_conf.electron_src))
-    e_conf.tok_electron_src = sumes.consumes<edm::View<pat::Electron> >(e_conf.electron_src);  
-
-  // setup photons 
-  if(!(empty_tag == ph_conf.photon_src)) 
-    ph_conf.tok_photon_src = sumes.consumes<edm::View<pat::Photon> >(ph_conf.photon_src);
-
 }
 
 void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
