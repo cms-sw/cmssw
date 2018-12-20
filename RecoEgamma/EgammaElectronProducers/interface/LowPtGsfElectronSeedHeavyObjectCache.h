@@ -1,11 +1,11 @@
 #ifndef RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedHeavyObjectCache_h
 #define RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedHeavyObjectCache_h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+//#include <memory>
 #include <vector>
-#include <memory>
 
 namespace reco { 
   class BeamSpot;
@@ -58,7 +58,7 @@ namespace lowptgsfeleseed {
 
     std::vector<std::string> modelNames() const { return names_; }
 
-    bool eval( std::string name,
+    bool eval( const std::string& name,
 	       reco::PreId& ecal, 
 	       reco::PreId& hcal, 
 	       double rho,

@@ -41,7 +41,13 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
         'keep *_gedGsfElectrons_*_*',
-        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*'
+        'keep recoCaloClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep recoGsfElectrons_lowPtGsfElectrons_*_*',
+        'keep recoGsfElectronCores_lowPtGsfElectronCores_*_*',
+        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
+        'keep recoSuperClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronID_*_*',
   )                                                                 
 )
 
@@ -98,7 +104,13 @@ RecoEgammaRECO = cms.PSet(
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
         'keep *_gedGsfElectrons_*_*',
-        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*'
+        'keep recoCaloClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep recoGsfElectrons_lowPtGsfElectrons_*_*',
+        'keep recoGsfElectronCores_lowPtGsfElectronCores_*_*',
+        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
+        'keep recoSuperClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronID_*_*',
   )                                                                 
 )
 
@@ -144,7 +156,13 @@ RecoEgammaAOD = cms.PSet(
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
         'keep *_gedGsfElectrons_*_*',
-        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*'
+        'keep recoCaloClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep recoGsfElectrons_lowPtGsfElectrons_*_*',
+        'keep recoGsfElectronCores_lowPtGsfElectronCores_*_*',
+        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
+        'keep recoSuperClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronID_*_*',
   )                                                                 
 )
 
@@ -176,3 +194,7 @@ for e in [pA_2016, peripheralPbPb, pp_on_AA_2018, pp_on_XeXe_2017, ppRef_2017]:
                                                                            'keep recoPhotons_islandPhotons_*_*'
                                                                            ])
                     )
+
+from Configuration.Eras.Modifier_bParkingOpen_cff import bParkingOpen
+for tier in [ RecoEgammaAOD.outputCommands, RecoEgammaRECO.outputCommands, RecoEgammaFEVT.outputCommands ] :
+    bParkingOpen.toModify( tier, func=lambda outputCommands : outputCommands.extend(['keep *_lowPtGsfEle*_*_*']) )

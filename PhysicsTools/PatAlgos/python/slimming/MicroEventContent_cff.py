@@ -6,6 +6,7 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedPhotons_*_*',
         'keep *_slimmedOOTPhotons_*_*',
         'keep *_slimmedElectrons_*_*',
+        'keep *_slimmedLowPtElectrons_*_*',
         'keep *_slimmedMuons_*_*',
         'keep *_slimmedTaus_*_*',
         'keep *_slimmedTausBoosted_*_*',
@@ -27,6 +28,8 @@ MicroEventContent = cms.PSet(
 
         'keep recoPhotonCores_reducedEgamma_*_*',
         'keep recoGsfElectronCores_reducedEgamma_*_*',
+        'keep *_lowPtGsfElectronCores_*_*',
+        'keep *_lowPtGsfEleGsfTracks_*_*',
         'keep recoConversions_reducedEgamma_*_*',
         'keep recoSuperClusters_reducedEgamma_*_*',
         'keep recoCaloClusters_reducedEgamma_*_*',

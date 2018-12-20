@@ -1,13 +1,14 @@
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/ParticleFlowReco/interface/PreId.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PreId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/LowPtGsfElectronSeedHeavyObjectCache.h"
-#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
-#include "TMVA/MethodBDT.h"
-#include "TMVA/Reader.h"
+//#include "TMVA/MethodBDT.h"
+//#include "TMVA/Reader.h"
 #include <string>
 
 namespace lowptgsfeleseed {
@@ -140,7 +141,7 @@ namespace lowptgsfeleseed {
 
   ////////////////////////////////////////////////////////////////////////////////
   //
-  bool HeavyObjectCache::eval( std::string name,
+  bool HeavyObjectCache::eval( const std::string& name,
 			       reco::PreId& ecal, 
 			       reco::PreId& hcal,
 			       double rho,

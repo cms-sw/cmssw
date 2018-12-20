@@ -12,6 +12,7 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -65,6 +66,7 @@ LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer( const edm::Parameter
   produces<reco::ElectronSeedCollection>();
   produces<reco::PreIdCollection>();
   produces<reco::PreIdCollection>("HCAL");
+  produces< edm::ValueMap<reco::PreIdRef> >(); // indexed by edm::Ref<ElectronSeed>.index()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -89,6 +91,10 @@ void LowPtGsfElectronSeedProducer::produce( edm::Event& event,
   auto seeds = std::make_unique<reco::ElectronSeedCollection>();
   auto ecalPreIds = std::make_unique<reco::PreIdCollection>();
   auto hcalPreIds = std::make_unique<reco::PreIdCollection>();
+
+  std::vector<reco::PreIdRef> preIdsValueMap; // for ValueMap indexed by edm::Ref<ElectronSeed>.index()
+  const edm::RefProd<reco::PreIdCollection> preIdsRefProd =
+    event.getRefBeforePut<reco::PreIdCollection>();
   
   // HCAL clusters (only used with PF tracks)
   edm::Handle<reco::PFClusterCollection> hcalClusters;
@@ -105,6 +111,8 @@ void LowPtGsfElectronSeedProducer::produce( edm::Event& event,
 	 *seeds,
 	 *ecalPreIds,
 	 *hcalPreIds,
+	 preIdsValueMap,
+	 preIdsRefProd,
 	 event,
 	 setup);
 
@@ -118,14 +126,22 @@ void LowPtGsfElectronSeedProducer::produce( edm::Event& event,
 	 *seeds,
 	 *ecalPreIds,
 	 *hcalPreIds,
+	 preIdsValueMap,
+	 preIdsRefProd,
 	 event,
 	 setup);
 
   }
 
-  event.put(std::move(seeds));
+  edm::OrphanHandle<reco::ElectronSeedCollection> seedsAfterPut = event.put(std::move(seeds));
   event.put(std::move(ecalPreIds));
   event.put(std::move(hcalPreIds),"HCAL");
+
+  auto ptr = std::make_unique< edm::ValueMap<reco::PreIdRef> >( edm::ValueMap<reco::PreIdRef>() );
+  edm::ValueMap<reco::PreIdRef>::Filler filler(*ptr);
+  filler.insert(seedsAfterPut, preIdsValueMap.begin(), preIdsValueMap.end());
+  filler.fill();
+  event.put(std::move(ptr));
   
 }
 
@@ -150,6 +166,8 @@ void LowPtGsfElectronSeedProducer::loop( const edm::Handle< std::vector<T> >& ha
 					 reco::ElectronSeedCollection& seeds,
 					 reco::PreIdCollection& ecalPreIds, 
 					 reco::PreIdCollection& hcalPreIds,
+					 std::vector<reco::PreIdRef>& preIdsValueMap,
+					 const edm::RefProd<reco::PreIdCollection>& preIdsRefProd,
 					 edm::Event& event,
 					 const edm::EventSetup& setup )
 {
@@ -189,6 +207,11 @@ void LowPtGsfElectronSeedProducer::loop( const edm::Handle< std::vector<T> >& ha
   // Ensure each cluster is only matched once to a track
   std::vector<int> matchedEcalClusters;
   std::vector<int> matchedHcalClusters;
+
+  // Reserve
+  seeds.reserve(handle->size());
+  ecalPreIds.reserve(handle->size());
+  hcalPreIds.reserve(handle->size());
   
   // Iterate through (PF or KF) tracks
   for ( unsigned int itrk = 0; itrk < handle.product()->size(); itrk++ ) {
@@ -234,8 +257,9 @@ void LowPtGsfElectronSeedProducer::loop( const edm::Handle< std::vector<T> >& ha
     ecalPreIds.push_back(ecalPreId);
     hcalPreIds.push_back(hcalPreId);
 
-    // Store ElectronSeed
+    // Store ElectronSeed and corresponding edm::Ref<PreId>.index()
     seeds.push_back(seed);
+    preIdsValueMap.push_back( reco::PreIdRef( preIdsRefProd, ecalPreIds.size()-1 ) );
 
   }
 
@@ -249,6 +273,8 @@ void LowPtGsfElectronSeedProducer::loop<reco::Track>( const edm::Handle< std::ve
 						      reco::ElectronSeedCollection& seeds,
 						      reco::PreIdCollection& ecalPreIds, 
 						      reco::PreIdCollection& hcalPreIds,
+						      std::vector<reco::PreIdRef>& preIdsValueMap,
+						      const edm::RefProd<reco::PreIdCollection>& preIdsRefProd,
 						      edm::Event&,
 						      const edm::EventSetup& );
 
@@ -260,6 +286,8 @@ void LowPtGsfElectronSeedProducer::loop<reco::PFRecTrack>( const edm::Handle< st
 							   reco::ElectronSeedCollection& seeds,
 							   reco::PreIdCollection& ecalPreIds, 
 							   reco::PreIdCollection& hcalPreIds,
+							   std::vector<reco::PreIdRef>& preIdsValueMap,
+							   const edm::RefProd<reco::PreIdCollection>& preIdsRefProd,
 							   edm::Event&,
 							   const edm::EventSetup& );
 
@@ -538,5 +566,5 @@ void LowPtGsfElectronSeedProducer::fillDescriptions( edm::ConfigurationDescripti
   desc.add<bool>("UsePfTracks",false);
   desc.add<double>("MinPtThreshold",0.5);
   desc.add<double>("MaxPtThreshold",15.);
-  descriptions.add("produceLowPtGsfElectronSeeds",desc);
+  descriptions.add("lowPtGsfElectronSeeds",desc);
 }

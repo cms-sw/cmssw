@@ -3,6 +3,7 @@
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
@@ -54,6 +55,8 @@ class LowPtGsfElectronSeedProducer final : public edm::stream::EDProducer< edm::
 				   reco::ElectronSeedCollection& seeds,
 				   reco::PreIdCollection& ecalPreIds, 
 				   reco::PreIdCollection& hcalPreIds,
+				   std::vector<reco::PreIdRef>& preIdsValueMap,
+				   const edm::RefProd<reco::PreIdCollection>& preIdsRefProd,
 				   edm::Event&,
 				   const edm::EventSetup& );
 
