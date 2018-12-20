@@ -53,6 +53,7 @@ class SiPixelFEDChannelContainerWriteFromASCII : public edm::one::EDAnalyzer<>  
       const std::string m_record;
       const std::string m_SnapshotInputs;
       const bool printdebug_;
+      const bool addDefault_;
       SiPixelFEDChannelContainer* myQualities;
 
 };
@@ -63,7 +64,8 @@ class SiPixelFEDChannelContainerWriteFromASCII : public edm::one::EDAnalyzer<>  
 SiPixelFEDChannelContainerWriteFromASCII::SiPixelFEDChannelContainerWriteFromASCII(const edm::ParameterSet& iConfig):
   m_record(iConfig.getParameter<std::string>("record")),
   m_SnapshotInputs(iConfig.getParameter<std::string>("snapshots")),
-  printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false))
+  printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false)),
+  addDefault_(iConfig.getUntrackedParameter<bool>("addDefault",false))
 {
   //now do what ever initialization is needed
   myQualities = new SiPixelFEDChannelContainer();
@@ -144,6 +146,12 @@ void
 SiPixelFEDChannelContainerWriteFromASCII::endJob() 
 {
 
+  // adds an empty payload with name "default" => no channels are masked
+  if(addDefault_){
+    SiPixelFEDChannelContainer::SiPixelFEDChannelCollection theBadFEDChannels;
+    myQualities->setScenario("default",theBadFEDChannels);
+  }
+
   edm::LogInfo("SiPixelFEDChannelContainerWriteFromASCII")<<"Size of SiPixelFEDChannelContainer object "<< myQualities->size() <<std::endl<<std::endl;
 
   // Form the data here
@@ -161,6 +169,7 @@ SiPixelFEDChannelContainerWriteFromASCII::fillDescriptions(edm::ConfigurationDes
   edm::ParameterSetDescription desc;
   desc.setComment("Writes payloads of type SiPixelFEDChannelContainer from input ASCII files");
   desc.addUntracked<bool>("printDebug",true);
+  desc.addUntracked<bool>("addDefault",true);
   desc.add<std::string>("snapshots","");
   desc.add<std::string>("record","SiPixelStatusScenariosRcd");
   descriptions.add("SiPixelFEDChannelContainerWriteFromASCII",desc);
