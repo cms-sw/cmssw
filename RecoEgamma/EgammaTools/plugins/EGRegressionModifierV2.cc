@@ -15,17 +15,10 @@
 
 #include <vdt/vdtMath.h>
 
-namespace {
-  const edm::InputTag empty_tag;
-}
-
 class EGRegressionModifierV2 : public ModifyObjectValueBase {
 public:
 
   struct electron_config {
-    edm::InputTag electron_src;
-    edm::EDGetTokenT<edm::View<pat::Electron> > tok_electron_src;
-
     std::vector<std::string> condnames_ecalonly_mean;
     std::vector<std::string> condnames_ecalonly_sigma;
     std::vector<std::string> condnames_ecaltrk_mean;
@@ -33,9 +26,6 @@ public:
   };
 
   struct photon_config {
-    edm::InputTag photon_src;
-    edm::EDGetTokenT<edm::View<pat::Photon> > tok_photon_src;
-
     std::vector<std::string> condnames_ecalonly_mean;
     std::vector<std::string> condnames_ecalonly_sigma;
   };
@@ -58,7 +48,7 @@ private:
   photon_config   ph_conf;
   
   float rhoValue_;
-  edm::InputTag rhoTag_;
+  const edm::InputTag rhoTag_;
   edm::EDGetTokenT<double> rhoToken_;
 
   const edm::EventSetup* iSetup_;
@@ -68,91 +58,56 @@ private:
   std::vector<const GBRForestD*> e_forestH_mean_;
   std::vector<const GBRForestD*> e_forestH_sigma_;
 
-  double lowEnergy_ECALonlyThr_; // 300
-  double lowEnergy_ECALTRKThr_;  // 50
-  double highEnergy_ECALTRKThr_; // 200
-  double eOverP_ECALTRKThr_;     // 0.025
-  double epDiffSig_ECALTRKThr_;  // 15
-  double epSig_ECALTRKThr_;      // 10
-  bool forceHighEnergyEcalTrainingIfSaturated_;
+  const double lowEnergy_ECALonlyThr_; // 300
+  const double lowEnergy_ECALTRKThr_;  // 50
+  const double highEnergy_ECALTRKThr_; // 200
+  const double eOverP_ECALTRKThr_;     // 0.025
+  const double epDiffSig_ECALTRKThr_;  // 15
+  const double epSig_ECALTRKThr_;      // 10
+  const bool forceHighEnergyEcalTrainingIfSaturated_;
 
   
 };
 
-DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
-		  EGRegressionModifierV2,
-		  "EGRegressionModifierV2");
+DEFINE_EDM_PLUGIN(ModifyObjectValueFactory, EGRegressionModifierV2, "EGRegressionModifierV2");
 
-EGRegressionModifierV2::EGRegressionModifierV2(const edm::ParameterSet& conf) :
-  ModifyObjectValueBase(conf) {
+EGRegressionModifierV2::EGRegressionModifierV2(const edm::ParameterSet& conf)
+  : ModifyObjectValueBase(conf)
+  , rhoTag_(conf.getParameter<edm::InputTag>("rhoCollection"))
+  , lowEnergy_ECALonlyThr_(conf.getParameter<double>("lowEnergy_ECALonlyThr"))
+  , lowEnergy_ECALTRKThr_(conf.getParameter<double>("lowEnergy_ECALTRKThr"))
+  , highEnergy_ECALTRKThr_(conf.getParameter<double>("highEnergy_ECALTRKThr"))
+  , eOverP_ECALTRKThr_(conf.getParameter<double>("eOverP_ECALTRKThr"))
+  , epDiffSig_ECALTRKThr_(conf.getParameter<double>("epDiffSig_ECALTRKThr"))
+  , epSig_ECALTRKThr_(conf.getParameter<double>("epSig_ECALTRKThr"))
+  , forceHighEnergyEcalTrainingIfSaturated_(conf.getParameter<bool>("forceHighEnergyEcalTrainingIfSaturated"))
+{
+  const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
+  e_conf = electron_config{
+      .condnames_ecalonly_mean  = electrons.getParameter<std::vector<std::string> >("regressionKey_ecalonly"),
+      .condnames_ecalonly_sigma = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_ecalonly"),
+      .condnames_ecaltrk_mean   = electrons.getParameter<std::vector<std::string> >("regressionKey_ecaltrk"),
+      .condnames_ecaltrk_sigma  = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_ecaltrk")
+  };
 
-  lowEnergy_ECALonlyThr_ = conf.getParameter<double>("lowEnergy_ECALonlyThr");
-  lowEnergy_ECALTRKThr_ = conf.getParameter<double>("lowEnergy_ECALTRKThr");
-  highEnergy_ECALTRKThr_ = conf.getParameter<double>("highEnergy_ECALTRKThr");
-  eOverP_ECALTRKThr_ = conf.getParameter<double>("eOverP_ECALTRKThr");
-  epDiffSig_ECALTRKThr_ = conf.getParameter<double>("epDiffSig_ECALTRKThr");
-  epSig_ECALTRKThr_ = conf.getParameter<double>("epSig_ECALTRKThr");
-  forceHighEnergyEcalTrainingIfSaturated_ = conf.getParameter<bool>("forceHighEnergyEcalTrainingIfSaturated");
-  rhoTag_ = conf.getParameter<edm::InputTag>("rhoCollection");
-
-  if(conf.exists("electron_config")) {
-    const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
-    if( electrons.exists("electronSrc") ) 
-      e_conf.electron_src = electrons.getParameter<edm::InputTag>("electronSrc");
-    
-    std::vector<std::string> intValueMaps;
-    if ( electrons.existsAs<std::vector<std::string> >("intValueMaps")) 
-      intValueMaps = electrons.getParameter<std::vector<std::string> >("intValueMaps");
-
-    e_conf.condnames_ecalonly_mean  = electrons.getParameter<std::vector<std::string> >("regressionKey_ecalonly");
-    e_conf.condnames_ecalonly_sigma = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_ecalonly");
-    e_conf.condnames_ecaltrk_mean   = electrons.getParameter<std::vector<std::string> >("regressionKey_ecaltrk");
-    e_conf.condnames_ecaltrk_sigma  = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_ecaltrk");
-
-    unsigned int encor = e_conf.condnames_ecalonly_mean.size();
-    e_forestH_mean_.reserve(2*encor);
-    e_forestH_sigma_.reserve(2*encor);
-
-  }
+  unsigned int encor = e_conf.condnames_ecalonly_mean.size();
+  e_forestH_mean_.reserve(2*encor);
+  e_forestH_sigma_.reserve(2*encor);
   
-  if( conf.exists("photon_config") ) { 
-    const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("photon_config");
+  const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("photon_config");
+  ph_conf.condnames_ecalonly_mean  = photons.getParameter<std::vector<std::string>>("regressionKey_ecalonly");
+  ph_conf.condnames_ecalonly_sigma = photons.getParameter<std::vector<std::string>>("uncertaintyKey_ecalonly");
 
-    if( photons.exists("photonSrc") ) 
-      ph_conf.photon_src = photons.getParameter<edm::InputTag>("photonSrc");
-
-    std::vector<std::string> intValueMaps;
-    if ( photons.existsAs<std::vector<std::string> >("intValueMaps")) 
-      intValueMaps = photons.getParameter<std::vector<std::string> >("intValueMaps");
-
-    ph_conf.condnames_ecalonly_mean  = photons.getParameter<std::vector<std::string>>("regressionKey_ecalonly");
-    ph_conf.condnames_ecalonly_sigma = photons.getParameter<std::vector<std::string>>("uncertaintyKey_ecalonly");
-
-    unsigned int ncor = ph_conf.condnames_ecalonly_mean.size();
-    ph_forestH_mean_.reserve(ncor);
-    ph_forestH_sigma_.reserve(ncor);
-
-  }
-
-
+  unsigned int ncor = ph_conf.condnames_ecalonly_mean.size();
+  ph_forestH_mean_.reserve(ncor);
+  ph_forestH_sigma_.reserve(ncor);
 }
 
-void EGRegressionModifierV2::setEvent(const edm::Event& evt) {
-
-  if( !e_conf.tok_electron_src.isUninitialized() ) {
-    edm::Handle<edm::View<pat::Electron> > eles;
-    evt.getByToken(e_conf.tok_electron_src, eles);
-  }
-
-  if( !ph_conf.tok_photon_src.isUninitialized() ) {
-    edm::Handle<edm::View<pat::Photon> > phos;
-    evt.getByToken(ph_conf.tok_photon_src,phos);
-  }
-   
+void EGRegressionModifierV2::setEvent(const edm::Event& evt)
+{
   edm::Handle<double> rhoH;
   evt.getByToken(rhoToken_, rhoH);
   rhoValue_ = *rhoH;
-   
 }
 
 void EGRegressionModifierV2::setEventContent(const edm::EventSetup& evs) {
@@ -193,18 +148,9 @@ void EGRegressionModifierV2::setEventContent(const edm::EventSetup& evs) {
     
 }
 
-void EGRegressionModifierV2::setConsumes(edm::ConsumesCollector& sumes) {
- 
+void EGRegressionModifierV2::setConsumes(edm::ConsumesCollector& sumes)
+{ 
   rhoToken_ = sumes.consumes<double>(rhoTag_);
-
-  //setup electrons
-  if(!(empty_tag == e_conf.electron_src))
-    e_conf.tok_electron_src = sumes.consumes<edm::View<pat::Electron> >(e_conf.electron_src);  
-
-  // setup photons 
-  if(!(empty_tag == ph_conf.photon_src)) 
-    ph_conf.tok_photon_src = sumes.consumes<edm::View<pat::Photon> >(ph_conf.photon_src);
-
 }
 
 void EGRegressionModifierV2::modifyObject(reco::GsfElectron& ele) const {
