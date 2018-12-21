@@ -102,7 +102,8 @@ void
 SiStripGainsPCLWorker::dqmBeginRun(edm::Run const& run, edm::EventSetup const& iSetup, APVGain::APVGainHistograms & histograms) const {
   
   using namespace edm;
-  
+  static constexpr float defaultGainTick = 690./640.;
+
   // fills the APV collections at each begin run 
   edm::ESHandle<TrackerGeometry> tkGeom_;
   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom_ );
@@ -129,7 +130,7 @@ SiStripGainsPCLWorker::dqmBeginRun(edm::Run const& run, edm::EventSetup const& i
     if(APV->PreviousGain!=1 and newPreviousGain!=APV->PreviousGain)edm::LogWarning("SiStripGainPCLWorker")<< "WARNING: ParticleGain in the global tag changed\n";
     APV->PreviousGain = newPreviousGain;
     
-    float newPreviousGainTick = gainHandle->getApvGain(APV->APVId,gainHandle->getRange(APV->DetId, 0),0);
+    float newPreviousGainTick = APV->isMasked ? defaultGainTick : gainHandle->getApvGain(APV->APVId,gainHandle->getRange(APV->DetId, 0),0);
     if(APV->PreviousGainTick!=1 and newPreviousGainTick!=APV->PreviousGainTick){
       edm::LogWarning("SiStripGainPCLWorker")<< "WARNING: TickMarkGain in the global tag changed\n"<< std::endl
 					     <<" APV->SubDet: "<< APV->SubDet << " APV->APVId:" << APV->APVId << std::endl
