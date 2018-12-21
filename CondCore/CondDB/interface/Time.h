@@ -7,6 +7,7 @@
 //
 #include <string>
 #include <limits>
+#include <type_traits>
 
 // imported from CondFormats/Common
 namespace cond {  
@@ -29,7 +30,12 @@ namespace cond {
     typedef cond::TimeType TimeType;
   
     // TimeType
-    typedef enum { INVALID=cond::invalid, RUNNUMBER=cond::runnumber, TIMESTAMP=cond::timestamp, LUMIID=cond::lumiid, HASH=cond::hash, USERID=cond::userid } _timetype;
+    static constexpr TimeType INVALID=cond::invalid;
+    static constexpr TimeType RUNNUMBER=cond::runnumber;
+    static constexpr TimeType TIMESTAMP=cond::timestamp;
+    static constexpr TimeType LUMIID=cond::lumiid;
+    static constexpr TimeType HASH=cond::hash;
+    static constexpr TimeType USERID=cond::userid;
   
     std::string timeTypeName(TimeType type);
 
