@@ -75,7 +75,7 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
   //________________________________________
 
 
-  if(regionBase_=="seedOnStaMuon"||regionBase_=="") {
+  if(regionBase_=="seedOnStaMuon"||regionBase_.empty()) {
 
     LogDebug("CosmicRegionalSeedGenerator") << "Seeding on stand alone muons ";
 
