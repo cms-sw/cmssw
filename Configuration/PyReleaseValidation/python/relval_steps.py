@@ -988,7 +988,7 @@ FS_UP15_PU25_OVERLAY = merge([PUFS25,Kby(100,500),steps['TTbarFS_13']] )
 
 ### FastSim: template to produce signal and overlay with minbias events #PU50
 PUFSAVE50={'--pileup':'AVE_50_BX_25ns',
-        '--pileup_input':'das:/RelValMinBiasFS_13_UP17_ForMixing/%s/GEN-SIM-RECO'%(baseDataSetRelease[17],)}
+        '--pileup_input':'das:/RelValMinBiasFS_13_UP17_ForMixing/%s/GEN-SIM-RECO'%(baseDataSetRelease[8],)}
 FS_UP17_PU50_OVERLAY = merge([PUFSAVE50,Kby(100,500),steps['TTbarFS_13_UP17']] )
 
 ### FastSim: produce sample of premixed minbias events
@@ -1032,9 +1032,9 @@ steps["FS_PREMIXUP17_PU50"] = merge([
         {"cfg":"SingleNuE10_cfi",
          "--fast":"",
          "--conditions":"auto:phase1_2017_realistic",
-         "-s":"GEN,SIM,RECOBEFMIX,DIGI",
+         "-s":"GEN,SIM,RECOBEFMIX,DIGI,L1,DIGI2RAW",
          "--eventcontent":"PREMIX",
-         "--datatier":"PREMIX",
+         "--datatier":"GEN-SIM-DIGI-RAW",
          "--procModifiers":"premix_stage1",
          "--era":"Run2_2017_FastSim",
          },
