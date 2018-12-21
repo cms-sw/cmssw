@@ -22,6 +22,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 
+### Example of APVs to be masked
 #DetId369141286_APV0
 #DetId369141286_APV1
 #DetId369141862_APV0
