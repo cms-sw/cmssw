@@ -210,8 +210,6 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 
      edm::Handle<trigger::TriggerFilterObjectWithRefs> level1Cands;
      std::vector<l1t::MuonRef> vl1cands;
-     std::vector<l1t::MuonRef>::iterator vl1cands_begin;
-     std::vector<l1t::MuonRef>::iterator vl1cands_end;
 
      bool check_l1match = true;
 
