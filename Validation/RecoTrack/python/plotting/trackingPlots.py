@@ -262,7 +262,7 @@ _dupandfakeDeltaRPU = PlotGroup("dupandfakeDeltaRPU",
                                 _makeFakeDupPileupPlots("dr"     , "#DeltaR", xquantity="min #DeltaR", common=dict(xlog=True)) +
                                 _makeFakeDupPileupPlots("drj"     , "#DeltaR(track, jet)", common=dict(xtitle="#DeltaR(track, jet)", xlog=True)) +
                                 _makeFakeDupPileupPlots("pu"     , "PU"     , xtitle="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)),
-                                ncols=3, legendDy=_legendDy_2rows_3cols
+                                ncols=3
 )
 _seedingLayerSet_common = dict(removeEmptyBins=True, xbinlabelsize=8, xbinlabeloption="d", adjustMarginRight=0.1)
 _dupandfakeSeedingPlots = _makeFakeDupPileupPlots("seedingLayerSet", "seeding layers", xtitle="", common=_seedingLayerSet_common)
@@ -422,13 +422,16 @@ _extDistHitsLayers = PlotGroup("distHitsLayers",
                                _makeDistPlots("3Dlayer"   , "3D layers"   , common=dict(xmin=_min3DLayers, xmax=_max3DLayers)),
                                ncols=4, legendDy=_legendDy_4rows,
 )
-_extDistPosDeltaR = PlotGroup("distPosDeltaR",
+_extDistPos = PlotGroup("distPosDeltaR",
                               _makeDistPlots("vertpos", "ref. point r (cm)", common=dict(xlog=True)) +
                               _makeDistPlots("zpos"   , "ref. point z (cm)") +
-                              _makeDistPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)) +
+                              _makeDistPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)),
+                              ncols=3,
+)
+_extDistDeltaR = PlotGroup("distDeltaR",
                               _makeDistPlots("dr"     , "min #DeltaR", common=dict(xlog=True)) +
                               _makeDistPlots("drj"     , "#DeltaR(track, jet)", common=dict(xlog=True)),
-                              ncols=4, legendDy=_legendDy_4rows,
+                              ncols=2, legendDy=_legendDy_2rows,
 )
 _extDistSeedingPlots = _makeDistPlots("seedingLayerSet", "seeding layers", common=dict(xtitle="", **_seedingLayerSet_common))
 _extDistChi2Seeding = PlotGroup("distChi2Seeding",
@@ -490,13 +493,16 @@ _extDistSimHitsLayers = PlotGroup("distsimHitsLayers",
                                   _makeDistSimPlots("3Dlayer"   , "3D layers"   , common=dict(xmin=_min3DLayers, xmax=_max3DLayers)),
                                   ncols=2, legendDy=_legendDy_4rows,
 )
-_extDistSimPosDeltaR = PlotGroup("distsimPosDeltaR",
+_extDistSimPos = PlotGroup("distsimPos",
                                  _makeDistSimPlots("vertpos", "vert r (cm)", common=dict(xlog=True)) +
                                  _makeDistSimPlots("zpos"   , "vert z (cm)") +
-                                 _makeDistSimPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)) +
+                                 _makeDistSimPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)),
+                                 ncols=3,
+)
+_extDistSimDeltaR = PlotGroup("distsimDeltaR",
                                  _makeDistSimPlots("dr"     , "min #DeltaR", common=dict(xlog=True)) +
                                  _makeDistSimPlots("drj"     , "#DeltaR(track, jet)", common=dict(xlog=True)),
-                                 ncols=2, legendDy=_legendDy_4rows,
+                                 ncols=2, legendDy=_legendDy_2rows,
 )
 
 ########################################
