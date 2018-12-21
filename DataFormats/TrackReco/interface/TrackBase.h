@@ -171,7 +171,7 @@ public:
               const Vector &momentum, int charge, const CovarianceMatrix &cov,
               TrackAlgorithm = undefAlgorithm, TrackQuality quality = undefQuality,
               signed char nloops = 0, uint8_t stopReason = 0,
-	      float t0 = 0.f, float beta = 0., 
+	      float t0 = 0.f, float beta = 0.f, 
 	      float covt0t0 = -1.f, float covbetabeta = -1.f);
 
     /// virtual destructor
