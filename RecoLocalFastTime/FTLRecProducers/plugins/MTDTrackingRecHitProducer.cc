@@ -31,7 +31,7 @@ class MTDTrackingRecHitProducer : public edm::stream::EDProducer<> {
   
  public:
   explicit MTDTrackingRecHitProducer(const edm::ParameterSet& ps);
-  ~MTDTrackingRecHitProducer() override;
+  ~MTDTrackingRecHitProducer() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
@@ -62,9 +62,6 @@ MTDTrackingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   descriptions.add("mtdTrackingRecHitProducer", desc);
 }
 
-MTDTrackingRecHitProducer::~MTDTrackingRecHitProducer() {
-}
-
 void
 MTDTrackingRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   
@@ -75,18 +72,6 @@ MTDTrackingRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   edm::ESHandle<MTDClusterParameterEstimator> cpe;
   es.get<MTDCPERecord>().get("MTDCPEBase",cpe);
   cpe_ = cpe.product();
-  
-  if ( ! geom_ ) 
-    {
-      throw cms::Exception("MTDTrackingRecHitProducer") << "Geometry is not available -- can't run!";
-      return;   // clusterizer is invalid, bail out
-    }
-  
-  if ( ! cpe_ ) 
-    {
-      throw cms::Exception("MTDTrackingRecHitProducer") << "CPE is not ready -- can't run!";
-      return;   // clusterizer is invalid, bail out
-    }
   
   edm::Handle< FTLClusterCollection > inputBarrel;
   evt.getByToken( ftlbClusters_, inputBarrel);

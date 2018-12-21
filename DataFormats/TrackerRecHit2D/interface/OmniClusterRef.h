@@ -32,7 +32,7 @@ public:
   explicit OmniClusterRef(ClusterPixelRef const & ref, unsigned int subClus=0) : me(ref.refCore(), (ref.isNonnull() ? ref.key()                  | (subClus<<subClusShift) : kInvalid) ){  }
   explicit OmniClusterRef(ClusterStripRef const & ref, unsigned int subClus=0) : me(ref.refCore(), (ref.isNonnull() ? (ref.key()   | kIsStrip  ) | (subClus<<subClusShift) : kInvalid) ){ }
   explicit OmniClusterRef(Phase2Cluster1DRef const & ref, unsigned int subClus=0) : me(ref.refCore(), (ref.isNonnull() ? (ref.key() | kIsPhase2) | (subClus<<subClusShift) : kInvalid) ){ }
-  explicit OmniClusterRef(ClusterMTDRef const & ref) : me(ref.refCore(), (ref.isNonnull() ? (ref.key() | kIsPhase2 | kIsTiming) : kInvalid) ){  }
+  explicit OmniClusterRef(ClusterMTDRef const & ref) : me(ref.refCore(), (ref.isNonnull() ? (ref.key() | kIsTiming) : kInvalid) ){  }
   
   ClusterPixelRef cluster_pixel()  const { 
     return (isPixel() && isValid()) ?  ClusterPixelRef(me.toRefCore(),index()) : ClusterPixelRef();
@@ -43,11 +43,11 @@ public:
   }
 
   Phase2Cluster1DRef cluster_phase2OT()  const { 
-    return (isPhase2() && !isTiming()) ? Phase2Cluster1DRef(me.toRefCore(),index()) : Phase2Cluster1DRef();
+    return isPhase2() ? Phase2Cluster1DRef(me.toRefCore(),index()) : Phase2Cluster1DRef();
   }
 
   ClusterMTDRef cluster_mtd() const {
-    return (isPhase2() && isTiming()) ? ClusterMTDRef(me.toRefCore(),index()) : ClusterMTDRef();
+    return isTiming() ? ClusterMTDRef(me.toRefCore(),index()) : ClusterMTDRef();
   }
   
   SiPixelCluster const & pixelCluster() const {

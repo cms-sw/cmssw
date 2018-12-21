@@ -26,16 +26,3 @@ RecoLocalFastTimeAOD = cms.PSet(
     )
 )
 
-from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
-from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
-
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify( 
-    RecoLocalFastTimeFEVT.outputCommands, 
-    func=lambda outputCommands: outputCommands.extend(['drop *_ftlUncalibratedRecHits_*_*',
-                                                       'drop *_ftlRecHits_*_*'])
-)
-
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify( 
-    RecoLocalFastTimeRECO.outputCommands, 
-    func=lambda outputCommands: outputCommands.extend(['drop *_ftlRecHits_*_*']) 
-)

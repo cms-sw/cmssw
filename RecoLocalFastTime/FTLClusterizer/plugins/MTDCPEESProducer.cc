@@ -19,7 +19,7 @@ class  MTDCPEESProducer: public edm::ESProducer
 {
  public:
   MTDCPEESProducer(const edm::ParameterSet & p);
-  ~MTDCPEESProducer() override; 
+  ~MTDCPEESProducer() override = default; 
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -42,8 +42,6 @@ MTDCPEESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   edm::ParameterSetDescription desc;
   descriptions.add("MTDCPEESProducer", desc);
 }
-
-MTDCPEESProducer::~MTDCPEESProducer() {}
 
 std::unique_ptr<MTDClusterParameterEstimator>
 MTDCPEESProducer::produce(const MTDCPERecord & iRecord)

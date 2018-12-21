@@ -48,6 +48,10 @@
 
 #include "Geometry/CommonTopologies/interface/Topology.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+
 using namespace std;
 using namespace edm;
 
@@ -68,6 +72,8 @@ class TrackExtenderWithMTDT : public edm::stream::EDProducer<> {
   TrackExtenderWithMTDT(const ParameterSet& pset); 
 
   void produce(edm::Event& ev, const edm::EventSetup& es) final;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   TransientTrackingRecHit::ConstRecHitContainer tryBTLLayers(const TrackType&, 
 							     const MTDTrackingDetSetVector&,
@@ -143,6 +149,33 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
   produces<edm::OwnVector<TrackingRecHit>>();
   produces<reco::TrackExtraCollection>();
   produces<TrackCollection>();
+}
+
+template<class TrackCollection>
+void TrackExtenderWithMTDT<TrackCollection>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc,transDesc;
+  desc.add<edm::InputTag>("tracksSrc",edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("hitsSrc",edm::InputTag("mtdTrackingRecHits"));
+  desc.add<edm::InputTag>("beamSpotSrc",edm::InputTag("offlineBeamSpot"));
+  desc.add<bool>("updateTrackTrajectory",true);
+  desc.add<bool>("updateTrackExtra",true);
+  desc.add<bool>("updateTrackHitPattern",true);
+  desc.add<std::string>("TransientTrackBuilder","TransientTrackBuilder");
+  desc.add<std::string>("MTDRecHitBuilder","MTDRecHitBuilder");
+  desc.add<std::string>("Propagator","PropagatorWithMaterialForMTD");  
+  TrackTransformer::fillPSetDescription(transDesc,
+					false,
+					"KFFitterForRefitInsideOut",
+					"KFSmootherForRefitInsideOut",
+					"PropagatorWithMaterialForMTD",
+					"alongMomentum",
+					true,
+					"WithTrackAngle",
+					"MuonRecHitBuilder",
+					"MTDRecHitBuilder"
+					);
+  desc.add<edm::ParameterSetDescription>("TrackTransformer",transDesc);
+  descriptions.add("trackExtenderWithMTDBase", desc);
 }
 
 template<class TrackCollection>
@@ -306,7 +339,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce( edm::Event& ev,
 }
 
 namespace {
-  auto cmp = [](const unsigned one, const unsigned two) -> bool { return one < two; };
+  bool cmp_for_detset(const unsigned one, const unsigned two) { return one < two; };
   
   void find_hits_in_dets(const MTDTrackingDetSetVector& hits, const DetLayer* layer,
 			 const TrajectoryStateOnSurface& tsos, const Propagator* prop,
@@ -318,7 +351,7 @@ namespace {
       vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos,*prop,theEstimator);
       if (!compDets.empty()) {
 	for( const auto& detWithState : compDets ) {	
-	  auto range = hits.equal_range(detWithState.first->geographicalId(),cmp);	  
+	  auto range = hits.equal_range(detWithState.first->geographicalId(),cmp_for_detset);	  
 	  for( auto detitr = range.first; detitr != range.second; ++detitr ) {
 	    auto best = detitr->end();
 	    double best_chi2 = std::numeric_limits<double>::max();
@@ -346,7 +379,6 @@ TrackExtenderWithMTDT<TrackCollection>::tryBTLLayers(const TrackType& track,
 						     const MTDDetLayerGeometry* geo,
 						     const MagneticField* field,
 						     const Propagator* prop) const {
-  std::unique_ptr<Propagator> trkProp(prop->clone());
   
   TransientTrackingRecHit::ConstRecHitContainer output;
   const vector<const DetLayer*>& layers = geo->allBTLLayers();
@@ -355,7 +387,7 @@ TrackExtenderWithMTDT<TrackCollection>::tryBTLLayers(const TrackType& track,
   for (const DetLayer* ilay : layers) {
     // get the outermost trajectory point on the track    
     TrajectoryStateOnSurface tsos = tTrack.outermostMeasurementState();
-    find_hits_in_dets(hits,ilay,tsos,trkProp.get(),*theEstimator,*hitbuilder,output);
+    find_hits_in_dets(hits,ilay,tsos,prop,*theEstimator,*hitbuilder,output);
   }
   return output;
 }
@@ -367,7 +399,6 @@ TrackExtenderWithMTDT<TrackCollection>::tryETLLayers(const TrackType& track,
 						     const MTDDetLayerGeometry* geo,
 						     const MagneticField* field,
 						     const Propagator* prop) const {
-  std::unique_ptr<Propagator> trkProp(prop->clone());
 
   TransientTrackingRecHit::ConstRecHitContainer output;
   const vector<const DetLayer*>& layers = geo->allETLLayers();
@@ -381,7 +412,7 @@ TrackExtenderWithMTDT<TrackCollection>::tryETLLayers(const TrackType& track,
     // get the outermost trajectory point on the track    
     TrajectoryStateOnSurface tsos = tTrack.outermostMeasurementState();
     if( tsos.globalPosition().z() * diskZ < 0 ) continue; // only propagate to the disk that's on the same side
-    find_hits_in_dets(hits,ilay,tsos,trkProp.get(),*theEstimator,*hitbuilder,output);    
+    find_hits_in_dets(hits,ilay,tsos,prop,*theEstimator,*hitbuilder,output);    
   }
   return output;
 }
@@ -398,7 +429,6 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
 							       const Propagator* thePropagator,
 							       bool hasMTD,
 							       float& pathLengthOut) const {  
-  std::unique_ptr<Propagator> trkProp(thePropagator->clone());
 
   // get the state closest to the beamline
   TrajectoryStateOnSurface stateForProjectionToBeamLineOnSurface = 
@@ -409,12 +439,14 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
     return reco::Track();
   }
 
-  constexpr double mpi = 0.13957018;
-  constexpr double c = 2.99792458e1; //[cm/ns]
+  constexpr double m_pi = 0.13957018;
+  constexpr double m_pi_inv2 = 1.0/m_pi/m_pi;
+  constexpr double c_cm_ns = 2.99792458e1; //[cm/ns]
+  constexpr double c_inv = 1.0/c_cm_ns;
   
   const FreeTrajectoryState & stateForProjectionToBeamLine=*stateForProjectionToBeamLineOnSurface.freeState();
   
-  TSCBLBuilderWithPropagator tscblBuilder(*trkProp);
+  TSCBLBuilderWithPropagator tscblBuilder(*thePropagator);
   TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
   
   if UNLIKELY(!tscbl.isValid()) {
@@ -441,7 +473,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
     double pathlength1 = 0.;
     double pathlength2 = 0.;
     for (auto it=trajWithMtd.measurements().begin(); it!=trajWithMtd.measurements().end()-1; ++it) {
-       const auto &propresult = trkProp->propagateWithPath(it->updatedState(), (it+1)->updatedState().surface());
+       const auto &propresult = thePropagator->propagateWithPath(it->updatedState(), (it+1)->updatedState().surface());
        double layerpathlength = std::abs(propresult.second);
        if (layerpathlength==0.) {
          validpropagation = false;
@@ -456,7 +488,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       for (auto it=trajWithMtd.measurements().begin(); it!=trajWithMtd.measurements().end(); ++it) {
         bool ismtd = it->recHit()->geographicalId().det() == DetId::Forward && ForwardSubdetector(it->recHit()->geographicalId().subdetId()) == FastTime;
         if (ismtd) {
-          const auto &propresult2 = trkProp->propagateWithPath(tscbl.trackStateAtPCA(), trajWithMtd.firstMeasurement().updatedState().surface());
+          const auto &propresult2 = thePropagator->propagateWithPath(tscbl.trackStateAtPCA(), trajWithMtd.firstMeasurement().updatedState().surface());
 	  pathlength2 = propresult2.second;
           if (pathlength2 == 0.) {
             validpropagation = false;
@@ -474,7 +506,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       for (auto it=trajWithMtd.measurements().rbegin(); it!=trajWithMtd.measurements().rend(); ++it) {
         bool ismtd = it->recHit()->geographicalId().det() == DetId::Forward && ForwardSubdetector(it->recHit()->geographicalId().subdetId()) == FastTime;
         if (ismtd) {
-          const auto &propresult2 = trkProp->propagateWithPath(tscbl.trackStateAtPCA(), trajWithMtd.lastMeasurement().updatedState().surface());
+          const auto &propresult2 = thePropagator->propagateWithPath(tscbl.trackStateAtPCA(), trajWithMtd.lastMeasurement().updatedState().surface());
           pathlength2 = propresult2.second;
           if (pathlength2 == 0.) {
             validpropagation = false;
@@ -491,10 +523,10 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
     
     if (validmtd && validpropagation) {
       
-      double magp = p.mag();
-      double gammasq = 1. + magp*magp/mpi/mpi;
+      double magp2 = p.mag2();
+      double gammasq = 1. + magp2*m_pi_inv2;
       double beta = std::sqrt(1.-1./gammasq);
-      double dt = pathlength/beta/c;
+      double dt = pathlength/beta*c_inv;
       pathLengthOut = pathlength; // set path length if we've got a timing hit
       t0 = thit - dt;
       covt0t0 = thiterror*thiterror;
