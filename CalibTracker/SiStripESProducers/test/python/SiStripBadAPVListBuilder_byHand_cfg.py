@@ -2,6 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CALIB")
 
+####################################################
+def getFileInPath(rfile):
+####################################################
+   import os
+   for dir in os.environ['CMSSW_SEARCH_PATH'].split(":"):
+     if os.path.exists(os.path.join(dir,rfile)): return os.path.join(dir,rfile)
+   return None
+
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring(''),
     cout = cms.untracked.PSet(
@@ -35,30 +43,48 @@ process.maxEvents = cms.untracked.PSet(
 #DetId436245994_APV1
 #DetId436248977_APV0
 
+detIDsFileName = getFileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat')
+detDict = {}
+with open(detIDsFileName,"r") as detIDs:  # create dictionary online -> rawid
+    for entry in detIDs:
+        fields = entry.strip().split()
+        detDict[fields[0]]=fields[1]
+
+#print(detDict)
+
+APVsToKill = []
+for det,napv in detDict.iteritems():
+    APVsToKill.append(
+        cms.PSet(
+            DetId = cms.uint32(int(det)),        	 
+            APVs = cms.vuint32( 0,1 if int(napv)<6 else 2,3,4,5  ),       
+            )
+        )
+
 #Populate ES
 process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi")
 from CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi import siStripBadModuleConfigurableFakeESSource
 siStripBadModuleConfigurableFakeESSource.doByAPVs = cms.untracked.bool(True)  
 siStripBadModuleConfigurableFakeESSource.BadComponentList = cms.untracked.VPSet()
-siStripBadModuleConfigurableFakeESSource.BadAPVList = cms.untracked.VPSet(
-    cms.PSet(
-        DetId = cms.uint32(369141286),        	 
-        APVs = cms.vuint32(0,1),       
-        ),
-    cms.PSet(
-        DetId = cms.uint32(369141862),        	 
-        APVs = cms.vuint32(0,1),       
-        ),
-    cms.PSet(
-        DetId = cms.uint32(369157180),        	 
-        APVs = cms.vuint32(0,1),       
-        ),
-    cms.PSet(
-        DetId = cms.uint32(436244845),        	 
-        APVs = cms.vuint32(0,1),       
-        )
-    )
+siStripBadModuleConfigurableFakeESSource.BadAPVList = cms.untracked.VPSet(*APVsToKill)
+    # cms.PSet(
+    #     DetId = cms.uint32(369141286),        	 
+    #     APVs = cms.vuint32(0,1),       
+    #     ),
+    # cms.PSet(
+    #     DetId = cms.uint32(369141862),        	 
+    #     APVs = cms.vuint32(0,1),       
+    #     ),
+    # cms.PSet(
+    #     DetId = cms.uint32(369157180),        	 
+    #     APVs = cms.vuint32(0,1),       
+    #     ),
+    # cms.PSet(
+    #     DetId = cms.uint32(436244845),        	 
+    #     APVs = cms.vuint32(0,1),       
+    #     )
+    #)
 
 #Write on DB
 process.load("CalibTracker.SiStripESProducers.DBWriter.SiStripBadModuleDummyDBWriter_cfi")
