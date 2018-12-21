@@ -40,7 +40,7 @@ class MTDClusterProducer : public edm::stream::EDProducer<> {
   public:
     //--- Constructor, virtual destructor (just in case)
     explicit MTDClusterProducer(const edm::ParameterSet& conf);
-    ~MTDClusterProducer() override;
+    ~MTDClusterProducer() override = default;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     //--- The top-level event method.
@@ -96,10 +96,6 @@ MTDClusterProducer::MTDClusterProducer(edm::ParameterSet const& conf)
 					       << "    MTDThresholdClusterizer";
   }
 }
-
-// Destructor
-MTDClusterProducer::~MTDClusterProducer() { 
-}  
 
 // Configuration descriptions
 void

@@ -35,8 +35,7 @@ class MTDRecHitProducer : public edm::stream::EDProducer<> {
   const std::string ftleInstance_; // instance name of endcap hits
 
   std::unique_ptr<MTDRecHitAlgoBase> barrel_,endcap_;
-  
-  edm::ESWatcher<MTDDigiGeometryRecord> geomwatcher_;
+
   const MTDGeometry* geom_;
 };
 

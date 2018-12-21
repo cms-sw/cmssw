@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <cassert>
 #include <algorithm>
+#include <numeric>
 #include <functional>
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -135,11 +136,7 @@ public:
   
   
   inline float energy() const {
-    float qm = 0;
-    int isize = theHitENERGY.size();
-    for (int i=0; i<isize; ++i) 
-      qm += theHitENERGY[i];
-    return qm;
+    return std::accumulate(theHitENERGY.begin(), theHitENERGY.end(),0.f);
   } // Return total cluster energy.
   
   inline int minHitRow() const { return theMinHitRow;} // The min x index.
@@ -230,14 +227,14 @@ private:
    
    float weighted_mean(const std::vector<float>& weights, const std::function<float (unsigned int)>& value) const
    {
-     auto sumFunc=[weights,value](unsigned int i) { return weights[i]*value(i); } ;
+     auto sumFunc=[&weights,value](unsigned int i) { return weights[i]*value(i); } ;
      auto outFunc=[](float x,float y) { if (y>0) return (float)x/y; else return -999.f; };
      return weighted_sum(weights,sumFunc,outFunc);
    }
    
    float weighted_mean_error(const std::vector<float>& weights, const std::function<float (unsigned int)>& err) const
    {
-     auto sumFunc=[weights,err](unsigned int i) { return weights[i]*weights[i]*err(i)*err(i); } ;
+     auto sumFunc=[&weights,err](unsigned int i) { return weights[i]*weights[i]*err(i)*err(i); } ;
      auto outFunc=[](float x,float y) { if (y>0) return (float)sqrt(x)/y; else return -999.f; };
      return weighted_sum(weights,sumFunc,outFunc);
    }
