@@ -18,7 +18,7 @@
 static const edm::ParameterSet initializeDummyPSet() {
   edm::ParameterSet dummy;
   dummy.registerIt();
-  return std::move(dummy);
+  return dummy;
 }
 
 static const edm::ParameterSet* s_dummyPSet()
