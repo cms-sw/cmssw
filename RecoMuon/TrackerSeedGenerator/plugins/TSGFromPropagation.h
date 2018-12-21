@@ -25,7 +25,7 @@ class Propagator;
 class MeasurementTracker;
 class GeometricSearchTracker;
 class DirectTrackerNavigation;
-class TrajectoryStateTransform;
+struct TrajectoryStateTransform;
 class TrackerTopology;
 
 class TSGFromPropagation : public TrackerSeedGenerator {
