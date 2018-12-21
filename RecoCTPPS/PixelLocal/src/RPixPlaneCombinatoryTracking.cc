@@ -571,7 +571,7 @@ void RPixPlaneCombinatoryTracking::addRecoInfo(int run)
   if(romanPotId_.arm() == 1) shiftedROC = 5;
 
   if(shiftedROC == 10){
-      edm::LogInfo("RPixPlaneCombinatoryTracking")<< "Error in RPixPlaneCombinatoryTracking::addRecoInfo -> " << "Unidentified ROC to be shifted, skipping addRecoInfo.";
+      edm::LogError("RPixPlaneCombinatoryTracking")<< "Error in RPixPlaneCombinatoryTracking::addRecoInfo -> " << "Unidentified ROC to be shifted, skipping addRecoInfo.";
       return;
   }
 
@@ -582,6 +582,9 @@ void RPixPlaneCombinatoryTracking::addRecoInfo(int run)
   // Loop over found tracks to set recoInfo_
   for(auto & track : localTrackVector_){
     if(romanPotId_ != CTPPSPixelDetId(0,2,3) && romanPotId_ != CTPPSPixelDetId(1,2,3)){
+      track.setRecoInfo(CTPPSPixelLocalTrack::notShiftedRun);
+      if(verbosity_>=2) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Analyzing run: "<<run<<"\nShift period: "<<shiftPeriod<<"\nTrack belongs to Arm "<<romanPotId_.arm()<<" Station "<<romanPotId_.station();
+
       continue;
     }
     unsigned short bxShiftedPlanesUsed = 0;

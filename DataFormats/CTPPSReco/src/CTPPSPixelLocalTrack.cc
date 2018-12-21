@@ -52,4 +52,3 @@ bool CTPPSPixelLocalTrack::operator< (const CTPPSPixelLocalTrack &r)
   return false;
 
 }
-
