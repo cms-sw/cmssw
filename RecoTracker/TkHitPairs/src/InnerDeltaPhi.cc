@@ -79,15 +79,6 @@ namespace {
   template<typename V> inline float f_phi(V v) { return f_atan2f(v.y(),v.x());}
 }
 
-namespace {
-  inline double checked_asin(double x, const char *expr, const char *file, int line) {
-    if (fabs(x) >= 1.0) throw cms::Exception("CorruptData") <<  "asin(x) called with x = " << expr << " = " << x << "\n\tat " << file << ":" << line << "\n";
-    return asin(x);
-  }
-}
-
-//#define asin(X) checked_asin(X, #X, __FILE__, __LINE__)
-
 InnerDeltaPhi:: InnerDeltaPhi( const DetLayer& outlayer, const DetLayer& layer,
                  const TrackingRegion & region,
                  const edm::EventSetup& iSetup,
