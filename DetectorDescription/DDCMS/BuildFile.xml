@@ -3,6 +3,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="dd4hep"/>
 <use   name="rootmath"/>
+<use   name="rooteve"/>
 <export>
   <lib   name="1"/>
 </export>

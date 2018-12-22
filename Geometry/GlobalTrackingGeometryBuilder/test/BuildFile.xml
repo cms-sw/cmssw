@@ -5,6 +5,7 @@
 <use   name="Geometry/RPCGeometry"/>
 <use   name="Geometry/DTGeometry"/>
 <use   name="Geometry/CSCGeometry"/>
+<use   name="Geometry/MTDGeometryBuilder"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="rootcore"/>
