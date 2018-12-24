@@ -11,6 +11,9 @@
 
 #include <cstdint>
 
+#include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
+
+
 /**
  *\brief Local (=single RP) track with essential information only.
  **/
