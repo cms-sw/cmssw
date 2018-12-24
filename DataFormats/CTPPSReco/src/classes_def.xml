@@ -101,8 +101,8 @@
 
 <!-- pixel objects -->
 
-  <class name="CTPPSPixelCluster" ClassVersion="3">
-    <version ClassVersion="3" checksum="2858478211"/>
+  <class name="CTPPSPixelCluster" ClassVersion="4">
+    <version ClassVersion="4" checksum="2858478211"/>
   </class>
   <class name="edm::DetSet<CTPPSPixelCluster>"/>
   <class name="std::vector<CTPPSPixelCluster>"/>
@@ -119,8 +119,8 @@
   <class name="edm::DetSetVector<CTPPSPixelRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelRecHit> >"/>
 
-  <class name="CTPPSPixelLocalTrack" ClassVersion="3">
-    <version ClassVersion="3" checksum="761311401"/>
+  <class name="CTPPSPixelLocalTrack" ClassVersion="4">
+    <version ClassVersion="4" checksum="761311401"/>
   </class>
   <class name="edm::DetSet<CTPPSPixelLocalTrack>"/>
   <class name="std::vector<CTPPSPixelLocalTrack>"/>
