@@ -74,9 +74,6 @@ FastTrackDeDxProducer::FastTrackDeDxProducer(const edm::ParameterSet& iConfig)
 
   m_tracksTag = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
 
-  //simHitsToken = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHits"));
-  //simHit2RecHitMapToken = consumes<FastTrackerRecHitRefCollection>(iConfig.getParameter<edm::InputTag>("simHit2RecHitMap"));
-
   usePixel = iConfig.getParameter<bool>("UsePixel"); 
   useStrip = iConfig.getParameter<bool>("UseStrip");
   meVperADCPixel = iConfig.getParameter<double>("MeVperADCPixel"); 
