@@ -10,7 +10,6 @@ import sys
 
 # Modify the Raw Data Collection Raw collection List to include upgrade collections where appropriate:
 from EventFilter.RawDataCollector.rawDataCollector_cfi import *
-_RawCollectionListOrig = rawDataCollector.RawCollectionList[:]
 from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 stage1L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage1Raw")) )
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
