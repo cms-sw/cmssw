@@ -44,6 +44,7 @@
 </library>
 <library   file="FakeCPEFiller.cc" name="FakeCPEFiller">
   <use   name="SimTracker/TrackerHitAssociation"/>
+  <use   name="RecoTracker/TransientTrackingRecHit"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 
