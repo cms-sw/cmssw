@@ -20,13 +20,13 @@ hgcalVFEProducer.fhDigis = "mixData:HGCDigisHEfront"
 hgcalVFEProducer.bhDigis = "mixData:HGCDigisHEback"
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-if not stage2L1Trigger.isChosen():
-    (~premix_stage2).toModify(simRpcTriggerDigis, label = 'mixData')
-    simRctDigis.hcalDigis=cms.VInputTag(cms.InputTag("DMHcalTriggerPrimitiveDigis"))   
-    simRctDigis.ecalDigis=cms.VInputTag(cms.InputTag("DMEcalTriggerPrimitiveDigis"))   
-else:
-    #seems likely that this code does not support 2015 MC...
-    (~premix_stage2).toModify(simTwinMuxDigis, RPC_Source = 'mixData')
-    (~premix_stage2).toModify(simOmtfDigis, srcRPC = 'mixData')
-    simCaloStage2Layer1Digis.ecalToken = cms.InputTag("DMEcalTriggerPrimitiveDigis")
-    simCaloStage2Layer1Digis.hcalToken = cms.InputTag("DMHcalTriggerPrimitiveDigis")
+# Legacy and Stage-1 Trigger
+(~premix_stage2).toModify(simRpcTriggerDigis, label = 'mixData')
+simRctDigis.hcalDigis=["DMHcalTriggerPrimitiveDigis"]
+simRctDigis.ecalDigis=["DMEcalTriggerPrimitiveDigis"]
+# Stage-2 Trigger
+#seems likely that this code does not support 2015 MC...
+(~premix_stage2).toModify(simTwinMuxDigis, RPC_Source = 'mixData')
+(~premix_stage2).toModify(simOmtfDigis, srcRPC = 'mixData')
+simCaloStage2Layer1Digis.ecalToken = "DMEcalTriggerPrimitiveDigis"
+simCaloStage2Layer1Digis.hcalToken = "DMHcalTriggerPrimitiveDigis"
