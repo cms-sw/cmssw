@@ -34,7 +34,7 @@
 #include <numeric>
 #include <TMath.h>
 
-// include combinations header (not yet included in boost)
+// include combinations header (was never incorporated in boost)
 #include "combination.hpp"
 
 // just for now do this
@@ -455,9 +455,9 @@ namespace {
 			     matched_pfcs.begin(),
 			     matched_pfcs.begin()+i);
 	  }
-	}while(boost::next_combination(matched_pfcs.begin(),
-				       matched_pfcs.begin()+i,
-				       matched_pfcs.end()));	
+	}while(notboost::next_combination(matched_pfcs.begin(),
+                                          matched_pfcs.begin()+i,
+                                          matched_pfcs.end()));
       }
       for( const auto& clelem : best_comb ) {
 	if( std::find(cluster_list.begin(),cluster_list.end(),clelem) ==
