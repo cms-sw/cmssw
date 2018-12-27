@@ -65,7 +65,6 @@ namespace {
 //#define PFLOW_DEBUG
 
 PFBlockAlgo::PFBlockAlgo() : 
-  blocks_( new reco::PFBlockCollection ),  
   debug_(false),
   elementTypes_( {
         INIT_ENTRY(PFBlockElement::TRACK),
@@ -151,16 +150,15 @@ PFBlockAlgo::~PFBlockAlgo() {
 #endif  
 }
 
-void PFBlockAlgo::findBlocks() {
+reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   // Glowinski & Gouzevitch
   for( const auto& kdtree : kdtrees_ ) {
     kdtree->process();
   }  
   // !Glowinski & Gouzevitch
+  reco::PFBlockCollection blocks;
   // the blocks have not been passed to the event, and need to be cleared
-  if( blocks_.get() ) blocks_->clear();
-  else                blocks_.reset( new reco::PFBlockCollection );
-  blocks_->reserve(elements_.size());
+  blocks.reserve(elements_.size());
 
   QuickUnion qu(bare_elements_.size());
   const auto elem_size = bare_elements_.size();
@@ -201,9 +199,9 @@ void PFBlockAlgo::findBlocks() {
   PFBlockLink::Type linktype = PFBlockLink::NONE;
   PFBlock::LinkTest linktest = PFBlock::LINKTEST_RECHIT;
   for( auto key : keys ) {
-    blocks_->push_back( reco::PFBlock() );
+    blocks.push_back( reco::PFBlock() );
     auto range = blocksmap.equal_range(key);
-    auto& the_block = blocks_->back();
+    auto& the_block = blocks.back();
     ElementList::value_type::pointer p1(bare_elements_[range.first->second]);
     the_block.addElement(p1);
     const unsigned block_size = blocksmap.count(key) + 1;
@@ -231,6 +229,8 @@ void PFBlockAlgo::findBlocks() {
   
   bare_elements_.clear();
   elements_.clear();
+
+  return blocks;
 }
 
 void 
@@ -392,26 +392,7 @@ std::ostream& operator<<(std::ostream& out, const PFBlockAlgo& a) {
       ie != a.elements_.end(); ++ie) {
     out<<"\t"<<**ie <<endl;
   }
-
   
-  //   const PFBlockCollection& blocks = a.blocks();
-
-  const std::unique_ptr< reco::PFBlockCollection >& blocks
-    = a.blocks(); 
-    
-  if(!blocks.get() ) {
-    out<<"blocks already transfered"<<endl;
-  }
-  else {
-    out<<"number of blocks : "<<blocks->size()<<endl;
-    out<<endl;
-    
-    for(PFBlockAlgo::IBC ib=blocks->begin(); 
-	ib != blocks->end(); ++ib) {
-      out<<(*ib)<<endl;
-    }
-  }
-
   return out;
 }
 
