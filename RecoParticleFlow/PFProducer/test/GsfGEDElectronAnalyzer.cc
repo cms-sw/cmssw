@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -62,16 +62,16 @@
 using namespace edm;
 using namespace reco;
 using namespace std;
-class GsfGEDElectronAnalyzer : public edm::EDAnalyzer {
+class GsfGEDElectronAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
    public:
       explicit GsfGEDElectronAnalyzer(const edm::ParameterSet&);
-      ~GsfGEDElectronAnalyzer();
+      ~GsfGEDElectronAnalyzer() override;
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
   
   ParameterSet conf_;
 
@@ -130,7 +130,7 @@ GsfGEDElectronAnalyzer::GsfGEDElectronAnalyzer(const edm::ParameterSet& iConfig)
   conf_(iConfig)
 
 {
-
+  usesResource(TFileService::kSharedResource);
   
   edm::Service<TFileService> fs;
 
@@ -681,7 +681,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-GsfGEDElectronAnalyzer::beginJob(const edm::EventSetup&)
+GsfGEDElectronAnalyzer::beginJob()
 {
 
   ev = 0;
