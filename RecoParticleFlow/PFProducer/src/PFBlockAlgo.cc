@@ -160,16 +160,16 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   // the blocks have not been passed to the event, and need to be cleared
   blocks.reserve(elements_.size());
 
-  QuickUnion qu(bare_elements_.size());
-  const auto elem_size = bare_elements_.size();
+  QuickUnion qu(elements_.size());
+  const auto elem_size = elements_.size();
   for( unsigned i = 0; i < elem_size; ++i ) {
     for( unsigned j = 0; j < elem_size; ++j ) {
       if( qu.connected(i,j) || j == i ) continue;
-      if( !linkTests_[linkTestSquare_[bare_elements_[i]->type()][bare_elements_[j]->type()]] ) {
-        j = ranges_[bare_elements_[j]->type()].second;
+      if( !linkTests_[linkTestSquare_[elements_[i]->type()][elements_[j]->type()]] ) {
+        j = ranges_[elements_[j]->type()].second;
         continue;
       }
-      auto p1(bare_elements_[i]), p2(bare_elements_[j]);
+      auto p1(elements_[i].get()), p2(elements_[j].get());
       const PFBlockElement::Type type1 = p1->type();
       const PFBlockElement::Type type2 = p2->type();
       const unsigned index = linkTestSquare_[type1][type2];
@@ -202,7 +202,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     blocks.push_back( reco::PFBlock() );
     auto range = blocksmap.equal_range(key);
     auto& the_block = blocks.back();
-    ElementList::value_type::pointer p1(bare_elements_[range.first->second]);
+    ElementList::value_type::pointer p1(elements_[range.first->second].get());
     the_block.addElement(p1);
     const unsigned block_size = blocksmap.count(key) + 1;
     //reserve up to 1M or 8MB; pay rehash cost for more
@@ -210,7 +210,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     auto itr = range.first;
     ++itr;
     for( ; itr != range.second; ++itr ) {
-      ElementList::value_type::pointer p2(bare_elements_[itr->second]);
+      ElementList::value_type::pointer p2(elements_[itr->second].get());
       const PFBlockElement::Type type1 = p1->type();
       const PFBlockElement::Type type2 = p2->type();        
       the_block.addElement(p2);
@@ -227,7 +227,6 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     packLinks( the_block, links );    
   }
   
-  bare_elements_.clear();
   elements_.clear();
 
   return blocks;
@@ -343,11 +342,6 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
   std::sort(elements_.begin(),elements_.end(),
             [](const auto& a, const auto& b) { return a->type() < b->type(); } );
   
-  bare_elements_.resize(elements_.size());
-  for( unsigned i = 0; i < elements_.size(); ++i ) {
-    bare_elements_[i] = elements_[i].get();
-  }
-
   // list is now partitioned, so mark the boundaries so we can efficiently skip chunks  
   unsigned current_type = ( !elements_.empty() ? elements_[0]->type() : 0 );
   unsigned last_type = ( !elements_.empty() ? elements_.back()->type() : 0 );

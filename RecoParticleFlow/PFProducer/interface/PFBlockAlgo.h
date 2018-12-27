@@ -144,7 +144,6 @@ class PFBlockAlgo {
   
   // the test elements will be transferred to the blocks
   ElementList       elements_; 
-  std::vector<ElementList::value_type::pointer> bare_elements_;
   ElementRanges     ranges_;
   
   /// if true, debug printouts activated
