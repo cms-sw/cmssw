@@ -2,6 +2,8 @@
 #include <memory>
 #include <sys/time.h>
 #include <cstdlib>
+#include <unordered_set>
+#include <unordered_map>
 
 // user include files
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -37,7 +39,6 @@
 
 #include "TLorentzVector.h"
 
-#include <unordered_map>
 
 
 struct hltPlot {
@@ -127,6 +128,7 @@ class HLTObjectsMonitor : public DQMEDAnalyzer {
 
   MonitorElement* eventsPlot_;
   std::vector<hltPlot> hltPlots_;
+  std::unordered_map<std::string, int> plotNamesToBins_;
 
   bool debug_;
 
@@ -345,15 +347,20 @@ HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   // loop over path
   int ibin = -1;
+  std::unordered_set<int> plottedPathNameIndices;
   for (auto & plot : hltPlots_) {
     ibin++;
     if ( plot.pathIDX <= 0 ) continue;
 
     if ( triggerResults->accept(plot.pathIDX) ) {
-      if ( debug_ )
-	std::cout << plot.pathNAME << " --> bin: " << ibin << std::endl;
-      eventsPlot_->Fill(ibin);
-
+      //We only want to fill this once per pathNAME per event
+      auto index = plotNamesToBins_[plot.pathNAME];
+      if(plottedPathNameIndices.end() == plottedPathNameIndices.find(index)) {
+        plottedPathNameIndices.insert(index);
+        if ( debug_ )
+          std::cout << plot.pathNAME << " --> bin: " << ibin << std::endl;
+        eventsPlot_->Fill(index);
+      }
       const trigger::TriggerObjectCollection objects = triggerEvent->getObjects();
       if ( hltConfig_.saveTags(plot.moduleNAME) ) {
 	if ( debug_ )
@@ -591,13 +598,27 @@ void HLTObjectsMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
 
   std::string name  = "eventsPerPath_"+label_;
   std::string title = " events per path";
-  int nbins = hltPlots_.size();
-  eventsPlot_ = ibooker.book1D(name,title,nbins,-0.5,double(nbins)-0.5);
-  eventsPlot_->setAxisTitle("HLT path");
-  for ( int i=0; i<nbins; i++ ) {
-    eventsPlot_->setBinLabel(i+1,hltPlots_[i].pathNAME);
-    if ( debug_ )
-      std::cout << hltPlots_[i].pathNAME << " --> bin: " << i+1 << std::endl;
+
+  //We must avoid repeating the same pathNAME
+  {
+    std::unordered_map<std::string,int> uniqueNames;
+    for(auto const& p: hltPlots_) {
+      plotNamesToBins_[p.pathNAME] = -1;
+    }
+    int nbins = plotNamesToBins_.size();
+    eventsPlot_ = ibooker.book1D(name,title,nbins,-0.5,double(nbins)-0.5);
+    eventsPlot_->setAxisTitle("HLT path");
+    int i=0;
+    //keep the bin order the same as hltPlots_
+    for (auto const& p :  hltPlots_) {
+      //only add a bin if this is the first time we've seen the name
+      if( -1 == plotNamesToBins_[p.pathNAME]) {
+        plotNamesToBins_[p.pathNAME] = i;
+        eventsPlot_->setBinLabel(i,p.pathNAME);
+        if ( debug_ )
+          std::cout << p.pathNAME << " --> bin: " << i << std::endl;
+      }
+    }
   }
 
   for (auto & plot : hltPlots_) {
