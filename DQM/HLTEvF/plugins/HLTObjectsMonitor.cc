@@ -613,7 +613,7 @@ void HLTObjectsMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
     for (auto const& p :  hltPlots_) {
       //only add a bin if this is the first time we've seen the name
       if( -1 == plotNamesToBins_[p.pathNAME]) {
-        plotNamesToBins_[p.pathNAME] = i;
+        plotNamesToBins_[p.pathNAME] = ++i;
         eventsPlot_->setBinLabel(i,p.pathNAME);
         if ( debug_ )
           std::cout << p.pathNAME << " --> bin: " << i << std::endl;
