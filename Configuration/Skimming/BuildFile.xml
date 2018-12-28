@@ -25,5 +25,4 @@
 <use name="TrackingTools/PatternTools"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="TrackingTools/Records"/>
-<use name="root"/>
 <flags   EDM_PLUGIN="1"/>

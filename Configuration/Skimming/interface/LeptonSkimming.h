@@ -97,9 +97,8 @@ class LeptonSkimming : public edm::stream::EDFilter<> {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endStream() override;
   
-       bool sort_by_MaxPt(const std::vector<float>& a, const std::vector<float>& b);
-      bool HLTFired(const edm::Event& iEvent, const edm::EventSetup& iSetup,std::vector< string> HLTPath );
-      std::vector<float> HLTObject(const edm::Event& iEvent, const edm::EventSetup& iSetup,std::vector< string> Seed);
+      bool hltFired(const edm::Event& iEvent, const edm::EventSetup& iSetup,std::vector< string> HLTPath );
+      std::array<float,5> hltObject(const edm::Event& iEvent, const edm::EventSetup& iSetup,std::vector< string> Seed);
      
 
       edm::EDGetToken electronsToken_; edm::EDGetToken muonsToken_;
@@ -112,7 +111,7 @@ class LeptonSkimming : public edm::stream::EDFilter<> {
       
      
       bool Result=false;
-      float vertex_x,vertex_y,vertex_z,beam_x,beam_y,beam_z; 
+      float beam_x,beam_y,beam_z; 
     
       std::vector<float> track_vx,track_vy,track_vz;
       std::vector<float> muon_pt,muon_eta,muon_phi,el_pt,el_eta,el_phi,muon_soft,muon_medium,muon_tight;
@@ -121,8 +120,9 @@ class LeptonSkimming : public edm::stream::EDFilter<> {
       std::vector<float> SelectedTrgObj_PtEtaPhiCharge; int SelectedMu_index;
     
       float SelectedMu_DR=-1;
-      float ZvertexTrg=-100000000; unsigned int trk_index=0;
-      std::vector<reco::TransientTrack> tempTracks;  std::vector<float> tempPtEtaPhiM,tempXYZ;
+      float ZvertexTrg=-1*std::numeric_limits<float>::max(); unsigned int trk_index=0;
+      reco::TrackBase::Point  vertex_point;
+      std::vector<float> tempPtEtaPhiM,tempXYZ;
       std::vector<std::shared_ptr<reco::Track>> cleanedObjTracks;
       std::vector<std::shared_ptr<reco::Track>> cleanedPairTracks;
       std::vector<std::shared_ptr<reco::Track>> MuTracks;
@@ -142,8 +142,8 @@ class LeptonSkimming : public edm::stream::EDFilter<> {
       double MinMee_Cut=0; double  Probee_Cut=0; double Cosee_Cut=-1;
       bool EarlyStop=false; double MuTrgMatchCone=1000; bool SkipIfNoMuMatch=false;
       double EpairZvtx_Cut=10000000; double Ksdxy_Cut=1000; double ProbeeK_Cut=0;
-      double CoseeK_Cut=0; double TrackMuDz_Cut=100000000; double MaxMVA_Cut=-1000;
-      double MinMVA_Cut=-1000; double TrgExclusionCone=-1; double SLxy_Cut=0;
+      double CoseeK_Cut=0; double TrackMuDz_Cut=100000000; 
+      double TrgExclusionCone=-1; double SLxy_Cut=0;
       double PtB_Cut=0; double PtMu_Cut=0; double QualMu_Cut=0; double PtEl_Cut=0;
       double MuTrgExclusionCone=0; double ElTrgExclusionCone=0; 
       double TrkObjExclusionCone=0; double MuTrgMuDz_Cut=1000; 
