@@ -2,7 +2,6 @@
 #include <memory>
 #include <sys/time.h>
 #include <cstdlib>
-#include <unordered_set>
 #include <unordered_map>
 
 // user include files
@@ -347,7 +346,7 @@ HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   // loop over path
   int ibin = -1;
-  std::unordered_set<int> plottedPathNameIndices;
+  std::vector<bool> plottedPathIndices(plotNamesToBins_.size(),false);
   for (auto & plot : hltPlots_) {
     ibin++;
     if ( plot.pathIDX <= 0 ) continue;
@@ -355,8 +354,8 @@ HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     if ( triggerResults->accept(plot.pathIDX) ) {
       //We only want to fill this once per pathNAME per event
       auto index = plotNamesToBins_[plot.pathNAME];
-      if(plottedPathNameIndices.end() == plottedPathNameIndices.find(index)) {
-        plottedPathNameIndices.insert(index);
+      if(not plottedPathIndices[index]) {
+        plottedPathIndices[index] = true;
         if ( debug_ )
           std::cout << plot.pathNAME << " --> bin: " << ibin << std::endl;
         eventsPlot_->Fill(index);
