@@ -42,6 +42,7 @@ class BTLDetId : public MTDDetId {
   static constexpr int kCrystalsInPhiBarPhi = 3; // per module and ROD
   static constexpr int kCrystalsInEtaBarPhi = 16; // per module
   static constexpr int kCrystalsPerROD = kModulesPerROD*kCrystalsInPhiTile*kCrystalsInEtaTile; // 64 crystals per module x 54 modules per rod, independent on geometry scenario Tile or Bar
+  static constexpr int kCrystalsPerRODBarZflat = kModulesPerRODBarZflat*kCrystalsInPhiBarZ*kCrystalsInEtaBarZ; // 64 crystals per module x 42 modules per rod, independent on geometry scenario Tile or Bar  
   static constexpr int kCrystalsPerRODBarPhiFlat = kModulesPerRODBarPhiFlat*kCrystalsInPhiBarPhi*kCrystalsInEtaBarPhi; // 48 crystals per module x 48 modules per rod
   static constexpr int MIN_ROD = 1;
   static constexpr int MAX_ROD = 72;
