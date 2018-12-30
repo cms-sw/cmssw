@@ -30,7 +30,7 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
  {
   public:
 
-    static void fillDescription( edm::ParameterSetDescription & ) ;
+    static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
 
     explicit GsfElectronBaseProducer( const edm::ParameterSet &, const gsfAlgoHelpers::HeavyObjectCache* ) ;
     ~GsfElectronBaseProducer() override ;

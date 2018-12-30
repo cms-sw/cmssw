@@ -1,4 +1,3 @@
-
 #include "GsfElectronBaseProducer.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
@@ -22,131 +21,192 @@
 #include "DataFormats/EcalRecHit/interface/EcalSeverityLevel.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include <iostream>
-
 using namespace reco;
 
-void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & desc)
- {
+void GsfElectronBaseProducer::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
+{
+  edm::ParameterSetDescription desc ;
   // input collections
-  desc.add<edm::InputTag>("previousGsfElectronsTag",edm::InputTag("ecalDrivenGsfElectrons")) ;
-  desc.add<edm::InputTag>("pflowGsfElectronsTag",edm::InputTag("pflowGsfElectrons")) ;
-  desc.add<edm::InputTag>("gsfElectronCoresTag",edm::InputTag("gsfElectronCores")) ;
-  desc.add<edm::InputTag>("hcalTowers",edm::InputTag("towerMaker")) ;
-  desc.add<edm::InputTag>("barrelRecHitCollectionTag",edm::InputTag("ecalRecHit","EcalRecHitsEB")) ;
-  desc.add<edm::InputTag>("endcapRecHitCollectionTag",edm::InputTag("ecalRecHit","EcalRecHitsEE")) ;
-  //desc.add<edm::InputTag>("pfMvaTag",edm::InputTag("pfElectronTranslator:pf")) ;
-  desc.add<edm::InputTag>("seedsTag",edm::InputTag("ecalDrivenElectronSeeds")) ;
-  desc.add<edm::InputTag>("beamSpotTag",edm::InputTag("offlineBeamSpot")) ;
-  desc.add<edm::InputTag>("gsfPfRecTracksTag",edm::InputTag("pfTrackElec")) ;
-  //desc.add<std::vector<std::string>>("SoftElecMVAFilesString",std::vector<std::string> ("SoftElecMVAFile"));
-
-
-  // backward compatibility mechanism for ctf tracks
-  desc.add<bool>("ctfTracksCheck",true) ;
-  desc.add<edm::InputTag>("ctfTracksTag",edm::InputTag("generalTracks")) ;
-
-  desc.add<bool>("gedElectronMode",true) ;
-  desc.add<double>("PreSelectMVA",-0.1) ;
-  desc.add<double>("MaxElePtForOnlyMVA",50.0) ;
+  desc.add<edm::InputTag>("gsfElectronCoresTag", edm::InputTag("gedGsfElectronCores"));
+  desc.add<edm::InputTag>("pflowGsfElectronsTag", edm::InputTag(""));
+  desc.add<edm::InputTag>("pfMvaTag", edm::InputTag(""));
+  desc.add<edm::InputTag>("previousGsfElectronsTag", edm::InputTag(""));
+  desc.add<edm::InputTag>("hcalTowers", edm::InputTag("towerMaker"));
+  desc.add<edm::InputTag>("vtxTag", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("gsfPfRecTracksTag", edm::InputTag("pfTrackElec"));
+  desc.add<edm::InputTag>("barrelRecHitCollectionTag", edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  desc.add<edm::InputTag>("endcapRecHitCollectionTag", edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  desc.add<edm::InputTag>("seedsTag", edm::InputTag("ecalDrivenElectronSeeds"));
+  desc.add<edm::InputTag>("beamSpotTag", edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("egmPFCandidatesTag", edm::InputTag("particleFlowEGamma"));
+  desc.add<bool>("checkHcalStatus", true);
 
   // steering
-  desc.add<bool>("useGsfPfRecTracks",true) ;
-  desc.add<bool>("applyPreselection",false) ;
-  desc.add<bool>("ecalDrivenEcalEnergyFromClassBasedParameterization",false) ;
-  desc.add<bool>("ecalDrivenEcalErrorFromClassBasedParameterization",false) ;
-  desc.add<bool>("pureTrackerDrivenEcalErrorFromSimpleParameterization",false) ;
-  desc.add<bool>("applyAmbResolution",false) ;
-  desc.add<unsigned>("ambSortingStrategy",1) ;
-  desc.add<unsigned>("ambClustersOverlapStrategy",1) ;
-  //desc.add<bool>("addPflowElectrons",true) ;
-
-//  // preselection parameters (ecal driven electrons)
-//  desc.add<bool>("seedFromTEC",true) ;
-//  desc.add<double>("minSCEtBarrel",4.0) ;
-//  desc.add<double>("minSCEtEndcaps",4.0) ;
-//  desc.add<double>("minEOverPBarrel",0.0) ;
-//  desc.add<double>("maxEOverPBarrel",999999999.) ;
-//  desc.add<double>("minEOverPEndcaps",0.0) ;
-//  desc.add<double>("maxEOverPEndcaps",999999999.) ;
-//  desc.add<double>("maxDeltaEtaBarrel",0.02) ;
-//  desc.add<double>("maxDeltaEtaEndcaps",0.02) ;
-//  desc.add<double>("maxDeltaPhiBarrel",0.15) ;
-//  desc.add<double>("maxDeltaPhiEndcaps",0.15) ;
-//  desc.add<double>("hOverEConeSize",0.15) ;
-//  desc.add<double>("hOverEPtMin",0.) ;
-//  desc.add<double>("maxHOverEBarrel",0.15) ;
-//  desc.add<double>("maxHOverEEndcaps",0.15) ;
-//  desc.add<double>("maxHBarrel",0.0) ;
-//  desc.add<double>("maxHEndcaps",0.0) ;
-//  desc.add<double>("maxSigmaIetaIetaBarrel",999999999.) ;
-//  desc.add<double>("maxSigmaIetaIetaEndcaps",999999999.) ;
-//  desc.add<double>("maxFbremBarrel",999999999.) ;
-//  desc.add<double>("maxFbremEndcaps",999999999.) ;
-//  desc.add<bool>("isBarrel",false) ;
-//  desc.add<bool>("isEndcaps",false) ;
-//  desc.add<bool>("isFiducial",false) ;
-//  desc.add<double>("maxTIP",999999999.) ;
-//  desc.add<double>("minMVA",-0.4) ;
-//
-//  // preselection parameters (tracker driven only electrons)
-//  desc.add<double>("minSCEtBarrelPflow",0.0) ;
-//  desc.add<double>("minSCEtEndcapsPflow",0.0) ;
-//  desc.add<double>("minEOverPBarrelPflow",0.0) ;
-//  desc.add<double>("maxEOverPBarrelPflow",999999999.) ;
-//  desc.add<double>("minEOverPEndcapsPflow",0.0) ;
-//  desc.add<double>("maxEOverPEndcapsPflow",999999999.) ;
-//  desc.add<double>("maxDeltaEtaBarrelPflow",999999999.) ;
-//  desc.add<double>("maxDeltaEtaEndcapsPflow",999999999.) ;
-//  desc.add<double>("maxDeltaPhiBarrelPflow",999999999.) ;
-//  desc.add<double>("maxDeltaPhiEndcapsPflow",999999999.) ;
-//  desc.add<double>("hOverEConeSizePflow",0.15) ;
-//  desc.add<double>("hOverEPtMinPflow",0.) ;
-//  desc.add<double>("maxHOverEBarrelPflow",999999999.) ;
-//  desc.add<double>("maxHOverEEndcapsPflow",999999999.) ;
-//  desc.add<double>("maxHBarrelPflow",0.0) ;
-//  desc.add<double>("maxHEndcapsPflow",0.0) ;
-//  desc.add<double>("maxSigmaIetaIetaBarrelPflow",999999999.) ;
-//  desc.add<double>("maxSigmaIetaIetaEndcapsPflow",999999999.) ;
-//  desc.add<double>("maxFbremBarrelPflow",999999999.) ;
-//  desc.add<double>("maxFbremEndcapsPflow",999999999.) ;
-//  desc.add<bool>("isBarrelPflow",false) ;
-//  desc.add<bool>("isEndcapsPflow",false) ;
-//  desc.add<bool>("isFiducialPflow",false) ;
-//  desc.add<double>("maxTIPPflow",999999999.) ;
-//  desc.add<double>("minMVAPflow",-0.4) ;
+  desc.add<bool>("gedElectronMode", true);
+  desc.add<bool>("useCombinationRegression", true);
+  desc.add<bool>("ecalDrivenEcalEnergyFromClassBasedParameterization", false);
+  desc.add<bool>("ecalDrivenEcalErrorFromClassBasedParameterization", false);
+  desc.add<bool>("applyPreselection", true);
+  desc.add<bool>("useEcalRegression", true);
+  desc.add<bool>("applyAmbResolution", false);
+  desc.add<bool>("useGsfPfRecTracks", true);
+  desc.add<bool>("pureTrackerDrivenEcalErrorFromSimpleParameterization", true);
+  desc.add<unsigned int>("ambSortingStrategy", 1);
+  desc.add<unsigned int>("ambClustersOverlapStrategy", 1);
+  desc.add<bool>("addPflowElectrons", true); // this one should be transfered to the "core" level
 
   // Ecal rec hits configuration
-  desc.add<std::vector<int> >("recHitFlagsToBeExcludedBarrel") ;
-  desc.add<std::vector<int> >("recHitFlagsToBeExcludedEndcaps") ;
-  desc.add<std::vector<int> >("recHitSeverityToBeExcludedBarrel") ;
-  desc.add<std::vector<int> >("recHitSeverityToBeExcludedEndcaps") ;
-  //desc.add<int>("severityLevelCut",4) ;
+  desc.add<std::vector<std::string>>("recHitFlagsToBeExcludedBarrel");
+  desc.add<std::vector<std::string>>("recHitFlagsToBeExcludedEndcaps");
+  desc.add<std::vector<std::string>>("recHitSeverityToBeExcludedBarrel");
+  desc.add<std::vector<std::string>>("recHitSeverityToBeExcludedEndcaps");
 
   // Isolation algos configuration
-  desc.add("trkIsol03Cfg",EleTkIsolFromCands::pSetDescript());
-  desc.add("trkIsol04Cfg",EleTkIsolFromCands::pSetDescript());
-  desc.add<double>("intRadiusHcal",0.15) ;
-  desc.add<double>("etMinHcal",0.0) ;
-  desc.add<double>("intRadiusEcalBarrel",3.0) ;
-  desc.add<double>("intRadiusEcalEndcaps",3.0) ;
-  desc.add<double>("jurassicWidth",1.5) ;
-  desc.add<double>("etMinBarrel",0.0) ;
-  desc.add<double>("eMinBarrel",0.08) ;
-  desc.add<double>("etMinEndcaps",0.1) ;
-  desc.add<double>("eMinEndcaps",0.0) ;
-  desc.add<bool>("vetoClustered",false) ;
-  desc.add<bool>("useNumCrystals",true) ;
+  {
+    edm::ParameterSetDescription psd0;
+    edm::ParameterSetDescription psd1;
+    psd1.add<int>("minHits");
+    psd1.add<std::vector<std::string>>("algosToReject");
+    psd1.add<double>("minDEta");
+    psd1.add<double>("maxDZ");
+    psd1.add<double>("maxDPtPt");
+    psd1.add<std::vector<std::string>>("allowedQualities");
+    psd1.add<double>("maxDR");
+    psd1.add<double>("minDR");
+    psd1.add<int>("minPixelHits");
+    psd1.add<double>("minPt");
+    psd0.add<edm::ParameterSetDescription>("endcapCuts", psd1);
+    psd0.add<edm::ParameterSetDescription>("barrelCuts", psd1);
+    desc.add<edm::ParameterSetDescription>("trkIsol03Cfg", psd0);
+    desc.add<edm::ParameterSetDescription>("trkIsol04Cfg", psd0);
+  }
+  desc.add<bool>("useNumCrystals", true);
+  desc.add<double>("etMinBarrel", 0.0);
+  desc.add<double>("etMinEndcaps", 0.11);
+  desc.add<double>("etMinHcal", 0.0);
+  desc.add<double>("eMinBarrel", 0.095);
+  desc.add<double>("eMinEndcaps", 0.0);
+  desc.add<double>("intRadiusEcalBarrel", 3.0);
+  desc.add<double>("intRadiusEcalEndcaps", 3.0);
+  desc.add<double>("intRadiusHcal", 0.15);
+  desc.add<double>("jurassicWidth", 1.5);
+  desc.add<bool>("vetoClustered", false);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("propagatorAlongTISE", "PropagatorWithMaterial");
+    psd0.add<std::string>("propagatorOppositeTISE", "PropagatorWithMaterialOpposite");
+    desc.add<edm::ParameterSetDescription>("TransientInitialStateEstimatorParameters", psd0);
+  }
 
-  edm::ParameterSetDescription descNested ;
-  descNested.add<std::string>("propagatorAlongTISE","PropagatorWithMaterial") ;
-  descNested.add<std::string>("propagatorOppositeTISE","PropagatorWithMaterialOpposite") ;
-  desc.add<edm::ParameterSetDescription>("TransientInitialStateEstimatorParameters",descNested) ;
+  // backward compatibility mechanism for ctf tracks
+  desc.add<bool>("ctfTracksCheck", true);
+  desc.add<edm::InputTag>("ctfTracksTag", edm::InputTag("generalTracks"));
+
+  desc.add<double>("MaxElePtForOnlyMVA",50.0);
+  desc.add<double>("PreSelectMVA", -0.1);
+
+  // preselection parameters (ecal driven electrons)
+  desc.add<double>("minSCEtBarrel", 4.0);
+  desc.add<double>("minSCEtEndcaps", 4.0);
+  desc.add<double>("minEOverPBarrel", 0.0);
+  desc.add<double>("minEOverPEndcaps", 0.0);
+  desc.add<double>("maxEOverPBarrel", 999999999.0);
+  desc.add<double>("maxEOverPEndcaps", 999999999.0);
+  desc.add<double>("maxDeltaEtaBarrel", 0.02);
+  desc.add<double>("maxDeltaEtaEndcaps", 0.02);
+  desc.add<double>("maxDeltaPhiBarrel", 0.15);
+  desc.add<double>("maxDeltaPhiEndcaps", 0.15);
+  desc.add<double>("hOverEConeSize", 0.15);
+  desc.add<double>("hOverEPtMin", 0.0);
+  desc.add<double>("maxHOverEBarrel", 0.15);
+  desc.add<double>("maxHOverEEndcaps", 0.15);
+  desc.add<double>("maxHBarrel", 0.0);
+  desc.add<double>("maxHEndcaps", 0.0);
+  desc.add<double>("maxSigmaIetaIetaBarrel", 999999999.0);
+  desc.add<double>("maxSigmaIetaIetaEndcaps", 999999999.0);
+  desc.add<double>("maxFbremBarrel", 999999999.0);
+  desc.add<double>("maxFbremEndcaps", 999999999.0);
+  desc.add<bool>("isBarrel", false);
+  desc.add<bool>("isEndcaps", false);
+  desc.add<bool>("isFiducial", false);
+  desc.add<bool>("seedFromTEC", true);
+  desc.add<double>("maxTIP", 999999999.0);
+  desc.add<double>("minMVA", -0.4);
+  desc.add<double>("minMvaByPassForIsolated", -0.4);
+
+  // preselection parameters (tracker driven only electrons)
+  desc.add<double>("minSCEtBarrelPflow", 0.0);
+  desc.add<double>("minSCEtEndcapsPflow", 0.0);
+  desc.add<double>("minEOverPBarrelPflow", 0.0);
+  desc.add<double>("minEOverPEndcapsPflow", 0.0);
+  desc.add<double>("maxEOverPBarrelPflow", 999999999.0);
+  desc.add<double>("maxEOverPEndcapsPflow", 999999999.0);
+  desc.add<double>("maxDeltaEtaBarrelPflow", 999999999.0);
+  desc.add<double>("maxDeltaEtaEndcapsPflow", 999999999.0);
+  desc.add<double>("maxDeltaPhiBarrelPflow", 999999999.0);
+  desc.add<double>("maxDeltaPhiEndcapsPflow", 999999999.0);
+  desc.add<double>("hOverEConeSizePflow", 0.15);
+  desc.add<double>("hOverEPtMinPflow", 0.0);
+  desc.add<double>("maxHOverEBarrelPflow", 999999999.0);
+  desc.add<double>("maxHOverEEndcapsPflow", 999999999.0);
+  desc.add<double>("maxHBarrelPflow", 0.0);
+  desc.add<double>("maxHEndcapsPflow", 0.0);
+  desc.add<double>("maxSigmaIetaIetaBarrelPflow", 999999999.0);
+  desc.add<double>("maxSigmaIetaIetaEndcapsPflow", 999999999.0);
+  desc.add<double>("maxFbremBarrelPflow", 999999999.0);
+  desc.add<double>("maxFbremEndcapsPflow", 999999999.0);
+  desc.add<bool>("isBarrelPflow", false);
+  desc.add<bool>("isEndcapsPflow", false);
+  desc.add<bool>("isFiducialPflow", false);
+  desc.add<double>("maxTIPPflow", 999999999.0);
+  desc.add<double>("minMVAPflow", -0.4);
+  desc.add<double>("minMvaByPassForIsolatedPflow", -0.4);
 
   // Corrections
-  desc.add<std::string>("superClusterErrorFunction","EcalClusterEnergyUncertaintyObjectSpecific") ;
-  desc.add<std::string>("crackCorrectionFunction","EcalClusterCrackCorrection") ;
- }
+  desc.add<std::string>("superClusterErrorFunction", "EcalClusterEnergyUncertaintyObjectSpecific");
+  desc.add<std::string>("crackCorrectionFunction", "EcalClusterCrackCorrection");
+
+  desc.add<bool>("ecalWeightsFromDB", true);
+  desc.add<std::vector<std::string>>("ecalRefinedRegressionWeightFiles", {})->setComment(
+          "if not from DB. Otherwise, keep empty");
+  desc.add<bool>("combinationWeightsFromDB", true);
+  desc.add<std::vector<std::string>>("combinationRegressionWeightFile", {})->setComment(
+          "if not from DB. Otherwise, keep empty");
+
+  // regression. The labels are needed in all cases.
+  desc.add<std::vector<std::string>>("ecalRefinedRegressionWeightLabels", {});
+  desc.add<std::vector<std::string>>("combinationRegressionWeightLabels", {});
+
+  // Iso values
+  desc.add<bool>("useIsolationValues", false);
+
+  desc.add<std::vector<std::string>>("SoftElecMVAFilesString", {
+         "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_7Feb2014.weights.xml",
+  });
+
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<edm::InputTag>("edSumPhotonEt", edm::InputTag("elEDIsoValueGamma04"));
+    psd0.add<edm::InputTag>("edSumNeutralHadronEt", edm::InputTag("elEDIsoValueNeutral04"));
+    psd0.add<edm::InputTag>("edSumChargedHadronPt", edm::InputTag("elEDIsoValueCharged04"));
+    desc.add<edm::ParameterSetDescription>("edIsolationValues", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<edm::InputTag>("pfSumNeutralHadronEt", edm::InputTag("elPFIsoValueNeutral04"));
+    psd0.add<edm::InputTag>("pfSumChargedHadronPt", edm::InputTag("elPFIsoValueCharged04"));
+    psd0.add<edm::InputTag>("pfSumPhotonEt", edm::InputTag("elPFIsoValueGamma04"));
+    desc.add<edm::ParameterSetDescription>("pfIsolationValues", psd0);
+  }
+
+  desc.add<std::vector<std::string>>("ElecMVAFilesString", {
+    "RecoEgamma/ElectronIdentification/data/TMVA_Category_BDTSimpleCat_10_17Feb2011.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/TMVA_Category_BDTSimpleCat_12_17Feb2011.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/TMVA_Category_BDTSimpleCat_20_17Feb2011.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/TMVA_Category_BDTSimpleCat_22_17Feb2011.weights.xml",
+  });
+  descriptions.addDefault(desc);
+}
 
 GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, const gsfAlgoHelpers::HeavyObjectCache* )
  : ecalSeedingParametersChecked_(false)
@@ -157,7 +217,6 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   inputCfg_.pflowGsfElectronsTag = consumes<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("pflowGsfElectronsTag"));
   inputCfg_.gsfElectronCores = consumes<reco::GsfElectronCoreCollection>(cfg.getParameter<edm::InputTag>("gsfElectronCoresTag"));
   inputCfg_.hcalTowersTag = consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers"));
-  //inputCfg_.tracks_ = cfg.getParameter<edm::InputTag>("tracks");
   inputCfg_.barrelRecHitCollection = consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("barrelRecHitCollectionTag"));
   inputCfg_.endcapRecHitCollection = consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("endcapRecHitCollectionTag"));
   inputCfg_.pfMVA = consumes<edm::ValueMap<float> >(cfg.getParameter<edm::InputTag>("pfMvaTag"));
@@ -167,36 +226,17 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   inputCfg_.gsfPfRecTracksTag = consumes<reco::GsfPFRecTrackCollection>(cfg.getParameter<edm::InputTag>("gsfPfRecTracksTag"));
   inputCfg_.vtxCollectionTag = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vtxTag"));
 
-  bool useIsolationValues = cfg.getParameter<bool>("useIsolationValues") ;
-  if ( useIsolationValues ) {
-    if( ! cfg.exists("pfIsolationValues") ) {
-      throw cms::Exception("GsfElectronBaseProducer|InternalError")
-	<<"Missing ParameterSet pfIsolationValues" ;
-    } else {
-      inputCfg_.pfIsoVals = 
-	cfg.getParameter<edm::ParameterSet> ("pfIsolationValues");
-      std::vector<std::string> isoNames = 
-	inputCfg_.pfIsoVals.getParameterNamesForType<edm::InputTag>();
-      for(const std::string& name : isoNames) {
-	edm::InputTag tag = 
-	  inputCfg_.pfIsoVals.getParameter<edm::InputTag>(name);
-	mayConsume<edm::ValueMap<double> >(tag);
-      }
+  if ( cfg.getParameter<bool>("useIsolationValues") ) {
+    inputCfg_.pfIsoVals = cfg.getParameter<edm::ParameterSet> ("pfIsolationValues");
+    for(const std::string& name : inputCfg_.pfIsoVals.getParameterNamesForType<edm::InputTag>()) {
+      edm::InputTag tag = inputCfg_.pfIsoVals.getParameter<edm::InputTag>(name);
+      mayConsume<edm::ValueMap<double> >(tag);
     }
-      
-    if ( ! cfg.exists("edIsolationValues") ) {
-      throw cms::Exception("GsfElectronBaseProducer|InternalError")
-	<<"Missing ParameterSet edIsolationValues" ;
-    } else {
-      inputCfg_.edIsoVals = 
-	cfg.getParameter<edm::ParameterSet> ("edIsolationValues");
-      std::vector<std::string> isoNames = 
-	inputCfg_.edIsoVals.getParameterNamesForType<edm::InputTag>();
-      for(const std::string& name : isoNames) {
-	edm::InputTag tag = 
-	  inputCfg_.edIsoVals.getParameter<edm::InputTag>(name);
-	mayConsume<edm::ValueMap<double> >(tag);
-      }
+
+    inputCfg_.edIsoVals = cfg.getParameter<edm::ParameterSet> ("edIsolationValues");
+    for(const std::string& name : inputCfg_.edIsoVals.getParameterNamesForType<edm::InputTag>()) {
+      edm::InputTag tag = inputCfg_.edIsoVals.getParameter<edm::InputTag>(name);
+      mayConsume<edm::ValueMap<double> >(tag);
     }
   }
 
@@ -211,8 +251,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   strategyCfg_.addPflowElectrons = cfg.getParameter<bool>("addPflowElectrons") ;
   strategyCfg_.ctfTracksCheck = cfg.getParameter<bool>("ctfTracksCheck");
   strategyCfg_.gedElectronMode = cfg.getParameter<bool>("gedElectronMode");
-  strategyCfg_.PreSelectMVA = cfg.getParameter<double>("PreSelectMVA");  
-  strategyCfg_.MaxElePtForOnlyMVA = cfg.getParameter<double>("MaxElePtForOnlyMVA");  
+  strategyCfg_.PreSelectMVA = cfg.getParameter<double>("PreSelectMVA");
+  strategyCfg_.MaxElePtForOnlyMVA = cfg.getParameter<double>("MaxElePtForOnlyMVA");
   strategyCfg_.useEcalRegression = cfg.getParameter<bool>("useEcalRegression");
   strategyCfg_.useCombinationRegression = cfg.getParameter<bool>("useCombinationRegression");
 
@@ -284,8 +324,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
    {
     hcalCfg_.useTowers = true ;
     hcalCfg_.checkHcalStatus = cfg.getParameter<bool>("checkHcalStatus") ;
-    hcalCfg_.hcalTowers = 
-      consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers")) ;
+    hcalCfg_.hcalTowers = consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers")) ;
     hcalCfg_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMin") ;
    }
   hcalCfgPflow_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSizePflow") ;
@@ -293,8 +332,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
    {
     hcalCfgPflow_.useTowers = true ;
     hcalCfgPflow_.checkHcalStatus = cfg.getParameter<bool>("checkHcalStatus") ;
-    hcalCfgPflow_.hcalTowers = 
-      consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers")) ;
+    hcalCfgPflow_.hcalTowers = consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers")) ;
     hcalCfgPflow_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMinPflow") ;
    }
 
@@ -311,53 +349,38 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   //recHitsCfg.severityLevelCut = cfg.getParameter<int>("severityLevelCut") ;
 
   // isolation
-  GsfElectronAlgo::IsolationConfiguration isoCfg ;
-  isoCfg.intRadiusHcal = cfg.getParameter<double>("intRadiusHcal") ;
-  isoCfg.etMinHcal = cfg.getParameter<double>("etMinHcal") ;
-  isoCfg.intRadiusEcalBarrel = cfg.getParameter<double>("intRadiusEcalBarrel") ;
-  isoCfg.intRadiusEcalEndcaps = cfg.getParameter<double>("intRadiusEcalEndcaps") ;
-  isoCfg.jurassicWidth = cfg.getParameter<double>("jurassicWidth") ;
-  isoCfg.etMinBarrel = cfg.getParameter<double>("etMinBarrel") ;
-  isoCfg.eMinBarrel = cfg.getParameter<double>("eMinBarrel") ;
-  isoCfg.etMinEndcaps = cfg.getParameter<double>("etMinEndcaps") ;
-  isoCfg.eMinEndcaps = cfg.getParameter<double>("eMinEndcaps") ;
-  isoCfg.vetoClustered = cfg.getParameter<bool>("vetoClustered") ;
-  isoCfg.useNumCrystals = cfg.getParameter<bool>("useNumCrystals") ;
+  const GsfElectronAlgo::IsolationConfiguration isoCfg{
+      .intRadiusHcal = cfg.getParameter<double>("intRadiusHcal"),
+      .etMinHcal = cfg.getParameter<double>("etMinHcal"),
+      .intRadiusEcalBarrel = cfg.getParameter<double>("intRadiusEcalBarrel"),
+      .intRadiusEcalEndcaps = cfg.getParameter<double>("intRadiusEcalEndcaps"),
+      .jurassicWidth = cfg.getParameter<double>("jurassicWidth"),
+      .etMinBarrel = cfg.getParameter<double>("etMinBarrel"),
+      .eMinBarrel = cfg.getParameter<double>("eMinBarrel"),
+      .etMinEndcaps = cfg.getParameter<double>("etMinEndcaps"),
+      .eMinEndcaps = cfg.getParameter<double>("eMinEndcaps"),
+      .vetoClustered = cfg.getParameter<bool>("vetoClustered"),
+      .useNumCrystals = cfg.getParameter<bool>("useNumCrystals")
+  };
 
- 
-  RegressionHelper::Configuration regressionCfg ;
-  regressionCfg.ecalRegressionWeightLabels = cfg.getParameter<std::vector<std::string> >("ecalRefinedRegressionWeightLabels");
-  regressionCfg.combinationRegressionWeightLabels = cfg.getParameter<std::vector<std::string> >("combinationRegressionWeightLabels");
-  regressionCfg.ecalRegressionWeightFiles = cfg.getParameter<std::vector<std::string> >("ecalRefinedRegressionWeightFiles");
-  regressionCfg.combinationRegressionWeightFiles = cfg.getParameter<std::vector<std::string> >("combinationRegressionWeightFile");
-  regressionCfg.ecalWeightsFromDB = cfg.getParameter<bool>("ecalWeightsFromDB");
-  regressionCfg.combinationWeightsFromDB = cfg.getParameter<bool>("combinationWeightsFromDB");
+  const RegressionHelper::Configuration regressionCfg{
+      .ecalRegressionWeightLabels = cfg.getParameter<std::vector<std::string> >("ecalRefinedRegressionWeightLabels"),
+      .ecalWeightsFromDB = cfg.getParameter<bool>("ecalWeightsFromDB"),
+      .ecalRegressionWeightFiles = cfg.getParameter<std::vector<std::string> >("ecalRefinedRegressionWeightFiles"),
+      .combinationRegressionWeightLabels = cfg.getParameter<std::vector<std::string> >("combinationRegressionWeightLabels"),
+      .combinationWeightsFromDB = cfg.getParameter<bool>("combinationWeightsFromDB"),
+      .combinationRegressionWeightFiles = cfg.getParameter<std::vector<std::string> >("combinationRegressionWeightFile")
+  };
+
   // functions for corrector
-  EcalClusterFunctionBaseClass * superClusterErrorFunction = nullptr ;
-  std::string superClusterErrorFunctionName
-   = cfg.getParameter<std::string>("superClusterErrorFunction") ;
-  if (!superClusterErrorFunctionName.empty())
-   {
-    superClusterErrorFunction
-     = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName,cfg) ;
-   }
-  else
-  {
-   superClusterErrorFunction
-    = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyUncertaintyObjectSpecific",cfg) ;
-  }
-  EcalClusterFunctionBaseClass * crackCorrectionFunction = nullptr ;
-  std::string crackCorrectionFunctionName
-   = cfg.getParameter<std::string>("crackCorrectionFunction") ;
-  if (!crackCorrectionFunctionName.empty())
-   {
-    crackCorrectionFunction
-     = EcalClusterFunctionFactory::get()->create(crackCorrectionFunctionName,cfg) ;
-   }
+  EcalClusterFunctionBaseClass * const superClusterErrorFunction =
+      EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("superClusterErrorFunction"),cfg);
+  EcalClusterFunctionBaseClass * const crackCorrectionFunction =
+      EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("crackCorrectionFunction"),cfg) ;
 
+  mva_NIso_Cfg_.vweightsfiles = cfg.getParameter<std::vector<std::string>>("SoftElecMVAFilesString");
+  mva_Iso_Cfg_.vweightsfiles  = cfg.getParameter<std::vector<std::string>>("ElecMVAFilesString");
 
-   mva_NIso_Cfg_.vweightsfiles = cfg.getParameter<std::vector<std::string>>("SoftElecMVAFilesString");
-   mva_Iso_Cfg_.vweightsfiles  = cfg.getParameter<std::vector<std::string>>("ElecMVAFilesString");
   // create algo
   algo_ = new GsfElectronAlgo
    ( inputCfg_, strategyCfg_,
@@ -371,14 +394,10 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
      regressionCfg,
      cfg.getParameter<edm::ParameterSet>("trkIsol03Cfg"),
      cfg.getParameter<edm::ParameterSet>("trkIsol04Cfg")
-     
    ) ;
-
-
  }
 
-GsfElectronBaseProducer::~GsfElectronBaseProducer()
- { delete algo_ ; }
+GsfElectronBaseProducer::~GsfElectronBaseProducer() { delete algo_ ; }
 
 void GsfElectronBaseProducer::beginEvent( edm::Event & event, const edm::EventSetup & setup )
  {
@@ -428,16 +447,11 @@ void GsfElectronBaseProducer::fillEvent( edm::Event & event )
   orphanHandle_ = event.put(std::move(finalCollection));
 }
 
-void GsfElectronBaseProducer::endEvent()
- {
-  algo_->endEvent() ;
- }
+void GsfElectronBaseProducer::endEvent() { algo_->endEvent(); }
 
 void GsfElectronBaseProducer::checkEcalSeedingParameters( edm::ParameterSet const & pset )
  {
   edm::ParameterSet seedConfiguration = pset.getParameter<edm::ParameterSet>("SeedConfiguration") ;
-  //edm::ParameterSet orderedHitsFactoryPSet = seedConfiguration.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet") ;
-  //edm::ParameterSet seedParameters = seedConfiguration.getParameter<edm::ParameterSet>("ecalDrivenElectronSeedsParameters") ;
 
   if (seedConfiguration.getParameter<bool>("applyHOverECut"))
    {
@@ -454,5 +468,3 @@ void GsfElectronBaseProducer::checkEcalSeedingParameters( edm::ParameterSet cons
   if (cutsCfg_.minSCEtEndcaps<seedConfiguration.getParameter<double>("SCEtCut"))
    { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The minimum super-cluster Et in endcaps is lower than during ecal seeding." ; }
  }
-
-
