@@ -39,6 +39,8 @@ namespace edm {
     ///product with the label and instance
     std::string const& process() const {return process_;} 
 
+    bool isUnitialized() const {return label_.empty() && instance_.empty() && process_.empty();}
+
     bool willSkipCurrentProcess() const { return skipCurrentProcess_; }
     
     bool operator==(InputTag const& tag) const;
