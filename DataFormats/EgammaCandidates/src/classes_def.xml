@@ -9,7 +9,8 @@
   </ioread>
 
 
-  <class name="reco::Photon" ClassVersion="17">
+  <class name="reco::Photon" ClassVersion="18">
+   <version ClassVersion="18" checksum="1427192729"/>
    <version ClassVersion="17" checksum="4077732720"/>
    <version ClassVersion="16" checksum="3459546220"/>
    <version ClassVersion="15" checksum="577991108"/>
@@ -233,7 +234,8 @@
    <version ClassVersion="3" checksum="3868678681"/>
   </class>
 
-  <class name="reco::GsfElectron" ClassVersion="20">
+  <class name="reco::GsfElectron" ClassVersion="21">
+   <version ClassVersion="21" checksum="2626127449"/>
    <version ClassVersion="20" checksum="2375747450"/>
    <version ClassVersion="19" checksum="1682285704"/>
    <version ClassVersion="18" checksum="2072747263"/>

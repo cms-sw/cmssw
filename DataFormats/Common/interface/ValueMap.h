@@ -15,6 +15,25 @@
 #include <iterator>
 #include <algorithm>
 #include <cstddef>
+#include <iostream>
+
+//our SFINAE templates
+//these exist to extend the valuemap interface for those objects which support it
+//if an object has "parentRefs" function which returns a std::vector<edm::Ref> 
+//or std::vector<edm::Ptr> (or something which looks sufficiently close to it)
+//the ValueMap::operator[] will also check for those references 
+//this means you can make a new collection of objects and then use ValueMaps 
+//keyed to the old collection without error
+namespace{
+  template<typename T,typename Dummy = decltype(&T::value_type::parentRefs)>
+    constexpr auto hasParents(int){return true;}
+  template<typename T>
+    constexpr auto hasParents(long){return false;}
+  template<typename T,typename std::enable_if<hasParents<T>(0),int >::type = 0>
+    const auto getParentRefs(const T& obj){return obj->parentRefs();}
+  template<typename T,typename std::enable_if<!hasParents<T>(0),int >::type = 0>
+    const auto getParentRefs(const T& obj){return std::vector<T>();}
+}
 
 namespace edm {
   namespace helper {
@@ -126,8 +145,22 @@ namespace edm {
 
     template<typename RefKey>
     const_reference_type operator[](const RefKey & r) const {
-      return get(r.id(), r.key());
+      if(!hasParents<RefKey>(0) || validIdKeyPair(r.id(), r.key())) return get(r.id(), r.key());
+      else if(r.isAvailable()){
+	auto parentRefs = getParentRefs<RefKey> (r);
+	for(auto parentRef : parentRefs){
+	  if(validIdKeyPair(parentRef.id(),parentRef.key())) return get(parentRef.id(),parentRef.key());
+	}
+      }
+      //we tried, no valid reference, call the get and let it raise the exception
+      return get(r.id(),r.key());	
     }
+     
+    bool validIdKeyPair(ProductID id, size_t idx) const {
+      typename id_offset_vector::const_iterator f = getIdOffset(id);
+      return f!=ids_.end();
+    }
+
     // raw index of a given (id,key) pair
     size_t rawIndexOf(ProductID id, size_t idx) const {
       typename id_offset_vector::const_iterator f = getIdOffset(id);
@@ -137,17 +170,28 @@ namespace edm {
       if(j >= values_.size()) throwIndexBound();
       return j;
     }
+
     const_reference_type get(ProductID id, size_t idx) const { 
       return values_[rawIndexOf(id,idx)];
     }
+
     template<typename RefKey>
     reference_type operator[](const RefKey & r) {
-      return get(r.id(), r.key());
+      if(!hasParents<RefKey>(0) || validIdKeyPair(r.id(), r.key())) return get(r.id(), r.key());
+      else if(r.isAvailable()){
+	auto parentRefs = getParentRefs<RefKey>(r);
+	for(auto parentRef : parentRefs){
+	  if(validIdKeyPair(parentRef.id(),parentRef.key())) return get(parentRef.id(),parentRef.key());
+	}
+      }
+      //we tried, no valid reference, call the get and let it raise the exception
+      return get(r.id(),r.key());	
     }
+
     reference_type get(ProductID id, size_t idx) { 
       return values_[rawIndexOf(id,idx)];
     }
-
+      
     ValueMap<T> & operator+=(const ValueMap<T> & o) {
       add(o);
       return *this;
@@ -212,7 +256,7 @@ namespace edm {
     const id_offset_vector & ids() const { return ids_; }
     /// meant to be used in AssociativeIterator, not by the ordinary user
     const_reference_type get(size_t idx) const { return values_[idx]; }
-    
+     
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)
 

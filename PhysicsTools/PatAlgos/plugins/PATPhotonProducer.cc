@@ -213,14 +213,15 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   }
 
   // loop over photons
-  std::vector<Photon> * PATPhotons = new std::vector<Photon>();
+  auto patPhotons = std::make_unique<std::vector<Photon> >();
   for (edm::View<reco::Photon>::const_iterator itPhoton = photons->begin(); itPhoton != photons->end(); itPhoton++) {
     // construct the Photon from the ref -> save ref to original object
     unsigned int idx = itPhoton - photons->begin();
     edm::RefToBase<reco::Photon> photonRef = photons->refAt(idx);
-    edm::Ptr<reco::Photon> photonPtr = photons->ptrAt(idx);
-    Photon aPhoton(photonRef);
     auto phoPtr = photons -> ptrAt(idx);
+    Photon aPhoton(photonRef);
+    aPhoton.addParentRef(phoPtr);
+
     if (embedSuperCluster_) aPhoton.embedSuperCluster();
     if (embedSeedCluster_) aPhoton.embedSeedCluster();
     if (embedBasicClusters_) aPhoton.embedBasicClusters();
@@ -430,15 +431,14 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     }
 
     // add the Photon to the vector of Photons
-    PATPhotons->push_back(aPhoton);
+    patPhotons->push_back(aPhoton);
   }
 
   // sort Photons in ET
-  std::sort(PATPhotons->begin(), PATPhotons->end(), eTComparator_);
+  std::sort(patPhotons->begin(), patPhotons->end(), eTComparator_);
 
   // put genEvt object in Event
-  std::unique_ptr<std::vector<Photon> > myPhotons(PATPhotons);
-  iEvent.put(std::move(myPhotons));
+  iEvent.put(std::move(patPhotons));
   if (isolator_.enabled()) isolator_.endEvent();
 
 }

@@ -82,7 +82,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
 double GsfEleValueMapIsoRhoCut::
 value(const reco::CandidatePtr& cand) const {
   reco::GsfElectronPtr ele(cand);  
-  return (*valueHandle_)[cand];
+  return (*valueHandle_)[ele];
 }
 
 float GsfEleValueMapIsoRhoCut::getRhoCorr(const reco::GsfElectronPtr& cand)const{

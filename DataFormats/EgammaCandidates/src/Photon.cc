@@ -14,25 +14,6 @@ Photon::Photon( const LorentzVector & p4,
  {}
 
 
-Photon::Photon( const Photon& rhs ) :
-  RecoCandidate(rhs),
-  caloPosition_(rhs.caloPosition_),
-  photonCore_ ( rhs.photonCore_),
-  pixelSeed_  ( rhs.pixelSeed_ ),
-  fiducialFlagBlock_ ( rhs.fiducialFlagBlock_ ),
-  isolationR04_ ( rhs.isolationR04_),
-  isolationR03_ ( rhs.isolationR03_),
-  showerShapeBlock_ ( rhs.showerShapeBlock_),
-  full5x5_showerShapeBlock_ ( rhs.full5x5_showerShapeBlock_),
-  saturationInfo_ ( rhs.saturationInfo_ ),
-  eCorrections_(rhs.eCorrections_),
-  mipVariableBlock_ (rhs.mipVariableBlock_),
-  pfIsolation_ ( rhs.pfIsolation_ )
- {}
-
-
-
-
 Photon::~Photon() { }
 
 Photon * Photon::clone() const {

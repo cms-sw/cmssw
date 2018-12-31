@@ -897,8 +897,17 @@ class GsfElectron : public RecoCandidate
   float pixelMatchDPhi2() const { return pixelMatchVariables_.dPhi2 ; }
   float pixelMatchDRz1 () const { return pixelMatchVariables_.dRz1  ; }
   float pixelMatchDRz2 () const { return pixelMatchVariables_.dRz2  ; }
+
   private:
     PixelMatchVariables pixelMatchVariables_ ;    
+
+  public:
+    const std::vector<edm::Ptr<reco::GsfElectron> >& parentRefs()const{return parentRefs_;}
+    void addParentRef(edm::Ptr<reco::GsfElectron> ref){parentRefs_.push_back(ref);}
+    void setParentRefs(std::vector<edm::Ptr<reco::GsfElectron> > refs){parentRefs_ = refs;}
+  private: 
+    //needs to access both reco::GsfElectrons, pat::Electrons
+    std::vector<edm::Ptr<reco::GsfElectron> > parentRefs_;
  } ;
 
  } // namespace reco
