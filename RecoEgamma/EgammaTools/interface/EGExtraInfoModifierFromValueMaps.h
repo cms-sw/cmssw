@@ -48,7 +48,7 @@ namespace egmodifier {
     ValueMapData(std::string name,const edm::InputTag& tag):name_(std::move(name)),tag_(tag){}
     
     void setHandle(const edm::Event& evt){if(!token_.isUninitialized()) evt.getByToken(token_,handle_);}
-    void setToken(edm::ConsumesCollector& cc){if(!tag_.label().empty()) token_ = cc.consumes<edm::ValueMap<MapType> >(tag_);}
+    void setToken(edm::ConsumesCollector& cc){if(!tag_.isUnitialized()) token_ = cc.consumes<edm::ValueMap<MapType> >(tag_);}
 
     const std::string& name()const{return name_;}
     void isValid()const {return handle_.isValid();}    
