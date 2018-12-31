@@ -528,38 +528,38 @@ void RPixPlaneCombinatoryTracking::addRecoInfo(int run)
   {
     {
       0,{
-        {CTPPSPixelDetId(0,2,3),{0,0,0,0,0,0}}, // Shift Period 0 Sec45
-        {CTPPSPixelDetId(1,2,3),{0,0,0,0,0,0}}  // Shift Period 1 Sec45
+        {CTPPSPixelDetId(0,2,3),{false,false,false,false,false,false}}, // Shift Period 0 Sec45
+        {CTPPSPixelDetId(1,2,3),{false,false,false,false,false,false}}  // Shift Period 1 Sec45
       }
     },
     {
       1,{
-        {CTPPSPixelDetId(0,2,3),{1,0,1,1,0,0}}, // Shift Period 1 Sec45
-        {CTPPSPixelDetId(1,2,3),{0,0,0,0,0,0}}  // Shift Period 1 Sec56
+        {CTPPSPixelDetId(0,2,3),{true,false,true,true,false,false}}, // Shift Period 1 Sec45
+        {CTPPSPixelDetId(1,2,3),{false,false,false,false,false,false}}  // Shift Period 1 Sec56
       }
     },
     {
       2,{
-        {CTPPSPixelDetId(0,2,3),{0,0,0,0,0,0}}, // Shift Period 2 Sec45
-        {CTPPSPixelDetId(1,2,3),{0,0,0,0,0,0}}  // Shift Period 2 Sec56
+        {CTPPSPixelDetId(0,2,3),{false,false,false,false,false,false}}, // Shift Period 2 Sec45
+        {CTPPSPixelDetId(1,2,3),{false,false,false,false,false,false}}  // Shift Period 2 Sec56
       }
     },
     {
       3,{
-        {CTPPSPixelDetId(0,2,3),{0,1,0,1,0,1}}, // Shift Period 3 Sec45
-        {CTPPSPixelDetId(1,2,3),{0,0,0,0,0,0}}  // Shift Period 3 Sec56
+        {CTPPSPixelDetId(0,2,3),{false,true,false,true,false,true}}, // Shift Period 3 Sec45
+        {CTPPSPixelDetId(1,2,3),{false,false,false,false,false,false}}  // Shift Period 3 Sec56
       }
     },
     {
       4,{
-        {CTPPSPixelDetId(0,2,3),{0,1,0,1,0,1}}, // Shift Period 4 Sec45
-        {CTPPSPixelDetId(1,2,3),{0,0,1,0,1,1}}  // Shift Period 4 Sec56
+        {CTPPSPixelDetId(0,2,3),{false,true,false,true,false,true}}, // Shift Period 4 Sec45
+        {CTPPSPixelDetId(1,2,3),{false,false,true,false,true,true}}  // Shift Period 4 Sec56
       }
     },
     {
       5,{
-        {CTPPSPixelDetId(0,2,3),{0,0,0,0,0,0}}, // Shift Period 0 Sec45
-        {CTPPSPixelDetId(1,2,3),{0,0,0,0,0,0}}  // Shift Period 1 Sec45
+        {CTPPSPixelDetId(0,2,3),{false,false,false,false,false,false}}, // Shift Period 0 Sec45
+        {CTPPSPixelDetId(1,2,3),{false,false,false,false,false,false}}  // Shift Period 1 Sec45
       }
     }
   }; // map< shiftedPeriod, map<DetID,shiftScheme> >
@@ -599,7 +599,7 @@ void RPixPlaneCombinatoryTracking::addRecoInfo(int run)
         if(hit.getIsUsedForFit()){
           if(pixelIndices.getROCId(hit.minPixelCol(),hit.minPixelRow()) == shiftedROC) hitInShiftedROC++; // Count how many hits are in the shifted ROC
           if(isPlaneShifted.at(shiftPeriod).at(romanPotId_).at(plane)) bxShiftedPlanesUsed++; // Count how many bx-shifted planes are used
-          else if(isPlaneShifted.at(shiftPeriod).at(romanPotId_) != std::vector<bool>(6,0)) bxNonShiftedPlanesUsed++; // Count how many non-bx-shifted planes are used, only if there are shifted planes 
+          else if(isPlaneShifted.at(shiftPeriod).at(romanPotId_) != std::vector<bool>(6,false)) bxNonShiftedPlanesUsed++; // Count how many non-bx-shifted planes are used, only if there are shifted planes 
         }
       }
     }
