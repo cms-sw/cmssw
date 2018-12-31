@@ -167,8 +167,11 @@ CalibratedElectronProducerT<T>::produce( edm::Event & iEvent, const edm::EventSe
     ElectronEnergyCalibrator::EventType::DATA : ElectronEnergyCalibrator::EventType::MC; 
   
   
-  for (const auto& ele : *inHandle) {
+  for (size_t eleIdx = 0; eleIdx < inHandle->size(); eleIdx++) {
+    const auto& ele = (*inHandle)[eleIdx];
+    edm::Ptr<T> elePtr(inHandle,eleIdx);
     out->push_back(ele);
+    out->back().addParentRef(elePtr);
     
     if(semiDeterministicRng_) setSemiDetRandomSeed(iEvent,ele,nrObj,out->size());
 

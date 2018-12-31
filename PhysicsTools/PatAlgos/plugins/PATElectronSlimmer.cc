@@ -116,12 +116,11 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
     if( modifyElectron_ ) electronModifier_->setEventContent(iSetup);
 
     std::vector<unsigned int> keys;
-    for (View<pat::Electron>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
-        out->push_back(*it);
+    for (auto elePtr : src->ptrs() ){
+        out->push_back(*elePtr);
         pat::Electron & electron = out->back();
-
+	electron.addParentRef(elePtr);
         if( modifyElectron_ ) { electronModifier_->modify(electron); }
-
         if (dropSuperClusters_(electron)) { electron.superCluster_.clear(); electron.embeddedSuperCluster_ = false; }
 	if (dropBasicClusters_(electron)) { electron.basicClusters_.clear();  }
 	if (dropSuperClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowSuperCluster_.clear(); electron.embeddedPflowSuperCluster_ = false; }

@@ -11,6 +11,19 @@
 
 #include <memory>
 
+//templates to allow the filling of the reference to the original object if the object supports it
+namespace{  
+  template<typename T,typename Dummy = decltype(&T::addParentRef)>
+    constexpr auto tracksParents(int){return true;}
+  template<typename T>
+    constexpr auto tracksParents(long){return false;}
+  template<typename T1,typename T2,typename std::enable_if<tracksParents<T1>(0),int >::type = 0>
+    void addParentRef(T1& obj,const edm::Ptr<T2>& ref){obj.addParentRef(ref);}
+  template<typename T1,typename T2,typename std::enable_if<!tracksParents<T1>(0),int >::type = 0>
+    void addParentRef(T1& obj,const edm::Ptr<T2>& ref){}
+
+}
+
 namespace pat {
   
   template<class T>
@@ -43,15 +56,13 @@ namespace pat {
 
       evt.getByToken(src_,input);
       output->reserve(input->size());
-
       modifier_->setEvent(evt);
-
-      for( auto itr = input->begin(); itr != input->end(); ++itr ) {
-        output->push_back(*itr);
+      for( auto& ptr : input->ptrs() ){
+        output->push_back(*ptr);
         T& obj = output->back();
+	if(tracksParents<T>(0)) addParentRef(obj,ptr);
         modifier_->modify(obj);
       }
-
       evt.put(std::move(output));
     }
 

@@ -6,6 +6,7 @@
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
@@ -354,7 +355,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     reco::PhotonRef photonref(photonHandle,index);
     photons->push_back(photon);
     auto& newPhoton = photons->back();
-   
+    newPhoton.addParentRef(edm::refToPtr(photonref));
+
     if( (applyPhotonCalibOnData_ && theEvent.isRealData()) ||
 	(applyPhotonCalibOnMC_ && !theEvent.isRealData()) ){
       calibratePhoton(newPhoton,photonref,		      
@@ -426,7 +428,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       reco::PhotonRef ootPhotonref(ootPhotonHandle,index);
       
       ootPhotons->push_back(ootPhoton);
-      
+      ootPhotons->back().addParentRef(edm::refToPtr(ootPhotonref));
+
       //fill photon pfclusteriso valuemap vectors
       int subindex = 0;
       for (const auto& ootPhotonFloatValueMapHandle : ootPhotonFloatValueMapHandles) {
@@ -459,6 +462,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     reco::GsfElectronRef gsfElectronref(gsfElectronHandle,index);
     gsfElectrons->push_back(gsfElectron);
     auto& newGsfElectron = gsfElectrons->back();
+    newGsfElectron.addParentRef(edm::refToPtr(gsfElectronref));
     if( (applyGsfElectronCalibOnData_ && theEvent.isRealData()) ||
 	(applyGsfElectronCalibOnMC_ && !theEvent.isRealData()) ){
       calibrateElectron(newGsfElectron, gsfElectronref,		

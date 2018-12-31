@@ -378,6 +378,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  // ref to base needed for the construction of the pat object
 	  const edm::RefToBase<reco::GsfElectron>& elecsRef = electrons->refAt(idx);
 	  Electron anElectron(elecsRef);
+	  anElectron.addParentRef(elePtr);
 	  anElectron.setPFCandidateRef( pfRef  );
     	  if (addPuppiIsolation_) {		 
 	    anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
@@ -575,7 +576,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       reco::CandidateBaseRef elecBaseRef(elecsRef);
       Electron anElectron(elecsRef);
       auto elePtr = electrons -> ptrAt(idx);
-
+      anElectron.addParentRef(elePtr);
       // Is this GsfElectron also identified as an e- in the particle flow?
       bool pfId = false;
 
