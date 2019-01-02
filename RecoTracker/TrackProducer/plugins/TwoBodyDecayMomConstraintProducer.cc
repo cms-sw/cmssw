@@ -61,18 +61,20 @@ private:
   const edm::InputTag srcTag_; 
   const edm::InputTag bsSrcTag_;
 
-  TwoBodyDecayFitter tbdFitter_;
+  const TwoBodyDecayFitter tbdFitter_;
 
-  double primaryMass_;
-  double primaryWidth_;
-  double secondaryMass_;
+  const double primaryMass_;
+  const double primaryWidth_;
+  const double secondaryMass_;
 
-  double sigmaPositionCutValue_;
-  double chi2CutValue_;
-  double fixedMomentumError_;
+  const double sigmaPositionCutValue_;
+  const double chi2CutValue_;
+  const double fixedMomentumError_;
 
   enum MomentumForRefitting { atVertex, atInnermostSurface };
-  MomentumForRefitting momentumForRefitting_;
+  const MomentumForRefitting momentumForRefitting_;
+
+  static MomentumForRefitting momentumForRefittingFromString(std::string momentumForRefittingString);
 
   edm::EDGetTokenT<reco::TrackCollection> trackCollToken_;
   edm::EDGetTokenT<reco::BeamSpot> bsToken_;
@@ -91,18 +93,9 @@ TwoBodyDecayMomConstraintProducer::TwoBodyDecayMomConstraintProducer( const edm:
   secondaryMass_( iConfig.getParameter<double>( "secondaryMass" ) ),
   sigmaPositionCutValue_( iConfig.getParameter<double>( "sigmaPositionCut" ) ),
   chi2CutValue_( iConfig.getParameter<double>( "chi2Cut" ) ),
-  fixedMomentumError_( iConfig.getParameter<double>( "fixedMomentumError" ) )
+  fixedMomentumError_( iConfig.getParameter<double>( "fixedMomentumError" ) ),
+  momentumForRefitting_( momentumForRefittingFromString( iConfig.getParameter<std::string>( "momentumForRefitting" ) ) )
 {
-  std::string strMomentumForRefitting = ( iConfig.getParameter<std::string>( "momentumForRefitting" ) );
-  if ( strMomentumForRefitting == "atVertex" ) {
-    momentumForRefitting_ = atVertex;
-  } else if ( strMomentumForRefitting == "atInnermostSurface" ) {
-    momentumForRefitting_ = atInnermostSurface;
-  } else {
-    throw cms::Exception("TwoBodyDecayMomConstraintProducer") << "value of config  variable 'momentumForRefitting': "
-							      << "has to be 'atVertex' or 'atInnermostSurface'";
-  }
-
   trackCollToken_ = consumes<reco::TrackCollection>(edm::InputTag(srcTag_));
   bsToken_ = consumes<reco::BeamSpot>(edm::InputTag(bsSrcTag_));
 
@@ -116,6 +109,8 @@ TwoBodyDecayMomConstraintProducer::TwoBodyDecayMomConstraintProducer( const edm:
 //   histos_["deltaEta2"] = new TH1F( "deltaEta2", "deltaEta2", 200, -1., 1. );
 //   histos_["deltaP2"] = new TH1F( "deltaP2", "deltaP2", 200, -50., 50. );
 }
+
+
 
 
 void TwoBodyDecayMomConstraintProducer::produce(edm::StreamID streamid, edm::Event& iEvent, const edm::EventSetup& iSetup) const
@@ -260,6 +255,19 @@ TwoBodyDecayMomConstraintProducer::match( const TrajectoryStateOnSurface& newTso
 
   return ( ( fabs(deltaX) < sigmaPositionCutValue_ ) && ( fabs(deltaY) < sigmaPositionCutValue_ ) );
 }
+
+TwoBodyDecayMomConstraintProducer::MomentumForRefitting
+TwoBodyDecayMomConstraintProducer::momentumForRefittingFromString(std::string strMomentumForRefitting) {
+  if ( strMomentumForRefitting == "atVertex" ) {
+    return atVertex;
+  } else if ( strMomentumForRefitting == "atInnermostSurface" ) {
+    return atInnermostSurface;
+  } else {
+    throw cms::Exception("TwoBodyDecayMomConstraintProducer") << "value of config  variable 'momentumForRefitting': "
+                                                              << "has to be 'atVertex' or 'atInnermostSurface'";
+  }
+}
+
 
 
 //define this as a plug-in

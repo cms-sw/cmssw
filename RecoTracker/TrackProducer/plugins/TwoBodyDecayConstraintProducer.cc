@@ -54,15 +54,15 @@ private:
   const edm::InputTag srcTag_; 
   const edm::InputTag bsSrcTag_;
 
-  TwoBodyDecayFitter tbdFitter_;
+  const TwoBodyDecayFitter tbdFitter_;
 
-  double primaryMass_;
-  double primaryWidth_;
-  double secondaryMass_;
+  const double primaryMass_;
+  const double primaryWidth_;
+  const double secondaryMass_;
 
-  double sigmaPositionCutValue_;
-  double chi2CutValue_;
-  double errorRescaleValue_;
+  const double sigmaPositionCutValue_;
+  const double chi2CutValue_;
+  const double errorRescaleValue_;
 
   edm::EDGetTokenT<reco::TrackCollection> trackCollToken_;
   edm::EDGetTokenT<reco::BeamSpot> bsToken_;
