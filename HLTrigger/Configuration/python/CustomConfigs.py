@@ -43,22 +43,28 @@ def Base(process):
 def L1T(process):
 #   modifications when running L1T only
 
-    labels = ['gtDigis','simGtDigis','newGtDigis','hltGtDigis']
-    for label in labels:
-        if label in process.__dict__:
-            process.load('L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi')
-            process.l1GtTrigReport.L1GtRecordInputTag = cms.InputTag( label )
-            process.L1AnalyzerEndpath = cms.EndPath( process.l1GtTrigReport )
-            process.schedule.append(process.L1AnalyzerEndpath)
+    def _legacyStage1(process):
+        labels = ['gtDigis','simGtDigis','newGtDigis','hltGtDigis']
+        for label in labels:
+            if label in process.__dict__:
+                process.load('L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi')
+                process.l1GtTrigReport.L1GtRecordInputTag = cms.InputTag( label )
+                process.L1AnalyzerEndpath = cms.EndPath( process.l1GtTrigReport )
+                process.schedule.append(process.L1AnalyzerEndpath)
 
-    labels = ['gtStage2Digis','simGtStage2Digis','newGtStage2Digis','hltGtStage2Digis']
-    for label in labels:
-        if label in process.__dict__:
-            process.load('L1Trigger.L1TGlobal.L1TGlobalSummary_cfi')
-            process.L1TGlobalSummary.AlgInputTag = cms.InputTag( label )
-            process.L1TGlobalSummary.ExtInputTag = cms.InputTag( label )
-            process.L1TAnalyzerEndpath = cms.EndPath(process.L1TGlobalSummary )
-            process.schedule.append(process.L1TAnalyzerEndpath)
+    def _stage2(process):
+        labels = ['gtStage2Digis','simGtStage2Digis','newGtStage2Digis','hltGtStage2Digis']
+        for label in labels:
+            if label in process.__dict__:
+                process.load('L1Trigger.L1TGlobal.L1TGlobalSummary_cfi')
+                process.L1TGlobalSummary.AlgInputTag = cms.InputTag( label )
+                process.L1TGlobalSummary.ExtInputTag = cms.InputTag( label )
+                process.L1TAnalyzerEndpath = cms.EndPath(process.L1TGlobalSummary )
+                process.schedule.append(process.L1TAnalyzerEndpath)
+
+    from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+    (~stage2L1Trigger).toModify(process, _legacyStage1)
+    stage2L1Trigger.toModify(process, _stage2)
 
     if hasattr(process,'TriggerMenu'):
         delattr(process,'TriggerMenu')
@@ -72,19 +78,25 @@ def L1THLT(process):
 #   modifications when running L1T+HLT
 
     if not ('HLTAnalyzerEndpath' in process.__dict__) :
-        if 'hltGtDigis' in process.__dict__:
-            from HLTrigger.Configuration.HLT_Fake_cff import fragment
-            process.hltL1GtTrigReport = fragment.hltL1GtTrigReport
-            process.hltTrigReport = fragment.hltTrigReport
-            process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtDigis + process.hltL1GtTrigReport + process.hltTrigReport)
-            process.schedule.append(process.HLTAnalyzerEndpath)
+        def _legacyStage1(process):
+            if 'hltGtDigis' in process.__dict__:
+                from HLTrigger.Configuration.HLT_Fake_cff import fragment
+                process.hltL1GtTrigReport = fragment.hltL1GtTrigReport
+                process.hltTrigReport = fragment.hltTrigReport
+                process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtDigis + process.hltL1GtTrigReport + process.hltTrigReport)
+                process.schedule.append(process.HLTAnalyzerEndpath)
 
-        if 'hltGtStage2ObjectMap' in process.__dict__:
-            from HLTrigger.Configuration.HLT_FULL_cff import fragment
-            process.hltL1TGlobalSummary = fragment.hltL1TGlobalSummary
-            process.hltTrigReport = fragment.hltTrigReport
-            process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtStage2Digis + process.hltL1TGlobalSummary + process.hltTrigReport)
-            process.schedule.append(process.HLTAnalyzerEndpath)
+        def _stage2(process):
+            if 'hltGtStage2ObjectMap' in process.__dict__:
+                from HLTrigger.Configuration.HLT_FULL_cff import fragment
+                process.hltL1TGlobalSummary = fragment.hltL1TGlobalSummary
+                process.hltTrigReport = fragment.hltTrigReport
+                process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtStage2Digis + process.hltL1TGlobalSummary + process.hltTrigReport)
+                process.schedule.append(process.HLTAnalyzerEndpath)
+
+        from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+        (~stage2L1Trigger).toModify(process, _legacyStage1)
+        stage2L1Trigger.toModify(process, _stage2)
 
     if hasattr(process,'TriggerMenu'):
         delattr(process,'TriggerMenu')
