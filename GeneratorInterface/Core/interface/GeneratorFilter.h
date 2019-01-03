@@ -67,6 +67,7 @@ namespace edm
     Decayer*              decayer_;
     unsigned int          nEventsInLumiBlock_;
     unsigned int          nThreads_{1};
+    bool                  initialized_ = false;
   };
 
   //------------------------------------------------------------------------
@@ -222,9 +223,11 @@ namespace edm
     // the contained hadronizer that would report the integrated
     // luminosity.
 
-    hadronizer_.statistics();
+    if(initialized_) {
+      hadronizer_.statistics();
     
-    if ( decayer_ ) decayer_->statistics();
+      if ( decayer_ ) decayer_->statistics();
+    }
     
     std::unique_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(hadronizer_.getGenRunInfo()));
     r.put(std::move(griproduct));
@@ -274,7 +277,7 @@ namespace edm
          
     std::unique_ptr<GenLumiInfoHeader> genLumiInfoHeader(hadronizer_.getGenLumiInfoHeader());
     lumi.put(std::move(genLumiInfoHeader));
-
+    initialized_ = true;
   }
 
   template <class HAD, class DEC>
