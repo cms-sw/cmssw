@@ -36,6 +36,7 @@ namespace {
     std::vector<double> const& v_;
   };
 
+#if defined(EDM_ML_DEBUG)
   std::ostream& operator<<(std::ostream& iS, Out const& iO) {
     iS<<"[";
     for( double v: iO.v_) {
@@ -44,7 +45,7 @@ namespace {
     iS<<"]";
     return iS;
   }
-
+#endif
 }
 
 HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
@@ -228,8 +229,6 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 
      edm::Handle<trigger::TriggerFilterObjectWithRefs> level1Cands;
      std::vector<l1t::MuonRef> vl1cands;
-     std::vector<l1t::MuonRef>::iterator vl1cands_begin;
-     std::vector<l1t::MuonRef>::iterator vl1cands_end;
 
      bool check_l1match = true;
 
