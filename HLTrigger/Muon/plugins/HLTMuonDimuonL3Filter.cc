@@ -29,6 +29,24 @@ using namespace trigger;
 //
 // constructors and destructor
 //
+namespace {
+  struct Out {
+    Out(std::vector<double> const& v): v_(v) {}
+
+    std::vector<double> const& v_;
+  };
+
+  std::ostream& operator<<(std::ostream& iS, Out const& iO) {
+    iS<<"[";
+    for( double v: iO.v_) {
+      iS<<v<<" ";
+    }
+    iS<<"]";
+    return iS;
+  }
+
+}
+
 HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
    beamspotTag_       (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
    beamspotToken_     (consumes<reco::BeamSpot>(beamspotTag_)),
@@ -79,9 +97,9 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
       << " " << min_Nhits_
       << " " << max_Dr_
       << " " << max_Dz_
-      << " " << chargeOpt_ << " " << min_PtPair_
-      << " " << min_PtMax_ << " " << min_PtMin_
-      << " " << min_InvMass_ << " " << max_InvMass_
+      << " " << chargeOpt_ << " " << Out(min_PtPair_)
+      << " " << Out(min_PtMax_) << " " << Out(min_PtMin_)
+      << " " << Out(min_InvMass_) << " " << Out(max_InvMass_)
       << " " << min_Acop_ << " " << max_Acop_
       << " " << min_PtBalance_ << " " << max_PtBalance_
       << " " << nsigma_Pt_
