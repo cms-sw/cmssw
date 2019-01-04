@@ -196,6 +196,8 @@ L1TMuonBarrelKalmanStubProcessor::makeStubs(const L1MuDTChambPhContainer* phiCon
 	    hasEta=true;
 	  }
 
+
+	  //	  printf("Wheel=%d LWheel=%d,%d sector=%d station=%d phiMask=%d etaMask=%d\n",wheel,lwheel1,lwheel2,sector,station,phiMask,etaMask);
 	  //	  if (abs(wheel)==2 && station==1)
 	  //	    continue;
 	    
@@ -430,7 +432,7 @@ void  L1TMuonBarrelKalmanStubProcessor::makeInputPattern(const L1MuDTChambPhCont
     const L1MuDTChambPhDigi* seg12 = phiContainer->chPhiSegm1(wheel,4,sector,0);
     if (seg12 ) {
       hasStub=true;
-      os<<seg12->phi()<<" "<<seg12->phiB()<<" "<<seg12->code()<<" 1 0 "  ;
+      os<<seg12->phi()<<" "<<seg12->phiB()<<" "<<seg12->code()<<" 1 2 "  ;
     }
     else {
       os<<"-2048 0 0 0 15 "; 
@@ -591,14 +593,14 @@ void  L1TMuonBarrelKalmanStubProcessor::makeInputPattern(const L1MuDTChambPhCont
     }
     const L1MuDTChambPhDigi* seg23 = phiContainer->chPhiSegm2(wheel,3,nextSector,-1);
     if (seg23 && seg23->phi()<-112) {
-      os<<seg23->phi()+2144<<" "<<seg23->phiB()<<" "<<seg23->code()<<" 1 2 "  ;
+      os<<seg23->phi()+2144<<" "<<seg23->phiB()<<" "<<seg23->code()<<" 1 3 "  ;
     }
     else {
       os<<"-2048 0 0 0 15 "; 
     }
      const L1MuDTChambPhDigi* seg24 = phiContainer->chPhiSegm2(wheel,4,nextSector,-1);
     if (seg24 && seg24->phi()<-112) {
-      os<<seg24->phi()+2144<<" "<<seg24->phiB()<<" "<<seg24->code()<<" 1 2 "  ;
+      os<<seg24->phi()+2144<<" "<<seg24->phiB()<<" "<<seg24->code()<<" 1 3 "  ;
     }
     else {
       os<<"-2048 0 0 0 15 "; 
