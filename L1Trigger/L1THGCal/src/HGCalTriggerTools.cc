@@ -121,6 +121,34 @@ layerWithOffset(const DetId& id) const {
   return l;
 }
 
+int
+HGCalTriggerTools::
+thicknessIndex(const DetId& id) const {
+  unsigned det = id.det();
+  int thickness = 0;
+  // For the v8 geometry
+  if(det==DetId::Forward)
+  {
+    switch(id.subdetId())
+    { 
+      case ForwardSubdetector::HGCEE:
+        thickness = geom_->eeTopology().dddConstants().waferTypeL(HGCalDetId(id).wafer())-1;
+        break;
+      case ForwardSubdetector::HGCHEF:
+        thickness = geom_->fhTopology().dddConstants().waferTypeL(HGCalDetId(id).wafer())-1;
+        break;
+      default:
+        break;
+    };
+  }
+  // For the v9 geometry
+  else if(det==DetId::HGCalEE || det==DetId::HGCalHSi)
+  {
+    thickness = HGCSiliconDetId(id).type();
+  }
+  return thickness;
+}
+
 float HGCalTriggerTools::getEta(const GlobalPoint& position, const float& vertex_z) const {
   GlobalPoint corrected_position = GlobalPoint(position.x(), position.y(), position.z()-vertex_z);
   return corrected_position.eta();
