@@ -19,10 +19,10 @@
 using namespace std;
 using namespace edm;
 
-PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
-  verbose_ = 
-    iConfig.getUntrackedParameter<bool>("verbose",false);
-
+PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) :
+  verbose_{ iConfig.getUntrackedParameter<bool>("verbose",false)},
+  putToken_{produces<reco::PFBlockCollection>()}
+{
   bool debug_ = 
     iConfig.getUntrackedParameter<bool>("debug",false);  
   pfBlockAlgo_.setDebug(debug_);  
@@ -36,7 +36,6 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
     = iConfig.getParameterSetVector("linkDefinitions");
   pfBlockAlgo_.setLinkers(linkdefs);  
   
-  produces<reco::PFBlockCollection>();
 }
 
 
@@ -56,14 +55,22 @@ PFBlockProducer::produce(Event& iEvent,
     
   pfBlockAlgo_.buildElements(iEvent);
   
-  pfBlockAlgo_.findBlocks();
+  auto blocks = pfBlockAlgo_.findBlocks();
   
   if(verbose_) {
     ostringstream  str;
     str<<pfBlockAlgo_<<endl;
+    str<<"number of blocks : "<<blocks.size()<<endl;
+    str<<endl;
+    
+    for(PFBlockAlgo::IBC ib=blocks.begin(); 
+	ib != blocks.end(); ++ib) {
+      str<<(*ib)<<endl;
+    }
+
     LogInfo("PFBlockProducer") << str.str()<<endl;
   }    
 
-  iEvent.put(std::move(pfBlockAlgo_.transferBlocks()));
+  iEvent.emplace(putToken_,blocks);
     
 }
