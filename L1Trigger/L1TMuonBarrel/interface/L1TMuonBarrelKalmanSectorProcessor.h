@@ -15,6 +15,23 @@ class L1TMuonBarrelKalmanSectorProcessor {
   L1MuKBMTrackCollection process(L1TMuonBarrelKalmanAlgo*,const L1MuKBMTCombinedStubRefVector& stubs,int bx);
   void verbose(L1TMuonBarrelKalmanAlgo*,const L1MuKBMTrackCollection&);
  private:
+
+  class TrackSorter {
+  public:
+    TrackSorter() {
+    }
+
+    bool operator() (const L1MuKBMTrack& a ,const L1MuKBMTrack& b) {
+      if (a.pt()>=b.pt())
+	return true;
+      return false;
+    }
+  };
+
+
+
+
+
   int verbose_;
   int sector_;
 
@@ -80,7 +97,15 @@ class L1TMuonBarrelKalmanSectorProcessor {
   } bmtf_out;
 
 
+
+
   bmtf_out makeWord(L1TMuonBarrelKalmanAlgo*,const L1MuKBMTrackCollection&);
+  //  L1MuKBMTrackCollection cleanAndSort(const L1MuKBMTrackCollection&,uint keep);
+
+  L1MuKBMTrackCollection cleanNeighbor(const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&);
+  L1MuKBMTrackCollection cleanNeighbors(const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&);
+  L1MuKBMTrackCollection wedgeSort(const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&);
+
 
 
 
