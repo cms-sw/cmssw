@@ -4,6 +4,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 #include <vector>
@@ -150,6 +151,13 @@ getTriggerCellFromCell( const unsigned cell_id ) const
         int triggercellu = cell_si_id.triggerCellU();
         int triggercellv = cell_si_id.triggerCellV();
         trigger_cell_id = HGCalTriggerDetId(subdet, zside, type, layer, waferu, waferv, triggercellu, triggercellv);
+        if(type!=HGCalTriggerDetId(trigger_cell_id).type())
+        {
+            std::cerr<<"Different type TC/cell in getTriggerCellFromCell()\n";
+            std::cerr<<"   cell "<<type<<", TC "<<HGCalTriggerDetId(trigger_cell_id).type()<<"\n";
+            std::cerr<<"   cell ID "<<cell_si_id<<"\n";
+            std::cerr<<"   TC ID "<<HGCalTriggerDetId(trigger_cell_id)<<"\n";
+        }
     }
     return trigger_cell_id;
 
@@ -174,8 +182,9 @@ HGCalTriggerGeometryV9Imp2::
 getCellsFromTriggerCell( const unsigned trigger_cell_id ) const
 {
     DetId trigger_cell_det_id(trigger_cell_id);
+    HGCalTriggerDetId trigger_cell_trig_id(trigger_cell_id);
     unsigned det = trigger_cell_det_id.det();
-    unsigned subdet = trigger_cell_det_id.subdetId();
+    unsigned subdet = trigger_cell_trig_id.subdet();
     geom_set cell_det_ids;
     // Scintillator
     if(det==DetId::HGCalHSc)
@@ -186,7 +195,6 @@ getCellsFromTriggerCell( const unsigned trigger_cell_id ) const
     // Silicon
     else if(subdet == HGCalTriggerSubdetector::HGCalEETrigger || subdet == HGCalTriggerSubdetector::HGCalHSiTrigger)
     {
-        HGCalTriggerDetId trigger_cell_trig_id(trigger_cell_id);
         DetId::Detector cell_det = (subdet==HGCalTriggerSubdetector::HGCalEETrigger ? DetId::HGCalEE : DetId::HGCalHSi);
         int layer = trigger_cell_trig_id.layer();
         int zside = trigger_cell_trig_id.zside();
@@ -197,8 +205,13 @@ getCellsFromTriggerCell( const unsigned trigger_cell_id ) const
         std::vector<int> cellvs = trigger_cell_trig_id.cellV();
         for(unsigned ic=0; ic<cellus.size(); ic++)
         {
-            unsigned cell_det_id = HGCSiliconDetId(cell_det, zside, type, layer, waferu, waferv, cellus[ic], cellvs[ic]).rawId();
-            cell_det_ids.emplace(cell_det_id);
+            HGCSiliconDetId cell_det_id(cell_det, zside, type, layer, waferu, waferv, cellus[ic], cellvs[ic]);
+            cell_det_ids.emplace(cell_det_id.rawId());
+            if(type!=cell_det_id.type())
+            {
+                std::cerr<<"Different type TC/cell in getCellsFromTriggerCell()\n";
+                std::cerr<<"   TC "<<type<<", cell "<<cell_det_id.type()<<"\n";
+            }
         }
     }
     return cell_det_ids;
@@ -284,12 +297,12 @@ GlobalPoint
 HGCalTriggerGeometryV9Imp2::
 getTriggerCellPosition(const unsigned trigger_cell_det_id) const
 {
-    unsigned subdet = HGCalDetId(trigger_cell_det_id).subdetId();
+    unsigned det = DetId(trigger_cell_det_id).det();
     // Position: barycenter of the trigger cell.
     Basic3DVector<float> triggerCellVector(0.,0.,0.);
     const auto cell_ids = getCellsFromTriggerCell(trigger_cell_det_id);
     // Scintillator
-    if(subdet==ForwardSubdetector::HGCHEB)
+    if(det==DetId::HGCalHSc)
     {
         for(const auto& cell : cell_ids)
         {
@@ -468,13 +481,12 @@ validTriggerCellFromCells(const unsigned trigger_cell_id) const
     // validity of the cells. One valid cell in the 
     // trigger cell is enough to make the trigger cell
     // valid.
-    HGCalDetId trigger_cell_det_id(trigger_cell_id);
-    unsigned subdet = trigger_cell_det_id.subdetId();
     const geom_set cells = getCellsFromTriggerCell(trigger_cell_id);
     bool is_valid = false;
     for(const auto cell_id : cells)
     {
-        is_valid |= validCellId(subdet, cell_id);
+        unsigned det = DetId(cell_id).det();
+        is_valid |= validCellId(det, cell_id);
         if(is_valid) break;
     }
     return is_valid;
@@ -487,13 +499,13 @@ validCellId(unsigned subdet, unsigned cell_id) const
     bool is_valid = false;
     switch(subdet)
     {
-        case ForwardSubdetector::HGCEE:
+        case DetId::HGCalEE:
             is_valid = eeTopology().valid(cell_id);
             break;
-        case ForwardSubdetector::HGCHEF:
+        case DetId::HGCalHSi:
             is_valid = hsiTopology().valid(cell_id);
             break;
-        case ForwardSubdetector::HGCHEB:
+        case DetId::HGCalHSc:
             is_valid = hscTopology().valid(cell_id);
             break;
         default:
@@ -549,20 +561,21 @@ unsigned
 HGCalTriggerGeometryV9Imp2::
 layerWithOffset(unsigned id) const
 {
-    HGCalDetId detid(id);
+    unsigned det = DetId(id).det();
+    unsigned subdet = HGCalTriggerDetId(id).subdet();
     unsigned layer = 0;
-    switch(detid.subdetId())
+    if(det==DetId::HGCalTrigger && subdet==HGCalTriggerSubdetector::HGCalEETrigger)
     {
-        case ForwardSubdetector::HGCEE:
-            layer = detid.layer();
-            break;
-        case ForwardSubdetector::HGCHEF:
-            layer = heOffset_ + detid.layer();
-            break;
-        case ForwardSubdetector::HGCHEB:
-            layer = heOffset_ + detid.layer();
-            break;
-    };
+        layer = HGCalTriggerDetId(id).layer();
+    }
+    else if(det==DetId::HGCalTrigger && subdet==HGCalTriggerSubdetector::HGCalHSiTrigger)
+    {
+        layer = heOffset_ + HGCalTriggerDetId(id).layer();
+    }
+    else if(det==DetId::HGCalHSc)
+    {
+        layer = heOffset_ + HGCScintillatorDetId(id).layer();
+    }
     return layer;
 }
 
