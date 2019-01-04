@@ -696,8 +696,8 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
         {
             uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
             // Skip trigger cells in module 0
-            uint32_t module = triggerGeometry_->getModuleFromTriggerCell(trigger_cell);
-            if(HGCalDetId(module).wafer()==0) continue;
+            // uint32_t module = triggerGeometry_->getModuleFromTriggerCell(trigger_cell);
+            // if(HGCalDetId(module).wafer()==0) continue;
             auto itr_insert = trigger_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
             itr_insert.first->second.emplace(id);
         }
