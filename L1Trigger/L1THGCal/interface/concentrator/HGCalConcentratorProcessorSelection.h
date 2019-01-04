@@ -3,6 +3,7 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
 #include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorSelectionImpl.h"
+#include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorSuperTriggerCellImpl.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
@@ -11,15 +12,23 @@
 class HGCalConcentratorProcessorSelection : public HGCalConcentratorProcessorBase 
 { 
 
+  private:
+    enum SelectionType{
+      thresholdSelect,
+      bestChoiceSelect,
+      superTriggerCellSelect
+    };
+
   public:
     HGCalConcentratorProcessorSelection(const edm::ParameterSet& conf);
   
     void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput, l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput, const edm::EventSetup& es) override;
 
   private:
-    std::string choice_;
+    SelectionType selectionType_;
     
-    HGCalConcentratorSelectionImpl concentratorProcImpl_;
+    std::unique_ptr<HGCalConcentratorSelectionImpl> concentratorProcImpl_;
+    std::unique_ptr<HGCalConcentratorSuperTriggerCellImpl> concentratorSTCImpl_;
      
     HGCalTriggerTools triggerTools_;
 
