@@ -538,9 +538,6 @@ struct CachingHostAllocator
             }
         }
 
-        // Unlock
-        mutex.Unlock();
-
         if (CubDebug(error = cudaGetDevice(&entrypoint_device))) return error;
         if (entrypoint_device != search_key.device) {
             if (CubDebug(error = cudaSetDevice(search_key.device))) return error;
@@ -550,7 +547,11 @@ struct CachingHostAllocator
             // Insert the ready event in the associated stream (must have current device set properly)
             if (CubDebug(error = cudaEventRecord(search_key.ready_event, search_key.associated_stream))) return error;
         }
-        else
+
+        // Unlock
+        mutex.Unlock();
+
+        if (!recached)
         {
             // Free the allocation from the runtime and cleanup the event.
             if (CubDebug(error = cudaFreeHost(d_ptr))) return error;
