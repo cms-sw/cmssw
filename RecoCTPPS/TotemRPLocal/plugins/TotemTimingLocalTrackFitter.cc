@@ -37,8 +37,8 @@ class TotemTimingLocalTrackFitter : public edm::stream::EDProducer<>
   private:
     void produce( edm::Event&, const edm::EventSetup& ) override;
 
-    edm::EDGetTokenT<edm::DetSetVector<TotemTimingRecHit> > recHitsToken_;
-    int maxPlaneActiveChannels_;
+    const edm::EDGetTokenT<edm::DetSetVector<TotemTimingRecHit> > recHitsToken_;
+    const int maxPlaneActiveChannels_;
     std::map<TotemTimingDetId,TotemTimingTrackRecognition> trk_algo_map_;
 };
 
@@ -69,32 +69,28 @@ TotemTimingLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup&
 
   std::map<TotemTimingDetId,int> planeActivityMap;
 
-  for ( const auto& vec: *recHits ) {
-    const TotemTimingDetId detId( vec.detId() );
-    TotemTimingDetId tmpId( 0, 1, 0, 0, 0 );
-    tmpId.setArm( detId.arm() );
-    tmpId.setRP( detId.rp() );
-    tmpId.setPlane( detId.plane() );
-    planeActivityMap[tmpId] += vec.size();
-  }
+  auto motherId = []( const edm::det_id_type& detid ) {
+    TotemTimingDetId out( detid );
+    out.setStation( 1 );
+    out.setChannel( 0 );
+    return out;
+  };
+
+  for ( const auto& vec: *recHits )
+    planeActivityMap[motherId(vec.detId())] += vec.size();
 
   // feed hits to the track producers
   for ( const auto& vec : *recHits ) {
-    const TotemTimingDetId detId( vec.detId() );
-
-    TotemTimingDetId tmpId( 0, 1, 0, 0, 0 );
-    tmpId.setArm( detId.arm() );
-    tmpId.setRP( detId.rp() );
-    tmpId.setPlane( detId.plane() );
-    if ( planeActivityMap[tmpId] > maxPlaneActiveChannels_ )
+    auto detId = motherId( vec.detId() );
+    if ( planeActivityMap[detId] > maxPlaneActiveChannels_ )
       continue;
 
+    detId.setPlane( 0 );
     for ( const auto& hit : vec ) {
-      tmpId.setPlane( 0 );
-      if ( trk_algo_map_.find( tmpId ) != trk_algo_map_.end() )
-        trk_algo_map_.find( tmpId )->second.addHit( hit );
-      else
-        edm::LogWarning("TotemTimingLocalTrackFitter") << "Invalid detId for rechit: arm=" << detId.arm() << ", rp=" << detId.rp();
+      if ( trk_algo_map_.find( detId ) == trk_algo_map_.end() )
+        throw cms::Exception("TotemTimingLocalTrackFitter")
+          << "Invalid detId for rechit: arm=" << detId.arm() << ", rp=" << detId.rp();
+      trk_algo_map_.find( detId )->second.addHit( hit );
     }
   }
 
