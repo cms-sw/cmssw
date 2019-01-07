@@ -370,10 +370,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    trk_ecalDphi = trk_ecalDphi_;
       
 	    Trajectory::ConstRecHitContainer tmp;
-            auto hb = Tk[i].recHitsBegin();
-            for(unsigned int h=0;h<Tk[i].recHitsSize();h++){
-              auto recHit = *(hb+h); tmp.push_back(recHit->cloneSH());
-            }
+            for(auto const& hit : Tk[i].recHits()) tmp.push_back(hit->cloneSH());
             auto const & theTrack = Tk[i]; 
             GlobalVector gv(theTrack.innerMomentum().x(),theTrack.innerMomentum().y(),theTrack.innerMomentum().z());
             GlobalPoint  gp(theTrack.innerPosition().x(),theTrack.innerPosition().y(),theTrack.innerPosition().z());
