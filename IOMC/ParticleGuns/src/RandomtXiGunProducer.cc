@@ -18,7 +18,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "CLHEP/Random/RandFlat.h"
+#include <CLHEP/Random/RandFlat.h>
 
 using namespace edm;
 using namespace std;
@@ -35,6 +35,7 @@ RandomtXiGunProducer::RandomtXiGunProducer(const edm::ParameterSet& pset) :
    fMaxt = pgun_params.getParameter<double>("Maxt");
    fMinXi= pgun_params.getParameter<double>("MinXi");
    fMaxXi= pgun_params.getParameter<double>("MaxXi");
+   fLog_t= pgun_params.getUntrackedParameter<bool>("Log_t",false);
   
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
@@ -52,7 +53,7 @@ void RandomtXiGunProducer::produce(edm::Event &e, const edm::EventSetup& es)
 
    if ( fVerbosity > 0 )
    {
-      cout << " RandomtXiGunProducer : Begin New Event Generation" << endl ; 
+      edm::LogInfo("RandomtXiGunProducer")<< "Begin New Event Generation\n"; 
    }
    // event loop (well, another step in it...)
           
@@ -89,10 +90,11 @@ void RandomtXiGunProducer::produce(edm::Event &e, const edm::EventSetup& es)
                double min_t = std::max(fMint,Minimum_t(Xi));
                double max_t = fMaxt;
                if (min_t>max_t) {
-                  std::cout << "WARNING: t limits redefined (unphysical values for given xi)." << endl;
+                  edm::LogInfo("RandomtXiGunProducer") << "WARNING: t limits redefined (unphysical values for given xi).\n";
                   max_t = min_t;
                }
-               t      = CLHEP::RandFlat::shoot(engine,min_t,max_t);
+               t      = (fLog_t)?pow(CLHEP::RandFlat::shoot(engine,log10(min_t),log10(max_t)),10):
+                                     CLHEP::RandFlat::shoot(engine,min_t,max_t);
                break;
           }
           phi    = CLHEP::RandFlat::shoot(engine,fMinPhi, fMaxPhi) ;
@@ -108,10 +110,11 @@ void RandomtXiGunProducer::produce(edm::Event &e, const edm::EventSetup& es)
                double min_t = std::max(fMint,Minimum_t(Xi));
                double max_t = fMaxt;
                if (min_t>max_t) {
-                  std::cout << "WARNING: t limits redefined (unphysical values for given xi)." << endl;
+                  edm::LogInfo("RandomtXiGunProducer") << "WARNING: t limits redefined (unphysical values for given xi)." << endl;
                   max_t = min_t;
                }
-               t      = CLHEP::RandFlat::shoot(engine,min_t,max_t);
+               t      = (fLog_t)?pow(CLHEP::RandFlat::shoot(engine,log10(min_t),log10(max_t)),10):
+                                     CLHEP::RandFlat::shoot(engine,min_t,max_t);
                break;
           }
           phi    = CLHEP::RandFlat::shoot(engine,fMinPhi, fMaxPhi) ;
@@ -143,7 +146,7 @@ void RandomtXiGunProducer::produce(edm::Event &e, const edm::EventSetup& es)
    {
       // for testing purpose only
       // fEvt->print() ; // prints empty info after it's made into edm::Event
-      cout << " RandomtXiGunProducer : Event Generation Done " << endl;
+      edm::LogInfo("RandomtXiGunProducer") << " Event Generation Done \n";
    }
 }
 HepMC::FourVector RandomtXiGunProducer::make_particle(double t,double Xi,double phi,int PartID, int direction)
@@ -158,7 +161,7 @@ HepMC::FourVector RandomtXiGunProducer::make_particle(double t,double Xi,double 
 
        if (direction<1) theta = acos(-1.) - theta;
 
-       double px     = sMom*cos(phi)*sin(theta)*direction;
+       double px     = sMom*cos(phi)*sin(theta);
        double py     = sMom*sin(phi)*sin(theta);
        double pz     = sMom*cos(theta) ;  // the direction is already set by the theta angle
        if (fVerbosity > 0) 
