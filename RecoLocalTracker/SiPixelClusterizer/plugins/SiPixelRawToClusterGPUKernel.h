@@ -221,6 +221,8 @@ namespace pixelgpudetails {
     }
 
     CPUData&& getCPUData() {
+      // Set the vector data pointer to point to CPU
+      digis_clusters_h.error->set_data(digis_clusters_h.data.get());
       return std::move(digis_clusters_h);
     }
 
