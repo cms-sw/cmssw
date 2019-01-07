@@ -16,9 +16,6 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "DataFormats/CTPPSReco/interface/CTPPSTimingRecHit.h"
-#include "DataFormats/CTPPSReco/interface/CTPPSTimingLocalTrack.h"
-#include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
 #include "DataFormats/CTPPSReco/interface/TotemTimingLocalTrack.h"
 #include "RecoCTPPS/TotemRPLocal/interface/CTPPSTimingTrackRecognition.h"
 
@@ -28,18 +25,19 @@
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
+
 #include "TF1.h"
 
 /**
  * Class intended to perform general CTPPS timing detectors track recognition,
  * as well as construction of specialized classes (for now CTPPSDiamond and TotemTiming local tracks).
 **/
-
 class TotemTimingTrackRecognition : public CTPPSTimingTrackRecognition<TotemTimingLocalTrack, TotemTimingRecHit>
 {
   public:
-
-    TotemTimingTrackRecognition(const edm::ParameterSet& parameters);
+    TotemTimingTrackRecognition(const edm::ParameterSet& iConfig) :
+      CTPPSTimingTrackRecognition<TotemTimingLocalTrack, TotemTimingRecHit>(iConfig),
+      tolerance_(iConfig.getParameter<double>("tolerance")) {}
 
     // Adds new hit to the set from which the tracks are reconstructed.
     void addHit(const TotemTimingRecHit& recHit) override;
@@ -48,40 +46,35 @@ class TotemTimingTrackRecognition : public CTPPSTimingTrackRecognition<TotemTimi
     int produceTracks(edm::DetSet<TotemTimingLocalTrack>& tracks) override;
 
   private:
-
-    float tolerance;
+    float tolerance_;
 };
-
 
 /****************************************************************************
  * Implementation
  ****************************************************************************/
 
-TotemTimingTrackRecognition::TotemTimingTrackRecognition(const edm::ParameterSet& parameters) :
-    CTPPSTimingTrackRecognition<TotemTimingLocalTrack, TotemTimingRecHit>(parameters),
-    tolerance(parameters.getParameter<double>( "tolerance" ))
-  {};
-
-void TotemTimingTrackRecognition::addHit(const TotemTimingRecHit& recHit) {
-  if(recHit.getT() != TotemTimingRecHit::NO_T_AVAILABLE)
-    hitVectorMap[0].push_back(recHit);
+void
+TotemTimingTrackRecognition::addHit(const TotemTimingRecHit& recHit)
+{
+  if (recHit.getT() != TotemTimingRecHit::NO_T_AVAILABLE)
+    hitVectorMap_[0].push_back(recHit);
 }
 
-int TotemTimingTrackRecognition::produceTracks(edm::DetSet<TotemTimingLocalTrack>& tracks) {
-
+int
+TotemTimingTrackRecognition::produceTracks(edm::DetSet<TotemTimingLocalTrack>& tracks)
+{
   int numberOfTracks = 0;
   DimensionParameters param;
 
-  param.threshold = threshold;
-  param.thresholdFromMaximum = thresholdFromMaximum;
-  param.resolution = resolution;
-  param.sigma = sigma;
-  param.hitFunction = pixelEfficiencyFunction;
+  param.threshold = threshold_;
+  param.thresholdFromMaximum = thresholdFromMaximum_;
+  param.resolution = resolution_;
+  param.sigma = sigma_;
+  param.hitFunction = pixelEfficiencyFunction_;
 
-  for(auto hitBatch: hitVectorMap) {
-
-    auto hits = hitBatch.second;
-    auto hitRange = getHitSpatialRange(hits);
+  for (const auto& hitBatch : hitVectorMap_) {
+    const auto& hits = hitBatch.second;
+    const auto& hitRange = getHitSpatialRange(hits);
 
     std::vector<TotemTimingLocalTrack> xPartTracks, yPartTracks;
     auto getX = [](const TotemTimingRecHit& hit){ return hit.getX(); };
@@ -101,23 +94,22 @@ int TotemTimingTrackRecognition::produceTracks(edm::DetSet<TotemTimingLocalTrack
     param.rangeEnd = hitRange.yEnd;
     producePartialTracks(hits, param, getY, getYWidth, setY, setYSigma, yPartTracks);
 
-    if(xPartTracks.empty() && yPartTracks.empty())
+    if (xPartTracks.empty() && yPartTracks.empty())
      continue;
 
-    unsigned int validHitsNumber = (unsigned int)(threshold + 1.0);
+    unsigned int validHitsNumber = (unsigned int)(threshold_+1);
 
-    for(const auto& xTrack: xPartTracks) {
-      for(const auto& yTrack: yPartTracks) {
-
+    for (const auto& xTrack : xPartTracks) {
+      for (const auto& yTrack : yPartTracks) {
         math::XYZPoint position(
           xTrack.getX0(),
           yTrack.getY0(),
-          (hitRange.zBegin + hitRange.zEnd) / 2.0
+          0.5f*(hitRange.zBegin + hitRange.zEnd)
         );
         math::XYZPoint positionSigma(
           xTrack.getX0Sigma(),
           yTrack.getY0Sigma(),
-          (hitRange.zEnd - hitRange.zBegin) / 2.0
+          0.5f*(hitRange.zEnd - hitRange.zBegin)
         );
 
         TotemTimingLocalTrack newTrack;
@@ -125,11 +117,11 @@ int TotemTimingTrackRecognition::produceTracks(edm::DetSet<TotemTimingLocalTrack
         newTrack.setPositionSigma(positionSigma);
 
         std::vector<TotemTimingRecHit> componentHits;
-        for(auto hit: hits)
-          if(newTrack.containsHit(hit, tolerance))
+        for (const auto& hit : hits)
+          if (newTrack.containsHit(hit, tolerance_))
             componentHits.push_back(hit);
 
-        if(componentHits.size() < validHitsNumber)
+        if (componentHits.size() < validHitsNumber)
           continue;
 
         // Calculating time
@@ -140,19 +132,18 @@ int TotemTimingTrackRecognition::produceTracks(edm::DetSet<TotemTimingLocalTrack
         float meanDivident = 0.;
         float meanDivisor = 0.;
         bool validHits = false;
-        for(const auto& hit : componentHits) {
-
-          if(hit.getTPrecision() == 0.)
+        for (const auto& hit : componentHits) {
+          if (hit.getTPrecision() == 0.)
             continue;
 
           validHits = true;
-          float weight = 1 / (hit.getTPrecision() * hit.getTPrecision());
+          const float weight = 1.f / (hit.getTPrecision() * hit.getTPrecision());
           meanDivident += weight * hit.getT();
           meanDivisor += weight;
         }
 
         float meanTime = validHits ? (meanDivident / meanDivisor) : 0.;
-        float timeSigma = validHits ? (std::sqrt(1 / meanDivisor)) : 0.;
+        float timeSigma = validHits ? (std::sqrt(1.f / meanDivisor)) : 0.;
         newTrack.setValid(validHits);
         newTrack.setT(meanTime);
         newTrack.setTSigma(timeSigma);

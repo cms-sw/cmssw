@@ -32,34 +32,22 @@
 class CTPPSDiamondTrackRecognition : public CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>
 {
   public:
-    CTPPSDiamondTrackRecognition( const edm::ParameterSet& );
+    CTPPSDiamondTrackRecognition( const edm::ParameterSet& iConfig ) :
+      CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>( iConfig ) {}
 
     void clear() override;
-
     /// Feed a new hit to the tracks recognition algorithm
     void addHit( const CTPPSDiamondRecHit& recHit ) override;
-
     /// Produce a collection of tracks for the current station, given its hits collection
     int produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>& tracks ) override;
 
   private:
-
     std::unordered_map<int,int> mhMap_;
 };
-
-
 
 /****************************************************************************
  * Implementation
  ****************************************************************************/
-
-//----------------------------------------------------------------------------------------------------
-
-CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::ParameterSet& parameters ) :
-  CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>( parameters )
-{}
-
-//----------------------------------------------------------------------------------------------------
 
 void
 CTPPSDiamondTrackRecognition::clear()
@@ -74,7 +62,7 @@ void
 CTPPSDiamondTrackRecognition::addHit( const CTPPSDiamondRecHit& recHit )
 {
   // store hit parameters
-  hitVectorMap[recHit.getOOTIndex()].emplace_back( recHit );
+  hitVectorMap_[recHit.getOOTIndex()].emplace_back( recHit );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -85,13 +73,13 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
   int numberOfTracks = 0;
   DimensionParameters param;
 
-  param.threshold = threshold;
-  param.thresholdFromMaximum = thresholdFromMaximum;
-  param.resolution = resolution;
-  param.sigma = sigma;
-  param.hitFunction = pixelEfficiencyFunction;
+  param.threshold = threshold_;
+  param.thresholdFromMaximum = thresholdFromMaximum_;
+  param.resolution = resolution_;
+  param.sigma = sigma_;
+  param.hitFunction = pixelEfficiencyFunction_;
 
-  for ( const auto& hitBatch: hitVectorMap ) {
+  for ( const auto& hitBatch: hitVectorMap_ ) {
     const auto& oot = hitBatch.first;
     const auto& hits = hitBatch.second;
 
