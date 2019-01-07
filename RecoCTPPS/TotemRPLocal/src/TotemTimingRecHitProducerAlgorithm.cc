@@ -36,8 +36,8 @@ TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry* geom, const edm::
   for (const auto& vec : input) {
     const TotemTimingDetId detid(vec.detId());
 
-    float x_pos = 0., y_pos = 0., z_pos = 0.;
-    float x_width = 0., y_width = 0., z_width = 0.;
+    float x_pos = 0.f, y_pos = 0.f, z_pos = 0.f;
+    float x_width = 0.f, y_width = 0.f, z_width = 0.f;
 
     // retrieve the geometry element associated to this DetID ( if present )
     const DetGeomDesc* det = geom->getSensorNoThrow(detid);
@@ -173,7 +173,10 @@ TotemTimingRecHitProducerAlgorithm::constantFractionDiscriminator(const std::vec
   float threshold = cfdFraction_ * max;
   int indexOfThresholdCrossing = fastDiscriminator(dataProcessed, threshold);
 
-  return (indexOfThresholdCrossing >= baselinePoints_ && indexOfThresholdCrossing < (int)time.size())
+  //--- necessary sanity checks before proceeding with the extrapolation
+  return (indexOfThresholdCrossing >= 1
+       && indexOfThresholdCrossing >= baselinePoints_
+       && indexOfThresholdCrossing < (int)time.size())
     ? (time[indexOfThresholdCrossing-1]-time[indexOfThresholdCrossing])
       / (dataProcessed[indexOfThresholdCrossing-1] -dataProcessed[indexOfThresholdCrossing]) * (threshold-dataProcessed[indexOfThresholdCrossing])
       + time[indexOfThresholdCrossing]
