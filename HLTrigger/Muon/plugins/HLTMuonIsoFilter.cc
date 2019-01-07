@@ -36,30 +36,33 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) : HLTFilter
    previousCandTag_ (iConfig.getParameter<edm::InputTag > ("PreviousCandTag")),
    previousCandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
    depTag_  (iConfig.getParameter< std::vector< edm::InputTag > >("DepTag" ) ),
-   depToken_(0),
+   depToken_(),
    theDepositIsolator(nullptr),
    min_N_   (iConfig.getParameter<int> ("MinN"))
 {
-  std::stringstream tags;
-  for (unsigned int i=0;i!=depTag_.size();++i) {
-    depToken_.push_back(consumes<edm::ValueMap<reco::IsoDeposit> >(depTag_[i]));
-    tags<<" IsoTag["<<i<<"] : "<<depTag_[i].encode()<<" \n";
+  depToken_.reserve(depTag_.size());
+  for (auto const& t: depTag_) {
+    depToken_.push_back(consumes<edm::ValueMap<reco::IsoDeposit> >(t));
   }
   decMapToken_ = consumes<edm::ValueMap<bool> >(depTag_.front());
 
-   LogDebug("HLTMuonIsoFilter") << " candTag : " << candTag_.encode()
-				<< "\n" << tags
-				<< "  MinN : " << min_N_;
-
-   edm::ParameterSet isolatorPSet = iConfig.getParameter<edm::ParameterSet>("IsolatorPSet");
-   if (isolatorPSet.empty()) {
-     theDepositIsolator=nullptr;
-       }else{
-     std::string type = isolatorPSet.getParameter<std::string>("ComponentName");
-     theDepositIsolator = MuonIsolatorFactory::get()->create(type, isolatorPSet, consumesCollector());
-   }
-
-   if (theDepositIsolator) produces<edm::ValueMap<bool> >();
+  LogDebug("HLTMuonIsoFilter").log( [this]( auto& iLog) {
+      iLog<< " candTag : " << candTag_.encode()<<"\n";
+      int i =0;
+      for(auto const& t: depTag_) {
+        iLog<<" IsoTag["<<i++<<"] : "<<t.encode()<<" \n";
+      }
+      iLog<< "  MinN : " << min_N_; 
+    }
+    );
+  
+  edm::ParameterSet isolatorPSet = iConfig.getParameter<edm::ParameterSet>("IsolatorPSet");
+  if (not isolatorPSet.empty()) {
+    std::string type = isolatorPSet.getParameter<std::string>("ComponentName");
+    theDepositIsolator = MuonIsolatorFactory::get()->create(type, isolatorPSet, consumesCollector());
+  }
+  
+  if (theDepositIsolator) produces<edm::ValueMap<bool> >();
 }
 
 HLTMuonIsoFilter::~HLTMuonIsoFilter() = default;
