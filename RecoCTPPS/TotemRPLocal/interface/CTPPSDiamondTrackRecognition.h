@@ -11,19 +11,13 @@
 #ifndef RecoCTPPS_TotemRPLocal_CTPPSDiamondTrackRecognition
 #define RecoCTPPS_TotemRPLocal_CTPPSDiamondTrackRecognition
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
 
 #include "RecoCTPPS/TotemRPLocal/interface/CTPPSTimingTrackRecognition.h"
 
 #include <vector>
-#include <unordered_map>
-#include "TF1.h"
 
 /**
  * \brief Class performing smart reconstruction for PPS Diamond Detectors.
@@ -72,12 +66,6 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
 {
   int numberOfTracks = 0;
   DimensionParameters param;
-
-  param.threshold = threshold_;
-  param.thresholdFromMaximum = thresholdFromMaximum_;
-  param.resolution = resolution_;
-  param.sigma = sigma_;
-  param.hitFunction = std::make_unique<reco::FormulaEvaluator>( pixelEfficiencyFunction_.GetExpFormula().Data() );
 
   for ( const auto& hitBatch: hitVectorMap_ ) {
     const auto& oot = hitBatch.first;

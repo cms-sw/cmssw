@@ -11,22 +11,10 @@
 #ifndef RecoCTPPS_TotemRPLocal_TotemTimingTrackRecognition
 #define RecoCTPPS_TotemRPLocal_TotemTimingTrackRecognition
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-
 #include "DataFormats/CTPPSReco/interface/TotemTimingLocalTrack.h"
+
 #include "RecoCTPPS/TotemRPLocal/interface/CTPPSTimingTrackRecognition.h"
-
-#include <string>
-#include <cmath>
-#include <set>
-#include <vector>
-#include <unordered_map>
-#include <algorithm>
-
-#include "TF1.h"
 
 /**
  * Class intended to perform general CTPPS timing detectors track recognition,
@@ -65,12 +53,6 @@ TotemTimingTrackRecognition::produceTracks(edm::DetSet<TotemTimingLocalTrack>& t
 {
   int numberOfTracks = 0;
   DimensionParameters param;
-
-  param.threshold = threshold_;
-  param.thresholdFromMaximum = thresholdFromMaximum_;
-  param.resolution = resolution_;
-  param.sigma = sigma_;
-  param.hitFunction = std::make_unique<reco::FormulaEvaluator>( pixelEfficiencyFunction_.GetExpFormula().Data() );
 
   for (const auto& hitBatch : hitVectorMap_) {
     const auto& hits = hitBatch.second;
