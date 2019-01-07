@@ -5,8 +5,6 @@
 #include <cuda.h>
 #include <cuda/api_wrappers.h>
 
-#include <cub/util_allocator.cuh>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,6 +12,7 @@
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
+#include "CachingDeviceAllocator.h"
 #include "CachingHostAllocator.h"
 
 void setCudaLimit(cudaLimit limit, const char* name, size_t request) {
@@ -311,7 +310,7 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
       << "  max bin    " << maxBin << "\n"
       << "  resulting bins:\n";
   for (auto bin = minBin; bin <= maxBin; ++bin) {
-    auto binSize = cub::CachingDeviceAllocator::IntPow(binGrowth, bin);
+    auto binSize = notcub::CachingDeviceAllocator::IntPow(binGrowth, bin);
     if (binSize >= (1<<30) and binSize % (1<<30) == 0) {
       log << "    " << std::setw(8) << (binSize >> 30) << " GB\n";
     } else if (binSize >= (1<<20) and binSize % (1<<20) == 0) {
@@ -324,7 +323,7 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
   }
   log << "  maximum amount of cached memory: " << (minCachedBytes >> 20) << " MB\n";
 
-  allocator_ = std::make_unique<Allocator>(cub::CachingDeviceAllocator::IntPow(binGrowth, maxBin),
+  allocator_ = std::make_unique<Allocator>(notcub::CachingDeviceAllocator::IntPow(binGrowth, maxBin),
                                            binGrowth, minBin, maxBin, minCachedBytes,
                                            false, // do not skip cleanup
                                            debug
@@ -427,8 +426,8 @@ struct CUDAService::Allocator {
   void hostPreallocate(int numberOfDevices, const std::vector<unsigned int>& bytes);
 
   size_t maxAllocation;
-  cub::CachingDeviceAllocator deviceAllocator;
-  cub::CachingHostAllocator hostAllocator;
+  notcub::CachingDeviceAllocator deviceAllocator;
+  notcub::CachingHostAllocator hostAllocator;
 };
 
 void *CUDAService::allocate_device(int dev, size_t nbytes, cuda::stream_t<>& stream) {

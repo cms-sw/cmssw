@@ -1,5 +1,5 @@
-#ifndef HeterogenousCore_CUDAServices_src_CachingHostAllocator_h
-#define HeterogenousCore_CUDAServices_src_CachingHostAllocator_h
+#ifndef HeterogenousCore_CUDAServices_src_CachingDeviceAllocator_h
+#define HeterogenousCore_CUDAServices_src_CachingDeviceAllocator_h
 
 /******************************************************************************
  * Copyright (c) 2011, Duane Merrill.  All rights reserved.
@@ -30,20 +30,21 @@
  ******************************************************************************/
 
 /**
- * Modified to cache pinned host allocations by Matti Kortelainen
- */
+ * Forked to CMSSW by Matti Kortelainen
+ */ 
 
 /******************************************************************************
- * Simple caching allocator for pinned host memory allocations. The allocator is
- * thread-safe.
+ * Simple caching allocator for device memory allocations. The allocator is
+ * thread-safe and capable of managing device allocations on multiple devices.
  ******************************************************************************/
+
+#include <cub/util_debug.cuh>
 
 #include <set>
 #include <map>
-#include <cmath>
 
-#include <cub/util_debug.cuh>
 #include <cub/host/mutex.cuh>
+#include <math.h>
 
 /// CUB namespace
 namespace notcub {
@@ -56,26 +57,25 @@ namespace notcub {
 
 
 /******************************************************************************
- * CachingHostAllocator (host use)
+ * CachingDeviceAllocator (host use)
  ******************************************************************************/
 
 /**
- * \brief A simple caching allocator pinned host memory allocations.
+ * \brief A simple caching allocator for device memory allocations.
  *
  * \par Overview
- * The allocator is thread-safe.  It behaves as follows:
- *
- * I presume the CUDA stream-safeness is not useful as to read/write
- * from/to the pinned host memory one needs to synchronize anyway. The
- * difference wrt. device memory is that in the CPU all operations to
- * the device memory are scheduled via the CUDA stream, while for the
- * host memory one can perform operations directly.
+ * The allocator is thread-safe and stream-safe and is capable of managing cached
+ * device allocations on multiple devices.  It behaves as follows:
  *
  * \par
+ * - Allocations from the allocator are associated with an \p active_stream.  Once freed,
+ *   the allocation becomes available immediately for reuse within the \p active_stream
+ *   with which it was associated with during allocation, and it becomes available for
+ *   reuse within other streams when all prior work submitted to \p active_stream has completed.
  * - Allocations are categorized and cached by bin size.  A new allocation request of
  *   a given size will only consider cached allocations within the corresponding bin.
  * - Bin limits progress geometrically in accordance with the growth factor
- *   \p bin_growth provided during construction.  Unused host allocations within
+ *   \p bin_growth provided during construction.  Unused device allocations within
  *   a larger bin cache are not reused for allocation requests that categorize to
  *   smaller bin sizes.
  * - Allocation requests below (\p bin_growth ^ \p min_bin) are rounded up to
@@ -83,12 +83,12 @@ namespace notcub {
  * - Allocations above (\p bin_growth ^ \p max_bin) are not rounded up to the nearest
  *   bin and are simply freed when they are deallocated instead of being returned
  *   to a bin-cache.
- * - %If the total storage of cached allocations  will exceed
- *   \p max_cached_bytes, allocations are simply freed when they are
+ * - %If the total storage of cached allocations on a given device will exceed
+ *   \p max_cached_bytes, allocations for that device are simply freed when they are
  *   deallocated instead of being returned to their bin-cache.
  *
  * \par
- * For example, the default-constructed CachingHostAllocator is configured with:
+ * For example, the default-constructed CachingDeviceAllocator is configured with:
  * - \p bin_growth          = 8
  * - \p min_bin             = 3
  * - \p max_bin             = 7
@@ -96,10 +96,10 @@ namespace notcub {
  *
  * \par
  * which delineates five bin-sizes: 512B, 4KB, 32KB, 256KB, and 2MB
- * and sets a maximum of 6,291,455 cached bytes
+ * and sets a maximum of 6,291,455 cached bytes per device
  *
  */
-struct CachingHostAllocator
+struct CachingDeviceAllocator
 {
 
     //---------------------------------------------------------------------
@@ -122,47 +122,53 @@ struct CachingHostAllocator
     //---------------------------------------------------------------------
 
     /**
-     * Descriptor for pinned host memory allocations
+     * Descriptor for device memory allocations
      */
     struct BlockDescriptor
     {
-        void*           d_ptr;              // Host pointer
+        void*           d_ptr;              // Device pointer
         size_t          bytes;              // Size of allocation in bytes
         unsigned int    bin;                // Bin enumeration
         int             device;             // device ordinal
         cudaStream_t    associated_stream;  // Associated associated_stream
         cudaEvent_t     ready_event;        // Signal when associated stream has run to the point at which this block was freed
 
-        // Constructor (suitable for searching maps for a specific block, given its pointer)
-        BlockDescriptor(void *d_ptr) :
+        // Constructor (suitable for searching maps for a specific block, given its pointer and device)
+        BlockDescriptor(void *d_ptr, int device) :
             d_ptr(d_ptr),
             bytes(0),
             bin(INVALID_BIN),
-            device(INVALID_DEVICE_ORDINAL),
-            associated_stream(nullptr),
-            ready_event(nullptr)
+            device(device),
+            associated_stream(0),
+            ready_event(0)
         {}
 
-        // Constructor (suitable for searching maps for a range of suitable blocks)
-        BlockDescriptor() :
-            d_ptr(nullptr),
+        // Constructor (suitable for searching maps for a range of suitable blocks, given a device)
+        BlockDescriptor(int device) :
+            d_ptr(NULL),
             bytes(0),
             bin(INVALID_BIN),
-            device(INVALID_DEVICE_ORDINAL),
-            associated_stream(nullptr),
-            ready_event(nullptr)
+            device(device),
+            associated_stream(0),
+            ready_event(0)
         {}
 
-        // Comparison functor for comparing host pointers
+        // Comparison functor for comparing device pointers
         static bool PtrCompare(const BlockDescriptor &a, const BlockDescriptor &b)
         {
-            return (a.d_ptr < b.d_ptr);
+            if (a.device == b.device)
+                return (a.d_ptr < b.d_ptr);
+            else
+                return (a.device < b.device);
         }
 
         // Comparison functor for comparing allocation sizes
         static bool SizeCompare(const BlockDescriptor &a, const BlockDescriptor &b)
         {
-            return (a.bytes < b.bytes);
+            if (a.device == b.device)
+                return (a.bytes < b.bytes);
+            else
+                return (a.device < b.device);
         }
     };
 
@@ -181,6 +187,9 @@ struct CachingHostAllocator
 
     /// Set type for live blocks (ordered by ptr)
     typedef std::multiset<BlockDescriptor, Compare> BusyBlocks;
+
+    /// Map type of device ordinals to the number of cached bytes cached by each device
+    typedef std::map<int, TotalBytes> GpuCachedBytes;
 
 
     //---------------------------------------------------------------------
@@ -247,14 +256,14 @@ struct CachingHostAllocator
 
     size_t          min_bin_bytes;      /// Minimum bin size
     size_t          max_bin_bytes;      /// Maximum bin size
-    size_t          max_cached_bytes;   /// Maximum aggregate cached bytes
+    size_t          max_cached_bytes;   /// Maximum aggregate cached bytes per device
 
     const bool      skip_cleanup;       /// Whether or not to skip a call to FreeAllCached() when destructor is called.  (The CUDA runtime may have already shut down for statically declared allocators)
     bool            debug;              /// Whether or not to print (de)allocation events to stdout
 
-    TotalBytes      cached_bytes;       /// Aggregate cached bytes
-    CachedBlocks    cached_blocks;      /// Set of cached pinned host allocations available for reuse
-    BusyBlocks      live_blocks;        /// Set of live pinned host allocations currently in use
+    GpuCachedBytes  cached_bytes;       /// Map of device ordinal to aggregate cached bytes on that device
+    CachedBlocks    cached_blocks;      /// Set of cached device allocations available for reuse
+    BusyBlocks      live_blocks;        /// Set of live device allocations currently in use
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -265,11 +274,11 @@ struct CachingHostAllocator
     /**
      * \brief Constructor.
      */
-    CachingHostAllocator(
+    CachingDeviceAllocator(
         unsigned int    bin_growth,                             ///< Geometric growth factor for bin-sizes
         unsigned int    min_bin             = 1,                ///< Minimum bin (default is bin_growth ^ 1)
         unsigned int    max_bin             = INVALID_BIN,      ///< Maximum bin (default is no max bin)
-        size_t          max_cached_bytes    = INVALID_SIZE,     ///< Maximum aggregate cached bytes (default is no limit)
+        size_t          max_cached_bytes    = INVALID_SIZE,     ///< Maximum aggregate cached bytes per device (default is no limit)
         bool            skip_cleanup        = false,            ///< Whether or not to skip a call to \p FreeAllCached() when the destructor is called (default is to deallocate)
         bool            debug               = false)            ///< Whether or not to print (de)allocation events to stdout (default is no stderr output)
     :
@@ -297,9 +306,9 @@ struct CachingHostAllocator
      * - \p max_cached_bytes    = (\p bin_growth ^ \p max_bin) * 3) - 1 = 6,291,455 bytes
      *
      * which delineates five bin-sizes: 512B, 4KB, 32KB, 256KB, and 2MB and
-     * sets a maximum of 6,291,455 cached bytes
+     * sets a maximum of 6,291,455 cached bytes per device
      */
-    CachingHostAllocator(
+    CachingDeviceAllocator(
         bool skip_cleanup = false,
         bool debug = false)
     :
@@ -317,12 +326,12 @@ struct CachingHostAllocator
 
 
     /**
-     * \brief Sets the limit on the number bytes this allocator is allowed to cache
+     * \brief Sets the limit on the number bytes this allocator is allowed to cache per device.
      *
      * Changing the ceiling of cached bytes does not cause any allocations (in-use or
      * cached-in-reserve) to be freed.  See \p FreeAllCached().
      */
-    void SetMaxCachedBytes(
+    cudaError_t SetMaxCachedBytes(
         size_t max_cached_bytes)
     {
         // Lock
@@ -334,29 +343,37 @@ struct CachingHostAllocator
 
         // Unlock
         mutex.Unlock();
+
+        return cudaSuccess;
     }
 
 
     /**
-     * \brief Provides a suitable allocation of pinned host memory for the given size.
+     * \brief Provides a suitable allocation of device memory for the given size on the specified device.
      *
-     * Once freed, the allocation becomes available immediately for reuse.
+     * Once freed, the allocation becomes available immediately for reuse within the \p active_stream
+     * with which it was associated with during allocation, and it becomes available for reuse within other
+     * streams when all prior work submitted to \p active_stream has completed.
      */
-    cudaError_t HostAllocate(
+    cudaError_t DeviceAllocate(
+        int             device,             ///< [in] Device on which to place the allocation
         void            **d_ptr,            ///< [out] Reference to pointer to the allocation
         size_t          bytes,              ///< [in] Minimum number of bytes for the allocation
-        cudaStream_t    active_stream = nullptr)  ///< [in] The stream to be associated with this allocation
+        cudaStream_t    active_stream = 0)  ///< [in] The stream to be associated with this allocation
     {
-        *d_ptr                          = nullptr;
-        int device                      = INVALID_DEVICE_ORDINAL;
+        *d_ptr                          = NULL;
+        int entrypoint_device           = INVALID_DEVICE_ORDINAL;
         cudaError_t error               = cudaSuccess;
 
-        if (CubDebug(error = cudaGetDevice(&device))) return error;
+        if (device == INVALID_DEVICE_ORDINAL)
+        {
+            if (CubDebug(error = cudaGetDevice(&entrypoint_device))) return error;
+            device = entrypoint_device;
+        }
 
         // Create a block descriptor for the requested allocation
         bool found = false;
-        BlockDescriptor search_key;
-        search_key.device = device;
+        BlockDescriptor search_key(device);
         search_key.associated_stream = active_stream;
         NearestPowerOf(search_key.bin, search_key.bytes, bin_growth, bytes);
 
@@ -380,35 +397,30 @@ struct CachingHostAllocator
                 search_key.bytes    = min_bin_bytes;
             }
 
-            // Iterate through the range of cached blocks in the same bin
+            // Iterate through the range of cached blocks on the same device in the same bin
             CachedBlocks::iterator block_itr = cached_blocks.lower_bound(search_key);
             while ((block_itr != cached_blocks.end())
+                    && (block_itr->device == device)
                     && (block_itr->bin == search_key.bin))
             {
                 // To prevent races with reusing blocks returned by the host but still
-                // in use for transfers, only consider cached blocks that are from an idle stream
-                if(cudaEventQuery(block_itr->ready_event) != cudaErrorNotReady) {
+                // in use by the device, only consider cached blocks that are
+                // either (from the active stream) or (from an idle stream)
+                if ((active_stream == block_itr->associated_stream) ||
+                    (cudaEventQuery(block_itr->ready_event) != cudaErrorNotReady))
+                {
                     // Reuse existing cache block.  Insert into live blocks.
                     found = true;
                     search_key = *block_itr;
                     search_key.associated_stream = active_stream;
-                    if(search_key.device != device) {
-                      // If "associated" device changes, need to re-create the event on the right device
-                      if (CubDebug(error = cudaSetDevice(search_key.device))) return error;
-                      if (CubDebug(error = cudaEventDestroy(search_key.ready_event))) return error;
-                      if (CubDebug(error = cudaSetDevice(device))) return error;
-                      if (CubDebug(error = cudaEventCreateWithFlags(&search_key.ready_event, cudaEventDisableTiming))) return error;
-                      search_key.device = device;
-                    }
-
                     live_blocks.insert(search_key);
 
                     // Remove from free blocks
-                    cached_bytes.free -= search_key.bytes;
-                    cached_bytes.live += search_key.bytes;
+                    cached_bytes[device].free -= search_key.bytes;
+                    cached_bytes[device].live += search_key.bytes;
 
-                    if (debug) _CubLog("\tHost reused cached block at %p (%lld bytes) for stream %lld on device %lld (previously associated with stream %lld).\n",
-                        search_key.d_ptr, (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) search_key.device, (long long)  block_itr->associated_stream);
+                    if (debug) _CubLog("\tDevice %d reused cached block at %p (%lld bytes) for stream %lld (previously associated with stream %lld).\n",
+                        device, search_key.d_ptr, (long long) search_key.bytes, (long long) search_key.associated_stream, (long long)  block_itr->associated_stream);
 
                     cached_blocks.erase(block_itr);
 
@@ -424,13 +436,19 @@ struct CachingHostAllocator
         // Allocate the block if necessary
         if (!found)
         {
+            // Set runtime's current device to specified device (entrypoint may not be set)
+            if (device != entrypoint_device)
+            {
+                if (CubDebug(error = cudaGetDevice(&entrypoint_device))) return error;
+                if (CubDebug(error = cudaSetDevice(device))) return error;
+            }
+
             // Attempt to allocate
-            // TODO: eventually support allocation flags
-            if (CubDebug(error = cudaHostAlloc(&search_key.d_ptr, search_key.bytes, cudaHostAllocDefault)) == cudaErrorMemoryAllocation)
+            if (CubDebug(error = cudaMalloc(&search_key.d_ptr, search_key.bytes)) == cudaErrorMemoryAllocation)
             {
                 // The allocation attempt failed: free all cached blocks on device and retry
-                if (debug) _CubLog("\tHost failed to allocate %lld bytes for stream %lld on device %lld, retrying after freeing cached allocations",
-                      (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) search_key.device);
+                if (debug) _CubLog("\tDevice %d failed to allocate %lld bytes for stream %lld, retrying after freeing cached allocations",
+                      device, (long long) search_key.bytes, (long long) search_key.associated_stream);
 
                 error = cudaSuccess;    // Reset the error we will return
                 cudaGetLastError();     // Reset CUDART's error
@@ -438,24 +456,25 @@ struct CachingHostAllocator
                 // Lock
                 mutex.Lock();
 
-                // Iterate the range of free blocks
-                CachedBlocks::iterator block_itr = cached_blocks.begin();
+                // Iterate the range of free blocks on the same device
+                BlockDescriptor free_key(device);
+                CachedBlocks::iterator block_itr = cached_blocks.lower_bound(free_key);
 
-                while ((block_itr != cached_blocks.end()))
+                while ((block_itr != cached_blocks.end()) && (block_itr->device == device))
                 {
                     // No need to worry about synchronization with the device: cudaFree is
                     // blocking and will synchronize across all kernels executing
                     // on the current device
-  
-                    // Free pinned host memory.
-                    if (CubDebug(error = cudaFreeHost(block_itr->d_ptr))) break;
+
+                    // Free device memory and destroy stream event.
+                    if (CubDebug(error = cudaFree(block_itr->d_ptr))) break;
                     if (CubDebug(error = cudaEventDestroy(block_itr->ready_event))) break;
 
                     // Reduce balance and erase entry
-                    cached_bytes.free -= block_itr->bytes;
+                    cached_bytes[device].free -= block_itr->bytes;
 
-                    if (debug) _CubLog("\tHost freed %lld bytes.\n\t\t  %lld available blocks cached (%lld bytes), %lld live blocks (%lld bytes) outstanding.\n",
-                        (long long) block_itr->bytes, (long long) cached_blocks.size(), (long long) cached_bytes.free, (long long) live_blocks.size(), (long long) cached_bytes.live);
+                    if (debug) _CubLog("\tDevice %d freed %lld bytes.\n\t\t  %lld available blocks cached (%lld bytes), %lld live blocks (%lld bytes) outstanding.\n",
+                        device, (long long) block_itr->bytes, (long long) cached_blocks.size(), (long long) cached_bytes[device].free, (long long) live_blocks.size(), (long long) cached_bytes[device].live);
 
                     cached_blocks.erase(block_itr);
 
@@ -469,7 +488,7 @@ struct CachingHostAllocator
                 if (error) return error;
 
                 // Try to allocate again
-                if (CubDebug(error = cudaHostAlloc(&search_key.d_ptr, search_key.bytes, cudaHostAllocDefault))) return error;
+                if (CubDebug(error = cudaMalloc(&search_key.d_ptr, search_key.bytes))) return error;
             }
 
             // Create ready event
@@ -479,87 +498,121 @@ struct CachingHostAllocator
             // Insert into live blocks
             mutex.Lock();
             live_blocks.insert(search_key);
-            cached_bytes.live += search_key.bytes;
+            cached_bytes[device].live += search_key.bytes;
             mutex.Unlock();
 
-            if (debug) _CubLog("\tHost allocated new host block at %p (%lld bytes associated with stream %lld on device %lld).\n",
-                      search_key.d_ptr, (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) search_key.device);
+            if (debug) _CubLog("\tDevice %d allocated new device block at %p (%lld bytes associated with stream %lld).\n",
+                      device, search_key.d_ptr, (long long) search_key.bytes, (long long) search_key.associated_stream);
+
+            // Attempt to revert back to previous device if necessary
+            if ((entrypoint_device != INVALID_DEVICE_ORDINAL) && (entrypoint_device != device))
+            {
+                if (CubDebug(error = cudaSetDevice(entrypoint_device))) return error;
+            }
         }
 
-        // Copy host pointer to output parameter
+        // Copy device pointer to output parameter
         *d_ptr = search_key.d_ptr;
 
         if (debug) _CubLog("\t\t%lld available blocks cached (%lld bytes), %lld live blocks outstanding(%lld bytes).\n",
-            (long long) cached_blocks.size(), (long long) cached_bytes.free, (long long) live_blocks.size(), (long long) cached_bytes.live);
+            (long long) cached_blocks.size(), (long long) cached_bytes[device].free, (long long) live_blocks.size(), (long long) cached_bytes[device].live);
 
         return error;
     }
 
 
     /**
-     * \brief Frees a live allocation of pinned host memory, returning it to the allocator.
+     * \brief Provides a suitable allocation of device memory for the given size on the current device.
      *
-     * Once freed, the allocation becomes available immediately for reuse.
+     * Once freed, the allocation becomes available immediately for reuse within the \p active_stream
+     * with which it was associated with during allocation, and it becomes available for reuse within other
+     * streams when all prior work submitted to \p active_stream has completed.
      */
-    cudaError_t HostFree(
+    cudaError_t DeviceAllocate(
+        void            **d_ptr,            ///< [out] Reference to pointer to the allocation
+        size_t          bytes,              ///< [in] Minimum number of bytes for the allocation
+        cudaStream_t    active_stream = 0)  ///< [in] The stream to be associated with this allocation
+    {
+        return DeviceAllocate(INVALID_DEVICE_ORDINAL, d_ptr, bytes, active_stream);
+    }
+
+
+    /**
+     * \brief Frees a live allocation of device memory on the specified device, returning it to the allocator.
+     *
+     * Once freed, the allocation becomes available immediately for reuse within the \p active_stream
+     * with which it was associated with during allocation, and it becomes available for reuse within other
+     * streams when all prior work submitted to \p active_stream has completed.
+     */
+    cudaError_t DeviceFree(
+        int             device,
         void*           d_ptr)
     {
         int entrypoint_device           = INVALID_DEVICE_ORDINAL;
         cudaError_t error               = cudaSuccess;
+
+        if (device == INVALID_DEVICE_ORDINAL)
+        {
+            if (CubDebug(error = cudaGetDevice(&entrypoint_device)))
+                return error;
+            device = entrypoint_device;
+        }
 
         // Lock
         mutex.Lock();
 
         // Find corresponding block descriptor
         bool recached = false;
-        BlockDescriptor search_key(d_ptr);
+        BlockDescriptor search_key(d_ptr, device);
         BusyBlocks::iterator block_itr = live_blocks.find(search_key);
         if (block_itr != live_blocks.end())
         {
             // Remove from live blocks
             search_key = *block_itr;
             live_blocks.erase(block_itr);
-            cached_bytes.live -= search_key.bytes;
+            cached_bytes[device].live -= search_key.bytes;
 
             // Keep the returned allocation if bin is valid and we won't exceed the max cached threshold
-            if ((search_key.bin != INVALID_BIN) && (cached_bytes.free + search_key.bytes <= max_cached_bytes))
+            if ((search_key.bin != INVALID_BIN) && (cached_bytes[device].free + search_key.bytes <= max_cached_bytes))
             {
                 // Insert returned allocation into free blocks
                 recached = true;
                 cached_blocks.insert(search_key);
-                cached_bytes.free += search_key.bytes;
+                cached_bytes[device].free += search_key.bytes;
 
-                if (debug) _CubLog("\tHost returned %lld bytes from associated stream %lld on device %lld.\n\t\t %lld available blocks cached (%lld bytes), %lld live blocks outstanding. (%lld bytes)\n",
-                    (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) search_key.device, (long long) cached_blocks.size(),
-                    (long long) cached_bytes.free, (long long) live_blocks.size(), (long long) cached_bytes.live);
+                if (debug) _CubLog("\tDevice %d returned %lld bytes from associated stream %lld.\n\t\t %lld available blocks cached (%lld bytes), %lld live blocks outstanding. (%lld bytes)\n",
+                    device, (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) cached_blocks.size(),
+                    (long long) cached_bytes[device].free, (long long) live_blocks.size(), (long long) cached_bytes[device].live);
             }
-        }
-
-        if (CubDebug(error = cudaGetDevice(&entrypoint_device))) return error;
-        if (entrypoint_device != search_key.device) {
-            if (CubDebug(error = cudaSetDevice(search_key.device))) return error;
-        }
-
-        if (recached) {
-            // Insert the ready event in the associated stream (must have current device set properly)
-            if (CubDebug(error = cudaEventRecord(search_key.ready_event, search_key.associated_stream))) return error;
         }
 
         // Unlock
         mutex.Unlock();
 
-        if (!recached)
+        // First set to specified device (entrypoint may not be set)
+        if (device != entrypoint_device)
+        {
+            if (CubDebug(error = cudaGetDevice(&entrypoint_device))) return error;
+            if (CubDebug(error = cudaSetDevice(device))) return error;
+        }
+
+        if (recached)
+        {
+            // Insert the ready event in the associated stream (must have current device set properly)
+            if (CubDebug(error = cudaEventRecord(search_key.ready_event, search_key.associated_stream))) return error;
+        }
+        else
         {
             // Free the allocation from the runtime and cleanup the event.
-            if (CubDebug(error = cudaFreeHost(d_ptr))) return error;
+            if (CubDebug(error = cudaFree(d_ptr))) return error;
             if (CubDebug(error = cudaEventDestroy(search_key.ready_event))) return error;
 
-            if (debug) _CubLog("\tHost freed %lld bytes from associated stream %lld on device %lld.\n\t\t  %lld available blocks cached (%lld bytes), %lld live blocks (%lld bytes) outstanding.\n",
-                (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) search_key.device, (long long) cached_blocks.size(), (long long) cached_bytes.free, (long long) live_blocks.size(), (long long) cached_bytes.live);
+            if (debug) _CubLog("\tDevice %d freed %lld bytes from associated stream %lld.\n\t\t  %lld available blocks cached (%lld bytes), %lld live blocks (%lld bytes) outstanding.\n",
+                device, (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) cached_blocks.size(), (long long) cached_bytes[device].free, (long long) live_blocks.size(), (long long) cached_bytes[device].live);
         }
 
         // Reset device
-        if ((entrypoint_device != INVALID_DEVICE_ORDINAL) && (entrypoint_device != search_key.device))
+        if ((entrypoint_device != INVALID_DEVICE_ORDINAL) && (entrypoint_device != device))
         {
             if (CubDebug(error = cudaSetDevice(entrypoint_device))) return error;
         }
@@ -569,7 +622,21 @@ struct CachingHostAllocator
 
 
     /**
-     * \brief Frees all cached pinned host allocations
+     * \brief Frees a live allocation of device memory on the current device, returning it to the allocator.
+     *
+     * Once freed, the allocation becomes available immediately for reuse within the \p active_stream
+     * with which it was associated with during allocation, and it becomes available for reuse within other
+     * streams when all prior work submitted to \p active_stream has completed.
+     */
+    cudaError_t DeviceFree(
+        void*           d_ptr)
+    {
+        return DeviceFree(INVALID_DEVICE_ORDINAL, d_ptr);
+    }
+
+
+    /**
+     * \brief Frees all cached device allocations on all devices
      */
     cudaError_t FreeAllCached()
     {
@@ -597,15 +664,15 @@ struct CachingHostAllocator
                 current_device = begin->device;
             }
 
-            // Free host memory
-            if (CubDebug(error = cudaFreeHost(begin->d_ptr))) break;
+            // Free device memory
+            if (CubDebug(error = cudaFree(begin->d_ptr))) break;
             if (CubDebug(error = cudaEventDestroy(begin->ready_event))) break;
 
             // Reduce balance and erase entry
-            cached_bytes.free -= begin->bytes;
+            cached_bytes[current_device].free -= begin->bytes;
 
-            if (debug) _CubLog("\tHost freed %lld bytes.\n\t\t  %lld available blocks cached (%lld bytes), %lld live blocks (%lld bytes) outstanding.\n",
-                (long long) begin->bytes, (long long) cached_blocks.size(), (long long) cached_bytes.free, (long long) live_blocks.size(), (long long) cached_bytes.live);
+            if (debug) _CubLog("\tDevice %d freed %lld bytes.\n\t\t  %lld available blocks cached (%lld bytes), %lld live blocks (%lld bytes) outstanding.\n",
+                current_device, (long long) begin->bytes, (long long) cached_blocks.size(), (long long) cached_bytes[current_device].free, (long long) live_blocks.size(), (long long) cached_bytes[current_device].live);
 
             cached_blocks.erase(begin);
         }
@@ -625,7 +692,7 @@ struct CachingHostAllocator
     /**
      * \brief Destructor
      */
-    ~CachingHostAllocator()
+    virtual ~CachingDeviceAllocator()
     {
         if (!skip_cleanup)
             FreeAllCached();
