@@ -9,6 +9,8 @@
  ****************************************************************************/
 
 #include "RecoCTPPS/TotemRPLocal/interface/TotemTimingConversions.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <boost/exception/exception.hpp>
 
 //----------------------------------------------------------------------------------------------------
@@ -18,30 +20,23 @@ const float TotemTimingConversions::SAMPIC_ADC_V = 1. / 256;
 const int TotemTimingConversions::SAMPIC_MAX_NUMBER_OF_SAMPLES = 64;
 const int TotemTimingConversions::SAMPIC_DEFAULT_OFFSET = 30;
 const int TotemTimingConversions::ACCEPTED_TIME_RADIUS = 4;
+const unsigned long TotemTimingConversions::CELL0_MASK = 0xfffffff000;
 
 //----------------------------------------------------------------------------------------------------
 
 TotemTimingConversions::TotemTimingConversions(bool mergeTimePeaks, const std::string& calibrationFile) :
-  calibrationFile_(calibrationFile),
   calibrationFileOpened_(false),
   mergeTimePeaks_(mergeTimePeaks)
-{}
-
-//----------------------------------------------------------------------------------------------------
-
-void
-TotemTimingConversions::openCalibrationFile(const std::string& calibrationFile)
 {
   if (!calibrationFile.empty())
-    calibrationFile_ = calibrationFile;
-  if (calibrationFile_.empty())
-    return;
-
-  try {
-    parsedData_.parseFile(calibrationFile_);
-  } catch (const boost::exception& e) { return; }
-  calibrationFunction_ = TF1("calibrationFunction_", parsedData_.getFormula().c_str());
-  calibrationFileOpened_ = true;
+    try {
+      parsedData_.parseFile(calibrationFile);
+      calibrationFunction_ = TF1("calibrationFunction_", parsedData_.getFormula().c_str());
+      calibrationFileOpened_ = true;
+    } catch (const boost::exception& e) {
+      throw cms::Exception("TotemTimingConversions")
+        << "Failed to open calibration file \"" << calibrationFile << "\" for parsing!";
+    }
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -58,7 +53,7 @@ TotemTimingConversions::getTimeOfFirstSample(const TotemTimingDigi& digi)
     : digi.getTimestampB();
 
   int cell0TimeClock = timestamp +
-    ((digi.getFPGATimestamp()-timestamp) & 0xFFFFFFF000)
+    ((digi.getFPGATimestamp()-timestamp) & CELL0_MASK)
     - digi.getEventInfo().getL1ATimestamp()
     + digi.getEventInfo().getL1ALatency();
 
@@ -73,8 +68,6 @@ TotemTimingConversions::getTimeOfFirstSample(const TotemTimingDigi& digi)
   int db = digi.getHardwareBoardId();
   int sampic = digi.getHardwareSampicId();
   int channel = digi.getHardwareChannelId();
-  if (!calibrationFileOpened_)
-    openCalibrationFile();
   float t = firstCellTimeInstant + parsedData_.getTimeOffset(db, sampic, channel);
   //NOTE: If no time offset is set, getTimeOffset returns 0
 
@@ -92,9 +85,6 @@ TotemTimingConversions::getTimeOfFirstSample(const TotemTimingDigi& digi)
 float
 TotemTimingConversions::getTriggerTime(const TotemTimingDigi& digi)
 {
-  if (!calibrationFileOpened_)
-    openCalibrationFile();
-
   unsigned int offsetOfSamples = digi.getEventInfo().getOffsetOfSamples();
   if (offsetOfSamples == 0)
     offsetOfSamples = 30; // FW 0 is not sending this, FW > 0 yes
@@ -107,8 +97,6 @@ TotemTimingConversions::getTriggerTime(const TotemTimingDigi& digi)
 float
 TotemTimingConversions::getTimePrecision(const TotemTimingDigi& digi)
 {
-  if (!calibrationFileOpened_)
-    openCalibrationFile();
   int db = digi.getHardwareBoardId();
   int sampic = digi.getHardwareSampicId();
   int channel = digi.getHardwareChannelId();
@@ -120,9 +108,6 @@ TotemTimingConversions::getTimePrecision(const TotemTimingDigi& digi)
 std::vector<float>
 TotemTimingConversions::getTimeSamples(const TotemTimingDigi& digi)
 {
-  if (!calibrationFileOpened_)
-    openCalibrationFile();
-
   std::vector<float> time(digi.getNumberOfSamples());
   for (unsigned int i = 0; i < time.size(); ++i)
     time.at(i) = getTimeOfFirstSample(digi) + i * SAMPIC_SAMPLING_PERIOD_NS;
@@ -135,23 +120,23 @@ TotemTimingConversions::getTimeSamples(const TotemTimingDigi& digi)
 std::vector<float>
 TotemTimingConversions::getVoltSamples(const TotemTimingDigi& digi)
 {
-  if (!calibrationFileOpened_)
-    openCalibrationFile();
-
   std::vector<float> data;
-  if (calibrationFile_.empty())
-    for (auto it = digi.getSamplesBegin(); it != digi.getSamplesEnd(); ++it)
-      data.emplace_back(SAMPIC_ADC_V * (*it));
+  if (!calibrationFileOpened_)
+    for (const auto& sample : digi.getSamples())
+      data.emplace_back(SAMPIC_ADC_V * sample);
   else {
     unsigned int db = digi.getHardwareBoardId();
     unsigned int sampic = digi.getHardwareSampicId();
     unsigned int channel = digi.getHardwareChannelId();
     unsigned int cell = digi.getCellInfo();
-    for (auto it = digi.getSamplesBegin(); it != digi.getSamplesEnd(); ++it, ++cell){
-      auto parameters = parsedData_.getParameters(db, sampic, channel, cell);
-      for (unsigned int i=0; i<parameters.size(); ++i)
-        calibrationFunction_.SetParameter(i, parameters.at(i));
-      data.emplace_back(calibrationFunction_.Eval(*it));
+    for (const auto& sample : digi.getSamples()) {
+      auto parameters = parsedData_.getParameters(db, sampic, channel, ++cell);
+      if (parameters.empty())
+        throw cms::Exception("TotemTimingConversions:getVoltSamples")
+          << "Invalid calibrations retrieved for Sampic digi"
+          << " (" << db << ", " << sampic << ", " << channel << ", " << cell << ")!";
+      double x = (double)sample;
+      data.emplace_back(calibrationFunction_.EvalPar(&x, parameters.data()));
     }
   }
   return data;
