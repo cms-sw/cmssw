@@ -35,9 +35,9 @@ CTPPSTimingLocalTrack::containsHit( const CTPPSTimingRecHit& recHit, float toler
   float yTolerance = pos0_sigma_.y() + ( 0.5 * recHit.getYWidth() ) + tolerance;
   float zTolerance = pos0_sigma_.z() + ( 0.5 * recHit.getZWidth() ) + tolerance;
 
-  float xDiff = std::fabs( pos0_.x() - recHit.getX() );
-  float yDiff = std::fabs( pos0_.y() - recHit.getY() );
-  float zDiff = std::fabs( pos0_.z() - recHit.getZ() );
+  float xDiff = std::abs( pos0_.x() - recHit.getX() );
+  float yDiff = std::abs( pos0_.y() - recHit.getY() );
+  float zDiff = std::abs( pos0_.z() - recHit.getZ() );
 
   switch ( check ) {
     case CheckDimension::x:

@@ -26,7 +26,7 @@
 #include "TF1.h"
 
 /**
- * \brief Class performing smart reconstruction for CTPPS Diamond Detectors.
+ * \brief Class performing smart reconstruction for PPS Diamond Detectors.
  * \date Jan 2017
 **/
 class CTPPSDiamondTrackRecognition : public CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>
@@ -55,13 +55,14 @@ class CTPPSDiamondTrackRecognition : public CTPPSTimingTrackRecognition<CTPPSDia
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition(const edm::ParameterSet& parameters) :
-    CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>(parameters)
+CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::ParameterSet& parameters ) :
+  CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>( parameters )
 {}
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSDiamondTrackRecognition::clear()
+void
+CTPPSDiamondTrackRecognition::clear()
 {
   CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>::clear();
   mhMap_.clear();
@@ -69,16 +70,17 @@ void CTPPSDiamondTrackRecognition::clear()
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSDiamondTrackRecognition::addHit( const CTPPSDiamondRecHit& recHit )
+void
+CTPPSDiamondTrackRecognition::addHit( const CTPPSDiamondRecHit& recHit )
 {
   // store hit parameters
-  hitVectorMap[recHit.getOOTIndex()].emplace_back(recHit);
+  hitVectorMap[recHit.getOOTIndex()].emplace_back( recHit );
 }
 
 //----------------------------------------------------------------------------------------------------
 
 int
-CTPPSDiamondTrackRecognition::produceTracks(edm::DetSet<CTPPSDiamondLocalTrack>& tracks)
+CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>& tracks )
 {
   int numberOfTracks = 0;
   DimensionParameters param;
@@ -89,54 +91,42 @@ CTPPSDiamondTrackRecognition::produceTracks(edm::DetSet<CTPPSDiamondLocalTrack>&
   param.sigma = sigma;
   param.hitFunction = pixelEfficiencyFunction;
 
+  for ( const auto& hitBatch: hitVectorMap ) {
+    const auto& oot = hitBatch.first;
+    const auto& hits = hitBatch.second;
 
-  for(auto hitBatch: hitVectorMap) {
-
-    auto hits = hitBatch.second;
-    auto oot = hitBatch.first;
-
-    auto hitRange = getHitSpatialRange(hits);
+    auto hitRange = getHitSpatialRange( hits );
 
     std::vector<CTPPSDiamondLocalTrack> xPartTracks;
-    auto getX = [](const CTPPSDiamondRecHit& hit){ return hit.getX(); };
-    auto getXWidth = [](const CTPPSDiamondRecHit& hit){ return hit.getXWidth(); };
-    auto setX = [](CTPPSDiamondLocalTrack& track, float x){ track.setPosition(math::XYZPoint(x, 0., 0.)); };
-    auto setXSigma = [](CTPPSDiamondLocalTrack& track, float sigma){ track.setPositionSigma(math::XYZPoint(sigma, 0., 0.)); };
+    auto getX = []( const CTPPSDiamondRecHit& hit ){ return hit.getX(); };
+    auto getXWidth = []( const CTPPSDiamondRecHit& hit ){ return hit.getXWidth(); };
+    auto setX = []( CTPPSDiamondLocalTrack& track, float x ){ track.setPosition( math::XYZPoint( x, 0., 0. ) ); };
+    auto setXSigma = []( CTPPSDiamondLocalTrack& track, float sigma ){ track.setPositionSigma( math::XYZPoint( sigma, 0., 0. ) ); };
 
     // Produces tracks in x dimension
     param.rangeBegin = hitRange.xBegin;
     param.rangeEnd = hitRange.xEnd;
-    producePartialTracks(hits, param, getX, getXWidth, setX, setXSigma, xPartTracks);
+    producePartialTracks( hits, param, getX, getXWidth, setX, setXSigma, xPartTracks );
 
-    if(xPartTracks.empty())
+    if ( xPartTracks.empty() )
       continue;
 
-    float yRangeCenter = (hitRange.yBegin + hitRange.yEnd) / 2.0;
-    float ySigma = (hitRange.yEnd - hitRange.yBegin) / 2.0;
-    float zRangeCenter = (hitRange.zBegin + hitRange.zEnd) / 2.0;
-    float zSigma = (hitRange.zEnd - hitRange.zBegin) / 2.0;
+    const float yRangeCenter = 0.5f*( hitRange.yBegin + hitRange.yEnd );
+    const float zRangeCenter = 0.5f*( hitRange.zBegin + hitRange.zEnd );
+    const float ySigma = 0.5f*( hitRange.yEnd - hitRange.yBegin );
+    const float zSigma = 0.5f*( hitRange.zEnd - hitRange.zBegin );
 
-    for(const auto& xTrack: xPartTracks) {
-      math::XYZPoint position(
-        xTrack.getX0(),
-        yRangeCenter,
-        zRangeCenter
-      );
-      math::XYZPoint positionSigma(
-        xTrack.getX0Sigma(),
-        ySigma,
-        zSigma
-      );
+    for ( const auto& xTrack: xPartTracks ) {
+      math::XYZPoint position( xTrack.getX0(), yRangeCenter, zRangeCenter );
+      math::XYZPoint positionSigma( xTrack.getX0Sigma(), ySigma, zSigma );
 
-      CTPPSDiamondLocalTrack newTrack;
-      newTrack.setPosition(position);
-      newTrack.setPositionSigma(positionSigma);
-      newTrack.setValid(true);
-      newTrack.setOOTIndex(oot);
-      int multipleHits = (mhMap_.find(oot) != mhMap_.end()) ? mhMap_[oot] : 0;
-      newTrack.setMultipleHits(multipleHits);
+      const int multipleHits = ( mhMap_.find(oot) != mhMap_.end() )
+        ? mhMap_[oot]
+        : 0;
+      CTPPSDiamondLocalTrack newTrack( position, positionSigma, 0.f, 0.f, oot, multipleHits );
+      newTrack.setValid( true );
 
-      tracks.push_back(newTrack);
+      tracks.push_back( newTrack );
     }
   }
 
@@ -144,3 +134,4 @@ CTPPSDiamondTrackRecognition::produceTracks(edm::DetSet<CTPPSDiamondLocalTrack>&
 }
 
 #endif
+
