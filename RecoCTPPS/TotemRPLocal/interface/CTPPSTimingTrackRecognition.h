@@ -16,14 +16,9 @@
 
 #include "DataFormats/Common/interface/DetSet.h"
 
-#include <string>
-#include <cmath>
-#include <set>
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
-
-#include "TF1.h"
 
 /**
  * Class intended to perform general CTPPS timing detectors track recognition,
@@ -34,14 +29,15 @@ class CTPPSTimingTrackRecognition
 {
   public:
     CTPPSTimingTrackRecognition(const edm::ParameterSet& iConfig) :
-      threshold_           ( iConfig.getParameter<double>( "threshold" ) ),
-      thresholdFromMaximum_( iConfig.getParameter<double>( "thresholdFromMaximum" ) ),
-      resolution_          ( iConfig.getParameter<double>( "resolution" ) ),
-      sigma_               ( iConfig.getParameter<double>( "sigma" ) ),
-      pixelEfficiencyFunction_( "hit_TF1_CTPPS", iConfig.getParameter<std::string>( "pixelEfficiencyFunction" ).c_str() ) {}
+      threshold_              (iConfig.getParameter<double>("threshold")),
+      thresholdFromMaximum_   (iConfig.getParameter<double>("thresholdFromMaximum")),
+      resolution_             (iConfig.getParameter<double>("resolution")),
+      sigma_                  (iConfig.getParameter<double>("sigma")),
+      pixelEfficiencyFunction_(iConfig.getParameter<std::string>("pixelEfficiencyFunction")) {}
     virtual ~CTPPSTimingTrackRecognition() = default;
 
     //--- class API
+
     /// Reset internal state of a class instance.
     virtual void clear() { hitVectorMap_.clear(); }
     /// Add new hit to the set from which the tracks are reconstructed.
@@ -55,7 +51,7 @@ class CTPPSTimingTrackRecognition
     const float thresholdFromMaximum_;
     const float resolution_;
     const float sigma_;
-    TF1 pixelEfficiencyFunction_;
+    reco::FormulaEvaluator pixelEfficiencyFunction_;
 
     typedef std::vector<HIT_TYPE> HitVector;
     typedef std::unordered_map<int, HitVector> HitVectorMap;
@@ -63,27 +59,14 @@ class CTPPSTimingTrackRecognition
     /// RecHit vectors that should be processed separately while reconstructing tracks.
     HitVectorMap hitVectorMap_;
 
-    /** Structure representing parameters set for single dimension.
-     * Intended to use when producing partial tracks.
-     */
-    struct DimensionParameters {
-      float threshold;
-      float thresholdFromMaximum;
-      float resolution;
-      float sigma;
-      float rangeBegin;
-      float rangeEnd;
-      std::unique_ptr<reco::FormulaEvaluator> hitFunction;
-    };
-
+    /// Structure representing parameters set for single dimension.
+    /// Intended to use when producing partial tracks.
+    struct DimensionParameters { float rangeBegin, rangeEnd; };
     /// Structure representing a 3D range in space.
     struct SpatialRange {
-      float xBegin;
-      float xEnd;
-      float yBegin;
-      float yEnd;
-      float zBegin;
-      float zEnd;
+      float xBegin, xEnd;
+      float yBegin, yEnd;
+      float zBegin, zEnd;
     };
 
     /** Produce all partial tracks from given set with regard to single dimension.
@@ -124,8 +107,8 @@ void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTracks(
     void (*setTrackSigma)(TRACK_TYPE&, float),
     std::vector<TRACK_TYPE>& result) {
   int numberOfTracks = 0;
-  const float invResolution = 1./param.resolution;
-  const float profileRangeMargin = param.sigma * 3.;
+  const float invResolution = 1./resolution_;
+  const float profileRangeMargin = sigma_ * 3.;
   const float profileRangeBegin = param.rangeBegin - profileRangeMargin;
   const float profileRangeEnd = param.rangeEnd + profileRangeMargin;
 
@@ -135,13 +118,10 @@ void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTracks(
 
   // Creates hit profile
   for (auto const& hit : hits) {
-
-    float center = getHitCenter(hit);
-    float rangeWidth = getHitRangeWidth(hit);
-
-    std::vector<double> params{center, rangeWidth, param.sigma};
+    const float center = getHitCenter(hit), rangeWidth = getHitRangeWidth(hit);
+    std::vector<double> params{center, rangeWidth, sigma_};
     for (unsigned int i = 0; i < hitProfile.size(); ++i)
-      hitProfile[i] += param.hitFunction->evaluate(std::vector<double>{profileRangeBegin + i*param.resolution}, params);
+      hitProfile[i] += pixelEfficiencyFunction_.evaluate(std::vector<double>{profileRangeBegin + i*resolution_}, params);
   }
 
   bool underThreshold = true;
@@ -152,19 +132,18 @@ void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTracks(
 
   // Searches for tracks in the hit profile
   for (unsigned int i = 0; i < hitProfile.size(); i++) {
-
     if (hitProfile[i] > rangeMaximum)
       rangeMaximum = hitProfile[i];
 
     // Going above the threshold
-    if (underThreshold && hitProfile[i] > param.threshold) {
+    if (underThreshold && hitProfile[i] > threshold_) {
       underThreshold = false;
       trackRangeBegin = i;
       rangeMaximum = hitProfile[i];
     }
 
     // Going under the threshold
-    else if (!underThreshold && hitProfile[i] <= param.threshold) {
+    else if (!underThreshold && hitProfile[i] <= threshold_) {
       underThreshold = true;
       trackRangeEnd = i;
       trackRangeFound = true;
@@ -172,7 +151,7 @@ void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTracks(
 
     // Finds all tracks within the track range
     if (trackRangeFound) {
-      float trackThreshold = rangeMaximum - param.thresholdFromMaximum;
+      float trackThreshold = rangeMaximum - thresholdFromMaximum_;
       int trackBegin;
       bool underTrackThreshold = true;
 
@@ -184,8 +163,8 @@ void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTracks(
         else if (!underTrackThreshold && hitProfile[j] <= trackThreshold) {
           underTrackThreshold = true;
           TRACK_TYPE track;
-          float leftMargin = profileRangeBegin + param.resolution * trackBegin;
-          float rightMargin = profileRangeBegin + param.resolution * j;
+          float leftMargin = profileRangeBegin + resolution_ * trackBegin;
+          float rightMargin = profileRangeBegin + resolution_ * j;
           setTrackCenter(track, 0.5f*(leftMargin + rightMargin));
           setTrackSigma(track, 0.5f*(rightMargin - leftMargin));
           result.push_back(track);
