@@ -67,7 +67,7 @@ void CSCSharesInputTest::analyze(const edm::Event &myEvent, const edm::EventSetu
 		perEventData[2] += track->recHitsSize();
 		perMuonData[0] += track->recHitsSize();
 		
-        for(auto const& jHit : track->recHits()) {
+		for(auto const& jHit : track->recHits()) {
 			
 			// AllMatched:SomeMatched:AllWiresMatched:SomeWiresMatched:AllStripsMatched:SomeStripsMatched:NotMatched
 			float perRecHitData[7] = {0,0,0,0,0,0,0};

@@ -98,12 +98,12 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
 		  double like2=-999;
 		  //number of shared hits
 		  int shared=0;
-          for(auto const& hit1 : trackRef1->recHits()) if(hit1->isValid()) {
-            //count number of shared hits
-            for(auto const& hit2 : trackRef2->recHits()) {
-                if(hit2->isValid() && hit1->sharesInput(hit2, TrackingRecHit::some)) shared++;
-            }
-          }
+		  for(auto const& hit1 : trackRef1->recHits()) if(hit1->isValid()) {
+		    //count number of shared hits
+		    for(auto const& hit2 : trackRef2->recHits()) {
+		        if(hit2->isValid() && hit1->sharesInput(hit2, TrackingRecHit::some)) shared++;
+		    }
+		  }
 		  float frac=0;
 		  //number of valid hits in tracks that are duplicates
 		  float size1=trackRef1->found();
