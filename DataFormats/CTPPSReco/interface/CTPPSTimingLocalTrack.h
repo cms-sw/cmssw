@@ -23,10 +23,9 @@ class CTPPSTimingLocalTrack
     CTPPSTimingLocalTrack();
     CTPPSTimingLocalTrack( const math::XYZPoint& pos0, const math::XYZPoint& pos0_sigma,
                            float t, float t_sigma );
-    virtual ~CTPPSTimingLocalTrack() = default;
 
-    enum CheckDimension { CHECK_X, CHECK_Y, CHECK_ALL };
-    bool containsHit( const CTPPSTimingRecHit& recHit, float tolerance = 0.1, CheckDimension check = CHECK_ALL ) const;
+    enum class CheckDimension { x, y, all };
+    bool containsHit( const CTPPSTimingRecHit& recHit, float tolerance = 0.1f, CheckDimension check = CheckDimension::all ) const;
 
     //--- spatial get'ters
 
@@ -65,7 +64,7 @@ class CTPPSTimingLocalTrack
     inline void setT( float t ) { t_ = t; }
     inline void setTSigma( float t_sigma ) { t_sigma_ = t_sigma; }
 
-  protected:
+  private:
     //--- spatial information
 
     /// initial track position
