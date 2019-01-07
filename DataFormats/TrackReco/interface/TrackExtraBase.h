@@ -25,18 +25,6 @@ public:
     using TrajParams = std::vector<LocalTrajectoryParameters>;
     using Chi2sFive = std::vector<unsigned char>;
 
-    /// class which implemebts begin() and end() to enable range-based loop on RecHits
-    class TrackingRecHitCollectionWindow {
-      public:
-        TrackingRecHitCollectionWindow(trackingRecHit_iterator begin, trackingRecHit_iterator end)
-            : begin_(begin), end_(end) {}
-        trackingRecHit_iterator begin() const { return begin_; }
-        trackingRecHit_iterator end() const { return end_; }
-      private:
-        const trackingRecHit_iterator begin_;
-        const trackingRecHit_iterator end_;
-    };
-
     /// default constructor
     TrackExtraBase() : m_firstHit(-1), m_nHits(0) { }
 
@@ -57,9 +45,7 @@ public:
     }
 
     /// accessor to RecHits
-    TrackingRecHitCollectionWindow recHits() const {
-        return TrackingRecHitCollectionWindow(recHitsBegin(), recHitsEnd());
-    }
+    auto recHits() const { return TrackingRecHitRange(recHitsBegin(), recHitsEnd()); }
 
     /// first iterator over RecHits
     trackingRecHit_iterator recHitsBegin() const {
