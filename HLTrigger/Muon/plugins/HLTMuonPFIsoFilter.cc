@@ -27,7 +27,7 @@ HLTMuonPFIsoFilter::HLTMuonPFIsoFilter(const edm::ParameterSet& iConfig) : HLTFi
    candTag_ 	      (iConfig.getParameter< edm::InputTag > ("CandTag") ),
    previousCandTag_   (iConfig.getParameter< edm::InputTag > ("PreviousCandTag")),
    depTag_  	      (iConfig.getParameter< std::vector< edm::InputTag > >("DepTag" ) ),
-   depToken_(0),
+   depToken_(),
    rhoTag_  	      (iConfig.getParameter< edm::InputTag >("RhoTag" ) ),
    maxIso_  	      (iConfig.getParameter<double>("MaxIso" ) ),
    min_N_   	      (iConfig.getParameter<int> ("MinN")),
@@ -35,20 +35,23 @@ HLTMuonPFIsoFilter::HLTMuonPFIsoFilter(const edm::ParameterSet& iConfig) : HLTFi
    doRho_	      (iConfig.getParameter<bool> ("applyRhoCorrection")),
    effArea_	      (iConfig.getParameter<double> ("EffectiveArea"))
 {
-  std::stringstream tags;
-  for (unsigned int i=0;i!=depTag_.size();++i) {
-    depToken_.push_back(consumes<edm::ValueMap<double> >(depTag_[i]));
-    tags<<" PFIsoTag["<<i<<"] : "<<depTag_[i].encode()<<" \n";
+  depToken_.reserve(depTag_.size());
+  for (auto const& t: depTag_) {
+    depToken_.push_back(consumes<edm::ValueMap<double> >(t));
   }
 
   candToken_            = consumes<reco::RecoChargedCandidateCollection>(candTag_);
   previousCandToken_    = consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_);
   if (doRho_) rhoToken_ = consumes<double>(rhoTag_);
 
-  LogDebug("HLTMuonPFIsoFilter") << " candTag : " << candTag_.encode()
-				<< "\n" << tags 
-				<< "  MinN : " << min_N_;
-
+  LogDebug("HLTMuonPFIsoFilter").log( [this](auto& l) {
+      l << " candTag : " << candTag_.encode()
+        << "\n" ;
+      for (unsigned int i=0;i!=depTag_.size();++i) {
+        l<<" PFIsoTag["<<i<<"] : "<<depTag_[i].encode()<<" \n";
+      }
+      l << "  MinN : " << min_N_;
+    });
   produces<edm::ValueMap<bool> >();
 }
 
