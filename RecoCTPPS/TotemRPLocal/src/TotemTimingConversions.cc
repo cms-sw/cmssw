@@ -42,7 +42,7 @@ TotemTimingConversions::TotemTimingConversions(bool mergeTimePeaks, const std::s
 //----------------------------------------------------------------------------------------------------
 
 float
-TotemTimingConversions::getTimeOfFirstSample(const TotemTimingDigi& digi)
+TotemTimingConversions::getTimeOfFirstSample(const TotemTimingDigi& digi) const
 {
   unsigned int offsetOfSamples = digi.getEventInfo().getOffsetOfSamples();
   if (offsetOfSamples == 0)
@@ -83,7 +83,7 @@ TotemTimingConversions::getTimeOfFirstSample(const TotemTimingDigi& digi)
 //----------------------------------------------------------------------------------------------------
 
 float
-TotemTimingConversions::getTriggerTime(const TotemTimingDigi& digi)
+TotemTimingConversions::getTriggerTime(const TotemTimingDigi& digi) const
 {
   unsigned int offsetOfSamples = digi.getEventInfo().getOffsetOfSamples();
   if (offsetOfSamples == 0)
@@ -95,7 +95,7 @@ TotemTimingConversions::getTriggerTime(const TotemTimingDigi& digi)
 //----------------------------------------------------------------------------------------------------
 
 float
-TotemTimingConversions::getTimePrecision(const TotemTimingDigi& digi)
+TotemTimingConversions::getTimePrecision(const TotemTimingDigi& digi) const
 {
   int db = digi.getHardwareBoardId();
   int sampic = digi.getHardwareSampicId();
@@ -106,7 +106,7 @@ TotemTimingConversions::getTimePrecision(const TotemTimingDigi& digi)
 //----------------------------------------------------------------------------------------------------
 
 std::vector<float>
-TotemTimingConversions::getTimeSamples(const TotemTimingDigi& digi)
+TotemTimingConversions::getTimeSamples(const TotemTimingDigi& digi) const
 {
   std::vector<float> time(digi.getNumberOfSamples());
   for (unsigned int i = 0; i < time.size(); ++i)

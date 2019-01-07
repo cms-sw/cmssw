@@ -22,10 +22,10 @@ class TotemTimingConversions
   public:
     TotemTimingConversions(bool mergeTimePeaks, const std::string& calibrationFile = "");
 
-    float getTimeOfFirstSample(const TotemTimingDigi& digi);
-    float getTriggerTime(const TotemTimingDigi& digi);
-    float getTimePrecision(const TotemTimingDigi& digi);
-    std::vector<float> getTimeSamples(const TotemTimingDigi& digi);
+    float getTimeOfFirstSample(const TotemTimingDigi& digi) const;
+    float getTriggerTime(const TotemTimingDigi& digi) const;
+    float getTimePrecision(const TotemTimingDigi& digi) const;
+    std::vector<float> getTimeSamples(const TotemTimingDigi& digi) const;
     std::vector<float> getVoltSamples(const TotemTimingDigi& digi);
 
   private:
