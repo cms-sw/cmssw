@@ -80,21 +80,21 @@ TotemTimingRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& des
 
   desc.add<edm::InputTag>( "digiTag", edm::InputTag( "totemTimingRawToDigi", "TotemTiming" ) )
     ->setComment( "input digis collection to retrieve" );
-  desc.add<edm::FileInPath>( "calibrationFile", edm::FileInPath() )
+  desc.add<edm::FileInPath>( "calibrationFile", edm::FileInPath( "RecoCTPPS/TotemRPLocal/data/timing_offsets_ufsd_2018.dec18.cal.json" ) )
     ->setComment( "file with SAMPIC calibrations, ADC and INL; if empty or corrupted, no calibration will be applied" );
   desc.add<int>( "baselinePoints", 8 )
     ->setComment( "number of points to be used for the baseline" );
   desc.add<double>( "saturationLimit", 0.85 )
     ->setComment( "all signals with max > saturationLimit will be considered as saturated" );
-  desc.add<double>( "cfdFraction", 0.5 )
+  desc.add<double>( "cfdFraction", 0.3 )
     ->setComment( "fraction of the CFD" );
   desc.add<int>( "smoothingPoints", 20 )
     ->setComment( "number of points to be used for the smoothing using sinc (lowpass)" );
-  desc.add<double>( "lowPassFrequency", 0 )
+  desc.add<double>( "lowPassFrequency", 0.7 )
     ->setComment( "Frequency (in GHz) for CFD smoothing, 0 for disabling the filter" );
-  desc.add<double>( "hysteresis", 5e-3 )
+  desc.add<double>( "hysteresis", 5.e-3 )
     ->setComment( "hysteresis of the discriminator" );
-  desc.add<bool>( "mergeTimePeaks", false )
+  desc.add<bool>( "mergeTimePeaks", true )
       ->setComment( "if time peaks schould be merged" );
 
   descr.add( "totemTimingRecHits", desc );
