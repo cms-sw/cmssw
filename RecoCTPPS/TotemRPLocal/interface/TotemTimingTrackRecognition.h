@@ -70,7 +70,7 @@ TotemTimingTrackRecognition::produceTracks(edm::DetSet<TotemTimingLocalTrack>& t
   param.thresholdFromMaximum = thresholdFromMaximum_;
   param.resolution = resolution_;
   param.sigma = sigma_;
-  param.hitFunction = pixelEfficiencyFunction_;
+  param.hitFunction = std::make_unique<reco::FormulaEvaluator>( pixelEfficiencyFunction_.GetExpFormula().Data() );
 
   for (const auto& hitBatch : hitVectorMap_) {
     const auto& hits = hitBatch.second;
