@@ -12,6 +12,7 @@
 #define RecoCTPPS_TotemRPLocal_CTPPSTimingTrackRecognition
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CommonTools/Utils/interface/FormulaEvaluator.h"
 
 #include "DataFormats/Common/interface/DetSet.h"
 
@@ -72,7 +73,7 @@ class CTPPSTimingTrackRecognition
       float sigma;
       float rangeBegin;
       float rangeEnd;
-      TF1 hitFunction;
+      std::unique_ptr<reco::FormulaEvaluator> hitFunction;
     };
 
     /// Structure representing a 3D range in space.
@@ -132,18 +133,15 @@ void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTracks(
   // extra component to make sure that the profile drops below the threshold at range's end
   *hitProfile.rbegin() = -1.f;
 
-  auto hitFunction = param.hitFunction;
-
   // Creates hit profile
   for (auto const& hit : hits) {
 
     float center = getHitCenter(hit);
     float rangeWidth = getHitRangeWidth(hit);
 
-    hitFunction.SetParameters(center, rangeWidth, param.sigma);
-
+    std::vector<double> params{center, rangeWidth, param.sigma};
     for (unsigned int i = 0; i < hitProfile.size(); ++i)
-      hitProfile[i] += hitFunction.Eval(profileRangeBegin + i*param.resolution);
+      hitProfile[i] += param.hitFunction->evaluate(std::vector<double>{profileRangeBegin + i*param.resolution}, params);
   }
 
   bool underThreshold = true;

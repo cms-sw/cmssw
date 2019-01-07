@@ -77,7 +77,7 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
   param.thresholdFromMaximum = thresholdFromMaximum_;
   param.resolution = resolution_;
   param.sigma = sigma_;
-  param.hitFunction = pixelEfficiencyFunction_;
+  param.hitFunction = std::make_unique<reco::FormulaEvaluator>( pixelEfficiencyFunction_.GetExpFormula().Data() );
 
   for ( const auto& hitBatch: hitVectorMap_ ) {
     const auto& oot = hitBatch.first;
