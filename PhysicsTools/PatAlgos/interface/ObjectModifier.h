@@ -46,12 +46,7 @@ namespace pat {
       const std::string& mname = iconf.getParameter<std::string>("modifierName");
       ModifyObjectValueBase* plugin = 
         ModifyObjectValueFactory::get()->create(mname,iconf);
-      if( nullptr != plugin ) {
-        modifiers_.push_back(ModifierPointer(plugin));
-      } else {
-        throw cms::Exception("BadPluginName")
-          << "The requested modifier: " << mname << " is not available!";
-      }
+      modifiers_.emplace_back(plugin);
     }
   }
 }
