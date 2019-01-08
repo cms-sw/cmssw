@@ -33,7 +33,12 @@ class CTPPSTimingTrackRecognition
       thresholdFromMaximum_   (iConfig.getParameter<double>("thresholdFromMaximum")),
       resolution_             (iConfig.getParameter<double>("resolution")),
       sigma_                  (iConfig.getParameter<double>("sigma")),
-      pixelEfficiencyFunction_(iConfig.getParameter<std::string>("pixelEfficiencyFunction")) {}
+      pixelEfficiencyFunction_(iConfig.getParameter<std::string>("pixelEfficiencyFunction")) {
+      if (pixelEfficiencyFunction_.numberOfParameters() != 3)
+        throw cms::Exception("CTPPSTimingTrackRecognition")
+          << "Invalid number of parameters to the pixel efficiency function! "
+          << pixelEfficiencyFunction_.numberOfParameters() << " != 3.";
+    }
     virtual ~CTPPSTimingTrackRecognition() = default;
 
     //--- class API

@@ -130,11 +130,13 @@ TotemTimingConversions::getVoltSamples(const TotemTimingDigi& digi)
     unsigned int channel = digi.getHardwareChannelId();
     unsigned int cell = digi.getCellInfo();
     for (const auto& sample : digi.getSamples()) {
-      auto parameters = parsedData_.getParameters(db, sampic, channel, cell++);
+      // ring buffer on Sampic, so accounting for samples register boundary
+      const unsigned short sample_cell = (cell++) % SAMPIC_MAX_NUMBER_OF_SAMPLES;
+      auto parameters = parsedData_.getParameters(db, sampic, channel, sample_cell);
       if (parameters.empty())
         throw cms::Exception("TotemTimingConversions:getVoltSamples")
           << "Invalid calibrations retrieved for Sampic digi"
-          << " (" << db << ", " << sampic << ", " << channel << ", " << (cell-1) << ")!";
+          << " (" << db << ", " << sampic << ", " << channel << ", " << sample_cell << ")!";
       double x = (double)sample;
       data.emplace_back(calibrationFunction_.EvalPar(&x, parameters.data()));
     }
