@@ -6,6 +6,7 @@ def customizePixelTracksForProfiling(process):
     process.out = cms.OutputModule("AsciiOutputModule",
         outputCommands = cms.untracked.vstring(
             "keep *_pixelTracks_*_*",
+            "keep *_pixelVertices_*_*",
         ),
         verbosity = cms.untracked.uint32(0),
     )
@@ -19,17 +20,12 @@ def customizePixelTracksForProfiling(process):
 def customizePixelTracksForProfilingDisableConversion(process):
     process = customizePixelTracksForProfiling(process)
 
-    # Turn off cluster shape filter so that CA doesn't depend on clusters
-    process.pixelTracksHitQuadruplets.SeedComparitorPSet = cms.PSet(ComponentName = cms.string("none"))
-
-    # Replace pixel track producer with a dummy one for now
-    from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromCUDA_cfi import pixelTrackProducerFromCUDA as _pixelTrackProducerFromCUDA
-    process.pixelTracks = _pixelTrackProducerFromCUDA.clone()
-
     # Disable conversions to legacy
     process.siPixelClustersPreSplitting.gpuEnableConversion = False
     process.siPixelRecHitsPreSplitting.gpuEnableConversion = False
     process.pixelTracksHitQuadruplets.gpuEnableConversion = False
+    process.pixelTracks.gpuEnableConversion = False
+    process.pixelVertices.gpuEnableConversion = False
 
     return process
 
@@ -40,5 +36,6 @@ def customizePixelTracksForProfilingDisableTransfer(process):
     process.siPixelClustersPreSplitting.gpuEnableTransfer = False
     process.siPixelRecHitsPreSplitting.gpuEnableTransfer = False
     process.pixelTracksHitQuadruplets.gpuEnableTransfer = False
+    process.pixelVertices.gpuEnableTransfer = False
 
     return process
