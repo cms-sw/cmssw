@@ -37,6 +37,8 @@ namespace pixelCPEforGPU {
 
     float x0,y0,z0;  // the vertex in the local coord of the detector
 
+    float sx[3], sy[3]; // the errors...
+
     Frame frame;
   };
 
@@ -208,18 +210,18 @@ namespace pixelCPEforGPU {
   }
 
   constexpr inline
-  void error(CommonParams const & __restrict__ comParams, DetParams const & __restrict__ detParams, ClusParams & cp, uint32_t ic) {
+  void errorFromSize(CommonParams const & __restrict__ comParams, DetParams const & __restrict__ detParams, ClusParams & cp, uint32_t ic) {
     // Edge cluster errors
     cp.xerr[ic]= 0.0050;
     cp.yerr[ic]= 0.0085;
 
     // FIXME these are errors form Run1
     constexpr float xerr_barrel_l1[] = { 0.00115, 0.00120, 0.00088 };
-    constexpr float xerr_barrel_l1_def = 0.01030;
+    constexpr float xerr_barrel_l1_def = 0.00200;           // 0.01030;
     constexpr float yerr_barrel_l1[] = { 0.00375, 0.00230, 0.00250, 0.00250, 0.00230, 0.00230, 0.00210, 0.00210, 0.00240 };
     constexpr float yerr_barrel_l1_def = 0.00210;
     constexpr float xerr_barrel_ln[] = { 0.00115, 0.00120, 0.00088 };
-    constexpr float xerr_barrel_ln_def = 0.01030;
+    constexpr float xerr_barrel_ln_def = 0.00200; // 0.01030;
     constexpr float yerr_barrel_ln[] = { 0.00375, 0.00230, 0.00250, 0.00250, 0.00230, 0.00230, 0.00210, 0.00210, 0.00240 };
     constexpr float yerr_barrel_ln_def = 0.00210;
     constexpr float xerr_endcap[] = { 0.0020, 0.0020 };
@@ -227,12 +229,18 @@ namespace pixelCPEforGPU {
     constexpr float yerr_endcap[] = { 0.00210 };
     constexpr float yerr_endcap_def = 0.00210;
 
+    auto sx = cp.maxRow[ic] - cp.minRow[ic];
+    auto sy = cp.maxCol[ic] - cp.minCol[ic];
+
     // is edgy ?
     bool isEdgeX = cp.minRow[ic] == 0 or cp.maxRow[ic] == phase1PixelTopology::lastRowInModule;
     bool isEdgeY = cp.minCol[ic] == 0 or cp.maxCol[ic] == phase1PixelTopology::lastColInModule;
+    // is one and big?
+    bool isBig1X = (0==sx)  && phase1PixelTopology::isBigPixX(cp.minRow[ic]);
+    bool isBig1Y = (0==sy)  && phase1PixelTopology::isBigPixY(cp.minCol[ic]);
 
-    if (not isEdgeX) {
-      auto sx = cp.maxRow[ic] - cp.minRow[ic];
+
+    if (!isEdgeX && !isBig1X ) {
       if (not detParams.isBarrel) {
         cp.xerr[ic] = sx <std::size(xerr_endcap) ? xerr_endcap[sx] : xerr_endcap_def;
       } else if (detParams.layer == 1) {
@@ -242,8 +250,7 @@ namespace pixelCPEforGPU {
       }
     }
 
-    if (not isEdgeY) {
-      auto sy = cp.maxCol[ic] - cp.minCol[ic];;
+    if (!isEdgeY && !isBig1Y) {
       if (not detParams.isBarrel) {
         cp.yerr[ic] = sy <std::size(yerr_endcap) ? yerr_endcap[sy] : yerr_endcap_def;
       } else if (detParams.layer == 1) {
@@ -252,6 +259,29 @@ namespace pixelCPEforGPU {
         cp.yerr[ic] = sy <std::size(yerr_barrel_ln) ? yerr_barrel_ln[sy]: yerr_barrel_ln_def;
       }
     }
+  }
+
+
+  constexpr inline
+  void errorFromDB(CommonParams const & __restrict__ comParams, DetParams const & __restrict__ detParams, ClusParams & cp, uint32_t ic) {
+    // Edge cluster errors
+    cp.xerr[ic]= 0.0050f;
+    cp.yerr[ic]= 0.0085f;
+
+    auto sx = cp.maxRow[ic] - cp.minRow[ic];
+    auto sy = cp.maxCol[ic] - cp.minCol[ic];
+
+    // is edgy ?
+    bool isEdgeX = cp.minRow[ic] == 0 or cp.maxRow[ic] == phase1PixelTopology::lastRowInModule;
+    bool isEdgeY = cp.minCol[ic] == 0 or cp.maxCol[ic] == phase1PixelTopology::lastColInModule;
+    // is one and big?
+    uint32_t ix = (0==sx);
+    uint32_t iy = (0==sy);
+    ix+= (0==sx)  && phase1PixelTopology::isBigPixX(cp.minRow[ic]);
+    iy+= (0==sy)  && phase1PixelTopology::isBigPixY(cp.minCol[ic]);
+
+    if (not isEdgeX) cp.xerr[ic] = detParams.sx[ix];
+    if (not isEdgeY) cp.yerr[ic] = detParams.sy[iy];
   }
 
 }

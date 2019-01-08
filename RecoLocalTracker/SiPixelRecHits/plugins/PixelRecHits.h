@@ -50,6 +50,7 @@ namespace pixelgpudetails {
     HitsOnGPU gpu_;
     uint32_t nhits_ = 0;
     uint32_t *d_phase1TopologyLayerStart_ = nullptr;
+    uint8_t *d_phase1TopologyLayer_ = nullptr;
     uint32_t *h_hitsModuleStart_ = nullptr;
     uint16_t *h_detInd_ = nullptr;
     int32_t *h_charge_ = nullptr;

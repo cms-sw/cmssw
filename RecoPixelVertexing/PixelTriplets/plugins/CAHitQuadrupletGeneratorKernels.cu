@@ -1,416 +1,333 @@
+//
+// Author: Felice Pantaleo, CERN
+//
+
+#include "CAHitQuadrupletGeneratorKernels.h"
 #include <cstdint>
-#include <cstdio>
 #include <cuda_runtime.h>
 
-#include <Eigen/Core>
-
-#include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/GPUVecArray.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
-#include "RecoLocalTracker/SiPixelRecHits/plugins/siPixelRecHitsHeterogeneousProduct.h"
-#include "CAHitQuadrupletGeneratorKernels.h"
 #include "GPUCACell.h"
 #include "gpuPixelDoublets.h"
+#include "gpuFishbone.h"
+#include "CAConstants.h"
+
+using namespace gpuPixelDoublets;
+
+using HitsOnCPU = siPixelRecHitsHeterogeneousProduct::HitsOnCPU;
+using TuplesOnGPU = pixelTuplesHeterogeneousProduct::TuplesOnGPU;
+using Quality = pixelTuplesHeterogeneousProduct::Quality;
+
+
 
 __global__
-void kernelFastFitAllHits(
-    GPU::SimpleVector<Quadruplet> * foundNtuplets,
-    siPixelRecHitsHeterogeneousProduct::HitsOnGPU const * hhp,
-    int hits_in_fit,
-    float B,
-    Rfit::helix_fit *results,
-    Rfit::Matrix3xNd *hits,
-    Rfit::Matrix3Nd *hits_cov,
-    Rfit::circle_fit *circle_fit,
-    Eigen::Vector4d *fast_fit,
-    Rfit::line_fit *line_fit)
-{
-  int helix_start = (blockIdx.x * blockDim.x + threadIdx.x);
-  if (helix_start >= foundNtuplets->size()) {
-    return;
-  }
+void kernel_checkOverflows(TuplesOnGPU::Container * foundNtuplets, AtomicPairCounter * apc,
+               GPUCACell const * __restrict__ cells, uint32_t const * __restrict__ nCells,
+               GPUCACell::OuterHitOfCell const * __restrict__ isOuterHitOfCell,
+               uint32_t nHits) {
 
-#ifdef GPU_DEBUG
-  printf("BlockDim.x: %d, BlockIdx.x: %d, threadIdx.x: %d, helix_start: %d, cumulative_size: %d\n",
-      blockDim.x, blockIdx.x, threadIdx.x, helix_start, foundNtuplets->size());
-#endif
-
-  hits[helix_start].resize(3, hits_in_fit);
-  hits_cov[helix_start].resize(3 * hits_in_fit, 3 * hits_in_fit);
-
-  // Prepare data structure
-  for (unsigned int i = 0; i < hits_in_fit; ++i) {
-    auto hit = (*foundNtuplets)[helix_start].hitId[i];
-    //  printf("Hit global_x: %f\n", hhp->xg_d[hit]);
-    float ge[6];
-    hhp->cpeParams->detParams(hhp->detInd_d[hit]).frame.toGlobal(hhp->xerr_d[hit], 0, hhp->yerr_d[hit], ge);
-    //  printf("Error: %d: %f,%f,%f,%f,%f,%f\n",hhp->detInd_d[hit],ge[0],ge[1],ge[2],ge[3],ge[4],ge[5]);
-
-    hits[helix_start].col(i) << hhp->xg_d[hit], hhp->yg_d[hit], hhp->zg_d[hit];
-
-    for (auto j = 0; j < 3; ++j) {
-      for (auto l = 0; l < 3; ++l) {
-        // Index numerology:
-        // i: index of the hits/point (0,..,3)
-        // j: index of space component (x,y,z)
-        // l: index of space components (x,y,z)
-        // ge is always in sync with the index i and is formatted as:
-        // ge[] ==> [xx, xy, xz, yy, yz, zz]
-        // in (j,l) notation, we have:
-        // ge[] ==> [(0,0), (0,1), (0,2), (1,1), (1,2), (2,2)]
-        // so the index ge_idx corresponds to the matrix elements:
-        // | 0  1  2 |
-        // | 1  3  4 |
-        // | 2  4  5 |
-        auto ge_idx = j + l + (j > 0 and l > 0);
-        hits_cov[helix_start](i + j * hits_in_fit, i + l * hits_in_fit) = ge[ge_idx];
-      }
-    }
-  }
-  fast_fit[helix_start] = Rfit::Fast_fit(hits[helix_start]);
-}
-
-void wrapperFastFitAllHits(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPU::SimpleVector<Quadruplet> * foundNtuplets,
-    siPixelRecHitsHeterogeneousProduct::HitsOnGPU const * hhp,
-    int hits_in_fit,
-    float B,
-    Rfit::helix_fit *results,
-    Rfit::Matrix3xNd *hits,
-    Rfit::Matrix3Nd *hits_cov,
-    Rfit::circle_fit *circle_fit,
-    Eigen::Vector4d *fast_fit,
-    Rfit::line_fit *line_fit)
-{
-  kernelFastFitAllHits<<<gridSize, blockSize, 0, cudaStream>>>(
-    foundNtuplets,
-    hhp,
-    hits_in_fit,
-    B,
-    results,
-    hits,
-    hits_cov,
-    circle_fit,
-    fast_fit,
-    line_fit);
-  cudaCheck(cudaGetLastError());
-}
-
-__global__
-void kernelCircleFitAllHits(
-    GPU::SimpleVector<Quadruplet> * foundNtuplets,
-    int hits_in_fit,
-    float B,
-    Rfit::helix_fit *results,
-    Rfit::Matrix3xNd *hits,
-    Rfit::Matrix3Nd *hits_cov,
-    Rfit::circle_fit *circle_fit,
-    Eigen::Vector4d *fast_fit,
-    Rfit::line_fit *line_fit)
-{
-  int helix_start = (blockIdx.x * blockDim.x + threadIdx.x);
-  if (helix_start >= foundNtuplets->size()) {
-    return;
-  }
-
-#ifdef GPU_DEBUG
-  printf("blockDim.x: %d, blockIdx.x: %d, threadIdx.x: %d, helix_start: %d, cumulative_size: %d\n",
-         blockDim.x, blockIdx.x, threadIdx.x, helix_start, foundNtuplets->size());
-#endif
-  auto n = hits[helix_start].cols();
-
-  Rfit::VectorNd rad = (hits[helix_start].block(0, 0, 2, n).colwise().norm());
-
-  circle_fit[helix_start] =
-      Rfit::Circle_fit(hits[helix_start].block(0, 0, 2, n),
-                       hits_cov[helix_start].block(0, 0, 2 * n, 2 * n),
-                       fast_fit[helix_start], rad, B, true);
-
-#ifdef GPU_DEBUG
-  printf("kernelCircleFitAllHits circle.par(0): %d %f\n", helix_start, circle_fit[helix_start].par(0));
-  printf("kernelCircleFitAllHits circle.par(1): %d %f\n", helix_start, circle_fit[helix_start].par(1));
-  printf("kernelCircleFitAllHits circle.par(2): %d %f\n", helix_start, circle_fit[helix_start].par(2));
-#endif
-}
-
-void wrapperCircleFitAllHits(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPU::SimpleVector<Quadruplet> * foundNtuplets,
-    int hits_in_fit,
-    float B,
-    Rfit::helix_fit *results,
-    Rfit::Matrix3xNd *hits,
-    Rfit::Matrix3Nd *hits_cov,
-    Rfit::circle_fit *circle_fit,
-    Eigen::Vector4d *fast_fit,
-    Rfit::line_fit *line_fit)
-{
-  kernelCircleFitAllHits<<<gridSize, blockSize, 0, cudaStream>>>(
-    foundNtuplets,
-    hits_in_fit,
-    B,
-    results,
-    hits,
-    hits_cov,
-    circle_fit,
-    fast_fit,
-    line_fit);
-  cudaCheck(cudaGetLastError());
-}
-
-__global__
-void kernelLineFitAllHits(
-    GPU::SimpleVector<Quadruplet> * foundNtuplets,
-    float B,
-    Rfit::helix_fit *results,
-    Rfit::Matrix3xNd *hits,
-    Rfit::Matrix3Nd *hits_cov,
-    Rfit::circle_fit *circle_fit,
-    Eigen::Vector4d *fast_fit,
-    Rfit::line_fit *line_fit)
-{
-  int helix_start = (blockIdx.x * blockDim.x + threadIdx.x);
-  if (helix_start >= foundNtuplets->size()) {
-    return;
-  }
-
-#ifdef GPU_DEBUG
-  printf("blockDim.x: %d, blockIdx.x: %d, threadIdx.x: %d, helix_start: %d, cumulative_size: %d\n",
-         blockDim.x, blockIdx.x, threadIdx.x, helix_start, foundNtuplets->size());
-#endif
-
-  line_fit[helix_start] = Rfit::Line_fit(hits[helix_start], hits_cov[helix_start], circle_fit[helix_start], fast_fit[helix_start], B, true);
-
-  par_uvrtopak(circle_fit[helix_start], B, true);
-
-  // Grab helix_fit from the proper location in the output vector
-  auto & helix = results[helix_start];
-  helix.par << circle_fit[helix_start].par, line_fit[helix_start].par;
-
-  // TODO: pass properly error booleans
-
-  helix.cov = Eigen::MatrixXd::Zero(5, 5);
-  helix.cov.block(0, 0, 3, 3) = circle_fit[helix_start].cov;
-  helix.cov.block(3, 3, 2, 2) = line_fit[helix_start].cov;
-
-  helix.q = circle_fit[helix_start].q;
-  helix.chi2_circle = circle_fit[helix_start].chi2;
-  helix.chi2_line = line_fit[helix_start].chi2;
-
-#ifdef GPU_DEBUG
-  printf("kernelLineFitAllHits line.par(0): %d %f\n", helix_start, circle_fit[helix_start].par(0));
-  printf("kernelLineFitAllHits line.par(1): %d %f\n", helix_start, line_fit[helix_start].par(1));
-#endif
-}
-
-void wrapperLineFitAllHits(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPU::SimpleVector<Quadruplet> * foundNtuplets,
-    float B,
-    Rfit::helix_fit *results,
-    Rfit::Matrix3xNd *hits,
-    Rfit::Matrix3Nd *hits_cov,
-    Rfit::circle_fit *circle_fit,
-    Eigen::Vector4d *fast_fit,
-    Rfit::line_fit *line_fit)
-{
-  kernelLineFitAllHits<<<gridSize, blockSize, 0, cudaStream>>>(
-    foundNtuplets,
-    B,
-    results,
-    hits,
-    hits_cov,
-    circle_fit,
-    fast_fit,
-    line_fit);
-  cudaCheck(cudaGetLastError());
-}
-
-__global__
-void kernelCheckOverflows(
-    GPU::SimpleVector<Quadruplet> *foundNtuplets,
-    GPUCACell const * __restrict__ cells,
-    uint32_t const * __restrict__ nCells,
-    GPU::VecArray<unsigned int, 256> const * __restrict__ isOuterHitOfCell,
-    uint32_t nHits,
-    uint32_t maxNumberOfDoublets)
-{
+ __shared__ uint32_t killedCell;
+ killedCell=0;
+ __syncthreads();
+  
  auto idx = threadIdx.x + blockIdx.x * blockDim.x;
  #ifdef GPU_DEBUG
- if (0==idx)
-   printf("number of found cells %d\n",*nCells);
+ if (0==idx) {
+   printf("number of found cells %d, found tuples %d with total hits %d,%d\n",*nCells, apc->get().m, foundNtuplets->size(), apc->get().n);
+   assert(foundNtuplets->size(apc->get().m)==0);
+   assert(foundNtuplets->size()==apc->get().n);
+ }
+
+ if(idx<foundNtuplets->nbins()) {
+   if (foundNtuplets->size(idx)>5) printf("ERROR %d, %d\n", idx, foundNtuplets->size(idx));
+   assert(foundNtuplets->size(idx)<6);
+   for (auto ih = foundNtuplets->begin(idx); ih!=foundNtuplets->end(idx); ++ih) assert(*ih<nHits);
+ }
  #endif
+
+ if (0==idx) {
+   if (*nCells>=CAConstants::maxNumberOfDoublets()) printf("Cells overflow\n");
+ }
+
  if (idx < (*nCells) ) {
    auto &thisCell = cells[idx];
    if (thisCell.theOuterNeighbors.full()) //++tooManyNeighbors[thisCell.theLayerPairId];
      printf("OuterNeighbors overflow %d in %d\n", idx, thisCell.theLayerPairId);
+   if (thisCell.theTracks.full()) //++tooManyTracks[thisCell.theLayerPairId];
+     printf("Tracks overflow %d in %d\n", idx, thisCell.theLayerPairId);
+   if (thisCell.theDoubletId<0) atomicAdd(&killedCell,1);
  }
  if (idx < nHits) {
    if (isOuterHitOfCell[idx].full()) // ++tooManyOuterHitOfCell;
      printf("OuterHitOfCell overflow %d\n", idx);
  }
+
+ __syncthreads();
+// if (threadIdx.x==0) printf("number of killed cells %d\n",killedCell);
 }
 
-void wrapperCheckOverflows(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPU::SimpleVector<Quadruplet> *foundNtuplets,
-    GPUCACell const * cells,
-    uint32_t const * nCells,
-    GPU::VecArray<unsigned int, 256> const * isOuterHitOfCell,
-    uint32_t nHits,
-    uint32_t maxNumberOfDoublets)
-{
-  kernelCheckOverflows<<<gridSize, blockSize, 0, cudaStream>>>(
-    foundNtuplets,
-    cells,
-    nCells,
-    isOuterHitOfCell,
-    nHits,
-    maxNumberOfDoublets);
-  cudaCheck(cudaGetLastError());
-}
 
-__global__ 
-void kernelConnect(
-    GPU::SimpleVector<Quadruplet> * foundNtuplets,
-    GPUCACell::Hits const *  __restrict__ hhp,
-    GPUCACell * cells, uint32_t const * __restrict__ nCells,
-    GPU::VecArray<unsigned int, 256> const * __restrict__ isOuterHitOfCell,
-    float ptmin,
-    float region_origin_radius, const float thetaCut,
-    const float phiCut, const float hardPtCut,
-    unsigned int maxNumberOfDoublets_, unsigned int maxNumberOfHits_)
-{
-  auto const & hh = *hhp;
+__global__
+void
+kernel_fishboneCleaner(GPUCACell const * cells, uint32_t const * __restrict__ nCells,
+                            pixelTuplesHeterogeneousProduct::Quality * quality
+                           ) {
 
-  constexpr float region_origin_x = 0.;
-  constexpr float region_origin_y = 0.;
+   constexpr auto bad = pixelTuplesHeterogeneousProduct::bad;
 
   auto cellIndex = threadIdx.x + blockIdx.x * blockDim.x;
 
-  if (0==cellIndex) foundNtuplets->reset(); // ready for next kernel
+  if (cellIndex >= (*nCells) ) return;
+  auto const & thisCell = cells[cellIndex];
+  if (thisCell.theDoubletId>=0) return;
+
+  for (auto it : thisCell.theTracks) quality[it] = bad;
+
+}
+
+__global__
+void
+kernel_fastDuplicateRemover(GPUCACell const * cells, uint32_t const * __restrict__ nCells,
+                            TuplesOnGPU::Container * foundNtuplets,
+                            Rfit::helix_fit const * __restrict__ hfit,
+                            pixelTuplesHeterogeneousProduct::Quality * quality
+                           ) {
+
+   constexpr auto bad = pixelTuplesHeterogeneousProduct::bad;
+   constexpr auto dup = pixelTuplesHeterogeneousProduct::dup;
+   // constexpr auto loose = pixelTuplesHeterogeneousProduct::loose;
+
+  auto cellIndex = threadIdx.x + blockIdx.x * blockDim.x;
 
   if (cellIndex >= (*nCells) ) return;
   auto const & thisCell = cells[cellIndex];
+  if (thisCell.theDoubletId<0) return;
+
+  float mc=1000.f; uint16_t im=60000; uint32_t maxNh=0;
+   
+  // find maxNh
+  for (auto it : thisCell.theTracks) {
+    if (quality[it] == bad) continue;
+    auto nh = foundNtuplets->size(it);
+    maxNh = std::max(nh,maxNh);
+  }
+  // find min chi2
+  for (auto it : thisCell.theTracks) {
+    auto nh = foundNtuplets->size(it);
+    if (nh!=maxNh) continue; 
+    if (quality[it]!= bad && 
+        hfit[it].chi2_line+hfit[it].chi2_circle < mc) {
+      mc=hfit[it].chi2_line+hfit[it].chi2_circle;
+      im=it;
+    }
+  }
+  // mark duplicates
+  for (auto it : thisCell.theTracks) {
+     if (quality[it]!= bad && it!=im) quality[it] = dup; //no race:  simple assignment of the same constant
+  }
+}
+
+__global__ 
+void
+kernel_connect(AtomicPairCounter * apc1, AtomicPairCounter * apc2,  // just to zero them,
+               GPUCACell::Hits const *  __restrict__ hhp,
+               GPUCACell * cells, uint32_t const * __restrict__ nCells,
+               GPUCACell::OuterHitOfCell const * __restrict__ isOuterHitOfCell) {
+
+  auto const & hh = *hhp;
+
+  // 87 cm/GeV = 1/(3.8T * 0.3)
+  // take less than radius given by the hardPtCut and reject everything below
+  // auto hardCurvCut = 1.f/(hardPtCut * 87.f);
+  constexpr auto hardCurvCut = 1.f/(0.35f * 87.f); // FIXME VI tune
+  constexpr auto ptmin = 0.9f; // FIXME original "tune"
+
+  auto cellIndex = threadIdx.x + blockIdx.x * blockDim.x;
+
+  if (0==cellIndex) { (*apc1)=0; (*apc2)=0; }// ready for next kernel
+
+  if (cellIndex >= (*nCells) ) return;
+  auto const & thisCell = cells[cellIndex];
+  if (thisCell.theDoubletId<0) return;
   auto innerHitId = thisCell.get_inner_hit_id();
   auto numberOfPossibleNeighbors = isOuterHitOfCell[innerHitId].size();
   auto vi = isOuterHitOfCell[innerHitId].data();
   for (auto j = 0; j < numberOfPossibleNeighbors; ++j) {
      auto otherCell = __ldg(vi+j);
-
+     if (cells[otherCell].theDoubletId<0) continue;
      if (thisCell.check_alignment(hh,
-                 cells[otherCell], ptmin, region_origin_x, region_origin_y,
-                  region_origin_radius, thetaCut, phiCut, hardPtCut)
+                 cells[otherCell], ptmin, hardCurvCut)
         ) {
           cells[otherCell].theOuterNeighbors.push_back(cellIndex);
      }
   }
 }
 
-void wrapperConnect(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPU::SimpleVector<Quadruplet> * foundNtuplets,
-    GPUCACell::Hits const * hhp,
-    GPUCACell * cells,
-    uint32_t const * nCells,
-    GPU::VecArray<unsigned int, 256> const * isOuterHitOfCell,
-    float ptmin,
-    float region_origin_radius,
-    const float thetaCut,
-    const float phiCut,
-    const float hardPtCut,
-    unsigned int maxNumberOfDoublets_,
-    unsigned int maxNumberOfHits_)
+__global__ 
+void kernel_find_ntuplets(
+    GPUCACell * __restrict__ cells, uint32_t const * nCells,
+    TuplesOnGPU::Container * foundNtuplets, AtomicPairCounter * apc,
+    unsigned int minHitsPerNtuplet)
 {
-  kernelConnect<<<gridSize, blockSize, 0, cudaStream>>>(
-    foundNtuplets,
-    hhp,
-    cells,
-    nCells,
-    isOuterHitOfCell,
-    ptmin,
-    region_origin_radius,
-    thetaCut,
-    phiCut,
-    hardPtCut,
-    maxNumberOfDoublets_,
-    maxNumberOfHits_);
-  cudaCheck(cudaGetLastError());
-}
 
-__global__
-void kernelFindNtuplets(
-    GPUCACell * const __restrict__ cells,
-    uint32_t const * nCells,
-    GPU::SimpleVector<Quadruplet> *foundNtuplets,
-    unsigned int minHitsPerNtuplet,
-    unsigned int maxNumberOfDoublets_)
-{
   auto cellIndex = threadIdx.x + blockIdx.x * blockDim.x;
-  if (cellIndex >= (*nCells))
-    return;
-  auto & thisCell = cells[cellIndex];
-  if (thisCell.theLayerPairId != 0 and thisCell.theLayerPairId != 3 and thisCell.theLayerPairId != 8)
-    return; // inner layer is 0 FIXME
-  GPU::VecArray<siPixelRecHitsHeterogeneousProduct::hindex_type, 3> stack;
+  if (cellIndex >= (*nCells) ) return;
+  auto &thisCell = cells[cellIndex];
+  if (thisCell.theLayerPairId!=0 && thisCell.theLayerPairId!=3 && thisCell.theLayerPairId!=8) return; // inner layer is 0 FIXME
+  GPUCACell::TmpTuple stack;
   stack.reset();
-  thisCell.find_ntuplets(cells, foundNtuplets, stack, minHitsPerNtuplet);
+  thisCell.find_ntuplets(cells, *foundNtuplets, *apc, stack, minHitsPerNtuplet);
   assert(stack.size()==0);
-  // printf("in %d found quadruplets: %d\n", cellIndex, foundNtuplets->size());
+  // printf("in %d found quadruplets: %d\n", cellIndex, apc->get());
 }
 
-void wrapperFindNtuplets(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPUCACell * const cells,
-    uint32_t const * nCells,
-    GPU::SimpleVector<Quadruplet> *foundNtuplets,
-    unsigned int minHitsPerNtuplet,
-    unsigned int maxNumberOfDoublets)
-{
-  kernelFindNtuplets<<<gridSize, blockSize, 0, cudaStream>>>(
-    cells,
-    nCells,
-    foundNtuplets,
-    minHitsPerNtuplet,
-    maxNumberOfDoublets);
-  cudaCheck(cudaGetLastError());
+
+__global__
+void kernel_VerifyFit(TuplesOnGPU::Container const * __restrict__ tuples,
+                 Rfit::helix_fit const *  __restrict__ fit_results,
+                 Quality *  __restrict__ quality) {
+
+  auto idx = blockIdx.x * blockDim.x + threadIdx.x;
+  if (idx>= tuples->nbins()) return;
+  if (tuples->size(idx)==0) {
+    return;
+  }
+
+  quality[idx] = pixelTuplesHeterogeneousProduct::bad;
+
+  // only quadruplets
+  if (tuples->size(idx)<4) { 
+    return;
+  }
+
+  bool isNaN = false;
+  for (int i=0; i<5; ++i) {
+    isNaN |=  fit_results[idx].par(i)!=fit_results[idx].par(i);
+  }
+  isNaN |=  !(fit_results[idx].chi2_line+fit_results[idx].chi2_circle < 100.f);  // catch NaN as well
+
+#ifdef GPU_DEBUG
+ if (isNaN) printf("NaN or Bad Fit %d %f/%f\n",idx,fit_results[idx].chi2_line,fit_results[idx].chi2_circle);
+#endif
+
+  // impose "region cuts" (NaN safe)
+  // phi,Tip,pt,cotan(theta)),Zip
+  bool ok = std::abs(fit_results[idx].par(1)) < 0.1f 
+         && fit_results[idx].par(2) > 0.3f
+         && std::abs(fit_results[idx].par(4)) < 12.f;
+  ok &= (!isNaN);
+  quality[idx] = ok ? pixelTuplesHeterogeneousProduct::loose : pixelTuplesHeterogeneousProduct::bad; 
 }
 
 __global__
-void kernelPrintFoundNtuplets(GPU::SimpleVector<Quadruplet> *foundNtuplets, int maxPrint)
-{
+void kernel_print_found_ntuplets(TuplesOnGPU::Container * foundNtuplets, uint32_t maxPrint) {
   for (int i = 0; i < std::min(maxPrint, foundNtuplets->size()); ++i) {
     printf("\nquadruplet %d: %d %d %d %d\n", i,
-           (*foundNtuplets)[i].hitId[0],
-           (*foundNtuplets)[i].hitId[1],
-           (*foundNtuplets)[i].hitId[2],
-           (*foundNtuplets)[i].hitId[3]
+           (*(*foundNtuplets).begin(i)),
+           (*(*foundNtuplets).begin(i)+1),
+           (*(*foundNtuplets).begin(i)+2),
+           (*(*foundNtuplets).begin(i)+3)
           );
-
   }
 }
 
-void wrapperPrintFoundNtuplets(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPU::SimpleVector<Quadruplet> *foundNtuplets,
-    int maxPrint)
+void CAHitQuadrupletGeneratorKernels::launchKernels( // here goes algoparms....
+                                                HitsOnCPU const & hh,
+                                                TuplesOnGPU & tuples_d,
+                                                cudaStream_t cudaStream)
 {
-  kernelPrintFoundNtuplets<<<gridSize, blockSize, 0, cudaStream>>>(
-    foundNtuplets,
-    maxPrint);
+  auto & gpu_ = tuples_d;
+  auto maxNumberOfDoublets_ = CAConstants::maxNumberOfDoublets();
+
+
+  auto nhits = hh.nHits;
+  assert(nhits <= PixelGPUConstants::maxNumberOfHits);
+  
+  if (earlyFishbone_) {
+    auto blockSize = 128;
+    auto stride = 4;
+    auto numberOfBlocks = (nhits + blockSize - 1)/blockSize;
+    numberOfBlocks *=stride;
+  
+    fishbone<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+      hh.gpu_d,
+      device_theCells_, device_nCells_,
+      device_isOuterHitOfCell_,
+      nhits, stride, false
+    );
+    cudaCheck(cudaGetLastError());
+  }
+
+  auto blockSize = 64;
+  auto numberOfBlocks = (maxNumberOfDoublets_ + blockSize - 1)/blockSize;
+  kernel_connect<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+      gpu_.apc_d, device_hitToTuple_apc_,  // needed only to be reset, ready for next kernel
+      hh.gpu_d,
+      device_theCells_, device_nCells_,
+      device_isOuterHitOfCell_
+  );
+  cudaCheck(cudaGetLastError());
+
+  kernel_find_ntuplets<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+      device_theCells_, device_nCells_,
+      gpu_.tuples_d,
+      gpu_.apc_d,
+      4
+  );
+  cudaCheck(cudaGetLastError());
+
+  numberOfBlocks = (TuplesOnGPU::Container::totbins() + blockSize - 1)/blockSize;
+  cudautils::finalizeBulk<<<numberOfBlocks, blockSize, 0, cudaStream>>>(gpu_.apc_d,gpu_.tuples_d);
+
+  if (lateFishbone_) {
+    auto stride=4;
+    numberOfBlocks = (nhits + blockSize - 1)/blockSize;
+    numberOfBlocks *=stride;
+    fishbone<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+      hh.gpu_d,
+      device_theCells_, device_nCells_,
+      device_isOuterHitOfCell_,
+      nhits, stride, true
+    );
+    cudaCheck(cudaGetLastError());
+  }
+
+#ifndef NO_CHECK_OVERFLOWS
+  numberOfBlocks = (std::max(nhits, maxNumberOfDoublets_) + blockSize - 1)/blockSize;
+  kernel_checkOverflows<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+                        gpu_.tuples_d, gpu_.apc_d,
+                        device_theCells_, device_nCells_,
+                        device_isOuterHitOfCell_, nhits
+                       );
+  cudaCheck(cudaGetLastError());
+#endif
+
+
+  // kernel_print_found_ntuplets<<<1, 1, 0, cudaStream>>>(gpu_.tuples_d, 10);
+  }
+
+
+void CAHitQuadrupletGeneratorKernels::buildDoublets(HitsOnCPU const & hh, cudaStream_t stream) {
+  auto nhits = hh.nHits;
+
+  int threadsPerBlock = gpuPixelDoublets::getDoubletsFromHistoMaxBlockSize;
+  int blocks = (3 * nhits + threadsPerBlock - 1) / threadsPerBlock;
+  gpuPixelDoublets::getDoubletsFromHisto<<<blocks, threadsPerBlock, 0, stream>>>(device_theCells_, device_nCells_, hh.gpu_d, device_isOuterHitOfCell_);
   cudaCheck(cudaGetLastError());
 }
 
-void wrapperDoubletsFromHisto(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPUCACell * cells,
-    uint32_t * nCells,
-    siPixelRecHitsHeterogeneousProduct::HitsOnGPU const * hits,
-    GPU::VecArray<unsigned int, 256> * isOuterHitOfCell)
-{
-  gpuPixelDoublets::getDoubletsFromHisto<<<gridSize, blockSize, 0, cudaStream>>>(cells, nCells, hits, isOuterHitOfCell);
-  cudaCheck(cudaGetLastError());
+void CAHitQuadrupletGeneratorKernels::classifyTuples(HitsOnCPU const & hh, TuplesOnGPU & tuples, cudaStream_t cudaStream) {
+    auto blockSize = 64;
+    auto numberOfBlocks = (CAConstants::maxNumberOfQuadruplets() + blockSize - 1)/blockSize;
+    kernel_VerifyFit<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples.tuples_d, tuples.helix_fit_results_d, tuples.quality_d);
+
+    numberOfBlocks = (CAConstants::maxNumberOfDoublets() + blockSize - 1)/blockSize;
+    kernel_fishboneCleaner<<<numberOfBlocks, blockSize, 0, cudaStream>>>(device_theCells_, device_nCells_,tuples.quality_d);
+
+    numberOfBlocks = (CAConstants::maxNumberOfDoublets() + blockSize - 1)/blockSize;
+    kernel_fastDuplicateRemover<<<numberOfBlocks, blockSize, 0, cudaStream>>>(device_theCells_, device_nCells_,tuples.tuples_d,tuples.helix_fit_results_d, tuples.quality_d);
+
 }
+

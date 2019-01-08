@@ -19,6 +19,8 @@
 #ifdef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
 #endif
+#include "HeterogeneousCore/CUDAUtilities/interface/AtomicPairCounter.h"
+
 
 #ifdef __CUDACC__
 namespace cudautils {
@@ -38,8 +40,7 @@ namespace cudautils {
 
   template<typename Histo, typename T>
   __global__
-  void fillFromVector(Histo * __restrict__ h,  uint32_t nh, T const * __restrict__ v, uint32_t const * __restrict__ offsets,
-                      uint32_t * __restrict__ ws ) {
+  void fillFromVector(Histo * __restrict__ h,  uint32_t nh, T const * __restrict__ v, uint32_t const * __restrict__ offsets) {
      auto i = blockIdx.x * blockDim.x + threadIdx.x;
      if(i >= offsets[nh]) return;
      auto off = cuda_std::upper_bound(offsets, offsets + nh + 1, i);
@@ -47,26 +48,42 @@ namespace cudautils {
      int32_t ih = off - offsets - 1;
      assert(ih >= 0);
      assert(ih < nh);
-     (*h).fill(v[i], i, ws, ih);
+     (*h).fill(v[i], i, ih);
+  }
+
+  template<typename Histo>
+  void launchZero(Histo * __restrict__ h, cudaStream_t stream) {
+    uint32_t * off = (uint32_t *)( (char*)(h) +offsetof(Histo,off));
+    cudaMemsetAsync(off,0, 4*Histo::totbins(),stream);
+  }
+
+  template<typename Histo>
+  void launchFinalize(Histo * __restrict__ h, uint8_t *  __restrict__ ws, cudaStream_t stream) {
+    uint32_t * off = (uint32_t *)( (char*)(h) +offsetof(Histo,off));
+    size_t wss = Histo::wsSize();
+    CubDebugExit(cub::DeviceScan::InclusiveSum(ws, wss, off, off, Histo::totbins(), stream));
   }
 
 
   template<typename Histo, typename T>
-  void fillManyFromVector(Histo * __restrict__ h, typename Histo::Counter *  __restrict__ ws,  
+  void fillManyFromVector(Histo * __restrict__ h, uint8_t *  __restrict__ ws,  
                           uint32_t nh, T const * __restrict__ v, uint32_t const * __restrict__ offsets, uint32_t totSize, 
                           int nthreads, cudaStream_t stream) {
-    uint32_t * off = (uint32_t *)( (char*)(h) +offsetof(Histo,off));
-    cudaMemsetAsync(off,0, 4*Histo::totbins(),stream);
+    launchZero(h,stream); 
     auto nblocks = (totSize + nthreads - 1) / nthreads;
     countFromVector<<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
     cudaCheck(cudaGetLastError());
-    size_t wss = Histo::totbins();
-    CubDebugExit(cub::DeviceScan::InclusiveSum(ws, wss, off, off, Histo::totbins(), stream));
-    cudaMemsetAsync(ws,0, 4*Histo::totbins(),stream);
-    fillFromVector<<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets,ws);
+    launchFinalize(h,ws,stream);
+    fillFromVector<<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
     cudaCheck(cudaGetLastError());
   }
 
+
+  template<typename Assoc>
+  __global__
+  void finalizeBulk(AtomicPairCounter const * apc, Assoc * __restrict__ assoc) {
+     assoc->bulkFinalizeFill(*apc);
+  }
 
 } // namespace cudautils
 #endif
@@ -149,8 +166,8 @@ public:
     uint32_t * v =nullptr;
     void * d_temp_storage = nullptr;
     size_t  temp_storage_bytes = 0;
-    cub::DeviceScan::InclusiveSum(d_temp_storage, temp_storage_bytes, v, v, totbins()-1);
-    return std::max(temp_storage_bytes,size_t(totbins()));
+    cub::DeviceScan::InclusiveSum(d_temp_storage, temp_storage_bytes, v, v, totbins());
+    return temp_storage_bytes;
   }
 #endif
 
@@ -176,22 +193,79 @@ public:
     #endif
   }
 
+  static __host__ __device__
+  __forceinline__
+  uint32_t atomicDecrement(Counter & x) {
+    #ifdef __CUDA_ARCH__
+    return atomicSub(&x, 1);
+    #else
+    return x--;
+    #endif
+  }
+
+ __host__ __device__
+  __forceinline__
+  void countDirect(T b) {
+    assert(b<nbins());
+    atomicIncrement(off[b]);
+  }
+
+  __host__ __device__
+  __forceinline__
+  void fillDirect(T b, index_type j) {
+    assert(b<nbins());
+    auto w = atomicDecrement(off[b]);
+    assert(w>0);
+    bins[w-1] = j;
+  }
+
+
+#ifdef __CUDACC__
+  __device__
+  __forceinline__
+  uint32_t bulkFill(AtomicPairCounter & apc, index_type const * v, uint32_t n) {
+    auto c = apc.add(n);
+    off[c.m] = c.n;
+    for(int j=0; j<n; ++j) bins[c.n+j]=v[j];
+    return c.m;
+  }
+
+  __device__
+  __forceinline__
+  void bulkFinalize(AtomicPairCounter const & apc) {
+     off[apc.get().m]=apc.get().n;
+  }
+
+  __device__
+  __forceinline__
+  void bulkFinalizeFill(AtomicPairCounter const & apc) {
+     auto m = apc.get().m;
+     auto n = apc.get().n;
+     auto i = m + blockIdx.x * blockDim.x + threadIdx.x;
+     if (i>=totbins()) return;
+     off[i]=n;
+  }
+
+
+#endif
+
+
   __host__ __device__
   __forceinline__
   void count(T t) {
     uint32_t b = bin(t);
     assert(b<nbins());
-    atomicIncrement(off[b+1]);
+    atomicIncrement(off[b]);
   }
 
   __host__ __device__
   __forceinline__
-  void fill(T t, index_type j, Counter * ws) {
+  void fill(T t, index_type j) {
     uint32_t b = bin(t);
     assert(b<nbins());
-    auto w = atomicIncrement(ws[b]);
-    assert(w < size(b));
-    bins[off[b] + w] = j;
+    auto w = atomicDecrement(off[b]);
+    assert(w>0);
+    bins[w-1] = j;
   }
 
 
@@ -202,31 +276,35 @@ public:
     assert(b<nbins());
     b+=histOff(nh);
     assert(b<totbins());
-    atomicIncrement(off[b+1]);
+    atomicIncrement(off[b]);
   }
 
   __host__ __device__
   __forceinline__
-  void fill(T t, index_type j, Counter * ws, uint32_t nh) {
+  void fill(T t, index_type j, uint32_t nh) {
     uint32_t b = bin(t);
     assert(b<nbins());
     b+=histOff(nh);
     assert(b<totbins());
-    auto w = atomicIncrement(ws[b]);
-    assert(w < size(b));
-    bins[off[b] + w] = j;
+    auto w = atomicDecrement(off[b]);
+    assert(w>0);
+    bins[w-1] = j;
   }
 
 #ifdef __CUDACC__
   __device__
   __forceinline__
   void finalize(Counter * ws) {
-    blockPrefixScan(off+1,totbins()-1,ws);
+    assert(off[totbins()-1]==0);
+    blockPrefixScan(off,totbins(),ws);
+    assert(off[totbins()-1]==off[totbins()-2]);
   }
   __host__
 #endif
   void finalize() {
-    for(uint32_t i=2; i<totbins(); ++i) off[i]+=off[i-1];
+    assert(off[totbins()-1]==0);
+    for(uint32_t i=1; i<totbins(); ++i) off[i]+=off[i-1];
+    assert(off[totbins()-1]==off[totbins()-2]);
   }
 
   constexpr auto size() const { return uint32_t(off[totbins()-1]);}
@@ -244,5 +322,14 @@ public:
   Counter  off[totbins()];
   index_type bins[capacity()];
 };
+
+
+
+template<
+  typename I, // type stored in the container (usually an index in a vector of the input values)
+  uint32_t MAXONES, // max number of "ones"
+  uint32_t MAXMANYS // max number of "manys"
+>
+using OneToManyAssoc = HistoContainer<uint32_t, MAXONES, MAXMANYS, sizeof(uint32_t) * 8, I, 1>;
 
 #endif // HeterogeneousCore_CUDAUtilities_HistoContainer_h

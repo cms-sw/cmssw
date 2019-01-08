@@ -75,8 +75,7 @@ void PixelTrackReconstructionGPU::run(TracksWithTTRHs& tracks,
   Rfit::helix_fit * helix_fit_resultsGPU = nullptr;
 
   const int points_in_seed = 4;
-  // We use 3 floats for GlobalPosition and 9 floats for GlobalError (that's what is used by the Riemann fit).
-  // TODO: optimise dimensions eploiting matrix symmetries
+  // We use 3 floats for GlobalPosition and 6 floats for GlobalError (that's what is used by the Riemann fit).
   // Assume a safe maximum of 3K seeds: it will dynamically grow, if needed.
   int total_seeds = 0;
   hits_and_covariances.reserve(sizeof(float)*3000*(points_in_seed*12));
@@ -86,15 +85,16 @@ void PixelTrackReconstructionGPU::run(TracksWithTTRHs& tracks,
       for (unsigned int iHit = 0; iHit < tuplet.size(); ++iHit) {
         auto const& recHit = tuplet[iHit];
         auto point = GlobalPoint(recHit->globalPosition().basicVector() - region.origin().basicVector());
-        auto errors = recHit->globalPositionError().matrix4D();
+        auto errors = recHit->globalPositionError();
         hits_and_covariances.push_back(point.x());
         hits_and_covariances.push_back(point.y());
         hits_and_covariances.push_back(point.z());
-        for (auto j = 0; j < 3; ++j) {
-          for (auto l = 0; l < 3; ++l) {
-            hits_and_covariances.push_back(errors(j, l));
-          }
-        }
+        hits_and_covariances.push_back(errors.cxx());
+        hits_and_covariances.push_back(errors.cyx());
+        hits_and_covariances.push_back(errors.cyy());
+        hits_and_covariances.push_back(errors.czx());
+        hits_and_covariances.push_back(errors.czy());
+        hits_and_covariances.push_back(errors.czz());
       }
       total_seeds++;
     }

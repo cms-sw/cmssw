@@ -42,7 +42,7 @@ void go() {
   Hist h;
 
   auto h_d = cuda::memory::device::make_unique<Hist[]>(current_device, 1);
-  auto ws_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, Hist::totbins());
+  auto ws_d = cuda::memory::device::make_unique<uint8_t[]>(current_device, Hist::wsSize());
 
   auto off_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, nParts+1);
 

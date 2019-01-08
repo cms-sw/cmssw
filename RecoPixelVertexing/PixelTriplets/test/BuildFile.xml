@@ -21,3 +21,4 @@
 </bin>
 
 <bin file="fastDPHI_t.cpp"/>
+<bin file="CircleEq_t.cpp"/>

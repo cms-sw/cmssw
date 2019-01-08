@@ -1,4 +1,7 @@
 <use name="cuda"/>
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="HeterogeneousCore/Producer"/>
+<use name="HeterogeneousCore/Product"/>
 <use name="RecoPixelVertexing/PixelTrackFitting"/>
 <library file="*.cc *.cu" name="RecoPixelVertexingPixelTrackFittingPlugins">
   <flags EDM_PLUGIN="1"/>

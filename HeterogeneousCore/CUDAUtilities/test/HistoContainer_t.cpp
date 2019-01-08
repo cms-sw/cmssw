@@ -35,22 +35,20 @@ void go() {
 
   Hist h;
   Hist4 h4;
-  typename Hist::Counter ws[Hist::totbins()];
-  typename Hist4::Counter ws4[Hist4::totbins()];
   for (int it=0; it<5; ++it) {
     for (long long j = 0; j < N; j++) v[j]=rgen(eng);
     if (it==2) for (long long j = N/2; j < N/2+N/4; j++) v[j]=4;
     h.zero();h4.zero();
     assert(h.size()==0);assert(h4.size()==0);
-    for (auto & i: ws) i=0; 
-    for (auto & i: ws4) i=0;
     for (long long j = 0; j < N; j++) { h.count(v[j]); if(j<2000) h4.count(v[j],2); else h4.count(v[j],j%4); }
+    assert(h.size()==0);
+    assert(h4.size()==0);
     h.finalize(); h4.finalize();
-    assert(h.off[0]==0);
     assert(h.size()==N);
-    assert(h4.off[0]==0);
     assert(h4.size()==N);
-    for (long long j = 0; j < N; j++) { h.fill(v[j],j,ws);  if(j<2000) h4.fill(v[j],j,ws4,2); else h4.fill(v[j],j,ws4,j%4); }
+    for (long long j = 0; j < N; j++) { h.fill(v[j],j);  if(j<2000) h4.fill(v[j],2); else h4.fill(v[j],j,j%4); }
+    assert(h.off[0]==0);
+    assert(h4.off[0]==0);
     assert(h.size()==N);
     assert(h4.size()==N);
 

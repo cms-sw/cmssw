@@ -277,7 +277,7 @@ void SiPixelRecHitHeterogeneous::run(const edm::Handle<SiPixelClusterCollectionN
                                        << ' ' << clust.minPixelRow()<<'/'<< mrp[ij] <<'/'<< mrp[fc+ind[ic]] << std::endl;
 
       LocalPoint lp(hoc.xl[ij], hoc.yl[ij]);
-      LocalError le(hoc.xe[ij]*hoc.xe[ij], 0, hoc.ye[ij]*hoc.ye[ij]);
+      LocalError le(hoc.xe[ij], 0, hoc.ye[ij]);
       SiPixelRecHitQuality::QualWordType rqw=0;
 
       ++ic;

@@ -12,8 +12,8 @@ KernelFastFitAllHits(float *hits_and_covariances,
     int cumulative_size,
     float B,
     Rfit::helix_fit *results,
-    Rfit::Matrix3xNd *hits,
-    Rfit::Matrix3Nd *hits_cov,
+    Rfit::Matrix3xNd<4> *hits,
+    Eigen::Matrix<float,6,4> *hits_ge,
     Rfit::circle_fit *circle_fit,
     Vector4d *fast_fit,
     Rfit::line_fit *line_fit)
@@ -36,8 +36,6 @@ KernelFastFitAllHits(float *hits_and_covariances,
       blockDim.x, blockIdx.x, threadIdx.x, start, cumulative_size);
 #endif
 
-  hits[helix_start].resize(3, hits_in_fit);
-  hits_cov[helix_start].resize(3 * hits_in_fit, 3 * hits_in_fit);
 
   // Prepare data structure (stack)
   for (unsigned int i = 0; i < hits_in_fit; ++i) {
@@ -45,22 +43,20 @@ KernelFastFitAllHits(float *hits_and_covariances,
         hits_and_covariances[start + 1], hits_and_covariances[start + 2];
     start += 3;
 
-    for (auto j = 0; j < 3; ++j) {
-      for (auto l = 0; l < 3; ++l) {
-        hits_cov[helix_start](i + j * hits_in_fit, i + l * hits_in_fit) =
-            hits_and_covariances[start];
-        start++;
-      }
-    }
+    hits_ge[helix_start].col(i) << hits_and_covariances[start],
+        hits_and_covariances[start + 1], hits_and_covariances[start + 2],
+        hits_and_covariances[start + 3], hits_and_covariances[start + 4],
+        hits_and_covariances[start + 5];
+    start += 6;
   }
 
-  fast_fit[helix_start] = Rfit::Fast_fit(hits[helix_start]);
+  Rfit::Fast_fit(hits[helix_start],fast_fit[helix_start]);
 }
 
 __global__ void
 KernelCircleFitAllHits(float *hits_and_covariances, int hits_in_fit,
                        int cumulative_size, float B, Rfit::helix_fit *results,
-                       Rfit::Matrix3xNd *hits, Rfit::Matrix3Nd *hits_cov,
+                       Rfit::Matrix3xNd<4> *hits, Eigen::Matrix<float,6,4> *hits_ge,
                        Rfit::circle_fit *circle_fit, Vector4d *fast_fit,
                        Rfit::line_fit *line_fit)
 {
@@ -84,11 +80,14 @@ KernelCircleFitAllHits(float *hits_and_covariances, int hits_in_fit,
 #endif
   u_int n = hits[helix_start].cols();
 
-  Rfit::VectorNd rad = (hits[helix_start].block(0, 0, 2, n).colwise().norm());
+  constexpr uint32_t N = 4;
 
+  Rfit::VectorNd<N> rad = (hits[helix_start].block(0, 0, 2, n).colwise().norm());
+  Rfit::Matrix2Nd<N> hits_cov =  MatrixXd::Zero(2 * n, 2 * n);
+  Rfit::loadCovariance2D(hits_ge[helix_start],hits_cov);
   circle_fit[helix_start] =
       Rfit::Circle_fit(hits[helix_start].block(0, 0, 2, n),
-                       hits_cov[helix_start].block(0, 0, 2 * n, 2 * n),
+                       hits_cov,
                        fast_fit[helix_start], rad, B, true);
 
 #ifdef GPU_DEBUG
@@ -105,7 +104,7 @@ KernelCircleFitAllHits(float *hits_and_covariances, int hits_in_fit,
 __global__ void
 KernelLineFitAllHits(float *hits_and_covariances, int hits_in_fit,
                      int cumulative_size, float B, Rfit::helix_fit *results,
-                     Rfit::Matrix3xNd *hits, Rfit::Matrix3Nd *hits_cov,
+                      Rfit::Matrix3xNd<4> *hits, Eigen::Matrix<float,6,4> *hits_ge,
                      Rfit::circle_fit *circle_fit, Vector4d *fast_fit,
                      Rfit::line_fit *line_fit)
 {
@@ -130,7 +129,7 @@ KernelLineFitAllHits(float *hits_and_covariances, int hits_in_fit,
 #endif
 
   line_fit[helix_start] =
-      Rfit::Line_fit(hits[helix_start], hits_cov[helix_start],
+      Rfit::Line_fit(hits[helix_start], hits_ge[helix_start],
                      circle_fit[helix_start], fast_fit[helix_start], B, true);
 
   par_uvrtopak(circle_fit[helix_start], B, true);
@@ -166,13 +165,13 @@ void PixelTrackReconstructionGPU::launchKernelFit(
   int num_blocks = cumulative_size / (hits_in_fit * 12) / threads_per_block.x + 1;
   auto numberOfSeeds = cumulative_size / (hits_in_fit * 12);
 
-  Rfit::Matrix3xNd *hitsGPU;
-  cudaCheck(cudaMalloc(&hitsGPU, 48 * numberOfSeeds * sizeof(Rfit::Matrix3xNd(3, 4))));
-  cudaCheck(cudaMemset(hitsGPU, 0x00, 48 * numberOfSeeds * sizeof(Rfit::Matrix3xNd(3, 4))));
+  Rfit::Matrix3xNd<4> *hitsGPU;
+  cudaCheck(cudaMalloc(&hitsGPU, 48 * numberOfSeeds * sizeof(Rfit::Matrix3xNd<4>)));
+  cudaCheck(cudaMemset(hitsGPU, 0x00, 48 * numberOfSeeds * sizeof(Rfit::Matrix3xNd<4>)));
 
-  Rfit::Matrix3Nd *hits_covGPU = nullptr;
-  cudaCheck(cudaMalloc(&hits_covGPU, 48 * numberOfSeeds * sizeof(Rfit::Matrix3Nd(12, 12))));
-  cudaCheck(cudaMemset(hits_covGPU, 0x00, 48 * numberOfSeeds * sizeof(Rfit::Matrix3Nd(12, 12))));
+  Eigen::Matrix<float,6,4> *hits_geGPU = nullptr;
+  cudaCheck(cudaMalloc(&hits_geGPU, 48 * numberOfSeeds * sizeof(Eigen::Matrix<float,6,4>)));
+  cudaCheck(cudaMemset(hits_geGPU, 0x00, 48 * numberOfSeeds * sizeof(Eigen::Matrix<float,6,4>)));
 
   Vector4d *fast_fit_resultsGPU = nullptr;
   cudaCheck(cudaMalloc(&fast_fit_resultsGPU, 48 * numberOfSeeds * sizeof(Vector4d)));
@@ -188,24 +187,24 @@ void PixelTrackReconstructionGPU::launchKernelFit(
 
   KernelFastFitAllHits<<<num_blocks, threads_per_block>>>(
       hits_and_covariancesGPU, hits_in_fit, cumulative_size, B, results,
-      hitsGPU, hits_covGPU, circle_fit_resultsGPU, fast_fit_resultsGPU,
+      hitsGPU, hits_geGPU, circle_fit_resultsGPU, fast_fit_resultsGPU,
       line_fit_resultsGPU);
   cudaCheck(cudaGetLastError());
 
   KernelCircleFitAllHits<<<num_blocks, threads_per_block>>>(
       hits_and_covariancesGPU, hits_in_fit, cumulative_size, B, results,
-      hitsGPU, hits_covGPU, circle_fit_resultsGPU, fast_fit_resultsGPU,
+      hitsGPU, hits_geGPU, circle_fit_resultsGPU, fast_fit_resultsGPU,
       line_fit_resultsGPU);
   cudaCheck(cudaGetLastError());
 
   KernelLineFitAllHits<<<num_blocks, threads_per_block>>>(
       hits_and_covariancesGPU, hits_in_fit, cumulative_size, B, results,
-      hitsGPU, hits_covGPU, circle_fit_resultsGPU, fast_fit_resultsGPU,
+      hitsGPU, hits_geGPU, circle_fit_resultsGPU, fast_fit_resultsGPU,
       line_fit_resultsGPU);
   cudaCheck(cudaGetLastError());
 
   cudaFree(hitsGPU);
-  cudaFree(hits_covGPU);
+  cudaFree(hits_geGPU);
   cudaFree(fast_fit_resultsGPU);
   cudaFree(circle_fit_resultsGPU);
   cudaFree(line_fit_resultsGPU);

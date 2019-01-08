@@ -18,27 +18,23 @@ void mykernel(T const * __restrict__  v, uint32_t N) {
   if (threadIdx.x==0) printf("start kernel for %d data\n",N);
 
   using Hist = HistoContainer<T,NBINS,12000,S,uint16_t>;
-  constexpr auto wss = Hist::totbins();
-
-  if (threadIdx.x==0) printf("ws size %d\n",wss);
 
   __shared__ Hist  hist;
-  __shared__ typename Hist::Counter ws[wss];
+  __shared__ typename Hist::Counter ws[32];
 
-  for (auto j=threadIdx.x; j<Hist::totbins(); j+=blockDim.x) { hist.off[j]=0; ws[j]=0;}
+  for (auto j=threadIdx.x; j<Hist::totbins(); j+=blockDim.x) { hist.off[j]=0;}
   __syncthreads();
 
   for (auto j=threadIdx.x; j<N; j+=blockDim.x) hist.count(v[j]);
   __syncthreads();
 
-  assert(0==hist.off[0]);
+  assert(0==hist.size());
   __syncthreads();
 
   
   hist.finalize(ws);
   __syncthreads();
 
-  assert(0==hist.off[0]);
   assert(N==hist.size());
   for (auto j=threadIdx.x; j<Hist::nbins(); j+=blockDim.x) assert(hist.off[j]<=hist.off[j+1]);
   __syncthreads();
@@ -46,8 +42,10 @@ void mykernel(T const * __restrict__  v, uint32_t N) {
   if (threadIdx.x<32) ws[threadIdx.x]=0;  // used by prefix scan...
   __syncthreads();
 
-  for (auto j=threadIdx.x; j<N; j+=blockDim.x) hist.fill(v[j],j,ws);
+  for (auto j=threadIdx.x; j<N; j+=blockDim.x) hist.fill(v[j],j);
   __syncthreads();
+  assert(0==hist.off[0]);
+  assert(N==hist.size());
 
 
    for (auto j=threadIdx.x; j<hist.size()-1; j+=blockDim.x) {

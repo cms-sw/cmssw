@@ -16,7 +16,7 @@ namespace pixelVertexHeterogeneousProduct {
     float * z_d;
     float * zerr_d;
     float * chi2_d;
-    uint16_t * sortInd;
+    uint16_t * sortInd_d;
     int32_t * ivtx_d; // this should be indexed with the original tracks, not the reduced set (oops)
   };
 
@@ -24,18 +24,13 @@ namespace pixelVertexHeterogeneousProduct {
   struct VerticesOnCPU {
     VerticesOnCPU() = default;
 
-    explicit VerticesOnCPU(uint32_t nvtx, uint32_t ntrks) :
-      z(nvtx),
-      zerr(nvtx),
-      ivtx(ntrks),
-      nVertices(nvtx)
-    { }
-
-    std::vector<float,    CUDAHostAllocator<float>> z,zerr, chi2;
-    std::vector<int16_t, CUDAHostAllocator<uint16_t>> sortInd;
-    std::vector<int32_t, CUDAHostAllocator<int32_t>> ivtx;
+    float const *z, *zerr, *chi2;
+    int16_t const * sortInd;
+    int32_t const * ivtx;
+    uint16_t const * itrk;
 
     uint32_t nVertices=0;
+    uint32_t nTracks=0;
     VerticesOnGPU const * gpu_d = nullptr;
   };
 

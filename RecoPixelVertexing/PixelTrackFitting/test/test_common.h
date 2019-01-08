@@ -5,14 +5,10 @@
 #include <cassert>
 #include <random>
 
-#ifndef TEST_DEBUG
-#define TEST_DEBUG 0
-#endif
-
 template<class C>
 __host__ __device__
 void printIt(C * m) {
-#if TEST_DEBUG
+#ifdef TEST_DEBUG
   printf("\nMatrix %dx%d\n", (int)m->rows(), (int)m->cols());
   for (u_int r = 0; r < m->rows(); ++r) {
     for (u_int c = 0; c < m->cols(); ++c) {
@@ -22,8 +18,8 @@ void printIt(C * m) {
 #endif
 }
 
-template<class C>
-bool isEqualFuzzy(C a, C b, double epsilon = 1e-6) {
+template<class C1, class C2>
+bool isEqualFuzzy(C1 a, C2 b, double epsilon = 1e-6) {
   for (unsigned int i = 0; i < a.rows(); ++i) {
     for (unsigned int j = 0; j < a.cols(); ++j) {
       assert(std::abs(a(i,j)-b(i,j))
@@ -36,6 +32,7 @@ bool isEqualFuzzy(C a, C b, double epsilon = 1e-6) {
 bool isEqualFuzzy(double a, double b, double epsilon=1e-6) {
   return std::abs(a-b) < std::min(std::abs(a), std::abs(b))*epsilon;
 }
+
 
 template<typename T>
 void fillMatrix(T & t) {

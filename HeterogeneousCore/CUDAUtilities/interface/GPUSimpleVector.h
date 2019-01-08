@@ -80,7 +80,8 @@ template <class T> struct SimpleVector {
   }
 
 #endif // __CUDACC__
-
+  inline constexpr bool empty() const { return m_size==0;}
+  inline constexpr bool full() const { return m_size==m_capacity;}
   inline constexpr T& operator[](int i) { return m_data[i]; }
   inline constexpr const T& operator[](int i) const { return m_data[i]; }
   inline constexpr void reset() { m_size = 0; }

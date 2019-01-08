@@ -80,6 +80,10 @@ template <class T, int maxSize> struct VecArray {
       return T();
   }
 
+  inline constexpr T const * begin() const { return m_data;}
+  inline constexpr T const * end() const { return m_data+m_size;}
+  inline constexpr T * begin() { return m_data;}
+  inline constexpr T * end()  { return m_data+m_size;}
   inline constexpr int size() const { return m_size; }
   inline constexpr T& operator[](int i) { return m_data[i]; }
   inline constexpr const T& operator[](int i) const { return m_data[i]; }

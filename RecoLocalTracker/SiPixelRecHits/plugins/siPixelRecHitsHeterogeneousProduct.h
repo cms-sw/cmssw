@@ -37,7 +37,7 @@ namespace siPixelRecHitsHeterogeneousProduct {
 
      using Hist = HistoContainer<int16_t,128,maxHits(),8*sizeof(int16_t),uint16_t,10>;
      Hist * hist_d;
-     typename Hist::Counter *  hws_d;  
+     uint8_t * hws_d;  
 
      HitsOnGPU const * me_d = nullptr;
 
@@ -46,6 +46,11 @@ namespace siPixelRecHitsHeterogeneousProduct {
     size_t owner_32bit_pitch_;
     void *owner_16bit_;
     size_t owner_16bit_pitch_;
+
+    // forwarded from PixelRecHit (FIXME)
+    uint32_t const * phase1TopologyLayerStart_d;
+    uint8_t const * phase1TopologyLayer_d;
+
   };
 
   struct HitsOnCPU {

@@ -1,93 +1,51 @@
 #ifndef RecoPixelVertexing_PixelTriplets_plugins_CAHitQuadrupletGeneratorKernels_h
 #define RecoPixelVertexing_PixelTriplets_plugins_CAHitQuadrupletGeneratorKernels_h
 
-#include <Eigen/Core>
 
-#include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/GPUVecArray.h"
 #include "RecoLocalTracker/SiPixelRecHits/plugins/siPixelRecHitsHeterogeneousProduct.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
+
+#include "RecoPixelVertexing/PixelTriplets/plugins/pixelTuplesHeterogeneousProduct.h"
 
 #include "GPUCACell.h"
 
-void wrapperFastFitAllHits(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPU::SimpleVector<Quadruplet> * foundNtuplets,
-    siPixelRecHitsHeterogeneousProduct::HitsOnGPU const * hhp,
-    int hits_in_fit,
-    float B,
-    Rfit::helix_fit *results,
-    Rfit::Matrix3xNd *hits,
-    Rfit::Matrix3Nd *hits_cov,
-    Rfit::circle_fit *circle_fit,
-    Eigen::Vector4d *fast_fit,
-    Rfit::line_fit *line_fit);
+class CAHitQuadrupletGeneratorKernels {
+public:
 
-void wrapperCircleFitAllHits(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPU::SimpleVector<Quadruplet> * foundNtuplets,
-    int hits_in_fit,
-    float B,
-    Rfit::helix_fit *results,
-    Rfit::Matrix3xNd *hits,
-    Rfit::Matrix3Nd *hits_cov,
-    Rfit::circle_fit *circle_fit,
-    Eigen::Vector4d *fast_fit,
-    Rfit::line_fit *line_fit);
+   using HitsOnGPU = siPixelRecHitsHeterogeneousProduct::HitsOnGPU;
+   using HitsOnCPU = siPixelRecHitsHeterogeneousProduct::HitsOnCPU;
 
-void wrapperLineFitAllHits(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPU::SimpleVector<Quadruplet> * foundNtuplets,
-    float B,
-    Rfit::helix_fit *results,
-    Rfit::Matrix3xNd *hits,
-    Rfit::Matrix3Nd *hits_cov,
-    Rfit::circle_fit *circle_fit,
-    Eigen::Vector4d *fast_fit,
-    Rfit::line_fit *line_fit);
+   using TuplesOnGPU = pixelTuplesHeterogeneousProduct::TuplesOnGPU;
 
-void wrapperCheckOverflows(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPU::SimpleVector<Quadruplet> *foundNtuplets,
-    GPUCACell const * cells,
-    uint32_t const * nCells,
-    GPU::VecArray<unsigned int, 256> const * isOuterHitOfCell,
-    uint32_t nHits,
-    uint32_t maxNumberOfDoublets);
+   using HitToTuple = CAConstants::HitToTuple;
 
-void wrapperConnect(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPU::SimpleVector<Quadruplet> * foundNtuplets,
-    GPUCACell::Hits const * hhp,
-    GPUCACell * cells,
-    uint32_t const * nCells,
-    GPU::VecArray<unsigned int, 256> const * isOuterHitOfCell,
-    float ptmin,
-    float region_origin_radius,
-    const float thetaCut,
-    const float phiCut,
-    const float hardPtCut,
-    unsigned int maxNumberOfDoublets_,
-    unsigned int maxNumberOfHits);
+   CAHitQuadrupletGeneratorKernels(bool earlyFishbone, bool lateFishbone) :
+    earlyFishbone_(earlyFishbone),
+    lateFishbone_(lateFishbone){}
+   ~CAHitQuadrupletGeneratorKernels() { deallocateOnGPU();}
 
-void wrapperFindNtuplets(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPUCACell * const cells,
-    uint32_t const * nCells,
-    GPU::SimpleVector<Quadruplet> *foundNtuplets,
-    unsigned int minHitsPerNtuplet,
-    unsigned int maxNumberOfDoublets);
-  
-void wrapperPrintFoundNtuplets(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPU::SimpleVector<Quadruplet> *foundNtuplets,
-    int maxPrint);
+   void launchKernels(HitsOnCPU const & hh, TuplesOnGPU & tuples_d, cudaStream_t cudaStream);
 
-void wrapperDoubletsFromHisto(
-    int gridSize, int blockSize, cudaStream_t cudaStream,
-    GPUCACell * cells,
-    uint32_t * nCells,
-    siPixelRecHitsHeterogeneousProduct::HitsOnGPU const * hits,
-    GPU::VecArray<unsigned int, 256> * isOuterHitOfCell);
+   void classifyTuples(HitsOnCPU const & hh, TuplesOnGPU & tuples_d, cudaStream_t cudaStream);
+
+   void buildDoublets(HitsOnCPU const & hh, cudaStream_t stream);
+   void allocateOnGPU();
+   void deallocateOnGPU();
+   void cleanup(cudaStream_t cudaStream);
+
+private:
+
+    // workspace
+    GPUCACell* device_theCells_ = nullptr;
+    GPUCACell::OuterHitOfCell* device_isOuterHitOfCell_ = nullptr;
+    uint32_t* device_nCells_ = nullptr;
+
+    HitToTuple * device_hitToTuple_ = nullptr;
+    AtomicPairCounter * device_hitToTuple_apc_ = nullptr;
+
+
+    const bool earlyFishbone_;
+    const bool lateFishbone_;
+
+};
 
 #endif // RecoPixelVertexing_PixelTriplets_plugins_CAHitQuadrupletGeneratorKernels_h

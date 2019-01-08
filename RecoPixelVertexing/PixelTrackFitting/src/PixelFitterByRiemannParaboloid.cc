@@ -59,25 +59,20 @@ std::unique_ptr<reco::Track> PixelFitterByRiemannParaboloid::run(
     isBarrel[i] = recHit->detUnit()->type().isBarrel();
   }
 
-  Matrix<double, 3, Dynamic, 0, 3, max_nop> riemannHits(3, nhits);
+   assert(nhits==4);
+   Rfit::Matrix3xNd<4> riemannHits;
 
-  Matrix<double, Dynamic, Dynamic, 0, 3 * max_nop, 3 * max_nop> riemannHits_cov =
-      MatrixXd::Zero(3 * nhits, 3 * nhits);
+  Eigen::Matrix<float,6,4> riemannHits_ge = Eigen::Matrix<float,6,4>::Zero();
 
   for (unsigned int i = 0; i < nhits; ++i) {
     riemannHits.col(i) << points[i].x(), points[i].y(), points[i].z();
 
-    const auto& errorMatrix = errors[i].matrix4D();
-
-    for (auto j = 0; j < 3; ++j) {
-      for (auto l = 0; l < 3; ++l) {
-        riemannHits_cov(i + j * nhits, i + l * nhits) = errorMatrix(j, l);
-      }
-    }
+    riemannHits_ge.col(i) <<  errors[i].cxx(), errors[i].cyx(), errors[i].cyy(),
+                              errors[i].czx(), errors[i].czy(), errors[i].czz();
   }
 
   float bField = 1 / PixelRecoUtilities::fieldInInvGev(*es_);
-  helix_fit fittedTrack = Rfit::Helix_fit(riemannHits, riemannHits_cov, bField, useErrors_);
+  helix_fit fittedTrack = Rfit::Helix_fit(riemannHits, riemannHits_ge, bField, useErrors_);
   int iCharge = fittedTrack.q;
 
   // parameters are:
