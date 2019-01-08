@@ -99,8 +99,7 @@ multiTrackValidator = cms.EDAnalyzer(
     ### do resolution plots only for these labels (or all if empty)
     doResolutionPlotsForLabels = cms.VInputTag(),
 
-    cores = cms.InputTag("ak4CaloJets"),
-    ptMinJet= cms.double(1000)
+    cores = cms.InputTag("highPtJets"), #ak4CaloJets with pt>1 TeV
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim

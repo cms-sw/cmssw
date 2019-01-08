@@ -66,8 +66,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   doPVAssociationPlots_(pset.getUntrackedParameter<bool>("doPVAssociationPlots")),
   doSeedPlots_(pset.getUntrackedParameter<bool>("doSeedPlots")),
   doMVAPlots_(pset.getUntrackedParameter<bool>("doMVAPlots")),
-  simPVMaxZ_(pset.getUntrackedParameter<double>("simPVMaxZ")),
-  ptMinJet_(pset.getParameter<double>("ptMinJet"))
+  simPVMaxZ_(pset.getUntrackedParameter<double>("simPVMaxZ"))
 {
   if(not (pset.getParameter<edm::InputTag>("cores").label().empty())){
     cores_ = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("cores"));
@@ -463,13 +462,11 @@ size_t MultiTrackValidator::tpDR(const TrackingParticleRefVector& tPCeff,
       }  // ttp2 (iTP)
       if(cores != nullptr){
         for (unsigned int ji = 0; ji < cores->size(); ji++) {//jet loop
-          if((*cores)[ji].pt() > ptMinJet_){
             const reco::Candidate& jet = (*cores)[ji];
             double jet_eta = jet.eta();
             double jet_phi = jet.phi();
             auto dR_jet_tmp = reco::deltaR2(eta, phi, jet_eta, jet_phi);
             if (dR_jet_tmp<dR_jet) dR_jet=dR_jet_tmp;
-          }
         }
       }
     }
@@ -511,13 +508,11 @@ void MultiTrackValidator::trackDR(const edm::View<reco::Track>& trackCollection,
       }
       if(cores != nullptr){
         for (unsigned int ji = 0; ji < cores->size(); ji++) {//jet loop
-          if((*cores)[ji].pt() > ptMinJet_){
             const reco::Candidate& jet = (*cores)[ji];
             double jet_eta = jet.eta();
             double jet_phi = jet.phi();
             auto dR_jet_tmp = reco::deltaR2(eta, phi, jet_eta, jet_phi);
             if (dR_jet_tmp<dR_jet) dR_jet=dR_jet_tmp;
-          }
         }
       }
 
