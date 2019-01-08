@@ -19,7 +19,9 @@ class PixelCPEFast final : public PixelCPEBase
 public:
    struct ClusterParamGeneric : ClusterParam
    {
+      ClusterParamGeneric() {}
       ClusterParamGeneric(const SiPixelCluster & cl) : ClusterParam(cl){}
+
       // The truncation value pix_maximum is an angle-dependent cutoff on the
       // individual pixel signals. It should be applied to all pixels in the
       // cluster [signal_i = fminf(signal_i, pixmax)] before the column and row
@@ -52,6 +54,8 @@ private:
    
    LocalPoint localPosition (DetParam const & theDetParam, ClusterParam & theClusterParam) const override;
    LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const override;
+
+   void errorFromTemplates(DetParam const & theDetParam, ClusterParamGeneric & theClusterParam, float qclus) const;
    
    static void
    collect_edge_charges(ClusterParam & theClusterParam,  //!< input, the cluster
