@@ -1246,7 +1246,8 @@ _extendedPlots = [
     _extDistDxyDzBS,
     _extDistDxyDzPV,
     _extDistHitsLayers,
-    _extDistPosDeltaR,
+    _extDistPos,
+    _extDistDeltaR,
     _extDistChi2Seeding,
     _extDistSeedingTable,
     _extResidualEta,
@@ -1257,7 +1258,8 @@ _extendedPlots = [
     _extDistSimDxyDzBS,
     _extDistSimDxyDzPV,
     _extDistSimHitsLayers,
-    _extDistSimPosDeltaR,
+    _extDistSimPos,
+    _extDistSimDeltaR,
 ]
 _summaryPlots = [
     _summary,
