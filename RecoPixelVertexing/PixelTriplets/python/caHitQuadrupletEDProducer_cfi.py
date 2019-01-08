@@ -2,7 +2,3 @@ import FWCore.ParameterSet.Config as cms
 from RecoPixelVertexing.PixelTriplets.caHitQuadrupletDefaultEDProducer_cfi import caHitQuadrupletDefaultEDProducer as _caHitQuadrupletDefaultEDProducer
 
 caHitQuadrupletEDProducer = _caHitQuadrupletDefaultEDProducer.clone()
-
-from Configuration.ProcessModifiers.gpu_cff import gpu
-from RecoPixelVertexing.PixelTriplets.caHitQuadrupletHeterogeneousEDProducer_cfi import caHitQuadrupletHeterogeneousEDProducer as _caHitQuadrupletHeterogeneousEDProducer
-gpu.toReplaceWith(caHitQuadrupletEDProducer, _caHitQuadrupletHeterogeneousEDProducer)
