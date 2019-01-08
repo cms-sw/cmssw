@@ -18,7 +18,7 @@
 static const edm::ParameterSet initializeDummyPSet() {
   edm::ParameterSet dummy;
   dummy.registerIt();
-  return std::move(dummy);
+  return dummy;
 }
 
 static const edm::ParameterSet* s_dummyPSet()
@@ -216,7 +216,7 @@ void HLTConfigData::extract()
    } else if ( processPSet_->existsAs<ParameterSet>(preT,true)) {
      prescaleName=preT;
    }
-   if (prescaleName=="") {
+   if (prescaleName.empty()) {
      hltPrescaleTable_=HLTPrescaleTable();
    } else {
      const ParameterSet& iPS(processPSet_->getParameterSet(prescaleName));
