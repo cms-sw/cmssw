@@ -80,11 +80,12 @@ public:
    
    struct ClusterParam
    {
+      ClusterParam(){}
       ClusterParam(const SiPixelCluster & cl) : theCluster(&cl) {}
 
       virtual ~ClusterParam() = default;
 
-      const SiPixelCluster * theCluster;
+      const SiPixelCluster * theCluster = nullptr;;
       
       //--- Cluster-level quantities (filled in computeAnglesFrom....)
       float cotalpha;
@@ -112,6 +113,7 @@ public:
       bool  hasFilledProb_ =false;
       // ggiurgiu@jhu.edu (10/18/2008)
       bool with_track_angle; // filled in computeAnglesFrom....
+      bool filled_from_2d = false; //
 
      // More detailed edge information (for CPE ClusterRepair, and elsewhere...)
      int   edgeTypeX_ = 0;   // 0: not on edge, 1: low end on edge, 2: high end
@@ -270,7 +272,6 @@ protected:
    LocalVector driftDirection       (DetParam & theDetParam, LocalVector bfield ) const ;
    void computeLorentzShifts(DetParam &) const ;
    
-   bool isFlipped(DetParam const & theDetParam) const;              // is the det flipped or not?
    
    //---------------------------------------------------------------------------
    //  Cluster-level services.

@@ -125,7 +125,84 @@ void PixelCPEFast::fillParamsForGpu() {
     auto vv = p.theDet->surface().position();
     auto rr = pixelCPEforGPU::Rotation(p.theDet->surface().rotation());
     g.frame = pixelCPEforGPU::Frame(vv.x(),vv.y(),vv.z(),rr);
-  }
+
+
+    // errors .....
+   ClusterParamGeneric cp;
+   auto gvx = p.theOrigin.x() + 40.f*m_commonParamsGPU.thePitchX;
+   auto gvy = p.theOrigin.y();
+   auto gvz = 1.f/p.theOrigin.z();
+   //--- Note that the normalization is not required as only the ratio used
+
+   // calculate angles
+   cp.cotalpha = gvx*gvz;
+   cp.cotbeta  = gvy*gvz;
+
+   cp.with_track_angle = false;
+
+   auto lape = p.theDet->localAlignmentError();
+   if ( lape.invalid() ) lape = LocalError(); // zero....
+
+#ifdef DUMP_ERRORS   
+   auto m=10000.f;
+   for (float qclus = 15000; qclus<35000; qclus+=15000){
+     errorFromTemplates(p,cp,qclus);
+
+     std::cout << i << ' ' << qclus << ' ' << cp.pixmx
+               << ' ' << m*cp.sigmax << ' ' << m*cp.sx1 << ' ' << m*cp.sx2 
+               << ' ' << m*cp.sigmay << ' ' << m*cp.sy1 << ' ' << m*cp.sy2
+              << std::endl;
+   }
+   std::cout << i << ' ' << m*std::sqrt(lape.xx())  <<' '<< m*std::sqrt(lape.yy()) << std::endl;
+#endif   
+
+   
+   errorFromTemplates(p,cp,20000.f);
+   g.sx[0] = cp.sigmax;
+   g.sx[1] = cp.sx1;
+   g.sx[2] = cp.sx2;
+
+   g.sy[0] = cp.sigmay;
+   g.sy[1] = cp.sy1;
+   g.sy[2] = cp.sy2;
+   
+   
+   /*
+    // from run1??
+    if (i<96) {
+      g.sx[0] = 0.00120;
+      g.sx[1] = 0.00115;
+      g.sx[2] = 0.0050;
+
+      g.sy[0] = 0.00210;
+      g.sy[1] = 0.00375;
+      g.sy[2] = 0.0085;
+    } else if (g.isBarrel) {
+      g.sx[0] = 0.00120;
+      g.sx[1] = 0.00115;
+      g.sx[2] = 0.0050;
+
+      g.sy[0] = 0.00210;
+      g.sy[1] = 0.00375;
+      g.sy[2] = 0.0085;
+   } else {
+      g.sx[0] = 0.0020;
+      g.sx[1] = 0.0020;
+      g.sx[2] = 0.0050;
+
+      g.sy[0] = 0.0021;
+      g.sy[1] = 0.0021;
+      g.sy[2] = 0.0085;
+   }
+   */
+   
+
+   for (int i=0; i<3; ++i) {
+     g.sx[i] = std::sqrt(g.sx[i]*g.sx[i]+lape.xx());
+     g.sy[i] = std::sqrt(g.sy[i]*g.sy[i]+lape.yy());
+   }
+
+ }
 }
 
 PixelCPEFast::~PixelCPEFast() {}
@@ -143,6 +220,45 @@ PixelCPEBase::ClusterParam* PixelCPEFast::createClusterParam(const SiPixelCluste
    return new ClusterParamGeneric(cl);
 }
 
+
+
+void
+PixelCPEFast::errorFromTemplates(DetParam const & theDetParam, ClusterParamGeneric & theClusterParam, float qclus) const
+{
+      float locBz = theDetParam.bz;
+      float locBx = theDetParam.bx;
+      //cout << "PixelCPEFast::localPosition(...) : locBz = " << locBz << endl;
+
+      theClusterParam.pixmx  = std::numeric_limits<int>::max();  // max pixel charge for truncation of 2-D cluster
+
+      theClusterParam.sigmay = -999.9; // CPE Generic y-error for multi-pixel cluster
+      theClusterParam.sigmax = -999.9; // CPE Generic x-error for multi-pixel cluster
+      theClusterParam.sy1    = -999.9; // CPE Generic y-error for single single-pixel
+      theClusterParam.sy2    = -999.9; // CPE Generic y-error for single double-pixel cluster
+      theClusterParam.sx1    = -999.9; // CPE Generic x-error for single single-pixel cluster
+      theClusterParam.sx2    = -999.9; // CPE Generic x-error for single double-pixel cluster
+
+      float dummy;
+
+      SiPixelGenError gtempl(thePixelGenError_);
+      int gtemplID_ = theDetParam.detTemplateId;
+
+      theClusterParam.qBin_ = gtempl.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, locBx, qclus,
+                                          false,
+                                          theClusterParam.pixmx, theClusterParam.sigmay, dummy,
+                                          theClusterParam.sigmax, dummy, theClusterParam.sy1,
+                                          dummy, theClusterParam.sy2, dummy, theClusterParam.sx1,
+                                          dummy, theClusterParam.sx2, dummy );
+
+      theClusterParam.sigmax = theClusterParam.sigmax * micronsToCm;
+      theClusterParam.sx1 = theClusterParam.sx1 * micronsToCm;
+      theClusterParam.sx2 = theClusterParam.sx2 * micronsToCm;
+
+      theClusterParam.sigmay = theClusterParam.sigmay * micronsToCm;
+      theClusterParam.sy1 = theClusterParam.sy1 * micronsToCm;
+      theClusterParam.sy2 = theClusterParam.sy2 * micronsToCm;
+}
+
 //-----------------------------------------------------------------------------
 //! Hit position in the local frame (in cm).  Unlike other CPE's, this
 //! one converts everything from the measurement frame (in channel numbers)
@@ -156,42 +272,8 @@ PixelCPEFast::localPosition(DetParam const & theDetParam, ClusterParam & theClus
    assert(!theClusterParam.with_track_angle); 
    
    if ( UseErrorsFromTemplates_ ) {
-      
-      float qclus = theClusterParam.theCluster->charge();
-      float locBz = theDetParam.bz;
-      float locBx = theDetParam.bx;
-      //cout << "PixelCPEFast::localPosition(...) : locBz = " << locBz << endl;
-      
-      theClusterParam.pixmx  = std::numeric_limits<int>::max();  // max pixel charge for truncation of 2-D cluster
-
-      theClusterParam.sigmay = -999.9; // CPE Generic y-error for multi-pixel cluster
-      theClusterParam.sigmax = -999.9; // CPE Generic x-error for multi-pixel cluster
-      theClusterParam.sy1    = -999.9; // CPE Generic y-error for single single-pixel
-      theClusterParam.sy2    = -999.9; // CPE Generic y-error for single double-pixel cluster
-      theClusterParam.sx1    = -999.9; // CPE Generic x-error for single single-pixel cluster
-      theClusterParam.sx2    = -999.9; // CPE Generic x-error for single double-pixel cluster
-      
-      float dummy;
-      
-      SiPixelGenError gtempl(thePixelGenError_);
-      int gtemplID_ = theDetParam.detTemplateId;
-      
-      theClusterParam.qBin_ = gtempl.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, locBx, qclus, 
-                                          false,
-                                          theClusterParam.pixmx, theClusterParam.sigmay, dummy,
-                                          theClusterParam.sigmax, dummy, theClusterParam.sy1,
-                                          dummy, theClusterParam.sy2, dummy, theClusterParam.sx1,
-                                          dummy, theClusterParam.sx2, dummy );
-      
-      theClusterParam.sigmax = theClusterParam.sigmax * micronsToCm;
-      theClusterParam.sx1 = theClusterParam.sx1 * micronsToCm;
-      theClusterParam.sx2 = theClusterParam.sx2 * micronsToCm;
-      
-      theClusterParam.sigmay = theClusterParam.sigmay * micronsToCm;
-      theClusterParam.sy1 = theClusterParam.sy1 * micronsToCm;
-      theClusterParam.sy2 = theClusterParam.sy2 * micronsToCm;
-      
-   } // if ( UseErrorsFromTemplates_ )
+      errorFromTemplates(theDetParam, theClusterParam, theClusterParam.theCluster->charge());
+   } 
    else {
      theClusterParam.qBin_ = 0;
    }

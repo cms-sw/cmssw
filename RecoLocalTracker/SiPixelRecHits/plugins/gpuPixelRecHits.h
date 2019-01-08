@@ -126,7 +126,7 @@ namespace gpuPixelRecHits {
     assert(h < 2000*256);
 
     pixelCPEforGPU::position(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
-    pixelCPEforGPU::error(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
+    pixelCPEforGPU::errorFromDB(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
 
     chargeh[h] = clusParams.charge[ic];
 
@@ -135,8 +135,8 @@ namespace gpuPixelRecHits {
     xl[h]= clusParams.xpos[ic];   
     yl[h]= clusParams.ypos[ic]; 
 
-    xe[h]= clusParams.xerr[ic];
-    ye[h]= clusParams.yerr[ic];
+    xe[h]= clusParams.xerr[ic]*clusParams.xerr[ic];
+    ye[h]= clusParams.yerr[ic]*clusParams.yerr[ic];
     mr[h]= clusParams.minRow[ic];
     mc[h]= clusParams.minCol[ic];
   
