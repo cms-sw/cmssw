@@ -45,7 +45,7 @@ void
 TotemTimingTrackRecognition::addHit(const TotemTimingRecHit& recHit)
 {
   if (recHit.getT() != TotemTimingRecHit::NO_T_AVAILABLE)
-    hitVectorMap_[0].push_back(recHit);
+    hitVectorMap_[0].emplace_back(recHit);
 }
 
 int
@@ -79,57 +79,46 @@ TotemTimingTrackRecognition::produceTracks(edm::DetSet<TotemTimingLocalTrack>& t
     if (xPartTracks.empty() && yPartTracks.empty())
      continue;
 
-    unsigned int validHitsNumber = (unsigned int)(threshold_+1);
+    unsigned int validHitsNumber = (unsigned int)threshold_+1;
 
     for (const auto& xTrack : xPartTracks) {
       for (const auto& yTrack : yPartTracks) {
-        math::XYZPoint position(
-          xTrack.getX0(),
-          yTrack.getY0(),
-          0.5f*(hitRange.zBegin + hitRange.zEnd)
-        );
-        math::XYZPoint positionSigma(
-          xTrack.getX0Sigma(),
-          yTrack.getY0Sigma(),
-          0.5f*(hitRange.zEnd - hitRange.zBegin)
-        );
+        math::XYZPoint position(xTrack.getX0(), yTrack.getY0(), 0.5f*(hitRange.zBegin + hitRange.zEnd));
+        math::XYZPoint positionSigma(xTrack.getX0Sigma(), yTrack.getY0Sigma(), 0.5f*(hitRange.zEnd - hitRange.zBegin));
 
-        TotemTimingLocalTrack newTrack;
-        newTrack.setPosition(position);
-        newTrack.setPositionSigma(positionSigma);
+        TotemTimingLocalTrack newTrack(position, positionSigma, 0., 0.);
 
         std::vector<TotemTimingRecHit> componentHits;
         for (const auto& hit : hits)
           if (newTrack.containsHit(hit, tolerance_))
-            componentHits.push_back(hit);
+            componentHits.emplace_back(hit);
 
         if (componentHits.size() < validHitsNumber)
           continue;
 
         // Calculating time
-        //    track's time = weighted mean of all hit times whith time precision as weight
+        //    track's time = weighted mean of all hit times with time precision as weight
         //    track's time sigma = uncertainty of the weighted mean
         // hit is ignored if the time precision is equal to 0
 
-        float meanDivident = 0.;
-        float meanDivisor = 0.;
+        float meanNumerator = 0.f, meanDenominator = 0.f;
         bool validHits = false;
         for (const auto& hit : componentHits) {
           if (hit.getTPrecision() == 0.)
             continue;
 
-          validHits = true;
+          validHits = true; // at least one valid hit to account for
           const float weight = 1.f / (hit.getTPrecision() * hit.getTPrecision());
-          meanDivident += weight * hit.getT();
-          meanDivisor += weight;
+          meanNumerator += weight * hit.getT();
+          meanDenominator += weight;
         }
 
-        float meanTime = validHits ? (meanDivident / meanDivisor) : 0.;
-        float timeSigma = validHits ? (std::sqrt(1.f / meanDivisor)) : 0.;
+        const float meanTime = validHits ? (meanNumerator / meanDenominator) : 0.f;
+        const float timeSigma = validHits ? (std::sqrt(1.f / meanDenominator)) : 0.f;
         newTrack.setValid(validHits);
         newTrack.setT(meanTime);
         newTrack.setTSigma(timeSigma);
-        // TODO: setting validity / numHits / numPlanes
+        // in a next iteration, we will be setting validity / numHits / numPlanes
         tracks.push_back(newTrack);
       }
     }

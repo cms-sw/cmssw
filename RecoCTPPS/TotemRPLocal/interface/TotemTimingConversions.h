@@ -11,11 +11,10 @@
 #ifndef RecoCTPPS_TotemRPLocal_TotemTimingConversions
 #define RecoCTPPS_TotemRPLocal_TotemTimingConversions
 
-#include <string>
-#include <vector>
-#include "TF1.h"
 #include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
 #include "RecoCTPPS/TotemRPLocal/interface/TotemTimingParser.h"
+
+#include "TF1.h"
 
 class TotemTimingConversions
 {
