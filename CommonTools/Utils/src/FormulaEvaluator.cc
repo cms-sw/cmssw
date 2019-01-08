@@ -236,6 +236,7 @@ namespace {
 
     EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd, std::shared_ptr<reco::formula::BinaryOperatorEvaluatorBase> iPreviousBinary) const {
       EvaluatorInfo leftEvaluatorInfo ;
+
       if( iBegin == iEnd) {
         return leftEvaluatorInfo;
       }
@@ -737,10 +738,25 @@ namespace {
 //
 FormulaEvaluator::FormulaEvaluator( std::string const& iFormula )
 {
-  auto info  = s_expressionFinder.createEvaluator(iFormula.begin(), iFormula.end(),std::shared_ptr<reco::formula::BinaryOperatorEvaluatorBase>());
+  //remove white space
+  std::string formula;
+  formula.reserve(iFormula.size());
+  std::copy_if(iFormula.begin(), iFormula.end(), std::back_inserter(formula), [](const char iC) { return iC != ' '; } );
 
-  if(info.nextParseIndex != static_cast<int>(iFormula.size()) or info.top.get() == nullptr) {
-    throw cms::Exception("FormulaEvaluatorParseError")<<"While parsing '"<<iFormula<<"' could not parse beyond '"<<std::string(iFormula.begin(),iFormula.begin()+info.nextParseIndex) <<"'";
+  auto info  = s_expressionFinder.createEvaluator(formula.begin(), formula.end(),std::shared_ptr<reco::formula::BinaryOperatorEvaluatorBase>());
+
+  if(info.nextParseIndex != static_cast<int>(formula.size()) or info.top.get() == nullptr) {
+    auto lastIndex = info.nextParseIndex;
+    if(formula.size() != iFormula.size()) {
+      lastIndex =0;
+      for(decltype(info.nextParseIndex) index=0; index < info.nextParseIndex; ++index, ++lastIndex) {
+        while(iFormula[lastIndex] != formula[index]) { 
+          assert(iFormula[lastIndex]==' '); 
+          ++lastIndex; 
+        }
+      }
+    }
+    throw cms::Exception("FormulaEvaluatorParseError")<<"While parsing '"<<iFormula<<"' could not parse beyond '"<<std::string(iFormula.begin(),iFormula.begin()+lastIndex) <<"'";
   }
   m_evaluator = std::move(info.top);
   m_nVariables = info.maxNumVariables;

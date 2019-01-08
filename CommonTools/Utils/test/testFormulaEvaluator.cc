@@ -118,6 +118,14 @@ testFormulaEvaluator::checkFormulaEvaluator() {
   }
 
   {
+    reco::FormulaEvaluator f(" 3 + 2 ");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 5. );
+  }
+
+  {
     reco::FormulaEvaluator f("3-2");
     
     std::vector<double> emptyV;
@@ -1033,6 +1041,18 @@ testFormulaEvaluator::checkFormulaEvaluator() {
     };
     
     CPPUNIT_ASSERT_THROW( t(), cms::Exception );
+  }
+
+  {
+    //Make sure spaces are shown in exception message
+    try {
+      reco::FormulaEvaluator f("1 + 2#");
+    } catch(cms::Exception const& e) {
+      auto r = "An exception of category 'FormulaEvaluatorParseError' occurred.\n"
+        "Exception Message:\n"
+        "While parsing '1 + 2#' could not parse beyond '1 + 2'\n";
+      CPPUNIT_ASSERT(std::string(r) == e.what());
+    }
   }
 
 }
