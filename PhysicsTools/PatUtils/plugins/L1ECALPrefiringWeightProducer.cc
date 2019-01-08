@@ -217,7 +217,6 @@ L1ECALPrefiringWeightProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<bool>("UseJetEMPt", false);
   desc.add<double>("PrefiringRateSystematicUncty",0.2);
   desc.add<bool>("SkipWarnings", true);
-
   descriptions.add("l1ECALPrefiringWeightProducer", desc);
   
 }
