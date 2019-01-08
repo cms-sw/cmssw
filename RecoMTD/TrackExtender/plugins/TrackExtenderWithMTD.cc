@@ -243,28 +243,27 @@ void TrackExtenderWithMTDT<TrackCollection>::produce( edm::Event& ev,
   for( const auto& track : tracks ) { 
     
     reco::TransientTrack ttrack(track,magfield.product(),gtg);
-    auto trajs = theTransformer->transform(track);
+    const auto& trajs = theTransformer->transform(track);
     auto thits = theTransformer->getTransientRecHits(ttrack);
 
     TransientTrackingRecHit::ConstRecHitContainer mtdthits;
-    for( auto& ahit : tryBTLLayers(track,hits,geo.product(),magfield.product(),prop.product()) ) {
-      mtdthits.push_back(ahit);
-    }
+    const auto& btlhits = tryBTLLayers(track,hits,geo.product(),magfield.product(),prop.product());
+    mtdthits.insert(mtdthits.end(),btlhits.begin(),btlhits.end());
+    
     // in the future this should include an intermediate refit before propagating to the ETL
     // for now it is ok
-    for( auto& ahit : tryETLLayers(track,hits,geo.product(),magfield.product(),prop.product()) ) {
-      mtdthits.push_back(ahit);
-    }
+    const auto& etlhits = tryETLLayers(track,hits,geo.product(),magfield.product(),prop.product());
+    mtdthits.insert(mtdthits.end(),etlhits.begin(),etlhits.end());
     
     auto ordering = checkRecHitsOrdering(thits);
     if( ordering == RefitDirection::insideOut) {
-      for( auto& ahit : mtdthits ) thits.push_back(ahit);    
+      thits.insert(thits.end(),mtdthits.begin(),mtdthits.end());
     } else {
       std::reverse(mtdthits.begin(),mtdthits.end());
-      for( auto& ahit : thits ) mtdthits.push_back(ahit);
+      mtdthits.insert(mtdthits.end(),thits.begin(),thits.end());
       thits.swap(mtdthits);
     }
-    auto trajwithmtd = theTransformer->transform(ttrack,thits);
+    const auto& trajwithmtd = theTransformer->transform(ttrack,thits);
     float pathLengthMap = -1.f, betaMap = 0.f, t0Map = 0.f, covt0t0Map = -1.f;
     
     for( const auto& trj : trajwithmtd ) {      
@@ -286,8 +285,8 @@ void TrackExtenderWithMTDT<TrackCollection>::produce( edm::Event& ev,
         extras->push_back(buildTrackExtra(trj)); // always push back the fully built extra, update by setting in track
         extras->back().setHits(hitsRefProd,hitsstart,hitsend-hitsstart);	
         extras->back().setTrajParams(trajParams,chi2s);        
-        //create the track
-        output->push_back(result);
+	//create the track
+	output->push_back(result);
 	pathLengthsRaw.push_back(pathLength);
 	pathLengthMap = pathLength;
         auto& backtrack = output->back();
@@ -530,7 +529,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       pathLengthOut = pathlength; // set path length if we've got a timing hit
       t0 = thit - dt;
       covt0t0 = thiterror*thiterror;
-      beta = betaOut;
+      betaOut = beta;
     }
   }
   
