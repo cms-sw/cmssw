@@ -15,6 +15,7 @@ options.register('applyVIDOnCorrectedEgamma',False,options.multiplicity.singleto
 options.register('applyEPCombBug',False,options.multiplicity.singleton,options.varType.bool," ")
 options.register('era','2017-Nov17ReReco',options.multiplicity.singleton,options.varType.string," ")
 options.register('isMC',False,options.multiplicity.singleton,options.varType.bool," ")
+options.register('unscheduled',False,options.multiplicity.singleton,options.varType.bool," ")
 options.parseArguments()
 
 # initialize MessageLogger and output report
@@ -97,3 +98,7 @@ msgStr='''EgammaPostRecoTools:
   running residual E corr: {}'''
 print msgStr.format(process.GlobalTag.globaltag.value(),residualCorrFileName)
 
+if options.unscheduled:
+    print "  converting to unscheduled"
+    from FWCore.ParameterSet.Utilities import convertToUnscheduled
+    process=convertToUnscheduled(process)

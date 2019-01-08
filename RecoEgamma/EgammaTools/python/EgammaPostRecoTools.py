@@ -280,13 +280,14 @@ def _setupEgammaPostRECOSequenceMiniAOD(process,applyEnergyCorrections=False,app
                                             )
 
     process.egammaScaleSmearTask = cms.Task()
+    process.egammaPostRecoPatUpdatorTask = cms.Task()
     #we only run if the modifications are going to do something
     if egamma_modifications != cms.VPSet():
+        process.egammaPostRecoPatUpdatorTask.add(process.slimmedElectrons)
+        process.egammaPostRecoPatUpdatorTask.add(process.slimmedPhotons)
         if runEnergyCorrections:
             process.egammaScaleSmearTask.add(process.calibratedPatElectrons)
             process.egammaScaleSmearTask.add(process.calibratedPatPhotons)
-        process.egammaScaleSmearTask.add(process.slimmedElectrons)
-        process.egammaScaleSmearTask.add(process.slimmedPhotons)
 
 
 def setupEgammaPostRecoSeq(process,
@@ -329,11 +330,15 @@ def setupEgammaPostRecoSeq(process,
         _setupEgammaPostRECOSequence(process,applyEnergyCorrections=applyEnergyCorrections,applyVIDOnCorrectedEgamma=applyVIDOnCorrectedEgamma,era=era,runVID=runVID,runEnergyCorrections=runEnergyCorrections,applyEPCombBug=applyEPCombBug)
     
     process.egammaScaleSmearSeq = cms.Sequence(process.egammaScaleSmearTask)
+    #post reco seq is calibrations -> vid -> pat updator 
     process.egammaPostRecoSeq   = cms.Sequence(process.egammaScaleSmearSeq)
     if not runEnergyCorrections and runVID:
         process.egammaPostRecoSeq = cms.Sequence(process.egmGsfElectronIDSequence*process.egmPhotonIDSequence)
     elif runVID:
         process.egammaPostRecoSeq.insert(-1,process.egmGsfElectronIDSequence)
         process.egammaPostRecoSeq.insert(-1,process.egmPhotonIDSequence)
-                                          
+    if isMiniAOD:
+        process.egammaPostRecoPatUpdatorSeq = cms.Sequence(process.egammaPostRecoPatUpdatorTask)
+        process.egammaPostRecoSeq.insert(-1,process.egammaPostRecoPatUpdatorSeq)     
+                       
     return process
