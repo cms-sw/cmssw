@@ -319,8 +319,6 @@ void MuonMETAlgo::correctMETforMuon(double& deltax, double& deltay, double bfiel
         double temp = 2*TMath::Pi() - fabs(ecalPhi);
         ecalPhi = -1*temp*ecalPhi/fabs(ecalPhi);
       }
-      xEcal = r2dEcal*TMath::Cos(ecalPhi);
-      yEcal = r2dEcal*TMath::Sin(ecalPhi);
       
       //Hcal
       dphi = mu_phi - hcalPhi;
@@ -331,9 +329,6 @@ void MuonMETAlgo::correctMETforMuon(double& deltax, double& deltay, double bfiel
         double temp = 2*TMath::Pi() - fabs(hcalPhi);
 	hcalPhi = -1*temp*hcalPhi/fabs(hcalPhi);
       }
-      xHcal = r2dHcal*TMath::Cos(hcalPhi);
-      yHcal = r2dHcal*TMath::Sin(hcalPhi);
-
          
       //Ho
       dphi = mu_phi - hoPhi;
@@ -344,8 +339,6 @@ void MuonMETAlgo::correctMETforMuon(double& deltax, double& deltay, double bfiel
         double temp = 2*TMath::Pi() - fabs(hoPhi);
         hoPhi = -1*temp*hoPhi/fabs(hoPhi);
       }
-      xHo = r2dHo*TMath::Cos(hoPhi);
-      yHo = r2dHo*TMath::Sin(hoPhi);
       
     }
   }
