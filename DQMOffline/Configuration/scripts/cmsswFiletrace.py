@@ -16,7 +16,8 @@ import FWCore.ParameterSet.Types
 import FWCore.Modules.EmptySource_cfi
 
 MODES = ["files", "callgraph"]
-OUTFILE = "calltree"
+OUTFILE_TREE = "calltree"
+OUTFILE_FILES = "callfiles"
 WRAP_SCRIPTS = ["cmsDriver.py" ]
 IGNORE_DIRS = [
   os.path.dirname(os.__file__),
@@ -36,8 +37,11 @@ def setupenv():
     os.symlink(__file__, bindir + "/" + s)
   os.symlink(__file__, bindir + "/cmsRun")
   os.environ["PATH"] = bindir + ":" + os.environ["PATH"]
-  os.environ["CMSSWCALLTREE"] = bindir + "/" + OUTFILE
+  os.environ["CMSSWCALLTREE"] = bindir + "/" + OUTFILE_TREE
+  os.environ["CMSSWCALLFILES"] = bindir + "/" + OUTFILE_FILES
   with open(os.environ["CMSSWCALLTREE"], "w") as f:
+    pass
+  with open(os.environ["CMSSWCALLFILES"], "w") as f:
     pass
   return bindir
 
@@ -46,6 +50,7 @@ def cleanupenv(tmpdir):
   #  print("}", file=f)
   print("+Cleaning up ", tmpdir)
   copy(os.environ["CMSSWCALLTREE"], ".")
+  copy(os.environ["CMSSWCALLFILES"], ".")
   rmtree(tmpdir)
 
 
@@ -67,33 +72,13 @@ def funcid(frame):
   return (filename, funcname)
 
 def trace_python(prog_argv, path):
-  mode = os.environ["CMSSWTRACEMODE"]
   files = set()
   callgraph = defaultdict(lambda: set())
 
   def nop_trace(frame, why, arg):
     pass
 
-  def wait_for_return(frame, why, arg):
-    if why == 'return':
-      sys.settrace(tracefunc)
-    return wait_for_return
-
-  def tracefunc_file(frame, why, arg):
-    if why == 'call':
-      code = frame.f_code
-      # compared to the `trace` module, we don't attempt to find class names here 
-      filename = code.co_filename
-
-      for d in IGNORE_DIRS:
-        if filename.startswith(d):
-          sys.settrace(nop_trace)
-          return wait_for_return
-
-      files.add(filename)
-    return None
-      
-  def tracefunc_graph(frame, why, arg):
+  def tracefunc(frame, why, arg):
     if why == 'call':
       code = frame.f_code
       # compared to the `trace` module, we don't attempt to find class names here 
@@ -109,11 +94,14 @@ def trace_python(prog_argv, path):
       p_filename = code.co_filename
       p_funcname = code.co_name
 
+      files.add(filename)
       callgraph[(filename, funcname)].add((p_filename, p_funcname))
     return None
 
-  if   mode == 'files': tracefunc = tracefunc_file
-  elif mode == 'callgraph': tracefunc = tracefunc_graph
+  def wait_for_return(frame, why, arg):
+    if why == 'return':
+      sys.settrace(tracefunc)
+    return wait_for_return
 
   sys.argv = prog_argv
   progname = prog_argv[0]
@@ -163,13 +151,12 @@ def trace_python(prog_argv, path):
         parents = callgraph[func]
       return path[:-1]
 
-    with open(os.environ["CMSSWCALLTREE"], "a") as outfile:
-      if mode == 'files':
+    with open(os.environ["CMSSWCALLFILES"], "a") as outfile:
         for f in files:
           print("%s: %s" % (progname, formatfile(f)), file=outfile)
-      elif mode == 'callgraph':
+    with open(os.environ["CMSSWCALLTREE"], "a") as outfile:
         for func in callgraph.keys():
-          print("%s: %s" % (progname, ";".join(reversed(callpath(func)))), file=outfile)
+          print("%s: %s 1" % (progname, ";".join(reversed(callpath(func)))), file=outfile)
 
   try:
     with open(file_path) as fp:
@@ -234,14 +221,6 @@ def main():
   if len(sys.argv) <= 1:
     help()
     return
-  if sys.argv[1].startswith("--"):
-    mode = sys.argv[1].strip("-")
-    if mode not in MODES:
-      help()
-      return
-    else:
-      os.environ["CMSSWTRACEMODE"] = mode
-    sys.argv = [sys.argv[0]] + sys.argv[2:]
   # else
   print("+Running command with tracing %s..." % sys.argv[1:])
   trace_command(sys.argv[1:])
