@@ -28,12 +28,11 @@
 
 class EGEtScaleSysModifier : public ModifyObjectValueBase {
 public:
-  EGEtScaleSysModifier(const edm::ParameterSet& conf);
+  EGEtScaleSysModifier(const edm::ParameterSet& conf, edm::ConsumesCollector&);
   ~EGEtScaleSysModifier() override{}
   
   void setEvent(const edm::Event&) final;
   void setEventContent(const edm::EventSetup&) final;
-  void setConsumes(edm::ConsumesCollector&) final;
   
   void modifyObject(pat::Electron& ele) const final;
   void modifyObject(pat::Photon& pho) const final;
@@ -85,7 +84,7 @@ private:
   std::unique_ptr<UncertFuncBase> uncertFunc_;
 };
 
-EGEtScaleSysModifier::EGEtScaleSysModifier(const edm::ParameterSet& conf):
+EGEtScaleSysModifier::EGEtScaleSysModifier(const edm::ParameterSet& conf, edm::ConsumesCollector&):
   ModifyObjectValueBase(conf),
   epCombTool_(conf.getParameter<edm::ParameterSet>("epCombConfig"))
 {
@@ -96,11 +95,6 @@ EGEtScaleSysModifier::EGEtScaleSysModifier(const edm::ParameterSet& conf):
   }else{
     throw cms::Exception("ConfigError") <<"Error constructing EGEtScaleSysModifier, function name "<<funcName<<" not valid";
   } 
-
-}
-
-void EGEtScaleSysModifier::setConsumes(edm::ConsumesCollector& cc)
-{
 
 }
 

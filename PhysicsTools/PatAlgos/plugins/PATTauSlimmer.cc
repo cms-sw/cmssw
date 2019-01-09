@@ -47,13 +47,9 @@ pat::PATTauSlimmer::PATTauSlimmer(const edm::ParameterSet & iConfig) :
     dropPFSpecific_(iConfig.exists("dropPFSpecific") ? iConfig.getParameter<bool>("dropPFSpecific") : true),
     modifyTau_(iConfig.getParameter<bool>("modifyTaus"))
 {
-    edm::ConsumesCollector sumes(consumesCollector());
     if( modifyTau_ ) {
       const edm::ParameterSet& mod_config = iConfig.getParameter<edm::ParameterSet>("modifierConfig");
-      tauModifier_.reset(new pat::ObjectModifier<pat::Tau>(mod_config) );
-      tauModifier_->setConsumes(sumes);
-    } else {
-      tauModifier_.reset(nullptr);
+      tauModifier_ = std::make_unique<pat::ObjectModifier<pat::Tau>>(mod_config, consumesCollector());
     }
     produces<std::vector<pat::Tau> >();
 }

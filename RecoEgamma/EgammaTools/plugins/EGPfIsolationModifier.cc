@@ -37,25 +37,21 @@ namespace {
 
 class EGPfIsolationModifierFromValueMaps : public ModifyObjectValueBase {
 public:
-  typedef std::tuple<edm::InputTag,edm::EDGetTokenT<edm::ValueMap<float> > > tag_and_token;
-  typedef std::unordered_map<std::string,tag_and_token> input_map;
+  typedef std::unordered_map<std::string, edm::EDGetTokenT<edm::ValueMap<float> > > input_map;
   
   struct electron_config {
-    edm::InputTag electron_src;    
     edm::EDGetTokenT<edm::View<pat::Electron> > tok_electron_src;
     input_map electron_inputs;
   };
   
   struct photon_config {
-    edm::InputTag photon_src;    
     edm::EDGetTokenT<edm::View<pat::Photon> > tok_photon_src;
     input_map photon_inputs;
   };
 
-  EGPfIsolationModifierFromValueMaps(const edm::ParameterSet& conf);
+  EGPfIsolationModifierFromValueMaps(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
   
   void setEvent(const edm::Event&) final;
-  void setConsumes(edm::ConsumesCollector&) final;
   
   void modifyObject(pat::Electron&) const final;
   void modifyObject(pat::Photon&) const final;
@@ -75,23 +71,23 @@ DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
 		  "EGPfIsolationModifierFromValueMaps");
 
 EGPfIsolationModifierFromValueMaps::
-EGPfIsolationModifierFromValueMaps(const edm::ParameterSet& conf) :
+EGPfIsolationModifierFromValueMaps(const edm::ParameterSet& conf, edm::ConsumesCollector& cc) :
   ModifyObjectValueBase(conf) {
   if( conf.exists("electron_config") ) {
     const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
-    if( electrons.exists("electronSrc") ) e_conf.electron_src = electrons.getParameter<edm::InputTag>("electronSrc");
+    if( electrons.exists("electronSrc") ) e_conf.tok_electron_src = cc.consumes<edm::View<pat::Electron>>(electrons.getParameter<edm::InputTag>("electronSrc"));
     for( const std::string& varname : electron_vars ) {
       if( electrons.exists(varname) ) {
-        std::get<0>(e_conf.electron_inputs[varname]) = electrons.getParameter<edm::InputTag>(varname);
+        e_conf.electron_inputs[varname] = cc.consumes<edm::ValueMap<float>>(electrons.getParameter<edm::InputTag>(varname));
       }
     }      
   }
   if( conf.exists("photon_config") ) {
     const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("photon_config");
-    if( photons.exists("photonSrc") ) ph_conf.photon_src = photons.getParameter<edm::InputTag>("photonSrc");  
+    if( photons.exists("photonSrc") ) ph_conf.tok_photon_src = cc.consumes<edm::View<pat::Photon>>(photons.getParameter<edm::InputTag>("photonSrc"));
     for( const std::string& varname : photon_vars ) {
       if( photons.exists(varname) ) {
-        std::get<0>(ph_conf.photon_inputs[varname]) = photons.getParameter<edm::InputTag>(varname);
+        ph_conf.photon_inputs[varname] = cc.consumes<edm::ValueMap<float>>(photons.getParameter<edm::InputTag>(varname));
       }
     }     
   }
@@ -127,7 +123,7 @@ setEvent(const edm::Event& evt) {
   for( const std::string& varname : electron_vars ) {
     auto& inputs = e_conf.electron_inputs;
     if( inputs.find(varname) == inputs.end() ) continue;
-    get_product(evt,std::get<1>(inputs[varname]),ele_vmaps);
+    get_product(evt,inputs[varname],ele_vmaps);
   }  
 
   if( !ph_conf.tok_photon_src.isUninitialized() ) {
@@ -141,35 +137,7 @@ setEvent(const edm::Event& evt) {
   for( const std::string& varname : photon_vars ) {
     auto& inputs = ph_conf.photon_inputs;
     if( inputs.find(varname) == inputs.end() ) continue;
-    get_product(evt,std::get<1>(inputs[varname]),pho_vmaps);
-  }   
-}
-
-namespace {
-  template<typename T, typename U, typename V>
-  inline void make_consumes(T& tag,U& tok,V& sume) { if( !(empty_tag == tag) ) tok = sume.template consumes<edm::ValueMap<float> >(tag); }
-}
-
-void EGPfIsolationModifierFromValueMaps::
-setConsumes(edm::ConsumesCollector& sumes) {
-  //setup electrons
-  if( !(empty_tag == e_conf.electron_src) ) e_conf.tok_electron_src = sumes.consumes<edm::View<pat::Electron> >(e_conf.electron_src);  
-  
-  for( const std::string& varname : electron_vars ) {
-    auto& inputs = e_conf.electron_inputs;
-    if( inputs.find(varname) == inputs.end() ) continue;
-    auto& the_tuple = inputs[varname];
-    make_consumes(std::get<0>(the_tuple),std::get<1>(the_tuple),sumes);
-  }  
-
-  // setup photons 
-  if( !(empty_tag == ph_conf.photon_src) ) ph_conf.tok_photon_src = sumes.consumes<edm::View<pat::Photon> >(ph_conf.photon_src);
-
-  for( const std::string& varname : photon_vars ) {
-    auto& inputs = ph_conf.photon_inputs;
-    if( inputs.find(varname) == inputs.end() ) continue;
-    auto& the_tuple = inputs[varname];
-    make_consumes(std::get<0>(the_tuple),std::get<1>(the_tuple),sumes);
+    get_product(evt,inputs[varname],pho_vmaps);
   }   
 }
 
@@ -178,7 +146,7 @@ namespace {
   inline void assignValue(const T& ptr, const U& input_map, const std::string& name, const V& map, float& value) {
     auto itr = input_map.find(name);
     if( itr == input_map.end() ) return;
-    const auto& tok = std::get<1>(itr->second);
+    const auto& tok = itr->second;
     if( !tok.isUninitialized() ) value = map.find(tok.index())->second->get(ptr.id(),ptr.key());
   }
 }
