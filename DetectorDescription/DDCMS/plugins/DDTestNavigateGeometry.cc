@@ -84,7 +84,7 @@ DDTestNavigateGeometry::analyze(const edm::Event&, const edm::EventSetup& iEvent
   edm::ESTransientHandle<DDDetector> ddd;
   ddRecord.get(ddd);
     
-  dd4hep::Detector& detector = ddd->description();
+  dd4hep::Detector& detector = *ddd->description;
 
   string detElementPath;
   string placedVolPath;
