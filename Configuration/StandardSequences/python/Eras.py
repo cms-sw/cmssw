@@ -54,7 +54,7 @@ class Eras (object):
                            'run2_nanoAOD_94XMiniAODv1', 'run2_nanoAOD_94XMiniAODv2', 'run2_nanoAOD_94X2016',
                            'run2_miniAOD_devel', 'run2_nanoAOD_102Xv1',
                            'hcalHardcodeConditions', 'hcalSkipPacker',
-                           'BParking']
+                           'bParking']
         internalUseModChains = ['run2_2017_noTrackingModifier']
 
 
