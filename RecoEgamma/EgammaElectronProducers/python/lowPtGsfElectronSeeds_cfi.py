@@ -48,5 +48,5 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(lowPtGsfElectronSeeds, TTRHBuilder  = 'WithTrackAngle')
 
 # Modifiers for BParking
-from Configuration.Eras.Modifier_BParking_cff import BParking
-BParking.toModify(lowPtGsfElectronSeeds, ModelThresholds = thresholds("L") )
+from Configuration.Eras.Modifier_bParking_cff import bParking
+bParking.toModify(lowPtGsfElectronSeeds, ModelThresholds = thresholds("L") )
