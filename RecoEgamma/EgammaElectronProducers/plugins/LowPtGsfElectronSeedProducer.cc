@@ -27,9 +27,7 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TMath.h"
@@ -38,7 +36,13 @@
 //
 LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer( const edm::ParameterSet& conf, 
 							    const lowptgsfeleseed::HeavyObjectCache* ) :
+  field_(),
+  fitterPtr_(),
+  smootherPtr_(),
+  kfTracks_(),
+  pfTracks_(),
   ecalClusters_{consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("ecalClusters"))},
+  hcalClusters_(),
   ebRecHits_{consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EBRecHits"))},
   eeRecHits_{consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EERecHits"))},
   rho_(consumes<double>(conf.getParameter<edm::InputTag>("rho"))),
@@ -157,6 +161,23 @@ void LowPtGsfElectronSeedProducer::loop( const edm::Handle< std::vector<T> >& ha
   // Beam spot
   edm::Handle<reco::BeamSpot> spot;
   event.getByToken(beamSpot_,spot);
+
+  // Track fitter
+  edm::ESHandle<TrajectoryFitter> fitter;
+  setup.get<TrajectoryFitter::Record>().get(fitter_,fitter);
+  fitterPtr_ = fitter->clone();
+
+  // Track smoother
+  edm::ESHandle<TrajectorySmoother> smoother;
+  setup.get<TrajectoryFitter::Record>().get(smoother_,smoother);
+  smootherPtr_.reset(smoother->clone());
+
+  // RecHit cloner
+  edm::ESHandle<TransientTrackingRecHitBuilder> builder;
+  setup.get<TransientRecHitRecord>().get(builder_,builder);
+  TkClonerImpl hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(builder.product())->cloner();
+  fitterPtr_->setHitCloner(&hitCloner);
+  smootherPtr_->setHitCloner(&hitCloner);
 
   // ECAL clusters
   edm::Handle<reco::PFClusterCollection> ecalClusters;
@@ -420,21 +441,6 @@ bool LowPtGsfElectronSeedProducer::lightGsfTracking( reco::PreId& preId,
 						     const reco::ElectronSeed& seed,
 						     const edm::EventSetup& setup )
 {
-  
-  edm::ESHandle<TrajectoryFitter> fitter;
-  setup.get<TrajectoryFitter::Record>().get(fitter_,fitter);
-  std::unique_ptr<TrajectoryFitter> fitterPtr = fitter->clone();
-
-  edm::ESHandle<TrajectorySmoother> smoother;
-  setup.get<TrajectoryFitter::Record>().get(smoother_,smoother);
-  std::unique_ptr<TrajectorySmoother> smootherPtr;
-  smootherPtr.reset(smoother->clone());
-
-  edm::ESHandle<TransientTrackingRecHitBuilder> builder;
-  setup.get<TransientRecHitRecord>().get(builder_,builder);
-  TkClonerImpl hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(builder.product())->cloner();
-  fitterPtr->setHitCloner(&hitCloner);
-  smootherPtr->setHitCloner(&hitCloner);
 
   Trajectory::ConstRecHitContainer hits;
   for ( unsigned int ihit = 0; ihit < trackRef->recHitsSize(); ++ihit ) {
@@ -458,9 +464,9 @@ bool LowPtGsfElectronSeedProducer::lightGsfTracking( reco::PreId& preId,
 				 *hits[0]->surface() );
 
   // Track fitted and smoothed under electron hypothesis
-  Trajectory traj1 = fitterPtr->fitOne( seed, hits, tsos );
+  Trajectory traj1 = fitterPtr_->fitOne( seed, hits, tsos );
   if ( !traj1.isValid() ) { return false; }
-  Trajectory traj2 = smootherPtr->trajectory(traj1);
+  Trajectory traj2 = smootherPtr_->trajectory(traj1);
   if ( !traj2.isValid() ) {  return false; }
 
   // Set PreId content

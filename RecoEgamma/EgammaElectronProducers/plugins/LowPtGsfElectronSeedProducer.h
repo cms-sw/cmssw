@@ -20,6 +20,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/LowPtGsfElectronSeedHeavyObjectCache.h"
+#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 
 class LowPtGsfElectronSeedProducer final : public edm::stream::EDProducer< edm::GlobalCache<lowptgsfeleseed::HeavyObjectCache> >
 {
@@ -109,6 +111,8 @@ class LowPtGsfElectronSeedProducer final : public edm::stream::EDProducer< edm::
  private: // member data
   
   edm::ESHandle<MagneticField> field_;
+  std::unique_ptr<TrajectoryFitter> fitterPtr_;
+  std::unique_ptr<TrajectorySmoother> smootherPtr_;
   edm::EDGetTokenT<reco::TrackCollection> kfTracks_;
   edm::EDGetTokenT<reco::PFRecTrackCollection> pfTracks_;
   const edm::EDGetTokenT<reco::PFClusterCollection> ecalClusters_;
