@@ -1,7 +1,8 @@
 #ifndef DETECTOR_DESCRIPTION_DD_DETECTOR_H
 #define DETECTOR_DESCRIPTION_DD_DETECTOR_H
 
-#include <memory>
+#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
+
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -12,17 +13,13 @@ namespace dd4hep {
 
 namespace cms  {
   struct DDDetector {
-    
-    using DDVectorsMap = std::unordered_map< std::string, std::vector<double>>;
 
-    DDDetector();
+    using Detector = dd4hep::Detector;
 
-    void process(const std::string& file);
-    dd4hep::Detector& description() const { return *m_description; };
-
-  private:
-    dd4hep::Detector* m_description;
-    DDVectorsMap m_vectors;
+    Detector* description = nullptr;
+    DDVectorsMap vectors;
+    DDPartSelectionMap partsels;
+    DDSpecParRegistry specpars;
   };
 }
 

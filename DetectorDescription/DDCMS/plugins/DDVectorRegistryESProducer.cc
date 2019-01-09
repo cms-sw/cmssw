@@ -3,7 +3,7 @@
 // Package:    DetectorDescription/DDCMS
 // Class:      DDVectorRegistryESProducer
 // 
-/**\class DDDetectorESProducer
+/**\class DDVectorRegistryESProducer
 
  Description: [one line class summary]
 
@@ -35,8 +35,6 @@ using namespace cms;
 
 class DDVectorRegistryESProducer : public edm::ESProducer {
 public:
-
-  using DDVectorsMap = cms::DDDetector::DDVectorsMap;
 
   DDVectorRegistryESProducer(const edm::ParameterSet&);
   ~DDVectorRegistryESProducer() override;
@@ -70,7 +68,7 @@ DDVectorRegistryESProducer::produce(const DDVectorRegistryRcd& iRecord)
   edm::ESHandle<DDDetector> det;
   iRecord.getRecord<DetectorDescriptionRcd>().get(det);
 
-  DDVectorsMap* registry = det->description().extension<DDVectorsMap>();
+  DDVectorsMap* registry = det->description->extension<DDVectorsMap>();
 
   auto product = std::make_unique<DDVectorRegistry>();
   product->vectors.insert(registry->begin(), registry->end());
