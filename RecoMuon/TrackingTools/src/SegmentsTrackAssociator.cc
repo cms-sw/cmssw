@@ -76,22 +76,22 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
   MuonTransientTrackingRecHit::MuonRecHitContainer selectedCscSegments;
 
   //loop over recHit
-  for(trackingRecHit_iterator recHit =  Track.recHitsBegin(); recHit != Track.recHitsEnd(); ++recHit){
+  for(auto const& recHit : Track.recHits()) {
 
-    if(!(*recHit)->isValid()) continue;
+    if(!recHit->isValid()) continue;
 
     
     numRecHit++;
  
     //get the detector Id
-    DetId idRivHit = (*recHit)->geographicalId();
+    DetId idRivHit = recHit->geographicalId();
       
 
     // DT recHits
     if (idRivHit.det() == DetId::Muon && idRivHit.subdetId() == MuonSubdetId::DT ) {
 
       // get the RecHit Local Position
-      LocalPoint posTrackRecHit = (*recHit)->localPosition(); 
+      LocalPoint posTrackRecHit = recHit->localPosition(); 
 
       DTRecSegment4DCollection::range range; 	
       numRecHitDT++;
@@ -160,7 +160,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
     if (idRivHit.det() == DetId::Muon && idRivHit.subdetId() == MuonSubdetId::CSC ) {
 
       // get the RecHit Local Position
-      LocalPoint posTrackRecHit = (*recHit)->localPosition(); 
+      LocalPoint posTrackRecHit = recHit->localPosition(); 
 
       CSCSegmentCollection::range range; 
       numRecHitCSC++;
