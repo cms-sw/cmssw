@@ -297,11 +297,6 @@ void MuonMETAlgo::correctMETforMuon(double& deltax, double& deltay, double bfiel
     hcalPhi   = atan2(yHcal,xHcal);
     hoTheta   = TMath::ACos(zHo/sqrt(pow(xHo,2) + pow(yHo,2)+pow(zHo,2)));
     hoPhi     = atan2(yHo,xHo);
-
-    //2d radius in x-y plane
-    double r2dEcal = sqrt(pow(xEcal,2)+pow(yEcal,2));
-    double r2dHcal = sqrt(pow(xHcal,2)+pow(yHcal,2));
-    double r2dHo   = sqrt(pow(xHo,2)  +pow(yHo,2));
     
     /*
       the above prescription is for right handed helicies only
