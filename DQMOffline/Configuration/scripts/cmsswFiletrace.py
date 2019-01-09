@@ -15,7 +15,6 @@ import FWCore
 import FWCore.ParameterSet.Types
 import FWCore.Modules.EmptySource_cfi
 
-MODES = ["files", "callgraph"]
 OUTFILE_TREE = "calltree"
 OUTFILE_FILES = "callfiles"
 WRAP_SCRIPTS = ["cmsDriver.py" ]
@@ -195,7 +194,7 @@ def trace_python(prog_argv, path):
   sys.exit(0)
 
 def help():
-  print("Usage: %s --[%s] <some cmssw commandline>" % (sys.argv[0], "|".join(MODES)))
+  print("Usage: %s <some cmssw commandline>" % (sys.argv[0])))
   print("  The given programs will be executed, instrumenting calls to %s and cmsRun." % (", ".join(WRAP_SCRIPTS)))
   print("  cmsRun will not actually run cmssw, but all the Python code will be executed and instrumentd. The results are written to the file `%s` in the same directory." % OUTFILE)
   print("Examples:")
