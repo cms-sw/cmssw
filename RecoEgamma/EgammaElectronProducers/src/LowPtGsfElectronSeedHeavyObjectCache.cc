@@ -56,56 +56,55 @@ namespace lowptgsfeleseed {
     // Tracks
     reco::TrackRef trk = ecal.trackRef();
     if ( trk.isNonnull() ) {
-      trk_pt_ = float(trk->pt());
-      trk_eta_ = float(trk->eta());
-      trk_phi_ = float(trk->phi());
-      trk_p_ = float(trk->p());
-      trk_nhits_ = float(trk->found());
-      trk_high_quality_ = float(trk->quality(reco::TrackBase::qualityByName("highPurity")));
-      trk_chi2red_ = float(trk->normalizedChi2());
+      trk_pt_ = trk->pt();
+      trk_eta_ = trk->eta();
+      trk_phi_ = trk->phi();
+      trk_p_ = trk->p();
+      trk_nhits_ = static_cast<float>(trk->found());
+      trk_high_quality_ = static_cast<float>(trk->quality(reco::TrackBase::qualityByName("highPurity")));
+      trk_chi2red_ = trk->normalizedChi2();
       if ( trk->dxyError() > 0. ) {
-	trk_dxy_sig_ = float( trk->dxy(spot) / trk->dxyError() );
+	trk_dxy_sig_ = trk->dxy(spot) / trk->dxyError();
       }
     }
     
     // Rho
-    rho_ = float(rho);
+    rho_ = static_cast<float>(rho);
     
     // ECAL clusters
     reco::PFClusterRef ecal_clu = ecal.clusterRef();
     if ( ecal_clu.isNonnull() ) {
-      ktf_ecal_cluster_e_ = float(ecal_clu->energy());
-      ktf_ecal_cluster_deta_ = float(ecal.geomMatching()[0]);
-      ktf_ecal_cluster_dphi_ = float(ecal.geomMatching()[1]);
-      ktf_ecal_cluster_e3x3_ = float(tools.e3x3(*ecal_clu));
-      ktf_ecal_cluster_e5x5_ = float(tools.e5x5(*ecal_clu));
+      ktf_ecal_cluster_e_ = ecal_clu->energy();
+      ktf_ecal_cluster_deta_ = ecal.geomMatching()[0];
+      ktf_ecal_cluster_dphi_ = ecal.geomMatching()[1];
+      ktf_ecal_cluster_e3x3_ = tools.e3x3(*ecal_clu);
+      ktf_ecal_cluster_e5x5_ = tools.e5x5(*ecal_clu);
       auto covs = tools.localCovariances(*ecal_clu);
-      ktf_ecal_cluster_covEtaEta_ = float(covs[0]);
-      ktf_ecal_cluster_covEtaPhi_ = float(covs[1]);
-      ktf_ecal_cluster_covPhiPhi_ = float(covs[2]);
+      ktf_ecal_cluster_covEtaEta_ = covs[0];
+      ktf_ecal_cluster_covEtaPhi_ = covs[1];
+      ktf_ecal_cluster_covPhiPhi_ = covs[2];
       if ( ktf_ecal_cluster_e_ > 0. ) {
-	ktf_ecal_cluster_r9_ = float( ktf_ecal_cluster_e3x3_ / ktf_ecal_cluster_e_ );
+	ktf_ecal_cluster_r9_ = ktf_ecal_cluster_e3x3_ / ktf_ecal_cluster_e_;
       }
       if ( ktf_ecal_cluster_e5x5_ > 0. ) {
-	ktf_ecal_cluster_circularity_ = float( 1. - tools.e1x5(*ecal_clu) / 
-					       ktf_ecal_cluster_e5x5_);
+	ktf_ecal_cluster_circularity_ = 1. - tools.e1x5(*ecal_clu) / ktf_ecal_cluster_e5x5_;
       } else {
-	ktf_ecal_cluster_circularity_ = float(-0.1);
+	ktf_ecal_cluster_circularity_ = -0.1;
       }
     }
  
     // HCAL clusters
     reco::PFClusterRef hcal_clu = hcal.clusterRef();
     if ( hcal_clu.isNonnull() ) {
-      ktf_ecal_cluster_e_ = float(hcal_clu->energy());
-      ktf_hcal_cluster_deta_ = float(hcal.geomMatching()[0]);
-      ktf_hcal_cluster_dphi_ = float(hcal.geomMatching()[1]);
+      ktf_ecal_cluster_e_ = hcal_clu->energy();
+      ktf_hcal_cluster_deta_ = hcal.geomMatching()[0];
+      ktf_hcal_cluster_dphi_ = hcal.geomMatching()[1];
     }
 
     // PreId
-    preid_gsf_dpt_ = float(ecal.dpt());
-    preid_trk_gsf_chiratio_ = float(ecal.chi2Ratio());
-    preid_gsf_chi2red_ = float(ecal.gsfChi2());
+    preid_gsf_dpt_ = ecal.dpt();
+    preid_trk_gsf_chiratio_ = ecal.chi2Ratio();
+    preid_gsf_chi2red_ = ecal.gsfChi2();
 
   };
 
