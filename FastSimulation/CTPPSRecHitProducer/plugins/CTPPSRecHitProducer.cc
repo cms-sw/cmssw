@@ -31,7 +31,7 @@ Implementation:
 /////
 #include <cmath>
 
-#include "CLHEP/Random/RandGauss.h"
+#include <CLHEP/Random/RandGauss.h>
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -45,7 +45,7 @@ Implementation:
 
 #include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastRecHitContainer.h"
 #include "FastSimulation/CTPPSFastGeometry/interface/CTPPSToFDetector.h"
-#include "SimTransport/HectorProducer/interface/CTPPSHectorParameters.h"
+#include "Utilities/PPS/interface/PPSUnitConversion.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
