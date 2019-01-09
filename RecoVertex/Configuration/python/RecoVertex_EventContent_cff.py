@@ -30,6 +30,9 @@ RecoVertexAOD = cms.PSet(
 
 _phase2_tktiming_RecoVertexEventContent = [ 'keep *_offlinePrimaryVertices4D__*',
                                             'keep *_offlinePrimaryVertices4DWithBS__*',
+                                            'keep *_offlinePrimaryVertices4DwithPID__*',
+                                            'keep *_offlinePrimaryVertices4DwithPIDWithBS__*',
+                                            'keep *_TOFPIDProducer_*_*',
                                             'keep *_trackTimeValueMapProducer_*_*' ]
 
 def _phase2_tktiming_AddNewContent(mod):
