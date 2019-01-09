@@ -7,4 +7,6 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="CondFormats/DataRecord"/>
+<use   name="root"/>
+<use   name="rootcore"/> 
 <flags   EDM_PLUGIN="1"/>
