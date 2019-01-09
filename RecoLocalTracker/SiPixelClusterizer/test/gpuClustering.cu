@@ -232,7 +232,7 @@ int main(void)
   cuda::memory::copy(d_y.get(), h_y.get(), size16);
   cuda::memory::copy(d_adc.get(), h_adc.get(), size16);
   // Launch CUDA Kernels
-  int threadsPerBlock = (kkk==5) ? 512 : ((kkk==3) ? 64 : 256);
+  int threadsPerBlock = (kkk==5) ? 512 : ((kkk==3) ? 128 : 256);
   int blocksPerGrid = (numElements + threadsPerBlock - 1) / threadsPerBlock;
   std::cout
     << "CUDA countModules kernel launch with " << blocksPerGrid
