@@ -21,12 +21,16 @@ class CTPPSLocalTrackLite
 {
   public:
 
-    CTPPSLocalTrackLite() : rpId(0), x(0.), x_unc(-1.), y(0.), y_unc(-1.), tx(999.), tx_unc(-1.), ty(999.), ty_unc(-1.), chiSquaredOverNDF(-1.), reco_info(CTPPSPixelLocalTrack::invalid), numberOfPointsUsedForFit(0), time(0.), time_unc(-1.)
+    CTPPSLocalTrackLite() : rpId(0), x(0.), x_unc(-1.), y(0.), y_unc(-1.), tx(999.), tx_unc(-1.), ty(999.), ty_unc(-1.), 
+    chiSquaredOverNDF(-1.), reco_info(CTPPSPixelLocalTrack::invalid), numberOfPointsUsedForFit(0), time(0.), time_unc(-1.)
     {
     }
 
-    CTPPSLocalTrackLite(uint32_t pid, float px, float pxu, float py, float pyu, float ptx, float ptxu, float pty, float ptyu, float pchiSquaredOverNDF, CTPPSPixelLocalTrack::reconstructionInfo preco_info, unsigned short pNumberOfPointsUsedForFit, float pt, float ptu)
-      : rpId(pid), x(px), x_unc(pxu), y(py), y_unc(pyu), tx(ptx), tx_unc(ptxu), ty(pty), ty_unc(ptyu), chiSquaredOverNDF(pchiSquaredOverNDF), reco_info(preco_info), numberOfPointsUsedForFit(pNumberOfPointsUsedForFit), time(pt), time_unc(ptu)
+    CTPPSLocalTrackLite(uint32_t pid, float px, float pxu, float py, float pyu, float ptx, float ptxu, 
+        float pty, float ptyu, float pchiSquaredOverNDF, CTPPSPixelLocalTrack::reconstructionInfo preco_info, 
+        unsigned short pNumberOfPointsUsedForFit, float pt, float ptu)
+      : rpId(pid), x(px), x_unc(pxu), y(py), y_unc(pyu), tx(ptx), tx_unc(ptxu), ty(pty), ty_unc(ptyu), chiSquaredOverNDF(pchiSquaredOverNDF), 
+      reco_info(preco_info), numberOfPointsUsedForFit(pNumberOfPointsUsedForFit), time(pt), time_unc(ptu)
     { 
     }
 
