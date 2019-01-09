@@ -14,11 +14,10 @@
 class EGRegressionModifierV2 : public ModifyObjectValueBase {
 
 public:
-  EGRegressionModifierV2(const edm::ParameterSet& conf);
+  EGRegressionModifierV2(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
 
   void setEvent(const edm::Event&) final;
   void setEventContent(const edm::EventSetup&) final;
-  void setConsumes(edm::ConsumesCollector&) final;
 
   void modifyObject(reco::GsfElectron&) const final;
   void modifyObject(reco::Photon&) const final;
@@ -37,7 +36,6 @@ private:
   CondNames phoCondNames_;
 
   float rhoValue_;
-  const edm::InputTag rhoTag_;
   edm::EDGetTokenT<double> rhoToken_;
 
   const edm::EventSetup* iSetup_;
@@ -59,9 +57,9 @@ private:
 
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory, EGRegressionModifierV2, "EGRegressionModifierV2");
 
-EGRegressionModifierV2::EGRegressionModifierV2(const edm::ParameterSet& conf)
+EGRegressionModifierV2::EGRegressionModifierV2(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
   : ModifyObjectValueBase(conf)
-  , rhoTag_(conf.getParameter<edm::InputTag>("rhoCollection"))
+  , rhoToken_(cc.consumes<double>(conf.getParameter<edm::InputTag>("rhoCollection")))
   , lowEnergyEcalOnlyThr_(conf.getParameter<double>("lowEnergy_ECALonlyThr"))
   , lowEnergyEcalTrackThr_(conf.getParameter<double>("lowEnergy_ECALTRKThr"))
   , highEnergyEcalTrackThr_(conf.getParameter<double>("highEnergy_ECALTRKThr"))
@@ -107,11 +105,6 @@ void EGRegressionModifierV2::setEventContent(const edm::EventSetup& evs)
 
   eleForestsMean_ = retrieveGBRForests(evs, eleCondNames_.mean);
   eleForestsSigma_ = retrieveGBRForests(evs, eleCondNames_.sigma);
-}
-
-void EGRegressionModifierV2::setConsumes(edm::ConsumesCollector& sumes)
-{
-  rhoToken_ = sumes.consumes<double>(rhoTag_);
 }
 
 void EGRegressionModifierV2::modifyObject(reco::GsfElectron& ele) const {
