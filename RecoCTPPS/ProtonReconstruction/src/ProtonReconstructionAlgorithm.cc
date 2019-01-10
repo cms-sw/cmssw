@@ -11,7 +11,6 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/ProtonReco/interface/ProtonTrack.h"
 
-#include "TF1.h"
 #include "TMinuitMinimizer.h"
 
 using namespace std;
@@ -41,9 +40,6 @@ void ProtonReconstructionAlgorithm::init(const std::unordered_map<unsigned int, 
   // reset cache
   release();
 
-  // prepare helper objects (special flag needed for thread safety)
-  unique_ptr<TF1> ff(new TF1("ff", "[0] + [1]*x", 0., 1., TF1::EAddToList::kNo));
-
   // build optics data for each object
   for (const auto &p : opticalFunctions)
   {
@@ -67,22 +63,10 @@ void ProtonReconstructionAlgorithm::init(const std::unordered_map<unsigned int, 
     rpod.x0 = k_out.x;
     rpod.y0 = k_out.y;
 
-    // TODO: the fits below could be replaced with simple algebra in order to avoid
-    // the relatively heavy creation of TGraph and fit with TF1
+    doLinearFit(ofs.getXiValues(), ofs.getFcnValues()[LHCOpticalFunctionsSet::exd], rpod.ch0, rpod.ch1);
+    rpod.ch0 -= rpod.x0;
 
-    unique_ptr<TGraph> g_x_d_vs_xi = make_unique<TGraph>(ofs.getXiValues().size(), ofs.getXiValues().data(),
-      ofs.getFcnValues()[LHCOpticalFunctionsSet::exd].data());
-    ff->SetParameters(0., 0.);
-    g_x_d_vs_xi->Fit(ff.get(), "Q SERIAL");
-    rpod.ch0 = ff->GetParameter(0) - rpod.x0;
-    rpod.ch1 = ff->GetParameter(1);
-
-    unique_ptr<TGraph> g_L_x_vs_xi = make_unique<TGraph>(ofs.getXiValues().size(), ofs.getXiValues().data(),
-      ofs.getFcnValues()[LHCOpticalFunctionsSet::eLx].data());
-    ff->SetParameters(0., 0.);
-    g_L_x_vs_xi->Fit(ff.get(), "Q SERIAL");
-    rpod.la0 = ff->GetParameter(0);
-    rpod.la1 = ff->GetParameter(1);
+    doLinearFit(ofs.getXiValues(), ofs.getFcnValues()[LHCOpticalFunctionsSet::eLx], rpod.la0, rpod.la1);
 
     // insert record
     const CTPPSDetId rpId(p.first);
@@ -91,6 +75,25 @@ void ProtonReconstructionAlgorithm::init(const std::unordered_map<unsigned int, 
 
   // update settings
   initialized_ = true;
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void ProtonReconstructionAlgorithm::doLinearFit(const std::vector<double> &vx, const std::vector<double> &vy, double &b, double &a)
+{
+  double s_1=0., s_x=0., s_xx=0., s_y=0., s_xy=0.;
+  for (unsigned int i = 0; i < vx.size(); ++i)
+  {
+    s_1 += 1.;
+    s_x += vx[i];
+    s_xx += vx[i] * vx[i];
+    s_y += vy[i];
+    s_xy += vx[i] * vy[i];
+  }
+
+  const double d = s_xx * s_1 - s_x * s_x;
+  a = ( s_1 * s_xy -  s_x * s_y) / d;
+  b = (-s_x * s_xy + s_xx * s_y) / d;
 }
 
 //----------------------------------------------------------------------------------------------------
