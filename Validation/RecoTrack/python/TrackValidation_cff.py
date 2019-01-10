@@ -350,7 +350,7 @@ trackingParticlesElectron = _trackingParticleRefSelector.clone(
 
 # Select jets for JetCore tracking
 highPtJets = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJets"), cut = cms.string("pt()>1000"))
-highPtJetsForTrk = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJetsForTrk"), cut = cms.string("pt()>1000"))
+highPtJetsForTrk = highPtJetsForTrk = highPtJets.clone(src = "ak4CaloJetsForTrk")
 
 # Select B-hadron TPs
 trackingParticlesBHadron = _trackingParticleBHadronRefSelector.clone()
@@ -628,17 +628,17 @@ _taskForEachEra(_addSelectorsBySrc, modDict = globals(),
 
 # MTV instances
 trackValidatorStandalone = trackValidator.clone(
-    cores = cms.InputTag("highPtJets")
+    cores = "highPtJets"
 )
 trackValidatorTPPtLess09Standalone = trackValidatorTPPtLess09.clone(
-    cores = cms.InputTag("highPtJets")
+    cores = "highPtJets"
 )
 for _eraName, _postfix, _era in _relevantEras:
     _setForEra(trackValidatorStandalone, _eraName, _era, label = trackValidator.label + locals()["_selectorsByAlgoMask"+_postfix] + locals()["_selectorsPt09Standalone"+_postfix])
     _setForEra(trackValidatorTPPtLess09Standalone, _eraName, _era, label = trackValidatorTPPtLess09.label + locals()["_selectorsByAlgoMask"+_postfix] + locals()["_selectorsPt09Standalone"+_postfix])
 
 trackValidatorFromPVStandalone = trackValidatorFromPV.clone(
-    cores = cms.InputTag("highPtJets")
+    cores = "highPtJets"
 )
 for _eraName, _postfix, _era in _relevantEras:
     _setForEra(trackValidatorFromPVStandalone, _eraName, _era, label = trackValidatorFromPV.label + locals()["_selectorsFromPVStandalone"+_postfix] + locals()["_selectorsFromPVPt09Standalone"+_postfix])
@@ -646,27 +646,27 @@ for _eraName, _postfix, _era in _relevantEras:
 
 trackValidatorFromPVAllTPStandalone = trackValidatorFromPVAllTP.clone(
     label = trackValidatorFromPVStandalone.label.value(),
-    cores = cms.InputTag("highPtJets")
+    cores = "highPtJets"
 
 )
 trackValidatorAllTPEfficStandalone = trackValidatorAllTPEffic.clone(
     label = [ x for x in trackValidator.label.value() if x not in ["cutsRecoTracksBtvLike", "cutsRecoTracksAK4PFJets"] and "Pt09" not in x],
-    cores = cms.InputTag("highPtJets")
+    cores = "highPtJets"
 
 )
 
 trackValidatorConversionStandalone = trackValidatorConversion.clone(
     label = [x for x in trackValidatorConversion.label if x != "convStepTracks"],
-    cores = cms.InputTag("highPtJets")
+    cores = "highPtJets"
 )
 
 trackValidatorBHadronStandalone = trackValidatorBHadron.clone(
     label = [x for x in trackValidatorStandalone.label if "Pt09" not in x],
-    cores = cms.InputTag("highPtJets")
+    cores = "highPtJets"
 )
 
 trackValidatorGsfTracksStandalone = trackValidatorGsfTracks.clone(
-    cores = cms.InputTag("highPtJets")
+    cores = "highPtJets"
 )
 
 # sequences
@@ -736,10 +736,10 @@ trackValidatorConversionTrackingOnly = trackValidatorConversion.clone(label = [x
 
 trackValidatorBHadronTrackingOnly = trackValidatorBHadron.clone(label = [x for x in trackValidatorTrackingOnly.label if "Pt09" not in x])
 
-trackValidatorTPPtLess09TrackingOnly = trackValidatorTPPtLess09Standalone.clone(cores = cms.InputTag("highPtJetsForTrk"))
-trackValidatorFromPVTrackingOnly = trackValidatorFromPVStandalone.clone(cores = cms.InputTag("highPtJetsForTrk"))
-trackValidatorFromPVAllTPTrackingOnly = trackValidatorFromPVAllTPStandalone.clone(cores = cms.InputTag("highPtJetsForTrk"))
-trackValidatorAllTPEfficTrackingOnly = trackValidatorAllTPEfficStandalone.clone(cores = cms.InputTag("highPtJetsForTrk"))
+trackValidatorTPPtLess09TrackingOnly = trackValidatorTPPtLess09Standalone.clone(cores = "highPtJetsForTrk")
+trackValidatorFromPVTrackingOnly = trackValidatorFromPVStandalone.clone(cores = "highPtJetsForTrk")
+trackValidatorFromPVAllTPTrackingOnly = trackValidatorFromPVAllTPStandalone.clone(cores = "highPtJetsForTrk")
+trackValidatorAllTPEfficTrackingOnly = trackValidatorAllTPEfficStandalone.clone(cores = "highPtJetsForTrk")
 # sequences
 tracksPreValidationTrackingOnly = tracksPreValidationStandalone.copy()
 tracksPreValidationTrackingOnly.replace(tracksValidationSelectors, tracksValidationSelectorsTrackingOnly)
