@@ -1129,7 +1129,7 @@ namespace {
   //    for spheres 1 means R and 2 means phi.
   
   enum class DDAxes {x = 1, y = 2, z = 3, rho = 1, phi = 2, undefined};
-  static const std::map<std::string, DDAxes> axesmap {{"x", DDAxes::x },
+  const std::map<std::string, DDAxes> axesmap {{"x", DDAxes::x },
                                                       {"y", DDAxes::y},
                                                       {"z", DDAxes::z},
                                                       {"rho", DDAxes::rho},
