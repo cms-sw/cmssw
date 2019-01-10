@@ -696,7 +696,7 @@ template <> void Converter<Parameter>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());
   cms::DDParsingContext* const context = ns.context();
   DDSpecParRegistry& registry = *context->description->extension<DDSpecParRegistry>();
-  string nsName = ns.name();
+  const string& nsName = ns.name();
   xml_dim_t e(element);
   xml_dim_t specPar = e.parent();
   xml_dim_t specParSect = specPar.parent();
