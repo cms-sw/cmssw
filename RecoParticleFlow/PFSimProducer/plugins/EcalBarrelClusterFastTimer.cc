@@ -84,8 +84,7 @@ EcalBarrelClusterFastTimer::EcalBarrelClusterFastTimer(const edm::ParameterSet& 
   const std::vector<edm::ParameterSet>& resos = conf.getParameterSetVector("resolutionModels");
   for( const auto& reso : resos ) {
     const std::string& name = reso.getParameter<std::string>("modelName");
-    ResolutionModel* resomod = ResolutionModelFactory::get()->create(name,reso);
-    _resolutions.emplace_back( resomod );  
+    _resolutions.emplace_back( ResolutionModelFactory::get()->create(name,reso) );
 
     // times and time resolutions for general tracks
     produces<edm::ValueMap<float> >(name); 
