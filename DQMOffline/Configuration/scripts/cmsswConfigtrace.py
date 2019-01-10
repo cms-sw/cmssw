@@ -1,12 +1,25 @@
 #!/usr/bin/env python2
 from __future__ import print_function
 import os
+import six
 import sys
 import inspect
 import tempfile
 import subprocess
 from shutil import copy, rmtree
 from collections import defaultdict
+
+import FWCore
+import FWCore.Modules.EmptySource_cfi
+
+OUTFILE_TREE = "calltree"
+def STRIPPATHS():
+  # this can only be evaluated after FWCore is loaded, and instrumented
+  return [
+    "/".join(os.path.dirname(FWCore.__file__).split("/")[:-1]) + "/",
+    "/".join(FWCore.Modules.EmptySource_cfi.__file__.split("/")[:-3]) + "/",
+  ]
+IGNORE_PACKAGES = ['FWCore/ParameterSet', 'FWCore/GuiBrowsers', 'DQMOffline/Configuration/scripts', "cmsRun"]
 
 # this already does a good job, but it is not enough
 #import FWCore.GuiBrowsers.EnablePSetHistory
@@ -17,7 +30,6 @@ del FWCore.ParameterSet.Mixins._Labelable.__str__
 
 # then also trace Sequence construction so we can get a full tree
 # (PSetHistory only tracks leaves)
-IGNORE_PACKAGES = ['FWCore/ParameterSet', 'FWCore/GuiBrowsers', 'DQMOffline/Configuration/scripts']
 def auto_inspect():
   # stolen from FWCore.GuiBrowsers.EnablePSetHistory, but needs more black-list
   stack = inspect.stack()
@@ -39,21 +51,25 @@ def trace_location(thing, name):
     if hasattr(self, "_trace_events"):
       getattr(self, "_trace_events").append(event)
     else:
-      if issubclass(self.__class__, FWCore.ParameterSet.Mixins._Parameterizable):
-        # there are some checks on some classes that need bypassing
-        super(FWCore.ParameterSet.Mixins._Parameterizable,self). \
-          __setattr__("_trace_events", [ event ])
-      else:
-        self.__setattr__("_trace_events", [ event ])
+      # this bypasses setattr checks
+      self.__dict__["_trace_events"] = [ event ]
 
     return old_method(self, *args, **kwargs)
   setattr(thing, name, trace_location_hook)
 
-from FWCore.ParameterSet.SequenceTypes import _ModuleSequenceType, _Sequenceable
-from FWCore.ParameterSet.Modules import _Module
+from FWCore.ParameterSet.SequenceTypes import _ModuleSequenceType, _Sequenceable, Task
+from FWCore.ParameterSet.Modules import _Module, Source, ESSource, ESPrefer, ESProducer, Service, Looper
+from FWCore.ParameterSet.Config import Process
 # with this we can also track the '+' and '*' of modules, but it is slow
 #trace_location(_Sequenceable, '__init__')
 trace_location(_Module, '__init__')
+trace_location(Source, '__init__')
+trace_location(ESSource, '__init__')
+trace_location(ESPrefer, '__init__')
+trace_location(ESProducer, '__init__')
+trace_location(Service, '__init__')
+trace_location(Looper, '__init__')
+trace_location(Process, '__init__')
 # TODO: things to track:
 # - __init__ (place, content is is _seq)
 # - associate (track place)
@@ -70,21 +86,70 @@ trace_location(_ModuleSequenceType, 'copyAndExclude')
 trace_location(_ModuleSequenceType, 'replace')
 trace_location(_ModuleSequenceType, 'insert')
 trace_location(_ModuleSequenceType, 'remove')
+trace_location(Task, '__init__')
+trace_location(Task, 'add')
+# TODO: we could go deeper into Types and PSet, but that should not be needed for now.
 
-import FWCore
-import FWCore.Modules.EmptySource_cfi
+# lifted from EnablePSetHistory, we don't need all of that stuff.
+def new_items_(self):
+  items = []
+  if self.source:
+    items += [("source", self.source)]
+  if self.looper:
+    items += [("looper", self.looper)]
+  #items += self.moduleItems_()
+  items += self.outputModules.items()
+  #items += self.sequences.items() # TODO: we don't need sequences that are not paths?
+  items += six.iteritems(self.paths)
+  items += self.endpaths.items()
+  items += self.services.items()
+  items += self.es_producers.items()
+  items += self.es_sources.items()
+  items += self.es_prefers.items()
+  #items += self.psets.items()
+  #items += self.vpsets.items()
+  if self.schedule:
+    items += [("schedule", self.schedule)]
+  return tuple(items)
+Process.items_=new_items_
 
-OUTFILE_TREE = "calltree"
-def STRIPPATHS():
-  # this can only be evaluated after FWCore is loaded, and instrumented
-  return [
-    "/".join(os.path.dirname(FWCore.__file__).split("/")[:-1]) + "/",
-    "/".join(FWCore.Modules.EmptySource_cfi.__file__.split("/")[:-3]) + "/",
-  ]
 
 def instrument_cmssw():
-  # everything happnes in the imports so far
+  # everything happens in the imports so far
   pass
+
+def collect_trace(thing, graph, parent):
+  # thing is what to look at, graph is the output list (of child, parent tuple pairs)
+  # thing could be pretty much anything.
+  classname = thing.__class__.__name__
+  if hasattr(thing, '_trace_events'):
+    events = getattr(thing, '_trace_events')
+    for action, loc in events:
+      filename = loc[0]
+      line = loc[1]
+      entry = (action, classname, filename, line)
+      graph.append((entry, parent))
+  else:
+    print("No _trace_events found in %s.\nMaybe turn on tracing for %s?" % (thing, classname))
+    print(" Found in %s" % (parent,))
+
+  # items shall be a list of tuples (type, object) of the immediate children of the thing.
+  items = []
+  if hasattr(thing, 'items_'): # for cms.Process
+    items += thing.items_()
+  if hasattr(thing, '_seq'): # for sequences and similar
+    seq = getattr(thing, '_seq')
+    if seq:
+      items += [('seqitem', x) for x in getattr(seq, '_collection')]
+  if hasattr(thing, '_tasks'): # same
+    items += [('task', x) for x in getattr(thing, '_tasks')]
+  if hasattr(thing, '_collection'): # for cms.Task
+    items += [('subtask', x) for x in getattr(thing, '_collection')]
+  if thing: # for everything, esp. leaves like EDAnalyzer etc.
+    pass
+
+  for name, child in items:
+    collect_trace(child, graph, entry)
 
 def setupenv():
   bindir = tempfile.mkdtemp()
@@ -115,8 +180,7 @@ def trace_command(argv):
     cleanupenv(tmpdir)
 
 def trace_python(prog_argv, path):
-  callgraph = defaultdict(lambda: set())
-
+  graph = []
 
   sys.argv = prog_argv
   progname = prog_argv[0]
@@ -140,35 +204,15 @@ def trace_python(prog_argv, path):
         if filename.startswith(pfx):
           filename = filename[len(pfx):]
       return filename
+
+    def format(event):
+      evt, classname, filename, line = event
+      filename = formatfile(filename)
+      return "%s:%s; %s::%s" % (filename, line, classname, evt)
       
-    def format(func):
-      filename, funcname = func
-      return "%s::%s" % (formatfile(filename), funcname)
-
-    def callpath(func):
-      # climb up in the call graph until we find a node without callers (this is
-      # the entry point, the traced call itself). There may be cycles, but any
-      # node is reachable from the entry point, so no backtracking required.
-      path = []
-      seen = set()
-      parents = {func}
-      while parents:
-        if len(parents) == 1:
-          func = next(iter(parents))
-          seen.add(func)
-          path.append(format(func))
-        if len(parents) > 1:
-          for func in parents:
-            if not func in seen:
-              break
-          seen.add(func)
-          path.append(format(func) + "+")
-        parents = callgraph[func]
-      return path[:-1]
-
     with open(os.environ["CMSSWCALLTREE"], "a") as outfile:
-        for func in callgraph.keys():
-          print("%s: %s 1" % (progname, ";".join(reversed(callpath(func)))), file=outfile)
+        for child, parent in graph:
+          print("%s -> %s" % (format(child), format(parent)), file=outfile)
 
   try:
     with open(file_path) as fp:
@@ -187,9 +231,9 @@ def trace_python(prog_argv, path):
         exec code in globals, globals
         # reporting is only possible if the config was executed successfully.
         import pickle
-        with open("config.dump", "wb") as f:
-          pickle.dump(globals["process"], f)
-        print(globals["process"])
+        collect_trace(globals["process"], graph, ('cmsRun', '', progname, 0))
+        writeoutput()
+
       finally:
         sys.settrace(None)
 
