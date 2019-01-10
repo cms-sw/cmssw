@@ -325,6 +325,7 @@ namespace {
         return fullExpression;
       }
 
+      DEBUG_STATE("binary before precedence handling");
       printAST(fullExpression.evaluator.get());
       //Now to handle precedence
       auto topNode = fullExpression.top;
@@ -337,15 +338,26 @@ namespace {
         } else {
           binaryEval->setLeftEvaluator(leftEvaluatorInfo.evaluator);
           if(iPreviousBinary->precedence()<topNode->precedence() ) {
-            DEBUG_STATE(" swtich topNode");
+            DEBUG_STATE(" switch topNode");
             topNode = iPreviousBinary;
             iPreviousBinary->setRightEvaluator(fullExpression.top);
-          }else {
+          } else {
             DEBUG_STATE("swapping");
+            //We need to take the lhs of a  binary expression directly or indirectly connected
+            // to the present node and swap it with the rhs of the 'previous' binary expression
+            // becuase we need the present expression to be evaluated earlier than the 'previous'.
             std::shared_ptr<reco::formula::EvaluatorBase> toSwap = iPreviousBinary;
-            auto topBinary = dynamic_cast<reco::formula::BinaryOperatorEvaluatorBase*>(topNode.get()); 
-            topBinary->swapLeftEvaluator(toSwap);
-            iPreviousBinary->setRightEvaluator(toSwap);
+            auto parentBinary = dynamic_cast<reco::formula::BinaryOperatorEvaluatorBase*>(topNode.get()); 
+            do {
+              if(parentBinary->lhs() == binaryEval or parentBinary->lhs()->precedence() > iPreviousBinary->precedence()) {
+                parentBinary->swapLeftEvaluator(toSwap);
+                iPreviousBinary->setRightEvaluator(toSwap);
+              } else {
+                //try the next one in the chain
+                parentBinary = const_cast<reco::formula::BinaryOperatorEvaluatorBase*>( dynamic_cast<const reco::formula::BinaryOperatorEvaluatorBase*>(parentBinary->lhs()));
+                assert(parentBinary != nullptr);
+              }
+            } while(iPreviousBinary->rhs() == nullptr);
           }
         }
       } else {
@@ -353,6 +365,8 @@ namespace {
       }
       DEBUG_STATE("finished binary");
       printAST(binaryEval);
+      DEBUG_STATE("present top");
+      printAST(topNode.get());
       fullExpression.top = topNode;
       return fullExpression;
     }
@@ -428,7 +442,7 @@ namespace {
 
     else if(*iBegin == '^') {
       return createBinaryOperatorEvaluatorT<power>(1,
-                                                                  reco::formula::EvaluatorBase::Precedence::kMultDiv,
+                                                                  reco::formula::EvaluatorBase::Precedence::kPower,
                                                                   iEF,
                                                                   iBegin,
                                                                   iEnd);
@@ -758,6 +772,10 @@ FormulaEvaluator::FormulaEvaluator( std::string const& iFormula )
     }
     throw cms::Exception("FormulaEvaluatorParseError")<<"While parsing '"<<iFormula<<"' could not parse beyond '"<<std::string(iFormula.begin(),iFormula.begin()+lastIndex) <<"'";
   }
+
+  DEBUG_STATE("DONE parsing");
+  printAST(info.top.get());
+  
   m_evaluator = std::move(info.top);
   m_nVariables = info.maxNumVariables;
   m_nParameters = info.maxNumParameters;
