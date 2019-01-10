@@ -7,7 +7,7 @@ from RecoCTPPS.PixelLocal.ctppsPixelLocalReconstruction_cff import *
 
 from RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cff import ctppsLocalTrackLiteProducer
 
-from RecoCTPPS.ProtonReconstruction.ctppsProtonReconstruction_cfi import *
+from RecoCTPPS.ProtonReconstruction.ctppsProtons_cfi import *
 
 # TODO: load these data from DB
 from CondFormats.CTPPSReadoutObjects.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi import *
@@ -26,5 +26,5 @@ recoCTPPSdets = cms.Sequence(
     totemTimingLocalReconstruction *
     ctppsPixelLocalReconstruction *
     ctppsLocalTrackLiteProducer *
-    ctppsProtonReconstruction
+    ctppsProtons
 )

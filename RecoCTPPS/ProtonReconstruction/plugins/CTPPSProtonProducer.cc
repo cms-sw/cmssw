@@ -27,11 +27,11 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class CTPPSProtonReconstruction : public edm::stream::EDProducer<>
+class CTPPSProtonProducer : public edm::stream::EDProducer<>
 {
   public:
-    explicit CTPPSProtonReconstruction(const edm::ParameterSet&);
-    ~CTPPSProtonReconstruction() override = default;
+    explicit CTPPSProtonProducer(const edm::ParameterSet&);
+    ~CTPPSProtonProducer() override = default;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -64,7 +64,7 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSProtonReconstruction::CTPPSProtonReconstruction(const edm::ParameterSet& iConfig) :
+CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet& iConfig) :
   tracksToken_(consumes<std::vector<CTPPSLocalTrackLite> >(iConfig.getParameter<edm::InputTag>("tagLocalTrackLite"))),
   verbosity_               (iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
   doSingleRPReconstruction_(iConfig.getParameter<bool>("doSingleRPReconstruction")),
@@ -87,7 +87,7 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction(const edm::ParameterSet& iC
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSProtonReconstruction::fillDescriptions(ConfigurationDescriptions& descriptions)
+void CTPPSProtonProducer::fillDescriptions(ConfigurationDescriptions& descriptions)
 {
   ParameterSetDescription desc;
   desc.addUntracked<unsigned int>("verbosity", 0)->setComment("verbosity level");
@@ -96,12 +96,12 @@ void CTPPSProtonReconstruction::fillDescriptions(ConfigurationDescriptions& desc
 
   desc.add<bool>("doSingleRPReconstruction", true)
     ->setComment("flag whether to apply single-RP reconstruction strategy");
-  desc.add<bool>("singleRPReconstructionLabel", "singleRP")
+  desc.add<std::string>("singleRPReconstructionLabel", "singleRP")
     ->setComment("output label for single-RP reconstruction products");
 
   desc.add<bool>("doMultiRPReconstruction", true)
     ->setComment("flag whether to apply multi-RP reconstruction strategy");
-  desc.add<bool>("multiRPReconstructionLabel", "multiRP")
+  desc.add<std::string>("multiRPReconstructionLabel", "multiRP")
     ->setComment("output label for multi-RP reconstruction products");
 
   desc.add<bool>("fitVtxY", true)
@@ -109,12 +109,12 @@ void CTPPSProtonReconstruction::fillDescriptions(ConfigurationDescriptions& desc
   desc.add<bool>("useImprovedInitialEstimate", true)
     ->setComment("for multi-RP reconstruction, flag whether a quadratic estimate of the initial point should be used");
 
-  descriptions.add("ctppsProtonReconstruction", desc);
+  descriptions.add("ctppsProtons", desc);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSetup)
+void CTPPSProtonProducer::produce(Event& event, const EventSetup &eventSetup)
 {
   // get conditions
   edm::ESHandle<LHCInfo> hLHCInfo;
@@ -133,11 +133,11 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
 
       if (currentCrossingAngle_ == 0.)
       {
-        LogWarning("CTPPSProtonReconstruction") << "Invalid crossing angle, reconstruction disabled.";
+        LogWarning("CTPPSProtonProducer") << "Invalid crossing angle, reconstruction disabled.";
         algorithm_.release();
       } else {
         if (verbosity_)
-          edm::LogInfo("CTPPSProtonReconstruction") << "Setting crossing angle " << currentCrossingAngle_;
+          edm::LogInfo("CTPPSProtonProducer") << "Setting crossing angle " << currentCrossingAngle_;
 
         // interpolate optical functions
         opticalFunctions_.clear();
@@ -228,10 +228,9 @@ void CTPPSProtonReconstruction::produce(Event& event, const EventSetup &eventSet
   }
 
   if (verbosity_)
-    edm::LogInfo("CTPPSProtonReconstruction") << ssLog.str();
+    edm::LogInfo("CTPPSProtonProducer") << ssLog.str();
 }
 
 //----------------------------------------------------------------------------------------------------
 
-DEFINE_FWK_MODULE(CTPPSProtonReconstruction);
-
+DEFINE_FWK_MODULE(CTPPSProtonProducer);

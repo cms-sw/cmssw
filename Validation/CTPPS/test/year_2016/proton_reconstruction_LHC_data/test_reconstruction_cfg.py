@@ -33,7 +33,7 @@ process.load("RecoCTPPS.Configuration.recoCTPPS_sequences_cff")
 process.ctppsLocalTrackLiteProducer.includeDiamonds = False
 process.ctppsLocalTrackLiteProducer.includePixels = False 
 
-process.ctppsProtonReconstruction.verbosity = 0
+process.ctppsProtons.verbosity = 0
 
 # load geometry
 process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi") # 2017 is OK here
@@ -41,7 +41,7 @@ process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi") # 2017 is
 # reconstruction validator
 process.ctppsProtonReconstructionValidator = cms.EDAnalyzer("CTPPSProtonReconstructionValidator",
     tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
-    tagRecoProtons = cms.InputTag("ctppsProtonReconstruction", "multiRP"),
+    tagRecoProtons = cms.InputTag("ctppsProtons", "multiRP"),
 
     chiSqCut = cms.double(2.),
 
@@ -51,8 +51,8 @@ process.ctppsProtonReconstructionValidator = cms.EDAnalyzer("CTPPSProtonReconstr
 # reconstruction plotter
 process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstructionPlotter",
     tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"),
-    tagRecoProtonsSingleRP = cms.InputTag("ctppsProtonReconstruction", "singleRP"),
-    tagRecoProtonsMultiRP = cms.InputTag("ctppsProtonReconstruction", "multiRP"),
+    tagRecoProtonsSingleRP = cms.InputTag("ctppsProtons", "singleRP"),
+    tagRecoProtonsMultiRP = cms.InputTag("ctppsProtons", "multiRP"),
 
     rpId_45_F = cms.uint32(3),
     rpId_45_N = cms.uint32(2),
@@ -69,7 +69,7 @@ process.p = cms.Path(
     #* process.totemTimingLocalReconstruction
     #* process.ctppsPixelLocalReconstruction
     * process.ctppsLocalTrackLiteProducer
-    * process.ctppsProtonReconstruction
+    * process.ctppsProtons
 
     * process.ctppsProtonReconstructionValidator
     * process.ctppsProtonReconstructionPlotter
