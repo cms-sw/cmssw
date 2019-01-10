@@ -133,7 +133,7 @@ DDNamespace::addRotation( const string& name, const dd4hep::Rotation3D& rot ) co
 const dd4hep::Rotation3D&
 DDNamespace::rotation( const string& nam ) const
 {
-  static dd4hep::Rotation3D s_null;
+  static const dd4hep::Rotation3D s_null;
   size_t idx;
   auto i = m_context->rotations.find( nam );
   if( i != m_context->rotations.end())
