@@ -69,10 +69,10 @@ public:
     detId_readable[2040266752]="Arm_1_Sec_56_St_2_Pot_3_Plane_4";
     detId_readable[2040332288]="Arm_1_Sec_56_St_2_Pot_3_Plane_5";
   }
-  virtual ~CTPPSPixGainCalibsESAnalyzer() {  
+  ~CTPPSPixGainCalibsESAnalyzer() override {  
     std::cout<<"~CTPPSPixGainCalibsESAnalyzer "<<std::endl;
   }
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 private:
   std::map<uint32_t,std::string> detId_readable;
   std::string m_outfilename;
