@@ -3,6 +3,8 @@
 
 #include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 /**
    @class DaqScopeModeTask
@@ -18,12 +20,18 @@ class DaqScopeModeTask : public CommissioningTask {
 
   void book() override;
   void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& ) override;
+	     const edm::DetSet<SiStripRawDigi>& ) override;
+  void book() override;
 
   void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>&,
-		     const edm::DetSet<SiStripRawDigi>&) override;
+	     const edm::DetSet<SiStripRawDigi>&,
+	     const edm::DetSet<SiStripRawDigi>&) override;
 
+  void fill( const SiStripEventSummary&,
+	     const edm::DetSet<SiStripRawDigi>&,
+	     const edm::DetSet<SiStripRawDigi>&,
+	     const std::vector<uint16_t>&) override;
+  
   void update() override;
 
   // scope mode frame for each channel
@@ -32,6 +40,10 @@ class DaqScopeModeTask : public CommissioningTask {
   // Pedestal and common mode
   std::vector<HistoSet> peds_;
   std::vector<HistoSet> cm_;
+
+  // Low and High of Header
+  HistoSet lowHeader_;
+  HistoSet highHeader_;
 
   uint16_t nBins_;
   uint16_t nBinsSpy_;

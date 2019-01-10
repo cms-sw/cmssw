@@ -3,8 +3,10 @@
 
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
@@ -28,7 +30,7 @@ class CommissioningTask {
 		     const FedChannelConnection&,
 		     const std::string& my_name );
 
-  virtual ~CommissioningTask();
+  ~CommissioningTask() override;
 
   // ---------- Classes, structs ----------
   
@@ -71,9 +73,15 @@ class CommissioningTask {
 		       const edm::DetSet<SiStripRawDigi>& );
 
   /** Fills HistoSet cache. */
-  void fillHistograms( const SiStripEventSummary&,
-                       const edm::DetSet<SiStripRawDigi>&,
-                       const edm::DetSet<SiStripRawDigi>&);
+  void fillHistograms( const SiStripEventSummary&, 
+		       const edm::DetSet<SiStripRawDigi>&,
+		       const edm::DetSet<SiStripRawDigi>&);
+
+  /** Fills HistoSet cache. */
+  void fillHistograms( const SiStripEventSummary&, 
+		       const edm::DetSet<SiStripRawDigi>&,
+		       const edm::DetSet<SiStripRawDigi>&,
+		       const std::vector<uint16_t>&);
   
   /** Fill HistoSet cache for FED cabling (special case). */
   void fillHistograms( const SiStripEventSummary&, 
@@ -143,9 +151,15 @@ class CommissioningTask {
   virtual void fill( const SiStripEventSummary&,
 		     const edm::DetSet<SiStripRawDigi>& );
 
+
   virtual void fill( const SiStripEventSummary&,
 		     const edm::DetSet<SiStripRawDigi>&,
-                     const edm::DetSet<SiStripRawDigi>&);
+		     const edm::DetSet<SiStripRawDigi>&);
+
+  virtual void fill( const SiStripEventSummary&,
+		     const edm::DetSet<SiStripRawDigi>&,
+		     const edm::DetSet<SiStripRawDigi>&,
+		     const std::vector<uint16_t>&);
 
   virtual void fill( const SiStripEventSummary&, 
 		     const uint16_t& fed_id,
