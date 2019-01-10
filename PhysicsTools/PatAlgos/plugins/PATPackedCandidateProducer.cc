@@ -326,8 +326,6 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 	}
 
 	// storing HcalDepthEnergyFraction information
-<<<<<<< HEAD
-<<<<<<< HEAD
 	if ( std::find(pfCandidateTypesForHcalDepth_.begin(), pfCandidateTypesForHcalDepth_.end(), abs(cand.pdgId())) != pfCandidateTypesForHcalDepth_.end() ){
 	  if (!storeHcalDepthEndcapOnly_ || fabs(outPtrP->back().eta())>1.3 ){  // storeHcalDepthEndcapOnly_==false -> store all eta of selected PF types, if true, only |eta|>1.3 of selected PF types will be stored  
 	    std::array<float,7> hcalDepthEnergyFractions {{
@@ -336,17 +334,6 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 		  }};
 	    outPtrP->back().setHcalDepthEnergyFractions(hcalDepthEnergyFractions);
 	  }
-=======
-	std::cout << cand.pdgId() << std::endl;
-=======
->>>>>>> Fill hcalDepthEnergyFractions. Clean up.
-	if ( std::find(pfCandidateTypesForHcalDepth_.begin(), pfCandidateTypesForHcalDepth_.end(), abs(cand.pdgId())) != pfCandidateTypesForHcalDepth_.end() ){
-	  std::array<float,7> hcalDepthEnergyFractions {{
-	      cand.hcalDepthEnergyFraction(1), cand.hcalDepthEnergyFraction(2), cand.hcalDepthEnergyFraction(3), cand.hcalDepthEnergyFraction(4),
-	      cand.hcalDepthEnergyFraction(5), cand.hcalDepthEnergyFraction(6), cand.hcalDepthEnergyFraction(7)
-	      }};
-	  outPtrP->back().setHcalDepthEnergyFractions(hcalDepthEnergyFractions);
->>>>>>> fill hcalDepthEnergyFractions information - first attempt
 	}
 	
 	//specifically this is the PFLinker requirements to apply the e/gamma regression
