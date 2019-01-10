@@ -17,18 +17,11 @@ namespace edm { class Event; class EventSetup; }
 class SeedGeneratorFromRegionHits {
 public:
 
-  template <typename GEN>
-  SeedGeneratorFromRegionHits(GEN aGenerator): SeedGeneratorFromRegionHits(std::move(aGenerator), nullptr, nullptr) {}
-
-  template <typename GEN, typename COMP>
-  SeedGeneratorFromRegionHits(GEN aGenerator, COMP aComparitor): SeedGeneratorFromRegionHits(std::move(aGenerator), std::move(aComparitor), nullptr) {}
-
-  template <typename GEN, typename COMP, typename CREA>
-  SeedGeneratorFromRegionHits(GEN aGenerator, COMP aComparitor, CREA aSeedCreator):
-    theHitsGenerator{std::move(aGenerator)}, theComparitor{std::move(aComparitor)}, theSeedCreator{std::move(aSeedCreator)}
-  {}
-
-
+  SeedGeneratorFromRegionHits(
+      std::unique_ptr<OrderedHitsGenerator> aGenerator,
+      std::unique_ptr<SeedComparitor> aComparitor = nullptr,
+      std::unique_ptr<SeedCreator> aSeedCreator = nullptr
+    );
 
   // make job
   void run(TrajectorySeedCollection & seedCollection, const TrackingRegion & region, 
