@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "FWCore/Utilities/interface/GlobalID.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -45,9 +45,7 @@ public:
   
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  //  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) ;
 
-  //virtual double getPrefiringRate( double eta, double pt, TH2F * h_prefmap, fluctuations fluctuation);
   double getPrefiringRate( double eta, double pt, TH2F * h_prefmap, fluctuations fluctuation) const ;
   
   edm::EDGetTokenT<std::vector< pat::Photon> >  photons_token_; 
