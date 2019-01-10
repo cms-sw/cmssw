@@ -490,6 +490,16 @@ void PixelCPEClusterRepair::checkRecommend2D( DetParam const & theDetParam, Clus
 			SiPixelTemplateReco::ClusMatrix & clusterPayload, int ID ) const
 
 {
+
+    DetId id = (theDetParam.theDet->geographicalId());
+    bool isBarrel  = GeomDetEnumerators::isBarrel(theDetParam.thePart);
+    int layer=ttopo_.layer(id);
+    if(!isBarrel){
+        //only run on barrel
+        theClusterParam.recommended2D_ = false;
+        return;
+    }
+
     if(theClusterParam.edgeTypeY_){
         // For clusters that have edges in Y, run 2d reco.
         // Flags already set by CPEBase
@@ -519,10 +529,7 @@ void PixelCPEClusterRepair::checkRecommend2D( DetParam const & theDetParam, Clus
         theClusterParam.hasBadPixels_ = true;
 
         //for now, don't try to fix any clusters in layer 1
-        DetId id = (theDetParam.theDet->geographicalId());
-        bool isBarrel  = GeomDetEnumerators::isBarrel(theDetParam.thePart);
-        int layer=ttopo_.layer(id);
-        if( isBarrel && layer == 1 ) theClusterParam.recommended2D_ = false;
+        if( layer == 1 ) theClusterParam.recommended2D_ = false;
 
         // Figure out what edge flags to set for truncated cluster
         // Truncated clusters usually come from dead double columns
