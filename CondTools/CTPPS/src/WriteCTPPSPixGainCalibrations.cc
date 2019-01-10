@@ -28,15 +28,15 @@ class WriteCTPPSPixGainCalibrations : public edm::one::EDAnalyzer<>
 {
  public:
   explicit WriteCTPPSPixGainCalibrations(const edm::ParameterSet&);
-  ~WriteCTPPSPixGainCalibrations();
+  ~WriteCTPPSPixGainCalibrations() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   
  private:
-  virtual void beginJob() override;
+  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void endJob() override;
   void getHistos();
   void fillDB();
   void getGainsPedsFromHistos(uint32_t detid,int rocId, int index, std::vector<double>&peds,std::vector<double>&gains,std::map<int,int> & myindxmap, int nrocs);
