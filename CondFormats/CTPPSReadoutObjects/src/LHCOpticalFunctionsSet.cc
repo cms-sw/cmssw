@@ -79,7 +79,7 @@ void LHCOpticalFunctionsSet::initializeSplines()
 void LHCOpticalFunctionsSet::transport(const LHCOpticalFunctionsSet::Kinematics &input,
   LHCOpticalFunctionsSet::Kinematics &output, bool calculateAngles) const
 {
-  const double& xi = input.xi;
+  const double xi = input.xi;
 
   output.x = m_splines[exd]->Eval(xi) + m_splines[evx]->Eval(xi) * input.x
     + m_splines[eLx]->Eval(xi) * input.th_x + m_splines[e14]->Eval(xi) * input.th_y;

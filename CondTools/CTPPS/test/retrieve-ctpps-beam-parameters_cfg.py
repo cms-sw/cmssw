@@ -7,8 +7,6 @@ process.load("CondCore.CondDB.CondDB_cfi")
 
 # input database (in this case the local sqlite file)
 process.CondDB.connect = 'sqlite_file:CTPPSBeamParameters.db'
-# WORK_DIR = "/afs/cern.ch/work/w/wcarvalh/ctpps/db/CMSSW_10_4_0_pre2/src"
-# process.CondDB.connect = 'sqlite_file:/afs/cern.ch/work/w/wcarvalh/ctpps/db/CMSSW_10_2_0_pre3/src/CondTools/CTPPS/test_output.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
                                     cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
