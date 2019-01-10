@@ -49,10 +49,10 @@ class L2MuonIsolationProducer : public edm::stream::EDProducer<> {
   bool optOutputIsolatorFloat;
 
   // MuIsoExtractor
-  reco::isodeposit::IsoDepositExtractor* theExtractor;
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> theExtractor;
 
   // muon isolator 
-  muonisolation::MuIsoBaseIsolator * theDepositIsolator;
+  std::unique_ptr<muonisolation::MuIsoBaseIsolator> theDepositIsolator;
 
 };
 

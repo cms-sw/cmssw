@@ -33,8 +33,7 @@
 
 #include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
 
-MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
-muIsoExtractorCalo_(nullptr),muIsoExtractorTrack_(nullptr),muIsoExtractorJet_(nullptr)
+MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
 {
   
   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: Constructor called";
@@ -79,7 +78,7 @@ muIsoExtractorCalo_(nullptr),muIsoExtractorTrack_(nullptr),muIsoExtractorJet_(nu
 
    // Load parameters for the TimingFiller
    edm::ParameterSet timingParameters = iConfig.getParameter<edm::ParameterSet>("TimingFillerParameters");
-   theTimingFiller_ = new MuonTimingFiller(timingParameters,consumesCollector());
+   theTimingFiller_ = std::make_unique<MuonTimingFiller>(timingParameters,consumesCollector());
    
 
    if (fillCaloCompatibility_){
@@ -92,15 +91,15 @@ muIsoExtractorCalo_(nullptr),muIsoExtractorTrack_(nullptr),muIsoExtractorJet_(nu
       // Load MuIsoExtractor parameters
       edm::ParameterSet caloExtractorPSet = iConfig.getParameter<edm::ParameterSet>("CaloExtractorPSet");
       std::string caloExtractorName = caloExtractorPSet.getParameter<std::string>("ComponentName");
-      muIsoExtractorCalo_ = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet,consumesCollector());
+      muIsoExtractorCalo_ = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet,consumesCollector())};
 
       edm::ParameterSet trackExtractorPSet = iConfig.getParameter<edm::ParameterSet>("TrackExtractorPSet");
       std::string trackExtractorName = trackExtractorPSet.getParameter<std::string>("ComponentName");
-      muIsoExtractorTrack_ = IsoDepositExtractorFactory::get()->create( trackExtractorName, trackExtractorPSet,consumesCollector());
+      muIsoExtractorTrack_ = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{IsoDepositExtractorFactory::get()->create( trackExtractorName, trackExtractorPSet,consumesCollector())};
 
       edm::ParameterSet jetExtractorPSet = iConfig.getParameter<edm::ParameterSet>("JetExtractorPSet");
       std::string jetExtractorName = jetExtractorPSet.getParameter<std::string>("ComponentName");
-      muIsoExtractorJet_ = IsoDepositExtractorFactory::get()->create( jetExtractorName, jetExtractorPSet,consumesCollector());
+      muIsoExtractorJet_ = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{IsoDepositExtractorFactory::get()->create( jetExtractorName, jetExtractorPSet,consumesCollector())};
    }
    if (fillIsolation_ && writeIsoDeposits_){
      trackDepositName_ = iConfig.getParameter<std::string>("trackDepositName");
@@ -138,7 +137,7 @@ muIsoExtractorCalo_(nullptr),muIsoExtractorTrack_(nullptr),muIsoExtractorJet_(nu
    }
 
    //create mesh holder
-   meshAlgo_ = new MuonMesh(iConfig.getParameter<edm::ParameterSet>("arbitrationCleanerOptions"));
+   meshAlgo_ = std::make_unique<MuonMesh>(iConfig.getParameter<edm::ParameterSet>("arbitrationCleanerOptions"));
 
 
    edm::InputTag rpcHitTag("rpcRecHits");
@@ -181,11 +180,6 @@ muIsoExtractorCalo_(nullptr),muIsoExtractorTrack_(nullptr),muIsoExtractorJet_(nu
 
 MuonIdProducer::~MuonIdProducer()
 {
-   if (muIsoExtractorCalo_) delete muIsoExtractorCalo_;
-   if (muIsoExtractorTrack_) delete muIsoExtractorTrack_;
-   if (muIsoExtractorJet_) delete muIsoExtractorJet_;
-   if (theTimingFiller_) delete theTimingFiller_;
-   if (meshAlgo_) delete meshAlgo_;
    // TimingReport::current()->dump(std::cout);
 }
 
