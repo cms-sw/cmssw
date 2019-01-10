@@ -105,62 +105,40 @@ void GsfElectronBaseProducer::fillDescriptions( edm::ConfigurationDescriptions &
   desc.add<double>("MaxElePtForOnlyMVA",50.0);
   desc.add<double>("PreSelectMVA", -0.1);
 
-  // preselection parameters (ecal driven electrons)
-  desc.add<double>("minSCEtBarrel", 4.0);
-  desc.add<double>("minSCEtEndcaps", 4.0);
-  desc.add<double>("minEOverPBarrel", 0.0);
-  desc.add<double>("minEOverPEndcaps", 0.0);
-  desc.add<double>("maxEOverPBarrel", 999999999.0);
-  desc.add<double>("maxEOverPEndcaps", 999999999.0);
-  desc.add<double>("maxDeltaEtaBarrel", 0.02);
-  desc.add<double>("maxDeltaEtaEndcaps", 0.02);
-  desc.add<double>("maxDeltaPhiBarrel", 0.15);
-  desc.add<double>("maxDeltaPhiEndcaps", 0.15);
-  desc.add<double>("hOverEConeSize", 0.15);
-  desc.add<double>("hOverEPtMin", 0.0);
-  desc.add<double>("maxHOverEBarrel", 0.15);
-  desc.add<double>("maxHOverEEndcaps", 0.15);
-  desc.add<double>("maxHBarrel", 0.0);
-  desc.add<double>("maxHEndcaps", 0.0);
-  desc.add<double>("maxSigmaIetaIetaBarrel", 999999999.0);
-  desc.add<double>("maxSigmaIetaIetaEndcaps", 999999999.0);
-  desc.add<double>("maxFbremBarrel", 999999999.0);
-  desc.add<double>("maxFbremEndcaps", 999999999.0);
-  desc.add<bool>("isBarrel", false);
-  desc.add<bool>("isEndcaps", false);
-  desc.add<bool>("isFiducial", false);
-  desc.add<bool>("seedFromTEC", true);
-  desc.add<double>("maxTIP", 999999999.0);
-  desc.add<double>("minMVA", -0.4);
-  desc.add<double>("minMvaByPassForIsolated", -0.4);
-
-  // preselection parameters (tracker driven only electrons)
-  desc.add<double>("minSCEtBarrelPflow", 0.0);
-  desc.add<double>("minSCEtEndcapsPflow", 0.0);
-  desc.add<double>("minEOverPBarrelPflow", 0.0);
-  desc.add<double>("minEOverPEndcapsPflow", 0.0);
-  desc.add<double>("maxEOverPBarrelPflow", 999999999.0);
-  desc.add<double>("maxEOverPEndcapsPflow", 999999999.0);
-  desc.add<double>("maxDeltaEtaBarrelPflow", 999999999.0);
-  desc.add<double>("maxDeltaEtaEndcapsPflow", 999999999.0);
-  desc.add<double>("maxDeltaPhiBarrelPflow", 999999999.0);
-  desc.add<double>("maxDeltaPhiEndcapsPflow", 999999999.0);
-  desc.add<double>("hOverEConeSizePflow", 0.15);
-  desc.add<double>("hOverEPtMinPflow", 0.0);
-  desc.add<double>("maxHOverEBarrelPflow", 999999999.0);
-  desc.add<double>("maxHOverEEndcapsPflow", 999999999.0);
-  desc.add<double>("maxHBarrelPflow", 0.0);
-  desc.add<double>("maxHEndcapsPflow", 0.0);
-  desc.add<double>("maxSigmaIetaIetaBarrelPflow", 999999999.0);
-  desc.add<double>("maxSigmaIetaIetaEndcapsPflow", 999999999.0);
-  desc.add<double>("maxFbremBarrelPflow", 999999999.0);
-  desc.add<double>("maxFbremEndcapsPflow", 999999999.0);
-  desc.add<bool>("isBarrelPflow", false);
-  desc.add<bool>("isEndcapsPflow", false);
-  desc.add<bool>("isFiducialPflow", false);
-  desc.add<double>("maxTIPPflow", 999999999.0);
-  desc.add<double>("minMVAPflow", -0.4);
-  desc.add<double>("minMvaByPassForIsolatedPflow", -0.4);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("minSCEtBarrel", 0.0);
+    psd0.add<double>("minSCEtEndcaps", 0.0);
+    psd0.add<double>("minEOverPBarrel", 0.0);
+    psd0.add<double>("minEOverPEndcaps", 0.0);
+    psd0.add<double>("maxEOverPBarrel", 999999999.0);
+    psd0.add<double>("maxEOverPEndcaps", 999999999.0);
+    psd0.add<double>("maxDeltaEtaBarrel", 999999999.0);
+    psd0.add<double>("maxDeltaEtaEndcaps", 999999999.0);
+    psd0.add<double>("maxDeltaPhiBarrel", 999999999.0);
+    psd0.add<double>("maxDeltaPhiEndcaps", 999999999.0);
+    psd0.add<double>("hOverEConeSize", 0.15);
+    psd0.add<double>("hOverEPtMin", 0.0);
+    psd0.add<double>("maxHOverEBarrel", 999999999.0);
+    psd0.add<double>("maxHOverEEndcaps", 999999999.0);
+    psd0.add<double>("maxHBarrel", 0.0);
+    psd0.add<double>("maxHEndcaps", 0.0);
+    psd0.add<double>("maxSigmaIetaIetaBarrel", 999999999.0);
+    psd0.add<double>("maxSigmaIetaIetaEndcaps", 999999999.0);
+    psd0.add<double>("maxFbremBarrel", 999999999.0);
+    psd0.add<double>("maxFbremEndcaps", 999999999.0);
+    psd0.add<bool>("isBarrel", false);
+    psd0.add<bool>("isEndcaps", false);
+    psd0.add<bool>("isFiducial", false);
+    psd0.add<bool>("seedFromTEC", true);
+    psd0.add<double>("maxTIP", 999999999.0);
+    psd0.add<double>("minMVA", -0.4);
+    psd0.add<double>("minMvaByPassForIsolated", -0.4);
+    // preselection parameters (ecal driven electrons)
+    desc.add<edm::ParameterSetDescription>("preselection", psd0);
+    // preselection parameters (tracker driven only electrons)
+    desc.add<edm::ParameterSetDescription>("preselectionPflow", psd0);
+  }
 
   // Corrections
   desc.add<std::string>("superClusterErrorFunction", "EcalClusterEnergyUncertaintyObjectSpecific");
@@ -208,9 +186,44 @@ void GsfElectronBaseProducer::fillDescriptions( edm::ConfigurationDescriptions &
   descriptions.addDefault(desc);
 }
 
+namespace {
+  GsfElectronAlgo::CutsConfiguration makeCutsConfiguration(edm::ParameterSet const& pset)
+  {
+    return GsfElectronAlgo::CutsConfiguration{
+        .minSCEtBarrel = pset.getParameter<double>("minSCEtBarrel"),
+        .minSCEtEndcaps = pset.getParameter<double>("minSCEtEndcaps"),
+        .maxEOverPBarrel = pset.getParameter<double>("maxEOverPBarrel"),
+        .maxEOverPEndcaps = pset.getParameter<double>("maxEOverPEndcaps"),
+        .minEOverPBarrel = pset.getParameter<double>("minEOverPBarrel"),
+        .minEOverPEndcaps = pset.getParameter<double>("minEOverPEndcaps"),
+        .maxHOverEBarrel = pset.getParameter<double>("maxHOverEBarrel"),
+        .maxHOverEEndcaps = pset.getParameter<double>("maxHOverEEndcaps"),
+        .maxHBarrel = pset.getParameter<double>("maxHBarrel"),
+        .maxHEndcaps = pset.getParameter<double>("maxHEndcaps"),
+        .maxDeltaEtaBarrel = pset.getParameter<double>("maxDeltaEtaBarrel"),
+        .maxDeltaEtaEndcaps = pset.getParameter<double>("maxDeltaEtaEndcaps"),
+        .maxDeltaPhiBarrel = pset.getParameter<double>("maxDeltaPhiBarrel"),
+        .maxDeltaPhiEndcaps = pset.getParameter<double>("maxDeltaPhiEndcaps"),
+        .maxSigmaIetaIetaBarrel = pset.getParameter<double>("maxSigmaIetaIetaBarrel"),
+        .maxSigmaIetaIetaEndcaps = pset.getParameter<double>("maxSigmaIetaIetaEndcaps"),
+        .maxFbremBarrel = pset.getParameter<double>("maxFbremBarrel"),
+        .maxFbremEndcaps = pset.getParameter<double>("maxFbremEndcaps"),
+        .isBarrel = pset.getParameter<bool>("isBarrel"),
+        .isEndcaps = pset.getParameter<bool>("isEndcaps"),
+        .isFiducial = pset.getParameter<bool>("isFiducial"),
+        .minMVA = pset.getParameter<double>("minMVA"),
+        .minMvaByPassForIsolated = pset.getParameter<double>("minMvaByPassForIsolated"),
+        .maxTIP = pset.getParameter<double>("maxTIP"),
+        .seedFromTEC = pset.getParameter<bool>("seedFromTEC"),
+    };
+  }
+};
+
 GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, const gsfAlgoHelpers::HeavyObjectCache* )
- : ecalSeedingParametersChecked_(false)
- {
+ : cutsCfg_(makeCutsConfiguration(cfg.getParameter<edm::ParameterSet>("preselection")))
+ , cutsCfgPflow_(makeCutsConfiguration(cfg.getParameter<edm::ParameterSet>("preselectionPflow")))
+ , ecalSeedingParametersChecked_(false)
+{
   produces<GsfElectronCollection>();
 
   inputCfg_.previousGsfElectrons = consumes<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("previousGsfElectronsTag"));
@@ -256,84 +269,24 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   strategyCfg_.useEcalRegression = cfg.getParameter<bool>("useEcalRegression");
   strategyCfg_.useCombinationRegression = cfg.getParameter<bool>("useCombinationRegression");
 
-  cutsCfg_.minSCEtBarrel = cfg.getParameter<double>("minSCEtBarrel") ;
-  cutsCfg_.minSCEtEndcaps = cfg.getParameter<double>("minSCEtEndcaps") ;
-  cutsCfg_.maxEOverPBarrel = cfg.getParameter<double>("maxEOverPBarrel") ;
-  cutsCfg_.maxEOverPEndcaps = cfg.getParameter<double>("maxEOverPEndcaps") ;
-  cutsCfg_.minEOverPBarrel = cfg.getParameter<double>("minEOverPBarrel") ;
-  cutsCfg_.minEOverPEndcaps = cfg.getParameter<double>("minEOverPEndcaps") ;
-
-  // H/E
-  cutsCfg_.maxHOverEBarrel = cfg.getParameter<double>("maxHOverEBarrel") ;
-  cutsCfg_.maxHOverEEndcaps = cfg.getParameter<double>("maxHOverEEndcaps") ;
-  cutsCfg_.maxHBarrel = cfg.getParameter<double>("maxHBarrel") ;
-  cutsCfg_.maxHEndcaps = cfg.getParameter<double>("maxHEndcaps") ;
-
-  cutsCfg_.maxDeltaEtaBarrel = cfg.getParameter<double>("maxDeltaEtaBarrel") ;
-  cutsCfg_.maxDeltaEtaEndcaps = cfg.getParameter<double>("maxDeltaEtaEndcaps") ;
-  cutsCfg_.maxDeltaPhiBarrel = cfg.getParameter<double>("maxDeltaPhiBarrel") ;
-  cutsCfg_.maxDeltaPhiEndcaps = cfg.getParameter<double>("maxDeltaPhiEndcaps") ;
-  cutsCfg_.maxSigmaIetaIetaBarrel = cfg.getParameter<double>("maxSigmaIetaIetaBarrel") ;
-  cutsCfg_.maxSigmaIetaIetaEndcaps = cfg.getParameter<double>("maxSigmaIetaIetaEndcaps") ;
-  cutsCfg_.maxFbremBarrel = cfg.getParameter<double>("maxFbremBarrel") ;
-  cutsCfg_.maxFbremEndcaps = cfg.getParameter<double>("maxFbremEndcaps") ;
-  cutsCfg_.isBarrel = cfg.getParameter<bool>("isBarrel") ;
-  cutsCfg_.isEndcaps = cfg.getParameter<bool>("isEndcaps") ;
-  cutsCfg_.isFiducial = cfg.getParameter<bool>("isFiducial") ;
-  cutsCfg_.minMVA = cfg.getParameter<double>("minMVA") ;
-  cutsCfg_.minMvaByPassForIsolated = cfg.getParameter<double>("minMvaByPassForIsolated") ;
-  cutsCfg_.maxTIP = cfg.getParameter<double>("maxTIP") ;
-  cutsCfg_.seedFromTEC = cfg.getParameter<bool>("seedFromTEC") ;
-
-  cutsCfgPflow_.minSCEtBarrel = cfg.getParameter<double>("minSCEtBarrelPflow") ;
-  cutsCfgPflow_.minSCEtEndcaps = cfg.getParameter<double>("minSCEtEndcapsPflow") ;
-  cutsCfgPflow_.maxEOverPBarrel = cfg.getParameter<double>("maxEOverPBarrelPflow") ;
-  cutsCfgPflow_.maxEOverPEndcaps = cfg.getParameter<double>("maxEOverPEndcapsPflow") ;
-  cutsCfgPflow_.minEOverPBarrel = cfg.getParameter<double>("minEOverPBarrelPflow") ;
-  cutsCfgPflow_.minEOverPEndcaps = cfg.getParameter<double>("minEOverPEndcapsPflow") ;
-
-  // H/E
-  cutsCfgPflow_.maxHOverEBarrel = cfg.getParameter<double>("maxHOverEBarrelPflow") ;
-  cutsCfgPflow_.maxHOverEEndcaps = cfg.getParameter<double>("maxHOverEEndcapsPflow") ;
-  cutsCfgPflow_.maxHBarrel = cfg.getParameter<double>("maxHBarrelPflow") ;
-  cutsCfgPflow_.maxHEndcaps = cfg.getParameter<double>("maxHEndcapsPflow") ;
-
-  cutsCfgPflow_.maxDeltaEtaBarrel = cfg.getParameter<double>("maxDeltaEtaBarrelPflow") ;
-  cutsCfgPflow_.maxDeltaEtaEndcaps = cfg.getParameter<double>("maxDeltaEtaEndcapsPflow") ;
-  cutsCfgPflow_.maxDeltaPhiBarrel = cfg.getParameter<double>("maxDeltaPhiBarrelPflow") ;
-  cutsCfgPflow_.maxDeltaPhiEndcaps = cfg.getParameter<double>("maxDeltaPhiEndcapsPflow") ;
-  cutsCfgPflow_.maxDeltaPhiBarrel = cfg.getParameter<double>("maxDeltaPhiBarrelPflow") ;
-  cutsCfgPflow_.maxDeltaPhiEndcaps = cfg.getParameter<double>("maxDeltaPhiEndcapsPflow") ;
-  cutsCfgPflow_.maxDeltaPhiBarrel = cfg.getParameter<double>("maxDeltaPhiBarrelPflow") ;
-  cutsCfgPflow_.maxDeltaPhiEndcaps = cfg.getParameter<double>("maxDeltaPhiEndcapsPflow") ;
-  cutsCfgPflow_.maxSigmaIetaIetaBarrel = cfg.getParameter<double>("maxSigmaIetaIetaBarrelPflow") ;
-  cutsCfgPflow_.maxSigmaIetaIetaEndcaps = cfg.getParameter<double>("maxSigmaIetaIetaEndcapsPflow") ;
-  cutsCfgPflow_.maxFbremBarrel = cfg.getParameter<double>("maxFbremBarrelPflow") ;
-  cutsCfgPflow_.maxFbremEndcaps = cfg.getParameter<double>("maxFbremEndcapsPflow") ;
-  cutsCfgPflow_.isBarrel = cfg.getParameter<bool>("isBarrelPflow") ;
-  cutsCfgPflow_.isEndcaps = cfg.getParameter<bool>("isEndcapsPflow") ;
-  cutsCfgPflow_.isFiducial = cfg.getParameter<bool>("isFiducialPflow") ;
-  cutsCfgPflow_.minMVA = cfg.getParameter<double>("minMVAPflow") ;
-  cutsCfgPflow_.minMvaByPassForIsolated = cfg.getParameter<double>("minMvaByPassForIsolatedPflow") ;
-  cutsCfgPflow_.maxTIP = cfg.getParameter<double>("maxTIPPflow") ;
-  cutsCfgPflow_.seedFromTEC = true ; // not applied for pflow
-
   // hcal helpers
-  hcalCfg_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSize") ;
+  auto const& psetPreselection = cfg.getParameter<edm::ParameterSet>("preselection");
+  hcalCfg_.hOverEConeSize = psetPreselection.getParameter<double>("hOverEConeSize") ;
   if (hcalCfg_.hOverEConeSize>0)
    {
     hcalCfg_.useTowers = true ;
     hcalCfg_.checkHcalStatus = cfg.getParameter<bool>("checkHcalStatus") ;
     hcalCfg_.hcalTowers = consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers")) ;
-    hcalCfg_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMin") ;
+    hcalCfg_.hOverEPtMin = psetPreselection.getParameter<double>("hOverEPtMin") ;
    }
-  hcalCfgPflow_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSizePflow") ;
+  auto const& psetPreselectionPflow = cfg.getParameter<edm::ParameterSet>("preselectionPflow");
+  hcalCfgPflow_.hOverEConeSize = psetPreselectionPflow.getParameter<double>("hOverEConeSize") ;
   if (hcalCfgPflow_.hOverEConeSize>0)
    {
     hcalCfgPflow_.useTowers = true ;
     hcalCfgPflow_.checkHcalStatus = cfg.getParameter<bool>("checkHcalStatus") ;
     hcalCfgPflow_.hcalTowers = consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers")) ;
-    hcalCfgPflow_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMinPflow") ;
+    hcalCfgPflow_.hOverEPtMin = psetPreselectionPflow.getParameter<double>("hOverEPtMin") ;
    }
 
   // Ecal rec hits configuration
