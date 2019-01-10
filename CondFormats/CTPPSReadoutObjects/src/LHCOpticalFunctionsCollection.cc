@@ -8,7 +8,7 @@
 
 void LHCOpticalFunctionsCollection::interpolateFunctions(double xangle, mapType &output) const
 {
-  for (const auto p1 : m_functions1)
+  for (const auto &p1 : m_functions1)
   {
     const auto it2 = m_functions2.find(p1.first);
     if (it2 == m_functions2.end())
