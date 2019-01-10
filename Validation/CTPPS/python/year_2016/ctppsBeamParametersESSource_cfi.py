@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ctppsBeamParametersESSource = cms.ESSource("CTPPSBeamParametersESSource",
-  setBeamPars = cms.untracked.bool(True),
+  setBeamPars = cms.bool(True),
 
   #  beam momentum  (GeV)
   beamMom45 = cms.double(6500.),
