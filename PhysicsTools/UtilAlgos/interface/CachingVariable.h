@@ -163,7 +163,7 @@ class ComputedVariable : public CachingVariable {
     return cache_;
   }
  private:
-  const VariableComputer * myComputer;
+  std::unique_ptr<const VariableComputer> myComputer;
 };
 
 class VariableComputerTest : public VariableComputer {

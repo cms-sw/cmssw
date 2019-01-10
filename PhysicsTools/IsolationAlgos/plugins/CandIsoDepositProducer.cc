@@ -34,14 +34,13 @@ CandIsoDepositProducer::CandIsoDepositProducer(const ParameterSet& par) :
   theConfig(par),
   theCandCollectionToken(consumes< edm::View<reco::Candidate> >(par.getParameter<edm::InputTag>("src"))),
   theDepositNames(std::vector<std::string>(1,"")),
-  theMultipleDepositsFlag(par.getParameter<bool>("MultipleDepositsFlag")),
-  theExtractor(nullptr)
+  theMultipleDepositsFlag(par.getParameter<bool>("MultipleDepositsFlag"))
   {
   LogDebug("PhysicsTools|MuonIsolation")<<" CandIsoDepositProducer CTOR";
 
   edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
+  theExtractor = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector())};
 
   if (! theMultipleDepositsFlag) produces<reco::IsoDepositMap>();
   else {
@@ -67,7 +66,6 @@ CandIsoDepositProducer::CandIsoDepositProducer(const ParameterSet& par) :
 /// destructor
 CandIsoDepositProducer::~CandIsoDepositProducer(){
   LogDebug("PhysicsTools/CandIsoDepositProducer")<<" CandIsoDepositProducer DTOR";
-  delete theExtractor;
 }
 
 inline const reco::Track * CandIsoDepositProducer::extractTrack(const reco::Candidate &c, reco::Track *dummy) const {

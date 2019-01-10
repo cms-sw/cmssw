@@ -11,17 +11,17 @@
 
 class Filter {
  public:
-  Filter() :  selector_(nullptr){}
+  Filter() = default;
   Filter(const edm::ParameterSet& iConfig, edm::ConsumesCollector & iC);
   Filter(std::string name, edm::ParameterSet& iConfig, edm::ConsumesCollector & iC) :
-  name_(name), selector_(nullptr),cached_decision_(false),eventCacheID_(0)
+  name_(name), cached_decision_(false),eventCacheID_(0)
   {
     dump_=iConfig.dump();
     if (!iConfig.empty()){
       const std::string d("name");
       iConfig.addUntrackedParameter<std::string>(d,name);
       std::string componentName = iConfig.getParameter<std::string>("selector");
-      selector_ = EventSelectorFactoryFromHelper::get()->create(componentName, iConfig, iC);
+      selector_ = std::unique_ptr<EventSelector>(EventSelectorFactoryFromHelper::get()->create(componentName, iConfig, iC));
       if (iConfig.exists("description"))
 	description_=iConfig.getParameter<std::vector<std::string> >("description");
       else
@@ -29,6 +29,11 @@ class Filter {
     }
   }
   virtual ~Filter(){}
+
+  Filter(const Filter&) = delete;
+  Filter& operator=(const Filter&) = delete;
+  Filter(Filter&&) = default;
+  Filter& operator=(Filter&&) = default;
 
   const std::string & name() {return name_;}
   const std::string & dump() { return dump_;}
@@ -58,7 +63,7 @@ class Filter {
  protected:
   std::string name_;
   std::vector<std::string> description_;
-  EventSelector * selector_;
+  std::unique_ptr<EventSelector> selector_;
   mutable bool cached_decision_;
   mutable edm::Event::CacheIdentifier_t eventCacheID_ = 0;
   std::string dump_;
@@ -159,6 +164,11 @@ class FilterSelection : public Filter {
     if (makeDetailledPrintout_)
       detailledPrintoutCategory_ = iConfig.getParameter<std::string>("detailledPrintoutCategory");
   }
+
+  FilterSelection(const FilterSelection&) = delete;
+  FilterSelection& operator=(const FilterSelection&) = delete;
+  FilterSelection(FilterSelection&&) = default;
+  FilterSelection& operator=(FilterSelection&&) = default;
 
   const std::string & name() {return name_;}
   iterator begin() { return filters_.begin();}
