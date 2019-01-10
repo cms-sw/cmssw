@@ -101,6 +101,14 @@ namespace edm {
     int basketSize() const {return transient_.basketSize_;}
     void setBasketSize(int size) {transient_.basketSize_ = size;}
 
+    bool isSwitchAlias() const {return not transient_.switchAliasModuleLabel_.empty();}
+    std::string const& switchAliasModuleLabel() const { return transient_.switchAliasModuleLabel_; }
+    void setSwitchAliasModuleLabel(std::string label) {transient_.switchAliasModuleLabel_ = std::move(label);}
+    BranchID const& switchAliasForBranchID() const {return transient_.switchAliasForBranchID_;}
+    void setSwitchAliasForBranch(BranchDescription const& aliasForBranch);
+
+    bool isAnyAlias() const {return isAlias() or isSwitchAlias();}
+
     ParameterSetID const& parameterSetID() const {return transient_.parameterSetID_;}
     std::string const& moduleName() const {return transient_.moduleName_;}
 
@@ -139,6 +147,14 @@ namespace edm {
 
       // The wrapped class name, which is currently derivable fron the other attributes.
       std::string wrappedName_;
+
+      // For SwitchProducer alias, the label of the aliased-for label; otherwise empty
+      std::string switchAliasModuleLabel_;
+
+      // Need a separate (transient) BranchID for switch, because
+      // otherwise originalBranchID() gives wrong answer when reading
+      // from a file (leading to wrong ProductProvenance to be retrieved)
+      BranchID switchAliasForBranchID_;
 
       // A TypeWithDict object for the wrapped object
       TypeWithDict wrappedType_;
