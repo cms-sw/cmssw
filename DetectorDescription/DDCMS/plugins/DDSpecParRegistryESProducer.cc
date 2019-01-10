@@ -69,7 +69,6 @@ DDSpecParRegistryESProducer::produce(const DDSpecParRegistryRcd& iRecord)
   iRecord.getRecord<DetectorDescriptionRcd>().get(det);
 
   DDSpecParRegistry* registry = det->description->extension<DDSpecParRegistry>();
-  cout << "Got a specpar registry " << registry->specpars.size() << "\n";
   auto product = std::make_unique<DDSpecParRegistry>();
   product->specpars.insert(registry->specpars.begin(), registry->specpars.end());
   return product;
