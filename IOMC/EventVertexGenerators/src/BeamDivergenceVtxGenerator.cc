@@ -3,19 +3,42 @@
  *   Jan Kašpar
  ****************************************************************************/
 
-#include "IOMC/EventVertexGenerators/interface/BeamDivergenceVtxGenerator.h"
-
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSBeamParameters.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 
 #include <CLHEP/Random/RandGauss.h>
+
+//----------------------------------------------------------------------------------------------------
+
+class BeamDivergenceVtxGenerator : public edm::stream::EDProducer<>
+{
+  public:
+    explicit BeamDivergenceVtxGenerator(const edm::ParameterSet&);
+    ~BeamDivergenceVtxGenerator() override = default;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+    void produce(edm::Event&, const edm::EventSetup&) override;
+
+  private:
+    edm::EDGetTokenT<edm::HepMCProduct> sourceToken_;
+
+    bool simulateVertex_;
+    bool simulateBeamDivergence_;
+};
 
 //----------------------------------------------------------------------------------------------------
 
@@ -106,6 +129,8 @@ BeamDivergenceVtxGenerator::produce(edm::Event& iEvent, const edm::EventSetup &i
   iEvent.put(std::move(pEvent));
 }
 
+//----------------------------------------------------------------------------------------------------
+
 void
 BeamDivergenceVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
@@ -118,3 +143,6 @@ BeamDivergenceVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions& des
   descriptions.add("beamDivergenceVtxGenerator", desc);
 }
 
+//----------------------------------------------------------------------------------------------------
+
+DEFINE_FWK_MODULE(BeamDivergenceVtxGenerator);
