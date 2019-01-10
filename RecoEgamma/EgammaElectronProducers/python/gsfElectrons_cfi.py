@@ -106,10 +106,6 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     recHitSeverityToBeExcludedBarrel = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
     recHitSeverityToBeExcludedEndcaps = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
 
-    # Isolation algos configuration
-    trkIsol03Cfg = trkIsol03CfgV1,
-    trkIsol04Cfg = trkIsol04CfgV1,
-
     # Iso values
     useIsolationValues = cms.bool(True),
 )
