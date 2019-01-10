@@ -21,13 +21,13 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/StreamID.h"
+//#include "FWCore/Utilities/interface/GlobalID.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -36,7 +36,7 @@
 #include <iostream>
 enum fluctuations{central=0, up, down};
 
-class L1ECALPrefiringWeightProducer : public edm::stream::EDProducer<> {
+class L1ECALPrefiringWeightProducer : public edm::global::EDProducer<> {
 public:
   explicit L1ECALPrefiringWeightProducer(const edm::ParameterSet&);
   ~L1ECALPrefiringWeightProducer() override;
@@ -44,9 +44,11 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  //  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) ;
 
-  virtual double getPrefiringRate( double eta, double pt, TH2F * h_prefmap, fluctuations fluctuation);
+  //virtual double getPrefiringRate( double eta, double pt, TH2F * h_prefmap, fluctuations fluctuation);
+  double getPrefiringRate( double eta, double pt, TH2F * h_prefmap, fluctuations fluctuation) const ;
   
   edm::EDGetTokenT<std::vector< pat::Photon> >  photons_token_; 
   edm::EDGetTokenT<std::vector< pat::Jet> > jets_token_;
@@ -101,7 +103,7 @@ L1ECALPrefiringWeightProducer::~L1ECALPrefiringWeightProducer()
 }
 
 void
-L1ECALPrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+L1ECALPrefiringWeightProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const 
 {
    using namespace edm;
 
@@ -183,7 +185,7 @@ L1ECALPrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup
 }
 
 
-double L1ECALPrefiringWeightProducer::getPrefiringRate( double eta, double pt, TH2F * h_prefmap, fluctuations fluctuation){
+double L1ECALPrefiringWeightProducer::getPrefiringRate( double eta, double pt, TH2F * h_prefmap, fluctuations fluctuation) const{
 
   if(h_prefmap==nullptr&& !skipwarnings_)std::cout << "Prefiring map not found, setting prefiring rate to 0 " <<std::endl;
   if(h_prefmap==nullptr ) return 0.;
