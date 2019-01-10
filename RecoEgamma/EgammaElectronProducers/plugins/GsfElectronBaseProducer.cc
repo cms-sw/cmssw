@@ -62,24 +62,8 @@ void GsfElectronBaseProducer::fillDescriptions( edm::ConfigurationDescriptions &
   desc.add<std::vector<std::string>>("recHitSeverityToBeExcludedEndcaps");
 
   // Isolation algos configuration
-  {
-    edm::ParameterSetDescription psd0;
-    edm::ParameterSetDescription psd1;
-    psd1.add<int>("minHits");
-    psd1.add<std::vector<std::string>>("algosToReject");
-    psd1.add<double>("minDEta");
-    psd1.add<double>("maxDZ");
-    psd1.add<double>("maxDPtPt");
-    psd1.add<std::vector<std::string>>("allowedQualities");
-    psd1.add<double>("maxDR");
-    psd1.add<double>("minDR");
-    psd1.add<int>("minPixelHits");
-    psd1.add<double>("minPt");
-    psd0.add<edm::ParameterSetDescription>("endcapCuts", psd1);
-    psd0.add<edm::ParameterSetDescription>("barrelCuts", psd1);
-    desc.add<edm::ParameterSetDescription>("trkIsol03Cfg", psd0);
-    desc.add<edm::ParameterSetDescription>("trkIsol04Cfg", psd0);
-  }
+  desc.add("trkIsol03Cfg",EleTkIsolFromCands::pSetDescript());
+  desc.add("trkIsol04Cfg",EleTkIsolFromCands::pSetDescript());
   desc.add<bool>("useNumCrystals", true);
   desc.add<double>("etMinBarrel", 0.0);
   desc.add<double>("etMinEndcaps", 0.11);
@@ -158,10 +142,6 @@ void GsfElectronBaseProducer::fillDescriptions( edm::ConfigurationDescriptions &
   // Iso values
   desc.add<bool>("useIsolationValues", false);
 
-  desc.add<std::vector<std::string>>("SoftElecMVAFilesString", {
-         "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_7Feb2014.weights.xml",
-  });
-
   {
     edm::ParameterSetDescription psd0;
     psd0.add<edm::InputTag>("edSumPhotonEt", edm::InputTag("elEDIsoValueGamma04"));
@@ -183,6 +163,10 @@ void GsfElectronBaseProducer::fillDescriptions( edm::ConfigurationDescriptions &
     "RecoEgamma/ElectronIdentification/data/TMVA_Category_BDTSimpleCat_20_17Feb2011.weights.xml",
     "RecoEgamma/ElectronIdentification/data/TMVA_Category_BDTSimpleCat_22_17Feb2011.weights.xml",
   });
+  desc.add<std::vector<std::string>>("SoftElecMVAFilesString", {
+         "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_7Feb2014.weights.xml",
+  });
+
   descriptions.addDefault(desc);
 }
 
