@@ -650,13 +650,13 @@ trackValidatorFromPVAllTPStandalone = trackValidatorFromPVAllTP.clone(
 
 )
 trackValidatorAllTPEfficStandalone = trackValidatorAllTPEffic.clone(
-    label = [ x for x in trackValidator.label.value() if x not in ["cutsRecoTracksBtvLike", "cutsRecoTracksAK4PFJets"] and "Pt09" not in x]
+    label = [ x for x in trackValidator.label.value() if x not in ["cutsRecoTracksBtvLike", "cutsRecoTracksAK4PFJets"] and "Pt09" not in x],
     cores = cms.InputTag("highPtJets")
 
 )
 
 trackValidatorConversionStandalone = trackValidatorConversion.clone(
-    label = [x for x in trackValidatorConversion.label if x != "convStepTracks"]
+    label = [x for x in trackValidatorConversion.label if x != "convStepTracks"],
     cores = cms.InputTag("highPtJets")
 )
 
