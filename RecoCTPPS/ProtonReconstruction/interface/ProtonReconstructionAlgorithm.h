@@ -80,6 +80,8 @@ class ProtonReconstructionAlgorithm
 
     /// object to calculate chi^2
     std::unique_ptr<ChiSquareCalculator> chiSquareCalculator_;
+
+    static void doLinearFit(const std::vector<double> &vx, const std::vector<double> &vy, double &b, double &a);
 };
 
 #endif
