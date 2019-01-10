@@ -50,14 +50,13 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
     void beginEvent( edm::Event &, const edm::EventSetup & ) ;
     void fillEvent( edm::Event & ) ;
     void endEvent() ;
-    reco::GsfElectron * newElectron() { return nullptr ; }
     const edm::OrphanHandle<reco::GsfElectronCollection> & orphanHandle() const { return orphanHandle_;}
 
     // configurables
     GsfElectronAlgo::InputTagsConfiguration inputCfg_ ;
     GsfElectronAlgo::StrategyConfiguration strategyCfg_ ;
-    GsfElectronAlgo::CutsConfiguration cutsCfg_ ;
-    GsfElectronAlgo::CutsConfiguration cutsCfgPflow_ ;
+    const GsfElectronAlgo::CutsConfiguration cutsCfg_ ;
+    const GsfElectronAlgo::CutsConfiguration cutsCfgPflow_ ;
     ElectronHcalHelper::Configuration hcalCfg_ ;
     ElectronHcalHelper::Configuration hcalCfgPflow_ ;
     SoftElectronMVAEstimator::Configuration mva_NIso_Cfg_ ;

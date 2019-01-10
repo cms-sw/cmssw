@@ -23,8 +23,16 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     useCombinationRegression = cms.bool(True),
 
     # preselection parameters (ecal driven electrons)
-    minSCEtBarrel = cms.double(4.0),
-    minSCEtEndcaps = cms.double(4.0),
+    preselection = cms.PSet(
+        minSCEtBarrel = cms.double(4.0),
+        minSCEtEndcaps = cms.double(4.0),
+        maxDeltaEtaBarrel = cms.double(0.02),
+        maxDeltaEtaEndcaps = cms.double(0.02),
+        maxDeltaPhiBarrel = cms.double(0.15),
+        maxDeltaPhiEndcaps = cms.double(0.15),
+        maxHOverEBarrel = cms.double(0.15),
+        maxHOverEEndcaps = cms.double(0.15),
+    ),
 
     # Ecal rec hits configuration
     recHitFlagsToBeExcludedBarrel = cleanedHybridSuperClusters.RecHitFlagToBeExcluded,
@@ -49,5 +57,5 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
 
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(gedGsfElectronsTmp, minSCEtBarrel = 15.0)
-pp_on_AA_2018.toModify(gedGsfElectronsTmp, minSCEtEndcaps = 15.0)
+pp_on_AA_2018.toModify(gedGsfElectronsTmp.preselection, minSCEtBarrel = 15.0)
+pp_on_AA_2018.toModify(gedGsfElectronsTmp.preselection, minSCEtEndcaps = 15.0)

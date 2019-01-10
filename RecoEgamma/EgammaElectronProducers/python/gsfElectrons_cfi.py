@@ -27,8 +27,16 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     useCombinationRegression = cms.bool(False),
 
     # preselection parameters (ecal driven electrons)
-    minSCEtBarrel = cms.double(4.0),
-    minSCEtEndcaps = cms.double(4.0),
+    preselection = cms.PSet(
+        minSCEtBarrel = cms.double(4.0),
+        minSCEtEndcaps = cms.double(4.0),
+        maxDeltaEtaBarrel = cms.double(0.02),
+        maxDeltaEtaEndcaps = cms.double(0.02),
+        maxDeltaPhiBarrel = cms.double(0.15),
+        maxDeltaPhiEndcaps = cms.double(0.15),
+        maxHOverEBarrel = cms.double(0.15),
+        maxHOverEEndcaps = cms.double(0.15),
+    ),
 
     # Ecal rec hits configuration
     recHitFlagsToBeExcludedBarrel = cleanedHybridSuperClusters.RecHitFlagToBeExcluded,
@@ -47,8 +55,8 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
 )
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(ecalDrivenGsfElectrons, minSCEtBarrel = 15.0)
-pp_on_AA_2018.toModify(ecalDrivenGsfElectrons, minSCEtEndcaps = 15.0)
+pp_on_AA_2018.toModify(ecalDrivenGsfElectrons.preselection, minSCEtBarrel = 15.0)
+pp_on_AA_2018.toModify(ecalDrivenGsfElectrons.preselection, minSCEtEndcaps = 15.0)
 
 #==============================================================================
 # Final producer of persistent gsf electrons
@@ -73,12 +81,24 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     useCombinationRegression = cms.bool(False),
 
     # preselection parameters (ecal driven electrons)
-    minMVA = cms.double(-0.1),
-    minMvaByPassForIsolated = cms.double(-0.1),
+    preselection = cms.PSet(
+        minSCEtBarrel = cms.double(4.0),
+        minSCEtEndcaps = cms.double(4.0),
+        maxDeltaEtaBarrel = cms.double(0.02),
+        maxDeltaEtaEndcaps = cms.double(0.02),
+        maxDeltaPhiBarrel = cms.double(0.15),
+        maxDeltaPhiEndcaps = cms.double(0.15),
+        maxHOverEBarrel = cms.double(0.15),
+        maxHOverEEndcaps = cms.double(0.15),
+        minMVA = cms.double(-0.1),
+        minMvaByPassForIsolated = cms.double(-0.1),
+    ),
 
     # preselection parameters (tracker driven only electrons)
-    minMVAPflow = cms.double(-0.1),
-    minMvaByPassForIsolatedPflow = cms.double(-0.1),
+    preselectionPflow = cms.PSet(
+        minMVAPflow = cms.double(-0.1),
+        minMvaByPassForIsolatedPflow = cms.double(-0.1),
+    ),
 
     # Ecal rec hits configuration
     recHitFlagsToBeExcludedBarrel = cleanedHybridSuperClusters.RecHitFlagToBeExcluded,
