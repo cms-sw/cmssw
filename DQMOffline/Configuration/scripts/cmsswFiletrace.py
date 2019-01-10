@@ -2,7 +2,6 @@
 from __future__ import print_function
 import os
 import sys
-import trace
 import atexit
 import tempfile
 import subprocess
@@ -62,13 +61,6 @@ def trace_command(argv):
 
   if tmpdir:
     cleanupenv(tmpdir)
-
-def funcid(frame):
-  code = frame.f_code
-  filename = code.co_filename
-  funcname = code.co_name
-  # compared to the `trace` module, we don't attempt to find class names here 
-  return (filename, funcname)
 
 def trace_python(prog_argv, path):
   files = set()
@@ -136,6 +128,7 @@ def trace_python(prog_argv, path):
       path = []
       seen = set()
       parents = {func}
+      timeout = 100 # go no more than this deep
       while parents:
         if len(parents) == 1:
           func = next(iter(parents))
@@ -145,9 +138,18 @@ def trace_python(prog_argv, path):
           for func in parents:
             if not func in seen:
               break
+          if func in seen:
+            # somehow we got stuck in a loop and can't get out. So maybe
+            # backtracking is needed in some situations?
+            # Abort with a partial path for now.
+            return path
           seen.add(func)
           path.append(format(func) + "+")
         parents = callgraph[func]
+        timeout -= 1
+        if timeout == 0:
+          print(seen, path, parents, func)
+          raise Exception('Call path too deep, aborting')
       return path[:-1]
 
     with open(os.environ["CMSSWCALLFILES"], "a") as outfile:
@@ -194,12 +196,12 @@ def trace_python(prog_argv, path):
   sys.exit(0)
 
 def help():
-  print("Usage: %s <some cmssw commandline>" % (sys.argv[0])))
+  print("Usage: %s <some cmssw commandline>" % (sys.argv[0]))
   print("  The given programs will be executed, instrumenting calls to %s and cmsRun." % (", ".join(WRAP_SCRIPTS)))
-  print("  cmsRun will not actually run cmssw, but all the Python code will be executed and instrumentd. The results are written to the file `%s` in the same directory." % OUTFILE)
+  print("  cmsRun will not actually run cmssw, but all the Python code will be executed and instrumentd. The results are written to the files `%s` and `%s` in the same directory." % (OUTFILE_FILES, OUTFILE_TREE))
   print("Examples:")
-  print("  %s --files runTheMatrix.py -l 1000 --ibeos" % sys.argv[0])
-  print(  "%s --callgraph cmsRun rpc_dqm_sourceclient-live_cfg.py" % sys.argv[0])
+  print("  %s runTheMatrix.py -l 1000 --ibeos" % sys.argv[0])
+  print(  "%s cmsRun rpc_dqm_sourceclient-live_cfg.py" % sys.argv[0])
 
 def main():
   print("+Running cmsswfiletrace...")
