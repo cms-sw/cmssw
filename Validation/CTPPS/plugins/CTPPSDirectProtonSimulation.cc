@@ -475,7 +475,7 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
 void CTPPSDirectProtonSimulation::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
 {
   edm::ParameterSetDescription desc;
-  desc.add<unsigned int>("verbosity", 0);
+  desc.addUntracked<unsigned int>("verbosity", 0);
   desc.add<edm::InputTag>("hepMCTag", edm::InputTag("generator", "unsmeared"));
   desc.add<bool>("produceScoringPlaneHits", true);
   desc.add<bool>("produceRecHits", true);
