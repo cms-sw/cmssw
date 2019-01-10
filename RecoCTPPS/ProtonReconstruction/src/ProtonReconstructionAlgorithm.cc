@@ -19,9 +19,10 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(bool fit_vtx_y, unsigned int verbosity) :
+ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(bool fit_vtx_y, bool improved_estimate, unsigned int verbosity) :
   verbosity_(verbosity),
   fitVtxY_(fit_vtx_y),
+  useImprovedInitialEstimate_(improved_estimate),
   initialized_(false),
   fitter_(new ROOT::Fit::Fitter), chiSquareCalculator_(new ChiSquareCalculator)
 {
@@ -160,8 +161,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   // initial estimate of xi and th_x
   double xi_init = 0., th_x_init = 0.;
 
-  const bool use_improved_estimate = true;
-  if (use_improved_estimate)
+  if (useImprovedInitialEstimate_)
   {
     double x_N = tracks[0]->getX()*1E-3,  // conversion: mm --> m
       x_F = tracks[1]->getX()*1E-3;

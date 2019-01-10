@@ -69,7 +69,7 @@ CTPPSProtonReconstruction::CTPPSProtonReconstruction(const edm::ParameterSet& iC
   verbosity_               (iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
   doSingleRPReconstruction_(iConfig.getParameter<bool>("doSingleRPReconstruction")),
   doMultiRPReconstruction_ (iConfig.getParameter<bool>("doMultiRPReconstruction")),
-  algorithm_               (iConfig.getParameter<bool>("fitVtxY"), verbosity_),
+  algorithm_               (iConfig.getParameter<bool>("fitVtxY"), iConfig.getParameter<bool>("useImprovedInitialEstimate"), verbosity_),
   currentCrossingAngle_(-1.)
 {
   if (doSingleRPReconstruction_)
@@ -93,6 +93,8 @@ void CTPPSProtonReconstruction::fillDescriptions(ConfigurationDescriptions& desc
     ->setComment("flag whether to apply multi-RP reconstruction strategy");
   desc.add<bool>("fitVtxY", true)
     ->setComment("for multi-RP reconstruction, flag whether y* should be free fit parameter");
+  desc.add<bool>("useImprovedInitialEstimate", true)
+    ->setComment("for multi-RP reconstruction, flag whether a quadratic estimate of the initial point should be used");
 
   descriptions.add("ctppsProtonReconstruction", desc);
 }

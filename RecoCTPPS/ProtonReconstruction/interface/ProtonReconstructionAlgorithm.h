@@ -25,7 +25,7 @@
 class ProtonReconstructionAlgorithm
 {
   public:
-    ProtonReconstructionAlgorithm(bool fit_vtx_y, unsigned int verbosity);
+    ProtonReconstructionAlgorithm(bool fit_vtx_y, bool improved_estimate, unsigned int verbosity);
     ~ProtonReconstructionAlgorithm() = default;
 
     void init(const std::unordered_map<unsigned int, LHCOpticalFunctionsSet> &opticalFunctions);
@@ -44,6 +44,7 @@ class ProtonReconstructionAlgorithm
   private:
     unsigned int verbosity_;
     bool fitVtxY_;
+    bool useImprovedInitialEstimate_;
     bool initialized_;
 
     /// optics data associated with 1 RP
