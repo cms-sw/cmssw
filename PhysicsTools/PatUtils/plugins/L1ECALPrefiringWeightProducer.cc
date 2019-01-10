@@ -89,7 +89,7 @@ L1ECALPrefiringWeightProducer::L1ECALPrefiringWeightProducer(const edm::Paramete
     std::cout << "Jet map not found. All jets prefiring weights set to 0. "<< std::endl ; 
   h_prefmap_jet =(TH2F*) file_prefiringmaps_->Get(mapjetfullname);
   file_prefiringmaps_->Close();
-  
+  delete file_prefiringmaps_;
   produces<double>( "nonPrefiringProb" ).setBranchAlias( "nonPrefiringProb");
   produces<double>( "nonPrefiringProbUp" ).setBranchAlias( "nonPrefiringProbUp");
   produces<double>( "nonPrefiringProbDown" ).setBranchAlias( "nonPrefiringProbDown");
