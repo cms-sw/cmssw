@@ -572,7 +572,7 @@ baseDataSetRelease=[
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_9_0_0_pre4-PU25ns_90X_mcRun2_asymptotic_v1-v1',    # 5 - fullSim PU 25ns UP15 premix
     'CMSSW_8_1_0_pre15-PU50ns_81X_mcRun2_startup_v12-v1',        # 6 - fullSim PU 50ns UP15 premix
-    'CMSSW_10_2_8-102X_mc2017_realistic_v5_FastSim-v1',    # 7 - fastSim MinBias for mixing
+    'CMSSW_10_2_0-102X_mcRun2_asymptotic_v3_gcc7_FastSim-v1',    # 7 - fastSim MinBias for mixing
     'CMSSW_10_2_0-PU25ns_102X_mcRun2_asymptotic_v3_gcc7_FastSim-v1',# 8 - fastSim premixed MinBias
     'CMSSW_10_2_0-102X_upgrade2018_realistic_v9_gcc7-v1',        # 9 - Run2 HI GEN-SIM for mixing
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
@@ -582,6 +582,8 @@ baseDataSetRelease=[
     'CMSSW_10_0_0_pre2-PU25ns_100X_mc2017_realistic_v1-v1',     # 14 - fullSim PU 25ns UP17 premix
     'CMSSW_10_2_0-PU25ns_102X_upgrade2018_realistic_v9_gcc7-v1',  #15 - fullSim PU 25ns UP18 premix
     'CMSSW_10_2_0-102X_upgrade2018_realistic_v9_gcc7-v1',  #16 - GENSIM input 2018
+    'CMSSW_10_2_8-102X_mc2017_realistic_v5_FastSim-v1',    # 17 - fastSim MinBias for mixing UP17
+    'CMSSW_10_2_8-PU25ns_102X_mc2017_realistic_v5_FastSim-v1',# 18 - fastSim premixed MinBias UP17
     ]
 
 
@@ -988,7 +990,7 @@ FS_UP15_PU25_OVERLAY = merge([PUFS25,Kby(100,500),steps['TTbarFS_13']] )
 
 ### FastSim: template to produce signal and overlay with minbias events #PU50
 PUFSAVE50={'--pileup':'AVE_50_BX_25ns',
-        '--pileup_input':'das:/RelValMinBiasFS_13_UP17_ForMixing/%s/GEN-SIM-RECO'%(baseDataSetRelease[7],)}
+        '--pileup_input':'das:/RelValMinBiasFS_13_UP17_ForMixing/%s/GEN-SIM-RECO'%(baseDataSetRelease[17],)}
 FS_UP17_PU50_OVERLAY = merge([PUFSAVE50,Kby(100,500),steps['TTbarFS_13_UP17']] )
 
 ### FastSim: produce sample of premixed minbias events
@@ -1046,7 +1048,7 @@ FS_PREMIXUP17_PU50_OVERLAY = merge([
         {"-s" : "GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,VALIDATION",
          "--datamix" : "PreMix",
          "--procModifiers": "premix_stage2",
-         "--pileup_input" : "dbs:/RelValFS_PREMIXUP17_PU50/%s/PREMIX"%(baseDataSetRelease[8],),
+         "--pileup_input" : "dbs:/RelValFS_PREMIXUP17_PU50/%s/PREMIX"%(baseDataSetRelease[18],),
          },
         Kby(100,500),step1FastUpg2017Defaults])
 
