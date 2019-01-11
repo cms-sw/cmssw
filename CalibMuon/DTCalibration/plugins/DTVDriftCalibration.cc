@@ -45,7 +45,12 @@ using namespace edm;
 using namespace dttmaxenums;
 
 
-DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset): select_(pset) {
+DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset):
+  select_(pset),
+  // Get the synchronizer
+  theSync{DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
+                                            pset.getParameter<ParameterSet>("tTrigModeConfig"))}
+{
 
   // The name of the 4D rec hits collection
   theRecHits4DLabel = pset.getParameter<InputTag>("recHits4DLabel");
@@ -57,7 +62,7 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset): select_(pset
 
   debug = pset.getUntrackedParameter<bool>("debug", false);
 
-  theFitter = new DTMeanTimerFitter(theFile);
+  theFitter = std::make_unique<DTMeanTimerFitter>(theFile);
   if(debug)
     theFitter->setVerbosity(1);
 
@@ -74,10 +79,6 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset): select_(pset
 
   // the txt file which will contain the calibrated constants
   theVDriftOutputFile = pset.getUntrackedParameter<string>("vDriftFileName");
-
-  // Get the synchronizer
-  theSync = DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
-                                              pset.getParameter<ParameterSet>("tTrigModeConfig"));
 
   // get parameter set for DTCalibrationMap constructor
   theCalibFilePar =  pset.getUntrackedParameter<ParameterSet>("calibFileConfig");
@@ -106,7 +107,6 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset): select_(pset
 
 DTVDriftCalibration::~DTVDriftCalibration(){
   theFile->Close();
-  delete theFitter;
   LogVerbatim("Calibration") << "[DTVDriftCalibration]Destructor called!";
 }
 
@@ -227,7 +227,7 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
         DTSuperLayerId slId = slIdAndHits->first;
 
         // Create the DTTMax, that computes the 4 TMax
-        DTTMax slSeg(slIdAndHits->second, *(chamber->superLayer(slIdAndHits->first)),chamber->toGlobal((*segment).localDirection()), chamber->toGlobal((*segment).localPosition()), theSync);
+        DTTMax slSeg(slIdAndHits->second, *(chamber->superLayer(slIdAndHits->first)),chamber->toGlobal((*segment).localDirection()), chamber->toGlobal((*segment).localPosition()), *theSync);
 
         if(theGranularity == bySL) {
           vector<const TMax*> tMaxes = slSeg.getTMax(slId);
