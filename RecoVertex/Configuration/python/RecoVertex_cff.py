@@ -51,6 +51,13 @@ unsortedOfflinePrimaryVertices4DwithPID = unsortedOfflinePrimaryVertices4D.clone
 offlinePrimaryVertices4DwithPID=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4DwithPID", particles="trackRefsForJetsBeforeSorting4D", trackTimeTag=cms.InputTag("TOFPIDProducer","t0"),trackTimeResoTag=cms.InputTag("TOFPIDProducer","sigmat0"),assignment=dict(useTiming=True))
 offlinePrimaryVertices4DwithPIDWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4DwithPID:WithBS", particles="trackRefsForJetsBeforeSorting4D", trackTimeTag=cms.InputTag("TOFPIDProducer","t0"),trackTimeResoTag=cms.InputTag("TOFPIDProducer","sigmat0"),assignment=dict(useTiming=True))
 
+unsortedOfflinePrimaryVertices4Dfastsim = unsortedOfflinePrimaryVertices4D.clone(TrackTimesLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel"),
+                                                                                 TrackTimeResosLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution"),
+                                                                                 )
+
+offlinePrimaryVertices4Dfastsim=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4Dfastsim", particles="trackRefsForJetsBeforeSorting4D", trackTimeTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModel"),trackTimeResoTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModelResolution"),assignment=dict(useTiming=True))
+offlinePrimaryVertices4DfastsimWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4Dfastsim:WithBS", particles="trackRefsForJetsBeforeSorting4D", trackTimeTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModel"),trackTimeResoTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModelResolution"),assignment=dict(useTiming=True))
+
 trackWithVertexRefSelectorBeforeSorting4D = trackWithVertexRefSelector.clone(vertexTag="unsortedOfflinePrimaryVertices4D")
 trackWithVertexRefSelectorBeforeSorting4D.ptMax=9e99
 trackWithVertexRefSelectorBeforeSorting4D.ptErrorCut=9e99
@@ -72,7 +79,10 @@ _phase2_tktiming_vertexrecoTask = cms.Task( vertexrecoTask.copy() ,
                                             TOFPIDProducer,
                                             unsortedOfflinePrimaryVertices4DwithPID,
                                             offlinePrimaryVertices4DwithPID ,
-                                            offlinePrimaryVertices4DwithPIDWithBS 
+                                            offlinePrimaryVertices4DwithPIDWithBS,
+                                            unsortedOfflinePrimaryVertices4Dfastsim,
+                                            offlinePrimaryVertices4Dfastsim,
+                                            offlinePrimaryVertices4DfastsimWithBS
                                             )
 
 #from RecoMTD.TrackExtender.trackExtenderWithMTD_cfi import trackExtenderWithMTD
