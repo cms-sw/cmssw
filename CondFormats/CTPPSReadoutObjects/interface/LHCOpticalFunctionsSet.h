@@ -25,6 +25,7 @@ class LHCOpticalFunctionsSet
 
     /// returns the position of the scoring plane (LHC/TOTEM convention)
     double getScoringPlaneZ() const { return m_z; }
+
     const std::vector<double>& getXiValues() const { return m_xi_values; }
     const std::array<std::vector<double>, 16>& getFcnValues() const { return m_fcn_values; }
     const std::array<std::shared_ptr<const TSpline3>, 16>& getSplines() const { return m_splines; }
@@ -35,9 +36,9 @@ class LHCOpticalFunctionsSet
     /// proton kinematics description
     struct Kinematics
     {
-      double x;     // physics vertex position (beam offset subtracted), m
+      double x;     // physics vertex position (beam offset subtracted), cm
       double th_x;  // physics scattering angle (crossing angle subtracted), rad
-      double y;     // physics vertex position, m
+      double y;     // physics vertex position, cm
       double th_y;  // physics scattering angle, rad
       double xi;    // relative momentum loss (positive for diffractive protons)
     };
@@ -50,14 +51,14 @@ class LHCOpticalFunctionsSet
       double xangle2, const LHCOpticalFunctionsSet &of2, double xangle);
 
   private:
-    /// position of the scoring plane, in LHC/TOTEM convention, m
+    /// position of the scoring plane, in LHC/TOTEM convention, cm
     double m_z;
+
     std::vector<double> m_xi_values;
-    std::array<std::vector<double>, 16> m_fcn_values;
+    std::array<std::vector<double>, 16> m_fcn_values; ///< length unit cm
     std::array<std::shared_ptr<const TSpline3>, 16> m_splines;
 
     COND_SERIALIZABLE;
 };
 
 #endif
-

@@ -127,9 +127,9 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const dou
     const double x = k_out.x - oit->second.x0;
     const double y = k_out.y - oit->second.y0;
 
-    // calculate chi^2 contributions, convert track data mm --> m
-    const double x_diff_norm = (x - track->getX()*1E-3) / (track->getXUnc()*1E-3);
-    const double y_diff_norm = (y - track->getY()*1E-3) / (track->getYUnc()*1E-3);
+    // calculate chi^2 contributions, convert track data mm --> cm
+    const double x_diff_norm = (x - track->getX()*1E-1) / (track->getXUnc()*1E-1);
+    const double y_diff_norm = (y - track->getY()*1E-1) / (track->getYUnc()*1E-1);
 
     // increase chi^2
     s2 += x_diff_norm*x_diff_norm + y_diff_norm*y_diff_norm;
@@ -166,8 +166,8 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
 
   if (useImprovedInitialEstimate_)
   {
-    double x_N = tracks[0]->getX()*1E-3,  // conversion: mm --> m
-      x_F = tracks[1]->getX()*1E-3;
+    double x_N = tracks[0]->getX()*1E-1,  // conversion: mm --> cm
+      x_F = tracks[1]->getX()*1E-1;
 
     const RPOpticsData &i_N = m_rp_optics_.find(tracks[0]->getRPId())->second,
       &i_F = m_rp_optics_.find(tracks[1]->getRPId())->second;
@@ -184,7 +184,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
     for (const auto &track : tracks)
     {
       auto oit = m_rp_optics_.find(track->getRPId());
-      double xi = oit->second.s_xi_vs_x_d->Eval(track->getX() * 1E-3 + oit->second.x0);  // conversion: mm --> m
+      double xi = oit->second.s_xi_vs_x_d->Eval(track->getX()*1E-1 + oit->second.x0);  // conversion: mm --> cm
 
       s_1 += 1.;
       s_xi0 += xi;
@@ -203,7 +203,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
 
     auto oit = m_rp_optics_.find(track->getRPId());
 
-    y[y_idx] = track->getY()*1E-3 - oit->second.s_y_d_vs_xi->Eval(xi_init); // track y: mm --> m
+    y[y_idx] = track->getY()*1E-1 - oit->second.s_y_d_vs_xi->Eval(xi_init); // track y: mm --> cm
     v_y[y_idx] = oit->second.s_v_y_vs_xi->Eval(xi_init);
     L_y[y_idx] = oit->second.s_L_y_vs_xi->Eval(xi_init);
 
@@ -262,7 +262,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   using PT = reco::ProtonTrack;
 
   const double sign_z = (armId == 0) ? +1. : -1.;  // CMS convention
-  const reco::ProtonTrack::Point vertex(0., params[3]*1E2, 0.);  // vertex in cm
+  const reco::Track::Point vertex(0., params[3], 0.);
   const double xi = params[0];
   const double th_x = params[1];
   const double th_y = params[2];
@@ -335,14 +335,14 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     }
 
     auto oit = m_rp_optics_.find(track->getRPId());
-    const double x_full = track->getX() * 1E-3 + oit->second.x0; // conversions mm --> m
+    const double x_full = track->getX()*1E-1 + oit->second.x0; // conversion mm --> cm
     const double xi = oit->second.s_xi_vs_x_d->Eval(x_full);
     const double L_y = oit->second.s_L_y_vs_xi->Eval(xi);
-    const double th_y = track->getY() * 1E-3 / L_y;
+    const double th_y = track->getY()*1E-1 / L_y; // conversion mm --> cm
 
     const double ep_x = 1E-6;
     const double dxi_dx = (oit->second.s_xi_vs_x_d->Eval(x_full + ep_x) - xi) / ep_x;
-    const double xi_unc = abs(dxi_dx) * track->getXUnc() * 1E-3;
+    const double xi_unc = abs(dxi_dx) * track->getXUnc() * 1E-1; // conversion mm --> cm
 
     const double ep_xi = 1E-4;
     const double dL_y_dxi = ( oit->second.s_L_y_vs_xi->Eval(xi + ep_xi) - L_y ) / ep_xi;

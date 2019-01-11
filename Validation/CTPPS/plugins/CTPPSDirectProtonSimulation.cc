@@ -318,11 +318,11 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
       ssLog << "  RP " << rpDecId << std::endl;
 
     // transport proton
-    LHCOpticalFunctionsSet::Kinematics k_in = { vtx_lhc_eff_x * 1E-3, th_x_phys, vtx_lhc_eff_y * 1E-3, th_y_phys, xi }; // conversions: mm -> m
+    LHCOpticalFunctionsSet::Kinematics k_in = { vtx_lhc_eff_x*1E-1, th_x_phys, vtx_lhc_eff_y*1E-1, th_y_phys, xi }; // conversions: mm -> cm
     LHCOpticalFunctionsSet::Kinematics k_out;
     ofp.second.transport(k_in, k_out, true);
 
-    double b_x = k_out.x * 1E3, b_y = k_out.y * 1E3; // conversions: m -> mm
+    double b_x = k_out.x * 1E1, b_y = k_out.y * 1E1; // conversions: cm -> mm
     double a_x = k_out.th_x, a_y = k_out.th_y;
 
     // if needed, subtract beam position and angle
@@ -334,10 +334,10 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
       ofp.second.transport(k_be_in, k_be_out, true);
 
       a_x -= k_be_out.th_x; a_y -= k_be_out.th_y;
-      b_x -= k_be_out.x * 1E3; b_y -= k_be_out.y * 1E3;
+      b_x -= k_be_out.x * 1E1; b_y -= k_be_out.y * 1E1; // conversions: cm -> mm
     }
 
-    const double z_scoringPlane = ofp.second.getScoringPlaneZ() * 1E3;  // conversion: m --> mm
+    const double z_scoringPlane = ofp.second.getScoringPlaneZ() * 1E1;  // conversion: cm --> mm
 
     if (verbosity_)
     {
