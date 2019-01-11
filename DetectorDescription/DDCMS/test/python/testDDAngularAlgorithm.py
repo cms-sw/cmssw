@@ -8,7 +8,7 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.string('DetectorDescription/DDCMS/data/cms-test-ddangular-algorithm.xml')
+                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-test-ddangular-algorithm.xml')
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile")

@@ -8,7 +8,7 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.string('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml')
+                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml')
                                             )
 ##process.DDDetectorESProducer2 = cms.ESSource("DDDetectorESProducer",
 ##                                            confGeomXMLFiles = cms.string('DetectorDescription/DDCMS/data/cms-mf-geometry.xml')
