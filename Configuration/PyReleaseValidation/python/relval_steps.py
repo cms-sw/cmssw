@@ -2894,15 +2894,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
-    upgradeStepDict['DigiKillPixelStuckTBM'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:%s'%(hltversion),
-                                                   '--conditions':gt,
-                                                   '--datatier':'GEN-SIM-DIGI-RAW',
-                                                   '-n':'10',
-                                                   '--eventcontent':'FEVTDEBUGHLT',
-                                                   '--geometry' : geom,
-                                                   '--customise': 'SimTracker/SiPixelDigitizer/customiseStuckTBMSimulation.activateStuckTBMSimulation2018NoPU' 
-                                                   }
-
     # Adding Track trigger step in step2
     upgradeStepDict['DigiFullTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:%s'%(hltversion),
                                       '--conditions':gt,
