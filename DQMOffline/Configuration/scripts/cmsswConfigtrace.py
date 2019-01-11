@@ -9,17 +9,14 @@ import subprocess
 from shutil import copy, rmtree
 from collections import defaultdict
 
-import FWCore
-import FWCore.Modules.EmptySource_cfi
+import cmsswFiletrace
 
-OUTFILE_TREE = "calltree"
-def STRIPPATHS():
-  # this can only be evaluated after FWCore is loaded, and instrumented
-  return [
-    "/".join(os.path.dirname(FWCore.__file__).split("/")[:-1]) + "/",
-    "/".join(FWCore.Modules.EmptySource_cfi.__file__.split("/")[:-3]) + "/",
-  ]
+cmsswFiletrace.OUTFILE_TREE = "configtree"
+cmsswFiletrace.OUTFILE_FILES = "configfiles"
+cmsswFiletrace.WRAP_SCRIPTS = []
 IGNORE_PACKAGES = ['FWCore/ParameterSet', 'FWCore/GuiBrowsers', 'DQMOffline/Configuration/scripts', "cmsRun"]
+
+from cmsswFiletrace import *
 
 # this already does a good job, but it is not enough
 #import FWCore.GuiBrowsers.EnablePSetHistory
@@ -151,33 +148,33 @@ def collect_trace(thing, graph, parent):
   for name, child in items:
     collect_trace(child, graph, entry)
 
-def setupenv():
-  bindir = tempfile.mkdtemp()
-  print("+Setting up in ", bindir)
-  os.symlink(__file__, bindir + "/cmsRun")
-  os.environ["PATH"] = bindir + ":" + os.environ["PATH"]
-  os.environ["CMSSWCALLTREE"] = bindir + "/" + OUTFILE_TREE
-  with open(os.environ["CMSSWCALLTREE"], "w") as f:
-    pass
-  return bindir
+def writeoutput(graph):
+  progname = ", ".join(PREFIXINFO)
+  print("+Done running %s, writing output..." % progname)
 
-def cleanupenv(tmpdir):
-  #with open(os.environ["CMSSWCALLTREE"], "a") as f:
-  #  print("}", file=f)
-  print("+Cleaning up ", tmpdir)
-  copy(os.environ["CMSSWCALLTREE"], ".")
-  rmtree(tmpdir)
+  def formatfile(filename):
+    filename = os.path.abspath(filename)
+    for pfx in STRIPPATHS:
+      if filename.startswith(pfx):
+        filename = filename[len(pfx):]
+    return filename
 
+  def format(event):
+    evt, classname, filename, line = event
+    filename = formatfile(filename)
+    return "%s:%s; %s::%s" % (filename, line, classname, evt)
 
-def trace_command(argv):
-  tmpdir = None
-  if not "CMSSWCALLTREE" in os.environ:
-    tmpdir = setupenv()
-
-  subprocess.call(argv)
-
-  if tmpdir:
-    cleanupenv(tmpdir)
+  files = set()
+  for child, parent in graph:
+    files.add(child[2])
+    files.add(parent[2])
+  with open(os.environ["CMSSWCALLFILES"], "a") as outfile:
+    for f in files:
+      print("%s: %s" % (progname, formatfile(f)), file=outfile)
+    
+  with open(os.environ["CMSSWCALLTREE"], "a") as outfile:
+      for child, parent in graph:
+        print("%s -> %s" % (format(child), format(parent)), file=outfile)
 
 def trace_python(prog_argv, path):
   graph = []
@@ -185,35 +182,7 @@ def trace_python(prog_argv, path):
   sys.argv = prog_argv
   progname = prog_argv[0]
 
-  # Search $PATH. There seems to be no pre-made function for this.
-  for entry in path:
-    file_path = os.path.join(entry, progname)
-    if os.path.isfile(file_path):
-      break
-  if not os.path.isfile(file_path):
-    print("+Cannot find program (%s) in modified $PATH (%s)." % (progname, path))
-    sys.exit(1)
-  print("+Found %s as %s in %s." % (progname, file_path, path))
-
-  def writeoutput():
-    print("+Done running %s, writing output..." % progname)
-
-    def formatfile(filename):
-      filename = os.path.abspath(filename)
-      for pfx in STRIPPATHS():
-        if filename.startswith(pfx):
-          filename = filename[len(pfx):]
-      return filename
-
-    def format(event):
-      evt, classname, filename, line = event
-      filename = formatfile(filename)
-      return "%s:%s; %s::%s" % (filename, line, classname, evt)
-      
-    with open(os.environ["CMSSWCALLTREE"], "a") as outfile:
-        for child, parent in graph:
-          print("%s -> %s" % (format(child), format(parent)), file=outfile)
-
+  file_path = searchinpath(progname, path)
   try:
     with open(file_path) as fp:
       code = compile(fp.read(), progname, 'exec')
@@ -230,9 +199,8 @@ def trace_python(prog_argv, path):
       try:
         exec code in globals, globals
         # reporting is only possible if the config was executed successfully.
-        import pickle
         collect_trace(globals["process"], graph, ('cmsRun', '', progname, 0))
-        writeoutput()
+        writeoutput(graph)
 
       finally:
         sys.settrace(None)
@@ -244,26 +212,16 @@ def trace_python(prog_argv, path):
     pass
   # this is not necessarily reached at all. 
   sys.exit(0)
+cmsswFiletrace.trace_python = trace_python
 
 def help():
   print("Usage: %s <some cmssw commandline>" % (sys.argv[0]))
-  print("  The given programs will be executed, instrumenting calls cmsRun.")
+  print("  The given programs will be executed, instrumenting calls to cmsRun.")
   print("  cmsRun will not actually run cmssw, but all the Python code will be executed and instrumentd. The results are written to the file `%s` in the same directory." % OUTFILE_TREE)
+  print("  The callgraph output lists edges pointing from each function to the one calling it.")
   print("Examples:")
   print("  %s runTheMatrix.py -l 1000 --ibeos" % sys.argv[0])
-
-def main():
-  print("+Running cmsswfiletrace...")
-  if sys.argv[0].endswith('cmsRun'):
-      print("+Wrapping cmsRun...")
-      trace_python(sys.argv[1:], ["."])
-      return
-  if len(sys.argv) <= 1:
-    help()
-    return
-  # else
-  print("+Running command with tracing %s..." % sys.argv[1:])
-  trace_command(sys.argv[1:])
+cmsswFiletrace.help = help
 
 if __name__ == '__main__':
   main()
