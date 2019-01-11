@@ -11,6 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
@@ -55,11 +56,15 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
   std::vector<edm::InputTag> label;
   const bool doCaloParticlePlots_;
   const bool dolayerclustersPlots_;
+  const edm::FileInPath cummatbudinxo_;
 
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection> > labelToken;
   edm::EDGetTokenT<std::vector<CaloParticle> > label_cp_effic;
   edm::EDGetTokenT<std::vector<CaloParticle> > label_cp_fake;
   edm::EDGetTokenT<std::vector<SimVertex> > simVertices_;
+  edm::EDGetTokenT<HGCRecHitCollection> recHitsEE_;
+  edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;
+  edm::EDGetTokenT<HGCRecHitCollection> recHitsBH_;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
 
 
@@ -68,6 +73,7 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
 
   CaloParticleSelector cpSelector; 
   std::shared_ptr<hgcal::RecHitTools> tools_;
+  std::map<double, double> cummatbudg;
   std::vector<int> particles_to_monitor_;
   unsigned totallayers_to_monitor_;
   std::vector<int> thicknesses_to_monitor_;
