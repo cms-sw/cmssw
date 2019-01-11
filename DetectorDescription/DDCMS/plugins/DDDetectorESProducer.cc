@@ -50,7 +50,7 @@ private:
 };
 
 DDDetectorESProducer::DDDetectorESProducer(const edm::ParameterSet& iConfig)
-  : m_confGeomXMLFiles(iConfig.getParameter<string>("confGeomXMLFiles"))
+  : m_confGeomXMLFiles(iConfig.getParameter<edm::FileInPath>("confGeomXMLFiles").fullPath().c_str())
 {
    setWhatProduced(this);
    findingRecord<DetectorDescriptionRcd>();
@@ -65,7 +65,7 @@ DDDetectorESProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
 {
   edm::ParameterSetDescription desc;
 
-  desc.add<std::string>("confGeomXMLFiles");
+  desc.add<edm::FileInPath>("confGeomXMLFiles");
   descriptions.addDefault(desc);
 }
 
