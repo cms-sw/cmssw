@@ -28,10 +28,10 @@ RecoVertexAOD = cms.PSet(
 	'keep *_inclusiveSecondaryVertices_*_*')
 )
 
-_phase2_tktiming_RecoVertexEventContent = [ 'keep *_offlinePrimaryVertices4D__*',
-                                            'keep *_offlinePrimaryVertices4DWithBS__*',
-                                            'keep *_offlinePrimaryVertices4DwithPID__*',
-                                            'keep *_offlinePrimaryVertices4DwithPIDWithBS__*',
+_phase2_tktiming_RecoVertexEventContent = [ 'keep *_offlinePrimaryVertices3D__*',
+                                            'keep *_offlinePrimaryVertices3DWithBS__*',
+                                            'keep *_offlinePrimaryVertices4DnoPID__*',
+                                            'keep *_offlinePrimaryVertices4DnoPIDWithBS__*',
                                             'keep *_offlinePrimaryVertices4Dfastsim__*',
                                             'keep *_offlinePrimaryVertices4DfastsimWithBS__*',
                                             'keep *_TOFPIDProducer_*_*',
