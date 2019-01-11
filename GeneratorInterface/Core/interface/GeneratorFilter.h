@@ -157,7 +157,7 @@ namespace edm
 	//
 	if ( !hadronizer_.decay() ) return false;
 	
-	event = std::unique_ptr<HepMC::GenEvent>(hadronizer_.getGenEvent());
+	event = hadronizer_.getGenEvent();
 	if ( !event.get() ) return false; 
 	
 	// The external decay driver is being added to the system,
@@ -180,7 +180,7 @@ namespace edm
     //
     // fisrt of all, put back modified event tree (after external decay)
     //
-    hadronizer_.resetEvent( event.release() );
+    hadronizer_.resetEvent( std::move(event) );
 	
     //
     // now run residual decays
@@ -189,7 +189,7 @@ namespace edm
     	
     hadronizer_.finalizeEvent();
     
-    event.reset( hadronizer_.getGenEvent() );
+    event =  hadronizer_.getGenEvent();
     if ( !event.get() ) return false;
     
     event->set_event_number( ev.id().event() );
@@ -197,7 +197,7 @@ namespace edm
     //
     // tutto bene - finally, form up EDM products !
     //
-    std::unique_ptr<GenEventInfoProduct> genEventInfo(hadronizer_.getGenEventInfo());
+    auto genEventInfo = hadronizer_.getGenEventInfo();
     if (!genEventInfo.get())
       { 
 	// create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one

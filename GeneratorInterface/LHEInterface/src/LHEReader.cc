@@ -487,7 +487,7 @@ LHEReader::~LHEReader()
   curSource.release();
 }
 
-  boost::shared_ptr<LHEEvent> LHEReader::next(bool* newFileOpened)
+  std::shared_ptr<LHEEvent> LHEReader::next(bool* newFileOpened)
   {
     while(curDoc.get() || curIndex < fileURLs.size() || (fileURLs.empty() && !strName.empty() ) ) {
       if (!curDoc.get()) {
@@ -520,7 +520,7 @@ LHEReader::~LHEReader()
         if (!curDoc->parse()) {
           curDoc.reset();
           logFileAction("  Closed LHE file ", fileURLs[curIndex - 1]);
-          return boost::shared_ptr<LHEEvent>();
+          return std::shared_ptr<LHEEvent>();
         }
         break;
         
@@ -559,7 +559,7 @@ LHEReader::~LHEReader()
         }
         
         if (maxEvents == 0)
-          return boost::shared_ptr<LHEEvent>();
+          return std::shared_ptr<LHEEvent>();
         else if (maxEvents > 0)
           maxEvents--;
 
@@ -567,7 +567,7 @@ LHEReader::~LHEReader()
 	data.str(handler->buffer);
 	handler->buffer.clear();
 
-	boost::shared_ptr<LHEEvent> lheevent;
+	std::shared_ptr<LHEEvent> lheevent;
 	lheevent.reset(new LHEEvent(curRunInfo, data));
 	const XMLHandler::wgt_info& info = handler->weightsinevent;
 	for( size_t i=0; i< info.size(); ++i ) {
@@ -586,7 +586,7 @@ LHEReader::~LHEReader()
       }
     }
     
-    return boost::shared_ptr<LHEEvent>();
+    return std::shared_ptr<LHEEvent>();
   }
   
 } // namespace lhef
