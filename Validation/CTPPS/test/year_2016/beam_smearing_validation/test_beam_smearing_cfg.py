@@ -13,7 +13,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # number of events
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstRun = cms.untracked.uint32(280000)
+)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10000)
