@@ -9,7 +9,8 @@ using namespace edm;
 HGCalValidator::HGCalValidator(const edm::ParameterSet& pset):
   label(pset.getParameter< std::vector<edm::InputTag> >("label")),
   doCaloParticlePlots_(pset.getUntrackedParameter<bool>("doCaloParticlePlots")),
-  dolayerclustersPlots_(pset.getUntrackedParameter<bool>("dolayerclustersPlots"))
+  dolayerclustersPlots_(pset.getUntrackedParameter<bool>("dolayerclustersPlots")),
+  cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo"))
 {
   
   //In this way we can easily generalize to associations between other objects also. 
@@ -20,6 +21,10 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset):
   label_cp_fake = consumes<std::vector<CaloParticle> >(label_cp_fake_tag);
 
   simVertices_ = consumes<std::vector<SimVertex>>(pset.getParameter<edm::InputTag>("simVertices"));
+  
+  recHitsEE_ = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit", "HGCEERecHits"));
+  recHitsFH_ = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
+  recHitsBH_ = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
 
   for (auto& itag : label) {
     labelToken.push_back(consumes<reco::CaloClusterCollection>(itag));
@@ -39,10 +44,22 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset):
 				    pset.getParameter<std::vector<int> >("pdgIdCP"));
   
   tools_.reset(new hgcal::RecHitTools());
-  
+ 
   particles_to_monitor_ = pset.getParameter<std::vector<int> >("pdgIdCP");
   totallayers_to_monitor_ = pset.getParameter<int>("totallayers_to_monitor");
   thicknesses_to_monitor_ = pset.getParameter<std::vector<int> >("thicknesses_to_monitor");
+  
+  //For the material budget file here
+  std::ifstream fmb(cummatbudinxo_.fullPath().c_str());
+  double thelay = 0.; double mbg = 0.;
+  for (unsigned ilayer = 1; ilayer <= totallayers_to_monitor_; ++ilayer) {
+    fmb >> thelay >> mbg;
+    cummatbudg.insert( std::pair<double, double>( thelay , mbg ) ); 
+  }
+  
+  fmb.close();
+
+
 
   ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
   histoProducerAlgo_ = std::make_unique<HGVHistoProducerAlgo>(psetForHistoProducerAlgo);
@@ -64,7 +81,7 @@ void HGCalValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook, edm::Run 
     ibook.cd();
 
     for (auto const particle : particles_to_monitor_) {
-      ibook.setCurrentFolder(dirName_ + "CaloParticles/" + std::to_string(particle));     
+      ibook.setCurrentFolder(dirName_ + "SelectedCaloParticles/" + std::to_string(particle));     
       histoProducerAlgo_->bookCaloParticleHistos(ibook, histograms.histoProducerAlgo, particle);
     }
     ibook.cd();
@@ -111,15 +128,15 @@ void HGCalValidator::cpParametersAndSelection(const Histograms& histograms,
   size_t j=0;
   for (auto const caloParticle : cPeff) {
     int id = caloParticle.pdgId();
-    if(doCaloParticlePlots_) {
-      histoProducerAlgo_->fill_caloparticle_histos(histograms.histoProducerAlgo,id,caloParticle,simVertices);
-    }
 
     if(cpSelector(caloParticle,simVertices)) {
       selected_cPeff.push_back(j);
+      if(doCaloParticlePlots_) {
+	histoProducerAlgo_->fill_caloparticle_histos(histograms.histoProducerAlgo,id,caloParticle,simVertices);
+      }
     }
     ++j;
-  }
+  }//end of loop over caloparticles
   
 }
 
@@ -140,6 +157,16 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event, const edm::EventSetup& 
   
   tools_->getEventSetup(setup);
   histoProducerAlgo_->setRecHitTools(tools_);
+
+  edm::Handle<HGCRecHitCollection> recHitHandleEE;
+  event.getByToken(recHitsEE_, recHitHandleEE);
+  edm::Handle<HGCRecHitCollection> recHitHandleFH;
+  event.getByToken(recHitsFH_, recHitHandleFH);
+  edm::Handle<HGCRecHitCollection> recHitHandleBH;
+  event.getByToken(recHitsBH_, recHitHandleBH);
+  
+  histoProducerAlgo_->fillHitMap(*recHitHandleEE,*recHitHandleFH,*recHitHandleBH);
+  
   
   // ##############################################
   // fill caloparticles histograms 
@@ -161,7 +188,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event, const edm::EventSetup& 
     // ##############################################
     if(!dolayerclustersPlots_){continue;}
 
-    histoProducerAlgo_->fill_generic_cluster_histos(histograms.histoProducerAlgo,w,clusters,totallayers_to_monitor_, thicknesses_to_monitor_);
+    histoProducerAlgo_->fill_generic_cluster_histos(histograms.histoProducerAlgo,w,clusters,caloParticles,cummatbudg,totallayers_to_monitor_, thicknesses_to_monitor_);
 
     for (unsigned int layerclusterIndex = 0; layerclusterIndex < clusters.size(); layerclusterIndex++) {
 

@@ -60,6 +60,7 @@ class CaloParticleSelector {
           return false;
         }
       }
+
       // test for remaining unstabled due to lack of genparticle pointer
       if( tp.status() == -99 &&
           (std::abs(pdgid) != 11 && std::abs(pdgid) != 13 && std::abs(pdgid) != 211 &&
@@ -72,13 +73,15 @@ class CaloParticleSelector {
     auto phiOk = [&](const CaloParticle& p) { float dphi = deltaPhi(atan2f(p.py(),p.px()), meanPhi_); return dphi >= -rangePhi_ && dphi <= rangePhi_; };
     auto ptOk = [&](const CaloParticle& p) { double pt2 = tp.p4().perp2(); return pt2 >= ptMin2_ && pt2 <= ptMax2_; };
 
+    /* std::cout << " " << tp.numberOfRecHits() << " " << ptOk(tp) << " " << etaOk(tp) << " " << phiOk(tp) << " " << std::abs( simVertices.at(tp.g4Tracks()[0].vertIndex()).position().z() ) << " " << simVertices.at(tp.g4Tracks()[0].vertIndex()).position().Perp2() << std::endl; */
+
     return (
- 	    tp.numberOfRecHits() >= minHit_ &&
+ 	    /* tp.numberOfRecHits() >= minHit_ && */
             ptOk(tp) &&
             etaOk(tp) &&
-            phiOk(tp) &&
-	    std::abs( simVertices.at(tp.g4Tracks()[0].vertIndex()).position().z() ) <= lip_ && // vertex last to avoid to load it if not striclty necessary...
-	    simVertices.at(tp.g4Tracks()[0].vertIndex()).position().Perp2() <= tip2_
+            phiOk(tp) //&&
+	    /* std::abs( simVertices.at(tp.g4Tracks()[0].vertIndex()).position().z() ) <= lip_  // && vertex last to avoid to load it if not striclty necessary... */
+	    /* simVertices.at(tp.g4Tracks()[0].vertIndex()).position().Perp2() <= tip2_ */
 	    );
   }
 
