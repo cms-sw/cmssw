@@ -52,8 +52,8 @@ class ProtonReconstructionAlgorithm
     {
       const LHCOpticalFunctionsSet *optics;
       std::shared_ptr<const TSpline3> s_xi_vs_x_d, s_y_d_vs_xi, s_v_y_vs_xi, s_L_y_vs_xi;
-      double x0; ///< beam horizontal position, m
-      double y0; ///< beam vertical position, m
+      double x0; ///< beam horizontal position, cm
+      double y0; ///< beam vertical position, cm
       double ch0; ///< intercept for linear approximation of \f$x(\xi)\f$
       double ch1; ///< slope for linear approximation of \f$x(\xi)\f$
       double la0; ///< intercept for linear approximation of \f$L_x(\xi)\f$
