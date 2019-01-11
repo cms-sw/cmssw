@@ -447,8 +447,8 @@
   <class name="btagbtvdeep::DeepFlavourFeatures" ClassVersion="3">
     <version ClassVersion="3" checksum="2487956635"/>
   </class>
-  <class name="btagbtvdeep::DeepDoubleBFeatures" ClassVersion="3">
-    <version ClassVersion="3" checksum="2060552560"/>
+    <class name="btagbtvdeep::DeepDoubleXFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="1764960743"/>
   </class>
   <class name="btagbtvdeep::BoostedDoubleSVTagInfoFeatures" ClassVersion="3">
     <version ClassVersion="3" checksum="683471882"/>
@@ -462,15 +462,15 @@
   <class name="reco::DeepFlavourTagInfoRefProd"/>
   <class name="reco::DeepFlavourTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::DeepFlavourTagInfoCollection>"/>
-
-  <class name="reco::DeepDoubleBTagInfo"/>
-  <class name="reco::DeepDoubleBTagInfoCollection"/>
-  <class name="reco::DeepDoubleBTagInfoRef"/>
-  <class name="reco::DeepDoubleBTagInfoFwdRef"/>
-  <class name="reco::DeepDoubleBTagInfoRefProd"/>
-  <class name="reco::DeepDoubleBTagInfoRefVector"/>
-  <class name="edm::Wrapper<reco::DeepDoubleBTagInfoCollection>"/>
-
+  
+  <class name="reco::DeepDoubleXTagInfo"/>
+  <class name="reco::DeepDoubleXTagInfoCollection"/>
+  <class name="reco::DeepDoubleXTagInfoRef"/>
+  <class name="reco::DeepDoubleXTagInfoFwdRef"/>
+  <class name="reco::DeepDoubleXTagInfoRefProd"/>
+  <class name="reco::DeepDoubleXTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::DeepDoubleXTagInfoCollection>"/>
+  
   <class name="btagbtvdeep::DeepBoostedJetFeatures"/>
   <class name="reco::DeepBoostedJetTagInfo"/>
   <class name="reco::DeepBoostedJetTagInfoCollection"/>
