@@ -93,6 +93,12 @@ trace_location(Schedule, 'associate', lambda self, *tasks: {'args': list(tasks)}
 trace_location(Schedule, 'copy')
 # TODO: we could go deeper into Types and PSet, but that should not be needed for now.
 
+import FWCore.ParameterSet.Utilities
+def convertToUnscheduled(proc):
+  print("+ Blocking convertToUnscheduled to not mess up the process.")
+  return proc
+FWCore.ParameterSet.Utilities.convertToUnscheduled = convertToUnscheduled
+
 # lifted from EnablePSetHistory, we don't need all of that stuff.
 def new_items_(self):
   items = []
@@ -212,12 +218,15 @@ def trace_python(prog_argv, path):
       instrument_cmssw()
       try:
         exec code in globals, globals
+      except:
+        pass
+      finally:
         # reporting is only possible if the config was executed successfully.
+        # we still do it in case of an exception, which can happen after convertToUnscheduled()
+        print("+Collecting trace information from %s..." % globals["process"])
         collect_trace(globals["process"], 'cmsrun', graph, ('cmsRun', '', progname, 0))
         writeoutput(graph)
 
-      finally:
-        sys.settrace(None)
 
   except OSError as err:
     print("+Cannot run file %r because: %s" % (sys.argv[0], err))
