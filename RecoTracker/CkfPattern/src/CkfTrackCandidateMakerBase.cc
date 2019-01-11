@@ -362,8 +362,8 @@ namespace cms{
 	if ( maxSeedsBeforeCleaning_ >0 && rawResult.size() > maxSeedsBeforeCleaning_+lastCleanResult) {
           theTrajectoryCleaner->clean(rawResult);
           rawResult.erase(std::remove_if(rawResult.begin()+lastCleanResult,rawResult.end(),
-					 std::not1(std::mem_fun_ref(&Trajectory::isValid))),
-			  rawResult.end());
+                                         std::not_fn(&Trajectory::isValid)),
+                          rawResult.end());
           lastCleanResult=rawResult.size();
         }
         }
@@ -416,8 +416,8 @@ namespace cms{
 
       vector<Trajectory> & unsmoothedResult(rawResult);
       unsmoothedResult.erase(std::remove_if(unsmoothedResult.begin(),unsmoothedResult.end(),
-					    std::not1(std::mem_fun_ref(&Trajectory::isValid))),
-			     unsmoothedResult.end());
+                                            std::not_fn(&Trajectory::isValid)),
+                             unsmoothedResult.end());
       unsmoothedResult.shrink_to_fit();
       // If requested, reverse the trajectories creating a new 1-hit seed on the last measurement of the track
       if (reverseTrajectories) {

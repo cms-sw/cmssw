@@ -24,7 +24,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
-#include "Fireworks/Core/src/fwPaletteClassic.cc"
+#include "Fireworks/Core/src/fwPaletteClassic.icc"
 #include "Fireworks/Core/src/fwPaletteExtra.h"
 
 

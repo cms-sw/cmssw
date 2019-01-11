@@ -85,11 +85,9 @@ void OutInConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::Cal
   
 
   //  Loop over the Calo Clusters  in the event looking for seeds 
-  reco::CaloClusterCollection::const_iterator bcItr;
   LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() All BC in the event " << "\n";
   for (unsigned i = 0; i < allBC->size(); ++i ) {
   
-    //for(bcItr = allBC.begin(); bcItr != allBC.end(); bcItr++) {
     nSeedsPerBC_=0;
 
     const reco::CaloCluster& theBC = allBC->at(i);

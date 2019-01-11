@@ -900,3 +900,10 @@ _addOutputCommands(FEVTDEBUGHLTEventContent,RecoLocalFastTimeFEVT)
 _addOutputCommands(FEVTEventContent,RecoLocalFastTimeFEVT)
 _addOutputCommands(RECOSIMEventContent,RecoLocalFastTimeRECO)
 _addOutputCommands(AODSIMEventContent,RecoLocalFastTimeAOD)
+
+from RecoMTD.Configuration.RecoMTD_EventContent_cff import RecoMTDFEVT, RecoMTDRECO, RecoMTDAOD
+_addOutputCommands(FEVTDEBUGEventContent,RecoMTDFEVT)
+_addOutputCommands(FEVTDEBUGHLTEventContent,RecoMTDFEVT)
+_addOutputCommands(FEVTEventContent,RecoMTDFEVT)
+_addOutputCommands(RECOSIMEventContent,RecoMTDRECO)
+_addOutputCommands(AODSIMEventContent,RecoMTDAOD)

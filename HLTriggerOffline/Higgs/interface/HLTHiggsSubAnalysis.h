@@ -56,7 +56,7 @@
 #include<map>
 #include<cstring>
 
-class EVTColContainer;
+struct EVTColContainer;
 
 class HLTHiggsSubAnalysis 
 {	

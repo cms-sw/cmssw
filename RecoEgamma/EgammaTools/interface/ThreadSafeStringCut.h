@@ -28,7 +28,7 @@ class ThreadSafeStringCut
       , expr_(std::move(other.expr_))
     {}
 
-    typename std::result_of<F&(T)>::type operator()(const T & t) const
+    typename std::invoke_result_t<F,T> operator()(const T & t) const
     {
         std::lock_guard<std::mutex> guard(mutex_);
         return func_(t);

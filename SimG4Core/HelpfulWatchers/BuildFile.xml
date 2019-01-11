@@ -8,3 +8,4 @@
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
+<use   name="SimG4Core/Physics"/>

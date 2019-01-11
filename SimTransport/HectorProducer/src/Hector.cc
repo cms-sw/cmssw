@@ -4,11 +4,11 @@
 #include "SimTransport/HectorProducer/interface/Hector.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
 #include "HepMC/SimpleVector.h"
 
 #include "TRandom3.h"
+#include "TMath.h"
 
 #include "H_Parameters.h"
 
@@ -509,12 +509,12 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
           }
           else if((*m_direct.find( line )).second <0 ) {
             ddd = m_rpp420_b;
-            theta= pi-theta;
+            theta= TMath::Pi()-theta;
           }
         }
         else {
           ddd = lengthd1;
-          if((*m_direct.find( line )).second <0 ) theta= pi-theta;
+          if((*m_direct.find( line )).second <0 ) theta= TMath::Pi()-theta;
         }
 	
         fi     = std::atan2(tx,ty); // tx, ty never == 0?

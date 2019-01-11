@@ -16,9 +16,12 @@ Toy EDProducers of Ints for testing purposes only.
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 //
 #include <cassert>
 #include <string>
@@ -411,6 +414,66 @@ namespace edmtest {
     e.emplace(otherPutToken_,value);
   }
 
+  //
+  // Produces multiple IntProduct products
+  //
+
+  class ManyIntProducer : public edm::global::EDProducer<> {
+  public:
+    explicit ManyIntProducer(edm::ParameterSet const& p):
+      tokenValues_{vector_transform(p.getParameter<std::vector<edm::ParameterSet>>("values"), [this](edm::ParameterSet const& pset) {
+          auto const& branchAlias = pset.getParameter<std::string>("branchAlias");
+          if(not branchAlias.empty()) {
+            return TokenValue{produces<IntProduct>(pset.getParameter<std::string>("instance")).setBranchAlias(branchAlias),
+                              pset.getParameter<int>("value")};
+          }
+          return TokenValue{produces<IntProduct>(pset.getParameter<std::string>("instance")),
+                            pset.getParameter<int>("value")};
+        })},
+      throw_{p.getUntrackedParameter<bool>("throw")}
+    {
+      tokenValues_.push_back(TokenValue{produces<IntProduct>(), p.getParameter<int>("ivalue")});
+    }
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("ivalue");
+      desc.addUntracked<bool>("throw", false);
+
+      {
+        edm::ParameterSetDescription pset;
+        pset.add<std::string>("instance");
+        pset.add<int>("value");
+        pset.add<std::string>("branchAlias", "");
+        desc.addVPSet("values", pset, std::vector<edm::ParameterSet>{});
+      }
+
+      descriptions.addDefault(desc);
+    }
+
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+  private:
+    struct TokenValue {
+      edm::EDPutTokenT<IntProduct> token;
+      int value;
+    };
+    std::vector<TokenValue> tokenValues_;
+    bool throw_;
+  };
+
+  void
+  ManyIntProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
+    if(throw_) {
+      throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
+    }
+
+    // EventSetup is not used.
+    for(auto const tv: tokenValues_) {
+      e.emplace(tv.token, tv.value);
+    }
+  }
+
 }
 
 using edmtest::FailingProducer;
@@ -426,6 +489,7 @@ using edmtest::TransientIntProducer;
 using edmtest::IntProducerFromTransient;
 using edmtest::Int16_tProducer;
 using edmtest::AddIntsProducer;
+using edmtest::ManyIntProducer;
 DEFINE_FWK_MODULE(FailingProducer);
 DEFINE_FWK_MODULE(edmtest::FailingInRunProducer);
 DEFINE_FWK_MODULE(NonProducer);
@@ -440,3 +504,4 @@ DEFINE_FWK_MODULE(TransientIntProducer);
 DEFINE_FWK_MODULE(IntProducerFromTransient);
 DEFINE_FWK_MODULE(Int16_tProducer);
 DEFINE_FWK_MODULE(AddIntsProducer);
+DEFINE_FWK_MODULE(ManyIntProducer);

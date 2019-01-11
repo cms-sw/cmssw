@@ -1,6 +1,8 @@
 #ifndef DETECTOR_DESCRIPTION_CORE_DD_SOLID_SHAPES_H
 #define DETECTOR_DESCRIPTION_CORE_DD_SOLID_SHAPES_H
 
+#include <iosfwd>
+
 enum class DDSolidShape { dd_not_init = 0,
     ddbox = 1, ddtubs = 2, ddtrap = 3, ddcons = 4,
     ddpolycone_rz = 5, ddpolyhedra_rz = 6,
@@ -11,6 +13,10 @@ enum class DDSolidShape { dd_not_init = 0,
     ddsphere = 16, ddellipticaltube = 17,
     ddcuttubs = 18, ddextrudedpolygon = 19,
     };
+
+std::ostream&
+operator<<(std::ostream& os, const DDSolidShape s);
+
 
 struct DDSolidShapesName {
 
