@@ -17,7 +17,7 @@ DTTTrigBaseSync::~DTTTrigBaseSync(){}
 
 double DTTTrigBaseSync::offset(const DTLayer* layer,
 			       const DTWireId& wireId,
-			       const GlobalPoint& globalPos) {
+			       const GlobalPoint& globalPos) const {
   double tTrig = 0;
   double wireProp = 0;
   double tof = 0;
@@ -26,7 +26,7 @@ double DTTTrigBaseSync::offset(const DTLayer* layer,
 
 
 
-double DTTTrigBaseSync::emulatorOffset(const DTWireId& wireId) {
+double DTTTrigBaseSync::emulatorOffset(const DTWireId& wireId) const {
 
   double tTrig = 0.;
   double t0cell = 0.;
