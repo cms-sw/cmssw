@@ -74,13 +74,13 @@ bool MTDThresholdClusterizer::setup(const MTDGeometry* geom, const MTDTopology* 
   theNumOfRows = nrows;  // Set new sizes
   theNumOfCols = ncols;
   
-  DEBUG("Buffer size [" << theNumOfRows << "," << theNumOfCols << "]");
+  DEBUG("Buffer size [" << theNumOfRows+1 << "," << theNumOfCols+1 << "]");
   
   if ( nrows > theBuffer.rows() || 
        ncols > theBuffer.columns() ) 
     { // change only when a larger is needed
       // Resize the buffer
-      theBuffer.setSize(nrows,ncols);  // Modify
+      theBuffer.setSize(nrows+1,ncols+1);  // +1 needed for MTD
       bufferAlreadySet = true;
     }
   
@@ -221,7 +221,7 @@ void MTDThresholdClusterizer::copy_to_buffer( RecHitIterator itr )
     float energy = itr->energy();
     float time = itr->time();
     float timeError = itr->timeError();
-    
+
     DEBUG("ROW " <<  row << " COL " << col << " ENERGY " << energy << " TIME " << time);
     if ( energy > theHitThreshold) {
       theBuffer.set( row, col, energy , time, timeError); 

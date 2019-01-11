@@ -4,5 +4,4 @@
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/Framework"/>
 <use   name="Geometry/Records"/>
-<use   name="clhep"/>
 <use   name="boost"/>

@@ -26,7 +26,7 @@ public:
   MTDTransientTrackingRecHitBuilderESProducer(const edm::ParameterSet&);
 
   /// Destructor
-  ~MTDTransientTrackingRecHitBuilderESProducer() override;
+  ~MTDTransientTrackingRecHitBuilderESProducer() override = default;
 
   // Operations
   std::unique_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord&);
@@ -43,9 +43,6 @@ MTDTransientTrackingRecHitBuilderESProducer::MTDTransientTrackingRecHitBuilderES
 
   setWhatProduced(this,parameterSet.getParameter<string>("ComponentName"));
 }
-    
-MTDTransientTrackingRecHitBuilderESProducer::~MTDTransientTrackingRecHitBuilderESProducer() {}
-
     
 std::unique_ptr<TransientTrackingRecHitBuilder> 
 MTDTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord& iRecord){ 
