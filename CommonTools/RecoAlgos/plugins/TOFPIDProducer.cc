@@ -40,7 +40,6 @@ class TOFPIDProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<edm::ValueMap<float> > pathLengthToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > pToken_;
   edm::EDGetTokenT<reco::VertexCollection> vtxsToken_;
-  edm::EDGetTokenT<reco::BeamSpot> bsToken_;
   double vtxMaxSigmaT_;
   double maxDz_;
   double maxDtSignificance_;
@@ -57,7 +56,6 @@ TOFPIDProducer::TOFPIDProducer(const ParameterSet& iConfig) :
   pathLengthToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("pathLengthSrc"))),
   pToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("pSrc"))),
   vtxsToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxsSrc"))),
-  bsToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"))),
   vtxMaxSigmaT_(iConfig.getParameter<double>("vtxMaxSigmaT")),
   maxDz_(iConfig.getParameter<double>("maxDz")),
   maxDtSignificance_(iConfig.getParameter<double>("maxDtSignificance")),
@@ -105,10 +103,6 @@ void TOFPIDProducer::produce( edm::Event& ev,
   edm::Handle<reco::VertexCollection> vtxsH;  
   ev.getByToken(vtxsToken_,vtxsH);
   const auto& vtxs = *vtxsH;
-  
-  edm::Handle<reco::BeamSpot> bsH;  
-  ev.getByToken(bsToken_,bsH);
-  const auto& bs = *bsH;
 
   //output value maps (PID probabilities and recalculated time at beamline)
   auto t0Out = std::make_unique<edm::ValueMap<float>>();
