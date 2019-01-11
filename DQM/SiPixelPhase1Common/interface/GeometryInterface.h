@@ -44,7 +44,7 @@ class GeometryInterface {
 
   struct InterestingQuantities {
     // in this order the struct should fit 2 64bit words and is cheap to copy.
-    const edm::Event* sourceEvent;
+    const edm::Event* sourceEvent = nullptr;
     DetId sourceModule;
     int16_t col = 0;
     int16_t row = 0;
