@@ -1,5 +1,8 @@
 #include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDRecHitAlgoBase.h"
 
+#include "RecoLocalFastTime/Records/interface/MTDTimeCalibRecord.h"
+#include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDTimeCalib.h"
+
 class MTDRecHitAlgo : public MTDRecHitAlgoBase {
  public:
   /// Constructor
@@ -14,15 +17,22 @@ class MTDRecHitAlgo : public MTDRecHitAlgoBase {
 
   /// get event and eventsetup information
   void getEvent(const edm::Event&) final {}
-  void getEventSetup(const edm::EventSetup&) final {}
+  void getEventSetup(const edm::EventSetup&) final;
 
   /// make the rec hit
   FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags ) const final;
 
- private:  
+private:  
   double thresholdToKeep_, calibration_;
+  const MTDTimeCalib* time_calib_;
 };
 
+void MTDRecHitAlgo::getEventSetup(const edm::EventSetup& es)
+{
+    edm::ESHandle<MTDTimeCalib> pTC;
+    es.get<MTDTimeCalibRecord>().get("MTDTimeCalib",pTC);
+    time_calib_ = pTC.product();
+}
 
 FTLRecHit 
 MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const {
@@ -59,9 +69,13 @@ MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags)
       break ;
     }
   }
-
+  
   // --- Energy calibration: for the time being this is just a conversion pC --> MeV
   energy *= calibration_;
+
+  // --- Time calibration: for the time being just removes a time offset in BTL
+  float time_calib = time_calib_->getTimeCalib( uRecHit.id() );
+  time += time_calib;
 
   FTLRecHit rh( uRecHit.id(), uRecHit.row(), uRecHit.column(), energy, time, timeError );
     
