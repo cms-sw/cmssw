@@ -7,8 +7,8 @@
     <debug_includes/-->
     <debug_volumes/>
     <debug_constants/>
-    <!-- debug_materials/>
-    <debug_namespaces/-->
+    <!-- debug_materials/-->
+    <debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
     <!-- debug_materials/>

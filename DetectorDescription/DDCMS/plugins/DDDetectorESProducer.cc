@@ -81,7 +81,7 @@ DDDetectorESProducer::produce(const DetectorDescriptionRcd& iRecord)
   auto product = std::make_unique<DDDetector>();
   using Detector = dd4hep::Detector;
 
-  product->description = &Detector::getInstance();
+  product->description = &Detector::getInstance("CMS");
   product->description->addExtension<DDVectorsMap>(&product->vectors);
   product->description->addExtension<DDPartSelectionMap>(&product->partsels);
   product->description->addExtension<DDSpecParRegistry>(&product->specpars);

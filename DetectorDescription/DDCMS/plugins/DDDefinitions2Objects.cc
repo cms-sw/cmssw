@@ -10,6 +10,7 @@
 
 #include "XML/Utilities.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "DetectorDescription/DDCMS/interface/DDUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
 #include "DetectorDescription/DDCMS/interface/DDNamespace.h"
@@ -22,9 +23,10 @@
 #include <climits>
 #include <iostream>
 #include <iomanip>
-#include <set>
 #include <map>
 #include <utility>
+#include "tbb/concurrent_unordered_map.h"
+#include "tbb/concurrent_vector.h"
 
 using namespace std;
 using namespace dd4hep;
@@ -45,8 +47,8 @@ namespace dd4hep {
     class ConstantsSection;
     class DDLConstant;
     struct DDRegistry {
-      std::vector<xml::Document> includes;
-      std::map<std::string, std::string> unresolvedConst, allConst, originalConst;
+      tbb::concurrent_vector<xml::Document> includes;
+      tbb::concurrent_unordered_map<std::string, std::string> unresolvedConst, allConst, originalConst;
     };
 
     class MaterialSection;
@@ -258,7 +260,7 @@ template <> void Converter<LogicalPartSection>::operator()(xml_h element) const 
 
 template <> void Converter<disabled_algo>::operator()(xml_h element) const   {
   cms::DDParsingContext* c = _param<cms::DDParsingContext>();
-  c->disabledAlgs.insert( element.attr<string>(_U(name)));
+  c->disabledAlgs.emplace_back( element.attr<string>(_U(name)));
 }
 
 /// Generic converter for  <SolidSection/> tags
@@ -681,7 +683,7 @@ template <> void Converter<DDLPosPart>::operator()( xml_h element ) const {
 template <> void Converter<PartSelector>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());
   cms::DDParsingContext* const context = ns.context();
-  DDSpecParRegistry& registry = *context->description->extension<DDSpecParRegistry>();
+  DDSpecParRegistry& registry = *context->description.load()->extension<DDSpecParRegistry>();
   xml_dim_t e(element);
   xml_dim_t specPar = e.parent();
   string specParName = specPar.attr<string>(_U(name));
@@ -695,7 +697,7 @@ template <> void Converter<PartSelector>::operator()(xml_h element) const {
 template <> void Converter<Parameter>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());
   cms::DDParsingContext* const context = ns.context();
-  DDSpecParRegistry& registry = *context->description->extension<DDSpecParRegistry>();
+  DDSpecParRegistry& registry = *context->description.load()->extension<DDSpecParRegistry>();
   xml_dim_t e(element);
   xml_dim_t specPar = e.parent();
   xml_dim_t specParSect = specPar.parent();
@@ -731,8 +733,8 @@ template <> void Converter<Parameter>::operator()(xml_h element) const {
   for(idx = v.find('[', 0); idx != string::npos; idx = v.find('[', idx + 1)) {
     idq = v.find(']', idx + 1);
     rep = v.substr(idx + 1, idq - idx - 1);
-    auto r = ns.context()->description->constants().find(rep);
-    if(r != ns.context()->description->constants().end()) {
+    auto r = ns.context()->description.load()->constants().find(rep);
+    if(r != ns.context()->description.load()->constants().end()) {
       rep = "(" + r->second->type + ")";
       v.replace(idx, idq - idx + 1, rep);
     }
@@ -1130,11 +1132,11 @@ namespace {
   
   enum class DDAxes {x = 1, y = 2, z = 3, rho = 1, phi = 2, undefined};
   const std::map<std::string, DDAxes> axesmap {{"x", DDAxes::x },
-                                                      {"y", DDAxes::y},
-                                                      {"z", DDAxes::z},
-                                                      {"rho", DDAxes::rho},
-                                                      {"phi", DDAxes::phi},
-                                                      {"undefined", DDAxes::undefined }};
+                                               {"y", DDAxes::y},
+                                               {"z", DDAxes::z},
+                                               {"rho", DDAxes::rho},
+                                               {"phi", DDAxes::phi},
+                                               {"undefined", DDAxes::undefined }};
 }
 
 /// Converter for <Division/> tags
@@ -1211,9 +1213,12 @@ template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const {
   cms::DDNamespace ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string name = e.nameStr();
-  if(ns.context()->disabledAlgs.find( name ) != ns.context()->disabledAlgs.end()) {
-    printout( INFO, "DD4CMS", "+++ Skip disabled algorithms: %s", name.c_str());
-    return;
+  for(auto const& i: ns.context()->disabledAlgs) {
+    if(name==i) {
+      //  if(ns.context()->disabledAlgs.find( name ) != ns.context()->disabledAlgs.end()) {
+      printout( INFO, "DD4CMS", "+++ Skip disabled algorithms: %s", name.c_str());
+      return;
+    }
   }
 
   size_t            idx;
@@ -1248,34 +1253,22 @@ void for_each_token( InputIt first, InputIt last,
   }
 }
 
-vector<double>
-splitNumeric( const string& str, const string& delims = "," )
-{
-  vector<double> output;
-
-  for_each_token( cbegin( str ), cend( str ),
-		  cbegin( delims ), cend( delims ),
-		  [&output] ( auto first, auto second ) {
-		    if(  first != second ) {
-		      output.emplace_back(stod(string( first, second )));
-		    } 
-		  });
-  return output;
-}
-
-vector<string>
-splitString( const string& str, const string& delims = "," )
-{
-  vector<string> output;
-
-  for_each_token( cbegin( str ), cend( str ),
-		  cbegin( delims ), cend( delims ),
-		  [&output] ( auto first, auto second ) {
-		    if(  first != second ) {
-		      output.emplace_back( first, second );
-		    } 
-		  });
-  return output;
+namespace {
+  
+  tbb::concurrent_vector<double>
+  splitNumeric( const string& str, const string& delims = "," )
+  {
+    tbb::concurrent_vector<double> output;
+    
+    for_each_token( cbegin( str ), cend( str ),
+		    cbegin( delims ), cend( delims ),
+		    [&output] ( auto first, auto second ) {
+		      if(  first != second ) {
+			output.emplace_back(stod(string( first, second )));
+		      } 
+		    });
+    return output;
+  }
 }
 
 /// Converter for <Vector/> tags
@@ -1283,7 +1276,7 @@ splitString( const string& str, const string& delims = "," )
 template <> void Converter<DDLVector>::operator()( xml_h element ) const {
   cms::DDNamespace ns( _param<cms::DDParsingContext>());
   cms::DDParsingContext* const context = ns.context();
-  DDVectorsMap* registry = context->description->extension<DDVectorsMap>();
+  DDVectorsMap* registry = context->description.load()->extension<DDVectorsMap>();
   xml_dim_t e( element );
   string name = e.nameStr();
   string type = ns.attr<string>( e, _U( type ));
@@ -1295,7 +1288,7 @@ template <> void Converter<DDLVector>::operator()( xml_h element ) const {
 	    "DD4CMS","+++ Vector<%s>:  %s[%s]: %s", type.c_str(), name.c_str(),
 	    nEntries.c_str(), val.c_str());
 
-  vector<double> results = splitNumeric( val );
+  tbb::concurrent_vector<double> results = splitNumeric(val);
   registry->insert( { name, results } );
 }
 
@@ -1350,7 +1343,7 @@ template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
 		  "DD4CMS","+++ [%06ld] ----------  %-40s = %s",
 		  res->unresolvedConst.size() - 1, n.c_str(), res->originalConst[n].c_str());
         ns.addConstantNS( n, v, "number" );
-        res->unresolvedConst.erase(n);
+        res->unresolvedConst.unsafe_erase(n);
         break;
       }
     }
@@ -1373,7 +1366,7 @@ template <> void Converter<print_xml_doc>::operator()(xml_h element) const {
 
 /// Converter for <DDDefinition/> tags
 static long load_dddefinition(Detector& det, xml_h element) {
-  static cms::DDParsingContext context(&det);
+  cms::DDParsingContext context(&det);
   cms::DDNamespace ns(context);
   ns.addConstantNS("world_x", "5*m", "number");
   ns.addConstantNS("world_y", "5*m", "number");
