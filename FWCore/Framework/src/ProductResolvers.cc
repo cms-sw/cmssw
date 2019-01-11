@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
@@ -655,6 +656,147 @@ namespace edm {
   }
   
 
+  SwitchBaseProductResolver::SwitchBaseProductResolver(std::shared_ptr<BranchDescription const> bd, ProducedProductResolver& realProduct):
+    realProduct_(realProduct),
+    productData_(std::move(bd)),
+    prefetchRequested_(false),
+    status_(defaultStatus_)
+  {
+    // Parentage of this branch is always the same by construction, so we can compute the ID just "once" here.
+    Parentage p;
+    p.setParents(std::vector<BranchID>{realProduct.branchDescription().branchID()});
+    parentageID_ = p.id();
+    ParentageRegistry::instance()->insertMapped(p);
+  }
+
+  void SwitchBaseProductResolver::connectTo(ProductResolverBase const& iOther, Principal const *iParentPrincipal) {
+    throw Exception(errors::LogicError)
+    << "SwitchBaseProductResolver::connectTo() not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+
+  void SwitchBaseProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+    worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
+  }
+
+  ProductResolverBase::Resolution
+  SwitchBaseProductResolver::resolveProductImpl(Resolution res) const {
+    if(res.data() == nullptr)
+      return res;
+    // Use the Wrapper of the pointed-to resolver, but the provenance of this resolver
+    productData_.unsafe_setWrapper(res.data()->sharedConstWrapper());
+    return Resolution(&productData_);
+  }
+
+  bool SwitchBaseProductResolver::productResolved_() const {
+    // SwitchProducer will never put anything in the event, and
+    // "false" will make Event::commit_() to call putProduct() with
+    // null unique_ptr<WrapperBase> to signal that the produce() was
+    // run.
+    return false;
+  }
+
+  void SwitchBaseProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
+    if(status_ != defaultStatus_) {
+      throw Exception(errors::InsertFailure) << "Attempt to insert more than one product for a branch " << branchDescription().branchName() << "This makes no sense for SwitchBaseProductResolver.\nContact a Framework developer";
+    }
+    // Let's use ResolveFailed to signal that produce() was called, as
+    // there is no real product in this resolver
+    status_ = ProductStatus::ResolveFailed;
+    bool expected = false;
+    if(prefetchRequested_.compare_exchange_strong(expected, true)) {
+      waitingTasks_.doneWaiting(std::exception_ptr());
+    }
+  }
+
+  void SwitchBaseProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const {
+    throw Exception(errors::LogicError)
+    << "SwitchBaseProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) not implemented and should never be called.\n"
+    << "Contact a Framework developer\n";
+  }
+
+  void SwitchBaseProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+    // insertIntoSet is const, so let's exploit that to fake the getting of the "input" product
+    provRetriever->insertIntoSet(ProductProvenance(branchDescription().branchID(), parentageID_));
+    productData_.setProvenance(provRetriever,ph,pid);
+  }
+
+  void SwitchBaseProductResolver::resetProductData_(bool deleteEarly) {
+    productData_.resetProductData();
+    realProduct_.resetProductData_(deleteEarly);
+    if(not deleteEarly) {
+      status_ = defaultStatus_;
+    }
+  }
+
+  ProductResolverBase::Resolution
+  SwitchProducerProductResolver::resolveProduct_(Principal const& principal,
+                                                bool skipCurrentProcess,
+                                                SharedResourcesAcquirer* sra,
+                                                ModuleCallingContext const* mcc) const {
+    if(status() == ProductStatus::ResolveFailed) {
+      return resolveProductImpl(realProduct().resolveProduct(principal, skipCurrentProcess, sra, mcc));
+    }
+    return Resolution(nullptr);
+  }
+
+  void SwitchProducerProductResolver::prefetchAsync_(WaitingTask* waitTask,
+                                                    Principal const& principal,
+                                                    bool skipCurrentProcess,
+                                                    ServiceToken const& token,
+                                                    SharedResourcesAcquirer* sra,
+                                                    ModuleCallingContext const* mcc) const {
+    if(skipCurrentProcess) { return; }
+    if(branchDescription().availableOnlyAtEndTransition() and mcc and not mcc->parent().isAtEndTransition()) {
+      return;
+    }
+    waitingTasks().add(waitTask);
+
+    bool expected = false;
+    if(prefetchRequested().compare_exchange_strong(expected, true)) {
+      //using a waiting task to do a callback guarantees that
+      // the waitingTasks() list will be released from waiting even
+      // if the module does not put this data product or the
+      // module has an exception while running
+      auto waiting = make_waiting_task(tbb::task::allocate_root(),
+                                       [this](std::exception_ptr const *iException) {
+                                         if(nullptr != iException) {
+                                           waitingTasks().doneWaiting(*iException);
+                                         }
+                                         else {
+                                           waitingTasks().doneWaiting(std::exception_ptr());
+                                         }
+                                       });
+      worker()->callWhenDoneAsync(waiting);
+    }
+  }
+
+  bool SwitchProducerProductResolver::productUnavailable_() const {
+    // if produce() was run (ResolveFailed), ask from the real resolver
+    if(status() == ProductStatus::ResolveFailed) {
+      return realProduct().productUnavailable();
+    }
+    return true;
+  }
+
+  ProductResolverBase::Resolution
+  SwitchAliasProductResolver::resolveProduct_(Principal const& principal,
+                                              bool skipCurrentProcess,
+                                              SharedResourcesAcquirer* sra,
+                                              ModuleCallingContext const* mcc) const {
+    return resolveProductImpl(realProduct().resolveProduct(principal, skipCurrentProcess, sra, mcc));
+  }
+
+  void SwitchAliasProductResolver::prefetchAsync_(WaitingTask* waitTask,
+                                                    Principal const& principal,
+                                                    bool skipCurrentProcess,
+                                                    ServiceToken const& token,
+                                                    SharedResourcesAcquirer* sra,
+                                                    ModuleCallingContext const* mcc) const {
+    if(skipCurrentProcess) { return; }
+    realProduct().prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
+  }
+  
   
   void ParentProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
     provRetriever_ = provRetriever;

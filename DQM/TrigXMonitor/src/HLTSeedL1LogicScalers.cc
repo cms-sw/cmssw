@@ -95,7 +95,7 @@ void HLTSeedL1LogicScalers::bookHistograms(DQMStore::IBooker& iBooker,
         }
         if (temp_string != "OR" && temp_string != "AND" &&
             temp_string != "NOT" && temp_string != "(" && temp_string != ")" &&
-            temp_string != "") {
+            !temp_string.empty()) {
           l1Algos.push_back(temp_string);
         }
       }
@@ -123,9 +123,9 @@ void HLTSeedL1LogicScalers::bookHistograms(DQMStore::IBooker& iBooker,
       title << monPath << "  BitPacked L1Algos of GTSeed " << iSeed << ": '"
             << hltL1GTSeed[iSeed].second << "'";
 
-      LogTrace("HLTSeedL1LogicScalers") << "  MonitorElement name = " << name
+      LogTrace("HLTSeedL1LogicScalers") << "  MonitorElement name = " << name.str()
                                         << endl;
-      LogTrace("HLTSeedL1LogicScalers") << "  MonitorElement title = " << title
+      LogTrace("HLTSeedL1LogicScalers") << "  MonitorElement title = " << title.str()
                                         << endl;
       LogTrace("HLTSeedL1LogicScalers") << "  MonitorElement nBins = " << nBins
                                         << endl << endl;

@@ -190,39 +190,65 @@ HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v) const {
   float total_weight = 0.f;
   float x = 0.f;
   float y = 0.f;
-  float z = 0.f;
+
   unsigned int v_size = v.size();
   unsigned int maxEnergyIndex = 0;
   float maxEnergyValue = 0;
-  bool haloOnlyCluster = true;
 
-  // loop over hits in cluster candidate building up weight for
-  // energy-weighted position calculation and determining the maximum
-  // energy hit in case this is a halo-only cluster
+  // loop over hits in cluster candidate
+  // determining the maximum energy hit
   for (unsigned int i = 0; i < v_size; i++) {
-    if (!v[i].data.isHalo) {
-      haloOnlyCluster = false;
-      total_weight += v[i].data.weight;
-      x += v[i].data.x * v[i].data.weight;
-      y += v[i].data.y * v[i].data.weight;
-      z += v[i].data.z * v[i].data.weight;
-    } else {
-      if (v[i].data.weight > maxEnergyValue) {
+    if (v[i].data.weight > maxEnergyValue) {
         maxEnergyValue = v[i].data.weight;
         maxEnergyIndex = i;
-      }
     }
   }
 
-  if (!haloOnlyCluster) {
-    if (total_weight != 0) {
-      auto inv_tot_weight = 1. / total_weight;
-      return math::XYZPoint(x * inv_tot_weight, y * inv_tot_weight,
-                            z * inv_tot_weight);
+  // Si cell or Scintillator. Used to set approach and parameters
+  int thick = rhtools_.getSiThickIndex(v[maxEnergyIndex].data.detid);
+
+  // for hits within positionDeltaRho_c_ from maximum energy hit
+  // build up weight for energy-weighted position
+  // and save corresponding hits indices
+  std::vector<unsigned int> innerIndices;
+  for (unsigned int i = 0; i < v_size; i++) {
+    if (thick == -1 ||
+        distance2(v[i].data, v[maxEnergyIndex].data) < positionDeltaRho_c_[thick]){
+      innerIndices.push_back(i);
+
+      float rhEnergy = v[i].data.weight;
+      total_weight += rhEnergy;
+      // just fill x, y for scintillator
+      // for Si it is overwritten later anyway
+      if(thick == -1){
+        x += v[i].data.x * rhEnergy;
+        y += v[i].data.y * rhEnergy;
+      }
     }
-  } else if (v_size > 0) {
-    // return position of hit with maximum energy
-    return math::XYZPoint(v[maxEnergyIndex].data.x, v[maxEnergyIndex].data.y,
+  }
+  // just loop on reduced vector of interesting indices
+  // to compute log weighting
+  if(thick != -1 && total_weight != 0.){ // Silicon case
+    float total_weight_log = 0.f;
+    float x_log = 0.f;
+    float y_log = 0.f;
+    for (auto idx : innerIndices) {
+      float rhEnergy = v[idx].data.weight;
+      if(rhEnergy == 0.) continue;
+      float Wi = std::max(thresholdW0_[thick] + log(rhEnergy/total_weight), 0.);
+      x_log += v[idx].data.x * Wi;
+      y_log += v[idx].data.y * Wi;
+      total_weight_log += Wi;
+    }
+    total_weight = total_weight_log;
+    x = x_log;
+    y = y_log;
+  }
+
+  if (total_weight != 0.) {
+    auto inv_tot_weight = 1. / total_weight;
+    return math::XYZPoint(x * inv_tot_weight,
+                          y * inv_tot_weight,
                           v[maxEnergyIndex].data.z);
   }
   return math::XYZPoint(0, 0, 0);

@@ -103,7 +103,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
 
   LogDebug ("RPCSimSetup")<<"RPCSimSetUp::setRPCSetUp(vector<NoiseItem>, vector<ClusterSizeItem>)"<<std::endl;
 
-  uint32_t detId, current_detId, this_detId;
+  uint32_t detId = 0, current_detId, this_detId;
   RPCDetId rpcId, current_rpcId, this_rpcId;
   const RPCRoll * current_roll = nullptr;
   const RPCRoll * this_roll = nullptr;

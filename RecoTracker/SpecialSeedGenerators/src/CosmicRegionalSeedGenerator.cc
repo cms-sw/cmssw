@@ -75,7 +75,7 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
   //________________________________________
 
 
-  if(regionBase_=="seedOnStaMuon"||regionBase_=="") {
+  if(regionBase_=="seedOnStaMuon"||regionBase_.empty()) {
 
     LogDebug("CosmicRegionalSeedGenerator") << "Seeding on stand alone muons ";
 
@@ -105,7 +105,6 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     edm::ESHandle<TrackerGeometry> theTrackerGeometry;
     es.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
     //const TrackerGeometry& theTracker(*theTrackerGeometry);
-    DetId outerid;
     
 
     //definition of the region
@@ -265,7 +264,6 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     //get tracker geometry
     edm::ESHandle<TrackerGeometry> theTrackerGeometry;
     es.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-    DetId outerid;
     
 
     //definition of the region
@@ -406,7 +404,6 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     //get tracker geometry
     edm::ESHandle<TrackerGeometry> theTrackerGeometry;
     es.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-    DetId outerid;
     
 
     //definition of the region
