@@ -54,8 +54,8 @@ private:
 
   std::unique_ptr<lhef::LHEReader>      reader_;
 
-  boost::shared_ptr<lhef::LHERunInfo>	runInfoLast_;
-  boost::shared_ptr<lhef::LHEEvent>	partonLevel_;
+  std::shared_ptr<lhef::LHERunInfo>	runInfoLast_;
+  std::shared_ptr<lhef::LHEEvent>	partonLevel_;
 
   std::unique_ptr<LHERunInfoProduct>	runInfoProductLast_;
   edm::LHEProvenanceHelper		lheProvenanceHelper_;
