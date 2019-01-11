@@ -12,6 +12,7 @@ from RecoLocalFastTime.FTLRecProducers.mtdTrackingRecHits_cfi import mtdTracking
 from RecoLocalFastTime.FTLClusterizer.mtdClusters_cfi import mtdClusters
 
 from RecoLocalFastTime.FTLClusterizer.MTDCPEESProducers_cff import *
+from RecoLocalFastTime.FTLRecProducers.MTDTimeCalibESProducers_cff import *
 
 _phase2_timing_layer_fastTimingLocalReco = cms.Sequence(mtdUncalibratedRecHits*mtdRecHits*mtdClusters*mtdTrackingRecHits)
 
