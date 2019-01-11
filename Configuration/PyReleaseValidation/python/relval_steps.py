@@ -2900,8 +2900,8 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                                    '-n':'10',
                                                    '--eventcontent':'FEVTDEBUGHLT',
                                                    '--geometry' : geom,
-                                                   '--customise_commands':'"process.mix.digitizers.pixel.KillBadFEDChannels = cms.bool(True); process.GlobalTag.toGet = cms.VPSet(cms.PSet(record = cms.string(\'SiPixelStatusScenarioProbabilityRcd\'),tag = cms.string(\'SiPixelQualityProbabilities_2018_noPU_v0_mc\'),connect = cms.string(\'frontier://FrontierPrep/CMS_CONDITIONS\')),cms.PSet(record = cms.string(\'SiPixelStatusScenariosRcd\'),tag = cms.string(\'SiPixelFEDChannelContainer_StuckTBM_2018_v0_mc\'),connect = cms.string(\'frontier://FrontierPrep/CMS_CONDITIONS\')))"'
-                                      }
+                                                   '--customise': 'SimTracker/SiPixelDigitizer/customiseStuckTBMSimulation.activateStuckTBMSimulation2018NoPU' 
+                                                   }
 
     # Adding Track trigger step in step2
     upgradeStepDict['DigiFullTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:%s'%(hltversion),
