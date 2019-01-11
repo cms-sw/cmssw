@@ -4,6 +4,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 
 process = cms.Process("ElectronMVANtuplizer")
 
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
@@ -50,7 +51,7 @@ for idmod in my_id_modules:
 
 process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
         #
-        eleMVAs             = cms.untracked.vstring(
+        eleMVAs             = cms.vstring(
                                           "egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp80",
                                           "egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90",
                                           "egmGsfElectronIDs:mvaEleID-Spring16-HZZ-V1-wpLoose",
@@ -68,7 +69,7 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                           "egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wp80",
                                           "egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wpLoose",
                                           ),
-        eleMVALabels        = cms.untracked.vstring(
+        eleMVALabels        = cms.vstring(
                                           "Spring16GPV1wp80",
                                           "Spring16GPV1wp90",
                                           "Spring16HZZV1wpLoose",
@@ -86,7 +87,7 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                           "Fall17isoV1wp80",
                                           "Fall17isoV1wpLoose",
                                           ),
-        eleMVAValMaps        = cms.untracked.vstring(
+        eleMVAValMaps        = cms.vstring(
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1RawValues",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values",
@@ -98,7 +99,7 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV1Values",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV1Values",
                                            ),
-        eleMVAValMapLabels   = cms.untracked.vstring(
+        eleMVAValMapLabels   = cms.vstring(
                                            "Spring16GPV1Vals",
                                            "Spring16GPV1RawVals",
                                            "Spring16HZZV1Vals",
@@ -110,19 +111,44 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                            "Fall17IsoV1Vals",
                                            "Fall17NoIsoV1Vals",
                                            ),
-        eleMVACats           = cms.untracked.vstring(
+        eleMVACats           = cms.vstring(
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV1Categories",
                                            ),
-        eleMVACatLabels      = cms.untracked.vstring(
+        eleMVACatLabels      = cms.vstring(
                                            "EleMVACats",
                                            ),
         #
         variableDefinition   = cms.string(mvaVariablesFile),
         ptThreshold = cms.double(5.0),
+        #
+        doEnergyMatrix = cms.bool(False), # disabled by default due to large size
+        energyMatrixSize = cms.int32(2) # corresponding to 5x5
         )
+"""
+The energy matrix is for ecal driven electrons the n x n of raw
+rec-hit energies around the seed crystal.
 
-process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string( outputFile )
-                                   )
+The size of the energy matrix is controlled with the parameter
+"energyMatrixSize", which controlls the extension of crystals in each
+direction away from the seed, in other words n = 2 * energyMatrixSize + 1.
+
+The energy matrix gets saved as a vector but you can easily unroll it
+to a two dimensional numpy array later, for example like that:
+
+>>> import uproot
+>>> import numpy as np
+>>> import matplotlib.pyplot as plt
+
+>>> tree = uproot.open("electron_ntuple.root")["ntuplizer/tree"]
+>>> n = 5
+
+>>> for a in tree.array("ele_energyMatrix"):
+>>>     a = a.reshape((n,n))
+>>>     plt.imshow(np.log10(a))
+>>>     plt.colorbar()
+>>>     plt.show()
+"""
+
+process.TFileService = cms.Service("TFileService", fileName = cms.string(outputFile))
 
 process.p = cms.Path(process.egmGsfElectronIDSequence * process.ntuplizer)

@@ -25,16 +25,12 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
 #include "RecoEgamma/EgammaTools/interface/MultiToken.h"
-
-
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -47,19 +43,11 @@
 // class declaration
 //
 
-// If the analyzer does not use TFileService, please remove
-// the template argument to the base class so the class inherits
-// from  edm::one::EDAnalyzer<>
-// This will improve performance in multithreaded jobs.
-//
-
 class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
    public:
       explicit ElectronMVANtuplizer(const edm::ParameterSet&);
-      ~ElectronMVANtuplizer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
 
    private:
       void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -75,7 +63,9 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       // ----------member data ---------------------------
 
       //global variables
-      int nEvent_, nRun_, nLumi_;
+      int nEvent_;
+      int nRun_;
+      int nLumi_;
       int genNpu_;
       int vtxN_;
 
@@ -84,6 +74,7 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       int ele3Q_;
       int matchedToGenEle_;
 
+      std::vector<float> energyMatrix_;
 
       // gap variables
       bool eleIsEB_;
@@ -123,6 +114,8 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       const MultiTokenT<std::vector<reco::Vertex>>      vertices_;
       const MultiTokenT<std::vector<PileupSummaryInfo>> pileup_;
       const MultiTokenT<edm::View<reco::GenParticle>>   genParticles_;
+      const MultiTokenT<EcalRecHitCollection>           ebRecHits_;
+      const MultiTokenT<EcalRecHitCollection>           eeRecHits_;
 
       // to hold ID decisions and categories
       std::vector<int> mvaPasses_;
@@ -139,6 +132,8 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       const int nVars_;
       std::vector<float> vars_;
 
+      const bool doEnergyMatrix_;
+      const CaloRectangle caloRectangle_;
 };
 
 //
@@ -153,29 +148,27 @@ enum ElectronMatchType {
                        }; // The last does not include tau parents
 
 //
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
   : isMC_                  (iConfig.getParameter<bool>("isMC"))
   , deltaR_                (iConfig.getParameter<double>("deltaR"))
   , ptThreshold_           (iConfig.getParameter<double>("ptThreshold"))
-  , eleMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVAs"))
-  , eleMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVALabels"))
+  , eleMapTags_            (iConfig.getParameter<std::vector<std::string>>("eleMVAs"))
+  , eleMapBranchNames_     (iConfig.getParameter<std::vector<std::string>>("eleMVALabels"))
   , nEleMaps_              (eleMapBranchNames_.size())
-  , valMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVAValMaps"))
-  , valMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVAValMapLabels"))
+  , valMapTags_            (iConfig.getParameter<std::vector<std::string>>("eleMVAValMaps"))
+  , valMapBranchNames_     (iConfig.getParameter<std::vector<std::string>>("eleMVAValMapLabels"))
   , nValMaps_              (valMapBranchNames_.size())
-  , mvaCatTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVACats"))
-  , mvaCatBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVACatLabels"))
+  , mvaCatTags_            (iConfig.getParameter<std::vector<std::string>>("eleMVACats"))
+  , mvaCatBranchNames_     (iConfig.getParameter<std::vector<std::string>>("eleMVACatLabels"))
   , nCats_                 (mvaCatBranchNames_.size())
   , src_                   (consumesCollector(), iConfig, "src"         , "srcMiniAOD")
   , vertices_        (src_, consumesCollector(), iConfig, "vertices"    , "verticesMiniAOD")
   , pileup_          (src_, consumesCollector(), iConfig, "pileup"      , "pileupMiniAOD")
   , genParticles_    (src_, consumesCollector(), iConfig, "genParticles", "genParticlesMiniAOD")
+  , ebRecHits_       (src_, consumesCollector(), iConfig, "ebReducedRecHitCollection", "ebReducedRecHitCollectionMiniAOD")
+  , eeRecHits_       (src_, consumesCollector(), iConfig, "eeReducedRecHitCollection", "eeReducedRecHitCollectionMiniAOD")
   , mvaPasses_             (nEleMaps_)
   , mvaValues_             (nValMaps_)
   , mvaCats_               (nCats_)
@@ -183,6 +176,8 @@ ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
   , mvaVarMngr_            (iConfig.getParameter<std::string>("variableDefinition"))
   , nVars_                 (mvaVarMngr_.getNVars())
   , vars_                  (nVars_)
+  , doEnergyMatrix_        (iConfig.getParameter<bool>("doEnergyMatrix"))
+  , caloRectangle_         (makeCaloRectangle(iConfig.getParameter<int>("energyMatrixSize")))
 {
     // eleMaps
     for (auto const& tag : eleMapTags_) {
@@ -211,13 +206,11 @@ ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
    tree_->Branch("ele_q",&eleQ_);
    tree_->Branch("ele_3q",&ele3Q_);
 
-   if (isMC_) {
-       tree_->Branch("matchedToGenEle",   &matchedToGenEle_);
-   }
+   if (doEnergyMatrix_) tree_->Branch("energyMatrix",&energyMatrix_);
 
-   for (int i = 0; i < nVars_; ++i) {
-       tree_->Branch(mvaVarMngr_.getName(i).c_str(), &vars_[i]);
-   }
+   if (isMC_) tree_->Branch("matchedToGenEle",   &matchedToGenEle_);
+
+   for (int i = 0; i < nVars_; ++i) tree_->Branch(mvaVarMngr_.getName(i).c_str(), &vars_[i]);
 
    tree_->Branch("ele_isEB",&eleIsEB_);
    tree_->Branch("ele_isEE",&eleIsEE_);
@@ -244,19 +237,6 @@ ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
 }
 
 
-ElectronMVANtuplizer::~ElectronMVANtuplizer()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
-
-//
-// member functions
-//
-
 // ------------ method called for each event  ------------
 void
 ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -269,6 +249,14 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     // Get Handles
     auto src          = src_.getValidHandle(iEvent);
     auto vertices     = vertices_.getValidHandle(iEvent);
+
+    // initialize cluster tools
+    std::unique_ptr<noZS::EcalClusterLazyTools> lazyTools;
+    if(doEnergyMatrix_) {
+        // Configure Lazy Tools, which will compute 5x5 quantities
+        lazyTools = std::make_unique<noZS::EcalClusterLazyTools>(
+                iEvent, iSetup, ebRecHits_.get(iEvent), eeRecHits_.get(iEvent));
+    }
 
     // Get MC only Handles, which are allowed to be non-valid
     auto genParticles = genParticles_.getHandle(iEvent);
@@ -310,12 +298,17 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     eleIndex_ = src->size();
     for(auto const& ele : src->ptrs())
     {
+        if (ele->pt() < ptThreshold_) continue;
+
+        // Fill the energy matrix around the seed
+        if(doEnergyMatrix_) {
+            const auto& seed = *(ele->superCluster()->seed());
+            energyMatrix_ = lazyTools->getEnergies(seed, caloRectangle_);
+        }
+
+        // Fill various tree variable
         eleQ_ = ele->charge();
         ele3Q_ = ele->chargeInfo().isGsfCtfScPixConsistent;
-
-        if (ele->pt() < ptThreshold_) {
-            continue;
-        }
 
         for (int iVar = 0; iVar < nVars_; ++iVar) {
             std::vector<float> extraVariables = variableHelper_.getAuxVariables(ele, iEvent);
@@ -338,18 +331,9 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         //
         // Look up and save the ID decisions
         //
-        for (size_t k = 0; k < nEleMaps_; ++k) {
-          mvaPasses_[k] = static_cast<int>((*decisions[k])[ele]);
-        }
-
-        for (size_t k = 0; k < nValMaps_; ++k) {
-          mvaValues_[k] = (*values[k])[ele];
-        }
-
-        for (size_t k = 0; k < nCats_; ++k) {
-          mvaCats_[k] = (*mvaCats[k])[ele];
-        }
-
+        for (size_t k = 0; k < nEleMaps_; ++k) mvaPasses_[k] = static_cast<int>((*decisions[k])[ele]);
+        for (size_t k = 0; k < nValMaps_; ++k) mvaValues_[k] = (*values[k])[ele];
+        for (size_t k = 0; k < nCats_   ; ++k) mvaCats_[k]   = (*mvaCats[k])[ele];
 
         tree_->Fill();
     }
@@ -401,16 +385,22 @@ ElectronMVANtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     desc.add<edm::InputTag>("verticesMiniAOD",     edm::InputTag("offlineSlimmedPrimaryVertices"));
     desc.add<edm::InputTag>("pileupMiniAOD",       edm::InputTag("slimmedAddPileupInfo"));
     desc.add<edm::InputTag>("genParticlesMiniAOD", edm::InputTag("prunedGenParticles"));
+    desc.add<edm::InputTag>("ebReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsEB"));
+    desc.add<edm::InputTag>("eeReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsEE"));
+    desc.add<edm::InputTag>("ebReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedEBRecHits"));
+    desc.add<edm::InputTag>("eeReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedEERecHits"));
     desc.add<std::string>("variableDefinition");
+    desc.add<bool>("doEnergyMatrix", false);
+    desc.add<int>("energyMatrixSize", 2)->setComment("extension of crystals in each direction away from the seed");
     desc.add<bool>("isMC", true);
     desc.add<double>("deltaR", 0.1);
     desc.add<double>("ptThreshold", 5.0);
-    desc.addUntracked<std::vector<std::string>>("eleMVAs", {});
-    desc.addUntracked<std::vector<std::string>>("eleMVALabels", {});
-    desc.addUntracked<std::vector<std::string>>("eleMVAValMaps", {});
-    desc.addUntracked<std::vector<std::string>>("eleMVAValMapLabels", {});
-    desc.addUntracked<std::vector<std::string>>("eleMVACats", {});
-    desc.addUntracked<std::vector<std::string>>("eleMVACatLabels", {});
+    desc.add<std::vector<std::string>>("eleMVAs", {});
+    desc.add<std::vector<std::string>>("eleMVALabels", {});
+    desc.add<std::vector<std::string>>("eleMVAValMaps", {});
+    desc.add<std::vector<std::string>>("eleMVAValMapLabels", {});
+    desc.add<std::vector<std::string>>("eleMVACats", {});
+    desc.add<std::vector<std::string>>("eleMVACatLabels", {});
     descriptions.addDefault(desc);
 
 }

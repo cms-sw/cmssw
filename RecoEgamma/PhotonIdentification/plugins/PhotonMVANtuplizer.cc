@@ -17,28 +17,22 @@
 //
 
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
-
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
 #include "RecoEgamma/EgammaTools/interface/MultiToken.h"
-
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 #include <TTree.h>
 #include <TFile.h>
@@ -64,11 +58,14 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
       // other
       TTree* tree_;
 
-      //global variables
+      // global variables
       int nEvent_, nRun_, nLumi_;
       int genNpu_;
       int vtxN_;
+
+      // photon variables
       double pT_, eta_;
+      std::vector<float> energyMatrix_;
 
       // photon genMatch variable
       int matchedToGenPh_;
@@ -101,6 +98,8 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
       const MultiTokenT<std::vector<reco::Vertex>>      vertices_;
       const MultiTokenT<std::vector<PileupSummaryInfo>> pileup_;
       const MultiTokenT<edm::View<reco::GenParticle>>   genParticles_;
+      const MultiTokenT<EcalRecHitCollection>           ebRecHits_;
+      const MultiTokenT<EcalRecHitCollection>           eeRecHits_;
 
       // to hold ID decisions and categories
       std::vector<int> mvaPasses_;
@@ -115,6 +114,9 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
 
       const int nVars_;
       std::vector<float> vars_;
+
+      const bool doEnergyMatrix_;
+      const CaloRectangle caloRectangle_;
 };
 
 enum PhotonMatchType {
@@ -155,14 +157,14 @@ namespace {
 
 // constructor
 PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
- : phoMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAs"))
- , phoMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVALabels"))
+ : phoMapTags_            (iConfig.getParameter<std::vector<std::string>>("phoMVAs"))
+ , phoMapBranchNames_     (iConfig.getParameter<std::vector<std::string>>("phoMVALabels"))
  , nPhoMaps_              (phoMapBranchNames_.size())
- , valMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAValMaps"))
- , valMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAValMapLabels"))
+ , valMapTags_            (iConfig.getParameter<std::vector<std::string>>("phoMVAValMaps"))
+ , valMapBranchNames_     (iConfig.getParameter<std::vector<std::string>>("phoMVAValMapLabels"))
  , nValMaps_              (valMapBranchNames_.size())
- , mvaCatTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVACats"))
- , mvaCatBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVACatLabels"))
+ , mvaCatTags_            (iConfig.getParameter<std::vector<std::string>>("phoMVACats"))
+ , mvaCatBranchNames_     (iConfig.getParameter<std::vector<std::string>>("phoMVACatLabels"))
  , nCats_                 (mvaCatBranchNames_.size())
  , isMC_                  (iConfig.getParameter<bool>("isMC"))
  , ptThreshold_           (iConfig.getParameter<double>("ptThreshold"))
@@ -171,6 +173,8 @@ PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
  , vertices_        (src_, consumesCollector(), iConfig, "vertices", "verticesMiniAOD")
  , pileup_          (src_, consumesCollector(), iConfig, "pileup"  , "pileupMiniAOD")
  , genParticles_    (src_, consumesCollector(), iConfig, "genParticles", "genParticlesMiniAOD")
+ , ebRecHits_       (src_, consumesCollector(), iConfig, "ebReducedRecHitCollection", "ebReducedRecHitCollectionMiniAOD")
+ , eeRecHits_       (src_, consumesCollector(), iConfig, "eeReducedRecHitCollection", "eeReducedRecHitCollectionMiniAOD")
  , mvaPasses_             (nPhoMaps_)
  , mvaValues_             (nValMaps_)
  , mvaCats_               (nCats_)
@@ -178,6 +182,8 @@ PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
  , mvaVarMngr_            (iConfig.getParameter<std::string>("variableDefinition"))
  , nVars_                 (mvaVarMngr_.getNVars())
  , vars_                  (nVars_)
+ , doEnergyMatrix_        (iConfig.getParameter<bool>("doEnergyMatrix"))
+ , caloRectangle_         (makeCaloRectangle(iConfig.getParameter<int>("energyMatrixSize")))
 {
     // phoMaps
     for (auto const& tag : phoMapTags_) {
@@ -207,6 +213,8 @@ PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
     tree_->Branch("vtxN", &vtxN_);
     tree_->Branch("pT", &pT_);
     tree_->Branch("eta", &eta_);
+
+    if (doEnergyMatrix_) tree_->Branch("energyMatrix",&energyMatrix_);
 
     for (int i = 0; i < nVars_; ++i) {
         tree_->Branch(mvaVarMngr_.getName(i).c_str(), &vars_[i]);
@@ -243,6 +251,14 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     vtxN_ = vertices->size();
 
+    // initialize cluster tools
+    std::unique_ptr<noZS::EcalClusterLazyTools> lazyTools;
+    if(doEnergyMatrix_) {
+        // Configure Lazy Tools, which will compute 5x5 quantities
+        lazyTools = std::make_unique<noZS::EcalClusterLazyTools>(
+                iEvent, iSetup, ebRecHits_.get(iEvent), eeRecHits_.get(iEvent));
+    }
+
     // Fill with true number of pileup
     if(isMC_) {
        for(const auto& pu : *pileup)
@@ -276,11 +292,16 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     for(auto const& pho : src->ptrs())
     {
-        if (pho->pt() < ptThreshold_) {
-            continue;
-        }
+        if (pho->pt() < ptThreshold_) continue;
+
         pT_ = pho->pt();
         eta_ = pho->eta();
+
+        // Fill the energy matrix around the seed
+        if(doEnergyMatrix_) {
+            const auto& seed = *(pho->superCluster()->seed());
+            energyMatrix_ = lazyTools->getEnergies(seed, caloRectangle_);
+        }
 
         // variables from the text file
         for (int iVar = 0; iVar < nVars_; ++iVar) {
@@ -288,24 +309,14 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
             vars_[iVar] = mvaVarMngr_.getValue(iVar, *pho, extraVariables);
         }
 
-        if (isMC_) {
-            matchedToGenPh_ = matchToTruth( *pho, *genParticles, deltaR_);
-        }
+        if (isMC_) matchedToGenPh_ = matchToTruth( *pho, *genParticles, deltaR_);
 
         //
         // Look up and save the ID decisions
         //
-        for (size_t k = 0; k < nPhoMaps_; ++k) {
-            mvaPasses_[k] = static_cast<int>((*decisions[k])[pho]);
-        }
-
-        for (size_t k = 0; k < nValMaps_; ++k) {
-            mvaValues_[k] = (*values[k])[pho];
-        }
-
-        for (size_t k = 0; k < nCats_; ++k) {
-          mvaCats_[k] = (*mvaCats[k])[pho];
-        }
+        for (size_t k = 0; k < nPhoMaps_; ++k) mvaPasses_[k] = static_cast<int>((*decisions[k])[pho]);
+        for (size_t k = 0; k < nValMaps_; ++k) mvaValues_[k] = (*values[k])[pho];
+        for (size_t k = 0; k < nCats_   ; ++k) mvaCats_[k]   = (*mvaCats[k])[pho];
 
         tree_->Fill();
     }
@@ -325,12 +336,18 @@ PhotonMVANtuplizer::fillDescriptions(edm::ConfigurationDescriptions& description
     desc.add<edm::InputTag>("verticesMiniAOD",     edm::InputTag("offlineSlimmedPrimaryVertices"));
     desc.add<edm::InputTag>("pileupMiniAOD",       edm::InputTag("slimmedAddPileupInfo"));
     desc.add<edm::InputTag>("genParticlesMiniAOD", edm::InputTag("prunedGenParticles"));
-    desc.addUntracked<std::vector<std::string>>("phoMVAs", {});
-    desc.addUntracked<std::vector<std::string>>("phoMVALabels", {});
-    desc.addUntracked<std::vector<std::string>>("phoMVAValMaps", {});
-    desc.addUntracked<std::vector<std::string>>("phoMVAValMapLabels", {});
-    desc.addUntracked<std::vector<std::string>>("phoMVACats", {});
-    desc.addUntracked<std::vector<std::string>>("phoMVACatLabels", {});
+    desc.add<edm::InputTag>("ebReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsEB"));
+    desc.add<edm::InputTag>("eeReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsEE"));
+    desc.add<edm::InputTag>("ebReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedEBRecHits"));
+    desc.add<edm::InputTag>("eeReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedEERecHits"));
+    desc.add<std::vector<std::string>>("phoMVAs", {});
+    desc.add<std::vector<std::string>>("phoMVALabels", {});
+    desc.add<std::vector<std::string>>("phoMVAValMaps", {});
+    desc.add<std::vector<std::string>>("phoMVAValMapLabels", {});
+    desc.add<std::vector<std::string>>("phoMVACats", {});
+    desc.add<std::vector<std::string>>("phoMVACatLabels", {});
+    desc.add<bool>("doEnergyMatrix", false);
+    desc.add<int>("energyMatrixSize", 2)->setComment("extension of crystals in each direction away from the seed");
     desc.add<bool>("isMC", true);
     desc.add<double>("ptThreshold", 15.0);
     desc.add<double>("deltaR", 0.1);
