@@ -32,6 +32,8 @@ _phase2_tktiming_RecoVertexEventContent = [ 'keep *_offlinePrimaryVertices4D__*'
                                             'keep *_offlinePrimaryVertices4DWithBS__*',
                                             'keep *_offlinePrimaryVertices4DwithPID__*',
                                             'keep *_offlinePrimaryVertices4DwithPIDWithBS__*',
+                                            'keep *_offlinePrimaryVertices4Dfastsim__*',
+                                            'keep *_offlinePrimaryVertices4DfastsimWithBS__*',
                                             'keep *_TOFPIDProducer_*_*',
                                             'keep *_trackTimeValueMapProducer_*_*' ]
 
