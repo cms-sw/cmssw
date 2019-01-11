@@ -39,9 +39,7 @@ namespace pat {
     for(unsigned i = 0; i < mods.size(); ++i ) {
       const edm::ParameterSet& iconf = mods[i];
       const std::string& mname = iconf.getParameter<std::string>("modifierName");
-      ModifyObjectValueBase* plugin = 
-        ModifyObjectValueFactory::get()->create(mname,iconf,cc);
-      modifiers_.emplace_back(plugin);
+      modifiers_.emplace_back(ModifyObjectValueFactory::get()->create(mname,iconf,cc));
     }
   }
 }
