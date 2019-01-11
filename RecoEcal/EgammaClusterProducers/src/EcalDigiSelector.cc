@@ -137,8 +137,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
            std::pair<DetId, float> EDetty = 
 			   EcalClusterTools::getMaximum(*bc,rechits);
            //get the 3x3 array centered on maximum detid.
-           std::vector<DetId> detvec = 
-			   EcalClusterTools::matrixDetId(topology,EDetty.first, -1, 1, -1, 1);
+           std::vector<DetId> detvec = EcalClusterTools::matrixDetId(topology,EDetty.first, 1);
            //Loop over the 3x3
            for (int ik = 0;ik<int(detvec.size());++ik)
              saveTheseDetIds.push_back(detvec[ik]);
@@ -198,8 +197,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
            //Get the maximum detid
            std::pair<DetId, float> EDetty = EcalClusterTools::getMaximum(*bc,rechits);
            //get the 3x3 array centered on maximum detid.
-           std::vector<DetId> detvec = 
-			   EcalClusterTools::matrixDetId(topology,EDetty.first, -1, 1, -1, 1);
+           std::vector<DetId> detvec = EcalClusterTools::matrixDetId(topology,EDetty.first, 1);
            //Loop over the 3x3
            for (int ik = 0;ik<int(detvec.size());++ik)
              saveTheseDetIds.insert(detvec[ik]);

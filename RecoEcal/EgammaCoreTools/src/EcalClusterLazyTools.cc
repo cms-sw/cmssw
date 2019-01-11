@@ -22,74 +22,54 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
-EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2) {
+namespace {
 
-  ebRHToken_ = token1;
-  eeRHToken_ = token2;
- 
-  getGeometry( es , false );
-  getTopology( es );
-  getEBRecHits( ev );
-  getEERecHits( ev );
+  template<class T, class R>
+  auto getFromEventSetup(edm::EventSetup const& eventSetup) {
+    edm::ESHandle<T> handle;
+    eventSetup.get<R>().get(handle);
+    return handle.product();
+  }
+
+  auto getRecHits(edm::Event const& event, edm::EDGetTokenT<EcalRecHitCollection> const& token) {
+    edm::Handle< EcalRecHitCollection > recHitsHandle;
+    event.getByToken( token, recHitsHandle );
+    return recHitsHandle.product();
+  }
+
+};
+
+EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2)
+  : geometry_(getFromEventSetup<CaloGeometry, CaloGeometryRecord>(es))
+  , topology_(getFromEventSetup<CaloTopology, CaloTopologyRecord>(es))
+  , ebRecHits_(getRecHits(ev, token1))
+  , eeRecHits_(getRecHits(ev, token2))
+{
   getIntercalibConstants( es );
   getADCToGeV ( es );
   getLaserDbService ( es );
 }
 
-EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2, edm::EDGetTokenT<EcalRecHitCollection> token3) {
+EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2, edm::EDGetTokenT<EcalRecHitCollection> token3)
+  : geometry_(getFromEventSetup<CaloGeometry, CaloGeometryRecord>(es))
+  , topology_(getFromEventSetup<CaloTopology, CaloTopologyRecord>(es))
+  , ebRecHits_(getRecHits(ev, token1))
+  , eeRecHits_(getRecHits(ev, token2))
+{
+  const CaloSubdetectorGeometry *geometryES = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  if (geometryES) {
+    ecalPS_topology_.reset(new EcalPreshowerTopology(geometry_));
+  } else {
+    ecalPS_topology_.reset();
+    edm::LogInfo("subdetector geometry not available") << "EcalPreshower geometry is missing" << std::endl;
+  }
 
-  ebRHToken_ = token1;
-  eeRHToken_ = token2;
   esRHToken_ = token3;
-
-  getGeometry( es );
-  getTopology( es );
-  getEBRecHits( ev );
-  getEERecHits( ev );
   getESRecHits( ev );
+
   getIntercalibConstants( es );
   getADCToGeV ( es );
   getLaserDbService ( es );
-}
-
-EcalClusterLazyToolsBase::~EcalClusterLazyToolsBase()
-{}
-
-void EcalClusterLazyToolsBase::getGeometry( const edm::EventSetup &es, bool doES ) {
-        edm::ESHandle<CaloGeometry> pGeometry;
-        es.get<CaloGeometryRecord>().get(pGeometry);
-        geometry_ = pGeometry.product();
-
-        if(doES){
-          const CaloSubdetectorGeometry *geometryES = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-          if (geometryES) {
-            ecalPS_topology_.reset(new EcalPreshowerTopology(geometry_));
-          } else {
-            ecalPS_topology_.reset();
-            edm::LogInfo("subdetector geometry not available") << "EcalPreshower geometry is missing" << std::endl;
-          }
-        }
-        else {
-          ecalPS_topology_.reset();
-        }
-}
-
-void EcalClusterLazyToolsBase::getTopology( const edm::EventSetup &es ) {
-        edm::ESHandle<CaloTopology> pTopology;
-        es.get<CaloTopologyRecord>().get(pTopology);
-        topology_ = pTopology.product();
-}
-
-void EcalClusterLazyToolsBase::getEBRecHits( const edm::Event &ev ) {
-  edm::Handle< EcalRecHitCollection > pEBRecHits;
-  ev.getByToken( ebRHToken_, pEBRecHits );
-  ebRecHits_ = pEBRecHits.product();
-}
-
-void EcalClusterLazyToolsBase::getEERecHits( const edm::Event &ev ) {
-  edm::Handle< EcalRecHitCollection > pEERecHits;
-  ev.getByToken( eeRHToken_, pEERecHits );
-  eeRecHits_ = pEERecHits.product();
 }
 
 void EcalClusterLazyToolsBase::getESRecHits( const edm::Event &ev ) {
@@ -147,7 +127,7 @@ void EcalClusterLazyToolsBase::getLaserDbService     ( const edm::EventSetup &es
 }
 
 
-const EcalRecHitCollection * EcalClusterLazyToolsBase::getEcalRecHitCollection( const reco::BasicCluster &cluster )
+const EcalRecHitCollection * EcalClusterLazyToolsBase::getEcalRecHitCollection( const reco::BasicCluster &cluster ) const
 {
         if ( cluster.size() == 0 ) {
                 throw cms::Exception("InvalidCluster") << "The cluster has no crystals!";

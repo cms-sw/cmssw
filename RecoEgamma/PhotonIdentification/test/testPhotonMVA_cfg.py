@@ -48,33 +48,58 @@ for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
 
 process.ntuplizer = cms.EDAnalyzer('PhotonMVANtuplizer',
-        phoMVAs              = cms.untracked.vstring(
+        phoMVAs              = cms.vstring(
                                           ),
-        phoMVALabels         = cms.untracked.vstring(
+        phoMVALabels         = cms.vstring(
                                           ),
-        phoMVAValMaps        = cms.untracked.vstring(
+        phoMVAValMaps        = cms.vstring(
                                            "photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring16NonTrigV1Values",
                                            "photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1Values",
                                            "photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1p1Values",
                                            "photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v2Values",
                                            ),
-        phoMVAValMapLabels   = cms.untracked.vstring(
+        phoMVAValMapLabels   = cms.vstring(
                                            "Spring16NonTrigV1",
                                            "Fall17v1",
                                            "Fall17v1p1",
                                            "Fall17v2",
                                            ),
-        phoMVACats           = cms.untracked.vstring(
+        phoMVACats           = cms.vstring(
                                            "photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1Categories",
                                            ),
-        phoMVACatLabels      = cms.untracked.vstring(
+        phoMVACatLabels      = cms.vstring(
                                            "PhoMVACats",
                                            ),
         variableDefinition = cms.string(mvaVariablesFile),
+        #
+        doEnergyMatrix = cms.bool(False), # disabled by default due to large size
+        energyMatrixSize = cms.int32(2) # corresponding to 5x5
         )
+"""
+The energy matrix is the n x n of raw rec-hit energies around the seed
+crystal.
 
-process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string( outputFile )
-                                   )
+The size of the energy matrix is controlled with the parameter
+"energyMatrixSize", which controlls the extension of crystals in each
+direction away from the seed, in other words n = 2 * energyMatrixSize + 1.
+
+The energy matrix gets saved as a vector but you can easily unroll it
+to a two dimensional numpy array later, for example like that:
+
+>>> import uproot
+>>> import numpy as np
+>>> import matplotlib.pyplot as plt
+
+>>> tree = uproot.open("photon_ntuple.root")["ntuplizer/tree"]
+>>> n = 5
+
+>>> for a in tree.array("ele_energyMatrix"):
+>>>     a = a.reshape((n,n))
+>>>     plt.imshow(np.log10(a))
+>>>     plt.colorbar()
+>>>     plt.show()
+"""
+
+process.TFileService = cms.Service("TFileService", fileName = cms.string(outputFile))
 
 process.p = cms.Path(process.egmPhotonIDSequence * process.ntuplizer)
