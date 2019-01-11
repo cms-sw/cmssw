@@ -16,6 +16,8 @@ import FWCore.Modules.EmptySource_cfi
 
 OUTFILE_TREE = "calltree"
 OUTFILE_FILES = "callfiles"
+FLAT_OUTPUT = False
+# cmsRun alsways gets special handling, but also trace these scripts
 WRAP_SCRIPTS = ["cmsDriver.py" ]
 IGNORE_DIRS = [
   os.path.dirname(os.__file__),
@@ -26,14 +28,19 @@ STRIPPATHS = [
   "/".join(os.path.dirname(FWCore.__file__).split("/")[:-1]) + "/",
   "/".join(FWCore.Modules.EmptySource_cfi.__file__.split("/")[:-3]) + "/",
 ]
+PREFIXINFO = []
+ARGV0 = "" # set in main
 
+def addprefixinfo(argv):
+  # TODO: detect runTheMatrix etc. here
+  PREFIXINFO.append(argv[0])
 
 def setupenv():
   bindir = tempfile.mkdtemp()
   print("+Setting up in ", bindir)
   for s in WRAP_SCRIPTS:
-    os.symlink(__file__, bindir + "/" + s)
-  os.symlink(__file__, bindir + "/cmsRun")
+    os.symlink(ARGV0, bindir + "/" + s)
+  os.symlink(ARGV0, bindir + "/cmsRun")
   os.environ["PATH"] = bindir + ":" + os.environ["PATH"]
   os.environ["CMSSWCALLTREE"] = bindir + "/" + OUTFILE_TREE
   os.environ["CMSSWCALLFILES"] = bindir + "/" + OUTFILE_FILES
@@ -61,6 +68,76 @@ def trace_command(argv):
 
   if tmpdir:
     cleanupenv(tmpdir)
+
+def formatfile(filename):
+  filename = os.path.abspath(filename)
+  for pfx in STRIPPATHS:
+    if filename.startswith(pfx):
+      filename = filename[len(pfx):]
+  return filename
+
+def searchinpath(progname, path):
+  # Search $PATH. There seems to be no pre-made function for this.
+  for entry in path:
+    file_path = os.path.join(entry, progname)
+    if os.path.isfile(file_path):
+      break
+  if not os.path.isfile(file_path):
+    print("+Cannot find program (%s) in modified $PATH (%s)." % (progname, path))
+    sys.exit(1)
+  print("+Found %s as %s in %s." % (progname, file_path, path))
+  return file_path
+
+def writeoutput(callgraph, files):
+  progname = ", ".join(PREFIXINFO)
+  print("+Done running %s, writing output..." % progname)
+
+  def format(func):
+    filename, funcname = func
+    return "%s::%s" % (formatfile(filename), funcname)
+
+  def callpath(func):
+    # climb up in the call graph until we find a node without callers (this is
+    # the entry point, the traced call itself). There may be cycles, but any
+    # node is reachable from the entry point, so no backtracking required.
+    path = []
+    seen = set()
+    parents = {func}
+    timeout = 100 # go no more than this deep
+    while parents:
+      if len(parents) == 1:
+        func = next(iter(parents))
+        seen.add(func)
+        path.append(format(func))
+      if len(parents) > 1:
+        for func in parents:
+          if not func in seen:
+            break
+        if func in seen:
+          # somehow we got stuck in a loop and can't get out. So maybe
+          # backtracking is needed in some situations?
+          # Abort with a partial path for now.
+          return path
+        seen.add(func)
+        path.append(format(func) + "+")
+      parents = callgraph[func]
+      timeout -= 1
+      if timeout == 0:
+        print(seen, path, parents, func)
+        raise Exception('Call path too deep, aborting')
+    return path[:-1]
+
+  with open(os.environ["CMSSWCALLFILES"], "a") as outfile:
+      for f in files:
+        print("%s: %s" % (progname, formatfile(f)), file=outfile)
+  with open(os.environ["CMSSWCALLTREE"], "a") as outfile:
+    if FLAT_OUTPUT:
+      for func in callgraph.keys():
+        print("%s: %s 1" % (progname, ";".join(reversed(callpath(func)))), file=outfile)
+    else:
+      for func in callgraph.keys():
+        for pfunc in callgraph[func]:
+          print("%s: %s -> %s" % (progname, format(func), format(pfunc)), file=outfile)
 
 def trace_python(prog_argv, path):
   files = set()
@@ -97,68 +174,8 @@ def trace_python(prog_argv, path):
   sys.argv = prog_argv
   progname = prog_argv[0]
 
-  # Search $PATH. There seems to be no pre-made function for this.
-  for entry in path:
-    file_path = os.path.join(entry, progname)
-    if os.path.isfile(file_path):
-      break
-  if not os.path.isfile(file_path):
-    print("+Cannot find program (%s) in modified $PATH (%s)." % (progname, path))
-    sys.exit(1)
-  print("+Found %s as %s in %s." % (progname, file_path, path))
 
-  def writeoutput():
-    print("+Done running %s, writing output..." % progname)
-
-    def formatfile(filename):
-      filename = os.path.abspath(filename)
-      for pfx in STRIPPATHS:
-        if filename.startswith(pfx):
-          filename = filename[len(pfx):]
-      return filename
-      
-    def format(func):
-      filename, funcname = func
-      return "%s::%s" % (formatfile(filename), funcname)
-
-    def callpath(func):
-      # climb up in the call graph until we find a node without callers (this is
-      # the entry point, the traced call itself). There may be cycles, but any
-      # node is reachable from the entry point, so no backtracking required.
-      path = []
-      seen = set()
-      parents = {func}
-      timeout = 100 # go no more than this deep
-      while parents:
-        if len(parents) == 1:
-          func = next(iter(parents))
-          seen.add(func)
-          path.append(format(func))
-        if len(parents) > 1:
-          for func in parents:
-            if not func in seen:
-              break
-          if func in seen:
-            # somehow we got stuck in a loop and can't get out. So maybe
-            # backtracking is needed in some situations?
-            # Abort with a partial path for now.
-            return path
-          seen.add(func)
-          path.append(format(func) + "+")
-        parents = callgraph[func]
-        timeout -= 1
-        if timeout == 0:
-          print(seen, path, parents, func)
-          raise Exception('Call path too deep, aborting')
-      return path[:-1]
-
-    with open(os.environ["CMSSWCALLFILES"], "a") as outfile:
-        for f in files:
-          print("%s: %s" % (progname, formatfile(f)), file=outfile)
-    with open(os.environ["CMSSWCALLTREE"], "a") as outfile:
-        for func in callgraph.keys():
-          print("%s: %s 1" % (progname, ";".join(reversed(callpath(func)))), file=outfile)
-
+  file_path = searchinpath(progname, path)
   try:
     with open(file_path) as fp:
       code = compile(fp.read(), progname, 'exec')
@@ -171,12 +188,12 @@ def trace_python(prog_argv, path):
       }
 
       # would be too easy if this covered all the cases...
-      atexit.register(writeoutput)
+      atexit.register(lambda: writeoutput(callgraph, files))
       # cmsDriver calls cmsRun via exec (execvpe specifically), so we also need
       # to hook that...
       old_execvpe = os.execvpe
       def exec_hook(*args):
-        writeoutput()
+        writeoutput(callgraph, files)
         old_execvpe(*args)
       os.execvpe = exec_hook
 
@@ -199,15 +216,23 @@ def help():
   print("Usage: %s <some cmssw commandline>" % (sys.argv[0]))
   print("  The given programs will be executed, instrumenting calls to %s and cmsRun." % (", ".join(WRAP_SCRIPTS)))
   print("  cmsRun will not actually run cmssw, but all the Python code will be executed and instrumentd. The results are written to the files `%s` and `%s` in the same directory." % (OUTFILE_FILES, OUTFILE_TREE))
+  if FLAT_OUTPUT:
+    print("  The callgraph output file can be processed with Brendan Gregg's FlameGraph tool.")
+  else:
+    print("  The callgraph output lists edges pointing from each function to the one calling it.")
+
   print("Examples:")
   print("  %s runTheMatrix.py -l 1000 --ibeos" % sys.argv[0])
   print(  "%s cmsRun rpc_dqm_sourceclient-live_cfg.py" % sys.argv[0])
 
 def main():
   print("+Running cmsswfiletrace...")
+  global ARGV0
+  ARGV0 = sys.argv[0]
   for s in WRAP_SCRIPTS:
     if sys.argv[0].endswith(s):
       print("+Wrapping %s..." % s)
+      addprefixinfo(sys.argv)
       tmppath = os.path.dirname(sys.argv[0])
       path = filter(
         lambda s: not s.startswith(tmppath),
@@ -217,6 +242,7 @@ def main():
       return
   if sys.argv[0].endswith('cmsRun'):
       print("+Wrapping cmsRun...")
+      addprefixinfo(sys.argv[1:])
       trace_python(sys.argv[1:], ["."])
       return
   if len(sys.argv) <= 1:
