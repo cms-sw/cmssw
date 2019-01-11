@@ -50,7 +50,7 @@ private:
 };
 
 DDDetectorESProducer::DDDetectorESProducer(const edm::ParameterSet& iConfig)
-  : m_confGeomXMLFiles(iConfig.getParameter<edm::FileInPath>("confGeomXMLFiles").fullPath().c_str())
+  : m_confGeomXMLFiles(iConfig.getParameter<edm::FileInPath>("confGeomXMLFiles").fullPath())
 {
    setWhatProduced(this);
    findingRecord<DetectorDescriptionRcd>();
