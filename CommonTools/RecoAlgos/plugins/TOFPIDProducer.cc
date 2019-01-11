@@ -41,6 +41,10 @@ class TOFPIDProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<edm::ValueMap<float> > pToken_;
   edm::EDGetTokenT<reco::VertexCollection> vtxsToken_;
   edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+  double vtxMaxSigmaT_;
+  double maxDz_;
+  double maxDtSignificance_;
+  double minProbHeavy_;
 };
 
 
@@ -53,10 +57,12 @@ TOFPIDProducer::TOFPIDProducer(const ParameterSet& iConfig) :
   pathLengthToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("pathLengthSrc"))),
   pToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("pSrc"))),
   vtxsToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxsSrc"))),
-  bsToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"))) {
-  constexpr float maxChi2=25.;
-  constexpr float nSigma=3.;
-  
+  bsToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"))),
+  vtxMaxSigmaT_(iConfig.getParameter<double>("vtxMaxSigmaT")),
+  maxDz_(iConfig.getParameter<double>("maxDz")),
+  maxDtSignificance_(iConfig.getParameter<double>("maxDtSignificance")),
+  minProbHeavy_(iConfig.getParameter<double>("minProbHeavy"))
+  {  
   produces<edm::ValueMap<float> >(t0Name);
   produces<edm::ValueMap<float> >(sigmat0Name);
   produces<edm::ValueMap<float> >(probPiName); 
@@ -134,13 +140,14 @@ void TOFPIDProducer::produce( edm::Event& ev,
     if (sigmat0>0.) {
       
       double rsigmazsq = 1./track.dzError()/track.dzError();
-      double rsigmat0sq = 1./sigmat0/sigmat0;
+      double rsigmat0 = 1./sigmat0;
+      double rsigmat0sq = rsigmat0*rsigmat0;
       
       //find associated vertex
       int vtxidx = -1;
       int vtxidxmindz = -1;
       int vtxidxminchisq = -1;
-      double mindz = std::numeric_limits<double>::max();
+      double mindz = maxDz_;
       double minchisq = std::numeric_limits<double>::max();
       //first try based on association weights, but keep track of closest in z and z-t as well
       for (unsigned int ivtx = 0; ivtx<vtxs.size(); ++ivtx) {
@@ -155,10 +162,11 @@ void TOFPIDProducer::produce( edm::Event& ev,
           mindz = dz;
           vtxidxmindz = ivtx;
         }
-        if (vtx.tError()>0. && vtx.tError()<0.5*sqrt(2.)*sigmat0) {
+        if (vtx.tError()>0. && vtx.tError()<vtxMaxSigmaT_) {
           double dt = std::abs(t0-vtx.t());
-          double chisq = dz*dz*rsigmazsq + dt*dt*rsigmat0sq;
-          if (chisq<minchisq) {
+          double dtsig = dt*rsigmat0;
+          double chisq = dz*dz*rsigmazsq + dtsig*dtsig;
+          if (dz<maxDz_ && dtsig<maxDtSignificance_ && chisq<minchisq) {
             minchisq = chisq;
             vtxidxminchisq = ivtx;
           }
@@ -167,18 +175,18 @@ void TOFPIDProducer::produce( edm::Event& ev,
       
       //if no vertex found based on association weights, fall back to closest in z or z-t
       if (vtxidx<0) {
-        //if closest vertex in z has time information, use the closest vertex in z-t plane with timing info,
-        //otherwise just use the closest in z
-        if (vtxs[vtxidxmindz].tError()>0. && vtxs[vtxidxmindz].tError()<0.5*sqrt(2.)*sigmat0) {
-          vtxidx = vtxidxminchisq;
-        }
-        else {
+        //if closest vertex in z does not have valid time information, just use it, 
+        //otherwise use the closest vertex in z-t plane with timing info,
+        if (vtxidxmindz>=0 && !(vtxs[vtxidxmindz].tError()>0. && vtxs[vtxidxmindz].tError()<vtxMaxSigmaT_)) {
           vtxidx = vtxidxmindz;
+        }
+        else if (vtxidxminchisq>=0) {
+          vtxidx = vtxidxminchisq;
         }
       }
       
       //testing mass hypotheses only possible if there is an associated vertex with time information
-      if (vtxidx>=0 && vtxs[vtxidx].tError()>0. && vtxs[vtxidx].tError()<0.5*sqrt(2.)*sigmat0) {        
+      if (vtxidx>=0 && vtxs[vtxidx].tError()>0. && vtxs[vtxidx].tError()<vtxMaxSigmaT_) {        
         //compute chisq in z-t plane for nominal vertex and mass hypothesis (pion)
         const reco::Vertex &vtxnom = vtxs[vtxidx];
         double dznom = std::abs(track.dz(vtxnom.position()));
@@ -186,6 +194,8 @@ void TOFPIDProducer::produce( edm::Event& ev,
         double chisqnom = dznom*dznom*rsigmazsq + dtnom*dtnom*rsigmat0sq;
         
         //recompute t0 for alternate mass hypotheses
+        double t0_best = t0;
+        
         float tmtd = tmtdIn[trackref];
         float pathlength = pathLengthIn[trackref];
         float magp = pIn[trackref];
@@ -205,34 +215,40 @@ void TOFPIDProducer::produce( edm::Event& ev,
         double chisqmin_p = std::numeric_limits<double>::max();
         //loop through vertices and check for better matches
         for (const reco::Vertex &vtx : vtxs) {
-          if (!(vtx.tError()>0. && vtx.tError()<0.5*sqrt(2.)*sigmat0)) {
+          if (!(vtx.tError()>0. && vtx.tError()<vtxMaxSigmaT_)) {
             continue;
           }
           
           double dz = std::abs(track.dz(vtx.position()));
+          if (dz>=maxDz_) {
+            continue;
+          }
+          
           double chisqdz = dz*dz*rsigmazsq;
           
           double dt_k = std::abs(t0_k - vtx.t());
-          double chisq_k = chisqdz + dt_k*dt_k*rsigmat0sq;
+          double dtsig_k = dt_k*rsigmat0;
+          double chisq_k = chisqdz + dtsig_k*dtsig_k;
           
-          if (chisq_k<chisqmin_k) {
+          if (dtsig_k < maxDtSignificance_ && chisq_k<chisqmin_k) {
             chisqmin_k = chisq_k;
           }
           
           double dt_p = std::abs(t0_p - vtx.t());
-          double chisq_p = chisqdz + dt_p*dt_p*rsigmat0sq;
+          double dtsig_p = dt_p*rsigmat0;
+          double chisq_p = chisqdz + dtsig_p*dtsig_p;
           
-          if (chisq_p<chisqmin_p) {
+          if (dtsig_p < maxDtSignificance_ && chisq_p<chisqmin_p) {
             chisqmin_p = chisq_p;
           }
           
-          if (chisq_k<chisqmin) {
+          if (dtsig_k < maxDtSignificance_ && chisq_k<chisqmin) {
             chisqmin = chisq_k;
-            t0 = t0_k;
+            t0_best = t0_k;
           }
-          if (chisq_p<chisqmin) {
+          if (dtsig_p < maxDtSignificance_ && chisq_p<chisqmin) {
             chisqmin = chisq_p;
-            t0 = t0_p;
+            t0_best = t0_p;
           }
           
         }
@@ -248,6 +264,13 @@ void TOFPIDProducer::produce( edm::Event& ev,
         prob_pi = rawprob_pi*normprob;
         prob_k = rawprob_k*normprob;
         prob_p = rawprob_p*normprob;
+
+        double prob_heavy = 1.-prob_pi;
+        
+        if (prob_heavy>minProbHeavy_) {
+          t0 = t0_best;
+        }
+
       }
       
     }

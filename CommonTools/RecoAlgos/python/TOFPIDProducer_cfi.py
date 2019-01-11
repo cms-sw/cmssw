@@ -9,4 +9,8 @@ TOFPIDProducer = cms.EDProducer( "TOFPIDProducer",
   pSrc = cms.InputTag("trackExtenderWithMTD:generalTrackp"),
   vtxsSrc = cms.InputTag("unsortedOfflinePrimaryVertices4D"),
   beamSpotSrc = cms.InputTag("offlineBeamSpot"),
+  vtxMaxSigmaT = cms.double(0.060),
+  maxDz = cms.double(0.1),
+  maxDtSignificance = cms.double(999.),
+  minProbHeavy = cms.double(0.75),
 )
