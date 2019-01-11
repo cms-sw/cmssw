@@ -39,26 +39,32 @@ def auto_inspect():
   else:
     return [("unknown","unknown","unknown")]
 
-def trace_location(thing, name):
+def trace_location(thing, name, extra = lambda thing, *args, **kwargs: thing):
   old_method = getattr(thing, name)
   def trace_location_hook(self, *args, **kwargs):
+    retval = old_method(self, *args, **kwargs)
     where = auto_inspect()
     #print("Called %s::%s at %s" % (thing.__name__, name, where[0][1:3]))
-    event = (name, where[0][1: ])
+    event = (name, where[0][1:3], extra(self, *args, **kwargs))
     if hasattr(self, "_trace_events"):
       getattr(self, "_trace_events").append(event)
     else:
       # this bypasses setattr checks
       self.__dict__["_trace_events"] = [ event ]
 
-    return old_method(self, *args, **kwargs)
+    return retval
   setattr(thing, name, trace_location_hook)
 
-from FWCore.ParameterSet.SequenceTypes import _ModuleSequenceType, _Sequenceable, Task
+def flatten(*args):
+  # that was surprisingly hard...
+  return     [x  for x in args if not isinstance(x, list)] + sum(
+    [flatten(*x) for x in args if isinstance(x, list)], [])
+
+from FWCore.ParameterSet.SequenceTypes import _ModuleSequenceType, _SequenceCollection, Task, _UnarySequenceOperator, Schedule
 from FWCore.ParameterSet.Modules import _Module, Source, ESSource, ESPrefer, ESProducer, Service, Looper
 from FWCore.ParameterSet.Config import Process
 # with this we can also track the '+' and '*' of modules, but it is slow
-#trace_location(_Sequenceable, '__init__')
+trace_location(_SequenceCollection, '__init__')
 trace_location(_Module, '__init__')
 trace_location(Source, '__init__')
 trace_location(ESSource, '__init__')
@@ -67,24 +73,24 @@ trace_location(ESProducer, '__init__')
 trace_location(Service, '__init__')
 trace_location(Looper, '__init__')
 trace_location(Process, '__init__')
-# TODO: things to track:
-# - __init__ (place, content is is _seq)
-# - associate (track place)
-# - __imul__, __iadd__ (track place)
-# - copyAndExclude (what was excluded?)
-# - replace (track place, removed things)
-# - insert (place)
-# - remove (place, what?)
-trace_location(_ModuleSequenceType, '__init__')
-trace_location(_ModuleSequenceType, 'associate')
-trace_location(_ModuleSequenceType, '__imul__')
-trace_location(_ModuleSequenceType, '__iadd__')
-trace_location(_ModuleSequenceType, 'copyAndExclude')
-trace_location(_ModuleSequenceType, 'replace')
-trace_location(_ModuleSequenceType, 'insert')
-trace_location(_ModuleSequenceType, 'remove')
+trace_location(_UnarySequenceOperator, '__init__')
+# lambda agrument names all match the original declarations, to make kwargs work
+trace_location(_ModuleSequenceType, '__init__', lambda self, *arg: {'args': list(arg)})
+trace_location(_ModuleSequenceType, 'copy')
+trace_location(_ModuleSequenceType, 'associate', lambda self, *tasks: {'args': list(tasks)})
+trace_location(_ModuleSequenceType, '__imul__', lambda self, rhs: {'rhs': rhs})
+trace_location(_ModuleSequenceType, '__iadd__', lambda self, rhs: {'rhs': rhs})
+trace_location(_ModuleSequenceType, 'copyAndExclude', lambda self, listOfModulesToExclude: {'olds': list(listOfModulesToExclude)})
+trace_location(_ModuleSequenceType, 'replace', lambda self, original, replacement: {'old': original, 'new': replacement})
+trace_location(_ModuleSequenceType, 'insert', lambda self, index, item: {'rhs': item})
+trace_location(_ModuleSequenceType, 'remove', lambda self, something: {'old': something})
 trace_location(Task, '__init__')
-trace_location(Task, 'add')
+trace_location(Task, 'add', lambda self, *items: {'args': list(items)})
+trace_location(Task, 'copy')
+trace_location(Task, 'copyAndExclude', lambda self, listOfModulesToExclude: {'olds': list(listOfModulesToExclude)})
+trace_location(Schedule, '__init__', lambda self, *args, **kwargs: {'args': flatten(list(args), kwargs.values())})
+trace_location(Schedule, 'associate', lambda self, *tasks: {'args': list(tasks)})
+trace_location(Schedule, 'copy')
 # TODO: we could go deeper into Types and PSet, but that should not be needed for now.
 
 # lifted from EnablePSetHistory, we don't need all of that stuff.
@@ -115,38 +121,46 @@ def instrument_cmssw():
   # everything happens in the imports so far
   pass
 
-def collect_trace(thing, graph, parent):
+def collect_trace(thing, name, graph, parent):
   # thing is what to look at, graph is the output list (of child, parent tuple pairs)
   # thing could be pretty much anything.
   classname = thing.__class__.__name__
   if hasattr(thing, '_trace_events'):
     events = getattr(thing, '_trace_events')
-    for action, loc in events:
+    for action, loc, extra in events:
       filename = loc[0]
       line = loc[1]
       entry = (action, classname, filename, line)
-      graph.append((entry, parent))
+      graph.append((entry, parent, name))
+
+      # items shall be a list of tuples (type, object) of the immediate children of the thing.
+      items = []
+      if hasattr(extra, 'items_'): # for cms.Process
+        items += extra.items_()
+      if hasattr(extra, '_seq'): # for sequences and similar
+        seq = getattr(extra, '_seq')
+        if seq:
+          items += [('seqitem', x) for x in getattr(seq, '_collection')]
+      if hasattr(extra, '_tasks'): # same
+        items += [('task', x) for x in getattr(extra, '_tasks')]
+      if hasattr(extra, '_collection'): # for cms.Task
+        items += [('subtask', x) for x in getattr(extra, '_collection')]
+      if hasattr(extra, '_operand'): # for _SeqenceNegation etc.
+        items += [('operand', getattr(extra, '_operand'))]
+      if isinstance(extra, dict): # stuff that we track explicitly^
+        for key, value in extra.items():
+          if isinstance(value, list):
+            items += [(key, x) for x in value]
+          else:
+            items += [(key, value)]
+
+      for name, child in items:
+        collect_trace(child, name, graph, entry)
+
   else:
     print("No _trace_events found in %s.\nMaybe turn on tracing for %s?" % (thing, classname))
     print(" Found in %s" % (parent,))
 
-  # items shall be a list of tuples (type, object) of the immediate children of the thing.
-  items = []
-  if hasattr(thing, 'items_'): # for cms.Process
-    items += thing.items_()
-  if hasattr(thing, '_seq'): # for sequences and similar
-    seq = getattr(thing, '_seq')
-    if seq:
-      items += [('seqitem', x) for x in getattr(seq, '_collection')]
-  if hasattr(thing, '_tasks'): # same
-    items += [('task', x) for x in getattr(thing, '_tasks')]
-  if hasattr(thing, '_collection'): # for cms.Task
-    items += [('subtask', x) for x in getattr(thing, '_collection')]
-  if thing: # for everything, esp. leaves like EDAnalyzer etc.
-    pass
-
-  for name, child in items:
-    collect_trace(child, graph, entry)
 
 def writeoutput(graph):
   progname = ", ".join(PREFIXINFO)
@@ -165,7 +179,7 @@ def writeoutput(graph):
     return "%s:%s; %s::%s" % (filename, line, classname, evt)
 
   files = set()
-  for child, parent in graph:
+  for child, parent, relation in graph:
     files.add(child[2])
     files.add(parent[2])
   with open(os.environ["CMSSWCALLFILES"], "a") as outfile:
@@ -173,8 +187,8 @@ def writeoutput(graph):
       print("%s: %s" % (progname, formatfile(f)), file=outfile)
     
   with open(os.environ["CMSSWCALLTREE"], "a") as outfile:
-      for child, parent in graph:
-        print("%s -> %s" % (format(child), format(parent)), file=outfile)
+      for child, parent, relation in graph:
+        print("%s -> %s [%s]" % (format(child), format(parent), relation), file=outfile)
 
 def trace_python(prog_argv, path):
   graph = []
@@ -199,7 +213,7 @@ def trace_python(prog_argv, path):
       try:
         exec code in globals, globals
         # reporting is only possible if the config was executed successfully.
-        collect_trace(globals["process"], graph, ('cmsRun', '', progname, 0))
+        collect_trace(globals["process"], 'cmsrun', graph, ('cmsRun', '', progname, 0))
         writeoutput(graph)
 
       finally:
