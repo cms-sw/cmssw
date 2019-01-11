@@ -11,6 +11,7 @@ namespace MTDTopologyMode {
     if ( value == prefix+"tile" ) { output = Mode::tile; }
     else if ( value == prefix+"bar" ) { output = Mode::bar; }
     else if ( value == prefix+"barzflat" ) { output = Mode::barzflat; }
+    else if ( value == prefix+"barphiflat" ) { output = Mode::barphiflat; }
     else { throw cms::Exception( "MTDTopologyModeError" ) 
         << "the value " << value << " is not defined."; }
     return output;
