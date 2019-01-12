@@ -99,13 +99,13 @@ _vertexRecoCollectionsTiming = cms.VInputTag("offlinePrimaryVertices",
                                              "offlinePrimaryVerticesWithBS",
                                              "selectedOfflinePrimaryVertices",
                                              "selectedOfflinePrimaryVerticesWithBS",
-                                             "offlinePrimaryVertices4D",
-                                             "selectedOfflinePrimaryVertices4D",
+                                             "offlinePrimaryVertices3D",
+                                             "selectedOfflinePrimaryVertices3D",
                                              )
-selectedOfflinePrimaryVertices4D = selectedOfflinePrimaryVertices.clone(src = cms.InputTag("offlinePrimaryVertices4D"))
+selectedOfflinePrimaryVertices3D = selectedOfflinePrimaryVertices.clone(src = cms.InputTag("offlinePrimaryVertices3D"))
 
 _vertexAnalysisSelectionTiming = vertexAnalysisSelection.copy()
-_vertexAnalysisSelectionTiming += selectedOfflinePrimaryVertices4D
+_vertexAnalysisSelectionTiming += selectedOfflinePrimaryVertices3D
 
 phase2_timing_layer.toModify( vertexAnalysis, 
                               vertexRecoCollections = _vertexRecoCollectionsTiming
