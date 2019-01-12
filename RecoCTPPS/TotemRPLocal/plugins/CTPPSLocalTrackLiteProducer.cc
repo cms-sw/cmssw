@@ -100,7 +100,8 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       const uint32_t rpId = rpv.detId();
       for ( const auto& trk : rpv ) {
         if ( !trk.isValid() ) continue;
-        pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma(), trk.getTx(), trk.getTxSigma(), trk.getTy(), trk.getTySigma(), trk.getChiSquaredOverNDF(), CTPPSPixelLocalTrack::invalid, trk.getNumberOfPointsUsedForFit(),0,0 );
+        pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma(), trk.getTx(), trk.getTxSigma(), trk.getTy(), trk.getTySigma(), 
+        trk.getChiSquaredOverNDF(), CTPPSPixelLocalTrack::ReconstructionInfo::invalid, trk.getNumberOfPointsUsedForFit(),0,0 );
       }
     }
   }
@@ -118,7 +119,8 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       const unsigned int rpId = rpv.detId();
       for ( const auto& trk : rpv ) {
         if ( !trk.isValid() ) continue;
-        pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma(), 0., 0., 0., 0., 0., CTPPSPixelLocalTrack::invalid, trk.getNumOfPlanes(), trk.getT(), trk.getTSigma() );
+        pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma(), 
+        0., 0., 0., 0., 0., CTPPSPixelLocalTrack::ReconstructionInfo::invalid, trk.getNumOfPlanes(), trk.getT(), trk.getTSigma() );
       }
     }
   }
@@ -139,7 +141,10 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       if ( !trk.isValid() ) continue;
       if(trk.getTx()>pixelTrackTxMin_ && trk.getTx()<pixelTrackTxMax_
          && trk.getTy()>pixelTrackTyMin_ && trk.getTy()<pixelTrackTyMax_)
-        pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma(), trk.getTx(), trk.getTxSigma(), trk.getTy(), trk.getTySigma(), trk.getChiSquaredOverNDF(), trk.getRecoInfo(), trk.getNumberOfPointsUsedForFit(),0.,0. );
+
+        pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma(), trk.getTx(), trk.getTxSigma(), trk.getTy(), trk.getTySigma(), 
+        trk.getChiSquaredOverNDF(), trk.getRecoInfo(), trk.getNumberOfPointsUsedForFit(),0.,0. );
+      
         }
       }
     }
