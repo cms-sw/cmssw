@@ -38,9 +38,11 @@ namespace sistrip {
     uint16_t lPreviousFedId = 0;
     std::vector<uint16_t> lHeaderBitVec;
     lHeaderBitVec.reserve(sistrip::FEDCH_PER_FED);
+    std::vector<uint16_t> lTrailBitVec;
+    lTrailBitVec.reserve(sistrip::FEDCH_PER_FED);
 
 
-    //local DSVRawDigis per FED
+    //local DSVRawDigis per FED    
     std::vector<DSVRawDigis::const_iterator> lFedScopeDigis;
     lFedScopeDigis.reserve(sistrip::FEDCH_PER_FED);
 
@@ -51,12 +53,15 @@ namespace sistrip {
 
     for (; inputChannel != endChannels; ++inputChannel) {
             
-      // Fill frame parameters. Second parameter is to print debug info (if logDebug enabled....)
-      const sistrip::SpyUtilities::Frame lFrame = sistrip::SpyUtilities::extractFrameInfo(*inputChannel,true);
-
       const uint32_t lFedIndex = inputChannel->detId();
-      const uint16_t fedId = static_cast<uint16_t>(lFedIndex/sistrip::FEDCH_PER_FED);
-      const uint16_t fedCh = static_cast<uint16_t>(lFedIndex%sistrip::FEDCH_PER_FED);
+      const uint16_t fedCh = static_cast<uint16_t>((lFedIndex)&0xFFFF );
+      const uint16_t fedId = static_cast<uint16_t> ((lFedIndex>>16)&0xFFFF);        
+
+      // Fill frame parameters. Second parameter is to print debug info (if logDebug enabled....)
+      const sistrip::SpyUtilities::Frame lFrame = sistrip::SpyUtilities::extractFrameInfo(*inputChannel,false);
+
+      
+
 
       if (lPreviousFedId == 0) {
 	lPreviousFedId = fedId;
@@ -64,17 +69,15 @@ namespace sistrip {
 
       //print out warning only for non-empty frames....
       if (!sistrip::SpyUtilities::isValid(lFrame,aQuality,expectedPos)){
-	//print out only for non-empty frames, else too many prints...
 	if (lFrame.firstHeaderBit < sistrip::SPY_SAMPLES_PER_CHANNEL) {
-	edm::LogWarning("SiStripSpyDigiConverter") << " FED ID: " << fedId << ", channel: " << fedCh << std::endl
-						   << sistrip::SpyUtilities::print(lFrame,
-										   std::string("  -- Invalid Frame ")
-										   );
+	  //  edm::LogWarning("SiStripSpyDigiConverter") << " FED ID: " << fedId << ", channel: " << fedCh << std::endl
+	  //						     << sistrip::SpyUtilities::print(lFrame,
+	  //										     std::string("  -- Invalid Frame ")
+	  //										     );
 	}
-
 	continue;
       }
-
+      
       //fill local vectors per FED
       if (fedId == lPreviousFedId) {
 	if (hasBeenProcessed) hasBeenProcessed = false;
@@ -86,16 +89,18 @@ namespace sistrip {
 				     outputData,
 				     lAddrVec,
 				     lHeaderBitVec,
+				     lTrailBitVec,
 				     lFedScopeDigis
 				     );
 	lPreviousFedId = fedId;
 	hasBeenProcessed = true;
       }
+      // add digis
       lFedScopeDigis.push_back(inputChannel);
       lAddrVec.push_back(lFrame.apvAddress.first);
       lAddrVec.push_back(lFrame.apvAddress.second);
       lHeaderBitVec.push_back(lFrame.firstHeaderBit);
-
+      lTrailBitVec.push_back(lFrame.firstTrailerBit);
 
     } // end of loop over channels.
 
@@ -107,6 +112,7 @@ namespace sistrip {
 				   outputData,
 				   lAddrVec,
 				   lHeaderBitVec,
+				   lTrailBitVec,
 				   lFedScopeDigis
 				   );
     }
@@ -123,6 +129,7 @@ namespace sistrip {
 				    std::vector<DetSetRawDigis> & outputData,
 				    std::vector<uint16_t> & aAddrVec,
 				    std::vector<uint16_t> & aHeaderBitVec,
+				    std::vector<uint16_t> & aTrailBitVec,
 				    std::vector<DSVRawDigis::const_iterator> & aFedScopeDigis
 				    )
   {
@@ -156,8 +163,8 @@ namespace sistrip {
       const DetSetRawDigis::const_iterator payloadBegin = iDigi+aHeaderBitVec[lCh]+24;
       const DetSetRawDigis::const_iterator payloadEnd = payloadBegin + STRIPS_PER_FEDCH;
               
-      if(payloadEnd-iDigi >= endOfChannel-iDigi) continue; // few-cases where this is possible, i.e. nothing above frame-threhsold                                                                
-
+      if(payloadEnd-iDigi >= endOfChannel-iDigi) continue; // few-cases where this is possible, i.e. nothing above frame-threhsold
+      
       // Copy data into output collection
       // Create new detSet with same key (in this case it is the fedKey, not detId)
       outputData.push_back( DetSetRawDigis((*lIter)->detId()) );
@@ -165,15 +172,16 @@ namespace sistrip {
       outputDetSetData.resize(STRIPS_PER_FEDCH);
       std::vector<SiStripRawDigi>::iterator outputBegin = outputDetSetData.begin();
       std::copy(payloadBegin, payloadEnd, outputBegin);
-
     }
 
     aFedScopeDigis.clear();
     aAddrVec.clear();
     aHeaderBitVec.clear();
+    aTrailBitVec.clear();
 
     aAddrVec.reserve(2*sistrip::FEDCH_PER_FED);
     aHeaderBitVec.reserve(sistrip::FEDCH_PER_FED);
+    aTrailBitVec.reserve(sistrip::FEDCH_PER_FED);
     aFedScopeDigis.reserve(sistrip::FEDCH_PER_FED);
 
 
@@ -187,11 +195,10 @@ namespace sistrip {
     // Data is already sorted so push back fast into vector to avoid sorts and create DSV later
     std::vector<DetSetRawDigis> outputData;
     outputData.reserve(inputPayloadDigis->size());
-    
+
     // Loop over channels in input collection
     for (DSVRawDigis::const_iterator inputChannel = inputPayloadDigis->begin(); inputChannel != inputPayloadDigis->end(); ++inputChannel) {
-      const std::vector<SiStripRawDigi>& inputDetSetData = inputChannel->data;
-      // Create new detSet with same key (in this case it is the fedKey, not detId)
+      const std::vector<SiStripRawDigi>& inputDetSetData = inputChannel->data;     
       outputData.push_back( DetSetRawDigis(inputChannel->detId()) );
       std::vector<SiStripRawDigi>& outputDetSetData = outputData.back().data;
       outputDetSetData.resize(STRIPS_PER_FEDCH);
@@ -228,7 +235,7 @@ namespace sistrip {
 	if (iConn->detId() == sistrip::invalid32_) continue;
                 
 	// Find the data from the input collection
-	const uint32_t fedIndex = ( ( iConn->detId()  & sistrip::invalid_ ) << 16 ) | ( iConn->fedCh() & sistrip::invalid_ ) ;
+    const uint32_t fedIndex = ( ( iConn->fedId() & sistrip::invalid_ ) << 16 ) | ( iConn->fedCh() & sistrip::invalid_ );
 	const DSVRawDigis::const_iterator iDetSet = inputPhysicalOrderChannelDigis->find(fedIndex);
 	if (iDetSet == inputPhysicalOrderChannelDigis->end()) {
 	  // NOTE: It will display this warning if channel hasn't been unpacked...
