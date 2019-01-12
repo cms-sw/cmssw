@@ -37,6 +37,10 @@ TEST_CASE("EgHLTTrigCodes", "[EgHLTTrigCodes]") {
     std::unique_ptr<egHLT::TrigCodes> codes( egHLT::TrigCodes::makeCodes(names) );
     REQUIRE(codes->getCode("BAD") == bits());
     REQUIRE(codes->getCode("Tar:BAD:Bar") == bits(kTar|kBar));
+
+    //no partial match
+    REQUIRE(codes->getCode("as") == bits());
+    REQUIRE(codes->getCode("ashton")==bits());
   }
 
 }
