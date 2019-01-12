@@ -30,7 +30,7 @@ class CommissioningTask {
 		     const FedChannelConnection&,
 		     const std::string& my_name );
 
-  ~CommissioningTask() override;
+  virtual ~CommissioningTask();
 
   // ---------- Classes, structs ----------
   

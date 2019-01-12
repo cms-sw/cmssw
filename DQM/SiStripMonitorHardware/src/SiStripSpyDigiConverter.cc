@@ -54,7 +54,6 @@ namespace sistrip {
     for (; inputChannel != endChannels; ++inputChannel) {
             
       const uint32_t lFedIndex = inputChannel->detId();
-      const uint16_t fedCh = static_cast<uint16_t>((lFedIndex)&0xFFFF );
       const uint16_t fedId = static_cast<uint16_t> ((lFedIndex>>16)&0xFFFF);        
 
       // Fill frame parameters. Second parameter is to print debug info (if logDebug enabled....)

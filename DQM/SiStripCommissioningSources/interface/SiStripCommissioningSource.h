@@ -36,7 +36,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   typedef std::vector<VecOfTasks> VecOfVecOfTasks;
   
   SiStripCommissioningSource( const edm::ParameterSet& );
-  SiStripCommissioningSource() override;
+  ~SiStripCommissioningSource() override;
   
   void beginRun( edm::Run const &, const edm::EventSetup & ) override;
   void analyze( const edm::Event &, const edm::EventSetup & ) override;
