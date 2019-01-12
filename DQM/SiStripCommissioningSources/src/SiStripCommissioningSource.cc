@@ -605,14 +605,14 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
 
       // only for spy data-taking --> tick measurement
       std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digisAlt;
-      if(&rawAlt and  rawAlt.size() != 0){
+      if(not rawAlt.empty()){
 	digisAlt = rawAlt.find(fed_key);
 	if(digisAlt == rawAlt.end()) continue;
       }
       
       // find the strips belonging to the clusters connected to this APV pair
       stripOnClusters.clear();
-      if(&clusters and clusters.size() != 0){
+      if(not clusters.empty()){
 	for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter = clusters.begin(); DSViter != clusters.end(); DSViter++ ) {
 	  if(DSViter->id() != iconn->detId()) continue; // select clusters on this module	  
 	  for(edmNew::DetSet<SiStripCluster>::const_iterator DSiter = DSViter->begin(); DSiter != DSViter->end(); DSiter++) { // loop on the clusters
@@ -652,7 +652,7 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
 	} 
 	else {
 	  if ( tasks_[iconn->fedId()][iconn->fedCh()] ) {
-	    if(&rawAlt == nullptr or digisAlt == rawAlt.end()) // use only one digi collection
+	    if(not rawAlt.empty() or digisAlt == rawAlt.end())
 	      tasks_[iconn->fedId()][iconn->fedCh()]->fillHistograms( *summary, *digis );
 	    else{// for spy-data
 	      if(stripOnClusters.empty()) 

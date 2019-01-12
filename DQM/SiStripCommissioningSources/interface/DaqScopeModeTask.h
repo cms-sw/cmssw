@@ -19,9 +19,9 @@ class DaqScopeModeTask : public CommissioningTask {
  private:
 
   void book() override;
+
   void fill( const SiStripEventSummary&,
 	     const edm::DetSet<SiStripRawDigi>& ) override;
-  void book() override;
 
   void fill( const SiStripEventSummary&,
 	     const edm::DetSet<SiStripRawDigi>&,
