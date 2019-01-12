@@ -349,7 +349,7 @@ namespace {
     if( comp.first ) {    
       vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos,*prop,theEstimator);
       if (!compDets.empty()) {
-	MTDTrackingRecHit* best = 0;
+	MTDTrackingRecHit* best = nullptr;
 	double best_chi2 = std::numeric_limits<double>::max();
 	for( const auto& detWithState : compDets ) {	
 	  auto range = hits.equal_range(detWithState.first->geographicalId(),cmp_for_detset);	  
