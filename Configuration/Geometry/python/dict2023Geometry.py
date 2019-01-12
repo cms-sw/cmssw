@@ -947,6 +947,34 @@ timingDict = {
         ],
         "era" : "phase2_timing, phase2_timing_layer_bar",
     },
+    "I8" : {
+        1 : [
+            'Geometry/MTDCommonData/data/btl.xml',
+            'Geometry/MTDCommonData/data/etl.xml',
+            'Geometry/MTDCommonData/data/CrystalBarPhiFlatOldTh/mtd.xml',
+            'Geometry/MTDCommonData/data/CrystalBarPhiFlatOldTh/mtdStructureTopology.xml',
+            'Geometry/MTDCommonData/data/CrystalBarPhiFlatOldTh/mtdParameters.xml',
+            ],
+        3 : [
+            'Geometry/MTDSimData/data/CrystalBarPhiFlat/mtdsens.xml'
+            ],
+        4 : [
+            'Geometry/MTDSimData/data/CrystalBarPhiFlat/mtdProdCuts.xml'
+            ],
+        "sim" : [
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+        ],
+        "reco" :[
+            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+            'mtdGeometry.applyAlignment = cms.bool(False)'
+        ],
+        "era" : "phase2_timing, phase2_timing_layer_bar",
+    },
 }
 
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
@@ -970,6 +998,7 @@ detectorVersionDict = {
     ("O2","T12","C3","M2","F2","I1") : "D36",
     ("O2","T13","C3","M2","F2","I1") : "D37",
     ("O2","T6","C4","M2","F2","I7") : "D38",
+    ("O2","T6","C4","M2","F2","I8") : "D39",
 }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D18", "D20", "D26", "D27" ])
