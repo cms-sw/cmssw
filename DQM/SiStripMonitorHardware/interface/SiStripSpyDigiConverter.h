@@ -58,6 +58,7 @@ namespace sistrip {
 			       std::vector<DetSetRawDigis> & outputData,
 			       std::vector<uint16_t> & aAddrVec,
 			       std::vector<uint16_t> & aHeaderBitVec,
+			       std::vector<uint16_t> & aTrailBitVec,
 			       std::vector<DSVRawDigis::const_iterator> & aFedScopeDigis
 			       );
 

@@ -16,6 +16,8 @@ using namespace sistrip;
 DaqScopeModeAlgorithm::DaqScopeModeAlgorithm( const edm::ParameterSet & pset, DaqScopeModeAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
     histo_(nullptr,""),
+    headerLow_(nullptr,""),
+    headerHigh_(nullptr,""),
     hPeds_(nullptr,""),
     hNoise_(nullptr,""),
     deadStripMax_(pset.getParameter<double>("DeadStripMax")),
@@ -33,10 +35,6 @@ void DaqScopeModeAlgorithm::extract( const std::vector<TH1*>& histos ) {
     return; 
   }
 
-  // Check
-  if ( histos.size() != 3 ) {
-    anal()->addErrorCode(sistrip::numberOfHistos_);
-  }
   
   // Extract FED key from histo title
   if ( !histos.empty() ) { anal()->fedKey( extractFedKey( histos.front() ) ); }
@@ -77,6 +75,14 @@ void DaqScopeModeAlgorithm::extract( const std::vector<TH1*>& histos ) {
       histo_.first = *ihis;
       histo_.second = (*ihis)->GetName();
     }
+    else if ( title.extraInfo().find(sistrip::extrainfo::scopeModeHeaderLow_) != std::string::npos ) {
+      headerLow_.first = *ihis;
+      headerLow_.second = (*ihis)->GetName();
+    }
+    else if ( title.extraInfo().find(sistrip::extrainfo::scopeModeHeaderHigh_) != std::string::npos ) {
+      headerHigh_.first = *ihis;
+      headerHigh_.second = (*ihis)->GetName();
+    }
   }  
 }
 
@@ -115,12 +121,22 @@ void DaqScopeModeAlgorithm::analyse() {
     anal->addErrorCode(sistrip::nullPtr_);
     return;
   }
+  if ( !headerLow_.first ) {
+    anal->addErrorCode(sistrip::nullPtr_);
+    return;
+  }
+  if ( !headerHigh_.first ) {
+    anal->addErrorCode(sistrip::nullPtr_);
+    return;
+  }
 
   /// pedestal
   TProfile* peds_histo  = dynamic_cast<TProfile*>(hPeds_.first);
   TProfile* noise_histo = dynamic_cast<TProfile*>(hNoise_.first);
   /// scope-mode profile
   TProfile* scope_histo = dynamic_cast<TProfile*>(histo_.first);
+  TH1F* headerLow_histo = dynamic_cast<TH1F*>(headerLow_.first);
+  TH1F* headerHigh_histo = dynamic_cast<TH1F*>(headerHigh_.first);
 
   if ( !peds_histo ) {
     anal->addErrorCode(sistrip::nullPtr_);
@@ -133,6 +149,16 @@ void DaqScopeModeAlgorithm::analyse() {
   }
 
   if ( !scope_histo ) {
+    anal->addErrorCode(sistrip::nullPtr_);
+    return;
+  }
+
+  if ( !headerLow_histo ) {
+    anal->addErrorCode(sistrip::nullPtr_);
+    return;
+  }
+
+  if ( !headerHigh_histo ) {
     anal->addErrorCode(sistrip::nullPtr_);
     return;
   }
@@ -240,8 +266,10 @@ void DaqScopeModeAlgorithm::analyse() {
   } // apv loop
 
   //// Tick-Mark --> just store values and check if the height is significant
-  anal->peak_ = (scope_histo->GetBinContent(287)+scope_histo->GetBinContent(288))/2.; // trailing tickmark for each APV
-  anal->base_ = (scope_histo->GetBinContent(1)+scope_histo->GetBinContent(2)+scope_histo->GetBinContent(3)+scope_histo->GetBinContent(4)+scope_histo->GetBinContent(5))/5.;
+  //anal->peak_ = (scope_histo->GetBinContent(287)+scope_histo->GetBinContent(288))/2.;
+  //anal->base_ = (scope_histo->GetBinContent(1)+scope_histo->GetBinContent(2)+scope_histo->GetBinContent(3)+scope_histo->GetBinContent(4)+scope_histo->GetBinContent(5))/5.;
+  anal->peak_ = headerHigh_histo->GetMean();
+  anal->base_ = headerLow_histo->GetMean();
   anal->height_ = anal->peak_-anal->base_;
   if ( anal->height_ < DaqScopeModeAnalysis::tickMarkHeightThreshold_ ) {
     anal->addErrorCode(sistrip::smallTickMarkHeight_);

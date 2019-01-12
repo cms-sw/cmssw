@@ -127,7 +127,8 @@ bool DaqScopeModeAnalysis::foundTickMark() const {
 // ----------------------------------------------------------------------------
 // 
 bool DaqScopeModeAnalysis::isValid() const {
-  return ( ( getErrorCodes().empty() || getErrorCodes()[0] == "TickMarkRecovered" ) &&
+	
+  return ( getErrorCodes().empty() &&
 	   base_   < sistrip::valid_ &&
 	   peak_   < sistrip::valid_ &&
 	   height_ < sistrip::valid_ &&
@@ -254,12 +255,14 @@ void DaqScopeModeAnalysis::summary( std::stringstream& ss ) const {
   
   sistrip::RunType type = SiStripEnumsAndStrings::runType( myName() );
 
-  std::stringstream extra1,extra2,extra3,extra4;
+  std::stringstream extra1,extra2,extra3,extra4,extra5,extra6;
   extra1 << sistrip::extrainfo::pedestals_; 
   extra2 << sistrip::extrainfo::rawNoise_; 
   extra3 << sistrip::extrainfo::commonMode_;
   extra4 << sistrip::extrainfo::scopeModeFrame_;
-  
+  extra5 << sistrip::extrainfo::scopeModeHeaderLow_;
+  extra6 << sistrip::extrainfo::scopeModeHeaderHigh_;  
+
   std::string title1 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					  type,
 					  sistrip::FED_KEY, 
@@ -296,6 +299,22 @@ void DaqScopeModeAnalysis::summary( std::stringstream& ss ) const {
 					  sistrip::LLD_CHAN, 
 					  SiStripFecKey::i2cAddr( fec_key.lldChan()),
 					  extra4.str() ).title();
+
+  std::string title6 = SiStripHistoTitle( sistrip::EXPERT_HISTO,
+                     type,
+                     sistrip::FED_KEY,
+                     fed_key.key(),
+                     sistrip::LLD_CHAN,
+                     SiStripFecKey::i2cAddr( fec_key.lldChan()),
+                     extra5.str() ).title();
+
+   std::string title7 = SiStripHistoTitle( sistrip::EXPERT_HISTO,
+                     type,
+                     sistrip::FED_KEY,
+                     fed_key.key(),
+                     sistrip::LLD_CHAN,
+                     SiStripFecKey::i2cAddr( fec_key.lldChan()),
+                     extra6.str() ).title();
   
   ss << " Summary"
      << ":"
@@ -316,7 +335,7 @@ void DaqScopeModeAnalysis::summary( std::stringstream& ss ) const {
 		       fec_key.ccuAddr(), 
 		       fec_key.ccuChan() ).path()
      << ":"
-     << title1 << ";" << title2 << ";" << title3 << ";" << title4 << ";" << title5 
+     << title1 << ";" << title2 << ";" << title3 << ";" << title4 << ";" << title5 << ";" << title6 << ";" << title7
      << std::endl;
   
 }
