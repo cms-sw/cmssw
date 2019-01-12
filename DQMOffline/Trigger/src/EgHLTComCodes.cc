@@ -19,28 +19,24 @@ void ComCodes::setCode(const char* descript,int code)
 
 int ComCodes::getCode(const char* descript)const
 { 
-  //first copy the character string to a local array so we can manipulate it
-  char localDescript[256];
-  strcpy(localDescript,descript);
-  
   int code = 0x0000; 
-  char* codeKey = strtok(localDescript,":");
-  //  std::map<std::string,int> ::const_iterator mapIt;
-  while(codeKey!=nullptr){
-    bool found=false;
+  char const * const end = descript+strlen(descript);
+  char const * codeKey = descript;
+  char const * token = nullptr;
+  do {
+    token = std::find(codeKey, end, ':');
 
-    for(size_t i=0;i<_codeDefs.size() && !found;i++){
-      if(_codeDefs[i].first==codeKey){
- 	found=true;
- 	code |= _codeDefs[i].second;
-
+    bool found = false;
+    for(auto const& c: _codeDefs) {
+      if(0==c.first.compare(0,std::string::npos,codeKey, token-codeKey)){
+ 	code |= c.second;
+        found = true;
+        break;
        }
+      if(!found)  edm::LogWarning("EgHLTComCodes") <<"ComCodes::getCode : Error, Key "<<std::string(codeKey,token-codeKey)<<" not found (likely mistyped, practical upshot is the selection is not what you think it is)";//<<std::endl;
     }
-   
-    if(!found)  edm::LogWarning("EgHLTComCodes") <<"ComCodes::getCode : Error, Key "<<codeKey<<" not found (likely mistyped, practical upshot is the selection is not what you think it is)";//<<std::endl;
-    codeKey = strtok(nullptr,":"); //getting new substring
-    
-  }
+    codeKey = token+1;
+  } while(token != end);
   return code;
 }
 
