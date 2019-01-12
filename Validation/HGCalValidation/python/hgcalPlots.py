@@ -20,6 +20,14 @@ maxlayer = 52 # last layer of BH
 
 _common = {"stat": True, "drawStyle": "hist"}
 
+_SelectedCaloParticles = PlotGroup("SelectedCaloParticles", [
+        Plot("num_caloparticle_eta", xtitle="", **_common),
+        Plot("caloparticle_energy", xtitle="", **_common),
+        Plot("caloparticle_pt", xtitle="", **_common),
+        Plot("caloparticle_phi", xtitle="", **_common),
+        Plot("Eta vs Zorigin", xtitle="", **_common),
+       ])
+
 _num_reco_cluster_eta = PlotGroup("num_reco_cluster_eta", [
         Plot("num_reco_cluster_eta", xtitle="", **_common),
         ],ncols=1)
@@ -479,21 +487,45 @@ _distancetoseedcell_perthickperlayer_eneweighted_scint_BH = PlotGroup("distancet
 
 
 hgcalLayerClustersPlotter = Plotter()
-hgcalLayerClustersPlotter.append("hgcalLayerClusters", [
+#We follow Chris categories in folders
+# [A] calculated "energy density" for cells in a) 120um, b) 200um, c) 300um, d) scint 
+# (one entry per rechit, in the appropriate histo)
+hgcalLayerClustersPlotter.append("CellsEnergyDensityPerThickness", [
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
         ], PlotFolder(
-        _num_reco_cluster_eta,
-        _mixedhitscluster,
-        _energyclustered,
-        _longdepthbarycentre,
+        _cellsenedens_thick, 
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="CellsEnergyDensityPerThickness"   
+        ))
+
+# [B] number of layer clusters per event in a) 120um, b) 200um, c) 300um, d) scint 
+# (one entry per event in each of the four histos)
+hgcalLayerClustersPlotter.append("TotalNumberofLayerClustersPerThickness", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+        ], PlotFolder(
         _totclusternum_thick, 
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="TotalNumberofLayerClustersPerThickness"   
+        ))
+
+# [C] number of layer clusters per layer (one entry per event in each histo)
+hgcalLayerClustersPlotter.append("NumberofLayerClustersPerLayer", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+        ], PlotFolder(
         _totclusternum_layer_EE,
         _totclusternum_layer_FH,
         _totclusternum_layer_BH,
-        _energyclustered_perlayer_EE,
-        _energyclustered_perlayer_FH,
-        _energyclustered_perlayer_BH,
-        _cellsenedens_thick, 
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="NumberofLayerClustersPerLayer"   
+        ))
+
+# [D] For each layer cluster: 
+# number of cells in layer cluster, by layer - separate histos in each layer for 120um Si, 200/300um Si, Scint 
+# NB: not all combinations exist; e.g. no 120um Si in layers with scint.
+# (One entry in the appropriate histo per layer cluster).
+hgcalLayerClustersPlotter.append("CellsNumberPerLayerPerThickness", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+        ], PlotFolder(
         _cellsnum_perthick_perlayer_120_EE,
         _cellsnum_perthick_perlayer_120_FH,
         _cellsnum_perthick_perlayer_120_BH,
@@ -506,6 +538,18 @@ hgcalLayerClustersPlotter.append("hgcalLayerClusters", [
         _cellsnum_perthick_perlayer_scint_EE,
         _cellsnum_perthick_perlayer_scint_FH,
         _cellsnum_perthick_perlayer_scint_BH,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="CellsNumberPerLayerPerThickness"   
+        ))
+
+# [E] For each layer cluster: 
+# distance of cells from a) seed cell, b) max cell; and c), d): same with entries weighted by cell energy
+# separate histos in each layer for 120um Si, 200/300um Si, Scint 
+# NB: not all combinations exist; e.g. no 120um Si in layers with scint.
+# (One entry in each of the four appropriate histos per cell in a layer cluster)
+hgcalLayerClustersPlotter.append("CellsDistanceToSeedAndMaxCellPerLayerPerThickness", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+        ], PlotFolder(
         _distancetomaxcell_perthickperlayer_120_EE,
         _distancetomaxcell_perthickperlayer_120_FH,
         _distancetomaxcell_perthickperlayer_120_BH,
@@ -555,6 +599,43 @@ hgcalLayerClustersPlotter.append("hgcalLayerClusters", [
         _distancetoseedcell_perthickperlayer_eneweighted_scint_FH,
         _distancetoseedcell_perthickperlayer_eneweighted_scint_BH,
         loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="hgcalLayerClusters"   
+        purpose=PlotPurpose.Timing, page="CellsDistanceToSeedAndMaxCellPerLayerPerThickness"   
         ))
+
+# [F] Looking at the fraction of true energy that has been clustered; by layer and overall
+hgcalLayerClustersPlotter.append("EnergyClusteredByLayerAndOverall", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+        ], PlotFolder(
+        _energyclustered,
+        _energyclustered_perlayer_EE,
+        _energyclustered_perlayer_FH,
+        _energyclustered_perlayer_BH,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="EnergyClusteredByLayerAndOverall"   
+        ))
+
+# [G] Miscellaneous plots: 
+# longdepthbarycentre: The longitudinal depth barycentre. One entry per event.
+# mixedhitscluster: Number of clusters per event with hits in different thicknesses.
+# num_reco_cluster_eta: Number of reco clusters vs eta
+
+hgcalLayerClustersPlotter.append("Miscellaneous", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+            ], PlotFolder(
+            _num_reco_cluster_eta,
+            _mixedhitscluster,
+            _energyclustered,
+            _longdepthbarycentre,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="Miscellaneous"   
+            ))
+
+# [H] SelectedCaloParticles plots
+hgcalLayerClustersPlotter.append("SelectedCaloParticles_Photons", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/22",
+            ], PlotFolder(
+            _SelectedCaloParticles,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="SelectedCaloParticles_Photons"   
+            ))
 
