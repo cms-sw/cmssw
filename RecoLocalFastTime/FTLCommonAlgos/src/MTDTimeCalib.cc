@@ -38,7 +38,7 @@ float MTDTimeCalib::getTimeCalib(const MTDDetId& id) const
       const MTDGeomDet* thedet = geom_->idToDet(geoId);
       
       if( thedet == nullptr ) {
-	throw cms::Exception("BTLBarDeviceSim") << "GeographicalID: " << std::hex
+	throw cms::Exception("MTDTimeCalib") << "GeographicalID: " << std::hex
 					      << geoId.rawId()
 						<< " (" << id.rawId()<< ") is invalid!" << std::dec
 						<< std::endl;
@@ -72,7 +72,7 @@ float MTDTimeCalib::getTimeCalib(const MTDDetId& id) const
     }
   else
     {
-      throw cms::Exception("MTDThresholdClusterizer") << "MTDDetId: " << std::hex
+      throw cms::Exception("MTDTimeCalib") << "MTDDetId: " << std::hex
 						      << id.rawId()
 						      << " is invalid!" << std::dec
 						      << std::endl;
