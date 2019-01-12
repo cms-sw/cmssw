@@ -1,0 +1,4 @@
+<bin   file="EgHLTTrigCodes_catch2_test.cpp" test="testDQMOfflineTrigger">
+  <use name="DQMOffline/Trigger"/>
+  <use name="catch2"/>
+</bin>
