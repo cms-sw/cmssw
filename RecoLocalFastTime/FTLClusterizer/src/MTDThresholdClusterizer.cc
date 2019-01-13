@@ -258,7 +258,7 @@ MTDThresholdClusterizer::make_cluster( const FTLCluster::FTLHitPos& hit )
       for ( auto c = std::max(0,int(acluster.y[curInd]-1)); c < std::min(int(acluster.y[curInd]+2),int(theBuffer.columns())) && !stopClus; ++c) {
 	  for ( auto r = std::max(0,int(acluster.x[curInd]-1)); r < std::min(int(acluster.x[curInd]+2),int(theBuffer.rows()))  && !stopClus; ++r)  {
 	  if ( theBuffer.energy(r,c) > theHitThreshold) {
-	    if (fabs(theBuffer.time(r,c) - seed_time) > theTimeThreshold*sqrt( theBuffer.time_error(r,c)*theBuffer.time_error(r,c) + seed_time_error*seed_time_error))
+	    if (std::abs(theBuffer.time(r,c) - seed_time) > theTimeThreshold*sqrt( theBuffer.time_error(r,c)*theBuffer.time_error(r,c) + seed_time_error*seed_time_error))
 	      continue;
 	    FTLCluster::FTLHitPos newhit(r,c);
 	    if (!acluster.add( newhit, theBuffer.energy(r,c), theBuffer.time(r,c), theBuffer.time_error(r,c))) 
