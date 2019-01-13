@@ -11,35 +11,25 @@
  */
 
 struct CaloRectangle {
-    const int ixMin;
-    const int ixMax;
-    const int iyMin;
-    const int iyMax;
+    const int iEtaOrIXMin;
+    const int iEtaOrIXMax;
+    const int iPhiOrIYMin;
+    const int iPhiOrIYMax;
 
     template<class T>
     auto operator()(T home, CaloTopology const& topology);
 
 };
 
-inline auto makeCaloRectangle(int size) {
-    return CaloRectangle{-size, size, -size, size};
-}
-
-inline auto makeCaloRectangle(int sizeX, int sizeY) {
-    return CaloRectangle{-sizeX, sizeX, -sizeY, sizeY};
-}
-
 template<class T>
-T offsetBy(T start, CaloSubdetectorTopology const& topo, int dX, int dY)
+T offsetBy(T start, CaloSubdetectorTopology const& topo, int dIEtaOrIX, int dIPhiOrIY)
 {
-    for(int x = 0; x < std::abs(dX) && start != T(0); x++) {
-        // east is eta in barrel
-        start = dX > 0 ? topo.goEast(start) : topo.goWest(start);
+    for(int i = 0; i < std::abs(dIEtaOrIX) && start != T(0); i++) {
+        start = dIEtaOrIX > 0 ? topo.goEast(start) : topo.goWest(start);
     }
 
-    for(int y = 0; y < std::abs(dY) && start != T(0); y++) {
-        // north is phi in barrel
-        start = dY > 0 ? topo.goNorth(start) : topo.goSouth(start);
+    for(int i = 0; i < std::abs(dIPhiOrIY) && start != T(0); i++) {
+        start = dIPhiOrIY > 0 ? topo.goNorth(start) : topo.goSouth(start);
     }
     return start;
 }
@@ -53,29 +43,29 @@ class CaloRectangleRange {
 
       public:
 
-        Iterator(T const& home, int ix, int iy, CaloRectangle const rectangle, CaloSubdetectorTopology const& topology)
+        Iterator(T const& home, int iEtaOrIX, int iPhiOrIY, CaloRectangle const rectangle, CaloSubdetectorTopology const& topology)
           : home_(home)
           , rectangle_(rectangle)
           , topology_(topology)
-          , ix_(ix)
-          , iy_(iy)
+          , iEtaOrIX_(iEtaOrIX)
+          , iPhiOrIY_(iPhiOrIY)
         {}
 
         Iterator& operator++() {
-            if(iy_ == rectangle_.iyMax) {
-                iy_ = rectangle_.iyMin;
-                ix_++;
-            } else ++iy_;
+            if(iPhiOrIY_ == rectangle_.iPhiOrIYMax) {
+                iPhiOrIY_ = rectangle_.iPhiOrIYMin;
+                iEtaOrIX_++;
+            } else ++iPhiOrIY_;
             return *this;
         }
 
-        int ix() const { return ix_; }
-        int iy() const { return iy_; }
+        int iEtaOrIX() const { return iEtaOrIX_; }
+        int iPhiOrIY() const { return iPhiOrIY_; }
 
-        bool operator==(Iterator const& other) const { return ix_ == other.ix() && iy_ == other.iy(); }
-        bool operator!=(Iterator const& other) const { return ix_ != other.ix() || iy_ != other.iy(); }
+        bool operator==(Iterator const& other) const { return iEtaOrIX_ == other.iEtaOrIX() && iPhiOrIY_ == other.iPhiOrIY(); }
+        bool operator!=(Iterator const& other) const { return iEtaOrIX_ != other.iEtaOrIX() || iPhiOrIY_ != other.iPhiOrIY(); }
 
-        T operator*() const { return offsetBy(home_, topology_, ix_, iy_); }
+        T operator*() const { return offsetBy(home_, topology_, iEtaOrIX_, iPhiOrIY_); }
 
       private:
 
@@ -84,8 +74,8 @@ class CaloRectangleRange {
         const CaloRectangle rectangle_;
         CaloSubdetectorTopology const& topology_;
 
-        int ix_;
-        int iy_;
+        int iEtaOrIX_;
+        int iPhiOrIY_;
     };
 
   public:
@@ -95,11 +85,17 @@ class CaloRectangleRange {
       , topology_(*topology.getSubdetectorTopology(home))
     {}
 
+   CaloRectangleRange(int size, T home, CaloTopology const& topology)
+      : home_(home)
+      , rectangle_{-size, size, -size, size}
+      , topology_(*topology.getSubdetectorTopology(home))
+    {}
+
     auto begin() {
-        return Iterator(home_, rectangle_.ixMin, rectangle_.iyMin, rectangle_, topology_);
+        return Iterator(home_, rectangle_.iEtaOrIXMin, rectangle_.iPhiOrIYMin, rectangle_, topology_);
     }
     auto end() {
-        return Iterator(home_, rectangle_.ixMax + 1, rectangle_.iyMin, rectangle_, topology_);
+        return Iterator(home_, rectangle_.iEtaOrIXMax + 1, rectangle_.iPhiOrIYMin, rectangle_, topology_);
     }
 
   private:

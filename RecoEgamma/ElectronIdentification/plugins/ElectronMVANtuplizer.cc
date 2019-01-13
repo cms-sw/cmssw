@@ -133,7 +133,7 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       std::vector<float> vars_;
 
       const bool doEnergyMatrix_;
-      const CaloRectangle caloRectangle_;
+      const int energyMatrixSize_;
 };
 
 //
@@ -177,7 +177,7 @@ ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
   , nVars_                 (mvaVarMngr_.getNVars())
   , vars_                  (nVars_)
   , doEnergyMatrix_        (iConfig.getParameter<bool>("doEnergyMatrix"))
-  , caloRectangle_         (makeCaloRectangle(iConfig.getParameter<int>("energyMatrixSize")))
+  , energyMatrixSize_      (iConfig.getParameter<int>("energyMatrixSize"))
 {
     // eleMaps
     for (auto const& tag : eleMapTags_) {
@@ -303,7 +303,7 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         // Fill the energy matrix around the seed
         if(doEnergyMatrix_) {
             const auto& seed = *(ele->superCluster()->seed());
-            energyMatrix_ = lazyTools->getEnergies(seed, caloRectangle_);
+            energyMatrix_ = lazyTools->energyMatrix(seed, energyMatrixSize_);
         }
 
         // Fill various tree variable

@@ -106,13 +106,13 @@ class EcalClusterLazyToolsT : public EcalClusterLazyToolsBase {
       : EcalClusterLazyToolsBase(ev,es,token1,token2,token3) {}
 
     // Get the rec hit energies in a rectangle matrix around the seed.
-    std::vector<float> getEnergies(reco::BasicCluster const& cluster, CaloRectangle rectangle) const {
+    std::vector<float> energyMatrix(reco::BasicCluster const& cluster, int size) const {
 
         auto recHits = getEcalRecHitCollection(cluster);
         DetId maxId = ClusterTools::getMaximum(cluster, recHits).first;
 
         std::vector<float> energies;
-        for (auto const& detId : rectangle(maxId, *topology_)) {
+        for (auto const& detId : CaloRectangleRange(size, maxId, *topology_)) {
             energies.push_back(ClusterTools::recHitEnergy( detId, recHits));
         }
 

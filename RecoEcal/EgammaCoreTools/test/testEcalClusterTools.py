@@ -13,7 +13,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked( input_files ) )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 1000 ) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 10 ) )
 
 
 process.testEcalClusterTools = cms.EDAnalyzer("testEcalClusterTools",
