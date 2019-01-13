@@ -116,7 +116,7 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
       std::vector<float> vars_;
 
       const bool doEnergyMatrix_;
-      const CaloRectangle caloRectangle_;
+      const int energyMatrixSize_;
 };
 
 enum PhotonMatchType {
@@ -183,7 +183,7 @@ PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
  , nVars_                 (mvaVarMngr_.getNVars())
  , vars_                  (nVars_)
  , doEnergyMatrix_        (iConfig.getParameter<bool>("doEnergyMatrix"))
- , caloRectangle_         (makeCaloRectangle(iConfig.getParameter<int>("energyMatrixSize")))
+ , energyMatrixSize_      (iConfig.getParameter<int>("energyMatrixSize"))
 {
     // phoMaps
     for (auto const& tag : phoMapTags_) {
@@ -300,7 +300,7 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         // Fill the energy matrix around the seed
         if(doEnergyMatrix_) {
             const auto& seed = *(pho->superCluster()->seed());
-            energyMatrix_ = lazyTools->getEnergies(seed, caloRectangle_);
+            energyMatrix_ = lazyTools->energyMatrix(seed, energyMatrixSize_);
         }
 
         // variables from the text file
