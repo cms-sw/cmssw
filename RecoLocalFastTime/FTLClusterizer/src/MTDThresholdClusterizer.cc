@@ -47,7 +47,7 @@ MTDThresholdClusterizer::fillDescriptions(edm::ParameterSetDescription& desc) {
   desc.add<double>("HitThreshold", 0.);
   desc.add<double>("SeedThreshold", 0.);
   desc.add<double>("ClusterThreshold", 0.);
-  desc.add<double>("TimeThreshold", 5.);
+  desc.add<double>("TimeThreshold", 10.);
 }
 
 //----------------------------------------------------------------------------
