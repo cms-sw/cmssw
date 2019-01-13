@@ -713,7 +713,10 @@ _taskForEachEra(_addSeedToTrackProducers, args=["_seedProducersPreSplitting"], n
 tracksValidationSeedSelectorsTrackingOnly.add(tracksValidationSeedSelectorsPreSplittingTrackingOnly)
 
 # MTV instances
-trackValidatorTrackingOnly = trackValidatorStandalone.clone(label = [ x for x in trackValidatorStandalone.label if x != "cutsRecoTracksAK4PFJets"] )
+trackValidatorTrackingOnly = trackValidatorStandalone.clone(
+    label = [ x for x in trackValidatorStandalone.label if x != "cutsRecoTracksAK4PFJets"],
+    cores = "highPtJetsForTrk"
+ )
 
 trackValidatorSeedingTrackingOnly = _trackValidatorSeedingBuilding.clone(
     dirName = "Tracking/TrackSeeding/",
