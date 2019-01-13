@@ -16,21 +16,22 @@ std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const
 
   //iterate inside out, when distance to vertex starts increasing, we are at the closest hit
   // the first (and last, btw) hit is always valid... (apparntly not..., conversion is different????)
-  auto hb = track.recHitsBegin();
-  unsigned int ih=0;
-  for(;ih<track.recHitsSize();++ih) {
-    auto recHit = *(hb+ih);
-    if (recHit->isValid()) break; 
+  TrackingRecHit const* recHit;
+  unsigned int closest = 0;
+  for(auto const& hit : track.recHits()) {
+    if (hit->isValid()) {
+      recHit = hit;
+      break; 
+    }
+    ++closest;
   }
-  auto recHit = *(hb+ih);
-  unsigned int closest=ih;
   auto globalPosition = recHit->surface()->toGlobal(trajParams[0].position());
   auto distance2 = (vtxPos - globalPosition).mag2();
   int nhits = 1;
-  for(unsigned int h=ih+1;h<track.recHitsSize();++h){
+  for(unsigned int h=closest+1;h<track.recHitsSize();++h){
 
     //check if next valid hit is farther away from vertex than existing closest
-    auto nextHit = *(hb+h);
+    auto nextHit = track.recHit(h);
     if (!nextHit->isValid() ) continue;
     globalPosition = nextHit->surface()->toGlobal(trajParams[h].position());
     auto nextDistance2 = (vtxPos - globalPosition).mag2();
@@ -43,7 +44,7 @@ std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const
 
   //compute signed decaylength significance for closest hit and check if it is before the vertex
   //if not then we need to subtract it from the count of hits before the vertex, since it has been implicitly included
-  recHit = *(hb+closest);
+  recHit = track.recHit(closest).get();
   auto momDir = recHit->surface()->toGlobal(trajParams[closest].direction());
   globalPosition = recHit->surface()->toGlobal(trajParams[closest].position()); 
   float decayLengthHitToVtx = (vtxPos - globalPosition).dot(momDir);

@@ -29,11 +29,11 @@ AlignmentCSCBeamHaloSelector::Tracks
 AlignmentCSCBeamHaloSelector::select(const Tracks &tracks, const edm::Event &iEvent) const {
    Tracks result;
 
-   for (Tracks::const_iterator track = tracks.begin();  track != tracks.end();  ++track) {
+   for(auto const& track : tracks) {
       std::map<int, unsigned int> station_map;
 
-      for (trackingRecHit_iterator hit = (*track)->recHitsBegin();  hit != (*track)->recHitsEnd();  ++hit) {
-	 DetId id = (*hit)->geographicalId();
+      for(auto const& hit : track->recHits()) {
+	 DetId id = hit->geographicalId();
 	 if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
 	    CSCDetId cscid(id.rawId());
 	    int station = (cscid.endcap() == 1 ? 1 : -1) * cscid.station();
@@ -51,7 +51,7 @@ AlignmentCSCBeamHaloSelector::select(const Tracks &tracks, const edm::Event &iEv
 	 if (station_iter->second > m_minHitsPerStation) stations++;
       }
       if (stations >= m_minStations) {
-	 result.push_back(*track);
+	 result.push_back(track);
       }
    } // end loop over tracks
 

@@ -2918,9 +2918,7 @@ GlobalTrackerMuonAlignment::trackFitter(reco::TrackRef alongTr, reco::TransientT
 
   edm::OwnVector<TrackingRecHit> recHit;
   DetId trackDetId = DetId(alongTr->innerDetId());
-  for (trackingRecHit_iterator i=alongTr->recHitsBegin();i!=alongTr->recHitsEnd(); i++) {
-    recHit.push_back((*i)->clone());
-  }
+  for(auto const& hit : alongTr->recHits()) recHit.push_back(hit->clone());
   if(direction != alongMomentum)
     {
       edm::OwnVector<TrackingRecHit> recHitAlong = recHit;
@@ -2935,12 +2933,7 @@ GlobalTrackerMuonAlignment::trackFitter(reco::TrackRef alongTr, reco::TransientT
 
   //MuonTransientTrackingRecHitBuilder::ConstRecHitContainer recHitTrack;
   TransientTrackingRecHit::RecHitContainer recHitTrack;
-  for (trackingRecHit_iterator i=alongTr->recHitsBegin();i!=alongTr->recHitsEnd(); i++) {
-    if((*i)->isValid()){
-      recHitTrack.push_back(TTRHBuilder->build(&**i ));} 
-    else{
-      recHitTrack.push_back(TTRHBuilder->build(&**i ));}  
-  }
+  for(auto const& hit : alongTr->recHits()) recHitTrack.push_back(TTRHBuilder->build(hit));
   
   if(info)
     std::cout<<" ... recHitTrack.size() "<<recHit.size()<<" "<<trackDetId.rawId()
@@ -2949,7 +2942,7 @@ GlobalTrackerMuonAlignment::trackFitter(reco::TrackRef alongTr, reco::TransientT
   MuonTransientTrackingRecHitBuilder::ConstRecHitContainer recHitMu = recHitTrack;
   /*
     MuonTransientTrackingRecHitBuilder::ConstRecHitContainer recHitMu =
-    MuRHBuilder->build(alongTTr.recHitsBegin(), alongTTr.recHitsEnd());
+    MuRHBuilder->build(alongTTr.recHits().begin(), alongTTr.recHits().end());
   */
   if(info)
     std::cout<<" ...along.... recHitMu.size() "<<recHitMu.size()<<std::endl;
@@ -3031,9 +3024,7 @@ GlobalTrackerMuonAlignment::muonFitter(reco::TrackRef alongTr, reco::TransientTr
 
   edm::OwnVector<TrackingRecHit> recHit;
   DetId trackDetId = DetId(alongTr->innerDetId());
-  for (trackingRecHit_iterator i=alongTr->recHitsBegin();i!=alongTr->recHitsEnd(); i++) {
-    recHit.push_back((*i)->clone());
-  }
+  for(auto const& hit : alongTr->recHits()) recHit.push_back(hit->clone());
   if(direction != alongMomentum)
     {
       edm::OwnVector<TrackingRecHit> recHitAlong = recHit;
@@ -3115,9 +3106,8 @@ void GlobalTrackerMuonAlignment::debugTrackHit(const std::string title, Transien
 {
   std::cout<<" ------- "<<title<<" --------"<<std::endl;
   int nHit = 1;
-  TransientTrackingRecHit::RecHitContainer recHit;
   for (trackingRecHit_iterator i=alongTr.recHitsBegin();i!=alongTr.recHitsEnd(); i++) {
-    std::cout<<" Hit "<<nHit++<<" DetId "<<(*i)->geographicalId().det();
+    std::cout<<" Hit "<<nHit++<<" DetId "<< (*i)->geographicalId().det();
     if( (*i)->geographicalId().det() == DetId::Tracker ) std::cout<<" Tracker ";
     else if ( (*i)->geographicalId().det() == DetId::Muon ) std::cout<<" Muon "; 
     else std::cout<<" Unknown ";
@@ -3132,13 +3122,12 @@ void GlobalTrackerMuonAlignment::debugTrackHit(const std::string title, reco::Tr
 {
   std::cout<<" ------- "<<title<<" --------"<<std::endl;
   int nHit = 1;
-  TransientTrackingRecHit::RecHitContainer recHit;
-  for (trackingRecHit_iterator i=alongTr->recHitsBegin();i!=alongTr->recHitsEnd(); i++) {
-    std::cout<<" Hit "<<nHit++<<" DetId "<<(*i)->geographicalId().det();
-    if( (*i)->geographicalId().det() == DetId::Tracker ) std::cout<<" Tracker ";
-    else if ( (*i)->geographicalId().det() == DetId::Muon ) std::cout<<" Muon "; 
+  for(auto const& hit : alongTr->recHits()) {
+    std::cout<<" Hit "<<nHit++<<" DetId "<< hit->geographicalId().det();
+    if( hit->geographicalId().det() == DetId::Tracker ) std::cout<<" Tracker ";
+    else if ( hit->geographicalId().det() == DetId::Muon ) std::cout<<" Muon "; 
     else std::cout<<" Unknown ";
-    if(!(*i)->isValid()) std::cout<<" not valid "<<std::endl;  
+    if(!hit->isValid()) std::cout<<" not valid "<<std::endl;  
     else std::cout<<std::endl;
   }
 }

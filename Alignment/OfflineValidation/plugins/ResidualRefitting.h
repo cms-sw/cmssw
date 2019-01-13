@@ -306,7 +306,7 @@ class ResidualRefitting : public edm::EDAnalyzer{
 	  ResidualRefitting::storage_trackExtrap& trackExtrap);
 	int MatchTrackWithRecHits(reco::TrackCollection::const_iterator trackIt, edm::Handle<reco::TrackCollection> ref);
 	
-	bool IsSameHit(trackingRecHit_iterator hit1, trackingRecHit_iterator hit2);
+	bool IsSameHit(TrackingRecHit const& hit1, TrackingRecHit const& hit2);
 
 
 	void trkExtrap(const DetId& detid, int iTrkLink, int iTrk, int iRec,
