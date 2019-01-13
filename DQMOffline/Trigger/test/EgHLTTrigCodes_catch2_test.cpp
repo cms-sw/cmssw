@@ -18,11 +18,11 @@ TEST_CASE("EgHLTTrigCodes", "[EgHLTTrigCodes]") {
 
     std::unique_ptr<egHLT::TrigCodes> codes( egHLT::TrigCodes::makeCodes(names) );
 
-    REQUIRE(codes->getCode("ash") == bits({kash}));
-    REQUIRE(codes->getCode("Bar") == bits({kBar}));
-    REQUIRE(codes->getCode("Foo") == bits({kFoo}));
-    REQUIRE(codes->getCode("Ish") == bits({kIsh}));
-    REQUIRE(codes->getCode("Tar") == bits({kTar}));
+    REQUIRE(codes->getCode("ash") == bits(kash));
+    REQUIRE(codes->getCode("Bar") == bits(kBar));
+    REQUIRE(codes->getCode("Foo") == bits(kFoo));
+    REQUIRE(codes->getCode("Ish") == bits(kIsh));
+    REQUIRE(codes->getCode("Tar") == bits(kTar));
 
   }
 
