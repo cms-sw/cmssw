@@ -25,6 +25,10 @@
 
 #include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
+#include "DD4hep/Detector.h"
+
+using namespace cms;
+using namespace std;
 
 class DDDetectorESProducer : public edm::ESProducer,
 			     public edm::EventSetupRecordIntervalFinder {
@@ -32,7 +36,7 @@ public:
   DDDetectorESProducer(const edm::ParameterSet&);
   ~DDDetectorESProducer() override;
   
-  using ReturnType = std::unique_ptr<cms::DDDetector>;
+  using ReturnType = unique_ptr<cms::DDDetector>;
   
   ReturnType produce(const DetectorDescriptionRcd&);
   static void fillDescriptions(edm::ConfigurationDescriptions&);
@@ -46,7 +50,7 @@ private:
 };
 
 DDDetectorESProducer::DDDetectorESProducer(const edm::ParameterSet& iConfig)
-  : m_confGeomXMLFiles(iConfig.getParameter<std::string>("confGeomXMLFiles"))
+  : m_confGeomXMLFiles(iConfig.getParameter<string>("confGeomXMLFiles"))
 {
    setWhatProduced(this);
    findingRecord<DetectorDescriptionRcd>();
@@ -74,8 +78,18 @@ DDDetectorESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&
 DDDetectorESProducer::ReturnType
 DDDetectorESProducer::produce(const DetectorDescriptionRcd& iRecord)
 {
-  auto product = std::make_unique<cms::DDDetector>();
-  product->process(m_confGeomXMLFiles);
+  auto product = std::make_unique<DDDetector>();
+  using Detector = dd4hep::Detector;
+
+  product->description = &Detector::getInstance();
+  product->description->addExtension<DDVectorsMap>(&product->vectors);
+  product->description->addExtension<DDPartSelectionMap>(&product->partsels);
+  product->description->addExtension<DDSpecParRegistry>(&product->specpars);
+  
+  string name("DD4hep_CompactLoader");
+  const char* files[] = { m_confGeomXMLFiles.c_str(), nullptr };
+  product->description->apply(name.c_str(), 2, (char**)files);
+
   return product;
 }
 

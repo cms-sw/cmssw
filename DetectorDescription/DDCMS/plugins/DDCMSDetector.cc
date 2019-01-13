@@ -46,8 +46,8 @@ DDCMSDetector::DDCMSDetector( const edm::ParameterSet& iConfig )
 void
 DDCMSDetector::analyze( const edm::Event&, const edm::EventSetup& iEventSetup)
 {
-  edm::ESTransientHandle<DDDetector> description;
-  iEventSetup.get<DetectorDescriptionRcd>().get(description);
+  edm::ESTransientHandle<DDDetector> det;
+  iEventSetup.get<DetectorDescriptionRcd>().get(det);
 
   edm::ESTransientHandle<DDVectorRegistry> registry;
   iEventSetup.get<DDVectorRegistryRcd>().get(registry);
@@ -63,7 +63,7 @@ DDCMSDetector::analyze( const edm::Event&, const edm::EventSetup& iEventSetup)
     std::cout << '\n';
   }
   std::cout << "Iterate over the detectors:\n";
-  for( auto const& it : description->description().detectors()) {
+  for( auto const& it : det->description->detectors()) {
     dd4hep::DetElement det(it.second);
     std::cout << it.first << ": " << det.path() << "\n";
   }
