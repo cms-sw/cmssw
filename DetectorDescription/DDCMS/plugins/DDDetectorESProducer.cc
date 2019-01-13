@@ -50,7 +50,7 @@ private:
 };
 
 DDDetectorESProducer::DDDetectorESProducer(const edm::ParameterSet& iConfig)
-  : m_confGeomXMLFiles(iConfig.getParameter<string>("confGeomXMLFiles"))
+  : m_confGeomXMLFiles(iConfig.getParameter<edm::FileInPath>("confGeomXMLFiles").fullPath())
 {
    setWhatProduced(this);
    findingRecord<DetectorDescriptionRcd>();
@@ -65,7 +65,7 @@ DDDetectorESProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
 {
   edm::ParameterSetDescription desc;
 
-  desc.add<std::string>("confGeomXMLFiles");
+  desc.add<edm::FileInPath>("confGeomXMLFiles");
   descriptions.addDefault(desc);
 }
 
@@ -81,7 +81,7 @@ DDDetectorESProducer::produce(const DetectorDescriptionRcd& iRecord)
   auto product = std::make_unique<DDDetector>();
   using Detector = dd4hep::Detector;
 
-  product->description = &Detector::getInstance();
+  product->description = &Detector::getInstance("CMS");
   product->description->addExtension<DDVectorsMap>(&product->vectors);
   product->description->addExtension<DDPartSelectionMap>(&product->partsels);
   product->description->addExtension<DDSpecParRegistry>(&product->specpars);
