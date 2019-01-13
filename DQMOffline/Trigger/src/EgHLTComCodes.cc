@@ -32,9 +32,9 @@ int ComCodes::getCode(const char* descript)const
  	code |= c.second;
         found = true;
         break;
-       }
-      if(!found)  edm::LogWarning("EgHLTComCodes") <<"ComCodes::getCode : Error, Key "<<std::string(codeKey,token-codeKey)<<" not found (likely mistyped, practical upshot is the selection is not what you think it is)";//<<std::endl;
+      }
     }
+    if(!found) edm::LogWarning("EgHLTComCodes") <<"ComCodes::getCode : Error, Key "<<std::string(codeKey,token-codeKey)<<" not found (likely mistyped, practical upshot is the selection is not what you think it is)";//<<std::endl;
     codeKey = token+1;
   } while(token != end);
   return code;

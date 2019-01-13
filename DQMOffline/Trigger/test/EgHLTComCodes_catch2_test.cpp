@@ -1,6 +1,7 @@
 #include "catch.hpp"
 
 #include "DQMOffline/Trigger/interface/EgHLTComCodes.h"
+#include "DQMOffline/Trigger/interface/EgHLTEgCutCodes.h"
 
 TEST_CASE("EgHLTComCodes", "[EgHLTComCodes]") {
   egHLT::ComCodes codes;
@@ -42,4 +43,11 @@ TEST_CASE("EgHLTComCodes", "[EgHLTComCodes]") {
     REQUIRE(codes.getCode("ashton")==0);
   }
 
+}
+
+TEST_CASE("EgHLTCutCodes", "[EgHLTCutCodes]") {
+  SECTION("get good codes") {
+    REQUIRE(egHLT::EgCutCodes::getCode("et") == egHLT::EgCutCodes::ET );
+    REQUIRE(egHLT::EgCutCodes::getCode("maxr9") == egHLT::EgCutCodes::MAXR9 );
+  }
 }
