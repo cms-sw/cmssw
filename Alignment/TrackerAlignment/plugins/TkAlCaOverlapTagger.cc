@@ -114,7 +114,7 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       const TrackingRecHit *hit=&(* hitpointer);
       if(!hit->isValid())continue;
 
-      //std::cout << "         hit number " << (ith - itt->recHitsBegin()) << std::endl;
+      //std::cout << "         hit number " << (ith - itt->recHits().begin()) << std::endl;
       DetId detid = hit->geographicalId();
       int layer(layerFromId(detid, tTopo));//layer 1-4=TIB, layer 5-10=TOB
       int subDet = detid.subdetId();

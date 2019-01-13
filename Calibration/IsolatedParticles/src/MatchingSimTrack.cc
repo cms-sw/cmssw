@@ -24,10 +24,9 @@ namespace spr{
     //Get the vector of PsimHits associated to TrackerRecHits and select the 
     //matching SimTrack on the basis of maximum occurance of trackIds
     std::vector<unsigned int> trkId, trkOcc;
-    int i=0;
-    for (trackingRecHit_iterator iTrkHit = pTrack->recHitsBegin(); iTrkHit != pTrack->recHitsEnd(); ++iTrkHit, ++i) {
+    for(auto const& trkHit : pTrack->recHits()) {
     
-      std::vector<PSimHit> matchedSimIds = associate.associateHit((**iTrkHit));
+      std::vector<PSimHit> matchedSimIds = associate.associateHit(*trkHit);
       for (unsigned int isim=0; isim<matchedSimIds.size(); isim++) {
 	unsigned tkId = matchedSimIds[isim].trackId();
 	bool found = false;

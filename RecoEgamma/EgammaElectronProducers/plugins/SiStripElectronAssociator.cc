@@ -99,11 +99,11 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
       // of hits are assigned to electrons.)  So let's look at one hit.
 
       // But first, make sure the track's hit list is not empty.
-      if (trackPtr->recHitsBegin() == trackPtr->recHitsEnd()) { continue; }
+      if (trackPtr->recHits().empty()) { continue; }
 
       // Detector id is not enough to completely specify a hit
-      uint32_t id = (*trackPtr->recHitsBegin())->geographicalId().rawId();
-      LocalPoint pos = (*trackPtr->recHitsBegin())->localPosition();
+      uint32_t id = trackPtr->recHit(0)->geographicalId().rawId();
+      LocalPoint pos = trackPtr->recHit(0)->localPosition();
       
       LogDebug("SiStripElectronAssociator") << " New Track Candidate " << i
                                             << " DetId " << id

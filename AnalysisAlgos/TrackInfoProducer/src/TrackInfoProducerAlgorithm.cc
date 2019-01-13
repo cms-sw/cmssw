@@ -37,19 +37,18 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
       nhit++;
       unsigned int detid=ttrh->hit()->geographicalId().rawId();
       
-      trackingRecHit_iterator thehit;
       TrackingRecHitRef thehitref;
       TrackingRecHit const * thehitptr=nullptr;
       int i=0,j=0;
 
-      for (thehit=track->recHitsBegin();thehit!=track->recHitsEnd();thehit++){
+      for(auto const& thehit : track->recHits()) {
 	i++;
 	LocalPoint hitpos;
-	if ((*thehit)->isValid())hitpos=(*thehit)->localPosition();
-	if((*thehit)->geographicalId().rawId()==detid&&
+	if (thehit->isValid())hitpos=thehit->localPosition();
+	if(thehit->geographicalId().rawId()==detid&&
 	   (hitpos - pos).mag() < 1e-4)
 	  {
-	    thehitptr=(*thehit);
+	    thehitptr= thehit;
             thehitref = track->extra()->recHitRef(i-1);
 	    j++;
 	    break;

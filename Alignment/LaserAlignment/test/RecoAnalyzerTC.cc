@@ -62,15 +62,15 @@ void RecoAnalyzer::trackerTC(edm::Event const& theEvent, edm::EventSetup const& 
 
   int nTracks = 0;
   std::cout << " Number of Tracks in this event: " << theTrackCollection->size() << std::endl;
-  for( reco::TrackCollection::const_iterator i = theTrackCollection->begin(); i != theTrackCollection->end(); ++i )
+  for(auto const& track : *theTrackCollection)
   {
     nTracks++;
     std::cout << " Hits in Track " << nTracks << ": " << std::endl;
-    for(  trackingRecHit_iterator j = (*i).recHitsBegin(); j != (*i).recHitsEnd(); ++j )
+    for(auto const& hit : track->recHits())
     {
-        if ( (*j)->isValid() )
+        if ( hit->isValid() )
         {
-          GlobalPoint HitPosition = theTracker.idToDet((*j)->geographicalId())->surface().toGlobal((*j)->localPosition());
+          GlobalPoint HitPosition = theTracker.idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
 
           std::cout << "   HitPosition in Track (x, y, z, R, phi) = " << HitPosition.x() << " " << HitPosition.y() << " " << HitPosition.z() << " " 
             << HitPosition.perp() << " " << HitPosition.phi() << std::endl;

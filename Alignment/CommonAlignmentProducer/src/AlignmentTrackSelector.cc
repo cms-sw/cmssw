@@ -359,9 +359,9 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
     unsigned int nHit2D = 0;
     unsigned int thishit = 0;
 
-    for (trackingRecHit_iterator iHit = trackp->recHitsBegin(); iHit != trackp->recHitsEnd(); ++iHit) {
+    for(auto const& hit : trackp->recHits()) {
       thishit++;
-      const DetId detId((*iHit)->geographicalId());
+      const DetId detId(hit->geographicalId());
       const int subdetId = detId.subdetId(); 
 
       // *** thishit == 1 means last hit in CTF *** 
@@ -377,15 +377,14 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
         return false;
       }
 
-      if (!(*iHit)->isValid()) continue; // only real hits count as in trackp->numberOfValidHits()
+      if (!hit->isValid()) continue; // only real hits count as in trackp->numberOfValidHits()
       if (detId.det() != DetId::Tracker) {
         edm::LogError("DetectorMismatch") << "@SUB=AlignmentTrackSelector::detailedHitsCheck"
                                           << "DetId.det() != DetId::Tracker (=" << DetId::Tracker
                                           << "), but " << detId.det() << ".";
       }
-      const TrackingRecHit* therechit = (*iHit);
-      if (chargeCheck_ && !(this->isOkCharge(therechit))) return false;
-      if (applyIsolation_ && (!this->isIsolated(therechit, evt))) return false;
+      if (chargeCheck_ && !(this->isOkCharge(hit))) return false;
+      if (applyIsolation_ && (!this->isIsolated(hit, evt))) return false;
       if      (SiStripDetId::TIB == subdetId) ++nhitinTIB;
       else if (SiStripDetId::TOB == subdetId) ++nhitinTOB;
       else if (SiStripDetId::TID == subdetId) {
@@ -423,7 +422,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
         else if (tTopo->pxfSide(detId)==2) ++nhitinFPIXplus;
       }
       // Do not call isHit2D(..) if already enough 2D hits for performance reason:
-      if (nHit2D < nHitMin2D_ && this->isHit2D(**iHit)) ++nHit2D;
+      if (nHit2D < nHitMin2D_ && this->isHit2D(*hit)) ++nHit2D;
     } // end loop on hits
 
 
@@ -616,7 +615,7 @@ bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit1D & siStripR
 
 //-----------------------------------------------------------------------------
 
-bool AlignmentTrackSelector::isIsolated(const TrackingRecHit* therechit, const edm::Event& evt) const
+bool AlignmentTrackSelector::isIsolated(const TrackingRecHit* hit, const edm::Event& evt) const
 {
   // FIXME:
   // adapt to changes after introduction of SiStripRecHit1D...
@@ -633,7 +632,7 @@ bool AlignmentTrackSelector::isIsolated(const TrackingRecHit* therechit, const e
   const SiStripRecHit2DCollection::DataContainer& stripcollSt = rphirecHits->data();
   const SiStripMatchedRecHit2DCollection::DataContainer& stripcollStm = matchedrecHits->data();
   
-  DetId idet = therechit->geographicalId(); 
+  DetId idet = hit->geographicalId(); 
   
   // FIXME: instead of looping the full hit collection, we should explore the features of 
   // SiStripRecHit2DCollection::rangeRphi = rphirecHits.get(idet) and loop
@@ -642,7 +641,7 @@ bool AlignmentTrackSelector::isIsolated(const TrackingRecHit* therechit, const e
     const SiStripRecHit2D *aHit = &*(istripSt);
     DetId mydet1 = aHit->geographicalId(); 
     if (idet.rawId() != mydet1.rawId()) continue; 
-    float theDistance = ( therechit->localPosition() - aHit->localPosition() ).mag();
+    float theDistance = ( hit->localPosition() - aHit->localPosition() ).mag();
     // std::cout << "theDistance1 = " << theDistance << "\n";
     if (theDistance > 0.001 && theDistance < minHitIsolation_) return false;
   }
@@ -652,7 +651,7 @@ bool AlignmentTrackSelector::isIsolated(const TrackingRecHit* therechit, const e
     const SiStripMatchedRecHit2D *aHit = &*(istripStm);
     DetId mydet2 = aHit->geographicalId(); 
     if (idet.rawId() != mydet2.rawId()) continue;
-    float theDistance = (therechit->localPosition() - aHit->localPosition()).mag();
+    float theDistance = (hit->localPosition() - aHit->localPosition()).mag();
     // std::cout << "theDistance1 = " << theDistance << "\n";
     if (theDistance > 0.001 && theDistance < minHitIsolation_) return false;
   }
@@ -693,13 +692,11 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
   const AliClusterValueMap &flagMap=*fMap;
 
   //for each track loop on hits and count the number of taken hits
-  for (Tracks::const_iterator ittrk=tracks.begin(); ittrk != tracks.end(); ++ittrk) {
-    const reco::Track* trackp=*ittrk;
+  for(auto const& trackp : tracks) {
     int ntakenhits=0;
     //    float pt=trackp->pt();
 
-    for (trackingRecHit_iterator ith = trackp->recHitsBegin(), edh = trackp->recHitsEnd(); ith != edh; ++ith) {
-      const TrackingRecHit *hit = (*ith); // ith is an iterator on edm::Ref to rechit
+    for(auto const& hit : trackp->recHits()) {
       if(! hit->isValid())continue;
       DetId detid = hit->geographicalId();
       int subDet = detid.subdetId();
