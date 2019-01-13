@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import os
 import re
 import sys
@@ -939,7 +941,7 @@ def das_client(query, check_key = None):
     if das_data["status"] == "error":
         print_msg("DAS query '{}' failed 5 times. "
                   "The last time for the the following reason:".format(query))
-        print das_data["reason"]
+        print(das_data["reason"])
         sys.exit(1)
     return das_data["data"]
 
@@ -979,9 +981,9 @@ def print_msg(text, line_break = True, log_file = None):
 
     msg = "  >>> " + str(text)
     if line_break:
-        print msg
+        print(msg)
     else:
-        print msg,
+        print(msg, end=' ')
         sys.stdout.flush()
     if log_file:
         with open(log_file, "a") as f: f.write(msg+"\n")

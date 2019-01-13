@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import abc
 import csv
 import os
@@ -237,7 +239,7 @@ class Dataset(DatasetBase):
         for datafile in result:
           writer.writerow(datafile.getdict())
     except Exception as e:
-      print "Couldn't write the dataset csv file:\n\n{}".format(e)
+      print("Couldn't write the dataset csv file:\n\n{}".format(e))
     return result
 
   @property
