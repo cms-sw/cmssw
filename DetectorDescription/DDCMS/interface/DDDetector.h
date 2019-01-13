@@ -3,10 +3,6 @@
 
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 
-#include <string>
-#include <vector>
-#include <unordered_map>
-
 namespace dd4hep {
   class Detector;
 }
