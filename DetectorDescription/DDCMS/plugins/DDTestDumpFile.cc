@@ -41,10 +41,10 @@ void
 DDTestDumpFile::analyze(const edm::Event&, const edm::EventSetup& iEventSetup)
 {
   std::cout << "DDTestDumpFile::analyze:\n";
-  edm::ESTransientHandle<DDDetector> description;
-  iEventSetup.get<DetectorDescriptionRcd>().get(description);
+  edm::ESTransientHandle<DDDetector> det;
+  iEventSetup.get<DetectorDescriptionRcd>().get(det);
 
-  TGeoManager& geom = description->description().manager();
+  TGeoManager& geom = det->description->manager();
   
   int level = 1 + geom.GetTopVolume()->CountNodes( 100, 3 );
   

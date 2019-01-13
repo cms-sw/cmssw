@@ -56,7 +56,7 @@
     <Include ref='Geometry/MuonCommonData/data/rpcf/2015/v1/rpcf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/csc/2015/v2/csc.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mfshield/2015/v1/mfshield.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/muonNumbering/2015/v1/muonNumbering.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/muonNumbering/2015/v2/muonNumbering.xml'/>
     <Include ref='DetectorDescription/DDCMS/data/trackerParameters.xml'/>
   </IncludeSection>
   
