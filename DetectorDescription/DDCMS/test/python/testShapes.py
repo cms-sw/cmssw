@@ -8,34 +8,24 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-test-shapes.xml')
+                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-test-shapes.xml'),
+                                            label = cms.string('TestShapes')
                                             )
 
-process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer")
+process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
+                                                    label = cms.string('TestShapes')
+                                                    )
 
 process.test = cms.EDAnalyzer("DDCMSDetector",
-                              geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/materials.xml',
-                                                         'Geometry/CMSCommonData/data/rotations.xml',
-                                                         'Geometry/TrackerCommonData/data/pixbarmaterial.xml', 
-                                                         'Geometry/TrackerCommonData/data/pixbarladder.xml', 
-                                                         'Geometry/TrackerCommonData/data/pixbarladderfull.xml', 
-                                                         'Geometry/TrackerCommonData/data/pixbarladderhalf.xml', 
-                                                         'Geometry/TrackerCommonData/data/pixbarlayer.xml', 
-                                                         'Geometry/TrackerCommonData/data/pixbarlayer0.xml', 
-                                                         'Geometry/TrackerCommonData/data/pixbarlayer1.xml', 
-                                                         'Geometry/TrackerCommonData/data/pixbarlayer2.xml', 
-                                                         'Geometry/TrackerCommonData/data/pixbar.xml', 
-                                                         'Geometry/TrackerCommonData/data/trackerpixbar.xml', 
-                                                         'Geometry/TrackerCommonData/data/tracker.xml',
-                                                         'Geometry/TrackerCommonData/data/trackermaterial.xml',
-                                                         'Geometry/TrackerCommonData/data/pixfwdMaterials.xml',
-                                                         'Geometry/CMSCommonData/data/cmsMother.xml',
-                                                         'Geometry/CMSCommonData/data/normal/cmsextent.xml', 
-                                                         'Geometry/CMSCommonData/data/cms.xml'),
-                              confGeomXMLFiles = cms.string('DetectorDescription/DDCMS/data/cms-test-shapes.xml')
+                              fromDataLabel = cms.untracked.string('TestShapes')
                               )
 
-process.testVectors = cms.EDAnalyzer("DDTestVectors")
-process.testDump = cms.EDAnalyzer("DDTestDumpFile")
+process.testVectors = cms.EDAnalyzer("DDTestVectors",
+                                     fromDataLabel = cms.untracked.string('TestShapes')
+                                     )
+
+process.testDump = cms.EDAnalyzer("DDTestDumpFile",
+                                  fromDataLabel = cms.untracked.string('TestShapes')
+                                  )
 
 process.p = cms.Path(process.test+process.testVectors+process.testDump)

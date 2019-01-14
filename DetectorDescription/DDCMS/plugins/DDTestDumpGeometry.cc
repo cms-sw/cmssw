@@ -16,25 +16,30 @@
 
 using namespace std;
 using namespace cms;
+using namespace edm;
 
-class DDTestDumpGeometry : public edm::one::EDAnalyzer<> {
+class DDTestDumpGeometry : public one::EDAnalyzer<> {
 public:
-  explicit DDTestDumpGeometry(const edm::ParameterSet&);
+  explicit DDTestDumpGeometry(const ParameterSet&);
 
   void beginJob() override {}
-  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void analyze(Event const& iEvent, EventSetup const&) override;
   void endJob() override {}
+
+private:  
+  string m_label;
 };
 
-DDTestDumpGeometry::DDTestDumpGeometry(const edm::ParameterSet& iConfig)
+DDTestDumpGeometry::DDTestDumpGeometry(const ParameterSet& iConfig)
+  : m_label(iConfig.getUntrackedParameter<string>("fromDataLabel", ""))
 {}
 
 void
-DDTestDumpGeometry::analyze(const edm::Event&, const edm::EventSetup& iEventSetup)
+DDTestDumpGeometry::analyze(const Event&, const EventSetup& iEventSetup)
 {
-  cout << "DDTestDumpGeometry::analyze:\n";
-  edm::ESTransientHandle<DDDetector> det;
-  iEventSetup.get<DetectorDescriptionRcd>().get(det);
+  cout << "DDTestDumpGeometry::analyze: " << m_label << "\n";
+  ESTransientHandle<DDDetector> det;
+  iEventSetup.get<DetectorDescriptionRcd>().get(m_label, det);
 
   TGeoManager& geom = det->description->manager();
 

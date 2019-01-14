@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
@@ -46,14 +47,16 @@ protected:
 		      const edm::IOVSyncValue&, edm::ValidityInterval&) override;
   
 private:
-  std::string m_confGeomXMLFiles;
+  string m_confGeomXMLFiles;
+  string m_label;
 };
 
 DDDetectorESProducer::DDDetectorESProducer(const edm::ParameterSet& iConfig)
-  : m_confGeomXMLFiles(iConfig.getParameter<edm::FileInPath>("confGeomXMLFiles").fullPath())
+  : m_confGeomXMLFiles(iConfig.getParameter<edm::FileInPath>("confGeomXMLFiles").fullPath()),
+    m_label(iConfig.getParameter<std::string>("label"))
 {
-   setWhatProduced(this);
-   findingRecord<DetectorDescriptionRcd>();
+  setWhatProduced(this, m_label);
+  findingRecord<DetectorDescriptionRcd>();
 }
 
 DDDetectorESProducer::~DDDetectorESProducer()
@@ -66,6 +69,7 @@ DDDetectorESProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   edm::ParameterSetDescription desc;
 
   desc.add<edm::FileInPath>("confGeomXMLFiles");
+  desc.add<string>("label");
   descriptions.addDefault(desc);
 }
 
@@ -78,10 +82,11 @@ DDDetectorESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&
 DDDetectorESProducer::ReturnType
 DDDetectorESProducer::produce(const DetectorDescriptionRcd& iRecord)
 {
-  auto product = std::make_unique<DDDetector>();
+  cout << "DDDetectorESProducer::Produce " << m_label << "\n";
   using Detector = dd4hep::Detector;
-
-  product->description = &Detector::getInstance("CMS");
+  auto product = make_unique<DDDetector>();
+  
+  product->description = &Detector::getInstance(m_label);
   product->description->addExtension<DDVectorsMap>(&product->vectors);
   product->description->addExtension<DDPartSelectionMap>(&product->partsels);
   product->description->addExtension<DDSpecParRegistry>(&product->specpars);
