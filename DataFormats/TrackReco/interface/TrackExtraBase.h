@@ -44,6 +44,8 @@ public:
         return m_nHits;
     }
 
+    /// accessor to RecHits
+    auto recHits() const { return TrackingRecHitRange(recHitsBegin(), recHitsEnd()); }
 
     /// first iterator over RecHits
     trackingRecHit_iterator recHitsBegin() const {
