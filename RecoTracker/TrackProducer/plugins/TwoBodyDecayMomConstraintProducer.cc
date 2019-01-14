@@ -10,7 +10,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,18 +37,17 @@
 // #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayModel.h"
 
 
-class TwoBodyDecayMomConstraintProducer: public edm::EDProducer
+class TwoBodyDecayMomConstraintProducer: public edm::global::EDProducer<>
 {
 
 public:
 
   explicit TwoBodyDecayMomConstraintProducer(const edm::ParameterSet&);
-  ~TwoBodyDecayMomConstraintProducer();
+  ~TwoBodyDecayMomConstraintProducer() override = default;
 
 private:
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void produce(edm::StreamID streamid, edm::Event&, const edm::EventSetup&) const override;
 
   std::pair<double, double> momentaAtVertex( const TwoBodyDecay& tbd ) const;
 
@@ -62,18 +61,20 @@ private:
   const edm::InputTag srcTag_; 
   const edm::InputTag bsSrcTag_;
 
-  TwoBodyDecayFitter tbdFitter_;
+  const TwoBodyDecayFitter tbdFitter_;
 
-  double primaryMass_;
-  double primaryWidth_;
-  double secondaryMass_;
+  const double primaryMass_;
+  const double primaryWidth_;
+  const double secondaryMass_;
 
-  double sigmaPositionCutValue_;
-  double chi2CutValue_;
-  double fixedMomentumError_;
+  const double sigmaPositionCutValue_;
+  const double chi2CutValue_;
+  const double fixedMomentumError_;
 
   enum MomentumForRefitting { atVertex, atInnermostSurface };
-  MomentumForRefitting momentumForRefitting_;
+  const MomentumForRefitting momentumForRefitting_;
+
+  static MomentumForRefitting momentumForRefittingFromString(std::string momentumForRefittingString);
 
   edm::EDGetTokenT<reco::TrackCollection> trackCollToken_;
   edm::EDGetTokenT<reco::BeamSpot> bsToken_;
@@ -92,18 +93,9 @@ TwoBodyDecayMomConstraintProducer::TwoBodyDecayMomConstraintProducer( const edm:
   secondaryMass_( iConfig.getParameter<double>( "secondaryMass" ) ),
   sigmaPositionCutValue_( iConfig.getParameter<double>( "sigmaPositionCut" ) ),
   chi2CutValue_( iConfig.getParameter<double>( "chi2Cut" ) ),
-  fixedMomentumError_( iConfig.getParameter<double>( "fixedMomentumError" ) )
+  fixedMomentumError_( iConfig.getParameter<double>( "fixedMomentumError" ) ),
+  momentumForRefitting_( momentumForRefittingFromString( iConfig.getParameter<std::string>( "momentumForRefitting" ) ) )
 {
-  std::string strMomentumForRefitting = ( iConfig.getParameter<std::string>( "momentumForRefitting" ) );
-  if ( strMomentumForRefitting == "atVertex" ) {
-    momentumForRefitting_ = atVertex;
-  } else if ( strMomentumForRefitting == "atInnermostSurface" ) {
-    momentumForRefitting_ = atInnermostSurface;
-  } else {
-    throw cms::Exception("TwoBodyDecayMomConstraintProducer") << "value of config  variable 'momentumForRefitting': "
-							      << "has to be 'atVertex' or 'atInnermostSurface'";
-  }
-
   trackCollToken_ = consumes<reco::TrackCollection>(edm::InputTag(srcTag_));
   bsToken_ = consumes<reco::BeamSpot>(edm::InputTag(bsSrcTag_));
 
@@ -119,18 +111,9 @@ TwoBodyDecayMomConstraintProducer::TwoBodyDecayMomConstraintProducer( const edm:
 }
 
 
-TwoBodyDecayMomConstraintProducer::~TwoBodyDecayMomConstraintProducer()
-{
-//   // debug
-//   TFile* f = new TFile( "producer_mom.root", "RECREATE" );
-//   f->cd();
-//   for ( std::map<std::string, TH1F*>::iterator it = histos_.begin(); it != histos_.end(); ++it ) { it->second->Write(); delete it->second; }
-//   f->Close();
-//   delete f;
-}
 
 
-void TwoBodyDecayMomConstraintProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
+void TwoBodyDecayMomConstraintProducer::produce(edm::StreamID streamid, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace edm;
 
@@ -210,9 +193,6 @@ void TwoBodyDecayMomConstraintProducer::produce( edm::Event& iEvent, const edm::
 }
 
 
-void TwoBodyDecayMomConstraintProducer::endJob() {}
-
-
 std::pair<double, double>
 TwoBodyDecayMomConstraintProducer::momentaAtVertex( const TwoBodyDecay& tbd ) const
 {
@@ -275,6 +255,19 @@ TwoBodyDecayMomConstraintProducer::match( const TrajectoryStateOnSurface& newTso
 
   return ( ( fabs(deltaX) < sigmaPositionCutValue_ ) && ( fabs(deltaY) < sigmaPositionCutValue_ ) );
 }
+
+TwoBodyDecayMomConstraintProducer::MomentumForRefitting
+TwoBodyDecayMomConstraintProducer::momentumForRefittingFromString(std::string strMomentumForRefitting) {
+  if ( strMomentumForRefitting == "atVertex" ) {
+    return atVertex;
+  } else if ( strMomentumForRefitting == "atInnermostSurface" ) {
+    return atInnermostSurface;
+  } else {
+    throw cms::Exception("TwoBodyDecayMomConstraintProducer") << "value of config  variable 'momentumForRefitting': "
+                                                              << "has to be 'atVertex' or 'atInnermostSurface'";
+  }
+}
+
 
 
 //define this as a plug-in
