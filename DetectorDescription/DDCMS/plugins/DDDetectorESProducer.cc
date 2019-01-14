@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
