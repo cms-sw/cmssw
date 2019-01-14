@@ -1,0 +1,4 @@
+<lcgdict>
+    <class name="HeterogeneousProduct" persistent="false"/>
+    <class name="edm::Wrapper<HeterogeneousProduct>" persistent="false"/>
+</lcgdict>

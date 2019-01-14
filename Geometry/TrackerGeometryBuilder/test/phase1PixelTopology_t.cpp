@@ -141,5 +141,13 @@ int main() {
     assert(std::get<1>(ori)==bp);
   }
 
+  using namespace phase1PixelTopology;
+  for (auto i=0U; i<numberOfModules; ++i)  {
+    assert(layer[i]<10);
+    assert(i>=layerStart[layer[i]]);
+    assert(i<layerStart[layer[i]+1]);
+  }
+
+
   return 0;
 }
