@@ -1,21 +1,10 @@
 <lcgdict>
   <class name="reco::ProtonTrack" ClassVersion="3">
-    <version ClassVersion="3" checksum="2950634771"/>
+    <version ClassVersion="3" checksum="3609508179"/>
   </class>
   <class name="std::vector<reco::ProtonTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::ProtonTrack> >"/>
   <class name="edm::RefProd<std::vector<reco::ProtonTrack> >"/>
   <class name="edm::Ref<std::vector<reco::ProtonTrack>,reco::ProtonTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::ProtonTrack>,reco::ProtonTrack> >"/>
   <class name="edm::RefVector<std::vector<reco::ProtonTrack>,reco::ProtonTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::ProtonTrack>,reco::ProtonTrack> >"/>
-
-  <class name="reco::ProtonTrackExtra" ClassVersion="3">
-    <version ClassVersion="3" checksum="3547420507"/>
-  </class>
-  <class name="std::vector<reco::ProtonTrackExtra>"/>
-  <class name="edm::Wrapper<std::vector<reco::ProtonTrackExtra> >"/>
-  <class name="edm::RefProd<std::vector<reco::ProtonTrackExtra> >"/>
-  <class name="edm::Ref<std::vector<reco::ProtonTrackExtra>,reco::ProtonTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::ProtonTrackExtra>,reco::ProtonTrackExtra> >"/>
-  <class name="edm::RefVector<std::vector<reco::ProtonTrackExtra>,reco::ProtonTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::ProtonTrackExtra>,reco::ProtonTrackExtra> >"/>
-
-  <class name="std::set<unsigned int>"/>
 </lcgdict>

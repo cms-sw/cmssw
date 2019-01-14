@@ -10,9 +10,8 @@
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
-
-#include "DataFormats/ProtonReco/interface/ProtonTrackExtra.h"
-#include "DataFormats/ProtonReco/interface/ProtonTrackExtraFwd.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 namespace reco
 {
@@ -29,6 +28,11 @@ namespace reco
       typedef math::XYZVector Vector;
       /// point in the space
       typedef math::XYZPoint Point;
+
+      using CTPPSLocalTrackLiteRefVector = std::vector<edm::Ref<std::vector<CTPPSLocalTrackLite> > >;
+
+      /// Type of reconstruction for this track
+      enum class ReconstructionMethod { invalid = -1, singleRP, multiRP };
 
     public:
       /// Default constructor
@@ -88,6 +92,21 @@ namespace reco
       float time() const { return t_; }
       float timeError() const { return t_err_; }
 
+      /// Set the flag for the fit validity
+      void setValidFit( bool valid = true ) { valid_fit_ = valid; }
+      /// Flag for the fit validity
+      bool validFit() const { return valid_fit_; }
+
+      /// Set the reconstruction method for this track
+      void setMethod( const ReconstructionMethod& method ) { method_ = method; }
+      /// Reconstruction method for this track
+      ReconstructionMethod method() const { return method_; }
+
+      /// Store the list of RP tracks that contributed to this global track
+      void setContributingLocalTracks( const CTPPSLocalTrackLiteRefVector &v ) { contributing_local_tracks_ = v; }
+      /// List of RP tracks that contributed to this global track
+      const CTPPSLocalTrackLiteRefVector& contributingLocalTracks() const { return contributing_local_tracks_; }
+
       /// LHC sector
       enum class LHCSector { invalid = -1, sector45, sector56 };
       LHCSector lhcSector() const
@@ -96,14 +115,6 @@ namespace reco
         if ( pz() > 0. ) return LHCSector::sector45;
         return LHCSector::invalid;
       }
-
-      // convenience getters for the extra information
-      bool validFit() const { return pt_extra_->validFit(); }
-      ProtonTrackExtra::ReconstructionMethod method() const { return pt_extra_->method(); }
-      const ProtonTrackExtra::CTPPSLocalTrackLiteRefVector& contributingLocalTracks() const { return pt_extra_->contributingLocalTracks(); }
-
-      void setProtonTrackExtra( const ProtonTrackExtraRef& ref ) { pt_extra_ = ref; }
-      const ProtonTrackExtraRef& protonTrackExtra() const { return pt_extra_; }
 
     private:
       static constexpr float mass_ = 0.938272046; ///< proton mass, GeV
@@ -133,8 +144,9 @@ namespace reco
       float chi2_;
       /// number of degrees of freedom
       unsigned int ndof_;
-      ProtonTrackExtraRef pt_extra_; ///< Additional information on proton track
-
+      bool valid_fit_;
+      ReconstructionMethod method_;
+      CTPPSLocalTrackLiteRefVector contributing_local_tracks_;
   };
 }
 

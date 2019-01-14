@@ -281,7 +281,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
 
       unsigned int meth_idx = 1234;
 
-      if (rec_pr.method() == reco::ProtonTrackExtra::ReconstructionMethod::singleRP)
+      if (rec_pr.method() == reco::ProtonTrack::ReconstructionMethod::singleRP)
       {
         meth_idx = 0;
 
@@ -289,7 +289,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
         idx = 100*rpId.arm() + 10*rpId.station() + rpId.rp();
       }
 
-      if (rec_pr.method() == reco::ProtonTrackExtra::ReconstructionMethod::multiRP)
+      if (rec_pr.method() == reco::ProtonTrack::ReconstructionMethod::multiRP)
       {
         meth_idx = 1;
       }
@@ -355,9 +355,9 @@ void CTPPSProtonReconstructionSimulationValidator::endJob()
     {
       char buf[20];
       sprintf(buf, "%i", eit.first);
-    
+
       TDirectory *d_element = d_method->mkdir(buf);
-      
+
       gDirectory = d_element;
       eit.second.write();
     }
