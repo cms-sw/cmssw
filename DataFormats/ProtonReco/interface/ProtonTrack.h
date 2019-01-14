@@ -40,14 +40,23 @@ namespace reco
       /// Constructor from refit parameters, fitted vertex and momentum, and longitudinal fractional momentum loss
       ProtonTrack( double chi2, double ndof, const Point& vtx, const Vector& momentum, float xi, const CovarianceMatrix& cov = CovarianceMatrix() );
 
+      /// fitted vertex position
       const Point& vertex() const { return vertex_; }
+      /// fitted vertex horizontal position
       float vx() const { return vertex_.x(); }
+      /// fitted vertex vertical position
       float vy() const { return vertex_.y(); }
+      /// vertex longitudinal position (conventionally set to 0)
       float vz() const { return vertex_.z(); }
+      /// fitted track direction
       const Vector& momentum() const { return momentum_; }
+      /// scalar norm of fitted track momentum
       float p() const { return momentum_.R(); }
+      /// fitted track momentum horizontal component
       float px() const { return momentum_.x(); }
+      /// fitted track momentum vertical component
       float py() const { return momentum_.y(); }
+      /// fitted track momentum longitudinal component
       float pz() const { return momentum_.z(); }
 
       /// chi-squared of the fit
