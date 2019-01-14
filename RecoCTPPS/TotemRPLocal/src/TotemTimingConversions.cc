@@ -31,7 +31,7 @@ TotemTimingConversions::TotemTimingConversions(bool mergeTimePeaks, const std::s
   if (!calibrationFile.empty())
     try {
       parsedData_.parseFile(calibrationFile);
-      calibrationFunction_ = TF1("calibrationFunction_", parsedData_.getFormula().c_str());
+      calibrationFunction_ = std::make_unique<reco::FormulaEvaluator>(parsedData_.getFormula());
       calibrationFileOpened_ = true;
     } catch (const boost::exception& e) {
       throw cms::Exception("TotemTimingConversions")
@@ -118,10 +118,10 @@ TotemTimingConversions::getTimeSamples(const TotemTimingDigi& digi) const
 // NOTE: If no proper file is specified, calibration is not applied
 
 std::vector<float>
-TotemTimingConversions::getVoltSamples(const TotemTimingDigi& digi)
+TotemTimingConversions::getVoltSamples(const TotemTimingDigi& digi) const
 {
   std::vector<float> data;
-  if (!calibrationFileOpened_)
+  if (!calibrationFileOpened_ || !calibrationFunction_)
     for (const auto& sample : digi.getSamples())
       data.emplace_back(SAMPIC_ADC_V * sample);
   else {
@@ -137,8 +137,7 @@ TotemTimingConversions::getVoltSamples(const TotemTimingDigi& digi)
         throw cms::Exception("TotemTimingConversions:getVoltSamples")
           << "Invalid calibrations retrieved for Sampic digi"
           << " (" << db << ", " << sampic << ", " << channel << ", " << sample_cell << ")!";
-      double x = (double)sample;
-      data.emplace_back(calibrationFunction_.EvalPar(&x, parameters.data()));
+      data.emplace_back(calibrationFunction_->evaluate(std::vector<double>{(double)sample}, parameters));
     }
   }
   return data;
