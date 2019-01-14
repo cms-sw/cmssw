@@ -353,32 +353,22 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	detaBremKF = minDEtaBremKF;
 	
 	// Number of commont hits
-	trackingRecHit_iterator  nhit=refGsf->recHitsBegin();
-	trackingRecHit_iterator  nhit_end=refGsf->recHitsEnd();
-	unsigned int tmp_sh = 0;
+	unsigned int tmpSh = 0;
 	//uint ish=0;
 	int kfhitcounter=0;
-	for (;nhit!=nhit_end;++nhit){
-	  if ((*nhit)->isValid()){
-	    trackingRecHit_iterator  ihit=trkRef->recHitsBegin();
-	    trackingRecHit_iterator  ihit_end=trkRef->recHitsEnd();
-	    kfhitcounter=0;	    
-	    for (;ihit!=ihit_end;++ihit){
-	      if ((*ihit)->isValid()) {
-		// method 1
-		if((*nhit)->sharesInput(&*(*ihit),TrackingRecHit::all))  tmp_sh++;
-		kfhitcounter++; 
-		// method 2 to switch in case of problem with rechit collections
-		//  if(((*ihit)->geographicalId()==(*nhit)->geographicalId())&&
-		//  (((*nhit)->localPosition()-(*ihit)->localPosition()).mag()<0.01)) ish++;
-		
-		
-	      }
-	    }
-	  }
-	}
+    for(auto const& nhit : refGsf->recHits()) if (nhit->isValid()) {
+        kfhitcounter=0;
+        for(auto const& ihit : trkRef->recHits()) if (ihit->isValid()) {
+        // method 1
+        if(nhit->sharesInput(ihit,TrackingRecHit::all)) tmpSh++;
+        kfhitcounter++; 
+        // method 2 to switch in case of problem with rechit collections
+        // if((ihit->geographicalId()==nhit->geographicalId())&&
+        //     ((nhit->localPosition()-ihit->localPosition()).mag()<0.01)) ish++;
+        }
+    }
 	  
-	nHITS1 = tmp_sh;
+	nHITS1 = tmpSh;
 
 	TString weightfilepath ="";
 	double mvaValue =  -10; 
