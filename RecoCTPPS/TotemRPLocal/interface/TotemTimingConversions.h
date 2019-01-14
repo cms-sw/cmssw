@@ -14,7 +14,6 @@
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 
 #include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
-//#include "RecoCTPPS/TotemRPLocal/interface/TotemTimingParser.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
 
 #include <string>
@@ -32,16 +31,16 @@ class TotemTimingConversions
     std::vector<float> getVoltSamples(const TotemTimingDigi& digi) const;
 
   private:
-    static const float SAMPIC_SAMPLING_PERIOD_NS;
-    static const float SAMPIC_ADC_V;
-    static const int SAMPIC_MAX_NUMBER_OF_SAMPLES;
-    static const int SAMPIC_DEFAULT_OFFSET;
-    static const int ACCEPTED_TIME_RADIUS;
-    static const unsigned long CELL0_MASK;
+    static constexpr float SAMPIC_SAMPLING_PERIOD_NS = 1. / 7.695;
+    static constexpr float SAMPIC_ADC_V = 1. / 256;
+    static constexpr int SAMPIC_MAX_NUMBER_OF_SAMPLES = 64;
+    static constexpr int SAMPIC_DEFAULT_OFFSET = 30;
+    static constexpr int ACCEPTED_TIME_RADIUS = 4;
+    static constexpr unsigned long CELL0_MASK = 0xfffffff000;
 
     PPSTimingCalibration calibration_;
     bool mergeTimePeaks_;
-    std::unique_ptr<reco::FormulaEvaluator> calibrationFunction_;
+    reco::FormulaEvaluator calibrationFunction_;
 };
 
 #endif

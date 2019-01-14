@@ -13,19 +13,9 @@
 
 //----------------------------------------------------------------------------------------------------
 
-const float TotemTimingConversions::SAMPIC_SAMPLING_PERIOD_NS = 1. / 7.695;
-const float TotemTimingConversions::SAMPIC_ADC_V = 1. / 256;
-const int TotemTimingConversions::SAMPIC_MAX_NUMBER_OF_SAMPLES = 64;
-const int TotemTimingConversions::SAMPIC_DEFAULT_OFFSET = 30;
-const int TotemTimingConversions::ACCEPTED_TIME_RADIUS = 4;
-const unsigned long TotemTimingConversions::CELL0_MASK = 0xfffffff000;
-
-//----------------------------------------------------------------------------------------------------
-
 TotemTimingConversions::TotemTimingConversions(bool mergeTimePeaks, const PPSTimingCalibration& calibration) :
-  calibration_(calibration),
-  mergeTimePeaks_(mergeTimePeaks),
-  calibrationFunction_(new reco::FormulaEvaluator(calibration_.formula()))
+  calibration_(calibration), mergeTimePeaks_(mergeTimePeaks),
+  calibrationFunction_(calibration_.formula())
 {}
 
 //----------------------------------------------------------------------------------------------------
@@ -110,7 +100,7 @@ std::vector<float>
 TotemTimingConversions::getVoltSamples(const TotemTimingDigi& digi) const
 {
   std::vector<float> data;
-  if (!calibrationFunction_)
+  if (calibrationFunction_.numberOfVariables() != 1)
     for (const auto& sample : digi.getSamples())
       data.emplace_back(SAMPIC_ADC_V * sample);
   else {
@@ -122,11 +112,11 @@ TotemTimingConversions::getVoltSamples(const TotemTimingDigi& digi) const
       // ring buffer on Sampic, so accounting for samples register boundary
       const unsigned short sample_cell = (cell++) % SAMPIC_MAX_NUMBER_OF_SAMPLES;
       auto parameters = calibration_.parameters(db, sampic, channel, sample_cell);
-      if (parameters.empty())
+      if (parameters.empty() || parameters.size() != calibrationFunction_.numberOfParameters())
         throw cms::Exception("TotemTimingConversions:getVoltSamples")
           << "Invalid calibrations retrieved for Sampic digi"
           << " (" << db << ", " << sampic << ", " << channel << ", " << sample_cell << ")!";
-      data.emplace_back(calibrationFunction_->evaluate(std::vector<double>{(double)sample}, parameters));
+      data.emplace_back(calibrationFunction_.evaluate(std::vector<double>{(double)sample}, parameters));
     }
   }
   return data;
