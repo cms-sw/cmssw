@@ -216,7 +216,7 @@ _effandfakeDeltaRPU = PlotGroup("effandfakeDeltaRPU",
                                 _makeEffFakeDupPlots("dr"     , "#DeltaR", effopts=dict(xtitle="TP min #DeltaR"), fakeopts=dict(xtitle="track min #DeltaR"), common=dict(xlog=True)) +
                                 _makeEffFakeDupPlots("drj"     , "#DeltaR(track, jet)", common=dict(xtitle="#DeltaR(track, jet)", xlog=True))+
                                 _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
-                                legendDy=_legendDy_3rows
+                                legendDy=_legendDy_4rows
 )
 
 
@@ -260,7 +260,7 @@ _dupandfakePos = PlotGroup("dupandfakePos",
 )
 _dupandfakeDeltaRPU = PlotGroup("dupandfakeDeltaRPU",
                                 _makeFakeDupPileupPlots("dr"     , "#DeltaR", xquantity="min #DeltaR", common=dict(xlog=True)) +
-                                _makeFakeDupPileupPlots("drj"     , "#DeltaR(track, jet)", common=dict(xtitle="#DeltaR(track, jet)", xlog=True)) +
+                                _makeFakeDupPileupPlots("drj"     , "#DeltaR(track, jet)", xtitle="#DeltaR(track, jet)", common=dict(xlog=True)) +
                                 _makeFakeDupPileupPlots("pu"     , "PU"     , xtitle="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)),
                                 ncols=3
 )
