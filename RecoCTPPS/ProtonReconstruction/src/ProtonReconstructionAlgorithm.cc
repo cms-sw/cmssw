@@ -296,10 +296,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
     }
   }
 
-  reco::ProtonTrack pt(result.Chi2(), ndf, vertex, momentum, xi, cm);
-  pt.setValidFit(result.IsValid());
-  pt.setMethod(PT::ReconstructionMethod::multiRP);
-  pt.setContributingLocalTracks(tracks);
+  reco::ProtonTrack pt(result.Chi2(), ndf, vertex, momentum, xi, cm, PT::ReconstructionMethod::multiRP, tracks, result.IsValid());
 
   output.push_back(move(pt));
 }
@@ -365,7 +362,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     cm((int)PT::Index::xi, (int)PT::Index::xi) = xi_unc * xi_unc;
     cm((int)PT::Index::th_y, (int)PT::Index::th_y) = th_y_unc * th_y_unc;
 
-    reco::ProtonTrack pt(0., 0, vertex, momentum, xi, cm);
+    reco::ProtonTrack pt(0., 0, vertex, momentum, xi, cm, PT::ReconstructionMethod::singleRP, { track }, true);
     pt.setValidFit(true);
     pt.setMethod(PT::ReconstructionMethod::singleRP);
     pt.setContributingLocalTracks({ track });

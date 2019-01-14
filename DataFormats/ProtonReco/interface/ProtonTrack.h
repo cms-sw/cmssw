@@ -38,7 +38,9 @@ namespace reco
       /// default constructor
       ProtonTrack();
       /// constructor from refit parameters, fitted vertex and momentum, and longitudinal fractional momentum loss
-      ProtonTrack( double chi2, double ndof, const Point& vtx, const Vector& momentum, float xi, const CovarianceMatrix& cov = CovarianceMatrix() );
+      ProtonTrack( double chi2, double ndof, const Point& vtx, const Vector& momentum, float xi,
+                   const CovarianceMatrix& cov, ReconstructionMethod method,
+                   const CTPPSLocalTrackLiteRefVector& local_tracks, bool valid );
 
       /// fitted vertex position
       const Point& vertex() const { return vertex_; }
