@@ -17,7 +17,7 @@ Implementation:
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,14 +33,14 @@ Implementation:
 
 #include <memory>
 
-class testEcalClusterTools : public edm::global::EDAnalyzer<> {
+class testEcalClusterTools : public edm::one::EDAnalyzer<> {
   public:
     explicit testEcalClusterTools(const edm::ParameterSet&);
 
   private:
-    virtual void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    using ClusterTools = noZS::EcalClusterTools; // alternatively noZS::EcalClusterTools
+    using ClusterTools = noZS::EcalClusterTools; // alternatively just EcalClusterTools
 
     const edm::EDGetToken barrelClusterToken_;
     const edm::EDGetToken endcapClusterToken_;
@@ -59,7 +59,7 @@ testEcalClusterTools::testEcalClusterTools(const edm::ParameterSet& ps)
 
 
 
-void testEcalClusterTools::analyze(edm::StreamID, const edm::Event& ev, const edm::EventSetup& es) const
+void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& es)
 {
     edm::Handle< EcalRecHitCollection > pEBRecHits;
     ev.getByToken( barrelRecHitToken_, pEBRecHits );
