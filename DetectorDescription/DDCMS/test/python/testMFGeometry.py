@@ -8,9 +8,12 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-mf-geometry.xml')
+                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-mf-geometry.xml'),
+                                            label = cms.string('MagneticField')
                                             )
 
-process.testDump = cms.EDAnalyzer("DDTestDumpFile")
+process.testDump = cms.EDAnalyzer("DDTestDumpFile",
+                                  fromDataLabel = cms.untracked.string('MagneticField')
+                                  )
 
 process.p = cms.Path(process.testDump)

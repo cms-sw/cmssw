@@ -9,22 +9,27 @@
 
 using namespace std;
 using namespace cms;
+using namespace edm;
 
-class DDTestSpecPars : public edm::one::EDAnalyzer<> {
+class DDTestSpecPars : public one::EDAnalyzer<> {
 public:
-  explicit DDTestSpecPars(const edm::ParameterSet&) {}
+  explicit DDTestSpecPars(const ParameterSet& iConfig)
+    : m_label(iConfig.getUntrackedParameter<string>("fromDataLabel", "")) {}
 
   void beginJob() override {}
-  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void analyze(Event const& iEvent, EventSetup const&) override;
   void endJob() override {}
+
+private:  
+  string m_label;
 };
 
 void
-DDTestSpecPars::analyze(const edm::Event&, const edm::EventSetup& iEventSetup)
+DDTestSpecPars::analyze(const Event&, const EventSetup& iEventSetup)
 {
-  cout << "DDTestSpecPars::analyze:\n";
-  edm::ESTransientHandle<DDSpecParRegistry> registry;
-  iEventSetup.get<DDSpecParRegistryRcd>().get(registry);
+  cout << "DDTestSpecPars::analyze: " << m_label << "\n";
+  ESTransientHandle<DDSpecParRegistry> registry;
+  iEventSetup.get<DDSpecParRegistryRcd>().get(m_label, registry);
 
   cout << "DD SpecPar Registry size: " << registry->specpars.size() << "\n";
   for(const auto& i: registry->specpars) {

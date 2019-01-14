@@ -8,29 +8,39 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml')
+                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
+                                            label = cms.string('CMS')
                                             )
-##process.DDDetectorESProducer2 = cms.ESSource("DDDetectorESProducer",
-##                                            confGeomXMLFiles = cms.string('DetectorDescription/DDCMS/data/cms-mf-geometry.xml')
-##                                            )
+process.DDDetectorESProducer2 = cms.ESSource("DDDetectorESProducer",
+                                             confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-mf-geometry.xml'),
+                                             label = cms.string('MagneticField')
+                                             )
+process.DDDetectorESProducer3 = cms.ESSource("DDDetectorESProducer",
+                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
+                                            label = cms.string('')
+                                            )
 
-process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer")
+process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
+                                                    label = cms.string('CMS'))
 
 process.test = cms.EDAnalyzer("DDCMSDetector",
-                              geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/normal/cmsextent.xml', 
-                                                         'Geometry/CMSCommonData/data/cms.xml', 
-                                                         'DetectorDescription/DDCMS/data/cmsMagneticField.xml', 
-                                                         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_1.xml',
-                                                         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_2.xml',
-                                                         'Geometry/CMSCommonData/data/materials.xml'),
-                              confGeomXMLFiles = cms.string('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml')
+                              fromDataLabel = cms.untracked.string('CMS')
+                              )
+process.DDVectorRegistryESProducer2 = cms.ESProducer("DDVectorRegistryESProducer",
+                                                    label = cms.string('MagneticField'))
+process.test2 = cms.EDAnalyzer("DDCMSDetector",
+                              fromDataLabel = cms.untracked.string('MagneticField')
                               )
 
-##process.testVectors = cms.EDAnalyzer("DDTestVectors")
+process.testVectors = cms.EDAnalyzer("DDTestVectors",
+                                     fromDataLabel = cms.untracked.string('CMS')
+                                     )
 process.testDump = cms.EDAnalyzer("DDTestDumpFile")
 process.testGeoIter = cms.EDAnalyzer("DDTestDumpGeometry")
 
 process.p = cms.Path(
     process.test
-    ##+process.testVectors+process.testDump
+    +process.test2
+    +process.testVectors
+    ##+process.testDump
     +process.testGeoIter)

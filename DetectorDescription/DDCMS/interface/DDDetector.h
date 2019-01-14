@@ -16,6 +16,7 @@ namespace cms  {
     DDVectorsMap vectors;
     DDPartSelectionMap partsels;
     DDSpecParRegistry specpars;
+    int value = 0;
   };
 }
 
