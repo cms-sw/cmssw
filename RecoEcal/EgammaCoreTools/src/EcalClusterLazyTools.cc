@@ -22,28 +22,11 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
-namespace {
-
-  template<class T, class R>
-  auto getFromEventSetup(edm::EventSetup const& eventSetup) {
-    edm::ESHandle<T> handle;
-    eventSetup.get<R>().get(handle);
-    return handle.product();
-  }
-
-  auto getRecHits(edm::Event const& event, edm::EDGetTokenT<EcalRecHitCollection> const& token) {
-    edm::Handle< EcalRecHitCollection > recHitsHandle;
-    event.getByToken( token, recHitsHandle );
-    return recHitsHandle.product();
-  }
-
-};
-
 EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2)
-  : geometry_(getFromEventSetup<CaloGeometry, CaloGeometryRecord>(es))
-  , topology_(getFromEventSetup<CaloTopology, CaloTopologyRecord>(es))
-  , ebRecHits_(getRecHits(ev, token1))
-  , eeRecHits_(getRecHits(ev, token2))
+  : geometry_(&edm::get<CaloGeometry,CaloGeometryRecord>(es))
+  , topology_(&edm::get<CaloTopology,CaloTopologyRecord>(es))
+  , ebRecHits_(&edm::get(ev, token1))
+  , eeRecHits_(&edm::get(ev, token2))
 {
   getIntercalibConstants( es );
   getADCToGeV ( es );
@@ -51,10 +34,10 @@ EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const 
 }
 
 EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2, edm::EDGetTokenT<EcalRecHitCollection> token3)
-  : geometry_(getFromEventSetup<CaloGeometry, CaloGeometryRecord>(es))
-  , topology_(getFromEventSetup<CaloTopology, CaloTopologyRecord>(es))
-  , ebRecHits_(getRecHits(ev, token1))
-  , eeRecHits_(getRecHits(ev, token2))
+  : geometry_(&edm::get<CaloGeometry,CaloGeometryRecord>(es))
+  , topology_(&edm::get<CaloTopology,CaloTopologyRecord>(es))
+  , ebRecHits_(&edm::get(ev, token1))
+  , eeRecHits_(&edm::get(ev, token2))
 {
   const CaloSubdetectorGeometry *geometryES = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   if (geometryES) {
