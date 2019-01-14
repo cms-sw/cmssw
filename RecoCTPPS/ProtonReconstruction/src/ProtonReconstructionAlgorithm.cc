@@ -279,13 +279,13 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   reco::ProtonTrackExtra ptExtra(result.IsValid(), EX::ReconstructionMethod::multiRP, tracks);
 
   const double sign_z = (armId == 0) ? +1. : -1.;  // CMS convention
-  const reco::Track::Point vertex(0., params[3]*1E2, 0.);  // vertex in cm
+  const reco::ProtonTrack::Point vertex(0., params[3]*1E2, 0.);  // vertex in cm
   const double xi = params[0];
   const double th_x = params[1];
   const double th_y = params[2];
   const double cos_th = sqrt(1. - th_x*th_x - th_y*th_y);
   const double p = lhcInfo.energy() * (1. - xi);
-  const reco::Track::Vector momentum(
+  const reco::ProtonTrack::Vector momentum(
     - p * th_x,   // the signs reflect change LHC --> CMS convention
     + p * th_y,
     sign_z * p * cos_th
@@ -300,7 +300,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
     {(unsigned int) reco::ProtonTrack::Index::vtx_x, -1},
   };
 
-  reco::TrackBase::CovarianceMatrix cm;
+  reco::ProtonTrack::CovarianceMatrix cm;
   for (unsigned int i = 0; i < (unsigned int) reco::ProtonTrack::Index::num_indices; ++i)
   {
     signed int fit_i = index_map[i];
@@ -373,12 +373,12 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     reco::ProtonTrackExtra ptExtra(valid, EX::ReconstructionMethod::singleRP, { track });
 
     const double sign_z = (CTPPSDetId(track->getRPId()).arm() == 0) ? +1. : -1.;  // CMS convention
-    const reco::Track::Point vertex(0., 0., 0.);
+    const reco::ProtonTrack::Point vertex(0., 0., 0.);
     const double cos_th = sqrt(1. - th_y*th_y);
     const double p = lhcInfo.energy() * (1. - xi);
-    const reco::Track::Vector momentum(0., p * th_y, sign_z * p * cos_th);
+    const reco::ProtonTrack::Vector momentum(0., p * th_y, sign_z * p * cos_th);
 
-    reco::TrackBase::CovarianceMatrix cm;
+    reco::ProtonTrack::CovarianceMatrix cm;
     cm((int)PT::Index::xi, (int)PT::Index::xi) = xi_unc * xi_unc;
     cm((int)PT::Index::th_y, (int)PT::Index::th_y) = th_y_unc * th_y_unc;
 
