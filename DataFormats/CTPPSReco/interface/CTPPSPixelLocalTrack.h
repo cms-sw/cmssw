@@ -23,6 +23,8 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+
+#include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrackRecoInfo.h"
 //----------------------------------------------------------------------------------------------------
 
 class CTPPSPixelFittedRecHit: public CTPPSPixelRecHit
@@ -72,14 +74,6 @@ class CTPPSPixelLocalTrack
   public:
   
   enum TrackPar {x0 = 0, y0 = 1, tx = 2, ty = 3}; 
-
-  /// Track information byte for bx-shifted runs: 
-  /// reco_info = notShiftedRun    -> Default value for tracks reconstructed in non-bx-shifted ROCs
-  /// reco_info = allShiftedPlanes -> Track reconstructed in a bx-shifted ROC with bx-shifted planes only
-  /// reco_info = noShiftedPlanes  -> Track reconstructed in a bx-shifted ROC with non-bx-shifted planes only
-  /// reco_info = mixedPlanes      -> Track reconstructed in a bx-shifted ROC both with bx-shifted and non-bx-shifted planes
-  /// reco_info = invalid          -> Dummy value. Assigned when reco_info is not computed
-  enum class ReconstructionInfo: unsigned short {notShiftedRun = 0, allShiftedPlanes = 1, noShiftedPlanes = 2, mixedPlanes = 3, invalid = 5};
 
     ///< parameter vector size
     static constexpr int dimension = 4;

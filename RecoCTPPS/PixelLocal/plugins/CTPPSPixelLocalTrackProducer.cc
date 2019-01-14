@@ -249,8 +249,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
     trackFinder_->setHits(&hitOnPlaneMap);
     trackFinder_->setGeometry(&geometry);
     trackFinder_->setZ0(geometry.getRPTranslation(romanPotId).z());
-    trackFinder_->findTracks();
-    trackFinder_->addRecoInfo(iEvent.getRun().id().run());
+    trackFinder_->findTracks(iEvent.getRun().id().run());
     std::vector<CTPPSPixelLocalTrack> tmpTracksVector = trackFinder_->getLocalTracks();
 
     if(verbosity_>2)edm::LogInfo("CTPPSPixelLocalTrackProducer")<<"tmpTracksVector = "<<tmpTracksVector.size();

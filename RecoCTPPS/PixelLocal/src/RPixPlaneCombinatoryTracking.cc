@@ -9,6 +9,7 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelIndices.h"
 #include "TMath.h"
 
+#include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrackRecoInfo.h"
 
 //------------------------------------------------------------------------------------------------//
 
@@ -159,7 +160,7 @@ RPixPlaneCombinatoryTracking::produceAllHitCombination(PlaneCombinations inputPl
 
 //------------------------------------------------------------------------------------------------//
 
-void RPixPlaneCombinatoryTracking::findTracks(){
+void RPixPlaneCombinatoryTracking::findTracks(int run){
 
   //The loop search for all the possible tracks starting from the one with the smallest chiSquare/NDF
   //The loop stops when the number of planes with recorded hits is less than the minimum number of planes required
@@ -358,6 +359,119 @@ void RPixPlaneCombinatoryTracking::findTracks(){
     
   } //close of the while loop on all the hits
 
+
+  // recoInfo_ calculation
+  // Hardcoded shift periods: 
+  // Before run 300802: No shift
+  // Starting from run 300802: Sec45 St2 Rp3 Pl 0,2,3 ROC 0 shifted.
+  // Starting from run 303338: No shift.
+  // Starting from run 305169: Sec45 St2 Rp3 Pl 1,3,5 ROC 0 shifted.
+  // Starting from run 305965: Sec45 St2 Rp3 Pl 1,3,5 ROC 0 shifted & Sec56 St2 Rp3 Pl 2,4,5 ROC 5 shifted.
+  // Starting from run 307083: No shift
+
+  // These variables hold the information of the runs when the detector was taking data in 3+3 Mode and which planes were bx-shifted
+  // These values will never be changed and the 3+3 Mode will never be used again in the future
+  const CTPPSPixelDetId rpId_arm0_st2 = CTPPSPixelDetId(0,2,3);
+  const CTPPSPixelDetId rpId_arm1_st2 = CTPPSPixelDetId(1,2,3);
+  static const std::map< unsigned int, std::map< CTPPSPixelDetId,std::vector<bool> > > isPlaneShifted =
+  {
+    {
+      0,{
+        {rpId_arm0_st2,{false,false,false,false,false,false}}, // Shift Period 0 Sec45
+        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 1 Sec56
+      }
+    },
+    {
+      300802,{
+        {rpId_arm0_st2,{true,false,true,true,false,false}}, // Shift Period 1 Sec45
+        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 1 Sec56
+      }
+    },
+    {
+      303338,{
+        {rpId_arm0_st2,{false,false,false,false,false,false}}, // Shift Period 2 Sec45
+        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 2 Sec56
+      }
+    },
+    {
+      305169,{
+        {rpId_arm0_st2,{false,true,false,true,false,true}}, // Shift Period 3 Sec45
+        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 3 Sec56
+      }
+    },
+    {
+      305965,{
+        {rpId_arm0_st2,{false,true,false,true,false,true}}, // Shift Period 4 Sec45
+        {rpId_arm1_st2,{false,false,true,false,true,true}}  // Shift Period 4 Sec56
+      }
+    },
+    {
+      307083,{
+        {rpId_arm0_st2,{false,false,false,false,false,false}}, // Shift Period 0 Sec45
+        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 1 Sec56
+      }
+    }
+  }; // map< shiftedPeriod, map<DetID,shiftScheme> >
+  const auto& shiftStatusInitialRun = std::prev(isPlaneShifted.upper_bound(run));
+  unsigned short shiftedROC = 10;
+  CTPPSPixelIndices pixelIndices;
+
+  // Selecting the shifted ROC
+  if(romanPotId_.arm() == 0) shiftedROC = 0;
+  if(romanPotId_.arm() == 1) shiftedROC = 5;
+
+  // Loop over found tracks to set recoInfo_
+  for(auto & track : localTrackVector_){
+    if(romanPotId_ != rpId_arm0_st2 && romanPotId_ != rpId_arm1_st2){
+      track.setRecoInfo(ReconstructionInfo::notShiftedRun);
+      if(verbosity_>=2) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Analyzing run: "<<run
+        <<"\nTrack belongs to Arm "<<romanPotId_.arm()<<" Station "
+        <<romanPotId_.station();
+
+      continue;
+    }
+    unsigned short bxShiftedPlanesUsed = 0;
+    unsigned short bxNonShiftedPlanesUsed = 0;
+    unsigned short hitInShiftedROC = 0;
+
+    auto const& fittedHits = track.getHits();
+    auto const& planeFlags = (shiftStatusInitialRun->second).at(romanPotId_);
+
+    for(const auto & planeHits : fittedHits){
+      unsigned short plane = CTPPSPixelDetId(planeHits.detId()).plane();
+      for(const auto & hit : planeHits){
+        if(hit.getIsUsedForFit()){
+          if(pixelIndices.getROCId(hit.minPixelCol(),hit.minPixelRow()) == shiftedROC) hitInShiftedROC++; // Count how many hits are in the shifted ROC
+          if(planeFlags.at(plane)) bxShiftedPlanesUsed++; // Count how many bx-shifted planes are used
+          else if(planeFlags != std::vector<bool>(6,false)) bxNonShiftedPlanesUsed++; // Count how many non-bx-shifted planes are used, only if there are shifted planes 
+        }
+      }
+    }
+
+    // Set recoInfo_ value
+    track.setRecoInfo(ReconstructionInfo::invalid); // Initially setting it as invalid. It has to match one of the following options.
+    if(hitInShiftedROC < 3) track.setRecoInfo(ReconstructionInfo::notShiftedRun);
+    else{
+      if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 0) track.setRecoInfo(ReconstructionInfo::notShiftedRun);    // Default value for runs without bx-shift
+      if(bxShiftedPlanesUsed == 3 && bxNonShiftedPlanesUsed == 0) track.setRecoInfo(ReconstructionInfo::allShiftedPlanes); // Track reconstructed in a shifted ROC, only with bx-shifted planes
+      if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 3) track.setRecoInfo(ReconstructionInfo::noShiftedPlanes);  // Track reconstructed in a shifted ROC, only with non-bx-shifted planes
+      if(bxShiftedPlanesUsed >  0 && bxNonShiftedPlanesUsed >  0) track.setRecoInfo(ReconstructionInfo::mixedPlanes);      // Track reconstructed in a shifted ROC, with mixed planes
+    }
+    if(bxShiftedPlanesUsed + bxNonShiftedPlanesUsed > 6){
+      edm::LogError("RPixPlaneCombinatoryTracking")<< "Error in RPixPlaneCombinatoryTracking::findTracks -> " << "More than 6 points found for a track, skipping.";
+      continue;
+    }
+    if(track.getRecoInfo() == ReconstructionInfo::invalid){
+      throw cms::Exception("RPixPlaneCombinatoryTracking")<<"Error in RPixPlaneCombinatoryTracking::findTracks -> " << "recoInfo has not been set properly.";
+    }
+
+    if(verbosity_>=2){
+      edm::LogInfo("RPixPlaneCombinatoryTracking")<<" Track belongs to Arm "<<romanPotId_.arm()<<" Station "<<romanPotId_.station()<<"\nFirst run with this bx-shift configuration: "
+      << shiftStatusInitialRun->first<<"\nTrack reconstructed with: "<<bxShiftedPlanesUsed<<" bx-shifted planes, "<<bxNonShiftedPlanesUsed<<" non-bx-shifted planes, "<<hitInShiftedROC
+      <<" hits in the bx-shifted ROC"<<"\nrecoInfo = "<<(unsigned short)track.getRecoInfo();
+      if(planeFlags != std::vector<bool>(6,false)) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"The shifted ROC is ROC"<<shiftedROC;
+    }
+  }
   return;
 
 }
@@ -456,7 +570,8 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
 
 //The method calculates the hit pointed by the track on the detector plane
 bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack *track, CTPPSPixelDetId planeId,
-                                                            GlobalPoint &planeLineIntercept){
+                                                            GlobalPoint &planeLineIntercept)
+{
   double z0 = track->getZ0();
   CTPPSPixelLocalTrack::ParameterVector parameters = track->getParameterVector();
 
@@ -508,121 +623,3 @@ std::vector<RPixPlaneCombinatoryTracking::PointAndReferencePair >
 
 }
 //------------------------------------------------------------------------------------------------//
-
-// The method sets the tracks recoInfo_ value for localTrackVector_ tracks
-void RPixPlaneCombinatoryTracking::addRecoInfo(int run)
-{
-  // Hardcoded shift periods: 
-  // Before run 300802: No shift
-  // Starting from run 300802: Sec45 St2 Rp3 Pl 0,2,3 ROC 0 shifted.
-  // Starting from run 303338: No shift.
-  // Starting from run 305169: Sec45 St2 Rp3 Pl 1,3,5 ROC 0 shifted.
-  // Starting from run 305965: Sec45 St2 Rp3 Pl 1,3,5 ROC 0 shifted & Sec56 St2 Rp3 Pl 2,4,5 ROC 5 shifted.
-  // Starting from run 307083: No shift
-
-  // These variables hold the information of the runs when the detector was taking data in 3+3 Mode and which planes were bx-shifted
-  // These values will never be changed and the 3+3 Mode will never be used again in the future
-  const CTPPSPixelDetId rpId_arm0_st2 = CTPPSPixelDetId(0,2,3);
-  const CTPPSPixelDetId rpId_arm1_st2 = CTPPSPixelDetId(1,2,3);
-  static const std::map< unsigned int, std::map< CTPPSPixelDetId,std::vector<bool> > > isPlaneShifted =
-  {
-    {
-      0,{
-        {rpId_arm0_st2,{false,false,false,false,false,false}}, // Shift Period 0 Sec45
-        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 1 Sec56
-      }
-    },
-    {
-      300802,{
-        {rpId_arm0_st2,{true,false,true,true,false,false}}, // Shift Period 1 Sec45
-        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 1 Sec56
-      }
-    },
-    {
-      303338,{
-        {rpId_arm0_st2,{false,false,false,false,false,false}}, // Shift Period 2 Sec45
-        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 2 Sec56
-      }
-    },
-    {
-      305169,{
-        {rpId_arm0_st2,{false,true,false,true,false,true}}, // Shift Period 3 Sec45
-        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 3 Sec56
-      }
-    },
-    {
-      305965,{
-        {rpId_arm0_st2,{false,true,false,true,false,true}}, // Shift Period 4 Sec45
-        {rpId_arm1_st2,{false,false,true,false,true,true}}  // Shift Period 4 Sec56
-      }
-    },
-    {
-      307083,{
-        {rpId_arm0_st2,{false,false,false,false,false,false}}, // Shift Period 0 Sec45
-        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 1 Sec56
-      }
-    }
-  }; // map< shiftedPeriod, map<DetID,shiftScheme> >
-  const auto& shiftStatusInitialRun = isPlaneShifted.lower_bound(run);
-  unsigned short shiftedROC = 10;
-  CTPPSPixelIndices pixelIndices;
-
-  // Selecting the shifted ROC
-  if(romanPotId_.arm() == 0) shiftedROC = 0;
-  if(romanPotId_.arm() == 1) shiftedROC = 5;
-
-  // Loop over found tracks to set recoInfo_
-  for(auto & track : localTrackVector_){
-    if(romanPotId_ != rpId_arm0_st2 && romanPotId_ != rpId_arm1_st2){
-      track.setRecoInfo(CTPPSPixelLocalTrack::ReconstructionInfo::notShiftedRun);
-      if(verbosity_>=2) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Analyzing run: "<<run
-        <<"\nTrack belongs to Arm "<<romanPotId_.arm()<<" Station "
-        <<romanPotId_.station();
-
-      continue;
-    }
-    unsigned short bxShiftedPlanesUsed = 0;
-    unsigned short bxNonShiftedPlanesUsed = 0;
-    unsigned short hitInShiftedROC = 0;
-
-    auto const& fittedHits = track.getHits();
-    auto const& planeFlags = (shiftStatusInitialRun->second).at(romanPotId_);
-
-    for(const auto & planeHits : fittedHits){
-      unsigned short plane = CTPPSPixelDetId(planeHits.detId()).plane();
-      for(const auto & hit : planeHits){
-        if(hit.getIsUsedForFit()){
-          if(pixelIndices.getROCId(hit.minPixelCol(),hit.minPixelRow()) == shiftedROC) hitInShiftedROC++; // Count how many hits are in the shifted ROC
-          if(planeFlags.at(plane)) bxShiftedPlanesUsed++; // Count how many bx-shifted planes are used
-          else if(planeFlags != std::vector<bool>(6,false)) bxNonShiftedPlanesUsed++; // Count how many non-bx-shifted planes are used, only if there are shifted planes 
-        }
-      }
-    }
-
-    // Set recoInfo_ value
-    track.setRecoInfo(CTPPSPixelLocalTrack::ReconstructionInfo::invalid); // Initially setting it as invalid. It has to match one of the following options.
-    if(hitInShiftedROC < 3) track.setRecoInfo(CTPPSPixelLocalTrack::ReconstructionInfo::notShiftedRun);
-    else{
-      if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 0) track.setRecoInfo(CTPPSPixelLocalTrack::ReconstructionInfo::notShiftedRun);    // Default value for runs without bx-shift
-      if(bxShiftedPlanesUsed == 3 && bxNonShiftedPlanesUsed == 0) track.setRecoInfo(CTPPSPixelLocalTrack::ReconstructionInfo::allShiftedPlanes); // Track reconstructed in a shifted ROC, only with bx-shifted planes
-      if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 3) track.setRecoInfo(CTPPSPixelLocalTrack::ReconstructionInfo::noShiftedPlanes);  // Track reconstructed in a shifted ROC, only with non-bx-shifted planes
-      if(bxShiftedPlanesUsed >  0 && bxNonShiftedPlanesUsed >  0) track.setRecoInfo(CTPPSPixelLocalTrack::ReconstructionInfo::mixedPlanes);      // Track reconstructed in a shifted ROC, with mixed planes
-    }
-    if(bxShiftedPlanesUsed + bxNonShiftedPlanesUsed > 6){
-      edm::LogError("RPixPlaneCombinatoryTracking")<< "Error in RPixPlaneCombinatoryTracking::addRecoInfo -> " << "More than 6 points found for a track, skipping.";
-      continue;
-    }
-    if(track.getRecoInfo() == CTPPSPixelLocalTrack::ReconstructionInfo::invalid){
-      throw cms::Exception("RPixPlaneCombinatoryTracking")<<"Error in RPixPlaneCombinatoryTracking::addRecoInfo -> " << "recoInfo has not been set properly.";
-    }
-
-    if(verbosity_>=2){
-      edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Analyzing run: "<<run
-      <<" Track belongs to Arm "<<romanPotId_.arm()<<" Station "<<romanPotId_.station()<<"\nTrack reconstructed with: "
-      <<bxShiftedPlanesUsed<<" bx-shifted planes, "<<bxNonShiftedPlanesUsed<<" non-bx-shifted planes, "<<hitInShiftedROC
-      <<" hits in the bx-shifted ROC"<<"\nrecoInfo = "<<(unsigned short)track.getRecoInfo();
-      if(planeFlags != std::vector<bool>(6,false)) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"The shifted ROC is ROC"<<shiftedROC;
-    }
-  }
-  return;
-}
