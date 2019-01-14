@@ -64,23 +64,18 @@ EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps)
 
         std::string componentType = ps.getParameter<std::string>("algo");
 	edm::ConsumesCollector c{consumesCollector()};
-        worker_ = EcalRecHitWorkerFactory::get()->create(componentType, ps, c);
+        worker_ = std::unique_ptr<EcalRecHitWorkerBaseClass>{EcalRecHitWorkerFactory::get()->create(componentType, ps, c)};
 
         // to recover problematic channels
         componentType = ps.getParameter<std::string>("algoRecover");
-        workerRecover_ = EcalRecHitWorkerFactory::get()->create(componentType, ps, c);
+        workerRecover_ = std::unique_ptr<EcalRecHitWorkerBaseClass>{EcalRecHitWorkerFactory::get()->create(componentType, ps, c)};
 
 	edm::ParameterSet cleaningPs = 
 	  ps.getParameter<edm::ParameterSet>("cleaningConfig");
-	cleaningAlgo_ = new EcalCleaningAlgo(cleaningPs);
+	cleaningAlgo_ = std::make_unique<EcalCleaningAlgo>(cleaningPs);
 }
 
-EcalRecHitProducer::~EcalRecHitProducer()
-{
-        delete worker_;
-        delete workerRecover_;
-	delete cleaningAlgo_;
-}
+EcalRecHitProducer::~EcalRecHitProducer() = default;
 
 void
 EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
