@@ -31,13 +31,13 @@ namespace reco
 
       using CTPPSLocalTrackLiteRefVector = std::vector<edm::Ref<std::vector<CTPPSLocalTrackLite> > >;
 
-      /// Type of reconstruction for this track
+      /// type of reconstruction applied for this track
       enum class ReconstructionMethod { invalid = -1, singleRP, multiRP };
 
     public:
-      /// Default constructor
+      /// default constructor
       ProtonTrack();
-      /// Constructor from refit parameters, fitted vertex and momentum, and longitudinal fractional momentum loss
+      /// constructor from refit parameters, fitted vertex and momentum, and longitudinal fractional momentum loss
       ProtonTrack( double chi2, double ndof, const Point& vtx, const Vector& momentum, float xi, const CovarianceMatrix& cov = CovarianceMatrix() );
 
       /// fitted vertex position
@@ -104,19 +104,19 @@ namespace reco
       /// uncertainty on time of proton arrival at forward stations
       float timeError() const { return t_err_; }
 
-      /// Set the flag for the fit validity
+      /// set the flag for the fit validity
       void setValidFit( bool valid = true ) { valid_fit_ = valid; }
-      /// Flag for the fit validity
+      /// flag for the fit validity
       bool validFit() const { return valid_fit_; }
 
-      /// Set the reconstruction method for this track
+      /// set the reconstruction method for this track
       void setMethod( const ReconstructionMethod& method ) { method_ = method; }
-      /// Reconstruction method for this track
+      /// reconstruction method for this track
       ReconstructionMethod method() const { return method_; }
 
-      /// Store the list of RP tracks that contributed to this global track
+      /// store the list of RP tracks that contributed to this global track
       void setContributingLocalTracks( const CTPPSLocalTrackLiteRefVector &v ) { contributing_local_tracks_ = v; }
-      /// List of RP tracks that contributed to this global track
+      /// list of RP tracks that contributed to this global track
       const CTPPSLocalTrackLiteRefVector& contributingLocalTracks() const { return contributing_local_tracks_; }
 
       /// LHC sector
@@ -132,10 +132,7 @@ namespace reco
       static constexpr float mass_ = 0.938272046; ///< proton mass, GeV
       static constexpr float massSquared_ = 0.88035443; ///< proton mass squared, GeV^2
 
-      /*inline size_t covIndex( Index i, Index j ) const {
-        const size_t a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
-        return b * 0.5*( b + 1 ) + a;
-      }*/
+      /// return the uncertainty on a given component
       double error( Index i ) const {
         return sqrt( covariance_( (unsigned int)i, (unsigned int)i ) );
       }
@@ -156,8 +153,11 @@ namespace reco
       float chi2_;
       /// number of degrees of freedom
       unsigned int ndof_;
+      /// fit validity flag
       bool valid_fit_;
+      /// type of reconstruction applied
       ReconstructionMethod method_;
+      /// collection of references to tracks contributing to this object definition
       CTPPSLocalTrackLiteRefVector contributing_local_tracks_;
   };
 }
