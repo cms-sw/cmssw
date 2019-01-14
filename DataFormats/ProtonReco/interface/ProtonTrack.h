@@ -84,9 +84,9 @@ namespace reco
       /// uncertainty on fitted momentum vertical angle opening
       float thetaYError() const { return error( Index::th_y ); }
       /// uncertainty on fitted vertex horizontal position
-      float vertexXError() const { return error( Index::vtx_x ); }
+      float vxError() const { return error( Index::vtx_x ); }
       /// uncertainty on fitted vertex vertical position
-      float vertexYError() const { return error( Index::vtx_y ); }
+      float vyError() const { return error( Index::vtx_y ); }
 
       /// proton mass in GeV
       static float mass() { return mass_; }
