@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 import EventFilter.SiPixelRawToDigi.siPixelRawToDigi_cfi
-import RecoLocalTracker.SiPixelClusterizer.siPixelDigiHeterogeneousConverter_cfi
 
 siPixelDigis = EventFilter.SiPixelRawToDigi.siPixelRawToDigi_cfi.siPixelRawToDigi.clone()
 siPixelDigis.Timing = cms.untracked.bool(False)
@@ -21,10 +20,12 @@ siPixelDigis.CablingMapLabel = cms.string("")
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(siPixelDigis, UsePhase1=True)
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(siPixelDigis, BadPixelFEDChannelsInputLabel = "mixData")
 
+import RecoLocalTracker.SiPixelClusterizer.siPixelDigiHeterogeneousConverter_cfi
 _siPixelDigis_gpu = RecoLocalTracker.SiPixelClusterizer.siPixelDigiHeterogeneousConverter_cfi.siPixelDigiHeterogeneousConverter.clone()
 _siPixelDigis_gpu.includeErrors = cms.bool(True)
 
 from Configuration.ProcessModifiers.gpu_cff import gpu
 gpu.toReplaceWith(siPixelDigis, _siPixelDigis_gpu)
-
