@@ -22,7 +22,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -40,14 +40,13 @@ Implementation:
 // class decleration
 //
 
-class VertexConstraintProducer: public edm::EDProducer {
+class VertexConstraintProducer: public edm::global::EDProducer<> {
 public:
   explicit VertexConstraintProducer(const edm::ParameterSet&);
-  ~VertexConstraintProducer();
+  ~VertexConstraintProducer() override = default;
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void produce(edm::StreamID streamid, edm::Event&, const edm::EventSetup&) const override;
       
   // ----------member data ---------------------------
   const edm::InputTag srcTrkTag_;
@@ -85,19 +84,12 @@ srcVtxTag_(iConfig.getParameter<edm::InputTag>("srcVtx"))
 }
 
 
-VertexConstraintProducer::~VertexConstraintProducer()
-{
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void VertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void VertexConstraintProducer::produce(edm::StreamID streamid, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace edm;
 
@@ -115,7 +107,7 @@ void VertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup
   
   //primary vertex extraction
 
-  if (theVertexHandle->size()>0){
+  if (!theVertexHandle->empty()){
     const reco::Vertex& pv = theVertexHandle->front();
     for (reco::TrackCollection::const_iterator i=theTCollection->begin(); i!=theTCollection->end();i++) {
       VertexConstraint tmp(
@@ -135,9 +127,6 @@ void VertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup
   iEvent.put(std::move(pairs));
   iEvent.put(std::move(output));
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void VertexConstraintProducer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(VertexConstraintProducer);

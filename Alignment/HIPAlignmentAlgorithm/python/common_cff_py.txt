@@ -25,7 +25,7 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 
 # loading DB constants
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "92X_dataRun2_Prompt_v2"
+process.GlobalTag.globaltag = "{FILL GT HERE}"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
@@ -33,27 +33,27 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 # configure the database file - use survey one for default
 from CondCore.CondDB.CondDB_cfi import *
 
-#process.GlobalTag.toGet = cms.VPSet(
+process.GlobalTag.toGet = cms.VPSet(
 #    cms.PSet(record = cms.string('TrackerAlignmentRcd'),
 #             tag = cms.string('Alignments'),
 #             connect = cms.string('sqlite_file:/afs/cern.ch/work/u/usarica/scratch-dimuon3/CMSSW_8_0_20/src/Alignment/HIPAlignmentAlgorithm/hp30112016_all_v2/alignments_iter2.db')
-#             ),
+#    ),
 #
 #    cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
 #             tag = cms.string('TrackerSurfaceDeformations_2015-EOY_v1_RunD'),
 #             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-#             ),
-#
-#    cms.PSet(record = cms.string('GlobalPositionRcd'),
-#             tag = cms.string('GlobalAlignment_2009_v2_express'),
-#             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-#            ),
+#    ),
 #
 #    cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
 #             tag = cms.string('TrackerIdealGeometryErrorsExtended210_mc'),
 #             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-#             ),
-#    )
+#    ),
+#
+#    cms.PSet(record = cms.string('SiPixelTemplateDBObjectRcd'),
+#             tag = cms.string('SiPixelTemplateDBObject_phase1_38T_2018_v2'),
+#             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+#    ),
+)
 
 process.AlignmentProducer.applyDbAlignment = True
 
@@ -279,6 +279,9 @@ process.AlignmentProducer.ParameterBuilder.SelectorRigid = cms.PSet(
     ),
 )
 
+process.AlignmentProducer.algoConfig.maxRelParameterError=-1.
+process.AlignmentProducer.algoConfig.maxAllowedHitPull=-1.
+process.AlignmentProducer.algoConfig.minimumNumberOfHits=100
 process.AlignmentProducer.algoConfig.applyCutsPerComponent = cms.bool(False) # Overrides settings above for the specified detectors
 process.AlignmentProducer.algoConfig.cutsPerComponent = cms.VPSet(
     cms.PSet(

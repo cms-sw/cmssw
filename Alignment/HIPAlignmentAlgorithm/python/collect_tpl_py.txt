@@ -11,7 +11,6 @@ process.maxEvents = cms.untracked.PSet(
 process.AlignmentProducer.algoConfig.collectorActive = True
 process.AlignmentProducer.algoConfig.collectorNJobs  = <JOBS>
 process.AlignmentProducer.algoConfig.collectorPath   = '<PATH>/'
-process.AlignmentProducer.algoConfig.minimumNumberOfHits = 30
 process.AlignmentProducer.algoConfig.maxRelParameterError = -1. # Was 1. before CMSSW 9.0.2
 process.AlignmentProducer.algoConfig.outpath = '<PATH>/main/'
 
