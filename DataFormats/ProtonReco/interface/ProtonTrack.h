@@ -51,7 +51,9 @@ namespace reco
       /// fitted track direction
       const Vector& momentum() const { return momentum_; }
       /// scalar norm of fitted track momentum
-      float p() const { return momentum_.R(); }
+      float p() const { return momentum_.r(); }
+      /// scalar fitted track transverse momentum
+      float pt() const { return momentum_.rho(); }
       /// fitted track momentum horizontal component
       float px() const { return momentum_.x(); }
       /// fitted track momentum vertical component
@@ -97,8 +99,9 @@ namespace reco
       /// four-momentum transfer squared, in GeV^2
       float t() const;
 
-      /// conveniece getters for time of proton arrival at RPs
+      /// time of proton arrival at forward stations
       float time() const { return t_; }
+      /// uncertainty on time of proton arrival at forward stations
       float timeError() const { return t_err_; }
 
       /// Set the flag for the fit validity
