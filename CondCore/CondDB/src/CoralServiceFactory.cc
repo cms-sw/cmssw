@@ -20,14 +20,6 @@ cond::CoralServiceFactory::get() {
 
 coral::Service*
 cond::CoralServiceFactory::create(const std::string& componentname) const {
- coral::Service* sp=CoralServicePluginFactory::get()->create(componentname,componentname);
- if(sp==nullptr) {
-   throw cond::Exception("CoralServiceFactory")
-     << "CoralServiceFactory:\n"
-     << "Cannot find coral service: "
-     << componentname << "\n"
-     << "Perhaps the name is misspelled or is not a Plugin?\n"
-     << "Try running EdmPluginDump to obtain a list of available Plugins.";
- }
- return sp;
+  std::unique_ptr<cond::CoralServiceWrapperBase> sp{CoralServicePluginFactory::get()->create(componentname)};
+  return sp->create(componentname);
 }

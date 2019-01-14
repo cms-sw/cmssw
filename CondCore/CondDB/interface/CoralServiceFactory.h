@@ -1,6 +1,7 @@
 #ifndef CondCore_CondDB_CoralServiceFactory_h
 #define CondCore_CondDB_CoralServiceFactory_h
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "CondCore/CondDB/interface/CoralServiceWrapper.h"
 #include <string>
 //
 // Package:     CondCore/CondDB
@@ -21,7 +22,7 @@ namespace coral{
   class Service;
 }
 namespace cond{
-  typedef edmplugin::PluginFactory< coral::Service*(const std::string&) > CoralServicePluginFactory;
+  typedef edmplugin::PluginFactory< cond::CoralServiceWrapperBase*() > CoralServicePluginFactory;
   
   class CoralServiceFactory{
   public:
