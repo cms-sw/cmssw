@@ -38,9 +38,9 @@
  * thread-safe.
  ******************************************************************************/
 
-#include <set>
-#include <map>
 #include <cmath>
+#include <map>
+#include <set>
 
 #include <cub/util_debug.cuh>
 #include <cub/host/mutex.cuh>
@@ -343,9 +343,9 @@ struct CachingHostAllocator
      * Once freed, the allocation becomes available immediately for reuse.
      */
     cudaError_t HostAllocate(
-        void            **d_ptr,            ///< [out] Reference to pointer to the allocation
-        size_t          bytes,              ///< [in] Minimum number of bytes for the allocation
-        cudaStream_t    active_stream = nullptr)  ///< [in] The stream to be associated with this allocation
+        void            **d_ptr,                    ///< [out] Reference to pointer to the allocation
+        size_t          bytes,                      ///< [in] Minimum number of bytes for the allocation
+        cudaStream_t    active_stream = nullptr)    ///< [in] The stream to be associated with this allocation
     {
         *d_ptr                          = nullptr;
         int device                      = INVALID_DEVICE_ORDINAL;
