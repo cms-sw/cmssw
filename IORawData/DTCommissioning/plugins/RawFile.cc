@@ -24,11 +24,12 @@ RawFile* RawFile::open(const char* path) {
 
   std::unique_ptr<char[]> chaux{ new char[strlen(path)+1] };
   strcpy(chaux.get(),path);
-  char* prefix = strtok(chaux.get(),":");
+  char* saveptr;
+  char* prefix = strtok_r(chaux.get(),":",&saveptr);
   //cout << " Prefix: " << prefix << endl;
 
   char* filename = prefix;
-  if (strlen(prefix)<strlen(path)) filename = strtok(nullptr,":");
+  if (strlen(prefix)<strlen(path)) filename = strtok_r(nullptr,":",&saveptr);
   //cout << " Filename: " << filename << endl;
 
   if (strcmp(prefix,"root")==0) xrootdFlag = true;
