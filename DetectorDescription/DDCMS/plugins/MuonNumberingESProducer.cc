@@ -34,7 +34,7 @@ using namespace edm;
 class MuonNumberingESProducer : public ESProducer {
 public:
   MuonNumberingESProducer(const ParameterSet&);
-  ~MuonNumberingESProducer();
+  ~MuonNumberingESProducer() override;
   
   using ReturnType = unique_ptr<MuonNumbering>;
   
