@@ -42,14 +42,13 @@ DEFINE_FWK_MODULE(HGCalTriggerDigiFEReproducer);
 /*****************************************************************/
 HGCalTriggerDigiFEReproducer::HGCalTriggerDigiFEReproducer(const edm::ParameterSet& conf):
     inputdigi_(consumes<l1t::HGCFETriggerDigiCollection>(conf.getParameter<edm::InputTag>("feDigis"))), 
-    backEndProcessor_(new HGCalTriggerBackendProcessor(conf.getParameterSet("BEConfiguration"), consumesCollector())) 
+    backEndProcessor_(std::make_unique<HGCalTriggerBackendProcessor>(conf.getParameterSet("BEConfiguration"), consumesCollector()))
 /*****************************************************************/
 {
     //setup FE codec
     const edm::ParameterSet& feCodecConfig =  conf.getParameterSet("FECodec");
     const std::string& feCodecName = feCodecConfig.getParameter<std::string>("CodecName");
-    HGCalTriggerFECodecBase* codec = HGCalTriggerFECodecFactory::get()->create(feCodecName,feCodecConfig);
-    codec_.reset(codec);
+    codec_ = std::unique_ptr<HGCalTriggerFECodecBase>{HGCalTriggerFECodecFactory::get()->create(feCodecName,feCodecConfig)};
     codec_->unSetDataPayload();
 
     produces<l1t::HGCFETriggerDigiCollection>();
