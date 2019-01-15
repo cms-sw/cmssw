@@ -71,6 +71,7 @@ class MTDThresholdClusterizer : public MTDClusterizerBase {
   float theHitThreshold;    // Hit threshold 
   float theSeedThreshold;     // MTD cluster seed 
   float theClusterThreshold;  // Cluster threshold 
+  float theTimeThreshold; // Time compatibility between new hit and seed
 
   //! Geometry-related information
   int  theNumOfRows;
