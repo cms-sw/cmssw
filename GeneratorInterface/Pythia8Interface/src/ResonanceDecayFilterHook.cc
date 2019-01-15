@@ -13,7 +13,10 @@ bool ResonanceDecayFilterHook::initAfterBeams() {
   allNuAsEquivalent_ = settingsPtr->flag("ResonanceDecayFilter:allNuAsEquivalent");
   udscAsEquivalent_ = settingsPtr->flag("ResonanceDecayFilter:udscAsEquivalent");
   udscbAsEquivalent_ = settingsPtr->flag("ResonanceDecayFilter:udscbAsEquivalent");
-  mothers_ = settingsPtr->mvec("ResonanceDecayFilter:mothers");
+  wzAsEquivalent_ = settingsPtr->flag("ResonanceDecayFilter:wzAsEquivalent");
+  auto mothers = settingsPtr->mvec("ResonanceDecayFilter:mothers");
+  mothers_.clear();
+  mothers_.insert(mothers.begin(), mothers.end());
   daughters_ = settingsPtr->mvec("ResonanceDecayFilter:daughters");
   
   
@@ -35,6 +38,9 @@ bool ResonanceDecayFilterHook::initAfterBeams() {
     }
     if ( (did == 2 || did==3 || did==4 || did==5 ) && udscbAsEquivalent_) {
       did = 1;
+    }
+    if( (did == 23 || did == 24) && wzAsEquivalent_) {
+      did = 23;
     }
 
     ++requestedDaughters_[std::abs(did)];
@@ -72,22 +78,16 @@ bool ResonanceDecayFilterHook::checkVetoResonanceDecays(const Event& process) {
     if ( (did == 2 || did==3 || did==4 || did==5 ) && udscbAsEquivalent_) {
       did = 1;
     } 
+    if( (did == 23 || did == 24) && wzAsEquivalent_) {
+      did = 23;
+    }
     
     int mid = p.mother1()>0 ? std::abs(process[p.mother1()].id()) : 0;
     
     //if no list of mothers is provided, then all particles
     //in hard process and resonance decays are counted together
-    bool validMother = mothers_.size() ? false : true;
-    for (int id : mothers_) {
-      if (mid == std::abs(id)) {
-        validMother = true;
-        break;
-      }
-    }
-    
-    if (validMother) {
+    if(mothers_.empty() || mothers_.count(mid) || mothers_.count(-mid))
       ++observedDaughters_[did];
-    }
   }
     
   //check if criteria is satisfied
