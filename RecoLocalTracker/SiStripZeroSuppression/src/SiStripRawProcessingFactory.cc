@@ -16,10 +16,10 @@ SiStripRawProcessingFactory::create(const edm::ParameterSet& conf)
 {
   return std::unique_ptr<SiStripRawProcessingAlgorithms>(
       new SiStripRawProcessingAlgorithms(
-        std::move(create_SubtractorPed(conf)),
-        std::move(create_SubtractorCMN(conf)),
-        std::move(create_Suppressor(conf)),
-        std::move(create_Restorer(conf)),
+        create_SubtractorPed(conf),
+        create_SubtractorCMN(conf),
+        create_Suppressor(conf),
+        create_Restorer(conf),
         conf.getParameter<bool>("doAPVRestore"),
         conf.getParameter<bool>("useCMMeanMap")
       ));
