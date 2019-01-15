@@ -124,7 +124,7 @@ TotemTimingLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& d
     ->setComment( "pixel efficiency function parameter determining the smoothness of the step" );
   desc.add<double>( "tolerance", 0.1 /* mm */)
     ->setComment( "tolerance used for checking if the track contains certain hit" );
-  desc.add<int>( "maxPlaneActiveChannels", 2 /* mm */)
+  desc.add<int>( "maxPlaneActiveChannels", 2 )
     ->setComment( "threshold for discriminating noisy planes" );
 
   desc.add<std::string>( "pixelEfficiencyFunction", "(x>[0]-0.5*[1]-0.05)*(x<[0]+0.5*[1]-0.05)+0*[2]" )
