@@ -5,7 +5,7 @@ process = cms.Process("ProcessOne")
 ## MessageLogger
 ##
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-process.MessageLogger.categories.append("SiPixelFEDChannelContainerTestWriter")  
+process.MessageLogger.categories.append("SiPixelFEDChannelContainerFromQualityConverter")  
 process.MessageLogger.categories.append("SiPixelFEDChannelContainer")  
 process.MessageLogger.destinations = cms.untracked.vstring("cout")
 process.MessageLogger.cout = cms.untracked.PSet(
@@ -14,7 +14,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
                                    reportEvery = cms.untracked.int32(1000)
                                    ),                                                      
-    SiPixelFEDChannelContainerTestWriter = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    SiPixelFEDChannelContainerFromQualityConverter = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     SiPixelFEDChannelContainer           = cms.untracked.PSet( limit = cms.untracked.int32(-1))
     )
 process.MessageLogger.statistics.append('cout')  
@@ -29,8 +29,8 @@ process.source = cms.Source("EmptySource",
                             numberEventsInLuminosityBlock = cms.untracked.uint32(1),
                             )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(25000000))
-#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000))
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(25000000))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000))
 
 ##
 ## Database output service
@@ -42,7 +42,8 @@ process.CondDB.connect = "frontier://FrontierProd/CMS_CONDITIONS"
 process.dbInput = cms.ESSource("PoolDBESSource",
                                process.CondDB,
                                toGet = cms.VPSet(cms.PSet(record = cms.string("SiPixelQualityFromDbRcd"),
-                                                          tag = cms.string("SiPixelQuality_byPCL_stuckTBM_v1")
+                                                          #tag = cms.string("SiPixelQuality_byPCL_stuckTBM_v1")
+                                                          tag = cms.string("SiPixelQuality_byPCL_other_v1")
                                                           ),
                                                  cms.PSet(record = cms.string("SiPixelFedCablingMapRcd"),
                                                           tag = cms.string("SiPixelFedCablingMap_phase1_v7")
@@ -52,7 +53,7 @@ process.dbInput = cms.ESSource("PoolDBESSource",
 ##
 ## Output database (in this case local sqlite file)
 ##
-process.CondDB.connect = 'sqlite_file:SiPixelStatusScenarios_v1.db'
+process.CondDB.connect = 'sqlite_file:SiPixelStatusScenarios_v2.db'
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
                                           timetype = cms.untracked.string('runnumber'),
@@ -62,8 +63,9 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                                             )
                                           )
 
-process.WriteInDB = cms.EDAnalyzer("SiPixelFEDChannelContainerTestWriter",
-                                   record= cms.string('SiPixelStatusScenariosRcd'),
+process.WriteInDB = cms.EDAnalyzer("SiPixelFEDChannelContainerFromQualityConverter",
+                                   record = cms.string('SiPixelStatusScenariosRcd'),
+                                   removeEmptyPayloads = cms.untracked.bool(True)
                                    )
 
 process.p = cms.Path(process.WriteInDB)

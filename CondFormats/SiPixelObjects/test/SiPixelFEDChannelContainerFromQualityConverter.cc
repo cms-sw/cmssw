@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    CondFormats/SiPixelObjects
-// Class:      SiPixelFEDChannelContainerTestWriter
+// Class:      SiPixelFEDChannelContainerFromQualityConverter
 // 
-/**\class SiPixelFEDChannelContainerTestWriter SiPixelFEDChannelContainerTestWriter.cc CondFormats/SiPixelObjects/plugins/SiPixelFEDChannelContainerTestWriter.cc
+/**\class SiPixelFEDChannelContainerFromQualityConverter SiPixelFEDChannelContainerFromQualityConverter.cc CondFormats/SiPixelObjects/plugins/SiPixelFEDChannelContainerFromQualityConverter.cc
  Description: class to build the SiPixelFEDChannelContainer payloads
 */
 //
@@ -38,10 +38,10 @@
 // class declaration
 //
 
-class SiPixelFEDChannelContainerTestWriter : public edm::one::EDAnalyzer<>  {
+class SiPixelFEDChannelContainerFromQualityConverter : public edm::one::EDAnalyzer<>  {
    public:
-      explicit SiPixelFEDChannelContainerTestWriter(const edm::ParameterSet&);
-      ~SiPixelFEDChannelContainerTestWriter();
+      explicit SiPixelFEDChannelContainerFromQualityConverter(const edm::ParameterSet&);
+      ~SiPixelFEDChannelContainerFromQualityConverter();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
       SiPixelFEDChannelContainer::SiPixelFEDChannelCollection createFromSiPixelQuality(const SiPixelQuality & theQuality, const SiPixelFedCablingMap& theFedCabling);
@@ -55,6 +55,7 @@ class SiPixelFEDChannelContainerTestWriter : public edm::one::EDAnalyzer<>  {
       const std::string m_record;
       const bool printdebug_;
       const bool isMC_;
+      const bool removeEmptyPayloads_;
       SiPixelFEDChannelContainer* myQualities;
 
       int IOVcount_;
@@ -65,17 +66,18 @@ class SiPixelFEDChannelContainerTestWriter : public edm::one::EDAnalyzer<>  {
 //
 // constructors and destructor
 //
-SiPixelFEDChannelContainerTestWriter::SiPixelFEDChannelContainerTestWriter(const edm::ParameterSet& iConfig):
+SiPixelFEDChannelContainerFromQualityConverter::SiPixelFEDChannelContainerFromQualityConverter(const edm::ParameterSet& iConfig):
   m_record(iConfig.getParameter<std::string>("record")),
   printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false)),
-  isMC_(iConfig.getUntrackedParameter<bool>("isMC",true))
+  isMC_(iConfig.getUntrackedParameter<bool>("isMC",true)),
+  removeEmptyPayloads_(iConfig.getUntrackedParameter<bool>("removeEmptyPayloads",false))
 {
   //now do what ever initialization is needed
   myQualities = new SiPixelFEDChannelContainer();
 }
 
 
-SiPixelFEDChannelContainerTestWriter::~SiPixelFEDChannelContainerTestWriter()
+SiPixelFEDChannelContainerFromQualityConverter::~SiPixelFEDChannelContainerFromQualityConverter()
 {
   delete myQualities;
 }
@@ -86,7 +88,7 @@ SiPixelFEDChannelContainerTestWriter::~SiPixelFEDChannelContainerTestWriter()
 
 // ------------ method called for each event  ------------
 void
-SiPixelFEDChannelContainerTestWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+SiPixelFEDChannelContainerFromQualityConverter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    
@@ -106,9 +108,12 @@ SiPixelFEDChannelContainerTestWriter::analyze(const edm::Event& iEvent, const ed
 
      std::string scenario = std::to_string(RunNumber_)+"_"+std::to_string(LuminosityBlockNumber_);
 
-     edm::LogInfo("SiPixelFEDChannelContainerTestWriter")<<"Found IOV:" << RunNumber_ <<"("<< LuminosityBlockNumber_ <<")"<<std::endl;
+     edm::LogInfo("SiPixelFEDChannelContainerFromQualityConverter")<<"Found IOV:" << RunNumber_ <<"("<< LuminosityBlockNumber_ <<")"<<std::endl;
      
      auto theSiPixelFEDChannelCollection = this->createFromSiPixelQuality(*(siPixelQuality_.product()),*(cablingMapHandle.product()));
+
+     if(removeEmptyPayloads_ && theSiPixelFEDChannelCollection.empty()) return;
+
      myQualities->setScenario(scenario,theSiPixelFEDChannelCollection);
 
      IOVcount_++;
@@ -118,7 +123,7 @@ SiPixelFEDChannelContainerTestWriter::analyze(const edm::Event& iEvent, const ed
    
 // ------------ method called once each job just before starting event loop  ------------
 SiPixelFEDChannelContainer::SiPixelFEDChannelCollection
-SiPixelFEDChannelContainerTestWriter::createFromSiPixelQuality(const SiPixelQuality & theQuality, const SiPixelFedCablingMap& theFedCabling)
+SiPixelFEDChannelContainerFromQualityConverter::createFromSiPixelQuality(const SiPixelQuality & theQuality, const SiPixelFedCablingMap& theFedCabling)
 {
   auto fedid_ = theFedCabling.det2fedMap();
 
@@ -154,12 +159,12 @@ SiPixelFEDChannelContainerTestWriter::createFromSiPixelQuality(const SiPixelQual
       }
 
       if(n_setbits != mask){
-	edm::LogWarning("SiPixelFEDChannelContainerTestWriter")  << "Mismatch! DetId: "<< mod.DetID << " " << n_setbits <<  " " <<  mask << std::endl;
+	edm::LogWarning("SiPixelFEDChannelContainerFromQualityConverter")  << "Mismatch! DetId: "<< mod.DetID << " " << n_setbits <<  " " <<  mask << std::endl;
 	continue;
       }
 	    
       if(printdebug_){      
-	edm::LogVerbatim("SiPixelFEDChannelContainerTestWriter") << "passed" << std::endl;
+	edm::LogVerbatim("SiPixelFEDChannelContainerFromQualityConverter") << "passed" << std::endl;
       }
 
       unsigned int link_id = 99999;
@@ -179,15 +184,15 @@ SiPixelFEDChannelContainerTestWriter::createFromSiPixelQuality(const SiPixelQual
       }
 
       if(printdebug_){
-	edm::LogVerbatim("SiPixelFEDChannelContainerTestWriter") << " " << fed_id << " " << link_id << " " << first_idx << "  " << sec_idx << std::endl;
+	edm::LogVerbatim("SiPixelFEDChannelContainerFromQualityConverter") << " " << fed_id << " " << link_id << " " << first_idx << "  " << sec_idx << std::endl;
       }	 
 
       PixelFEDChannel ch = {fed_id, link_id, first_idx, sec_idx};
       disabledChannelsDetSet.push_back(ch);
       
       if(printdebug_){
-	edm::LogVerbatim("SiPixelFEDChannelContainerTestWriter") << i_roc << " " << coded_badRocs <<  " " << first_idx << " " << sec_idx << std::endl;
-	edm::LogVerbatim("SiPixelFEDChannelContainerTestWriter") << "=======================================" << std::endl;
+	edm::LogVerbatim("SiPixelFEDChannelContainerFromQualityConverter") << i_roc << " " << coded_badRocs <<  " " << first_idx << " " << sec_idx << std::endl;
+	edm::LogVerbatim("SiPixelFEDChannelContainerFromQualityConverter") << "=======================================" << std::endl;
       }
     }
     
@@ -199,21 +204,21 @@ SiPixelFEDChannelContainerTestWriter::createFromSiPixelQuality(const SiPixelQual
 }
 
 void 
-SiPixelFEDChannelContainerTestWriter::beginJob()
+SiPixelFEDChannelContainerFromQualityConverter::beginJob()
 {
   IOVcount_=0;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-SiPixelFEDChannelContainerTestWriter::endJob() 
+SiPixelFEDChannelContainerFromQualityConverter::endJob() 
 {
 
-  edm::LogInfo("SiPixelFEDChannelContainerTestWriter")<<"Analyzed "<<IOVcount_<<" IOVs"<<std::endl;
-  edm::LogInfo("SiPixelFEDChannelContainerTestWriter")<<"Size of SiPixelFEDChannelContainer object "<< myQualities->size() <<std::endl<<std::endl;
+  edm::LogInfo("SiPixelFEDChannelContainerFromQualityConverter")<<"Analyzed "<<IOVcount_<<" IOVs"<<std::endl;
+  edm::LogInfo("SiPixelFEDChannelContainerFromQualityConverter")<<"Size of SiPixelFEDChannelContainer object "<< myQualities->size() <<std::endl<<std::endl;
 
   if(printdebug_){
-    edm::LogInfo("SiPixelFEDChannelContainerTestWriter")<<"Content of SiPixelFEDChannelContainer "<<std::endl;
+    edm::LogInfo("SiPixelFEDChannelContainerFromQualityConverter")<<"Content of SiPixelFEDChannelContainer "<<std::endl;
 
     // use built-in method in the CondFormat
      myQualities->printAll();
@@ -235,13 +240,14 @@ SiPixelFEDChannelContainerTestWriter::endJob()
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-SiPixelFEDChannelContainerTestWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+SiPixelFEDChannelContainerFromQualityConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setComment("Writes payloads of type SiPixelFEDChannelContainer");
   desc.addUntracked<bool>("printDebug",false);
+  desc.addUntracked<bool>("removeEmptyPayloads",false);
   desc.add<std::string>("record","SiPixelStatusScenariosRcd");
-  descriptions.add("SiPixelFEDChannelContainerTestWriter",desc);
+  descriptions.add("SiPixelFEDChannelContainerFromQualityConverter",desc);
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(SiPixelFEDChannelContainerTestWriter);
+DEFINE_FWK_MODULE(SiPixelFEDChannelContainerFromQualityConverter);
