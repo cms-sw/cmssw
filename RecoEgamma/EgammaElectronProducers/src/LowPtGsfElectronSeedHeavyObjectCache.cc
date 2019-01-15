@@ -5,7 +5,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/LowPtGsfElectronSeedHeavyObjectCache.h"
-#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
+#include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
 #include "TMVA/MethodBDT.h"
 #include "TMVA/Reader.h"
 #include <string>
@@ -117,7 +117,7 @@ namespace lowptgsfeleseed {
       }
     for ( auto& weights : conf.getParameter< std::vector<std::string> >("ModelWeights") ) 
       {
-	models_.push_back(createGBRForest(edm::FileInPath(weights)));
+	models_.push_back(GBRForestTools::createGBRForest(edm::FileInPath(weights)));
       }
     for ( auto& thresh : conf.getParameter< std::vector<double> >("ModelThresholds") )
       {
