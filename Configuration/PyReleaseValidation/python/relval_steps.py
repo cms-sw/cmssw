@@ -583,7 +583,7 @@ baseDataSetRelease=[
     'CMSSW_10_2_0-PU25ns_102X_upgrade2018_realistic_v9_gcc7-v1',  #15 - fullSim PU 25ns UP18 premix
     'CMSSW_10_2_0-102X_upgrade2018_realistic_v9_gcc7-v1',  #16 - GENSIM input 2018
     'CMSSW_10_2_8-102X_mc2017_realistic_v5_FastSim-v1',    # 17 - fastSim MinBias for mixing UP17
-    'CMSSW_10_2_8-PU25ns_102X_mc2017_realistic_v5_FastSim-v1',# 18 - fastSim premixed MinBias UP17
+    'CMSSW_10_2_9-PU25ns_102X_mc2017_realistic_v5_FastSim-v1',# 18 - fastSim premixed MinBias UP17
     ]
 
 
@@ -1048,7 +1048,7 @@ FS_PREMIXUP17_PU50_OVERLAY = merge([
         {"-s" : "GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,VALIDATION",
          "--datamix" : "PreMix",
          "--procModifiers": "premix_stage2",
-         "--pileup_input" : "dbs:/RelValFS_PREMIXUP17_PU50/%s/PREMIX"%(baseDataSetRelease[18],),
+         "--pileup_input" : "dbs:/RelValFS_PREMIXUP17_PU50/%s/GEN-SIM-DIGI-RAW"%(baseDataSetRelease[18],),
          },
         Kby(100,500),step1FastUpg2017Defaults])
 
