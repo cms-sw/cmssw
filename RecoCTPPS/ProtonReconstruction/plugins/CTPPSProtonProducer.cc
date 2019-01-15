@@ -15,7 +15,7 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
-#include "DataFormats/ProtonReco/interface/ProtonTrackFwd.h"
+#include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
 
 #include "RecoCTPPS/ProtonReconstruction/interface/ProtonReconstructionAlgorithm.h"
 
@@ -74,15 +74,11 @@ CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet& iConfig) :
   algorithm_               (iConfig.getParameter<bool>("fitVtxY"), iConfig.getParameter<bool>("useImprovedInitialEstimate"), verbosity_),
   currentCrossingAngle_(-1.)
 {
-  if (doSingleRPReconstruction_) {
-    produces<reco::ProtonTrackCollection>(singleRPReconstructionLabel_);
-    produces<reco::ProtonTrackExtraCollection>(singleRPReconstructionLabel_);
-  }
+  if (doSingleRPReconstruction_)
+    produces<reco::ForwardProtonCollection>(singleRPReconstructionLabel_);
 
-  if (doMultiRPReconstruction_) {
-    produces<reco::ProtonTrackCollection>(multiRPReconstructionLabel_);
-    produces<reco::ProtonTrackExtraCollection>(multiRPReconstructionLabel_);
-  }
+  if (doMultiRPReconstruction_)
+    produces<reco::ForwardProtonCollection>(multiRPReconstructionLabel_);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -161,7 +157,7 @@ void CTPPSProtonProducer::produce(Event& event, const EventSetup &eventSetup)
   event.getByToken(tracksToken_, hTracks);
 
   // keep only tracks from tracker RPs, split them by LHC sector
-  reco::ProtonTrackExtra::CTPPSLocalTrackLiteRefVector tracks_45, tracks_56;
+  reco::ForwardProton::CTPPSLocalTrackLiteRefVector tracks_45, tracks_56;
   map<CTPPSDetId, unsigned int> nTracksPerRP;
   for (unsigned int idx = 0; idx < hTracks->size(); ++idx) {
     const CTPPSLocalTrackLite &tr = (*hTracks)[idx];
@@ -197,7 +193,7 @@ void CTPPSProtonProducer::produce(Event& event, const EventSetup &eventSetup)
 
   // single-RP reconstruction
   if (doSingleRPReconstruction_) {
-    unique_ptr<reco::ProtonTrackCollection> output(new reco::ProtonTrackCollection);
+    unique_ptr<reco::ForwardProtonCollection> output(new reco::ForwardProtonCollection);
 
     algorithm_.reconstructFromSingleRP(tracks_45, *output, *outputExtra, *hLHCInfo, ssLog);
     algorithm_.reconstructFromSingleRP(tracks_56, *output, *outputExtra, *hLHCInfo, ssLog);
@@ -212,7 +208,7 @@ void CTPPSProtonProducer::produce(Event& event, const EventSetup &eventSetup)
 
   // multi-RP reconstruction
   if (doMultiRPReconstruction_) {
-    unique_ptr<reco::ProtonTrackCollection> output(new reco::ProtonTrackCollection);
+    unique_ptr<reco::ForwardProtonCollection> output(new reco::ForwardProtonCollection);
 
     if (singleTrack_45)
       algorithm_.reconstructFromMultiRP(tracks_45, *output, *outputExtra, *hLHCInfo, ssLog);
@@ -234,3 +230,4 @@ void CTPPSProtonProducer::produce(Event& event, const EventSetup &eventSetup)
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(CTPPSProtonProducer);
+

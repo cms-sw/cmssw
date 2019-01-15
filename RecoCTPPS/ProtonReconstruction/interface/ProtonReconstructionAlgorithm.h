@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
-#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/ProtonReco/interface/ForwardProton.h"
 
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSet.h"
@@ -32,13 +32,13 @@ class ProtonReconstructionAlgorithm
     void release();
 
     /// run proton reconstruction using single-RP strategy
-    void reconstructFromSingleRP(const reco::ProtonTrack::CTPPSLocalTrackLiteRefVector &input,
-      std::vector<reco::ProtonTrack> &output,
+    void reconstructFromSingleRP(const reco::ForwardProton::CTPPSLocalTrackLiteRefVector &input,
+      std::vector<reco::ForwardProton> &output,
       const LHCInfo &lhcInfo, std::ostream& os) const;
 
     /// run proton reconstruction using multiple-RP strategy
-    void reconstructFromMultiRP(const reco::ProtonTrack::CTPPSLocalTrackLiteRefVector &input,
-      std::vector<reco::ProtonTrack> &output,
+    void reconstructFromMultiRP(const reco::ForwardProton::CTPPSLocalTrackLiteRefVector &input,
+      std::vector<reco::ForwardProton> &output,
       const LHCInfo &lhcInfo, std::ostream& os) const;
 
   private:
@@ -71,7 +71,7 @@ class ProtonReconstructionAlgorithm
 
         double operator() (const double *parameters) const;
 
-        const reco::ProtonTrack::CTPPSLocalTrackLiteRefVector* tracks;
+        const reco::ForwardProton::CTPPSLocalTrackLiteRefVector* tracks;
         const std::map<unsigned int, RPOpticsData>* m_rp_optics;
     };
 
