@@ -12,6 +12,8 @@
 #define RecoCTPPS_TotemRPLocal_CTPPSTimingTrackRecognition
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 
 #include "DataFormats/Common/interface/DetSet.h"
