@@ -46,6 +46,8 @@ MTDTimeCalibESProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   edm::ParameterSetDescription desc;
   desc.add<double>("BTLTimeOffset", 0.);
   desc.add<double>("ETLTimeOffset", 0.);
+  desc.add<double>("BTLLightCollTime", 0.2);
+  desc.add<double>("BTLLightCollSlope", 0.075);
   descriptions.add("MTDTimeCalibESProducer", desc);
 }
 

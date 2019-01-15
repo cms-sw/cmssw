@@ -13,7 +13,9 @@ MTDTimeCalib::MTDTimeCalib(edm::ParameterSet const& conf,
   geom_(geom),
   topo_(topo),
   btlTimeOffset_( conf.getParameter<double>("BTLTimeOffset") ),
-  etlTimeOffset_( conf.getParameter<double>("ETLTimeOffset") )
+  etlTimeOffset_( conf.getParameter<double>("ETLTimeOffset") ),
+  btlLightCollTime_( conf.getParameter<double>("BTLLightCollTime") ),
+  btlLightCollSlope_( conf.getParameter<double>("BTLLightCollSlope") )
 {
 }
  
@@ -46,24 +48,21 @@ float MTDTimeCalib::getTimeCalib(const MTDDetId& id) const
       const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
       const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());    
       
-      if ( topo_->getMTDTopologyMode() == (int ) BTLDetId::CrysLayout::tile )
+      if ( topo_->getMTDTopologyMode() == (int) BTLDetId::CrysLayout::tile )
 	{
-	  constexpr float lightCollTime = 0.2;
-	  time_calib -= lightCollTime; //simply remove the offset introduced at sim level
+	  time_calib -= btlLightCollTime_; //simply remove the offset introduced at sim level
 	}
-      else if ( topo_->getMTDTopologyMode() == (int ) BTLDetId::CrysLayout::bar ||
-		topo_->getMTDTopologyMode() == (int ) BTLDetId::CrysLayout::barphiflat 
+      else if ( topo_->getMTDTopologyMode() == (int) BTLDetId::CrysLayout::bar ||
+		topo_->getMTDTopologyMode() == (int) BTLDetId::CrysLayout::barphiflat 
 		)
 	{
 	  //for bars in phi
-	  constexpr float lightSlopeColl = 0.075;
-	  time_calib -= 0.5*topo.pitch().first*lightSlopeColl; //time offset for bar time is L/2v 
+	  time_calib -= 0.5*topo.pitch().first*btlLightCollSlope_; //time offset for bar time is L/2v 
 	}
-      else if ( topo_->getMTDTopologyMode() == (int ) BTLDetId::CrysLayout::barzflat ) 
+      else if ( topo_->getMTDTopologyMode() == (int) BTLDetId::CrysLayout::barzflat ) 
 	{
 	  //for bars in z
-	  constexpr float lightSlopeColl = 0.075;
-	  time_calib -= 0.5*topo.pitch().second*lightSlopeColl; //time offset for bar time is L/2v 
+	  time_calib -= 0.5*topo.pitch().second*btlLightCollSlope_; //time offset for bar time is L/2v 
 	}
     }
   else if ( id.mtdSubDetector() == MTDDetId::ETL )

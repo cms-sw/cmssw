@@ -23,6 +23,10 @@ class MTDTimeCalib
   const MTDTopology* topo_;
   float btlTimeOffset_;
   float etlTimeOffset_;
+
+  //specific paramters from BTL simulation
+  float btlLightCollTime_;
+  float btlLightCollSlope_;
 };
 
 #endif
