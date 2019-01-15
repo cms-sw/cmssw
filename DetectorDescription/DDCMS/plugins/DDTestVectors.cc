@@ -9,29 +9,35 @@
 
 using namespace std;
 using namespace cms;
+using namespace edm;
 
-class DDTestVectors : public edm::one::EDAnalyzer<> {
+class DDTestVectors : public one::EDAnalyzer<> {
 public:
-  explicit DDTestVectors(const edm::ParameterSet& ) {}
+  explicit DDTestVectors(const ParameterSet& iConfig)
+    : m_label(iConfig.getUntrackedParameter<string>("fromDataLabel", ""))
+  {}
 
   void beginJob() override {}
-  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void analyze(Event const& iEvent, EventSetup const&) override;
   void endJob() override {}
+
+private:  
+  string m_label;
 };
 
 void
-DDTestVectors::analyze( const edm::Event&, const edm::EventSetup& iEventSetup)
+DDTestVectors::analyze( const Event&, const EventSetup& iEventSetup)
 {
-  std::cout << "DDTestVectors::analyze:\n";
-  edm::ESTransientHandle<DDVectorRegistry> registry;
-  iEventSetup.get<DDVectorRegistryRcd>().get(registry);
+  cout << "DDTestVectors::analyze: " << m_label << "\n";
+  ESTransientHandle<DDVectorRegistry> registry;
+  iEventSetup.get<DDVectorRegistryRcd>().get(m_label, registry);
 
-  std::cout << "DD Vector Registry size: " << registry->vectors.size() << "\n";
-  for( const auto& p: registry->vectors ) {
-    std::cout << " " << p.first << " => ";
-    for( const auto& i : p.second )
-      std::cout << i << ", ";
-    std::cout << '\n';
+  cout << "DD Vector Registry size: " << registry->vectors.size() << "\n";
+  for(const auto& p: registry->vectors) {
+    cout << " " << p.first << " => ";
+    for(const auto& i : p.second)
+      cout << i << ", ";
+    cout << '\n';
   }
 }
 

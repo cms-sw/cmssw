@@ -16,6 +16,7 @@
 
 using namespace std;
 using namespace cms;
+using namespace edm;
 using namespace dd4hep;
 
 namespace {
@@ -52,37 +53,41 @@ namespace {
   };
 }
 
-class DDTestNavigateGeometry : public edm::one::EDAnalyzer<> {
+class DDTestNavigateGeometry : public one::EDAnalyzer<> {
 public:
-  explicit DDTestNavigateGeometry(const edm::ParameterSet&);
+  explicit DDTestNavigateGeometry(const ParameterSet&);
 
   void beginJob() override {}
-  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void analyze(Event const& iEvent, EventSetup const&) override;
   void endJob() override {}
+
+private:  
+  string m_label;
 };
 
-DDTestNavigateGeometry::DDTestNavigateGeometry(const edm::ParameterSet& iConfig)
+DDTestNavigateGeometry::DDTestNavigateGeometry(const ParameterSet& iConfig)
+  : m_label(iConfig.getUntrackedParameter<string>("fromDataLabel", ""))
 {}
 
 void
-DDTestNavigateGeometry::analyze(const edm::Event&, const edm::EventSetup& iEventSetup)
+DDTestNavigateGeometry::analyze(const Event&, const EventSetup& iEventSetup)
 {
-  cout << "DDTestNavigateGeometry::analyze:\n";
+  cout << "DDTestNavigateGeometry::analyze: " << m_label << "\n";
 
   const DDVectorRegistryRcd& regRecord = iEventSetup.get<DDVectorRegistryRcd>();
-  edm::ESTransientHandle<DDVectorRegistry> reg;
-  regRecord.get(reg);
+  ESTransientHandle<DDVectorRegistry> reg;
+  regRecord.get(m_label, reg);
 
-  for( const auto& p: reg->vectors ) {
-    std::cout << " " << p.first << " => ";
-    for( const auto& i : p.second )
-      std::cout << i << ", ";
-    std::cout << '\n';
+  for(const auto& p: reg->vectors) {
+    cout << " " << p.first << " => ";
+    for(const auto& i : p.second)
+      cout << i << ", ";
+    cout << '\n';
   }
   
   const DetectorDescriptionRcd& ddRecord = iEventSetup.get<DetectorDescriptionRcd>();
-  edm::ESTransientHandle<DDDetector> ddd;
-  ddRecord.get(ddd);
+  ESTransientHandle<DDDetector> ddd;
+  ddRecord.get(m_label, ddd);
     
   dd4hep::Detector& detector = *ddd->description;
 

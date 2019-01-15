@@ -44,11 +44,16 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
   
   ReturnType produce(const DDVectorRegistryRcd&);
+  
+private:
+  string m_label;
 };
 
-DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet&)
+DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet& iConfig)
+   : m_label(iConfig.getParameter<std::string>("label"))
 {
-  setWhatProduced(this);
+  setWhatProduced(this, m_label);
+  isUsingRecord(edm::eventsetup::EventSetupRecordKey::makeKey<DetectorDescriptionRcd>());
 }
 
 DDVectorRegistryESProducer::~DDVectorRegistryESProducer()
@@ -59,14 +64,16 @@ void
 DDVectorRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
+  desc.add<string>("label");
   descriptions.addDefault(desc);
 }
 
 DDVectorRegistryESProducer::ReturnType
 DDVectorRegistryESProducer::produce(const DDVectorRegistryRcd& iRecord)
-{  
+{
+  cout << "DDVectorRegistryESProducer::produce\n";
   edm::ESHandle<DDDetector> det;
-  iRecord.getRecord<DetectorDescriptionRcd>().get(det);
+  iRecord.getRecord<DetectorDescriptionRcd>().get(m_label, det);
 
   DDVectorsMap* registry = det->description->extension<DDVectorsMap>();
 
