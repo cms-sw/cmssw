@@ -8,7 +8,6 @@ from RecoCTPPS.PixelLocal.ctppsPixelLocalReconstruction_cff import *
 
 from CondFormats.CTPPSReadoutObjects.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi import *
 ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = cms.vstring("Alignment/CTPPS/data/RPixGeometryCorrections.xml")
-ctppsRPAlignmentCorrectionsDataESSourceXML.verbosity = 10
 
 recoCTPPSdets = cms.Sequence(
     totemRPLocalReconstruction *
