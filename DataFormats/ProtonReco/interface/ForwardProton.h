@@ -10,7 +10,9 @@
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+
 #include "DataFormats/Common/interface/Ref.h"
+
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 namespace reco
@@ -23,11 +25,11 @@ namespace reco
       /// indices to the covariance matrix
       enum struct Index : unsigned short { xi, th_x, vtx_x, th_y, vtx_y, num_indices = dimension };
       /// dimension-parameter covariance matrix
-      typedef math::Error<dimension>::type CovarianceMatrix;
+      typedef math::ErrorF<dimension>::type CovarianceMatrix;
       /// spatial vector
-      typedef math::XYZVector Vector;
+      typedef math::XYZVectorF Vector;
       /// point in the space
-      typedef math::XYZPoint Point;
+      typedef math::XYZPointF Point;
 
       using CTPPSLocalTrackLiteRefVector = std::vector<edm::Ref<std::vector<CTPPSLocalTrackLite> > >;
 
