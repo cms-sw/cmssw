@@ -52,7 +52,7 @@ TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry* geom, const edm::
       z_width = 2.0 * det->params()[2];
     }
     else
-      edm::LogWarning("TotemTimingRecHitProducerAlgorithm") << "Failed to retrieve a sensor for " << detid;
+      throw cms::Exception("TotemTimingRecHitProducerAlgorithm") << "Failed to retrieve a sensor for " << detid;
 
     edm::DetSet<TotemTimingRecHit>& rec_hits = output.find_or_insert(detid);
 
