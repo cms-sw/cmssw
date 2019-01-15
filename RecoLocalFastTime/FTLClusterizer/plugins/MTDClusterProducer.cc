@@ -106,9 +106,7 @@ MTDClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<std::string>("BarrelClusterName", "FTLBarrel");
   desc.add<std::string>("EndcapClusterName", "FTLEndcap");
   desc.add<std::string>("ClusterMode","MTDThresholdClusterizer");
-  desc.add<double>("HitThreshold", 0.);
-  desc.add<double>("SeedThreshold", 0.);
-  desc.add<double>("ClusterThreshold", 0.);
+  MTDThresholdClusterizer::fillDescriptions(desc);
   descriptions.add("mtdClusterProducer", desc);
 }
   
