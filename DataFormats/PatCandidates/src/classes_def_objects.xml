@@ -60,7 +60,10 @@
     <![CDATA[ cachedIP_ = onfile.cachedIP_[1] + 2*onfile.cachedIP_[2] + 4*onfile.cachedIP_[3] + 8*onfile.cachedIP_[4]; ]]>
   </ioread>
   <ioread sourceClass="pat::Electron"  targetClass="pat::Electron" version="[-37]" target="" source="float ecalPFClusIso_;float hcalPFClusIso_">
-    <![CDATA[reco::GsfElectron::PflowIsolationVariables pfIsoVar = newObj->pfIsolationVariables();pfIsoVar.sumEcalClusterEt = onfile.ecalPFClusIso_;pfIsoVar.sumHcalClusterEt = onfile.hcalPFClusIso_;newObj->setPfIsolationVariables(pfIsoVar);]]>
+    <![CDATA[reco::GsfElectron::PflowIsolationVariables pfIsoVar = newObj->pfIsolationVariables();
+             pfIsoVar.sumEcalClusterEt = onfile.ecalPFClusIso_;
+             pfIsoVar.sumHcalClusterEt = onfile.hcalPFClusIso_;
+             newObj->setPfIsolationVariables(pfIsoVar);]]>
   </ioread>
 
 
@@ -238,7 +241,10 @@
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
   <ioread sourceClass="pat::Photon"  targetClass="pat::Photon" version="[-20]" target="" source="float ecalPFClusIso_;float hcalPFClusIso_">
-    <![CDATA[reco::Photon::PflowIsolationVariables pfIsoVar = newObj->getPflowIsolationVariables();pfIsoVar.sumEcalClusterEt = onfile.ecalPFClusIso_;pfIsoVar.sumHcalClusterEt = onfile.hcalPFClusIso_;newObj->setPflowIsolationVariables(pfIsoVar);]]>
+    <![CDATA[reco::Photon::PflowIsolationVariables pfIsoVar = newObj->getPflowIsolationVariables();
+             pfIsoVar.sumEcalClusterEt = onfile.ecalPFClusIso_;
+             pfIsoVar.sumHcalClusterEt = onfile.hcalPFClusIso_;
+             newObj->setPflowIsolationVariables(pfIsoVar);]]>
   </ioread>
 
   <class name="pat::Jet"  ClassVersion="16">
