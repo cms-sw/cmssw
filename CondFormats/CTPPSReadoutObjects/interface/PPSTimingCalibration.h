@@ -15,7 +15,6 @@
 #include <map>
 #include <vector>
 
-class PPSTimingCalibrationESSource;
 class PPSTimingCalibration
 {
   public:
@@ -48,8 +47,6 @@ class PPSTimingCalibration
     friend std::ostream& operator<<( std::ostream& os, const PPSTimingCalibration& data );
 
   private:
-    friend PPSTimingCalibrationESSource;
-
     std::string formula_;
     ParametersMap parameters_;
     TimingMap timeInfo_;
