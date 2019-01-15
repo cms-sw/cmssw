@@ -4,11 +4,11 @@
 <use name="dd4hep"/>
 <use name="DetectorDescription/DDCMS"/>
 
-<library name="DetectorDescriptionTestPlugins" file="DDTestVectors.cc,DDTestSpecPars.cc,DDTestDumpFile.cc,DDTestDumpGeometry.cc,DDTestNavigateGeometry.cc" >
+<library name="DetectorDescriptionTestPlugins" file="DDTestVectors.cc,DDTestSpecPars.cc,DDTestDumpFile.cc,DDTestDumpGeometry.cc,DDTestNavigateGeometry.cc,DDTestMuonNumbering.cc" >
   <lib name="Geom"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-<library name="DetectorDescriptionPlugins" file="DDCMSDetector.cc,DDDetectorESProducer.cc,DDVectorRegistryESProducer.cc,DDSpecParRegistryESProducer.cc" >
+<library name="DetectorDescriptionPlugins" file="DDCMSDetector.cc,DDDetectorESProducer.cc,DDVectorRegistryESProducer.cc,DDSpecParRegistryESProducer.cc,MuonNumberingESProducer.cc" >
   <lib name="Geom"/>
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -19,9 +19,11 @@
   <flags SKIP_FILE="DDTestDumpFile.cc"/>
   <flags SKIP_FILE="DDTestDumpGeometry.cc"/>
   <flags SKIP_FILE="DDTestNavigateGeometry.cc"/>
+  <flags SKIP_FILE="DDTestMuonNumbering.cc"/>
   <flags SKIP_FILE="DDDetectorESProducer.cc"/>
   <flags SKIP_FILE="DDVectorRegistryESProducer.cc"/>
   <flags SKIP_FILE="DDSpecParRegistryESProducer.cc"/>
+  <flags SKIP_FILE="MuonNumberingESProducer.cc"/>
   <use name="rootgeom"/>
   <flags DD4HEP_PLUGIN="1"/>
 </library>
