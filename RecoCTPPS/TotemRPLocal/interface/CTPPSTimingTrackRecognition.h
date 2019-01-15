@@ -30,7 +30,7 @@ template<typename TRACK_TYPE, typename HIT_TYPE>
 class CTPPSTimingTrackRecognition
 {
   public:
-    CTPPSTimingTrackRecognition(const edm::ParameterSet& iConfig) :
+    inline CTPPSTimingTrackRecognition(const edm::ParameterSet& iConfig) :
       threshold_              (iConfig.getParameter<double>("threshold")),
       thresholdFromMaximum_   (iConfig.getParameter<double>("thresholdFromMaximum")),
       resolution_             (iConfig.getParameter<double>("resolution")),
@@ -46,7 +46,7 @@ class CTPPSTimingTrackRecognition
     //--- class API
 
     /// Reset internal state of a class instance.
-    virtual void clear() { hitVectorMap_.clear(); }
+    inline virtual void clear() { hitVectorMap_.clear(); }
     /// Add new hit to the set from which the tracks are reconstructed.
     virtual void addHit(const HIT_TYPE& recHit) = 0;
     /// Produce a collection of tracks, given its hits collection
@@ -104,7 +104,7 @@ class CTPPSTimingTrackRecognition
  * Implementation
  ****************************************************************************/
 
-template<class TRACK_TYPE, class HIT_TYPE>
+template<class TRACK_TYPE, class HIT_TYPE> inline
 void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTracks(
     const HitVector& hits,
     const DimensionParameters& param,
@@ -183,7 +183,7 @@ void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTracks(
   }
 }
 
-template<class TRACK_TYPE, class HIT_TYPE>
+template<class TRACK_TYPE, class HIT_TYPE> inline
 typename CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::SpatialRange
 CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::getHitSpatialRange(const HitVector& hits)
 {
