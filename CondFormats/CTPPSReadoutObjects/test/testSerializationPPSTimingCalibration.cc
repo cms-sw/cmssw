@@ -4,6 +4,8 @@
 int main()
 {
   testSerialization<PPSTimingCalibration>();
-  return 0 ;
+  testSerialization<PPSTimingCalibration::Key>();
+  testSerialization<std::vector<PPSTimingCalibration> >();
+  return 0;
 }
 
