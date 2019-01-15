@@ -17,7 +17,7 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/ProtonReco/interface/ForwardProton.h"
 
 #include "TFile.h"
 #include "TH1D.h"
@@ -42,14 +42,14 @@ class CTPPSProtonReconstructionSimulationValidator : public edm::one::EDAnalyzer
 
     void endJob() override;
 
-    void fillPlots(unsigned int meth_idx, unsigned int idx, const reco::ProtonTrack &rec_pr,
+    void fillPlots(unsigned int meth_idx, unsigned int idx, const reco::ForwardProton &rec_pr,
       const HepMC::FourVector &vtx, const HepMC::FourVector &mom, const LHCInfo &lhcInfo);
 
     edm::EDGetTokenT<edm::HepMCProduct> tokenHepMCBeforeSmearing_;
     edm::EDGetTokenT<edm::HepMCProduct> tokenHepMCAfterSmearing_;
 
-    edm::EDGetTokenT<std::vector<reco::ProtonTrack>> tokenRecoProtonsSingleRP_;
-    edm::EDGetTokenT<std::vector<reco::ProtonTrack>> tokenRecoProtonsMultiRP_;
+    edm::EDGetTokenT<std::vector<reco::ForwardProton>> tokenRecoProtonsSingleRP_;
+    edm::EDGetTokenT<std::vector<reco::ForwardProton>> tokenRecoProtonsMultiRP_;
 
     std::string outputFile_;
 
@@ -160,8 +160,8 @@ using namespace HepMC;
 CTPPSProtonReconstructionSimulationValidator::CTPPSProtonReconstructionSimulationValidator(const edm::ParameterSet& iConfig) :
   tokenHepMCBeforeSmearing_( consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMCBeforeSmearing")) ),
   tokenHepMCAfterSmearing_( consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMCAfterSmearing")) ),
-  tokenRecoProtonsSingleRP_(consumes<std::vector<reco::ProtonTrack>>(iConfig.getParameter<InputTag>("tagRecoProtonsSingleRP"))),
-  tokenRecoProtonsMultiRP_(consumes<std::vector<reco::ProtonTrack>>(iConfig.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
+  tokenRecoProtonsSingleRP_(consumes<std::vector<reco::ForwardProton>>(iConfig.getParameter<InputTag>("tagRecoProtonsSingleRP"))),
+  tokenRecoProtonsMultiRP_(consumes<std::vector<reco::ForwardProton>>(iConfig.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
   outputFile_(iConfig.getParameter<string>("outputFile"))
 {
 }
@@ -183,10 +183,10 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
   iEvent.getByToken(tokenHepMCAfterSmearing_, hHepMCAfterSmearing);
   HepMC::GenEvent *hepMCEventAfterSmearing = (HepMC::GenEvent *) hHepMCAfterSmearing->GetEvent();
 
-  Handle<vector<reco::ProtonTrack>> hRecoProtonsSingleRP;
+  Handle<vector<reco::ForwardProton>> hRecoProtonsSingleRP;
   iEvent.getByToken(tokenRecoProtonsSingleRP_, hRecoProtonsSingleRP);
 
-  Handle<vector<reco::ProtonTrack>> hRecoProtonsMultiRP;
+  Handle<vector<reco::ForwardProton>> hRecoProtonsMultiRP;
   iEvent.getByToken(tokenRecoProtonsMultiRP_, hRecoProtonsMultiRP);
 
   // extract vertex position
@@ -265,7 +265,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
       bool mom_set = false;
       FourVector mom;
 
-      if (rec_pr.lhcSector() == reco::ProtonTrack::LHCSector::sector45)
+      if (rec_pr.lhcSector() == reco::ForwardProton::LHCSector::sector45)
       {
         idx = 0;
         mom_set = proton_45_set;
@@ -281,7 +281,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
 
       unsigned int meth_idx = 1234;
 
-      if (rec_pr.method() == reco::ProtonTrack::ReconstructionMethod::singleRP)
+      if (rec_pr.method() == reco::ForwardProton::ReconstructionMethod::singleRP)
       {
         meth_idx = 0;
 
@@ -289,7 +289,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
         idx = 100*rpId.arm() + 10*rpId.station() + rpId.rp();
       }
 
-      if (rec_pr.method() == reco::ProtonTrack::ReconstructionMethod::multiRP)
+      if (rec_pr.method() == reco::ForwardProton::ReconstructionMethod::multiRP)
       {
         meth_idx = 1;
       }
@@ -302,7 +302,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSProtonReconstructionSimulationValidator::fillPlots(unsigned int meth_idx, unsigned int idx,
-      const reco::ProtonTrack &rec_pr, const HepMC::FourVector &vtx, const HepMC::FourVector &mom, const LHCInfo &lhcInfo)
+      const reco::ForwardProton &rec_pr, const HepMC::FourVector &vtx, const HepMC::FourVector &mom, const LHCInfo &lhcInfo)
 {
   const double p_nom = lhcInfo.energy();
   const double xi_simu = (p_nom - mom.rho()) / p_nom;
@@ -310,7 +310,7 @@ void CTPPSProtonReconstructionSimulationValidator::fillPlots(unsigned int meth_i
   const double th_y_simu = mom.y() / mom.rho();
   const double vtx_y_simu = vtx.y();
   const double th_simu = sqrt(th_x_simu*th_x_simu + th_y_simu*th_y_simu);
-  const double t_simu = - reco::ProtonTrack::calculateT(p_nom, mom.rho(), th_simu);
+  const double t_simu = - reco::ForwardProton::calculateT(p_nom, mom.rho(), th_simu);
 
   const double xi_reco = rec_pr.xi();
   const double th_x_reco = rec_pr.thetaX();

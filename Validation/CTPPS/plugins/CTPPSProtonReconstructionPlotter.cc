@@ -15,7 +15,7 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
-#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/ProtonReco/interface/ForwardProton.h"
 
 #include "TFile.h"
 #include "TGraphErrors.h"
@@ -37,8 +37,8 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
     void endJob() override;
 
     edm::EDGetTokenT<std::vector<CTPPSLocalTrackLite>> tokenTracks_;
-    edm::EDGetTokenT<std::vector<reco::ProtonTrack>> tokenRecoProtonsSingleRP_;
-    edm::EDGetTokenT<std::vector<reco::ProtonTrack>> tokenRecoProtonsMultiRP_;
+    edm::EDGetTokenT<std::vector<reco::ForwardProton>> tokenRecoProtonsSingleRP_;
+    edm::EDGetTokenT<std::vector<reco::ForwardProton>> tokenRecoProtonsMultiRP_;
 
     unsigned int rpId_45_N_, rpId_45_F_;
     unsigned int rpId_56_N_, rpId_56_F_;
@@ -83,7 +83,7 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         p_th_y_vs_xi = new TProfile("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.25);
       }
 
-      void fill(const reco::ProtonTrack &p)
+      void fill(const reco::ForwardProton &p)
       {
         if (!h_xi)
           init();
@@ -157,7 +157,7 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         delete[] t_bin_edges;
       }
 
-      void fill(const reco::ProtonTrack &p)
+      void fill(const reco::ForwardProton &p)
       {
         if (!h_xi)
           init();
@@ -257,7 +257,7 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         h2_th_y_mu_vs_th_y_si = new TH2D("", ";#theta^{*}_{y,si};#theta^{*}_{y,mu}", 100, -500E-6, +500E-6, 100, -500E-6, +500E-6);
       }
 
-      void fill(const reco::ProtonTrack &p_single, const reco::ProtonTrack &p_multi)
+      void fill(const reco::ForwardProton &p_single, const reco::ForwardProton &p_multi)
       {
         if (!h2_xi_mu_vs_xi_si)
           init();
@@ -310,7 +310,7 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         p_th_y_si_diffNF_vs_xi_mu = new TProfile("", ";#xi_{m};#theta_{y,sF} - #theta_{y,sN}", 100, 0., 0.25);
       }
 
-      void fill(const reco::ProtonTrack &p_s_N, const reco::ProtonTrack &p_s_F, const reco::ProtonTrack &p_m)
+      void fill(const reco::ForwardProton &p_s_N, const reco::ForwardProton &p_s_F, const reco::ForwardProton &p_m)
       {
         if (!h_xi_si_diffNF)
           init();
@@ -355,8 +355,8 @@ using namespace edm;
 
 CTPPSProtonReconstructionPlotter::CTPPSProtonReconstructionPlotter(const edm::ParameterSet &ps) :
   tokenTracks_(consumes< std::vector<CTPPSLocalTrackLite>>(ps.getParameter<edm::InputTag>("tagTracks"))),
-  tokenRecoProtonsSingleRP_(consumes<std::vector<reco::ProtonTrack>>(ps.getParameter<InputTag>("tagRecoProtonsSingleRP"))),
-  tokenRecoProtonsMultiRP_(consumes<std::vector<reco::ProtonTrack>>(ps.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
+  tokenRecoProtonsSingleRP_(consumes<std::vector<reco::ForwardProton>>(ps.getParameter<InputTag>("tagRecoProtonsSingleRP"))),
+  tokenRecoProtonsMultiRP_(consumes<std::vector<reco::ForwardProton>>(ps.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
 
   rpId_45_N_(ps.getParameter<unsigned int>("rpId_45_N")),
   rpId_45_F_(ps.getParameter<unsigned int>("rpId_45_F")),
@@ -383,10 +383,10 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
   edm::Handle< std::vector<CTPPSLocalTrackLite> > hTracks;
   event.getByToken(tokenTracks_, hTracks);
 
-  Handle<vector<reco::ProtonTrack>> hRecoProtonsSingleRP;
+  Handle<vector<reco::ForwardProton>> hRecoProtonsSingleRP;
   event.getByToken(tokenRecoProtonsSingleRP_, hRecoProtonsSingleRP);
 
-  Handle<vector<reco::ProtonTrack>> hRecoProtonsMultiRP;
+  Handle<vector<reco::ForwardProton>> hRecoProtonsMultiRP;
   event.getByToken(tokenRecoProtonsMultiRP_, hRecoProtonsMultiRP);
 
   if (!hRecoProtonsSingleRP->empty())
@@ -461,8 +461,8 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
   }
 
   // arm correlation plots
-  const reco::ProtonTrack *p_arm0_s_N = nullptr, *p_arm0_s_F = nullptr, *p_arm0_m = nullptr;
-  const reco::ProtonTrack *p_arm1_s_N = nullptr, *p_arm1_s_F = nullptr, *p_arm1_m = nullptr;
+  const reco::ForwardProton *p_arm0_s_N = nullptr, *p_arm0_s_F = nullptr, *p_arm0_m = nullptr;
+  const reco::ForwardProton *p_arm1_s_N = nullptr, *p_arm1_s_F = nullptr, *p_arm1_m = nullptr;
 
   for (const auto &proton : *hRecoProtonsSingleRP)
   {
