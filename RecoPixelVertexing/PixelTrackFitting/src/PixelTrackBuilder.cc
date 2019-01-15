@@ -110,6 +110,7 @@ namespace {
   }
 
 
+#ifdef DEBUG_STATE
   inline void checkState(const  BasicTrajectoryStateOnSurface & bstate, const MagneticField* mf, const GlobalPoint & origin)
   {
     TrajectoryStateOnSurface state(bstate.clone());
@@ -129,6 +130,7 @@ namespace {
     const FreeTrajectoryState& fs = tscp.theState();
     LogTrace("") << "CHECK-2 FTS: " << fs;
   }
+#endif
 
 }
 
@@ -187,7 +189,9 @@ reco::Track * PixelTrackBuilder::build(
   // use Base (to avoid a useless new)
   BasicTrajectoryStateOnSurface impactPointState( lpar , error, impPointPlane, mf);
 
-  //checkState(impactPointState,mf);
+#ifdef DEBUG_STATE
+  checkState(impactPointState,mf);
+#endif
   LogTrace("") << "constructed TSOS:\n" << print(impactPointState);
 
   int ndof = 2*hits.size()-5;
