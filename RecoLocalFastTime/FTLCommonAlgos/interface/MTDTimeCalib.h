@@ -13,7 +13,7 @@ class MTDTimeCalib
  public:
   //constructor & destructor
   MTDTimeCalib(edm::ParameterSet const& conf, const MTDGeometry* geom, const MTDTopology* topo);  
-  virtual ~MTDTimeCalib() {};
+  ~MTDTimeCalib() {};
 
   //accessors
   float getTimeCalib(const MTDDetId& id) const;
