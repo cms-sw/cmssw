@@ -46,8 +46,7 @@ HGCalVFEProducer(const edm::ParameterSet& conf):
   //setup VFE parameters
   const edm::ParameterSet& vfeParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& vfeProcessorName = vfeParamConfig.getParameter<std::string>("ProcessorName");
-  HGCalVFEProcessorBase* vfeProc = HGCalVFEProcessorBaseFactory::get()->create(vfeProcessorName, vfeParamConfig);
-  vfeProcess_.reset(vfeProc);
+  vfeProcess_ = std::unique_ptr<HGCalVFEProcessorBase>{HGCalVFEProcessorBaseFactory::get()->create(vfeProcessorName, vfeParamConfig)};
   
   produces<l1t::HGCalTriggerCellBxCollection>(vfeProcess_->name());
   produces<l1t::HGCalTriggerSumsBxCollection>(vfeProcess_->name());
