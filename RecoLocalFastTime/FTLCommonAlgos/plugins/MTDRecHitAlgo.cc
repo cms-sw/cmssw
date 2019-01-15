@@ -74,8 +74,7 @@ MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags)
   energy *= calibration_;
 
   // --- Time calibration: for the time being just removes a time offset in BTL
-  float time_calib = time_calib_->getTimeCalib( uRecHit.id() );
-  time += time_calib;
+  time += time_calib_->getTimeCalib( uRecHit.id() );
 
   FTLRecHit rh( uRecHit.id(), uRecHit.row(), uRecHit.column(), energy, time, timeError );
     
