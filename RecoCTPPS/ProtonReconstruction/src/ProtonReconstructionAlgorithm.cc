@@ -9,7 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
-#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/ProtonReco/interface/ForwardProton.h"
 
 #include "TMinuitMinimizer.h"
 
@@ -141,8 +141,8 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const dou
 //----------------------------------------------------------------------------------------------------
 
 void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
-  const reco::ProtonTrack::CTPPSLocalTrackLiteRefVector &tracks,
-  std::vector<reco::ProtonTrack> &output,
+  const reco::ForwardProton::CTPPSLocalTrackLiteRefVector &tracks,
+  std::vector<reco::ForwardProton> &output,
   const LHCInfo &lhcInfo, std::ostream& os) const
 {
   if (!initialized_)
@@ -259,16 +259,16 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
       << ", chiSq = " << result.Chi2();
 
   // save reco candidate
-  using PT = reco::ProtonTrack;
+  using FP = reco::ForwardProton;
 
   const double sign_z = (armId == 0) ? +1. : -1.;  // CMS convention
-  const reco::Track::Point vertex(0., params[3], 0.);
+  const FP::Point vertex(0., params[3], 0.);
   const double xi = params[0];
   const double th_x = params[1];
   const double th_y = params[2];
   const double cos_th = sqrt(1. - th_x*th_x - th_y*th_y);
   const double p = lhcInfo.energy() * (1. - xi);
-  const reco::ProtonTrack::Vector momentum(
+  const FP::Vector momentum(
     - p * th_x,   // the signs reflect change LHC --> CMS convention
     + p * th_y,
     sign_z * p * cos_th
@@ -276,19 +276,19 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   signed int ndf = 2.*tracks.size() - ((fitVtxY_) ? 4. : 3.);
 
   map<unsigned int, signed int> index_map = {
-    {(unsigned int) reco::ProtonTrack::Index::xi, 0},
-    {(unsigned int) reco::ProtonTrack::Index::th_x, 1},
-    {(unsigned int) reco::ProtonTrack::Index::th_y, 2},
-    {(unsigned int) reco::ProtonTrack::Index::vtx_y, ((fitVtxY_) ? 3 : -1)},
-    {(unsigned int) reco::ProtonTrack::Index::vtx_x, -1},
+    {(unsigned int) FP::Index::xi, 0},
+    {(unsigned int) FP::Index::th_x, 1},
+    {(unsigned int) FP::Index::th_y, 2},
+    {(unsigned int) FP::Index::vtx_y, ((fitVtxY_) ? 3 : -1)},
+    {(unsigned int) FP::Index::vtx_x, -1},
   };
 
-  reco::ProtonTrack::CovarianceMatrix cm;
-  for (unsigned int i = 0; i < (unsigned int) reco::ProtonTrack::Index::num_indices; ++i)
+  FP::CovarianceMatrix cm;
+  for (unsigned int i = 0; i < (unsigned int) FP::Index::num_indices; ++i)
   {
     signed int fit_i = index_map[i];
 
-    for (unsigned int j = 0; j < (unsigned int) reco::ProtonTrack::Index::num_indices; ++j)
+    for (unsigned int j = 0; j < (unsigned int) FP::Index::num_indices; ++j)
     {
       signed int fit_j = index_map[j];
 
@@ -296,7 +296,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
     }
   }
 
-  reco::ProtonTrack pt(result.Chi2(), ndf, vertex, momentum, xi, cm, PT::ReconstructionMethod::multiRP, tracks, result.IsValid());
+  reco::ForwardProton pt(result.Chi2(), ndf, vertex, momentum, xi, cm, FP::ReconstructionMethod::multiRP, tracks, result.IsValid());
 
   output.push_back(move(pt));
 }
@@ -304,8 +304,8 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
 //----------------------------------------------------------------------------------------------------
 
 void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
-  const reco::ProtonTrack::CTPPSLocalTrackLiteRefVector &tracks,
-  std::vector<reco::ProtonTrack> &output,
+  const reco::ForwardProton::CTPPSLocalTrackLiteRefVector &tracks,
+  std::vector<reco::ForwardProton> &output,
   const LHCInfo &lhcInfo, std::ostream& os) const
 {
   if (!initialized_)
@@ -348,23 +348,23 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     if (verbosity_)
       os << "\n    xi = " << xi << " +- " << xi_unc << ", th_y = " << th_y << " +- " << th_y_unc << ".";
 
-    using PT = reco::ProtonTrack;
+    using PT = reco::ForwardProton;
 
     // save proton candidate
 
     const double sign_z = (CTPPSDetId(track->getRPId()).arm() == 0) ? +1. : -1.;  // CMS convention
-    const reco::ProtonTrack::Point vertex(0., 0., 0.);
+    const FP::Point vertex(0., 0., 0.);
     const double cos_th = sqrt(1. - th_y*th_y);
     const double p = lhcInfo.energy() * (1. - xi);
-    const reco::ProtonTrack::Vector momentum(0., p * th_y, sign_z * p * cos_th);
+    const FP::Vector momentum(0., p * th_y, sign_z * p * cos_th);
 
-    reco::ProtonTrack::CovarianceMatrix cm;
-    cm((int)PT::Index::xi, (int)PT::Index::xi) = xi_unc * xi_unc;
-    cm((int)PT::Index::th_y, (int)PT::Index::th_y) = th_y_unc * th_y_unc;
+    FP::CovarianceMatrix cm;
+    cm((int)FP::Index::xi, (int)FP::Index::xi) = xi_unc * xi_unc;
+    cm((int)FP::Index::th_y, (int)FP::Index::th_y) = th_y_unc * th_y_unc;
 
-    reco::ProtonTrack pt(0., 0, vertex, momentum, xi, cm, PT::ReconstructionMethod::singleRP, { track }, true);
+    reco::ForwardProton pt(0., 0, vertex, momentum, xi, cm, FP::ReconstructionMethod::singleRP, { track }, true);
     pt.setValidFit(true);
-    pt.setMethod(PT::ReconstructionMethod::singleRP);
+    pt.setMethod(FP::ReconstructionMethod::singleRP);
     pt.setContributingLocalTracks({ track });
 
     output.push_back(move(pt));
