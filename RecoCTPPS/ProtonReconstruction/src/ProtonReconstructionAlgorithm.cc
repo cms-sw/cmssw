@@ -348,7 +348,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     if (verbosity_)
       os << "\n    xi = " << xi << " +- " << xi_unc << ", th_y = " << th_y << " +- " << th_y_unc << ".";
 
-    using PT = reco::ForwardProton;
+    using FP = reco::ForwardProton;
 
     // save proton candidate
 

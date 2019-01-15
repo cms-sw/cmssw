@@ -20,7 +20,7 @@
 #include "CondFormats/DataRecord/interface/CTPPSOpticsRcd.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsCollection.h"
 
-#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
+#include "DataFormats/ProtonReco/interface/ForwardProton.h"
 
 #include "TFile.h"
 #include "TH1D.h"
@@ -42,7 +42,7 @@ class CTPPSProtonReconstructionValidator : public edm::one::EDAnalyzer<>
 
     void endJob() override;
 
-    edm::EDGetTokenT<std::vector<reco::ProtonTrack>> tokenRecoProtons_;
+    edm::EDGetTokenT<std::vector<reco::ForwardProton>> tokenRecoProtons_;
 
     double chiSqCut_;
 
@@ -90,7 +90,7 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 
 CTPPSProtonReconstructionValidator::CTPPSProtonReconstructionValidator(const edm::ParameterSet& iConfig) :
-  tokenRecoProtons_( consumes<std::vector<reco::ProtonTrack>>(iConfig.getParameter<edm::InputTag>("tagRecoProtons")) ),
+  tokenRecoProtons_( consumes<std::vector<reco::ForwardProton>>(iConfig.getParameter<edm::InputTag>("tagRecoProtons")) ),
   chiSqCut_( iConfig.getParameter<double>("chiSqCut") ),
   outputFile_(iConfig.getParameter<string>("outputFile"))
 {
@@ -127,7 +127,7 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
     return;
 
   // get input
-  Handle<vector<reco::ProtonTrack>> hRecoProtons;
+  Handle<vector<reco::ForwardProton>> hRecoProtons;
   iEvent.getByToken(tokenRecoProtons_, hRecoProtons);
 
   // process tracks
