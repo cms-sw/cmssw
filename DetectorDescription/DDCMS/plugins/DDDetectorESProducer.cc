@@ -37,7 +37,8 @@ public:
   ~DDDetectorESProducer() override;
   
   using ReturnType = unique_ptr<cms::DDDetector>;
-  
+  using Detector = dd4hep::Detector;
+
   ReturnType produce(const DetectorDescriptionRcd&);
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -60,6 +61,7 @@ DDDetectorESProducer::DDDetectorESProducer(const edm::ParameterSet& iConfig)
 
 DDDetectorESProducer::~DDDetectorESProducer()
 {
+  Detector::destroyInstance(m_label);
 }
 
 void
@@ -82,7 +84,6 @@ DDDetectorESProducer::ReturnType
 DDDetectorESProducer::produce(const DetectorDescriptionRcd& iRecord)
 {
   cout << "DDDetectorESProducer::Produce " << m_label << "\n";
-  using Detector = dd4hep::Detector;
   auto product = make_unique<DDDetector>();
   
   product->description = &Detector::getInstance(m_label);

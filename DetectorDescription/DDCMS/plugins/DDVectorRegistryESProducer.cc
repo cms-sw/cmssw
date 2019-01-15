@@ -50,7 +50,7 @@ private:
 };
 
 DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet& iConfig)
-   : m_label(iConfig.getParameter<std::string>("label"))
+  : m_label(iConfig.getParameter<std::string>("label"))
 {
   setWhatProduced(this, m_label);
   isUsingRecord(edm::eventsetup::EventSetupRecordKey::makeKey<DetectorDescriptionRcd>());
