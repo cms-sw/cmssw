@@ -20,7 +20,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(
       cms.PSet(
         record = cms.string('CTPPSRPAlignmentCorrectionsDataRcd'),
-        tag = cms.string("CTPPSRPAlignment")
+        tag = cms.string("CTPPSRPAlignment_real")
       )
     )
 )

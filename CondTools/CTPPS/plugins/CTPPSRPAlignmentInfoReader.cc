@@ -1,7 +1,7 @@
 // system include files
 #include <memory>
 #include <iostream>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -13,7 +13,7 @@
 
 using namespace std;
 
-class CTPPSRPAlignmentInfoReader : public edm::EDAnalyzer {
+class CTPPSRPAlignmentInfoReader : public edm::one::EDAnalyzer<> {
 public:
   
   cond::Time_t iov_;

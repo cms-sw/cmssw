@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -11,8 +11,7 @@
 #include "TH2D.h"
 #include "TFile.h"
 
-class CTPPSPixGainCalibsESAnalyzer : public edm::EDAnalyzer
-{
+class CTPPSPixGainCalibsESAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit  CTPPSPixGainCalibsESAnalyzer(edm::ParameterSet const& p):
     m_outfilename(p.getUntrackedParameter<std::string>("outputrootfile","output.root")) { 
