@@ -42,6 +42,11 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
   int numberOfTracks = 0;
   DimensionParameters param;
 
+  auto getX = []( const CTPPSDiamondRecHit& hit ){ return hit.getX(); };
+  auto getXWidth = []( const CTPPSDiamondRecHit& hit ){ return hit.getXWidth(); };
+  auto setX = []( CTPPSDiamondLocalTrack& track, float x ){ track.setPosition( math::XYZPoint( x, 0., 0. ) ); };
+  auto setXSigma = []( CTPPSDiamondLocalTrack& track, float sigma ){ track.setPositionSigma( math::XYZPoint( sigma, 0., 0. ) ); };
+
   for ( const auto& hitBatch: hitVectorMap_ ) {
     const auto& oot = hitBatch.first;
     const auto& hits = hitBatch.second;
@@ -49,10 +54,6 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
     auto hitRange = getHitSpatialRange( hits );
 
     std::vector<CTPPSDiamondLocalTrack> xPartTracks;
-    auto getX = []( const CTPPSDiamondRecHit& hit ){ return hit.getX(); };
-    auto getXWidth = []( const CTPPSDiamondRecHit& hit ){ return hit.getXWidth(); };
-    auto setX = []( CTPPSDiamondLocalTrack& track, float x ){ track.setPosition( math::XYZPoint( x, 0., 0. ) ); };
-    auto setXSigma = []( CTPPSDiamondLocalTrack& track, float sigma ){ track.setPositionSigma( math::XYZPoint( sigma, 0., 0. ) ); };
 
     // Produces tracks in x dimension
     param.rangeBegin = hitRange.xBegin;
