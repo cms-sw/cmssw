@@ -1,5 +1,5 @@
-#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
-#include "DataFormats/ProtonReco/interface/ProtonTrackFwd.h"
+#include "DataFormats/ProtonReco/interface/ForwardProton.h"
+#include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
 
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/View.h"
@@ -12,11 +12,11 @@ namespace DataFormats_ProtonReco
 {
   struct dictionary
   {
-    reco::ProtonTrack pt;
-    std::vector<reco::ProtonTrack> vec_pt;
-    edm::Wrapper<std::vector<reco::ProtonTrack> > wrp_vec_pt;
-    edm::RefProd<std::vector<reco::ProtonTrack> > rp_vec_pt;
-    edm::Ref<std::vector<reco::ProtonTrack>,reco::ProtonTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::ProtonTrack>,reco::ProtonTrack> > ref_vec_pt;
-    edm::RefVector<std::vector<reco::ProtonTrack>,reco::ProtonTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::ProtonTrack>,reco::ProtonTrack> > rv_vec_pt;
+    reco::ForwardProton fp;
+    std::vector<reco::ForwardProton> vec_fp;
+    edm::Wrapper<std::vector<reco::ForwardProton> > wrp_vec_fp;
+    edm::RefProd<std::vector<reco::ForwardProton> > rp_vec_fp;
+    edm::Ref<std::vector<reco::ForwardProton>,reco::ForwardProton,edm::refhelper::FindUsingAdvance<std::vector<reco::ForwardProton>,reco::ForwardProton> > ref_vec_fp;
+    edm::RefVector<std::vector<reco::ForwardProton>,reco::ForwardProton,edm::refhelper::FindUsingAdvance<std::vector<reco::ForwardProton>,reco::ForwardProton> > rv_vec_fp;
   };
 }

@@ -4,8 +4,8 @@
  *   Laurent Forthomme
  ****************************************************************************/
 
-#ifndef DataFormats_ProtonReco_ProtonTrack_h
-#define DataFormats_ProtonReco_ProtonTrack_h
+#ifndef DataFormats_ProtonReco_ForwardProton_h
+#define DataFormats_ProtonReco_ForwardProton_h
 
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -15,7 +15,7 @@
 
 namespace reco
 {
-  class ProtonTrack
+  class ForwardProton
   {
     public:
       /// parameter dimension
@@ -36,11 +36,11 @@ namespace reco
 
     public:
       /// default constructor
-      ProtonTrack();
+      ForwardProton();
       /// constructor from refit parameters, fitted vertex and momentum, and longitudinal fractional momentum loss
-      ProtonTrack( double chi2, double ndof, const Point& vtx, const Vector& momentum, float xi,
-                   const CovarianceMatrix& cov, ReconstructionMethod method,
-                   const CTPPSLocalTrackLiteRefVector& local_tracks, bool valid );
+      ForwardProton( double chi2, double ndof, const Point& vtx, const Vector& momentum, float xi,
+                     const CovarianceMatrix& cov, ReconstructionMethod method,
+                     const CTPPSLocalTrackLiteRefVector& local_tracks, bool valid );
 
       /// fitted vertex position
       const Point& vertex() const { return vertex_; }
