@@ -69,8 +69,9 @@ PPSTimingCalibrationESSource::produce( const PPSTimingCalibrationRcd& )
 //------------------------------------------------------------------------------
 
 void
-PPSTimingCalibrationESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&,
-                                           edm::ValidityInterval& oValidity )
+PPSTimingCalibrationESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+                                              const edm::IOVSyncValue&,
+                                              edm::ValidityInterval& oValidity )
 {
   oValidity = edm::ValidityInterval( edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime() );
 }
