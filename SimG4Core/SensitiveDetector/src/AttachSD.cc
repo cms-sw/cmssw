@@ -24,12 +24,11 @@ AttachSD::create(const DDCompactView & cpv,
   const std::vector<std::string>& rouNames = clg.readoutNames();
   edm::LogVerbatim("SimG4CoreSensitiveDetector") 
     << " AttachSD: Initialising " << rouNames.size() << " SDs";
-  std::unique_ptr<SensitiveDetectorMakerBase> temp; 
   for (auto & rname : rouNames) {
     std::string className = clg.className(rname);
-    temp.reset(SensitiveDetectorPluginFactory::get()->create(className));
+    std::unique_ptr<SensitiveDetectorMakerBase> temp{SensitiveDetectorPluginFactory::get()->create(className)};
 
-    SensitiveDetector* sd = temp.get()->make(rname,cpv,clg,p,man,reg);
+    SensitiveDetector* sd = temp->make(rname,cpv,clg,p,man,reg);
     
     std::stringstream ss;
     ss << " AttachSD: created a " << className << " with name " << rname;
