@@ -296,9 +296,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
     }
   }
 
-  reco::ForwardProton pt(result.Chi2(), ndf, vertex, momentum, xi, cm, FP::ReconstructionMethod::multiRP, tracks, result.IsValid());
-
-  output.push_back(move(pt));
+  output.emplace_back(result.Chi2(), ndf, vertex, momentum, xi, cm, FP::ReconstructionMethod::multiRP, tracks, result.IsValid());
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -326,10 +324,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     CTPPSDetId rpId(track->getRPId());
 
     if (verbosity_)
-    {
-      unsigned int decRPId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
-      os << "\nreconstructFromSingleRP(" << decRPId << ")";
-    }
+      os << "\nreconstructFromSingleRP(" << rpId.arm()*100 + rpId.station()*10 + rpId.rp() << ")";
 
     auto oit = m_rp_optics_.find(track->getRPId());
     const double x_full = track->getX()*1E-1 + oit->second.x0; // conversion mm --> cm
@@ -362,12 +357,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     cm((int)FP::Index::xi, (int)FP::Index::xi) = xi_unc * xi_unc;
     cm((int)FP::Index::th_y, (int)FP::Index::th_y) = th_y_unc * th_y_unc;
 
-    reco::ForwardProton pt(0., 0, vertex, momentum, xi, cm, FP::ReconstructionMethod::singleRP, { track }, true);
-    pt.setValidFit(true);
-    pt.setMethod(FP::ReconstructionMethod::singleRP);
-    pt.setContributingLocalTracks({ track });
-
-    output.push_back(move(pt));
+    output.emplace_back(0., 0, vertex, momentum, xi, cm, FP::ReconstructionMethod::singleRP, FP::CTPPSLocalTrackLiteRefVector{ track }, true);
   }
 }
 
