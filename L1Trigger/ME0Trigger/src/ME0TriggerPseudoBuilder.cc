@@ -4,7 +4,7 @@
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
 #include <iostream>
-#include <assert.h>  
+#include <cassert>  
 
 const unsigned int ME0TriggerPseudoBuilder::ME0KeyLayer = 3;
 const int ME0TriggerPseudoBuilder::ME0TriggerCentralBX = 8;
@@ -72,9 +72,9 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
       if (std::find(rolls.begin(), rolls.end(), rechit.me0Id().roll()) == rolls.end()) 
         rolls.push_back(rechit.me0Id().roll());
   }
-  if (rolls.size() > 2 or rolls.size() == 0) LogTrace("L1ME0Trigger") << " ME0 segment is crossing "<< rolls.size() <<" roll !!! \n";
+  if (rolls.size() > 2 or rolls.empty()) LogTrace("L1ME0Trigger") << " ME0 segment is crossing "<< rolls.size() <<" roll !!! \n";
   assert( rolls.size() <=2 );
-  if (rolls.size() == 0 ) return ME0TriggerDigi();
+  if (rolls.empty()) return ME0TriggerDigi();
   if (rolls[0] < 1)  LogTrace("L1ME0Trigger") << " ME0 segment has wrong roll number "<< rolls[0] <<" which should be >= 1 \n !!!";
   assert(rolls[0] >= 1);
   int partition = (rolls[0] -1 )<< 1;//roll from detid counts from 1
