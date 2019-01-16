@@ -61,15 +61,15 @@ namespace helper {
 						  trk.innerStateCovariance(), trk.innerDetId(),
 						  trk.seedDirection() ) );
 	  selGsfTrackExtras_->push_back( GsfTrackExtra( *(trk.gsfExtra()) ) );
-      TrackExtra & tx = selTrackExtras_->back();
-      unsigned int nHitsToAdd = trk.recHitsSize();
-      for(auto const& hit : trk.recHits()) selHits_->push_back( hit->clone() );
-      tx.setHits( rHits, hidx, nHitsToAdd );
-      tx.setTrajParams(trk.extra()->trajParams(),trk.extra()->chi2sX5());
-      assert(tx.trajParams().size()==tx.recHitsSize());
-      hidx += nHitsToAdd;
- 	  trk.setGsfExtra( GsfTrackExtraRef( rGsfTrackExtras, tidx ) ); 
- 	  trk.setExtra( TrackExtraRef( rTrackExtras, tidx ++ ) ); 
+	  TrackExtra & tx = selTrackExtras_->back();
+	  unsigned int nHitsToAdd = trk.recHitsSize();
+	  for(auto const& hit : trk.recHits()) selHits_->push_back( hit->clone() );
+	  tx.setHits( rHits, hidx, nHitsToAdd );
+	  tx.setTrajParams(trk.extra()->trajParams(),trk.extra()->chi2sX5());
+	  assert(tx.trajParams().size()==tx.recHitsSize());
+	  hidx += nHitsToAdd;
+	  trk.setGsfExtra( GsfTrackExtraRef( rGsfTrackExtras, tidx ) ); 
+	  trk.setExtra( TrackExtraRef( rTrackExtras, tidx ++ ) ); 
 	} 
       }
     }
