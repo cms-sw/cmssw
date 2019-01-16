@@ -458,7 +458,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run){
       if(bxShiftedPlanesUsed >  0 && bxNonShiftedPlanesUsed >  0) track.setRecoInfo(ReconstructionInfo::mixedPlanes);      // Track reconstructed in a shifted ROC, with mixed planes
     }
     if(bxShiftedPlanesUsed + bxNonShiftedPlanesUsed > 6){
-      edm::LogError("RPixPlaneCombinatoryTracking")<< "Error in RPixPlaneCombinatoryTracking::findTracks -> " << "More than 6 points found for a track, skipping.";
+      throw cms::Exception("RPixPlaneCombinatoryTracking")<<"Error in RPixPlaneCombinatoryTracking::findTracks -> " << "More than six points found for a track, skipping.";
       continue;
     }
     if(track.getRecoInfo() == ReconstructionInfo::invalid){
