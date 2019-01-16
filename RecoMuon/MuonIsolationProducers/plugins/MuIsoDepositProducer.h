@@ -24,9 +24,6 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
   
 private:
-  //! module configuration
-  edm::ParameterSet theConfig;
-
   //! input type. Choose from:
   //! 
   std::string theInputType;
