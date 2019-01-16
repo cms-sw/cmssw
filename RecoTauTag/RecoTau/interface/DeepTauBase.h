@@ -83,9 +83,9 @@ public:
 
 
     DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputs, const DeepTauCache* cache);
-    virtual ~DeepTauBase() {}
+    ~DeepTauBase() override {}
 
-    virtual void produce(edm::Event& event, const edm::EventSetup& es) override;
+    void produce(edm::Event& event, const edm::EventSetup& es) override;
 
     static std::unique_ptr<DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg);
     static void globalEndJob(const DeepTauCache* cache){ }
