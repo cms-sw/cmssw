@@ -565,7 +565,6 @@ float CSCSegAlgoRU::fit_r_phi(const AlgoState& aState, const SVector6& points, i
 
 void CSCSegAlgoRU::baseline(AlgoState& aState, int n_seg_min) const {
   int nhits = aState.proto_segment.size();
-  ChamberHitContainer::const_iterator iRH_worst;
   //initialise vectors for strip position and error within strip
   SVector6 sp;
   SVector6 se;
