@@ -45,6 +45,9 @@ class HGCalTriggerGeometryV9Imp2 : public HGCalTriggerGeometryBase
         unsigned triggerLayer(const unsigned) const final;
 
     private:
+        // HSc trigger cell grouping
+        unsigned hSc_triggercell_size_ = 2;
+
         // Disconnected modules and layers
         std::unordered_set<unsigned> disconnected_layers_;
         std::vector<unsigned> trigger_layers_;
@@ -75,7 +78,8 @@ class HGCalTriggerGeometryV9Imp2 : public HGCalTriggerGeometryBase
 
 HGCalTriggerGeometryV9Imp2::
 HGCalTriggerGeometryV9Imp2(const edm::ParameterSet& conf):
-    HGCalTriggerGeometryBase(conf)
+    HGCalTriggerGeometryBase(conf),
+    hSc_triggercell_size_(conf.getParameter<unsigned>("ScintillatorTriggerCellSize"))
 {
     std::vector<unsigned> tmp_vector = conf.getParameter<std::vector<unsigned>>("DisconnectedLayers");
     std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_layers_, disconnected_layers_.end()));
@@ -135,8 +139,11 @@ getTriggerCellFromCell( const unsigned cell_id ) const
     // Scintillator
     if(det == DetId::HGCalHSc)
     {
-        // TODO: implement TC mapping in scintillator
-        trigger_cell_id = cell_id;
+        // Very rough mapping from cells to TC
+        HGCScintillatorDetId cell_sc_id(cell_id);
+        int ieta = ( (cell_sc_id.ietaAbs()-1)/hSc_triggercell_size_+1 )*cell_sc_id.zside();
+        int iphi = (cell_sc_id.iphi()-1)/hSc_triggercell_size_+1;
+        trigger_cell_id = HGCScintillatorDetId(cell_sc_id.type(), cell_sc_id.layer(), ieta, iphi);
     }
     // Silicon
     else if(det == DetId::HGCalEE || det == DetId::HGCalHSi)
@@ -182,35 +189,48 @@ HGCalTriggerGeometryV9Imp2::
 getCellsFromTriggerCell( const unsigned trigger_cell_id ) const
 {
     DetId trigger_cell_det_id(trigger_cell_id);
-    HGCalTriggerDetId trigger_cell_trig_id(trigger_cell_id);
     unsigned det = trigger_cell_det_id.det();
-    unsigned subdet = trigger_cell_trig_id.subdet();
     geom_set cell_det_ids;
     // Scintillator
     if(det==DetId::HGCalHSc)
     {
-        // TODO: implement TC mapping in scintillator
-        cell_det_ids.emplace(trigger_cell_id);
+        HGCScintillatorDetId trigger_cell_sc_id(trigger_cell_id);
+        int ieta0 = (trigger_cell_sc_id.ietaAbs()-1)*hSc_triggercell_size_+1;
+        int iphi0 = (trigger_cell_sc_id.iphi()-1)*hSc_triggercell_size_+1;
+        for(int ietaAbs=ieta0; ietaAbs<ieta0+(int)hSc_triggercell_size_; ietaAbs++)
+        {
+            int ieta = ietaAbs*trigger_cell_sc_id.zside();
+            for(int iphi=iphi0; iphi<iphi0+(int)hSc_triggercell_size_; iphi++)
+            {
+                unsigned cell_id = HGCScintillatorDetId(trigger_cell_sc_id.type(), trigger_cell_sc_id.layer(), ieta, iphi);
+                if(validCellId(DetId::HGCalHSc, cell_id)) cell_det_ids.emplace(cell_id);
+            }
+        }
     }
     // Silicon
-    else if(subdet == HGCalTriggerSubdetector::HGCalEETrigger || subdet == HGCalTriggerSubdetector::HGCalHSiTrigger)
+    else 
     {
-        DetId::Detector cell_det = (subdet==HGCalTriggerSubdetector::HGCalEETrigger ? DetId::HGCalEE : DetId::HGCalHSi);
-        int layer = trigger_cell_trig_id.layer();
-        int zside = trigger_cell_trig_id.zside();
-        int type =  trigger_cell_trig_id.type();
-        int waferu = trigger_cell_trig_id.waferU();
-        int waferv = trigger_cell_trig_id.waferV();
-        std::vector<int> cellus = trigger_cell_trig_id.cellU();
-        std::vector<int> cellvs = trigger_cell_trig_id.cellV();
-        for(unsigned ic=0; ic<cellus.size(); ic++)
+        HGCalTriggerDetId trigger_cell_trig_id(trigger_cell_id);
+        unsigned subdet = trigger_cell_trig_id.subdet();
+        if(subdet == HGCalTriggerSubdetector::HGCalEETrigger || subdet == HGCalTriggerSubdetector::HGCalHSiTrigger)
         {
-            HGCSiliconDetId cell_det_id(cell_det, zside, type, layer, waferu, waferv, cellus[ic], cellvs[ic]);
-            cell_det_ids.emplace(cell_det_id.rawId());
-            if(type!=cell_det_id.type())
+            DetId::Detector cell_det = (subdet==HGCalTriggerSubdetector::HGCalEETrigger ? DetId::HGCalEE : DetId::HGCalHSi);
+            int layer = trigger_cell_trig_id.layer();
+            int zside = trigger_cell_trig_id.zside();
+            int type =  trigger_cell_trig_id.type();
+            int waferu = trigger_cell_trig_id.waferU();
+            int waferv = trigger_cell_trig_id.waferV();
+            std::vector<int> cellus = trigger_cell_trig_id.cellU();
+            std::vector<int> cellvs = trigger_cell_trig_id.cellV();
+            for(unsigned ic=0; ic<cellus.size(); ic++)
             {
-                std::cerr<<"Different type TC/cell in getCellsFromTriggerCell()\n";
-                std::cerr<<"   TC "<<type<<", cell "<<cell_det_id.type()<<"\n";
+                HGCSiliconDetId cell_det_id(cell_det, zside, type, layer, waferu, waferv, cellus[ic], cellvs[ic]);
+                cell_det_ids.emplace(cell_det_id.rawId());
+                if(type!=cell_det_id.type())
+                {
+                    std::cerr<<"Different type TC/cell in getCellsFromTriggerCell()\n";
+                    std::cerr<<"   TC "<<type<<", cell "<<cell_det_id.type()<<"\n";
+                }
             }
         }
     }
