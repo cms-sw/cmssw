@@ -34,6 +34,12 @@ def auto_inspect():
   while i < len(stack) and len(stack[i])>=2 and any(map(lambda p: p in stack[i][1], IGNORE_PACKAGES)):
     i += 1
   res = stack[i: ]
+  j = 0
+  # for the other end we only use cmsRun (instead of IGNORE_PACKAGES) to avoid
+  # cutting traces in the middle that enter and leave IGNORE_PACKAGES
+  while j < len(res) and not 'cmsRun' in res[j][1]:
+    j += 1
+  res = res[:j]
   if len(res)>=1 and len(res[0])>=3:
     return res
   else:
@@ -45,7 +51,7 @@ def trace_location(thing, name, extra = lambda thing, *args, **kwargs: thing):
     retval = old_method(self, *args, **kwargs)
     where = auto_inspect()
     #print("Called %s::%s at %s" % (thing.__name__, name, where[0][1:3]))
-    event = (name, where[0][1:3], extra(self, *args, **kwargs))
+    event = (name, tuple(w[1:3] for w in where), extra(self, *args, **kwargs))
     if hasattr(self, "_trace_events"):
       getattr(self, "_trace_events").append(event)
     else:
@@ -134,9 +140,7 @@ def collect_trace(thing, name, graph, parent):
   if hasattr(thing, '_trace_events'):
     events = getattr(thing, '_trace_events')
     for action, loc, extra in events:
-      filename = loc[0]
-      line = loc[1]
-      entry = (action, classname, filename, line)
+      entry = (action, classname, loc)
       graph.append((entry, parent, name))
 
       # items shall be a list of tuples (type, object) of the immediate children of the thing.
@@ -180,14 +184,14 @@ def writeoutput(graph):
     return filename
 
   def format(event):
-    evt, classname, filename, line = event
-    filename = formatfile(filename)
-    return "%s:%s; %s::%s" % (filename, line, classname, evt)
+    evt, classname, loc = event
+    places = ";".join("%s:%d" % (formatfile(filename), line) for filename, line in loc)
+    return "%s; %s::%s" % (places, classname, evt)
 
   files = set()
   for child, parent, relation in graph:
-    files.add(child[2])
-    files.add(parent[2])
+    files.add(child[2][0][0])
+    files.add(parent[2][0][0])
   with open(os.environ["CMSSWCALLFILES"], "a") as outfile:
     for f in files:
       print("%s: %s" % (progname, formatfile(f)), file=outfile)
@@ -224,7 +228,7 @@ def trace_python(prog_argv, path):
         # reporting is only possible if the config was executed successfully.
         # we still do it in case of an exception, which can happen after convertToUnscheduled()
         print("+Collecting trace information from %s..." % globals["process"])
-        collect_trace(globals["process"], 'cmsrun', graph, ('cmsRun', '', progname, 0))
+        collect_trace(globals["process"], 'cmsrun', graph, ('cmsRun', '', ((progname, 0),)))
         writeoutput(graph)
 
 
