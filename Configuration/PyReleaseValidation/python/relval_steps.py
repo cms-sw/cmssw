@@ -3031,6 +3031,10 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         stepName = step + upgradeSteps['heCollapse']['suffix']
         upgradeStepDict[stepName][k] = merge([{'--procModifiers': 'run2_HECollapse_2018'}, upgradeStepDict[step][k]])
 
+    for step in upgradeSteps['killStuckTBM']['steps']:
+        stepName = step + upgradeSteps['killStuckTBM']['suffix']
+        upgradeStepDict[stepName][k] = merge([{'--customise': 'SimTracker/SiPixelDigitizer/customiseStuckTBMSimulation.activateStuckTBMSimulation2018NoPU'}, upgradeStepDict[step][k]])
+
     # setup PU
     if k2 in PUDataSets:
         # Setup premixing stage1
