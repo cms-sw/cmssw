@@ -18,6 +18,8 @@ def makeStepName(key,frag,step,suffix):
 neutronKeys = ['2023D17','2023D19','2023D21','2023D22','2023D23','2023D24','2023D25','2023D28','2023D29','2023D30','2023D31','2023D33','2023D34','2023D35','2023D36','2023D37','2023D38']
 neutronFrags = ['ZMM_14','MinBias_14TeV']
 
+tbmFrags = ['TTbar_13','ZMM_13']
+
 #just define all of them
 
 for year in upgradeKeys:
@@ -87,6 +89,10 @@ for year in upgradeKeys:
             # special workflows for HE
             if upgradeDatasetFromFragment[frag]=="TTbar_13" and '2018' in key:
                 workflows[numWF+upgradeSteps['heCollapse']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['heCollapse']]
+
+            # special workflows for stuck TBM
+            if any(upgradeDatasetFromFragment[frag]==nfrag for nfrag in tbmFrags) and '2018' in key:
+                workflows[numWF+upgradeSteps['killStuckTBM']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['killStuckTBM']]
 
             # premixing stage1, only for NuGun
             if upgradeDatasetFromFragment[frag]=="NuGun" and 'PU' in key and '2023' in key:
