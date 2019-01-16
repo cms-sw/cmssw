@@ -21,6 +21,7 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsCollection.h"
 
 #include "DataFormats/ProtonReco/interface/ForwardProton.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "TFile.h"
 #include "TH1D.h"
@@ -120,7 +121,7 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
       for (auto &p : opticalFunctions_)
         p.second.initializeSplines();
     }
-  } 
+  }
 
   // stop if conditions invalid
   if (currentCrossingAngle_ <= 0.)
@@ -147,11 +148,11 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
       auto it = opticalFunctions_.find(rpId);
 
       LHCOpticalFunctionsSet::Kinematics k_in_beam = { 0., 0., 0., 0., 0. };
-      LHCOpticalFunctionsSet::Kinematics k_out_beam; 
+      LHCOpticalFunctionsSet::Kinematics k_out_beam;
       it->second.transport(k_in_beam, k_out_beam);
 
       LHCOpticalFunctionsSet::Kinematics k_in = { pr.vx() * 1E-2, -pr.thetaX(), pr.vy() * 1E-2, pr.thetaY(), pr.xi() };  // conversions: cm --> m, CMS --> LHC convention
-      LHCOpticalFunctionsSet::Kinematics k_out; 
+      LHCOpticalFunctionsSet::Kinematics k_out;
       it->second.transport(k_in, k_out);
 
       const double de_x = (k_out.x - k_out_beam.x) * 1E3 - tr->getX();  // conversions: m --> mm

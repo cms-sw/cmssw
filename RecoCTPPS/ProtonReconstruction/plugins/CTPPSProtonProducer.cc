@@ -14,7 +14,9 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLiteFwd.h"
 
+#include "DataFormats/ProtonReco/interface/ForwardProton.h"
 #include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
 
 #include "RecoCTPPS/ProtonReconstruction/interface/ProtonReconstructionAlgorithm.h"
@@ -38,7 +40,7 @@ class CTPPSProtonProducer : public edm::stream::EDProducer<>
   private:
     void produce(edm::Event&, const edm::EventSetup&) override;
 
-    edm::EDGetTokenT<std::vector<CTPPSLocalTrackLite> > tracksToken_;
+    edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tracksToken_;
 
     unsigned int verbosity_;
 
@@ -59,7 +61,7 @@ class CTPPSProtonProducer : public edm::stream::EDProducer<>
 //----------------------------------------------------------------------------------------------------
 
 CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet& iConfig) :
-  tracksToken_(consumes<std::vector<CTPPSLocalTrackLite> >(iConfig.getParameter<edm::InputTag>("tagLocalTrackLite"))),
+  tracksToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagLocalTrackLite"))),
   verbosity_                  (iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
   doSingleRPReconstruction_   (iConfig.getParameter<bool>("doSingleRPReconstruction")),
   doMultiRPReconstruction_    (iConfig.getParameter<bool>("doMultiRPReconstruction")),
@@ -145,11 +147,11 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     ssLog << "input tracks:";
 
   // get input
-  edm::Handle<std::vector<CTPPSLocalTrackLite> > hTracks;
+  edm::Handle<CTPPSLocalTrackLiteCollection> hTracks;
   iEvent.getByToken(tracksToken_, hTracks);
 
   // keep only tracks from tracker RPs, split them by LHC sector
-  reco::ForwardProton::CTPPSLocalTrackLiteRefVector tracks_45, tracks_56;
+  CTPPSLocalTrackLiteRefVector tracks_45, tracks_56;
   std::map<CTPPSDetId, unsigned int> nTracksPerRP;
   for (unsigned int idx = 0; idx < hTracks->size(); ++idx) {
     const auto& tr = hTracks->at(idx);
@@ -163,7 +165,7 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         << "x=" << tr.getX() << " +- " << tr.getXUnc() << " mm, "
         << "y=" << tr.getY() << " +- " << tr.getYUnc() << " mm";
 
-    edm::Ref<std::vector<CTPPSLocalTrackLite> > r_track(hTracks, idx);
+    CTPPSLocalTrackLiteRef r_track(hTracks, idx);
     if (rpId.arm() == 0)
       tracks_45.push_back(r_track);
     if (rpId.arm() == 1)

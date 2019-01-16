@@ -9,8 +9,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
-#include "DataFormats/ProtonReco/interface/ForwardProton.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLiteFwd.h"
+#include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
 
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSet.h"
@@ -32,14 +32,14 @@ class ProtonReconstructionAlgorithm
     void release();
 
     /// run proton reconstruction using single-RP strategy
-    void reconstructFromSingleRP(const reco::ForwardProton::CTPPSLocalTrackLiteRefVector &input,
-      std::vector<reco::ForwardProton> &output,
-      const LHCInfo &lhcInfo, std::ostream& os) const;
+    void reconstructFromSingleRP(const CTPPSLocalTrackLiteRefVector& input,
+      reco::ForwardProtonCollection& output,
+      const LHCInfo& lhcInfo, std::ostream& os) const;
 
     /// run proton reconstruction using multiple-RP strategy
-    void reconstructFromMultiRP(const reco::ForwardProton::CTPPSLocalTrackLiteRefVector &input,
-      std::vector<reco::ForwardProton> &output,
-      const LHCInfo &lhcInfo, std::ostream& os) const;
+    void reconstructFromMultiRP(const CTPPSLocalTrackLiteRefVector& input,
+      reco::ForwardProtonCollection& output,
+      const LHCInfo& lhcInfo, std::ostream& os) const;
 
   private:
     unsigned int verbosity_;
@@ -71,7 +71,7 @@ class ProtonReconstructionAlgorithm
 
         double operator() (const double *parameters) const;
 
-        const reco::ForwardProton::CTPPSLocalTrackLiteRefVector* tracks;
+        const CTPPSLocalTrackLiteRefVector* tracks;
         const std::map<unsigned int, RPOpticsData>* m_rp_optics;
     };
 

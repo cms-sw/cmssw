@@ -18,6 +18,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "DataFormats/ProtonReco/interface/ForwardProton.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "TFile.h"
 #include "TH1D.h"
