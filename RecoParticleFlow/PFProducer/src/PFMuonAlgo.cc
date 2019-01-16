@@ -1165,9 +1165,7 @@ PFMuonAlgo::tracksPointingAtMET(const std::vector<reco::Muon::MuonTrackTypePair>
   
 
   
-void PFMuonAlgo::setInputsForCleaning(const reco::VertexCollection*  vertices) {
-  vertices_ = vertices;
-}
+void PFMuonAlgo::setInputsForCleaning(reco::VertexCollection const&  vertices) { vertices_ = &vertices; }
 
 bool PFMuonAlgo::cleanPunchThroughAndFakes(reco::PFCandidate&pfc,reco::PFCandidateCollection* cands,unsigned int imu ){
   using namespace reco;
