@@ -10,20 +10,26 @@
 
 (6) cd Validation/CaloTowers/test/CaloScan
 
-(7) ./make_configs.csh
+NB: before step (7) one of the desired templates (template*.py_*) 
+has to be renamed into simple template.py (which is used in step (7) below)
 
-(8) ./submit_batch.csh
+(7) ./make_configs.csh  
+creates 50 job configs (each for 1k ev "slice" processing from input file) 
 
-NB: it uses batch submission (batch.csh) to lxbatch at CERN 
+(8) ./submit_batch.csh  (LSF batch) or ./submit_HTCondor.csh (HTCondor batch) 
+
+NB: it uses batch submission 
+(batch.csh for LSF or batch_HTCondor.csh for HTCondor) at CERN 
+
 with input file 
 /afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/620/mc_pi50_eta05.root
 Each of 50 job uses 1K out of total 50K input.
 
 In ~30-40 min (in the submission directory, /scan in this case)
-the results of 50 batch jobs will be arriving. 
+the results of 50 batch jobs will start arriving. 
 Once all 50 jobs finished and 50  *.root files appeared locally, 
 
-(9) ./Merge.sh 10_2_0  (e.g the extension name for resulting DQM file)
+(9) ./Merge.sh 10_2_0  (e.g. the extension name for resulting DQM file)
 
 It will do following things:
 
