@@ -985,7 +985,7 @@ steps["FS_PREMIXUP15_PU25"] = merge([
         {"cfg":"SingleNuE10_cfi",
          "--fast":"",
          "--conditions":"auto:run2_mc",
-         "-s":"GEN,SIM,RECOBEFMIX,DIGI,L1,DIGI2RAW",
+         "-s":"GEN,SIM,RECOBEFMIX,DIGI,DIGI2RAW",
          "--eventcontent":"PREMIX",
          "--datatier":"GEN-SIM-DIGI-RAW",
          "--procModifiers":"premix_stage1",
