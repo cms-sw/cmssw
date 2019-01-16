@@ -67,6 +67,9 @@ class TrackExtenderWithMTDT : public edm::stream::EDProducer<> {
   
   TrackExtenderWithMTDT(const ParameterSet& pset); 
 
+  template <class H, class T>
+  void fillValueMap(edm::Event& iEvent, const H& handle, const std::vector<T>& vec, const std::string& name) const;
+  
   void produce(edm::Event& ev, const edm::EventSetup& es) final;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -192,6 +195,16 @@ void TrackExtenderWithMTDT<TrackCollection>::fillDescriptions(edm::Configuration
 }
 
 template<class TrackCollection>
+template <class H, class T>
+void TrackExtenderWithMTDT<TrackCollection>::fillValueMap(edm::Event& iEvent, const H& handle, const std::vector<T>& vec, const std::string& name) const {
+  auto out = std::make_unique<edm::ValueMap<T>>();
+  typename edm::ValueMap<T>::Filler filler(*out);
+  filler.insert(handle, vec.begin(), vec.end());
+  filler.fill();
+  iEvent.put(std::move(out),name);
+}
+
+template<class TrackCollection>
 void TrackExtenderWithMTDT<TrackCollection>::produce( edm::Event& ev,
 						      const edm::EventSetup& es ) {  
   //this produces pieces of the track extra
@@ -224,34 +237,15 @@ void TrackExtenderWithMTDT<TrackCollection>::produce( edm::Event& ev,
   auto extras  = std::make_unique<reco::TrackExtraCollection>();
   auto outhits = std::make_unique<edm::OwnVector<TrackingRecHit>>();
 
-  auto pathLengths = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> pathLengthsRaw;
-
-  auto tmtd = std::make_unique<edm::ValueMap<float>>();
-  std::vector<float> tmtdRaw;  
-
-  auto sigmatmtd = std::make_unique<edm::ValueMap<float>>();
-  std::vector<float> sigmatmtdRaw;  
-
-  auto pOrigTrk = std::make_unique<edm::ValueMap<float>>();
+  std::vector<float> tmtdRaw;
+  std::vector<float> sigmatmtdRaw;
   std::vector<float> pOrigTrkRaw;
-  
-  auto betaOrigTrk = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> betaOrigTrkRaw;
-
-  auto t0OrigTrk = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> t0OrigTrkRaw;
-  
-  auto sigmat0OrigTrk = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> sigmat0OrigTrkRaw;
-  
-  auto pathLengthsOrigTrk = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> pathLengthsOrigTrkRaw;
-  
-  auto tmtdOrigTrk = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> tmtdOrigTrkRaw;
-  
-  auto sigmatmtdOrigTrk = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> sigmatmtdOrigTrkRaw;  
   
   edm::Handle<InputCollection> tracksH;  
@@ -347,56 +341,16 @@ void TrackExtenderWithMTDT<TrackCollection>::produce( edm::Event& ev,
   ev.put(std::move(extras));
   ev.put(std::move(outhits));
 
-  edm::ValueMap<float>::Filler fillerPathLengths(*pathLengths);
-  fillerPathLengths.insert(outTrksHandle,pathLengthsRaw.cbegin(),pathLengthsRaw.cend());
-  fillerPathLengths.fill();
-  ev.put(std::move(pathLengths),pathLengthName);
-
-  edm::ValueMap<float>::Filler fillertmtds(*tmtd);
-  fillertmtds.insert(outTrksHandle,tmtdRaw.cbegin(),tmtdRaw.cend());
-  fillertmtds.fill();
-  ev.put(std::move(tmtd),tmtdName);
-
-  edm::ValueMap<float>::Filler fillersigmatmtds(*sigmatmtd);
-  fillersigmatmtds.insert(outTrksHandle,sigmatmtdRaw.cbegin(),sigmatmtdRaw.cend());
-  fillersigmatmtds.fill();
-  ev.put(std::move(sigmatmtd),sigmatmtdName);
-  
-  edm::ValueMap<float>::Filler fillerPs(*pOrigTrk);
-  fillerPs.insert(tracksH,pOrigTrkRaw.cbegin(),pOrigTrkRaw.cend());
-  fillerPs.fill();
-  ev.put(std::move(pOrigTrk),pOrigTrkName);
-  
-  edm::ValueMap<float>::Filler fillerBetas(*betaOrigTrk);
-  fillerBetas.insert(tracksH,betaOrigTrkRaw.cbegin(),betaOrigTrkRaw.cend());
-  fillerBetas.fill();
-  ev.put(std::move(betaOrigTrk),betaOrigTrkName);
-
-  edm::ValueMap<float>::Filler fillert0s(*t0OrigTrk);
-  fillert0s.insert(tracksH,t0OrigTrkRaw.cbegin(),t0OrigTrkRaw.cend());
-  fillert0s.fill();
-  ev.put(std::move(t0OrigTrk),t0OrigTrkName);
-
-  edm::ValueMap<float>::Filler fillersigmat0s(*sigmat0OrigTrk);
-  fillersigmat0s.insert(tracksH,sigmat0OrigTrkRaw.cbegin(),sigmat0OrigTrkRaw.cend());
-  fillersigmat0s.fill();
-  ev.put(std::move(sigmat0OrigTrk),sigmat0OrigTrkName);
-  
-  edm::ValueMap<float>::Filler fillerPathLengthsOrigTrk(*pathLengthsOrigTrk);
-  fillerPathLengthsOrigTrk.insert(tracksH,pathLengthsOrigTrkRaw.cbegin(),pathLengthsOrigTrkRaw.cend());
-  fillerPathLengthsOrigTrk.fill();
-  ev.put(std::move(pathLengthsOrigTrk),pathLengthOrigTrkName);
-  
-  edm::ValueMap<float>::Filler fillertmtdsOrigTrk(*tmtdOrigTrk);
-  fillertmtdsOrigTrk.insert(tracksH,tmtdOrigTrkRaw.cbegin(),tmtdOrigTrkRaw.cend());
-  fillertmtdsOrigTrk.fill();
-  ev.put(std::move(tmtdOrigTrk),tmtdOrigTrkName);
-
-  edm::ValueMap<float>::Filler fillersigmatmtdsOrigTrk(*sigmatmtdOrigTrk);
-  fillersigmatmtdsOrigTrk.insert(tracksH,sigmatmtdOrigTrkRaw.cbegin(),sigmatmtdOrigTrkRaw.cend());
-  fillersigmatmtdsOrigTrk.fill();
-  ev.put(std::move(sigmatmtdOrigTrk),sigmatmtdOrigTrkName);
-  
+  fillValueMap(ev, outTrksHandle, pathLengthsRaw, pathLengthName);
+  fillValueMap(ev, outTrksHandle, tmtdRaw, tmtdName);
+  fillValueMap(ev, outTrksHandle, sigmatmtdRaw, sigmatmtdName);
+  fillValueMap(ev, tracksH, pOrigTrkRaw, pOrigTrkName);
+  fillValueMap(ev, tracksH, betaOrigTrkRaw, betaOrigTrkName);
+  fillValueMap(ev, tracksH, t0OrigTrkRaw, t0OrigTrkName);
+  fillValueMap(ev, tracksH, sigmat0OrigTrkRaw, sigmat0OrigTrkName);
+  fillValueMap(ev, tracksH, pathLengthsOrigTrkRaw, pathLengthOrigTrkName);
+  fillValueMap(ev, tracksH, tmtdOrigTrkRaw, tmtdOrigTrkName);
+  fillValueMap(ev, tracksH, sigmatmtdOrigTrkRaw, sigmatmtdOrigTrkName);
 }
 
 namespace {
