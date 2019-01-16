@@ -13,7 +13,7 @@
 
 #include "DataFormats/Common/interface/RefVector.h"
 
-#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLiteFwd.h"
 
 namespace reco
 {
@@ -30,9 +30,6 @@ namespace reco
       typedef math::XYZVectorF Vector;
       /// point in the space
       typedef math::XYZPointF Point;
-
-      using CTPPSLocalTrackLiteRefVector = edm::RefVector<std::vector<CTPPSLocalTrackLite> >;
-
       /// type of reconstruction applied for this track
       enum class ReconstructionMethod { invalid = -1, singleRP, multiRP };
 

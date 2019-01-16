@@ -170,4 +170,6 @@
   <class name="std::vector<CTPPSLocalTrackLite>"/>
   <class name="edm::Wrapper<CTPPSLocalTrackLite>"/>
   <class name="edm::Wrapper<std::vector<CTPPSLocalTrackLite>>"/>
+  <class name="edm::RefProd<std::vector<CTPPSLocalTrackLite> >"/>
+  <class name="edm::Ref<std::vector<CTPPSLocalTrackLite>,CTPPSLocalTrackLite,edm::refhelper::FindUsingAdvance<std::vector<CTPPSLocalTrackLite>,CTPPSLocalTrackLite> >"/>
 </lcgdict>

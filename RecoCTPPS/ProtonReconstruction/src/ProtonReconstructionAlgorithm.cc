@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 #include "DataFormats/ProtonReco/interface/ForwardProton.h"
 
 #include "TMinuitMinimizer.h"
@@ -140,10 +141,9 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const dou
 
 //----------------------------------------------------------------------------------------------------
 
-void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
-  const reco::ForwardProton::CTPPSLocalTrackLiteRefVector &tracks,
-  std::vector<reco::ForwardProton> &output,
-  const LHCInfo &lhcInfo, std::ostream& os) const
+void ProtonReconstructionAlgorithm::reconstructFromMultiRP(const CTPPSLocalTrackLiteRefVector& tracks,
+                                                           reco::ForwardProtonCollection& output,
+                                                           const LHCInfo& lhcInfo, std::ostream& os) const
 {
   if (!initialized_)
     return;
@@ -153,8 +153,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
     return;
 
   // make sure optics is available for all tracks
-  for (const auto &it : tracks)
-  {
+  for (const auto &it : tracks) {
     auto oit = m_rp_optics_.find(it->getRPId());
     if (oit == m_rp_optics_.end())
       throw cms::Exception("ProtonReconstructionAlgorithm") << "Optics data not available for RP " <<
@@ -164,8 +163,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   // initial estimate of xi and th_x
   double xi_init = 0., th_x_init = 0.;
 
-  if (useImprovedInitialEstimate_)
-  {
+  if (useImprovedInitialEstimate_) {
     double x_N = tracks[0]->getX()*1E-1,  // conversion: mm --> cm
       x_F = tracks[1]->getX()*1E-1;
 
@@ -179,10 +177,10 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
 
     xi_init = (-b + sqrt(D)) / 2. / a;
     th_x_init = (x_N - i_N.ch0 - i_N.ch1 * xi_init) / (i_N.la0 + i_N.la1 * xi_init);
-  } else {
+  }
+  else {
     double s_xi0 = 0., s_1 = 0.;
-    for (const auto &track : tracks)
-    {
+    for (const auto &track : tracks) {
       auto oit = m_rp_optics_.find(track->getRPId());
       double xi = oit->second.s_xi_vs_x_d->Eval(track->getX()*1E-1 + oit->second.x0);  // conversion: mm --> cm
 
@@ -196,8 +194,7 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   // initial estimate of th_y and vtx_y
   double y[2], v_y[2], L_y[2];
   unsigned int y_idx = 0;
-  for (const auto &track : tracks)
-  {
+  for (const auto &track : tracks) {
     if (y_idx >= 2)
       continue;
 
@@ -213,12 +210,12 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   double vtx_y_init = 0.;
   double th_y_init = 0.;
 
-  if (fitVtxY_)
-  {
+  if (fitVtxY_) {
     const double det_y = v_y[0] * L_y[1] - L_y[0] * v_y[1];
     vtx_y_init = (L_y[1] * y[0] - L_y[0] * y[1]) / det_y;
     th_y_init = (v_y[0] * y[1] - v_y[1] * y[0]) / det_y;
-  } else {
+  }
+  else {
     vtx_y_init = 0.;
     th_y_init = (y[1]/L_y[1] + y[0]/L_y[0]) / 2.;
   }
@@ -284,12 +281,10 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
   };
 
   FP::CovarianceMatrix cm;
-  for (unsigned int i = 0; i < (unsigned int) FP::Index::num_indices; ++i)
-  {
+  for (unsigned int i = 0; i < (unsigned int) FP::Index::num_indices; ++i) {
     signed int fit_i = index_map[i];
 
-    for (unsigned int j = 0; j < (unsigned int) FP::Index::num_indices; ++j)
-    {
+    for (unsigned int j = 0; j < (unsigned int) FP::Index::num_indices; ++j) {
       signed int fit_j = index_map[j];
 
       cm(i, j) = (fit_i >= 0 && fit_j >= 0) ? result.CovMatrix(fit_i, fit_j) : 0.;
@@ -301,17 +296,15 @@ void ProtonReconstructionAlgorithm::reconstructFromMultiRP(
 
 //----------------------------------------------------------------------------------------------------
 
-void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
-  const reco::ForwardProton::CTPPSLocalTrackLiteRefVector &tracks,
-  std::vector<reco::ForwardProton> &output,
-  const LHCInfo &lhcInfo, std::ostream& os) const
+void ProtonReconstructionAlgorithm::reconstructFromSingleRP(const CTPPSLocalTrackLiteRefVector& tracks,
+                                                            reco::ForwardProtonCollection& output,
+                                                            const LHCInfo& lhcInfo, std::ostream& os) const
 {
   if (!initialized_)
     return;
 
   // make sure optics is available for all tracks
-  for (const auto &it : tracks)
-  {
+  for (const auto &it : tracks) {
     auto oit = m_rp_optics_.find(it->getRPId());
     if (oit == m_rp_optics_.end())
       throw cms::Exception("ProtonReconstructionAlgorithm") << "Optics data not available for RP " << it->getRPId()
@@ -319,8 +312,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
   }
 
   // rough estimate of xi and th_y from each track
-  for (const auto &track : tracks)
-  {
+  for (const auto &track : tracks) {
     CTPPSDetId rpId(track->getRPId());
 
     if (verbosity_)
@@ -357,7 +349,7 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     cm((int)FP::Index::xi, (int)FP::Index::xi) = xi_unc * xi_unc;
     cm((int)FP::Index::th_y, (int)FP::Index::th_y) = th_y_unc * th_y_unc;
 
-    FP::CTPPSLocalTrackLiteRefVector trk;
+    CTPPSLocalTrackLiteRefVector trk;
     trk.push_back( track );
     output.emplace_back(0., 0, vertex, momentum, xi, cm, FP::ReconstructionMethod::singleRP, trk, true);
   }
