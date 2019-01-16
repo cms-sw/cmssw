@@ -502,6 +502,8 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
 
   constexpr double m_pi = 0.13957018;
   constexpr double m_pi_inv2 = 1.0/m_pi/m_pi;
+  constexpr double m_p = 0.9382720813;
+  constexpr double m_p_inv2 = 1.0/m_p/m_p;
   constexpr double c_cm_ns = 2.99792458e1; //[cm/ns]
   constexpr double c_inv = 1.0/c_cm_ns;
   
@@ -584,20 +586,30 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
         }
       }
     }
-    
+        
     if (validmtd && validpropagation) {
-      
       double magp2 = p.mag2();
-      double gammasq = 1. + magp2*m_pi_inv2;
-      double beta = std::sqrt(1.-1./gammasq);
-      double dt = pathlength/beta*c_inv;
+
+      double gammasq_pi = 1. + magp2*m_pi_inv2;
+      double beta_pi = std::sqrt(1.-1./gammasq_pi);
+      double dt_pi = pathlength/beta_pi*c_inv;
+      
+      double gammasq_p = 1. + magp2*m_p_inv2;
+      double beta_p = std::sqrt(1.-1./gammasq_p);
+      double dt_p = pathlength/beta_p*c_inv;
+      
+      double dterror = dt_p - dt_pi;
+      double betaerror = beta_p - beta_pi;
+      
       pathLengthOut = pathlength; // set path length if we've got a timing hit
       tmtdOut = thit;
       sigmatmtdOut = thiterror;
-      t0 = thit - dt;
-      covt0t0 = thiterror*thiterror;
-      betaOut = beta;
+      t0 = thit - dt_pi;
+      covt0t0 = thiterror*thiterror + dterror*dterror;
+      betaOut = beta_pi;
+      covbetabeta  = betaerror*betaerror;
     }
+    
   }
   
   return reco::Track(traj.chiSquared(),
