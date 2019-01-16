@@ -17,7 +17,8 @@ process.load('Configuration.Geometry.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
-process.GlobalTag.globaltag = '94X_mc2017_realistic_v14'
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
 
 # Input source
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(
@@ -35,6 +36,7 @@ tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
                                "deepTau2017v1",
                                "DPFTau_2016_v0",
                                # "DPFTau_2016_v1",
+                               "againstEle2018",
                                ])
 tauIdEmbedder.runTauID()
 
