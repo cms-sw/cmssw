@@ -8,31 +8,17 @@
 #include "ME0RecHitProducer.h"
 
 
-ME0RecHitProducer::ME0RecHitProducer(const edm::ParameterSet& config){
-
+ME0RecHitProducer::ME0RecHitProducer(const edm::ParameterSet& config):
+  // Get the concrete reconstruction algo from the factory
+  theAlgo{ME0RecHitAlgoFactory::get()->create(config.getParameter<std::string>("recAlgo"),
+                                              config.getParameter<edm::ParameterSet>("recAlgoConfig"))}
+{
   produces<ME0RecHitCollection>();
  
   m_token = consumes<ME0DigiPreRecoCollection>( config.getParameter<edm::InputTag>("me0DigiLabel") ); 
-
- 
-  // Get the concrete reconstruction algo from the factory
-
-  std::string theAlgoName = config.getParameter<std::string>("recAlgo");
-  theAlgo = ME0RecHitAlgoFactory::get()->create(theAlgoName,
-						config.getParameter<edm::ParameterSet>("recAlgoConfig"));
 }
 
-
-ME0RecHitProducer::~ME0RecHitProducer(){
-  delete theAlgo;
-}
-
-
-
-void ME0RecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup){
-}
-
-
+ME0RecHitProducer::~ME0RecHitProducer() = default;
 
 void ME0RecHitProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 
