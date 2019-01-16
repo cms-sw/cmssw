@@ -60,7 +60,7 @@ DeepTauBase::Output::ResultMap DeepTauBase::Output::get_value(const edm::Handle<
         float x = 0;
         for(size_t num_elem : num_)
             x += pred.matrix<float>()(tau_index, num_elem);
-        if(x != 0 && den_.size() > 0) {
+        if(x != 0 && !den_.empty()) {
             float den_val = 0;
             for(size_t den_elem : den_)
                 den_val += pred.matrix<float>()(tau_index, den_elem);
