@@ -142,12 +142,12 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
   m_pCustomUIsession(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomUIsession")),
   m_p(iConfig)
 {
-  initializeTLS();
   m_simEvent.reset(nullptr);
   m_sVerbose.reset(nullptr);
   std::vector<edm::ParameterSet> watchers = 
     iConfig.getParameter<std::vector<edm::ParameterSet> >("Watchers");
   m_hasWatchers = (watchers.empty()) ? false : true;
+  initializeTLS();
 }
 
 RunManagerMTWorker::~RunManagerMTWorker() {
