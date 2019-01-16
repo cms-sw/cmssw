@@ -81,9 +81,6 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config)
 
 //------------------------------------------------------------------------------
 AlignmentProducerBase::~AlignmentProducerBase() noexcept(false) {
-  for (auto& iCal : calibrations_)
-    delete iCal;
-
   delete alignmentParameterStore_;
   delete alignableExtras_;
   delete alignableTracker_;
@@ -301,7 +298,7 @@ void AlignmentProducerBase::createMonitors() {
 void AlignmentProducerBase::createCalibrations() {
   const auto& calibrations = config_.getParameter<edm::VParameterSet>("calibrations");
   for (const auto& iCalib : calibrations) {
-    calibrations_.push_back(
+    calibrations_.emplace_back(
         IntegratedCalibrationPluginFactory::get()->create(iCalib.getParameter<std::string>("calibrationName"), iCalib));
   }
 }

@@ -213,7 +213,7 @@ private:
   /*** Alignment data ***/
 
   std::unique_ptr<AlignmentAlgorithmBase> alignmentAlgo_;
-  Calibrations calibrations_;
+  CalibrationsOwner calibrations_;
   AlignmentMonitors monitors_;
 
   AlignmentParameterStore* alignmentParameterStore_{nullptr};
