@@ -16,7 +16,7 @@ std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const
 
   //iterate inside out, when distance to vertex starts increasing, we are at the closest hit
   // the first (and last, btw) hit is always valid... (apparntly not..., conversion is different????)
-  TrackingRecHit const* recHit = nullptr;
+  TrackingRecHit const* recHit = *track.recHits().begin();
   unsigned int closest = 0;
   for(auto const& hit : track.recHits()) {
     if (hit->isValid()) {
@@ -25,7 +25,6 @@ std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const
     }
     ++closest;
   }
-  if(recHit == nullptr) throw cms::Exception("No valid RecHit found in track!");
   auto globalPosition = recHit->surface()->toGlobal(trajParams[0].position());
   auto distance2 = (vtxPos - globalPosition).mag2();
   int nhits = 1;
