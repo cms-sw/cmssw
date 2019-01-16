@@ -57,15 +57,9 @@ class CTPPSProtonProducer : public edm::stream::EDProducer<>
 };
 
 //----------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------
-
-using namespace std;
-using namespace edm;
-
-//----------------------------------------------------------------------------------------------------
 
 CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet& iConfig) :
-  tracksToken_(consumes<vector<CTPPSLocalTrackLite> >(iConfig.getParameter<edm::InputTag>("tagLocalTrackLite"))),
+  tracksToken_(consumes<std::vector<CTPPSLocalTrackLite> >(iConfig.getParameter<edm::InputTag>("tagLocalTrackLite"))),
   verbosity_                  (iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
   doSingleRPReconstruction_   (iConfig.getParameter<bool>("doSingleRPReconstruction")),
   doMultiRPReconstruction_    (iConfig.getParameter<bool>("doMultiRPReconstruction")),
@@ -83,9 +77,9 @@ CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet& iConfig) :
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSProtonProducer::fillDescriptions(ConfigurationDescriptions& descriptions)
+void CTPPSProtonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
-  ParameterSetDescription desc;
+  edm::ParameterSetDescription desc;
   desc.addUntracked<unsigned int>("verbosity", 0)->setComment("verbosity level");
   desc.add<edm::InputTag>("tagLocalTrackLite", edm::InputTag("ctppsLocalTrackLiteProducer"))
     ->setComment("specification of the input lite-track collection");
@@ -110,28 +104,26 @@ void CTPPSProtonProducer::fillDescriptions(ConfigurationDescriptions& descriptio
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSProtonProducer::produce(Event& event, const EventSetup &eventSetup)
+void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // get conditions
   edm::ESHandle<LHCInfo> hLHCInfo;
-  eventSetup.get<LHCInfoRcd>().get(hLHCInfo);
+  iSetup.get<LHCInfoRcd>().get(hLHCInfo);
 
   edm::ESHandle<LHCOpticalFunctionsCollection> hOpticalFunctionCollection;
-  eventSetup.get<CTPPSOpticsRcd>().get(hOpticalFunctionCollection);
+  iSetup.get<CTPPSOpticsRcd>().get(hOpticalFunctionCollection);
 
   // re-initialise algorithm upon crossing-angle change
-  if (lhcInfoWatcher_.check(eventSetup))
-  {
+  if (lhcInfoWatcher_.check(iSetup)) {
     const LHCInfo* pLHCInfo = hLHCInfo.product();
-    if (pLHCInfo->crossingAngle() != currentCrossingAngle_)
-    {
+    if (pLHCInfo->crossingAngle() != currentCrossingAngle_) {
       currentCrossingAngle_ = pLHCInfo->crossingAngle();
 
-      if (currentCrossingAngle_ == 0.)
-      {
-        LogWarning("CTPPSProtonProducer") << "Invalid crossing angle, reconstruction disabled.";
+      if (currentCrossingAngle_ == 0.) {
+        edm::LogWarning("CTPPSProtonProducer") << "Invalid crossing angle, reconstruction disabled.";
         algorithm_.release();
-      } else {
+      }
+      else {
         if (verbosity_)
           edm::LogInfo("CTPPSProtonProducer") << "Setting crossing angle " << currentCrossingAngle_;
 
@@ -153,12 +145,12 @@ void CTPPSProtonProducer::produce(Event& event, const EventSetup &eventSetup)
     ssLog << "input tracks:";
 
   // get input
-  Handle<vector<CTPPSLocalTrackLite> > hTracks;
-  event.getByToken(tracksToken_, hTracks);
+  edm::Handle<std::vector<CTPPSLocalTrackLite> > hTracks;
+  iEvent.getByToken(tracksToken_, hTracks);
 
   // keep only tracks from tracker RPs, split them by LHC sector
   reco::ForwardProton::CTPPSLocalTrackLiteRefVector tracks_45, tracks_56;
-  map<CTPPSDetId, unsigned int> nTracksPerRP;
+  std::map<CTPPSDetId, unsigned int> nTracksPerRP;
   for (unsigned int idx = 0; idx < hTracks->size(); ++idx) {
     const auto& tr = hTracks->at(idx);
     const CTPPSDetId rpId(tr.getRPId());
@@ -171,7 +163,7 @@ void CTPPSProtonProducer::produce(Event& event, const EventSetup &eventSetup)
         << "x=" << tr.getX() << " +- " << tr.getXUnc() << " mm, "
         << "y=" << tr.getY() << " +- " << tr.getYUnc() << " mm";
 
-    Ref<std::vector<CTPPSLocalTrackLite> > r_track(hTracks, idx);
+    edm::Ref<std::vector<CTPPSLocalTrackLite> > r_track(hTracks, idx);
     if (rpId.arm() == 0)
       tracks_45.push_back(r_track);
     if (rpId.arm() == 1)
@@ -194,34 +186,24 @@ void CTPPSProtonProducer::produce(Event& event, const EventSetup &eventSetup)
 
   // single-RP reconstruction
   if (doSingleRPReconstruction_) {
-    unique_ptr<reco::ForwardProtonCollection> output(new reco::ForwardProtonCollection);
+    std::unique_ptr<reco::ForwardProtonCollection> pOut(new reco::ForwardProtonCollection);
 
-    algorithm_.reconstructFromSingleRP(tracks_45, *output, *outputExtra, *hLHCInfo, ssLog);
-    algorithm_.reconstructFromSingleRP(tracks_56, *output, *outputExtra, *hLHCInfo, ssLog);
+    algorithm_.reconstructFromSingleRP(tracks_45, *pOut, *hLHCInfo, ssLog);
+    algorithm_.reconstructFromSingleRP(tracks_56, *pOut, *hLHCInfo, ssLog);
 
-    auto ohExtra = event.put(move(outputExtra), singleRPReconstructionLabel_);
-
-    for (unsigned int i = 0; i < output->size(); ++i)
-      (*output)[i].setProtonTrackExtra(reco::ProtonTrackExtraRef(ohExtra, i));
-
-    event.put(move(output), singleRPReconstructionLabel_);
+    iEvent.put(std::move(pOut), singleRPReconstructionLabel_);
   }
 
   // multi-RP reconstruction
   if (doMultiRPReconstruction_) {
-    unique_ptr<reco::ForwardProtonCollection> output(new reco::ForwardProtonCollection);
+    std::unique_ptr<reco::ForwardProtonCollection> pOut(new reco::ForwardProtonCollection);
 
     if (singleTrack_45)
-      algorithm_.reconstructFromMultiRP(tracks_45, *output, *outputExtra, *hLHCInfo, ssLog);
+      algorithm_.reconstructFromMultiRP(tracks_45, *pOut, *hLHCInfo, ssLog);
     if (singleTrack_56)
-      algorithm_.reconstructFromMultiRP(tracks_56, *output, *outputExtra, *hLHCInfo, ssLog);
+      algorithm_.reconstructFromMultiRP(tracks_56, *pOut, *hLHCInfo, ssLog);
 
-    auto ohExtra = event.put(move(outputExtra), multiRPReconstructionLabel_);
-
-    for (unsigned int i = 0; i < output->size(); ++i)
-      (*output)[i].setProtonTrackExtra(reco::ProtonTrackExtraRef(ohExtra, i));
-
-    event.put(move(output), multiRPReconstructionLabel_);
+    iEvent.put(std::move(pOut), multiRPReconstructionLabel_);
   }
 
   if (verbosity_)
