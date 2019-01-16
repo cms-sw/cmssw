@@ -246,10 +246,90 @@ def help():
   print("  The given programs will be executed, instrumenting calls to cmsRun.")
   print("  cmsRun will not actually run cmssw, but all the Python code will be executed and instrumentd. The results are written to the file `%s` in the same directory." % OUTFILE_TREE)
   print("  The callgraph output lists edges pointing from each function to the one calling it.")
+  print("  To view the results using a simple webpage, use\n   %s serve" % sys.argv[0])
   print("Examples:")
   print("  %s runTheMatrix.py -l 1000 --ibeos" % sys.argv[0])
 cmsswFiletrace.help = help
 
+
+def serve_main():
+  PORT = 8000
+  FILE_PATHS = [os.environ["CMSSW_BASE"] + "/python/", os.environ["CMSSW_RELEASE_BASE"] + "/python/",
+                os.environ["CMSSW_BASE"] + "/cfipython/", os.environ["CMSSW_RELEASE_BASE"] + "/cfipython/"]
+  import SimpleHTTPServer
+  import SocketServer
+  import traceback
+  import re
+
+  def escape(s):
+    return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+  def index():
+      return 'goto to /file/<filename> for info about a file'
+  def showfile(filename):
+    out = []
+    lines = None
+    for d in FILE_PATHS:
+      try:
+        with open(d + filename) as f:
+          lines = f.readlines()
+          out.append("Read %s" % f.name)
+        break
+      except:
+        pass
+    if lines:
+      out.append("<pre>")
+      out += [escape(l) for l in lines]
+      out.append("</pre>")
+    return "\n".join(out)
+
+      
+  def showinfo(filename, line):
+      return 'usages of line %d in file %s should go here, to be used in an iframe' % (line, filename)
+  def showwhy(id):
+      return 'show the stack trace leading to %d' % id
+
+  ROUTES = [(re.compile('/file/(.*)'), showfile),
+            (re.compile('/info/(.*):(\d+)'), showinfo),
+            (re.compile('/why/(\d+)'), showwhy),
+            (re.compile('/'), index)]
+
+  def do_GET(self):
+    try:
+      res = None
+      for pattern, func in ROUTES:
+        m = pattern.match(self.path)
+        if m:
+          res = func(*m.groups())
+          break
+
+      if res:
+        self.send_response(200, "Here you go")
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.end_headers()
+        self.wfile.write("<html><body>")
+        self.wfile.write(res)
+        self.wfile.write("</body></html>")
+        self.wfile.close()
+      else:
+        self.send_response(400, "Something went wrong")
+    except:
+      trace = traceback.format_exc()
+      self.send_response(500, "Things went very wrong")
+      self.send_header("Content-Type", "text/plain; charset=utf-8")
+      self.end_headers()
+      self.wfile.write(trace)
+      self.wfile.close()
+
+  Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+  Handler.do_GET = do_GET
+  httpd = SocketServer.TCPServer(("", PORT), Handler)
+  print("serving at port", PORT)
+  httpd.serve_forever()
+
 if __name__ == '__main__':
-  main()
+  if sys.argv[1] == "serve":
+    serve_main()
+  else:
+    main()
   
