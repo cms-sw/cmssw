@@ -40,6 +40,7 @@ DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
   d0CutOff_ = conf.getParameter<double> ("d0CutOff");
   dzCutOff_ = conf.getParameter<double> ("dzCutOff");
   dtCutOff_ = conf.getParameter<double> ("dtCutOff");
+  t0Max_ = conf.getParameter<double> ("t0Max");
   uniquetrkweight_ = conf.getParameter<double>("uniquetrkweight");
   zmerge_ = conf.getParameter<double>("zmerge");
   tmerge_ = conf.getParameter<double>("tmerge");
@@ -126,7 +127,7 @@ DAClusterizerInZT_vect::fill(const vector<reco::TransientTrack> & tracks) const 
 
 
     double t_dt2 =std::pow(tk.dtErrorExt(),2.) + std::pow(vertexSizeTime_,2.); // the ~injected~ timing error, need to add a small minimum vertex size in time
-    if (tk.dtErrorExt()>0.3){ 
+    if (tk.dtErrorExt()>0.3 || std::abs(tk.timeExt()) > t0Max_){ 
       t_dt2 = 0; // tracks with no time measurement
     }else{
       t_dt2 = 1./t_dt2;
