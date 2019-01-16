@@ -296,7 +296,7 @@ CTPPSGeometryESModule::produceIdealGD( const IdealGeometryRecord& iRecord )
   buildDetGeomDesc( &fv, root );
 
   // construct the tree of DetGeomDesc
-  return std::unique_ptr<DetGeomDesc>( const_cast<DetGeomDesc*>( root ) );
+  return std::unique_ptr<DetGeomDesc>( root );
 }
 
 //----------------------------------------------------------------------------------------------------
