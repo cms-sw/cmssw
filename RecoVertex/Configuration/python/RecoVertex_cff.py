@@ -48,15 +48,15 @@ trackRefsForJetsBeforeSorting4DnoPID = trackRefsForJets.clone(src="trackWithVert
 offlinePrimaryVertices4DnoPID=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4DnoPID", particles="trackRefsForJetsBeforeSorting4DnoPID", trackTimeTag=cms.InputTag("trackExtenderWithMTD","generalTrackt0"),trackTimeResoTag=cms.InputTag("trackExtenderWithMTD","generalTracksigmat0"),assignment=dict(useTiming=True))
 offlinePrimaryVertices4DnoPIDWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4DnoPID:WithBS", particles="trackRefsForJetsBeforeSorting4DnoPID", trackTimeTag=cms.InputTag("trackExtenderWithMTD","generalTrackt0"),trackTimeResoTag=cms.InputTag("trackExtenderWithMTD","generalTracksigmat0"),assignment=dict(useTiming=True))
 
-unsortedOfflinePrimaryVertices4D = unsortedOfflinePrimaryVertices4DnoPID.clone(TrackTimesLabel = cms.InputTag("TOFPIDProducer:t0"),
-                                                                                 TrackTimeResosLabel = cms.InputTag("TOFPIDProducer:sigmat0"),
+unsortedOfflinePrimaryVertices4D = unsortedOfflinePrimaryVertices4DnoPID.clone(TrackTimesLabel = cms.InputTag("TOFPIDProducer:t0safe"),
+                                                                                 TrackTimeResosLabel = cms.InputTag("TOFPIDProducer:sigmat0safe"),
                                                                                  )
 trackWithVertexRefSelectorBeforeSorting4D = trackWithVertexRefSelector.clone(vertexTag="unsortedOfflinePrimaryVertices4D")
 trackWithVertexRefSelectorBeforeSorting4D.ptMax=9e99
 trackWithVertexRefSelectorBeforeSorting4D.ptErrorCut=9e99
 trackRefsForJetsBeforeSorting4D = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSorting4D")
-offlinePrimaryVertices4D=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4D", particles="trackRefsForJetsBeforeSorting4D", trackTimeTag=cms.InputTag("TOFPIDProducer","t0"),trackTimeResoTag=cms.InputTag("TOFPIDProducer","sigmat0"),assignment=dict(useTiming=True))
-offlinePrimaryVertices4DWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4D:WithBS", particles="trackRefsForJetsBeforeSorting4D", trackTimeTag=cms.InputTag("TOFPIDProducer","t0"),trackTimeResoTag=cms.InputTag("TOFPIDProducer","sigmat0"),assignment=dict(useTiming=True))
+offlinePrimaryVertices4D=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4D", particles="trackRefsForJetsBeforeSorting4D", trackTimeTag=cms.InputTag("TOFPIDProducer","t0safe"),trackTimeResoTag=cms.InputTag("TOFPIDProducer","sigmat0safe"),assignment=dict(useTiming=True))
+offlinePrimaryVertices4DWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4D:WithBS", particles="trackRefsForJetsBeforeSorting4D", trackTimeTag=cms.InputTag("TOFPIDProducer","t0safe"),trackTimeResoTag=cms.InputTag("TOFPIDProducer","sigmat0safe"),assignment=dict(useTiming=True))
 
 unsortedOfflinePrimaryVertices4Dfastsim = unsortedOfflinePrimaryVertices4DnoPID.clone(TrackTimesLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel"),
                                                                                  TrackTimeResosLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution"),

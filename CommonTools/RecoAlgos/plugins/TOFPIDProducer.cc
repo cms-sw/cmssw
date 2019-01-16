@@ -23,6 +23,8 @@ using namespace edm;
 class TOFPIDProducer : public edm::stream::EDProducer<> {  
   static constexpr char t0Name[] = "t0";
   static constexpr char sigmat0Name[] = "sigmat0";
+  static constexpr char t0safeName[] = "t0safe";
+  static constexpr char sigmat0safeName[] = "sigmat0safe";  
   static constexpr char probPiName[] = "probPi";
   static constexpr char probKName[] = "probK";
   static constexpr char probPName[] = "probP";
@@ -36,7 +38,8 @@ class TOFPIDProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > t0Token_;
   edm::EDGetTokenT<edm::ValueMap<float> > tmtdToken_;
-  edm::EDGetTokenT<edm::ValueMap<float> > sigmatToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > sigmat0Token_;
+  edm::EDGetTokenT<edm::ValueMap<float> > sigmatmtdToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > pathLengthToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > pToken_;
   edm::EDGetTokenT<reco::VertexCollection> vtxsToken_;
@@ -52,7 +55,8 @@ TOFPIDProducer::TOFPIDProducer(const ParameterSet& iConfig) :
   tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracksSrc"))),
   t0Token_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("t0Src"))),
   tmtdToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("tmtdSrc"))),
-  sigmatToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("sigmatSrc"))),
+  sigmat0Token_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("sigmat0Src"))),
+  sigmatmtdToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("sigmatmtdSrc"))),
   pathLengthToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("pathLengthSrc"))),
   pToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("pSrc"))),
   vtxsToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxsSrc"))),
@@ -63,6 +67,8 @@ TOFPIDProducer::TOFPIDProducer(const ParameterSet& iConfig) :
   {  
   produces<edm::ValueMap<float> >(t0Name);
   produces<edm::ValueMap<float> >(sigmat0Name);
+  produces<edm::ValueMap<float> >(t0safeName);
+  produces<edm::ValueMap<float> >(sigmat0safeName);
   produces<edm::ValueMap<float> >(probPiName); 
   produces<edm::ValueMap<float> >(probKName);
   produces<edm::ValueMap<float> >(probPName);
@@ -88,9 +94,13 @@ void TOFPIDProducer::produce( edm::Event& ev,
   ev.getByToken(tmtdToken_, tmtdH);
   const auto &tmtdIn = *tmtdH;
   
-  edm::Handle<edm::ValueMap<float> > sigmatH;
-  ev.getByToken(sigmatToken_, sigmatH);
-  const auto &sigmatIn = *sigmatH;
+  edm::Handle<edm::ValueMap<float> > sigmat0H;
+  ev.getByToken(sigmat0Token_, sigmat0H);
+  const auto &sigmat0In = *sigmat0H;
+
+  edm::Handle<edm::ValueMap<float> > sigmatmtdH;
+  ev.getByToken(sigmatmtdToken_, sigmatmtdH);
+  const auto &sigmatmtdIn = *sigmatmtdH;
   
   edm::Handle<edm::ValueMap<float> > pathLengthH;
   ev.getByToken(pathLengthToken_, pathLengthH);
@@ -111,6 +121,12 @@ void TOFPIDProducer::produce( edm::Event& ev,
   auto sigmat0Out = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> sigmat0OutRaw;
 
+  auto t0safeOut = std::make_unique<edm::ValueMap<float>>();
+  std::vector<float> t0safeOutRaw;
+  
+  auto sigmat0safeOut = std::make_unique<edm::ValueMap<float>>();
+  std::vector<float> sigmat0safeOutRaw;
+  
   auto probPiOut = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> probPiOutRaw;
   
@@ -125,7 +141,10 @@ void TOFPIDProducer::produce( edm::Event& ev,
     const reco::Track &track = tracks[itrack];
     const reco::TrackRef trackref(tracksH,itrack);
     float t0 = t0In[trackref];
-    float sigmat0 = sigmatIn[trackref];
+    float t0safe = t0;
+    float sigmat0safe = sigmat0In[trackref];
+    float sigmatmtd = sigmatmtdIn[trackref];
+    float sigmat0 = sigmatmtd;
     
     float prob_pi = -1.;
     float prob_k = -1.;
@@ -134,8 +153,8 @@ void TOFPIDProducer::produce( edm::Event& ev,
     if (sigmat0>0.) {
       
       double rsigmazsq = 1./track.dzError()/track.dzError();
-      double rsigmat0 = 1./sigmat0;
-      double rsigmat0sq = rsigmat0*rsigmat0;
+      double rsigmat = 1./sigmatmtd;
+//       double rsigmatsq = rsigmat*rsigmat;
       
       //find associated vertex
       int vtxidx = -1;
@@ -158,7 +177,7 @@ void TOFPIDProducer::produce( edm::Event& ev,
         }
         if (vtx.tError()>0. && vtx.tError()<vtxMaxSigmaT_) {
           double dt = std::abs(t0-vtx.t());
-          double dtsig = dt*rsigmat0;
+          double dtsig = dt*rsigmat;
           double chisq = dz*dz*rsigmazsq + dtsig*dtsig;
           if (dz<maxDz_ && dtsig<maxDtSignificance_ && chisq<minchisq) {
             minchisq = chisq;
@@ -170,12 +189,15 @@ void TOFPIDProducer::produce( edm::Event& ev,
       //if no vertex found based on association weights, fall back to closest in z or z-t
       if (vtxidx<0) {
         //if closest vertex in z does not have valid time information, just use it, 
-        //otherwise use the closest vertex in z-t plane with timing info,
+        //otherwise use the closest vertex in z-t plane with timing info, with a fallback to the closest in z
         if (vtxidxmindz>=0 && !(vtxs[vtxidxmindz].tError()>0. && vtxs[vtxidxmindz].tError()<vtxMaxSigmaT_)) {
           vtxidx = vtxidxmindz;
         }
         else if (vtxidxminchisq>=0) {
           vtxidx = vtxidxminchisq;
+        }
+        else if (vtxidxmindz>=0) {
+          vtxidx = vtxidxmindz;
         }
       }
       
@@ -185,10 +207,17 @@ void TOFPIDProducer::produce( edm::Event& ev,
         const reco::Vertex &vtxnom = vtxs[vtxidx];
         double dznom = std::abs(track.dz(vtxnom.position()));
         double dtnom = std::abs(t0 - vtxnom.t());
-        double chisqnom = dznom*dznom*rsigmazsq + dtnom*dtnom*rsigmat0sq;
+        double dtsignom = dtnom*rsigmat;
+        double chisqnom = dznom*dznom*rsigmazsq + dtsignom*dtsignom;
         
         //recompute t0 for alternate mass hypotheses
         double t0_best = t0;
+        double t0_pi = t0;
+        
+        //reliable match, revert to raw mtd time uncertainty
+        if (dtsignom < maxDtSignificance_) {
+          sigmat0safe = sigmatmtd;
+        }
         
         float tmtd = tmtdIn[trackref];
         float pathlength = pathLengthIn[trackref];
@@ -221,7 +250,7 @@ void TOFPIDProducer::produce( edm::Event& ev,
           double chisqdz = dz*dz*rsigmazsq;
           
           double dt_k = std::abs(t0_k - vtx.t());
-          double dtsig_k = dt_k*rsigmat0;
+          double dtsig_k = dt_k*rsigmat;
           double chisq_k = chisqdz + dtsig_k*dtsig_k;
           
           if (dtsig_k < maxDtSignificance_ && chisq_k<chisqmin_k) {
@@ -229,7 +258,7 @@ void TOFPIDProducer::produce( edm::Event& ev,
           }
           
           double dt_p = std::abs(t0_p - vtx.t());
-          double dtsig_p = dt_p*rsigmat0;
+          double dtsig_p = dt_p*rsigmat;
           double chisq_p = chisqdz + dtsig_p*dtsig_p;
           
           if (dtsig_p < maxDtSignificance_ && chisq_p<chisqmin_p) {
@@ -239,10 +268,14 @@ void TOFPIDProducer::produce( edm::Event& ev,
           if (dtsig_k < maxDtSignificance_ && chisq_k<chisqmin) {
             chisqmin = chisq_k;
             t0_best = t0_k;
+            t0safe = t0_k;
+            sigmat0safe = sigmatmtd;
           }
           if (dtsig_p < maxDtSignificance_ && chisq_p<chisqmin) {
             chisqmin = chisq_p;
             t0_best = t0_p;
+            t0safe = t0_p;
+            sigmat0safe = sigmatmtd;
           }
           
         }
@@ -271,6 +304,8 @@ void TOFPIDProducer::produce( edm::Event& ev,
     
     t0OutRaw.push_back(t0);
     sigmat0OutRaw.push_back(sigmat0);
+    t0safeOutRaw.push_back(t0safe);
+    sigmat0safeOutRaw.push_back(sigmat0safe);
     probPiOutRaw.push_back(prob_pi);
     probKOutRaw.push_back(prob_k);
     probPOutRaw.push_back(prob_p);
@@ -285,6 +320,16 @@ void TOFPIDProducer::produce( edm::Event& ev,
   fillersigmat0s.insert(tracksH,sigmat0OutRaw.cbegin(),sigmat0OutRaw.cend());
   fillersigmat0s.fill();
   ev.put(std::move(sigmat0Out),sigmat0Name);
+  
+  edm::ValueMap<float>::Filler fillert0safes(*t0safeOut);
+  fillert0safes.insert(tracksH,t0safeOutRaw.cbegin(),t0safeOutRaw.cend());
+  fillert0safes.fill();
+  ev.put(std::move(t0safeOut),t0safeName);
+
+  edm::ValueMap<float>::Filler fillersigmat0safes(*sigmat0safeOut);
+  fillersigmat0safes.insert(tracksH,sigmat0safeOutRaw.cbegin(),sigmat0safeOutRaw.cend());
+  fillersigmat0safes.fill();
+  ev.put(std::move(sigmat0safeOut),sigmat0safeName);
   
   edm::ValueMap<float>::Filler fillerprobPis(*probPiOut);
   fillerprobPis.insert(tracksH,probPiOutRaw.cbegin(),probPiOutRaw.cend());
