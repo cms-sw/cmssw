@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TOFPIDProducer = cms.EDProducer( "TOFPIDProducer",
+tofPID = cms.EDProducer( "TOFPIDProducer",
   tracksSrc = cms.InputTag("generalTracks"),
   t0Src = cms.InputTag("trackExtenderWithMTD:generalTrackt0"),
   tmtdSrc = cms.InputTag("trackExtenderWithMTD:generalTracktmtd"),

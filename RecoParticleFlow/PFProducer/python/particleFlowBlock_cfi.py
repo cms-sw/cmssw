@@ -179,10 +179,13 @@ phase2_hgcal.toModify(
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _addTiming = particleFlowBlock.elementImporters.copy()
 _addTiming.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),
-                             timeValueMap = cms.InputTag("TOFPIDProducer:t0"),
-                             timeErrorMap = cms.InputTag("TOFPIDProducer:sigmat0"),
-                             timeValueMapGsf = cms.InputTag("TOFPIDProducer:t0"), #this will cause no time to be set for gsf tracks (since this is not available for the fullsim/reconstruction yet) *TODO* update when gsf times are available
-                             timeErrorMapGsf = cms.InputTag("TOFPIDProducer:sigmat0")
+                             timeValueMap = cms.InputTag("tofPID:t0"),
+                             timeErrorMap = cms.InputTag("tofPID:sigmat0"),
+                             #this will cause no time to be set for gsf tracks
+                             #(since this is not available for the fullsim/reconstruction yet)
+                             #*TODO* update when gsf times are available
+                             timeValueMapGsf = cms.InputTag("tofPID:t0"),
+                             timeErrorMapGsf = cms.InputTag("tofPID:sigmat0")
                              ) 
                    )
 

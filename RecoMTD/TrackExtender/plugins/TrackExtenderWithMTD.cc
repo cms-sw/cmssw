@@ -50,7 +50,8 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 using namespace std;
 using namespace edm;
@@ -60,16 +61,6 @@ using namespace edm;
 
 template<class TrackCollection>
 class TrackExtenderWithMTDT : public edm::stream::EDProducer<> {  
-  static constexpr char pathLengthName[] = "pathLength";
-  static constexpr char tmtdName[] = "tmtd";
-  static constexpr char sigmatmtdName[] = "sigmatmtd";  
-  static constexpr char pOrigTrkName[] = "generalTrackp";
-  static constexpr char betaOrigTrkName[] = "generalTrackBeta";
-  static constexpr char t0OrigTrkName[] = "generalTrackt0";
-  static constexpr char sigmat0OrigTrkName[] = "generalTracksigmat0";
-  static constexpr char pathLengthOrigTrkName[] = "generalTrackPathLength";
-  static constexpr char tmtdOrigTrkName[] = "generalTracktmtd";
-  static constexpr char sigmatmtdOrigTrkName[] = "generalTracksigmatmtd";
  public:
   typedef typename TrackCollection:: value_type TrackType;
   typedef edm::View<TrackType> InputCollection;
@@ -115,6 +106,17 @@ class TrackExtenderWithMTDT : public edm::stream::EDProducer<> {
   string dumpLayer(const DetLayer* layer) const;
 
  private:
+  static constexpr char pathLengthName[] = "pathLength";
+  static constexpr char tmtdName[] = "tmtd";
+  static constexpr char sigmatmtdName[] = "sigmatmtd";  
+  static constexpr char pOrigTrkName[] = "generalTrackp";
+  static constexpr char betaOrigTrkName[] = "generalTrackBeta";
+  static constexpr char t0OrigTrkName[] = "generalTrackt0";
+  static constexpr char sigmat0OrigTrkName[] = "generalTracksigmat0";
+  static constexpr char pathLengthOrigTrkName[] = "generalTrackPathLength";
+  static constexpr char tmtdOrigTrkName[] = "generalTracktmtd";
+  static constexpr char sigmatmtdOrigTrkName[] = "generalTracksigmatmtd";
+   
   edm::EDGetTokenT<InputCollection> tracksToken_;
   edm::EDGetTokenT<MTDTrackingDetSetVector> hitsToken_;
   edm::EDGetTokenT<reco::BeamSpot> bsToken_;
@@ -320,7 +322,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce( edm::Event& ev,
     tmtdMap = tmtd;
     sigmatmtdMap = sigmatmtd;
         auto& backtrack = output->back();
-    pMap = backtrack.p();
+	pMap = backtrack.p();
 	betaMap = backtrack.beta();
 	t0Map = backtrack.t0();
 	sigmat0Map = std::copysign(std::sqrt(std::abs(backtrack.covt0t0())),backtrack.covt0t0());
@@ -504,7 +506,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
   constexpr double m_pi_inv2 = 1.0/m_pi/m_pi;
   constexpr double m_p = 0.9382720813;
   constexpr double m_p_inv2 = 1.0/m_p/m_p;
-  constexpr double c_cm_ns = 2.99792458e1; //[cm/ns]
+  constexpr double c_cm_ns = CLHEP::c_light*CLHEP::ns/CLHEP::cm; //[cm/ns]
   constexpr double c_inv = 1.0/c_cm_ns;
   
   const FreeTrajectoryState & stateForProjectionToBeamLine=*stateForProjectionToBeamLineOnSurface.freeState();

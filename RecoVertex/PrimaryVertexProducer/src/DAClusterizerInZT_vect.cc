@@ -679,8 +679,9 @@ DAClusterizerInZT_vect::split(const double beta,  track_t &tks, vertex_t & y, do
     if(wt2 > 0){t2 /= wt2;} else {t2 = y.t_[k] + epsilont * sq; edm::LogWarning("DAClusterizerInZT_vect") << "warning, wt2 = " << scientific << wt2 << endl;}
     
     unsigned int k_min1 = k, k_min2 = k;
+    constexpr double spliteps = 1e-8;
     while(   ((find_nearest(z1, t1, y, k_min1, epsilonz, epsilont) && (k_min1 != k))
-	     || (find_nearest(z2,t2, y, k_min2, epsilonz, epsilont) && (k_min2 !=k))) && (std::abs(z2-z1)>1e-8 || std::abs(t2-t1)>1e-8) ){
+	     || (find_nearest(z2,t2, y, k_min2, epsilonz, epsilont) && (k_min2 !=k))) && (std::abs(z2-z1)>spliteps || std::abs(t2-t1)>spliteps) ){
       z1 = 0.5*( z1 + y.z_[k]);      t1 = 0.5*( t1 + y.t_[k]);
       z2 = 0.5*( z2 + y.z_[k]);      t2 = 0.5*( t2 + y.t_[k]);
     }

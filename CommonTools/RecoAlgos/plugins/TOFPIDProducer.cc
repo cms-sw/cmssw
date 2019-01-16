@@ -9,25 +9,15 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 using namespace std;
 using namespace edm;
 
-
-
-
-
 class TOFPIDProducer : public edm::stream::EDProducer<> {  
-  static constexpr char t0Name[] = "t0";
-  static constexpr char sigmat0Name[] = "sigmat0";
-  static constexpr char t0safeName[] = "t0safe";
-  static constexpr char sigmat0safeName[] = "sigmat0safe";  
-  static constexpr char probPiName[] = "probPi";
-  static constexpr char probKName[] = "probK";
-  static constexpr char probPName[] = "probP";
  public:
   
   TOFPIDProducer(const ParameterSet& pset); 
@@ -35,6 +25,14 @@ class TOFPIDProducer : public edm::stream::EDProducer<> {
   void produce(edm::Event& ev, const edm::EventSetup& es) final;
 
  private:
+  static constexpr char t0Name[] = "t0";
+  static constexpr char sigmat0Name[] = "sigmat0";
+  static constexpr char t0safeName[] = "t0safe";
+  static constexpr char sigmat0safeName[] = "sigmat0safe";  
+  static constexpr char probPiName[] = "probPi";
+  static constexpr char probKName[] = "probK";
+  static constexpr char probPName[] = "probP";
+  
   edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > t0Token_;
   edm::EDGetTokenT<edm::ValueMap<float> > tmtdToken_;
@@ -80,7 +78,8 @@ void TOFPIDProducer::produce( edm::Event& ev,
   
   constexpr double m_k = 0.493677; //[GeV]
   constexpr double m_p = 0.9382720813; //[GeV]
-  constexpr double c = 2.99792458e1; //[cm/ns]
+  constexpr double c_cm_ns = CLHEP::c_light*CLHEP::ns/CLHEP::cm; //[cm/ns]
+  constexpr double c_inv = 1.0/c_cm_ns;
   
   edm::Handle<reco::TrackCollection> tracksH;  
   ev.getByToken(tracksToken_,tracksH);
@@ -212,7 +211,6 @@ void TOFPIDProducer::produce( edm::Event& ev,
         
         //recompute t0 for alternate mass hypotheses
         double t0_best = t0;
-        double t0_pi = t0;
         
         //reliable match, revert to raw mtd time uncertainty
         if (dtsignom < maxDtSignificance_) {
@@ -225,11 +223,11 @@ void TOFPIDProducer::produce( edm::Event& ev,
         
         double gammasq_k = 1. + magp*magp/m_k/m_k;
         double beta_k = std::sqrt(1.-1./gammasq_k);
-        double t0_k = tmtd - pathlength/beta_k/c;
+        double t0_k = tmtd - pathlength/beta_k*c_inv;
         
         double gammasq_p = 1. + magp*magp/m_p/m_p;
         double beta_p = std::sqrt(1.-1./gammasq_p);
-        double t0_p = tmtd - pathlength/beta_p/c;
+        double t0_p = tmtd - pathlength/beta_p*c_inv;
         
         double chisqmin = chisqnom;
         
