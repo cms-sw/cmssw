@@ -25,6 +25,9 @@ class TOFPIDProducer : public edm::stream::EDProducer<> {
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
+  template <class H, class T>
+  void fillValueMap(edm::Event& iEvent, const edm::Handle<H>& handle, const std::vector<T>& vec, const std::string& name) const;
+  
   void produce(edm::Event& ev, const edm::EventSetup& es) final;
 
  private:
@@ -105,6 +108,15 @@ TOFPIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     setComment("Minimum probability for a particle to be a kaon or proton before reassigning the timestamp");    
 }
 
+template <class H, class T>
+void TOFPIDProducer::fillValueMap(edm::Event& iEvent, const edm::Handle<H>& handle, const std::vector<T>& vec, const std::string& name) const {
+  auto out = std::make_unique<edm::ValueMap<T>>();
+  typename edm::ValueMap<T>::Filler filler(*out);
+  filler.insert(handle, vec.begin(), vec.end());
+  filler.fill();
+  iEvent.put(std::move(out),name);
+}
+
 void TOFPIDProducer::produce( edm::Event& ev,
 						      const edm::EventSetup& es ) {  
   
@@ -146,25 +158,12 @@ void TOFPIDProducer::produce( edm::Event& ev,
   const auto& vtxs = *vtxsH;
 
   //output value maps (PID probabilities and recalculated time at beamline)
-  auto t0Out = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> t0OutRaw;
-  
-  auto sigmat0Out = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> sigmat0OutRaw;
-
-  auto t0safeOut = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> t0safeOutRaw;
-  
-  auto sigmat0safeOut = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> sigmat0safeOutRaw;
-  
-  auto probPiOut = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> probPiOutRaw;
-  
-  auto probKOut = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> probKOutRaw;
-  
-  auto probPOut = std::make_unique<edm::ValueMap<float>>();
   std::vector<float> probPOutRaw;
   
   //Do work here
@@ -341,40 +340,13 @@ void TOFPIDProducer::produce( edm::Event& ev,
     probPOutRaw.push_back(prob_p);
   }
 
-  edm::ValueMap<float>::Filler fillert0s(*t0Out);
-  fillert0s.insert(tracksH,t0OutRaw.cbegin(),t0OutRaw.cend());
-  fillert0s.fill();
-  ev.put(std::move(t0Out),t0Name);
-
-  edm::ValueMap<float>::Filler fillersigmat0s(*sigmat0Out);
-  fillersigmat0s.insert(tracksH,sigmat0OutRaw.cbegin(),sigmat0OutRaw.cend());
-  fillersigmat0s.fill();
-  ev.put(std::move(sigmat0Out),sigmat0Name);
-  
-  edm::ValueMap<float>::Filler fillert0safes(*t0safeOut);
-  fillert0safes.insert(tracksH,t0safeOutRaw.cbegin(),t0safeOutRaw.cend());
-  fillert0safes.fill();
-  ev.put(std::move(t0safeOut),t0safeName);
-
-  edm::ValueMap<float>::Filler fillersigmat0safes(*sigmat0safeOut);
-  fillersigmat0safes.insert(tracksH,sigmat0safeOutRaw.cbegin(),sigmat0safeOutRaw.cend());
-  fillersigmat0safes.fill();
-  ev.put(std::move(sigmat0safeOut),sigmat0safeName);
-  
-  edm::ValueMap<float>::Filler fillerprobPis(*probPiOut);
-  fillerprobPis.insert(tracksH,probPiOutRaw.cbegin(),probPiOutRaw.cend());
-  fillerprobPis.fill();
-  ev.put(std::move(probPiOut),probPiName);  
-  
-  edm::ValueMap<float>::Filler fillerprobKs(*probKOut);
-  fillerprobKs.insert(tracksH,probKOutRaw.cbegin(),probKOutRaw.cend());
-  fillerprobKs.fill();
-  ev.put(std::move(probKOut),probKName);
-
-  edm::ValueMap<float>::Filler fillerprobPs(*probPOut);
-  fillerprobPs.insert(tracksH,probPOutRaw.cbegin(),probPOutRaw.cend());
-  fillerprobPs.fill();
-  ev.put(std::move(probPOut),probPName);  
+  fillValueMap(ev, tracksH, t0OutRaw, t0Name);
+  fillValueMap(ev, tracksH, sigmat0OutRaw, sigmat0Name);
+  fillValueMap(ev, tracksH, t0safeOutRaw, t0safeName);
+  fillValueMap(ev, tracksH, sigmat0safeOutRaw, sigmat0safeName);
+  fillValueMap(ev, tracksH, probPiOutRaw, probPiName);
+  fillValueMap(ev, tracksH, probKOutRaw, probKName);
+  fillValueMap(ev, tracksH, probPOutRaw, probPName);
   
 }
 
