@@ -193,23 +193,22 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     for (std::vector< std::vector<reco::TransientTrack> >::const_iterator iclus
 	   = clusters.begin(); iclus != clusters.end(); iclus++) {
       
+      double sumwt = 0.;
+      double sumw = 0.; 
       double meantime = 0.;
-      double expv_x2 = 0.;
-      double normw = 0.;  
+      double vartime = 0.;
       if( f4D ) {
         for( const auto& tk : *iclus ) {
           const double time = tk.timeExt();
-          const double inverr = 1.0/tk.dtErrorExt();
+          const double err = tk.dtErrorExt();
+          const double inverr = err > 0. ? 1.0/err : 0.;
           const double w = inverr*inverr;
-          meantime += time*w;
-          expv_x2  += time*time*w;
-          normw    += w;
+          sumwt   += w*time;
+          sumw    += w;
         }
-        meantime = meantime/normw;
-        expv_x2 = expv_x2/normw;
+        meantime = sumwt/sumw;
+        vartime = 1./sumw;
       }
-      const double time_var = ( f4D ? expv_x2 - meantime*meantime : 0. ); 
-
 
       TransientVertex v; 
       if( algorithm->useBeamConstraint && validBS &&((*iclus).size()>1) ){
@@ -219,7 +218,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         if( f4D ) {
           if( v.isValid() ) {
             auto err = v.positionError().matrix4D();
-            err(3,3) = time_var/(double)iclus->size();        
+            err(3,3) = vartime;
             v = TransientVertex(v.position(),meantime,err,v.originalTracks(),v.totalChiSquared());
           }
         }
@@ -231,7 +230,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         if( f4D ) {
           if( v.isValid() ) {
             auto err = v.positionError().matrix4D();
-            err(3,3) = time_var/(double)iclus->size();          
+            err(3,3) = vartime;
             v = TransientVertex(v.position(),meantime,err,v.originalTracks(),v.totalChiSquared());
           }
         }
