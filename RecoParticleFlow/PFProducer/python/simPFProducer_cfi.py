@@ -19,10 +19,13 @@ simPFProducer = cms.EDProducer(
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify(
     simPFProducer,
-    trackTimeValueMap = cms.InputTag("TOFPIDProducer:t0"),
-    trackTimeErrorMap = cms.InputTag("TOFPIDProducer:sigmat0"),
-    gsfTrackTimeValueMap = cms.InputTag("TOFPIDProducer:t0"), #this will cause no time to be set for gsf tracks (since this is not available for the fullsim/reconstruction yet) *TODO* update when gsf times are available
-    gsfTrackTimeErrorMap = cms.InputTag("TOFPIDProducer:sigmat0"),
+    trackTimeValueMap = cms.InputTag("tofPID:t0"),
+    trackTimeErrorMap = cms.InputTag("tofPID:sigmat0"),
+    #this will cause no time to be set for gsf tracks
+    #(since this is not available for the fullsim/reconstruction yet)
+    #*TODO* update when gsf times are available
+    gsfTrackTimeValueMap = cms.InputTag("tofPID:t0"),
+    gsfTrackTimeErrorMap = cms.InputTag("tofPID:sigmat0"),
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2

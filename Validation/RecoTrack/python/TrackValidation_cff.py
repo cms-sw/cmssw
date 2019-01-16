@@ -781,6 +781,6 @@ tracksValidationLite = cms.Sequence(
 ## customization for timing
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 phase2_timing_layer.toModify( generalTracksFromPV, 
-                              timesTag  = cms.InputTag('TOFPIDProducer:t0'), 
-                              timeResosTag = cms.InputTag('TOFPIDProducer:sigmat0'), 
+                              timesTag  = cms.InputTag('tofPID:t0'), 
+                              timeResosTag = cms.InputTag('tofPID:sigmat0'), 
                               nSigmaDtVertex = cms.double(3) )
