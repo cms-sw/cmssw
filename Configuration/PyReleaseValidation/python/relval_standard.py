@@ -434,6 +434,9 @@ workflows[2017.13] = ['TTbar_13_UP17', ['TTbarFS_13_trackingOnlyValidation_UP17'
 ### MinBias fastsim_13 TeV for mixing ###                                                                                                                                      
 workflows[2017.8] = ['',['MinBiasFS_13_UP17_ForMixing']]
 
+### MinBias fastsim_13 TeV for mixing, 2018 ###                                                                                                                                      
+workflows[2018.8] = ['',['MinBiasFS_13_UP18_ForMixing']]
+
 
 ### standard set ###
 ## particle guns

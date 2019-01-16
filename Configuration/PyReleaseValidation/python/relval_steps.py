@@ -626,6 +626,8 @@ baseDataSetRelease=[
     'CMSSW_10_4_0_pre1-PU25ns_103X_mc2017_realistic_v1_FastSim-v2',# 16 - fastSim premix library UP17 
     'CMSSW_10_4_0_pre1-PU25ns_103X_upgrade2018_realistic_v7-v2',  # 17 - fullSim PU 25ns UP18 premix library
     'CMSSW_10_3_0_pre5-103X_upgrade2018_realistic_v7-v1',  # 18 - GENSIM input for 2018 fullSim premix workflows
+    '...to be filled by PdmV',    # 19 - fastSim MinBias for mixing UP18
+    '...to be filled by PdmV',# 20 - fastSim premix library UP18 
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available
@@ -975,6 +977,22 @@ step1FastPU17NewMixing =merge([{'-s':'GEN,SIM,RECOBEFMIX',
 step1FastUpg2017_trackingOnlyValidation = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,RECO,VALIDATION:@trackingOnlyValidation'},
                                                 step1FastUpg2017Defaults])
 
+step1FastUpg2018Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQM',
+                           '--fast':'',
+                           '--conditions'  :'auto:phase1_2018_realistic',
+                           '--beamspot'    :'Realistic25ns13TeVEarly2018Collision',
+                           '--era'         :'Run2_2018_FastSim',
+                           '--eventcontent':'FEVTDEBUGHLT,DQM',
+                           '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
+                           '--relval':'27000,3000'},
+                           step1Defaults])
+step1FastPU18NewMixing =merge([{'-s':'GEN,SIM,RECOBEFMIX',
+                           '--eventcontent':'FASTPU',
+                           '--datatier':'GEN-SIM-RECO'},
+                           step1FastUpg2018Defaults])
+step1FastUpg2018_trackingOnlyValidation = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,RECO,VALIDATION:@trackingOnlyValidation'},
+                                                step1FastUpg2018Defaults])
+
 #step1FastDefaults
 steps['TTbarFS']=merge([{'cfg':'TTbar_8TeV_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastDefaults])
 steps['SingleMuPt1FS']=merge([{'cfg':'SingleMuPt1_pythia8_cfi'},step1FastDefaults])
@@ -1025,6 +1043,9 @@ steps['SingleMuPt100FS_UP17']=merge([{'cfg':'SingleMuPt100_pythia8_cfi'},step1Fa
 ### FastSim: produce sample of minbias events for PU mixing
 steps['MinBiasFS_13_UP17_ForMixing']=merge([{'cfg':'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastPU17NewMixing])
 
+### FastSim: produce sample of minbias events for PU mixing, 2018
+steps['MinBiasFS_13_UP18_ForMixing']=merge([{'cfg':'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastPU18NewMixing])
+
 ### FastSim: template to produce signal and overlay with minbias events
 PUFS25={'--pileup':'AVE_35_BX_25ns',
         '--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/%s/GEN-SIM-RECO'%(baseDataSetRelease[7],)}
@@ -1034,6 +1055,11 @@ FS_UP15_PU25_OVERLAY = merge([PUFS25,Kby(100,500),steps['TTbarFS_13']] )
 PUFSAVE50={'--pileup':'AVE_50_BX_25ns',
         '--pileup_input':'das:/RelValMinBiasFS_13_UP17_ForMixing/%s/GEN-SIM-RECO'%(baseDataSetRelease[15],)}
 FS_UP17_PU50_OVERLAY = merge([PUFSAVE50,Kby(100,500),steps['TTbarFS_13_UP17']] )
+
+### FastSim: template to produce signal and overlay with minbias events #PU50, 2018
+PUFSAVE50={'--pileup':'AVE_50_BX_25ns',
+        '--pileup_input':'das:/RelValMinBiasFS_13_UP18_ForMixing/%s/GEN-SIM-RECO'%(baseDataSetRelease[19],)}
+FS_UP18_PU50_OVERLAY = merge([PUFSAVE50,Kby(100,500),steps['TTbarFS_13_UP18']] )
 
 ### FastSim: produce sample of premixed minbias events
 steps["FS_PREMIXUP15_PU25"] = merge([
@@ -1129,6 +1155,57 @@ for x in fs_proclist:
 
 ###end UP17
 ###
+
+### FastSim: produce sample of premixed minbias events UP18
+steps["FS_PREMIXUP18_PU50"] = merge([
+        {"cfg":"SingleNuE10_cfi",
+         "--fast":"",
+         "--conditions":"auto:phase1_2018_realistic",
+         "-s":"GEN,SIM,RECOBEFMIX,DIGI",
+         "--eventcontent":"PREMIX",
+         "--datatier":"PREMIX",
+         "--procModifiers":"premix_stage1",
+         "--era":"Run2_2018_FastSim",
+         },
+        PUFSAVE50,Kby(100,500)])
+
+### Fastsim: template to produce signal and overlay it with premixed minbias events
+FS_PREMIXUP18_PU50_OVERLAY = merge([
+#        {"-s" : "GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,HLT:@relval2016,VALIDATION",
+        {"-s" : "GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,VALIDATION",
+         "--datamix" : "PreMix",
+         "--procModifiers": "premix_stage2",
+         "--pileup_input" : "dbs:/RelValFS_PREMIXUP18_PU50/%s/PREMIX"%(baseDataSetRelease[19],),
+         },
+        Kby(100,500),step1FastUpg2018Defaults])
+
+# For combined premixing stage1+stage2 workflow
+FS_PREMIXUP18_PU50_LOCAL_OVERLAY = merge([
+        {"--pileup_input": "file:step1.root"
+         },
+        FS_PREMIXUP18_PU50_OVERLAY
+])
+
+### FastSim: list of processes used in FastSim validation
+fs_proclist = ["ZEE_13",'TTbar_13','H125GGgluonfusion_13','ZTT_13','ZMM_13','NuGun_UP18','QCD_FlatPt_15_3000HS_13','SMS-T1tttt_mGl-1500_mLSP-100_13']
+
+### FastSim: produces sample of signal events, overlayed with premixed minbias events
+for x in fs_proclist:
+    key = "FS_" + x + "_PRMXUP18_PU50"
+    steps[key] = merge([FS_PREMIXUP18_PU50_OVERLAY,{"cfg":steps[x]["cfg"]}])
+
+    key = key.replace("PRMXUP17", "PRMXLOCALUP17")
+    steps[key] = merge([FS_PREMIXUP17_PU50_LOCAL_OVERLAY,{"cfg":steps[x]["cfg"]}])
+
+### FastSim: produce sample of signal events, overlayed with minbias events
+for x in fs_proclist:
+    key = "FS_" + x + "_UP18_PU50"
+    steps[key] = merge([{"cfg":steps[x]["cfg"]},FS_UP18_PU50_OVERLAY])
+
+###end UP18
+###
+
+
 steps['TTbarSFS']=merge([{'cfg':'TTbar_8TeV_TuneCUETP8M1_cfi'},
                         {'-s':'GEN,SIM',
                          '--eventcontent':'FEVTDEBUG',
