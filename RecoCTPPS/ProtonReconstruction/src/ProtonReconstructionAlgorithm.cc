@@ -357,7 +357,9 @@ void ProtonReconstructionAlgorithm::reconstructFromSingleRP(
     cm((int)FP::Index::xi, (int)FP::Index::xi) = xi_unc * xi_unc;
     cm((int)FP::Index::th_y, (int)FP::Index::th_y) = th_y_unc * th_y_unc;
 
-    output.emplace_back(0., 0, vertex, momentum, xi, cm, FP::ReconstructionMethod::singleRP, FP::CTPPSLocalTrackLiteRefVector{ track }, true);
+    FP::CTPPSLocalTrackLiteRefVector trk;
+    trk.push_back( track );
+    output.emplace_back(0., 0, vertex, momentum, xi, cm, FP::ReconstructionMethod::singleRP, trk, true);
   }
 }
 

@@ -65,13 +65,13 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 
 CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet& iConfig) :
-  tracksToken_(consumes<std::vector<CTPPSLocalTrackLite> >(iConfig.getParameter<edm::InputTag>("tagLocalTrackLite"))),
-  verbosity_               (iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
-  doSingleRPReconstruction_(iConfig.getParameter<bool>("doSingleRPReconstruction")),
-  doMultiRPReconstruction_ (iConfig.getParameter<bool>("doMultiRPReconstruction")),
+  tracksToken_(consumes<vector<CTPPSLocalTrackLite> >(iConfig.getParameter<edm::InputTag>("tagLocalTrackLite"))),
+  verbosity_                  (iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
+  doSingleRPReconstruction_   (iConfig.getParameter<bool>("doSingleRPReconstruction")),
+  doMultiRPReconstruction_    (iConfig.getParameter<bool>("doMultiRPReconstruction")),
   singleRPReconstructionLabel_(iConfig.getParameter<std::string>("singleRPReconstructionLabel")),
-  multiRPReconstructionLabel_(iConfig.getParameter<std::string>("multiRPReconstructionLabel")),
-  algorithm_               (iConfig.getParameter<bool>("fitVtxY"), iConfig.getParameter<bool>("useImprovedInitialEstimate"), verbosity_),
+  multiRPReconstructionLabel_ (iConfig.getParameter<std::string>("multiRPReconstructionLabel")),
+  algorithm_                  (iConfig.getParameter<bool>("fitVtxY"), iConfig.getParameter<bool>("useImprovedInitialEstimate"), verbosity_),
   currentCrossingAngle_(-1.)
 {
   if (doSingleRPReconstruction_)
@@ -153,28 +153,29 @@ void CTPPSProtonProducer::produce(Event& event, const EventSetup &eventSetup)
     ssLog << "input tracks:";
 
   // get input
-  Handle<std::vector<CTPPSLocalTrackLite> > hTracks;
+  Handle<vector<CTPPSLocalTrackLite> > hTracks;
   event.getByToken(tracksToken_, hTracks);
 
   // keep only tracks from tracker RPs, split them by LHC sector
   reco::ForwardProton::CTPPSLocalTrackLiteRefVector tracks_45, tracks_56;
   map<CTPPSDetId, unsigned int> nTracksPerRP;
   for (unsigned int idx = 0; idx < hTracks->size(); ++idx) {
-    const CTPPSLocalTrackLite &tr = (*hTracks)[idx];
-    CTPPSDetId rpId(tr.getRPId());
+    const auto& tr = hTracks->at(idx);
+    const CTPPSDetId rpId(tr.getRPId());
     if (rpId.subdetId() != CTPPSDetId::sdTrackingStrip && rpId.subdetId() != CTPPSDetId::sdTrackingPixel)
       continue;
 
     if (verbosity_)
-      ssLog << "\n"
-        << "    " << tr.getRPId() << " (" << (rpId.arm()*100 + rpId.station()*10 + rpId.rp()) << "): "
-        << "x = " << tr.getX() << " +- " << tr.getXUnc() << " mm"
-        << ", y=" << tr.getY() << " +- " << tr.getYUnc() << " mm";
+      ssLog << "\n\t"
+        << tr.getRPId() << " (" << (rpId.arm()*100 + rpId.station()*10 + rpId.rp()) << "): "
+        << "x=" << tr.getX() << " +- " << tr.getXUnc() << " mm, "
+        << "y=" << tr.getY() << " +- " << tr.getYUnc() << " mm";
 
+    Ref<std::vector<CTPPSLocalTrackLite> > r_track(hTracks, idx);
     if (rpId.arm() == 0)
-      tracks_45.emplace_back(hTracks, idx);
+      tracks_45.push_back(r_track);
     if (rpId.arm() == 1)
-      tracks_56.emplace_back(hTracks, idx);
+      tracks_56.push_back(r_track);
 
     nTracksPerRP[rpId]++;
   }
@@ -183,7 +184,7 @@ void CTPPSProtonProducer::produce(Event& event, const EventSetup &eventSetup)
   bool singleTrack_45 = true, singleTrack_56 = true;
   for (const auto& detid_num : nTracksPerRP) {
     if (detid_num.second > 1) {
-      const CTPPSDetId &rpId = detid_num.first;
+      const CTPPSDetId& rpId = detid_num.first;
       if (rpId.arm() == 0)
         singleTrack_45 = false;
       if (rpId.arm() == 1)
