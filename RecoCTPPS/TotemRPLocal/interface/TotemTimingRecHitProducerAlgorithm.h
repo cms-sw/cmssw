@@ -17,21 +17,19 @@
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
 #include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
 #include "DataFormats/CTPPSReco/interface/TotemTimingRecHit.h"
-#include "RecoCTPPS/TotemRPLocal/interface/TotemTimingConversions.h"
-
-#include "TGraph.h"
-#include <algorithm>
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
-#include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
+
+#include <algorithm>
 
 class TotemTimingRecHitProducerAlgorithm
 {
   public:
     TotemTimingRecHitProducerAlgorithm(const edm::ParameterSet &conf);
 
-    void setCalibrations(const PPSTimingCalibration&);
-    void build(const CTPPSGeometry*,
+    void build(const CTPPSGeometry&,
+               const PPSTimingCalibration&,
                const edm::DetSetVector<TotemTimingDigi>&,
                edm::DetSetVector<TotemTimingRecHit>&);
 
@@ -42,8 +40,8 @@ class TotemTimingRecHitProducerAlgorithm
       RegressionResults() : m(0.), q(0.), rms(0.) {}
     };
 
-    RegressionResults simplifiedLinearRegression(const std::vector<float> &time,
-                                                 const std::vector<float> &data,
+    RegressionResults simplifiedLinearRegression(const std::vector<float>& time,
+                                                 const std::vector<float>& data,
                                                  const unsigned int start_at,
                                                  const unsigned int points) const;
 
@@ -54,7 +52,6 @@ class TotemTimingRecHitProducerAlgorithm
 
     static const float SINC_COEFFICIENT;
 
-    std::unique_ptr<TotemTimingConversions> sampicConversions_;
     bool mergeTimePeaks_;
     int baselinePoints_;
     double saturationLimit_;

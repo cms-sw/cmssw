@@ -7,8 +7,10 @@
  *
  ****************************************************************************/
 
-#include "RecoCTPPS/TotemRPLocal/interface/TotemTimingRecHitProducerAlgorithm.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "RecoCTPPS/TotemRPLocal/interface/TotemTimingRecHitProducerAlgorithm.h"
+#include "RecoCTPPS/TotemRPLocal/interface/TotemTimingConversions.h"
 
 #include <numeric>
 
@@ -29,17 +31,12 @@ TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(const edm
 {}
 
 void
-TotemTimingRecHitProducerAlgorithm::setCalibrations(const PPSTimingCalibration& calib)
-{
-  sampicConversions_ = std::make_unique<TotemTimingConversions>(mergeTimePeaks_, calib);
-}
-
-void
-TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry* geom, const edm::DetSetVector<TotemTimingDigi>& input,
+TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
+                                          const PPSTimingCalibration& calib,
+                                          const edm::DetSetVector<TotemTimingDigi>& input,
                                           edm::DetSetVector<TotemTimingRecHit>& output)
 {
-  if (!sampicConversions_)
-    throw cms::Exception("TotemTimingRecHitProducerAlgorithm") << "Timing calibration constants not loaded!";
+  const TotemTimingConversions sampicConversions(mergeTimePeaks_, calib);
 
   for (const auto& vec : input) {
     const TotemTimingDetId detid(vec.detId());
@@ -48,7 +45,7 @@ TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry* geom, const edm::
     float x_width = 0.f, y_width = 0.f, z_width = 0.f;
 
     // retrieve the geometry element associated to this DetID ( if present )
-    const DetGeomDesc* det = geom->getSensorNoThrow(detid);
+    const DetGeomDesc* det = geom.getSensorNoThrow(detid);
 
     if (det) {
       x_pos = det->translation().x();
@@ -65,10 +62,10 @@ TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry* geom, const edm::
     edm::DetSet<TotemTimingRecHit>& rec_hits = output.find_or_insert(detid);
 
     for (const auto& digi : vec) {
-      const float triggerCellTimeInstant(sampicConversions_->getTriggerTime(digi));
-      const float timePrecision(sampicConversions_->getTimePrecision(digi));
-      const std::vector<float> time(sampicConversions_->getTimeSamples(digi));
-      std::vector<float> data(sampicConversions_->getVoltSamples(digi));
+      const float triggerCellTimeInstant(sampicConversions.getTriggerTime(digi));
+      const float timePrecision(sampicConversions.getTimePrecision(digi));
+      const std::vector<float> time(sampicConversions.getTimeSamples(digi));
+      std::vector<float> data(sampicConversions.getVoltSamples(digi));
 
       auto max_it = std::max_element(data.begin(), data.end());
 
