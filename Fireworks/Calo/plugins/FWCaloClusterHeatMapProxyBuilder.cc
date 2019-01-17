@@ -131,6 +131,9 @@ void FWCaloClusterHeatMapProxyBuilder::build(const reco::CaloCluster &iData, uns
       // HGCal
       if (type >= 8 && type <= 10)
       {
+         if(hitmap.find(it->first) == hitmap.end())
+            continue;
+
          const bool z = (it->first >> 25) & 0x1;
 
          // discard everything thats not at the side that we are intersted in
