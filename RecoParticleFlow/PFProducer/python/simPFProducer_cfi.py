@@ -19,6 +19,15 @@ simPFProducer = cms.EDProducer(
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify(
     simPFProducer,
+    trackTimeValueMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel"),
+    trackTimeErrorMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution"),
+    gsfTrackTimeValueMap = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModel"),
+    gsfTrackTimeErrorMap = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModelResolution"),
+)
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(
+    simPFProducer,
     trackTimeValueMap = cms.InputTag("tofPID:t0"),
     trackTimeErrorMap = cms.InputTag("tofPID:sigmat0"),
     #this will cause no time to be set for gsf tracks

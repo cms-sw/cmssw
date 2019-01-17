@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 
 RecoVertexFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep  *_offlinePrimaryVertices__*', 
@@ -28,14 +27,18 @@ RecoVertexAOD = cms.PSet(
 	'keep *_inclusiveSecondaryVertices_*_*')
 )
 
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+
 _phase2_tktiming_RecoVertexEventContent = [ 'keep *_offlinePrimaryVertices3D__*',
                                             'keep *_offlinePrimaryVertices3DWithBS__*',
-                                            'keep *_offlinePrimaryVertices4DnoPID__*',
-                                            'keep *_offlinePrimaryVertices4DnoPIDWithBS__*',
-                                            'keep *_offlinePrimaryVertices4Dfastsim__*',
-                                            'keep *_offlinePrimaryVertices4DfastsimWithBS__*',
-                                            'keep *_tofPID_*_*',
                                             'keep *_trackTimeValueMapProducer_*_*' ]
+
+_phase2_tktiming_layer_RecoVertexEventContent = [ 'keep *_offlinePrimaryVertices4DnoPID__*',
+                                            'keep *_offlinePrimaryVertices4DnoPIDWithBS__*',
+                                            'keep *_tofPID_*_*',
+                                            'keep *_offlinePrimaryVertices4Dfastsim__*',
+                                            'keep *_offlinePrimaryVertices4DfastsimWithBS__*']
 
 def _phase2_tktiming_AddNewContent(mod):
     temp = mod.outputCommands + _phase2_tktiming_RecoVertexEventContent
@@ -45,4 +48,10 @@ _phase2_tktiming_AddNewContent(RecoVertexFEVT)
 _phase2_tktiming_AddNewContent(RecoVertexRECO)
 _phase2_tktiming_AddNewContent(RecoVertexAOD)
 
+def _phase2_tktiming_layer_AddNewContent(mod):
+    temp = mod.outputCommands + _phase2_tktiming_layer_RecoVertexEventContent
+    phase2_timing_layer.toModify( mod, outputCommands = temp )
 
+_phase2_tktiming_layer_AddNewContent(RecoVertexFEVT)
+_phase2_tktiming_layer_AddNewContent(RecoVertexRECO)
+_phase2_tktiming_layer_AddNewContent(RecoVertexAOD)
