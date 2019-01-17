@@ -51,7 +51,7 @@ int ODTCCConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTCCConfig::fetchNextId():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTCCConfig::fetchNextId():  ")+e.getMessage()));
   }
 
 }
@@ -127,7 +127,7 @@ void ODTCCConfig::prepareWrite()
 
     
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTCCConfig::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTCCConfig::prepareWrite():  ")+e.getMessage()));
   }
 
   std::cout<<"updating the clob 1 "<<std::endl;
@@ -162,7 +162,7 @@ void ODTCCConfig::writeDB()
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTCCConfig::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTCCConfig::writeDB():  ")+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -198,12 +198,12 @@ void ODTCCConfig::fetchData(ODTCCConfig * result)
     rset->next();
     // the first is the id 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
 
-    result->setTCCConfigurationFile(getOraString(rset,3));
-    result->setLUTConfigurationFile(getOraString(rset,4));
-    result->setSLBConfigurationFile(getOraString(rset,5));
-    result->setTestPatternFileUrl(getOraString(rset,6));
+    result->setTCCConfigurationFile(rset->getString(3));
+    result->setLUTConfigurationFile(rset->getString(4));
+    result->setSLBConfigurationFile(rset->getString(5));
+    result->setTestPatternFileUrl(rset->getString(6));
     result->setNTestPatternsToLoad(rset->getInt(7));
     //
 
@@ -247,7 +247,7 @@ void ODTCCConfig::fetchData(ODTCCConfig * result)
     result->setSLBClob(buffer3 );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTCCConfig::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTCCConfig::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -278,7 +278,7 @@ int ODTCCConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTCCConfig::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTCCConfig::fetchID:  ")+e.getMessage()));
   }
 
     return m_ID;

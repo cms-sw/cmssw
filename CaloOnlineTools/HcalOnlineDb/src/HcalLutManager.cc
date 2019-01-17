@@ -1563,7 +1563,7 @@ std::map<int, std::shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle
     _connection -> terminateStatement(stmt);
     //std::cout << "Query line count: " << _lines.getCount() << std::endl;
   } catch (SQLException& e) {
-    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
+    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage()));
   }
 
   //std::cout << lut_map.size() << std::endl;
