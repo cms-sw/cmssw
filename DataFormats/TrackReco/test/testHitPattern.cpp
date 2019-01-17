@@ -1,4 +1,5 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include <random>
 #include <algorithm>
@@ -13,6 +14,15 @@ namespace test {
     {
 
     {
+      // Phase0, only for testing
+      TrackerTopology::PixelBarrelValues ttopo_pxb{16,8,2, 0xF, 0xFF,0x3F};
+      TrackerTopology::PixelEndcapValues ttopo_pxf{23,16,10,8,2, 0x3,0xF,0x3F,0x3,0x3F};
+      TrackerTopology::TECValues ttopo_tec{18,14,12,8,5,2,0, 0x3,0xF,0x3,0xF,0x7,0x7,0x3};
+      TrackerTopology::TIBValues ttopo_tib{14,12,10,4,2,0, 0x7,0x3,0x3,0x7F,0x3,0x3};
+      TrackerTopology::TIDValues ttopo_tid{13,11,9,7,2,0, 0x3,0x3,0x3,0x3,0x1f,0x3};
+      TrackerTopology::TOBValues ttopo_tob{14,12,5,2,0, 0x7,0x3,0x7f,0x7,0x3};
+      TrackerTopology ttopo{ttopo_pxb, ttopo_pxf, ttopo_tec, ttopo_tib, ttopo_tid, ttopo_tob};
+
       const uint32_t radial_detids[] = { 402666125,//TID r1
     				     402668833,//TID r2
     				     402673476,//TID r3
@@ -29,17 +39,25 @@ namespace test {
     
        HitPattern hp;
        auto i=0;
-       for (auto id : radial_detids) { hp.appendHit(id,(i++ == 1) ? TrackingRecHit::missing : TrackingRecHit::valid);}
-       hp.appendHit(radial_detids[2],TrackingRecHit::missing);
-       hp.appendHit(radial_detids[8],TrackingRecHit::missing);
+       for (auto id : radial_detids) { hp.appendHit(id,(i++ == 1) ? TrackingRecHit::missing : TrackingRecHit::valid, ttopo);}
+       hp.appendHit(radial_detids[2],TrackingRecHit::missing,ttopo);
+       hp.appendHit(radial_detids[8],TrackingRecHit::missing,ttopo);
     
     
        std::cout << hp.numberOfValidTrackerHits() << ' ' << hp.numberOfValidPixelHits() << ' ' <<	hp.numberOfValidStripHits() << ' ' << hp.numberOfValidTimingHits() << std::endl;
        std::cout << hp.pixelLayersWithMeasurement() << ' ' << hp.stripLayersWithMeasurement() << std::endl;
        std::cout << hp.numberOfValidStripLayersWithMonoAndStereo() << std::endl;
        std::cout <<	hp.pixelLayersWithoutMeasurement(HitPattern::TRACK_HITS) << ' ' << hp.stripLayersWithoutMeasurement(HitPattern::TRACK_HITS) << std::endl;
+
+       assert(hp.numberOfValidTrackerHits() == 9);
+       assert(hp.numberOfValidPixelHits() == 0);
+       assert(hp.numberOfValidStripHits() == 9);
+       assert(hp.pixelLayersWithMeasurement() == 0);
+       assert(hp.stripLayersWithMeasurement() == 7);
+       assert(hp.numberOfValidStripLayersWithMonoAndStereo() == 1);
+       assert(hp.pixelLayersWithoutMeasurement(HitPattern::TRACK_HITS) == 0);
+       assert(hp.stripLayersWithoutMeasurement(HitPattern::TRACK_HITS) == 1);
        assert(hp.numberOfValidTimingHits() == 1);
-       
     }
     
     
