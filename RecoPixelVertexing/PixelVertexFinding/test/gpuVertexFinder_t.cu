@@ -1,17 +1,18 @@
-#include<random>
-#include<vector>
-#include<cstdint>
-#include<cmath>
+#include <cmath>
+#include <cstdint>
+#include <iostream>
+#include <random>
+#include <vector>
 
+#include <cuda/api_wrappers.h>
+
+#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #include "RecoPixelVertexing/PixelVertexFinding/src/gpuClusterTracks.h"
 #include "RecoPixelVertexing/PixelVertexFinding/src/gpuFitVertices.h"
 #include "RecoPixelVertexing/PixelVertexFinding/src/gpuSortByPt2.h"
 #include "RecoPixelVertexing/PixelVertexFinding/src/gpuSplitVertices.h"
 
-
-using namespace  gpuVertexFinder;
-#include <cuda/api_wrappers.h>
-
+using namespace gpuVertexFinder;
 
 struct Event {
   std::vector<float> zvert;
@@ -76,14 +77,8 @@ struct ClusterGenerator {
 };
 
 
-#include<iostream>
-
 int main() {
-
-  if (cuda::device::count() == 0) {
-    std::cerr << "No CUDA devices on this system" << "\n";
-    exit(EXIT_FAILURE);
-  }
+  exitSansCUDADevices();
 
   auto current_device = cuda::device::current::get();
   
