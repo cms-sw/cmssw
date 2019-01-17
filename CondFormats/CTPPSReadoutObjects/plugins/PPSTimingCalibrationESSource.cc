@@ -63,7 +63,7 @@ PPSTimingCalibrationESSource::PPSTimingCalibrationESSource( const edm::Parameter
 edm::ESProducts<std::unique_ptr<PPSTimingCalibration> >
 PPSTimingCalibrationESSource::produce( const PPSTimingCalibrationRcd& )
 {
-  return edm::es::products( std::move( parseJsonFile() ) );
+  return edm::es::products( parseJsonFile() );
 }
 
 //------------------------------------------------------------------------------
