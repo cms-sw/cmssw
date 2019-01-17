@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/DDCMS/interface/MuonNumberingRcd.h"
 #include "DetectorDescription/DDCMS/interface/MuonNumbering.h"
 
@@ -23,15 +24,17 @@ public:
 void
 DDTestMuonNumbering::analyze(const Event&, const EventSetup& iEventSetup)
 {
-  cout << "DDTestMuonNumbering::analyze\n";
+  LogVerbatim("Geometry") << "DDTestMuonNumbering::analyze";
   ESTransientHandle<MuonNumbering> numbering;
   iEventSetup.get<MuonNumberingRcd>().get(numbering);
 
-  cout << "MuonNumbering size: " << numbering->values.size() << "\n";
-  for(const auto& i: numbering->values) {
-    cout << " " << i.first << " = " << i.second;
-    cout << '\n';
-  }
+  LogVerbatim("Geometry") << "MuonNumbering size: " << numbering->values.size();
+  LogVerbatim("Geometry").log([&numbering](auto& log) {
+      for(const auto& i: numbering->values) {
+	log << " " << i.first << " = " << i.second;
+	log << '\n';
+      }
+    });
 }
 
 DEFINE_FWK_MODULE(DDTestMuonNumbering);

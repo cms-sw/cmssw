@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DD4hep/Detector.h"
@@ -27,29 +28,29 @@ public:
   void endJob() override {}
 
 private:  
-  string m_label;
+  const ESInputTag m_tag;
 };
 
 DDTestDumpGeometry::DDTestDumpGeometry(const ParameterSet& iConfig)
-  : m_label(iConfig.getUntrackedParameter<string>("fromDataLabel", ""))
+  : m_tag(iConfig.getParameter<ESInputTag>("DDDetector"))
 {}
 
 void
 DDTestDumpGeometry::analyze(const Event&, const EventSetup& iEventSetup)
 {
-  cout << "DDTestDumpGeometry::analyze: " << m_label << "\n";
+  LogVerbatim("Geometry") << "DDTestDumpGeometry::analyze: " << m_tag;
   ESTransientHandle<DDDetector> det;
-  iEventSetup.get<DetectorDescriptionRcd>().get(m_label, det);
+  iEventSetup.get<DetectorDescriptionRcd>().get(m_tag.module(), det);
 
-  TGeoManager& geom = det->description->manager();
+  TGeoManager& geom = det->description()->manager();
 
   TGeoIterator next(geom.GetTopVolume());
   TGeoNode *node;
   TString path;
   while(( node = next())) {
     next.GetPath( path );
-    cout << path << ": "<< node->GetVolume()->GetName() << "\n";
+    LogVerbatim("Geometry") << path << ": "<< node->GetVolume()->GetName();
   }
 }
 
-DEFINE_FWK_MODULE( DDTestDumpGeometry );
+DEFINE_FWK_MODULE(DDTestDumpGeometry);

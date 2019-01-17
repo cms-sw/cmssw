@@ -4,7 +4,7 @@
 <use name="dd4hep"/>
 <use name="DetectorDescription/DDCMS"/>
 
-<library name="DetectorDescriptionTestPlugins" file="DDTestVectors.cc,DDTestSpecPars.cc,DDTestDumpFile.cc,DDTestDumpGeometry.cc,DDTestNavigateGeometry.cc,DDTestMuonNumbering.cc" >
+<library name="DetectorDescriptionTestPlugins" file="DDTestVectors.cc,DDTestSpecPars.cc,DDTestSpecParsFilter.cc,DDTestDumpFile.cc,DDTestDumpGeometry.cc,DDTestNavigateGeometry.cc,DDTestMuonNumbering.cc" >
   <lib name="Geom"/>
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -13,9 +13,11 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 <library name="DetectorDescriptionDD4HepPlugins" file="*.cc" >
+  <flags SKIP_FILE="DTGeometryESProducer.cc"/>
   <flags SKIP_FILE="DDCMSDetector.cc"/>
   <flags SKIP_FILE="DDTestVector.cc"/>
   <flags SKIP_FILE="DDTestSpecPars.cc"/>
+  <flags SKIP_FILE="DDTestSpecParsFilter.cc"/>
   <flags SKIP_FILE="DDTestDumpFile.cc"/>
   <flags SKIP_FILE="DDTestDumpGeometry.cc"/>
   <flags SKIP_FILE="DDTestNavigateGeometry.cc"/>

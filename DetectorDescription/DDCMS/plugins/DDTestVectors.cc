@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
 
@@ -14,7 +15,7 @@ using namespace edm;
 class DDTestVectors : public one::EDAnalyzer<> {
 public:
   explicit DDTestVectors(const ParameterSet& iConfig)
-    : m_label(iConfig.getUntrackedParameter<string>("fromDataLabel", ""))
+    : m_tag(iConfig.getParameter<ESInputTag>("DDDetector"))
   {}
 
   void beginJob() override {}
@@ -22,23 +23,24 @@ public:
   void endJob() override {}
 
 private:  
-  string m_label;
+  const ESInputTag m_tag;
 };
 
 void
 DDTestVectors::analyze( const Event&, const EventSetup& iEventSetup)
 {
-  cout << "DDTestVectors::analyze: " << m_label << "\n";
+  LogVerbatim("Geometry") << "DDTestVectors::analyze: " << m_tag;
   ESTransientHandle<DDVectorRegistry> registry;
-  iEventSetup.get<DDVectorRegistryRcd>().get(m_label, registry);
+  iEventSetup.get<DDVectorRegistryRcd>().get(m_tag.module(), registry);
 
-  cout << "DD Vector Registry size: " << registry->vectors.size() << "\n";
-  for(const auto& p: registry->vectors) {
-    cout << " " << p.first << " => ";
-    for(const auto& i : p.second)
-      cout << i << ", ";
-    cout << '\n';
-  }
+  LogVerbatim("Geometry").log([&registry](auto& log) {
+      log << "DD Vector Registry size: " << registry->vectors.size();
+      for(const auto& p: registry->vectors) {
+	log << " " << p.first << " => ";
+	for(const auto& i : p.second)
+	  log << i << ", ";
+      }
+    });
 }
 
 DEFINE_FWK_MODULE(DDTestVectors);
