@@ -84,7 +84,7 @@ namespace pixelgpudetails {
     return (1==((rawId>>25)&0x7));
   }
 
-  __device__ pixelgpudetails::DetIdGPU getRawId(const SiPixelFedCablingMapGPU * cablingMap, uint32_t fed, uint32_t link, uint32_t roc) {
+  __device__ pixelgpudetails::DetIdGPU getRawId(const SiPixelFedCablingMapGPU * cablingMap, uint8_t fed, uint32_t link, uint32_t roc) {
     uint32_t index = fed * MAX_LINK * MAX_ROC + (link-1) * MAX_ROC + roc;
     pixelgpudetails::DetIdGPU detId = { cablingMap->RawId[index], cablingMap->rocInDet[index], cablingMap->moduleId[index] };
     return detId;
@@ -171,9 +171,9 @@ namespace pixelgpudetails {
   }
 
 
-  __device__ uint32_t conversionError(uint32_t fedId, uint32_t status, bool debug = false)
+  __device__ uint8_t conversionError(uint8_t fedId, uint8_t status, bool debug = false)
   {
-    uint32_t errorType = 0;
+    uint8_t errorType = 0;
 
     // debug = true;
 
@@ -219,10 +219,10 @@ namespace pixelgpudetails {
     return ((dcol < 26) &  (2 <= pxid) & (pxid < 162));
   }
 
-  __device__ uint32_t checkROC(uint32_t errorWord, uint32_t fedId, uint32_t link, const SiPixelFedCablingMapGPU *cablingMap, bool debug = false)
+  __device__ uint8_t checkROC(uint32_t errorWord, uint8_t fedId, uint32_t link, const SiPixelFedCablingMapGPU *cablingMap, bool debug = false)
   {
-    int errorType = (errorWord >> pixelgpudetails::ROC_shift) & pixelgpudetails::ERROR_mask;
-    if (errorType < 25) return false;
+    uint8_t errorType = (errorWord >> pixelgpudetails::ROC_shift) & pixelgpudetails::ERROR_mask;
+    if (errorType < 25) return 0;
     bool errorFound = false;
 
     switch (errorType) {
@@ -232,7 +232,7 @@ namespace pixelgpudetails {
         if (index > 1 && index <= cablingMap->size) {
           if (!(link == cablingMap->link[index] && 1 == cablingMap->roc[index])) errorFound = false;
         }
-        if (debug&errorFound) printf("Invalid ROC = 25 found (errorType = 25)\n");
+        if (debug and errorFound) printf("Invalid ROC = 25 found (errorType = 25)\n");
         break;
       }
       case(26) : {
@@ -267,7 +267,7 @@ namespace pixelgpudetails {
         if ( StateMatch != 1 && StateMatch != 8 ) {
           if (debug) printf("FED error 30 with unexpected State Bits (errorType = 30)\n");
         }
-        if ( StateMatch == 1 ) errorType = 40; // 1=Overflow -> 40, 8=number of ROCs -> 30
+        if (StateMatch == 1) errorType = 40; // 1=Overflow -> 40, 8=number of ROCs -> 30
         errorFound = true;
         break;
       }
@@ -280,10 +280,10 @@ namespace pixelgpudetails {
         errorFound = false;
     };
 
-    return errorFound? errorType : 0;
+    return errorFound ? errorType : 0;
   }
 
-  __device__ uint32_t getErrRawID(uint32_t fedId, uint32_t errWord, uint32_t errorType, const SiPixelFedCablingMapGPU *cablingMap, bool debug = false)
+  __device__ uint32_t getErrRawID(uint8_t fedId, uint32_t errWord, uint32_t errorType, const SiPixelFedCablingMapGPU *cablingMap, bool debug = false)
   {
     uint32_t rID = 0xffffffff;
 
@@ -410,7 +410,7 @@ namespace pixelgpudetails {
 
     do {  // too many coninue below.... (to be fixed)
       if (gIndex < wordCounter) {
-        uint32_t fedId = fedIds[gIndex/2]; // +1200;
+        uint8_t fedId = fedIds[gIndex/2]; // +1200;
 
         // initialize (too many coninue below)
         pdigi[gIndex]  = 0;
@@ -427,7 +427,7 @@ namespace pixelgpudetails {
         uint32_t roc   = getRoc(ww);             // Extract Roc in link
         pixelgpudetails::DetIdGPU detId = getRawId(cablingMap, fedId, link, roc);
 
-        uint32_t errorType = checkROC(ww, fedId, link, cablingMap, debug);
+        uint8_t errorType = checkROC(ww, fedId, link, cablingMap, debug);
         skipROC = (roc < pixelgpudetails::maxROCIndex) ? false : (errorType != 0);
         if (includeErrors and skipROC)
         {
@@ -475,7 +475,7 @@ namespace pixelgpudetails {
           localPix.col = col;
           if (includeErrors) {
             if (not rocRowColIsValid(row, col)) {
-              uint32_t error = conversionError(fedId, 3, debug); //use the device function and fill the arrays
+              uint8_t error = conversionError(fedId, 3, debug); //use the device function and fill the arrays
               err->push_back(pixelgpudetails::error_obj{rawId, ww, error, fedId});
               if(debug) printf("BPIX1  Error status: %i\n", error);
               continue;
@@ -490,7 +490,7 @@ namespace pixelgpudetails {
           localPix.row = row;
           localPix.col = col;
           if (includeErrors and not dcolIsValid(dcol, pxid)) {
-            uint32_t error = conversionError(fedId, 3, debug);
+            uint8_t error = conversionError(fedId, 3, debug);
             err->push_back(pixelgpudetails::error_obj{rawId, ww, error, fedId});
             if(debug) printf("Error status: %i %d %d %d %d\n", error, dcol, pxid, fedId, roc);
             continue;
