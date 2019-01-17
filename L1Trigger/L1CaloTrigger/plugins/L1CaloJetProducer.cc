@@ -116,10 +116,6 @@ class L1CaloJetProducer : public edm::EDProducer {
         edm::Handle<l1slhc::L1EGCrystalClusterCollection> crystalClustersHandle;
         l1slhc::L1EGCrystalClusterCollection crystalClusters;
 
-        //edm::EDGetTokenT<l1t::HGCalMulticlusterBxCollection> hgcalClustersToken_;
-        //edm::Handle<l1t::HGCalMulticlusterBxCollection> hgcalClustersHandle;
-        //l1t::HGCalMulticlusterBxCollection hgcalClusters;
-
         edm::EDGetTokenT<l1t::HGCalTowerBxCollection> hgcalTowersToken_;
         edm::Handle<l1t::HGCalTowerBxCollection> hgcalTowersHandle;
         l1t::HGCalTowerBxCollection hgcalTowers;
@@ -307,7 +303,6 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     debug(iConfig.getParameter<bool>("debug")),
     l1TowerToken_(consumes< L1CaloTowerCollection >(iConfig.getParameter<edm::InputTag>("l1CaloTowers"))),
     crystalClustersToken_(consumes<l1slhc::L1EGCrystalClusterCollection>(iConfig.getParameter<edm::InputTag>("L1CrystalClustersInputTag"))),
-    //hgcalClustersToken_(consumes<l1t::HGCalMulticlusterBxCollection>(iConfig.getParameter<edm::InputTag>("L1HgcalClustersInputTag"))),
     hgcalTowersToken_(consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("L1HgcalTowersInputTag")))
 
 {
@@ -398,8 +393,6 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     // HGCal info
     iEvent.getByToken(hgcalTowersToken_,hgcalTowersHandle);
     hgcalTowers = (*hgcalTowersHandle.product());
-    //iEvent.getByToken(hgcalClustersToken_,hgcalClustersHandle);
-    //hgcalClusters = (*hgcalClustersHandle.product());
 
     
     // Load the ECAL+HCAL tower sums coming from L1EGammaCrystalsEmulatorProducer.cc
