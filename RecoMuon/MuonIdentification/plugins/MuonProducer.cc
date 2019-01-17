@@ -444,7 +444,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      if (computeStandardSelectors_){
        outMuon.setSelectors(0); // reset flags
        bool isRun2016BCDEF = (272728 <= event.run() && event.run() <= 278808);
-       muon::setCutBasedSelectorFlags(outMuon, vertex, isRun2016BCDEF);
+       outMuon.setSelectors(muon::makeSelectorBitset(outMuon, vertex, isRun2016BCDEF));
      }
 
      outputMuons->push_back(outMuon); 

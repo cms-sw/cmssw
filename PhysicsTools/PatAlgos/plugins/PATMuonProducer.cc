@@ -645,7 +645,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     if (recomputeBasicSelectors_){
       muon.setSelectors(0);
       bool isRun2016BCDEF = (272728 <= iEvent.run() && iEvent.run() <= 278808);
-      muon::setCutBasedSelectorFlags(muon, pv, isRun2016BCDEF);
+      muon.setSelectors(muon::makeSelectorBitset(muon, pv, isRun2016BCDEF));
     }
     double miniIsoValue = -1;
     if (computeMiniIso_){
