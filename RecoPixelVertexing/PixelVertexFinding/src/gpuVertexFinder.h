@@ -1,21 +1,22 @@
 #ifndef RecoPixelVertexing_PixelVertexFinding_gpuVertexFinder_H
 #define RecoPixelVertexing_PixelVertexFinding_gpuVertexFinder_H
 
-#include<cstdint>
+#include <cstddef>
+#include <cstdint>
 
 #include "RecoPixelVertexing/PixelTriplets/plugins/pixelTuplesHeterogeneousProduct.h"
 #include "RecoPixelVertexing/PixelVertexFinding/interface/pixelVertexHeterogeneousProduct.h"
-
 
 namespace gpuVertexFinder {
 
   struct OnGPU {
 
     static constexpr uint32_t MAXTRACKS = 16000;
-    static constexpr uint32_t MAXVTX= 1024;
+    static constexpr uint32_t MAXVTX    = 1024;
 
     OnGPU() = default;
-    OnGPU(nullptr_t):
+
+    OnGPU(std::nullptr_t) noexcept:
       ntrks{nullptr}, itrk{nullptr}, zt{nullptr}, ezt2{nullptr}, ptt2{nullptr},
       zv{nullptr}, wv{nullptr}, chi2{nullptr}, ptv2{nullptr}, nvFinal{nullptr},
       nvIntermediate{nullptr}, iv{nullptr}, sortInd{nullptr},
@@ -27,7 +28,6 @@ namespace gpuVertexFinder {
     float * zt;   // input track z at bs
     float * ezt2; // input error^2 on the above
     float * ptt2; // input pt^2 on the above
-   
 
     float * zv;  // output z-posistion of found vertices
     float * wv;  //  output weight (1/error^2) on the above
@@ -41,7 +41,6 @@ namespace gpuVertexFinder {
     // workspace  
     uint8_t * izt;  // interized z-position of input tracks
     int32_t * nn; // number of nearest neighbours (reused as number of dof for output vertices)
-    
   };
   
 
