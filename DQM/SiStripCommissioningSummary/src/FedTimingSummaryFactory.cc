@@ -145,8 +145,3 @@ void SummaryHistogramFactory<FedTimingAnalysis>::fill( TH1& summary_histo ) {
   generator_->format( sistrip::FED_TIMING, mon_, pres_, view_, level_, gran_, summary_histo );
   
 }
-
-// -----------------------------------------------------------------------------
-//
-template class SummaryHistogramFactory<FedTimingAnalysis>;
-
