@@ -12,5 +12,6 @@ namespace CondFormats_CTPPSPixelObjects {
      std::map<PPSTimingCalibration::Key,std::pair<double,double> > tc_pm;
      std::pair<PPSTimingCalibration::Key,std::vector<double> > tc_v_tm;
      std::pair<PPSTimingCalibration::Key,std::pair<double,double> > tc_v_pm;
- };
+  };
 }
+

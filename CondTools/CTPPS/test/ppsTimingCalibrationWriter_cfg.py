@@ -15,8 +15,9 @@ process.ppsTimingCalibrationESSource.calibrationFile = cms.FileInPath('RecoCTPPS
 
 # output service for database
 process.load('CondCore.CondDB.CondDB_cfi')
-# SQLite output
-process.CondDB.connect = 'sqlite_file:totemTiming_calibration.sqlite'
+process.CondDB.connect = 'sqlite_file:totemTiming_calibration.sqlite' # SQLite output
+#process.CondDB.connect = 'oracle://cmsprep/TimingCalibration' # Oracle output
+#process.CondDB.connect = 'frontier://cmsfrontier.cern.ch:8000/FrontierPrep/TimingCalibration' # Frontier output
 
 process.PoolDBOutputService = cms.Service('PoolDBOutputService',
     process.CondDB,

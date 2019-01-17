@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('test')
 
-# minimum of logs
+# minimum logging
 process.MessageLogger = cms.Service('MessageLogger',
     statistics = cms.untracked.vstring(),
     destinations = cms.untracked.vstring('cout'),
@@ -20,8 +20,7 @@ process.source = cms.Source('EmptyIOVSource',
 
 # load calibrations from database
 process.load('CondCore.CondDB.CondDB_cfi')
-# SQLite input
-process.CondDB.connect = 'sqlite_file:totemTiming_calibration.sqlite'
+process.CondDB.connect = 'sqlite_file:totemTiming_calibration.sqlite' # SQLite input
 
 process.PoolDBESSource = cms.ESSource('PoolDBESSource',
     process.CondDB,
@@ -29,8 +28,7 @@ process.PoolDBESSource = cms.ESSource('PoolDBESSource',
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('PPSTimingCalibrationRcd'),
-            tag = cms.string('TotemTimingCalibration'),
-            #label = cms.string('UFSD')
+            tag = cms.string('TotemTimingCalibration')
         )
     )
 )
