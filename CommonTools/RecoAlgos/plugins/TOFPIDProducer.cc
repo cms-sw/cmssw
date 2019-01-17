@@ -98,11 +98,11 @@ TOFPIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     setComment("Input ValueMap for track momentum magnitude (normally from refit with MTD hits)");
   desc.add<edm::InputTag>("vtxsSrc", edm::InputTag("unsortedOfflinePrimaryVertices4DnoPID"))->
     setComment("Input primary vertex collection");
-  desc.add<double>("vtxMaxSigmaT", 0.03)->
+  desc.add<double>("vtxMaxSigmaT", 0.025)->
     setComment("Maximum primary vertex time uncertainty for use in particle id [ns]");
   desc.add<double>("maxDz", 0.1)->
     setComment("Maximum distance in z for track-primary vertex association for particle id [cm]");
-  desc.add<double>("maxDtSignificance", 6.0)->
+  desc.add<double>("maxDtSignificance", 5.0)->
     setComment("Maximum distance in time (normalized by uncertainty) for track-primary vertex association for particle id");
   desc.add<double>("minProbHeavy", 0.75)->
     setComment("Minimum probability for a particle to be a kaon or proton before reassigning the timestamp");    
