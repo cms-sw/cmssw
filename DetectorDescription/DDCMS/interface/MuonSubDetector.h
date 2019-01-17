@@ -18,7 +18,7 @@ namespace cms {
       { gem, "MuonGEMHits" },
       { me0, "MuonME0Hits" },
       { nodef, "" }};
-  }
+  };
 }
 
 #endif
