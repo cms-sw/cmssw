@@ -11,6 +11,6 @@
     <use name="DataFormats/HcalDetId"/>
     <use name="DataFormats/HcalDigi"/>
     <use name="DataFormats/Common"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
   </bin>
-
 </iftool>
