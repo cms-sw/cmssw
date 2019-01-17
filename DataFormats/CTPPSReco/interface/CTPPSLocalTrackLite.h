@@ -21,12 +21,12 @@ class CTPPSLocalTrackLite
   public:
 
     CTPPSLocalTrackLite() : rpId(0), x(0.), x_unc(-1.), y(0.), y_unc(-1.), tx(999.), tx_unc(-1.), ty(999.), ty_unc(-1.), 
-    chiSquaredOverNDF(-1.), pixelTrack_reco_info(ReconstructionInfo::invalid), numberOfPointsUsedForFit(0), time(0.), time_unc(-1.)
+    chiSquaredOverNDF(-1.), pixelTrack_reco_info(CTPPSReconstructionInfo::invalid), numberOfPointsUsedForFit(0), time(0.), time_unc(-1.)
     {
     }
 
     CTPPSLocalTrackLite(uint32_t pid, float px, float pxu, float py, float pyu, float ptx, float ptxu, 
-        float pty, float ptyu, float pchiSquaredOverNDF, ReconstructionInfo ppixelTrack_reco_info, 
+        float pty, float ptyu, float pchiSquaredOverNDF, CTPPSReconstructionInfo ppixelTrack_reco_info, 
         unsigned short pNumberOfPointsUsedForFit, float pt, float ptu)
       : rpId(pid), x(px), x_unc(pxu), y(py), y_unc(pyu), tx(ptx), tx_unc(ptxu), ty(pty), ty_unc(ptyu), chiSquaredOverNDF(pchiSquaredOverNDF), 
       pixelTrack_reco_info(ppixelTrack_reco_info), numberOfPointsUsedForFit(pNumberOfPointsUsedForFit), time(pt), time_unc(ptu)
@@ -106,9 +106,9 @@ class CTPPSLocalTrackLite
     }
 
     /// returns the track reconstruction info byte
-    inline unsigned int getRecoInfo() const
+    inline CTPPSReconstructionInfo getPixelTrackRecoInfo() const
     {
-        return (unsigned int)pixelTrack_reco_info;
+        return pixelTrack_reco_info;
     }
 
     /// returns the number of points used for fit
@@ -147,7 +147,7 @@ class CTPPSLocalTrackLite
     /// pixelTrack_reco_info = noShiftedPlanes  -> Track reconstructed in a bx-shifted ROC with non-bx-shifted planes only
     /// pixelTrack_reco_info = mixedPlanes      -> Track reconstructed in a bx-shifted ROC both with bx-shifted and non-bx-shifted planes
     /// pixelTrack_reco_info = invalid          -> Dummy value. Assigned when pixelTrack_reco_info is not computed (i.e. non-pixel tracks)
-    ReconstructionInfo pixelTrack_reco_info;
+    CTPPSReconstructionInfo pixelTrack_reco_info;
 
     /// number of points used for fit
     unsigned short numberOfPointsUsedForFit; 

@@ -423,7 +423,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run){
   // Loop over found tracks to set recoInfo_
   for(auto & track : localTrackVector_){
     if(romanPotId_ != rpId_arm0_st2 && romanPotId_ != rpId_arm1_st2){
-      track.setRecoInfo(ReconstructionInfo::notShiftedRun);
+      track.setRecoInfo(CTPPSReconstructionInfo::notShiftedRun);
       if(verbosity_>=2) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Analyzing run: "<<run
         <<"\nTrack belongs to Arm "<<romanPotId_.arm()<<" Station "
         <<romanPotId_.station();
@@ -449,19 +449,19 @@ void RPixPlaneCombinatoryTracking::findTracks(int run){
     }
 
     // Set recoInfo_ value
-    track.setRecoInfo(ReconstructionInfo::invalid); // Initially setting it as invalid. It has to match one of the following options.
-    if(hitInShiftedROC < 3) track.setRecoInfo(ReconstructionInfo::notShiftedRun);
+    track.setRecoInfo(CTPPSReconstructionInfo::invalid); // Initially setting it as invalid. It has to match one of the following options.
+    if(hitInShiftedROC < 3) track.setRecoInfo(CTPPSReconstructionInfo::notShiftedRun);
     else{
-      if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 0) track.setRecoInfo(ReconstructionInfo::notShiftedRun);    // Default value for runs without bx-shift
-      if(bxShiftedPlanesUsed == 3 && bxNonShiftedPlanesUsed == 0) track.setRecoInfo(ReconstructionInfo::allShiftedPlanes); // Track reconstructed in a shifted ROC, only with bx-shifted planes
-      if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 3) track.setRecoInfo(ReconstructionInfo::noShiftedPlanes);  // Track reconstructed in a shifted ROC, only with non-bx-shifted planes
-      if(bxShiftedPlanesUsed >  0 && bxNonShiftedPlanesUsed >  0) track.setRecoInfo(ReconstructionInfo::mixedPlanes);      // Track reconstructed in a shifted ROC, with mixed planes
+      if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 0) track.setRecoInfo(CTPPSReconstructionInfo::notShiftedRun);    // Default value for runs without bx-shift
+      if(bxShiftedPlanesUsed == 3 && bxNonShiftedPlanesUsed == 0) track.setRecoInfo(CTPPSReconstructionInfo::allShiftedPlanes); // Track reconstructed in a shifted ROC, only with bx-shifted planes
+      if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 3) track.setRecoInfo(CTPPSReconstructionInfo::noShiftedPlanes);  // Track reconstructed in a shifted ROC, only with non-bx-shifted planes
+      if(bxShiftedPlanesUsed >  0 && bxNonShiftedPlanesUsed >  0) track.setRecoInfo(CTPPSReconstructionInfo::mixedPlanes);      // Track reconstructed in a shifted ROC, with mixed planes
     }
     if(bxShiftedPlanesUsed + bxNonShiftedPlanesUsed > 6){
       throw cms::Exception("RPixPlaneCombinatoryTracking")<<"Error in RPixPlaneCombinatoryTracking::findTracks -> " << "More than six points found for a track, skipping.";
       continue;
     }
-    if(track.getRecoInfo() == ReconstructionInfo::invalid){
+    if(track.getRecoInfo() == CTPPSReconstructionInfo::invalid){
       throw cms::Exception("RPixPlaneCombinatoryTracking")<<"Error in RPixPlaneCombinatoryTracking::findTracks -> " << "recoInfo has not been set properly.";
     }
 

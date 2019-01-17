@@ -14,6 +14,6 @@
   /// reco_info = noShiftedPlanes  -> Track reconstructed in a bx-shifted ROC with non-bx-shifted planes only
   /// reco_info = mixedPlanes      -> Track reconstructed in a bx-shifted ROC both with bx-shifted and non-bx-shifted planes
   /// reco_info = invalid          -> Dummy value. Assigned when reco_info is not computed
-  enum class ReconstructionInfo: unsigned short {notShiftedRun = 0, allShiftedPlanes = 1, noShiftedPlanes = 2, mixedPlanes = 3, invalid = 5};
+  enum class CTPPSReconstructionInfo {notShiftedRun = 0, allShiftedPlanes = 1, noShiftedPlanes = 2, mixedPlanes = 3, invalid = 5};
 
 #endif

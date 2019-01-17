@@ -83,7 +83,7 @@ class CTPPSPixelLocalTrack
     ///< covariance matrix size
     static constexpr int covarianceSize = dimension * dimension;
 
-    CTPPSPixelLocalTrack() : z0_(0), chiSquared_(0), valid_(false), numberOfPointsUsedForFit_(0),recoInfo_(ReconstructionInfo::invalid)
+    CTPPSPixelLocalTrack() : z0_(0), chiSquared_(0), valid_(false), numberOfPointsUsedForFit_(0),recoInfo_(CTPPSReconstructionInfo::invalid)
     {
     }
 
@@ -162,10 +162,10 @@ class CTPPSPixelLocalTrack
 
     bool operator< (const CTPPSPixelLocalTrack &r);
 
-    inline ReconstructionInfo getRecoInfo() const { return recoInfo_; }
-    inline void setRecoInfo(ReconstructionInfo recoInfo) { recoInfo_ = recoInfo; }
+    inline CTPPSReconstructionInfo getRecoInfo() const { return recoInfo_; }
+    inline void setRecoInfo(CTPPSReconstructionInfo recoInfo) { recoInfo_ = recoInfo; }
 
-    inline unsigned short getNumberOfPointsUsedForFit() const { return (unsigned short) numberOfPointsUsedForFit_; }
+    inline unsigned short getNumberOfPointsUsedForFit() const { return numberOfPointsUsedForFit_; }
     
   private:
     edm::DetSetVector<CTPPSPixelFittedRecHit> track_hits_vector_;
@@ -188,7 +188,7 @@ class CTPPSPixelLocalTrack
     /// number of points used for the track fit
     int numberOfPointsUsedForFit_;
 
-    ReconstructionInfo recoInfo_;
+    CTPPSReconstructionInfo recoInfo_;
 };
 
 #endif
