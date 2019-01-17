@@ -21,8 +21,6 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
 
-#include <algorithm>
-
 class TotemTimingRecHitProducerAlgorithm
 {
   public:
@@ -50,7 +48,7 @@ class TotemTimingRecHitProducerAlgorithm
     float constantFractionDiscriminator(const std::vector<float>& time,
                                         const std::vector<float>& data);
 
-    static const float SINC_COEFFICIENT;
+    static constexpr float SINC_COEFFICIENT = M_PI*2 / 7.8;
 
     bool mergeTimePeaks_;
     int baselinePoints_;
