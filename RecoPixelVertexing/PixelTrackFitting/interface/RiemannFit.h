@@ -827,11 +827,9 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
         constexpr u_int nu[6][2] = {{0, 0}, {0, 1}, {0, 2}, {1, 1}, {1, 2}, {2, 2}};
 
         Matrix6d E;  // cov matrix of the 6 independent elements of A
-        #pragma unroll
         for (u_int a = 0; a < 6; ++a)
         {
             const u_int i = nu[a][0], j = nu[a][1];
-            #pragma unroll
             for (u_int b = a; b < 6; ++b)
             {
                 const u_int k = nu[b][0], l = nu[b][1];
@@ -875,7 +873,6 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
         printIt(&E, "circle_fit - E:");
 
         Eigen::Matrix<double, 3, 6> J2;  // Jacobian of min_eigen() (numerically computed)
-        #pragma unroll
         for (u_int a = 0; a < 6; ++a)
         {
             const u_int i = nu[a][0], j = nu[a][1];
