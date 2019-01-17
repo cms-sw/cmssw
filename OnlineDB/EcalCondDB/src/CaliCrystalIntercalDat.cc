@@ -41,7 +41,7 @@ void CaliCrystalIntercalDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("CaliCrystalIntercalDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("CaliCrystalIntercalDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -70,7 +70,7 @@ void CaliCrystalIntercalDat::writeDB(const EcalLogicID* ecid, const CaliCrystalI
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("CaliCrystalIntercalDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("CaliCrystalIntercalDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -102,12 +102,12 @@ void CaliCrystalIntercalDat::fetchData(std::map< EcalLogicID, CaliCrystalInterca
     std::pair< EcalLogicID, CaliCrystalIntercalDat > p;
     CaliCrystalIntercalDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
       
       dat.setCali( rset->getFloat(7) );
       dat.setCaliRMS( rset->getFloat(8) );
@@ -118,7 +118,7 @@ void CaliCrystalIntercalDat::fetchData(std::map< EcalLogicID, CaliCrystalInterca
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("CaliCrystalIntercalDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("CaliCrystalIntercalDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -213,6 +213,6 @@ void CaliCrystalIntercalDat::writeArrayDB(const std::map< EcalLogicID, CaliCryst
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPedestalsDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
   }
 }

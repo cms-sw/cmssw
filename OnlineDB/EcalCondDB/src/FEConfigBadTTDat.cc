@@ -39,7 +39,7 @@ void FEConfigBadTTDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, tcc_id, fed_id, tt_id, status ) "
 			"VALUES (:1, :2, :3, :4, :5 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigBadTTDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigBadTTDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -59,7 +59,7 @@ void FEConfigBadTTDat::writeDB(const FEConfigBadTTDat* item, FEConfigBadTTInfo* 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigBadTTDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigBadTTDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -95,7 +95,7 @@ void FEConfigBadTTDat::fetchData(std::vector< FEConfigBadTTDat >* p, FEConfigBad
 
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigBadTTDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigBadTTDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -169,6 +169,6 @@ void FEConfigBadTTDat::writeArrayDB(const std::vector< FEConfigBadTTDat >& data,
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigBadTTDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigBadTTDat::writeArrayDB():  "+e.getMessage()));
   }
 }

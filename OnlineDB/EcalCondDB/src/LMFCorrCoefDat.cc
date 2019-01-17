@@ -168,8 +168,8 @@ RunIOV LMFCorrCoefDat::fetchLastInsertedRun() {
     stmt->setSQL(sql);
   }
   catch (oracle::occi::SQLException &e) {
-    throw(std::runtime_error(std::string("[LMFCorrCoefDat::fetchLastInsertedRun]: ") +
-                             getOraMessage(&e)));
+    throw(std::runtime_error("[LMFCorrCoefDat::fetchLastInsertedRun]: " +
+                             e.getMessage()));
   }
   if (m_debug) {
     std::cout << "[LMFCorrCoefDat::fetchLastInsertedRun] executing query"
@@ -188,8 +188,8 @@ RunIOV LMFCorrCoefDat::fetchLastInsertedRun() {
     }
   }
   catch (oracle::occi::SQLException &e) {
-    throw(std::runtime_error(std::string("[LMFCorrCoefDat::fetchLastInsertedRun]: ") +
-                             getOraMessage(&e)));
+    throw(std::runtime_error("[LMFCorrCoefDat::fetchLastInsertedRun]: " +
+                             e.getMessage()));
   }
   if (iov_id > 0) {
     iov.setByID(iov_id);
@@ -488,8 +488,8 @@ LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
     }
   }
   catch (oracle::occi::SQLException &e) {
-    throw(std::runtime_error(std::string("LMFCorrCoefDat::getCorrections: ") + 
-			     getOraMessage(&e)));
+    throw(std::runtime_error("LMFCorrCoefDat::getCorrections: " + 
+			     e.getMessage()));
   }
   if (m_debug) {
     std::cout << "[LMFCorrCoefDat::getCorrections] Map built" << std::endl

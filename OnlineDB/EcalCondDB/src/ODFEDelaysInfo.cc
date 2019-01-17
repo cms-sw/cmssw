@@ -52,7 +52,7 @@ int ODFEDelaysInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEDelaysInfo::fetchNextId():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEDelaysInfo::fetchNextId():  ")+e.getMessage()));
   }
 
 }
@@ -76,7 +76,7 @@ void ODFEDelaysInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEDelaysInfo::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEDelaysInfo::prepareWrite():  ")+e.getMessage()));
   }
 
 }
@@ -112,7 +112,7 @@ void ODFEDelaysInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEDelaysInfo::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEDelaysInfo::writeDB():  ")+e.getMessage()));
   }
 
   // Now get the ID
@@ -160,11 +160,11 @@ void ODFEDelaysInfo::fetchData(ODFEDelaysInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEDelaysInfo::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEDelaysInfo::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -194,7 +194,7 @@ int ODFEDelaysInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEDelaysInfo::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEDelaysInfo::fetchID:  ")+e.getMessage()));
   }
 
   return m_ID;

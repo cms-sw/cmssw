@@ -116,7 +116,7 @@ int DCUIOV::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCUIOV::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCUIOV::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -155,7 +155,7 @@ void DCUIOV::setByID(int id)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error(std::string("DCUTag::setByID:  ")+getOraMessage(&e)));
+     throw(std::runtime_error("DCUTag::setByID:  "+e.getMessage()));
    }
 }
 
@@ -198,7 +198,7 @@ int DCUIOV::writeDB()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCUIOV::writeDB:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCUIOV::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
@@ -253,6 +253,6 @@ void DCUIOV::setByTm(DCUTag* tag, const Tm& eventTm)
      
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCUIOV::setByTm:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCUIOV::setByTm:  "+e.getMessage()));
   }
 }

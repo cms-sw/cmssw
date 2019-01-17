@@ -44,7 +44,7 @@ void FEConfigFgrGroupDat::prepareWrite()
 		      "VALUES (:fgr_conf_id, :group_id, "
 		      ":3, :4, :5, :6, :7 )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigFgrGroupDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigFgrGroupDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -75,7 +75,7 @@ void FEConfigFgrGroupDat::writeDB(const EcalLogicID* ecid, const FEConfigFgrGrou
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigFgrGroupDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigFgrGroupDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -121,7 +121,7 @@ void FEConfigFgrGroupDat::fetchData(map< EcalLogicID, FEConfigFgrGroupDat >* fil
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigFgrGroupDat::fetchData:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigFgrGroupDat::fetchData:  "+e.getMessage()));
   }
 }
 
@@ -227,6 +227,6 @@ void FEConfigFgrGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFgrG
     delete [] t_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigFgrGroupDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigFgrGroupDat::writeArrayDB():  "+e.getMessage()));
   }
 }

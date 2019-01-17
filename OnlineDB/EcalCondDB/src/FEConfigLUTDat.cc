@@ -39,7 +39,7 @@ void FEConfigLUTDat::prepareWrite()
 		      "VALUES (:lut_conf_id, :logic_id, "
 		      ":group_id )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLUTDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigLUTDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -63,7 +63,7 @@ void FEConfigLUTDat::writeDB(const EcalLogicID* ecid, const FEConfigLUTDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLUTDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigLUTDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -95,12 +95,12 @@ void FEConfigLUTDat::fetchData(map< EcalLogicID, FEConfigLUTDat >* fillMap, FECo
     std::pair< EcalLogicID, FEConfigLUTDat > p;
     FEConfigLUTDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setLUTGroupId( rset->getInt(7) );  
        
@@ -108,7 +108,7 @@ void FEConfigLUTDat::fetchData(map< EcalLogicID, FEConfigLUTDat >* fillMap, FECo
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLUTDat::fetchData:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigLUTDat::fetchData:  "+e.getMessage()));
   }
 }
 
@@ -174,6 +174,6 @@ void FEConfigLUTDat::writeArrayDB(const std::map< EcalLogicID, FEConfigLUTDat >*
     delete [] x_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLUTDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigLUTDat::writeArrayDB():  "+e.getMessage()));
   }
 }

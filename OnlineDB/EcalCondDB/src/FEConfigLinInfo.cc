@@ -52,7 +52,7 @@ int FEConfigLinInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLinInfo::fetchNextId():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigLinInfo::fetchNextId():  ")+e.getMessage()));
   }
 
 }
@@ -76,7 +76,7 @@ void FEConfigLinInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLinInfo::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigLinInfo::prepareWrite():  ")+e.getMessage()));
   }
 
 }
@@ -114,7 +114,7 @@ void FEConfigLinInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLinInfo::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigLinInfo::writeDB():  ")+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -149,14 +149,14 @@ void FEConfigLinInfo::fetchData(FEConfigLinInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
     result->setVersion(rset->getInt(3));
     result->setIOVId(rset->getInt(4));
     Date dbdate = rset->getDate(5);
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLinInfo::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigLinInfo::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -175,14 +175,14 @@ void FEConfigLinInfo::fetchLastData(FEConfigLinInfo * result)
     rset->next();
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
     result->setVersion(rset->getInt(3));
     result->setIOVId(rset->getInt(4));
     Date dbdate = rset->getDate(5);
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLinInfo::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigLinInfo::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -212,7 +212,7 @@ int FEConfigLinInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLinInfo::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigLinInfo::fetchID:  ")+e.getMessage()));
   }
 
   return m_ID;
@@ -236,7 +236,7 @@ void FEConfigLinInfo::setByID(int id)
      ResultSet* rset = stmt->executeQuery();
      if (rset->next()) {
        this->setId(rset->getInt(1));
-       this->setConfigTag(getOraString(rset,2));
+       this->setConfigTag(rset->getString(2));
        this->setVersion(rset->getInt(3));
        this->setIOVId(rset->getInt(4));
        Date dbdate = rset->getDate(5);
@@ -247,7 +247,7 @@ void FEConfigLinInfo::setByID(int id)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error(std::string("FEConfigLinInfo::setByID:  ")+getOraMessage(&e)));
+     throw(std::runtime_error(std::string("FEConfigLinInfo::setByID:  ")+e.getMessage()));
    }
 }
 

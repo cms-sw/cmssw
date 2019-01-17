@@ -49,7 +49,7 @@ int ODTTCFConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTTCFConfig::fetchNextId():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTTCFConfig::fetchNextId():  ")+e.getMessage()));
   }
 
 }
@@ -94,7 +94,7 @@ void ODTTCFConfig::prepareWrite()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTTCFConfig::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTTCFConfig::prepareWrite():  ")+e.getMessage()));
   }
 
   std::cout<<"updating the clob 1 "<<std::endl;
@@ -123,7 +123,7 @@ void ODTTCFConfig::writeDB()
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTTCFConfig::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTTCFConfig::writeDB():  ")+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -158,8 +158,8 @@ void ODTTCFConfig::fetchData(ODTTCFConfig * result)
     rset->next();
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
-    result->setTTCFConfigurationFile(getOraString(rset,3));
+    result->setConfigTag(rset->getString(2));
+    result->setTTCFConfigurationFile(rset->getString(3));
     Clob clob = rset->getClob (4);
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
@@ -171,7 +171,7 @@ void ODTTCFConfig::fetchData(ODTTCFConfig * result)
     result->setTTCFClob((unsigned char*) buffer );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTTCFConfig::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTTCFConfig::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -202,7 +202,7 @@ int ODTTCFConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTTCFConfig::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTTCFConfig::fetchID:  ")+e.getMessage()));
   }
 
     return m_ID;

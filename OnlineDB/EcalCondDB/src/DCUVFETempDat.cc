@@ -39,7 +39,7 @@ void DCUVFETempDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":vfe_temp)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCUVFETempDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCUVFETempDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -65,7 +65,7 @@ void DCUVFETempDat::writeDB(const EcalLogicID* ecid, const DCUVFETempDat* item, 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCUVFETempDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCUVFETempDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -97,12 +97,12 @@ void DCUVFETempDat::fetchData(std::map< EcalLogicID, DCUVFETempDat >* fillMap, D
     std::pair< EcalLogicID, DCUVFETempDat > p;
     DCUVFETempDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setVFETemp( rset->getFloat(7) );
 
@@ -110,7 +110,7 @@ void DCUVFETempDat::fetchData(std::map< EcalLogicID, DCUVFETempDat >* fillMap, D
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCUVFETempDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCUVFETempDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -179,6 +179,6 @@ void DCUVFETempDat::writeArrayDB(const std::map< EcalLogicID, DCUVFETempDat >* d
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCUVFETempDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCUVFETempDat::writeArrayDB():  "+e.getMessage()));
   }
 }

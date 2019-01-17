@@ -40,7 +40,7 @@ void RunTTErrorsDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			"to_number(:error_bits))");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunTTErrorsDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunTTErrorsDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -64,7 +64,7 @@ void RunTTErrorsDat::writeDB(const EcalLogicID* ecid, const RunTTErrorsDat* item
     m_writeStmt->setString(3, std::to_string(item->getErrorBits()));
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunTTErrorsDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunTTErrorsDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -97,20 +97,20 @@ void RunTTErrorsDat::fetchData(map< EcalLogicID, RunTTErrorsDat >* fillMap, RunI
     std::pair< EcalLogicID, RunTTErrorsDat > p;
     RunTTErrorsDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
-      dat.setErrorBits( boost::lexical_cast<uint64_t>(getOraString(rset,7)) );
+      dat.setErrorBits( boost::lexical_cast<uint64_t>(rset->getString(7)) );
 
       p.second = dat;
       fillMap->insert(p);
     }
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunTTErrorsDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunTTErrorsDat::fetchData():  "+e.getMessage()));
   }
 }

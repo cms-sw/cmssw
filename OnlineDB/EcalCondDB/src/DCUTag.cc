@@ -91,7 +91,7 @@ int DCUTag::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCUTag::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCUTag::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -112,7 +112,7 @@ void DCUTag::setByID(int id)
 
     ResultSet* rset = stmt->executeQuery();
     if (rset->next()) {
-      m_genTag = getOraString(rset,1);
+      m_genTag = rset->getString(1);
       int locID = rset->getInt(2);
 
       m_locDef.setConnection(m_env, m_conn);
@@ -125,7 +125,7 @@ void DCUTag::setByID(int id)
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error(std::string("DCUTag::setByID:  ")+getOraMessage(&e)));
+   throw(std::runtime_error("DCUTag::setByID:  "+e.getMessage()));
   }
 }
 
@@ -158,7 +158,7 @@ int DCUTag::writeDB()
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error(std::string("DCUTag::writeDB:  ")+getOraMessage(&e)));
+   throw(std::runtime_error("DCUTag::writeDB:  "+e.getMessage()));
   }
 
   // now get the tag_id
@@ -188,7 +188,7 @@ void DCUTag::fetchAllTags( std::vector<DCUTag>* fillVec)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCUTag::fetchAllTags:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCUTag::fetchAllTags:  "+e.getMessage()));
   }
 }
 

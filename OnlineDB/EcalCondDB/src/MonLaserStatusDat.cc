@@ -40,7 +40,7 @@ void MonLaserStatusDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonLaserStatusDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonLaserStatusDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -69,7 +69,7 @@ void MonLaserStatusDat::writeDB(const EcalLogicID* ecid, const MonLaserStatusDat
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonLaserStatusDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonLaserStatusDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -101,12 +101,12 @@ void MonLaserStatusDat::fetchData(std::map< EcalLogicID, MonLaserStatusDat >* fi
     std::pair< EcalLogicID, MonLaserStatusDat > p;
     MonLaserStatusDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setLaserPower( rset->getFloat(7) );
       dat.setLaserFilter( rset->getFloat(8) );
@@ -117,6 +117,6 @@ void MonLaserStatusDat::fetchData(std::map< EcalLogicID, MonLaserStatusDat >* fi
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonLaserStatusDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonLaserStatusDat::fetchData():  "+e.getMessage()));
   }
 }

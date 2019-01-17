@@ -162,7 +162,7 @@ int MonRunIOV::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonRunIOV::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonRunIOV::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -207,7 +207,7 @@ void MonRunIOV::setByID(int id)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error(std::string("MonRunIOV::setByID:  ")+getOraMessage(&e)));
+     throw(std::runtime_error("MonRunIOV::setByID:  "+e.getMessage()));
    }
 }
 
@@ -257,7 +257,7 @@ int MonRunIOV::writeDB()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonRunIOV::writeDB:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonRunIOV::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
@@ -337,7 +337,7 @@ void MonRunIOV::setByRun(MonRunTag* montag, RunIOV* runiov, subrun_t subrun)
      
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonRunIOV::setByRun:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonRunIOV::setByRun:  "+e.getMessage()));
   }
   
 }

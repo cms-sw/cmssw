@@ -68,7 +68,7 @@ int ODFEDAQConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEDAQConfig::fetchNextId():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEDAQConfig::fetchNextId():  ")+e.getMessage()));
   }
 
 }
@@ -89,7 +89,7 @@ void ODFEDAQConfig::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEDAQConfig::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEDAQConfig::prepareWrite():  ")+e.getMessage()));
   }
 
 }
@@ -143,7 +143,7 @@ void ODFEDAQConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEDAQConfig::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEDAQConfig::writeDB():  ")+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -184,7 +184,7 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
       result->setVersion(new_version);
       
     } catch (SQLException &e) {
-      throw(std::runtime_error(std::string("ODFEDAQConfig::fetchData():  ")+getOraMessage(&e)));
+      throw(std::runtime_error(std::string("ODFEDAQConfig::fetchData():  ")+e.getMessage()));
     }
     
     
@@ -205,7 +205,7 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
     result->setVersion(rset->getInt(3));
 
     result->setPedestalId(       getInt(rset,4) );
@@ -215,10 +215,10 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
     result->setBadTTId(          getInt(rset,8) );
     result->setTriggerBadXtId(   getInt(rset,9) );
     result->setTriggerBadTTId(   getInt(rset,10) );
-    result->setComment(          getOraString(rset,11) );
+    result->setComment(          rset->getString(11) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEDAQConfig::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEDAQConfig::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -248,7 +248,7 @@ int ODFEDAQConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEDAQConfig::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEDAQConfig::fetchID:  ")+e.getMessage()));
   }
 
   return m_ID;

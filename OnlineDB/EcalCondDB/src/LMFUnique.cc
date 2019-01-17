@@ -101,7 +101,7 @@ boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const
     m_conn->terminateStatement(stmt);
   }
   catch (SQLException &e) {
-    throw(std::runtime_error(m_className + "::fetchAll:  "+getOraMessage(&e)));
+    throw(std::runtime_error(m_className + "::fetchAll:  "+e.getMessage()));
   }
   if (m_debug) {
     cout << m_className << ": list size = " << l.size() << endl;
@@ -262,7 +262,7 @@ int LMFUnique::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(m_className + "::fetchID:  "+getOraMessage(&e)));
+    throw(std::runtime_error(m_className + "::fetchID:  "+e.getMessage()));
   }
   // given the ID of this object setup it completely
   if (m_ID > 0) {
@@ -316,7 +316,7 @@ void LMFUnique::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error(m_className + "::setByID:  "+getOraMessage(&e)));
+   throw(std::runtime_error(m_className + "::setByID:  "+e.getMessage()));
   }
 }
 
@@ -368,7 +368,7 @@ int LMFUnique::writeDB()
     } catch (SQLException &e) {
       debug();
       dump();
-      throw(std::runtime_error(m_className + "::writeDB:  " + getOraMessage(&e) +
+      throw(std::runtime_error(m_className + "::writeDB:  " + e.getMessage() +
 			       " while executing query " + sql));
     }
     // now get the id

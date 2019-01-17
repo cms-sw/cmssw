@@ -149,7 +149,7 @@ int CaliTag::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("CaliTag::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("CaliTag::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -171,13 +171,13 @@ void CaliTag::setByID(int id)
 
     ResultSet* rset = stmt->executeQuery();
     if (rset->next()) {
-      m_genTag = getOraString(rset,1);
+      m_genTag = rset->getString(1);
       int locID = rset->getInt(2);
       m_locDef.setConnection(m_env, m_conn);
       m_locDef.setByID(locID);
-      m_method = getOraString(rset,3);
-      m_version = getOraString(rset,4);
-      m_dataType = getOraString(rset,5);
+      m_method = rset->getString(3);
+      m_version = rset->getString(4);
+      m_dataType = rset->getString(5);
 
       m_ID = id;
     } else {
@@ -186,7 +186,7 @@ void CaliTag::setByID(int id)
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error(std::string("CaliTag::setByID:  ")+getOraMessage(&e)));
+   throw(std::runtime_error("CaliTag::setByID:  "+e.getMessage()));
   }
 }
 
@@ -222,7 +222,7 @@ int CaliTag::writeDB()
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error(std::string("CaliTag::writeDB:  ")+getOraMessage(&e)));
+   throw(std::runtime_error("CaliTag::writeDB:  "+e.getMessage()));
   }
 
   // now get the tag_id
@@ -252,7 +252,7 @@ void CaliTag::fetchAllTags( std::vector<CaliTag>* fillVec)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("CaliTag::fetchAllTags:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("CaliTag::fetchAllTags:  "+e.getMessage()));
   }
 }
 

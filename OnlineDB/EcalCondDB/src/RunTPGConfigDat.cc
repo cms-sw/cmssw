@@ -39,7 +39,7 @@ void RunTPGConfigDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":Config_tag , :version ) ");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunTPGConfigDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunTPGConfigDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -66,7 +66,7 @@ void RunTPGConfigDat::writeDB(const EcalLogicID* ecid, const RunTPGConfigDat* it
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunTPGConfigDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunTPGConfigDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -98,14 +98,14 @@ void RunTPGConfigDat::fetchData(map< EcalLogicID, RunTPGConfigDat >* fillMap, Ru
     std::pair< EcalLogicID, RunTPGConfigDat > p;
     RunTPGConfigDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
-      dat.setConfigTag( getOraString(rset,7) );
+      dat.setConfigTag( rset->getString(7) );
       dat.setVersion( rset->getInt(8) );
  
 
@@ -113,6 +113,6 @@ void RunTPGConfigDat::fetchData(map< EcalLogicID, RunTPGConfigDat >* fillMap, Ru
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunTPGConfigDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunTPGConfigDat::fetchData():  "+e.getMessage()));
   }
 }

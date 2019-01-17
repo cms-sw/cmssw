@@ -47,7 +47,7 @@ void MonPNIRedDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6, :7, :8, :9, :10, :11)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNIRedDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNIRedDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -81,7 +81,7 @@ void MonPNIRedDat::writeDB(const EcalLogicID* ecid, const MonPNIRedDat* item, Mo
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNIRedDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNIRedDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -113,12 +113,12 @@ void MonPNIRedDat::fetchData(std::map< EcalLogicID, MonPNIRedDat >* fillMap, Mon
     std::pair< EcalLogicID, MonPNIRedDat > p;
     MonPNIRedDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setADCMeanG1( rset->getFloat(7) );
       dat.setADCRMSG1( rset->getFloat(8) );
@@ -133,7 +133,7 @@ void MonPNIRedDat::fetchData(std::map< EcalLogicID, MonPNIRedDat >* fillMap, Mon
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNIRedDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNIRedDat::fetchData():  "+e.getMessage()));
   }
 }
 void MonPNIRedDat::writeArrayDB(const std::map< EcalLogicID, MonPNIRedDat >* data, MonRunIOV* iov)
@@ -267,6 +267,6 @@ void MonPNIRedDat::writeArrayDB(const std::map< EcalLogicID, MonPNIRedDat >* dat
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNIRedDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNIRedDat::writeArrayDB():  "+e.getMessage()));
   }
 }

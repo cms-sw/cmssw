@@ -38,7 +38,7 @@ void MODDCCOperationDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":1) ");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MODDCCOperationDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MODDCCOperationDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -63,7 +63,7 @@ void MODDCCOperationDat::writeDB(const EcalLogicID* ecid, const MODDCCOperationD
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MODDCCOperationDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MODDCCOperationDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -95,20 +95,20 @@ void MODDCCOperationDat::fetchData(std::map< EcalLogicID, MODDCCOperationDat >* 
     std::pair< EcalLogicID, MODDCCOperationDat > p;
     MODDCCOperationDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
-      dat.setOperation( getOraString(rset,7) );
+      dat.setOperation( rset->getString(7) );
 
       p.second = dat;
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MODDCCOperationDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MODDCCOperationDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -176,6 +176,6 @@ void MODDCCOperationDat::writeArrayDB(const std::map< EcalLogicID, MODDCCOperati
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPedestalsDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
   }
 }

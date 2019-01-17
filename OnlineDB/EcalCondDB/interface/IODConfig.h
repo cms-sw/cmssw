@@ -144,7 +144,7 @@ void populateClob (Clob &clob, std::string fname, unsigned int bufsize) noexcept
 
 
   }catch (SQLException &e) {
-    throw(std::runtime_error(std::string("populateClob():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("populateClob():  ")+e.getMessage()));
   }
 
   std::cout << "Populating the Clob - Success" << std::endl;
@@ -172,7 +172,7 @@ unsigned char* readClob (Clob &clob, int size) noexcept(false)
     return  buffer;
 
   }catch (SQLException &e) {
-    throw(std::runtime_error(std::string("readClob():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("readClob():  ")+e.getMessage()));
   }
 
 }

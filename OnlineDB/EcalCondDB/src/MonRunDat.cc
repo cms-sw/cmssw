@@ -43,7 +43,7 @@ void MonRunDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":num_events, :run_outcome_id, :rootfile_name, :task_list, :task_outcome) ");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonRunDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonRunDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -77,7 +77,7 @@ void MonRunDat::writeDB(const EcalLogicID* ecid, const MonRunDat* item, MonRunIO
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonRunDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonRunDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -111,17 +111,17 @@ void MonRunDat::fetchData(map< EcalLogicID, MonRunDat >* fillMap, MonRunIOV* iov
     MonRunOutcomeDef outcomeDef;
     outcomeDef.setConnection(m_env, m_conn);
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setNumEvents( rset->getInt(7) );
       outcomeDef.setByID( rset->getInt(8) );
       dat.setMonRunOutcomeDef( outcomeDef );
-      dat.setRootfileName( getOraString(rset,9) );
+      dat.setRootfileName( rset->getString(9) );
       dat.setTaskList( rset->getInt(10) );
       dat.setTaskOutcome( rset->getInt(11) );
 
@@ -129,6 +129,6 @@ void MonRunDat::fetchData(map< EcalLogicID, MonRunDat >* fillMap, MonRunIOV* iov
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonRunDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonRunDat::fetchData():  "+e.getMessage()));
   }
 }

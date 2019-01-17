@@ -38,7 +38,7 @@ void MODCCSFEDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":ccs_word)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MODCCSFEDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MODCCSFEDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -63,7 +63,7 @@ void MODCCSFEDat::writeDB(const EcalLogicID* ecid, const MODCCSFEDat* item, MODR
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MODCCSFEDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MODCCSFEDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -95,12 +95,12 @@ void MODCCSFEDat::fetchData(std::map< EcalLogicID, MODCCSFEDat >* fillMap, MODRu
     std::pair< EcalLogicID, MODCCSFEDat > p;
     MODCCSFEDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setWord( rset->getInt(7) );
 
@@ -108,7 +108,7 @@ void MODCCSFEDat::fetchData(std::map< EcalLogicID, MODCCSFEDat >* fillMap, MODRu
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MODCCSFEDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MODCCSFEDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -176,6 +176,6 @@ void MODCCSFEDat::writeArrayDB(const std::map< EcalLogicID, MODCCSFEDat >* data,
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPedestalsDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
   }
 }

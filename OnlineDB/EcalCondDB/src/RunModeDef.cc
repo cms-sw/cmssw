@@ -69,7 +69,7 @@ int RunModeDef::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunModeDef::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunModeDef::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -90,14 +90,14 @@ void RunModeDef::setByID(int id)
 
     ResultSet* rset = stmt->executeQuery();
     if (rset->next()) {
-      m_runMode = getOraString(rset,1);
+      m_runMode = rset->getString(1);
     } else {
       throw(std::runtime_error("RunModeDef::setByID:  Given def_id is not in the database"));
     }
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error(std::string("RunModeDef::setByID:  ")+getOraMessage(&e)));
+   throw(std::runtime_error("RunModeDef::setByID:  "+e.getMessage()));
   }
 }
 
@@ -120,6 +120,6 @@ void RunModeDef::fetchAllDefs( std::vector<RunModeDef>* fillVec)
       fillVec->push_back( runModeDef );
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunModeDef::fetchAllDefs:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunModeDef::fetchAllDefs:  "+e.getMessage()));
   }
 }

@@ -40,7 +40,7 @@ void ODBadXTDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, sm_id, fed_id, tt_id, xt_id, status ) "
 			"VALUES (:1, :2, :3, :4, :5 ,:6 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODBadXTDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODBadXTDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -61,7 +61,7 @@ void ODBadXTDat::writeDB(const ODBadXTDat* item, ODBadXTInfo* iov )
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODBadXTDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODBadXTDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -98,7 +98,7 @@ void ODBadXTDat::fetchData(std::vector< ODBadXTDat >* p, ODBadXTInfo* iov)
 
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODBadXTDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODBadXTDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -179,6 +179,6 @@ void ODBadXTDat::writeArrayDB(const std::vector< ODBadXTDat >& data, ODBadXTInfo
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODBadXTDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODBadXTDat::writeArrayDB():  "+e.getMessage()));
   }
 }

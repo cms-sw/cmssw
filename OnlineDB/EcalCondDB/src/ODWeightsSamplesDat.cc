@@ -40,7 +40,7 @@ void ODWeightsSamplesDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, fed_id, sample_id, weight_number ) "
 			"VALUES (:1, :2, :3, :4 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODWeightsSamplesDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODWeightsSamplesDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -59,7 +59,7 @@ void ODWeightsSamplesDat::writeDB(const ODWeightsSamplesDat* item, ODFEWeightsIn
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODWeightsSamplesDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODWeightsSamplesDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -95,7 +95,7 @@ void ODWeightsSamplesDat::fetchData(std::vector< ODWeightsSamplesDat >* p, ODFEW
     }
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODWeightsSamplesDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODWeightsSamplesDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -117,7 +117,7 @@ void ODWeightsSamplesDat::fetchData(ODWeightsSamplesDat * p)
     }
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODWeightsSamplesDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODWeightsSamplesDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -182,6 +182,6 @@ void ODWeightsSamplesDat::writeArrayDB(const std::vector< ODWeightsSamplesDat >&
     delete [] z_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODWeightsSamplesDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODWeightsSamplesDat::writeArrayDB():  "+e.getMessage()));
   }
 }

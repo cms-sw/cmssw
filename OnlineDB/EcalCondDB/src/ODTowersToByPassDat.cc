@@ -41,7 +41,7 @@ void ODTowersToByPassDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, fed_id, tr_id, tt_id, time_corr, STATUS ) "
 			"VALUES (:1, :2, :3, :4, :5 , :6 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTowersToByPassDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODTowersToByPassDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -62,7 +62,7 @@ void ODTowersToByPassDat::writeDB(const ODTowersToByPassDat* item, ODTowersToByP
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTowersToByPassDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODTowersToByPassDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -101,7 +101,7 @@ void ODTowersToByPassDat::fetchData(std::vector< ODTowersToByPassDat >* p, ODTow
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTowersToByPassDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODTowersToByPassDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -184,6 +184,6 @@ void ODTowersToByPassDat::writeArrayDB(const std::vector< ODTowersToByPassDat >&
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTowersToByPassDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODTowersToByPassDat::writeArrayDB():  "+e.getMessage()));
   }
 }

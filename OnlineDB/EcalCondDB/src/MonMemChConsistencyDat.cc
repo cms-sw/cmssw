@@ -42,7 +42,7 @@ void MonMemChConsistencyDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6, :7, :8)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonMemChConsistencyDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonMemChConsistencyDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -72,7 +72,7 @@ void MonMemChConsistencyDat::writeDB(const EcalLogicID* ecid, const MonMemChCons
     m_writeStmt->setInt(8, item->getTaskStatus() );
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonMemChConsistencyDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonMemChConsistencyDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -104,12 +104,12 @@ void MonMemChConsistencyDat::fetchData(std::map< EcalLogicID, MonMemChConsistenc
     std::pair< EcalLogicID, MonMemChConsistencyDat > p;
     MonMemChConsistencyDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setProcessedEvents( rset->getInt(7) );
       dat.setProblematicEvents( rset->getInt(8) );
@@ -122,7 +122,7 @@ void MonMemChConsistencyDat::fetchData(std::map< EcalLogicID, MonMemChConsistenc
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonMemChConsistencyDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonMemChConsistencyDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -233,6 +233,6 @@ void MonMemChConsistencyDat::writeArrayDB(const std::map< EcalLogicID, MonMemChC
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonMemChConsistencyDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonMemChConsistencyDat::writeArrayDB():  "+e.getMessage()));
   }
 }

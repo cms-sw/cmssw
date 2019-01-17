@@ -44,7 +44,7 @@ void ConfigurationDatabaseImplOracle::connect(const std::string& accessor) noexc
      env_ = oracle::occi::Environment::createEnvironment (oracle::occi::Environment::DEFAULT);
      conn_ = env_->createConnection (user, password, db);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
    }
 
 
@@ -62,7 +62,7 @@ void ConfigurationDatabaseImplOracle::disconnect() {
         env_->terminateConnection(conn_);
         Environment::terminateEnvironment(env_);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
    }
 
 
@@ -136,7 +136,7 @@ void ConfigurationDatabaseImplOracle::getLUTChecksums(const std::string& tag,
         //Always terminate statement
         conn_->terminateStatement(stmt);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
    }
 
 }
@@ -220,7 +220,7 @@ void ConfigurationDatabaseImplOracle::getLUTs_real(const std::string& tag, int c
 	//Always terminate statement
 	conn_->terminateStatement(stmt);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
    }
 
 }
@@ -288,7 +288,7 @@ void ConfigurationDatabaseImplOracle::getPatterns_real(const std::string& tag, i
         //Always terminate statement
         conn_->terminateStatement(stmt);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
    }
 
 
@@ -397,7 +397,7 @@ void ConfigurationDatabaseImplOracle::getRBXdata(const std::string& tag, const s
         //Always terminate statement
         conn_->terminateStatement(stmt);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
    }
 
 }
@@ -428,7 +428,7 @@ void ConfigurationDatabaseImplOracle::getZSThresholds(const std::string& tag, in
                 unsigned int fiber = rs->getInt(1);
                 unsigned int fc = rs->getInt(2);
                 unsigned int zs = rs->getInt(3);
-                std::string fpga = getOraString(rs,4);
+                std::string fpga = rs->getString(4);
                 int tb;
                 if (fpga=="top") tb = 1;
                 else tb = 0;
@@ -439,7 +439,7 @@ void ConfigurationDatabaseImplOracle::getZSThresholds(const std::string& tag, in
         //Always terminate statement
         conn_->terminateStatement(stmt);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
    }
 
 }
@@ -479,7 +479,7 @@ void ConfigurationDatabaseImplOracle::getHLXMasks_real(const std::string& tag, i
         masks.clear();
         while (rs->next()) {
                 int islot = rs->getInt(1);
-                std::string fpga = getOraString(rs,2);
+                std::string fpga = rs->getString(2);
 
                 int ifpga;
                 if (fpga=="top") ifpga = 1;
@@ -498,7 +498,7 @@ void ConfigurationDatabaseImplOracle::getHLXMasks_real(const std::string& tag, i
         //Always terminate statement
         conn_->terminateStatement(stmt);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
    }
 }
 

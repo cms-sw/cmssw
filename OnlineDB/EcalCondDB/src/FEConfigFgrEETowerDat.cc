@@ -39,7 +39,7 @@ void FEConfigFgrEETowerDat::prepareWrite()
 		      "VALUES (:fgr_conf_id, :logic_id, "
 		      ":lut_value )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigFgrEETowerDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigFgrEETowerDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -64,7 +64,7 @@ void FEConfigFgrEETowerDat::writeDB(const EcalLogicID* ecid, const FEConfigFgrEE
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigFgrEETowerDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigFgrEETowerDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -96,12 +96,12 @@ void FEConfigFgrEETowerDat::fetchData(map< EcalLogicID, FEConfigFgrEETowerDat >*
     std::pair< EcalLogicID, FEConfigFgrEETowerDat > p;
     FEConfigFgrEETowerDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setLutValue( rset->getInt(7) );  
 
@@ -109,7 +109,7 @@ void FEConfigFgrEETowerDat::fetchData(map< EcalLogicID, FEConfigFgrEETowerDat >*
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigFgrEETowerDat::fetchData:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigFgrEETowerDat::fetchData:  "+e.getMessage()));
   }
 }
 
@@ -177,6 +177,6 @@ void FEConfigFgrEETowerDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFg
     delete [] x_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigFgrEETowerDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigFgrEETowerDat::writeArrayDB():  "+e.getMessage()));
   }
 }

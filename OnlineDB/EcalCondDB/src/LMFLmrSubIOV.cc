@@ -217,7 +217,7 @@ std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &tmin, const Tm &tmax,
     catch (oracle::occi::SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
       throw(std::runtime_error(m_className + "::getLmrSubIOVLaterThan: " +
-			       getOraMessage(&e)));
+			       e.getMessage()));
 #else
       throw(std::runtime_error(m_className + "::getLmrSubIOVLaterThan: error code " +
 			       std::to_string(e.getErrorCode())));

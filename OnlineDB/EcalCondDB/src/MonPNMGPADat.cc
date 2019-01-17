@@ -47,7 +47,7 @@ void MonPNMGPADat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6, :7, :8, :9, :10, :11)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNMGPADat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNMGPADat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -81,7 +81,7 @@ void MonPNMGPADat::writeDB(const EcalLogicID* ecid, const MonPNMGPADat* item, Mo
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNMGPADat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNMGPADat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -113,12 +113,12 @@ void MonPNMGPADat::fetchData(std::map< EcalLogicID, MonPNMGPADat >* fillMap, Mon
     std::pair< EcalLogicID, MonPNMGPADat > p;
     MonPNMGPADat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setADCMeanG1( rset->getFloat(7) );
       dat.setADCRMSG1( rset->getFloat(8) );
@@ -133,7 +133,7 @@ void MonPNMGPADat::fetchData(std::map< EcalLogicID, MonPNMGPADat >* fillMap, Mon
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNMGPADat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNMGPADat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -268,6 +268,6 @@ void MonPNMGPADat::writeArrayDB(const std::map< EcalLogicID, MonPNMGPADat >* dat
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNMGPADat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNMGPADat::writeArrayDB():  "+e.getMessage()));
   }
 }

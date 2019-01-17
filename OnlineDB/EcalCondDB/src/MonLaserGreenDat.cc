@@ -42,7 +42,7 @@ void MonLaserGreenDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":apd_mean, :apd_rms, :apd_over_pn_mean, :apd_over_pn_rms, :task_status)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonLaserGreenDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonLaserGreenDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -72,7 +72,7 @@ void MonLaserGreenDat::writeDB(const EcalLogicID* ecid, const MonLaserGreenDat* 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonLaserGreenDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonLaserGreenDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -105,12 +105,12 @@ void MonLaserGreenDat::fetchData(std::map< EcalLogicID, MonLaserGreenDat >* fill
     std::pair< EcalLogicID, MonLaserGreenDat > p;
     MonLaserGreenDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setAPDMean( rset->getFloat(7) );
       dat.setAPDRMS( rset->getFloat(8) );
@@ -123,7 +123,7 @@ void MonLaserGreenDat::fetchData(std::map< EcalLogicID, MonLaserGreenDat >* fill
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonLaserGreenDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonLaserGreenDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -226,6 +226,6 @@ void MonLaserGreenDat::writeArrayDB(const std::map< EcalLogicID, MonLaserGreenDa
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonLaserGreenDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonLaserGreenDat::writeArrayDB():  "+e.getMessage()));
   }
 }

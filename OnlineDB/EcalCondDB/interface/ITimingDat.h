@@ -64,7 +64,7 @@ void prepareWrite() noexcept(false) override
 			"VALUES (:iov_id, :logic_id, "
 			":timing_mean, :timing_rms, :task_status )");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ITimingDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ITimingDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -92,7 +92,7 @@ void prepareWrite() noexcept(false) override
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ITimingDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ITimingDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -181,7 +181,7 @@ void prepareWrite() noexcept(false) override
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ITimingDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ITimingDat::writeArrayDB():  "+e.getMessage()));
   }
 }
 
@@ -215,12 +215,12 @@ void prepareWrite() noexcept(false) override
     std::pair< EcalLogicID, DATT > p;
     DATT dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setTimingMean( rset->getFloat(7) );
       dat.setTimingRMS( rset->getFloat(8) );
@@ -233,7 +233,7 @@ void prepareWrite() noexcept(false) override
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ITimingDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ITimingDat::fetchData():  "+e.getMessage()));
   }
 }
 
