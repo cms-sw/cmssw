@@ -44,9 +44,9 @@ public:
   ~testTkHistoMap ();
   
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override {} 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
-  virtual void endJob(void);
+  void endJob(void) override;
 
 private:
   
