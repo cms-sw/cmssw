@@ -12,6 +12,7 @@ L1CaloJetProducer = cms.EDProducer("L1CaloJetProducer",
     L1CrystalClustersInputTag = cms.InputTag("L1EGammaClusterEmuProducer", "L1EGXtalClusterEmulator", "L1AlgoTest"),
     L1HgcalClustersInputTag = cms.InputTag("hgcalTriggerPrimitiveDigiProducer","cluster3D"),
     L1HgcalTowersInputTag = cms.InputTag("hgcalTriggerPrimitiveDigiProducer","tower"),
+    hcalDigis = cms.InputTag("simHcalTriggerPrimitiveDigis"),
 
 	emFractionBins = cms.vdouble([ 0.00,0.10,0.15,0.19,0.23,0.27,0.32,0.36,0.42,0.52,1.05]),
 	absEtaBins = cms.vdouble([ 0.00,0.30,0.70,1.00,1.20,2.00]),

@@ -21,50 +21,32 @@ Implementation:
 //
 
 
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include <iostream>
 
 #include "DataFormats/Phase2L1CaloTrig/interface/L1EGCrystalCluster.h"
 #include "DataFormats/Phase2L1CaloTrig/interface/L1CaloJet.h"
 #include "DataFormats/Phase2L1CaloTrig/interface/L1CaloTower.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 // For pT calibrations
 #include "TF1.h"
@@ -120,10 +102,9 @@ class L1CaloJetProducer : public edm::EDProducer {
         edm::Handle<l1t::HGCalTowerBxCollection> hgcalTowersHandle;
         l1t::HGCalTowerBxCollection hgcalTowers;
 
-        edm::ESHandle<CaloGeometry> caloGeometry_;
-        const CaloSubdetectorGeometry * hbGeometry;
-        edm::ESHandle<HcalTopology> hbTopology;
-        const HcalTopology * hcTopology_;
+        edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalToken_;
+        edm::Handle<HcalTrigPrimDigiCollection> hcalTowerHandle;
+        edm::ESHandle<CaloTPGTranscoder> decoder_;
 
         // Fit function to scale L1EG Pt to align with electron gen pT
         //TF1 ptAdjustFunc = TF1("ptAdjustFunc", "([0] + [1]*TMath::Exp(-[2]*x)) * ([3] + [4]*TMath::Exp(-[5]*x))");
@@ -303,7 +284,8 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     debug(iConfig.getParameter<bool>("debug")),
     l1TowerToken_(consumes< L1CaloTowerCollection >(iConfig.getParameter<edm::InputTag>("l1CaloTowers"))),
     crystalClustersToken_(consumes<l1slhc::L1EGCrystalClusterCollection>(iConfig.getParameter<edm::InputTag>("L1CrystalClustersInputTag"))),
-    hgcalTowersToken_(consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("L1HgcalTowersInputTag")))
+    hgcalTowersToken_(consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("L1HgcalTowersInputTag"))),
+    hcalToken_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigis")))
 
 {
     printf("L1CaloJetProducer setup\n");
@@ -380,20 +362,17 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 
-    // Get calo geometry info split by subdetector
-    iSetup.get<CaloGeometryRecord>().get(caloGeometry_);
-    hbGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-    iSetup.get<HcalRecNumberingRecord>().get(hbTopology);
-    hcTopology_ = hbTopology.product();
-    HcalTrigTowerGeometry theTrigTowerGeometry(hcTopology_);
+
+    // L1EGs
     iEvent.getByToken(crystalClustersToken_,crystalClustersHandle);
     crystalClusters = (*crystalClustersHandle.product());
-
 
     // HGCal info
     iEvent.getByToken(hgcalTowersToken_,hgcalTowersHandle);
     hgcalTowers = (*hgcalTowersHandle.product());
 
+    // HF Tower info
+    iEvent.getByToken(hcalToken_,hcalTowerHandle);
     
     // Load the ECAL+HCAL tower sums coming from L1EGammaCrystalsEmulatorProducer.cc
     std::vector< SimpleCaloHit > l1CaloTowers;
@@ -443,6 +422,31 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         l1CaloTowers.push_back( l1Hit );
         if (debug) printf("Tower isBarrel %d eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", l1Hit.isBarrel, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
     }
+
+
+    // Loop over Hcal HF tower inputs and create SimpleCaloHits and add to
+    // l1CaloTowers collection
+    iSetup.get<CaloTPGRecord>().get(decoder_);
+    for (const auto & hit : *hcalTowerHandle.product()) {
+        HcalTrigTowerDetId id = hit.id();
+        double et = decoder_->hcaletValue(hit.id(), hit.t0());
+        if (et <= 0) continue;
+        // Only doing HF so skip outside range
+        if ( abs(id.ieta()) < l1t::CaloTools::kHFBegin ) continue;
+        if ( abs(id.ieta()) > l1t::CaloTools::kHFEnd ) continue;
+
+        SimpleCaloHit l1Hit;
+        l1Hit.isBarrel = false;
+        l1Hit.ecal_tower_et  = 0.;
+        l1Hit.hcal_tower_et  = et;
+        l1Hit.total_tower_et  = l1Hit.ecal_tower_et + l1Hit.hcal_tower_et;
+        l1Hit.tower_eta  = l1t::CaloTools::towerEta(id.ieta());
+        l1Hit.tower_phi  = l1t::CaloTools::towerPhi(id.ieta(), id.iphi());
+        l1CaloTowers.push_back( l1Hit );
+
+        if (debug) printf("Hcal HF Tower isBarrel %d eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", l1Hit.isBarrel, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
+    }
+
 
     // Make simple L1objects from the L1EG input collection with marker for 'stale'
     // FIXME could later add quality criteria here to help differentiate likely
