@@ -21,7 +21,7 @@ def main():
   parser.add_argument("--cmssw", default=os.environ["CMSSW_VERSION"])
   parser.add_argument("--scram-arch", default=os.environ["SCRAM_ARCH"])
   parser.add_argument("--subfolder", default="", help="subfolder within "+basedir+" to make 'foldername' in.")
-  parser.add_argument("--merge-topic", action="append", help="things to cms-merge-topic within the CMSSW release created")
+  parser.add_argument("--merge-topic", action="append", help="things to cms-merge-topic within the CMSSW release created", default=[])
   parser.add_argument("--print-sys-path", action="store_true", help=argparse.SUPPRESS) #internal, don't use this
   args = parser.parse_args()
 
