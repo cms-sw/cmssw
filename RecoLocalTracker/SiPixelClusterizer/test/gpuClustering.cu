@@ -11,11 +11,14 @@
 
 #include <cuda/api_wrappers.h>
 
+#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusterChargeCut.h"
 
 int main(void)
 {
+  exitSansCUDADevices();
+
   if (cuda::device::count() == 0) {
     std::cerr << "No CUDA devices on this system" << "\n";
     exit(EXIT_FAILURE);

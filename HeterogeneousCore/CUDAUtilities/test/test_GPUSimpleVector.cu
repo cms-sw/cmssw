@@ -8,6 +8,7 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
 __global__ void vector_pushback(GPU::SimpleVector<int> *foo) {
   auto index = threadIdx.x + blockIdx.x * blockDim.x;
@@ -25,6 +26,8 @@ __global__ void vector_emplace_back(GPU::SimpleVector<int> *foo) {
 }
 
 int main() {
+  exitSansCUDADevices();
+
   auto maxN = 10000;
   GPU::SimpleVector<int> *obj_ptr = nullptr;
   GPU::SimpleVector<int> *d_obj_ptr = nullptr;

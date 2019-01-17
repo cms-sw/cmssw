@@ -1,14 +1,14 @@
-#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
-
-#include<algorithm>
-#include<cassert>
-#include<iostream>
-#include<random>
-#include<limits>
-#include<array>
+#include <algorithm>
+#include <cassert>
+#include <iostream>
+#include <random>
+#include <limits>
+#include <array>
 
 #include <cuda/api_wrappers.h>
 
+#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
 constexpr uint32_t MaxElem=64000;
 constexpr uint32_t MaxTk=8000;
@@ -26,7 +26,6 @@ void count(TK const * __restrict__ tk, Assoc * __restrict__ assoc, uint32_t n) {
    if (k>=n) return;
    if (tk[k][j]<MaxElem)
      assoc->countDirect(tk[k][j]);
-
 }
 
 __global__
@@ -46,7 +45,6 @@ void verify(Assoc * __restrict__ assoc) {
    assert(assoc->size()<Assoc::capacity());
 }
 
-
 __global__
 void fillBulk(AtomicPairCounter * apc, TK const * __restrict__ tk, Assoc * __restrict__ assoc, uint32_t n) {
    auto k = blockIdx.x * blockDim.x + threadIdx.x;
@@ -55,22 +53,12 @@ void fillBulk(AtomicPairCounter * apc, TK const * __restrict__ tk, Assoc * __res
    assoc->bulkFill(*apc,&tk[k][0],m);
 }
 
-
-
-
 int main() {
-
+  exitSansCUDADevices();
 
   std::cout << "OneToManyAssoc " << Assoc::nbins() << ' ' << Assoc::capacity() << ' '<< Assoc::wsSize() << std::endl;
 
-
-  if (cuda::device::count() == 0) {
-    std::cerr << "No CUDA devices on this system" << "\n";
-    exit(EXIT_FAILURE);
-  }
-
   auto current_device = cuda::device::current::get();
-
 
   std::mt19937 eng;
 
@@ -106,7 +94,6 @@ int main() {
     assert(j<=N);
   }
   std::cout << "filled with "<< n << " elements " << double(ave)/n <<' '<< imax << ' ' << nz << std::endl;
-
 
   auto v_d = cuda::memory::device::make_unique<std::array<uint16_t,4>[]>(current_device, N);
   assert(v_d.get());
@@ -149,12 +136,11 @@ int main() {
   fillBulk<<<nBlocks,nThreads>>>(dc_d,v_d.get(),a_d.get(),N);
   cudautils::finalizeBulk<<<nBlocks,nThreads>>>(dc_d,a_d.get());
 
-   AtomicPairCounter dc;
-   cudaMemcpy(&dc, dc_d, sizeof(AtomicPairCounter), cudaMemcpyDeviceToHost);
+  AtomicPairCounter dc;
+  cudaMemcpy(&dc, dc_d, sizeof(AtomicPairCounter), cudaMemcpyDeviceToHost);
 
-    std::cout << "final counter value " << dc.get().n << ' ' << dc.get().m << std::endl;
+  std::cout << "final counter value " << dc.get().n << ' ' << dc.get().m << std::endl;
 
-  
   cuda::memory::copy(&la,a_d.get(),sizeof(Assoc));
   std::cout << la.size() << std::endl;
   imax = 0;
@@ -169,9 +155,7 @@ int main() {
   assert(0==la.size(N));
   std::cout << "found with ave occupancy " << double(ave)/N <<' '<< imax << std::endl;
 
-
   cudaCheck(cudaGetLastError());
   cudaCheck(cudaDeviceSynchronize());
   return 0;
-  
 }

@@ -3,11 +3,10 @@
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
-
-#include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
-
 #include "test_common.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
 
 using namespace Eigen;
 
@@ -216,6 +215,8 @@ void testFit() {
 }
 
 int main (int argc, char * argv[]) {
+  exitSansCUDADevices();
+
   testFit();
   std::cout << "TEST FIT, NO ERRORS" << std::endl;
 

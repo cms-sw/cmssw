@@ -1,5 +1,3 @@
-#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
-
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -7,6 +5,9 @@
 #include <random>
 
 #include <cuda/api_wrappers.h>
+
+#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
 template<typename T>
 void go() {
@@ -129,6 +130,8 @@ void go() {
 }
 
 int main() {
+  exitSansCUDADevices();
+
   go<int16_t>();
   go<int8_t>();
 

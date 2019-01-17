@@ -1,17 +1,17 @@
-#include "HeterogeneousCore/CUDAUtilities/interface/radixSort.h"
-
-#include "cuda/api_wrappers.h"
-
-#include <iomanip>
-#include <memory>
 #include <algorithm>
+#include <cassert>
 #include <chrono>
-#include<random>
-#include<set>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <memory>
+#include <random>
+#include <set>
 
-#include<cassert>
-#include<iostream>
-#include<limits>
+#include <cuda/api_wrappers.h>
+
+#include "HeterogeneousCore/CUDAUtilities/interface/radixSort.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
 template<typename T>
 struct RS { 
@@ -37,7 +37,6 @@ void go(bool useShared) {
 // std::mt19937 eng2;
   auto rgen = RS<T>::ud();
 
-
   auto start = std::chrono::high_resolution_clock::now();
   auto delta = start - start;
 
@@ -53,8 +52,6 @@ void go(bool useShared) {
   constexpr int N=blockSize*blocks;
   T v[N];
   uint16_t ind[N];
-
-
 
   constexpr bool sgn = T(-1) < T(0);
   std::cout << "Will sort " << N << (sgn ? " signed" : " unsigned")
@@ -114,7 +111,6 @@ void go(bool useShared) {
                 v_d.get(),ind_d.get(),off_d.get(),ws_d.get()
         );
 
-
  if (i==0) std::cout << "done for " << offsets[blocks] << std::endl;
 
 //  cuda::memory::copy(v, v_d.get(), 2*N);
@@ -159,21 +155,20 @@ void go(bool useShared) {
               << " ms" << std::endl;
 }
 
-
 int main() {
+  exitSansCUDADevices();
 
   bool useShared=false;
 
   std::cout << "using Global memory" <<    std::endl;
 
-
   go<int8_t>(useShared);
   go<int16_t>(useShared);
   go<int32_t>(useShared);
-  go<int32_t,3>(useShared);
+  go<int32_t, 3>(useShared);
   go<int64_t>(useShared);
-  go<float,4,float,double>(useShared);
-  go<float,2,float,double>(useShared);
+  go<float, 4, float, double>(useShared);
+  go<float, 2, float, double>(useShared);
 
   go<uint8_t>(useShared);
   go<uint16_t>(useShared);
@@ -187,17 +182,15 @@ int main() {
   go<int8_t>(useShared);
   go<int16_t>(useShared);
   go<int32_t>(useShared);
-  go<int32_t,3>(useShared);
+  go<int32_t, 3>(useShared);
   go<int64_t>(useShared);
-  go<float,4,float,double>(useShared);
-  go<float,2,float,double>(useShared);
+  go<float, 4, float, double>(useShared);
+  go<float, 2, float, double>(useShared);
 
   go<uint8_t>(useShared);
   go<uint16_t>(useShared);
   go<uint32_t>(useShared);
   // go<uint64_t>(v);
-
-
 
   return 0;
 }

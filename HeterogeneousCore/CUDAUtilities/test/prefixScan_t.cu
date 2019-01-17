@@ -1,5 +1,9 @@
-#include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
+#include <iostream>
 
+#include <cub/cub.cuh> 
+
+#include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
 template<typename T>
 __global__
@@ -20,7 +24,6 @@ void testPrefixScan(uint32_t size) {
   }
 }
 
-
 template<typename T>
 __global__
 void testWarpPrefixScan(uint32_t size) {
@@ -40,9 +43,6 @@ void testWarpPrefixScan(uint32_t size) {
   }
 }
 
-#include <cub/cub.cuh> 
-
-
 __global__
 void  init(uint32_t  * v, uint32_t  val, uint32_t n) {
      auto i  = blockIdx.x * blockDim.x + threadIdx.x;
@@ -57,9 +57,8 @@ void  verify(uint32_t  const * v, uint32_t n) {
      if (i==0) printf("verify\n");
 }
 
-
-#include<iostream>
 int main() {
+  exitSansCUDADevices();
 
   std::cout << "warp level" << std::endl;
   // std::cout << "warp 32" << std::endl;
@@ -84,14 +83,12 @@ int main() {
   }}
   cudaDeviceSynchronize();
 
-
   // test cub
   std::cout << "cub" << std::endl;
 // Declare, allocate, and initialize device-accessible pointers for input and output
    int  num_items = 10000;
    uint32_t  *d_in;         
    uint32_t  *d_out;
-
 
    cudaMalloc(&d_in,num_items*sizeof(uint32_t));
    // cudaMalloc(&d_out,num_items*sizeof(uint32_t));

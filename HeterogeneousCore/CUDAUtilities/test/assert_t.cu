@@ -1,4 +1,5 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
 __global__
 void testIt(int c){
@@ -6,9 +7,9 @@ void testIt(int c){
 }
 
 int main(int c, char **) {
+  exitSansCUDADevices();
 
   testIt<<<1,1>>>(c);
   cudaDeviceSynchronize();
   return c==1;
-  
 }

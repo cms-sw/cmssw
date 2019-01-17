@@ -1,12 +1,13 @@
-#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
-
-#include<algorithm>
-#include<cassert>
-#include<iostream>
-#include<random>
-#include<limits>
+#include <algorithm>
+#include <cassert>
+#include <iostream>
+#include <random>
+#include <limits>
 
 #include <cuda/api_wrappers.h>
+
+#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
 template<typename T, int NBINS, int S, int DELTA>
 __global__
@@ -136,10 +137,11 @@ void go() {
 }
 
 int main() {
+  exitSansCUDADevices();
+
   go<int16_t>();
   go<uint8_t,128,8,4>();
   go<uint16_t,313/2,9,4>();
-
 
   return 0;
 }

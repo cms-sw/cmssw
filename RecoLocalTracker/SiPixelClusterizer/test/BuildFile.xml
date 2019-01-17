@@ -36,6 +36,7 @@
   <use name="cuda"/>
   <use name="cub"/>
   <use name="cuda-api-wrappers"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
   <flags CXXFLAGS="-g"/>
 </bin>
 
@@ -43,6 +44,7 @@
   <use name="cuda"/>
   <use name="cub"/>
   <use name="cuda-api-wrappers"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
   <flags CXXFLAGS="-g -DGPU_DEBUG"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
 </bin>
