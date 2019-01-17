@@ -16,10 +16,6 @@
 
 //----------------------------------------------------------------------------------------------------
 
-const float TotemTimingRecHitProducerAlgorithm::SINC_COEFFICIENT = M_PI*2 / 7.8;
-
-//----------------------------------------------------------------------------------------------------
-
 TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(const edm::ParameterSet& iConfig) :
   mergeTimePeaks_  (iConfig.getParameter<bool>  ("mergeTimePeaks")),
   baselinePoints_  (iConfig.getParameter<int>   ("baselinePoints")),
@@ -29,6 +25,8 @@ TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(const edm
   lowPassFrequency_(iConfig.getParameter<double>("lowPassFrequency")),
   hysteresis_      (iConfig.getParameter<double>("hysteresis"))
 {}
+
+//----------------------------------------------------------------------------------------------------
 
 void
 TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
@@ -93,6 +91,8 @@ TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
   }
 }
 
+//----------------------------------------------------------------------------------------------------
+
 TotemTimingRecHitProducerAlgorithm::RegressionResults
 TotemTimingRecHitProducerAlgorithm::simplifiedLinearRegression(const std::vector<float>& time, const std::vector<float>& data,
                                                                const unsigned int start_at, const unsigned int points) const
@@ -128,6 +128,8 @@ TotemTimingRecHitProducerAlgorithm::simplifiedLinearRegression(const std::vector
 
   return results;
 }
+
+//----------------------------------------------------------------------------------------------------
 
 int
 TotemTimingRecHitProducerAlgorithm::fastDiscriminator(const std::vector<float>& data, float threshold) const
