@@ -115,6 +115,7 @@ DAClusterizerInZT_vect::fill(const vector<reco::TransientTrack> & tracks) const 
     double t_z = tk.stateAtBeamLine().trackStateAtPCA().position().z();
     double t_t = tk.timeExt();
     if (std::fabs(t_z) > 1000.) continue;
+    if (std::abs(t_t) > t0Max_) continue;
     auto const & t_mom = tk.stateAtBeamLine().trackStateAtPCA().momentum();
     //  get the beam-spot
     reco::BeamSpot beamspot = tk.stateAtBeamLine().beamSpot();
@@ -127,7 +128,7 @@ DAClusterizerInZT_vect::fill(const vector<reco::TransientTrack> & tracks) const 
 
 
     double t_dt2 =std::pow(tk.dtErrorExt(),2.) + std::pow(vertexSizeTime_,2.); // the ~injected~ timing error, need to add a small minimum vertex size in time
-    if (tk.dtErrorExt()>0.3 || std::abs(tk.timeExt()) > t0Max_){ 
+    if (tk.dtErrorExt()>0.3){ 
       t_dt2 = 0; // tracks with no time measurement
     }else{
       t_dt2 = 1./t_dt2;
