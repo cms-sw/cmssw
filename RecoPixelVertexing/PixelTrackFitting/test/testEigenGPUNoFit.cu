@@ -5,6 +5,8 @@
 
 #include "test_common.h"
 
+#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+
 using namespace Eigen;
 
 __host__ __device__ void eigenValues(Matrix3d * m, Eigen::SelfAdjointEigenSolver<Matrix3d>::RealVectorType * ret) {
@@ -183,6 +185,7 @@ std::cout << "*************************\n\n" << std::endl;
 
 
 int main (int argc, char * argv[]) {
+  exitSansCUDADevices();
 
   testEigenvalues();
   testInverse3x3();
