@@ -261,13 +261,25 @@ def serve_main():
   import traceback
   import re
 
+  def toplevelinfo(filename, line):
+    # say what to display right next to the line; which WF etc. use this line.
+    return ["Online RPC", "1001.0"] # mock data for now
+
   def escape(s):
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
   def index():
-      return 'goto to /file/<filename> for info about a file'
+      return 'goto to /<filename> for info about a file'
   def showfile(filename):
     out = []
+    out.append('<script src="https://rawgit.com/google/code-prettify/master/src/prettify.js"></script>')
+    out.append('<link rel="stylesheet" href="https://rawgit.com/google/code-prettify/master/src/prettify.css"></link>')
+    out.append("""<style>
+    li > em {
+      cursor: pointer;
+      float: right;
+    }
+    </style>""")
     lines = None
     for d in FILE_PATHS:
       try:
@@ -278,21 +290,45 @@ def serve_main():
       except:
         pass
     if lines:
-      out.append("<pre>")
-      out += [escape(l) for l in lines]
-      out.append("</pre>")
+      out.append('<pre class="prettyprint linenums">')
+      for i, l in enumerate(lines):
+        info = toplevelinfo(filename, i+1)
+        tags = ['<em data-line="%d" data-tag="%s"></em>' % (i+1, escape(thing)) for thing in info]
+        out.append(escape(l).rstrip() + "".join(tags))
+      out.append('</pre>')
+      out.append("""<script type="text/javascript">
+      PR.prettyPrint();
+      clickfunc = function(evt) {
+        document.querySelectorAll("li > iframe, li > br").forEach(function(e) {e.remove()}); 
+        dest = "/info" + window.location.pathname + ":" + this.getAttribute("data-line");
+        this.insertAdjacentHTML("afterend", '<br><iframe width="500px" height="200px" src="' + dest + '"></iframe><br>');
+      };
+      document.querySelectorAll("li > em").forEach(function(e) {
+        e.innerText = e.getAttribute("data-tag");
+        e.onclick = clickfunc;
+      })
+
+      n = 1*window.location.hash.replace("#", "");
+      if (n > 0) {
+        li = document.querySelectorAll("li")[n-1];
+        li.style = "background: #ee7";
+        li.scrollIntoView();
+      }
+      </script>""")
+    else:
+      out.append("Could not find %s" % filename)
     return "\n".join(out)
 
       
   def showinfo(filename, line):
-      return 'usages of line %d in file %s should go here, to be used in an iframe' % (line, filename)
+      return 'usages of line %d in file %s should go here, to be used in an iframe' % (int(line), filename)
   def showwhy(id):
       return 'show the stack trace leading to %d' % id
 
-  ROUTES = [(re.compile('/file/(.*)'), showfile),
-            (re.compile('/info/(.*):(\d+)'), showinfo),
-            (re.compile('/why/(\d+)'), showwhy),
-            (re.compile('/'), index)]
+  ROUTES = [(re.compile('/info/(.*):(\d+)$'), showinfo),
+            (re.compile('/why/(\d+)$'), showwhy),
+            (re.compile('/(.+)$'), showfile),
+            (re.compile('/$'), index)]
 
   def do_GET(self):
     try:
