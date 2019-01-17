@@ -194,6 +194,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	   = clusters.begin(); iclus != clusters.end(); iclus++) {
       
       double sumwt = 0.;
+      double sumwt2 = 0.;
       double sumw = 0.; 
       double meantime = 0.;
       double vartime = 0.;
@@ -204,10 +205,13 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
           const double inverr = err > 0. ? 1.0/err : 0.;
           const double w = inverr*inverr;
           sumwt   += w*time;
+          sumwt2  += w*time*time;
           sumw    += w;
         }
         meantime = sumwt/sumw;
-        vartime = 1./sumw;
+        double sumsq = sumwt2 - sumwt*sumwt/sumw;
+        double chisq = iclus->size()>1 ? sumsq/double(iclus->size()-1) : sumsq/double(iclus->size());
+        vartime = chisq/sumw;
       }
 
       TransientVertex v; 
