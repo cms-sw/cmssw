@@ -2,9 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoVertex.Configuration.RecoVertex_cff import unsortedOfflinePrimaryVertices, trackWithVertexRefSelector, trackRefsForJets, sortedPrimaryVertices, offlinePrimaryVertices, offlinePrimaryVerticesWithBS,vertexrecoTask
 
 from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA2D_vectParameters
-DA2D_vectParameters.TkDAClusParameters.verbose = cms.untracked.bool(False)
-unsortedOfflinePrimaryVertices4DnoPID = unsortedOfflinePrimaryVertices.clone( verbose = cms.untracked.bool(False),
-                                                                         TkClusParameters = DA2D_vectParameters,
+unsortedOfflinePrimaryVertices4DnoPID = unsortedOfflinePrimaryVertices.clone(TkClusParameters = DA2D_vectParameters,
                                                                          TrackTimesLabel = cms.InputTag("trackExtenderWithMTD:generalTrackt0"),
                                                                          TrackTimeResosLabel = cms.InputTag("trackExtenderWithMTD:generalTracksigmat0"),
                                                                          )
@@ -75,32 +73,3 @@ from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProd
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import quickTrackAssociatorByHits
 from SimTracker.TrackAssociation.trackTimeValueMapProducer_cfi import trackTimeValueMapProducer
 from CommonTools.RecoAlgos.TOFPIDProducer_cfi import tofPID
-_phase2_tktiming_vertexrecoTask = cms.Task( vertexrecoTask.copy() ,
-                                            tpClusterProducer ,
-                                            quickTrackAssociatorByHits ,
-                                            trackTimeValueMapProducer ,
-                                            unsortedOfflinePrimaryVertices4DnoPID ,
-                                            trackWithVertexRefSelectorBeforeSorting4DnoPID ,
-                                            trackRefsForJetsBeforeSorting4DnoPID ,
-                                            offlinePrimaryVertices4DnoPID ,
-                                            offlinePrimaryVertices4DnoPIDWithBS,
-                                            tofPID,
-                                            unsortedOfflinePrimaryVertices4Dfastsim,
-                                            trackWithVertexRefSelectorBeforeSorting4Dfastsim ,
-                                            trackRefsForJetsBeforeSorting4Dfastsim ,
-                                            offlinePrimaryVertices4Dfastsim,
-                                            offlinePrimaryVertices4DfastsimWithBS,
-                                            unsortedOfflinePrimaryVertices3D,
-                                            trackWithVertexRefSelectorBeforeSorting3D ,
-                                            trackRefsForJetsBeforeSorting3D,
-                                            offlinePrimaryVertices3D,
-                                            offlinePrimaryVertices3DWithBS,
-                                            )
-
-from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toReplaceWith(vertexrecoTask, _phase2_tktiming_vertexrecoTask)
-phase2_timing.toReplaceWith(unsortedOfflinePrimaryVertices, unsortedOfflinePrimaryVertices4D)
-phase2_timing.toReplaceWith(offlinePrimaryVertices, offlinePrimaryVertices4D)
-phase2_timing.toReplaceWith(offlinePrimaryVerticesWithBS, offlinePrimaryVertices4DWithBS)
-phase2_timing.toModify(offlinePrimaryVertices, vertices = "unsortedOfflinePrimaryVertices", particles = "trackRefsForJetsBeforeSorting")
-phase2_timing.toModify(offlinePrimaryVerticesWithBS, vertices = "unsortedOfflinePrimaryVertices:WithBS", particles = "trackRefsForJetsBeforeSorting")

@@ -33,4 +33,35 @@ vertexrecoTask = cms.Task(unsortedOfflinePrimaryVertices,
                           )
 vertexreco = cms.Sequence(vertexrecoTask)
 
+#modifications for timing
+#from RecoVertex.Configuration.RecoVertex_phase2_timing_cff import _phase2_tktiming_vertexrecoTask, unsortedOfflinePrimaryVertices4D, offlinePrimaryVertices4D, offlinePrimaryVertices4DWithBS, DA2D_vectParameters
 from RecoVertex.Configuration.RecoVertex_phase2_timing_cff import *
+_phase2_tktiming_vertexrecoTask = cms.Task( vertexrecoTask.copy() ,
+                                            tpClusterProducer ,
+                                            quickTrackAssociatorByHits ,
+                                            trackTimeValueMapProducer ,
+                                            unsortedOfflinePrimaryVertices4DnoPID ,
+                                            trackWithVertexRefSelectorBeforeSorting4DnoPID ,
+                                            trackRefsForJetsBeforeSorting4DnoPID ,
+                                            offlinePrimaryVertices4DnoPID ,
+                                            offlinePrimaryVertices4DnoPIDWithBS,
+                                            tofPID,
+                                            unsortedOfflinePrimaryVertices4Dfastsim,
+                                            trackWithVertexRefSelectorBeforeSorting4Dfastsim ,
+                                            trackRefsForJetsBeforeSorting4Dfastsim ,
+                                            offlinePrimaryVertices4Dfastsim,
+                                            offlinePrimaryVertices4DfastsimWithBS,
+                                            unsortedOfflinePrimaryVertices3D,
+                                            trackWithVertexRefSelectorBeforeSorting3D ,
+                                            trackRefsForJetsBeforeSorting3D,
+                                            offlinePrimaryVertices3D,
+                                            offlinePrimaryVertices3DWithBS,
+                                            )
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toReplaceWith(vertexrecoTask, _phase2_tktiming_vertexrecoTask)
+phase2_timing.toReplaceWith(unsortedOfflinePrimaryVertices, unsortedOfflinePrimaryVertices4D)
+phase2_timing.toReplaceWith(offlinePrimaryVertices, offlinePrimaryVertices4D)
+phase2_timing.toReplaceWith(offlinePrimaryVerticesWithBS, offlinePrimaryVertices4DWithBS)
+phase2_timing.toModify(offlinePrimaryVertices, vertices = "unsortedOfflinePrimaryVertices", particles = "trackRefsForJetsBeforeSorting")
+phase2_timing.toModify(offlinePrimaryVerticesWithBS, vertices = "unsortedOfflinePrimaryVertices:WithBS", particles = "trackRefsForJetsBeforeSorting")
