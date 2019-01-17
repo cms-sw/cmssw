@@ -32,6 +32,7 @@ highBetaStar_2018.toModify(DA_vectParameters,
 DA2D_vectParameters = cms.PSet(
     algorithm   = cms.string("DA2D_vect"),
     TkDAClusParameters = cms.PSet(
+        verbose = cms.untracked.bool(False),
         coolingFactor = cms.double(0.6),  # moderate annealing speed
         Tmin = cms.double(4.0),           # end of vertex splitting
         Tpurge = cms.double(4.0),         # cleaning 

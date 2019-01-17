@@ -79,8 +79,7 @@ TOFPIDProducer::TOFPIDProducer(const ParameterSet& iConfig) :
 }
 
 // Configuration descriptions
-void
-TOFPIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void TOFPIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("tracksSrc", edm::InputTag("generalTracks"))->
     setComment("Input tracks collection");
@@ -105,7 +104,9 @@ TOFPIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("maxDtSignificance", 5.0)->
     setComment("Maximum distance in time (normalized by uncertainty) for track-primary vertex association for particle id");
   desc.add<double>("minProbHeavy", 0.75)->
-    setComment("Minimum probability for a particle to be a kaon or proton before reassigning the timestamp");    
+    setComment("Minimum probability for a particle to be a kaon or proton before reassigning the timestamp");
+    
+  descriptions.add("tofPIDProducer", desc);
 }
 
 template <class H, class T>
@@ -117,9 +118,7 @@ void TOFPIDProducer::fillValueMap(edm::Event& iEvent, const edm::Handle<H>& hand
   iEvent.put(std::move(out),name);
 }
 
-void TOFPIDProducer::produce( edm::Event& ev,
-						      const edm::EventSetup& es ) {  
-  
+void TOFPIDProducer::produce( edm::Event& ev, const edm::EventSetup& es ) {
   constexpr double m_k = 0.493677; //[GeV]
   constexpr double m_p = 0.9382720813; //[GeV]
   constexpr double c_cm_ns = CLHEP::c_light*CLHEP::ns/CLHEP::cm; //[cm/ns]
@@ -184,7 +183,6 @@ void TOFPIDProducer::produce( edm::Event& ev,
       
       double rsigmazsq = 1./track.dzError()/track.dzError();
       double rsigmat = 1./sigmatmtd;
-//       double rsigmatsq = rsigmat*rsigmat;
       
       //find associated vertex
       int vtxidx = -1;
@@ -248,9 +246,9 @@ void TOFPIDProducer::produce( edm::Event& ev,
           sigmat0safe = sigmatmtd;
         }
         
-        float tmtd = tmtdIn[trackref];
-        float pathlength = pathLengthIn[trackref];
-        float magp = pIn[trackref];
+        double tmtd = tmtdIn[trackref];
+        double pathlength = pathLengthIn[trackref];
+        double magp = pIn[trackref];
         
         double gammasq_k = 1. + magp*magp/m_k/m_k;
         double beta_k = std::sqrt(1.-1./gammasq_k);

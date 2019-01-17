@@ -310,11 +310,11 @@ void TrackExtenderWithMTDT<TrackCollection>::produce( edm::Event& ev,
 	//create the track
 	output->push_back(result);
 	pathLengthsRaw.push_back(pathLength);
-    tmtdRaw.push_back(tmtd);
-    sigmatmtdRaw.push_back(sigmatmtd);
+	tmtdRaw.push_back(tmtd);
+	sigmatmtdRaw.push_back(sigmatmtd);
 	pathLengthMap = pathLength;
-    tmtdMap = tmtd;
-    sigmatmtdMap = sigmatmtd;
+	tmtdMap = tmtd;
+	sigmatmtdMap = sigmatmtd;
         auto& backtrack = output->back();
 	pMap = backtrack.p();
 	betaMap = backtrack.beta();
@@ -444,8 +444,8 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
 							       const Propagator* thePropagator,
 							       bool hasMTD,
 							       float& pathLengthOut,
-                                   float& tmtdOut,
-                                   float& sigmatmtdOut) const {  
+							       float& tmtdOut,
+							       float& sigmatmtdOut) const {  
 
   // get the state closest to the beamline
   TrajectoryStateOnSurface stateForProjectionToBeamLineOnSurface = 
