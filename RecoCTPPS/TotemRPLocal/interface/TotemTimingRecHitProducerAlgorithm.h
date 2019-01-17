@@ -31,16 +31,17 @@ class TotemTimingRecHitProducerAlgorithm
     TotemTimingRecHitProducerAlgorithm(const edm::ParameterSet &conf);
 
     void setCalibrations(const PPSTimingCalibration&);
-    void build(const CTPPSGeometry*, const edm::DetSetVector<TotemTimingDigi>&,
+    void build(const CTPPSGeometry*,
+               const edm::DetSetVector<TotemTimingDigi>&,
                edm::DetSetVector<TotemTimingRecHit>&);
 
+  private:
     struct RegressionResults
     {
       float m, q, rms;
       RegressionResults() : m(0.), q(0.), rms(0.) {}
     };
 
-  private:
     RegressionResults simplifiedLinearRegression(const std::vector<float> &time,
                                                  const std::vector<float> &data,
                                                  const unsigned int start_at,
@@ -65,3 +66,4 @@ class TotemTimingRecHitProducerAlgorithm
 };
 
 #endif
+
