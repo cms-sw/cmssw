@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/DDCMS/interface/MuonNumberingRcd.h"
 #include "DetectorDescription/DDCMS/interface/MuonNumbering.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistryRcd.h"
@@ -41,8 +42,8 @@ public:
   ReturnType produce(const MuonNumberingRcd&);
 
 private:
-  string m_label;
-  string m_key;
+  const string m_label;
+  const string m_key;
 };
 
 MuonNumberingESProducer::MuonNumberingESProducer(const ParameterSet& iConfig)
@@ -59,7 +60,7 @@ MuonNumberingESProducer::~MuonNumberingESProducer()
 MuonNumberingESProducer::ReturnType
 MuonNumberingESProducer::produce(const MuonNumberingRcd& iRecord)
 {
-  cout << "MuonNumberingESProducer::produce from " << m_label << " with " << m_key << "\n";
+  LogDebug("Geometry") << "MuonNumberingESProducer::produce from " << m_label << " with " << m_key;
   auto product = make_unique<MuonNumbering>();
 
   ESHandle<DDSpecParRegistry> registry;

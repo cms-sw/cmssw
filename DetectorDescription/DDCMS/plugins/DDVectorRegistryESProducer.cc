@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -32,6 +33,7 @@
 
 using namespace std;
 using namespace cms;
+using namespace edm;
 
 class DDVectorRegistryESProducer : public edm::ESProducer {
 public:
@@ -46,14 +48,13 @@ public:
   ReturnType produce(const DDVectorRegistryRcd&);
   
 private:
-  string m_label;
+  const string m_label;
 };
 
 DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet& iConfig)
-  : m_label(iConfig.getParameter<std::string>("label"))
+  : m_label(iConfig.getParameter<string>("appendToDataLabel"))
 {
-  setWhatProduced(this, m_label);
-  isUsingRecord(edm::eventsetup::EventSetupRecordKey::makeKey<DetectorDescriptionRcd>());
+  setWhatProduced(this);
 }
 
 DDVectorRegistryESProducer::~DDVectorRegistryESProducer()
@@ -64,21 +65,20 @@ void
 DDVectorRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
-  desc.add<string>("label");
   descriptions.addDefault(desc);
 }
 
 DDVectorRegistryESProducer::ReturnType
 DDVectorRegistryESProducer::produce(const DDVectorRegistryRcd& iRecord)
 {
-  cout << "DDVectorRegistryESProducer::produce\n";
+  LogDebug("Geometry") << "DDVectorRegistryESProducer::produce\n";
   edm::ESHandle<DDDetector> det;
   iRecord.getRecord<DetectorDescriptionRcd>().get(m_label, det);
 
-  DDVectorsMap* registry = det->description->extension<DDVectorsMap>();
+  const DDVectorsMap& registry = det->vectors();
 
   auto product = std::make_unique<DDVectorRegistry>();
-  product->vectors.insert(registry->begin(), registry->end());
+  product->vectors.insert(registry.begin(), registry.end());
   return product;
 }
 

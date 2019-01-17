@@ -1,19 +1,19 @@
 <?xml version="1.0"?>
 <DDDefinition>
   <debug>
-    <debug_shapes/>
+    <!--debug_shapes/>
     <debug_includes/>
-    <!-- debug_rotations/>
-    <debug_includes/-->
+    <debug_rotations/>
+    <debug_includes/>
     <debug_volumes/>
     <debug_constants/>
-    <!-- debug_materials/-->
+    <debug_materials/>
     <debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
-    <!-- debug_materials/>
-    <debug_visattr/ -->
-    <debug_specpars/>
+    <debug_materials/>
+    <debug_visattr/>
+    <debug_specpars/-->
   </debug>
   
   <open_geometry/>
@@ -57,6 +57,7 @@
     <Include ref='Geometry/MuonCommonData/data/csc/2015/v2/csc.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mfshield/2015/v1/mfshield.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonNumbering/2015/v2/muonNumbering.xml'/>
+    <Include ref='Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml'/>
     <Include ref='DetectorDescription/DDCMS/data/trackerParameters.xml'/>
   </IncludeSection>
   

@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistryRcd.h"
@@ -15,46 +16,47 @@
 
 using namespace std;
 using namespace cms;
+using namespace edm;
 using namespace dd4hep;
 
-class DDCMSDetector : public edm::one::EDAnalyzer<> {
+class DDCMSDetector : public one::EDAnalyzer<> {
 public:
-  explicit DDCMSDetector(const edm::ParameterSet& p);
+  explicit DDCMSDetector(const ParameterSet& p);
 
   void beginJob() override {}
-  void analyze( edm::Event const& iEvent, edm::EventSetup const& ) override;
+  void analyze(Event const& iEvent, EventSetup const&) override;
   void endJob() override;
 
 private:  
-  string m_label;
+  const ESInputTag m_tag;
 };
 
-DDCMSDetector::DDCMSDetector(const edm::ParameterSet& iConfig)
-  : m_label(iConfig.getUntrackedParameter<string>("fromDataLabel", ""))
+DDCMSDetector::DDCMSDetector(const ParameterSet& iConfig)
+  : m_tag(iConfig.getParameter<ESInputTag>("DDDetector"))
 {}
 
 void
-DDCMSDetector::analyze( const edm::Event&, const edm::EventSetup& iEventSetup)
+DDCMSDetector::analyze(const Event&, const EventSetup& iEventSetup)
 {
-  edm::ESTransientHandle<DDDetector> det;
-  iEventSetup.get<DetectorDescriptionRcd>().get(m_label, det);
+  ESTransientHandle<DDDetector> det;
+  iEventSetup.get<DetectorDescriptionRcd>().get(m_tag.module(), det);
 
-  cout << "Iterate over the detectors:\n";
-  for( auto const& it : det->description->detectors()) {
+  LogInfo("DDCMS") << "Iterate over the detectors:\n";
+  for( auto const& it : det->description()->detectors()) {
     dd4hep::DetElement det(it.second);
-    cout << it.first << ": " << det.path() << "\n";
+    LogInfo("DDCMS") << it.first << ": " << det.path() << "\n";
   }
-  cout << "..done!\n";
+  LogInfo("DDCMS") << "..done!\n";
   
-  edm::ESTransientHandle<DDVectorRegistry> registry;
-  iEventSetup.get<DDVectorRegistryRcd>().get(m_label, registry);
+  ESTransientHandle<DDVectorRegistry> registry;
+  iEventSetup.get<DDVectorRegistryRcd>().get(m_tag.module(), registry);
 
-  cout << "DD Vector Registry size: " << registry->vectors.size() << "\n";
+  LogInfo("DDCMS") << "DD Vector Registry size: " << registry->vectors.size() << "\n";
   for( const auto& p: registry->vectors ) {
-    cout << " " << p.first << " => ";
+    LogInfo("DDCMS") << " " << p.first << " => ";
     for( const auto& i : p.second )
-      cout << i << ", ";
-    cout << '\n';
+      LogInfo("DDCMS") << i << ", ";
+    LogInfo("DDCMS") << '\n';
   }
 }
 

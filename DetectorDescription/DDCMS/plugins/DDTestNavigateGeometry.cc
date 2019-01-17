@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistryRcd.h"
@@ -37,11 +38,14 @@ namespace {
     /// Volume callback
     int operator()(dd4hep::PlacedVolume pv, int level) override {
       dd4hep::Volume vol = pv.volume();
-      cout << "Hierarchical level:" << level << "   Placement:";
-      for(const auto& i : m_volumes) cout << "/" << i;
-      cout << "\n\tMaterial:" << vol.material().name()
-	   << "\tSolid:   " << vol.solid().name()
-	   << " [" << vol.solid()->IsA()->GetName() << "]\n";
+      LogVerbatim("Geometry").log([&level, &vol, this](auto& log) {
+	  log << "\nHierarchical level:" << level << "   Placement:";
+	  for(const auto& i : m_volumes)
+	    log << "/" << i;
+	  log << "\n\tMaterial:" << vol.material().name()
+	      << "\tSolid:   " << vol.solid().name()
+	      << " [" << vol.solid()->IsA()->GetName() << "]\n";
+	});
       ++m_count;
       return 1;
     }
@@ -62,34 +66,35 @@ public:
   void endJob() override {}
 
 private:  
-  string m_label;
+  const ESInputTag m_tag;
 };
 
 DDTestNavigateGeometry::DDTestNavigateGeometry(const ParameterSet& iConfig)
-  : m_label(iConfig.getUntrackedParameter<string>("fromDataLabel", ""))
+  : m_tag(iConfig.getParameter<ESInputTag>("DDDetector"))
 {}
 
 void
 DDTestNavigateGeometry::analyze(const Event&, const EventSetup& iEventSetup)
 {
-  cout << "DDTestNavigateGeometry::analyze: " << m_label << "\n";
+  LogVerbatim("Geometry") << "\nDDTestNavigateGeometry::analyze: " << m_tag;
 
   const DDVectorRegistryRcd& regRecord = iEventSetup.get<DDVectorRegistryRcd>();
   ESTransientHandle<DDVectorRegistry> reg;
-  regRecord.get(m_label, reg);
+  regRecord.get(m_tag.module(), reg);
 
-  for(const auto& p: reg->vectors) {
-    cout << " " << p.first << " => ";
-    for(const auto& i : p.second)
-      cout << i << ", ";
-    cout << '\n';
-  }
+  LogVerbatim("Geometry").log([&reg](auto& log) {
+      for(const auto& p: reg->vectors) {
+	log << "\n " << p.first << " => ";
+	for(const auto& i : p.second)
+	  log << i << ", ";
+      }
+    });
   
   const DetectorDescriptionRcd& ddRecord = iEventSetup.get<DetectorDescriptionRcd>();
   ESTransientHandle<DDDetector> ddd;
-  ddRecord.get(m_label, ddd);
+  ddRecord.get(m_tag.module(), ddd);
     
-  dd4hep::Detector& detector = *ddd->description;
+  const dd4hep::Detector& detector = *ddd->description();
 
   string detElementPath;
   string placedVolPath;
@@ -110,7 +115,7 @@ DDTestNavigateGeometry::analyze(const Event&, const EventSetup& iEventSetup)
   VolumeProcessor proc;
   PlacedVolumeScanner().scanPlacements(proc, startPVol, 0, true);
   
-  printout(ALWAYS,"VolumeScanner","+++ Visited a total of %d placed volumes.", proc.count());
+  LogVerbatim("Geometry") << "VolumeScanner" << "+++ Visited a total of %d placed volumes." << proc.count();
 }
 
 DEFINE_FWK_MODULE(DDTestNavigateGeometry);

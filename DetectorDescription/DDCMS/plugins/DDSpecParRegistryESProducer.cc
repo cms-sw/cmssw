@@ -46,13 +46,13 @@ public:
   ReturnType produce(const DDSpecParRegistryRcd&);
 
 private:
-  string m_label;
+  const string m_label;
 };
 
 DDSpecParRegistryESProducer::DDSpecParRegistryESProducer(const edm::ParameterSet& iConfig)
-  : m_label(iConfig.getParameter<std::string>("label"))
+  : m_label(iConfig.getParameter<std::string>("appendToDataLabel"))
 {
-  setWhatProduced(this, m_label);
+  setWhatProduced(this);
 }
 
 DDSpecParRegistryESProducer::~DDSpecParRegistryESProducer()
@@ -63,7 +63,6 @@ void
 DDSpecParRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
-  desc.add<string>("label");
   descriptions.addDefault(desc);
 }
 
@@ -73,7 +72,7 @@ DDSpecParRegistryESProducer::produce(const DDSpecParRegistryRcd& iRecord)
   edm::ESHandle<DDDetector> det;
   iRecord.getRecord<DetectorDescriptionRcd>().get(m_label, det);
 
-  DDSpecParRegistry* registry = det->description->extension<DDSpecParRegistry>();
+  const DDSpecParRegistry* registry = det->description()->extension<DDSpecParRegistry>();
   auto product = std::make_unique<DDSpecParRegistry>();
   product->specpars.insert(registry->specpars.begin(), registry->specpars.end());
   return product;

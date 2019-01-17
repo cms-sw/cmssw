@@ -9,11 +9,11 @@ process.maxEvents = cms.untracked.PSet(
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-test-ddangular-algorithm.xml'),
-                                            label = cms.string('TestAngular')
+                                            appendToDataLabel = cms.string('TestAngular')
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  fromDataLabel = cms.untracked.string('TestAngular')
+                                  DDDetector = cms.ESInputTag('TestAngular')
                                   )
 
 process.p = cms.Path(process.testDump)
