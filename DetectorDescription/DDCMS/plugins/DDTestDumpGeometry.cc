@@ -42,7 +42,7 @@ DDTestDumpGeometry::analyze(const Event&, const EventSetup& iEventSetup)
   ESTransientHandle<DDDetector> det;
   iEventSetup.get<DetectorDescriptionRcd>().get(m_tag.module(), det);
 
-  TGeoManager& geom = det->description()->manager();
+  TGeoManager const& geom = det->description()->manager();
 
   TGeoIterator next(geom.GetTopVolume());
   TGeoNode *node;

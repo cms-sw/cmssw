@@ -66,11 +66,13 @@ MuonNumberingESProducer::produce(const MuonNumberingRcd& iRecord)
   ESHandle<DDSpecParRegistry> registry;
   iRecord.getRecord<DDSpecParRegistryRcd>().get(m_label, registry);
   auto it = registry->specpars.find(m_key);
-  for(const auto& l : it->second.spars) {
-    if(l.first == "OnlyForMuonNumbering") {
-      for(const auto& k : it->second.numpars) {
-	for(const auto& ik : k.second) {
-	  product->values.emplace(k.first, (int)ik); 
+  if(it != end(registry->specpars)) {
+    for(const auto& l : it->second.spars) {
+      if(l.first == "OnlyForMuonNumbering") {
+	for(const auto& k : it->second.numpars) {
+	  for(const auto& ik : k.second) {
+	    product->values.emplace(k.first, static_cast<int>(ik)); 
+	  }
 	}
       }
     }
