@@ -14,6 +14,14 @@ namespace gpuVertexFinder {
     static constexpr uint32_t MAXTRACKS = 16000;
     static constexpr uint32_t MAXVTX= 1024;
 
+    OnGPU() = default;
+    OnGPU(nullptr_t):
+      ntrks{nullptr}, itrk{nullptr}, zt{nullptr}, ezt2{nullptr}, ptt2{nullptr},
+      zv{nullptr}, wv{nullptr}, chi2{nullptr}, ptv2{nullptr}, nvFinal{nullptr},
+      nvIntermediate{nullptr}, iv{nullptr}, sortInd{nullptr},
+      izt{nullptr}, nn{nullptr}
+    {}
+
     uint32_t * ntrks; // number of "selected tracks"
     uint16_t * itrk; // index of original track    
     float * zt;   // input track z at bs
@@ -66,6 +74,7 @@ namespace gpuVertexFinder {
 	     float ichi2max,   // max normalized distance to cluster
              bool ienableTransfer
 	     ) :
+      onGPU(nullptr),
       minT(iminT),
       eps(ieps),
       errmax(ierrmax),
