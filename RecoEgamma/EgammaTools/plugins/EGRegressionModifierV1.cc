@@ -16,11 +16,10 @@
 class EGRegressionModifierV1 : public ModifyObjectValueBase {
 public:
 
-  EGRegressionModifierV1(const edm::ParameterSet& conf);
+  EGRegressionModifierV1(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
 
   void setEvent(const edm::Event&) final;
   void setEventContent(const edm::EventSetup&) final;
-  void setConsumes(edm::ConsumesCollector&) final;
 
   void modifyObject(reco::GsfElectron&) const final;
   void modifyObject(reco::Photon&) const final;
@@ -46,13 +45,10 @@ private:
 
   const bool autoDetectBunchSpacing_;
   int bunchspacing_;
-  edm::InputTag bunchspacingTag_;
   edm::EDGetTokenT<unsigned int> bunchSpacingToken_;
   float rhoValue_;
-  const edm::InputTag rhoTag_;
   edm::EDGetTokenT<double> rhoToken_;
   int nVtx_;
-  const edm::InputTag vtxTag_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
   edm::Handle<reco::VertexCollection> vtxH_;
   const bool applyExtraHighEnergyProtection_;
@@ -68,15 +64,17 @@ private:
 
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory, EGRegressionModifierV1, "EGRegressionModifierV1");
 
-EGRegressionModifierV1::EGRegressionModifierV1(const edm::ParameterSet& conf)
+EGRegressionModifierV1::EGRegressionModifierV1(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
   : ModifyObjectValueBase(conf)
   , autoDetectBunchSpacing_(conf.getParameter<bool>("autoDetectBunchSpacing"))
   , bunchspacing_(autoDetectBunchSpacing_ ? 450 : conf.getParameter<int>("manualBunchSpacing"))
-  , bunchspacingTag_(autoDetectBunchSpacing_ ? conf.getParameter<edm::InputTag>("bunchSpacingTag") : edm::InputTag())
-  , rhoTag_(conf.getParameter<edm::InputTag>("rhoCollection"))
-  , vtxTag_(conf.getParameter<edm::InputTag>("vertexCollection"))
+  , rhoToken_(cc.consumes<double>(conf.getParameter<edm::InputTag>("rhoCollection")))
+  , vtxToken_(cc.consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("vertexCollection")))
   , applyExtraHighEnergyProtection_(conf.getParameter<bool>("applyExtraHighEnergyProtection"))
 {
+  if (autoDetectBunchSpacing_)
+    bunchSpacingToken_ = cc.consumes<unsigned int>(conf.getParameter<edm::InputTag>("bunchSpacingTag"));
+
   const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
   eleCondNames_ = CondNames {
       .mean50ns  = electrons.getParameter<std::vector<std::string> >("regressionKey_50ns"),
@@ -126,15 +124,6 @@ void EGRegressionModifierV1::setEventContent(const edm::EventSetup& evs)
   const std::string ep_condnames_weight  = (bunchspacing_ == 25) ? condNamesWeight25ns_  : condNamesWeight50ns_;
   evs.get<GBRWrapperRcd>().get(ep_condnames_weight, forestEH);
   epForest_ = forestEH.product();
-}
-
-void EGRegressionModifierV1::setConsumes(edm::ConsumesCollector& sumes) {
-
-  rhoToken_ = sumes.consumes<double>(rhoTag_);
-  vtxToken_ = sumes.consumes<reco::VertexCollection>(vtxTag_);
-
-  if (autoDetectBunchSpacing_)
-    bunchSpacingToken_ = sumes.consumes<unsigned int>(bunchspacingTag_);
 }
 
 void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
