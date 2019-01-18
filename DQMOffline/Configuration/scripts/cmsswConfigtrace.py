@@ -11,7 +11,12 @@ from collections import defaultdict
 
 import cmsswFiletrace
 
-cmsswFiletrace.OUTFILE_TREE = "configtree"
+SQLITE=True
+
+if SQLITE:
+  cmsswFiletrace.OUTFILE_TREE = "configtree.sqlite"
+else:
+  cmsswFiletrace.OUTFILE_TREE = "configtree"
 cmsswFiletrace.OUTFILE_FILES = "configfiles"
 cmsswFiletrace.WRAP_SCRIPTS = []
 IGNORE_PACKAGES = ['FWCore/ParameterSet', 'FWCore/GuiBrowsers', 'DQMOffline/Configuration/scripts', "cmsRun"]
@@ -183,20 +188,77 @@ def writeoutput(graph):
         filename = filename[len(pfx):]
     return filename
 
-  def format(event):
-    evt, classname, loc = event
-    places = ";".join("%s:%d" % (formatfile(filename), line) for filename, line in loc)
-    return "%s; %s::%s" % (places, classname, evt)
-
   files = set()
   for child, parent, relation in graph:
     files.add(child[2][0][0])
     files.add(parent[2][0][0])
-  with open(os.environ["CMSSWCALLFILES"], "a") as outfile:
-    for f in files:
-      print("%s: %s" % (progname, formatfile(f)), file=outfile)
-    
-  with open(os.environ["CMSSWCALLTREE"], "a") as outfile:
+
+  if SQLITE:
+    import sqlite3
+    conn = sqlite3.connect(os.environ["CMSSWCALLTREE"])
+    cur = conn.cursor()
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS file(id INTEGER PRIMARY KEY, 
+      name TEXT, UNIQUE(name)
+    );
+    """)
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS trace(id INTEGER PRIMARY KEY, 
+      parent INTEGER, -- points into same table, recursively
+      file INTEGER, line INTEGER,
+      FOREIGN KEY(parent) REFERENCES trace(id),
+      FOREIGN KEY(file) REFERENCES file(id),
+      UNIQUE(parent, file, line)
+    );
+    """)
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS relation(id INTEGER PRIMARY KEY,
+      place  INTEGER, 
+      place_type TEXT,
+      usedby INTEGER, 
+      usedby_type TEXT,
+      relation TEXT,
+      source TEXT,
+      FOREIGN KEY(place) REFERENCES trace(id),
+      FOREIGN KEY(usedby) REFERENCES trace(id)
+    );
+    """)
+    cur.executemany("INSERT OR IGNORE INTO file(name) VALUES (?);", 
+      ((formatfile(f),) for f in files))
+    def inserttrace(loc):
+      parent = 0
+      for filename, line in reversed(loc):
+        conn.execute("INSERT OR IGNORE INTO trace(parent, file, line) SELECT ?, id, ? FROM file WHERE name == ?;", (parent, line, formatfile(filename)))
+        cur = conn.execute("SELECT trace.id FROM trace LEFT JOIN file ON trace.file == file.id WHERE trace.parent = ? AND file.name = ? AND trace.line = ?;", (parent, formatfile(filename), line))
+        for row in cur:
+          parent = row[0]
+      return parent
+
+    for child, parent, relation in graph:
+      cevt, cclassname, cloc = child
+      pevt, pclassname, ploc = parent
+      place = inserttrace(cloc)
+      usedby = inserttrace(ploc)
+      cur.execute("INSERT OR IGNORE INTO relation(place, place_type, usedby, usedby_type, relation, source) VALUES (?,?,?,?,?,?);", (
+        place, "%s::%s" % (cclassname, cevt),
+        usedby, "%s::%s" % (pclassname, pevt),
+        relation, progname
+      ))
+    conn.commit()
+    conn.close()
+
+
+  else:
+    def format(event):
+      evt, classname, loc = event
+      places = ";".join("%s:%d" % (formatfile(filename), line) for filename, line in loc)
+      return "%s; %s::%s" % (places, classname, evt)
+
+    with open(os.environ["CMSSWCALLFILES"], "a") as outfile:
+      for f in files:
+        print("%s: %s" % (progname, formatfile(f)), file=outfile)
+      
+    with open(os.environ["CMSSWCALLTREE"], "a") as outfile:
       for child, parent, relation in graph:
         print("%s -> %s [%s]" % (format(child), format(parent), relation), file=outfile)
 
