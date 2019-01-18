@@ -818,7 +818,7 @@ def createCompoundPlots(detector, plot, geometry):
                                                plots[plot].abscissa,
                                                plots[plot].ordinate)
     stack_X0 = THStack("stack_X0", stackTitle);
-    theLegend = TLegend(0.70, 0.70, 0.89, 0.89);
+    theLegend = TLegend(0.50, 0.70, 0.70, 0.90);
 
     def setRanges(h):
         legendSpace = 1. + 0.3 # 30%
@@ -842,13 +842,17 @@ def createCompoundPlots(detector, plot, geometry):
     canname = "MBCan_1D_%s_%s"  % (detector, plot)
     can = TCanvas(canname, canname, 800, 800)
     can.Range(0,0,25,25)
+    can.SetTopMargin(0.06)
+    can.SetRightMargin(0.05)
+    can.SetLeftMargin(0.12)
     can.SetFillColor(kWhite)
     gStyle.SetOptStat(0)
-
+    gStyle.SetOptTitle(0)
     setTDRStyle()
 
     # Draw
     setRanges(stack_X0.GetStack().Last())
+    stack_X0.SetTitle(';'+stack_X0.GetTitle().split(';', 1)[1])
     stack_X0.Draw("HIST");
     theLegend.Draw();
 
@@ -857,9 +861,9 @@ def createCompoundPlots(detector, plot, geometry):
     cmsMark.SetTextAngle(0);
     cmsMark.SetTextColor(kBlack);    
     cmsMark.SetTextFont(61)
-    cmsMark.SetTextSize(7e-2)
+    cmsMark.SetTextSize(5e-2)
     cmsMark.SetTextAlign(11)
-    cmsMark.DrawLatex(0.1,0.91,"CMS")
+    cmsMark.DrawLatex(0.16,0.86,"CMS")
 
     simuMark = TLatex()
     simuMark.SetNDC();
@@ -867,7 +871,7 @@ def createCompoundPlots(detector, plot, geometry):
     simuMark.SetTextColor(kBlack);    
     simuMark.SetTextSize(3e-2)
     simuMark.SetTextAlign(11)
-    simuMark.DrawLatex(0.26,0.91,"#font[52]{Preliminary Simulation}")
+    simuMark.DrawLatex(0.16,0.82,"#font[52]{Simulation Preliminary}")
  
     # Store
     can.Update();
