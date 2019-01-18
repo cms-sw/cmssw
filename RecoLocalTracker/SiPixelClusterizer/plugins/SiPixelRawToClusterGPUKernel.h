@@ -10,7 +10,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
 #include "siPixelRawToClusterHeterogeneousProduct.h"
 
-class SiPixelFedCablingMapGPU;
+struct SiPixelFedCablingMapGPU;
 class SiPixelGainForHLTonGPU;
 
 namespace pixelgpudetails {
