@@ -87,9 +87,9 @@ void TOFPIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
     setComment("Input ValueMap for track time at beamline");
   desc.add<edm::InputTag>("tmtdSrc", edm::InputTag("trackExtenderWithMTD:generalTracktmtd"))->
     setComment("Input ValueMap for track time at MTD");
-  desc.add<edm::InputTag>("sigmat0Src", edm::InputTag("trackExtenderWithMTD:generalTracktsigmat0"))->
+  desc.add<edm::InputTag>("sigmat0Src", edm::InputTag("trackExtenderWithMTD:generalTracksigmat0"))->
     setComment("Input ValueMap for track time uncertainty at beamline");
-  desc.add<edm::InputTag>("sigmatmtdSrc", edm::InputTag("trackExtenderWithMTD:generalTracktsigmatmtd"))->
+  desc.add<edm::InputTag>("sigmatmtdSrc", edm::InputTag("trackExtenderWithMTD:generalTracksigmatmtd"))->
     setComment("Input ValueMap for track time uncertainty at MTD");
   desc.add<edm::InputTag>("pathLengthSrc", edm::InputTag("trackExtenderWithMTD:generalTrackPathLength"))->
     setComment("Input ValueMap for track path lengh from beamline to MTD");
