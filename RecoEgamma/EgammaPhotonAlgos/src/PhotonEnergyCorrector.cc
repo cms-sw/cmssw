@@ -25,36 +25,31 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config, e
 
 
   // function to extract f(eta) correction
-  scEnergyFunction_ = nullptr ;
   std::string superClusterFunctionName = config.getParameter<std::string>("superClusterEnergyCorrFunction") ;
-  scEnergyFunction_.reset(EcalClusterFunctionFactory::get()->create(superClusterFunctionName,config));
+  scEnergyFunction_ = std::unique_ptr<EcalClusterFunctionBaseClass>{EcalClusterFunctionFactory::get()->create(superClusterFunctionName,config)};
 
 
   // function to extract corrections to cracks
-  scCrackEnergyFunction_ = nullptr ;
   std::string superClusterCrackFunctionName = config.getParameter<std::string>("superClusterCrackEnergyCorrFunction") ;
-  scCrackEnergyFunction_.reset(EcalClusterFunctionFactory::get()->create(superClusterCrackFunctionName,config));
+  scCrackEnergyFunction_ = std::unique_ptr<EcalClusterFunctionBaseClass>{EcalClusterFunctionFactory::get()->create(superClusterCrackFunctionName,config)};
 
 
   // function to extract the error on the sc ecal correction
-  scEnergyErrorFunction_ = nullptr ;
   std::string superClusterErrorFunctionName = config.getParameter<std::string>("superClusterEnergyErrorFunction") ;
-  scEnergyErrorFunction_.reset(EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName,config));
+  scEnergyErrorFunction_ = std::unique_ptr<EcalClusterFunctionBaseClass>{EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName,config)};
 
 
   // function  to extract the error on the photon ecal correction
-  photonEcalEnergyCorrFunction_=nullptr;
   std::string photonEnergyFunctionName = config.getParameter<std::string>("photonEcalEnergyCorrFunction") ;
-  photonEcalEnergyCorrFunction_.reset(EcalClusterFunctionFactory::get()->create(photonEnergyFunctionName, config));
+  photonEcalEnergyCorrFunction_ = std::unique_ptr<EcalClusterFunctionBaseClass>{EcalClusterFunctionFactory::get()->create(photonEnergyFunctionName, config)};
   //ingredient for photon uncertainty
-  photonUncertaintyCalculator_.reset(new EnergyUncertaintyPhotonSpecific(config));
+  photonUncertaintyCalculator_ = std::make_unique<EnergyUncertaintyPhotonSpecific>(config);
  
   if( config.existsAs<edm::ParameterSet>("regressionConfig") ) {
     const edm::ParameterSet& regr_conf = 
       config.getParameterSet("regressionConfig");
     const std::string& mname = regr_conf.getParameter<std::string>("modifierName");
-    ModifyObjectValueBase* regr = ModifyObjectValueFactory::get()->create(mname,regr_conf,iC);
-    gedRegression_.reset(regr);
+    gedRegression_ = std::unique_ptr<ModifyObjectValueBase>{ModifyObjectValueFactory::get()->create(mname,regr_conf,iC)};
   }
 
   // ingredient for energy regression
@@ -62,7 +57,7 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config, e
   w_file_ = config.getParameter<std::string>("energyRegressionWeightsFileLocation");
   if (weightsfromDB_) w_db_   = config.getParameter<std::string>("energyRegressionWeightsDBLocation");
   else  w_db_ = "none" ;
-  regressionCorrector_.reset(new EGEnergyCorrector()); 
+  regressionCorrector_ = std::make_unique<EGEnergyCorrector>();
 
 
 }
