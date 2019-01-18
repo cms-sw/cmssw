@@ -167,10 +167,6 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
 
   thePhotonEnergyCorrector_ = 
     new PhotonEnergyCorrector(conf_, consumesCollector());
-  if( conf_.existsAs<edm::ParameterSet>("regressionConfig") ) {
-    auto sumes = consumesCollector();
-    thePhotonEnergyCorrector_->gedRegression()->setConsumes(sumes);
-  }
 
   //AA
 
