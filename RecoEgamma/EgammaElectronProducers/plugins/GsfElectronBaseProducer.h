@@ -45,7 +45,7 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
 
   protected:
 
-    GsfElectronAlgo * algo_ ;
+    std::unique_ptr<GsfElectronAlgo> algo_ ;
 
     void beginEvent( edm::Event &, const edm::EventSetup & ) ;
     void fillEvent( reco::GsfElectronCollection & electrons, edm::Event & event ) ;
