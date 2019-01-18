@@ -61,17 +61,15 @@ EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGenerato
   edm::ParameterSet hitsfactoryPSet = conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
 
-  // get orderd hits generator from factory
-  edm::ConsumesCollector iC = consumesCollector();
-  OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC);
-
   // start seed generator
   edm::ParameterSet creatorPSet;
   creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
 
-  combinatorialSeedGenerator.reset(new SeedGeneratorFromRegionHits( hitsGenerator, nullptr,
-                                                                    SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
-                                                                    ));
+  edm::ConsumesCollector iC = consumesCollector();
+  combinatorialSeedGenerator = std::make_unique<SeedGeneratorFromRegionHits>( OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC),
+                                                                              nullptr,
+                                                                              SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+                                                                              );
   // setup orderedhits setup (in order to tell seed generator to use pairs/triplets, which layers)
 }
 
