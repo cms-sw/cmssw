@@ -30,8 +30,8 @@ RecoVertexAOD = cms.PSet(
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 
-_phase2_tktiming_RecoVertexEventContent = [ 'keep *_offlinePrimaryVertices3D__*',
-                                            'keep *_offlinePrimaryVertices3DWithBS__*',
+_phase2_tktiming_RecoVertexEventContent = [ 'keep *_offlinePrimaryVertices4D__*',
+                                            'keep *_offlinePrimaryVertices4DWithBS__*',
                                             'keep *_trackTimeValueMapProducer_*_*' ]
 
 _phase2_tktiming_layer_RecoVertexEventContent = [ 'keep *_offlinePrimaryVertices4DnoPID__*',
