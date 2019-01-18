@@ -356,7 +356,7 @@ namespace edm {
   Event::get(ProductID const& oid, Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = this->getByProductID_(oid);
-    convert_handle(std::move(bh), result);  // throws on conversion error
+    result = convert_handle_check_type<PROD>(std::move(bh));  // throws on conversion error
     if(result.failedToGet()) {
       return false;
     }
@@ -371,13 +371,12 @@ namespace edm {
       BasicHandle bh = this->getByProductID_(oid);
 
       if(bh.failedToGet()) {
-          Handle<View<ELEMENT> > temp(makeHandleExceptionFactory([oid]()->std::shared_ptr<cms::Exception> {
+          result = Handle<View<ELEMENT> >(makeHandleExceptionFactory([oid]()->std::shared_ptr<cms::Exception> {
             std::shared_ptr<cms::Exception> whyFailed = std::make_shared<edm::Exception>(edm::errors::ProductNotFound);
             *whyFailed
             << "get View by ID failed: no product with ID = " << oid <<"\n";
             return whyFailed;
           }));
-          result.swap(temp);
           return false;
       }
 
@@ -535,7 +534,7 @@ namespace edm {
   Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), tag, moduleCallingContext_);
-    convert_handle(std::move(bh), result);  // throws on conversion error
+    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
@@ -550,7 +549,7 @@ namespace edm {
                     Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, emptyString_, moduleCallingContext_);
-    convert_handle(std::move(bh), result);  // throws on conversion error
+    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
@@ -579,7 +578,7 @@ namespace edm {
   Event::getByToken(EDGetToken token, Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    convert_handle(std::move(bh), result);  // throws on conversion error
+    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
@@ -592,7 +591,7 @@ namespace edm {
   Event::getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    convert_handle(std::move(bh), result);  // throws on conversion error
+    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }

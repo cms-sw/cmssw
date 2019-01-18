@@ -53,8 +53,8 @@ namespace edm {
 
     ProcessHistoryID const& processHistoryID() const;
 
-    bool
-    getByToken(EDGetToken token, TypeID const& typeID, BasicHandle& result) const;
+    BasicHandle
+    getByToken(EDGetToken token, TypeID const& typeID) const;
 
     template<typename PROD>
     bool
@@ -97,9 +97,8 @@ namespace edm {
     if(!provRecorder_.checkIfComplete<PROD>()) {
       principal_get_adapter_detail::throwOnPrematureRead("RunOrLumi", TypeID(typeid(PROD)), token);
     }
-    result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    convert_handle(std::move(bh), result);  // throws on conversion error
+    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
@@ -112,9 +111,8 @@ namespace edm {
     if(!provRecorder_.checkIfComplete<PROD>()) {
       principal_get_adapter_detail::throwOnPrematureRead("RunOrLumi", TypeID(typeid(PROD)), token);
     }
-    result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    convert_handle(std::move(bh), result);  // throws on conversion error
+    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }

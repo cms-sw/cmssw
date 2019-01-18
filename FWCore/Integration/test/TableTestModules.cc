@@ -104,8 +104,7 @@ namespace edmtest {
         BranchDescription const* branchDescription = product.first;
         TypeID const& tid = branchDescription->unwrappedTypeID();
         EDGetToken const& token = product.second;
-        BasicHandle bh;
-        e.getByToken(token, tid, bh);
+        BasicHandle bh = e.getByToken(token, tid);
         assert(bh.isValid());
         auto examiner = bh.wrapper()->tableExaminer();
         assert(examiner);
