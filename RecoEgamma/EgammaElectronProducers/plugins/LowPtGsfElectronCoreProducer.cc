@@ -44,7 +44,7 @@ void LowPtGsfElectronCoreProducer::produce( edm::Event& event, const edm::EventS
 
     // Construct GsfElectronCore and add GSF(PF) track and SC
     reco::GsfElectronCore* core = new reco::GsfElectronCore(gsf);
-    if ( core->ecalDrivenSeed() ) { delete core; return; }
+    if ( core->ecalDrivenSeed() ) { delete core; continue; }
 
     // Add GSF(PF) track information
     GsfElectronCoreBaseProducer::fillElectronCore(core);
