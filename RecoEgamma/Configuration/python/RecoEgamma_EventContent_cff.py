@@ -194,7 +194,3 @@ for e in [pA_2016, peripheralPbPb, pp_on_AA_2018, pp_on_XeXe_2017, ppRef_2017]:
                                                                            'keep recoPhotons_islandPhotons_*_*'
                                                                            ])
                     )
-
-from Configuration.Eras.Modifier_bParkingOpen_cff import bParkingOpen
-for tier in [ RecoEgammaAOD.outputCommands, RecoEgammaRECO.outputCommands, RecoEgammaFEVT.outputCommands ] :
-    bParkingOpen.toModify( tier, func=lambda outputCommands : outputCommands.extend(['keep *_lowPtGsfEle*_*_*']) )
