@@ -9,17 +9,13 @@
 
 // default constructor allocates default wire and strip digitizers
 
-RPCDigitizer::RPCDigitizer(const edm::ParameterSet& config) {
-  theName = config.getParameter<std::string>("digiModel");
-  theRPCSim = RPCSimFactory::get()->create(theName,config.getParameter<edm::ParameterSet>("digiModelConfig"));
-  theNoise=config.getParameter<bool>("doBkgNoise");
-}
+RPCDigitizer::RPCDigitizer(const edm::ParameterSet& config):
+  theRPCSim{RPCSimFactory::get()->create(config.getParameter<std::string>("digiModel"),
+                                         config.getParameter<edm::ParameterSet>("digiModelConfig"))},
+  theNoise{config.getParameter<bool>("doBkgNoise")}
+{}
 
-RPCDigitizer::~RPCDigitizer() {
-  if( theRPCSim )
-    delete theRPCSim;
-  theRPCSim = nullptr;
-}
+RPCDigitizer::~RPCDigitizer() = default;
 
 void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits, 
                             RPCDigiCollection & rpcDigis,
