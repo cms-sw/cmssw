@@ -2234,9 +2234,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // Continue looping until all closest clusters are exhausted and as long as
       // the calorimetric energy does not saturate the total momentum.
       if ( ecalSatellite.first < 0. || caloEnergy - totalChargedMomentum <= 0. ) {
-	if(debug_) cout<<"\t\t\tactive, adding "<<std::get<1>(ecalSatellite.second)
+        if(debug_) cout<<"\t\t\tactive, adding "<<std::get<1>(ecalSatellite.second)
 		       <<" to ECAL energy, and locking"<<endl;
-	active[std::get<0>(ecalSatellite.second)] = false;
+        active[std::get<0>(ecalSatellite.second)] = false;
         double clusterEnergy=sqrt(std::get<1>(ecalSatellite.second).Mag2())*std::get<2>(ecalSatellite.second); // KH: ECAL energy calibrated under the egamma hypothesis
         if(clusterEnergy>50) { // KH: used to split energetic ecal clusters (E>50 GeV)
           ecalClusters.push_back(ecalSatellite.second);
@@ -2746,15 +2746,15 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
             sumEcalClusters=sqrt(photonAtECAL.Mag2());
           }
           for(auto const& pae : ecalClusters) {
- 	    const double clusterEnergyCalibrated=sqrt(std::get<1>(pae).Mag2())*std::get<2>(pae); // KH: calibrated under the egamma hypothesis. Note: sumEcalClusters is normally calibrated under egamma hypothesis
-	    particleEnergy.push_back(mergedPhotonEnergy*clusterEnergyCalibrated/sumEcalClusters);
-	    particleDirection.push_back(std::get<1>(pae));
-	    ecalEnergy.push_back(mergedPhotonEnergy*clusterEnergyCalibrated/sumEcalClusters);
-	    hcalEnergy.push_back(0.);
-	    rawecalEnergy.push_back(totalEcal);
-	    rawhcalEnergy.push_back(totalHcal);
-	    pivotalClusterRef.push_back(elements[std::get<0>(pae)].clusterRef());
-	    iPivotal.push_back(std::get<0>(pae));
+            const double clusterEnergyCalibrated=sqrt(std::get<1>(pae).Mag2())*std::get<2>(pae); // KH: calibrated under the egamma hypothesis. Note: sumEcalClusters is normally calibrated under egamma hypothesis
+            particleEnergy.push_back(mergedPhotonEnergy*clusterEnergyCalibrated/sumEcalClusters);
+            particleDirection.push_back(std::get<1>(pae));
+            ecalEnergy.push_back(mergedPhotonEnergy*clusterEnergyCalibrated/sumEcalClusters);
+            hcalEnergy.push_back(0.);
+            rawecalEnergy.push_back(totalEcal);
+            rawhcalEnergy.push_back(totalHcal);
+            pivotalClusterRef.push_back(elements[std::get<0>(pae)].clusterRef());
+            iPivotal.push_back(std::get<0>(pae));
           }
       }
 
