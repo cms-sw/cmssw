@@ -56,3 +56,8 @@ slimmingTask = cms.Task(
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOOTPhotons]))
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+_phase2_timing_slimmingTask = cms.Task(slimmingTask.copy(),
+                                       offlineSlimmedPrimaryVertices4D)
+phase2_timing.toReplaceWith(slimmingTask,_phase2_timing_slimmingTask)
