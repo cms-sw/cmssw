@@ -25,6 +25,7 @@ namespace CLHEP {
 
 ME0DigiPreRecoProducer::ME0DigiPreRecoProducer(const edm::ParameterSet& ps)
   : digiPreRecoModelString_(ps.getParameter<std::string>("digiPreRecoModelString"))
+  , me0DigiPreRecoModel_{ME0DigiPreRecoModelFactory::get()->create("ME0" + digiPreRecoModelString_ + "Model", ps)}
 {
   produces<ME0DigiPreRecoCollection>();
 
@@ -34,7 +35,6 @@ ME0DigiPreRecoProducer::ME0DigiPreRecoProducer(const edm::ParameterSet& ps)
       << "ME0DigiPreRecoProducer::ME0PreRecoDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
       << "Add the service in the configuration file or remove the modules that require it.";
   }
-  me0DigiPreRecoModel_ = ME0DigiPreRecoModelFactory::get()->create("ME0" + digiPreRecoModelString_ + "Model", ps);
   LogDebug("ME0DigiPreRecoProducer") << "Using ME0" + digiPreRecoModelString_ + "Model";
 
   std::string mix_(ps.getParameter<std::string>("mixLabel"));
@@ -44,11 +44,7 @@ ME0DigiPreRecoProducer::ME0DigiPreRecoProducer(const edm::ParameterSet& ps)
 }
 
 
-ME0DigiPreRecoProducer::~ME0DigiPreRecoProducer()
-{
-  delete me0DigiPreRecoModel_;
-}
-
+ME0DigiPreRecoProducer::~ME0DigiPreRecoProducer() = default;
 
 void ME0DigiPreRecoProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup)
 {
@@ -68,14 +64,14 @@ void ME0DigiPreRecoProducer::produce(edm::Event& e, const edm::EventSetup& event
   edm::Handle<CrossingFrame<PSimHit> > cf;
   e.getByToken(cf_token, cf);
 
-  std::unique_ptr<MixCollection<PSimHit> > hits( new MixCollection<PSimHit>(cf.product()) );
+  MixCollection<PSimHit> hits{cf.product()};
 
   // Create empty output
-  std::unique_ptr<ME0DigiPreRecoCollection> digis(new ME0DigiPreRecoCollection());
+  auto digis = std::make_unique<ME0DigiPreRecoCollection>();
 
   // arrange the hits by eta partition
   std::map<uint32_t, edm::PSimHitContainer> hitMap;
-  for (const auto& hit: *hits){
+  for (const auto& hit: hits){
     hitMap[hit.detUnitId()].push_back(hit);
   }
   
