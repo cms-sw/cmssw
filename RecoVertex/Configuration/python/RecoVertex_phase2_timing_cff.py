@@ -72,4 +72,4 @@ offlinePrimaryVertices3DWithBS = offlinePrimaryVerticesWithBS.clone(vertices="un
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducer
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import quickTrackAssociatorByHits
 from SimTracker.TrackAssociation.trackTimeValueMapProducer_cfi import trackTimeValueMapProducer
-from CommonTools.RecoAlgos.TOFPIDProducer_cfi import tofPID
+from CommonTools.RecoAlgos.tofPID_cfi import tofPID
