@@ -64,6 +64,10 @@ namespace edm {
     bool
     getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const;
 
+    template<typename PROD>
+    Handle<PROD>
+    getHandle(EDGetTokenT<PROD> token) const;
+
     Provenance
     getProvenance(BranchID const& theID) const;
 
@@ -117,6 +121,16 @@ namespace edm {
       return false;
     }
     return true;
+  }
+
+  template<typename PROD>
+  Handle<PROD>
+  OccurrenceForOutput::getHandle(EDGetTokenT<PROD> token) const {
+    if(!provRecorder_.checkIfComplete<PROD>()) {
+      principal_get_adapter_detail::throwOnPrematureRead("RunOrLumi", TypeID(typeid(PROD)), token);
+    }
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
+    return convert_handle<PROD>(std::move(bh));  // throws on conversion error
   }
 
 }
