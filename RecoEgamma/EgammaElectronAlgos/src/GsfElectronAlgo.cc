@@ -1,4 +1,3 @@
-
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/EgAmbiguityTools.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
@@ -74,8 +73,6 @@ struct GsfElectronAlgo::GeneralData
      const EcalRecHitsConfiguration &,
      EcalClusterFunctionBaseClass * superClusterErrorFunction,
      EcalClusterFunctionBaseClass * crackCorrectionFunction,
-     const SoftElectronMVAEstimator::Configuration & mva_NIso_Cfg ,
-     const ElectronMVAEstimator::Configuration & mva_Iso_Cfg ,
      const RegressionHelper::Configuration &) ;
   ~GeneralData() ;
 
@@ -91,8 +88,6 @@ struct GsfElectronAlgo::GeneralData
   ElectronHcalHelper * hcalHelper, * hcalHelperPflow ;
   EcalClusterFunctionBaseClass * superClusterErrorFunction ;
   EcalClusterFunctionBaseClass * crackCorrectionFunction ;
-  //SoftElectronMVAEstimator *sElectronMVAEstimator;
-  //ElectronMVAEstimator *iElectronMVAEstimator;
   const RegressionHelper::Configuration regCfg;
   RegressionHelper * regHelper;
  } ;
@@ -108,8 +103,6 @@ struct GsfElectronAlgo::GeneralData
    const EcalRecHitsConfiguration & recHitsConfig,
    EcalClusterFunctionBaseClass * superClusterErrorFunc,
    EcalClusterFunctionBaseClass * crackCorrectionFunc,
-   const SoftElectronMVAEstimator::Configuration & /*mva_NIso_Config*/,
-   const ElectronMVAEstimator::Configuration & /*mva_Iso_Config*/,
    const RegressionHelper::Configuration & regConfig
    )
  : inputCfg(inputConfig),
@@ -122,8 +115,6 @@ struct GsfElectronAlgo::GeneralData
    hcalHelperPflow(new ElectronHcalHelper(hcalConfigPflow)),
    superClusterErrorFunction(superClusterErrorFunc),
    crackCorrectionFunction(crackCorrectionFunc),
-   //sElectronMVAEstimator(new SoftElectronMVAEstimator(mva_NIso_Config)),
-   //iElectronMVAEstimator(new ElectronMVAEstimator(mva_Iso_Config)),
    regCfg(regConfig),
    regHelper(new RegressionHelper(regConfig))
   {}
@@ -132,8 +123,6 @@ GsfElectronAlgo::GeneralData::~GeneralData()
  {
   delete hcalHelper ;
   delete hcalHelperPflow ;
-  //delete sElectronMVAEstimator;
-  //delete iElectronMVAEstimator;
   delete regHelper;
  }
 
@@ -150,14 +139,12 @@ struct GsfElectronAlgo::EventSetupData
    unsigned long long cacheIDTopo ;
    unsigned long long cacheIDTDGeom ;
    unsigned long long cacheIDMagField ;
-   //unsigned long long cacheChStatus ;
    unsigned long long cacheSevLevel ;
 
    edm::ESHandle<MagneticField> magField ;
    edm::ESHandle<CaloGeometry> caloGeom ;
    edm::ESHandle<CaloTopology> caloTopo ;
    edm::ESHandle<TrackerGeometry> trackerHandle ;
-   //edm::ESHandle<EcalChannelStatus> chStatus ;
    edm::ESHandle<EcalSeverityLevelAlgo> sevLevel;
 
    const MultiTrajectoryStateTransform * mtsTransform ;
@@ -166,7 +153,7 @@ struct GsfElectronAlgo::EventSetupData
 } ;
 
 GsfElectronAlgo::EventSetupData::EventSetupData()
- : cacheIDGeom(0), cacheIDTopo(0), cacheIDTDGeom(0), cacheIDMagField(0),/*cacheChStatus(0),*/
+ : cacheIDGeom(0), cacheIDTopo(0), cacheIDTDGeom(0), cacheIDMagField(0),
    cacheSevLevel(0), mtsTransform(nullptr), constraintAtVtx(nullptr), mtsMode(new MultiTrajectoryStateMode)
  {}
 
@@ -745,14 +732,12 @@ GsfElectronAlgo::GsfElectronAlgo
    const EcalRecHitsConfiguration & recHitsCfg,
    EcalClusterFunctionBaseClass * superClusterErrorFunction,
    EcalClusterFunctionBaseClass * crackCorrectionFunction,
-   const SoftElectronMVAEstimator::Configuration & mva_NIso_Cfg,
-   const ElectronMVAEstimator::Configuration & mva_Iso_Cfg,
    const RegressionHelper::Configuration & regCfg,
    const edm::ParameterSet& tkIsol03Cfg,
    const edm::ParameterSet& tkIsol04Cfg
    
  )
-   : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,recHitsCfg,superClusterErrorFunction,crackCorrectionFunction,mva_NIso_Cfg,mva_Iso_Cfg,regCfg)),
+   : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,recHitsCfg,superClusterErrorFunction,crackCorrectionFunction,regCfg)),
    eventSetupData_(new EventSetupData),
    eventData_(nullptr), electronData_(nullptr),
    tkIsol03Calc_(tkIsol03Cfg),tkIsol04Calc_(tkIsol04Cfg)
@@ -1607,7 +1592,7 @@ void GsfElectronAlgo::setAmbiguityData( bool ignoreNotPreselected )
   if (generalData_->strategyCfg.ambSortingStrategy==0)
    { eventData_->electrons->sort(EgAmbiguityTools::isBetter) ; }
   else if (generalData_->strategyCfg.ambSortingStrategy==1)
-   { eventData_->electrons->sort(EgAmbiguityTools::isInnerMost(eventSetupData_->trackerHandle)) ; }
+   { eventData_->electrons->sort(EgAmbiguityTools::isInnerMost) ; }
   else
    { throw cms::Exception("GsfElectronAlgo|UnknownAmbiguitySortingStrategy")<<"value of generalData_->strategyCfg.ambSortingStrategy is : "<<generalData_->strategyCfg.ambSortingStrategy ; }
 
@@ -1692,10 +1677,10 @@ void GsfElectronAlgo::setAmbiguityData( bool ignoreNotPreselected )
           float eMin = 1. ;
           float threshold = eMin*cosh(EleRelPoint(scRef1->position(),eventData_->beamspot->position()).eta()) ;
           sameCluster =
-           ( (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*eleClu2),eventData_->barrelRecHits,eventData_->endcapRecHits)>=threshold) ||
-             (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*eleClu2),eventData_->barrelRecHits,eventData_->endcapRecHits)>=threshold) ||
-             (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*scRef2->seed()),eventData_->barrelRecHits,eventData_->endcapRecHits)>=threshold) ||
-             (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*scRef2->seed()),eventData_->barrelRecHits,eventData_->endcapRecHits)>=threshold) ) ;
+           ( (EgAmbiguityTools::sharedEnergy(*eleClu1,*eleClu2,*eventData_->barrelRecHits,*eventData_->endcapRecHits)>=threshold) ||
+             (EgAmbiguityTools::sharedEnergy(*scRef1->seed(),*eleClu2,*eventData_->barrelRecHits,*eventData_->endcapRecHits)>=threshold) ||
+             (EgAmbiguityTools::sharedEnergy(*eleClu1,*scRef2->seed(),*eventData_->barrelRecHits,*eventData_->endcapRecHits)>=threshold) ||
+             (EgAmbiguityTools::sharedEnergy(*scRef1->seed(),*scRef2->seed(),*eventData_->barrelRecHits,*eventData_->endcapRecHits)>=threshold) ) ;
          }
         else
          { throw cms::Exception("GsfElectronAlgo|UnknownAmbiguityClustersOverlapStrategy")<<"value of generalData_->strategyCfg.ambClustersOverlapStrategy is : "<<generalData_->strategyCfg.ambClustersOverlapStrategy ; }

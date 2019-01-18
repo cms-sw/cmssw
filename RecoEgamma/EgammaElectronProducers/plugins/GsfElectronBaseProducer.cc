@@ -315,9 +315,6 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   EcalClusterFunctionBaseClass * const crackCorrectionFunction =
       EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("crackCorrectionFunction"),cfg) ;
 
-  mva_NIso_Cfg_.vweightsfiles = cfg.getParameter<std::vector<std::string>>("SoftElecMVAFilesString");
-  mva_Iso_Cfg_.vweightsfiles  = cfg.getParameter<std::vector<std::string>>("ElecMVAFilesString");
-
   // create algo
   algo_ = new GsfElectronAlgo
    ( inputCfg_, strategyCfg_,
@@ -326,8 +323,6 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
      isoCfg,recHitsCfg,
      superClusterErrorFunction,
      crackCorrectionFunction,
-     mva_NIso_Cfg_,
-     mva_Iso_Cfg_,
      regressionCfg,
      cfg.getParameter<edm::ParameterSet>("trkIsol03Cfg"),
      cfg.getParameter<edm::ParameterSet>("trkIsol04Cfg")
