@@ -161,7 +161,7 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
 		 [&allScenarios](const std::string& arg)
 		 { return (std::find(allScenarios.begin(),allScenarios.end(), arg) == allScenarios.end());});
     
-    if(notFound.size()!=0){
+    if(!notFound.empty()){
       for(const auto &entry : notFound){
 	edm::LogError("SiPixelFEDChannelContainer") <<"The requested scenario: " << entry <<" is not found in the map!!"<<std::endl; 
       }
