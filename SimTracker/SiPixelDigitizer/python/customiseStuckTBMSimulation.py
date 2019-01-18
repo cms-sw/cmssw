@@ -16,7 +16,7 @@ def activateStuckTBMSimulation2018NoPU(process):
                                                       tag = cms.string('SiPixelQualityProbabilities_2018_noPU_v0_mc'),
                                                       connect = cms.string('frontier://FrontierPrep/CMS_CONDITIONS')),
                                              cms.PSet(record = cms.string('SiPixelStatusScenariosRcd'),
-                                                      tag = cms.string('SiPixelFEDChannelContainer_StuckTBM_2018_v0_mc'),
+                                                      tag = cms.string('SiPixelFEDChannelContainer_StuckTBM_2018_v0_fixed_mc'),
                                                       connect = cms.string('frontier://FrontierPrep/CMS_CONDITIONS')
                                                       )
                                              )
