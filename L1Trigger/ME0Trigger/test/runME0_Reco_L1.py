@@ -21,71 +21,8 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-"""
-process.load('Configuration.StandardSequences.Digi_cff')
-process.simMuonME0ReDigis384 = process.simMuonME0PseudoReDigis.clone(
-    numberOfStrips = cms.uint32(384)
-)
-process.simMuonME0ReDigis192 = process.simMuonME0PseudoReDigis.clone(
-    numberOfStrips = cms.uint32(192)
-)
-process.simMuonME0ReDigis96 = process.simMuonME0PseudoReDigis.clone(
-    numberOfStrips = cms.uint32(96)
-)
-
-process.RandomNumberGeneratorService.simMuonME0ReDigis384 = cms.PSet(
-    initialSeed = cms.untracked.uint32(1234567),
-    engineName = cms.untracked.string('HepJamesRandom')
-)
-process.RandomNumberGeneratorService.simMuonME0ReDigis192 = cms.PSet(
-    initialSeed = cms.untracked.uint32(2234567),
-    engineName = cms.untracked.string('HepJamesRandom')
-)
-process.RandomNumberGeneratorService.simMuonME0ReDigis96 = cms.PSet(
-    initialSeed = cms.untracked.uint32(3234567),
-    engineName = cms.untracked.string('HepJamesRandom')
-)
-
-process.me0RecHits384 = process.me0RecHits.clone(
-    me0DigiLabel = cms.InputTag("simMuonME0ReDigis384")
-)
-process.me0RecHits192 = process.me0RecHits.clone(
-    me0DigiLabel = cms.InputTag("simMuonME0ReDigis192")
-)
-process.me0RecHits96 = process.me0RecHits.clone(
-    me0DigiLabel = cms.InputTag("simMuonME0ReDigis96")
-)
-
-process.me0Segments384 = process.me0Segments.clone(
-    me0RecHitLabel = cms.InputTag("me0RecHits384")
-)
-process.me0Segments192 = process.me0Segments.clone(
-    me0RecHitLabel = cms.InputTag("me0RecHits192")
-)
-process.me0Segments96 = process.me0Segments.clone(
-    me0RecHitLabel = cms.InputTag("me0RecHits96")
-)
 
 
-process.me0RecoSequence_all = cms.Sequence(
-
-    
-    process.simMuonME0ReDigis384 *
-    process.simMuonME0ReDigis192 *
-    process.simMuonME0ReDigis96 *
-
-    process.me0RecHits384 *
-    process.me0RecHits192 *
-    process.me0RecHits96 *
-
-    process.me0Segments384 *
-    process.me0Segments192 *
-    process.me0Segments96 *
-
-    process.me0RecHits * 
-    process.me0Segments 
-)
-"""
 process.me0RecoSequence = cms.Sequence(
    process.me0RecHits * process.me0Segments 
 )

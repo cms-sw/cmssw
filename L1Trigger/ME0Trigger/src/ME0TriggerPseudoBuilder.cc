@@ -25,9 +25,9 @@ void ME0TriggerPseudoBuilder::build(const ME0SegmentCollection* me0Segments,
 			      ME0TriggerDigiCollection& oc_trig)
 {
   if (info_ > 2) dumpAllME0Segments( *me0Segments);
-  for (int endc = 0; endc < 2; endc++)
+  for (int endc = 0; endc < static_cast<int>(trig_me0s::MAX_ENDCAPS); endc++)
   {
-    for (int cham = 0; cham < 18; cham++)
+    for (int cham = 0; cham < static_cast<int>(trig_me0s::MAX_CHAMBERS); cham++)
     {
       // 0th layer means whole chamber.
       const int region(endc == 0 ? -1 : 1);
@@ -106,8 +106,8 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
 
 
   int idphi = static_cast<int>(fabs(dphi)/(strippitch*dphiresolution_));
-  int max_idphi = 512;
-  if (idphi >= 512){ 
+  const int max_idphi = 512;
+  if (idphi >= max_idphi){ 
      LogTrace("L1ME0Trigger")<<" ME0 segment dphi "<< dphi <<" and int type: "<< idphi <<" larger than max allowed: "<< max_idphi <<" !!! \n";
      idphi = max_idphi -1;
   }
@@ -133,20 +133,20 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
 
 void ME0TriggerPseudoBuilder::dumpAllME0Segments(const ME0SegmentCollection& segments) const
 {
-    LogTrace("L1ME0Trigger")<<"dumpt all ME0 Segments" << std::endl;
-    for(auto iC = segments.id_begin(); iC != segments.id_end(); ++iC){
-	auto ch_segs = segments.get(*iC);
-	for(auto iS = ch_segs.first; iS != ch_segs.second; ++iS){
-        GlobalPoint gp = me0_g->idToDet(iS->me0DetId())->surface().toGlobal(iS->localPosition());
-	    LogTrace("L1ME0Trigger") <<"ME0Detid "<< iS->me0DetId()<<" segment "<< *iS <<" eta "<< gp.eta() <<" phi "<< gp.phi()<< std::endl;
-	    auto recHits(iS->recHits());
-	    LogTrace("L1ME0Trigger") << "\t has " << recHits.size() << " me0 rechits"<< std::endl;
-            for (auto& rh: recHits) {
-	          const ME0RecHit* me0rh(dynamic_cast<const ME0RecHit*>(rh));
-	          LogTrace("L1ME0Trigger") <<"\t  detid "<< me0rh->me0Id()<<" rechit "<< *me0rh << std::endl;
-	        }
-        }
-    }
+  LogTrace("L1ME0Trigger")<<"dumpt all ME0 Segments" << std::endl;
+  for(auto iC = segments.id_begin(); iC != segments.id_end(); ++iC){
+      auto ch_segs = segments.get(*iC);
+      for(auto iS = ch_segs.first; iS != ch_segs.second; ++iS){
+          GlobalPoint gp = me0_g->idToDet(iS->me0DetId())->surface().toGlobal(iS->localPosition());
+          LogTrace("L1ME0Trigger") <<"ME0Detid "<< iS->me0DetId()<<" segment "<< *iS <<" eta "<< gp.eta() <<" phi "<< gp.phi()<< std::endl;
+          auto recHits(iS->recHits());
+          LogTrace("L1ME0Trigger") << "\t has " << recHits.size() << " me0 rechits"<< std::endl;
+          for (auto& rh: recHits) {
+              const ME0RecHit* me0rh(dynamic_cast<const ME0RecHit*>(rh));
+              LogTrace("L1ME0Trigger") <<"\t  detid "<< me0rh->me0Id()<<" rechit "<< *me0rh << std::endl;
+          }
+      }
+  }
 
 }
 
