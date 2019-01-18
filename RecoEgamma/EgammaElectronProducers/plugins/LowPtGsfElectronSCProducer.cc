@@ -225,3 +225,8 @@ void LowPtGsfElectronSCProducer::fillDescriptions( edm::ConfigurationDescription
   desc.add<double>("MaxDeltaR2",1.);
   descriptions.add("lowPtGsfElectronSuperClusters",desc);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(LowPtGsfElectronSCProducer);

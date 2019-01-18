@@ -76,3 +76,8 @@ void LowPtGsfElectronCoreProducer::fillDescriptions( edm::ConfigurationDescripti
   desc.add<bool>("useGsfPfRecTracks",true) ;
   descriptions.add("lowPtGsfElectronCores",desc);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(LowPtGsfElectronCoreProducer);

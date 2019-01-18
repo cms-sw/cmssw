@@ -41,3 +41,8 @@ void LowPtGsfElectronProducer::produce( edm::Event& event, const edm::EventSetup
 //  GsfElectronBaseProducer::fillDescription(desc); //@@ to be updated?
 //  descriptions.add("lowPtGsfElectrons",desc);
 //}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(LowPtGsfElectronProducer);

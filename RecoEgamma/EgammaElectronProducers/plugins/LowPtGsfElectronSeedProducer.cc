@@ -568,3 +568,8 @@ void LowPtGsfElectronSeedProducer::fillDescriptions( edm::ConfigurationDescripti
   desc.add<double>("MaxPtThreshold",15.);
   descriptions.add("lowPtGsfElectronSeeds",desc);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(LowPtGsfElectronSeedProducer);

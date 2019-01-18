@@ -80,3 +80,8 @@ void LowPtGsfElectronIDProducer::fillDescriptions( edm::ConfigurationDescription
   desc.add<double>("MaxPtThreshold",15.);
   descriptions.add("lowPtGsfElectronID",desc);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(LowPtGsfElectronIDProducer);

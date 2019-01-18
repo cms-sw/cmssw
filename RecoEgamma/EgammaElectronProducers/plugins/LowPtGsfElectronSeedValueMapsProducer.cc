@@ -83,3 +83,8 @@ void LowPtGsfElectronSeedValueMapsProducer::fillDescriptions( edm::Configuration
   desc.add< std::vector<std::string> >("ModelNames",std::vector<std::string>({"default"}));
   descriptions.add("lowPtGsfElectronValueMap",desc);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(LowPtGsfElectronSeedValueMapsProducer);

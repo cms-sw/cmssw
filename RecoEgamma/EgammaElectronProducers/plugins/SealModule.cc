@@ -19,13 +19,6 @@
 #include "GEDGsfElectronProducer.h"
 #include "GEDGsfElectronFinalizer.h"
 
-#include "LowPtGsfElectronCoreProducer.h"
-#include "LowPtGsfElectronIDProducer.h"
-#include "LowPtGsfElectronProducer.h"
-#include "LowPtGsfElectronSeedProducer.h"
-#include "LowPtGsfElectronSeedValueMapsProducer.h"
-#include "LowPtGsfElectronSCProducer.h"
-
 DEFINE_FWK_MODULE(SiStripElectronProducer);
 DEFINE_FWK_MODULE(SiStripElectronAssociator);
 DEFINE_FWK_MODULE(ElectronSeedProducer);
@@ -40,9 +33,3 @@ DEFINE_FWK_MODULE(SiStripElectronSeedProducer);
 DEFINE_FWK_MODULE(GEDGsfElectronCoreProducer);
 DEFINE_FWK_MODULE(GEDGsfElectronProducer);
 DEFINE_FWK_MODULE(GEDGsfElectronFinalizer);
-DEFINE_FWK_MODULE(LowPtGsfElectronCoreProducer);
-DEFINE_FWK_MODULE(LowPtGsfElectronIDProducer);
-DEFINE_FWK_MODULE(LowPtGsfElectronProducer);
-DEFINE_FWK_MODULE(LowPtGsfElectronSeedProducer);
-DEFINE_FWK_MODULE(LowPtGsfElectronSeedValueMapsProducer);
-DEFINE_FWK_MODULE(LowPtGsfElectronSCProducer);
