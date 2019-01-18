@@ -344,20 +344,15 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
       .combinationRegressionWeightFiles = cfg.getParameter<std::vector<std::string> >("combinationRegressionWeightFile")
   };
 
-  // functions for corrector
-  EcalClusterFunctionBaseClass * const superClusterErrorFunction =
-      EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("superClusterErrorFunction"),cfg);
-  EcalClusterFunctionBaseClass * const crackCorrectionFunction =
-      EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("crackCorrectionFunction"),cfg) ;
 
   // create algo
-  algo_ = new GsfElectronAlgo
+  algo_ = std::make_unique<GsfElectronAlgo>
    ( inputCfg_, strategyCfg_,
      cutsCfg_,cutsCfgPflow_,
      hcalCfg_,hcalCfgPflow_,
      isoCfg,recHitsCfg,
-     superClusterErrorFunction,
-     crackCorrectionFunction,
+     std::unique_ptr<EcalClusterFunctionBaseClass>{EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("superClusterErrorFunction"),cfg)},
+     std::unique_ptr<EcalClusterFunctionBaseClass>{EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("crackCorrectionFunction"),cfg)},
      regressionCfg,
      cfg.getParameter<edm::ParameterSet>("trkIsol03Cfg"),
      cfg.getParameter<edm::ParameterSet>("trkIsol04Cfg"),
@@ -366,7 +361,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
    ) ;
  }
 
-GsfElectronBaseProducer::~GsfElectronBaseProducer() { delete algo_ ; }
+GsfElectronBaseProducer::~GsfElectronBaseProducer() = default;
 
 void GsfElectronBaseProducer::beginEvent( edm::Event & event, const edm::EventSetup & setup )
  {

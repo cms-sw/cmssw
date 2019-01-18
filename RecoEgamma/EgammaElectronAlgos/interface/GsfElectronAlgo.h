@@ -195,8 +195,8 @@ class GsfElectronAlgo {
       const ElectronHcalHelper::Configuration & hcalCfgPflow,
       const IsolationConfiguration &,
       const EcalRecHitsConfiguration &,
-      EcalClusterFunctionBaseClass * superClusterErrorFunction,
-      EcalClusterFunctionBaseClass * crackCorrectionFunction,
+      std::unique_ptr<EcalClusterFunctionBaseClass> superClusterErrorFunction,
+      std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction,
       const RegressionHelper::Configuration & regCfg,
       const edm::ParameterSet& tkIsol03Cfg,
       const edm::ParameterSet& tkIsol04Cfg,
@@ -233,8 +233,8 @@ class GsfElectronAlgo {
       // additional configuration and helpers
       ElectronHcalHelper hcalHelper;
       ElectronHcalHelper hcalHelperPflow ;
-      EcalClusterFunctionBaseClass * superClusterErrorFunction ;
-      EcalClusterFunctionBaseClass * crackCorrectionFunction ;
+      std::unique_ptr<EcalClusterFunctionBaseClass> superClusterErrorFunction ;
+      std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction ;
       RegressionHelper regHelper;
      } ;
 
