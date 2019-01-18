@@ -97,7 +97,7 @@ namespace lowptgsfeleseed {
     // HCAL clusters
     reco::PFClusterRef hcal_clu = hcal.clusterRef();
     if ( hcal_clu.isNonnull() ) {
-      ktf_ecal_cluster_e_ = hcal_clu->energy();
+      ktf_hcal_cluster_e_ = hcal_clu->energy();
       ktf_hcal_cluster_deta_ = hcal.geomMatching()[0];
       ktf_hcal_cluster_dphi_ = hcal.geomMatching()[1];
     }
