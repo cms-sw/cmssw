@@ -22,12 +22,18 @@ namespace phase1PixelTopology {
   constexpr uint32_t numPixsInModule = uint32_t(numRowsInModule)* uint32_t(numColsInModule);
 
   constexpr uint32_t numberOfModules = 1856;
-  
-  constexpr uint32_t layerStart[11] = {0,96,320,672,1184,1296,1408,1520,1632,1744,1856};
-  constexpr char const * layerName[10] = {"BL1","BL2","BL3","BL4",
-   		  	                  "E+1", "E+2", "E+3",
-			                  "E-1", "E-2", "E-3"
-                                          };
+  constexpr uint32_t numberOfLayers = 10;
+  constexpr uint32_t layerStart[numberOfLayers + 1] = {
+       0,    96, 320,  672,         // barrel
+    1184, 1296, 1408,               // positive endcap
+    1520, 1632, 1744,               // negative endcap
+    numberOfModules
+  };
+  constexpr char const * layerName[numberOfLayers] = {
+    "BL1", "BL2", "BL3", "BL4",     // barrel
+    "E+1", "E+2", "E+3",            // positive endcap
+    "E-1", "E-2", "E-3"             // negative endcap
+  };
 
 
   template<class Function, std::size_t... Indices>
@@ -60,7 +66,6 @@ namespace phase1PixelTopology {
 
   constexpr uint32_t maxModuleStride = findMaxModuleStride();
 
-
   constexpr uint8_t findLayer(uint32_t detId) {
     for  (uint8_t i=0; i<11; ++i) if (detId<layerStart[i+1]) return i;
     return 11;
@@ -72,9 +77,8 @@ namespace phase1PixelTopology {
     return 11;
   }
 
-
-  constexpr uint32_t layerIndexSize = numberOfModules/maxModuleStride;
-  constexpr std::array<uint8_t,layerIndexSize> layer = map_to_array<layerIndexSize>(findLayerFromCompact);
+  constexpr uint32_t layerIndexSize = numberOfModules / maxModuleStride;
+  constexpr std::array<uint8_t, layerIndexSize> layer = map_to_array<layerIndexSize>(findLayerFromCompact);
 
   constexpr bool validateLayerIndex() {
     bool res=true;
@@ -87,12 +91,11 @@ namespace phase1PixelTopology {
     return res;
   }
 
-  static_assert(validateLayerIndex(),"layer from detIndex algo is buggy");
+  static_assert(validateLayerIndex(), "layer from detIndex algo is buggy");
 
- 
   // this is for the ROC n<512 (upgrade 1024)
   constexpr inline
-  uint16_t  divu52(uint16_t n) {
+  uint16_t divu52(uint16_t n) {
     n = n>>2;
     uint16_t q = (n>>1) + (n>>4);
     q = q + (q>>4) + (q>>5); q = q >> 3;
@@ -101,13 +104,14 @@ namespace phase1PixelTopology {
   }
 
   constexpr inline
-  bool isEdgeX(uint16_t px) { return (px==0) | (px==lastRowInModule);}
-  constexpr inline
-  bool isEdgeY(uint16_t py) { return (py==0) | (py==lastColInModule);}
+  bool isEdgeX(uint16_t px) { return (px==0) | (px==lastRowInModule); }
 
+  constexpr inline
+  bool isEdgeY(uint16_t py) { return (py==0) | (py==lastColInModule); }
 
   constexpr inline
   uint16_t toRocX(uint16_t px) { return (px<numRowsInRoc) ? px : px-numRowsInRoc; }
+
   constexpr inline
   uint16_t toRocY(uint16_t py) {
     auto roc = divu52(py);

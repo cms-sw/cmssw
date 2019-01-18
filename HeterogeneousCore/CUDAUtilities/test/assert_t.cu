@@ -2,14 +2,15 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
 __global__
-void testIt(int c){
-  assert(c==1);
+void testIt(int one){
+  assert(one == 1);
 }
 
-int main(int c, char **) {
+int main(int argc, char* argv[]) {
   exitSansCUDADevices();
 
-  testIt<<<1,1>>>(c);
+  testIt<<<1,1>>>(argc);
   cudaDeviceSynchronize();
-  return c==1;
+
+  return (argc == 1) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

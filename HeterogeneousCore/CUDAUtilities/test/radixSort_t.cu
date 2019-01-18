@@ -34,7 +34,7 @@ template<typename T, int NS=sizeof(T),
 void go(bool useShared) {
 
   std::mt19937 eng;
-// std::mt19937 eng2;
+  //std::mt19937 eng2;
   auto rgen = RS<T>::ud();
 
   auto start = std::chrono::high_resolution_clock::now();
@@ -82,7 +82,7 @@ void go(bool useShared) {
     offsets[10]=3297+offsets[9];
   }
 
-  std::random_shuffle(v,v+N);
+  std::random_shuffle(v, v+N);
 
   auto v_d = cuda::memory::device::make_unique<U[]>(current_device, N);
   auto ind_d = cuda::memory::device::make_unique<uint16_t[]>(current_device, N);
@@ -94,29 +94,29 @@ void go(bool useShared) {
 
   if (i<2) std::cout << "lauch for " << offsets[blocks] << std::endl;
 
-   auto ntXBl = 1==i%4 ? 256 : 256;
+  auto ntXBl = 1==i%4 ? 256 : 256;
 
-   delta -= (std::chrono::high_resolution_clock::now()-start);
-   constexpr int MaxSize = 256*32;
-   if (useShared)
-   cuda::launch(
-                radixSortMultiWrapper<U,NS>,
-                { blocks, ntXBl, MaxSize*2 },
-                v_d.get(),ind_d.get(),off_d.get(),nullptr
+  delta -= (std::chrono::high_resolution_clock::now()-start);
+  constexpr int MaxSize = 256*32;
+  if (useShared)
+    cuda::launch(
+        radixSortMultiWrapper<U, NS>,
+        { blocks, ntXBl, MaxSize*2 },
+        v_d.get(), ind_d.get(), off_d.get(), nullptr
         );
-   else
-   cuda::launch(
-                radixSortMultiWrapper2<U,NS>,
-                { blocks, ntXBl },
-                v_d.get(),ind_d.get(),off_d.get(),ws_d.get()
+  else
+    cuda::launch(
+        radixSortMultiWrapper2<U, NS>,
+        { blocks, ntXBl },
+        v_d.get(), ind_d.get(), off_d.get(), ws_d.get()
         );
 
- if (i==0) std::cout << "done for " << offsets[blocks] << std::endl;
+  if (i==0) std::cout << "done for " << offsets[blocks] << std::endl;
 
-//  cuda::memory::copy(v, v_d.get(), 2*N);
-   cuda::memory::copy(ind, ind_d.get(), 2*N);
+  //  cuda::memory::copy(v, v_d.get(), 2*N);
+  cuda::memory::copy(ind, ind_d.get(), 2*N);
 
-   delta += (std::chrono::high_resolution_clock::now()-start);
+  delta += (std::chrono::high_resolution_clock::now()-start);
 
   if (i==0) std::cout << "done for " << offsets[blocks] << std::endl;
 
