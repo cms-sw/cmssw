@@ -31,9 +31,9 @@ void ME0TriggerPseudoProducer::produce(edm::StreamID, edm::Event& ev, const edm:
   const ME0SegmentCollection *me0segments = me0Segmentcoll.product();
   
   // Create empty collection
-  std::unique_ptr<ME0TriggerDigiCollection> oc_trig(new ME0TriggerDigiCollection);
+  auto oc_trig = std::make_unique<ME0TriggerDigiCollection>();
   
-  std::unique_ptr<ME0TriggerPseudoBuilder> trigBuilder( new ME0TriggerPseudoBuilder(config_) );
+  auto trigBuilder = std::make_unique<ME0TriggerPseudoBuilder>(config_);
   trigBuilder->setME0Geometry(&*h_me0);
 
   // Fill output collections if valid input collection is available.

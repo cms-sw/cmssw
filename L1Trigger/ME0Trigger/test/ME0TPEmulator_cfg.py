@@ -1,7 +1,3 @@
-# Configuration file to unpack CSC digis, run Trigger Primitives emulator,
-# and compare LCTs in the data with LCTs found by the emulator.
-# Slava Valuev; October, 2006.
-
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 

@@ -41,7 +41,7 @@ class ME0TriggerPseudoBuilder
   /** Max values of trigger labels for all ME0s; 
    *  used to construct TMB processors. 
    */
-  enum trig_me0s {MAX_ENDCAPS = 2, MAX_CHAMBERS = 18};
+  enum class trig_me0s {MAX_ENDCAPS = 2, MAX_CHAMBERS = 18};
 
  private:
 
