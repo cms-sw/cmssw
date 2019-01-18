@@ -2767,7 +2767,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
               sumEcalClusters=sqrt(hadronAtECAL.Mag2());
           }
          for(auto const& pae : ecalClusters) {
-	   const double clusterEnergyCalibrated=sqrt(std::get<1>(pae).Mag2())*std::get<2>(pae); // KH: calibrated under the egamma hypothesis. Note: sumEcalClusters is normally calibrated under egamma hypothesis
+           const double clusterEnergyCalibrated=sqrt(std::get<1>(pae).Mag2())*std::get<2>(pae); // KH: calibrated under the egamma hypothesis. Note: sumEcalClusters is normally calibrated under egamma hypothesis
            particleEnergy.push_back(mergedNeutralHadronEnergy*clusterEnergyCalibrated/sumEcalClusters);
            particleDirection.push_back(std::get<1>(pae));
            ecalEnergy.push_back(0.);
@@ -3015,7 +3015,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // KH: use raw ECAL energy for PF hadron calibration. 
       double ecalEnergy = eclusterRef->energy(); // ecalEnergy = eclusterRef->correctedEnergy();
 
-      //std::cout << "EcalEnergy, ps1, ps2 = " << ecalEnergy 
+      //std::cout << "EcalEnergy, ps1, ps2 = " << ecalEnergy
       //          << ", " << ps1Ene[0] << ", " << ps2Ene[0] << std::endl;
       totalEcal += ecalEnergy;
       if ( ecalEnergy > ecalMax ) {
