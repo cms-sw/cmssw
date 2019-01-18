@@ -784,3 +784,13 @@ phase2_timing_layer.toModify( generalTracksFromPV,
                               timesTag  = cms.InputTag('tofPID:t0'), 
                               timeResosTag = cms.InputTag('tofPID:sigmat0'), 
                               nSigmaDtVertex = cms.double(3) )
+phase2_timing_layer.toModify( trackValidatorStandalone,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
+phase2_timing_layer.toModify( trackValidatorFromPVStandalone,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
+phase2_timing_layer.toModify( trackValidatorFromPVAllTPStandalone,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
+phase2_timing_layer.toModify( trackValidatorConversionStandalone,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
+phase2_timing_layer.toModify( trackValidatorGsfTracks,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
