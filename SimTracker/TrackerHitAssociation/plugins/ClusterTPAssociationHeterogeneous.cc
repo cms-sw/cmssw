@@ -232,7 +232,7 @@ void ClusterTPAssociationHeterogeneous::produceGPUCuda(edm::HeterogeneousEvent &
 void ClusterTPAssociationHeterogeneous::produceCPU(edm::HeterogeneousEvent &iEvent, const edm::EventSetup& es) {
 
    makeMap(iEvent);
-   iEvent.put(std::move(produceLegacy(iEvent, es)));
+   iEvent.put(produceLegacy(iEvent, es));
 
 }
 
