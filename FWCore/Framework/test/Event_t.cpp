@@ -701,7 +701,7 @@ void testEvent::getByLabel() {
   }
 
   BasicHandle bh = principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE",nullptr, nullptr, nullptr);
-  convert_handle(std::move(bh), h);
+  h = convert_handle<product_t>(std::move(bh));
   CPPUNIT_ASSERT(h->value == 100);
   BasicHandle bh2(principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch",nullptr, nullptr, nullptr));
   CPPUNIT_ASSERT(!bh2.isValid());
