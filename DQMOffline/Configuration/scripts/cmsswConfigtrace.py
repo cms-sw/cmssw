@@ -277,7 +277,9 @@ def serve_main():
     out.append("""<style>
     li > em {
       cursor: pointer;
-      float: right;
+      padding: 0 2px;
+      margin: 1 2px;
+      background: #9e9;
     }
     </style>""")
     lines = None
