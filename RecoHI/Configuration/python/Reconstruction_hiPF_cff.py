@@ -20,8 +20,10 @@ from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHI
 photonIsolationHIProducerGED = photonIsolationHIProducer.clone(photonProducer=cms.InputTag("gedPhotonsTmp"))
 
 #These are set for consistency w/ HiElectronSequence, but these cuts need to be studied
-gedGsfElectronsTmp.preselection.maxHOverEBarrel = cms.double(0.25)
-gedGsfElectronsTmp.preselection.maxHOverEEndcaps = cms.double(0.25)
+gedGsfElectronsTmp.preselection.maxHOverEBarrelCone = cms.double(0.25)
+gedGsfElectronsTmp.preselection.maxHOverEEndcapsCone = cms.double(0.25)
+gedGsfElectronsTmp.preselection.maxHOverEBarrelTower = cms.double(0.0)
+gedGsfElectronsTmp.preselection.maxHOverEEndcapsTower = cms.double(0.0)
 gedGsfElectronsTmp.preselection.maxEOverPBarrel = cms.double(2.)
 gedGsfElectronsTmp.preselection.maxEOverPEndcaps = cms.double(2.)
 
