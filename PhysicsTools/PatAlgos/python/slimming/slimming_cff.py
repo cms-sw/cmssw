@@ -4,6 +4,7 @@ from PhysicsTools.PatAlgos.slimming.packedPFCandidates_cff import *
 from PhysicsTools.PatAlgos.slimming.isolatedTracks_cfi import *
 from PhysicsTools.PatAlgos.slimming.lostTracks_cfi import *
 from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices_cfi import *
+from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices4D_cfi import *
 from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import *
 from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
 from PhysicsTools.PatAlgos.slimming.selectedPatTrigger_cfi import *
