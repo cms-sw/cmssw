@@ -84,9 +84,8 @@ namespace edmtest {
     }
     
     void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const override {
-      edm::Handle<IntProduct> h;
       for(auto const& token: m_tokens) {
-        iEvent.getByToken(token,h);
+        (void) iEvent.getHandle(token);
       }
     }
     
