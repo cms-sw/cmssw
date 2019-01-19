@@ -740,7 +740,7 @@ namespace edm {
   // Will throw an exception if the collection is not available.
 
   template <typename T>
-  T const& get(Event const& event, InputTag const& tag) {
+  T const& get(Event const& event, InputTag const& tag) noexcept(false) {
     Handle<T> handle;
     event.getByLabel(tag, handle);
     // throw if the handle is not valid
@@ -748,7 +748,7 @@ namespace edm {
   }
 
   template <typename T>
-  T const& get(Event const& event, EDGetToken const& token) {
+  T const& get(Event const& event, EDGetToken const& token) noexcept(false) {
     Handle<T> handle;
     event.getByToken(token, handle);
     // throw if the handle is not valid
@@ -756,11 +756,8 @@ namespace edm {
   }
 
   template <typename T>
-  T const& get(Event const& event, EDGetTokenT<T> const& token) {
-    Handle<T> handle;
-    event.getByToken(token, handle);
-    // throw if the handle is not valid
-    return * handle.product();
+  T const& get(Event const& event, EDGetTokenT<T> const& token) noexcept(false) {
+    return event.get(token);
   }
 
 }
