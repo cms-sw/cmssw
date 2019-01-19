@@ -1043,6 +1043,19 @@ steps['SingleMuPt100FS_UP17']=merge([{'cfg':'SingleMuPt100_pythia8_cfi'},step1Fa
 ### FastSim: produce sample of minbias events for PU mixing
 steps['MinBiasFS_13_UP17_ForMixing']=merge([{'cfg':'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastPU17NewMixing])
 
+#step1FastUpg2018Defaults                                                                                                                                                      
+steps['TTbarFS_13_UP18']=merge([{'cfg':'TTbar_13TeV_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastUpg2018Defaults])
+steps['TTbarFS_13_trackingOnlyValidation_UP18']=merge([{'cfg':'TTbar_13TeV_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastUpg2018_trackingOnlyValidation])
+steps['SMS-T1tttt_mGl-1500_mLSP-100FS_13_UP18']=merge([{'cfg':'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi'},Kby(100,1000),step1FastUpg2018Defaults])
+steps['ZEEFS_13_UP18']=merge([{'cfg':'ZEE_13TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastUpg2018Defaults])
+steps['ZTTFS_13_UP18']=merge([{'cfg':'ZTT_All_hadronic_13TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastUpg2018Defaults])
+steps['ZMMFS_13_UP18']=merge([{'cfg':'ZMM_13TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastUpg2018Defaults])
+steps['QCDFlatPt153000FS_13_UP18']=merge([{'cfg':'QCDForPF_13TeV_TuneCUETP8M1_cfi'},Kby(27,2000),step1FastUpg2018Defaults])
+steps['QCD_Pt_80_120FS_13_UP18']=merge([{'cfg':'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi'},Kby(100,500),step1FastUpg2018Defaults])
+steps['H125GGgluonfusionFS_13_UP18']=merge([{'cfg':'H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi'},step1FastUpg2018Defaults])
+steps['SingleMuPt10FS_UP18']=merge([{'cfg':'SingleMuPt10_pythia8_cfi'},step1FastUpg2018Defaults])
+steps['SingleMuPt100FS_UP18']=merge([{'cfg':'SingleMuPt100_pythia8_cfi'},step1FastUpg2018Defaults])
+
 ### FastSim: produce sample of minbias events for PU mixing, 2018
 steps['MinBiasFS_13_UP18_ForMixing']=merge([{'cfg':'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastPU18NewMixing])
 
@@ -2649,6 +2662,8 @@ steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvesting',
 steps['HARVESTUP15FS_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP15FS']])
 steps['HARVESTUP17FS']=merge([{'--conditions':'auto:phase1_2017_realistic','--era' : 'Run2_2017_FastSim'},steps['HARVESTUP15FS']])
 steps['HARVESTUP17FS_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP17FS']])
+steps['HARVESTUP18FS']=merge([{'--conditions':'auto:phase1_2018_realistic','--era' : 'Run2_2018_FastSim'},steps['HARVESTUP15FS']])
+steps['HARVESTUP18FS_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP18FS']])
 
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:run1_data',
