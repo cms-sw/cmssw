@@ -57,6 +57,9 @@ class CSCGEMMotherboardME11 : public CSCGEMMotherboard
   /* check if an ALCT cross a CLCT in an ME11 sector */
   bool doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c) const;
 
+  /* does wiregroup cross halfstrip or not */
+  bool doesWiregroupCrossStrip(int key_wg, int key_hs) const override;
+
   /* correlate a pair of ALCTs and a pair of CLCTs with matched pads or copads
      the output is up to two LCTs in a sector of ME11 */
   void correlateLCTsGEM(const CSCALCTDigi& bestALCT,
