@@ -1207,8 +1207,8 @@ for x in fs_proclist:
     key = "FS_" + x + "_PRMXUP18_PU50"
     steps[key] = merge([FS_PREMIXUP18_PU50_OVERLAY,{"cfg":steps[x]["cfg"]}])
 
-    key = key.replace("PRMXUP17", "PRMXLOCALUP17")
-    steps[key] = merge([FS_PREMIXUP17_PU50_LOCAL_OVERLAY,{"cfg":steps[x]["cfg"]}])
+    key = key.replace("PRMXUP18", "PRMXLOCALUP18")
+    steps[key] = merge([FS_PREMIXUP18_PU50_LOCAL_OVERLAY,{"cfg":steps[x]["cfg"]}])
 
 ### FastSim: produce sample of signal events, overlayed with minbias events
 for x in fs_proclist:
