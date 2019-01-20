@@ -430,6 +430,11 @@ bool CSCGEMMotherboardME11::doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLC
   return cscTmbLUT_->doesALCTCrossCLCT(a, c, theEndcap, gangedME1a_);
 }
 
+bool CSCGEMMotherboardME11::doesWiregroupCrossStrip(int key_wg, int key_strip) const
+{
+  return cscTmbLUT_->doesWiregroupCrossStrip(key_wg, key_strip, theEndcap, gangedME1a_);
+}
+
 
 void CSCGEMMotherboardME11::correlateLCTsGEM(const CSCALCTDigi& bALCT,
                                              const CSCALCTDigi& sALCT,
