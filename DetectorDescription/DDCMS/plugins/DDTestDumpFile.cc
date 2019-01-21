@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DD4hep/Detector.h"
@@ -28,30 +29,30 @@ public:
   void endJob() override {}
 
 private:
-  string m_tag;
-  string m_outputFileName;
-  string m_label;
+  const string m_tag;
+  const string m_outputFileName;
+  const ESInputTag m_label;
 };
 
 DDTestDumpFile::DDTestDumpFile(const ParameterSet& iConfig)
   : m_tag(iConfig.getUntrackedParameter<string>("tag", "unknown")),
     m_outputFileName(iConfig.getUntrackedParameter<string>("outputFileName", "cmsDD4HepGeom.root")),
-    m_label(iConfig.getUntrackedParameter<string>("fromDataLabel", ""))
+    m_label(iConfig.getParameter<ESInputTag>("DDDetector"))
 {}
 
 void
 DDTestDumpFile::analyze(const Event&, const EventSetup& iEventSetup)
 {
-  cout << "DDTestDumpFile::analyze: " << m_label << "\n";
+  LogVerbatim("Geometry") << "DDTestDumpFile::analyze: " << m_label;
   ESTransientHandle<DDDetector> det;
-  iEventSetup.get<DetectorDescriptionRcd>().get(m_label, det);
+  iEventSetup.get<DetectorDescriptionRcd>().get(m_label.module(), det);
 
-  TGeoManager& geom = det->description->manager();
+  TGeoManager& geom = det->description()->manager();
   
   int level = 1 + geom.GetTopVolume()->CountNodes( 100, 3 );
   
-  cout << "In the DDTestDumpFile::analyze method...obtained main geometry, level="
-       << level << "\n";
+  LogVerbatim("Geometry") << "In the DDTestDumpFile::analyze method...obtained main geometry, level="
+       << level;
 
   TFile file(m_outputFileName.c_str(), "RECREATE");
   file.WriteTObject(&geom );

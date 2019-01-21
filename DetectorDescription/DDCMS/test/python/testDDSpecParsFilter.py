@@ -16,8 +16,10 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
                                                      appendToDataLabel = cms.string('MUON')
                                                      )
 
-process.test = cms.EDAnalyzer("DDTestSpecPars",
-                              DDDetector = cms.ESInputTag('MUON')
+process.test = cms.EDAnalyzer("DDTestSpecParsFilter",
+                              DDDetector = cms.ESInputTag('MUON'),
+                              attribute = cms.untracked.string('MuStructure'),
+                              value = cms.untracked.string('MuonBarrelDT')
                               )
 
 process.p = cms.Path(process.test)
