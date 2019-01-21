@@ -5,10 +5,10 @@
 // 
 /**\class DDVectorRegistryESProducer
 
- Description: [one line class summary]
+ Description: Produce Vector registry
 
  Implementation:
-     [Notes on implementation]
+     Vectors are defined in XML
 */
 //
 // Original Author:  Ianna Osborne

@@ -5,10 +5,10 @@
 // 
 /**\class MuonNumberingESProducer
 
- Description: [one line class summary]
+ Description: Produce Muon numbering constants
 
  Implementation:
-     [Notes on implementation]
+     The constants are defined in XML as SpecPars
 */
 //
 // Original Author:  Ianna Osborne
