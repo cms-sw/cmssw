@@ -215,7 +215,7 @@ class FileListCreator(object):
                 self._args.events = float("inf")
                 print_msg("Using all tracks for alignment")
             elif (self._args.tracks is None) and (self._args.rate is None):
-                msg = ("either -n/--events-for-alignment or both of "
+                msg = ("either -n/--events-for-alignment, --all-events, or both of "
                        "--tracks-for-alignment and --track-rate are required")
                 self._parser.error(msg)
             elif (((self._args.tracks is not None) and (self._args.rate is None)) or
@@ -461,7 +461,7 @@ class FileListCreator(object):
             eventsinthisjob = float("inf")
             for fileinfo in self._files_alignment:
                 if fileinfo.dataset != dataset: continue
-                miniiovs = self._get_iovs(fileinfo.runs, useminiiovs=True)
+                miniiovs = set(self._get_iovs(fileinfo.runs, useminiiovs=True))
                 if miniiov not in miniiovs: continue
                 if len(miniiovs) > 1:
                     hippyjobs[dataset,miniiov] = []
