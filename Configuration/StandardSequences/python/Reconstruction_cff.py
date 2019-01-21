@@ -149,13 +149,6 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              cosmicDCTracksSeq
                              )
 
-# Low pT electrons for bParking
-from Configuration.Eras.Modifier_bParking_cff import bParking
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSequence_cff import *
-_highlevelreco_bParking = highlevelreco.copy()
-_highlevelreco_bParking += lowPtGsfElectronSequence
-bParking.toReplaceWith(highlevelreco, _highlevelreco_bParking)
-
 # XeXe data with pp reco
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import hiCentrality
