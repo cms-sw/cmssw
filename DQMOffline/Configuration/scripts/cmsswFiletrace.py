@@ -12,7 +12,6 @@ from collections import defaultdict
 import six
 import FWCore
 import FWCore.ParameterSet.Types
-import FWCore.Modules.EmptySource_cfi
 
 OUTFILE_TREE = "calltree"
 OUTFILE_FILES = "callfiles"
@@ -24,10 +23,9 @@ IGNORE_DIRS = [
   os.path.dirname(six.__file__),
   FWCore.ParameterSet.Types.__file__,
 ]
-STRIPPATHS = [
-  "/".join(os.path.dirname(FWCore.__file__).split("/")[:-1]) + "/",
-  "/".join(FWCore.Modules.EmptySource_cfi.__file__.split("/")[:-3]) + "/",
-]
+STRIPPATHS = [os.getcwd(),
+  os.environ["CMSSW_BASE"] + "/python/", os.environ["CMSSW_RELEASE_BASE"] + "/python/",
+  os.environ["CMSSW_BASE"] + "/cfipython/", os.environ["CMSSW_RELEASE_BASE"] + "/cfipython/"]
 PREFIXINFO = []
 ARGV0 = "" # set in main
 
