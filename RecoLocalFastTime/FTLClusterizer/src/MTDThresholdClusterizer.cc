@@ -31,6 +31,7 @@ MTDThresholdClusterizer::MTDThresholdClusterizer
     theHitThreshold( conf.getParameter<double>("HitThreshold") ),
     theSeedThreshold( conf.getParameter<double>("SeedThreshold") ),
     theClusterThreshold( conf.getParameter<double>("ClusterThreshold") ),
+    theTimeThreshold( conf.getParameter<double>("TimeThreshold") ),
     theNumOfRows(0), theNumOfCols(0), theCurrentId(0), 
     theBuffer(theNumOfRows, theNumOfCols ),
     bufferAlreadySet(false)
@@ -46,6 +47,7 @@ MTDThresholdClusterizer::fillDescriptions(edm::ParameterSetDescription& desc) {
   desc.add<double>("HitThreshold", 0.);
   desc.add<double>("SeedThreshold", 0.);
   desc.add<double>("ClusterThreshold", 0.);
+  desc.add<double>("TimeThreshold", 10.);
 }
 
 //----------------------------------------------------------------------------
@@ -256,6 +258,8 @@ MTDThresholdClusterizer::make_cluster( const FTLCluster::FTLHitPos& hit )
       for ( auto c = std::max(0,int(acluster.y[curInd]-1)); c < std::min(int(acluster.y[curInd]+2),int(theBuffer.columns())) && !stopClus; ++c) {
 	  for ( auto r = std::max(0,int(acluster.x[curInd]-1)); r < std::min(int(acluster.x[curInd]+2),int(theBuffer.rows()))  && !stopClus; ++r)  {
 	  if ( theBuffer.energy(r,c) > theHitThreshold) {
+	    if (std::abs(theBuffer.time(r,c) - seed_time) > theTimeThreshold*sqrt( theBuffer.time_error(r,c)*theBuffer.time_error(r,c) + seed_time_error*seed_time_error))
+	      continue;
 	    FTLCluster::FTLHitPos newhit(r,c);
 	    if (!acluster.add( newhit, theBuffer.energy(r,c), theBuffer.time(r,c), theBuffer.time_error(r,c))) 
 	      {
