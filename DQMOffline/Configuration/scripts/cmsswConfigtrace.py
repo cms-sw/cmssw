@@ -197,12 +197,10 @@ def writeoutput(graph):
     import sqlite3
     conn = sqlite3.connect(os.environ["CMSSWCALLTREE"])
     cur = conn.cursor()
-    cur.execute("""
+    cur.executescript("""
     CREATE TABLE IF NOT EXISTS file(id INTEGER PRIMARY KEY, 
       name TEXT, UNIQUE(name)
     );
-    """)
-    cur.execute("""
     CREATE TABLE IF NOT EXISTS trace(id INTEGER PRIMARY KEY, 
       parent INTEGER, -- points into same table, recursively
       file INTEGER, line INTEGER,
@@ -210,8 +208,6 @@ def writeoutput(graph):
       FOREIGN KEY(file) REFERENCES file(id),
       UNIQUE(parent, file, line)
     );
-    """)
-    cur.execute("""
     CREATE TABLE IF NOT EXISTS relation(id INTEGER PRIMARY KEY,
       place  INTEGER, 
       place_type TEXT,
@@ -222,6 +218,17 @@ def writeoutput(graph):
       FOREIGN KEY(place) REFERENCES trace(id),
       FOREIGN KEY(usedby) REFERENCES trace(id)
     );
+    CREATE INDEX IF NOT EXISTS placeidx ON relation(place);
+    CREATE INDEX IF NOT EXISTS traceidx ON trace(file);
+    -- SQLite does not optimise that one well, but a VIEW is still nice to have...
+    CREATE VIEW IF NOT EXISTS fulltrace AS 
+      WITH RECURSIVE fulltrace(level, baseid, parent, file, name, line) AS (
+        SELECT 1 AS level, trace.id, parent, trace.file, file.name, line FROM trace
+          INNER JOIN file ON file.id = trace.file
+        UNION SELECT level+1, baseid, trace.parent, trace.file, file.name, trace.line FROM fulltrace 
+          INNER JOIN trace ON trace.id = fulltrace.parent
+          INNER JOIN file ON file.id = trace.file)
+      SELECT * FROM fulltrace;
     """)
     cur.executemany("INSERT OR IGNORE INTO file(name) VALUES (?);", 
       ((formatfile(f),) for f in files))
@@ -315,23 +322,31 @@ cmsswFiletrace.help = help
 
 
 def serve_main():
-  PORT = 8000
-  FILE_PATHS = [os.environ["CMSSW_BASE"] + "/python/", os.environ["CMSSW_RELEASE_BASE"] + "/python/",
-                os.environ["CMSSW_BASE"] + "/cfipython/", os.environ["CMSSW_RELEASE_BASE"] + "/cfipython/"]
+  PORT = 1234
+  if not SQLITE:
+    print("serve mode needs SQLITE data format.")
+    os.exit(1)
+
   import SimpleHTTPServer
   import SocketServer
   import traceback
+  import sqlite3
   import re
 
-  def toplevelinfo(filename, line):
-    # say what to display right next to the line; which WF etc. use this line.
-    return ["Online RPC", "1001.0"] # mock data for now
+  conn = sqlite3.connect(cmsswFiletrace.OUTFILE_TREE)
 
   def escape(s):
-    return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
   def index():
-      return 'goto to /<filename> for info about a file'
+    out = [escape('goto to /<filename> for info about a file')]
+    out.append("<ul>")
+    for f in conn.execute("SELECT name FROM file ORDER BY name;"):
+      name = escape(f[0])
+      out.append('<li><a href="/%s">%s</a></li>' % (name, name))
+    out.append("</ul>")
+    return "\n".join(out)
+
   def showfile(filename):
     out = []
     out.append('<script src="https://rawgit.com/google/code-prettify/master/src/prettify.js"></script>')
@@ -345,7 +360,7 @@ def serve_main():
     }
     </style>""")
     lines = None
-    for d in FILE_PATHS:
+    for d in STRIPPATHS:
       try:
         with open(d + filename) as f:
           lines = f.readlines()
@@ -354,9 +369,16 @@ def serve_main():
       except:
         pass
     if lines:
+      cur = conn.execute("""
+      SELECT DISTINCT trace.line, source FROM relation 
+        INNER JOIN trace on relation.place = trace.id 
+        INNER JOIN file ON trace.file == file.id 
+        WHERE file.name == ? ORDER BY line;""", (filename,))
+      toplevelinfo = cur.fetchall()
+
       out.append('<pre class="prettyprint linenums">')
       for i, l in enumerate(lines):
-        info = toplevelinfo(filename, i+1)
+        info = [row[1] for row in toplevelinfo if row[0] == i+1]
         tags = ['<em data-line="%d" data-tag="%s"></em>' % (i+1, escape(thing)) for thing in info]
         out.append(escape(l).rstrip() + "".join(tags))
       out.append('</pre>')
@@ -365,7 +387,7 @@ def serve_main():
       clickfunc = function(evt) {
         document.querySelectorAll("li > iframe, li > br").forEach(function(e) {e.remove()}); 
         dest = "/info" + window.location.pathname + ":" + this.getAttribute("data-line");
-        this.insertAdjacentHTML("afterend", '<br><iframe width="500px" height="200px" src="' + dest + '"></iframe><br>');
+        this.insertAdjacentHTML("afterend", '<br><iframe width="100%" height="500px" src="' + dest + '"></iframe><br>');
       };
       document.querySelectorAll("li > em").forEach(function(e) {
         e.innerText = e.getAttribute("data-tag");
@@ -385,9 +407,39 @@ def serve_main():
 
       
   def showinfo(filename, line):
-      return 'usages of line %d in file %s should go here, to be used in an iframe' % (int(line), filename)
+    line = int(line)
+    cur = conn.execute("""
+      SELECT place_type, -- why did we trace this line?
+          usedbyfile.name, usedbytrace.line, -- where was it used?
+          usedbyfile.name, usedbytrace.line, -- twice, one for the link
+          usedby, usedby_type, relation, -- what was it used for?
+          place, source -- why did this code run?
+        FROM relation 
+        INNER JOIN trace AS placetrace  ON placetrace.id  = relation.place
+        INNER JOIN trace AS usedbytrace ON usedbytrace.id = relation.usedby
+        INNER JOIN file AS placefile  ON placefile.id  = placetrace.file
+        INNER JOIN file AS usedbyfile ON usedbyfile.id = usedbytrace.file
+      WHERE placefile.name = ? AND placetrace.line = ?;""", (filename, line))
+    out = []
+    out.append("<p>%s:%d is used as <ul>" % (filename, line))
+    for row in cur:
+      out.append(
+        '<li>%s in <a href="/%s#%s">%s:%s</a> by <a href="/why/%s">%s as %s</a> run in <a href="/why/%s">%s</a></li>'
+        % tuple(map(escape, row)))
+    out.append("</ul></p>")
+    return "\n".join(out)
+
   def showwhy(id):
-      return 'show the stack trace leading to %d' % id
+    id = int(id)
+    cur = conn.execute("SELECT name, line, name, line FROM fulltrace WHERE baseid = ? ORDER BY level;", (id,))
+    out = []
+    out.append("Full stack trace:<ul>")
+    for row in cur:
+      out.append('<li><a href="/%s#%s">%s:%s</a></li>' % tuple(map(escape, row)))
+    out.append("</ul>")
+    return "\n".join(out)
+
+
 
   ROUTES = [(re.compile('/info/(.*):(\d+)$'), showinfo),
             (re.compile('/why/(\d+)$'), showwhy),
