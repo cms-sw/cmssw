@@ -33,6 +33,13 @@ egammaHighLevelRecoPrePF = cms.Sequence(gsfEcalDrivenElectronSequence*uncleanedO
 fastSim.toReplaceWith(egammareco, egammareco.copyAndExclude([conversionSequence]))
 fastSim.toReplaceWith(egammaHighLevelRecoPrePF,egammaHighLevelRecoPrePF.copyAndExclude([uncleanedOnlyElectronSequence,conversionSequence]))
 
+# Add low pT electrons for bParking era
+from Configuration.Eras.Modifier_bParking_cff import bParking
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSequence_cff import *
+_egammaHighLevelRecoPrePF_bParking = egammaHighLevelRecoPrePF.copy()
+_egammaHighLevelRecoPrePF_bParking += lowPtGsfElectronSequence
+bParking.toReplaceWith(egammaHighLevelRecoPrePF, _egammaHighLevelRecoPrePF_bParking)
+
 #egammaHighLevelRecoPostPF = cms.Sequence(gsfElectronMergingSequence*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence*hfEMClusteringSequence)
 #adding new gedGsfElectronSequence and gedPhotonSequence :
 #egammaHighLevelRecoPostPF = cms.Sequence(gsfElectronMergingSequence*gedGsfElectronSequence*interestingEgammaIsoDetIds*gedPhotonSequence*photonIDSequence*eIdSequence*hfEMClusteringSequence)
