@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 
@@ -14,42 +15,44 @@ using namespace edm;
 class DDTestSpecPars : public one::EDAnalyzer<> {
 public:
   explicit DDTestSpecPars(const ParameterSet& iConfig)
-    : m_label(iConfig.getUntrackedParameter<string>("fromDataLabel", "")) {}
+    : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")) {}
 
   void beginJob() override {}
   void analyze(Event const& iEvent, EventSetup const&) override;
   void endJob() override {}
 
 private:  
-  string m_label;
+  const ESInputTag m_tag;
 };
 
 void
 DDTestSpecPars::analyze(const Event&, const EventSetup& iEventSetup)
 {
-  cout << "DDTestSpecPars::analyze: " << m_label << "\n";
+  LogVerbatim("Geometry") << "DDTestSpecPars::analyze: " << m_tag;
   ESTransientHandle<DDSpecParRegistry> registry;
-  iEventSetup.get<DDSpecParRegistryRcd>().get(m_label, registry);
+  iEventSetup.get<DDSpecParRegistryRcd>().get(m_tag.module(), registry);
 
-  cout << "DD SpecPar Registry size: " << registry->specpars.size() << "\n";
-  for(const auto& i: registry->specpars) {
-    cout << " " << i.first << " => ";
-    for(const auto& k : i.second.paths)
-      cout << k << ", ";
-    for(const auto& l : i.second.spars) {
-      cout << l.first << " => ";
-      for(const auto& il : l.second) {
-	cout << il << ", ";
+  LogVerbatim("Geometry").log([&registry](auto& log) {
+      log << "DD SpecPar Registry size: " << registry->specpars.size();
+      for(const auto& i: registry->specpars) {
+	log << " " << i.first << " => ";
+	for(const auto& k : i.second.paths)
+	  log << k << ", ";
+	for(const auto& l : i.second.spars) {
+	  log << l.first << " => ";
+	  for(const auto& il : l.second) {
+	    log << il << ", ";
+	  }
+	}
+	for(const auto& m : i.second.numpars) {
+	  log << m.first << " => ";
+	  for(const auto& im : m.second) {
+	    log << im << ", ";
+	  }
+	}
+	log << '\n';
       }
-    }
-    for(const auto& m : i.second.numpars) {
-      cout << m.first << " => ";
-      for(const auto& im : m.second) {
-	cout << im << ", ";
-      }
-    }
-    cout << '\n';
-  }
+    });
 }
 
 DEFINE_FWK_MODULE(DDTestSpecPars);

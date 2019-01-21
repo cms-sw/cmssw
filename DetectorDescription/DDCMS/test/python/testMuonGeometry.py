@@ -9,34 +9,41 @@ process.maxEvents = cms.untracked.PSet(
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
-                                            label = cms.string('CMS')
+                                            appendToDataLabel = cms.string('CMS')
                                             )
 process.DDDetectorESProducer2 = cms.ESSource("DDDetectorESProducer",
                                              confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-mf-geometry.xml'),
-                                             label = cms.string('MagneticField')
+                                             appendToDataLabel = cms.string('MagneticField')
                                              )
 process.DDDetectorESProducer3 = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
-                                            label = cms.string('')
+                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml')
                                             )
 
 process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
-                                                    label = cms.string('CMS'))
+                                                    appendToDataLabel = cms.string('CMS')
+                                                    )
 
 process.test = cms.EDAnalyzer("DDCMSDetector",
-                              fromDataLabel = cms.untracked.string('CMS')
-                              )
-process.DDVectorRegistryESProducer2 = cms.ESProducer("DDVectorRegistryESProducer",
-                                                    label = cms.string('MagneticField'))
-process.test2 = cms.EDAnalyzer("DDCMSDetector",
-                              fromDataLabel = cms.untracked.string('MagneticField')
+                              DDDetector = cms.ESInputTag('CMS')
                               )
 
+process.DDVectorRegistryESProducer2 = cms.ESProducer("DDVectorRegistryESProducer",
+                                                     appendToDataLabel = cms.string('MagneticField')
+                                                     )
+
+process.test2 = cms.EDAnalyzer("DDCMSDetector",
+                               DDDetector = cms.ESInputTag('MagneticField')
+                               )
+
 process.testVectors = cms.EDAnalyzer("DDTestVectors",
-                                     fromDataLabel = cms.untracked.string('CMS')
+                                     DDDetector = cms.ESInputTag('CMS')
                                      )
+
 process.testDump = cms.EDAnalyzer("DDTestDumpFile")
-process.testGeoIter = cms.EDAnalyzer("DDTestDumpGeometry")
+
+process.testGeoIter = cms.EDAnalyzer("DDTestDumpGeometry",
+                                     DDDetector = cms.ESInputTag('CMS')
+                                     )
 
 process.p = cms.Path(
     process.test
