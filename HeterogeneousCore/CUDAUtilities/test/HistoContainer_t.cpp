@@ -43,7 +43,7 @@ void go() {
     h.finalize(); h4.finalize();
     assert(h.size()==N);
     assert(h4.size()==N);
-    for (long long j = 0; j < N; j++) { h.fill(v[j],j);  if(j<2000) h4.fill(v[j],2); else h4.fill(v[j],j,j%4); }
+    for (long long j = 0; j < N; j++) { h.fill(v[j],j);  if(j<2000) h4.fill(v[j],j,2); else h4.fill(v[j],j,j%4); }
     assert(h.off[0]==0);
     assert(h4.off[0]==0);
     assert(h.size()==N);
