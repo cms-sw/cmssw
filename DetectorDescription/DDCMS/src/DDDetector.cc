@@ -9,7 +9,7 @@ using namespace std;
 DDDetector::DDDetector(const string& tag, const string& fileName)
   : m_tag(tag)
 {
-  m_description = &dd4hep::Detector::getInstance(tag);
+  m_description = &Detector::getInstance(tag);
   m_description->addExtension<DDVectorsMap>(&m_vectors);
   m_description->addExtension<DDPartSelectionMap>(&m_partsels);
   m_description->addExtension<DDSpecParRegistry>(&m_specpars);

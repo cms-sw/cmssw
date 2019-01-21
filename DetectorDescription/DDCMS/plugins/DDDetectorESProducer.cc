@@ -5,10 +5,10 @@
 // 
 /**\class DDDetectorESProducer
 
- Description: [one line class summary]
+ Description: Produce Detector description
 
  Implementation:
-     [Notes on implementation]
+     Detector is described in XML
 */
 //
 // Original Author:  Ianna Osborne
