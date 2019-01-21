@@ -1188,7 +1188,7 @@ FS_PREMIXUP18_PU50_OVERLAY = merge([
         {"-s" : "GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,VALIDATION",
          "--datamix" : "PreMix",
          "--procModifiers": "premix_stage2",
-         "--pileup_input" : "dbs:/RelValFS_PREMIXUP18_PU50/%s/PREMIX"%(baseDataSetRelease[19],),
+         "--pileup_input" : "dbs:/RelValFS_PREMIXUP18_PU50/%s/PREMIX"%(baseDataSetRelease[20],),
          },
         Kby(100,500),step1FastUpg2018Defaults])
 
