@@ -1,6 +1,8 @@
 #ifndef CondCore_CondDB_CondServiceWrapper_h
 #define CondCore_CondDB_CondServiceWrapper_h
 
+#include <string>
+
 namespace coral {
   class Service;
 }
