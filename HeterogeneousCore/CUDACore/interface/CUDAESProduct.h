@@ -15,7 +15,13 @@
 template <typename T>
 class CUDAESProduct {
 public:
-  CUDAESProduct(): gpuDataPerDevice_(numberOfCUDADevices()) {}
+  CUDAESProduct(): gpuDataPerDevice_(numberOfCUDADevices()) {
+    for(size_t i=0; i<gpuDataPerDevice_.size(); ++i) {
+      gpuDataPerDevice_[i].m_event = std::make_unique<cuda::event_t>(cuda::event::create(cuda::device::current::get_id(),
+                                                                                         cuda::event::sync_by_busy_waiting, // default; we should try to avoid explicit synchronization, so maybe the value doesn't matter much?
+                                                                                         cuda::event::dont_record_timings)); // it should be a bit faster to ignore timings
+    }
+  }
   ~CUDAESProduct() = default;
 
   // transferAsync should be a function of (T&, cuda::stream_t<>&)
@@ -27,64 +33,67 @@ public:
     auto device = cs->getCurrentDevice();
 
     auto& data = gpuDataPerDevice_[device];
-    if(data.m_filled.load()) {
-      // GPU data has already been filled, so can return it immediately
-      return data.m_data;
-    }
 
+    // If GPU data has already been filled, we can return it
+    // immediately
+    if(not data.m_filled.load()) {
+      // It wasn't, so need to fill it
+      std::scoped_lock<std::mutex> lk{data.m_mutex};
 
-    bool expected = false;
-    if(data.m_filling.compare_exchange_strong(expected, true)) {
-      // so nobody else was filling
-      // then check if it got filled in the mean time
       if(data.m_filled.load()) {
-        // someone else finished the filling in the meantime
-        data.m_filling.store(false);
+        // Other thread marked it filled while we were locking the mutex, so we're free to return it
         return data.m_data;
       }
-      
-      // now we can be sure that the data is not yet on the GPU, and
-      // this thread is the first one to try that
-      try {
-        transferAsync(data.m_data, cudaStream);
 
-        cudaStream.enqueue.callback([&filling = data.m_filling,
-                                     &filled = data.m_filled]
-                                    (cuda::stream::id_t streamId, cuda::status_t status) mutable {
-                                      // TODO: check status and throw if fails
-                                      auto should_be_false = filled.exchange(true);
-                                      assert(!should_be_false);
-                                      auto should_be_true = filling.exchange(false);
-                                      assert(should_be_true);
-                                    });
-      } catch(...) {
-        // release the filling state and propagate exception
-        auto should_be_true = data.m_filling.exchange(false);
-        assert(should_be_true);
-        throw std::current_exception();
+      if(data.m_fillingStream != nullptr) {
+        // Someone else is filling
+
+        // Check first if the recorded event has occurred
+        if(data.m_event->has_occurred()) {
+          // It was, so data is accessible from all CUDA streams on
+          // the device. Set the 'filled' for all subsequent calls and
+          // return the value
+          auto should_be_false = data.m_filled.exchange(true);
+          assert(!should_be_false);
+          data.m_fillingStream = nullptr;
+        }
+        else if(data.m_fillingStream != cudaStream.id()) {
+          // Filling is still going on. For other CUDA stream, add
+          // wait on the CUDA stream and return the value. Subsequent
+          // work queued on the stream will wait for the event to
+          // occur (i.e. transfer to finish).
+          auto ret = cudaStreamWaitEvent(cudaStream.id(), data.m_event->id(), 0);
+          cuda::throw_if_error(ret, "Failed to make a stream to wait for an event");
+        }
+        // else: filling is still going on. But for the same CUDA
+        // stream (which would be a bit strange but fine), we can just
+        // return as all subsequent work should be enqueued to the
+        // same CUDA stream (or stream to be explicitly synchronized
+        // by the caller)
       }
-
-      // Now the filling has been enqueued to the cudaStream, so we
-      // can return the GPU data immediately, since all subsequent
-      // work must be either enqueued to the cudaStream, or the cudaStream
-      // must be synchronized by the caller
-      return data.m_data;
+      else {
+        // Now we can be sure that the data is not yet on the GPU, and
+        // this thread is the first to try that.
+        transferAsync(data.m_data, cudaStream);
+        assert(data.m_fillingStream == nullptr);
+        data.m_fillingStream = cudaStream.id();
+        // Now the filling has been enqueued to the cudaStream, so we
+        // can return the GPU data immediately, since all subsequent
+        // work must be either enqueued to the cudaStream, or the cudaStream
+        // must be synchronized by the caller
+      }
     }
-
-    // can we do better than just spin on the atomic while waiting another thread to finish the filling?
-    while(data.m_filling.load()) {
-      hardware_pause();
-    }
-    assert(data.m_filled.load());
 
     return data.m_data;
   }
   
 private:
   struct Item {
-    mutable std::atomic<bool> m_filling = false; // true if some thread is already filling
+    mutable std::mutex m_mutex;
+    CMS_THREAD_GUARD(m_mutex) mutable std::unique_ptr<cuda::event_t> m_event;
+    CMS_THREAD_GUARD(m_mutex) mutable cudaStream_t m_fillingStream = nullptr; // non-null if some thread is already filling (cudaStream_t is just a pointer)
     mutable std::atomic<bool> m_filled = false; // easy check if data has been filled already or not
-    CMS_THREAD_GUARD(m_filling) mutable T m_data;
+    CMS_THREAD_GUARD(m_mutex) mutable T m_data;
   };
   
   std::vector<Item> gpuDataPerDevice_;
