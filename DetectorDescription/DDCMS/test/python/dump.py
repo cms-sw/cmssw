@@ -9,22 +9,23 @@ process.maxEvents = cms.untracked.PSet(
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-tracker.xml'),
-                                            label = cms.string('CMS')
+                                            appendToDataLabel = cms.string('CMS')
                                             )
 
 process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
-                                                    label = cms.string('CMS'))
+                                                    appendToDataLabel = cms.string('CMS')
+                                                    )
 
 process.test = cms.EDAnalyzer("DDCMSDetector",
-                              fromDataLabel = cms.untracked.string('CMS')
+                              DDDetector = cms.ESInputTag('CMS')
                               )
 
 process.testVectors = cms.EDAnalyzer("DDTestVectors",
-                                     fromDataLabel = cms.untracked.string('CMS')
+                                     DDDetector = cms.ESInputTag('CMS')
                                      )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  fromDataLabel = cms.untracked.string('CMS')
+                                  DDDetector = cms.ESInputTag('CMS')
                                   )
 
 process.p = cms.Path(process.test+process.testVectors+process.testDump)
