@@ -135,8 +135,8 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
   mtdRecHitBuilder_(iConfig.getParameter<std::string>("MTDRecHitBuilder")),
   propagator_(iConfig.getParameter<std::string>("Propagator")),
   transientTrackBuilder_(iConfig.getParameter<std::string>("TransientTrackBuilder")) {
-  constexpr float maxChi2=25.;
-  constexpr float nSigma=3.;
+  constexpr float maxChi2=500.;
+  constexpr float nSigma=10.;
   theEstimator = std::make_unique<Chi2MeasurementEstimator>(maxChi2,nSigma);
   
   theTransformer = std::make_unique<TrackTransformer>(iConfig.getParameterSet("TrackTransformer"));
@@ -349,23 +349,23 @@ namespace {
     if( comp.first ) {    
       vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos,*prop,theEstimator);
       if (!compDets.empty()) {
+	MTDTrackingRecHit* best = nullptr;
+	double best_chi2 = std::numeric_limits<double>::max();
 	for( const auto& detWithState : compDets ) {	
 	  auto range = hits.equal_range(detWithState.first->geographicalId(),cmp_for_detset);	  
 	  for( auto detitr = range.first; detitr != range.second; ++detitr ) {
-	    auto best = detitr->end();
-	    double best_chi2 = std::numeric_limits<double>::max();
 	    for( auto itr = detitr->begin(); itr != detitr->end(); ++itr ) {
 	      auto est =  theEstimator.estimate(detWithState.second,*itr);
 	      if( est.first && est.second < best_chi2 ) { // just take the best chi2
-		best = itr;
+		best = &(*itr);
 		best_chi2 = est.second;
 	      }
+	      
 	    }
-	    if( best != detitr->end() ) {
-	      output.push_back(hitbuilder.build(&*best));
-	    }
-	  }	  	  
-	}      
+	  }
+	}
+	if( best ) 
+	  output.push_back(hitbuilder.build(best));
       }
     }
   }
