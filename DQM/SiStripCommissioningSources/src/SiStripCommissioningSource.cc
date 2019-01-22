@@ -2,50 +2,50 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
-#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
-#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
+#include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/Averages.h"
+#include "DQM/SiStripCommissioningSources/interface/CalibrationScanTask.h"
+#include "DQM/SiStripCommissioningSources/interface/CalibrationTask.h"
+#include "DQM/SiStripCommissioningSources/interface/DaqScopeModeTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FastFedCablingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
-#include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
-#include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
-#include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
-#include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
-#include "DQM/SiStripCommissioningSources/interface/PedsOnlyTask.h"
-#include "DQM/SiStripCommissioningSources/interface/NoiseTask.h"
-#include "DQM/SiStripCommissioningSources/interface/PedsFullNoiseTask.h"
-#include "DQM/SiStripCommissioningSources/interface/DaqScopeModeTask.h"
-#include "DQM/SiStripCommissioningSources/interface/LatencyTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FineDelayTask.h"
-#include "DQM/SiStripCommissioningSources/interface/CalibrationTask.h"
-#include "DQM/SiStripCommissioningSources/interface/CalibrationScanTask.h"
+#include "DQM/SiStripCommissioningSources/interface/LatencyTask.h"
+#include "DQM/SiStripCommissioningSources/interface/NoiseTask.h"
+#include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
+#include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
+#include "DQM/SiStripCommissioningSources/interface/PedsFullNoiseTask.h"
+#include "DQM/SiStripCommissioningSources/interface/PedsOnlyTask.h"
+#include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <boost/cstdint.hpp>
-#include <memory>
+#include <ctime>
 #include <iomanip>
+#include <memory>
 #include <sstream>
-#include <time.h>
 
 #include <sys/types.h>
 #include <unistd.h>
 #include <iomanip>
 
 #include <arpa/inet.h>
-#include <sys/unistd.h>
-#include <sys/socket.h>
+#include <cstdio>
 #include <netdb.h>
-#include <stdio.h>
+#include <sys/socket.h>
+#include <sys/unistd.h>
 
 
 using namespace sistrip;
@@ -53,9 +53,9 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 SiStripCommissioningSource::SiStripCommissioningSource( const edm::ParameterSet& pset ) :
-  dqm_(0),
-  fedCabling_(0),
-  fecCabling_(0),
+  dqm_(nullptr),
+  fedCabling_(nullptr),
+  fecCabling_(nullptr),
   inputModuleLabel_( pset.getParameter<std::string>( "InputModuleLabel" ) ),
   inputModuleLabelAlt_(pset.existsAs<std::string>("InputModuleLabelAlt")?pset.getParameter<std::string>( "InputModuleLabelAlt" ):""),
   inputModuleLabelSummary_( pset.getParameter<std::string>( "SummaryInputModuleLabel" ) ),
@@ -92,7 +92,7 @@ SiStripCommissioningSource::SiStripCommissioningSource( const edm::ParameterSet&
     << "[SiStripCommissioningSource::" << __func__ << "]"
     << " Constructing object...";
   tasks_.clear();
-  tasks_.resize( 1024, VecOfTasks(96,static_cast<CommissioningTask*>(0)) ); 
+  tasks_.resize( 1024, VecOfTasks(96,static_cast<CommissioningTask*>(nullptr)) ); 
 }
 
 // -----------------------------------------------------------------------------
@@ -108,11 +108,11 @@ SiStripCommissioningSource::~SiStripCommissioningSource() {
 DQMStore* const SiStripCommissioningSource::dqm( std::string method ) const {
   if ( !dqm_ ) { 
     std::stringstream ss;
-    if ( method != "" ) { ss << "[SiStripCommissioningSource::" << method << "]" << std::endl; }
+    if ( !method.empty() ) { ss << "[SiStripCommissioningSource::" << method << "]" << std::endl; }
     else { ss << "[SiStripCommissioningSource]" << std::endl; }
     ss << " NULL pointer to DQMStore";
     edm::LogWarning(mlDqmSource_) << ss.str();
-    return 0;
+    return nullptr;
   } else { return dqm_; }
 }
 
@@ -217,7 +217,7 @@ void SiStripCommissioningSource::endJob() {
   // Retrieve SCRATCH directory
   std::string scratch = "SCRATCH"; //@@ remove trailing slash!!!
   std::string dir = "";
-  if ( getenv(scratch.c_str()) != NULL ) { 
+  if ( getenv(scratch.c_str()) != nullptr ) { 
     dir = getenv(scratch.c_str()); 
   }
 
@@ -302,10 +302,10 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
     ss << "[SiStripCommissioningSource::" << __func__ << "]"
        << " The last " << updateFreq_ 
        << " events were processed at a rate of ";
-    if ( time(NULL) == time_ ) { ss << ">" << updateFreq_ << " Hz"; }
-    else { ss << (updateFreq_/(time(NULL)-time_)) << " Hz"; }
+    if ( time(nullptr) == time_ ) { ss << ">" << updateFreq_ << " Hz"; }
+    else { ss << (updateFreq_/(time(nullptr)-time_)) << " Hz"; }
     edm::LogVerbatim(mlDqmSource_) << ss.str();
-    time_ = time(NULL);
+    time_ = time(nullptr);
   }
 
   // Create commissioning task objects 
@@ -368,7 +368,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   }
 
   // Check for NULL pointer to digi container
-  if ( &(*raw) == 0 ) {
+  if ( &(*raw) == nullptr ) {
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]" << std::endl
        << " NULL pointer to DetSetVector!" << std::endl
@@ -377,7 +377,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
     return;
   }
 
-  if(isSpy_ and inputModuleLabelAlt_ != "" and  &(*rawAlt) == 0){
+  if(isSpy_ and !inputModuleLabelAlt_.empty() and  &(*rawAlt) == nullptr){
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]" << std::endl
        << " NULL pointer to DetSetVector!" << std::endl
@@ -386,7 +386,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
     return;
   }
 
-  if(isSpy_ and inputClusterLabel_ != "" and &(*cluster) == 0){
+  if(isSpy_ and !inputClusterLabel_.empty() and &(*cluster) == nullptr){
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]" << std::endl
        << " NULL pointer to DetSetVector!" << std::endl
@@ -1122,7 +1122,7 @@ void SiStripCommissioningSource::clearTasks() {
     for ( ; ichan != ifed->end(); ichan++ ) { 
       if ( *ichan ) { delete *ichan; *ichan = 0; }
     }
-    ifed->resize(96,0);
+    ifed->resize(96,nullptr);
   }
   tasks_.resize(1024);
 }

@@ -45,7 +45,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
  private: // ---------- Private methods ----------
 
   /** Private default constructor. */
-  SiStripCommissioningSource();
+  SiStripCommissioningSource() = delete;
   
   /** */
   DQMStore* const dqm( std::string method = "" ) const;
