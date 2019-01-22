@@ -2,12 +2,20 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DetectorDescription/DDCMS/interface/DDRegistry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
+#include "DetectorDescription/DDCMS/interface/DDDetector.h"
+#include "DetectorDescription/DDCMS/interface/DDVectorRegistryRcd.h"
+#include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
 #include "DD4hep/Detector.h"
 
 #include <memory>
 #include <string>
+
+using namespace std;
+using namespace cms;
+using namespace dd4hep;
 
 class DDCMSDetector : public edm::one::EDAnalyzer<> {
 public:
@@ -36,33 +44,35 @@ DDCMSDetector::DDCMSDetector( const edm::ParameterSet& iConfig )
 }
 
 void
-DDCMSDetector::analyze( const edm::Event&, const edm::EventSetup& )
+DDCMSDetector::analyze( const edm::Event&, const edm::EventSetup& iEventSetup)
 {
-  dd4hep::Detector& description = dd4hep::Detector::getInstance();
+  edm::ESTransientHandle<DDDetector> description;
+  iEventSetup.get<DetectorDescriptionRcd>().get(description);
 
-  std::string name( "DD4hep_CompactLoader" );
-
-  const char* files[] = { m_confGeomXMLFiles.c_str(), nullptr };
-  description.apply( name.c_str(), 2, (char**)files );
+  edm::ESTransientHandle<DDVectorRegistry> registry;
+  iEventSetup.get<DDVectorRegistryRcd>().get(registry);
 
   for( const auto& it : m_files )
     std::cout << it << std::endl;
 
-  DDVectorRegistry registry;
-  std::cout << "DD Vector Registry size: " << registry->size() << "\n";
-  for( const auto& p: *registry ) {
+  std::cout << "DD Vector Registry size: " << registry->vectors.size() << "\n";
+  for( const auto& p: registry->vectors ) {
     std::cout << " " << p.first << " => ";
     for( const auto& i : p.second )
       std::cout << i << ", ";
     std::cout << '\n';
   }
+  std::cout << "Iterate over the detectors:\n";
+  for( auto const& it : description->description().detectors()) {
+    dd4hep::DetElement det(it.second);
+    std::cout << it.first << ": " << det.path() << "\n";
+  }
+  std::cout << "..done!\n";
 }
 
 void
 DDCMSDetector::endJob()
 {
-  // FIXME: It does not clean up:
-  // dd4hep::Detector::getInstance().destroyInstance();
 }
 
 DEFINE_FWK_MODULE( DDCMSDetector );

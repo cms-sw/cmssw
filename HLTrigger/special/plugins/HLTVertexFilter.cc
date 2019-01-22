@@ -17,8 +17,6 @@
 
 #include <cmath>
 
-#include <boost/foreach.hpp>
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -100,7 +98,7 @@ HLTVertexFilter::hltFilter(edm::Event &  event, edm::EventSetup const & setup, t
 
   unsigned int n = 0;
   if (vertices.isValid()) {
-    BOOST_FOREACH(const reco::Vertex & vertex, * vertices) {
+    for(auto const& vertex : * vertices) {
       if (vertex.isValid()
           and not vertex.isFake()
           and (vertex.chi2() <= m_maxChi2)

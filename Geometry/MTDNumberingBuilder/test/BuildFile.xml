@@ -11,4 +11,7 @@
 <library   file="GeometricTimingDetAnalyzer.cc" name="testMTDNumberingBuilder">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="MTDTopologyAnalyzer.cc" name="MTDTopologyAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
 

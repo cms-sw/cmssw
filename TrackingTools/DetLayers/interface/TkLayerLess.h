@@ -6,14 +6,12 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
-#include <functional>
 
 /** Defines order of layers in the Tracker as seen by straight tracks
  *  coming from the interaction region.
  */
 
-class TkLayerLess 
-  : public std::binary_function< const DetLayer*,const DetLayer*,bool> {
+class TkLayerLess {
 public:
 
     TkLayerLess( NavigationDirection dir = insideOut, const DetLayer * fromLayer = nullptr) :

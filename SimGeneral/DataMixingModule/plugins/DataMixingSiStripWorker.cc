@@ -7,12 +7,7 @@
 #include <map>
 #include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
 //
 //
 #include "DataMixingSiStripWorker.h"

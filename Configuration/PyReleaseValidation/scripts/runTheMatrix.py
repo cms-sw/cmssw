@@ -64,6 +64,7 @@ if __name__ == '__main__':
                      136.788, #2017B Photon data
                      136.85, #2018A Egamma data
                      140.53, #2011 HI data
+                     140.56, #2018 HI data
                      150.0, #2018 HI MC
                      158.0, #2018 HI MC with pp-like reco
                      1306.0, #SingleMu Pt1 UP15
@@ -76,8 +77,8 @@ if __name__ == '__main__':
                      10824.0, #2018 ttbar
                      11624.0, #2019 ttbar
                      20034.0, #2023D17 ttbar (TDR baseline Muon/Barrel)
-                     20434.0, #2023D19 to exercise timing layer
                      21234.0, #2023D21 ttbar (Inner Tracker with lower radii than in TDR)
+                     27434.0, #2023D35 to exercise new HGCal + new MTD
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      ],

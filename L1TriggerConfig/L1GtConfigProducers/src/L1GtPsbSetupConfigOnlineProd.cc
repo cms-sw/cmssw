@@ -40,11 +40,10 @@ L1GtPsbSetupConfigOnlineProd::~L1GtPsbSetupConfigOnlineProd() {
 
 // public methods
 
-std::shared_ptr<L1GtPsbSetup> L1GtPsbSetupConfigOnlineProd::newObject(
+std::unique_ptr<L1GtPsbSetup> L1GtPsbSetupConfigOnlineProd::newObject(
         const std::string& objectKey) {
 
-    // shared pointer for L1GtPsbSetup
-    auto pL1GtPsbSetup = std::make_shared<L1GtPsbSetup>();
+    auto pL1GtPsbSetup = std::make_unique<L1GtPsbSetup>();
 
     const std::string gtSchema = "CMS_GT";
 

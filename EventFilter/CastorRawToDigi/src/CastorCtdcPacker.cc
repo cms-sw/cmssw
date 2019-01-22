@@ -11,6 +11,7 @@
 
 using namespace std;
 
+namespace {
 template <class Coll, class DetIdClass> 
 int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presamples) {
   if (pt==nullptr) return 0;
@@ -23,6 +24,7 @@ int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presa
       buffer[j]=(*i)[j].raw();
   }
   return size;
+}
 }
 
 int CastorCtdcPacker::findSamples(const DetId& did, const CastorCollections& inputs,
@@ -46,7 +48,7 @@ void CastorCtdcPacker::pack(int fedid, int dccnumber,
   std::vector<unsigned short> trigdata(CastorCORData::CHANNELS_PER_SPIGOT*CastorCORData::MAXIMUM_SAMPLES_PER_CHANNEL);
   std::vector<unsigned char> preclen(CastorCORData::CHANNELS_PER_SPIGOT);
   std::vector<unsigned char> triglen(CastorCORData::CHANNELS_PER_SPIGOT);
-  static const int CORFormatVersion=1;
+  constexpr int CORFormatVersion=1;
 
 //  CastorCORData spigots[CastorCTDCHeader::SPIGOT_COUNT];
   CastorCORData spigots[2];
@@ -95,8 +97,8 @@ void CastorCtdcPacker::pack(int fedid, int dccnumber,
       spigots[spigot].pack(&(preclen[0]),&(precdata[0]),
 			   &(triglen[0]),&(trigdata[0]),
 			   true);
-      static const int pipeline=0x22;
-      static const int firmwareRev=0;
+      constexpr int pipeline=0x22;
+      constexpr int firmwareRev=0;
       int submodule=exampleEId.htrTopBottom()&0x1;
       submodule|=(exampleEId.htrSlot()&0x1F)<<1;
       submodule|=(exampleEId.readoutVMECrateId()&0x1f)<<6;

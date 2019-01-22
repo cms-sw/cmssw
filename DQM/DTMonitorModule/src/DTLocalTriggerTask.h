@@ -50,7 +50,7 @@ typedef std::array<std::array<std::array<const L1MuDTChambThDigi*,15>, 5 > ,6> D
 typedef std::array<std::array<std::array<const DTLocalTrigger*,15>, 5 > ,6> DTArr3LocalTrigger;
 typedef std::array<std::array<std::array<int,2>, 13 > ,6> DTArr3mapInt;
 
-class DTLocalTriggerTask: public DQMEDAnalyzer{
+class DTLocalTriggerTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 
   friend class DTMonitorModule;
 
@@ -99,6 +99,7 @@ class DTLocalTriggerTask: public DQMEDAnalyzer{
 
   /// To reset the MEs
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override ;
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) final {}
 
   /// Get the L1A source
   void triggerSource(const edm::Event& e);

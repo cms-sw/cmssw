@@ -88,7 +88,7 @@ void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSet
     for(unsigned int h=0;h<track.recHitsSize();h++){
      
       auto hit = *(hb+h);
-      if(!hit->isValid()) continue;
+      if(!trackerHitRTTI::isFromDet(*hit)) continue;
       
       DetId id = hit->geographicalId();
       uint32_t subdetid = (id.subdetId());
@@ -103,7 +103,7 @@ void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSet
     for(unsigned int h=0;h<track.recHitsSize();h++){
       auto rechit = *(hb+h);
     
-      if(!rechit->isValid()) continue;
+      if(!trackerHitRTTI::isFromDet(*rechit)) continue;
 
       //continue if not a Pixel recHit
       DetId id = rechit->geographicalId();

@@ -79,8 +79,7 @@ void dumpId (std::ostream& fOutput, DetId id) {
 }
 
 template <class S,class T> 
-bool getCastorObject (std::istream& fInput, T* fObject) {
-  if (!fObject) fObject = new T;
+bool getCastorObject (std::istream& fInput, T& fObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
@@ -97,7 +96,7 @@ bool getCastorObject (std::istream& fInput, T* fObject) {
 //    else
 //      {
     S fCondObject(id, atof (items [4].c_str()), atof (items [5].c_str()), atof (items [6].c_str()), atof (items [7].c_str()));
-    fObject->addValues(fCondObject);
+    fObject.addValues(fCondObject);
 	//      }
   }
 
@@ -126,8 +125,7 @@ bool dumpCastorObject (std::ostream& fOutput, const T& fObject) {
 }
 
 template <class S,class T> 
-bool getCastorSingleFloatObject (std::istream& fInput, T* fObject) {
-  if (!fObject) fObject = new T;
+bool getCastorSingleFloatObject (std::istream& fInput, T& fObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
@@ -144,7 +142,7 @@ bool getCastorSingleFloatObject (std::istream& fInput, T* fObject) {
 //    else
 //      {
     S fCondObject(id, atof (items [4].c_str()) );
-    fObject->addValues(fCondObject);
+    fObject.addValues(fCondObject);
     //      }
   }
   return true;
@@ -170,8 +168,7 @@ bool dumpCastorSingleFloatObject (std::ostream& fOutput, const T& fObject) {
 }
 
 template <class S,class T> 
-bool getCastorSingleIntObject (std::istream& fInput, T* fObject, S* fCondObject) {
-  if (!fObject) fObject = new T;
+bool getCastorSingleIntObject (std::istream& fInput, T& fObject, S* fCondObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
@@ -188,7 +185,7 @@ bool getCastorSingleIntObject (std::istream& fInput, T* fObject, S* fCondObject)
 //    else
 //      {
 	fCondObject = new S(id, atoi (items [4].c_str()) );
-	fObject->addValues(*fCondObject);
+	fObject.addValues(*fCondObject);
 	delete fCondObject;
 	//      }
   }
@@ -215,19 +212,18 @@ bool dumpCastorSingleIntObject (std::ostream& fOutput, const T& fObject) {
 }
 
 
-bool getObject (std::istream& fInput, CastorGains* fObject) {return getCastorObject<CastorGain> (fInput, fObject);}
+bool getObject (std::istream& fInput, CastorGains& fObject) {return getCastorObject<CastorGain> (fInput, fObject);}
 bool dumpObject (std::ostream& fOutput, const CastorGains& fObject) {return dumpCastorObject (fOutput, fObject);}
-bool getObject (std::istream& fInput, CastorGainWidths* fObject) {return getCastorObject<CastorGainWidth> (fInput, fObject);}
+bool getObject (std::istream& fInput, CastorGainWidths& fObject) {return getCastorObject<CastorGainWidth> (fInput, fObject);}
 bool dumpObject (std::ostream& fOutput, const CastorGainWidths& fObject) {return dumpCastorObject (fOutput, fObject);}
 
-bool getObject (std::istream& fInput, CastorSaturationCorrs* fObject) {return getCastorSingleFloatObject<CastorSaturationCorr> (fInput, fObject);}
+bool getObject (std::istream& fInput, CastorSaturationCorrs& fObject) {return getCastorSingleFloatObject<CastorSaturationCorr> (fInput, fObject);}
 bool dumpObject (std::ostream& fOutput, const CastorSaturationCorrs& fObject) {return dumpCastorSingleFloatObject (fOutput, fObject);}
 
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool getObject (std::istream& fInput, CastorPedestals* fObject) {
-  if (!fObject) fObject = new CastorPedestals(false);
+bool getObject (std::istream& fInput, CastorPedestals& fObject) {
   char buffer [1024];
 
   while (fInput.getline(buffer, 1024)) {
@@ -236,12 +232,12 @@ bool getObject (std::istream& fInput, CastorPedestals* fObject) {
     else {
       if (items[0] == "#U")
 	{
-	  if (items[1] == (std::string)"ADC") fObject->setUnitADC(true);
-	    else if (items[1] == (std::string)"fC") fObject->setUnitADC(false);
+	  if (items[1] == (std::string)"ADC") fObject.setUnitADC(true);
+	    else if (items[1] == (std::string)"fC") fObject.setUnitADC(false);
 	  else 
 	    {
 	      edm::LogWarning("Pedestal Unit Error") << "Unrecognized unit for pedestals. Assuming fC." << std::endl;
-	      fObject->setUnitADC(false);
+	      fObject.setUnitADC(false);
 	    }
 	  break;
 	}
@@ -264,27 +260,25 @@ bool getObject (std::istream& fInput, CastorPedestals* fObject) {
     }
     DetId id = getId (items);
     
-//    if (fObject->exists(id) )
+//    if (fObject.exists(id) )
 //      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
 //    else
 //      {
 
     if (items.size() < 12) // old format without widths
       {
-	CastorPedestal* fCondObject = new CastorPedestal(id, atof (items [4].c_str()), atof (items [5].c_str()), 
-						     atof (items [6].c_str()), atof (items [7].c_str()), 
-						     0., 0., 0., 0. );
-	fObject->addValues(*fCondObject);
-	delete fCondObject;
+	CastorPedestal fCondObject(id, atof (items [4].c_str()), atof (items [5].c_str()), 
+                                   atof (items [6].c_str()), atof (items [7].c_str()), 
+                                   0., 0., 0., 0. );
+	fObject.addValues(fCondObject);
       }
     else // new format with widths
       {
-	CastorPedestal* fCondObject = new CastorPedestal(id, atof (items [4].c_str()), atof (items [5].c_str()), 
-						     atof (items [6].c_str()), atof (items [7].c_str()), 
-						     atof (items [8].c_str()), atof (items [9].c_str()),
-						     atof (items [10].c_str()), atof (items [11].c_str()) );
-	fObject->addValues(*fCondObject);
-	delete fCondObject;
+	CastorPedestal fCondObject(id, atof (items [4].c_str()), atof (items [5].c_str()), 
+                                   atof (items [6].c_str()), atof (items [7].c_str()), 
+                                   atof (items [8].c_str()), atof (items [9].c_str()),
+                                   atof (items [10].c_str()), atof (items [11].c_str()) );
+	fObject.addValues(fCondObject);
       }
 
 	//      }
@@ -320,9 +314,8 @@ bool dumpObject (std::ostream& fOutput, const CastorPedestals& fObject) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool getObject (std::istream& fInput, CastorChannelQuality* fObject) 
+bool getObject (std::istream& fInput, CastorChannelQuality& fObject) 
 {
-  if (!fObject) fObject = new CastorChannelQuality;
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
@@ -334,27 +327,26 @@ bool getObject (std::istream& fInput, CastorChannelQuality* fObject)
     }
     DetId id = getId (items);
     
-    if (fObject->exists(id) ) {
+    if (fObject.exists(id) ) {
       edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
       continue;
     }
 //    else
 //      {
     uint32_t mystatus;
-    CastorChannelStatus* fCondObject = nullptr;
+    std::unique_ptr<CastorChannelStatus> fCondObject;
     if (items[4].substr(0,2)=="0x") {
        sscanf(items[4].c_str(),"%X", &mystatus);
-       fCondObject = new CastorChannelStatus(id,mystatus);
+       fCondObject = std::make_unique<CastorChannelStatus>(id,mystatus);
     }
     else if (isalpha(items[4].c_str()[0])) {
-       fCondObject = new CastorChannelStatus(id, items[4]);
+       fCondObject = std::make_unique<CastorChannelStatus>(id, items[4]);
     }
     else {
        sscanf(items[4].c_str(),"%u", &mystatus);
-       fCondObject = new CastorChannelStatus(id,mystatus);
+       fCondObject = std::make_unique<CastorChannelStatus>(id,mystatus);
     }
-    fObject->addValues(*fCondObject);
-    delete fCondObject;
+    fObject.addValues(*fCondObject);
 	//      }
   }
   return true;
@@ -381,8 +373,7 @@ bool dumpObject (std::ostream& fOutput, const CastorChannelQuality& fObject) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool getObject (std::istream& fInput, CastorPedestalWidths* fObject) {
-  if (!fObject) fObject = new CastorPedestalWidths(false);
+bool getObject (std::istream& fInput, CastorPedestalWidths& fObject) {
   char buffer [1024];
   int linecounter = 0;
 
@@ -393,12 +384,12 @@ bool getObject (std::istream& fInput, CastorPedestalWidths* fObject) {
     else {
       if (items[0] == (std::string)"#U")
 	{
-	  if (items[1] == (std::string)"ADC") fObject->setUnitADC(true); 
-	  else if (items[1] == (std::string)"fC") fObject->setUnitADC(false);
+	  if (items[1] == (std::string)"ADC") fObject.setUnitADC(true); 
+	  else if (items[1] == (std::string)"fC") fObject.setUnitADC(false);
 	  else 
 	    {
 	      edm::LogWarning("Pedestal Width Unit Error") << "Unrecognized unit for pedestal widths. Assuming fC." << std::endl;
-	      fObject->setUnitADC(false);
+	      fObject.setUnitADC(false);
 	    }
 	  break;
 	}
@@ -423,7 +414,7 @@ bool getObject (std::istream& fInput, CastorPedestalWidths* fObject) {
     }
     DetId id = getId (items);
 
-//    if (fObject->exists(id) )
+//    if (fObject.exists(id) )
 //      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
 //    else
 //      {
@@ -447,7 +438,7 @@ bool getObject (std::istream& fInput, CastorPedestalWidths* fObject) {
 	values.setSigma (1, 2, 0.);
 	values.setSigma (1, 3, 0.);
 	values.setSigma (2, 3, 0.);
-	fObject->addValues(values);	
+	fObject.addValues(values);	
       }
     else // new format
       {
@@ -468,7 +459,7 @@ bool getObject (std::istream& fInput, CastorPedestalWidths* fObject) {
 	values.setSigma (3, 1, atof (items [17].c_str()) );
 	values.setSigma (3, 2, atof (items [18].c_str()) );
 	values.setSigma (3, 3, atof (items [19].c_str()) );
-	fObject->addValues(values);	
+	fObject.addValues(values);	
       }
 
 	//      }
@@ -508,7 +499,7 @@ bool dumpObject (std::ostream& fOutput, const CastorPedestalWidths& fObject) {
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool getObject (std::istream& fInput, CastorQIEData* fObject) {
+bool getObject (std::istream& fInput, CastorQIEData& fObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
@@ -522,7 +513,7 @@ bool getObject (std::istream& fInput, CastorQIEData* fObject) {
       //float lowEdges [32];
       //int i = 32;
       //while (--i >= 0) lowEdges [i] = atof (items [i+1].c_str ());
-      //      fObject->setShape (lowEdges);
+      //      fObject.setShape (lowEdges);
     }
     else { // QIE parameters
       if (items.size () < 36) {
@@ -530,9 +521,9 @@ bool getObject (std::istream& fInput, CastorQIEData* fObject) {
 	continue;
       }
       DetId id = getId (items);
-      fObject->sort ();
+      fObject.sort ();
       //      try {
-      //      fObject->getCoder (id);
+      //      fObject.getCoder (id);
       //      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
 	//      }
 //      catch (cms::Exception& e) {
@@ -548,11 +539,11 @@ bool getObject (std::istream& fInput, CastorQIEData* fObject) {
 	    coder.setSlope (capid, range, atof (items [index++].c_str ()));
 	  }
 	}
-	fObject->addCoder (coder);
+	fObject.addCoder (coder);
 //      }
     }
   }
-  fObject->sort ();
+  fObject.sort ();
   return true;
 }
 
@@ -598,7 +589,7 @@ bool dumpObject (std::ostream& fOutput, const CastorQIEData& fObject) {
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool getObject (std::istream& fInput, CastorCalibrationQIEData* fObject) {
+bool getObject (std::istream& fInput, CastorCalibrationQIEData& fObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
@@ -608,9 +599,9 @@ bool getObject (std::istream& fInput, CastorCalibrationQIEData* fObject) {
       continue;
     }
     DetId id = getId (items);
-    fObject->sort ();
+    fObject.sort ();
     //    try {
-    //    fObject->getCoder (id);
+    //    fObject.getCoder (id);
     //    edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
       //    }
 //    catch (cms::Exception& e) {
@@ -621,10 +612,10 @@ bool getObject (std::istream& fInput, CastorCalibrationQIEData* fObject) {
 	values[bin] = atof (items [index++].c_str ());
       }
       coder.setMinCharges (values);
-      fObject->addCoder (coder);
+      fObject.addCoder (coder);
 //    }
   }
-  fObject->sort ();
+  fObject.sort ();
   return true;
 }
 
@@ -655,7 +646,7 @@ bool dumpObject (std::ostream& fOutput, const CastorCalibrationQIEData& fObject)
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool getObject (std::istream& fInput, CastorElectronicsMap* fObject) {
+bool getObject (std::istream& fInput, CastorElectronicsMap& fObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
@@ -703,13 +694,13 @@ bool getObject (std::istream& fInput, CastorElectronicsMap* fObject) {
 
     // first, handle undefined cases
     if (items [8] == "NA") { // undefined channel
-      fObject->mapEId2chId (elId, DetId (HcalDetId::Undefined));
+      fObject.mapEId2chId (elId, DetId (HcalDetId::Undefined));
     } else if (items [8] == "NT") { // undefined trigger channel
-      fObject->mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
+      fObject.mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
     } else {
       CastorText2DetIdConverter converter (items [8], items [9], items [10], items [11]);
       if (converter.isHcalCastorDetId ()) { 
-	fObject->mapEId2chId (elId, converter.getId ());
+	fObject.mapEId2chId (elId, converter.getId ());
       }
       else {
 	edm::LogWarning("Format Error") << "CastorElectronicsMap-> Unknown subdetector: " 
@@ -717,7 +708,7 @@ bool getObject (std::istream& fInput, CastorElectronicsMap* fObject) {
       }
     }
   }
-  fObject->sort ();
+  fObject.sort ();
   return true;
 }
 
@@ -767,8 +758,7 @@ bool dumpObject (std::ostream& fOutput, const CastorElectronicsMap& fObject) {
   return true;
 }
 
-bool getObject (std::istream& fInput, CastorRecoParams* fObject) {
-	if (!fObject) fObject = new CastorRecoParams();
+bool getObject (std::istream& fInput, CastorRecoParams& fObject) {
 	char buffer [1024];
 	while (fInput.getline(buffer, 1024)) {
 		if (buffer [0] == '#') continue; //ignore comment
@@ -780,9 +770,8 @@ bool getObject (std::istream& fInput, CastorRecoParams* fObject) {
 		}
 		DetId id = getId (items);
 	      
-		CastorRecoParam* fCondObject = new CastorRecoParam(id, atoi (items [4].c_str()), atoi (items [5].c_str()) );
-		fObject->addValues(*fCondObject);
-		delete fCondObject;
+		CastorRecoParam fCondObject(id, atoi (items [4].c_str()), atoi (items [5].c_str()) );
+		fObject.addValues(fCondObject);
 	}
 	return true;
 }

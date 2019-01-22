@@ -44,6 +44,18 @@ l1t::GlobalObject l1TGtObjectStringToEnum(const std::string& label) {
 	    {"MinBiasHFP1", gtMinBiasHFP1},
 	    {"MinBiasHFM1", gtMinBiasHFM1},
 	    {"ETTem", gtETTem},
+	    {"AsymEt", gtAsymmetryEt},
+	    {"AsymHt", gtAsymmetryHt},
+	    {"AsymEtHF", gtAsymmetryEtHF},
+	    {"AsymEtHF", gtAsymmetryHtHF},
+	    {"CENT0", gtCentrality0},
+	    {"CENT1", gtCentrality1},
+	    {"CENT2", gtCentrality2},
+	    {"CENT3", gtCentrality3},
+	    {"CENT4", gtCentrality4},
+	    {"CENT5", gtCentrality5},
+	    {"CENT6", gtCentrality6},
+	    {"CENT7", gtCentrality7},
             {"External", gtExternal},
             {"ObjNull", ObjNull},
             {nullptr, (GlobalObject) - 1}
@@ -153,6 +165,66 @@ std::string l1t::l1TGtObjectEnumToString(const GlobalObject& gtObject) {
 
         case gtETTem: {
             gtObjectString = "ETTem";
+        }
+            break;
+
+        case gtAsymmetryEt: {
+            gtObjectString = "AsymEt";
+        }
+            break;
+
+        case gtAsymmetryHt: {
+            gtObjectString = "AsymHt";
+        }
+            break;
+
+        case gtAsymmetryEtHF: {
+            gtObjectString = "AsymEtHF";
+        }
+            break;
+
+        case gtAsymmetryHtHF: {
+            gtObjectString = "AsymHtHF";
+        }
+            break;
+
+        case gtCentrality0: {
+            gtObjectString = "CENT0";
+        }
+            break;
+
+        case gtCentrality1: {
+            gtObjectString = "CENT1";
+        }
+            break;
+
+        case gtCentrality2: {
+            gtObjectString = "CENT2";
+        }
+            break;
+
+        case gtCentrality3: {
+            gtObjectString = "CENT3";
+        }
+            break;
+
+        case gtCentrality4: {
+            gtObjectString = "CENT4";
+        }
+            break;
+
+        case gtCentrality5: {
+            gtObjectString = "CENT5";
+        }
+            break;
+
+        case gtCentrality6: {
+            gtObjectString = "CENT6";
+        }
+            break;
+
+        case gtCentrality7: {
+            gtObjectString = "CENT7";
         }
             break;
 

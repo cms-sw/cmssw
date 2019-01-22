@@ -23,6 +23,8 @@
 <test name="testUncertainties" command="testUncertainties.py"/>
 <test name="testImports" command="imports.sh"/>
 <test name="testTheano" command="testTheano.sh"/>
+<test name="testJupyter" command="testJupyter.sh"/>
+
 
 <bin name="test_PyMVA" file="test_PyMVA.cpp">
   <use name="rootpymva"/>
@@ -38,5 +40,8 @@
 </iftool>
 <iftool name="py2-numpy">
   <test name="testNumPy" command="python -c 'import numpy'"/>
+</iftool>
+<iftool name="py2-cx-oracle">
+  <test name="testCxOracle" command="python -c 'import cx_Oracle'"/>
 </iftool>
 <test name="testPYDablooms" command="python -c 'import pydablooms'"/>

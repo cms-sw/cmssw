@@ -103,7 +103,7 @@ NamedCandCombinerBase::combine(const vector<CandidatePtrVector> & src,
     combine(0, stack, qStack, names, src.begin(), src.end(), comps);
   }
 
-  return std::move(comps);
+  return comps;
 }
 
 unique_ptr<NamedCompositeCandidateCollection> 
@@ -132,7 +132,7 @@ NamedCandCombinerBase::combine(const CandidatePtrVector & src, string_coll const
     } 
   }
 
-  return std::move(comps);
+  return comps;
 }
 
 unique_ptr<NamedCompositeCandidateCollection> 
@@ -140,7 +140,7 @@ NamedCandCombinerBase::combine(const CandidatePtrVector & src1, const CandidateP
   vector<CandidatePtrVector> src;
   src.push_back(src1);
   src.push_back(src2);
-  return std::move(combine(src, names));
+  return combine(src, names);
 }
 
 unique_ptr<NamedCompositeCandidateCollection> 
@@ -150,7 +150,7 @@ NamedCandCombinerBase::combine(const CandidatePtrVector & src1, const CandidateP
   src.push_back(src1);
   src.push_back(src2);
   src.push_back(src3);
-  return std::move(combine(src, names));
+  return combine(src, names);
 }
 
 unique_ptr<NamedCompositeCandidateCollection> 
@@ -162,7 +162,7 @@ NamedCandCombinerBase::combine(const CandidatePtrVector & src1, const CandidateP
   src.push_back(src2);
   src.push_back(src3);
   src.push_back(src4);
-  return std::move(combine(src, names));
+  return combine(src, names);
 }
 
 void NamedCandCombinerBase::combine(size_t collectionIndex, CandStack & stack, ChargeStack & qStack, 

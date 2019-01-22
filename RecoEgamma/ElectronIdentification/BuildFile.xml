@@ -4,6 +4,7 @@
 <use   name="CondFormats/EgammaObjects"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="CommonTools/MVAUtils"/>
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
 <use   name="RecoEgamma/EgammaTools"/>

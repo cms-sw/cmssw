@@ -1,10 +1,10 @@
 #ifndef PhysicsTools_Heppy_EGammaMvaEleEstimatorFWLite_h
 #define PhysicsTools_Heppy_EGammaMvaEleEstimatorFWLite_h
 
-struct EGammaMvaEleEstimator;
-struct EGammaMvaEleEstimatorCSA14;
-namespace reco { struct Vertex; }
-namespace pat { struct Electron; }
+class EGammaMvaEleEstimator;
+class EGammaMvaEleEstimatorCSA14;
+namespace reco { class Vertex; }
+namespace pat { class Electron; }
 #include <vector>
 #include <string>
 

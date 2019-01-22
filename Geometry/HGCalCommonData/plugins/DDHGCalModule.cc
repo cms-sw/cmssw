@@ -14,6 +14,8 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/HGCalCommonData/plugins/DDHGCalModule.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -246,7 +248,6 @@ void DDHGCalModule::positionSensitive(DDLogicalPart& glog, double rin,
   int    ncol = (int)(2.0*rout/waferW) + 1;
   int    nrow = (int)(rout/(waferW*tan(30.0*CLHEP::deg))) + 1;
   int    incm(0), inrm(0), kount(0), ntot(0), nin(0), nfine(0), ncoarse(0);
-  double xc[6], yc[6];
 #ifdef EDM_ML_DEBUG
   std::cout << glog.ddname() << " rout " << rout << " Row " << nrow 
 	    << " Column " << ncol << std::endl; 
@@ -258,20 +259,10 @@ void DDHGCalModule::positionSensitive(DDLogicalPart& glog, double rin,
       if (inr%2 == inc%2) {
 	double xpos = nc*dx;
 	double ypos = nr*dy;
-	xc[0] = xpos+dx; yc[0] = ypos-0.5*rr;
-	xc[1] = xpos+dx; yc[1] = ypos+0.5*rr;
-	xc[2] = xpos;    yc[2] = ypos+rr;
-	xc[3] = xpos-dx; yc[3] = ypos+0.5*rr;
-	xc[4] = xpos+dx; yc[4] = ypos-0.5*rr;
-	xc[5] = xpos;    yc[5] = ypos-rr;
-	bool cornerOne(false), cornerAll(true);
-	for (int k=0; k<6; ++k) {
-	  double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
-          if (rpos >= rin && rpos <= rout) cornerOne = true;
-	  else                             cornerAll = false;
-	}
+	std::pair<int,int> corner = 
+	  HGCalGeomTools::waferCorner(xpos, ypos, dx, rr, rin, rout, true);
 	++ntot;
-	if (cornerOne) {
+	if (corner.first > 0) {
 	  int copy = inr*100 + inc;
 	  if (nc < 0) copy += 10000;
 	  if (nr < 0) copy += 100000;
@@ -279,7 +270,7 @@ void DDHGCalModule::positionSensitive(DDLogicalPart& glog, double rin,
 	  if (inr > inrm) inrm = inr;
 	  kount++;
 	  if (copies.count(copy) == 0) copies.insert(copy);
-	  if (cornerAll) {
+	  if (corner.first == (int)(HGCalParameters::k_CornerSize)) {
 	    double rpos = std::sqrt(xpos*xpos+ypos*ypos);
 	    DDTranslation tran(xpos, ypos, 0.0);
 	    DDRotation rotation;

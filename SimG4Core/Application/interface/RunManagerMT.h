@@ -13,10 +13,6 @@
 
 #include <memory>
 
-namespace sim {
-  class ChordFinderSetter;
-}
-
 class PrimaryTransformer;
 class Generator;
 class PhysicsList;
@@ -126,8 +122,6 @@ private:
   std::unique_ptr<DDG4ProductionCuts> m_prodCuts;
   SimActivityRegistry m_registry;
   SensitiveDetectorCatalog m_catalog;
-    
-  std::unique_ptr<sim::ChordFinderSetter> m_chordFinderSetter;
     
   std::string m_FieldFile;
   std::string m_WriteFile;

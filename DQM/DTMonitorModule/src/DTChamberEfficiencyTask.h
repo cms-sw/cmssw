@@ -40,7 +40,7 @@ class DQMStore;
 class MonitorElement;
 
 
-class DTChamberEfficiencyTask: public DQMEDAnalyzer{
+class DTChamberEfficiencyTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   DTChamberEfficiencyTask(const edm::ParameterSet& pset);
@@ -53,6 +53,7 @@ public:
 
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) final {}
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;

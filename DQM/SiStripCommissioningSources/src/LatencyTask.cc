@@ -130,7 +130,7 @@ void LatencyTask::fill( const SiStripEventSummary& summary,
 			const edm::DetSet<SiStripRawDigi>& digis ) {
   LogDebug("Commissioning") << "[LatencyTask::fill]";
   // retrieve the delay from the EventSummary
-  int32_t delay = static_cast<int32_t>( const_cast<SiStripEventSummary&>(summary).latency() );
+  int32_t delay = static_cast<int32_t>( summary.latency() );
   if(firstReading_==-1) firstReading_ = delay;
   float correctedDelay = 0.;
   LogDebug("Commissioning") << "[LatencyTask::fill]; the delay is " << delay;

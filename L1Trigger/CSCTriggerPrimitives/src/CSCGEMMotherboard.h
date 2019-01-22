@@ -45,7 +45,10 @@ public:
   // clear stored pads and copads
   void clear();
 
+  using CSCUpgradeMotherboard::readoutLCTs;
+
   // run TMB with GEM pads as input
+  using CSCUpgradeMotherboard::run;
   virtual void run(const CSCWireDigiCollection* wiredc,
                    const CSCComparatorDigiCollection* compdc,
                    const GEMPadDigiCollection* gemPads)=0;
@@ -251,7 +254,7 @@ void CSCGEMMotherboard::matchingPads(const CSCALCTDigi& alct,
 
   // Get the corresponding roll numbers for a given ALCT
   std::pair<int,int> alctRoll =
-    (getLUT()->get_csc_wg_to_gem_roll(par))[alct.getKeyWG()];
+    (getLUT()->get_csc_wg_to_gem_roll(theParity))[alct.getKeyWG()];
 
   // Get the pads in the ALCT bx
   const matchesBX<T>& lut = getPads<T>();
@@ -293,9 +296,13 @@ void CSCGEMMotherboard::matchingPads(const CSCCLCTDigi& clct,
 
   auto part(getCSCPart(clct.getKeyStrip()));
   // Get the corresponding pad numbers for a given CLCT
-  const auto& mymap = (getLUT()->get_csc_hs_to_gem_pad(par, part));
-  const int lowPad(mymap[clct.getKeyStrip()].first);
-  const int highPad(mymap[clct.getKeyStrip()].second);
+  const auto& mymap = (getLUT()->get_csc_hs_to_gem_pad(theParity, part));
+  int keyStrip = clct.getKeyStrip();
+  //ME1A part, convert halfstrip from 128-223 to 0-95
+  if (part == CSCPart::ME1A and keyStrip > CSCConstants::MAX_HALF_STRIP_ME1B) 
+      keyStrip = keyStrip -  CSCConstants::MAX_HALF_STRIP_ME1B -1;
+  const int lowPad(mymap[keyStrip].first);
+  const int highPad(mymap[keyStrip].second);
 
   // Get the pads in the CLCT bx
   const matchesBX<T>& lut = getPads<T>();

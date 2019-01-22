@@ -44,7 +44,7 @@ class L1TMuonGlobalParamsESProducer : public edm::ESProducer {
       L1TMuonGlobalParamsESProducer(const edm::ParameterSet&);
       ~L1TMuonGlobalParamsESProducer() override;
 
-      typedef std::shared_ptr<L1TMuonGlobalParams> ReturnType;
+      using ReturnType = std::unique_ptr<L1TMuonGlobalParams>;
 
       ReturnType produce(const L1TMuonGlobalParamsRcd&);
    private:
@@ -323,9 +323,7 @@ L1TMuonGlobalParamsESProducer::~L1TMuonGlobalParamsESProducer()
 L1TMuonGlobalParamsESProducer::ReturnType
 L1TMuonGlobalParamsESProducer::produce(const L1TMuonGlobalParamsRcd& iRecord)
 {
-   using namespace edm::es;
-
-   return std::make_shared<L1TMuonGlobalParams>(m_params);
+   return std::make_unique<L1TMuonGlobalParams>(m_params);
 }
 
 //define this as a plug-in

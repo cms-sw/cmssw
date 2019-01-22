@@ -44,6 +44,7 @@ namespace fwlite {
     //
     // empty object used to signal that the branch requested was not found
     static internal::Data branchNotFound;
+    static char kEmptyString[1] = {0};
 
     //
     // constructors and destructor
@@ -218,16 +219,16 @@ namespace fwlite {
             std::strncpy(newModule,iModuleLabel,moduleLabelLen);
             labels_.push_back(newModule);
 
-            char* newProduct = const_cast<char*>(key.product());
-            if(newProduct[0] != 0) {
-                size_t newProductLen = strlen(newProduct)+1; 
+            char* newProduct = kEmptyString;
+            if(key.product()[0] != 0) {
+                size_t newProductLen = strlen(key.product())+1; 
                 newProduct = new char[newProductLen];
                 std::strncpy(newProduct,key.product(),newProductLen);
                 labels_.push_back(newProduct);
             }
-            char* newProcess = const_cast<char*>(key.process());
-            if(newProcess[0]!=0) {
-                size_t newProcessLen = strlen(newProcess)+1; 
+            char* newProcess = kEmptyString;
+            if(key.process()[0]!=0) {
+                size_t newProcessLen = strlen(key.process())+1; 
                 newProcess = new char[newProcessLen];
                 std::strncpy(newProcess,key.process(),newProcessLen);
                 labels_.push_back(newProcess);

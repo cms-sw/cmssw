@@ -305,7 +305,7 @@ for (auto const & tm : traj.measurements()) {
   if ( trackerHitRTTI::isUndef(hit) ) continue;
   if ( hit.dimension()!=2 ) {
     ++chit[2];
-  } else {
+  } else if ( trackerHitRTTI::isFromDet(hit) ) {
     auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
     auto const & clus = thit.firstClusterRef();
     if (clus.isPixel()) ++chit[3];
@@ -315,7 +315,7 @@ for (auto const & tm : traj.measurements()) {
       ++chit[5];
     } else {
       ++chit[6];
-        }
+    }
   }
  }
 

@@ -694,8 +694,14 @@ void QcdLowPtDQM::filldNdeta(const TH3F *AlphaTracklets,
   }
 }
 
-void QcdLowPtDQM::endLuminosityBlock(const LuminosityBlock &l,
-                                     const EventSetup &iSetup) {
+std::shared_ptr<qlpd::Cache>
+QcdLowPtDQM::globalBeginLuminosityBlock(const LuminosityBlock&,
+                                        const EventSetup&) const {
+  return std::shared_ptr<qlpd::Cache>();
+}
+
+void QcdLowPtDQM::globalEndLuminosityBlock(const LuminosityBlock &l,
+                                           const EventSetup &iSetup) {
   // Update various histograms.
   repSummary_->Fill(1.);
   repSumMap_->Fill(0.5, 0.5, 1.);

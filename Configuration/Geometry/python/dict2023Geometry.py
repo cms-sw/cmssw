@@ -174,74 +174,6 @@ trackerDict = {
         ],
         "era" : "phase2_tracker, trackingPhase2PU140",
     },       
-    "T9" : {
-        1 : [
-            'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
-            'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/pixfwd.xml', 
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/pixbar.xml', 
-            'Geometry/TrackerCommonData/data/trackermaterial.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025TwentyPercent/tracker.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025TwentyPercent/pixel.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/trackerbar.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/trackerfwd.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/trackerStructureTopology.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/pixelStructureTopology.xml',
-            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4025/trackersens.xml',
-            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4025/pixelsens.xml',
-            'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker4025TwentyPercent/trackerRecoMaterial.xml',
-            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4025/trackerProdCuts.xml',
-            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4025/pixelProdCuts.xml',
-            'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
-        ],
-        "sim" : [
-            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
-            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT5_cff import *',
-        ],
-        "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
-            'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
-            'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
-            'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
-            'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
-        ],
-        "era" : "phase2_tracker, trackingPhase2PU140",
-    },
-    "T10" : {
-        1 : [
-            'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
-            'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/pixfwd.xml', 
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/pixbar.xml', 
-            'Geometry/TrackerCommonData/data/trackermaterial.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025FiftyPercent/tracker.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025FiftyPercent/pixel.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/trackerbar.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/trackerfwd.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/trackerStructureTopology.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/pixelStructureTopology.xml',
-            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4025/trackersens.xml',
-            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4025/pixelsens.xml',
-            'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker4025FiftyPercent/trackerRecoMaterial.xml',
-            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4025/trackerProdCuts.xml',
-            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4025/pixelProdCuts.xml',
-            'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
-        ],
-        "sim" : [
-            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
-            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT5_cff import *',
-        ],
-        "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
-            'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
-            'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
-            'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
-            'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
-        ],
-        "era" : "phase2_tracker, trackingPhase2PU140",
-    },
     "T11" : {
         1 : [
             'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
@@ -276,7 +208,77 @@ trackerDict = {
             'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
         "era" : "phase2_tracker, trackingPhase2PU140",
-    }       
+    }, 
+    "T12" : {
+        1 : [
+            'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
+            'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker461/pixfwd.xml', 
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/pixbar.xml', 
+            'Geometry/TrackerCommonData/data/trackermaterial.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/otst.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker461/tracker.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker461/pixel.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerbar.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerfwd.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerStructureTopology.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/pixelStructureTopology.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/trackersens.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/pixelsens.xml',
+            'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker461/trackerRecoMaterial.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/trackerProdCuts.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/pixelProdCuts.xml',
+            'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
+        ],
+        "sim" : [
+            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT6_cff import *',
+        ],
+        "reco" : [
+            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
+            'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
+            'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
+            'trackerGeometry.applyAlignment = cms.bool(False)',
+        ],
+        "era" : "phase2_tracker, trackingPhase2PU140",
+    },
+    "T13" : {
+        1 : [
+            'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
+            'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker461/pixfwd.xml', 
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/pixbar.xml', 
+            'Geometry/TrackerCommonData/data/trackermaterial.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/otst.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker461/tracker.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker460/pixel.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerbar.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerfwd.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerStructureTopology.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/pixelStructureTopology.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/trackersens.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/pixelsens.xml',
+            'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker461/trackerRecoMaterial.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/trackerProdCuts.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/pixelProdCuts.xml',
+            'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
+        ],
+        "sim" : [
+            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT6_cff import *',
+        ],
+        "reco" : [
+            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
+            'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
+            'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
+            'trackerGeometry.applyAlignment = cms.bool(False)',
+        ],
+        "era" : "phase2_tracker, trackingPhase2PU140",
+    }          
 }
 
 caloDict = {
@@ -810,6 +812,8 @@ timingDict = {
             'Geometry/MTDCommonData/data/btl.xml',
             'Geometry/MTDCommonData/data/etl.xml',
             'Geometry/MTDCommonData/data/CrystalTile/mtd.xml',
+            'Geometry/MTDCommonData/data/CrystalTile/mtdStructureTopology.xml',
+            'Geometry/MTDCommonData/data/CrystalTile/mtdParameters.xml',
             ],
         3 : [
             'Geometry/MTDSimData/data/CrystalTile/mtdsens.xml'
@@ -829,13 +833,15 @@ timingDict = {
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
-        "era" : "phase2_timing, phase2_timing_layer_new",
+        "era" : "phase2_timing, phase2_timing_layer_tile",
     },
     "I4" : {
         1 : [
             'Geometry/MTDCommonData/data/btl.xml',
             'Geometry/MTDCommonData/data/etl.xml',
             'Geometry/MTDCommonData/data/CrystalBar/mtd.xml',
+            'Geometry/MTDCommonData/data/CrystalBar/mtdStructureTopology.xml',
+            'Geometry/MTDCommonData/data/CrystalBar/mtdParameters.xml',
             ],
         3 : [
             'Geometry/MTDSimData/data/CrystalBar/mtdsens.xml'
@@ -855,8 +861,64 @@ timingDict = {
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
-        "era" : "phase2_timing, phase2_timing_layer_new",
-    }
+        "era" : "phase2_timing, phase2_timing_layer_bar",
+    },
+    "I5" : {
+        1 : [
+            'Geometry/MTDCommonData/data/btl.xml',
+            'Geometry/MTDCommonData/data/etl.xml',
+            'Geometry/MTDCommonData/data/CrystalBarZflat/mtd.xml',
+            'Geometry/MTDCommonData/data/CrystalBarZflat/mtdStructureTopology.xml',
+            'Geometry/MTDCommonData/data/CrystalBarZflat/mtdParameters.xml',
+            ],
+        3 : [
+            'Geometry/MTDSimData/data/CrystalBarZflat/mtdsens.xml'
+            ],
+        4 : [
+            'Geometry/MTDSimData/data/CrystalBarZflat/mtdProdCuts.xml'
+            ],
+        "sim" : [
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+        ],
+        "reco" :[
+            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+            'mtdGeometry.applyAlignment = cms.bool(False)'
+        ],
+        "era" : "phase2_timing, phase2_timing_layer_bar",
+    },
+    "I6" : {
+        1 : [
+            'Geometry/MTDCommonData/data/btl.xml',
+            'Geometry/MTDCommonData/data/etl.xml',
+            'Geometry/MTDCommonData/data/CrystalBarZflatNOhole/mtd.xml',
+            'Geometry/MTDCommonData/data/CrystalBarZflatNOhole/mtdStructureTopology.xml',
+            'Geometry/MTDCommonData/data/CrystalBarZflatNOhole/mtdParameters.xml',
+            ],
+        3 : [
+            'Geometry/MTDSimData/data/CrystalBarZflat/mtdsens.xml'
+            ],
+        4 : [
+            'Geometry/MTDSimData/data/CrystalBarZflat/mtdProdCuts.xml'
+            ],
+        "sim" : [
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+        ],
+        "reco" :[
+            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+            'mtdGeometry.applyAlignment = cms.bool(False)'
+        ],
+        "era" : "phase2_timing, phase2_timing_layer_bar",
+    },
 }
 
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
@@ -869,14 +931,17 @@ detectorVersionDict = {
     ("O2","T8","C3","M2","F2","I1") : "D23",
     ("O2","T6","C3","M2","F2","I3") : "D24",
     ("O2","T6","C3","M2","F2","I4") : "D25",
-    ("O2","T9","C3","M2","F2","I1") : "D26",
-    ("O2","T10","C3","M2","F2","I1") : "D27",
     ("O2","T6","C4","M2","F2","I1") : "D28",
     ("O2","T11","C3","M2","F2","I1") : "D29",
     ("O2","T6","C5","M2","F2","I1") : "D30",
     ("O2","T6","C6","M2","F3","I1") : "D31",
     ("O2","T6","C7","M2","F2","I1") : "D32",
+    ("O2","T6","C3","M2","F2","I5") : "D33",
+    ("O2","T6","C3","M2","F2","I6") : "D34",
+    ("O2","T6","C4","M2","F2","I5") : "D35",
+    ("O2","T12","C3","M2","F2","I1") : "D36",
+    ("O2","T13","C3","M2","F2","I1") : "D37",
 }
 
-deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D18","D20" ])
-deprecatedSubdets = set([ "T1", "T2" ,"T3", "T4", "C1", "C2", "M1", "O1", "F1" ])
+deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D18", "D20", "D26", "D27" ])
+deprecatedSubdets = set([ "T1", "T2" ,"T3", "T4", "T9", "T10", "C1", "C2", "M1", "O1", "F1" ])

@@ -16,11 +16,7 @@
 #include "TFile.h"
 
 using namespace std;
-
-using namespace boost;
-
 using namespace edm;
-
 
 
 PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
@@ -38,7 +34,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   calibHF_b_HADonly = iConfig.getParameter<std::vector<double> >("calibHF_b_HADonly");
   calibHF_a_EMHAD   = iConfig.getParameter<std::vector<double> >("calibHF_a_EMHAD");
   calibHF_b_EMHAD   = iConfig.getParameter<std::vector<double> >("calibHF_b_EMHAD");
-  boost::shared_ptr<PFEnergyCalibrationHF>  
+  std::shared_ptr<PFEnergyCalibrationHF>  
     thepfEnergyCalibrationHF ( new PFEnergyCalibrationHF(calibHF_use,calibHF_eta_step,calibHF_a_EMonly,calibHF_b_HADonly,calibHF_a_EMHAD,calibHF_b_EMHAD) ) ;
   //-----------------
 
@@ -98,7 +94,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   calibPFSCEle_Fbrem_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_endcap");
   calibPFSCEle_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel");
   calibPFSCEle_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_endcap");
-  boost::shared_ptr<PFSCEnergyCalibration>  
+  std::shared_ptr<PFSCEnergyCalibration>  
     thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
 							 calibPFSCEle_barrel,calibPFSCEle_endcap )); 
 			       
@@ -271,8 +267,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   if (useCalibrationsFromDB_)
     calibrationsLabel_ = iConfig.getParameter<std::string>("calibrationsLabel");
 
-  boost::shared_ptr<PFEnergyCalibration> 
-    calibration( new PFEnergyCalibration() ); 
+  auto calibration = std::make_shared<PFEnergyCalibration>();
 
   int algoType 
     = iConfig.getParameter<unsigned>("algoType");

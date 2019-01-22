@@ -63,12 +63,12 @@ G4bool GFlashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack )
 
   // This will be changed accordingly when the way 
   // dealing with CaloRegion changes later.
-  G4TouchableHistory* touch = 
-    (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
-  G4VPhysicalVolume* pCurrentVolume = touch->GetVolume();
+  const G4TouchableHistory* touch =
+    static_cast<const G4TouchableHistory*>(fastTrack.GetPrimaryTrack()->GetTouchable());
+  const G4VPhysicalVolume* pCurrentVolume = touch->GetVolume();
   if( pCurrentVolume == nullptr) { return false; }
 
-  G4LogicalVolume* lv = pCurrentVolume->GetLogicalVolume();
+  const G4LogicalVolume* lv = pCurrentVolume->GetLogicalVolume();
   if(lv->GetRegion() != theRegion) { return false; }
   //std::cout << "GFlashEMShowerModel::ModelTrigger: LV " 
   //	    << lv->GetRegion()->GetName() << std::endl;

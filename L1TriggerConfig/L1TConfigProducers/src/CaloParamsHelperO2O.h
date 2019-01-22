@@ -318,7 +318,10 @@ namespace l1t {
     }
 
     unsigned jetBypassPUS() const { return pnode_[jetBypassPUSFlag].uparams_[0]; }
-    unsigned jetPUSUsePhiRing() const { return pnode_[jetPUSUsePhiRingFlag].uparams_[0]; }
+    unsigned jetPUSUsePhiRing() const {
+      if(pnode_[jetPUSUsePhiRingFlag].uparams_.empty()) return 0;
+      else return pnode_[jetPUSUsePhiRingFlag].uparams_[0];
+    }
 
     std::string jetPUSType() const { return pnode_[jetPUS].type_; }
     std::vector<double> jetPUSParams() { return pnode_[jetPUS].dparams_; }

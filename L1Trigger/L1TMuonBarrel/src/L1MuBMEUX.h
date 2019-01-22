@@ -75,7 +75,7 @@ class L1MuBMEUX : public L1AbstractProcessor {
     std::pair<const L1MuBMTrackSegPhi*, const L1MuBMTrackSegPhi*> ts() const;
 
     /// helper class for finding the best and second best extrapolation
-    class EUX_Comp : std::binary_function< L1MuBMEUX*, L1MuBMEUX*, bool> {
+    class EUX_Comp {
       public :
         EUX_Comp( const L1MuBMEUX* k = nullptr ) : _not(k) {}
         bool operator()( const L1MuBMEUX* first, const L1MuBMEUX* second ) const {

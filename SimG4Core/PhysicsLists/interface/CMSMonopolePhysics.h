@@ -18,7 +18,7 @@ namespace sim {
 class CMSMonopolePhysics : public G4VPhysicsConstructor {
 
 public: 
-  CMSMonopolePhysics(const HepPDT::ParticleDataTable * table_, sim::ChordFinderSetter * cfs_, const edm::ParameterSet & p);
+  CMSMonopolePhysics(const HepPDT::ParticleDataTable * table_, const edm::ParameterSet & p);
   ~CMSMonopolePhysics() override;
 
   void ConstructParticle() override;
@@ -26,7 +26,6 @@ public:
 
 private:
 
-  sim::ChordFinderSetter * chordFinderSetter;
   G4int                    verbose, magCharge;
   G4bool                   deltaRay, multiSc, transport;
   std::vector<std::string> names;

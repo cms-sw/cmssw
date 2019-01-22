@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 l1tSync_Offline = DQMEDAnalyzer('L1TSync_Offline',
   dqmStore                = cms.untracked.bool(True),
-  disableROOToutput       = cms.untracked.bool(True),
   verbose                 = cms.untracked.bool(False),
   inputTagScalersResults  = cms.InputTag("scalersRawToDigi"),
   inputTagL1GtDataDaq     = cms.InputTag("gtDigis"),

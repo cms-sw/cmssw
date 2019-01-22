@@ -21,15 +21,6 @@
   <open_geometry/>
   <close_geometry/>
 
-  <ConstantsSection label="" eval="true">
-    <Constant name="world_x" value="5*m"/>
-    <Constant name="world_y" value="5*m"/>
-    <Constant name="world_z" value="5*m"/>
-    <Constant name="fm"      value="1e-12*m"/>
-    <Constant name="Air"     value="materials:Air"     type="string"/>
-    <Constant name="Vacuum"  value="materials:Vacuum"  type="string"/>
-  </ConstantsSection>
-
   <IncludeSection>
     <Include ref='Geometry/CMSCommonData/data/normal/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cms.xml'/>

@@ -81,9 +81,10 @@ phase2_timing_layer.toModify( theDigitizers,
                         fastTimingLayer = fastTimeDigitizer.clone() )
 
 from SimFastTiming.Configuration.SimFastTiming_cff import mtdDigitizer
-from Configuration.Eras.Modifier_phase2_timing_layer_new_cff import phase2_timing_layer_new
-phase2_timing_layer_new.toModify( theDigitizers,
-                        fastTimingLayer = mtdDigitizer.clone() )
+from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
+from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
+(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify( theDigitizers,
+                                                               fastTimingLayer = mtdDigitizer.clone() )
 
 premix_stage2.toModify(theDigitizers,
     ecal = None,

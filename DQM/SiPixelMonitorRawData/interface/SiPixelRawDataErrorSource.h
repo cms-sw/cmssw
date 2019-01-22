@@ -50,7 +50,7 @@
 
 #include <boost/cstdint.hpp>
 
- class SiPixelRawDataErrorSource : public DQMEDAnalyzer {
+class SiPixelRawDataErrorSource : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
     public:
        explicit SiPixelRawDataErrorSource(const edm::ParameterSet& conf);
        ~SiPixelRawDataErrorSource() override;

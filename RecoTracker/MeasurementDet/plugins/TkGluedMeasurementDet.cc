@@ -52,15 +52,6 @@ namespace {
 
     return std::make_pair(projectedHitPos, rotatedError);
   }
-
-
-  inline
-  std::pair<LocalPoint,LocalError> projectedPos(const TrackingRecHit& hit,
-                           const GeomDet& det,
-                           const TrajectoryStateOnSurface& ts, const StripClusterParameterEstimator* cpe) {
-      GlobalVector gdir = ts.globalParameters().momentum();
-      return projectedPos(hit, det, gdir, cpe);
-  }
 }
 
 // #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
@@ -525,7 +516,7 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit
 
   std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, hit2d);
   if (diffEst.first)
-    target_.add(std::move(hit2d.cloneSH()),diffEst.second);
+    target_.add(hit2d.cloneSH(),diffEst.second);
 }
 
 

@@ -45,7 +45,7 @@ class EcalDataFrame {
   bool hasSwitchToGain6() const; 
   bool hasSwitchToGain1() const; 
   
-  static const int MAXSAMPLES = 10;
+  static constexpr int MAXSAMPLES = 10;
 
   edm::DataFrame const & frame() const { return m_data;}
   edm::DataFrame & frame() { return m_data;}

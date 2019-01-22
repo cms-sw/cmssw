@@ -57,8 +57,8 @@ L1GtTriggerMaskAlgoTrigTrivialProducer::~L1GtTriggerMaskAlgoTrigTrivialProducer(
 // member functions
 
 // method called to produce the data
-std::shared_ptr<L1GtTriggerMask> L1GtTriggerMaskAlgoTrigTrivialProducer::produceTriggerMask(
+std::unique_ptr<L1GtTriggerMask> L1GtTriggerMaskAlgoTrigTrivialProducer::produceTriggerMask(
         const L1GtTriggerMaskAlgoTrigRcd& iRecord)
 {
-    return std::make_shared<L1GtTriggerMask>(m_triggerMask);
+    return std::make_unique<L1GtTriggerMask>(m_triggerMask);
 }

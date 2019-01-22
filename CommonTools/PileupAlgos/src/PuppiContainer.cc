@@ -26,7 +26,6 @@ PuppiContainer::PuppiContainer(const edm::ParameterSet &iConfig) {
 
 void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     //Clear everything
-    fRecoParticles.resize(0);
     fPFParticles  .resize(0);
     fChargedPV    .resize(0);
     fPupParticles .resize(0);
@@ -39,33 +38,32 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     //Link to the RecoObjects
     fPVFrac = 0.;
     fNPV    = 1.;
-    fRecoParticles = iRecoObjects;
-    for (unsigned int i = 0; i < fRecoParticles.size(); i++){
+    fRecoParticles = &iRecoObjects;
+    fRecoToPup.clear();
+    fRecoToPup.reserve(fRecoParticles->size());
+    for (auto const& rParticle : *fRecoParticles){
         PuppiCandidate curPseudoJet;
-        auto fRecoParticle = fRecoParticles[i];
-        // float nom = sqrt((fRecoParticle.m)*(fRecoParticle.m) + (fRecoParticle.pt)*(fRecoParticle.pt)*(cosh(fRecoParticle.eta))*(cosh(fRecoParticle.eta))) + (fRecoParticle.pt)*sinh(fRecoParticle.eta);//hacked
-        // float denom = sqrt((fRecoParticle.m)*(fRecoParticle.m) + (fRecoParticle.pt)*(fRecoParticle.pt));//hacked
+        // float nom = sqrt((rParticle.m)*(rParticle.m) + (rParticle.pt)*(rParticle.pt)*(cosh(rParticle.eta))*(cosh(rParticle.eta))) + (rParticle.pt)*sinh(rParticle.eta);//hacked
+        // float denom = sqrt((rParticle.m)*(rParticle.m) + (rParticle.pt)*(rParticle.pt));//hacked
         // float rapidity = log(nom/denom);//hacked
-        if (edm::isFinite(fRecoParticle.rapidity)){
-            curPseudoJet.reset_PtYPhiM(fRecoParticle.pt,fRecoParticle.rapidity,fRecoParticle.phi,fRecoParticle.m);//hacked
+        if (edm::isFinite(rParticle.rapidity)){
+            curPseudoJet.reset_PtYPhiM(rParticle.pt,rParticle.rapidity,rParticle.phi,rParticle.m);//hacked
         } else {        
             curPseudoJet.reset_PtYPhiM(0, 99., 0, 0);//skipping may have been a better choice     
         }                   
-        //curPseudoJet.reset_PtYPhiM(fRecoParticle.pt,fRecoParticle.eta,fRecoParticle.phi,fRecoParticle.m);
+        //curPseudoJet.reset_PtYPhiM(rParticle.pt,rParticle.eta,rParticle.phi,rParticle.m);
         int puppi_register = 0;
-        if(fRecoParticle.id == 0 or fRecoParticle.charge == 0)  puppi_register = 0; // zero is neutral hadron
-        if(fRecoParticle.id == 1 and fRecoParticle.charge != 0) puppi_register = fRecoParticle.charge; // from PV use the
-        if(fRecoParticle.id == 2 and fRecoParticle.charge != 0) puppi_register = fRecoParticle.charge+5; // from NPV use the charge as key +5 as key
+        if(rParticle.id == 0 or rParticle.charge == 0)  puppi_register = 0; // zero is neutral hadron
+        if(rParticle.id == 1 and rParticle.charge != 0) puppi_register = rParticle.charge; // from PV use the
+        if(rParticle.id == 2 and rParticle.charge != 0) puppi_register = rParticle.charge+5; // from NPV use the charge as key +5 as key
         curPseudoJet.set_info( puppi_register );
         // fill vector of pseudojets for internal references
         fPFParticles.push_back(curPseudoJet);
         //Take Charged particles associated to PV
-        if(std::abs(fRecoParticle.id) == 1) fChargedPV.push_back(curPseudoJet);
-        if(std::abs(fRecoParticle.id) >= 1 ) fPVFrac+=1.;
-        //if((fRecoParticle.id == 0) && (inParticles[i].id == 2))  _genParticles.push_back( curPseudoJet);
-        //if(fRecoParticle.id <= 2 && !(inParticles[i].pt < fNeutralMinE && fRecoParticle.id < 2)) _pfchsParticles.push_back(curPseudoJet);
-        //if(fRecoParticle.id == 3) _chargedNoPV.push_back(curPseudoJet);
-        // if(fNPV < fRecoParticle.vtxId) fNPV = fRecoParticle.vtxId;
+        if(std::abs(rParticle.id) == 1) fChargedPV.push_back(curPseudoJet);
+        if(std::abs(rParticle.id) >= 1 ) fPVFrac+=1.;
+        //if(rParticle.id == 3) _chargedNoPV.push_back(curPseudoJet);
+        // if(fNPV < rParticle.vtxId) fNPV = rParticle.vtxId;
     }
     if (fPVFrac != 0) fPVFrac = double(fChargedPV.size())/fPVFrac;
     else fPVFrac = 0;
@@ -90,7 +88,8 @@ double PuppiContainer::var_within_R(int iId, const vector<PuppiCandidate> & part
     vector<double > near_pts;      near_pts.reserve(std::min(50UL, particles.size()));
     const double r2 = R*R;
     for (auto const& part : particles){
-      if ( part.squared_distance(centre) < r2 ){
+      //squared_distance is in (y,phi) coords: rap() has faster access -> check it first
+      if ( std::abs(part.rap()-centre.rap()) < R && part.squared_distance(centre) < r2 ){
         near_dR2s.push_back(reco::deltaR2(part, centre));
         near_pts.push_back(part.pt());
       }
@@ -147,8 +146,12 @@ void PuppiContainer::getRMSAvg(int iOpt,std::vector<PuppiCandidate> const &iCons
             pCharged = fPuppiAlgo[i1].isCharged(iOpt);
             pCone    = fPuppiAlgo[i1].coneSize (iOpt);
             double curVal = -1; 
-            if(!pCharged) curVal = goodVar(iConstits[i0],iParticles       ,pAlgo,pCone);
-            if( pCharged) curVal = goodVar(iConstits[i0],iChargedParticles,pAlgo,pCone);
+            if (i1 != pPupId){
+              if(!pCharged) curVal = goodVar(iConstits[i0],iParticles       ,pAlgo,pCone);
+              if( pCharged) curVal = goodVar(iConstits[i0],iChargedParticles,pAlgo,pCone);
+            } else {//no need to repeat the computation
+              curVal = pVal;
+            }
             //std::cout << "i1 = " << i1 << ", curVal = " << curVal << ", eta = " << iConstits[i0].eta() << ", pupID = " << pPupId << std::endl;
             fPuppiAlgo[i1].add(iConstits[i0],curVal,iOpt);
         }
@@ -207,40 +210,49 @@ double PuppiContainer::getChi2FromdZ(double iDZ) {
     return lChi2PU;
 }
 std::vector<double> const & PuppiContainer::puppiWeights() {
-    fPupParticles .resize(0);
-    fWeights      .resize(0);
-    fVals         .resize(0);
+    int lNParticles    = fRecoParticles->size();
+
+    fPupParticles .clear();
+    fPupParticles.reserve(lNParticles);
+    fWeights      .clear();
+    fWeights.reserve(lNParticles);
+    fVals         .clear();
+    fVals.reserve(lNParticles);
     for(int i0 = 0; i0 < fNAlgos; i0++) fPuppiAlgo[i0].reset();
     
     int lNMaxAlgo = 1;
     for(int i0 = 0; i0 < fNAlgos; i0++) lNMaxAlgo = std::max(fPuppiAlgo[i0].numAlgos(),lNMaxAlgo);
     //Run through all compute mean and RMS
-    int lNParticles    = fRecoParticles.size();
     for(int i0 = 0; i0 < lNMaxAlgo; i0++) {
         getRMSAvg(i0,fPFParticles,fPFParticles,fChargedPV);
     }
     if (fPuppiDiagnostics) getRawAlphas(0,fPFParticles,fPFParticles,fChargedPV);
 
     std::vector<double> pVals;
+    pVals.reserve(lNParticles);
     for(int i0 = 0; i0 < lNParticles; i0++) {
         //Refresh
         pVals.clear();
         double pWeight = 1;
         //Get the Puppi Id and if ill defined move on
-        int  pPupId   = getPuppiId(fRecoParticles[i0].pt,fRecoParticles[i0].eta);
+        const auto& rParticle = (*fRecoParticles)[i0];
+        int  pPupId   = getPuppiId(rParticle.pt,rParticle.eta);
         if(pPupId == -1) {
             fWeights .push_back(pWeight);
             fAlphaMed.push_back(-10);
-            fAlphaRMS.push_back(-10);            
+            fAlphaRMS.push_back(-10);
+            fRecoToPup.push_back(-1);
             continue;
+        } else {
+          fRecoToPup.push_back(fPupParticles.size());//watch out: there should be no skips after this
         }
         // fill the p-values
         double pChi2   = 0;
         if(fUseExp){
             //Compute an Experimental Puppi Weight with delta Z info (very simple example)
-            pChi2 = getChi2FromdZ(fRecoParticles[i0].dZ);
+            pChi2 = getChi2FromdZ(rParticle.dZ);
             //Now make sure Neutrals are not set
-            if(fRecoParticles[i0].pfType > 3) pChi2 = 0;
+            if(rParticle.pfType > 3) pChi2 = 0;
         }
         //Fill and compute the PuppiWeight
         int lNAlgos = fPuppiAlgo[pPupId].numAlgos();
@@ -248,19 +260,19 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
 
         pWeight = fPuppiAlgo[pPupId].compute(pVals,pChi2);
         //Apply the CHS weights
-        if(fRecoParticles[i0].id == 1 && fApplyCHS ) pWeight = 1;
-        if(fRecoParticles[i0].id == 2 && fApplyCHS ) pWeight = 0;
+        if(rParticle.id == 1 && fApplyCHS ) pWeight = 1;
+        if(rParticle.id == 2 && fApplyCHS ) pWeight = 0;
         //Basic Weight Checks
         if( ! edm::isFinite(pWeight)) {
             pWeight = 0.0;
-            LogDebug("PuppiWeightError") << "====> Weight is nan : " << pWeight << " : pt " << fRecoParticles[i0].pt << " -- eta : " << fRecoParticles[i0].eta << " -- Value" << fVals[i0] << " -- id :  " << fRecoParticles[i0].id << " --  NAlgos: " << lNAlgos << std::endl;
+            LogDebug("PuppiWeightError") << "====> Weight is nan : " << pWeight << " : pt " << rParticle.pt << " -- eta : " << rParticle.eta << " -- Value" << fVals[i0] << " -- id :  " << rParticle.id << " --  NAlgos: " << lNAlgos << std::endl;
         }
         //Basic Cuts
-        if(pWeight*fPFParticles[i0].pt()   < fPuppiAlgo[pPupId].neutralPt(fNPV) && fRecoParticles[i0].id == 0 ) pWeight = 0;  //threshold cut on the neutral Pt
-        if((fPtMax>0) && (fRecoParticles[i0].id == 0)) pWeight=min(max(pWeight,fPFParticles[i0].pt()/fPtMax),1.);
+        if(pWeight*fPFParticles[i0].pt()   < fPuppiAlgo[pPupId].neutralPt(fNPV) && rParticle.id == 0 ) pWeight = 0;  //threshold cut on the neutral Pt
+        if((fPtMax>0) && (rParticle.id == 0)) pWeight=min(max(pWeight,fPFParticles[i0].pt()/fPtMax),1.);
         if(pWeight                         < fPuppiWeightCut) pWeight = 0;  //==> Elminate the low Weight stuff
         if(fInvert) pWeight = 1.-pWeight;
-        //std::cout << "fRecoParticles[i0].pt = " <<  fRecoParticles[i0].pt << ", fRecoParticles[i0].charge = " << fRecoParticles[i0].charge << ", fRecoParticles[i0].id = " << fRecoParticles[i0].id << ", weight = " << pWeight << std::endl;
+        //std::cout << "rParticle.pt = " <<  rParticle.pt << ", rParticle.charge = " << rParticle.charge << ", rParticle.id = " << rParticle.id << ", weight = " << pWeight << std::endl;
 
         fWeights .push_back(pWeight);
         fAlphaMed.push_back(fPuppiAlgo[pPupId].median());

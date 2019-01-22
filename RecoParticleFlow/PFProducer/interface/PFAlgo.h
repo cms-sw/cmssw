@@ -3,11 +3,8 @@
 
 #include <iostream>
 
-
-// #include "FWCore/Framework/interface/Handle.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "DataFormats/Common/interface/Handle.h"
-// #include "FWCore/Framework/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -57,7 +54,7 @@ class PFAlgo {
   PFAlgo();
 
   /// destructor
-  virtual ~PFAlgo();
+  ~PFAlgo();
 
   void setHOTag(bool ho) { useHO_ = ho;}
   void setAlgo( int algo ) {algo_ = algo;}
@@ -67,8 +64,8 @@ class PFAlgo {
 
   void setParameters(double nSigmaECAL,
                      double nSigmaHCAL, 
-                     const boost::shared_ptr<PFEnergyCalibration>& calibration,
-		     const boost::shared_ptr<PFEnergyCalibrationHF>& thepfEnergyCalibrationHF);
+                     const std::shared_ptr<PFEnergyCalibration>& calibration,
+		     const std::shared_ptr<PFEnergyCalibrationHF>& thepfEnergyCalibrationHF);
   
   void setCandConnectorParameters( const edm::ParameterSet& iCfgCandConnector ){
     connector_.setParameters(iCfgCandConnector);
@@ -93,8 +90,8 @@ class PFAlgo {
   void setPFEleParameters(double mvaEleCut,
 			  std::string mvaWeightFileEleID,
 			  bool usePFElectrons,
-			  const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-			  const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+			  const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+			  const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			  double sumEtEcalIsoForEgammaSC_barrel,
 			  double sumEtEcalIsoForEgammaSC_endcap,
 			  double coneEcalIsoForEgammaSC,
@@ -112,7 +109,7 @@ class PFAlgo {
 			     double mvaConvCut,
 			     bool useReg,
 			     std::string X0_Map,
-			     const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+			     const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			     double sumPtTrackIsoForPhoton,
 			     double sumPtTrackIsoSlopeForPhoton);
 
@@ -185,7 +182,7 @@ class PFAlgo {
   void reconstructParticles( const reco::PFBlockHandle& blockHandle );
 
   /// reconstruct particles 
-  virtual void reconstructParticles( const reco::PFBlockCollection& blocks );
+  void reconstructParticles( const reco::PFBlockCollection& blocks );
   
   /// Check HF Cleaning
   void checkCleaning( const reco::PFRecHitCollection& cleanedHF );
@@ -235,17 +232,17 @@ class PFAlgo {
   }
   
   /// return the pointer to the calibration function
-  boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration() { 
+  std::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration() { 
     return calibration_;
   }
 
   friend std::ostream& operator<<(std::ostream& out, const PFAlgo& algo);
   
- protected:
+ private:
 
   /// process one block. can be reimplemented in more sophisticated 
   /// algorithms
-  virtual void processBlock( const reco::PFBlockRef& blockref,
+  void processBlock( const reco::PFBlockRef& blockref,
                              std::list<reco::PFBlockRef>& hcalBlockRefs, 
                              std::list<reco::PFBlockRef>& ecalBlockRefs ); 
   
@@ -314,10 +311,6 @@ class PFAlgo {
   // Post HF Cleaning
   void postCleaning();
 
-
-
-
- private:
   /// create a reference to a block, transient or persistent 
   /// depending on the needs
   reco::PFBlockRef createBlockRef( const reco::PFBlockCollection& blocks, 
@@ -332,9 +325,9 @@ class PFAlgo {
   /// number of sigma to judge energy excess in HCAL
   double             nSigmaHCAL_;
   
-  boost::shared_ptr<PFEnergyCalibration>  calibration_;
-  boost::shared_ptr<PFEnergyCalibrationHF>  thepfEnergyCalibrationHF_;
-  boost::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;
+  std::shared_ptr<PFEnergyCalibration>  calibration_;
+  std::shared_ptr<PFEnergyCalibrationHF>  thepfEnergyCalibrationHF_;
+  std::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;
 
   bool               useHO_;
   int                algo_;
@@ -438,5 +431,3 @@ class PFAlgo {
 
 
 #endif
-
-

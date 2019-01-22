@@ -89,8 +89,7 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 		}
 	}
 	// Sort the transient central jets in Et
-	GreaterByEtPseudoJet compEt;
-	sort( centralJets.begin(), centralJets.end(), compEt );
+	sort( centralJets.begin(), centralJets.end(), greaterByEtPseudoJet );
 	
 	// These will store the 4-vectors of each hard jet
 	vector<math::XYZTLorentzVector> p4_hardJets;
@@ -231,7 +230,7 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 			hardSubjets.push_back(subjet3);
 		if ( subjet4.pt() > 0.0001 )
 			hardSubjets.push_back(subjet4);
-		sort(hardSubjets.begin(), hardSubjets.end(), compEt );
+		sort(hardSubjets.begin(), hardSubjets.end(), greaterByEtPseudoJet );
 
 		// Use new fastjet functionality to create a Pseudojet from constituents
 		fastjet::PseudoJet candidate = join(hardSubjets);

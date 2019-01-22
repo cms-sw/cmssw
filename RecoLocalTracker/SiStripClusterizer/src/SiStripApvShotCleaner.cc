@@ -1,6 +1,5 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripApvShotCleaner.h"
 #include <algorithm>
-#include <boost/foreach.hpp>
 
 //Uncomment the following #define to have print debug
 //#define DEBUGME
