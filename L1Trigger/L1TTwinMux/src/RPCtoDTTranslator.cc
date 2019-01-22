@@ -25,16 +25,27 @@
 
 using namespace std;
 
-
-RPCtoDTTranslator::RPCtoDTTranslator(RPCDigiCollection inrpcDigis){
-
-  m_rpcDigis = inrpcDigis;
-
+RPCtoDTTranslator::RPCtoDTTranslator(RPCDigiCollection const& inrpcDigis) :
+  m_rpcDigis{inrpcDigis}
+{
 }
 
 namespace {
   constexpr int max_rpc_bx = 2; 
   constexpr int min_rpc_bx = -2;
+
+  struct rpc_hit
+  {
+    int bx;
+    int station;
+    int sector;
+    int wheel;
+    RPCDetId detid;
+    int strip;
+    int roll;
+    int layer;
+    rpc_hit(int pbx, int pstation,int psector, int pwheel, RPCDetId pdet, int pstrip, int proll, int player) : bx(pbx),station(pstation),sector(psector),wheel(pwheel), detid(pdet),strip(pstrip),roll(proll),layer(player) {}
+  };
 
   //Need to shift the index so that index 0
   // corresponds to min_rpc_bx
@@ -70,10 +81,10 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
      for( auto digi = (*chamber).second.first ; digi != (*chamber).second.second; ++digi ) {
         if(detid.region()!=0 ) continue; //Region = 0 Barrel
         if(BxToHit::outOfRange(digi->bx())) continue;
-        if(detid.layer()==1) vrpc_hit_layer1.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
-        if(detid.station()==3) vrpc_hit_st3.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
-        if(detid.layer()==2) vrpc_hit_layer2.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
-        if(detid.station()==4) vrpc_hit_st4.push_back({digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer()});
+        if(detid.layer()==1) vrpc_hit_layer1.emplace_back(digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer());
+        if(detid.station()==3) vrpc_hit_st3.emplace_back(digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer());
+        if(detid.layer()==2) vrpc_hit_layer2.emplace_back(digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer());
+        if(detid.station()==4) vrpc_hit_st4.emplace_back(digi->bx(), detid.station(), detid.sector(), detid.ring(), detid, digi->strip(), detid.roll(), detid.layer());
      }
   }///for chamber
 
@@ -120,12 +131,11 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
           bool found_hits = false;
           std::vector<int> rpc2dt_phi, rpc2dt_phib;
           ///Loop over all combinations of layer 1 and 2.
-          int itr1=0, itr2=0;
-          int phi1=0, phi2=0;
+          int itr1=0;
           for(unsigned int l1=0; l1<vrpc_hit_layer1.size(); l1++){
            RPCHitCleaner::detId_Ext tmp{vrpc_hit_layer1[l1].detid,vrpc_hit_layer1[l1].bx,vrpc_hit_layer1[l1].strip};
            int id = hits[tmp];
-           phi1 = radialAngle(vrpc_hit_layer1[l1].detid, c, vrpc_hit_layer1[l1].strip) ;
+           int phi1 = radialAngle(vrpc_hit_layer1[l1].detid, c, vrpc_hit_layer1[l1].strip) ;
            if(vcluster_size[id]==2 && itr1==0) {
              itr1++;
              continue;
@@ -135,7 +145,7 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
              phi1 = phi1 + (radialAngle(vrpc_hit_layer1[l1-1].detid, c, vrpc_hit_layer1[l1-1].strip));
              phi1 /= 2;
              }
-
+            int itr2 = 0;
             for(unsigned int l2=0; l2<vrpc_hit_layer2.size(); l2++){
               if(vrpc_hit_layer1[l1].station!=st || vrpc_hit_layer2[l2].station!=st ) continue;
               if(vrpc_hit_layer1[l1].sector!=sec || vrpc_hit_layer2[l2].sector!=sec ) continue;
@@ -150,7 +160,7 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
                  }
 
                         //int phi1 = radialAngle(vrpc_hit_layer1[l1].detid, c, vrpc_hit_layer1[l1].strip) ;
-              phi2 = radialAngle(vrpc_hit_layer2[l2].detid, c, vrpc_hit_layer2[l2].strip) ;
+              int phi2 = radialAngle(vrpc_hit_layer2[l2].detid, c, vrpc_hit_layer2[l2].strip) ;
               if(vcluster_size[id]==2 && itr2==1) {
                 itr2 = 0;
                 phi2 = phi2 + (radialAngle(vrpc_hit_layer2[l2-1].detid, c, vrpc_hit_layer2[l2-1].strip));

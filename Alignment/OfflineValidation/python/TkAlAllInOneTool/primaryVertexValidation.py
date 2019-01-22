@@ -75,6 +75,7 @@ class PrimaryVertexValidation(GenericValidationData_CTSR, ValidationWithPlots):
             #"eosdir": os.path.join(self.general["eosdir"], "%s/%s/%s" % (self.outputBaseName, self.name, alignment.name)),
             "workingdir": ".oO[datadir]Oo./%s/%s/%s" % (self.outputBaseName, self.name, alignment.name),
             "plotsdir": ".oO[datadir]Oo./%s/%s/%s/plots" % (self.outputBaseName, self.name, alignment.name),
+            "filetoplot": "root://eoscms//eos/cms.oO[finalResultFile]Oo.",
             })
 
         return repMap
@@ -93,8 +94,8 @@ class PrimaryVertexValidation(GenericValidationData_CTSR, ValidationWithPlots):
 
     def appendToPlots(self):
         repMap = self.getRepMap()
-        return (' loadFileList("root://eoscms//eos/cms%(finalResultFile)s",'
-                '"PVValidation","%(title)s", %(color)s, %(style)s);\n')%repMap
+        return (' loadFileList("%(filetoplot)s",'
+                '"PVValidation", "%(title)s", %(color)s, %(style)s);\n')%repMap
 
     @classmethod
     def runPlots(cls, validations):

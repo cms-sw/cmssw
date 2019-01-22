@@ -18,8 +18,8 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
-#include "DataFormats/BTauReco/interface/DeepDoubleBFeatures.h"
-#include "DataFormats/BTauReco/interface/DeepDoubleBTagInfo.h"
+#include "DataFormats/BTauReco/interface/DeepDoubleXFeatures.h"
+#include "DataFormats/BTauReco/interface/DeepDoubleXTagInfo.h"
 
 #include "RecoBTag/FeatureTools/interface/BoostedDoubleSVTagInfoConverter.h"
 #include "RecoBTag/FeatureTools/interface/ChargedCandidateConverter.h"
@@ -34,17 +34,17 @@
 
 #include "RecoBTag/FeatureTools/interface/deep_helpers.h"
 
-class DeepDoubleBTagInfoProducer : public edm::stream::EDProducer<>
+class DeepDoubleXTagInfoProducer : public edm::stream::EDProducer<>
 {
 
 public:
-    explicit DeepDoubleBTagInfoProducer(const edm::ParameterSet&);
-    ~DeepDoubleBTagInfoProducer() override;
+    explicit DeepDoubleXTagInfoProducer(const edm::ParameterSet&);
+    ~DeepDoubleXTagInfoProducer() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-    typedef std::vector<reco::DeepDoubleBTagInfo> DeepDoubleBTagInfoCollection;
+    typedef std::vector<reco::DeepDoubleXTagInfo> DeepDoubleXTagInfoCollection;
     typedef reco::VertexCompositePtrCandidateCollection SVCollection;
     typedef reco::VertexCollection VertexCollection;
     typedef edm::View<reco::BoostedDoubleSVTagInfo>
@@ -59,6 +59,7 @@ private:
     }
 
     const double jet_radius_;
+    const double min_jet_pt_;
     const double min_candidate_pt_;
 
     edm::EDGetTokenT<edm::View<reco::Jet>> jet_token_;
@@ -67,9 +68,10 @@ private:
     edm::EDGetTokenT<BoostedDoubleSVTagInfoCollection> shallow_tag_info_token_;
 };
 
-DeepDoubleBTagInfoProducer::DeepDoubleBTagInfoProducer(
+DeepDoubleXTagInfoProducer::DeepDoubleXTagInfoProducer(
     const edm::ParameterSet& iConfig)
     : jet_radius_(iConfig.getParameter<double>("jet_radius"))
+    , min_jet_pt_(iConfig.getParameter<double>("min_jet_pt"))
     , min_candidate_pt_(iConfig.getParameter<double>("min_candidate_pt"))
     , jet_token_(consumes<edm::View<reco::Jet>>(
           iConfig.getParameter<edm::InputTag>("jets")))
@@ -80,34 +82,35 @@ DeepDoubleBTagInfoProducer::DeepDoubleBTagInfoProducer(
     , shallow_tag_info_token_(consumes<BoostedDoubleSVTagInfoCollection>(
           iConfig.getParameter<edm::InputTag>("shallow_tag_infos")))
 {
-    produces<DeepDoubleBTagInfoCollection>();
+    produces<DeepDoubleXTagInfoCollection>();
 }
 
-DeepDoubleBTagInfoProducer::~DeepDoubleBTagInfoProducer()
+DeepDoubleXTagInfoProducer::~DeepDoubleXTagInfoProducer()
 {
 }
 
-void DeepDoubleBTagInfoProducer::fillDescriptions(
+void DeepDoubleXTagInfoProducer::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions)
 {
-    // pfDeepDoubleBTagInfos
+    // pfDeepDoubleXTagInfos
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("shallow_tag_infos",
         edm::InputTag("pfBoostedDoubleSVAK8TagInfos"));
     desc.add<double>("jet_radius", 0.8);
+    desc.add<double>("min_jet_pt", 150);
     desc.add<double>("min_candidate_pt", 0.95);
     desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
     desc.add<edm::InputTag>("secondary_vertices",
         edm::InputTag("inclusiveCandidateSecondaryVertices"));
     desc.add<edm::InputTag>("jets", edm::InputTag("ak8PFJetsCHS"));
-    descriptions.add("pfDeepDoubleBTagInfos", desc);
+    descriptions.add("pfDeepDoubleXTagInfos", desc);
 }
 
-void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent,
+void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent,
     const edm::EventSetup& iSetup)
 {
 
-    auto output_tag_infos = std::make_unique<DeepDoubleBTagInfoCollection>();
+    auto output_tag_infos = std::make_unique<DeepDoubleXTagInfoCollection>();
 
     edm::Handle<edm::View<reco::Jet>> jets;
     iEvent.getByToken(jet_token_, jets);
@@ -137,11 +140,15 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent,
     {
 
         // create data containing structure
-        btagbtvdeep::DeepDoubleBFeatures features;
+        btagbtvdeep::DeepDoubleXFeatures features;
 
         // reco jet reference (use as much as possible)
         const auto& jet = jets->at(jet_n);
+
         edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
+	if (jet.pt() > min_jet_pt_)
+        {
+          features.filled();
         // TagInfoCollection not in an associative container so search for matchs
         const edm::View<reco::BoostedDoubleSVTagInfo>& taginfos = *shallow_tag_infos;
         edm::Ptr<reco::BoostedDoubleSVTagInfo> match;
@@ -338,7 +345,7 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent,
                 }
             }
         }
-
+	}
         output_tag_infos->emplace_back(features, jet_ref);
     }
 
@@ -346,4 +353,4 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent,
 }
 
 // define this as a plug-in
-DEFINE_FWK_MODULE(DeepDoubleBTagInfoProducer);
+DEFINE_FWK_MODULE(DeepDoubleXTagInfoProducer);
