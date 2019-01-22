@@ -33,7 +33,7 @@ void ODDCUCycle::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_DCU_Cycle (cycle_id, dcu_configuration_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODDCUCycle::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODDCUCycle::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -52,7 +52,7 @@ void ODDCUCycle::writeDB()  noexcept(false)
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODDCUCycle::writeDB:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODDCUCycle::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
@@ -93,7 +93,7 @@ int ODDCUCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODDCUCycle::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODDCUCycle::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -122,7 +122,7 @@ void ODDCUCycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODDCUCycle::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODDCUCycle::fetchID:  "+e.getMessage()));
   }
 }
 
@@ -151,7 +151,7 @@ void ODDCUCycle::fetchData(ODDCUCycle * result)
     result->setDCUConfigurationID(       rset->getInt(1) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODDCUCycle::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODDCUCycle::fetchData():  "+e.getMessage()));
   }
 }
 
