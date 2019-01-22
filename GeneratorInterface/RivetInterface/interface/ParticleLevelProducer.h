@@ -37,7 +37,7 @@ private:
   reco::Particle::Point genVertex_;
   
   Rivet::RivetAnalysis* rivetAnalysis_;
-	Rivet::AnalysisHandler analysisHandler_;
+  Rivet::AnalysisHandler analysisHandler_;
 
 };
 
