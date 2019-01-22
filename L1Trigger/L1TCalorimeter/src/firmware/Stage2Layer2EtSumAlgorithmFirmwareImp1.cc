@@ -36,6 +36,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
   int nTT4 = CaloTools::calNrTowers(-1*params_->egPUSParam(1),
 				    params_->egPUSParam(1),
 				    1,72,towers,1+params_->pileUpTowerThreshold(),999,CaloTools::CALO);
+  if(nTT4 > 255) nTT4 = 255;
   unsigned int compNTT4 = params_->egCompressShapesLUT()->data((0x1<<7)+(0x1<<8)+(0x1<<5)+nTT4);
 
 

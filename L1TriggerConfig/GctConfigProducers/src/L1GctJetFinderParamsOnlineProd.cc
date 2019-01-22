@@ -8,11 +8,11 @@ class L1GctJetFinderParamsOnlineProd : public L1ConfigOnlineProdBase< L1GctJetFi
          : L1ConfigOnlineProdBase< L1GctJetFinderParamsRcd, L1GctJetFinderParams >( iConfig ) {}
       ~L1GctJetFinderParamsOnlineProd() override {}
 
-      std::shared_ptr< L1GctJetFinderParams > newObject( const std::string& objectKey ) override ;
+      std::unique_ptr< L1GctJetFinderParams > newObject( const std::string& objectKey ) override ;
    private:
 };
 
-std::shared_ptr< L1GctJetFinderParams >
+std::unique_ptr< L1GctJetFinderParams >
 L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
 {
    // Execute SQL queries to get data from OMDS (using key) and make C++ object
@@ -42,7 +42,7 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
    if( results.queryFailed() ) // check if query was successful
    {
       edm::LogError( "L1-O2O" ) << "Problem with L1GctJetFinderParams key." ;
-      return std::shared_ptr< L1GctJetFinderParams >() ;
+      return std::unique_ptr< L1GctJetFinderParams >() ;
    }
 
    // fill values
@@ -112,7 +112,7 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
    if( jetCorrResults.queryFailed() ) // check if query was successful
    {
       edm::LogError( "L1-O2O" ) << "Problem getting L1 jet corrections" ;
-      return std::shared_ptr< L1GctJetFinderParams >() ;
+      return std::unique_ptr< L1GctJetFinderParams >() ;
    }
 
    // fill jet corr type
@@ -162,7 +162,7 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
      if( results.queryFailed() ) // check if query was successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem getting L1 jet correction coefficients" ;
-	 return std::shared_ptr< L1GctJetFinderParams >() ;
+	 return std::unique_ptr< L1GctJetFinderParams >() ;
        }
 
      // fill coeffs - TODO
@@ -176,7 +176,7 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
      else if (corrType == 5) nCoeffs=6;  // PF
      else {
        edm::LogError( "L1-O2O" ) << "Unsupported jet correction type : " << corrType ;
-       return std::shared_ptr< L1GctJetFinderParams >() ;
+       return std::unique_ptr< L1GctJetFinderParams >() ;
      }
 
      for (unsigned j=0; j< nCoeffs; ++j) {
@@ -198,7 +198,7 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
    
    
 
-   return std::make_shared< L1GctJetFinderParams >( 
+   return std::make_unique< L1GctJetFinderParams >( 
 						   rgnEtLsb,
 						   htLsb,
 						   cJetSeed,

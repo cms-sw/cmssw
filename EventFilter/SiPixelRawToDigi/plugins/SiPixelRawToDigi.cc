@@ -48,7 +48,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
     regions_(nullptr),
     hCPU(nullptr), hDigi(nullptr)
 {
-
+  
   includeErrors = config_.getParameter<bool>("IncludeErrors");
   useQuality = config_.getParameter<bool>("UseQualityInfo");
   if (config_.exists("ErrorList")) {
@@ -58,7 +58,8 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
     usererrorlist = config_.getParameter<std::vector<int> > ("UserErrorList");
   }
   tFEDRawDataCollection = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("InputLabel"));
-
+  theBadPixelFEDChannelsLabel = consumes<PixelFEDChannelCollection>(config_.getParameter<edm::InputTag>("BadPixelFEDChannelsInputLabel"));
+  
   //start counters
   ndigis = 0;
   nwords = 0;
@@ -71,7 +72,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
     produces<DetIdCollection>("UserErrorModules");
     produces<edmNew::DetSetVector<PixelFEDChannel> >();
   }
-
+  
   // regions
   if (config_.exists("Regions")) {
     if(!config_.getParameter<edm::ParameterSet>("Regions").getParameterNames().empty())
@@ -152,7 +153,9 @@ SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<bool>("UsePhase1",false)->setComment("##  Use phase1");
   desc.add<std::string>("CablingMapLabel","")->setComment("CablingMap label"); //Tav
   desc.addOptional<bool>("CheckPixelOrder");  // never used, kept for back-compatibility
+  desc.add<edm::InputTag>("BadPixelFEDChannelsInputLabel",edm::InputTag("mix"));  
   descriptions.add("siPixelRawToDigi",desc);
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -184,7 +187,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
       edm::LogError("SiPixelQualityNotPresent")<<" Configured to use SiPixelQuality, but SiPixelQuality not present"<<endl;
     }
   }
-
+  
   edm::Handle<FEDRawDataCollection> buffers;
   ev.getByToken(tFEDRawDataCollection, buffers);
 
@@ -288,11 +291,10 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 	    }
 
 	  } // loop on DetSet of errors
-
+	  
 	  if (!disabledChannelsDetSet.empty()) {
 	    disabled_channelcollection->insert(errordetid, disabledChannelsDetSet.data(), disabledChannelsDetSet.size());
-	  }
-
+	  }	  
 	} // if error assigned to a real DetId
       } // loop on errors in event for this FED
     } // if errors to be included in the event
@@ -314,17 +316,32 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     hCPU->Fill( theTimer->realTime() ); 
     hDigi->Fill(formatter.nDigis());
   }
+  
 
+  //------------------------------------
   //send digis and errors back to framework 
+
+  edm::Handle<PixelFEDChannelCollection> pixelFEDChannelCollectionHandle;
+  std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_ = nullptr;  
+  if (ev.getByToken(theBadPixelFEDChannelsLabel, pixelFEDChannelCollectionHandle)){
+    
+    const PixelFEDChannelCollection * pfcc= pixelFEDChannelCollectionHandle.product();
+    PixelFEDChannelCollection_ = std::make_unique<PixelFEDChannelCollection>(*pfcc);
+  }
+  
   ev.put(std::move(collection));
   if(includeErrors){
     ev.put(std::move(errorcollection));
     ev.put(std::move(tkerror_detidcollection));
-    ev.put(std::move(usererror_detidcollection), "UserErrorModules");
-    ev.put(std::move(disabled_channelcollection));
+    ev.put(std::move(usererror_detidcollection), "UserErrorModules");      
+    if (PixelFEDChannelCollection_  == nullptr){
+      ev.put(std::move(disabled_channelcollection));
+    }
+    else{
+      ev.put(std::move(PixelFEDChannelCollection_));
+    }
   }
 }
-
 // declare this as a framework plugin
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiPixelRawToDigi);

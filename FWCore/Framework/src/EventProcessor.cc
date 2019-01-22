@@ -541,6 +541,9 @@ namespace edm {
     checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, printDependencies_);
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
 
+    if(preallocations_.numberOfLuminosityBlocks() > 1) {
+      warnAboutModulesRequiringLuminosityBLockSynchronization();
+    }
     //NOTE:  This implementation assumes 'Job' means one call
     // the EventProcessor::run
     // If it really means once per 'application' then this code will
@@ -1728,5 +1731,18 @@ namespace edm {
       return true;
     }
     return false;
+  }
+  
+  void EventProcessor::warnAboutModulesRequiringLuminosityBLockSynchronization() const {
+    std::unique_ptr<LogSystem> s;
+    for( auto worker: schedule_->allWorkers()) {
+      if( worker->wantsGlobalLuminosityBlocks() and worker->globalLuminosityBlocksQueue()) {
+        if(not s) {
+          s = std::make_unique<LogSystem>("ModulesSynchingOnLumis");
+          (*s) <<"The following modules require synchronizing on LuminosityBlock boundaries:";
+        }
+        (*s)<<"\n  "<<worker->description().moduleName()<<" "<<worker->description().moduleLabel();
+      }
+    }
   }
 }

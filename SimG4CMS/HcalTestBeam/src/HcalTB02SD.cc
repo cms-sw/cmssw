@@ -86,22 +86,18 @@ HcalTB02SD::~HcalTB02SD() {
  
 double HcalTB02SD::getEnergyDeposit(const G4Step * aStep) {
   
-  if (aStep == nullptr) {
-    return 0;
-  } else {
-    auto const preStepPoint = aStep->GetPreStepPoint();
-    auto const & nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
+  auto const preStepPoint = aStep->GetPreStepPoint();
+  auto const & nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
 
-    // take into account light collection curve for crystals
-    double weight = 1.;
-    if (useWeight) weight *= curve_LY(nameVolume, preStepPoint);
-    if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2, birk3);
-    double edep   = aStep->GetTotalEnergyDeposit() * weight;
-    LogDebug("HcalTBSim") << "HcalTB02SD:: " << nameVolume
-			  <<" Light Collection Efficiency " << weight 
-			  << " Weighted Energy Deposit " << edep/MeV << " MeV";
-    return edep;
-  } 
+  // take into account light collection curve for crystals
+  double weight = 1.;
+  if (useWeight) weight *= curve_LY(nameVolume, preStepPoint);
+  if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2, birk3);
+  double edep   = aStep->GetTotalEnergyDeposit() * weight;
+  LogDebug("HcalTBSim") << "HcalTB02SD:: " << nameVolume
+			<<" Light Collection Efficiency " << weight 
+			<< " Weighted Energy Deposit " << edep/MeV << " MeV";
+  return edep;
 }
 
 uint32_t HcalTB02SD::setDetUnitId(const G4Step * aStep) { 

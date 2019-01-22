@@ -26,6 +26,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cstdlib>
+#include <limits>
 
 /**
  * \class L1MuPacking
@@ -100,11 +101,11 @@ class L1MuSignedPacking : public L1MuPacking {
   int idxFromPacked(unsigned packed) const override { return packed & (1 << (Bits-1)) ? (packed - (1 << Bits) ) : packed;};
   /// get the packed notation of a value, check range
   unsigned packedFromIdx(int idx) const override { 
-    unsigned maxabs = 1 << (Bits-1) ;
+    unsigned maxabs = 1U << (Bits-1) ;
     if (idx < -(int)maxabs && idx >= (int)maxabs) edm::LogWarning("ScaleRangeViolation") 
                                                        << "L1MuSignedPacking::packedFromIdx: warning value " << idx 
 						       << "exceeds " << Bits << "-bit range !!!";    
-    return  ~(~0 << Bits) & (idx < 0 ? (1 << Bits) + idx : idx);
+    return  ~(std::numeric_limits<unsigned>::max() << Bits) & (idx < 0 ? (1U << Bits) + idx : idx);
   };
 };
 
@@ -117,11 +118,11 @@ class L1MuSignedPackingGeneric : public L1MuPacking {
   static int idxFromPacked(unsigned packed, unsigned int nbits) { return packed & (1 << (nbits-1)) ? (packed - (1 << nbits) ) : packed;};
   /// get the packed notation of a value, check range
   static unsigned packedFromIdx(int idx, unsigned int nbits) { 
-    unsigned maxabs = 1 << (nbits-1) ;
+    unsigned maxabs = 1U << (nbits-1) ;
     if (idx < -(int)maxabs && idx >= (int)maxabs) edm::LogWarning("ScaleRangeViolation") 
                                                        << "L1MuSignedPacking::packedFromIdx: warning value " << idx 
 						       << "exceeds " << nbits << "-bit range !!!";    
-    return  ~(~0 << nbits) & (idx < 0 ? (1 << nbits) + idx : idx);
+    return  ~(std::numeric_limits<unsigned>::max() << nbits) & (idx < 0 ? (1U << nbits) + idx : idx);
   };
 };
 

@@ -12,8 +12,6 @@
  * ===========================================================================
  */
 
-#include <boost/foreach.hpp>
-
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "RecoTauTag/RecoTau/interface/PFTauDecayModeTools.h"
@@ -28,7 +26,7 @@ namespace reco { namespace tau {
 namespace helpers {
 unsigned int nCharged(const GenJet& jet) {
   unsigned int output = 0;
-  BOOST_FOREACH(const CandidatePtr &cand, jet.getJetConstituents()) {
+  for(auto const& cand : jet.getJetConstituents()) {
     if (cand->charge())
       ++output;
   }
@@ -37,7 +35,7 @@ unsigned int nCharged(const GenJet& jet) {
 
 unsigned int nGammas(const GenJet& jet) {
   unsigned int output = 0;
-  BOOST_FOREACH(const CandidatePtr &cand, jet.getJetConstituents()) {
+  for(auto const& cand : jet.getJetConstituents()) {
     if (cand->pdgId()==22)
       ++output;
   }

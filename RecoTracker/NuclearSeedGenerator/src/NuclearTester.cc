@@ -1,5 +1,4 @@
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearTester.h"
-#include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //----------------------------------------------------------------------
@@ -116,7 +115,8 @@ double NuclearTester::fwdEstimate(const std::vector<TrajectoryMeasurement>& vecT
 std::vector<TrajectoryMeasurement>::const_iterator NuclearTester::lastValidTM(const std::vector<TM>& vecTM) const {
    if (vecTM.empty()) return vecTM.end();
    if (vecTM.front().recHit()->isValid())
-            return std::find_if( vecTM.begin(), vecTM.end(), RecHitIsInvalid());
+            return std::find_if( vecTM.begin(), vecTM.end(),
+                    [](auto const& meas){ return !meas.recHit()->isValid(); });
    else return vecTM.end();
 }
 //----------------------------------------------------------------------

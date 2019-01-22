@@ -621,9 +621,9 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       flip = flip),
                                     process, task)
                 
-            if btagInfo == 'pfDeepDoubleBTagInfos':
+            if btagInfo == 'pfDeepDoubleXTagInfos':
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
-                                    btag.pfDeepDoubleBTagInfos.clone(
+                                    btag.pfDeepDoubleXTagInfos.clone(
                                       jets = jetSource,
                                       vertices=pvSource,
                                       secondary_vertices=svSource,

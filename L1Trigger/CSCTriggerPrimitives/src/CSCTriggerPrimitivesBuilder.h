@@ -56,9 +56,15 @@ class CSCTriggerPrimitivesBuilder
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
   void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
 
-  /** Build anode, cathode, and correlated LCTs in each chamber and fill
-   *  them into output collections.  Select up to three best correlated LCTs
-   *  in each (sub)sector and put them into an output collection as well. */
+// Build anode, cathode, and correlated LCTs in each chamber and fill them
+// into output collections.  Pass collections of wire and comparator digis
+// to Trigger MotherBoard (TMB) processors, which, in turn, pass them to
+// ALCT and CLCT processors.  Up to 2 anode and 2 cathode LCTs can be found
+// in each chamber during any bunch crossing.  The 2 projections are then
+// combined into three-dimensional "correlated" LCTs in the TMB.  Finally,
+// MPC processor sorts up to 18 LCTs from 9 TMBs and writes collections of
+// up to 3 best LCTs per (sub)sector into Event (to be used by the Sector
+// Receiver).
   void build(const CSCBadChambers* badChambers,
              const CSCWireDigiCollection* wiredc,
              const CSCComparatorDigiCollection* compdc,
@@ -97,6 +103,8 @@ class CSCTriggerPrimitivesBuilder
   static const int min_chamber;   // chambers per trigger subsector
   static const int max_chamber;
 
+  //debug
+  int infoV;
   /// a flag whether to skip chambers from the bad chambers map
   bool checkBadChambers_;
 
@@ -109,14 +117,17 @@ class CSCTriggerPrimitivesBuilder
   /** SLHC: special switch for disabling ME42 */
   bool disableME42_;
 
+  /** SLHC: individual switches */
+  bool runME11Up_;
+  bool runME21Up_;
+  bool runME31Up_;
+  bool runME41Up_;
+
   /** SLHC: special switch for the upgrade ME1/1 TMB */
   bool runME11ILT_;
 
   /** SLHC: special switch for the upgrade ME2/1 TMB */
   bool runME21ILT_;
-
-  /** SLHC: special switch for the upgrade ME3/1 and ME4/1 TMB */
-  bool runME3141ILT_;
 
   /** SLHC: special switch to use gem clusters */
   bool useClusters_;

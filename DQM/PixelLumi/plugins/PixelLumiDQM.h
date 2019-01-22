@@ -35,7 +35,7 @@
 
 class ConfigurationDescriptions;
 
-class PixelLumiDQM : public DQMEDAnalyzer {
+class PixelLumiDQM : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   explicit PixelLumiDQM(const edm::ParameterSet&);
   ~PixelLumiDQM() override;

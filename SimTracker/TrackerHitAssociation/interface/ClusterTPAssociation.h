@@ -4,6 +4,7 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/HandleBase.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
+#include "FWCore/Utilities/interface/VecArray.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 
@@ -32,6 +33,10 @@ public:
 
   void emplace_back(const OmniClusterRef& cluster, const TrackingParticleRef& tp) {
     checkMappedProductID(tp);
+    auto foundKeyID = std::find(std::begin(keyProductIDs_), std::end(keyProductIDs_), cluster.id());
+    if(foundKeyID == std::end(keyProductIDs_)) {
+      keyProductIDs_.emplace_back(cluster.id());
+    }
     map_.emplace_back(cluster, tp);
   }
   void sortAndUnique() {
@@ -54,10 +59,14 @@ public:
   const_iterator cend()   const { return map_.end(); }
 
   range equal_range(const OmniClusterRef& key) const {
+    checkKeyProductID(key);
     return std::equal_range(map_.begin(), map_.end(), value_type(key, TrackingParticleRef()), compare);
   }
   
   const map_type& map() const { return map_; }
+
+  void checkKeyProductID(const OmniClusterRef& key) const { checkKeyProductID(key.id()); }
+  void checkKeyProductID(const edm::ProductID& id) const;
 
   void checkMappedProductID(const edm::HandleBase& mappedHandle) const { checkMappedProductID(mappedHandle.id()); }
   void checkMappedProductID(const TrackingParticleRef& tp) const { checkMappedProductID(tp.id()); }
@@ -75,6 +84,7 @@ private:
   }
 
   map_type map_;
+  edm::VecArray<edm::ProductID, 2> keyProductIDs_;
   edm::ProductID mappedProductId_;
 };
 

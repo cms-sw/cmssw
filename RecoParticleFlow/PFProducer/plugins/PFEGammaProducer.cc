@@ -211,10 +211,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     // make a copy of the link data, which will be edited.
     //PFBlock::LinkData linkData =  block.linkData();
     
-    // keep track of the elements which are still active.
-    std::vector<bool> active( elements.size(), true );      
-    
-    pfeg_->RunPFEG(globalCache(),blockref,active);
+    pfeg_->RunPFEG(globalCache(),blockref);
 
     if( !pfeg_->getCandidates().empty() ) {
       LOGDRESSED("PFEGammaProducer")
@@ -363,9 +360,6 @@ PFEGammaProducer::setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo& cfg) {
 void
 PFEGammaProducer::setPFVertexParameters(const reco::VertexCollection*  primaryVertices) {
 
-  //Now find the primary vertex!
-  int nVtx=primaryVertices->size();
-  pfeg_->setnPU(nVtx);
   primaryVertex_ = primaryVertices->front();
   for (unsigned short i=0 ;i<primaryVertices->size();++i)
     {
@@ -451,8 +445,8 @@ void PFEGammaProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>  ("EEtoPS_source",   edm::InputTag("particleFlowClusterECAL"))->setComment("EE to PS association");
   desc.add<edm::InputTag>  ("vertexCollection",                edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::FileInPath>("pf_electronID_mvaWeightFile",
-      edm::FileInPath("RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt"));
+      edm::FileInPath("RecoParticleFlow/PFProducer/data/PfElectrons23Jan_BDT.weights.xml.gz"));
   desc.add<edm::FileInPath>("pf_convID_mvaWeightFile",
-      edm::FileInPath("RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt"));
+      edm::FileInPath("RecoParticleFlow/PFProducer/data/pfConversionAug0411_BDT.weights.xml.gz"));
   descriptions.add("particleFlowEGamma", desc);
 }

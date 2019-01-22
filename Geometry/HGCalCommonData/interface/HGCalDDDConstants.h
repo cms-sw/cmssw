@@ -73,6 +73,7 @@ public:
   bool                isValidHex8(int lay, int modU, int modV, int cellU,
 				  int cellV) const;
   bool                isValidTrap(int lay, int ieta, int iphi) const;
+  int                 lastLayer(bool reco) const;
   int                 layerIndex(int lay, bool reco) const;
   unsigned int        layers(bool reco) const;
   unsigned int        layersInit(bool reco) const;
@@ -85,6 +86,7 @@ public:
   std::pair<float,float> locateCellTrap(int lay, int ieta, int iphi,
 					bool reco) const;
   int                 levelTop(int ind=0) const {return hgpar_->levelT_[ind];}
+  bool                maskCell(const DetId& id, int corners) const;
   int                 maxCellUV() const {
     return ((mode_==HGCalGeometryMode::Trapezoid) ? hgpar_->nCellsFine_ :
 	    2*hgpar_->nCellsFine_);}
@@ -136,6 +138,7 @@ public:
   int                 waferTypeL(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeL_.size()))) ? hgpar_->waferTypeL_[wafer] : 0;}
   int                 waferType(DetId const& id) const;
   int                 waferUVMax() const {return hgpar_->waferUVMax_;}
+  bool                waferVirtual(int layer, int waferU, int waferV) const;
   double              waferZ(int layer, bool reco) const;
 
 private:

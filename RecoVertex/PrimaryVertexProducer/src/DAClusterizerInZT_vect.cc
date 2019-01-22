@@ -214,9 +214,9 @@ double DAClusterizerInZT_vect::update(double beta, track_t & gtracks,
       return ZTemp;
     };
 
-  auto kernel_calc_normalization = [ beta, nv ] (const unsigned int track_num,
-						  track_t & tks_vec,
-						  vertex_t & y_vec ) {
+  auto kernel_calc_normalization = [ nv ] (const unsigned int track_num,
+                                           track_t & tks_vec,
+                                           vertex_t & y_vec ) {
     auto tmp_trk_pi = tks_vec.pi_[track_num];
     auto o_trk_Z_sum = 1./tks_vec.Z_sum_[track_num];
     auto o_trk_err_z = tks_vec.dz2_[track_num];
@@ -274,7 +274,11 @@ double DAClusterizerInZT_vect::update(double beta, track_t & gtracks,
   }
   
   // now update z, t, and pk
-  auto kernel_calc_zt = [  sumpi, nv, this, useRho0 ] (vertex_t & vertices ) -> double {
+  auto kernel_calc_zt = [  sumpi, nv
+#ifdef VI_DEBUG
+                           , this
+#endif
+                           ] (vertex_t & vertices ) -> double {
     
     double delta=0;
 

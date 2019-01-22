@@ -10,8 +10,7 @@
 #include "Geometry/MTDGeometryBuilder/interface/MTDParametersFromDD.h"
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
 
-MTDParametersESModule::MTDParametersESModule( const edm::ParameterSet& pset) :
-  builder(pset)
+MTDParametersESModule::MTDParametersESModule( const edm::ParameterSet& pset) 
 {
   edm::LogInfo("TRACKER") << "MTDParametersESModule::MTDParametersESModule";
 
@@ -26,11 +25,7 @@ void
 MTDParametersESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) 
 {
   edm::ParameterSetDescription desc;
-  edm::ParameterSetDescription vpdesc;
-  vpdesc.add("subdetPars",std::vector<int>());
-  desc.addVPSet("vitems",vpdesc,edm::VParameterSet());
-  desc.add("vpars",std::vector<int>());
-  descriptions.add( "mtdParametersBase", desc );
+  descriptions.add( "mtdParameters", desc );
 }
 
 MTDParametersESModule::ReturnType

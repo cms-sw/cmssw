@@ -48,11 +48,24 @@
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 
+<LINK name="JetMET/HIJetValidation/*/Eta*">
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+
 <LINK name="JetMET/Jet/*/Phi*">
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 
+<LINK name="JetMET/HIJetValidation/*/Phi*">
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+
 <LINK name="JetMET/Jet/*/Pt*">
+   <TestName activate="true">KolmogorovTest</TestName>
+   <TestName activate="true">meanJetPtTest</TestName>
+</LINK>
+
+<LINK name="JetMET/HIJetValidation/*/Pt*">
    <TestName activate="true">KolmogorovTest</TestName>
    <TestName activate="true">meanJetPtTest</TestName>
 </LINK>

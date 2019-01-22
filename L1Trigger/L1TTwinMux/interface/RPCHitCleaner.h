@@ -29,13 +29,12 @@
 
 class RPCHitCleaner  {
 public:
-  RPCHitCleaner(RPCDigiCollection inrpcDigis);
-  ~RPCHitCleaner() {};
+  RPCHitCleaner(RPCDigiCollection const& inrpcDigis);
 
   void run(const edm::EventSetup& c);
 
   ///Return Output RPCCollection
-  RPCDigiCollection getRPCCollection(){  return m_outrpcDigis;}
+  RPCDigiCollection const& getRPCCollection(){  return m_outrpcDigis;}
  
   struct detId_Ext{
    RPCDetId detid;
@@ -49,7 +48,7 @@ public:
 private:
 
   ///Input
-  RPCDigiCollection m_inrpcDigis;
+  RPCDigiCollection const& m_inrpcDigis;
   ///Output
   RPCDigiCollection m_outrpcDigis;
 

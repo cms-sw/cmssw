@@ -205,7 +205,7 @@ void MuonSensitiveDetector::createHit(const G4Step * aStep){
 
   // convert momentum direction it to local frame
   const G4ThreeVector& gmd  = preStepPoint->GetMomentumDirection();
-  G4ThreeVector lmd = ((G4TouchableHistory *)(preStepPoint->GetTouchable()))->GetHistory()
+  G4ThreeVector lmd = static_cast<const G4TouchableHistory *>(preStepPoint->GetTouchable())->GetHistory()
       ->GetTopTransform().TransformAxis(gmd);
   Local3DPoint lnmd = ConvertToLocal3DPoint(lmd);
   lnmd = theRotation->transformPoint(lnmd, aStep);

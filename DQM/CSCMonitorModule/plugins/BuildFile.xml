@@ -2,7 +2,6 @@
   <flags   CPPDEFINES="DQMGLOBAL"/>
   <flags   EDM_PLUGIN="1"/>
   <use   name="DQMServices/ClientConfig"/>
-  <use   name="DQMServices/Components"/>
   <use   name="DQMServices/Core"/>
   <use   name="EventFilter/CSCRawToDigi"/>
   <use   name="FWCore/Framework"/>

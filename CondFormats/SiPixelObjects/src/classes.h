@@ -15,6 +15,8 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQualityProbabilities.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFEDChannelContainer.h"
 #include "CondFormats/SiPixelObjects/interface/PixelDCSObject.h"
 
 template struct PixelDCSObject<bool>;
@@ -45,6 +47,10 @@ namespace CondFormats_SiPixelObjects {
     std::vector<SiPixelQuality::disabledModuleType>::iterator p9;
     std::vector<SiPixelQuality::disabledModuleType>::const_iterator p10;
     std::vector<SiPixelDbItem> p11;
+
+    std::map<unsigned int,SiPixelQualityProbabilities::probabilityVec> myProbabilityMap;
+    std::map<std::string, PixelFEDChannelCollection> myPixelFEDChannelCollection;
+
   };
 }
 

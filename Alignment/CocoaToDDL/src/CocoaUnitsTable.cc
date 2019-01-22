@@ -64,14 +64,14 @@ CocoaUnitDefinition& CocoaUnitDefinition::operator=(const CocoaUnitDefinition& r
  
 ALIint CocoaUnitDefinition::operator==(const CocoaUnitDefinition& right) const
 {
-  return (this == (CocoaUnitDefinition *) &right);
+  return (this == &right);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
  
 ALIint CocoaUnitDefinition::operator!=(const CocoaUnitDefinition &right) const
 {
-  return (this != (CocoaUnitDefinition *) &right);
+  return (this != &right);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -297,14 +297,14 @@ CocoaUnitsCategory& CocoaUnitsCategory::operator=(const CocoaUnitsCategory& righ
  
 ALIint CocoaUnitsCategory::operator==(const CocoaUnitsCategory& right) const
 {
-  return (this == (CocoaUnitsCategory *) &right);
+  return (this == &right);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
  
 ALIint CocoaUnitsCategory::operator!=(const CocoaUnitsCategory &right) const
 {
-  return (this != (CocoaUnitsCategory *) &right);
+  return (this != &right);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

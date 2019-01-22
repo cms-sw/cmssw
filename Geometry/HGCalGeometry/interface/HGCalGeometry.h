@@ -15,14 +15,16 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/FlatHexagon.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/Records/interface/HGCalGeometryRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include <vector>
 
 class HGCalGeometry final: public CaloSubdetectorGeometry {
@@ -79,6 +81,12 @@ public:
   /// Returns the corner points of this cell's volume.
   CornersVec getCorners( const DetId& id ) const; 
   CornersVec get8Corners( const DetId& id ) const; 
+  CornersVec getNewCorners( const DetId& id ) const; 
+
+  // Get neighbor in z along a direction
+  DetId neighborZ(const DetId& idin, const GlobalVector& p) const;
+  DetId neighborZ(const DetId& idin, const MagneticField* bField, int charge,
+		  const GlobalVector& momentum) const;
 
   // avoid sorting set in base class  
   const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override { return m_validIds; }
@@ -124,6 +132,8 @@ private:
   unsigned int getClosestCellIndex(const GlobalPoint&r, const std::vector<T>& vec) const;
   std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index, const GlobalPoint& p) const;
   DetId getGeometryDetId(DetId detId) const;
+
+  static constexpr double         k_half = 0.5;
 
   const HGCalTopology&            m_topology;
   CellVec                         m_cellVec; 

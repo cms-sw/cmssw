@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 _barrelAlgo = cms.PSet(
     algoName = cms.string("MTDRecHitAlgo"),
-    thresholdToKeep = cms.double(1.),              # MeV
-    calibrationConstant = cms.double(0.026041667), # MeV/pC
+    thresholdToKeep = cms.double(1.),          # MeV
+    calibrationConstant = cms.double(0.03125), # MeV/pC
 )
 
 

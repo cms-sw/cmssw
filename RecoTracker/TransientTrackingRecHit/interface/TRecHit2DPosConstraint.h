@@ -1,13 +1,29 @@
 #ifndef RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit2DPosConstraint_H
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit2DPosConstraint_H
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/trackerHitRTTI.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 
 
-class TRecHit2DPosConstraint final : public TransientTrackingRecHit {
+class TRecHit2DPosConstraint final : public TrackingRecHit {
 public:
+
+  TRecHit2DPosConstraint(const LocalPoint& pos,
+                         const LocalError& err,
+                         const Surface* surface):
+    TrackingRecHit(0, int(trackerHitRTTI::notFromCluster)),
+    pos_(pos),err_(err),surface_(surface) {}
+
+  TRecHit2DPosConstraint(const GeomDet & idet, 
+                         const LocalPoint& pos,
+                         const LocalError& err,
+                         const Surface* surface):
+    TrackingRecHit(idet,int(trackerHitRTTI::notFromCluster)),
+    pos_(pos),err_(err) {}
+
+  TRecHit2DPosConstraint( const TRecHit2DPosConstraint& other ) = default;
+  TRecHit2DPosConstraint(TRecHit2DPosConstraint&& other ) = default;
 
   ~TRecHit2DPosConstraint() override {}
 
@@ -40,25 +56,23 @@ public:
   LocalPoint localPosition() const override {return pos_;}
   LocalError localPositionError() const override {return err_;}
 
-  const TrackingRecHit * hit() const override {return nullptr;}//fixme return invalid
-  TrackingRecHit * cloneHit() const override { return nullptr;}
   
   std::vector<const TrackingRecHit*> recHits() const override { return std::vector<const TrackingRecHit*>(); }
   std::vector<TrackingRecHit*> recHits() override { return std::vector<TrackingRecHit*>(); }
+
+  // use position?
   bool sharesInput( const TrackingRecHit*, SharedInputType) const override { return false;}
 
   bool canImproveWithTrack() const override {return false;}
 
   virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const {return RecHitPointer(clone());}
 
-  const GeomDetUnit* detUnit() const override {return nullptr;}
-
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
 			      const Surface* surface) {
     return RecHitPointer( new TRecHit2DPosConstraint( pos, err, surface));
   }
 
-  const Surface * surface() const override {return &(*surface_);}
+  const Surface * surface() const override {return det() ? &(det()->surface()) : &(*surface_);}
 
   GlobalPoint globalPosition() const override { return  surface()->toGlobal(localPosition());}
   GlobalError globalPositionError() const override { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
@@ -71,14 +85,6 @@ private:
   const LocalPoint pos_;
   const LocalError err_;
   ConstReferenceCountingPointer<Surface> surface_;
-  /// Creates the TrackingRecHit internally, avoids redundent cloning
-  TRecHit2DPosConstraint(const LocalPoint& pos,
-			 const LocalError& err,
-			 const Surface* surface): 
-    pos_(pos),err_(err),surface_(surface) {}
-
-  TRecHit2DPosConstraint( const TRecHit2DPosConstraint& other ):
-    pos_( other.localPosition() ),err_( other.localPositionError() ), surface_((other.surface())) {}
 
   TRecHit2DPosConstraint * clone() const override {
     return new TRecHit2DPosConstraint(*this);

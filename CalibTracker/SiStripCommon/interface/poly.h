@@ -3,7 +3,6 @@
 
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/operators.hpp>
-#include <boost/foreach.hpp>
 #include <iostream>
 #include <list>
 #include <set>
@@ -47,11 +46,8 @@ class poly :
     const_iterator begin() const { return const_iterator(*this);}
     const_iterator end()   const { return const_iterator::end_of(*this);} 
 
-    column_iterator begin_columns() { return columns.begin();}
-    column_iterator end_columns()   { return columns.end();}
-
-    const_column_iterator begin_columns() const { return columns.begin();}
-    const_column_iterator end_columns()   const { return columns.end();}
+    auto const& getColumns() const { return columns; }
+    auto& getColumns() { return columns; }
 
     size_t size() const { 
       if(columns.empty()) return 0;
@@ -91,13 +87,13 @@ class poly :
     public:
       
       const_iterator() {}
-      const_iterator(const poly& p) : begin(p.begin_columns()), end(p.end_columns()) {
+      const_iterator(const poly& p) : begin(p.getColumns().begin()), end(p.getColumns().end()) {
 	const_column_iterator column = begin; 
 	while(column!=end) state.push_back((column++)->begin()); 
       }
       static const_iterator end_of(const poly& p) {
 	const_iterator it(p);
-	if(p.size()!=0) *--(it.state.end()) = (--p.end_columns())->end();
+	if(p.size()!=0) *--(it.state.end()) = (--p.getColumns().end())->end();
 	return it;
       }
       
@@ -111,8 +107,8 @@ template<class T> poly<T> operator+ (const char* lhs, const poly<T>& rhs ) { ret
 template <class charT, class traits, class T> 
 inline
 std::basic_ostream<charT,traits>& operator<<(std::basic_ostream<charT,traits>& strm, const poly<T>& f) { 
-  BOOST_FOREACH(std::set<T> column, std::make_pair(f.begin_columns(),f.end_columns())) 
-    { strm << "( "; BOOST_FOREACH(T entry, column) strm << entry << ", "; strm << " )" << std::endl; }
+  for(auto const& column : f.getColumns()) 
+    { strm << "( "; for(auto const& entry : column) strm << entry << ", "; strm << " )" << std::endl; }
   return strm; 
 }
 

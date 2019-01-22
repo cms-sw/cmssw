@@ -26,23 +26,15 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
-#include <map>
-
-  namespace TMVA {
-    class DecisionTree;
-    class DecisionTreeNode;
-  }
 
   class GBRTree {
 
     public:
 
        GBRTree();
-       explicit GBRTree(const TMVA::DecisionTree *tree, double scale, bool useyesnoleaf, bool adjustboundary);
-       virtual ~GBRTree();
+       explicit GBRTree(int nIntermediate, int nTerminal);
        
        double GetResponse(const float* vector) const;
-       int TerminalIndex(const float *vector) const;
        
        std::vector<float> &Responses() { return fResponses; }       
        const std::vector<float> &Responses() const { return fResponses; }
@@ -58,39 +50,29 @@
        
        std::vector<int> &RightIndices() { return fRightIndices; }
        const std::vector<int> &RightIndices() const { return fRightIndices; }
-       
 
-       
     protected:      
-        unsigned int CountIntermediateNodes(const TMVA::DecisionTreeNode *node);
-        unsigned int CountTerminalNodes(const TMVA::DecisionTreeNode *node);
-      
-        void AddNode(const TMVA::DecisionTreeNode *node, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary);
-        
-	std::vector<unsigned char> fCutIndices;
-	std::vector<float> fCutVals;
-	std::vector<int> fLeftIndices;
-	std::vector<int> fRightIndices;
-	std::vector<float> fResponses;  
+
+       std::vector<unsigned char> fCutIndices;
+       std::vector<float> fCutVals;
+       std::vector<int> fLeftIndices;
+       std::vector<int> fRightIndices;
+       std::vector<float> fResponses;  
         
   
   COND_SERIALIZABLE;
 };
 
 //_______________________________________________________________________
-inline double GBRTree::GetResponse(const float* vector) const {
-  return fResponses[TerminalIndex(vector)];
-}
-
-//_______________________________________________________________________
-inline int GBRTree::TerminalIndex(const float* vector) const {
+inline double GBRTree::GetResponse(const float* vector) const
+{
    int index = 0;
-  do {
-     auto r = fRightIndices[index];
-     auto l = fLeftIndices[index];  
-    index =  vector[fCutIndices[index]] > fCutVals[index] ? r : l;
-  } while (index>0);
-  return -index;
+   do {
+      auto r = fRightIndices[index];
+      auto l = fLeftIndices[index];  
+     index =  vector[fCutIndices[index]] > fCutVals[index] ? r : l;
+   } while (index>0);
+   return fResponses[-index];
 }
 
 #endif

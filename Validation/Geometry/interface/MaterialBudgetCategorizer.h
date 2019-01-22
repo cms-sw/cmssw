@@ -15,7 +15,7 @@
 class  MaterialBudgetCategorizer {
 
  public:
-  MaterialBudgetCategorizer();
+  MaterialBudgetCategorizer(std::string mode);
   
   int volume(std::string s){return theVolumeMap[s];}
   int material(std::string s){return theMaterialMap[s];}

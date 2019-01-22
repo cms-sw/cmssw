@@ -46,7 +46,7 @@ namespace{
     //Conversion matching
     bool pass_conversion = false;
     if (convs.isValid()) {
-      pass_conversion = !ConversionTools::hasMatchedConversion(el, convs, bs_position);
+      pass_conversion = !ConversionTools::hasMatchedConversion(el, *convs, bs_position);
     }
     else{
       edm::LogError("LepHTMonitor") << "Electron conversion matching failed.\n";

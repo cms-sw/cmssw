@@ -39,7 +39,7 @@ class MTDDigitizerBase {
   name_( config.getParameter<std::string>("digitizerName") ) {
     iC.consumes<std::vector<PSimHit> >(inputSimHits_);
 
-    if ( name_ == "BTLDigitizer" )
+    if ( name_ == "BTLTileDigitizer" || name_ == "BTLBarDigitizer" )
       parent.produces<BTLDigiCollection>(digiCollection_);  
     else if ( name_ == "ETLDigitizer" )
       parent.produces<ETLDigiCollection>(digiCollection_);  

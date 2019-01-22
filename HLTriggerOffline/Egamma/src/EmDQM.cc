@@ -1051,7 +1051,7 @@ EmDQM::endRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
       // check which ones were never found
       std::vector<std::string> labelsNeverFound;
       
-      BOOST_FOREACH(const edm::InputTag &tag, hltCollectionLabelsMissedPerPath.at(vPos))
+      for(edm::InputTag const& tag : hltCollectionLabelsMissedPerPath.at(vPos))
       {
         if ((hltCollectionLabelsFoundPerPath.at(vPos)).count(tag.encode()) == 0)
           // never found
@@ -1070,7 +1070,7 @@ EmDQM::endRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
       if (verbosity_ >= OUTPUT_WARNINGS)
          edm::LogWarning("EmDQM") << "There were some HLTCollectionLabels which were never found:";
 
-      BOOST_FOREACH(const edm::InputTag &tag, labelsNeverFound)
+      for(auto const& tag : labelsNeverFound)
       {
         if (verbosity_ >= OUTPUT_ALL)
            edm::LogPrint("EmDQM") << "  " << tag;

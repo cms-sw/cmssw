@@ -23,7 +23,7 @@ std::istream& operator>>(std::istream &istr , RBCInput & rhs) {
 
 }
 
-std::ostream& operator<<(std::ostream &ostr , RBCInput & rhs) {
+std::ostream& operator<<(std::ostream &ostr , RBCInput const & rhs) {
   
   for(int i=0; i < 15; ++i) ostr << rhs.input_sec[0][i];
   ostr << '\t';

@@ -68,7 +68,7 @@ L1GtTriggerMenuXmlProducer::L1GtTriggerMenuXmlProducer(
     // vme.xml file
     std::string vmeXmlFileName = parSet.getParameter<std::string>("VmeXmlFile");
 
-    if (vmeXmlFileName != "") {
+    if (!vmeXmlFileName.empty()) {
         edm::FileInPath f2("L1TriggerConfig/L1GtConfigProducers/data/Luminosity/" +
                            menuDir + "/" + vmeXmlFileName);
 
@@ -97,7 +97,7 @@ L1GtTriggerMenuXmlProducer::~L1GtTriggerMenuXmlProducer()
 // member functions
 
 // method called to produce the data
-std::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerMenu(
+std::unique_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerMenu(
     const L1GtTriggerMenuRcd& l1MenuRecord)
 {
 
@@ -128,7 +128,7 @@ std::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerMen
 
     // transfer the condition map and algorithm map from parser to L1GtTriggerMenu
 
-    auto pL1GtTriggerMenu = std::make_shared<L1GtTriggerMenu>(
+    auto pL1GtTriggerMenu = std::make_unique<L1GtTriggerMenu>(
                         gtXmlParser.gtTriggerMenuName(), numberConditionChips,
                         gtXmlParser.vecMuonTemplate(),
                         gtXmlParser.vecCaloTemplate(),

@@ -60,10 +60,13 @@ namespace edm {
 	namespace refhelper {
 		template<> 
 		struct FindTrait<edm::HepMCProduct, HepMC::GenParticle> {
-			struct Find : public std::binary_function<edm::HepMCProduct const&, int, HepMC::GenParticle const*> {
-				typedef Find self;
-				self::result_type operator () (self::first_argument_type iContainer,
-				                               self::second_argument_type iBarCode)
+			struct Find {
+                using first_argument_type  = edm::HepMCProduct const&;
+                using second_argument_type = int;
+                using result_type          = HepMC::GenParticle const*;
+
+				result_type operator () (first_argument_type iContainer,
+				                         second_argument_type iBarCode)
 				{ return iContainer.getHepMCData().barcode_to_particle(iBarCode); }
 			};
 
@@ -72,11 +75,13 @@ namespace edm {
 
 		template<> 
 		struct FindTrait<edm::HepMCProduct, HepMC::GenVertex> {
-			struct Find : public std::binary_function<edm::HepMCProduct const&, int, HepMC::GenVertex const*> {
-				typedef Find self;
+			struct Find {
+                using first_argument_type  = edm::HepMCProduct const&;
+                using second_argument_type = int;
+                using result_type          = HepMC::GenVertex const*;
 
-				self::result_type operator () (self::first_argument_type iContainer,
-				                               self::second_argument_type iBarCode)
+				result_type operator () (first_argument_type iContainer,
+				                         second_argument_type iBarCode)
 				{ return iContainer.getHepMCData().barcode_to_vertex(iBarCode); }
 			};
 

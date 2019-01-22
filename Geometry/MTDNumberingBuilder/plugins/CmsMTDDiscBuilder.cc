@@ -3,7 +3,6 @@
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 #include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/MTDNumberingBuilder/plugins/CmsMTDETLRingBuilder.h"
-#include "Geometry/MTDNumberingBuilder/plugins/MTDStablePhiSort.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>

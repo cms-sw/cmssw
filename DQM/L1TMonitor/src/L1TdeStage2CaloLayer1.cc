@@ -15,6 +15,7 @@
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
+using namespace l1t;
 
 L1TdeStage2CaloLayer1::L1TdeStage2CaloLayer1(const edm::ParameterSet & ps) :
   dataLabel_(ps.getParameter<edm::InputTag>("dataSource")),

@@ -7,30 +7,6 @@
 
 using namespace std;
 
-namespace {
-  inline GlobalPoint operator - ( const GlobalPoint & a, const GlobalPoint & b ){
-    return GlobalPoint ( a.basicVector() - b.basicVector() );
-  }
-
-  inline GlobalPoint operator + ( const GlobalPoint & a, const GlobalPoint & b ){
-    return GlobalPoint ( a.basicVector() + b.basicVector() );
-  }
-
-  inline GlobalPoint operator / ( const GlobalPoint & a, const double b ){
-    return GlobalPoint ( a.basicVector() / b );
-  }
-
-  inline GlobalPoint operator * ( const GlobalPoint & a, const float b ){
-    return GlobalPoint ( a.basicVector() * b );
-  }
-
-  inline GlobalPoint operator * ( const float b , const GlobalPoint & a ){
-    return GlobalPoint ( a.basicVector() * b );
-  }
-
-  inline double square ( const double s ) { return s*s; }
-}
-
 TwoTrackMinimumDistanceHelixHelix::TwoTrackMinimumDistanceHelixHelix():
 theH(nullptr), theG(nullptr), pointsUpdated(false), themaxjump(20),thesingjacI(1./0.1), themaxiter(4)
 { }

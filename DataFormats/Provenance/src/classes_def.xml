@@ -61,6 +61,7 @@
  <class name="std::pair<edm::BranchID, std::set<edm::BranchID> >"/>
  <class name="std::vector<edm::BranchID>"/>
  <class name="std::vector<edm::ProductID>"/>
+ <class name="edm::VecArray<edm::ProductID, 2>"/>
  <class name="std::pair<edm::ProductID, unsigned int>" />
  <class name="std::vector<std::pair<edm::ProductID, unsigned int> >" />
  <class name="std::vector<edm::EventID>"/>

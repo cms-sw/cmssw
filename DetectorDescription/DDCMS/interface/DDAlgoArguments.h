@@ -12,6 +12,8 @@
 
 namespace cms
 {
+  using DD3Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
+
   constexpr unsigned int hash( const char* str, int h = 0 )
   {
     return !str[h] ? 5381 : ( hash( str, h+1 )*33 ) ^ str[h];
@@ -23,6 +25,10 @@ namespace cms
   }
 
   dd4hep::Rotation3D makeRotation3D( double thetaX, double phiX,
+				     double thetaY, double phiY,
+				     double thetaZ, double phiZ );
+
+  dd4hep::Rotation3D makeRotReflect( double thetaX, double phiX,
 				     double thetaY, double phiY,
 				     double thetaZ, double phiZ );
 

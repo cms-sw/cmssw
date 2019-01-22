@@ -5,7 +5,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "boost/foreach.hpp"
 
 ShallowTracksProducer::ShallowTracksProducer(const edm::ParameterSet& iConfig)
   :  tracks_token_( consumes<edm::View<reco::Track> >( iConfig.getParameter<edm::InputTag>("Tracks") )),
@@ -72,7 +71,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<reco::Track> > tracks;  iEvent.getByToken(tracks_token_, tracks);
 
   *number = tracks->size();
-  BOOST_FOREACH( const reco::Track track, *tracks) {
+  for(auto const& track : *tracks) {
     chi2->push_back(      track.chi2()              );
     ndof->push_back(      track.ndof()              );
     chi2ndof->push_back(  track.chi2()/track.ndof() );
