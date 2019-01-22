@@ -46,7 +46,7 @@ namespace cond {
     // 36000 << 32 ( corresponding to 10h )
     static constexpr unsigned long SINCE_TIME_GROUP_SIZE = 154618822656000; 
     static constexpr unsigned int SINCE_LUMI_GROUP_SIZE = SINCE_RUN_GROUP_SIZE;
-    static constexpr unsigned int SINCE_HASH_GROUP_SIZE = 1;
+    static constexpr unsigned int SINCE_HASH_GROUP_SIZE = SINCE_RUN_GROUP_SIZE;
 
     Time_t sinceGroupSize( TimeType tp );
 
