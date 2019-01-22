@@ -333,7 +333,7 @@ void DaqScopeModeTask::fill( const SiStripEventSummary& summary,
         adcHeader_low.push_back( digisAlt.data[ibin].adc() );
       }
     }
-    if(adcHeader_low.size()==0 || adcHeader_high.size()==0) {
+    if(adcHeader_low.empty() || adcHeader_high.empty()) {
         return;
     }
     for ( uint16_t i = 0; i<adcHeader_low.size(); i++){
@@ -452,7 +452,7 @@ void DaqScopeModeTask::fill( const SiStripEventSummary& summary,
         adcHeader_low.push_back( digisAlt.data[ibin].adc() );
       }
     }
-    if(adcHeader_low.size()==0 || adcHeader_high.size()==0) {
+    if(adcHeader_low.empty() || adcHeader_high.empty()) {
         return;
     }
     for ( uint16_t i = 0; i<adcHeader_low.size(); i++){

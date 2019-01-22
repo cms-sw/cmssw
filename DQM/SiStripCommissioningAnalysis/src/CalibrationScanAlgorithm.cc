@@ -98,9 +98,9 @@ void CalibrationScanAlgorithm::analyse() {
 
   ////////                                                                                                                                                                                    
   TFitResultPtr fit_result;
-  TF1* fit_function_turnOn = NULL;
-  TF1* fit_function_decay  = NULL;
-  TF1* fit_function_deco   = NULL;
+  TF1* fit_function_turnOn = nullptr;
+  TF1* fit_function_decay  = nullptr;
+  TF1* fit_function_deco   = nullptr;
   if(cal_->deconv_){
     fit_function_deco =  new TF1("fit_function_deco",fdeconv,0,400,7);
     fit_function_deco->SetParameters(4,25,25,50,250,25,0.75);
@@ -376,10 +376,10 @@ void CalibrationScanAlgorithm::tuneIndependently(const int & iapv, const float &
   cal_->riseTime_vs_isha_.push_back(new TGraph());
   cal_->riseTime_vs_isha_.back()->SetName(Form("riseTime_%s",name.Data()));
     
-  if(decayTime_vs_vfs.size() != 0){
+  if(!decayTime_vs_vfs.empty()){
     int ipoint = 0;
     for(auto map_element : decayTime_vs_vfs){    
-      if(map_element.second.size() != 0){
+      if(!map_element.second.empty()){
 	cal_->decayTime_vs_vfs_.at(iapv)->SetPoint(ipoint,map_element.second.at(round(map_element.second.size()/2)),map_element.first);
 	ipoint++;
       }
@@ -414,10 +414,10 @@ void CalibrationScanAlgorithm::tuneIndependently(const int & iapv, const float &
     name.ReplaceAll("ExpertHisto_","");
 
     ////
-    if(riseTime_vs_isha.size() != 0){
+    if(!riseTime_vs_isha.empty()){
       int ipoint = 0;
       for(auto map_element : riseTime_vs_isha){
-	if(map_element.second.size() != 0){
+	if(!map_element.second.empty()){
 	  cal_->riseTime_vs_isha_.at(iapv)->SetPoint(ipoint,map_element.second.at(round(map_element.second.size()/2)),map_element.first);
 	  ipoint++;
 	}
@@ -538,7 +538,7 @@ void CalibrationScanAlgorithm::fillTunedObservables(const int & apvid){
   
   ///
   std::string key_apv = std::string(Form("isha_%d_vfs_%d",cal_->tunedISHA().at(apvid),cal_->tunedVFS().at(apvid)));  
-  if(cal_->amplitude(key_apv).size() != 0 ){
+  if(!cal_->amplitude(key_apv).empty() ){
     cal_->tunedAmplitude_[apvid] = cal_->amplitude(key_apv)[apvid];
     cal_->tunedTail_[apvid] = cal_->tail(key_apv)[apvid];
     cal_->tunedRiseTime_[apvid] = cal_->riseTime(key_apv)[apvid];

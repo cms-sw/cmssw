@@ -9,11 +9,11 @@
 #include <DQMServices/Core/interface/MonitorElement.h>
 
 #include <arpa/inet.h>
-#include <sys/unistd.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <stdio.h>
+#include <cstdio>
 #include <fstream>
+#include <netdb.h>
+#include <sys/socket.h>
+#include <sys/unistd.h>
 
 // -----------------------------------------------------------------------------
 //

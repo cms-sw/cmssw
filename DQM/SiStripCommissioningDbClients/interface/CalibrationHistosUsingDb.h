@@ -28,7 +28,7 @@ class CalibrationHistosUsingDb : public CommissioningHistosUsingDb, public Calib
 
   bool allowSelectiveUpload_;   
   void update( SiStripConfigDb::DeviceDescriptionsRange& );  
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override;
 
 };
 

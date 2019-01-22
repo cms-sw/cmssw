@@ -150,7 +150,7 @@ void CalibrationHistograms::save( std::string& path,
     // Retrieve SCRATCH directory                                                                                                                                                                    
     std::string scratch = "SCRATCH";
     std::string dir = "";
-    if ( getenv(scratch.c_str()) != NULL ) {
+    if ( getenv(scratch.c_str()) != nullptr ) {
       dir = getenv(scratch.c_str());
     }
 

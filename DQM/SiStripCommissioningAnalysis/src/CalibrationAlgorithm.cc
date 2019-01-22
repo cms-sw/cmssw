@@ -148,7 +148,7 @@ void CalibrationAlgorithm::analyse() {
 
   ////////
   TFitResultPtr fit_result;
-  TF1* fit_function = NULL;
+  TF1* fit_function = nullptr;
   if(cal_->deconv_){
     fit_function =  new TF1("fit_function_deco",fdeconv,0,400,7);
     fit_function->SetParameters(4,25,25,50,250,25,0.75);
