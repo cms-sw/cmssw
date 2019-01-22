@@ -81,22 +81,18 @@ importToBlock( const edm::Event& e,
     // cache the SC_end offset
     size_t SCs_end_position = std::distance(elems.begin(),SCs_end);
     // get track momentum information
-    const std::vector<reco::PFTrajectoryPoint>& PfGsfPoint
-      = gsftrack->trajectoryPoints();
+    const std::vector<reco::PFTrajectoryPoint>& PfGsfPoint = gsftrack->trajectoryPoints();
     unsigned int c_gsf=0;
     bool PassTracker = false;
-    bool GetPout = false;
     unsigned int IndexPout = 0;
-    for(auto itPfGsfPoint =  PfGsfPoint.begin();  
-	itPfGsfPoint!= PfGsfPoint.end();++itPfGsfPoint) {      
-      if (itPfGsfPoint->isValid()){
-	int layGsfP = itPfGsfPoint->layer();
+    for(const auto& pfGsfPoint : PfGsfPoint) {      
+      if (pfGsfPoint.isValid()){
+	int layGsfP = pfGsfPoint.layer();
 	if (layGsfP == -1) PassTracker = true;
-	if (PassTracker && layGsfP > 0 && GetPout == false) {
+	else if (PassTracker && layGsfP > 0) {
 	  IndexPout = c_gsf-1;
-	  GetPout = true;
+	  break;
 	}
-	//const math::XYZTLorentzVector GsfMoment = itPfGsfPoint->momentum();
 	++c_gsf;
       }
     }
