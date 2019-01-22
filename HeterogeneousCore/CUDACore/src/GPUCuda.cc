@@ -84,7 +84,7 @@ namespace heterogeneous {
                                           auto error = cudaGetErrorName(status);
                                           auto message = cudaGetErrorString(status);
                                           throw cms::Exception("CUDAError") << "Callback of CUDA stream " << streamId << " in device " << deviceId << " error " << error << ": " << message;
-                                        } catch(...) {
+                                        } catch(cms::Exception &) {
                                           waitingTaskHolder.doneWaiting(std::current_exception());
                                         }
                                       }
