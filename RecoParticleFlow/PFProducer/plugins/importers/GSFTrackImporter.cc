@@ -44,7 +44,6 @@ importToBlock( const edm::Event& e,
 				[](const ElementType& a){
 				  return a->type() == reco::PFBlockElement::SC;
 				});
-  size_t SCs_end_position = std::distance(elems.begin(),SCs_end);
   // insert gsf tracks and SCs, binding pre-existing SCs to ECAL-Driven GSF
   auto bgsf = gsftracks->cbegin();
   auto egsf = gsftracks->cend();
@@ -80,7 +79,7 @@ importToBlock( const edm::Event& e,
       }
     }// gsf extra ref?
     // cache the SC_end offset
-    SCs_end_position = std::distance(elems.begin(),SCs_end);
+    size_t SCs_end_position = std::distance(elems.begin(),SCs_end);
     // get track momentum information
     const std::vector<reco::PFTrajectoryPoint>& PfGsfPoint
       = gsftrack->trajectoryPoints();
