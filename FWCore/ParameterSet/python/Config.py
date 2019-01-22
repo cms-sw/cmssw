@@ -880,8 +880,7 @@ class Process(object):
     def _insertManyInto(self, parameterSet, label, itemDict, tracked):
         l = []
         for name,value in six.iteritems(itemDict):
-            newLabel = value.nameInProcessDesc_(name)
-            l.append(newLabel)
+            value.appendToProcessDescList_(l, name)
             value.insertInto(parameterSet, name)
         # alphabetical order is easier to compare with old language
         l.sort()
@@ -1550,6 +1549,16 @@ if __name__=="__main__":
             self.__insertValue(tracked,label,value)
         def newPSet(self):
             return TestMakePSet()
+
+    class SwitchProducerTest(SwitchProducer):
+        def __init__(self, **kargs):
+            super(SwitchProducerTest,self).__init__(
+                dict(
+                    test1 = lambda: (True, -10),
+                    test2 = lambda: (True, -9),
+                    test3 = lambda: (True, -8),
+                    test4 = lambda: (True, -7)
+                ), **kargs)
 
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
@@ -2654,6 +2663,31 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assertEqual((True,1),p.values["ref2"][1].values["b"][1].values["a"])
             self.assertEqual((True,1),p.values["ref4"][1][0].values["a"])
             self.assertEqual((True,1),p.values["ref4"][1][1].values["a"])
+        def testSwitchProducer(self):
+            proc = Process("test")
+            proc.sp = SwitchProducerTest(test2 = EDProducer("Foo",
+                                                            a = int32(1),
+                                                            b = PSet(c = int32(2))),
+                                         test1 = EDProducer("Bar",
+                                                            aa = int32(11),
+                                                            bb = PSet(cc = int32(12))))
+            proc.a = EDProducer("A")
+            proc.s = Sequence(proc.a + proc.sp)
+            proc.t = Task(proc.a, proc.sp)
+            proc.p = Path()
+            proc.p.associate(proc.t)
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertEqual((True,"EDProducer"), p.values["sp"][1].values["@module_edm_type"])
+            self.assertEqual((True, "SwitchProducer"), p.values["sp"][1].values["@module_type"])
+            self.assertEqual((True, "sp"), p.values["sp"][1].values["@module_label"])
+            self.assertEqual((True, ["sp@test1", "sp@test2"]), p.values["sp"][1].values["@all_cases"])
+            self.assertEqual((False, "sp@test2"), p.values["sp"][1].values["@chosen_case"])
+            self.assertEqual(["a", "sp", "sp@test1", "sp@test2"], p.values["@all_modules"][1])
+            self.assertEqual((True,"EDProducer"), p.values["sp@test1"][1].values["@module_edm_type"])
+            self.assertEqual((True,"Bar"), p.values["sp@test1"][1].values["@module_type"])
+            self.assertEqual((True,"EDProducer"), p.values["sp@test2"][1].values["@module_edm_type"])
+            self.assertEqual((True,"Foo"), p.values["sp@test2"][1].values["@module_type"])
         def testPrune(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -3189,4 +3223,42 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             self.assertEqual(p.a.type_(), "YourAnalyzer3")
             (m3 | m4).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer4"))
             self.assertEqual(p.a.type_(), "YourAnalyzer3")
+
+            # SwitchProducer
+            sp = SwitchProducerTest(test1 = EDProducer("Foo",
+                                                       a = int32(1),
+                                                       b = PSet(c = int32(2))),
+                                    test2 = EDProducer("Bar",
+                                                       aa = int32(11),
+                                                       bb = PSet(cc = int32(12))))
+            m = Modifier()
+            m._setChosen()
+            # Modify parameters
+            m.toModify(sp,
+                       test1 = dict(a = 4, b = dict(c = None)),
+                       test2 = dict(aa = 15, bb = dict(cc = 45, dd = string("foo"))))
+            self.assertEqual(sp.test1.a.value(), 4)
+            self.assertEqual(sp.test1.b.hasParameter("c"), False)
+            self.assertEqual(sp.test2.aa.value(), 15)
+            self.assertEqual(sp.test2.bb.cc.value(), 45)
+            self.assertEqual(sp.test2.bb.dd.value(), "foo")
+            # Replace a producer
+            m.toReplaceWith(sp.test1, EDProducer("Fred", x = int32(42)))
+            self.assertEqual(sp.test1.type_(), "Fred")
+            self.assertEqual(sp.test1.x.value(), 42)
+            self.assertRaises(TypeError, lambda: m.toReplaceWith(sp.test1, EDAnalyzer("Foo")))
+            # Alternative way (only to be allow same syntax to be used as for adding)
+            m.toModify(sp, test2 = EDProducer("Xyzzy", x = int32(24)))
+            self.assertEqual(sp.test2.type_(), "Xyzzy")
+            self.assertEqual(sp.test2.x.value(), 24)
+            self.assertRaises(TypeError, lambda: m.toModify(sp, test2 = EDAnalyzer("Foo")))
+            # Add a producer
+            m.toModify(sp, test3 = EDProducer("Wilma", y = int32(24)))
+            self.assertEqual(sp.test3.type_(), "Wilma")
+            self.assertEqual(sp.test3.y.value(), 24)
+            self.assertRaises(TypeError, lambda: m.toModify(sp, test4 = EDAnalyzer("Foo")))
+            # Remove a producer
+            m.toModify(sp, test2 = None)
+            self.assertEqual(hasattr(sp, "test2"), False)
+
     unittest.main()

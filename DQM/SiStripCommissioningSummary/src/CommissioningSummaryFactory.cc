@@ -38,7 +38,3 @@ void SummaryPlotFactory<CommissioningAnalysis*>::fill( TH1& summary_histo ) {
   format();
   
 } 
-
-// -----------------------------------------------------------------------------
-//
-template class SummaryPlotFactory<CommissioningAnalysis*>;

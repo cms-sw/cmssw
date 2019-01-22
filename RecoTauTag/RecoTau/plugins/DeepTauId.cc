@@ -293,7 +293,7 @@ public:
     }
 
 private:
-    virtual tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
+    tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
                                               edm::Handle<TauCollection> taus) override
     {
         edm::Handle<pat::ElectronCollection> electrons;

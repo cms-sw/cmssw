@@ -12,4 +12,4 @@ ALCARECOHcalCalIsolatedBunchSelectorHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.
 from Calibration.HcalAlCaRecoProducers.alcaIsolatedBunchSelector_cfi import *
 
 seqALCARECOHcalCalIsolatedBunchSelector = cms.Sequence(ALCARECOHcalCalIsolatedBunchSelectorHLT *
-                                                       AlcaIsolatedBunchSelector)
+                                                       alcaIsolatedBunchSelector)

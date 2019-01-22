@@ -2800,6 +2800,8 @@ defaultDataSets['2023D34']=''
 defaultDataSets['2023D35']=''
 defaultDataSets['2023D36']=''
 defaultDataSets['2023D37']=''
+defaultDataSets['2023D38']=''
+defaultDataSets['2023D39']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
@@ -3029,6 +3031,10 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     for step in upgradeSteps['heCollapse']['steps']:
         stepName = step + upgradeSteps['heCollapse']['suffix']
         upgradeStepDict[stepName][k] = merge([{'--procModifiers': 'run2_HECollapse_2018'}, upgradeStepDict[step][k]])
+
+    for step in upgradeSteps['killStuckTBM']['steps']:
+        stepName = step + upgradeSteps['killStuckTBM']['suffix']
+        upgradeStepDict[stepName][k] = merge([{'--customise': 'SimTracker/SiPixelDigitizer/customiseStuckTBMSimulation.activateStuckTBMSimulation2018NoPU'}, upgradeStepDict[step][k]])
 
     # setup PU
     if k2 in PUDataSets:

@@ -143,7 +143,7 @@ namespace edm {
       BranchDescription const& bd = prod.second;
       if(bd.branchType() == branchType_) {
         if(isForPrimaryProcess or bd.processName() == pc.processName()) {
-          if(bd.isAlias()) {
+          if(bd.isAnyAlias()) {
             hasAliases = true;
           } else {
             auto cbd = std::make_shared<BranchDescription const>(bd);
@@ -171,9 +171,25 @@ namespace edm {
     if(hasAliases) {
       for(auto const& prod : prodsList) {
         BranchDescription const& bd = prod.second;
-        if(bd.isAlias() && bd.branchType() == branchType_) {
+        if(bd.isAnyAlias() && bd.branchType() == branchType_) {
           auto cbd = std::make_shared<BranchDescription const>(bd);
-          addAliasedProduct(cbd);
+          if(bd.isSwitchAlias()) {
+            assert(branchType_ == InEvent);
+            // Need different implementation for SwitchProducers not
+            // in any Path (onDemand) and for those in a Path in order
+            // to prevent the switch-aliased-for EDProducers from
+            // being run when the SwitchProducer is in a Path after a
+            // failing EDFilter.
+            if(bd.onDemand()) {
+              addSwitchAliasProduct(cbd);
+            }
+            else {
+              addSwitchProducerProduct(cbd);
+            }
+          }
+          else {
+            addAliasedProduct(cbd);
+          }
         }
       }
     }
@@ -328,6 +344,22 @@ namespace edm {
     assert(index != ProductResolverIndexInvalid);
 
     addProductOrThrow(std::make_unique<AliasProductResolver>(std::move(bd), dynamic_cast<ProducedProductResolver&>(*productResolvers_[index])));
+  }
+
+  void
+  Principal::addSwitchProducerProduct(std::shared_ptr<BranchDescription const> bd) {
+    ProductResolverIndex index = preg_->indexFrom(bd->switchAliasForBranchID());
+    assert(index != ProductResolverIndexInvalid);
+
+    addProductOrThrow(std::make_unique<SwitchProducerProductResolver>(std::move(bd), dynamic_cast<ProducedProductResolver&>(*productResolvers_[index])));
+  }
+
+  void
+  Principal::addSwitchAliasProduct(std::shared_ptr<BranchDescription const> bd) {
+    ProductResolverIndex index = preg_->indexFrom(bd->switchAliasForBranchID());
+    assert(index != ProductResolverIndexInvalid);
+
+    addProductOrThrow(std::make_unique<SwitchAliasProductResolver>(std::move(bd), dynamic_cast<ProducedProductResolver&>(*productResolvers_[index])));
   }
 
   void
@@ -681,7 +713,7 @@ namespace edm {
         if (process == bd.processName()) {
 
           // Ignore aliases to avoid matching the same product multiple times.
-          if(bd.isAlias()) {
+          if(bd.isAnyAlias()) {
             continue;
           }
 
@@ -816,7 +848,7 @@ namespace edm {
   Principal::getAllProvenance(std::vector<Provenance const*>& provenances) const {
     provenances.clear();
     for(auto const& productResolver : *this) {
-      if(productResolver->singleProduct() && productResolver->provenanceAvailable() && !productResolver->branchDescription().isAlias()) {
+      if(productResolver->singleProduct() && productResolver->provenanceAvailable() && !productResolver->branchDescription().isAnyAlias()) {
         // We do not attempt to get the event/lumi/run status from the provenance,
         // because the per event provenance may have been dropped.
         if(productResolver->provenance()->branchDescription().present()) {
@@ -833,7 +865,7 @@ namespace edm {
   Principal::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
     provenances.clear();
     for(auto const& productResolver : *this) {
-      if(productResolver->singleProduct() && !productResolver->branchDescription().isAlias()) {
+      if(productResolver->singleProduct() && !productResolver->branchDescription().isAnyAlias()) {
         if(productResolver->stableProvenance()->branchDescription().present()) {
            provenances.push_back(productResolver->stableProvenance());
         }

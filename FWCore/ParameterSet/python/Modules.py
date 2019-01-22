@@ -5,6 +5,7 @@ from SequenceTypes import _SequenceLeaf
 from Types import vstring
 
 import six
+import copy
 from ExceptionHandling import *
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
     def __init__(self,type_,*arg,**kargs):
@@ -210,11 +211,221 @@ class Looper(_ConfigureComponent,_TypedParameterizable):
         return "@main_looper"
 
 
+# Need to be a module-level function for the configuration with a
+# SwitchProducer to be pickleable.
+def _switch_cpu():
+    return (True, 1)
+
+class SwitchProducer(EDProducer):
+    """This purpose class is to provide a switch of EDProducers for a single module/product label.
+
+    The decision is done at the time when the python configuration is
+    translated to C++. This class is generic, and intended to be
+    inherited for concrete switches. Example:
+
+    class SwitchProducerFoo(SwitchProducer):
+        def __init__(self, **kargs):
+            super(SwitchProducerFoo,self).__init__(
+                dict(case1 = case1Func, case2 = case2Func),
+                **kargs
+            )
+
+    foo = SwitchProducerFoo(
+        case1 = EDProducer("Producer1"),
+        case2 = EDProducer("Producer2")
+    )
+
+    Here case1Func and case2Func are functions that return a (bool,
+    int) tuple, where the bool tells whether that case is enabled or
+    not, and the int tells the priority of that case. The case with
+    the highest priority among those that are enabled will get chosen.
+
+    The end result is that the product(s) labeled as "foo" will be
+    produced with one of the producers. It would be good if their
+    output product types and instance names would be the same (or very
+    close).
+    """
+    def __init__(self, caseFunctionDict, **kargs):
+        super(SwitchProducer,self).__init__(None)
+        self._caseFunctionDict = copy.copy(caseFunctionDict)
+        self.__setParameters(kargs)
+        self._isModified = False
+
+    @staticmethod
+    def getCpu():
+        """Returns a function that returns the priority for a CPU "computing device". Intended to be used by deriving classes."""
+        return _switch_cpu
+
+    def _chooseCase(self):
+        """Returns the name of the chosen case."""
+        cases = self.parameterNames_()
+        bestCase = None
+        for case in cases:
+            (enabled, priority) = self._caseFunctionDict[case]()
+            if enabled and (bestCase is None or bestCase[0] < priority):
+                bestCase = (priority, case)
+        if bestCase is None:
+            raise RuntimeError("All cases '%s' were disabled" % (str(cases)))
+        return bestCase[1]
+
+    def _getProducer(self):
+        """Returns the EDroducer of the chosen case"""
+        return self.__dict__[self._chooseCase()]
+
+    def __addParameter(self, name, value):
+        if not (isinstance(value, EDProducer) and not isinstance(value, SwitchProducer)):
+            raise TypeError(name+" does not already exist, so it can only be set to a cms.EDProducer")
+        if name not in self._caseFunctionDict:
+            raise ValueError("Case '%s' is not allowed (allowed ones are %s)" % (name, ",".join(six.iterkeys(self._caseFunctionDict))))
+        if name in self.__dict__:
+            message = "Duplicate insert of member " + name
+            message += "\nThe original parameters are:\n"
+            message += self.dumpPython() + '\n'
+            raise ValueError(message)
+        self.__dict__[name]=value
+        self._Parameterizable__parameterNames.append(name)
+        self._isModified = True
+
+    def __setParameters(self, parameters):
+        for name, value in six.iteritems(parameters):
+            self.__addParameter(name, value)
+
+    def __setattr__(self, name, value):
+        # Following snippet copied and customized from
+        # _Parameterizable in order to support Modifier.toModify
+        #
+        #since labels are not supposed to have underscores at the beginning
+        # I will assume that if we have such then we are setting an internal variable
+        if self.isFrozen() and not (name in ["_Labelable__label","_isFrozen"] or name.startswith('_')):
+            message = "Object already added to a process. It is read only now\n"
+            message +=  "    %s = %s" %(name, value)
+            message += "\nThe original parameters are:\n"
+            message += self.dumpPython() + '\n'
+            raise ValueError(message)
+        # underscored names bypass checking for _ParameterTypeBase
+        if name[0]=='_':
+            super(SwitchProducer, self).__setattr__(name,value)
+        elif not name in self.__dict__:
+            self.__addParameter(name, value)
+            self._isModified = True
+        else:
+            if not (isinstance(value, EDProducer) and not isinstance(value, SwitchProducer)):
+                raise TypeError(name+" can only be set to a cms.EDProducer")
+            # We should always receive an cms.EDProducer
+            self.__dict__[name] = value
+            self._isModified = True
+
+    def clone(self, **params):
+        returnValue = SwitchProducer.__new__(type(self))
+
+        # Need special treatment as cms.EDProducer is not a valid parameter type (except in this case)
+        myparams = dict()
+        for name, value in six.iteritems(params):
+            if value is None:
+                continue
+            elif isinstance(value, dict):
+                myparams[name] = self.__dict__[name].clone(**value)
+            else: # value is an EDProducer
+                myparams[name] = value.clone()
+
+        # Add the ones that were not customized
+        for name in self.parameterNames_():
+            if name not in params:
+                myparams[name] = self.__dict__[name].clone()
+        returnValue.__init__(**myparams)
+        returnValue._isModified = False
+        returnValue._isFrozen = False
+        saveOrigin(returnValue, 1)
+        return returnValue
+
+    def dumpPython(self, options=PrintOptions()):
+        # Note that if anyone uses the generic SwitchProducer instead
+        # of a derived-one, the information on the functions for the
+        # producer decision is lost
+        result = "%s(" % self.__class__.__name__ # not including cms. since the deriving classes are not in cms "namespace"
+        options.indent()
+        for resource in sorted(self.parameterNames_()):
+            result += "\n" + options.indentation() + resource + " = " + getattr(self, resource).dumpPython(options).rstrip() + ","
+        if result[-1] == ",":
+            result = result.rstrip(",")
+        options.unindent()
+        result += "\n)\n"
+        return result
+
+    def nameInProcessDesc_(self, myname):
+        return myname
+    def moduleLabel_(self, myname):
+        return myname
+    def caseLabel_(self, name, case):
+        return name+"@"+case
+    def appendToProcessDescList_(self, lst, myname):
+        # This way we can insert the chosen EDProducer to @all_modules
+        # so that we get easily a worker for it
+        lst.append(myname)
+        for case in self.parameterNames_():
+            lst.append(self.caseLabel_(myname, case))
+
+    def insertInto(self, parameterSet, myname):
+        for case in self.parameterNames_():
+            producer = self.__dict__[case]
+            producer.insertInto(parameterSet, self.caseLabel_(myname, case))
+        newpset = parameterSet.newPSet()
+        newpset.addString(True, "@module_label", self.moduleLabel_(myname))
+        newpset.addString(True, "@module_type", "SwitchProducer")
+        newpset.addString(True, "@module_edm_type", "EDProducer")
+        newpset.addVString(True, "@all_cases", [myname+"@"+p for p in self.parameterNames_()])
+        newpset.addString(False, "@chosen_case", myname+"@"+self._chooseCase())
+        parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
+
+    def _placeImpl(self,name,proc):
+        proc._placeProducer(name,self)
+        for case in self.parameterNames_():
+            # Note that these don't end up in @all_modules
+            # automatically because they're not part of any
+            # Task/Sequence/Path
+            proc._placeProducer(self.caseLabel_(name, case), self.__dict__[case])
+
+    def _clonesequence(self, lookuptable):
+        try:
+            return lookuptable[id(self)]
+        except:
+            raise ModuleCloneError(self._errorstr())
+    def _errorstr(self):
+        return "SwitchProducer"
+
 
 if __name__ == "__main__":
     import unittest
     from Types import *
     from SequenceTypes import *
+
+    class SwitchProducerTest(SwitchProducer):
+        def __init__(self, **kargs):
+            super(SwitchProducerTest,self).__init__(
+                dict(
+                    test1 = lambda: (True, -10),
+                    test2 = lambda: (True, -9),
+                    test3 = lambda: (True, -8)
+                ), **kargs)
+    class SwitchProducerTest1Dis(SwitchProducer):
+        def __init__(self, **kargs):
+            super(SwitchProducerTest1Dis,self).__init__(
+                dict(
+                    test1 = lambda: (False, -10),
+                    test2 = lambda: (True, -9)
+                ), **kargs)
+    class SwitchProducerTest2Dis(SwitchProducer):
+        def __init__(self, **kargs):
+            super(SwitchProducerTest2Dis,self).__init__(
+                dict(
+                    test1 = lambda: (True, -10),
+                    test2 = lambda: (False, -9)
+                ), **kargs)
+    class SwitchProducerPickleable(SwitchProducer):
+        def __init__(self, **kargs):
+            super(SwitchProducerPickleable,self).__init__(
+                dict(cpu = SwitchProducer.getCpu()), **kargs)
+
     class TestModules(unittest.TestCase):
         def testEDAnalyzer(self):
             empty = EDAnalyzer("Empty")
@@ -285,6 +496,9 @@ if __name__ == "__main__":
             m = EDProducer("x")
             self.assertTrue(m._isTaskComponent())
             self.assertTrue(m.isLeaf())
+            m = SwitchProducerTest(test1=EDProducer("x"))
+            self.assertTrue(m._isTaskComponent())
+            self.assertTrue(m.isLeaf())
             m = EDFilter("x")
             self.assertTrue(m._isTaskComponent())
             self.assertTrue(m.isLeaf())
@@ -313,5 +527,112 @@ if __name__ == "__main__":
             m = Task()
             self.assertTrue(m._isTaskComponent())
             self.assertFalse(m.isLeaf())
+
+        def testSwitchProducer(self):
+            # Constructor
+            sp = SwitchProducerTest(test1 = EDProducer("Foo"), test2 = EDProducer("Bar"))
+            self.assertEqual(sp.test1.type_(), "Foo")
+            self.assertEqual(sp.test2.type_(), "Bar")
+            self.assertRaises(ValueError, lambda: SwitchProducerTest(nonexistent = EDProducer("Foo")))
+            self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = EDAnalyzer("Foo")))
+            self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = EDFilter("Foo")))
+            self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = Source("Foo")))
+            self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = OutputModule("Foo")))
+            self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = Looper("Foo")))
+            self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = EDAlias()))
+            self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = Service("Foo")))
+            self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = ESSource("Foo")))
+            self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = ESProducer("Foo")))
+            self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = ESPrefer("Foo")))
+            self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = SwitchProducerTest(test1 = EDProducer("Foo"))))
+
+            # Case decision
+            sp = SwitchProducerTest(test1 = EDProducer("Foo"), test2 = EDProducer("Bar"))
+            self.assertEqual(sp._getProducer().type_(), "Bar")
+            sp = SwitchProducerTest1Dis(test1 = EDProducer("Foo"), test2 = EDProducer("Bar"))
+            self.assertEqual(sp._getProducer().type_(), "Bar")
+            sp = SwitchProducerTest2Dis(test1 = EDProducer("Foo"), test2 = EDProducer("Bar"))
+            self.assertEqual(sp._getProducer().type_(), "Foo")
+            sp = SwitchProducerTest(test1 = EDProducer("Bar"))
+            self.assertEqual(sp._getProducer().type_(), "Bar")
+            sp = SwitchProducerTest1Dis(test1 = EDProducer("Bar"))
+            self.assertRaises(RuntimeError, sp._getProducer)
+
+            # Mofications
+            from Types import int32, string, PSet
+            sp = SwitchProducerTest(test1 = EDProducer("Foo",
+                                                       a = int32(1),
+                                                       b = PSet(c = int32(2))),
+                                    test2 = EDProducer("Bar",
+                                                       aa = int32(11),
+                                                       bb = PSet(cc = int32(12))))
+            # Simple clone
+            cl = sp.clone()
+            self.assertEqual(cl.test1.type_(), "Foo")
+            self.assertEqual(cl.test1.a.value(), 1)
+            self.assertEqual(cl.test1.b.c.value(), 2)
+            self.assertEqual(cl.test2.type_(), "Bar")
+            self.assertEqual(cl.test2.aa.value(), 11)
+            self.assertEqual(cl.test2.bb.cc.value(), 12)
+            # Modify clone
+            cl.test1.a = 3
+            self.assertEqual(cl.test1.a.value(), 3)
+            cl.test1 = EDProducer("Fred")
+            self.assertEqual(cl.test1.type_(), "Fred")
+            def _assignEDAnalyzer():
+                cl.test1 = EDAnalyzer("Foo")
+            self.assertRaises(TypeError, _assignEDAnalyzer)
+            def _assignSwitchProducer():
+                cl.test1 = SwitchProducerTest(test1 = SwitchProducerTest(test1 = EDProducer("Foo")))
+            self.assertRaises(TypeError, _assignSwitchProducer)
+            # Modify values with a dict
+            cl = sp.clone(test1 = dict(a = 4, b = dict(c = None)),
+                          test2 = dict(aa = 15, bb = dict(cc = 45, dd = string("foo"))))
+            self.assertEqual(cl.test1.a.value(), 4)
+            self.assertEqual(cl.test1.b.hasParameter("c"), False)
+            self.assertEqual(cl.test2.aa.value(), 15)
+            self.assertEqual(cl.test2.bb.cc.value(), 45)
+            self.assertEqual(cl.test2.bb.dd.value(), "foo")
+            # Replace/add/remove EDProducers
+            cl = sp.clone(test1 = EDProducer("Fred", x = int32(42)),
+                          test3 = EDProducer("Wilma", y = int32(24)),
+                          test2 = None)
+            self.assertEqual(cl.test1.type_(), "Fred")
+            self.assertEqual(cl.test1.x.value(), 42)
+            self.assertEqual(cl.test3.type_(), "Wilma")
+            self.assertEqual(cl.test3.y.value(), 24)
+            self.assertEqual(hasattr(cl, "test2"), False)
+            self.assertRaises(TypeError, lambda: sp.clone(test1 = EDAnalyzer("Foo")))
+            self.assertRaises(TypeError, lambda: sp.clone(test1 = SwitchProducerTest(test1 = SwitchProducerTest(test1 = EDProducer("Foo")))))
+
+            # Dump
+            sp = SwitchProducerTest(test2 = EDProducer("Foo",
+                                                       a = int32(1),
+                                                       b = PSet(c = int32(2))),
+                                    test1 = EDProducer("Bar",
+                                                       aa = int32(11),
+                                                       bb = PSet(cc = int32(12))))
+            self.assertEqual(sp.dumpPython(),
+"""SwitchProducerTest(
+    test1 = cms.EDProducer("Bar",
+        aa = cms.int32(11),
+        bb = cms.PSet(
+            cc = cms.int32(12)
+        )
+    ),
+    test2 = cms.EDProducer("Foo",
+        a = cms.int32(1),
+        b = cms.PSet(
+            c = cms.int32(2)
+        )
+    )
+)
+""")
+            # Pickle
+            import pickle
+            sp = SwitchProducerPickleable(cpu = EDProducer("Foo"))
+            pkl = pickle.dumps(sp)
+            unpkl = pickle.loads(pkl)
+            self.assertEqual(unpkl.cpu.type_(), "Foo")
 
     unittest.main()
