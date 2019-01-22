@@ -46,7 +46,7 @@ class CSCGEMMotherboardME11 : public CSCGEMMotherboard
   std::unique_ptr<CSCMotherboardLUTME11> cscTmbLUT_;
 
   /* readout the LCTs in a sector of ME11 */
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs(enum CSCPart me1ab) const;
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTsME11(enum CSCPart me1ab) const;
 
   /** Methods to sort the LCTs */
   void sortLCTs(std::vector<CSCCorrelatedLCTDigi>&, int bx,
