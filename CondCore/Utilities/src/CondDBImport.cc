@@ -266,6 +266,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( PhysicsTGraphPayload )
       IMPORT_PAYLOAD_CASE( PhysicsTFormulaPayload )
       IMPORT_PAYLOAD_CASE( PhysicsTools::Calibration::HistogramD3D )
+      IMPORT_PAYLOAD_CASE( PPSTimingCalibration )
       IMPORT_PAYLOAD_CASE( QGLikelihoodCategory                     )
       IMPORT_PAYLOAD_CASE( QGLikelihoodObject               )
       IMPORT_PAYLOAD_CASE( QGLikelihoodSystematicsObject     )
