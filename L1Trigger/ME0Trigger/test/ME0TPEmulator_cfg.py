@@ -7,10 +7,6 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(10)
 )
 
-# Hack to add "test" directory to the python path.
-import sys, os
-sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'],
-                                'src/L1Trigger/ME0Trigger/test'))
 
 process.source = cms.Source("PoolSource",
      fileNames = cms.untracked.vstring(
