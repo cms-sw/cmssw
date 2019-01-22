@@ -103,13 +103,16 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,
     double distL = 0.5*topo.pitch().second + 0.1*hit.localPosition().y();
     
     // This is for the layout with bars along phi
-    if ( topo_->getMTDTopologyMode() == (int) BTLDetId::CrysLayout::bar ){
-      distR = 0.5*topo.pitch().first - 0.1*hit.localPosition().x();
-      distL = 0.5*topo.pitch().first + 0.1*hit.localPosition().x();
-    }
+    if ( topo_->getMTDTopologyMode() == (int) BTLDetId::CrysLayout::bar ||
+	 topo_->getMTDTopologyMode() == (int) BTLDetId::CrysLayout::barphiflat 
+	 )
+      {
+	distR = 0.5*topo.pitch().first - 0.1*hit.localPosition().x();
+	distL = 0.5*topo.pitch().first + 0.1*hit.localPosition().x();
+      }
     
     double tR = toa + LightCollSlopeR_*distR;
-    double tL = toa + LightCollSlopeR_*distL;
+    double tL = toa + LightCollSlopeL_*distL;
    
     // --- Store the time of the first SimHit
     if ( (simHitIt->second).hit_info[1][0] == 0 
