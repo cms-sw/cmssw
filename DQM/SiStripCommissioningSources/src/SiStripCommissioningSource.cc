@@ -1041,21 +1041,12 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
           } else if ( task_ == sistrip::DAQ_SCOPE_MODE ) {
             tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn, parameters_ );
           } else if ( task_ == sistrip::CALIBRATION_SCAN || 
-                      task_ == sistrip::CALIBRATION_SCAN_DECO ) { 
-            tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationScanTask( dqm(), 
-                                                                              *iconn, 
-                                                                              task_, 
-                                                                              filename_.c_str(), 
-                                                                              run_, 
-                                                                              setup );
-          } else if ( task_ == sistrip::CALIBRATION || 
-                      task_ == sistrip::CALIBRATION_DECO ) { 
-            tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationTask( dqm(), 
-                                                                          *iconn, 
-                                                                          task_, 
-                                                                          filename_.c_str(), 
-                                                                          run_, 
-                                                                          setup );
+                      task_ == sistrip::CALIBRATION_SCAN_DECO ) {
+	    tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationScanTask(dqm(),*iconn,task_,filename_.c_str(),run_,setup);
+	  }	  
+	  else if ( task_ == sistrip::CALIBRATION || 
+		    task_ == sistrip::CALIBRATION_DECO ) { 
+	    tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationTask(dqm(),*iconn,task_,filename_.c_str(),run_,setup);	    
           } else if ( task_ == sistrip::UNDEFINED_RUN_TYPE ) { 
             edm::LogWarning(mlDqmSource_)  
               << "[SiStripCommissioningSource::" << __func__ << "]"
@@ -1071,39 +1062,40 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
           // Check if fed_key is found and, if so, book histos and set update freq
           if ( tasks_[iconn->fedId()][iconn->fedCh()] ) {
             tasks_[iconn->fedId()][iconn->fedCh()]->eventSetup( &setup );
-            tasks_[iconn->fedId()][iconn->fedCh()]->bookHistograms(); 
-            tasks_[iconn->fedId()][iconn->fedCh()]->updateFreq( updateFreq_ ); 
+
+
+	    if(task_ != sistrip::CALIBRATION_SCAN and task_ != sistrip::CALIBRATION_SCAN_DECO and
+	       task_ != sistrip::CALIBRATION and task_ != sistrip::CALIBRATION_DECO)
+              tasks_[iconn->fedId()][iconn->fedCh()]->bookHistograms();
+            else{
+              if(task_ == sistrip::CALIBRATION_SCAN or task_ == sistrip::CALIBRATION_SCAN_DECO)
+                static_cast<CalibrationScanTask*>(tasks_[iconn->fedId()][iconn->fedCh()])->setCurrentFolder(dir.str());
+              else if(task_ == sistrip::CALIBRATION or task_ == sistrip::CALIBRATION_DECO)
+                static_cast<CalibrationTask*>(tasks_[iconn->fedId()][iconn->fedCh()])->setCurrentFolder(dir.str());
+            }
+            tasks_[iconn->fedId()][iconn->fedCh()]->updateFreq( updateFreq_ );
             booked++;
-            std::stringstream ss;
-            ss << "[SiStripCommissioningSource::" << __func__ << "]"
-	       << " Booking histograms for '" << tasks_[iconn->fedId()][iconn->fedCh()]->myName()
-	       << "' object with key 0x" << std::hex << std::setfill('0') << std::setw(8) << fed_key.key() << std::dec
-	       << " in directory " << dir.str();
-            LogTrace(mlDqmSource_) << ss.str();
           } else {
-            std::stringstream ss;
+	    std::stringstream ss;
             ss << "[SiStripCommissioningSource::" << __func__ << "]"
                << " NULL pointer to CommissioningTask for key 0x"
                << std::hex << std::setfill('0') << std::setw(8) << fed_key.key() << std::dec
                << " in directory " << dir.str()
                << " Unable to book histograms!";
-            edm::LogWarning(mlDqmSource_) << ss.str();
-          }
-
-        } else {
-          std::stringstream ss;
-          ss << "[SiStripCommissioningSource::" << __func__ << "]"
-             << " CommissioningTask object already exists for key 0x"
-             << std::hex << std::setfill('0') << std::setw(8) << fed_key.key() << std::dec
-             << " in directory " << dir.str()
-             << " Unable to create CommissioningTask object!";
-          edm::LogWarning(mlDqmSource_) << ss.str();
-        }
-
-      } // loop over fed channels
-    } // loop over feds
-  } // end other tasks
-
+	    edm::LogWarning(mlDqmSource_) << ss.str();
+	  }
+	} else {
+	  std::stringstream ss;
+	  ss << "[SiStripCommissioningSource::" << __func__ << "]"
+	     << " CommissioningTask object already exists for key 0x"
+	     << std::hex << std::setfill('0') << std::setw(8) << fed_key.key() << std::dec
+	     << " in directory " << dir.str()
+	     << " Unable to create CommissioningTask object!";
+	  edm::LogWarning(mlDqmSource_) << ss.str();
+	}	
+      } // loop over fed channels                                                                                                                                                                      
+    } // loop over feds                                                                                                                                                                                
+  } // end other tasks                                                                                                                                                                                 
   edm::LogVerbatim(mlDqmSource_)
     << "[SiStripCommissioningSource::" << __func__ << "]"
     << " Created " << booked 
@@ -1263,3 +1255,4 @@ void SiStripCommissioningSource::directory( std::stringstream& dir,
 //     << " Cabling object rebuilt using on FED and device descriptions!";
   
 // }
+
