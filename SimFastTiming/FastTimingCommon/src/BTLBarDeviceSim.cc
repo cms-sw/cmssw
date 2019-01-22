@@ -52,9 +52,7 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,
     if(id==0) continue; // to be ignored at RECO level                                                              
 
     BTLDetId btlid(detId);
-    const int boundRef = ( topo_->getMTDTopologyMode() == (int ) BTLDetId::CrysLayout::barzflat ?
-			   BTLDetId::kTypeBoundariesBarZflat[1]   :
-			   BTLDetId::kTypeBoundariesReference[1] );
+    const int boundRef = btlid.modulesPerType(static_cast<BTLDetId::CrysLayout>(topo_->getMTDTopologyMode()));
     DetId geoId = BTLDetId(btlid.mtdSide(),btlid.mtdRR(),btlid.module()+boundRef*(btlid.modType()-1),0,1);
     const MTDGeomDet* thedet = geom_->idToDet(geoId);
 
