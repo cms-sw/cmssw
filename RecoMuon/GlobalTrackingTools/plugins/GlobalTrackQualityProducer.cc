@@ -285,11 +285,9 @@ std::pair<double,double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) c
     }
   }
   
-  if (tkNdof < 6 ) tkChi2 = tkChi2; // or should I set it to  a large number ?
-  else tkChi2 /= (tkNdof-5.);
+  if (tkNdof > 5 ) {tkChi2 /= (tkNdof-5.); }
 
-  if (muNdof < 6 ) muChi2 = muChi2; // or should I set it to  a large number ?
-  else muChi2 /= (muNdof-5.);
+  if (muNdof > 5 ) {muChi2 /= (muNdof-5.); }
 
   return std::pair<double,double>(tkChi2,muChi2);
        
