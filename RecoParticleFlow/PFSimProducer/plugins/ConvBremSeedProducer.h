@@ -36,7 +36,7 @@ class MagneticFieldMap;
 class PropagatorWithMaterial;
 class KFUpdator;
 class TransientTrackingRecHitBuilder;
-class TrajectoryStateTransform;
+struct TrajectoryStateTransform;
 
 class ConvBremSeedProducer : public edm::EDProducer {
   typedef SiStripRecHit2DCollection::const_iterator StDetMatch;
