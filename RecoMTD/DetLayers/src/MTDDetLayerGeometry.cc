@@ -105,7 +105,7 @@ MTDDetLayerGeometry::allLayers() const {
 const DetLayer* MTDDetLayerGeometry::idToLayer(const DetId &id) const{
 
   DetId idout;
-  MTDDetId detId;
+  MTDDetId detId(id);
   
   if(detId.mtdSubDetector() == 2){ // 2 is ETL
     ETLDetId etlId( detId.rawId() );

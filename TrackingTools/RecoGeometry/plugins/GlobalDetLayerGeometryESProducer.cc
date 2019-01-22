@@ -23,11 +23,26 @@ GlobalDetLayerGeometryESProducer::produce(const RecoGeometryRecord & iRecord){
   
   edm::ESHandle<GeometricSearchTracker> tracker;  
   edm::ESHandle<MuonDetLayerGeometry> muon;
+  edm::ESHandle<MTDDetLayerGeometry> mtd;
 
   iRecord.getRecord<TrackerRecoGeometryRecord>().get(tracker);
   iRecord.getRecord<MuonRecoGeometryRecord>().get(muon);
+  
+  // get the MTD if it is available
+  if(auto mtdRecord = iRecord.tryToGetRecord<MTDRecoGeometryRecord>()) {
+    mtdRecord->get(mtd);
+    if(!mtd.isValid()) {
+      LogInfo("GlobalDetLayergGeometryBuilder") << "No MTD geometry is available.";
+    } 
+  } else {
+    LogInfo("GlobalDetLayerGeometryBuilder") << "No MTDDigiGeometryRecord is available.";
+  }
+
+  // if we've got MTD initialize it
+  if( mtd.isValid() ) return std::make_unique<GlobalDetLayerGeometry>(tracker.product(), muon.product(), mtd.product());
 
   return std::make_unique<GlobalDetLayerGeometry>(tracker.product(), muon.product());
+
 }
 
 

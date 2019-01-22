@@ -620,7 +620,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       rhos->reserve(nEta);
       sigmas->reserve(nEta);
       fastjet::ClusterSequenceAreaBase const* clusterSequenceWithArea =
-        dynamic_cast<fastjet::ClusterSequenceAreaBase const *> ( &*fjClusterSeq_ );
+        dynamic_cast<fastjet::ClusterSequenceAreaBase const *> ( fjClusterSeq_.get() );
 
       if (clusterSequenceWithArea ==nullptr ){
 	if (!fjJets_.empty()) {
@@ -646,7 +646,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       double mean_area = 0;
       
       fastjet::ClusterSequenceAreaBase const* clusterSequenceWithArea =
-        dynamic_cast<fastjet::ClusterSequenceAreaBase const *> ( &*fjClusterSeq_ );
+        dynamic_cast<fastjet::ClusterSequenceAreaBase const *> ( fjClusterSeq_.get() );
       if (clusterSequenceWithArea ==nullptr ){
 	if (!fjJets_.empty()) {
 	  throw cms::Exception("LogicError")<<"fjClusterSeq is not initialized while inputs are present\n ";

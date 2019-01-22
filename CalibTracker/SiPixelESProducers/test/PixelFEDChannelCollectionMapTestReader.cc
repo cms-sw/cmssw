@@ -62,13 +62,40 @@ PixelFEDChannelCollectionMapTestReader::analyze(const edm::Event& e, const edm::
   context.get<SiPixelFEDChannelContainerESProducerRcd>().get(PixelFEDChannelCollectionMapHandle);
   edm::LogInfo("PixelFEDChannelCollectionMapTestReader") <<"got context"<<std::endl;
 
-  const PixelFEDChannelCollectionMap* quality_map=PixelFEDChannelCollectionMapHandle.product();
+  const PixelFEDChannelCollectionMap* thePixelFEDChannelCollectionMap=PixelFEDChannelCollectionMapHandle.product();
   edm::LogInfo("PixelFEDChannelCollectionMapTestReader") <<"got SiPixelFEDChannelContainer* "<< std::endl;
-  edm::LogInfo("PixelFEDChannelCollectionMapTestReader") << "print  pointer address : " ;
-  //edm::LogInfo("PixelFEDChannelCollectionMapTestReader") << quality_map << std::endl;
-  
-  edm::LogInfo("PixelFEDChannelCollectionMapTestReader") << "Size "  <<  quality_map->size() << std::endl;     
-  edm::LogInfo("PixelFEDChannelCollectionMapTestReader") <<"Content of myQuality_Map "<<std::endl;
+  edm::LogInfo("PixelFEDChannelCollectionMapTestReader") << "print  pointer address : " << thePixelFEDChannelCollectionMap << std::endl;  
+  edm::LogInfo("PixelFEDChannelCollectionMapTestReader") << "Size: "  << thePixelFEDChannelCollectionMap->size() << std::endl;
+  edm::LogInfo("PixelFEDChannelCollectionMapTestReader") << "Content of my PixelFEDChanneCollectionlMap: "<<std::endl;
+
+  FILE* pFile=NULL;
+  if(formatedOutput_!="")pFile=fopen(formatedOutput_.c_str(), "w");
+  if(pFile){
+    
+    fprintf(pFile,"PixelFEDChannelCollectionMap::printAll() \n");
+    fprintf(pFile," =================================================================================================================== \n"); 
+      
+    for(auto it = thePixelFEDChannelCollectionMap->begin(); it != thePixelFEDChannelCollectionMap->end() ; ++it){
+      fprintf(pFile," =================================================================================================================== \n");
+      fprintf(pFile,"run : %s \n ",(it->first).c_str());
+      const auto& thePixelFEDChannels = it->second;
+
+      //std:: cout << thePixelFEDChannels.size() << std::endl;
+      // for (edmNew::DetSetVector<PixelFEDChannel>::const_iterator DSViter = thePixelFEDChannels.begin(); DSViter != thePixelFEDChannels.end(); DSViter++) {
+      //       unsigned int theDetId = DSViter->id();
+      //       std:: cout << theDetId << std::endl;
+      // }
+
+      for (const auto& disabledChannels: thePixelFEDChannels) {
+	//loop over different PixelFED in a PixelFED vector (module)
+       fprintf(pFile,"DetId : %i \n",disabledChannels.detId());
+       for(const auto& ch: disabledChannels) {
+         fprintf(pFile,"fed : %i | link : %2i | roc_first : %2i | roc_last: %2i \n",ch.fed, ch.link,  ch.roc_first, ch.roc_last);       
+         //std::cout <<  disabledChannels.detId() << " "<< ch.fed << " " << ch.link << " " << ch.roc_first << " " << ch.roc_last << std::endl;
+       } // loop over disable channels
+      } // loop over the detSetVector
+    } // main loop on the map
+  } // if file exists
 
 }
 

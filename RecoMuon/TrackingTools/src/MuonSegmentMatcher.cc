@@ -76,13 +76,13 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
   bool segments = false;
 
   // Loop and select DT recHits
-  for(trackingRecHit_iterator hit = muon.recHitsBegin(); hit != muon.recHitsEnd(); ++hit) {
-    if (!(*hit)->isValid()) continue; 
-    if ( (*hit)->geographicalId().det() != DetId::Muon ) continue; 
-    if ( (*hit)->geographicalId().subdetId() != MuonSubdetId::DT ) continue;
-    if (!(*hit)->recHits().empty()) 
-      if ((*(*hit)->recHits().begin())->recHits().size()>1) segments = true;
-    dtHits.push_back(*hit);
+  for(auto const& hit : muon.recHits()) {
+    if (!hit->isValid()) continue; 
+    if ( hit->geographicalId().det() != DetId::Muon ) continue; 
+    if ( hit->geographicalId().subdetId() != MuonSubdetId::DT ) continue;
+    if (!hit->recHits().empty()) 
+      if ((*hit->recHits().begin())->recHits().size()>1) segments = true;
+    dtHits.push_back(hit);
   }
   
   //  cout << "Muon DT hits found: " << dtHits.size() << " segments " << segments << endl;
@@ -258,22 +258,22 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
 
     bool segments = false;
 
-    for(trackingRecHit_iterator hitC = muon.recHitsBegin(); hitC != muon.recHitsEnd(); ++hitC) {
-      if (!(*hitC)->isValid()) continue; 
-      if ( (*hitC)->geographicalId().det() != DetId::Muon ) continue; 
-      if ( (*hitC)->geographicalId().subdetId() != MuonSubdetId::CSC ) continue;
-      if (!(*hitC)->isValid()) continue;
-      if ( (*hitC)->recHits().size()>1) segments = true;
+    for(auto const& hitC : muon.recHits()) {
+      if (!hitC->isValid()) continue; 
+      if ( hitC->geographicalId().det() != DetId::Muon ) continue; 
+      if ( hitC->geographicalId().subdetId() != MuonSubdetId::CSC ) continue;
+      if (!hitC->isValid()) continue;
+      if ( hitC->recHits().size()>1) segments = true;
 
       //DETECTOR CONSTRUCTION
-      DetId id = (*hitC)->geographicalId();
+      DetId id = hitC->geographicalId();
       CSCDetId cscDetIdHit(id.rawId());
 
       if (segments) {
 	if(!(myChamber.rawId()==cscDetIdHit.rawId())) continue; 
 
         // and compare the local positions
-        LocalPoint positionLocalCSC = (*hitC)->localPosition();
+        LocalPoint positionLocalCSC = hitC->localPosition();
 	LocalPoint segLocalCSC = segmentCSC->localPosition();
 	if ((fabs(positionLocalCSC.x()-segLocalCSC.x())<CSCXCut) && 
 	    (fabs(positionLocalCSC.y()-segLocalCSC.y())<CSCYCut)) 
@@ -288,14 +288,14 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
 
       countMuonCSCHits++;
 
-      LocalPoint positionLocalCSC = (*hitC)->localPosition();
+      LocalPoint positionLocalCSC = hitC->localPosition();
 	
       for (vector<CSCRecHit2D>::const_iterator hiti=CSCRechits2D.begin(); hiti!=CSCRechits2D.end(); hiti++) {
 
 	if ( !hiti->isValid()) continue; 
 	CSCDetId cscDetId((hiti->geographicalId()).rawId());
 		
-	if ((*hitC)->geographicalId().rawId()!=(hiti->geographicalId()).rawId()) continue;
+	if (hitC->geographicalId().rawId()!=(hiti->geographicalId()).rawId()) continue;
 
 	LocalPoint segLocalCSC = hiti->localPosition();
 	//		cout<<"Layer Id (MuonHit) =  "<<cscDetIdHit<<" Muon Local Position (det frame) "<<positionLocalCSC <<endl;
@@ -338,18 +338,18 @@ vector<const RPCRecHit*> MuonSegmentMatcher::matchRPC(const reco::Track& muon, c
     LocalPoint posLocalRPC = hitRPC->localPosition();
     bool matched=false;
 
-    for(trackingRecHit_iterator hitC = muon.recHitsBegin(); hitC != muon.recHitsEnd(); ++hitC) {
-      if (!(*hitC)->isValid()) continue; 
-      if ( (*hitC)->geographicalId().det() != DetId::Muon ) continue; 
-      if ( (*hitC)->geographicalId().subdetId() != MuonSubdetId::RPC ) continue;
-      if (!(*hitC)->isValid()) continue;
+    for(auto const& hitC : muon.recHits()) {
+      if (!hitC->isValid()) continue; 
+      if ( hitC->geographicalId().det() != DetId::Muon ) continue; 
+      if ( hitC->geographicalId().subdetId() != MuonSubdetId::RPC ) continue;
+      if (!hitC->isValid()) continue;
 
       //DETECTOR CONSTRUCTION
-      DetId id = (*hitC)->geographicalId();
+      DetId id = hitC->geographicalId();
       RPCDetId rpcDetIdHit(id.rawId());
       
       if (rpcDetIdHit!=myChamber) continue;
-      LocalPoint posLocalMuon = (*hitC)->localPosition();
+      LocalPoint posLocalMuon = hitC->localPosition();
 	
 //		cout<<"Layer Id (MuonHit) =  "<<rpcDetIdHit<<" Muon Local Position (det frame) "<<posLocalMuon <<endl;
 //		cout<<"Layer Id  (RPCHit) =  "<<myChamber<<"  Hit Local Position (det frame) "<<posLocalRPC <<endl;

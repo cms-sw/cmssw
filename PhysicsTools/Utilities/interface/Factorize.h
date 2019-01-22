@@ -6,6 +6,7 @@
 #include "PhysicsTools/Utilities/interface/DecomposePower.h"
 #include "PhysicsTools/Utilities/interface/DecomposeProduct.h"
 #include <boost/type_traits.hpp>
+#include <boost/integer/common_factor.hpp>
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/not.hpp>
 #include <boost/mpl/int.hpp>
@@ -83,7 +84,7 @@ namespace funct {
   }
   
   TEMPL(N2) struct Divides<NUM(n), NUM(m)> { 
-    enum { gcd = boost::math::static_gcd<tmpl::abs<n>::value, tmpl::abs<m>::value>::value };
+    enum { gcd = boost::integer::static_gcd<tmpl::abs<n>::value, tmpl::abs<m>::value>::value };
     static const bool value = (gcd != 1);
     typedef NUM(n) arg;
     typedef NUM(gcd) type;
