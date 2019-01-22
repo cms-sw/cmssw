@@ -40,7 +40,8 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_hfRecoEcalCandidate_*_*',
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
-        'keep *_gedGsfElectrons_*_*'
+        'keep *_gedGsfElectrons_*_*',
+        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*'
   )                                                                 
 )
 
@@ -96,7 +97,8 @@ RecoEgammaRECO = cms.PSet(
         'keep recoRecoEcalCandidates_hfRecoEcalCandidate_*_*',
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
-        'keep *_gedGsfElectrons_*_*'
+        'keep *_gedGsfElectrons_*_*',
+        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*'
   )                                                                 
 )
 
@@ -141,7 +143,8 @@ RecoEgammaAOD = cms.PSet(
         'keep recoRecoEcalCandidates_hfRecoEcalCandidate_*_*',
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
-        'keep *_gedGsfElectrons_*_*'
+        'keep *_gedGsfElectrons_*_*',
+        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*'
   )                                                                 
 )
 
