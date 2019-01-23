@@ -38,7 +38,7 @@ namespace lowptgsfeleid {
     float shape_full5x5_sigmaIphiIphi_ = -1.;
     float shape_full5x5_HoverE_ = -1.;
     float shape_full5x5_r9_ = -1.;
-    float shape_full5x5_circularity_ = -0.1;
+    float shape_full5x5_circularity_ = -1.;
     // Misc
     float rho_ = -1.;
     float brem_frac_ = -1.;
