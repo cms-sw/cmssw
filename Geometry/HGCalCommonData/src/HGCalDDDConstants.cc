@@ -411,6 +411,27 @@ std::vector<HGCalParameters::hgtrap> HGCalDDDConstants::getModules() const {
   return mytrs;
 }
 
+int HGCalDDDConstants::getPhiBins(int lay) const {
+  int nphi(0);
+  if (mode_ == HGCalGeometryMode::Trapezoid) {
+    int type  = hgpar_->scintType(lay);
+    nphi      = hgpar_->nPhiBinBH_[type];
+  }
+  return nphi;
+}
+
+std::pair<int,int> HGCalDDDConstants::getREtaRange(int lay) const {
+  int irmin(0), irmax(0);
+  if (mode_ == HGCalGeometryMode::Trapezoid) {
+    int indx = layerIndex(lay,false);
+    if ((indx >=0) && (indx < (int)(hgpar_->iradMinBH_.size()))) {
+      irmin = hgpar_->iradMinBH_[indx];
+      irmax = hgpar_->iradMaxBH_[indx];
+    }
+  }
+  return std::make_pair(irmin,irmax);
+}
+
 std::vector<HGCalParameters::hgtrform> HGCalDDDConstants::getTrForms() const {
 
   std::vector<HGCalParameters::hgtrform> mytrs;
