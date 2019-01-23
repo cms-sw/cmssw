@@ -477,9 +477,9 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm::
   last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(2, "Ecal TP Fine Grain Bit Mismatch");
   last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(3, "Hcal TP Et Mismatch");
   last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(4, "Hcal TP Feature Bit Mismatch");
-  for (size_t i=0; i<20; ++i) last20MismatchArray_.at(i) = {"-", 0};
-  for (size_t i=1; i<=20; ++i) last20Mismatches_->getTH2F()->GetYaxis()->SetBinLabel(i, "-");
-
+  for (size_t i=0; i<last20MismatchArray_.size(); ++i) last20MismatchArray_[i] = {"-"+std::to_string(i), 0};
+  for (size_t i=1; i<=20; ++i) last20Mismatches_->getTH2F()->GetYaxis()->SetBinLabel(i, ("-"+std::to_string(i)).c_str());
+  
   const int nLumis = 2000;
   ecalLinkErrorByLumi_ = ibooker.book1D("ecalLinkErrorByLumi", "Link error counts per lumi section for ECAL;LumiSection;Counts", nLumis, .5, nLumis+0.5);
   ecalMismatchByLumi_  = ibooker.book1D("ecalMismatchByLumi", "Mismatch counts per lumi section for ECAL;LumiSection;Counts", nLumis, .5, nLumis+0.5);
