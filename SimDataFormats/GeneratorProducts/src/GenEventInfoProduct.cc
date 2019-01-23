@@ -53,6 +53,21 @@ GenEventInfoProduct::GenEventInfoProduct(GenEventInfoProduct const &other) :
 	setPDF(other.pdf());
 }
 
+GenEventInfoProduct::GenEventInfoProduct(GenEventInfoProduct&& other) :
+	weights_(std::move(other.weights_)),
+	signalProcessID_(other.signalProcessID_),
+	qScale_(other.qScale_),
+	alphaQCD_(other.alphaQCD_),
+	alphaQED_(other.alphaQED_),
+	pdf_(other.pdf_.release()),
+	binningValues_(std::move(other.binningValues_)),
+	DJRValues_(std::move(other.DJRValues_)),
+	nMEPartons_(other.nMEPartons_), nMEPartonsFiltered_(other.nMEPartons_)
+{
+}
+
+
+
 GenEventInfoProduct::~GenEventInfoProduct()
 {
 }
@@ -73,6 +88,23 @@ GenEventInfoProduct &GenEventInfoProduct::operator = (GenEventInfoProduct const 
 
 	return *this;
 }
+
+GenEventInfoProduct &GenEventInfoProduct::operator = (GenEventInfoProduct&& other)
+{
+	weights_ = std::move(other.weights_);
+	signalProcessID_ = other.signalProcessID_;
+	qScale_ = other.qScale_;
+	alphaQCD_ = other.alphaQCD_;
+	alphaQED_ = other.alphaQED_;
+	binningValues_ = std::move(other.binningValues_);
+	DJRValues_ = std::move(other.DJRValues_);
+	nMEPartons_=other.nMEPartons_;
+	nMEPartonsFiltered_=other.nMEPartonsFiltered_;
+	pdf_.reset(other.pdf_.release());
+
+	return *this;
+}
+
 
 double GenEventInfoProduct::weightProduct() const
 {
