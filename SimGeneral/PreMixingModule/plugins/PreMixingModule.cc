@@ -50,7 +50,7 @@ namespace edm {
     void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
 
   private:
-    void pileWorker(const edm::EventPrincipal&, int bcr, int EventId,const edm::EventSetup& ES, ModuleCallingContext const*);
+    bool pileWorker(const edm::EventPrincipal&, int bcr, int EventId,const edm::EventSetup& ES, ModuleCallingContext const*);
 
     PreMixingPileupCopy puWorker_;
     bool addedPileup_ = false;
@@ -129,7 +129,7 @@ namespace edm {
     addedPileup_ = false; 
   }
 
-  void PreMixingModule::pileWorker(const EventPrincipal &ep, int bcr, int eventNr, const edm::EventSetup& ES, edm::ModuleCallingContext const* mcc) {  
+  bool PreMixingModule::pileWorker(const EventPrincipal &ep, int bcr, int eventNr, const edm::EventSetup& ES, edm::ModuleCallingContext const* mcc) {  
     InternalContext internalContext(ep.id(), mcc);
     ParentContext parentContext(&internalContext);
     ModuleCallingContext moduleCallingContext(&moduleDescription());
@@ -155,6 +155,8 @@ namespace edm {
     for(auto& w: workers_) {
       w->addPileups(pep, ES);
     }
+
+    return true;
   }
   
   void PreMixingModule::doPileUp(edm::Event &e, const edm::EventSetup& ES)
