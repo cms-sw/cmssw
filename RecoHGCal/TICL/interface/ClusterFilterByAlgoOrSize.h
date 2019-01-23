@@ -16,8 +16,9 @@ class ClusterFilterByAlgoOrSize final : public ClusterFilterBase {
 public:
   ClusterFilterByAlgoOrSize(const edm::ParameterSet & ps)
     : ClusterFilterBase(ps),
-  algo_number_(ps.getParameter<int>("algo_number")),
-  max_cluster_size_(ps.getParameter<int>("max_cluster_size")) {}
+    algo_number_(ps.getParameter<int>("algo_number")),
+    max_cluster_size_(ps.getParameter<int>("max_cluster_size")) {}
+  virtual ~ClusterFilterByAlgoOrSize(){};
 
   std::unique_ptr<std::vector<std::pair<unsigned int, float> > >
     filter(const std::vector<reco::CaloCluster>& layerClusters,
