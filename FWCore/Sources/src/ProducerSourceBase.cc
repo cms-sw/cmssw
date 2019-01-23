@@ -16,14 +16,27 @@
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 
+namespace {
+  void checkFirstLumiForRuns(std::vector<edm::LuminosityBlockID> const& iFirstLumis) {
+    if (iFirstLumis.empty()) return;
+    
+    auto previous = iFirstLumis[0].luminosityBlock();
+    for( auto it = iFirstLumis.begin()+1; it != iFirstLumis.end(); ++it) {
+      if( not ( it->luminosityBlock() > previous)) {
+        throw edm::Exception(edm::errors::Configuration)<<"Incorrect ordering of LuminosityBlock numbers in parameter 'firstLuminosityBlockForEachRun'";
+      }
+    }
+  }
+}
 namespace edm {
   //used for defaults
-  static unsigned long long const kNanoSecPerSec = 1000000000ULL;
-  static unsigned long long const kAveEventPerSec = 200ULL;
+  static unsigned long long constexpr kNanoSecPerSec = 1000000000ULL;
+  static unsigned long long constexpr kAveEventPerSec = 200ULL;
   
   ProducerSourceBase::ProducerSourceBase(ParameterSet const& pset,
 				       InputSourceDescription const& desc, bool realData) :
       PuttableSourceBase(pset, desc),
+      firstLumiForRuns_(pset.getUntrackedParameter<std::vector<edm::LuminosityBlockID>>("firstLuminosityBlockForEachRun")),
       numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents())),
       numberEventsInLumi_(pset.getUntrackedParameter<unsigned int>("numberEventsInLuminosityBlock", remainingEvents())),
       presentTime_(pset.getUntrackedParameter<unsigned long long>("firstTime", 1ULL)),  //time in ns
@@ -40,8 +53,11 @@ namespace edm {
       eType_(EventAuxiliary::Undefined) {
 
     setTimestamp(Timestamp(presentTime_));
-    // We need to map this string to the EventAuxiliary::ExperimentType enumeration
-    // std::string eType = pset.getUntrackedParameter<std::string>("experimentType", std::string("Any"))),
+    checkFirstLumiForRuns(firstLumiForRuns_);
+    if(not firstLumiForRuns_.empty()) {
+      numberEventsInRun_ = -1;
+      eventID_ = EventID(runForLumi(eventID_.luminosityBlock()),eventID_.luminosityBlock(),zerothEvent_);
+    }
   }
 
   ProducerSourceBase::~ProducerSourceBase() noexcept(false) {
@@ -171,6 +187,15 @@ namespace edm {
         // new lumi
         eventID = eventID.next(eventID.luminosityBlock() + 1);
         numberEventsInThisLumi_ = 1;
+        if( not firstLumiForRuns_.empty()) {
+          auto run = runForLumi(eventID.luminosityBlock());
+          if (run != eventID.run()) {
+            numberEventsInThisRun_ = 1;
+            eventID = eventID.nextRunFirstEvent(eventID_.luminosityBlock());
+            
+            eventID = EventID(run, eventID.luminosityBlock(), eventID.event());
+          }
+        }
       } else {
         eventID = eventID.next(eventID.luminosityBlock());
         ++numberEventsInThisLumi_;
@@ -194,6 +219,15 @@ namespace edm {
         // new lumi
         eventID = eventID.previous(eventID.luminosityBlock() - 1);
         numberEventsInThisLumi_ = numberEventsInLumi_;
+        
+        if( not firstLumiForRuns_.empty()) {
+          auto run = runForLumi(eventID.luminosityBlock());
+          if (run != eventID.run()) {
+            eventID = eventID.previousRunLastEvent(eventID_.luminosityBlock());
+            
+            eventID = EventID(run, eventID.luminosityBlock(), eventID.event());
+          }
+        }
       } else {
         --numberEventsInThisLumi_;
       }
@@ -206,6 +240,18 @@ namespace edm {
       numberEventsInThisRun_ = numberEventsInRun_;
     }
     time -= timeBetweenEvents_;
+  }
+
+  RunNumber_t
+  ProducerSourceBase::runForLumi(LuminosityBlockNumber_t iLumi) const {
+    auto it = std::find_if(firstLumiForRuns_.rbegin(),
+                        firstLumiForRuns_.rend(),
+                        [iLumi](auto const& iV) {return iV.luminosityBlock()<=iLumi;});
+    if(it == firstLumiForRuns_.rend()) {
+      //use first since we are off the end
+      return firstLumiForRuns_[0].run();
+    }
+    return it->run();
   }
 
   bool
@@ -233,6 +279,7 @@ namespace edm {
 
     desc.addUntracked<unsigned int>("firstLuminosityBlock", 1)->setComment("Luminosity block number of first lumi to generate.");
     desc.addUntracked<unsigned int>("firstRun", 1)->setComment("Run number of first run to generate.");
+    desc.addUntracked<std::vector<edm::LuminosityBlockID>>("firstLuminosityBlockForEachRun", {})->setComment("When the source makes a new LuminosityBlock, this list is checked to see what Run number should be used. The LuminosityBlock numbers are required to be in ascending order.");
     InputSource::fillDescription(desc);
   }
 }
