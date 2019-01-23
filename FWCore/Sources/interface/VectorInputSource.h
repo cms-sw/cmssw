@@ -72,11 +72,12 @@ namespace edm {
   template<typename T>
   size_t VectorInputSource::loopOverEvents(EventPrincipal& cache, size_t& fileNameHash, size_t number, T eventOperator, CLHEP::HepRandomEngine* engine, EventID const* id, bool recycleFiles) {
     size_t i = 0U;
-    for(; i < number; ++i) {
+    while(i < number) {
       clearEventPrincipal(cache);
       bool found = readOneEvent(cache, fileNameHash, engine, id, recycleFiles);
       if(!found) break;
-      eventOperator(cache, fileNameHash);
+      bool used = eventOperator(cache, fileNameHash);
+      if(used) ++i;
     }
     return i;
   }
