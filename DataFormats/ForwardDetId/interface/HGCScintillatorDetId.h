@@ -50,15 +50,15 @@ public:
   int layer() const { return (id_>>kHGCalLayerOffset)&kHGCalLayerMask; }
 
   /// get the eta index
-  int iradiusAbs() const { return (id_>>kHGCalRadiusOffset)&kHGCalRadiusMask; }
+  int iradiusAbs() const;
   int iradius()    const { return zside()*iradiusAbs(); }
-  int ietaAbs()    const { return (id_>>kHGCalRadiusOffset)&kHGCalRadiusMask; }
+  int ietaAbs()    const { return iradiusAbs(); }
   int ieta()       const { return zside()*ietaAbs(); }
   int iradiusTriggerAbs() const;
   int iradiusTrigger() const { return zside()*iradiusTriggerAbs(); }
 
   /// get the phi index
-  int iphi() const { return (id_>>kHGCalPhiOffset)&kHGCalPhiMask; }
+  int iphi() const;
   std::pair<int,int> ietaphi() const { return std::pair<int,int>(ieta(),iphi()); }
   std::pair<int,int> iradiusphi() const { return std::pair<int,int>(iradius(),iphi()); }
   int iphiTrigger() const;  
