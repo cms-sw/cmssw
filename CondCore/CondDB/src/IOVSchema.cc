@@ -141,13 +141,16 @@ namespace cond {
       createTable( m_schema, descr.get() );
     }
     
-    size_t IOV::Table::getGroups( const std::string& tag, const boost::posix_time::ptime& snapshotTime, std::vector<cond::Time_t>& groups ){
+    size_t IOV::Table::getGroups( const std::string& tag, 
+				  const boost::posix_time::ptime& snapshotTime, 
+				  unsigned long long gSize, 
+				  std::vector<cond::Time_t>& groups ){
       Query< SINCE_GROUP > q( m_schema, true );
       q.addCondition<TAG_NAME>( tag );
       if( !snapshotTime.is_not_a_date_time() ){
 	q.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
       }
-      q.groupBy(SINCE_GROUP::group());
+      q.groupBy(SINCE_GROUP::group(gSize));
       q.addOrderClause<SINCE_GROUP>();
       for( auto row : q ){
 	groups.push_back(std::get<0>(row));
