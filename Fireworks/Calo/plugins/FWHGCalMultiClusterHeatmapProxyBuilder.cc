@@ -1,19 +1,14 @@
 #include "TEveBoxSet.h"
-#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWHeatmapProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
-#include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-
-#include "FWCore/Framework/interface/Event.h"
-
-#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 
 #include "TEveBoxSet.h"
 #include "TEveCompound.h"
 
-class FWHGCalMultiClusterHeatmapProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::HGCalMultiCluster>
+class FWHGCalMultiClusterHeatmapProxyBuilder : public FWHeatmapProxyBuilderTemplate<reco::HGCalMultiCluster>
 {
 public:
    FWHGCalMultiClusterHeatmapProxyBuilder( void ) {}
@@ -25,87 +20,14 @@ private:
    FWHGCalMultiClusterHeatmapProxyBuilder( const FWHGCalMultiClusterHeatmapProxyBuilder& ) = delete; 			// stop default
    const FWHGCalMultiClusterHeatmapProxyBuilder& operator=( const FWHGCalMultiClusterHeatmapProxyBuilder& ) = delete; 	// stop default
 
-   std::map<DetId, const HGCRecHit*> hitmap;
-   float maxEnergy;
-
-   void setItem(const FWEventItem *iItem) override;
-
-   void build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *) override;
    void build( const reco::HGCalMultiCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
-
-void 
-FWHGCalMultiClusterHeatmapProxyBuilder::setItem(const FWEventItem *iItem)
-{
-   FWProxyBuilderBase::setItem(iItem);
-   if (iItem)
-   {
-      iItem->getConfig()->assertParam("Layer", 0L, 0L, 52L);
-      iItem->getConfig()->assertParam("Z+", true);
-      iItem->getConfig()->assertParam("Z-", true);
-   }
-}
-
-void FWHGCalMultiClusterHeatmapProxyBuilder::build(const FWEventItem *iItem,
-                                             TEveElementList *product, const FWViewContext *vc)
-{
-   if(hitmap.empty()){
-      const edm::EventBase *event = iItem->getEvent();
-
-      edm::Handle<HGCRecHitCollection> recHitHandleEE;
-      edm::Handle<HGCRecHitCollection> recHitHandleFH;
-      edm::Handle<HGCRecHitCollection> recHitHandleBH;   
-
-      event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCEERecHits" ), recHitHandleEE );
-      event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCHEFRecHits" ), recHitHandleFH );
-      event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCHEBRecHits" ), recHitHandleBH );
-
-      const auto& rechitsEE = *recHitHandleEE;
-      const auto& rechitsFH = *recHitHandleFH;
-      const auto& rechitsBH = *recHitHandleBH;
-
-      for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
-         hitmap[rechitsEE[i].detid().rawId()] = &rechitsEE[i];
-         maxEnergy = fmax(maxEnergy, rechitsEE[i].energy());
-      }
-      for (unsigned int i = 0; i < rechitsFH.size(); ++i) {
-         hitmap[rechitsFH[i].detid().rawId()] = &rechitsFH[i];
-         maxEnergy = fmax(maxEnergy, rechitsFH[i].energy());   
-      }
-      for (unsigned int i = 0; i < rechitsBH.size(); ++i) {
-         hitmap[rechitsBH[i].detid().rawId()] = &rechitsBH[i];
-         maxEnergy = fmax(maxEnergy, rechitsBH[i].energy());
-      }
-   }
-
-   size_t size = iItem->size();
-   TEveElement::List_i pIdx = product->BeginChildren();
-   for (int index = 0; index < static_cast<int>(size); ++index)
-   {
-      TEveElement *itemHolder = nullptr;
-      if (index < product->NumChildren())
-      {
-         itemHolder = *pIdx;
-         itemHolder->SetRnrSelfChildren(true, true);
-         ++pIdx;
-      }
-      else
-      {
-         itemHolder = createCompound();
-         product->AddElement(itemHolder);
-      }
-      if (iItem->modelInfo(index).displayProperties().isVisible())
-      {
-         const void *modelData = iItem->modelData(index);
-         build(*reinterpret_cast<const reco::HGCalMultiCluster *>(m_helper.offsetObject(modelData)), index, *itemHolder, vc);
-      }
-   }
-}
 
 void
 FWHGCalMultiClusterHeatmapProxyBuilder::build(const reco::HGCalMultiCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *)
 {
    const long layer = item()->getConfig()->value<long>("Layer");
+   const double saturation_energy = item()->getConfig()->value<double>("EnergyCutOff");
    const bool z_plus = item()->getConfig()->value<bool>("Z+");
    const bool z_minus = item()->getConfig()->value<bool>("Z-");
 
@@ -179,7 +101,7 @@ FWHGCalMultiClusterHeatmapProxyBuilder::build(const reco::HGCalMultiCluster &iDa
                continue;
          }
 
-         float colorFactor = (fmin(hitmap[it->first]->energy(), 1.0f));
+         const float colorFactor = (fmin(hitmap[it->first]->energy()/saturation_energy, 1.0f));
 
          // Scintillator
          if (isScintillator)
@@ -198,7 +120,7 @@ FWHGCalMultiClusterHeatmapProxyBuilder::build(const reco::HGCalMultiCluster &iDa
                pnts[(i * 3 + 2) + total_vertices] = corners[i * 3 + 2] + shapes[3];
             }
             boxset->AddBox(&pnts[0]);
-            boxset->DigitColor(std::min(255*4*colorFactor, 255.0f), 255-std::abs(255-4*colorFactor*255), 255-std::min(255*4*colorFactor, 255.0f));
+            boxset->DigitColor(colorMap[0][int(colorFactor*9)], colorMap[1][int(colorFactor*9)], colorMap[2][int(colorFactor*9)]);
 
             h_box = true;
          }
@@ -212,7 +134,7 @@ FWHGCalMultiClusterHeatmapProxyBuilder::build(const reco::HGCalMultiCluster &iDa
             float radius = fabs(corners[6] - corners[6 + offset]) / 2;
             hex_boxset->AddHex(TEveVector(centerX, centerY, corners[2]),
                                radius, 90.0, shapes[3]);
-            hex_boxset->DigitColor(std::min(255*4*colorFactor, 255.0f), 255-std::abs(255-4*colorFactor*255), 255-std::min(255*4*colorFactor, 255.0f));
+            hex_boxset->DigitColor(colorMap[0][int(colorFactor*9)], colorMap[1][int(colorFactor*9)], colorMap[2][int(colorFactor*9)]);
 
             h_hex = true;
          }
