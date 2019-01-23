@@ -44,14 +44,22 @@ HGCScintillatorDetId& HGCScintillatorDetId::operator=(const DetId& gen) {
   return (*this);
 }
 
-int HGCScintillatorDetId::iradiusTriggerAbs() const {
+int HGCScintillatorDetId::iradiusAbs() const {
+  if (trigger()) return (2*((id_>>kHGCalRadiusOffset)&kHGCalRadiusMask));
+  else return           ((id_>>kHGCalRadiusOffset)&kHGCalRadiusMask);
+}
 
+int HGCScintillatorDetId::iradiusTriggerAbs() const {
   if (trigger()) return ((iradiusAbs()+1)/2);
   else           return iradiusAbs();
 }
 
-int HGCScintillatorDetId::iphiTrigger() const {
+int HGCScintillatorDetId::iphi() const {
+  if (trigger()) return (2*((id_>>kHGCalPhiOffset)&kHGCalPhiMask));
+  else           return ((id_>>kHGCalPhiOffset)&kHGCalPhiMask);
+}
 
+int HGCScintillatorDetId::iphiTrigger() const {
   if (trigger()) return ((iphi()+1)/2);
   else           return iphi();
 }
