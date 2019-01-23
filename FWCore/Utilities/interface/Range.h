@@ -17,6 +17,8 @@ namespace edm
          T begin() const { return begin_; }
          T end() const { return end_; }
 
+         bool empty() const { return begin_ == end_; }
+
        private:
          const T begin_;
          const T end_;
