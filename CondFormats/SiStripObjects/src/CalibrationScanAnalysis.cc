@@ -144,3 +144,5 @@ void CalibrationScanAnalysis::print( std::stringstream& ss, uint32_t iapv ) {
   }
 
 }
+
+bool CalibrationScanAnalysis::isValid() const { return true;}
