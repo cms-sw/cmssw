@@ -37,7 +37,7 @@ class CalibrationAnalysis : public CommissioningAnalysis {
   inline const VVFloat& chi2()       { return chi2_; }
 
   inline const VVBool isValidStrip() {return isvalid_;} // analysis validity                                                                                                                          
-  inline const bool   isValid() {return true;} // analysis validity                                                                                                                                
+  bool isValid() const override;
 
   // mean values per APV                                                                                                                                                                                
   inline const VFloat& amplitudeMean() { return mean_amplitude_; }

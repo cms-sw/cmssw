@@ -30,7 +30,7 @@ class CalibrationScanAnalysis : public CommissioningAnalysis {
   friend class CalibrationScanAlgorithm;
 
   inline const VBool isValid(const std::string & key) {return isvalid_[key];} // analysis validity
-  inline const bool  isValid(){ return true; }
+  bool isValid() const override;
   
   inline const VFloat& amplitude(const std::string & key) { return amplitude_[key]; } // key stands for isha_%d_vfs_%d values
   inline const VFloat& tail(const std::string & key)      { return tail_[key]; }

@@ -234,3 +234,5 @@ void CalibrationAnalysis::print( std::stringstream& ss, uint32_t iapv ) {
     ss << "Data obtained in peak mode." << std::endl;
   }
 }
+
+bool CalibrationAnalysis::isValid() const { return true;}
