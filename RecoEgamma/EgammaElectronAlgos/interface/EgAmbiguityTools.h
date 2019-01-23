@@ -18,12 +18,12 @@ namespace EgAmbiguityTools
                       EcalRecHitCollection const& endcapRecHits ) ;
 
   // for tracks
-  int sharedHits( const reco::GsfTrackRef &, const reco::GsfTrackRef & ) ;
-  int sharedDets( const reco::GsfTrackRef &, const reco::GsfTrackRef & ) ;
+  int sharedHits( reco::GsfTrackRef const&, reco::GsfTrackRef const& ) ;
+  int sharedDets( reco::GsfTrackRef const&, reco::GsfTrackRef const& ) ;
 
   // electrons comparison
-  bool isBetter( const reco::GsfElectron *, const reco::GsfElectron * ) ;
-  bool isInnerMost( const reco::GsfElectron *, const reco::GsfElectron * ) ;
+  bool isBetter( reco::GsfElectron const&, reco::GsfElectron const& ) ;
+  bool isInnerMost( reco::GsfElectron const&, reco::GsfElectron const& ) ;
 
 }
 
