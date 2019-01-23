@@ -28,19 +28,16 @@ Implementation:
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include <iostream>
 
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/Phase2L1CaloTrig/interface/L1EGCrystalCluster.h"
 #include "DataFormats/Phase2L1CaloTrig/interface/L1CaloJet.h"
 #include "DataFormats/Phase2L1CaloTrig/interface/L1CaloTower.h"
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
-#include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
@@ -442,6 +439,8 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         l1Hit.total_tower_et  = l1Hit.ecal_tower_et + l1Hit.hcal_tower_et;
         l1Hit.tower_eta  = l1t::CaloTools::towerEta(id.ieta());
         l1Hit.tower_phi  = l1t::CaloTools::towerPhi(id.ieta(), id.iphi());
+        l1Hit.tower_iEta  = id.ieta();
+        l1Hit.tower_iPhi  = id.iphi();
         l1CaloTowers.push_back( l1Hit );
 
         if (debug) printf("Hcal HF Tower isBarrel %d eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", l1Hit.isBarrel, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
