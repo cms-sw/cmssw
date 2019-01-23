@@ -53,8 +53,8 @@ namespace edm {
 
     ProcessHistoryID const& processHistoryID() const;
 
-    bool
-    getByToken(EDGetToken token, TypeID const& typeID, BasicHandle& result) const;
+    BasicHandle
+    getByToken(EDGetToken token, TypeID const& typeID) const;
 
     template<typename PROD>
     bool
@@ -63,6 +63,10 @@ namespace edm {
     template<typename PROD>
     bool
     getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const;
+
+    template<typename PROD>
+    Handle<PROD>
+    getHandle(EDGetTokenT<PROD> token) const;
 
     Provenance
     getProvenance(BranchID const& theID) const;
@@ -97,9 +101,8 @@ namespace edm {
     if(!provRecorder_.checkIfComplete<PROD>()) {
       principal_get_adapter_detail::throwOnPrematureRead("RunOrLumi", TypeID(typeid(PROD)), token);
     }
-    result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    convert_handle(std::move(bh), result);  // throws on conversion error
+    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
@@ -112,13 +115,22 @@ namespace edm {
     if(!provRecorder_.checkIfComplete<PROD>()) {
       principal_get_adapter_detail::throwOnPrematureRead("RunOrLumi", TypeID(typeid(PROD)), token);
     }
-    result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    convert_handle(std::move(bh), result);  // throws on conversion error
+    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
     return true;
+  }
+
+  template<typename PROD>
+  Handle<PROD>
+  OccurrenceForOutput::getHandle(EDGetTokenT<PROD> token) const {
+    if(!provRecorder_.checkIfComplete<PROD>()) {
+      principal_get_adapter_detail::throwOnPrematureRead("RunOrLumi", TypeID(typeid(PROD)), token);
+    }
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
+    return convert_handle<PROD>(std::move(bh));  // throws on conversion error
   }
 
 }

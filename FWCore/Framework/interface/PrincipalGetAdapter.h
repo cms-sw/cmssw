@@ -365,9 +365,7 @@ namespace edm {
     typename BasicHandleVec::iterator end = bhv.end();
 
     while (it != end) {
-      Handle<PROD> result;
-      convert_handle(std::move(*it), result);  // throws on conversion error
-      products.push_back(result);
+      products.push_back(convert_handle<PROD>(std::move(*it)));
       ++it;
     }
     results.swap(products);
