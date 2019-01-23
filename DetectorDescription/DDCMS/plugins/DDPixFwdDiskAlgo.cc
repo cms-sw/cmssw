@@ -50,8 +50,13 @@ static long algorithm(Detector& /* description */,
   rotName = args.value<string>("RotationName");
   flagString = args.value<string>("FlagString");
 
+  if( strchr( childName.c_str(), NAMESPACE_SEP ) == nullptr )
+    childName = ns.name() + childName;
+
+  Volume         child       = ns.volume( childName );
+
   LogDebug("TrackerGeom") << "DDPixFwdDiskAlgo debug: Parent " << mother.name()
-                          << "\tChild " << childName << " NameSpace "
+			  << "\tChild " << child.name() << " NameSpace "
                           << ns.name() << "\tRot Name " << rotName
                           << "\tCopyNo (Start/Total) " << startCopyNo << ", "
                           << nBlades << "\tAngles " << ConvertTo(bladeAngle,deg)
@@ -124,10 +129,10 @@ static long algorithm(Detector& /* description */,
           bladeZShift[iBlade];
 
         Position tran(xpos, ypos, zpos);
-        pv = mother.placeVolume(mother,copyNo,Transform3D(rot,tran));
-        LogDebug("TrackerGeom") << "DDPixFwdDiskAlgo test: " << childName
+        pv = mother.placeVolume(child,copyNo,Transform3D(rot,tran));
+	LogDebug("TrackerGeom") << "DDPixFwdDiskAlgo test: " << pv.name() << ": " << childName
                                 << " number " << copyNo << " positioned in "
-                                << mother << " at " << tran << " with " << rot;
+				<< mother.name() << " at " << tran << " with " << rot;
       }
       copyNo++;
     }
@@ -136,3 +141,5 @@ static long algorithm(Detector& /* description */,
     return 1;
 
 }
+
+DECLARE_DDCMS_DETELEMENT( DDCMS_global_DDPixFwdDisk, algorithm )
