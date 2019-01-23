@@ -491,6 +491,7 @@ def miniAOD_customizeMC(process):
     process.patJetGenJetMatchAK8.matched =  "slimmedGenJetsAK8"
     process.patMuons.embedGenMatch = False
     process.patElectrons.embedGenMatch = False
+    process.patLowPtElectrons.embedGenMatch = False
     process.patPhotons.embedGenMatch = False
     process.patOOTPhotons.embedGenMatch = False
     process.patTaus.embedGenMatch = False
