@@ -16,7 +16,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
-#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 
 class SiPixelFedCablingTree;
 class SiPixelFedCabling;
@@ -45,7 +44,6 @@ private:
   const SiPixelQuality* badPixelInfo_;
   PixelUnpackingRegions* regions_;
   edm::EDGetTokenT<FEDRawDataCollection> tFEDRawDataCollection; 
-  edm::EDGetTokenT<PixelFEDChannelCollection>  theBadPixelFEDChannelsLabel;
   TH1D *hCPU, *hDigi;
   std::unique_ptr<edm::CPUTimer> theTimer;
   bool includeErrors;
