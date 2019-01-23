@@ -12,7 +12,7 @@ class RunOnData(ConfigToolBase):
     _defaultParameters=dicttypes.SortedKeysDict()
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons', 'Electrons','Muons', 'Taus', 'TausBoosted', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", allowedValues=['Photons', 'Electrons','Muons', 'Taus', 'TausBoosted', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
+        self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons', 'Electrons', 'LowPtElectrons', 'Muons', 'Taus', 'TausBoosted', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", allowedValues=['Photons', 'Electrons','Muons', 'Taus', 'TausBoosted', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
         self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is ['out'])")
         self._parameters=copy.deepcopy(self._defaultParameters)
@@ -70,7 +70,7 @@ class RemoveMCMatching(ConfigToolBase):
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',['All'], 
-                          "collection name; supported are 'Photons', 'OOTPhotons', 'Electrons','Muons', 'Taus', 'TausBoosted', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", 
+                          "collection name; supported are 'Photons', 'OOTPhotons', 'Electrons', 'LowPtElectrons', 'Muons', 'Taus', 'TausBoosted', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", 
                           allowedValues=['Photons', 'OOTPhotons' ,'Electrons','Muons', 'Taus', 'TausBoosted', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
         self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is ['out'])")
@@ -112,6 +112,9 @@ class RemoveMCMatching(ConfigToolBase):
             if( names[obj] == 'Electrons' or names[obj] == 'All' ):
                 print("removing MC dependencies for electrons")
                 _removeMCMatchingForPATObject(process, 'electronMatch', 'patElectrons', postfix)
+            if( names[obj] == 'LowPtElectrons' or names[obj] == 'All' ):
+                print("removing MC dependencies for LowPtElectrons")
+                _removeMCMatchingForPATObject(process, 'electronMatch', 'patLowPtElectrons', postfix)
             if( names[obj] == 'Muons'     or names[obj] == 'All' ):
                 print("removing MC dependencies for muons")
                 _removeMCMatchingForPATObject(process, 'muonMatch', 'patMuons', postfix)
