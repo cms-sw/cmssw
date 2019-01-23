@@ -5,6 +5,7 @@ import six
 import sys
 import inspect
 import tempfile
+import traceback
 import subprocess
 from shutil import copy, rmtree
 from collections import defaultdict
@@ -143,7 +144,8 @@ def collect_trace(thing, name, graph, parent):
   # thing could be pretty much anything.
   classname = thing.__class__.__name__
   if hasattr(thing, '_trace_events'):
-    events = getattr(thing, '_trace_events')
+    events = list(getattr(thing, '_trace_events'))
+    getattr(thing, '_trace_events')[:] = [] # erase events so we can't end up in cycles
     for action, loc, extra in events:
       entry = (action, classname, loc)
       graph.append((entry, parent, name))
@@ -173,12 +175,13 @@ def collect_trace(thing, name, graph, parent):
         collect_trace(child, name, graph, entry)
 
   else:
-    print("No _trace_events found in %s.\nMaybe turn on tracing for %s?" % (thing, classname))
-    print(" Found in %s" % (parent,))
+    if not thing is None:
+      print("No _trace_events found in %s.\nMaybe turn on tracing for %s?" % (thing, classname))
+      print(" Found in %s" % (parent,))
 
 
 def writeoutput(graph):
-  progname = ", ".join(PREFIXINFO)
+  progname = " ".join(PREFIXINFO)
   print("+Done running %s, writing output..." % progname)
 
   def formatfile(filename):
@@ -292,7 +295,7 @@ def trace_python(prog_argv, path):
       try:
         exec code in globals, globals
       except:
-        pass
+        print(traceback.format_exc())
       finally:
         # reporting is only possible if the config was executed successfully.
         # we still do it in case of an exception, which can happen after convertToUnscheduled()
@@ -327,9 +330,10 @@ def serve_main():
     print("serve mode needs SQLITE data format.")
     os.exit(1)
 
+  STRIPPATHS.append(os.path.abspath(os.getcwd()) + "/")
+
   import SimpleHTTPServer
   import SocketServer
-  import traceback
   import sqlite3
   import re
 
@@ -387,7 +391,7 @@ def serve_main():
       clickfunc = function(evt) {
         document.querySelectorAll("li > iframe, li > br").forEach(function(e) {e.remove()}); 
         dest = "/info" + window.location.pathname + ":" + this.getAttribute("data-line");
-        this.insertAdjacentHTML("afterend", '<br><iframe width="100%" height="500px" src="' + dest + '"></iframe><br>');
+        this.insertAdjacentHTML("afterend", '<br><iframe width="90%" height="500px" src="' + dest + '"></iframe><br>');
       };
       document.querySelectorAll("li > em").forEach(function(e) {
         e.innerText = e.getAttribute("data-tag");

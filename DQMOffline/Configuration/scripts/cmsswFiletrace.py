@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 from __future__ import print_function
 import os
+import re
 import sys
 import atexit
 import tempfile
@@ -23,15 +24,30 @@ IGNORE_DIRS = [
   os.path.dirname(six.__file__),
   FWCore.ParameterSet.Types.__file__,
 ]
-STRIPPATHS = [os.getcwd(),
+STRIPPATHS = [ # we will add the base dir from CMSSWCALLBASE env var here
   os.environ["CMSSW_BASE"] + "/python/", os.environ["CMSSW_RELEASE_BASE"] + "/python/",
   os.environ["CMSSW_BASE"] + "/cfipython/", os.environ["CMSSW_RELEASE_BASE"] + "/cfipython/"]
 PREFIXINFO = []
 ARGV0 = "" # set in main
 
 def addprefixinfo(argv):
-  # TODO: detect runTheMatrix etc. here
-  PREFIXINFO.append(argv[0])
+  cwd = os.path.abspath(os.getcwd())
+  wf = re.match(".*/(\d+\.\d+)_", cwd)
+  if wf: 
+    PREFIXINFO.append("wf")
+    PREFIXINFO.append(wf.groups()[0])
+  online = re.match("(.*/)?(.*)_dqm_sourceclient-live_cfg\.py", argv[0])
+  if online:
+    PREFIXINFO.append("online")
+    PREFIXINFO.append(online.groups()[1])
+  step = re.match("(step\d+)_.*\.py", argv[0])
+  if step:
+    PREFIXINFO.append(step.groups()[0])
+  processing = re.match("step\d+_.*(RECO|ALCA|HARVEST).*\.py", argv[0])
+  if processing:
+    PREFIXINFO.append(processing.groups()[0])
+  if not PREFIXINFO:
+    PREFIXINFO.append(argv[0])
 
 def setupenv():
   bindir = tempfile.mkdtemp()
@@ -42,6 +58,7 @@ def setupenv():
   os.environ["PATH"] = bindir + ":" + os.environ["PATH"]
   os.environ["CMSSWCALLTREE"] = bindir + "/" + OUTFILE_TREE
   os.environ["CMSSWCALLFILES"] = bindir + "/" + OUTFILE_FILES
+  os.environ["CMSSWCALLBASE"] = os.path.abspath(os.getcwd()) + "/"
   with open(os.environ["CMSSWCALLTREE"], "w") as f:
     pass
   with open(os.environ["CMSSWCALLFILES"], "w") as f:
@@ -236,11 +253,13 @@ def main():
         lambda s: not s.startswith(tmppath),
         os.environ["PATH"].split(":")
       )
+      STRIPPATHS.append(os.environ["CMSSWCALLBASE"])
       trace_python([s] + sys.argv[1:], path)
       return
   if sys.argv[0].endswith('cmsRun'):
       print("+Wrapping cmsRun...")
       addprefixinfo(sys.argv[1:])
+      STRIPPATHS.append(os.environ["CMSSWCALLBASE"])
       trace_python(sys.argv[1:], ["."])
       return
   if len(sys.argv) <= 1:
