@@ -22,6 +22,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilder.h"
+#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
@@ -53,6 +54,18 @@ protected:
    };
 
    const T& modelData(int index) { return *reinterpret_cast<const T*>(m_helper.offsetObject(item()->modelData(index))); }
+
+   void setItem(const FWEventItem *iItem) override
+   {
+      FWProxyBuilderBase::setItem(iItem);
+      if (iItem)
+      {
+         iItem->getConfig()->assertParam("Layer", 0L, 0L, 52L);
+         iItem->getConfig()->assertParam("EnergyCutOff", 0.5, 0.2, 5.0);
+         iItem->getConfig()->assertParam("Z+", true);
+         iItem->getConfig()->assertParam("Z-", true);
+      }
+   }
 
    void build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc) override
    {
