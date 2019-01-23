@@ -129,5 +129,6 @@ premix_stage1.toModify(SiStripSimBlock,
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify(SiStripSimBlock,
                      CouplingConstantsRunIIDecB = True, #for TIB and TOB
-                     CouplingConstantsRunIIDecW = True  #for TID and TEC
+                     CouplingConstantsRunIIDecW = True,  #for TID and TEC
+                     APVShapeDecoFile =cms.FileInPath("SimTracker/SiStripDigitizer/data/APVShapeDeco_320.txt")
                      )
