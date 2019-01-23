@@ -16,7 +16,8 @@ class ClusterFilterByAlgo final : public ClusterFilterBase {
 public:
   ClusterFilterByAlgo(const edm::ParameterSet & ps)
     : ClusterFilterBase(ps),
-  algo_number_(ps.getParameter<int>("algo_number")){}
+    algo_number_(ps.getParameter<int>("algo_number")){}
+  virtual ~ClusterFilterByAlgo(){};
 
   std::unique_ptr<std::vector<std::pair<unsigned int, float> > >
     filter(const std::vector<reco::CaloCluster>& layerClusters,
