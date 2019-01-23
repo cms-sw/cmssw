@@ -145,9 +145,8 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     int nhit=0;
     //loop on tracking rechits
     //std::cout << "   loop on hits of track #" << (itt - tracks->begin()) << std::endl;
-    for (trackingRecHit_iterator ith = ittrk->recHitsBegin(), edh = ittrk->recHitsEnd(); ith != edh; ++ith) {
-
-      const TrackingRecHit *hit = *ith; // ith is an iterator on edm::Ref to rechit
+    for (auto const& hit : ittrk->recHits())
+    {
       if(! hit->isValid())continue;
       DetId detid = hit->geographicalId();
       int subDet = detid.subdetId();

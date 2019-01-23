@@ -46,21 +46,21 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
     reco::TransientTrack track( *m_recoTrack, &*magneticField, globalGeometry );
     TransientTrackingRecHit::ConstRecHitContainer recHitsForRefit;
     int iT = 0, iM = 0;
-    for (trackingRecHit_iterator hit = m_recoTrack->recHitsBegin(); hit != m_recoTrack->recHitsEnd(); ++hit) {
-        if((*hit)->isValid()) {
-            DetId hitId  = (*hit)->geographicalId();
+    for(auto const& hit : m_recoTrack->recHits()) {
+        if(hit->isValid()) {
+            DetId hitId  = hit->geographicalId();
             if ( hitId.det() == DetId::Tracker ) {
                 iT++;
-                if (m_debug) std::cout << "Tracker Hit " << iT << " is found. Add to refit. Dimension: " << (*hit)->dimension() << std::endl;
+                if (m_debug) std::cout << "Tracker Hit " << iT << " is found. Add to refit. Dimension: " << hit->dimension() << std::endl;
 
-                recHitsForRefit.push_back( theTrackerRecHitBuilder->build(&**hit) );
+                recHitsForRefit.push_back( theTrackerRecHitBuilder->build(&*hit) );
             } else if ( hitId.det() == DetId::Muon ){
-                //        if ( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit ) {
+                //        if ( hit->geographicalId().subdetId() == 3 && !theRPCInTheFit ) {
                 //          LogTrace("Reco|TrackingTools|TrackTransformer") << "RPC Rec Hit discarged"; 
                 //          continue;
                 //        }
                 iM++;
-                if (m_debug) std::cout << "Muon Hit " << iM << " is found. We do not add muon hits to refit. Dimension: " << (*hit)->dimension() << std::endl;
+                if (m_debug) std::cout << "Muon Hit " << iM << " is found. We do not add muon hits to refit. Dimension: " << hit->dimension() << std::endl;
                 if ( hitId.subdetId() == MuonSubdetId::DT ) {
                     const DTChamberId chamberId(hitId.rawId());
                     if (m_debug) std::cout << "Muon Hit in DT wheel " << chamberId.wheel() << " station " << chamberId.station() << " sector " << chamberId.sector() << "." << std::endl;
@@ -72,7 +72,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                 } else {
                     if (m_debug) std::cout << "Warning! Muon Hit not in DT or CSC or RPC" << std::endl;
                 }
-                //        recHitsForRefit.push_back(theMuonRecHitBuilder->build(&**hit));
+                //        recHitsForRefit.push_back(theMuonRecHitBuilder->build(&*hit));
             }
         }
     }
@@ -296,9 +296,9 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
 
 
     int iT2 = 0, iM2 = 0;
-    for (trackingRecHit_iterator hit2 = m_recoTrack->recHitsBegin(); hit2 != m_recoTrack->recHitsEnd(); ++hit2) {
-        if((*hit2)->isValid()) {
-            DetId hitId2  = (*hit2)->geographicalId();
+    for(auto const& hit2 : m_recoTrack->recHits()) {
+        if(hit2->isValid()) {
+            DetId hitId2  = hit2->geographicalId();
             if ( hitId2.det() == DetId::Tracker ) {
                 iT2++;
                 if (m_debug) std::cout << "Tracker Hit " << iT2 << " is found. We don't calcualte Tsos for it" << std::endl;
@@ -308,7 +308,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                 //          continue;
                 //        }
                 iM2++;
-                if (m_debug) std::cout << "Muon Hit " << iM2 << " is found. Dimension: " << (*hit2)->dimension() << std::endl;
+                if (m_debug) std::cout << "Muon Hit " << iM2 << " is found. Dimension: " << hit2->dimension() << std::endl;
                 if ( hitId2.subdetId() == MuonSubdetId::DT ) {
                     const DTChamberId chamberId(hitId2.rawId());
                     if (m_debug) std::cout << "Muon Hit in DT wheel " << chamberId.wheel() << " station " << chamberId.station() << " sector " << chamberId.sector() << std::endl;
@@ -319,9 +319,9 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
 
 
 
-                    if ( (*hit2)->dimension() > 1 ) {
-                        // std::vector<const TrackingRecHit*> vDTSeg2D = (*hit2)->recHits();
-                        std::vector<TrackingRecHit*> vDTSeg2D = (*hit2)->recHits();
+                    if ( hit2->dimension() > 1 ) {
+                        // std::vector<const TrackingRecHit*> vDTSeg2D = hit2->recHits();
+                        std::vector<TrackingRecHit*> vDTSeg2D = hit2->recHits();
 
                         if (m_debug) std::cout << "          vDTSeg2D size: " << vDTSeg2D.size() << std::endl;
 
@@ -418,9 +418,9 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                         //            
                         //            if ( chamberId2.wheel() == 0 && chamberId2.station() == 2 && chamberId2.sector() == 7 ) {
                         //            
-                        //            double hitX2 = (*hit2)->localPosition().x();
-                        //          double hitY2 = (*hit2)->localPosition().y();
-                        //          double hitZ2 = (*hit2)->localPosition().z();
+                        //            double hitX2 = hit2->localPosition().x();
+                        //          double hitY2 = hit2->localPosition().y();
+                        //          double hitZ2 = hit2->localPosition().z();
                         //          
                         //          double tsosX2 = extrapolation.localPosition().x();
                         //          double tsosY2 = extrapolation.localPosition().y();
@@ -440,9 +440,9 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                         if (m_debug) std::cout << "Muon hit in CSC endcap " << cscDetId2.endcap() << " station " << cscDetId2.station() << " ring " << cscDetId2.ring() << " chamber " << cscDetId2.chamber() << "." << std::endl;
 
 
-                        if ( (*hit2)->dimension() == 4 ) {
-                            // std::vector<const TrackingRecHit*> vCSCHits2D = (*hit2)->recHits();
-                            std::vector<TrackingRecHit*> vCSCHits2D = (*hit2)->recHits();
+                        if ( hit2->dimension() == 4 ) {
+                            // std::vector<const TrackingRecHit*> vCSCHits2D = hit2->recHits();
+                            std::vector<TrackingRecHit*> vCSCHits2D = hit2->recHits();
                             if (m_debug) std::cout << "          vCSCHits2D size: " << vCSCHits2D.size() << std::endl;
                             if ( vCSCHits2D.size() >= 5 ) {
                                 // for ( std::vector<const TrackingRecHit*>::const_iterator itCSCHits2D =  vCSCHits2D.begin();
@@ -560,9 +560,9 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                 m_tracker_numHits = m_tracker_numHits > 0 ? m_tracker_numHits : 0 ;
 
                 /*
-                   for (trackingRecHit_iterator hit = m_recoMuon->innerTrack()->recHitsBegin();  hit != m_recoMuon->innerTrack()->recHitsEnd();  ++hit)
+                   for(auto const& hit : m_recoMuon->innerTrack()->recHits())
                    {
-                   DetId id = (*hit)->geographicalId();
+                   DetId id = hit->geographicalId();
                    if (id.det() == DetId::Tracker)
                    {
                    m_tracker_numHits++;
