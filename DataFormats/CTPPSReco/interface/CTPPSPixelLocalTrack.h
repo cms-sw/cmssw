@@ -83,7 +83,7 @@ class CTPPSPixelLocalTrack
     ///< covariance matrix size
     static constexpr int covarianceSize = dimension * dimension;
 
-    CTPPSPixelLocalTrack() : z0_(0), chiSquared_(0), valid_(false), numberOfPointsUsedForFit_(0),recoInfo_(CTPPSReconstructionInfo::invalid)
+    CTPPSPixelLocalTrack() : z0_(0), chiSquared_(0), valid_(false), numberOfPointsUsedForFit_(0),recoInfo_(CTPPSpixelLocalTrackReconstructionInfo::invalid)
     {
     }
 
@@ -162,8 +162,8 @@ class CTPPSPixelLocalTrack
 
     bool operator< (const CTPPSPixelLocalTrack &r);
 
-    inline CTPPSReconstructionInfo getRecoInfo() const { return recoInfo_; }
-    inline void setRecoInfo(CTPPSReconstructionInfo recoInfo) { recoInfo_ = recoInfo; }
+    inline CTPPSpixelLocalTrackReconstructionInfo getRecoInfo() const { return recoInfo_; }
+    inline void setRecoInfo(CTPPSpixelLocalTrackReconstructionInfo recoInfo) { recoInfo_ = recoInfo; }
 
     inline unsigned short getNumberOfPointsUsedForFit() const { return numberOfPointsUsedForFit_; }
     
@@ -188,7 +188,7 @@ class CTPPSPixelLocalTrack
     /// number of points used for the track fit
     int numberOfPointsUsedForFit_;
 
-    CTPPSReconstructionInfo recoInfo_;
+    CTPPSpixelLocalTrackReconstructionInfo recoInfo_;
 };
 
 #endif

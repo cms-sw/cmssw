@@ -19,6 +19,7 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -101,7 +102,7 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       for ( const auto& trk : rpv ) {
         if ( !trk.isValid() ) continue;
         pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma(), trk.getTx(), trk.getTxSigma(), trk.getTy(), trk.getTySigma(), 
-        trk.getChiSquaredOverNDF(), CTPPSReconstructionInfo::invalid, trk.getNumberOfPointsUsedForFit(),0,0 );
+        trk.getChiSquaredOverNDF(), CTPPSpixelLocalTrackReconstructionInfo::invalid, trk.getNumberOfPointsUsedForFit(),0,0 );
       }
     }
   }
@@ -119,8 +120,15 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       const unsigned int rpId = rpv.detId();
       for ( const auto& trk : rpv ) {
         if ( !trk.isValid() ) continue;
-        pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma(), 
-        0., 0., 0., 0., 0., CTPPSReconstructionInfo::invalid, trk.getNumOfPlanes(), trk.getT(), trk.getTSigma() );
+        float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.getX0());
+        float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getX0Sigma());
+        float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getY0());
+        float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getY0Sigma());
+        float roundedT = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.getT());
+        float roundedTSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getTSigma());
+
+        pOut->emplace_back( rpId, roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, 0., 0., 0., 0., 0., 
+        CTPPSpixelLocalTrackReconstructionInfo::invalid, trk.getNumOfPlanes(), roundedT, roundedTSigma);
       }
     }
   }
@@ -138,13 +146,22 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       for ( const auto& rpv : *inputPixelTracks ) {
         const uint32_t rpId = rpv.detId();
         for ( const auto& trk : rpv ) {
-      if ( !trk.isValid() ) continue;
-      if(trk.getTx()>pixelTrackTxMin_ && trk.getTx()<pixelTrackTxMax_
-         && trk.getTy()>pixelTrackTyMin_ && trk.getTy()<pixelTrackTyMax_)
+          if ( !trk.isValid() ) continue;
+          if(trk.getTx()>pixelTrackTxMin_ && trk.getTx()<pixelTrackTxMax_
+             && trk.getTy()>pixelTrackTyMin_ && trk.getTy()<pixelTrackTyMax_){
+            float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.getX0());
+            float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getX0Sigma());
+            float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getY0());
+            float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getY0Sigma());
+            float roundedTx = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.getTx());
+            float roundedTxSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getTxSigma());
+            float roundedTy = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.getTy());
+            float roundedTySigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getTySigma());
+            float roundedChiSquaredOverNDF = MiniFloatConverter::reduceMantissaToNbitsRounding<9>(trk.getChiSquaredOverNDF());
 
-        pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma(), trk.getTx(), trk.getTxSigma(), trk.getTy(), trk.getTySigma(), 
-        trk.getChiSquaredOverNDF(), trk.getRecoInfo(), trk.getNumberOfPointsUsedForFit(),0.,0. );
-      
+            pOut->emplace_back( rpId, roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, roundedTx, roundedTxSigma, roundedTy, roundedTySigma, 
+            roundedChiSquaredOverNDF, trk.getRecoInfo(), trk.getNumberOfPointsUsedForFit(),0.,0. );
+          }
         }
       }
     }
@@ -156,7 +173,7 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
 
 //----------------------------------------------------------------------------------------------------
 
-void
+void 
 CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& descr )
 {
   edm::ParameterSetDescription desc;
