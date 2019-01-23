@@ -20,7 +20,7 @@
   <RotationSection>
     <Rotation name="180D" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg"/>
   </RotationSection>
-  <Algorithm name="global:DDPixFwdDisk">
+  <Algorithm name="tracker:DDPixFwdDisk">
     <rParent name="testDDPixFwdDiskAlgo:MotherOfAllBoxes"/>
     <String  name="ChildName"        value="testDDPixFwdDiskAlgo:AnotherBox"/>
     <Numeric name="StartCopyNo"      value="0"/>

@@ -56,7 +56,7 @@ static long algorithm(Detector& /* description */,
   Volume         child       = ns.volume( childName );
 
   LogDebug("TrackerGeom") << "DDPixFwdDiskAlgo debug: Parent " << mother.name()
-			  << "\tChild " << child.name() << " NameSpace "
+                          << "\tChild " << child.name() << " NameSpace "
                           << ns.name() << "\tRot Name " << rotName
                           << "\tCopyNo (Start/Total) " << startCopyNo << ", "
                           << nBlades << "\tAngles " << ConvertTo(bladeAngle,deg)
@@ -120,7 +120,7 @@ static long algorithm(Detector& /* description */,
                                   << cos(bladeAngle)*sin(bladeTilt)
                                   << ", " << cos(bladeAngle)*cos(bladeTilt);
           rot = makeRotation3D(thetx, phix, thety, phiy, thetz, phiz);
-	}
+        }
         double xpos = anchorR*(-sin(phi)*cos(bladeTilt)+cos(phi)
                                *sin(bladeAngle)*sin(bladeTilt));
         double ypos = anchorR*(cos(phi)*cos(bladeTilt)+sin(phi)
@@ -130,9 +130,9 @@ static long algorithm(Detector& /* description */,
 
         Position tran(xpos, ypos, zpos);
         pv = mother.placeVolume(child,copyNo,Transform3D(rot,tran));
-	LogDebug("TrackerGeom") << "DDPixFwdDiskAlgo test: " << pv.name() << ": " << childName
+        LogDebug("TrackerGeom") << "DDPixFwdDiskAlgo test: " << pv.name() << ": " << childName
                                 << " number " << copyNo << " positioned in "
-				<< mother.name() << " at " << tran << " with " << rot;
+                                << mother.name() << " at " << tran << " with " << rot;
       }
       copyNo++;
     }
@@ -142,4 +142,4 @@ static long algorithm(Detector& /* description */,
 
 }
 
-DECLARE_DDCMS_DETELEMENT( DDCMS_global_DDPixFwdDisk, algorithm )
+DECLARE_DDCMS_DETELEMENT( DDCMS_tracker_DDPixFwdDisk, algorithm )
