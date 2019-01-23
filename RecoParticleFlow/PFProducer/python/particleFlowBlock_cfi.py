@@ -186,7 +186,8 @@ _addTiming.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),
                              ) 
                    )
 
-from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
+from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
 _addTimingLayer = particleFlowBlock.elementImporters.copy()
 _addTimingLayer.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),
                              timeValueMap = cms.InputTag("tofPID:t0"),
@@ -204,7 +205,7 @@ phase2_timing.toModify(
     elementImporters = _addTiming
 )
 
-phase2_timing_layer.toModify(
+(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(
     particleFlowBlock,
     elementImporters = _addTimingLayer
 )
