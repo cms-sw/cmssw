@@ -68,16 +68,16 @@ void ElectronHcalHelper::readEvent( const edm::Event & evt )
    }
  }
 
-std::vector<CaloTowerDetId> ElectronHcalHelper::hcalTowersBehindClusters( const reco::SuperCluster & sc )
+std::vector<CaloTowerDetId> ElectronHcalHelper::hcalTowersBehindClusters( const reco::SuperCluster & sc ) const
  { return hadTower_->towersOf(sc) ; }
 
-double ElectronHcalHelper::hcalESumDepth1BehindClusters( const std::vector<CaloTowerDetId> & towers )
+double ElectronHcalHelper::hcalESumDepth1BehindClusters( const std::vector<CaloTowerDetId> & towers ) const
  { return hadTower_->getDepth1HcalESum(towers) ; }
 
-double ElectronHcalHelper::hcalESumDepth2BehindClusters( const std::vector<CaloTowerDetId> & towers )
+double ElectronHcalHelper::hcalESumDepth2BehindClusters( const std::vector<CaloTowerDetId> & towers ) const
  { return hadTower_->getDepth2HcalESum(towers) ; }
 
-double ElectronHcalHelper::hcalESum( const SuperCluster & sc, const std::vector<CaloTowerDetId > * excludeTowers )
+double ElectronHcalHelper::hcalESum( const SuperCluster & sc, const std::vector<CaloTowerDetId > * excludeTowers ) const
  {
   if (cfg_.hOverEConeSize==0)
    { return 0 ; }
@@ -87,7 +87,7 @@ double ElectronHcalHelper::hcalESum( const SuperCluster & sc, const std::vector<
    { return hcalIso_->getHcalESum(&sc) ; }
  }
 
-double ElectronHcalHelper::hcalESumDepth1( const SuperCluster & sc ,const std::vector<CaloTowerDetId > * excludeTowers )
+double ElectronHcalHelper::hcalESumDepth1( const SuperCluster & sc ,const std::vector<CaloTowerDetId > * excludeTowers ) const
  {
   if (cfg_.hOverEConeSize==0)
    { return 0 ; }
@@ -97,7 +97,7 @@ double ElectronHcalHelper::hcalESumDepth1( const SuperCluster & sc ,const std::v
    { return hcalIso_->getHcalESumDepth1(&sc) ; }
  }
 
-double ElectronHcalHelper::hcalESumDepth2( const SuperCluster & sc ,const std::vector<CaloTowerDetId > * excludeTowers  )
+double ElectronHcalHelper::hcalESumDepth2( const SuperCluster & sc ,const std::vector<CaloTowerDetId > * excludeTowers  ) const
  {
   if (cfg_.hOverEConeSize==0)
    { return 0 ; }
@@ -107,7 +107,7 @@ double ElectronHcalHelper::hcalESumDepth2( const SuperCluster & sc ,const std::v
    { return hcalIso_->getHcalESumDepth2(&sc) ; }
  }
 
-bool ElectronHcalHelper::hasActiveHcal( const reco::SuperCluster & sc ) 
+bool ElectronHcalHelper::hasActiveHcal( const reco::SuperCluster & sc ) const
  {
      if (cfg_.checkHcalStatus && cfg_.hOverEConeSize != 0 && cfg_.useTowers) {
          return hadTower_->hasActiveHcal( sc );

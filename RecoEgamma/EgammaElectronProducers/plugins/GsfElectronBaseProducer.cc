@@ -383,7 +383,7 @@ void GsfElectronBaseProducer::fillEvent( edm::Event & event )
    }
   // final filling
   auto finalCollection = std::make_unique<GsfElectronCollection>();
-  algo_->copyElectrons(*finalCollection) ;
+  algo_->moveElectrons(*finalCollection) ;
   orphanHandle_ = event.put(std::move(finalCollection));
 }
 
