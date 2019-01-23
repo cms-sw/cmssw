@@ -346,9 +346,8 @@ namespace edmtest {
   void
   IntProducerFromTransient::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // EventSetup is not used.
-    edm::Handle<TransientIntProduct> result;
-    bool ok = e.getByToken(getToken_, result);
-    assert(ok);
+    auto result = e.getHandle(getToken_);
+    assert(result);
     e.emplace(putToken_,result.product()->value);
   }
 
@@ -405,9 +404,7 @@ namespace edmtest {
 
     if (onlyGetOnEvent_ == 0u || e.eventAuxiliary().event() == onlyGetOnEvent_) {
       for(auto const& token: tokens_) {
-        edm::Handle<IntProduct> anInt;
-        e.getByToken(token, anInt);
-        value += anInt->value;
+        value += e.get(token).value;
       }
     }
     e.emplace(putToken_,value);

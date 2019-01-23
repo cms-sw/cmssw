@@ -150,9 +150,7 @@ IOExerciser::write(edm::EventForOutput const& e)
 
    for (auto const& product : products_to_use)
    {
-      edm::BasicHandle result;
-
-      e.getByToken(product.token(), product.type(), result);
+      edm::BasicHandle result = e.getByToken(product.token(), product.type());
       ctr++;
    }
    edm::LogInfo("IOExerciser") << "IOExerciser read out " << ctr << " products.";

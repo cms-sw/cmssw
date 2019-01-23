@@ -237,9 +237,7 @@ namespace edmtest {
     std::vector<int> retrieved;
     
     for(auto const& token: m_tokens) {
-      edm::Handle<IntProduct> handle;
-      e.getByToken(token, handle);
-      retrieved.push_back(handle->value);
+      retrieved.push_back(e.get(token).value);
     }
     
     std::vector<int> values;

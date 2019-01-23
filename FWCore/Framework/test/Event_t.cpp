@@ -87,6 +87,8 @@ class testEvent: public CppUnit::TestFixture {
   CPPUNIT_TEST(emptyEvent);
   CPPUNIT_TEST(getByLabelFromEmpty);
   CPPUNIT_TEST(getByTokenFromEmpty);
+  CPPUNIT_TEST(getHandleFromEmpty);
+  CPPUNIT_TEST(getFromEmpty);
   CPPUNIT_TEST(putAnIntProduct);
   CPPUNIT_TEST(putAndGetAnIntProduct);
   CPPUNIT_TEST(putAndGetAnIntProductByToken);
@@ -95,6 +97,8 @@ class testEvent: public CppUnit::TestFixture {
   CPPUNIT_TEST(transaction);
   CPPUNIT_TEST(getByLabel);
   CPPUNIT_TEST(getByToken);
+  CPPUNIT_TEST(getHandle);
+  CPPUNIT_TEST(get_product);
   CPPUNIT_TEST(getManyByType);
   CPPUNIT_TEST(printHistory);
   CPPUNIT_TEST(deleteProduct);
@@ -108,6 +112,8 @@ class testEvent: public CppUnit::TestFixture {
   void emptyEvent();
   void getByLabelFromEmpty();
   void getByTokenFromEmpty();
+  void getHandleFromEmpty();
+  void getFromEmpty();
   void putAnIntProduct();
   void putAndGetAnIntProduct();
   void putAndGetAnIntProductByToken();
@@ -116,6 +122,8 @@ class testEvent: public CppUnit::TestFixture {
   void transaction();
   void getByLabel();
   void getByToken();
+  void getHandle();
+  void get_product();
   void getManyByType();
   void printHistory();
   void deleteProduct();
@@ -505,6 +513,30 @@ void testEvent::getByTokenFromEmpty() {
   CPPUNIT_ASSERT_THROW(*nonesuch, cms::Exception);
 }
 
+void testEvent::getHandleFromEmpty() {
+  InputTag inputTag("moduleLabel", "instanceName");
+  
+  IntConsumer consumer( std::vector<InputTag>{1,inputTag});
+  consumer.updateLookup(InEvent, principal_->productLookup(),false);
+  assert(1==consumer.m_tokens.size());
+  currentEvent_->setConsumer(&consumer);
+  Handle<int> nonesuch;
+  CPPUNIT_ASSERT(!(nonesuch=currentEvent_->getHandle(consumer.m_tokens[0])));
+  CPPUNIT_ASSERT(!nonesuch.isValid());
+  CPPUNIT_ASSERT(nonesuch.failedToGet());
+  CPPUNIT_ASSERT_THROW(*nonesuch, cms::Exception);
+}
+
+void testEvent::getFromEmpty() {
+  InputTag inputTag("moduleLabel", "instanceName");
+  
+  IntConsumer consumer( std::vector<InputTag>{1,inputTag});
+  consumer.updateLookup(InEvent, principal_->productLookup(),false);
+  assert(1==consumer.m_tokens.size());
+  currentEvent_->setConsumer(&consumer);
+  CPPUNIT_ASSERT_THROW( (void) currentEvent_->get(consumer.m_tokens[0]), cms::Exception);
+}
+
 void testEvent::putAnIntProduct() {
   
   auto p = putProduct(std::make_unique<edmtest::IntProduct>(3),"int1",false);
@@ -701,7 +733,7 @@ void testEvent::getByLabel() {
   }
 
   BasicHandle bh = principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE",nullptr, nullptr, nullptr);
-  convert_handle(std::move(bh), h);
+  h = convert_handle<product_t>(std::move(bh));
   CPPUNIT_ASSERT(h->value == 100);
   BasicHandle bh2(principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch",nullptr, nullptr, nullptr));
   CPPUNIT_ASSERT(!bh2.isValid());
@@ -786,6 +818,153 @@ void testEvent::getByToken() {
   
   CPPUNIT_ASSERT(currentEvent_->getByToken(modOneToken, h));
   CPPUNIT_ASSERT(h->value == 4);
+  
+}
+
+void testEvent::getHandle() {
+  typedef edmtest::IntProduct product_t;
+  typedef std::unique_ptr<product_t> ap_t;
+  typedef Handle<product_t> handle_t;
+  
+  ap_t one(new product_t(1));
+  ap_t two(new product_t(2));
+  ap_t three(new product_t(3));
+  ap_t four(new product_t(4));
+  addProduct(std::move(one),   "int1_tag", "int1");
+  addProduct(std::move(two),   "int2_tag", "int2");
+  addProduct(std::move(three), "int3_tag");
+  addProduct(std::move(four),  "nolabel_tag");
+  
+  auto ap_vthing = std::make_unique<std::vector<edmtest::Thing>>();
+  addProduct(std::move(ap_vthing), "thing", "");
+  
+  ap_t oneHundred(new product_t(100));
+  addProduct(std::move(oneHundred), "int1_tag_late", "int1");
+  
+  auto twoHundred = std::make_unique<edmtest::IntProduct>(200);
+  putProduct(std::move(twoHundred), "int1");
+  
+  CPPUNIT_ASSERT(currentEvent_->size() == 7);
+  
+  IntProductConsumer consumer(std::vector<InputTag> {
+    InputTag("modMulti"),
+    InputTag("modMulti","int1"),
+    InputTag("modMulti", "nomatch"),
+    InputTag("modMulti", "int1", "EARLY"),
+    InputTag("modMulti", "int1", "LATE"),
+    InputTag("modMulti", "int1", "CURRENT"),
+    InputTag("modMulti", "int2", "EARLY"),
+    InputTag("modOne")
+  });
+  consumer.updateLookup(InEvent, principal_->productLookup(),false);
+  
+  currentEvent_->setConsumer(&consumer);
+  
+  const auto modMultiToken = consumer.m_tokens[0];
+  const auto modMultiInt1Token = consumer.m_tokens[1];
+  const auto modMultinomatchToken = consumer.m_tokens[2];
+  const auto modMultiInt1EarlyToken = consumer.m_tokens[3];
+  const auto modMultiInt1LateToken = consumer.m_tokens[4];
+  const auto modMultiInt1CurrentToken = consumer.m_tokens[5];
+  const auto modMultiInt2EarlyToken = consumer.m_tokens[6];
+  const auto modOneToken = consumer.m_tokens[7];
+  
+  handle_t h;
+  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modMultiToken));
+  CPPUNIT_ASSERT(h->value == 3);
+  
+  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modMultiInt1Token));
+  CPPUNIT_ASSERT(h->value == 200);
+  
+  CPPUNIT_ASSERT(!(h=currentEvent_->getHandle(modMultinomatchToken)));
+  CPPUNIT_ASSERT(!h.isValid());
+  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+  
+  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modMultiInt1Token));
+  CPPUNIT_ASSERT(h->value == 200);
+  
+  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modMultiInt1EarlyToken));
+  CPPUNIT_ASSERT(h->value == 1);
+  
+  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modMultiInt1LateToken));
+  CPPUNIT_ASSERT(h->value == 100);
+  
+  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modMultiInt1CurrentToken));
+  CPPUNIT_ASSERT(h->value == 200);
+  
+  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modMultiInt2EarlyToken));
+  CPPUNIT_ASSERT(h->value == 2);
+  
+  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modOneToken));
+  CPPUNIT_ASSERT(h->value == 4);
+  
+}
+
+void testEvent::get_product() {
+  typedef edmtest::IntProduct product_t;
+  typedef std::unique_ptr<product_t> ap_t;
+  typedef Handle<product_t> handle_t;
+  
+  ap_t one(new product_t(1));
+  ap_t two(new product_t(2));
+  ap_t three(new product_t(3));
+  ap_t four(new product_t(4));
+  addProduct(std::move(one),   "int1_tag", "int1");
+  addProduct(std::move(two),   "int2_tag", "int2");
+  addProduct(std::move(three), "int3_tag");
+  addProduct(std::move(four),  "nolabel_tag");
+  
+  auto ap_vthing = std::make_unique<std::vector<edmtest::Thing>>();
+  addProduct(std::move(ap_vthing), "thing", "");
+  
+  ap_t oneHundred(new product_t(100));
+  addProduct(std::move(oneHundred), "int1_tag_late", "int1");
+  
+  auto twoHundred = std::make_unique<edmtest::IntProduct>(200);
+  putProduct(std::move(twoHundred), "int1");
+  
+  CPPUNIT_ASSERT(currentEvent_->size() == 7);
+  
+  IntProductConsumer consumer(std::vector<InputTag> {
+    InputTag("modMulti"),
+    InputTag("modMulti","int1"),
+    InputTag("modMulti", "nomatch"),
+    InputTag("modMulti", "int1", "EARLY"),
+    InputTag("modMulti", "int1", "LATE"),
+    InputTag("modMulti", "int1", "CURRENT"),
+    InputTag("modMulti", "int2", "EARLY"),
+    InputTag("modOne")
+  });
+  consumer.updateLookup(InEvent, principal_->productLookup(),false);
+  
+  currentEvent_->setConsumer(&consumer);
+  
+  const auto modMultiToken = consumer.m_tokens[0];
+  const auto modMultiInt1Token = consumer.m_tokens[1];
+  const auto modMultinomatchToken = consumer.m_tokens[2];
+  const auto modMultiInt1EarlyToken = consumer.m_tokens[3];
+  const auto modMultiInt1LateToken = consumer.m_tokens[4];
+  const auto modMultiInt1CurrentToken = consumer.m_tokens[5];
+  const auto modMultiInt2EarlyToken = consumer.m_tokens[6];
+  const auto modOneToken = consumer.m_tokens[7];
+  
+  CPPUNIT_ASSERT(currentEvent_->get(modMultiToken).value==3);
+  
+  CPPUNIT_ASSERT(currentEvent_->get(modMultiInt1Token).value == 200);
+  
+  CPPUNIT_ASSERT_THROW(currentEvent_->get(modMultinomatchToken), cms::Exception);
+  
+  CPPUNIT_ASSERT(currentEvent_->get(modMultiInt1Token).value == 200);
+  
+  CPPUNIT_ASSERT(currentEvent_->get(modMultiInt1EarlyToken).value == 1);
+  
+  CPPUNIT_ASSERT(currentEvent_->get(modMultiInt1LateToken).value == 100);
+  
+  CPPUNIT_ASSERT(currentEvent_->get(modMultiInt1CurrentToken).value == 200);
+  
+  CPPUNIT_ASSERT(currentEvent_->get(modMultiInt2EarlyToken).value == 2);
+  
+  CPPUNIT_ASSERT(currentEvent_->get(modOneToken).value == 4);
   
 }
 

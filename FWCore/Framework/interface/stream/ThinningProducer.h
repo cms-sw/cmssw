@@ -76,8 +76,7 @@ namespace edm {
   void ThinningProducer<Collection, Selector>::
   produce(Event& event, EventSetup const& eventSetup) {
 
-    edm::Handle<Collection> inputCollection;
-    event.getByToken(inputToken_, inputCollection);
+    auto inputCollection = event.getHandle(inputToken_);
 
     edm::Event const& constEvent = event;
     selector_->preChoose(inputCollection, constEvent, eventSetup);

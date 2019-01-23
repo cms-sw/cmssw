@@ -122,8 +122,7 @@ namespace edm {
                                                     nullptr,
                                                     nullptr);
     assert(bhandle.isValid());
-    Handle<edmtest::UInt64Product> handle;
-    convert_handle<edmtest::UInt64Product>(std::move(bhandle), handle);
+    Handle<edmtest::UInt64Product> handle = convert_handle<edmtest::UInt64Product>(std::move(bhandle));
     assert(static_cast<EventNumber_t>(handle->value) == en);
 
     // Check that primary source products are retrieved from the same event as the EventAuxiliary
