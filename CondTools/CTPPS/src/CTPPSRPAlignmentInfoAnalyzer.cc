@@ -21,8 +21,11 @@
 
 
 #include "CondFormats/AlignmentRecord/interface/CTPPSRPAlignmentCorrectionsDataRcd.h"
+#include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
+#include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
 
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
+#include <string>
 
 //----------------------------------------------------------------------------------------------------
 
@@ -67,9 +70,15 @@ void CTPPSRPAlignmentInfoAnalyzer::analyze( const edm::Event& iEvent, const edm:
   edm::ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
   if ( watcherAlignments_.check( iSetup ) )
     {
-      
-      iSetup.get<CTPPSRPAlignmentCorrectionsDataRcd>().get(alignments);
-      
+      if(strcmp(record_.c_str(),"CTPPSRPAlignmentCorrectionsDataRcd")==0){
+	iSetup.get<CTPPSRPAlignmentCorrectionsDataRcd>().get(alignments);
+      }
+      else if(strcmp(record_.c_str(),"RPRealAlignmentRecord")==0){
+	iSetup.get<RPRealAlignmentRecord>().get(alignments);
+      }
+      else {
+	iSetup.get<RPMisalignedAlignmentRecord>().get(alignments);	
+      }
       const CTPPSRPAlignmentCorrectionsData* pCTPPSRPAlignmentCorrectionsData = alignments.product();
       edm::Service<cond::service::PoolDBOutputService> poolDbService;
       if( poolDbService.isAvailable() ){
