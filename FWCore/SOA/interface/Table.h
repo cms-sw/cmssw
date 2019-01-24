@@ -223,11 +223,11 @@ namespace soa {
     
     const_iterator begin() const { 
       std::array<void const*, sizeof...(Args)> t;
-      for(size_t i = 0; i<size();++i) { t[i] = m_values[i]; }
+      for(size_t i = 0; i<t.size();++i) { t[i] = m_values[i]; }
       return const_iterator{t}; }
     const_iterator end() const { 
       std::array<void const*, sizeof...(Args)> t;
-      for(size_t i = 0; i<size();++i) { t[i] = m_values[i]; }
+      for(size_t i = 0; i<t.size();++i) { t[i] = m_values[i]; }
       return const_iterator{t,size()}; }
 
     iterator begin() { return iterator{m_values}; }
