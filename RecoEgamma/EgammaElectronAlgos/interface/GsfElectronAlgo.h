@@ -61,7 +61,6 @@ class GsfElectronAlgo {
       //edm::EDGetTokenT tracks ;
        edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollection ;
        edm::EDGetTokenT<EcalRecHitCollection> endcapRecHitCollection ;
-       edm::EDGetTokenT<edm::ValueMap<float> > pfMVA ;
        edm::EDGetTokenT<reco::ElectronSeedCollection> seedsTag ;
        edm::EDGetTokenT<reco::TrackCollection> ctfTracks ;
        edm::EDGetTokenT<reco::BeamSpot> beamSpotTag ;
@@ -277,16 +276,13 @@ class GsfElectronAlgo {
 
     struct EventData
      {
-      // general
-      edm::Event * event ;
-      const reco::BeamSpot * beamspot ;
-      GsfElectronList electrons ;
-
-      EventData() ;
-
       // utilities
       void retreiveOriginalTrackCollections
        ( const reco::TrackRef &, const reco::GsfTrackRef & ) ;
+
+      // general
+      edm::Event * event ;
+      const reco::BeamSpot * beamspot ;
 
       // input collections
       edm::Handle<reco::GsfElectronCollection> previousElectrons ;
@@ -295,28 +291,30 @@ class GsfElectronAlgo {
       edm::Handle<EcalRecHitCollection> barrelRecHits ;
       edm::Handle<EcalRecHitCollection> endcapRecHits ;
       edm::Handle<reco::TrackCollection> currentCtfTracks ;
-      edm::Handle<CaloTowerCollection> towers ;
-      edm::Handle<edm::ValueMap<float> > pfMva ;
       edm::Handle<reco::ElectronSeedCollection> seeds ;
       edm::Handle<reco::GsfPFRecTrackCollection> gsfPfRecTracks ;
-      bool originalCtfTrackCollectionRetreived ;
-      bool originalGsfTrackCollectionRetreived ;
-      edm::Handle<reco::TrackCollection> originalCtfTracks ;
-      edm::Handle<reco::GsfTrackCollection> originalGsfTracks ;
       edm::Handle<reco::VertexCollection> vertices;
 
       // isolation helpers
-      std::unique_ptr<EgammaTowerIsolation> hadDepth1Isolation03, hadDepth1Isolation04 ;
-      std::unique_ptr<EgammaTowerIsolation> hadDepth2Isolation03, hadDepth2Isolation04 ;
-      std::unique_ptr<EgammaTowerIsolation> hadDepth1Isolation03Bc, hadDepth1Isolation04Bc ;
-      std::unique_ptr<EgammaTowerIsolation> hadDepth2Isolation03Bc, hadDepth2Isolation04Bc ;
-      std::unique_ptr<EgammaRecHitIsolation> ecalBarrelIsol03, ecalBarrelIsol04 ;
-      std::unique_ptr<EgammaRecHitIsolation> ecalEndcapIsol03, ecalEndcapIsol04 ;
+      EgammaTowerIsolation hadDepth1Isolation03, hadDepth1Isolation04 ;
+      EgammaTowerIsolation hadDepth2Isolation03, hadDepth2Isolation04 ;
+      EgammaTowerIsolation hadDepth1Isolation03Bc, hadDepth1Isolation04Bc ;
+      EgammaTowerIsolation hadDepth2Isolation03Bc, hadDepth2Isolation04Bc ;
+      EgammaRecHitIsolation ecalBarrelIsol03, ecalBarrelIsol04 ;
+      EgammaRecHitIsolation ecalEndcapIsol03, ecalEndcapIsol04 ;
 
       //Isolation Value Maps for PF and EcalDriven electrons
       typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
       IsolationValueMaps pfIsolationValues;
       IsolationValueMaps edIsolationValues;
+
+      edm::Handle<reco::TrackCollection> originalCtfTracks ;
+      edm::Handle<reco::GsfTrackCollection> originalGsfTracks ;
+
+      bool originalCtfTrackCollectionRetreived = false ;
+      bool originalGsfTrackCollectionRetreived = false ;
+
+      GsfElectronList electrons ;
      } ;
 
     //===================================================================
