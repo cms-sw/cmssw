@@ -54,19 +54,17 @@ public:
   int iradius()    const { return zside()*iradiusAbs(); }
   int ietaAbs()    const { return iradiusAbs(); }
   int ieta()       const { return zside()*ietaAbs(); }
-  int iradiusTriggerAbs() const;
-  int iradiusTrigger() const { return zside()*iradiusTriggerAbs(); }
 
   /// get the phi index
   int iphi() const;
   std::pair<int,int> ietaphi() const { return std::pair<int,int>(ieta(),iphi()); }
   std::pair<int,int> iradiusphi() const { return std::pair<int,int>(iradius(),iphi()); }
-  int iphiTrigger() const;  
 
   /// trigger or detector cell
   std::vector<HGCScintillatorDetId> detectorCells() const;
   bool trigger() const { 
-    return ((((id_>>kHGCalTriggerOffset)&kHGCalTriggerMask) == 1) ? true : false); }
+    return (((id_>>kHGCalTriggerOffset)&kHGCalTriggerMask) == 1);
+  }
   HGCScintillatorDetId triggerCell() const;
 
   /// consistency check : no bits left => no overhead
@@ -90,6 +88,10 @@ public:
   static const int kHGCalZsideMask      = 0x1;
   static const int kHGCalTypeOffset     = 26;
   static const int kHGCalTypeMask       = 0x3;
+
+  int iradiusTriggerAbs() const;
+  int iradiusTrigger() const { return zside()*iradiusTriggerAbs(); }
+  int iphiTrigger() const;  
 };
 
 std::ostream& operator<<(std::ostream&,const HGCScintillatorDetId& id);
