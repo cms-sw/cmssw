@@ -1,4 +1,3 @@
-#include "TEveBoxSet.h"
 #include "Fireworks/Core/interface/FWHeatmapProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
