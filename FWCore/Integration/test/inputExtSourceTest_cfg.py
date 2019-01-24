@@ -9,7 +9,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("ThingExtSource",
-    module_label = cms.untracked.string('Thing'),
     fileNames = cms.untracked.vstring('file:dummy')
 )
 
