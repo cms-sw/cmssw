@@ -33,6 +33,9 @@ mixData = cms.EDProducer("PreMixingModule",
     maxBunch = cms.int32(0),
     mixProdStep1 = cms.bool(False),
     mixProdStep2 = cms.bool(False),
+    # Optionally adjust the pileup distribution
+    adjustPileupDistribution = cms.VPSet(),
+    adjustPileupOutOfBoundsLimit = cms.untracked.uint32(10), # 10 is an initial guess for a good value
     # Workers
     workers = cms.PSet(
         pileup = cms.PSet(
