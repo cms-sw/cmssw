@@ -73,7 +73,7 @@ protected:
 
    void build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc) override
    {
-      if (item()->getConfig()->value<bool>("Heatmap"))
+      if (item()->getConfig()->template value<bool>("Heatmap"))
       {
          hitmap.clear();
 
