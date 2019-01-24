@@ -163,7 +163,7 @@ upgradeSteps['pixelTrackingOnlyRiemannFit'] = {
     ],
     'PU' : [],
     'suffix' : '_pixelTrackingOnlyRiemannFit',
-    'offset' : 0.7,
+    'offset' : 0.51,
 }
 upgradeSteps['pixelTrackingOnlyGPU'] = {
     'steps' : [
@@ -174,7 +174,7 @@ upgradeSteps['pixelTrackingOnlyGPU'] = {
     ],
     'PU' : [],
     'suffix' : '_pixelTrackingOnlyGPU',
-    'offset' : 0.8,
+    'offset' : 0.52,
 }
 upgradeSteps['pixelTrackingOnlyRiemannFitGPU'] = {
     'steps' : [
@@ -185,7 +185,7 @@ upgradeSteps['pixelTrackingOnlyRiemannFitGPU'] = {
     ],
     'PU' : [],
     'suffix' : '_pixelTrackingOnlyRiemannFitGPU',
-    'offset' : 0.9,
+    'offset' : 0.53,
 }
 upgradeSteps['Timing'] = {
     'steps' : upgradeSteps['baseline']['steps'],
