@@ -63,8 +63,7 @@ void CalibrationHistograms::histoAnalysis( bool debug ) {
   
   // Iterate through map containing vectors of profile histograms
   HistosMap::const_iterator iter = histos().begin();
-  long int ihisto = 0;
-  long int nelements = histos().size();
+
   // One entry for each LLD channel --> differnt thousand entries
   for ( ; iter != histos().end(); iter++ ) {
     if ( iter->second.empty() ) {
@@ -74,10 +73,6 @@ void CalibrationHistograms::histoAnalysis( bool debug ) {
       continue;
     }
     
-    ihisto++;
-    cout.flush();
-    if(ihisto %1 == 0) std::cout<<"\r"<<"Fiber "<<ihisto<<" over "<<nelements;
-
     // Retrieve pointers to 1D histos for this FED channel --> all strips in the fiber = 256
     vector<TH1*> profs;
     Histos::const_iterator ihis = iter->second.begin();
@@ -113,7 +108,6 @@ void CalibrationHistograms::histoAnalysis( bool debug ) {
       data()[iter->first] = anal;     
     }    
   } 
-  std::cout<<std::endl;
 }
 
 // -----------------------------------------------------------------------------
