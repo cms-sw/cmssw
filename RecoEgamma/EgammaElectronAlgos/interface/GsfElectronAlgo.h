@@ -1,57 +1,50 @@
 #ifndef GsfElectronAlgo_H
 #define GsfElectronAlgo_H
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/RegressionHelper.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EleTkIsolFromCands.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/GsfTracking/interface/GsfConstraintAtVertex.h"
-
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/TrackReco/interface/HitPattern.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
-
-#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
-#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
-
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgoHeavyObjectCache.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/RegressionHelper.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EleTkIsolFromCands.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimator.h"
+#include "RecoEgamma/ElectronIdentification/interface/SoftElectronMVAEstimator.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-
-#include "RecoEgamma/ElectronIdentification/interface/SoftElectronMVAEstimator.h"
-#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimator.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
+#include "TrackingTools/GsfTracking/interface/GsfConstraintAtVertex.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include <list>
 #include <string>
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgoHeavyObjectCache.h"
 
 class GsfElectronAlgo {
 
