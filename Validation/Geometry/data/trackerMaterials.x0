@@ -5,7 +5,7 @@
 #CommonMaterials 0 0 0 0 0
 
 Silicon                          0.000 1.000 0.000 0.000 0.000
-			         
+
 T_Aluminium                      1.000 0.000 0.000 0.000 0.000
 			       
 T_Beryllium                      1.000 0.000 0.000 0.000 0.000
@@ -135,8 +135,6 @@ PixelBarrelSupTubCables2         0.000 0.000 0.762 0.238 0.000
 
 BPix_Silicone                    1.000 0.000 0.000 0.000 0.000
 
-CoolPipesDaisyChain              0.000 0.000 0.000 1.000 0.000
-
 Pix_Bar_Baseplate_Full_Upgrade   1.000 0.000 0.000 0.000 0.000
 
 Pix_Bar_Cable_Upgrade            0.000 0.000 1.000 0.000 0.000
@@ -192,6 +190,14 @@ CFK_Layer1                       1.000 0.000 0.000 0.000 0.000
 CFK_Layer2                       1.000 0.000 0.000 0.000 0.000
 
 CFK_Layer3                       1.000 0.000 0.000 0.000 0.000
+
+CFK_Layer4                       1.000 0.000 0.000 0.000 0.000
+
+CoolPipesDaisyChain              0.000 0.000 0.000 1.000 0.000
+
+Bpix_Pipe_Steel_Half             0.000 0.000 0.000 1.000 0.000
+
+Bpix_CO2_-20C_Half               0.000 0.000 0.000 1.000 0.000
 
 Bpix_Pipe_Steel                  0.000 0.000 0.000 1.000 0.000
 
