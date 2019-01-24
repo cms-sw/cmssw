@@ -207,7 +207,7 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *>& hits
 	  for(auto& ntuplet : tripletresult)
 	    ntuplet.reserve(3);
 	  CAHitTriplGenerator_->hitNtuplets(ihd,tripletresult,*eventSetup_,*seedingLayer); //calling the function from the class, modifies tripletresult
-      	  return !tripletresult.empty();
+      	  return !tripletresult[0].empty();
 	}
     }
     //new for Phase1     
@@ -267,7 +267,7 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *>& hits
       for(auto& ntuplet : quadrupletresult)
 	ntuplet.reserve(4);
       CAHitQuadGenerator_->hitNtuplets(ihd,quadrupletresult,*eventSetup_,*seedingLayer); //calling the function from the class, modifies quadrupletresult
-      return !quadrupletresult.empty();  
+      return !quadrupletresult[0].empty();  
     }    
 
     return true;
