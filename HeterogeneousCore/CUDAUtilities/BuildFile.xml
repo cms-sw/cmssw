@@ -1,0 +1,6 @@
+<use name="cub"/>
+<use name="cuda"/>
+
+<export>
+    <lib name="1"/>
+</export>
