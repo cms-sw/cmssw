@@ -63,8 +63,7 @@ EcalShapeBase::buildMe()
    m_kNBinsPerNSec     = (unsigned int) (10/time_interval); // used to be an unsigned int = 10 in  < CMSSW10X, should work for time intervals ~0.1, 0.2, 0.5, 1
    m_qNSecPerBin = time_interval/10.; 
 
-   m_deriv.resize(m_denseArraySize);
-   m_shape.resize(m_denseArraySize);
+   for(unsigned int i = 0; i < m_denseArraySize; ++i) { m_deriv.push_back(0.0); m_shape.push_back(0.0); }
 
    const double maxel ( *max_element( shapeArray.begin(), shapeArray.end() ) ) ;
 

@@ -4,9 +4,7 @@
 #include "DD4hep/Detector.h"
 
 #include <string>
-#include "tbb/concurrent_unordered_map.h"
-#include "tbb/concurrent_vector.h"
-#include "tbb/concurrent_queue.h"
+#include <unordered_map>
 
 namespace cms  {
 
@@ -14,34 +12,28 @@ namespace cms  {
 
   public:
     
-    DDParsingContext(dd4hep::Detector* det)
-      : description(det) {
+    DDParsingContext( dd4hep::Detector* det )
+      : description( det ) {
+      namespaces.emplace_back( "" );
+      rotations.reserve( 3000 );
+      shapes.reserve( 1000 );
+      volumes.reserve( 2000 );
     }
 
     ~DDParsingContext() {
       rotations.clear();
       shapes.clear();
       volumes.clear();
-      disabledAlgs.clear();
-      namespaces.clear();
     };
     
-    bool const ns(std::string& result) {
-      std::string res;
-      if(namespaces.try_pop(res)) {
-	result=res;
-	namespaces.emplace(res);
-	return true;
-      }
-      return false;
-    }
+    const std::string& ns() const { return namespaces.back(); }
     
-    std::atomic<dd4hep::Detector*> description;
-    tbb::concurrent_unordered_map< std::string, dd4hep::Rotation3D > rotations;
-    tbb::concurrent_unordered_map< std::string, dd4hep::Solid > shapes;
-    tbb::concurrent_unordered_map< std::string, dd4hep::Volume > volumes;
-    tbb::concurrent_vector< std::string > disabledAlgs;
-    tbb::concurrent_queue< std::string > namespaces;
+    dd4hep::Detector* description;
+    std::unordered_map< std::string, dd4hep::Rotation3D > rotations;
+    std::unordered_map< std::string, dd4hep::Solid > shapes;
+    std::unordered_map< std::string, dd4hep::Volume > volumes;
+    std::set< std::string > disabledAlgs;
+    std::vector< std::string > namespaces;
 
     bool geo_inited = false;
     

@@ -3,7 +3,7 @@
 // Package:    DetectorDescription/DDCMS
 // Class:      DDVectorRegistryESProducer
 // 
-/**\class DDVectorRegistryESProducer
+/**\class DDDetectorESProducer
 
  Description: [one line class summary]
 
@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -33,10 +32,11 @@
 
 using namespace std;
 using namespace cms;
-using namespace edm;
 
 class DDVectorRegistryESProducer : public edm::ESProducer {
 public:
+
+  using DDVectorsMap = cms::DDDetector::DDVectorsMap;
 
   DDVectorRegistryESProducer(const edm::ParameterSet&);
   ~DDVectorRegistryESProducer() override;
@@ -46,13 +46,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
   
   ReturnType produce(const DDVectorRegistryRcd&);
-  
-private:
-  const string m_label;
 };
 
-DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet& iConfig)
-  : m_label(iConfig.getParameter<string>("appendToDataLabel"))
+DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet&)
 {
   setWhatProduced(this);
 }
@@ -70,15 +66,14 @@ DDVectorRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions & de
 
 DDVectorRegistryESProducer::ReturnType
 DDVectorRegistryESProducer::produce(const DDVectorRegistryRcd& iRecord)
-{
-  LogDebug("Geometry") << "DDVectorRegistryESProducer::produce\n";
+{  
   edm::ESHandle<DDDetector> det;
-  iRecord.getRecord<DetectorDescriptionRcd>().get(m_label, det);
+  iRecord.getRecord<DetectorDescriptionRcd>().get(det);
 
-  const DDVectorsMap& registry = det->vectors();
+  DDVectorsMap* registry = det->description().extension<DDVectorsMap>();
 
   auto product = std::make_unique<DDVectorRegistry>();
-  product->vectors.insert(registry.begin(), registry.end());
+  product->vectors.insert(registry->begin(), registry->end());
   return product;
 }
 

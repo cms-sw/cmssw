@@ -71,9 +71,11 @@ namespace edmtest {
 
   void AssociationMapProducer::produce(edm::Event& event, edm::EventSetup const&) {
 
-    edm::Handle<std::vector<int> > inputCollection1 = event.getHandle(inputToken1_);
+    edm::Handle<std::vector<int> > inputCollection1;
+    event.getByToken(inputToken1_, inputCollection1);
 
-    edm::Handle<std::vector<int> > inputCollection2 = event.getHandle(inputToken2_);
+    edm::Handle<std::vector<int> > inputCollection2;
+    event.getByToken(inputToken2_, inputCollection2);
 
     // insert some entries into some AssociationMaps, in another
     // module we will readout the contents and check that we readout
@@ -122,20 +124,22 @@ namespace edmtest {
                    AssocOneToManyWithQuality::data_type(edm::Ref<std::vector<int> >(inputCollection2, 7), 33.0));
     event.put(std::move(assoc6));
 
-    edm::View<int> const& inputView1 = event.get(inputToken1V_);
+    edm::Handle<edm::View<int> > inputView1;
+    event.getByToken(inputToken1V_, inputView1);
 
-    edm::Handle<edm::View<int> > inputView2 = event.getHandle(inputToken2V_);
+    edm::Handle<edm::View<int> > inputView2;
+    event.getByToken(inputToken2V_, inputView2);
 
     auto assoc7 = std::make_unique<AssocOneToOneView>(&event.productGetter());
-    assoc7->insert(inputView1.refAt(0), inputView2->refAt(3));
-    assoc7->insert(inputView1.refAt(2), inputView2->refAt(4));
+    assoc7->insert(inputView1->refAt(0), inputView2->refAt(3));
+    assoc7->insert(inputView1->refAt(2), inputView2->refAt(4));
     event.put(std::move(assoc7));
 
-    auto assoc8 = std::make_unique<AssocOneToOneView>(edm::makeRefToBaseProdFrom(inputView1.refAt(0), event),
+    auto assoc8 = std::make_unique<AssocOneToOneView>(edm::makeRefToBaseProdFrom(inputView1->refAt(0), event),
                                                       edm::makeRefToBaseProdFrom(inputView2->refAt(0), event));
 
-    assoc8->insert(inputView1.refAt(0), inputView2->refAt(5));
-    assoc8->insert(inputView1.refAt(2), inputView2->refAt(6));
+    assoc8->insert(inputView1->refAt(0), inputView2->refAt(5));
+    assoc8->insert(inputView1->refAt(2), inputView2->refAt(6));
     event.put(std::move(assoc8), "twoArg");
   }
 }

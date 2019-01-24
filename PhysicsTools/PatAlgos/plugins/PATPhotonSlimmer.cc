@@ -68,9 +68,13 @@ pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet & iConfig) :
     reducedEndcapRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection"))),
     modifyPhoton_(iConfig.getParameter<bool>("modifyPhotons"))
 {
+    edm::ConsumesCollector sumes(consumesCollector());
     if( modifyPhoton_ ) {
       const edm::ParameterSet& mod_config = iConfig.getParameter<edm::ParameterSet>("modifierConfig");
-      photonModifier_ = std::make_unique<pat::ObjectModifier<pat::Photon>>(mod_config, consumesCollector());
+      photonModifier_.reset(new pat::ObjectModifier<pat::Photon>(mod_config) );
+      photonModifier_->setConsumes(sumes);
+    } else {
+      photonModifier_.reset(nullptr);
     }
     
     mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));

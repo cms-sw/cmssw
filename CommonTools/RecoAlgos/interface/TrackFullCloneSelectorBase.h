@@ -102,7 +102,9 @@ private:
           TrackExtra & tx = selTrackExtras_->back();
           // TrackingRecHits
           auto const firstHitIndex = selHits_->size();
-          for(auto const& hit : trk.recHits()) selHits_->push_back( hit->clone() );
+          for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
+              selHits_->push_back( (*hit)->clone() );
+          }
           tx.setHits( rHits, firstHitIndex, selHits_->size() - firstHitIndex );
           tx.setTrajParams(trk.extra()->trajParams(),trk.extra()->chi2sX5());
           assert(tx.trajParams().size()==tx.recHitsSize());

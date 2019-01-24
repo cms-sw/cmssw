@@ -113,14 +113,6 @@ namespace edm {
     std::shared_ptr<HandleExceptionFactory> const&
     whyFailedFactory() const { return whyFailedFactory_;}
 
-    explicit operator bool () const {
-      return isValid();
-    }
-    
-    bool operator!() const {
-      return not isValid();
-    }
-
   protected:
 
     void const* productStorage() const;

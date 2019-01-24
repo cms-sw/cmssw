@@ -571,12 +571,12 @@ void MillePedeMonitor::fillTrack(const reco::Track *track, std::vector<TH1*> &tr
   int nhitinTECplus = 0, nhitinTECminus = 0;
   unsigned int thishit = 0;
 
-  for(auto const& hit : track->recHits()) {
+  for (trackingRecHit_iterator iHit = track->recHitsBegin(); iHit != track->recHitsEnd(); ++iHit) {
     thishit++;
-    const DetId detId(hit->geographicalId());
+    const DetId detId((*iHit)->geographicalId());
     const int subdetId = detId.subdetId(); 
 
-    if (!hit->isValid()) continue; // only real hits count as in track->numberOfValidHits()
+    if (!(*iHit)->isValid()) continue; // only real hits count as in track->numberOfValidHits()
     if (detId.det() != DetId::Tracker) {
       edm::LogError("DetectorMismatch") << "@SUB=MillePedeMonitor::fillTrack"
                                         << "DetId.det() != DetId::Tracker (=" << DetId::Tracker

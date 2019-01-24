@@ -40,7 +40,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
-namespace reco {class TransientTrack; struct MuonShower;}
+namespace reco {class TransientTrack; class MuonShower;}
 
 class MuonServiceProxy;
 class Trajectory;

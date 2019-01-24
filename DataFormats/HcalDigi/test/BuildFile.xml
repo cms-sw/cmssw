@@ -1,15 +1,16 @@
-<library   file="HcalDigiDump.cc" name="HcalDigiDump">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="boost"/>
-  <use   name="DataFormats/HcalDigi"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
+<library file="HcalDigiDump.cc" name="HcalDigiDump">
+  <use name="boost"/>
+  <use name="DataFormats/HcalDigi"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
 <iftool name="cuda-gcc-support">
 <bin name="test_hcal_digi" file="test_hcal_digi.cu">
-    <use name="DataFormats/DetId"/>
-    <use name="DataFormats/HcalDetId"/>
-    <use name="DataFormats/HcalDigi"/>
-    <use name="DataFormats/Common"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/DetId"/>
+  <use name="DataFormats/HcalDetId"/>
+  <use name="DataFormats/HcalDigi"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
 </bin>
 </iftool>

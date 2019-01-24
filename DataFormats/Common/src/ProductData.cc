@@ -38,8 +38,4 @@ namespace edm {
   void ProductData::unsafe_setWrapper(std::unique_ptr<WrapperBase> iValue) const {
     wrapper_ = std::move(iValue);
   }
-
-  void ProductData::unsafe_setWrapper(std::shared_ptr<WrapperBase const> iValue) const {
-    wrapper_ = std::move(iValue);
-  }
 }

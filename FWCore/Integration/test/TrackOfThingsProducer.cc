@@ -51,7 +51,8 @@ namespace edmtest {
 
   void TrackOfThingsProducer::produce(edm::Event& event, edm::EventSetup const&) {
 
-    edm::Handle<ThingCollection> inputCollection = event.getHandle(inputToken_);
+    edm::Handle<ThingCollection> inputCollection;
+    event.getByToken(inputToken_, inputCollection);
 
     auto result = std::make_unique<TrackOfThingsCollection>();
 

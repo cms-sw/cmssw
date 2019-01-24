@@ -43,7 +43,7 @@ public:
   bool
   getByLabel(edm::InputTag const& tag, edm::Handle<T>& result) const {
     edm::BasicHandle bh = principal_.getByLabel(edm::PRODUCT_TYPE, edm::TypeID(typeid(T)), tag, nullptr, nullptr, mcc_);
-    result = edm::convert_handle<T>(std::move(bh));
+    convert_handle(std::move(bh), result);
     return result.isValid();
   }
 

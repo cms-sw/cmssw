@@ -62,9 +62,13 @@ pat::PATJetSlimmer::PATJetSlimmer(const edm::ParameterSet & iConfig) :
             pf2pc_ = consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
         }
     }
+    edm::ConsumesCollector sumes(consumesCollector());
     if( modifyJet_ ) {
       const edm::ParameterSet& mod_config = iConfig.getParameter<edm::ParameterSet>("modifierConfig");
-      jetModifier_ = std::make_unique<pat::ObjectModifier<pat::Jet>>(mod_config, consumesCollector());
+      jetModifier_.reset(new pat::ObjectModifier<pat::Jet>(mod_config) );
+      jetModifier_->setConsumes(sumes);
+    } else {
+      jetModifier_.reset(nullptr);
     }
     produces<std::vector<pat::Jet> >();
 }

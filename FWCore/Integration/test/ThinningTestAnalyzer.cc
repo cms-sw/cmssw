@@ -92,13 +92,17 @@ namespace edmtest {
 
   void ThinningTestAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&) {
 
-    edm::Handle<ThingCollection> parentCollection = event.getHandle(parentToken_);
+    edm::Handle<ThingCollection> parentCollection;
+    event.getByToken(parentToken_, parentCollection);
 
-    edm::Handle<ThingCollection> thinnedCollection = event.getHandle(thinnedToken_);
+    edm::Handle<ThingCollection> thinnedCollection;
+    event.getByToken(thinnedToken_, thinnedCollection);
 
-    edm::Handle<edm::ThinnedAssociation> associationCollection = event.getHandle(associationToken_);
+    edm::Handle<edm::ThinnedAssociation> associationCollection;
+    event.getByToken(associationToken_, associationCollection);
 
-    edm::Handle<TrackOfThingsCollection> trackCollection = event.getHandle(trackToken_);
+    edm::Handle<TrackOfThingsCollection> trackCollection;
+    event.getByToken(trackToken_, trackCollection);
 
     unsigned int i = 0;
     if(parentWasDropped_) {

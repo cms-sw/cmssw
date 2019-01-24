@@ -33,7 +33,6 @@ ParticleLevelProducer::ParticleLevelProducer(const edm::ParameterSet& pset):
   produces<reco::GenParticleCollection>("tags");
   produces<reco::METCollection>("mets");
   
-  analysisHandler_.setIgnoreBeams(true);
   analysisHandler_.addAnalysis(rivetAnalysis_);
 }
 

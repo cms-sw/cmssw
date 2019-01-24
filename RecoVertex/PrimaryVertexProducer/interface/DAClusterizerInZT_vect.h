@@ -257,7 +257,6 @@ private:
   double dzCutOff_;
   double d0CutOff_;
   double dtCutOff_;
-  double t0Max_;
   bool useTc_;
 
   double mintrkweight_;

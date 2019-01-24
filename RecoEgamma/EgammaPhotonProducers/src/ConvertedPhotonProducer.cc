@@ -340,8 +340,9 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
   //  Loop over SC in the barrel and reconstruct converted photons
   int myCands=0;
   reco::CaloClusterPtrVector scPtrVec;
-  for(auto const& aClus : scHandle->ptrs())
-  {
+  for (unsigned i = 0; i < scHandle->size(); ++i ) {
+    reco::CaloClusterPtr aClus= scHandle->ptrAt(i);
+
     // preselection based in Et and H/E cut
     if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
     const reco::CaloCluster* pClus=&(*aClus);
@@ -586,8 +587,11 @@ void ConvertedPhotonProducer::cleanCollections(const edm::Handle<edm::View<reco:
 
 
   reco::Conversion* newCandidate=nullptr;
-  for(auto const& aClus : scHandle->ptrs())
-  {
+  for(unsigned int lSC=0; lSC < scHandle->size(); lSC++) {
+    
+    // get pointer to SC
+    reco::CaloClusterPtr aClus= scHandle->ptrAt(lSC);    
+        
     // SC energy preselection
     if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
 
@@ -630,7 +634,7 @@ void ConvertedPhotonProducer::cleanCollections(const edm::Handle<edm::View<reco:
 
 
 
-std::vector<reco::ConversionRef>  ConvertedPhotonProducer::solveAmbiguity(const edm::OrphanHandle<reco::ConversionCollection> & conversionHandle, reco::CaloClusterPtr const& scRef) {
+std::vector<reco::ConversionRef>  ConvertedPhotonProducer::solveAmbiguity(const edm::OrphanHandle<reco::ConversionCollection> & conversionHandle, reco::CaloClusterPtr& scRef) {
   std::multimap<double, reco::ConversionRef, std::greater<double> >   convMap;
 
   for ( unsigned int icp=0; icp< conversionHandle->size(); icp++) {

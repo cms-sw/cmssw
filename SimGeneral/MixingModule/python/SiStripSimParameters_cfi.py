@@ -7,10 +7,6 @@ SiStripSimBlock = cms.PSet(
     LandauFluctuations      = cms.bool(True),
     chargeDivisionsPerStrip = cms.int32(10),
     CosmicDelayShift        = cms.untracked.double(0.0), # also SiStripDigitizerAlgorithm
-    
-    APVShapeDecoFile = cms.FileInPath("SimTracker/SiStripDigitizer/data/APVShapeDeco_default.txt"),
-    APVShapePeakFile = cms.FileInPath("SimTracker/SiStripDigitizer/data/APVShapePeak_default.txt"),
-
     #---SiHitDigitizer
     DepletionVoltage        = cms.double(170.0),
     AppliedVoltage          = cms.double(300.0),
@@ -129,6 +125,5 @@ premix_stage1.toModify(SiStripSimBlock,
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify(SiStripSimBlock,
                      CouplingConstantsRunIIDecB = True, #for TIB and TOB
-                     CouplingConstantsRunIIDecW = True,  #for TID and TEC
-                     APVShapeDecoFile =cms.FileInPath("SimTracker/SiStripDigitizer/data/APVShapeDeco_320.txt")
+                     CouplingConstantsRunIIDecW = True  #for TID and TEC
                      )

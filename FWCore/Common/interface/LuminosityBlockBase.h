@@ -73,7 +73,7 @@ namespace edm {
    LuminosityBlockBase::getByLabel(const InputTag& tag, Handle<T>& result) const {
       result.clear();
       BasicHandle bh = this->getByLabelImpl(typeid(Wrapper<T>), typeid(T), tag);
-      result = convert_handle<T>(std::move(bh));
+      convert_handle(std::move(bh), result);  // throws on conversion error
       if (result.failedToGet()) {
          return false;
       }

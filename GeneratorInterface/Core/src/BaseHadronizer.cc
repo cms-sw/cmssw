@@ -44,9 +44,9 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
 
   }
   
-  std::unique_ptr<GenLumiInfoHeader> BaseHadronizer::getGenLumiInfoHeader() const {
+  GenLumiInfoHeader *BaseHadronizer::getGenLumiInfoHeader() const {
     
-    auto genLumiInfoHeader = std::make_unique<GenLumiInfoHeader>();
+    GenLumiInfoHeader *genLumiInfoHeader = new GenLumiInfoHeader();
     
     //fill information on randomized configs for parameter scans
     genLumiInfoHeader->setRandomConfigIndex(randomIndex_);

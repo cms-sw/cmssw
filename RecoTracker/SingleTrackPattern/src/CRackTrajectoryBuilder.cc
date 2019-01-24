@@ -272,11 +272,11 @@ CRackTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
 
     if (ihit == hitRange.second - 1) {
       TSOS  updatedState=startingTSOS(seed);
-      result.emplace_back(invalidState, updatedState, recHit);
+      result.push_back(std::move(TM( invalidState, updatedState, recHit)));
 
     } 
     else {
-      result.emplace_back(invalidState, recHit);
+      result.push_back(std::move(TM( invalidState, recHit)));
     }
     
   }

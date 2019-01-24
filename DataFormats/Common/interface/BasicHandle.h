@@ -42,52 +42,60 @@ namespace edm {
 
   class BasicHandle {
   public:
-    BasicHandle() = delete;
+    BasicHandle() :
+      product_(),
+      prov_(nullptr) {}
 
-    BasicHandle(BasicHandle const& h) = default;
+    BasicHandle(BasicHandle const& h) :
+      product_(h.product_),
+      prov_(h.prov_),
+      whyFailedFactory_(h.whyFailedFactory_){}
 
     BasicHandle(BasicHandle &&h) = default;
-
-    BasicHandle(WrapperBase const* iProd, Provenance const* iProv) noexcept(true):
+    
+    BasicHandle(WrapperBase const* iProd, Provenance const* iProv) :
       product_(iProd),
       prov_(iProv) {
     }
 
     ///Used when the attempt to get the data failed
-    BasicHandle(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed) noexcept(true) : 
+    BasicHandle(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed):
     product_(),
     prov_(nullptr),
     whyFailedFactory_(iWhyFailed) {}
 
-    ~BasicHandle() = default;
+    ~BasicHandle() {}
 
-    void swap(BasicHandle& other) noexcept(true){
+    void swap(BasicHandle& other) {
       using std::swap;
       swap(product_, other.product_);
       std::swap(prov_, other.prov_);
       swap(whyFailedFactory_,other.whyFailedFactory_);
     }
 
-    BasicHandle& operator=(BasicHandle&& rhs) = default;
-    BasicHandle& operator=(BasicHandle const& rhs) = default;
+    BasicHandle& operator=(BasicHandle const& rhs) {
+      BasicHandle temp(rhs);
+      this->swap(temp);
+      return *this;
+    }
 
-    bool isValid() const noexcept(true) {
+    bool isValid() const {
       return product_ && prov_;
     }
 
-    bool failedToGet() const noexcept(true) {
+    bool failedToGet() const {
       return bool(whyFailedFactory_);
     }
 
-    WrapperBase const* wrapper() const noexcept(true) {
+    WrapperBase const* wrapper() const {
       return product_;
     }
 
-    Provenance const* provenance() const noexcept(true) {
+    Provenance const* provenance() const {
       return prov_;
     }
 
-    ProductID id() const noexcept(true) {
+    ProductID id() const {
       return prov_->productID();
     }
 
@@ -95,24 +103,21 @@ namespace edm {
       return whyFailedFactory_->make();
     }
     
-    std::shared_ptr<HandleExceptionFactory> const& whyFailedFactory() const noexcept(true) {
+    std::shared_ptr<HandleExceptionFactory> const& whyFailedFactory() const {
       return whyFailedFactory_;
     }
     
-    std::shared_ptr<HandleExceptionFactory>& whyFailedFactory()  noexcept(true) {
+    std::shared_ptr<HandleExceptionFactory>& whyFailedFactory()  {
       return whyFailedFactory_;
     }
 
-    void clear() noexcept(true) {
+    void clear() {
       product_ = nullptr;
       prov_ = nullptr;
       whyFailedFactory_.reset();
     }
 
-    static BasicHandle makeInvalid() { return BasicHandle(true);}
   private:
-    //This is used to create a special invalid BasicHandle
-    explicit BasicHandle(bool):product_(nullptr) {}
     WrapperBase const* product_;
     Provenance const* prov_;
     std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
@@ -121,7 +126,7 @@ namespace edm {
   // Free swap function
   inline
   void
-  swap(BasicHandle& a, BasicHandle& b) noexcept(true) {
+  swap(BasicHandle& a, BasicHandle& b) {
     a.swap(b);
   }
 }

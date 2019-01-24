@@ -40,6 +40,8 @@
 
 
 using std::stable_sort;
+using std::less;
+using std::not2;
 using std::remove_if;
 using std::abs;
 
@@ -439,8 +441,8 @@ void Lepjets_Event::sort ()
 // Purpose: Sort the objects in the event in order of descending pt.
 //
 {
-  std::stable_sort (_leps.begin(), _leps.end(), std::not_fn(std::less<Lepjets_Event_Lep>()));
-  std::stable_sort (_jets.begin(), _jets.end(), std::not_fn(std::less<Lepjets_Event_Lep>()));
+  std::stable_sort (_leps.begin(), _leps.end(), not2 (less<Lepjets_Event_Lep> ()));
+  std::stable_sort (_jets.begin(), _jets.end(), not2 (less<Lepjets_Event_Lep> ()));
 }
 
 

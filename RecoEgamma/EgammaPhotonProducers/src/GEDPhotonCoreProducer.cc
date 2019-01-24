@@ -91,6 +91,7 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
 
 
   // Loop over PF candidates and get only photons
+  reco::ElectronSeedCollection::const_iterator pixelSeedItr;
   for(unsigned int lCand=0; lCand < pfCandidateHandle->size(); lCand++) {
     reco::PFCandidateRef candRef (reco::PFCandidateRef(pfCandidateHandle,lCand));
 

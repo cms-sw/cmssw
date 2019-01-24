@@ -290,6 +290,8 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 
     if (tsos1.isValid()) {
 
+      std::pair<bool,double> est;
+
       //UB add test on phidiff
       float SCl_phi = xmeas.phi();
       float localDphi = SCl_phi-hitPos.phi();

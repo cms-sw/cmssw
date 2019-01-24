@@ -32,6 +32,10 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
     Phase2KinkADC = cms.int32(8),
 )
 
+# *only for the cms-patatrack repository*
+# ensure reproducibility for CPU <--> GPU comparisons
+siPixelClusters.payloadType = "HLT"
+
 # phase1 pixel
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(siPixelClusters,

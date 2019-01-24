@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <vector>
 #include <algorithm>
-#include <functional>
 
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
 #include "PhysicsTools/MVATrainer/interface/SourceVariable.h"
@@ -36,7 +35,7 @@ class SourceVariableSet {
 			return vars.size();
 		else
 			return std::count_if(vars.begin(), vars.end(),
-			                     std::mem_fn(&PosVar::noMagic));
+			                     std::mem_fun_ref(&PosVar::noMagic));
 	}
 
     private:

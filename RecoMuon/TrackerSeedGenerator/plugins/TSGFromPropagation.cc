@@ -214,7 +214,7 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
     trackerGeomChanged = true;
   }
 
-  if ( trackerGeomChanged && (theTracker.product() != nullptr) ) {
+  if ( trackerGeomChanged && (&*theTracker) ) {
     if ( theNavigation ) delete theNavigation;
     theNavigation = new DirectTrackerNavigation(theTracker);
   }

@@ -186,25 +186,7 @@ _addTiming.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),
                              ) 
                    )
 
-from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
-_addTimingLayer = particleFlowBlock.elementImporters.copy()
-_addTimingLayer.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),
-                             timeValueMap = cms.InputTag("tofPID:t0"),
-                             timeErrorMap = cms.InputTag("tofPID:sigmat0"),
-                             #this will cause no time to be set for gsf tracks
-                             #(since this is not available for the fullsim/reconstruction yet)
-                             #*TODO* update when gsf times are available
-                             timeValueMapGsf = cms.InputTag("tofPID:t0"),
-                             timeErrorMapGsf = cms.InputTag("tofPID:sigmat0")
-                             ) 
-                   )
-
 phase2_timing.toModify(
     particleFlowBlock,
     elementImporters = _addTiming
-)
-
-phase2_timing_layer.toModify(
-    particleFlowBlock,
-    elementImporters = _addTimingLayer
 )

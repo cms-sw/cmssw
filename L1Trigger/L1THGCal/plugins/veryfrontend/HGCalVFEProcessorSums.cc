@@ -12,12 +12,11 @@ DEFINE_EDM_PLUGIN(HGCalVFEProcessorBaseFactory,
 
 
 HGCalVFEProcessorSums::
-HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(conf)
+HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(conf),
+  vfeLinearizationImpl_(conf),
+  vfeSummationImpl_(conf),
+  calibration_( conf.getParameterSet("calib_parameters") )
 { 
-  vfeLinearizationImpl_ = std::make_unique<HGCalVFELinearizationImpl>(conf);
-  vfeSummationImpl_ = std::make_unique<HGCalVFESummationImpl>(conf);
-  vfeCompressionImpl_ = std::make_unique<HGCalVFECompressionImpl>(conf);
-  calibration_ = std::make_unique<HGCalTriggerCellCalibration>( conf.getParameterSet("calib_parameters") );
 }
 
 void
@@ -25,14 +24,12 @@ HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
                            l1t::HGCalTriggerCellBxCollection& triggerCellColl, 
                            const edm::EventSetup& es) 
 { 
-  vfeSummationImpl_->eventSetup(es);
-  calibration_->eventSetup(es);
+  calibration_.eventSetup(es);
 
   std::vector<HGCalDataFrame> dataframes;
   std::vector<std::pair<DetId, uint32_t >> linearized_dataframes;
-  std::unordered_map<uint32_t, uint32_t> payload;
-  std::unordered_map<uint32_t, std::array<uint32_t, 2> > compressed_payload;
-
+  std::map<HGCalDetId, uint32_t> payload;
+  
   // convert ee and fh hit collections into the same object  
   for(const auto& digiData : digiColl)
   {
@@ -46,18 +43,15 @@ HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
     }
   }
 
-  vfeLinearizationImpl_->linearize(dataframes, linearized_dataframes);
-  vfeSummationImpl_->triggerCellSums(*geometry_, linearized_dataframes, payload);  
-  vfeCompressionImpl_->compress(payload, compressed_payload);
+  vfeLinearizationImpl_.linearize(dataframes, linearized_dataframes);
+  vfeSummationImpl_.triggerCellSums(*geometry_, linearized_dataframes, payload);  
   
   // Transform map to trigger cell vector vector<HGCalTriggerCell>
   for(const auto& id_value : payload)
   { 
     if (id_value.second>0){
-      l1t::HGCalTriggerCell triggerCell(reco::LeafCandidate::LorentzVector(), compressed_payload[id_value.first][1], 0, 0, 0, id_value.first);
-      triggerCell.setCompressedCharge(compressed_payload[id_value.first][0]);
-      triggerCell.setUncompressedCharge(id_value.second);
-      GlobalPoint point = geometry_->getTriggerCellPosition(id_value.first);
+      l1t::HGCalTriggerCell triggerCell(reco::LeafCandidate::LorentzVector(), id_value.second, 0, 0, 0, id_value.first.rawId());
+      GlobalPoint point = geometry_->getTriggerCellPosition(id_value.first.rawId());
       
       // 'value' is hardware, so p4 is meaningless, except for eta and phi
       math::PtEtaPhiMLorentzVector p4((double)id_value.second/cosh(point.eta()), point.eta(), point.phi(), 0.);
@@ -68,7 +62,7 @@ HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
       if( triggerCell.hwPt() > 0 )
       { 
         l1t::HGCalTriggerCell calibratedtriggercell( triggerCell );
-        calibration_->calibrateInGeV( calibratedtriggercell);     
+        calibration_.calibrateInGeV( calibratedtriggercell);     
         triggerCellColl.push_back(0, calibratedtriggercell);
       }
     }

@@ -5,7 +5,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
@@ -196,7 +196,7 @@ void CkfDebugger::dumpSimHit(const SimHit& hit) const
 
 bool CkfDebugger::analyseCompatibleMeasurements(const Trajectory& traj,
 						const std::vector<TrajectoryMeasurement>& meas,
-						const MeasurementTrackerEvent* aMeasurementTracker,
+						const MeasurementTracker* aMeasurementTracker, 
 						const Propagator*                     propagator,
 						const Chi2MeasurementEstimatorBase*   estimator,
 						const TransientTrackingRecHitBuilder* aTTRHBuilder)

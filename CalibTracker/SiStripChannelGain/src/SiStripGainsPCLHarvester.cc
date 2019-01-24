@@ -74,7 +74,6 @@ void
 SiStripGainsPCLHarvester::beginRun(edm::Run const& run, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  static constexpr float defaultGainTick = 690./640.;
 
   this->checkBookAPVColls(iSetup); // check whether APV colls are booked and do so if not yet done
   this->checkAndRetrieveTopology(iSetup);
@@ -99,7 +98,7 @@ SiStripGainsPCLHarvester::beginRun(edm::Run const& run, const edm::EventSetup& i
     if(APV->PreviousGain!=1 and newPreviousGain!=APV->PreviousGain)edm::LogWarning("SiStripGainPCLHarvester")<< "WARNING: ParticleGain in the global tag changed\n";
     APV->PreviousGain = newPreviousGain;
     
-    float newPreviousGainTick = APV->isMasked ? defaultGainTick : gainHandle->getApvGain(APV->APVId,gainHandle->getRange(APV->DetId, 0),0);
+    float newPreviousGainTick = gainHandle->getApvGain(APV->APVId,gainHandle->getRange(APV->DetId, 0),0);
     if(APV->PreviousGainTick!=1 and newPreviousGainTick!=APV->PreviousGainTick){
       edm::LogWarning("SiStripGainPCLHarvester")<< "WARNING: TickMarkGain in the global tag changed\n"<< std::endl
 						 <<" APV->SubDet: "<< APV->SubDet << " APV->APVId:" << APV->APVId << std::endl

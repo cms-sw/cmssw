@@ -105,15 +105,6 @@ namespace edm {
     bool
     getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const;
 
-    template<typename PROD>
-    Handle<PROD>
-    getHandle(EDGetTokenT<PROD> token) const;
-    
-    template<typename PROD>
-    PROD const&
-    get(EDGetTokenT<PROD> token) const noexcept(false);
-    
-
     template <typename PROD>
     void
     getManyByType(std::vector<Handle<PROD> >& results) const;
@@ -324,7 +315,7 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, emptyString_, moduleCallingContext_);
-    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
+    convert_handle(std::move(bh), result);  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
@@ -340,7 +331,7 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), tag, moduleCallingContext_);
-    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
+    convert_handle(std::move(bh), result);  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
@@ -355,7 +346,7 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
+    convert_handle(std::move(bh), result);  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
@@ -370,31 +361,11 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
+    convert_handle(std::move(bh), result);  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
     return true;
-  }
-
-  template<typename PROD>
-  Handle<PROD>
-  Run::getHandle(EDGetTokenT<PROD> token) const {
-    if(!provRecorder_.checkIfComplete<PROD>()) {
-      principal_get_adapter_detail::throwOnPrematureRead("Run", TypeID(typeid(PROD)), token);
-    }
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    return convert_handle<PROD>(std::move(bh));
-  }
-
-  template<typename PROD>
-  PROD const&
-  Run::get(EDGetTokenT<PROD> token) const noexcept(false) {
-    if(!provRecorder_.checkIfComplete<PROD>()) {
-      principal_get_adapter_detail::throwOnPrematureRead("Run", TypeID(typeid(PROD)), token);
-    }
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    return *convert_handle<PROD>(std::move(bh));
   }
 
   template <typename PROD>

@@ -12,7 +12,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/EDPutToken.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
 
@@ -59,8 +58,7 @@ class PFBlockProducer : public edm::stream::EDProducer<> {
 
  private:
   /// verbose ?
-  const bool   verbose_;
-  const edm::EDPutTokenT<reco::PFBlockCollection> putToken_;
+  bool   verbose_;
   
   /// Particle flow block algorithm 
   PFBlockAlgo            pfBlockAlgo_;

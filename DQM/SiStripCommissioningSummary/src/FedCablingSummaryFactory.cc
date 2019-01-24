@@ -70,3 +70,8 @@ void SummaryPlotFactory<FedCablingAnalysis*>::fill( TH1& summary_histo ) {
   } 
   
 }
+
+// -----------------------------------------------------------------------------
+//
+template class SummaryPlotFactory<FedCablingAnalysis*>;
+

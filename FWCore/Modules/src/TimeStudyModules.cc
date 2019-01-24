@@ -58,8 +58,9 @@ namespace timestudy {
 
       void
       getAndSleep(edm::Event const& e) const {
+        edm::Handle<int> h;
         for(auto const&t: tokens_) {
-          (void) e.getHandle(t);
+          e.getByToken(t,h);
         }
         //Event number minimum value is 1
         usleep( eventTimes_[ (e.id().event()-1) % eventTimes_.size()]);

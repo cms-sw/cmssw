@@ -101,9 +101,6 @@ public:
     unsigned int innerDetId() const {
         return extra_->innerDetId();
     }
-
-    /// Access to reconstructed hits on the track.
-    auto recHits() const { return extra_->recHits(); }
    
     /// Iterator to first hit on the track.
     trackingRecHit_iterator recHitsBegin() const {

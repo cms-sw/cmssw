@@ -34,14 +34,16 @@ namespace edmtest {
   }
 
   void OtherThingRefComparer::analyze(edm::Event const& e, edm::EventSetup const&) {
-    auto const& t1_ = e.get(token1_);
-    auto const& t2_ = e.get(token2_);
+    edm::Handle<OtherThingCollection> handle1_;
+    e.getByToken(token1_,handle1_);
+    edm::Handle<OtherThingCollection> handle2_;
+    e.getByToken(token2_,handle2_);
     
-    assert(t1_.size() == t2_.size());
+    assert(handle1_->size() == handle2_->size());
 
     {
-      auto iter2 = t2_.begin();
-      for(auto const& o1: t1_) {
+      auto iter2 = handle2_->begin();
+      for(auto const& o1: *handle1_) {
         if(o1.ref != iter2->ref) {
           throw cms::Exception("RefCompareFailure")<<"edm::Refs are not equal"<< o1.ref.id()<<" "<<iter2->ref.id();
         }
@@ -50,8 +52,8 @@ namespace edmtest {
     }
 
     {
-      auto iter2 = t2_.begin();
-      for(auto const& o1: t1_) {
+      auto iter2 = handle2_->begin();
+      for(auto const& o1: *handle1_) {
         if(o1.ptr != iter2->ptr) {
           throw cms::Exception("RefCompareFailure")<<"edm::Ptrs are not equal"<<o1.ptr.id()<<" "<<iter2->ptr.id();
         }

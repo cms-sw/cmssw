@@ -5,7 +5,7 @@ from  Configuration.PyReleaseValidation.relval_steps import *
 # here only define the workflows as a combination of the steps defined above:
 workflows = Matrix()
 
-# each workflow defines a name and a list of steps to be done. 
+# each workflow defines a name and a list of steps to be done.
 # if no explicit name/label given for the workflow (first arg),
 # the name of step1 will be used
 
@@ -15,10 +15,8 @@ def makeStepNameSim(key,frag,step,suffix):
 def makeStepName(key,frag,step,suffix):
    return step+suffix+'_'+key
 
-neutronKeys = ['2023D17','2023D19','2023D21','2023D22','2023D23','2023D24','2023D25','2023D28','2023D29','2023D30','2023D31','2023D33','2023D34','2023D35','2023D36','2023D37','2023D38','2023D39']
+neutronKeys = ['2023D17','2023D19','2023D21','2023D22','2023D23','2023D24','2023D25','2023D28','2023D29','2023D30','2023D31','2023D33','2023D34','2023D35','2023D36','2023D37']
 neutronFrags = ['ZMM_14','MinBias_14TeV']
-
-tbmFrags = ['TTbar_13','ZMM_13']
 
 #just define all of them
 
@@ -30,13 +28,13 @@ for year in upgradeKeys:
             for stepType in upgradeSteps.keys():
                 stepList[stepType] = []
             hasHarvest = False
-            for step in upgradeProperties[year][key]['ScenToRun']:                    
+            for step in upgradeProperties[year][key]['ScenToRun']:
                 stepMaker = makeStepName
                 if 'Sim' in step:
                     if 'HLBeamSpotFull' in step and '14TeV' in frag:
                         step = 'GenSimHLBeamSpotFull14'
                     stepMaker = makeStepNameSim
-                
+
                 if 'HARVEST' in step: hasHarvest = True
 
                 for stepType in upgradeSteps.keys():
@@ -76,7 +74,7 @@ for year in upgradeKeys:
             # special workflows for tracker
             if (upgradeDatasetFromFragment[frag]=="TTbar_13" or upgradeDatasetFromFragment[frag]=="TTbar_14TeV") and not 'PU' in key and hasHarvest:
                 # skip ALCA and Nano
-                trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly']
+                trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly','pixelTrackingOnlyRiemannFit','pixelTrackingOnlyRiemannFitGPU','pixelTrackingOnlyGPU']
                 for tv in trackingVariations:
                     stepList[tv] = [s for s in stepList[tv] if (("ALCA" not in s) and ("Nano" not in s))]
                 workflows[numWF+upgradeSteps['trackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingOnly']]
@@ -84,15 +82,14 @@ for year in upgradeKeys:
                     for tv in trackingVariations[1:]:
                         workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
                 elif '2018' in key:
-                    workflows[numWF+upgradeSteps['pixelTrackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['pixelTrackingOnly']]
+                    for tv in trackingVariations:
+                        if not "pixelTrackingOnly" in tv:
+                            continue
+                        workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
 
             # special workflows for HE
             if upgradeDatasetFromFragment[frag]=="TTbar_13" and '2018' in key:
                 workflows[numWF+upgradeSteps['heCollapse']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['heCollapse']]
-
-            # special workflows for stuck TBM
-            if any(upgradeDatasetFromFragment[frag]==nfrag for nfrag in tbmFrags) and '2018' in key:
-                workflows[numWF+upgradeSteps['killStuckTBM']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['killStuckTBM']]
 
             # premixing stage1, only for NuGun
             if upgradeDatasetFromFragment[frag]=="NuGun" and 'PU' in key and '2023' in key:

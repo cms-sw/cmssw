@@ -52,7 +52,7 @@ public:
   bool rearrangeWeights;
   bool residualDecay();
   void finalizeEvent();
-  std::unique_ptr<GenLumiInfoHeader> getGenLumiInfoHeader() const override;
+  GenLumiInfoHeader *getGenLumiInfoHeader() const override;
   const char *classname() const { return "SherpaHadronizer"; }
 
 
@@ -261,7 +261,7 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
   }
   if (rc) {
     //convert it to HepMC2
-    auto evt = std::make_unique<HepMC::GenEvent>();
+    HepMC::GenEvent* evt = new HepMC::GenEvent();
     Generator->FillHepMCEvent(*evt);
 
     // in case of unweighted events sherpa puts the max weight as event weight.
@@ -317,7 +317,7 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
     if(unweighted){
         evt->weights()[0]/=weight_normalization;
     }
-    resetEvent(std::move(evt));
+    resetEvent(evt);
     return true;
   }
   else {
@@ -365,8 +365,8 @@ double CMS_SHERPA_RNG::Get() {
   return randomEngine->flat();
 
 }
-std::unique_ptr<GenLumiInfoHeader> SherpaHadronizer::getGenLumiInfoHeader() const {
-  auto genLumiInfoHeader = BaseHadronizer::getGenLumiInfoHeader();
+GenLumiInfoHeader *SherpaHadronizer::getGenLumiInfoHeader() const {
+  GenLumiInfoHeader *genLumiInfoHeader = BaseHadronizer::getGenLumiInfoHeader();
 
   if(rearrangeWeights){
       edm::LogPrint("SherpaHadronizer") << "The order of event weights was changed!" ;

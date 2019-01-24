@@ -65,6 +65,7 @@ namespace {
 //#define PFLOW_DEBUG
 
 PFBlockAlgo::PFBlockAlgo() : 
+  blocks_( new reco::PFBlockCollection ),  
   debug_(false),
   elementTypes_( {
         INIT_ENTRY(PFBlockElement::TRACK),
@@ -150,26 +151,27 @@ PFBlockAlgo::~PFBlockAlgo() {
 #endif  
 }
 
-reco::PFBlockCollection PFBlockAlgo::findBlocks() {
+void PFBlockAlgo::findBlocks() {
   // Glowinski & Gouzevitch
   for( const auto& kdtree : kdtrees_ ) {
     kdtree->process();
   }  
   // !Glowinski & Gouzevitch
-  reco::PFBlockCollection blocks;
   // the blocks have not been passed to the event, and need to be cleared
-  blocks.reserve(elements_.size());
+  if( blocks_.get() ) blocks_->clear();
+  else                blocks_.reset( new reco::PFBlockCollection );
+  blocks_->reserve(elements_.size());
 
-  QuickUnion qu(elements_.size());
-  const auto elem_size = elements_.size();
+  QuickUnion qu(bare_elements_.size());
+  const auto elem_size = bare_elements_.size();
   for( unsigned i = 0; i < elem_size; ++i ) {
     for( unsigned j = 0; j < elem_size; ++j ) {
       if( qu.connected(i,j) || j == i ) continue;
-      if( !linkTests_[linkTestSquare_[elements_[i]->type()][elements_[j]->type()]] ) {
-        j = ranges_[elements_[j]->type()].second;
+      if( !linkTests_[linkTestSquare_[bare_elements_[i]->type()][bare_elements_[j]->type()]] ) {
+        j = ranges_[bare_elements_[j]->type()].second;
         continue;
       }
-      auto p1(elements_[i].get()), p2(elements_[j].get());
+      auto p1(bare_elements_[i]), p2(bare_elements_[j]);
       const PFBlockElement::Type type1 = p1->type();
       const PFBlockElement::Type type2 = p2->type();
       const unsigned index = linkTestSquare_[type1][type2];
@@ -199,10 +201,10 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   PFBlockLink::Type linktype = PFBlockLink::NONE;
   PFBlock::LinkTest linktest = PFBlock::LINKTEST_RECHIT;
   for( auto key : keys ) {
-    blocks.push_back( reco::PFBlock() );
+    blocks_->push_back( reco::PFBlock() );
     auto range = blocksmap.equal_range(key);
-    auto& the_block = blocks.back();
-    ElementList::value_type::pointer p1(elements_[range.first->second].get());
+    auto& the_block = blocks_->back();
+    ElementList::value_type::pointer p1(bare_elements_[range.first->second]);
     the_block.addElement(p1);
     const unsigned block_size = blocksmap.count(key) + 1;
     //reserve up to 1M or 8MB; pay rehash cost for more
@@ -210,7 +212,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     auto itr = range.first;
     ++itr;
     for( ; itr != range.second; ++itr ) {
-      ElementList::value_type::pointer p2(elements_[itr->second].get());
+      ElementList::value_type::pointer p2(bare_elements_[itr->second]);
       const PFBlockElement::Type type1 = p1->type();
       const PFBlockElement::Type type2 = p2->type();        
       the_block.addElement(p2);
@@ -227,9 +229,8 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     packLinks( the_block, links );    
   }
   
+  bare_elements_.clear();
   elements_.clear();
-
-  return blocks;
 }
 
 void 
@@ -342,6 +343,11 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
   std::sort(elements_.begin(),elements_.end(),
             [](const auto& a, const auto& b) { return a->type() < b->type(); } );
   
+  bare_elements_.resize(elements_.size());
+  for( unsigned i = 0; i < elements_.size(); ++i ) {
+    bare_elements_[i] = elements_[i].get();
+  }
+
   // list is now partitioned, so mark the boundaries so we can efficiently skip chunks  
   unsigned current_type = ( !elements_.empty() ? elements_[0]->type() : 0 );
   unsigned last_type = ( !elements_.empty() ? elements_.back()->type() : 0 );
@@ -386,7 +392,26 @@ std::ostream& operator<<(std::ostream& out, const PFBlockAlgo& a) {
       ie != a.elements_.end(); ++ie) {
     out<<"\t"<<**ie <<endl;
   }
+
   
+  //   const PFBlockCollection& blocks = a.blocks();
+
+  const std::unique_ptr< reco::PFBlockCollection >& blocks
+    = a.blocks(); 
+    
+  if(!blocks.get() ) {
+    out<<"blocks already transfered"<<endl;
+  }
+  else {
+    out<<"number of blocks : "<<blocks->size()<<endl;
+    out<<endl;
+    
+    for(PFBlockAlgo::IBC ib=blocks->begin(); 
+	ib != blocks->end(); ++ib) {
+      out<<(*ib)<<endl;
+    }
+  }
+
   return out;
 }
 

@@ -44,20 +44,24 @@ private:
   void
   TestGetPathStatus::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const {
 
-    auto const& pathStatus = event.get(tokenPathStatus_);
+    edm::Handle<edm::PathStatus> hPathStatus;
+    event.getByToken(tokenPathStatus_, hPathStatus);
+    *hPathStatus;
 
     unsigned int eventID = event.id().event();
-    if (eventID < expectedStates_.size() && expectedStates_[eventID] != static_cast<int>(pathStatus.state())) {
+    if (eventID < expectedStates_.size() && expectedStates_[eventID] != static_cast<int>(hPathStatus->state())) {
       std::cerr << "TestGetPathStatus::analyze unexpected path status state" << std::endl;
       abort();
     }
     if (eventID < expectedIndexes_.size() &&
-        expectedIndexes_[eventID] != pathStatus.index()) {
+        expectedIndexes_[eventID] != hPathStatus->index()) {
       std::cerr << "TestGetPathStatus::analyze unexpected path status index " << std::endl;
       abort();
     }
 
-    (void) event.get(tokenEndPathStatus_);
+    edm::Handle<edm::EndPathStatus> hEndPathStatus;
+    event.getByToken(tokenEndPathStatus_, hEndPathStatus);
+    *hEndPathStatus;
   }
 }
 using edmtest::TestGetPathStatus;

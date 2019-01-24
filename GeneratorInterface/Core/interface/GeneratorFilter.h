@@ -67,7 +67,6 @@ namespace edm
     Decayer*              decayer_;
     unsigned int          nEventsInLumiBlock_;
     unsigned int          nThreads_{1};
-    bool                  initialized_ = false;
   };
 
   //------------------------------------------------------------------------
@@ -158,7 +157,7 @@ namespace edm
 	//
 	if ( !hadronizer_.decay() ) return false;
 	
-	event = hadronizer_.getGenEvent();
+	event = std::unique_ptr<HepMC::GenEvent>(hadronizer_.getGenEvent());
 	if ( !event.get() ) return false; 
 	
 	// The external decay driver is being added to the system,
@@ -181,7 +180,7 @@ namespace edm
     //
     // fisrt of all, put back modified event tree (after external decay)
     //
-    hadronizer_.resetEvent( std::move(event) );
+    hadronizer_.resetEvent( event.release() );
 	
     //
     // now run residual decays
@@ -190,7 +189,7 @@ namespace edm
     	
     hadronizer_.finalizeEvent();
     
-    event =  hadronizer_.getGenEvent();
+    event.reset( hadronizer_.getGenEvent() );
     if ( !event.get() ) return false;
     
     event->set_event_number( ev.id().event() );
@@ -198,7 +197,7 @@ namespace edm
     //
     // tutto bene - finally, form up EDM products !
     //
-    auto genEventInfo = hadronizer_.getGenEventInfo();
+    std::unique_ptr<GenEventInfoProduct> genEventInfo(hadronizer_.getGenEventInfo());
     if (!genEventInfo.get())
       { 
 	// create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
@@ -223,11 +222,9 @@ namespace edm
     // the contained hadronizer that would report the integrated
     // luminosity.
 
-    if(initialized_) {
-      hadronizer_.statistics();
+    hadronizer_.statistics();
     
-      if ( decayer_ ) decayer_->statistics();
-    }
+    if ( decayer_ ) decayer_->statistics();
     
     std::unique_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(hadronizer_.getGenRunInfo()));
     r.put(std::move(griproduct));
@@ -277,7 +274,7 @@ namespace edm
          
     std::unique_ptr<GenLumiInfoHeader> genLumiInfoHeader(hadronizer_.getGenLumiInfoHeader());
     lumi.put(std::move(genLumiInfoHeader));
-    initialized_ = true;
+
   }
 
   template <class HAD, class DEC>

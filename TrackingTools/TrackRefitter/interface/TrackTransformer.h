@@ -26,7 +26,7 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-namespace edm {class ParameterSet; class EventSetup; class ParameterSetDescription;}
+namespace edm {class ParameterSet; class EventSetup;}
 namespace reco {class TransientTrack;}
 
 class TrajectoryFitter;
@@ -44,18 +44,6 @@ public:
 
   /// Destructor
   ~TrackTransformer() override;
-
-  /// fillDescriptions
-  static void fillPSetDescription(edm::ParameterSetDescription& descriptions,
-				  bool DoPredictionsOnly=false,
-				  const std::string& Fitter="KFFitterForRefitInsideOut",
-				  const std::string& Smoother="KFSmootherForRefitInsideOut",
-				  const std::string& Propagator="SmartPropagatorAnyRK",
-				  const std::string& RefitDirection="alongMomentum",
-				  bool RefitRPCHits=true,
-				  const std::string& TrackerRecHitBuilder="WithTrackAngle",
-				  const std::string& MuonRecHitBuilder="MuonRecHitBuilder",
-				  const std::string& MTDRecHitBuilder="MTDRecHitBuilder");
   
   // Operations
 
@@ -122,10 +110,6 @@ public:
   
   const std::string theMuonRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
-
-  const std::string theMTDRecHitBuilderName;
-  bool theMtdAvailable;
-  edm::ESHandle<TransientTrackingRecHitBuilder> theMTDRecHitBuilder;
 };
 #endif
 

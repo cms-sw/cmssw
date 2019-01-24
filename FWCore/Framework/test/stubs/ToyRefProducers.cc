@@ -64,7 +64,8 @@ namespace edmtest {
   IntVecRefVectorProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // EventSetup is not used.
     // Get our input:
-    edm::Handle<std::vector<int> > input = e.getHandle(target_);
+    edm::Handle<std::vector<int> > input;
+    e.getByToken(target_, input);
     assert(input.isValid());
 
     auto prod = std::make_unique<product_type>();
@@ -101,7 +102,8 @@ namespace edmtest {
   IntVecRefToBaseVectorProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // EventSetup is not used.
     // Get our input:
-    edm::Handle<edm::View<int> > input = e.getHandle(target_);
+    edm::Handle<edm::View<int> > input;
+    e.getByToken(target_, input);
     assert(input.isValid());
 
     edm::RefToBaseVector<int> refVector;
@@ -135,7 +137,8 @@ namespace edmtest {
   IntVecPtrVectorProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // EventSetup is not used.
     // Get our input:
-    edm::Handle<edm::View<int> > input = e.getHandle(target_);
+    edm::Handle<edm::View<int> > input;
+    e.getByToken(target_, input);
     assert(input.isValid());
 
     auto prod = std::make_unique<product_type>();
@@ -170,7 +173,8 @@ namespace edmtest {
   IntVecStdVectorPtrProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const  {
     // EventSetup is not used.
     // Get our input:
-    edm::Handle<edm::View<int> > input = e.getHandle(target_);
+    edm::Handle<edm::View<int> > input;
+    e.getByToken(target_, input);
     assert(input.isValid());
 
     auto prod = std::make_unique<product_type>();

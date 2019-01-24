@@ -44,7 +44,7 @@ namespace fireworks {
    class Context;
 }
 
-struct FWCollectionSummaryWidgetConnectionHolder;
+class FWCollectionSummaryWidgetConnectionHolder;
 
 class FWCollectionSummaryWidget : public TGCompositeFrame
 {

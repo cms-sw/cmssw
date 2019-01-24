@@ -42,7 +42,7 @@
 
 const unsigned int kNull = (unsigned int) -1;
 
-struct EVTColContainer;
+class EVTColContainer;
 
 class HLTHiggsPlotter 
 {

@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -59,16 +59,16 @@
 using namespace edm;
 using namespace reco;
 using namespace std;
-class EgGEDPhotonAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class EgGEDPhotonAnalyzer : public edm::EDAnalyzer {
    public:
       explicit EgGEDPhotonAnalyzer(const edm::ParameterSet&);
-      ~EgGEDPhotonAnalyzer() override;
+      ~EgGEDPhotonAnalyzer();
 
 
    private:
-      void beginJob() override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override;
+      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
   
   ParameterSet conf_;
 
@@ -114,7 +114,7 @@ EgGEDPhotonAnalyzer::EgGEDPhotonAnalyzer(const edm::ParameterSet& iConfig):
   conf_(iConfig)
 
 {
-  usesResource(TFileService::kSharedResource);
+
   
   edm::Service<TFileService> fs;
 
@@ -474,7 +474,7 @@ EgGEDPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EgGEDPhotonAnalyzer::beginJob()
+EgGEDPhotonAnalyzer::beginJob(const edm::EventSetup&)
 {
 
   ev = 0;

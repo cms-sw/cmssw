@@ -16,10 +16,6 @@ int BTLDetId::iphi( CrysLayout lay ) const {
       kCrystalsInPhi = kCrystalsInPhiBarZ ;
       break ;
     }
-    case CrysLayout::barphiflat  : {
-      kCrystalsInPhi = kCrystalsInPhiBarPhi ;
-      break ;
-    }
     default: {
       break ;
     }
@@ -51,20 +47,13 @@ int BTLDetId::ietaAbs( CrysLayout lay ) const {
       kTypeBoundaries = kTypeBoundariesBarZflat ;
       break ;
     }
-    case CrysLayout::barphiflat  : {
-      kCrystalsInEta = kCrystalsInEtaBarPhi ;
-      kCrystalsInPhi = kCrystalsInPhiBarPhi ;
-      kTypeBoundaries = kTypeBoundariesBarPhiFlat ;
-      break ;
-    }
     default: {
       break ;
     }
   }
-  int etaRowInModule = zside() > 0 ? (crystal()-1)/kCrystalsInPhi + 1 : kCrystalsInEta - (crystal()-1)/kCrystalsInPhi;
   return kCrystalsInEta * ( module() -1 ) 
     + kCrystalsInEta * kTypeBoundaries[(modType() -1)] 
-    + etaRowInModule; 
+    + ( (crystal()-1)/kCrystalsInPhi + 1 ) ; 
 }
 
 int BTLDetId::hashedIndex( CrysLayout lay ) const { 
@@ -83,11 +72,6 @@ int BTLDetId::hashedIndex( CrysLayout lay ) const {
     case CrysLayout::barzflat : {
       max_iphi = MAX_IPHI_BARZFLAT;
       max_ieta = MAX_IETA_BARZFLAT;
-      break ;
-    }
-    case CrysLayout::barphiflat : {
-      max_iphi = MAX_IPHI_BARPHIFLAT;
-      max_ieta = MAX_IETA_BARPHIFLAT;
       break ;
     }
     default: {
@@ -127,14 +111,6 @@ BTLDetId BTLDetId::getUnhashedIndex( int hi, CrysLayout lay ) const {
       kTypeBoundaries = kTypeBoundariesBarZflat;
       break ;
     }
-    case CrysLayout::barphiflat : {
-      max_iphi = MAX_IPHI_BARPHIFLAT;
-      max_ieta = MAX_IETA_BARPHIFLAT;
-      nphi = kCrystalsInPhiBarPhi;
-      keta = kCrystalsInEtaBarPhi;
-      kTypeBoundaries = kTypeBoundariesBarPhiFlat;
-      break ;
-    }
     default: {
       break ;
     }
@@ -148,15 +124,8 @@ BTLDetId BTLDetId::getUnhashedIndex( int hi, CrysLayout lay ) const {
   module = (ie-1)/keta+1 ; 
   if ( module > kTypeBoundaries[1] ) { modtype = (module > kTypeBoundaries[2] ? 3 : 2 ) ;  }
   if ( modtype > 1 ) { module = module - kTypeBoundaries[modtype-1]; }
-  crystal = zside == 1 ? ((ip-1)%nphi+1)+((ie-1)%keta)*nphi : ((ip-1)%nphi+1)+(keta - 1 - (ie-1)%keta)*nphi ;
+  crystal = ((ip-1)%nphi+1)+((ie-1)%keta)*nphi;
   return  BTLDetId( zside, rod, module, modtype, crystal);
-}
-
-int BTLDetId::modulesPerType( CrysLayout lay ) const {
-  int mod = kTypeBoundariesReference[1];
-  if ( lay == CrysLayout::barzflat ) { mod = kTypeBoundariesBarZflat[1]; }
-  else if ( lay == CrysLayout::barphiflat ) { mod = kTypeBoundariesBarPhiFlat[1]; }
-  return mod;
 }
 
 BTLDetId BTLDetId::geographicalId( CrysLayout lay ) const {
@@ -165,7 +134,9 @@ BTLDetId BTLDetId::geographicalId( CrysLayout lay ) const {
   // remove module type
   // remove crystal index
 
-  int boundRef = modulesPerType(lay);
+  int boundRef = ( lay == CrysLayout::barzflat ?
+		   kTypeBoundariesBarZflat[1]  :
+		   kTypeBoundariesReference[1] );
 
   return BTLDetId(mtdSide(),mtdRR(),module()+boundRef*(modType()-1),0,1);
 }

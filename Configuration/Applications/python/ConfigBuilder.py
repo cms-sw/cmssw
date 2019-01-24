@@ -85,8 +85,6 @@ defaultOptions.runsScenarioForMC = None
 defaultOptions.runUnscheduled = False
 defaultOptions.timeoutOutput = False
 defaultOptions.nThreads = '1'
-defaultOptions.nStreams = '0'
-defaultOptions.nConcurrentLumis = '1'
 
 # some helper routines
 def dumpPython(process,name):
@@ -920,6 +918,8 @@ class ConfigBuilder(object):
                 self.loadAndRemember('SimGeneral.HepPDTESSource.'+self._options.particleTable+'_cfi')
 
         self.loadAndRemember('FWCore/MessageService/MessageLogger_cfi')
+        # Eventually replace with some more generic file to load
+        self.loadAndRemember('HeterogeneousCore/CUDAServices/CUDAService_cfi')
 
         self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreams_cff"
         self.GENDefaultCFF="Configuration/StandardSequences/Generator_cff"
@@ -2222,8 +2222,7 @@ class ConfigBuilder(object):
             self.pythonCfgCode +="\n"
             self.pythonCfgCode +="#Setup FWK for multithreaded\n"
             self.pythonCfgCode +="process.options.numberOfThreads=cms.untracked.uint32("+self._options.nThreads+")\n"
-            self.pythonCfgCode +="process.options.numberOfStreams=cms.untracked.uint32("+self._options.nStreams+")\n"
-            self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32("+self._options.nConcurrentLumis+")\n"
+            self.pythonCfgCode +="process.options.numberOfStreams=cms.untracked.uint32(0)\n"
         #repacked version
         if self._options.isRepacked:
             self.pythonCfgCode +="\n"

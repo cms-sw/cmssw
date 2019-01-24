@@ -95,9 +95,6 @@ public:
     return nt2;
   }
 
-  std::map<int, Shape const*> const& get_all_shapes() const 
-  { return theShapes; }
-
 private:
   void computeHPDShape(float, float, float, float, float ,
                        float, float, float, Shape&);

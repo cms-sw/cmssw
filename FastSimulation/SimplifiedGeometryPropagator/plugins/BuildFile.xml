@@ -7,7 +7,6 @@
 <use name="TrackingTools/DetLayers"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/GeomPropagators"/>
-<use name="RecoTracker/DeDx"/>
 
 <use name="SimDataFormats/EncodedEventId"/>
 

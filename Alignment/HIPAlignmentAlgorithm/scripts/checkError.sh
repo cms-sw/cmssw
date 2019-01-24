@@ -44,7 +44,7 @@ fi
 
 if [ $ISZIPPED -gt 0 ]
 then
- gzip -f $filename
+ gzip $filename
 fi
 
 done

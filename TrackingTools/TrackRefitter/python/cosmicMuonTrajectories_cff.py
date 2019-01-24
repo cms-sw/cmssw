@@ -25,7 +25,6 @@ cosmicMuons = cms.EDProducer("TracksToTrajectories",
                                   Tracks = cms.InputTag("cosmicMuons"),
                                   TrackTransformer = cms.PSet(	TrackerRecHitBuilder = cms.string('WithTrackAngle'),
                                                               	MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
-                                                                MTDRecHitBuilder = cms.string('MTDRecHitBuilder'),
                                                               	RefitRPCHits = cms.bool(True)
                                                                )
                                    )

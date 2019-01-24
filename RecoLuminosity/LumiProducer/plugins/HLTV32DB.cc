@@ -411,6 +411,7 @@ namespace lumi{
 			HltResult::iterator hltItEnd,
 			HltPathMap& hltpathmap,
 			unsigned int commitintv){
+   HltResult::iterator hltIt;
    unsigned int totalcmsls=std::distance(hltItBeg,hltItEnd);
    std::cout<<"inserting totalcmsls "<<totalcmsls<<std::endl;
    coral::AttributeList lshltData;

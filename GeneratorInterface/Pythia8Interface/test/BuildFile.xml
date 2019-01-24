@@ -12,8 +12,3 @@
 <library file="ZJetsAnalyzer.cc,analyserhepmc/LeptonAnalyserHepMC.cc,analyserhepmc/JetInputHepMC.cc" name="ZJetsTestAnalyzer">
   <flags EDM_PLUGIN="1"/>
 </library>
-
-<bin file="test_catch2_*.cc" name="testGeneratorInterfacePythia8InterfaceTP">
-  <use name="FWCore/TestProcessor"/>
-  <use name="catch2"/>
-</bin>

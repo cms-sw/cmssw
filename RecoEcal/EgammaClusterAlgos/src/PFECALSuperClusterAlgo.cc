@@ -37,6 +37,10 @@ namespace {
     return a.first < b.first;
   } 
 
+  inline double getPFClusterEnergy(const PFClusterPtr& p) {
+    return p->energy();
+  }  
+
   inline double ptFast( const double energy, 
 			const math::XYZPoint& position,
 			const math::XYZPoint& origin ) {

@@ -6,8 +6,10 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 
 def appendRPCChamberMaskerAtReco(process):
 
-    phase2_muon.toModify(process, appendRPCChamberMaskerBeforeRecHits)
-    (~phase2_muon).toModify(process, appendRPCChamberMaskerAtUnpacking)
+    if phase2_muon.isChosen():
+        appendRPCChamberMaskerBeforeRecHits(process)
+    else :
+        appendRPCChamberMaskerAtUnpacking(process)
 
     return process
 

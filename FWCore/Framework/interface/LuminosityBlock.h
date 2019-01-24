@@ -97,14 +97,6 @@ namespace edm {
     bool
     getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const;
 
-    template<typename PROD>
-    Handle<PROD>
-    getHandle(EDGetTokenT<PROD> token) const;
-
-    template<typename PROD>
-    PROD const&
-    get(EDGetTokenT<PROD> token) const noexcept(false);
-
 
     template <typename PROD>
     void
@@ -311,7 +303,7 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, emptyString_, moduleCallingContext_);
-    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
+    convert_handle(std::move(bh), result);  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
@@ -327,7 +319,7 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), tag, moduleCallingContext_);
-    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
+    convert_handle(std::move(bh), result);  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
@@ -342,7 +334,7 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
+    convert_handle(std::move(bh), result);  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
@@ -357,32 +349,13 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
+    convert_handle(std::move(bh), result);  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
     return true;
   }
 
-  template<typename PROD>
-  Handle<PROD>
-  LuminosityBlock::getHandle(EDGetTokenT<PROD> token) const {
-    if UNLIKELY(!provRecorder_.checkIfComplete<PROD>()) {
-      principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
-    }
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    return convert_handle<PROD>(std::move(bh));
-  }
-
-  template<typename PROD>
-  PROD const&
-  LuminosityBlock::get(EDGetTokenT<PROD> token) const noexcept(false) {
-    if UNLIKELY(!provRecorder_.checkIfComplete<PROD>()) {
-      principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
-    }
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    return *convert_handle<PROD>(std::move(bh));
-  }
 
   template<typename PROD>
   void

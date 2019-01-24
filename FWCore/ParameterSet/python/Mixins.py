@@ -437,8 +437,6 @@ class _TypedParameterizable(_Parameterizable):
         return myname;
     def moduleLabel_(self, myname):
         return myname
-    def appendToProcessDescList_(self, lst, myname):
-        lst.append(self.nameInProcessDesc_(myname))
     def insertInto(self, parameterSet, myname):
         newpset = parameterSet.newPSet()
         newpset.addString(True, "@module_label", self.moduleLabel_(myname))
@@ -663,12 +661,12 @@ def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
                             plist[k] = v
                     else:
                         raise ValueError("Attempted to change non PSet value "+keyDepth+" using a dictionary")
-                elif isinstance(value,_ParameterTypeBase) or (isinstance(key, int)) or isinstance(value, _TypedParameterizable):
+                elif isinstance(value,_ParameterTypeBase) or (isinstance(key, int)):
                     params[key] = value
                 else:
                     params[key].setValue(value)
             else:
-                if isinstance(value,_ParameterTypeBase) or isinstance(value, _TypedParameterizable):
+                if isinstance(value,_ParameterTypeBase):
                     params[key]=value
                 else:
                     errorRaiser(key)

@@ -77,23 +77,32 @@ namespace edmtest {
     
     auto const& run = lumi.getRun();
     
-    (void) run.get(beginRun_);
+    edm::Handle<ThingCollection> h;
+    run.getByToken(beginRun_,h);
+    *h;
     
-    shouldBeInvalid(run.getHandle(endRun_));
+    run.getByToken(endRun_,h);
+    shouldBeInvalid(h);
     
-    (void) lumi.get(beginLumi_);
+    lumi.getByToken(beginLumi_,h);
+    *h;
     
-    shouldBeInvalid(lumi.getHandle(endLumi_));
+    lumi.getByToken(endLumi_,h);
+    shouldBeInvalid(h);
 
-    (void) iEvent.get(event_);
+    iEvent.getByToken(event_,h);
+    *h;
   }
   
   std::shared_ptr<Empty>
   ThingAnalyzer::globalBeginRun(edm::Run const& iRun, edm::EventSetup const&) const
   {
-    (void) iRun.get(beginRun_);
+    edm::Handle<ThingCollection> h;
+    iRun.getByToken(beginRun_,h);
+    *h;
     
-    shouldBeInvalid(iRun.getHandle(endRun_));
+    iRun.getByToken(endRun_,h);
+    shouldBeInvalid(h);
     
     return std::shared_ptr<Empty>();
   }
@@ -101,9 +110,12 @@ namespace edmtest {
   void
   ThingAnalyzer::globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const
   {
-    (void) iRun.get(beginRun_);
+    edm::Handle<ThingCollection> h;
+    iRun.getByToken(beginRun_,h);
+    *h;
     
-    (void) iRun.get(endRun_);
+    iRun.getByToken(endRun_,h);
+    *h;
   }
   
   std::shared_ptr<Empty>
@@ -111,13 +123,19 @@ namespace edmtest {
   {
     auto const& run = iLumi.getRun();
     
-    (void) run.get(beginRun_);
+    edm::Handle<ThingCollection> h;
+    run.getByToken(beginRun_,h);
+    *h;
     
-    shouldBeInvalid(run.getHandle(endRun_));
+    run.getByToken(endRun_,h);
+    shouldBeInvalid(h);
 
-    (void) iLumi.get(beginLumi_);
+    iLumi.getByToken(beginLumi_,h);
+    *h;
     
-    shouldBeInvalid(iLumi.getHandle(endLumi_));
+    iLumi.getByToken(endLumi_,h);
+    shouldBeInvalid(h);
+
     
     return std::shared_ptr<Empty>();
   }
@@ -127,13 +145,18 @@ namespace edmtest {
   {
     auto const& run = iLumi.getRun();
     
-    (void) run.get(beginRun_);
+    edm::Handle<ThingCollection> h;
+    run.getByToken(beginRun_,h);
+    *h;
     
-    shouldBeInvalid(run.getHandle(endRun_));
+    run.getByToken(endRun_,h);
+    shouldBeInvalid(h);
     
-    (void) iLumi.get(beginLumi_);
+    iLumi.getByToken(beginLumi_,h);
+    *h;
     
-    (void) iLumi.get(endLumi_);
+    iLumi.getByToken(endLumi_,h);
+    *h;
     
   }
   

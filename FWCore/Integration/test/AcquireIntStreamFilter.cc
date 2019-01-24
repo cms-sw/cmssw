@@ -55,7 +55,9 @@ namespace edmtest {
     cache->processed().clear();
 
     for(auto const& token: m_getTokens) {
-      cache->retrieved().push_back(event.get(token).value);
+      edm::Handle<IntProduct> handle;
+      event.getByToken(token, handle);
+      cache->retrieved().push_back(handle->value);
     }
 
     edm::Service<test_acquire::WaitingService>()->requestValuesAsync(m_token,
@@ -74,7 +76,9 @@ namespace edmtest {
     event.put(std::make_unique<IntProduct>(sum));
 
     // This part is here only for the Parentage test.
-    (void) event.get(m_tokenForProduce);
+    edm::Handle<IntProduct> handle;
+    event.getByToken(m_tokenForProduce, handle);
+    *handle;
 
     return true;
   }

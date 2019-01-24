@@ -45,6 +45,4 @@ GeometryConf={
     'Extended2023D35' : 'Extended2023D35,Extended2023D35Reco',
     'Extended2023D36' : 'Extended2023D36,Extended2023D36Reco',
     'Extended2023D37' : 'Extended2023D37,Extended2023D37Reco',
-    'Extended2023D38' : 'Extended2023D38,Extended2023D38Reco',
-    'Extended2023D39' : 'Extended2023D39,Extended2023D39Reco',
     }

@@ -33,7 +33,6 @@ class PATTauDiscriminationAgainstElectronMVA6 : public PATTauDiscriminationProdu
 
     srcElectrons = cfg.getParameter<edm::InputTag>("srcElectrons");
     electronToken = consumes<pat::ElectronCollection>(srcElectrons);
-    vetoEcalCracks_ = cfg.getParameter<bool>("vetoEcalCracks");
     verbosity_ = ( cfg.exists("verbosity") ) ?
       cfg.getParameter<int>("verbosity") : 0;
 
@@ -61,9 +60,7 @@ private:
   edm::Handle<TauCollection> taus_;
 
   std::unique_ptr<PATTauDiscriminator> category_output_;
-
-  bool vetoEcalCracks_;
-
+		
   int verbosity_;
 };
 
@@ -113,7 +110,7 @@ double PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTa
             hasGsfTrack = theElectron.gsfTrack().isNonnull();
 
 	  // veto taus that go to Ecal crack
-	  if ( vetoEcalCracks_ && (isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance)) ) {
+	  if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {
 	    // add category index
 	    category_output_->setValue(tauIndex_, category);
 	    // return MVA output value
@@ -148,7 +145,7 @@ double PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTa
       if( abs(packedLeadTauCand->pdgId()) == 11 ) hasGsfTrack = true;
           
       // veto taus that go to Ecal crack
-      if (  vetoEcalCracks_ && (isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance)) ) {
+      if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {
 	// add category index
 	category_output_->setValue(tauIndex_, category);
 	// return MVA output value

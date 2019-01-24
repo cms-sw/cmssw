@@ -98,7 +98,8 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
     int ntakenhits=0;
     bool firstTakenHit=false;
 
-    for(auto const& hit : ittrk->recHits()) {
+    for (trackingRecHit_iterator ith = ittrk->recHitsBegin(), edh = ittrk->recHitsEnd(); ith != edh; ++ith) {
+      const TrackingRecHit *hit = *ith; // ith is an iterator on edm::Ref to rechit
       if(! hit->isValid()){
        	nhit++;
 	continue;

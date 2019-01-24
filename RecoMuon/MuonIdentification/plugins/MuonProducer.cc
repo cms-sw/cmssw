@@ -182,7 +182,7 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
 
 /// Destructor
 MuonProducer::~MuonProducer(){ 
-  if (fillPFIsolation_ && thePFIsoHelper) delete thePFIsoHelper;
+  if (thePFIsoHelper && fillPFIsolation_) delete thePFIsoHelper;
 }
 
 

@@ -95,7 +95,8 @@ void CalibrationTrackSelectorFromDetIdList::produce(edm::Event& iEvent, const ed
    
     bool saveTrack(false);
 
-    for(auto const& hit : trk.recHits()) {
+    for (trackingRecHit_iterator ith = trk.recHitsBegin(), edh = trk.recHitsEnd(); ith != edh; ++ith) {
+      const TrackingRecHit * hit = (*ith); // ith is an iterator on edm::Ref to rechit
       DetId detid = hit->geographicalId();
       
       for (const auto &detidsel : detidsels_){

@@ -198,6 +198,8 @@ class GsfElectronAlgo {
       const EcalRecHitsConfiguration &,
       EcalClusterFunctionBaseClass * superClusterErrorFunction,
       EcalClusterFunctionBaseClass * crackCorrectionFunction,
+      const SoftElectronMVAEstimator::Configuration & mva_NIso_Cfg,
+      const ElectronMVAEstimator::Configuration & mva_Iso_Cfg,	
       const RegressionHelper::Configuration & regCfg,
       const edm::ParameterSet& tkIsol03Cfg,
       const edm::ParameterSet& tkIsol04Cfg

@@ -5,6 +5,8 @@
 #include <vector>
 #include <memory>
 
+#include <boost/shared_ptr.hpp>
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace lhef {
@@ -22,7 +24,7 @@ class LHEReader {
 	          unsigned int skip = 0);
 	~LHEReader();
 
-	std::shared_ptr<LHEEvent> next(bool* newFileOpened = nullptr);
+	boost::shared_ptr<LHEEvent> next(bool* newFileOpened = nullptr);
 
     private:
 	class Source;
@@ -39,7 +41,7 @@ class LHEReader {
 
 	std::unique_ptr<Source>		curSource;
 	std::unique_ptr<XMLDocument>	curDoc;
-	std::shared_ptr<LHERunInfo>	curRunInfo;
+	boost::shared_ptr<LHERunInfo>	curRunInfo;
 	std::unique_ptr<XMLHandler>	handler;
 	std::shared_ptr<void>           platform;
 };

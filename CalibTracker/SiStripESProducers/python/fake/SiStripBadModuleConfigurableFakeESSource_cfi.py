@@ -3,8 +3,6 @@ import FWCore.ParameterSet.Config as cms
 siStripBadModuleConfigurableFakeESSource = cms.ESSource("SiStripBadModuleConfigurableFakeESSource",
         appendToDataLabel = cms.string(''),
         printDebug = cms.untracked.bool(False),
-        doByAPVs   = cms.untracked.bool(False),
-        BadAPVList = cms.untracked.VPSet(),
         BadComponentList = cms.untracked.VPSet(
                 cms.PSet(
                 SubDet = cms.string('TIB'),  

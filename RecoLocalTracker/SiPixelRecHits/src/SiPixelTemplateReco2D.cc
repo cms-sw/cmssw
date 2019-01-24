@@ -35,6 +35,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) edm::LogError(x)
 #define LOGDEBUG(x) LogDebug(x)
+static const int theVerboseLevel = 2;
 #define ENDL " "
 #include "FWCore/Utilities/interface/Exception.h"
 #else

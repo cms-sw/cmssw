@@ -53,8 +53,10 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config, e
     const edm::ParameterSet& regr_conf = 
       config.getParameterSet("regressionConfig");
     const std::string& mname = regr_conf.getParameter<std::string>("modifierName");
-    ModifyObjectValueBase* regr = ModifyObjectValueFactory::get()->create(mname,regr_conf,iC);
+    ModifyObjectValueBase* regr = ModifyObjectValueFactory::get()->create(mname,regr_conf);
     gedRegression_.reset(regr);
+  } else {
+    gedRegression_.reset(nullptr);
   }
 
   // ingredient for energy regression

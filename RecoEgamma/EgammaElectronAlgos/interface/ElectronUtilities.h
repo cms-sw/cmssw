@@ -9,6 +9,25 @@
 
 
 //===============================================================
+// For an stl collection of pointers, enforce the deletion
+// of pointed objects in case of exception.
+//===============================================================
+
+template <typename StlColType>
+class ExceptionSafeStlPtrCol : public StlColType
+ {
+  public :
+    ExceptionSafeStlPtrCol() : StlColType() {}
+    ~ExceptionSafeStlPtrCol()
+     {
+      typename StlColType::const_iterator it ;
+      for ( it = StlColType::begin() ; it != StlColType::end() ; it++ )
+       { delete (*it) ; }
+     }
+ } ;
+
+
+//===============================================================
 // Normalization of angles
 //===============================================================
 

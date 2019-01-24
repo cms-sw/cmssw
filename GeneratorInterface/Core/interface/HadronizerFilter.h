@@ -199,7 +199,9 @@ namespace edm
     
     for (unsigned int itry = 0; itry<nAttempts_; ++itry) {
 
-      hadronizer_.setLHEEvent(std::make_unique<lhef::LHEEvent>(hadronizer_.getLHERunInfo(), *product) );
+      lhef::LHEEvent *lheEvent =
+		  new lhef::LHEEvent(hadronizer_.getLHERunInfo(), *product);
+      hadronizer_.setLHEEvent( lheEvent );
       
       // hadronizer_.generatePartons();
       if ( !hadronizer_.hadronize() ) continue ;
@@ -220,12 +222,10 @@ namespace edm
       //
       if ( decayer_ ) 
       {
-        auto lheEvent = hadronizer_.getLHEEvent();
-        auto t = decayer_->decay( event.get(),lheEvent.get() );
+        auto t = decayer_->decay( event.get(),lheEvent );
         if(t != event.get()) {
           event.reset(t);
         }
-        hadronizer_.setLHEEvent(std::move(lheEvent));
       }
 
       if ( !event.get() ) continue;
@@ -233,12 +233,12 @@ namespace edm
       // check and perform if there're any unstable particles after 
       // running external decay packges
       //
-      hadronizer_.resetEvent( std::move(event) );
+      hadronizer_.resetEvent( event.release() );
       if ( !hadronizer_.residualDecay() ) continue;
 
       hadronizer_.finalizeEvent();
 
-      event = hadronizer_.getGenEvent();
+      event.reset( hadronizer_.getGenEvent() );
       if ( !event.get() ) continue;
       
       event->set_event_number( ev.id().event() );
@@ -308,7 +308,7 @@ namespace edm
     //TODO: fix so that this actually works with getByToken commented below...
     //run.getByToken(runInfoProductToken_, lheRunInfoProduct);
     
-    hadronizer_.setLHERunInfo( std::make_unique<lhef::LHERunInfo>(*lheRunInfoProduct) );
+    hadronizer_.setLHERunInfo( new lhef::LHERunInfo(*lheRunInfoProduct) );
     lhef::LHERunInfo* lheRunInfo = hadronizer_.getLHERunInfo().get();
     lheRunInfo->initLumi();
 

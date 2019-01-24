@@ -49,9 +49,7 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGWeightGroupAnalyzer",
      LocationSource = cms.string('P5'),
      Location = cms.string('P5_Co'),
      GenTag = cms.string('GLOBAL'),
-     RunType = cms.string('PHYSICS'),
-     fileType = cms.string(''),
-     fileName = cms.string('')
+     RunType = cms.string('PHYSICS')
     )                            
 )
 

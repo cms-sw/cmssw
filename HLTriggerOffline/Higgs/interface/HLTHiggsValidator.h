@@ -27,7 +27,7 @@
 #include <cstring>
 
 
-struct EVTColContainer;
+class EVTColContainer;
 
 class HLTHiggsValidator : public DQMEDAnalyzer
 {

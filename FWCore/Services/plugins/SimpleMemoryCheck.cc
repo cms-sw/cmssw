@@ -661,12 +661,12 @@ namespace edm {
         char buf[128];
         char space[] = " ";
         size_t value;
+
         while(fgets(buf, sizeof(buf), fmeminfo)) {
-          char* saveptr;
           char* token = nullptr;
-          token = strtok_r(buf, space, &saveptr);
+          token = strtok(buf, space);
           if(token != nullptr) {
-            value = atol(strtok_r(nullptr, space,&saveptr));
+            value = atol(strtok(nullptr, space));
             std::string category = token;
             reportMemoryProperties.insert(std::make_pair(category.substr(0, strlen(token)-1), i2str(value)));
           }

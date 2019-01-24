@@ -36,72 +36,73 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
   GEMGeometry const* gem = nullptr;
   ME0Geometry const* me0 = nullptr;
 
-  edm::ESHandle<TrackerGeometry> tkH;
-  if( auto tkRecord = record.tryToGetRecord<TrackerDigiGeometryRecord>() ) {
-    tkRecord->get(tkH);
+  try {
+    edm::ESHandle<TrackerGeometry> tkH;
+    record.getRecord<TrackerDigiGeometryRecord>().get(tkH);
     if(tkH.isValid()) {
       tk = tkH.product();
     } else {
       LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No Tracker geometry is available.";
     }
-  } else {
+  } catch (edm::eventsetup::NoRecordException<TrackerDigiGeometryRecord>& e){
     LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No TrackerDigiGeometryRecord is available.";    
   }
 
-  edm::ESHandle<MTDGeometry> mtdH;
-  if( auto mtdRecord = record.tryToGetRecord<MTDDigiGeometryRecord>() ) {
-    mtdRecord->get(mtdH);
-    if( mtdH.isValid() ) {
+  try {
+    edm::ESHandle<MTDGeometry> mtdH;
+    record.getRecord<MTDDigiGeometryRecord>().get(mtdH);
+    if(mtdH.isValid()) {
       mtd = mtdH.product();
     } else {
-      LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No MTD geometry is available.";
+      LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No MTD geometry is available.";
     }
-  } else {
-     LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No MTDDigiGeometryRecord is available.";
+  } catch (edm::eventsetup::NoRecordException<MTDDigiGeometryRecord>& e){
+    LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No MTDDigiGeometryRecord is available.";    
   }
-  
-  edm::ESHandle<DTGeometry> dtH;
-  edm::ESHandle<CSCGeometry> cscH;
-  edm::ESHandle<RPCGeometry> rpcH;
-  edm::ESHandle<GEMGeometry> gemH;
-  edm::ESHandle<ME0Geometry> me0H;
-  if( auto muonRecord = record.tryToGetRecord<MuonGeometryRecord>() ) {
-    muonRecord->get(dtH);
+
+
+  try {
+    edm::ESHandle<DTGeometry> dtH;
+    record.getRecord<MuonGeometryRecord>().get(dtH);
     if(dtH.isValid()) {
       dt = dtH.product();
     } else {
       LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No DT geometry is available.";
     }
-    
-    muonRecord->get(cscH);
+
+    edm::ESHandle<CSCGeometry> cscH;
+    record.getRecord<MuonGeometryRecord>().get(cscH);
     if(cscH.isValid()) {
       csc = cscH.product();
     } else {
       LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No CSC geometry is available.";
-    }    
+    }
     
-    muonRecord->get(rpcH);
+    edm::ESHandle<RPCGeometry> rpcH;
+    record.getRecord<MuonGeometryRecord>().get(rpcH);
     if(rpcH.isValid()) {
       rpc = rpcH.product();
     } else {
       LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No RPC geometry is available.";
     }
-    
-    muonRecord->get(gemH);
+
+    edm::ESHandle<GEMGeometry> gemH;
+    record.getRecord<MuonGeometryRecord>().get(gemH);
     if(gemH.isValid()) {
       gem = gemH.product();
     } else {
       LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No GEM geometry is available.";
     }
-    
-    muonRecord->get(me0H);
+
+    edm::ESHandle<ME0Geometry> me0H;
+    record.getRecord<MuonGeometryRecord>().get(me0H);
     if(me0H.isValid()) {
       me0 = me0H.product();
     } else {
       LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No ME0 geometry is available.";
     }
 
-  } else {
+  } catch (edm::eventsetup::NoRecordException<MuonGeometryRecord>& e){
     LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No MuonGeometryRecord is available.";    
   }
 

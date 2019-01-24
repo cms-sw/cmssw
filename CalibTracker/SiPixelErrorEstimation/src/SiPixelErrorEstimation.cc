@@ -1,3 +1,4 @@
+
 // Package:          SiPixelErrorEstimation
 // Class:            SiPixelErrorEstimation
 // Original Author:  Gavril Giurgiu (JHU)
@@ -1371,10 +1372,11 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  for ( tciter=tracks->begin(); tciter!=tracks->end(); ++tciter)
 	    {
 	      // First loop on hits: find matched hits
-          for(auto const hit : tciter->recHits())
+	      for ( trackingRecHit_iterator it = tciter->recHitsBegin(); it != tciter->recHitsEnd(); ++it) 
 		{
+		  const TrackingRecHit &trk_rec_hit = **it;
 		  // Is it a matched hit?
-		  const SiPixelRecHit* matchedhit = dynamic_cast<const SiPixelRecHit*>(hit);
+		  const SiPixelRecHit* matchedhit = dynamic_cast<const SiPixelRecHit*>(&trk_rec_hit);
 		  
 		  if ( matchedhit ) 
 		    {
@@ -1437,8 +1439,8 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 		      pixel_clst_err_x = -9999.9;
 		      pixel_clst_err_y = -9999.9;
 		      
-		      position = hit->localPosition();
-		      error = hit->localPositionError();
+		      position = (*it)->localPosition();
+		      error = (*it)->localPositionError();
 		      
 		      rechitx = position.x();
 		      rechity = position.y();
@@ -1519,7 +1521,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 			  //  // cout << "evt = " << evt << endl;
 			  //}
 			  
-			  DetId detId = hit->geographicalId();
+			  DetId detId = (*it)->geographicalId();
 
 			  const PixelGeomDetUnit* theGeomDet =
 			    dynamic_cast<const PixelGeomDetUnit*> ((*tracker).idToDet(detId) );

@@ -69,8 +69,8 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       // method called once each job just after ending the event loop
       void endJob() override {};
 
-      int matchToTruth(reco::GsfElectron const& electron,
-                       edm::View<reco::GenParticle> const& genParticles) const;
+      template<class T, class V>
+      int matchToTruth(const T &el, const V &genParticles, int &genIdx);
 
       // ----------member data ---------------------------
 
@@ -83,6 +83,7 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       float eleQ_;
       int ele3Q_;
       int matchedToGenEle_;
+      int matchedGenIdx_;
 
 
       // gap variables
@@ -307,9 +308,13 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         iEvent.getByToken(mvaCatTokens_[k],mvaCats[k]);
     }
 
-    eleIndex_ = src->size();
-    for(auto const& ele : src->ptrs())
-    {
+    eleIndex_ = -1;
+    for(size_t iEle = 0; iEle < src->size(); ++iEle) {
+
+        ++eleIndex_;
+
+        const auto ele =  src->ptrAt(iEle);
+
         eleQ_ = ele->charge();
         ele3Q_ = ele->chargeInfo().isGsfCtfScPixConsistent;
 
@@ -323,7 +328,7 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         }
 
         if (isMC_) {
-            matchedToGenEle_ = matchToTruth( *ele, *genParticles);
+            matchedToGenEle_ = matchToTruth( ele, genParticles, matchedGenIdx_);
         }
 
         // gap variables
@@ -356,33 +361,41 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 }
 
-int ElectronMVANtuplizer::matchToTruth(reco::GsfElectron const& electron,
-                                       edm::View<reco::GenParticle> const& genParticles) const
-{
+template<class T, class V>
+int ElectronMVANtuplizer::matchToTruth(const T &el, const V &genParticles, int &genIdx){
+
+  genIdx = -1;
+
   //
   // Explicit loop and geometric matching method (advised by Josh Bendavid)
   //
 
   // Find the closest status 1 gen electron to the reco electron
   double dR = 999;
-  reco::GenParticle const* closestElectron = nullptr;
-  for(auto const& particle : genParticles) {
+  for(size_t i=0; i<genParticles->size();i++){
+    const auto particle = genParticles->ptrAt(i);
     // Drop everything that is not electron or not status 1
-    if( std::abs(particle.pdgId()) != 11 || particle.status() != 1 )
+    if( abs(particle->pdgId()) != 11 || particle->status() != 1 )
       continue;
     //
-    double dRtmp = ROOT::Math::VectorUtil::DeltaR( electron.p4(), particle.p4() );
+    double dRtmp = ROOT::Math::VectorUtil::DeltaR( el->p4(), particle->p4() );
     if( dRtmp < dR ){
       dR = dRtmp;
-      closestElectron = &particle;
+      genIdx = i;
     }
   }
   // See if the closest electron is close enough. If not, no match found.
-  if( closestElectron == nullptr || dR >= deltaR_ ) return UNMATCHED;
+  if( genIdx == -1 || dR >= deltaR_ ) {
+    return UNMATCHED;
+  }
 
-  if( closestElectron->fromHardProcessFinalState() ) return TRUE_PROMPT_ELECTRON;
+  const auto closestElectron = genParticles->ptrAt(genIdx);
 
-  if( closestElectron->isDirectHardProcessTauDecayProductFinalState() ) return TRUE_ELECTRON_FROM_TAU;
+  if( closestElectron->fromHardProcessFinalState() )
+    return TRUE_PROMPT_ELECTRON;
+
+  if( closestElectron->isDirectHardProcessTauDecayProductFinalState() )
+    return TRUE_ELECTRON_FROM_TAU;
 
   // What remains is true non-prompt electrons
   return TRUE_NON_PROMPT_ELECTRON;

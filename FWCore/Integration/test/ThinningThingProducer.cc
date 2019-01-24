@@ -57,7 +57,9 @@ namespace edmtest {
   }
 
   void ThinningThingSelector::preChoose(edm::Handle<edmtest::ThingCollection> tc, edm::Event const& event, edm::EventSetup const& es) {
-    for (auto const& track : event.get(trackToken_)) {
+    edm::Handle<TrackOfThingsCollection> trackCollection;
+    event.getByToken(trackToken_, trackCollection);
+    for (auto const& track : *trackCollection) {
       keysToSave_.insert(track.ref1.key() - offsetToThinnedKey_);
       keysToSave_.insert(track.ref2.key() - offsetToThinnedKey_);
       keysToSave_.insert(track.ptr1.key() - offsetToThinnedKey_);

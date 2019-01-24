@@ -83,7 +83,8 @@ namespace edmtest {
   void
   TestParentage::analyze(edm::Event const& e, edm::EventSetup const&) {
 
-    edm::Handle<IntProduct> h = e.getHandle(token_);
+    edm::Handle<IntProduct> h;
+    e.getByToken(token_, h);
 
     edm::Provenance const* prov = h.provenance();
 

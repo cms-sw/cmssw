@@ -7,7 +7,6 @@
 //
 #include <string>
 #include <limits>
-#include <type_traits>
 
 // imported from CondFormats/Common
 namespace cond {  
@@ -30,25 +29,14 @@ namespace cond {
     typedef cond::TimeType TimeType;
   
     // TimeType
-    static constexpr TimeType INVALID=cond::invalid;
-    static constexpr TimeType RUNNUMBER=cond::runnumber;
-    static constexpr TimeType TIMESTAMP=cond::timestamp;
-    static constexpr TimeType LUMIID=cond::lumiid;
-    static constexpr TimeType HASH=cond::hash;
-    static constexpr TimeType USERID=cond::userid;
+    typedef enum { INVALID=cond::invalid, RUNNUMBER=cond::runnumber, TIMESTAMP=cond::timestamp, LUMIID=cond::lumiid, HASH=cond::hash, USERID=cond::userid } _timetype;
   
     std::string timeTypeName(TimeType type);
 
     TimeType timeTypeFromName( const std::string& name );
 
     // constant defininig the (maximum) size of the iov groups 
-    static constexpr unsigned int SINCE_RUN_GROUP_SIZE = 1000;
-    // 36000 << 32 ( corresponding to 10h )
-    static constexpr unsigned long SINCE_TIME_GROUP_SIZE = 154618822656000; 
-    static constexpr unsigned int SINCE_LUMI_GROUP_SIZE = SINCE_RUN_GROUP_SIZE;
-    static constexpr unsigned int SINCE_HASH_GROUP_SIZE = SINCE_RUN_GROUP_SIZE;
-
-    Time_t sinceGroupSize( TimeType tp );
+    static constexpr unsigned int SINCE_GROUP_SIZE = 1000;
 
     Time_t tillTimeFromNextSince( Time_t nextSince, TimeType timeType );
 

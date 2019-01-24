@@ -24,25 +24,30 @@ If failedToGet() returns false but isValid() is also false then no attempt
   to get data has occurred
 
 ----------------------------------------------------------------------*/
+#include <typeinfo>
 
 #include "DataFormats/Common/interface/HandleBase.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
 
   template <typename T>
   class Handle : public HandleBase {
   public:
-    using element_type = T;
+    typedef T element_type;
 
     // Default constructed handles are invalid.
     Handle();
 
     Handle(T const* prod, Provenance const* prov);
     
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
     Handle(std::shared_ptr<HandleExceptionFactory> &&);
     Handle(Handle const&) = default;
+    
     Handle& operator=(Handle&&) = default;
     Handle& operator=(Handle const&) = default;
+#endif
     
     ~Handle();
 
@@ -61,10 +66,12 @@ namespace edm {
   Handle<T>::Handle(T const* prod, Provenance const* prov) : HandleBase(prod, prov) { 
   }
 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   template <class T>
   Handle<T>::Handle(std::shared_ptr<edm::HandleExceptionFactory> && iWhyFailed) :
   HandleBase(std::move(iWhyFailed))
   { }
+#endif
 
   template <class T>
   Handle<T>::~Handle() {}

@@ -101,8 +101,12 @@ LogErrorFilter::~LogErrorFilter() {
 // ------------ method called on each new Event  ------------
 bool
 LogErrorFilter::filter(edm::Event& iEvent, edm::EventSetup const&) {
+  edm::Handle<std::vector<edm::ErrorSummaryEntry> > errorsAndWarnings;
+  iEvent.getByToken(harvesterToken_,errorsAndWarnings);
 
-  if(auto errorsAndWarnings = iEvent.getHandle(harvesterToken_)) {
+  if(errorsAndWarnings.failedToGet()) {
+    return false;
+  } else {
     if (useThresholdsPerKind_){
       unsigned int errorsBelowThreshold = 0;
       unsigned int warningsBelowThreshold = 0;

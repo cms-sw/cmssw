@@ -21,6 +21,8 @@ DetLayerGeometryESProducer::~DetLayerGeometryESProducer() {}
 
 std::unique_ptr<DetLayerGeometry> 
 DetLayerGeometryESProducer::produce(const RecoGeometryRecord & iRecord){ 
+
+
   return std::make_unique<DetLayerGeometry>();
 }
 

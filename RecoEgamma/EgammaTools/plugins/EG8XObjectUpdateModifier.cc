@@ -19,11 +19,12 @@
 
 class EG8XObjectUpdateModifier : public ModifyObjectValueBase {
 public:
-  EG8XObjectUpdateModifier(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
+  EG8XObjectUpdateModifier(const edm::ParameterSet& conf);
   ~EG8XObjectUpdateModifier() override{}
   
   void setEvent(const edm::Event&) final;
   void setEventContent(const edm::EventSetup&) final;
+  void setConsumes(edm::ConsumesCollector&) final;
   
   void modifyObject(reco::GsfElectron& ele) const final;
   void modifyObject(reco::Photon& pho) const final;
@@ -39,16 +40,24 @@ private:
   edm::Handle<EcalRecHitCollection> ecalRecHitsEEHandle_;
   edm::EDGetTokenT<EcalRecHitCollection> ecalRecHitsEBToken_;
   edm::EDGetTokenT<EcalRecHitCollection> ecalRecHitsEEToken_;
+  edm::InputTag ecalRecHitsEBTag_;
+  edm::InputTag ecalRecHitsEETag_;
   
 };
 
-EG8XObjectUpdateModifier::EG8XObjectUpdateModifier(const edm::ParameterSet& conf, edm::ConsumesCollector& cc):
+EG8XObjectUpdateModifier::EG8XObjectUpdateModifier(const edm::ParameterSet& conf):
   ModifyObjectValueBase(conf),
-  ecalRecHitsEBToken_(cc.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("ecalRecHitsEB"))),
-  ecalRecHitsEEToken_(cc.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("ecalRecHitsEE")))
+  ecalRecHitsEBTag_(conf.getParameter<edm::InputTag>("ecalRecHitsEB")),
+  ecalRecHitsEETag_(conf.getParameter<edm::InputTag>("ecalRecHitsEE"))
 {
   
 
+}
+
+void EG8XObjectUpdateModifier::setConsumes(edm::ConsumesCollector& cc)
+{
+  ecalRecHitsEBToken_ = cc.consumes<EcalRecHitCollection>(ecalRecHitsEBTag_);
+  ecalRecHitsEEToken_ = cc.consumes<EcalRecHitCollection>(ecalRecHitsEETag_);
 }
 
 void EG8XObjectUpdateModifier::setEvent(const edm::Event& iEvent)

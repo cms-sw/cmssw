@@ -401,13 +401,13 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
                         int nhitinTEC1 =0;
                         int nhitinBPIX1 =0;
                         int nhitinFPIX1 =0;
-                        for(auto const& hit : track1.recHits()) {
+                        for (trackingRecHit_iterator iHit = track1.recHitsBegin(); iHit != track1.recHitsEnd(); ++iHit) {
 
-                                if(hit->isValid()) {
+                                if((*iHit)->isValid()) {
 
                                         Nrechits1++;
 
-                                        int type = hit->geographicalId().subdetId();
+                                        int type =(*iHit)->geographicalId().subdetId();
 
                                         if(type==int(StripSubdetector::TIB)){++nhitinTIB1;}
                                         if(type==int(StripSubdetector::TOB)){++nhitinTOB1;}
@@ -434,13 +434,13 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
                         int nhitinTEC2 =0;
                         int nhitinBPIX2 =0;
                         int nhitinFPIX2 =0;
-                        for(auto const& hit : track2.recHits()) {
+                        for (trackingRecHit_iterator iHit = track2.recHitsBegin(); iHit != track2.recHitsEnd(); ++iHit) {
 
-                                if(hit->isValid()) {
+                                if((*iHit)->isValid()) {
 
                                         Nrechits2++;
 
-                                        int type = hit->geographicalId().subdetId();
+                                        int type =(*iHit)->geographicalId().subdetId();
 
                                         if(type==int(StripSubdetector::TIB)){++nhitinTIB2;}
                                         if(type==int(StripSubdetector::TOB)){++nhitinTOB2;}
@@ -481,13 +481,13 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
                         int nhitinTECorg =0;
                         int nhitinBPIXorg =0;
                         int nhitinFPIXorg =0;
-                        for(auto const& hit : origTrack.recHits()) {
+                        for (trackingRecHit_iterator iHit = origTrack.recHitsBegin(); iHit != origTrack.recHitsEnd(); ++iHit) {
 
-                                if(hit->isValid()) {
+                                if((*iHit)->isValid()) {
 
                                         Nrechitsorg++;
 
-                                        int type = hit->geographicalId().subdetId();
+                                        int type =(*iHit)->geographicalId().subdetId();
 
                                         if(type==int(StripSubdetector::TIB)){++nhitinTIBorg;}
                                         if(type==int(StripSubdetector::TOB)){++nhitinTOBorg;}

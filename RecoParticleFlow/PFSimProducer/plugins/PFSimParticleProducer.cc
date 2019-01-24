@@ -490,19 +490,27 @@ void PFSimParticleProducer::getSimIDs( const TrackHandle& trackh,
 
     for(unsigned i=0;i<trackh->size(); i++) {
       
-      const reco::PFRecTrackRef ref( trackh,i );
+      reco::PFRecTrackRef ref( trackh,i );
+      const reco::PFRecTrack& PFT   = *ref;
+      const reco::TrackRef& trackref = PFT.trackRef();
       
-      for(auto const& hit : ref->trackRef()->recHits())
-      {
-        if( hit->isValid() ) {
+      trackingRecHit_iterator rhitbeg 
+	= trackref->recHitsBegin();
+      trackingRecHit_iterator rhitend 
+	= trackref->recHitsEnd();
+      for (trackingRecHit_iterator it = rhitbeg;  
+	   it != rhitend; it++){
 
-          auto rechit = dynamic_cast<const FastTrackerRecHit*>(hit);
+	if( (*it)->isValid() ){
 
-          for(unsigned int st_index=0;st_index<rechit->nSimTrackIds();++st_index){
-              recTrackSimID.push_back(rechit->simTrackId(st_index));
-          }
-          break;
-        }
+	  const FastTrackerRecHit * rechit 
+	    = (const FastTrackerRecHit*) (*it);
+
+	  for(unsigned int st_index=0;st_index<rechit->nSimTrackIds();++st_index){
+	      recTrackSimID.push_back(rechit->simTrackId(st_index));
+	  }
+	  break;
+	}
       }//loop track rechit
     }//loop recTracks
   }//track handle valid

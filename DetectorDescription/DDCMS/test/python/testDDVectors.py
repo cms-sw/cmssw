@@ -8,15 +8,11 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            appendToDataLabel = cms.string('CMS'),
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml')
+                                            confGeomXMLFiles = cms.string('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml')
                                             )
 
-process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
-                                                    appendToDataLabel = cms.string('CMS'))
+process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer")
 
-process.test = cms.EDAnalyzer("DDTestVectors",
-                              DDDetector = cms.ESInputTag('CMS')
-                              )
+process.test = cms.EDAnalyzer("DDTestVectors")
 
 process.p = cms.Path(process.test)

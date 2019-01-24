@@ -117,7 +117,8 @@ namespace edm {
         idToBranchDescriptions[branchID] = branchDescription;
         TypeID const& tid(branchDescription->unwrappedTypeID());
         EDGetToken const& token = product.second;
-        BasicHandle bh = e.getByToken(token, tid);
+        BasicHandle bh;
+        e.getByToken(token, tid, bh);
              bool cannotFindProductProvenance=false;
              if(!(bh.provenance() and bh.provenance()->productProvenance())) {
                 missingProductProvenance.insert(branchID);
