@@ -26,7 +26,7 @@ namespace gpuPixelDoublets {
                GPUCACell * cells, uint32_t const * __restrict__ nCells,
                GPUCACell::OuterHitOfCell const * __restrict__ isOuterHitOfCell,
                uint32_t nHits,
-               uint32_t stride, bool checkTrack) {
+               bool checkTrack) {
 
     constexpr auto maxCellsPerHit = GPUCACell::maxCellsPerHit;
 
@@ -35,13 +35,12 @@ namespace gpuPixelDoublets {
     uint8_t const * __restrict__ layerp =  hh.phase1TopologyLayer_d;
     auto layer = [&](uint16_t id) { return __ldg(layerp+id/phase1PixelTopology::maxModuleStride);};
 
-    auto ldx = threadIdx.x + blockIdx.x * blockDim.x;
-    auto idx = ldx/stride;
-    auto first = ldx - idx*stride;
-    assert(first<stride);
+    // x run faster...
+    auto idy = threadIdx.y + blockIdx.y * blockDim.y;
+    auto first = threadIdx.x;
 
-    if (idx>=nHits) return;
-    auto const & vc = isOuterHitOfCell[idx];
+    if (idy>=nHits) return;
+    auto const & vc = isOuterHitOfCell[idy];
     auto s = vc.size();
     if (s<2) return;
     // if alligned kill one of the two.
@@ -66,8 +65,8 @@ namespace gpuPixelDoublets {
       ++sg;
     }
     if (sg<2) return;   
-    // here we parallelize
-    for (uint32_t ic=first; ic<sg-1;  ic+=stride) {
+    // here we parallelize 
+    for (uint32_t ic=first; ic<sg-1;  ic+=blockDim.x) {
       auto & ci = cells[cc[ic]];
       for    (auto jc=ic+1; jc<sg; ++jc) {
         auto & cj = cells[cc[jc]];
@@ -90,4 +89,4 @@ namespace gpuPixelDoublets {
 
 }
 
-#endif
+#endif // RecoLocalTracker_SiPixelRecHits_plugins_gpuFishbone_h

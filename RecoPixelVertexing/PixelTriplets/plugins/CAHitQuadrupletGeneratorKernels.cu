@@ -144,9 +144,11 @@ kernel_connect(AtomicPairCounter * apc1, AtomicPairCounter * apc2,  // just to z
   constexpr auto hardCurvCut = 1.f/(0.35f * 87.f); // FIXME VI tune
   constexpr auto ptmin = 0.9f; // FIXME original "tune"
 
-  auto cellIndex = threadIdx.x + blockIdx.x * blockDim.x;
+  auto cellIndex = threadIdx.y + blockIdx.y * blockDim.y;
+  auto first = threadIdx.x;
+  auto stride = blockDim.x;
 
-  if (0==cellIndex) { (*apc1)=0; (*apc2)=0; }// ready for next kernel
+  if (0==(cellIndex+first)) { (*apc1)=0; (*apc2)=0; }// ready for next kernel
 
   if (cellIndex >= (*nCells) ) return;
   auto const & thisCell = cells[cellIndex];
@@ -154,7 +156,7 @@ kernel_connect(AtomicPairCounter * apc1, AtomicPairCounter * apc2,  // just to z
   auto innerHitId = thisCell.get_inner_hit_id();
   auto numberOfPossibleNeighbors = isOuterHitOfCell[innerHitId].size();
   auto vi = isOuterHitOfCell[innerHitId].data();
-  for (auto j = 0; j < numberOfPossibleNeighbors; ++j) {
+  for (auto j = first; j < numberOfPossibleNeighbors; j+=stride) {
      auto otherCell = __ldg(vi+j);
      if (cells[otherCell].theDoubletId<0) continue;
      if (thisCell.check_alignment(hh,
@@ -171,6 +173,8 @@ void kernel_find_ntuplets(
     TuplesOnGPU::Container * foundNtuplets, AtomicPairCounter * apc,
     unsigned int minHitsPerNtuplet)
 {
+
+  // recursive: not obvious to widen
 
   auto cellIndex = threadIdx.x + blockIdx.x * blockDim.x;
   if (cellIndex >= (*nCells) ) return;
@@ -246,23 +250,29 @@ void CAHitQuadrupletGeneratorKernels::launchKernels( // here goes algoparms....
   assert(nhits <= PixelGPUConstants::maxNumberOfHits);
   
   if (earlyFishbone_) {
-    auto blockSize = 128;
+    auto nthTot = 64;
     auto stride = 4;
+    auto blockSize = nthTot/stride;
     auto numberOfBlocks = (nhits + blockSize - 1)/blockSize;
-    numberOfBlocks *=stride;
-  
-    fishbone<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+    dim3 blks(1,numberOfBlocks,1);
+    dim3 thrs(stride,blockSize,1);
+    fishbone<<<blks,thrs, 0, cudaStream>>>(
       hh.gpu_d,
       device_theCells_, device_nCells_,
       device_isOuterHitOfCell_,
-      nhits, stride, false
+      nhits, false
     );
     cudaCheck(cudaGetLastError());
   }
 
-  auto blockSize = 64;
+  auto nthTot = 64;
+  auto stride = 4;
+  auto blockSize = nthTot/stride;
   auto numberOfBlocks = (maxNumberOfDoublets_ + blockSize - 1)/blockSize;
-  kernel_connect<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+  dim3 blks(1,numberOfBlocks,1);
+  dim3 thrs(stride,blockSize,1);
+
+  kernel_connect<<<blks, thrs, 0, cudaStream>>>(
       gpu_.apc_d, device_hitToTuple_apc_,  // needed only to be reset, ready for next kernel
       hh.gpu_d,
       device_theCells_, device_nCells_,
@@ -282,14 +292,17 @@ void CAHitQuadrupletGeneratorKernels::launchKernels( // here goes algoparms....
   cudautils::finalizeBulk<<<numberOfBlocks, blockSize, 0, cudaStream>>>(gpu_.apc_d,gpu_.tuples_d);
 
   if (lateFishbone_) {
-    auto stride=4;
-    numberOfBlocks = (nhits + blockSize - 1)/blockSize;
-    numberOfBlocks *=stride;
-    fishbone<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+    auto nthTot = 128;
+    auto stride = 16;
+    auto blockSize = nthTot/stride;
+    auto numberOfBlocks = (nhits + blockSize - 1)/blockSize;
+    dim3 blks(1,numberOfBlocks,1);
+    dim3 thrs(stride,blockSize,1);
+    fishbone<<<blks,thrs, 0, cudaStream>>>(
       hh.gpu_d,
       device_theCells_, device_nCells_,
       device_isOuterHitOfCell_,
-      nhits, stride, true
+      nhits, true
     );
     cudaCheck(cudaGetLastError());
   }
@@ -312,9 +325,13 @@ void CAHitQuadrupletGeneratorKernels::launchKernels( // here goes algoparms....
 void CAHitQuadrupletGeneratorKernels::buildDoublets(HitsOnCPU const & hh, cudaStream_t stream) {
   auto nhits = hh.nHits;
 
-  int threadsPerBlock = gpuPixelDoublets::getDoubletsFromHistoMaxBlockSize;
+  int stride=1;
+  int threadsPerBlock = gpuPixelDoublets::getDoubletsFromHistoMaxBlockSize/stride;
   int blocks = (3 * nhits + threadsPerBlock - 1) / threadsPerBlock;
-  gpuPixelDoublets::getDoubletsFromHisto<<<blocks, threadsPerBlock, 0, stream>>>(device_theCells_, device_nCells_, hh.gpu_d, device_isOuterHitOfCell_);
+  dim3 blks(1,blocks,1);
+  dim3 thrs(stride,threadsPerBlock,1);
+  gpuPixelDoublets::getDoubletsFromHisto<<<blks, thrs, 0, stream>>>(
+            device_theCells_, device_nCells_, hh.gpu_d, device_isOuterHitOfCell_);
   cudaCheck(cudaGetLastError());
 }
 
@@ -330,4 +347,3 @@ void CAHitQuadrupletGeneratorKernels::classifyTuples(HitsOnCPU const & hh, Tuple
     kernel_fastDuplicateRemover<<<numberOfBlocks, blockSize, 0, cudaStream>>>(device_theCells_, device_nCells_,tuples.tuples_d,tuples.helix_fit_results_d, tuples.quality_d);
 
 }
-
