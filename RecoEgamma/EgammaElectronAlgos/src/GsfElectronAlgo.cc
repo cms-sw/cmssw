@@ -36,25 +36,12 @@
 
 
 using namespace edm ;
-using namespace std ;
 using namespace reco ;
 
 
 GsfElectronAlgo::EventSetupData::EventSetupData()
  : cacheIDGeom(0), cacheIDTopo(0), cacheIDTDGeom(0), cacheIDMagField(0),
    cacheSevLevel(0), mtsTransform(nullptr), constraintAtVtx(nullptr), mtsMode()
- {}
-
-GsfElectronAlgo::EventData::EventData()
- : event(nullptr), beamspot(nullptr),
-   originalCtfTrackCollectionRetreived(false),
-   originalGsfTrackCollectionRetreived(false),
-   hadDepth1Isolation03(nullptr), hadDepth1Isolation04(nullptr),
-   hadDepth2Isolation03(nullptr), hadDepth2Isolation04(nullptr),
-   hadDepth1Isolation03Bc(nullptr), hadDepth1Isolation04Bc(nullptr),
-   hadDepth2Isolation03Bc(nullptr), hadDepth2Isolation04Bc(nullptr),
-   ecalBarrelIsol03(nullptr), ecalBarrelIsol04(nullptr),
-   ecalEndcapIsol03(nullptr), ecalEndcapIsol04(nullptr)
  {}
 
 void GsfElectronAlgo::EventData::retreiveOriginalTrackCollections
@@ -167,9 +154,9 @@ void GsfElectronAlgo::ElectronData::checkCtfTrack( edm::Handle<reco::TrackCollec
         if ((numGsfInnerHits==0)||(numCtfInnerHits==0))
         { continue ; }
 
-        if ( static_cast<float>(shared)/min(numGsfInnerHits,numCtfInnerHits) > shFracInnerHits )
+        if ( static_cast<float>(shared)/std::min(numGsfInnerHits,numCtfInnerHits) > shFracInnerHits )
         {
-            shFracInnerHits = static_cast<float>(shared)/min(numGsfInnerHits, numCtfInnerHits);
+            shFracInnerHits = static_cast<float>(shared)/std::min(numGsfInnerHits, numCtfInnerHits);
             ctfTrackRef = TrackRef(currentCtfTracks,counter);
         }
     } //ctfTrack iterator
@@ -299,8 +286,7 @@ void GsfElectronAlgo::calculateSaturationInfo(const reco::SuperClusterRef& theCl
   
   int nSaturatedXtals = 0;
   bool isSeedSaturated = false;
-  const auto hitsAndFractions = theClus->hitsAndFractions();
-  for (auto&& hitFractionPair : hitsAndFractions) {    
+  for (auto&& hitFractionPair : theClus->hitsAndFractions()) {    
     auto&& ecalRecHit = ecalRecHits->find(hitFractionPair.first);
     if (ecalRecHit == ecalRecHits->end()) continue;
     if (ecalRecHit->checkFlag(EcalRecHit::Flags::kSaturated)) {
@@ -568,67 +554,67 @@ void GsfElectronAlgo::beginEvent( edm::Event & event )
  {
   if (eventData_.get()!=nullptr)
    { throw cms::Exception("GsfElectronAlgo|InternalError")<<"unexpected event data" ; }
-  eventData_ = std::make_unique<EventData>() ;
-
-  // init the handles linked to the current event
-  eventData_->event = &event ;
-  eventData_->previousElectrons = event.getHandle(generalData_->inputCfg.previousGsfElectrons) ;
-  eventData_->pflowElectrons    = event.getHandle(generalData_->inputCfg.pflowGsfElectronsTag) ;
-  eventData_->coreElectrons     = event.getHandle(generalData_->inputCfg.gsfElectronCores) ;
-  eventData_->currentCtfTracks  = event.getHandle(generalData_->inputCfg.ctfTracks) ;
-  eventData_->barrelRecHits     = event.getHandle(generalData_->inputCfg.barrelRecHitCollection) ;
-  eventData_->endcapRecHits     = event.getHandle(generalData_->inputCfg.endcapRecHitCollection) ;
-  eventData_->towers            = event.getHandle(generalData_->inputCfg.hcalTowersTag) ;
-  eventData_->pfMva             = event.getHandle(generalData_->inputCfg.pfMVA) ;
-  eventData_->seeds             = event.getHandle(generalData_->inputCfg.seedsTag) ;
-  eventData_->vertices          = event.getHandle(generalData_->inputCfg.vtxCollectionTag) ;
-  if (generalData_->strategyCfg.useGsfPfRecTracks)
-   { eventData_->gsfPfRecTracks = event.getHandle(generalData_->inputCfg.gsfPfRecTracksTag) ; }
-
-  // get the beamspot from the Event:
-  auto recoBeamSpotHandle = event.getHandle(generalData_->inputCfg.beamSpotTag) ;
-  eventData_->beamspot = recoBeamSpotHandle.product() ;
 
   // prepare access to hcal data
   generalData_->hcalHelper.readEvent(event) ;
   generalData_->hcalHelperPflow.readEvent(event) ;
 
+  auto const& towers            = event.get(generalData_->inputCfg.hcalTowersTag) ;
+
   // Isolation algos
   float egHcalIsoConeSizeOutSmall=0.3, egHcalIsoConeSizeOutLarge=0.4;
   float egHcalIsoConeSizeIn=generalData_->isoCfg.intRadiusHcal,egHcalIsoPtMin=generalData_->isoCfg.etMinHcal;
   int egHcalDepth1=1, egHcalDepth2=2;
-  eventData_->hadDepth1Isolation03 = std::make_unique<EgammaTowerIsolation>(egHcalIsoConeSizeOutSmall,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth1,eventData_->towers.product()) ;
-  eventData_->hadDepth2Isolation03 = std::make_unique<EgammaTowerIsolation>(egHcalIsoConeSizeOutSmall,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth2,eventData_->towers.product()) ;
-  eventData_->hadDepth1Isolation04 = std::make_unique<EgammaTowerIsolation>(egHcalIsoConeSizeOutLarge,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth1,eventData_->towers.product()) ;
-  eventData_->hadDepth2Isolation04 = std::make_unique<EgammaTowerIsolation>(egHcalIsoConeSizeOutLarge,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth2,eventData_->towers.product()) ;
-  eventData_->hadDepth1Isolation03Bc = std::make_unique<EgammaTowerIsolation>(egHcalIsoConeSizeOutSmall,0.,egHcalIsoPtMin,egHcalDepth1,eventData_->towers.product()) ;
-  eventData_->hadDepth2Isolation03Bc = std::make_unique<EgammaTowerIsolation>(egHcalIsoConeSizeOutSmall,0.,egHcalIsoPtMin,egHcalDepth2,eventData_->towers.product()) ;
-  eventData_->hadDepth1Isolation04Bc = std::make_unique<EgammaTowerIsolation>(egHcalIsoConeSizeOutLarge,0.,egHcalIsoPtMin,egHcalDepth1,eventData_->towers.product()) ;
-  eventData_->hadDepth2Isolation04Bc = std::make_unique<EgammaTowerIsolation>(egHcalIsoConeSizeOutLarge,0.,egHcalIsoPtMin,egHcalDepth2,eventData_->towers.product()) ;
 
   float egIsoConeSizeOutSmall=0.3, egIsoConeSizeOutLarge=0.4, egIsoJurassicWidth=generalData_->isoCfg.jurassicWidth;
   float egIsoPtMinBarrel=generalData_->isoCfg.etMinBarrel,egIsoEMinBarrel=generalData_->isoCfg.eMinBarrel, egIsoConeSizeInBarrel=generalData_->isoCfg.intRadiusEcalBarrel;
   float egIsoPtMinEndcap=generalData_->isoCfg.etMinEndcaps,egIsoEMinEndcap=generalData_->isoCfg.eMinEndcaps, egIsoConeSizeInEndcap=generalData_->isoCfg.intRadiusEcalEndcaps;
-  eventData_->ecalBarrelIsol03 = std::make_unique<EgammaRecHitIsolation>(egIsoConeSizeOutSmall,egIsoConeSizeInBarrel,egIsoJurassicWidth,egIsoPtMinBarrel,egIsoEMinBarrel,eventSetupData_->caloGeom,*(eventData_->barrelRecHits),eventSetupData_->sevLevel.product(),DetId::Ecal);
-  eventData_->ecalBarrelIsol04 = std::make_unique<EgammaRecHitIsolation>(egIsoConeSizeOutLarge,egIsoConeSizeInBarrel,egIsoJurassicWidth,egIsoPtMinBarrel,egIsoEMinBarrel,eventSetupData_->caloGeom,*(eventData_->barrelRecHits),eventSetupData_->sevLevel.product(),DetId::Ecal);
-  eventData_->ecalEndcapIsol03 = std::make_unique<EgammaRecHitIsolation>(egIsoConeSizeOutSmall,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,eventSetupData_->caloGeom,*(eventData_->endcapRecHits),eventSetupData_->sevLevel.product(),DetId::Ecal);
-  eventData_->ecalEndcapIsol04 = std::make_unique<EgammaRecHitIsolation>(egIsoConeSizeOutLarge,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,eventSetupData_->caloGeom,*(eventData_->endcapRecHits),eventSetupData_->sevLevel.product(),DetId::Ecal);
-  eventData_->ecalBarrelIsol03->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
-  eventData_->ecalBarrelIsol03->setVetoClustered(generalData_->isoCfg.vetoClustered);
-  eventData_->ecalBarrelIsol03->doSeverityChecks(eventData_->barrelRecHits.product(),generalData_->recHitsCfg.recHitSeverityToBeExcludedBarrel);
-  eventData_->ecalBarrelIsol03->doFlagChecks(generalData_->recHitsCfg.recHitFlagsToBeExcludedBarrel);
-  eventData_->ecalBarrelIsol04->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
-  eventData_->ecalBarrelIsol04->setVetoClustered(generalData_->isoCfg.vetoClustered);
-  eventData_->ecalBarrelIsol04->doSeverityChecks(eventData_->barrelRecHits.product(),generalData_->recHitsCfg.recHitSeverityToBeExcludedBarrel);
-  eventData_->ecalBarrelIsol04->doFlagChecks(generalData_->recHitsCfg.recHitFlagsToBeExcludedBarrel);
-  eventData_->ecalEndcapIsol03->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
-  eventData_->ecalEndcapIsol03->setVetoClustered(generalData_->isoCfg.vetoClustered);
-  eventData_->ecalEndcapIsol03->doSeverityChecks(eventData_->endcapRecHits.product(),generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps);
-  eventData_->ecalEndcapIsol03->doFlagChecks(generalData_->recHitsCfg.recHitFlagsToBeExcludedEndcaps);
-  eventData_->ecalEndcapIsol04->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
-  eventData_->ecalEndcapIsol04->setVetoClustered(generalData_->isoCfg.vetoClustered);
-  eventData_->ecalEndcapIsol04->doSeverityChecks(eventData_->endcapRecHits.product(),generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps);
-  eventData_->ecalEndcapIsol04->doFlagChecks(generalData_->recHitsCfg.recHitFlagsToBeExcludedEndcaps);
+
+  auto barrelRecHits = event.getHandle(generalData_->inputCfg.barrelRecHitCollection);
+  auto endcapRecHits = event.getHandle(generalData_->inputCfg.endcapRecHitCollection);
+
+  eventData_ = std::unique_ptr<EventData>( new EventData{
+      .event             = &event,
+      .beamspot          = &event.get(generalData_->inputCfg.beamSpotTag),
+      .previousElectrons = event.getHandle(generalData_->inputCfg.previousGsfElectrons),
+      .pflowElectrons    = event.getHandle(generalData_->inputCfg.pflowGsfElectronsTag),
+      .coreElectrons     = event.getHandle(generalData_->inputCfg.gsfElectronCores),
+      .barrelRecHits     = barrelRecHits,
+      .endcapRecHits     = endcapRecHits,
+      .currentCtfTracks  = event.getHandle(generalData_->inputCfg.ctfTracks),
+      .seeds             = event.getHandle(generalData_->inputCfg.seedsTag),
+      .gsfPfRecTracks    = generalData_->strategyCfg.useGsfPfRecTracks ? event.getHandle(generalData_->inputCfg.gsfPfRecTracksTag) : edm::Handle<reco::GsfPFRecTrackCollection>{},
+      .vertices          = event.getHandle(generalData_->inputCfg.vtxCollectionTag),
+      .hadDepth1Isolation03 = EgammaTowerIsolation(egHcalIsoConeSizeOutSmall,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth1,&towers),
+      .hadDepth1Isolation04 = EgammaTowerIsolation(egHcalIsoConeSizeOutLarge,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth1,&towers),
+      .hadDepth2Isolation03 = EgammaTowerIsolation(egHcalIsoConeSizeOutSmall,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth2,&towers),
+      .hadDepth2Isolation04 = EgammaTowerIsolation(egHcalIsoConeSizeOutLarge,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth2,&towers),
+      .hadDepth1Isolation03Bc = EgammaTowerIsolation(egHcalIsoConeSizeOutSmall,0.,egHcalIsoPtMin,egHcalDepth1,&towers),
+      .hadDepth1Isolation04Bc = EgammaTowerIsolation(egHcalIsoConeSizeOutLarge,0.,egHcalIsoPtMin,egHcalDepth1,&towers),
+      .hadDepth2Isolation03Bc = EgammaTowerIsolation(egHcalIsoConeSizeOutSmall,0.,egHcalIsoPtMin,egHcalDepth2,&towers),
+      .hadDepth2Isolation04Bc = EgammaTowerIsolation(egHcalIsoConeSizeOutLarge,0.,egHcalIsoPtMin,egHcalDepth2,&towers),
+      .ecalBarrelIsol03 = EgammaRecHitIsolation(egIsoConeSizeOutSmall,egIsoConeSizeInBarrel,egIsoJurassicWidth,egIsoPtMinBarrel,egIsoEMinBarrel,eventSetupData_->caloGeom,*barrelRecHits,eventSetupData_->sevLevel.product(),DetId::Ecal),
+      .ecalBarrelIsol04 = EgammaRecHitIsolation(egIsoConeSizeOutLarge,egIsoConeSizeInBarrel,egIsoJurassicWidth,egIsoPtMinBarrel,egIsoEMinBarrel,eventSetupData_->caloGeom,*barrelRecHits,eventSetupData_->sevLevel.product(),DetId::Ecal),
+      .ecalEndcapIsol03 = EgammaRecHitIsolation(egIsoConeSizeOutSmall,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,eventSetupData_->caloGeom,*endcapRecHits,eventSetupData_->sevLevel.product(),DetId::Ecal),
+      .ecalEndcapIsol04 = EgammaRecHitIsolation(egIsoConeSizeOutLarge,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,eventSetupData_->caloGeom,*endcapRecHits,eventSetupData_->sevLevel.product(),DetId::Ecal)
+  }) ;
+
+  eventData_->ecalBarrelIsol03.setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
+  eventData_->ecalBarrelIsol03.setVetoClustered(generalData_->isoCfg.vetoClustered);
+  eventData_->ecalBarrelIsol03.doSeverityChecks(eventData_->barrelRecHits.product(),generalData_->recHitsCfg.recHitSeverityToBeExcludedBarrel);
+  eventData_->ecalBarrelIsol03.doFlagChecks(generalData_->recHitsCfg.recHitFlagsToBeExcludedBarrel);
+  eventData_->ecalBarrelIsol04.setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
+  eventData_->ecalBarrelIsol04.setVetoClustered(generalData_->isoCfg.vetoClustered);
+  eventData_->ecalBarrelIsol04.doSeverityChecks(eventData_->barrelRecHits.product(),generalData_->recHitsCfg.recHitSeverityToBeExcludedBarrel);
+  eventData_->ecalBarrelIsol04.doFlagChecks(generalData_->recHitsCfg.recHitFlagsToBeExcludedBarrel);
+  eventData_->ecalEndcapIsol03.setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
+  eventData_->ecalEndcapIsol03.setVetoClustered(generalData_->isoCfg.vetoClustered);
+  eventData_->ecalEndcapIsol03.doSeverityChecks(eventData_->endcapRecHits.product(),generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps);
+  eventData_->ecalEndcapIsol03.doFlagChecks(generalData_->recHitsCfg.recHitFlagsToBeExcludedEndcaps);
+  eventData_->ecalEndcapIsol04.setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
+  eventData_->ecalEndcapIsol04.setVetoClustered(generalData_->isoCfg.vetoClustered);
+  eventData_->ecalEndcapIsol04.doSeverityChecks(eventData_->endcapRecHits.product(),generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps);
+  eventData_->ecalEndcapIsol04.doFlagChecks(generalData_->recHitsCfg.recHitFlagsToBeExcludedEndcaps);
   
   //Fill in the Isolation Value Maps for PF and EcalDriven electrons
   std::vector<edm::InputTag> inputTagIsoVals;
@@ -1267,18 +1253,18 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
   dr04.tkSumPt = tkIsol04Calc_.calIsolPt(*ele.gsfTrack(),*eventData_->currentCtfTracks);
  
   if( !EcalTools::isHGCalDet((DetId::Detector)region) ) {
-    dr03.hcalDepth1TowerSumEt = eventData_->hadDepth1Isolation03->getTowerEtSum(&ele) ;
-    dr03.hcalDepth2TowerSumEt = eventData_->hadDepth2Isolation03->getTowerEtSum(&ele) ;
-    dr03.hcalDepth1TowerSumEtBc = eventData_->hadDepth1Isolation03Bc->getTowerEtSum(&ele,&(showerShape.hcalTowersBehindClusters)) ;
-    dr03.hcalDepth2TowerSumEtBc = eventData_->hadDepth2Isolation03Bc->getTowerEtSum(&ele,&(showerShape.hcalTowersBehindClusters)) ;
-    dr03.ecalRecHitSumEt = eventData_->ecalBarrelIsol03->getEtSum(&ele);
-    dr03.ecalRecHitSumEt += eventData_->ecalEndcapIsol03->getEtSum(&ele);    
-    dr04.hcalDepth1TowerSumEt = eventData_->hadDepth1Isolation04->getTowerEtSum(&ele);
-    dr04.hcalDepth2TowerSumEt = eventData_->hadDepth2Isolation04->getTowerEtSum(&ele);
-    dr04.hcalDepth1TowerSumEtBc = eventData_->hadDepth1Isolation04Bc->getTowerEtSum(&ele,&(showerShape.hcalTowersBehindClusters)) ;
-    dr04.hcalDepth2TowerSumEtBc = eventData_->hadDepth2Isolation04Bc->getTowerEtSum(&ele,&(showerShape.hcalTowersBehindClusters)) ;
-    dr04.ecalRecHitSumEt = eventData_->ecalBarrelIsol04->getEtSum(&ele);
-    dr04.ecalRecHitSumEt += eventData_->ecalEndcapIsol04->getEtSum(&ele);
+    dr03.hcalDepth1TowerSumEt = eventData_->hadDepth1Isolation03.getTowerEtSum(&ele) ;
+    dr03.hcalDepth2TowerSumEt = eventData_->hadDepth2Isolation03.getTowerEtSum(&ele) ;
+    dr03.hcalDepth1TowerSumEtBc = eventData_->hadDepth1Isolation03Bc.getTowerEtSum(&ele,&(showerShape.hcalTowersBehindClusters)) ;
+    dr03.hcalDepth2TowerSumEtBc = eventData_->hadDepth2Isolation03Bc.getTowerEtSum(&ele,&(showerShape.hcalTowersBehindClusters)) ;
+    dr03.ecalRecHitSumEt = eventData_->ecalBarrelIsol03.getEtSum(&ele);
+    dr03.ecalRecHitSumEt += eventData_->ecalEndcapIsol03.getEtSum(&ele);    
+    dr04.hcalDepth1TowerSumEt = eventData_->hadDepth1Isolation04.getTowerEtSum(&ele);
+    dr04.hcalDepth2TowerSumEt = eventData_->hadDepth2Isolation04.getTowerEtSum(&ele);
+    dr04.hcalDepth1TowerSumEtBc = eventData_->hadDepth1Isolation04Bc.getTowerEtSum(&ele,&(showerShape.hcalTowersBehindClusters)) ;
+    dr04.hcalDepth2TowerSumEtBc = eventData_->hadDepth2Isolation04Bc.getTowerEtSum(&ele,&(showerShape.hcalTowersBehindClusters)) ;
+    dr04.ecalRecHitSumEt = eventData_->ecalBarrelIsol04.getEtSum(&ele);
+    dr04.ecalRecHitSumEt += eventData_->ecalEndcapIsol04.getEtSum(&ele);
   }
   ele.setIsolation03(dr03);
   ele.setIsolation04(dr04);
