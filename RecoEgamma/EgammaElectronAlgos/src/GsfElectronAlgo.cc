@@ -1118,11 +1118,11 @@ bool GsfElectronAlgo::isPreselected( GsfElectron * ele )
 
 void GsfElectronAlgo::removeNotPreselectedElectrons()
  {
-  GsfElectronPtrCollection::size_type ei = 1, emax = eventData_->electrons->size() ;
+  GsfElectronPtrCollection::size_type ei = 1;
   GsfElectronPtrCollection::iterator eitr = eventData_->electrons->begin() ;
   while (eitr!=eventData_->electrons->end())
    {
-    LogTrace("GsfElectronAlgo")<<"========== removed not preselected "<<ei<<"/"<<emax<<"==========" ;
+    LogTrace("GsfElectronAlgo")<<"========== removed not preselected "<<ei<<"/"<< eventData_->electrons->size() <<"==========" ;
     if (isPreselected(*eitr))
      { ++eitr ; ++ei ; }
     else
@@ -1716,11 +1716,11 @@ void GsfElectronAlgo::setAmbiguityData( bool ignoreNotPreselected )
 
 void GsfElectronAlgo::removeAmbiguousElectrons()
  {
-  GsfElectronPtrCollection::size_type ei = 1, emax = eventData_->electrons->size() ;
+  GsfElectronPtrCollection::size_type ei = 1;
   GsfElectronPtrCollection::iterator eitr = eventData_->electrons->begin() ;
   while (eitr!=eventData_->electrons->end())
    {
-    LogTrace("GsfElectronAlgo")<<"========== remove ambiguous "<<ei<<"/"<<emax<<"==========" ;
+    LogTrace("GsfElectronAlgo")<<"========== remove ambiguous "<<ei<<"/"<< eventData_->electrons->size() <<"==========" ;
     if ((*eitr)->ambiguous())
      { delete (*eitr) ; eitr = eventData_->electrons->erase(eitr) ; ++ei ; }
     else
