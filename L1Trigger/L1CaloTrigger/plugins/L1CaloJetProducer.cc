@@ -75,6 +75,7 @@ class L1CaloJetProducer : public edm::EDProducer {
         double EcalTpEtMin;
         double HGCalHadTpEtMin;
         double HGCalEmTpEtMin;
+        double HFTpEtMin;
         double EtMinForSeedHit;
         double EtMinForCollection;
 
@@ -272,6 +273,7 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     EcalTpEtMin(iConfig.getParameter<double>("EcalTpEtMin")), // Should default to 0 MeV
     HGCalHadTpEtMin(iConfig.getParameter<double>("HGCalHadTpEtMin")), // Should default to 0 MeV
     HGCalEmTpEtMin(iConfig.getParameter<double>("HGCalEmTpEtMin")), // Should default to 0 MeV
+    HFTpEtMin(iConfig.getParameter<double>("HFTpEtMin")), // Should default to 0 MeV
     EtMinForSeedHit(iConfig.getParameter<double>("EtMinForSeedHit")), // Should default to 2.5 GeV
     EtMinForCollection(iConfig.getParameter<double>("EtMinForCollection")), // Testing 10 GeV
     emFractionBins(iConfig.getParameter<std::vector<double>>("emFractionBins")),
@@ -427,7 +429,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     for (const auto & hit : *hcalTowerHandle.product()) {
         HcalTrigTowerDetId id = hit.id();
         double et = decoder_->hcaletValue(hit.id(), hit.t0());
-        if (et <= 0) continue;
+        if (et < HFTpEtMin) continue;
         // Only doing HF so skip outside range
         if ( abs(id.ieta()) < l1t::CaloTools::kHFBegin ) continue;
         if ( abs(id.ieta()) > l1t::CaloTools::kHFEnd ) continue;
