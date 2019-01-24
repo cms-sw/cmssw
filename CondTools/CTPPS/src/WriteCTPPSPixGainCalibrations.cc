@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -122,7 +122,7 @@ WriteCTPPSPixGainCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
 void 
 WriteCTPPSPixGainCalibrations::getHistos() 
 {
-  std::cout <<"Parsing file " <<m_inputHistosFileName << std::endl;
+  //  std::cout <<"Parsing file " <<m_inputHistosFileName << std::endl;
   m_inputRootFile = new TFile(m_inputHistosFileName.c_str());
   m_inputRootFile->cd();
 
@@ -173,7 +173,7 @@ WriteCTPPSPixGainCalibrations::getHistos()
 	  }
 	  detidHistoNameMap[mytempid.rawId()]      = histnamevec;
 	  detidROCsPresent[mytempid.rawId()]      = listrocs;
-	  std::cout << "Raw DetId = "<< mytempid.rawId() <<" Arm = "<< arm << " Sector = "<< sector[arm] << " Station = "<< station[st] << " Pot = "<<pot << " Plane = "<<plane  <<std::endl;
+	  edm::LogInfo("CTPPSPixGainsCalibrationWriter") << "Raw DetId = "<< mytempid.rawId() <<" Arm = "<< arm << " Sector = "<< sector[arm] << " Station = "<< station[st] << " Pot = "<<pot << " Plane = "<<plane  ;
 	}
 	
       }
@@ -217,12 +217,11 @@ WriteCTPPSPixGainCalibrations::fillDB()
 	   tempPGCalib.putData(k,tmpped,tmpgain);
 	 }
 
-
-	 if(nrocs==0){
-	   std::cout<<" plane with detID ="<<tempdetid<<" is empty"<<std::endl;
+         if(nrocs==0){
+	   edm::LogWarning("CTPPSPixGainsCalibrationWriter")<<" plane with detID ="<<tempdetid<<" is empty";
 	   setDummyFullPlane(orderedPeds,orderedGains,6*52*80);
 	 }
-
+	 
 	 gainCalibsTest->setGainCalibration(tempdetid,orderedPeds,orderedGains);
 	 //	 std::cout << "Here detid = "<<tempdetid <<std::endl;
 	 gainCalibsTest1->setGainCalibration(tempdetid,tempPGCalib);
@@ -232,7 +231,7 @@ WriteCTPPSPixGainCalibrations::fillDB()
   //  std::cout<<" Here 3!"<<std::endl;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if(!mydbservice.isAvailable() ){
-    edm::LogError("db service unavailable");
+    edm::LogError("CTPPSPixGainsCalibrationWriter")<<"Db Service Unavailable";
     return;
   }
   mydbservice->writeOne( gainCalibsTest, mydbservice->currentTime(), m_record  );
@@ -264,7 +263,7 @@ WriteCTPPSPixGainCalibrations::getGainsPedsFromHistos(uint32_t detid, int ROCind
   int ncols = tempslope->GetNbinsX(); 
   int nrows = tempslope->GetNbinsY();
   if (nrows != 80  || ncols != 52 )
-    std::cout<<"Something wrong ncols = "<< ncols << " and nrows = " << nrows <<std::endl;
+    edm::LogWarning("CTPPSPixGainsCalibrationWriter")<<"Something wrong ncols = "<< ncols << " and nrows = " << nrows;
   
   for (int jrow = 0; jrow < nrows ; ++jrow) // when scanning through the 2d histo make sure to avoid underflow bin i or j ==0
     for (int icol = 0 ; icol < ncols ; ++icol){
