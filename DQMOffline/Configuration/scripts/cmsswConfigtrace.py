@@ -1,30 +1,27 @@
 #!/usr/bin/env python2
 from __future__ import print_function
 import os
+import re
 import six
 import sys
 import inspect
+import sqlite3
 import tempfile
 import traceback
 import subprocess
 from shutil import copy, rmtree
 from collections import defaultdict
 
-import cmsswFiletrace
-
 ### 1. Some configuration options.
-SQLITE=True
 SERVE_PORT = 1234
 
-if SQLITE:
-  cmsswFiletrace.OUTFILE_TREE = "configtree.sqlite"
-else:
-  cmsswFiletrace.OUTFILE_TREE = "configtree"
-cmsswFiletrace.OUTFILE_FILES = "configfiles"
-cmsswFiletrace.WRAP_SCRIPTS = []
+OUTFILE_TREE = "configtree.sqlite"
 IGNORE_PACKAGES = ['FWCore/ParameterSet', 'FWCore/GuiBrowsers', 'DQMOffline/Configuration/scripts', "cmsRun"]
-
-from cmsswFiletrace import *
+STRIPPATHS = [ # we will add the base dir from CMSSWCALLBASE env var here
+  os.environ["CMSSW_BASE"] + "/python/", os.environ["CMSSW_RELEASE_BASE"] + "/python/",
+  os.environ["CMSSW_BASE"] + "/cfipython/", os.environ["CMSSW_RELEASE_BASE"] + "/cfipython/"]
+PREFIXINFO = [] # what we will show as "source" later
+ARGV0 = "" # set in main
 
 ### 2. The enable all the tracing hooks.
 
@@ -199,90 +196,118 @@ def writeoutput(graph):
     files.add(child[2][0][0])
     files.add(parent[2][0][0])
 
-  if SQLITE:
-    import sqlite3
-    conn = sqlite3.connect(os.environ["CMSSWCALLTREE"])
-    cur = conn.cursor()
-    cur.executescript("""
-    CREATE TABLE IF NOT EXISTS file(id INTEGER PRIMARY KEY, 
-      name TEXT, UNIQUE(name)
-    );
-    CREATE TABLE IF NOT EXISTS trace(id INTEGER PRIMARY KEY, 
-      parent INTEGER, -- points into same table, recursively
-      file INTEGER, line INTEGER,
-      FOREIGN KEY(parent) REFERENCES trace(id),
-      FOREIGN KEY(file) REFERENCES file(id),
-      UNIQUE(parent, file, line)
-    );
-    CREATE TABLE IF NOT EXISTS relation(id INTEGER PRIMARY KEY,
-      place  INTEGER, 
-      place_type TEXT,
-      usedby INTEGER, 
-      usedby_type TEXT,
-      relation TEXT,
-      source TEXT,
-      FOREIGN KEY(place) REFERENCES trace(id),
-      FOREIGN KEY(usedby) REFERENCES trace(id)
-    );
-    CREATE INDEX IF NOT EXISTS placeidx ON relation(place);
-    CREATE INDEX IF NOT EXISTS usedbyidx ON relation(usedby);
-    CREATE INDEX IF NOT EXISTS traceidx ON trace(file);
-    -- SQLite does not optimise that one well, but a VIEW is still nice to have...
-    CREATE VIEW IF NOT EXISTS fulltrace AS 
-      WITH RECURSIVE fulltrace(level, baseid, parent, file, name, line) AS (
-        SELECT 1 AS level, trace.id, parent, trace.file, file.name, line FROM trace
-          INNER JOIN file ON file.id = trace.file
-        UNION SELECT level+1, baseid, trace.parent, trace.file, file.name, trace.line FROM fulltrace 
-          INNER JOIN trace ON trace.id = fulltrace.parent
-          INNER JOIN file ON file.id = trace.file)
-      SELECT * FROM fulltrace;
-    """)
-    cur.executemany("INSERT OR IGNORE INTO file(name) VALUES (?);", 
-      ((formatfile(f),) for f in files))
-    def inserttrace(loc):
-      parent = 0
-      for filename, line in reversed(loc):
-        conn.execute("INSERT OR IGNORE INTO trace(parent, file, line) SELECT ?, id, ? FROM file WHERE name == ?;", (parent, line, formatfile(filename)))
-        cur = conn.execute("SELECT trace.id FROM trace LEFT JOIN file ON trace.file == file.id WHERE trace.parent = ? AND file.name = ? AND trace.line = ?;", (parent, formatfile(filename), line))
-        for row in cur:
-          parent = row[0]
-      return parent
+  conn = sqlite3.connect(os.environ["CMSSWCALLTREE"])
+  cur = conn.cursor()
+  cur.executescript("""
+  CREATE TABLE IF NOT EXISTS file(id INTEGER PRIMARY KEY, 
+    name TEXT, UNIQUE(name)
+  );
+  CREATE TABLE IF NOT EXISTS trace(id INTEGER PRIMARY KEY, 
+    parent INTEGER, -- points into same table, recursively
+    file INTEGER, line INTEGER,
+    FOREIGN KEY(parent) REFERENCES trace(id),
+    FOREIGN KEY(file) REFERENCES file(id),
+    UNIQUE(parent, file, line)
+  );
+  CREATE TABLE IF NOT EXISTS relation(id INTEGER PRIMARY KEY,
+    place  INTEGER, 
+    place_type TEXT,
+    usedby INTEGER, 
+    usedby_type TEXT,
+    relation TEXT,
+    source TEXT,
+    FOREIGN KEY(place) REFERENCES trace(id),
+    FOREIGN KEY(usedby) REFERENCES trace(id)
+  );
+  CREATE INDEX IF NOT EXISTS placeidx ON relation(place);
+  CREATE INDEX IF NOT EXISTS usedbyidx ON relation(usedby);
+  CREATE INDEX IF NOT EXISTS traceidx ON trace(file);
+  -- SQLite does not optimise that one well, but a VIEW is still nice to have...
+  CREATE VIEW IF NOT EXISTS fulltrace AS 
+    WITH RECURSIVE fulltrace(level, baseid, parent, file, name, line) AS (
+      SELECT 1 AS level, trace.id, parent, trace.file, file.name, line FROM trace
+        INNER JOIN file ON file.id = trace.file
+      UNION SELECT level+1, baseid, trace.parent, trace.file, file.name, trace.line FROM fulltrace 
+        INNER JOIN trace ON trace.id = fulltrace.parent
+        INNER JOIN file ON file.id = trace.file)
+    SELECT * FROM fulltrace;
+  """)
+  cur.executemany("INSERT OR IGNORE INTO file(name) VALUES (?);", 
+    ((formatfile(f),) for f in files))
+  def inserttrace(loc):
+    parent = 0
+    for filename, line in reversed(loc):
+      conn.execute("INSERT OR IGNORE INTO trace(parent, file, line) SELECT ?, id, ? FROM file WHERE name == ?;", (parent, line, formatfile(filename)))
+      cur = conn.execute("SELECT trace.id FROM trace LEFT JOIN file ON trace.file == file.id WHERE trace.parent = ? AND file.name = ? AND trace.line = ?;", (parent, formatfile(filename), line))
+      for row in cur:
+        parent = row[0]
+    return parent
 
-    for child, parent, relation in graph:
-      cevt, cclassname, cloc = child
-      pevt, pclassname, ploc = parent
-      place = inserttrace(cloc)
-      usedby = inserttrace(ploc)
-      cur.execute("INSERT OR IGNORE INTO relation(place, place_type, usedby, usedby_type, relation, source) VALUES (?,?,?,?,?,?);", (
-        place, "%s::%s" % (cclassname, cevt),
-        usedby, "%s::%s" % (pclassname, pevt),
-        relation, progname
-      ))
-    conn.commit()
-    conn.close()
-
-  else:
-    def format(event):
-      evt, classname, loc = event
-      places = ";".join("%s:%d" % (formatfile(filename), line) for filename, line in loc)
-      return "%s; %s::%s" % (places, classname, evt)
-
-    with open(os.environ["CMSSWCALLFILES"], "a") as outfile:
-      for f in files:
-        print("%s: %s" % (progname, formatfile(f)), file=outfile)
-      
-    with open(os.environ["CMSSWCALLTREE"], "a") as outfile:
-      for child, parent, relation in graph:
-        print("%s -> %s [%s]" % (format(child), format(parent), relation), file=outfile)
+  for child, parent, relation in graph:
+    cevt, cclassname, cloc = child
+    pevt, pclassname, ploc = parent
+    place = inserttrace(cloc)
+    usedby = inserttrace(ploc)
+    cur.execute("INSERT OR IGNORE INTO relation(place, place_type, usedby, usedby_type, relation, source) VALUES (?,?,?,?,?,?);", (
+      place, "%s::%s" % (cclassname, cevt),
+      usedby, "%s::%s" % (pclassname, pevt),
+      relation, progname
+    ))
+  conn.commit()
+  conn.close()
 
 ### 4. Launch and keep track of all the processes.
 
+def addprefixinfo(argv):
+  cwd = os.path.abspath(os.getcwd())
+  wf = re.match(".*/(\d+\.\d+)_", cwd)
+  if wf: 
+    PREFIXINFO.append("wf")
+    PREFIXINFO.append(wf.groups()[0])
+  online = re.match("(.*/)?(.*)_dqm_sourceclient-live_cfg\.py", argv[0])
+  if online:
+    PREFIXINFO.append("online")
+    PREFIXINFO.append(online.groups()[1])
+  step = re.match("(step\d+)_.*\.py", argv[0])
+  if step:
+    PREFIXINFO.append(step.groups()[0])
+  processing = re.match("step\d+_.*(RECO|ALCA|HARVEST).*\.py", argv[0])
+  if processing:
+    PREFIXINFO.append(processing.groups()[0])
+  if not PREFIXINFO:
+    PREFIXINFO.append(argv[0])
+
+def setupenv():
+  bindir = tempfile.mkdtemp()
+  print("+Setting up in ", bindir)
+  os.symlink(ARGV0, bindir + "/cmsRun")
+  os.environ["PATH"] = bindir + ":" + os.environ["PATH"]
+  os.environ["CMSSWCALLTREE"] = bindir + "/" + OUTFILE_TREE
+  os.environ["CMSSWCALLBASE"] = os.path.abspath(os.getcwd()) + "/"
+  with open(os.environ["CMSSWCALLTREE"], "w") as f:
+    pass
+  return bindir
+
+def cleanupenv(tmpdir):
+  print("+Cleaning up ", tmpdir)
+  copy(os.environ["CMSSWCALLTREE"], ".")
+  rmtree(tmpdir)
+
+
+def trace_command(argv):
+  tmpdir = None
+  if not "CMSSWCALLTREE" in os.environ:
+    tmpdir = setupenv()
+
+  subprocess.call(argv)
+
+  if tmpdir:
+    cleanupenv(tmpdir)
+
 def trace_python(prog_argv, path):
   graph = []
-
   sys.argv = prog_argv
   progname = prog_argv[0]
-
   file_path = searchinpath(progname, path)
   try:
     with open(file_path) as fp:
@@ -306,7 +331,19 @@ def trace_python(prog_argv, path):
     pass
   # this is not necessarily reached at all. 
   sys.exit(0)
-cmsswFiletrace.trace_python = trace_python
+
+def searchinpath(progname, path):
+  # Search $PATH. There seems to be no pre-made function for this.
+  for entry in path:
+    file_path = os.path.join(entry, progname)
+    if os.path.isfile(file_path):
+      break
+  if not os.path.isfile(file_path):
+    print("+Cannot find program (%s) in modified $PATH (%s)." % (progname, path))
+    sys.exit(1)
+  print("+Found %s as %s in %s." % (progname, file_path, path))
+  return file_path
+
 
 def help():
   print("Usage: %s <some cmssw commandline>" % (sys.argv[0]))
@@ -316,7 +353,23 @@ def help():
   print("  To view the results using a simple webpage, use\n   %s serve" % sys.argv[0])
   print("Examples:")
   print("  %s runTheMatrix.py -l 1000 --ibeos" % sys.argv[0])
-cmsswFiletrace.help = help
+
+def main():
+  print("+Running cmsswConfigtrace...")
+  global ARGV0
+  ARGV0 = sys.argv[0]
+  if sys.argv[0].endswith('cmsRun'):
+      print("+Wrapping cmsRun...")
+      addprefixinfo(sys.argv[1:])
+      STRIPPATHS.append(os.environ["CMSSWCALLBASE"])
+      trace_python(sys.argv[1:], ["."])
+      return
+  if len(sys.argv) <= 1:
+    help()
+    return
+  # else
+  print("+Running command with tracing %s..." % sys.argv[1:])
+  trace_command(sys.argv[1:])
 
 ### 5. The web-based GUI.
 
@@ -326,11 +379,9 @@ def serve_main():
 
   import SimpleHTTPServer
   import SocketServer
-  import sqlite3
   import urllib 
-  import re
 
-  conn = sqlite3.connect(cmsswFiletrace.OUTFILE_TREE)
+  conn = sqlite3.connect(OUTFILE_TREE)
 
   def escape(s):
     return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
