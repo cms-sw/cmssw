@@ -222,6 +222,7 @@ def writeoutput(graph):
       FOREIGN KEY(usedby) REFERENCES trace(id)
     );
     CREATE INDEX IF NOT EXISTS placeidx ON relation(place);
+    CREATE INDEX IF NOT EXISTS usedbyidx ON relation(usedby);
     CREATE INDEX IF NOT EXISTS traceidx ON trace(file);
     -- SQLite does not optimise that one well, but a VIEW is still nice to have...
     CREATE VIEW IF NOT EXISTS fulltrace AS 
@@ -335,6 +336,7 @@ def serve_main():
   import SimpleHTTPServer
   import SocketServer
   import sqlite3
+  import urllib 
   import re
 
   conn = sqlite3.connect(cmsswFiletrace.OUTFILE_TREE)
@@ -342,10 +344,49 @@ def serve_main():
   def escape(s):
     return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
+  def formatsource(source, formatstr = '<em class="%s">%s</em>'):
+    processings = ["ALCA", "RECO", "HARVEST", "online"]
+    info = source.split(" ")
+    processing = " ".join(filter(lambda x: x in processings, info))
+    source = " ".join(filter(lambda x: x not in processings, info))
+    return formatstr % (processing, escape(source))
+
+  def formatplace(filename, line):
+     MAXLEN = 80
+     shortname = filename[ :(MAXLEN-3)/2] + "..." + filename[-(MAXLEN-3)/2: ] if len(filename) > MAXLEN else filename
+     return '<a href="/%s#%s" target="_blank">%s:%s</a>' % (escape(filename), line, escape(shortname), line)
+
   def index():
     out = [escape('goto to /<filename> for info about a file')]
+
+    wfs = defaultdict(list)
+    for source, wf in conn.execute(""" -- some SQL hackery here to parse "source"
+        SELECT DISTINCT source, substr(source, instr(source, "wf ")+3)*1 FROM relation ORDER BY 2, 1;"""):
+      wfs[wf].append('<a href="/workflow/%s">%s</a>' % (urllib.quote(source), formatsource(source)))
+    out.append("<ul>")
+    for wf in wfs:
+      out.append('<li>' + " ".join(wfs[wf]) + "</li>")
+    out.append("</ul>")
+
     out.append("<ul>")
     for f in conn.execute("SELECT name FROM file ORDER BY name;"):
+      name = escape(f[0])
+      out.append('<li><a href="/%s">%s</a></li>' % (name, name))
+    out.append("</ul>")
+
+    return "\n".join(out)
+
+  def showworkflow(source):
+    source = urllib.unquote(source)
+    cur = conn.execute("""
+      SELECT DISTINCT file.name FROM relation 
+        INNER JOIN trace ON place = trace.id
+        INNER JOIN file ON file.id = trace.file
+      WHERE relation.source = ?
+      ORDER BY file.name;
+    """, (source, ))
+    out = ["Files used by workflow %s: <ul>" % formatsource(source)]
+    for f in cur:
       name = escape(f[0])
       out.append('<li><a href="/%s">%s</a></li>' % (name, name))
     out.append("</ul>")
@@ -355,14 +396,7 @@ def serve_main():
     out = []
     out.append('<script src="https://rawgit.com/google/code-prettify/master/src/prettify.js"></script>')
     out.append('<link rel="stylesheet" href="https://rawgit.com/google/code-prettify/master/src/prettify.css"></link>')
-    out.append("""<style>
-    li > em {
-      cursor: pointer;
-      padding: 0 2px;
-      margin: 1 2px;
-      background: #9e9;
-    }
-    </style>""")
+
     lines = None
     for d in STRIPPATHS:
       try:
@@ -372,26 +406,30 @@ def serve_main():
         break
       except:
         pass
+
     if lines:
       cur = conn.execute("""
       SELECT DISTINCT trace.line, source FROM relation 
         INNER JOIN trace on relation.place = trace.id 
         INNER JOIN file ON trace.file == file.id 
         WHERE file.name == ? ORDER BY line;""", (filename,))
-      toplevelinfo = cur.fetchall()
+      toplevelinfo = defaultdict(list)
+      for line, source in cur:
+        toplevelinfo[line].append(source)
 
       out.append('<pre class="prettyprint linenums">')
       for i, l in enumerate(lines):
-        info = [row[1] for row in toplevelinfo if row[0] == i+1]
-        tags = ['<em data-line="%d" data-tag="%s"></em>' % (i+1, escape(thing)) for thing in info]
+        # put the text into data-tag here and move it later, to not mess up syntax HL
+        tags = [formatsource(source, '<em class="%%s" data-tag="%%s" data-line="%d"></em>' % (i+1)) for source in toplevelinfo[i+1]]
         out.append(escape(l).rstrip() + "".join(tags))
       out.append('</pre>')
+
       out.append("""<script type="text/javascript">
       PR.prettyPrint();
       clickfunc = function(evt) {
         document.querySelectorAll("li > iframe, li > br").forEach(function(e) {e.remove()}); 
         dest = "/info" + window.location.pathname + ":" + this.getAttribute("data-line");
-        this.insertAdjacentHTML("afterend", '<br><iframe width="90%" height="500px" src="' + dest + '"></iframe><br>');
+        this.parentElement.insertAdjacentHTML("beforeend", '<br><iframe width="90%" height="500px" frameborder="0" src="' + dest + '"></iframe><br>');
       };
       document.querySelectorAll("li > em").forEach(function(e) {
         e.innerText = e.getAttribute("data-tag");
@@ -405,50 +443,70 @@ def serve_main():
         li.scrollIntoView();
       }
       </script>""")
+
     else:
       out.append("Could not find %s" % filename)
+
     return "\n".join(out)
 
       
   def showinfo(filename, line):
     line = int(line)
-    cur = conn.execute("""
-      SELECT place_type, -- why did we trace this line?
-          usedbyfile.name, usedbytrace.line, -- where was it used?
-          usedbyfile.name, usedbytrace.line, -- twice, one for the link
-          usedby, usedby_type, relation, -- what was it used for?
-          place, source -- why did this code run?
-        FROM relation 
-        INNER JOIN trace AS placetrace  ON placetrace.id  = relation.place
-        INNER JOIN trace AS usedbytrace ON usedbytrace.id = relation.usedby
-        INNER JOIN file AS placefile  ON placefile.id  = placetrace.file
-        INNER JOIN file AS usedbyfile ON usedbyfile.id = usedbytrace.file
-      WHERE placefile.name = ? AND placetrace.line = ?;""", (filename, line))
     out = []
-    out.append("<p>%s:%d is used as <ul>" % (filename, line))
-    for row in cur:
-      out.append(
-        '<li>%s in <a href="/%s#%s">%s:%s</a> by <a href="/why/%s">%s as %s</a> run in <a href="/why/%s">%s</a></li>'
-        % tuple(map(escape, row)))
-    out.append("</ul></p>")
+    def queryandoutput(startfrom, to, directiontext):
+      # we format in the side of the relation to query for here...
+      cur = conn.execute("""
+        SELECT place_type, -- why did we trace this line?
+            <to>file.name, <to>trace.line, -- where was it used?
+            usedby, usedby_type, relation, -- what was it used for?
+            place, source -- why did this code run?
+          FROM relation 
+          INNER JOIN trace AS placetrace  ON placetrace.id  = relation.place
+          INNER JOIN trace AS usedbytrace ON usedbytrace.id = relation.usedby
+          INNER JOIN file AS placefile  ON placefile.id  = placetrace.file
+          INNER JOIN file AS usedbyfile ON usedbyfile.id = usedbytrace.file
+        WHERE <from>file.name = ? AND <from>trace.line = ?
+        LIMIT 100; """
+        .replace("<from>", startfrom).replace("<to>", to), (filename, line))
+      out.append("<p>%s %s <ul>" % (formatplace(filename, line), directiontext))
+      for place_type, pname, pline, usedby, usedby_type, relation, place, source in cur:
+        out.append(
+          '<li><tt>%s</tt> at %s by <tt>%s</tt> as <a href="/why/%d">%s</a> <a href="/why/%d">in</a> %s</li>'
+          % (escape(place_type), formatplace(pname, pline), escape(usedby_type), usedby, escape(relation), place, formatsource(source)))
+      out.append("</ul></p>")
+
+    queryandoutput("place", "usedby", "is used as")
+    queryandoutput("usedby", "place", "uses")
+
     return "\n".join(out)
 
   def showwhy(id):
     id = int(id)
-    cur = conn.execute("SELECT name, line, name, line FROM fulltrace WHERE baseid = ? ORDER BY level;", (id,))
+    # this (WHERE before recursion) will optimize better than the view.
+    cur = conn.execute("""
+      WITH RECURSIVE fulltrace(level, baseid, parent, file, name, line) AS (
+        SELECT 1 AS level, trace.id, parent, trace.file, file.name, line FROM trace 
+          INNER JOIN file ON file.id = trace.file
+        WHERE trace.id = ?
+        UNION SELECT level+1, baseid, trace.parent, trace.file, file.name, trace.line FROM fulltrace 
+          INNER JOIN trace ON trace.id = fulltrace.parent
+          INNER JOIN file ON file.id = trace.file)
+      SELECT name, line FROM fulltrace ORDER BY level;""", (id,))
     out = []
     out.append("Full stack trace:<ul>")
-    for row in cur:
-      out.append('<li><a href="/%s#%s">%s:%s</a></li>' % tuple(map(escape, row)))
+    for name, line in cur:
+      out.append('<li>%s</li>' % formatplace(name, line))
     out.append("</ul>")
     return "\n".join(out)
 
 
-
-  ROUTES = [(re.compile('/info/(.*):(\d+)$'), showinfo),
-            (re.compile('/why/(\d+)$'), showwhy),
-            (re.compile('/(.+)$'), showfile),
-            (re.compile('/$'), index)]
+  ROUTES = [
+    (re.compile('/workflow/(.*)$'), showworkflow),
+    (re.compile('/info/(.*):(\d+)$'), showinfo),
+    (re.compile('/why/(\d+)$'), showwhy),
+    (re.compile('/(.+)$'), showfile),
+    (re.compile('/$'), index),
+  ]
 
   def do_GET(self):
     try:
@@ -463,7 +521,21 @@ def serve_main():
         self.send_response(200, "Here you go")
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.end_headers()
-        self.wfile.write("<html><body>")
+        self.wfile.write("""<html><style>
+          body {
+            font-family: sans;
+          }
+          em {
+            cursor: pointer;
+            padding: 0 2px;
+            margin: 1 2px;
+            background: #999;
+          }
+          em.ALCA {background: #ee9; }
+          em.RECO {background: #9e9; }
+          em.HARVEST {background: #99e; }
+          em.online {background: #e99; }
+        </style><body>""")
         self.wfile.write(res)
         self.wfile.write("</body></html>")
         self.wfile.close()
