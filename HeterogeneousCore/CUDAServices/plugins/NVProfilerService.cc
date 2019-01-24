@@ -291,11 +291,11 @@ private:
 
   std::vector<std::string>                  highlightModules_;
   const bool                                showModulePrefetching_;
-  bool                                      skipFirstEvent_;
+  const bool                                skipFirstEvent_;
 
   unsigned int                              concurrentStreams_;
-  bool                                      globalFirstEventDone_ = false;
-  std::vector<bool>                         streamFirstEventDone_;
+  std::atomic<bool>                         globalFirstEventDone_ = false;
+  std::vector<std::atomic<bool>>            streamFirstEventDone_;
   std::vector<nvtxRangeId_t>                event_;                 // per-stream event ranges
   std::vector<std::vector<nvtxRangeId_t>>   stream_modules_;        // per-stream, per-module ranges
   // use a tbb::concurrent_vector rather than an std::vector because its final size is not known
@@ -542,7 +542,10 @@ NVProfilerService::preallocate(edm::service::SystemBounds const& bounds) {
   stream_modules_.resize(concurrentStreams_);
   if (skipFirstEvent_) {
     globalFirstEventDone_ = false;
-    streamFirstEventDone_.resize(concurrentStreams_, false);
+    std::vector<std::atomic<bool>> tmp(concurrentStreams_);
+    for (auto & element: tmp)
+      std::atomic_init(&element, false);
+    streamFirstEventDone_ = std::move(tmp);
   }
 }
 
@@ -821,11 +824,11 @@ NVProfilerService::postEvent(edm::StreamContext const& sc) {
     event_[sid] = nvtxInvalidRangeId;
   } else {
     streamFirstEventDone_[sid] = true;
-    // there is a possible race condition among different threads processing different events;
-    // however, cudaProfilerStart() is supposed to be thread-safe and ignore multiple calls, so this should not be an issue.
-    if (std::all_of(streamFirstEventDone_.begin(), streamFirstEventDone_.end(), [](bool x){ return x; })) {
-      globalFirstEventDone_ = true;
-      cudaProfilerStart();
+    auto identity = [](bool x){ return x; };
+    if (std::all_of(streamFirstEventDone_.begin(), streamFirstEventDone_.end(), identity)) {
+      bool expected = false;
+      if (globalFirstEventDone_.compare_exchange_strong(expected, true))
+        cudaProfilerStart();
     }
   }
 }
