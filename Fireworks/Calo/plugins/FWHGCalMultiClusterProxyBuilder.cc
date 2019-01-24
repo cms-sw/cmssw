@@ -121,8 +121,8 @@ FWHGCalMultiClusterProxyBuilder::build(const reco::HGCalMultiCluster &iData, uns
             }
             boxset->AddBox(&pnts[0]);
             if(heatmap) {
-               const float colorFactor = (fmin(hitmap[it->first]->energy()/saturation_energy, 1.0f));   
-               boxset->DigitColor(colorMap[0][int(colorFactor*9)], colorMap[1][int(colorFactor*9)], colorMap[2][int(colorFactor*9)]);
+               const uint8_t colorFactor = gradient_steps*(fmin(hitmap[it->first]->energy()/saturation_energy, 1.0f));   
+               boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]);
             }
 
             h_box = true;
@@ -138,8 +138,8 @@ FWHGCalMultiClusterProxyBuilder::build(const reco::HGCalMultiCluster &iData, uns
             hex_boxset->AddHex(TEveVector(centerX, centerY, corners[2]),
                                radius, 90.0, shapes[3]);
             if(heatmap) {
-               const float colorFactor = (fmin(hitmap[it->first]->energy()/saturation_energy, 1.0f));         
-               hex_boxset->DigitColor(colorMap[0][int(colorFactor*9)], colorMap[1][int(colorFactor*9)], colorMap[2][int(colorFactor*9)]);
+               const uint8_t colorFactor = gradient_steps*(fmin(hitmap[it->first]->energy()/saturation_energy, 1.0f));   
+               hex_boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]);
             }
 
             h_hex = true;
