@@ -12,7 +12,9 @@ from collections import defaultdict
 
 import cmsswFiletrace
 
+### 1. Some configuration options.
 SQLITE=True
+SERVE_PORT = 1234
 
 if SQLITE:
   cmsswFiletrace.OUTFILE_TREE = "configtree.sqlite"
@@ -23,6 +25,8 @@ cmsswFiletrace.WRAP_SCRIPTS = []
 IGNORE_PACKAGES = ['FWCore/ParameterSet', 'FWCore/GuiBrowsers', 'DQMOffline/Configuration/scripts', "cmsRun"]
 
 from cmsswFiletrace import *
+
+### 2. The enable all the tracing hooks.
 
 # this already does a good job, but it is not enough
 #import FWCore.GuiBrowsers.EnablePSetHistory
@@ -108,6 +112,8 @@ trace_location(Schedule, 'copy')
 import FWCore.ParameterSet.Utilities
 def convertToUnscheduled(proc):
   print("+ Blocking convertToUnscheduled to not mess up the process.")
+  # we could continue tracing, but the later manipulations don't make much sense and take forever.
+  raise Exception("Aborting in convertToUnscheduled.")
   return proc
 FWCore.ParameterSet.Utilities.convertToUnscheduled = convertToUnscheduled
 
@@ -134,10 +140,7 @@ def new_items_(self):
   return tuple(items)
 Process.items_=new_items_
 
-
-def instrument_cmssw():
-  # everything happens in the imports so far
-  pass
+### 3. The logic to collect, process, and save the information from the process.
 
 def collect_trace(thing, name, graph, parent):
   # thing is what to look at, graph is the output list (of child, parent tuple pairs)
@@ -258,7 +261,6 @@ def writeoutput(graph):
     conn.commit()
     conn.close()
 
-
   else:
     def format(event):
       evt, classname, loc = event
@@ -273,6 +275,8 @@ def writeoutput(graph):
       for child, parent, relation in graph:
         print("%s -> %s [%s]" % (format(child), format(parent), relation), file=outfile)
 
+### 4. Launch and keep track of all the processes.
+
 def trace_python(prog_argv, path):
   graph = []
 
@@ -283,16 +287,7 @@ def trace_python(prog_argv, path):
   try:
     with open(file_path) as fp:
       code = compile(fp.read(), progname, 'exec')
-      # try to emulate __main__ namespace as much as possible
-      globals = {
-      '__file__': progname,
-      '__name__': '__main__',
-      '__package__': None,
-      '__cached__': None,
-      }
-
-      # now turn on the traceing
-      instrument_cmssw()
+      globals = {}
       try:
         exec code in globals, globals
       except:
@@ -303,7 +298,6 @@ def trace_python(prog_argv, path):
         print("+Collecting trace information from %s..." % globals["process"])
         collect_trace(globals["process"], 'cmsrun', graph, ('cmsRun', '', ((progname, 0),)))
         writeoutput(graph)
-
 
   except OSError as err:
     print("+Cannot run file %r because: %s" % (sys.argv[0], err))
@@ -324,13 +318,10 @@ def help():
   print("  %s runTheMatrix.py -l 1000 --ibeos" % sys.argv[0])
 cmsswFiletrace.help = help
 
+### 5. The web-based GUI.
 
 def serve_main():
-  PORT = 1234
-  if not SQLITE:
-    print("serve mode needs SQLITE data format.")
-    os.exit(1)
-
+  # we use STRIPPATHS as a search path to find code files.
   STRIPPATHS.append(os.path.abspath(os.getcwd()) + "/")
 
   import SimpleHTTPServer
@@ -352,9 +343,9 @@ def serve_main():
     return formatstr % (processing, escape(source))
 
   def formatplace(filename, line):
-     MAXLEN = 80
-     shortname = filename[ :(MAXLEN-3)/2] + "..." + filename[-(MAXLEN-3)/2: ] if len(filename) > MAXLEN else filename
-     return '<a href="/%s#%s" target="_blank">%s:%s</a>' % (escape(filename), line, escape(shortname), line)
+    MAXLEN = 80
+    shortname = filename[ :(MAXLEN-3)/2] + "..." + filename[-(MAXLEN-3)/2: ] if len(filename) > MAXLEN else filename
+    return '<a href="/%s#%s" target="_blank">%s:%s</a>' % (escape(filename), line, escape(shortname), line)
 
   def index():
     out = [escape('goto to /<filename> for info about a file')]
@@ -412,15 +403,15 @@ def serve_main():
       SELECT DISTINCT trace.line, source FROM relation 
         INNER JOIN trace on relation.place = trace.id 
         INNER JOIN file ON trace.file == file.id 
-        WHERE file.name == ? ORDER BY line;""", (filename,))
-      toplevelinfo = defaultdict(list)
+        WHERE file.name == ? ORDER BY line, source;""", (filename,))
+      sourceinfo = defaultdict(list)
       for line, source in cur:
-        toplevelinfo[line].append(source)
+        sourceinfo[line].append(source)
 
       out.append('<pre class="prettyprint linenums">')
       for i, l in enumerate(lines):
         # put the text into data-tag here and move it later, to not mess up syntax HL
-        tags = [formatsource(source, '<em class="%%s" data-tag="%%s" data-line="%d"></em>' % (i+1)) for source in toplevelinfo[i+1]]
+        tags = [formatsource(source, '<em class="%%s" data-tag="%%s" data-line="%d"></em>' % (i+1)) for source in sourceinfo[i+1]]
         out.append(escape(l).rstrip() + "".join(tags))
       out.append('</pre>')
 
@@ -466,7 +457,7 @@ def serve_main():
           INNER JOIN file AS placefile  ON placefile.id  = placetrace.file
           INNER JOIN file AS usedbyfile ON usedbyfile.id = usedbytrace.file
         WHERE <from>file.name = ? AND <from>trace.line = ?
-        LIMIT 100; """
+        LIMIT 1000; """
         .replace("<from>", startfrom).replace("<to>", to), (filename, line))
       out.append("<p>%s %s <ul>" % (formatplace(filename, line), directiontext))
       for place_type, pname, pline, usedby, usedby_type, relation, place, source in cur:
@@ -498,7 +489,6 @@ def serve_main():
       out.append('<li>%s</li>' % formatplace(name, line))
     out.append("</ul>")
     return "\n".join(out)
-
 
   ROUTES = [
     (re.compile('/workflow/(.*)$'), showworkflow),
@@ -551,8 +541,8 @@ def serve_main():
 
   Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
   Handler.do_GET = do_GET
-  httpd = SocketServer.TCPServer(("", PORT), Handler)
-  print("serving at port", PORT)
+  httpd = SocketServer.TCPServer(("",SERVE_PORT), Handler)
+  print("serving at port", SERVE_PORT)
   httpd.serve_forever()
 
 if __name__ == '__main__':
