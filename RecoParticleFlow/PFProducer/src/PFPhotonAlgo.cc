@@ -911,8 +911,6 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     pfCandidates->push_back(photonCand);
     // ... and reset the vector
     elemsToLock.resize(0);
-    hasConvTrack=false;
-    hasSingleleg=false;
   } // end of loops over all elements in block
   
   return;
