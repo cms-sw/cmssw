@@ -6,6 +6,7 @@
 #include "CkfDebugTrajectoryBuilder.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/TrackReco/interface/SeedStopInfo.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
 namespace cms {
   class CkfDebugTrackCandidateMaker : public edm::EDProducer, public CkfTrackCandidateMakerBase {
