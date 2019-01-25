@@ -10,7 +10,7 @@ DDSpecParRegistry::filter(DDSpecParRefMap& refToMap,
 
   bool found(false);
   for_each(begin(specpars), end(specpars), [&refToMap, &attribute,
-					    &value, &found, this](const auto& k) {
+					    &value, &found](const auto& k) {
     found = false;
     for_each(begin(k.second.spars), end(k.second.spars), [&](const auto& l) {
       if(l.first == attribute) {
