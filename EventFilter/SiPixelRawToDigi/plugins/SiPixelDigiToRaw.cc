@@ -65,7 +65,7 @@ public:
 
 private:
 
-  mutable std::atomic_flag lock_{ ATOMIC_FLAG_INIT };
+  mutable std::atomic_flag lock_ = ATOMIC_FLAG_INIT;
   CMS_THREAD_GUARD(lock_) mutable edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
   CMS_THREAD_GUARD(lock_) mutable std::shared_ptr<pr::Cache> previousCache_;
   const edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi; 
