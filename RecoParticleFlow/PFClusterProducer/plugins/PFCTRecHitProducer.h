@@ -122,7 +122,7 @@ class dso_hidden PFCTRecHitProducer final : public edm::stream::EDProducer<> {
   int m_maxDepthHB;
   int m_maxDepthHE;
 
-  PFRecHitNavigatorBase* navigator_;
+  std::unique_ptr<PFRecHitNavigatorBase> navigator_;
 
 
 };
