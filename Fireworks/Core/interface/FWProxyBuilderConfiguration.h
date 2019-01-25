@@ -57,12 +57,15 @@ public:
 
    void populateFrame(TGCompositeFrame* frame);
 
-private:
+   void keepEntries(bool b);
+
+ private:
    void makeSetter(TGCompositeFrame*, FWParameterBase*);
 
    const FWConfiguration*  m_txtConfig;
    const FWEventItem*      m_item;
 
+   bool m_keepEntries;
 #ifndef __CINT__
    std::vector<std::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
