@@ -36,7 +36,6 @@ class MagneticFieldMap;
 class PropagatorWithMaterial;
 class KFUpdator;
 class TransientTrackingRecHitBuilder;
-class TrajectoryStateTransform;
 
 class ConvBremSeedProducer : public edm::EDProducer {
   typedef SiStripRecHit2DCollection::const_iterator StDetMatch;
@@ -79,7 +78,6 @@ class ConvBremSeedProducer : public edm::EDProducer {
   const PropagatorWithMaterial*               propagator_;
   const KFUpdator*                            kfUpdator_;
   const TransientTrackingRecHitBuilder*       hitBuilder_;
-  const TrajectoryStateTransform*             transformer_;
   std::vector<const DetLayer*>                layerMap_;
   int                                         negLayerOffset_;
   ///B field
