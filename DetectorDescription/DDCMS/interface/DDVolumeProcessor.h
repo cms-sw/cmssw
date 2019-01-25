@@ -42,13 +42,13 @@ namespace cms {
       auto pos = str.find_first_of(delims, start);
       while(pos != std::string_view::npos) {
 	if(pos != start) {
-	  ret.push_back(str.substr(start, pos - start));
+	  ret.emplace_back(str.substr(start, pos - start));
 	}
 	start = pos + 1;
 	pos = str.find_first_of(delims, start);
       }
       if(start < str.length())
-	ret.push_back(str.substr(start, str.length() - start));
+	ret.emplace_back(str.substr(start, str.length() - start));
       return ret;
     }
 
