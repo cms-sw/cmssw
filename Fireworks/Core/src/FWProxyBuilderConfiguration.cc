@@ -32,7 +32,8 @@
 
 FWProxyBuilderConfiguration::FWProxyBuilderConfiguration(const FWConfiguration* c, const FWEventItem* item):
    m_txtConfig(c),
-   m_item(item)
+   m_item(item),
+   m_keepEntries(false)
 {
 }
 
@@ -93,6 +94,11 @@ FWProxyBuilderConfiguration::populateFrame(TGCompositeFrame* settersFrame)
    settersFrame->MapSubwindows();   
 }
 
+void 
+FWProxyBuilderConfiguration::keepEntries(bool b){
+   m_keepEntries = b;
+}
+
 //______________________________________________________________________________
 
 template <class T> FWGenericParameter<T>* FWProxyBuilderConfiguration::assertParam(const std::string& name, T def )
@@ -110,7 +116,7 @@ template <class T> FWGenericParameter<T>* FWProxyBuilderConfiguration::assertPar
       const FWConfiguration* varConfig = m_txtConfig->keyValues() ? m_txtConfig->valueForKey("Var") : nullptr;
       if (varConfig) mode->setFrom(*varConfig);
    }
-   mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
+   mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item, m_keepEntries));
    return mode;
 }
 
@@ -130,7 +136,7 @@ template <class T> FWGenericParameterWithRange<T>* FWProxyBuilderConfiguration::
    const FWConfiguration* varConfig = m_txtConfig &&  m_txtConfig->keyValues() ? m_txtConfig->valueForKey("Var") : nullptr;
    if (varConfig) mode->setFrom(*varConfig);
 
-   mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
+   mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item, m_keepEntries));
    return mode;
 }
 
