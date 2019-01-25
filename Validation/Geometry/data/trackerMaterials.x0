@@ -272,7 +272,33 @@ Pix_Fwd_AluFlexCable3            0.000 0.000 1.000 0.000 0.000
 
 FPix_CFSkin_InnerInnerRing       1.000 0.000 0.000 0.000 0.000
 
+FPix_CFSkin_InnerOuterRing       1.000 0.000 0.000 0.000 0.000
+
+FPix_CFSkin_OuterInnerRing       1.000 0.000 0.000 0.000 0.000
+
+FPix_CFSkin_OuterOuterRing       1.000 0.000 0.000 0.000 0.000
+
 C_C_InnerInnerRing               1.000 0.000 0.000 0.000 0.000
+
+C_C_InnerOuterRing               1.000 0.000 0.000 0.000 0.000
+
+C_C_OuterInnerRing               1.000 0.000 0.000 0.000 0.000
+
+C_C_OuterOuterRing               1.000 0.000 0.000 0.000 0.000
+
+Pix_Fwd_OuterBlade_AdhFilm       1.000 0.000 0.000 0.000 0.000
+
+CF_SupportArm                    1.000 0.000 0.000 0.000 0.000
+
+Pix_Fwd_Conn                     0.000 0.000 1.000 0.000 0.000
+
+Pix_Fwd_AluFlexCable             0.000 0.000 1.000 0.000 0.000
+
+DiskCoolingTube_inner            0.000 0.000 0.000 1.000 0.000
+
+DiskCoolingTube_outer            0.000 0.000 0.000 1.000 0.000
+
+Peek                             1.000 0.000 0.000 0.000 0.000
 
 
 #tib_module.in 0 0 0 0 0
