@@ -5,14 +5,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
-#include "tbb/concurrent_unordered_map.h"
 
 #include <iostream>
 
 using namespace std;
 using namespace cms;
 using namespace edm;
-using namespace tbb;
 
 class DDTestSpecParsFilter : public one::EDAnalyzer<> {
 public:
@@ -42,7 +40,7 @@ DDTestSpecParsFilter::analyze(const Event&, const EventSetup& iEventSetup)
   LogVerbatim("Geometry") << "DDTestSpecParsFilter::analyze: " << m_tag.module() << " for attribute " << m_attribute << " and value " << m_value;
   LogVerbatim("Geometry") << "DD SpecPar Registry size: " << registry->specpars.size();
 
-  concurrent_unordered_map<const string*, const DDSpecPar*> myReg;
+  DDSpecParRefMap myReg;
   registry->filter(myReg, m_attribute, m_value);
 
   LogVerbatim("Geometry").log([&myReg](auto& log) {
