@@ -205,6 +205,8 @@ finalizeClusters(std::vector<l1t::HGCalMulticluster>& multiclusters_in,
             multicluster.eMax(shape_.eMax(multicluster));
             // fill quality flag
             multicluster.setHwQual(id_->decision(multicluster));
+            // fill H/E
+            multicluster.saveHOverE();            
 
             multiclusters_out.push_back( 0, multicluster);
         }
