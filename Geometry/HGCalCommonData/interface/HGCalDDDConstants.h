@@ -61,6 +61,8 @@ public:
   HGCalParameters::hgtrap getModule(unsigned int k, bool hexType, bool reco) const;
   std::vector<HGCalParameters::hgtrap> getModules() const; 
   const HGCalParameters* getParameter() const {return hgpar_;}
+  int                 getPhiBins(int lay) const;
+  std::pair<int,int>  getREtaRange(int lay) const;
   HGCalParameters::hgtrform getTrForm(unsigned int k) const {return hgpar_->getTrForm(k);}
   unsigned int        getTrFormN() const {return hgpar_->trformIndex_.size();}
   std::vector<HGCalParameters::hgtrform> getTrForms() const ;
