@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DDCMSDetectorTest")
+process = cms.Process("NavigateGeometryTest")
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
@@ -9,13 +9,13 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger = cms.Service(
     "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'geometry'),
+    statistics = cms.untracked.vstring('cout', 'navGeometry'),
     categories = cms.untracked.vstring('Geometry'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
         ),
-    geometry = cms.untracked.PSet(
+    navGeometry = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
             ),
@@ -35,22 +35,20 @@ process.MessageLogger = cms.Service(
             )
         ),
     destinations = cms.untracked.vstring('cout',
-                                         'geometry')
+                                         'navGeometry')
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
                                             appendToDataLabel = cms.string('MUON')
                                             )
-
 process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
-                                                    appendToDataLabel = cms.string('MUON')
-                                                    )
+                                                    appendToDataLabel = cms.string('MUON'))
 
 process.test = cms.EDAnalyzer("DDTestNavigateGeometry",
                               DDDetector = cms.ESInputTag('MUON'),
-                              detElementPath = cms.string(''),
-                              placedVolumePath = cms.string('/world_volume_1/cms:OCMS_1/cms:CMSE_1/muonBase:MUON_1')
+                              detElementPath = cms.string('detElementPath'),
+                              placedVolumePath = cms.string('placedVolPath')
                               )
 
 process.p = cms.Path(process.test)
