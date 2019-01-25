@@ -802,7 +802,8 @@ def createCompoundPlots(detector, plot, geometry):
        keys of plots dictionary (imported from plot_utils.
 
     """
-
+    setTDRStyle()
+    
     theDirname = 'Images'
     if not checkFile_(theDirname):
         os.mkdir(theDirname)
@@ -846,13 +847,11 @@ def createCompoundPlots(detector, plot, geometry):
     can.SetRightMargin(0.05)
     can.SetLeftMargin(0.12)
     can.SetFillColor(kWhite)
-    gStyle.SetOptStat(0)
     gStyle.SetOptTitle(0)
-    setTDRStyle()
 
     # Draw
     setRanges(stack_X0.GetStack().Last())
-    stack_X0.SetTitle(';'+stack_X0.GetTitle().split(';', 1)[1])
+    #stack_X0.SetTitle(';'+(stack_X0.GetTitle().split(';', 1)[1] if ';' in stack_X0.GetTitle() else ""))
     stack_X0.Draw("HIST");
     theLegend.Draw();
 
