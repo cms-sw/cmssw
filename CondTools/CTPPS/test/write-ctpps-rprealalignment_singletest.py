@@ -2,32 +2,28 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('test')
 
-
-
 import sys
-if len(sys.argv) > 3:
-    startrun = sys.argv[2]
-    subdir = sys.argv[3]+"/"
+if len(sys.argv)>2:
+    startrun = int(sys.argv[2])
 else:
-    print("not able to run")
-    exit()
-
-
+    startrun = 1
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(int(startrun)),
-    lastValue  = cms.uint64(int(startrun)),
+    firstValue = cms.uint64(startrun),
+    lastValue = cms.uint64(startrun),
     interval = cms.uint64(1)
 )
+
 
 # load the alignment xml file
 process.load("CondFormats.CTPPSReadoutObjects.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
 #process.ctppsRPAlignmentCorrectionsDataESSourceXML.XMLFile = cms.string("CondFormats/CTPPSReadoutObjects/xml/sample_alignment_corrections.xml")
+#process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/sample_alignment_corrections.xml")
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = cms.vstring(
-    #"CondFormats/CTPPSReadoutObjects/xml/sample_alignment_corrections.xml"
     "CondTools/CTPPS/test/RPixGeometryCorrections.xml",
-    "CondTools/CTPPS/test/"+subdir+"real_alignment_iov"+startrun+".xml"
+    "CondTools/CTPPS/test/largeXMLmanipulations/real_alignment_iov"+str(startrun)+".xml"
     )
+
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.MeasuredFiles = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/sample_alignment_corrections.xml")
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/sample_alignment_corrections.xml")
 
@@ -35,7 +31,7 @@ process.ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = cms.vstring
 #Database output service
 process.load("CondCore.CondDB.CondDB_cfi")
 # output database (in this case local sqlite file)
-process.CondDB.connect = 'sqlite_file:CTPPSRPRealAlignment_table.db'
+process.CondDB.connect = 'sqlite_file:CTPPSRPAlignment_singletest.db'
 
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
@@ -44,7 +40,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     toPut = cms.VPSet(
     cms.PSet(
         record = cms.string('RPRealAlignmentRecord'),
-        tag = cms.string('CTPPSRPAlignment_real_table'),
+        tag = cms.string('CTPPSRPAlignment_real'),
     )
   )
 )
@@ -53,7 +49,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 # print the mapping and analysis mask
 process.writeCTPPSRPAlignments = cms.EDAnalyzer("CTPPSRPAlignmentInfoAnalyzer",
     cms.PSet(
-        iov = cms.uint64(int(startrun)),
+        iov = cms.uint64(startrun),
         record = cms.string("RPRealAlignmentRecord")
     )
 )
