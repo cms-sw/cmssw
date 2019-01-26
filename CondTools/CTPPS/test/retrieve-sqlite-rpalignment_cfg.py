@@ -1,10 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-if len(sys.argv) > 2:
-    runno = int(sys.argv[2])
+if len(sys.argv)>2:
+    sqlitename =sys.argv[2]
+else:
+    sqlitename = "CTPPSRPRealAlignment.db"
+
+if len(sys.argv) > 3:
+    runno = int(sys.argv[3])
 else:
     runno=1
+
+if len(sys.argv) >4 :
+    tagname = sys.argv[4]
+else:
+    tagname="CTPPSRPAlignment_real"
+
+if len(sys.argv) > 5:
+    rcdname=sys.argv[5]
+else:
+    rcdname="RPRealAlignmentRecord"
 
 process = cms.Process("ProcessOne")
 
@@ -18,15 +33,15 @@ process.source= cms.Source("EmptyIOVSource",
 #Database output service
 process.load("CondCore.CondDB.CondDB_cfi")
 # input database (in this case local sqlite file)
-process.CondDB.connect = 'sqlite_file:CTPPSRPRealAlignment_table.db'
+process.CondDB.connect = 'sqlite_file:'+sqlitename
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     process.CondDB,
     DumpStat=cms.untracked.bool(True),
     toGet = cms.VPSet(
       cms.PSet(
-        record = cms.string('RPRealAlignmentRecord'),
-        tag = cms.string("CTPPSRPAlignment_real_table")
+        record = cms.string(rcdname),
+        tag = cms.string(tagname)
       )
     )
 )
@@ -34,7 +49,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 process.readSqlite = cms.EDAnalyzer("CTPPSRPAlignmentInfoReader",
                                     cms.PSet(     
         iov = cms.uint64(runno), 
-        record=cms.string("RPRealAlignmentRecord")    
+        record=cms.string(rcdname)    
         )
                                     )
 
