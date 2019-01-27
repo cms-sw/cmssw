@@ -58,7 +58,8 @@ Implementation:
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
-#include "TGraph.h"
+#include "TFile.h"
+#include "TF1.h"
 
 
 class L1TowerCalibrator : public edm::EDProducer {
@@ -96,30 +97,70 @@ class L1TowerCalibrator : public edm::EDProducer {
         edm::Handle<HcalTrigPrimDigiCollection> hcalTowerHandle;
         edm::ESHandle<CaloTPGTranscoder> decoder_;
 
+        // nHits to nvtx functions
+        std::vector<edm::ParameterSet> nHits_to_nvtx_params;
+        std::map< std::string, TF1 > nHits_to_nvtx_funcs;
+
 };
 
 L1TowerCalibrator::L1TowerCalibrator(const edm::ParameterSet& iConfig) :
-    HcalTpEtMin(iConfig.getParameter<double>("HcalTpEtMin")), // Should default to 0 MeV
-    EcalTpEtMin(iConfig.getParameter<double>("EcalTpEtMin")), // Should default to 0 MeV
-    HGCalHadTpEtMin(iConfig.getParameter<double>("HGCalHadTpEtMin")), // Should default to 0 MeV
-    HGCalEmTpEtMin(iConfig.getParameter<double>("HGCalEmTpEtMin")), // Should default to 0 MeV
-    HFTpEtMin(iConfig.getParameter<double>("HFTpEtMin")), // Should default to 0 MeV
-    puThreshold(iConfig.getParameter<double>("puThreshold")), // Should default to 5.0 GeV
-    puThresholdEcal(iConfig.getParameter<double>("puThresholdEcal")), // Should default to 5.0 GeV
-    puThresholdHcal(iConfig.getParameter<double>("puThresholdHcal")), // Should default to 5.0 GeV
-    puThresholdL1eg(iConfig.getParameter<double>("puThresholdL1eg")), // Should default to 5.0 GeV
-    puThresholdHGCalEMMin(iConfig.getParameter<double>("puThresholdHGCalEMMin")), // Should default to 5.0 GeV
-    puThresholdHGCalEMMax(iConfig.getParameter<double>("puThresholdHGCalEMMax")), // Should default to 5.0 GeV
-    puThresholdHGCalHadMin(iConfig.getParameter<double>("puThresholdHGCalHadMin")), // Should default to 5.0 GeV
-    puThresholdHGCalHadMax(iConfig.getParameter<double>("puThresholdHGCalHadMax")), // Should default to 5.0 GeV
-    puThresholdHFMin(iConfig.getParameter<double>("puThresholdHFMin")), // Should default to 5.0 GeV
-    puThresholdHFMax(iConfig.getParameter<double>("puThresholdHFMax")), // Should default to 5.0 GeV
+    HcalTpEtMin(iConfig.getParameter<double>("HcalTpEtMin")),
+    EcalTpEtMin(iConfig.getParameter<double>("EcalTpEtMin")),
+    HGCalHadTpEtMin(iConfig.getParameter<double>("HGCalHadTpEtMin")),
+    HGCalEmTpEtMin(iConfig.getParameter<double>("HGCalEmTpEtMin")),
+    HFTpEtMin(iConfig.getParameter<double>("HFTpEtMin")),
+    puThreshold(iConfig.getParameter<double>("puThreshold")),
+    puThresholdEcal(iConfig.getParameter<double>("puThresholdEcal")),
+    puThresholdHcal(iConfig.getParameter<double>("puThresholdHcal")),
+    puThresholdL1eg(iConfig.getParameter<double>("puThresholdL1eg")),
+    puThresholdHGCalEMMin(iConfig.getParameter<double>("puThresholdHGCalEMMin")),
+    puThresholdHGCalEMMax(iConfig.getParameter<double>("puThresholdHGCalEMMax")),
+    puThresholdHGCalHadMin(iConfig.getParameter<double>("puThresholdHGCalHadMin")),
+    puThresholdHGCalHadMax(iConfig.getParameter<double>("puThresholdHGCalHadMax")),
+    puThresholdHFMin(iConfig.getParameter<double>("puThresholdHFMin")),
+    puThresholdHFMax(iConfig.getParameter<double>("puThresholdHFMax")),
     debug(iConfig.getParameter<bool>("debug")),
     l1TowerToken_(consumes< L1CaloTowerCollection >(iConfig.getParameter<edm::InputTag>("l1CaloTowers"))),
     hgcalTowersToken_(consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("L1HgcalTowersInputTag"))),
-    hcalToken_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigis")))
+    hcalToken_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigis"))),
+    nHits_to_nvtx_params(iConfig.getParameter< std::vector<edm::ParameterSet> >("nHits_to_nvtx_params"))
 {
+
+    // Initialize the nHits --> nvtx functions
+    for ( uint i = 0; i < nHits_to_nvtx_params.size(); i++ )
+    {
+        edm::ParameterSet * pset = &nHits_to_nvtx_params.at(i);
+        std::string sub_detector = pset->getParameter< std::string >("fit");
+        nHits_to_nvtx_funcs[ sub_detector.c_str() ] = TF1( sub_detector.c_str(), "[0] + [1] * x"); 
+        nHits_to_nvtx_funcs[ sub_detector.c_str() ].SetParameter( 0, pset->getParameter< std::vector<double> >("params").at(0) );
+        nHits_to_nvtx_funcs[ sub_detector.c_str() ].SetParameter( 1, pset->getParameter< std::vector<double> >("params").at(1) );
+
+        if(debug)
+        {
+            printf("nHits_to_nvtx_params[%i]\n \
+                fit: %s \n \
+                p1: %f \n \
+                p2 %f \n", i, sub_detector.c_str(),
+                nHits_to_nvtx_funcs[ sub_detector.c_str() ].GetParameter( 0 ),
+                nHits_to_nvtx_funcs[ sub_detector.c_str() ].GetParameter( 1 ) );
+        }
+    }
+
+
+
+    // Don't have calibrationsFileName ready...
+
+
+    //minBiasnvtx_init_i_ecal_hits_leq_threshold;
+    //minBiasnvtx_init_i_hcal_hits_leq_threshold;
+    //minBiasnvtx_init_i_hf_hits_leq_threshold;
+    //minBiasnvtx_init_i_hgcalEM_hits_leq_threshold;
+    //minBiasnvtx_init_i_hgcalHad_hits_leq_threshold;
+
+
+
     produces< L1CaloTowerCollection >("L1CaloTowerCalibratedCollection");
+    produces< double >("EstimatedNvtx");
 }
 
 void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -127,9 +168,11 @@ void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 
-
+    // Estimated number of vertices used for calibration estimattion
+    std::unique_ptr< double > EstimatedNvtx(new double);
     // Calibrated output collection
     std::unique_ptr< L1CaloTowerCollection > L1CaloTowerCalibratedCollection(new L1CaloTowerCollection);
+    
 
 
 
@@ -293,6 +336,43 @@ void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
     // For each subdetector, map to the estimated number of PU vertices
+    double ecal_nvtx = nHits_to_nvtx_funcs[ "ecal" ].Eval( i_ecal_hits_leq_threshold );
+    double hcal_nvtx = nHits_to_nvtx_funcs[ "hcal" ].Eval( i_hcal_hits_leq_threshold );
+    double hgcalEM_nvtx = nHits_to_nvtx_funcs[ "hgcalEM" ].Eval( i_hgcalEM_hits_leq_threshold );
+    double hgcalHad_nvtx = nHits_to_nvtx_funcs[ "hgcalHad" ].Eval( i_hgcalHad_hits_leq_threshold );
+    double hf_nvtx = nHits_to_nvtx_funcs[ "hf" ].Eval( i_hf_hits_leq_threshold );
+    // Make sure all values are >= 0
+    if (ecal_nvtx < 0) ecal_nvtx = 0;
+    if (hcal_nvtx < 0) hcal_nvtx = 0;
+    if (hgcalEM_nvtx < 0) hgcalEM_nvtx = 0;
+    if (hgcalHad_nvtx < 0) hgcalHad_nvtx = 0;
+    if (hf_nvtx < 0) hf_nvtx = 0;
+    // Best estimate is avg of all except HF.
+    // This is b/c HF currently has such poor prediction power, it only degrades the avg result
+    *EstimatedNvtx = ( ecal_nvtx + hcal_nvtx + hgcalEM_nvtx + hgcalHad_nvtx ) / 4.;
+
+
+
+
+    // Just for validation
+    //double run = iEvent.eventAuxiliary().run();
+    double lumi = iEvent.eventAuxiliary().luminosityBlock();
+    double event = iEvent.eventAuxiliary().event();
+
+    printf("L1TowerCalibrater: lumi %.0f evt %.0f nTowers for subdetecters \
+        \nECAL:      %i --> nvtx = %.1f \
+        \nHGCal EM:  %i --> nvtx = %.1f \
+        \nHCAL:      %i --> nvtx = %.1f \
+        \nHGCal Had: %i --> nvtx = %.1f \
+        \nHCAL HF:   %i --> nvtx = %.1f \
+        \nEstimated Nvtx = %.1f\n", lumi, event, 
+            i_ecal_hits_leq_threshold, ecal_nvtx,
+            i_hgcalEM_hits_leq_threshold, hgcalEM_nvtx, 
+            i_hcal_hits_leq_threshold, hcal_nvtx, 
+            i_hgcalHad_hits_leq_threshold, hgcalHad_nvtx,
+            i_hf_hits_leq_threshold, hf_nvtx,
+            *EstimatedNvtx );
+
 
 
 
@@ -318,6 +398,7 @@ void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     //    if (debug) printf(" - Output calibrated tower iEta %i iPhi %i eta %f phi %f ecal_et %f hcal_et_sum %f\n", (int)l1Hit.tower_iEta, (int)l1Hit.tower_iPhi, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et);
     //}
 
+    iEvent.put(std::move(EstimatedNvtx),"EstimatedNvtx");
     iEvent.put(std::move(L1CaloTowerCalibratedCollection),"L1CaloTowerCalibratedCollection");
 }
 
