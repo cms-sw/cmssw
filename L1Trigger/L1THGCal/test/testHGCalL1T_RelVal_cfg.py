@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms 
 from Configuration.StandardSequences.Eras import eras
-#  from Configuration.ProcessModifiers.convertHGCalDigisSim_cff import convertHGCalDigisSim
+from Configuration.ProcessModifiers.convertHGCalDigisSim_cff import convertHGCalDigisSim
 
 # For old samples use the digi converter
 #process = cms.Process('DIGI',eras.Phase2,convertHGCalDigisSim)

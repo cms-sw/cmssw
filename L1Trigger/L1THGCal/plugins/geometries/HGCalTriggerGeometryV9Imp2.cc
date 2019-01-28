@@ -6,6 +6,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetIdToROC.h"
 
 #include <vector>
 #include <iostream>
@@ -48,6 +49,12 @@ class HGCalTriggerGeometryV9Imp2 : public HGCalTriggerGeometryBase
         // HSc trigger cell grouping
         unsigned hSc_triggercell_size_ = 2;
 
+        edm::FileInPath l1tModulesMapping_;
+
+        // module related maps
+        std::unordered_map<unsigned, unsigned> wafer_to_module_;
+        std::unordered_multimap<unsigned, unsigned> module_to_wafers_;
+
         // Disconnected modules and layers
         std::unordered_set<unsigned> disconnected_layers_;
         std::vector<unsigned> trigger_layers_;
@@ -56,6 +63,7 @@ class HGCalTriggerGeometryV9Imp2 : public HGCalTriggerGeometryBase
         unsigned heOffset_;
         unsigned totalLayers_;
 
+        void fillMaps();
         unsigned packTriggerCell(unsigned, unsigned) const;
         unsigned packTriggerCellWithType(unsigned, unsigned, unsigned) const;
         bool validCellId(unsigned det, unsigned cell_id) const;
@@ -79,7 +87,8 @@ class HGCalTriggerGeometryV9Imp2 : public HGCalTriggerGeometryBase
 HGCalTriggerGeometryV9Imp2::
 HGCalTriggerGeometryV9Imp2(const edm::ParameterSet& conf):
     HGCalTriggerGeometryBase(conf),
-    hSc_triggercell_size_(conf.getParameter<unsigned>("ScintillatorTriggerCellSize"))
+    hSc_triggercell_size_(conf.getParameter<unsigned>("ScintillatorTriggerCellSize")),
+    l1tModulesMapping_(conf.getParameter<edm::FileInPath>("L1TModulesMapping"))
 {
     std::vector<unsigned> tmp_vector = conf.getParameter<std::vector<unsigned>>("DisconnectedLayers");
     std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_layers_, disconnected_layers_.end()));
@@ -89,6 +98,8 @@ void
 HGCalTriggerGeometryV9Imp2::
 reset()
 {
+    wafer_to_module_.clear();
+    module_to_wafers_.clear();
 }
 
 void
@@ -127,6 +138,7 @@ initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
             trigger_layers_[layer] = 0;
         }
     }
+    fillMaps();
 
 }
 
@@ -181,7 +193,46 @@ unsigned
 HGCalTriggerGeometryV9Imp2::
 getModuleFromTriggerCell( const unsigned trigger_cell_id ) const
 {
-    return 0;
+    unsigned det = DetId(trigger_cell_id).det();
+    unsigned module = 0;
+    unsigned subdet_old = 0;
+    int zside = 0;
+    unsigned tc_type = 1;
+    unsigned layer = 0;
+    // Scintillator
+    if(det == DetId::HGCalHSc)
+    {
+        HGCScintillatorDetId trigger_cell_sci_id(trigger_cell_id);
+        tc_type = trigger_cell_sci_id.type();
+        layer = trigger_cell_sci_id.layer();
+        subdet_old = ForwardSubdetector::HGCHEB;
+        zside = trigger_cell_sci_id.zside();
+    }
+    // Silicon
+    else
+    {
+        HGCalTriggerDetId trigger_cell_trig_id(trigger_cell_id);
+        unsigned subdet = trigger_cell_trig_id.subdet();
+        subdet_old = (subdet==HGCalTriggerSubdetector::HGCalEETrigger ? ForwardSubdetector::HGCEE : ForwardSubdetector::HGCHEF);
+        layer = trigger_cell_trig_id.layer();
+        zside = trigger_cell_trig_id.zside();
+        // std::cerr<<"subdetold = "<<subdet_old<<" layer = "<<layer<<" zside = "<<zside<<"\n";
+        if(subdet == HGCalTriggerSubdetector::HGCalEETrigger || subdet == HGCalTriggerSubdetector::HGCalHSiTrigger)
+        {
+            int waferu = trigger_cell_trig_id.waferU();
+            int waferv = trigger_cell_trig_id.waferV();
+            auto module_itr = wafer_to_module_.find(packWaferId(waferu,waferv));
+            if(module_itr==wafer_to_module_.end())
+            {
+                throw cms::Exception("BadGeometry")
+                    <<trigger_cell_trig_id
+                    << "HGCalTriggerGeometry: Wafer (" <<waferu<<","<<waferv << ") is not mapped to any trigger module. The module mapping should be modified. \n";
+            }
+            module = module_itr->second;
+            // std::cerr<<"wafer u/v = "<<waferu<<"/"<<waferv<<" module = "<<module<<"\n";
+        }
+    }
+    return HGCalDetId((ForwardSubdetector)subdet_old, zside, layer, tc_type, module, HGCalDetId::kHGCalCellMask).rawId();
 }
 
 HGCalTriggerGeometryBase::geom_set 
@@ -279,6 +330,31 @@ getTriggerCellsFromModule( const unsigned module_id ) const
     // Silicon
     else
     {
+        HGCSiliconDetIdToROC tc2roc;
+        auto wafer_itrs = module_to_wafers_.equal_range(module);
+        // loop on the wafers included in the module
+        for(auto wafer_itr=wafer_itrs.first; wafer_itr!=wafer_itrs.second; wafer_itr++)
+        {
+            int waferu = 0;
+            int waferv = 0;
+            unpackWaferId(wafer_itr->second, waferu, waferv);
+            DetId::Detector det = (module_det_id.subdetId()==ForwardSubdetector::HGCEE ? DetId::HGCalEE : DetId::HGCalHSi);
+            HGCalTriggerSubdetector subdet = (module_det_id.subdetId()==ForwardSubdetector::HGCEE ? HGCalTriggerSubdetector::HGCalEETrigger : HGCalTriggerSubdetector::HGCalHSiTrigger);
+            unsigned layer = module_det_id.layer();
+            unsigned wafer_type = detIdWaferType(det, layer, waferu, waferv);
+            int nroc = (wafer_type==HGCSiliconDetId::HGCalFine ? 6 : 3);
+            // Loop on ROCs in wafer
+            for(int roc=1; roc<=nroc; roc++)
+            {
+                // loop on TCs in ROC
+                auto tc_uvs = tc2roc.getTriggerId(roc, wafer_type);
+                for(const auto& tc_uv : tc_uvs)
+                {
+                    HGCalTriggerDetId trigger_cell_id(subdet, module_det_id.zside(), wafer_type, layer, waferu, waferv, tc_uv.first, tc_uv.second);
+                    if(validTriggerCellFromCells(trigger_cell_id)) trigger_cell_det_ids.emplace(trigger_cell_id.rawId());
+                }
+            }
+        }
     }
     return trigger_cell_det_ids;
 }
@@ -297,6 +373,31 @@ getOrderedTriggerCellsFromModule( const unsigned module_id ) const
     // EE or FH
     else
     {
+        HGCSiliconDetIdToROC tc2roc;
+        auto wafer_itrs = module_to_wafers_.equal_range(module);
+        // loop on the wafers included in the module
+        for(auto wafer_itr=wafer_itrs.first; wafer_itr!=wafer_itrs.second; wafer_itr++)
+        {
+            int waferu = 0;
+            int waferv = 0;
+            unpackWaferId(wafer_itr->second, waferu, waferv);
+            DetId::Detector det = (module_det_id.subdetId()==ForwardSubdetector::HGCEE ? DetId::HGCalEE : DetId::HGCalHSi);
+            HGCalTriggerSubdetector subdet = (module_det_id.subdetId()==ForwardSubdetector::HGCEE ? HGCalTriggerSubdetector::HGCalEETrigger : HGCalTriggerSubdetector::HGCalHSiTrigger);
+            unsigned layer = module_det_id.layer();
+            unsigned wafer_type = detIdWaferType(det, layer, waferu, waferv);
+            int nroc = (wafer_type==HGCSiliconDetId::HGCalFine ? 6 : 3);
+            // Loop on ROCs in wafer
+            for(int roc=1; roc<=nroc; roc++)
+            {
+                // loop on TCs in ROC
+                auto tc_uvs = tc2roc.getTriggerId(roc, wafer_type);
+                for(const auto& tc_uv : tc_uvs)
+                {
+                    HGCalTriggerDetId trigger_cell_id(subdet, module_det_id.zside(), wafer_type, layer, waferu, waferv, tc_uv.first, tc_uv.second);
+                    trigger_cell_det_ids.emplace(trigger_cell_id.rawId());
+                }
+            }
+        }
     }
     return trigger_cell_det_ids;
 }
@@ -373,6 +474,33 @@ getModulePosition(const unsigned module_det_id) const
 }
 
 
+void 
+HGCalTriggerGeometryV9Imp2::
+fillMaps()
+{
+    // read module mapping file
+    std::ifstream l1tModulesMappingStream(l1tModulesMapping_.fullPath());
+    if(!l1tModulesMappingStream.is_open()) 
+    {
+        throw cms::Exception("MissingDataFile")
+            << "Cannot open HGCalTriggerGeometry L1TModulesMapping file\n";
+    }
+    short waferu = 0;
+    short waferv = 0;
+    short module  = 0;
+    for(; l1tModulesMappingStream>>waferu>>waferv>>module; )
+    { 
+        unsigned wafer_key = packWaferId(waferu,waferv);
+        wafer_to_module_.emplace(wafer_key,module);
+        module_to_wafers_.emplace(module, wafer_key);
+    }
+    if(!l1tModulesMappingStream.eof())
+    {
+        throw cms::Exception("BadGeometryFile")
+            << "Error reading L1TModulesMapping '"<<waferu<<" "<<waferv<<" "<<module<<"' \n";
+    }
+    l1tModulesMappingStream.close();
+}
 
 unsigned 
 HGCalTriggerGeometryV9Imp2::

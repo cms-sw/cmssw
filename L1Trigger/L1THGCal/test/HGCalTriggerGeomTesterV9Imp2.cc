@@ -410,6 +410,10 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency()
             uint32_t module = triggerGeometry_->getModuleFromCell(id);
             if(module!=0)
             {
+                if(HGCalDetId(module).layer()!=detid.layer())
+                {
+                    std::cerr<<"Module and cell have different layers : "<<HGCalDetId(module).layer()<<" "<<detid.layer()<<"\n";
+                }
                 itr_insert = modules_to_cells.emplace(module, std::unordered_set<uint32_t>());
                 itr_insert.first->second.emplace(id);
             }
@@ -432,6 +436,10 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency()
             uint32_t module = triggerGeometry_->getModuleFromCell(id);
             if(module!=0)
             {
+                if(HGCalDetId(module).layer()!=detid.layer())
+                {
+                    std::cerr<<"Module and cell have different layers : "<<HGCalDetId(module).layer()<<" "<<detid.layer()<<"\n";
+                }
                 itr_insert = modules_to_cells.emplace(module, std::unordered_set<uint32_t>());
                 itr_insert.first->second.emplace(id);
             }
@@ -469,8 +477,17 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency()
             uint32_t module = triggerGeometry_->getModuleFromTriggerCell(id);
             if(module!=0)
             {
-                auto itr_insert = modules_to_triggercells.emplace(module, std::unordered_set<uint32_t>());
-                itr_insert.first->second.emplace(id);
+                if(id.det()!=DetId::HGCalHSc)
+                {
+                    if(HGCalDetId(module).layer()!=trig_id.layer())
+                    {
+                        std::cerr<<"Module and TC have different layers : "<<HGCalDetId(module).layer()<<" "<<trig_id.layer()<<"\n";
+                        std::cerr<<HGCalDetId(module)<<"\n";
+                        std::cerr<<trig_id<<"\n";
+                    }
+                    auto itr_insert = modules_to_triggercells.emplace(module, std::unordered_set<uint32_t>());
+                    itr_insert.first->second.emplace(id);
+                }
             }
             // Check consistency of cells included in trigger cell
             HGCalTriggerGeometryBase::geom_set cells_geom = triggerGeometry_->getCellsFromTriggerCell(id);
@@ -541,6 +558,7 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency()
         for( const auto& module_triggercells : modules_to_triggercells )
         {
             HGCalDetId id(module_triggercells.first);
+            if(id.subdetId()==ForwardSubdetector::HGCHEB) continue;
             // Check consistency of trigger cells included in module
             HGCalTriggerGeometryBase::geom_set triggercells_geom = triggerGeometry_->getTriggerCellsFromModule(id);
             const auto& triggercells = module_triggercells.second;
@@ -548,13 +566,13 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency()
             {
                 if(triggercells_geom.find(cell)==triggercells_geom.end())
                 {
-                    HGCalDetId cellid(cell);
+                    HGCalTriggerDetId cellid(cell);
                     edm::LogProblem("BadModule")<<"Error: \n Trigger cell "<<cell<<"("<<cellid<<")\n has not been found in \n module "<<id;
                     std::stringstream output;
                     output<<" Available trigger cells are:\n";
                     for(auto cell_geom : triggercells_geom)
                     {
-                        output<<"     "<<HGCalDetId(cell_geom)<<"\n";
+                        output<<"     "<<HGCalTriggerDetId(cell_geom)<<"\n";
                     }
                     edm::LogProblem("BadModule")<<output.str();
                     throw cms::Exception("BadGeometry")
@@ -566,6 +584,7 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency()
         for( const auto& module_cells : modules_to_cells )
         {
             HGCalDetId id(module_cells.first);
+            if(id.subdetId()==ForwardSubdetector::HGCHEB) continue;
             // Check consistency of cells included in module
             HGCalTriggerGeometryBase::geom_set cells_geom = triggerGeometry_->getCellsFromModule(id);
             const auto& cells = module_cells.second;
@@ -929,84 +948,104 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
         itr_insert.first->second.emplace(id);
     }
     // Loop over modules
-    // edm::LogPrint("TreeFilling")<<"Filling modules tree";
-    // for( const auto& module_triggercells : modules )
-    // {
-        // HGCalDetId id(module_triggercells.first);
-        // GlobalPoint position = triggerGeometry_->getModulePosition(id);
-        // moduleId_     = id.rawId();
-        // moduleSide_   = id.zside();
-        // moduleSubdet_ = id.subdetId();
-        // moduleLayer_  = id.layer();
-        // module_       = id.wafer();
-        // moduleX_      = position.x();
-        // moduleY_      = position.y();
-        // moduleZ_      = position.z();
-        // moduleTC_N_   = module_triggercells.second.size();
-        // //
-        // setTreeModuleSize(moduleTC_N_);
-        // size_t itc = 0;
-        // for(const auto& tc : module_triggercells.second)
-        // {
-            // HGCalDetId tcId(tc);
-            // GlobalPoint position = triggerGeometry_->getTriggerCellPosition(tcId);
-            // moduleTC_id_    .get()[itc] = tc;
-            // moduleTC_zside_ .get()[itc] = tcId.zside();
-            // moduleTC_subdet_.get()[itc] = tcId.subdetId();
-            // moduleTC_layer_ .get()[itc] = tcId.layer();
-            // moduleTC_wafer_ .get()[itc] = tcId.wafer();
-            // moduleTC_cell_  .get()[itc] = tcId.cell();
-            // moduleTC_x_     .get()[itc] = position.x();
-            // moduleTC_y_     .get()[itc] = position.y();
-            // moduleTC_z_     .get()[itc] = position.z();
-            // itc++;
-        // }
-        // auto cells_in_module = triggerGeometry_->getCellsFromModule(id);
-        // moduleCell_N_   = cells_in_module.size();
-        // //
-        // setTreeModuleCellSize(moduleCell_N_);
-        // size_t ic = 0;
-        // for(const auto& c : cells_in_module)
-        // {
-            // if(id.subdetId()==ForwardSubdetector::HGCHEB)
-            // {
-                // HGCScintillatorDetId cId(c);
-                // GlobalPoint cell_position = triggerGeometry_->hscGeometry()->getPosition(cId);
-                // triggerCellCell_id_    .get()[ic] = c;
-                // triggerCellCell_zside_ .get()[ic] = cId.zside();
-                // triggerCellCell_subdet_.get()[ic] = cId.subdetId();
-                // triggerCellCell_layer_ .get()[ic] = cId.layer();
-                // triggerCellCell_waferU_ .get()[ic] = 0;
-                // triggerCellCell_waferV_ .get()[ic] = 0;
-                // triggerCellCell_cellU_  .get()[ic] = 0;
-                // triggerCellCell_cellV_  .get()[ic] = 0;
-                // triggerCellCell_ieta_  .get()[ic] = cId.ietaAbs();
-                // triggerCellCell_iphi_  .get()[ic] = cId.iphi();
-                // triggerCellCell_x_     .get()[ic] = cell_position.x();
-                // triggerCellCell_y_     .get()[ic] = cell_position.y();
-                // triggerCellCell_z_     .get()[ic] = cell_position.z();
-            // }
-            // else
-            // {
-                // HGCSiliconDetId cId(c);
-                // const GlobalPoint position = (cId.det()==DetId::HGCalEE ? triggerGeometry_->eeGeometry()->getPosition(cId) :  triggerGeometry_->hsiGeometry()->getPosition(cId));
-                // moduleCell_id_    .get()[ic] = c;
-                // moduleCell_zside_ .get()[ic] = cId.zside();
-                // moduleCell_subdet_.get()[ic] = cId.subdetId();
-                // moduleCell_layer_ .get()[ic] = cId.layer();
-                // moduleCell_waferU_ .get()[ic] = cId.waferU();
-                // moduleCell_waferV_ .get()[ic] = cId.waferV();
-                // moduleCell_cellU_  .get()[ic] = cId.cellU();
-                // moduleCell_cellV_  .get()[ic] = cId.cellV();
-                // moduleCell_x_     .get()[ic] = position.x();
-                // moduleCell_y_     .get()[ic] = position.y();
-                // moduleCell_z_     .get()[ic] = position.z();
-                // ic++;
-            // }
-        // }
-        // //
-        // treeModules_->Fill();
-    // }
+    edm::LogPrint("TreeFilling")<<"Filling modules tree";
+    for( const auto& module_triggercells : modules )
+    {
+        HGCalDetId id(module_triggercells.first);
+        GlobalPoint position = triggerGeometry_->getModulePosition(id);
+        moduleId_     = id.rawId();
+        moduleSide_   = id.zside();
+        moduleSubdet_ = id.subdetId();
+        moduleLayer_  = id.layer();
+        module_       = id.wafer();
+        moduleX_      = position.x();
+        moduleY_      = position.y();
+        moduleZ_      = position.z();
+        moduleTC_N_   = module_triggercells.second.size();
+        //
+        setTreeModuleSize(moduleTC_N_);
+        size_t itc = 0;
+        for(const auto& tc : module_triggercells.second)
+        {
+            moduleTC_id_    .get()[itc] = tc;
+            if(id.subdetId()==ForwardSubdetector::HGCHEB)
+            {
+                HGCScintillatorDetId tcId(tc);
+                moduleTC_zside_ .get()[itc] = tcId.zside();
+                moduleTC_subdet_.get()[itc] = tcId.subdet();
+                moduleTC_layer_ .get()[itc] = tcId.layer();
+                moduleTC_waferU_ .get()[itc] = 0;
+                moduleTC_waferV_ .get()[itc] = 0;
+                moduleTC_cellU_  .get()[itc] = 0;
+                moduleTC_cellV_  .get()[itc] = 0;
+                moduleTC_ieta_  .get()[itc] = tcId.ietaAbs();
+                moduleTC_iphi_  .get()[itc] = tcId.iphi();
+            }
+            else
+            {
+                HGCalTriggerDetId tcId(tc);
+                moduleTC_zside_ .get()[itc] = tcId.zside();
+                moduleTC_subdet_.get()[itc] = tcId.subdet();
+                moduleTC_layer_ .get()[itc] = tcId.layer();
+                moduleTC_waferU_ .get()[itc] = tcId.waferU();
+                moduleTC_waferV_ .get()[itc] = tcId.waferV();
+                moduleTC_cellU_  .get()[itc] = tcId.triggerCellU();
+                moduleTC_cellV_  .get()[itc] = tcId.triggerCellV();
+                moduleTC_ieta_  .get()[itc] = 0;
+                moduleTC_iphi_  .get()[itc] = 0;
+            }
+            GlobalPoint position = triggerGeometry_->getTriggerCellPosition(tc);
+            moduleTC_x_     .get()[itc] = position.x();
+            moduleTC_y_     .get()[itc] = position.y();
+            moduleTC_z_     .get()[itc] = position.z();
+            itc++;
+        }
+        auto cells_in_module = triggerGeometry_->getCellsFromModule(id);
+        moduleCell_N_   = cells_in_module.size();
+        //
+        setTreeModuleCellSize(moduleCell_N_);
+        size_t ic = 0;
+        for(const auto& c : cells_in_module)
+        {
+            if(id.subdetId()==ForwardSubdetector::HGCHEB)
+            {
+                HGCScintillatorDetId cId(c);
+                GlobalPoint cell_position = triggerGeometry_->hscGeometry()->getPosition(cId);
+                triggerCellCell_id_    .get()[ic] = c;
+                triggerCellCell_zside_ .get()[ic] = cId.zside();
+                triggerCellCell_subdet_.get()[ic] = cId.subdetId();
+                triggerCellCell_layer_ .get()[ic] = cId.layer();
+                triggerCellCell_waferU_ .get()[ic] = 0;
+                triggerCellCell_waferV_ .get()[ic] = 0;
+                triggerCellCell_cellU_  .get()[ic] = 0;
+                triggerCellCell_cellV_  .get()[ic] = 0;
+                triggerCellCell_ieta_  .get()[ic] = cId.ietaAbs();
+                triggerCellCell_iphi_  .get()[ic] = cId.iphi();
+                triggerCellCell_x_     .get()[ic] = cell_position.x();
+                triggerCellCell_y_     .get()[ic] = cell_position.y();
+                triggerCellCell_z_     .get()[ic] = cell_position.z();
+            }
+            else
+            {
+                HGCSiliconDetId cId(c);
+                const GlobalPoint position = (cId.det()==DetId::HGCalEE ? triggerGeometry_->eeGeometry()->getPosition(cId) :  triggerGeometry_->hsiGeometry()->getPosition(cId));
+                moduleCell_id_    .get()[ic] = c;
+                moduleCell_zside_ .get()[ic] = cId.zside();
+                moduleCell_subdet_.get()[ic] = cId.subdetId();
+                moduleCell_layer_ .get()[ic] = cId.layer();
+                moduleCell_waferU_ .get()[ic] = cId.waferU();
+                moduleCell_waferV_ .get()[ic] = cId.waferV();
+                moduleCell_cellU_  .get()[ic] = cId.cellU();
+                moduleCell_cellV_  .get()[ic] = cId.cellV();
+                moduleCell_x_     .get()[ic] = position.x();
+                moduleCell_y_     .get()[ic] = position.y();
+                moduleCell_z_     .get()[ic] = position.z();
+                ic++;
+            }
+        }
+        //
+        treeModules_->Fill();
+    }
 
 }
 
