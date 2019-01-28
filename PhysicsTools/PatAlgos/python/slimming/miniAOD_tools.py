@@ -268,7 +268,8 @@ def miniAOD_customizeCommon(process):
     process.slimmedPhotons.modifierConfig.modifications   = egamma_modifications
 
     #VID Electron IDs
-    electron_ids = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
+    electron_id_config = cms.PSet(electron_ids = cms.vstring([
+                    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_50ns_V2_cff',
                     'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff',
@@ -282,7 +283,15 @@ def miniAOD_customizeCommon(process):
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',
-                    ]
+                    ]))
+
+    from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+    run2_miniAOD_devel.toModify(electron_id_config, electron_ids = electron_id_config.electron_ids + [\
+                    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V2_cff', 
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff',
+                    ])
+
     switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD, task)
     process.egmGsfElectronIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
@@ -290,7 +299,7 @@ def miniAOD_customizeCommon(process):
         cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     process.electronRegressionValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
-    for idmod in electron_ids:
+    for idmod in electron_id_config.electron_ids.value():
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False,task)
         
     #heepIDVarValueMaps only exists if HEEP V6.1 or HEEP 7.0 ID has already been loaded
@@ -306,15 +315,23 @@ def miniAOD_customizeCommon(process):
                 break
 
     #VID Photon IDs
-    photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_25ns_V1_cff',
+    photon_id_config = cms.PSet(photon_ids = cms.vstring([
+                  'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_25ns_V1_cff',
                   'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_50ns_V1_cff',
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V2p1_cff',
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V2p1_cff',
                   'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V1_TrueVtx_cff',
-                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1_cff',
+                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1_cff', 
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1p1_cff', 
                   'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
-                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff']
+                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff',
+                  ]))
+
+    from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+    run2_miniAOD_devel.toModify(photon_id_config, photon_ids = photon_id_config.photon_ids + \
+            ["RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff",
+             "RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V2_cff"])
+
     switchOnVIDPhotonIdProducer(process,DataFormat.AOD, task) 
     process.egmPhotonIsolation.srcToIsolate = \
         cms.InputTag("reducedEgamma","reducedGedPhotons")  
@@ -331,7 +348,7 @@ def miniAOD_customizeCommon(process):
         cms.InputTag("reducedEgamma","reducedPhotonPfCandMap")
     process.photonMVAValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedPhotons')
-    for idmod in photon_ids:
+    for idmod in photon_id_config.photon_ids.value():
         setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False,task)
 
     #add the cut base IDs bitmaps of which cuts passed

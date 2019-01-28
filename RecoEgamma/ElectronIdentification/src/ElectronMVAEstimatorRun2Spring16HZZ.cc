@@ -96,7 +96,7 @@ mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) con
 
 float ElectronMVAEstimatorRun2Spring16HZZ::
 mvaValue( const int iCategory, const std::vector<float> & vars) const  {
-  const float result = gbrForest_s.at(iCategory)->GetClassifier(vars.data());
+  const float result = gbrForest_s.at(iCategory)->GetResponse(vars.data()); // The BDT score
 
   const bool debug = false;
   if(debug) {
