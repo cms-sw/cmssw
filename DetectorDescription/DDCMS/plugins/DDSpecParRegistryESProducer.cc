@@ -5,10 +5,10 @@
 // 
 /**\class DDSpecParRegistryESProducer
 
- Description: [one line class summary]
+ Description: Produce SpecPar registry
 
  Implementation:
-     [Notes on implementation]
+     SpecPars are described in XML
 */
 //
 // Original Author:  Ianna Osborne
