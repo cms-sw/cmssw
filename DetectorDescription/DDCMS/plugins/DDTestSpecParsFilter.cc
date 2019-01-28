@@ -40,34 +40,22 @@ DDTestSpecParsFilter::analyze(const Event&, const EventSetup& iEventSetup)
   LogVerbatim("Geometry") << "DDTestSpecParsFilter::analyze: " << m_tag.module() << " for attribute " << m_attribute << " and value " << m_value;
   LogVerbatim("Geometry") << "DD SpecPar Registry size: " << registry->specpars.size();
 
-  DDSpecParRegistry myReg;
-  bool found(false);
-  for(const auto& i: registry->specpars) {
-    found = false;
-    for(const auto& l : i.second.spars) {
-      if(l.first == m_attribute) {
-	for(const auto& il : l.second) {
-	  if(il == m_value) {
-	    found = true;
-	  }
-	}
-      }
-    }
-    if(found) {
-      myReg.specpars.emplace(i);
-    }
-  }
+  DDSpecParRefMap myReg;
+  registry->filter(myReg, m_attribute, m_value);
+
   LogVerbatim("Geometry").log([&myReg](auto& log) {
-      log << "Filtered DD SpecPar Registry size: " << myReg.specpars.size();
-      for(const auto& t: myReg.specpars) {
-	log << " " << t.first << " => ";
-	for(const auto& ki : t.second.paths)
+      log << "Filtered DD SpecPar Registry size: " << myReg.size();
+      for(const auto& t: myReg) {
+	log << "\n " << *t.first << " = { ";
+	for(const auto& ki : t.second->paths)
 	  log << ki << ", ";
-	for(const auto& kl : t.second.spars) {
-	  log << kl.first << " => ";
+	log << " };\n ";
+	for(const auto& kl : t.second->spars) {
+	  log << kl.first << " = { ";
 	  for(const auto& kil : kl.second) {
 	    log << kil << ", ";
 	  }
+	log << " };\n ";
 	}
       }
     });
