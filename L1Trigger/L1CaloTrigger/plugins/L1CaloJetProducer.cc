@@ -96,13 +96,13 @@ class L1CaloJetProducer : public edm::EDProducer {
         edm::Handle<l1slhc::L1EGCrystalClusterCollection> crystalClustersHandle;
         l1slhc::L1EGCrystalClusterCollection crystalClusters;
 
-        edm::EDGetTokenT<l1t::HGCalTowerBxCollection> hgcalTowersToken_;
-        edm::Handle<l1t::HGCalTowerBxCollection> hgcalTowersHandle;
-        l1t::HGCalTowerBxCollection hgcalTowers;
+        //edm::EDGetTokenT<l1t::HGCalTowerBxCollection> hgcalTowersToken_;
+        //edm::Handle<l1t::HGCalTowerBxCollection> hgcalTowersHandle;
+        //l1t::HGCalTowerBxCollection hgcalTowers;
 
-        edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalToken_;
-        edm::Handle<HcalTrigPrimDigiCollection> hcalTowerHandle;
-        edm::ESHandle<CaloTPGTranscoder> decoder_;
+        //edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalToken_;
+        //edm::Handle<HcalTrigPrimDigiCollection> hcalTowerHandle;
+        //edm::ESHandle<CaloTPGTranscoder> decoder_;
 
         // Fit function to scale L1EG Pt to align with electron gen pT
         //TF1 ptAdjustFunc = TF1("ptAdjustFunc", "([0] + [1]*TMath::Exp(-[2]*x)) * ([3] + [4]*TMath::Exp(-[5]*x))");
@@ -282,9 +282,9 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     jetCalibrations(iConfig.getParameter<std::vector<double>>("jetCalibrations")),
     debug(iConfig.getParameter<bool>("debug")),
     l1TowerToken_(consumes< L1CaloTowerCollection >(iConfig.getParameter<edm::InputTag>("l1CaloTowers"))),
-    crystalClustersToken_(consumes<l1slhc::L1EGCrystalClusterCollection>(iConfig.getParameter<edm::InputTag>("L1CrystalClustersInputTag"))),
-    hgcalTowersToken_(consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("L1HgcalTowersInputTag"))),
-    hcalToken_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigis")))
+    crystalClustersToken_(consumes<l1slhc::L1EGCrystalClusterCollection>(iConfig.getParameter<edm::InputTag>("L1CrystalClustersInputTag")))
+    //hgcalTowersToken_(consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("L1HgcalTowersInputTag"))),
+    //hcalToken_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigis")))
 
 {
     printf("L1CaloJetProducer setup\n");
@@ -366,12 +366,12 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     iEvent.getByToken(crystalClustersToken_,crystalClustersHandle);
     crystalClusters = (*crystalClustersHandle.product());
 
-    // HGCal info
-    iEvent.getByToken(hgcalTowersToken_,hgcalTowersHandle);
-    hgcalTowers = (*hgcalTowersHandle.product());
+    //// HGCal info
+    //iEvent.getByToken(hgcalTowersToken_,hgcalTowersHandle);
+    //hgcalTowers = (*hgcalTowersHandle.product());
 
-    // HF Tower info
-    iEvent.getByToken(hcalToken_,hcalTowerHandle);
+    //// HF Tower info
+    //iEvent.getByToken(hcalToken_,hcalTowerHandle);
     
     // Load the ECAL+HCAL tower sums coming from L1EGammaCrystalsEmulatorProducer.cc
     std::vector< SimpleCaloHit > l1CaloTowers;
@@ -381,7 +381,6 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     {
 
         SimpleCaloHit l1Hit;
-        l1Hit.isBarrel = true;  // this is already default
         l1Hit.ecal_tower_et  = hit.ecal_tower_et;
         l1Hit.hcal_tower_et  = hit.hcal_tower_et;
         // Add min ET thresholds for tower ET
@@ -390,6 +389,9 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         l1Hit.total_tower_et  = l1Hit.ecal_tower_et + l1Hit.hcal_tower_et;
         l1Hit.tower_iEta  = hit.tower_iEta;
         l1Hit.tower_iPhi  = hit.tower_iPhi;
+
+        if ( abs(l1Hit.tower_iEta ) <= 18 ) l1Hit.isBarrel = true;
+        else l1Hit.isBarrel = false;
 
         // FIXME There is an error in the L1EGammaCrystalsEmulatorProducer.cc which is
         // returning towers with minimal ECAL energy, and no HCAL energy with these
@@ -403,50 +405,50 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         if (debug) printf("Tower iEta %i iPhi %i eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", (int)l1Hit.tower_iEta, (int)l1Hit.tower_iPhi, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
     }
 
-    // Loop over HGCalTowers and create SimpleCaloHits for them and add to collection
-    // This iterator is taken from the PF P2 group
-    // https://github.com/p2l1pfp/cmssw/blob/170808db68038d53794bc65fdc962f8fc337a24d/L1Trigger/Phase2L1ParticleFlow/plugins/L1TPFCaloProducer.cc#L278-L289
-    for (auto it = hgcalTowers.begin(0), ed = hgcalTowers.end(0); it != ed; ++it)
-    {
-        // skip lowest ET towers
-        if (it->etEm() < HGCalEmTpEtMin && it->etHad() < HGCalHadTpEtMin) continue;
+    //// Loop over HGCalTowers and create SimpleCaloHits for them and add to collection
+    //// This iterator is taken from the PF P2 group
+    //// https://github.com/p2l1pfp/cmssw/blob/170808db68038d53794bc65fdc962f8fc337a24d/L1Trigger/Phase2L1ParticleFlow/plugins/L1TPFCaloProducer.cc#L278-L289
+    //for (auto it = hgcalTowers.begin(0), ed = hgcalTowers.end(0); it != ed; ++it)
+    //{
+    //    // skip lowest ET towers
+    //    if (it->etEm() < HGCalEmTpEtMin && it->etHad() < HGCalHadTpEtMin) continue;
 
-        SimpleCaloHit l1Hit;
-        l1Hit.isBarrel = false;
-        l1Hit.ecal_tower_et  = it->etEm();
-        l1Hit.hcal_tower_et  = it->etHad();
-        l1Hit.total_tower_et  = l1Hit.ecal_tower_et + l1Hit.hcal_tower_et;
-        l1Hit.tower_eta  = it->eta();
-        l1Hit.tower_phi  = it->phi();
-        l1CaloTowers.push_back( l1Hit );
-        if (debug) printf("Tower isBarrel %d eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", l1Hit.isBarrel, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
-    }
+    //    SimpleCaloHit l1Hit;
+    //    l1Hit.isBarrel = false;
+    //    l1Hit.ecal_tower_et  = it->etEm();
+    //    l1Hit.hcal_tower_et  = it->etHad();
+    //    l1Hit.total_tower_et  = l1Hit.ecal_tower_et + l1Hit.hcal_tower_et;
+    //    l1Hit.tower_eta  = it->eta();
+    //    l1Hit.tower_phi  = it->phi();
+    //    l1CaloTowers.push_back( l1Hit );
+    //    if (debug) printf("Tower isBarrel %d eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", l1Hit.isBarrel, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
+    //}
 
 
-    // Loop over Hcal HF tower inputs and create SimpleCaloHits and add to
-    // l1CaloTowers collection
-    iSetup.get<CaloTPGRecord>().get(decoder_);
-    for (const auto & hit : *hcalTowerHandle.product()) {
-        HcalTrigTowerDetId id = hit.id();
-        double et = decoder_->hcaletValue(hit.id(), hit.t0());
-        if (et < HFTpEtMin) continue;
-        // Only doing HF so skip outside range
-        if ( abs(id.ieta()) < l1t::CaloTools::kHFBegin ) continue;
-        if ( abs(id.ieta()) > l1t::CaloTools::kHFEnd ) continue;
+    //// Loop over Hcal HF tower inputs and create SimpleCaloHits and add to
+    //// l1CaloTowers collection
+    //iSetup.get<CaloTPGRecord>().get(decoder_);
+    //for (const auto & hit : *hcalTowerHandle.product()) {
+    //    HcalTrigTowerDetId id = hit.id();
+    //    double et = decoder_->hcaletValue(hit.id(), hit.t0());
+    //    if (et < HFTpEtMin) continue;
+    //    // Only doing HF so skip outside range
+    //    if ( abs(id.ieta()) < l1t::CaloTools::kHFBegin ) continue;
+    //    if ( abs(id.ieta()) > l1t::CaloTools::kHFEnd ) continue;
 
-        SimpleCaloHit l1Hit;
-        l1Hit.isBarrel = false;
-        l1Hit.ecal_tower_et  = 0.;
-        l1Hit.hcal_tower_et  = et;
-        l1Hit.total_tower_et  = l1Hit.ecal_tower_et + l1Hit.hcal_tower_et;
-        l1Hit.tower_eta  = l1t::CaloTools::towerEta(id.ieta());
-        l1Hit.tower_phi  = l1t::CaloTools::towerPhi(id.ieta(), id.iphi());
-        l1Hit.tower_iEta  = id.ieta();
-        l1Hit.tower_iPhi  = id.iphi();
-        l1CaloTowers.push_back( l1Hit );
+    //    SimpleCaloHit l1Hit;
+    //    l1Hit.isBarrel = false;
+    //    l1Hit.ecal_tower_et  = 0.;
+    //    l1Hit.hcal_tower_et  = et;
+    //    l1Hit.total_tower_et  = l1Hit.ecal_tower_et + l1Hit.hcal_tower_et;
+    //    l1Hit.tower_eta  = l1t::CaloTools::towerEta(id.ieta());
+    //    l1Hit.tower_phi  = l1t::CaloTools::towerPhi(id.ieta(), id.iphi());
+    //    l1Hit.tower_iEta  = id.ieta();
+    //    l1Hit.tower_iPhi  = id.iphi();
+    //    l1CaloTowers.push_back( l1Hit );
 
-        if (debug) printf("Hcal HF Tower isBarrel %d eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", l1Hit.isBarrel, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
-    }
+    //    if (debug) printf("Hcal HF Tower isBarrel %d eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", l1Hit.isBarrel, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
+    //}
 
 
     // Make simple L1objects from the L1EG input collection with marker for 'stale'
