@@ -42,8 +42,8 @@ PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf) :
 
   const edm::ParameterSet& regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,
-	regfactoryPSet, consumesCollector());
+  theRegionProducer = std::unique_ptr<TrackingRegionProducer>{TrackingRegionProducerFactory::get()->create(regfactoryName,
+                                                                                                           regfactoryPSet, consumesCollector())};
   
   fitterToken = consumes<PixelFitter>(conf.getParameter<edm::InputTag>("Fitter"));
   filterToken = consumes<PixelTrackFilter>(conf.getParameter<edm::InputTag>("Filter"));
@@ -56,11 +56,7 @@ PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf) :
 
   
 // Virtual destructor needed.
-PixelTracksProducer::~PixelTracksProducer() {
-
-  delete theRegionProducer;
-
-} 
+PixelTracksProducer::~PixelTracksProducer() = default;
  
 
 // Functions that gets called by framework every event
