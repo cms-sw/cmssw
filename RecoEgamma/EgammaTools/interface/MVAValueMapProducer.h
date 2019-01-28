@@ -56,6 +56,7 @@ class MVAValueMapProducer : public edm::stream::EDProducer< edm::GlobalCache<ega
   
   // Value map names
   std::vector <std::string> mvaValueMapNames_;
+  std::vector <std::string> mvaRawValueMapNames_;
   std::vector <std::string> mvaCategoriesMapNames_;
 
 };
@@ -84,12 +85,15 @@ MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& 
     const std::string full_name = ( currentEstimator->getName() + 
                                     currentEstimator->getTag()    );
     std::string thisValueMapName = full_name + "Values";
+    std::string thisRawValueMapName = full_name + "RawValues";
     std::string thisCategoriesMapName = full_name + "Categories";    
     mvaValueMapNames_.push_back( thisValueMapName );
+    mvaRawValueMapNames_.push_back( thisRawValueMapName );
     mvaCategoriesMapNames_.push_back( thisCategoriesMapName );
 
     // Declare the maps to the framework
     produces<edm::ValueMap<float> >(thisValueMapName);  
+    produces<edm::ValueMap<float> >(thisRawValueMapName);
     produces<edm::ValueMap<int> >(thisCategoriesMapName);
   }
 
@@ -130,16 +134,20 @@ void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::E
     const auto& thisEstimator = mva_itr->second;
 
     std::vector<float> mvaValues;
+    std::vector<float> mvaRawValues;
     std::vector<int> mvaCategories;
     
     // Loop over particles
     for (size_t i = 0; i < src->size(); ++i){
       auto iCand = src->ptrAt(i);      
-      mvaValues.push_back( thisEstimator->mvaValue( iCand, iEvent ) );
+      const float response = thisEstimator->mvaValue( iCand, iEvent );
+      mvaRawValues.push_back( response ); // The MVA score
+      mvaValues.push_back( 2.0/(1.0+exp(-2.0*response))-1 ); // MVA output between -1 and 1
       mvaCategories.push_back( thisEstimator->findCategory( iCand ) );
     } // end loop over particles
 
     writeValueMap(iEvent, src, mvaValues, mvaValueMapNames_[iEstimator] );  
+    writeValueMap(iEvent, src, mvaRawValues, mvaRawValueMapNames_[iEstimator] );
     writeValueMap(iEvent, src, mvaCategories, mvaCategoriesMapNames_[iEstimator] );
   } // end loop over estimators
   
