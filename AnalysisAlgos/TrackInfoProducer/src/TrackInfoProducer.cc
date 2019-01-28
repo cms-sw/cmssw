@@ -56,7 +56,7 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
    trackid.insert(make_pair(track,i));
    i++;
    theAlgo_.run(traj,track,output,tracker);
-   outputColl->push_back(*(new reco::TrackInfo(output)));
+   outputColl->push_back(output);
 
  }
 
