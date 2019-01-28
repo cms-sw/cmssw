@@ -518,8 +518,8 @@ void PixelCPEClusterRepair::checkRecommend2D( DetParam const & theDetParam, Clus
     // templ.clsleny() is the expected length of the cluster along y axis.
     // templ.qavg() is the expected total charge of the cluster
     // theClusterParam.theCluster->charge() is the total charge of this cluster
-    Double_t nydiff = templ.clsleny() - nypix;
-    Double_t qratio = theClusterParam.theCluster->charge()/templ.qavg();
+    float nydiff = templ.clsleny() - nypix;
+    float qratio = theClusterParam.theCluster->charge()/templ.qavg();
 
     if ( nydiff > maxSizeMismatchInY_  && qratio < minChargeRatio_){
         // If the cluster is shorter than expected and has less charge, likely
