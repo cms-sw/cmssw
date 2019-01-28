@@ -562,9 +562,4 @@ void BeamMonitorBx::endRun(const Run& r, const EventSetup& context){
 
 }
 
-//--------------------------------------------------------
-void BeamMonitorBx::endJob(const LuminosityBlock& lumiSeg,
-			   const EventSetup& iSetup){
-}
-
 DEFINE_FWK_MODULE(BeamMonitorBx);
