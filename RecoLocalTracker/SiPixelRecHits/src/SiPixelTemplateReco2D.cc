@@ -489,7 +489,7 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta
       float xstep = 1.0f, ystep = 1.0f;
       float minv11 = 1000.f, minv12 = 1000.f, minv22 = 1000.f;
       chi2 = chi2min[ipass];
-      while(chi2 <= chi2min[ipass] && niter < 15 && (niter < 2 || (fabs(xstep) > 0.2 || fabs(ystep) > 0.2))) {
+      while(chi2 <= chi2min[ipass] && niter < 15 && (niter < 2 || (std::abs(xstep) > 0.2 || std::abs(ystep) > 0.2))) {
          
          // Remember the present parameters
          x2D0[ipass] = x2D;
@@ -533,7 +533,7 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta
          
          // If the matrix is non-singular invert and solve
          
-         if(fabs(D) > 1.e-3) {
+         if(std::abs(D) > 1.e-3) {
          
             minv11 = sumdtdt22/D;
             minv12 = -sumdtdt12/D;
@@ -549,13 +549,12 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta
          } else {
 
 //  Assume alternately that ystep = 0 and then xstep = 0
-
-            if(fabs(sumdtdt11) > 0.0001f) {xstep = sumptdt1/sumdtdt11;} else {xstep = 0.f;}
-            if(fabs(sumdtdt22) > 0.0001f) {ystep = sumptdt2/sumdtdt22;} else {ystep = 0.f;}
+            if(sumdtdt11 > 0.0001f) {xstep = sumptdt1/sumdtdt11;} else {xstep = 0.f;}
+            if(sumdtdt22 > 0.0001f) {ystep = sumptdt2/sumdtdt22;} else {ystep = 0.f;}
          }     
          xstep *= 0.9f;     
          ystep *= 0.9f;
-         if(fabs(xstep) > 2.*xsize || fabs(ystep) > 2.*ysize) break;
+         if(std::abs(xstep) > 2.*xsize || std::abs(ystep) > 2.*ysize) break;
          x2D += xstep;
          y2D += ystep;
          ++niter;
@@ -563,20 +562,6 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta
    }
    
    ipass = 0;
-//   if(npass == 1) {
-      // one pass, require that it have iterated
-//      if(niter0[0] == 0) {return 2;}
-//   } else {
-      // two passes
-//      if(niter0[0] == 0 && niter0[1] == 0) {return 2;}
-//      if(niter0[0] > 0 && niter0[1] > 0) {
-         // if both have iterated, take the smaller chi2
-//         if(chi2min[1] < chi2min[0]) {ipass = 1;}
-//      } else {
-         // if one has iterated, take it
-//         if(niter0[1] > 0) {ipass = 1;}
-//      }
-//   }
 
    if(npass > 1) {
       // two passes, take smaller chisqared
