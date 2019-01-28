@@ -27,7 +27,6 @@ class PPSTimingCalibrationWriter : public edm::one::EDAnalyzer<>
 {
   public:
     explicit PPSTimingCalibrationWriter( const edm::ParameterSet& ) {}
-    ~PPSTimingCalibrationWriter() = default;
 
   private:
     void beginJob() override {}
