@@ -4,7 +4,7 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
-  <use nam="SimDataFormats/PileupSummaryInfo"/>
+  <use name="SimDataFormats/PileupSummaryInfo"/>
 </library>
 
 <bin file="runtestSimGeneralPreMixingModule.cpp" name="runtestSimGeneralPreMixingModule">
