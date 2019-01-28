@@ -46,7 +46,6 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
   //
   reco::TrackInfo output;
 
-  std::vector<Trajectory>::const_iterator traj_iterator;
   edm::LogInfo("TrackInfoProducer") << "Loop on trajectories";
   std::map<reco::TrackRef,unsigned int> trackid;
   int i=0;
