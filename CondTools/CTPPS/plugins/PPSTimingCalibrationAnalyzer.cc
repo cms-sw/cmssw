@@ -28,7 +28,6 @@ class PPSTimingCalibrationAnalyzer : public edm::one::EDAnalyzer<>
 {
   public:
     explicit PPSTimingCalibrationAnalyzer( const edm::ParameterSet& ) {}
-    ~PPSTimingCalibrationAnalyzer() = default;
 
   private:
     void beginJob() override {}
