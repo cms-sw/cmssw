@@ -64,8 +64,6 @@ class PhotonMVAEstimatorRunIIFall17 : public AnyMVAEstimatorRun2Base{
   float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const;
  
   // Utility functions
-  std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, const edm::FileInPath &weightFile);
-  
   virtual int getNCategories() const { return nCategories; }
   bool isEndcapCategory( int category ) const;
   virtual const std::string& getName() const override final { return name_; }

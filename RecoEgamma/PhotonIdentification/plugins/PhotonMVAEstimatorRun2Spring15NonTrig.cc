@@ -1,5 +1,5 @@
 #include "RecoEgamma/PhotonIdentification/plugins/PhotonMVAEstimatorRun2Spring15NonTrig.h"
-
+#include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "TMVA/MethodBDT.h"
@@ -45,8 +45,7 @@ PhotonMVAEstimatorRun2Spring15NonTrig::PhotonMVAEstimatorRun2Spring15NonTrig(con
     // when the vector clear() is called in the destructor
 
     edm::FileInPath weightFile( weightFileNames[i] );
-    _gbrForests.push_back( createSingleReader(i, weightFile ) );
-
+    _gbrForests.push_back( GBRForestTools::createGBRForest( weightFile ) );
   }
 
 }
@@ -61,7 +60,7 @@ mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) co
   const int iCategory = findCategory( particle );
   const std::vector<float> vars = std::move( fillMVAVariables( particle, iEvent ) );  
   
-  const float result = _gbrForests.at(iCategory)->GetClassifier(vars.data());
+  const float result = _gbrForests.at(iCategory)->GetResponse(vars.data()); // The BDT score
 
   // DEBUG
   const bool debug = false;
@@ -135,59 +134,6 @@ isEndcapCategory(int category) const {
     isEndcap = true;
 
   return isEndcap;
-}
-
-
-std::unique_ptr<const GBRForest> PhotonMVAEstimatorRun2Spring15NonTrig::
-createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
-
-  //
-  // Create the reader  
-  //
-  TMVA::Reader tmpTMVAReader( "!Color:Silent:Error" );
-
-  //
-  // Configure all variables and spectators. Note: the order and names
-  // must match what is found in the xml weights file!
-  //
-
-  tmpTMVAReader.AddVariable("recoPhi"   , &_allMVAVars.varPhi);
-  tmpTMVAReader.AddVariable("r9"        , &_allMVAVars.varR9);
-  tmpTMVAReader.AddVariable("sieieFull5x5", &_allMVAVars.varSieie);
-  tmpTMVAReader.AddVariable("sieipFull5x5", &_allMVAVars.varSieip);
-  tmpTMVAReader.AddVariable("e1x3Full5x5/e5x5Full5x5", &_allMVAVars.varE1x3overE5x5);
-  tmpTMVAReader.AddVariable("e2x2Full5x5/e5x5Full5x5", &_allMVAVars.varE2x2overE5x5);
-  tmpTMVAReader.AddVariable("e2x5Full5x5/e5x5Full5x5", &_allMVAVars.varE2x5overE5x5);
-  tmpTMVAReader.AddVariable("recoSCEta" , &_allMVAVars.varSCEta);
-  tmpTMVAReader.AddVariable("rawE"      , &_allMVAVars.varRawE);
-  tmpTMVAReader.AddVariable("scEtaWidth", &_allMVAVars.varSCEtaWidth);
-  tmpTMVAReader.AddVariable("scPhiWidth", &_allMVAVars.varSCPhiWidth);
-
-  // Endcap only variables
-  if( isEndcapCategory(iCategory) ){
-    tmpTMVAReader.AddVariable("esEn/rawE" , &_allMVAVars.varESEnOverRawE);
-    tmpTMVAReader.AddVariable("esRR"      , &_allMVAVars.varESEffSigmaRR);
-  }
-
-  // Pileup
-  tmpTMVAReader.AddVariable("rho"       , &_allMVAVars.varRho);
-
-  // Isolations
-  tmpTMVAReader.AddVariable("phoIsoRaw" , &_allMVAVars.varPhoIsoRaw);
-  tmpTMVAReader.AddVariable("chIsoRaw"  , &_allMVAVars.varChIsoRaw);
-  tmpTMVAReader.AddVariable("chWorstRaw", &_allMVAVars.varWorstChRaw);
-
-  // Spectators
-  tmpTMVAReader.AddSpectator("recoPt" , &_allMVAVars.varPt);
-  tmpTMVAReader.AddSpectator("recoEta", &_allMVAVars.varEta);
-
-  //
-  // Book the method and set up the weights file
-  //
-  tmpTMVAReader.BookMVA(_MethodName , weightFile.fullPath());
-
-  return std::make_unique<const GBRForest>(dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(_MethodName) ) );
-
 }
 
 // A function that should work on both pat and reco objects

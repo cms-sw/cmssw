@@ -128,6 +128,8 @@ class ElectronMVAEstimatorRun2Fall17 : public AnyMVAEstimatorRun2Base{
   bool withIso_;
 
   bool debug_;
+
+  const bool absTrackClusterMatching_;
 };
 
 #endif

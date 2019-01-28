@@ -1,4 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+import os.path
+
+weightFileBaseDir = "RecoEgamma/PhotonIdentification/data/MVA"
 
 # =======================================================
 # Define simple containers for MVA cut values and related
