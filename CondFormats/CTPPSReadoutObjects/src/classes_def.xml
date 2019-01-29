@@ -28,8 +28,8 @@
     <class name="std::pair<PPSTimingCalibration::Key,std::pair<double,double> >"/>
     <class name="PPSTimingCalibration" class_version="0">
       <field name="formula_"/>
-      <field name="parameters_" mapping="blob"/>
-      <field name="timeInfo_" mapping="blob"/>
+      <field name="parameters_"/>
+      <field name="timeInfo_"/>
     </class>
 </lcgdict>
 
