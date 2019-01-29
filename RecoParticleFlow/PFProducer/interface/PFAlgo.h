@@ -172,8 +172,7 @@ class PFAlgo {
 				      double dptRel_DispVtx);
   
   //MIKEB : Parameters for the vertices..
-  void setPFVertexParameters(bool useVertex,
-			     const reco::VertexCollection*  primaryVertices);			   
+  void setPFVertexParameters(bool useVertex, reco::VertexCollection const&  primaryVertices);
   
   // FlorianB : Collection of e/g electrons
   void setEGElectronCollection(const reco::GsfElectronCollection & egelectrons);

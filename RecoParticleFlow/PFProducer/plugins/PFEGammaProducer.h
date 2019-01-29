@@ -61,7 +61,7 @@ class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHel
 
   void setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo&);
 
-  void setPFVertexParameters(const reco::VertexCollection*  primaryVertices);
+  void setPFVertexParameters(reco::VertexCollection const&  primaryVertices);
 
   void createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras,
                                   reco::ConversionCollection &oneLegConversions,
