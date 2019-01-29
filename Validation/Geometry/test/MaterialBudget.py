@@ -843,7 +843,7 @@ def createCompoundPlots(detector, plot, geometry):
     canname = "MBCan_1D_%s_%s"  % (detector, plot)
     can = TCanvas(canname, canname, 800, 800)
     can.Range(0,0,25,25)
-    can.SetTopMargin(0.06)
+    can.SetTopMargin(0.05)
     can.SetRightMargin(0.05)
     can.SetLeftMargin(0.12)
     can.SetFillColor(kWhite)
@@ -870,7 +870,7 @@ def createCompoundPlots(detector, plot, geometry):
     simuMark.SetTextColor(kBlack);    
     simuMark.SetTextSize(3e-2)
     simuMark.SetTextAlign(11)
-    simuMark.DrawLatex(0.16,0.82,"#font[52]{Simulation Preliminary}")
+    simuMark.DrawLatex(0.16,0.82,"#font[52]{Simulation Internal}")
  
     # Store
     can.Update();
