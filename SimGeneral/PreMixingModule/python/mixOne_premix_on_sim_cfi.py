@@ -25,7 +25,8 @@ mixData = cms.EDProducer("PreMixingModule",
         seed = cms.int32(1234567),
         type = cms.string('fixed'),
         sequential = cms.untracked.bool(False), # set to true for sequential reading of pileup
-        fileNames = cms.untracked.vstring('file:DMPreProcess_RAW2DIGI.root')
+        fileNames = cms.untracked.vstring('file:DMPreProcess_RAW2DIGI.root'),
+        consecutiveRejectionsLimit = cms.untracked.uint32(100) # should be sufficiently large to allow enough tails
     ),
     # Mixing Module parameters
     bunchspace = cms.int32(25),
@@ -35,7 +36,6 @@ mixData = cms.EDProducer("PreMixingModule",
     mixProdStep2 = cms.bool(False),
     # Optionally adjust the pileup distribution
     adjustPileupDistribution = cms.VPSet(),
-    adjustPileupOutOfBoundsLimit = cms.untracked.uint32(10), # 10 is an initial guess for a good value
     # Workers
     workers = cms.PSet(
         pileup = cms.PSet(

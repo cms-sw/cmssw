@@ -71,20 +71,12 @@ namespace edm {
       }
 
       edm::RunNumber_t firstRun() const { return firstRun_; }
-      double probability(float pileup, unsigned int& outOfBoundsCount, const unsigned int outOfBoundsLimit) const {
+      double probability(float pileup) const {
         unsigned int bin = static_cast<unsigned int>(pileup);
         if(bin < firstBinPileup_ or bin >= firstBinPileup_+pileupProbabilities_.size()) {
-          if(outOfBoundsLimit > 0) {
-            ++outOfBoundsCount;
-            if(outOfBoundsCount >= outOfBoundsLimit) {
-              throw cms::Exception("LogicError") << "Read " << outOfBoundsCount << " consecutive pileup events with true pileup outside of the configured pileup adjustment bounds. "
-                                                 << "The last one had true pileup " << pileup << " , while the bounds are [" << firstBinPileup_ << ", " << firstBinPileup_+pileupProbabilities_.size()-1 << "]. "
-                                                 << "If you know what you're doing, this exception can be turned off by setting adjustPileupOutOfBoundsLimit=0.";
-            }
-          }
+          edm::LogWarning("PreMixingModule") << "Got pileup event with true pileup " << pileup << " that is outside of the configured pileup adjustment bounds [" << firstBinPileup_ << ", " << firstBinPileup_+pileupProbabilities_.size()-1 << "]. Using probability 0.";
           return 0.;
         }
-        outOfBoundsCount = 0;
         return pileupProbabilities_[bin-firstBinPileup_];
       }
 
@@ -98,8 +90,6 @@ namespace edm {
 
     PreMixingPileupCopy puWorker_;
     bool addedPileup_ = false;
-    unsigned int pileupAdjustmentOutOfBoundsCount_ = 0;
-    unsigned int pileupAdjustmentOutOfBoundsLimit_;
 
     std::vector<AdjustPileupDistribution> pileupAdjusters_;
     std::vector<std::unique_ptr<PreMixingWorker> > workers_;
@@ -108,7 +98,6 @@ namespace edm {
   PreMixingModule::PreMixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf):
     BMixingModule(ps, globalConf),
     puWorker_(ps.getParameter<edm::ParameterSet>("workers").getParameter<edm::ParameterSet>("pileup"), *this, consumesCollector()),
-    pileupAdjustmentOutOfBoundsLimit_(ps.getUntrackedParameter<unsigned int>("adjustPileupOutOfBoundsLimit")),
     pileupAdjusters_(edm::vector_transform(ps.getParameter<std::vector<edm::ParameterSet> >("adjustPileupDistribution"),
                                            [](const auto& ps) { return AdjustPileupDistribution(ps); }))
   {  
@@ -195,7 +184,7 @@ namespace edm {
 
     if(pileupAdjuster) {
       float trueNumInteractions = puWorker_.getTrueNumInteractions(pep);
-      double prob = pileupAdjuster->probability(static_cast<unsigned int>(trueNumInteractions), pileupAdjustmentOutOfBoundsCount_, pileupAdjustmentOutOfBoundsLimit_);
+      double prob = pileupAdjuster->probability(static_cast<unsigned int>(trueNumInteractions));
       edm::Service<edm::RandomNumberGenerator> rng;
       CLHEP::HepRandomEngine& engine = rng->getEngine(ep.streamID());
       if(engine.flat() > prob) {

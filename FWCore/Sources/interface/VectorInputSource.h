@@ -65,19 +65,30 @@ namespace edm {
     virtual void beginJob() = 0;
     virtual void endJob() = 0;
 
+    void throwIfOverLimit(unsigned int consecutiveRejections) const;
+
     edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
     edm::propagate_const<std::unique_ptr<ProcessHistoryRegistry>> processHistoryRegistry_;
+    unsigned int consecutiveRejectionsLimit_;
   };
 
   template<typename T>
   size_t VectorInputSource::loopOverEvents(EventPrincipal& cache, size_t& fileNameHash, size_t number, T eventOperator, CLHEP::HepRandomEngine* engine, EventID const* id, bool recycleFiles) {
     size_t i = 0U;
+    unsigned int consecutiveRejections = 0U;
     while(i < number) {
       clearEventPrincipal(cache);
       bool found = readOneEvent(cache, fileNameHash, engine, id, recycleFiles);
       if(!found) break;
       bool used = eventOperator(cache, fileNameHash);
-      if(used) ++i;
+      if(used) {
+        ++i;
+        consecutiveRejections = 0U;
+      }
+      else if(consecutiveRejectionsLimit_ > 0) {
+        ++consecutiveRejections;
+        throwIfOverLimit(consecutiveRejections);
+      }
     }
     return i;
   }
