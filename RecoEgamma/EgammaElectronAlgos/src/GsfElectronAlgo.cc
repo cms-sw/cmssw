@@ -468,10 +468,11 @@ void GsfElectronAlgo::checkSetup( const edm::EventSetup & es )
   }
  }
 
-
-void GsfElectronAlgo::moveElectrons( reco::GsfElectronCollection & outEle )
+reco::GsfElectronCollection GsfElectronAlgo::movedElectrons()
 {
+  reco::GsfElectronCollection outEle ;
   for(auto& ele : eventData_->electrons) outEle.push_back(std::move(ele)) ;
+  return outEle ;
 }
 
 void GsfElectronAlgo::beginEvent( edm::Event & event )

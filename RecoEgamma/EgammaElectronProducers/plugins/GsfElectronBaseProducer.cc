@@ -215,9 +215,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
  : cutsCfg_(makeCutsConfiguration(cfg.getParameter<edm::ParameterSet>("preselection")))
  , cutsCfgPflow_(makeCutsConfiguration(cfg.getParameter<edm::ParameterSet>("preselectionPflow")))
  , ecalSeedingParametersChecked_(false)
+ , electronPutToken_(produces<GsfElectronCollection>())
 {
-  produces<GsfElectronCollection>();
-
   inputCfg_.previousGsfElectrons = consumes<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("previousGsfElectronsTag"));
   inputCfg_.pflowGsfElectronsTag = consumes<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("pflowGsfElectronsTag"));
   inputCfg_.gsfElectronCores = consumes<reco::GsfElectronCoreCollection>(cfg.getParameter<edm::InputTag>("gsfElectronCoresTag"));
@@ -382,9 +381,7 @@ void GsfElectronBaseProducer::fillEvent( edm::Event & event )
     algo_->displayInternalElectrons("GsfElectronAlgo Info (after amb. solving)") ;
    }
   // final filling
-  auto finalCollection = std::make_unique<GsfElectronCollection>();
-  algo_->moveElectrons(*finalCollection) ;
-  orphanHandle_ = event.put(std::move(finalCollection));
+  orphanHandle_ = event.emplace(electronPutToken_, std::move(algo_->movedElectrons()));
 }
 
 void GsfElectronBaseProducer::endEvent() { algo_->endEvent(); }
