@@ -300,9 +300,13 @@ void GsfElectronAlgo::calculateSaturationInfo(const reco::SuperClusterRef& theCl
 
 }
 
+template<bool full5x5>
 void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClus, bool pflow, 
                                             reco::GsfElectron::ShowerShape & showerShape )
  {
+
+  using ClusterTools = EcalClusterToolsT<full5x5>;
+
   const reco::CaloCluster & seedCluster = *(theClus->seed()) ;
   // temporary, till CaloCluster->seed() is made available
   DetId seedXtalId = seedCluster.hitsAndFractions()[0].first ;
@@ -326,23 +330,25 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
     recHitSeverityToBeExcluded = generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps ;
    }
 
-  std::vector<float> covariances = EcalClusterTools::covariances(seedCluster,recHits,topology,geometry) ;
-  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,recHits,topology) ;
+  std::vector<float> covariances = ClusterTools::covariances(seedCluster,recHits,topology,geometry) ;
+  std::vector<float> localCovariances = ClusterTools::localCovariances(seedCluster,recHits,topology) ;
   showerShape.sigmaEtaEta = sqrt(covariances[0]) ;
   showerShape.sigmaIetaIeta = sqrt(localCovariances[0]) ;
   if (!edm::isNotFinite(localCovariances[2])) showerShape.sigmaIphiIphi = sqrt(localCovariances[2]) ;
-  showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,recHits,topology)  ;
-  showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,recHits,topology)  ;
-  showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,recHits,topology) ;
-  showerShape.r9 = EcalClusterTools::e3x3(seedCluster,recHits,topology)/theClus->rawEnergy() ;
+  showerShape.e1x5 = ClusterTools::e1x5(seedCluster,recHits,topology)  ;
+  showerShape.e2x5Max = ClusterTools::e2x5Max(seedCluster,recHits,topology)  ;
+  showerShape.e5x5 = ClusterTools::e5x5(seedCluster,recHits,topology) ;
+  showerShape.r9 = ClusterTools::e3x3(seedCluster,recHits,topology)/theClus->rawEnergy() ;
+
+  const float scale = full5x5 ? showerShape.e5x5 : theClus->energy();
 
   if (pflow)
    {
     showerShape.hcalDepth1OverEcal = generalData_->hcalHelperPflow.hcalESumDepth1(*theClus)/theClus->energy() ;
     showerShape.hcalDepth2OverEcal = generalData_->hcalHelperPflow.hcalESumDepth2(*theClus)/theClus->energy() ;
     showerShape.hcalTowersBehindClusters = generalData_->hcalHelperPflow.hcalTowersBehindClusters(*theClus) ;
-    showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelperPflow.hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
-    showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelperPflow.hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
+    showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelperPflow.hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/scale ;
+    showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelperPflow.hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/scale ;
     showerShape.invalidHcal = (showerShape.hcalDepth1OverEcalBc == 0 && 
                                showerShape.hcalDepth2OverEcalBc == 0 &&
                                !generalData_->hcalHelperPflow.hasActiveHcal(*theClus));
@@ -352,8 +358,8 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
     showerShape.hcalDepth1OverEcal = generalData_->hcalHelper.hcalESumDepth1(*theClus)/theClus->energy() ;
     showerShape.hcalDepth2OverEcal = generalData_->hcalHelper.hcalESumDepth2(*theClus)/theClus->energy() ;
     showerShape.hcalTowersBehindClusters = generalData_->hcalHelper.hcalTowersBehindClusters(*theClus) ;
-    showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelper.hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
-    showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelper.hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
+    showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelper.hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/scale ;
+    showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelper.hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/scale ;
     showerShape.invalidHcal = (showerShape.hcalDepth1OverEcalBc == 0 && 
                                showerShape.hcalDepth2OverEcalBc == 0 &&
                                !generalData_->hcalHelper.hasActiveHcal(*theClus));
@@ -368,99 +374,17 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
   } else {
     showerShape.sigmaIetaIphi = -1.f;
   }
-  showerShape.eMax          = EcalClusterTools::eMax(seedCluster,recHits);
-  showerShape.e2nd          = EcalClusterTools::e2nd(seedCluster,recHits);
-  showerShape.eTop          = EcalClusterTools::eTop(seedCluster,recHits,topology);
-  showerShape.eLeft         = EcalClusterTools::eLeft(seedCluster,recHits,topology);
-  showerShape.eRight        = EcalClusterTools::eRight(seedCluster,recHits,topology);
-  showerShape.eBottom       = EcalClusterTools::eBottom(seedCluster,recHits,topology);
+  showerShape.eMax          = ClusterTools::eMax(seedCluster,recHits);
+  showerShape.e2nd          = ClusterTools::e2nd(seedCluster,recHits);
+  showerShape.eTop          = ClusterTools::eTop(seedCluster,recHits,topology);
+  showerShape.eLeft         = ClusterTools::eLeft(seedCluster,recHits,topology);
+  showerShape.eRight        = ClusterTools::eRight(seedCluster,recHits,topology);
+  showerShape.eBottom       = ClusterTools::eBottom(seedCluster,recHits,topology);
 
-  showerShape.e2x5Left = EcalClusterTools::e2x5Left(seedCluster,recHits,topology);
-  showerShape.e2x5Right = EcalClusterTools::e2x5Right(seedCluster,recHits,topology);
-  showerShape.e2x5Top = EcalClusterTools::e2x5Top(seedCluster,recHits,topology);
-  showerShape.e2x5Bottom = EcalClusterTools::e2x5Bottom(seedCluster,recHits,topology);
- }
-
-void GsfElectronAlgo::calculateShowerShape_full5x5( const reco::SuperClusterRef & theClus, bool pflow, 
-                                                    reco::GsfElectron::ShowerShape & showerShape )
- {
-  const reco::CaloCluster & seedCluster = *(theClus->seed()) ;
-  // temporary, till CaloCluster->seed() is made available
-  DetId seedXtalId = seedCluster.hitsAndFractions()[0].first ;
-  int detector = seedXtalId.subdetId() ;
-
-  const CaloTopology * topology = eventSetupData_->caloTopo.product() ;
-  const CaloGeometry * geometry = eventSetupData_->caloGeom.product() ;
-  const EcalRecHitCollection * recHits = nullptr ;
-  std::vector<int> recHitFlagsToBeExcluded ;
-  std::vector<int> recHitSeverityToBeExcluded ;
-  if (detector==EcalBarrel)
-   {
-    recHits = eventData_->barrelRecHits.product() ;
-    recHitFlagsToBeExcluded = generalData_->recHitsCfg.recHitFlagsToBeExcludedBarrel ;
-    recHitSeverityToBeExcluded = generalData_->recHitsCfg.recHitSeverityToBeExcludedBarrel ;
-   }
-  else
-   {
-    recHits = eventData_->endcapRecHits.product() ;
-    recHitFlagsToBeExcluded = generalData_->recHitsCfg.recHitFlagsToBeExcludedEndcaps ;
-    recHitSeverityToBeExcluded = generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps ;
-   }
-
-  std::vector<float> covariances = noZS::EcalClusterTools::covariances(seedCluster,recHits,topology,geometry) ;
-  std::vector<float> localCovariances = noZS::EcalClusterTools::localCovariances(seedCluster,recHits,topology) ;
-  showerShape.sigmaEtaEta = sqrt(covariances[0]) ;
-  showerShape.sigmaIetaIeta = sqrt(localCovariances[0]) ;
-  if (!edm::isNotFinite(localCovariances[2])) showerShape.sigmaIphiIphi = sqrt(localCovariances[2]) ;
-  showerShape.e1x5 = noZS::EcalClusterTools::e1x5(seedCluster,recHits,topology)  ;
-  showerShape.e2x5Max = noZS::EcalClusterTools::e2x5Max(seedCluster,recHits,topology)  ;
-  showerShape.e5x5 = noZS::EcalClusterTools::e5x5(seedCluster,recHits,topology) ;
-  showerShape.r9 = noZS::EcalClusterTools::e3x3(seedCluster,recHits,topology)/theClus->rawEnergy() ;
-
-  if (pflow)
-   {
-    showerShape.hcalDepth1OverEcal = generalData_->hcalHelperPflow.hcalESumDepth1(*theClus)/theClus->energy() ;
-    showerShape.hcalDepth2OverEcal = generalData_->hcalHelperPflow.hcalESumDepth2(*theClus)/theClus->energy() ;
-    showerShape.hcalTowersBehindClusters = generalData_->hcalHelperPflow.hcalTowersBehindClusters(*theClus) ;
-    showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelperPflow.hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
-    showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelperPflow.hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
-    showerShape.invalidHcal = (showerShape.hcalDepth1OverEcalBc == 0 && 
-                               showerShape.hcalDepth2OverEcalBc == 0 &&
-                               !generalData_->hcalHelperPflow.hasActiveHcal(*theClus));
-   }
-  else
-   {
-    showerShape.hcalDepth1OverEcal = generalData_->hcalHelper.hcalESumDepth1(*theClus)/theClus->energy() ;
-    showerShape.hcalDepth2OverEcal = generalData_->hcalHelper.hcalESumDepth2(*theClus)/theClus->energy() ;
-    showerShape.hcalTowersBehindClusters = generalData_->hcalHelper.hcalTowersBehindClusters(*theClus) ;
-    showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelper.hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
-    showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelper.hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
-    showerShape.invalidHcal = (showerShape.hcalDepth1OverEcalBc == 0 && 
-                               showerShape.hcalDepth2OverEcalBc == 0 &&
-                               !generalData_->hcalHelper.hasActiveHcal(*theClus));
-   }
-  
-  // extra shower shapes
-  const float see_by_spp = showerShape.sigmaIetaIeta*showerShape.sigmaIphiIphi;
-  if(  see_by_spp > 0 ) {
-    showerShape.sigmaIetaIphi = localCovariances[1] / see_by_spp;
-  } else if ( localCovariances[1] > 0 ) {
-    showerShape.sigmaIetaIphi = 1.f;
-  } else {
-    showerShape.sigmaIetaIphi = -1.f;
-  }
-  showerShape.eMax          = noZS::EcalClusterTools::eMax(seedCluster,recHits);
-  showerShape.e2nd          = noZS::EcalClusterTools::e2nd(seedCluster,recHits);
-  showerShape.eTop          = noZS::EcalClusterTools::eTop(seedCluster,recHits,topology);
-  showerShape.eLeft         = noZS::EcalClusterTools::eLeft(seedCluster,recHits,topology);
-  showerShape.eRight        = noZS::EcalClusterTools::eRight(seedCluster,recHits,topology);
-  showerShape.eBottom       = noZS::EcalClusterTools::eBottom(seedCluster,recHits,topology);
-
-  showerShape.e2x5Left = noZS::EcalClusterTools::e2x5Left(seedCluster,recHits,topology);
-  showerShape.e2x5Right = noZS::EcalClusterTools::e2x5Right(seedCluster,recHits,topology);
-  showerShape.e2x5Top = noZS::EcalClusterTools::e2x5Top(seedCluster,recHits,topology);
-  showerShape.e2x5Bottom = noZS::EcalClusterTools::e2x5Bottom(seedCluster,recHits,topology);
-
+  showerShape.e2x5Left = ClusterTools::e2x5Left(seedCluster,recHits,topology);
+  showerShape.e2x5Right = ClusterTools::e2x5Right(seedCluster,recHits,topology);
+  showerShape.e2x5Top = ClusterTools::e2x5Top(seedCluster,recHits,topology);
+  showerShape.e2x5Bottom = ClusterTools::e2x5Bottom(seedCluster,recHits,topology);
  }
 
 
@@ -1126,8 +1050,8 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
   reco::GsfElectron::ShowerShape showerShape;
   reco::GsfElectron::ShowerShape full5x5_showerShape;
   if( !EcalTools::isHGCalDet((DetId::Detector)region) ) {
-    calculateShowerShape(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;    
-    calculateShowerShape_full5x5(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),full5x5_showerShape) ;
+    calculateShowerShape<false>(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;    
+    calculateShowerShape<true>(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),full5x5_showerShape) ;
   }
 
   //====================================================
