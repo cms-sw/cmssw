@@ -4,8 +4,6 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstruction.h"
 
-#include "PixelTrackReconstructionGPU.h"
-
 namespace edm { class Event; class EventSetup; class ParameterSet; class ConfigurationDescriptions; }
 class TrackerTopology;
 
@@ -21,9 +19,7 @@ public:
   void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
-  bool runOnGPU_;
   PixelTrackReconstruction theReconstruction;
-  PixelTrackReconstructionGPU theGPUReconstruction;
 };
 
 #endif // PixelTrackProducer_h

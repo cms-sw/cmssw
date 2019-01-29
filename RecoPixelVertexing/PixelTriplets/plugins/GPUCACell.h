@@ -29,6 +29,8 @@ public:
 
   using TuplesOnGPU = pixelTuplesHeterogeneousProduct::TuplesOnGPU;
 
+  using TupleMultiplicity = CAConstants::TupleMultiplicity;
+
   GPUCACell() = default;
 #ifdef __CUDACC__
 
@@ -115,7 +117,7 @@ public:
 
   
   __device__
-  bool
+  inline bool
   dcaCut(Hits const & hh, GPUCACell const & otherCell,
                        const float region_origin_radius_plus_tolerance,
                        const float maxCurv) const {
@@ -137,16 +139,30 @@ public:
 
   }
 
+  __device__
+  inline bool 
+  hole(Hits const & hh, GPUCACell const & innerCell) const {
+    constexpr float r4 = 16.f;
+    auto ri = innerCell.get_inner_r(hh);
+    auto zi = innerCell.get_inner_z(hh);
+    auto ro = get_outer_r(hh);
+    auto zo = get_outer_z(hh);
+    auto z4 = std::abs(zi + (r4-ri)*(zo-zi)/(ro-ri));
+    return z4>25.f && z4<33.f;
+  }
+
+
   // trying to free the track building process from hardcoded layers, leaving
   // the visit of the graph based on the neighborhood connections between cells.
 
-// #ifdef __CUDACC__
-
+  template<typename CM>
   __device__
   inline void find_ntuplets(
+      Hits const & hh,
       GPUCACell * __restrict__ cells,
       TuplesOnGPU::Container & foundNtuplets, 
       AtomicPairCounter & apc,
+      CM & tupleMultiplicity,
       TmpTuple & tmpNtuplet,
       const unsigned int minHitsPerNtuplet) const
   {
@@ -159,19 +175,23 @@ public:
     tmpNtuplet.push_back_unsafe(theDoubletId);
     assert(tmpNtuplet.size()<=4);
 
-    if(theOuterNeighbors.size()>0) { // continue
+    if(theOuterNeighbors.size()>0) {
       for (int j = 0; j < theOuterNeighbors.size(); ++j) {
         auto otherCell = theOuterNeighbors[j];
-        cells[otherCell].find_ntuplets(cells, foundNtuplets, apc, tmpNtuplet,
-                                       minHitsPerNtuplet);
+        cells[otherCell].find_ntuplets(hh, cells, foundNtuplets, apc, tupleMultiplicity, 
+                                       tmpNtuplet, minHitsPerNtuplet);
       }
     } else {  // if long enough save...
       if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet-1) {
-        hindex_type hits[6]; auto nh=0U;
-        for (auto c : tmpNtuplet) hits[nh++] = cells[c].theInnerHitId;
-        hits[nh] = theOuterHitId; 
-        uint16_t it = foundNtuplets.bulkFill(apc,hits,tmpNtuplet.size()+1);
-        for (auto c : tmpNtuplet) cells[c].theTracks.push_back(it);
+        // triplets accepted only pointing to the hole
+        if (tmpNtuplet.size()>=3 || hole(hh, cells[tmpNtuplet[0]])) {
+          hindex_type hits[6]; auto nh=0U;
+          for (auto c : tmpNtuplet) hits[nh++] = cells[c].theInnerHitId;
+          hits[nh] = theOuterHitId; 
+          uint16_t it = foundNtuplets.bulkFill(apc,hits,tmpNtuplet.size()+1);
+          for (auto c : tmpNtuplet) cells[c].theTracks.push_back(it);
+          tupleMultiplicity.countDirect(tmpNtuplet.size()+1);
+        }
       }
     }
     tmpNtuplet.pop_back();

@@ -1,5 +1,6 @@
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterByRiemannParaboloid.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelNtupletsFitter.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/BrokenLine.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -30,16 +31,13 @@
 using namespace std;
 
 
-PixelFitterByRiemannParaboloid::PixelFitterByRiemannParaboloid(const MagneticField* field,
-                                                               bool useErrors,
-                                                               bool useMultipleScattering)
-    : field_(field),
-    useErrors_(useErrors), useMultipleScattering_(useMultipleScattering) {}
+PixelNtupletsFitter::PixelNtupletsFitter(float nominalB, const MagneticField* field,
+                                         bool useRiemannFit)
+    : nominalB_(nominalB), field_(field),
+    useRiemannFit_(useRiemannFit) {}
 
-std::unique_ptr<reco::Track> PixelFitterByRiemannParaboloid::run(
-    const std::vector<const TrackingRecHit*>& hits,
-    const TrackingRegion& region,
-    const edm::EventSetup& setup) const {
+std::unique_ptr<reco::Track> PixelNtupletsFitter::run(
+    const std::vector<const TrackingRecHit*>& hits, const TrackingRegion& region, const edm::EventSetup& ) const {
 
   using namespace Rfit;
 
@@ -61,19 +59,22 @@ std::unique_ptr<reco::Track> PixelFitterByRiemannParaboloid::run(
   }
 
    assert(nhits==4);
-   Rfit::Matrix3xNd<4> riemannHits;
+   Rfit::Matrix3xNd<4> hits_gp;
 
-  Eigen::Matrix<float,6,4> riemannHits_ge = Eigen::Matrix<float,6,4>::Zero();
+   Eigen::Matrix<float,6,4> hits_ge = Eigen::Matrix<float,6,4>::Zero();
 
   for (unsigned int i = 0; i < nhits; ++i) {
-    riemannHits.col(i) << points[i].x(), points[i].y(), points[i].z();
+    hits_gp.col(i) << points[i].x(), points[i].y(), points[i].z();
 
-    riemannHits_ge.col(i) <<  errors[i].cxx(), errors[i].cyx(), errors[i].cyy(),
+    hits_ge.col(i) <<  errors[i].cxx(), errors[i].cyx(), errors[i].cyy(),
                               errors[i].czx(), errors[i].czy(), errors[i].czz();
   }
 
-  float bField = 1 / PixelRecoUtilities::fieldInInvGev(setup);
-  helix_fit fittedTrack = Rfit::Helix_fit(riemannHits, riemannHits_ge, bField, useErrors_);
+
+  helix_fit fittedTrack = useRiemannFit_ ?
+	Rfit::Helix_fit(hits_gp, hits_ge, nominalB_, true)
+        : BrokenLine::BL_Helix_fit(hits_gp, hits_ge, nominalB_);
+
   int iCharge = fittedTrack.q;
 
   // parameters are:

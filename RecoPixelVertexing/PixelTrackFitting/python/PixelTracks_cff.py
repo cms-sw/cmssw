@@ -12,8 +12,7 @@ myTTRHBuilderWithoutAngle = RecoTracker.TransientTrackingRecHit.TransientTrackin
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelTriplets_cfi import *
 from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import pixelFitterByHelixProjections
-from RecoPixelVertexing.PixelTrackFitting.pixelFitterByRiemannParaboloid_cfi import pixelFitterByRiemannParaboloid
-from RecoPixelVertexing.PixelTrackFitting.pixelFitterByBrokenLine_cfi import pixelFitterByBrokenLine
+from RecoPixelVertexing.PixelTrackFitting.pixelNtupletsFitter_cfi import pixelNtupletsFitter
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackFilterByKinematics_cfi import pixelTrackFilterByKinematics
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi import pixelTrackCleanerBySharedHits
 from RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi import pixelTracks as _pixelTracks
@@ -88,22 +87,11 @@ _pixelTracksTask_lowPU = pixelTracksTask.copy()
 _pixelTracksTask_lowPU.replace(pixelTracksHitQuadruplets, pixelTracksHitTriplets)
 trackingLowPU.toReplaceWith(pixelTracksTask, _pixelTracksTask_lowPU)
 
-# Use Riemann fit and substitute previous Fitter producer with the Riemann one
-from Configuration.ProcessModifiers.riemannFit_cff import riemannFit
-from Configuration.ProcessModifiers.riemannFitGPU_cff import riemannFitGPU
-riemannFit.toModify(pixelTracks, Fitter = "pixelFitterByRiemannParaboloid")
-riemannFitGPU.toModify(pixelTracks, runOnGPU = True)
-_pixelTracksTask_riemannFit = pixelTracksTask.copy()
-_pixelTracksTask_riemannFit.replace(pixelFitterByHelixProjections, pixelFitterByRiemannParaboloid)
-riemannFit.toReplaceWith(pixelTracksTask, _pixelTracksTask_riemannFit)
-
-# Use BrokenLine fit and substitute previous Fitter producer with the BrokenLine one
-from Configuration.ProcessModifiers.brokenLine_cff import brokenLine
-from Configuration.ProcessModifiers.brokenLineGPU_cff import brokenLineGPU
-brokenLine.toModify(pixelTracks, Fitter = "pixelFitterByBrokenLine")
-brokenLineGPU.toModify(pixelTracks, runOnGPU = True)
-_pixelTracksTask_brokenLine = pixelTracksTask.copy()
-_pixelTracksTask_brokenLine.replace(pixelFitterByHelixProjections, pixelFitterByBrokenLine)
-brokenLine.toReplaceWith(pixelTracksTask, _pixelTracksTask_brokenLine)
+# Use ntuple fit and substitute previous Fitter producer with the ntuple one
+from Configuration.ProcessModifiers.pixelNtupleFit_cff import pixelNtupleFit as ntupleFit
+ntupleFit.toModify(pixelTracks, Fitter = "pixelNtupletsFitter")
+_pixelTracksTask_ntupleFit = pixelTracksTask.copy()
+_pixelTracksTask_ntupleFit.replace(pixelFitterByHelixProjections, pixelNtupletsFitter)
+ntupleFit.toReplaceWith(pixelTracksTask, _pixelTracksTask_ntupleFit)
 
 pixelTracksSequence = cms.Sequence(pixelTracksTask)

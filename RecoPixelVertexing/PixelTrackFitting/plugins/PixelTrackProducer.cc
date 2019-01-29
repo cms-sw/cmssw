@@ -24,9 +24,7 @@ using namespace pixeltrackfitting;
 using edm::ParameterSet;
 
 PixelTrackProducer::PixelTrackProducer(const ParameterSet& cfg)
-  : runOnGPU_(cfg.getParameter<bool>("runOnGPU")),
-  theReconstruction(cfg, consumesCollector()),
-  theGPUReconstruction(cfg, consumesCollector())
+  :   theReconstruction(cfg, consumesCollector())
 {
   edm::LogInfo("PixelTrackProducer")<<" construction...";
   produces<reco::TrackCollection>();
@@ -40,7 +38,6 @@ void PixelTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("passLabel", "pixelTracks"); // What is this? It is not used anywhere in this code.
-  desc.add<bool>("runOnGPU", false);
   PixelTrackReconstruction::fillDescriptions(desc);
 
   descriptions.add("pixelTracks", desc);
@@ -51,11 +48,7 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   LogDebug("PixelTrackProducer, produce")<<"event# :"<<ev.id();
 
   TracksWithTTRHs tracks;
-  if (!runOnGPU_)
     theReconstruction.run(tracks, ev, es);
-  else {
-    theGPUReconstruction.run(tracks, ev, es);
-  }
   edm::ESHandle<TrackerTopology> httopo;
   es.get<TrackerTopologyRcd>().get(httopo);
 

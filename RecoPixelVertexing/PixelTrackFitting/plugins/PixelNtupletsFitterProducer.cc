@@ -11,43 +11,41 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterByRiemannParaboloid.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelNtupletsFitter.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
-class PixelFitterByRiemannParaboloidProducer: public edm::global::EDProducer<> {
+class PixelNtupletsFitterProducer: public edm::global::EDProducer<> {
 public:
-  explicit PixelFitterByRiemannParaboloidProducer(const edm::ParameterSet& iConfig)
-    : useErrors_(iConfig.getParameter<bool>("useErrors")),
-    useMultipleScattering_(iConfig.getParameter<bool>("useMultipleScattering"))
+  explicit PixelNtupletsFitterProducer(const edm::ParameterSet& iConfig)
+    : useRiemannFit_(iConfig.getParameter<bool>("useRiemannFit"))
   {
     produces<PixelFitter>();
   }
-  ~PixelFitterByRiemannParaboloidProducer() override {}
+  ~PixelNtupletsFitterProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<bool>("useErrors", true);
-    desc.add<bool>("useMultipleScattering", true);
-    descriptions.add("pixelFitterByRiemannParaboloidDefault", desc);
+    desc.add<bool>("useRiemannFit", false)->setComment("true for Riemann, false for BrokenLine");
+    descriptions.add("pixelNtupletsFitterDefault", desc);
   }
 
 private:
-  bool useErrors_;
-  bool useMultipleScattering_;
+  bool useRiemannFit_;
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 };
 
 
-void PixelFitterByRiemannParaboloidProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void PixelNtupletsFitterProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::ESHandle<MagneticField> fieldESH;
   iSetup.get<IdealMagneticFieldRecord>().get(fieldESH);
-
-  auto impl = std::make_unique<PixelFitterByRiemannParaboloid>(
-      fieldESH.product(), useErrors_, useMultipleScattering_);
+  float bField = 1 / PixelRecoUtilities::fieldInInvGev(iSetup);
+  auto impl = std::make_unique<PixelNtupletsFitter>(bField,
+      fieldESH.product(), useRiemannFit_);
   auto prod = std::make_unique<PixelFitter>(std::move(impl));
   iEvent.put(std::move(prod));
 }
 
-DEFINE_FWK_MODULE(PixelFitterByRiemannParaboloidProducer);
+DEFINE_FWK_MODULE(PixelNtupletsFitterProducer);

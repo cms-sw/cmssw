@@ -17,11 +17,17 @@ public:
    using TuplesOnGPU = pixelTuplesHeterogeneousProduct::TuplesOnGPU;
 
    using HitToTuple = CAConstants::HitToTuple;
+   using TupleMultiplicity = CAConstants::TupleMultiplicity;
 
-   CAHitQuadrupletGeneratorKernels(bool earlyFishbone, bool lateFishbone) :
+   CAHitQuadrupletGeneratorKernels(uint32_t minHitsPerNtuplet,
+    bool earlyFishbone, bool lateFishbone) :
+    minHitsPerNtuplet_(minHitsPerNtuplet),
     earlyFishbone_(earlyFishbone),
     lateFishbone_(lateFishbone){}
    ~CAHitQuadrupletGeneratorKernels() { deallocateOnGPU();}
+
+
+   TupleMultiplicity const * tupleMultiplicity() const { return device_tupleMultiplicity_;}
 
    void launchKernels(HitsOnCPU const & hh, TuplesOnGPU & tuples_d, cudaStream_t cudaStream);
 
@@ -42,7 +48,10 @@ private:
     HitToTuple * device_hitToTuple_ = nullptr;
     AtomicPairCounter * device_hitToTuple_apc_ = nullptr;
 
+    TupleMultiplicity * device_tupleMultiplicity_ = nullptr;
+    uint8_t * device_tmws_ = nullptr;    
 
+    const uint32_t minHitsPerNtuplet_;
     const bool earlyFishbone_;
     const bool lateFishbone_;
 

@@ -23,7 +23,7 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/RecHitsMap.h"
 
 #include "CAHitQuadrupletGeneratorKernels.h"
-#include "RiemannFitOnGPU.h"
+#include "HelixFitOnGPU.h"
 
 #include "RecoPixelVertexing/PixelTriplets/plugins/pixelTuplesHeterogeneousProduct.h"
 
@@ -69,7 +69,7 @@ public:
 
     void hitNtuplets(HitsOnCPU const & hh,
                      const edm::EventSetup& es,
-                     bool doRiemannFit,
+                     bool useRiemannFit,
                      bool transferToCPU,
                      cudaStream_t stream);
 
@@ -87,14 +87,14 @@ public:
 
 private:
 
-    void launchKernels(HitsOnCPU const & hh, bool doRiemannFit, bool transferToCPU, cudaStream_t);
+    void launchKernels(HitsOnCPU const & hh, bool useRiemannFit, bool transferToCPU, cudaStream_t);
 
 
     std::vector<std::array<int,4>> fetchKernelResult(int);
 
 
     CAHitQuadrupletGeneratorKernels kernels;
-    RiemannFitOnGPU fitter;
+    HelixFitOnGPU fitter;
 
     // not really used at the moment
     const float caThetaCut = 0.00125f;

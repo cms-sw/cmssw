@@ -25,6 +25,7 @@ namespace CAConstants {
    using OuterHitOfCell = GPU::VecArray< uint32_t, maxCellsPerHit()>;
    using TuplesContainer = OneToManyAssoc<hindex_type, maxTuples(), 5*maxTuples()>;
    using HitToTuple = OneToManyAssoc<tindex_type, PixelGPUConstants::maxNumberOfHits, 4*maxTuples()>; // 3.5 should be enough
+   using TupleMultiplicity = OneToManyAssoc<tindex_type,8,maxTuples()>;
 
 }
 

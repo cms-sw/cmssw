@@ -66,7 +66,7 @@ private:
   bool emptyRegions = false;
   std::unique_ptr<RegionsSeedingHitSets> seedingHitSets_;
 
-  const bool doRiemannFit_;
+  const bool useRiemannFit_;
   const bool enableConversion_;
   const bool enableTransfer_;
 };
@@ -77,7 +77,7 @@ CAHitNtupletHeterogeneousEDProducer::CAHitNtupletHeterogeneousEDProducer(
       gpuHits_(consumesHeterogeneous(iConfig.getParameter<edm::InputTag>("heterogeneousPixelRecHitSrc"))),
       cpuHits_(consumes<SiPixelRecHitCollectionNew>(iConfig.getParameter<edm::InputTag>("heterogeneousPixelRecHitSrc"))),
       GPUGenerator_(iConfig, consumesCollector()),
-      doRiemannFit_(iConfig.getParameter<bool>("doRiemannFit")),
+      useRiemannFit_(iConfig.getParameter<bool>("useRiemannFit")),
       enableConversion_(iConfig.getParameter<bool>("gpuEnableConversion")),
       enableTransfer_(enableConversion_ || iConfig.getParameter<bool>("gpuEnableTransfer"))
 {
@@ -94,7 +94,7 @@ void CAHitNtupletHeterogeneousEDProducer::fillDescriptions(
 
   desc.add<edm::InputTag>("trackingRegions", edm::InputTag("globalTrackingRegionFromBeamSpot"));
   desc.add<edm::InputTag>("heterogeneousPixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplitting"));
-  desc.add<bool>("doRiemannFit", true);  // mandatory!
+  desc.add<bool>("useRiemannFit", false)->setComment("true for Riemann, false for BrokenLine");
   desc.add<bool>("gpuEnableTransfer", true);
   desc.add<bool>("gpuEnableConversion", true);
 
@@ -124,7 +124,7 @@ void CAHitNtupletHeterogeneousEDProducer::acquireGPUCuda(
   LogDebug("CAHitNtupletHeterogeneousEDProducer")
         << "Creating ntuplets on GPU";
 
-  GPUGenerator_.hitNtuplets(gHits, iSetup, doRiemannFit_, enableTransfer_, cudaStream.id());
+  GPUGenerator_.hitNtuplets(gHits, iSetup, useRiemannFit_, enableTransfer_, cudaStream.id());
 
   
 
