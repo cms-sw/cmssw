@@ -26,7 +26,6 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
         cms.PSet(
             record = cms.string('PPSTimingCalibrationRcd'),
             tag = cms.string('TotemTimingCalibration'),
-            label = cms.string('UFSD')
         )
     )
 )
