@@ -3,6 +3,6 @@
 <use name="HeterogeneousCore/Producer"/>
 <use name="HeterogeneousCore/Product"/>
 <use name="RecoPixelVertexing/PixelTrackFitting"/>
-<library file="*.cc *.cu" name="RecoPixelVertexingPixelTrackFittingPlugins">
+<library file="*.cc" name="RecoPixelVertexingPixelTrackFittingPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

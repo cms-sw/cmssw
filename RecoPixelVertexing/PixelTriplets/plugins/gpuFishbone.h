@@ -54,7 +54,7 @@ namespace gpuPixelDoublets {
     auto sg=0;
     for (uint32_t ic=0; ic<s; ++ic) {
       auto & ci = cells[vc[ic]];
-      if (checkTrack && 0==ci.theTracks.size()) continue;
+      if (checkTrack && ci.theTracks.empty()) continue;
       cc[sg] = vc[ic];
       d[sg] = ci.get_inner_detId(hh);
 //      l[sg] = layer(d[sg]);

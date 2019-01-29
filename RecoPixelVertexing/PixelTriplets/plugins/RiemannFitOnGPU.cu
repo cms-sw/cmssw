@@ -2,7 +2,7 @@
 // Author: Felice Pantaleo, CERN
 //
 
-#include "RiemannFitOnGPU.h"
+#include "HelixFitOnGPU.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
 
 #include <cstdint>
@@ -21,35 +21,48 @@ using TuplesOnGPU = pixelTuplesHeterogeneousProduct::TuplesOnGPU;
 
 using namespace Eigen;
 
+template<int N>
 __global__
-void kernelFastFitAllHits(TuplesOnGPU::Container const * __restrict__ foundNtuplets,
+void kernelFastFit(TuplesOnGPU::Container const * __restrict__ foundNtuplets,
+    CAConstants::TupleMultiplicity const * __restrict__ tupleMultiplicity,
+    uint32_t nHits,
     HitsOnGPU const * __restrict__ hhp,
-    int hits_in_fit,
     double * __restrict__ phits,
     float * __restrict__ phits_ge,
     double * __restrict__ pfast_fit,
     uint32_t offset)
 {
 
-  assert(hits_in_fit==4); // FixMe later template
+  constexpr uint32_t hitsInFit = N;
 
-  assert(pfast_fit); assert(foundNtuplets);
+  assert(hitsInFit<=nHits);
 
+  assert(pfast_fit); assert(foundNtuplets); assert(tupleMultiplicity);
+
+  // look in bin for this hit multiplicity
   auto local_start = (blockIdx.x * blockDim.x + threadIdx.x);
-  auto helix_start = local_start + offset;
 
-  if (helix_start>=foundNtuplets->nbins()) return;
-  if (foundNtuplets->size(helix_start)<hits_in_fit) {
-    return;
-  }
+#ifdef RIEMANN_DEBUG
+  if (0==local_start) printf("%d Ntuple of size %d for %d hits to fit\n",tupleMultiplicity->size(nHits), nHits, hitsInFit);
+#endif
 
-  Rfit::Map3x4d hits(phits+local_start);
+  auto tuple_start = local_start + offset;
+  if (tuple_start >= tupleMultiplicity->size(nHits)) return;
+
+  // get it from the ntuple container (one to one to helix)
+  auto helix_start = *(tupleMultiplicity->begin(nHits)+tuple_start);
+  assert (helix_start < foundNtuplets->nbins());
+
+  assert (foundNtuplets->size(helix_start)==nHits);
+
+  Rfit::Map3xNd<N> hits(phits+local_start);
   Rfit::Map4d   fast_fit(pfast_fit+local_start);
-  Rfit::Map6x4f hits_ge(phits_ge+local_start);
+  Rfit::Map6xNf<N> hits_ge(phits_ge+local_start);
+
 
   // Prepare data structure
   auto const * hitId = foundNtuplets->begin(helix_start);
-  for (unsigned int i = 0; i < hits_in_fit; ++i) {
+  for (unsigned int i = 0; i < hitsInFit; ++i) {
     auto hit = hitId[i];
     // printf("Hit global: %f,%f,%f\n", hhp->xg_d[hit],hhp->yg_d[hit],hhp->zg_d[hit]);
     float ge[6];
@@ -69,9 +82,11 @@ void kernelFastFitAllHits(TuplesOnGPU::Container const * __restrict__ foundNtupl
 
 }
 
+template<int N>
 __global__
-void kernelCircleFitAllHits(TuplesOnGPU::Container const * __restrict__ foundNtuplets,
-    int hits_in_fit,
+void kernelCircleFit(
+    CAConstants::TupleMultiplicity const * __restrict__ tupleMultiplicity,
+    uint32_t nHits,
     double B,
     double * __restrict__ phits,
     float * __restrict__ phits_ge,
@@ -79,66 +94,74 @@ void kernelCircleFitAllHits(TuplesOnGPU::Container const * __restrict__ foundNtu
     Rfit::circle_fit *circle_fit,
     uint32_t offset)
 {
+
   assert(circle_fit); 
+  assert(N<=nHits);
 
+  // same as above...
+
+  // look in bin for this hit multiplicity
   auto local_start = (blockIdx.x * blockDim.x + threadIdx.x);
-  auto helix_start = local_start + offset;
+  auto tuple_start = local_start + offset;
+  if (tuple_start >= tupleMultiplicity->size(nHits)) return;
 
-  if (helix_start>=foundNtuplets->nbins()) return;
-  if (foundNtuplets->size(helix_start)<hits_in_fit) {
-    return;
-  }
+  // get it for the ntuple container (one to one to helix)
+  auto helix_start = *(tupleMultiplicity->begin(nHits)+tuple_start);
 
-  Rfit::Map3x4d hits(phits+local_start);
+
+  Rfit::Map3xNd<N> hits(phits+local_start);
   Rfit::Map4d   fast_fit(pfast_fit_input+local_start);
-  Rfit::Map6x4f hits_ge(phits_ge+local_start);
+  Rfit::Map6xNf<N> hits_ge(phits_ge+local_start);
 
-  constexpr uint32_t N = Rfit::Map3x4d::ColsAtCompileTime;
-  constexpr auto n = N;
+  Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, N).colwise().norm());
 
-  assert(4==n); // later will be templated...
-
-  Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, n).colwise().norm());
-
-  Rfit::Matrix2Nd<N> hits_cov =  Rfit::Matrix2Nd<4>::Zero();
+  Rfit::Matrix2Nd<N> hits_cov =  Rfit::Matrix2Nd<N>::Zero();
   Rfit::loadCovariance2D(hits_ge,hits_cov);
 
   circle_fit[local_start] =
-      Rfit::Circle_fit(hits.block(0, 0, 2, n),
+      Rfit::Circle_fit(hits.block(0, 0, 2, N),
                        hits_cov,
                        fast_fit, rad, B, true);
 
-#ifdef GPU_DEBUG
-//  printf("kernelCircleFitAllHits circle.par(0,1,2): %d %f,%f,%f\n", helix_start, 
+#ifdef RIEMANN_DEBUG
+//  printf("kernelCircleFit circle.par(0,1,2): %d %f,%f,%f\n", helix_start, 
 //         circle_fit[local_start].par(0), circle_fit[local_start].par(1), circle_fit[local_start].par(2));
 #endif
 }
 
+
+template<int N>
 __global__
-void kernelLineFitAllHits(TuplesOnGPU::Container const * __restrict__ foundNtuplets,
-    int hits_in_fit,
+void kernelLineFit(
+    CAConstants::TupleMultiplicity const * __restrict__ tupleMultiplicity,
+    uint32_t nHits,
     double B,
     Rfit::helix_fit *results,
     double * __restrict__ phits,
     float * __restrict__ phits_ge,
-    double * __restrict__ pfast_fit,
+    double * __restrict__ pfast_fit_input,
     Rfit::circle_fit * __restrict__ circle_fit,
     uint32_t offset)
 {
 
   assert(results); assert(circle_fit);
+  assert(N<=nHits);
 
+  // same as above...
+
+  // look in bin for this hit multiplicity
   auto local_start = (blockIdx.x * blockDim.x + threadIdx.x);
-  auto helix_start = local_start + offset;
+  auto tuple_start = local_start + offset;
+  if (tuple_start >= tupleMultiplicity->size(nHits)) return;
 
-  if (helix_start>=foundNtuplets->nbins()) return;
-  if (foundNtuplets->size(helix_start)<hits_in_fit) {
-    return;
-  }
+  // get it for the ntuple container (one to one to helix)
+  auto helix_start = *(tupleMultiplicity->begin(nHits)+tuple_start);
 
-  Rfit::Map3x4d hits(phits+local_start);
-  Rfit::Map4d   fast_fit(pfast_fit+local_start);
-  Rfit::Map6x4f hits_ge(phits_ge+local_start);
+
+  Rfit::Map3xNd<N> hits(phits+local_start);
+  Rfit::Map4d   fast_fit(pfast_fit_input+local_start);
+  Rfit::Map6xNf<N> hits_ge(phits_ge+local_start);
+
   auto const & line_fit = Rfit::Line_fit(hits, hits_ge, circle_fit[local_start], fast_fit, B, true);
 
   par_uvrtopak(circle_fit[local_start], B, true);
@@ -157,39 +180,100 @@ void kernelLineFitAllHits(TuplesOnGPU::Container const * __restrict__ foundNtupl
   helix.chi2_circle = circle_fit[local_start].chi2;
   helix.chi2_line = line_fit.chi2;
 
-#ifdef GPU_DEBUG
-  printf("kernelLineFitAllHits circle.par(0,1,2): %d %f,%f,%f\n", helix_start,
+#ifdef RIEMANN_DEBUG
+  printf("kernelLineFit size %d for %d hits circle.par(0,1,2): %d %f,%f,%f\n", N,nHits, helix_start,
          circle_fit[local_start].par(0), circle_fit[local_start].par(1), circle_fit[local_start].par(2));
-  printf("kernelLineFitAllHits line.par(0,1): %d %f,%f\n", helix_start, line_fit.par(0),line_fit.par(1));
-  printf("kernelLineFitAllHits chi2 cov %f/%f %f,%f,%f,%f,%f\n",helix.chi2_circle,helix.chi2_line, 
+  printf("kernelLineFit line.par(0,1): %d %f,%f\n", helix_start, line_fit.par(0),line_fit.par(1));
+  printf("kernelLineFit chi2 cov %f/%f %e,%e,%e,%e,%e\n",helix.chi2_circle,helix.chi2_line, 
          helix.cov(0,0),helix.cov(1,1),helix.cov(2,2),helix.cov(3,3),helix.cov(4,4));
 #endif
 }
 
 
-void RiemannFitOnGPU::launchKernels(HitsOnCPU const & hh, uint32_t nhits, uint32_t maxNumberOfTuples, cudaStream_t cudaStream)
+void HelixFitOnGPU::launchRiemannKernels(HitsOnCPU const & hh, uint32_t nhits, uint32_t maxNumberOfTuples, cudaStream_t cudaStream)
 {
     assert(tuples_d); assert(fast_fit_resultsGPU_);
 
-    auto blockSize = 128;
+    auto blockSize = 64;
     auto numberOfBlocks = (maxNumberOfConcurrentFits_ + blockSize - 1) / blockSize;
 
     for (uint32_t offset=0; offset<maxNumberOfTuples; offset+=maxNumberOfConcurrentFits_) {
-      kernelFastFitAllHits<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-          tuples_d, hh.gpu_d, 4,
+
+      // triplets
+      kernelFastFit<3><<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+          tuples_d, tupleMultiplicity_d, 3, 
+          hh.gpu_d,
           hitsGPU_, hits_geGPU_, fast_fit_resultsGPU_,offset);
       cudaCheck(cudaGetLastError());
 
-      kernelCircleFitAllHits<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-          tuples_d, 4, bField_,
+      kernelCircleFit<3><<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+          tupleMultiplicity_d, 3, bField_,
           hitsGPU_, hits_geGPU_, fast_fit_resultsGPU_, circle_fit_resultsGPU_, offset);
       cudaCheck(cudaGetLastError());
 
-
-      kernelLineFitAllHits<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-             tuples_d, 4,  bField_, helix_fit_results_d,
+      kernelLineFit<3><<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+             tupleMultiplicity_d, 3,  bField_, helix_fit_results_d,
              hitsGPU_, hits_geGPU_, fast_fit_resultsGPU_, circle_fit_resultsGPU_,
              offset);
       cudaCheck(cudaGetLastError());
+
+      // quads
+      kernelFastFit<4><<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+          tuples_d, tupleMultiplicity_d, 4,
+          hh.gpu_d,
+          hitsGPU_, hits_geGPU_, fast_fit_resultsGPU_,offset);
+      cudaCheck(cudaGetLastError());
+
+      kernelCircleFit<4><<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+          tupleMultiplicity_d, 4, bField_,
+          hitsGPU_, hits_geGPU_, fast_fit_resultsGPU_, circle_fit_resultsGPU_, offset);
+      cudaCheck(cudaGetLastError());
+
+      kernelLineFit<4><<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+             tupleMultiplicity_d, 4,  bField_, helix_fit_results_d,
+             hitsGPU_, hits_geGPU_, fast_fit_resultsGPU_, circle_fit_resultsGPU_,
+             offset);
+      cudaCheck(cudaGetLastError());
+
+      if (fit5as4_) {
+        // penta
+        kernelFastFit<4><<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+          tuples_d, tupleMultiplicity_d, 5,
+          hh.gpu_d,
+          hitsGPU_, hits_geGPU_, fast_fit_resultsGPU_,offset);
+        cudaCheck(cudaGetLastError());
+
+        kernelCircleFit<4><<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+          tupleMultiplicity_d, 5, bField_,
+          hitsGPU_, hits_geGPU_, fast_fit_resultsGPU_, circle_fit_resultsGPU_, offset);
+        cudaCheck(cudaGetLastError());
+
+        kernelLineFit<4><<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+             tupleMultiplicity_d, 5,  bField_, helix_fit_results_d,
+             hitsGPU_, hits_geGPU_, fast_fit_resultsGPU_, circle_fit_resultsGPU_,
+             offset);
+        cudaCheck(cudaGetLastError());
+      } else {
+        // penta all 5
+        kernelFastFit<5><<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+          tuples_d, tupleMultiplicity_d, 5,
+          hh.gpu_d,
+          hitsGPU_, hits_geGPU_, fast_fit_resultsGPU_,offset);
+        cudaCheck(cudaGetLastError());
+
+        kernelCircleFit<5><<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+          tupleMultiplicity_d, 5, bField_,
+          hitsGPU_, hits_geGPU_, fast_fit_resultsGPU_, circle_fit_resultsGPU_, offset);
+        cudaCheck(cudaGetLastError());
+
+        kernelLineFit<5><<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+             tupleMultiplicity_d, 5,  bField_, helix_fit_results_d,
+             hitsGPU_, hits_geGPU_, fast_fit_resultsGPU_, circle_fit_resultsGPU_,
+             offset);
+        cudaCheck(cudaGetLastError());
+
+      }
+
     }
+
 }

@@ -10,8 +10,11 @@
 #include <TFile.h>
 #include <TH1F.h>
 
+#ifdef USE_BL
+#include "RecoPixelVertexing/PixelTrackFitting/interface/BrokenLine.h"
+#else
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
-//#include "RecoPixelVertexing/PixelTrackFitting/interface/BrokenLine.h"
+#endif
 
 using namespace std;
 using namespace Eigen;
@@ -335,7 +338,6 @@ void computePull(std::array<Fit, N> & fit, const char * label,
 
 void test_helix_fit(bool getcin) {
   int n_;
-  bool return_err;
   const double B_field = 3.8 * c_speed / pow(10, 9) / 100;
   Matrix<double, 6, 1> gen_par;
   Vector5d true_par;
@@ -343,7 +345,7 @@ void test_helix_fit(bool getcin) {
   generator.seed(1);
   std::cout << std::setprecision(6);
   cout << "_________________________________________________________________________\n";
-  cout << "n x(cm) y(cm) z(cm) phi(grad) R(Gev/c) eta iteration return_err debug" << endl;
+  cout << "n x(cm) y(cm) z(cm) phi(grad) R(Gev/c) eta iteration debug" << endl;
   if (getcin) {
     cout << "hits: ";
     cin  >> n_;
@@ -368,14 +370,11 @@ void test_helix_fit(bool getcin) {
      gen_par(4) = 10.;   // R (p_t)
      gen_par(5) = 1.;   // eta
   }
-  return_err = true;
 
   const int iteration = 5000;
   gen_par = New_par(gen_par, 1, B_field);
   true_par = True_par(gen_par, 1, B_field);
-  // Matrix3xNd<4> hits;
   std::array<helix_fit, iteration> helixRiemann_fit;
-//  std::array<BrokenLine::helix_fit, iteration> helixBrokenLine_fit;
 
   std::cout << "\nTrue parameters: "
     << "phi: " << true_par(0) << " "
@@ -396,10 +395,13 @@ void test_helix_fit(bool getcin) {
     //      gen.hits.col(2) << 7.25991010666, 7.74653434753, 30.6931324005;
     //      gen.hits.col(3) << 8.99161434174, 9.54262828827, 38.1338043213;
     delta -= std::chrono::high_resolution_clock::now()-start;
-    helixRiemann_fit[i%iteration] = Rfit::Helix_fit(gen.hits, gen.hits_ge, B_field, return_err);
+    helixRiemann_fit[i%iteration] =
+#ifdef USE_BL
+      BrokenLine::BL_Helix_fit(gen.hits, gen.hits_ge, B_field);
+#else
+      Rfit::Helix_fit(gen.hits, gen.hits_ge, B_field, true);
+#endif
     delta += std::chrono::high_resolution_clock::now()-start;
-
-//    helixBrokenLine_fit[i] = BrokenLine::Helix_fit(gen.hits, gen.hits_cov, B_field);
 
     if (helixRiemann_fit[i%iteration].par(0)>10.) std::cout << "error" << std::endl;
     if (0==i)
@@ -423,7 +425,6 @@ void test_helix_fit(bool getcin) {
   }
   std::cout << "elapsted time " << double(std::chrono::duration_cast<std::chrono::nanoseconds>(delta).count())/1.e6 << std::endl;
   computePull(helixRiemann_fit, "Riemann", n_, iteration, true_par);
-//  computePull(helixBrokenLine_fit, "BrokenLine", n_, iteration, true_par);
 }
 
 int main(int nargs, char**) {
