@@ -107,15 +107,20 @@ namespace gpuPixelDoublets {
       auto kl = Hist::bin(int16_t(mep-iphicut));
       auto kh = Hist::bin(int16_t(mep+iphicut));
       auto incr = [](auto & k) { return k = (k+1) % Hist::nbins();};
+
+#ifdef GPU_DEBUG
       int  tot  = 0;
       int  nmin = 0;
+      int tooMany=0;
+#endif
+
       auto khh = kh;
       incr(khh);
-
-      int tooMany=0;
       for (auto kk = kl; kk != khh; incr(kk)) {
+#ifdef GPU_DEBUG
         if (kk != kl && kk != kh)
           nmin += hist.size(kk+hoff);
+#endif
         auto const * __restrict__ p = hist.begin(kk+hoff);
         auto const * __restrict__ e = hist.end(kk+hoff);
         p+=first;
@@ -132,8 +137,10 @@ namespace gpuPixelDoublets {
           // int layerPairId, int doubletId, int innerHitId, int outerHitId)
           cells[ind].init(hh, pairLayerId, ind, i, oi);
           isOuterHitOfCell[oi].push_back(ind);
+#ifdef GPU_DEBUG
           if (isOuterHitOfCell[oi].full()) ++tooMany;
           ++tot;
+#endif
         }
       }
 #ifdef GPU_DEBUG
