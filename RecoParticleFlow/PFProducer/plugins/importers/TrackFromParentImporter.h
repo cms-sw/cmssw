@@ -48,8 +48,7 @@ namespace pflow {
       importToBlock( const edm::Event& e, 
 		     BlockElementImporterBase::ElementList& elems ) const {
       typedef BlockElementImporterBase::ElementList::value_type ElementType;  
-      edm::Handle<Collection> pfparents;
-      e.getByToken(_src,pfparents);
+      auto pfparents = e.getHandle(_src);
       elems.reserve(elems.size() + 2*pfparents->size());
       // setup our elements so that all the SCs are grouped together
       auto TKs_end = std::partition(elems.begin(),elems.end(),
