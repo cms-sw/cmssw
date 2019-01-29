@@ -124,7 +124,7 @@ namespace edm {
     virtual SerialTaskQueue* globalLuminosityBlocksQueue() = 0;
 
     template <typename T>
-    bool doWork(typename T::MyPrincipal const&, EventSetup const& c,
+    bool doWork(typename T::MyPrincipal const&, EventSetupImpl const& c,
                 StreamID stream,
                 ParentContext const& parentContext,
                 typename T::Context const* context);
@@ -141,7 +141,7 @@ namespace edm {
 
     template <typename T>
     void doWorkAsync(WaitingTask* task,
-                     typename T::MyPrincipal const&, EventSetup const& c,
+                     typename T::MyPrincipal const&, EventSetupImpl const& c,
                      ServiceToken const& token, StreamID stream,
                      ParentContext const& parentContext,
                      typename T::Context const* context);
@@ -149,7 +149,7 @@ namespace edm {
     template <typename T>
     void doWorkNoPrefetchingAsync(WaitingTask* task,
                                   typename T::MyPrincipal const&,
-                                  EventSetup const& c,
+                                  EventSetupImpl const& c,
                                   ServiceToken const& token,
                                   StreamID stream,
                                   ParentContext const& parentContext,
@@ -157,7 +157,7 @@ namespace edm {
 
     template <typename T>
     std::exception_ptr runModuleDirectly(typename T::MyPrincipal const& ep,
-                                         EventSetup const& es,
+                                         EventSetupImpl const& es,
                                          StreamID streamID,
                                          ParentContext const& parentContext,
                                          typename T::Context const* context);
@@ -235,34 +235,34 @@ namespace edm {
   protected:
     template<typename O> friend class workerhelper::CallImpl;
     virtual std::string workerType() const = 0;
-    virtual bool implDo(EventPrincipal const&, EventSetup const& c,
+    virtual bool implDo(EventPrincipal const&, EventSetupImpl const& c,
                         ModuleCallingContext const* mcc) = 0;
 
     virtual void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
     virtual bool implNeedToRunSelection() const = 0;
 
-    virtual void implDoAcquire(EventPrincipal const&, EventSetup const& c,
+    virtual void implDoAcquire(EventPrincipal const&, EventSetupImpl const& c,
                                ModuleCallingContext const* mcc,
                                WaitingTaskWithArenaHolder& holder) = 0;
 
     virtual bool implDoPrePrefetchSelection(StreamID id,
                                             EventPrincipal const& ep,
                                             ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoBegin(RunPrincipal const& rp, EventSetup const& c,
+    virtual bool implDoBegin(RunPrincipal const& rp, EventSetupImpl const& c,
                              ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoStreamBegin(StreamID id, RunPrincipal const& rp, EventSetup const& c,
+    virtual bool implDoStreamBegin(StreamID id, RunPrincipal const& rp, EventSetupImpl const& c,
                                    ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoStreamEnd(StreamID id, RunPrincipal const& rp, EventSetup const& c,
+    virtual bool implDoStreamEnd(StreamID id, RunPrincipal const& rp, EventSetupImpl const& c,
                                  ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoEnd(RunPrincipal const& rp, EventSetup const& c,
+    virtual bool implDoEnd(RunPrincipal const& rp, EventSetupImpl const& c,
                            ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoBegin(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    virtual bool implDoBegin(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& c,
                              ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    virtual bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal const& lbp, EventSetupImpl const& c,
                                    ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    virtual bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal const& lbp, EventSetupImpl const& c,
                                  ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoEnd(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    virtual bool implDoEnd(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& c,
                            ModuleCallingContext const* mcc) = 0;
     virtual void implBeginJob() = 0;
     virtual void implEndJob() = 0;
@@ -276,7 +276,7 @@ namespace edm {
   private:
     
     template <typename T>
-    bool runModule(typename T::MyPrincipal const&, EventSetup const& c,
+    bool runModule(typename T::MyPrincipal const&, EventSetupImpl const& c,
                 StreamID stream,
                 ParentContext const& parentContext,
                 typename T::Context const* context);
@@ -373,19 +373,19 @@ namespace edm {
     template<typename T>
     std::exception_ptr runModuleAfterAsyncPrefetch(std::exception_ptr const * iEPtr,
                                                    typename T::MyPrincipal const& ep,
-                                                   EventSetup const& es,
+                                                   EventSetupImpl const& es,
                                                    StreamID streamID,
                                                    ParentContext const& parentContext,
                                                    typename T::Context const* context);
 
     void runAcquire(EventPrincipal const& ep,
-                    EventSetup const& es,
+                    EventSetupImpl const& es,
                     ParentContext const& parentContext,
                     WaitingTaskWithArenaHolder& holder);
 
     void runAcquireAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
                                       EventPrincipal const& ep,
-                                      EventSetup const& es,
+                                      EventSetupImpl const& es,
                                       ParentContext const& parentContext,
                                       WaitingTaskWithArenaHolder holder);
 
@@ -397,7 +397,7 @@ namespace edm {
     public:
       RunModuleTask(Worker* worker,
                     typename T::MyPrincipal const& ep,
-                    EventSetup const& es,
+                    EventSetupImpl const& es,
                     ServiceToken const& token,
                     StreamID streamID,
                     ParentContext const& parentContext,
@@ -489,7 +489,7 @@ namespace edm {
     private:
       Worker* m_worker;
       typename T::MyPrincipal const& m_principal;
-      EventSetup const& m_es;
+      EventSetupImpl const& m_es;
       StreamID m_streamID;
       ParentContext const m_parentContext;
       typename T::Context const* m_context;
@@ -505,7 +505,7 @@ namespace edm {
     public:
       AcquireTask(Worker* worker,
                   typename T::MyPrincipal const& ep,
-                  EventSetup const& es,
+                  EventSetupImpl const& es,
                   ServiceToken const& token,
                   ParentContext const& parentContext,
                   WaitingTaskWithArenaHolder holder) {}
@@ -517,7 +517,7 @@ namespace edm {
     public:
       AcquireTask(Worker* worker,
                   EventPrincipal const& ep,
-                  EventSetup const& es,
+                  EventSetupImpl const& es,
                   ServiceToken const& token,
                   ParentContext const& parentContext,
                   WaitingTaskWithArenaHolder holder):
@@ -579,7 +579,7 @@ namespace edm {
     private:
       Worker* m_worker;
       EventPrincipal const& m_principal;
-      EventSetup const& m_es;
+      EventSetupImpl const& m_es;
       ParentContext const m_parentContext;
       WaitingTaskWithArenaHolder m_holder;
       ServiceToken m_serviceToken;
@@ -656,7 +656,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Arg;
       static bool call(Worker* iWorker, StreamID,
-                       EventPrincipal const& ep, EventSetup const& es,
+                       EventPrincipal const& ep, EventSetupImpl const& es,
                        ActivityRegistry* /* actReg */,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* /* context*/) {
@@ -679,7 +679,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Arg;
       static bool call(Worker* iWorker,StreamID,
-                       RunPrincipal const& ep, EventSetup const& es,
+                       RunPrincipal const& ep, EventSetupImpl const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -701,7 +701,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Arg;
       static bool call(Worker* iWorker,StreamID id,
-                       RunPrincipal const & ep, EventSetup const& es,
+                       RunPrincipal const & ep, EventSetupImpl const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -723,7 +723,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Arg;
       static bool call(Worker* iWorker,StreamID,
-                       RunPrincipal const& ep, EventSetup const& es,
+                       RunPrincipal const& ep, EventSetupImpl const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -744,7 +744,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Arg;
       static bool call(Worker* iWorker,StreamID id,
-                       RunPrincipal const& ep, EventSetup const& es,
+                       RunPrincipal const& ep, EventSetupImpl const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -766,7 +766,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Arg;
       static bool call(Worker* iWorker,StreamID,
-                       LuminosityBlockPrincipal const& ep, EventSetup const& es,
+                       LuminosityBlockPrincipal const& ep, EventSetupImpl const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -787,7 +787,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Arg;
       static bool call(Worker* iWorker,StreamID id,
-                       LuminosityBlockPrincipal const& ep, EventSetup const& es,
+                       LuminosityBlockPrincipal const& ep, EventSetupImpl const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -809,7 +809,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Arg;
       static bool call(Worker* iWorker,StreamID,
-                       LuminosityBlockPrincipal const& ep, EventSetup const& es,
+                       LuminosityBlockPrincipal const& ep, EventSetupImpl const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -830,7 +830,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Arg;
       static bool call(Worker* iWorker,StreamID id,
-                       LuminosityBlockPrincipal const& ep, EventSetup const& es,
+                       LuminosityBlockPrincipal const& ep, EventSetupImpl const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -851,7 +851,7 @@ namespace edm {
   template <typename T>
   void Worker::doWorkAsync(WaitingTask* task,
                            typename T::MyPrincipal const& ep,
-                           EventSetup const& es,
+                           EventSetupImpl const& es,
                            ServiceToken const& token,
                            StreamID streamID,
                            ParentContext const& parentContext,
@@ -924,7 +924,7 @@ namespace edm {
   template<typename T>
   std::exception_ptr Worker::runModuleAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
                                                          typename T::MyPrincipal const& ep,
-                                                         EventSetup const& es,
+                                                         EventSetupImpl const& es,
                                                          StreamID streamID,
                                                          ParentContext const& parentContext,
                                                          typename T::Context const* context) {
@@ -953,7 +953,7 @@ namespace edm {
   template <typename T>
   void Worker::doWorkNoPrefetchingAsync(WaitingTask* task,
                            typename T::MyPrincipal const& principal,
-                           EventSetup const& es,
+                           EventSetupImpl const& es,
                            ServiceToken const& serviceToken,
                            StreamID streamID,
                            ParentContext const& parentContext,
@@ -993,7 +993,7 @@ namespace edm {
 
   template <typename T>
   bool Worker::doWork(typename T::MyPrincipal const& ep,
-                      EventSetup const& es,
+                      EventSetupImpl const& es,
                       StreamID streamID,
                       ParentContext const& parentContext,
                       typename T::Context const* context) {
@@ -1115,7 +1115,7 @@ namespace edm {
   
   template <typename T>
   bool Worker::runModule(typename T::MyPrincipal const& ep,
-                      EventSetup const& es,
+                      EventSetupImpl const& es,
                       StreamID streamID,
                       ParentContext const& parentContext,
                       typename T::Context const* context) {
@@ -1157,7 +1157,7 @@ namespace edm {
 
   template <typename T>
   std::exception_ptr Worker::runModuleDirectly(typename T::MyPrincipal const& ep,
-                                               EventSetup const& es,
+                                               EventSetupImpl const& es,
                                                StreamID streamID,
                                                ParentContext const& parentContext,
                                                typename T::Context const* context) {
