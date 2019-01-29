@@ -46,7 +46,7 @@ namespace l1t
       float getTrkIsol() const { return theIsolation; }
       float getTrkzVtx() const { return TrkzVtx_ ; }
 
-      L1MuKBMTCombinedStubRefVector getBarrelStubs() { return barrelStubs_; }
+      const L1MuKBMTCombinedStubRefVector getBarrelStubs() const { return barrelStubs_; }
       float dR()  const { return dR_;}
       int nTracksMatched() const { return nTracksMatch_;}
 
@@ -62,7 +62,6 @@ namespace l1t
       void setdR(float dR) { dR_=dR;}
       void setNTracksMatched(int nTracksMatch) { nTracksMatch_=nTracksMatch;}
 
-      void setQuality(unsigned int q){ quality_ = q;}  // this is not filled
 
     private:
 
