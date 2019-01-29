@@ -70,6 +70,7 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
     void checkEcalSeedingParameters( edm::ParameterSet const & ) ;
     edm::OrphanHandle<reco::GsfElectronCollection> orphanHandle_;
 
+    const edm::EDPutTokenT<reco::GsfElectronCollection> electronPutToken_;
  } ;
 
 #endif

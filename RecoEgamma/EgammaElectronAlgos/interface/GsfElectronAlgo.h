@@ -211,7 +211,7 @@ class GsfElectronAlgo {
     void setAmbiguityData( bool ignoreNotPreselected = true ) ;
     void removeNotPreselectedElectrons() ;
     void removeAmbiguousElectrons() ;
-    void moveElectrons( reco::GsfElectronCollection & ) ;
+    reco::GsfElectronCollection movedElectrons() ;
     void setMVAInputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput> & mvaInputs)  ;
     void setMVAOutputs(const gsfAlgoHelpers::HeavyObjectCache*,
                        const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs) ;
