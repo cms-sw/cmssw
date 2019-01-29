@@ -157,7 +157,9 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              PFTau*
                              reducedRecHits*
                              cosmicDCTracksSeq*
-                             lowPtGsfElectronSequence
+                             lowPtGsfElectronSequence*
+                             conversionOpenTrackSequence*
+                             gsfTracksOpenConversionSequence 
                              )
 
 # AA data with pp reco
