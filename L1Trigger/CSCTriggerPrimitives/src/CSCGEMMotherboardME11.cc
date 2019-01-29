@@ -325,20 +325,20 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
 
 std::vector<CSCCorrelatedLCTDigi> CSCGEMMotherboardME11::readoutLCTs1a() const
 {
-  return readoutLCTs(ME1A);
+  return readoutLCTsME11(ME1A);
 }
 
 
 std::vector<CSCCorrelatedLCTDigi> CSCGEMMotherboardME11::readoutLCTs1b() const
 {
-  return readoutLCTs(ME1B);
+  return readoutLCTsME11(ME1B);
 }
 
 
 // Returns vector of read-out correlated LCTs, if any.  Starts with
 // the vector of all found LCTs and selects the ones in the read-out
 // time window.
-std::vector<CSCCorrelatedLCTDigi> CSCGEMMotherboardME11::readoutLCTs(enum CSCPart me1ab) const
+std::vector<CSCCorrelatedLCTDigi> CSCGEMMotherboardME11::readoutLCTsME11(enum CSCPart me1ab) const
 {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
 
@@ -428,6 +428,11 @@ void CSCGEMMotherboardME11::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& LCTs,
 bool CSCGEMMotherboardME11::doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c) const
 {
   return cscTmbLUT_->doesALCTCrossCLCT(a, c, theEndcap, gangedME1a_);
+}
+
+bool CSCGEMMotherboardME11::doesWiregroupCrossStrip(int key_wg, int key_strip) const
+{
+  return cscTmbLUT_->doesWiregroupCrossStrip(key_wg, key_strip, theEndcap, gangedME1a_);
 }
 
 
