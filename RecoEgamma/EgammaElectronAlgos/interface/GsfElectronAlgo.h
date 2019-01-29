@@ -373,10 +373,10 @@ class GsfElectronAlgo {
     void setCutBasedPreselectionFlag( reco::GsfElectron & ele, const reco::BeamSpot & ) ;
     void setPflowPreselectionFlag( reco::GsfElectron & ele ) ;
     bool isPreselected( reco::GsfElectron & ele ) ;
+
+    template<bool full5x5>
     void calculateShowerShape( const reco::SuperClusterRef &, bool pflow, 
                                reco::GsfElectron::ShowerShape & ) ;
-    void calculateShowerShape_full5x5( const reco::SuperClusterRef &, bool pflow,
-                                       reco::GsfElectron::ShowerShape & ) ;
     void calculateSaturationInfo(const reco::SuperClusterRef&, reco::GsfElectron::SaturationInfo&);
 
     // associations
