@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 
@@ -179,7 +180,7 @@ namespace edm {
     void
     ProducingModuleAdaptorBase<T>::doStreamBeginRun(StreamID id,
                                                     RunPrincipal const& rp,
-                                                    EventSetup const& c,
+                                                    EventSetupImpl const& ci,
                                                     ModuleCallingContext const* mcc)
     {
       auto mod = m_streamModules[id];
@@ -187,6 +188,7 @@ namespace edm {
       
       Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(mod);
+      const EventSetup c{ci};
       mod->beginRun(r, c);
       
     }    
@@ -194,12 +196,13 @@ namespace edm {
     void
     ProducingModuleAdaptorBase<T>::doStreamEndRun(StreamID id,
                                                   RunPrincipal const& rp,
-                                                  EventSetup const& c,
+                                                  EventSetupImpl const& ci,
                                                   ModuleCallingContext const* mcc)
     {
       auto mod = m_streamModules[id];
       Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(mod);
+      const EventSetup c{ci};
       mod->endRun(r, c);
       streamEndRunSummary(mod,r,c);
     }
@@ -208,13 +211,14 @@ namespace edm {
     void
     ProducingModuleAdaptorBase<T>::doStreamBeginLuminosityBlock(StreamID id,
                                                                 LuminosityBlockPrincipal const& lbp,
-                                                                EventSetup const& c,
+                                                                EventSetupImpl const& ci,
                                                                 ModuleCallingContext const* mcc) {
       auto mod = m_streamModules[id];
       setupLuminosityBlock(mod,lbp.index());
       
       LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(mod);
+      const EventSetup c{ci};
       mod->beginLuminosityBlock(lb, c);
     }
     
@@ -222,12 +226,13 @@ namespace edm {
     void
     ProducingModuleAdaptorBase<T>::doStreamEndLuminosityBlock(StreamID id,
                                                               LuminosityBlockPrincipal const& lbp,
-                                                              EventSetup const& c,
+                                                              EventSetupImpl const& ci,
                                                               ModuleCallingContext const* mcc)
     {
       auto mod = m_streamModules[id];
       LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(mod);
+      const EventSetup c{ci};
       mod->endLuminosityBlock(lb, c);
       streamEndLuminosityBlockSummary(mod,lb, c);
     }

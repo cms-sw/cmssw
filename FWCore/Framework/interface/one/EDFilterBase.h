@@ -72,7 +72,7 @@ namespace edm {
       virtual SerialTaskQueue* globalLuminosityBlocksQueue();
 
     private:
-      bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+      bool doEvent(EventPrincipal const& ep, EventSetupImpl const&  c,
                    ActivityRegistry*,
                    ModuleCallingContext const*);
       //For now this is a placeholder
@@ -83,13 +83,13 @@ namespace edm {
       void doBeginJob();
       void doEndJob();
       
-      void doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+      void doBeginRun(RunPrincipal const& rp, EventSetupImpl const&  c,
                       ModuleCallingContext const*);
-      void doEndRun(RunPrincipal const& rp, EventSetup const& c,
+      void doEndRun(RunPrincipal const& rp, EventSetupImpl const&  c,
                     ModuleCallingContext const*);
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  c,
                                   ModuleCallingContext const*);
-      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  c,
                                 ModuleCallingContext const*);
       
       //For now, the following are just dummy implemenations with no ability for users to override

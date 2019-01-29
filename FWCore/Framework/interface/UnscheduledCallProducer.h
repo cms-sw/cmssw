@@ -50,7 +50,7 @@ namespace edm {
       }
     }
     
-    void setEventSetup(EventSetup const& iSetup) {
+    void setEventSetup(EventSetupImpl const& iSetup) {
       aux_.setEventSetup(&iSetup);
     }
 
@@ -61,7 +61,7 @@ namespace edm {
     
     template <typename T, typename U>
     void runNowAsync(WaitingTask* task,
-                     typename T::MyPrincipal& p, EventSetup const& es,
+                     typename T::MyPrincipal& p, EventSetupImpl const& es,
                      ServiceToken const& token, StreamID streamID,
                      typename T::Context const* topContext, U const* context) const {
       //do nothing for event since we will run when requested
@@ -82,7 +82,7 @@ namespace edm {
     template <typename T>
     void runAccumulatorsAsync(WaitingTask* task,
                               typename T::MyPrincipal const& ep,
-                              EventSetup const& es,
+                              EventSetupImpl const& es,
                               ServiceToken const& token,
                               StreamID streamID,
                               ParentContext const& parentContext,

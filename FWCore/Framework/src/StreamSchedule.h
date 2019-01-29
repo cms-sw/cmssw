@@ -98,7 +98,7 @@ namespace edm {
 
   class ActivityRegistry;
   class BranchIDListHelper;
-  class EventSetup;
+  class EventSetupImpl;
   class ExceptionCollector;
   class ExceptionToActionTable;
   class OutputModuleCommunicator;
@@ -178,14 +178,14 @@ namespace edm {
 
     void processOneEventAsync(WaitingTaskHolder iTask,
                               EventPrincipal& ep,
-                              EventSetup const& es,
+                              EventSetupImpl const& es,
                               ServiceToken const& token,
                               std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters);
 
     template <typename T>
     void processOneStreamAsync(WaitingTaskHolder iTask,
                                typename T::MyPrincipal& principal,
-                               EventSetup const& eventSetup,
+                               EventSetupImpl const& eventSetup,
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
@@ -296,7 +296,7 @@ namespace edm {
     void resetAll();
 
     void finishedPaths(std::atomic<std::exception_ptr*>&, WaitingTaskHolder,
-                       EventPrincipal& ep, EventSetup const& es);
+                       EventPrincipal& ep, EventSetupImpl const& es);
     std::exception_ptr finishProcessOneEvent(std::exception_ptr);
     
     void reportSkipped(EventPrincipal const& ep) const;
@@ -385,7 +385,7 @@ namespace edm {
   template <typename T>
   void StreamSchedule::processOneStreamAsync(WaitingTaskHolder iHolder,
                                              typename T::MyPrincipal& ep,
-                                             EventSetup const& es,
+                                             EventSetupImpl const& es,
                                              ServiceToken const& token,
                                              bool cleaningUpAfterException) {
     T::setStreamContext(streamContext_, ep);

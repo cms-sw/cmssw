@@ -1130,7 +1130,7 @@ namespace edm {
   void Schedule::processOneEventAsync(WaitingTaskHolder iTask,
                                       unsigned int iStreamID,
                                       EventPrincipal& ep,
-                                      EventSetup const& es,
+                                      EventSetupImpl const& es,
                                       ServiceToken const& token) {
     assert(iStreamID<streamSchedules_.size());
     streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask),ep,es,token,pathStatusInserters_);
