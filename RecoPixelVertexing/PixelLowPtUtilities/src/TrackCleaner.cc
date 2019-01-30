@@ -108,8 +108,12 @@ bool TrackCleaner::isCompatible(const DetId & i1,
     if(tTopo_->pxbLayer(i1) != tTopo_->pxbLayer(i2)) return true;
 
     int dphi = abs(int(tTopo_->pxbLadder(i1) - tTopo_->pxbLadder(i2)));
-    constexpr int max[3] = {20, 32, 44};
-    if(dphi > max[tTopo_->pxbLayer(i1)-1] / 2) dphi = max[tTopo_->pxbLayer(i1)-1] - dphi;
+    //FIXME: non-phase-0 wrap-around is wrong (sh/be 12, 28, 44, 64 in phase-1)
+    // the harm is somewhat minimal with some excess of duplicates.
+    constexpr int max[4] = {20, 32, 44, 64};
+    auto aLayer = tTopo_->pxbLayer(i1)-1;
+    assert(aLayer < 4);
+    if(dphi > max[aLayer] / 2) dphi = max[aLayer] - dphi;
 
     int dz   = abs(int(tTopo_->pxbModule(i1) - tTopo_->pxbModule(i2)));
 
@@ -122,7 +126,7 @@ bool TrackCleaner::isCompatible(const DetId & i1,
        tTopo_->pxfDisk(i1) != tTopo_->pxfDisk(i2)) return true;
 
     int dphi = abs(int(tTopo_->pxfBlade(i1) - tTopo_->pxfBlade(i2)));
-    constexpr int max = 24;
+    constexpr int max = 24; //FIXME: non-phase-0 wrap-around is wrong
     if(dphi > max / 2) dphi = max - dphi;
 
     int dr   = abs(int( ((tTopo_->pxfModule(i1)-1) * 2 + (tTopo_->pxfPanel(i1)-1)) -
