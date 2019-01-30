@@ -918,8 +918,8 @@ bool L1GtVhdlWriterCore::makeFirmware(const std::vector<ConditionMap> &condition
     std::string subDir1 = outputDir_+outputSubDir1_;
     std::string subDir2  = outputDir_+outputSubDir2_;
     
-    if (!mkdir(subDir1.c_str(), 666));
-    if (!mkdir(subDir2.c_str(), 666));
+    (void) mkdir(subDir1.c_str(), 666);
+    (void) mkdir(subDir2.c_str(), 666);
     
     chmod(subDir1.c_str(), 0777);
     chmod(subDir2.c_str(), 0777);
