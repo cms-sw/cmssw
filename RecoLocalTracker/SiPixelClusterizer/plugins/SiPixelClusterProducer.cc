@@ -49,7 +49,6 @@
   SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf) 
     : 
     clusterMode_( conf.getUntrackedParameter<std::string>("ClusterMode","PixelThresholdClusterizer") ),
-    readyToCluster_(false),   // since we obviously aren't
     maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) )
   {
     if ( clusterMode_ == "PixelThresholdReclusterizer" )
@@ -129,14 +128,12 @@ SiPixelClusterProducer::~SiPixelClusterProducer() = default;
     if ( clusterMode_ == "PixelThresholdReclusterizer" || clusterMode_ == "PixelThresholdClusterizer" ) {
       clusterizer_ = std::make_unique<PixelThresholdClusterizer>(conf);
       clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_.get());
-      readyToCluster_ = true;
     } 
     else {
-      edm::LogError("SiPixelClusterProducer") << "[SiPixelClusterProducer]:"
+      throw cms::Exception("Configuration") << "[SiPixelClusterProducer]:"
 		<<" choice " << clusterMode_ << " is invalid.\n"
 		<< "Possible choices:\n" 
 		<< "    PixelThresholdClusterizer";
-      readyToCluster_ = false;
     }
   }
 
@@ -148,13 +145,6 @@ SiPixelClusterProducer::~SiPixelClusterProducer() = default;
   void SiPixelClusterProducer::run(const T                              & input, 
                                    const edm::ESHandle<TrackerGeometry> & geom,
                                    edmNew::DetSetVector<SiPixelCluster> & output) {
-    if ( ! readyToCluster_ ) {
-      edm::LogError("SiPixelClusterProducer")
-		<<" at least one clusterizer is not ready -- can't run!" ;
-      // TO DO: throw an exception here?  The user may want to know...
-      return;   // clusterizer is invalid, bail out
-    }
-
     int numberOfDetUnits = 0;
     int numberOfClusters = 0;
  
