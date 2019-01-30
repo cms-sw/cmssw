@@ -13,7 +13,6 @@
 
 class DDExpandedView;
 class DDLogicalPart;
-class DDNodes;
 class DDPartSelection;
 
 namespace DDI {
