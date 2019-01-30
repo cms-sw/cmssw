@@ -3316,7 +3316,7 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
                 << "\n    from XML file name: " << m_triggerMenuName
                 << "\n    from XML tag:       " << menuName << std::endl;
 
-        if (m_triggerMenuInterface != "") {
+        if (!m_triggerMenuInterface.empty()) {
             if (m_scaleDbKey == "NULL") {
                 m_triggerMenuName = m_triggerMenuInterface;
             } else {
@@ -3530,7 +3530,7 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
     // get alias
     std::string algAlias = getXMLAttribute(node, m_xmlAlgorithmAttrAlias);
 
-    if (algAlias == "") {
+    if (algAlias.empty()) {
         algAlias = algName;
         LogDebug("L1GtTriggerMenuXmlParser")
                 << "\n    No alias defined for algorithm. Alias set to algorithm name."
