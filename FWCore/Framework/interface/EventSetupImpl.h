@@ -58,7 +58,7 @@ namespace edm {
     public:
       ~EventSetupImpl();
 
-      EventSetupImpl(EventSetup const&) = delete;
+      EventSetupImpl(EventSetupImpl const&) = delete;
       EventSetupImpl& operator=(EventSetupImpl const&) = delete;
 
       // ---------- const member functions ---------------------
