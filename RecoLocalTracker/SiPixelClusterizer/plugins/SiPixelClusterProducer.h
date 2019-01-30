@@ -72,6 +72,7 @@
   private:
     edm::EDGetTokenT<SiPixelClusterCollectionNew>  tPixelClusters;
     edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi;
+    edm::EDPutTokenT<SiPixelClusterCollectionNew>  tPutPixelClusters;
     // TO DO: maybe allow a map of pointers?
     std::unique_ptr<SiPixelGainCalibrationServiceBase> theSiPixelGainCalibration_;
     const std::string clusterMode_;         // user's choice of the clusterizer
