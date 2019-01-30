@@ -17,6 +17,7 @@ class L1TTrackerPlusBarrelStubsSectorProcessor {
   std::vector<l1t::L1TkMuonParticle> process(const TrackPtrVector& ,const L1MuKBMTCombinedStubRefVector& stub);
  private:
   int verbose_;
+  double pi_;
   int sector_;
   std::vector<int> station_;
   double tol_;
@@ -53,6 +54,7 @@ class L1TTrackerPlusBarrelStubsSectorProcessor {
   double pullB(int k,int dphiB,int st);
   int stubPhi(const L1MuKBMTCombinedStubRef& stub);
   L1MuKBMTCombinedStubRefVector select(const L1MuKBMTCombinedStubRefVector& stubsPass,const l1t::L1TkMuonParticle& muon,int k);
+  void printStubs(const L1MuKBMTCombinedStubRefVector& stubs,const l1t::L1TkMuonParticle& muon,int k);
 };
 
 #endif

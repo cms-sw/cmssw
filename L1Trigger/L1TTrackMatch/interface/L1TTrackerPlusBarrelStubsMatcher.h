@@ -17,6 +17,8 @@ class L1TTrackerPlusBarrelStubsMatcher {
   std::vector<l1t::L1TkMuonParticle> process(const TrackPtrVector& ,const L1MuKBMTCombinedStubRefVector& stub);
  private:
   int verbose_;
+  double pi_;
+  std::vector<double> propagation_;
   std::vector<L1TTrackerPlusBarrelStubsSectorProcessor> sectors_;
   std::vector<l1t::L1TkMuonParticle> overlapClean(const std::vector<l1t::L1TkMuonParticle>&);
   int deltaPhi(double p1,double p2);

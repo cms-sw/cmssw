@@ -1,7 +1,8 @@
 #include "L1Trigger/L1TTrackMatch/interface/L1TTrackerPlusBarrelStubsMatcher.h"
-
 L1TTrackerPlusBarrelStubsMatcher::L1TTrackerPlusBarrelStubsMatcher(const edm::ParameterSet& iConfig): 
-  verbose_(iConfig.getParameter<int>("verbose"))
+  verbose_(iConfig.getParameter<int>("verbose")),
+  pi_(iConfig.getParameter<double>("geomPi")),
+  propagation_(iConfig.getParameter<std::vector<double> > ("propagationConstants"))
 {
   //Create sector processors
   std::vector<int> sectors = iConfig.getParameter<std::vector<int> >("sectorsToProcess");
@@ -69,13 +70,13 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsMatcher::overlapClea
 	      double dPhi1=0;
 	      double dPhi2=0;
 	      for (const auto& stub1 : muon1Stubs) {
-	        double phi1=(Geom::pi()/(2048*6))*stub1->phi();
-	        double phi1T=(Geom::pi()/(2048*6))*phiProp(muon1.phi(),8192*muon1.charge()/muon1.pt(),stub1->scNum(),stub1->stNum());
+	        double phi1=(pi_/(2048*6))*stub1->phi();
+	        double phi1T=(pi_/(2048*6))*phiProp(muon1.phi(),8192*muon1.charge()/muon1.pt(),stub1->scNum(),stub1->stNum());
 	        dPhi1+=abs(deltaPhi(phi1,phi1T));
 	      }
 	      for (const auto& stub2 : muon2Stubs) {
-		double phi2=(Geom::pi()/(2048*6))*stub2->phi();
-	        double phi2T=(Geom::pi()/(2048*6))*phiProp(muon2.phi(),8192*muon2.charge()/muon2.pt(),stub2->scNum(),stub2->stNum());
+		double phi2=(pi_/(2048*6))*stub2->phi();
+	        double phi2T=(pi_/(2048*6))*phiProp(muon2.phi(),8192*muon2.charge()/muon2.pt(),stub2->scNum(),stub2->stNum());
 	        dPhi2+=abs(deltaPhi(phi2,phi2T));
 	      }
 	      if (dPhi1<dPhi2 && std::find(muonsOut.begin(),muonsOut.end(),muon1)==muonsOut.end()) {
@@ -101,11 +102,11 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsMatcher::overlapClea
 //Define delta phi function
 int L1TTrackerPlusBarrelStubsMatcher::deltaPhi(double p1,double p2) {
   double res=p1-p2;
-  while (res>Geom::pi()) {
-    res-=2*Geom::pi();
+  while (res>pi_) {
+    res-=2*pi_;
   }
-  while (res<-Geom::pi()) {
-    res+=2*Geom::pi();
+  while (res<-pi_) {
+    res+=2*pi_;
   }
 
   return res;
@@ -113,20 +114,17 @@ int L1TTrackerPlusBarrelStubsMatcher::deltaPhi(double p1,double p2) {
 
 //Define phi propagation
 int L1TTrackerPlusBarrelStubsMatcher::phiProp(int muPhi,int k,int sc,int st) {
-  //Propagation constant
-  double propagation_[]={1.14441,1.24939,1.31598,1.34792};
-  
   //Shift phi of the track to be with respect to the sector
-  double phi=muPhi-(-Geom::pi()+sc*Geom::pi()/6.0);
-  if (phi>Geom::pi()) {
-    phi-=2*Geom::pi();
+  double phi=muPhi-(sc*pi_/6.0);
+  while (phi>pi_) {
+    phi-=2*pi_;
   }
-  else if (phi<-Geom::pi()) {
-    phi+=2*Geom::pi();
+  while (phi<-pi_) {
+    phi+=2*pi_;
   }
 
   //Convert phi to integer value and propagate
-  int phiInt=phi*2048*6/Geom::pi();
+  int phiInt=phi*2048*6/pi_;
   int propPhi=phiInt+propagation_[st-1]*k;
 
   return propPhi;

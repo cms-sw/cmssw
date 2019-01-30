@@ -1,8 +1,7 @@
 #include "L1Trigger/L1TTrackMatch/interface/L1TTrackerPlusBarrelStubsSectorProcessor.h"
-double pi=Geom::pi();
-
 L1TTrackerPlusBarrelStubsSectorProcessor::L1TTrackerPlusBarrelStubsSectorProcessor(const edm::ParameterSet& iConfig, int sector): 
   verbose_(iConfig.getParameter<int>("verbose")),
+  pi_(iConfig.getParameter<double>("geomPi")),
   station_(iConfig.getParameter<std::vector<int> > ("stationsToProcess")),
   tol_(iConfig.getParameter<double>("tolerance")),
   tolB_(iConfig.getParameter<double>("toleranceB")),
@@ -50,7 +49,7 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsSectorProcessor::pro
   //First thing first. Keep only the stubs on this processor
   L1MuKBMTCombinedStubRefVector stubs;
 
-  for (const auto& stub: stubsAll) 
+  for (const auto& stub : stubsAll) 
     if (stub->scNum()==sector_ || stub->scNum()==previousSector_ || stub->scNum()==nextSector_)
       stubs.push_back(stub);
   
@@ -69,18 +68,30 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsSectorProcessor::pro
       charge=-1;
     muon.setCharge(charge);
     int k=8192*muon.charge()/muon.pt();
+
+    //Set muon phi
+    double muPhi=muon.phi()-pi_;
+    while (muPhi>pi_) {
+      muPhi-=2*pi_;
+    }
+    while (muPhi<-pi_) {
+      muPhi+=2*pi_;
+    }
     
     //You need some logic to see if track is in this sector here:
     //Easiest to check if muon is outside of the sector and tell the sector processor to move on
-    if (sector_!=0 && (muon.phi()<=phi1_[sector_] || muon.phi()>=phi2_[sector_])) {
+    if (sector_!=0 && (muPhi<=phi1_[sector_] || muPhi>=phi2_[sector_])) {
       continue;
     }
-    if (sector_==0 && (muon.phi()<=phi1_[sector_] && muon.phi()>=phi2_[sector_])) {
+    if (sector_==0 && (muPhi<=phi1_[sector_] && muPhi>=phi2_[sector_])) {
       continue;
     }
 
     L1MuKBMTCombinedStubRefVector stubsPass; 
+    int stubCount=0;
     for (const auto& stub : stubs) {
+      stubCount++;
+
       //Do the matching (propagate the muon)
       int phi=stubPhi(stub);
       int phiB=stub->phiB();
@@ -89,7 +100,7 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsSectorProcessor::pro
       int qual=stub->quality();
       double deltaPhiTPull=-1;
       double deltaPhiBPull=-1;
-
+      
       //Check if eta value of track matches the station and wheel that the stub is in
       if (wh==-2 && muon.eta()>=etaLowm2_[st-1] && muon.eta()<=etaHighm2_[st-1]) {
         deltaPhiTPull=pull(k,phiProp(muon.phi(),k,sector_,st)-phi,st);
@@ -120,6 +131,13 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsSectorProcessor::pro
       }
     }
 
+    /*
+    //Print stubs
+    if (stubs.size()>0 && muon.pt()>20) {
+      printStubs(stubs,muon,k);
+    }
+    */
+
     //pt phi and eta can be accesed by vec.phi(),vec.eta(),vec.pt()
     //propagate and match here 
     L1MuKBMTCombinedStubRefVector stubsFilter=select(stubsPass,muon,k);
@@ -142,11 +160,11 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsSectorProcessor::pro
 //Define delta phi function
 int L1TTrackerPlusBarrelStubsSectorProcessor::deltaPhi(double p1,double p2) {
   double res=p1-p2;
-  while (res>pi) {
-    res-=2*pi;
+  while (res>pi_) {
+    res-=2*pi_;
   }
-  while (res<-pi) {
-    res+=2*pi;
+  while (res<-pi_) {
+    res+=2*pi_;
   }
   
   return res;
@@ -155,16 +173,16 @@ int L1TTrackerPlusBarrelStubsSectorProcessor::deltaPhi(double p1,double p2) {
 //Define phi propagation
 int L1TTrackerPlusBarrelStubsSectorProcessor::phiProp(double muPhi,int k,int sc,int st) {
   //Shift phi of the track to be with respect to the sector
-  double phi=muPhi-(-pi+sc*pi/6.0);
-  if (phi>pi) {
-    phi-=2*pi;
+  double phi=muPhi-(sc*pi_/6.0);
+  while (phi>pi_) {
+    phi-=2*pi_;
   }
-  else if (phi<-pi) {
-    phi+=2*pi;
+  while (phi<-pi_) {
+    phi+=2*pi_;
   }
 
   //Convert phi to integer value and propagate
-  int phiInt=phi*2048*6/pi;
+  int phiInt=phi*2048*6/pi_;
   int propPhi=phiInt+propagation_[st-1]*k;
   
   return propPhi;
@@ -180,7 +198,6 @@ int L1TTrackerPlusBarrelStubsSectorProcessor::phiBProp(int k,int st) {
 
 //Define pull function
 double L1TTrackerPlusBarrelStubsSectorProcessor::pull(int k,int dphi,int st) {
-  //double pullFunc=abs(dphi/sqrt(alpha_[st-1]*pow(k,2)+beta_[st-1]));
   double pullFunc=abs(dphi/(alpha_[st-1]*abs(k)+beta_[st-1]));
   
   return pullFunc;
@@ -188,7 +205,6 @@ double L1TTrackerPlusBarrelStubsSectorProcessor::pull(int k,int dphi,int st) {
 
 //Define pullB function
 double L1TTrackerPlusBarrelStubsSectorProcessor::pullB(int k,int dphiB,int st) {
-  //double pullBFunc=abs(dphiB/sqrt(alphaB_[st-1]*pow(k,2)+betaB_[st-1]));
   double pullBFunc=abs(dphiB/(alphaB_[st-1]*abs(k)+betaB_[st-1]));
 
   return pullBFunc;
@@ -297,5 +313,28 @@ L1MuKBMTCombinedStubRefVector L1TTrackerPlusBarrelStubsSectorProcessor::select(c
   }
   
   return stubsSelect;
+}
+
+//Define print function
+void L1TTrackerPlusBarrelStubsSectorProcessor::printStubs(const L1MuKBMTCombinedStubRefVector& stubs,const l1t::L1TkMuonParticle& muon,int k) {
+  printf("\nMuon pt: %f Muon phi: %f Muon eta: %f\n",muon.pt(),muon.phi(),muon.eta());
+  int stubCount=0;
+  for (const auto& stub : stubs) {
+    stubCount++;
+    int phi=stubPhi(stub);
+    int phiB=stub->phiB();
+    int st=stub->stNum();
+    int wh=stub->whNum();
+    int sc=stub->scNum();
+    int qual=stub->quality();
+    int stubPhiProp=phiProp(muon.phi(),k,sc,st);
+    int stubPhiBProp=phiBProp(k,st);
+    double deltaPhiTPull=pull(k,stubPhiProp-phi,st);
+    double deltaPhiBPull=pullB(k,stubPhiBProp-phiB,st);
+    printf("\tStub %d:\n",stubCount);
+    printf("\t\tSt: %d Wh: %d Sc: %d Qual: %d\n",st,wh,sc,qual);
+    printf("\t\tPhi: %d PhiProp: %d Pull: %f\n",phi,stubPhiProp,deltaPhiTPull);
+    printf("\t\tPhiB: %d PhiBProp: %d PullB: %f\n",phiB,stubPhiBProp,deltaPhiBPull);
+  }
 }
 
