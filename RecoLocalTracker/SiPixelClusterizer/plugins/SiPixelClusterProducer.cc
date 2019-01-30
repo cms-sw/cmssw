@@ -49,6 +49,7 @@
   //---------------------------------------------------------------------------
   SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf) 
     : 
+    tPutPixelClusters(produces<SiPixelClusterCollectionNew>()),
     clusterMode_( conf.getParameter<std::string>("ClusterMode") ),
     maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) )
   {
@@ -56,8 +57,6 @@
       tPixelClusters = consumes<SiPixelClusterCollectionNew>( conf.getParameter<edm::InputTag>("src") );
     else
       tPixelDigi = consumes<edm::DetSetVector<PixelDigi>>( conf.getParameter<edm::InputTag>("src") );
-    //--- Declare to the EDM what kind of collections we will be making.
-    produces<SiPixelClusterCollectionNew>(); 
 
     const auto& payloadType = conf.getParameter<std::string>( "payloadType" );
     if (payloadType == "HLT")
@@ -129,7 +128,7 @@ void SiPixelClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 
     // Step D: write output to file
     output->shrink_to_fit();
-    e.put(std::move(output));
+    e.put(tPutPixelClusters, std::move(output));
 
   }
 
