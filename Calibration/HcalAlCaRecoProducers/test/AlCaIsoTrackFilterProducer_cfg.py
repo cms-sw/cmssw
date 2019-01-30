@@ -13,6 +13,9 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag=autoCond['run2_mc']
 
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('HcalIsoTrack')
+
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
