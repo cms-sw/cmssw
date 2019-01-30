@@ -1340,7 +1340,7 @@ std::pair<bool,unsigned int> FedRawDataInputSource::getEventReport(unsigned int 
   std::lock_guard<std::mutex> lock(monlock_);
   auto itr = sourceEventsReport_.find(lumi);
   if (itr!=sourceEventsReport_.end()) {
-    auto && ret = std::pair<bool,unsigned int>(true,itr->second);
+    std::pair<bool,unsigned int> ret(true,itr->second);
     if (erase)
       sourceEventsReport_.erase(itr);
     return ret;
