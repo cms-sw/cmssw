@@ -1,11 +1,14 @@
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 #include "CondCore/CondDB/interface/Time.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <string>
 namespace cond {
   class EmptyIOVSource : public edm::ProducerSourceBase {
   public:
     EmptyIOVSource(edm::ParameterSet const&, edm::InputSourceDescription const&);
     ~EmptyIOVSource() override;
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   private:
     void produce(edm::Event & e) override;
     bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType) override;
@@ -70,6 +73,21 @@ namespace cond{
       interval = 0LL; 
     }
   }
+
+  void
+  EmptyIOVSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.setComment("Creates runs, lumis and events containing no products.");
+    ProducerSourceBase::fillDescription(desc);
+
+    desc.add<std::string>("timetype");
+    desc.add<unsigned long long>("firstValue")->setComment("The first run number to use or the first time");
+    desc.add<unsigned long long>("lastValue")->setComment("The last run number to use or the last time");
+    desc.add<unsigned long long>("interval");
+
+    descriptions.add("source", desc);
+  }
+
 
 }//ns cond
 
