@@ -1147,7 +1147,7 @@ bool L1GtTriggerMenuXmlParser::insertTechTriggerIntoMap(const L1GtAlgorithm& alg
         int iBitNumber = (itAlgo->second).algoBitNumber();
         std::string iName = itAlgo->first;
 
-        if ((iBitNumber == bitNumber)) {
+        if (iBitNumber == bitNumber) {
             LogTrace("L1GtTriggerMenuXmlParser") << "      Bit number "
                     << iBitNumber << " is the same as for technical trigger "
                     << iName << " - technical trigger not inserted!"
