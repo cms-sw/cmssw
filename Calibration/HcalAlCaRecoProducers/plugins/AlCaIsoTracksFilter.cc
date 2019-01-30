@@ -284,7 +284,6 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
       edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
       foundCollections = false;
     }
-    reco::TrackCollection::const_iterator trkItr;
 
     //Define the best vertex and the beamspot
     edm::Handle<reco::VertexCollection> recVtxs;
