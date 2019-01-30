@@ -200,4 +200,12 @@ LHESource::readLuminosityBlockAuxiliary_() {
   return aux;
 }
 
+void
+LHESource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("A source which reads LHE files.");
+  edm::ProducerSourceFromFiles::fillDescription(desc);
+  descriptions.add("source", desc);
+}
+
 DEFINE_FWK_INPUT_SOURCE(LHESource);
