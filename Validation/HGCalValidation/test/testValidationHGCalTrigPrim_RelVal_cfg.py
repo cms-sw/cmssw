@@ -68,7 +68,7 @@ process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
 #  process = custom_geometry_ZoltanSplit_V7(process)
 
 # load validation
-process.load('Validation.HGCalTriggerPrimitives.hgcalValidationTPG_cff')
+process.load('Validation.HGCalValidation.hgcalValidationTPG_cff')
 process.hgcalValidationTPG_step = cms.Path(process.runHGCALValidationTPG)
 
 process.dqmSaver.workflow = '/validation/' + 'HGCAL' + '/TPG'
