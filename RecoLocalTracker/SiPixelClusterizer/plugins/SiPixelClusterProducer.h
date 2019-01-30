@@ -73,7 +73,6 @@
     std::unique_ptr<SiPixelGainCalibrationServiceBase> theSiPixelGainCalibration_;
     const std::string clusterMode_;         // user's choice of the clusterizer
     std::unique_ptr<PixelClusterizerBase> clusterizer_;    // what we got (for now, one ptr to base class)
-    bool readyToCluster_;                   // needed clusterizers valid => good to go!
     const TrackerTopology* tTopo_;          // needed to get correct layer number
 
     //! Optional limit on the total number of clusters
