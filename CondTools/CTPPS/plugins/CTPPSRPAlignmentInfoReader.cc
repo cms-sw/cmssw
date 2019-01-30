@@ -1,6 +1,7 @@
 // system include files
 #include <memory>
 #include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -52,7 +53,8 @@ CTPPSRPAlignmentInfoReader::analyze(const edm::Event& e, const edm::EventSetup& 
       }
 
 
-    std::cout << "New alignments found in run="
+      //std::cout 
+      edm::LogPrint("CTPPSRPAlignmentInfoReader")<< "New alignments found in run="
     << e.id().run() << ", event=" << e.id().event() << ":\n"
     << *alignments;
   }
