@@ -166,11 +166,11 @@ void FWCaloParticleProxyBuilder::build(const CaloParticle &iData, unsigned int i
 
       if (!heatmap)
       {
-         hex_boxset->SetPickable(true);
          hex_boxset->CSCTakeAnyParentAsMaster();
          hex_boxset->CSCApplyMainColorToMatchingChildren();
          hex_boxset->CSCApplyMainTransparencyToMatchingChildren();
          hex_boxset->SetMainColor(item()->modelInfo(iIndex).displayProperties().color());
+         hex_boxset->SetMainTransparency(item()->defaultDisplayProperties().transparency());
       }
       oItemHolder.AddElement(hex_boxset);
    }
@@ -181,11 +181,11 @@ void FWCaloParticleProxyBuilder::build(const CaloParticle &iData, unsigned int i
 
       if (!heatmap)
       {
-         boxset->SetPickable(true);
          boxset->CSCTakeAnyParentAsMaster();
          boxset->CSCApplyMainColorToMatchingChildren();
          boxset->CSCApplyMainTransparencyToMatchingChildren();
          boxset->SetMainColor(item()->modelInfo(iIndex).displayProperties().color());
+         boxset->SetMainTransparency(item()->defaultDisplayProperties().transparency());
       }
       oItemHolder.AddElement(boxset);
    }

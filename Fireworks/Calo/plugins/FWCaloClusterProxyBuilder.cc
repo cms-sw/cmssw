@@ -213,7 +213,6 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
 
       if (!heatmap)
       {
-         hex_boxset->SetPickable(true);
          hex_boxset->CSCTakeAnyParentAsMaster();
          hex_boxset->CSCApplyMainColorToMatchingChildren();
          hex_boxset->CSCApplyMainTransparencyToMatchingChildren();
@@ -229,7 +228,6 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
 
       if (!heatmap)
       {
-         boxset->SetPickable(true);
          boxset->CSCTakeAnyParentAsMaster();
          boxset->CSCApplyMainColorToMatchingChildren();
          boxset->CSCApplyMainTransparencyToMatchingChildren();
