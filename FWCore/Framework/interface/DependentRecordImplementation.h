@@ -30,6 +30,10 @@
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/interface/DependentRecordTag.h"
 
+//This is here only because too many modules depend no
+// getting this header from this file (before EventSetupImpl)
+#include "FWCore/Framework/interface/EventSetup.h"
+
 // forward declarations
 namespace edm {
 namespace eventsetup {
