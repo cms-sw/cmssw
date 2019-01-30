@@ -93,8 +93,9 @@ namespace edm {
       void doBeginLuminosityBlock(LuminosityBlockPrincipal&, EventSetupImpl const& , ProcessContext*);
       void doEndLuminosityBlock(LuminosityBlockPrincipal&, EventSetupImpl const& , ProcessContext*);
 
+      void beginOfJob(EventSetupImpl const& );
       //This interface is deprecated
-      virtual void beginOfJob(EventSetupImpl const& );
+      virtual void beginOfJob(EventSetup const& );
       virtual void beginOfJob();
 
       virtual void endOfJob();
