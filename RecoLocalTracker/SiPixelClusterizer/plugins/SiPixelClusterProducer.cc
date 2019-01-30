@@ -32,6 +32,7 @@
 // Framework
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // STL
 #include <vector>
@@ -48,7 +49,7 @@
   //---------------------------------------------------------------------------
   SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf) 
     : 
-    clusterMode_( conf.getUntrackedParameter<std::string>("ClusterMode","PixelThresholdClusterizer") ),
+    clusterMode_( conf.getParameter<std::string>("ClusterMode") ),
     maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) )
   {
     if ( clusterMode_ == "PixelThresholdReclusterizer" )
@@ -74,6 +75,20 @@
 
   // Destructor
 SiPixelClusterProducer::~SiPixelClusterProducer() = default;
+
+void SiPixelClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("src", edm::InputTag("siPixelDigis"));
+  desc.add<std::string>("ClusterMode", "PixelThresholdClusterizer");
+  desc.add<int>("maxNumberOfClusters", -1)->setComment("-1 means no limit");
+  desc.add<std::string>("payloadType", "Offline")->setComment("Options: HLT - column granularity, Offline - gain:col/ped:pix");
+
+  PixelThresholdClusterizer::fillPSetDescription(desc);
+  SiPixelGainCalibrationServiceBase::fillPSetDescription(desc); // no-op, but in principle the structures are there...
+
+  descriptions.add("SiPixelClusterizerDefault", desc);
+}
 
   
   //---------------------------------------------------------------------------

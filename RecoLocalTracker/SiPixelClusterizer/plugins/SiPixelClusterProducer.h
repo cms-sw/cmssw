@@ -47,6 +47,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
   class dso_hidden SiPixelClusterProducer final : public edm::stream::EDProducer<> {
@@ -54,6 +55,8 @@
     //--- Constructor, virtual destructor (just in case)
     explicit SiPixelClusterProducer(const edm::ParameterSet& conf);
     ~SiPixelClusterProducer() override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     void setupClusterizer(const edm::ParameterSet& conf);
 
