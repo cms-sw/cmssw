@@ -18,7 +18,6 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDNodes.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDScope.h"
@@ -184,6 +183,9 @@ struct NodeComp
 };
 
 #include<algorithm> // sort
+
+using DDNodes = std::vector<DDExpandedNode>;
+
 void dump_nodes(DDNodes & nodes, int max=100)
 {
   DDNodes::iterator it = nodes.begin();
