@@ -44,6 +44,7 @@ namespace edm {
    class ESInputTag;
    template <class T>
    class ESGetTokenT;
+   class PileUp;
 
    namespace eventsetup {
       class EventSetupProvider;
@@ -54,8 +55,8 @@ namespace edm {
 
   class EventSetup
   {
-    ///Only EventSetupProvider allowed to create a EventSetup
-    friend class eventsetup::EventSetupProvider;
+    ///Needed until a better solution can be found
+    friend class edm::PileUp;
     public:
 
       explicit EventSetup(EventSetupImpl const& iSetup):
@@ -115,8 +116,10 @@ namespace edm {
          return m_setup.recordIsProvidedByAModule(iKey);
       }
       // ---------- static member functions --------------------
-
+      
     private:
+      edm::EventSetupImpl const& impl() const {return m_setup;}
+
 
       // ---------- member data --------------------------------
      edm::EventSetupImpl const& m_setup;
