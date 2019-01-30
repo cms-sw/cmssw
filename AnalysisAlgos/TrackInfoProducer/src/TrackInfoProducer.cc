@@ -46,7 +46,6 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
   //
   reco::TrackInfo output;
 
-  std::vector<Trajectory>::const_iterator traj_iterator;
   edm::LogInfo("TrackInfoProducer") << "Loop on trajectories";
   std::map<reco::TrackRef,unsigned int> trackid;
   int i=0;
@@ -57,7 +56,7 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
    trackid.insert(make_pair(track,i));
    i++;
    theAlgo_.run(traj,track,output,tracker);
-   outputColl->push_back(*(new reco::TrackInfo(output)));
+   outputColl->push_back(output);
 
  }
 
