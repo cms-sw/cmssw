@@ -206,7 +206,12 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
 			       <<"\t Precale factor "  << preScale_
 			       <<"\t in momentum range " << pTrackLow_
 			       <<":" << pTrackHigh_ << " and prescale factor "
-			       << preScaleH_ << " for p > " << pTrackH_;
+			       << preScaleH_ << " for p > " << pTrackH_
+			       <<" Threshold for EB " <<  hitEthrEB_ << " EE "
+			       << hitEthrEE0_ << ":" << hitEthrEE1_ << ":"
+			       << hitEthrEE2_ << ":" << hitEthrEE3_ << ":"
+			       << hitEthrEELo_ << ":" << hitEthrEEHi_;
+
   for (unsigned int k=0; k<trigNames_.size(); ++k)
     edm::LogInfo("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
 } // AlCaIsoTracksFilter::AlCaIsoTracksFilter  constructor
