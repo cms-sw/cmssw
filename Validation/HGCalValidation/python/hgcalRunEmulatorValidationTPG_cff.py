@@ -8,7 +8,7 @@ from L1Trigger.L1THGCal.hgcalBackEndLayer2Producer_cfi import *
 from L1Trigger.L1THGCal.hgcalTowerMapProducer_cfi import *
 from L1Trigger.L1THGCal.hgcalTowerProducer_cfi import *
 from L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff import *
-from Validation.HGCalTriggerPrimitives.hgcalValidationTPG_cfi import *
+from Validation.HGCalValidation.hgcalValidationTPG_cfi import *
 
 # load DQM
 from DQMServices.Core.DQM_cfg import *
