@@ -70,16 +70,14 @@
     edm::EDGetTokenT<SiPixelClusterCollectionNew>  tPixelClusters;
     edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi;
     // TO DO: maybe allow a map of pointers?
-    SiPixelGainCalibrationServiceBase * theSiPixelGainCalibration_;
+    std::unique_ptr<SiPixelGainCalibrationServiceBase> theSiPixelGainCalibration_;
     const std::string clusterMode_;         // user's choice of the clusterizer
-    PixelClusterizerBase * clusterizer_;    // what we got (for now, one ptr to base class)
+    std::unique_ptr<PixelClusterizerBase> clusterizer_;    // what we got (for now, one ptr to base class)
     bool readyToCluster_;                   // needed clusterizers valid => good to go!
     const TrackerTopology* tTopo_;          // needed to get correct layer number
 
     //! Optional limit on the total number of clusters
     const int32_t maxTotalClusters_;
-
-    const std::string payloadType_;
   };
 
 
