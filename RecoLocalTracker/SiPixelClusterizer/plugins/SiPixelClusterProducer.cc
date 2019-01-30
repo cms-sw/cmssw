@@ -48,12 +48,9 @@
   //---------------------------------------------------------------------------
   SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf) 
     : 
-    theSiPixelGainCalibration_(nullptr), 
     clusterMode_( conf.getUntrackedParameter<std::string>("ClusterMode","PixelThresholdClusterizer") ),
-    clusterizer_(nullptr),          // the default, in case we fail to make one
     readyToCluster_(false),   // since we obviously aren't
-    maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) ),
-    payloadType_( conf.getParameter<std::string>( "payloadType" ) )
+    maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) )
   {
     if ( clusterMode_ == "PixelThresholdReclusterizer" )
       tPixelClusters = consumes<SiPixelClusterCollectionNew>( conf.getParameter<edm::InputTag>("src") );
@@ -62,12 +59,13 @@
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelClusterCollectionNew>(); 
 
-    if (strcmp(payloadType_.c_str(), "HLT") == 0)
-       theSiPixelGainCalibration_ = new SiPixelGainCalibrationForHLTService(conf);
-    else if (strcmp(payloadType_.c_str(), "Offline") == 0)
-       theSiPixelGainCalibration_ = new SiPixelGainCalibrationOfflineService(conf);
-    else if (strcmp(payloadType_.c_str(), "Full") == 0)
-       theSiPixelGainCalibration_ = new SiPixelGainCalibrationService(conf);
+    const auto& payloadType = conf.getParameter<std::string>( "payloadType" );
+    if (payloadType == "HLT")
+        theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationForHLTService>(conf);
+    else if (payloadType == "Offline")
+        theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationOfflineService>(conf);
+    else if (payloadType == "Full")
+        theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationService>(conf);
 
     //--- Make the algorithm(s) according to what the user specified
     //--- in the ParameterSet.
@@ -76,10 +74,7 @@
   }
 
   // Destructor
-  SiPixelClusterProducer::~SiPixelClusterProducer() { 
-    delete clusterizer_;
-    delete theSiPixelGainCalibration_;
-  }  
+SiPixelClusterProducer::~SiPixelClusterProducer() = default;
 
   
   //---------------------------------------------------------------------------
@@ -132,8 +127,8 @@
   void SiPixelClusterProducer::setupClusterizer(const edm::ParameterSet& conf)  {
 
     if ( clusterMode_ == "PixelThresholdReclusterizer" || clusterMode_ == "PixelThresholdClusterizer" ) {
-      clusterizer_ = new PixelThresholdClusterizer(conf);
-      clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_);
+      clusterizer_ = std::make_unique<PixelThresholdClusterizer>(conf);
+      clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_.get());
       readyToCluster_ = true;
     } 
     else {
