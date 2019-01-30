@@ -87,7 +87,8 @@ namespace edm {
                   esp, std::placeholders::_1));
   }
 
-  void EDLooperBase::beginOfJob(const edm::EventSetupImpl&) { beginOfJob();}
+  void EDLooperBase::beginOfJob(const edm::EventSetupImpl& iImpl) { beginOfJob(EventSetup{iImpl});}
+  void EDLooperBase::beginOfJob(const edm::EventSetup&) { beginOfJob();}
   void EDLooperBase::beginOfJob() { }
 
   void EDLooperBase::endOfJob() { }
