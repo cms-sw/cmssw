@@ -67,10 +67,10 @@ TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
     edm::DetSet<TotemTimingRecHit>& rec_hits = output.find_or_insert(detid);
 
     for (const auto& digi : vec) {
-      const float triggerCellTimeInstant(sampicConversions_->getTriggerTime(digi));
-      const float timePrecision(sampicConversions_->getTimePrecision(digi));
-      const std::vector<float> time(sampicConversions_->getTimeSamples(digi));
-      std::vector<float> data(sampicConversions_->getVoltSamples(digi));
+      const float triggerCellTimeInstant(sampicConversions_->triggerTime(digi));
+      const float timePrecision(sampicConversions_->timePrecision(digi));
+      const std::vector<float> time(sampicConversions_->timeSamples(digi));
+      std::vector<float> data(sampicConversions_->voltSamples(digi));
 
       auto max_it = std::max_element(data.begin(), data.end());
 

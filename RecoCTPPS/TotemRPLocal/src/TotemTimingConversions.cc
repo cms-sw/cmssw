@@ -21,7 +21,7 @@ TotemTimingConversions::TotemTimingConversions(bool mergeTimePeaks, const PPSTim
 //----------------------------------------------------------------------------------------------------
 
 float
-TotemTimingConversions::getTimeOfFirstSample(const TotemTimingDigi& digi) const
+TotemTimingConversions::timeOfFirstSample(const TotemTimingDigi& digi) const
 {
   unsigned int offsetOfSamples = digi.getEventInfo().getOffsetOfSamples();
   if (offsetOfSamples == 0)
@@ -62,19 +62,19 @@ TotemTimingConversions::getTimeOfFirstSample(const TotemTimingDigi& digi) const
 //----------------------------------------------------------------------------------------------------
 
 float
-TotemTimingConversions::getTriggerTime(const TotemTimingDigi& digi) const
+TotemTimingConversions::triggerTime(const TotemTimingDigi& digi) const
 {
   unsigned int offsetOfSamples = digi.getEventInfo().getOffsetOfSamples();
   if (offsetOfSamples == 0)
     offsetOfSamples = 30; // FW 0 is not sending this, FW > 0 yes
 
-  return getTimeOfFirstSample(digi) + (SAMPIC_MAX_NUMBER_OF_SAMPLES - offsetOfSamples) * SAMPIC_SAMPLING_PERIOD_NS;
+  return timeOfFirstSample(digi) + (SAMPIC_MAX_NUMBER_OF_SAMPLES - offsetOfSamples) * SAMPIC_SAMPLING_PERIOD_NS;
 }
 
 //----------------------------------------------------------------------------------------------------
 
 float
-TotemTimingConversions::getTimePrecision(const TotemTimingDigi& digi) const
+TotemTimingConversions::timePrecision(const TotemTimingDigi& digi) const
 {
   int db = digi.getHardwareBoardId();
   int sampic = digi.getHardwareSampicId();
@@ -85,11 +85,11 @@ TotemTimingConversions::getTimePrecision(const TotemTimingDigi& digi) const
 //----------------------------------------------------------------------------------------------------
 
 std::vector<float>
-TotemTimingConversions::getTimeSamples(const TotemTimingDigi& digi) const
+TotemTimingConversions::timeSamples(const TotemTimingDigi& digi) const
 {
   std::vector<float> time(digi.getNumberOfSamples());
   for (unsigned int i = 0; i < time.size(); ++i)
-    time.at(i) = getTimeOfFirstSample(digi) + i * SAMPIC_SAMPLING_PERIOD_NS;
+    time.at(i) = timeOfFirstSample(digi) + i * SAMPIC_SAMPLING_PERIOD_NS;
   return time;
 }
 
@@ -97,7 +97,7 @@ TotemTimingConversions::getTimeSamples(const TotemTimingDigi& digi) const
 // NOTE: If no proper file is specified, calibration is not applied
 
 std::vector<float>
-TotemTimingConversions::getVoltSamples(const TotemTimingDigi& digi) const
+TotemTimingConversions::voltSamples(const TotemTimingDigi& digi) const
 {
   std::vector<float> data;
   if (calibrationFunction_.numberOfVariables() != 1)
@@ -113,7 +113,7 @@ TotemTimingConversions::getVoltSamples(const TotemTimingDigi& digi) const
       const unsigned short sample_cell = (cell++) % SAMPIC_MAX_NUMBER_OF_SAMPLES;
       auto parameters = calibration_.parameters(db, sampic, channel, sample_cell);
       if (parameters.empty() || parameters.size() != calibrationFunction_.numberOfParameters())
-        throw cms::Exception("TotemTimingConversions:getVoltSamples")
+        throw cms::Exception("TotemTimingConversions:voltSamples")
           << "Invalid calibrations retrieved for Sampic digi"
           << " (" << db << ", " << sampic << ", " << channel << ", " << sample_cell << ")!";
       data.emplace_back(calibrationFunction_.evaluate(std::vector<double>{(double)sample}, parameters));
