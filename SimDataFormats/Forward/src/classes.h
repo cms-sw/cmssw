@@ -4,14 +4,3 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 
-namespace SimDataFormats_Forward {
-  struct dictionary {
-    TotemTestHistoClass                   theTotemTestHisto;
-    edm::Wrapper<TotemTestHistoClass>     theTotemTestHistoClass;
-    std::vector<TotemTestHistoClass::Hit> theHits;
-
-    LHCTransportLink                             lhcL;
-    edm::LHCTransportLinkContainer               lhcLC;
-    edm::Wrapper<edm::LHCTransportLinkContainer> wlhcLC;
-  };
-}
