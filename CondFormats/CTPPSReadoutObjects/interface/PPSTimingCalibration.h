@@ -39,10 +39,10 @@ class PPSTimingCalibration
       formula_( formula ), parameters_( params ), timeInfo_( timeinfo ) {}
     ~PPSTimingCalibration() = default;
 
-    std::vector<double> getParameters( int db, int sampic, int channel, int cell ) const;
-    inline const std::string& getFormula() const { return formula_; }
-    double getTimeOffset( int db, int sampic, int channel ) const;
-    double getTimePrecision( int db, int sampic, int channel ) const;
+    std::vector<double> parameters( int db, int sampic, int channel, int cell ) const;
+    inline const std::string& formula() const { return formula_; }
+    double timeOffset( int db, int sampic, int channel ) const;
+    double timePrecision( int db, int sampic, int channel ) const;
 
     friend std::ostream& operator<<( std::ostream& os, const PPSTimingCalibration& data );
 
