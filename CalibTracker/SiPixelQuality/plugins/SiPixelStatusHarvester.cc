@@ -625,7 +625,7 @@ void SiPixelStatusHarvester::constructTag(std::map<int,SiPixelQuality*>siPixelQu
 
 }
 
-//------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------
 double SiPixelStatusHarvester::perLayerRingAverage(int detid, SiPixelDetectorStatus tmpSiPixelStatus) {
 
           unsigned long int ave(0);
