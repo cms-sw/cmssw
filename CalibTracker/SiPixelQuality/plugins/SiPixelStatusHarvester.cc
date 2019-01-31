@@ -18,7 +18,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 // Pixel geometry and cabling map
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -26,19 +25,16 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-
 // Condition Format
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 // CondOutput
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-
 // Dataformat of SiPixel status in ALCAPROMPT data
 #include "CalibTracker/SiPixelQuality/interface/SiPixelDetectorStatus.h"
 //#include "CondCore/Utilities/bin/cmscond_export_iov.cpp"
 //#include "CondCore/Utilities/interface/Utilities.h"
-
 // harvest helper class
 #include "CalibTracker/SiPixelQuality/interface/SiPixelStatusManager.h"
 // header file
@@ -570,6 +566,7 @@ edm::LuminosityBlockNumber_t SiPixelStatusHarvester::stepIOV(edm::LuminosityBloc
    
 }
 
+//--------------------------------------------------------------------------------------------------
 bool SiPixelStatusHarvester::equal(SiPixelQuality* a, SiPixelQuality* b){
 
   std::vector<SiPixelQuality::disabledModuleType> badRocListA;
@@ -608,6 +605,7 @@ bool SiPixelStatusHarvester::equal(SiPixelQuality* a, SiPixelQuality* b){
 
 }
 
+//--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::constructTag(std::map<int,SiPixelQuality*>siPixelQualityTag, edm::Service<cond::service::PoolDBOutputService>& poolDbService, std::string tagName,edm::Run& iRun){
 
      for (std::map<int, SiPixelQuality*>::iterator qIt = siPixelQualityTag.begin(); qIt != siPixelQualityTag.end(); ++qIt) {
@@ -627,6 +625,7 @@ void SiPixelStatusHarvester::constructTag(std::map<int,SiPixelQuality*>siPixelQu
 
 }
 
+//--------------------------------------------------------------------------------------------------
 double SiPixelStatusHarvester::perLayerRingAverage(int detid, SiPixelDetectorStatus tmpSiPixelStatus) {
 
           unsigned long int ave(0);

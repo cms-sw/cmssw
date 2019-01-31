@@ -8,9 +8,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+// Pixel quality harvester
 #include "CalibTracker/SiPixelQuality/interface/SiPixelStatusManager.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-
 // PixelDQM Framework
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 // PixelPhase1 HelperClass
