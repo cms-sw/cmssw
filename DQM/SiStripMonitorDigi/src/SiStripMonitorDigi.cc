@@ -41,7 +41,9 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 /* mia: but is there not a smarter way ?!?!?! */
-const double NORBITS_PER_LS     = 262144.; // per-second value would be 11223
+namespace {
+  const double NORBITS_PER_LS     = 262144.; // per-second value would be 11223
+}
 
 //--------------------------------------------------------------------------------------------
 SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) :
