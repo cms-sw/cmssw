@@ -70,8 +70,8 @@ CaloSteppingAction::CaloSteppingAction(const edm::ParameterSet &p) :
   eeNumberingScheme_ = std::make_unique<EcalEndcapNumberingScheme>();
   hcNumbering_.reset(nullptr);
   hcNumberingScheme_ = std::make_unique<HcalNumberingScheme>();
-  for (int k=0; k<3; ++k) {
-    slave_[k].reset(new CaloSlaveSD(nameHitC_[k]));
+  for (int k=0; k<CaloSteppingAction::nSD_; ++k) {
+    slave_[k] = std::make_unique<CaloSlaveSD>(nameHitC_[k]);
     produces<edm::PCaloHitContainer>(nameHitC_[k]);
   }
 } 
@@ -83,7 +83,7 @@ CaloSteppingAction::~CaloSteppingAction() {
 
 void CaloSteppingAction::produce(edm::Event& e, const edm::EventSetup&) {
 
-  for (int k=0; k<3; ++k) {
+  for (int k=0; k<CaloSteppingAction::nSD_; ++k) {
     saveHits(k);
     auto product = std::make_unique<edm::PCaloHitContainer>();
     fillHits(*product,k);
@@ -172,7 +172,7 @@ void CaloSteppingAction::update(const BeginOfEvent * evt) {
  
   edm::LogVerbatim("Step") <<"CaloSteppingAction: Begin of event = " 
 			   << (*evt)()->GetEventID();
-  for (int k=0; k<3; ++k) {
+  for (int k=0; k<CaloSteppingAction::nSD_; ++k) {
     hitMap_[k].erase (hitMap_[k].begin(), hitMap_[k].end());
     slave_[k].get()->Initialize();
   }
