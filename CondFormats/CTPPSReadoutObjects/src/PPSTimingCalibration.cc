@@ -34,7 +34,7 @@ operator<<( std::ostream& os, const PPSTimingCalibration::Key& key )
 //--------------------------------------------------------------------------
 
 std::vector<double>
-PPSTimingCalibration::getParameters( int db, int sampic, int channel, int cell ) const
+PPSTimingCalibration::parameters( int db, int sampic, int channel, int cell ) const
 {
   Key key{ db, sampic, channel, cell };
   auto out = parameters_.find( key );
@@ -44,7 +44,7 @@ PPSTimingCalibration::getParameters( int db, int sampic, int channel, int cell )
 }
 
 double
-PPSTimingCalibration::getTimeOffset( int db, int sampic, int channel ) const
+PPSTimingCalibration::timeOffset( int db, int sampic, int channel ) const
 {
   Key key{ db, sampic, channel, -1 };
   auto out = timeInfo_.find( key );
@@ -54,7 +54,7 @@ PPSTimingCalibration::getTimeOffset( int db, int sampic, int channel ) const
 }
 
 double
-PPSTimingCalibration::getTimePrecision( int db, int sampic, int channel ) const
+PPSTimingCalibration::timePrecision( int db, int sampic, int channel ) const
 {
   Key key{ db, sampic, channel, -1 };
   auto out = timeInfo_.find( key );
