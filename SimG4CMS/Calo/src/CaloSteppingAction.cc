@@ -66,10 +66,10 @@ CaloSteppingAction::CaloSteppingAction(const edm::ParameterSet &p) :
   for (unsigned int k=0; k<nameHitC_.size(); ++k)
     edm::LogVerbatim("Step") << "[" << k << "] " << nameHitC_[k];
 
-  ebNumberingScheme_.reset(new EcalBarrelNumberingScheme());
-  eeNumberingScheme_.reset(new EcalEndcapNumberingScheme());
+  ebNumberingScheme_ = std::make_unique<EcalBarrelNumberingScheme>();
+  eeNumberingScheme_ = std::make_unique<EcalEndcapNumberingScheme>();
   hcNumbering_.reset(nullptr);
-  hcNumberingScheme_.reset(new HcalNumberingScheme());
+  hcNumberingScheme_ = std::make_unique<HcalNumberingScheme>();
   for (int k=0; k<3; ++k) {
     slave_[k].reset(new CaloSlaveSD(nameHitC_[k]));
     produces<edm::PCaloHitContainer>(nameHitC_[k]);
@@ -85,8 +85,7 @@ void CaloSteppingAction::produce(edm::Event& e, const edm::EventSetup&) {
 
   for (int k=0; k<3; ++k) {
     saveHits(k);
-    std::unique_ptr<edm::PCaloHitContainer>
-      product(new edm::PCaloHitContainer);
+    auto product = std::make_unique<edm::PCaloHitContainer>();
     fillHits(*product,k);
     e.put(std::move(product),nameHitC_[k]);
   }
@@ -109,7 +108,7 @@ void CaloSteppingAction::update(const BeginOfJob * job) {
   const HcalDDDSimConstants* hcons_ = hdc.product();
   edm::LogVerbatim("Step") << "CaloSteppingAction:: Initialise "
 			   << "HcalNumberingFromDDD";
-  hcNumbering_.reset(new HcalNumberingFromDDD(hcons_));
+  hcNumbering_ = std::make_unique<HcalNumberingFromDDD>(hcons_);
 }
 
 //==================================================================== per RUN
