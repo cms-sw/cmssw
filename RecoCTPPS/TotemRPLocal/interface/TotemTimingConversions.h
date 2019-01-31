@@ -24,11 +24,11 @@ class TotemTimingConversions
   public:
     TotemTimingConversions(bool mergeTimePeaks, const PPSTimingCalibration& calibration);
 
-    float getTimeOfFirstSample(const TotemTimingDigi& digi) const;
-    float getTriggerTime(const TotemTimingDigi& digi) const;
-    float getTimePrecision(const TotemTimingDigi& digi) const;
-    std::vector<float> getTimeSamples(const TotemTimingDigi& digi) const;
-    std::vector<float> getVoltSamples(const TotemTimingDigi& digi) const;
+    float timeOfFirstSample(const TotemTimingDigi& digi) const;
+    float triggerTime(const TotemTimingDigi& digi) const;
+    float timePrecision(const TotemTimingDigi& digi) const;
+    std::vector<float> timeSamples(const TotemTimingDigi& digi) const;
+    std::vector<float> voltSamples(const TotemTimingDigi& digi) const;
 
   private:
     static constexpr float SAMPIC_SAMPLING_PERIOD_NS = 1. / 7.695;
