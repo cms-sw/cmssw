@@ -3224,6 +3224,28 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             (m3 | m4).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer4"))
             self.assertEqual(p.a.type_(), "YourAnalyzer3")
 
+            # EDAlias
+            a = EDAlias(foo2 = VPSet(PSet(type = string("Foo2"))))
+            m = Modifier()
+            m._setChosen()
+            # Modify parameters
+            m.toModify(a, foo2 = {0: dict(type = "Foo3")})
+            self.assertEqual(a.foo2[0].type, "Foo3")
+            # Add an alias
+            m.toModify(a, foo4 = VPSet(PSet(type = string("Foo4"))))
+            self.assertEqual(a.foo2[0].type, "Foo3")
+            self.assertEqual(a.foo4[0].type, "Foo4")
+            # Remove an alias
+            m.toModify(a, foo2 = None)
+            self.assertFalse(hasattr(a, "foo2"))
+            self.assertEqual(a.foo4[0].type, "Foo4")
+            # Replace (doesn't work out of the box because EDAlias is not _Parameterizable
+            m.toReplaceWith(a, EDAlias(bar = VPSet(PSet(type = string("Bar")))))
+            self.assertFalse(hasattr(a, "foo2"))
+            self.assertFalse(hasattr(a, "foo4"))
+            self.assertTrue(hasattr(a, "bar"))
+            self.assertEqual(a.bar[0].type, "Bar")
+
             # SwitchProducer
             sp = SwitchProducerTest(test1 = EDProducer("Foo",
                                                        a = int32(1),
