@@ -10,7 +10,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoCTPPS/TotemRPLocal/interface/TotemTimingRecHitProducerAlgorithm.h"
-#include "RecoCTPPS/TotemRPLocal/interface/TotemTimingConversions.h"
 
 #include <numeric>
 
@@ -29,13 +28,18 @@ TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(const edm
 //----------------------------------------------------------------------------------------------------
 
 void
+TotemTimingRecHitProducerAlgorithm::setCalibration(const PPSTimingCalibration& calib)
+{
+  sampicConversions_.reset(new TotemTimingConversions(mergeTimePeaks_, calib));
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void
 TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
-                                          const PPSTimingCalibration& calib,
                                           const edm::DetSetVector<TotemTimingDigi>& input,
                                           edm::DetSetVector<TotemTimingRecHit>& output)
 {
-  const TotemTimingConversions sampicConversions(mergeTimePeaks_, calib);
-
   for (const auto& vec : input) {
     const TotemTimingDetId detid(vec.detId());
 
@@ -57,13 +61,16 @@ TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
     else
       throw cms::Exception("TotemTimingRecHitProducerAlgorithm") << "Failed to retrieve a sensor for " << detid;
 
+    if (!sampicConversions_)
+      throw cms::Exception("TotemTimingRecHitProducerAlgorithm") << "No timing conversion retrieved.";
+
     edm::DetSet<TotemTimingRecHit>& rec_hits = output.find_or_insert(detid);
 
     for (const auto& digi : vec) {
-      const float triggerCellTimeInstant(sampicConversions.getTriggerTime(digi));
-      const float timePrecision(sampicConversions.getTimePrecision(digi));
-      const std::vector<float> time(sampicConversions.getTimeSamples(digi));
-      std::vector<float> data(sampicConversions.getVoltSamples(digi));
+      const float triggerCellTimeInstant(sampicConversions_->getTriggerTime(digi));
+      const float timePrecision(sampicConversions_->getTimePrecision(digi));
+      const std::vector<float> time(sampicConversions_->getTimeSamples(digi));
+      std::vector<float> data(sampicConversions_->getVoltSamples(digi));
 
       auto max_it = std::max_element(data.begin(), data.end());
 

@@ -21,13 +21,17 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
 
+#include "RecoCTPPS/TotemRPLocal/interface/TotemTimingConversions.h"
+
+#include <memory>
+
 class TotemTimingRecHitProducerAlgorithm
 {
   public:
     TotemTimingRecHitProducerAlgorithm(const edm::ParameterSet &conf);
 
+    void setCalibration(const PPSTimingCalibration&);
     void build(const CTPPSGeometry&,
-               const PPSTimingCalibration&,
                const edm::DetSetVector<TotemTimingDigi>&,
                edm::DetSetVector<TotemTimingRecHit>&);
 
@@ -49,6 +53,8 @@ class TotemTimingRecHitProducerAlgorithm
                                         const std::vector<float>& data);
 
     static constexpr float SINC_COEFFICIENT = M_PI*2 / 7.8;
+
+    std::unique_ptr<TotemTimingConversions> sampicConversions_;
 
     bool mergeTimePeaks_;
     int baselinePoints_;
