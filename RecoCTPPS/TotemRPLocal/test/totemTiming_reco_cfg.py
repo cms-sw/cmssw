@@ -7,14 +7,10 @@ useJson = True
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
 
 if useJson:
-    process.load('CondFormats.CTPPSReadoutObjects.timingCalibrationESSource_cfi')
-    process.timingCalibrationESSource.calibrationFile = cms.FileInPath('RecoCTPPS/TotemRPLocal/data/timing_offsets_ufsd_2018.dec18.cal.json')
+    process.load('CondFormats.CTPPSReadoutObjects.ppsTimingCalibrationESSource_cfi')
+    process.ppsTimingCalibrationESSource.calibrationFile = cms.FileInPath('RecoCTPPS/TotemRPLocal/data/timing_offsets_ufsd_2018.dec18.cal.json')
 else:
     # load calibrations from database
     process.load('CondCore.CondDB.CondDB_cfi')
@@ -24,7 +20,7 @@ else:
         DumpStats = cms.untracked.bool(True),
         toGet = cms.VPSet(
             cms.PSet(
-                record = cms.string('TimingCalibrationRcd'),
+                record = cms.string('PPSTimingCalibrationRcd'),
                 tag = cms.string('TotemTimingCalibration')
             )
         )
