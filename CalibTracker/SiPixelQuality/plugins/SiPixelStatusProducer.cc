@@ -8,17 +8,15 @@
 #include <string>
 // ROOT
 #include "TMath.h"
-
 // CMSSW FW
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
-
 // CMSSW DataFormats
 #include "DataFormats/Common/interface/ConditionsInEdm.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -29,7 +27,6 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 // "FED error 25"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
-
 // CMSSW CondFormats
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
@@ -39,11 +36,9 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
 // EDProducer related dataformat
 #include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
 #include "CalibTracker/SiPixelQuality/interface/SiPixelDetectorStatus.h"
-
 // header file
 #include "CalibTracker/SiPixelQuality/plugins/SiPixelStatusProducer.h"
 
@@ -385,5 +380,22 @@ int SiPixelStatusProducer::indexROC(int irow, int icol, int nROCcolumns) {
   // 8  9  10 11 12 13 14 15
   // 0  1  2  3  4  5  6  7
 }
+
+//--------------------------------------------------------------------------------------------------
+void SiPixelStatusProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
+
+     edm::ParameterSetDescription desc;
+
+     std::vector<edm::InputTag> badPixelFEDChannelCollections;
+
+     badPixelFEDChannelCollections.push_back(edm::InputTag("siPixelDigis"));
+     desc.add<std::vector<edm::InputTag>>("badPixelFEDChannelCollections",badPixelFEDChannelCollections);
+     desc.add<edm::InputTag>("pixelClusterLabel",edm::InputTag("siPixelClusters::RECO"));
+     desc.add<int>("resetEveryNLumi",1);
+
+     descriptions.add("siPixelStatusProducer",desc);
+
+}
+
 
 DEFINE_FWK_MODULE(SiPixelStatusProducer);
