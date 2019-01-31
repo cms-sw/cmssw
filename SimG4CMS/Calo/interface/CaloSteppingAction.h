@@ -78,11 +78,12 @@ private:
   double   getBirkHC(const G4Step* aStep);
   void     saveHits(int flag);
 
+  static const int                      nSD_= 3;
   std::unique_ptr<EcalBarrelNumberingScheme> ebNumberingScheme_;
   std::unique_ptr<EcalEndcapNumberingScheme> eeNumberingScheme_;
   std::unique_ptr<HcalNumberingFromDDD>      hcNumbering_;
   std::unique_ptr<HcalNumberingScheme>       hcNumberingScheme_;
-  std::unique_ptr<CaloSlaveSD>               slave_[3];
+  std::unique_ptr<CaloSlaveSD>               slave_[nSD_];
 
   std::vector<std::string>              nameEBSD_, nameEESD_, nameHCSD_;
   std::vector<std::string>              nameHitC_;
@@ -92,7 +93,7 @@ private:
   double                                slopeLY_, birkC1EC_, birkSlopeEC_;
   double                                birkCutEC_, birkC1HC_, birkC2HC_;
   double                                birkC3HC_;
-  std::map<CaloHitID,CaloGVHit>         hitMap_[3];
+  std::map<CaloHitID,CaloGVHit>         hitMap_[nSD_];
 };
 
 #endif
