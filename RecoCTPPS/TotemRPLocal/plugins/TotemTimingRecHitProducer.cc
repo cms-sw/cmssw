@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -46,6 +47,8 @@ class TotemTimingRecHitProducer : public edm::stream::EDProducer<>
     edm::EDGetTokenT<edm::DetSetVector<TotemTimingDigi> > digiToken_;
     /// Digi-to-rechits transformation algorithm
     TotemTimingRecHitProducerAlgorithm algo_;
+    /// Timing calibration parameters watcher
+    edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
 };
 
 TotemTimingRecHitProducer::TotemTimingRecHitProducer( const edm::ParameterSet& iConfig ) :
@@ -60,9 +63,12 @@ TotemTimingRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& i
 {
   std::unique_ptr<edm::DetSetVector<TotemTimingRecHit> > pOut( new edm::DetSetVector<TotemTimingRecHit> );
 
-  // get timing calibration parameters
-  edm::ESHandle<PPSTimingCalibration> hTimingCalib;
-  iSetup.get<PPSTimingCalibrationRcd>().get( hTimingCalib );
+  // check for timing calibration parameters update
+  if ( calibWatcher_.check( iSetup ) ) {
+    edm::ESHandle<PPSTimingCalibration> hTimingCalib;
+    iSetup.get<PPSTimingCalibrationRcd>().get( hTimingCalib );
+    algo_.setCalibration( *hTimingCalib );
+  }
 
   // get the digi collection
   edm::Handle<edm::DetSetVector<TotemTimingDigi> > digis;
@@ -73,7 +79,7 @@ TotemTimingRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& i
   iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
 
   // produce the rechits collection
-  algo_.build( *geometry, *hTimingCalib, *digis, *pOut );
+  algo_.build( *geometry, *digis, *pOut );
 
   iEvent.put( std::move( pOut ) );
 }
