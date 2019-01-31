@@ -29,7 +29,8 @@ process.maxEvents = cms.untracked.PSet(
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testSwitchProducerTask%d.root' % (1 if enableTest2 else 2,)),
     outputCommands = cms.untracked.vstring(
-        'keep *_intProducer_*_*'
+        'keep *_intProducer_*_*',
+        'keep *_intProducerOther_*_*'
     )
 )
 
@@ -45,7 +46,13 @@ process.intProducer = SwitchProducerTest(
     test2 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer2"))
 )
 
-process.t = cms.Task(process.intProducer, process.intProducer1, process.intProducer2)
+# Test also existence of another SwitchProducer here
+process.intProducerOther = SwitchProducerTest(
+    test1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer1")),
+    test2 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer2"))
+)
+
+process.t = cms.Task(process.intProducer, process.intProducerOther, process.intProducer1, process.intProducer2)
 process.p = cms.Path(process.t)
 
 process.e = cms.EndPath(process.out)
