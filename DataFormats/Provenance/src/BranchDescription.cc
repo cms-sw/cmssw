@@ -254,7 +254,7 @@ namespace edm {
     }
 
     branchAliases_ = aliasForBranch.branchAliases();
-    transient_.switchAliasForBranchID_ = aliasForBranch.branchID();
+    transient_.switchAliasForBranchID_ = aliasForBranch.originalBranchID();
     transient_.availableOnlyAtEndTransition_ = aliasForBranch.availableOnlyAtEndTransition();
   }
 
