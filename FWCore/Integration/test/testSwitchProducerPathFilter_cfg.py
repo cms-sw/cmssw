@@ -35,15 +35,27 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.intProducer1 = cms.EDProducer("FailingProducer")
 process.intProducer2 = cms.EDProducer("FailingProducer")
+process.intProducer3 = cms.EDProducer("ManyIntProducer",
+    ivalue = cms.int32(3),
+    values = cms.VPSet(cms.PSet(instance=cms.string("foo"),value=cms.int32(31))),
+    throw = cms.untracked.bool(True)
+)
 
 process.intProducer = SwitchProducerTest(
     test1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer1")),
     test2 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer2"))
 )
+# SwitchProducer with an alias
+process.intProducerAlias = SwitchProducerTest(
+    test1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer1")),
+    test2 = cms.EDAlias(intProducer3 = cms.VPSet(cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string(""), toProductInstance = cms.string("")),
+                                                 cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string("foo"), toProductInstance = cms.string("other"))))
+)
+
 
 process.f = cms.EDFilter("TestFilterModule", acceptValue = cms.untracked.int32(-1))
 
-process.t = cms.Task(process.intProducer1, process.intProducer2)
+process.t = cms.Task(process.intProducer1, process.intProducer2, process.intProducer3)
 process.p = cms.Path(process.f+process.intProducer, process.t)
 
 process.e = cms.EndPath(process.out)
