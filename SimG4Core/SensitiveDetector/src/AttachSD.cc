@@ -28,18 +28,16 @@ AttachSD::create(const DDCompactView & cpv,
     std::string className = clg.className(rname);
     std::unique_ptr<SensitiveDetectorMakerBase> temp{SensitiveDetectorPluginFactory::get()->create(className)};
 
-    SensitiveDetector* sd = temp->make(rname,cpv,clg,p,man,reg);
+    std::unique_ptr<SensitiveDetector> sd{temp->make(rname,cpv,clg,p,man,reg)};
     
     std::stringstream ss;
     ss << " AttachSD: created a " << className << " with name " << rname;
  
     if(sd->isCaloSD()) {
-      SensitiveCaloDetector* caloDet = (SensitiveCaloDetector*)(sd);
-      detList.second.push_back(caloDet);
+      detList.second.push_back(static_cast<SensitiveCaloDetector*>(sd.release()));
       ss << " + calo SD"; 
     } else {
-      SensitiveTkDetector* tkDet = (SensitiveTkDetector*)(sd);
-      detList.first.push_back(tkDet);
+      detList.first.push_back(static_cast<SensitiveTkDetector*>(sd.release()));
       ss << " + tracking SD"; 
     }
     edm::LogVerbatim("SimG4CoreSensitiveDetector") << ss.str();
