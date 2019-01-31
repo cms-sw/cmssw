@@ -1,6 +1,6 @@
 #include "SimG4CMS/Muon/interface/MuonSensitiveDetector.h"
 #include "SimG4CMS/Muon/interface/MuonSlaveSD.h"
-#include "SimG4CMS/Muon//interface/MuonEndcapFrameRotation.h"
+#include "SimG4CMS/Muon/interface/MuonEndcapFrameRotation.h"
 #include "SimG4CMS/Muon/interface/MuonRPCFrameRotation.h"
 #include "SimG4CMS/Muon/interface/MuonGEMFrameRotation.h"
 #include "SimG4CMS/Muon/interface/MuonME0FrameRotation.h"
