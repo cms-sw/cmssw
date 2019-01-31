@@ -1,4 +1,4 @@
-from Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable, _modifyParametersFromDict
+from Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable, _modifyParametersFromDict, saveOrigin
 from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import format_typename, format_outerframe
 
@@ -1136,30 +1136,21 @@ def convertToVPSet( **kw ):
     return returnValue
 
 
-class EDAlias(_ConfigureComponent,_Labelable):
+class EDAlias(_ConfigureComponent,_Labelable,_Parameterizable):
     def __init__(self,*arg,**kargs):
-        super(EDAlias,self).__init__()
-        self.__dict__['_EDAlias__parameterNames'] = []
-        self.__setParameters(kargs)
+        super(EDAlias,self).__init__(**kargs)
 
-    def parameterNames_(self):
-        """Returns the name of the parameters"""
-        return self.__parameterNames[:]
+    def clone(self, *args, **params):
+        returnValue = EDAlias.__new__(type(self))
+        myparams = self.parameters_()
+        if len(myparams) == 0 and len(params) and len(args):
+            args.append(None)
 
-    def __addParameter(self, name, value):
-        if not isinstance(value,_ParameterTypeBase):
-            self.__raiseBadSetAttr(name)
-        self.__dict__[name]=value
-        self.__parameterNames.append(name)
+        _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
 
-    def __delattr__(self,attr):
-        if attr in self.__parameterNames:
-            self.__parameterNames.remove(attr)
-        return super(EDAlias,self).__delattr__(attr)
-
-    def __setParameters(self,parameters):
-        for name,value in six.iteritems(parameters):
-            self.__addParameter(name, value)
+        returnValue.__init__(*args, **myparams)
+        saveOrigin(returnValue, 1)
+        return returnValue
 
     def _place(self,name,proc):
         proc._placeAlias(name,self)
@@ -1438,6 +1429,21 @@ if __name__ == "__main__":
             del aliasfoo2.foo2
             self.assert_(not hasattr(aliasfoo2,"foo2"))
             self.assert_("foo2" not in aliasfoo2.parameterNames_())
+
+            aliasfoo2 = EDAlias(foo2 = VPSet(PSet(type = string("Foo2"))))
+            aliasfoo3 = aliasfoo2.clone(
+                foo2 = {0: dict(type = "Foo4")},
+                foo3 = VPSet(PSet(type = string("Foo3")))
+            )
+            self.assertTrue(hasattr(aliasfoo3, "foo2"))
+            self.assertTrue(hasattr(aliasfoo3, "foo3"))
+            self.assertEqual(aliasfoo3.foo2[0].type, "Foo4")
+            self.assertEqual(aliasfoo3.foo3[0].type, "Foo3")
+
+            aliasfoo4 = aliasfoo3.clone(foo2 = None)
+            self.assertFalse(hasattr(aliasfoo4, "foo2"))
+            self.assertTrue(hasattr(aliasfoo4, "foo3"))
+            self.assertEqual(aliasfoo4.foo3[0].type, "Foo3")
 
         def testFileInPath(self):
             f = FileInPath("FWCore/ParameterSet/python/Types.py")
