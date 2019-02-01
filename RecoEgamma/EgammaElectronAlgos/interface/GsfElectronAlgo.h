@@ -198,9 +198,6 @@ class GsfElectronAlgo {
       
       ) ;
 
-    // typedefs
-    typedef std::list<reco::GsfElectron> GsfElectronList ; // for temporary collections
-
     // main methods
     void checkSetup( const edm::EventSetup & ) ;
     void beginEvent( edm::Event & ) ;
@@ -211,7 +208,7 @@ class GsfElectronAlgo {
     void setAmbiguityData( bool ignoreNotPreselected = true ) ;
     void removeNotPreselectedElectrons() ;
     void removeAmbiguousElectrons() ;
-    reco::GsfElectronCollection movedElectrons() ;
+    reco::GsfElectronCollection & electrons() ;
     void setMVAInputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput> & mvaInputs)  ;
     void setMVAOutputs(const gsfAlgoHelpers::HeavyObjectCache*,
                        const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs) ;
@@ -314,7 +311,7 @@ class GsfElectronAlgo {
       bool originalCtfTrackCollectionRetreived = false ;
       bool originalGsfTrackCollectionRetreived = false ;
 
-      GsfElectronList electrons ;
+      reco::GsfElectronCollection electrons ;
      } ;
 
     //===================================================================
@@ -372,7 +369,7 @@ class GsfElectronAlgo {
     void setMVAepiBasedPreselectionFlag(reco::GsfElectron & ele);
     void setCutBasedPreselectionFlag( reco::GsfElectron & ele, const reco::BeamSpot & ) ;
     void setPflowPreselectionFlag( reco::GsfElectron & ele ) ;
-    bool isPreselected( reco::GsfElectron & ele ) ;
+    bool isPreselected( reco::GsfElectron const& ele ) ;
 
     template<bool full5x5>
     void calculateShowerShape( const reco::SuperClusterRef &, bool pflow, 
