@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process('ANALYSIS')
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process("ANALYSIS",eras.Run2_2017)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
@@ -24,7 +26,7 @@ process.towerMakerAll.hfInput = cms.InputTag("none")
 process.towerMakerAll.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE"))
 process.towerMakerAll.AllowMissingInputs = True
 
-process.load('Calibration.HcalCalibAlgos.HcalIsoTrkAnalyzer_cfi')
+process.load('Calibration.HcalCalibAlgos.HcalIsoTrkAnalyzer_cff')
 process.HcalIsoTrkAnalyzer.processName  = 'HLTNew1'
 process.HcalIsoTrkAnalyzer.producerName = 'ALCAISOTRACK'
 process.HcalIsoTrkAnalyzer.moduleName   = 'IsoProd'
