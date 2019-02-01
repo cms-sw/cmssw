@@ -49,8 +49,6 @@ class BeamMonitorBx : public edm::EDAnalyzer {
 			  const edm::EventSetup& c) override;
   // EndRun
   void endRun(const edm::Run& r, const edm::EventSetup& c) override;
-  // Endjob
-  void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
   
  private:
 
