@@ -33,7 +33,7 @@ l1StubMatchedMuons = cms.EDProducer("L1TTrackerPlusStubsProducer",
 	    etaLowm1 = cms.vdouble(-0.85,-0.725,-0.615,-0.54),
 	    etaLowm2 = cms.vdouble(-1.25,-1.1,-0.95,-0.835),
 	    alpha = cms.vdouble(2.50016e-2,3.10230e-2,3.65267e-2,3.46650e-2),
-	    beta = cms.vdouble(2.13888e1,2.15320e1,2.09371e1,2.98381e1),
+	    beta = cms.vdouble(2*2.13888e1,2*2.15320e1,2*2.09371e1,2*2.98381e1),
 	    alphaB = cms.vdouble(5.56536e-3,6.74712e-3,8.22339e-3,1.04466e-2),
 	    betaB = cms.vdouble(1.68262e0,1.61702e0,1.52894e0,1.25928e0)
         )
