@@ -53,7 +53,7 @@ CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::Paramete
     const unsigned int rpId = pset.getParameter<unsigned int>("rpId");
     const std::string dirName = pset.getParameter<std::string>("dirName");
     const double z = pset.getParameter<double>("z");
-    const RPInfo entry = {dirName, z * 1E2}; // conversion: m -> cm
+    const RPInfo entry = {dirName, z};
     m_rpInfo.emplace(rpId, entry);
   }
 
