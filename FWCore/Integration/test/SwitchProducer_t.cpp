@@ -10,46 +10,34 @@
 
 static constexpr auto s_tag = "[SwitchProducer]";
 
+namespace {
+  std::string makeConfig(bool test2Enabled, const std::string& test1, const std::string& test2) {
+    return std::string{
+R"_(from FWCore.TestProcessor.TestProcess import *
+import FWCore.ParameterSet.Config as cms
+
+class SwitchProducerTest(cms.SwitchProducer):
+    def __init__(self, **kargs):
+        super(SwitchProducerTest,self).__init__(
+            dict(
+                test1 = lambda: (True, -10),
+                test2 = lambda: ()_"} + (test2Enabled ? "True" : "False") + ", -9)\n" +
+R"_(            ), **kargs)
+process = TestProcess()
+process.s = SwitchProducerTest(
+   test1 = )_" + test1 + ",\n" +
+"   test2 = " + test2 + "\n" +
+")\n" +
+"process.moduleToTest(process.s)\n";
+  }
+}
+
 TEST_CASE("Configuration", s_tag) {
-  const std::string baseConfig{
-R"_(from FWCore.TestProcessor.TestProcess import *
-import FWCore.ParameterSet.Config as cms
+  const std::string test1{"cms.EDProducer('IntProducer', ivalue = cms.int32(1))"};
+  const std::string test2{"cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = cms.VPSet())"};
 
-class SwitchProducerTest(cms.SwitchProducer):
-    def __init__(self, **kargs):
-        super(SwitchProducerTest,self).__init__(
-            dict(
-                test1 = lambda: (True, -10),
-                test2 = lambda: (True, -9)
-            ), **kargs)
-
-process = TestProcess()
-process.s = SwitchProducerTest(
-   test1 = cms.EDProducer('IntProducer', ivalue = cms.int32(1)),
-   test2 = cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = cms.VPSet())
-)
-process.moduleToTest(process.s)
-)_"};
-
-  const std::string baseConfigTest2Disabled{
-R"_(from FWCore.TestProcessor.TestProcess import *
-import FWCore.ParameterSet.Config as cms
-
-class SwitchProducerTest(cms.SwitchProducer):
-    def __init__(self, **kargs):
-        super(SwitchProducerTest,self).__init__(
-            dict(
-                test1 = lambda: (True, -10),
-                test2 = lambda: (False, -9)
-            ), **kargs)
-
-process = TestProcess()
-process.s = SwitchProducerTest(
-   test1 = cms.EDProducer('IntProducer', ivalue = cms.int32(1)),
-   test2 = cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = cms.VPSet())
-)
-process.moduleToTest(process.s)
-)_"};
+  const std::string baseConfig = makeConfig(true, test1, test2);
+  const std::string baseConfigTest2Disabled = makeConfig(false, test1, test2);
 
   SECTION("Configuration hash is not changed") {
     auto pset = edm::boost_python::readConfig(baseConfig);
@@ -97,51 +85,17 @@ process.moduleToTest(process.s)
     auto event = tester.test();
     REQUIRE(event.get<edmtest::IntProduct>()->value == 1);
   }
-};
+}
+
 
 TEST_CASE("Configuration with many branches", s_tag) {
-  const std::string baseConfig{
-R"_(from FWCore.TestProcessor.TestProcess import *
-import FWCore.ParameterSet.Config as cms
+  const std::string test1{R"_(cms.EDProducer('ManyIntProducer', ivalue = cms.int32(1), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(11)),
+                                                                                       cms.PSet(instance=cms.string('bar'),value=cms.int32(21)))))_"};
+  const std::string test2{R"_(cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(12)),
+                                                                                       cms.PSet(instance=cms.string('bar'),value=cms.int32(22)))))_"};
 
-class SwitchProducerTest(cms.SwitchProducer):
-    def __init__(self, **kargs):
-        super(SwitchProducerTest,self).__init__(
-            dict(
-                test1 = lambda: (True, -10),
-                test2 = lambda: (True, -9)
-            ), **kargs)
-
-process = TestProcess()
-process.s = SwitchProducerTest(
-   test1 = cms.EDProducer('ManyIntProducer', ivalue = cms.int32(1), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(11)),
-                                                                                       cms.PSet(instance=cms.string('bar'),value=cms.int32(21)))),
-   test2 = cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(12)),
-                                                                                       cms.PSet(instance=cms.string('bar'),value=cms.int32(22))))
-)
-process.moduleToTest(process.s)
-)_"};
-  const std::string baseConfigTest2Disabled{
-R"_(from FWCore.TestProcessor.TestProcess import *
-import FWCore.ParameterSet.Config as cms
-
-class SwitchProducerTest(cms.SwitchProducer):
-    def __init__(self, **kargs):
-        super(SwitchProducerTest,self).__init__(
-            dict(
-                test1 = lambda: (True, -10),
-                test2 = lambda: (False, -9)
-            ), **kargs)
-
-process = TestProcess()
-process.s = SwitchProducerTest(
-   test1 = cms.EDProducer('ManyIntProducer', ivalue = cms.int32(1), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(11)),
-                                                                                       cms.PSet(instance=cms.string('bar'),value=cms.int32(21)))),
-   test2 = cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(12)),
-                                                                                       cms.PSet(instance=cms.string('bar'),value=cms.int32(22))))
-)
-process.moduleToTest(process.s)
-)_"};
+  const std::string baseConfig = makeConfig(true, test1, test2);
+  const std::string baseConfigTest2Disabled = makeConfig(false, test1, test2);
 
   edm::test::TestProcessor::Config config{ baseConfig };
   edm::test::TestProcessor::Config configTest2Disabled{ baseConfigTest2Disabled };
@@ -166,45 +120,11 @@ process.moduleToTest(process.s)
 
 
 TEST_CASE("Configuration with different branches", s_tag) {
-  const std::string baseConfig1{
-R"_(from FWCore.TestProcessor.TestProcess import *
-import FWCore.ParameterSet.Config as cms
+  const std::string test1{"cms.EDProducer('ManyIntProducer', ivalue = cms.int32(1), values = cms.VPSet())"};
+  const std::string test2{"cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(3))))"};
 
-class SwitchProducerTest(cms.SwitchProducer):
-    def __init__(self, **kargs):
-        super(SwitchProducerTest,self).__init__(
-            dict(
-                test1 = lambda: (True, -10),
-                test2 = lambda: (True, -9)
-            ), **kargs)
-
-process = TestProcess()
-process.s = SwitchProducerTest(
-   test1 = cms.EDProducer('ManyIntProducer', ivalue = cms.int32(1), values = cms.VPSet()),
-   test2 = cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(3))))
-)
-process.moduleToTest(process.s)
-)_"};
-
-    const std::string baseConfig2{
-R"_(from FWCore.TestProcessor.TestProcess import *
-import FWCore.ParameterSet.Config as cms
-
-class SwitchProducerTest(cms.SwitchProducer):
-    def __init__(self, **kargs):
-        super(SwitchProducerTest,self).__init__(
-            dict(
-                test1 = lambda: (True, -10),
-                test2 = lambda: (True, -9)
-            ), **kargs)
-
-process = TestProcess()
-process.s = SwitchProducerTest(
-   test1 = cms.EDProducer('ManyIntProducer', ivalue = cms.int32(1), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(3)))),
-   test2 = cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = cms.VPSet())
-)
-process.moduleToTest(process.s, cms.Task(process.i))
-)_"};
+  const std::string baseConfig1 = makeConfig(true, test1, test2);
+  const std::string baseConfig2 = makeConfig(false, test1, test2);
 
   SECTION("Different branches are not allowed") {
     edm::test::TestProcessor::Config config1{ baseConfig1 };
@@ -218,25 +138,9 @@ process.moduleToTest(process.s, cms.Task(process.i))
 
 
 TEST_CASE("Configuration with lumi and run", s_tag) {
-  const std::string baseConfig{
-R"_(from FWCore.TestProcessor.TestProcess import *
-import FWCore.ParameterSet.Config as cms
-
-class SwitchProducerTest(cms.SwitchProducer):
-    def __init__(self, **kargs):
-        super(SwitchProducerTest,self).__init__(
-            dict(
-                test1 = lambda: (True, -10),
-                test2 = lambda: (True, -9)
-            ), **kargs)
-
-process = TestProcess()
-process.s = SwitchProducerTest(
-   test1 = cms.EDProducer('ThingProducer', nThings = cms.int32(10)),
-   test2 = cms.EDProducer('ThingProducer', nThings = cms.int32(20))
-)
-process.moduleToTest(process.s)
-)_"};
+  const std::string test1{"cms.EDProducer('ThingProducer', nThings = cms.int32(10))"};
+  const std::string test2{"cms.EDProducer('ThingProducer', nThings = cms.int32(20))"};
+  const std::string baseConfig = makeConfig(true, test1, test2);
 
   edm::test::TestProcessor::Config config{ baseConfig };
 
@@ -247,45 +151,11 @@ process.moduleToTest(process.s)
 
 
 TEST_CASE("Configuration with ROOT branch alias", s_tag) {
-  const std::string baseConfig1{
-R"_(from FWCore.TestProcessor.TestProcess import *
-import FWCore.ParameterSet.Config as cms
+  const std::string test1{"cms.EDProducer('ManyIntProducer', ivalue = cms.int32(1), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(3))))"};
+  const std::string test2{"cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(4),branchAlias=cms.string('bar'))))"};
 
-class SwitchProducerTest(cms.SwitchProducer):
-    def __init__(self, **kargs):
-        super(SwitchProducerTest,self).__init__(
-            dict(
-                test1 = lambda: (True, -10),
-                test2 = lambda: (True, -9)
-            ), **kargs)
-
-process = TestProcess()
-process.s = SwitchProducerTest(
-   test1 = cms.EDProducer('ManyIntProducer', ivalue = cms.int32(1), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(3)))),
-   test2 = cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(4),branchAlias=cms.string('bar'))))
-)
-process.moduleToTest(process.s)
-)_"};
-
-    const std::string baseConfig2{
-R"_(from FWCore.TestProcessor.TestProcess import *
-import FWCore.ParameterSet.Config as cms
-
-class SwitchProducerTest(cms.SwitchProducer):
-    def __init__(self, **kargs):
-        super(SwitchProducerTest,self).__init__(
-            dict(
-                test1 = lambda: (True, -10),
-                test2 = lambda: (True, -9)
-            ), **kargs)
-
-process = TestProcess()
-process.s = SwitchProducerTest(
-   test1 = cms.EDProducer('ManyIntProducer', ivalue = cms.int32(1), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(3),branchAlias=cms.string('bar')))),
-   test2 = cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(4))))
-)
-process.moduleToTest(process.s)
-)_"};
+  const std::string baseConfig1 = makeConfig(true, test1, test2);
+  const std::string baseConfig2 = makeConfig(false, test1, test2);
 
   SECTION("ROOT branch aliases are not supported for the chosen case") {
     edm::test::TestProcessor::Config config{ baseConfig1 };
