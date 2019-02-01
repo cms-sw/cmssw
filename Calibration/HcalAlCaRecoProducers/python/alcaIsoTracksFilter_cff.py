@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from Calibration.HcalAlCaRecoProducers.alcaIsoTracksFilter_cfi import *
 
-from Configuration.Eras.Modifier_run2_ECAL_2017_cff import run2_ECAL_2017
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 
-run2_ECAL_2017.toModify(alcaIsoTracksFilter,
+run2_HCAL_2017.toModify(alcaIsoTracksFilter,
   EBHitEnergyThreshold    = cms.double(0.18),
   EEHitEnergyThreshold0   = cms.double(-206.074),
   EEHitEnergyThreshold1   = cms.double(357.671),
