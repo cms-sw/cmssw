@@ -184,6 +184,17 @@ namespace edm {
         }
       }
 
+      if(auto iter = aliasMap.find(key); iter != aliasMap.end()) {
+        // If the same EDAlias defines multiple products pointing to the same product, throw
+        if(iter->second.moduleLabel() == alias) {
+          throw Exception(errors::Configuration, "EDAlias conflict\n")
+            << "The module label alias '" << alias << "' is used for multiple products of type '"
+            << friendlyClassName << "' with module label '" << moduleLabel << "' and instance name '"
+            << productInstanceName << "'. One alias has the instance name '" << iter->first.productInstanceName()
+            << "' and the other has the instance name '" << instanceAlias << "'.";
+        }
+      }
+
       std::string const& theInstanceAlias(instanceAlias == star ? productInstanceName : instanceAlias);
       BranchKey aliasKey(friendlyClassName, alias, theInstanceAlias, processName);
       if(preg.productList().find(aliasKey) != preg.productList().end()) {
