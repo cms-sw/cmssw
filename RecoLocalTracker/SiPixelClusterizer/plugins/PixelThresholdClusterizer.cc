@@ -58,7 +58,7 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     thePhase2KinkADC( conf.getParameter<int>("Phase2KinkADC") ),
     theNumOfRows(0), theNumOfCols(0), theDetid(0),
     // Get the constants for the miss-calibration studies
-    doMissCalibrate( conf.getUntrackedParameter<bool>("MissCalibrate",true) ),
+    doMissCalibrate( conf.getParameter<bool>("MissCalibrate") ),
     doSplitClusters( conf.getParameter<bool>("SplitClusters") )
 {
   theBuffer.setSize( theNumOfRows, theNumOfCols );
@@ -71,7 +71,7 @@ PixelThresholdClusterizer::~PixelThresholdClusterizer() {}
 void
 PixelThresholdClusterizer::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<int>("ChannelThreshold", 1000);
-  desc.addUntracked<bool>("MissCalibrate", true);
+  desc.add<bool>("MissCalibrate", true);
   desc.add<bool>("SplitClusters", false);
   desc.add<int>("VCaltoElectronGain", 65);
   desc.add<int>("VCaltoElectronGain_L1", 65);
