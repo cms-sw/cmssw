@@ -23,7 +23,7 @@ namespace reco
       /// parameter dimension
       enum { dimension = 5 };
       /// indices to the covariance matrix
-      enum struct Index : unsigned short { xi, th_x, vtx_x, th_y, vtx_y, num_indices = dimension };
+      enum struct Index { xi, th_x, vtx_x, th_y, vtx_y, num_indices = dimension };
       /// dimension-parameter covariance matrix
       typedef math::ErrorF<dimension>::type CovarianceMatrix;
       /// spatial vector
@@ -80,6 +80,11 @@ namespace reco
 
       // vertex position can be obtained via TrackBase::vx() and vy() functions
 
+      /// return the uncertainty on a given component
+      double error( Index i ) const {
+        return sqrt( covariance_( (unsigned int)i, (unsigned int)i ) );
+      }
+
       /// uncertainty on longitudinal fractional momentum loss
       float xiError() const { return error( Index::xi ); }
       /// uncertainty on fitted momentum horizontal angle opening
@@ -101,9 +106,9 @@ namespace reco
       float t() const;
 
       /// time of proton arrival at forward stations
-      float time() const { return t_; }
+      float time() const { return time_; }
       /// uncertainty on time of proton arrival at forward stations
-      float timeError() const { return t_err_; }
+      float timeError() const { return time_err_; }
 
       /// set the flag for the fit validity
       void setValidFit( bool valid = true ) { valid_fit_ = valid; }
@@ -133,19 +138,14 @@ namespace reco
       static constexpr float mass_ = 0.938272046; ///< proton mass, GeV
       static constexpr float massSquared_ = 0.88035443; ///< proton mass squared, GeV^2
 
-      /// return the uncertainty on a given component
-      double error( Index i ) const {
-        return sqrt( covariance_( (unsigned int)i, (unsigned int)i ) );
-      }
-
       /// reconstructed vertex position at z/s = 0
       Point vertex_;
       /// reconstructed momentum vector
       Vector momentum_;
       /// reconstructed time at forward detectors
-      float t_;
+      float time_;
       /// uncertainty on reconstructed time at forward detectors
-      float t_err_;
+      float time_err_;
       /// fractional momentum loss (positive for diffractive protons)
       float xi_;
       /// 5x5 covariance matrix
