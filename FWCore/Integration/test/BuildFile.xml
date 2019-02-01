@@ -139,6 +139,13 @@
     <use   name="DataFormats/Provenance"/>
     <use   name="catch2"/>
   </bin>
+  <bin   file="EDAlias_t.cpp">
+    <use   name="FWCore/Framework"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="FWCore/TestProcessor"/>
+    <use   name="DataFormats/Provenance"/>
+    <use   name="catch2"/>
+  </bin>
   <library   file="TestPSetAnalyzer.cc" name="TestPSetAnalyzer">
     <flags   EDM_PLUGIN="1"/>
     <use   name="DataFormats/Provenance"/>
