@@ -25,13 +25,13 @@
 //                              factors as a function of run numbers or depth
 //                              to be used for raddam/depth dependent 
 //                              correction  (default="", no corr.)
-//  useweight       (bool)    = Flag to use event weight (True)
+//  useweight       (bool)    = Flag to use event weight (true)
 //  useMean         (bool)    = Flag to use Mean of Most probable value
-//                              (False -- use MPV)
+//                              (false -- use MPV)
 //  nMin            (int)     = Minmum entries for a given cell which will be
 //                              used in evaluating convergence criterion (0)
 //  inverse         (bool)    = Use the ratio E/p or p/E in determining the
-//                              coefficients (True -- use p/E)
+//                              coefficients (true -- use p/E)
 //  ratMin          (double)  = Lower  cut on E/p to select a track (0.25)
 //  ratMax          (double)  = Higher cut on E/p to select a track (3.0)
 //  ietaMax         (int)     = Maximum ieta value for which correcttion
@@ -58,7 +58,7 @@
 //  rcorForm        (int)     = type of rcorFileName: (0) for Raddam correction,
 //                              (1) for depth dependent corrections; (2) for
 //                              RespCorr corrections; (0)
-//  useGen          (bool)    = use generator level momentum information (False)
+//  useGen          (bool)    = use generator level momentum information (false)
 //  runlo           (int)     = lower value of run number to be included (+ve)
 //                              or excluded (-ve) (default 0)
 //  runhi           (int)     = higher value of run number to be included 
@@ -74,12 +74,12 @@
 //                              considered (false)
 //  higheta         (int)     = take correction factors for |ieta| > ietamax
 //                              as 1 (0) or of ieta = ietamax with same sign
-//                              amd depth 1 (1) (default 1)
+//                              and depth 1 (1) (default 1)
 //  fraction        (double)  = fraction of events to be done (-1)    
 //  writeDebugHisto (bool)    = Flag to check writing intermediate histograms
-//                              in o/p file (False)
+//                              in o/p file (false)
 //  debug           (bool)    = To produce more debug printing on screen
-//                              (False)
+//                              (false)
 //
 //  doIt(inFileName, dupFileName)
 //  calls Run 5 times reducing # of events by a factor of 2 in each case
@@ -157,6 +157,13 @@ public :
   Int_t                      fCurrent;//!current Tree number in a TChain
   TH1D                      *h_pbyE, *h_cvg;
   TProfile                  *h_Ebyp_bfr, *h_Ebyp_aftr;
+
+  struct myEntry {
+    myEntry (int k=0, double f0=0, double f1=0, 
+	     double f2=0) : kount(k), fact0(f0), fact1(f1), fact2(f2) {}
+    int    kount;
+    double fact0, fact1, fact2;
+  };
 
 private:
 
@@ -249,7 +256,7 @@ private:
   const int                                         zside_, nvxlo_, nvxhi_;
   const int                                         sysmode_, rbx_, puCorr_;
   const int                                         rcorForm_;
-  const bool                                        useGen_,exclude_;
+  const bool                                        useGen_, exclude_;
   const int                                         higheta_;
   bool                                              includeRun_;
   double                                            log2by18_, eHcalDelta_;
@@ -257,13 +264,6 @@ private:
   std::vector<unsigned int>                         detIds;
   std::map<unsigned int, TH1D*>                     histos;
   std::map<unsigned int, std::pair<double,double> > Cprev;
-
-  struct myEntry {
-    myEntry (int k=0, double f0=0, double f1=0, 
-	     double f2=0) : kount(k), fact0(f0), fact1(f1), fact2(f2) {}
-    int    kount;
-    double fact0, fact1, fact2;
-  };
 
 };
 
@@ -544,9 +544,14 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 		     ((t_Run < runlo_) || (t_Run > runhi_)));
       bool selTrack = ((ietaTrack <= 0) || (abs(t_ieta) <= ietaTrack));
       if (selRun && (t_nVtx >= nvxlo_) && (t_nVtx <= nvxhi_) && selTrack) {
-	bool isItRBX = (cSelect_ && exclude_ && cSelect_->isItRBX(t_DetIds));
+	bool isItRBX(false);
+	if (cSelect_ != nullptr) { 
+	  bool temp = cSelect_->isItRBX(t_DetIds);
+	  if (exclude_) isItRBX = temp;
+	  else          isItRBX = !(temp);
+	}
 	++kprint;
-	if (!isItRBX) {
+	if (cSelect_ && !(isItRBX)) {
 	  for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) { 
 	    if (selectPhi((*t_DetIds)[idet])) {
 	      unsigned int detid = truncateId((*t_DetIds)[idet],
