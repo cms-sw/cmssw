@@ -46,6 +46,7 @@ from RecoVertex.Configuration.RecoVertex_phase2_timing_cff import (tpClusterProd
                                                                   offlinePrimaryVertices4DwithPID ,
                                                                   offlinePrimaryVertices4DwithPIDWithBS,
                                                                   tofPID,
+                                                                  tofPIDfor4DwithPID,
                                                                   unsortedOfflinePrimaryVertices4Dfastsim,
                                                                   trackWithVertexRefSelectorBeforeSorting4Dfastsim ,
                                                                   trackRefsForJetsBeforeSorting4Dfastsim ,
@@ -75,6 +76,7 @@ _phase2_tktiming_layer_vertexrecoTask = cms.Task( _phase2_tktiming_vertexrecoTas
                                             offlinePrimaryVertices4DnoPID ,
                                             offlinePrimaryVertices4DnoPIDWithBS,
                                             tofPID,
+                                            tofPIDfor4DwithPID,
                                             unsortedOfflinePrimaryVertices4Dfastsim,
                                             trackWithVertexRefSelectorBeforeSorting4Dfastsim ,
                                             trackRefsForJetsBeforeSorting4Dfastsim ,
@@ -93,3 +95,4 @@ from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timin
 (phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(offlinePrimaryVertices4DWithBS, offlinePrimaryVertices4DwithPIDWithBS.clone())
 (phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(offlinePrimaryVertices4D, vertices = "unsortedOfflinePrimaryVertices4D", particles = "trackRefsForJetsBeforeSorting4D")
 (phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(offlinePrimaryVertices4DWithBS, vertices = "unsortedOfflinePrimaryVertices4D:WithBS", particles = "trackRefsForJetsBeforeSorting4D")
+(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(tofPID, vtxsSrc='unsortedOfflinePrimaryVertices4D')

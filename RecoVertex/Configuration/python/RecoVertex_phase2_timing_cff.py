@@ -31,8 +31,8 @@ offlinePrimaryVertices4DnoPID=offlinePrimaryVertices4D.clone(vertices="unsortedO
                                                           trackTimeResoTag="trackExtenderWithMTD:generalTracksigmat0")
 offlinePrimaryVertices4DnoPIDWithBS=offlinePrimaryVertices4DnoPID.clone(vertices="unsortedOfflinePrimaryVertices4DnoPID:WithBS")
 
-unsortedOfflinePrimaryVertices4DwithPID = unsortedOfflinePrimaryVertices4D.clone(TrackTimesLabel = "tofPID:t0safe",
-                                                                                 TrackTimeResosLabel = "tofPID:sigmat0safe",
+unsortedOfflinePrimaryVertices4DwithPID = unsortedOfflinePrimaryVertices4D.clone(TrackTimesLabel = "tofPIDfor4DwithPID:t0safe",
+                                                                                 TrackTimeResosLabel = "tofPIDfor4DwithPID:sigmat0safe",
                                                                                  )
 trackWithVertexRefSelectorBeforeSorting4DwithPID = trackWithVertexRefSelector.clone(vertexTag="unsortedOfflinePrimaryVertices4DwithPID",
                                                                              ptMax=9e99,
@@ -40,8 +40,8 @@ trackWithVertexRefSelectorBeforeSorting4DwithPID = trackWithVertexRefSelector.cl
 trackRefsForJetsBeforeSorting4DwithPID = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSorting4DwithPID")
 offlinePrimaryVertices4DwithPID=offlinePrimaryVertices4D.clone(vertices="unsortedOfflinePrimaryVertices4DwithPID",
                                                      particles="trackRefsForJetsBeforeSorting4DwithPID",
-                                                     trackTimeTag="tofPID:t0safe",
-                                                     trackTimeResoTag="tofPID:sigmat0safe")
+                                                     trackTimeTag="tofPIDfor4DwithPID:t0safe",
+                                                     trackTimeResoTag="tofPIDfor4DwithPID:sigmat0safe")
 offlinePrimaryVertices4DwithPIDWithBS=offlinePrimaryVertices4DwithPID.clone(vertices="unsortedOfflinePrimaryVertices4DwithPID:WithBS")
 
 unsortedOfflinePrimaryVertices4Dfastsim = unsortedOfflinePrimaryVertices4D.clone()
@@ -57,3 +57,6 @@ from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProd
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import quickTrackAssociatorByHits
 from SimTracker.TrackAssociation.trackTimeValueMapProducer_cfi import trackTimeValueMapProducer
 from CommonTools.RecoAlgos.tofPID_cfi import tofPID
+
+tofPIDfor4DwithPID=tofPID.clone()
+tofPID.vtxsSrc=cms.InputTag('unsortedOfflinePrimaryVertices4DwithPID')
