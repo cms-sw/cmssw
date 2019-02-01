@@ -11,7 +11,7 @@
 using namespace reco;
 
 ForwardProton::ForwardProton() :
-  t_( 0. ), t_err_( 0. ), xi_( 0. ), chi2_( 0. ), ndof_( 0 ),
+  time_( 0. ), time_err_( 0. ), xi_( 0. ), chi2_( 0. ), ndof_( 0 ),
   valid_fit_( false ), method_( ReconstructionMethod::invalid )
 {}
 
@@ -19,7 +19,7 @@ ForwardProton::ForwardProton( double chi2, double ndof, const Point& vtx, const 
                               const CovarianceMatrix& cov, ReconstructionMethod method,
                               const CTPPSLocalTrackLiteRefVector& local_tracks, bool valid ) :
   vertex_( vtx ), momentum_( momentum ),
-  t_( 0. ), t_err_( 0. ), xi_( xi ),
+  time_( 0. ), time_err_( 0. ), xi_( xi ),
   covariance_( cov ), chi2_( chi2 ), ndof_( ndof ),
   valid_fit_( valid ), method_( method ), contributing_local_tracks_( local_tracks )
 {}
