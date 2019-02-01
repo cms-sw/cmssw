@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process('ANALYSIS')
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process("ANALYSIS",eras.Run2_2017)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
@@ -25,7 +27,7 @@ process.towerMakerAll.hfInput = cms.InputTag("none")
 process.towerMakerAll.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE"))
 process.towerMakerAll.AllowMissingInputs = True
 
-process.load('Calibration.HcalCalibAlgos.HcalIsoTrkAnalyzer_cfi')
+process.load('Calibration.HcalCalibAlgos.HcalIsoTrkAnalyzer_cff')
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
         '/store/data/Run2018B/JetHT/ALCARECO/HcalCalIsoTrkFilter-PromptReco-v1/000/317/696/00000/D60EC93B-9870-E811-BAF3-FA163E8DA20D.root',
