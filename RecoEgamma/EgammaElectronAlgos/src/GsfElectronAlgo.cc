@@ -468,11 +468,9 @@ void GsfElectronAlgo::checkSetup( const edm::EventSetup & es )
   }
  }
 
-reco::GsfElectronCollection GsfElectronAlgo::movedElectrons()
+reco::GsfElectronCollection & GsfElectronAlgo::electrons()
 {
-  reco::GsfElectronCollection outEle ;
-  for(auto& ele : eventData_->electrons) outEle.push_back(std::move(ele)) ;
-  return outEle ;
+  return eventData_->electrons ;
 }
 
 void GsfElectronAlgo::beginEvent( edm::Event & event )
@@ -738,12 +736,12 @@ void GsfElectronAlgo::addPflowInfo()
    }
  }
 
-bool GsfElectronAlgo::isPreselected( GsfElectron & ele )
+bool GsfElectronAlgo::isPreselected( GsfElectron const& ele )
  {
-	bool passCutBased = ele.passingCutBasedPreselection();
-	bool passPF = ele.passingPflowPreselection(); //it is worth nothing for gedGsfElectrons, this does nothing as its not set till GedGsfElectron finaliser, this is always false
+	bool passCutBased=ele.passingCutBasedPreselection();
+	bool passPF=ele.passingPflowPreselection(); //it is worth nothing for gedGsfElectrons, this does nothing as its not set till GedGsfElectron finaliser, this is always false
 	if(generalData_->strategyCfg.gedElectronMode){
-         	bool passmva = ele.passingMvaPreselection();
+         	bool passmva=ele.passingMvaPreselection();
 		if(!ele.ecalDrivenSeed()){
 		  if(ele.pt() > generalData_->strategyCfg.MaxElePtForOnlyMVA) 
 		    return passmva && passCutBased;
@@ -761,17 +759,10 @@ bool GsfElectronAlgo::isPreselected( GsfElectron & ele )
 
 void GsfElectronAlgo::removeNotPreselectedElectrons()
  {
-  GsfElectronList::size_type ei = 1;
-  GsfElectronList::iterator eitr = eventData_->electrons.begin() ;
-  while (eitr!=eventData_->electrons.end())
-   {
-    LogTrace("GsfElectronAlgo")<<"========== removed not preselected "<<ei<<"/"<< eventData_->electrons.size() <<"==========" ;
-    if (isPreselected(*eitr))
-     { ++eitr ; ++ei ; }
-    else
-     { eitr = eventData_->electrons.erase(eitr) ; ++ei ; }
-   }
- }
+  auto & eles = eventData_->electrons;
+  eles.erase( std::remove_if(eles.begin(), eles.end(),
+              [this](auto const& ele){ return !isPreselected(ele); }), eles.end() );
+}
 
 
 void GsfElectronAlgo::setCutBasedPreselectionFlag( GsfElectron & ele, const reco::BeamSpot & bs )
@@ -893,9 +884,8 @@ void GsfElectronAlgo::setMVAInputs(const std::map<reco::GsfTrackRef,reco::GsfEle
 void GsfElectronAlgo::setMVAOutputs(const gsfAlgoHelpers::HeavyObjectCache* hoc,
                                     const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs)
 {
-  GsfElectronList::iterator el ;
   for
-    ( el = eventData_->electrons.begin() ;
+    ( auto el = eventData_->electrons.begin() ;
       el != eventData_->electrons.end() ;
       el++ )
     {
@@ -1225,17 +1215,18 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
 
 void GsfElectronAlgo::setAmbiguityData( bool ignoreNotPreselected )
  {
-  GsfElectronList::iterator e1, e2 ;
-  if (generalData_->strategyCfg.ambSortingStrategy==0)
-   { eventData_->electrons.sort(EgAmbiguityTools::isBetter) ; }
-  else if (generalData_->strategyCfg.ambSortingStrategy==1)
-   { eventData_->electrons.sort(EgAmbiguityTools::isInnerMost) ; }
+  if (generalData_->strategyCfg.ambSortingStrategy==0) {
+    std::sort(eventData_->electrons.begin(), eventData_->electrons.end(), EgAmbiguityTools::isBetter) ;
+  }
+  else if (generalData_->strategyCfg.ambSortingStrategy==1) {
+    std::sort(eventData_->electrons.begin(), eventData_->electrons.end(), EgAmbiguityTools::isInnerMost) ;
+  }
   else
    { throw cms::Exception("GsfElectronAlgo|UnknownAmbiguitySortingStrategy")<<"value of generalData_->strategyCfg.ambSortingStrategy is : "<<generalData_->strategyCfg.ambSortingStrategy ; }
 
   // init
   for
-   ( e1 = eventData_->electrons.begin() ;
+   ( auto e1 = eventData_->electrons.begin() ;
      e1 != eventData_->electrons.end() ;
      ++e1 )
    {
@@ -1272,7 +1263,7 @@ void GsfElectronAlgo::setAmbiguityData( bool ignoreNotPreselected )
   else
    {
     for
-     ( e1 = eventData_->electrons.begin() ;
+     ( auto e1 = eventData_->electrons.begin() ;
        e1 != eventData_->electrons.end() ;
        ++e1 )
      {
@@ -1287,7 +1278,7 @@ void GsfElectronAlgo::setAmbiguityData( bool ignoreNotPreselected )
         << " & track " << e1->gsfTrack().get() ;
 
       for
-       ( e2 = e1, ++e2 ;
+       ( auto e2 = e1 + 1 ;
          e2 != eventData_->electrons.end() ;
          ++e2 )
        {
@@ -1337,18 +1328,11 @@ void GsfElectronAlgo::setAmbiguityData( bool ignoreNotPreselected )
    }
  }
 
+
 void GsfElectronAlgo::removeAmbiguousElectrons()
  {
-  GsfElectronList::size_type ei = 1;
-  GsfElectronList::iterator eitr = eventData_->electrons.begin() ;
-  while (eitr!=eventData_->electrons.end())
-   {
-    LogTrace("GsfElectronAlgo")<<"========== remove ambiguous "<<ei<<"/"<< eventData_->electrons.size() <<"==========" ;
-    if (eitr->ambiguous())
-     { eitr = eventData_->electrons.erase(eitr) ; ++ei ; }
-    else
-     { ++eitr ; ++ei ; }
-   }
+  auto & eles = eventData_->electrons;
+  eles.erase( std::remove_if(eles.begin(), eles.end(), std::mem_fn(&reco::GsfElectron::ambiguous)), eles.end() );
  }
 
 

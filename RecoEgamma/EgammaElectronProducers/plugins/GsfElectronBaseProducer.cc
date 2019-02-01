@@ -381,7 +381,7 @@ void GsfElectronBaseProducer::fillEvent( edm::Event & event )
     algo_->displayInternalElectrons("GsfElectronAlgo Info (after amb. solving)") ;
    }
   // final filling
-  orphanHandle_ = event.emplace(electronPutToken_, std::move(algo_->movedElectrons()));
+  orphanHandle_ = event.emplace(electronPutToken_, std::move(algo_->electrons()));
 }
 
 void GsfElectronBaseProducer::endEvent() { algo_->endEvent(); }
