@@ -304,6 +304,13 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   
   // Create commissioning task objects 
   if ( !tasksExist_ ) { createTask( summary.product(), setup ); }
+  else {
+    for(auto& v: tasks_) {
+      for(auto& t: v) {
+        t->eventSetup(&setup);
+      }
+    }
+  }
 
   // Retrieve raw digis with mode appropriate to task 
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
