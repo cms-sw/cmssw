@@ -38,6 +38,7 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EGHcalRecHitSelector.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
