@@ -366,7 +366,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   }
 
   // Check for NULL pointer to digi container
-  if ( &(*raw) == nullptr ) {
+  if ( not raw.isValid() ) {
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]" << std::endl
        << " NULL pointer to DetSetVector!" << std::endl
@@ -375,7 +375,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
     return;
   }
 
-  if(isSpy_ and  &(*rawAlt) == nullptr){
+  if(isSpy_ and  (not rawAlt.isValid())){
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]" << std::endl
        << " NULL pointer to DetSetVector!" << std::endl
