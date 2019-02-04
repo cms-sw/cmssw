@@ -11,28 +11,28 @@ gainlo = 0.0
 gainhi = 100.0
 minNp = 3
 if len(arguments)<3:
-    print "using default values"
+    print ("using default values")
     mystr = "usage: cmsRun write-ctpps-pixel-gainscalibrations_cfg.py "+ infile +" "+ tagname +" "+ sqlitename +" "+ str(runnumber) +" "+ str(doDummy) +" "+ str(gainlo) +" "+ str(gainhi) +" "+ str(minNp)
-    print mystr
+    print (mystr)
 else:
     infile = arguments[2]
     if len(arguments)>3: tagname    = arguments[3]
     if len(arguments)>4: sqlitename = arguments[4]
     if len(arguments)>5:
         runnumber  = int(arguments[5])
-        print "runno = ",runnumber
+        print ("runno = ",runnumber)
     if len(arguments)>6:
         doDummy    = (arguments[6].lower()=="true")
-        print "useDummyValues = ",doDummy
+        print ("useDummyValues = ",doDummy)
     if len(arguments)>7: 
         gainlo     = float(arguments[7])
-        print "gainLowLimit = ",gainlo
+        print ("gainLowLimit = ",gainlo)
     if len(arguments)>8: 
         gainhi     = float(arguments[8])
-        print "gainHighLimit = ",gainhi
+        print ("gainHighLimit = ",gainhi)
     if len(arguments)>9: 
         minNp      = int(arguments[9])
-        print "minimumNpFit = ",minNp
+        print ("minimumNpFit = ",minNp)
 
 
 
