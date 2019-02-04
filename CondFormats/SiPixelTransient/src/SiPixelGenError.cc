@@ -698,7 +698,7 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    auto xxratio = 0.f;
    
    {
-      auto j = std::lower_bound(templ.cotalphaX,templ.cotalphaX+Nxx,cotalpha);
+      auto j = std::lower_bound(templ.cotalphaX,templ.cotalphaX+Nxx,cota);
       if (j==templ.cotalphaX+Nxx) { --j;  xxratio = 1.f; }
       else if (j==templ.cotalphaX) { ++j; xxratio = 0.f;}
       else { xxratio = (cota - (*(j-1)) )/( (*j) - (*(j-1)) ) ; }

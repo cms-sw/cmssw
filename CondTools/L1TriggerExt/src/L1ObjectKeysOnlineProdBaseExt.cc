@@ -34,8 +34,6 @@ L1ObjectKeysOnlineProdBaseExt::~L1ObjectKeysOnlineProdBaseExt()
 L1ObjectKeysOnlineProdBaseExt::ReturnType
 L1ObjectKeysOnlineProdBaseExt::produce(const L1TriggerKeyExtRcd& iRecord)
 {
-   using namespace edm::es;
-
   // Get L1TriggerKeyExt with label "SubsystemKeysOnly".  Re-throw exception if
   // not present.
   edm::ESHandle< L1TriggerKeyExt > subsystemKeys ;
@@ -49,10 +47,10 @@ L1ObjectKeysOnlineProdBaseExt::produce(const L1TriggerKeyExtRcd& iRecord)
     }
 
   // Copy L1TriggerKeyExt to new object.
-  std::shared_ptr<L1TriggerKeyExt> pL1TriggerKey = std::make_shared< L1TriggerKeyExt >( *subsystemKeys ) ;
+  auto pL1TriggerKey = std::make_unique< L1TriggerKeyExt >( *subsystemKeys ) ;
 
   // Get object keys.
-  fillObjectKeys( pL1TriggerKey ) ;
+  fillObjectKeys( pL1TriggerKey.get() ) ;
 
   return pL1TriggerKey ;
 }

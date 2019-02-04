@@ -37,7 +37,7 @@ class CaloGeometryBuilder : public edm::ESProducer
 {
    public:
 
-      typedef std::shared_ptr<CaloGeometry> ReturnType;
+      using ReturnType = std::unique_ptr<CaloGeometry>;
 
       typedef edm::ESHandle<CaloSubdetectorGeometry> SubdType ;
 

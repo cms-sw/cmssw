@@ -2,6 +2,8 @@
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "FastSimulation/CalorimeterProperties/interface/CalorimeterProperties.h"
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerProperties.h"
+#include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer1Properties.h"
+#include "FastSimulation/CalorimeterProperties/interface/ECALProperties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
@@ -15,10 +17,10 @@ CaloHitMaker::CaloHitMaker(const CaloGeometryHelper * theCalo,DetId::Detector ba
   HADSHOWER=(sht==1);
   MIP=(sht==2);
   if(base_==DetId::Ecal&&(subdetn_==EcalBarrel||subdetn==EcalEndcap)&&onCal_)
-    theCaloProperties = (CalorimeterProperties*)myCalorimeter->ecalProperties(onCal_);
+    theCaloProperties = myCalorimeter->ecalProperties(onCal_);
   // is it really necessary to cast here ? 
   if(base_==DetId::Ecal&&subdetn_==EcalPreshower&&onCal_)
-    theCaloProperties = (PreshowerProperties*)myCalorimeter->layer1Properties(onCal_);
+    theCaloProperties = myCalorimeter->layer1Properties(onCal_);
   if(base_==DetId::Hcal&&cal) theCaloProperties = myCalorimeter->hcalProperties(onCal_);
 
   if(theCaloProperties)

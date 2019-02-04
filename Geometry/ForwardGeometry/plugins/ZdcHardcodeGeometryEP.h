@@ -23,7 +23,7 @@ class ZdcHardcodeGeometryEP : public edm::ESProducer
       ZdcHardcodeGeometryEP(const edm::ParameterSet&);
       ~ZdcHardcodeGeometryEP() override;
 
-      typedef std::shared_ptr<CaloSubdetectorGeometry> ReturnType;
+      using ReturnType = std::unique_ptr<CaloSubdetectorGeometry>;
 
       ReturnType produce( const ZDCGeometryRecord&   ) ;
 

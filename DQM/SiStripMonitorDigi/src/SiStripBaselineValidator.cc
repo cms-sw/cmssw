@@ -37,7 +37,7 @@ using namespace std;
 SiStripBaselineValidator::SiStripBaselineValidator(const edm::ParameterSet& conf){
 
   srcProcessedRawDigi_ =  conf.getParameter<edm::InputTag>( "srcProcessedRawDigi" );
-  moduleRawDigiToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(conf.getParameter<edm::InputTag>( "srcProcessedRawDigi" ) );
+  moduleRawDigiToken_ = consumes<edm::DetSetVector<SiStripDigi> >(conf.getParameter<edm::InputTag>( "srcProcessedRawDigi" ) );
 }
 
 SiStripBaselineValidator::~SiStripBaselineValidator()
@@ -60,37 +60,38 @@ void SiStripBaselineValidator::bookHistograms(DQMStore::IBooker & ibooker, const
 
 void SiStripBaselineValidator::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
-  edm::Handle< edm::DetSetVector<SiStripRawDigi> > moduleRawDigi;
+  edm::Handle< edm::DetSetVector<SiStripDigi> > moduleRawDigi;
   e.getByToken( moduleRawDigiToken_, moduleRawDigi );
-  edm::DetSetVector<SiStripRawDigi>::const_iterator itRawDigis = moduleRawDigi->begin();
+  edm::DetSetVector<SiStripDigi>::const_iterator itRawDigis = moduleRawDigi->begin();
  
    int NumResAPVs=0;
    for (; itRawDigis != moduleRawDigi->end(); ++itRawDigis) {   ///loop over modules
      
 
-     edm::DetSet<SiStripRawDigi>::const_iterator itRaw = itRawDigis->begin(); 
-     int strip =0, totADC=0;
+     edm::DetSet<SiStripDigi>::const_iterator itRaw = itRawDigis->begin(); 
+     int strip =0, totStripAPV=0, apv=0,prevapv=itRaw->strip()/128;
 
-     for(;itRaw != itRawDigis->end(); ++itRaw, ++strip){  /// loop over strips
+     for(;itRaw != itRawDigis->end(); ++itRaw){  /// loop over strips
        
+       strip=itRaw->strip();
+       apv=strip/128;
        float adc = itRaw->adc();
        h1ADC_vs_strip_->Fill(strip,adc); /// adc vs strip
 
-
-
-       totADC+= adc;
-       
-       if(strip%127 ==0){
-	 if(totADC!= 0){
-	   totADC =0;
-	   
-	   NumResAPVs++;
-
-	 }
+       if(prevapv!=apv){
+         if(totStripAPV>64){
+           NumResAPVs++;
+         }
+         prevapv=apv;
+         totStripAPV=0;
        }
+       if(adc>0) ++totStripAPV;
+
        
      } ///strip loop ends
-   
+     if(totStripAPV>64){
+       NumResAPVs++;
+     }   
      
    }  /// module loop
 

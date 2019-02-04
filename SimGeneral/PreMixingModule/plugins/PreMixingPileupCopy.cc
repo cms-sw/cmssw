@@ -25,6 +25,21 @@ namespace edm {
       producer.produces<std::vector<reco::GenParticle> >(tag.label());
     }
   }
+
+  float PreMixingPileupCopy::getTrueNumInteractions(PileUpEventPrincipal const& pep) const {
+    edm::Handle<std::vector<PileupSummaryInfo>> pileupInfoHandle;
+    pep.getByLabel(pileupInfoInputTag_, pileupInfoHandle);
+
+    auto it = std::find_if(pileupInfoHandle->begin(), pileupInfoHandle->end(),
+                           [](const auto& s) {
+                             return s.getBunchCrossing() == 0;
+                           });
+    if(it == pileupInfoHandle->end()) {
+      throw cms::Exception("LogicError") << "Did not find PileupSummaryInfo in bunch crossing 0";
+    }
+
+    return it->getTrueNumInteractions();
+  }
 	       
   void PreMixingPileupCopy::addPileupInfo(const PileUpEventPrincipal& pep) {
   

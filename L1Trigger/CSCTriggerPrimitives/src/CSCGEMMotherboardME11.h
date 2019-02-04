@@ -46,7 +46,7 @@ class CSCGEMMotherboardME11 : public CSCGEMMotherboard
   std::unique_ptr<CSCMotherboardLUTME11> cscTmbLUT_;
 
   /* readout the LCTs in a sector of ME11 */
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs(enum CSCPart me1ab) const;
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTsME11(enum CSCPart me1ab) const;
 
   /** Methods to sort the LCTs */
   void sortLCTs(std::vector<CSCCorrelatedLCTDigi>&, int bx,
@@ -56,6 +56,9 @@ class CSCGEMMotherboardME11 : public CSCGEMMotherboard
 
   /* check if an ALCT cross a CLCT in an ME11 sector */
   bool doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c) const;
+
+  /* does wiregroup cross halfstrip or not */
+  bool doesWiregroupCrossStrip(int key_wg, int key_hs) const override;
 
   /* correlate a pair of ALCTs and a pair of CLCTs with matched pads or copads
      the output is up to two LCTs in a sector of ME11 */

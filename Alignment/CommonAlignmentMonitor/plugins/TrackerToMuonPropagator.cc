@@ -209,8 +209,8 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       // loop over the muon hits, keeping track of the successful extrapolations
       edm::OwnVector<TrackingRecHit> muonHits;
       std::vector<TrajectoryStateOnSurface> TSOSes;
-      for (trackingRecHit_iterator hit = globalMuon->combinedMuon()->recHitsBegin();  hit != globalMuon->combinedMuon()->recHitsEnd();  ++hit) {
-	 DetId id = (*hit)->geographicalId();
+      for(auto const& hit : globalMuon->combinedMuon()->recHits()) {
+	 DetId id = hit->geographicalId();
 
 	 TrajectoryStateOnSurface extrapolation;
 	 bool extrapolated = false;
@@ -224,7 +224,7 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	 }
 	 
 	 if (extrapolated  &&  extrapolation.isValid()) {
-	    muonHits.push_back((*hit)->clone());
+	    muonHits.push_back(hit->clone());
 	    TSOSes.push_back(extrapolation);
 	 }
       } // end loop over standAloneMuon hits

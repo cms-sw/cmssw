@@ -48,8 +48,7 @@ Implementation:
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
-#include "SimTransport/HectorProducer/interface/CTPPSHectorParameters.h"
-#include <CLHEP/Vector/LorentzVector.h>
+#include "Utilities/PPS/interface/PPSUnitConversion.h"
 
 //
 // class declaration
@@ -59,7 +58,6 @@ class CTPPSSimHitProducer : public edm::stream::EDProducer<> {
     public:
         explicit CTPPSSimHitProducer(const edm::ParameterSet&);
         ~CTPPSSimHitProducer() override;
-        typedef CLHEP::HepLorentzVector LorentzVector;
 
     private:
         void beginStream(edm::StreamID) override;
@@ -123,8 +121,8 @@ CTPPSSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     protonCTPPS.clear();
     for(HepMC::GenEvent::vertex_const_iterator ivtx = Evt->vertices_begin();ivtx!=Evt->vertices_end();ivtx++) {
         if ((*ivtx)->id()!=0) continue;
-
-        // Get the vertices at the entrance of CTPPS and get the protons coming out of them (propagated by Hector) 
+        double prim_vtxZ=(*ivtx)->position().z()*mm_to_m; //in meters
+        // Get the vertices at the entrance of CTPPS and get the protons coming out of them (propagated by Hector)
         for(HepMC::GenVertex::particles_out_const_iterator i=(*ivtx)->particles_out_const_begin(); i != (*ivtx)->particles_out_const_end();++i) {
             int pid = (*i)->pdg_id();
             if(pid!=2212) continue;
@@ -141,7 +139,7 @@ CTPPSSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             //  Convert to ns for internal calculations.
             const double c_light_s = 2.99792458e+11;// mm/s;
             const double s_to_ns = 1.e9;
-            const double m_to_mm = 1.e3; 
+            const double m_to_mm = 1.e3;
             double x_tr1 = 0. , x_tr2 = 0. , x_tof = 0., y_tr1 = 0. , y_tr2 = 0. , y_tof = 0., z_tr1 = 0.; 
             double z_tr2 = fz_tracker2; //m
             double z_tof = fz_timing; //m
@@ -161,6 +159,7 @@ CTPPSSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 t0_tr1 = vertex.t()/c_light_s*s_to_ns; 
                 //Get the global coordinates at Tracker2 by propagating as a straight line from Tracker1
                 t0_tr2 = z_tr2*m_to_mm/c_light_s*s_to_ns;//discuss latter if needs to be corrected with vertex position
+                t0_tr2 = t0_tr1+(z_tr2-z_tr1)*m_to_mm/c_light_s*s_to_ns;//corrected with vertex position
                 z_tr2 *= Direction; 
                 x_tr2 = x_tr1 + (p.x()/p.z())*(z_tr2-z_tr1)*m_to_mm;
                 y_tr2 = y_tr1 + (p.y()/p.z())*(z_tr2-z_tr1)*m_to_mm;
@@ -168,6 +167,7 @@ CTPPSSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 initialPosition_tr2 = xyzzy_tr2;
                 //Propagate as a straight line from Tracker1
                 t0_tof = z_tof*m_to_mm/c_light_s*s_to_ns;//discuss latter if needs to be corrected with vertex position
+                t0_tof = (z_tof-prim_vtxZ)*m_to_mm/c_light_s*s_to_ns;//corrected with vertex position
                 z_tof *= Direction; 
                 x_tof = x_tr1 + (p.x()/p.z())*(z_tof-z_tr1)*m_to_mm;
                 y_tof = y_tr1 + (p.y()/p.z())*(z_tof-z_tr1)*m_to_mm;

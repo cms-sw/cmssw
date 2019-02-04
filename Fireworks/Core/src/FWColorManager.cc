@@ -24,7 +24,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
-#include "Fireworks/Core/src/fwPaletteClassic.cc"
+#include "Fireworks/Core/src/fwPaletteClassic.icc"
 #include "Fireworks/Core/src/fwPaletteExtra.h"
 
 
@@ -107,6 +107,10 @@ void FWColorManager::setDefaultGeomColors()
 
    m_geomColor[kFWMuonBarrelLineColorIndex] = 1025;
    m_geomColor[kFWMuonEndcapLineColorIndex] = 1022;
+
+   m_geomColor[kFwHGCalEEColorIndex] = 1000;
+   m_geomColor[kFwHGCalHSiColorIndex] = 1000;
+   m_geomColor[kFwHGCalHScColorIndex] = 1012;
 
    switch (m_paletteId) {
       case (kArctic):

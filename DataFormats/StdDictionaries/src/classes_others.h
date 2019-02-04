@@ -28,6 +28,5 @@ namespace DataFormats_StdDictionaries {
   std::random_access_iterator_tag randaccitertag;
   std::set<int> dummy19;
   std::set<std::basic_string<char> > dummy20;
-  std::binary_function<int,int,bool> dummy25;
   };
 }

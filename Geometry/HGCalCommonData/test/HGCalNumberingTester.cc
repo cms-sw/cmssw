@@ -214,6 +214,18 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
       ++kk;
     }
   }
+
+  //For scintillators
+  if (hgdc.geomMode() == HGCalGeometryMode::Trapezoid) {
+    unsigned int kk(0);
+    for (auto const& lay : hgdc.getParameter()->layer_) {
+      auto rRange = hgdc.getREtaRange(lay);
+      std::cout << "[" << kk << "] Layer " << lay << " R/Eta " << rRange.first
+		<< ":" << rRange.second << " nPhi " << hgdc.getPhiBins(lay)
+		<< std::endl;
+      ++kk;
+    }
+  }
 }
 
 

@@ -56,7 +56,7 @@ CaloGeometryBuilder::produceAligned( const CaloGeometryRecord& iRecord )
 {
    edm::ESHandle< CaloSubdetectorGeometry > pG;
 
-   ReturnType pCalo ( new CaloGeometry() ) ;
+   ReturnType pCalo  = std::make_unique<CaloGeometry>();
 
    // loop on selected calorimeters
 

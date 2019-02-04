@@ -44,18 +44,33 @@ namespace edm {
     
     template<typename... VArgs>
     struct WantsGlobalRunTransitions {
-      static constexpr bool value = CheckAbility<module::Abilities::kOneWatchRuns,VArgs...>::kHasIt or
+      static constexpr bool value = CheckAbility<module::Abilities::kRunCache,VArgs...>::kHasIt or
+      CheckAbility<module::Abilities::kOneWatchRuns,VArgs...>::kHasIt or
       CheckAbility<module::Abilities::kBeginRunProducer,VArgs...>::kHasIt or
       CheckAbility<module::Abilities::kEndRunProducer, VArgs...>::kHasIt;
     };
     
     template<typename... VArgs>
     struct WantsGlobalLuminosityBlockTransitions {
-      static constexpr bool value = CheckAbility<module::Abilities::kOneWatchLuminosityBlocks,VArgs...>::kHasIt or
+      static constexpr bool value = CheckAbility<module::Abilities::kLuminosityBlockCache,VArgs...>::kHasIt or
+      CheckAbility<module::Abilities::kOneWatchLuminosityBlocks,VArgs...>::kHasIt or
       CheckAbility<module::Abilities::kBeginLuminosityBlockProducer,VArgs...>::kHasIt or
       CheckAbility<module::Abilities::kEndLuminosityBlockProducer, VArgs...>::kHasIt;
     };
 
+    //RunCache and LuminosityBlockCache do not require serializing their
+    // respective transitions
+    template<typename... VArgs>
+    struct WantsSerialGlobalRunTransitions {
+      static constexpr bool value =
+      WantsGlobalRunTransitions<VArgs...>::value and not CheckAbility<module::Abilities::kRunCache,VArgs...>::kHasIt;
+    };
+
+    template<typename... VArgs>
+    struct WantsSerialGlobalLuminosityBlockTransitions {
+      static constexpr bool value =
+      WantsGlobalLuminosityBlockTransitions<VArgs...>::value and not CheckAbility<module::Abilities::kLuminosityBlockCache,VArgs...>::kHasIt;
+    };
   }
 }
 

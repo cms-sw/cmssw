@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 /*
  * This class is a wrapper around a vector of EDM tokens, of which at least one
@@ -29,32 +30,43 @@
 template <typename T>
 class MultiTokenT {
 
+    using GoodIndexType = std::shared_ptr<std::atomic<int>>;
+
   public:
+
+    template <typename ... Tags>
+    MultiTokenT(edm::ConsumesCollector && cc, Tags ... tags)
+      : isMaster_(true)
+      , tokens_({cc.mayConsume<T>(edm::InputTag(tags))...})
+      , goodIndex_(std::make_shared<std::atomic<int>>(-1))
+    {}
+
+    // Constructor which gets the input tags from a config to create the tokens plus master token
+    template <typename S, typename ... Tags>
+    MultiTokenT(const MultiTokenT<S>& master, edm::ConsumesCollector && cc, Tags ... tags)
+      : isMaster_(false)
+      , tokens_({cc.mayConsume<T>(edm::InputTag(tags))...})
+      , goodIndex_(master.getGoodTokenIndexPtr())
+    {}
 
     // Constructor which gets the input tags from a config to create the tokens
     template <typename ... Tags>
     MultiTokenT(edm::ConsumesCollector && cc, const edm::ParameterSet& pset, Tags && ... tags)
       : isMaster_(true)
-    {
-        for (auto&& tag : { tags... }) {
-            tokens_.push_back(cc.mayConsume<T>(pset.getParameter<edm::InputTag>(tag)));
-        }
-        goodIndex_ = std::make_shared<int>(-1);
-    }
+      , tokens_({cc.mayConsume<T>(pset.getParameter<edm::InputTag>(tags))...})
+      , goodIndex_(std::make_shared<std::atomic<int>>(-1))
+    {}
 
     // Constructor which gets the input tags from a config to create the tokens plus master token
     template <typename S, typename ... Tags>
-    MultiTokenT(MultiTokenT<S>& master, edm::ConsumesCollector && cc, const edm::ParameterSet& pset, Tags && ... tags)
+    MultiTokenT(const MultiTokenT<S>& master, edm::ConsumesCollector && cc, const edm::ParameterSet& pset, Tags && ... tags)
       : isMaster_(false)
+      , tokens_({cc.mayConsume<T>(pset.getParameter<edm::InputTag>(tags))...})
       , goodIndex_(master.getGoodTokenIndexPtr())
-    {
-        for (auto&& tag : { tags... }) {
-            tokens_.push_back(cc.mayConsume<T>(pset.getParameter<edm::InputTag>(tag)));
-        }
-    }
+    {}
 
     // Get a handle on the event data, non-valid handle is allowed
-    edm::Handle<T> getHandle(const edm::Event& iEvent)
+    edm::Handle<T> getHandle(const edm::Event& iEvent) const
     {
         edm::Handle<T> handle;
 
@@ -80,7 +92,7 @@ class MultiTokenT {
 
     // Get a handle on the event data,
     // throw exception if no token yields a valid handle
-    edm::Handle<T> getValidHandle(const edm::Event& iEvent)
+    edm::Handle<T> getValidHandle(const edm::Event& iEvent) const
     {
         edm::Handle<T> handle;
 
@@ -89,7 +101,7 @@ class MultiTokenT {
             iEvent.getByToken(tokens_[*goodIndex_], handle);
             if (!handle.isValid())
                 throw cms::Exception("MultiTokenTException") <<
-                    "Token gave valid handle in previously but not anymore!";
+                    "Token gave valid handle previously but not anymore!";
             return handle;
         }
 
@@ -108,7 +120,7 @@ class MultiTokenT {
     }
 
     // get the good token
-    edm::EDGetTokenT<T> get(const edm::Event& iEvent)
+    edm::EDGetTokenT<T> get(const edm::Event& iEvent) const
     {
         // If we already know which token works, take that index
         if (*goodIndex_ >= 0)
@@ -137,14 +149,14 @@ class MultiTokenT {
         return *goodIndex_;
     }
 
-    std::shared_ptr<int> getGoodTokenIndexPtr() const
+    GoodIndexType getGoodTokenIndexPtr() const
     {
         return goodIndex_;
     }
 
   private:
 
-    edm::Handle<T> getInitialHandle(const edm::Event& iEvent)
+    edm::Handle<T> getInitialHandle(const edm::Event& iEvent) const
     {
         // Try to retrieve the collection from the event. If we fail to
         // retrieve the collection with one name, we next look for the one with
@@ -161,8 +173,8 @@ class MultiTokenT {
     }
 
     const bool isMaster_;
-    std::vector<edm::EDGetTokenT<T>> tokens_;
-    std::shared_ptr<int> goodIndex_;
+    const std::vector<edm::EDGetTokenT<T>> tokens_;
+    const GoodIndexType goodIndex_;
 };
 
 #endif

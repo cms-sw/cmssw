@@ -19,7 +19,7 @@ using namespace dttmaxenums;
 using namespace DTEnums;
 
 DTTMax::InfoLayer::InfoLayer(const DTRecHit1D& rh_, const DTSuperLayer & isl, GlobalVector dir,
-			     GlobalPoint pos, DTTTrigBaseSync* sync):
+			     GlobalPoint pos, const DTTTrigBaseSync& sync):
   rh(rh_), idWire(rh.wireId()), lr(rh.lrSide()) {
     const DTLayer*  layer = isl.layer(idWire.layerId());
     LocalPoint wirePosInLayer(layer->specificTopology().wirePosition(idWire.wire()), 0, 0);
@@ -31,7 +31,7 @@ DTTMax::InfoLayer::InfoLayer(const DTRecHit1D& rh_, const DTSuperLayer & isl, Gl
     LocalPoint segPos = layer->toLocal(pos);
     LocalPoint segPosAtLayer = segPos + segDir*(-segPos.z())/cos(segDir.theta());
     LocalPoint hitPos(rh.localPosition().x() ,segPosAtLayer.y(),0.);
-    time = rh.digiTime() - sync->offset(layer, idWire, layer->toGlobal(hitPos));
+    time = rh.digiTime() - sync.offset(layer, idWire, layer->toGlobal(hitPos));
  
     if (time < 0. || time > 415.) {
       // FIXME introduce time window to reject "out-of-time" digis
@@ -41,7 +41,7 @@ DTTMax::InfoLayer::InfoLayer(const DTRecHit1D& rh_, const DTSuperLayer & isl, Gl
 
 
 DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalVector dir, 
-	       GlobalPoint pos, DTTTrigBaseSync* sync):
+	       GlobalPoint pos, const DTTTrigBaseSync& sync):
   theInfoLayers(4,(InfoLayer*)nullptr), //FIXME
   theTMaxes(4,(TMax*)nullptr) 
 {

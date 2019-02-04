@@ -908,8 +908,23 @@ bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx,
 
 
 bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
-  bool muID =   muon.isGlobalMuon() && muon.globalTrack()->hitPattern().numberOfValidMuonHits() >0 && (muon.numberOfMatchedStations() > 1);
-  if(!muID) return false;
+  if(!muon.isGlobalMuon()) return false;
+
+  bool muValHits = ( muon.globalTrack()->hitPattern().numberOfValidMuonHits()>0 ||
+                     muon.tunePMuonBestTrack()->hitPattern().numberOfValidMuonHits()>0 );
+
+  bool muMatchedSt = muon.numberOfMatchedStations()>1;
+  if(!muMatchedSt) {
+    if( muon.isTrackerMuon() && muon.numberOfMatchedStations()==1 ) {
+      if( muon.expectedNnumberOfMatchedStations()<2 ||
+          !(muon.stationMask()==1 || muon.stationMask()==16) ||
+          muon.numberOfMatchedRPCLayers()>2
+        )
+        muMatchedSt = true;
+    }
+  }
+
+  bool muID = muValHits && muMatchedSt;
 
   bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
     muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
@@ -917,7 +932,7 @@ bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   bool momQuality = muon.tunePMuonBestTrack()->ptError()/muon.tunePMuonBestTrack()->pt() < 0.3;
 
   bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.innerTrack()->dz(vtx.position())) < 0.5;
-  
+
   return muID && hits && momQuality && ip;
 
 }
@@ -984,9 +999,9 @@ bool outOfTimeMuon(const reco::Muon& muon){
 }
 
 
-void muon::setCutBasedSelectorFlags(reco::Muon& muon, 
-				    const reco::Vertex* vertex,
-				    bool run2016_hip_mitigation)
+reco::Muon::Selector muon::makeSelectorBitset( reco::Muon const& muon, 
+                                               reco::Vertex const* vertex,
+                                               bool run2016_hip_mitigation )
 {
   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
   unsigned int selectors = muon.selectors();
@@ -1033,5 +1048,5 @@ void muon::setCutBasedSelectorFlags(reco::Muon& muon,
   // Timing
   if (!outOfTimeMuon(muon))     selectors |= reco::Muon::InTimeMuon;
 
-  muon.setSelectors(selectors);
+  return static_cast<reco::Muon::Selector>(selectors);
 }

@@ -10,13 +10,13 @@
 #include "TFile.h"
 #include "TTree.h"
 
-const Int_t kChannels = 75848, kEBChannels = 61200, kEEChannels = 14648;
-const Int_t Nbpedxml = 25; // Number of Gain1 Gain6 files in 2017 
+const Int_t kChannels = 75848, kEBChannels = 61200, kEEChannels = 14648, kGains = 3;
+const Int_t Nbpedxml = 81; // Number of Gain1 Gain6 files in 2016 (26), 2017 (25), 2018 (30) : L1248 and L1600 
+const Int_t gainValues[kGains] = {12, 6, 1};
 
 popcon::EcalPedestalsHandler::EcalPedestalsHandler(const edm::ParameterSet & ps)
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalPedestalsHandler")) {
-
-	std::cout << "EcalPedestals Source handler constructor\n" << std::endl;
+	edm::LogInfo("EcalPedestals Source handler constructor\n");
         m_firstRun=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("firstRun").c_str()));
         m_lastRun=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("lastRun").c_str()));
         m_sid= ps.getParameter<std::string>("OnlineDBSID");
@@ -28,8 +28,9 @@ popcon::EcalPedestalsHandler::EcalPedestalsHandler(const edm::ParameterSet & ps)
         m_runtag=ps.getParameter<std::string>("RunTag");
 	m_filename = ps.getUntrackedParameter<std::string>("filename","EcalPedestals.txt");
 	m_runtype = ps.getUntrackedParameter<int>("RunType",1);
+        m_corrected = ps.getUntrackedParameter<bool>("corrected",false);
 
-	std::cout << m_sid<<"/"<<m_user<<"/"<<m_pass<<"/"<<m_location<<"/"<<m_gentag   << std::endl;
+	edm::LogInfo("EcalPedestalsHandler")<<m_sid<<"/"<<"/"<<m_location<<"/"<<m_gentag;
 
 }
 
@@ -37,14 +38,20 @@ popcon::EcalPedestalsHandler::~EcalPedestalsHandler() {}
 
 
 void popcon::EcalPedestalsHandler::getNewObjects() {
-  std::cout << "------- Ecal - > getNewObjects\n";
-  if(m_locationsource=="H2") {
-    getNewObjectsH2();
-  } else if(m_locationsource=="P5") {
+  edm::LogInfo("------- Ecal - > getNewObjects\n");
+  if(m_locationsource=="P5") {
     getNewObjectsP5();
+  } else if(m_locationsource=="H2") {
+    getNewObjectsH2();
   }
   else if(m_locationsource=="File") {
     readPedestalFile();
+  }
+  else if(m_locationsource=="MC") {
+    readPedestalMC();
+  }
+  else if(m_locationsource=="2017") {
+    readPedestal2017();
   }
   else if(m_locationsource=="Tree") {
     readPedestalTree();
@@ -52,11 +59,8 @@ void popcon::EcalPedestalsHandler::getNewObjects() {
   else if(m_locationsource=="Timestamp") {
     readPedestalTimestamp();
   }
-  else if(m_locationsource=="2017") {
-    readPedestal2017();
-  }
   else {
-    std::cout << " unknown location " << m_locationsource << " give up " << std::endl;
+    edm::LogInfo(" unknown location ") << m_locationsource << " give up ";
     exit(-1);
   }
 }
@@ -74,18 +78,20 @@ bool popcon::EcalPedestalsHandler::checkPedestal( EcalPedestals::Item* item ) {
   return result; 
 }
 
+////////////////////////////////////////////////////////////////////////////////////
+
 void popcon::EcalPedestalsHandler::getNewObjectsP5() {
   std::ostringstream ss; 
   ss<<"ECAL ";
 
   unsigned int max_since=0;
   max_since=static_cast<unsigned int>(tagInfo().lastInterval.first);
-  std::cout << "max_since : "  << max_since << std::endl;
+  edm::LogInfo("max_since : ") << max_since;
   Ref ped_db = lastPayload();
 
   // we copy the last valid record to a temporary object peds
   EcalPedestals* peds = new EcalPedestals();
-  std::cout << "retrieved last payload "  << std::endl;
+  edm::LogInfo("retrieved last payload ");
 
   for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
     if(iEta==0) continue;
@@ -155,9 +161,9 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
 
   // here we retrieve all the runs after the last from online DB 
 
-  std::cout << "Retrieving run list from ONLINE DB ... " << std::endl;
+  edm::LogInfo("Retrieving run list from ONLINE DB ... ");
   econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
-  std::cout << "Connection done" << std::endl;
+  edm::LogInfo("Connection done");
 	
   // these are the online conditions DB classes 
   RunList my_runlist ;
@@ -197,15 +203,15 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
     
   std::vector<MonRunIOV> mon_run_vec=  mon_list.getRuns();
   int mon_runs = mon_run_vec.size();
-  std::cout <<"number of Mon runs is : "<< mon_runs<< std::endl;
+  edm::LogInfo("number of Mon runs is : ")<< mon_runs;
 
   if(mon_runs > 0) {
     int krmax = std::min(mon_runs, 30);
     for(int kr = 0; kr < krmax; kr++){
-      std::cout << "-kr------:  "<<kr<<std::endl;
+      edm::LogInfo("-kr------:  ")<<kr;
 
       unsigned int irun=static_cast<unsigned int>(mon_run_vec[kr].getRunIOV().getRunNumber());
-      std::cout << "retrieve the data for run number: "<< mon_run_vec[kr].getRunIOV().getRunNumber() << std::endl;
+      edm::LogInfo("retrieve the data for run number: ")<< mon_run_vec[kr].getRunIOV().getRunNumber();
       if (mon_run_vec[kr].getSubRunNumber() <=1){ 
 
 	// retrieve the data for a given run
@@ -213,7 +219,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
 	// retrieve the pedestals from OMDS for this run 
 	std::map<EcalLogicID, MonPedestalsDat> dataset_mon;
 	econn->fetchDataSet(&dataset_mon, &mon_run_vec[kr]);
-	std::cout <<"OMDS record for run "<<irun  <<" is made of "<< dataset_mon.size() << std::endl;
+	edm::LogInfo("OMDS record for run ")<<irun  <<" is made of "<< dataset_mon.size();
 	int nEB = 0, nEE = 0, nEBbad = 0, nEEbad =0;
 	typedef std::map<EcalLogicID, MonPedestalsDat>::const_iterator CImon;
 	EcalLogicID ecid_xt;
@@ -351,7 +357,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
 	    }	
 	  }
     
-	  std::cout << "Generating popcon record for run " << irun << "..." << std::flush;	
+	  edm::LogInfo("Generating popcon record for run ") << irun << "..." << std::flush;	
 	  // now I copy peds in pedtemp and I ship pedtemp to popcon
 	  // if I use always the same peds I always overwrite
 	  // so I really have to create new objects for each new run
@@ -379,7 +385,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
 		pedtemp->insert(std::make_pair(ebdetid.rawId(),item));
 		if((iEta==-1 || iEta==1) && iPhi==20){
 		  float x=aped.mean_x12 ;
-		  std::cout<< "channel:" <<iEta<<"/"<<iPhi<< "/" << hiee << " ped mean 12="<< x << std::endl;
+		  edm::LogInfo("channel:") <<iEta<<"/"<<iPhi<< "/" << hiee << " ped mean 12="<< x;
 		}
 	      }
 	    }
@@ -428,14 +434,13 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
 	  m_userTextLog = ss.str()+";";
 	}   // good run : write in DB
 	else {
-	  std::cout << "Run " << irun << " was BAD !!!! not sent to the DB";
+	  edm::LogInfo("Run ") << irun << " was BAD !!!! not sent to the DB";
 	  if(nbad >= (dataset_mon.size()*0.05))
-	    std::cout << " number of bad channels = " << nbad;
+	    edm::LogInfo(" number of bad channels = ") << nbad;
 	  if(nEB <= 10200)
-	    std::cout << " number of EB channels = " << nEB;
+	    edm::LogInfo(" number of EB channels = ") << nEB;
 	  if(nEE <= 2440)
-	    std::cout << " number of EE channels = " << nEE;
-	  std::cout << std::endl;
+	    edm::LogInfo(" number of EE channels = ") << nEE;
 	  ss << "Run=" << irun << "_WAS_BAD_"<<std::endl; 
 	  m_userTextLog = ss.str()+";";
 	}  //  bad run : do not write in DB
@@ -445,17 +450,18 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
     delete econn;
     delete peds;  // this is the only one that popcon does not delete 
   }    // runs to analyze ?
-  std::cout << "Ecal - > end of getNewObjects -----------\n";
+    edm::LogInfo("Ecal - > end of getNewObjects -----------\n");
 }
 
+////////////////////////////////////////////////////////////////////////////////////
 
 void popcon::EcalPedestalsHandler::getNewObjectsH2() {
 	unsigned int max_since=0;
 	max_since=static_cast<unsigned int>(tagInfo().lastInterval.first);
-	std::cout << "max_since : "  << max_since << std::endl;
+	edm::LogInfo("max_since : ")  << max_since;
 	Ref ped_db = lastPayload();
 	
-	std::cout << "retrieved last payload "  << std::endl;
+	edm::LogInfo("retrieved last payload ");
 
 
 	// we copy the last valid record to a temporary object peds
@@ -495,20 +501,20 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2() {
 	}
 	
 
-	std::cout <<"WOW: we just retrieved the last valid record from DB "<< std::endl;
+	edm::LogInfo("We just retrieved the last valid record from DB ");
 
 
 	// here we retrieve all the runs after the last from online DB 
 
-	std::cout << "Retrieving run list from ONLINE DB ... " << std::endl;
+	edm::LogInfo("Retrieving run list from ONLINE DB ... ");
 	
-	std::cout << "Making connection..." << std::flush;
+	edm::LogInfo("Making connection...") << std::flush;
 	econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
-	std::cout << "Done." << std::endl;
+	edm::LogInfo("Done.");
 
 	if (!econn)
 	  {
-	    std::cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<std::endl;
+	    edm::LogInfo(" connection parameters ") <<m_sid;
 	    throw cms::Exception("OMDS not available");
 	  } 
 
@@ -544,7 +550,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2() {
       
 	std::vector<MonRunIOV> mon_run_vec=  mon_list.getRuns();
 	size_t mon_runs=mon_run_vec.size();
-	std::cout <<"number of Mon runs is : "<< mon_runs<< std::endl;
+	edm::LogInfo("number of Mon runs is : ") << mon_runs;
 
 	if(mon_runs>0){
 
@@ -552,10 +558,10 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2() {
 
 	    unsigned int irun=static_cast<unsigned int>(mon_run_vec[kr].getRunIOV().getRunNumber());
 	  
-	    std::cout << "here is first sub run : "<< mon_run_vec[kr].getSubRunNumber() << std::endl;
-	    std::cout << "here is the run number: "<< mon_run_vec[kr].getRunIOV().getRunNumber() << std::endl;
+	    edm::LogInfo("here is first sub run : ") << mon_run_vec[kr].getSubRunNumber();
+	    edm::LogInfo("here is the run number: ") << mon_run_vec[kr].getRunIOV().getRunNumber();
 	  
-	    std::cout <<" retrieve the data for a given run"<< std::endl;
+	    edm::LogInfo(" retrieve the data for a given run");
 	  
 	    if (mon_run_vec[kr].getSubRunNumber() <=1){ 
 
@@ -607,7 +613,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2() {
 		if(ix==ixmin && iy==iymin) std::cout<<"ped12 " << item.mean_x12<< std::endl;  
 	      }
 	    
-	      std::cout << "Generating popcon record for run " << irun << "..." << std::flush;
+	      edm::LogInfo("Generating popcon record for run ") << irun << "..." << std::flush;
 
 
 	      // now I copy peds in pedtemp and I ship pedtemp to popcon
@@ -647,7 +653,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2() {
 	      	      
 	      m_to_transfer.push_back(std::make_pair((EcalPedestals*)pedtemp,snc));
 	      
-	      std::cout << "Ecal - > end of getNewObjectsH2 -----------\n";
+	      edm::LogInfo("Ecal - > end of getNewObjectsH2 -----------\n");
     
 	    }
 	  }	  
@@ -655,13 +661,14 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2() {
 	delete econn;
 	delete peds;  // this is the only one that popcon does not delete 
 }
+//////////////////////////////////////////////////////////////////////////////////////
 
 void popcon::EcalPedestalsHandler::readPedestalFile() {
-  std::cout << " reading the input file " << m_filename <<  std::endl;
+  edm::LogInfo(" reading the input file ") << m_filename;
   std::ifstream fInput;
   fInput.open(m_filename);
   if(!fInput.is_open()) {
-    std::cout << "ERROR : cannot open file " << m_filename << std::endl;
+    edm::LogInfo("ERROR : cannot open file ") << m_filename;
     exit (1);
   }
   //  string pos, dummyLine;
@@ -673,7 +680,7 @@ void popcon::EcalPedestalsHandler::readPedestalFile() {
     fInput >> hashedId >> EBmean12[iChannel] >> EBrms12[iChannel] >> EBmean6[iChannel] >> EBrms6[iChannel] 
 	   >> EBmean1[iChannel] >> EBrms1[iChannel];
     if(hashedId != iChannel + 1) {
-      std::cout << m_filename << " strange hash " << hashedId << " while iChannel " << iChannel << std::endl;
+      edm::LogInfo("File") << m_filename << " strange hash " << hashedId << " while iChannel " << iChannel;
       exit(-1);
     }
   }
@@ -684,7 +691,7 @@ void popcon::EcalPedestalsHandler::readPedestalFile() {
     fInput >> hashedId >> EEmean12[iChannel] >> EErms12[iChannel] >> EEmean6[iChannel] >> EErms6[iChannel] 
 	   >> EEmean1[iChannel] >> EErms1[iChannel];
     if(hashedId != iChannel + kEBChannels + 1) {
-      std::cout << m_filename << " strange hash " << hashedId << " while iChannel " << iChannel << std::endl;
+      edm::LogInfo("File") << m_filename << " strange hash " << hashedId << " while iChannel " << iChannel;
       exit(-1);
     }
   }
@@ -737,17 +744,303 @@ void popcon::EcalPedestalsHandler::readPedestalFile() {
   Time_t snc= (Time_t) irun ;      	      
   m_to_transfer.push_back(std::make_pair((EcalPedestals*)ped,snc));
 	      
-  std::cout << "Ecal - > end of readPedestalFile -----------\n";
+  edm::LogInfo("Ecal - > end of readPedestalFile -----------\n");
 }
+//////////////////////////////////////////////////////////////////////////////
+
+
+void popcon::EcalPedestalsHandler::readPedestalMC() {
+  edm::LogInfo(" reading the input file ") << m_filename;
+  std::ifstream fxml;
+  fxml.open(m_filename);
+  if(!fxml.is_open()) {
+    edm::LogInfo("ERROR : cannot open file ") << m_filename;
+    exit (1);
+  }
+  std::ofstream fout;
+  fout.open("Pedestal.check");
+  //  int hashedId;
+  float EBmean12[kEBChannels], EBrms12[kEBChannels], EBmean6[kEBChannels], EBrms6[kEBChannels], EBmean1[kEBChannels], EBrms1[kEBChannels];
+  //  int ringEB[kEBChannels], ringEE[kEEChannels];
+  double RingMean[28][2][3], RingRMS[28][2][3];
+  int NbVal[28][2][3];
+  for (int ring = 0; ring < 28; ring++) {
+    for (int side = 0; side < 2; side++) {
+      for (int igain = 0; igain < kGains; igain++) {
+	RingMean[ring][side][igain] = 0.;
+	RingRMS[ring][side][igain] = 0.;
+	NbVal[ring][side][igain] = 0;
+      }
+    }
+  }
+  std::string dummyLine, mean12, rms12, bid;
+  for(int i = 0; i < 9; i++) std::getline(fxml, dummyLine);   // skip first lines
+  // Barrel
+  for (int iEBChannel = 0; iEBChannel < kEBChannels; iEBChannel++) {
+    EBDetId ebdetid  = EBDetId::unhashIndex(iEBChannel);
+    int ieta = ebdetid.ieta();
+    int ring = (abs(ieta) - 1)/5;
+    if(ring < 0 || ring > 16) edm::LogInfo("EB channel ") << iEBChannel << " ring " << ring;
+    int izz = 0;
+    if(ieta > 0) izz = 1;
+    fxml >> bid;
+    std::string stt = bid.substr(10,15);
+    std::istringstream m12(stt);
+    m12 >> EBmean12[iEBChannel];
+    fxml >> bid;
+    stt = bid.substr(9,15);
+    std::istringstream r12(stt);
+    r12 >> EBrms12[iEBChannel];
+    if(EBrms12[iEBChannel] != 0. && EBrms12[iEBChannel] < 5.) {
+      RingMean[ring][izz][0] += EBrms12[iEBChannel];
+      RingRMS[ring][izz][0] += EBrms12[iEBChannel] * EBrms12[iEBChannel];
+      NbVal[ring][izz][0]++;
+    }
+    fxml >> bid;
+    stt = bid.substr(9,15);
+    std::istringstream m6(stt);
+    m6 >> EBmean6[iEBChannel];
+    fxml >> bid;
+    stt = bid.substr(8,15);
+    std::istringstream r6(stt);
+    r6 >> EBrms6[iEBChannel];
+    if(EBrms6[iEBChannel] != 0. && EBrms6[iEBChannel] < 5.) {
+      RingMean[ring][izz][1] += EBrms6[iEBChannel];
+      RingRMS[ring][izz][1] += EBrms6[iEBChannel] * EBrms6[iEBChannel];
+      NbVal[ring][izz][1]++;
+    }
+    fxml >> bid;
+    stt = bid.substr(9,15);
+    std::istringstream m1(stt);
+    m1 >> EBmean1[iEBChannel];
+    fxml >> bid;
+    stt = bid.substr(8,15);
+    std::istringstream r1(stt);
+    r1 >> EBrms1[iEBChannel];
+    if(EBrms1[iEBChannel] != 0. && EBrms1[iEBChannel] < 5.) {
+      RingMean[ring][izz][2] += EBrms1[iEBChannel];
+      RingRMS[ring][izz][2] += EBrms1[iEBChannel] * EBrms1[iEBChannel];
+      NbVal[ring][izz][2]++;
+    }
+    if(iEBChannel%10000 == 0) fout << " EB channel " << iEBChannel 
+				   << " " << EBmean12[iEBChannel] << " " << EBrms12[iEBChannel]
+				   << " " << EBmean6[iEBChannel] << " " << EBrms6[iEBChannel] 
+				   << " " << EBmean1[iEBChannel] << " " << EBrms1[iEBChannel] << std::endl;
+    for(int i = 0; i < 3; i++)   std::getline(fxml, dummyLine);   // skip lines
+  }
+
+  // ***************** now EE *****************
+  std::ifstream fCrystal;
+  fCrystal.open("Crystal");
+  if(!fCrystal.is_open()) {
+    edm::LogInfo("ERROR : cannot open file Crystal");
+    exit (1);
+  }
+  int ringEE[kEEChannels];
+  for (int iChannel = 0; iChannel < kEEChannels; iChannel++) {
+    fCrystal >> ringEE[iChannel];
+    int ring = abs(ringEE[iChannel]) - 1;
+    if(ring < 17 || ring > 27) {
+      edm::LogInfo(" EE channel ") << iChannel << " ring " << ringEE[iChannel];
+      exit(-1);
+    }
+  }
+  fCrystal.close();
+
+  float EEmean12[kEEChannels], EErms12[kEEChannels], EEmean6[kEEChannels], EErms6[kEEChannels], EEmean1[kEEChannels], EErms1[kEEChannels];
+  for(int i = 0; i < 6; i++) std::getline(fxml, dummyLine);   // skip lines
+  for (int iEEChannel = 0; iEEChannel < kEEChannels; iEEChannel++) {
+    //    int ich = iEEChannel + kEBChannels;
+    fxml >> bid;
+    std::string stt = bid.substr(10,15);
+    std::istringstream m12(stt);
+    m12 >> EEmean12[iEEChannel];
+    int ring = abs(ringEE[iEEChannel]) - 1;
+    if(ring < 17 || ring > 27) edm::LogInfo("EE channel ") << iEEChannel << " ring " << ring;
+    int izz = 1;
+    if(iEEChannel < 7324) izz = 0;
+    fxml >> bid;
+    stt = bid.substr(9,15);
+    std::istringstream r12(stt);
+    r12 >> EErms12[iEEChannel];
+    if(EErms12[iEEChannel] != 0. && EErms12[iEEChannel] < 5.) {
+      RingMean[ring][izz][0] += EErms12[iEEChannel];
+      RingRMS[ring][izz][0] += EErms12[iEEChannel] * EErms12[iEEChannel];
+      NbVal[ring][izz][0]++;
+    }
+    fxml >> bid;
+    stt = bid.substr(9,15);
+    std::istringstream m6(stt);
+    m6 >> EEmean6[iEEChannel];
+    fxml >> bid;
+    stt = bid.substr(8,15);
+    std::istringstream r6(stt);
+    r6 >> EErms6[iEEChannel];
+    if(EErms6[iEEChannel] != 0. && EErms6[iEEChannel] < 5.) {
+      RingMean[ring][izz][1] += EErms6[iEEChannel];
+      RingRMS[ring][izz][1] += EErms6[iEEChannel] * EErms6[iEEChannel];
+      NbVal[ring][izz][1]++;
+    }
+    fxml >> bid;
+    stt = bid.substr(9,15);
+    std::istringstream m1(stt);
+    m1 >> EEmean1[iEEChannel];
+    fxml >> bid;
+    stt = bid.substr(8,15);
+    std::istringstream r1(stt);
+    r1 >> EErms1[iEEChannel];
+    if(EErms1[iEEChannel] != 0. && EErms1[iEEChannel] < 5.) {
+      RingMean[ring][izz][2] += EErms1[iEEChannel];
+      RingRMS[ring][izz][2] += EErms1[iEEChannel] * EErms1[iEEChannel];
+      NbVal[ring][izz][2]++;
+    }
+    if(iEEChannel%1000 == 0) fout << " EE channel " << iEEChannel 
+				  << " " << EEmean12[iEEChannel] << " " << EErms12[iEEChannel]
+				  << " " << EEmean6[iEEChannel] << " " << EErms6[iEEChannel] 
+				  << " " << EEmean1[iEEChannel] << " " << EErms1[iEEChannel] << std::endl;
+    for(int i = 0; i < 3; i++) std::getline(fxml, dummyLine);   // skip lines
+  }
+
+  fxml.close();
+
+  for (int gain = 0; gain < kGains; gain++) {
+    fout << "\n" << "**** Gain ****  " << gainValues[gain] << "\n";
+    for (int ring = 0; ring < 28; ring++) {
+      for (int side = 0; side < 2; side++) {
+	if(NbVal[ring][side][gain] <= 0) {
+	  edm::LogInfo(" No entry for ring ") << ring;
+	  exit(-1);
+	}
+	RingMean[ring][side][gain] /= (double)NbVal[ring][side][gain];
+	double x = RingMean[ring][side][gain];
+	RingRMS[ring][side][gain] /= (double)NbVal[ring][side][gain];
+	double rms = sqrt(RingRMS[ring][side][gain] - x * x);
+	RingRMS[ring][side][gain] = rms;
+	fout << " ring " << ring + 1 << " mean " << x << " rms " << rms << "    ";
+      }  //  loop over sides
+      fout  << std::endl;
+      if(ring == 16) fout  << "*****  End caps *****     EE-                              EE+" << std::endl;
+    }  //  loop over rings
+  }  //  loop over gains
+
+  // read also the ring value from Crystal file
+
+  EcalPedestals* ped = new EcalPedestals();
+  // barrel
+  for(int iEta = -EBDetId::MAX_IETA; iEta <= EBDetId::MAX_IETA; ++iEta) {
+    if(iEta==0) continue;
+    for(int iPhi = EBDetId::MIN_IPHI; iPhi <= EBDetId::MAX_IPHI; ++iPhi) {
+      if (EBDetId::validDetId(iEta,iPhi)) {
+	EBDetId ebdetid(iEta,iPhi);
+	unsigned int hieb = ebdetid.hashedIndex();
+	EcalPedestals::Item item;
+	item.mean_x1  = 200.;
+	item.mean_x6  = 200.;
+	item.mean_x12 = 200.;
+	if(m_corrected) {
+	  int ring = (abs(iEta) - 1)/5;
+	  if(ring < 0 || ring > 16) edm::LogInfo("EB channel ") << hieb << " ring " << ring;
+	  int side = 0;
+	  if(iEta > 0) side = 1;
+	  if(EBrms1[hieb] == 0 || EBrms1[hieb] > RingMean[ring][side][2] + 3 * RingRMS[ring][side][2]) {
+	    fout << " EB channel " << hieb << " eta " << iEta << " phi " << iPhi << " ring " << ring + 1
+		 << " gain 1 rms " << EBrms1[hieb] << " replaced by " << RingMean[ring][side][2] << std::endl;
+	    item.rms_x1  = RingMean[ring][side][2];
+	  }
+	  else item.rms_x1  = EBrms1[hieb];
+	  if(EBrms6[hieb] == 0 || EBrms6[hieb] > RingMean[ring][side][1] + 3 * RingRMS[ring][side][1]) {
+	    fout << " EB channel " << hieb << " eta " << iEta << " phi " << iPhi << " ring " << ring + 1
+		 << " gain 6 rms " << EBrms6[hieb] << " replaced by " << RingMean[ring][side][1] << std::endl;
+	    item.rms_x6  = RingMean[ring][side][1];
+	  }
+	  else item.rms_x6  = EBrms6[hieb];
+	  if(EBrms12[hieb] == 0 || EBrms12[hieb] > RingMean[ring][side][0] + 3 * RingRMS[ring][side][0]) {
+	    fout << " EB channel " << hieb << " eta " << iEta << " phi " << iPhi << " ring " << ring + 1
+		 << " gain 12 rms " << EBrms12[hieb] << " replaced by " << RingMean[ring][side][0] << std::endl;
+	    item.rms_x12  = RingMean[ring][side][0];
+	  }
+	  else item.rms_x12  = EBrms12[hieb];
+	  if(hieb > 4534 && hieb < 4540) 
+	    edm::LogInfo(" Channel ") << hieb << " ring " << ring 
+		      << " 12 " << EBrms12[hieb] << " mean " << RingMean[ring][side][0] << " rms " << RingRMS[ring][side][0]
+		      << "  6 " << EBrms6[hieb]  << " mean " << RingMean[ring][side][1] << " rms " << RingRMS[ring][side][1]
+		      << "  1 " << EBrms1[hieb]  << " mean " << RingMean[ring][side][2] << " rms " << RingRMS[ring][side][2];
+	}   // if corrected
+	else {
+	  item.rms_x1   = EBrms1[hieb];
+	  item.rms_x6   = EBrms6[hieb];
+	  item.rms_x12  = EBrms12[hieb];
+	}
+	if(item.rms_x1 > 4. || item.rms_x6 > 4. || item.rms_x12 > 4.)
+	  edm::LogInfo(" Channel ") << hieb << " 12 " << item.rms_x12 << " 6 " << item.rms_x6 << " 1 " << item.rms_x1;
+	ped->insert(std::make_pair(ebdetid.rawId(),item));
+      }   // valid EBId
+    }    //  loop over phi
+  }     //   loop over eta
+
+  // endcaps 
+  for(int iz = -1; iz < 2; iz = iz + 2) {   // z : -1 and +1
+    for(int iX = EEDetId::IX_MIN; iX <= EEDetId::IX_MAX; ++iX) {
+      for(int iY = EEDetId::IY_MIN; iY <= EEDetId::IY_MAX; ++iY) {
+	if (EEDetId::validDetId(iX, iY, iz)) {
+	  EEDetId eedetid(iX, iY, iz);
+	  unsigned int hiee = eedetid.hashedIndex();
+	  //	  fout << hiee << " mean 12 " << EEmean12[hiee] << std::endl;
+	  EcalPedestals::Item item;
+	  item.mean_x1  = 200.;
+	  item.mean_x6  = 200.;
+	  item.mean_x12 = 200.;
+	  if(m_corrected) {
+	    int ring = abs(ringEE[hiee]) - 1;
+	    if(ring < 17 || ring > 27) edm::LogInfo("EE channel ") << hiee << " ring " << ring;
+	    if(EErms1[hiee] == 0 || EErms1[hiee] > RingMean[ring][iz][2] + 3 * RingRMS[ring][iz][2]) {
+	      fout << " EE channel " << hiee << " x " << iX << " y " << iY << " z " << iz << " ring " << ring + 1 
+		   << " gain 1 rms " << EErms1[hiee] << " replaced by " << RingMean[ring][iz][2] << std::endl;
+	      item.rms_x1  = RingMean[ring][iz][2];
+	    }
+	    else item.rms_x1  = EErms1[hiee];
+	    if(EErms6[hiee] == 0 || EErms6[hiee] > RingMean[ring][iz][1] + 3 * RingRMS[ring][iz][1]) {
+	      fout << " EE channel " << hiee << " x " << iX << " y " << iY << " z " << iz << " ring " << ring + 1 
+		   << " gain 6 rms " << EErms6[hiee] << " replaced by " << RingMean[ring][iz][1] << std::endl;
+	      item.rms_x6  = RingMean[ring][iz][1];
+	    }
+	    else item.rms_x6  = EErms6[hiee];
+	    if(EErms12[hiee] == 0 || EErms12[hiee] > RingMean[ring][iz][0] + 3 * RingRMS[ring][iz][0]) {
+	      fout << " EE channel " << hiee << " x " << iX << " y " << iY << " z " << iz << " ring " << ring + 1
+		   << " gain 12 rms " << EErms12[hiee] << " replaced by " << RingMean[ring][iz][0] << std::endl;
+	      item.rms_x12  = RingMean[ring][iz][0];
+	    }
+	    else item.rms_x12  = EErms12[hiee];
+	  }   // if corrected
+	  else {
+	    item.rms_x1   = EErms1[hiee];
+	    item.rms_x6   = EErms6[hiee];
+	    item.rms_x12  = EErms12[hiee];
+	  }
+	  ped->insert(std::make_pair(eedetid.rawId(),item));
+	}  // val EEId
+      }   //  loop over y
+    }    //   loop over x
+  }     //   loop over z
+  fout.close();
+
+  unsigned int irun = m_firstRun;
+  Time_t snc= (Time_t) irun ;      	      
+  m_to_transfer.push_back(std::make_pair((EcalPedestals*)ped,snc));
+	      
+  edm::LogInfo("Ecal - > end of readPedestalMC -----------\n");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
 
 void popcon::EcalPedestalsHandler::readPedestal2017() {
   bool debug = false;
-  std::cout << " reading local Pedestal run (2017 way)! " << m_filename <<  std::endl;
+  edm::LogInfo(" reading local Pedestal run (2017 way)! ") << m_filename;
 
   // First we copy the last valid record to a temporary object peds
   Ref ped_db = lastPayload();
   EcalPedestals* peds = new EcalPedestals();
-  std::cout << "retrieved last payload "  << std::endl;
+  edm::LogInfo("retrieved last payload ");
 
   for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
     if(iEta==0) continue;
@@ -803,11 +1096,11 @@ void popcon::EcalPedestalsHandler::readPedestal2017() {
     }
   }
 
-  std::cout << " reading the input file " << m_filename <<  std::endl;
+  edm::LogInfo(" reading the input file ") << m_filename;
   std::ifstream fInput;
   fInput.open(m_filename);
   if(!fInput.is_open()) {
-    std::cout << "ERROR : cannot open file " << m_filename << std::endl;
+    edm::LogInfo("ERROR : cannot open file ") << m_filename;
     exit (1);
   }
   //  string pos, dummyLine;
@@ -819,7 +1112,7 @@ void popcon::EcalPedestalsHandler::readPedestal2017() {
     fInput >> hashedId >> EBmean12[iChannel] >> EBrms12[iChannel] >> EBmean6[iChannel] >> EBrms6[iChannel] 
 	   >> EBmean1[iChannel] >> EBrms1[iChannel];
     if(hashedId != iChannel + 1) {
-      std::cout << m_filename << " strange hash " << hashedId << " while iChannel " << iChannel << std::endl;
+      edm::LogInfo("File ") << m_filename << " strange hash " << hashedId << " while iChannel " << iChannel;
       exit(-1);
     }
   }
@@ -830,7 +1123,7 @@ void popcon::EcalPedestalsHandler::readPedestal2017() {
     fInput >> hashedId >> EEmean12[iChannel] >> EErms12[iChannel] >> EEmean6[iChannel] >> EErms6[iChannel] 
 	   >> EEmean1[iChannel] >> EErms1[iChannel];
     if(hashedId != iChannel + kEBChannels + 1) {
-      std::cout << m_filename << " strange hash " << hashedId << " while iChannel " << iChannel << std::endl;
+      edm::LogInfo("File ") << m_filename << " strange hash " << hashedId << " while iChannel " << iChannel;
       exit(-1);
     }
   }
@@ -848,8 +1141,8 @@ void popcon::EcalPedestalsHandler::readPedestal2017() {
 	EcalPedestals::Item previous_ped = peds->barrel(hieb);
 	if(debug & (EBmean12[hieb] == -999. || EBrms12[hieb] == -999. || EBmean6[hieb] == -999. || EBrms6[hieb] == -999. ||
 		    EBmean1[hieb] == -999. || EBrms1[hieb] == -999.))
-	  std::cout << " bad EB channel eta " << iEta << " phi " << iPhi  << " " << EBmean12[hieb] << " " <<  EBrms12[hieb]
-		    << " " << EBmean6[hieb] << " " << EBrms6[hieb] << " " << EBmean1[hieb] << " " << EBrms1[hieb] << std::endl;
+	  edm::LogInfo(" bad EB channel eta ") << iEta << " phi " << iPhi  << " " << EBmean12[hieb] << " " <<  EBrms12[hieb]
+		    << " " << EBmean6[hieb] << " " << EBrms6[hieb] << " " << EBmean1[hieb] << " " << EBrms1[hieb];
 	if(EBmean1[hieb] != -999.) item.mean_x1  = EBmean1[hieb];
 	else item.mean_x1 = previous_ped.mean_x1;
 	if(EBrms1[hieb] != -999.)  item.rms_x1   = EBrms1[hieb];
@@ -880,8 +1173,8 @@ void popcon::EcalPedestalsHandler::readPedestal2017() {
 	  EcalPedestals::Item previous_ped= peds->endcap(hiee);
 	  if(debug & (EEmean12[hiee] == -999. || EErms12[hiee] == -999. || EEmean6[hiee] == -999. || EErms6[hiee] == -999. ||
 		      EEmean1[hiee] == -999. || EErms1[hiee] == -999.))
-	    std::cout << " bad EE channel x " << iX << " y " << iY  << " z" << iz << " " << EEmean12[hiee] << " " <<  EErms12[hiee]  
-		      << " " <<EEmean6[hiee] << " " << EErms6[hiee] << " " << EEmean1[hiee] << " " << EErms1[hiee] << std::endl;
+	    edm::LogInfo(" bad EE channel x ") << iX << " y " << iY  << " z" << iz << " " << EEmean12[hiee] << " " <<  EErms12[hiee]  
+		      << " " <<EEmean6[hiee] << " " << EErms6[hiee] << " " << EEmean1[hiee] << " " << EErms1[hiee];
 	  if(EEmean1[hiee] != -999.) item.mean_x1  = EEmean1[hiee];
 	  else item.mean_x1 = previous_ped.mean_x1;
 	  if(EErms1[hiee] != -999.)  item.rms_x1   = EErms1[hiee];
@@ -905,11 +1198,12 @@ void popcon::EcalPedestalsHandler::readPedestal2017() {
   Time_t snc= (Time_t) irun ;      	      
   m_to_transfer.push_back(std::make_pair((EcalPedestals*)ped,snc));
 	      
-  std::cout << "Ecal - > end of readPedestalFile -----------\n";
+  edm::LogInfo("Ecal - > end of readPedestal2017 -----------\n");
 }
+/////////////////////////////////////////////////////////////////////////////////////////
 
 void popcon::EcalPedestalsHandler::readPedestalTree() {
-  std::cout << " reading the root file " << m_filename <<  std::endl;
+  edm::LogInfo(" reading the root file ") << m_filename;
   TFile * hfile = new TFile(m_filename.c_str());
 
   TTree *treeChan = (TTree*)hfile->Get("PedChan");
@@ -919,7 +1213,7 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
   treeChan->SetBranchAddress("y", &iy);
   treeChan->SetBranchAddress("z", &iz);
   int neventsChan = (int)treeChan->GetEntries();
-  std::cout << "PedChan nb entries " << neventsChan << std::endl;
+  edm::LogInfo("PedChan nb entries ") << neventsChan;
   int ringEB[kEBChannels], sideEB[kEBChannels], ixEE[kEEChannels], iyEE[kEEChannels], izEE[kEEChannels];
   for(int entry = 0; entry < neventsChan; entry++) {
     treeChan->GetEntry(entry);
@@ -927,25 +1221,29 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
       ringEB[iChannel] = (abs(ix) -1)/5;    // -85...-1, 1...85 give 0...16
       sideEB[iChannel] = 1;
       if(ix < 0) sideEB[iChannel] = 0;  
-      if(entry%10000 == 0) std::cout << " EB channel " << iChannel << " eta " << ix << " phi " << iy 
-				<< " side " << sideEB[iChannel] << " ring " << ringEB[iChannel] << std::endl;
+      if(entry%10000 == 0) edm::LogInfo(" EB channel ") << iChannel << " eta " << ix << " phi " << iy 
+				<< " side " << sideEB[iChannel] << " ring " << ringEB[iChannel];
     }
     else {
       ixEE[iChannel] = ix;
       iyEE[iChannel] = iy;
       izEE[iChannel] = iz;
-      if(entry%1000 == 0) std::cout << " EE channel " << iChannel << " x " << ixEE[iChannel] << " y " << iyEE[iChannel] << " z " << izEE[iChannel] << std::endl;
+      if(entry%1000 == 0) edm::LogInfo(" EE channel ") << iChannel << " x " << ixEE[iChannel] << " y " << iyEE[iChannel] << " z " << izEE[iChannel];
     }
   }
-  /*    2016
-  int Nbpedxml = 26;
+  //    2016 : 26
   Int_t pedxml[Nbpedxml] = {271948, 273634, 273931, 274705, 275403, 276108, 276510, 277169, 278123, 278183,
-		      278246, 278389, 278499, 278693, 278858, 278888, 278931, 279728, 280129, 280263,
-		      280941, 281753, 282631, 282833, 283199, 283766};
-  */
-  Int_t pedxml[Nbpedxml] = {286535, 293513, 293632, 293732, 295507, 295672, 296391, 296917, 297388, 298481, 
+			    278246, 278389, 278499, 278693, 278858, 278888, 278931, 279728, 280129, 280263,
+			    280941, 281753, 282631, 282833, 283199, 283766,
+  //    2017 : 25
+			    286535, 293513, 293632, 293732, 295507, 295672, 296391, 296917, 297388, 298481, 
 			    299279, 299710, 300186, 300581, 301191, 302006, 302293, 302605, 303436, 303848, 
-			    304211, 304680, 305117, 305848, 306176};
+			    304211, 304680, 305117, 305848, 306176,
+  //    2018 : 30
+			    313760, 315434, 315831, 316299, 316694, 316963, 317399, 317669, 318249, 318747,
+			    319111, 319365, 319700, 320098, 320515, 320905, 321184, 321480, 321855, 322151, 
+			    322653, 323261, 323802, 324250, 324632, 325909, 326038, 326652, 326979, 327271};
+
   Int_t run16Index = 0;
 
   Int_t fed[kChannels], chan[kChannels], id, run, run_type, seq_id, las_id, fill_num, run_num_infill, run_time, run_time_stablebeam, nxt, time[54];
@@ -970,11 +1268,11 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
   tree->SetBranchAddress("ped", ped);
   tree->SetBranchAddress("pedrms", pedrms);
   int nevents = (int)tree->GetEntries();
-  std::cout << " nb entries " << nevents << std::endl;
+  edm::LogInfo(" nb entries ") << nevents;
   std::ofstream fout;
   fout.open("copyTreePedestals.txt");
   if(!fout.is_open()) {
-    std::cout << "ERROR : cannot open file copyTreePedestals.txt" << std::endl;
+    edm::LogInfo("ERROR : cannot open file copyTreePedestals.txt");
     exit (1);
   }
   Double_t EAmean1[kChannels], EArms1[kChannels], EAmean6[kChannels], EArms6[kChannels], EAmean12[kChannels], EArms12[kChannels];
@@ -999,6 +1297,7 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
 
   int run_type_kept = m_runtype;    // 1 collision 2 cosmics 3 circulating 4 test
   int first_run_kept = (int)m_firstRun;  //  m_firstRun is unsigned!
+  int last_run_kept = (int)m_lastRun;  //  m_lastRun is unsigned!
   int runold = run;
   int firsttimeFED = -1;
   //  int timeold = -1;
@@ -1009,6 +1308,12 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
 	   << " before first wanted " << m_firstRun << std::endl;
       runold = run;
       continue;
+    }
+    if(run > last_run_kept) {
+      fout << " entry " << entry << " run " << run << " sequence " << seq_id << " run_time " << run_time
+	   << " after last wanted " << m_lastRun << std::endl;
+      runold = run;
+      break;
     }
     if(run_type  != run_type_kept) {
       fout << " entry " << entry << " run " << run << " sequence " << seq_id << " run_time " << run_time
@@ -1043,7 +1348,7 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
       }
     }  // only collision runs
     //    if(idtime != timeold) {
-    //      std::cout << " entry "<< entry << " run " << run << " time " << idtime << " run type " << run_type << std::endl;
+    //      edm::LogInfo(" entry ")<< entry << " run " << run << " time " << idtime << " run type " << run_type;
     //      timeold = idtime;
     //    }
     if(run == runold) {
@@ -1058,8 +1363,8 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
     }
     else {
       // new run. Write the previous one
-      //      std::cout << " entry "<< entry << " fill " << fill_num << " run " << runold << " nb of events " << RunEntry
-      //		<< " time " << run_time << " " << run_time_stablebeam << " " << time[0] << " run type " << run_type << std::endl;
+      //      edm::LogInfo(" entry ")<< entry << " fill " << fill_num << " run " << runold << " nb of events " << RunEntry
+      //		<< " time " << run_time << " " << run_time_stablebeam << " " << time[0] << " run type " << run_type;
       if(RunEntry == 0 || (run_type_kept == 2 && RunEntry < 6)) fout << " skiped run " << runold << " not enough entries : " << RunEntry << std::endl;
       else {
 	fout << " entry "<< entry -1 << " run " << runold << " nb of events " << RunEntry;
@@ -1086,7 +1391,7 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
 	  std::ifstream fxml;
 	  fxml.open(Form("Pedestals_%i.xml",pedxml[Indexxml]));
 	  if(!fxml.is_open()) {
-	    std::cout << "ERROR : cannot open file Pedestals_" << pedxml[Indexxml] << ".xml" << std::endl;
+	    edm::LogInfo("ERROR : cannot open file Pedestals_") << pedxml[Indexxml] << ".xml";
 	    exit (1);
 	  }
 	  std::string dummyLine, mean12, rms12, bid;
@@ -1243,12 +1548,13 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
   }  // end loop over all channels
   Time_t snc= (Time_t) runold;      	      
   m_to_transfer.push_back(std::make_pair((EcalPedestals*)pedestal,snc));   // run based IOV
-  std::cout << "Ecal - > end of readPedestalTree -----------\n";
+  edm::LogInfo("Ecal - > end of readPedestalTree -----------\n");
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
   bool debug = false;
-  std::cout << " reading the root file " << m_filename <<  std::endl;
+  edm::LogInfo(" reading the root file ")<< m_filename;
   TFile * hfile = new TFile(m_filename.c_str());
 
   TTree *treeChan = (TTree*)hfile->Get("PedChan");
@@ -1258,7 +1564,7 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
   treeChan->SetBranchAddress("y", &iy);
   treeChan->SetBranchAddress("z", &iz);
   int neventsChan = (int)treeChan->GetEntries();
-  std::cout << "PedChan nb entries " << neventsChan << std::endl;
+  edm::LogInfo("PedChan nb entries ") << neventsChan;
   int ringEB[kEBChannels], sideEB[kEBChannels], ixEE[kEEChannels], iyEE[kEEChannels], izEE[kEEChannels];
   for(int entry = 0; entry < neventsChan; entry++) {
     treeChan->GetEntry(entry);
@@ -1266,26 +1572,30 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
       ringEB[iChannel] = (abs(ix) -1)/5;    // -85...-1, 1...85 give 0...16
       sideEB[iChannel] = 1;
       if(ix < 0) sideEB[iChannel] = 0;  
-      if(debug && entry%10000 == 0) std::cout << " EB channel " << iChannel << " eta " << ix << " phi " << iy 
-				<< " side " << sideEB[iChannel] << " ring " << ringEB[iChannel] << std::endl;
+      if(debug && entry%10000 == 0) edm::LogInfo(" EB channel ") << iChannel << " eta " << ix << " phi " << iy 
+				<< " side " << sideEB[iChannel] << " ring " << ringEB[iChannel];
     }
     else {
       ixEE[iChannel] = ix;
       iyEE[iChannel] = iy;
       izEE[iChannel] = iz;
-      if(debug && entry%1000 == 0) std::cout << " EE channel " << iChannel << " x " << ixEE[iChannel] << " y "
-					     << iyEE[iChannel] << " z " << izEE[iChannel] << std::endl;
+      if(debug && entry%1000 == 0) edm::LogInfo(" EE channel ") << iChannel << " x " << ixEE[iChannel] << " y "
+					     << iyEE[iChannel] << " z " << izEE[iChannel];
     }
   }
-  /*    2016
-  int Nbpedxml = 26;
+  //    2016: 26
   Int_t pedxml[Nbpedxml] = {271948, 273634, 273931, 274705, 275403, 276108, 276510, 277169, 278123, 278183,
-		      278246, 278389, 278499, 278693, 278858, 278888, 278931, 279728, 280129, 280263,
-		      280941, 281753, 282631, 282833, 283199, 283766};
-  */
-  Int_t pedxml[Nbpedxml] = {286535, 293513, 293632, 293732, 295507, 295672, 296391, 296917, 297388, 298481, 
+			    278246, 278389, 278499, 278693, 278858, 278888, 278931, 279728, 280129, 280263,
+			    280941, 281753, 282631, 282833, 283199, 283766,
+  //    2017 : 25
+			    286535, 293513, 293632, 293732, 295507, 295672, 296391, 296917, 297388, 298481, 
 			    299279, 299710, 300186, 300581, 301191, 302006, 302293, 302605, 303436, 303848, 
-			    304211, 304680, 305117, 305848, 306176};
+			    304211, 304680, 305117, 305848, 306176,
+  //    2018 : 30
+			    313760, 315434, 315831, 316299, 316694, 316963, 317399, 317669, 318249, 318747,
+			    319111, 319365, 319700, 320098, 320515, 320905, 321184, 321480, 321855, 322151, 
+			    322653, 323261, 323802, 324250, 324632, 325909, 326038, 326652, 326979, 327271};
+
   Int_t run16Index = 0;
 
   Int_t fed[kChannels], chan[kChannels], id, run, run_type, seq_id, las_id, fill_num, run_num_infill, run_time, run_time_stablebeam, nxt, time[54];
@@ -1310,11 +1620,11 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
   tree->SetBranchAddress("ped", ped);
   tree->SetBranchAddress("pedrms", pedrms);
   int nevents = (int)tree->GetEntries();
-  std::cout << " nb entries " << nevents << std::endl;
+  edm::LogInfo(" nb entries ") << nevents;
   std::ofstream fout;
   fout.open("copyTimestampPedestals.txt");
   if(!fout.is_open()) {
-    std::cout << "ERROR : cannot open file copyTimestampPedestals.txt" << std::endl;
+    edm::LogInfo("ERROR : cannot open file copyTimestampPedestals.txt");
     exit (1);
   }
   Double_t EAmean1[kChannels], EArms1[kChannels], EAmean6[kChannels], EArms6[kChannels], EAmean12[kChannels], EArms12[kChannels];
@@ -1338,10 +1648,11 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
   }   // debug
 
   int runold = -1, fillold = -1, firsttimeFEDold = -1;
-  int firsttimeFED = -1;
+  int firsttimeFED = -1, firstFillSequence = 0;
   bool firstSeqBeforeStable = false;
   int transfer = 0;
   int first_run_kept = (int)m_firstRun;  //  m_firstRun is unsigned!
+  int last_run_kept = (int)m_lastRun;  //  m_lastRun is unsigned!
   for(int entry = 0; entry < nevents; entry++) {
     tree->GetEntry(entry);
     if(nxt != kChannels) {
@@ -1354,11 +1665,21 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
       //      }
       //      else fout << std::endl;
     }
-    if(las_id != 447) {
+    if(run_type != 1) {
       fout << " entry " << entry << " run " << run << " sequence " << seq_id 
-	   << " ***********  laser wave length = " << las_id << std::endl;
+    	   << " ***********  run_type ( 1 coll, 2 cosm, 3 circ, 4 test ) = " << run_type << std::endl;
       continue;
     }
+    if(las_id != 447) {  //447 = blue laser
+       fout << " entry " << entry << " run " << run << " sequence " << seq_id 
+       	   << " ***********  laser wave length = " << las_id << std::endl;
+      continue;
+    }
+    //    if(las_id != 527) {  //527 = green laser
+    //      fout << " entry " << entry << " run " << run << " sequence " << seq_id 
+    //    	   << " ***********  laser wave length = " << las_id << std::endl;
+    //      continue;
+    //    }
     if(bfield < 3.79) {
       fout << " entry " << entry << " run " << run << " sequence " << seq_id 
 	   << " ***********  bfield = " << bfield << std::endl;
@@ -1376,24 +1697,31 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
     }
     firsttimeFED = time[0];
     for(int ifed = 0; ifed < 54; ifed++) {
-      if(time[ifed] > firsttimeFEDold && firsttimeFED < time[ifed]) time[ifed] = firsttimeFED;  // take the first AFTER the previous sequence one!...
+      if(time[ifed] > firsttimeFEDold && time[ifed] < firsttimeFED) firsttimeFED = time[ifed];  // take the first AFTER the previous sequence one!...
     }
     if(firsttimeFED < first_run_kept) {
       fout << " time " << firsttimeFED << " before first wanted " << m_firstRun << std::endl;
       continue;
     }
+    if(firsttimeFED > last_run_kept) {
+      fout << " entry " << entry << " time " << firsttimeFED << " after last wanted " << m_lastRun << std::endl;
+      break;
+    }
     fout << " time " << firsttimeFED << std::endl;
     if(firsttimeFED <= firsttimeFEDold) {
-      std::cout << " Problem finding the IOV : old one " <<  firsttimeFEDold << " new one " << firsttimeFED  << std::endl;
+      edm::LogInfo(" Problem finding the IOV : old one ") <<  firsttimeFEDold << " new one " << firsttimeFED;
       for(int ifed = 0; ifed < 54; ifed++)
-	std::cout << " " << time[ifed];
-      std::cout << std::endl << " ignore this entry " << std::endl;
+	edm::LogInfo("Time ") << time[ifed] << " ignore this entry ";
       continue;
     }
     firsttimeFEDold = firsttimeFED;
 
     //    if(run != runold) firstSeqBeforeStable = false;
-    if(fill_num != fillold) firstSeqBeforeStable = false;
+    if(fill_num != fillold) {
+      firstSeqBeforeStable = false;
+      firstFillSequence = 0;
+    }
+    else firstFillSequence++;
     if(run_type == 1) {
       if(run_time_stablebeam > 0) {
 	if(firsttimeFED < run_time_stablebeam) {
@@ -1410,6 +1738,12 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
 	firstSeqBeforeStable = false;
 	firsttimeFED = run_time_stablebeam;
 	fout << " first full sequence after stable; change the IOV " << firsttimeFED << std::endl;
+      }
+      if(firstFillSequence == 0) {             // first sequence in this fill
+	if(firsttimeFED > run_time_stablebeam) {
+	  fout << " first full sequence " << firsttimeFED << " after stable " << run_time_stablebeam << "; change the IOV " << std::endl;
+	  firsttimeFED = run_time_stablebeam;
+	}
       }
     }  // only collision runs
 
@@ -1437,7 +1771,7 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
 	std::ifstream fxml;
 	fxml.open(Form("Pedestals_%i.xml",pedxml[Indexxml]));
 	if(!fxml.is_open()) {
-	  std::cout << "ERROR : cannot open file Pedestals_" << pedxml[Indexxml] << ".xml" << std::endl;
+	  edm::LogInfo("ERROR : cannot open file Pedestals_") << pedxml[Indexxml] << ".xml";
 	  exit (1);
 	}
 	std::string dummyLine, mean12, rms12, bid;
@@ -1527,5 +1861,5 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
     fillold = fill_num;
   }  // end loop over all entries
 
-  std::cout << "Ecal - > end of readPedestalTimestamp -----------\n";
+  edm::LogInfo("Ecal - > end of readPedestalTimestamp -----------\n");
 }

@@ -36,9 +36,10 @@ def _modifyPixelDigitizerForPhase1Pixel( digitizer ) :
     digitizer.ElectronsPerVcal_Offset    = cms.double(-60)  # L2-4: -60 +- 130
     digitizer.ElectronsPerVcal_L1_Offset = cms.double(-670) # L1:   -670 +- 220
     digitizer.UseReweighting = cms.bool(True)
-
+    
 
 SiPixelSimBlock = cms.PSet(
+    KillBadFEDChannels = cms.bool(False),
     UseReweighting = cms.bool(False),
     PrintClusters = cms.bool(False),
     PrintTemplates = cms.bool(False),
@@ -107,6 +108,7 @@ premix_stage1.toModify(SiPixelSimBlock,
     AddNoise = True,
     AddNoisyPixels = False,
     AddPixelInefficiency = False, #done in second step
+    KillBadFEDChannels = False, #done in second step
 )
 
 # Threshold in electrons are the Official CRAFT09 numbers:

@@ -18,3 +18,11 @@ HGCalTriggerCell::
 ~HGCalTriggerCell() 
 {
 }
+
+void HGCalTriggerCell::
+setPt( double pt )
+{
+  
+  this->setP4( math::PtEtaPhiMLorentzVector(pt, this->eta(), this->phi(), this->mass() ) );
+  
+}

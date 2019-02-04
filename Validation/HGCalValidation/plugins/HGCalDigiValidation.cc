@@ -111,7 +111,7 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
   if ((nameDetector_ == "HGCalEESensitive") || 
       (nameDetector_ == "HGCalHESiliconSensitive") || 
       (nameDetector_ == "HGCalHEScintillatorSensitive") ||
-      (nameDetector_ == "HFNoseSensitive")) {
+      (nameDetector_ == "HGCalHFNoseSensitive")) {
     digiSource_    = consumes<HGCalDigiCollection>(temp);
   } else if (nameDetector_ == "HCal") {
     if (ifHCAL_) digiSource_ = consumes<QIE11DigiCollection>(temp);
@@ -120,7 +120,7 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
     throw cms::Exception("BadHGCDigiSource")
       << "HGCal DetectorName given as " << nameDetector_ << " must be: "
       << "\"HGCalEESensitive\", \"HGCalHESiliconSensitive\", "
-      << "\"HGCalHEScintillatorSensitive\", \"HFNoseSensitive\", "
+      << "\"HGCalHEScintillatorSensitive\", \"HGCalHFNoseSensitive\", "
       << "or \"HCal\"!"; 
   }  
 }
@@ -164,11 +164,12 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
     if ((mode == HGCalGeometryMode::Hexagon8) ||
 	(mode == HGCalGeometryMode::Hexagon8Full)) geomType = 1;
     else if (mode == HGCalGeometryMode::Trapezoid) geomType = 2;
-    if (nameDetector_ == "HFNoseSensitive")        geomType = 3;
+    if (nameDetector_ == "HGCalHFNoseSensitive")   geomType = 3;
   }
 
   unsigned int ntot(0), nused(0);
-  if (nameDetector_ == "HGCalEESensitive") {
+  if ((nameDetector_ == "HGCalEESensitive") ||
+      (nameDetector_ == "HGCalHFNoseSensitive")) {
     //HGCalEE
     edm::Handle<HGCalDigiCollection> theHGCEEDigiContainers;
     iEvent.getByToken(digiSource_, theHGCEEDigiContainers);

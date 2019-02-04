@@ -68,10 +68,10 @@ private:
 AlCaIsolatedBunchFilter::AlCaIsolatedBunchFilter(const edm::ParameterSet& iConfig, const AlCaIsolatedBunch::Counters* count) :
   nRun_(0), nAll_(0), nGood_(0) {
   //now do what ever initialization is needed
-  trigJetNames_           = iConfig.getParameter<std::vector<std::string> >("TriggerJet");
-  trigIsoBunchNames_      = iConfig.getParameter<std::vector<std::string> >("TriggerIsoBunch");
-  processName_            = iConfig.getParameter<std::string>("ProcessName");
-  theTriggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
+  trigJetNames_           = iConfig.getParameter<std::vector<std::string> >("triggerJet");
+  trigIsoBunchNames_      = iConfig.getParameter<std::vector<std::string> >("triggerIsoBunch");
+  processName_            = iConfig.getParameter<std::string>("processName");
+  theTriggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultLabel");
 
   // define tokens for access
   tok_trigRes_  = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
@@ -195,11 +195,21 @@ void AlCaIsolatedBunchFilter::endRun(edm::Run const& iRun, edm::EventSetup const
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void AlCaIsolatedBunchFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("triggerResultLabel",edm::InputTag("TriggerResults","","HLT"));
+  desc.add<std::string>("processName",    "HLT");
+  std::vector<std::string> isobunch = {"HLT_ZeroBias_IsolatedBunches"};
+  desc.add<std::vector<std::string> >("triggerIsoBunch", isobunch);
+  std::vector<std::string> triggers = {"HLT_AK8PFJet",  "HLT_AK8PFHT",
+				       "HLT_CaloJet",   "HLT_HT", 
+				       "HLT_JetE",      "HLT_PFHT", 
+				       "HLT_DiPFJet",   "HLT_PFJet", 
+				       "HLT_DiCentralPFJet", "HLT_QuadPFJet", 
+				       "HLT_L1_TripleJet_VBF", "HLT_QuadJet",
+				       "HLT_DoubleJet",  "HLT_AK8DiPFJet",
+				       "HLT_AK4CaloJet", "HLT_AK4PFJet"};
+  desc.add<std::vector<std::string> >("triggerJet", triggers);
+  descriptions.add("alcaIsolatedBunchFilter",desc);
 }
 
 //define this as a plug-in

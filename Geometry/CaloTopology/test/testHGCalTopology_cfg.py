@@ -2,26 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
+process.load("Configuration.Geometry.GeometryExtended2023D28Reco_cff")
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load("Geometry.CaloTopology.hgcalTopologyTester_cfi")
 
-process.load("Geometry.HGCalCommonData.testHGCalXML_cfi")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
-process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
-process.load("Geometry.CaloEventSetup.HGCalV6Topology_cfi")
-
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HGCalGeom'),
-    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HGCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-)
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.categories.append('HGCalGeom')
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -47,6 +33,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prod = cms.EDAnalyzer("HGCalTopologyTester")
-
-process.p1 = cms.Path(process.generator*process.prod)
+process.p1 = cms.Path(process.generator*
+                      process.hgcalTopologyTesterEE*
+                      process.hgcalTopologyTesterHEF*
+                      process.hgcalTopologyTesterHEB)

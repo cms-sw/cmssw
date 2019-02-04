@@ -80,6 +80,15 @@ private:
 			ClusterParamTemplate & theClusterParam, 
 			SiPixelTemplateReco2D::ClusMatrix & clusterPayload,
 			int ID, LocalPoint & lp ) const;
+
+   //Helper function to see if 2D reco should be run
+   void checkRecommend2D( DetParam const & theDetParam, 
+			ClusterParamTemplate & theClusterParam, 
+			SiPixelTemplateReco::ClusMatrix & clusterPayload,
+			int ID) const;
+
+
+
    
 
    // Template storage
@@ -96,8 +105,8 @@ private:
    std::string templateDir_ ;
 
    // Configure 2D reco.
-   float minProbY_ ;
-   int   maxSizeMismatchInY_ ;
+   float minChargeRatio_;
+   float maxSizeMismatchInY_ ;
    
    //bool DoCosmics_;
    //bool LoadTemplatesFromDB_;

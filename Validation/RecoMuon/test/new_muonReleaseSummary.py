@@ -352,7 +352,7 @@ for sample in new_userparams.samples :
             # os.makedirs(newdir)
             # os.system('rm '+ newlocalsample)  
             # os.system('scp -r '+newpath+'/* ' + newdir)
-        os.system('scp -r '+newpath+'/*.pdf '+new_userparams.User+'@lxplus.cern.ch:' + newdir)
+        os.system('scp -r '+newpath+'/* '+new_userparams.User+'@lxplus.cern.ch:' + newdir)
 
         if(new_userparams.Publish_rootfile):            
             os.system('scp -r '+newpath+'/val.*.root '+new_userparams.User+'@lxplus.cern.ch:' + newdir)

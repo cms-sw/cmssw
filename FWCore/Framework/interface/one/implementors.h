@@ -24,7 +24,11 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 
@@ -154,6 +158,59 @@ namespace edm {
             void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) final;
 
             virtual void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) = 0;
+         };
+         
+         template <typename T, typename C>
+         class RunCacheHolder : public virtual T {
+         public:
+            RunCacheHolder() = default;
+            RunCacheHolder( RunCacheHolder<T,C> const&) = delete;
+            RunCacheHolder<T,C>& operator=(RunCacheHolder<T,C> const&) = delete;
+            ~RunCacheHolder() noexcept(false) override {};
+         protected:
+            C* runCache(edm::RunIndex iID) { return cache_.get(); }
+            C const* runCache(edm::RunIndex iID) const { return cache_.get(); }
+         private:
+            void doBeginRun_(Run const& rp, EventSetup const& c) final {
+               cache_ = globalBeginRun(rp,c);
+            }
+            void doEndRun_(Run const& rp, EventSetup const& c) final {
+               globalEndRun(rp,c);
+               cache_ = nullptr; // propagate_const<T> has no reset() function
+            }
+            
+            virtual std::shared_ptr<C> globalBeginRun(edm::Run const&, edm::EventSetup const&) const = 0;
+            virtual void globalEndRun(edm::Run const&, edm::EventSetup const&) = 0;
+            //When threaded we will have a container for N items whre N is # of simultaneous runs
+            edm::propagate_const<std::shared_ptr<C>> cache_;
+         };
+         
+         template <typename T, typename C>
+         class LuminosityBlockCacheHolder : public virtual T {
+         public:
+            LuminosityBlockCacheHolder() = default;
+            LuminosityBlockCacheHolder( LuminosityBlockCacheHolder<T,C> const&) = delete;
+            LuminosityBlockCacheHolder<T,C>& operator=(LuminosityBlockCacheHolder<T,C> const&) = delete;
+            ~LuminosityBlockCacheHolder() noexcept(false) override {};
+         protected:
+            void preallocLumis(unsigned int iNLumis) final {
+               caches_.reset( new std::shared_ptr<C>[iNLumis]);
+            }
+            
+            C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return caches_[iID].get(); }
+            C* luminosityBlockCache(edm::LuminosityBlockIndex iID) { return caches_[iID].get(); }
+         private:
+            void doBeginLuminosityBlock_(LuminosityBlock const& lp, EventSetup const& c) final {
+               caches_[lp.index()] = globalBeginLuminosityBlock(lp,c);
+            }
+            void doEndLuminosityBlock_(LuminosityBlock const& lp, EventSetup const& c) final {
+               globalEndLuminosityBlock(lp,c);
+               caches_[lp.index()].reset();
+            }
+            
+            virtual std::shared_ptr<C> globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const = 0;
+            virtual void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
+            std::unique_ptr<std::shared_ptr<C>[]> caches_;
          };
 
          template <typename T>

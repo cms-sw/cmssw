@@ -87,8 +87,8 @@ private:
   const std::string       nameDetector_;
   const edm::InputTag     source_;
   const bool              ifNose_, ifHCAL_;
-  const int               verbosity_, SampleIndx_, nbinR_, nbinZ_;
-  const double            rmin_, rmax_, zmin_, zmax_;
+  const int               verbosity_, SampleIndx_, nbinR_, nbinZ_, nbinEta_;
+  const double            rmin_, rmax_, zmin_, zmax_, etamin_, etamax_;
   edm::EDGetToken         digiSource_;
   const HGCalGeometry*    hgcGeom_;
   const HcalGeometry*     hcGeom_;
@@ -106,10 +106,13 @@ HGCalDigiStudy::HGCalDigiStudy(const edm::ParameterSet& iConfig) :
   SampleIndx_(iConfig.getUntrackedParameter<int>("sampleIndex",5)),
   nbinR_(iConfig.getUntrackedParameter<int>("nBinR",300)),
   nbinZ_(iConfig.getUntrackedParameter<int>("nBinZ",300)),
+  nbinEta_(iConfig.getUntrackedParameter<int>("nBinEta",200)),
   rmin_(iConfig.getUntrackedParameter<double>("rMin",0.0)),
   rmax_(iConfig.getUntrackedParameter<double>("rMax",300.0)),
   zmin_(iConfig.getUntrackedParameter<double>("zMin",300.0)),
   zmax_(iConfig.getUntrackedParameter<double>("zMax",600.0)),
+  etamin_(iConfig.getUntrackedParameter<double>("etaMin",1.0)),
+  etamax_(iConfig.getUntrackedParameter<double>("etaMax",3.0)),
   hcGeom_(nullptr) {
 
   usesResource(TFileService::kSharedResource);
@@ -117,7 +120,7 @@ HGCalDigiStudy::HGCalDigiStudy(const edm::ParameterSet& iConfig) :
   if ((nameDetector_ == "HGCalEESensitive") || 
       (nameDetector_ == "HGCalHESiliconSensitive") || 
       (nameDetector_ == "HGCalHEScintillatorSensitive") ||
-      (nameDetector_ == "HFNoseSensitive")) {
+      (nameDetector_ == "HGCalHFNoseSensitive")) {
     digiSource_ = consumes<HGCalDigiCollection>(source_);
   } else if (nameDetector_ == "HCal") {
     if (ifHCAL_) 
@@ -128,7 +131,7 @@ HGCalDigiStudy::HGCalDigiStudy(const edm::ParameterSet& iConfig) :
     throw cms::Exception("BadHGCDigiSource")
       << "HGCal DetectorName given as " << nameDetector_ << " must be: "
       << "\"HGCalEESensitive\", \"HGCalHESiliconSensitive\", "
-      << "\"HGCalHEScintillatorSensitive\", \"HFNoseSensitive\", "
+      << "\"HGCalHEScintillatorSensitive\", \"HGCalHFNoseSensitive\", "
       << "or \"HCal\"!"; 
   }
   edm::LogVerbatim("HGCalValidation") << "HGCalDigiStudy: request for Digi "
@@ -148,8 +151,11 @@ void HGCalDigiStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<double>("rMax",300.0);
   desc.addUntracked<double>("zMin",300.0);
   desc.addUntracked<double>("zMax",600.0);
+  desc.addUntracked<double>("etaMin",1.0);
+  desc.addUntracked<double>("etaMax",3.0);
   desc.addUntracked<int>("nBinR",300);
   desc.addUntracked<int>("nBinZ",300);
+  desc.addUntracked<int>("nBinEta",200);
   descriptions.add("hgcalDigiStudyEE",desc);
 }
 
@@ -166,7 +172,7 @@ void HGCalDigiStudy::beginJob() {
   hname << "EtaPhi_" << nameDetector_;
   title << "#phi vs #eta for " << nameDetector_;
   h_EtaPhi_ = fs->make<TH2D>(hname.str().c_str(), title.str().c_str(),
-			     200,1.0,3.0,200,-M_PI,M_PI);
+			     nbinEta_,etamin_,etamax_,200,-M_PI,M_PI);
   hname.str(""); title.str("");
   hname << "Charge_" << nameDetector_;
   title << "Charge for " << nameDetector_;
@@ -220,7 +226,7 @@ void HGCalDigiStudy::beginRun(const edm::Run&,
 	(mode == HGCalGeometryMode::Hexagon8Full)) geomType_ = 1;
     else if (mode == HGCalGeometryMode::Trapezoid) geomType_ = 2;
     else                                           geomType_ = 0;
-    if (nameDetector_ == "HFNoseSensitive") {
+    if (nameDetector_ == "HGCalHFNoseSensitive") {
       geomType_ = 3;
     } else if (nameDetector_ != "HGCalEESensitive") {
       layerFront_ = 28;
@@ -239,7 +245,7 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent,
   unsigned int ntot(0), nused(0);
 
   if ((nameDetector_ == "HGCalEESensitive") ||
-      (nameDetector_ == "HFNoseSensitive")) {
+      (nameDetector_ == "HGCalHFNoseSensitive")) {
     //HGCalEE
     edm::Handle<HGCalDigiCollection> theHGCEEDigiContainer;
     iEvent.getByToken(digiSource_, theHGCEEDigiContainer);

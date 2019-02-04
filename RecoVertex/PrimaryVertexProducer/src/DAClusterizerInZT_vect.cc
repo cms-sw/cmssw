@@ -40,6 +40,7 @@ DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
   d0CutOff_ = conf.getParameter<double> ("d0CutOff");
   dzCutOff_ = conf.getParameter<double> ("dzCutOff");
   dtCutOff_ = conf.getParameter<double> ("dtCutOff");
+  t0Max_ = conf.getParameter<double> ("t0Max");
   uniquetrkweight_ = conf.getParameter<double>("uniquetrkweight");
   zmerge_ = conf.getParameter<double>("zmerge");
   tmerge_ = conf.getParameter<double>("tmerge");
@@ -114,6 +115,7 @@ DAClusterizerInZT_vect::fill(const vector<reco::TransientTrack> & tracks) const 
     double t_z = tk.stateAtBeamLine().trackStateAtPCA().position().z();
     double t_t = tk.timeExt();
     if (std::fabs(t_z) > 1000.) continue;
+    if (std::abs(t_t) > t0Max_) continue;
     auto const & t_mom = tk.stateAtBeamLine().trackStateAtPCA().momentum();
     //  get the beam-spot
     reco::BeamSpot beamspot = tk.stateAtBeamLine().beamSpot();
@@ -214,9 +216,9 @@ double DAClusterizerInZT_vect::update(double beta, track_t & gtracks,
       return ZTemp;
     };
 
-  auto kernel_calc_normalization = [ beta, nv ] (const unsigned int track_num,
-						  track_t & tks_vec,
-						  vertex_t & y_vec ) {
+  auto kernel_calc_normalization = [ nv ] (const unsigned int track_num,
+                                           track_t & tks_vec,
+                                           vertex_t & y_vec ) {
     auto tmp_trk_pi = tks_vec.pi_[track_num];
     auto o_trk_Z_sum = 1./tks_vec.Z_sum_[track_num];
     auto o_trk_err_z = tks_vec.dz2_[track_num];
@@ -274,7 +276,11 @@ double DAClusterizerInZT_vect::update(double beta, track_t & gtracks,
   }
   
   // now update z, t, and pk
-  auto kernel_calc_zt = [  sumpi, nv, this, useRho0 ] (vertex_t & vertices ) -> double {
+  auto kernel_calc_zt = [  sumpi, nv
+#ifdef VI_DEBUG
+                           , this
+#endif
+                           ] (vertex_t & vertices ) -> double {
     
     double delta=0;
 
@@ -672,10 +678,11 @@ DAClusterizerInZT_vect::split(const double beta,  track_t &tks, vertex_t & y, do
     if(wt1 > 0){t1 /= wt1;} else {t1 = y.t_[k] - epsilont * sq; edm::LogWarning("DAClusterizerInZT_vect") << "warning, w11 = " << scientific << wt1 << endl;}
     if(wz2 > 0){z2 /= wz2;} else {z2 = y.z_[k] + epsilonz * cq; edm::LogWarning("DAClusterizerInZT_vect") << "warning, wz2 = " << scientific << wz2 << endl;}
     if(wt2 > 0){t2 /= wt2;} else {t2 = y.t_[k] + epsilont * sq; edm::LogWarning("DAClusterizerInZT_vect") << "warning, wt2 = " << scientific << wt2 << endl;}
-
+    
     unsigned int k_min1 = k, k_min2 = k;
-    while(   (find_nearest(z1, t1, y, k_min1, epsilonz, epsilont) && (k_min1 != k))
-	     || (find_nearest(z2,t2, y, k_min2, epsilonz, epsilont) && (k_min2 !=k)) ){
+    constexpr double spliteps = 1e-8;
+    while(   ((find_nearest(z1, t1, y, k_min1, epsilonz, epsilont) && (k_min1 != k))
+	     || (find_nearest(z2,t2, y, k_min2, epsilonz, epsilont) && (k_min2 !=k))) && (std::abs(z2-z1)>spliteps || std::abs(t2-t1)>spliteps) ){
       z1 = 0.5*( z1 + y.z_[k]);      t1 = 0.5*( t1 + y.t_[k]);
       z2 = 0.5*( z2 + y.z_[k]);      t2 = 0.5*( t2 + y.t_[k]);
     }

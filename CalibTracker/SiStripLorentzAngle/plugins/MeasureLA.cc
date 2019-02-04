@@ -12,7 +12,7 @@ namespace sistrip {
 
 void MeasureLA::
 store_methods_and_granularity( const edm::VParameterSet& vpset) {
-  BOOST_FOREACH(edm::ParameterSet p, vpset) {
+  for(auto const& p : vpset) {
     methods |= p.getParameter<int32_t>("Method"); 
     byModule = byModule || p.getParameter<int32_t>("Granularity");
     byLayer  = byLayer  || !p.getParameter<int32_t>("Granularity");
@@ -37,7 +37,7 @@ MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
   store_calibrations();
 
   TChain*const chain = new TChain("la_data"); 
-  BOOST_FOREACH(const std::string file, inputFiles) chain->Add((file+inFileLocation).c_str());
+  for(auto const& file : inputFiles) chain->Add((file+inFileLocation).c_str());
   
   LA_Filler_Fitter laff(methods, byLayer, byModule, localybin, stripsperbin, maxEvents, &tTopo_);
   laff.fill(chain, book);
@@ -71,8 +71,7 @@ void MeasureLA::
 summarize_module_muH_byLayer(const LA_Filler_Fitter& laff) {
   for(int m = LA_Filler_Fitter::FIRST_METHOD; m <= LA_Filler_Fitter::LAST_METHOD; m<<=1) {
     const LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method)m;
-    std::pair<uint32_t,LA_Filler_Fitter::Result> result;
-    BOOST_FOREACH(result, LA_Filler_Fitter::module_results(book, method)) {
+    for(auto& result : LA_Filler_Fitter::module_results(book, method)) {
       
       calibrate( calibration_key(result.first,method), result.second); 
       std::string label = laff.layerLabel(result.first) + granularity(MODULESUMMARY) + LA_Filler_Fitter::method(method);
@@ -92,7 +91,7 @@ summarize_module_muH_byLayer(const LA_Filler_Fitter& laff) {
 
 void MeasureLA::
 process_reports() const {
-  BOOST_FOREACH(edm::ParameterSet p, reports) {
+  for(auto const& p : reports) {
     const GRANULARITY gran = (GRANULARITY) p.getParameter<int32_t>("Granularity");
     const std::string name = p.getParameter<std::string>("ReportName");
     const LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method) p.getParameter<int32_t>("Method");
@@ -125,8 +124,7 @@ write_report_text(std::string name, const LA_Filler_Fitter::Method& _method, con
   LA_Filler_Fitter::Method method = _method;
   std::map<T,LA_Filler_Fitter::Result>results = _results;
   std::fstream file((name+".dat").c_str(),std::ios::out);
-  std::pair<T,LA_Filler_Fitter::Result> result;
-  BOOST_FOREACH(result, results) {
+  for(auto& result : results) {
     calibrate( calibration_key(result.first,method), result.second); 
     file << result.first << "\t" << result.second << std::endl;
   }
@@ -152,7 +150,7 @@ write_report_text_ms(std::string name, LA_Filler_Fitter::Method method) const {
   
 void MeasureLA::
 store_calibrations() {
-  BOOST_FOREACH(edm::ParameterSet p, calibrations) {
+  for(auto const& p : calibrations) {
     LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method) p.getParameter<int32_t>("Method");
     std::vector<double> slopes(p.getParameter<std::vector<double> >("Slopes"));    assert(slopes.size()==14);
     std::vector<double> offsets(p.getParameter<std::vector<double> >("Offsets"));  assert(offsets.size()==14);

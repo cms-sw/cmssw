@@ -395,7 +395,7 @@ bool DQMExample_Step1::MediumEle (const edm::Event & iEvent, const edm::EventSet
   iEvent.getByToken(theBSCollection_, BSHandle);
   const reco::BeamSpot BS = *BSHandle;
   
-  bool isConverted = ConversionTools::hasMatchedConversion(electron, conversions_h, BS.position());
+  bool isConverted = ConversionTools::hasMatchedConversion(electron, *conversions_h, BS.position());
   
   // default
   if(  (pt > 12.) && (fabs(eta) < 2.5) &&

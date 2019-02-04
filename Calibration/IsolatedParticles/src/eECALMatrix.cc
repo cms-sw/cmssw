@@ -87,14 +87,17 @@ namespace spr{
                 << " nXtals " << vdets.size() << std::endl;
     }
 #endif
-    
-    if        (detId.det() == DetId::Ecal && detId.subdetId() == EcalBarrel) {
-      return spr::energyECAL(vdets,hitsEB,sevlv,false,true,ebThr,tMin,tMax,debug);
-    } else if (detId.det() == DetId::Ecal && detId.subdetId() == EcalEndcap) {
-      return spr::energyECAL(vdets,hitsEE,sevlv,false,false,eeThr,tMin,tMax,debug);
-    } else {
-      return std::pair<double,bool>(0,true);
+    bool               flag(true);
+    for (const auto& id : vdets) {
+      if        ((id.det() == DetId::Ecal) && (id.subdetId() == EcalBarrel)) {
+	if (sevlv->severityLevel(id,(*hitsEB)) == EcalSeverityLevel::kWeird)
+	  flag = false;
+      } else if ((id.det() == DetId::Ecal) && (id.subdetId() == EcalEndcap)) {
+	if (sevlv->severityLevel(id,(*hitsEE)) == EcalSeverityLevel::kWeird)
+	  flag = false;
+      }
     }
+    return std::pair<double,bool>(spr::energyECAL(vdets,hitsEB,hitsEE,ebThr,eeThr,tMin,tMax,debug),flag);
   }
   
   std::pair<double,bool> eECALmatrix(const DetId& detId, 
@@ -176,14 +179,26 @@ namespace spr{
       }
     }
 #endif
-    
-    if        (detId.det() == DetId::Ecal && detId.subdetId() == EcalBarrel) {
-      return spr::energyECAL(ids,hitsEB,sevlv,false,true,ebThr,tMin,tMax,debug);
-    } else if (detId.det() == DetId::Ecal && detId.subdetId() == EcalEndcap) {
-      return spr::energyECAL(ids,hitsEE,sevlv,false,false,eeThr,tMin,tMax,debug);
-    } else {
-      return std::pair<double,bool>(0,true);
+    std::vector<DetId> idEBEE;
+    bool               flag(true);
+    for (const auto& id : ids) {
+      if        ((id.det() == DetId::Ecal) && (id.subdetId() == EcalBarrel)) {
+	idEBEE.emplace_back(id);
+	if (sevlv->severityLevel(id,(*hitsEB)) == EcalSeverityLevel::kWeird)
+	  flag = false;
+      } else if ((id.det() == DetId::Ecal) && (id.subdetId() == EcalEndcap)) {
+	idEBEE.emplace_back(id);
+	if (sevlv->severityLevel(id,(*hitsEE)) == EcalSeverityLevel::kWeird)
+	  flag = false;
+      }
     }
+#ifdef EDM_ML_DEBUG
+    if (debug)
+      std::cout << "eECALmatrix: with " << idEBEE.size() << " EB+EE hits and "
+		<< "spike flag " << flag << std::endl;
+#endif
+    double etot = (!idEBEE.empty()) ?
+      spr::energyECAL(idEBEE,hitsEB,hitsEE,ebThr,eeThr,tMin,tMax,debug) : 0;
+    return std::pair<double,bool>(etot,flag);
   }
 }
-

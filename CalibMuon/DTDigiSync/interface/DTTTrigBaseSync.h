@@ -38,11 +38,11 @@ public:
   /// the 3D hit position (globPos) 
   double offset(const DTLayer* layer,
 		const DTWireId& wireId,
-		const GlobalPoint& globalPos);
+		const GlobalPoint& globalPos) const;
 
   /// Time (ns) to be subtracted to the digi time.
   /// It does not take into account TOF and signal propagation along the wire
-  virtual double offset(const DTWireId& wireId) = 0 ;
+  virtual double offset(const DTWireId& wireId) const = 0 ;
 
 
   /// Time to be subtracted to the digi time,
@@ -58,12 +58,12 @@ public:
 			const GlobalPoint& globalPos,
 			double &tTrig,
 			double& wirePropCorr,
-			double& tofCorr) = 0;
+			double& tofCorr) const = 0;
 
 
   /// Time (ns) to be subtracted to the digi time for emulation purposes
   /// It does not take into account TOF and signal propagation along the wire
-  virtual double emulatorOffset(const DTWireId& wireId);
+  virtual double emulatorOffset(const DTWireId& wireId) const;
 
   /// Time (ns) to be subtracted to the digi time for emulation purposes
   /// It does not take into account TOF and signal propagation along the wire
@@ -72,7 +72,7 @@ public:
   ///     - t0cell is the t0 from pulses
   virtual double emulatorOffset(const DTWireId& wireId,
 				double &tTrig,
-				double &t0cell) = 0;
+				double &t0cell) const = 0;
   
 
 };

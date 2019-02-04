@@ -25,7 +25,6 @@
 #include "RecoTracker/TkTrackingRegions/plugins/GlobalTrackingRegionProducerFromBeamSpot.h"
 
 #include <sstream>
-#include "boost/foreach.hpp"
 
 class PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo{
 

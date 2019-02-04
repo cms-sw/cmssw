@@ -47,7 +47,7 @@
 // class declaration
 //
 
-class L1TGT: public DQMEDAnalyzer {
+class L1TGT: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 
 public:
 
@@ -65,6 +65,7 @@ protected:
     void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     /// end section
+    void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final {}
     void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
 

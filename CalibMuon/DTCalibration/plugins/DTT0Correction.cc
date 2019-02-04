@@ -27,18 +27,15 @@
 using namespace edm;
 using namespace std;
 
-DTT0Correction::DTT0Correction(const ParameterSet& pset){ 
-
+DTT0Correction::DTT0Correction(const ParameterSet& pset):
+  correctionAlgo_{DTT0CorrectionFactory::get()->create(pset.getParameter<string>("correctionAlgo"),
+                                                       pset.getParameter<ParameterSet>("correctionAlgoConfig"))}
+{
   LogVerbatim("Calibration") << "[DTT0Correction] Constructor called" << endl;
-
-  // Get the concrete algo from the factory
-  string theAlgoName = pset.getParameter<string>("correctionAlgo");
-  correctionAlgo_ = DTT0CorrectionFactory::get()->create(theAlgoName,pset.getParameter<ParameterSet>("correctionAlgoConfig"));
 }
 
 DTT0Correction::~DTT0Correction(){
   LogVerbatim("Calibration") << "[DTT0Correction] Destructor called" << endl;
-  delete correctionAlgo_;
 }
 
 void DTT0Correction::beginRun( const edm::Run& run, const edm::EventSetup& setup ) {

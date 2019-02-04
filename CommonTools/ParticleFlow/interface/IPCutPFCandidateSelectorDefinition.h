@@ -15,9 +15,9 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "CommonTools/ParticleFlow/interface/PFCandidateSelectorDefinition.h"
-#include <DataFormats/VertexReco/interface/Vertex.h>
-#include <DataFormats/VertexReco/interface/VertexFwd.h>
-#include <DataFormats/GsfTrackReco/interface/GsfTrack.h>
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 namespace pf2pat {
 

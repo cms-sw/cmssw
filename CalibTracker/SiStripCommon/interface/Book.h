@@ -62,7 +62,7 @@ class Book {
   void fill( double_t X, const poly<std::string>& names, 
 	     uint_t NbinsX, double_t Xlow, double_t Xup, double_t W=1 ) 
   { 
-    BOOST_FOREACH(string_t name, std::make_pair(names.begin(),names.end())) {
+    for(auto const& name : names) {
       book_t::const_iterator current = book_.find(name);
       if( current == book_.end() )
 	book(name, new TH1D(name.c_str(), "", NbinsX, Xlow, Xup))->Fill(X,W);
@@ -74,7 +74,7 @@ class Book {
   void fill( double_t X, double_t Y, const poly<std::string>& names, 
 	     uint_t NbinsX, double_t Xlow, double_t Xup, double_t W=1 )
   { 
-    BOOST_FOREACH(string_t name, std::make_pair(names.begin(),names.end())) {
+    for(auto const& name : names) {
       book_t::const_iterator current = book_.find(name);
       if( current == book_.end() )
 	static_cast<TProfile*>(book(name, new TProfile(name.c_str(), "", NbinsX, Xlow, Xup)))->Fill(X,Y,W);
@@ -88,7 +88,7 @@ class Book {
 	     uint_t NbinsX, double_t Xlow, double_t Xup,
 	     uint_t NbinsY, double_t Ylow, double_t Yup, double_t W=1 )
   { 
-    BOOST_FOREACH(string_t name, std::make_pair(names.begin(),names.end())) {
+    for(auto const& name : names) {
       book_t::const_iterator current = book_.find(name);
       if( current == book_.end() )
 	static_cast<TH2*>(book(name, new TH2D(name.c_str(), "", NbinsX, Xlow, Xup, NbinsY, Ylow, Yup)))->Fill(X,Y,W);
@@ -104,7 +104,7 @@ class Book {
 	     uint_t NbinsY, double_t Ylow, double_t Yup,
 	     uint_t NbinsZ, double_t Zlow, double_t Zup, double_t W=1 )
   { 
-    BOOST_FOREACH(string_t name, std::make_pair(names.begin(),names.end())) {
+    for(auto const& name : names) {
       book_t::const_iterator current = book_.find(name);
       if( current == book_.end() )
 	static_cast<TH3*>(book(name, new TH3D(name.c_str(), "", NbinsX, Xlow, Xup, NbinsY, Ylow, Yup, NbinsZ, Zlow, Zup)))->Fill(X,Y,Z,W);

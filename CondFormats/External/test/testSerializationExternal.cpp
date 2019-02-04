@@ -7,6 +7,7 @@
 #include "CondFormats/External/interface/L1GtLogicParser.h"
 #include "CondFormats/External/interface/SMatrix.h"
 #include "CondFormats/External/interface/Timestamp.h"
+#include "CondFormats/External/interface/PixelFEDChannel.h"
 
 int main()
 {
@@ -19,6 +20,7 @@ int main()
     testSerialization<CLHEP::Hep3Vector>();
     testSerialization<CLHEP::HepEulerAngles>();
     testSerialization<ROOT::Math::SMatrix<double, 2, 3>>();
+    testSerialization<PixelFEDChannel>();
 
     return 0;
 }

@@ -293,10 +293,10 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
 
 		if (debug_) dumpTrackRef(trackref, "CollectTrackHits Track");
 	
-		for (trackingRecHit_iterator rec = muon->recHitsBegin(); rec != muon->recHitsEnd(); rec++) {
+        int iRec = 0;
+        for(auto const& rec : muon->recHits()) {
 
-			int iRec = rec - muon->recHitsBegin();	
-			DetId detid = (*rec)->geographicalId(); 
+			DetId detid = rec->geographicalId(); 
 
 			if (detid.det() != DetId::Muon && detid.det() != DetId::Tracker) {
 				if (debug_) printf("Rec Hit not from muon system or tracker... continuing...\n");
@@ -305,14 +305,13 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
 //			numTracks++;
 // Get Local and Global Position of Hits	
 
-			LocalPoint lp = (*rec)->localPosition();
+			LocalPoint lp = rec->localPosition();
 			float lpX	= lp.x();
 			float lpY 	= lp.y();
 			float lpZ 	= lp.z();
 
-			MuonTransientTrackingRecHit::MuonRecHitPointer mrhp =	
-				MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((**rec).geographicalId())
-				,&(**rec)); 
+			auto mrhp = MuonTransientTrackingRecHit::specificBuild(
+                    theService->trackingGeometry()->idToDet(rec->geographicalId()),rec);
 
 			GlobalPoint gp = mrhp->globalPosition();
 			float gpRecX 	= gp.x();
@@ -408,6 +407,7 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
 							gpRecX,gpRecY,gpRecZ,gpRecEta,gpRecPhi);
 				
 
+            ++iRec;
 		}
 
 	}
@@ -441,28 +441,25 @@ void ResidualRefitting::NewTrackMeasurements(edm::Handle<reco::TrackCollection> 
 		int iTrackLink =  MatchTrackWithRecHits(muon,trackCollOrig);
 		reco::TrackRef ref = reco::TrackRef(trackCollOrig, iTrackLink);
 
-		for (trackingRecHit_iterator rec1 = ref->recHitsBegin(); rec1!= ref->recHitsEnd(); rec1++, recCounter++) {
+        for(auto const& rec1 : ref->recHits()) {
 
-			//int iRec = rec1 - ref->recHitsBegin();
-			
 			bool unbiasedRec = true;
 
-			for ( trackingRecHit_iterator rec2 = muon->recHitsBegin(); rec2!=muon->recHitsEnd();rec2++) {
+            for(auto const& rec2 : muon->recHits()) {
 						
-				if (IsSameHit(rec1,rec2)) {
+				if (IsSameHit(*rec1,*rec2)) {
 					unbiasedRec = false;
 					break;
 				}
 			}
 			if (!unbiasedRec) continue;
 				
-			DetId detid = (*rec1)->geographicalId(); 
+			DetId detid = rec1->geographicalId(); 
 
-			MuonTransientTrackingRecHit::MuonRecHitPointer mrhp =	
-				MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((**rec1).geographicalId())
-				,&(**rec1)); 
-		
-			trkExtrap(detid, numTracks, iTrackLink, recCounter, recoStart, (*rec1)->localPosition(), trackExtrap);
+			auto mrhp = MuonTransientTrackingRecHit::specificBuild(
+                    theService->trackingGeometry()->idToDet(rec1->geographicalId()), rec1); 
+
+			trkExtrap(detid, numTracks, iTrackLink, recCounter, recoStart, rec1->localPosition(), trackExtrap);
 			numTracks++;	
 		
 		}	
@@ -482,16 +479,16 @@ int ResidualRefitting::MatchTrackWithRecHits(reco::TrackCollection::const_iterat
 	
 	int TrackMatch = -1;
 
-	for (trackingRecHit_iterator rec = trackIt->recHitsBegin(); rec!=trackIt->recHitsEnd(); rec++) {
+    for(auto const& rec : trackIt->recHits()) {
 		
 		bool foundMatch = false;
 		for (reco::TrackCollection::const_iterator refIt = ref->begin(); refIt!=ref->end(); refIt++) {
 		
 			int iTrackMatch = refIt - ref->begin();
 			if (foundMatch && TrackMatch !=iTrackMatch) break;
-			for (trackingRecHit_iterator recRef = refIt->recHitsBegin(); recRef!=refIt->recHitsEnd(); recRef++) {
+            for(auto const& recRef : refIt->recHits()) {
 
-				if (!IsSameHit(rec,recRef)) continue;
+				if (!IsSameHit(*rec,*recRef)) continue;
 				
 				foundMatch = true;
 				TrackMatch = iTrackMatch;
@@ -520,12 +517,12 @@ bool ResidualRefitting::TrackSubset(reco::TrackRef trackSub, reco::TrackRef trac
 	
 	bool matchAll = true;
 
-	for (trackingRecHit_iterator recSub = trackSub->recHitsBegin(); recSub!=trackSub->recHitsEnd(); recSub++) {
+	for (trackingRecHit_iterator recSub = trackSub->recHits().begin(); recSub!=trackSub->recHits().end(); recSub++) {
 
 		bool matchSub = false;
 
 
-		for (trackingRecHit_iterator recTop = trackTop->recHitsBegin(); recTop!=trackTop->recHitsEnd(); recTop++) {
+		for (trackingRecHit_iterator recTop = trackTop->recHits().begin(); recTop!=trackTop->recHits().end(); recTop++) {
 		
 			if ( recSub == recTop ) matchSub = true;
 			if (matchSub) break;
@@ -543,16 +540,16 @@ bool ResidualRefitting::TrackSubset(reco::TrackRef trackSub, reco::TrackRef trac
 //
 // Check to see if the rec hits are the same
 //
-bool ResidualRefitting::IsSameHit(trackingRecHit_iterator hit1, trackingRecHit_iterator hit2) {
+bool ResidualRefitting::IsSameHit(TrackingRecHit const& hit1, TrackingRecHit const& hit2) {
 
 	
-	double lpx1 = (*hit1)->localPosition().x();
-	double lpy1 = (*hit1)->localPosition().y();
-	double lpz1 = (*hit1)->localPosition().z();
+	double lpx1 = hit1.localPosition().x();
+	double lpy1 = hit1.localPosition().y();
+	double lpz1 = hit1.localPosition().z();
 
-	double lpx2 = (*hit2)->localPosition().x();
-	double lpy2 = (*hit2)->localPosition().y();
-	double lpz2 = (*hit2)->localPosition().z();
+	double lpx2 = hit2.localPosition().x();
+	double lpy2 = hit2.localPosition().y();
+	double lpz2 = hit2.localPosition().z();
 	if ( fabs( lpx1 - lpx2) > 1e-3) return false;
 //	printf("Match lpx...\n");
 	if ( fabs( lpy1 - lpy2) > 1e-3) return false;

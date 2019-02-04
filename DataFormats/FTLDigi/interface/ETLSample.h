@@ -14,8 +14,10 @@ class ETLSample {
 
 public:
 
-  enum ETLSampleMasks { kThreshMask = 0x1, kModeMask = 0x1, kToAMask = 0xfff, kDataMask = 0xfff};
-  enum ETLSampleShifts{ kThreshShift = 31, kModeShift = 30, kToAShift = 13,   kDataShift = 0};
+  enum ETLSampleMasks { kThreshMask = 0x1, kModeMask = 0x1, kColumnMask = 0x1f, 
+			kRowMask = 0x3f, kToAMask = 0x7ff, kDataMask = 0xff };
+  enum ETLSampleShifts{ kThreshShift = 31, kModeShift = 30, kColumnShift = 25, 
+			kRowShift = 19, kToAShift = 8,   kDataShift = 0 };
 
   /**
      @short CTOR
@@ -29,18 +31,23 @@ public:
    */
   void setThreshold(bool thr)           { setWord(thr,  kThreshMask, kThreshShift); }
   void setMode(bool mode)               { setWord(mode, kModeMask,   kModeShift);   }
+  void setColumn(uint8_t col)           { setWord(col, kColumnMask, kColumnShift);  }
+  void setRow(uint8_t row)              { setWord(row, kRowMask, kRowShift);        }
   void setToA(uint16_t toa)             { setWord(toa,  kToAMask,    kToAShift);    }
   void setData(uint16_t data)           { setWord(data, kDataMask,   kDataShift);   }
-  void set(bool thr, bool mode,uint16_t toa, uint16_t data) 
+  void set(bool thr, bool mode, uint16_t toa, uint16_t data, uint8_t row, uint8_t col) 
   { 
     value_ = ( ( (uint32_t)thr  & kThreshMask ) << kThreshShift | 
                ( (uint32_t)mode & kModeMask   ) << kModeShift   |
+	       ( (uint32_t)col  & kColumnMask ) << kColumnShift |
+	       ( (uint32_t)row  & kRowMask    ) << kRowShift    |
                ( (uint32_t)toa  & kToAMask    ) << kToAShift    | 
                ( (uint32_t)data & kDataMask   ) << kDataShift     );    
   }  
   void print(std::ostream &out=std::cout)
   {
-    out << "THR: " << threshold() 
+    out << "(row,col) : (" << row() << ',' << column() << ") "
+	<< "THR: " << threshold() 
 	<< " Mode: " << mode() 
 	<< " ToA: " << toa() 
 	<< " Data: " << data() 
@@ -51,8 +58,10 @@ public:
      @short getters
   */
   uint32_t raw()  const      { return value_;                   }
-  bool threshold() const     { return ( (value_ >> kThreshShift) & kThreshMask );  }
-  bool mode() const          { return ( (value_ >> kModeShift)   & kModeMask   );  }
+  bool threshold() const     { return ( (value_ >> kThreshShift) & kThreshMask ); }
+  bool mode() const          { return ( (value_ >> kModeShift)   & kModeMask   ); }
+  uint32_t column() const    { return ( (value_ >> kColumnShift) & kColumnMask ); }
+  uint32_t row() const       { return ( (value_ >> kRowShift)    & kRowMask    ); }
   uint32_t toa()  const      { return ( (value_ >> kToAShift)    & kToAMask    ); }
   uint32_t data()  const     { return ( (value_ >> kDataShift)   & kDataMask   ); }
   uint32_t operator()()      { return value_;                   }

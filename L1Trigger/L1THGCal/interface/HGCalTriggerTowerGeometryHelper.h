@@ -18,7 +18,7 @@
 
 namespace l1t {
   class HGCalTowerID;
-  class HGCalTowerCoord;
+  struct HGCalTowerCoord;
 }
 
 

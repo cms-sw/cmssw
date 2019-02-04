@@ -122,7 +122,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cRMSTotal_Subdet.initialize(_name, "RMS", hcaldqm::hashfunctions::fSubdet, 
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cMeanTotal_depth.initialize(_name, "Mean", hcaldqm::hashfunctions::fdepth, 
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta), 
@@ -131,7 +131,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	_cRMSTotal_depth.initialize(_name, "RMS", hcaldqm::hashfunctions::fdepth, 
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta), 
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),0);
 
 	_cMeanDBRef1LS_Subdet.initialize(_name, "MeanDBRef1LS", hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fAroundZero),

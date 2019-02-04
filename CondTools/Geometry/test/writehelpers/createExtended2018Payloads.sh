@@ -41,6 +41,10 @@ sed -i '{s/Extended2018/Extended2018ZeroMaterial/g}' geometryExtended2018_xmlwri
 sed -i '{s/\/ge/\/gez/g}' geometryExtended2018_xmlwriter.py
 cmsRun geometryExtended2018_xmlwriter.py
 
+sed -i '{s/Extended2018ZeroMaterial/Extended2018DetailedCavern/g}' geometryExtended2018_xmlwriter.py
+sed -i '{s/\/gez/\/geDC/g}' geometryExtended2018_xmlwriter.py
+cmsRun geometryExtended2018_xmlwriter.py
+
 # Read the one big XML file and output a record to the
 # database with the an identifying tag
 # This is repeated several times below.  The sed commands
@@ -52,6 +56,10 @@ cmsRun geometryExtended2018_xmlwriter.py
 #
 sed -i '{s/Extended/Extended2018ZeroMaterial/g}' xmlgeometrywriter.py
 sed -i '{s/\/ge/\/gez/g}' xmlgeometrywriter.py
+cmsRun xmlgeometrywriter.py
+
+sed -i '{s/Extended2018ZeroMaterial/Extended2018DetailedCavern/g}' xmlgeometrywriter.py
+sed -i '{s/\/gez/\/geDC/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
 # All the database objects were written into one database

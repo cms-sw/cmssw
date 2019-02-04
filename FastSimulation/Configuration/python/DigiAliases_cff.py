@@ -99,8 +99,7 @@ def loadDigiAliases(process, premix=False):
           )
 
     process.muonDTDigis = cms.EDAlias(
-        **{"simMuonDTDigis" if nopremix else "mixData" :
-               cms.VPSet(
+        simMuonDTDigis = cms.VPSet(
                 cms.PSet(
                     type = cms.string("DTLayerIdDTDigiMuonDigiCollection")
                     ),
@@ -108,12 +107,10 @@ def loadDigiAliases(process, premix=False):
                 #    type = cms.string("DTLayerIdDTDigiSimLinkMuonDigiCollection")
                 #    )
                 )
-           }
           )
 
     process.muonRPCDigis = cms.EDAlias(
-        **{"simMuonRPCDigis" if nopremix else "mixData" :
-               cms.VPSet(
+        simMuonRPCDigis = cms.VPSet(
                 cms.PSet(
                     type = cms.string("RPCDetIdRPCDigiMuonDigiCollection")
                     ),
@@ -121,25 +118,22 @@ def loadDigiAliases(process, premix=False):
                 #    type = cms.string("RPCDigiSimLinkedmDetSetVector")
                 #    )
                 )
-           }
           )
 
     process.muonCSCDigis = cms.EDAlias(
-        **{"simMuonCSCDigis" if nopremix else "mixData" :
-               cms.VPSet(
+        simMuonCSCDigis = cms.VPSet(
                 cms.PSet(
                     type = cms.string("CSCDetIdCSCWireDigiMuonDigiCollection"),
-                    fromProductInstance = cms.string("MuonCSCWireDigi" if nopremix else "MuonCSCWireDigisDM"),
+                    fromProductInstance = cms.string("MuonCSCWireDigi"),
                     toProductInstance = cms.string("MuonCSCWireDigi")),
                 cms.PSet(
                     type = cms.string("CSCDetIdCSCStripDigiMuonDigiCollection"),
-                    fromProductInstance = cms.string("MuonCSCStripDigi" if nopremix else "MuonCSCStripDigisDM"),
+                    fromProductInstance = cms.string("MuonCSCStripDigi"),
                     toProductInstance = cms.string("MuonCSCStripDigi")),
                 #cms.PSet(
                 #    type = cms.string('StripDigiSimLinkedmDetSetVector')
                 #    ),
                 )
-           }
           )
     
 def loadTriggerDigiAliases(process):

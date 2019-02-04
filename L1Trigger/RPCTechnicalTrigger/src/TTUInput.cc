@@ -20,24 +20,11 @@ TTUInput::TTUInput(  ) {
   m_bx = 0;
   m_wheelId = 0;
   m_hasHits = false;
-  input_sec = new std::bitset<6>[12];
   m_rbcDecision.reset();
-  
-  for(int i=0; i < 12; ++i)
-    input_sec[i].reset();
   
   m_debug = false;
 
 }
-//=============================================================================
-// Destructor
-//=============================================================================
-TTUInput::~TTUInput() {
-
-  m_hasHits = false;
-  if ( input_sec ) delete[] input_sec;
-
-} 
 //=============================================================================
 
 void TTUInput::reset() 

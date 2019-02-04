@@ -72,8 +72,6 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         ~L1TMuonDQMOffline() override;
 
     protected:
-        void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
-        virtual void dqmEndLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
         void dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
         virtual void bookControlHistos(DQMStore::IBooker &);
         virtual void bookEfficiencyHistos(DQMStore::IBooker &ibooker);

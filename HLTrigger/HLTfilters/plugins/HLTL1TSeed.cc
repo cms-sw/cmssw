@@ -57,7 +57,7 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
   m_isDebugEnabled(edm::isDebugEnabled())
 {
 
-  if (m_l1SeedsLogicalExpression == "") {
+  if (m_l1SeedsLogicalExpression.empty()) {
 
     throw cms::Exception("FailModule") << "\nTrying to seed with an empty L1SeedsLogicalExpression.\n" << std::endl;
 
@@ -306,6 +306,136 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
     << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
+  vector<l1t::EtSumRef> seedsL1EtSumCentrality;
+  filterproduct.getObjects(trigger::TriggerL1Centrality, seedsL1EtSumCentrality);
+  const size_t sizeSeedsL1EtSumCentrality = seedsL1EtSumCentrality.size();
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum Centrality seeds:      " << sizeSeedsL1EtSumCentrality << endl << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumCentrality; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumCentrality[i]);
+    
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  Centrality Bits: " << std::bitset<8>(obj->hwPt()) << " (hwPt = " << obj->hwPt() << ")" ;
+  }
+
+  vector<l1t::EtSumRef> seedsL1EtSumMinBiasHFP0;
+  filterproduct.getObjects(trigger::TriggerL1MinBiasHFP0, seedsL1EtSumMinBiasHFP0);
+  const size_t sizeSeedsL1EtSumMinBiasHFP0 = seedsL1EtSumMinBiasHFP0.size();
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum MinBiasHFP0 seeds:      " << sizeSeedsL1EtSumMinBiasHFP0 << endl << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumMinBiasHFP0; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumMinBiasHFP0[i]);
+    
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  MinBiasHFP0: hwPt = " << obj->hwPt();
+  }
+
+  vector<l1t::EtSumRef> seedsL1EtSumMinBiasHFM0;
+  filterproduct.getObjects(trigger::TriggerL1MinBiasHFM0, seedsL1EtSumMinBiasHFM0);
+  const size_t sizeSeedsL1EtSumMinBiasHFM0 = seedsL1EtSumMinBiasHFM0.size();
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum MinBiasHFM0 seeds:      " << sizeSeedsL1EtSumMinBiasHFM0 << endl << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumMinBiasHFM0; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumMinBiasHFM0[i]);
+    
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  MinBiasHFM0: hwPt = " << obj->hwPt();
+  }
+
+  vector<l1t::EtSumRef> seedsL1EtSumMinBiasHFP1;
+  filterproduct.getObjects(trigger::TriggerL1MinBiasHFP1, seedsL1EtSumMinBiasHFP1);
+  const size_t sizeSeedsL1EtSumMinBiasHFP1 = seedsL1EtSumMinBiasHFP1.size();
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum MinBiasHFP1 seeds:      " << sizeSeedsL1EtSumMinBiasHFP1 << endl << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumMinBiasHFP1; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumMinBiasHFP1[i]);
+    
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  MinBiasHFP1: hwPt = " << obj->hwPt();
+  }
+
+  vector<l1t::EtSumRef> seedsL1EtSumMinBiasHFM1;
+  filterproduct.getObjects(trigger::TriggerL1MinBiasHFM1, seedsL1EtSumMinBiasHFM1);
+  const size_t sizeSeedsL1EtSumMinBiasHFM1 = seedsL1EtSumMinBiasHFM1.size();
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum MinBiasHFM1 seeds:      " << sizeSeedsL1EtSumMinBiasHFM1 << endl << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumMinBiasHFM1; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumMinBiasHFM1[i]);
+    
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  MinBiasHFM1: hwPt = " << obj->hwPt();
+  }
+
+  vector<l1t::EtSumRef> seedsL1EtSumTowerCount;
+  filterproduct.getObjects(trigger::TriggerL1TowerCount, seedsL1EtSumTowerCount);
+  const size_t sizeSeedsL1EtSumTowerCount = seedsL1EtSumTowerCount.size();
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum TowerCount seeds:      " << sizeSeedsL1EtSumTowerCount << endl << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumTowerCount; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumTowerCount[i]);
+    
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  TowerCount: hwPt = " << obj->hwPt();
+  }
+
+  vector<l1t::EtSumRef> seedsL1EtSumAsymEt;
+  filterproduct.getObjects(trigger::TriggerL1AsymEt, seedsL1EtSumAsymEt);
+  const size_t sizeSeedsL1EtSumAsymEt = seedsL1EtSumAsymEt.size();
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum AsymEt seeds:      " << sizeSeedsL1EtSumAsymEt << endl << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumAsymEt; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumAsymEt[i]);
+    
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  AsymEt: hwPt = " << obj->hwPt();
+  }
+
+  vector<l1t::EtSumRef> seedsL1EtSumAsymHt;
+  filterproduct.getObjects(trigger::TriggerL1AsymHt, seedsL1EtSumAsymHt);
+  const size_t sizeSeedsL1EtSumAsymHt = seedsL1EtSumAsymHt.size();
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum AsymHt seeds:      " << sizeSeedsL1EtSumAsymHt << endl << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumAsymHt; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumAsymHt[i]);
+    
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  AsymHt: hwPt = " << obj->hwPt();
+  }
+
+  vector<l1t::EtSumRef> seedsL1EtSumAsymEtHF;
+  filterproduct.getObjects(trigger::TriggerL1AsymEtHF, seedsL1EtSumAsymEtHF);
+  const size_t sizeSeedsL1EtSumAsymEtHF = seedsL1EtSumAsymEtHF.size();
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum AsymEtHF seeds:      " << sizeSeedsL1EtSumAsymEtHF << endl << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumAsymEtHF; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumAsymEtHF[i]);
+    
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  AsymEtHF: hwPt = " << obj->hwPt();
+  }
+
+  vector<l1t::EtSumRef> seedsL1EtSumAsymHtHF;
+  filterproduct.getObjects(trigger::TriggerL1AsymHtHF, seedsL1EtSumAsymHtHF);
+  const size_t sizeSeedsL1EtSumAsymHtHF = seedsL1EtSumAsymHtHF.size();
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum AsymHtHF seeds:      " << sizeSeedsL1EtSumAsymHtHF << endl << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumAsymHtHF; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumAsymHtHF[i]);
+    
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  AsymHtHF: hwPt = " << obj->hwPt();
+  }
+
   LogTrace("HLTL1TSeed") << " \n\n" << endl;
 
 }
@@ -337,6 +467,19 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     std::list<int> listETMHF;
 
     std::list<int> listJetCounts;
+
+    std::list<int> listCentrality;
+    std::list<int> listMinBiasHFP0;
+    std::list<int> listMinBiasHFM0;
+    std::list<int> listMinBiasHFP1;
+    std::list<int> listMinBiasHFM1;
+    std::list<int> listTotalEtEm;
+    std::list<int> listMissingEtHF;
+    std::list<int> listTowerCount;
+    std::list<int> listAsymEt;
+    std::list<int> listAsymHt;
+    std::list<int> listAsymEtHF;
+    std::list<int> listAsymHtHF;
 
     // get handle to unpacked GT
     edm::Handle<GlobalAlgBlkBxCollection> uGtAlgoBlocks;
@@ -665,6 +808,57 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                         listETMHF.push_back(*itObject);
                     }
                     break;
+                    case l1t::gtTowerCount: {
+                        listTowerCount.push_back(*itObject);
+                    }
+                    break;
+                    case l1t::gtMinBiasHFP0: {
+                        listMinBiasHFP0.push_back(*itObject);
+                    }
+                    break;
+                    case l1t::gtMinBiasHFM0: {
+                        listMinBiasHFM0.push_back(*itObject);
+                    }
+                    break;
+                    case l1t::gtMinBiasHFP1: {
+                        listMinBiasHFP1.push_back(*itObject);
+                    }
+                    break;
+                    case l1t::gtMinBiasHFM1: {
+                        listMinBiasHFM1.push_back(*itObject);
+                    }
+                    break;
+                    case l1t::gtETTem: {
+                        listTotalEtEm.push_back(*itObject);
+                    }
+                    break;
+                    case l1t::gtAsymmetryEt: {
+                        listAsymEt.push_back(*itObject);
+                    }
+                    break;
+                    case l1t::gtAsymmetryHt: {
+                        listAsymHt.push_back(*itObject);
+                    }
+                    break;
+                    case l1t::gtAsymmetryEtHF: {
+                        listAsymEtHF.push_back(*itObject);
+                    }
+                    break;
+                    case l1t::gtAsymmetryHtHF: {
+                        listAsymHtHF.push_back(*itObject);
+                    }
+                    break;
+                    case l1t::gtCentrality0: 
+                    case l1t::gtCentrality1: 
+                    case l1t::gtCentrality2: 
+                    case l1t::gtCentrality3: 
+                    case l1t::gtCentrality4: 
+                    case l1t::gtCentrality5: 
+                    case l1t::gtCentrality6: 
+                    case l1t::gtCentrality7: {
+                        listCentrality.push_back(*itObject);
+                    }
+                    break;
 
                     //case JetCounts: {
                     //    listJetCounts.push_back(*itObject);
@@ -725,6 +919,41 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     listJetCounts.sort();
     listJetCounts.unique();
 
+    listCentrality.sort();
+    listCentrality.unique();
+
+    listMinBiasHFP0.sort();
+    listMinBiasHFP0.unique();
+
+    listMinBiasHFM0.sort();
+    listMinBiasHFM0.unique();
+
+    listMinBiasHFP1.sort();
+    listMinBiasHFP1.unique();
+
+    listMinBiasHFM1.sort();
+    listMinBiasHFM1.unique();
+
+    listTotalEtEm.sort();
+    listTotalEtEm.unique();
+
+    listMissingEtHF.sort();
+    listMissingEtHF.unique();
+
+    listTowerCount.sort();
+    listTowerCount.unique();
+
+    listAsymEt.sort();
+    listAsymEt.unique();
+
+    listAsymHt.sort();
+    listAsymHt.unique();
+
+    listAsymEtHF.sort();
+    listAsymEtHF.unique();
+
+    listAsymHtHF.sort();
+    listAsymHtHF.unique();
     
     // record the L1 physics objects in the HLT filterproduct
     // //////////////////////////////////////////////////////
@@ -885,6 +1114,50 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 			    case l1t::EtSum::kMissingEtHF: 
             if(!listETMHF.empty())
 			        filterproduct.addObject(trigger::TriggerL1ETMHF, myref); 
+			      break;
+			    case l1t::EtSum::kCentrality: 
+            if(!listCentrality.empty())
+			        filterproduct.addObject(trigger::TriggerL1Centrality, myref); 
+			      break;
+			    case l1t::EtSum::kMinBiasHFP0: 
+            if(!listMinBiasHFP0.empty())
+			        filterproduct.addObject(trigger::TriggerL1MinBiasHFP0, myref); 
+			      break;
+			    case l1t::EtSum::kMinBiasHFM0: 
+            if(!listMinBiasHFM0.empty())
+			        filterproduct.addObject(trigger::TriggerL1MinBiasHFM0, myref); 
+			      break;
+			    case l1t::EtSum::kMinBiasHFP1: 
+            if(!listMinBiasHFP1.empty())
+			        filterproduct.addObject(trigger::TriggerL1MinBiasHFP1, myref); 
+			      break;
+			    case l1t::EtSum::kMinBiasHFM1: 
+            if(!listMinBiasHFM1.empty())
+			        filterproduct.addObject(trigger::TriggerL1MinBiasHFM1, myref); 
+			      break;
+			    case l1t::EtSum::kTotalEtEm: 
+            if(!listTotalEtEm.empty())
+			        filterproduct.addObject(trigger::TriggerL1TotalEtEm, myref); 
+			      break;
+			    case l1t::EtSum::kTowerCount: 
+            if(!listTowerCount.empty())
+			        filterproduct.addObject(trigger::TriggerL1TowerCount, myref); 
+			      break;
+			    case l1t::EtSum::kAsymEt: 
+            if(!listAsymEt.empty())
+			        filterproduct.addObject(trigger::TriggerL1AsymEt, myref); 
+			      break;
+			    case l1t::EtSum::kAsymHt: 
+            if(!listAsymHt.empty())
+			        filterproduct.addObject(trigger::TriggerL1AsymHt, myref); 
+			      break;
+			    case l1t::EtSum::kAsymEtHF: 
+            if(!listAsymEtHF.empty())
+			        filterproduct.addObject(trigger::TriggerL1AsymEtHF, myref); 
+			      break;
+			    case l1t::EtSum::kAsymHtHF: 
+            if(!listAsymHtHF.empty())
+			        filterproduct.addObject(trigger::TriggerL1AsymHtHF, myref); 
 			      break;
 			    default:
 			      LogTrace("HLTL1TSeed") << "  L1EtSum seed of currently unsuported HLT TriggerType. l1t::EtSum type:      " << iter->getType() << "\n";

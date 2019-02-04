@@ -17,7 +17,7 @@ public:
   FastTimeParametersESModule(const edm::ParameterSet &);
   ~FastTimeParametersESModule(void) override;
   
-  typedef std::shared_ptr<FastTimeParameters> ReturnType;
+  using ReturnType = std::unique_ptr<FastTimeParameters>;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & ) { }
   
@@ -52,7 +52,7 @@ FastTimeParametersESModule::produce(const IdealGeometryRecord& iRecord) {
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.get(cpv);
   
-  FastTimeParameters* ptp = new FastTimeParameters();
+  auto ptp = std::make_unique<FastTimeParameters>();
   FastTimeParametersFromDD builder;
   for  (unsigned int k=0; k<name_.size(); ++k)
     builder.build(&(*cpv), *ptp, name_[k], type_[k]);
@@ -71,7 +71,7 @@ FastTimeParametersESModule::produce(const IdealGeometryRecord& iRecord) {
     std::cout << "[" << k << "] " << ptp->geomParEndcap_[k] << " ";
   std::cout << ")" << std::endl;
 #endif
-  return ReturnType(ptp) ;
+  return ptp;
 }
 
 //define this as a plug-in

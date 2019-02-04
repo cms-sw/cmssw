@@ -35,7 +35,7 @@ public:
   L1MuTriggerPtScaleOnlineProducer(const edm::ParameterSet&);
   ~L1MuTriggerPtScaleOnlineProducer() override;
   
-  std::shared_ptr<L1MuTriggerPtScale> newObject(const std::string& objectKey) override;
+  std::unique_ptr<L1MuTriggerPtScale> newObject(const std::string& objectKey) override;
 
 private:
   // ----------member data ---------------------------

@@ -28,3 +28,4 @@ phase2_tracker.toReplaceWith(pixelDigitizer, _phase2TrackerDigitizer.clone()) # 
 # imported also to DataMixer configuration, and the original version
 # is needed there in stage2.
 (premix_stage2 & phase2_tracker).toModify(pixelDigitizer, **_premixStage1ModifyDict)
+from CalibTracker.SiPixelESProducers.PixelFEDChannelCollectionProducer_cfi import *
