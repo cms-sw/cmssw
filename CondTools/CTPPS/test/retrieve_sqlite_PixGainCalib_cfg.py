@@ -8,8 +8,8 @@ tagname="CTPPSPixelGainCalibrations_test"
 runnumber=1
 outfile="output.root"
 if len(arguments)<3:
-    print "using defaults"
-    print "usage: cmsRun retrieve_sqlite_PixGainCalib_cfg.py "+sqlitename+" "+ tagname+" "+str(runnumber)+" "+outfile
+    print ("using defaults")
+    print ("usage: cmsRun retrieve_sqlite_PixGainCalib_cfg.py "+sqlitename+" "+ tagname+" "+str(runnumber)+" "+outfile)
 else:
     sqlitename = arguments[2]
     if len(arguments)>3: tagname= arguments[3]
