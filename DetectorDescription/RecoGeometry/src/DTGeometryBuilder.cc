@@ -5,10 +5,11 @@
 // 
 /**\class DTGeometryESProducer
 
- Description: [one line class summary]
+ Description: DT Geometry builder from DD4hep
 
  Implementation:
-     [Notes on implementation]
+     DT Geometry Builder iterates over a Detector Tree and
+     retrvieves DT chambers, super layers, layers and wires.
 */
 //
 // Original Author:  Ianna Osborne
@@ -110,7 +111,7 @@ DTGeometryBuilder::buildGeometry(DDFilteredView& fview, dd4hep::Volume top,
 							 rot[3], rot[4], rot[5],
 							 rot[6], rot[7], rot[8]), num);
       // Loop on SLs
-      TGeoNode *currentSLayer = 0;
+      TGeoNode *currentSLayer = nullptr;
       int nd = node->GetNdaughters();
       
       for(int i = 0; i < nd; ++i) {
@@ -129,7 +130,7 @@ DTGeometryBuilder::buildGeometry(DDFilteredView& fview, dd4hep::Volume top,
 							      slrot[3], slrot[4], slrot[5],
 							      slrot[6], slrot[7], slrot[8]), num);
 	  // Loop on Layers
-	  TGeoNode *currentLayer = 0;
+	  TGeoNode *currentLayer = nullptr;
 	  int ndLs = currentSLayer->GetNdaughters();
 	  for(int j = 0; j < ndLs; ++j) {
 	    currentLayer = (TGeoNode*)currentSLayer->GetNodes()->At(j);
