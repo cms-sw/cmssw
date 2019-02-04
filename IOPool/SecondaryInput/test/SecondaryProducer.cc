@@ -108,7 +108,7 @@ namespace edm {
     }
   }
 
-  void SecondaryProducer::processOneEvent(EventPrincipal const& eventPrincipal, Event& e) {
+  bool SecondaryProducer::processOneEvent(EventPrincipal const& eventPrincipal, Event& e) {
     typedef edmtest::ThingCollection TC;
     typedef Wrapper<TC> WTC;
 
@@ -157,6 +157,8 @@ namespace edm {
     }
     assert (expectedEventNumber_ == en);
     ++expectedEventNumber_;
+
+    return true;
   }
 
   std::shared_ptr<VectorInputSource> SecondaryProducer::makeSecInput(ParameterSet const& ps) {
