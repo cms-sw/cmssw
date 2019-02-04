@@ -1,11 +1,11 @@
 <lcgdict>
     <class name="CTPPSPixelFramePosition"  class_version="0"/>
-    
+
     <class name="CTPPSPixelROCInfo"  class_version="0"/>
-    
+
     <class name="CTPPSPixelDAQMapping"  class_version="0"/>
     <class name="std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo>"/>
-    
+
     <class name="CTPPSPixelAnalysisMask"  class_version="0"/>
 
     <class name="CTPPSPixelROCAnalysisMask"  class_version="0"/>
@@ -20,4 +20,16 @@
     <class name="CTPPSPixelGainCalibration::DetRegistry"/>
     <class name="std::vector<CTPPSPixelGainCalibration::DetRegistry>"/>
     <class name="CTPPSPixelGainCalibrations" class_version="0"/>
+
+    <class name="PPSTimingCalibration::Key"/>
+    <class name="std::map<PPSTimingCalibration::Key,std::vector<double> >"/>
+    <class name="std::map<PPSTimingCalibration::Key,std::pair<double,double> >"/>
+    <class name="std::pair<PPSTimingCalibration::Key,std::vector<double> >"/>
+    <class name="std::pair<PPSTimingCalibration::Key,std::pair<double,double> >"/>
+    <class name="PPSTimingCalibration" class_version="0">
+      <field name="formula_"/>
+      <field name="parameters_"/>
+      <field name="timeInfo_"/>
+    </class>
 </lcgdict>
+
