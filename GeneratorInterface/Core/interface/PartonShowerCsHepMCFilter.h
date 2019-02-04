@@ -6,8 +6,8 @@
 */
 
 
-#ifndef __PARTONSHOWERCSHEPMCFILTER__
-#define __PARTONSHOWERCSHEPMCFILTER__
+#ifndef PartonShowerCsHepMCFilter_h
+#define PartonShowerCsHepMCFilter_h
 
 
 #include "GeneratorInterface/Core/interface/BaseHepMCFilter.h"
