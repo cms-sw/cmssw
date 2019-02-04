@@ -35,13 +35,11 @@ DEFINE_EDM_PLUGIN(BlockElementImporterFactory,
 void GSFTrackImporter::
 importToBlock( const edm::Event& e, 
 	       BlockElementImporterBase::ElementList& elems ) const {
-  typedef BlockElementImporterBase::ElementList::value_type ElementType;  
-  edm::Handle<reco::GsfPFRecTrackCollection> gsftracks;
-  e.getByToken(_src,gsftracks);
+  auto gsftracks = e.getHandle(_src);
   elems.reserve(elems.size() + gsftracks->size());
   // setup our elements so that all the SCs are grouped together
   auto SCs_end = std::partition(elems.begin(),elems.end(),
-				[](const ElementType& a){
+				[](const auto& a){
 				  return a->type() == reco::PFBlockElement::SC;
 				});
   // insert gsf tracks and SCs, binding pre-existing SCs to ECAL-Driven GSF
@@ -72,7 +70,7 @@ importToBlock( const edm::Event& e,
 	      new reco::PFBlockElementSuperCluster(scref);
 	    scbe->setFromGsfElectron(true);
 	    scbe->setFromPFSuperCluster(_superClustersArePF);
-	    SCs_end = elems.insert(SCs_end,ElementType(scbe));
+	    SCs_end = elems.emplace(SCs_end,scbe);
 	    ++SCs_end; // point to element *after* the new one
 	  }
 	} 		   

@@ -29,7 +29,7 @@ AlgebraicSymMatrix22 CTPPSPixelLocalTrack::trackPointInterpolationCovariance(flo
 CTPPSPixelLocalTrack::CTPPSPixelLocalTrack(float z0, const ParameterVector & track_params_vector, 
       const CovarianceMatrix &par_covariance_matrix, float chiSquared) 
       : track_params_vector_(track_params_vector), z0_(z0), par_covariance_matrix_(par_covariance_matrix),
-      chiSquared_(chiSquared), valid_(true), numberOfPointUsedForFit_(0)
+      chiSquared_(chiSquared), valid_(true), numberOfPointsUsedForFit_(0), recoInfo_(CTPPSpixelLocalTrackReconstructionInfo::invalid)
 {
 
 }
@@ -52,4 +52,3 @@ bool CTPPSPixelLocalTrack::operator< (const CTPPSPixelLocalTrack &r)
   return false;
 
 }
-

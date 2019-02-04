@@ -1667,12 +1667,15 @@ void PlotHistCorrFactor(char* infile, std::string text,
   legend->Draw("same");
   pad->Update();
   if (fits < 1) {
-    pad->Range(0.0,0.0,1.0,1.0);
-    TLine* line = new TLine(0.0,0.5,1.0,0.5); //etamin,1.0,etamax,1.0);
+    double xmin = hists[0]->GetBinLowEdge(1);
+    int    nbin = hists[0]->GetNbinsX();
+    double xmax = hists[0]->GetBinLowEdge(nbin)+hists[0]->GetBinWidth(nbin);
+    TLine* line = new TLine(xmin,1.0,xmax,1.0);
     line->SetLineColor(9);
     line->SetLineWidth(2);
     line->SetLineStyle(2);
     line->Draw("same");
+    pad->Modified();
     pad->Update();
   }
   if (save) {

@@ -24,8 +24,7 @@ DEFINE_EDM_PLUGIN(BlockElementImporterFactory,
 void GenericClusterImporter::
 importToBlock( const edm::Event& e, 
 	       BlockElementImporterBase::ElementList& elems ) const {
-  edm::Handle<reco::PFClusterCollection> clusters;
-  e.getByToken(_src,clusters);
+  auto clusters = e.getHandle(_src);
   auto cbegin = clusters->cbegin();
   auto cend   = clusters->cend(); 
   for( auto clus = cbegin; clus != cend; ++clus ) {

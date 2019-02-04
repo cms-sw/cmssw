@@ -23,6 +23,8 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+
+#include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrackRecoInfo.h"
 //----------------------------------------------------------------------------------------------------
 
 class CTPPSPixelFittedRecHit: public CTPPSPixelRecHit
@@ -81,20 +83,20 @@ class CTPPSPixelLocalTrack
     ///< covariance matrix size
     static constexpr int covarianceSize = dimension * dimension;
 
-    CTPPSPixelLocalTrack() : z0_(0), chiSquared_(0), valid_(false), numberOfPointUsedForFit_(0)
+    CTPPSPixelLocalTrack() : z0_(0), chiSquared_(0), valid_(false), numberOfPointsUsedForFit_(0),recoInfo_(CTPPSpixelLocalTrackReconstructionInfo::invalid)
     {
     }
 
     CTPPSPixelLocalTrack(float z0, const ParameterVector & track_params_vector,
       const CovarianceMatrix &par_covariance_matrix, float chiSquared);
 
-    ~CTPPSPixelLocalTrack() {}
+    ~CTPPSPixelLocalTrack(){}
 
     inline const edm::DetSetVector<CTPPSPixelFittedRecHit>& getHits() const { return track_hits_vector_; }
     inline void addHit(unsigned int detId, const CTPPSPixelFittedRecHit &hit)
     {
       track_hits_vector_.find_or_insert(detId).push_back(hit);
-      if(hit.getIsUsedForFit()) ++numberOfPointUsedForFit_;
+      if(hit.getIsUsedForFit()) ++numberOfPointsUsedForFit_;
     }
 
     inline float getX0() const { return track_params_vector_[TrackPar::x0]; }
@@ -131,11 +133,11 @@ class CTPPSPixelLocalTrack
     inline float getChiSquared() const { return chiSquared_; }
 
     inline float getChiSquaredOverNDF() const { 
-      if(numberOfPointUsedForFit_<= dimension/2) return -999.;
-      else return chiSquared_ / (2*numberOfPointUsedForFit_ - dimension); 
+      if(numberOfPointsUsedForFit_<= dimension/2) return -999.;
+      else return chiSquared_ / (2*numberOfPointsUsedForFit_ - dimension); 
     }
 
-    inline int getNDF() const {return (2*numberOfPointUsedForFit_ - dimension); }
+    inline int getNDF() const {return (2*numberOfPointsUsedForFit_ - dimension); }
 
     /// returns the point from which the track is passing by at the selected z
     inline GlobalPoint getTrackPoint(float z) const 
@@ -159,6 +161,11 @@ class CTPPSPixelLocalTrack
     inline void setValid(bool valid) { valid_ = valid; }
 
     bool operator< (const CTPPSPixelLocalTrack &r);
+
+    inline CTPPSpixelLocalTrackReconstructionInfo getRecoInfo() const { return recoInfo_; }
+    inline void setRecoInfo(CTPPSpixelLocalTrackReconstructionInfo recoInfo) { recoInfo_ = recoInfo; }
+
+    inline unsigned short getNumberOfPointsUsedForFit() const { return numberOfPointsUsedForFit_; }
     
   private:
     edm::DetSetVector<CTPPSPixelFittedRecHit> track_hits_vector_;
@@ -178,8 +185,10 @@ class CTPPSPixelLocalTrack
     /// fit valid?
     bool valid_;
 
-    int numberOfPointUsedForFit_;
+    /// number of points used for the track fit
+    int numberOfPointsUsedForFit_;
 
+    CTPPSpixelLocalTrackReconstructionInfo recoInfo_;
 };
 
 #endif

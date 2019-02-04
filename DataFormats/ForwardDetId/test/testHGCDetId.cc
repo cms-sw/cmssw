@@ -102,7 +102,7 @@ void testScint(int layer) {
     for (int phi=1; phi<=phimax; ++phi) {
       for (int zp=0; zp<2; ++zp) {
 	int eta = (2*zp-1)*ieta;
-	HGCScintillatorDetId id(type,layer,eta,phi);
+	HGCScintillatorDetId id(type,layer,eta,phi,false);
 	std::cout << "Input " << type << ":" << layer << ":" << eta << ":"
 		  << phi << " ID " << id;
 	if ((id.ieta() != eta) || (id.iphi() != phi) || 

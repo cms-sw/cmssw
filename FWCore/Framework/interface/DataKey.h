@@ -65,6 +65,9 @@ namespace edm::eventsetup {
     const NameTag& name() const { return name_; }
 
     bool operator==(const DataKey& iRHS) const;
+    inline bool operator!=(const DataKey& iRHS) const {
+      return not (*this == iRHS);
+    }
     bool operator<(const DataKey& iRHS) const;
 
     // ---------- static member functions --------------------
