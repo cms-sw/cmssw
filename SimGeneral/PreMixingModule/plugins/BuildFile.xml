@@ -9,6 +9,7 @@
 <use   name="SimDataFormats/PileupSummaryInfo"/>
 <use   name="SimGeneral/MixingModule"/>
 <use   name="SimGeneral/PreMixingModule"/>
+<use   name="clhep"/>
 <library   file="*.cc" name="SimGeneralPreMixingModulePlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
