@@ -5,6 +5,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
 #include "TEveBoxSet.h"
+#include "TEveStraightLineSet.h"
 
 class FWCaloClusterProxyBuilder : public FWHeatmapProxyBuilderTemplate<reco::CaloCluster>
 {
@@ -51,9 +52,15 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
         it != itEnd; ++it)
    {
       const uint8_t type = ((it->first >> 28) & 0xF);
+
+      const float *corners = item()->getGeom()->getCorners(it->first);
+      if (corners == nullptr)
+         continue;
+
       // HGCal
-      if (type >= 8 && type <= 10)
+      if (iData.algo() == 8 || (type >= 8 && type <= 10))
       {
+
          if(heatmap && hitmap.find(it->first) == hitmap.end())
             continue;
 
@@ -65,14 +72,11 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
              (((z_plus | z_minus) == 0) || !(z == z_minus || z == !z_plus)))
             continue;
 
-         const float *corners = item()->getGeom()->getCorners(it->first);
          const float *parameters = item()->getGeom()->getParameters(it->first);
          const float *shapes = item()->getGeom()->getShapePars(it->first);
 
-         if (corners == nullptr || parameters == nullptr || shapes == nullptr)
-         {
+         if (parameters == nullptr || shapes == nullptr)
             continue;
-         }
 
          const int total_points = parameters[0];
          const bool isScintillator = (total_points == 4);
@@ -98,6 +102,56 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
 
             if (ll != ((it->first >> (isScintillator ? 17 : 20)) & 0x1F))
                continue;
+         }
+
+         // seed
+         if(iData.seed().rawId() == it->first.rawId()){
+            TEveStraightLineSet *marker = new TEveStraightLineSet;
+            marker->SetLineWidth( 1 );
+
+            // center of RecHit
+            float center[3] = {
+               corners[0], corners[1], corners[2]+shapes[3]*0.5f
+            };
+
+            if (isScintillator){
+               constexpr int offset = 9;
+
+               center[0] = (corners[6] + corners[6 + offset]) / 2;
+               center[1] = (corners[7] + corners[7 + offset]) / 2;
+            } else {
+               float min[2] = {1e3f, 1e3f};
+               float max[2] = {-1e3f, -1e3f};
+
+               for (int i = 0; i < total_points; ++i)
+               {
+                  min[0] = fmin(min[0], corners[i * 3]);
+                  min[1] = fmin(min[1], corners[i * 3 + 1]);
+
+                  max[0] = fmax(max[0], corners[i * 3]);
+                  max[1] = fmax(max[1], corners[i * 3 + 1]);
+               }
+
+               center[0] = (min[0] + max[0]) / 2.0f;
+               center[1] = (min[1] + max[1]) / 2.0f;
+            }
+
+            // draw 3D cross
+            const float crossScale = 1.0f + fmin(iData.energy(), 5.0f);
+            marker->AddLine(
+               center[0]-crossScale, center[1], center[2],
+               center[0]+crossScale, center[1], center[2]
+            );
+            marker->AddLine(
+               center[0], center[1]-crossScale, center[2],
+               center[0], center[1]+crossScale, center[2]
+            );
+            marker->AddLine(
+               center[0], center[1], center[2]-crossScale,
+               center[0], center[1], center[2]+crossScale
+            );
+
+            oItemHolder.AddElement(marker);
          }
 
          // Scintillator
@@ -127,7 +181,7 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
          // Silicon
          else
          {
-            const int offset = 9;
+            constexpr int offset = 9;
 
             float centerX = (corners[6] + corners[6 + offset]) / 2;
             float centerY = (corners[7] + corners[7 + offset]) / 2;
@@ -145,11 +199,6 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
       // Not HGCal
       else
       {
-         const float *corners = item()->getGeom()->getCorners(it->first);
-
-         if (corners == nullptr)
-            continue;
-
          h_box = true;
 
          std::vector<float> pnts(24);
@@ -164,11 +213,11 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
 
       if (!heatmap)
       {
-         hex_boxset->SetPickable(true);
          hex_boxset->CSCTakeAnyParentAsMaster();
          hex_boxset->CSCApplyMainColorToMatchingChildren();
          hex_boxset->CSCApplyMainTransparencyToMatchingChildren();
          hex_boxset->SetMainColor(item()->modelInfo(iIndex).displayProperties().color());
+         hex_boxset->SetMainTransparency(item()->defaultDisplayProperties().transparency());
       }
       oItemHolder.AddElement(hex_boxset);
    }
@@ -179,11 +228,11 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
 
       if (!heatmap)
       {
-         boxset->SetPickable(true);
          boxset->CSCTakeAnyParentAsMaster();
          boxset->CSCApplyMainColorToMatchingChildren();
          boxset->CSCApplyMainTransparencyToMatchingChildren();
          boxset->SetMainColor(item()->modelInfo(iIndex).displayProperties().color());
+         boxset->SetMainTransparency(item()->defaultDisplayProperties().transparency());
       }
       oItemHolder.AddElement(boxset);
    }

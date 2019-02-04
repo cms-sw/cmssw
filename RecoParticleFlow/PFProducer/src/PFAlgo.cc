@@ -363,8 +363,8 @@ PFAlgo::setDisplacedVerticesParameters(bool rejectTracks_Bad,
 }
 
 void
-PFAlgo::setPFVertexParameters(bool useVertex,
-			      const reco::VertexCollection*  primaryVertices) {
+PFAlgo::setPFVertexParameters(bool useVertex, reco::VertexCollection const&  primaryVertices)
+{
   useVertices_ = useVertex;
 
   //Set the vertices for muon cleaning
@@ -373,11 +373,11 @@ PFAlgo::setPFVertexParameters(bool useVertex,
 
   //Now find the primary vertex!
   bool primaryVertexFound = false;
-  nVtx_ = primaryVertices->size();
+  nVtx_ = primaryVertices.size();
   if(usePFPhotons_){
     pfpho_->setnPU(nVtx_);
   }
-  for(auto const& vertex : *primaryVertices)
+  for(auto const& vertex : primaryVertices)
     {
       if(vertex.isValid()&&(!vertex.isFake()))
 	{

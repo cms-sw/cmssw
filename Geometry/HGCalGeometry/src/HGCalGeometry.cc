@@ -723,7 +723,7 @@ void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
 	  ParmVec params( numberOfParametersPerShape, 0 );
 	  params[FlatHexagon::k_dZ] = vol.dz;
 	  params[FlatHexagon::k_r]  = vol.cellSize;
-	  params[FlatHexagon::k_R]  = twoBysqrt3_*params[1];
+	  params[FlatHexagon::k_R]  = twoBysqrt3_*params[FlatHexagon::k_r];
 	  dimVector.insert( dimVector.end(), params.begin(), params.end());
 	}
       }
@@ -750,7 +750,7 @@ void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
 	  ParmVec params( numberOfParametersPerShape, 0 );
 	  params[FlatHexagon::k_dZ] = vol.dz;
 	  params[FlatHexagon::k_r]  = vol.cellSize;
-	  params[FlatHexagon::k_R]  = twoBysqrt3_*params[1];
+	  params[FlatHexagon::k_R]  = twoBysqrt3_*params[FlatHexagon::k_r];
 	  dimVector.insert( dimVector.end(), params.begin(), params.end());
 	}
       }

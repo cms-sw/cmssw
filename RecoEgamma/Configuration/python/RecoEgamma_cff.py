@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaElectronProducers.electronSequence_cff import *
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSequence_cff import *
 from RecoEgamma.EgammaElectronProducers.uncleanedOnlyElectronSequence_cff import *
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
 from RecoEgamma.EgammaPhotonProducers.conversionSequence_cff import *
@@ -29,7 +28,7 @@ _fastSim_egammaGlobalReco.replace(conversionTrackSequence,conversionTrackSequenc
 fastSim.toReplaceWith(egammaGlobalReco, _fastSim_egammaGlobalReco)
 
 egammareco = cms.Sequence(electronSequence*conversionSequence*photonSequence)
-egammaHighLevelRecoPrePF = cms.Sequence(gsfEcalDrivenElectronSequence*uncleanedOnlyElectronSequence*conversionSequence*photonSequence*lowPtGsfElectronSequence)
+egammaHighLevelRecoPrePF = cms.Sequence(gsfEcalDrivenElectronSequence*uncleanedOnlyElectronSequence*conversionSequence*photonSequence)
 # not commisoned and not relevant in FastSim (?):
 fastSim.toReplaceWith(egammareco, egammareco.copyAndExclude([conversionSequence]))
 fastSim.toReplaceWith(egammaHighLevelRecoPrePF,egammaHighLevelRecoPrePF.copyAndExclude([uncleanedOnlyElectronSequence,conversionSequence]))

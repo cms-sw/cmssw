@@ -43,6 +43,9 @@ class CSCGEMMotherboardME21 : public CSCGEMMotherboard
   const CSCGEMMotherboardLUTME21* getLUT() const override {return tmbLUT_.get();}
   std::unique_ptr<CSCGEMMotherboardLUTME21> tmbLUT_;
 
+  /* does wiregroup cross halfstrip or not */
+  bool doesWiregroupCrossStrip(int key_wg, int key_strip) const override {return true;}
+
   /* correlate a pair of ALCTs and a pair of CLCTs with matched pads or copads
      the output is up to two LCTs in a sector of ME21 */
   void correlateLCTsGEM(const CSCALCTDigi& bestALCT,

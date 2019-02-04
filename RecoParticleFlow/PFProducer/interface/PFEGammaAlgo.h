@@ -120,9 +120,7 @@ class PFEGammaAlgo {
   //destructor
   ~PFEGammaAlgo(){ };
 
-  void setEEtoPSAssociation(const edm::Handle<EEtoPSAssociation>& eetops) {
-    eetops_ = eetops;
-  }
+  void setEEtoPSAssociation(EEtoPSAssociation const& eetops) { eetops_ = &eetops; }
 
   void setAlphaGamma_ESplanes_fromDB(const ESEEIntercalibConstants* esEEInterCalib){
     cfg_.thePFEnergyCalibration->initAlphaGamma_ESplanes_fromDB(esEEInterCalib);
@@ -159,7 +157,7 @@ private:
 
   // useful pre-cached mappings:
   // hopefully we get an enum that lets us just make an array in the future
-  edm::Handle<reco::PFCluster::EEtoPSAssociation> eetops_;
+  reco::PFCluster::EEtoPSAssociation const* eetops_;
   reco::PFBlockRef _currentblock;
   reco::PFBlock::LinkData _currentlinks;  
   // keep a map of pf indices to the splayed block for convenience

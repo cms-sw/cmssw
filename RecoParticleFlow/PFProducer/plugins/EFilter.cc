@@ -62,12 +62,11 @@ EFilter::filter(edm::Event& iEvent,
 
 
 
-  Handle<std::vector<reco::PFSimParticle> > particles;
-  iEvent.getByToken(inputTagParticles_, particles);
+  auto const& particles = iEvent.get(inputTagParticles_);
 
-  if( !particles->empty() ) {
+  if( !particles.empty() ) {
     // take first trajectory point of first particle (the mother)
-    const reco::PFTrajectoryPoint& tp = (*particles)[0].trajectoryPoint(0);
+    const reco::PFTrajectoryPoint& tp = particles[0].trajectoryPoint(0);
     
     const math::XYZTLorentzVector& mom = tp.momentum();
 
