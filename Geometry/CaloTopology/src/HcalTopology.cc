@@ -811,21 +811,21 @@ int HcalTopology::nPhiBins(int etaRing) const {
   else if (etaRing >= firstHEDoublePhiRing())                                  lastPhiBin=doublePhiBins_;
   if (hcons_ && etaRing >= hcons_->getEtaRange(1).first && 
 	etaRing <= hcons_->getEtaRange(1).second)  {
-			return nPhiBins(HcalBarrel, etaRing);
+		return nPhiBins(HcalBarrel, etaRing);
   }
   return lastPhiBin;
 }
 
 int HcalTopology::nPhiBins(HcalSubdetector bc, int etaRing) const {
-	double phiTableVal;
+  double phiTableVal;
   if (bc == HcalForward) {
-		phiTableVal = dPhiTableHF[etaRing-firstHFRing_];
+    phiTableVal = dPhiTableHF[etaRing-firstHFRing_];
   } else {
-		phiTableVal = dPhiTable[etaRing-firstHBRing_];
-	}
-	int lastPhiBin = 0;
-	if (phiTableVal != 0.0)
-		lastPhiBin = static_cast<int>((2._pi / phiTableVal) + 0.001);
+    phiTableVal = dPhiTable[etaRing-firstHBRing_];
+  }
+  int lastPhiBin = 0;
+  if (phiTableVal != 0.0)
+    lastPhiBin = static_cast<int>((2._pi / phiTableVal) + 0.001);
   return lastPhiBin;
 }
 
