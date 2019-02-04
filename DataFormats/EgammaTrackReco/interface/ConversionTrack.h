@@ -20,10 +20,10 @@ namespace reco
   class ConversionTrack
   {
     public:
-      ConversionTrack() : isTrackerOnly_(false), isArbitratedEcalSeeded_(false), isArbitratedMerged_(false),
+      ConversionTrack() : isTrackerOnly_(false), isGsfTrackOpen_(false), isArbitratedEcalSeeded_(false), isArbitratedMerged_(false),
                           isArbitratedMergedEcalGeneral_(false) {}
       ConversionTrack(const TrackBaseRef &trk) : 
-        track_(trk), isTrackerOnly_(false), isArbitratedEcalSeeded_(false), isArbitratedMerged_(false),
+    track_(trk), isTrackerOnly_(false),isGsfTrackOpen_(false), isArbitratedEcalSeeded_(false), isArbitratedMerged_(false),
         isArbitratedMergedEcalGeneral_(false) {}
       virtual ~ConversionTrack() {}
     
