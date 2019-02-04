@@ -122,10 +122,14 @@ class GsfElectronAlgo {
       double minEOverPEndcaps ;
 
       // H/E
-      double maxHOverEBarrel ;
-      double maxHOverEEndcaps ;
-      double maxHBarrel ;
-      double maxHEndcaps ;
+      double maxHOverEBarrelCone ;
+      double maxHOverEEndcapsCone ;
+      double maxHBarrelCone ;
+      double maxHEndcapsCone ;
+      double maxHOverEBarrelTower ;
+      double maxHOverEEndcapsTower ;
+      double maxHBarrelTower ;
+      double maxHEndcapsTower ;
 
       // maximum eta difference between the supercluster position and the track position at the closest impact to the supercluster
       double maxDeltaEtaBarrel ;
@@ -198,8 +202,6 @@ class GsfElectronAlgo {
       const EcalRecHitsConfiguration &,
       EcalClusterFunctionBaseClass * superClusterErrorFunction,
       EcalClusterFunctionBaseClass * crackCorrectionFunction,
-      const SoftElectronMVAEstimator::Configuration & mva_NIso_Cfg,
-      const ElectronMVAEstimator::Configuration & mva_Iso_Cfg,	
       const RegressionHelper::Configuration & regCfg,
       const edm::ParameterSet& tkIsol03Cfg,
       const edm::ParameterSet& tkIsol04Cfg

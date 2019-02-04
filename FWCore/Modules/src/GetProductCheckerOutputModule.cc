@@ -85,8 +85,7 @@ namespace edm {
        BranchDescription const* branchDescription = product.first;
        TypeID const& tid = branchDescription->unwrappedTypeID();
        EDGetToken const& token = product.second;
-       BasicHandle bh;
-       p.getByToken(token, tid, bh);
+       BasicHandle bh = p.getByToken(token, tid);
        if(nullptr != bh.provenance() && bh.provenance()->branchDescription().branchID() != branchDescription->branchID()) {
          throw cms::Exception("BranchIDMissMatch") << "While processing " << id << " getByToken request for " << branchDescription->moduleLabel()
             << " '" << branchDescription->productInstanceName() << "' " << branchDescription->processName()

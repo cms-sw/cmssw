@@ -5,7 +5,6 @@
 <use name="DetectorDescription/Core"/>
 <use name="DetectorDescription/Parser"/>
 <use name="DetectorDescription/OfflineDBLoader"/>
-<use name="SimG4CMS/Calo"/>
 <use name="CondFormats/GeometryObjects"/>
 <use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/Candidate"/>
@@ -14,6 +13,5 @@
 <use name="SimGeneral/PreMixingModule"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="SimCalorimetry/HGCalSimProducers"/>
-<use name="geant4core"/>
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>

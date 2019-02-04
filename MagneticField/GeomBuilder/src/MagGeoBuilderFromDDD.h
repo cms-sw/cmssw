@@ -107,7 +107,6 @@ private:
  
   
   // Extractors for precomputed_value_sort (to sort containers of volumeHandles). 
-  typedef std::unary_function<const volumeHandle*, double> uFcn;
   struct ExtractZ;
   struct ExtractAbsZ;
   struct ExtractPhi;

@@ -66,8 +66,7 @@ protected:
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
   // Marina
-  struct JetRefCompare :
-    public std::binary_function<edm::RefToBase<reco::Jet>, edm::RefToBase<reco::Jet>, bool> {
+  struct JetRefCompare {
     inline bool operator () (const edm::RefToBase<reco::Jet> &j1, const edm::RefToBase<reco::Jet> &j2)
       const {return j1.id() < j2.id() || (j1.id() == j2.id() && j1.key() < j2.key());}
   };

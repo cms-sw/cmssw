@@ -29,16 +29,13 @@
 
 class TTUConfigurator {
 public: 
-  /// Standard constructor
-  TTUConfigurator( ) { };
-  
   TTUConfigurator( const std::string& );
   
-  virtual ~TTUConfigurator( ); ///< Destructor
+  ~TTUConfigurator( ); ///< Destructor
   
-  RBCBoardSpecs * getRbcSpecs(){ return m_rbcspecs; };
+  RBCBoardSpecs * getRbcSpecs(){ return &m_rbcspecs; };
   
-  TTUBoardSpecs * getTtuSpecs(){ return m_ttuspecs; };
+  TTUBoardSpecs * getTtuSpecs(){ return &m_ttuspecs; };
   
   void process();
   
@@ -48,13 +45,13 @@ protected:
   
 private:
   
-  std::ifstream * m_in;
+  std::ifstream  m_in;
   
-  void addData( RBCBoardSpecs *  );
-  void addData( TTUBoardSpecs *  );
+  void addData( RBCBoardSpecs&  );
+  void addData( TTUBoardSpecs&  );
   
-  RBCBoardSpecs * m_rbcspecs;
-  TTUBoardSpecs * m_ttuspecs;
+  RBCBoardSpecs  m_rbcspecs;
+  TTUBoardSpecs  m_ttuspecs;
   
 };
 #endif // TTUCONFIGURATOR_H

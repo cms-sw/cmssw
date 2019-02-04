@@ -15,35 +15,26 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-TTUConfigurator::TTUConfigurator( const std::string& infile ) {
+TTUConfigurator::TTUConfigurator( const std::string& infile ):
+  m_in{},
+  m_rbcspecs{},
+  m_ttuspecs{}
+{
   
-  m_in = new std::ifstream();
-  m_in->open( infile.c_str() );
+  m_in.open( infile.c_str() );
   
-  if(!m_in->is_open()) {
+  if(!m_in.is_open()) {
     edm::LogError("TTUConfigurator") << "TTUConfigurator cannot open file";
     m_hasConfig = false;
   } else {
     m_hasConfig = true;
   }
-  
-  m_rbcspecs = new RBCBoardSpecs();
-  m_ttuspecs = new TTUBoardSpecs();
-  
 }
 //=============================================================================
 // Destructor
 //=============================================================================
 TTUConfigurator::~TTUConfigurator() {
-  
-  if ( m_in ) {
-    m_in->close();
-    delete m_in;
-  }
-  
-  if ( m_rbcspecs ) delete m_rbcspecs;
-  if ( m_ttuspecs ) delete m_ttuspecs;
-  
+  m_in.close();  
 } 
 
 //=============================================================================
@@ -56,36 +47,22 @@ void TTUConfigurator::process()
   
 }
 
-void TTUConfigurator::addData( RBCBoardSpecs * specs )
+void TTUConfigurator::addData( RBCBoardSpecs& specs )
 {
-  
-  RBCBoardSpecs::RBCBoardConfig * board;
-  
+  specs.v_boardspecs.reserve(30);
   for( int i=0; i < 30; i++) {
-    
-    board = new RBCBoardSpecs::RBCBoardConfig();
-    
-    (*m_in) >> (*board);
-    
-    specs->v_boardspecs.push_back( *board );
-    
+    auto& board = specs.v_boardspecs.emplace_back();
+    m_in >> board;
   }
   
 }
 
-void TTUConfigurator::addData( TTUBoardSpecs * specs )
+void TTUConfigurator::addData( TTUBoardSpecs& specs )
 {
-  
-  TTUBoardSpecs::TTUBoardConfig * board;
-  
+  specs.m_boardspecs.reserve(3);
   for(int i=0; i < 3; i++){
+    auto& board = specs.m_boardspecs.emplace_back();
     
-    board= new TTUBoardSpecs::TTUBoardConfig();
-    
-    (*m_in) >> (*board);
-    
-    specs->m_boardspecs.push_back( *board );
-    
+    m_in >> board;
   }
-  
 }

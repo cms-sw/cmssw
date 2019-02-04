@@ -21,6 +21,7 @@ simHcalUnsuppressedDigis = cms.EDAlias()
 #    )
 #)
 simHGCalUnsuppressedDigis = cms.EDAlias()
+simHFNoseUnsuppressedDigis = cms.EDAlias()
 simSiPixelDigis = cms.EDAlias(
     mix = cms.VPSet(
       cms.PSet(type = cms.string('PixelDigiedmDetSetVector')),

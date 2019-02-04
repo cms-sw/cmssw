@@ -188,7 +188,8 @@ namespace edm {
          // ---------- member data --------------------------------
          ValidityInterval validity_;
          EventSetupRecordKey key_;
-         std::map<DataKey, DataProxy const*> proxies_ ;
+         std::vector<DataKey> keysForProxies_;
+         std::vector<DataProxy const*> proxies_;
          EventSetup const* eventSetup_;
          unsigned long long cacheIdentifier_;
          mutable std::atomic<bool> transientAccessRequested_;

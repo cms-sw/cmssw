@@ -66,6 +66,8 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
   timeOffset(ps.getParameter<double>("timeOffset")),
   verbosity((HGCalImagingAlgo::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity",3)){
   double ecut = ps.getParameter<double>("ecut");
+  std::vector<double> thresholdW0 = ps.getParameter<std::vector<double> >("thresholdW0");
+  std::vector<double> positionDeltaRho_c = ps.getParameter<std::vector<double> >("positionDeltaRho_c");
   std::vector<double> vecDeltas = ps.getParameter<std::vector<double> >("deltac");
   double kappa = ps.getParameter<double>("kappa");
   std::vector<double> dEdXweights = ps.getParameter<std::vector<double> >("dEdXweights");
@@ -96,9 +98,11 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
 
   if(doSharing){
     double showerSigma =  ps.getParameter<double>("showerSigma");
-    algo = std::make_unique<HGCalImagingAlgo>(vecDeltas, kappa, ecut, showerSigma, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
+    algo = std::make_unique<HGCalImagingAlgo>(thresholdW0, positionDeltaRho_c,
+					      vecDeltas, kappa, ecut, showerSigma, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
   }else{
-    algo = std::make_unique<HGCalImagingAlgo>(vecDeltas, kappa, ecut, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
+    algo = std::make_unique<HGCalImagingAlgo>(thresholdW0, positionDeltaRho_c,
+					      vecDeltas, kappa, ecut, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
   }
 
 
@@ -115,6 +119,16 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   edm::ParameterSetDescription desc;
   desc.add<std::string>("detector", "all");
   desc.add<bool>("doSharing", false);
+  desc.add<std::vector<double>>("thresholdW0", {
+    2.9,
+    2.9,
+    2.9
+  });
+  desc.add<std::vector<double>>("positionDeltaRho_c", {
+    1.3,
+    1.3,
+    1.3
+  });
   desc.add<std::vector<double>>("deltac", {
     2.0,
     2.0,

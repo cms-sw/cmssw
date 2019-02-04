@@ -370,6 +370,8 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def insert(self,index,item):
         """Inserts the item at the index specified"""
         _checkIfSequenceable(self, item)
+        if self._seq is None:
+            self.__dict__["_seq"] = _SequenceCollection()
         self._seq.insert(index,item)
     def remove(self, something):
         """Remove the first occurrence of 'something' (a sequence or a module)
@@ -1897,7 +1899,14 @@ if __name__=="__main__":
             self.assertEqual(s.index(m1),0)
             self.assertEqual(s.index(m2),1)        
             self.assertEqual(s.index(m3),2)
-            
+
+            s = Sequence()
+            s.insert(0, m1)
+            self.assertEqual(s.index(m1),0)
+
+            p = Path()
+            p.insert(0, m1)
+            self.assertEqual(s.index(m1),0)
         
         def testExpandAndClone(self):
             m1 = DummyModule("m1")

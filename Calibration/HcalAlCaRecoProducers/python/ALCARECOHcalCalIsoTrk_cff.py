@@ -23,7 +23,7 @@ TkAlIsoProd.applyIsolationCut = False
 TkAlIsoProd.applyChargeCheck = False
 #TkAlIsoProd.src = 'generalTracks'
 
-seqALCARECOHcalCalIsoTrk = cms.Sequence(isoHLT*IsoProd*TkAlIsoProd)
+seqALCARECOHcalCalIsoTrk = cms.Sequence(isoHLT*alcaisotrk*TkAlIsoProd)
 
 
 

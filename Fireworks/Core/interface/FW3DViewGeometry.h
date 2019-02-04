@@ -47,7 +47,14 @@ public:
    void showPixelEndcap( bool );
    void showTrackerBarrel( bool );
    void showTrackerEndcap( bool );
-private:
+   void showHGCalEE( bool );
+   TEveElementList const * const getHGCalEE() { return m_HGCalEEElements; }
+   void showHGCalHSi( bool );
+   TEveElementList const * const getHGCalHSi() { return m_HGCalHSiElements; }
+   void showHGCalHSc( bool );
+   TEveElementList const * const getHGCalHSc() { return m_HGCalHScElements; }
+
+ private:
    FW3DViewGeometry(const FW3DViewGeometry&) = delete; // stop default
 
    const FW3DViewGeometry& operator=(const FW3DViewGeometry&) = delete; // stop default
@@ -62,6 +69,9 @@ private:
    TEveElementList*   m_pixelEndcapElements;
    TEveElementList*   m_trackerBarrelElements;
    TEveElementList*   m_trackerEndcapElements;
+   TEveElementList*   m_HGCalEEElements;
+   TEveElementList*   m_HGCalHSiElements;
+   TEveElementList*   m_HGCalHScElements;
 };
 
 #endif

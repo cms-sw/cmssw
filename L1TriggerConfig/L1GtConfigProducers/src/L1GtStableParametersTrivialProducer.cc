@@ -117,11 +117,11 @@ L1GtStableParametersTrivialProducer::~L1GtStableParametersTrivialProducer() {
 // member functions
 
 // method called to produce the data
-std::shared_ptr<L1GtStableParameters> 
-    L1GtStableParametersTrivialProducer::produceGtStableParameters(
+std::unique_ptr<L1GtStableParameters> 
+L1GtStableParametersTrivialProducer::produceGtStableParameters(
         const L1GtStableParametersRcd& iRecord) {
 
-    auto pL1GtStableParameters = std::make_shared<L1GtStableParameters>();
+    auto pL1GtStableParameters = std::make_unique<L1GtStableParameters>();
 
     // set the number of physics trigger algorithms
     pL1GtStableParameters->setGtNumberPhysTriggers(m_numberPhysTriggers);
@@ -183,6 +183,4 @@ std::shared_ptr<L1GtStableParameters>
     //
     //
     return pL1GtStableParameters;
-
 }
-

@@ -167,23 +167,7 @@ HcalRecHitReflagger::~HcalRecHitReflagger()
 // member functions
 //
 
-void HcalRecHitReflagger::beginRun(const Run& r, const EventSetup& c)
-{
-  edm::ESHandle<HcalChannelQuality> p;
-  c.get<HcalChannelQualityRcd>().get("withTopo",p);
-  const HcalChannelQuality& chanquality_(*p.product());
-
-  std::vector<DetId> mydetids = chanquality_.getAllChannels();
-  for (std::vector<DetId>::const_iterator i = mydetids.begin();i!=mydetids.end();++i)
-    {
-      if (i->det()!=DetId::Hcal) continue; // not an hcal cell
-      HcalDetId id=HcalDetId(*i);
-      int status=(chanquality_.getValues(id))->getValue();
-      if ( (status & (1<<HcalChannelStatus::HcalCellDead))==0 ) continue;
-      badstatusmap[id]=status;
-    }
-
-}
+void HcalRecHitReflagger::beginRun(const Run& r, const EventSetup& c) { }
 
 // ------------ method called to produce the data  ------------
 void
@@ -200,6 +184,21 @@ HcalRecHitReflagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::ESHandle<HcalTopology> topo_;
    iSetup.get<HcalRecNumberingRecord>().get(topo_);
    topo = &*topo_;
+
+   //get channel quality conditions 
+   edm::ESHandle<HcalChannelQuality> p;
+   iSetup.get<HcalChannelQualityRcd>().get("withTopo",p);
+   const HcalChannelQuality& chanquality_(*p.product());
+   
+   std::vector<DetId> mydetids = chanquality_.getAllChannels();
+   for (std::vector<DetId>::const_iterator i = mydetids.begin();i!=mydetids.end();++i)
+     {
+       if (i->det()!=DetId::Hcal) continue; // not an hcal cell
+       HcalDetId id=HcalDetId(*i);
+       int status=(chanquality_.getValues(id))->getValue();
+       if ( (status & (1<<HcalChannelStatus::HcalCellDead))==0 ) continue;
+       badstatusmap[id]=status;
+     }
 
    // prepare the output HF RecHit collection
    auto pOut = std::make_unique<HFRecHitCollection>();

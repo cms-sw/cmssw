@@ -40,6 +40,9 @@ MuonGmtPair::MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu, const P
         if (trajectory.isValid()) {
             m_eta = trajectory.globalPosition().eta();
             m_phi = trajectory.globalPosition().phi();
+        } else {
+            m_eta = 999.;
+            m_phi = 999.;
         }
     } else {
         m_eta = 999.;
@@ -173,16 +176,6 @@ void L1TMuonDQMOffline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Ru
         }
         if (tIndex < 0 && m_verbose) cout << "[L1TMuonDQMOffline:] Warning: Could not find trigger " << (*trigNamesIt) << endl;
     }
-}
-
-//_____________________________________________________________________
-void L1TMuonDQMOffline::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
-    if(m_verbose) cout << "[L1TMuonDQMOffline:] Called beginLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock() << endl;
-}
-
-//_____________________________________________________________________
-void L1TMuonDQMOffline::dqmEndLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
-    if(m_verbose) cout << "[L1TMuonDQMOffline:] Called endLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock() << endl;
 }
 
 //_____________________________________________________________________

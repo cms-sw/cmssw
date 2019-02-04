@@ -27,7 +27,7 @@ public:
   ~GlobalTrackingGeometryESProducer() override;
 
   /// Produce GlobalTrackingGeometry
-  std::shared_ptr<GlobalTrackingGeometry> produce(const GlobalTrackingGeometryRecord& record);
+  std::unique_ptr<GlobalTrackingGeometry> produce(const GlobalTrackingGeometryRecord& record);
 
 private:  
 

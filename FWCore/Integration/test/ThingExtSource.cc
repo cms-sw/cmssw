@@ -97,6 +97,14 @@ namespace edmtest {
     r.put(std::move(result), "endRun");
   }
 
+  void
+  ThingExtSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.setComment("Creates ThingCollections from a file for testing.");
+    edm::ProducerSourceFromFiles::fillDescription(desc);
+    descriptions.add("source", desc);
+  }
+
 }
 using edmtest::ThingExtSource;
 DEFINE_FWK_INPUT_SOURCE(ThingExtSource);

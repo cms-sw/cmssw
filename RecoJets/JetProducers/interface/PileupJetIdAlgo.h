@@ -15,11 +15,6 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
-
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
@@ -80,10 +75,6 @@ public:
           array_t const& mvacut() const { return mvacut_; }
           array_t const& rmsCut() const { return rmsCut_; }
           array_t const& betaStarCut() const { return betaStarCut_; }
-
-          std::unique_ptr<const GBRForest> getMVA(std::vector<std::string> const& varList,
-                                                  std::string const& tmvaWeights,
-                                                  std::vector<std::string> const& tmvaSpectators);
 
         private:
 

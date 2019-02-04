@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import *
 from CommonTools.ParticleFlow.pfMET_cfi  import *
 from CommonTools.ParticleFlow.pfJets_cff import *
 from CommonTools.ParticleFlow.pfTaus_cff import *
@@ -151,6 +152,7 @@ pfMetEI = pfMET.clone(jets=cms.InputTag("pfJetsEI"))
 
 #EITopPAG = cms.Sequence(
 EIsequence = cms.Sequence(
+    goodOfflinePrimaryVertices +
     pfPileUpEI +
     pfPileUpJMEEI +
     pfNoPileUpEI +

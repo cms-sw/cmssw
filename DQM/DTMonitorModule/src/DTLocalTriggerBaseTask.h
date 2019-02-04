@@ -42,7 +42,7 @@ class L1MuDTChambThDigi;
 class DTTPGCompareUnit;
 class DTTimeEvolutionHisto;
 
-class DTLocalTriggerBaseTask: public DQMEDAnalyzer{
+class DTLocalTriggerBaseTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 
   friend class DTMonitorModule;
 

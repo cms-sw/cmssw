@@ -251,9 +251,9 @@ void HcaluLUTTPGCoder::updateXML(const char* filename) {
   _xml->create_lut_map();
   HcalSubdetector subdet[3] = {HcalBarrel, HcalEndcap, HcalForward};
   for (int ieta = -HcalDetId::kHcalEtaMask2; 
-       ieta <= HcalDetId::kHcalEtaMask2; ++ieta) {
-    for (int iphi = 0; iphi <= HcalDetId::kHcalPhiMask2; ++iphi) {
-      for (int depth = 1; depth < HcalDetId::kHcalDepthMask2; ++depth) {
+       ieta <= (int)(HcalDetId::kHcalEtaMask2); ++ieta) {
+    for (unsigned int iphi = 0; iphi <= HcalDetId::kHcalPhiMask2; ++iphi) {
+      for (unsigned int depth = 1; depth < HcalDetId::kHcalDepthMask2; ++depth) {
 	for (int isub=0; isub<3; ++isub) {
 	  HcalDetId detid(subdet[isub], ieta, iphi, depth);
 	  if (!topo_->valid(detid)) continue;

@@ -46,7 +46,7 @@ double DTTTrigSyncTOFCorr::offset(const DTLayer* layer,
 				  const GlobalPoint& globPos,
 				  double& tTrig,
 				  double& wirePropCorr,
-				  double& tofCorr) {
+				  double& tofCorr) const {
   tTrig = offset(wireId);
 
   //Compute the time spent in signal propagation along wire.
@@ -105,7 +105,7 @@ double DTTTrigSyncTOFCorr::offset(const DTLayer* layer,
   return tTrig + wirePropCorr - tofCorr;
 }
 
-double DTTTrigSyncTOFCorr::offset(const DTWireId& wireId) {
+double DTTTrigSyncTOFCorr::offset(const DTWireId& wireId) const {
   // Correction for the float to int conversion
   // (half a bin on average) in DTDigi constructor
   static const float f2i_convCorr = (25./64.); // ns
@@ -119,7 +119,7 @@ double DTTTrigSyncTOFCorr::offset(const DTWireId& wireId) {
 
 double DTTTrigSyncTOFCorr::emulatorOffset(const DTWireId& wireId,
 					 double &tTrig,
-					 double &t0cell) {
+					 double &t0cell) const {
   tTrig = theTTrig;
   t0cell = 0.;
 

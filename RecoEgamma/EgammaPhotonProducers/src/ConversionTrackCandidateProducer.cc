@@ -327,10 +327,8 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
   //const CaloGeometry* geometry = theCaloGeom_.product();
 
   //  Loop over SC in the barrel and reconstruct converted photons
-  for (unsigned i = 0; i < scHandle->size(); ++i ) {
-
-    reco::CaloClusterPtr aClus= scHandle->ptrAt(i);
-  
+  for(auto const& aClus : scHandle->ptrs())
+  {
     // preselection based in Et and H/E cut. 
     if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
     if (aClus->eta() > 1.479 && aClus->eta() < 1.556 ) continue;

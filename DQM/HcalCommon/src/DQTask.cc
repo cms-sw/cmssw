@@ -22,7 +22,7 @@ namespace hcaldqm
 	 *	By design, all the sources will ahve this function inherited and will
 	 *	never override. 
 	 */
-	/* virtual */ void DQTask::analyze(edm::Event const& e,
+	void DQTask::analyze(edm::Event const& e,
 		edm::EventSetup const& es)
 	{
 		this->_resetMonitors(fEvent);
@@ -35,7 +35,7 @@ namespace hcaldqm
 		this->_process(e, es);
 	}
 
-	/* virtual */ void DQTask::bookHistograms(DQMStore::IBooker &ib,
+	void DQTask::bookHistograms(DQMStore::IBooker &ib,
 		edm::Run const& r,
 		edm::EventSetup const& es)
 	{
@@ -69,7 +69,49 @@ namespace hcaldqm
 			}
 		}
 
+		//	book some base guys
+		_cEvsTotal.book(ib, _subsystem);
+		_cEvsPerLS.book(ib, _subsystem);
+		_cRunKeyVal.book(ib, _subsystem);
+		_cRunKeyName.book(ib, _subsystem);
+		_cProcessingTypeName.book(ib, _subsystem);
+
+		//	fill what you can now
+		_cRunKeyVal.fill(_runkeyVal);
+		_cRunKeyName.fill(_runkeyName);
+		_cProcessingTypeName.fill(pTypeNames[_ptype]);
+
+		// Load conditions and emap
+		es.get<HcalDbRecord>().get(_dbService);
+		_emap = _dbService->getHcalMapping();
+	}
+
+	void DQTask::dqmBeginRun(edm::Run const& r,
+		edm::EventSetup const& es)
+	{
+		this->_resetMonitors(fEvent);
+		this->_resetMonitors(f1LS);
+		this->_resetMonitors(f10LS);
+		this->_resetMonitors(f50LS);
+		this->_resetMonitors(f100LS);
+	}
+
+	void DQTask::beginLuminosityBlock(
+		edm::LuminosityBlock const& lb,
+		edm::EventSetup const& es)
+	{
+		_currentLS = lb.luminosityBlock();
+		this->_resetMonitors(f1LS);
+		
+		if (_procLSs%10==0)
+			this->_resetMonitors(f10LS);
+		if (_procLSs%50==0)
+			this->_resetMonitors(f50LS);
+		if (_procLSs%100==0)
+			this->_resetMonitors(f100LS);
+	
 		//	get the Channel Quality Status for all the channels
+		_xQuality.reset();
 		edm::ESHandle<HcalChannelQuality> hcq;
 		es.get<HcalChannelQualityRcd>().get("withTopo", hcq);
 		const HcalChannelQuality *cq = hcq.product();
@@ -92,58 +134,16 @@ namespace hcaldqm
 				}
 			}
 		}
-
-		//	book some base guys
-		_cEvsTotal.book(ib, _subsystem);
-		_cEvsPerLS.book(ib, _subsystem);
-		_cRunKeyVal.book(ib, _subsystem);
-		_cRunKeyName.book(ib, _subsystem);
-		_cProcessingTypeName.book(ib, _subsystem);
-
-		//	fill what you can now
-		_cRunKeyVal.fill(_runkeyVal);
-		_cRunKeyName.fill(_runkeyName);
-		_cProcessingTypeName.fill(pTypeNames[_ptype]);
-
-		// Load conditions and emap
-		es.get<HcalDbRecord>().get(_dbService);
-		_emap = _dbService->getHcalMapping();
 	}
 
-	/* virtual */ void DQTask::dqmBeginRun(edm::Run const& r,
-		edm::EventSetup const& es)
-	{
-		this->_resetMonitors(fEvent);
-		this->_resetMonitors(f1LS);
-		this->_resetMonitors(f10LS);
-		this->_resetMonitors(f50LS);
-		this->_resetMonitors(f100LS);
-	}
-
-	/* virtual */ void DQTask::beginLuminosityBlock(
-		edm::LuminosityBlock const& lb,
-		edm::EventSetup const& es)
-	{
-		_currentLS = lb.luminosityBlock();
-		this->_resetMonitors(f1LS);
-		
-		if (_procLSs%10==0)
-			this->_resetMonitors(f10LS);
-		if (_procLSs%50==0)
-			this->_resetMonitors(f50LS);
-		if (_procLSs%100==0)
-			this->_resetMonitors(f100LS);
-			
-	}
-
-	/* virtual */ void DQTask::endLuminosityBlock(
+	void DQTask::endLuminosityBlock(
 		edm::LuminosityBlock const& lb,
 		edm::EventSetup const& es)
 	{
 		_procLSs++;
 	}
 
-	/* virtual */ void DQTask::_resetMonitors(UpdateFreq uf)
+	void DQTask::_resetMonitors(UpdateFreq uf)
 	{
 		//	reset per event
 		switch (uf)
@@ -164,7 +164,7 @@ namespace hcaldqm
 		}
 	}
 
-	/* virtual */ int DQTask::_getCalibType(edm::Event const&e)
+	int DQTask::_getCalibType(edm::Event const&e)
 	{
 		int calibType = 0;
 

@@ -31,4 +31,7 @@ def _loadGeometryESProducers( theProcess ) :
    theProcess.load('Geometry.GEMGeometryBuilder.gemGeometryDB_cfi')
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
-modifyGeometryConfiguration_cff_ = run2_GEM_2017.makeProcessModifier( _loadGeometryESProducers )
+modifyGeometryConfigurationRun2_cff_ = run2_GEM_2017.makeProcessModifier( _loadGeometryESProducers )
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+modifyGeometryConfigurationRun3_cff_ = run3_GEM.makeProcessModifier( _loadGeometryESProducers )

@@ -225,6 +225,34 @@ FWGeometry::getMatchedIds( Detector det, SubDetector subdet ) const
    return ids;
 }
 
+std::vector<unsigned int>
+FWGeometry::getMatchedIds( Detector det ) const
+{
+   std::vector<unsigned int> ids;
+   
+   for(const auto& it : m_idToInfo)
+   {
+      if( (( it.id >> kDetOffset ) & 0xF) != det ) continue;
+      // select only the 1st layer
+      // if(((it->id>>17)&0x1F) != 12) continue;
+
+      // select only the first cell of each wafer
+      if(det != HGCalHSc){
+        bool flag(false);
+
+        for(const auto& id_it : ids) {
+           flag = (~0x3FF & it.id) == (~0x3FF & id_it);
+           if(flag) break;
+        }
+
+        if(flag) continue;
+      }
+      
+      ids.push_back( it.id );
+   }
+   return ids;
+}
+
 TGeoShape*
 FWGeometry::getShape( unsigned int id ) const
 {
@@ -291,6 +319,111 @@ FWGeometry::getEveShape( unsigned int id  ) const
       shape->SetTransMatrix( array );
       return shape;
    }
+}
+
+TEveGeoShape*
+FWGeometry::getHGCSiliconEveShape( unsigned int id  ) const
+{
+#if 0 
+   const unsigned int type = (id>>26)&0x3;
+   // select the middle cell of each waifer
+   id &= ~0x3FF;
+   id |= (type == 0) ? 0x16B : 0xE7;
+#else
+   float sideToSideWaferSize = 16.7441f;
+   float dx = sideToSideWaferSize/2;
+   float sidey = dx/sqrt(3);
+   float dy = 2*sidey;
+
+   int waferUint = (id >> 10) & 0xF;
+   int waferVint = (id >> 15) & 0xF;
+   float waferU = ((id>>14) & 0x1) ? -sideToSideWaferSize*waferUint : sideToSideWaferSize*waferUint;
+   float waferV = ((id>>19) & 0x1) ? -sideToSideWaferSize*waferVint : sideToSideWaferSize*waferVint;
+   
+   float waferX = (-2*waferU+waferV)/2;
+   float waferY = waferV*sqrt(3)/2;
+#endif
+   IdToInfoItr it = FWGeometry::find( id );
+   if( it == m_idToInfo.end()){
+      fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
+      return nullptr;
+   }
+
+   GeomDetInfo info = *it;
+   
+   TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
+   TEveGeoShape* shape = new TEveGeoShape(TString::Format("RecoGeom Id=%u", id));
+
+   float dz = fabs(info.points[14] - info.points[2])*0.5;
+
+   info.translation[2] = (info.points[14] + info.points[2])/2.0f; 
+   info.translation[0] = waferX*((0 < info.translation[2]) - (info.translation[2] < 0)); 
+   info.translation[1] = waferY; 
+
+   TGeoXtru* geoShape = new TGeoXtru(2);
+   Double_t x[6] = {
+      -dx, -dx, 0.0, dx, dx, 0.0
+   };
+   Double_t y[6] = {
+      -sidey,
+      sidey,
+      dy,
+      sidey,
+      -sidey,
+      -dy    
+   };
+   geoShape->DefinePolygon(6,x,y);
+   geoShape->DefineSection(0, -dz);
+   geoShape->DefineSection(1, dz);
+
+   shape->SetShape( geoShape );
+   double array[16] = { info.matrix[0], info.matrix[3], info.matrix[6], 0.,
+         info.matrix[1], info.matrix[4], info.matrix[7], 0.,
+         info.matrix[2], info.matrix[5], info.matrix[8], 0.,
+         info.translation[0], info.translation[1], info.translation[2], 1.
+   };
+   // Set transformation matrix from a column-major array
+   shape->SetTransMatrix( array );
+   return shape;
+}
+
+TEveGeoShape*
+FWGeometry::getHGCScintillatorEveShape( unsigned int id  ) const
+{
+   IdToInfoItr it = FWGeometry::find( id );
+   if( it == m_idToInfo.end()){
+      fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
+      return nullptr;
+   }
+
+   GeomDetInfo info = *it;
+
+   TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
+   TEveGeoShape* shape = new TEveGeoShape(TString::Format("RecoGeom Id=%u", id));
+
+   TGeoXtru* geoShape = new TGeoXtru(2);
+   Double_t x[4] = {
+      info.points[0], info.points[3], info.points[6], info.points[9]
+   };
+   Double_t y[4] = {
+      info.points[1], info.points[4], info.points[7], info.points[10]
+   };
+
+   bool isNeg = info.shape[3] < 0;
+   geoShape->DefinePolygon(4,x,y);
+   geoShape->DefineSection(0, isNeg*info.shape[3]);
+   geoShape->DefineSection(1, !isNeg*info.shape[3]);
+   info.translation[2] = info.points[2];
+
+   shape->SetShape( geoShape );
+   double array[16] = { info.matrix[0], info.matrix[3], info.matrix[6], 0.,
+      info.matrix[1], info.matrix[4], info.matrix[7], 0.,
+      info.matrix[2], info.matrix[5], info.matrix[8], 0.,
+      info.translation[0], info.translation[1], info.translation[2], 1.
+   };
+   // Set transformation matrix from a column-major array
+   shape->SetTransMatrix( array );
+   return shape;
 }
 
 const float*

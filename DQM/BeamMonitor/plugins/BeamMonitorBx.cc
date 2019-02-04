@@ -53,7 +53,7 @@ BeamMonitorBx::BeamMonitorBx( const ParameterSet& ps ) :
 
   dbe_            = Service<DQMStore>().operator->();
 
-  if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
+  if (!monitorName_.empty() ) monitorName_ = monitorName_+"/" ;
 
   theBeamFitter = new BeamFitter(parameters_, consumesCollector());
   theBeamFitter->resetTrkVector();
@@ -456,7 +456,7 @@ void BeamMonitorBx::FillTables(int nthbx,int nthbin_,
   for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
        varName != vMap.end(); ++varName) {
     TString tmpName = varName->first;
-    if (suffix_ != "") tmpName += TString("_"+suffix_);
+    if (!suffix_.empty()) tmpName += TString("_"+suffix_);
     hs[tmpName]->setBinContent(1,nthbin_,nthbx);
     hs[tmpName]->setBinContent(2,nthbin_,val_[varName->first].first);
     hs[tmpName]->setBinContent(3,nthbin_,val_[varName->first].second);
@@ -560,11 +560,6 @@ void BeamMonitorBx::weight(double& mean,double& meanError,const double& val,cons
 //--------------------------------------------------------
 void BeamMonitorBx::endRun(const Run& r, const EventSetup& context){
 
-}
-
-//--------------------------------------------------------
-void BeamMonitorBx::endJob(const LuminosityBlock& lumiSeg,
-			   const EventSetup& iSetup){
 }
 
 DEFINE_FWK_MODULE(BeamMonitorBx);

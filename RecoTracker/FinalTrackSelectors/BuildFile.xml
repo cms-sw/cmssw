@@ -1,4 +1,4 @@
-<flags   CXXFLAGS="-Ofast"/>
+<use   name="ofast-flag"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>

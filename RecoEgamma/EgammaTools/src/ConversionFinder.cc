@@ -99,7 +99,7 @@ std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::Gsf
   for(TrackCollection::const_iterator ctftk = ctftracks->begin();
       ctftk != ctftracks->end(); ctftk++, ctftk_i++) {
 
-    if((ctftk_i == ctfidx))
+    if(ctftk_i == ctfidx)
       continue;
 
     //candidate track's p4
@@ -490,7 +490,7 @@ ConversionInfo ConversionFinder::getConversionInfo(const reco::GsfElectron& gsfE
   for(TrackCollection::const_iterator tk = ctftracks->begin();
       tk != ctftracks->end(); tk++, tk_i++) {
     //if the general Track is the same one as made by the electron, skip it
-    if((tk_i == ctfidx))
+    if(tk_i == ctfidx)
       continue;
 
     LorentzVector tk_p4 = LorentzVector(tk->px(), tk->py(),tk->pz(), tk->p());

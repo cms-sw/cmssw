@@ -14,7 +14,7 @@ hiPixel3ProtoTracksHitDoublets = _hitPairEDProducer.clone(
     clusterCheck = "",
     seedingLayers = "PixelLayerTriplets",
     trackingRegions = "hiTrackingRegionFromClusterVtx",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 

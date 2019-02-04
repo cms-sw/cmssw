@@ -239,15 +239,18 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
             {
                 output_recHits->push_back(recHitToSimHitIdPairsList[irecHit].first);
                 const std::vector<TrackingRecHitProduct::SimHitIdPair>& simHitIdPairList = recHitToSimHitIdPairsList[irecHit].second;
-                for (unsigned int isimHit = 0; isimHit < simHitIdPairList.size(); ++isimHit)
-                {
+                double energyLoss_tot = 0;//
+                for (unsigned int isimHit = 0; isimHit < simHitIdPairList.size(); ++isimHit){
                     unsigned int simHitId = simHitIdPairList[isimHit].first;
+                    const PSimHit * simHit = simHitIdPairList[isimHit].second;
+                    energyLoss_tot+=simHit->energyLoss();//energy loss of sim hit in GeV std::cout << "energyLoss_tot" << energyLoss_tot << std::endl;
                     if (not (*output_recHitRefs)[simHitId].isNull())
                     {
                         throw cms::Exception("FastSimulation/TrackingRecHitProducer","A PSimHit cannot lead to multiple FastTrackerRecHits");
                     }
                     (*output_recHitRefs)[simHitId] = FastTrackerRecHitRef(output_recHits_refProd,output_recHits->size()-1);
                 }
+                static_cast<FastSingleTrackerRecHit&>(output_recHits->back()).setEnergyLoss(energyLoss_tot);        
             }
         }
         else

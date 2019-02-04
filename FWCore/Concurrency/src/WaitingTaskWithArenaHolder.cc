@@ -67,12 +67,17 @@ namespace edm {
     if (iExcept) {
       m_task->dependentTaskFailed(iExcept);
     }
-    if (0 == m_task->decrement_ref_count()) {
+    //enqueue can run the task before we finish
+    // doneWaiting and some other thread might
+    // try to reuse this object. Resetting
+    // before enqueue avoids problems
+    auto task = m_task;
+    m_task = nullptr;
+    if (0 == task->decrement_ref_count()) {
       // The enqueue call will cause a worker thread to be created in
       // the arena if there is not one already.
-      m_arena->enqueue( [m_task = m_task](){ tbb::task::spawn(*m_task); });
+      m_arena->enqueue( [task = task](){ tbb::task::spawn(*task); });
     }
-    m_task = nullptr;
   }
 
   // This next function is useful if you know from the context that

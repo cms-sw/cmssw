@@ -1167,6 +1167,9 @@ class EDAlias(_ConfigureComponent,_Labelable):
     def nameInProcessDesc_(self, myname):
         return myname;
 
+    def appendToProcessDescList_(self, lst, myname):
+        lst.append(self.nameInProcessDesc_(myname))
+
     def insertInto(self, parameterSet, myname):
         newpset = parameterSet.newPSet()
         newpset.addString(True, "@module_label", myname)

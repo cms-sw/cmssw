@@ -30,22 +30,11 @@
   <Constant name="thPCB"      value="1.6*mm"/>
   <Constant name="thKapton"   value="0.01*mm"/>
   <Constant name="thAbsEE"    value="1.2*mm"/>
-  <Constant name="thAbsCuEE"    value="1.2*mm"/>
+  <Constant name="thAbsCuEE"  value="1.2*mm"/>
   <Constant name="thAbsHE"    value="1.2*mm"/>
   <Constant name="WaferW"     value="123.7*mm"/>
   <Constant name="tan30deg"   value="tan(30.0*deg)"/>
 </ConstantsSection>
-
-<MaterialSection label="hgcal.xml">
-  <CompositeMaterial name="WCu" density="14.979*g/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="0.75">
-      <rMaterial name="materials:Tungsten"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.25">
-      <rMaterial name="materials:Copper"/>
-    </MaterialFraction>
-  </CompositeMaterial>
-</MaterialSection>
 
 <SolidSection label="hgcal.xml">
   <Tubs name="HGCal" rMin="[rmin]" rMax="[rmax]" dz="[zCalor]" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -118,7 +107,7 @@
   </LogicalPart>
   <LogicalPart name="HGCalEEAbsorber" category="unspecified">
     <rSolid name="HGCalEEAbs"/>
-    <rMaterial name="hgcal:WCu"/>
+    <rMaterial name="hgcalMaterial:WCu"/>
   </LogicalPart>
   <LogicalPart name="HGCalEECuAbsorber" category="unspecified">
     <rSolid name="HGCalEECuAbs"/>

@@ -38,7 +38,7 @@ class PFPhotonAlgo {
 	       bool useReg, 
 	       std::string X0_Map,
 	       const reco::Vertex& primary,
-	       const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+	       const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
                double sumPtTrackIsoForPhoton,
                double sumPtTrackIsoSlopeForPhoton
 ); 
@@ -157,7 +157,7 @@ private:
   const GBRForest *ReaderGCEEhR9_;
   const GBRForest *ReaderGCEElR9_;
   
-  boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
+  std::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
   double sumPtTrackIsoForPhoton_;
   double sumPtTrackIsoSlopeForPhoton_;
   std::vector<int>match_ind;

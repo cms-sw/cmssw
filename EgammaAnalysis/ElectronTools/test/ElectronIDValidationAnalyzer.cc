@@ -231,8 +231,7 @@ ElectronIDValidationAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
      expectedMissingInnerHits_ = el->gsfTrack()->hitPattern().numberOfLostHits(missingHitType);
      passConversionVeto_ = false;
      if( thebs.isValid() && convs.isValid() ) {
-       passConversionVeto_ = !ConversionTools::hasMatchedConversion(*el,convs,
-								   thebs->position());
+       passConversionVeto_ = !ConversionTools::hasMatchedConversion(*el,*convs,thebs->position());
      }else{
        std::cout << "\n\nERROR!!! conversions not found!!!\n" ;
      }

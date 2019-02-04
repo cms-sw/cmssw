@@ -549,15 +549,10 @@ ConvBremSeedProducer::makeTrajectoryState( const DetLayer* layer,
     (GlobalTrajectoryParameters( pos, mom, TrackCharge( pp.charge()), field), *plane);
 }
 bool ConvBremSeedProducer::isGsfTrack(const reco::Track & tkv, const TrackingRecHit *h ){
-  auto ib=tkv.recHitsBegin();
-  auto ie=tkv.recHitsEnd();
   bool istaken=false;
-  //  for (;ib!=ie-2;++ib){
-    for (;ib!=ie;++ib){
-    if (istaken) continue;
-    if (!((*ib)->isValid())) continue;
- 
-    istaken = (*ib)->sharesInput(h,TrackingRecHit::all);
+  for(auto const& hit : tkv.recHits()) {
+    if (istaken || !hit->isValid()) continue;
+    istaken = hit->sharesInput(h,TrackingRecHit::all);
   }
   return istaken;
 }

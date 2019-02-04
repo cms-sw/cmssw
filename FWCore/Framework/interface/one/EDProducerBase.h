@@ -79,6 +79,7 @@ namespace edm {
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
 
       void doPreallocate(PreallocationConfiguration const&);
+      virtual void preallocLumis(unsigned int);
       void doBeginJob();
       void doEndJob();
 

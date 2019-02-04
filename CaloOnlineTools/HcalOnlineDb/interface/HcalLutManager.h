@@ -13,7 +13,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <boost/shared_ptr.hpp>
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
@@ -25,6 +24,7 @@
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalAssistant.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelIterator.h"
+#include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFinegrainBit.h"
 
 
 
@@ -60,55 +60,58 @@ class HcalLutManager{
 
   // crate=-1 stands for all crates
   // legacy - use old LMAP. Use the xxxEmap method instead
-  std::map<int, boost::shared_ptr<LutXml> > getLutXmlFromAsciiMaster( std::string _filename,
+  std::map<int, std::shared_ptr<LutXml> > getLutXmlFromAsciiMaster( std::string _filename,
 							       std::string _tag,
 							       int _crate = -1,
 							       bool split_by_crate = true );
 
-  std::map<int, boost::shared_ptr<LutXml> > getLinearizationLutXmlFromAsciiMasterEmap( std::string _filename,
+  std::map<int, std::shared_ptr<LutXml> > getLinearizationLutXmlFromAsciiMasterEmap( std::string _filename,
 										std::string _tag,
 										int _crate,
 										bool split_by_crate = true );
 
-  std::map<int, boost::shared_ptr<LutXml> > getLinearizationLutXmlFromAsciiMasterEmap_new( std::string _filename,
+  std::map<int, std::shared_ptr<LutXml> > getLinearizationLutXmlFromAsciiMasterEmap_new( std::string _filename,
 										    std::string _tag,
 										    int _crate,
 										    bool split_by_crate = true );
 
-  std::map<int, boost::shared_ptr<LutXml> > getCompressionLutXmlFromAsciiMaster( std::string _filename,
+  std::map<int, std::shared_ptr<LutXml> > getCompressionLutXmlFromAsciiMaster( std::string _filename,
 									  std::string _tag,
 									  int _crate = -1,
 									  bool split_by_crate = true );
 
-  std::map<int, boost::shared_ptr<LutXml> > getLinearizationLutXmlFromCoder( const HcalTPGCoder & _coder,
+  std::map<int, std::shared_ptr<LutXml> > getLinearizationLutXmlFromCoder( const HcalTPGCoder & _coder,
 								      std::string _tag,
 								      bool split_by_crate = true );
 
-  std::map<int, boost::shared_ptr<LutXml> > getMasks(int var, std::string _tag, bool split_by_crate = true );
+  std::map<int, std::shared_ptr<LutXml> > getMasks(int var, std::string _tag, bool split_by_crate = true );
 
-  std::map<int, boost::shared_ptr<LutXml> > getLinearizationLutXmlFromCoderEmap( const HcalTPGCoder & _coder,
+  std::map<int, std::shared_ptr<LutXml> > getLinearizationLutXmlFromCoderEmap( const HcalTPGCoder & _coder,
 									  std::string _tag,
 									  bool split_by_crate = true );
 
-  std::map<int, boost::shared_ptr<LutXml> > getCompressionLutXmlFromCoder( std::string _tag, bool split_by_crate = true );
+  std::map<int, std::shared_ptr<LutXml> > getCompressionLutXmlFromCoder( std::string _tag, bool split_by_crate = true );
 
-  std::map<int, boost::shared_ptr<LutXml> > getCompressionLutXmlFromCoder( const CaloTPGTranscoderULUT & _coder,
+  std::map<int, std::shared_ptr<LutXml> > getCompressionLutXmlFromCoder( const CaloTPGTranscoderULUT & _coder,
 								    std::string _tag,
 								    bool split_by_crate = true );
 
-  std::map<int, boost::shared_ptr<LutXml> > getZdcLutXml( std::string _tag,
+  std::map<int, std::shared_ptr<LutXml> > getZdcLutXml( std::string _tag,
 						   bool split_by_crate = true );
+
+  std::map<int, std::shared_ptr<LutXml> > getHEFineGrainLUTs(std::string _tag, bool split_by_crate = true );
+
 
   // add two std::map<s with LUTs. Designed mainly for joining compression LUTs to linearization ones.
   void addLutMap(std::map<int,
-		 boost::shared_ptr<LutXml> > & result,
+		 std::shared_ptr<LutXml> > & result,
 		 const std::map<int,
-		 boost::shared_ptr<LutXml> > & other);
+		 std::shared_ptr<LutXml> > & other);
   
   // read LUTs from ASCII master file. 
   HcalLutSet getLutSetFromFile( std::string _filename, int _type = 1 ); // _type = 1 - linearization, 2 - compression
 
-  int writeLutXmlFiles( std::map<int, boost::shared_ptr<LutXml> > & _xml, std::string _tag = "default_tag", bool split_by_crate = true );
+  int writeLutXmlFiles( std::map<int, std::shared_ptr<LutXml> > & _xml, std::string _tag = "default_tag", bool split_by_crate = true );
 
   int createLinLutXmlFiles( std::string _tag, std::string _lin_file, bool split_by_crate = true );
   int createCompLutXmlFilesFromCoder( std::string _tag, bool split_by_crate = true );
@@ -138,7 +141,7 @@ class HcalLutManager{
   std::vector<unsigned int> getLutFromXml_old( std::string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt );
   std::vector<unsigned int> getLutFromXml( std::string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt );
 
-  std::map<int, boost::shared_ptr<LutXml> > get_brickSet_from_oracle( std::string tag, const std::string _accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22" );
+  std::map<int, std::shared_ptr<LutXml> > get_brickSet_from_oracle( std::string tag, const std::string _accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22" );
 
   int get_xml_files_from_db( std::string tag, const std::string db_accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22", bool split_by_crate = true );
 

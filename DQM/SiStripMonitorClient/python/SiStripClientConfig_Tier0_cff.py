@@ -37,6 +37,11 @@ siStripQTester = cms.EDAnalyzer("QualityTester",
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(siStripQTester,
+                       qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_tier0_heavyions.xml')
+                       )
+
 from CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi import*
 siStripBadModuleFedErrESSource.appendToDataLabel = cms.string('BadModules_from_FEDBadChannel')
 siStripBadModuleFedErrESSource.ReadFromFile = cms.bool(False)

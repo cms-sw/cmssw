@@ -41,29 +41,29 @@ namespace pat {
             void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
             //sorting of cands to maximize the zlib compression
-            bool candsOrdering(pat::PackedCandidate i,pat::PackedCandidate j) const {
-                if (std::abs(i.charge()) == std::abs(j.charge())) {
-                    if(i.charge()!=0){
-                        if(i.hasTrackDetails() and ! j.hasTrackDetails() ) return true;
-                        if(! i.hasTrackDetails() and  j.hasTrackDetails() ) return false;
-                        if(i.covarianceSchema() >  j.covarianceSchema() ) return true;
-                        if(i.covarianceSchema() <  j.covarianceSchema() ) return false;
-
-                  }
-                   if(i.vertexRef() == j.vertexRef()) 
-                      return i.eta() > j.eta();
-                   else 
-                      return i.vertexRef().key() < j.vertexRef().key();
+            static bool candsOrdering(pat::PackedCandidate const& i, pat::PackedCandidate const& j) {
+	      if (std::abs(i.charge()) == std::abs(j.charge())) {
+		if(i.charge()!=0){
+		  if(i.hasTrackDetails() and ! j.hasTrackDetails() ) return true;
+		  if(! i.hasTrackDetails() and  j.hasTrackDetails() ) return false;
+		  if(i.covarianceSchema() >  j.covarianceSchema() ) return true;
+		  if(i.covarianceSchema() <  j.covarianceSchema() ) return false;
                 }
-                return std::abs(i.charge()) > std::abs(j.charge());
+                if(i.vertexRef() == j.vertexRef()) 
+                  return i.eta() > j.eta();
+                else 
+                  return i.vertexRef().key() < j.vertexRef().key();
+              }
+              return std::abs(i.charge()) > std::abs(j.charge());
             }
+
             template <typename T>
-            std::vector<size_t> sort_indexes(const std::vector<T> &v ) const {
+            static std::vector<size_t> sort_indexes(const std::vector<T> &v ) {
               std::vector<size_t> idx(v.size());
               for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
-              std::sort(idx.begin(), idx.end(),[&v,this](size_t i1, size_t i2) { return candsOrdering(v[i1],v[i2]);});
+              std::sort(idx.begin(), idx.end(),[&v](size_t i1, size_t i2) { return candsOrdering(v[i1],v[i2]);});
               return idx;
-           }
+            }
 
         private: 
             //if PuppiSrc && PuppiNoLepSrc are empty, usePuppi is false

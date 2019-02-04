@@ -23,8 +23,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 namespace dqm {
-
-class RamdiskMonitor : public DQMEDAnalyzer {
+  namespace rdm { struct Empty {}; }
+class RamdiskMonitor : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<rdm::Empty>> {
  public:
   RamdiskMonitor(const edm::ParameterSet &ps);
   ~RamdiskMonitor() override;
@@ -33,19 +33,22 @@ class RamdiskMonitor : public DQMEDAnalyzer {
  protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &,
                               edm::EventSetup const &) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const &lumi,
-                                    edm::EventSetup const &eSetup) override;
+  std::shared_ptr<rdm::Empty>
+  globalBeginLuminosityBlock(edm::LuminosityBlock const &lumi,
+                             edm::EventSetup const &eSetup) const override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const &lumi,
+                                edm::EventSetup const &eSetup) final {}
   void analyze(edm::Event const &e,
                        edm::EventSetup const &eSetup) override{};
 
   void analyzeFile(std::string fn, unsigned int run, unsigned int lumi,
-                   std::string label);
-  double getRunTimestamp();
+                   std::string label) const;
+  double getRunTimestamp() const;
 
-  unsigned int runNumber_;
-  std::string runInputDir_;
-  std::vector<std::string> streamLabels_;
-  std::string runPath_;
+  const unsigned int runNumber_;
+  const std::string runInputDir_;
+  const std::vector<std::string> streamLabels_;
+  const std::string runPath_;
 
   struct StreamME {
     MonitorElement *eventsAccepted;
@@ -56,25 +59,26 @@ class RamdiskMonitor : public DQMEDAnalyzer {
   };
 
   std::map<std::string, StreamME> streams_;
-  std::set<std::string> filesSeen_;
-  std::chrono::high_resolution_clock::time_point runPathLastCollect_;
-  double global_start_ = 0.;
+  mutable std::set<std::string> filesSeen_;
+  mutable double global_start_ = 0.;
 
-  const double LUMI = 23.310893056;
+  static constexpr double LUMI = 23.310893056;
 };
 
-RamdiskMonitor::RamdiskMonitor(const edm::ParameterSet &ps) {
-  runNumber_ = ps.getUntrackedParameter<unsigned int>("runNumber");
-  runInputDir_ = ps.getUntrackedParameter<std::string>("runInputDir");
-  streamLabels_ =
-      ps.getUntrackedParameter<std::vector<std::string> >("streamLabels");
-};
+RamdiskMonitor::RamdiskMonitor(const edm::ParameterSet &ps) :
+  runNumber_{ps.getUntrackedParameter<unsigned int>("runNumber")},
+  runInputDir_{ps.getUntrackedParameter<std::string>("runInputDir")},
+  streamLabels_{
+    ps.getUntrackedParameter<std::vector<std::string> >("streamLabels")},
+  runPath_{ str(boost::format("%s/run%06d") % runInputDir_ % runNumber_) }
+
+{
+}
 
 RamdiskMonitor::~RamdiskMonitor(){};
 
 void RamdiskMonitor::bookHistograms(DQMStore::IBooker &ib, edm::Run const &,
                                     edm::EventSetup const &) {
-  runPath_ = str(boost::format("%s/run%06d") % runInputDir_ % runNumber_);
 
   for (auto stream : streamLabels_) {
     edm::LogInfo("RamdiskMonitor") << "Booking: " << stream;
@@ -114,7 +118,7 @@ void RamdiskMonitor::bookHistograms(DQMStore::IBooker &ib, edm::Run const &,
   }
 };
 
-double RamdiskMonitor::getRunTimestamp() {
+double RamdiskMonitor::getRunTimestamp() const {
   if (global_start_ != 0) return global_start_;
 
   std::string run_global =
@@ -131,19 +135,20 @@ double RamdiskMonitor::getRunTimestamp() {
 };
 
 void RamdiskMonitor::analyzeFile(std::string fn, unsigned int run,
-                                 unsigned int lumi, std::string label) {
+                                 unsigned int lumi, std::string label) const {
   using LumiEntry = dqmservices::DQMFileIterator::LumiEntry;
 
   // we are disabled, at least for this stream
   if (streams_.empty()) return;
 
-  if (streams_.find(label) == streams_.end()) {
+  auto itStream = streams_.find(label);
+  if (itStream == streams_.end()) {
     edm::LogPrint("RamdiskMonitor") << "Stream not monitored [" << label
                                     << "]: " << fn;
     return;
   }
 
-  StreamME m = streams_[label];
+  StreamME m = itStream->second;
 
   // decode json and fill in some histograms
   LumiEntry lumi_jsn = LumiEntry::load_json(runPath_, fn, lumi, -1);
@@ -180,12 +185,10 @@ void RamdiskMonitor::analyzeFile(std::string fn, unsigned int run,
   m.deliveryDelayCTime->setBinContent(lumi, delay_ctime);
 };
 
-void RamdiskMonitor::beginLuminosityBlock(edm::LuminosityBlock const &lumi,
-                                          edm::EventSetup const &eSetup) {
+std::shared_ptr<dqm::rdm::Empty>
+RamdiskMonitor::globalBeginLuminosityBlock(edm::LuminosityBlock const &,
+                                           edm::EventSetup const &eSetup) const {
   // search filesystem to find available lumi section files
-  auto now = std::chrono::high_resolution_clock::now();
-  runPathLastCollect_ = now;
-
   using boost::filesystem::directory_iterator;
   using boost::filesystem::directory_entry;
 
@@ -231,7 +234,9 @@ void RamdiskMonitor::beginLuminosityBlock(edm::LuminosityBlock const &lumi,
   }
 
   // @TODO lookup info for the current lumi
-};
+  return std::shared_ptr<dqm::rdm::Empty>();
+}
+
 
 void RamdiskMonitor::fillDescriptions(edm::ConfigurationDescriptions &d) {
   edm::ParameterSetDescription desc;

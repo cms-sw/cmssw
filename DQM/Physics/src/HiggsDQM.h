@@ -52,8 +52,6 @@ class HiggsDQM : public DQMEDAnalyzer {
   void bookHistograms(DQMStore::IBooker &,
     edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                          edm::EventSetup const& c) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
  private:
@@ -63,7 +61,6 @@ class HiggsDQM : public DQMEDAnalyzer {
   void bookHistos(DQMStore* bei);
 
   unsigned long long m_cacheID_;
-  int nLumiSecs_;
   int nEvents_, irun, ievt;
   reco::CandidateCollection* leptonscands_;
   int leptonflavor;

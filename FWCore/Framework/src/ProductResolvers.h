@@ -253,6 +253,94 @@ namespace edm {
       std::shared_ptr<BranchDescription const> bd_;
   };
 
+  // Switch is a mixture of DataManaging (for worker and provenance) and Alias (for product)
+  class SwitchBaseProductResolver: public ProductResolverBase {
+  public:
+    using ProductStatus = DataManagingProductResolver::ProductStatus;
+    SwitchBaseProductResolver(std::shared_ptr<BranchDescription const> bd, ProducedProductResolver& realProduct);
+
+    void connectTo(ProductResolverBase const& iOther, Principal const *iParentPrincipal) final;
+    void setupUnscheduled(UnscheduledConfigurator const& iConfigure) final;
+
+  protected:
+    Resolution resolveProductImpl(Resolution) const;
+    WaitingTaskList& waitingTasks() const {return waitingTasks_;}
+    Worker *worker() const {return worker_;}
+    ProductStatus status() const {return status_;}
+    ProducedProductResolver const& realProduct() const {return realProduct_;}
+    std::atomic<bool>& prefetchRequested() const {return prefetchRequested_;}
+    
+  private:
+    bool productResolved_() const final;
+    bool productWasDeleted_() const final { return realProduct_.productWasDeleted(); }
+    bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const final { return realProduct_.productWasFetchedAndIsValid(iSkipCurrentProcess); }
+    void putProduct_(std::unique_ptr<WrapperBase> edp) const final;
+    void putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const* mergeableRunProductMetadata) const final;
+    BranchDescription const& branchDescription_() const final {return *productData_.branchDescription();;}
+    void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) final {productData_.resetBranchDescription(bd);}
+    Provenance const* provenance_() const final {return &productData_.provenance();}
+    std::string const& resolvedModuleLabel_() const final {return moduleLabel();}
+    void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) final;
+    void setProcessHistory_(ProcessHistory const& ph) final {productData_.setProcessHistory(ph);}
+    ProductProvenance const* productProvenancePtr_() const final {return provenance()->productProvenance();}
+    void resetProductData_(bool deleteEarly) final;
+    bool singleProduct_() const final {return true;}
+
+    constexpr static const ProductStatus defaultStatus_ = ProductStatus::NotPut;
+
+    // for "alias" view
+    ProducedProductResolver& realProduct_;
+    // for "product" view
+    ProductData productData_;
+    Worker *worker_ = nullptr;
+    mutable WaitingTaskList waitingTasks_;
+    mutable std::atomic<bool> prefetchRequested_;
+    // for provenance
+    ParentageID parentageID_;
+    // for filter in a Path
+    mutable ProductStatus status_;
+  };
+
+  // For the case when SwitchProducer is on a Path
+  class SwitchProducerProductResolver: public SwitchBaseProductResolver {
+  public:
+    SwitchProducerProductResolver(std::shared_ptr<BranchDescription const> bd, ProducedProductResolver& realProduct):
+      SwitchBaseProductResolver(std::move(bd), realProduct) {}
+  private:
+    Resolution resolveProduct_(Principal const& principal,
+                               bool skipCurrentProcess,
+                               SharedResourcesAcquirer* sra,
+                               ModuleCallingContext const* mcc) const final;
+    void prefetchAsync_(WaitingTask* waitTask,
+                        Principal const& principal,
+                        bool skipCurrentProcess,
+                        ServiceToken const& token,
+                        SharedResourcesAcquirer* sra,
+                        ModuleCallingContext const* mcc) const final;
+    bool unscheduledWasNotRun_() const final { return false; }
+    bool productUnavailable_() const final;
+  };
+
+  // For the case when SwitchProducer is not on any Path
+  class SwitchAliasProductResolver: public SwitchBaseProductResolver {
+  public:
+    SwitchAliasProductResolver(std::shared_ptr<BranchDescription const> bd, ProducedProductResolver& realProduct):
+      SwitchBaseProductResolver(std::move(bd), realProduct) {}
+  private:
+    Resolution resolveProduct_(Principal const& principal,
+                               bool skipCurrentProcess,
+                               SharedResourcesAcquirer* sra,
+                               ModuleCallingContext const* mcc) const final;
+    void prefetchAsync_(WaitingTask* waitTask,
+                        Principal const& principal,
+                        bool skipCurrentProcess,
+                        ServiceToken const& token,
+                        SharedResourcesAcquirer* sra,
+                        ModuleCallingContext const* mcc) const final;
+    bool unscheduledWasNotRun_() const final {return realProduct().unscheduledWasNotRun();}
+    bool productUnavailable_() const final {return realProduct().productUnavailable();}
+  };
+
   class ParentProcessProductResolver : public ProductResolverBase {
   public:
     typedef ProducedProductResolver::ProductStatus ProductStatus;

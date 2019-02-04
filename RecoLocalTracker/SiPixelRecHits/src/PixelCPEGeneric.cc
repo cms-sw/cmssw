@@ -182,7 +182,7 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       float locBx = theDetParam.bx;
       //cout << "PixelCPEGeneric::localPosition(...) : locBz = " << locBz << endl;
       
-      theClusterParam.pixmx  = -999.9; // max pixel charge for truncation of 2-D cluster
+      theClusterParam.pixmx  = -999;   // max pixel charge for truncation of 2-D cluster
       theClusterParam.sigmay = -999.9; // CPE Generic y-error for multi-pixel cluster
       theClusterParam.deltay = -999.9; // CPE Generic y-bias for multi-pixel cluster
       theClusterParam.sigmax = -999.9; // CPE Generic x-error for multi-pixel cluster

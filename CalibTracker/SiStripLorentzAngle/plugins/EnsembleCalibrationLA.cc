@@ -5,7 +5,6 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <TChain.h>
 #include <TFile.h>
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <fstream>
 
@@ -27,9 +26,10 @@ void EnsembleCalibrationLA::endJob()
 {
   Book book("la_ensemble");
   TChain*const chain = new TChain("la_ensemble"); 
-  BOOST_FOREACH(std::string file, inputFiles) chain->Add((file+inFileLocation).c_str());
+  for(auto const& file : inputFiles) chain->Add((file+inFileLocation).c_str());
 
-  int methods = 0;  BOOST_FOREACH(unsigned method, vMethods) methods|=method;
+  int methods = 0;
+  for(unsigned int method : vMethods) methods|=method;
 
   LA_Filler_Fitter laff(methods,samples,nbins,lowBin,highBin,maxEvents,tTopo_);
   laff.fill(chain,book);           
@@ -51,10 +51,9 @@ void EnsembleCalibrationLA::endRun(const edm::Run&, const edm::EventSetup& eSetu
 
 void EnsembleCalibrationLA::write_ensembles_text(const Book& book)
 {
-  std::pair<std::string, std::vector<LA_Filler_Fitter::EnsembleSummary> > ensemble;
-  BOOST_FOREACH(ensemble, LA_Filler_Fitter::ensemble_summary(book)) {
+  for(auto const& ensemble : LA_Filler_Fitter::ensemble_summary(book)) {
     std::fstream file((Prefix+ensemble.first+".dat").c_str(),std::ios::out);
-    BOOST_FOREACH(LA_Filler_Fitter::EnsembleSummary summary, ensemble.second)
+    for(auto const& summary : ensemble.second)
       file << summary << std::endl;
 
     const std::pair<std::pair<float,float>,std::pair<float,float> > line = LA_Filler_Fitter::offset_slope(ensemble.second);
@@ -109,12 +108,11 @@ write_samples_plots(const Book& book) const {
 void EnsembleCalibrationLA::
 write_calibrations() const {
   std::fstream file((Prefix+"calibrations.dat").c_str(),std::ios::out);
-  std::pair<std::string,MethodCalibrations> cal;
-  BOOST_FOREACH(cal,calibrations) {
+  for(auto const& cal : calibrations) {
     file << cal.first << std::endl
-	 << "\t slopes(";    BOOST_FOREACH(float i, cal.second.slopes) file << i<< ","; file << ")" << std::endl
-	 << "\t offsets(";   BOOST_FOREACH(float i, cal.second.offsets) file << i<< ","; file << ")" << std::endl
-	 << "\t pulls(";     BOOST_FOREACH(float i, cal.second.pulls) file << i<< ","; file << ")" << std::endl;
+	 << "\t slopes(";    for(float i : cal.second.slopes) file << i<< ","; file << ")" << std::endl
+	 << "\t offsets(";   for(float i : cal.second.offsets) file << i<< ","; file << ")" << std::endl
+	 << "\t pulls(";     for(float i : cal.second.pulls) file << i<< ","; file << ")" << std::endl;
   }
   file.close();
 }
