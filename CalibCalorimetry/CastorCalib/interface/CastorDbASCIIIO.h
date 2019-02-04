@@ -35,25 +35,25 @@ Text file formats for different data types is as following:
   
 */
 namespace CastorDbASCIIIO {
-  bool getObject (std::istream& fInput, CastorPedestals* fObject);
+  bool getObject (std::istream& fInput, CastorPedestals& fObject);
   bool dumpObject (std::ostream& fOutput, const CastorPedestals& fObject);
-  bool getObject (std::istream& fInput, CastorPedestalWidths* fObject);
+  bool getObject (std::istream& fInput, CastorPedestalWidths& fObject);
   bool dumpObject (std::ostream& fOutput, const CastorPedestalWidths& fObject);
-  bool getObject (std::istream& fInput, CastorGains* fObject);
+  bool getObject (std::istream& fInput, CastorGains& fObject);
   bool dumpObject (std::ostream& fOutput, const CastorGains& fObject);
-  bool getObject (std::istream& fInput, CastorGainWidths* fObject);
+  bool getObject (std::istream& fInput, CastorGainWidths& fObject);
   bool dumpObject (std::ostream& fOutput, const CastorGainWidths& fObject);
-  bool getObject (std::istream& fInput, CastorQIEData* fObject);
+  bool getObject (std::istream& fInput, CastorQIEData& fObject);
   bool dumpObject (std::ostream& fOutput, const CastorQIEData& fObject);
-  bool getObject (std::istream& fInput, CastorCalibrationQIEData* fObject);
+  bool getObject (std::istream& fInput, CastorCalibrationQIEData& fObject);
   bool dumpObject (std::ostream& fOutput, const CastorCalibrationQIEData& fObject);
-  bool getObject (std::istream& fInput, CastorElectronicsMap* fObject);
+  bool getObject (std::istream& fInput, CastorElectronicsMap& fObject);
   bool dumpObject (std::ostream& fOutput, const CastorElectronicsMap& fObject);
-  bool getObject (std::istream& fInput, CastorChannelQuality* fObject);
+  bool getObject (std::istream& fInput, CastorChannelQuality& fObject);
   bool dumpObject (std::ostream& fOutput, const CastorChannelQuality& fObject);
-  bool getObject (std::istream& fInput, CastorRecoParams* fObject);
+  bool getObject (std::istream& fInput, CastorRecoParams& fObject);
   bool dumpObject (std::ostream& fOutput, const CastorRecoParams& fObject);
-  bool getObject (std::istream& fInput, CastorSaturationCorrs* fObject);
+  bool getObject (std::istream& fInput, CastorSaturationCorrs& fObject);
   bool dumpObject (std::ostream& fOutput, const CastorSaturationCorrs& fObject);
   DetId getId (const std::vector <std::string> & items);
   void dumpId (std::ostream& fOutput, DetId id);

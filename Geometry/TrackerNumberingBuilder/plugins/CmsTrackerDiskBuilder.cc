@@ -3,12 +3,11 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPanelBuilder.h"
-#include "Geometry/TrackerNumberingBuilder/plugins/TrackerStablePhiSort.h"
+#include "Geometry/TrackerNumberingBuilder/interface/trackerStablePhiSort.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
-#include <functional>
 #include <algorithm>
 
 using namespace std;
@@ -40,7 +39,7 @@ CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   switch( det->components().front()->type())
   {
   case GeometricDet::panel:
-    TrackerStablePhiSort( comp.begin(), comp.end(), std::function<double(const GeometricDet*)>(getPhi));
+    trackerStablePhiSort( comp.begin(), comp.end(), getPhi);
     break;
   default:
     edm::LogError( "CmsTrackerDiskBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();

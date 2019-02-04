@@ -42,7 +42,7 @@ public:
     ~L1GtParametersConfigOnlineProd() override;
 
     /// public methods
-    std::shared_ptr<L1GtParameters> newObject(const std::string& objectKey) override;
+    std::unique_ptr<L1GtParameters> newObject(const std::string& objectKey) override;
 
 private:
 

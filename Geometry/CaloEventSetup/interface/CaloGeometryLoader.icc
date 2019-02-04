@@ -17,7 +17,6 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDNodes.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDScope.h"
@@ -51,7 +50,7 @@ CaloGeometryLoader<T>::load( const DDCompactView*  cpv        ,
 			     const Alignments*     alignments ,
 			     const Alignments*     globals       ) 
 {
-   PtrType geom ( new T ) ;
+   PtrType geom = std::make_unique<T>();
 
    makeGeometry( cpv,
 		 dynamic_cast<T*>( geom.get() ),

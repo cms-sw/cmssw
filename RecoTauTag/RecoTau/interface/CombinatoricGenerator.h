@@ -82,7 +82,7 @@ template <typename T>
         bool negate_;
     };
 
-    class ValueAccessor : public std::unary_function<index_type const&, const value_type&>
+    class ValueAccessor
     {
       /* Class to extract a value from a collection given the beginning of the collection
        * and the index into the colleciton */

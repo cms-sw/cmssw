@@ -15,7 +15,8 @@ from getGTfromDQMFile_V2 import getGTfromDQMFile
 
 def setRunDirectory(runNumber):
     # Don't forget to add an entry when there is a new era
-    dirDict = { 315252:['Data2018', 'Run2018'],\
+    dirDict = { 325799:['Data2018', 'HIRun2018'],\
+                315252:['Data2018', 'Run2018'],\
                 308336:['Data2018', 'Commissioning2018'],\
                 294644:['Data2017', 'Run2017'],\
                 290123:['Data2017', 'Commissioning2017'],\
@@ -33,7 +34,7 @@ def setRunDirectory(runNumber):
             runKey=key
     return dirDict[runKey]  
 
-def downloadOfflineDQMhisto(run, Run_type):
+def downloadOfflineDQMhisto(run, Run_type,rereco):
     runDirval=setRunDirectory(run)
     DataLocalDir=runDirval[0]
     DataOfflineDir=runDirval[1]
@@ -47,8 +48,13 @@ def downloadOfflineDQMhisto(run, Run_type):
     index = f.readlines()
     if any(str(Run_Number[i]) in s for s in index):
         for s in index:
-            if (str(Run_Number[i]) in s) and ("__DQMIO.root" in s):
-                File_Name = str(str(s).split("xx/")[1].split("'>DQM")[0])
+            if rereco:
+                if (str(Run_Number[i]) in s) and ("__DQMIO.root" in s) and ("17Sep2018" in s):
+                    File_Name = str(str(s).split("xx/")[1].split("'>DQM")[0])
+            else:
+                if (str(Run_Number[i]) in s) and ("__DQMIO.root" in s):
+                    File_Name = str(str(s).split("xx/")[1].split("'>DQM")[0])
+
     else:
         print('No DQM file available. Please check the Offline server')
         sys.exit(0)
@@ -57,6 +63,32 @@ def downloadOfflineDQMhisto(run, Run_type):
     os.system('curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/'+DataOfflineDir+'/'+Run_type+'/000'+str(nnn)+'xx/'+File_Name+' > /tmp/'+File_Name)
     
     return File_Name
+
+def downloadOfflinePCLhisto(run, Run_type):
+    runDirval=setRunDirectory(run)
+    DataLocalDir=runDirval[0]
+    DataOfflineDir=runDirval[1]
+    nnn=run/100
+    print('Processing '+ Run_type + ' in '+DataOfflineDir+"...")
+    File_Name = 'Temp'
+    print('Directory to fetch the DQM file from: https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/'+DataOfflineDir+'/'+Run_type+'/000'+str(nnn)+'xx/')
+    url = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/'+DataOfflineDir+'/'+Run_type+'/000'+str(nnn)+'xx/'
+    os.popen("curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET "+url+" > index.html") 
+    f=codecs.open("index.html", 'r')
+    index = f.readlines()
+    if any(str(Run_Number[i]) in s for s in index):
+        for s in index:
+            if (str(Run_Number[i]) in s) and ("PromptCalibProdSiPixel-Express" in s) and ("__ALCAPROMPT.root" in s):
+                File_Name = str(str(s).split("xx/")[1].split("'>DQM")[0])
+    else:
+        print('No DQM file available. Please check the Offline server')
+        sys.exit(0)
+    if File_Name!='Temp':
+        print('Downloading DQM file:'+File_Name)
+        os.system('curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/'+DataOfflineDir+'/'+Run_type+'/000'+str(nnn)+'xx/'+File_Name+' > /tmp/'+File_Name)
+    
+    return File_Name
+
 
 def downloadnlineDQMhisto(run, Run_type):
     runDirval=setRunDirectory(run)
@@ -111,23 +143,29 @@ def getGT(DQMfile, RunNumber, globalTagVar):
     for z in range(len(globalTag_v0)-2):#clean up the garbage string in the GT
         if (globalTag_v0[z].isdigit()) and  (globalTag_v0[z+1].isdigit()) and (globalTag_v0[z+2].isdigit()) and(globalTag_v0[z+3].isupper()):
             globalTag = globalTag_v0[z:]
+            break
     if globalTag == "":
-        print(" No GlobalTag found: trying from DAS.... ");
+        print(" No GlobalTag found: trying from DAS.... ")
         globalTag = str(os.popen('getGTscript.sh '+filepath+ File_Name+' ' +str(Run_Number[i])));
         if globalTag == "":
-            print(" No GlobalTag found for run: "+str(Run_Number[i]));
+            print(" No GlobalTag found for run: "+str(Run_Number[i]))
+
     return globalTag
 
 
 Run_type = sys.argv[1]
 Run_Number = [int(x) for x in sys.argv[2:]]
 CMSSW_BASE = str(os.popen('echo ${CMSSW_BASE}').read().strip())
+rereco=False
 
 ###########Check if user enter the right run type######################
-if Run_type == 'Cosmics' or Run_type == 'StreamExpress' or Run_type == 'StreamExpressCosmics' or 'ZeroBias' or re.match('ZeroBias([0-9]+?)',Run_type):
+if Run_type == 'Cosmics' or Run_type == 'StreamExpress' or Run_type == 'StreamExpressCosmics' or Run_type == 'ZeroBias' or Run_type == 'StreamHIExpress' or Run_type == 'HIMinimumBias1' or re.match('ZeroBias([0-9]+?)',Run_type) or re.match('HIMinimumBias([0-9]+?)',Run_type):
     print(Run_type)
+elif Run_type == 'ReReco':
+    rereco=True    
+    Run_type='ZeroBias'
 else: 
-    print("please enter a valid run type: Cosmics | ZeroBias | StreamExpress | StreamExpressCosmics ");
+    print("please enter a valid run type: Cosmics | ZeroBias | StreamExpress | StreamExpressCosmics ")
     sys.exit(0)
 
 for i in range(len(Run_Number)):
@@ -136,7 +174,9 @@ for i in range(len(Run_Number)):
     nnnOut = Run_Number[i]/1000
 
     filepath = '/tmp/'
-    File_Name = downloadOfflineDQMhisto(Run_Number[i], Run_type)
+    File_Name = downloadOfflineDQMhisto(Run_Number[i], Run_type, rereco)
+    if Run_type=="StreamExpress" or Run_type=="StreamHIExpress":
+        File_Name_PCL = downloadOfflinePCLhisto(Run_Number[i], Run_type)
     deadRocMap, File_Name_online = downloadnlineDQMhisto(Run_Number[i], Run_type)
 
     runDirval=setRunDirectory(Run_Number[i])
@@ -155,13 +195,22 @@ for i in range(len(Run_Number)):
     if Check_output == 0:
         print('Using DQM file: '+File_Name)
     else:
-        print('*****************Warning: DQM file is not ready************************');
+        print('*****************Warning: DQM file is not ready************************')
         input_var = raw_input("DQM file is incompleted, do you want to continue? (y/n): ")
         if (input_var == 'y') or (input_var == 'Y'):
             print('Using DQM file: '+File_Name)
         else:
             sys.exit(0)
-
+    if Run_type=="StreamExpress" or Run_type=="StreamHIExpress":
+        if File_Name_PCL=='Temp':
+            print(' ')
+            print(' ')
+            print('*****************Warning: PCL file is not ready************************')
+            input_var = raw_input("PCL file is not ready, you will need to re-run the script later for PCL plots, do you want to continue? (y/n): ")
+            if (input_var == 'y') or (input_var == 'Y'):
+                print('-------->   Remember to re-run the script later!!!!!')
+            else:
+                sys.exit(0)
     
 ###################Start making TkMaps################
 
@@ -203,6 +252,8 @@ for i in range(len(Run_Number)):
 
     if Run_type == "Cosmics" or Run_type == "StreamExpressCosmics":
         os.system('cat ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/data/index_template_TKMap_cosmics.html | sed -e "s@RunNumber@'+str(Run_Number[i])+'@g" > index.html')
+    elif Run_type == "StreamExpress":
+         os.system('cat ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/data/index_template_Express_TKMap.html | sed -e "s@RunNumber@'+str(Run_Number[i])+'@g" > index.html')
     else:
         os.system('cat ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/data/index_template_TKMap.html | sed -e "s@RunNumber@'+str(Run_Number[i])+'@g" > index.html')
 
@@ -227,14 +278,14 @@ for i in range(len(Run_Number)):
       
 ## Producing the run certification by lumisection
     
-#    print " Creating the lumisection certification:"
+#    print(" Creating the lumisection certification:")
 
 #    if (Run_type.startswith("ZeroBias")) or (Run_type == "StreamExpress"):
 #        os.system('ls_cert 0.95 0.95 '+filepath+'/'+File_Name)
 
 ## Producing the PrimaryVertex/BeamSpot quality test by LS..
 #    if (Run_type != "Cosmics") and ( Run_type != "StreamExpress") and (Run_type != "StreamExpressCosmics"):
-#        print " Creating the BeamSpot Calibration certification summary:"
+#        print(" Creating the BeamSpot Calibration certification summary:")
 #        os.system('lsbs_cert '+filepath+'/'+File_Name)
 
 ## .. and harvest the bad beamspot LS with automatic emailing (if in period and if bad LS found)
@@ -262,14 +313,17 @@ for i in range(len(Run_Number)):
     os.remove('MergedBadComponentsTkMap_Canvas.root')
     os.remove('MergedBadComponentsTkMap.root')
 ##############counting dead pixel#######################
-    print("countig dead pixel ROCs") 
+    print("countig dead pixel ROCs" )
     if (Run_Number[i] < 290124) :
 
         os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/DeadROCCounter.py '+filepath+'/'+File_Name)
     else: 
         os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/DeadROCCounter_Phase1.py '+filepath+'/'+File_Name)
 
-    os.system('mkdir -p /data/users/event_display/'+DataLocalDir+'/'+dest+'/'+str(nnnOut)+'/'+str(Run_Number[i])+'/'+Run_type+' 2> /dev/null')
+    if rereco:
+        os.system('mkdir -p /data/users/event_display/'+DataLocalDir+'/'+dest+'/'+str(nnnOut)+'/'+str(Run_Number[i])+'/ReReco 2> /dev/null')
+    else:
+        os.system('mkdir -p /data/users/event_display/'+DataLocalDir+'/'+dest+'/'+str(nnnOut)+'/'+str(Run_Number[i])+'/'+Run_type+' 2> /dev/null')
     
     shutil.move('PixZeroOccROCs_run'+str(Run_Number[i])+'.txt',workPath+'/PixZeroOccROCs_run'+str(Run_Number[i])+'.txt')
 
@@ -293,12 +347,21 @@ for i in range(len(Run_Number)):
 
     os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/MergeOccDeadROC.py '+filepath+File_Name)
 
+#######Merge PCL and DQM Plot (only StreamExpress) ###################
+    if Run_type=="StreamExpress" or Run_type=="StreamHIExpress":
+        os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/MergePCLDeadROC.py '+filepath+File_Name+' '+filepath+File_Name_PCL)
+        os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/MergePCLFedErr.py '+filepath+File_Name+' '+filepath+File_Name_PCL)
+        os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/PCLOthers.py '+filepath+File_Name+' '+filepath+File_Name_PCL)
+
 ###################copy ouput files###################
     strip_files = os.listdir('.')
     for file_name in strip_files:
         full_stripfile_name = os.path.join('.', file_name)
         if (os.path.isfile(full_stripfile_name)):
-            shutil.copy(full_stripfile_name, '/data/users/event_display/'+DataLocalDir+'/'+dest+'/'+str(nnnOut)+'/'+str(Run_Number[i])+'/'+Run_type)
+            if rereco:
+                shutil.copy(full_stripfile_name, '/data/users/event_display/'+DataLocalDir+'/'+dest+'/'+str(nnnOut)+'/'+str(Run_Number[i])+'/ReReco')
+            else:
+                shutil.copy(full_stripfile_name, '/data/users/event_display/'+DataLocalDir+'/'+dest+'/'+str(nnnOut)+'/'+str(Run_Number[i])+'/'+Run_type)
 
 
 
@@ -319,7 +382,10 @@ for i in range(len(Run_Number)):
     for file_name in pixel_files:
         full_pixelfile_name = os.path.join('./OUT/', file_name)
         if (os.path.isfile(full_pixelfile_name)):
-            shutil.copy(full_pixelfile_name, '/data/users/event_display/'+DataLocalDir+'/'+dest+'/'+str(nnnOut)+'/'+str(Run_Number[i])+'/'+Run_type)
+            if rereco:
+                shutil.copy(full_pixelfile_name, '/data/users/event_display/'+DataLocalDir+'/'+dest+'/'+str(nnnOut)+'/'+str(Run_Number[i])+'/ReReco')
+            else:
+                shutil.copy(full_pixelfile_name, '/data/users/event_display/'+DataLocalDir+'/'+dest+'/'+str(nnnOut)+'/'+str(Run_Number[i])+'/'+Run_type)
 
 
     shutil.rmtree('OUT')

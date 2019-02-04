@@ -47,12 +47,14 @@ namespace {
   protected:
     edm::RunningAverage localRA_;
     const unsigned int maxElement_;
+    const unsigned int maxElementTotal_;
 
     HitPairGeneratorFromLayerPair generator_;
     std::vector<unsigned> layerPairBegins_;
   };
   ImplBase::ImplBase(const edm::ParameterSet& iConfig):
     maxElement_(iConfig.getParameter<unsigned int>("maxElement")),
+    maxElementTotal_(iConfig.getParameter<unsigned int>("maxElementTotal")),
     generator_(0, 1, nullptr, maxElement_), // these indices are dummy, TODO: cleanup HitPairGeneratorFromLayerPair
     layerPairBegins_(iConfig.getParameter<std::vector<unsigned> >("layerPairs"))
   {
@@ -91,6 +93,8 @@ namespace {
       seedingHitSetsProducer.reserve(regionsLayers.regionsSize());
       intermediateHitDoubletsProducer.reserve(regionsLayers.regionsSize());
 
+      unsigned int nDoublets = 0;
+
       for(const auto& regionLayers: regionsLayers) {
         const TrackingRegion& region = regionLayers.region();
         auto hitCachePtr_filler_shs = seedingHitSetsProducer.beginRegion(&region, nullptr);
@@ -101,6 +105,15 @@ namespace {
           auto doublets = generator_.doublets(region, iEvent, iSetup, layerSet, *hitCachePtr);
           LogTrace("HitPairEDProducer") << " created " << doublets.size() << " doublets for layers " << layerSet[0].index() << "," << layerSet[1].index();
           if(doublets.empty()) continue; // don't bother if no pairs from these layers
+          nDoublets += doublets.size();
+          if (nDoublets >= maxElementTotal_){
+            edm::LogError("TooManyPairs")<<"number of total pairs exceed maximum, no pairs produced";
+            auto seedingHitSetsProducerDummy = T_SeedingHitSets(&localRA_);
+            auto intermediateHitDoubletsProducerDummy = T_IntermediateHitDoublets(regionsLayers.seedingLayerSetsHitsPtr());
+            seedingHitSetsProducerDummy.putEmpty(iEvent);
+            intermediateHitDoubletsProducerDummy.putEmpty(iEvent);
+            return;
+          }
           seedingHitSetsProducer.fill(std::get<1>(hitCachePtr_filler_shs), doublets);
           intermediateHitDoubletsProducer.fill(std::get<1>(hitCachePtr_filler_ihd), layerSet, std::move(doublets));
         }
@@ -407,16 +420,16 @@ HitPairEDProducer::HitPairEDProducer(const edm::ParameterSet& iConfig) {
   auto layersTag = iConfig.getParameter<edm::InputTag>("seedingLayers");
   auto regionTag = iConfig.getParameter<edm::InputTag>("trackingRegions");
   auto regionLayerTag = iConfig.getParameter<edm::InputTag>("trackingRegionsSeedingLayers");
-  const bool useRegionLayers = regionLayerTag.label() != "";
+  const bool useRegionLayers = !regionLayerTag.label().empty();
   if(useRegionLayers) {
-    if(regionTag.label() != "") {
+    if(!regionTag.label().empty()) {
       throw cms::Exception("Configuration") << "HitPairEDProducer requires either trackingRegions or trackingRegionsSeedingLayers to be set, now both are set to non-empty value. Set the unneeded parameter to empty value.";
     }
-    if(layersTag.label() != "") {
+    if(!layersTag.label().empty()) {
       throw cms::Exception("Configuration") << "With non-empty trackingRegionsSeedingLayers, please set also seedingLayers to empty value to reduce confusion, because the parameter is not used";
     }
   }
-  if(regionTag.label() == "" && regionLayerTag.label() == "") {
+  if(regionTag.label().empty() && regionLayerTag.label().empty()) {
     throw cms::Exception("Configuration") << "HitPairEDProducer requires either trackingRegions or trackingRegionsSeedingLayers to be set, now both are set to empty value. Set the needed parameter to a non-empty value.";
   }
 
@@ -443,7 +456,7 @@ HitPairEDProducer::HitPairEDProducer(const edm::ParameterSet& iConfig) {
     throw cms::Exception("Configuration") << "HitPairEDProducer requires either produceIntermediateHitDoublets or produceSeedingHitSets to be True. If neither are needed, just remove this module from your sequence/path as it doesn't do anything useful";
 
   auto clusterCheckTag = iConfig.getParameter<edm::InputTag>("clusterCheck");
-  if(clusterCheckTag.label() != "")
+  if(!clusterCheckTag.label().empty())
     clusterCheckToken_ = consumes<bool>(clusterCheckTag);
 
   impl_->produces(*this);
@@ -459,6 +472,7 @@ void HitPairEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<bool>("produceSeedingHitSets", false);
   desc.add<bool>("produceIntermediateHitDoublets", false);
   desc.add<unsigned int>("maxElement", 1000000);
+  desc.add<unsigned int>("maxElementTotal", 50000000);
   desc.add<std::vector<unsigned> >("layerPairs", std::vector<unsigned>{0})->setComment("Indices to the pairs of consecutive layers, i.e. 0 means (0,1), 1 (1,2) etc.");
 
   descriptions.add("hitPairEDProducerDefault", desc);

@@ -22,56 +22,58 @@ public:
   HerwigUIProvider(const edm::ParameterSet &pset, std::string inputFileName, RunMode::Mode);
 
   /// Destructor to leave a clean ThePEG::Repository behind
-  ~HerwigUIProvider();
+  ~HerwigUIProvider() override;
 
   /// Requested Herwig run mode
-  RunMode::Mode runMode() const { return runMode_; }
+  RunMode::Mode runMode() const override { return runMode_; }
+  void setSeed(long seed){ seed_=seed; }
+
 
   /// Try to resume execution from an earlier interrupted run.
-  bool resume() const { return resume_; }
+  bool resume() const override { return resume_; }
 
   /// Require verbose progress markers
-  bool tics() const { return tics_; }
+  bool tics() const override { return tics_; }
 
   /// A user-defined tag to append to the run name.
-  std::string tag() const { return tag_; }
+  std::string tag() const override { return tag_; }
 
   /// Name of the file to be read
-  std::string inputfile() const { return inputfile_; }
+  std::string inputfile() const override { return inputfile_; }
 
   /// Repository name to operate on
-  std::string repository() const { return repository_; }
+  std::string repository() const override { return repository_; }
 
   /// Name of the setup file to be read, to modify the repository
-  std::string setupfile() const { return setupfile_; }
+  std::string setupfile() const override { return setupfile_; }
  
-  std::string integrationList() const { return integrationList_; }
+  std::string integrationList() const override { return integrationList_; }
 
 
   const std::vector<std::string> & 
-  prependReadDirectories() const { return prependReadDirectories_; }
+  prependReadDirectories() const override { return prependReadDirectories_; }
 
   const std::vector<std::string> & 
-  appendReadDirectories() const { return appendReadDirectories_; }
+  appendReadDirectories() const override { return appendReadDirectories_; }
 
-  long N() const { return  nEvents_; }
-  int seed() const { return seed_; }
-  int jobs() const { return jobs_; }
-  unsigned int jobSize() const { return jobsize_; }
-  unsigned int maxJobs() const { return maxjobs_; }  
+  long N() const override { return  nEvents_; }
+  int seed() const override { return seed_; }
+  int jobs() const override { return jobs_; }
+  unsigned int jobSize() const override { return jobsize_; }
+  unsigned int maxJobs() const override { return maxjobs_; }  
 
-  void quitWithHelp() const;
+  void quitWithHelp() const override;
 
-  void quit() const;
+  void quit() const override;
 
    /// Return the standard out stream to be used
-  virtual std::ostream& outStream() const { return std::cout; }
+  std::ostream& outStream() const override { return std::cout; }
 
    /// Return the standard err stream to be used
-  virtual std::ostream& errStream() const { return std::cerr; }
+  std::ostream& errStream() const override { return std::cerr; }
 
   /// Return the standard in stream to be used
-  virtual std::istream& inStream() const { return std::cin; }
+  std::istream& inStream() const override { return std::cin; }
 
   /**
   *  Change run mode of Herwig

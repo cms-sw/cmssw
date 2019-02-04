@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.StandardSequences.Eras import eras
 process = cms.Process("TEST", eras.Run2_2018)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")

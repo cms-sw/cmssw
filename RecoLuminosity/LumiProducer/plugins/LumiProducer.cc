@@ -61,7 +61,6 @@ from the configuration file, the DB is not implemented yet)
 #include <vector>
 #include <cstring>
 #include <iterator>
-#include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>

@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,41 +44,34 @@
 #include "TKey.h"
 #include "TString.h"
 #include "TList.h"
+#include <memory>
 //
 // class decleration
 //
 
-class SiPixelGainCalibrationReadDQMFile : public edm::EDAnalyzer {
+class SiPixelGainCalibrationReadDQMFile : public edm::one::EDAnalyzer<edm::one::SharedResources> {
    public:
       explicit SiPixelGainCalibrationReadDQMFile(const edm::ParameterSet&);
-      ~SiPixelGainCalibrationReadDQMFile();
 
 
    private:
-      virtual void beginJob() ;
-      virtual void beginRun(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void analyze(const edm::Event&, const edm::EventSetup&) final;
   // functions added by F.B.
-  void fillDatabase(const edm::EventSetup& iSetup);
-  void getHistograms();
+  void fillDatabase(const edm::EventSetup& iSetup, TFile*);
+  std::unique_ptr<TFile> getHistograms();
       // ----------member data ---------------------------
-  edm::ParameterSet conf_;
   std::map<uint32_t,std::map<std::string,TString> > bookkeeper_;
   std::map<uint32_t,std::map<double,double> > Meankeeper_;
   std::map<uint32_t,std::vector< std::map<int,int> > > noisyPixelsKeeper_;
 
   bool appendMode_;
-  SiPixelGainCalibration *theGainCalibrationDbInput_;
-  SiPixelGainCalibrationOffline *theGainCalibrationDbInputOffline_;
-  SiPixelGainCalibrationForHLT *theGainCalibrationDbInputHLT_;
   SiPixelGainCalibrationService theGainCalibrationDbInputService_;
-  TH2F *defaultGain_;
-  TH2F *defaultPed_;
-  TH2F *defaultChi2_;
-  TH2F *defaultFitResult_;
-  TH1F *meanGainHist_;
-  TH1F *meanPedHist_;
+  std::unique_ptr<TH2F> defaultGain_;
+  std::unique_ptr<TH2F> defaultPed_;
+  std::unique_ptr<TH2F> defaultChi2_;
+  std::unique_ptr<TH2F> defaultFitResult_;
+  std::unique_ptr<TH1F> meanGainHist_;
+  std::unique_ptr<TH1F> meanPedHist_;
   std::string record_;
   bool invertgain_;
   // keep track of lowest and highest vals for range
@@ -87,7 +80,6 @@ class SiPixelGainCalibrationReadDQMFile : public edm::EDAnalyzer {
   float pedlow_;
   float pedhi_;
   bool usemeanwhenempty_;
-  TFile *therootfile_;
   std::string rootfilestring_;
   float gainmax_;
   float pedmax_;

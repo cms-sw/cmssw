@@ -20,7 +20,7 @@
 class L1TUtmTriggerMenuOnlineProd : public L1ConfigOnlineProdBaseExt<L1TUtmTriggerMenuO2ORcd,L1TUtmTriggerMenu> {
 private:
 public:
-    std::shared_ptr<L1TUtmTriggerMenu> newObject(const std::string& objectKey, const L1TUtmTriggerMenuO2ORcd& record) override ;
+    std::unique_ptr<const L1TUtmTriggerMenu> newObject(const std::string& objectKey, const L1TUtmTriggerMenuO2ORcd& record) override ;
 
     L1TUtmTriggerMenuOnlineProd(const edm::ParameterSet&);
     ~L1TUtmTriggerMenuOnlineProd(void) override{}
@@ -28,8 +28,7 @@ public:
 
 L1TUtmTriggerMenuOnlineProd::L1TUtmTriggerMenuOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TUtmTriggerMenuO2ORcd,L1TUtmTriggerMenu>(iConfig) {}
 
-std::shared_ptr<L1TUtmTriggerMenu> L1TUtmTriggerMenuOnlineProd::newObject(const std::string& objectKey, const L1TUtmTriggerMenuO2ORcd& record) {
-    using namespace edm::es;
+std::unique_ptr<const L1TUtmTriggerMenu> L1TUtmTriggerMenuOnlineProd::newObject(const std::string& objectKey, const L1TUtmTriggerMenuO2ORcd& record) {
 
     std::string stage2Schema = "CMS_TRG_L1_CONF" ;
     edm::LogInfo( "L1-O2O: L1TUtmTriggerMenuOnlineProd" ) << "Producing L1TUtmTriggerMenu with key =" << objectKey ;
@@ -37,7 +36,6 @@ std::shared_ptr<L1TUtmTriggerMenu> L1TUtmTriggerMenuOnlineProd::newObject(const 
     if( objectKey.empty() ){
         edm::LogError( "L1-O2O: L1TUtmTriggerMenuOnlineProd" ) << "Key is empty, returning empty L1TUtmTriggerMenu object";
         throw std::runtime_error("Empty objectKey");
-///        return boost::shared_ptr< L1TUtmTriggerMenu > ( new L1TUtmTriggerMenu() );
     }
 
     std::vector< std::string > queryColumns;
@@ -54,20 +52,15 @@ std::shared_ptr<L1TUtmTriggerMenu> L1TUtmTriggerMenuOnlineProd::newObject(const 
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TUtmTriggerMenuOnlineProd" ) << "Cannot get UGT_L1_MENU.CONF for ID = " << objectKey ;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< L1TUtmTriggerMenu >() ;
     }
 
     std::string l1Menu;
     queryResult.fillVariable( "CONF", l1Menu );
-///
+
     std::istringstream iss(l1Menu);
 
     const L1TUtmTriggerMenu * cmenu = reinterpret_cast<const L1TUtmTriggerMenu *>(tmeventsetup::getTriggerMenu(iss));  
-    L1TUtmTriggerMenu * menu = const_cast<L1TUtmTriggerMenu *>(cmenu);
-
-    using namespace edm::es;
-    std::shared_ptr<L1TUtmTriggerMenu> pMenu(menu);
-    return pMenu;
+    return std::unique_ptr<const L1TUtmTriggerMenu>(cmenu);
 }
 
 //define this as a plug-in

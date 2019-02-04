@@ -103,6 +103,9 @@ namespace l1t
       double seedMipPt() const { return seedMipPt_; }
       uint32_t detId() const { return detId_.rawId(); }
 
+      void setPt(double pt) {
+        setP4( math::PtEtaPhiMLorentzVector(pt, eta(), phi(), mass() ) );
+      }
 
       /* distance in 'cm' */
       double distance( const l1t::HGCalTriggerCell &tc ) const { return ( tc.position() - centre_ ).mag(); }

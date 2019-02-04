@@ -21,7 +21,7 @@ Publish=True
 Publish_rootfile=False
 
 # + Location of the AFS place where to put the PDFs
-WebRepository = '/eos/cms/store/group/phys_muon/Validation/'
+WebRepository = '/eos/user/c/cmsmupog/www/Validation/'
 
 # User enabled to write in the afs area
 User='giovanni'

@@ -159,7 +159,7 @@ MessageLogger = cms.Service("MessageLogger",
 #--------------------------
 
 #process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver)
-process.p = cms.Path(process.dqmCSCClient * process.muonCSCDigis * process.cscTriggerPrimitiveDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor + process.dqmEnv + process.dqmSaver)
+process.p = cms.Path(process.dqmCSCClient * process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor + process.dqmEnv + process.dqmSaver)
 
 
 process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")

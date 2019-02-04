@@ -49,7 +49,7 @@ private:
   HGCalGeometryMode::GeometryMode        geom_mode_;
   double                                 eminHit_, slopeMin_, weight_;
   double                                 mouseBiteCut_, distanceFromEdge_;
-  int                                    levelT1_, levelT2_;
+  int                                    levelT1_, levelT2_, cornerMinMask_;
   bool                                   storeAllG4Hits_;
   bool                                   fiducialCut_, rejectMB_, waferRot_;
   const double                           tan30deg_;

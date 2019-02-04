@@ -84,6 +84,8 @@ class DataCertificationJetMET : public DQMEDHarvester {
    bool jetTests[5][2];  //one for each type of jet certification/test type
    bool metTests[5][2];  //one for each type of met certification/test type
 
+   bool isHI;
+
   //MET: filter efficiencies, started from uncleaned directories
    MonitorElement* mMET_EffHBHENoiseFilter;
    MonitorElement* mMET_EffCSCTightHaloFilter;

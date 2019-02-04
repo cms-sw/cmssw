@@ -16,7 +16,8 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 	unsigned long coruptions=0;
 
 	// Combine 64-bit ddu word for simlicity and efficiency
-	unsigned long long *dduWord = (unsigned long long*) buf, word_1=0, word_2=0;
+	const unsigned long long *dduWord = reinterpret_cast<const unsigned long long*>(buf);
+	unsigned long long word_1=0, word_2=0;
 	// 'length' counts ddu words now
 	length /= sizeof(unsigned long long)/sizeof(unsigned short);
 	// Set of markers
@@ -44,7 +45,7 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 			spWordCountExpected=0;
 			// need header to calculate expected word count
 			CSCSPHeader header;
-			const unsigned short *spWord = (unsigned short*) &dduWord[index-1];
+			const unsigned short *spWord = reinterpret_cast<const unsigned short*>(&dduWord[index-1]);
 			// we are here because we have a header => we are safe from crash instantiating one
 			header.unpack(spWord);
 
@@ -110,7 +111,7 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 				break;
 			}
 			// main unpacking
-			const unsigned short *spWord = (unsigned short*) &dduWord[index-spWordCount-1];
+			const unsigned short *spWord = reinterpret_cast<const unsigned short*>(&dduWord[index-spWordCount-1]);
 			if( nRecords<12 ) {
 				if( sp[nRecords++].unpack(spWord) ) coruptions |= NONSENSE;
 			} else {

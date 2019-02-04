@@ -8,6 +8,7 @@ from RecoBTag.Combined.combinedMVA_cff import *
 from RecoBTag.CTagging.RecoCTagging_cff import *
 from RecoBTag.Combined.deepFlavour_cff import *
 from RecoBTag.TensorFlow.pfDeepFlavour_cff import *
+from RecoBTag.TensorFlow.pfDeepDoubleX_cff import *
 from RecoBTag.MXNet.pfDeepBoostedJet_cff import *
 from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
 

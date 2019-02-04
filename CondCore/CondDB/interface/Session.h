@@ -138,7 +138,7 @@ namespace cond {
       template <typename T> cond::Hash storePayload( const T& payload, 
 						     const boost::posix_time::ptime& creationTime = boost::posix_time::microsec_clock::universal_time() );
 
-      template <typename T> std::shared_ptr<T> fetchPayload( const cond::Hash& payloadHash );
+      template <typename T> std::unique_ptr<T> fetchPayload( const cond::Hash& payloadHash );
       
       cond::Hash storePayloadData( const std::string& payloadObjectType,
                                    const std::pair<Binary,Binary>& payloadAndStreamerInfoData,
@@ -212,14 +212,14 @@ namespace cond {
       return ret;
     }
     
-    template <typename T> inline std::shared_ptr<T> Session::fetchPayload( const cond::Hash& payloadHash ){
+    template <typename T> inline std::unique_ptr<T> Session::fetchPayload( const cond::Hash& payloadHash ){
       cond::Binary payloadData;
       cond::Binary streamerInfoData;
       std::string payloadType;
       if(! fetchPayloadData( payloadHash, payloadType, payloadData, streamerInfoData ) ) 
 	throwException( "Payload with id "+payloadHash+" has not been found in the database.",
 			"Session::fetchPayload" );
-      std::shared_ptr<T> ret;
+      std::unique_ptr<T> ret;
       try{ 
 	ret = deserialize<T>(  payloadType, payloadData, streamerInfoData );
       } catch ( const cond::persistency::Exception& e ){

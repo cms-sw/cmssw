@@ -35,6 +35,8 @@ namespace edm {
     PreMixingPileupCopy(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector && iC);
     ~PreMixingPileupCopy() = default;
 
+    float getTrueNumInteractions(PileUpEventPrincipal const& pep) const;
+
     void addPileupInfo(PileUpEventPrincipal const& pep);
     const std::vector<PileupSummaryInfo>& getPileupSummaryInfo() const { return pileupSummaryStorage_; }
     int getBunchSpacing() const { return bsStorage_; }

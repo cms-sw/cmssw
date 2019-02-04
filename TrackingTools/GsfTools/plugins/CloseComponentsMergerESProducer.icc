@@ -44,7 +44,7 @@ CloseComponentsMergerESProducer<N>::~CloseComponentsMergerESProducer() {
 }
 
 template <unsigned int N>
-typename std::shared_ptr< MultiGaussianStateMerger<N> > 
+typename std::unique_ptr< MultiGaussianStateMerger<N> > 
 CloseComponentsMergerESProducer<N>::produce(const TrackingComponentsRecord & iRecord){ 
 
   int maxComp = pset_.getParameter<int>("MaxComponents");
@@ -54,7 +54,7 @@ CloseComponentsMergerESProducer<N>::produce(const TrackingComponentsRecord & iRe
   iRecord.get(distName,distProducer);
   
   return 
-    std::shared_ptr< MultiGaussianStateMerger<N> >
+    std::unique_ptr< MultiGaussianStateMerger<N> >
     (new CloseComponentsMerger<N>(maxComp,distProducer.product()));
 }
 

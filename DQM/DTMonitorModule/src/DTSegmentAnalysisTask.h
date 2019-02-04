@@ -40,7 +40,7 @@ class DQMStore;
 class MonitorElement;
 class DTTimeEvolutionHisto;
 
-class DTSegmentAnalysisTask: public DQMEDAnalyzer{
+class DTSegmentAnalysisTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks>{
 
 
 public:

@@ -17,7 +17,7 @@ public:
   HGCalParametersESModule( const edm::ParameterSet & );
   ~HGCalParametersESModule( void ) override;
   
-  typedef std::shared_ptr<HGCalParameters> ReturnType;
+  using ReturnType = std::unique_ptr<HGCalParameters>;
   
   ReturnType produce( const IdealGeometryRecord&);
 
@@ -48,12 +48,12 @@ HGCalParametersESModule::produce(const IdealGeometryRecord& iRecord) {
     <<  "HGCalParametersESModule::produce(const IdealGeometryRecord& iRecord)";
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.get(cpv);
-  
-  HGCalParameters* ptp = new HGCalParameters(name_);
+
+  auto ptp = std::make_unique<HGCalParameters>(name_);
   HGCalParametersFromDD builder;
   builder.build(&(*cpv), *ptp, name_, namew_, namec_, namet_);
   
-  return ReturnType(ptp) ;
+  return ptp;
 }
 
 //define this as a plug-in

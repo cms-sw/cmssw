@@ -79,8 +79,8 @@ void ThrUnsafeFCallChecker::checkASTDecl(const FunctionTemplateDecl *TD, Analysi
 	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( TD, SM );
 	if ( SM.isInSystemHeader(DLoc.asLocation()) || SM.isInExternCSystemHeader(DLoc.asLocation()) ) return;
 
-	for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
-			E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
+	for (auto I = TD->spec_begin(), 
+			    E = TD->spec_end(); I != E; ++I) 
 		{
 			if (I->doesThisDeclarationHaveABody()) {
 				clangcms::TUFWalker walker(this,BR, mgr.getAnalysisDeclContext(*I));

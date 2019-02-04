@@ -32,8 +32,7 @@ namespace edm {
     Provenance const& provenance() const { return prov_;}
     
     WrapperBase const* wrapper() const { return wrapper_.get();}
-    WrapperBase* wrapper() { return wrapper_.get(); }
-    WrapperBase* unsafe_wrapper() const { return wrapper_.get(); }
+    WrapperBase* unsafe_wrapper() const { return const_cast<WrapperBase*>(wrapper_.get()); }
     std::shared_ptr<WrapperBase const> sharedConstWrapper() const {
       return wrapper_;
     }
@@ -47,6 +46,7 @@ namespace edm {
     
     //Not const thread-safe update
     void unsafe_setWrapper(std::unique_ptr<WrapperBase> iValue) const;
+    void unsafe_setWrapper(std::shared_ptr<WrapperBase const> iValue) const; // for SwitchProducer
     
     void resetBranchDescription(std::shared_ptr<BranchDescription const> bd);
 
@@ -78,7 +78,7 @@ namespace edm {
 
   private:
     // "non-const data" (updated every event)
-    mutable std::shared_ptr<WrapperBase> wrapper_;
+    mutable std::shared_ptr<WrapperBase const> wrapper_;
     Provenance prov_;
   };
 

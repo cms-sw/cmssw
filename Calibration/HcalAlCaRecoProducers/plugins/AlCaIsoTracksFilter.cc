@@ -95,6 +95,7 @@ private:
   const double                   eIsolate_;
   const double                   hitEthrEB_, hitEthrEE0_, hitEthrEE1_;
   const double                   hitEthrEE2_, hitEthrEE3_;
+  const double                   hitEthrEELo_, hitEthrEEHi_;
   const double                   pTrackLow_, pTrackHigh_, pTrackH_;
   const int                      preScale_, preScaleH_;
   const std::string              theTrackQuality_;
@@ -144,6 +145,8 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
   hitEthrEE1_(iConfig.getParameter<double>("EEHitEnergyThreshold1") ),
   hitEthrEE2_(iConfig.getParameter<double>("EEHitEnergyThreshold2") ),
   hitEthrEE3_(iConfig.getParameter<double>("EEHitEnergyThreshold3") ),
+  hitEthrEELo_(iConfig.getParameter<double>("EEHitEnergyThresholdLow") ),
+  hitEthrEEHi_(iConfig.getParameter<double>("EEHitEnergyThresholdHigh") ),
   pTrackLow_(iConfig.getParameter<double>("momentumRangeLow")),
   pTrackHigh_(iConfig.getParameter<double>("momentumRangeHigh")),
   pTrackH_(iConfig.getParameter<double>("momentumHigh")),
@@ -203,7 +206,12 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
 			       <<"\t Precale factor "  << preScale_
 			       <<"\t in momentum range " << pTrackLow_
 			       <<":" << pTrackHigh_ << " and prescale factor "
-			       << preScaleH_ << " for p > " << pTrackH_;
+			       << preScaleH_ << " for p > " << pTrackH_
+			       <<" Threshold for EB " <<  hitEthrEB_ << " EE "
+			       << hitEthrEE0_ << ":" << hitEthrEE1_ << ":"
+			       << hitEthrEE2_ << ":" << hitEthrEE3_ << ":"
+			       << hitEthrEELo_ << ":" << hitEthrEEHi_;
+
   for (unsigned int k=0; k<trigNames_.size(); ++k)
     edm::LogInfo("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
 } // AlCaIsoTracksFilter::AlCaIsoTracksFilter  constructor
@@ -281,7 +289,6 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
       edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
       foundCollections = false;
     }
-    reco::TrackCollection::const_iterator trkItr;
 
     //Define the best vertex and the beamspot
     edm::Handle<reco::VertexCollection> recVtxs;
@@ -364,8 +371,13 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
 	  for (unsigned int k=0; k<eIds.size(); ++k) {
 	    const GlobalPoint& pos = geo->getPosition(eIds[k]);
 	    double eta  = std::abs(pos.eta());
-	    double eThr = (eIds[k].subdetId() == EcalBarrel) ? hitEthrEB_ :
-	      (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+hitEthrEE0_);
+	    double eThr(hitEthrEB_);
+	    if (eIds[k].subdetId() != EcalBarrel) {
+	      eThr = (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+
+		      hitEthrEE0_);
+	      if      (eThr < hitEthrEELo_) eThr = hitEthrEELo_;
+	      else if (eThr > hitEthrEEHi_) eThr = hitEthrEEHi_;
+	    }
 	    if (eHit[k] > eThr) eMipDR += eHit[k];
 	  }
 	  double hmaxNearP = spr::chargeIsolationCone(nTracks,
@@ -473,11 +485,13 @@ void AlCaIsoTracksFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("slopeTrackP",0.05090504066);
   desc.add<double>("isolationEnergy",10.0);
   // energy thershold for ECAL (from Egamma group)
-  desc.add<double>("EBHitEnergyThreshold",0.10);
-  desc.add<double>("EEHitEnergyThreshold0",-41.0664);
-  desc.add<double>("EEHitEnergyThreshold1",68.7950);
-  desc.add<double>("EEHitEnergyThreshold2",-38.1483);
-  desc.add<double>("EEHitEnergyThreshold3",7.04303);
+  desc.add<double>("EBHitEnergyThreshold",0.08);
+  desc.add<double>("EEHitEnergyThreshold0",0.30);
+  desc.add<double>("EEHitEnergyThreshold1",0.00);
+  desc.add<double>("EEHitEnergyThreshold2",0.00);
+  desc.add<double>("EEHitEnergyThreshold3",0.00);
+  desc.add<double>("EEHitEnergyThresholdLow",0.30);
+  desc.add<double>("EEHitEnergyThresholdHigh",0.30);
   // Prescale events only containing isolated tracks in the range
   desc.add<double>("momentumRangeLow",20.0);
   desc.add<double>("momentumRangeHigh",40.0);

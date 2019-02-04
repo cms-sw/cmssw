@@ -341,8 +341,4 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context) {
   /**/
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-void AlcaBeamMonitorClient::endJob(const LuminosityBlock& iLumi,
-                                   const EventSetup& iSetup) {}
-
 DEFINE_FWK_MODULE(AlcaBeamMonitorClient);

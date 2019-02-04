@@ -82,9 +82,7 @@ bool L1TMuonOverlapParamsESProducer::readPatternsXML(XMLConfigReader & aReader){
 L1TMuonOverlapParamsESProducer::ReturnType
 L1TMuonOverlapParamsESProducer::produceParams(const L1TMuonOverlapParamsRcd& iRecord)
 {
-   using namespace edm::es;
-  
-   return std::make_shared<L1TMuonOverlapParams>(params);
+   return std::make_unique<L1TMuonOverlapParams>(params);
 }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////

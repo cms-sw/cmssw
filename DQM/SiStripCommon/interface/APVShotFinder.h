@@ -8,7 +8,7 @@ class SiStripDigi;
 
 
 namespace edm {
-  template <class T> class DetSet;
+  template <class T> struct DetSet;
   template <class T> class DetSetVector;
 }
 

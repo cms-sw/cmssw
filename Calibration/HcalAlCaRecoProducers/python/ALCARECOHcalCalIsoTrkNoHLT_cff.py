@@ -7,6 +7,6 @@ import FWCore.ParameterSet.Config as cms
 from Calibration.HcalAlCaRecoProducers.alcaisotrk_cfi import *
 IsoProd.CheckHLTMatch = False
 
-seqALCARECOHcalCalIsoTrkNoHLT = cms.Sequence(IsoProd)
+seqALCARECOHcalCalIsoTrkNoHLT = cms.Sequence(alcaisotrk)
 
 

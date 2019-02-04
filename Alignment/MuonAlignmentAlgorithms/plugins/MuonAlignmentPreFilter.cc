@@ -86,9 +86,9 @@ MuonAlignmentPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     if (track->pt() < m_minTrackPt || track->p() < m_minTrackP) continue;
     if (track->eta() < m_minTrackEta || track->eta() > m_maxTrackEta ) continue;
     
-    for (trackingRecHit_iterator hit = track->recHitsBegin(); hit != track->recHitsEnd();  ++hit)
+    for(auto const& hit : track->recHits())
     {
-      DetId id = (*hit)->geographicalId();        
+      DetId id = hit->geographicalId();        
       if (id.det() == DetId::Tracker) 
       {
         tracker_numHits++;

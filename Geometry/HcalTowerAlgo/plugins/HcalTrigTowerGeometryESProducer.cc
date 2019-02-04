@@ -12,14 +12,13 @@ HcalTrigTowerGeometryESProducer::HcalTrigTowerGeometryESProducer( const edm::Par
 HcalTrigTowerGeometryESProducer::~HcalTrigTowerGeometryESProducer( void ) 
 {}
 
-std::shared_ptr<HcalTrigTowerGeometry>
+std::unique_ptr<HcalTrigTowerGeometry>
 HcalTrigTowerGeometryESProducer::produce( const CaloGeometryRecord & iRecord )
 {
     edm::ESHandle<HcalTopology> hcalTopology;
     iRecord.getRecord<HcalRecNumberingRecord>().get( hcalTopology );
 
-    m_hcalTrigTowerGeom = std::make_shared<HcalTrigTowerGeometry>( &*hcalTopology);
-    return m_hcalTrigTowerGeom;
+    return std::make_unique<HcalTrigTowerGeometry>(&*hcalTopology);
 }
 
 void HcalTrigTowerGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {

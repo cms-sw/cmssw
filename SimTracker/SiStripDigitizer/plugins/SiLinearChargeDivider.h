@@ -46,9 +46,11 @@ class SiLinearChargeDivider : public SiChargeDivider{
   const int    chargedivisionsPerStrip;
   const double deltaCut ;
   const double cosmicShift;
-
   const ParticleDataTable * theParticleDataTable;
-
+  double pulseResolution;
+  unsigned int pulset0Idx;
+  std::vector<double> pulseValues;
+  
   // Geant4 engine used by fluctuateEloss()
   std::unique_ptr<SiG4UniversalFluctuation> fluctuate; 
   // utility: drifts the charge to the surface to estimate the number of relevant strips
@@ -58,17 +60,8 @@ class SiLinearChargeDivider : public SiChargeDivider{
   // fluctuate the Eloss
   void fluctuateEloss(double const particleMass, float momentum, float eloss, float length, int NumberOfSegmentation, float elossVector[], CLHEP::HepRandomEngine*);
   // time response (from the pulse shape)
-  inline float TimeResponse( const PSimHit* hit, const StripGeomDetUnit& det) {
-    return (peakMode ? PeakShape(hit,det) : DeconvolutionShape(hit,det));
-  } 
-  // pulse shape in peak mode
-  float PeakShape(const PSimHit*, const StripGeomDetUnit& det);
-  // pulse shape in deconvolution mode
-  float DeconvolutionShape( const PSimHit*, const StripGeomDetUnit& det);
-  // data table for pulse shape in peak mode
-  static float const peakValues[921];
-  // data table for pulse shape in deconvolution mode
-  static float const decoValues[651];
+  float TimeResponse( const PSimHit* hit, const StripGeomDetUnit& det);
+  void readPulseShape(const std::string& pulseShapeFileName);
 
 };
 

@@ -6,6 +6,7 @@
 #include <IORawData/DTCommissioning/plugins/RawFile.h>
 #include <cstring>
 #include <cstdio>
+#include <memory>
 
 #include <XrdPosix/XrdPosixExtern.hh> 
 
@@ -21,14 +22,14 @@ RawFile* RawFile::open(const char* path) {
 
   //cout << " Full path: " << path << endl;
 
-  char* chaux = new char[strlen(path)+1];
-  strcpy(chaux,path);
-  char* prefix = strtok(chaux,":");
+  std::unique_ptr<char[]> chaux{ new char[strlen(path)+1] };
+  strcpy(chaux.get(),path);
+  char* saveptr;
+  char* prefix = strtok_r(chaux.get(),":",&saveptr);
   //cout << " Prefix: " << prefix << endl;
-  delete chaux;
 
   char* filename = prefix;
-  if (strlen(prefix)<strlen(path)) filename = strtok(nullptr,":");
+  if (strlen(prefix)<strlen(path)) filename = strtok_r(nullptr,":",&saveptr);
   //cout << " Filename: " << filename << endl;
 
   if (strcmp(prefix,"root")==0) xrootdFlag = true;

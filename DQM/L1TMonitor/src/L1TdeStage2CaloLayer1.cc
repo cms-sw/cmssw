@@ -15,6 +15,7 @@
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
+using namespace l1t;
 
 L1TdeStage2CaloLayer1::L1TdeStage2CaloLayer1(const edm::ParameterSet & ps) :
   dataLabel_(ps.getParameter<edm::InputTag>("dataSource")),
@@ -281,7 +282,7 @@ void L1TdeStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm
   last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(2, "Et ratio Mismatch");
   last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(3, "Feature bit Mismatch");
   last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(4, "-");
-  for (size_t i=0; i<20; ++i) last20MismatchArray_.at(i) = {"-", 0};
-  for (size_t i=1; i<=20; ++i) last20Mismatches_->getTH2F()->GetYaxis()->SetBinLabel(i, "-");
+  for (size_t i=0; i<last20MismatchArray_.size(); ++i) last20MismatchArray_[i] = {"-"+std::to_string(i), 0};
+  for (size_t i=1; i<=20; ++i) last20Mismatches_->getTH2F()->GetYaxis()->SetBinLabel(i, ("-"+std::to_string(i)).c_str());
 }
 

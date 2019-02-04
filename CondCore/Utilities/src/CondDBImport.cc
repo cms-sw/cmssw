@@ -296,6 +296,8 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( SiPixelLorentzAngle )
       IMPORT_PAYLOAD_CASE( SiPixelDynamicInefficiency )
       IMPORT_PAYLOAD_CASE( SiPixelQuality )
+      IMPORT_PAYLOAD_CASE( SiPixelFEDChannelContainer )
+      IMPORT_PAYLOAD_CASE( SiPixelQualityProbabilities )
       IMPORT_PAYLOAD_CASE( SiPixelTemplateDBObject )
       IMPORT_PAYLOAD_CASE( SiPixel2DTemplateDBObject )
       IMPORT_PAYLOAD_CASE( SiStripApvGain )

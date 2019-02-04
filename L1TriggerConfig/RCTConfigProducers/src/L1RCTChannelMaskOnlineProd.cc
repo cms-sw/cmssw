@@ -41,7 +41,7 @@ class L1RCTChannelMaskOnlineProd :
     : L1ConfigOnlineProdBase< L1RCTChannelMaskRcd, L1RCTChannelMask > (iConfig) {}
   ~L1RCTChannelMaskOnlineProd() override {}
   
-  std::shared_ptr< L1RCTChannelMask > newObject(const std::string& objectKey ) override ;
+  std::unique_ptr< L1RCTChannelMask > newObject(const std::string& objectKey ) override ;
 
 
    private:
@@ -60,12 +60,9 @@ class L1RCTChannelMaskOnlineProd :
 // constructors and destructor
 //
 
-std::shared_ptr< L1RCTChannelMask >
+std::unique_ptr< L1RCTChannelMask >
 L1RCTChannelMaskOnlineProd::newObject( const std::string& objectKey )
 {
-     using namespace edm::es;
-
-
       std::cout << " Current key is " << objectKey <<std::endl;
 
      std::string rctSchema = "CMS_RCT" ;
@@ -165,7 +162,7 @@ L1RCTChannelMaskOnlineProd::newObject( const std::string& objectKey )
 	 
 
 	 std::cout << " Returened rows " << dcMaskResults.numberRows() <<std::endl;
-	 return std::shared_ptr< L1RCTChannelMask >() ;
+	 return std::unique_ptr< L1RCTChannelMask >() ;
        }
      
       L1RCTChannelMask* m = new L1RCTChannelMask;
@@ -300,7 +297,7 @@ L1RCTChannelMaskOnlineProd::newObject( const std::string& objectKey )
      //~~~~~~~~~ Instantiate new L1RCTChannelMask object. ~~~~~~~~~
 
 
-     return std::shared_ptr< L1RCTChannelMask >(m);
+     return std::unique_ptr< L1RCTChannelMask >(m);
 } 
 	
 

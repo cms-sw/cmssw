@@ -51,7 +51,9 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     electron_iso_combIso_barrel = cms.double(10.0),
     electron_iso_combIso_endcap = cms.double(10.0),
     electron_noniso_mvaCut = cms.double(-0.1),                            
-    electron_missinghits = cms.uint32(1), 
+    electron_missinghits = cms.uint32(1),
+    electron_ecalDrivenHademPreselCut = cms.double(0.15),
+    electron_maxElePtForOnlyMVAPresel = cms.double(50.),
     isolatedElectronID_mvaWeightFile = cms.string('RecoEgamma/ElectronIdentification/data/TMVA_BDTSimpleCat_17Feb2011.weights.xml'),
     # maxNtracks,maxHcalE,maxTrackPOverEele,maxE,maxEleHcalEOverEcalE,maxEcalEOverPRes
     # maxEeleOverPoutRes,maxHcalEOverP,maxHcalEOverEcalE,maxEcalEOverP_cut1,axEcalEOverP_cut2,maxEeleOverPout,maxDPhiIN;                             

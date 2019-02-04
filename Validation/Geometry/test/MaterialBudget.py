@@ -6,28 +6,33 @@ import six
 import sys
 oldargv = sys.argv[:]
 sys.argv = [ '-b-' ]
-from ROOT import TCanvas, TLegend, TPaveText, THStack, TFile, TLatex
-from ROOT import TProfile, TProfile2D, TH1D, TH2F, TPaletteAxis
-from ROOT import kBlack, kWhite, kOrange, kAzure, kBlue
-from ROOT import gROOT, gStyle
+from ROOT import TCanvas, TPad, TGaxis, TLegend, TPaveText, THStack, TFile, TLatex
+from ROOT import TProfile, TProfile2D, TH1D, TH2F, TPaletteAxis, TStyle, TColor
+from ROOT import kBlack, kWhite, kOrange, kAzure, kBlue, kRed, kGreen
+from ROOT import kGreyScale, kTemperatureMap
+from ROOT import kTRUE, kFALSE
+from ROOT import gROOT, gStyle, gPad
 gROOT.SetBatch(True)
 sys.argv = oldargv
 
 from Validation.Geometry.plot_utils import setTDRStyle, Plot_params, plots, COMPOUNDS, DETECTORS, sDETS, hist_label_to_num, drawEtaValues
 from collections import namedtuple, OrderedDict
-import sys, os
+import sys, os, copy
 import argparse
 
-def paramsGood_(detector, plot):
+def paramsGood_(detector, plot, geometryOld = '', geometryNew = ''):
     """Check the validity of the arguments.
 
        Common function to check the validity of the parameters passed
        in. It returns a tuple composed by a bool and a string. The
-       bool indicates if all checks are ok, the string the name of the
-       appropriate ROOT file to open (empty string in case the any
-       check failed)
+       bool indicates if all checks are ok, the string the appropriate
+       ROOT filename to open (empty string in case any check failed)
+       If geometry comparison is being made, a list of strings is
+       returned instead.
 
     """
+
+    theFiles = []
 
     if plot not in plots.keys():
         print("Error, unknown plot %s" % plot)
@@ -37,16 +42,26 @@ def paramsGood_(detector, plot):
         print('Error, unknown detector: %s' % detector)
         return (False, '')
 
-    theDetectorFilename = ''
-    if detector in DETECTORS:
-        theDetectorFilename = 'matbdg_%s.root' % detector
-    else:
-        theDetectorFilename = 'matbdg_%s.root' % COMPOUNDS[detector][0]
+    if detector not in DETECTORS:
+        detector = COMPOUNDS[detector][0]
 
-    if not checkFile_(theDetectorFilename):
-        print("Error, missing file %s" % theDetectorFilename)
-        raise RuntimeError
-    return (True, theDetectorFilename)
+    if geometryNew:
+        oldgeoFilename = 'matbdg_%s_%s.root' % (detector,geometryOld)
+        theFiles.append(oldgeoFilename)
+        newgeoFilename = 'matbdg_%s_%s.root' % (detector,geometryNew)
+        theFiles.append(newgeoFilename)
+    else:
+        theFiles.append('matbdg_%s_%s.root' % (detector,geometryOld))
+
+    for thisFile in theFiles:
+        if not checkFile_(thisFile):
+            print("Error, missing file %s" % thisFile)
+            raise RuntimeError
+
+    if len(theFiles) >  1:
+        return (True, theFiles)
+    else:
+        return (True, theFiles[0])
 
 def checkFile_(filename):
     return os.path.exists(filename)
@@ -55,22 +70,464 @@ def setColorIfExists_(histos, h, color):
     if h in histos.keys():
         histos[h].SetFillColor(color)
 
-def assignOrAddIfExists_(h, p):
-    """Assign the projection of p to h.
+def assignOrAddIfExists_(h1, h2):
+    """Assign the projection of h2 to h1.
 
-       Function to assign the projection of p to h, in the case in
-       which h is None, otherwise add the projection to the already
-       valid h object
+       Function to assign the h2 to h1 in the case in
+       which h1 is None, otherwise add h2 to the already
+       valid h1 object
 
     """
 
-    if not h:
-        h = p.ProjectionX()
+    if not h1:
+        h1 = h2
     else:
-        h.Add(p.ProjectionX("B_%s" % h.GetName()), +1.000)
-    return h
+        h1.Add(h2, +1.000)
+    return h1
 
-def createPlots_(plot):
+def get1DHisto_(detector,plotNumber,geometry):
+    """
+     This function opens the appropiate ROOT file, 
+     extracts the TProfile and turns it into a Histogram,
+     if it is a compound detector, this function
+     takes care of the subdetectors' addition unless the
+     detector's ROOT file is present in which case no addition
+     is performed and the detector ROOT file is used.
+    """
+    histo = None
+    rootFile = TFile()
+
+    detectorFilename = 'matbdg_%s_%s.root'%(detector,geometry)
+    if detector not in COMPOUNDS.keys() or checkFile_(detectorFilename):
+        if not checkFile_(detectorFilename):
+            print('Warning: %s not found' % detectorFilename)
+            return 0
+        print('Reading from: %s File' % detectorFilename)
+        rootFile = TFile.Open(detectorFilename,'READ')
+        prof = rootFile.Get("%d" % plotNumber)
+        if not prof: return 0
+        # Prevent memory leaking by specifing a unique name
+        prof.SetName('%u_%s_%s' %(plotNumber,detector,geometry))
+        histo = prof.ProjectionX()
+    else:
+        theFiles = []
+        histos = OrderedDict()
+        for subDetector in COMPOUNDS[detector]:
+            subDetectorFilename = 'matbdg_%s_%s.root' % (subDetector,geometry)
+            if not checkFile_(subDetectorFilename):
+                print('Warning: %s not found'%subDetectorFilename)
+                continue
+            print('Reading from: %s File' % subDetectorFilename)
+            subDetectorFile = TFile.Open(subDetectorFilename,'READ')
+            theFiles.append(subDetectorFile)
+            prof = subDetectorFile.Get('%d'%(plotNumber)) 
+            if not prof: return 0
+            prof.__class__ = TProfile
+            histo = assignOrAddIfExists_(histo,prof.ProjectionX())
+
+    return copy.deepcopy(histo)
+
+def get2DHisto_(detector,plotNumber,geometry):
+    """
+     This function opens the appropiate ROOT file, 
+     extracts the TProfile2D and turns it into a Histogram,
+     if it is a compound detector, this function
+     takes care of the subdetectors' addition.
+
+     Note that it takes plotNumber as opposed to plot
+    """
+    histo = None
+    rootFile = TFile()
+
+    detectorFilename = 'matbdg_%s_%s.root'%(detector,geometry)
+    if detector not in COMPOUNDS.keys() or checkFile_(detectorFilename):
+        if not checkFile_(detectorFilename):
+            print('Warning: %s not found' % detectorFilename)
+            return 0
+        rootFile = TFile.Open(detectorFilename,'READ')
+        prof = rootFile.Get("%d" % plotNumber)
+        if not prof: return 0
+        # Prevent memory leaking by specifing a unique name
+        prof.SetName('%u_%s_%s' %(plotNumber,detector,geometry))
+        prof.__class__ = TProfile2D
+        histo = prof.ProjectionXY()
+    else:
+        histos = OrderedDict()
+        theFiles = []
+        for subDetector in COMPOUNDS[detector]:
+            subDetectorFilename = 'matbdg_%s_%s.root' % (subDetector,geometry)
+            if not checkFile_(subDetectorFilename):
+                print('Warning: %s not found'%subDetectorFilename)
+                continue
+            subDetectorFile = TFile.Open(subDetectorFilename,'READ')
+            theFiles.append(subDetectorFile)
+            print('*** Open file... %s' % subDetectorFilename)
+            prof = subDetectorFile.Get('%d'%plotNumber)
+            if not prof: return 0
+            prof.__class__ = TProfile2D
+            if not histo:
+                histo = prof.ProjectionXY('B_%s' % prof.GetName())
+            else:
+                histo.Add(prof.ProjectionXY('B_%s' % prof.GetName()))
+
+    return copy.deepcopy(histo)
+
+def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
+                                          geometryNew):
+
+    setTDRStyle()
+
+    goodToGo, theFiles = paramsGood_(detector,plot,
+                                     geometryOld,geometryNew)
+
+    if not goodToGo:
+        return
+
+    oldHistos = OrderedDict()
+    newHistos = OrderedDict()
+    ratioHistos = OrderedDict()
+    diffHistos = OrderedDict()
+
+    def setUpCanvas(canvas):
+
+        gStyle.SetOptStat(False)
+    
+        mainPadTop = [        
+            TPad("mainPadTop"+str(i)+'_'+canvas.GetName(),
+                 "mainPad"+str(i),
+                 i*0.25, 0.60, (i+1)*0.25, 1.0)
+            for i in range(4)
+            ]
+        
+        subPadTop = [
+            TPad("subPadTop"+str(i)+'_'+canvas.GetName(),
+                "subPad"+str(i),
+                 i*0.25, 0.50, (i+1)*0.25, 0.6)
+            for i in range(4)
+            ]
+        
+        mainPadBottom = [
+            TPad("mainPadBottom"+str(i)+'_'+canvas.GetName(),
+                 "subPad"+str(i),
+                 i*0.25, 0.10, (i+1)*0.25, 0.5)
+            for i in range(4)
+            ]
+        
+        subPadBottom = [
+            TPad("subPadBottom"+str(i)+'_'+canvas.GetName(),
+                 "subPad"+str(i),
+                 i*0.25, 0.00, (i+1)*0.25, 0.1)
+            for i in range(4)
+            ]
+        
+        mainPad = mainPadTop + mainPadBottom
+        subPad = subPadTop + subPadBottom    
+        
+        leftMargin = 0.12
+        rightMargin = 0.12
+        topMargin = 0.12
+        bottomMargin = 0.3
+        for i in range(8):
+            mainPad[i].SetLeftMargin(leftMargin)
+            mainPad[i].SetRightMargin(rightMargin)
+            mainPad[i].SetTopMargin(topMargin)
+            mainPad[i].SetBottomMargin(1e-3)
+            mainPad[i].Draw()
+            subPad[i].SetLeftMargin(leftMargin)
+            subPad[i].SetRightMargin(rightMargin)
+            subPad[i].SetTopMargin(1e-3)
+            subPad[i].SetBottomMargin(bottomMargin)
+            subPad[i].Draw()
+
+        return mainPad, subPad
+
+    canComparison = TCanvas("canComparison","canComparison",2400,1200)
+    mainPad, subPad = setUpCanvas(canComparison)
+
+
+    def setStyleHistoSubPad(histo):
+        histo.SetTitle('')
+        histo.SetMarkerColor(kBlack)
+        histo.SetMarkerStyle(20) # Circles
+        histo.SetMarkerSize(.5)
+        histo.SetLineWidth(1)
+
+        histo.GetYaxis().SetTitleSize(14)
+        histo.GetYaxis().SetTitleFont(43)
+        histo.GetYaxis().SetLabelSize(0.17)
+        histo.GetYaxis().SetTitleOffset(5.0)
+        histo.GetYaxis().SetNdivisions(6,3,0)
+
+        histo.GetXaxis().SetTitleSize(25)
+        histo.GetXaxis().SetTitleFont(43)
+        histo.GetXaxis().SetTitleOffset(6.0)
+        histo.GetXaxis().SetLabelSize(0.17)
+
+        return histo
+        
+    def makeRatio(histoX,histoY):
+        # return stylized ratio histoX/histoY
+        histoXOverY = copy.deepcopy(histoX)
+        histoXOverY.Divide(histoY)
+        histoXOverY.GetYaxis().SetTitle('#frac{%s}{%s}' % (geometryNew,geometryOld))
+
+        return histoXOverY
+
+    def makeDiff(histoNew,histoOld):
+        # Return stylized histoNew - histoOld
+        diff = copy.deepcopy(histoNew)
+        diff.Add(histoOld,-1.0)
+        diff.GetYaxis().SetTitle(geometryNew 
+                                 + " - "
+                                 + geometryOld)
+        diff.GetYaxis().SetNdivisions(6,3,0)
+
+        diff.GetXaxis().SetTitleSize(25)
+        diff.GetXaxis().SetTitleFont(43)
+        diff.GetXaxis().SetTitleOffset(3.5)
+        diff.GetXaxis().SetLabelSize(0.17)
+        
+        return diff
+
+
+    # Plotting the different categories
+
+    def setUpTitle(detector,label,plot):
+        title = 'Material Budget %s [%s];%s;%s' % (detector,label,
+                                                   plots[plot].abscissa,
+                                                   plots[plot].ordinate)
+        return title
+
+    def setUpLegend(gOld,gNew,label):
+        legend = TLegend(0.4,0.7,0.7,0.85)
+        legend.AddEntry(gOld,"%s %s [%s]"%(detector,geometryOld,label),"F") #(F)illed Box
+        legend.AddEntry(gNew,"%s %s [%s]"%(detector,geometryNew,label),"P") #(P)olymarker
+        legend.SetTextFont(42)
+        legend.SetTextSize(0.03)
+        return legend
+
+    def setRanges(h):
+        legendSpace = 1. + 0.3 # 30%
+        minX = h.GetXaxis().GetXmin()
+        maxX = h.GetXaxis().GetXmax()
+        minY = h.GetYaxis().GetXmin()
+        maxY = h.GetBinContent(h.GetMaximumBin()) * legendSpace
+        h.GetYaxis().SetRangeUser(minY, maxY)
+        h.GetXaxis().SetRangeUser(minX, maxX)
+
+
+    ########### Ratio ###########
+
+    counter = 0
+    legends = OrderedDict() #KeepAlive
+    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+
+        mainPad[counter].cd()
+        oldHistos[label] = get1DHisto_(detector,
+                                       num+plots[plot].plotNumber
+                                       ,geometryOld)
+        oldHistos[label].SetTitle(setUpTitle(detector,leg,plot))
+        oldHistos[label].SetFillColor(color)
+        oldHistos[label].SetLineColor(kBlack)
+        oldHistos[label].SetLineWidth(1)
+        setRanges(oldHistos[label])
+        oldHistos[label].Draw("HIST")
+
+        newHistos[label] = get1DHisto_(detector,
+                                       num+plots[plot].plotNumber
+                                       ,geometryNew)
+        newHistos[label].SetMarkerSize(.5)
+        newHistos[label].SetMarkerStyle(20)
+        newHistos[label].Draw('SAME P')
+
+        legends[label]= setUpLegend(oldHistos[label],newHistos[label],
+                                    leg);
+        legends[label].Draw()
+
+        # Ratio
+        subPad[counter].cd()
+        ratioHistos[label] = makeRatio( newHistos[label],oldHistos[label] )
+        ratioHistos[label] = setStyleHistoSubPad(ratioHistos[label])
+        ratioHistos[label].Draw("HIST P")
+
+        counter += 1
+
+    theDirname = "Images"
+
+    if not checkFile_(theDirname):
+        os.mkdir(theDirname)
+        
+    canComparison.SaveAs( "%s/%s_ComparisonRatio_%s_%s_vs_%s.png"
+                          % (theDirname,detector,plot,geometryOld,geometryNew) )
+
+    ######## Difference ########
+
+    canDiff = TCanvas("canDiff","canDiff",2400,1200)
+
+    mainPadDiff, subPadDiff = setUpCanvas(canDiff)
+ 
+    counter = 0
+    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+        mainPadDiff[counter].cd()
+        oldHistos[label].SetTitle(setUpTitle(detector,leg,plot))
+        oldHistos[label].Draw("HIST")
+        newHistos[label].Draw('SAME P')
+
+        legends[label].Draw()
+
+        # Difference
+        subPadDiff[counter].cd()
+        diffHistos[label] = makeDiff( newHistos[label],oldHistos[label] )
+        diffHistos[label] = setStyleHistoSubPad(diffHistos[label])
+        diffHistos[label].SetTitle('')
+        diffHistos[label].SetFillColor(color+1)
+        diffHistos[label].Draw("HIST")
+        counter +=1
+
+    canDiff.SaveAs( "%s/%s_ComparisonDifference_%s_%s_vs_%s.png"
+                          % (theDirname,detector,plot,geometryOld,geometryNew) )
+        
+
+def setUpPalette(histo2D, plot) :
+
+    # Configure Palette for 2D Histos
+
+    minX = 1.03*histo2D.GetXaxis().GetXmin();
+    maxX = 1.03*histo2D.GetXaxis().GetXmax();
+    minY = 1.03*histo2D.GetYaxis().GetXmin();
+    maxY = 1.03*histo2D.GetYaxis().GetXmax();
+
+    palette = histo2D.GetListOfFunctions().FindObject("palette")
+    if palette:
+        palette.__class__ = TPaletteAxis
+        palette.SetX1NDC(0.945)
+        palette.SetY1NDC(gPad.GetBottomMargin())
+        palette.SetX2NDC(0.96)
+        palette.SetY2NDC(1-gPad.GetTopMargin())
+        palette.GetAxis().SetTickSize(.01)
+        palette.GetAxis().SetTitle("")
+        if plots[plot].zLog:
+            palette.GetAxis().SetLabelOffset(-0.01)
+            if histo2D.GetMaximum()/histo2D.GetMinimum() < 1e3 :
+                palette.GetAxis().SetMoreLogLabels(True)
+                palette.GetAxis().SetNoExponent(True)
+
+    paletteTitle = TLatex(1.12*maxX, maxY, plots[plot].quotaName)
+    paletteTitle.SetTextAngle(90.)
+    paletteTitle.SetTextSize(0.05)
+    paletteTitle.SetTextAlign(31)
+    paletteTitle.Draw()
+
+    histo2D.GetXaxis().SetTickLength(histo2D.GetXaxis().GetTickLength()/4.)
+    histo2D.GetYaxis().SetTickLength(histo2D.GetYaxis().GetTickLength()/4.)
+    histo2D.SetTitleOffset(0.5,'Y')
+    histo2D.GetXaxis().SetNoExponent(True)
+    histo2D.GetYaxis().SetNoExponent(True)
+
+def create2DPlotsGeometryComparison(detector, plot, 
+                                    geometryOld, geometryNew):
+
+    setTDRStyle()
+
+    print('Extracting plot: %s.'%(plot))
+    goodToGo, theFiles = paramsGood_(detector,plot,
+                                     geometryOld,geometryNew)
+
+    if not goodToGo:
+        return
+    
+    gStyle.SetOptStat(False)
+
+    old2DHisto = get2DHisto_(detector,plots[plot].plotNumber,geometryOld)
+    new2DHisto = get2DHisto_(detector,plots[plot].plotNumber,geometryNew)
+
+    if plots[plot].iRebin:
+        old2DHisto.Rebin2D()
+        new2DHisto.Rebin2D()
+
+    def setRanges(h):
+        h.GetXaxis().SetRangeUser(plots[plot].xmin, plots[plot].xmax)
+        h.GetYaxis().SetRangeUser(plots[plot].ymin, plots[plot].ymax)
+        if plots[plot].histoMin != -1.:
+            h.SetMinimum(plots[plot].histoMin)
+        if plots[plot].histoMax != -1.:
+            h.SetMaximum(plots[plot].histoMax)
+
+    ratio2DHisto = copy.deepcopy(new2DHisto)
+    ratio2DHisto.Divide(old2DHisto)
+    # Ratio and Difference have the same call
+    # But different 'Palette' range so we are
+    # setting the range only for the Ratio
+    ratio2DHisto.SetMinimum(0.2)
+    ratio2DHisto.SetMaximum(1.8)
+    setRanges(ratio2DHisto)
+
+    diff2DHisto = copy.deepcopy(new2DHisto)
+    diff2DHisto.Add(old2DHisto,-1.0)
+    setRanges(diff2DHisto)
+
+
+    def setPadStyle():
+        gPad.SetLeftMargin(0.05)
+        gPad.SetRightMargin(0.08)
+        gPad.SetTopMargin(0.10)
+        gPad.SetBottomMargin(0.10)
+        gPad.SetLogz(plots[plot].zLog)
+        gPad.SetFillColor(kWhite)
+        gPad.SetBorderMode(0)
+
+    can = TCanvas('can','can',
+                  2724,1336)
+    can.Divide(1,2)
+    can.cd(1)
+    setPadStyle()
+    gPad.SetLogz(plots[plot].zLog)
+    
+    gStyle.SetOptStat(0)
+    gStyle.SetFillColor(kWhite)
+    gStyle.SetPalette(kTemperatureMap)
+
+    ratio2DHisto.SetTitle("%s, Ratio: %s/%s;%s;%s"
+                          %(plots[plot].quotaName,
+                            geometryOld, geometryNew,
+                            plots[plot].abscissa,
+                            plots[plot].ordinate))
+    ratio2DHisto.Draw('COLZ')
+
+    can.Update()
+
+    setUpPalette(ratio2DHisto,plot)
+
+    etasTop = []
+    if plots[plot].iDrawEta:
+        etasTop.extend(drawEtaValues())
+
+    can.cd(2)
+
+    diff2DHisto.SetTitle('%s, Difference: %s - %s %s;%s;%s'
+                         %(plots[plot].quotaName,geometryNew,geometryOld,detector,
+                           plots[plot].abscissa,plots[plot].ordinate))
+    setPadStyle()
+    diff2DHisto.Draw("COLZ")
+    can.Update()
+    setUpPalette(diff2DHisto,plot)
+
+    etasBottom = []
+    if plots[plot].iDrawEta:
+        etasBottom.extend(drawEtaValues())
+
+    can.Modified()
+
+    theDirname = "Images"
+
+    if not checkFile_(theDirname):
+        os.mkdir(theDirname)
+        
+    can.SaveAs( "%s/%s_Comparison_%s_%s_vs_%s.png"
+                % (theDirname,detector,plot,geometryOld,geometryNew) )
+    gStyle.SetStripDecimals(True)
+
+def createPlots_(plot, geometry):
     """Cumulative material budget from simulation.
     
        Internal function that will produce a cumulative profile of the
@@ -89,35 +546,35 @@ def createPlots_(plot):
         print("Error: chosen plot name not known %s" % plot)
         return
 
+    hist_X0_detectors = OrderedDict()
     hist_X0_IB = None
-    # We need to keep the file content alive for the lifetime of the
-    # full function....
-    subDetectorFiles = []
-
     hist_X0_elements = OrderedDict()
-    prof_X0_elements = OrderedDict()
-    for subDetector,color in six.iteritems(DETECTORS):
-        subDetectorFilename = "matbdg_%s.root" % subDetector
-        if not checkFile_(subDetectorFilename):
-            print("Error opening file: %s" % subDetectorFilename)
-            continue
 
-        subDetectorFiles.append(TFile(subDetectorFilename))
-        subDetectorFile = subDetectorFiles[-1]
-        print ("Opening file: %s" % subDetectorFilename)
-        prof_X0_XXX = subDetectorFile.Get("%d" % plots[plot].plotNumber)
+    for subDetector,color in six.iteritems(DETECTORS):
+        h = get1DHisto_(subDetector,plots[plot].plotNumber,geometry)
+        if not h: 
+            print('Warning: Skipping %s'%subDetector)
+            continue
+        hist_X0_detectors[subDetector] = h
+
 
         # Merge together the "inner barrel detectors".
         if subDetector in IBs:
-            hist_X0_IB = assignOrAddIfExists_(hist_X0_IB, prof_X0_XXX)
-
-        hist_X0_detectors[subDetector] = prof_X0_XXX.ProjectionX()
+            hist_X0_IB = assignOrAddIfExists_(
+                hist_X0_IB,
+                hist_X0_detectors[subDetector]
+                )
 
         # category profiles
         for label, [num, color, leg] in six.iteritems(hist_label_to_num):
-            prof_X0_elements[label] = subDetectorFile.Get("%d" % (num + plots[plot].plotNumber))
-            hist_X0_elements[label] = assignOrAddIfExists_(hist_X0_elements.setdefault(label, None),
-                                                          prof_X0_elements[label])
+            if label is 'SUM': continue
+            hist_label = get1DHisto_(subDetector, num + plots[plot].plotNumber, geometry)
+            hist_X0_elements[label] = assignOrAddIfExists_(
+                hist_X0_elements.setdefault(label,None),
+                hist_label,
+                )
+            hist_X0_elements[label].SetFillColor(color)
+
 
     cumulative_matbdg = TH1D("CumulativeSimulMatBdg",
                              "CumulativeSimulMatBdg",
@@ -128,10 +585,7 @@ def createPlots_(plot):
 
     # colors
     for det, color in six.iteritems(DETECTORS):
-        setColorIfExists_(hist_X0_detectors, det, color)
-
-    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
-        hist_X0_elements[label].SetFillColor(color)
+        setColorIfExists_(hist_X0_detectors, det,  color)
 
     # First Plot: BeamPipe + Pixel + TIB/TID + TOB + TEC + Outside
     # stack
@@ -189,6 +643,8 @@ def createPlots_(plot):
     stack_X0_Materials = THStack("stack_X0",stackTitle_Materials)
     stack_X0_Materials.Add(hist_X0_detectors["BeamPipe"])
     for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+        if label is 'SUM':
+            continue
         stack_X0_Materials.Add(hist_X0_elements[label])
 
     # canvas
@@ -210,6 +666,8 @@ def createPlots_(plot):
 
     theLegend_Materials.AddEntry(hist_X0_detectors["BeamPipe"],  "Beam Pipe", "f")
     for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+        if label is 'SUM':
+            continue
         theLegend_Materials.AddEntry(hist_X0_elements[label], leg, "f")
     theLegend_Materials.Draw()
 
@@ -303,7 +761,7 @@ def createPlotsReco_(reco_file, label, debug=False):
     c.SaveAs("RadLen_difference_%s.png" % label)
     return cumulative_matbdg
 
-def materialBudget_Simul_vs_Reco(reco_file, label, debug=False):
+def materialBudget_Simul_vs_Reco(reco_file, label, geometry, debug=False):
     """Plot reco vs simulation material budget.
     
        Function are produces a direct comparison of the material
@@ -315,7 +773,7 @@ def materialBudget_Simul_vs_Reco(reco_file, label, debug=False):
     setTDRStyle()
 
     # plots
-    cumulative_matbdg_sim = createPlots_("x_vs_eta")
+    cumulative_matbdg_sim = createPlots_("x_vs_eta", geometry)
     cumulative_matbdg_rec = createPlotsReco_(reco_file, label, debug=False)
 
     cc = TCanvas("cc", "cc", 1024, 1024)
@@ -335,7 +793,7 @@ def materialBudget_Simul_vs_Reco(reco_file, label, debug=False):
     filename = "MaterialBdg_Reco_vs_Simul_%s.png" % label
     cc.SaveAs(filename)
 
-def createCompoundPlots(detector, plot):
+def createCompoundPlots(detector, plot, geometry):
     """Produce the requested plot for the specified detector.
 
        Function that will plot the requested @plot for the specified
@@ -349,48 +807,36 @@ def createCompoundPlots(detector, plot):
     if not checkFile_(theDirname):
         os.mkdir(theDirname)
 
-    goodToGo, theDetectorFilename = paramsGood_(detector, plot)
+    goodToGo, theDetectorFilename = paramsGood_(detector, plot, geometry)
     if not goodToGo:
         return
 
-    theDetectorFile = TFile(theDetectorFilename)
-    #
-
-    # get TProfiles
-    prof_X0_elements = OrderedDict()
     hist_X0_elements = OrderedDict()
-    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
-        prof_X0_elements[label] = theDetectorFile.Get("%d" % (num + plots[plot].plotNumber))
-        hist_X0_elements[label] = prof_X0_elements[label].ProjectionX()
-        hist_X0_elements[label].SetFillColor(color)
-        hist_X0_elements[label].SetLineColor(kBlack)
-
-    files = []
-    if detector in COMPOUNDS.keys():
-        for subDetector in COMPOUNDS[detector][1:]:
-            subDetectorFilename = "matbdg_%s.root" % subDetector
-
-            # open file
-            if not checkFile_(subDetectorFilename):
-                continue
-
-            subDetectorFile = TFile(subDetectorFilename)
-            files.append(subDetectorFile)
-            print("*** Open file... %s" %  subDetectorFilename)
-
-            # subdetector profiles
-            for label, [num, color, leg] in six.iteritems(hist_label_to_num):
-                prof_X0_elements[label] = subDetectorFile.Get("%d" % (num + plots[plot].plotNumber))
-                hist_X0_elements[label].Add(prof_X0_elements[label].ProjectionX("B_%s" % prof_X0_elements[label].GetName())
-                                            , +1.000)
 
     # stack
-    stackTitle = "Material Budget %s;%s;%s" % (detector,
+    stackTitle = "%s;%s;%s" % (detector,
                                                plots[plot].abscissa,
                                                plots[plot].ordinate)
     stack_X0 = THStack("stack_X0", stackTitle);
+    theLegend = TLegend(0.70, 0.70, 0.89, 0.89);
+
+    def setRanges(h):
+        legendSpace = 1. + 0.3 # 30%
+        minY = h.GetYaxis().GetXmin()
+        maxY = h.GetBinContent(h.GetMaximumBin()) * legendSpace
+        h.GetYaxis().SetRangeUser(minY, maxY)
+
     for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+        # We don't want the sum to be added as part of the stack
+        if label is 'SUM':
+            continue
+        hist_X0_elements[label] = get1DHisto_(detector,
+                                              num + plots[plot].plotNumber,
+                                              geometry)
+        hist_X0_elements[label].SetFillColor(color)
+        hist_X0_elements[label].SetLineColor(kBlack)
         stack_X0.Add(hist_X0_elements[label])
+        theLegend.AddEntry(hist_X0_elements[label], leg, "f")
 
     # canvas
     canname = "MBCan_1D_%s_%s"  % (detector, plot)
@@ -399,22 +845,39 @@ def createCompoundPlots(detector, plot):
     can.SetFillColor(kWhite)
     gStyle.SetOptStat(0)
 
-    # Draw
-    stack_X0.Draw("HIST");
+    setTDRStyle()
 
-    # Legenda
-    theLegend = TLegend(0.70, 0.70, 0.89, 0.89);
-    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
-        theLegend.AddEntry(hist_X0_elements[label], leg, "f")
+    # Draw
+    setRanges(stack_X0.GetStack().Last())
+    stack_X0.Draw("HIST");
     theLegend.Draw();
 
+    cmsMark = TLatex()
+    cmsMark.SetNDC();
+    cmsMark.SetTextAngle(0);
+    cmsMark.SetTextColor(kBlack);    
+    cmsMark.SetTextFont(61)
+    cmsMark.SetTextSize(7e-2)
+    cmsMark.SetTextAlign(11)
+    cmsMark.DrawLatex(0.1,0.91,"CMS")
+
+    simuMark = TLatex()
+    simuMark.SetNDC();
+    simuMark.SetTextAngle(0);
+    simuMark.SetTextColor(kBlack);    
+    simuMark.SetTextSize(3e-2)
+    simuMark.SetTextAlign(11)
+    simuMark.DrawLatex(0.26,0.91,"#font[52]{Preliminary Simulation}")
+ 
     # Store
     can.Update();
-    can.SaveAs( "%s/%s_%s.pdf" % (theDirname, detector, plot))
-    can.SaveAs( "%s/%s_%s.png" % (theDirname, detector, plot))
+    can.SaveAs( "%s/%s_%s_%s.pdf" 
+                % (theDirname, detector, plot, geometry))
+    can.SaveAs( "%s/%s_%s_%s.png" 
+                % (theDirname, detector, plot, geometry))
 
 
-def create2DPlots(detector, plot):
+def create2DPlots(detector, plot, geometry):
     """Produce the requested plot for the specified detector.
 
        Function that will plot the requested 2D-@plot for the
@@ -428,52 +891,16 @@ def create2DPlots(detector, plot):
     if not checkFile_(theDirname):
         os.mkdir(theDirname)
 
-    goodToGo, theDetectorFilename = paramsGood_(detector, plot)
+    goodToGo, theDetectorFilename = paramsGood_(detector, plot, geometry)
     if not goodToGo:
         return
 
     theDetectorFile = TFile(theDetectorFilename)
 
-    # get TProfiles
-    prof2d_X0_det_total = theDetectorFile.Get('%s' % plots[plot].plotNumber)
-
-    # histos
-    prof2d_X0_det_total.__class__ = TProfile2D
-    hist_X0_total = prof2d_X0_det_total.ProjectionXY()
-
-    # keep files live forever
-    files = []
-    if detector in COMPOUNDS.keys():
-        for subDetector in COMPOUNDS[detector][1:]:
-            # filenames of single components
-            subDetectorFilename = "matbdg_%s.root" % subDetector
-
-            # open file
-            if not checkFile_(subDetectorFilename):
-                print("Error, missing file %s" % subDetectorFilename)
-                continue
-
-            subDetectorFile = TFile(subDetectorFilename)
-            files.append(subDetectorFile)
-            print("*** Open file... %s" %  subDetectorFilename)
-
-            # subdetector profiles
-            prof2d_X0_det_total = subDetectorFile.Get('%s' % plots[plot].plotNumber)
-            prof2d_X0_det_total.__class__ = TProfile2D
-
-            # add to summary histogram
-            hist_X0_total.Add(prof2d_X0_det_total.ProjectionXY("B_%s" % prof2d_X0_det_total.GetName()), +1.000 )
+    hist_X0_total = get2DHisto_(detector,plots[plot].plotNumber,geometry)
 
     # # properties
-    gStyle.SetPalette(1)
     gStyle.SetStripDecimals(False)
-    # #
-
-    # Create "null" histo
-    minX = 1.03*hist_X0_total.GetXaxis().GetXmin()
-    maxX = 1.03*hist_X0_total.GetXaxis().GetXmax()
-    minY = 1.03*hist_X0_total.GetYaxis().GetXmin()
-    maxY = 1.03*hist_X0_total.GetYaxis().GetXmax()
 
     # Ratio
     if plots[plot].iRebin:
@@ -494,7 +921,6 @@ def create2DPlots(detector, plot):
     if plots[plot].histoMax != -1.:
         hist_X0_total.SetMaximum(plots[plot].histoMax)
 
-    #
     can2name = "MBCan_2D_%s_%s" % (detector, plot)
     can2 = TCanvas(can2name, can2name, 2480+248, 580+58+58)
     can2.SetTopMargin(0.1)
@@ -507,7 +933,7 @@ def create2DPlots(detector, plot):
     gStyle.SetTitleBorderSize(0)
 
     # Color palette
-    gStyle.SetPalette(1)
+    gStyle.SetPalette(kGreyScale)
 
     # Log?
     can2.SetLogz(plots[plot].zLog)
@@ -519,27 +945,7 @@ def create2DPlots(detector, plot):
     can2.Update()
 
     #Aesthetic
-    palette = hist_X0_total.GetListOfFunctions().FindObject("palette")
-    if palette:
-        palette.__class__ = TPaletteAxis
-        palette.SetX1NDC(0.945)
-        palette.SetX2NDC(0.96)
-        palette.SetY1NDC(0.1)
-        palette.SetY2NDC(0.9)
-        palette.GetAxis().SetTickSize(.01)
-        palette.GetAxis().SetTitle("")
-        if plots[plot].zLog:
-            palette.GetAxis().SetLabelOffset(-0.01)
-    paletteTitle = TLatex(1.12*maxX, maxY, plots[plot].quotaName)
-    paletteTitle.SetTextAngle(90.)
-    paletteTitle.SetTextSize(0.05)
-    paletteTitle.SetTextAlign(31)
-    paletteTitle.Draw()
-    hist_X0_total.GetYaxis().SetTickLength(hist_X0_total.GetXaxis().GetTickLength()/4.)
-    hist_X0_total.GetYaxis().SetTickLength(hist_X0_total.GetXaxis().GetTickLength()/4.)
-    hist_X0_total.SetTitleOffset(0.5,"Y")
-    hist_X0_total.GetXaxis().SetNoExponent(True)
-    hist_X0_total.GetYaxis().SetNoExponent(True)
+    setUpPalette(hist_X0_total,plot)
 
     #Add eta labels
     keep_alive = []
@@ -553,11 +959,13 @@ def create2DPlots(detector, plot):
     can2.Update()
     can2.Modified()
 
-    can2.SaveAs( "%s/%s_%s_bw.pdf" % (theDirname, detector, plot))
-    can2.SaveAs( "%s/%s_%s_bw.png" % (theDirname, detector, plot))
+    can2.SaveAs( "%s/%s_%s_%s_bw.pdf" 
+                 % (theDirname, detector, plot, geometry))
+    can2.SaveAs( "%s/%s_%s_%s_bw.png" 
+                 % (theDirname, detector, plot, geometry))
     gStyle.SetStripDecimals(True)
 
-def createRatioPlots(detector, plot):
+def createRatioPlots(detector, plot, geometry):
     """Create ratio plots.
 
        Function that will make the ratio between the radiation length
@@ -567,7 +975,7 @@ def createRatioPlots(detector, plot):
 
     """
 
-    goodToGo, theDetectorFilename = paramsGood_(detector, plot)
+    goodToGo, theDetectorFilename = paramsGood_(detector, plot, geometry)
     if not goodToGo:
         return
 
@@ -581,31 +989,12 @@ def createRatioPlots(detector, plot):
     prof_l0_det_total = theDetectorFile.Get('%d' % (1000+plots[plot].plotNumber))
 
     # histos
-    hist_x0_total = prof_x0_det_total.ProjectionX()
-    hist_l0_total = prof_l0_det_total.ProjectionX()
+    hist_x0_total = get1DHisto_(detector,plots[plot].plotNumber,geometry)
+    hist_l0_total = get1DHisto_(detector,1000+plots[plot].plotNumber,geometry)
 
-    if detector in COMPOUNDS.keys():
-        for subDetector in COMPOUNDS[detector][1:]:
-
-            # file name
-            subDetectorFilename = "matbdg_%s.root" % subDetector
-
-            # open file
-            if not checkFile_(subDetectorFilename):
-                print("Error, missing file %s" % subDetectorFilename)
-                continue
-
-            subDetectorFile = TFile(subDetectorFilename)
-
-            # subdetector profiles
-            prof_x0_det_total = subDetectorFile.Get('%d' % plots[plot].plotNumber)
-            prof_l0_det_total = subDetectorFile.Get('%d' % (1000+plots[plot].plotNumber))
-            # add to summary histogram
-            hist_x0_total.Add(prof_x0_det_total.ProjectionX("B_%s" % prof_x0_det_total.GetName()), +1.000 )
-            hist_l0_total.Add(prof_l0_det_total.ProjectionX("B_%s" % prof_l0_det_total.GetName()), +1.000 )
-    #
     hist_x0_over_l0_total = hist_x0_total
     hist_x0_over_l0_total.Divide(hist_l0_total)
+
     histTitle = "Material Budget %s;%s;%s" % (detector,
                                               plots[plot].abscissa,
                                               plots[plot].ordinate)
@@ -627,8 +1016,10 @@ def createRatioPlots(detector, plot):
 
     # Store
     canR.Update()
-    canR.SaveAs("%s/%s_%s.pdf" % (theDirname, detector, plot))
-    canR.SaveAs("%s/%s_%s.png" % (theDirname, detector, plot))
+    canR.SaveAs("%s/%s_%s_%s.pdf" 
+                % (theDirname, detector, plot, geometry))
+    canR.SaveAs("%s/%s_%s_%s.png" 
+                % (theDirname, detector, plot, geometry))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generic Material Plotter',
@@ -648,7 +1039,44 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--detector',
                         help='Detector for which you want to compute the material budget',
                         type=str,)
+    parser.add_argument('-g', '--geometry',
+                        help='Geometry, used to determine filenames',
+                        type=str)
+    parser.add_argument('-gc', '--geometry-comparison',
+                        help='Compare the material budget for two different geometries'
+                        +'-g should be specied',
+                        type=str)
     args = parser.parse_args()
+
+
+    if args.geometry is None:
+        print("Error, missing geometry")
+        raise RuntimeError
+
+    if args.geometry_comparison and args.geometry is None:
+        print("Error, geometry comparison requires two geometries")
+        raise RuntimeError
+    
+    if args.geometry_comparison and args.geometry:
+
+        # For the definition of the properties of these graphs
+        # check plot_utils.py
+
+        required_plots = ["x_vs_eta","x_vs_phi","x_vs_R",
+                          "l_vs_eta","l_vs_phi","l_vs_R"]
+        required_2Dplots = ["x_vs_eta_vs_phi",
+                            "l_vs_eta_vs_phi",
+                            "x_vs_z_vs_R",
+                            "l_vs_z_vs_R_geocomp",
+                            "x_vs_z_vs_Rsum",
+                            "l_vs_z_vs_Rsum"]
+
+        for p in required_plots:
+            createCompoundPlotsGeometryComparison(args.detector, p, args.geometry,
+                                                  args.geometry_comparison)
+        for p in required_2Dplots:
+            create2DPlotsGeometryComparison(args.detector, p, args.geometry,
+                                                    args.geometry_comparison)
 
     if args.compare and args.single:
         print("Error, too many actions required")
@@ -661,9 +1089,9 @@ if __name__ == '__main__':
         if args.label is None:
             print("Error, missing label")
             raise RuntimeError
-        materialBudget_Simul_vs_Reco(args.reco, args.label, debug=False)
+        materialBudget_Simul_vs_Reco(args.reco, args.label, args.geometry, debug=False)
 
-    if args.single:
+    if args.single and not args.geometry_comparison:
         if args.detector is None:
             print("Error, missing detector")
             raise RuntimeError
@@ -674,8 +1102,8 @@ if __name__ == '__main__':
         required_ratio_plots = ["x_over_l_vs_eta", "x_over_l_vs_phi"]
 
         for p in required_2Dplots:
-            create2DPlots(args.detector, p)
+            create2DPlots(args.detector, p, args.geometry)
         for p in required_plots:
-            createCompoundPlots(args.detector, p)
+            createCompoundPlots(args.detector, p, args.geometry)
         for p in required_ratio_plots:
-            createRatioPlots(args.detector, p)
+            createRatioPlots(args.detector, p, args.geometry)

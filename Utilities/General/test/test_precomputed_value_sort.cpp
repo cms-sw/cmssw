@@ -3,7 +3,6 @@
 #include <vector>
 #include <iterator>
 #include <iostream>
-#include <functional>
 #include <cmath>
 
 using namespace std;
@@ -48,33 +47,37 @@ Point::Point(const Point& p): X(p.X), Y(p.Y){
 }
 
 
+// A trivial operation on Point
+float extractR1(const Point& p) {
+    return p.r();
+}
+
+// Same, but on Point*
+float extractR2(const Point* p) {
+    return p->r();
+}
+
+// Extract phi on Point*
+Phi extractPhi2(const Point* p) {
+    return p->phi();
+}
+
+// A trivial (useless!) binary predicate
+bool lessR(const double& a, const double& b) {
+    return a<b;
+}
+
+// A less trivial example: sorts angles 
+// within any range SMALLER THAN PI "counter-clockwise" 
+// even if the angles cross the pi boundary.
+// The result is undefined if the input values cover a range larger than pi!!!
+// note: Phi handles periodicity...
+bool lessDPhi(const Phi& a, const Phi& b) {
+    return b - a > 0.;
+}
 
  
 int main() {
-
-  // A trivial operation on Point
-  std::function<float(const Point&)> extractR1
-        {[](const Point& p){return p.r();}};
-
-  // Same, but on Point*
-  std::function<float(const Point*)> extractR2
-        {[](const Point* p){return p->r();}};
-
-  // Extract phi on Point*
-  std::function<Phi(const Point*)> extractPhi2
-        {[](const Point* p){return p->phi();}};
-
-  // A trivial (useless!) binary predicate
-  std::function<bool(const double& a, const double& b)> lessR
-        {[](const double& a, const double& b){return a<b;}};
-
-  // A less trivial example: sorts angles 
-  // within any range SMALLER THAN PI "counter-clockwise" 
-  // even if the angles cross the pi boundary.
-  // The result is undefined if the input values cover a range larger than pi!!!
-  // note: Phi handles periodicity...
-  std::function<bool(const Phi& a, const Phi& b)> lessDPhi
-        {[](const Phi& a, const Phi& b){return b - a > 0.;}};
 
   // Create a vector with some random Points
   vector<Point> v1;

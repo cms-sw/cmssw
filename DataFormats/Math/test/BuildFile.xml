@@ -35,7 +35,7 @@
 <bin   file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
 </bin>
 <bin   file="crossV4_t.cpp" name="DataFormatscrossV4_t">
-  <flags CXXFLAGS="-Ofast"/>
+  <use name="ofast-flag"/>
 </bin>
 <bin   file="sign_t.cpp" name="DataFormatsSign_t">
 </bin>
@@ -60,7 +60,7 @@
 <bin   file="Similarity_t.cpp" name="DataFormatsSimilarity_t">
 </bin>
 <bin   file="Similarity_t.cpp" name="DataFormatsSimilarityFast_t">
-<flags CXXFLAGS="-Ofast"/>
+  <use name="ofast-flag"/>
 </bin>
 
 <bin   file="MulSymMatrix_t.cpp" name="DataFormatsMulSymMatrix_t">
@@ -72,8 +72,7 @@
 <bin name="testDataFormatsMathPacking" file="testMiniFloat.cpp,testlogintpack.cpp,testRunner.cpp">
   <use   name="cppunit"/>
 </bin>
-
-<architecture match="_amd64_">
+<iftool name="cuda-gcc-support">
 <bin file="cudaAtan2Test.cu" name="DFM_Atan2">
   <use name="cuda"/>
   <use name="cuda-api-wrappers"/>
@@ -97,4 +96,4 @@
   <flags CUDA_FLAGS="--expt-relaxed-constexpr -fmad=false -ftz=false -prec-div=true -prec-sqrt=true"/>
   <flags CXXFLAGS="-ffp-contract=off"/>
 </bin>
-</architecture>
+</iftool>

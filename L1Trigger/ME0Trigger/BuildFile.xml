@@ -1,4 +1,5 @@
 <use   name="DataFormats/GEMDigi"/>
+<use   name="DataFormats/GEMRecHit"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>

@@ -18,6 +18,7 @@ loadRecoTauTagMVAsFromPrepDB = cms.ESSource( "PoolDBESSource",
                                              pfnPrefix        = cms.untracked.string( '' ),
                                              )
 
+####
 # register tau ID (= isolation) discriminator MVA
 tauIdDiscrMVA_trainings = {
     'tauIdMVAoldDMwoLT' : "tauIdMVAoldDMwoLT",
@@ -297,7 +298,8 @@ for ver2017 in tauIdDiscrMVA_2017_version:
         )
 
 ####
-# register anti-electron discriminator MVA
+## register anti-electron discriminator MVA
+# MVA5
 antiElectronDiscrMVA5_categories = {
      '0' : "gbr_NoEleMatch_woGwoGSF_BL",
      '1' : "gbr_NoEleMatch_woGwGSF_BL",
@@ -335,6 +337,7 @@ for category, gbrForestName in antiElectronDiscrMVA5_categories.items():
             )
         )
 
+# MVA6v1
 antiElectronDiscrMVA6_categories = {
      '0' : "gbr_NoEleMatch_woGwoGSF_BL",
      '2' : "gbr_NoEleMatch_wGwoGSF_BL",
@@ -363,7 +366,28 @@ for category, gbrForestName in antiElectronDiscrMVA6_categories.items():
                 label = cms.untracked.string("RecoTauTag_antiElectronMVA6%s_%s_WP%s" % (antiElectronDiscrMVA6_version, gbrForestName, WP))
             )
         )
+# MVA6v3
+# MB: categories as in MVA6v1
+antiElectronDiscrMVA6_2017_WPs = [ "eff98", "eff90", "eff80", "eff70", "eff60" ]
+antiElectronDiscrMVA6_2017_version = "v3_noeveto"
+for category, gbrForestName in antiElectronDiscrMVA6_categories.items():
+    loadRecoTauTagMVAsFromPrepDB.toGet.append(
+        cms.PSet(
+            record = cms.string('GBRWrapperRcd'),
+            tag = cms.string("RecoTauTag_antiElectronMVA6%s_%s" % (antiElectronDiscrMVA6_2017_version, gbrForestName)),
+            label = cms.untracked.string("RecoTauTag_antiElectronMVA6%s_%s" % (antiElectronDiscrMVA6_2017_version, gbrForestName))
+        )
+    )
+    for WP in antiElectronDiscrMVA6_2017_WPs:
+        loadRecoTauTagMVAsFromPrepDB.toGet.append(
+            cms.PSet(
+                record = cms.string('PhysicsTGraphPayloadRcd'),
+                tag = cms.string("RecoTauTag_antiElectronMVA6%s_%s_WP%s" % (antiElectronDiscrMVA6_2017_version, gbrForestName, WP)),
+                label = cms.untracked.string("RecoTauTag_antiElectronMVA6%s_%s_WP%s" % (antiElectronDiscrMVA6_2017_version, gbrForestName, WP))
+            )
+        )
     
+####
 # register anti-muon discriminator MVA
 antiMuonDiscrMVA_WPs = [ "eff99_5", "eff99_0", "eff98_0" ]
 antiMuonDiscrMVA_version = "v1"

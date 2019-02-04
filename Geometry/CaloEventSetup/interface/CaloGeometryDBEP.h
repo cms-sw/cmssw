@@ -16,7 +16,6 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
-#include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "CondFormats/GeometryObjects/interface/PCaloGeometry.h"
@@ -42,7 +41,7 @@ class CaloGeometryDBEP : public edm::ESProducer
       typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
       typedef CaloCellGeometry::Tr3D     Tr3D     ;
 
-      typedef std::shared_ptr<CaloSubdetectorGeometry > PtrType ;
+      using PtrType = std::unique_ptr<CaloSubdetectorGeometry >;
       typedef CaloSubdetectorGeometry::TrVec  TrVec      ;
       typedef CaloSubdetectorGeometry::DimVec DimVec     ;
       typedef CaloSubdetectorGeometry::IVec   IVec       ;
@@ -110,7 +109,7 @@ class CaloGeometryDBEP : public edm::ESProducer
 
 	 assert( dvec.size() == T::k_NumberOfShapes * T::k_NumberOfParametersPerShape ) ;
 
-	 PtrType ptr ( new T ) ;
+	 PtrType ptr = std::make_unique<T>();
 
 	 ptr->fillDefaultNamedParameters() ;
 
