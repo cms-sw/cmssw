@@ -349,18 +349,18 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry* cg      ,
       const CaloSubdetectorGeometry* bar(cg->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
       const EcalEndcapGeometry::OrderedListOfEBDetId* ol ( eeG->getClosestBarrelCells( id ) ) ;
       // assert ( nullptr != ol ) ;
-			if (ol != nullptr) {
-				for( unsigned int i ( 0 ) ; i != ol->size() ; ++i )
-				{
-				 fOvr << "           " << i << "  " << (*ol)[i] ;
-				 auto  other ( bar->getGeometry((*ol)[i]) ) ;
-				 const GlobalVector cv ( cell->getPosition()-origin ) ;
-				 const GlobalVector ov ( other->getPosition()-origin ) ;
-				 const double cosang ( cv.dot(ov)/(cv.mag()*ov.mag() ) ) ;
-				 const double angle ( CONVERT_TO( acos( std::abs(cosang) < 1. ? cosang : 1. ), deg) ) ;
-				 fOvr << ", angle = "<<angle<< std::endl ;
-				}
-			}
+      if (ol != nullptr) {
+        for( unsigned int i ( 0 ) ; i != ol->size() ; ++i )
+        {
+         fOvr << "           " << i << "  " << (*ol)[i] ;
+         auto  other ( bar->getGeometry((*ol)[i]) ) ;
+         const GlobalVector cv ( cell->getPosition()-origin ) ;
+         const GlobalVector ov ( other->getPosition()-origin ) ;
+         const double cosang ( cv.dot(ov)/(cv.mag()*ov.mag() ) ) ;
+         const double angle ( CONVERT_TO( acos( std::abs(cosang) < 1. ? cosang : 1. ), deg) ) ;
+         fOvr << ", angle = "<<angle<< std::endl ;
+        }
+      }
    }
 }
 
@@ -380,18 +380,18 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry* cg      ,
       fOvr << "Endcap Neighbors of Barrel id = " << id << std::endl ;
       const EcalBarrelGeometry::OrderedListOfEEDetId* ol ( ebG->getClosestEndcapCells( id ) ) ;
       // assert ( nullptr != ol ) ;
-			if (ol != nullptr) {
-				for( unsigned int i ( 0 ) ; i != ol->size() ; ++i )
-				{
-				 fOvr << "           " << i << "  " << (*ol)[i] ;
-				 auto  other ( ecap->getGeometry((*ol)[i]) ) ;
-				 const GlobalVector cv ( cell->getPosition()-origin ) ;
-				 const GlobalVector ov ( other->getPosition()-origin ) ;
-				 const double cosang ( cv.dot(ov)/(cv.mag()*ov.mag() ) ) ;
-				 const double angle ( CONVERT_TO( acos( std::abs(cosang) < 1. ? cosang : 1. ), deg) ) ;
-				 fOvr << ", angle = "<<angle<< std::endl ;
-				}
-			} else { fOvr << "endcap ecal ptr is null " << std::endl; }
+      if (ol != nullptr) {
+        for( unsigned int i ( 0 ) ; i != ol->size() ; ++i )
+        {
+         fOvr << "           " << i << "  " << (*ol)[i] ;
+         auto  other ( ecap->getGeometry((*ol)[i]) ) ;
+         const GlobalVector cv ( cell->getPosition()-origin ) ;
+         const GlobalVector ov ( other->getPosition()-origin ) ;
+         const double cosang ( cv.dot(ov)/(cv.mag()*ov.mag() ) ) ;
+         const double angle ( CONVERT_TO( acos( std::abs(cosang) < 1. ? cosang : 1. ), deg) ) ;
+         fOvr << ", angle = "<<angle<< std::endl ;
+        }
+      } else { fOvr << "endcap ecal ptr is null " << std::endl; }
    }      
 }
 
