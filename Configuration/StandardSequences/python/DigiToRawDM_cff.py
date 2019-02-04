@@ -52,18 +52,16 @@ run2_HCAL_2017.toModify( hcalRawDatauHTR,
 )
 
 
-if 'caloLayer1RawFed1354' in globals():
-    from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-
-    stage2L1Trigger.toModify(caloLayer1RawFed1354,
-                             ecalDigis= "DMEcalTriggerPrimitiveDigis",
-                             hcalDigis= "DMHcalTriggerPrimitiveDigis"
-                             )
-    stage2L1Trigger.toModify(caloLayer1RawFed1356,
-                             ecalDigis= "DMEcalTriggerPrimitiveDigis",
-                             hcalDigis= "DMHcalTriggerPrimitiveDigis"
-                             )
-    stage2L1Trigger.toModify(caloLayer1RawFed1358,
-                             ecalDigis= "DMEcalTriggerPrimitiveDigis",
-                             hcalDigis= "DMHcalTriggerPrimitiveDigis"
-                             )
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(caloLayer1RawFed1354,
+                         ecalDigis= "DMEcalTriggerPrimitiveDigis",
+                         hcalDigis= "DMHcalTriggerPrimitiveDigis"
+                         )
+stage2L1Trigger.toModify(caloLayer1RawFed1356,
+                         ecalDigis= "DMEcalTriggerPrimitiveDigis",
+                         hcalDigis= "DMHcalTriggerPrimitiveDigis"
+                         )
+stage2L1Trigger.toModify(caloLayer1RawFed1358,
+                         ecalDigis= "DMEcalTriggerPrimitiveDigis",
+                         hcalDigis= "DMHcalTriggerPrimitiveDigis"
+                         )
