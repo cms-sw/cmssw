@@ -137,7 +137,7 @@ void RctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, RctUnpackCollectio
     LogWarning("L1T") << "Did not find a SLink trailer!";
   }
   
-  unpackCTP7((uint32_t*)data, 0, sizeof(data), colls);
+  unpackCTP7(reinterpret_cast<const uint32_t*>(data), 0, sizeof(data), colls);
 
 }
 

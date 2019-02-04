@@ -18,11 +18,12 @@
 SensitiveDetector::SensitiveDetector(const std::string & iname, 
 				     const DDCompactView & cpv,
 				     const SensitiveDetectorCatalog & clg,
-				     edm::ParameterSet const & p) :
-  G4VSensitiveDetector(iname) 
+				     edm::ParameterSet const & p,
+				     bool calo) :
+  G4VSensitiveDetector(iname), m_isCalo(calo)
 {
   // for CMS hits
-  namesOfSD.push_back(iname);
+  m_namesOfSD.push_back(iname);
 
   // Geant4 hit collection
   collectionName.insert(iname);
@@ -63,7 +64,7 @@ Local3DPoint SensitiveDetector::InitialStepPosition(const G4Step * step, coordin
   const G4StepPoint * preStepPoint = step->GetPreStepPoint();
   const G4ThreeVector& globalCoordinates = preStepPoint->GetPosition();
   if (cd == WorldCoordinates) { return ConvertToLocal3DPoint(globalCoordinates); }
-  G4TouchableHistory * theTouchable=(G4TouchableHistory *)(preStepPoint->GetTouchable());
+  const G4TouchableHistory * theTouchable=static_cast<const G4TouchableHistory *>(preStepPoint->GetTouchable());
   const G4ThreeVector localCoordinates = theTouchable->GetHistory()
                   ->GetTopTransform().TransformPoint(globalCoordinates);
   return ConvertToLocal3DPoint(localCoordinates); 
@@ -111,8 +112,8 @@ TrackInformation* SensitiveDetector::cmsTrackInformation(const G4Track* aTrack)
 
 void SensitiveDetector::setNames(const std::vector<std::string>& hnames)
 {
-  namesOfSD.clear();
-  namesOfSD = hnames;
+  m_namesOfSD.clear();
+  m_namesOfSD = hnames;
 }
 
 void SensitiveDetector::NaNTrap(const G4Step* aStep) const

@@ -36,9 +36,12 @@ public:
 private:
   using Parameters = std::vector<edm::ParameterSet>;
   Parameters m_badComponentList;
+  Parameters m_badAPVsList;
   bool m_printDebug;
+  bool m_doByAPVs;
 
   std::vector<uint32_t> selectDetectors(const TrackerTopology* tTopo, const std::vector<uint32_t>& detIds) const;
+  std::vector<std::pair<uint32_t,std::vector<uint32_t> > > selectAPVs() const; 
 };
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -52,7 +55,9 @@ SiStripBadModuleConfigurableFakeESSource::SiStripBadModuleConfigurableFakeESSour
   findingRecord<SiStripBadModuleRcd>();
 
   m_badComponentList = iConfig.getUntrackedParameter<Parameters>("BadComponentList");
-  m_printDebug = iConfig.getUntrackedParameter<bool>("printDebug", false);
+  m_doByAPVs    = iConfig.getUntrackedParameter<bool>("doByAPVs", false);
+  m_badAPVsList = iConfig.getUntrackedParameter<Parameters>("BadAPVList");
+  m_printDebug  = iConfig.getUntrackedParameter<bool>("printDebug", false);
 }
 
 SiStripBadModuleConfigurableFakeESSource::~SiStripBadModuleConfigurableFakeESSource() {}
@@ -74,36 +79,76 @@ SiStripBadModuleConfigurableFakeESSource::produce(const SiStripBadModuleRcd& iRe
   auto quality = std::make_unique<SiStripQuality>();
 
   const edm::Service<SiStripDetInfoFileReader> reader;
-  std::vector<uint32_t> selDetIds{selectDetectors(tTopo.product(), reader->getAllDetIds())};
-  edm::LogInfo("SiStripQualityConfigurableFakeESSource")<<"[produce] number of selected dets to be removed " << selDetIds.size() <<std::endl;
 
-  std::stringstream ss;
-  for ( const auto selId : selDetIds ) {
-    SiStripQuality::InputVector theSiStripVector;
+  if(!m_doByAPVs){
+    std::vector<uint32_t> selDetIds{selectDetectors(tTopo.product(), reader->getAllDetIds())};
+    edm::LogInfo("SiStripQualityConfigurableFakeESSource")<<"[produce] number of selected dets to be removed " << selDetIds.size() <<std::endl;
 
-    unsigned short firstBadStrip{0};
-    unsigned short NconsecutiveBadStrips = reader->getNumberOfApvsAndStripLength(selId).first * 128;
-    unsigned int theBadStripRange{quality->encode(firstBadStrip,NconsecutiveBadStrips)};
+    std::stringstream ss;
+    for ( const auto selId : selDetIds ) {
+      SiStripQuality::InputVector theSiStripVector;
+    
+      unsigned short firstBadStrip{0};
+      unsigned short NconsecutiveBadStrips = reader->getNumberOfApvsAndStripLength(selId).first * 128;
+      unsigned int theBadStripRange{quality->encode(firstBadStrip,NconsecutiveBadStrips)};
+
+      if (m_printDebug) {
+	ss << "detid " << selId << " \t"
+	   << " firstBadStrip " << firstBadStrip << "\t "
+	   << " NconsecutiveBadStrips " << NconsecutiveBadStrips << "\t "
+	   << " packed integer " << std::hex << theBadStripRange  << std::dec
+	   << std::endl;
+      }
+
+      theSiStripVector.push_back(theBadStripRange);
+
+      if ( ! quality->put(selId,SiStripBadStrip::Range{theSiStripVector.begin(),theSiStripVector.end()}) ) {
+	edm::LogError("SiStripQualityConfigurableFakeESSource") << "[produce] detid already exists";
+      }
+    }
+    if (m_printDebug) {
+      edm::LogInfo("SiStripQualityConfigurableFakeESSource") << ss.str();
+    }
+    quality->cleanUp();
+    //quality->fillBadComponents();
+  } else {
+
+    std::vector<std::pair<uint32_t,std::vector<uint32_t> > >  selAPVs{selectAPVs()};
+    edm::LogInfo("SiStripQualityConfigurableFakeESSource")<<"[produce] number of selected dets to be removed " << selAPVs.size() <<std::endl;
+
+    std::stringstream ss;
+    for ( const auto selId : selAPVs ) {
+      SiStripQuality::InputVector theSiStripVector;
+      auto the_detid = selId.first;
+
+      for( const auto apv : selId.second ) {
+
+	unsigned short firstBadStrip = apv*128;
+	unsigned short NconsecutiveBadStrips = 128;
+	unsigned int theBadStripRange{quality->encode(firstBadStrip,NconsecutiveBadStrips)};
+	
+	if (m_printDebug) {
+	  ss << "detid " << the_detid << " \t"
+	     << " firstBadStrip " << firstBadStrip << "\t "
+	     << " NconsecutiveBadStrips " << NconsecutiveBadStrips << "\t "
+	     << " packed integer " << std::hex << theBadStripRange  << std::dec
+	     << std::endl;
+	}
+
+	theSiStripVector.push_back(theBadStripRange);
+      }
+
+      if ( ! quality->put(the_detid,SiStripBadStrip::Range{theSiStripVector.begin(),theSiStripVector.end()}) ) {
+	edm::LogError("SiStripQualityConfigurableFakeESSource") << "[produce] detid already exists";
+      }
+    } // loop on the packed list of detid/apvs
 
     if (m_printDebug) {
-      ss << "detid " << selId << " \t"
-	 << " firstBadStrip " << firstBadStrip << "\t "
-	 << " NconsecutiveBadStrips " << NconsecutiveBadStrips << "\t "
-	 << " packed integer " << std::hex << theBadStripRange  << std::dec
-	 << std::endl;
+      edm::LogInfo("SiStripQualityConfigurableFakeESSource") << ss.str();
     }
+    quality->cleanUp();
 
-    theSiStripVector.push_back(theBadStripRange);
-
-    if ( ! quality->put(selId,SiStripBadStrip::Range{theSiStripVector.begin(),theSiStripVector.end()}) ) {
-      edm::LogError("SiStripQualityConfigurableFakeESSource") << "[produce] detid already exists";
-    }
-  }
-  if (m_printDebug) {
-    edm::LogInfo("SiStripQualityConfigurableFakeESSource") << ss.str();
-  }
-  quality->cleanUp();
-  //quality->fillBadComponents();
+  } // do it by APVs
 
   if (m_printDebug){
     std::stringstream ss1;
@@ -132,6 +177,22 @@ namespace {
     return subDet;
   }
 }
+ 
+std::vector<std::pair<uint32_t,std::vector<uint32_t> > > SiStripBadModuleConfigurableFakeESSource::selectAPVs() const
+{
+    
+  std::vector<std::pair<uint32_t,std::vector<uint32_t> > > selList;
+  selList.clear();
+
+  for ( const auto& badAPV : m_badAPVsList ) {
+    const uint32_t det{badAPV.getParameter<uint32_t>("DetId")};
+    std::vector<uint32_t> apvs{badAPV.getParameter<std::vector<uint32_t> >("APVs")};
+    auto pair = std::make_pair(det,apvs);
+    selList.push_back(pair);
+  }
+  return selList;
+}
+
 
 std::vector<uint32_t> SiStripBadModuleConfigurableFakeESSource::selectDetectors(const TrackerTopology* tTopo, const std::vector<uint32_t>& detIds) const
 {

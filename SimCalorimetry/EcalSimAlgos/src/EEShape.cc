@@ -20,6 +20,7 @@ EEShape::fillShape(float &time_interval, double &m_thresh, EcalShapeBase::DVec& 
 	m_thresh = esps->endcap_thresh;
     } else
     {
+	m_thresh = 0.00025;
         time_interval = 1.0; 
         aVec.reserve(500);
    	aVec = {9.09091e-05,

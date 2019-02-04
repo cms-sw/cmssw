@@ -14,6 +14,3 @@ validationMuonRPCDigis = DQMEDAnalyzer('RPCDigiValid',
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(validationMuonRPCDigis, simHitTag = "MuonSimHits:MuonRPCHits")
-
-from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-premix_stage2.toModify(validationMuonRPCDigis, rpcDigiTag = "mixData")

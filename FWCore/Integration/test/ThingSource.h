@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 namespace edmtest {
   class ThingSource : public edm::ProducerSourceBase {
@@ -31,6 +32,7 @@ namespace edmtest {
 
     void beginLuminosityBlock(edm::LuminosityBlock& lb) override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     //called internally, not by the framework

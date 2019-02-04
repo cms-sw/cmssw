@@ -5,12 +5,21 @@
 #include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerTraits.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
@@ -54,6 +63,7 @@ namespace mtd_digitizer {
 	       edm::ConsumesCollector& iC,
 	       edm::ProducerBase& parent) :
     MTDDigitizerBase(config,iC,parent),
+    geom_(nullptr),
     deviceSim_( config.getParameterSet("DeviceSimulation") ),
     electronicsSim_( config.getParameterSet("ElectronicsSimulation") ),        
     maxSimHitsAccTime_( config.getParameter< uint32_t >("maxSimHitsAccTime") ) { }
@@ -80,11 +90,13 @@ namespace mtd_digitizer {
     void endRun() override {}
     
   private :
-    
+
     void resetSimHitDataAccumulator() {
       MTDSimHitDataAccumulator().swap(simHitAccumulator_);
     }
     
+    const MTDGeometry* geom_;
+
     // implementations
     DeviceSim deviceSim_;           // processes a given simhit into an entry in a MTDSimHitDataAccumulator
     ElectronicsSim electronicsSim_; // processes a MTDSimHitDataAccumulator into a BTLDigiCollection/ETLDigiCollection
@@ -165,9 +177,15 @@ namespace mtd_digitizer {
     
 
   template<class Traits>
-  void MTDDigitizer<Traits>::beginRun(const edm::EventSetup & es) {
+  void MTDDigitizer<Traits>::beginRun(const edm::EventSetup & es) {    
+
+    edm::ESHandle<MTDGeometry> geom;
+    es.get<MTDDigiGeometryRecord>().get(geom);
+    geom_ = geom.product();
+
     deviceSim_.getEventSetup(es);
     electronicsSim_.getEventSetup(es);
+
   }
 }
 

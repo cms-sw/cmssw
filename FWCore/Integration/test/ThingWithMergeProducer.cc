@@ -188,7 +188,7 @@ namespace edmtest {
     desc.addUntracked<bool>("changeIsEqualValue", false);
     desc.addUntracked<std::vector<std::string>>("labelsToGet", std::vector<std::string>());
     desc.addUntracked<bool>("noPut", false);
-    descriptions.add("otherThingAnalyzer", desc);
+    descriptions.add("thingWithMergeProducer", desc);
   }
 
 }

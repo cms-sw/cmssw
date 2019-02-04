@@ -57,7 +57,7 @@ public:
   L1RCTOmdsFedVectorProducer(const edm::ParameterSet&);
   ~L1RCTOmdsFedVectorProducer() override;
   
-  typedef std::shared_ptr<RunInfo> ReturnType;
+  using ReturnType = std::unique_ptr<RunInfo>;
   
   ReturnType produce(const RunInfoRcd&);
 private:
@@ -111,9 +111,6 @@ L1RCTOmdsFedVectorProducer::produce(const RunInfoRcd& iRecord)
 {
   //  std::cout << "ENTERING L1RCTOmdsFedVectorProducer::produce()" << std::endl;
 
-  using namespace edm::es;
-  std::shared_ptr<RunInfo> pRunInfo ;
-
   //  std::cout << "GETTING FED VECTOR FROM OMDS" << std::endl;
   
   // GETTING ALREADY-EXISTING RUNINFO OUT OF ES TO FIND OUT RUN NUMBER
@@ -123,7 +120,7 @@ L1RCTOmdsFedVectorProducer::produce(const RunInfoRcd& iRecord)
   int runNumber = summary->m_run; 
   
   // CREATING NEW RUNINFO WHICH WILL GET NEW FED VECTOR AND BE RETURNED
-  pRunInfo = std::make_shared<RunInfo>(); 
+  auto pRunInfo = std::make_unique<RunInfo>(); 
   
   
   // DO THE DATABASE STUFF

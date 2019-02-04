@@ -18,30 +18,31 @@
     <Vector name="WaferName" type="string" nEntries="2">
       hgcalwafer:HGCalEEWaferFine, hgcalwafer:HGCalEEWaferCoarse</Vector>
     <Vector name="CoverName" type="string" nEntries="4">
-      hgcal:HGCalEEPCB, hgcal:HGCalEEKapton, hgcal:HGCalEEAbsorber, hgcal:HGCalEECuAbsorber</Vector>
+      hgcal:HGCalEEPCB, hgcal:HGCalEEKapton, hgcal:HGCalEEAbsorber, 
+      hgcal:HGCalEECuAbsorber</Vector>
     <Vector name="MaterialNames" type="string" nEntries="19">
-      materials:Air, materials:Air, materials:Air, 
-      materials:Air, materials:StainlessSteel, materials:Lead, 
-      materials:Copper, materials:Air, materials:Aluminium, 
-      materials:Air, materials:Air,   materials:Air,
-      materials:Air, materials:Air, materials:Air, 
-      materials:Air, materials:Air, materials:Air, 
+      materials:Air,    materials:Air,            materials:Air, 
+      materials:Air,    materials:StainlessSteel, materials:Lead, 
+      materials:Copper, materials:Air,            materials:Aluminium, 
+      materials:Air,    materials:Air,            materials:Air,
+      materials:Air,    materials:Air,            materials:Air, 
+      materials:Air,    materials:Air,            materials:Air, 
       materials:Air</Vector>
     <Vector name="VolumeNames" type="string" nEntries="19">
-      EEPCB,      EEKapton,   EECuWShield, 
-      EECuShield,  EEFeAbsorber, EEPbAbsorber, 
-      EECuHeatShield,EESensitive, EEAlcase, 
-      EEgap1,      EEgap2,      EEgap3,       
-      EEgap4,      EEgap5,      EEgap6,
-      EEgap7,      EEgap8,      EEgap9,
+      EEPCB,          EEKapton,     EECuWShield, 
+      EECuShield,     EEFeAbsorber, EEPbAbsorber, 
+      EECuHeatShield, EESensitive,  EEAlcase, 
+      EEgap1,         EEgap2,       EEgap3,       
+      EEgap4,         EEgap5,       EEgap6,
+      EEgap7,         EEgap8,       EEgap9,
       EEgap10</Vector>
     <Vector name="Thickness" type="numeric" nEntries="19">
-      [hgcal:thPCB], [hgcal:thKapton], [hgcal:thAbsEE], 
-      [hgcal:thAbsCuEE], 0.3*mm,        4.9*mm,
-      6.0*mm,           0.10*mm,        2.1*mm, 
-      4.6*mm,           5.4*mm,         6.2*mm, 
-      6.7*mm,           7.8*mm,         8.0*mm, 
-      10.6*mm,          15.2*mm,        79.96*mm,
+      [hgcal:thPCB],    [hgcal:thKapton], [hgcal:thAbsEE], 
+      [hgcal:thAbsEE],  0.3*mm,           4.9*mm,
+      6.0*mm,           0.10*mm,          2.1*mm, 
+      4.6*mm,           5.4*mm,           6.2*mm, 
+      6.7*mm,           7.8*mm,           8.0*mm, 
+      10.6*mm,          15.2*mm,          79.96*mm,
       90.6*mm</Vector>
     <Vector name="Layers" type="numeric" nEntries="15"> 
       19, 18, 18, 18, 18, 18, 18, 20, 18, 20, 18, 19, 18, 18, 2</Vector>

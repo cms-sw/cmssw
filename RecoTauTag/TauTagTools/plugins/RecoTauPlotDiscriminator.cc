@@ -6,8 +6,6 @@
  * Author: Evan K. Friis (UC Davis)
  */
 
-#include <boost/foreach.hpp>
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -65,7 +63,7 @@ RecoTauPlotDiscriminator::RecoTauPlotDiscriminator(const edm::ParameterSet &pset
     pileupVerticesSrc_ = pset.getParameter<edm::InputTag>("pileupVertices");
   }
 
-  BOOST_FOREACH(const edm::InputTag &tag, discs_) {
+  for(auto const& tag : discs_) {
     HistoMap discMap;
     discMap["plain"] =
         fs->make<TH1F>(tag.label().c_str(), tag.label().c_str(),
@@ -143,9 +141,9 @@ RecoTauPlotDiscriminator::analyze(const edm::Event &evt,
   }
 
   // Plot the discriminator output for each of our taus
-  BOOST_FOREACH(const reco::PFTauRef& tau, inputRefs) {
+  for(auto const& tau : inputRefs) {
     // Plot each discriminator
-    BOOST_FOREACH(const edm::InputTag &tag, discs_) {
+    for(auto const& tag : discs_) {
       edm::Handle<reco::PFTauDiscriminator> discHandle;
       evt.getByLabel(tag, discHandle);
       //const HistoMap &discHistos = disc.second;

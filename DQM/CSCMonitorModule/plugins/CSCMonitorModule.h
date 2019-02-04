@@ -127,13 +127,7 @@ class CSCMonitorModule: public DQMEDAnalyzer, public cscdqm::MonitorObjectProvid
 
   protected:
 
-    void beginJob() { }
-    // void beginRun(const edm::Run& r, const edm::EventSetup& c);
-    void setup() { }
     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-    void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override  { }
-    void endRun(const edm::Run& r, const edm::EventSetup& c) override { }
-    void endJob() { }
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 };

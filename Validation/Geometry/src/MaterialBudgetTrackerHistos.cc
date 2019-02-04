@@ -29,15 +29,15 @@ void MaterialBudgetTrackerHistos::book()
   float rMax = 1400.;
   
   // total X0
-  hmgr->addHistoProf1( new TProfile("10", "MB prof Eta;#eta;x/X_{0} ", 250, -5., 5. ) );
+  hmgr->addHistoProf1( new TProfile("10", "MB prof Eta [Total];#eta;x/X_{0} ", 250, -5., 5. ) );
   hmgr->addHisto1( new TH1F("11", "Eta " , 501, -5., 5. ) );
-  hmgr->addHistoProf1( new TProfile("20", "MB prof Phi;#varphi [rad];x/X_{0} ", 180, -3.1416, 3.1416 ) );
+  hmgr->addHistoProf1( new TProfile("20", "MB prof Phi [Total];#varphi [rad];x/X_{0} ", 180, -3.1416, 3.1416 ) );
   hmgr->addHisto1( new TH1F("21", "Phi " , 180, -3.1416, 3.1416 ) );
-  hmgr->addHistoProf2( new TProfile2D("30", "MB prof Eta  Phi;#eta;#varphi;x/X_{0} ", 250, -5., 5., 180, -3.1416, 3.1416 ) );
+  hmgr->addHistoProf2( new TProfile2D("30", "MB prof Eta  Phi [Total];#eta;#varphi;x/X_{0} ", 250, -5., 5., 180, -3.1416, 3.1416 ) );
   hmgr->addHisto2( new TH2F("31", "Eta vs Phi " , 501, -5., 5., 180, -3.1416, 3.1416 ) );
-  hmgr->addHistoProf1( new TProfile("40", "MB prof R;R [mm];x/X_{0} ", 200, 0., 2000. ) );
+  hmgr->addHistoProf1( new TProfile("40", "MB prof R [Total];R [mm];x/X_{0} ", 200, 0., 2000. ) );
   hmgr->addHisto1( new TH1F("41", "R " , 200, 0., 2000. ) );
-  hmgr->addHistoProf2( new TProfile2D("50", "MB prof sum R  z;z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("50", "MB prof sum R  z [Total];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("999", "Tot track length for MB", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("51", "R vs z " , nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("60", "MB prof local R  z;z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
@@ -138,17 +138,17 @@ void MaterialBudgetTrackerHistos::book()
   //
   
   // total Lambda0
-  hmgr->addHistoProf1( new TProfile("1010", "MB prof Eta;#eta;#lambda/#lambda_{0} ", 250, -5., 5. ) );
+  hmgr->addHistoProf1( new TProfile("1010", "MB prof Eta [Total];#eta;#lambda/#lambda_{0} ", 250, -5., 5. ) );
   hmgr->addHisto1( new TH1F("1011", "Eta " , 501, -5., 5. ) );
-  hmgr->addHistoProf1( new TProfile("1020", "MB prof Phi;#varphi [rad];#lambda/#lambda_{0} ", 180, -3.1416, 3.1416 ) );
+  hmgr->addHistoProf1( new TProfile("1020", "MB prof Phi [Total];#varphi [rad];#lambda/#lambda_{0} ", 180, -3.1416, 3.1416 ) );
   hmgr->addHisto1( new TH1F("1021", "Phi " , 180, -3.1416, 3.1416 ) );
-  hmgr->addHistoProf2( new TProfile2D("1030", "MB prof Eta  Phi;#eta;#varphi;#lambda/#lambda_{0} ", 250, -5., 5., 180, -3.1416, 3.1416 ) );
+  hmgr->addHistoProf2( new TProfile2D("1030", "MB prof Eta  Phi [Total];#eta;#varphi;#lambda/#lambda_{0} ", 250, -5., 5., 180, -3.1416, 3.1416 ) );
   hmgr->addHisto2( new TH2F("1031", "Eta vs Phi " , 501, -5., 5., 180, -3.1416, 3.1416 ) );
   
   // rr
-  hmgr->addHistoProf1( new TProfile("1040", "MB prof R;R [mm];#lambda/#lambda_{0} ", 200, 0., 2000. ) );
+  hmgr->addHistoProf1( new TProfile("1040", "MB prof R [Total];R [mm];#lambda/#lambda_{0} ", 200, 0., 2000. ) );
   hmgr->addHisto1( new TH1F("1041", "R " , 200, 0., 2000. ) );
-  hmgr->addHistoProf2( new TProfile2D("1050", "MB prof sum R  z;z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("1050", "MB prof sum R  z [Total];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("1999", "Tot track length for l0", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("1051", "R vs z " , nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("1060", "MB prof local R  z;z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );

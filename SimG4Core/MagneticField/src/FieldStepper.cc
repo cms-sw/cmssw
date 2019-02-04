@@ -16,44 +16,52 @@
 #include "G4HelixHeum.hh"
 #include "G4NystromRK4.hh"
 
-using namespace sim;
-
-FieldStepper::FieldStepper(G4Mag_UsualEqRhs * eq, double del) :
-  G4MagIntegratorStepper(eq, 6), theEquation(eq), delta(del) {}
-
-FieldStepper::~FieldStepper() {}
-
-void FieldStepper::Stepper(const double y[],const double dydx[],double h,
-			      double yout[],double yerr[])
-{ theStepper->Stepper(y,dydx,h,yout,yerr); }
-
-double FieldStepper::DistChord() const { return theStepper->DistChord(); }
-
-int FieldStepper::IntegratorOrder() const
-{ return theStepper->IntegratorOrder(); }
-
-G4MagIntegratorStepper * FieldStepper::select(const std::string & ss)
+FieldStepper::FieldStepper(G4Mag_UsualEqRhs * eq, double del, const std::string& nam) 
+  : G4MagIntegratorStepper(eq, 6), theEquation(eq), theDelta(del) 
 {
-    if      (ss == "G4ClassicalRK4")       theStepper = new G4ClassicalRK4(theEquation);
-    else if (ss == "G4NystromRK4")         theStepper = new G4NystromRK4(theEquation, delta);
-    else if (ss == "G4SimpleRunge")        theStepper = new G4SimpleRunge(theEquation);
-    else if (ss == "G4SimpleHeum")         theStepper = new G4SimpleHeum(theEquation);
-    else if (ss == "G4CashKarpRKF45")      theStepper = new G4CashKarpRKF45(theEquation);
-    else if (ss == "G4DormandPrince745")   theStepper = new G4DormandPrince745(theEquation);
-    else if (ss == "G4BogackiShampine45")  theStepper = new G4BogackiShampine45(theEquation);
-    else if (ss == "G4TsitourasRK45")      theStepper = new G4TsitourasRK45(theEquation);
-    else if (ss == "G4ImplicitEuler")      theStepper = new G4ImplicitEuler(theEquation);
-    else if (ss == "G4HelixExplicitEuler") theStepper = new G4HelixExplicitEuler(theEquation);
-    else if (ss == "G4HelixImplicitEuler") theStepper = new G4HelixImplicitEuler(theEquation);
-    else if (ss == "G4HelixSimpleRunge")   theStepper = new G4HelixSimpleRunge(theEquation);
-    else if (ss == "G4HelixHeum")          theStepper = new G4HelixHeum(theEquation);
-    else
+  selectStepper(nam);
+}
+
+FieldStepper::~FieldStepper() 
+{}
+
+void FieldStepper::Stepper(const G4double y[], const G4double dydx[], G4double h,
+			   G4double yout[], G4double yerr[])
+{ 
+  theStepper->Stepper(y,dydx,h,yout,yerr); 
+}
+
+G4double FieldStepper::DistChord() const 
+{ 
+  return theStepper->DistChord(); 
+}
+
+G4int FieldStepper::IntegratorOrder() const
+{ 
+  return theStepper->IntegratorOrder(); 
+}
+
+void FieldStepper::selectStepper(const std::string & ss)
+{    
+  if      (ss == "G4ClassicalRK4")       theStepper = new G4ClassicalRK4(theEquation);
+  else if (ss == "G4NystromRK4")         theStepper = new G4NystromRK4(theEquation, theDelta);
+  else if (ss == "G4SimpleRunge")        theStepper = new G4SimpleRunge(theEquation);
+  else if (ss == "G4SimpleHeum")         theStepper = new G4SimpleHeum(theEquation);
+  else if (ss == "G4CashKarpRKF45")      theStepper = new G4CashKarpRKF45(theEquation);
+  else if (ss == "G4DormandPrince745")   theStepper = new G4DormandPrince745(theEquation);
+  else if (ss == "G4BogackiShampine45")  theStepper = new G4BogackiShampine45(theEquation);
+  else if (ss == "G4TsitourasRK45")      theStepper = new G4TsitourasRK45(theEquation);
+  else if (ss == "G4ImplicitEuler")      theStepper = new G4ImplicitEuler(theEquation);
+  else if (ss == "G4HelixExplicitEuler") theStepper = new G4HelixExplicitEuler(theEquation);
+  else if (ss == "G4HelixImplicitEuler") theStepper = new G4HelixImplicitEuler(theEquation);
+  else if (ss == "G4HelixSimpleRunge")   theStepper = new G4HelixSimpleRunge(theEquation);
+  else if (ss == "G4HelixHeum")          theStepper = new G4HelixHeum(theEquation);
+  else
     {
       edm::LogWarning("SimG4CoreMagneticField") 
         << " FieldStepper <" << ss << "> is not known, defaulting to G4ClassicalRK4 ";
       theStepper = new G4ClassicalRK4(theEquation);
     }
-    edm::LogInfo("SimG4CoreMagneticField") 
-      << "### FieldStepper: <" << ss << ">";
-    return theStepper;
+  edm::LogVerbatim("SimG4CoreMagneticField") 
+    << "### FieldStepper: <" << ss << ">";
 }

@@ -135,7 +135,8 @@ void fastsim::EnergyLoss::interact(fastsim::Particle & particle, const Simplifie
     double newE = particle.momentum().e() - dedx;
 
     // Particle is stopped
-    if(newE < particle.momentum().mass()){
+    double eDiff2 = newE * newE - m2;
+    if(eDiff2 < 0){
         particle.momentum().SetXYZT(0.,0.,0.,0.);
         // The energy is deposited in the detector
         // Assigned with SimHit (if active layer) -> see TrackerSimHitProducer
@@ -144,7 +145,7 @@ void fastsim::EnergyLoss::interact(fastsim::Particle & particle, const Simplifie
     }
 
     // Relative change in momentum
-    double fac  = std::sqrt((newE * newE - m2) / p2);    
+    double fac  = std::sqrt(eDiff2 / p2);
 
     // The energy is deposited in the detector
     // Assigned with SimHit (if active layer) -> see TrackerSimHitProducer

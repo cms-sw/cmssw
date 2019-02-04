@@ -23,3 +23,12 @@ OutALCARECOHcalCalMinBias_noDrop = cms.PSet(
 import copy
 OutALCARECOHcalCalMinBias=copy.deepcopy(OutALCARECOHcalCalMinBias_noDrop)
 OutALCARECOHcalCalMinBias.outputCommands.insert(0, "drop *")
+
+## customizations for the pp_on_AA_2018 eras
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+OutALCARECOHcalCalMinBiasHI = copy.deepcopy(OutALCARECOHcalCalMinBias_noDrop)
+OutALCARECOHcalCalMinBiasHI.outputCommands.insert(0, "drop *")
+OutALCARECOHcalCalMinBiasHI.outputCommands.insert(6, "keep HFRecHitsSorted_hfreco_*_*")
+
+#Specify to use HI output for the pp_on_AA_2018 eras
+pp_on_AA_2018.toReplaceWith(OutALCARECOHcalCalMinBias,OutALCARECOHcalCalMinBiasHI)

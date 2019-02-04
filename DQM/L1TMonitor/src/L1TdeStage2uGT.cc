@@ -113,7 +113,7 @@ void L1TdeStage2uGT::analyze(const edm::Event & event, const edm::EventSetup & e
 
 	 // skip bits which emulator does not handle (only skiped for bx !=0)
 	 bool isBlackListed(false);
-	 BOOST_FOREACH(const std::string & pattern, triggerBlackList_) {
+	 for(auto const& pattern : triggerBlackList_) {
 	   //std::cout << pattern << std::endl;
 	   if (edm::is_glob(pattern)) {
 	     std::regex regexp(edm::glob2reg(pattern));

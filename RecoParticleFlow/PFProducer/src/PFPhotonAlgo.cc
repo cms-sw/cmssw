@@ -32,7 +32,7 @@ PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,
 			   bool useReg,
 			   std::string X0_Map,
 			   const reco::Vertex& primary,
-			   const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+			   const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
                            double sumPtTrackIsoForPhoton,
                            double sumPtTrackIsoSlopeForPhoton
 			   ) : 
@@ -911,8 +911,6 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     pfCandidates->push_back(photonCand);
     // ... and reset the vector
     elemsToLock.resize(0);
-    hasConvTrack=false;
-    hasSingleleg=false;
   } // end of loops over all elements in block
   
   return;

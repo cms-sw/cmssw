@@ -2,67 +2,67 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DetectorDescription/DDCMS/interface/DDRegistry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
+#include "DetectorDescription/DDCMS/interface/DDDetector.h"
+#include "DetectorDescription/DDCMS/interface/DDVectorRegistryRcd.h"
+#include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
 #include "DD4hep/Detector.h"
 
 #include <memory>
 #include <string>
 
-class DDCMSDetector : public edm::one::EDAnalyzer<> {
+using namespace std;
+using namespace cms;
+using namespace edm;
+using namespace dd4hep;
+
+class DDCMSDetector : public one::EDAnalyzer<> {
 public:
-  explicit DDCMSDetector(const edm::ParameterSet& p);
+  explicit DDCMSDetector(const ParameterSet& p);
 
   void beginJob() override {}
-  void analyze( edm::Event const& iEvent, edm::EventSetup const& ) override;
+  void analyze(Event const& iEvent, EventSetup const&) override;
   void endJob() override;
 
-private:
-  
-  std::string m_confGeomXMLFiles;
-  std::vector< std::string > m_relFiles;
-  std::vector< std::string > m_files;
+private:  
+  const ESInputTag m_tag;
 };
 
-DDCMSDetector::DDCMSDetector( const edm::ParameterSet& iConfig )
-{
-  m_confGeomXMLFiles = edm::FileInPath( iConfig.getParameter<std::string>( "confGeomXMLFiles" )).fullPath();
-  
-  m_relFiles = iConfig.getParameter<std::vector<std::string> >( "geomXMLFiles" );
-  for( const auto& it : m_relFiles ) {
-    edm::FileInPath fp( it );
-    m_files.emplace_back( fp.fullPath());
-  }
-}
+DDCMSDetector::DDCMSDetector(const ParameterSet& iConfig)
+  : m_tag(iConfig.getParameter<ESInputTag>("DDDetector"))
+{}
 
 void
-DDCMSDetector::analyze( const edm::Event&, const edm::EventSetup& )
+DDCMSDetector::analyze(const Event&, const EventSetup& iEventSetup)
 {
-  dd4hep::Detector& description = dd4hep::Detector::getInstance();
+  ESTransientHandle<DDDetector> det;
+  iEventSetup.get<DetectorDescriptionRcd>().get(m_tag.module(), det);
 
-  std::string name( "DD4hep_CompactLoader" );
+  LogInfo("DDCMS") << "Iterate over the detectors:\n";
+  for( auto const& it : det->description()->detectors()) {
+    dd4hep::DetElement det(it.second);
+    LogInfo("DDCMS") << it.first << ": " << det.path() << "\n";
+  }
+  LogInfo("DDCMS") << "..done!\n";
+  
+  ESTransientHandle<DDVectorRegistry> registry;
+  iEventSetup.get<DDVectorRegistryRcd>().get(m_tag.module(), registry);
 
-  const char* files[] = { m_confGeomXMLFiles.c_str(), nullptr };
-  description.apply( name.c_str(), 2, (char**)files );
-
-  for( const auto& it : m_files )
-    std::cout << it << std::endl;
-
-  DDVectorRegistry registry;
-  std::cout << "DD Vector Registry size: " << registry->size() << "\n";
-  for( const auto& p: *registry ) {
-    std::cout << " " << p.first << " => ";
+  LogInfo("DDCMS") << "DD Vector Registry size: " << registry->vectors.size() << "\n";
+  for( const auto& p: registry->vectors ) {
+    LogInfo("DDCMS") << " " << p.first << " => ";
     for( const auto& i : p.second )
-      std::cout << i << ", ";
-    std::cout << '\n';
+      LogInfo("DDCMS") << i << ", ";
+    LogInfo("DDCMS") << '\n';
   }
 }
 
 void
 DDCMSDetector::endJob()
 {
-  // FIXME: It does not clean up:
-  // dd4hep::Detector::getInstance().destroyInstance();
 }
 
 DEFINE_FWK_MODULE( DDCMSDetector );

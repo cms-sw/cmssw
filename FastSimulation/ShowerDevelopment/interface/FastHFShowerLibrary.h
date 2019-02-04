@@ -60,7 +60,7 @@ private:
   const edm::ParameterSet fast;
   std::unique_ptr<HFShowerLibrary> hfshower;
   std::unique_ptr<HcalNumberingFromDDD> numberingFromDDD;
-  HcalDDDSimConstants* hcalConstants;
+  const HcalDDDSimConstants* hcalConstants;
   HcalNumberingScheme numberingScheme;
   
   std::map<CaloHitID,float> hitMap;

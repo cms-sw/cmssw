@@ -53,7 +53,7 @@ public:
   L1TGlobalPrescalesVetosESProducer(const edm::ParameterSet&);
   ~L1TGlobalPrescalesVetosESProducer() override;
 
-  typedef std::shared_ptr<L1TGlobalPrescalesVetos> ReturnType;
+  using ReturnType = std::unique_ptr<L1TGlobalPrescalesVetos>;
 
   ReturnType produce(const L1TGlobalPrescalesVetosRcd&);
 
@@ -394,12 +394,8 @@ L1TGlobalPrescalesVetosESProducer::produce(const L1TGlobalPrescalesVetosRcd& iRe
     }
   }
 
-  // write the condition format to the event setup via the helper:
-  using namespace edm::es;
   // Return copy so that we don't give away our owned pointer to framework
-  auto pMenu = std::make_shared<L1TGlobalPrescalesVetos>(*data_.getWriteInstance());
-
-  return pMenu;
+  return std::make_unique<L1TGlobalPrescalesVetos>(*data_.getWriteInstance());
 }
 
 //define this as a plug-in

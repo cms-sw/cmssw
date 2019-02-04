@@ -18,7 +18,6 @@
 
 // system include files
 #include <memory>
-#include <functional>
 #include <unistd.h>
 
 
@@ -135,29 +134,24 @@ private:
   };
   typedef std::vector<L1TCompare::RctObject> RctObjectCollection;
 
-  // functor for sorting the above collection based on rank.
+  // function for sorting the above collection based on rank.
   // note it's then reverse-sorted (low to high) so you have to use
   // the rbegin() and rend() and reverse_iterators.
-  class RctObjectComp: public std::binary_function<L1TCompare::RctObject, 
-						   L1TCompare::RctObject, bool>
+  static bool rctObjectComp(const RctObject &a, const RctObject &b)
   {
-  public:
-    bool operator()(const RctObject &a, const RctObject &b) const
-    {
-      // for equal rank I don't know what the appropriate sorting is.
-      if ( a.rank_ == b.rank_ ) {
-	if ( a.eta_ == b.eta_ ) {
-	  return a.phi_ < b.phi_;
-	}
-	else {
-	  return a.eta_ < b.eta_;
-	}
+    // for equal rank I don't know what the appropriate sorting is.
+    if ( a.rank_ == b.rank_ ) {
+      if ( a.eta_ == b.eta_ ) {
+        return a.phi_ < b.phi_;
       }
       else {
-	return a.rank_ < b.rank_;
+        return a.eta_ < b.eta_;
       }
     }
-  };
+    else {
+      return a.rank_ < b.rank_;
+    }
+  }
 
 
 };

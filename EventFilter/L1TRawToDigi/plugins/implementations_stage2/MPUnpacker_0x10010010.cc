@@ -315,6 +315,11 @@ namespace stage2 {
        res4_->push_back(0,tau);
      }
 
+     // check block size to avoid problems with test run 272133
+     // which used wrong fw version and doesn't have aux output
+
+     if(block.header().getSize()>faux){
+
       //      ===== Aux =====
       raw_data = block.payload()[faux];
 
@@ -356,6 +361,7 @@ namespace stage2 {
       default:
         break;
       }
+     }
 
      return true;
    }

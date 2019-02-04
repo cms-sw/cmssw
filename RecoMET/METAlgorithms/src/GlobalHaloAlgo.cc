@@ -48,13 +48,10 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
   float METOverSumEt = TheCaloMET.sumEt() ? TheCaloMET.pt() / TheCaloMET.sumEt() : 0 ;
   TheGlobalHaloData.SetMETOverSumEt(METOverSumEt);
 
-  //int EcalOverlapping_CSCRecHits[73];
-  //int EcalOverlapping_CSCSegments[73];
-
-  int EcalOverlapping_CSCRecHits[361];
-  int EcalOverlapping_CSCSegments[361];
-  int HcalOverlapping_CSCRecHits[73];
-  int HcalOverlapping_CSCSegments[73];
+  int EcalOverlapping_CSCRecHits[361] = {};
+  int EcalOverlapping_CSCSegments[361] = {};
+  int HcalOverlapping_CSCRecHits[73] = {};
+  int HcalOverlapping_CSCSegments[73] = {};
 
   if( TheCSCSegments.isValid() )
     {

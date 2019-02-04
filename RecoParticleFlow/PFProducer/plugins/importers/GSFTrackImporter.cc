@@ -35,16 +35,13 @@ DEFINE_EDM_PLUGIN(BlockElementImporterFactory,
 void GSFTrackImporter::
 importToBlock( const edm::Event& e, 
 	       BlockElementImporterBase::ElementList& elems ) const {
-  typedef BlockElementImporterBase::ElementList::value_type ElementType;  
-  edm::Handle<reco::GsfPFRecTrackCollection> gsftracks;
-  e.getByToken(_src,gsftracks);
+  auto gsftracks = e.getHandle(_src);
   elems.reserve(elems.size() + gsftracks->size());
   // setup our elements so that all the SCs are grouped together
   auto SCs_end = std::partition(elems.begin(),elems.end(),
-				[](const ElementType& a){
+				[](const auto& a){
 				  return a->type() == reco::PFBlockElement::SC;
 				});
-  size_t SCs_end_position = std::distance(elems.begin(),SCs_end);
   // insert gsf tracks and SCs, binding pre-existing SCs to ECAL-Driven GSF
   auto bgsf = gsftracks->cbegin();
   auto egsf = gsftracks->cend();
@@ -73,31 +70,27 @@ importToBlock( const edm::Event& e,
 	      new reco::PFBlockElementSuperCluster(scref);
 	    scbe->setFromGsfElectron(true);
 	    scbe->setFromPFSuperCluster(_superClustersArePF);
-	    SCs_end = elems.insert(SCs_end,ElementType(scbe));
+	    SCs_end = elems.emplace(SCs_end,scbe);
 	    ++SCs_end; // point to element *after* the new one
 	  }
 	} 		   
       }
     }// gsf extra ref?
     // cache the SC_end offset
-    SCs_end_position = std::distance(elems.begin(),SCs_end);
+    size_t SCs_end_position = std::distance(elems.begin(),SCs_end);
     // get track momentum information
-    const std::vector<reco::PFTrajectoryPoint>& PfGsfPoint
-      = gsftrack->trajectoryPoints();
+    const std::vector<reco::PFTrajectoryPoint>& PfGsfPoint = gsftrack->trajectoryPoints();
     unsigned int c_gsf=0;
     bool PassTracker = false;
-    bool GetPout = false;
     unsigned int IndexPout = 0;
-    for(auto itPfGsfPoint =  PfGsfPoint.begin();  
-	itPfGsfPoint!= PfGsfPoint.end();++itPfGsfPoint) {      
-      if (itPfGsfPoint->isValid()){
-	int layGsfP = itPfGsfPoint->layer();
+    for(const auto& pfGsfPoint : PfGsfPoint) {      
+      if (pfGsfPoint.isValid()){
+	int layGsfP = pfGsfPoint.layer();
 	if (layGsfP == -1) PassTracker = true;
-	if (PassTracker && layGsfP > 0 && GetPout == false) {
+	else if (PassTracker && layGsfP > 0) {
 	  IndexPout = c_gsf-1;
-	  GetPout = true;
+	  break;
 	}
-	//const math::XYZTLorentzVector GsfMoment = itPfGsfPoint->momentum();
 	++c_gsf;
       }
     }

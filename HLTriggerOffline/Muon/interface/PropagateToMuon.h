@@ -21,7 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-struct DetLayer; // #include "TrackingTools/DetLayers/interface/DetLayer.h" // forward declaration can suffice
+class DetLayer; // #include "TrackingTools/DetLayers/interface/DetLayer.h" // forward declaration can suffice
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 

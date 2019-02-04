@@ -6,6 +6,7 @@
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="hepmc"/>
 <use   name="eigen"/>
+<use   name="CLHEP"/>
 <export>
   <lib   name="1"/>
 </export>

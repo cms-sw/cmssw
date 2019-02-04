@@ -36,15 +36,15 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
     LogDebug("MeasurementTracker")<<"skipping clusters: "<<selfUpdateSkipClusters_;
     isPhase2 = false;
 
-    if (iConfig.getParameter<std::string>("stripClusterProducer") != "") {
+    if (!iConfig.getParameter<std::string>("stripClusterProducer").empty()) {
         theStripClusterLabel = consumes<edmNew::DetSetVector<SiStripCluster> >(edm::InputTag(iConfig.getParameter<std::string>("stripClusterProducer")));
         if (selfUpdateSkipClusters_) theStripClusterMask = consumes<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster>>>(iConfig.getParameter<edm::InputTag>("skipClusters"));
     }
-    if (iConfig.getParameter<std::string>("pixelClusterProducer") != "") {
+    if (!iConfig.getParameter<std::string>("pixelClusterProducer").empty()) {
         thePixelClusterLabel = consumes<edmNew::DetSetVector<SiPixelCluster> >(edm::InputTag(iConfig.getParameter<std::string>("pixelClusterProducer")));
         if (selfUpdateSkipClusters_) thePixelClusterMask = consumes<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>>(iConfig.getParameter<edm::InputTag>("skipClusters"));
     }
-    if (iConfig.getParameter<std::string>("Phase2TrackerCluster1DProducer") != "") {
+    if (!iConfig.getParameter<std::string>("Phase2TrackerCluster1DProducer").empty()) {
         thePh2OTClusterLabel = consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(edm::InputTag(iConfig.getParameter<std::string>("Phase2TrackerCluster1DProducer")));
         isPhase2 = true;
     }
@@ -94,11 +94,11 @@ MeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::EventSet
 
     // put into MTE
     // put into event
-    iEvent.put(std::move(
+    iEvent.put(
       std::make_unique<MeasurementTrackerEvent>(*measurementTracker, 
                                                 stripData.release(), pixelData.release(), phase2OTData.release(),
 	                                        stripClustersToSkip, pixelClustersToSkip, phase2ClustersToSkip)
-    ));
+    );
 }
 
 void 

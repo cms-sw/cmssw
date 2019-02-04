@@ -14,15 +14,14 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 namespace reco {
-  class PFCandidateFwdPtrFactory : public std::binary_function<edm::FwdPtr<reco::PFCandidate>, edm::View<reco::PFCandidate>, unsigned int > {
-  public :
+  struct PFCandidateFwdPtrFactory {
     edm::FwdPtr<reco::PFCandidate> operator() (edm::View<reco::PFCandidate> const & view, unsigned int i)  const  { 
       edm::Ptr<reco::PFCandidate> ptr = view.ptrAt(i);
       edm::Ptr<reco::PFCandidate> backPtr = ptr;
       if ( ptr.isNonnull() && ptr.isAvailable() && ptr->numberOfSourceCandidatePtrs() > 0 ) {
-	edm::Ptr<reco::Candidate> basePtr = ptr->sourceCandidatePtr(0);
-	if (basePtr.isNonnull() && basePtr.isAvailable())
-	  backPtr = edm::Ptr<reco::PFCandidate>( basePtr );//this cast works only for available stuff
+        edm::Ptr<reco::Candidate> basePtr = ptr->sourceCandidatePtr(0);
+        if (basePtr.isNonnull() && basePtr.isAvailable())
+          backPtr = edm::Ptr<reco::PFCandidate>( basePtr );//this cast works only for available stuff
       }
       return edm::FwdPtr<reco::PFCandidate>(ptr,backPtr); 
     }

@@ -10,7 +10,6 @@
  *
  * =====================================================================================
  */
-#include <boost/foreach.hpp>
 #include <sstream>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -40,7 +39,7 @@ TauGenJetDumper::analyze(const edm::Event& evt, const edm::EventSetup& es) {
 
   std::ostringstream output;
   output << " * * * Tau GenJet Dump " << std::endl;
-  BOOST_FOREACH(const reco::GenJet& jet, *jetView) {
+  for(auto const& jet : *jetView) {
     output << "Decay mode: " << JetMCTagUtils::genTauDecayMode(jet) << "  "
       << jet.print() << std::endl;
   }

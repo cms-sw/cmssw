@@ -20,6 +20,7 @@ class TObjArray;
 
 #include "TEveVSDStructs.h"
 #include "TGeoMatrix.h"
+#include "TGeoXtru.h"
 
 #include "Fireworks/Core/interface/FWRecoGeom.h"
 
@@ -30,7 +31,7 @@ public:
    static const int kDetOffset          = 28;
    static const int kSubdetOffset       = 25;
 
-   enum Detector { Tracker = 1, Muon = 2, Ecal = 3, Hcal = 4, Calo = 5 };
+   enum Detector { Tracker = 1, Muon = 2, Ecal = 3, Hcal = 4, Calo = 5, HGCalEE=8, HGCalHSi=9, HGCalHSc=10, HGCalTrigger=11 };
    enum SubDetector { PixelBarrel = 1, PixelEndcap = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6, CSC = 7, DT = 8, RPCBarrel = 9, RPCEndcap = 10, GEM = 11, ME0 = 12};
 
    struct Range {
@@ -71,12 +72,15 @@ public:
   
    // extract globally positioned shape for stand alone use
    TEveGeoShape* getEveShape( unsigned int id  ) const;
+   TEveGeoShape* getHGCSiliconEveShape( unsigned int id  ) const;
+   TEveGeoShape* getHGCScintillatorEveShape( unsigned int id  ) const;
   
    // get shape description parameters
    const float* getShapePars( unsigned int id  ) const;
 
    // get all known detector ids with id matching mask
    std::vector<unsigned int> getMatchedIds( Detector det, SubDetector subdet ) const;
+   std::vector<unsigned int> getMatchedIds( Detector det ) const;
 
    // get reco geometry
    const float* getCorners( unsigned int id ) const;

@@ -127,7 +127,7 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
         dedxHits.reserve(track->recHitsSize()/2);
         for(unsigned int h=0;h<track->recHitsSize();h++){
            auto recHit = *(hb+h);
-           if(!recHit->isValid()) continue;
+           if (!trackerHitRTTI::isFromDet(*recHit) ) continue;
 
            auto trackDirection = trajParams[h].direction();         
            float cosine = trackDirection.z()/trackDirection.mag();

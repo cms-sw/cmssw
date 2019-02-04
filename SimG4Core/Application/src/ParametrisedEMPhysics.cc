@@ -52,7 +52,7 @@ struct ParametrisedEMPhysics::TLSmod {
 G4ThreadLocal ParametrisedEMPhysics::TLSmod* ParametrisedEMPhysics::m_tpmod = nullptr;
 
 ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, 
-					     const edm::ParameterSet & p) 
+                                             const edm::ParameterSet & p) 
   : G4VPhysicsConstructor(name), theParSet(p) 
 {
   // bremsstrahlung threshold and EM verbosity
@@ -98,13 +98,13 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name,
     rrfact[5] = theParSet.getParameter<double>("RusRoWorldElectron");
     for(int i=0; i<NREG; ++i) {
       if(rrfact[i] < 1.0) {
-	param->ActivateSecondaryBiasing("eIoni",rname[i],rrfact[i],energyLim);
-	param->ActivateSecondaryBiasing("hIoni",rname[i],rrfact[i],energyLim);
-	edm::LogVerbatim("SimG4CoreApplication") 
-	  << "ParametrisedEMPhysics: Russian Roulette"
-	  << " for e- Prob= " << rrfact[i]  
-	  << " Elimit(MeV)= " << energyLim/CLHEP::MeV
-	  << " inside " << rname[i];
+        param->ActivateSecondaryBiasing("eIoni",rname[i],rrfact[i],energyLim);
+        param->ActivateSecondaryBiasing("hIoni",rname[i],rrfact[i],energyLim);
+        edm::LogVerbatim("SimG4CoreApplication") 
+          << "ParametrisedEMPhysics: Russian Roulette"
+          << " for e- Prob= " << rrfact[i]  
+          << " Elimit(MeV)= " << energyLim/CLHEP::MeV
+          << " inside " << rname[i];
       }
     }
   }
@@ -167,49 +167,49 @@ void ParametrisedEMPhysics::ConstructProcess() {
 
     if(gem || gemHad) {
       G4Region* aRegion = 
-	G4RegionStore::GetInstance()->GetRegion("EcalRegion");
+        G4RegionStore::GetInstance()->GetRegion("EcalRegion");
       
       if(!aRegion){
-	edm::LogVerbatim("SimG4CoreApplication") 
-	  << "ParametrisedEMPhysics::ConstructProcess: " 
-	  << "EcalRegion is not defined, GFlash will not be enabled for ECAL!";
-	
+        edm::LogVerbatim("SimG4CoreApplication") 
+          << "ParametrisedEMPhysics::ConstructProcess: " 
+          << "EcalRegion is not defined, GFlash will not be enabled for ECAL!";
+        
       } else {
-	if(gem) {
+        if(gem) {
 
-	  //Electromagnetic Shower Model for ECAL
-	  m_tpmod->theEcalEMShowerModel.reset(new GFlashEMShowerModel("GflashEcalEMShowerModel",
+          //Electromagnetic Shower Model for ECAL
+          m_tpmod->theEcalEMShowerModel.reset(new GFlashEMShowerModel("GflashEcalEMShowerModel",
                                               aRegion,theParSet));
-	}
-	if(gemHad) {
+        }
+        if(gemHad) {
 
-	  //Electromagnetic Shower Model for ECAL
-	  m_tpmod->theEcalHadShowerModel.reset(new GFlashHadronShowerModel("GflashEcalHadShowerModel",
+          //Electromagnetic Shower Model for ECAL
+          m_tpmod->theEcalHadShowerModel.reset(new GFlashHadronShowerModel("GflashEcalHadShowerModel",
                                                aRegion,theParSet));
-	}    
+        }    
       }
     }
     if(ghad || ghadHad) {
       G4Region* aRegion = 
-	G4RegionStore::GetInstance()->GetRegion("HcalRegion");
+        G4RegionStore::GetInstance()->GetRegion("HcalRegion");
       if(!aRegion) {
-	edm::LogVerbatim("SimG4CoreApplication") 
-	  << "ParametrisedEMPhysics::ConstructProcess: " 
-	  << "HcalRegion is not defined, GFlash will not be enabled for HCAL!";
-	
+        edm::LogVerbatim("SimG4CoreApplication") 
+          << "ParametrisedEMPhysics::ConstructProcess: " 
+          << "HcalRegion is not defined, GFlash will not be enabled for HCAL!";
+        
       } else {
-	if(ghad) {
+        if(ghad) {
 
-	  //Electromagnetic Shower Model for HCAL
-	  m_tpmod->theHcalEMShowerModel.reset(new GFlashEMShowerModel("GflashHcalEMShowerModel",
+          //Electromagnetic Shower Model for HCAL
+          m_tpmod->theHcalEMShowerModel.reset(new GFlashEMShowerModel("GflashHcalEMShowerModel",
                                               aRegion,theParSet));
-	}
-	if(ghadHad) {
+        }
+        if(ghadHad) {
 
-	  //Electromagnetic Shower Model for ECAL
-	  m_tpmod->theHcalHadShowerModel.reset(new GFlashHadronShowerModel("GflashHcalHadShowerModel",
+          //Electromagnetic Shower Model for ECAL
+          m_tpmod->theHcalHadShowerModel.reset(new GFlashHadronShowerModel("GflashHcalHadShowerModel",
                                                aRegion,theParSet));
-	}    
+        }    
       }
     }
   }
@@ -242,15 +242,26 @@ void ParametrisedEMPhysics::ConstructProcess() {
   // change parameters of transportation
   bool modifyT = theParSet.getParameter<bool>("ModifyTransportation");
   if(modifyT) {
-    G4ProcessManager* man = G4Electron::Electron()->GetProcessManager();
-    G4Transportation* trans = (G4Transportation*)((*(man->GetProcessList()))[0]);
-    if(trans) {
-      double th1 = theParSet.getUntrackedParameter<double>("ThresholdWarningEnergy")*MeV;
-      double th2 = theParSet.getUntrackedParameter<double>("ThresholdImportantEnergy")*MeV;
-      int nt = theParSet.getUntrackedParameter<int>("ThresholdTrials");
-      trans->SetThresholdWarningEnergy(th1); 
-      trans->SetThresholdImportantEnergy(th2); 
-      trans->SetThresholdTrials(nt); 
-    }
+    double th1 = theParSet.getUntrackedParameter<double>("ThresholdWarningEnergy")*MeV;
+    double th2 = theParSet.getUntrackedParameter<double>("ThresholdImportantEnergy")*MeV;
+    int nt = theParSet.getUntrackedParameter<int>("ThresholdTrials");
+    ModifyTransportation(G4Electron::Electron(), nt, th1, th2);
+    ModifyTransportation(G4Positron::Positron(), nt, th1, th2);
+    ModifyTransportation(G4Proton::Proton(), nt, th1, th2);
+  }
+}
+
+void ParametrisedEMPhysics::ModifyTransportation(const G4ParticleDefinition* part, 
+                                                 int ntry, double th1, double th2)
+{
+  G4ProcessManager* man = part->GetProcessManager();
+  G4Transportation* trans = (G4Transportation*)((*(man->GetProcessList()))[0]);
+  if(trans) {
+    trans->SetThresholdWarningEnergy(th1); 
+    trans->SetThresholdImportantEnergy(th2); 
+    trans->SetThresholdTrials(ntry); 
+    edm::LogVerbatim("SimG4CoreApplication") 
+      << "ParametrisedEMPhysics: printout level changed for " << part->GetParticleName();
+ 
   }
 }

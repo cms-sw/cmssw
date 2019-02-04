@@ -80,8 +80,6 @@ L1ObjectKeysOnlineProdBase::~L1ObjectKeysOnlineProdBase()
 L1ObjectKeysOnlineProdBase::ReturnType
 L1ObjectKeysOnlineProdBase::produce(const L1TriggerKeyRcd& iRecord)
 {
-   using namespace edm::es;
-
   // Get L1TriggerKey with label "SubsystemKeysOnly".  Re-throw exception if
   // not present.
   edm::ESHandle< L1TriggerKey > subsystemKeys ;

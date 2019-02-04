@@ -6,6 +6,7 @@
 #include "CondCore/SiStripPlugins/plugins/SiStripPedestals_PayloadInspector.cc"
 #include "CondCore/SiStripPlugins/plugins/SiStripThreshold_PayloadInspector.cc"
 #include "CondCore/SiStripPlugins/plugins/SiStripLatency_PayloadInspector.cc" 
+#include "CondCore/SiStripPlugins/plugins/SiStripFedCabling_PayloadInspector.cc" 
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -115,7 +116,6 @@ int main(int argc, char** argv) {
   histo13.process(connectionString, tag, runTimeType, start, end);
   std::cout <<histo13.data()<<std::endl;
 
-
   //Threshold
   tag   = "SiStripThreshold_v1_prompt";
   start = boost::lexical_cast<unsigned long long>(315352);
@@ -126,9 +126,6 @@ int main(int argc, char** argv) {
   SiStripThresholdValueHigh histo14;
   histo14.process(connectionString, tag, runTimeType, start, start );
   std::cout <<histo14.data()<<std::endl;
-
-
-
 
 }
 

@@ -116,6 +116,8 @@ workflows[140.53] = ['',['RunHI2011','RECOHID11','HARVESTDHI']]
 workflows[140.54] = ['',['RunPA2013','RECO_PPbData','HARVEST_PPbData']]
 
 workflows[140.55] = ['',['RunHI2015VR','HYBRIDRepackHI2015VR','HYBRIDZSHI2015','RECOHID15','HARVESTDHI15']]
+workflows[140.56] = ['',['RunHI2018','RECOHID18','HARVESTDHI18']]
+workflows[140.57] = ['',['RunHI2018Reduced','RECOHID18','HARVESTDHI18']]
 
 ### run2 2015B 50ns ###
 workflows[134.701] = ['',['RunHLTPhy2015B','HLTDR2_50ns','RECODR2_50nsreHLT_HIPM','HARVESTDR2']]
@@ -386,6 +388,9 @@ workflows[136.894] = ['',['RunNoBPTX2018D','HLTDR2_2018','RECODR2_2018reHLTAlCaT
 workflows[136.895] = ['',['RunDisplacedJet2018D','HLTDR2_2018','RECODR2_2018reHLT_skimDisplacedJet_Prompt','HARVEST2018']]
 workflows[136.896] = ['',['RunCharmonium2018D','HLTDR2_2018','RECODR2_2018reHLT_skimCharmonium_Prompt','HARVEST2018']]
 
+# multi-run harvesting
+workflows[137.8] = ['',['RunEGamma2018C','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM',
+                        'RunEGamma2018D','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_MULTIRUN']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
@@ -429,6 +434,21 @@ workflows[2017.13] = ['TTbar_13_UP17', ['TTbarFS_13_trackingOnlyValidation_UP17'
 ### MinBias fastsim_13 TeV for mixing ###                                                                                                                                      
 workflows[2017.8] = ['',['MinBiasFS_13_UP17_ForMixing']]
 
+### MinBias fastsim_13 TeV for mixing, 2018 ###                                                                                                                                      
+workflows[2018.8] = ['',['MinBiasFS_13_UP18_ForMixing']]
+
+### Phase1 FastSim 13TeV, 2018 ###
+workflows[2018.1] = ['TTbar_13_UP18', ['TTbarFS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.2] = ['SingleMuPt10_UP18', ['SingleMuPt10FS_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.3] = ['SingleMuPt100_UP18', ['SingleMuPt100FS_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.4] = ['ZEE_13_UP18', ['ZEEFS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.5] = ['ZTT_13_UP18',['ZTTFS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.6] = ['QCD_FlatPt_15_3000_13_UP18', ['QCDFlatPt153000FS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.7] = ['H125GGgluonfusion_13_UP18', ['H125GGgluonfusionFS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.9] = ['ZMM_13_UP18',['ZMMFS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.11] = ['SMS-T1tttt_mGl-1500_mLSP-100_13_UP18', ['SMS-T1tttt_mGl-1500_mLSP-100FS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.12] = ['QCD_Pt_80_120_13_UP18', ['QCD_Pt_80_120FS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.13] = ['TTbar_13_UP18', ['TTbarFS_13_trackingOnlyValidation_UP18','HARVESTUP18FS_trackingOnly']]
 
 ### standard set ###
 ## particle guns
@@ -477,9 +497,11 @@ workflows[34] = ['', ['QQH1352T','DIGI','RECO','HARVEST']]
 
 workflows[7]  = ['', ['Cosmics','DIGICOS','RECOCOS','ALCACOS','HARVESTCOS']]
 workflows[7.1]= ['', ['CosmicsSPLoose','DIGICOS','RECOCOS','ALCACOS','HARVESTCOS']]
-workflows[7.2] = ['', ['Cosmics_UP17','DIGICOS_UP17','RECOCOS_UP17','ALCACOS_UP17','HARVESTCOS_UP17']]
-workflows[7.3] = ['', ['CosmicsSPLoose_UP17','DIGICOS_UP17','RECOCOS_UP17','ALCACOS_UP17','HARVESTCOS_UP17']]
-workflows[7.4] = ['', ['Cosmics_UP17','DIGICOSPEAK_UP17','RECOCOSPEAK_UP17','ALCACOS_UP17','HARVESTCOS_UP17']]
+workflows[7.20] = ['', ['Cosmics_UP18','DIGICOS_UP18','RECOCOS_UP18','ALCACOS_UP18','HARVESTCOS_UP18']]#2018
+workflows[7.21] = ['', ['Cosmics_UP17','DIGICOS_UP17','RECOCOS_UP17','ALCACOS_UP17','HARVESTCOS_UP17']]#2017
+workflows[7.22] = ['', ['Cosmics_UP16','DIGICOS_UP16','RECOCOS_UP16','ALCACOS_UP16','HARVESTCOS_UP16']]#2016
+workflows[7.3] = ['', ['CosmicsSPLoose_UP18','DIGICOS_UP18','RECOCOS_UP18','ALCACOS_UP18','HARVESTCOS_UP18']]
+workflows[7.4] = ['', ['Cosmics_UP18','DIGICOSPEAK_UP18','RECOCOSPEAK_UP18','ALCACOS_UP18','HARVESTCOS_UP18']]
 
 workflows[8]  = ['', ['BeamHalo','DIGICOS','RECOCOS','ALCABH','HARVESTCOS']]
 workflows[11] = ['', ['MinBias','DIGI','RECOMIN','HARVEST','ALCAMIN']]
@@ -532,7 +554,6 @@ workflows[1325.6] = ['', ['TTbar_13_94Xv1NanoAODINPUT','NANOAODMC2017_94XMiniAOD
 # nanoaod wf with intermediate EDM and merge step, starting from existing MINIAOD inputs
 workflows[1325.7] = ['', ['TTbar_13_94Xv2NanoAODINPUT','NANOEDMMC2017_94XMiniAODv2','HARVESTNANOAODMC2017_94XMiniAODv2']]
 workflows[1325.8] = ['', ['TTbar_13_94Xv1NanoAODINPUT','NANOEDMMC2017_94XMiniAODv1','HARVESTNANOAODMC2017_94XMiniAODv1']]
-workflows[1325.9] = ['', ['TTbar_13_92XNanoAODINPUT','NANOEDMMC2017_92X','HARVESTNANOAODMC2017_92X']]
 #using ZEE as I cannot find TT at CERN
 workflows[1329.1] = ['', ['ZEE_13_80XNanoAODINPUT','NANOEDMMC2016_80X','HARVESTNANOAODMC2016_80X']]
 

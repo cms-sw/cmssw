@@ -3,11 +3,10 @@
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 #include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/MTDNumberingBuilder/plugins/CmsMTDModuleBuilder.h"
-#include "Geometry/MTDNumberingBuilder/plugins/MTDStablePhiSort.h"
+#include "Geometry/MTDNumberingBuilder/plugins/mtdStablePhiSort.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <functional>
 #include <vector>
 #include <bitset>
 
@@ -47,7 +46,7 @@ void CmsMTDTrayBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det){
   
   // rods 
   if(!rods.empty()){
-    MTDStablePhiSort(rods.begin(), rods.end(), std::function<double(const GeometricTimingDet*)>(getPhi));
+    mtdStablePhiSort(rods.begin(), rods.end(), getPhi);
     uint32_t  totalrods = rods.size();
   
     LogTrace("DetConstruction") << " Rods ordered by phi: ";

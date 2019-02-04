@@ -18,7 +18,6 @@
 
 
 // system include files
-#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -71,8 +70,7 @@ JetTagProducer::~JetTagProducer()
 
 // map helper - for some reason RefToBase lacks operator < (...)
 namespace {
-  struct JetRefCompare :
-       public binary_function<RefToBase<Jet>, RefToBase<Jet>, bool> {
+  struct JetRefCompare {
     inline bool operator () (const RefToBase<Jet> &j1,
                              const RefToBase<Jet> &j2) const
     { return j1.id() < j2.id() || (j1.id() == j2.id() && j1.key() < j2.key()); }

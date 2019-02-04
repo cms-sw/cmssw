@@ -58,7 +58,7 @@ public:
     ~L1GtTriggerMenuConfigOnlineProd() override;
 
     /// public methods
-    std::shared_ptr<L1GtTriggerMenu> newObject(const std::string& objectKey) override;
+    std::unique_ptr<L1GtTriggerMenu> newObject(const std::string& objectKey) override;
 
     /// initialize the class (mainly reserve/resize)
     void init(const int numberConditionChips);

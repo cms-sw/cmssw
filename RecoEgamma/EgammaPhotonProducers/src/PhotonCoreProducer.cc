@@ -130,10 +130,7 @@ void PhotonCoreProducer::fillPhotonCollection(edm::Event& evt,
 					      const edm::Handle<reco::ConversionCollection> & conversionHandle,
 					      const edm::Handle<reco::ElectronSeedCollection> & pixelSeedHandle,
 					      reco::PhotonCoreCollection & outputPhotonCoreCollection, int& iSC) {
-  
 
-  
-  reco::ElectronSeedCollection::const_iterator pixelSeedItr;
   for(unsigned int lSC=0; lSC < scHandle->size(); lSC++) {
     
     // get SuperClusterRef

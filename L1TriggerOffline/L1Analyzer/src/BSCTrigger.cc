@@ -22,7 +22,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,6 +32,8 @@ Implementation:
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTrigger.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -41,28 +43,23 @@ Implementation:
 // class declaration
 //
 
-class BSCTrigger : public edm::EDProducer {
+class BSCTrigger : public edm::global::EDProducer<> {
 public:
   explicit BSCTrigger(const edm::ParameterSet&);
   ~BSCTrigger() override;
 
 private:
-  void beginJob() override ;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
-  int   getBSCNum(int id, float z);
-  bool  isInner(int id);
-  bool  isZplus(int id);
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  int   getBSCNum(int id, float z) const;
+  bool  isInner(int id) const;
+  bool  isZplus(int id) const;
     // ----------member data ---------------------------
-  std::vector<unsigned> ttBits_;
-  std::vector<std::string> names_;
-  unsigned nEvt_;
-  float theCoincidence_;
-  float theResolution_;
-  int theNinner_;
-  int theNouter_;      
-  int nevt_;
-  edm::InputTag TheHits_tag_;
+  const std::vector<unsigned> ttBits_;
+  const std::vector<std::string> names_;
+  const double theCoincidence_;
+  const double theResolution_;
+  const edm::EDGetTokenT<CrossingFrame<PSimHit>> theHitsToken_;
+  const edm::EDPutTokenT<L1GtTechnicalTriggerRecord> thePutToken_;
 };
 
 //
@@ -77,15 +74,14 @@ private:
 //
 // constructors and destructor
 //
-BSCTrigger::BSCTrigger(const edm::ParameterSet& iConfig)
+BSCTrigger::BSCTrigger(const edm::ParameterSet& iConfig):
+  ttBits_{iConfig.getParameter< std::vector<unsigned> >("bitNumbers")},
+  names_{iConfig.getParameter< std::vector<std::string> >("bitNames")},
+  theCoincidence_{iConfig.getParameter<double>("coincidence")},
+  theResolution_{iConfig.getParameter<double>("resolution")},
+  theHitsToken_{consumes<CrossingFrame<PSimHit>>(iConfig.getParameter<edm::InputTag>("theHits")) },
+  thePutToken_{produces<L1GtTechnicalTriggerRecord>()}
 {
-  ttBits_=iConfig.getParameter< std::vector<unsigned> >("bitNumbers");
-  names_= iConfig.getParameter< std::vector<std::string> >("bitNames");
-  theCoincidence_= iConfig.getParameter<double>("coincidence");
-  theResolution_= iConfig.getParameter<double>("resolution");
-  TheHits_tag_= iConfig.getParameter<edm::InputTag>("theHits");
-  produces<L1GtTechnicalTriggerRecord>();  
-  nevt_=0;
 }
 
 
@@ -103,38 +99,28 @@ BSCTrigger::~BSCTrigger()
 //
 
 // ------------ method called to produce the data  ------------
-void BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void BSCTrigger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   std::vector<L1GtTechnicalTrigger> ttVec(ttBits_.size());
-  std::vector<float>EnergyBX(32);
-  std::vector<float>EnergyBXMinusDt(32);
-  int ZMinnerBX=0, ZMouterBX=0;
-  int ZPinnerBX=0, ZPouterBX=0;
-  int ZMinnerBXMinusDt=0, ZMouterBXMinusDt=0;
-  int ZPinnerBXMinusDt=0, ZPouterBXMinusDt=0;
-  ++nevt_;
-  std::unique_ptr<L1GtTechnicalTriggerRecord> BscRecord;
-  float MipFraction=0.5;
-  float MipEnergy=0.0027;
-  float theThreshold=MipFraction*MipEnergy;
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
-  iEvent.getByLabel(TheHits_tag_, cf);
+  iEvent.getByToken(theHitsToken_, cf);
    
   if (!cf.failedToGet()) {
+    std::vector<float> EnergyBX(32);
+    std::vector<float> EnergyBXMinusDt(32);
+
     for ( int c=0;c<32;++c){
       EnergyBX[c]=0;
       EnergyBXMinusDt[c]=0;
     }
-    std::unique_ptr<MixCollection<PSimHit> > theBSCHitContainer( new MixCollection <PSimHit>(cf.product()));
-    MixCollection<PSimHit>::MixItr itHit;
-    float dt1,dt2;
-    dt1=theCoincidence_/2 + theResolution_;
-    dt2=theCoincidence_/2 - theResolution_;
-    if ( edm::isDebugEnabled() ) LogDebug("BSCTrig")<<" ----------------new event ---with "<<theBSCHitContainer->size()<<" hits in the BSC";
+    MixCollection<PSimHit>  theBSCHitContainer(cf.product());
+    const float dt1=theCoincidence_/2 + theResolution_;
+    const float dt2=theCoincidence_/2 - theResolution_;
+    if ( edm::isDebugEnabled() ) LogDebug("BSCTrig")<<" ----------------new event ---with "<<theBSCHitContainer.size()<<" hits in the BSC";
     
     // collect total deposited energy in BSC segments -> EnergyBX[segment id], in GeV units ---------------------------------------------------------------
-    for (itHit = theBSCHitContainer->begin(); itHit != theBSCHitContainer->end(); ++itHit) {
+    for (auto itHit = theBSCHitContainer.begin(); itHit != theBSCHitContainer.end(); ++itHit) {
       float zh=itHit->entryPoint().z()/10;    
       int id=getBSCNum(itHit->detUnitId(),zh);
       if ( id > 31 ) continue;   // the small 2 paddles further from the IP
@@ -150,7 +136,15 @@ void BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       else EnergyBXMinusDt[id]+=itHit->energyLoss();    
     }
 
-    // count number of segments hit in inner/outer and +z, -z ---------------------------------------------------------------------------------------------
+    // count number of segments hit in inner/outer and +z, -z --------------------------------------------------------------------------------------------- 
+    int ZMinnerBX=0, ZMouterBX=0;
+    int ZPinnerBX=0, ZPouterBX=0;
+    int ZMinnerBXMinusDt=0, ZMouterBXMinusDt=0;
+    int ZPinnerBXMinusDt=0, ZPouterBXMinusDt=0;
+
+    constexpr float MipFraction=0.5;
+    constexpr float MipEnergy=0.0027;
+    constexpr float theThreshold=MipFraction*MipEnergy;
     for ( unsigned int ipad = 0 ; ipad<32; ipad++) {
       if ( edm::isDebugEnabled() ) LogTrace("BSCTrig")<<" EnergyBX["<<ipad<<"]="<<EnergyBX[ipad];
       // hits after the bunch crossing
@@ -234,20 +228,11 @@ void BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if ( edm::isDebugEnabled() ) LogTrace("AnaBsc") << "bit: "<<ttBits_[i] << " VALUE:"<<bit ;
     }
   } else ttVec.clear();
-  std::unique_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
-  output->setGtTechnicalTrigger(ttVec);    
-  iEvent.put(std::move(output));
+  L1GtTechnicalTriggerRecord output;
+  output.setGtTechnicalTrigger(ttVec);    
+  iEvent.emplace(thePutToken_,std::move(output));
 }
-// ------------ method called once each job just before starting event loop  ------------
-void BSCTrigger::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void BSCTrigger::endJob() {
-}
-
-int BSCTrigger::getBSCNum( int id, float z ) {
+int BSCTrigger::getBSCNum( int id, float z ) const {
   int zside = 0;
   if ( z > 0 ) zside = 1;
   if ( edm::isDebugEnabled() ) {
@@ -261,11 +246,11 @@ int BSCTrigger::getBSCNum( int id, float z ) {
   return BSCNum;
 }
 
-bool BSCTrigger::isInner( int id ){ 
+bool BSCTrigger::isInner( int id ) const { 
   return ( (id&8)>>3 ) ;
 }
 
-bool BSCTrigger::isZplus( int id ){ 
+bool BSCTrigger::isZplus( int id ) const { 
   return ( (id&16)>>4 ) ;
 }
 

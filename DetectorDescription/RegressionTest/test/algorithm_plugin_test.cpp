@@ -10,11 +10,10 @@
 
 int main(int, char **argv)
 {
-  DDAlgorithm * algo;
   DDCompactView cpv;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
   std::string name("test:DDTestAlgorithm");
-  algo = DDAlgorithmFactory::get()->create(name);
+  std::unique_ptr<DDAlgorithm> algo{DDAlgorithmFactory::get()->create(name)};
   if (algo) {
     const DDNumericArguments nArgs;
     const DDVectorArguments vArgs;

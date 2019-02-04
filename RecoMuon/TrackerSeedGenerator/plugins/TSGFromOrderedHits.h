@@ -17,6 +17,7 @@ public:
 
   ~TSGFromOrderedHits() override;
 
+  using TrackerSeedGenerator::init;
 private:
   void run(TrajectorySeedCollection &seeds, 
       const edm::Event &ev, const edm::EventSetup &es, const TrackingRegion& region) override;

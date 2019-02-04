@@ -93,6 +93,9 @@ void testfriendlyName::test()
   classToFriendly.insert( Values("edm::RefVector<edm::AssociationMap<edm::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,unsigned int> >,edm::helpers::KeyVal<edm::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> >,edm::Ref<std::vector<reco::ClusterShape>,reco::ClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::ClusterShape>,reco::ClusterShape> > >,edm::AssociationMap<edm::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,unsigned int> >::Find>",
                                  "recoBasicClustersToOnerecoClusterShapesAssociationRefs"));
   classToFriendly.insert( Values("std::vector<std::pair<const pat::Muon *, TLorentzVector>>","constpatMuonptrTLorentzVectorstdpairs") );
+  classToFriendly.insert( Values("int[]", "intAs") );
+  classToFriendly.insert( Values("foo<int[]>", "intAsfoo") );
+  classToFriendly.insert( Values("bar<foo<int[]>>", "intAsfoobar") );
   
   
   for(std::map<std::string, std::string>::iterator itInfo = classToFriendly.begin(),

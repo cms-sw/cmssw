@@ -25,7 +25,7 @@ class EcalSampleMask {
     ~EcalSampleMask();
 
     void setEcalSampleMaskRecordEB( const unsigned int mask ) { sampleMaskEB_ = mask; }
-    void setEcalSampleMaskRecordEE( const unsigned int mask ) { sampleMaskEB_ = mask; }
+    void setEcalSampleMaskRecordEE( const unsigned int mask ) { sampleMaskEE_ = mask; }
     void setEcalSampleMaskRecordEB( const std::vector<unsigned int> & ebmask );
     void setEcalSampleMaskRecordEE( const std::vector<unsigned int> & eemask );
     

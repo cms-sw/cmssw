@@ -18,7 +18,7 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -44,7 +44,7 @@ class SiStripBaselineValidator : public DQMEDAnalyzer
   MonitorElement *h1ADC_vs_strip_;
 
   edm::InputTag srcProcessedRawDigi_;
-  edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > moduleRawDigiToken_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > moduleRawDigiToken_;
 
 };
 #endif

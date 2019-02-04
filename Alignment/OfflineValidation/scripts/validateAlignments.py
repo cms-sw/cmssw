@@ -360,7 +360,7 @@ def createMergeScript( path, validations, options ):
                 repMapTemp["doMerge"] += '\n\n\n\necho -e "\n\nMerging results from %s jobs with alignment %s"\n\n' % (validationType.valType,validation.alignmentToValidate.name)
                 repMapTemp["doMerge"] += validation.doMerge()
                 for f in validation.getRepMap()["outputFiles"]:
-                    longName = os.path.join("/eos/cms/store/caf/user/$USER/",
+                    longName = os.path.join("/eos/cms/store/group/alca_trackeralign/AlignmentValidation/",
                                             validation.getRepMap()["eosdir"], f)
                     repMapTemp["rmUnmerged"] += "    rm "+longName+"\n"
                 
@@ -397,7 +397,7 @@ def createMergeScript( path, validations, options ):
                     repMap["beforeMerge"] += validationType.doInitMerge()
                 repMap["doMerge"] += validation.doMerge()
                 for f in validation.getRepMap()["outputFiles"]:
-                    longName = os.path.join("/eos/cms/store/caf/user/$USER/",
+                    longName = os.path.join("/eos/cms/store/group/alca_trackeralign/AlignmentValidation/",
                                             validation.getRepMap()["eosdir"], f)
                     repMap["rmUnmerged"] += "    rm "+longName+"\n"
                 

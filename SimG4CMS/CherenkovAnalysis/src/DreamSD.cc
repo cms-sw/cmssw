@@ -15,8 +15,6 @@
 
 // Histogramming
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include <TTree.h>
 
 // Cherenkov
 #include "SimG4CMS/CherenkovAnalysis/interface/DreamSD.h"
@@ -54,24 +52,6 @@ DreamSD::DreamSD(const std::string& name, const DDCompactView & cpv,
                            << readBothSide_;
 
   initMap(name,cpv);
-
-  // Init histogramming
-  edm::Service<TFileService> tfile;
-
-  if ( !tfile.isAvailable() )
-    throw cms::Exception("BadConfig") << "TFileService unavailable: "
-                                      << "please add it to config file";
-
-  ntuple_ = tfile->make<TTree>("tree","Cherenkov photons");
-  if (doCherenkov_) {
-    ntuple_->Branch("nphotons",&nphotons_,"nphotons/I");
-    ntuple_->Branch("px",px_,"px[nphotons]/F");
-    ntuple_->Branch("py",py_,"py[nphotons]/F");
-    ntuple_->Branch("pz",pz_,"pz[nphotons]/F");
-    ntuple_->Branch("x",x_,"x[nphotons]/F");
-    ntuple_->Branch("y",y_,"y[nphotons]/F");
-    ntuple_->Branch("z",z_,"z[nphotons]/F");
-  }
 
 }
 
@@ -202,7 +182,7 @@ double DreamSD::curve_LY(const G4Step* aStep, int flag) {
 }
 
 //________________________________________________________________________________________
-const double DreamSD::crystalLength(G4LogicalVolume* lv) const {
+double DreamSD::crystalLength(G4LogicalVolume* lv) const {
 
   double length= -1.;
   DimensionMap::const_iterator ite = xtalLMap.find(lv);
@@ -212,7 +192,7 @@ const double DreamSD::crystalLength(G4LogicalVolume* lv) const {
 }
 
 //________________________________________________________________________________________
-const double DreamSD::crystalWidth(G4LogicalVolume* lv) const {
+double DreamSD::crystalWidth(G4LogicalVolume* lv) const {
 
   double width= -1.;
   DimensionMap::const_iterator ite = xtalLMap.find(lv);
@@ -334,23 +314,8 @@ double DreamSD::cherenkovDeposit_(const G4Step* aStep ) {
 
     // Collect energy on APD
     cherenkovEnergy += getPhotonEnergyDeposit_( photonMomentum, photonPosition, aStep );
-
-    // Ntuple variables
-    nphotons_ = numPhotons;
-    px_[iPhoton] = photonMomentum.x();
-    py_[iPhoton] = photonMomentum.y();
-    pz_[iPhoton] = photonMomentum.z();
-    x_[iPhoton] = photonPosition.x();
-    y_[iPhoton] = photonPosition.y();
-    z_[iPhoton] = photonPosition.z();
   }
-  
-  // Fill ntuple
-  ntuple_->Fill();
-
-
   return cherenkovEnergy;
-
 }
 
 
@@ -362,7 +327,7 @@ double DreamSD::getAverageNumberOfPhotons_( const double charge,
                                             const G4Material* aMaterial,
                                             const G4MaterialPropertyVector* Rindex )
 {
-  const G4double rFact = 369.81/(eV * cm);
+  const double rFact = 369.81/(eV * cm);
 
   if( beta <= 0.0 ) return 0.0;
 
@@ -519,14 +484,13 @@ double DreamSD::getPhotonEnergyDeposit_( const G4ThreeVector& p,
                       << " - y at APD: " << y;
 
   // Not straight: compute probability
-  if ( fabs(y)>crwidth*0.5 ) {
+  if ( std::abs(y)>crwidth*0.5 ) {
     
   }
 
   // 2. Retrieve efficiency for this wavelength (in nm, from MeV)
   double waveLength = p.mag()*1.239e8;
   
-
   energy = p.mag()*PMTResponse::getEfficiency(waveLength);
 
   LogDebug("EcalSim") << "Wavelength: " << waveLength << " - Energy: " << energy;

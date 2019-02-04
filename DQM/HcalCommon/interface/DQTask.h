@@ -23,7 +23,7 @@ namespace hcaldqm
 		f100LS = 4,
 		nUpdateFreq = 5
 	};
-	class DQTask : public DQMEDAnalyzer, public DQModule
+	class DQTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements>, public DQModule
 	{
 		public:
 

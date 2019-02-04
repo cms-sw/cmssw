@@ -49,9 +49,9 @@
   <Constant name="zHGCal1"               value="3190.50*mm"/>
   <Constant name="zHGCal2"               value="3878.51*mm"/>
   <Constant name="zHGCal4"               value="5137.70*mm"/>
-  <Constant name="rMinHGCal1"            value="[etaMax:slope]*[zHGCal1]"/>
-  <Constant name="rMinHGCal2"            value="[etaMax:slope]*[zHGCal2]"/>    
-  <Constant name="rMinHGCal4"            value="[etaMax:slope]*[zHGCal4]"/>
+  <Constant name="rMinHGCal1"            value="288.0*mm"/>     # eta 3.1  288.0
+  <Constant name="rMinHGCal2"            value="[rMinHGCal1]"/>    
+  <Constant name="rMinHGCal4"            value="[rMinHGCal1]"/>
   <Constant name="rMaxHGCal1"            value="1568.325*mm"/>
   <Constant name="rMaxHGCal2"            value="([rMaxHGCal1]+(([zHGCal2]-[zHGCal1])*[slope2]))"/>
   <Constant name="rMaxHGCal3"            value="2670.25*mm"/>
@@ -86,15 +86,15 @@
   <Constant name="zA4"                   value="([zA3]+([gapSi]+[absH1])*4.0-[gapSi]+[gapMix])"/> 
   <Constant name="zA5"                   value="([zA4]+([gapMix]+[absH1])*3+([gapMix]+[absH2])*2.0)"/>
   <Constant name="zA6"                   value="([zA5]+([gapMix]+[absH2])*9)"/>
-  <Constant name="zA7"                   value="([zA6]+([gapMix]+[absH2])*1)"/>
+  <Constant name="zA7"                   value="[zHGCal4]"/>
   <Constant name="zB1"                   value="([zHGCal1])"/>
-  <Constant name="zB2"                   value="([zB1]+339.8*mm)"/>
+  <Constant name="zB2"                   value="([zB1]+339.8*mm+10*mm)"/>   # additional shift 10 mm
   <Constant name="zB3"                   value="([zB2]+40.0*mm+[gapSi]+([absH1]+[gapSi])*3.0)"/>
   <Constant name="zB4"                   value="([zB3]+([absH1]+[gapSi])*4.0)"/>
   <Constant name="zB5"                   value="([zB4]+([absH1]+[gapMix])*4.0+([absH2]+[gapMix])*1.0)"/>
   <Constant name="zB6"                   value="([zB5]+([absH2]+[gapMix])*9.0)"/>
-  <Constant name="zB7"                   value="([zB6]+([absH2]+[gapMix])*2.0)"/>
-  <Constant name="rA1"                   value="417.0*mm"/>
+  <Constant name="zB7"                   value="[zHGCal4]"/>
+  <Constant name="rA1"                   value="[rMinHGCal1]"/>    #  eta 3.1
   <Constant name="rA2"                   value="[rA1]"/>
   <Constant name="rA3"                   value="([rA2]+25.0*mm)"/>
   <Constant name="rA4"                   value="([rA3]+50.0*mm)"/>
@@ -148,21 +148,20 @@
     <ZSection z="[zB3]" rMin="[rA3]" rMax="[rB3]"/>  #ring22b
     <ZSection z="[zB3]" rMin="[rA3]" rMax="[rB4]"/>  #ring31f
     <ZSection z="[zA3]" rMin="[rA3]" rMax="[rB4]"/>  #ring31b
-    <ZSection z="[zB3]" rMin="[rA4]" rMax="[rB4]"/>  #ring32f
+    <ZSection z="[zA3]" rMin="[rA4]" rMax="[rB4]"/>  #ring32f
     <ZSection z="[zB4]" rMin="[rA4]" rMax="[rB4]"/>  #ring32b
     <ZSection z="[zB4]" rMin="[rA4]" rMax="[rB5]"/>  #ring41f
-    <ZSection z="[zB4]" rMin="[rA4]" rMax="[rB5]"/>  #ring41b
-    <ZSection z="[zB4]" rMin="[rA5]" rMax="[rB5]"/>  #ring42f
+    <ZSection z="[zA4]" rMin="[rA4]" rMax="[rB5]"/>  #ring41b
+    <ZSection z="[zA4]" rMin="[rA5]" rMax="[rB5]"/>  #ring42f
     <ZSection z="[zB5]" rMin="[rA5]" rMax="[rB5]"/>  #ring42b
     <ZSection z="[zB5]" rMin="[rA5]" rMax="[rB6]"/>  #ring51f
-    <ZSection z="[zB5]" rMin="[rA5]" rMax="[rB6]"/>  #ring51b
-    <ZSection z="[zB5]" rMin="[rA6]" rMax="[rB6]"/>  #ring52f
+    <ZSection z="[zA5]" rMin="[rA5]" rMax="[rB6]"/>  #ring51b
+    <ZSection z="[zA5]" rMin="[rA6]" rMax="[rB6]"/>  #ring52f
     <ZSection z="[zB6]" rMin="[rA6]" rMax="[rB6]"/>  #ring52b
     <ZSection z="[zB6]" rMin="[rA6]" rMax="[rB7]"/>  #ring61f
-    <ZSection z="[zB6]" rMin="[rA6]" rMax="[rB7]"/>  #ring61b
-    <ZSection z="[zB6]" rMin="[rA7]" rMax="[rB7]"/>  #ring62f
+    <ZSection z="[zA6]" rMin="[rA6]" rMax="[rB7]"/>  #ring61b
+    <ZSection z="[zA6]" rMin="[rA7]" rMax="[rB7]"/>  #ring62f
     <ZSection z="[zB7]" rMin="[rA7]" rMax="[rB7]"/>  #ring62b
-    <ZSection z="[zMaxHEmix]" rMin="[rB7]" rMax="[rMaxHEmixMax]"/>
   </Polycone>
 </SolidSection>
 

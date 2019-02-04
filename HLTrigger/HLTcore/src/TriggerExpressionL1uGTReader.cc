@@ -1,5 +1,4 @@
 #include <iostream>
-#include <boost/foreach.hpp>
 #include <regex>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

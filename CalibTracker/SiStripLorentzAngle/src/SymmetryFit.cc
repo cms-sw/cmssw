@@ -2,7 +2,6 @@
 #include <cmath>
 #include <cassert>
 #include <memory>
-#include "boost/foreach.hpp"
 
 TH1* SymmetryFit::symmetryChi2(std::string basename, const std::vector<TH1*>& candidates, const std::pair<unsigned,unsigned> range)
 {
@@ -11,7 +10,7 @@ TH1* SymmetryFit::symmetryChi2(std::string basename, const std::vector<TH1*>& ca
   SymmetryFit combined(fake,range);
   delete fake;
 
-  BOOST_FOREACH(const TH1* candidate, candidates) {
+  for(auto const* candidate : candidates) {
     SymmetryFit sf(candidate,range); 
     combined+=sf; 
     delete sf.chi2_; 

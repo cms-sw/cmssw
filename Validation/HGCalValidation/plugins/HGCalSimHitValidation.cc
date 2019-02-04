@@ -224,8 +224,8 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
     } else if (hgcons_->geomMode() == HGCalGeometryMode::Trapezoid) {
       HGCScintillatorDetId detId = HGCScintillatorDetId(id_);
       subdet           = ForwardEmpty;
-      cell             = detId.ietaAbs();
-      sector           = detId.iphi();
+      sector           = detId.ietaAbs();
+      cell             = detId.iphi();
       subsector        = 1;
       type             = detId.type();
       layer            = detId.layer();

@@ -201,39 +201,34 @@ void NuclearVertexBuilder::cleanTrackCollection( const reco::TrackRef& primTrack
 
     // inspired from FinalTrackSelector (S. Wagner) modified by P. Janot
     LogDebug("NuclearInteractionMaker") << "cleanTrackCollection number of input tracks : " << tC.size();
-   std::map<std::vector<reco::TrackRef>::const_iterator, std::vector<const TrackingRecHit*> > rh;
+   std::map<reco::TrackRef const*, std::vector<const TrackingRecHit*>> rh;
 
     // first remove bad quality tracks and create map
     std::vector<bool> selected(tC.size(), false);
     int i=0;
-    for (std::vector<reco::TrackRef>::const_iterator track=tC.begin(); track!=tC.end(); track++){
-       if( isGoodSecondaryTrack(primTrack, *track)) { 
+    for(auto const& track : tC) {
+       if( isGoodSecondaryTrack(primTrack, track)) { 
             selected[i]=true;
-            trackingRecHit_iterator itB = (*track)->recHitsBegin();
-            trackingRecHit_iterator itE = (*track)->recHitsEnd();
-            for (trackingRecHit_iterator it = itB;  it != itE; ++it) {
-               const TrackingRecHit* hit = &(**it);
-               rh[track].push_back(hit);
-            }
+            for(auto const& hit : track->recHits()) rh[&track].push_back(hit);
         }
        i++;
     }
 
     // then remove duplicated tracks
     i=-1;
-    for (std::vector<reco::TrackRef>::const_iterator track=tC.begin(); track!=tC.end(); track++){
+    for(auto const& track : tC) {
       i++;
       int j=-1;
-      for (std::vector<reco::TrackRef>::const_iterator track2=tC.begin(); track2!=tC.end(); track2++){
+      for(auto const& track2 : tC) {
         j++;
         if ((!selected[j])||(!selected[i]))continue;
         if ((j<=i))continue;
         int noverlap=0;
-        std::vector<const TrackingRecHit*>& iHits = rh[track];
+        std::vector<const TrackingRecHit*>& iHits = rh[&track];
         for ( unsigned ih=0; ih<iHits.size(); ++ih ) {
           const TrackingRecHit* it = iHits[ih];
           if (it->isValid()){
-            std::vector<const TrackingRecHit*>& jHits = rh[track2];
+            std::vector<const TrackingRecHit*>& jHits = rh[&track2];
             for ( unsigned ih2=0; ih2<jHits.size(); ++ih2 ) {
             const TrackingRecHit* jt = jHits[ih2];
               if (jt->isValid()){
@@ -243,8 +238,8 @@ void NuclearVertexBuilder::cleanTrackCollection( const reco::TrackRef& primTrack
              }
           }
         }
-        float fi=float(noverlap)/float((*track)->recHitsSize()); 
-        float fj=float(noverlap)/float((*track2)->recHitsSize());
+        float fi=float(noverlap)/float(track->recHitsSize()); 
+        float fj=float(noverlap)/float(track2->recHitsSize());
         if ((fi>shareFrac_)||(fj>shareFrac_)){
           if (fi<fj){
             selected[j]=false;
@@ -252,7 +247,7 @@ void NuclearVertexBuilder::cleanTrackCollection( const reco::TrackRef& primTrack
             if (fi>fj){
               selected[i]=false;
             }else{
-              if ((*track)->normalizedChi2() > (*track2)->normalizedChi2()){selected[i]=false;}else{selected[j]=false;}
+              if (track->normalizedChi2() > track2->normalizedChi2()){selected[i]=false;}else{selected[j]=false;}
             }//end fi > or = fj
           }//end fi < fj
         }//end got a duplicate
@@ -261,8 +256,8 @@ void NuclearVertexBuilder::cleanTrackCollection( const reco::TrackRef& primTrack
 
    std::vector< reco::TrackRef > newTrackColl;
    i=0;
-   for (std::vector<reco::TrackRef>::const_iterator track=tC.begin(); track!=tC.end(); track++){
-         if( selected[i] ) newTrackColl.push_back( *track );
+   for(auto const& track : tC) {
+         if( selected[i] ) newTrackColl.push_back(track);
          ++i;
    }
    tC = newTrackColl;

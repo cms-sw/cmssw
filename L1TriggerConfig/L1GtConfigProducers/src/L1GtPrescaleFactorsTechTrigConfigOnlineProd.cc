@@ -42,14 +42,13 @@ L1GtPrescaleFactorsTechTrigConfigOnlineProd::~L1GtPrescaleFactorsTechTrigConfigO
 
 // public methods
 
-std::shared_ptr<L1GtPrescaleFactors> L1GtPrescaleFactorsTechTrigConfigOnlineProd::newObject(
+std::unique_ptr<L1GtPrescaleFactors> L1GtPrescaleFactorsTechTrigConfigOnlineProd::newObject(
         const std::string& objectKey) {
 
     // FIXME seems to not work anymore in constructor...
     m_isDebugEnabled = edm::isDebugEnabled();
 
-    // shared pointer for L1GtPrescaleFactors
-    auto pL1GtPrescaleFactors = std::make_shared<L1GtPrescaleFactors>();
+    auto pL1GtPrescaleFactors = std::make_unique<L1GtPrescaleFactors>();
 
     // Procedure:
     // objectKey received as input is GT_RUN_SETTINGS_FK
