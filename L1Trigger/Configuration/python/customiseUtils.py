@@ -190,6 +190,7 @@ def DropOutputProducts(process):
               ,'drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTClusterAssociationMap_TTClusterAssociatorFromPixelDigis_ClusterInclusive_HLT'
               ,'drop PixelDigiedmDetSetVector_simSiPixelDigis_Pixel_HLT'
               ,'drop Phase2TrackerDigiedmDetSetVector_mix_Tracker_HLT'
+              ,"drop l1tL1TkGlbMuonParticles_L1TkGlbMuons__REPR"
     )
     return process
 
