@@ -49,7 +49,7 @@ double DTTTrigSyncT0Only::offset(const DTLayer* layer,
 				  const GlobalPoint& globPos,
 				  double& tTrig,
 				  double& wirePropCorr,
-				  double& tofCorr) {
+				  double& tofCorr) const {
   tTrig = offset(wireId);
   wirePropCorr = 0;
   tofCorr = 0;
@@ -66,7 +66,7 @@ double DTTTrigSyncT0Only::offset(const DTLayer* layer,
   return tTrig + wirePropCorr - tofCorr;
 }
 
-double DTTTrigSyncT0Only::offset(const DTWireId& wireId) {
+double DTTTrigSyncT0Only::offset(const DTWireId& wireId) const {
   float t0 = 0;
   float t0rms = 0;
   tZeroMap->get(wireId,
@@ -80,11 +80,8 @@ double DTTTrigSyncT0Only::offset(const DTWireId& wireId) {
 
 double DTTTrigSyncT0Only::emulatorOffset(const DTWireId& wireId,
 					 double &tTrig,
-					 double &t0cell) {
+					 double &t0cell) const {
   tTrig = 0.;
   t0cell = 0.;
   return 0.;
 }
-
-
-
