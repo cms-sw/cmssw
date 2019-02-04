@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 pfClustersFromHGC3DClustersEM = cms.EDProducer("PFClusterProducerFromHGC3DClusters",
-    src = cms.InputTag("hgcalTriggerPrimitiveDigiProducer","cluster3D"),
+    src = cms.InputTag("hgcalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClustering"),
     emOnly = cms.bool(True),
     etMin = cms.double(0.0), 
     corrector  = cms.string("L1Trigger/Phase2L1ParticleFlow/data/ecorr.root"),
