@@ -2442,7 +2442,6 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
       bool foundElectron = false;
       int foundElectrons = 0;
       int foundNonElectrons = 0;
-      edm::ProductID simHitID;
       for(auto ip = range.first; ip != range.second; ++ip) {
         TrackPSimHitRef TPhit = ip->second;
         DetId dId = DetId(TPhit->detUnitId());
@@ -2457,8 +2456,10 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
       }
 
       float minSignificance = 1e12;
-      if (simHitBySignificance_){
+      if (simHitBySignificance_){//save the best matching hit
 	
+        int simHitKey = -1;
+        edm::ProductID simHitID;
 	for(auto ip = range.first; ip != range.second; ++ip) {
 	  TrackPSimHitRef TPhit = ip->second;
 	  DetId dId = DetId(TPhit->detUnitId());
@@ -2482,9 +2483,29 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
 	      simHitID = TPhit.id();
 	    }
 	  }
-	}
+	}//loop over matching hits
+
+        auto simHitIndex = simHitRefKeyToIndex.at(std::make_pair(simHitKey, simHitID));
+        ret.matchingSimHit.push_back(simHitIndex);
+
+        double chargeFraction = 0.;
+        for(const SimTrack& simtrk: trackingParticle->g4Tracks()) {
+          auto found = simTrackIdToChargeFraction.find(simtrk.trackId());
+          if(found != simTrackIdToChargeFraction.end()) {
+            chargeFraction += found->second;
+          }
+        }
+        ret.xySignificance.push_back(minSignificance);
+        ret.chargeFraction.push_back(chargeFraction);
+
+        // only for debug prints
+        ret.bunchCrossing.push_back(bx);
+        ret.event.push_back(event);
+
+        simhit_hitIdx[simHitIndex].push_back(clusterKey);
+        simhit_hitType[simHitIndex].push_back(static_cast<int>(hitType));
 	
-      } else {
+      } else {//save all matching hits
         for (auto ip = range.first; ip != range.second; ++ip) {
           TrackPSimHitRef TPhit = ip->second;
           DetId dId = DetId(TPhit->detUnitId());
@@ -2510,6 +2531,7 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
                 chargeFraction += found->second;
               }
             }
+            ret.xySignificance.push_back(minSignificance);
             ret.chargeFraction.push_back(chargeFraction);
             
             // only for debug prints
@@ -2543,28 +2565,9 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
         }
         throw ex;
       }
-      ret.xySignificance.push_back(minSignificance);
-      auto simHitIndex = simHitRefKeyToIndex.at(std::make_pair(simHitKey, simHitID));
-      ret.matchingSimHit.push_back(simHitIndex);
-
-      double chargeFraction = 0.;
-      for(const SimTrack& simtrk: trackingParticle->g4Tracks()) {
-        auto found = simTrackIdToChargeFraction.find(simtrk.trackId());
-        if(found != simTrackIdToChargeFraction.end()) {
-          chargeFraction += found->second;
-        }
-      }
-      ret.chargeFraction.push_back(chargeFraction);
-
-      // only for debug prints
-      ret.bunchCrossing.push_back(bx);
-      ret.event.push_back(event);
-
-      simhit_hitIdx[simHitIndex].push_back(clusterKey);
-      simhit_hitType[simHitIndex].push_back(static_cast<int>(hitType));
     }
   }
-
+  
   return ret;
 }
 
@@ -2720,8 +2723,6 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
       pix_yz.push_back(ttrh->globalPositionError().czy());
       pix_zz.push_back(ttrh->globalPositionError().czz());
       pix_zx.push_back(ttrh->globalPositionError().czx());
-      pix_xySignificance.push_back(simHitData.xySignificance);
-      pix_chargeFraction.push_back(simHitData.chargeFraction);
       pix_radL.push_back(ttrh->surface()->mediumProperties().radLen());
       pix_bbxi.push_back(ttrh->surface()->mediumProperties().xi());
 
@@ -2740,6 +2741,7 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
                                              HitType::Pixel);
         pix_simHitIdx.push_back(simHitData.matchingSimHit);
         pix_simType.push_back(static_cast<int>(simHitData.type));
+        pix_xySignificance.push_back(simHitData.xySignificance);
         pix_chargeFraction.push_back(simHitData.chargeFraction);
         LogTrace("TrackingNtuple") << " nMatchingSimHit=" << simHitData.matchingSimHit.size();
         if (!simHitData.matchingSimHit.empty()) {
@@ -2815,8 +2817,6 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
         str_yz[key] = ttrh->globalPositionError().czy();
         str_zz[key] = ttrh->globalPositionError().czz();
         str_zx[key] = ttrh->globalPositionError().czx();
-        str_xySignificance[key] = simHitData.xySignificance;
-        str_chargeFraction[key] = simHitData.chargeFraction;
         str_radL[key] = ttrh->surface()->mediumProperties().radLen();
         str_bbxi[key] = ttrh->surface()->mediumProperties().xi();
         str_chargePerCM[key] = siStripClusterTools::chargePerCM(hitId,hit.firstClusterRef().stripCluster());
@@ -2836,6 +2836,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
                                                HitType::Strip);
           str_simHitIdx[key] = simHitData.matchingSimHit;
           str_simType[key] = static_cast<int>(simHitData.type);
+          str_xySignificance[key] = simHitData.xySignificance;
           str_chargeFraction[key] = simHitData.chargeFraction;
           LogTrace("TrackingNtuple") << " nMatchingSimHit=" << simHitData.matchingSimHit.size();
           if (!simHitData.matchingSimHit.empty()) {
@@ -2883,7 +2884,7 @@ size_t TrackingNtuple::addStripMatchedHit(const SiStripMatchedRecHit2D& hit,
   glu_zx.push_back(ttrh->globalPositionError().czx());
   glu_radL.push_back(ttrh->surface()->mediumProperties().radLen());
   glu_bbxi.push_back(ttrh->surface()->mediumProperties().xi());
-  glu_chargePerCM.push_back(siStripClusterTools::chargePerCM(hitId,hit->firstClusterRef().stripCluster()));
+  glu_chargePerCM.push_back(siStripClusterTools::chargePerCM(hitId,hit.firstClusterRef().stripCluster()));
   LogTrace("TrackingNtuple") << "stripMatchedHit"
                              << " cluster0=" << hit.stereoHit().cluster().key()
                              << " cluster1=" << hit.monoHit().cluster().key() << " subdId=" << hitId.subdetId()
@@ -2929,9 +2930,6 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
       ph2_detId.push_back(tTopo, hitId);
       ph2_trkIdx.emplace_back();  // filled in fillTracks
       ph2_seeIdx.emplace_back();  // filled in fillSeeds
-      ph2_xySignificance.push_back(simHitData.xySignificance);
-      ph2_simHitIdx.push_back(simHitData.matchingSimHit);
-      ph2_simType.push_back(static_cast<int>(simHitData.type));
       ph2_x.push_back(ttrh->globalPosition().x());
       ph2_y.push_back(ttrh->globalPosition().y());
       ph2_z.push_back(ttrh->globalPosition().z());
@@ -2958,6 +2956,7 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
                                              digiSimLink,
                                              simHitRefKeyToIndex,
                                              HitType::Phase2OT);
+        ph2_xySignificance.push_back(simHitData.xySignificance);
         ph2_simHitIdx.push_back(simHitData.matchingSimHit);
         ph2_simType.push_back(static_cast<int>(simHitData.type));
         LogTrace("TrackingNtuple") << " nMatchingSimHit=" << simHitData.matchingSimHit.size();
@@ -3125,7 +3124,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       ///the following is useful for analysis in global coords at seed hit surface      
       TransientTrackingRecHit::RecHitPointer lastRecHit = theTTRHBuilder.build(&*(seed.recHits().second-1));
       TrajectoryStateOnSurface tsos = trajectoryStateTransform::transientState(seed.startingState(),
-                                                                               lastRecHit->surface(), theMF);
+                                                                               lastRecHit->surface(), &theMF);
       auto const& stateGlobal = tsos.globalParameters();
       see_stateTrajGlbX.push_back(stateGlobal.position().x());
       see_stateTrajGlbY.push_back(stateGlobal.position().y());
