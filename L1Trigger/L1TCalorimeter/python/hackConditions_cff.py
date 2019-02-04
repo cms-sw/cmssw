@@ -16,31 +16,25 @@ from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 #
 from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-#if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
-#    sys.stderr.write("L1TCalorimeter conditions configured for Run1 (Legacy) trigger. \n")
-# 
+
+def _load(process, f):
+    process.load(f)
 
 #
 # Stage-1 Trigger
 #
-if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
-    # Switch between HI and PP calo configuration:
-    if (run2_HI_specific.isChosen()):
-        from L1Trigger.L1TCalorimeter.caloConfigStage1HI_cfi import *
-    else:
-        from L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi import *
-    # Override Calo Scales:
-    from L1Trigger.L1TCalorimeter.caloScalesStage1_cff import *
-    # CaloParams is in the DB for Stage-1
+# Switch between HI and PP calo configuration:
+modifyL1TCalorimeterHackConditions_stage1HI = (stage1L1Trigger & ~stage2L1Trigger & run2_HI_specific).makeProcessModifier(lambda p: _load(p, "L1Trigger.L1TCalorimeter.caloConfigStage1HI_cfi"))
+modifyL1TCalorimeterHackConditions_stage1PP = (stage1L1Trigger & ~stage2L1Trigger & ~run2_HI_specific).makeProcessModifier(lambda p: _load(p, "L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi"))
+# Override Calo Scales:
+modifyL1TCalorimeterHackConditions_stage1Common = (stage1L1Trigger & ~stage2L1Trigger).makeProcessModifier(lambda p: _load(p, "L1Trigger.L1TCalorimeter.caloScalesStage1_cff"))
+# CaloParams is in the DB for Stage-1
+
 
 #
 # Stage-2 Trigger
 #
-if stage2L1Trigger.isChosen():
-    if pA_2016.isChosen():
-        from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_1_HI_cfi import *    
-    else:
-        from L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_4_cfi import *    
-    
-    # What about CaloConfig?  Related:  How will we switch PP/HH?
-    #
+modifyL1TCalorimeterHackConditions_stage2PA = (stage2L1Trigger & pA_2016).makeProcessModifier(lambda p: _load(p, "L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_1_HI_cfi"))
+modifyL1TCalorimeterHackConditions_stage2PP = (stage2L1Trigger & ~pA_2016).makeProcessModifier(lambda p: _load(p, "L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_4_cfi"))
+# What about CaloConfig?  Related:  How will we switch PP/HH?
+#
