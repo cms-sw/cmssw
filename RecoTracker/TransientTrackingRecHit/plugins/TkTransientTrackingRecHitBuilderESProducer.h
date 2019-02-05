@@ -7,7 +7,7 @@
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "RecoLocalTracker/Records//interface/TrackerCPERecord.h"
+#include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
 
 #include <memory>
 
