@@ -6,7 +6,7 @@
  */
 
 #include "DataFormats/Math/interface/deltaR.h"
-#include "RecoEgamma/EgammaTools//interface/HGCalIsoCalculator.h"
+#include "RecoEgamma/EgammaTools/interface/HGCalIsoCalculator.h"
 
 HGCalIsoCalculator::HGCalIsoCalculator():dr2_(0.15*0.15),mindr2_(0),rechittools_(nullptr),debug_(false),nlayers_(30){
     setNRings(5);

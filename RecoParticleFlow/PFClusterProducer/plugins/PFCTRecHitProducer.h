@@ -16,7 +16,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 
-#include "CondFormats//HcalObjects/interface/HcalPFCorrs.h"
+#include "CondFormats/HcalObjects/interface/HcalPFCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
