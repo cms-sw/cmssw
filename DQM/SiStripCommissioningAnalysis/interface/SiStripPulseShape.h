@@ -19,21 +19,29 @@
 #define SiStripPulseShape_h_
 
 double fpeak(double *x, double *par);
+
 double fdeconv(double *x, double *par);
 
 double fturnOn(double *x, double *par);
+
 double fdecay(double *x, double *par);
 
 double fpeak_convoluted(double *x, double *par);
+
 double fdeconv_convoluted(double *x, double *par);
 
 double pulse_raw(double x, double y, double z, double t);
+
 double pulse_x0(double y, double z, double t);
+
 double pulse_yz(double x, double z, double t);
+
 double pulse_x0_yz(double z, double t);
+
 double pulse(double x, double y, double z, double t);
 
-class SiStripPulseShape{
+class SiStripPulseShape
+{
  public: 
   enum mode {peak,deconvolution};
  SiStripPulseShape():mode_(deconvolution) {}
