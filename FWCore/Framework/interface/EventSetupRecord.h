@@ -147,11 +147,6 @@ namespace edm {
             }
          }
 
-         template<typename T>
-         bool get(ESGetTokenT<T> const& iToken, ESHandle<T>& iHandle) const {
-            return get(iToken.m_tag, iHandle);
-         }
-
          ///returns false if no data available for key
          bool doGet(DataKey const& aKey, bool aGetTransiently = false) const;
 
@@ -187,6 +182,14 @@ namespace edm {
            impl_->fillRegisteredDataKeys(oToFill);
          }
       protected:
+
+         template<typename T, typename R>
+         ESHandle<T> getHandleImpl(ESGetToken<T,R> const& iToken) const {
+           ESHandle<T> h;
+           (void) get(iToken.m_tag, h);
+           return h;
+         }
+        
 
          DataProxy const* find(DataKey const& aKey) const ;
 

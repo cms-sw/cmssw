@@ -42,8 +42,8 @@
 namespace edm {
    class ActivityRegistry;
    class ESInputTag;
-   template <class T>
-   class ESGetTokenT;
+   template <class T, class R>
+   class ESGetToken;
    class PileUp;
 
    namespace eventsetup {
@@ -97,9 +97,15 @@ namespace edm {
            return rec.get(iTag, iHolder);
         }
 
-      template <typename T>
-      bool getData(const ESGetTokenT<T>& iToken, ESHandle<T>& iHolder) const {
-        return getData(iToken.m_tag, iHolder);
+      template <typename T, typename R>
+       ESHandle<T> getHandle(const ESGetToken<T, R>& iToken) const {
+          if constexpr ( std::is_same_v<R, edm::DefaultRecord> ) {
+             auto const& rec = this->get<eventsetup::default_record_t<ESHandle<T>>>();
+             return rec.getHandle(iToken);
+          } else {
+             auto const& rec = this->get<R>();
+             return rec.getHandle(iToken);
+          }
       }
 
       std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey& iKey) const {
