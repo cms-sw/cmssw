@@ -196,7 +196,9 @@ void testEventsetupRecord::getTest()
    DummyRecord dummyRecord;
    dummyRecord.setImpl(&dummyRecordImpl);
    ESHandle<Dummy> dummyPtr;
-   dummyRecord.get(dummyPtr);
+   CPPUNIT_ASSERT(not dummyRecord.get(dummyPtr));
+   CPPUNIT_ASSERT(not dummyPtr.isValid());
+   CPPUNIT_ASSERT(not dummyPtr);
    CPPUNIT_ASSERT(dummyPtr.failedToGet());
    CPPUNIT_ASSERT_THROW(*dummyPtr, NoDataExceptionType) ;
    //CDJ do this replace
@@ -223,6 +225,8 @@ void testEventsetupRecord::getTest()
 
    dummyRecord.get("working",dummyPtr);
    CPPUNIT_ASSERT(!dummyPtr.failedToGet());
+   CPPUNIT_ASSERT(dummyPtr.isValid());
+   CPPUNIT_ASSERT(dummyPtr);
 
    CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
 
