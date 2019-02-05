@@ -7,6 +7,10 @@ useJson = True
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
 
 if useJson:
     process.load('CondFormats.CTPPSReadoutObjects.ppsTimingCalibrationESSource_cfi')
