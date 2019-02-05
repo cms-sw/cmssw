@@ -1,4 +1,3 @@
-#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -8,6 +7,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/LowPtGsfElectronIDHeavyObjectCache.h"
+#include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
 #include <string>
 
 namespace lowptgsfeleid {
@@ -112,7 +112,7 @@ namespace lowptgsfeleid {
       }
     for ( auto& weights : conf.getParameter< std::vector<std::string> >("ModelWeights") ) 
       {
-	models_.push_back(createGBRForest(edm::FileInPath(weights)));
+	models_.push_back(GBRForestTools::createGBRForest(edm::FileInPath(weights)));
       }
     for ( auto& thresh : conf.getParameter< std::vector<double> >("ModelThresholds") )
       {

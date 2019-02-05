@@ -1,4 +1,3 @@
-#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
