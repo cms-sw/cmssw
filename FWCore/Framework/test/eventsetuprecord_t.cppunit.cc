@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESValidHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -201,6 +202,7 @@ void testEventsetupRecord::getTest()
    CPPUNIT_ASSERT(not dummyPtr);
    CPPUNIT_ASSERT(dummyPtr.failedToGet());
    CPPUNIT_ASSERT_THROW(*dummyPtr, NoDataExceptionType) ;
+   CPPUNIT_ASSERT_THROW(makeESValid(dummyPtr), cms::Exception) ;
    //CDJ do this replace
    //CPPUNIT_ASSERT_THROW(dummyRecord.get(dummyPtr),NoDataExceptionType);
 
@@ -227,6 +229,7 @@ void testEventsetupRecord::getTest()
    CPPUNIT_ASSERT(!dummyPtr.failedToGet());
    CPPUNIT_ASSERT(dummyPtr.isValid());
    CPPUNIT_ASSERT(dummyPtr);
+   (void) makeESValid(dummyPtr);
 
    CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
 
