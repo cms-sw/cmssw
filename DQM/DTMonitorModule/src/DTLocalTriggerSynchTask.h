@@ -96,11 +96,10 @@ class DTLocalTriggerSynchTask: public DQMEDAnalyzer{
   float angleRange;
   float minHitsPhi;
   int fineDelay;
-  DTTTrigBaseSync *tTrigSync;
+  std::unique_ptr<DTTTrigBaseSync> tTrigSync;
 
   std::string baseDirectory;
 
-  edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
   std::map<uint32_t, std::map<std::string, MonitorElement*> > triggerHistos;
   MonitorElement* tm_IDDataErrorPlot;
