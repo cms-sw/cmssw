@@ -59,16 +59,12 @@ print '\t Max events:', process.maxEvents.input.value()
 if runSignal:
     readFiles.extend([
         #'file:patMiniAOD_standard.root'
-        '/store/relval/CMSSW_10_3_0_pre2/RelValZTT_13/MINIAODSIM/PU25ns_103X_upgrade2018_realistic_v2-v1/20000/75AAA50B-3DD0-2B41-AB02-85428238CF7C.root'
-        #'/store/relval/CMSSW_10_1_0_pre3/RelValZTT_13UP18/MINIAODSIM/PUpmx25ns_101X_upgrade2018_realistic_v3_cc7-v1/10000/2808A251-DE31-E811-BFBC-0242AC130002.root'
-        #'root://cms-xrd-global.cern.ch///store/relval/CMSSW_10_0_0_pre2/RelValZTT_13/MINIAODSIM/PUpmx25ns_100X_mc2017_realistic_v1-v1/20000/B01F0774-17E1-E711-9826-0CC47A4D7654.root',
+        '/store/relval/CMSSW_10_5_0_pre1/RelValZTT_13/MINIAODSIM/PU25ns_103X_upgrade2018_realistic_v8-v1/20000/EA29017F-9967-3F41-BB8A-22C44A454235.root'
     ])
 else:
     readFiles.extend([
         #'file:patMiniAOD_standard.root'
-        '/store/relval/CMSSW_10_1_0_pre3/RelValZTT_13UP18/MINIAODSIM/PUpmx25ns_101X_upgrade2018_realistic_v3_cc7-v1/10000/2808A251-DE31-E811-BFBC-0242AC130002.root'
-        #'root://cms-xrd-global.cern.ch///store/relval/CMSSW_10_0_0_pre2/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/PUpmx25ns_100X_mcRun2_asymptotic_v2_FastSim-v1/20000/78318DC3-40E0-E711-BCFE-0CC47A4D763C.root',
-        #'root://cms-xrd-global.cern.ch///store/relval/CMSSW_10_0_0_pre2/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/PUpmx25ns_100X_mcRun2_asymptotic_v2_FastSim-v1/20000/E6F528C8-40E0-E711-9F06-0CC47A4C8E56.root',
+        '/store/relval/CMSSW_10_5_0_pre1/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/PU25ns_103X_mcRun2_asymptotic_v3-v1/20000/A5CBC261-E3AB-C842-896F-E6AFB38DD22F.root'
     ])
 
 #####
@@ -81,8 +77,7 @@ tauAtMiniTools.addTauReReco(process)
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 if not phase2:
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
-    process.GlobalTag.globaltag = '103X_upgrade2018_realistic_v2'
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
 else:
     process.GlobalTag = GlobalTag(
         process.GlobalTag, 'auto:phase2_realistic', '')
