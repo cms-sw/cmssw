@@ -57,6 +57,26 @@ namespace edm {
            return getHandleImpl(iToken);
          }
 
+         using EventSetupRecord::get;
+        
+         template<typename PRODUCT>
+         PRODUCT const& get(ESGetToken<PRODUCT,T> const& iToken) const {
+           return *getHandleImpl(iToken);
+         }
+        template<typename PRODUCT>
+        PRODUCT const& get(ESGetToken<PRODUCT,T>& iToken) const {
+          return *getHandleImpl(const_cast<const ESGetToken<PRODUCT,T>&>(iToken));
+        }
+
+         template<typename PRODUCT>
+         PRODUCT const& get(ESGetToken<PRODUCT,edm::DefaultRecord> const& iToken) const {
+           static_assert(std::is_same_v<T, eventsetup::default_record_t<ESHandle<PRODUCT>>>, "The Record being used to retrieve the product is not the default record for the product type");
+           return *getHandleImpl(iToken);
+         }
+        template<typename PRODUCT>
+        PRODUCT const& get(ESGetToken<PRODUCT,edm::DefaultRecord>& iToken) const {
+          return get(const_cast<const ESGetToken<PRODUCT,edm::DefaultRecord>&>(iToken) );
+        }
 
          // ---------- static member functions --------------------
          static EventSetupRecordKey keyForClass()  {
