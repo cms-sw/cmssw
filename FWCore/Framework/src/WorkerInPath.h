@@ -30,7 +30,7 @@ namespace edm {
 
     template <typename T>
     void runWorkerAsync(WaitingTask* iTask,
-                        typename T::MyPrincipal const&, EventSetup const&,
+                        typename T::MyPrincipal const&, EventSetupImpl const&,
                         ServiceToken const&,
                         StreamID streamID,
                         typename T::Context const* context);
@@ -111,7 +111,7 @@ namespace edm {
 
   template <typename T>
   void WorkerInPath::runWorkerAsync(WaitingTask* iTask,
-                                    typename T::MyPrincipal const& ep, EventSetup const & es,
+                                    typename T::MyPrincipal const& ep, EventSetupImpl const & es,
                                     ServiceToken const& token,
                                     StreamID streamID,
                                     typename T::Context const* context) {

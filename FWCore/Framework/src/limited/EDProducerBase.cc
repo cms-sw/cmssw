@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
@@ -49,7 +50,7 @@ namespace edm {
     }
     
     bool
-    EDProducerBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
+    EDProducerBase::doEvent(EventPrincipal const& ep, EventSetupImpl const& ci,
                             ActivityRegistry* act,
                             ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
@@ -57,6 +58,7 @@ namespace edm {
       const auto streamIndex = e.streamID().value();
       e.setProducer(this,&previousParentages_[streamIndex]);
       EventSignalsSentry sentry(act,mcc);
+      const EventSetup c{ci};
       this->produce(e.streamID(), e, c);
       commit_(e, &previousParentageIds_[streamIndex]);
       return true;
@@ -83,11 +85,12 @@ namespace edm {
     }
     
     void
-    EDProducerBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+    EDProducerBase::doBeginRun(RunPrincipal const& rp, EventSetupImpl const& ci,
                                ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
       Run const& cnstR = r;
+      const EventSetup c{ci};
       this->doBeginRun_(cnstR, c);
       this->doBeginRunSummary_(cnstR, c);
       r.setProducer(this);
@@ -96,12 +99,13 @@ namespace edm {
     }
     
     void
-    EDProducerBase::doEndRun(RunPrincipal const& rp, EventSetup const& c,
+    EDProducerBase::doEndRun(RunPrincipal const& rp, EventSetupImpl const& ci,
                              ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       r.setProducer(this);
       Run const& cnstR = r;
+      const EventSetup c{ci};
       this->doEndRunProduce_(r, c);
       this->doEndRunSummary_(r,c);
       this->doEndRun_(cnstR, c);
@@ -109,11 +113,12 @@ namespace edm {
     }
     
     void
-    EDProducerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    EDProducerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& ci,
                                            ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
+      const EventSetup c{ci};
       this->doBeginLuminosityBlock_(cnstLb, c);
       this->doBeginLuminosityBlockSummary_(cnstLb, c);
       lb.setProducer(this);
@@ -122,12 +127,13 @@ namespace edm {
     }
     
     void
-    EDProducerBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    EDProducerBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& ci,
                                          ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       lb.setProducer(this);
       LuminosityBlock const& cnstLb = lb;
+      const EventSetup c{ci};
       this->doEndLuminosityBlockProduce_(lb, c);
       this->doEndLuminosityBlockSummary_(cnstLb,c);
       this->doEndLuminosityBlock_(cnstLb, c);
@@ -145,40 +151,44 @@ namespace edm {
     void
     EDProducerBase::doStreamBeginRun(StreamID id,
                                      RunPrincipal const& rp,
-                                     EventSetup const& c,
+                                     EventSetupImpl const& ci,
                                      ModuleCallingContext const* mcc)
     {
       Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
+      const EventSetup c{ci};
       this->doStreamBeginRun_(id, r, c);
     }
     void
     EDProducerBase::doStreamEndRun(StreamID id,
                                    RunPrincipal const& rp,
-                                   EventSetup const& c,
+                                   EventSetupImpl const& ci,
                                    ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
+      const EventSetup c{ci};
       this->doStreamEndRun_(id, r, c);
       this->doStreamEndRunSummary_(id, r, c);
     }
     void
     EDProducerBase::doStreamBeginLuminosityBlock(StreamID id,
                                                  LuminosityBlockPrincipal const& lbp,
-                                                 EventSetup const& c,
+                                                 EventSetupImpl const& ci,
                                                  ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
+      const EventSetup c{ci};
       this->doStreamBeginLuminosityBlock_(id,lb, c);
     }
     
     void
     EDProducerBase::doStreamEndLuminosityBlock(StreamID id,
                                                LuminosityBlockPrincipal const& lbp,
-                                               EventSetup const& c,
+                                               EventSetupImpl const& ci,
                                                ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
+      const EventSetup c{ci};
       this->doStreamEndLuminosityBlock_(id,lb, c);
       this->doStreamEndLuminosityBlockSummary_(id,lb, c);
     }

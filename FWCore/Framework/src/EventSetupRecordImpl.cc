@@ -17,7 +17,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"

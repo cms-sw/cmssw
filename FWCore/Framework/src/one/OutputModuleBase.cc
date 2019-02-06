@@ -256,7 +256,7 @@ namespace edm {
     
     bool
     OutputModuleBase::doEvent(EventPrincipal const& ep,
-                              EventSetup const&,
+                              EventSetupImpl const&,
                               ActivityRegistry* act,
                               ModuleCallingContext const* mcc) {
       
@@ -274,7 +274,7 @@ namespace edm {
     
     bool
     OutputModuleBase::doBeginRun(RunPrincipal const& rp,
-                                 EventSetup const&,
+                                 EventSetupImpl const&,
                                  ModuleCallingContext const* mcc) {
       RunForOutput r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
@@ -284,7 +284,7 @@ namespace edm {
     
     bool
     OutputModuleBase::doEndRun(RunPrincipal const& rp,
-                               EventSetup const&,
+                               EventSetupImpl const&,
                                ModuleCallingContext const* mcc) {
       RunForOutput r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
@@ -303,7 +303,7 @@ namespace edm {
     
     bool
     OutputModuleBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                             EventSetup const&,
+                                             EventSetupImpl const&,
                                              ModuleCallingContext const* mcc) {
       LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
@@ -313,7 +313,7 @@ namespace edm {
     
     bool
     OutputModuleBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                           EventSetup const&,
+                                           EventSetupImpl const&,
                                            ModuleCallingContext const* mcc) {
       LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);

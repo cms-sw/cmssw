@@ -21,6 +21,7 @@ namespace edm {
   class ESProducer;
   class ESConsumesCollector;
   class EventSetup;
+  class EventSetupImpl;
   namespace eventsetup {
     class EventSetupRecord;
   }
@@ -33,6 +34,7 @@ namespace edm {
     friend class ESProducer;
     friend class ESConsumesCollector;
     friend class EventSetup;
+    friend class EventSetupImpl;
     friend class eventsetup::EventSetupRecord;
 
   public:

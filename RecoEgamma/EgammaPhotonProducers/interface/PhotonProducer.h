@@ -41,8 +41,6 @@ class PhotonProducer : public edm::stream::EDProducer<> {
   PhotonProducer (const edm::ParameterSet& ps);
   ~PhotonProducer() override;
 
-  void beginRun (edm::Run const& r, edm::EventSetup const & es) final;
-  void endRun(edm::Run const&,  edm::EventSetup const&) final;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
