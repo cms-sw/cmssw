@@ -28,12 +28,6 @@ void GEMeMap::convert(GEMROMapping & romap) {
       dc.detId = GEMDetId((imap.gemNum[ix] > 0) ? 1:-1, 1, abs(imap.gemNum[ix]/1000), abs(imap.gemNum[ix]/100%10), abs(imap.gemNum[ix]%100), 0);
       dc.vfatVer = imap.vfatVer[ix];
 
-      // std::cout << " fedId " << ec.fedId
-      //           << " amcNum " << ec.amcNum
-      //           << " gebId " << ec.gebId
-      //           << " vfatVer " << dc.vfatVer
-      //           << " id " << dc.detId
-      //           << std::endl;
       romap.add(ec, dc);
     }
   }
@@ -51,12 +45,6 @@ void GEMeMap::convert(GEMROMapping & romap) {
       dc.detId = gemId;
       dc.localPhi = imap.localPhi[ix];
 
-      std::cout << " vfatAdd " << ec.vfatAdd
-                << " vfatType " << dc.vfatType
-                << " localPhi " << dc.localPhi
-                << " id " << dc.detId
-                << std::endl;
-      
       romap.add(ec, dc);
       romap.add(gemId.chamberId(),ec);
 
@@ -77,8 +65,6 @@ void GEMeMap::convert(GEMROMapping & romap) {
       romap.add(sMap, cMap);
     }
   }
-  std::cout << " GEMeMap finished "
-            << std::endl;
 
 }
 
@@ -125,13 +111,6 @@ void GEMeMap::convertDummy(GEMROMapping & romap) {
               romap.add(gemId.chamberId(),vec);
               
               chipPos++;
-              // std::cout << " fedId " << fedId
-              //           << " amcNum " << int(amcNum)
-              //           << " gebId " << int(gebId)
-              //           << " localPhi " << vdc.localPhi
-              //           << " id " << vdc.detId
-              //           << std::endl;
-              
             }
           }
 
