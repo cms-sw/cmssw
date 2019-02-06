@@ -97,6 +97,17 @@ namespace edm {
            return rec.get(iTag, iHolder);
         }
 
+      template< typename T, typename R>
+        T const& getData(const ESGetToken<T, R>& iToken) const noexcept(false) {
+           return this->get<std::conditional_t<std::is_same_v<R, edm::DefaultRecord>,
+                                               eventsetup::default_record_t<ESHandle<T>>,
+                                               R>>().get(iToken);
+        }
+        template< typename T, typename R>
+        T const& getData(ESGetToken<T, R>& iToken) const noexcept(false) {
+           return this->getData( const_cast<const ESGetToken<T,R>&>(iToken));
+        }
+
       template <typename T, typename R>
        ESHandle<T> getHandle(const ESGetToken<T, R>& iToken) const {
           if constexpr ( std::is_same_v<R, edm::DefaultRecord> ) {
