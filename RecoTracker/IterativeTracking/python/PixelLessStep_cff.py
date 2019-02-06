@@ -293,7 +293,7 @@ from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
 trackingPhase1.toReplaceWith(pixelLessStep, TrackLwtnnClassifier.clone(
      src = 'pixelLessStepTracks',
-     qualityCuts = [-0.6, -0.15, 0.3],
+     qualityCuts = [-0.6, -0.05, 0.5],
 ))
 
 pp_on_AA_2018.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(

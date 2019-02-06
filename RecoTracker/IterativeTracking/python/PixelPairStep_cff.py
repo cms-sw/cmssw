@@ -338,7 +338,7 @@ from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
 trackingPhase1.toReplaceWith(pixelPairStep, TrackLwtnnClassifier.clone(
     src='pixelPairStepTracks',
-    qualityCuts=[-0.6, -0.3, -0.0],
+    qualityCuts=[-0.6, -0.1, 0.4],
 ))
 
 highBetaStar_2018.toReplaceWith(pixelPairStep, TrackMVAClassifierPrompt.clone(
