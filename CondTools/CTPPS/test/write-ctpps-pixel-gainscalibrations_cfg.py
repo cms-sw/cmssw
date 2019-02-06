@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys,os
 
@@ -24,13 +25,13 @@ else:
     if len(arguments)>6:
         doDummy    = (arguments[6].lower()=="true")
         print ("useDummyValues = ",doDummy)
-    if len(arguments)>7: 
+    if len(arguments)>7:
         gainlo     = float(arguments[7])
         print ("gainLowLimit = ",gainlo)
-    if len(arguments)>8: 
+    if len(arguments)>8:
         gainhi     = float(arguments[8])
         print ("gainHighLimit = ",gainhi)
-    if len(arguments)>9: 
+    if len(arguments)>9:
         minNp      = int(arguments[9])
         print ("minimumNpFit = ",minNp)
 
@@ -50,7 +51,7 @@ process.pixGainDB = cms.EDAnalyzer("WriteCTPPSPixGainCalibrations",
                                    )
 
 
-process.source = cms.Source("EmptyIOVSource",                            
+process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
     firstValue = cms.uint64(runnumber),
     lastValue = cms.uint64(runnumber),

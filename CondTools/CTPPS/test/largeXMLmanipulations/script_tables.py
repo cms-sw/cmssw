@@ -1,9 +1,8 @@
 import subprocess
-#import xml.etree.ElementTree as ET
-
+from __future__ import print_function
 
 infile   = open("alignment_export_2018_12_07.1.xml","rt")
-xmllines = infile.readlines() 
+xmllines = infile.readlines()
 infile.close()
 #tree = ET.parse(infilename)
 #root = tree.getroot()

@@ -1,11 +1,13 @@
 #! python3
 
+from __future__ import print_function
+
 ### this script takes a file with a list of IOVs and subdir name where separated xmls files are located
 ### the xml files have the iov start runno in the name and in the body (iov node of the xml) which should match
 ### for large xml with multiple IOVs we preferred to break into single-iov xmls to check for identical consecutive payloads
 ### for each new IOV start cmsRun write... is called to update the sqlite file
 ### the resulting sqlite file has a table of several IOV start and payloads
- 
+
 import subprocess
 import sys
 
@@ -30,7 +32,7 @@ for i in range(0,len(iovs_list)):
     print("Processing payload for IOV start "+runno)
     print (subprocess.check_output(
         "cmsRun write-ctpps-rprealalignment_table_cfg.py "+runno+"  "+path
-        ,shell=True ) 
+        ,shell=True )
         )
 
 print("finished")
