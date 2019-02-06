@@ -13,66 +13,44 @@
 //
 
 // system include files
+#include <algorithm>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
-#include "FWCore/Framework/interface/EventSetupKnownRecordsSupplier.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace edm {
-//
-// constants, enums and typedefs
-//
 
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 EventSetupImpl::EventSetupImpl(ActivityRegistry const* activityRegistry) :
-   recordMap_(),
    activityRegistry_(activityRegistry)
-
 {
 }
-
-// EventSetupImpl::EventSetupImpl(EventSetupImpl const& rhs)
-// {
-//    // do actual copying here;
-// }
 
 EventSetupImpl::~EventSetupImpl()
 {
 }
 
-//
-// assignment operators
-//
-// EventSetupImpl const& EventSetupImpl::operator=(EventSetupImpl const& rhs)
-// {
-//   //An exception safe implementation is
-//   EventSetupImpl temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
 void
 EventSetupImpl::insert(const eventsetup::EventSetupRecordKey& iKey,
                 const eventsetup::EventSetupRecordImpl* iRecord)
 {
-   recordMap_[iKey]= iRecord;
+   auto lb = std::lower_bound(keysBegin_, keysEnd_, iKey);
+   if (lb == keysEnd_ || iKey != *lb) {
+      throw cms::Exception("LogicError") << "EventSetupImpl::insert Could not find key\n"
+                                         << "Should be impossible. Please contact Framework developer.\n";
+   }
+   auto index = std::distance(keysBegin_, lb);
+   recordImpls_[index] = iRecord;
 }
 
 void
 EventSetupImpl::clear()
 {
-   recordMap_.clear();
+  for (auto& ptr : recordImpls_) {
+     ptr = nullptr;
+  }
 }
 
 void
@@ -81,49 +59,54 @@ EventSetupImpl::add(const eventsetup::EventSetupRecordImpl& iRecord)
    insert(iRecord.key(), &iRecord);
 }
 
-//
-// const member functions
-//
 std::optional<eventsetup::EventSetupRecordGeneric>
 EventSetupImpl::find(const eventsetup::EventSetupRecordKey& iKey) const
 {
-   auto itFind = recordMap_.find(iKey);
-   if(itFind == recordMap_.end()) {
-     return std::nullopt;
+   auto lb = std::lower_bound(keysBegin_, keysEnd_, iKey);
+   if (lb == keysEnd_ || iKey != *lb) {
+      return std::nullopt;
    }
-  return eventsetup::EventSetupRecordGeneric(itFind->second);
+   auto index = std::distance(keysBegin_, lb);
+   return eventsetup::EventSetupRecordGeneric(recordImpls_[index]);
 }
 
 eventsetup::EventSetupRecordImpl const*
 EventSetupImpl::findImpl(const eventsetup::EventSetupRecordKey& iKey) const
 {
-  auto itFind = recordMap_.find(iKey);
-  if(itFind == recordMap_.end()) {
-    return nullptr;
-  }
-  return itFind->second;
+   auto lb = std::lower_bound(keysBegin_, keysEnd_, iKey);
+   if (lb == keysEnd_ || iKey != *lb) {
+      return nullptr;
+   }
+   auto index = std::distance(keysBegin_, lb);
+   return recordImpls_[index];
 }
 
 void
 EventSetupImpl::fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const
 {
   oToFill.clear();
-  oToFill.reserve(recordMap_.size());
+  oToFill.reserve(recordImpls_.size());
 
-  for(auto it = recordMap_.begin(), itEnd=recordMap_.end();
-      it != itEnd;
-      ++it) {
-    oToFill.push_back(it->first);
+  for (auto const& recordImpl : recordImpls_) { 
+    if (recordImpl != nullptr) {
+      oToFill.push_back(recordImpl->key());
+    }
   }
 }
 
 bool
-EventSetupImpl::recordIsProvidedByAModule( eventsetup::EventSetupRecordKey const& iKey) const
+EventSetupImpl::recordIsProvidedByAModule(eventsetup::EventSetupRecordKey const& iKey) const
 {
-  return knownRecords_->isKnown(iKey);
+   auto lb = std::lower_bound(keysBegin_, keysEnd_, iKey);
+   return lb != keysEnd_ && iKey == *lb;
 }
 
-//
-// static member functions
-//
+void
+EventSetupImpl::setKeyIters(std::vector<eventsetup::EventSetupRecordKey>::const_iterator const& keysBegin,
+                            std::vector<eventsetup::EventSetupRecordKey>::const_iterator const& keysEnd) {
+   keysBegin_ = keysBegin;
+   keysEnd_ = keysEnd;
+   recordImpls_.resize(keysEnd_ - keysBegin_, nullptr);
+}
+
 }
