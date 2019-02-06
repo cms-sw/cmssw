@@ -19,6 +19,8 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 
 
 #include "FWCore/Framework/test/DummyRecord.h"
@@ -51,6 +53,8 @@ class testEventsetup: public CppUnit::TestFixture
   CPPUNIT_TEST(provenanceTest);
   CPPUNIT_TEST(getDataWithLabelTest);
   CPPUNIT_TEST(getDataWithESInputTagTest);
+  CPPUNIT_TEST(getDataWithESGetTokenTest);
+  CPPUNIT_TEST(getHandleWithESGetTokenTest);
   CPPUNIT_TEST_EXCEPTION(recordValidityTest,edm::eventsetup::NoRecordException<DummyRecord>);
   CPPUNIT_TEST_EXCEPTION(recordValidityExcTest,edm::eventsetup::NoRecordException<DummyRecord>);
   CPPUNIT_TEST(proxyProviderTest);
@@ -81,6 +85,8 @@ public:
   void provenanceTest();
   void getDataWithLabelTest();
   void getDataWithESInputTagTest();
+  void getDataWithESGetTokenTest();
+  void getHandleWithESGetTokenTest();
 
   void producerConflictTest();
   void sourceConflictTest();
@@ -493,7 +499,149 @@ void testEventsetup::getDataWithESInputTagTest()
   }
 }
 
+namespace {
+  struct DummyDataConsumer : public EDConsumerBase {
+    explicit DummyDataConsumer( ESInputTag const& iTag):
+    m_token{esConsumes<edm::eventsetup::test::DummyData, edm::DefaultRecord>(iTag)}
+    {}
+    
+    ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> m_token;
+  };
+}
 
+void testEventsetup::getDataWithESGetTokenTest()
+{
+  using edm::eventsetup::test::DummyProxyProvider;
+  using edm::eventsetup::test::DummyData;
+  DummyData kGood{1};
+  DummyData kBad{0};
+  
+  eventsetup::EventSetupProvider provider(&activityRegistry);
+  try {
+    {
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider","testOne",true);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test11");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DummyProxyProvider>(kBad);
+      dummyProv->setDescription(description);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider","testTwo",false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test22");
+      ps.addParameter<std::string>("appendToDataLabel","blah");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DummyProxyProvider>(kGood);
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    auto const& eventSetupImpl = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+    EventSetup eventSetup{eventSetupImpl};
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("","blah")};
+      
+      auto const& data = eventSetup.getData(consumer.m_token);
+      CPPUNIT_ASSERT(kGood.value_==data.value_);
+    }
+    
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("","")};
+      const DummyData& data = eventSetup.getData(consumer.m_token);
+      CPPUNIT_ASSERT(kBad.value_==data.value_);
+    }
+    
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("testTwo","blah")};
+      auto const& data = eventSetup.getData(consumer.m_token);
+      CPPUNIT_ASSERT(kGood.value_==data.value_);
+    }
+    
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("DoesNotExist","blah")};
+      CPPUNIT_ASSERT_THROW(eventSetup.getData(consumer.m_token), cms::Exception);
+    }
+    
+    
+  } catch (const cms::Exception& iException) {
+    std::cout <<"caught "<<iException.explainSelf()<<std::endl;
+    throw;
+  }
+}
+
+void testEventsetup::getHandleWithESGetTokenTest()
+{
+  using edm::eventsetup::test::DummyProxyProvider;
+  using edm::eventsetup::test::DummyData;
+  DummyData kGood{1};
+  DummyData kBad{0};
+  
+  eventsetup::EventSetupProvider provider(&activityRegistry);
+  try {
+    {
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider","testOne",true);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test11");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DummyProxyProvider>(kBad);
+      dummyProv->setDescription(description);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider","testTwo",false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test22");
+      ps.addParameter<std::string>("appendToDataLabel","blah");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DummyProxyProvider>(kGood);
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    auto const& eventSetupImpl = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+    EventSetup eventSetup{eventSetupImpl};
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("","blah")};
+      
+      edm::ESHandle<DummyData> data = eventSetup.getHandle(consumer.m_token);
+      CPPUNIT_ASSERT(kGood.value_==data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      CPPUNIT_ASSERT( desc->label_ == "testTwo");
+    }
+    
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("","")};
+      edm::ESHandle<DummyData> data = eventSetup.getHandle(consumer.m_token);
+      CPPUNIT_ASSERT(kBad.value_==data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      CPPUNIT_ASSERT( desc->label_ == "testOne");
+    }
+    
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("testTwo","blah")};
+      edm::ESHandle<DummyData> data = eventSetup.getHandle(consumer.m_token);
+      CPPUNIT_ASSERT(kGood.value_==data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      CPPUNIT_ASSERT( desc->label_ == "testTwo");
+    }
+    
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("DoesNotExist","blah")};
+      CPPUNIT_ASSERT_THROW(eventSetup.getHandle(consumer.m_token), cms::Exception);
+    }
+    
+    
+  } catch (const cms::Exception& iException) {
+    std::cout <<"caught "<<iException.explainSelf()<<std::endl;
+    throw;
+  }
+}
 
 void testEventsetup::sourceProducerResolutionTest()
 {

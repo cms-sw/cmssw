@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/RecordDependencyRegister.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 
 #include "FWCore/Framework/interface/HCMethods.h"
 #include "FWCore/Framework/interface/HCTypeTag.h"
@@ -59,6 +60,8 @@ CPPUNIT_TEST_SUITE(testEventsetupRecord);
 
 CPPUNIT_TEST(proxyTest);
 CPPUNIT_TEST(getTest);
+CPPUNIT_TEST(getHandleTest);
+CPPUNIT_TEST(getWithTokenTest);
 CPPUNIT_TEST(doGetTest);
 CPPUNIT_TEST(proxyResetTest);
 CPPUNIT_TEST(introspectionTest);
@@ -75,6 +78,8 @@ public:
 
   void proxyTest();
   void getTest();
+  void getHandleTest();
+  void getWithTokenTest();
   void doGetTest();
   void proxyResetTest();
   void introspectionTest();
@@ -258,6 +263,158 @@ void testEventsetupRecord::getTest()
    edm::ESInputTag it_prov_bad("DummyProd","working");
    CPPUNIT_ASSERT_THROW(dummyRecord.get(it_prov_bad,dummyPtr), cms::Exception);
    
+}
+
+namespace {
+   struct DummyDataConsumer : public EDConsumerBase {
+      explicit DummyDataConsumer( ESInputTag const& iTag):
+      m_token{esConsumes<Dummy, DummyRecord>(iTag)}
+      {}
+      
+      ESGetToken<Dummy, DummyRecord> m_token;
+   };
+}
+
+void testEventsetupRecord::getHandleTest()
+{
+   eventsetup::EventSetupProvider provider(&activityRegistry);
+   eventsetup::EventSetupRecordImpl dummyRecordImpl{eventsetup::EventSetupRecordKey::makeKey<DummyRecord>()};
+   provider.addRecordToEventSetup(dummyRecordImpl);
+   
+   FailingDummyProxy dummyProxy;
+   
+   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
+                              "");
+   
+   
+   DummyRecord dummyRecord;
+   dummyRecord.setImpl(&dummyRecordImpl);
+   ESHandle<Dummy> dummyPtr;
+   {
+      DummyDataConsumer consumer{edm::ESInputTag("","")};
+
+      CPPUNIT_ASSERT(not dummyRecord.getHandle(consumer.m_token));
+      dummyPtr = dummyRecord.getHandle(consumer.m_token);
+      CPPUNIT_ASSERT(not dummyPtr.isValid());
+      CPPUNIT_ASSERT(not dummyPtr);
+      CPPUNIT_ASSERT(dummyPtr.failedToGet());
+      CPPUNIT_ASSERT_THROW(*dummyPtr, NoDataExceptionType) ;
+      CPPUNIT_ASSERT_THROW(makeESValid(dummyPtr), cms::Exception) ;
+   }
+   dummyRecordImpl.add(dummyDataKey,
+                       &dummyProxy);
+   
+   {
+      DummyDataConsumer consumer{edm::ESInputTag("","")};
+      CPPUNIT_ASSERT_THROW(dummyRecord.getHandle(consumer.m_token), ExceptionType);
+   }
+   Dummy myDummy;
+   WorkingDummyProxy workingProxy(&myDummy);
+   ComponentDescription cd;
+   cd.label_ = "";
+   cd.type_ = "DummyProd";
+   workingProxy.setProviderDescription(&cd);
+   
+   const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
+                                "working");
+   
+   dummyRecordImpl.add(workingDataKey,
+                       &workingProxy);
+   {
+      DummyDataConsumer consumer{edm::ESInputTag("","working")};
+      dummyPtr = dummyRecord.getHandle(consumer.m_token);
+      CPPUNIT_ASSERT(!dummyPtr.failedToGet());
+      CPPUNIT_ASSERT(dummyPtr.isValid());
+      CPPUNIT_ASSERT(dummyPtr);
+   
+      CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
+   }
+   {
+      DummyDataConsumer consumer{edm::ESInputTag("DummyProd","working")};
+      dummyPtr = dummyRecord.getHandle(consumer.m_token);
+      CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
+   }
+   {
+      DummyDataConsumer consumer{edm::ESInputTag("SmartProd","working")};
+      CPPUNIT_ASSERT_THROW(dummyRecord.getHandle(consumer.m_token), cms::Exception);
+   }
+   //check if label is set
+   cd.label_ = "foo";
+   {
+      DummyDataConsumer consumer{edm::ESInputTag("foo","working")};
+      dummyPtr = dummyRecord.getHandle(consumer.m_token);
+      CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
+   }
+   {
+      DummyDataConsumer consumer{edm::ESInputTag("DummyProd","working")};
+      CPPUNIT_ASSERT_THROW(dummyRecord.getHandle(consumer.m_token), cms::Exception);
+   }
+}
+
+void testEventsetupRecord::getWithTokenTest()
+{
+   eventsetup::EventSetupProvider provider(&activityRegistry);
+   eventsetup::EventSetupRecordImpl dummyRecordImpl{eventsetup::EventSetupRecordKey::makeKey<DummyRecord>()};
+   provider.addRecordToEventSetup(dummyRecordImpl);
+   
+   FailingDummyProxy dummyProxy;
+   
+   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
+                              "");
+   
+   
+   DummyRecord dummyRecord;
+   dummyRecord.setImpl(&dummyRecordImpl);
+   {
+      DummyDataConsumer consumer{edm::ESInputTag("","")};
+      
+      CPPUNIT_ASSERT_THROW(dummyRecord.get(consumer.m_token), NoDataExceptionType);
+   }
+   dummyRecordImpl.add(dummyDataKey,
+                       &dummyProxy);
+   
+   {
+      DummyDataConsumer consumer{edm::ESInputTag("","")};
+      CPPUNIT_ASSERT_THROW(dummyRecord.get(consumer.m_token), ExceptionType);
+   }
+   Dummy myDummy;
+   WorkingDummyProxy workingProxy(&myDummy);
+   ComponentDescription cd;
+   cd.label_ = "";
+   cd.type_ = "DummyProd";
+   workingProxy.setProviderDescription(&cd);
+   
+   const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
+                                "working");
+   
+   dummyRecordImpl.add(workingDataKey,
+                       &workingProxy);
+   {
+      DummyDataConsumer consumer{edm::ESInputTag("","working")};
+      auto const& dummyData = dummyRecord.get(consumer.m_token);
+      
+      CPPUNIT_ASSERT(&dummyData == &myDummy);
+   }
+   {
+      DummyDataConsumer consumer{edm::ESInputTag("DummyProd","working")};
+      auto const& dummyData = dummyRecord.get(consumer.m_token);
+      CPPUNIT_ASSERT(&dummyData == &myDummy);
+   }
+   {
+      DummyDataConsumer consumer{edm::ESInputTag("SmartProd","working")};
+      CPPUNIT_ASSERT_THROW(dummyRecord.get(consumer.m_token), cms::Exception);
+   }
+   //check if label is set
+   cd.label_ = "foo";
+   {
+      DummyDataConsumer consumer{edm::ESInputTag("foo","working")};
+      auto const& dummyData = dummyRecord.get(consumer.m_token);
+      CPPUNIT_ASSERT(&dummyData == &myDummy);
+   }
+   {
+      DummyDataConsumer consumer{edm::ESInputTag("DummyProd","working")};
+      CPPUNIT_ASSERT_THROW(dummyRecord.get(consumer.m_token), cms::Exception);
+   }
 }
 
 void testEventsetupRecord::getNodataExpTest()
