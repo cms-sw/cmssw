@@ -48,7 +48,6 @@ namespace edm {
       class EventSetupProvider;
       class EventSetupRecord;
       class EventSetupRecordImpl;
-      class EventSetupKnownRecordsSupplier;
    }
 
   class EventSetupImpl
@@ -135,10 +134,6 @@ namespace edm {
       friend class eventsetup::EventSetupRecordImpl;
 
     protected:
-      //Only called by EventSetupProvider
-      void setKnownRecordsSupplier(eventsetup::EventSetupKnownRecordsSupplier const* iSupplier) {
-        knownRecords_ = iSupplier;
-      }
 
       void add(const eventsetup::EventSetupRecordImpl& iRecord);
 
@@ -153,11 +148,14 @@ namespace edm {
       void insert(const eventsetup::EventSetupRecordKey&,
                   const eventsetup::EventSetupRecordImpl*);
 
+      void setKeyIters(std::vector<eventsetup::EventSetupRecordKey>::const_iterator const& keysBegin,
+                       std::vector<eventsetup::EventSetupRecordKey>::const_iterator const& keysEnd);
+
       // ---------- member data --------------------------------
 
-      //NOTE: the records are not owned
-      std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecordImpl const *> recordMap_;
-      eventsetup::EventSetupKnownRecordsSupplier const* knownRecords_;
+      std::vector<eventsetup::EventSetupRecordKey>::const_iterator keysBegin_;
+      std::vector<eventsetup::EventSetupRecordKey>::const_iterator keysEnd_;
+      std::vector<eventsetup::EventSetupRecordImpl const*> recordImpls_;
       ActivityRegistry const* activityRegistry_;
   };
 
