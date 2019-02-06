@@ -63,6 +63,7 @@ namespace cond {
     std::string tag;
     std::string payloadType;
     TimeType timeType;
+    SynchronizationType synchronizationType;
     Time_t endOfValidity;
     Time_t lastValidatedTime;
   };
