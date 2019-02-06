@@ -188,6 +188,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
+#include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
 #include "CondFormats/Common/interface/FileBlob.h"
 //#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
