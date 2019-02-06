@@ -19,7 +19,7 @@
 //
 
 // user include files
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Framework/interface/EventSetupKnownRecordsSupplier.h"
 
 // system include files
@@ -68,9 +68,9 @@ class EventSetupProvider {
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      EventSetup const& eventSetupForInstance(IOVSyncValue const&);
+      EventSetupImpl const& eventSetupForInstance(IOVSyncValue const&);
 
-      EventSetup const& eventSetup() const {return eventSetup_;}
+      EventSetupImpl const& eventSetup() const {return eventSetup_;}
 
       //called by specializations of EventSetupRecordProviders
       void addRecordToEventSetup(EventSetupRecordImpl& iRecord);
@@ -119,7 +119,7 @@ class EventSetupProvider {
       void insert(EventSetupRecordKey const&, std::unique_ptr<EventSetupRecordProvider>);
 
       // ---------- member data --------------------------------
-      EventSetup eventSetup_;
+      EventSetupImpl eventSetup_;
       typedef std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordProvider> > Providers;
       Providers providers_;
       std::unique_ptr<EventSetupKnownRecordsSupplier> knownRecordsSupplier_;

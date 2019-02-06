@@ -59,7 +59,7 @@ void testfullChain::getfromDataproxyproviderTest()
    pFinder->setInterval(ValidityInterval(sync_1, IOVSyncValue(Timestamp(5))));
    for(unsigned int iTime=1; iTime != 6; ++iTime) {
       const Timestamp time(iTime);
-      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(time));
+      auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(time));
       ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
       CPPUNIT_ASSERT(0 != pDummy.product());

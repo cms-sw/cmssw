@@ -197,7 +197,7 @@ namespace edm {
     if (provider_.get() != nullptr) {
       auto aux = std::make_shared<RunAuxiliary>(run.runAuxiliary());
       runPrincipal_.reset(new RunPrincipal(aux, productRegistry_, *processConfiguration_, nullptr, 0));
-      provider_->beginRun(*runPrincipal_, setup, run.moduleCallingContext(), *streamContext_);
+      provider_->beginRun(*runPrincipal_, setup.impl(), run.moduleCallingContext(), *streamContext_);
     }
   }
   void PileUp::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
@@ -205,18 +205,18 @@ namespace edm {
       lumiPrincipal_.reset(new LuminosityBlockPrincipal(productRegistry_, *processConfiguration_, nullptr, 0));
       lumiPrincipal_->setAux(lumi.luminosityBlockAuxiliary());
       lumiPrincipal_->setRunPrincipal(runPrincipal_);
-      provider_->beginLuminosityBlock(*lumiPrincipal_, setup, lumi.moduleCallingContext(), *streamContext_);
+      provider_->beginLuminosityBlock(*lumiPrincipal_, setup.impl(), lumi.moduleCallingContext(), *streamContext_);
     }
   }
 
   void PileUp::endRun(const edm::Run& run, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      provider_->endRun(*runPrincipal_, setup, run.moduleCallingContext(), *streamContext_);
+      provider_->endRun(*runPrincipal_, setup.impl(), run.moduleCallingContext(), *streamContext_);
     }
   }
   void PileUp::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      provider_->endLuminosityBlock(*lumiPrincipal_, setup, lumi.moduleCallingContext(), *streamContext_);
+      provider_->endLuminosityBlock(*lumiPrincipal_, setup.impl(), lumi.moduleCallingContext(), *streamContext_);
     }
   }
 
@@ -225,7 +225,7 @@ namespace edm {
       // note:  run and lumi numbers must be modified to match lumiPrincipal_
       eventPrincipal_->setLuminosityBlockPrincipal(lumiPrincipal_.get());
       eventPrincipal_->setRunAndLumiNumber(lumiPrincipal_->run(), lumiPrincipal_->luminosityBlock());
-      provider_->setupPileUpEvent(*eventPrincipal_, setup, *streamContext_);
+      provider_->setupPileUpEvent(*eventPrincipal_, setup.impl(), *streamContext_);
     }
   }
 

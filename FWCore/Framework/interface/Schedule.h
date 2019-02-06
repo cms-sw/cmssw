@@ -97,7 +97,7 @@ namespace edm {
   }
   class ActivityRegistry;
   class BranchIDListHelper;
-  class EventSetup;
+  class EventSetupImpl;
   class ExceptionCollector;
   class MergeableRunProductMetadata;
   class OutputModuleCommunicator;
@@ -140,13 +140,13 @@ namespace edm {
     void processOneEventAsync(WaitingTaskHolder iTask,
                               unsigned int iStreamID,
                               EventPrincipal& principal,
-                              EventSetup const& eventSetup,
+                              EventSetupImpl const& eventSetup,
                               ServiceToken const& token);
 
     template <typename T>
     void processOneGlobalAsync(WaitingTaskHolder iTask,
                                typename T::MyPrincipal& principal,
-                               EventSetup const& eventSetup,
+                               EventSetupImpl const& eventSetup,
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
@@ -154,7 +154,7 @@ namespace edm {
     void processOneStreamAsync(WaitingTaskHolder iTask,
                                unsigned int iStreamID,
                                typename T::MyPrincipal& principal,
-                               EventSetup const& eventSetup,
+                               EventSetupImpl const& eventSetup,
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
@@ -313,7 +313,7 @@ namespace edm {
   void Schedule::processOneStreamAsync(WaitingTaskHolder iTaskHolder,
                                        unsigned int iStreamID,
                                        typename T::MyPrincipal& ep,
-                                       EventSetup const& es,
+                                       EventSetupImpl const& es,
                                        ServiceToken const& token,
                                        bool cleaningUpAfterException) {
     assert(iStreamID<streamSchedules_.size());
@@ -324,7 +324,7 @@ namespace edm {
   void
   Schedule::processOneGlobalAsync(WaitingTaskHolder iTaskHolder,
                                   typename T::MyPrincipal& ep,
-                                  EventSetup const& es,
+                                  EventSetupImpl const& es,
                                   ServiceToken const& token,
                                   bool cleaningUpAfterException) {
     globalSchedule_->processOneGlobalAsync<T>(iTaskHolder,ep,es,token,cleaningUpAfterException);

@@ -919,7 +919,7 @@ namespace edm {
       eventSetupForInstanceSucceeded = true;
       sentry.completedSuccessfully();
     }
-    EventSetup const& es = esp_->eventSetup();
+    auto const& es = esp_->eventSetup();
     if(looper_ && looperBeginJobRun_== false) {
       looper_->copyInfo(ScheduleInfo(schedule_.get()));
       looper_->beginOfJob(es);
@@ -1009,7 +1009,7 @@ namespace edm {
       espController_->eventSetupForInstance(ts);
       sentry.completedSuccessfully();
     }
-    EventSetup const& es = esp_->eventSetup();
+    auto const& es = esp_->eventSetup();
     if(globalBeginSucceeded){
       //To wait, the ref count has to be 1+#streams
       auto streamLoopWaitTask = make_empty_waiting_task();
@@ -1125,7 +1125,7 @@ namespace edm {
             } else {
 
               status->globalBeginDidSucceed();
-              EventSetup const& es = esp_->eventSetup();
+              auto const& es = esp_->eventSetup();
               if(looper_) {
                 try {
                   //make the services available
@@ -1166,7 +1166,7 @@ namespace edm {
           
           //task to start the global begin lumi
           WaitingTaskHolder beginStreamsHolder{beginStreamsTask};
-          EventSetup const& es = esp_->eventSetup();
+          auto const& es = esp_->eventSetup();
           {
             typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Traits;
             beginGlobalTransitionAsync<Traits>(beginStreamsHolder,
@@ -1244,7 +1244,7 @@ namespace edm {
           ServiceRegistry::Operate operate(serviceToken_);
           if(looper_) {
             auto& lp = *(status->lumiPrincipal());
-            EventSetup const& es = esp_->eventSetup();
+            auto const& es = esp_->eventSetup();
             looper_->doEndLuminosityBlock(lp, es, &processContext_);
           }
         }catch(...) {
@@ -1292,7 +1292,7 @@ namespace edm {
 
 
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
-    EventSetup const& es = esp_->eventSetup();
+    auto const& es = esp_->eventSetup();
 
     endGlobalTransitionAsync<Traits>(WaitingTaskHolder(writeT),
                                      *schedule_,
@@ -1334,7 +1334,7 @@ namespace edm {
       auto & lumiPrincipal = *iLumiStatus->lumiPrincipal();
       IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), EventID::maxEventNumber()),
                       lumiPrincipal.endTime());
-      EventSetup const& es = esp_->eventSetup();
+      auto const& es = esp_->eventSetup();
 
       bool cleaningUpAfterException = iLumiStatus->cleaningUpAfterException();
       

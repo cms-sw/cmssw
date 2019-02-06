@@ -16,12 +16,11 @@ EcalShapeBase::EcalShapeBase(bool useDBShape) :
    m_firstTimeOverThreshold  ( 0.0 ) ,
    m_indexOfMax              ( 0   ) ,
    m_timeOfMax               ( 0.0 ) , 
-   m_thresh                  ( 0.0 ) , 
-   m_es                      ( nullptr )
+   m_thresh                  ( 0.0 )
 {
 }
 
-void EcalShapeBase::setEventSetup( const edm::EventSetup & evtSetup ){ m_es = &evtSetup;  buildMe();} 
+void EcalShapeBase::setEventSetup( const edm::EventSetup & evtSetup ){ buildMe( &evtSetup );} 
 
 
 double 
@@ -51,12 +50,12 @@ EcalShapeBase::threshold()  const
 
 
 void
-EcalShapeBase::buildMe()
+EcalShapeBase::buildMe(const edm::EventSetup* evtSetup )
 {
    DVec shapeArray;
 
    float time_interval = 0;
-   fillShape(time_interval, m_thresh, shapeArray, m_es) ; // pure virtual function, implementation may vary for EB/EE/APD ...
+   fillShape(time_interval, m_thresh, shapeArray, evtSetup) ; // pure virtual function, implementation may vary for EB/EE/APD ...
    m_arraySize = shapeArray.size();  // original data
   
    m_denseArraySize    = 10*m_arraySize; // dense array with interpolation between data 
