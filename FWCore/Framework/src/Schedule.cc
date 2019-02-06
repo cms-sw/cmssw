@@ -229,11 +229,11 @@ namespace edm {
       }
     }
 
-    void
+    bool
     processEDAliases(ParameterSet const& proc_pset, std::string const& processName, ProductRegistry& preg) {
       std::vector<std::string> aliases = proc_pset.getParameter<std::vector<std::string> >("@all_aliases");
       if(aliases.empty()) {
-        return;
+        return false;
       }
       std::string const star("*");
       std::string const empty("");
@@ -296,6 +296,7 @@ namespace edm {
         preg.addLabelAlias(it->second, aliasEntry.second.moduleLabel(), aliasEntry.second.productInstanceName());
       }
 
+      return true;
     }
 
     typedef std::vector<std::string> vstring;
@@ -598,11 +599,11 @@ namespace edm {
       }
     }
     //The unscheduled modules are at the end of the list, but we want them at the front
-    unsigned int n = streamSchedules_[0]->numberOfUnscheduledModules();
-    if(n>0) {
+    unsigned int const nUnscheduledModules = streamSchedules_[0]->numberOfUnscheduledModules();
+    if(nUnscheduledModules>0) {
       std::vector<std::string> temp;
       temp.reserve(modulesToUse.size());
-      auto itBeginUnscheduled = modulesToUse.begin()+modulesToUse.size()-n;
+      auto itBeginUnscheduled = modulesToUse.begin()+modulesToUse.size()-nUnscheduledModules;
       std::copy(itBeginUnscheduled,modulesToUse.end(),
                 std::back_inserter(temp));
       std::copy(modulesToUse.begin(),itBeginUnscheduled,std::back_inserter(temp));
@@ -631,7 +632,38 @@ namespace edm {
     std::map<std::string, std::vector<std::pair<std::string, int> > > outputModulePathPositions;
     reduceParameterSet(proc_pset, tns.getEndPaths(), modulesInConfig, usedModuleLabels,
                        outputModulePathPositions);
-    processEDAliases(proc_pset, processConfiguration->processName(), preg);
+    const bool hasAliases = processEDAliases(proc_pset, processConfiguration->processName(), preg);
+
+    // At this point all BranchDescriptions are created. Mark now the
+    // ones of unscheduled workers to be on-demand.
+    // TODO: what to do for alias branches???
+    if(nUnscheduledModules > 0) {
+      std::vector<std::string> unscheduledModules(modulesToUse.begin(), modulesToUse.begin()+nUnscheduledModules);
+      std::sort(unscheduledModules.begin(), unscheduledModules.end());
+      std::vector<BranchID> onDemandIDs;
+      for(auto& prod: preg.productListUpdator()) {
+        if(prod.second.produced() &&
+           prod.second.branchType() == InEvent &&
+           std::binary_search(unscheduledModules.begin(), unscheduledModules.end(), prod.second.moduleLabel())) {
+          prod.second.setOnDemand(true);
+          if(hasAliases) {
+            onDemandIDs.push_back(prod.second.branchID());
+          }
+        }
+      }
+      // Need to loop over EDAliases to set their on-demand flag based on the pointed-to branch
+      if(hasAliases) {
+        std::sort(onDemandIDs.begin(), onDemandIDs.end());
+        for(auto& prod: preg.productListUpdator()) {
+          if(prod.second.isAlias()) {
+            if(std::binary_search(onDemandIDs.begin(), onDemandIDs.end(), prod.second.aliasForBranchID())) {
+              prod.second.setOnDemand(true);
+            }
+          }
+        }
+      }
+    }
+
     processSwitchProducers(proc_pset, processConfiguration->processName(), preg);
     proc_pset.registerIt();
     processConfiguration->setParameterSetID(proc_pset.id());
