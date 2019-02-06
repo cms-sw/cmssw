@@ -304,6 +304,13 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   
   // Create commissioning task objects 
   if ( !tasksExist_ ) { createTask( summary.product(), setup ); }
+  else {
+    for(auto& v: tasks_) {
+      for(auto& t: v) {
+        t->eventSetup(&setup);
+      }
+    }
+  }
 
   // Retrieve raw digis with mode appropriate to task 
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
@@ -359,7 +366,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   }
 
   // Check for NULL pointer to digi container
-  if ( &(*raw) == nullptr ) {
+  if ( not raw.isValid() ) {
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]" << std::endl
        << " NULL pointer to DetSetVector!" << std::endl
@@ -368,7 +375,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
     return;
   }
 
-  if(isSpy_ and  &(*rawAlt) == nullptr){
+  if(isSpy_ and  (not rawAlt.isValid())){
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]" << std::endl
        << " NULL pointer to DetSetVector!" << std::endl

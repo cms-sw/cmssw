@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
@@ -30,13 +31,14 @@ namespace edm {
 
 
   bool
-  EDAnalyzer::doEvent(EventPrincipal const& ep, EventSetup const& c,
+  EDAnalyzer::doEvent(EventPrincipal const& ep, EventSetupImpl const& ci,
                       ActivityRegistry* act,
                       ModuleCallingContext const* mcc) {
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
     e.setSharedResourcesAcquirer(&resourceAcquirer_);
     EventSignalsSentry sentry(act,mcc);
+    const EventSetup c{ci};
     this->analyze(e, c);
     return true;
   }
@@ -55,37 +57,41 @@ namespace edm {
   }
 
   bool
-  EDAnalyzer::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+  EDAnalyzer::doBeginRun(RunPrincipal const& rp, EventSetupImpl const& ci,
                          ModuleCallingContext const* mcc) {
     Run r(rp, moduleDescription_, mcc,false);
     r.setConsumer(this);
+    const EventSetup c{ci};
     this->beginRun(r, c);
     return true;
   }
 
   bool
-  EDAnalyzer::doEndRun(RunPrincipal const& rp, EventSetup const& c,
+  EDAnalyzer::doEndRun(RunPrincipal const& rp, EventSetupImpl const& ci,
                        ModuleCallingContext const* mcc) {
     Run r(rp, moduleDescription_, mcc,true);
     r.setConsumer(this);
+    const EventSetup c{ci};
     this->endRun(r, c);
     return true;
   }
 
   bool
-  EDAnalyzer::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+  EDAnalyzer::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& ci,
                                      ModuleCallingContext const* mcc) {
     LuminosityBlock lb(lbp, moduleDescription_, mcc,false);
     lb.setConsumer(this);
+    const EventSetup c{ci};
     this->beginLuminosityBlock(lb, c);
     return true;
   }
 
   bool
-  EDAnalyzer::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+  EDAnalyzer::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& ci,
                                    ModuleCallingContext const* mcc) {
     LuminosityBlock lb(lbp, moduleDescription_, mcc,true);
     lb.setConsumer(this);
+    const EventSetup c{ci};
     this->endLuminosityBlock(lb, c);
     return true;
   }

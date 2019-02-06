@@ -78,7 +78,7 @@ namespace edm {
    class ESHandle;
    class ESHandleExceptionFactory;
    class ESInputTag;
-   class EventSetup;
+   class EventSetupImpl;
 
    namespace eventsetup {
       struct ComponentDescription;
@@ -190,7 +190,7 @@ namespace edm {
 
          DataProxy const* find(DataKey const& aKey) const ;
 
-         EventSetup const& eventSetup() const {
+         EventSetupImpl const& eventSetup() const {
             return impl_->eventSetup();
          }
 

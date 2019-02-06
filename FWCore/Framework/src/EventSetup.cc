@@ -31,21 +31,11 @@ namespace edm {
 //
 // constructors and destructor
 //
-EventSetup::EventSetup(ActivityRegistry const* activityRegistry) :
-   recordMap_(),
-   activityRegistry_(activityRegistry)
-
-{
-}
 
 // EventSetup::EventSetup(EventSetup const& rhs)
 // {
 //    // do actual copying here;
 // }
-
-EventSetup::~EventSetup()
-{
-}
 
 //
 // assignment operators
@@ -62,66 +52,9 @@ EventSetup::~EventSetup()
 //
 // member functions
 //
-void
-EventSetup::insert(const eventsetup::EventSetupRecordKey& iKey,
-                const eventsetup::EventSetupRecordImpl* iRecord)
-{
-   recordMap_[iKey]= iRecord;
-}
-
-void
-EventSetup::clear()
-{
-   recordMap_.clear();
-}
-
-void
-EventSetup::add(const eventsetup::EventSetupRecordImpl& iRecord)
-{
-   insert(iRecord.key(), &iRecord);
-}
-
 //
 // const member functions
 //
-std::optional<eventsetup::EventSetupRecordGeneric>
-EventSetup::find(const eventsetup::EventSetupRecordKey& iKey) const
-{
-   auto itFind = recordMap_.find(iKey);
-   if(itFind == recordMap_.end()) {
-     return std::nullopt;
-   }
-  return eventsetup::EventSetupRecordGeneric(itFind->second);
-}
-
-eventsetup::EventSetupRecordImpl const*
-EventSetup::findImpl(const eventsetup::EventSetupRecordKey& iKey) const
-{
-  auto itFind = recordMap_.find(iKey);
-  if(itFind == recordMap_.end()) {
-    return nullptr;
-  }
-  return itFind->second;
-}
-
-void
-EventSetup::fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const
-{
-  oToFill.clear();
-  oToFill.reserve(recordMap_.size());
-
-  for(auto it = recordMap_.begin(), itEnd=recordMap_.end();
-      it != itEnd;
-      ++it) {
-    oToFill.push_back(it->first);
-  }
-}
-
-bool
-EventSetup::recordIsProvidedByAModule( eventsetup::EventSetupRecordKey const& iKey) const
-{
-  return knownRecords_->isKnown(iKey);
-}
 
 //
 // static member functions

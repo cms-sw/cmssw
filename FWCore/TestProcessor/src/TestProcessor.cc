@@ -298,7 +298,7 @@ TestProcessor::beginRun() {
                   runPrincipal.beginTime());
   espController_->eventSetupForInstance(ts);
   
-  EventSetup const& es = esp_->eventSetup();
+  auto const& es = esp_->eventSetup();
 
   std::vector<edm::SubProcess> emptyList;
   {
@@ -354,7 +354,7 @@ TestProcessor::beginLuminosityBlock() {
                   lumiPrincipal_->beginTime());
   espController_->eventSetupForInstance(ts);
   
-  EventSetup const& es = esp_->eventSetup();
+  auto const& es = esp_->eventSetup();
   
   std::vector<edm::SubProcess> emptyList;
   {
@@ -448,7 +448,7 @@ TestProcessor::endLuminosityBlock() {
                     lumiPrincipal->endTime());
     espController_->eventSetupForInstance(ts);
     
-    EventSetup const& es = esp_->eventSetup();
+    auto const& es = esp_->eventSetup();
 
     std::vector<edm::SubProcess> emptyList;
 
@@ -507,7 +507,7 @@ TestProcessor::endRun() {
                     runPrincipal.endTime());
     espController_->eventSetupForInstance(ts);
     
-    EventSetup const& es = esp_->eventSetup();
+    auto const& es = esp_->eventSetup();
     
     std::vector<edm::SubProcess> emptyList;
     

@@ -749,7 +749,7 @@ EventSetupProvider::insert(std::unique_ptr<EventSetupRecordProvider> iRecordProv
 //
 // const member functions
 //
-EventSetup const&
+EventSetupImpl const&
 EventSetupProvider::eventSetupForInstance(const IOVSyncValue& iValue)
 {
    eventSetup_.clear();
