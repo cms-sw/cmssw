@@ -46,7 +46,7 @@ namespace edm {
 
     // ---------- member functions ---------------------------
     template <typename Product, typename Record>
-    auto consumes(ESInputTag const& tag) {
+    auto consumesFrom(ESInputTag const& tag) {
       return ESGetToken<Product,Record>{tag};
     }
 
@@ -72,11 +72,10 @@ namespace edm {
     ESConsumesCollectorT<RECORD>& operator=(ESConsumesCollectorT<RECORD>&&) = default;
     
     // ---------- member functions ---------------------------
-    using ESConsumesCollector::consumes;
     
     template <typename Product>
     auto consumes(ESInputTag const& tag) {
-      return consumes<Product, RECORD>(tag);
+      return consumesFrom<Product, RECORD>(tag);
     }
     
   private:
