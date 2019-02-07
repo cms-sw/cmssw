@@ -1,4 +1,4 @@
-#include "Fireworks/Core/interface/FWHeatmapProxyBuilderTemplate.h"
+#include "Fireworks/Calo/interface/FWHeatmapProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"

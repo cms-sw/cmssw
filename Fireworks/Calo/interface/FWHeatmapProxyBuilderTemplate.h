@@ -5,7 +5,7 @@
 // Package:     Core
 // Class  :     FWHeatmapProxyBuilderTemplate
 //
-/**\class FWHeatmapProxyBuilderTemplate FWHeatmapProxyBuilderTemplate.h Fireworks/Core/interface/FWHeatmapProxyBuilderTemplate.h
+/**\class FWHeatmapProxyBuilderTemplate FWHeatmapProxyBuilderTemplate.h Fireworks/Calo/interface/FWHeatmapProxyBuilderTemplate.h
 
    Description: <one line class summary>
 
@@ -105,16 +105,14 @@ protected:
       FWSimpleProxyBuilder::build(iItem, product, vc);
    }
 
-   using FWSimpleProxyBuilder::build;
-   void build(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* context) override
+   void build(const void *iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* context) override
    {
       if(nullptr!=iData) {
          build(*reinterpret_cast<const T*> (iData), iIndex, oItemHolder, context);
       }
    }
 
-   using FWSimpleProxyBuilder::buildViewType;
-   void buildViewType(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType viewType, const FWViewContext* context) override
+   void buildViewType(const void *iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType viewType, const FWViewContext* context) override
    {
       if(nullptr!=iData) {
          buildViewType(*reinterpret_cast<const T*> (iData), iIndex, oItemHolder, viewType, context);
