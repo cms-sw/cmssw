@@ -46,6 +46,14 @@ class ESHandleBase {
 
       bool failedToGet() const { return bool(whyFailedFactory_); }
 
+      explicit operator bool () const {
+         return isValid();
+      }
+  
+      bool operator!() const {
+        return not isValid();
+      }
+
       void swap(ESHandleBase& iOther) {
          std::swap(data_, iOther.data_);
          std::swap(description_, iOther.description_);
