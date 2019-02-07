@@ -105,6 +105,7 @@ protected:
       FWSimpleProxyBuilder::build(iItem, product, vc);
    }
 
+   using FWSimpleProxyBuilder::build;
    void build(const void *iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* context) override
    {
       if(nullptr!=iData) {
@@ -112,6 +113,7 @@ protected:
       }
    }
 
+   using FWSimpleProxyBuilder::buildViewType;
    void buildViewType(const void *iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType viewType, const FWViewContext* context) override
    {
       if(nullptr!=iData) {
