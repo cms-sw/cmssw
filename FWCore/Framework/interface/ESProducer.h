@@ -148,7 +148,7 @@ namespace edm {
         method in order to do the registration with the EventSetup
     */
     template<typename T, typename TReturn, typename TRecord, typename TArg>
-    ESConsumesCollector setWhatProduced(T* iThis,
+    ESConsumesCollectorT<TRecord> setWhatProduced(T* iThis,
                          TReturn (T ::* iMethod)(const TRecord&),
                          const TArg& iDec,
                          const es::Label& iLabel = {}) {
@@ -164,7 +164,7 @@ namespace edm {
                        static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
-      return ESConsumesCollector{iThis};
+      return ESConsumesCollectorT<TRecord>{iThis};
     }
 
     ESProducer(const ESProducer&) = delete; // stop default
