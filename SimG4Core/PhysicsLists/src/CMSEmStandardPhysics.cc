@@ -1,5 +1,4 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
-#include "SimG4Core/PhysicsLists/interface/UrbanMscModel93.h"
 #include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
 #include "G4EmParameters.hh"
 #include "G4ParticleTable.hh"
@@ -17,6 +16,7 @@
 #include "G4CoulombScattering.hh"
 #include "G4eCoulombScatteringModel.hh"
 #include "G4WentzelVIModel.hh"
+#include "G4UrbanMscModel.hh"
 
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
@@ -73,7 +73,7 @@
 #include "G4SystemOfUnits.hh"
 
 CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver) :
-  G4VPhysicsConstructor("CMSEmStandard_opt1"), verbose(ver) {
+  G4VPhysicsConstructor("CMSEmStandard_eml"), verbose(ver) {
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
   param->SetVerbose(verbose);
@@ -158,14 +158,12 @@ void CMSEmStandardPhysics::ConstructProcess() {
   G4MuMultipleScattering* mumsc = nullptr;
   G4hMultipleScattering*  pimsc = nullptr;
   G4hMultipleScattering*  kmsc = nullptr;
-  G4hMultipleScattering*  pmsc = nullptr;
   G4hMultipleScattering*  hmsc = nullptr;
 
   // muon and hadron single scattering
   G4CoulombScattering* muss = nullptr;
   G4CoulombScattering* piss = nullptr;
   G4CoulombScattering* kss = nullptr;
-  G4CoulombScattering* pss = nullptr;
 
   // high energy limit for e+- scattering models and bremsstrahlung
   G4double highEnergyLimit = 100*MeV;
@@ -186,7 +184,7 @@ void CMSEmStandardPhysics::ConstructProcess() {
       G4eIonisation* eioni = new G4eIonisation();
 
       G4eMultipleScattering* msc = new G4eMultipleScattering;
-      UrbanMscModel93* msc1 = new UrbanMscModel93();
+      G4UrbanMscModel* msc1 = new G4UrbanMscModel();
       G4WentzelVIModel* msc2 = new G4WentzelVIModel();
       msc1->SetHighEnergyLimit(highEnergyLimit);
       msc2->SetLowEnergyLimit(highEnergyLimit);
@@ -210,7 +208,7 @@ void CMSEmStandardPhysics::ConstructProcess() {
       G4eIonisation* eioni = new G4eIonisation();
 
       G4eMultipleScattering* msc = new G4eMultipleScattering;
-      UrbanMscModel93* msc1 = new UrbanMscModel93();
+      G4UrbanMscModel* msc1 = new G4UrbanMscModel();
       G4WentzelVIModel* msc2 = new G4WentzelVIModel();
       msc1->SetHighEnergyLimit(highEnergyLimit);
       msc2->SetLowEnergyLimit(highEnergyLimit);
@@ -298,10 +296,10 @@ void CMSEmStandardPhysics::ConstructProcess() {
       if(nullptr == pb) {
 	pb = new G4hBremsstrahlung();
 	pp = new G4hPairProduction();
-	pmsc = new G4hMultipleScattering();
       }
+      G4hMultipleScattering* pmsc = new G4hMultipleScattering();
       pmsc->SetEmModel(new G4WentzelVIModel());
-      pss = new G4CoulombScattering();
+      G4CoulombScattering* pss = new G4CoulombScattering();
 
       ph->RegisterProcess(pmsc, particle);
       ph->RegisterProcess(new G4hIonisation(), particle);
