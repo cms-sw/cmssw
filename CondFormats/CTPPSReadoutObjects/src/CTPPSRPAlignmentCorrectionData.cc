@@ -1,14 +1,16 @@
 /****************************************************************************
 *
-* This is a part of TOTEM offline software.
+* This is a part of CMS-TOTEM PPS offline software.
 * Authors: 
-*	Jan Kašpar (jan.kaspar@gmail.com) 
+* Jan Kašpar (jan.kaspar@gmail.com)
+* Helena Malbouisson
+* Clemencia Mora Herrera 
 *
 ****************************************************************************/
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionData.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionData.h"
 
 #include <Math/RotationZYX.h>
 
@@ -16,7 +18,7 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionData::RPAlignmentCorrectionData(double _sh_x, double _sh_x_u, double _sh_y, double _sh_y_u, double _sh_z, double _sh_z_u,
+CTPPSRPAlignmentCorrectionData::CTPPSRPAlignmentCorrectionData(double _sh_x, double _sh_x_u, double _sh_y, double _sh_y_u, double _sh_z, double _sh_z_u,
       double _rot_x, double _rot_x_u, double _rot_y, double _rot_y_u, double _rot_z, double _rot_z_u) :
   sh_x(_sh_x), sh_y(_sh_y), sh_z(_sh_z),
   sh_x_unc(_sh_x_u), sh_y_unc(_sh_y_u), sh_z_unc(_sh_z_u),
@@ -27,7 +29,7 @@ RPAlignmentCorrectionData::RPAlignmentCorrectionData(double _sh_x, double _sh_x_
 
 //----------------------------------------------------------------------------------------------------
 
-RPAlignmentCorrectionData::RPAlignmentCorrectionData(double _sh_x, double _sh_y, double _sh_z,
+CTPPSRPAlignmentCorrectionData::CTPPSRPAlignmentCorrectionData(double _sh_x, double _sh_y, double _sh_z,
       double _rot_x, double _rot_y, double _rot_z) :
   sh_x(_sh_x), sh_y(_sh_y), sh_z(_sh_z),
   rot_x(_rot_x), rot_y(_rot_y), rot_z(_rot_z)
@@ -36,7 +38,7 @@ RPAlignmentCorrectionData::RPAlignmentCorrectionData(double _sh_x, double _sh_y,
 
 //----------------------------------------------------------------------------------------------------
 
-void RPAlignmentCorrectionData::add(const RPAlignmentCorrectionData &a, bool sumErrors, bool addSh, bool addRot)
+void CTPPSRPAlignmentCorrectionData::add(const CTPPSRPAlignmentCorrectionData &a, bool sumErrors, bool addSh, bool addRot)
 {
   if (addSh)
   {
@@ -69,7 +71,7 @@ void RPAlignmentCorrectionData::add(const RPAlignmentCorrectionData &a, bool sum
 
 //----------------------------------------------------------------------------------------------------
 
-std::ostream& operator<<(std::ostream& s, const RPAlignmentCorrectionData &corr)
+std::ostream& operator<<(std::ostream& s, const CTPPSRPAlignmentCorrectionData &corr)
 {
   s << fixed
     << "shift (um) " << std::setprecision(1)

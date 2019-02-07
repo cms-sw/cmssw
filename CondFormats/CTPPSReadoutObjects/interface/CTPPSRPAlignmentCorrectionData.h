@@ -1,13 +1,17 @@
 /****************************************************************************
  *
- * This is a part of TOTEM offline software.
+ * This is a part of CMS-TOTEM PPS offline software.
  * Authors:
- *	Jan Kašpar (jan.kaspar@gmail.com)
+ *  Jan Kašpar (jan.kaspar@gmail.com)
+ *  Helena Malbouisson
+ *  Clemencia Mora Herrera
  *
  ****************************************************************************/
 
-#ifndef DataFormats_CTPPSAlignment_RPAlignmentCorrectionData
-#define DataFormats_CTPPSAlignment_RPAlignmentCorrectionData
+#ifndef CondFormats_CTPPSReadoutObjects_CTPPSRPAlignmentCorrectionData
+#define CondFormats_CTPPSReadoutObjects_CTPPSRPAlignmentCorrectionData
+
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
 #include <Math/Rotation3D.h>
@@ -52,7 +56,7 @@
       | 0 sin r_x  cos r_x  |   |-sin r_y  0  cos r_y  |   |    0        0      1 |
   \endverbatim
  **/
-class RPAlignmentCorrectionData
+class CTPPSRPAlignmentCorrectionData
 {
   protected:
     /// shift in mm; in global XYZ frame, which is not affected by (alignment) rotations!
@@ -67,11 +71,11 @@ class RPAlignmentCorrectionData
 
   public:
     /// full constructor, shifts in mm, rotations in rad
-    RPAlignmentCorrectionData(double _sh_x, double _sh_x_u, double _sh_y, double _sh_y_u, double _sh_z, double _sh_z_u,
+    CTPPSRPAlignmentCorrectionData(double _sh_x, double _sh_x_u, double _sh_y, double _sh_y_u, double _sh_z, double _sh_z_u,
       double _rot_x, double _rot_x_u, double _rot_y, double _rot_y_u, double _rot_z, double _rot_z_u);
 
     /// no uncertainty constructor, shifts in mm, rotation in rad
-    RPAlignmentCorrectionData(double _sh_x = 0., double _sh_y = 0., double _sh_z = 0.,
+    CTPPSRPAlignmentCorrectionData(double _sh_x = 0., double _sh_y = 0., double _sh_z = 0.,
       double _rot_x = 0., double _rot_y = 0., double rot_z = 0.);
 
 
@@ -133,9 +137,11 @@ class RPAlignmentCorrectionData
     /// \param sumErrors if it is true, old and new alignment uncertainties are summed (in quadrature)
     /// if it is false, the uncertainties of the parameter (i.e. not the object) will be used
     /// With the add... switches one can control which corrections are added.
-    void add(const RPAlignmentCorrectionData&, bool sumErrors=true, bool addSh=true, bool addRot=true);
+    void add(const CTPPSRPAlignmentCorrectionData&, bool sumErrors=true, bool addSh=true, bool addRot=true);
+
+    COND_SERIALIZABLE;
 };
 
-std::ostream& operator<<(std::ostream& s, const RPAlignmentCorrectionData &corr);
+std::ostream& operator<<(std::ostream& s, const CTPPSRPAlignmentCorrectionData &corr);
 
 #endif
