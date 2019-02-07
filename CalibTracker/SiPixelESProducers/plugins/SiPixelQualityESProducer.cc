@@ -43,9 +43,10 @@ SiPixelQualityESProducer::SiPixelQualityESProducer(const edm::ParameterSet& conf
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this);
-  findingRecord<SiPixelQualityRcd>();
+  setWhatProduced(this, &SiPixelQualityESProducer::produceWithLabel, edm::es::Label("forDigitizer"));
+  
+  findingRecord<SiPixelQualityRcd>();  
 }
-
 
 SiPixelQualityESProducer::~SiPixelQualityESProducer()
 {
@@ -55,8 +56,8 @@ SiPixelQualityESProducer::~SiPixelQualityESProducer()
 
 }
 
-std::unique_ptr<SiPixelQuality> SiPixelQualityESProducer::produce(const SiPixelQualityRcd & iRecord)
-{
+std::unique_ptr<SiPixelQuality> SiPixelQualityESProducer::get_pointer(const SiPixelQualityRcd & iRecord, std::string label){
+  
   
   std::string recordName;
 
@@ -72,30 +73,39 @@ std::unique_ptr<SiPixelQuality> SiPixelQualityESProducer::produce(const SiPixelQ
   //SiPixelQuality::disabledModuleType BadModule;
   //BadModule.DetID = 1; BadModule.errorType = 0; BadModule.BadRocs = 65535; obj->addDisabledModule(BadModule);
   
-    //start with the record thta existed already to decouple the debugging
+  //start with the record thta existed already to decouple the debugging
   //here i can do whatever i need with the detVoff
- 
+
   edm::ESHandle<SiStripDetVOff> Voff;
   edm::ESHandle<SiPixelQuality> dbobject;
-  
+
   for( Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
 
     recordName = itToGet->getParameter<std::string>("record");
-    
+
     if (recordName=="SiPixelDetVOffRcd")
-      iRecord.getRecord<SiPixelDetVOffRcd>().get(Voff); 
-    if (recordName=="SiPixelQualityFromDbRcd")
-      iRecord.getRecord<SiPixelQualityFromDbRcd>().get(dbobject);
+      iRecord.getRecord<SiPixelDetVOffRcd>().get(Voff);
+    if (recordName=="SiPixelQualityFromDbRcd"){
+      iRecord.getRecord<SiPixelQualityFromDbRcd>().get(label, dbobject);
+    }
   } //end getting the records from the parameters
-  
+
   //now the dbobject is the one copied from the db
-  //here make a copy of dbobject, but now the label has to be empty not to interfeare with the Reco
   auto dbptr = std::make_unique<SiPixelQuality>(*(dbobject));
-  
+
   //here is the magic line in which it switches off Bad Modules
   dbptr->add(Voff.product());
-
   return dbptr;
+}
+
+
+std::unique_ptr<SiPixelQuality> SiPixelQualityESProducer::produce(const SiPixelQualityRcd & iRecord)
+{
+  return get_pointer(iRecord, "");
+}
+std::unique_ptr<SiPixelQuality> SiPixelQualityESProducer::produceWithLabel(const SiPixelQualityRcd & iRecord)
+{
+  return get_pointer(iRecord,  "forDigitizer");
 }
 
 void SiPixelQualityESProducer::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, 
