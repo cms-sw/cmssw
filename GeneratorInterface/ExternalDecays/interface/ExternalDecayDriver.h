@@ -49,9 +49,9 @@ namespace gen {
 
       private:
 	 bool                     fIsInitialized;
-	 TauolaInterfaceBase*     fTauolaInterface;
-	 EvtGenInterfaceBase*     fEvtGenInterface;
-	 PhotosInterfaceBase*     fPhotosInterface;
+	 std::unique_ptr<TauolaInterfaceBase>     fTauolaInterface;
+	 std::unique_ptr<EvtGenInterfaceBase>     fEvtGenInterface;
+	 std::unique_ptr<PhotosInterfaceBase>     fPhotosInterface;
 	 std::vector<int>         fPDGs;
 	 std::vector<std::string> fSpecialSettings;
 
