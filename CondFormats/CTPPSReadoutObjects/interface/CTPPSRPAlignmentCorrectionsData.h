@@ -1,15 +1,17 @@
 /****************************************************************************
  *
- * This is a part of TOTEM offline software.
+ * This is a part of CMS-TOTEM PPS offline software.
  * Authors:
- *	Jan Kašpar (jan.kaspar@gmail.com)
+ *  Jan Kašpar (jan.kaspar@gmail.com)
+ *  Helena Malbouisson
+ *  Clemencia Mora Herrera
  *
  ****************************************************************************/
 
-#ifndef DataFormats_CTPPSAlignment_RPAlignmentCorrectionsData
-#define DataFormats_CTPPSAlignment_RPAlignmentCorrectionsData
+#ifndef CondFormats_CTPPSReadoutObjects_CTPPSRPAlignmentCorrectionsData
+#define CondFormats_CTPPSReadoutObjects_CTPPSRPAlignmentCorrectionsData
 
-#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionData.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionData.h"
 
 #include <map>
 
@@ -20,11 +22,11 @@
  * alignment corrections from the corresponding RP, see getFullSensorCorrection
  * method.
  **/
-class RPAlignmentCorrectionsData
+class CTPPSRPAlignmentCorrectionsData
 {
   public:
     /// map: element id -> its alignment correction
-    typedef std::map<unsigned int, RPAlignmentCorrectionData> mapType;
+    typedef std::map<unsigned int, CTPPSRPAlignmentCorrectionData> mapType;
 
   private:
     /// alignment correction maps
@@ -33,7 +35,7 @@ class RPAlignmentCorrectionsData
     friend class StraightTrackAlignment;
 
   public:
-    RPAlignmentCorrectionsData() {}
+    CTPPSRPAlignmentCorrectionsData() {}
 
     /// returns the map of RP alignment corrections
     const mapType& getRPMap() const { return rps_; }
@@ -42,40 +44,42 @@ class RPAlignmentCorrectionsData
     const mapType& getSensorMap() const { return sensors_; }
 
     /// returns the correction value from the RP map
-    RPAlignmentCorrectionData& getRPCorrection( unsigned int id );
-    RPAlignmentCorrectionData getRPCorrection( unsigned int id ) const;
+    CTPPSRPAlignmentCorrectionData& getRPCorrection( unsigned int id );
+    CTPPSRPAlignmentCorrectionData getRPCorrection( unsigned int id ) const;
 
     /// returns the correction value from the sensor map
-    RPAlignmentCorrectionData& getSensorCorrection( unsigned int id );
-    RPAlignmentCorrectionData getSensorCorrection( unsigned int id ) const;
+    CTPPSRPAlignmentCorrectionData& getSensorCorrection( unsigned int id );
+    CTPPSRPAlignmentCorrectionData getSensorCorrection( unsigned int id ) const;
 
     /// returns the correction for the given sensor, combining the data from RP and sensor map
     /// regarding transverse shifts, uses the x and y representation, sh_r will not be corrected!
     /// by default, RP errors shall not be summed up (strong correlation).
-    RPAlignmentCorrectionData getFullSensorCorrection( unsigned int id, bool useRPErrors = false ) const;
+    CTPPSRPAlignmentCorrectionData getFullSensorCorrection( unsigned int id, bool useRPErrors = false ) const;
 
     /// sets the alignment correction for the given RP
-    void setRPCorrection( unsigned int id, const RPAlignmentCorrectionData& ac );
+    void setRPCorrection( unsigned int id, const CTPPSRPAlignmentCorrectionData& ac );
 
     /// sets the alignment correction for the given sensor
-    void setSensorCorrection( unsigned int id, const RPAlignmentCorrectionData& ac );
+    void setSensorCorrection( unsigned int id, const CTPPSRPAlignmentCorrectionData& ac );
 
     /// adds (merges) a RP correction on top of the current value
     /// \param sumErrors if it is true, old and new alignment uncertainties are summed (in quadrature)
     /// if it is false, the uncertainties of the parameter (i.e. not the object) will be used
     /// With the add... switches one can control which corrections are added.
-    void addRPCorrection( unsigned int, const RPAlignmentCorrectionData&, bool sumErrors=true, bool addSh=true, bool addRot=true );
+    void addRPCorrection( unsigned int, const CTPPSRPAlignmentCorrectionData&, bool sumErrors=true, bool addSh=true, bool addRot=true );
 
     /// adds (merges) a RP correction on top of the current value
-    void addSensorCorrection( unsigned int, const RPAlignmentCorrectionData&, bool sumErrors=true, bool addSh=true, bool addRot=true );
+    void addSensorCorrection( unsigned int, const CTPPSRPAlignmentCorrectionData&, bool sumErrors=true, bool addSh=true, bool addRot=true );
 
     /// adds (merges) corrections on top of the current values
-    void addCorrections( const RPAlignmentCorrectionsData &, bool sumErrors=true, bool addSh=true, bool addRot=true );
+    void addCorrections( const CTPPSRPAlignmentCorrectionsData &, bool sumErrors=true, bool addSh=true, bool addRot=true );
 
     /// clears all alignments
     void clear();
+
+    COND_SERIALIZABLE;
 };
 
-std::ostream& operator<<(std::ostream& s, const RPAlignmentCorrectionsData &corr);
+std::ostream& operator<<(std::ostream& s, const CTPPSRPAlignmentCorrectionsData &corr);
 
 #endif
