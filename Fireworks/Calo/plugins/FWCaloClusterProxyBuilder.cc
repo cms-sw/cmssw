@@ -211,9 +211,9 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
    {
       hex_boxset->RefitPlex();
 
+      hex_boxset->CSCTakeAnyParentAsMaster();
       if (!heatmap)
       {
-         hex_boxset->CSCTakeAnyParentAsMaster();
          hex_boxset->CSCApplyMainColorToMatchingChildren();
          hex_boxset->CSCApplyMainTransparencyToMatchingChildren();
          hex_boxset->SetMainColor(item()->modelInfo(iIndex).displayProperties().color());
@@ -226,9 +226,9 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
    {
       boxset->RefitPlex();
 
+      boxset->CSCTakeAnyParentAsMaster();
       if (!heatmap)
       {
-         boxset->CSCTakeAnyParentAsMaster();
          boxset->CSCApplyMainColorToMatchingChildren();
          boxset->CSCApplyMainTransparencyToMatchingChildren();
          boxset->SetMainColor(item()->modelInfo(iIndex).displayProperties().color());

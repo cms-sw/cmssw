@@ -151,9 +151,9 @@ FWHGCalMultiClusterProxyBuilder::build(const reco::HGCalMultiCluster &iData, uns
    {
       hex_boxset->RefitPlex();
 
+      hex_boxset->CSCTakeAnyParentAsMaster();
       if (!heatmap)
       {
-         hex_boxset->CSCTakeAnyParentAsMaster();
          hex_boxset->CSCApplyMainColorToMatchingChildren();
          hex_boxset->CSCApplyMainTransparencyToMatchingChildren();
          hex_boxset->SetMainColor(item()->modelInfo(iIndex).displayProperties().color());
@@ -166,9 +166,9 @@ FWHGCalMultiClusterProxyBuilder::build(const reco::HGCalMultiCluster &iData, uns
    {
       boxset->RefitPlex();
 
+      boxset->CSCTakeAnyParentAsMaster();
       if (!heatmap)
       {
-         boxset->CSCTakeAnyParentAsMaster();
          boxset->CSCApplyMainColorToMatchingChildren();
          boxset->CSCApplyMainTransparencyToMatchingChildren();
          boxset->SetMainColor(item()->modelInfo(iIndex).displayProperties().color());
