@@ -5,11 +5,10 @@
 
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
+#include "DetectorDescription/DDCMS/interface/DDUnits.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
 //#define EDM_ML_DEBUG
@@ -28,7 +27,7 @@ HcalNumberingFromDDD::~HcalNumberingFromDDD() {
 }
 
 HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
-							  const CLHEP::Hep3Vector& point,
+							  const math::XYZVectorD& point,
 							  int depth,
 							  int lay) const {
 
@@ -87,10 +86,10 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
   int    ieta  = hcalConstants->getEta(det, lay, hetaR);
   std::pair<double,double> ficons = hcalConstants->getPhiCons(det, ieta);
 
-  int    nphi  = int((CLHEP::twopi+0.1*ficons.second)/ficons.second);
+  int    nphi  = int((2_pi+0.1*ficons.second)/ficons.second);
   int    zside = etaR>0 ? 1: 0;
   double hphi  = phi+ficons.first;
-  if (hphi < 0)    hphi += CLHEP::twopi;
+  if (hphi < 0)    hphi += (2_pi);
   int    iphi  = int(hphi/ficons.second) + 1;
   if (iphi > nphi) iphi = 1;
 
