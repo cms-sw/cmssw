@@ -67,6 +67,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( CTPPSPixelDAQMapping )
       IMPORT_PAYLOAD_CASE( CTPPSPixelAnalysisMask )
       IMPORT_PAYLOAD_CASE( CTPPSPixelGainCalibrations  )
+      IMPORT_PAYLOAD_CASE( CTPPSRPAlignmentCorrectionsData )
       IMPORT_PAYLOAD_CASE( CastorChannelQuality )
       IMPORT_PAYLOAD_CASE( CastorElectronicsMap )
       IMPORT_PAYLOAD_CASE( CastorGainWidths )

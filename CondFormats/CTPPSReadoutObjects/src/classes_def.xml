@@ -20,6 +20,10 @@
     <class name="CTPPSPixelGainCalibration::DetRegistry"/>
     <class name="std::vector<CTPPSPixelGainCalibration::DetRegistry>"/>
     <class name="CTPPSPixelGainCalibrations" class_version="0"/>
+    <class name="CTPPSRPAlignmentCorrectionsData" class_version="0"/>
+    <class name="CTPPSRPAlignmentCorrectionData" class_version="0"/>
+    <class name="CTPPSRPAlignmentCorrectionsDataSequence"/>
+    <class name="std::map<unsigned int, CTPPSRPAlignmentCorrectionData>"/>
 
     <class name="PPSTimingCalibration::Key"/>
     <class name="std::map<PPSTimingCalibration::Key,std::vector<double> >"/>
