@@ -79,6 +79,8 @@ class HGCalTriggerGeomTesterV9Imp2 : public edm::stream::EDAnalyzer<>
         int   moduleSide_   ;
         int   moduleSubdet_ ;
         int   moduleLayer_  ;
+        int   moduleIEta_       ;
+        int   moduleIPhi_       ;
         int   module_       ;
         float moduleX_      ;
         float moduleY_      ;
@@ -206,6 +208,8 @@ HGCalTriggerGeomTesterV9Imp2::HGCalTriggerGeomTesterV9Imp2(const edm::ParameterS
     treeModules_->Branch("zside"          , &moduleSide_          , "zside/I");
     treeModules_->Branch("subdet"         , &moduleSubdet_        , "subdet/I");
     treeModules_->Branch("layer"          , &moduleLayer_         , "layer/I");
+    treeModules_->Branch("ieta"         , &moduleIEta_              , "ieta/I");
+    treeModules_->Branch("iphi"         , &moduleIPhi_              , "iphi/I");
     treeModules_->Branch("module"         , &module_              , "module/I");
     treeModules_->Branch("x"              , &moduleX_             , "x/F");
     treeModules_->Branch("y"              , &moduleY_             , "y/F");
@@ -400,20 +404,12 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency()
             // fill trigger cells
             uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
             HGCalTriggerDetId tcid(trigger_cell);
-            if(tcid.subdet()!=HGCalTriggerSubdetector::HGCalEETrigger)
-            {
-                std::cerr<<"Bad EE trigger cell detector id "<<tcid<<"\n";
-            }
             auto itr_insert = triggercells_to_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
             itr_insert.first->second.emplace(id);
             // fill modules
             uint32_t module = triggerGeometry_->getModuleFromCell(id);
             if(module!=0)
             {
-                if(HGCalDetId(module).layer()!=detid.layer())
-                {
-                    std::cerr<<"Module and cell have different layers : "<<HGCalDetId(module).layer()<<" "<<detid.layer()<<"\n";
-                }
                 itr_insert = modules_to_cells.emplace(module, std::unordered_set<uint32_t>());
                 itr_insert.first->second.emplace(id);
             }
@@ -426,20 +422,12 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency()
             // fill trigger cells
             uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
             HGCalTriggerDetId tcid(trigger_cell);
-            if(tcid.subdet()!=HGCalTriggerSubdetector::HGCalHSiTrigger)
-            {
-                std::cerr<<"Bad HSi trigger cell detector id "<<tcid<<"\n";
-            }
             auto itr_insert = triggercells_to_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
             itr_insert.first->second.emplace(id);
             // fill modules
             uint32_t module = triggerGeometry_->getModuleFromCell(id);
             if(module!=0)
             {
-                if(HGCalDetId(module).layer()!=detid.layer())
-                {
-                    std::cerr<<"Module and cell have different layers : "<<HGCalDetId(module).layer()<<" "<<detid.layer()<<"\n";
-                }
                 itr_insert = modules_to_cells.emplace(module, std::unordered_set<uint32_t>());
                 itr_insert.first->second.emplace(id);
             }
@@ -479,12 +467,6 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency()
             {
                 if(id.det()!=DetId::HGCalHSc)
                 {
-                    if(HGCalDetId(module).layer()!=trig_id.layer())
-                    {
-                        std::cerr<<"Module and TC have different layers : "<<HGCalDetId(module).layer()<<" "<<trig_id.layer()<<"\n";
-                        std::cerr<<HGCalDetId(module)<<"\n";
-                        std::cerr<<trig_id<<"\n";
-                    }
                     auto itr_insert = modules_to_triggercells.emplace(module, std::unordered_set<uint32_t>());
                     itr_insert.first->second.emplace(id);
                 }
@@ -492,39 +474,8 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency()
             // Check consistency of cells included in trigger cell
             HGCalTriggerGeometryBase::geom_set cells_geom = triggerGeometry_->getCellsFromTriggerCell(id);
             const auto& cells = triggercell_cells.second;
-            GlobalPoint tc_position = triggerGeometry_->getTriggerCellPosition(id);
-            // if(cells_geom.size()!=triggercell_cells.second.size())
-            // {
-                // edm::LogProblem("BadTriggerCell")<<"Incompatibility in number of cells between TC->cell and cell->TC: "<<cells_geom.size()<<" vs "<<triggercell_cells.second.size()<<"\n";
-                // if(id.det()==DetId::HGCalHSc)
-                // {
-                    // edm::LogProblem("BadTriggerCell")<<"  Trigger cell "<<HGCScintillatorDetId(id)<<"\n";
-                // }
-                // else
-                // {
-                    // edm::LogProblem("BadTriggerCell")<<"  Trigger cell "<<HGCalTriggerDetId(id)<<"\n";
-                // }
-            // }
             for(auto cell : cells)
             {
-                if(id.det()==DetId::HGCalHSc)
-                {
-                    GlobalPoint cell_position = triggerGeometry_->hscGeometry()->getPosition(cell);
-                    if(cell_position.z()!=tc_position.z())
-                    {
-                        std::cout<<"cell z = "<<cell_position.z()<<"  TC z = "<<tc_position.z()<<"\n";
-                        std::cout<<" cell = "<<HGCScintillatorDetId(cell)<<" ("<<cell<<")\n";
-                        std::cout<<" TC = "<<HGCScintillatorDetId(id)<<"\n";
-                        std::cout<<" N cells in TC = "<<cells.size()<<"\n";
-                        std::cout<<" N cells in TC = "<<cells_geom.size()<<"\n";
-                        for(auto c : cells_geom)
-                        {
-                            GlobalPoint c_position = triggerGeometry_->hscGeometry()->getPosition(c);
-                            std::cout<<"  cell z = "<<c_position.z()<<"\n";
-                            std::cout<<"  cell = "<<HGCScintillatorDetId(c)<<" ("<<c<<")\n";
-                        }
-                    }
-                }
                 if(cells_geom.find(cell)==cells_geom.end())
                 {
                     if(id.det()==DetId::HGCalHSc)
@@ -557,8 +508,7 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency()
         // Loop over modules
         for( const auto& module_triggercells : modules_to_triggercells )
         {
-            HGCalDetId id(module_triggercells.first);
-            if(id.subdetId()==ForwardSubdetector::HGCHEB) continue;
+            DetId id(module_triggercells.first);
             // Check consistency of trigger cells included in module
             HGCalTriggerGeometryBase::geom_set triggercells_geom = triggerGeometry_->getTriggerCellsFromModule(id);
             const auto& triggercells = module_triggercells.second;
@@ -566,25 +516,41 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency()
             {
                 if(triggercells_geom.find(cell)==triggercells_geom.end())
                 {
-                    HGCalTriggerDetId cellid(cell);
-                    edm::LogProblem("BadModule")<<"Error: \n Trigger cell "<<cell<<"("<<cellid<<")\n has not been found in \n module "<<id;
-                    std::stringstream output;
-                    output<<" Available trigger cells are:\n";
-                    for(auto cell_geom : triggercells_geom)
+                    if(id.det()==DetId::HGCalHSc)
                     {
-                        output<<"     "<<HGCalTriggerDetId(cell_geom)<<"\n";
+                        HGCScintillatorDetId cellid(cell);
+                        edm::LogProblem("BadModule")<<"Error: \n Trigger cell "<<cell<<"("<<cellid<<")\n has not been found in \n module "<<HGCScintillatorDetId(id);
+                        std::stringstream output;
+                        output<<" Available trigger cells are:\n";
+                        for(auto cell_geom : triggercells_geom)
+                        {
+                            output<<"     "<<HGCScintillatorDetId(cell_geom)<<"\n";
+                        }
+                        edm::LogProblem("BadModule")<<output.str();
+                        throw cms::Exception("BadGeometry")
+                            << "HGCalTriggerGeometry: Found inconsistency in trigger cell <->  module mapping";
                     }
-                    edm::LogProblem("BadModule")<<output.str();
-                    throw cms::Exception("BadGeometry")
-                        << "HGCalTriggerGeometry: Found inconsistency in trigger cell <->  module mapping";
+                    else
+                    {
+                        HGCalTriggerDetId cellid(cell);
+                        edm::LogProblem("BadModule")<<"Error: \n Trigger cell "<<cell<<"("<<cellid<<")\n has not been found in \n module "<<HGCalDetId(id);
+                        std::stringstream output;
+                        output<<" Available trigger cells are:\n";
+                        for(auto cell_geom : triggercells_geom)
+                        {
+                            output<<"     "<<HGCalTriggerDetId(cell_geom)<<"\n";
+                        }
+                        edm::LogProblem("BadModule")<<output.str();
+                        throw cms::Exception("BadGeometry")
+                            << "HGCalTriggerGeometry: Found inconsistency in trigger cell <->  module mapping";
+                    }
                 }
             }
         }
         edm::LogPrint("ModuleCheck")<<"Checking cell -> module -> cell consistency";
         for( const auto& module_cells : modules_to_cells )
         {
-            HGCalDetId id(module_cells.first);
-            if(id.subdetId()==ForwardSubdetector::HGCHEB) continue;
+            DetId id(module_cells.first);
             // Check consistency of cells included in module
             HGCalTriggerGeometryBase::geom_set cells_geom = triggerGeometry_->getCellsFromModule(id);
             const auto& cells = module_cells.second;
@@ -592,13 +558,13 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency()
             {
                 if(cells_geom.find(cell)==cells_geom.end())
                 {
-                    if(id.subdetId()==ForwardSubdetector::HGCHEB)
+                    if(id.det()==DetId::HGCalHSc)
                     {
-                        edm::LogProblem("BadModule")<<"Error: \n Cell "<<cell<<"("<<HGCScintillatorDetId(cell)<<")\n has not been found in \n module "<<id;
+                        edm::LogProblem("BadModule")<<"Error: \n Cell "<<cell<<"("<<HGCScintillatorDetId(cell)<<")\n has not been found in \n module "<<HGCScintillatorDetId(id);
                     }
                     else
                     {
-                        edm::LogProblem("BadModule")<<"Error: \n Cell "<<cell<<"("<<HGCSiliconDetId(cell)<<")\n has not been found in \n module "<<id;
+                        edm::LogProblem("BadModule")<<"Error: \n Cell "<<cell<<"("<<HGCSiliconDetId(cell)<<")\n has not been found in \n module "<<HGCalDetId(id);
                     }
                     std::stringstream output;
                     output<<" Available cells are:\n";
@@ -748,8 +714,8 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
         {
             uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
             // Skip trigger cells in module 0
-            // uint32_t module = triggerGeometry_->getModuleFromTriggerCell(trigger_cell);
-            // if(HGCalDetId(module).wafer()==0) continue;
+            uint32_t module = triggerGeometry_->getModuleFromTriggerCell(trigger_cell);
+            if(HGCalDetId(module).wafer()==0) continue;
             auto itr_insert = trigger_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
             itr_insert.first->second.emplace(id);
         }
@@ -792,8 +758,8 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
         {
             uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
             // Skip trigger cells in module 0
-            // uint32_t module = triggerGeometry_->getModuleFromTriggerCell(trigger_cell);
-            // if(HGCalDetId(module).wafer()==0) continue;
+            uint32_t module = triggerGeometry_->getModuleFromTriggerCell(trigger_cell);
+            if(HGCalDetId(module).wafer()==0) continue;
             auto itr_insert = trigger_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
             itr_insert.first->second.emplace(id);
         }
@@ -833,9 +799,6 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
         if(!no_trigger_)
         {
             uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
-            // Skip trigger cells in module 0
-            // uint32_t module = triggerGeometry_->getModuleFromTriggerCell(trigger_cell);
-            // if(HGCalDetId(module).wafer()==0) continue;
             auto itr_insert = trigger_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
             itr_insert.first->second.emplace(id);
         }
@@ -918,28 +881,6 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
             }
             ic++;
         }
-        // Get neighbors
-        // if(!no_neighbors_)
-        // {
-            // const auto neighbors = triggerGeometry_->getNeighborsFromTriggerCell(id.rawId());
-            // triggerCellNeighbor_N_ = neighbors.size();
-            // setTreeTriggerCellNeighborSize(triggerCellNeighbor_N_);
-            // size_t in = 0;
-            // for(const auto neighbor : neighbors)
-            // {
-                // HGCalDetId nId(neighbor);
-                // // std::cout<<"Neighbor ID "<<nId<<"\n";
-                // GlobalPoint neighbor_position = triggerGeometry_->getTriggerCellPosition(neighbor);
-                // triggerCellNeighbor_id_.get()[in] = neighbor;
-                // triggerCellNeighbor_zside_ .get()[in] = nId.zside();
-                // triggerCellNeighbor_subdet_.get()[in] = nId.subdetId();
-                // triggerCellNeighbor_layer_ .get()[in] = nId.layer();
-                // triggerCellNeighbor_wafer_ .get()[in] = nId.wafer();
-                // triggerCellNeighbor_cell_  .get()[in] = nId.cell();
-                // triggerCellNeighbor_distance_.get()[in] = (neighbor_position - position).mag();
-                // in++;
-            // }
-        // }
         
         treeTriggerCells_->Fill();
         // fill modules
@@ -951,16 +892,32 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
     edm::LogPrint("TreeFilling")<<"Filling modules tree";
     for( const auto& module_triggercells : modules )
     {
-        HGCalDetId id(module_triggercells.first);
+        DetId id(module_triggercells.first);
         GlobalPoint position = triggerGeometry_->getModulePosition(id);
         moduleId_     = id.rawId();
-        moduleSide_   = id.zside();
-        moduleSubdet_ = id.subdetId();
-        moduleLayer_  = id.layer();
-        module_       = id.wafer();
         moduleX_      = position.x();
         moduleY_      = position.y();
         moduleZ_      = position.z();
+        if(id.det()==DetId::HGCalHSc)
+        {
+            HGCScintillatorDetId sc_id(module_triggercells.first);
+            moduleSide_   = sc_id.zside();
+            moduleSubdet_ = ForwardSubdetector::HGCHEB;
+            moduleLayer_  = sc_id.layer();
+            moduleIEta_       = sc_id.ietaAbs();
+            moduleIPhi_       = sc_id.iphi();
+            module_ = 0;
+        }
+        else
+        {
+            HGCalDetId si_id(module_triggercells.first);
+            moduleSide_   = si_id.zside();
+            moduleSubdet_ = si_id.subdetId();
+            moduleLayer_  = si_id.layer();
+            moduleIEta_   = 0;
+            moduleIPhi_   = 0;
+            module_ = si_id.wafer();
+        }
         moduleTC_N_   = module_triggercells.second.size();
         //
         setTreeModuleSize(moduleTC_N_);
@@ -968,7 +925,7 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
         for(const auto& tc : module_triggercells.second)
         {
             moduleTC_id_    .get()[itc] = tc;
-            if(id.subdetId()==ForwardSubdetector::HGCHEB)
+            if(id.det()==DetId::HGCalHSc)
             {
                 HGCScintillatorDetId tcId(tc);
                 moduleTC_zside_ .get()[itc] = tcId.zside();
@@ -1007,7 +964,7 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
         size_t ic = 0;
         for(const auto& c : cells_in_module)
         {
-            if(id.subdetId()==ForwardSubdetector::HGCHEB)
+            if(id.det()==DetId::HGCalHSc)
             {
                 HGCScintillatorDetId cId(c);
                 GlobalPoint cell_position = triggerGeometry_->hscGeometry()->getPosition(cId);
