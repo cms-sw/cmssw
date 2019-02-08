@@ -59,3 +59,34 @@ def getMixtures() :
     inFile.close()
 
     return mixtures
+
+def loadMaterialsFile(inputFile):
+
+    mixMatFile = open(inputFile,"r")
+
+    mixMats = []
+
+    for line in mixMatFile.readlines():
+
+        if line[0] == '"':
+            mixMat = re.search(
+                r'^"(?P<name>[^"]+)"\s+(?P<weight>[0-9.E-]+)\s+(?P<number>[0-9.E-]+)\s+(?P<density>[0-9.E-]+)\s+(?P<x0>[0-9.E-]+)\s+(?P<l0>[0-9E.-]+)',
+                line
+                )
+
+            mixMats.append({
+                    "name" : mixMat.group("name"),
+                    "weight" : float(mixMat.group("weight")),
+                    "number" : float(mixMat.group("number")),
+                    "density" : float(mixMat.group("density")),
+                    "x0" : float(mixMat.group("x0")),
+                    "l0" : float(mixMat.group("l0")),
+                    })
+
+    return mixMats
+
+listOfMixtures = getMixtures()
+
+listOfMixedMaterials = loadMaterialsFile(inputFile="mixed_materials.input")
+listOfPureMaterials = loadMaterialsFile(inputFile="pure_materials.input")
+listOfMaterials = listOfMixedMaterials + listOfPureMaterials
