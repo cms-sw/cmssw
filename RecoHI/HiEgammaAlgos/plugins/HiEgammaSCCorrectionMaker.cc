@@ -74,18 +74,15 @@ HiEgammaSCCorrectionMaker::HiEgammaSCCorrectionMaker(const edm::ParameterSet& ps
   produces<reco::SuperClusterCollection>(outputCollection_);
 
   // instanciate the correction algo object
-  energyCorrector_ = new HiEgammaSCEnergyCorrectionAlgo(sigmaElectronicNoise_, sCAlgo_, fCorrPset, verbosity_);
+  energyCorrector_ = std::make_unique<HiEgammaSCEnergyCorrectionAlgo>(sigmaElectronicNoise_, sCAlgo_, fCorrPset, verbosity_);
   
 
   // energy correction class
   if (applyEnergyCorrection_ )
-    EnergyCorrection_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
+    EnergyCorrection_ = std::unique_ptr<EcalClusterFunctionBaseClass>{EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps)};
 }
 
-HiEgammaSCCorrectionMaker::~HiEgammaSCCorrectionMaker()
-{
-  delete energyCorrector_;
-}
+HiEgammaSCCorrectionMaker::~HiEgammaSCCorrectionMaker() = default;
 
 void
 HiEgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
@@ -151,7 +148,7 @@ HiEgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
   {
      reco::SuperCluster newClus;
      if(applyEnergyCorrection_) 
-        newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p, topology, EnergyCorrection_);
+        newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p, topology, EnergyCorrection_.get());
      else
 	newClus=*aClus;
 
