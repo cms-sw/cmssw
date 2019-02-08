@@ -1,8 +1,24 @@
 #ifndef GEOMETRY_RECO_GEOMETRY_DT_GEOMETRY_BUILDER_H
 #define GEOMETRY_RECO_GEOMETRY_DT_GEOMETRY_BUILDER_H
 
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+
+namespace dd4hep {
+  class Detector;
+}
+
+class DTGeometry;
+class DTChamber;
+class DTSuperLayer;
+class DTLayer;
+
 namespace cms {
 
+  class DDDetector;
+  class MuonNumbering;
+  class DDSpecParRef;
+  class DDSpecPar;
+  
   class DTGeometryBuilder {
   public:
     DTGeometryBuilder() {}
