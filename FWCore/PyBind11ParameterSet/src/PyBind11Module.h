@@ -24,11 +24,11 @@
 // improve these messages even more by adding something in the python
 // to add module type and label context to the messages being caught
 // here. At this point we did not think it worth the time to implement.
-namespace {
-  void translatorlibFWCorePythonParameterSet(cms::Exception const& ex) {
-    PyErr_SetString(PyExc_RuntimeError, ex.message().c_str());
-  }
-}
+//namespace {
+//  void translatorlibFWCorePythonParameterSet(cms::Exception const& ex) {
+//    PyErr_SetString(PyExc_RuntimeError, ex.message().c_str());
+//  }
+//}
 
 #include <pybind11/pybind11.h>
 
