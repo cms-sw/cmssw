@@ -68,14 +68,37 @@ namespace edm {
           a eventsetup::NoRecordException<T> is thrown */
       template< typename T>
          T get() const {
-           return m_setup.get<T>();
+            using namespace eventsetup;
+            using namespace eventsetup::heterocontainer;
+            //NOTE: this will catch the case where T does not inherit from EventSetupRecord
+            //  HOWEVER the error message under gcc 3.x is awful
+            static_assert(std::is_base_of_v<edm::eventsetup::EventSetupRecord, T>, "Trying to get a class that is not a Record from EventSetup");
+            
+            auto const temp = m_setup.findImpl(makeKey<typename type_from_itemtype<eventsetup::EventSetupRecordKey,T>::Type,eventsetup::EventSetupRecordKey>());
+            if(nullptr == temp) {
+               throw eventsetup::NoRecordException<T>(recordDoesExist(m_setup, eventsetup::EventSetupRecordKey::makeKey<T>()));
+            }
+            T returnValue;
+            returnValue.setImpl(temp);
+            return returnValue;
          }
 
       /** returns the Record of type T.  If no such record available
        a null pointer is returned */
       template< typename T>
         std::optional<T> tryToGet() const {
-           return m_setup.tryToGet<T>();
+           using namespace eventsetup;
+           using namespace eventsetup::heterocontainer;
+           
+           //NOTE: this will catch the case where T does not inherit from EventSetupRecord
+           static_assert(std::is_base_of_v<edm::eventsetup::EventSetupRecord, T>,"Trying to get a class that is not a Record from EventSetup");
+           auto const temp = impl().findImpl(makeKey<typename type_from_itemtype<eventsetup::EventSetupRecordKey,T>::Type,eventsetup::EventSetupRecordKey>());
+           if(temp != nullptr) {
+              T rec;
+              rec.setImpl(temp);
+              return rec;
+           }
+           return std::nullopt;
         }
 
       /** can directly access data if data_default_record_trait<> is defined for this data type **/
