@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     OutputModuleCommunicator
-// 
+//
 /**\class edm::OutputModuleCommunicator OutputModuleCommunicator.h "FWCore/Framework/interface/OutputModuleCommunicator.h"
 
  Description: Base class used by the framework to communicate with an OutputModule
@@ -36,56 +36,54 @@ namespace edm {
   class ThinnedAssociationsHelper;
   class WaitingTaskHolder;
 
-  class OutputModuleCommunicator
-  {
-    
+  class OutputModuleCommunicator {
   public:
     OutputModuleCommunicator() = default;
     virtual ~OutputModuleCommunicator();
-    
+
     virtual void closeFile() = 0;
-    
+
     ///\return true if output module wishes to close its file
     virtual bool shouldWeCloseFile() const = 0;
-    
+
     ///\return true if no event filtering is applied to OutputModule
     virtual bool wantAllEvents() const = 0;
-    
+
     virtual void openFile(FileBlock const& fb) = 0;
-    
+
     virtual void writeRunAsync(WaitingTaskHolder iTask,
                                RunPrincipal const& rp,
                                ProcessContext const*,
                                ActivityRegistry*,
                                MergeableRunProductMetadata const*) = 0;
-    
+
     virtual void writeLumiAsync(WaitingTaskHolder iTask,
                                 LuminosityBlockPrincipal const& lbp,
                                 ProcessContext const*,
                                 ActivityRegistry*) = 0;
-    
+
     ///\return true if OutputModule has reached its limit on maximum number of events it wants to see
     virtual bool limitReached() const = 0;
-    
+
     virtual void configure(OutputModuleDescription const& desc) = 0;
-    
+
     virtual SelectedProductsForBranchType const& keptProducts() const = 0;
-    
+
     virtual void selectProducts(ProductRegistry const& preg, ThinnedAssociationsHelper const&) = 0;
-    
-    virtual void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
-                                       bool anyProductProduced) = 0;
+
+    virtual void setEventSelectionInfo(
+        std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
+        bool anyProductProduced) = 0;
 
     virtual ModuleDescription const& description() const = 0;
-    
+
   private:
-    OutputModuleCommunicator(const OutputModuleCommunicator&) = delete; // stop default
-    
-    const OutputModuleCommunicator& operator=(const OutputModuleCommunicator&) = delete; // stop default
-    
+    OutputModuleCommunicator(const OutputModuleCommunicator&) = delete;  // stop default
+
+    const OutputModuleCommunicator& operator=(const OutputModuleCommunicator&) = delete;  // stop default
+
     // ---------- member data --------------------------------
-    
   };
-}
+}  // namespace edm
 
 #endif

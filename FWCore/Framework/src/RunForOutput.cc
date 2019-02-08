@@ -6,19 +6,16 @@
 
 namespace edm {
 
-  RunForOutput::RunForOutput(RunPrincipal const& rp, ModuleDescription const& md,
-                             ModuleCallingContext const* moduleCallingContext, bool isAtEnd,
-                             MergeableRunProductMetadata const* mrpm) :
-        OccurrenceForOutput(rp, md, moduleCallingContext, isAtEnd), 
+  RunForOutput::RunForOutput(RunPrincipal const& rp,
+                             ModuleDescription const& md,
+                             ModuleCallingContext const* moduleCallingContext,
+                             bool isAtEnd,
+                             MergeableRunProductMetadata const* mrpm)
+      : OccurrenceForOutput(rp, md, moduleCallingContext, isAtEnd),
         aux_(rp.aux()),
-        mergeableRunProductMetadata_(mrpm) {
-  }
+        mergeableRunProductMetadata_(mrpm) {}
 
-  RunForOutput::~RunForOutput() {
-  }
+  RunForOutput::~RunForOutput() {}
 
-  RunPrincipal const&
-  RunForOutput::runPrincipal() const {
-    return dynamic_cast<RunPrincipal const&>(principal());
-  }
-}
+  RunPrincipal const& RunForOutput::runPrincipal() const { return dynamic_cast<RunPrincipal const&>(principal()); }
+}  // namespace edm

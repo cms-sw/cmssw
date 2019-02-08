@@ -13,11 +13,8 @@
 
 namespace edm {
 
-  ParameterSet const*
-  getProducerParameterSet(Provenance const& provenance) {
-
-    const std::shared_ptr<BranchDescription const>& branchDescription =
-      provenance.constBranchDescriptionPtr();
+  ParameterSet const* getProducerParameterSet(Provenance const& provenance) {
+    const std::shared_ptr<BranchDescription const>& branchDescription = provenance.constBranchDescriptionPtr();
 
     if (branchDescription) {
       std::string const& process = branchDescription->processName();
@@ -38,8 +35,7 @@ namespace edm {
       }
     }
     // This should never happen
-    throw cms::Exception("LogicError")
-      << "getProducerParameterSet failed";
+    throw cms::Exception("LogicError") << "getProducerParameterSet failed";
     return nullptr;
   }
-}
+}  // namespace edm

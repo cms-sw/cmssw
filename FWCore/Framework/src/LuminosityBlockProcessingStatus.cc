@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     LuminosityBlockProcessingStatus
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -18,16 +18,17 @@
 
 namespace edm {
   void LuminosityBlockProcessingStatus::setEndTime() {
-    if(2 != endTimeSetStatus_) {
+    if (2 != endTimeSetStatus_) {
       //not already set
       char expected = 0;
-      if(endTimeSetStatus_.compare_exchange_strong(expected,1)) {
+      if (endTimeSetStatus_.compare_exchange_strong(expected, 1)) {
         lumiPrincipal_->setEndTime(endTime_);
         endTimeSetStatus_.store(2);
       } else {
         //wait until time is set
-        while( 2 != endTimeSetStatus_.load()) {}
+        while (2 != endTimeSetStatus_.load()) {
+        }
       }
     }
   }
-}
+}  // namespace edm
