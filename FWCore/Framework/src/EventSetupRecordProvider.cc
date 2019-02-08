@@ -12,6 +12,7 @@
 
 // system include files
 #include <algorithm>
+#include <cassert>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"

@@ -64,6 +64,8 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 #include <utility>
 #include <vector>
 #include <atomic>
+#include <cassert>
+#include <limits>
 
 // forward declarations
 namespace cms {

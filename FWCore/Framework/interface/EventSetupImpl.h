@@ -19,34 +19,22 @@
 //
 
 // system include files
-#include <cassert>
 #include <map>
 #include <optional>
-#include <string>
-#include <type_traits>
 #include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
-#include "FWCore/Framework/interface/HCMethods.h"
-#include "FWCore/Framework/interface/NoRecordException.h"
-#include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "FWCore/Framework/interface/data_default_record_trait.h"
-#include "FWCore/Utilities/interface/Transition.h"
 
 // forward declarations
 
 namespace edm {
    class ActivityRegistry;
    class ESInputTag;
-   template <class T>
-   class ESGetTokenT;
 
    namespace eventsetup {
       class EventSetupProvider;
-      class EventSetupRecord;
       class EventSetupRecordImpl;
    }
 
