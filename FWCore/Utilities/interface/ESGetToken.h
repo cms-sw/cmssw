@@ -15,6 +15,7 @@
 */
 
 #include "FWCore/Utilities/interface/ESInputTag.h"
+#include <limits>
 
 namespace edm {
   class EDConsumerBase;
@@ -40,10 +41,12 @@ namespace edm {
   public:
     ESGetToken() = default;
 
+    unsigned int transitionID() const { return m_transitionID;}
   private:
-    explicit ESGetToken(ESInputTag const& tag) : m_tag{tag} {}
+    explicit ESGetToken(unsigned int transitionID, ESInputTag const& tag) : m_tag{tag}, m_transitionID{transitionID} {}
 
     ESInputTag m_tag{};
+    unsigned int m_transitionID{std::numeric_limits<unsigned int>::max()};
   };
 
 }

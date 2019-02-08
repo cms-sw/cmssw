@@ -63,7 +63,8 @@ namespace edm {
       // ---------- const member functions ---------------------
       eventsetup::EventSetupRecordImpl const* findImpl(const eventsetup::EventSetupRecordKey&) const;
 
-      std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey&) const;
+      std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey&,
+                                                              unsigned int iTransitionID) const;
 
       ///clears the oToFill vector and then fills it with the keys for all available records
       void fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const;
