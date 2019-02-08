@@ -344,6 +344,7 @@ namespace edm {
       }
 
       // Check that non-chosen cases declare exactly the same branches
+      // Also set the alias-for branches to transient
       std::vector<bool> foundBranches;
       for(auto const& switchItem: switchMap) {
         auto const& switchLabel = switchItem.first;
@@ -352,8 +353,19 @@ namespace edm {
         foundBranches.resize(chosenBranches.size());
         for(auto const& caseLabel: caseLabels) {
           std::fill(foundBranches.begin(), foundBranches.end(), false);
-          for(auto const& item: preg.productList()) {
+          for(auto& nonConstItem: preg.productListUpdator()) {
+            auto const& item = nonConstItem;
             if(item.first.moduleLabel() == caseLabel) {
+              // Set the alias-for branch as transient so it gets fully ignored in output.
+              // I tried first to implicitly drop all branches with
+              // '@' in ProductSelector, but that gave problems on
+              // input (those branches would be implicitly dropped on
+              // input as well, leading to the SwitchProducer branches
+              // do be dropped as dependent ones, as the alias
+              // detection logic in RootFile says that the
+              // SwitchProducer branches are not alias branches)
+              nonConstItem.second.setTransient(true);
+
               auto range = std::equal_range(chosenBranches.begin(), chosenBranches.end(), BranchKey(item.first.friendlyClassName(),
                                                                                                     switchLabel,
                                                                                                     item.first.productInstanceName(),
