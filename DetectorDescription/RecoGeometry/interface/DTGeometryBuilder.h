@@ -14,33 +14,31 @@ namespace cms {
     void build(DTGeometry&,
                const DDDetector*, 
                const MuonNumbering&,
-	       const DDSpecParRefMap&);
+	       const DDSpecParRefs&);
   private:
-    void buildGeometry(DDFilteredView&, dd4hep::Volume top,
+    void buildGeometry(DDFilteredView&,
 		       const DDSpecPar&,
 		       DTGeometry&, const MuonNumbering&) const;
-    
+
     /// create the chamber
     DTChamber* buildChamber(const DDFilteredView&,
-			    const std::vector<double>&,
 			    const DDTranslation&,
 			    const DDRotationMatrix&,
                             const MuonNumbering&) const;
     
     /// create the SL
-    DTSuperLayer* buildSuperLayer(DTChamber*,
-				  const std::vector<double>&,
+    DTSuperLayer* buildSuperLayer(const DDFilteredView&,
+				  DTChamber*,
 				  const DDTranslation&,
 				  const DDRotationMatrix&,
 				  const MuonNumbering&) const;
 
     /// create the layer
-    DTLayer* buildLayer(DTSuperLayer*,
-			const std::vector<double>&,
+    DTLayer* buildLayer(const DDFilteredView&,
+			DTSuperLayer*,
 			const DDTranslation&,
 			const DDRotationMatrix&,
-			const MuonNumbering&,
-			int) const;
+			const MuonNumbering&) const;
 
     using RCPPlane = ReferenceCountingPointer<Plane>;
 
