@@ -161,7 +161,7 @@ namespace edm {
     template <typename ESProduct, typename ESRecord, Transition Tr = Transition::Event>
     auto esConsumes(ESInputTag const& tag)
     {
-      return ESGetToken<ESProduct, ESRecord>{tag};
+      return ESGetToken<ESProduct, ESRecord>{static_cast<unsigned int>(Tr),tag};
     }
 
   private:

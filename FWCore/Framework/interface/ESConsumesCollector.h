@@ -47,18 +47,20 @@ namespace edm {
     // ---------- member functions ---------------------------
     template <typename Product, typename Record>
     auto consumesFrom(ESInputTag const& tag) {
-      return ESGetToken<Product,Record>{tag};
+      return ESGetToken<Product,Record>{m_transitionID, tag};
     }
 
   protected:
-    explicit ESConsumesCollector(ESProducer* const iConsumer) :
-    m_consumer{iConsumer}
+    explicit ESConsumesCollector(ESProducer* const iConsumer, unsigned int iTransitionID) :
+    m_consumer{iConsumer},
+    m_transitionID{iTransitionID}
     {}
 
   private:
 
     // ---------- member data --------------------------------
     edm::propagate_const<ESProducer*> m_consumer{nullptr};
+    unsigned int m_transitionID{0};
   };
   
   template<typename RECORD>
@@ -82,8 +84,8 @@ namespace edm {
     //only ESProducer is allowed to make an instance of this class
     friend class ESProducer;
     
-    explicit ESConsumesCollectorT(ESProducer* const iConsumer) :
-    ESConsumesCollector(iConsumer)
+    explicit ESConsumesCollectorT(ESProducer* const iConsumer, unsigned int iTransitionID) :
+    ESConsumesCollector(iConsumer,iTransitionID)
     {}
     
   };

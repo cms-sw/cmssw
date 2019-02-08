@@ -103,7 +103,10 @@ namespace edm {
             return impl_->validityInterval();
          }
 
-        void setImpl( EventSetupRecordImpl const* iImpl ) { impl_ = iImpl; }
+        void setImpl( EventSetupRecordImpl const* iImpl, unsigned int transitionID ) {
+          impl_ = iImpl;
+          transitionID_ = transitionID;
+        }
 
          template<typename HolderT>
          bool get(HolderT& iHolder) const {
@@ -185,6 +188,7 @@ namespace edm {
 
          template<typename T, typename R>
          ESHandle<T> getHandleImpl(ESGetToken<T,R> const& iToken) const {
+           assert(iToken.transitionID() == transitionID());
            ESHandle<T> h;
            (void) get(iToken.m_tag, h);
            return h;
@@ -202,7 +206,9 @@ namespace edm {
          void addTraceInfoToCmsException(cms::Exception& iException, char const* iName, ComponentDescription const*, DataKey const&) const;
          void changeStdExceptionToCmsException(char const* iExceptionWhatMessage, char const* iName, ComponentDescription const*, DataKey const&) const;
 
-        EventSetupRecordImpl const* impl() const { return impl_;}
+         EventSetupRecordImpl const* impl() const { return impl_;}
+        
+         unsigned int transitionID() const { return  transitionID_;}
       private:
 
          void const* getFromProxy(DataKey const& iKey ,
@@ -212,12 +218,13 @@ namespace edm {
 
          // ---------- member data --------------------------------
          EventSetupRecordImpl const* impl_ = nullptr;
+         unsigned int transitionID_ = std::numeric_limits<unsigned int>::max();
       };
 
      class EventSetupRecordGeneric : public EventSetupRecord {
      public:
-       EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl) {
-         setImpl(iImpl);
+       EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl, unsigned int iTransitionID) {
+         setImpl(iImpl, iTransitionID);
        }
 
        EventSetupRecordKey key() const final {

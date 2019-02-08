@@ -152,11 +152,13 @@ namespace edm {
                          TReturn (T ::* iMethod)(const TRecord&),
                          const TArg& iDec,
                          const es::Label& iLabel = {}) {
+      const auto id = static_cast<unsigned int>(numberOfFactories());
       auto callback = std::make_shared<eventsetup::Callback<T,
                                                             TReturn,
                                                             TRecord,
                                                             typename eventsetup::DecoratorFromArg<T,TRecord,TArg>::Decorator_t>>(iThis,
                                                                                                                                  iMethod,
+                                                                                                                                 id,
                                                                                                                                  createDecoratorFrom(iThis,
                                                                                                                                                      static_cast<const TRecord*>(nullptr),
                                                                                                                                                      iDec));
@@ -164,7 +166,7 @@ namespace edm {
                        static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
-      return ESConsumesCollectorT<TRecord>{iThis};
+      return ESConsumesCollectorT<TRecord>{iThis,id};
     }
 
     ESProducer(const ESProducer&) = delete; // stop default

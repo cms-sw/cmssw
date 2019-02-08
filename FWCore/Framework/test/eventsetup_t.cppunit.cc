@@ -112,14 +112,14 @@ void testEventsetup::constructTest()
   eventsetup::EventSetupProvider provider(&activityRegistry);
   const Timestamp time(1);
   const IOVSyncValue timestamp(time);
-  EventSetup const eventSetup{  provider.eventSetupForInstance(timestamp) };
+  EventSetup const eventSetup{  provider.eventSetupForInstance(timestamp), 0 };
   CPPUNIT_ASSERT(non_null(&eventSetup));
 }
 
 void testEventsetup::getTest()
 {
   eventsetup::EventSetupProvider provider(&activityRegistry);
-  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()) };
+  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0 };
   CPPUNIT_ASSERT(non_null(&eventSetup));
 
   eventsetup::EventSetupRecordImpl dummyRecord{ eventsetup::EventSetupRecordKey::makeKey<DummyRecord>() };
@@ -133,7 +133,7 @@ void testEventsetup::getTest()
 void testEventsetup::tryToGetTest()
 {
   eventsetup::EventSetupProvider provider(&activityRegistry);
-  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()) };
+  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0 };
   CPPUNIT_ASSERT(non_null(&eventSetup));
 
   eventsetup::EventSetupRecordImpl dummyRecord{ eventsetup::EventSetupRecordKey::makeKey<DummyRecord>() };
@@ -147,7 +147,7 @@ void testEventsetup::tryToGetTest()
 void testEventsetup::getExcTest()
 {
   eventsetup::EventSetupProvider provider(&activityRegistry);
-  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()) };
+  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0 };
   CPPUNIT_ASSERT(non_null(&eventSetup));
   eventSetup.get<DummyRecord>();
 }
@@ -175,7 +175,7 @@ void testEventsetup::recordProviderTest()
   //       Since the EventSetup::get<> will only retrieve a Record if its
   //       interval of validity is 'valid' for the present 'instance'
   //       this is a 'hack' to have the 'get' succeed
-  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()) };
+  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0 };
   const DummyRecord& gottenRecord = eventSetup.get<DummyRecord>();
   CPPUNIT_ASSERT(non_null(&gottenRecord));
 }
@@ -223,15 +223,15 @@ void testEventsetup::recordValidityTest()
   const Timestamp time_2(2);
   finder->setInterval(ValidityInterval(IOVSyncValue(time_2), IOVSyncValue(Timestamp(3))));
   {
-    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue(time_2)) };
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue(time_2)),0 };
     eventSetup.get<DummyRecord>();
   }
   {
-    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue(Timestamp(3))) };
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue(Timestamp(3))),0 };
     eventSetup.get<DummyRecord>();
   }
   {
-    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue(Timestamp(4))) };
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue(Timestamp(4))),0 };
     eventSetup.get<DummyRecord>();
   }
 
@@ -248,7 +248,7 @@ void testEventsetup::recordValidityExcTest()
   provider.insert(std::move(dummyRecordProvider));
 
   {
-    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue(Timestamp(1))) };
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue(Timestamp(1))),0 };
     eventSetup.get<DummyRecord>();
   }
 
@@ -277,7 +277,7 @@ void testEventsetup::proxyProviderTest()
   eventsetup::EventSetupProvider provider(&activityRegistry);
   provider.add(std::make_shared<DummyProxyProvider>());
 
-  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()) };
+  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0 };
   const DummyRecord& gottenRecord = eventSetup.get<DummyRecord>();
   CPPUNIT_ASSERT(non_null(&gottenRecord));
 }
@@ -374,7 +374,7 @@ void testEventsetup::provenanceTest()
       dummyProv->setDescription(description);
       provider.add(dummyProv);
     }
-    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue())};
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0 };
     edm::ESHandle<DummyData> data;
     eventSetup.getData(data);
     CPPUNIT_ASSERT(kGood.value_==data->value_);
@@ -417,7 +417,7 @@ void testEventsetup::getDataWithLabelTest()
       dummyProv->setAppendToDataLabel(ps);
       provider.add(dummyProv);
     }
-    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue())};
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0 };
     edm::ESHandle<DummyData> data;
     eventSetup.getData("blah",data);
     CPPUNIT_ASSERT(kGood.value_==data->value_);
@@ -460,7 +460,7 @@ void testEventsetup::getDataWithESInputTagTest()
       dummyProv->setAppendToDataLabel(ps);
       provider.add(dummyProv);
     }
-    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()) };
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0 };
     {
       edm::ESHandle<DummyData> data;
       edm::ESInputTag blahTag("","blah");
@@ -543,7 +543,7 @@ void testEventsetup::getDataWithESGetTokenTest()
       provider.add(dummyProv);
     }
     auto const& eventSetupImpl = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
-    EventSetup eventSetup{eventSetupImpl};
+    EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event)};
     {
       DummyDataConsumer consumer{edm::ESInputTag("","blah")};
       
@@ -607,7 +607,7 @@ void testEventsetup::getHandleWithESGetTokenTest()
       provider.add(dummyProv);
     }
     auto const& eventSetupImpl = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
-    EventSetup eventSetup{eventSetupImpl};
+    EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event)};
     {
       DummyDataConsumer consumer{edm::ESInputTag("","blah")};
       
@@ -671,7 +671,7 @@ void testEventsetup::sourceProducerResolutionTest()
     //       Since the EventSetup::get<> will only retrieve a Record if its
     //       interval of validity is 'valid' for the present 'instance'
     //       this is a 'hack' to have the 'get' succeed
-    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()) };
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0 };
     edm::ESHandle<DummyData> data;
     eventSetup.getData(data);
     CPPUNIT_ASSERT(kGood.value_==data->value_);
@@ -697,7 +697,7 @@ void testEventsetup::sourceProducerResolutionTest()
     //       Since the EventSetup::get<> will only retrieve a Record if its
     //       interval of validity is 'valid' for the present 'instance'
     //       this is a 'hack' to have the 'get' succeed
-    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()) };
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0 };
     edm::ESHandle<DummyData> data;
     eventSetup.getData(data);
     CPPUNIT_ASSERT(kGood.value_==data->value_);
@@ -739,7 +739,7 @@ void testEventsetup::preferTest()
       //       Since the EventSetup::get<> will only retrieve a Record if its
       //       interval of validity is 'valid' for the present 'instance'
       //       this is a 'hack' to have the 'get' succeed
-      EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()) };
+      EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0 };
       edm::ESHandle<DummyData> data;
       eventSetup.getData(data);
       CPPUNIT_ASSERT(kGood.value_==data->value_);
@@ -770,7 +770,7 @@ void testEventsetup::preferTest()
       //       Since the EventSetup::get<> will only retrieve a Record if its
       //       interval of validity is 'valid' for the present 'instance'
       //       this is a 'hack' to have the 'get' succeed
-      EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()) };
+      EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0 };
       edm::ESHandle<DummyData> data;
       eventSetup.getData(data);
       CPPUNIT_ASSERT(kGood.value_==data->value_);
@@ -802,7 +802,7 @@ void testEventsetup::preferTest()
       //       Since the EventSetup::get<> will only retrieve a Record if its
       //       interval of validity is 'valid' for the present 'instance'
       //       this is a 'hack' to have the 'get' succeed
-      EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()) };
+      EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0 };
       edm::ESHandle<DummyData> data;
       eventSetup.getData(data);
       CPPUNIT_ASSERT(kGood.value_==data->value_);
@@ -843,7 +843,7 @@ void testEventsetup::introspectionTest()
       dummyProv->setDescription(description);
       provider.add(dummyProv);
     }
-    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()) };
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0 };
 
     std::vector<edm::eventsetup::EventSetupRecordKey> recordKeys;
     eventSetup.fillAvailableRecordKeys(recordKeys);
@@ -870,25 +870,25 @@ void testEventsetup::iovExtentionTest()
   const Timestamp time_2(2);
   finder->setInterval(ValidityInterval(IOVSyncValue{time_2}, IOVSyncValue{Timestamp{3}}));
   {
-    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue{time_2}) };
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue{time_2}),0 };
     CPPUNIT_ASSERT(2==eventSetup.get<DummyRecord>().cacheIdentifier());
   }
   {
-    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue{Timestamp{3}}) };
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue{Timestamp{3}}),0 };
     eventSetup.get<DummyRecord>();
     CPPUNIT_ASSERT(2==eventSetup.get<DummyRecord>().cacheIdentifier());
   }
   //extending the IOV should not cause the cache to be reset
   finder->setInterval(ValidityInterval(IOVSyncValue{time_2}, IOVSyncValue{Timestamp{4}}));
   {
-    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue{Timestamp{4}}) };
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue{Timestamp{4}}),0 };
     CPPUNIT_ASSERT(2==eventSetup.get<DummyRecord>().cacheIdentifier());
   }
 
   //this is a new IOV so should get cache reset
   finder->setInterval(ValidityInterval(IOVSyncValue{Timestamp{5}}, IOVSyncValue{Timestamp{6}}));
   {
-    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue{Timestamp{5}}) };
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue{Timestamp{5}}),0 };
     CPPUNIT_ASSERT(3==eventSetup.get<DummyRecord>().cacheIdentifier());
   }
 

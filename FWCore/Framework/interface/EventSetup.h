@@ -58,8 +58,10 @@ namespace edm {
     friend class edm::PileUp;
     public:
 
-      explicit EventSetup(EventSetupImpl const& iSetup):
-      m_setup{iSetup} {}
+      explicit EventSetup(EventSetupImpl const& iSetup,
+                          unsigned int iTransitionID):
+      m_setup{iSetup},
+      m_id{iTransitionID} {}
       EventSetup(EventSetup const&) = delete;
       EventSetup& operator=(EventSetup const&) = delete;
 
@@ -79,7 +81,7 @@ namespace edm {
                throw eventsetup::NoRecordException<T>(recordDoesExist(m_setup, eventsetup::EventSetupRecordKey::makeKey<T>()));
             }
             T returnValue;
-            returnValue.setImpl(temp);
+            returnValue.setImpl(temp,m_id);
             return returnValue;
          }
 
@@ -95,7 +97,7 @@ namespace edm {
            auto const temp = impl().findImpl(makeKey<typename type_from_itemtype<eventsetup::EventSetupRecordKey,T>::Type,eventsetup::EventSetupRecordKey>());
            if(temp != nullptr) {
               T rec;
-              rec.setImpl(temp);
+              rec.setImpl(temp,m_id);
               return rec;
            }
            return std::nullopt;
@@ -142,7 +144,7 @@ namespace edm {
       }
 
       std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey& iKey) const {
-         return m_setup.find(iKey);
+         return m_setup.find(iKey, m_id);
       }
 
       ///clears the oToFill vector and then fills it with the keys for all available records
@@ -162,6 +164,7 @@ namespace edm {
 
       // ---------- member data --------------------------------
      edm::EventSetupImpl const& m_setup;
+     unsigned int m_id;
   };
 
   // Free functions to retrieve an object from the EventSetup.

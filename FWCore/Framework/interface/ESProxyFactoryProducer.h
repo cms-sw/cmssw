@@ -116,6 +116,10 @@ class ESProxyFactoryProducer : public eventsetup::DataProxyProvider
       virtual void registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord ,
                                           std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
                                           const std::string& iLabel= std::string() );
+  
+      size_t numberOfFactories() const noexcept {
+         return record2Factories_.size();
+      }
 
    private:
       ESProxyFactoryProducer(const ESProxyFactoryProducer&) = delete; // stop default
