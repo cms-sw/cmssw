@@ -19,7 +19,7 @@ class DTLayer;
 namespace cms {
 
   class DDDetector;
-  class DDFilteredView;
+  struct DDFilteredView;
   struct MuonNumbering;
   struct DDSpecPar;
   
