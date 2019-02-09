@@ -36,28 +36,3 @@
 #include <map>
 #include "TLorentzVector.h"
 
-namespace DataFormats_TauReco{
-  struct dictionaryhlt {
-    //Needed only in HLT-Open
-    std::vector<reco::HLTTau>                                  ht_v;
-    edm::Wrapper<std::vector<reco::HLTTau> >                   ht_w;
-    edm::Ref<std::vector<reco::HLTTau> >                       ht_r;
-    edm::RefProd<std::vector<reco::HLTTau> >                   ht_rp;
-    edm::RefVector<std::vector<reco::HLTTau> >                 ht_rv;
-
-    edm::Ptr<reco::BaseTau>	 ptr_t;
-    edm::PtrVector<reco::BaseTau>	 ptrv_t;
-
-    edm::Ptr<reco::PFTau>     ptr_pft;
-    std::vector< edm::Ptr<reco::PFTau> > ptrv_pft;
-    edm::Wrapper<std::vector< edm::Ptr<reco::PFTau> > > wptrv_pft;
-
-    edm::FwdPtr<reco::PFTau>     fwdptr_pft;
-    std::vector< edm::FwdPtr<reco::PFTau> > fwdptrv_pft;
-    edm::Wrapper<std::vector< edm::FwdPtr<reco::PFTau> > > wfwdptrv_pft;
-
-    edm::FwdPtr<reco::BaseTau>     fwdptr_bt;
-    std::vector< edm::FwdPtr<reco::BaseTau> > fwdptrv_bt;
-    edm::Wrapper<std::vector< edm::FwdPtr<reco::BaseTau> > > wfwdptrv_bt;
-  };
-}

@@ -159,13 +159,42 @@
   <class name="edm::AssociationMap<edm::OneToOne<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,unsigned int> >">
     <field name="transientMap_" transient="true" />
   </class>
+  <class name="edm::AssociationMap<edm::OneToOne<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,unsigned int> >::const_iterator" />
   <class name="edm::AssociationMap<edm::OneToOneGeneric<edm::View<reco::Candidate>,edm::View<reco::Candidate>,unsigned int,edm::RefToBaseProd<reco::Candidate>,edm::RefToBaseProd<reco::Candidate>,edm::RefToBase<reco::Candidate>,edm::RefToBase<reco::Candidate> > >">
     <field name="transientMap_" transient="true" />
   </class>
+  <class name="edm::AssociationMap<edm::OneToOneGeneric<edm::View<reco::Candidate>,edm::View<reco::Candidate>,unsigned int,edm::RefToBaseProd<reco::Candidate>,edm::RefToBaseProd<reco::Candidate>,edm::RefToBase<reco::Candidate>,edm::RefToBase<reco::Candidate> > >::const_iterator" />
   <class name="edm::AssociationMap<edm::OneToManyWithQuality<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,double,unsigned int> >">
     <field name="transientMap_" transient="true" />
   </class>
+  <class name="edm::AssociationMap<edm::OneToManyWithQuality<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,double,unsigned int> >::const_iterator" />
+<!--
   <class pattern="edm::AssociationVector<*>">
+    <field name="transientVector_" transient="true"/>
+  </class>
+-->
+  <class name ="edm::AssociationVector<edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >,vector<double>,edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>">
+    <field name="transientVector_" transient="true"/>
+  </class>
+  <class name="edm::AssociationVector<edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >,vector<float>,edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>">
+    <field name="transientVector_" transient="true"/>
+  </class>
+  <class name="edm::AssociationVector<edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >,vector<int>,edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>">
+    <field name="transientVector_" transient="true"/>
+  </class>
+ <class name="edm::AssociationVector<edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >,vector<unsigned int>,edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>">
+    <field name="transientVector_" transient="true"/>
+  </class>
+  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::Candidate>,vector<double>,edm::RefToBase<reco::Candidate>,unsigned int,edm::helper::AssociationIdenticalKeyReference>">
+    <field name="transientVector_" transient="true"/>
+  </class>
+  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::Candidate>,vector<float>,edm::RefToBase<reco::Candidate>,unsigned int,edm::helper::AssociationIdenticalKeyReference>">
+    <field name="transientVector_" transient="true"/>
+  </class>
+  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::Candidate>,vector<int>,edm::RefToBase<reco::Candidate>,unsigned int,edm::helper::AssociationIdenticalKeyReference>">
+    <field name="transientVector_" transient="true"/>
+  </class>
+  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::Candidate>,vector<unsigned int>,edm::RefToBase<reco::Candidate>,unsigned int,edm::helper::AssociationIdenticalKeyReference>">
     <field name="transientVector_" transient="true"/>
   </class>
   <class name="reco::CandRefValueMap" /> 
@@ -188,8 +217,18 @@
   <class name="edm::Wrapper<reco::CandRefValueMap>" /> 
   <class name="edm::Wrapper<std::vector<edm::RefToBase<reco::Candidate> > >" />
   <class name="edm::Wrapper<std::vector<edm::Ptr<reco::Candidate> > >" />
-  <class pattern="edm::AssociationMap<*>::const_iterator" />
-  <class pattern="edm::Wrapper<edm::AssociationVector<*>"/>
+  <!-- <class pattern="edm::AssociationMap<*>::const_iterator" /> -->
+
+  <!-- <class pattern="edm::Wrapper<edm::AssociationVector<*>"/> -->
+  <class name="edm::Wrapper<edm::AssociationVector<edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >,vector<double>,edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >,unsigned int,edm::helper::AssociationIdenticalKeyReference> >" />
+  <class name="edm::Wrapper<edm::AssociationVector<edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >,vector<float>,edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >,unsigned int,edm::helper::AssociationIdenticalKeyReference> >" />
+  <class name="edm::Wrapper<edm::AssociationVector<edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >,vector<int>,edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >,unsigned int,edm::helper::AssociationIdenticalKeyReference> >" />
+  <class name="edm::Wrapper<edm::AssociationVector<edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >,vector<unsigned int>,edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >,unsigned int,edm::helper::AssociationIdenticalKeyReference> >" />
+  <class name="edm::Wrapper<edm::AssociationVector<edm::RefToBaseProd<reco::Candidate>,vector<double>,edm::RefToBase<reco::Candidate>,unsigned int,edm::helper::AssociationIdenticalKeyReference> >"/>
+  <class name="edm::Wrapper<edm::AssociationVector<edm::RefToBaseProd<reco::Candidate>,vector<float>,edm::RefToBase<reco::Candidate>,unsigned int,edm::helper::AssociationIdenticalKeyReference> >"/>
+  <class name="edm::Wrapper<edm::AssociationVector<edm::RefToBaseProd<reco::Candidate>,vector<int>,edm::RefToBase<reco::Candidate>,unsigned int,edm::helper::AssociationIdenticalKeyReference> >"/>
+  <class name="edm::Wrapper<edm::AssociationVector<edm::RefToBaseProd<reco::Candidate>,vector<unsigned int>,edm::RefToBase<reco::Candidate>,unsigned int,edm::helper::AssociationIdenticalKeyReference> >"/>
+
   <class name="edm::Association<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >" />
   <class name="edm::Wrapper<edm::Association<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > >" />
 
@@ -242,7 +281,9 @@
   <class name="std::pair<std::basic_string<char>,edm::Ptr<reco::Candidate> >" />
   <class name="std::vector<std::pair<std::basic_string<char>,edm::Ptr<reco::Candidate> > >" />
 
-  <class pattern="std::iterator<std::random_access_iterator_tag,edm::RefToBase<reco::Candidate>*>" />
+  <!--<class pattern="std::iterator<std::random_access_iterator_tag,edm::RefToBase<reco::Candidate>*>" /> -->
+  <!-- this can not be parsed by edmCheckClassVersion <class name="std::iterator<std::random_access_iterator_tag,edm::RefToBase<reco::Candidate>,long,edm::RefToBase<reco::Candidate>*,edm::RefToBase<reco::Candidate>&>" /> -->
+
 </selection>
 <exclusion>
   <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >">
