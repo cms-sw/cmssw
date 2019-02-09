@@ -1,0 +1,1 @@
+<test name="testPluginWrapper_uses_KernelFunction" command="cmsRun src/Test/PluginWrapper_uses_KernelFunction/test/test.py"/>

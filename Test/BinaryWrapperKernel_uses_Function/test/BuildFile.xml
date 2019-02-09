@@ -1,0 +1,3 @@
+<bin file="test.cc, *.cu" name="testBinaryWrapperKernel_uses_Function"/>
+<use name="cuda"/>
+<use name="Test/Function"/>

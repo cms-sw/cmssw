@@ -1,0 +1,6 @@
+<library file="plugin.cc, *.cu" name="TestPluginWrapperKernelFunction">
+  <use name="cuda"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

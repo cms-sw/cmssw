@@ -1,0 +1,5 @@
+<use name="cuda"/>
+<use name="Test/KernelFunction"/>
+<export>
+  <lib name="1"/>
+</export>
