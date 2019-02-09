@@ -422,7 +422,13 @@
   <class name="edm::Ptr<reco::Track>" />
   <class name="std::vector<edm::Ptr<reco::Track> >" />
 
-  <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
+  <!-- <class pattern="edm::Wrapper<edm::AssociationMap<*>" /> -->
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<vector<reco::Track>,vector<TrajectorySeed>,unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<vector<reco::Track>,vector<reco::Track>,unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::Track>,bool,unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::Track>,double,unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::Track>,float,unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::Track>,int,unsigned int> > >" />
 
   <class name="edm::helpers::Key<edm::RefProd <std::vector <reco::Track> > >" />
 
@@ -457,10 +463,24 @@
       </class>
       <class name="reco::DeDxHitCollection" />
 
-  <class pattern="edm::AssociationVector<*>">
+  <!-- <class pattern="edm::AssociationVector<*>">
+    <field name="transientVector_" transient="true"/>
+  </class> -->
+  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::Track> >,std::vector<bool>,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
     <field name="transientVector_" transient="true"/>
   </class>
-
+  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::Track> >,std::vector<double>,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+    <field name="transientVector_" transient="true"/>
+  </class>
+  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::Track> >,std::vector<float>,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+    <field name="transientVector_" transient="true"/>
+  </class>
+  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::Track> >,std::vector<int>,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+    <field name="transientVector_" transient="true"/>
+  </class>
+  <class name="edm::AssociationVector<edm::RefProd<std::vector<reco::Track> >,std::vector<std::vector<reco::DeDxHit> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+    <field name="transientVector_" transient="true"/>
+  </class>
      <!--   <class name="reco::DeDxDataCollection"/> -->
      <class name="reco::DeDxData" ClassVersion="10">
       <version ClassVersion="10" checksum="204721063"/>
