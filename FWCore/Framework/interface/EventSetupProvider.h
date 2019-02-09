@@ -20,7 +20,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupImpl.h"
-#include "FWCore/Framework/interface/EventSetupKnownRecordsSupplier.h"
 
 // system include files
 
@@ -107,22 +106,34 @@ class EventSetupProvider {
 
       static void logInfoWhenSharing(ParameterSet const& iConfiguration);
 
+      /// Intended for use only in tests
+      void addRecord(const EventSetupRecordKey& iKey);
+
    protected:
 
       void insert(std::unique_ptr<EventSetupRecordProvider> iRecordProvider);
 
    private:
+
       EventSetupProvider(EventSetupProvider const&) = delete; // stop default
 
       EventSetupProvider const& operator=(EventSetupProvider const&) = delete; // stop default
 
+      std::shared_ptr<EventSetupRecordProvider>& recordProvider(const EventSetupRecordKey& iKey);
+      EventSetupRecordProvider* tryToGetRecordProvider(const EventSetupRecordKey& iKey);
       void insert(EventSetupRecordKey const&, std::unique_ptr<EventSetupRecordProvider>);
+
+      void determinePreferred();
 
       // ---------- member data --------------------------------
       EventSetupImpl eventSetup_;
-      typedef std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordProvider> > Providers;
-      Providers providers_;
-      std::unique_ptr<EventSetupKnownRecordsSupplier> knownRecordsSupplier_;
+
+      using RecordKeys = std::vector<EventSetupRecordKey>;
+      RecordKeys recordKeys_;
+
+      using RecordProviders = std::vector<std::shared_ptr<EventSetupRecordProvider>>;
+      RecordProviders recordProviders_;
+
       bool mustFinishConfiguration_;
       unsigned subProcessIndex_;
 

@@ -50,7 +50,6 @@ namespace edm {
       class EventSetupProvider;
       class EventSetupRecord;
       class EventSetupRecordImpl;
-      class EventSetupKnownRecordsSupplier;
    }
 
   class EventSetup
