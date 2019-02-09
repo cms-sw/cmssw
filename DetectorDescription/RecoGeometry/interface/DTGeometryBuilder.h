@@ -2,6 +2,10 @@
 #define GEOMETRY_RECO_GEOMETRY_DT_GEOMETRY_BUILDER_H
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
+#include <Math/Rotation3D.h>
+#include <Math/Vector3D.h>
 
 namespace dd4hep {
   class Detector;
@@ -15,9 +19,9 @@ class DTLayer;
 namespace cms {
 
   class DDDetector;
-  class MuonNumbering;
-  class DDSpecParRef;
-  class DDSpecPar;
+  class DDFilteredView;
+  struct MuonNumbering;
+  struct DDSpecPar;
   
   class DTGeometryBuilder {
   public:
@@ -25,7 +29,10 @@ namespace cms {
     ~DTGeometryBuilder() {}
     
     using Detector = dd4hep::Detector;
+    using DDRotationMatrix = ROOT::Math::Rotation3D;
+    using DDTranslation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
     using DD3Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
+    using DDSpecParRefs = std::vector<const DDSpecPar*>;
 
     void build(DTGeometry&,
                const DDDetector*, 
