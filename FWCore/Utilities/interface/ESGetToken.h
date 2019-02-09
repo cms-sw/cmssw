@@ -41,7 +41,8 @@ namespace edm {
   public:
     ESGetToken() = default;
 
-    unsigned int transitionID() const { return m_transitionID;}
+    unsigned int transitionID() const noexcept { return m_transitionID;}
+    bool isInitialized() const noexcept { return transitionID() != std::numeric_limits<unsigned int>::max();}
   private:
     explicit ESGetToken(unsigned int transitionID, ESInputTag const& tag) : m_tag{tag}, m_transitionID{transitionID} {}
 

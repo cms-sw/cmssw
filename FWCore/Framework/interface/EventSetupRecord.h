@@ -191,6 +191,7 @@ namespace edm {
          template<typename T, typename R>
          ESHandle<T> getHandleImpl(ESGetToken<T,R> const& iToken) const {
            assert(iToken.transitionID() == transitionID());
+           assert(iToken.isInitialized());
            ESHandle<T> h;
            (void) get(iToken.m_tag, h);
            return h;
