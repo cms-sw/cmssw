@@ -6,6 +6,14 @@
   <class name="GEMELMap::GEMStripMap"/>
   <class name="std::vector<GEMELMap::GEMStripMap>"/>
 
+  <class name="GEMeMap"/>
+  <class name="GEMeMap::GEMChamberMap"/>
+  <class name="std::vector<GEMeMap::GEMChamberMap>"/>
+  <class name="GEMeMap::GEMVFatMap"/>
+  <class name="std::vector<GEMeMap::GEMVFatMap>"/>
+  <class name="GEMeMap::GEMStripMap"/>
+  <class name="std::vector<GEMeMap::GEMStripMap>"/>
+  
   <class name="GEMDeadStrips"/>
   <class name="GEMDeadStrips::DeadItem"/>
   <class name="GEMMaskedStrips"/>
