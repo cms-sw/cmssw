@@ -123,6 +123,7 @@ void testEventsetup::getTest()
   CPPUNIT_ASSERT(non_null(&eventSetup));
 
   eventsetup::EventSetupRecordImpl dummyRecord{ eventsetup::EventSetupRecordKey::makeKey<DummyRecord>() };
+  provider.addRecord(eventsetup::EventSetupRecordKey::makeKey<DummyRecord>());
   provider.addRecordToEventSetup(dummyRecord);
   const DummyRecord& gottenRecord = eventSetup.get<DummyRecord>();
   CPPUNIT_ASSERT(non_null(&gottenRecord));
@@ -136,6 +137,7 @@ void testEventsetup::tryToGetTest()
   CPPUNIT_ASSERT(non_null(&eventSetup));
 
   eventsetup::EventSetupRecordImpl dummyRecord{ eventsetup::EventSetupRecordKey::makeKey<DummyRecord>() };
+  provider.addRecord(eventsetup::EventSetupRecordKey::makeKey<DummyRecord>());
   provider.addRecordToEventSetup(dummyRecord);
   auto gottenRecord = eventSetup.tryToGet<DummyRecord>();
   CPPUNIT_ASSERT(gottenRecord);

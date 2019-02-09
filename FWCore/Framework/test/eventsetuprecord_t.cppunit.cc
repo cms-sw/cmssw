@@ -73,7 +73,7 @@ CPPUNIT_TEST_EXCEPTION(doGetExepTest,ExceptionType);
 
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
+  void setUp();
   void tearDown(){}
 
   void proxyTest();
@@ -88,6 +88,8 @@ public:
   void getNodataExpTest();
   void getExepTest();
   void doGetExepTest();
+
+  EventSetupRecordKey dummyRecordKey_;
 };
 
 ///registration of the test so that the runner can find it
@@ -144,6 +146,10 @@ private:
 
 };
 
+void testEventsetupRecord::setUp() {
+  dummyRecordKey_ = EventSetupRecordKey::makeKey<DummyRecord>();
+}
+
 class WorkingDummyProvider : public edm::eventsetup::DataProxyProvider {
 public:
   WorkingDummyProvider( const edm::eventsetup::DataKey& iKey, std::shared_ptr<WorkingDummyProxy> iProxy) :
@@ -168,7 +174,7 @@ private:
 
 void testEventsetupRecord::proxyTest()
 {
-   eventsetup::EventSetupRecordImpl dummyRecord{ eventsetup::EventSetupRecordKey::makeKey<DummyRecord>() };
+   eventsetup::EventSetupRecordImpl dummyRecord{dummyRecordKey_};
    FailingDummyProxy dummyProxy;
    
    const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
@@ -191,7 +197,8 @@ void testEventsetupRecord::proxyTest()
 void testEventsetupRecord::getTest()
 {
    eventsetup::EventSetupProvider provider(&activityRegistry);
-   eventsetup::EventSetupRecordImpl dummyRecordImpl{eventsetup::EventSetupRecordKey::makeKey<DummyRecord>()};
+   eventsetup::EventSetupRecordImpl dummyRecordImpl{dummyRecordKey_};
+   provider.addRecord(dummyRecordKey_);
    provider.addRecordToEventSetup(dummyRecordImpl);
 
    FailingDummyProxy dummyProxy;
@@ -239,7 +246,6 @@ void testEventsetupRecord::getTest()
    CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
 
    const std::string workingString("working");
-   
    dummyRecord.get(workingString,dummyPtr);
    CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
    
@@ -262,7 +268,6 @@ void testEventsetupRecord::getTest()
 
    edm::ESInputTag it_prov_bad("DummyProd","working");
    CPPUNIT_ASSERT_THROW(dummyRecord.get(it_prov_bad,dummyPtr), cms::Exception);
-   
 }
 
 namespace {
@@ -278,7 +283,8 @@ namespace {
 void testEventsetupRecord::getHandleTest()
 {
    eventsetup::EventSetupProvider provider(&activityRegistry);
-   eventsetup::EventSetupRecordImpl dummyRecordImpl{eventsetup::EventSetupRecordKey::makeKey<DummyRecord>()};
+   eventsetup::EventSetupRecordImpl dummyRecordImpl{dummyRecordKey_};
+   provider.addRecord(dummyRecordKey_);
    provider.addRecordToEventSetup(dummyRecordImpl);
    
    FailingDummyProxy dummyProxy;
@@ -354,7 +360,8 @@ void testEventsetupRecord::getHandleTest()
 void testEventsetupRecord::getWithTokenTest()
 {
    eventsetup::EventSetupProvider provider(&activityRegistry);
-   eventsetup::EventSetupRecordImpl dummyRecordImpl{eventsetup::EventSetupRecordKey::makeKey<DummyRecord>()};
+   eventsetup::EventSetupRecordImpl dummyRecordImpl{dummyRecordKey_};
+   provider.addRecord(dummyRecordKey_);
    provider.addRecordToEventSetup(dummyRecordImpl);
    
    FailingDummyProxy dummyProxy;
@@ -435,7 +442,8 @@ void testEventsetupRecord::getNodataExpTest()
 void testEventsetupRecord::getExepTest()
 {
    eventsetup::EventSetupProvider provider(&activityRegistry);
-   eventsetup::EventSetupRecordImpl dummyRecordImpl{eventsetup::EventSetupRecordKey::makeKey<DummyRecord>()};
+   eventsetup::EventSetupRecordImpl dummyRecordImpl{dummyRecordKey_};
+   provider.addRecord(dummyRecordKey_);
    provider.addRecordToEventSetup(dummyRecordImpl);
    FailingDummyProxy dummyProxy;
 
@@ -454,7 +462,8 @@ void testEventsetupRecord::getExepTest()
 void testEventsetupRecord::doGetTest()
 {
    eventsetup::EventSetupProvider provider(&activityRegistry);
-   eventsetup::EventSetupRecordImpl dummyRecordImpl{eventsetup::EventSetupRecordKey::makeKey<DummyRecord>()};
+   eventsetup::EventSetupRecordImpl dummyRecordImpl{dummyRecordKey_};
+   provider.addRecord(dummyRecordKey_);
    provider.addRecordToEventSetup(dummyRecordImpl);
 
    FailingDummyProxy dummyProxy;
@@ -487,7 +496,7 @@ void testEventsetupRecord::doGetTest()
 
 void testEventsetupRecord::introspectionTest()
 {
-  eventsetup::EventSetupRecordImpl dummyRecordImpl{eventsetup::EventSetupRecordKey::makeKey<DummyRecord>()};
+  eventsetup::EventSetupRecordImpl dummyRecordImpl{dummyRecordKey_};
   FailingDummyProxy dummyProxy;
 
   ComponentDescription cd1;
@@ -610,7 +619,8 @@ void testEventsetupRecord::introspectionTest()
 void testEventsetupRecord::doGetExepTest()
 {
    eventsetup::EventSetupProvider provider(&activityRegistry);
-   eventsetup::EventSetupRecordImpl dummyRecordImpl{eventsetup::EventSetupRecordKey::makeKey<DummyRecord>()};
+   eventsetup::EventSetupRecordImpl dummyRecordImpl{dummyRecordKey_};
+   provider.addRecord(dummyRecordKey_);
    provider.addRecordToEventSetup(dummyRecordImpl);
    FailingDummyProxy dummyProxy;
    
@@ -637,6 +647,7 @@ void testEventsetupRecord::proxyResetTest()
   auto const constProv = dummyProvider.get();
 
   eventsetup::EventSetupProvider provider(&activityRegistry);
+  provider.addRecord(dummyRecordKey_);
   dummyProvider->addRecordTo(provider);
 
   DummyRecord dummyRecord;
@@ -685,6 +696,7 @@ void testEventsetupRecord::transientTest()
    auto dummyProvider = std::make_unique<EventSetupRecordProvider>(DummyRecord::keyForClass());
    
    eventsetup::EventSetupProvider provider(&activityRegistry);
+   provider.addRecord(dummyRecordKey_);
    dummyProvider->addRecordTo(provider);
    
    const auto* constProv = dummyProvider.get();
