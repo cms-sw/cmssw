@@ -55,10 +55,11 @@ class SiPixelQualityESProducer : public edm::ESProducer, public edm::EventSetupR
   
  private:
   
+  std::string label;
   edm::FileInPath fp_;
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toGet;
   std::unique_ptr<SiPixelQuality> get_pointer(const SiPixelQualityRcd & iRecord, std::string label);
-
+  
 };
 #endif
