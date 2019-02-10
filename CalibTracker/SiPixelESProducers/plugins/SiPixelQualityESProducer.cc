@@ -37,14 +37,16 @@ using namespace edm;
 
 SiPixelQualityESProducer::SiPixelQualityESProducer(const edm::ParameterSet& conf_) 
   : //fp_(conf_.getParameter<edm::FileInPath>("file")),
-    toGet(conf_.getParameter<Parameters>("ListOfRecordToMerge"))
+  label(conf_.exists("siPixelQualityLabel")?conf_.getParameter<std::string>("siPixelQualityLabel"):""),
+  toGet(conf_.getParameter<Parameters>("ListOfRecordToMerge"))
 {
-   edm::LogInfo("SiPixelQualityESProducer::SiPixelQualityESProducer");
+  edm::LogInfo("SiPixelQualityESProducer::SiPixelQualityESProducer");
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this);
-  setWhatProduced(this, &SiPixelQualityESProducer::produceWithLabel, edm::es::Label("forDigitizer"));
-  
+  if (label == "forDigitizer"){
+    setWhatProduced(this, &SiPixelQualityESProducer::produceWithLabel, edm::es::Label(label));
+  }
   findingRecord<SiPixelQualityRcd>();  
 }
 
@@ -105,7 +107,7 @@ std::unique_ptr<SiPixelQuality> SiPixelQualityESProducer::produce(const SiPixelQ
 }
 std::unique_ptr<SiPixelQuality> SiPixelQualityESProducer::produceWithLabel(const SiPixelQualityRcd & iRecord)
 {
-  return get_pointer(iRecord,  "forDigitizer");
+  return get_pointer(iRecord, label);
 }
 
 void SiPixelQualityESProducer::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, 
