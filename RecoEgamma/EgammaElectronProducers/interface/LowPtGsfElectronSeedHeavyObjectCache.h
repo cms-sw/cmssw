@@ -1,11 +1,10 @@
 #ifndef RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedHeavyObjectCache_h
 #define RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedHeavyObjectCache_h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include <vector>
-#include <memory>
 
 namespace reco { 
   class BeamSpot;
@@ -25,18 +24,18 @@ namespace lowptgsfeleseed {
     float trk_chi2red_ = -1.;
     float rho_ = -1.;
     float ktf_ecal_cluster_e_ = -1.;
-    float ktf_ecal_cluster_deta_ = -1.;
-    float ktf_ecal_cluster_dphi_ = -1.;
+    float ktf_ecal_cluster_deta_ = -42.;
+    float ktf_ecal_cluster_dphi_ = -42.;
     float ktf_ecal_cluster_e3x3_ = -1.;
     float ktf_ecal_cluster_e5x5_ = -1.;
-    float ktf_ecal_cluster_covEtaEta_ = -1.;
-    float ktf_ecal_cluster_covEtaPhi_ = -1.;
-    float ktf_ecal_cluster_covPhiPhi_ = -1.;
-    float ktf_ecal_cluster_r9_ = -1.;
+    float ktf_ecal_cluster_covEtaEta_ = -42.;
+    float ktf_ecal_cluster_covEtaPhi_ = -42.;
+    float ktf_ecal_cluster_covPhiPhi_ = -42.;
+    float ktf_ecal_cluster_r9_ = -0.1;
     float ktf_ecal_cluster_circularity_ = -0.1;
     float ktf_hcal_cluster_e_ = -1.;
-    float ktf_hcal_cluster_deta_ = -1.;
-    float ktf_hcal_cluster_dphi_ = -1.;
+    float ktf_hcal_cluster_deta_ = -42.;
+    float ktf_hcal_cluster_dphi_ = -42.;
     float preid_gsf_dpt_ = -1.;
     float preid_trk_gsf_chiratio_ = -1.;
     float preid_gsf_chi2red_ = -1.;
@@ -58,7 +57,7 @@ namespace lowptgsfeleseed {
 
     std::vector<std::string> modelNames() const { return names_; }
 
-    bool eval( std::string name,
+    bool eval( const std::string& name,
 	       reco::PreId& ecal, 
 	       reco::PreId& hcal, 
 	       double rho,
