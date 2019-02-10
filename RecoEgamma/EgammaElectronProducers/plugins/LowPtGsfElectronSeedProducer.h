@@ -3,6 +3,7 @@
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
@@ -27,7 +28,7 @@ class LowPtGsfElectronSeedProducer final : public edm::stream::EDProducer< edm::
 {
   
  public:
-  
+  using TrackIndxMap = std::unordered_map<reco::TrackRef::key_type,size_t>;
   explicit LowPtGsfElectronSeedProducer( const edm::ParameterSet&, 
 					 const lowptgsfeleseed::HeavyObjectCache* );
 
@@ -54,6 +55,7 @@ class LowPtGsfElectronSeedProducer final : public edm::stream::EDProducer< edm::
 				   reco::ElectronSeedCollection& seeds,
 				   reco::PreIdCollection& ecalPreIds, 
 				   reco::PreIdCollection& hcalPreIds,
+				   TrackIndxMap& trksToPreIdIndx,
 				   edm::Event&,
 				   const edm::EventSetup& );
 
@@ -85,6 +87,11 @@ class LowPtGsfElectronSeedProducer final : public edm::stream::EDProducer< edm::
 			     std::vector<int>& matchedHcalClusters,
 			     reco::PreId& ecalPreId, 
 			     reco::PreId& hcalPreId );
+  template<typename CollType>
+  void fillPreIdRefValueMap( edm::Handle<CollType> tracksHandle,
+			     const TrackIndxMap& trksToPreIdIndx,
+			     const edm::OrphanHandle<reco::PreIdCollection>& preIdHandle,
+			     edm::ValueMap<reco::PreIdRef>::Filler & filler);
 
   // Overloaded methods to evaluate BDTs (using PF or KF tracks)
 
