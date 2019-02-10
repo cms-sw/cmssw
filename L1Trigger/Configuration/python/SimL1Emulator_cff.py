@@ -112,7 +112,12 @@ phase2_SimL1Emulator += l1EGammaEEProducer
 # ########################################################################
 from L1Trigger.L1TTrackMatch.L1TTrackerPlusStubs_cfi import *
 l1KBmtfStubMatchedMuons = l1StubMatchedMuons.clone()
-phase2_SimL1Emulator += l1KBmtfStubMatchedMuons 
+phase2_SimL1Emulator += l1KBmtfStubMatchedMuons
+# EndCap L1Tk + Stub
+# ########################################################################
+from L1Trigger.L1TTrackMatch.L1TkMuonStubProducer_cfi import *
+l1TkMuonStubEndCap = L1TkMuonStub.clone()
+phase2_SimL1Emulator += l1TkMuonStubEndCap
 
 # Tk + StandaloneObj
 # (include L1TkPrimaryVertex)
