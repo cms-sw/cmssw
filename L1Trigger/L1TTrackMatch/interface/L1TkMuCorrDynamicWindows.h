@@ -33,6 +33,7 @@ class L1TkMuCorrDynamicWindows{
         // void test(double eta, double pt);
         // std::vector<int> find_match(const EMTFTrackCollection& l1mus, const L1TTTrackCollectionType& l1tks l1trks, std::vector<int>* narbitrated = nullptr); // gives a vector with the idxs of muons for each L1TTT
         std::vector<int> find_match(const EMTFTrackCollection& l1mus, const L1TTTrackCollectionType& l1trks); // gives a vector with the idxs of muons for each L1TTT
+        std::vector<int> find_match_stub(const EMTFHitCollection& l1mus, const L1TTTrackCollectionType& l1trks, const int& station); // gives a vector with the idxs of muon stubs from station "station" for each L1TTT
 
         // ------------------------------
         static std::vector<double> prepare_corr_bounds(string fname, string hname);
@@ -85,7 +86,7 @@ class L1TkMuCorrDynamicWindows{
         // if a pointer to narbitrated is passed, this vector is filled with the number of tracks arbitrated that were matched to the same EMTF
         // std::vector<int> make_unique_coll(MuTkTree& mtkt, std::vector<int> matches, std::vector<int>* narbitrated = nullptr);
         // std::vector<int> make_unique_coll(const EMTFTrackCollection& l1mus, const L1TTTrackCollectionType& l1trks, std::vector<int> matches, std::vector<int>* narbitrated = nullptr);
-        std::vector<int> make_unique_coll(const EMTFTrackCollection& l1mus, const L1TTTrackCollectionType& l1trks, std::vector<int> matches);
+        std::vector<int> make_unique_coll(const unsigned int& l1musSize, const L1TTTrackCollectionType& l1trks, std::vector<int> matches);
 
         // converters
         double deg_to_rad(double x) {
