@@ -19,9 +19,10 @@ namespace l1tpf_impl {
         virtual void doVertexing(std::vector<Region> &rs, VertexAlgo algo, float &vz) const ; // region is not const since it sets the fromPV bit of the tracks
         virtual void computePuppiMedRMS(const std::vector<Region> &rs, float &alphaCMed, float &alphaCRms, float &alphaFMed, float &alphaFRms) const ;
     protected:
-        float etaCharged_, puppiDr_; 
+        float etaCharged_, puppiDr_, puppiDrMin_, puppiPtMax_;
         std::vector<float> puppiEtaCuts_, puppiPtCuts_, puppiPtCutsPhotons_;
         std::vector<int16_t> intPuppiEtaCuts_, intPuppiPtCuts_, intPuppiPtCutsPhotons_;
+        bool puppiUsingBareTracks_;
         float vtxRes_;
         bool vtxAdaptiveCut_; 
         int debug_;

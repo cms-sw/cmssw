@@ -206,6 +206,13 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetchTracks(float ptMi
                 l1t::PFCandidate::Kind kind = p.muonLink ? l1t::PFCandidate::Muon : l1t::PFCandidate::ChargedHadron;
                 ret->emplace_back( kind, p.intCharge(), p4 );
                 ret->back().setVertex(reco::Particle::Point(0,0,p.floatDZ()));
+                if (p.src) {
+                    auto match = trackRefMap_.find(p.src);
+                    if (match == trackRefMap_.end()) {
+                        throw cms::Exception("CorruptData") << "Invalid track pointer in PF track  pt " << p4.pt() << " eta " << p4.eta() << " phi " << p4.phi();
+                    }
+                    ret->back().setPFTrack(match->second);
+                }
             }
         }
     }

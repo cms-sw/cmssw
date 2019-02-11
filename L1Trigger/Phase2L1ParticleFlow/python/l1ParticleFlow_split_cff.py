@@ -52,6 +52,12 @@ l1pfProducerBarrel = l1pfProducer.clone(
     # inputs
     emClusters = [ cms.InputTag('pfClustersFromL1EGClusters') ],
     hadClusters = [ cms.InputTag('pfClustersFromCombinedCaloHCal:calibrated') ],
+    # track-based PUPPI
+    puppiUsingBareTracks = True,
+    puppiDrMin = 0.07,
+    puppiPtMax = 50.,
+    vtxAlgo = "external",
+    vtxCollection = cms.InputTag("VertexProducer","l1vertices"),
     # regionalize
     useRelativeRegionalCoordinates = cms.bool(False),
     trackRegionMode = cms.string("atCalo"),
@@ -59,7 +65,7 @@ l1pfProducerBarrel = l1pfProducer.clone(
         cms.PSet(
             etaBoundaries = cms.vdouble(-1.5,1.5),
             phiSlices = cms.uint32(1),
-            etaExtra = cms.double(0.25),
+            etaExtra = cms.double(0.3),
             phiExtra = cms.double(0.0)
         ),
     ),
@@ -82,6 +88,12 @@ l1pfProducerHGCal = l1pfProducer.clone(
     tracks = cms.InputTag('pfTracksFromL1TracksHGCal'),
     emClusters  = [ ],  # EM clusters are not used (only added to NTuple for calibration/monitoring)
     hadClusters = [ cms.InputTag("pfClustersFromHGC3DClusters") ],
+    # track-based PUPPI
+    puppiDrMin = 0.04,
+    puppiPtMax = 50.,
+    puppiUsingBareTracks = True,
+    vtxAlgo = "external",
+    vtxCollection = cms.InputTag("VertexProducer","l1vertices"),
     # regionalize
     useRelativeRegionalCoordinates = cms.bool(False),
     trackRegionMode = cms.string("atCalo"),
@@ -89,13 +101,13 @@ l1pfProducerHGCal = l1pfProducer.clone(
         cms.PSet(
             etaBoundaries = cms.vdouble(-3,-1.5),
             phiSlices = cms.uint32(1),
-            etaExtra = cms.double(0.25),
+            etaExtra = cms.double(0.3),
             phiExtra = cms.double(0.0)
         ),
         cms.PSet(
             etaBoundaries = cms.vdouble(1.5,3.0),
             phiSlices = cms.uint32(1),
-            etaExtra = cms.double(0.25),
+            etaExtra = cms.double(0.3),
             phiExtra = cms.double(0.0)
         ),
     ),
@@ -113,6 +125,11 @@ l1pfProducerHF = l1pfProducer.clone(
     # inputs
     emClusters = [ ],
     hadClusters = [ cms.InputTag('pfClustersFromCombinedCaloHCal:calibrated') ],
+    # not really useful, but for consistency
+    puppiDrMin = 0.1,
+    puppiPtMax = 100.,
+    vtxAlgo = "external",
+    vtxCollection = cms.InputTag("VertexProducer","l1vertices"),
     # regionalize
     useRelativeRegionalCoordinates = cms.bool(False),
     trackRegionMode = cms.string("atCalo"),
@@ -120,13 +137,13 @@ l1pfProducerHF = l1pfProducer.clone(
         cms.PSet(
             etaBoundaries = cms.vdouble(-5.5,-3),
             phiSlices = cms.uint32(1),
-            etaExtra = cms.double(0.25),
+            etaExtra = cms.double(0.0),
             phiExtra = cms.double(0.0)
         ),
         cms.PSet(
             etaBoundaries = cms.vdouble(3,5.5),
             phiSlices = cms.uint32(1),
-            etaExtra = cms.double(0.25),
+            etaExtra = cms.double(0.0),
             phiExtra = cms.double(0.0)
         ),
     )
