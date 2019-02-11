@@ -21,6 +21,7 @@ namespace edm {
   class EventForOutput;
   class EventPrincipal;
   class EventSetup;
+  class EventSetupImpl;
   class FileBlock;
   class InputSource;
   struct InputSourceDescription;

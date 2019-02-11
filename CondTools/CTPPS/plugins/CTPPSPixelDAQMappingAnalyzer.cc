@@ -1,7 +1,7 @@
 // system include files
 #include <memory>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,7 +15,7 @@
 
 using namespace std;
 
-class CTPPSPixelDAQMappingAnalyzer : public edm::EDAnalyzer {
+class CTPPSPixelDAQMappingAnalyzer : public edm::one::EDAnalyzer<> {
    public:
 
     string label_;
