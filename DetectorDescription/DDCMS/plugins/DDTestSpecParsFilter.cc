@@ -37,20 +37,21 @@ DDTestSpecParsFilter::analyze(const Event&, const EventSetup& iEventSetup)
   ESTransientHandle<DDSpecParRegistry> registry;
   iEventSetup.get<DDSpecParRegistryRcd>().get(m_tag.module(), registry);
 
-  LogVerbatim("Geometry") << "DDTestSpecParsFilter::analyze: " << m_tag.module() << " for attribute " << m_attribute << " and value " << m_value;
+  LogVerbatim("Geometry") << "DDTestSpecParsFilter::analyze: " << m_tag.module()
+			  << " for attribute " << m_attribute << " and value " << m_value;
   LogVerbatim("Geometry") << "DD SpecPar Registry size: " << registry->specpars.size();
 
-  DDSpecParRefMap myReg;
+  DDSpecParRefs myReg;
   registry->filter(myReg, m_attribute, m_value);
 
   LogVerbatim("Geometry").log([&myReg](auto& log) {
       log << "Filtered DD SpecPar Registry size: " << myReg.size();
       for(const auto& t: myReg) {
-	log << "\n " << *t.first << " = { ";
-	for(const auto& ki : t.second->paths)
+	log << " = { ";
+	for(const auto& ki : t->paths)
 	  log << ki << ", ";
 	log << " };\n ";
-	for(const auto& kl : t.second->spars) {
+	for(const auto& kl : t->spars) {
 	  log << kl.first << " = { ";
 	  for(const auto& kil : kl.second) {
 	    log << kil << ", ";
