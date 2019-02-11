@@ -93,11 +93,12 @@ bool LHAupLesHouches::setEvent(int inProcId)
                 hepeup.PUP[i][4], hepeup.VTIMUP[i],
                 hepeup.SPINUP[i],scalein);
   }
-  
+
   if(!infoPtr->eventAttributes) {
     fEvAttributes->clear();
     infoPtr->eventAttributes = fEvAttributes;
   } else {
+    infoPtr->eventAttributes = fEvAttributes;  // make sure still there
     infoPtr->eventAttributes->clear();
   }
 

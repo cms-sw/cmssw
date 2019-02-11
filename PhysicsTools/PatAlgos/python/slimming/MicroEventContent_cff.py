@@ -36,7 +36,6 @@ MicroEventContent = cms.PSet(
         'drop *_*_caloTowers_*',
         'drop *_*_pfCandidates_*',
         'drop *_*_genJets_*',
-
         'keep *_offlineBeamSpot_*_*',
         'keep *_offlineSlimmedPrimaryVertices_*_*',
         'keep patPackedCandidates_packedPFCandidates_*_*',
@@ -106,6 +105,18 @@ MicroEventContentGEN = cms.PSet(
         'keep *_genParticles_t0_*',
     )
 )
+
+# Only add low pT electrons for bParking era
+from Configuration.Eras.Modifier_bParking_cff import bParking
+_bParking_extraCommands = ['keep *_slimmedLowPtElectrons_*_*',
+                           'keep recoGsfElectronCores_lowPtGsfElectronCores_*_*',
+                           'keep recoSuperClusters_lowPtGsfElectronSuperClusters_*_*',
+                           'keep recoCaloClusters_lowPtGsfElectronSuperClusters_*_*',
+                           'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
+                           'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
+                           'keep floatedmValueMap_lowPtGsfElectronID_*_*',
+                           ]
+bParking.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _bParking_extraCommands)
 
 MicroEventContentMC = cms.PSet(
     outputCommands = cms.untracked.vstring(MicroEventContent.outputCommands)

@@ -7,7 +7,8 @@
    <class name="edm::ValueMap<reco::CaloClusterPtrVector>" />
    <class name="edm::Wrapper<edm::ValueMap<reco::CaloClusterPtr> >" />
    <class name="edm::Wrapper<edm::ValueMap<reco::CaloClusterPtrVector> >" />
-   <class name="reco::ConversionTrack" ClassVersion="10">
+   <class name="reco::ConversionTrack" ClassVersion="11">
+    <version ClassVersion="11" checksum="1446912891"/>
     <version ClassVersion="10" checksum="2951396223"/>
      <field name="traj_" transient="true" />
    </class>

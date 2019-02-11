@@ -44,7 +44,13 @@
   <class name="edm::ValueMap<StoredPileupJetIdentifier>"/>
   <class name="edm::Wrapper<edm::ValueMap<StoredPileupJetIdentifier> >"/>
   
-  <class pattern="edm::AssociationVector<*>">
+  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+    <field name="transientVector_" transient="true"/>
+  </class>
+  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+    <field name="transientVector_" transient="true"/>
+  </class>
+  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<reco::JetExtendedAssociation::JetExtendedData>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>">
     <field name="transientVector_" transient="true"/>
   </class>
 

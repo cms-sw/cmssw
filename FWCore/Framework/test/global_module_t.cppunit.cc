@@ -100,7 +100,7 @@ private:
   std::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
   std::shared_ptr<edm::RunPrincipal> m_rp;
   std::shared_ptr<edm::ActivityRegistry> m_actReg; // We do not use propagate_const because the registry itself is mutable.
-  edm::EventSetup* m_es = nullptr;
+  edm::EventSetupImpl* m_es = nullptr;
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
   
   template<typename T>

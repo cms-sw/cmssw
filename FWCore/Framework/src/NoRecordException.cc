@@ -16,11 +16,11 @@
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 bool
-edm::eventsetup::recordDoesExist( EventSetup const& iES, EventSetupRecordKey const& iKey) {
+edm::eventsetup::recordDoesExist( EventSetupImpl const& iES, EventSetupRecordKey const& iKey) {
   return iES.recordIsProvidedByAModule(iKey);
 }
 

@@ -46,7 +46,6 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -140,8 +139,6 @@ private:
   edm::ESHandle<CaloGeometry>       geometry;
 
   edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
-
-  EcalTPGScale ecalScale_;
 
   const int maskedEcalChannelStatusThreshold_;
   const int chnStatusToBeEvaluated_;
@@ -271,7 +268,6 @@ void EcalDeadCellDeltaRFilter::envSet(const edm::EventSetup& iSetup) {
 
   if (debug_) std::cout << "***envSet***" << std::endl;
 
-  ecalScale_.setEventSetup( iSetup );
   iSetup.get<IdealGeometryRecord>().get(ttMap_);
 
   iSetup.get<EcalChannelStatusRcd> ().get(ecalStatus);

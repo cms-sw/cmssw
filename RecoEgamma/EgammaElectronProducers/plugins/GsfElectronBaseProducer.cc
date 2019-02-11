@@ -391,6 +391,7 @@ void GsfElectronBaseProducer::endEvent() { algo_->endEvent(); }
 
 void GsfElectronBaseProducer::checkEcalSeedingParameters( edm::ParameterSet const & pset )
  {
+  if ( !pset.exists("SeedConfiguration") ) { return; }
   edm::ParameterSet seedConfiguration = pset.getParameter<edm::ParameterSet>("SeedConfiguration") ;
 
   if (seedConfiguration.getParameter<bool>("applyHOverECut"))
