@@ -52,6 +52,10 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun ${LOCAL_TEST_DIR}/${test}AliasOutput_cfg.py && die "cmsRun ${test}AliasOutput_cfg.py did not throw an exception" $?
 
   echo "*************************************************"
+  echo "Alias to non-existent product should fail only when a corresponding product is accessed"
+  cmsRun ${LOCAL_TEST_DIR}/${test}AliasToNonExistent_cfg.py && die "cmsRun ${test}AliasToNonExistent_cfg.py did not throw an exception" $?
+
+  echo "*************************************************"
   echo "SwitchProducer-with-EDAlias being before the aliased-for producer in a Path should fail"
   cmsRun ${LOCAL_TEST_DIR}/${test}PathWrongOrder_cfg.py && die "cmsRun ${test}PathWrongOrder_cfg.py did not throw an exception" $?
 
