@@ -257,7 +257,7 @@ namespace edm {
 
   bool
   OutputModule::doEvent(EventPrincipal const& ep,
-                        EventSetup const&,
+                        EventSetupImpl const&,
                         ActivityRegistry* act,
                         ModuleCallingContext const* mcc) {
 
@@ -293,7 +293,7 @@ namespace edm {
 
   bool
   OutputModule::doBeginRun(RunPrincipal const& rp,
-                           EventSetup const&,
+                           EventSetupImpl const&,
                            ModuleCallingContext const* mcc) {
     FDEBUG(2) << "beginRun called\n";
     RunForOutput r(rp, moduleDescription_, mcc,false);
@@ -304,7 +304,7 @@ namespace edm {
 
   bool
   OutputModule::doEndRun(RunPrincipal const& rp,
-                         EventSetup const&,
+                         EventSetupImpl const&,
                          ModuleCallingContext const* mcc) {
     FDEBUG(2) << "endRun called\n";
     RunForOutput r(rp, moduleDescription_, mcc,true);
@@ -325,7 +325,7 @@ namespace edm {
 
   bool
   OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                       EventSetup const&,
+                                       EventSetupImpl const&,
                                        ModuleCallingContext const* mcc) {
     FDEBUG(2) << "beginLuminosityBlock called\n";
     LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc,false);
@@ -336,7 +336,7 @@ namespace edm {
 
   bool
   OutputModule::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                     EventSetup const&,
+                                     EventSetupImpl const&,
                                      ModuleCallingContext const* mcc) {
     FDEBUG(2) << "endLuminosityBlock called\n";
     LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc,true);

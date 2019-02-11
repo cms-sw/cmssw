@@ -195,7 +195,9 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       G4UrbanMscModel* msc1 = new G4UrbanMscModel();
       G4WentzelVIModel* msc2 = new G4WentzelVIModel();
       G4UrbanMscModel* msc3 = new G4UrbanMscModel();
+      //--- VI: these line should be moved down
       msc3->SetLocked(true);
+      //--- 
       msc1->SetHighEnergyLimit(highEnergyLimit);
       msc2->SetLowEnergyLimit(highEnergyLimit);
       msc3->SetHighEnergyLimit(highEnergyLimit);

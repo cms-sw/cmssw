@@ -40,6 +40,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorChecker.h"
 #include "FWCore/Utilities/interface/typedefs.h"
+#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 
 #include <vector>
 #include <map>
@@ -64,6 +65,8 @@ public:
   typedef std::pair<DetDigis::const_iterator, DetDigis::const_iterator> Range; 
   typedef std::vector<SiPixelRawDataError> DetErrors;
   typedef std::map<cms_uint32_t, DetErrors> Errors;
+  typedef std::vector<PixelFEDChannel> DetBadChannels;
+  typedef std::map<cms_uint32_t, DetBadChannels> BadChannels;
 
   typedef cms_uint32_t Word32;
   typedef cms_uint64_t Word64;
@@ -80,7 +83,7 @@ public:
 
   void interpretRawData(bool& errorsInEvent, int fedId,  const FEDRawData & data, Collection & digis, Errors & errors);
 
-  void formatRawData( unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis);
+  void formatRawData( unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis, const BadChannels & badChannels);
 
   cms_uint32_t linkId(cms_uint32_t word32) { return (word32 >> LINK_shift) & LINK_mask; }
 
