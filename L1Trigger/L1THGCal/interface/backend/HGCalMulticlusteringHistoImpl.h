@@ -22,6 +22,11 @@ public:
     {
         triggerTools_.eventSetup(es);
         shape_.eventSetup(es);
+        if (!dr_byLayer_.empty() && (dr_byLayer_.size()-1) != triggerTools_.lastLayerBH()) {
+            throw cms::Exception("Configuration") << 
+                "The per-layer dR values go up to " << (dr_byLayer_.size()-1) << 
+                ", while layers go up to " << triggerTools_.lastLayerBH() << "\n";
+        }
     }
 
     float dR( const l1t::HGCalCluster & clu,
@@ -63,6 +68,7 @@ private:
             const HGCalTriggerGeometryBase&);
     
     double dr_;
+    std::vector<double> dr_byLayer_;
     double ptC3dThreshold_;
     MulticlusterType multiclusteringAlgoType_;
     std::string multiclusterAlgoType_;

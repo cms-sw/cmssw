@@ -80,13 +80,27 @@ def custom_3dclustering_histoMax(process,
         nBins_R = 36,
         nBins_Phi = 216,
         binSumsHisto = binSums,                        
+        seed_threshold = 0,
         ):
     parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
     parameters_c3d.dR_multicluster = cms.double(distance)
     parameters_c3d.nBins_R_histo_multicluster = cms.uint32(nBins_R)
     parameters_c3d.nBins_Phi_histo_multicluster = cms.uint32(nBins_Phi)
     parameters_c3d.binSumsHisto = binSumsHisto
+    parameters_c3d.threshold_histo_multicluster = seed_threshold
     parameters_c3d.type_multicluster = cms.string('HistoMaxC3d')
+    return process
+
+def custom_3dclustering_histoMax_variableDr(process,
+        distances = ([0] + [0.010]*7 + [0.020]*7 + [0.030]*7 + [0.040]*7 +   [0.040]*6 + [0.050]*6  +  [0.050]*12),
+        nBins_R = 36,
+        nBins_Phi = 216,
+        binSumsHisto = binSums,                        
+        seed_threshold = 0,
+        ):
+    process = custom_3dclustering_histoMax(process, 0, nBins_R, nBins_Phi, binSumsHisto, seed_threshold)
+    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
+    parameters_c3d.dR_multicluster_byLayer = cms.vdouble(distances)
     return process
 
 
