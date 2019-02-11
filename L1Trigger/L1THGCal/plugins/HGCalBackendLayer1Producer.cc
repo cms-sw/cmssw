@@ -43,8 +43,7 @@ input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::I
   //setup Backend parameters
   const edm::ParameterSet& beParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& beProcessorName = beParamConfig.getParameter<std::string>("ProcessorName");
-  HGCalBackendLayer1ProcessorBase* beProc = HGCalBackendLayer1Factory::get()->create(beProcessorName, beParamConfig);
-  backendProcess_.reset(beProc);
+  backendProcess_ = std::unique_ptr<HGCalBackendLayer1ProcessorBase>{HGCalBackendLayer1Factory::get()->create(beProcessorName, beParamConfig)};
 
   produces<l1t::HGCalClusterBxCollection>(backendProcess_->name());
 }

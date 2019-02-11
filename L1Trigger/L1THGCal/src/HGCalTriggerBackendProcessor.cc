@@ -7,9 +7,7 @@ HGCalTriggerBackendProcessor(const edm::ParameterSet& conf, edm::ConsumesCollect
   for( const auto& algo_cfg : be_confs ) {
     const std::string& algo_name = 
       algo_cfg.getParameter<std::string>("AlgorithmName");
-    HGCalTriggerBackendAlgorithmBase* algo = 
-      HGCalTriggerBackendAlgorithmFactory::get()->create(algo_name,algo_cfg,cc);
-    algorithms_.emplace_back(algo);
+    algorithms_.emplace_back(HGCalTriggerBackendAlgorithmFactory::get()->create(algo_name,algo_cfg,cc));
   }
 }
 
