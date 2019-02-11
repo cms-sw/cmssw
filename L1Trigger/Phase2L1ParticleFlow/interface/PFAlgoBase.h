@@ -11,6 +11,7 @@ namespace l1tpf_impl {
   class PFAlgoBase {
     public:
         PFAlgoBase( const edm::ParameterSet& ) ;
+        virtual ~PFAlgoBase() ;
         virtual void runPF(Region &r) const = 0;
         virtual void runChargedPV(Region &r, float z0) const ;
         virtual void runPuppi(Region &r, float npu, float alphaCMed, float alphaCRms, float alphaFMed, float alphaFRms) const ;

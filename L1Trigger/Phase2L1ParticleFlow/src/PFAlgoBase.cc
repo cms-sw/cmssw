@@ -38,6 +38,9 @@ PFAlgoBase::PFAlgoBase( const edm::ParameterSet & iConfig ) :
     }
 }
 
+PFAlgoBase::~PFAlgoBase() {
+}
+
 void PFAlgoBase::initRegion(Region &r) const {
     r.inputSort();
     r.pf.clear(); r.puppi.clear();
