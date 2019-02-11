@@ -60,11 +60,10 @@ using namespace std;
 /* ====================================================================== */
 
 /* Constructor */ 
-DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset) : _ev(0){
-
-  theSync =
-    DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
-                                      pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"));
+DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset) : _ev(0),
+  theSync{DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
+                                            pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"))}
+{
   // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
   theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
@@ -347,7 +346,7 @@ void DTAnalyzerDetailed::analyzeDTHits(const Event & event,
     DTSuperLayerId slid = (*sl)->id();
 
     DTMeanTimer meanTimer(dtGeom->superLayer(slid), dtRecHits, eventSetup,
-                          theSync);
+                          theSync.get());
     vector<double> tMaxs=meanTimer.run();
     for (vector<double>::const_iterator tMax=tMaxs.begin() ; tMax!=tMaxs.end();
          ++tMax) {
@@ -414,7 +413,7 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event & event,
 
         DTSuperLayerId slid1(phiSeg->chamberId(),1);
         /// Mean timer analysis
-        DTMeanTimer meanTimer1(dtGeom->superLayer(slid1), phiHits, eventSetup, theSync);
+        DTMeanTimer meanTimer1(dtGeom->superLayer(slid1), phiHits, eventSetup, theSync.get());
         vector<double> tMaxs1=meanTimer1.run();
         for (vector<double>::const_iterator tMax=tMaxs1.begin() ; tMax!=tMaxs1.end();
              ++tMax) {
@@ -431,7 +430,7 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event & event,
 
         DTSuperLayerId slid3(phiSeg->chamberId(),3);
         /// Mean timer analysis
-        DTMeanTimer meanTimer3(dtGeom->superLayer(slid3), phiHits, eventSetup, theSync);
+        DTMeanTimer meanTimer3(dtGeom->superLayer(slid3), phiHits, eventSetup, theSync.get());
         vector<double> tMaxs3=meanTimer3.run();
         for (vector<double>::const_iterator tMax=tMaxs3.begin() ; tMax!=tMaxs3.end();
              ++tMax) {
@@ -455,7 +454,7 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event & event,
         zedHits= zedSeg->specificRecHits();
         DTSuperLayerId slid(zedSeg->superLayerId());
         /// Mean timer analysis
-        DTMeanTimer meanTimer(dtGeom->superLayer(slid), zedHits, eventSetup, theSync);
+        DTMeanTimer meanTimer(dtGeom->superLayer(slid), zedHits, eventSetup, theSync.get());
         vector<double> tMaxs=meanTimer.run();
         for (vector<double>::const_iterator tMax=tMaxs.begin() ; tMax!=tMaxs.end();
              ++tMax) {
