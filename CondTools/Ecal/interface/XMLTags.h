@@ -58,6 +58,7 @@ namespace xuti{
   const std::string rms1_tag("rms_x1");
    
   const std::string PulseShapes_tag("EcalPulseShapes");
+  const std::string SimPulseShape_tag("EcalSimPulseShape");
   const std::string sample0_tag("sample_0");
   const std::string sample1_tag("sample_1");
   const std::string sample2_tag("sample_2");
