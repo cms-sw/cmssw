@@ -725,11 +725,10 @@ namespace edm {
 
       WrapperBase const* product = nullptr;
       ProductProvenance const* productProvenance = nullptr;
-      BasicHandle result;
       if(getProd) {
-        bool found = occurrence.getByToken(item.token_, item.branchDescription_->unwrappedTypeID(), result);
+        BasicHandle result = occurrence.getByToken(item.token_, item.branchDescription_->unwrappedTypeID());
         product = result.wrapper();
-        if(found && keepProvenance) {
+        if(result.isValid() && keepProvenance) {
           productProvenance = result.provenance()->productProvenance();
         }
         if(product == nullptr) {

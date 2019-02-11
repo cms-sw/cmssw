@@ -65,19 +65,19 @@ namespace edm {
     void callWorkerEndStream(D, StreamID);
     template<typename D>
     void callWorkerStreamBegin(D, StreamID id, RunPrincipal const& rp,
-                               EventSetup const& c,
+                               EventSetupImpl const& c,
                                ModuleCallingContext const* mcc);
     template<typename D>
     void callWorkerStreamEnd(D, StreamID id, RunPrincipal const& rp,
-                             EventSetup const& c,
+                             EventSetupImpl const& c,
                              ModuleCallingContext const* mcc);
     template<typename D>
     void callWorkerStreamBegin(D, StreamID id, LuminosityBlockPrincipal const& rp,
-                               EventSetup const& c,
+                               EventSetupImpl const& c,
                                ModuleCallingContext const* mcc);
     template<typename D>
     void callWorkerStreamEnd(D, StreamID id, LuminosityBlockPrincipal const& rp,
-                             EventSetup const& c,
+                             EventSetupImpl const& c,
                              ModuleCallingContext const* mcc);
     
   protected:
@@ -85,34 +85,34 @@ namespace edm {
     T const& module() const {return *module_;}
 
   private:
-    bool implDo(EventPrincipal const& ep, EventSetup const& c,
+    bool implDo(EventPrincipal const& ep, EventSetupImpl const& c,
                         ModuleCallingContext const* mcc) override;
 
     void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const final;
     bool implNeedToRunSelection() const final;
 
-    void implDoAcquire(EventPrincipal const& ep, EventSetup const& c,
+    void implDoAcquire(EventPrincipal const& ep, EventSetupImpl const& c,
                        ModuleCallingContext const* mcc,
                        WaitingTaskWithArenaHolder& holder) final;
 
     bool implDoPrePrefetchSelection(StreamID id,
                                             EventPrincipal const& ep,
                                             ModuleCallingContext const* mcc) override;
-    bool implDoBegin(RunPrincipal const& rp, EventSetup const& c,
+    bool implDoBegin(RunPrincipal const& rp, EventSetupImpl const& c,
                              ModuleCallingContext const* mcc) override;
-    bool implDoStreamBegin(StreamID id, RunPrincipal const& rp, EventSetup const& c,
+    bool implDoStreamBegin(StreamID id, RunPrincipal const& rp, EventSetupImpl const& c,
                                    ModuleCallingContext const* mcc) override;
-    bool implDoStreamEnd(StreamID id, RunPrincipal const& rp, EventSetup const& c,
+    bool implDoStreamEnd(StreamID id, RunPrincipal const& rp, EventSetupImpl const& c,
                                  ModuleCallingContext const* mcc) override;
-    bool implDoEnd(RunPrincipal const& rp, EventSetup const& c,
+    bool implDoEnd(RunPrincipal const& rp, EventSetupImpl const& c,
                            ModuleCallingContext const* mcc) override;
-    bool implDoBegin(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    bool implDoBegin(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& c,
                              ModuleCallingContext const* mcc) override;
-    bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal const& lbp, EventSetupImpl const& c,
                                    ModuleCallingContext const* mcc) override;
-    bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal const& lbp, EventSetupImpl const& c,
                                  ModuleCallingContext const* mcc) override;
-    bool implDoEnd(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    bool implDoEnd(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& c,
                            ModuleCallingContext const* mcc) override;
     void implBeginJob() override;
     void implEndJob() override;

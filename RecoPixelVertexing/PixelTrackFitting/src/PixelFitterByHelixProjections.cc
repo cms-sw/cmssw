@@ -94,10 +94,10 @@ namespace {
 }
   
 PixelFitterByHelixProjections::PixelFitterByHelixProjections(const edm::EventSetup *es,
-							     const MagneticField *field,
+                                                             const MagneticField *field,
                                                              bool scaleErrorsForBPix1,
                                                              float scaleFactor):
-  theES(es), theField(field),
+  theField(field),
   thescaleErrorsForBPix1(scaleErrorsForBPix1), thescaleFactor(scaleFactor)
 {
   //Retrieve tracker topology from geometry
@@ -108,7 +108,8 @@ PixelFitterByHelixProjections::PixelFitterByHelixProjections(const edm::EventSet
 
 std::unique_ptr<reco::Track> PixelFitterByHelixProjections::run(
     const std::vector<const TrackingRecHit * > & hits,
-    const TrackingRegion & region) const
+    const TrackingRegion & region,
+    const edm::EventSetup& setup) const
 {
   std::unique_ptr<reco::Track> ret;
 
@@ -136,8 +137,8 @@ std::unique_ptr<reco::Track> PixelFitterByHelixProjections::run(
   float curvature = circle.curvature();
 
   if ((curvature > 1.e-4)&&
-	(LIKELY(PixelRecoUtilities::fieldInInvGev(*theES)>0.01))) {
-    float invPt = PixelRecoUtilities::inversePt( circle.curvature(), *theES);
+	(LIKELY(PixelRecoUtilities::fieldInInvGev(setup)>0.01))) {
+    float invPt = PixelRecoUtilities::inversePt( circle.curvature(), setup);
     valPt = (invPt > 1.e-4f) ? 1.f/invPt : 1.e4f;
     CircleFromThreePoints::Vector2D center = circle.center();
     valTip = iCharge * (center.mag()-1.f/curvature);

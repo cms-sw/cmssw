@@ -462,7 +462,7 @@ bool L1GtVhdlWriterCore::getEsumsSetupContentFromTriggerMenu(
         const std::vector<L1GtEnergySumTemplate::ObjectParameter>* op =
                 energySumTempl->objectParameter();
 
-        if (bm_.buildPhiEnergySum(op, 1, counter)!="")
+        if (!bm_.buildPhiEnergySum(op, 1, counter).empty())
             energySumParameter+=bm_.buildPhiEnergySum(op, 1, counter);
 
         if (debugMode_)
@@ -918,8 +918,8 @@ bool L1GtVhdlWriterCore::makeFirmware(const std::vector<ConditionMap> &condition
     std::string subDir1 = outputDir_+outputSubDir1_;
     std::string subDir2  = outputDir_+outputSubDir2_;
     
-    if (!mkdir(subDir1.c_str(), 666));
-    if (!mkdir(subDir2.c_str(), 666));
+    (void) mkdir(subDir1.c_str(), 666);
+    (void) mkdir(subDir2.c_str(), 666);
     
     chmod(subDir1.c_str(), 0777);
     chmod(subDir2.c_str(), 0777);
@@ -1267,7 +1267,7 @@ void L1GtVhdlWriterCore::writeAlgoSetup(std::vector< std::map<int, std::string> 
         {
 
             buffer<< stringConstantAlgo_<<"("<<k<<")";
-            if (algoStrings.at(i-1)[k]!="")
+            if (!algoStrings.at(i-1)[k].empty())
                 buffer<<" <= "<<algoStrings.at(i-1)[k]<<";"<<std::endl;
             else
                 buffer<<" <= '0';"<<std::endl;

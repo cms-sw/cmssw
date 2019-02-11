@@ -124,7 +124,7 @@ void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record, st
   if ( useDDD_ ) {
 
     host->ifRecordChanges<MuonNumberingRecord>(record,
-                                               [this, &host, &record](auto const& rec) {
+                                               [&host, &record](auto const& rec) {
       host->clear();
       edm::ESTransientHandle<DDCompactView> cpv;
       edm::ESHandle<MuonDDDConstants> mdc;

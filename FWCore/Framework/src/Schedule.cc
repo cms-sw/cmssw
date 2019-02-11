@@ -291,13 +291,20 @@ namespace edm {
 
     void processSwitchProducers(ParameterSet const& proc_pset, std::string const& processName, ProductRegistry& preg) {
       // Update Switch BranchDescriptions for the chosen case
-      std::vector<BranchKey> chosenBranches;
-      std::map<std::string, std::vector<std::string> > allCasesMap;
+      struct BranchesCases {
+        BranchesCases(std::vector<std::string> cases): caseLabels{std::move(cases)} {}
+        std::vector<BranchKey> chosenBranches;
+        std::vector<std::string> caseLabels;
+      };
+      std::map<std::string, BranchesCases> switchMap;
       for(auto& prod: preg.productListUpdator()) {
         if(prod.second.isSwitchAlias()) {
-          if(allCasesMap.find(prod.second.moduleLabel()) == allCasesMap.end()) {
+          auto it = switchMap.find(prod.second.moduleLabel());
+          if(it == switchMap.end())  {
             auto const& switchPSet = proc_pset.getParameter<edm::ParameterSet>(prod.second.moduleLabel());
-            allCasesMap[prod.second.moduleLabel()] = switchPSet.getParameter<std::vector<std::string>>("@all_cases");
+            auto inserted = switchMap.emplace(prod.second.moduleLabel(), switchPSet.getParameter<std::vector<std::string>>("@all_cases"));
+            assert(inserted.second);
+            it = inserted.first;
           }
 
           for(auto const& item: preg.productList()) {
@@ -312,21 +319,25 @@ namespace edm {
                   << ". Module label is " << item.first.moduleLabel() << ".\nPlease contact a framework developer.";
               }
               prod.second.setSwitchAliasForBranch(item.second);
-              chosenBranches.push_back(prod.first); // with moduleLabel of the Switch
+              it->second.chosenBranches.push_back(prod.first); // with moduleLabel of the Switch
             }
           }
         }
       }
-      if(allCasesMap.empty())
+      if(switchMap.empty())
         return;
 
-      std::sort(chosenBranches.begin(), chosenBranches.end());
+      for(auto& elem: switchMap) {
+        std::sort(elem.second.chosenBranches.begin(), elem.second.chosenBranches.end());
+      }
 
       // Check that non-chosen cases declare exactly the same branches
-      auto foundBranches = std::vector<bool>(chosenBranches.size(), false);
-      for(auto const& switchItem: allCasesMap) {
+      std::vector<bool> foundBranches;
+      for(auto const& switchItem: switchMap) {
         auto const& switchLabel = switchItem.first;
-        auto const& caseLabels = switchItem.second;
+        auto const& chosenBranches = switchItem.second.chosenBranches;
+        auto const& caseLabels = switchItem.second.caseLabels;
+        foundBranches.resize(chosenBranches.size());
         for(auto const& caseLabel: caseLabels) {
           std::fill(foundBranches.begin(), foundBranches.end(), false);
           for(auto const& item: preg.productList()) {
@@ -1130,7 +1141,7 @@ namespace edm {
   void Schedule::processOneEventAsync(WaitingTaskHolder iTask,
                                       unsigned int iStreamID,
                                       EventPrincipal& ep,
-                                      EventSetup const& es,
+                                      EventSetupImpl const& es,
                                       ServiceToken const& token) {
     assert(iStreamID<streamSchedules_.size());
     streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask),ep,es,token,pathStatusInserters_);

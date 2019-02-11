@@ -94,7 +94,7 @@ namespace edm {
    EventBase::getByLabel(InputTag const& tag, Handle<T>& result) const {
       result.clear();
       BasicHandle bh = this->getByLabelImpl(typeid(edm::Wrapper<T>), typeid(T), tag);
-     convert_handle(std::move(bh), result);  // throws on conversion error
+     result = convert_handle<T>(std::move(bh));
       if (result.failedToGet()) {
          return false;
       }
@@ -106,7 +106,7 @@ namespace edm {
    EventBase::get(ProductID const& pid, Handle<T>& result) const {
       result.clear();
       BasicHandle bh = this->getImpl(typeid(T), pid);
-      convert_handle(std::move(bh), result);  // throws on conversion error
+      result = convert_handle_check_type<T>(std::move(bh));
       if (result.failedToGet()) {
          return false;
       }

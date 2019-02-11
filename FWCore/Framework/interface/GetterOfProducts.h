@@ -149,8 +149,7 @@ namespace edm {
             handles.reserve(tokens_->size());
             edm::Handle<T> handle;
             for (auto const& token : *tokens_) {
-               event.getByToken(token, handle);
-               if (handle.isValid()) {
+               if (auto handle = event.getHandle(token)) {
                   handles.push_back(handle);
                }
             }
@@ -161,10 +160,8 @@ namespace edm {
          handles.clear();
          if(branchType_ == edm::InLumi ) {
             handles.reserve(tokens_->size());
-            edm::Handle<T> handle;
             for (auto const& token : *tokens_) {
-               lumi.getByToken(token, handle);
-               if (handle.isValid()) {
+               if (auto handle = lumi.getHandle(token)) {
                   handles.push_back(handle);
                }
             }
@@ -175,10 +172,8 @@ namespace edm {
          handles.clear();
          if(branchType_ == edm::InRun) {
             handles.reserve(tokens_->size());
-            edm::Handle<T> handle;
             for (auto const& token : *tokens_) {
-               run.getByToken(token, handle);
-               if (handle.isValid()) {
+               if (auto handle = run.getHandle(token)) {
                   handles.push_back(handle);
                }
             }

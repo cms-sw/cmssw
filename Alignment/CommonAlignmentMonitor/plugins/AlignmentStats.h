@@ -11,6 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 // #include <Riostream.h>
 #include <fstream>
@@ -46,7 +47,6 @@ class AlignmentStats: public edm::EDAnalyzer{
   uint32_t prescale_;
   //////
   uint32_t tmpPresc_;
-  bool firstEvent_;
 
   //Track stats
   TFile *treefile_;
@@ -64,8 +64,7 @@ class AlignmentStats: public edm::EDAnalyzer{
 
   //  edm::ESHandle<TrackerGeometry> trackerGeometry_;
   const TrackerGeometry* trackerGeometry_;
-
-  const edm::EventSetup *lastSetup_;
+  const TrackerTopology* trackerTopology_;
 
 };
 

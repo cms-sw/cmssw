@@ -37,7 +37,7 @@ class DTTMax {
   
   /// Constructor
   DTTMax(const std::vector<DTRecHit1D> & hits, const DTSuperLayer & isl, GlobalVector dir, 
-	 GlobalPoint pos, DTTTrigBaseSync* sync);
+	 GlobalPoint pos, const DTTTrigBaseSync& sync);
   
   /// Destructor
   virtual ~DTTMax();
@@ -60,7 +60,7 @@ class DTTMax {
   // All information on one of the layers crossed by the segment
   struct InfoLayer {
     InfoLayer(const DTRecHit1D& rh_, const DTSuperLayer & isl, GlobalVector dir, 
-	      GlobalPoint pos, DTTTrigBaseSync* sync);
+	      GlobalPoint pos, const DTTTrigBaseSync& sync);
     DTRecHit1D rh;
     DTWireId idWire;
     DTEnums::DTCellSide lr;

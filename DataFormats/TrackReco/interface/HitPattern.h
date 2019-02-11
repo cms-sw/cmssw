@@ -624,7 +624,7 @@ inline bool HitPattern::pixelEndcapHitFilter(uint16_t pattern)
 
 inline bool HitPattern::stripHitFilter(uint16_t pattern)
 {
-    return pattern > minStripWord;
+    return pattern > minStripWord && pattern <= maxTrackerWord;
 }
 
 

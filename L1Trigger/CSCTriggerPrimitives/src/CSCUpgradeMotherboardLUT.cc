@@ -52,6 +52,14 @@ CSCMotherboardLUTME11::doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi
    if ( !c.isValid() || !a.isValid() ) return false;
    int key_hs = c.getKeyStrip();
    int key_wg = a.getKeyWG();
+   return doesWiregroupCrossStrip(key_wg, key_hs, theEndcap, gangedME1a);
+ }
+
+
+bool
+CSCMotherboardLUTME11::doesWiregroupCrossStrip(int key_wg, int key_hs,
+                                         int theEndcap, bool gangedME1a) const
+ {
    // ME1/a half-strip starts at 128
    if ( key_hs > CSCConstants::MAX_HALF_STRIP_ME1B )
      {

@@ -162,7 +162,6 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   // step limiters on top of any Physics Lists
   phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions",m_pPhysics));
 
-  m_physicsList->ResetStoredInAscii();
   if (m_RestorePhysicsTables) {
     m_physicsList->SetPhysicsTableRetrieved(m_PhysicsTablesDir);
   }

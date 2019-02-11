@@ -60,7 +60,7 @@ namespace edm {
    RunBase::getByLabel(InputTag const& tag, Handle<T>& result) const {
       result.clear();
       BasicHandle bh = this->getByLabelImpl(typeid(Wrapper<T>), typeid(T), tag);
-      convert_handle(std::move(bh), result);  // throws on conversion error
+      result = convert_handle<T>(std::move(bh));
       if (result.failedToGet()) {
          return false;
       }

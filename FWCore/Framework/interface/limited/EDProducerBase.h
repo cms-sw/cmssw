@@ -78,7 +78,7 @@ namespace edm {
         return queue_;
       }
     private:
-      bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+      bool doEvent(EventPrincipal const& ep, EventSetupImpl const&  c,
                    ActivityRegistry*,
                    ModuleCallingContext const*);
       void doPreallocate(PreallocationConfiguration const&);
@@ -89,29 +89,29 @@ namespace edm {
       void doEndStream(StreamID id);
       void doStreamBeginRun(StreamID id,
                             RunPrincipal const& ep,
-                            EventSetup const& c,
+                            EventSetupImpl const&  c,
                             ModuleCallingContext const*);
       void doStreamEndRun(StreamID id,
                           RunPrincipal const& ep,
-                          EventSetup const& c,
+                          EventSetupImpl const&  c,
                           ModuleCallingContext const*);
       void doStreamBeginLuminosityBlock(StreamID id,
                                         LuminosityBlockPrincipal const& ep,
-                                        EventSetup const& c,
+                                        EventSetupImpl const&  c,
                                         ModuleCallingContext const*);
       void doStreamEndLuminosityBlock(StreamID id,
                                       LuminosityBlockPrincipal const& ep,
-                                      EventSetup const& c,
+                                      EventSetupImpl const&  c,
                                       ModuleCallingContext const*);
 
       
-      void doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+      void doBeginRun(RunPrincipal const& rp, EventSetupImpl const&  c,
                       ModuleCallingContext const*);
-      void doEndRun(RunPrincipal const& rp, EventSetup const& c,
+      void doEndRun(RunPrincipal const& rp, EventSetupImpl const&  c,
                     ModuleCallingContext const*);
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  c,
                                   ModuleCallingContext const*);
-      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  c,
                                 ModuleCallingContext const*);
       
       //For now, the following are just dummy implemenations with no ability for users to override

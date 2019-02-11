@@ -176,10 +176,10 @@ bool CalibrationTrackSelector::detailedHitsCheck(const reco::Track *trackp, cons
     unsigned int nHit2D = 0;
     unsigned int thishit = 0;
 
-    for (trackingRecHit_iterator iHit = trackp->recHitsBegin(); iHit != trackp->recHitsEnd(); ++iHit) {
+    for(auto const& hit : trackp->recHits()) {
 
       thishit++;
-      int type = (*iHit)->geographicalId().subdetId(); 
+      int type = hit->geographicalId().subdetId(); 
 
       // *** thishit == 1 means last hit in CTF *** 
       // (FIXME: assumption might change or not be valid for all tracking algorthms)
@@ -190,16 +190,15 @@ bool CalibrationTrackSelector::detailedHitsCheck(const reco::Track *trackp, cons
 
       if (seedOnlyFromAbove_ == 2 && thishit == 1 && type == int(StripSubdetector::TIB)) return false;  
 
-      if (!(*iHit)->isValid()) continue; // only real hits count as in trackp->numberOfValidHits()
-      const DetId detId((*iHit)->geographicalId());
+      if (!hit->isValid()) continue; // only real hits count as in trackp->numberOfValidHits()
+      const DetId detId(hit->geographicalId());
       if (detId.det() != DetId::Tracker) {
         edm::LogError("DetectorMismatch") << "@SUB=CalibrationTrackSelector::detailedHitsCheck"
                                           << "DetId.det() != DetId::Tracker (=" << DetId::Tracker
                                           << "), but " << detId.det() << ".";
       }
-      const TrackingRecHit* therechit = (*iHit);
-      if (chargeCheck_ && !(this->isOkCharge(therechit))) return false;
-      if (applyIsolation_ && (!this->isIsolated(therechit, evt))) return false;
+      if (chargeCheck_ && !(this->isOkCharge(hit))) return false;
+      if (applyIsolation_ && (!this->isIsolated(hit, evt))) return false;
       if      (StripSubdetector::TIB == detId.subdetId()) ++nhitinTIB;
       else if (StripSubdetector::TOB == detId.subdetId()) ++nhitinTOB;
       else if (StripSubdetector::TID == detId.subdetId()) ++nhitinTID;
@@ -207,7 +206,7 @@ bool CalibrationTrackSelector::detailedHitsCheck(const reco::Track *trackp, cons
       else if (                kBPIX == detId.subdetId()) ++nhitinBPIX;
       else if (                kFPIX == detId.subdetId()) ++nhitinFPIX;
       // Do not call isHit2D(..) if already enough 2D hits for performance reason:
-      if (nHit2D < nHitMin2D_ && this->isHit2D(**iHit)) ++nHit2D;
+      if (nHit2D < nHitMin2D_ && this->isHit2D(*hit)) ++nHit2D;
     } // end loop on hits
     return (nhitinTIB >= minHitsinTIB_ && nhitinTOB >= minHitsinTOB_ 
             && nhitinTID >= minHitsinTID_ && nhitinTEC >= minHitsinTEC_ 

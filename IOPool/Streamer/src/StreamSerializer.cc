@@ -150,8 +150,7 @@ namespace edm {
 
     for(auto const& selection : *selections_) {
       BranchDescription const& desc = *selection.first;
-      BasicHandle result;
-      event.getByToken(selection.second, desc.unwrappedTypeID(), result);
+      BasicHandle result = event.getByToken(selection.second, desc.unwrappedTypeID());
       if(!result.isValid()) {
         // No product with this ID was put in the event.
         // Create and write the provenance.

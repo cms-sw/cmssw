@@ -44,15 +44,15 @@ public:
 			const GlobalPoint& globPos,
 			double& tTrig,
 			double& wirePropCorr,
-			double& tofCorr) override;
+			double& tofCorr) const override;
 
-  double offset(const DTWireId& wireId) override;
+  double offset(const DTWireId& wireId) const override;
 
   /// Time (ns) to be subtracted to the digi time for emulation purposes
   /// Returns just 0 in this implementation of the plugin
   double emulatorOffset(const DTWireId& wireId,
 				double &tTrig,
-				double &t0cell) override;
+				double &t0cell) const override;
 
 
  private:

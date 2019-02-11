@@ -78,7 +78,7 @@ CTPPSGeometry::addRP( unsigned int id, const DetGeomDesc*& gD )
 {
   if ( rps_map_.find( id ) != rps_map_.end() ) return false;
 
-  rps_map_[id] = const_cast<DetGeomDesc*>( gD );
+  rps_map_[id] = gD;
   return true;
 }
 
