@@ -31,13 +31,15 @@ process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'keep *_intProducer_*_*',
         'keep *_intProducerOther_*_*',
-        'keep *_intProducerAlias_*_*'
+        'keep *_intProducerAlias_*_*',
+        'keep *_intProducerAlias2_foo_*',
     )
 )
 
 process.intProducer1 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(1))
 process.intProducer2 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(2))
 process.intProducer3 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(2), values = cms.VPSet(cms.PSet(instance=cms.string("foo"),value=cms.int32(2))))
+process.intProducer4 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(42), throw = cms.untracked.bool(True))
 if enableTest2:
     process.intProducer1.throw = cms.untracked.bool(True)
 else:
@@ -60,7 +62,14 @@ process.intProducerAlias = SwitchProducerTest(
                                                  cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string("foo"), toProductInstance = cms.string("other"))))
 )
 
-process.t = cms.Task(process.intProducer, process.intProducerOther, process.intProducerAlias, process.intProducer1, process.intProducer2, process.intProducer3)
+process.intProducerAlias2 = SwitchProducerTest(
+    test1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer1")),
+    test2 = cms.EDAlias(intProducer4 = cms.VPSet(cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string(""), toProductInstance = cms.string(""))),
+                        intProducer3 = cms.VPSet(cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string("foo"), toProductInstance = cms.string("other"))))
+)
+
+process.t = cms.Task(process.intProducer, process.intProducerOther, process.intProducerAlias, process.intProducerAlias2,
+                     process.intProducer1, process.intProducer2, process.intProducer3, process.intProducer4)
 process.p = cms.Path(process.t)
 
 process.e = cms.EndPath(process.out)
