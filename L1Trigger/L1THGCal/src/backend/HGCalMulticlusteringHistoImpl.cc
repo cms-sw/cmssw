@@ -5,6 +5,7 @@
 
 HGCalMulticlusteringHistoImpl::HGCalMulticlusteringHistoImpl( const edm::ParameterSet& conf ) :
     dr_(conf.getParameter<double>("dR_multicluster")),
+    dr_byLayer_(conf.existsAs<std::vector<double>>("dR_multicluster_byLayer") ? conf.getParameter<std::vector<double>>("dR_multicluster_byLayer") : std::vector<double>()),
     ptC3dThreshold_(conf.getParameter<double>("minPt_multicluster")),
     multiclusterAlgoType_(conf.getParameter<string>("type_multicluster")),    
     nBinsRHisto_(conf.getParameter<unsigned>("nBins_R_histo_multicluster")),
@@ -189,7 +190,8 @@ std::vector<GlobalPoint> HGCalMulticlusteringHistoImpl::computeMaxSeeds( const H
             for(int bin_phi = 0; bin_phi<int(nBinsPhiHisto_); bin_phi++){
 
                 float MIPT_seed = histoClusters.at({{z_side,bin_R,bin_phi}});
-                bool isMax = MIPT_seed>0;
+                bool isMax = MIPT_seed > histoThreshold_;
+                if (!isMax) continue;
 
                 float MIPT_S = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,bin_phi}}) : 0;
                 float MIPT_N = bin_R>0 ? histoClusters.at({{z_side,bin_R-1,bin_phi}}) : 0;
@@ -337,7 +339,7 @@ std::vector<l1t::HGCalMulticluster> HGCalMulticlusteringHistoImpl::clusterSeedMu
 
         int z_side = triggerTools_.zside(clu->detId());
 
-        double minDist = dr_;
+        double minDist = dr_byLayer_.empty() ? dr_ : dr_byLayer_.at(triggerTools_.layerWithOffset(clu->detId())); // use at() to get the assert, for the moment
         int targetSeed = -1;
 
         for( unsigned int iseed=0; iseed<seeds.size(); iseed++ ){

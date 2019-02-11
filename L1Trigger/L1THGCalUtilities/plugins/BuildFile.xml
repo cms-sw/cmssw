@@ -15,3 +15,11 @@
   <use name="heppdt"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   name="L1TriggerL1THGCalUtilitiesPlugins_selectors" file="selectors/*.cc">
+  <use   name="L1Trigger/L1THGCal"/>
+  <use   name="CommonTools/Utils"/>
+  <use   name="CommonTools/MVAUtils"/>
+  <use   name="roottmva"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
