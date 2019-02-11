@@ -53,11 +53,11 @@ MTDRecHitProducer::MTDRecHitProducer(const edm::ParameterSet& ps) :
 
   const edm::ParameterSet& barrel = ps.getParameterSet("barrel");
   const std::string& barrelAlgo = barrel.getParameter<std::string>("algoName");
-  barrel_.reset( MTDRecHitAlgoFactory::get()->create(barrelAlgo, barrel, sumes) );
+  barrel_ = std::unique_ptr<MTDRecHitAlgoBase>{ MTDRecHitAlgoFactory::get()->create(barrelAlgo, barrel, sumes) };
   
   const edm::ParameterSet& endcap = ps.getParameterSet("endcap");
   const std::string& endcapAlgo = endcap.getParameter<std::string>("algoName");
-  endcap_.reset( MTDRecHitAlgoFactory::get()->create(endcapAlgo, endcap, sumes) );
+  endcap_ = std::unique_ptr<MTDRecHitAlgoBase>{ MTDRecHitAlgoFactory::get()->create(endcapAlgo, endcap, sumes) };
 
 }
 
