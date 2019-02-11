@@ -81,7 +81,7 @@ class GEMCSCSegmentBuilder {
   std::map<CSCStationIndex,std::set<GEMDetId> > rollstoreCSC;
 
  private:
-  GEMCSCSegmentAlgorithm* algo;
+  std::unique_ptr<GEMCSCSegmentAlgorithm> algo;
   const GEMGeometry* gemgeom_;
   const CSCGeometry* cscgeom_;
   

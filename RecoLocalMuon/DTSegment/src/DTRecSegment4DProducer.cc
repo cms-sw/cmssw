@@ -23,7 +23,11 @@
 using namespace edm;
 using namespace std;
 
-DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset){
+DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset):
+  // Get the concrete 4D-segments reconstruction algo from the factory
+  the4DAlgo{DTRecSegment4DAlgoFactory::get()->create(pset.getParameter<string>("Reco4DAlgoName"),
+                                                     pset.getParameter<ParameterSet>("Reco4DAlgoConfig"))}
+{
   produces<DTRecSegment4DCollection>();
   
   // debug parameter
@@ -38,18 +42,13 @@ DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset){
   // the name of the 2D rec hits collection
   recHits2DToken_ = consumes<DTRecSegment2DCollection>(pset.getParameter<InputTag>("recHits2DLabel"));
   
-  // Get the concrete 4D-segments reconstruction algo from the factory
-  string theReco4DAlgoName = pset.getParameter<string>("Reco4DAlgoName");
-  if(debug) cout << "the Reco4D AlgoName is " << theReco4DAlgoName << endl;
-  the4DAlgo = DTRecSegment4DAlgoFactory::get()->create(theReco4DAlgoName,
-						       pset.getParameter<ParameterSet>("Reco4DAlgoConfig"));
+  if(debug) cout << "the Reco4D AlgoName is " << pset.getParameter<string>("Reco4DAlgoName") << endl;
 }
 
 /// Destructor
 DTRecSegment4DProducer::~DTRecSegment4DProducer(){
   if(debug)
     cout << "[DTRecSegment4DProducer] Destructor called" << endl;
-  delete the4DAlgo;
 }
 
 void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
