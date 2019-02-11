@@ -87,8 +87,8 @@ void SteppingAction::UserSteppingAction(const G4Step * aStep)
 {
   if (!initialized) { initialized = initPointer(); }
 
-  if(hasWatcher) { m_g4StepSignal(aStep); }
-  //m_g4StepSignal(aStep); 
+  //if(hasWatcher) { m_g4StepSignal(aStep); }
+  m_g4StepSignal(aStep); 
 
   G4Track * theTrack = aStep->GetTrack();
   TrackStatus tstat = (theTrack->GetTrackStatus() == fAlive) ? sAlive : sKilledByProcess;
@@ -127,14 +127,12 @@ void SteppingAction::UserSteppingAction(const G4Step * aStep)
     if(sAlive == tstat && numberEkins > 0 && isLowEnergy(aStep)) { tstat = sLowEnergy; }
 
     // kill low-energy in vacuum
-    if(sAlive == tstat && killBeamPipe) {
-      G4double kinEnergy = theTrack->GetKineticEnergy();
-      if(kinEnergy < theCriticalEnergyForVacuum
-	 && theTrack->GetDefinition()->GetPDGCharge() != 0.0 && kinEnergy > 0.0
-	 && theTrack->GetNextVolume()->GetLogicalVolume()->GetMaterial()->GetDensity() 
-	 <= theCriticalDensity) {
-	tstat = sLowEnergyInVacuum;
-      }
+    G4double kinEnergy = theTrack->GetKineticEnergy();
+    if(sAlive == tstat && killBeamPipe && kinEnergy < theCriticalEnergyForVacuum
+       && theTrack->GetDefinition()->GetPDGCharge() != 0.0 && kinEnergy > 0.0
+       && theTrack->GetNextVolume()->GetLogicalVolume()->GetMaterial()->GetDensity() 
+       <= theCriticalDensity) {
+      tstat = sLowEnergyInVacuum;
     }
 
     // check transition tracker/calo
