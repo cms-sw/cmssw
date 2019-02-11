@@ -556,15 +556,16 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
       if ( matchingSC ( superClusterPtrs, newCandidate, scPtrVec) ) 
         newCandidate.setMatchingSuperCluster( scPtrVec);
           
-      //std::cout << " ConversionProducer  scPtrVec.size " <<  scPtrVec.size() << std::endl;
           
       newCandidate.setQuality(reco::Conversion::highPurity,  highPurityPair);
       bool generalTracksOnly = ll->second->isTrackerOnly() && rr->second->isTrackerOnly() && !dynamic_cast<const reco::GsfTrack*>(ll->second->trackRef().get()) && !dynamic_cast<const reco::GsfTrack*>(rr->second->trackRef().get());
+      bool gsfTracksOpenOnly = ll->second->isGsfTrackOpen() && rr->second->isGsfTrackOpen();
       bool arbitratedEcalSeeded = ll->second->isArbitratedEcalSeeded() && rr->second->isArbitratedEcalSeeded();
       bool arbitratedMerged = ll->second->isArbitratedMerged() && rr->second->isArbitratedMerged();
       bool arbitratedMergedEcalGeneral = ll->second->isArbitratedMergedEcalGeneral() && rr->second->isArbitratedMergedEcalGeneral();          
           
       newCandidate.setQuality(reco::Conversion::generalTracksOnly,  generalTracksOnly);
+      newCandidate.setQuality(reco::Conversion::gsfTracksOpenOnly,  gsfTracksOpenOnly);
       newCandidate.setQuality(reco::Conversion::arbitratedEcalSeeded,  arbitratedEcalSeeded);
       newCandidate.setQuality(reco::Conversion::arbitratedMerged,  arbitratedMerged);
       newCandidate.setQuality(reco::Conversion::arbitratedMergedEcalGeneral,  arbitratedMergedEcalGeneral);          

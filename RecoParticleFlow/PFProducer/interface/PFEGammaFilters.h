@@ -31,6 +31,8 @@ class PFEGammaFilters {
 		  float ele_iso_combIso_ee,
 		  float ele_noniso_mva,
 		  unsigned int ele_missinghits,
+		  float ele_ecalDrivenHademPreselCut,
+		  float ele_maxElePtForOnlyMVAPresel,
 		  const std::string& ele_iso_path_mvaWeightFile,
 		  const edm::ParameterSet& ele_protectionsForJetMET,
 		  const edm::ParameterSet& ele_protectionsForBadHcal
@@ -56,7 +58,7 @@ class PFEGammaFilters {
   
 
  private:
-
+  bool passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron &);
 
 
   // Photon selections
@@ -76,6 +78,8 @@ class PFEGammaFilters {
   float ele_iso_combIso_ee_;
   float ele_noniso_mva_;
   unsigned int ele_missinghits_;
+  float ele_ecalDrivenHademPreselCut_;
+  float ele_maxElePtForOnlyMVAPresel_;
   //std::vector<double> ele_protectionsForJetMET_; // replacement below
   float ele_maxNtracks, ele_maxHcalE, ele_maxTrackPOverEele, ele_maxE,
     ele_maxEleHcalEOverEcalE, ele_maxEcalEOverPRes, ele_maxEeleOverPoutRes,

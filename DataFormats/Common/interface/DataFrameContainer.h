@@ -186,8 +186,8 @@ namespace edm {
       return m_ids[cell];
     }
     
-    // IdContainer const & ids() const { return m_ids;}
-    // DataContainer const & data() const { return  m_data;}
+    IdContainer const & ids() const { return m_ids;}
+    DataContainer const & data() const { return  m_data;}
     
   private:
     //for testing

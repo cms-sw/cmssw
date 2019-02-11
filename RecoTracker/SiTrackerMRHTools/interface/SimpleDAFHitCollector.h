@@ -4,7 +4,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-#include "RecoTracker/SiTrackerMRHTools/interface//SiTrackerMultiRecHitUpdator.h"
+#include "RecoTracker/SiTrackerMRHTools/interface/SiTrackerMultiRecHitUpdator.h"
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 #include <vector>
 #include <memory>

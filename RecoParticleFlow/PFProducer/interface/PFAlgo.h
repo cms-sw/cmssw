@@ -122,6 +122,8 @@ class PFAlgo {
 			   double ele_iso_combIso_endcap,
 			   double ele_noniso_mva,
 			   unsigned int ele_missinghits,
+			   double ele_ecalDrivenHademPreselCut,
+			   double ele_maxElePtForOnlyMVAPresel,
 			   bool useProtectionsForJetMET,
 			   const edm::ParameterSet& ele_protectionsForJetMET,
 			   const edm::ParameterSet& ele_protectionsForBadHcal,
@@ -170,8 +172,7 @@ class PFAlgo {
 				      double dptRel_DispVtx);
   
   //MIKEB : Parameters for the vertices..
-  void setPFVertexParameters(bool useVertex,
-			     const reco::VertexCollection*  primaryVertices);			   
+  void setPFVertexParameters(bool useVertex, reco::VertexCollection const&  primaryVertices);
   
   // FlorianB : Collection of e/g electrons
   void setEGElectronCollection(const reco::GsfElectronCollection & egelectrons);

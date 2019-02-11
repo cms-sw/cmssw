@@ -183,7 +183,7 @@ void testEsproducer::getFromTest()
   for(int iTime=1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
-    const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
+    const auto&  eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
@@ -204,7 +204,7 @@ void testEsproducer::getfromShareTest()
   for(int iTime=1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
-    const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
+    const auto&  eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
@@ -225,7 +225,7 @@ void testEsproducer::getfromUniqueTest()
   for(int iTime=1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
-    const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
+    const auto&  eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
@@ -244,7 +244,7 @@ void testEsproducer::getfromOptionalTest()
   for(int iTime=1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
-    const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
+    const auto&  eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
@@ -266,7 +266,7 @@ void testEsproducer::labelTest()
     for(int iTime=1; iTime != 6; ++iTime) {
       const edm::Timestamp time(iTime);
       pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
-      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
+      const auto&  eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
       edm::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get("foo",pDummy);
       CPPUNIT_ASSERT(0 != pDummy.product());
@@ -326,7 +326,7 @@ void testEsproducer::decoratorTest()
   for(int iTime=1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
-    const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
+    const auto&  eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
     edm::ESHandle<DummyData> pDummy;
 
     CPPUNIT_ASSERT(iTime - 1 == TestDecorator::s_pre);
@@ -374,7 +374,7 @@ void testEsproducer::dependsOnTest()
   for(int iTime=1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
-    const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
+    const auto&  eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
     edm::ESHandle<DummyData> pDummy;
 
     eventSetup.get<DepRecord>().get(pDummy);
@@ -398,7 +398,7 @@ void testEsproducer::forceCacheClearTest()
 
   const edm::Timestamp time(1);
   pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
-  const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
+  const auto&  eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
   {
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);

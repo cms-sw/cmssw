@@ -2,7 +2,6 @@
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -32,8 +31,7 @@ AlignmentStats::AlignmentStats(const edm::ParameterSet &iConfig) :
   keepHitPopulation_(iConfig.getParameter<bool>("keepHitStats")),
   statsTreeName_(iConfig.getParameter<string>("TrkStatsFileName")),
   hitsTreeName_(iConfig.getParameter<string>("HitStatsFileName")),
-  prescale_(iConfig.getParameter<uint32_t>("TrkStatsPrescale")),
-  lastSetup_(nullptr)
+  prescale_(iConfig.getParameter<uint32_t>("TrkStatsPrescale"))
 {
 
   //sanity checks
@@ -75,7 +73,6 @@ void AlignmentStats::beginJob(){// const edm::EventSetup &iSetup
   */
 
   tmpPresc_=prescale_;
-  firstEvent_=true;
 
   //load the tracker geometry from the EventSetup
   //  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry_);
@@ -85,17 +82,15 @@ void AlignmentStats::beginJob(){// const edm::EventSetup &iSetup
 
 void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup){
 
-  lastSetup_ = &iSetup;
-
   //load list of detunits needed then in endJob
  
-  if(firstEvent_){
-    edm::ESHandle<TrackerGeometry> tmpTkGeometry;
-    iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometry);
-    trackerGeometry_=&(*tmpTkGeometry);
-    firstEvent_=false;
-  }
+  edm::ESHandle<TrackerGeometry> tmpTkGeometry;
+  iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometry);
+  trackerGeometry_=&(*tmpTkGeometry);
 
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  trackerTopology_ = tTopoHandle.product();
 
   //take trajectories and tracks to loop on
   // edm::Handle<TrajTrackAssociationCollection> TrackAssoMap;
@@ -145,9 +140,8 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     int nhit=0;
     //loop on tracking rechits
     //std::cout << "   loop on hits of track #" << (itt - tracks->begin()) << std::endl;
-    for (trackingRecHit_iterator ith = ittrk->recHitsBegin(), edh = ittrk->recHitsEnd(); ith != edh; ++ith) {
-
-      const TrackingRecHit *hit = *ith; // ith is an iterator on edm::Ref to rechit
+    for (auto const& hit : ittrk->recHits())
+    {
       if(! hit->isValid())continue;
       DetId detid = hit->geographicalId();
       int subDet = detid.subdetId();
@@ -308,12 +302,7 @@ void AlignmentStats::endJob(){
   hitstree->Branch("posPhi",  &posPhi,  "posPhi/F");
   */
 
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  lastSetup_->get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  AlignableTracker* theAliTracker=new AlignableTracker(&(*trackerGeometry_), tTopo);
+  std::unique_ptr<AlignableTracker> theAliTracker=std::make_unique<AlignableTracker>(&(*trackerGeometry_), trackerTopology_);
   const auto& Detunitslist = theAliTracker->deepComponents();
   int ndetunits=Detunitslist.size();
   edm::LogInfo("AlignmentStats")<<"Number of DetUnits in the AlignableTracker: "<< ndetunits<<std::endl;
@@ -373,39 +362,39 @@ void AlignmentStats::endJob(){
    //get layers, petals, etc...
    if(subdet==PixelSubdetector::PixelBarrel){//PXB
      
-     layer=tTopo->pxbLayer(id);
+     layer=trackerTopology_->pxbLayer(id);
      is2D=true;
      isStereo=false;
    }
    else if(subdet==PixelSubdetector::PixelEndcap){
      
-     layer=tTopo->pxfDisk(id);
+     layer=trackerTopology_->pxfDisk(id);
      is2D=true;
      isStereo=false;
    }
    else if(subdet==SiStripDetId::TIB){
      
-     layer=tTopo->tibLayer(id);
-     is2D=tTopo->tibIsDoubleSide(id);
-     isStereo=tTopo->tibIsStereo(id);
+     layer=trackerTopology_->tibLayer(id);
+     is2D=trackerTopology_->tibIsDoubleSide(id);
+     isStereo=trackerTopology_->tibIsStereo(id);
    }
    else if(subdet==SiStripDetId::TID){
      
-     layer=tTopo->tidWheel(id);
-     is2D=tTopo->tidIsDoubleSide(id);
-     isStereo=tTopo->tidIsStereo(id);
+     layer=trackerTopology_->tidWheel(id);
+     is2D=trackerTopology_->tidIsDoubleSide(id);
+     isStereo=trackerTopology_->tidIsStereo(id);
    }
    else if(subdet==SiStripDetId::TOB){
      
-     layer=tTopo->tobLayer(id);
-     is2D=tTopo->tobIsDoubleSide(id);
-     isStereo=tTopo->tobIsStereo(id);
+     layer=trackerTopology_->tobLayer(id);
+     is2D=trackerTopology_->tobIsDoubleSide(id);
+     isStereo=trackerTopology_->tobIsStereo(id);
    }
    else if(subdet==SiStripDetId::TEC){
      
-     layer=tTopo->tecWheel(id);
-     is2D=tTopo->tecIsDoubleSide(id);
-     isStereo=tTopo->tecIsStereo(id);
+     layer=trackerTopology_->tecWheel(id);
+     is2D=trackerTopology_->tecIsDoubleSide(id);
+     isStereo=trackerTopology_->tecIsStereo(id);
    }
    else{
      edm::LogError("AlignmentStats")<<"Detector not belonging neither to pixels nor to strips! Skipping it. SubDet= "<<subdet;

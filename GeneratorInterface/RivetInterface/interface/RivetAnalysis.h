@@ -94,10 +94,10 @@ namespace Rivet {
         // photons from hadrons are vetoed by the PromptFinalState;
         // will be default DressedLeptons behaviour for Rivet >= 2.5.4
         DressedLeptons dressed_leptons(prompt_photons, prompt_leptons, _lepConeSize, 
-                       lepton_cut, /*cluster*/ true, /*useDecayPhotons*/ true);
+                       lepton_cut, /*useDecayPhotons*/ true);
         if (not _usePromptFinalStates)
           dressed_leptons = DressedLeptons(photons, charged_leptons, _lepConeSize, 
-                            lepton_cut, /*cluster*/ true, /*useDecayPhotons*/ true);
+                            lepton_cut, /*useDecayPhotons*/ true);
         addProjection(dressed_leptons, "DressedLeptons");
         
         // Photons
@@ -161,6 +161,8 @@ namespace Rivet {
 
       // Do nothing here
       void finalize() override {};
+
+      std::string status() const override { return "VALIDATED"; }
 
   };
 

@@ -65,6 +65,7 @@ namespace reco {
     edm::EDGetTokenT<TrajGsfTrackAssociationCollection> gsfTrajectories;
     bool useTrajectory;
     bool setTrackerOnly;
+    bool setIsGsfTrackOpen;
     bool setArbitratedEcalSeeded;
     bool setArbitratedMerged;
     bool setArbitratedMergedEcalGeneral;

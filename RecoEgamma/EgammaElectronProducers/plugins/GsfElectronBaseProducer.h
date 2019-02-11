@@ -59,8 +59,6 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
     const GsfElectronAlgo::CutsConfiguration cutsCfgPflow_ ;
     ElectronHcalHelper::Configuration hcalCfg_ ;
     ElectronHcalHelper::Configuration hcalCfgPflow_ ;
-    SoftElectronMVAEstimator::Configuration mva_NIso_Cfg_ ;
-    ElectronMVAEstimator::Configuration mva_Iso_Cfg_ ;
   private :
 
     // check expected configuration of previous modules

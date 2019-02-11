@@ -153,11 +153,15 @@ namespace edm {
     int eventCount ;
   public:
     RecordEventID(std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T& eventOperator)
-      : ids_(ids), eventOperator_(eventOperator), eventCount(0) {
+      : ids_(ids), eventOperator_(eventOperator), eventCount(1) {
     }
-    void operator()(EventPrincipal const& eventPrincipal, size_t fileNameHash) {
-      ids_.emplace_back(eventPrincipal.id(), fileNameHash);
-      eventOperator_(eventPrincipal, ++eventCount);
+    bool operator()(EventPrincipal const& eventPrincipal, size_t fileNameHash) {
+      bool used = eventOperator_(eventPrincipal, eventCount);
+      if(used) {
+        ++eventCount;
+        ids_.emplace_back(eventPrincipal.id(), fileNameHash);
+      }
+      return used;
     }
   };
 

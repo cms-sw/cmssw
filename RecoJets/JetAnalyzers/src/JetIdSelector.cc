@@ -156,38 +156,38 @@ template<typename T>
 void JetIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
   auto selectedJets = std::make_unique<JetCollection>();
-  edm::Handle<reco::JetView> jets;  // uncorrected jets!
-  iEvent.getByLabel(src_,jets);
+  edm::Handle<reco::JetView> hjets;  // uncorrected jets!
+  iEvent.getByLabel(src_,hjets);
+  auto const& jets = *hjets;
 
-
- // handle to the jet ID variables
+ // handle to the jet ID variables, filled in the loop
    edm::Handle<reco::JetIDValueMap> hJetIDMap;
-
-   if(typeid((*jets)[0]) == typeid(reco::CaloJet)) 
-     iEvent.getByLabel( jetIDMap_, hJetIDMap );
-
    unsigned int idx=0;
    bool passed = false;
 
-   for ( edm::View<reco::Jet>::const_iterator ibegin = jets->begin(),
-           iend = jets->end(), iJet = ibegin;
+   for ( edm::View<reco::Jet>::const_iterator ibegin = jets.begin(),
+           iend = jets.end(), iJet = ibegin;
          iJet != iend; ++iJet ) {
 
      // initialize the boolean flag to false
      passed = false;
 
      //calculate the Calo jetID
-     const std::type_info & type = typeid((*jets)[idx]);
+     auto const& jet = *iJet;
+     const std::type_info & type = typeid(jet);
      if( type == typeid(reco::CaloJet) ) {
-       const reco::CaloJet calojet = static_cast<const reco::CaloJet &>((*jets)[idx]);
-       edm::RefToBase<reco::Jet> jetRef = jets->refAt(idx);
+       const reco::CaloJet& calojet = static_cast<const reco::CaloJet &>(jet);
+       edm::RefToBase<reco::Jet> jetRef = jets.refAt(idx);
+       if(not hJetIDMap.isValid()) {
+         iEvent.getByLabel( jetIDMap_, hJetIDMap );
+       }
        reco::JetID const & jetId = (*hJetIDMap)[ jetRef ];
        passed = (*jetIDFunctor)( calojet, jetId);
      }
 
      //calculate the PF jetID
      if ( type == typeid(reco::PFJet) ) {
-       const reco::PFJet pfjet = static_cast<const reco::PFJet &>((*jets)[idx]);
+       const reco::PFJet& pfjet = static_cast<const reco::PFJet &>(jet);
        bool passingLoose=false;
        bool passingMedium=false;
        bool passingTight=false;
@@ -231,7 +231,7 @@ void JetIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
      } // close GenJet, JPT jet
 
  
-     const T& goodJet = static_cast<const T&>((*jets)[idx]);
+     const T& goodJet = static_cast<const T&>(jet);
      if(passed) selectedJets->push_back( goodJet );
 
      idx++;
@@ -239,7 +239,7 @@ void JetIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 
 
 
-  nJetsTot_  +=jets->size();
+  nJetsTot_  +=jets.size();
   nJetsPassed_+=selectedJets->size();  
   iEvent.put(std::move(selectedJets));
 }

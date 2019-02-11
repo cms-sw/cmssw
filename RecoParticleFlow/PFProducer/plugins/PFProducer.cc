@@ -19,23 +19,17 @@ using namespace std;
 using namespace edm;
 
 
-PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
-  
+PFProducer::PFProducer(const edm::ParameterSet& iConfig)
+{
   //--ab: get calibration factors for HF:
-  bool calibHF_use;
-  std::vector<double>  calibHF_eta_step;
-  std::vector<double>  calibHF_a_EMonly;
-  std::vector<double>  calibHF_b_HADonly;
-  std::vector<double>  calibHF_a_EMHAD;
-  std::vector<double>  calibHF_b_EMHAD;
-  calibHF_use =     iConfig.getParameter<bool>("calibHF_use");
-  calibHF_eta_step  = iConfig.getParameter<std::vector<double> >("calibHF_eta_step");
-  calibHF_a_EMonly  = iConfig.getParameter<std::vector<double> >("calibHF_a_EMonly");
-  calibHF_b_HADonly = iConfig.getParameter<std::vector<double> >("calibHF_b_HADonly");
-  calibHF_a_EMHAD   = iConfig.getParameter<std::vector<double> >("calibHF_a_EMHAD");
-  calibHF_b_EMHAD   = iConfig.getParameter<std::vector<double> >("calibHF_b_EMHAD");
-  std::shared_ptr<PFEnergyCalibrationHF>  
-    thepfEnergyCalibrationHF ( new PFEnergyCalibrationHF(calibHF_use,calibHF_eta_step,calibHF_a_EMonly,calibHF_b_HADonly,calibHF_a_EMHAD,calibHF_b_EMHAD) ) ;
+  auto thepfEnergyCalibrationHF = std::make_shared<PFEnergyCalibrationHF>(
+      iConfig.getParameter<bool>("calibHF_use"),
+      iConfig.getParameter<std::vector<double> >("calibHF_eta_step"),
+      iConfig.getParameter<std::vector<double> >("calibHF_a_EMonly"),
+      iConfig.getParameter<std::vector<double> >("calibHF_b_HADonly"),
+      iConfig.getParameter<std::vector<double> >("calibHF_a_EMHAD"),
+      iConfig.getParameter<std::vector<double> >("calibHF_b_EMHAD")
+  );
   //-----------------
 
   inputTagBlocks_ = consumes<reco::PFBlockCollection>(iConfig.getParameter<InputTag>("blocks"));
@@ -200,6 +194,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     ele_iso_combIso_barrel(0.0), ele_iso_combIso_endcap(0.0), 
     ele_noniso_mva(0.0);
   unsigned int ele_missinghits(0);
+  double ele_ecalDrivenHademPreselCut(0.0);
+  double ele_maxElePtForOnlyMVAPresel(0.0);
   double ph_MinEt(0.0), ph_combIso(0.0), ph_HoE(0.0), 
     ph_sietaieta_eb(0.0),ph_sietaieta_ee(0.0);
   string ele_iso_mvaWeightFile(""), ele_iso_path_mvaWeightFile("");
@@ -218,6 +214,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
    ele_iso_combIso_endcap = iConfig.getParameter<double>("electron_iso_combIso_endcap");
    ele_noniso_mva = iConfig.getParameter<double>("electron_noniso_mvaCut");
    ele_missinghits = iConfig.getParameter<unsigned int>("electron_missinghits"); 
+   ele_ecalDrivenHademPreselCut = iConfig.getParameter<double>("electron_ecalDrivenHademPreselCut");
+   ele_maxElePtForOnlyMVAPresel = iConfig.getParameter<double>("electron_maxElePtForOnlyMVAPresel");
    ph_MinEt  = iConfig.getParameter<double>("photon_MinEt");
    ph_combIso  = iConfig.getParameter<double>("photon_combIso");
    ph_HoE = iConfig.getParameter<double>("photon_HoE");
@@ -326,6 +324,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 				ele_iso_combIso_endcap,
 				ele_noniso_mva,
 				ele_missinghits,
+				ele_ecalDrivenHademPreselCut,
+				ele_maxElePtForOnlyMVAPresel,
 				useProtectionsForJetMET,
 				ele_protectionsForJetMET,
 				ele_protectionsForBadHcal,
@@ -491,74 +491,28 @@ PFProducer::beginRun(const edm::Run & run,
 
 
 void 
-PFProducer::produce(Event& iEvent, 
-		    const EventSetup& iSetup) {
-  
-  LogDebug("PFProducer")<<"START event: "
-			<<iEvent.id().event()
-			<<" in run "<<iEvent.id().run()<<endl;
-  
-
-  // Get The vertices from the event
-  // and assign dynamic vertex parameters
-  edm::Handle<reco::VertexCollection> vertices;
-  bool gotVertices = iEvent.getByToken(vertices_,vertices);
-  if(!gotVertices) {
-    ostringstream err;
-    err<<"Cannot find vertices for this event.Continuing Without them ";
-    LogError("PFProducer")<<err.str()<<endl;
-  }
+PFProducer::produce(Event& iEvent, const EventSetup& iSetup)
+{
+  LogDebug("PFProducer")<<"START event: " <<iEvent.id().event() <<" in run "<<iEvent.id().run()<<endl;
 
   //Assign the PFAlgo Parameters
-  pfAlgo_->setPFVertexParameters(useVerticesForNeutral_,vertices.product());
+  pfAlgo_->setPFVertexParameters(useVerticesForNeutral_, iEvent.get(vertices_));
 
   // get the collection of blocks 
-
-  Handle< reco::PFBlockCollection > blocks;
-
-  iEvent.getByToken( inputTagBlocks_, blocks );  
+  auto blocks = iEvent.getHandle( inputTagBlocks_);
+  assert( blocks.isValid() );
 
   // get the collection of muons 
+  if ( postMuonCleaning_ ) pfAlgo_->setMuonHandle( iEvent.getHandle(inputTagMuons_) );
 
-  Handle< reco::MuonCollection > muons;
+  if (useEGammaElectrons_) pfAlgo_->setEGElectronCollection( iEvent.get(inputTagEgammaElectrons_) );
 
-  if ( postMuonCleaning_ ) {
-
-    iEvent.getByToken( inputTagMuons_, muons );  
-    pfAlgo_->setMuonHandle(muons);
-  }
-
-  if (useEGammaElectrons_) {
-    Handle < reco::GsfElectronCollection > egelectrons;
-    iEvent.getByToken( inputTagEgammaElectrons_, egelectrons );  
-    pfAlgo_->setEGElectronCollection(*egelectrons);
-  }
-
-  if(use_EGammaFilters_) {
-
-    // Read PFEGammaCandidates
-
-    edm::Handle<edm::View<reco::PFCandidate> > pfEgammaCandidates;
-    iEvent.getByToken(inputTagPFEGammaCandidates_,pfEgammaCandidates);
-
-    // Get the value maps
-    
-    edm::Handle<edm::ValueMap<reco::GsfElectronRef> > valueMapGedElectrons;
-    iEvent.getByToken(inputTagValueMapGedElectrons_,valueMapGedElectrons);
-
-    edm::Handle<edm::ValueMap<reco::PhotonRef> > valueMapGedPhotons;
-    iEvent.getByToken(inputTagValueMapGedPhotons_,valueMapGedPhotons);
-
-    pfAlgo_->setEGammaCollections(*pfEgammaCandidates,
-    				  *valueMapGedElectrons,
-    				  *valueMapGedPhotons);
-
-  }
+  if(use_EGammaFilters_) pfAlgo_->setEGammaCollections( iEvent.get(inputTagPFEGammaCandidates_),
+                                                        iEvent.get(inputTagValueMapGedElectrons_),
+                                                        iEvent.get(inputTagValueMapGedPhotons_));
 
 
   LogDebug("PFProducer")<<"particle flow is starting"<<endl;
-
-  assert( blocks.isValid() );
 
   pfAlgo_->reconstructParticles( blocks );
   
@@ -664,4 +618,3 @@ PFProducer::produce(Event& iEvent,
 
     }
 }
-

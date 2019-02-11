@@ -19,6 +19,8 @@ class CSCMotherboardLUTME11
   ~CSCMotherboardLUTME11() {}
   bool doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c,
                          int theEndcap, bool gangedME1a = false) const;
+  bool doesWiregroupCrossStrip(int wg, int keystrip, int theEndcap, bool gangedME1a = false) const;
+
  private:
   // LUT for which ME1/1 wire group can cross which ME1/a halfstrip
   // 1st index: WG number

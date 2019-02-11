@@ -3,7 +3,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 struct ChamberLocationSpec;
-class FebLocationSpec;
+struct FebLocationSpec;
 
 class DBSpecToDetUnit {
 public:

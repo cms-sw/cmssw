@@ -36,11 +36,11 @@
 // forward declarations
 namespace edm {
    class IOVSyncValue;
-   class EventSetup;
+   class EventSetupImpl;
    namespace eventsetup {
       class EventSetupRecordKey;
       void no_record_exception_message_builder(cms::Exception&,const char*, bool iKnownRecord);
-     bool recordDoesExist( edm::EventSetup const& , edm::eventsetup::EventSetupRecordKey const&);
+     bool recordDoesExist( edm::EventSetupImpl const& , edm::eventsetup::EventSetupRecordKey const&);
 
 //NOTE: when EDM gets own exception hierarchy, will need to change inheritance
 template <class T>

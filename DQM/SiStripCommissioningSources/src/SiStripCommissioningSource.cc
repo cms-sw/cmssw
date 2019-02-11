@@ -310,6 +310,13 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 
   // Create commissioning task objects 
   if ( !tasksExist_ ) { createTask( summary.product(), setup ); }
+  else {
+    for(auto& v: tasks_) {
+      for(auto& t: v) {
+        t->eventSetup(&setup);
+      }
+    }
+  }
 
   // Retrieve raw digis with mode appropriate to task 
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
@@ -368,7 +375,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   }
 
   // Check for NULL pointer to digi container
-  if (raw.product() == nullptr ) {
+  if ( not raw.isValid() ) {
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]" << std::endl
        << " NULL pointer to DetSetVector!" << std::endl
@@ -377,7 +384,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
     return;
   }
 
-  if(isSpy_ and !inputModuleLabelAlt_.empty() and rawAlt.product() == nullptr){
+  if(isSpy_ and not inputModuleLabelAlt_.empty() and not rawAlt.isValid()){
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]" << std::endl
        << " NULL pointer to DetSetVector!" << std::endl
@@ -386,7 +393,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
     return;
   }
 
-  if(isSpy_ and !inputClusterLabel_.empty() and cluster.product() == nullptr){
+  if(isSpy_ and not inputClusterLabel_.empty() and not cluster.isValid()){
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]" << std::endl
        << " NULL pointer to DetSetVector!" << std::endl

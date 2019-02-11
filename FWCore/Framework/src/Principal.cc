@@ -606,11 +606,15 @@ namespace edm {
     auto resolution = productResolver->resolveProduct(*this, skipCurrentProcess, sra, mcc);
     if(resolution.isAmbiguous()) {
       ambiguous = true;
-      return BasicHandle();
+      //The caller is looking explicitly for this case
+      // and uses the extra data at the caller to setup the exception
+      return BasicHandle::makeInvalid();
     }
     auto productData = resolution.data();
     if(productData == nullptr) {
-      return BasicHandle();
+      //The caller is looking explicitly for this case
+      // and uses the extra data at the caller to setup the exception
+      return BasicHandle::makeInvalid();
     }
     return BasicHandle(productData->wrapper(), &(productData->provenance()));
   }

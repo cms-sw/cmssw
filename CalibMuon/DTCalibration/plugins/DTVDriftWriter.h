@@ -37,7 +37,7 @@ private:
   const DTMtime* mTimeMap_;
   edm::ESHandle<DTGeometry> dtGeom_;
 
-  dtCalibration::DTVDriftBaseAlgo* vDriftAlgo_; 
+  std::unique_ptr<dtCalibration::DTVDriftBaseAlgo> vDriftAlgo_;
 };
 #endif
 

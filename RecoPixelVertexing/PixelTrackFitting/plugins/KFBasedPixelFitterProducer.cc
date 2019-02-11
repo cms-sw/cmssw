@@ -83,8 +83,7 @@ void KFBasedPixelFitterProducer::produce(edm::StreamID, edm::Event& iEvent, cons
     beamspot = hbs.product();
   }
 
-  auto impl = std::make_unique<KFBasedPixelFitter>(&iSetup,
-                                                   propagator.product(),
+  auto impl = std::make_unique<KFBasedPixelFitter>(propagator.product(),
                                                    opropagator.product(),
                                                    ttrhb.product(),
                                                    tracker.product(),
