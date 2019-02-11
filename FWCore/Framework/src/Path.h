@@ -31,7 +31,7 @@
 
 namespace edm {
   class EventPrincipal;
-  class EventSetup;
+  class EventSetupImpl;
   class ModuleDescription;
   class PathStatusInserter;
   class RunPrincipal;
@@ -63,12 +63,12 @@ namespace edm {
     template <typename T>
     void runAllModulesAsync(WaitingTask*,
                             typename T::MyPrincipal const&,
-                            EventSetup  const&,
+                            EventSetupImpl  const&,
                             ServiceToken const&,
                             StreamID const&,
                             typename T::Context const*);
 
-    void processOneOccurrenceAsync(WaitingTask*, EventPrincipal const&, EventSetup const&,
+    void processOneOccurrenceAsync(WaitingTask*, EventPrincipal const&, EventSetupImpl const&,
                                    ServiceToken const&, StreamID const&, StreamContext const*);
     
     int bitPosition() const { return bitpos_; }
@@ -145,7 +145,7 @@ namespace edm {
     void finished(int iModuleIndex, bool iSucceeded, std::exception_ptr,
                   StreamContext const*,
                   EventPrincipal const& iEP,
-                  EventSetup const& iES,
+                  EventSetupImpl const& iES,
                   StreamID const& streamID);
 
     void handleEarlyFinish(EventPrincipal const&);
@@ -155,11 +155,11 @@ namespace edm {
     //Handle asynchronous processing
     void workerFinished(std::exception_ptr const* iException,
                         unsigned int iModuleIndex,
-                        EventPrincipal const& iEP, EventSetup const& iES,
+                        EventPrincipal const& iEP, EventSetupImpl const& iES,
                         ServiceToken const& iToken,
                         StreamID const& iID, StreamContext const* iContext);
     void runNextWorkerAsync(unsigned int iNextModuleIndex,
-                            EventPrincipal const&, EventSetup const&,
+                            EventPrincipal const&, EventSetupImpl const&,
                             ServiceToken const&,
                             StreamID const&, StreamContext const*);
 
@@ -191,7 +191,7 @@ namespace edm {
   template <typename T>
   void Path::runAllModulesAsync(WaitingTask* task,
                                 typename T::MyPrincipal const& p,
-                                EventSetup  const& es,
+                                EventSetupImpl  const& es,
                                 ServiceToken const& token,
                                 StreamID const& streamID,
                                 typename T::Context const* context) {

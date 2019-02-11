@@ -40,28 +40,31 @@
 using namespace edm;
 using namespace std;
 
-DTLocalTriggerSynchTask::DTLocalTriggerSynchTask(const edm::ParameterSet& ps) : nevents(0) {
+DTLocalTriggerSynchTask::DTLocalTriggerSynchTask(const edm::ParameterSet& ps) : nevents(0),
+  tTrigSync{DTTTrigSyncFactory::get()->create(ps.getParameter<std::string>("tTrigMode"),
+                                              ps.getParameter<edm::ParameterSet>("tTrigModeConfig"))}
+{
+
 
   edm::LogVerbatim ("DTLocalTriggerSynchTask")  << "[DTLocalTriggerSynchTask]: Constructor" << endl;
-  parameters = ps;
   tm_Token_  = consumes<L1MuDTChambPhContainer>(
-      parameters.getParameter<edm::InputTag>("TMInputTag"));
+      ps.getParameter<edm::InputTag>("TMInputTag"));
   seg_Token_  = consumes<DTRecSegment4DCollection>(
-      parameters.getParameter<edm::InputTag>("SEGInputTag"));
+      ps.getParameter<edm::InputTag>("SEGInputTag"));
 
-  processDDU = parameters.getUntrackedParameter<bool>("processDDU",false);
+  processDDU = ps.getUntrackedParameter<bool>("processDDU",false);
 
   if (processDDU)
     ddu_Token_  = consumes<DTLocalTriggerCollection>(
-         parameters.getParameter<edm::InputTag>("DDUInputTag"));
+         ps.getParameter<edm::InputTag>("DDUInputTag"));
 
-  bxTime        = parameters.getParameter<double>("bxTimeInterval");   // CB move this to static const or DB
-  rangeInBX     = parameters.getParameter<bool>("rangeWithinBX");
-  nBXLow        = parameters.getParameter<int>("nBXLow");
-  nBXHigh       = parameters.getParameter<int>("nBXHigh");
-  angleRange    = parameters.getParameter<double>("angleRange");
-  minHitsPhi    = parameters.getParameter<int>("minHitsPhi");
-  baseDirectory = parameters.getParameter<string>("baseDir");
+  bxTime        = ps.getParameter<double>("bxTimeInterval");   // CB move this to static const or DB
+  rangeInBX     = ps.getParameter<bool>("rangeWithinBX");
+  nBXLow        = ps.getParameter<int>("nBXLow");
+  nBXHigh       = ps.getParameter<int>("nBXHigh");
+  angleRange    = ps.getParameter<double>("angleRange");
+  minHitsPhi    = ps.getParameter<int>("minHitsPhi");
+  baseDirectory = ps.getParameter<string>("baseDir");
 }
 
 
@@ -78,8 +81,6 @@ void DTLocalTriggerSynchTask::bookHistograms(DQMStore::IBooker & ibooker, edm::R
   ibooker.setCurrentFolder(baseDir());
   ibooker.bookFloat("BXTimeSpacing")->Fill(bxTime);
 
-  tTrigSync = DTTTrigSyncFactory::get()->create(parameters.getParameter<std::string>("tTrigMode"),
-						parameters.getParameter<edm::ParameterSet>("tTrigModeConfig"));
   tTrigSync->setES(context);
 
 

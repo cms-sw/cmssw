@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -33,6 +34,8 @@ class SiPixelGainCalibrationServiceBase {
 
   SiPixelGainCalibrationServiceBase(){};
   virtual ~SiPixelGainCalibrationServiceBase(){};
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {}
   
   // default inplementation from PixelThresholdClusterizer 
   virtual void calibrate(uint32_t detID, DigiIterator b, DigiIterator e, float conversionFactor, float offset, int * electron);

@@ -58,7 +58,6 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
     usererrorlist = config_.getParameter<std::vector<int> > ("UserErrorList");
   }
   tFEDRawDataCollection = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("InputLabel"));
-  theBadPixelFEDChannelsLabel = consumes<PixelFEDChannelCollection>(config_.getParameter<edm::InputTag>("BadPixelFEDChannelsInputLabel"));
   
   //start counters
   ndigis = 0;
@@ -153,7 +152,6 @@ SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<bool>("UsePhase1",false)->setComment("##  Use phase1");
   desc.add<std::string>("CablingMapLabel","")->setComment("CablingMap label"); //Tav
   desc.addOptional<bool>("CheckPixelOrder");  // never used, kept for back-compatibility
-  desc.add<edm::InputTag>("BadPixelFEDChannelsInputLabel",edm::InputTag("mix"));  
   descriptions.add("siPixelRawToDigi",desc);
   
 }
@@ -317,29 +315,12 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     hDigi->Fill(formatter.nDigis());
   }
   
-
-  //------------------------------------
-  //send digis and errors back to framework 
-
-  edm::Handle<PixelFEDChannelCollection> pixelFEDChannelCollectionHandle;
-  std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_ = nullptr;  
-  if (ev.getByToken(theBadPixelFEDChannelsLabel, pixelFEDChannelCollectionHandle)){
-    
-    const PixelFEDChannelCollection * pfcc= pixelFEDChannelCollectionHandle.product();
-    PixelFEDChannelCollection_ = std::make_unique<PixelFEDChannelCollection>(*pfcc);
-  }
-  
   ev.put(std::move(collection));
   if(includeErrors){
     ev.put(std::move(errorcollection));
     ev.put(std::move(tkerror_detidcollection));
     ev.put(std::move(usererror_detidcollection), "UserErrorModules");      
-    if (PixelFEDChannelCollection_  == nullptr){
-      ev.put(std::move(disabled_channelcollection));
-    }
-    else{
-      ev.put(std::move(PixelFEDChannelCollection_));
-    }
+    ev.put(std::move(disabled_channelcollection));
   }
 }
 // declare this as a framework plugin

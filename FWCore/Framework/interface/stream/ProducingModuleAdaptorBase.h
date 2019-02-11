@@ -151,36 +151,36 @@ namespace edm {
       void doEndStream(StreamID id);
       void doStreamBeginRun(StreamID id,
                             RunPrincipal const& ep,
-                            EventSetup const& c,
+                            EventSetupImpl const&  c,
                             ModuleCallingContext const*);
       virtual void setupRun(T*, RunIndex) = 0;
       void doStreamEndRun(StreamID id,
                           RunPrincipal const& ep,
-                          EventSetup const& c,
+                          EventSetupImpl const&  c,
                           ModuleCallingContext const*);
       virtual void streamEndRunSummary(T*,edm::Run const&, edm::EventSetup const&) = 0;
 
       void doStreamBeginLuminosityBlock(StreamID id,
                                         LuminosityBlockPrincipal const& ep,
-                                        EventSetup const& c,
+                                        EventSetupImpl const&  c,
                                         ModuleCallingContext const*);
       virtual void setupLuminosityBlock(T*, LuminosityBlockIndex) = 0;
       void doStreamEndLuminosityBlock(StreamID id,
                                       LuminosityBlockPrincipal const& ep,
-                                      EventSetup const& c,
+                                      EventSetupImpl const&  c,
                                       ModuleCallingContext const*);
       virtual void streamEndLuminosityBlockSummary(T*,edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
       
       
-      virtual void doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+      virtual void doBeginRun(RunPrincipal const& rp, EventSetupImpl const&  c,
                               ModuleCallingContext const*)=0;
-      virtual void doEndRun(RunPrincipal const& rp, EventSetup const& c,
+      virtual void doEndRun(RunPrincipal const& rp, EventSetupImpl const&  c,
                             ModuleCallingContext const*)=0;
       virtual void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                          EventSetup const& c,
+                                          EventSetupImpl const&  c,
                                           ModuleCallingContext const*)=0;
       virtual void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                        EventSetup const& c,
+                                        EventSetupImpl const&  c,
                                         ModuleCallingContext const*)=0;
       
       //For now, the following are just dummy implemenations with no ability for users to override

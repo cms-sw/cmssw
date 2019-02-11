@@ -12,6 +12,13 @@ namespace cms {
   using DDVectorsMap = tbb::concurrent_unordered_map< std::string, tbb::concurrent_vector<double>>;
   
   struct DDSpecPar {
+    std::vector<std::string_view> tails(const std::vector<std::string_view>&) const;
+    std::vector<std::string_view> split(std::string_view, const char*) const;
+    std::vector<std::string_view> vPathsTo(unsigned int) const;
+    std::string_view realTopName(std::string_view input) const;
+    std::string_view strValue(const char*) const;
+    double dblValue(const char*) const;
+    
     DDPaths paths;
     DDPartSelectionMap spars;
     DDVectorsMap numpars;
