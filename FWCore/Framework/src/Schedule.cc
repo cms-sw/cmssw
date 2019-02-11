@@ -648,7 +648,6 @@ namespace edm {
 
     // At this point all BranchDescriptions are created. Mark now the
     // ones of unscheduled workers to be on-demand.
-    // TODO: what to do for alias branches???
     if(nUnscheduledModules > 0) {
       std::vector<std::string> unscheduledModules(modulesToUse.begin(), modulesToUse.begin()+nUnscheduledModules);
       std::sort(unscheduledModules.begin(), unscheduledModules.end());
