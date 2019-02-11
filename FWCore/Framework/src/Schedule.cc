@@ -229,11 +229,11 @@ namespace edm {
       }
     }
 
-    bool
+    void
     processEDAliases(ParameterSet const& proc_pset, std::string const& processName, ProductRegistry& preg) {
       std::vector<std::string> aliases = proc_pset.getParameter<std::vector<std::string> >("@all_aliases");
       if(aliases.empty()) {
-        return false;
+        return;
       }
       std::string const star("*");
       std::string const empty("");
@@ -295,8 +295,6 @@ namespace edm {
         assert(it != preg.productList().end());
         preg.addLabelAlias(it->second, aliasEntry.second.moduleLabel(), aliasEntry.second.productInstanceName());
       }
-
-      return true;
     }
 
     typedef std::vector<std::string> vstring;
@@ -644,35 +642,13 @@ namespace edm {
     std::map<std::string, std::vector<std::pair<std::string, int> > > outputModulePathPositions;
     reduceParameterSet(proc_pset, tns.getEndPaths(), modulesInConfig, usedModuleLabels,
                        outputModulePathPositions);
-    const bool hasAliases = processEDAliases(proc_pset, processConfiguration->processName(), preg);
+    processEDAliases(proc_pset, processConfiguration->processName(), preg);
 
     // At this point all BranchDescriptions are created. Mark now the
     // ones of unscheduled workers to be on-demand.
     if(nUnscheduledModules > 0) {
-      std::vector<std::string> unscheduledModules(modulesToUse.begin(), modulesToUse.begin()+nUnscheduledModules);
-      std::sort(unscheduledModules.begin(), unscheduledModules.end());
-      std::vector<BranchID> onDemandIDs;
-      for(auto& prod: preg.productListUpdator()) {
-        if(prod.second.produced() &&
-           prod.second.branchType() == InEvent &&
-           std::binary_search(unscheduledModules.begin(), unscheduledModules.end(), prod.second.moduleLabel())) {
-          prod.second.setOnDemand(true);
-          if(hasAliases) {
-            onDemandIDs.push_back(prod.second.branchID());
-          }
-        }
-      }
-      // Need to loop over EDAliases to set their on-demand flag based on the pointed-to branch
-      if(hasAliases) {
-        std::sort(onDemandIDs.begin(), onDemandIDs.end());
-        for(auto& prod: preg.productListUpdator()) {
-          if(prod.second.isAlias()) {
-            if(std::binary_search(onDemandIDs.begin(), onDemandIDs.end(), prod.second.aliasForBranchID())) {
-              prod.second.setOnDemand(true);
-            }
-          }
-        }
-      }
+      std::set<std::string> unscheduledModules(modulesToUse.begin(), modulesToUse.begin()+nUnscheduledModules);
+      preg.setUnscheduledProducts(unscheduledModules);
     }
 
     processSwitchProducers(proc_pset, processConfiguration->processName(), preg);
