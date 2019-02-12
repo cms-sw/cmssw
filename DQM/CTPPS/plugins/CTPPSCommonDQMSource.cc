@@ -20,6 +20,7 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/ProtonReco/interface/ForwardProton.h"
 #include "DataFormats/OnlineMetaData/interface/CTPPSRecord.h"
 
 #include <string>
@@ -29,25 +30,30 @@
 class CTPPSCommonDQMSource: public one::DQMEDAnalyzer<edm::LuminosityBlockCache<std::vector<int>>>
 {
   public:
-
     CTPPSCommonDQMSource(const edm::ParameterSet& ps);
-
     ~CTPPSCommonDQMSource() override;
 
   protected:
-
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
     std::shared_ptr<std::vector<int>> globalBeginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) const override;
     void globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) override;
+
+    void analyzeCTPPSRecord(edm::Event const& event, edm::EventSetup const& eventSetup);
 
   private:
     const unsigned int verbosity;
     constexpr static int MAX_LUMIS = 6000;
     constexpr static int MAX_VBINS = 18;
 
-    const edm::EDGetTokenT< std::vector<CTPPSLocalTrackLite> > tokenLocalTrackLite;
     const edm::EDGetTokenT<CTPPSRecord> ctppsRecordToken;
+    const edm::EDGetTokenT< std::vector<CTPPSLocalTrackLite> > tokenLocalTrackLite;
+    const edm::EDGetTokenT<std::vector<reco::ForwardProton>> tokenRecoProtons;
+
+    int currentLS;
+    int endLS;
+
+    std::vector<int> rpstate;
 
     /// plots related to the whole system
     struct GlobalPlots
@@ -68,6 +74,22 @@ class CTPPSCommonDQMSource: public one::DQMEDAnalyzer<edm::LuminosityBlockCache<
 
       MonitorElement *h_numRPWithTrack_top=nullptr, *h_numRPWithTrack_hor=nullptr, *h_numRPWithTrack_bot=nullptr;
       MonitorElement *h_trackCorr=nullptr, *h_trackCorr_overlap=nullptr;
+
+      MonitorElement *h_proton_xi=nullptr, *h_proton_t=nullptr, *h_proton_time=nullptr;
+
+      struct TrackingRPPlots
+      {
+        MonitorElement *h_x, *h_y;
+      };
+
+      std::map<unsigned int, TrackingRPPlots> trackingRPPlots;
+
+      struct TimingRPPlots
+      {
+        MonitorElement *h_x, *h_time;
+      };
+
+      std::map<unsigned int, TimingRPPlots> timingRPPlots;
 
       ArmPlots(){}
 
@@ -95,6 +117,13 @@ void CTPPSCommonDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker)
   events_per_bx = ibooker.book1D("events per BX", "rp;Event.BX", 4002, -1.5, 4000. + 0.5);
   events_per_bx_short = ibooker.book1D("events per BX (short)", "rp;Event.BX", 102, -1.5, 100. + 0.5);
 
+  /*
+     RP State (HV & LV & Insertion):
+     0 -> not used
+     1 -> bad
+     2 -> warning
+     3 -> ok
+  */
   RPState = ibooker.book2D("rpstate per LS","RP State per Lumisection;Luminosity Section;",MAX_LUMIS, 0, MAX_LUMIS, MAX_VBINS, 0., MAX_VBINS);
   {
     TH2F* hist = RPState->getTH2F();
@@ -183,6 +212,40 @@ CTPPSCommonDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id) : 
   xa->SetBinLabel( 5, "220, far, hor"); ya->SetBinLabel( 5, "220, far, hor");
   xa->SetBinLabel( 6, "220, far, top"); ya->SetBinLabel( 6, "220, far, top");
   xa->SetBinLabel( 7, "220, far, bot"); ya->SetBinLabel( 7, "220, far, bot");
+
+  h_proton_xi = ibooker.book1D("proton xi", title+";xi", 100, 0., 0.3);
+  h_proton_t = ibooker.book1D("proton t", title+";|t|   GeV^{2}", 100, 0., 5.);
+  h_proton_time = ibooker.book1D("proton time", title+";time   (ns)", 100, -25., 50.);
+
+  for (const unsigned int &rpDecId : { 2, 3, 23 })
+  {
+    unsigned int st = rpDecId / 10, rp = rpDecId % 10, rpFullDecId = id * 100 + rpDecId;
+    CTPPSDetId rpId(CTPPSDetId::sdTrackingStrip, id, st, rp);
+    string stName, rpName;
+    rpId.stationName(stName, CTPPSDetId::nShort);
+    rpId.rpName(rpName, CTPPSDetId::nShort);
+    rpName = stName + "_" + rpName;
+
+    trackingRPPlots[rpFullDecId] = {
+      ibooker.book1D(rpName + " - track x histogram", title+"/"+rpName+";track x   (mm)", 200, 0., 40.),
+      ibooker.book1D(rpName + " - track y histogram", title+"/"+rpName+";track y   (mm)", 200, -20., +20.)
+    };
+  }
+
+  for (const unsigned int &rpDecId : { 22 })
+  {
+    unsigned int st = rpDecId / 10, rp = rpDecId % 10, rpFullDecId = id * 100 + rpDecId;
+    CTPPSDetId rpId(CTPPSDetId::sdTrackingStrip, id, st, rp);
+    string stName, rpName;
+    rpId.stationName(stName, CTPPSDetId::nShort);
+    rpId.rpName(rpName, CTPPSDetId::nShort);
+    rpName = stName + "_" + rpName;
+
+    timingRPPlots[rpFullDecId] = {
+      ibooker.book1D(rpName + " - track x histogram", title+"/"+rpName+";track x   (mm)", 200, 0., 40.),
+      ibooker.book1D(rpName + " - track time histogram", title+"/"+rpName+";track time   (ns)", 100, -25., +50.)
+    };
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -190,10 +253,13 @@ CTPPSCommonDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id) : 
 
 CTPPSCommonDQMSource::CTPPSCommonDQMSource(const edm::ParameterSet& ps) :
   verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
-  tokenLocalTrackLite{consumes< vector<CTPPSLocalTrackLite> >(ps.getParameter<edm::InputTag>("tagLocalTrackLite"))},
-  ctppsRecordToken {consumes<CTPPSRecord>(ps.getUntrackedParameter<edm::InputTag>("ctppsmetadata"))}
+  ctppsRecordToken(consumes<CTPPSRecord>(ps.getUntrackedParameter<edm::InputTag>("ctppsmetadata"))),
+  tokenLocalTrackLite(consumes< vector<CTPPSLocalTrackLite> >(ps.getParameter<edm::InputTag>("tagLocalTrackLite"))),
+  tokenRecoProtons(consumes<std::vector<reco::ForwardProton>>(ps.getParameter<InputTag>("tagRecoProtons")))
 {
-
+  currentLS = 0;
+  endLS = 0;
+  rpstate.clear();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -218,63 +284,49 @@ void CTPPSCommonDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run c
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
+void CTPPSCommonDQMSource::analyzeCTPPSRecord(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
+  Handle<CTPPSRecord> hCTPPSRecord;
+  event.getByToken(ctppsRecordToken, hCTPPSRecord);
 
-  // get CTPPS Event Record
-  Handle<CTPPSRecord> rp;
-  event.getByToken(ctppsRecordToken, rp);
-
-  /*
-     RP State (HV & LV & Insertion):
-     0 -> not used
-     1 -> bad
-     2 -> warning
-     3 -> ok
-
-     CTPPSRecord Order:
-     RP name: RP_45_210_FR_BT
-     RP name: RP_45_210_FR_HR
-     RP name: RP_45_210_FR_TP
-     RP name: RP_45_220_C1
-     RP name: RP_45_220_FR_BT
-     RP name: RP_45_220_FR_HR
-     RP name: RP_45_220_FR_TP
-     RP name: RP_45_220_NR_BT
-     RP name: RP_45_220_NR_TP
-     RP name: RP_56_210_FR_BT
-     RP name: RP_56_210_FR_HR
-     RP name: RP_56_210_FR_TP
-     RP name: RP_56_220_C1
-     RP name: RP_56_220_FR_BT
-     RP name: RP_56_220_FR_HR
-     RP name: RP_56_220_FR_TP
-     RP name: RP_56_220_NR_BT
-     RP name: RP_56_220_NR_TP
-     */
+  if (!hCTPPSRecord.isValid())
+    return;
 
   auto& rpstate = *luminosityBlockCache(event.getLuminosityBlock().index());
-  if(rpstate.empty()){
+  if (rpstate.empty())
+  {
     rpstate.reserve(CTPPSRecord::RomanPot::Last);
-    for (uint8_t i = 0; i < CTPPSRecord::RomanPot::Last; ++i) {
-      rpstate.push_back(rp->status(i));
-    }
+    for (uint8_t i = 0; i < CTPPSRecord::RomanPot::Last; ++i)
+      rpstate.push_back(hCTPPSRecord->status(i));
   }  
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
+{
+  analyzeCTPPSRecord(event, eventSetup);
 
   // get event data
-  Handle< vector<CTPPSLocalTrackLite> > tracks;
-  event.getByToken(tokenLocalTrackLite, tracks);
+  Handle< vector<CTPPSLocalTrackLite> > hTracks;
+  event.getByToken(tokenLocalTrackLite, hTracks);
+
+  Handle<vector<reco::ForwardProton>> hRecoProtons;
+  event.getByToken(tokenRecoProtons, hRecoProtons);
 
   // check validity
   bool valid = true;
-  valid &= tracks.isValid();
+  valid &= hTracks.isValid();
+  valid &= hRecoProtons.isValid();
 
   if (!valid)
   {
     if (verbosity)
     {
       LogProblem("CTPPSCommonDQMSource")
-	<< "    trackLites.isValid = " << tracks.isValid();
+        << "ERROR in CTPPSCommonDQMSource::analyze > some of the required inputs are not valid. Skipping this event.\n"
+        << "    hTracks.isValid = " << hTracks.isValid() << "\n"
+        << "    hRecoProtons.isValid = " << hRecoProtons.isValid();
     }
 
     return;
@@ -285,7 +337,7 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
   set<signed int> s_rp_idx_global_hor, s_rp_idx_global_vert;
   map<unsigned int, set<signed int>> ms_rp_idx_arm;
 
-  for (auto &tr : *tracks)
+  for (auto &tr : *hTracks)
   {
     const CTPPSDetId rpId(tr.getRPId());
     const unsigned int arm = rpId.arm();
@@ -300,7 +352,7 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
       if (stRPNum == 16) idx = 2;
 
       if (idx >= 0)
-	s_rp_idx_global_hor.insert(3*arm + idx);
+        s_rp_idx_global_hor.insert(3*arm + idx);
     }
 
     {
@@ -311,7 +363,7 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
       if (stRPNum == 25) idx = 3;
 
       if (idx >= 0)
-	s_rp_idx_global_vert.insert(4*arm + idx);
+        s_rp_idx_global_vert.insert(4*arm + idx);
     }
 
     {
@@ -327,7 +379,7 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
       const signed int hor = ((rpNum == 2) || (rpNum == 3) || (rpNum == 6)) ? 1 : 0;
 
       if (idx >= 0)
-	ms_rp_idx_arm[arm].insert(idx * 10 + hor);
+        ms_rp_idx_arm[arm].insert(idx * 10 + hor);
     }
   }
 
@@ -350,7 +402,7 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
 
   map<unsigned int, set<unsigned int>> mTop, mHor, mBot;
 
-  for (auto &tr : *tracks)
+  for (auto &tr : *hTracks)
   {
     CTPPSDetId rpId(tr.getRPId());
     const unsigned int rpNum = rpId.rp();
@@ -362,6 +414,49 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
       mHor[armIdx].insert(rpId);
     if (rpNum == 1 || rpNum == 5)
       mBot[armIdx].insert(rpId);
+
+    auto &ap = armPlots[rpId.arm()];
+    unsigned int rpDecId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
+
+    // fill in reference tracking-RP plots
+    {
+      auto it = ap.trackingRPPlots.find(rpDecId);
+      if (it != ap.trackingRPPlots.end())
+      {
+        it->second.h_x->Fill(tr.getX());
+        it->second.h_y->Fill(tr.getY());
+      }
+    }
+
+    // fill in reference timing-RP plots
+    {
+      auto it = ap.timingRPPlots.find(rpDecId);
+      if (it != ap.timingRPPlots.end())
+      {
+        it->second.h_x->Fill(tr.getX());
+        it->second.h_time->Fill(tr.getTime());
+      }
+    }
+  }
+
+  for (auto &p : *hRecoProtons)
+  {
+    if (!p.validFit())
+      continue;
+
+    signed int armIndex = -1;
+    if (p.lhcSector() == reco::ForwardProton::LHCSector::sector45)
+      armIndex = 0;
+    if (p.lhcSector() == reco::ForwardProton::LHCSector::sector56)
+      armIndex = 1;
+    if (armIndex < 0)
+      continue;
+
+    auto &plots = armPlots[armIndex];
+
+    plots.h_proton_xi->Fill(p.xi());
+    plots.h_proton_t->Fill(fabs(p.t()));
+    plots.h_proton_time->Fill(p.time());
   }
 
   for (auto &p : armPlots)
@@ -380,10 +475,10 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
     {
       for (const auto &idx2 : ap.second)
       {
-	plots.h_trackCorr->Fill(idx1/10, idx2/10);
+        plots.h_trackCorr->Fill(idx1/10, idx2/10);
 
-	if ((idx1 % 10) != (idx2 % 10))
-	  plots.h_trackCorr_overlap->Fill(idx1/10, idx2/10);
+        if ((idx1 % 10) != (idx2 % 10))
+          plots.h_trackCorr_overlap->Fill(idx1/10, idx2/10);
       }
     }
   }
@@ -391,20 +486,21 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
 }
 //----------------------------------------------------------------------------------------------------
 
-std::shared_ptr<std::vector<int>> CTPPSCommonDQMSource::globalBeginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& ) const {
+std::shared_ptr<std::vector<int>> CTPPSCommonDQMSource::globalBeginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& ) const
+{
   return std::make_shared<std::vector<int>>();
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSCommonDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) {
-
+void CTPPSCommonDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c)
+{
   auto const& rpstate = *luminosityBlockCache(iLumi.index());
   auto currentLS = iLumi.id().luminosityBlock();
-  for(std::vector<int>::size_type i=0; i<rpstate.size();i++){
+  for(std::vector<int>::size_type i=0; i<rpstate.size();i++)
     globalPlots.RPState->setBinContent(currentLS, i+1, rpstate[i]);
-  }
 }
+
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(CTPPSCommonDQMSource);
