@@ -57,7 +57,7 @@ simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
 simEcalTriggerPrimitiveDigis.Label = 'unpackEcal'
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
-simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag[
+simHcalTriggerPrimitiveDigis.inputLabel = [
     'unpackHcal',
     'unpackHcal'
 ]

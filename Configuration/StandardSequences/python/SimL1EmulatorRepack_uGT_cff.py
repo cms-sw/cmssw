@@ -43,7 +43,7 @@ import EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi
 rawDataCollector = EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi.rawDataCollector.clone(
     verbose = 0,
     RawCollectionList = [
-        'packGtStage2'.
+        'packGtStage2',
         cms.InputTag('rawDataCollector', processName=cms.InputTag.skipCurrentProcess()),
         ]
     )
