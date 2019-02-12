@@ -84,6 +84,9 @@ class L1TowerCalibrator : public edm::EDProducer {
         double puThresholdHGCalHadMax;
         double puThresholdHFMin;
         double puThresholdHFMax;
+        double barrelSF;
+        double hgcalSF;
+        double hfSF;
         bool debug;
         bool skipCalibrations;
 
@@ -129,6 +132,9 @@ L1TowerCalibrator::L1TowerCalibrator(const edm::ParameterSet& iConfig) :
     puThresholdHGCalHadMax(iConfig.getParameter<double>("puThresholdHGCalHadMax")),
     puThresholdHFMin(iConfig.getParameter<double>("puThresholdHFMin")),
     puThresholdHFMax(iConfig.getParameter<double>("puThresholdHFMax")),
+    barrelSF(iConfig.getParameter<double>("barrelSF")),
+    hgcalSF(iConfig.getParameter<double>("hgcalSF")),
+    hfSF(iConfig.getParameter<double>("hfSF")),
     debug(iConfig.getParameter<bool>("debug")),
     skipCalibrations(iConfig.getParameter<bool>("skipCalibrations")),
     l1TowerToken_(consumes< L1CaloTowerCollection >(iConfig.getParameter<edm::InputTag>("l1CaloTowers"))),
@@ -423,27 +429,27 @@ void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             {
                 if( abs(l1CaloTower.tower_iEta) <= 3 )
                 { 
-                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "ecal" ][ "er1to3" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "ecal" ][ "er1to3" ].Eval( *EstimatedNvtx ) * barrelSF;
                 }
                 if( abs(l1CaloTower.tower_iEta) <= 6 && abs(l1CaloTower.tower_iEta) >= 4 )
                 { 
-                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "ecal" ][ "er4to6" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "ecal" ][ "er4to6" ].Eval( *EstimatedNvtx ) * barrelSF;
                 }
                 if( abs(l1CaloTower.tower_iEta) <= 9 && abs(l1CaloTower.tower_iEta) >= 7 )
                 { 
-                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "ecal" ][ "er7to9" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "ecal" ][ "er7to9" ].Eval( *EstimatedNvtx ) * barrelSF;
                 }
                 if( abs(l1CaloTower.tower_iEta) <= 12 && abs(l1CaloTower.tower_iEta) >= 10 )
                 { 
-                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "ecal" ][ "er10to12" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "ecal" ][ "er10to12" ].Eval( *EstimatedNvtx ) * barrelSF;
                 }
                 if( abs(l1CaloTower.tower_iEta) <= 15 && abs(l1CaloTower.tower_iEta) >= 13 )
                 { 
-                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "ecal" ][ "er13to15" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "ecal" ][ "er13to15" ].Eval( *EstimatedNvtx ) * barrelSF;
                 }
                 if( abs(l1CaloTower.tower_iEta) <= 18 && abs(l1CaloTower.tower_iEta) >= 16 )
                 { 
-                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "ecal" ][ "er16to18" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "ecal" ][ "er16to18" ].Eval( *EstimatedNvtx ) * barrelSF;
                 }
             }
 
@@ -453,23 +459,23 @@ void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             {
                 if( abs(l1CaloTower.tower_eta) <= 1.8 )
                 { 
-                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalEM" ][ "er1p4to1p8" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalEM" ][ "er1p4to1p8" ].Eval( *EstimatedNvtx ) * hgcalSF;
                 }
                 if( abs(l1CaloTower.tower_eta) <= 2.1 && abs(l1CaloTower.tower_eta) > 1.8 )
                 { 
-                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalEM" ][ "er1p8to2p1" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalEM" ][ "er1p8to2p1" ].Eval( *EstimatedNvtx ) * hgcalSF;
                 }
                 if( abs(l1CaloTower.tower_eta) <= 2.4 && abs(l1CaloTower.tower_eta) > 2.1 )
                 { 
-                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalEM" ][ "er2p1to2p4" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalEM" ][ "er2p1to2p4" ].Eval( *EstimatedNvtx ) * hgcalSF;
                 }
                 if( abs(l1CaloTower.tower_eta) <= 2.7 && abs(l1CaloTower.tower_eta) > 2.4 )
                 { 
-                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalEM" ][ "er2p4to2p7" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalEM" ][ "er2p4to2p7" ].Eval( *EstimatedNvtx ) * hgcalSF;
                 }
                 if( abs(l1CaloTower.tower_eta) <= 3.1 && abs(l1CaloTower.tower_eta) > 2.7 )
                 { 
-                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalEM" ][ "er2p7to3p1" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.ecal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalEM" ][ "er2p7to3p1" ].Eval( *EstimatedNvtx ) * hgcalSF;
                 }
             }
 
@@ -478,27 +484,27 @@ void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             {
                 if( abs(l1CaloTower.tower_iEta) <= 3 )
                 { 
-                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hcal" ][ "er1to3" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hcal" ][ "er1to3" ].Eval( *EstimatedNvtx ) * barrelSF;
                 }
                 if( abs(l1CaloTower.tower_iEta) <= 6 && abs(l1CaloTower.tower_iEta) >= 4 )
                 { 
-                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hcal" ][ "er4to6" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hcal" ][ "er4to6" ].Eval( *EstimatedNvtx ) * barrelSF;
                 }
                 if( abs(l1CaloTower.tower_iEta) <= 9 && abs(l1CaloTower.tower_iEta) >= 7 )
                 { 
-                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hcal" ][ "er7to9" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hcal" ][ "er7to9" ].Eval( *EstimatedNvtx ) * barrelSF;
                 }
                 if( abs(l1CaloTower.tower_iEta) <= 12 && abs(l1CaloTower.tower_iEta) >= 10 )
                 { 
-                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hcal" ][ "er10to12" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hcal" ][ "er10to12" ].Eval( *EstimatedNvtx ) * barrelSF;
                 }
                 if( abs(l1CaloTower.tower_iEta) <= 15 && abs(l1CaloTower.tower_iEta) >= 13 )
                 { 
-                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hcal" ][ "er13to15" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hcal" ][ "er13to15" ].Eval( *EstimatedNvtx ) * barrelSF;
                 }
                 if( abs(l1CaloTower.tower_iEta) <= 18 && abs(l1CaloTower.tower_iEta) >= 16 )
                 { 
-                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hcal" ][ "er16to18" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hcal" ][ "er16to18" ].Eval( *EstimatedNvtx ) * barrelSF;
                 }
             }
 
@@ -507,23 +513,23 @@ void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             {
                 if( abs(l1CaloTower.tower_eta) <= 1.8 )
                 { 
-                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalHad" ][ "er1p4to1p8" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalHad" ][ "er1p4to1p8" ].Eval( *EstimatedNvtx ) * hgcalSF;
                 }
                 if( abs(l1CaloTower.tower_eta) <= 2.1 && abs(l1CaloTower.tower_eta) > 1.8 )
                 { 
-                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalHad" ][ "er1p8to2p1" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalHad" ][ "er1p8to2p1" ].Eval( *EstimatedNvtx ) * hgcalSF;
                 }
                 if( abs(l1CaloTower.tower_eta) <= 2.4 && abs(l1CaloTower.tower_eta) > 2.1 )
                 { 
-                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalHad" ][ "er2p1to2p4" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalHad" ][ "er2p1to2p4" ].Eval( *EstimatedNvtx ) * hgcalSF;
                 }
                 if( abs(l1CaloTower.tower_eta) <= 2.7 && abs(l1CaloTower.tower_eta) > 2.4 )
                 { 
-                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalHad" ][ "er2p4to2p7" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalHad" ][ "er2p4to2p7" ].Eval( *EstimatedNvtx ) * hgcalSF;
                 }
                 if( abs(l1CaloTower.tower_eta) <= 3.1 && abs(l1CaloTower.tower_eta) > 2.7 )
                 { 
-                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalHad" ][ "er2p7to3p1" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hgcalHad" ][ "er2p7to3p1" ].Eval( *EstimatedNvtx ) * hgcalSF;
                 }
             }
 
@@ -532,15 +538,15 @@ void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             {
                 if( abs(l1CaloTower.tower_iEta) <= 33 && abs(l1CaloTower.tower_iEta) >= 29 )
                 { 
-                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hf" ][ "er29to33" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hf" ][ "er29to33" ].Eval( *EstimatedNvtx ) * hfSF;
                 }
                 if( abs(l1CaloTower.tower_iEta) <= 37 && abs(l1CaloTower.tower_iEta) >= 34 )
                 { 
-                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hf" ][ "er34to37" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hf" ][ "er34to37" ].Eval( *EstimatedNvtx ) * hfSF;
                 }
                 if( abs(l1CaloTower.tower_iEta) <= 41 && abs(l1CaloTower.tower_iEta) >= 38 )
                 { 
-                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hf" ][ "er38to41" ].Eval( *EstimatedNvtx );
+                    l1CaloTower.hcal_tower_et -= all_nvtx_to_PU_sub_funcs[ "hf" ][ "er38to41" ].Eval( *EstimatedNvtx ) * hfSF;
                 }
             }
 
