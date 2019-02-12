@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 # load reconstruction sequences
 process.load("RecoCTPPS.Configuration.recoCTPPS_sequences_cff")
 process.ctppsLocalTrackLiteProducer.includeDiamonds = False
-process.ctppsLocalTrackLiteProducer.includePixels = False 
+process.ctppsLocalTrackLiteProducer.includePixels = False
 
 process.ctppsProtons.verbosity = 0
 
@@ -45,7 +45,7 @@ process.ctppsProtonReconstructionValidator = cms.EDAnalyzer("CTPPSProtonReconstr
 
     chiSqCut = cms.double(2.),
 
-    outputFile = cms.string("test_recontruction_validation.root")
+    outputFile = cms.string("test_reconstruction_validation.root")
 )
 
 # reconstruction plotter
