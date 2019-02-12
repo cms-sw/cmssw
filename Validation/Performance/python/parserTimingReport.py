@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from __future__ import absolute_import
 import sys
 import math
 import re
-from cmssw_exportdb_xml import *
-from FileNamesHelper import *
+from .cmssw_exportdb_xml import *
+from .FileNamesHelper import *
 
 """
 Performance profiling:

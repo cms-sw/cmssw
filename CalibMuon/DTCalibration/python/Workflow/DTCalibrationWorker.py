@@ -1,10 +1,11 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import sys,os,time
 import subprocess
-from tools import loadCmsProcess
-from DTWorkflow import DTWorkflow
-from DTTtrigWorkflow import DTttrigWorkflow
-from DTVdriftWorkflow import DTvdriftWorkflow
+from .tools import loadCmsProcess
+from .DTWorkflow import DTWorkflow
+from .DTTtrigWorkflow import DTttrigWorkflow
+from .DTVdriftWorkflow import DTvdriftWorkflow
 import logging
 # setup logging
 log = logging.getLogger(__name__)

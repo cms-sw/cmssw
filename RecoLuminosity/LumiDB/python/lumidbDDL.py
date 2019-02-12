@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import coral
 from RecoLuminosity.LumiDB import nameDealer,dbUtil
 #=======================================================
@@ -486,7 +487,7 @@ def describe(schema):
     pass
 
 if __name__ == "__main__":
-    import sessionManager
+    from . import sessionManager
     myconstr='oracle://devdb10/cms_xiezhen_dev'
     authpath='/afs/cern.ch/user/x/xiezhen'
     #myconstr='sqlite_file:test.db'

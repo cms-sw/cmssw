@@ -1,4 +1,5 @@
-from dataset import * 
+from __future__ import absolute_import
+from .dataset import * 
 
 import unittest 
 import os 

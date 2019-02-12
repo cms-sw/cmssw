@@ -1,10 +1,11 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import ConfigParser
 import os
 import re
 import copy
 import collections
-from TkAlExceptions import AllInOneError
+from .TkAlExceptions import AllInOneError
 
 
 class AdaptedDict(collections.OrderedDict):
