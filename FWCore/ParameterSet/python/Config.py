@@ -2,24 +2,25 @@
 
 ### command line options helper
 from __future__ import print_function
+from __future__ import absolute_import
 import six
-from  Options import Options
+from  .Options import Options
 options = Options()
 
 
 ## imports
 import sys
-from Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase, _modifyParametersFromDict
-from Mixins import *
-from Types import *
-from Modules import *
-from Modules import _Module
-from SequenceTypes import *
-from SequenceTypes import _ModuleSequenceType, _Sequenceable  #extend needs it
-from SequenceVisitors import PathValidator, EndPathValidator, ScheduleTaskValidator, NodeVisitor, CompositeVisitor, ModuleNamesFromGlobalsVisitor
-import DictTypes
+from .Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase, _modifyParametersFromDict
+from .Mixins import *
+from .Types import *
+from .Modules import *
+from .Modules import _Module
+from .SequenceTypes import *
+from .SequenceTypes import _ModuleSequenceType, _Sequenceable  #extend needs it
+from .SequenceVisitors import PathValidator, EndPathValidator, ScheduleTaskValidator, NodeVisitor, CompositeVisitor, ModuleNamesFromGlobalsVisitor
+from . import DictTypes
 
-from ExceptionHandling import *
+from .ExceptionHandling import *
 
 #when building RECO paths we have hit the default recursion limit
 if sys.getrecursionlimit()<5000:

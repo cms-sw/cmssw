@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 
 import SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi 
@@ -8,7 +9,7 @@ from Validation.RecoTrack.trajectorySeedTracks_cfi import trajectorySeedTracks a
 from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
 from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
-import cutsRecoTracks_cfi
+from . import cutsRecoTracks_cfi
 
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import *

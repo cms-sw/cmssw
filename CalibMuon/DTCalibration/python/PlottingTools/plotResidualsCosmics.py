@@ -1,7 +1,8 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import ROOT
-from fitResidual import fitResidual
-from drawHistoAllChambers import drawHisto
+from .fitResidual import fitResidual
+from .drawHistoAllChambers import drawHisto
 
 def plot(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',option="HISTOPE1",draw=True):
 
