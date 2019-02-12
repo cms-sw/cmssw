@@ -69,7 +69,7 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
 
   for (unsigned int i = 0; i < theDepositNames.size(); ++i){
     std::string alias = par.getParameter<std::string>("@module_label");
-    if (theDepositNames[i] != "") alias += "_" + theDepositNames[i];
+    if (!theDepositNames[i].empty()) alias += "_" + theDepositNames[i];
     produces<reco::IsoDepositMap>(theDepositNames[i]).setBranchAlias(alias);
   }
 
