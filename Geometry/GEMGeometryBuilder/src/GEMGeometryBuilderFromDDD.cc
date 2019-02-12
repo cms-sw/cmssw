@@ -104,7 +104,6 @@ GEMGeometryBuilderFromDDD::build( GEMGeometry& theGeometry,
     if (!loopExecuted) delete gemChamber;
   }
   
-  auto& superChambers(theGeometry.superChambers());
   // construct the regions, stations and rings.
   for (int re = -1; re <= 1; re = re+2) {
     GEMRegion* region = new GEMRegion(re);
