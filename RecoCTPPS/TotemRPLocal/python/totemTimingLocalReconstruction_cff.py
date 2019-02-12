@@ -10,4 +10,3 @@ totemTimingLocalReconstruction = cms.Sequence(
     totemTimingRecHits *
     totemTimingLocalTracks
 )
-
