@@ -16,6 +16,7 @@
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 #include "DataFormats/ProtonReco/interface/ForwardProton.h"
+#include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
 
 #include "TFile.h"
 #include "TGraphErrors.h"
@@ -36,9 +37,9 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
 
     void endJob() override;
 
-    edm::EDGetTokenT<std::vector<CTPPSLocalTrackLite>> tokenTracks_;
-    edm::EDGetTokenT<std::vector<reco::ForwardProton>> tokenRecoProtonsSingleRP_;
-    edm::EDGetTokenT<std::vector<reco::ForwardProton>> tokenRecoProtonsMultiRP_;
+    edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tokenTracks_;
+    edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsSingleRP_;
+    edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsMultiRP_;
 
     unsigned int rpId_45_N_, rpId_45_F_;
     unsigned int rpId_56_N_, rpId_56_F_;
@@ -70,26 +71,19 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
 
     struct SingleRPPlots
     {
-      TH1D *h_xi = nullptr;
+      std::unique_ptr<TH1D> h_xi;
+      std::unique_ptr<TH2D> h2_th_y_vs_xi;
+      std::unique_ptr<TProfile> p_th_y_vs_xi;
 
-      TH2D *h2_th_y_vs_xi = nullptr;
-      TProfile *p_th_y_vs_xi = nullptr;
-
-      void init()
-      {
-        h_xi = new TH1D("", ";#xi", 100, 0., 0.25);
-
-        h2_th_y_vs_xi = new TH2D("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.25, 100, -500E-6, +500E-6);
-        p_th_y_vs_xi = new TProfile("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.25);
-      }
+      SingleRPPlots() :
+        h_xi(new TH1D("", ";#xi", 100, 0., 0.25)),
+        h2_th_y_vs_xi(new TH2D("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.25, 100, -500E-6, +500E-6)),
+        p_th_y_vs_xi(new TProfile("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.25))
+      {}
 
       void fill(const reco::ForwardProton &p)
       {
-        if (!h_xi)
-          init();
-
-        if (p.validFit())
-        {
+        if (p.validFit()) {
           h_xi->Fill(p.xi());
 
           const double th_y = p.thetaY();
@@ -111,88 +105,71 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
 
     struct MultiRPPlots
     {
-      TH1D *h_xi=nullptr, *h_th_x=nullptr, *h_th_y=nullptr, *h_vtx_y=nullptr, *h_t=nullptr, *h_chi_sq=nullptr, *h_chi_sq_norm=nullptr;
-      TH1D *h_t_xi_range1=nullptr, *h_t_xi_range2=nullptr, *h_t_xi_range3=nullptr;
-      TH2D *h2_th_x_vs_xi = nullptr, *h2_th_y_vs_xi = nullptr, *h2_vtx_y_vs_xi = nullptr, *h2_t_vs_xi;
-      TProfile *p_th_x_vs_xi = nullptr, *p_th_y_vs_xi = nullptr, *p_vtx_y_vs_xi = nullptr;
+      std::unique_ptr<TH1D> h_xi, h_th_x, h_th_y, h_vtx_y, h_t, h_chi_sq, h_chi_sq_norm;
+      std::unique_ptr<TH1D> h_t_xi_range1, h_t_xi_range2, h_t_xi_range3;
+      std::unique_ptr<TH2D> h2_th_x_vs_xi, h2_th_y_vs_xi, h2_vtx_y_vs_xi, h2_t_vs_xi;
+      std::unique_ptr<TProfile> p_th_x_vs_xi, p_th_y_vs_xi, p_vtx_y_vs_xi;
 
-      void init()
+      MultiRPPlots() :
+        h_xi(new TH1D("", ";#xi", 100, 0., 0.25)),
+        h_th_x(new TH1D("", ";#theta_{x}   (rad)", 100, -500E-6, +500E-6)),
+        h_th_y(new TH1D("", ";#theta_{y}   (rad)", 100, -500E-6, +500E-6)),
+        h_vtx_y(new TH1D("", ";vtx_{y}   (cm)", 100, -2., +2.)),
+        h_chi_sq(new TH1D("", ";#chi^{2}", 100, 0., 0.)),
+        h_chi_sq_norm(new TH1D("", ";#chi^{2}/ndf", 100, 0., 5.)),
+        h2_th_x_vs_xi(new TH2D("", ";#xi;#theta_{x}   (rad)", 100, 0., 0.25, 100, -500E-6, +500E-6)),
+        h2_th_y_vs_xi(new TH2D("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.25, 100, -500E-6, +500E-6)),
+        h2_vtx_y_vs_xi(new TH2D("", ";#xi;vtx_{y}   (cm)", 100, 0., 0.25, 100, -500E-3, +500E-3)),
+        p_th_x_vs_xi(new TProfile("", ";#xi;#theta_{x}   (rad)", 100, 0., 0.25)),
+        p_th_y_vs_xi(new TProfile("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.25)),
+        p_vtx_y_vs_xi(new TProfile("", ";#xi;vtx_{y}   (cm)", 100, 0., 0.25))
       {
         std::vector<double> v_t_bin_edges;
-        for (double t = 0; t <= 5.; )
-        {
+        for (double t = 0; t <= 5.; ) {
           v_t_bin_edges.push_back(t);
           const double de_t = 0.05 + 0.09 * t + 0.02 * t*t;
           t += de_t;
         }
-
-        double *t_bin_edges = new double[v_t_bin_edges.size()];
-        for (unsigned int i = 0; i < v_t_bin_edges.size(); ++i)
-          t_bin_edges[i] = v_t_bin_edges[i];
-
-        h_chi_sq = new TH1D("", ";#chi^{2}", 100, 0., 0.);
-        h_chi_sq_norm = new TH1D("", ";#chi^{2}/ndf", 100, 0., 5.);
-
-        h_xi = new TH1D("", ";#xi", 100, 0., 0.25);
-
-        h_th_x = new TH1D("", ";#theta_{x}   (rad)", 100, -500E-6, +500E-6);
-        h_th_y = new TH1D("", ";#theta_{y}   (rad)", 100, -500E-6, +500E-6);
-
-        h_vtx_y = new TH1D("", ";vtx_{y}   (cm)", 100, -2., +2.);
-
-        h_t = new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, t_bin_edges);
-        h_t_xi_range1 = new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, t_bin_edges);
-        h_t_xi_range2 = new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, t_bin_edges);
-        h_t_xi_range3 = new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, t_bin_edges);
-
-        h2_th_x_vs_xi = new TH2D("", ";#xi;#theta_{x}   (rad)", 100, 0., 0.25, 100, -500E-6, +500E-6);
-        h2_th_y_vs_xi = new TH2D("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.25, 100, -500E-6, +500E-6);
-        h2_vtx_y_vs_xi = new TH2D("", ";#xi;vtx_{y}   (cm)", 100, 0., 0.25, 100, -500E-3, +500E-3);
-        h2_t_vs_xi = new TH2D("", ";#xi;|t|   (GeV^2)", 100, 0., 0.25, v_t_bin_edges.size() - 1, t_bin_edges);
-
-        p_th_x_vs_xi = new TProfile("", ";#xi;#theta_{x}   (rad)", 100, 0., 0.25);
-        p_th_y_vs_xi = new TProfile("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.25);
-        p_vtx_y_vs_xi = new TProfile("", ";#xi;vtx_{y}   (cm)", 100, 0., 0.25);
-
-        delete[] t_bin_edges;
+        h_t.reset(new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
+        h_t_xi_range1.reset(new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
+        h_t_xi_range2.reset(new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
+        h_t_xi_range3.reset(new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
+        h2_t_vs_xi.reset(new TH2D("", ";#xi;|t|   (GeV^2)", 100, 0., 0.25, v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
       }
 
       void fill(const reco::ForwardProton &p)
       {
-        if (!h_xi)
-          init();
+        if (!p.validFit())
+          return;
 
-        if (p.validFit())
-        {
-          const double th_x = p.thetaX();
-          const double th_y = p.thetaY();
-          const double mt = - p.t();
+        const double th_x = p.thetaX();
+        const double th_y = p.thetaY();
+        const double mt = - p.t();
 
-          h_chi_sq->Fill(p.chi2());
-          if (p.ndof() > 0)
-            h_chi_sq_norm->Fill(p.normalizedChi2());
+        h_chi_sq->Fill(p.chi2());
+        if (p.ndof() > 0)
+          h_chi_sq_norm->Fill(p.normalizedChi2());
 
-          h_xi->Fill(p.xi());
+        h_xi->Fill(p.xi());
 
-          h_th_x->Fill(th_x);
-          h_th_y->Fill(th_y);
+        h_th_x->Fill(th_x);
+        h_th_y->Fill(th_y);
 
-          h_vtx_y->Fill(p.vertex().y());
+        h_vtx_y->Fill(p.vertex().y());
 
-          h_t->Fill(mt);
-          if (p.xi() > 0.04 && p.xi() < 0.07) h_t_xi_range1->Fill(mt);
-          if (p.xi() > 0.07 && p.xi() < 0.10) h_t_xi_range2->Fill(mt);
-          if (p.xi() > 0.10 && p.xi() < 0.13) h_t_xi_range3->Fill(mt);
+        h_t->Fill(mt);
+        if (p.xi() > 0.04 && p.xi() < 0.07) h_t_xi_range1->Fill(mt);
+        if (p.xi() > 0.07 && p.xi() < 0.10) h_t_xi_range2->Fill(mt);
+        if (p.xi() > 0.10 && p.xi() < 0.13) h_t_xi_range3->Fill(mt);
 
-          h2_th_x_vs_xi->Fill(p.xi(), th_x);
-          h2_th_y_vs_xi->Fill(p.xi(), th_y);
-          h2_vtx_y_vs_xi->Fill(p.xi(), p.vertex().y());
-          h2_t_vs_xi->Fill(p.xi(), mt);
+        h2_th_x_vs_xi->Fill(p.xi(), th_x);
+        h2_th_y_vs_xi->Fill(p.xi(), th_y);
+        h2_vtx_y_vs_xi->Fill(p.xi(), p.vertex().y());
+        h2_t_vs_xi->Fill(p.xi(), mt);
 
-          p_th_x_vs_xi->Fill(p.xi(), th_x);
-          p_th_y_vs_xi->Fill(p.xi(), th_y);
-          p_vtx_y_vs_xi->Fill(p.xi(), p.vertex().y());
-        }
+        p_th_x_vs_xi->Fill(p.xi(), th_x);
+        p_th_y_vs_xi->Fill(p.xi(), th_y);
+        p_vtx_y_vs_xi->Fill(p.xi(), p.vertex().y());
       }
 
       void write() const
@@ -205,22 +182,22 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         h_th_x->Write("h_th_x");
         h2_th_x_vs_xi->Write("h2_th_x_vs_xi");
         p_th_x_vs_xi->Write("p_th_x_vs_xi");
-        TGraphErrors *g_th_x_RMS_vs_xi = new TGraphErrors();
-        profileToRMSGraph(p_th_x_vs_xi, g_th_x_RMS_vs_xi);
+        auto g_th_x_RMS_vs_xi = std::make_unique<TGraphErrors>();
+        profileToRMSGraph(p_th_x_vs_xi.get(), g_th_x_RMS_vs_xi.get());
         g_th_x_RMS_vs_xi->Write("g_th_x_RMS_vs_xi");
 
         h_th_y->Write("h_th_y");
         h2_th_y_vs_xi->Write("h2_th_y_vs_xi");
         p_th_y_vs_xi->Write("p_th_y_vs_xi");
-        TGraphErrors *g_th_y_RMS_vs_xi = new TGraphErrors();
-        profileToRMSGraph(p_th_y_vs_xi, g_th_y_RMS_vs_xi);
+        auto g_th_y_RMS_vs_xi = std::make_unique<TGraphErrors>();
+        profileToRMSGraph(p_th_y_vs_xi.get(), g_th_y_RMS_vs_xi.get());
         g_th_y_RMS_vs_xi->Write("g_th_y_RMS_vs_xi");
 
         h_vtx_y->Write("h_vtx_y");
         h2_vtx_y_vs_xi->Write("h2_vtx_y_vs_xi");
         p_vtx_y_vs_xi->Write("p_vtx_y_vs_xi");
-        TGraphErrors *g_vtx_y_RMS_vs_xi = new TGraphErrors();
-        profileToRMSGraph(p_vtx_y_vs_xi, g_vtx_y_RMS_vs_xi);
+        auto g_vtx_y_RMS_vs_xi = std::make_unique<TGraphErrors>();
+        profileToRMSGraph(p_vtx_y_vs_xi.get(), g_vtx_y_RMS_vs_xi.get());
         g_vtx_y_RMS_vs_xi->Write("g_vtx_y_RMS_vs_xi");
 
         h_t->Write("h_t");
@@ -236,34 +213,26 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
 
     struct SingleMultiCorrelationPlots
     {
-      TH2D *h2_xi_mu_vs_xi_si = nullptr;
-      TH1D *h_xi_diff_mu_si = nullptr;
-      TH1D *h_xi_diff_si_mu = nullptr;
+      std::unique_ptr<TH2D> h2_xi_mu_vs_xi_si;
+      std::unique_ptr<TH1D> h_xi_diff_mu_si, h_xi_diff_si_mu;
 
-      TH2D *h2_xi_diff_si_mu_vs_xi_mu = nullptr;
-      TProfile *p_xi_diff_si_mu_vs_xi_mu = nullptr;
+      std::unique_ptr<TH2D> h2_xi_diff_si_mu_vs_xi_mu;
+      std::unique_ptr<TProfile> p_xi_diff_si_mu_vs_xi_mu;
 
-      TH2D *h2_th_y_mu_vs_th_y_si = nullptr;
+      std::unique_ptr<TH2D> h2_th_y_mu_vs_th_y_si;
 
-      void init()
-      {
-        h2_xi_mu_vs_xi_si = new TH2D("", ";#xi_{single};#xi_{multi}", 100, 0., 0.25, 100, 0., 0.25);
-        h_xi_diff_mu_si = new TH1D("", ";#xi_{multi} - #xi_{single}", 100, -0.1, +0.1);
-        h_xi_diff_si_mu = new TH1D("", ";#xi_{single} - #xi_{multi}", 100, -0.1, +0.1);
-
-        h2_xi_diff_si_mu_vs_xi_mu = new TH2D("", ";#xi_{multi};#xi_{single} - #xi_{multi}", 100, 0., 0.25, 100, -0.10, 0.10);
-        p_xi_diff_si_mu_vs_xi_mu = new TProfile("", ";#xi_{multi};#xi_{single} - #xi_{multi}", 100, 0., 0.25);
-
-        h2_th_y_mu_vs_th_y_si = new TH2D("", ";#theta^{*}_{y,si};#theta^{*}_{y,mu}", 100, -500E-6, +500E-6, 100, -500E-6, +500E-6);
-      }
+      SingleMultiCorrelationPlots() :
+        h2_xi_mu_vs_xi_si(new TH2D("", ";#xi_{single};#xi_{multi}", 100, 0., 0.25, 100, 0., 0.25)),
+        h_xi_diff_mu_si(new TH1D("", ";#xi_{multi} - #xi_{single}", 100, -0.1, +0.1)),
+        h_xi_diff_si_mu(new TH1D("", ";#xi_{single} - #xi_{multi}", 100, -0.1, +0.1)),
+        h2_xi_diff_si_mu_vs_xi_mu(new TH2D("", ";#xi_{multi};#xi_{single} - #xi_{multi}", 100, 0., 0.25, 100, -0.10, 0.10)),
+        p_xi_diff_si_mu_vs_xi_mu(new TProfile("", ";#xi_{multi};#xi_{single} - #xi_{multi}", 100, 0., 0.25)),
+        h2_th_y_mu_vs_th_y_si(new TH2D("", ";#theta^{*}_{y,si};#theta^{*}_{y,mu}", 100, -500E-6, +500E-6, 100, -500E-6, +500E-6))
+      {}
 
       void fill(const reco::ForwardProton &p_single, const reco::ForwardProton &p_multi)
       {
-        if (!h2_xi_mu_vs_xi_si)
-          init();
-
-        if (p_single.validFit() && p_multi.validFit())
-        {
+        if (p_single.validFit() && p_multi.validFit()) {
           h2_xi_mu_vs_xi_si->Fill(p_single.xi(), p_multi.xi());
           h_xi_diff_mu_si->Fill(p_multi.xi() - p_single.xi());
           h_xi_diff_si_mu->Fill(p_single.xi() - p_multi.xi());
@@ -295,37 +264,32 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
 
     struct ArmCorrelationPlots
     {
-      TH1D *h_xi_si_diffNF = nullptr;
-      TProfile *p_xi_si_diffNF_vs_xi_mu = nullptr;
+      std::unique_ptr<TH1D> h_xi_si_diffNF;
+      std::unique_ptr<TProfile> p_xi_si_diffNF_vs_xi_mu;
 
-      TH1D *h_th_y_si_diffNF = nullptr;
-      TProfile *p_th_y_si_diffNF_vs_xi_mu = nullptr;
+      std::unique_ptr<TH1D> h_th_y_si_diffNF;
+      std::unique_ptr<TProfile> p_th_y_si_diffNF_vs_xi_mu;
 
-      void init()
-      {
-        h_xi_si_diffNF = new TH1D("", ";#xi_{sF} - #xi_{sN}", 100, -0.02, +0.02);
-        p_xi_si_diffNF_vs_xi_mu = new TProfile("", ";#xi_{m};#xi_{sF} - #xi_{sN}", 100, 0., 0.25);
-
-        h_th_y_si_diffNF = new TH1D("", ";#theta_{y,sF} - #theta_{y,sN}", 100, -100E-6, +100E-6);
-        p_th_y_si_diffNF_vs_xi_mu = new TProfile("", ";#xi_{m};#theta_{y,sF} - #theta_{y,sN}", 100, 0., 0.25);
-      }
+      ArmCorrelationPlots() :
+        h_xi_si_diffNF(new TH1D("", ";#xi_{sF} - #xi_{sN}", 100, -0.02, +0.02)),
+        p_xi_si_diffNF_vs_xi_mu(new TProfile("", ";#xi_{m};#xi_{sF} - #xi_{sN}", 100, 0., 0.25)),
+        h_th_y_si_diffNF(new TH1D("", ";#theta_{y,sF} - #theta_{y,sN}", 100, -100E-6, +100E-6)),
+        p_th_y_si_diffNF_vs_xi_mu(new TProfile("", ";#xi_{m};#theta_{y,sF} - #theta_{y,sN}", 100, 0., 0.25))
+      {}
 
       void fill(const reco::ForwardProton &p_s_N, const reco::ForwardProton &p_s_F, const reco::ForwardProton &p_m)
       {
-        if (!h_xi_si_diffNF)
-          init();
+        if (!p_s_N.validFit() || !p_s_F.validFit() || !p_m.validFit())
+          return;
 
-        if (p_s_N.validFit() && p_s_F.validFit() && p_m.validFit())
-        {
-          const double th_y_s_N = p_s_N.thetaY();
-          const double th_y_s_F = p_s_F.thetaY();
+        const double th_y_s_N = p_s_N.thetaY();
+        const double th_y_s_F = p_s_F.thetaY();
 
-          h_xi_si_diffNF->Fill(p_s_F.xi() - p_s_N.xi());
-          p_xi_si_diffNF_vs_xi_mu->Fill(p_m.xi(), p_s_F.xi() - p_s_N.xi());
+        h_xi_si_diffNF->Fill(p_s_F.xi() - p_s_N.xi());
+        p_xi_si_diffNF_vs_xi_mu->Fill(p_m.xi(), p_s_F.xi() - p_s_N.xi());
 
-          h_th_y_si_diffNF->Fill(th_y_s_F - th_y_s_N);
-          p_th_y_si_diffNF_vs_xi_mu->Fill(p_m.xi(), th_y_s_F - th_y_s_N);
-        }
+        h_th_y_si_diffNF->Fill(th_y_s_F - th_y_s_N);
+        p_th_y_si_diffNF_vs_xi_mu->Fill(p_m.xi(), th_y_s_F - th_y_s_N);
       }
 
       void write() const
@@ -340,8 +304,8 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
 
     std::map<unsigned int, ArmCorrelationPlots> armCorrelationPlots_;
 
-    TProfile *p_x_L_diffNF_vs_x_L_N_, *p_x_R_diffNF_vs_x_R_N_;
-    TProfile *p_y_L_diffNF_vs_y_L_N_, *p_y_R_diffNF_vs_y_R_N_;
+    std::unique_ptr<TProfile> p_x_L_diffNF_vs_x_L_N_, p_x_R_diffNF_vs_x_R_N_;
+    std::unique_ptr<TProfile> p_y_L_diffNF_vs_y_L_N_, p_y_R_diffNF_vs_y_R_N_;
 
     signed int n_non_empty_events_;
 };
@@ -354,9 +318,9 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 
 CTPPSProtonReconstructionPlotter::CTPPSProtonReconstructionPlotter(const edm::ParameterSet &ps) :
-  tokenTracks_(consumes< std::vector<CTPPSLocalTrackLite>>(ps.getParameter<edm::InputTag>("tagTracks"))),
-  tokenRecoProtonsSingleRP_(consumes<std::vector<reco::ForwardProton>>(ps.getParameter<InputTag>("tagRecoProtonsSingleRP"))),
-  tokenRecoProtonsMultiRP_(consumes<std::vector<reco::ForwardProton>>(ps.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
+  tokenTracks_             (consumes<CTPPSLocalTrackLiteCollection>(ps.getParameter<edm::InputTag>("tagTracks"))),
+  tokenRecoProtonsSingleRP_(consumes<reco::ForwardProtonCollection>(ps.getParameter<InputTag>("tagRecoProtonsSingleRP"))),
+  tokenRecoProtonsMultiRP_ (consumes<reco::ForwardProtonCollection>(ps.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
 
   rpId_45_N_(ps.getParameter<unsigned int>("rpId_45_N")),
   rpId_45_F_(ps.getParameter<unsigned int>("rpId_45_F")),
@@ -366,27 +330,27 @@ CTPPSProtonReconstructionPlotter::CTPPSProtonReconstructionPlotter(const edm::Pa
   outputFile_(ps.getParameter<string>("outputFile")),
   maxNonEmptyEvents_(ps.getUntrackedParameter<signed int>("maxNonEmptyEvents", -1)),
 
-  n_non_empty_events_(0)
-{
-  p_x_L_diffNF_vs_x_L_N_ = new TProfile("p_x_L_diffNF_vs_x_L_N", ";x_{LN};x_{LF} - x_{LN}", 100, 0., +20.);
-  p_x_R_diffNF_vs_x_R_N_ = new TProfile("p_x_R_diffNF_vs_x_R_N", ";x_{RN};x_{RF} - x_{RN}", 100, 0., +20.);
+  p_x_L_diffNF_vs_x_L_N_(new TProfile("p_x_L_diffNF_vs_x_L_N", ";x_{LN};x_{LF} - x_{LN}", 100, 0., +20.)),
+  p_x_R_diffNF_vs_x_R_N_(new TProfile("p_x_R_diffNF_vs_x_R_N", ";x_{RN};x_{RF} - x_{RN}", 100, 0., +20.)),
 
-  p_y_L_diffNF_vs_y_L_N_ = new TProfile("p_y_L_diffNF_vs_y_L_N", ";y_{LN};y_{LF} - y_{LN}", 100, -20., +20.);
-  p_y_R_diffNF_vs_y_R_N_ = new TProfile("p_y_R_diffNF_vs_y_R_N", ";y_{RN};y_{RF} - y_{RN}", 100, -20., +20.);
-}
+  p_y_L_diffNF_vs_y_L_N_(new TProfile("p_y_L_diffNF_vs_y_L_N", ";y_{LN};y_{LF} - y_{LN}", 100, -20., +20.)),
+  p_y_R_diffNF_vs_y_R_N_(new TProfile("p_y_R_diffNF_vs_y_R_N", ";y_{RN};y_{RF} - y_{RN}", 100, -20., +20.)),
+
+  n_non_empty_events_(0)
+{}
 
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const edm::EventSetup&)
 {
   // get input
-  edm::Handle< std::vector<CTPPSLocalTrackLite> > hTracks;
+  edm::Handle<CTPPSLocalTrackLiteCollection> hTracks;
   event.getByToken(tokenTracks_, hTracks);
 
-  Handle<vector<reco::ForwardProton>> hRecoProtonsSingleRP;
+  Handle<reco::ForwardProtonCollection> hRecoProtonsSingleRP;
   event.getByToken(tokenRecoProtonsSingleRP_, hRecoProtonsSingleRP);
 
-  Handle<vector<reco::ForwardProton>> hRecoProtonsMultiRP;
+  Handle<reco::ForwardProtonCollection> hRecoProtonsMultiRP;
   event.getByToken(tokenRecoProtonsMultiRP_, hRecoProtonsMultiRP);
 
   if (!hRecoProtonsSingleRP->empty())
@@ -498,7 +462,7 @@ void CTPPSProtonReconstructionPlotter::endJob()
 {
   LogInfo("CTPPSProtonReconstructionPlotter") << "n_non_empty_events = " << n_non_empty_events_;
 
-  TFile *f_out = TFile::Open(outputFile_.c_str(), "recreate");
+  auto f_out = std::make_unique<TFile>(outputFile_.c_str(), "recreate");
 
   p_x_L_diffNF_vs_x_L_N_->Write();
   p_x_R_diffNF_vs_x_R_N_->Write();
@@ -507,49 +471,34 @@ void CTPPSProtonReconstructionPlotter::endJob()
   p_y_R_diffNF_vs_y_R_N_->Write();
 
   TDirectory *d_singleRPPlots = f_out->mkdir("singleRPPlots");
-  for (const auto it : singleRPPlots_)
-  {
-    char buf[100];
-    sprintf(buf, "rp%u", it.first);
-    gDirectory = d_singleRPPlots->mkdir(buf);
+  for (const auto& it : singleRPPlots_) {
+    gDirectory = d_singleRPPlots->mkdir(Form("rp%u", it.first));
     it.second.write();
   }
 
   TDirectory *d_multiRPPlots = f_out->mkdir("multiRPPlots");
-  for (const auto it : multiRPPlots_)
-  {
-    char buf[100];
-    sprintf(buf, "arm%u", it.first);
-    gDirectory = d_multiRPPlots->mkdir(buf);
+  for (const auto& it : multiRPPlots_) {
+    gDirectory = d_multiRPPlots->mkdir(Form("arm%u", it.first));
     it.second.write();
   }
 
   TDirectory *d_singleMultiCorrelationPlots = f_out->mkdir("singleMultiCorrelationPlots");
-  for (const auto it : singleMultiCorrelationPlots_)
-  {
+  for (const auto& it : singleMultiCorrelationPlots_) {
     unsigned int si_rp = it.first / 10;
     unsigned int mu_arm = it.first % 10;
 
-    char buf[100];
-    sprintf(buf, "si_rp%u_mu_arm%u", si_rp, mu_arm);
-    gDirectory = d_singleMultiCorrelationPlots->mkdir(buf);
+    gDirectory = d_singleMultiCorrelationPlots->mkdir(Form("si_rp%u_mu_arm%u", si_rp, mu_arm));
     it.second.write();
   }
 
   TDirectory *d_armCorrelationPlots = f_out->mkdir("armCorrelationPlots");
-  for (const auto it : armCorrelationPlots_)
-  {
-    unsigned int arm = it.first;
-
-    char buf[100];
-    sprintf(buf, "arm%u", arm);
-    gDirectory = d_armCorrelationPlots->mkdir(buf);
+  for (const auto& it : armCorrelationPlots_) {
+    gDirectory = d_armCorrelationPlots->mkdir(Form("arm%u", it.first));
     it.second.write();
   }
-
-  delete f_out;
 }
 
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(CTPPSProtonReconstructionPlotter);
+

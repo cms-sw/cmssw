@@ -18,6 +18,7 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLiteFwd.h"
 
 #include "TFile.h"
 #include "TH1D.h"
@@ -31,38 +32,31 @@ class CTPPSDirectProtonSimulationValidator : public edm::one::EDAnalyzer<>
 {
   public:
     explicit CTPPSDirectProtonSimulationValidator( const edm::ParameterSet& );
-    ~CTPPSDirectProtonSimulationValidator() override;
 
   private:
-    void beginJob() override;
-
+    void beginJob() override {}
     void analyze( const edm::Event&, const edm::EventSetup& ) override;
-
     void endJob() override;
 
-    edm::EDGetTokenT< std::vector<CTPPSLocalTrackLite> > simuTracksToken_;
-    edm::EDGetTokenT< std::vector<CTPPSLocalTrackLite> > recoTracksToken_;
+    edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> simuTracksToken_;
+    edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> recoTracksToken_;
 
-    std::string outputFile;
+    std::string outputFile_;
 
     struct RPPlots
     {
-      TH2D *h2_xr_vs_xs=nullptr, *h2_yr_vs_ys=nullptr;
-      TH1D *h_de_x, *h_de_y;
+      std::unique_ptr<TH2D> h2_xr_vs_xs, h2_yr_vs_ys;
+      std::unique_ptr<TH1D> h_de_x, h_de_y;
 
-      void init()
-      {
-        h2_xr_vs_xs = new TH2D("", "", 100, -10., +10., 100, -10, +10.);
-        h2_yr_vs_ys = new TH2D("", "", 100, -10., +10., 100, -10, +10.);
-        h_de_x = new TH1D("", "", 100, -0., +0.);
-        h_de_y = new TH1D("", "", 100, -0., +0.);
-      }
+      RPPlots() :
+        h2_xr_vs_xs( new TH2D("", "", 100, -10., +10., 100, -10, +10.) ),
+        h2_yr_vs_ys( new TH2D("", "", 100, -10., +10., 100, -10, +10.) ),
+        h_de_x( new TH1D("", "", 100, -0., +0.) ),
+        h_de_y( new TH1D("", "", 100, -0., +0.) )
+      {}
 
       void fill(double simu_x, double simu_y, double reco_x, double reco_y)
       {
-        if (h2_xr_vs_xs == nullptr)
-          init();
-
         h2_xr_vs_xs->Fill(simu_x, reco_x);
         h2_yr_vs_ys->Fill(simu_y, reco_y);
 
@@ -79,47 +73,35 @@ class CTPPSDirectProtonSimulationValidator : public edm::one::EDAnalyzer<>
       }
     };
 
-    std::map<unsigned int, RPPlots> rpPlots;
+    std::map<unsigned int, RPPlots> rpPlots_;
 };
 
 //----------------------------------------------------------------------------------------------------
 
 CTPPSDirectProtonSimulationValidator::CTPPSDirectProtonSimulationValidator( const edm::ParameterSet& iConfig ) :
-  simuTracksToken_( consumes< std::vector<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "simuTracksTag" ) ) ),
-  recoTracksToken_( consumes< std::vector<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "recoTracksTag" ) ) ),
-  outputFile( iConfig.getParameter<std::string>("outputFile") )
-{
-}
-
-//----------------------------------------------------------------------------------------------------
-
-CTPPSDirectProtonSimulationValidator::~CTPPSDirectProtonSimulationValidator()
-{
-}
+  simuTracksToken_( consumes<CTPPSLocalTrackLiteCollection>( iConfig.getParameter<edm::InputTag>( "simuTracksTag" ) ) ),
+  recoTracksToken_( consumes<CTPPSLocalTrackLiteCollection>( iConfig.getParameter<edm::InputTag>( "recoTracksTag" ) ) ),
+  outputFile_( iConfig.getParameter<std::string>("outputFile") )
+{}
 
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSDirectProtonSimulationValidator::analyze( const edm::Event& iEvent, const edm::EventSetup& )
 {
   // get input
-  edm::Handle< std::vector<CTPPSLocalTrackLite> > simuTracks;
+  edm::Handle<CTPPSLocalTrackLiteCollection> simuTracks;
   iEvent.getByToken( simuTracksToken_, simuTracks );
 
-  edm::Handle< std::vector<CTPPSLocalTrackLite> > recoTracks;
+  edm::Handle<CTPPSLocalTrackLiteCollection> recoTracks;
   iEvent.getByToken( recoTracksToken_, recoTracks );
 
   // process tracks
-  for (const auto& simuTrack : *simuTracks)
-  {
-
-    for (const auto& recoTrack : *recoTracks)
-    {
-      if (simuTrack.getRPId() == recoTrack.getRPId())
-      {
-        CTPPSDetId rpId(simuTrack.getRPId());
+  for (const auto& simuTrack : *simuTracks) {
+    const CTPPSDetId rpId(simuTrack.getRPId());
+    for (const auto& recoTrack : *recoTracks) {
+      if (simuTrack.getRPId() == recoTrack.getRPId()) {
         unsigned int rpDecId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
-
-        rpPlots[rpDecId].fill(simuTrack.getX(), simuTrack.getY(), recoTrack.getX(), recoTrack.getY());
+        rpPlots_[rpDecId].fill(simuTrack.getX(), simuTrack.getY(), recoTrack.getX(), recoTrack.getY());
       }
     }
   }
@@ -127,18 +109,11 @@ void CTPPSDirectProtonSimulationValidator::analyze( const edm::Event& iEvent, co
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSDirectProtonSimulationValidator::beginJob()
-{
-}
-
-//----------------------------------------------------------------------------------------------------
-
 void CTPPSDirectProtonSimulationValidator::endJob()
 {
-  TFile *f_out = TFile::Open(outputFile.c_str(), "recreate");
-  
-  for (const auto it : rpPlots)
-  {
+  auto f_out = std::make_unique<TFile>(outputFile_.c_str(), "recreate");
+
+  for (const auto& it : rpPlots_) {
     gDirectory = f_out->mkdir(Form("RP %u", it.first));
     it.second.write();
   }
@@ -147,3 +122,4 @@ void CTPPSDirectProtonSimulationValidator::endJob()
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE( CTPPSDirectProtonSimulationValidator );
+

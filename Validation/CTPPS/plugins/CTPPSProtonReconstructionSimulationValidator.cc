@@ -18,6 +18,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "DataFormats/ProtonReco/interface/ForwardProton.h"
+#include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "TFile.h"
@@ -36,11 +37,8 @@ class CTPPSProtonReconstructionSimulationValidator : public edm::one::EDAnalyzer
   public:
     explicit CTPPSProtonReconstructionSimulationValidator(const edm::ParameterSet&);
 
-    ~CTPPSProtonReconstructionSimulationValidator() override {}
-
   private:
     void analyze(const edm::Event&, const edm::EventSetup&) override;
-
     void endJob() override;
 
     void fillPlots(unsigned int meth_idx, unsigned int idx, const reco::ForwardProton &rec_pr,
@@ -49,75 +47,72 @@ class CTPPSProtonReconstructionSimulationValidator : public edm::one::EDAnalyzer
     edm::EDGetTokenT<edm::HepMCProduct> tokenHepMCBeforeSmearing_;
     edm::EDGetTokenT<edm::HepMCProduct> tokenHepMCAfterSmearing_;
 
-    edm::EDGetTokenT<std::vector<reco::ForwardProton>> tokenRecoProtonsSingleRP_;
-    edm::EDGetTokenT<std::vector<reco::ForwardProton>> tokenRecoProtonsMultiRP_;
+    edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsSingleRP_;
+    edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsMultiRP_;
 
     std::string outputFile_;
 
     struct PlotGroup
     {
-      TH1D *h_de_xi = nullptr;
-      TProfile *p_de_xi_vs_xi_simu;
-      TH2D *h_xi_reco_vs_xi_simu;
+      std::unique_ptr<TH1D> h_de_xi;
+      std::unique_ptr<TProfile> p_de_xi_vs_xi_simu;
+      std::unique_ptr<TH2D> h_xi_reco_vs_xi_simu;
 
-      TH1D *h_de_th_x = nullptr;
-      TProfile *p_de_th_x_vs_xi_simu;
+      std::unique_ptr<TH1D> h_de_th_x;
+      std::unique_ptr<TProfile> p_de_th_x_vs_xi_simu;
 
-      TH1D *h_de_th_y = nullptr;
-      TProfile *p_de_th_y_vs_xi_simu;
+      std::unique_ptr<TH1D> h_de_th_y;
+      std::unique_ptr<TProfile> p_de_th_y_vs_xi_simu;
 
-      TH1D *h_de_vtx_y = nullptr;
-      TProfile *p_de_vtx_y_vs_xi_simu;
+      std::unique_ptr<TH1D> h_de_vtx_y;
+      std::unique_ptr<TProfile> p_de_vtx_y_vs_xi_simu;
 
-      TH1D *h_de_t = nullptr;
-      TProfile *p_de_t_vs_xi_simu;
-      TProfile *p_de_t_vs_t_simu;
+      std::unique_ptr<TH1D> h_de_t;
+      std::unique_ptr<TProfile> p_de_t_vs_xi_simu, p_de_t_vs_t_simu;
 
-      void init()
+      PlotGroup() :
+        h_de_xi(new TH1D("", ";#xi_{reco} - #xi_{simu}", 100, 0., 0.)),
+        p_de_xi_vs_xi_simu(new TProfile("", ";#xi_{simu};#xi_{reco} - #xi_{simu}", 19, 0.015, 0.205)),
+        h_xi_reco_vs_xi_simu(new TH2D("", ";#xi_{simu};#xi_{reco}", 100, 0., 0.30, 100, 0., 0.30)),
+
+        h_de_th_x(new TH1D("", ";#theta_{x,reco} - #theta_{x,simu}", 100, 0., 0.)),
+        p_de_th_x_vs_xi_simu(new TProfile("", ";#xi_{simu};#theta_{x,reco} - #theta_{x,simu}", 19, 0.015, 0.205)),
+
+        h_de_th_y(new TH1D("", ";#theta_{y,reco} - #theta_{y,simu}", 100, 0., 0.)),
+        p_de_th_y_vs_xi_simu(new TProfile("", ";#xi_{simu};#theta_{y,reco} - #theta_{y,simu}", 19, 0.015, 0.205)),
+
+        h_de_vtx_y(new TH1D("", ";vtx_{y,reco} - vtx_{y,simu}   (mm)", 100, 0., 0.)),
+        p_de_vtx_y_vs_xi_simu(new TProfile("", ";#xi_{simu};vtx_{y,reco} - vtx_{y,simu} (mm)", 19, 0.015, 0.205)),
+
+        h_de_t(new TH1D("", ";t_{reco} - t_{simu}", 100, -1., +1.)),
+        p_de_t_vs_xi_simu(new TProfile("", ";xi_{simu};t_{reco} - t_{simu}", 19, 0.015, 0.205)),
+        p_de_t_vs_t_simu(new TProfile("", ";t_{simu};t_{reco} - t_{simu}", 20, 0., 5.))
+      {}
+
+      static TGraphErrors profileToRMSGraph(TProfile *p, const char* name = "")
       {
-        h_de_xi = new TH1D("", ";#xi_{reco} - #xi_{simu}", 100, 0., 0.);
-        p_de_xi_vs_xi_simu = new TProfile("", ";#xi_{simu};#xi_{reco} - #xi_{simu}", 19, 0.015, 0.205);
-        h_xi_reco_vs_xi_simu = new TH2D("", ";#xi_{simu};#xi_{reco}", 100, 0., 0.30, 100, 0., 0.30);
+        TGraphErrors gr_err;
+        gr_err.SetName(name);
 
-        h_de_th_x = new TH1D("", ";#theta_{x,reco} - #theta_{x,simu}", 100, 0., 0.);
-        p_de_th_x_vs_xi_simu = new TProfile("", ";#xi_{simu};#theta_{x,reco} - #theta_{x,simu}", 19, 0.015, 0.205);
+        for (int bi = 1; bi <= p->GetNbinsX(); ++bi) {
+          double c = p->GetBinCenter(bi);
+          double w = p->GetBinWidth(bi);
 
-        h_de_th_y = new TH1D("", ";#theta_{y,reco} - #theta_{y,simu}", 100, 0., 0.);
-        p_de_th_y_vs_xi_simu = new TProfile("", ";#xi_{simu};#theta_{y,reco} - #theta_{y,simu}", 19, 0.015, 0.205);
+          double N = p->GetBinEntries(bi);
+          double Sy = p->GetBinContent(bi) * N;
+          double Syy = p->GetSumw2()->At(bi);
 
-        h_de_vtx_y = new TH1D("", ";vtx_{y,reco} - vtx_{y,simu}   (mm)", 100, 0., 0.);
-        p_de_vtx_y_vs_xi_simu = new TProfile("", ";#xi_{simu};vtx_{y,reco} - vtx_{y,simu} (mm)", 19, 0.015, 0.205);
+          double si_sq = Syy/N - Sy*Sy/N/N;
+          double si = (si_sq >= 0.) ? sqrt(si_sq) : 0.;
+          double si_unc_sq = si_sq / 2. / N;	// Gaussian approximation
+          double si_unc = (si_unc_sq >= 0.) ? sqrt(si_unc_sq) : 0.;
 
-        h_de_t = new TH1D("", ";t_{reco} - t_{simu}", 100, -1., +1.);
-        p_de_t_vs_xi_simu = new TProfile("", ";xi_{simu};t_{reco} - t_{simu}", 19, 0.015, 0.205);
-        p_de_t_vs_t_simu = new TProfile("", ";t_{simu};t_{reco} - t_{simu}", 20, 0., 5.);
-      }
+          int idx = gr_err.GetN();
+          gr_err.SetPoint(idx, c, si);
+          gr_err.SetPointError(idx, w/2., si_unc);
+        }
 
-      static TGraphErrors* profileToRMSGraph(TProfile *p, const std::string &name = "")
-      {
-          TGraphErrors *g = new TGraphErrors();
-          g->SetName(name.c_str());
-
-          for (int bi = 1; bi <= p->GetNbinsX(); ++bi)
-          {
-              double c = p->GetBinCenter(bi);
-              double w = p->GetBinWidth(bi);
-
-              double N = p->GetBinEntries(bi);
-              double Sy = p->GetBinContent(bi) * N;
-              double Syy = p->GetSumw2()->At(bi);
-
-              double si_sq = Syy/N - Sy*Sy/N/N;
-              double si = (si_sq >= 0.) ? sqrt(si_sq) : 0.;
-              double si_unc_sq = si_sq / 2. / N;	// Gaussian approximation
-              double si_unc = (si_unc_sq >= 0.) ? sqrt(si_unc_sq) : 0.;
-
-              int idx = g->GetN();
-              g->SetPoint(idx, c, si);
-              g->SetPointError(idx, w/2., si_unc);
-          }
-
-          return g;
+        return gr_err;
       }
 
       void write() const
@@ -125,25 +120,25 @@ class CTPPSProtonReconstructionSimulationValidator : public edm::one::EDAnalyzer
         h_xi_reco_vs_xi_simu->Write("h_xi_reco_vs_xi_simu");
         h_de_xi->Write("h_de_xi");
         p_de_xi_vs_xi_simu->Write("p_de_xi_vs_xi_simu");
-        profileToRMSGraph(p_de_xi_vs_xi_simu, "g_rms_de_xi_vs_xi_simu")->Write();
+        profileToRMSGraph(p_de_xi_vs_xi_simu.get(), "g_rms_de_xi_vs_xi_simu").Write();
 
         h_de_th_x->Write("h_de_th_x");
         p_de_th_x_vs_xi_simu->Write("p_de_th_x_vs_xi_simu");
-        profileToRMSGraph(p_de_th_x_vs_xi_simu, "g_rms_de_th_x_vs_xi_simu")->Write();
+        profileToRMSGraph(p_de_th_x_vs_xi_simu.get(), "g_rms_de_th_x_vs_xi_simu").Write();
 
         h_de_th_y->Write("h_de_th_y");
         p_de_th_y_vs_xi_simu->Write("p_de_th_y_vs_xi_simu");
-        profileToRMSGraph(p_de_th_y_vs_xi_simu, "g_rms_de_th_y_vs_xi_simu")->Write();
+        profileToRMSGraph(p_de_th_y_vs_xi_simu.get(), "g_rms_de_th_y_vs_xi_simu").Write();
 
         h_de_vtx_y->Write("h_de_vtx_y");
         p_de_vtx_y_vs_xi_simu->Write("p_de_vtx_y_vs_xi_simu");
-        profileToRMSGraph(p_de_vtx_y_vs_xi_simu, "g_rms_de_vtx_y_vs_xi_simu")->Write();
+        profileToRMSGraph(p_de_vtx_y_vs_xi_simu.get(), "g_rms_de_vtx_y_vs_xi_simu").Write();
 
         h_de_t->Write("h_de_t");
         p_de_t_vs_xi_simu->Write("p_de_t_vs_xi_simu");
-        profileToRMSGraph(p_de_t_vs_xi_simu, "g_rms_de_t_vs_xi_simu")->Write();
+        profileToRMSGraph(p_de_t_vs_xi_simu.get(), "g_rms_de_t_vs_xi_simu").Write();
         p_de_t_vs_t_simu->Write("p_de_t_vs_t_simu");
-        profileToRMSGraph(p_de_t_vs_t_simu, "g_rms_de_t_vs_t_simu")->Write();
+        profileToRMSGraph(p_de_t_vs_t_simu.get(), "g_rms_de_t_vs_t_simu").Write();
       }
     };
 
@@ -159,13 +154,12 @@ using namespace HepMC;
 //----------------------------------------------------------------------------------------------------
 
 CTPPSProtonReconstructionSimulationValidator::CTPPSProtonReconstructionSimulationValidator(const edm::ParameterSet& iConfig) :
-  tokenHepMCBeforeSmearing_( consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMCBeforeSmearing")) ),
-  tokenHepMCAfterSmearing_( consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMCAfterSmearing")) ),
-  tokenRecoProtonsSingleRP_(consumes<std::vector<reco::ForwardProton>>(iConfig.getParameter<InputTag>("tagRecoProtonsSingleRP"))),
-  tokenRecoProtonsMultiRP_(consumes<std::vector<reco::ForwardProton>>(iConfig.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
+  tokenHepMCBeforeSmearing_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMCBeforeSmearing"))),
+  tokenHepMCAfterSmearing_ (consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMCAfterSmearing"))),
+  tokenRecoProtonsSingleRP_(consumes<reco::ForwardProtonCollection>(iConfig.getParameter<InputTag>("tagRecoProtonsSingleRP"))),
+  tokenRecoProtonsMultiRP_ (consumes<reco::ForwardProtonCollection>(iConfig.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
   outputFile_(iConfig.getParameter<string>("outputFile"))
-{
-}
+{}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -184,19 +178,17 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
   iEvent.getByToken(tokenHepMCAfterSmearing_, hHepMCAfterSmearing);
   HepMC::GenEvent *hepMCEventAfterSmearing = (HepMC::GenEvent *) hHepMCAfterSmearing->GetEvent();
 
-  Handle<vector<reco::ForwardProton>> hRecoProtonsSingleRP;
+  Handle<reco::ForwardProtonCollection> hRecoProtonsSingleRP;
   iEvent.getByToken(tokenRecoProtonsSingleRP_, hRecoProtonsSingleRP);
 
-  Handle<vector<reco::ForwardProton>> hRecoProtonsMultiRP;
+  Handle<reco::ForwardProtonCollection> hRecoProtonsMultiRP;
   iEvent.getByToken(tokenRecoProtonsMultiRP_, hRecoProtonsMultiRP);
 
   // extract vertex position
   bool vertex_set = false;
   FourVector vtx;
-  for (auto it = hepMCEventAfterSmearing->vertices_begin(); it != hepMCEventAfterSmearing->vertices_end(); ++it)
-  {
-    if (vertex_set)
-    {
+  for (auto it = hepMCEventAfterSmearing->vertices_begin(); it != hepMCEventAfterSmearing->vertices_end(); ++it) {
+    if (vertex_set) {
       LogError("CTPPSProtonReconstructionSimulationValidator") << "Multiple vertices found.";
       return;
     }
@@ -210,8 +202,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
   bool proton_56_set = false;
   FourVector mom_45, mom_56;
 
-  for (auto it = hepMCEventBeforeSmearing->particles_begin(); it != hepMCEventBeforeSmearing->particles_end(); ++it)
-  {
+  for (auto it = hepMCEventBeforeSmearing->particles_begin(); it != hepMCEventBeforeSmearing->particles_end(); ++it) {
     const auto &part = *it;
 
     // accept only stable non-beam protons
@@ -229,11 +220,9 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
     if (mom.e() < 4500.)
       continue;
 
-    if (mom.z() > 0)
-    {
+    if (mom.z() > 0) {
       // 45
-      if (proton_45_set)
-      {
+      if (proton_45_set) {
         LogError("CTPPSProtonReconstructionSimulationValidator") << "Found multiple protons in sector 45.";
         return;
       }
@@ -242,8 +231,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
       mom_45 = mom;
     } else {
       // 56
-      if (proton_56_set)
-      {
+      if (proton_56_set) {
         LogError("CTPPSProtonReconstructionSimulationValidator") << "Found multiple protons in sector 56.";
         return;
       }
@@ -254,10 +242,8 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
   }
 
   // do comparison
-  for (const auto &handle : { hRecoProtonsSingleRP, hRecoProtonsMultiRP } )
-  {
-    for (const auto &rec_pr : *handle)
-    {
+  for (const auto& handle : { hRecoProtonsSingleRP, hRecoProtonsMultiRP } ) {
+    for (const auto& rec_pr : *handle) {
       if (! rec_pr.validFit())
         continue;
 
@@ -282,8 +268,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
 
       unsigned int meth_idx = 1234;
 
-      if (rec_pr.method() == reco::ForwardProton::ReconstructionMethod::singleRP)
-      {
+      if (rec_pr.method() == reco::ForwardProton::ReconstructionMethod::singleRP) {
         meth_idx = 0;
 
         CTPPSDetId rpId((*rec_pr.contributingLocalTracks().begin())->getRPId());
@@ -291,9 +276,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
       }
 
       if (rec_pr.method() == reco::ForwardProton::ReconstructionMethod::multiRP)
-      {
         meth_idx = 1;
-      }
 
       fillPlots(meth_idx, idx, rec_pr, vtx, mom, *hLHCInfo);
     }
@@ -319,54 +302,44 @@ void CTPPSProtonReconstructionSimulationValidator::fillPlots(unsigned int meth_i
   const double vtx_y_reco = rec_pr.vertex().y() * 10.;  // conversion: cm --> mm
   const double t_reco = - rec_pr.t();
 
-  auto &p = plots_[meth_idx][idx];
-  if (p.h_de_xi == nullptr)
-    p.init();
+  auto& plt = plots_[meth_idx][idx];
 
-  p.h_xi_reco_vs_xi_simu->Fill(xi_simu, xi_reco);
-  p.h_de_xi->Fill(xi_reco - xi_simu);
-  p.p_de_xi_vs_xi_simu->Fill(xi_simu, xi_reco - xi_simu);
+  plt.h_xi_reco_vs_xi_simu->Fill(xi_simu, xi_reco);
+  plt.h_de_xi->Fill(xi_reco - xi_simu);
+  plt.p_de_xi_vs_xi_simu->Fill(xi_simu, xi_reco - xi_simu);
 
-  p.h_de_th_x->Fill(th_x_reco - th_x_simu);
-  p.p_de_th_x_vs_xi_simu->Fill(xi_simu, th_x_reco - th_x_simu);
+  plt.h_de_th_x->Fill(th_x_reco - th_x_simu);
+  plt.p_de_th_x_vs_xi_simu->Fill(xi_simu, th_x_reco - th_x_simu);
 
-  p.h_de_th_y->Fill(th_y_reco - th_y_simu);
-  p.p_de_th_y_vs_xi_simu->Fill(xi_simu, th_y_reco - th_y_simu);
+  plt.h_de_th_y->Fill(th_y_reco - th_y_simu);
+  plt.p_de_th_y_vs_xi_simu->Fill(xi_simu, th_y_reco - th_y_simu);
 
-  p.h_de_vtx_y->Fill(vtx_y_reco - vtx_y_simu);
-  p.p_de_vtx_y_vs_xi_simu->Fill(xi_simu, vtx_y_reco - vtx_y_simu);
+  plt.h_de_vtx_y->Fill(vtx_y_reco - vtx_y_simu);
+  plt.p_de_vtx_y_vs_xi_simu->Fill(xi_simu, vtx_y_reco - vtx_y_simu);
 
-  p.h_de_t->Fill(t_reco - t_simu);
-  p.p_de_t_vs_xi_simu->Fill(xi_simu, t_reco - t_simu);
-  p.p_de_t_vs_t_simu->Fill(t_simu, t_reco - t_simu);
+  plt.h_de_t->Fill(t_reco - t_simu);
+  plt.p_de_t_vs_xi_simu->Fill(xi_simu, t_reco - t_simu);
+  plt.p_de_t_vs_t_simu->Fill(t_simu, t_reco - t_simu);
 }
 
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSProtonReconstructionSimulationValidator::endJob()
 {
-  TFile *f_out = TFile::Open(outputFile_.c_str(), "recreate");
+  auto f_out = std::make_unique<TFile>(outputFile_.c_str(), "recreate");
 
-  for (const auto &mit : plots_)
-  {
-    string method = (mit.first == 0) ? "single rp" : "multi rp";
-    TDirectory *d_method = f_out->mkdir(method.c_str());
+  for (const auto& mit : plots_) {
+    const char* method = (mit.first == 0) ? "single rp" : "multi rp";
+    TDirectory *d_method = f_out->mkdir(method);
 
-    for (const auto &eit : mit.second)
-    {
-      char buf[20];
-      sprintf(buf, "%i", eit.first);
-
-      TDirectory *d_element = d_method->mkdir(buf);
-
-      gDirectory = d_element;
+    for (const auto& eit : mit.second) {
+      gDirectory = d_method->mkdir(Form("%i", eit.first));
       eit.second.write();
     }
   }
-
-  delete f_out;
 }
 
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(CTPPSProtonReconstructionSimulationValidator);
+

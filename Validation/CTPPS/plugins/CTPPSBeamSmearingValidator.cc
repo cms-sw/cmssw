@@ -36,20 +36,16 @@ class CTPPSBeamSmearingValidator : public edm::one::EDAnalyzer<>
 
     std::string outputFile_;
 
-    TH1D *h_de_vtx_x_, *h_de_vtx_y_, *h_de_vtx_z_;
+    std::unique_ptr<TH1D> h_de_vtx_x_, h_de_vtx_y_, h_de_vtx_z_;
 
     struct SectorPlots
     {
-      TH1D *h_de_th_x = nullptr;
-      TH1D *h_de_th_y = nullptr;
-      TH1D *h_de_p = nullptr;
+      std::unique_ptr<TH1D> h_de_th_x, h_de_th_y, h_de_p;
 
-      void init()
-      {
-        h_de_th_x = new TH1D("", ";#Delta#theta_{x}   (rad)", 100, 0., 0.);
-        h_de_th_y = new TH1D("", ";#Delta#theta_{y}   (rad)", 100, 0., 0.);
-        h_de_p = new TH1D("", ";#Deltap   (GeV)", 100, 0., 0.);
-      }
+      SectorPlots() :
+        h_de_th_x(new TH1D("", ";#Delta#theta_{x}   (rad)", 100, 0., 0.)),
+        h_de_th_y(new TH1D("", ";#Delta#theta_{y}   (rad)", 100, 0., 0.)),
+        h_de_p(new TH1D("", ";#Deltap   (GeV)", 100, 0., 0.)) {}
 
       void write() const
       {
@@ -73,15 +69,11 @@ using namespace HepMC;
 CTPPSBeamSmearingValidator::CTPPSBeamSmearingValidator(const edm::ParameterSet& iConfig) :
   tokenBeforeSmearing_( consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagBeforeSmearing")) ),
   tokenAfterSmearing_( consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagAfterSmearing")) ),
-  outputFile_(iConfig.getParameter<string>("outputFile"))
-{
-  h_de_vtx_x_ = new TH1D("h_de_vtx_x", ";#Delta vtx_{x}   (mm)", 100, 0., 0.);
-  h_de_vtx_y_ = new TH1D("h_de_vtx_y", ";#Delta vtx_{y}   (mm)", 100, 0., 0.);
-  h_de_vtx_z_ = new TH1D("h_de_vtx_z", ";#Delta vtx_{z}   (mm)", 100, 0., 0.);
-
-  sectorPlots_[0].init();
-  sectorPlots_[1].init();
-}
+  outputFile_(iConfig.getParameter<string>("outputFile")),
+  h_de_vtx_x_(new TH1D("h_de_vtx_x", ";#Delta vtx_{x}   (mm)", 100, 0., 0.)),
+  h_de_vtx_y_(new TH1D("h_de_vtx_y", ";#Delta vtx_{y}   (mm)", 100, 0., 0.)),
+  h_de_vtx_z_(new TH1D("h_de_vtx_z", ";#Delta vtx_{z}   (mm)", 100, 0., 0.))
+{}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -98,11 +90,11 @@ void CTPPSBeamSmearingValidator::analyze(const edm::Event& iEvent, const edm::Ev
 
   // vertices
   GenEvent::vertex_const_iterator vold, vnew;
-  for (vold = orig->vertices_begin(), vnew = smear->vertices_begin(); 
+  for (vold = orig->vertices_begin(), vnew = smear->vertices_begin();
       vold != orig->vertices_end() && vnew != smear->vertices_end(); ++vold, ++vnew)
   {
-	const FourVector &vo = (*vold)->position();
-	const FourVector &vn = (*vnew)->position();
+    const FourVector &vo = (*vold)->position();
+    const FourVector &vn = (*vnew)->position();
 
     // HepMC gives vertex in mm
     h_de_vtx_x_->Fill(vn.x() - vo.x());
@@ -116,7 +108,7 @@ void CTPPSBeamSmearingValidator::analyze(const edm::Event& iEvent, const edm::Ev
       pold != orig->particles_end() && pnew != smear->particles_end(); ++pold, ++pnew)
   {
     FourVector o = (*pold)->momentum(), n = (*pnew)->momentum();
-    
+
     // determine direction region
     signed int idx = -1;
     const double thetaLim = 0.01; // rad
@@ -129,7 +121,7 @@ void CTPPSBeamSmearingValidator::analyze(const edm::Event& iEvent, const edm::Ev
 
     if (idx < 0)
       continue;
-  
+
     /*
         cout << "particle\n\told: [" << o.x() << ", " << o.y() << ", " << o.z() << ", " << o.t()
         << "]\n\tnew: [" << n.x() << ", " << n.y() << ", " << n.z() << ", " << n.t()
@@ -153,21 +145,20 @@ void CTPPSBeamSmearingValidator::analyze(const edm::Event& iEvent, const edm::Ev
 
 void CTPPSBeamSmearingValidator::endJob()
 {
-  TFile *f_out = TFile::Open(outputFile_.c_str(), "recreate");
+  auto f_out = std::make_unique<TFile>(outputFile_.c_str(), "recreate");
 
   h_de_vtx_x_->Write();
   h_de_vtx_y_->Write();
   h_de_vtx_z_->Write();
-  
+
   gDirectory = f_out->mkdir("sector 45");
   sectorPlots_[0].write();
 
   gDirectory = f_out->mkdir("sector 56");
   sectorPlots_[1].write();
-
-  delete f_out;
 }
 
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(CTPPSBeamSmearingValidator);
+
