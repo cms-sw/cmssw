@@ -20,19 +20,16 @@ class CTPPSLHCInfoESSource: public edm::ESProducer, public edm::EventSetupRecord
 {
   public:
     CTPPSLHCInfoESSource(const edm::ParameterSet &);
-
-    ~CTPPSLHCInfoESSource() override {};
-
     edm::ESProducts<std::unique_ptr<LHCInfo>> produce(const LHCInfoRcd &);
 
   private:
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
+
     edm::EventRange m_validityRange;
     double m_beamEnergy;
     double m_xangle;
 
     bool m_insideValidityRange;
-
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -98,3 +95,4 @@ edm::ESProducts<std::unique_ptr<LHCInfo>> CTPPSLHCInfoESSource::produce(const LH
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_EVENTSETUP_SOURCE(CTPPSLHCInfoESSource);
+

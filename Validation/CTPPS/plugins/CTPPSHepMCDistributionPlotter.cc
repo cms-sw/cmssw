@@ -30,20 +30,14 @@ class CTPPSHepMCDistributionPlotter : public edm::one::EDAnalyzer<>
   public:
     explicit CTPPSHepMCDistributionPlotter(const edm::ParameterSet&);
 
-    ~CTPPSHepMCDistributionPlotter() override {}
-
   private:
     void analyze(const edm::Event&, const edm::EventSetup&) override;
-
     void endJob() override;
 
     edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC_;
-
     std::string outputFile_;
 
-    TH1D *h_xi_;
-    TH1D *h_th_x_;
-    TH1D *h_th_y_;
+    std::unique_ptr<TH1D> h_xi_, h_th_x_, h_th_y_;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -56,12 +50,11 @@ using namespace HepMC;
 
 CTPPSHepMCDistributionPlotter::CTPPSHepMCDistributionPlotter(const edm::ParameterSet& iConfig) :
   tokenHepMC_( consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMC")) ),
-  outputFile_(iConfig.getParameter<string>("outputFile"))
-{
-  h_xi_ = new TH1D("h_xi", ";#xi", 100, 0., 0.30);
-  h_th_x_ = new TH1D("h_th_x", ";#theta^{*}_{x}", 100, -300E-6, +300E-6);
-  h_th_y_ = new TH1D("h_th_y", ";#theta^{*}_{y}", 100, -300E-6, +300E-6);
-}
+  outputFile_(iConfig.getParameter<string>("outputFile")),
+  h_xi_(new TH1D("h_xi", ";#xi", 100, 0., 0.30)),
+  h_th_x_(new TH1D("h_th_x", ";#theta^{*}_{x}", 100, -300E-6, +300E-6)),
+  h_th_y_(new TH1D("h_th_y", ";#theta^{*}_{y}", 100, -300E-6, +300E-6))
+{}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -111,15 +104,14 @@ void CTPPSHepMCDistributionPlotter::analyze(const edm::Event& iEvent, const edm:
 
 void CTPPSHepMCDistributionPlotter::endJob()
 {
-  TFile *f_out = TFile::Open(outputFile_.c_str(), "recreate");
+  auto f_out = std::make_unique<TFile>(outputFile_.c_str(), "recreate");
 
   h_xi_->Write();
   h_th_x_->Write();
   h_th_y_->Write();
-
-  delete f_out;
 }
 
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(CTPPSHepMCDistributionPlotter);
+

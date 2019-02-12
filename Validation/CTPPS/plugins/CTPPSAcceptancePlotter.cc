@@ -13,6 +13,7 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLiteFwd.h"
 
 #include "TFile.h"
 #include "TH1D.h"
@@ -28,49 +29,41 @@ class CTPPSAcceptancePlotter : public edm::one::EDAnalyzer<>
 {
   public:
     explicit CTPPSAcceptancePlotter( const edm::ParameterSet& );
-    ~CTPPSAcceptancePlotter() override;
 
   private:
-    void beginJob() override;
-
+    void beginJob() override {}
     void analyze(const edm::Event&, const edm::EventSetup&) override;
-
     void endJob() override;
 
-    edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC;
-    edm::EDGetTokenT< std::vector<CTPPSLocalTrackLite> > tokenTracks;
+    edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC_;
+    edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tokenTracks_;
 
-    unsigned int rpId_45_N, rpId_45_F, rpId_56_N, rpId_56_F;
+    unsigned int rpId_45_N_, rpId_45_F_, rpId_56_N_, rpId_56_F_;
 
-    std::string outputFile;
+    std::string outputFile_;
 
     struct SingleArmPlots
     {
-      TH1D *h_xi_all = nullptr, *h_xi_acc = nullptr;
+      std::unique_ptr<TH1D> h_xi_all, h_xi_acc;
+      SingleArmPlots() :
+        h_xi_all(new TH1D("", ";#xi", 100, 0., 0.25)),
+        h_xi_acc(new TH1D("", ";#xi", 100, 0., 0.25))
+      {}
 
-      void Init()
+      void fill(double xi, bool acc)
       {
-        h_xi_all = new TH1D("", ";#xi", 100, 0., 0.25);
-        h_xi_acc = new TH1D("", ";#xi", 100, 0., 0.25);
-      }
-
-      void Fill(double xi, bool acc)
-      {
-        if (h_xi_all == nullptr)
-          Init();
-
-        h_xi_all->Fill(xi); 
+        h_xi_all->Fill(xi);
         if (acc)
-          h_xi_acc->Fill(xi); 
+          h_xi_acc->Fill(xi);
       }
 
-      void Write() const
+      void write() const
       {
         h_xi_all->Write("h_xi_all");
         h_xi_acc->Write("h_xi_acc");
 
-        TH1D *h_xi_rat = new TH1D(*h_xi_acc);
-        h_xi_rat->Divide(h_xi_all);
+        auto h_xi_rat = std::make_unique<TH1D>(*h_xi_acc);
+        h_xi_rat->Divide(h_xi_all.get());
         h_xi_rat->Write("h_xi_rat");
       }
     };
@@ -80,27 +73,21 @@ class CTPPSAcceptancePlotter : public edm::one::EDAnalyzer<>
 
     struct DoubleArmPlots
     {
-      TH1D *h_m_all = nullptr, *h_m_acc = nullptr;
-      TH2D *h2_xi_45_vs_xi_56_all, *h2_xi_45_vs_xi_56_acc;
-      TH2D *h2_y_vs_m_all, *h2_y_vs_m_acc;
+      std::unique_ptr<TH1D> h_m_all, h_m_acc;
+      std::unique_ptr<TH2D> h2_xi_45_vs_xi_56_all, h2_xi_45_vs_xi_56_acc;
+      std::unique_ptr<TH2D> h2_y_vs_m_all, h2_y_vs_m_acc;
 
-      void Init()
+      DoubleArmPlots() :
+        h_m_all(new TH1D("", ";m   (GeV)", 100, 0., 2500.)),
+        h_m_acc(new TH1D("", ";m   (GeV)", 100, 0., 2500.)),
+        h2_xi_45_vs_xi_56_all(new TH2D("", ";xi_56;xi_45", 25, 0., 0.25, 25, 0., 0.25)),
+        h2_xi_45_vs_xi_56_acc(new TH2D("", ";xi_56;xi_45", 25, 0., 0.25, 25, 0., 0.25)),
+        h2_y_vs_m_all(new TH2D("", ";m   (GeV);y", 25, 0., 2500., 25, -1.5, +1.5)),
+        h2_y_vs_m_acc(new TH2D("", ";m   (GeV);y", 25, 0., 2500., 25, -1.5, +1.5))
+      {}
+
+      void fill(double xi_45, double xi_56, bool acc)
       {
-        h_m_all = new TH1D("", ";m   (GeV)", 100, 0., 2500.);
-        h_m_acc = new TH1D("", ";m   (GeV)", 100, 0., 2500.);
-
-        h2_xi_45_vs_xi_56_all = new TH2D("", ";xi_56;xi_45", 25, 0., 0.25, 25, 0., 0.25);
-        h2_xi_45_vs_xi_56_acc = new TH2D("", ";xi_56;xi_45", 25, 0., 0.25, 25, 0., 0.25);
-
-        h2_y_vs_m_all = new TH2D("", ";m   (GeV);y", 25, 0., 2500., 25, -1.5, +1.5);
-        h2_y_vs_m_acc = new TH2D("", ";m   (GeV);y", 25, 0., 2500., 25, -1.5, +1.5);
-      }
-
-      void Fill(double xi_45, double xi_56, bool acc)
-      {
-        if (h_m_all == nullptr)
-          Init();
-
         const double p_nom = 6500.;
         const double m = 2. * p_nom * sqrt(xi_45 * xi_56);
         const double y = log(xi_45 / xi_56) / 2.;
@@ -108,38 +95,35 @@ class CTPPSAcceptancePlotter : public edm::one::EDAnalyzer<>
         h_m_all->Fill(m);
         h2_xi_45_vs_xi_56_all->Fill(xi_56, xi_45);
         h2_y_vs_m_all->Fill(m, y);
-        
-        if (acc)
-        {
-          h_m_acc->Fill(m); 
+
+        if (acc) {
+          h_m_acc->Fill(m);
           h2_xi_45_vs_xi_56_acc->Fill(xi_56, xi_45);
           h2_y_vs_m_acc->Fill(m, y);
         }
       }
 
-      void Write() const
+      void write() const
       {
         h_m_all->Write("h_m_all");
         h_m_acc->Write("h_m_acc");
 
-        TH1D *h_m_rat = new TH1D(*h_m_acc);
-        h_m_rat->Divide(h_m_all);
+        auto h_m_rat = std::make_unique<TH1D>(*h_m_acc);
+        h_m_rat->Divide(h_m_all.get());
         h_m_rat->Write("h_m_rat");
-
 
         h2_xi_45_vs_xi_56_all->Write("h2_xi_45_vs_xi_56_all");
         h2_xi_45_vs_xi_56_acc->Write("h2_xi_45_vs_xi_56_acc");
 
-        TH2D *h2_xi_45_vs_xi_56_rat = new TH2D(*h2_xi_45_vs_xi_56_acc);
-        h2_xi_45_vs_xi_56_rat->Divide(h2_xi_45_vs_xi_56_all);
+        auto h2_xi_45_vs_xi_56_rat = std::make_unique<TH2D>(*h2_xi_45_vs_xi_56_acc);
+        h2_xi_45_vs_xi_56_rat->Divide(h2_xi_45_vs_xi_56_all.get());
         h2_xi_45_vs_xi_56_rat->Write("h2_xi_45_vs_xi_56_rat");
-
 
         h2_y_vs_m_all->Write("h2_y_vs_m_all");
         h2_y_vs_m_acc->Write("h2_y_vs_m_acc");
 
-        TH2D *h2_y_vs_m_rat = new TH2D(*h2_y_vs_m_acc);
-        h2_y_vs_m_rat->Divide(h2_y_vs_m_all);
+        auto h2_y_vs_m_rat = std::make_unique<TH2D>(*h2_y_vs_m_acc);
+        h2_y_vs_m_rat->Divide(h2_y_vs_m_all.get());
         h2_y_vs_m_rat->Write("h2_y_vs_m_rat");
       }
     };
@@ -157,36 +141,28 @@ using namespace HepMC;
 //----------------------------------------------------------------------------------------------------
 
 CTPPSAcceptancePlotter::CTPPSAcceptancePlotter(const edm::ParameterSet& iConfig) :
-  tokenHepMC( consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMC")) ),
-  tokenTracks( consumes< std::vector<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "tagTracks" ) ) ),
-
-  rpId_45_N(iConfig.getParameter<unsigned int>("rpId_45_N")),
-  rpId_45_F(iConfig.getParameter<unsigned int>("rpId_45_F")),
-  rpId_56_N(iConfig.getParameter<unsigned int>("rpId_56_N")),
-  rpId_56_F(iConfig.getParameter<unsigned int>("rpId_56_F")),
-
-  outputFile(iConfig.getParameter<string>("outputFile"))
+  tokenHepMC_ (consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMC"))),
+  tokenTracks_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagTracks"))),
+  rpId_45_N_ (iConfig.getParameter<unsigned int>("rpId_45_N")),
+  rpId_45_F_ (iConfig.getParameter<unsigned int>("rpId_45_F")),
+  rpId_56_N_ (iConfig.getParameter<unsigned int>("rpId_56_N")),
+  rpId_56_F_ (iConfig.getParameter<unsigned int>("rpId_56_F")),
+  outputFile_(iConfig.getParameter<string>("outputFile"))
 {
   singleArmConfigurations = {
-    { rpId_45_N },
-    { rpId_45_F },
-    { rpId_56_N },
-    { rpId_56_F },
-    { rpId_45_N, rpId_45_F },
-    { rpId_56_N, rpId_56_F },
+    { rpId_45_N_ },
+    { rpId_45_F_ },
+    { rpId_56_N_ },
+    { rpId_56_F_ },
+    { rpId_45_N_, rpId_45_F_ },
+    { rpId_56_N_, rpId_56_F_ },
   };
 
   doubleArmConfigurations = {
-    { rpId_45_N, rpId_56_N },
-    { rpId_45_F, rpId_56_F },
-    { rpId_45_N, rpId_45_F, rpId_56_N, rpId_56_F },
+    { rpId_45_N_, rpId_56_N_ },
+    { rpId_45_F_, rpId_56_F_ },
+    { rpId_45_N_, rpId_45_F_, rpId_56_N_, rpId_56_F_ },
   };
-}
-
-//----------------------------------------------------------------------------------------------------
-
-CTPPSAcceptancePlotter::~CTPPSAcceptancePlotter()
-{
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -195,11 +171,11 @@ void CTPPSAcceptancePlotter::analyze(const edm::Event& iEvent, const edm::EventS
 {
   // get input
   edm::Handle<edm::HepMCProduct> hHepMC;
-  iEvent.getByToken(tokenHepMC, hHepMC);
+  iEvent.getByToken(tokenHepMC_, hHepMC);
   HepMC::GenEvent *hepMCEvent = (HepMC::GenEvent *) hHepMC->GetEvent();
 
-  edm::Handle< std::vector<CTPPSLocalTrackLite> > hTracks;
-  iEvent.getByToken(tokenTracks, hTracks);
+  edm::Handle<CTPPSLocalTrackLiteCollection> hTracks;
+  iEvent.getByToken(tokenTracks_, hTracks);
 
   // extract protons
   bool proton_45_set = false;
@@ -282,8 +258,8 @@ void CTPPSAcceptancePlotter::analyze(const edm::Event& iEvent, const edm::EventS
       continue;
 
     const double xi = (arm == 0) ? xi_45 : xi_56;
-    
-    singleArmPlots[rpIds].Fill(xi, acc);
+
+    singleArmPlots[rpIds].fill(xi, acc);
   }
 
   for (const auto rpIds : doubleArmConfigurations)
@@ -292,58 +268,43 @@ void CTPPSAcceptancePlotter::analyze(const edm::Event& iEvent, const edm::EventS
     for (const auto rpId : rpIds)
       acc &= trackPresent[rpId];
 
-    doubleArmPlots[rpIds].Fill(xi_45, xi_56, acc);
+    doubleArmPlots[rpIds].fill(xi_45, xi_56, acc);
   }
 }
 
-
-//----------------------------------------------------------------------------------------------------
-
-void CTPPSAcceptancePlotter::beginJob()
-{
-}
 
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSAcceptancePlotter::endJob()
 {
-  TFile *f_out = TFile::Open(outputFile.c_str(), "recreate");
+  auto f_out = std::make_unique<TFile>(outputFile_.c_str(), "recreate");
 
-  for (const auto &p : singleArmPlots)
-  {
+  for (const auto &p : singleArmPlots) {
     string dirName;
-    for (const auto &rpId : p.first)
-    {
+    for (const auto &rpId : p.first) {
       if (!dirName.empty())
         dirName += ",";
-      char buf[100];
-      sprintf(buf, "%u", rpId);
-      dirName += buf;
+      dirName += Form("%u", rpId);
     }
 
     gDirectory = f_out->mkdir(dirName.c_str());
-    p.second.Write();
+    p.second.write();
   }
 
-  for (const auto &p : doubleArmPlots)
-  {
+  for (const auto &p : doubleArmPlots) {
     string dirName;
-    for (const auto &rpId : p.first)
-    {
+    for (const auto &rpId : p.first) {
       if (!dirName.empty())
         dirName += ",";
-      char buf[100];
-      sprintf(buf, "%u", rpId);
-      dirName += buf;
+      dirName += Form("%u", rpId);
     }
 
     gDirectory = f_out->mkdir(dirName.c_str());
-    p.second.Write();
+    p.second.write();
   }
-
-  delete f_out;
 }
 
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(CTPPSAcceptancePlotter);
+

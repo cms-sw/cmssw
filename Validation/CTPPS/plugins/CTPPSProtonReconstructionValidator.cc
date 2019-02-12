@@ -21,6 +21,7 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsCollection.h"
 
 #include "DataFormats/ProtonReco/interface/ForwardProton.h"
+#include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "TFile.h"
@@ -36,45 +37,31 @@ class CTPPSProtonReconstructionValidator : public edm::one::EDAnalyzer<>
   public:
     explicit CTPPSProtonReconstructionValidator(const edm::ParameterSet&);
 
-    ~CTPPSProtonReconstructionValidator() override {}
-
   private:
     void analyze(const edm::Event&, const edm::EventSetup&) override;
-
     void endJob() override;
 
-    edm::EDGetTokenT<std::vector<reco::ForwardProton>> tokenRecoProtons_;
-
+    edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtons_;
     double chiSqCut_;
-
     std::string outputFile_;
-
     edm::ESWatcher<LHCInfoRcd> lhcInfoWatcher_;
     float currentCrossingAngle_;
-
     std::unordered_map<unsigned int, LHCOpticalFunctionsSet> opticalFunctions_;
 
     struct RPPlots
     {
-      TH1D *h_de_x = nullptr, *h_de_y;
+      std::unique_ptr<TH1D> h_de_x, h_de_y;
+      RPPlots() :
+        h_de_x(new TH1D("", ";#Deltax   (mm)", 100, -2., +2.)),
+        h_de_y(new TH1D("", ";#Deltay   (mm)", 100, -2., +2.))
+      {}
 
-      void init()
-      {
-        h_de_x = new TH1D("", ";#Deltax   (mm)", 100, -2., +2.);
-        h_de_y = new TH1D("", ";#Deltay   (mm)", 100, -2., +2.);
-      }
-
-      void fill(double de_x, double de_y)
-      {
-        if (h_de_x == nullptr)
-          init();
-
+      void fill(double de_x, double de_y) {
         h_de_x->Fill(de_x);
         h_de_y->Fill(de_y);
       }
 
-      void write() const
-      {
+      void write() const {
         h_de_x->Write("h_de_x");
         h_de_y->Write("h_de_y");
       }
@@ -91,11 +78,10 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 
 CTPPSProtonReconstructionValidator::CTPPSProtonReconstructionValidator(const edm::ParameterSet& iConfig) :
-  tokenRecoProtons_( consumes<std::vector<reco::ForwardProton>>(iConfig.getParameter<edm::InputTag>("tagRecoProtons")) ),
-  chiSqCut_( iConfig.getParameter<double>("chiSqCut") ),
+  tokenRecoProtons_(consumes<reco::ForwardProtonCollection>(iConfig.getParameter<edm::InputTag>("tagRecoProtons"))),
+  chiSqCut_  (iConfig.getParameter<double>("chiSqCut")),
   outputFile_(iConfig.getParameter<string>("outputFile"))
-{
-}
+{}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -128,7 +114,7 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
     return;
 
   // get input
-  Handle<vector<reco::ForwardProton>> hRecoProtons;
+  Handle<reco::ForwardProtonCollection> hRecoProtons;
   iEvent.getByToken(tokenRecoProtons_, hRecoProtons);
 
   // process tracks
@@ -167,15 +153,12 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
 
 void CTPPSProtonReconstructionValidator::endJob()
 {
-  TFile *f_out = TFile::Open(outputFile_.c_str(), "recreate");
+  auto f_out = std::make_unique<TFile>(outputFile_.c_str(), "recreate");
 
-  for (const auto &p : rp_plots_)
-  {
+  for (const auto& p : rp_plots_) {
     gDirectory = f_out->mkdir(Form("%u", p.first));
     p.second.write();
   }
-
-  delete f_out;
 }
 
 //----------------------------------------------------------------------------------------------------
