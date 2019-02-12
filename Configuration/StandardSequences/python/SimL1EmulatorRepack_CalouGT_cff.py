@@ -102,7 +102,7 @@ simCaloStage2Layer1Digis.ecalToken = 'unpackEcal:EcalTriggerPrimitives'
 simCaloStage2Layer1Digis.hcalToken = 'unpackHcal'
 
 # uGT inputs for Muons are from unpacked
-simGtStage2Digis.MuonInputTag   = "unpackGtStage2","Muon"
+simGtStage2Digis.MuonInputTag   = "unpackGtStage2:Muon"
 
 # Finally, pack the newly re-emulated L1T parts back into RAW
 # Calo packer
