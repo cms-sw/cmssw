@@ -16,7 +16,7 @@ namespace l1tpf_impl {
         virtual void runChargedPV(Region &r, float z0) const ;
         virtual void runPuppi(Region &r, float npu, float alphaCMed, float alphaCRms, float alphaFMed, float alphaFRms) const ;
         /// global operations
-        enum VertexAlgo { OldVtxAlgo, TPVtxAlgo };
+        enum VertexAlgo { OldVtxAlgo, TPVtxAlgo, ExternalVtxAlgo };
         virtual void doVertexing(std::vector<Region> &rs, VertexAlgo algo, float &vz) const ; // region is not const since it sets the fromPV bit of the tracks
         virtual void computePuppiMedRMS(const std::vector<Region> &rs, float &alphaCMed, float &alphaCRms, float &alphaFMed, float &alphaFRms) const ;
     protected:

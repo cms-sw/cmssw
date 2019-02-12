@@ -158,15 +158,18 @@ void PFAlgoBase::doVertexing(std::vector<Region> &rs, VertexAlgo algo, float &pv
     int lNBins = int(40./vtxRes_);
     if (algo == TPVtxAlgo) lNBins *= 3;
     std::unique_ptr<TH1F> h_dz(new TH1F("h_dz","h_dz",lNBins,-20,20));
-    for (const Region & r : rs) {
+    if (algo != ExternalVtxAlgo) {
+      for (const Region & r : rs) {
         for (const PropagatedTrack & p : r.track) {
             if (rs.size() > 1) {
                 if (!r.fiducialLocal(p.floatVtxEta(), p.floatVtxPhi())) continue; // skip duplicates
             }
             h_dz->Fill( p.floatDZ(), std::min(p.floatPt(), 50.f) );
         }
+      }
     }
     switch(algo) {
+        case ExternalVtxAlgo: break;
         case OldVtxAlgo: {
                              int imaxbin = h_dz->GetMaximumBin();
                              pvdz = h_dz->GetXaxis()->GetBinCenter(imaxbin);

@@ -1,6 +1,7 @@
 <use name="CalibFormats/CaloTPG"/>
 <use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/HcalDigi"/>
+<use name="DataFormats/L1TVertex"/>
 <use name="FWCore/PluginManager"/>
 <use name="L1Trigger/L1TCalorimeter"/>
 <use name="L1Trigger/Phase2L1ParticleFlow"/>

@@ -12,6 +12,7 @@
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Phase2L1ParticleFlow/interface/PFCandidate.h"
+#include "DataFormats/L1TVertex/interface/Vertex.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -32,6 +33,7 @@ class L1TPFProducer : public edm::stream::EDProducer<> {
         float trkPt_, trkMaxChi2_;
         unsigned trkMinStubs_;
         l1tpf_impl::PFAlgoBase::VertexAlgo vtxAlgo_;  
+        edm::EDGetTokenT<std::vector<l1t::Vertex>> extVtx_;
 
         edm::EDGetTokenT<l1t::MuonBxCollection> muCands_;
 
@@ -101,7 +103,10 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig):
     std::string vtxAlgo = iConfig.getParameter<std::string>("vtxAlgo");
     if      (vtxAlgo == "TP")  vtxAlgo_ = l1tpf_impl::PFAlgoBase::TPVtxAlgo;
     else if (vtxAlgo == "old") vtxAlgo_ = l1tpf_impl::PFAlgoBase::OldVtxAlgo;
-    else throw cms::Exception("Configuration") << "Unsupported vtxAlgo " << vtxAlgo << "\n";
+    else if (vtxAlgo == "external") {
+        vtxAlgo_ = l1tpf_impl::PFAlgoBase::ExternalVtxAlgo;
+        extVtx_  = consumes<std::vector<l1t::Vertex>>(iConfig.getParameter<edm::InputTag>("vtxCollection"));
+    } else throw cms::Exception("Configuration") << "Unsupported vtxAlgo " << vtxAlgo << "\n";
 
 }
 
@@ -159,6 +164,17 @@ L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // Then do the vertexing, and save it out
     float z0;
+    if (vtxAlgo_ == l1tpf_impl::PFAlgoBase::ExternalVtxAlgo) {
+        edm::Handle<std::vector<l1t::Vertex>> vtxHandle;
+        iEvent.getByToken(extVtx_, vtxHandle);
+        z0 = 0;
+        double ptsum = 0;
+        for (const l1t::Vertex & vtx : *vtxHandle) {
+            double myptsum = 0; 
+            for (const auto & tkptr : vtx.tracks()) { myptsum += std::min(tkptr->getMomentum(4).perp(), 50.f); }
+            if (myptsum > ptsum) { z0 = vtx.z0(); ptsum = myptsum; }
+        }
+    }
     l1pfalgo_->doVertexing(l1regions_.regions(), vtxAlgo_, z0);
     iEvent.put(std::make_unique<float>(z0), "z0");
 
