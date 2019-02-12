@@ -1,3 +1,2 @@
 <bin file="test.cc" name="testBinary_uses_WrapperKernelFunction"/>
-<use name="cuda"/>
 <use name="Test/WrapperKernelFunction"/>

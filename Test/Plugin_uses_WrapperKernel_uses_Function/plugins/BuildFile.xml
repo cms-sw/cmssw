@@ -1,5 +1,4 @@
 <library file="plugin.cc" name="TestPlugin_uses_WrapperKernel_uses_Function">
-  <use name="cuda"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="Test/WrapperKernel_uses_Function"/>
