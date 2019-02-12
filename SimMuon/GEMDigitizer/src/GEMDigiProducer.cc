@@ -41,7 +41,7 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
       << "Add the service in the configuration file or remove the modules that require it.";
   }
 
-  LogDebug("GEMDigiProducer").log([&](auto& l){ l << "Using GEM" + ps.getParameter<std::string>("digiModelString") + "Model"; });
+  LogDebug("GEMDigiProducer") << "Using GEM" + ps.getParameter<std::string>("digiModelString") + "Model";
 
   std::string mix_(ps.getParameter<std::string>("mixLabel"));
   std::string collection_(ps.getParameter<std::string>("inputCollection"));

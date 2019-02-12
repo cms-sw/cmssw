@@ -41,7 +41,7 @@ ME0DigiProducer::ME0DigiProducer(const edm::ParameterSet& ps)
       << "Add the service in the configuration file or remove the modules that require it.";
   }
 
-  LogDebug("ME0DigiProducer").log([&](auto& l) { l << "Using ME0" + ps.getParameter<std::string>("digiModelString") + "Model"; });
+  LogDebug("ME0DigiProducer") << "Using ME0" + ps.getParameter<std::string>("digiModelString") + "Model";
 
   std::string mix_(ps.getParameter<std::string>("mixLabel"));
   std::string collection_(ps.getParameter<std::string>("inputCollection"));
