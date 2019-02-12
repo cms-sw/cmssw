@@ -8,8 +8,8 @@
 
 #ifdef _POSIX_C_SOURCE
 #	include <sys/time.h>
-#	include <signal.h>
-#	include <setjmp.h>
+#	include <csignal>
+#	include <csetjmp>
 #endif
 
 #include <CLHEP/Random/RandomEngine.h>
@@ -52,8 +52,8 @@ using namespace gen;
 double gen::hwrgen_(int *idummy)
 { 
   Herwig6Instance *instance = FortranInstance::getInstance<Herwig6Instance>();
-  assert(instance != 0);
-  assert(instance->randomEngine != 0);
+  assert(instance != nullptr);
+  assert(instance->randomEngine != nullptr);
   return instance->randomEngine->flat();
 }
 
@@ -79,7 +79,7 @@ extern "C" {
 
 Herwig6Instance::Herwig6Instance() :
 	randomEngine(nullptr),
-	timeoutPrivate(0)
+	timeoutPrivate(nullptr)
 {
 }
 
@@ -96,8 +96,8 @@ Herwig6Instance::~Herwig6Instance()
 void Herwig6Instance::_timeout_sighandler(int signr)
 {
   Herwig6Instance *instance = FortranInstance::getInstance<Herwig6Instance>();
-  assert(instance != 0);
-  assert(instance->timeoutPrivate != 0);
+  assert(instance != nullptr);
+  assert(instance->timeoutPrivate != nullptr);
   siglongjmp(*(sigjmp_buf*)instance->timeoutPrivate, 1);
 }
 
@@ -115,30 +115,30 @@ bool Herwig6Instance::timeout(unsigned int secs, void (*fn)())
 	timerclear(&itv.it_interval);
 	itv.it_value.tv_sec = 0;
 	itv.it_interval.tv_sec = 0;
-	setitimer(ITIMER_VIRTUAL, &itv, NULL);
+	setitimer(ITIMER_VIRTUAL, &itv, nullptr);
 
 	sigset_t ss;
 	sigemptyset(&ss);
 	sigaddset(&ss, SIGVTALRM);
 
-	sigprocmask(SIG_UNBLOCK, &ss, NULL);
-	sigprocmask(SIG_BLOCK, &ss, NULL);
+	sigprocmask(SIG_UNBLOCK, &ss, nullptr);
+	sigprocmask(SIG_BLOCK, &ss, nullptr);
 
 	timeoutPrivate = new sigjmp_buf;
 	if (sigsetjmp(*(sigjmp_buf*)timeoutPrivate, 1)) {
 		delete (sigjmp_buf*)timeoutPrivate;
-		timeoutPrivate = 0;
+		timeoutPrivate = nullptr;
 
 		itv.it_value.tv_sec = 0;
 		itv.it_interval.tv_sec = 0;
-		setitimer(ITIMER_VIRTUAL, &itv, NULL);
-		sigprocmask(SIG_UNBLOCK, &ss, NULL);
+		setitimer(ITIMER_VIRTUAL, &itv, nullptr);
+		sigprocmask(SIG_UNBLOCK, &ss, nullptr);
 		return true;
 	}
 
 	itv.it_value.tv_sec = secs;
 	itv.it_interval.tv_sec = secs;
-	setitimer(ITIMER_VIRTUAL, &itv, NULL);
+	setitimer(ITIMER_VIRTUAL, &itv, nullptr);
 
 	struct sigaction sa;
 	std::memset(&sa, 0, sizeof sa);
@@ -147,31 +147,31 @@ bool Herwig6Instance::timeout(unsigned int secs, void (*fn)())
 	sigemptyset(&sa.sa_mask);
 
 	sigaction(SIGVTALRM, &sa, &saOld);
-	sigprocmask(SIG_UNBLOCK, &ss, NULL);
+	sigprocmask(SIG_UNBLOCK, &ss, nullptr);
 
 	try {
 		fn();
 	} catch(...) {
 		delete (sigjmp_buf*)timeoutPrivate;
-		timeoutPrivate = 0;
+		timeoutPrivate = nullptr;
 
 		itv.it_value.tv_sec = 0;
 		itv.it_interval.tv_sec = 0;
-		setitimer(ITIMER_VIRTUAL, &itv, NULL);
+		setitimer(ITIMER_VIRTUAL, &itv, nullptr);
 
-		sigaction(SIGVTALRM, &saOld, NULL);
+		sigaction(SIGVTALRM, &saOld, nullptr);
 
 		throw;
 	}
 
 	delete (sigjmp_buf*)timeoutPrivate;
-	timeoutPrivate = 0;
+	timeoutPrivate = nullptr;
 
 	itv.it_value.tv_sec = 0;
 	itv.it_interval.tv_sec = 0;
-	setitimer(ITIMER_VIRTUAL, &itv, NULL);
+	setitimer(ITIMER_VIRTUAL, &itv, nullptr);
 
-	sigaction(SIGVTALRM, &saOld, NULL);
+	sigaction(SIGVTALRM, &saOld, nullptr);
 
 	return false;
 }

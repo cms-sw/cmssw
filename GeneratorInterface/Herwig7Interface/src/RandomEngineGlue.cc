@@ -9,7 +9,7 @@
 
 #include <ThePEG/Repository/StandardRandom.h>
 
-#include "GeneratorInterface/ThePEGInterface/interface/RandomEngineGlue.h"
+#include "GeneratorInterface/Herwig7Interface/interface/RandomEngineGlue.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 

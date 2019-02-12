@@ -1,5 +1,5 @@
-#ifndef GeneratorInterface_ThePEGInterface_Proxy_h
-#define GeneratorInterface_ThePEGInterface_Proxy_h
+#ifndef GeneratorInterface_Herwig7Interface_Proxy_h
+#define GeneratorInterface_Herwig7Interface_Proxy_h
 
 #include <boost/shared_ptr.hpp>
 
@@ -55,4 +55,4 @@ class Proxy : public ProxyBase {
 
 } // namespace ThePEG
 
-#endif // GeneratorProxy_ThePEGInterface_Proxy_h
+#endif // GeneratorProxy_Herwig7Interface_Proxy_h

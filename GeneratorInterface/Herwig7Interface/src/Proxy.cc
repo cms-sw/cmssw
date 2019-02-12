@@ -4,7 +4,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
-#include "GeneratorInterface/ThePEGInterface/interface/Proxy.h"
+#include "GeneratorInterface/Herwig7Interface/interface/Proxy.h"
 
 using namespace ThePEG;
 

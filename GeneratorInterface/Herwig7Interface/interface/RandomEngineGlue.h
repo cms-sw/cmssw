@@ -1,5 +1,5 @@
-#ifndef GeneratorInterface_ThePEGInterface_RandomEngineGlue_h
-#define GeneratorInterface_ThePEGInterface_RandomEngineGlue_h
+#ifndef GeneratorInterface_Herwig7Interface_RandomEngineGlue_h
+#define GeneratorInterface_Herwig7Interface_RandomEngineGlue_h
 
 #include <string>
 
@@ -12,7 +12,8 @@
 
 #include <ThePEG/Repository/StandardRandom.h>
 
-#include "GeneratorInterface/ThePEGInterface/interface/Proxy.h"
+#include "GeneratorInterface/Herwig7Interface/interface/Proxy.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 namespace CLHEP {
 	class HepRandomEngine;	// forward declaration
@@ -26,7 +27,7 @@ class RandomEngineGlue : public RandomGenerator {
 	~RandomEngineGlue() override;
 
 	void setRandomEngine(CLHEP::HepRandomEngine* v) { randomEngine = v; }
-
+    CLHEP::HepRandomEngine* getRandomEngine() const { return randomEngine; }
 	void flush();
 
 	static void Init();
@@ -86,9 +87,9 @@ struct ClassTraits<RandomEngineGlue> :
 			public ClassTraitsBase<RandomEngineGlue> {
 	/** Return a platform-independent class name */
 	static string className() { return "ThePEG::RandomEngineGlue"; }
-	static string library() { return "libGeneratorInterfaceThePEGInterface.so"; }
+	static string library() { return "libGeneratorInterfaceHerwig7Interface.so"; }
 };
 
 } // namespace ThePEG
 
-#endif // GeneratorInterface_ThePEGInterface_RandomEngineGlue_h
+#endif // GeneratorInterface_Herwig7Interface_RandomEngineGlue_h
