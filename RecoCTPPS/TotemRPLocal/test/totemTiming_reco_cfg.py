@@ -1,7 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+class CalibrationMode:
+    CondDB = 0
+    JSON   = 1
+    SQLite = 2
+
 process = cms.Process('CTPPS')
-useJson = True
+calibrationMode = CalibrationMode.CondDB
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -12,10 +17,10 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
 
-if useJson:
+if calibrationMode == CalibrationMode.JSON:
     process.load('CondFormats.CTPPSReadoutObjects.ppsTimingCalibrationESSource_cfi')
     process.ppsTimingCalibrationESSource.calibrationFile = cms.FileInPath('RecoCTPPS/TotemRPLocal/data/timing_offsets_ufsd_2018.dec18.cal.json')
-else:
+elif calibrationMode == CalibrationMode.SQLite:
     # load calibrations from database
     process.load('CondCore.CondDB.CondDB_cfi')
     process.CondDB.connect = 'sqlite_file:totemTiming_calibration.sqlite' # SQLite input
