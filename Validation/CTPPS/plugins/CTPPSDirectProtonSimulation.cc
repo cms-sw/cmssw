@@ -347,7 +347,7 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
 
     // save scoring plane hit
     if (produceScoringPlaneHits_)
-        out_tracks.emplace_back(rpId, b_x, 0., b_y, 0.);
+        out_tracks.emplace_back(rpId.rawId(), b_x, 0., b_y, 0., 0., 0., 0., 0., 0., CTPPSpixelLocalTrackReconstructionInfo::invalid, 0, 0., 0.);
 
     // stop if rec hits are not to be produced
     if (!produceRecHits_)
