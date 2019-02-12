@@ -60,8 +60,8 @@ class CTPPSProtonReconstructionValidator : public edm::one::EDAnalyzer<>
 
       void init()
       {
-        h_de_x = new TH1D("", ";#Deltax   (mm)", 100, -2E-3, +2E-3);
-        h_de_y = new TH1D("", ";#Deltay   (mm)", 100, -2E-3, +2E-3);
+        h_de_x = new TH1D("", ";#Deltax   (mm)", 100, -2., +2.);
+        h_de_y = new TH1D("", ";#Deltay   (mm)", 100, -2., +2.);
       }
 
       void fill(double de_x, double de_y)
@@ -155,8 +155,8 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
       LHCOpticalFunctionsSet::Kinematics k_out;
       it->second.transport(k_in, k_out);
 
-      const double de_x = (k_out.x - k_out_beam.x) * 1E3 - tr->getX();  // conversions: m --> mm
-      const double de_y = (k_out.y - k_out_beam.y) * 1E3 - tr->getY();  // conversions: m --> mm
+      const double de_x = (k_out.x - k_out_beam.x) * 10. - tr->getX();  // conversions: cm --> mm
+      const double de_y = (k_out.y - k_out_beam.y) * 10. - tr->getY();  // conversions: cm --> mm
 
       rp_plots_[rpDecId].fill(de_x, de_y);
     }
@@ -171,9 +171,7 @@ void CTPPSProtonReconstructionValidator::endJob()
 
   for (const auto &p : rp_plots_)
   {
-    char buf[100];
-    sprintf(buf, "%u", p.first);
-    gDirectory = f_out->mkdir(buf);
+    gDirectory = f_out->mkdir(Form("%u", p.first));
     p.second.write();
   }
 
@@ -183,3 +181,4 @@ void CTPPSProtonReconstructionValidator::endJob()
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(CTPPSProtonReconstructionValidator);
+
