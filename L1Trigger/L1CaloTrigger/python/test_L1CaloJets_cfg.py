@@ -17,6 +17,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
+        'file:root://cms-xrd-global.cern.ch//store/mc/PhaseIIFall17D/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v2/30000/564C271B-9654-E811-9338-90B11C2AA16C.root',
         'file:root://cms-xrd-global.cern.ch//store/mc/PhaseIIFall17D/QCD_Pt-0to1000_Tune4C_14TeV_pythia8/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/00000/2829A010-B243-E811-B2A3-A0369FE2C0DE.root',
         'file:root://cms-xrd-global.cern.ch//store/mc/PhaseIIFall17D/QCD_Pt-0to1000_Tune4C_14TeV_pythia8/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/00000/90F6FE0D-B243-E811-8A7E-A0369FD0B192.root',
         'file:root://cms-xrd-global.cern.ch//store/mc/PhaseIIFall17D/QCD_Pt-0to1000_Tune4C_14TeV_pythia8/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/00000/54D11785-C443-E811-8A2F-0CC47A4D99F0.root',
@@ -64,12 +65,23 @@ process.load('L1Trigger/L1CaloTrigger/L1EGammaCrystalsEmulatorProducer_cfi')
 
 # --------------------------------------------------------------------------------------------
 #
+# ----    Produce the calibrated tower collection combining Barrel, HGCal, HF
+
+process.load('L1Trigger/L1CaloTrigger/L1TowerCalibrationProducer_cfi')
+
+
+
+# --------------------------------------------------------------------------------------------
+#
 # ----    Produce the L1CaloJets
 
 process.load('L1Trigger/L1CaloTrigger/L1CaloJetProducer_cfi')
 
 
-process.pL1EG = cms.Path( process.L1EGammaClusterEmuProducer * process.L1CaloJetProducer )
+process.pL1CaloJets = cms.Path( 
+        process.L1EGammaClusterEmuProducer *
+        process.L1TowerCalibrationProducer *
+        process.L1CaloJetProducer )
 
 
 
