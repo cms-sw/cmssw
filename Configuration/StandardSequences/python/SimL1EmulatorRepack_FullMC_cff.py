@@ -5,11 +5,11 @@ import FWCore.ParameterSet.Config as cms
 
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-if not (stage2L1Trigger.isChosen()):
+def _print(ignored):
     print("L1T WARN:  L1REPACK:FullMC (intended for MC events with RAW eventcontent) only supports Stage 2 eras for now.")
     print("L1T WARN:  Use a legacy version of L1REPACK for now.")
-else:
-    print("L1T INFO:  L1REPACK:FullMC  will unpack Calorimetry and Muon L1T inputs, re-emulate L1T (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output.")
+stage2L1Trigger.toModify(None, _print)
+(~stage2L1Trigger).toModify(None, lambda x: print("L1T INFO:  L1REPACK:FullMC  will unpack Calorimetry and Muon L1T inputs, re-emulate L1T (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output."))
 
 # First, Unpack all inputs to L1:
 
