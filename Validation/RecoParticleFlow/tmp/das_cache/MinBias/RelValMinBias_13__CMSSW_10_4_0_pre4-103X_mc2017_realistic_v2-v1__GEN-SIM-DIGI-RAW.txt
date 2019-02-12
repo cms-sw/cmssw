@@ -1,0 +1,14 @@
+root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValMinBias_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/BF8A058A-AB13-B04B-8E81-1A6BD4233B61.root
+root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValMinBias_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/99A3CE4D-70B4-6349-B2C2-95C8CC412E57.root
+root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValMinBias_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/3F3F3138-E79E-8646-8709-54D032138A72.root
+root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValMinBias_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/18EB7333-E590-6E4D-8481-C496B53F34AF.root
+root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValMinBias_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/0D1D7A21-2E00-1044-A7BE-C198E251B1E0.root
+root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValMinBias_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/7B0F1703-1EC7-3F48-9FAB-ADE9622CE23E.root
+root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValMinBias_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/D7406DBB-AC99-A640-AB17-C41546467BF2.root
+root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValMinBias_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/E142FF6C-DB11-0C4E-BA6C-941D0069BB02.root
+root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValMinBias_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/32BCE947-8F13-D14F-A135-A3E8A9F6FF8B.root
+root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValMinBias_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/91D6764B-01F0-3940-A5F8-13C65C4C4718.root
+root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValMinBias_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/AD96D1B3-A1DA-AB46-9C11-CBDD8ED7BF54.root
+root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValMinBias_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/DE9A4CFE-69A6-D544-91F4-32A12FFC4645.root
+root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValMinBias_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/84483C94-DEAF-6644-8EB1-9812B3D0B6B2.root
+root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValMinBias_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/785FF0D4-E4EA-1642-B9C5-86E52095D029.root
