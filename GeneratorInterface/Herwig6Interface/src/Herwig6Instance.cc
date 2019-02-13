@@ -75,11 +75,15 @@ extern "C" {
 	}
 }
 
+struct gen::TimeoutHolder {
+  sigjmp_buf buf;
+};
+
 // Herwig6Instance methods
 
 Herwig6Instance::Herwig6Instance() :
 	randomEngine(nullptr),
-	timeoutPrivate(nullptr)
+	timeoutPrivate()
 {
 }
 
@@ -97,8 +101,8 @@ void Herwig6Instance::_timeout_sighandler(int signr)
 {
   Herwig6Instance *instance = FortranInstance::getInstance<Herwig6Instance>();
   assert(instance != nullptr);
-  assert(instance->timeoutPrivate != nullptr);
-  siglongjmp(*(sigjmp_buf*)instance->timeoutPrivate, 1);
+  assert(instance->timeoutPrivate);
+  siglongjmp(instance->timeoutPrivate->buf, 1);
 }
 
 bool Herwig6Instance::timeout(unsigned int secs, void (*fn)())
@@ -124,10 +128,9 @@ bool Herwig6Instance::timeout(unsigned int secs, void (*fn)())
 	sigprocmask(SIG_UNBLOCK, &ss, nullptr);
 	sigprocmask(SIG_BLOCK, &ss, nullptr);
 
-	timeoutPrivate = new sigjmp_buf;
-	if (sigsetjmp(*(sigjmp_buf*)timeoutPrivate, 1)) {
-		delete (sigjmp_buf*)timeoutPrivate;
-		timeoutPrivate = nullptr;
+	timeoutPrivate = std::make_unique<TimeoutHolder>();
+	if (sigsetjmp(timeoutPrivate->buf, 1)) {
+		timeoutPrivate.reset();
 
 		itv.it_value.tv_sec = 0;
 		itv.it_interval.tv_sec = 0;
@@ -152,8 +155,8 @@ bool Herwig6Instance::timeout(unsigned int secs, void (*fn)())
 	try {
 		fn();
 	} catch(...) {
-		delete (sigjmp_buf*)timeoutPrivate;
-		timeoutPrivate = nullptr;
+
+		timeoutPrivate.reset();
 
 		itv.it_value.tv_sec = 0;
 		itv.it_interval.tv_sec = 0;
@@ -164,8 +167,7 @@ bool Herwig6Instance::timeout(unsigned int secs, void (*fn)())
 		throw;
 	}
 
-	delete (sigjmp_buf*)timeoutPrivate;
-	timeoutPrivate = nullptr;
+	timeoutPrivate.reset();
 
 	itv.it_value.tv_sec = 0;
 	itv.it_interval.tv_sec = 0;
