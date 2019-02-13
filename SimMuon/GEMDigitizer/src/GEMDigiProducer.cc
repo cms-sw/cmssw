@@ -27,7 +27,8 @@ namespace CLHEP {
 }
 
 GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
-  : digiModelString_(ps.getParameter<std::string>("digiModelString"))
+  : gemDigiModel_{GEMDigiModelFactory::get()->create("GEM" + ps.getParameter<std::string>("digiModelString") + "Model",
+                                                     ps)}
 {
   produces<GEMDigiCollection>();
   produces<StripDigiSimLinks>("GEM");
@@ -39,8 +40,8 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
       << "GEMDigiProducer::GEMDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
       << "Add the service in the configuration file or remove the modules that require it.";
   }
-  gemDigiModel_ = GEMDigiModelFactory::get()->create("GEM" + digiModelString_ + "Model", ps);
-  LogDebug("GEMDigiProducer") << "Using GEM" + digiModelString_ + "Model";
+
+  LogDebug("GEMDigiProducer") << "Using GEM" + ps.getParameter<std::string>("digiModelString") + "Model";
 
   std::string mix_(ps.getParameter<std::string>("mixLabel"));
   std::string collection_(ps.getParameter<std::string>("inputCollection"));
@@ -49,10 +50,7 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
 }
 
 
-GEMDigiProducer::~GEMDigiProducer()
-{
-  delete gemDigiModel_;
-}
+GEMDigiProducer::~GEMDigiProducer() = default;
 
 
 void GEMDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup)
@@ -72,16 +70,16 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   edm::Handle<CrossingFrame<PSimHit> > cf;
   e.getByToken(cf_token, cf);
 
-  std::unique_ptr<MixCollection<PSimHit> > hits(new MixCollection<PSimHit>(cf.product()));
+  MixCollection<PSimHit> hits{cf.product()};
 
   // Create empty output
-  std::unique_ptr<GEMDigiCollection> digis(new GEMDigiCollection());
-  std::unique_ptr<StripDigiSimLinks> stripDigiSimLinks(new StripDigiSimLinks() );
-  std::unique_ptr<GEMDigiSimLinks> gemDigiSimLinks(new GEMDigiSimLinks() );
+  auto digis = std::make_unique<GEMDigiCollection>();
+  auto stripDigiSimLinks = std::make_unique<StripDigiSimLinks>();
+  auto gemDigiSimLinks = std::make_unique<GEMDigiSimLinks>();
 
   // arrange the hits by eta partition
   std::map<uint32_t, edm::PSimHitContainer> hitMap;
-  for (const auto& hit: *hits){
+  for (const auto& hit: hits){
     hitMap[hit.detUnitId()].emplace_back(hit);
   }
 

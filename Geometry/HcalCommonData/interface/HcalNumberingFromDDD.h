@@ -8,7 +8,7 @@
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-#include "CLHEP/Vector/ThreeVector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 
 #include <vector>
 #include <string>
@@ -26,7 +26,7 @@ public:
       subdet(det), zside(zs), depth(d), etaR(et), phi(fi), phis(phiskip), lay(ly) {}
   };
 
-  HcalID         unitID(int det, const CLHEP::Hep3Vector& pos, int depth, int lay=-1) const;
+  HcalID         unitID(int det, const math::XYZVectorD& pos, int depth, int lay=-1) const;
   HcalID         unitID(double eta, double phi, int depth=1, int lay=-1) const;
   HcalID         unitID(int det, double etaR, double phi, int depth,
 			int lay=-1) const;

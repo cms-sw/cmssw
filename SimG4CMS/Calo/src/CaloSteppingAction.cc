@@ -2,7 +2,6 @@
 #include "SimG4CMS/Calo/interface/CaloSteppingAction.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 
-#include "DataFormats/Math/interface/Point3D.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 
@@ -170,8 +169,9 @@ void CaloSteppingAction::update(const BeginOfRun * run) {
 //=================================================================== per EVENT
 void CaloSteppingAction::update(const BeginOfEvent * evt) {
  
+  eventID_ = (*evt)()->GetEventID();
   edm::LogVerbatim("Step") <<"CaloSteppingAction: Begin of event = " 
-			   << (*evt)()->GetEventID();
+			   << eventID_;
   for (int k=0; k<CaloSteppingAction::nSD_; ++k) {
     hitMap_[k].erase (hitMap_[k].begin(), hitMap_[k].end());
     slave_[k].get()->Initialize();
@@ -184,23 +184,60 @@ void CaloSteppingAction::update(const G4Step * aStep) {
   //  edm::LogVerbatim("Step") <<"CaloSteppingAction: At each Step";
   NaNTrap(aStep);
   auto lv = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
-  if        (std::find(volEBSD_.begin(),volEBSD_.end(),lv) != volEBSD_.end()) {
-    auto unitID   = getDetIDEB(aStep);
+  bool hc = (std::find(volHCSD_.begin(),volHCSD_.end(),lv) != volHCSD_.end());
+  bool eb = (std::find(volEBSD_.begin(),volEBSD_.end(),lv)!=volEBSD_.end());
+  bool ee = (std::find(volEESD_.begin(),volEESD_.end(),lv)!=volEESD_.end());
+  if  (hc || eb || ee) {
     double dEStep = aStep->GetTotalEnergyDeposit();
-    if (unitID > 0 && dEStep > 0.0) {
-      fillHit(aStep, unitID, dEStep, 0);
-    }
-  } else if (std::find(volEESD_.begin(),volEESD_.end(),lv) != volEESD_.end()) {
-    auto unitID   = getDetIDEE(aStep);
-    double dEStep = aStep->GetTotalEnergyDeposit();
-    if (unitID > 0 && dEStep > 0.0) {
-      fillHit(aStep, unitID, dEStep, 1);
-    }
-  } else if (std::find(volHCSD_.begin(),volHCSD_.end(),lv) != volHCSD_.end()) {
-    auto unitID   = getDetIDHC(aStep);
-    double dEStep = aStep->GetTotalEnergyDeposit();
-    if (unitID > 0 && dEStep > 0.0) {
-      fillHit(aStep, unitID, dEStep, 2);
+    auto const theTrack = aStep->GetTrack();
+    double     time     = theTrack->GetGlobalTime()/nanosecond;
+    int        primID   = theTrack->GetTrackID();
+    bool       em       = G4TrackToParticleID::isGammaElectronPositron(theTrack);
+    auto const touch    = aStep->GetPreStepPoint()->GetTouchable();
+    auto const& hitPoint= aStep->GetPreStepPoint()->GetPosition();
+    if (hc) {
+      int depth = (touch->GetReplicaNumber(0))%10 + 1;
+      int lay   = (touch->GetReplicaNumber(0)/10)%100 + 1;
+      int det   = (touch->GetReplicaNumber(1))/1000;
+      auto unitID   = getDetIDHC(det, lay, depth,
+				 math::XYZVectorD(hitPoint.x(),hitPoint.y(),
+						  hitPoint.z()));
+      if (unitID > 0 && dEStep > 0.0) {
+	dEStep *= getBirkHC(dEStep, aStep->GetStepLength(), 
+			    aStep->GetPreStepPoint()->GetCharge(),
+			    aStep->GetPreStepPoint()->GetMaterial()->GetDensity());
+	fillHit(unitID, dEStep, time, primID, 0, em, 2);
+      }
+    } else {
+      EcalBaseNumber theBaseNumber;
+      int  size = touch->GetHistoryDepth()+1;
+      if (theBaseNumber.getCapacity() < size ) theBaseNumber.setSize(size);
+      //Get name and copy numbers
+      if (size > 1) {
+	for (int ii = 0; ii < size ; ii++) {
+	  theBaseNumber.addLevel(touch->GetVolume(ii)->GetName(),
+				 touch->GetReplicaNumber(ii));
+	}
+      }
+      auto unitID = (eb ? (ebNumberingScheme_->getUnitID(theBaseNumber)) :
+		     (eeNumberingScheme_->getUnitID(theBaseNumber)));
+      if (unitID > 0 && dEStep > 0.0) {
+	auto local = touch->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
+	auto ite   = xtalMap_.find(lv);
+	double crystalLength = ((ite == xtalMap_.end()) ? 230.0 : 
+				std::abs(ite->second));
+	double crystalDepth = ((ite == xtalMap_.end()) ? 0.0 :
+			       (std::abs(0.5*(ite->second)+local.z())));
+	double radl   = aStep->GetPreStepPoint()->GetMaterial()->GetRadlen();
+	bool   flag   = ((ite == xtalMap_.end()) ? true : (((ite->second) >= 0)
+							   ? true : false));
+	auto   depth  = getDepth(flag, crystalDepth, radl);
+	dEStep        *= (getBirkL3(dEStep,aStep->GetStepLength(),
+				    aStep->GetPreStepPoint()->GetCharge(),
+				    aStep->GetPreStepPoint()->GetMaterial()->GetDensity()) * 
+			  curve_LY(crystalLength,crystalDepth));
+	fillHit(unitID, dEStep, time, primID, depth, em, (eb ? 0 : 1));
+      }
     }
   }
 }
@@ -229,116 +266,49 @@ void CaloSteppingAction::NaNTrap(const G4Step* aStep) const {
   }
 }
 
-uint32_t CaloSteppingAction::getDetIDEB(const G4Step * aStep) const {
-  EcalBaseNumber theBaseNumber = getBaseNumber(aStep);
-  return ebNumberingScheme_->getUnitID(theBaseNumber);
+uint32_t CaloSteppingAction::getDetIDHC(int det, int lay, int depth,
+					const math::XYZVectorD& pos) const {
+
+  HcalNumberingFromDDD::HcalID tmp = hcNumbering_.get()->unitID(det, pos, 
+								depth, lay);
+  return (hcNumberingScheme_.get()->getUnitID(tmp));
 }
 
-uint32_t CaloSteppingAction::getDetIDEE(const G4Step * aStep) const {
-  EcalBaseNumber theBaseNumber = getBaseNumber(aStep);
-  return eeNumberingScheme_->getUnitID(theBaseNumber);
-}
-
-uint32_t CaloSteppingAction::getDetIDHC(const G4Step * aStep) const {
-
-  auto const prePoint  = aStep->GetPreStepPoint(); 
-  auto const touch     = prePoint->GetTouchable();
-  const G4ThreeVector& hitPoint = prePoint->GetPosition();
-
-  int depth = (touch->GetReplicaNumber(0))%10 + 1;
-  int lay   = (touch->GetReplicaNumber(0)/10)%100 + 1;
-  int det   = (touch->GetReplicaNumber(1))/1000;
-  HcalNumberingFromDDD::HcalID tmp =  hcNumbering_.get()->unitID(det, hitPoint,
-								 depth, lay);
-  uint32_t id = hcNumberingScheme_.get()->getUnitID(tmp);
-  return id;
-}
-
-EcalBaseNumber CaloSteppingAction::getBaseNumber(const G4Step* aStep) const {
-  EcalBaseNumber theBaseNumber;
-  auto touch = aStep->GetPreStepPoint()->GetTouchable();
-  int theSize = touch->GetHistoryDepth()+1;
-  if (theBaseNumber.getCapacity() < theSize ) theBaseNumber.setSize(theSize);
-  //Get name and copy numbers
-  if (theSize > 1) {
-    for (int ii = 0; ii < theSize ; ii++) {
-      theBaseNumber.addLevel(touch->GetVolume(ii)->GetName(),
-			     touch->GetReplicaNumber(ii));
-    }
-  }
-  return theBaseNumber;
-}
-
-void CaloSteppingAction::fillHit(const G4Step * aStep, uint32_t id, double dE,
+void CaloSteppingAction::fillHit(uint32_t id, double dE, double time,
+				 int primID, uint16_t depth, double em,
 				 int flag) {
-  uint16_t   depth    = getDepth(aStep, flag);
-  auto const theTrack = aStep->GetTrack();
-  double     time     = theTrack->GetGlobalTime()/nanosecond;
-  int        primID   = theTrack->GetTrackID();
   CaloHitID  currentID(id, time, primID, depth);
-  auto const hitPoint = aStep->GetPreStepPoint();
-  auto const lv       = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
-  if (flag < 2) {
-    auto currentLocalPoint = setToLocal(hitPoint->GetPosition(),
-					hitPoint->GetTouchable());
-    dE *= (curve_LY(lv,currentLocalPoint.z())*getBirkL3(aStep));
-  } else {
-    dE *= getBirkHC(aStep);
-  }
-  double edepEM(0), edepHAD(0);
-  if (G4TrackToParticleID::isGammaElectronPositron(theTrack)) {
-    edepEM  = dE;
-  } else {
-    edepHAD = dE;
-  }
-  auto it = hitMap_[flag].find(currentID);
+  double edepEM  = (em ? dE : 0);
+  double edepHAD = (em ? 0 : dE);
+  std::pair<int,CaloHitID> evID = std::make_pair(eventID_,currentID);
+  auto it = hitMap_[flag].find(evID);
   if (it != hitMap_[flag].end()) {
     (it->second).addEnergyDeposit(edepEM,edepHAD);
   } else {
     CaloGVHit aHit;
+    aHit.setEventID(eventID_);
     aHit.setID(currentID);
     aHit.addEnergyDeposit(edepEM,edepHAD);
-    hitMap_[flag][currentID] = aHit;
+    hitMap_[flag][evID] = aHit;
   }
 }
 
-uint16_t CaloSteppingAction::getDepth(const G4Step * aStep, int flag) const {
-  uint16_t depth(0);
-  if (flag < 2) {
-    const G4StepPoint* hitPoint = aStep->GetPreStepPoint();
-    auto currentLocalPoint = setToLocal(hitPoint->GetPosition(),
-					hitPoint->GetTouchable());
-    auto lv = hitPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
-    auto ite = xtalMap_.find(lv);
-    double crystalDepth = (ite == xtalMap_.end()) 
-      ? 0.0 : (std::abs(0.5*(ite->second)+currentLocalPoint.z()));
-    uint16_t depth1 = (ite == xtalMap_.end()) ? 0 : (((ite->second) >= 0) ? 0 :
-						     PCaloHit::kEcalDepthRefz);
-    double radl = hitPoint->GetMaterial()->GetRadlen();
-    uint16_t depth2 = (uint16_t)floor(crystalDepth/radl);
-    depth          |= (((depth2&PCaloHit::kEcalDepthMask) << PCaloHit::kEcalDepthOffset) | depth1);
+uint16_t CaloSteppingAction::getDepth(bool flag, double crystalDepth,
+				      double radl) const {
+  uint16_t depth1 = (flag ? 0 : PCaloHit::kEcalDepthRefz);
+  uint16_t depth2 = (uint16_t)floor(crystalDepth/radl);
+  uint16_t depth  = (((depth2&PCaloHit::kEcalDepthMask) << PCaloHit::kEcalDepthOffset) | depth1);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Step") << "CaloSteppingAction::getDepth radl " << radl
-			     << ":" << crystalDepth << " depth " << depth;
+  edm::LogVerbatim("Step") << "CaloSteppingAction::getDepth radl " << radl
+			   << ":" << crystalDepth << " depth " << depth;
 #endif
-  } else {
-  }
   return depth;
 }
 
-G4ThreeVector CaloSteppingAction::setToLocal(const G4ThreeVector& global, 
-					     const G4VTouchable* touch) const {
-  return touch->GetHistory()->GetTopTransform().TransformPoint(global);
-}
-
-double CaloSteppingAction::curve_LY(const G4LogicalVolume* lv, double z) {
+double CaloSteppingAction::curve_LY(double crystalLength, 
+				    double crystalDepth) const {
 
   double weight = 1.;
-  auto ite = xtalMap_.find(lv);
-  double crystalLength = ((ite == xtalMap_.end()) ? 230.0 : 
-			  std::abs(ite->second));
-  double crystalDepth = ((ite == xtalMap_.end()) ? 0.0 :
-			 (std::abs(0.5*(ite->second)+z)));
   double dapd = crystalLength - crystalDepth;
   if (dapd >= -0.1 || dapd <= crystalLength+0.1) {
     if (dapd <= 100.)
@@ -351,22 +321,18 @@ double CaloSteppingAction::curve_LY(const G4LogicalVolume* lv, double z) {
   } else {
     edm::LogWarning("Step") << "CaloSteppingAction: light coll curve : wrong "
 			    << "distance to APD " << dapd << " crlength = " 
-			    << crystalLength <<" crystal name = " 
-			    << lv->GetName() << " z of localPoint = " << z
-			    << " take weight = " << weight;
+			    << crystalLength <<" crystal Depth = " 
+			    << crystalDepth << " weight = " << weight;
   }
   return weight;
 }
 
-double CaloSteppingAction::getBirkL3(const G4Step* aStep) {
+double CaloSteppingAction::getBirkL3(double dEStep, double step, 
+				     double charge, double density) const {
 
   double weight = 1.;
-  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
-
-  if (preStepPoint->GetCharge() != 0. && aStep->GetStepLength() > 0.) {
-    const G4Material* mat = preStepPoint->GetMaterial();
-    double density = mat->GetDensity();
-    double dedx    = aStep->GetTotalEnergyDeposit()/aStep->GetStepLength();
+  if (charge != 0. && step > 0.) {
+    double dedx    = dEStep/step;
     double rkb     = birkC1EC_/density;
     if (dedx > 0) {
       weight         = 1. - birkSlopeEC_*log(rkb*dedx);
@@ -374,36 +340,31 @@ double CaloSteppingAction::getBirkL3(const G4Step* aStep) {
       else if (weight > 1.)    weight = 1.;
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Step") << "CaloSteppingAction::getBirkL3 in " 
-			     << mat->GetName() << " Charge " 
-			     << preStepPoint->GetCharge() << " dE/dx " << dedx
+    edm::LogVerbatim("Step") << "CaloSteppingAction::getBirkL3 Charge "
+			     << charge << " dE/dx " << dedx
 			     << " Birk Const " << rkb << " Weight = " << weight
-			     << " dE " << aStep->GetTotalEnergyDeposit();
+			     << " dE " << dEStep << " step " << step;
 #endif
   }
   return weight;
 }
 
-double CaloSteppingAction::getBirkHC(const G4Step* aStep) {
+double CaloSteppingAction::getBirkHC(double dEStep, double step, double charge,
+				     double density) const {
 
   double weight = 1.;
-  double charge = aStep->GetPreStepPoint()->GetCharge();
-  double length = aStep->GetStepLength();
-
-  if (charge != 0. && length > 0.) {
-    double density = aStep->GetPreStepPoint()->GetMaterial()->GetDensity();
-    double dedx    = aStep->GetTotalEnergyDeposit()/length;
+  if (charge != 0. && step > 0.) {
+    double dedx    = dEStep/step;
     double rkb     = birkC1HC_/density;
     double c       = birkC2HC_*rkb*rkb;
     if (std::abs(charge) >= 2.) rkb /= birkC3HC_;
     weight = 1./(1.+rkb*dedx+c*dedx*dedx);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Step") << "CaloSteppingAction::getBirkHC in " 
-			     << aStep->GetPreStepPoint()->GetMaterial()->GetName() 
-			     << " Charge " << charge << " dE/dx " << dedx 
+    edm::LogVerbatim("Step") << "CaloSteppingAction::getBirkHC Charge " 
+			     << charge << " dE/dx " << dedx 
 			     << " Birk Const " << rkb << ", " << c 
 			     << " Weight = " << weight << " dE "
-			     << aStep->GetTotalEnergyDeposit();
+			     << dEStep;
 #endif
   }
   return weight;
