@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/Point3D.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -61,21 +62,18 @@ private:
   void update(const BeginOfJob * job)   override;
   void update(const BeginOfRun * run)   override;
   void update(const BeginOfEvent * evt) override;
-  void update(const EndOfEvent * evt)   override;
   void update(const G4Step * step)      override;
+  void update(const EndOfEvent * evt)   override;
 
   void NaNTrap(const G4Step*) const;
-  uint32_t getDetIDEB(const G4Step * step) const;
-  uint32_t getDetIDEE(const G4Step * step) const;
-  uint32_t getDetIDHC(const G4Step * step) const;
-  EcalBaseNumber getBaseNumber(const G4Step*) const; 
-  void fillHit(const G4Step * step, uint32_t id, double dE, int flag);
-  uint16_t getDepth(const G4Step* step, int type) const;
-  G4ThreeVector setToLocal(const G4ThreeVector& global, 
-			   const G4VTouchable* touch) const;
-  double   curve_LY(const G4LogicalVolume* lv, double z);
-  double   getBirkL3(const G4Step* aStep);
-  double   getBirkHC(const G4Step* aStep);
+  uint32_t getDetIDHC(int det, int lay, int depth,
+		      const math::XYZVectorD& pos) const;
+  void fillHit(uint32_t id, double dE, double time, int primID, 
+	       uint16_t depth, double em, int flag);
+  uint16_t getDepth(bool flag, double crystalDepth, double radl) const;
+  double   curve_LY(double crystalLength, double crystalDepth) const;
+  double   getBirkL3(double dE, double step, double chg, double dens) const;
+  double   getBirkHC(double dE, double step, double chg, double dens) const;
   void     saveHits(int flag);
 
   static const int                      nSD_= 3;
@@ -89,11 +87,11 @@ private:
   std::vector<std::string>              nameHitC_;
   std::vector<const G4LogicalVolume*>   volEBSD_, volEESD_, volHCSD_;
   std::map<const G4LogicalVolume*,double> xtalMap_;
-  int                                   count_;
+  int                                   count_, eventID_;
   double                                slopeLY_, birkC1EC_, birkSlopeEC_;
   double                                birkCutEC_, birkC1HC_, birkC2HC_;
   double                                birkC3HC_;
-  std::map<CaloHitID,CaloGVHit>         hitMap_[nSD_];
+  std::map<std::pair<int,CaloHitID>,CaloGVHit> hitMap_[nSD_];
 };
 
 #endif
