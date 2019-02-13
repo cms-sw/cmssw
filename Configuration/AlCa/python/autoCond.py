@@ -33,7 +33,7 @@ autoCond = {
     'run2_data_promptlike_HEfail' : '105X_dataRun2_PromptLike_HEfail_v3',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
     'run2_data_promptlike'    : '105X_dataRun2_PromptLike_v4',
-    'run2_data_promptlike_hi' : '103X_dataRun2_PromptLike_HI_v3',
+    'run2_data_promptlike_hi' : '103X_dataRun2_PromptLike_HI_v2',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '101X_dataRun2_HLT_frozen_v6',
     # GlobalTag for Run2 HLT: it points to the online GT
