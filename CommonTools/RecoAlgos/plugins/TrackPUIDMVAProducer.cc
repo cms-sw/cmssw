@@ -184,7 +184,7 @@ void TrackPUIDMVAProducer::produce( edm::Event& ev, const edm::EventSetup& es ) 
       }
     else
       {
-	puID3DmvaOutRaw.push_back(vtxs.size()>0  && std::abs(track.dz(vtxs[0].position()))<maxDz_ ? mva3D_(mtdTrackref, vtxs[0]) : -1.); //use the mtdTrackRef to be consistent with the training
+	puID3DmvaOutRaw.push_back(vtxs.size()>0  && std::abs(track.dz(vtxs[0].position()))<maxDz_ ? mva3D_(trackref, vtxs[0]) : -1.); 
 	puID4DmvaOutRaw.push_back(vtxs4D.size()>0 && std::abs(track.dz(vtxs4D[0].position()))<maxDz_ ? 
 				  mva4D_(trackref, mtdTrackref, vtxs4D[0],
 					 t0PID, sigmat0PID, btlMatchChi2, btlMatchTimeChi2, etlMatchChi2, etlMatchTimeChi2,
