@@ -61,5 +61,10 @@
       <field name="parameters_"/>
       <field name="timeInfo_"/>
     </class>
+
+    <class name="LHCOpticalFunctionsSet"/>
+    <class name="LHCOpticalFunctionsSetCollection"/>
+    <class name="LHCInterpolatedOpticalFunctionsSet"/>
+    <class name="LHCInterpolatedOpticalFunctionsSetCollection"/>
 </lcgdict>
 
