@@ -8,7 +8,7 @@
 
 namespace edm {
 void
-pythonToCppException(const std::string& iType);
+  pythonToCppException(const std::string& iType, const std::string& error);
 
   // utility to translate from an STL vector of strings to
   // a Python list
