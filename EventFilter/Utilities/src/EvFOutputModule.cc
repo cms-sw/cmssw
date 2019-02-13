@@ -65,24 +65,11 @@ namespace evf {
 
   };
 
-  class StreamerCommonWrapper:public edm::StreamerOutputModuleCommon {
-    public:
-    StreamerCommonWrapper(edm::ParameterSet const& ps, edm::SelectedProducts const* selections):
-    StreamerOutputModuleCommon(ps)
-    {
-     selections_ = selections;
-    }
-
-    void getSelections() {
-      serializer_.reset(new edm::StreamSerializer(selections_));
-    }
-  };
-
 
   class EvFOutputJSONWriter {
     public:
     EvFOutputJSONWriter(edm::ParameterSet const& ps, edm::SelectedProducts const* selections, std::string const& streamLabel):
-      streamerCommonWrapper_(ps, selections),
+      streamerCommon_(ps, selections),
       processed_(0),
       accepted_(0),
       errorEvents_(0),
@@ -160,7 +147,7 @@ namespace evf {
       jsonMonitor_->commit(nullptr);
     }
 
-    StreamerCommonWrapper streamerCommonWrapper_;
+    StreamerOutputModuleCommon streamerCommon_;
 
     jsoncollector::IntJ processed_;
     jsoncollector::IntJ accepted_;
@@ -250,7 +237,7 @@ namespace evf {
     edm::BranchIDLists const* bidlPtr =  branchIDLists();
 
     std::unique_ptr<InitMsgBuilder> init_message = 
-      rc->streamerCommonWrapper_.serializeRegistry(*bidlPtr, *thinnedAssociationsHelper(), 
+      rc->streamerCommon_.serializeRegistry(*bidlPtr, *thinnedAssociationsHelper(), 
                         OutputModule::processName(), description().moduleLabel(), moduleDescription().mainParameterSetID());
  
     //Let us turn it into a View
@@ -280,7 +267,7 @@ namespace evf {
     fclose(src);
 
     //clear serialization buffers
-    rc->streamerCommonWrapper_.clearSerializeDataBuffer();
+    rc->streamerCommon_.clearSerializeDataBuffer();
 
     //free output buffer needed only for the file write
     delete [] outBuf;
@@ -323,7 +310,7 @@ namespace evf {
     edm::Handle<edm::TriggerResults> const& triggerResults = getTriggerResults(trToken_, e);
     //use invalid index as this parameter is anyway ignored by the cache getter function
     auto rc = const_cast<EvFOutputJSONWriter*>(EvFOutputModuleType::runCache(edm::RunIndex::invalidRunIndex()));
-    std::unique_ptr<EventMsgBuilder> msg = rc->streamerCommonWrapper_.serializeEvent(e, triggerResults, selectorConfig());
+    std::unique_ptr<EventMsgBuilder> msg = rc->streamerCommon_.serializeEvent(e, triggerResults, selectorConfig());
 
     auto lumiWriter = const_cast<EvFOutputEventWriter*>(luminosityBlockCache(edm::LuminosityBlockIndex::invalidLuminosityBlockIndex()));
     lumiWriter->incAccepted();
