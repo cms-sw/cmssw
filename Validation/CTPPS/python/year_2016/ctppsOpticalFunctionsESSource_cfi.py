@@ -3,7 +3,7 @@ from CalibPPS.ESProducers.ctppsOpticalFunctionsESSource_cfi import ctppsOpticalF
 
 ctppsOpticalFunctionsESSource = _optics_tmp.clone(
     opticalFunctions = cms.VPSet(
-      cms.PSet( xangle = cms.double(185), fileName = cms.FileInPath("RecoCTPPS/TotemRPLocal/data/optical_functions_2016.root") )
+        cms.PSet( xangle = cms.double(185), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions_2016.root") )
     ),
 
     scoringPlanes = cms.VPSet(
