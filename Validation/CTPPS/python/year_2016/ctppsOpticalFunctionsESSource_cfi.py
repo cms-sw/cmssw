@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from CondFormats.CTPPSReadoutObjects.ctppsOpticalFunctionsESSource_cfi import ctppsOpticalFunctionsESSource as _tmp
+from CalibPPS.ESProducers.ctppsOpticalFunctionsESSource_cfi import ctppsOpticalFunctionsESSource as _tmp
 
 ctppsOpticalFunctionsESSource = _tmp.clone(
     xangle1 = cms.double(185),

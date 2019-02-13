@@ -20,7 +20,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # load a mapping
-process.load("CondFormats.CTPPSReadoutObjects.totemDAQMappingESSourceXML_cfi")
+process.load("CalibPPS.ESProducers.totemDAQMappingESSourceXML_cfi")
 process.totemDAQMappingESSourceXML.subSystem = "TrackingStrip"
 process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
   cms.PSet(
