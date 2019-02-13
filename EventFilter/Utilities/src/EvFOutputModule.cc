@@ -235,7 +235,7 @@ namespace evf {
 
 
   std::shared_ptr<EvFOutputJSONWriter>
-  EvFOutputModule::globalBeginRun(edm::Run const& run, edm::EventSetup const& setup) const
+  EvFOutputModule::globalBeginRun(edm::RunForOutput const& run, edm::EventSetup const& setup) const
   {
     //create run Cache holding JSON file writer and variables
     auto rc = std::make_shared<EvFOutputJSONWriter>(ps_,&keptProducts()[edm::InEvent],streamLabel_);
@@ -309,7 +309,7 @@ namespace evf {
 
 
   std::shared_ptr<EvFOutputEventWriter>
-  EvFOutputModule::globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB,  edm::EventSetup const&) const
+  EvFOutputModule::globalBeginLuminosityBlock(edm::LuminosityBlockForOutput const& iLB,  edm::EventSetup const&) const
   {
     auto openDatFilePath = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(iLB.luminosityBlock(),streamLabel_);
     auto lumiWriter = std::make_shared<EvFOutputEventWriter>(openDatFilePath);
@@ -332,7 +332,7 @@ namespace evf {
 
 
   void
-  EvFOutputModule::globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const
+  EvFOutputModule::globalEndLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) const
   {
     //edm::LogInfo("EvFOutputModule") << "end lumi";
     auto lumiWriter = luminosityBlockCache(edm::LuminosityBlockIndex::invalidLuminosityBlockIndex());
