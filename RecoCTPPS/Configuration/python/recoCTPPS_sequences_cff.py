@@ -9,10 +9,19 @@ from RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cff import ctppsLocalTra
 
 from RecoCTPPS.ProtonReconstruction.ctppsProtons_cfi import *
 
-# TODO: load these data from DB
-from CondFormats.CTPPSReadoutObjects.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi import *
-ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = cms.vstring("Alignment/CTPPS/data/RPixGeometryCorrections.xml")
-ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles += cms.vstring("Validation/CTPPS/test/year_2016/alignment_export_2018_12_07.1.xml")
+# TODO: get this from standard DB and GT
+from CondCore.CondDB.CondDB_cfi import *
+CondDB.connect = 'frontier://FrontierPrep/CMS_CONDITIONS'
+PoolDBESSource = cms.ESSource("PoolDBESSource",
+  CondDB,
+  DumpStat = cms.untracked.bool(False),
+  toGet = cms.VPSet(
+    cms.PSet(
+      record = cms.string("RPRealAlignmentRecord"),
+      tag = cms.string("CTPPSRPAlignmentCorrections_real_test")
+    )
+  )
+)
 
 # TODO: load these data from DB
 from Validation.CTPPS.year_2016.ctppsLHCInfoESSource_cfi import *
