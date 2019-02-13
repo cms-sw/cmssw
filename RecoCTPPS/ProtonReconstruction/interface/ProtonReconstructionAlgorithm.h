@@ -13,7 +13,8 @@
 #include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
 
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSet.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/LHCInterpolatedOpticalFunctionsSet.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
 
 #include "TSpline.h"
 #include "Fit/Fitter.h"
@@ -28,7 +29,7 @@ class ProtonReconstructionAlgorithm
     ProtonReconstructionAlgorithm(bool fit_vtx_y, bool improved_estimate, unsigned int verbosity);
     ~ProtonReconstructionAlgorithm() = default;
 
-    void init(const std::unordered_map<unsigned int, LHCOpticalFunctionsSet> &opticalFunctions);
+    void init(const LHCInterpolatedOpticalFunctionsSetCollection &opticalFunctions);
     void release();
 
     /// run proton reconstruction using single-RP strategy
@@ -50,7 +51,7 @@ class ProtonReconstructionAlgorithm
     /// optics data associated with 1 RP
     struct RPOpticsData
     {
-      const LHCOpticalFunctionsSet *optics;
+      const LHCInterpolatedOpticalFunctionsSet *optics;
       std::shared_ptr<const TSpline3> s_xi_vs_x_d, s_y_d_vs_xi, s_v_y_vs_xi, s_L_y_vs_xi;
       double x0; ///< beam horizontal position, cm
       double y0; ///< beam vertical position, cm

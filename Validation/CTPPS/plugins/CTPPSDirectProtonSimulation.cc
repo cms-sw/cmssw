@@ -25,11 +25,8 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
-
-#include "CondFormats/DataRecord/interface/CTPPSOpticsRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsCollection.h"
+#include "CondFormats/DataRecord/interface/CTPPSInterpolatedOpticsRcd.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
 
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSBeamParameters.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
@@ -59,6 +56,7 @@ class CTPPSDirectProtonSimulation : public edm::stream::EDProducer<>
 
     void processProton(const HepMC::GenVertex* in_vtx, const HepMC::GenParticle* in_trk,
       const CTPPSGeometry &geometry, const CTPPSBeamParameters &beamParameters,
+      const LHCInterpolatedOpticalFunctionsSetCollection &opticalFunctions,
       std::vector<CTPPSLocalTrackLite> &out_tracks,
       edm::DetSetVector<TotemRPRecHit>& out_strip_hits,
       edm::DetSetVector<CTPPSPixelRecHit> &out_pixel_hits,
@@ -109,10 +107,6 @@ class CTPPSDirectProtonSimulation : public edm::stream::EDProducer<>
     unsigned int verbosity_;
 
     // ------------ internal parameters ------------
-
-    edm::ESWatcher<LHCInfoRcd> lhcInfoWatcher_;
-
-    std::unordered_map<unsigned int, LHCOpticalFunctionsSet> opticalFunctions_;
 
     /// internal variable: v position of strip 0, in mm
     double stripZeroPosition_;
@@ -167,28 +161,14 @@ void CTPPSDirectProtonSimulation::produce( edm::Event& iEvent, const edm::EventS
   iEvent.getByToken(hepMCToken_, hepmc_prod);
 
   // get conditions
-  edm::ESHandle<LHCInfo> hLHCInfo;
-  iSetup.get<LHCInfoRcd>().get(hLHCInfo);
-
   edm::ESHandle<CTPPSBeamParameters> hBeamParameters;
   iSetup.get<CTPPSBeamParametersRcd>().get(hBeamParameters);
 
-  edm::ESHandle<LHCOpticalFunctionsCollection> opticalFunctionCollection;
-  iSetup.get<CTPPSOpticsRcd>().get(opticalFunctionCollection);
+  edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hOpticalFunctions;
+  iSetup.get<CTPPSInterpolatedOpticsRcd>().get(hOpticalFunctions);
 
   edm::ESHandle<CTPPSGeometry> geometry;
   iSetup.get<VeryForwardMisalignedGeometryRecord>().get(geometry);
-
-  // prepare optical functions
-  if (lhcInfoWatcher_.check(iSetup))
-  {
-    opticalFunctions_.clear();
-
-    opticalFunctionCollection->interpolateFunctions(hLHCInfo->crossingAngle(), opticalFunctions_);
-
-    for (auto &p : opticalFunctions_)
-      p.second.initializeSplines();
-  }
 
   // prepare outputs
   std::unique_ptr<edm::DetSetVector<TotemRPRecHit>> pStripRecHits(new edm::DetSetVector<TotemRPRecHit>());
@@ -215,7 +195,7 @@ void CTPPSDirectProtonSimulation::produce( edm::Event& iEvent, const edm::EventS
       if ( part->status() != 1 && part->status() < 83 )
         continue;
 
-      processProton(vtx, part, *geometry, *hBeamParameters, *pTracks, *pStripRecHits, *pPixelRecHits, *pDiamondRecHits);
+      processProton(vtx, part, *geometry, *hBeamParameters, *hOpticalFunctions, *pTracks, *pStripRecHits, *pPixelRecHits, *pDiamondRecHits);
     }
   }
 
@@ -234,6 +214,7 @@ void CTPPSDirectProtonSimulation::produce( edm::Event& iEvent, const edm::EventS
 
 void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, const HepMC::GenParticle* in_trk,
   const CTPPSGeometry &geometry, const CTPPSBeamParameters &beamParameters,
+  const LHCInterpolatedOpticalFunctionsSetCollection &opticalFunctions,
   std::vector<CTPPSLocalTrackLite> &out_tracks, edm::DetSetVector<TotemRPRecHit>& out_strip_hits,
   edm::DetSetVector<CTPPSPixelRecHit> &out_pixel_hits, edm::DetSetVector<CTPPSDiamondRecHit> &out_diamond_hits) const
 {
@@ -305,7 +286,7 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
   }
 
   // transport the proton into each pot/scoring plane
-  for (const auto &ofp : opticalFunctions_)
+  for (const auto &ofp : opticalFunctions)
   {
     CTPPSDetId rpId(ofp.first);
     const unsigned int rpDecId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
@@ -318,8 +299,8 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
       ssLog << "  RP " << rpDecId << std::endl;
 
     // transport proton
-    LHCOpticalFunctionsSet::Kinematics k_in = { vtx_lhc_eff_x*1E-1, th_x_phys, vtx_lhc_eff_y*1E-1, th_y_phys, xi }; // conversions: mm -> cm
-    LHCOpticalFunctionsSet::Kinematics k_out;
+    LHCInterpolatedOpticalFunctionsSet::Kinematics k_in = { vtx_lhc_eff_x*1E-1, th_x_phys, vtx_lhc_eff_y*1E-1, th_y_phys, xi }; // conversions: mm -> cm
+    LHCInterpolatedOpticalFunctionsSet::Kinematics k_out;
     ofp.second.transport(k_in, k_out, true);
 
     double b_x = k_out.x * 1E1, b_y = k_out.y * 1E1; // conversions: cm -> mm
@@ -329,8 +310,8 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx, 
     if (produceHitsRelativeToBeam_)
     {
       // determine beam position
-      LHCOpticalFunctionsSet::Kinematics k_be_in = { 0., 0., 0., 0., 0. };
-      LHCOpticalFunctionsSet::Kinematics k_be_out;
+      LHCInterpolatedOpticalFunctionsSet::Kinematics k_be_in = { 0., 0., 0., 0., 0. };
+      LHCInterpolatedOpticalFunctionsSet::Kinematics k_be_out;
       ofp.second.transport(k_be_in, k_be_out, true);
 
       a_x -= k_be_out.th_x; a_y -= k_be_out.th_y;

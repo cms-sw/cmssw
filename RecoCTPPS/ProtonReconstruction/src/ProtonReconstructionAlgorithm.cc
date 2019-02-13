@@ -36,7 +36,7 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm(bool fit_vtx_y, boo
 
 //----------------------------------------------------------------------------------------------------
 
-void ProtonReconstructionAlgorithm::init(const std::unordered_map<unsigned int, LHCOpticalFunctionsSet> &opticalFunctions)
+void ProtonReconstructionAlgorithm::init(const LHCInterpolatedOpticalFunctionsSetCollection &opticalFunctions)
 {
   // reset cache
   release();
@@ -44,7 +44,7 @@ void ProtonReconstructionAlgorithm::init(const std::unordered_map<unsigned int, 
   // build optics data for each object
   for (const auto &p : opticalFunctions)
   {
-    const LHCOpticalFunctionsSet &ofs = p.second;
+    const LHCInterpolatedOpticalFunctionsSet &ofs = p.second;
 
     // make record
     RPOpticsData rpod;
@@ -58,8 +58,8 @@ void ProtonReconstructionAlgorithm::init(const std::unordered_map<unsigned int, 
     rpod.s_xi_vs_x_d = make_shared<TSpline3>("", xDValues.data(), xiValues.data(), xiValues.size());
 
     // calculate auxiliary data
-    LHCOpticalFunctionsSet::Kinematics k_in = { 0., 0., 0., 0., 0. };
-    LHCOpticalFunctionsSet::Kinematics k_out;
+    LHCInterpolatedOpticalFunctionsSet::Kinematics k_in = { 0., 0., 0., 0., 0. };
+    LHCInterpolatedOpticalFunctionsSet::Kinematics k_out;
     rpod.optics->transport(k_in, k_out);
     rpod.x0 = k_out.x;
     rpod.y0 = k_out.y;
@@ -111,7 +111,7 @@ void ProtonReconstructionAlgorithm::release()
 double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const double* parameters) const
 {
   // extract proton parameters
-  const LHCOpticalFunctionsSet::Kinematics k_in = { 0., parameters[1], parameters[3], parameters[2], parameters[0] };
+  const LHCInterpolatedOpticalFunctionsSet::Kinematics k_in = { 0., parameters[1], parameters[3], parameters[2], parameters[0] };
 
   // calculate chi^2 by looping over hits
   double s2 = 0.;
@@ -121,7 +121,7 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const dou
 
     // transport proton to the RP
     auto oit = m_rp_optics->find(rpId);
-    LHCOpticalFunctionsSet::Kinematics k_out;
+    LHCInterpolatedOpticalFunctionsSet::Kinematics k_out;
     oit->second.optics->transport(k_in, k_out);
 
     // proton position wrt. beam
