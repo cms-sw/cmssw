@@ -37,7 +37,7 @@ import FWCore.ParameterSet.Config as cms
 from CalibPPS.ESProducers.ctppsOpticalFunctionsESSource_cfi import ctppsOpticalFunctionsESSource as _optics_tmp
 ctppsOpticalFunctionsESSource = _optics_tmp.clone(
     opticalFunctions = cms.VPSet(
-      cms.PSet( xangle = cms.double(185), fileName = cms.FileInPath("RecoCTPPS/TotemRPLocal/data/optical_functions_2016.root") )
+        cms.PSet( xangle = cms.double(185), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions_2016.root") )
     ),
 
     scoringPlanes = cms.VPSet(
