@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducts.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsCollection.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSetCollection.h"
 #include "CondFormats/DataRecord/interface/CTPPSOpticsRcd.h"
 
 //----------------------------------------------------------------------------------------------------
@@ -22,14 +22,18 @@ class CTPPSOpticalFunctionsESSource: public edm::ESProducer, public edm::EventSe
     CTPPSOpticalFunctionsESSource(const edm::ParameterSet &);
     ~CTPPSOpticalFunctionsESSource() override = default;
 
-    edm::ESProducts<std::unique_ptr<LHCOpticalFunctionsCollection>> produce(const CTPPSOpticsRcd &);
+    edm::ESProducts<std::unique_ptr<LHCOpticalFunctionsSetCollection>> produce(const CTPPSOpticsRcd &);
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 
-    double m_xangle1, m_xangle2;
-    std::string m_fileName1, m_fileName2;
+    struct FileInfo
+    {
+      double xangle;
+      std::string fileName;
+    };
+    std::vector<FileInfo> m_fileInfo;
 
     struct RPInfo
     {
@@ -42,12 +46,15 @@ class CTPPSOpticalFunctionsESSource: public edm::ESProducer, public edm::EventSe
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
-CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::ParameterSet& conf) :
-  m_xangle1(conf.getParameter<double>("xangle1")),
-  m_xangle2(conf.getParameter<double>("xangle2")),
-  m_fileName1(conf.getParameter<edm::FileInPath>("fileName1").fullPath()),
-  m_fileName2(conf.getParameter<edm::FileInPath>("fileName2").fullPath())
+CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::ParameterSet& conf)
 {
+  for (const auto &pset : conf.getParameter<std::vector<edm::ParameterSet>>("opticalFunctions"))
+  {
+    const double &xangle = pset.getParameter<double>("xangle");
+    const std::string &fileName = pset.getParameter<edm::FileInPath>("fileName").fullPath();
+    m_fileInfo.push_back({xangle, fileName});
+  }
+
   for (const auto &pset : conf.getParameter<std::vector<edm::ParameterSet>>("scoringPlanes"))
   {
     const unsigned int rpId = pset.getParameter<unsigned int>("rpId");
@@ -71,24 +78,23 @@ void CTPPSOpticalFunctionsESSource::setIntervalFor(const edm::eventsetup::EventS
 
 //----------------------------------------------------------------------------------------------------
 
-edm::ESProducts<std::unique_ptr<LHCOpticalFunctionsCollection> >
+edm::ESProducts<std::unique_ptr<LHCOpticalFunctionsSetCollection> >
 CTPPSOpticalFunctionsESSource::produce(const CTPPSOpticsRcd &)
 {
   // fill the output
-  auto output = std::make_unique<LHCOpticalFunctionsCollection>();
+  auto output = std::make_unique<LHCOpticalFunctionsSetCollection>();
 
-  output->m_xangle1 = m_xangle1;
-  output->m_xangle2 = m_xangle2;
-
-  for (const auto &p : m_rpInfo)
+  for (const auto &fi : m_fileInfo)
   {
-    LHCOpticalFunctionsSet fcn1(m_fileName1, p.second.dirName, p.second.scoringPlaneZ);
-    fcn1.initializeSplines();
-    output->m_functions1.emplace(p.first, std::move(fcn1));
+    std::unordered_map<unsigned int, LHCOpticalFunctionsSet> xa_data;
 
-    LHCOpticalFunctionsSet fcn2(m_fileName2, p.second.dirName, p.second.scoringPlaneZ);
-    fcn2.initializeSplines();
-    output->m_functions2.emplace(p.first, std::move(fcn2));
+    for (const auto &rpi : m_rpInfo)
+    {
+      LHCOpticalFunctionsSet fcn(fi.fileName, rpi.second.dirName, rpi.second.scoringPlaneZ);
+      xa_data.emplace(rpi.first, std::move(fcn));
+    }
+
+    output->emplace(fi.xangle, xa_data);
   }
 
   // commit the output
@@ -101,12 +107,13 @@ void
 CTPPSOpticalFunctionsESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
   edm::ParameterSetDescription desc;
-  desc.add<double>("xangle1", 185.)->setComment("half crossing angle for sector 45");
-  desc.add<edm::FileInPath>("fileName1", edm::FileInPath())->setComment("optical functions input file for sector 45");
-  desc.add<double>("xangle2", 185.)->setComment("half crossing angle for sector 56");
-  desc.add<edm::FileInPath>("fileName2", edm::FileInPath())->setComment("optical functions input file for sector 56");
 
-  //--- information about scoring planes
+  edm::ParameterSetDescription of_desc;
+  of_desc.add<double>("xangle")->setComment("half crossing angle value in urad");
+  of_desc.add<edm::FileInPath>("fileName")->setComment("ROOT file with optical functions");
+  std::vector<edm::ParameterSet> of;
+  desc.addVPSet("opticalFunctions", of_desc, of)->setComment("list of optical functions at different crossing angles");
+
   edm::ParameterSetDescription sp_desc;
   sp_desc.add<unsigned int>("rpId")->setComment("associated detector DetId");
   sp_desc.add<std::string>("dirName")->setComment("associated path to the optical functions file");
