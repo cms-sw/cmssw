@@ -247,18 +247,8 @@ namespace evf {
     std::shared_ptr<StreamerOutputFile> stream_writer_preamble;
     stream_writer_preamble.reset(new StreamerOutputFile(openIniFileName));
     uint32 preamble_adler32 = 1;
+    edm::BranchIDLists const* bidlPtr =  branchIDLists();
 
-    edm::BranchIDLists const* bidlPtr;
-    std::unique_ptr<edm::BranchIDLists> branchIDListsCopyTmp;
-    if (!droppedBranchIDToKeptBranchID().empty()) {
-     //copy unique_ptr will lose scope when beginRun returns 
-     branchIDListsCopyTmp = branchIDListsCopy();
-     bidlPtr = branchIDListsCopyTmp.get();
-    }
-    else {
-     //get pointer to original
-     bidlPtr = branchIDListsOrig();
-    }
     std::unique_ptr<InitMsgBuilder> init_message = 
       rc->streamerCommonWrapper_.serializeRegistry(*bidlPtr, *thinnedAssociationsHelper(), 
                         OutputModule::processName(), description().moduleLabel(), moduleDescription().mainParameterSetID());
