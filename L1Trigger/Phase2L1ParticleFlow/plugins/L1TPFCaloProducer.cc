@@ -24,6 +24,8 @@
 #include "L1Trigger/Phase2L1ParticleFlow/src/corrector.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/ParametricResolution.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/CaloClusterer.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 //--------------------------------------------------------------------------------------------------
 class L1TPFCaloProducer : public edm::stream::EDProducer<> {
@@ -54,7 +56,6 @@ class L1TPFCaloProducer : public edm::stream::EDProducer<> {
         virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
         void readHcalDigis_(edm::Event &event, const edm::EventSetup&) ;
-        void readHcalHGCTCs_(edm::Event &event, const edm::EventSetup &) ;
         void readHcalHGCTowers_(edm::Event &event, const edm::EventSetup &) ;
         struct SimpleHGCTC {
             float et, eta, phi;
@@ -141,9 +142,6 @@ L1TPFCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         }
         if (!hcalDigis_.empty()) {
             readHcalDigis_(iEvent, iSetup);
-        }
-        if (!hcalHGCTCs_.empty()) {
-            readHcalHGCTCs_(iEvent, iSetup);
         }
         if (!hcalHGCTowers_.empty()) {
             readHcalHGCTowers_(iEvent, iSetup);
@@ -238,41 +236,6 @@ L1TPFCaloProducer::readHcalDigis_(edm::Event& iEvent, const edm::EventSetup& iSe
     }
 }
 
-
-void
-L1TPFCaloProducer::readHcalHGCTCs_(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    edm::Handle<l1t::HGCalTriggerCellBxCollection> hgcTCs;
-
-    std::map<std::pair<int,int>,std::vector<SimpleHGCTC>> pseudoTowers;
-
-    for (const auto & token : hcalHGCTCs_) {
-        iEvent.getByToken(token, hgcTCs);
-        for(auto it = hgcTCs->begin(0), ed = hgcTCs->end(0); it != ed; ++it) {
-            HGCalDetId id(it->detId());
-            bool em = id.subdetId() == HGCEE;
-            if (em) continue;
-            if (it->pt() <= hcalHGCTCEtCut_) continue;
-            pseudoTowers[make_pair(id.zside(), id.wafer())].emplace_back(it->pt(), it->eta(), it->phi());
-        }
-
-        for (const auto & pair : pseudoTowers) {
-            double etsum = 0., etaetsum = 0., phietsum = 0.;
-            double reta = pair.second.front().eta, rphi = pair.second.front().phi;
-            for (const SimpleHGCTC & hit : pair.second) {
-                etsum += hit.et;
-                etaetsum += (hit.eta - reta) * hit.et;
-                phietsum += reco::deltaPhi(hit.phi, rphi) * hit.et;
-            }
-            etaetsum /= etsum;
-            phietsum /= etsum;
-            float eta = etaetsum + reta, phi = reco::deltaPhi(phietsum + rphi, 0.);
-            if (debug_) std::cout << "L1TPFCaloProducer: adding HGC TC sum input pt " << etsum << ", eta " << eta << ", phi " << phi << std::endl;
-            hcalClusterer_.add(etsum, eta, phi);
-        }
-        pseudoTowers.clear();
-
-    }
-}
 
 void
 L1TPFCaloProducer::readHcalHGCTowers_(edm::Event& iEvent, const edm::EventSetup& iSetup) {
