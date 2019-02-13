@@ -19,7 +19,7 @@ namespace edm {
 
   class StreamerOutputModuleCommon {
   public:
-    explicit StreamerOutputModuleCommon(ParameterSet const& ps);
+    explicit StreamerOutputModuleCommon(ParameterSet const& ps, SelectedProducts const* selections) :
     ~StreamerOutputModuleCommon();
     static void fillDescription(ParameterSetDescription & desc);
 
@@ -39,7 +39,7 @@ namespace edm {
     }
 
   protected:
-    virtual void getSelections() = 0;
+    //virtual void getSelections() = 0;
 
     SelectedProducts const* selections_;
     std::unique_ptr<StreamSerializer> serializer_;
