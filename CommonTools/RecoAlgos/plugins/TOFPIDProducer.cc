@@ -181,7 +181,7 @@ void TOFPIDProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
     float t0 = t0In[trackref];
     float t0safe = t0;
     float sigmat0safe = sigmat0In[trackref];
-    float sigmatmtd = (fixedT0Error_>0.) ? fixedT0Error_ : sigmatmtdIn[trackref]; 
+    float sigmatmtd = (sigmatmtdIn[trackref] > 0. && fixedT0Error_>0.) ? fixedT0Error_ : sigmatmtdIn[trackref]; 
     float sigmat0 = sigmatmtd;
 
     float prob_pi = -1.;
