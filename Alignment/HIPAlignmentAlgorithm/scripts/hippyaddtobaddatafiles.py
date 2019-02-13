@@ -36,116 +36,83 @@ def runcfg(cfgfile, badfilelist):
 
 @contextlib.contextmanager
 def cd(newdir):
-    """http://stackoverflow.com/a/24176022/5228524"""
-    prevdir = os.getcwd()
-    os.chdir(os.path.expanduser(newdir))
-    try:
-        yield
-    finally:
-        os.chdir(prevdir)
+  """http://stackoverflow.com/a/24176022/5228524"""
+  prevdir = os.getcwd()
+  os.chdir(os.path.expanduser(newdir))
+  try:
+    yield
+  finally:
+    os.chdir(prevdir)
 
 def cdtemp(): return cd(tempfile.mkdtemp())
 
 class KeepWhileOpenFile(object):
-    def __init__(self, name, message=None):
-        self.filename = name
-        if message is None: message = LSB_JOBID
-        self.__message = message
-        self.pwd = os.getcwd()
-        self.fd = self.f = None
-        self.bool = False
+  def __init__(self, name, message=None):
+    self.filename = name
+    self.__message = message
+    self.pwd = os.getcwd()
+    self.fd = self.f = None
+    self.bool = False
 
-    @property
-    def wouldbevalid(self):
-        if self: return True
-        with self:
-            return bool(self)
+  @property
+  def wouldbevalid(self):
+    if self: return True
+    with self:
+      return bool(self)
 
-    def __open(self):
-        self.fd = os.open(self.filename, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+  def __open(self):
+    self.fd = os.open(self.filename, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
 
-    def __enter__(self):
+  def __enter__(self):
+    with cd(self.pwd):
+      try:
+        self.__open()
+      except OSError:
+        return None
+
+      self.f = os.fdopen(self.fd, 'w')
+
+      try:
+        if self.__message is not None:
+          self.f.write(self.__message+"\n")
+      except IOError:
+        pass
+      try:
+        self.f.close()
+      except IOError:
+        pass
+      self.bool = True
+      return True
+
+  def __exit__(self, *args):
+    if self:
+      try:
         with cd(self.pwd):
-            try:
-                self.__open()
-            except OSError:
-                if self.__message == LSB_JOBID:
-                    try:
-                        with open(self.filename) as f:
-                            oldjobid = int(f.read())
-                    except IOError:
-                        try:
-                            self.__open()
-                        except OSError:
-                            return None
-                    except ValueError:
-                        return None
-                    else:
-                        if jobexists(oldjobid):
-                            return None
-                        else:
-                            try:
-                                os.remove(self.filename)
-                            except OSError:   #another job removed it already
-                                pass
-                            try:
-                                self.__open()
-                            except OSError:
-                                return None
-                else:
-                    return None
+          os.remove(self.filename)
+      except OSError:
+        pass #ignore it
+    self.fd = self.f = None
+    self.bool = False
 
-            self.f = os.fdopen(self.fd, 'w')
-
-            if self.__message == LSB_JOBID:
-                self.__message = self.__message()
-            try:
-                if self.__message is not None:
-                    self.f.write(self.__message+"\n")
-            except IOError:
-                pass
-            try:
-                self.f.close()
-            except IOError:
-                pass
-            self.bool = True
-            return True
-
-    def __exit__(self, *args):
-        if self:
-            try:
-                with cd(self.pwd):
-                    os.remove(self.filename)
-            except OSError:
-                pass #ignore it
-        self.fd = self.f = None
-        self.bool = False
-
-    def __nonzero__(self):
-        return self.bool
+  def __nonzero__(self):
+    return self.bool
 
 class OneAtATime(KeepWhileOpenFile):
-    def __init__(self, name, delay, message=None, printmessage=None, task="doing this"):
-        super(OneAtATime, self).__init__(name, message=message)
-        self.delay = delay
-        if printmessage is None:
-            printmessage = "Another process is already {task}!  Waiting {delay} seconds."
-        printmessage = printmessage.format(delay=delay, task=task)
-        self.__printmessage = printmessage
+  def __init__(self, name, delay, message=None, printmessage=None, task="doing this"):
+    super(OneAtATime, self).__init__(name, message=message)
+    self.delay = delay
+    if printmessage is None:
+      printmessage = "Another process is already {task}!  Waiting {delay} seconds."
+    printmessage = printmessage.format(delay=delay, task=task)
+    self.__printmessage = printmessage
 
-    def __enter__(self):
-        while True:
-            result = super(OneAtATime, self).__enter__()
-            if result:
-                return result
-            print self.__printmessage
-            time.sleep(self.delay)
-
-def LSB_JOBID():
-  return os.environ.get("LSB_JOBID", None)
-
-def jobexists(jobid):
-    return "is not found" not in subprocess.check_output(["bjobs", str(jobid)])
+  def __enter__(self):
+    while True:
+      result = super(OneAtATime, self).__enter__()
+      if result:
+        return result
+      print self.__printmessage
+      time.sleep(self.delay)
 
 if __name__ == "__main__":
   with cdtemp():
