@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
-from CalibPPS.ESProducers.ctppsOpticalFunctionsESSource_cfi import ctppsOpticalFunctionsESSource as _tmp
+from CalibPPS.ESProducers.ctppsOpticalFunctionsESSource_cfi import ctppsOpticalFunctionsESSource as _optics_tmp
 
-ctppsOpticalFunctionsESSource = _tmp.clone(
-    xangle1 = cms.double(185),
-    xangle2 = cms.double(185),
-    fileName1 = cms.FileInPath("RecoCTPPS/TotemRPLocal/data/optical_functions_2016.root"),
-    fileName2 = cms.FileInPath("RecoCTPPS/TotemRPLocal/data/optical_functions_2016.root"),
+ctppsOpticalFunctionsESSource = _optics_tmp.clone(
+    opticalFunctions = cms.VPSet(
+      cms.PSet( xangle = cms.double(185), fileName = cms.FileInPath("RecoCTPPS/TotemRPLocal/data/optical_functions_2016.root") )
+    ),
+
     scoringPlanes = cms.VPSet(
         # z in cm
         cms.PSet( rpId = cms.uint32(0x76100000), dirName = cms.string("XRPH_C6L5_B2"), z = cms.double(-20382.6) ),  # RP 002
