@@ -97,7 +97,7 @@ private:
   std::string outputContents_;
 
   // Used only if nPartonMapping is in the configuration
-  std::map<unsigned, std::pair<unsigned, unsigned>> nPartonMapping_;
+  std::map<unsigned, std::pair<unsigned, unsigned>> nPartonMapping_{};
 
   std::unique_ptr<lhef::LHEReader>	reader_;
   std::shared_ptr<lhef::LHERunInfo>	runInfoLast;
