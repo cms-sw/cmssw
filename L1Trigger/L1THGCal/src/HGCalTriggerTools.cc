@@ -167,23 +167,26 @@ zside(const DetId& id) const {
 
 int
 HGCalTriggerTools::
-thicknessIndex(const DetId& id) const {
+thicknessIndex(const DetId& id, bool tc) const {
   unsigned det = id.det();
   int thickness = 0;
   // For the v8 geometry
   if(det==DetId::Forward)
   {
-    switch(id.subdetId())
-    { 
-      case ForwardSubdetector::HGCEE:
-        thickness = geom_->eeTopology().dddConstants().waferTypeL(HGCalDetId(id).wafer())-1;
-        break;
-      case ForwardSubdetector::HGCHEF:
-        thickness = geom_->fhTopology().dddConstants().waferTypeL(HGCalDetId(id).wafer())-1;
-        break;
-      default:
-        break;
-    };
+    if(!tc) thickness = sensorCellThicknessV8(id);
+    else
+    {
+      // For the old geometry, TCs can contain sensor cells
+      // with different thicknesses.
+      // Use a majority logic to find the TC thickness
+      std::array<unsigned, 3> occurences = { {0,0,0} };
+      for(const auto& c_id : geom_->getCellsFromTriggerCell(id))
+      {
+        int c_thickness = sensorCellThicknessV8(c_id);
+        occurences[c_thickness]++;
+      }
+      thickness = std::max_element(occurences.begin(),occurences.end()) - occurences.begin();
+    }
   }
   // For the v9 geometry
   else if(det==DetId::HGCalEE || det==DetId::HGCalHSi)
@@ -302,4 +305,23 @@ simToReco(const DetId& simid, const HcalTopology& topo) const
   HcalDetId id = HcalHitRelabeller::relabel(simid,dddConst);
   if (id.subdet()==int(HcalEndcap)) recoid = id;
   return recoid;
+}
+
+
+int
+HGCalTriggerTools::
+sensorCellThicknessV8(const DetId& id) const {
+  int thickness = 0;
+  switch(id.subdetId())
+  { 
+    case ForwardSubdetector::HGCEE:
+      thickness = geom_->eeTopology().dddConstants().waferTypeL(HGCalDetId(id).wafer())-1;
+      break;
+    case ForwardSubdetector::HGCHEF:
+      thickness = geom_->fhTopology().dddConstants().waferTypeL(HGCalDetId(id).wafer())-1;
+      break;
+    default:
+      break;
+  };
+  return thickness;
 }
