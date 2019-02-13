@@ -24,8 +24,8 @@
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 
-#include "CondFormats/DataRecord/interface/CTPPSOpticsRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsCollection.h"
+#include "CondFormats/DataRecord/interface/CTPPSInterpolatedOpticsRcd.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -52,10 +52,7 @@ class CTPPSProtonProducer : public edm::stream::EDProducer<>
 
     ProtonReconstructionAlgorithm algorithm_;
 
-    edm::ESWatcher<LHCInfoRcd> lhcInfoWatcher_;
     float currentCrossingAngle_;
-
-    std::unordered_map<unsigned int, LHCOpticalFunctionsSet> opticalFunctions_;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -112,32 +109,19 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::ESHandle<LHCInfo> hLHCInfo;
   iSetup.get<LHCInfoRcd>().get(hLHCInfo);
 
-  edm::ESHandle<LHCOpticalFunctionsCollection> hOpticalFunctionCollection;
-  iSetup.get<CTPPSOpticsRcd>().get(hOpticalFunctionCollection);
+  edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hOpticalFunctions;
+  iSetup.get<CTPPSInterpolatedOpticsRcd>().get(hOpticalFunctions);
 
   // re-initialise algorithm upon crossing-angle change
-  if (lhcInfoWatcher_.check(iSetup)) {
-    const LHCInfo* pLHCInfo = hLHCInfo.product();
-    if (pLHCInfo->crossingAngle() != currentCrossingAngle_) {
-      currentCrossingAngle_ = pLHCInfo->crossingAngle();
+  if (hLHCInfo->crossingAngle() != currentCrossingAngle_) {
+    currentCrossingAngle_ = hLHCInfo->crossingAngle();
 
-      if (currentCrossingAngle_ == 0.) {
-        edm::LogWarning("CTPPSProtonProducer") << "Invalid crossing angle, reconstruction disabled.";
-        algorithm_.release();
-      }
-      else {
-        if (verbosity_)
-          edm::LogInfo("CTPPSProtonProducer") << "Setting crossing angle " << currentCrossingAngle_;
-
-        // interpolate optical functions
-        opticalFunctions_.clear();
-        hOpticalFunctionCollection->interpolateFunctions(currentCrossingAngle_, opticalFunctions_);
-        for (auto &p : opticalFunctions_)
-          p.second.initializeSplines();
-
-        // reinitialise algorithm
-        algorithm_.init(opticalFunctions_);
-      }
+    if (hOpticalFunctions->size() == 0) {
+      edm::LogWarning("CTPPSProtonProducer") << "No optical functions available, reconstruction disabled.";
+      algorithm_.release();
+    }
+    else {
+      algorithm_.init(*hOpticalFunctions);
     }
   }
 

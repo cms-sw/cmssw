@@ -14,11 +14,8 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
-
-#include "CondFormats/DataRecord/interface/CTPPSOpticsRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsCollection.h"
+#include "CondFormats/DataRecord/interface/CTPPSInterpolatedOpticsRcd.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
 
 #include "DataFormats/ProtonReco/interface/ForwardProton.h"
 #include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
@@ -44,9 +41,6 @@ class CTPPSProtonReconstructionValidator : public edm::one::EDAnalyzer<>
     edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtons_;
     double chiSqCut_;
     std::string outputFile_;
-    edm::ESWatcher<LHCInfoRcd> lhcInfoWatcher_;
-    float currentCrossingAngle_;
-    std::unordered_map<unsigned int, LHCOpticalFunctionsSet> opticalFunctions_;
 
     struct RPPlots
     {
@@ -88,29 +82,11 @@ CTPPSProtonReconstructionValidator::CTPPSProtonReconstructionValidator(const edm
 void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const edm::EventSetup &iSetup)
 {
   // get conditions
-  edm::ESHandle<LHCInfo> hLHCInfo;
-  iSetup.get<LHCInfoRcd>().get(hLHCInfo);
-
-  edm::ESHandle<LHCOpticalFunctionsCollection> hOpticalFunctionCollection;
-  iSetup.get<CTPPSOpticsRcd>().get(hOpticalFunctionCollection);
-
-  // interpolate optical functions, if needed
-  if (lhcInfoWatcher_.check(iSetup))
-  {
-    const LHCInfo* pLHCInfo = hLHCInfo.product();
-    if (pLHCInfo->crossingAngle() != currentCrossingAngle_)
-    {
-      currentCrossingAngle_ = pLHCInfo->crossingAngle();
-
-      opticalFunctions_.clear();
-      hOpticalFunctionCollection->interpolateFunctions(currentCrossingAngle_, opticalFunctions_);
-      for (auto &p : opticalFunctions_)
-        p.second.initializeSplines();
-    }
-  }
+  edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hOpticalFunctions;
+  iSetup.get<CTPPSInterpolatedOpticsRcd>().get(hOpticalFunctions);
 
   // stop if conditions invalid
-  if (currentCrossingAngle_ <= 0.)
+  if (hOpticalFunctions->size() == 0)
     return;
 
   // get input
@@ -131,14 +107,14 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
       CTPPSDetId rpId(tr->getRPId());
       unsigned int rpDecId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
 
-      auto it = opticalFunctions_.find(rpId);
+      auto it = hOpticalFunctions->find(rpId);
 
-      LHCOpticalFunctionsSet::Kinematics k_in_beam = { 0., 0., 0., 0., 0. };
-      LHCOpticalFunctionsSet::Kinematics k_out_beam;
+      LHCInterpolatedOpticalFunctionsSet::Kinematics k_in_beam = { 0., 0., 0., 0., 0. };
+      LHCInterpolatedOpticalFunctionsSet::Kinematics k_out_beam;
       it->second.transport(k_in_beam, k_out_beam);
 
-      LHCOpticalFunctionsSet::Kinematics k_in = { pr.vx() * 1E-2, -pr.thetaX(), pr.vy() * 1E-2, pr.thetaY(), pr.xi() };  // conversions: cm --> m, CMS --> LHC convention
-      LHCOpticalFunctionsSet::Kinematics k_out;
+      LHCInterpolatedOpticalFunctionsSet::Kinematics k_in = { -pr.vx(), -pr.thetaX(), pr.vy(), pr.thetaY(), pr.xi() };  // conversions: CMS --> LHC convention
+      LHCInterpolatedOpticalFunctionsSet::Kinematics k_out;
       it->second.transport(k_in, k_out);
 
       const double de_x = (k_out.x - k_out_beam.x) * 10. - tr->getX();  // conversions: cm --> mm
