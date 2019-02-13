@@ -20,6 +20,8 @@
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GEMAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GEMAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTSurveyRcd.h"
@@ -47,6 +49,7 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GEMAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentErrorExtendedRcd.h"
@@ -63,6 +66,8 @@ REGISTER_PLUGIN(DTAlignmentRcd,Alignments);
 REGISTER_PLUGIN(DTAlignmentErrorRcd,AlignmentErrors);
 REGISTER_PLUGIN(CSCAlignmentRcd,Alignments);
 REGISTER_PLUGIN(CSCAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(GEMAlignmentRcd,Alignments);
+REGISTER_PLUGIN(GEMAlignmentErrorRcd,AlignmentErrors);
 REGISTER_PLUGIN(TrackerSurveyRcd,Alignments);
 REGISTER_PLUGIN(TrackerSurveyErrorRcd,SurveyErrors);
 REGISTER_PLUGIN(DTSurveyRcd,Alignments);
@@ -90,6 +95,7 @@ REGISTER_PLUGIN(TrackerAlignmentErrorRcd,AlignmentErrors);
 REGISTER_PLUGIN(TrackerAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(DTAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(CSCAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
+REGISTER_PLUGIN(GEMAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(EBAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(EEAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(ESAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
