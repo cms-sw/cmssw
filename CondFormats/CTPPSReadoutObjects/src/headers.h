@@ -6,3 +6,7 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionsDataSequence.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
 
+#include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSet.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSetCollection.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/LHCInterpolatedOpticalFunctionsSet.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"

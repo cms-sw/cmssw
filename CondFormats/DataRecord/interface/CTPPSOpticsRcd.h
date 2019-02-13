@@ -1,7 +1,7 @@
-#ifndef CTPPSOpticsRcd_CTPPSOpticsRcd_h
-#define CTPPSOpticsRcd_CTPPSOpticsRcd_h
-
 // Author: Jan Kašpar
+
+#ifndef CondFormats_DataRecord_CTPPSOpticsRcd_h
+#define CondFormats_DataRecord_CTPPSOpticsRcd_h
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
