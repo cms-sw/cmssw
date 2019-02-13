@@ -66,7 +66,6 @@ GEMGeometryBuilderFromDDD::build( GEMGeometry& theGeometry,
     // making superchamber out of the first chamber layer including the gap between chambers
     if (detIdCh.layer() == 1){// only make superChambers when doing layer 1
       GEMSuperChamber *gemSuperChamber = buildSuperChamber(fv, detIdCh);
-      theGeometry.add(gemSuperChamber);
       superChambers.push_back(gemSuperChamber);
     }
     GEMChamber *gemChamber = buildChamber(fv, detIdCh);
@@ -122,6 +121,7 @@ GEMGeometryBuilderFromDDD::build( GEMGeometry& theGeometry,
 	  superChamber->add( theGeometry.chamber(GEMDetId(detId.region(),detId.ring(),detId.station(),2,detId.chamber(),0)));
 	  
 	  ring->add(superChamber);
+	  theGeometry.add(superChamber);
 	  LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << detId << " to ring: " 
 						<< "re " << re << " st " << st << " ri " << ri << std::endl;
  	}
