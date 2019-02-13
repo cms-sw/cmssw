@@ -23,7 +23,10 @@
 #include <zlib.h>
 
 namespace edm {
-  StreamerOutputModuleCommon::StreamerOutputModuleCommon(ParameterSet const& ps) :
+  StreamerOutputModuleCommon::StreamerOutputModuleCommon(ParameterSet const& ps, SelectedProducts const* selections) :
+
+    selections_(selections),
+    serializer_(selections_),
     maxEventSize_(ps.getUntrackedParameter<int>("max_event_size")),
     useCompression_(ps.getUntrackedParameter<bool>("use_compression")),
     compressionLevel_(ps.getUntrackedParameter<int>("compression_level")),
@@ -35,13 +38,6 @@ namespace edm {
     hltTriggerSelections_(),
     outputModuleId_(0) {
     // no compression as default value - we need this!
-
-    //inheriting class must implement getSelections method to retrieve selection from base output module
-    //::getSelections {
-    //  selections_(&keptProducts()[InEvent]),
-    //  serializer_(selections_),
-    //  selectionsInitialized_=true;
-    //}
 
     // test luminosity sections
     struct timeval now;
@@ -81,8 +77,6 @@ namespace edm {
                                                  std::string const& moduleLabel,
                                                  ParameterSetID const& toplevel)
   {
-
-    if (serializer_.get()==nullptr) getSelections();
 
     serializer_->serializeRegistry(serializeDataBuffer_, branchLists, helper);
 
@@ -199,8 +193,6 @@ namespace edm {
       // what about overflows?
       if(lumiSectionInterval_ > 0) lumi = static_cast<uint32>(timeInSec/lumiSectionInterval_) + 1;
     }
-
-    if (serializer_.get()==nullptr) getSelections();
 
     serializer_->serializeEvent(e, selectorCfg, useCompression_, compressionLevel_, serializeDataBuffer_);
 

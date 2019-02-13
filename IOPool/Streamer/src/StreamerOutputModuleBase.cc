@@ -16,16 +16,13 @@ namespace edm {
   StreamerOutputModuleBase::StreamerOutputModuleBase(ParameterSet const& ps) :
     one::OutputModuleBase::OutputModuleBase(ps),
     one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks>(ps),
-    StreamerOutputModuleCommon(ps),
-    trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))) {
+    StreamerOutputModuleCommon(ps,&keptProducts()[InEvent]),
+    trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
+    selections_(&keptProducts()[InEvent]),
+    serializer_(selections_) {
   }
 
   StreamerOutputModuleBase::~StreamerOutputModuleBase() {}
-
-  void StreamerOutputModuleBase::getSelections() {
-    selections_ = &keptProducts()[InEvent];
-    serializer_.reset(new StreamSerializer(selections_));
-  }
 
   void
   StreamerOutputModuleBase::beginRun(RunForOutput const&) {

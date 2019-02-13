@@ -39,8 +39,6 @@ namespace edm {
 
     Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventForOutput const& e) const;
 
-    virtual void getSelections() override;
-
   private:
     edm::EDGetTokenT<edm::TriggerResults> trToken_;
 
