@@ -16,7 +16,6 @@
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
-#include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -24,8 +23,6 @@
 #include "L1Trigger/Phase2L1ParticleFlow/src/corrector.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/ParametricResolution.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/CaloClusterer.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 //--------------------------------------------------------------------------------------------------
 class L1TPFCaloProducer : public edm::stream::EDProducer<> {
@@ -39,9 +36,7 @@ class L1TPFCaloProducer : public edm::stream::EDProducer<> {
 
         std::vector<edm::EDGetTokenT<HcalTrigPrimDigiCollection>> hcalDigis_;
         edm::ESHandle<CaloTPGTranscoder> decoder_;
-        std::vector<edm::EDGetTokenT<l1t::HGCalTriggerCellBxCollection>> hcalHGCTCs_;
         std::vector<edm::EDGetTokenT<l1t::HGCalTowerBxCollection>> hcalHGCTowers_;
-        double hcalHGCTCEtCut_;
         bool hcalHGCTowersHadOnly_;
 
         l1tpf::corrector emCorrector_;
@@ -105,10 +100,6 @@ L1TPFCaloProducer::L1TPFCaloProducer(const edm::ParameterSet& iConfig):
     for (auto & tag : iConfig.getParameter<std::vector<edm::InputTag>>("hcalDigis")) {
         hcalDigis_.push_back(consumes<HcalTrigPrimDigiCollection>(tag));
     }
-    for (auto & tag : iConfig.getParameter<std::vector<edm::InputTag>>("hcalHGCTCs")) {
-        hcalHGCTCs_.push_back(consumes<l1t::HGCalTriggerCellBxCollection>(tag));
-    }
-    if (!hcalHGCTCs_.empty()) hcalHGCTCEtCut_ = iConfig.getParameter<double>("hcalHGCTCEtMin");
     for (auto & tag : iConfig.getParameter<std::vector<edm::InputTag>>("hcalHGCTowers")) {
         hcalHGCTowers_.push_back(consumes<l1t::HGCalTowerBxCollection>(tag));
     }
