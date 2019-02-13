@@ -35,7 +35,7 @@ namespace edm {
 
     std::unique_ptr<ParameterSet>
     readConfig(std::string const& config, int argc, char* argv[]) {
-      PyBind11ProcessDesc pythonProcessDesc(config, argc, argv);
+      PyBind11ProcessDesc pythonProcessDesc(config);//, argc, argv);
       return pythonProcessDesc.parameterSet();
     }
 
@@ -51,8 +51,9 @@ namespace edm {
 
       pybind11::scoped_interpreter guard{};
       python::initializePyBind11Module();
-      Python11ParameterSet theProcessPSet; //scope ok?
+      std::unique_ptr<ParameterSet> retVal;
       {
+	Python11ParameterSet theProcessPSet; 
 	pybind11::object mainModule = pybind11::module::import("__main__");
 	mainModule.attr("topPSet") = pybind11::cast(&theProcessPSet);
 	
@@ -64,14 +65,12 @@ namespace edm {
 	    makePSetsFromString(module);
 	  }
 	}
-	catch( pybind11::error_already_set const& ) {
-	  pythonToCppException("Configuration");
-	  //pybind11::finalize_interpreter();
-	  //Py_Finalize();
+	catch( pybind11::error_already_set const &e ) {
+	  pythonToCppException("Configuration",e.what());
 	}
-	//theProcessPSet.pset().swap(*returnValue);
+	retVal=std::make_unique<edm::ParameterSet>(ParameterSet(theProcessPSet.pset()));
       }
-      return std::make_unique<edm::ParameterSet>(ParameterSet(theProcessPSet.pset()));
+      return retVal;
     }
   }
 } // namespace edm

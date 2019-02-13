@@ -3,9 +3,9 @@
 //#include <iostream>
 namespace edm {
 
-void pythonToCppException(const std::string& iType)
+  void pythonToCppException(const std::string& iType, const std::string &error)
  {
-    throw cms::Exception(iType)<<" unknown python problem occurred.\n";
+   throw cms::Exception(iType)<<" unknown python problem occurred.\n"<< error << std::endl;
  }
 }
 
