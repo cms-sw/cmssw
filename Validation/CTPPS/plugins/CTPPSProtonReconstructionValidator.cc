@@ -86,7 +86,7 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
   iSetup.get<CTPPSInterpolatedOpticsRcd>().get(hOpticalFunctions);
 
   // stop if conditions invalid
-  if (hOpticalFunctions->size() == 0)
+  if (hOpticalFunctions->empty())
     return;
 
   // get input
