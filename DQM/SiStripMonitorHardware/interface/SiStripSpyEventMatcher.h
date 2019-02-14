@@ -20,7 +20,7 @@ class FEDRawDataCollection;
 class SiStripRawDigi;
 namespace edm {
   template<class T> class DetSetVector;
-  template<class T> class DetSet;
+  template<class T> struct DetSet;
   class EventID;
   class ParameterSet;
 }
