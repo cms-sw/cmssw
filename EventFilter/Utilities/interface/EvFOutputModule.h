@@ -13,7 +13,7 @@ namespace evf {
   class EvFOutputEventWriter;
   class EvFOutputJSONWriter;
 
-  typedef edm::limited::OutputModule<edm::LuminosityBlockCache<evf::EvFOutputEventWriter>,edm::RunCache<evf::EvFOutputJSONWriter>> EvFOutputModuleType;
+  typedef edm::limited::OutputModule<edm::RunCache<evf::EvFOutputJSONWriter>,edm::LuminosityBlockCache<evf::EvFOutputEventWriter>> EvFOutputModuleType;
 
   class EvFOutputModule : 
     public EvFOutputModuleType

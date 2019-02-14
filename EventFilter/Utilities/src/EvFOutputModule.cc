@@ -147,7 +147,7 @@ namespace evf {
       jsonMonitor_->commit(nullptr);
     }
 
-    StreamerOutputModuleCommon streamerCommon_;
+    edm::StreamerOutputModuleCommon streamerCommon_;
 
     jsoncollector::IntJ processed_;
     jsoncollector::IntJ accepted_;
@@ -222,7 +222,7 @@ namespace evf {
 
 
   std::shared_ptr<EvFOutputJSONWriter>
-  EvFOutputModule::globalBeginRun(edm::RunForOutput const& run, edm::EventSetup const& setup) const
+  EvFOutputModule::globalBeginRun(edm::RunForOutput const& run) const
   {
     //create run Cache holding JSON file writer and variables
     auto rc = std::make_shared<EvFOutputJSONWriter>(ps_,&keptProducts()[edm::InEvent],streamLabel_);
@@ -296,7 +296,7 @@ namespace evf {
 
 
   std::shared_ptr<EvFOutputEventWriter>
-  EvFOutputModule::globalBeginLuminosityBlock(edm::LuminosityBlockForOutput const& iLB,  edm::EventSetup const&) const
+  EvFOutputModule::globalBeginLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) const
   {
     auto openDatFilePath = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(iLB.luminosityBlock(),streamLabel_);
     auto lumiWriter = std::make_shared<EvFOutputEventWriter>(openDatFilePath);
@@ -308,11 +308,10 @@ namespace evf {
   EvFOutputModule::write(edm::EventForOutput const& e) {
 
     edm::Handle<edm::TriggerResults> const& triggerResults = getTriggerResults(trToken_, e);
-    //use invalid index as this parameter is anyway ignored by the cache getter function
+    //runCache parameter at this time is ignored. Obtaning index is also currently not possible from RunOutput returned by e.getRun() 
     auto rc = const_cast<EvFOutputJSONWriter*>(EvFOutputModuleType::runCache(edm::RunIndex::invalidRunIndex()));
     std::unique_ptr<EventMsgBuilder> msg = rc->streamerCommon_.serializeEvent(e, triggerResults, selectorConfig());
-
-    auto lumiWriter = const_cast<EvFOutputEventWriter*>(luminosityBlockCache(edm::LuminosityBlockIndex::invalidLuminosityBlockIndex()));
+    auto lumiWriter = const_cast<EvFOutputEventWriter*>(luminosityBlockCache(e.getLuminosityBlock().index() ));
     lumiWriter->incAccepted();
     lumiWriter->doOutputEvent(*msg); //msg is written and discarded at this point
   }
@@ -321,8 +320,8 @@ namespace evf {
   void
   EvFOutputModule::globalEndLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) const
   {
-    //edm::LogInfo("EvFOutputModule") << "end lumi";
-    auto lumiWriter = luminosityBlockCache(edm::LuminosityBlockIndex::invalidLuminosityBlockIndex());
+    auto lumiWriter = luminosityBlockCache(iLB.index());
+    //runCache parameter at this time is ignored. Obtaning index is also currently not possible from RunOutput returned by iLB.getRun() 
     auto rc = const_cast<EvFOutputJSONWriter*>(EvFOutputModuleType::runCache(edm::RunIndex::invalidRunIndex()));
 
     rc->fileAdler32_.value() = lumiWriter->get_adler32();

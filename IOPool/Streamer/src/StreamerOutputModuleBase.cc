@@ -17,10 +17,8 @@ namespace edm {
     one::OutputModuleBase::OutputModuleBase(ps),
     one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks>(ps),
     StreamerOutputModuleCommon(ps,&keptProducts()[InEvent]),
-    trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
-    selections_(&keptProducts()[InEvent]),
-    serializer_(selections_) {
-  }
+    trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults")))
+  {}
 
   StreamerOutputModuleBase::~StreamerOutputModuleBase() {}
 
