@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "DataFormats/L1Trigger/interface/Jet.h"
-
+//#include "DataFormats/L1TrackTrigger/interface/L1TkJetParticleDisp.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 
@@ -32,6 +32,11 @@ namespace l1t {
 		       const edm::Ref< JetBxCollection >& jetRef,
 		       const std::vector< edm::Ptr< L1TTTrackType > >& trkPtrs,
 		       float jetvtx = -999. );
+      L1TkJetParticle( const LorentzVector& p4,
+		       const std::vector< edm::Ptr< L1TTTrackType > >& trkPtrs,
+		       float jetvtx = -999. ,
+		unsigned int ntracks=0,unsigned int tighttracks=0,unsigned int displacedtracks=0,unsigned int tightdisplacedtracks=0	
+			);
       
       virtual ~L1TkJetParticle() {}
       
@@ -42,9 +47,14 @@ namespace l1t {
       const std::vector< edm::Ptr< L1TTTrackType > >& getTrkPtrs() const { return trkPtrs_; }
       
       float getJetVtx() const  { return JetVtx_ ; }
-
-      // ---------- member functions ---------------------------
-      
+      unsigned int getNtracks() const {return ntracks_;}
+      unsigned int getNTighttracks() const {return tighttracks_;}
+      unsigned int getNDisptracks() const {return displacedtracks_;}
+      unsigned int getNTightDisptracks() const {return tightdisplacedtracks_;} 
+   
+     // ---------- member functions ---------------------------
+ //     void setDispCounters(L1TkJetParticleDisp counters){ counters_=counters;};
+   //   L1TkJetParticleDisp getDispCounters() const { return counters_;};
       void setJetVtx(float JetVtx) { JetVtx_ = JetVtx ; }
             
       int bx() const;
@@ -52,9 +62,9 @@ namespace l1t {
     private:
       edm::Ref< JetBxCollection > jetRef_ ;
       std::vector< edm::Ptr< L1TTTrackType > >  trkPtrs_;
-      
+      //L1TkJetParticleDisp counters_;
       float JetVtx_ ;
-      
+     unsigned int ntracks_,tighttracks_,displacedtracks_,tightdisplacedtracks_;
     };
 }
 
