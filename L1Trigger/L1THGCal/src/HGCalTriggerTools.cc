@@ -142,19 +142,28 @@ unsigned
 HGCalTriggerTools::
 layerWithOffset(const DetId& id) const {
   unsigned int l = layer(id);
-  if( (id.det() == DetId::Forward && id.subdetId() == HGCHEF ) ||
-      (id.det() == DetId::HGCalHSi ) ||
-      (id.det() == DetId::HGCalTrigger && HGCalTriggerDetId(id).subdet()==HGCalTriggerSubdetector::HGCalHSiTrigger) ) {
+  if(isHad(id) && isSilicon(id)) {
     l += eeLayers_;
-  } else if( (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) ||
-             (id.det() == DetId::Forward && id.subdetId() == HGCHEB) ||
-             (id.det() == DetId::HGCalHSc) ) {
-    if(geom_->isV9Geometry()) l += eeLayers_;
+  } else if(isHad(id) && isScintillator(id)) {
+    if(geom_->isV9Geometry()) l += eeLayers_; // mixed silicon and scintillator layers
     else l += eeLayers_ + fhLayers_;
   }
   return l;
 }
 
+bool
+HGCalTriggerTools::
+isEm(const DetId& id) const {
+  bool em = false;
+  if (id.det() == DetId::Forward) {
+    em = (id.subdetId()==HGCEE);
+  } else if (id.det() == DetId::HGCalEE) {
+    em = true;
+  } else if (id.det() == DetId::HGCalTrigger) {
+    em = (HGCalTriggerDetId(id).subdet()==HGCalTriggerSubdetector::HGCalEETrigger);
+  }
+  return em;
+}
 
 bool
 HGCalTriggerTools::
@@ -162,12 +171,8 @@ isSilicon(const DetId& id) const {
   bool silicon = false;
   if (id.det() == DetId::Forward) {
     silicon = (id.subdetId()!=HGCHEB);
-  } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
-    silicon = false;
   } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
     silicon = true;
-  } else if (id.det() == DetId::HGCalHSc) {
-    silicon = false;
   } else if (id.det() == DetId::HGCalTrigger) {
     silicon = (HGCalTriggerDetId(id).subdet()!=HGCalTriggerSubdetector::HGCalHScTrigger);
   }

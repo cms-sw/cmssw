@@ -45,6 +45,8 @@ class HGCalTriggerTools {
     unsigned layers(DetId::Detector type) const ;
     unsigned layer(const DetId&) const;
     unsigned layerWithOffset(const DetId&) const;
+    bool isEm(const DetId&) const;
+    bool isHad(const DetId& id) const {return !isEm(id);}
     bool isSilicon(const DetId&) const;
     bool isScintillator(const DetId& id) const {return !isSilicon(id);}
     int zside(const DetId&) const;
