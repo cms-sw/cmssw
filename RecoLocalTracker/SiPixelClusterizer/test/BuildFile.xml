@@ -32,7 +32,7 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin file="gpuClustering.cu" name="gpuClustering_t">
+<bin file="gpuClustering_t.cu" name="gpuClustering_t">
   <use name="cuda"/>
   <use name="cub"/>
   <use name="cuda-api-wrappers"/>
@@ -40,7 +40,7 @@
   <flags CXXFLAGS="-g"/>
 </bin>
 
-<bin file="gpuClustering.cu" name="gpuClustering_debug">
+<bin file="gpuClustering_t.cu" name="gpuClustering_debug">
   <use name="cuda"/>
   <use name="cub"/>
   <use name="cuda-api-wrappers"/>
@@ -48,3 +48,14 @@
   <flags CXXFLAGS="-g -DGPU_DEBUG"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
 </bin>
+
+<bin file="cpuClustering_t.cpp" name="cpuClustering_t">
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<bin file="cpuClustering_t.cpp" name="cpuClustering_debug">
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CXXFLAGS="-g -DGPU_DEBUG"/>
+</bin>
+
