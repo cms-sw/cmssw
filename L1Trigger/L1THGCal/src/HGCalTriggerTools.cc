@@ -5,6 +5,7 @@
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
@@ -56,7 +57,7 @@ eventSetup(const edm::EventSetup& es)
 }
 
 GlobalPoint HGCalTriggerTools::getTCPosition(const DetId& id) const {
-  if(id.det() == DetId::Hcal) {
+  if(id.det() == DetId::Hcal || id.det()==DetId::HGCalEE) {
     throw cms::Exception("hgcal::HGCalTriggerTools")
       << "method getTCPosition called for DetId not belonging to a TC";
     // FIXME: this would actually need a better test...but at the moment I can not think to anything better
@@ -129,6 +130,8 @@ layer(const DetId& id) const {
     layer = HcalDetId(id).depth();
   } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
     layer = HGCSiliconDetId(id).layer();
+  } else if (id.det() == DetId::HGCalTrigger) {
+    layer = HGCalTriggerDetId(id).layer();
   } else if (id.det() == DetId::HGCalHSc) {
     layer = HGCScintillatorDetId(id).layer();
   }
@@ -139,14 +142,41 @@ unsigned
 HGCalTriggerTools::
 layerWithOffset(const DetId& id) const {
   unsigned int l = layer(id);
-  if( id.det() == DetId::Forward && id.subdetId() == HGCHEF ) {
+  if(isHad(id) && isSilicon(id)) {
     l += eeLayers_;
-  } else if( (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) ||
-             (id.det() == DetId::Forward && id.subdetId() == HGCHEB) ) {
-    if(geom_->isV9Geometry()) l += eeLayers_;
+  } else if(isHad(id) && isScintillator(id)) {
+    if(geom_->isV9Geometry()) l += eeLayers_; // mixed silicon and scintillator layers
     else l += eeLayers_ + fhLayers_;
   }
   return l;
+}
+
+bool
+HGCalTriggerTools::
+isEm(const DetId& id) const {
+  bool em = false;
+  if (id.det() == DetId::Forward) {
+    em = (id.subdetId()==HGCEE);
+  } else if (id.det() == DetId::HGCalEE) {
+    em = true;
+  } else if (id.det() == DetId::HGCalTrigger) {
+    em = (HGCalTriggerDetId(id).subdet()==HGCalTriggerSubdetector::HGCalEETrigger);
+  }
+  return em;
+}
+
+bool
+HGCalTriggerTools::
+isSilicon(const DetId& id) const {
+  bool silicon = false;
+  if (id.det() == DetId::Forward) {
+    silicon = (id.subdetId()!=HGCHEB);
+  } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
+    silicon = true;
+  } else if (id.det() == DetId::HGCalTrigger) {
+    silicon = (HGCalTriggerDetId(id).subdet()!=HGCalTriggerSubdetector::HGCalHScTrigger);
+  }
+  return silicon;
 }
 
 int
@@ -159,6 +189,8 @@ zside(const DetId& id) const {
     zside = HcalDetId(id).zside();
   } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
     zside = HGCSiliconDetId(id).zside();
+  } else if (id.det() == DetId::HGCalTrigger) {
+    zside = HGCalTriggerDetId(id).zside();
   } else if (id.det() == DetId::HGCalHSc) {
     zside = HGCScintillatorDetId(id).zside();
   }
@@ -192,6 +224,10 @@ thicknessIndex(const DetId& id, bool tc) const {
   else if(det==DetId::HGCalEE || det==DetId::HGCalHSi)
   {
     thickness = HGCSiliconDetId(id).type();
+  }
+  else if(det==DetId::HGCalTrigger)
+  {
+    thickness = HGCalTriggerDetId(id).type();
   }
   return thickness;
 }
@@ -242,11 +278,15 @@ float HGCalTriggerTools::getLayerZ(const unsigned& layerWithOffset) const {
 
 float HGCalTriggerTools::getLayerZ(const int& subdet, const unsigned& layer) const {
   float layerGlobalZ = 0.;
-  if(subdet == ForwardSubdetector::HGCEE) {
+  if( (subdet == ForwardSubdetector::HGCEE) ||
+      (subdet == DetId::HGCalEE) ) {
     layerGlobalZ = geom_->eeTopology().dddConstants().waferZ(layer, true);
-  } else if(subdet == ForwardSubdetector::HGCHEF) {
+  } else if( (subdet == ForwardSubdetector::HGCHEF) ||
+             (subdet == DetId::HGCalHSi) ) {
     layerGlobalZ = geom_->fhTopology().dddConstants().waferZ(layer, true);
-  } else if(subdet == HcalSubdetector::HcalEndcap || subdet == ForwardSubdetector::HGCHEB) {
+  } else if( (subdet == HcalSubdetector::HcalEndcap) ||
+             (subdet == ForwardSubdetector::HGCHEB) ||
+             (subdet == DetId::HGCalHSc) ) {
     if(geom_->isV9Geometry())
     {
       layerGlobalZ = geom_->hscTopology().dddConstants().waferZ(layer, true);
