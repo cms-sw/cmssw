@@ -1,5 +1,5 @@
 #include "DetectorDescription/Core/src/Sphere.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/Units.h"
 
 #include <cmath>
 #include <ostream>
@@ -8,8 +8,8 @@
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/src/Solid.h"
 
-using namespace dd;
-using namespace dd::operators;
+using namespace cms_units;
+using namespace cms_units::operators;
 
 DDI::Sphere::Sphere(double innerRadius,
 		    double outerRadius,
@@ -29,12 +29,12 @@ DDI::Sphere::Sphere(double innerRadius,
 
 void DDI::Sphere::stream(std::ostream & os) const
 {
-  os << " innerRadius=" << CONVERT_TO( p_[0], cm )
-     << " outerRadius=" << CONVERT_TO( p_[1], cm )
-     << " startPhi=" << CONVERT_TO( p_[2], deg )
-     << " deltaPhi=" << CONVERT_TO( p_[3], deg )
-     << " startTheta=" << CONVERT_TO( p_[4], deg )
-     << " deltaTheta=" << CONVERT_TO( p_[5], deg );
+  os << " innerRadius=" << CMS_CONVERT_TO( p_[0], cm )
+     << " outerRadius=" << CMS_CONVERT_TO( p_[1], cm )
+     << " startPhi=" << CMS_CONVERT_TO( p_[2], deg )
+     << " deltaPhi=" << CMS_CONVERT_TO( p_[3], deg )
+     << " startTheta=" << CMS_CONVERT_TO( p_[4], deg )
+     << " deltaTheta=" << CMS_CONVERT_TO( p_[5], deg );
 }
 
 double DDI::Sphere::volume() const

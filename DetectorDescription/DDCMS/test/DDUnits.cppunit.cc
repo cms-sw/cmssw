@@ -1,9 +1,12 @@
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "DetectorDescription/DDCMS/interface/DDUnits.h"
+#include "DataFormats/Math/interface/Units.h"
 
 #include "cppunit/TestAssert.h"
 #include "cppunit/TestFixture.h"
+
+using namespace cms_units;
+using namespace cms_units::operators;
 
 class testDDUnits : public CppUnit::TestFixture {
   
@@ -32,7 +35,7 @@ void testDDUnits::checkUnits()
 
   double twoPiAngle = 2_pi;
   std::cout << "My 2pi angle: " << twoPiAngle
-	    << " [rad] == " << ConvertTo( twoPiAngle, deg )
+	    << " [rad] == " << CMS_CONVERT_TO( twoPiAngle, deg )
 	    << " [deg]\n";
 
   CPPUNIT_ASSERT( 2*M_PI == 2*_pi );
@@ -45,15 +48,15 @@ void testDDUnits::checkUnits()
   CPPUNIT_ASSERT( 135_deg == 3_pi/4 );
   CPPUNIT_ASSERT( 150_deg == 5_pi/6 );
 
-  double angle90 = ConvertTo( 1_pi/2, deg );
+  double angle90 = CMS_CONVERT_TO( 1_pi/2, deg );
   CPPUNIT_ASSERT( angle90 == 90 );
 
-  double angle120 = ConvertTo( 2_pi/3, deg );
+  double angle120 = CMS_CONVERT_TO( 2_pi/3, deg );
   CPPUNIT_ASSERT( angle120 == 120. );
 
-  double angle135 = ConvertTo( 3_pi/4, deg );
+  double angle135 = CMS_CONVERT_TO( 3_pi/4, deg );
   CPPUNIT_ASSERT( angle135 == 135. );
 
-  double angle150 = ConvertTo( 5_pi/6, deg );
+  double angle150 = CMS_CONVERT_TO( 5_pi/6, deg );
   CPPUNIT_ASSERT( angle150 == 150. );
 }

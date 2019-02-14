@@ -4,11 +4,11 @@
 #include <vector>
 
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/Units.h"
 #include "DetectorDescription/Core/src/Solid.h"
 
 using std::fabs;
-using namespace dd::operators;
+using namespace cms_units::operators;
 
 DDI::Tubs::Tubs(double zhalf,
     	        double rIn, double rOut,	      	      
@@ -25,11 +25,11 @@ DDI::Tubs::Tubs(double zhalf,
 
 void DDI::Tubs::stream(std::ostream & os) const
 {
-  os << " zhalf=" << CONVERT_TO( p_[0], cm )
-     << " rIn=" << CONVERT_TO( p_[1], cm )
-     << " rOut=" << CONVERT_TO( p_[2], cm )
-     << " startPhi=" << CONVERT_TO( p_[3], deg )
-     << " deltaPhi=" << CONVERT_TO( p_[4], deg );		
+  os << " zhalf=" << CMS_CONVERT_TO( p_[0], cm )
+     << " rIn=" << CMS_CONVERT_TO( p_[1], cm )
+     << " rOut=" << CMS_CONVERT_TO( p_[2], cm )
+     << " startPhi=" << CMS_CONVERT_TO( p_[3], deg )
+     << " deltaPhi=" << CMS_CONVERT_TO( p_[4], deg );		
 }
 					
 double DDI::Tubs::volume() const
@@ -38,7 +38,7 @@ double DDI::Tubs::volume() const
    double z=2.*p_[0];
    double rIn=p_[1];
    double rOut=p_[2];
-   double phi = CONVERT_TO( p_[4], rad );
+   double phi = CMS_CONVERT_TO( p_[4], rad );
 
    double volume1=1_pi*rIn*rIn*z;
    double volume2=1_pi*rOut*rOut*z;

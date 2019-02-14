@@ -2,7 +2,6 @@
 #define DETECTOR_DESCRIPTION_DD_PLUGINS_H
 
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
-#include "DetectorDescription/DDCMS/interface/DDUnits.h"
 #include "DD4hep/Factories.h"
 #include "DD4hep/Plugins.h"
 
