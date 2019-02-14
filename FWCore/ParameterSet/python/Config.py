@@ -831,8 +831,9 @@ class Process(object):
         return result
     def dumpPython(self, options=PrintOptions()):
         """return a string containing the equivalent process defined using python"""
-        result = "import FWCore.ParameterSet.Config as cms\n\n"
-        result += "process = cms.Process(\""+self.__name+"\")\n\n"
+        specialImportRegistry._reset()
+        header = "import FWCore.ParameterSet.Config as cms"
+        result = "process = cms.Process(\""+self.__name+"\")\n\n"
         if self.source_():
             result += "process.source = "+self.source_().dumpPython(options)
         if self.looper_():
@@ -856,7 +857,11 @@ class Process(object):
         result+=self._dumpPythonList(self.aliases_(), options)
         if not self.schedule_() == None:
             result += 'process.schedule = ' + self.schedule.dumpPython(options)
-        return result
+        imports = specialImportRegistry.getSpecialImports()
+        if len(imports) > 0:
+            header += "\n" + "\n".join(imports)
+        header += "\n\n"
+        return header+result
     def _replaceInSequences(self, label, new):
         old = getattr(self,label)
         #TODO - replace by iterator concatenation
@@ -1596,6 +1601,7 @@ if __name__=="__main__":
                     test3 = lambda: (True, -8),
                     test4 = lambda: (True, -7)
                 ), **kargs)
+    specialImportRegistry.registerSpecialImportForType(SwitchProducerTest, "from test import SwitchProducerTest")
 
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
@@ -2725,7 +2731,10 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assertEqual((True,"Bar"), p.values["sp@test1"][1].values["@module_type"])
             self.assertEqual((True,"EDProducer"), p.values["sp@test2"][1].values["@module_edm_type"])
             self.assertEqual((True,"Foo"), p.values["sp@test2"][1].values["@module_type"])
-            self.assertEqual(proc.dumpPython().find('@'), -1)
+            dump = proc.dumpPython()
+            self.assertEqual(dump.find('@'), -1)
+            self.assertEqual(specialImportRegistry.getSpecialImports(), ["from test import SwitchProducerTest"])
+            self.assertTrue(dump.find("\nfrom test import SwitchProducerTest\n") != -1)
 
             # EDAlias as non-chosen case
             proc = Process("test")
