@@ -23,7 +23,7 @@ namespace l1t {
       
       ~HGCalMulticluster() override;
 
-      bool hOverE() const { 
+      float hOverE() const { 
         // --- this below would be faster when reading old objects, as HoE will only be computed once, 
         // --- but it may not be allowed by CMS rules because of the const_cast
         // if (!hOverEValid_) (const_cast<HGCalMulticluster*>(this))->saveHOverE();
