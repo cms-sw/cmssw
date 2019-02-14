@@ -40,6 +40,7 @@
 <use   name="rootrflx"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/Math"/>
 <use   name="FastSimulation/BaseParticlePropagator"/>
 <export>
   <flags   SEALPLUGIN="1"/>

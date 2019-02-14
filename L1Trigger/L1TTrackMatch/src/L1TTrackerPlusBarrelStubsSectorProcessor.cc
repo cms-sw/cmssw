@@ -1,4 +1,6 @@
 #include "L1Trigger/L1TTrackMatch/interface/L1TTrackerPlusBarrelStubsSectorProcessor.h"
+#include "DataFormats/Math/interface/deltaR.h"
+
 L1TTrackerPlusBarrelStubsSectorProcessor::L1TTrackerPlusBarrelStubsSectorProcessor(const edm::ParameterSet& iConfig, int sector): 
   verbose_(iConfig.getParameter<int>("verbose")),
   pi_(iConfig.getParameter<double>("geomPi")),
@@ -6,6 +8,8 @@ L1TTrackerPlusBarrelStubsSectorProcessor::L1TTrackerPlusBarrelStubsSectorProcess
   tol_(iConfig.getParameter<double>("tolerance")),
   tolB_(iConfig.getParameter<double>("toleranceB")),
   tolQ_(iConfig.getParameter<int>("toleranceQ")),
+  dzIsol_(iConfig.getParameter<double>("dzForIso")),
+  coneIsol_(iConfig.getParameter<double>("coneForIso")),
   phi1_(iConfig.getParameter<std::vector<double> > ("phi1")),
   phi2_(iConfig.getParameter<std::vector<double> > ("phi2")),
   propagation_(iConfig.getParameter<std::vector<double> > ("propagationConstants")),
@@ -61,6 +65,9 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsSectorProcessor::pro
 					track->getMomentum().z(),
 					track->getMomentum().mag());
     l1t::L1TkMuonParticle muon (vec,track);
+
+
+    
     
     //Set muon charge
     int charge=1;
@@ -148,12 +155,32 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsSectorProcessor::pro
       for (const auto& stub : stubsFilter) {
         muon.addBarrelStub(stub);
       }
+
+      //second loop for isolation
+      float sumPT=0;  
+      for (const auto& track2 : tracks) {
+	l1t::L1TkMuonParticle::LorentzVector vec2(track2->getMomentum().x(),
+						  track2->getMomentum().y(),
+						  track2->getMomentum().z(),
+						  track2->getMomentum().mag());
+	if (deltaR(vec.eta(),vec.phi(),vec2.eta(),vec2.phi())<coneIsol_ && 
+	    deltaR(vec.eta(),vec.phi(),vec2.eta(),vec2.phi())>0.0001
+	    ) {
+	  if (fabs(track->getPOCA().z()-track2->getPOCA().z())<dzIsol_) {
+	    sumPT+=vec2.pt();
+	  }
+	}
+
+      }
+      muon.setTrkIsol(sumPT);
+
+
+
       //for now just add it
       out.push_back(muon);
     }
 
   }
-
   return out;
 }
 
