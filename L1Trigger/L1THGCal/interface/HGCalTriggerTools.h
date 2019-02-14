@@ -45,6 +45,8 @@ class HGCalTriggerTools {
     unsigned layers(DetId::Detector type) const ;
     unsigned layer(const DetId&) const;
     unsigned layerWithOffset(const DetId&) const;
+    bool isSilicon(const DetId&) const;
+    bool isScintillator(const DetId& id) const {return !isSilicon(id);}
     int zside(const DetId&) const;
     // tc argument is needed because of the impossibility
     // to know whether the ID is a TC or a sensor cell

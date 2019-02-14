@@ -155,6 +155,25 @@ layerWithOffset(const DetId& id) const {
   return l;
 }
 
+
+bool
+HGCalTriggerTools::
+isSilicon(const DetId& id) const {
+  bool silicon = false;
+  if (id.det() == DetId::Forward) {
+    silicon = (id.subdetId()!=HGCHEB);
+  } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
+    silicon = false;
+  } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
+    silicon = true;
+  } else if (id.det() == DetId::HGCalHSc) {
+    silicon = false;
+  } else if (id.det() == DetId::HGCalTrigger) {
+    silicon = (HGCalTriggerDetId(id).subdet()!=HGCalTriggerSubdetector::HGCalHScTrigger);
+  }
+  return silicon;
+}
+
 int
 HGCalTriggerTools::
 zside(const DetId& id) const {

@@ -17,7 +17,7 @@ def custom_geometry_V9(process, implementation=1):
         process.hgcalTriggerGeometryESProducer.TriggerGeometry.TriggerGeometryName = cms.string('HGCalTriggerGeometryV9Imp2')
         process.hgcalTriggerGeometryESProducer.TriggerGeometry.ScintillatorTriggerCellSize = cms.uint32(2)
         process.hgcalTriggerGeometryESProducer.TriggerGeometry.ScintillatorModuleSize = cms.uint32(12)
-        process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/test_uv_panel_mapping_v9_190117.txt")
+        process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/panel_mapping_V9_tdr_0.txt")
     process.hgcalConcentratorProducer.ProcessorParameters.MaxCellsInModule = cms.uint32(288)
     return process
 

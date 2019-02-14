@@ -629,6 +629,7 @@ HGCalTriggerGeometryV9Imp2::
 disconnectedModule(const unsigned module_id) const
 {
     bool disconnected = false;
+    if(disconnected_layers_.find(layerWithOffset(module_id))!=disconnected_layers_.end()) disconnected = true;
     return disconnected;
 }
 
@@ -730,19 +731,34 @@ HGCalTriggerGeometryV9Imp2::
 layerWithOffset(unsigned id) const
 {
     unsigned det = DetId(id).det();
-    unsigned subdet = HGCalTriggerDetId(id).subdet();
     unsigned layer = 0;
-    if(det==DetId::HGCalTrigger && subdet==HGCalTriggerSubdetector::HGCalEETrigger)
+    if(det==DetId::HGCalTrigger)
     {
-        layer = HGCalTriggerDetId(id).layer();
-    }
-    else if(det==DetId::HGCalTrigger && subdet==HGCalTriggerSubdetector::HGCalHSiTrigger)
-    {
-        layer = heOffset_ + HGCalTriggerDetId(id).layer();
+        unsigned subdet = HGCalTriggerDetId(id).subdet();
+        if(subdet==HGCalTriggerSubdetector::HGCalEETrigger)
+        {
+            layer = HGCalTriggerDetId(id).layer();
+        }
+        else if(subdet==HGCalTriggerSubdetector::HGCalHSiTrigger)
+        {
+            layer = heOffset_ + HGCalTriggerDetId(id).layer();
+        }
     }
     else if(det==DetId::HGCalHSc)
     {
         layer = heOffset_ + HGCScintillatorDetId(id).layer();
+    }
+    else if(det==DetId::Forward)
+    {
+        unsigned subdet = HGCalDetId(id).subdetId();
+        if(subdet==ForwardSubdetector::HGCEE)
+        {
+            layer = HGCalDetId(id).layer();
+        }
+        else if(subdet==ForwardSubdetector::HGCHEF || subdet==ForwardSubdetector::HGCHEB)
+        {
+            layer = heOffset_ + HGCalTriggerDetId(id).layer();
+        }
     }
     return layer;
 }
