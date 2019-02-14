@@ -1,10 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
+#include "DataFormats/Math/interface/Units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
+using namespace cms_units::operators;
 
 static long algorithm(Detector& /* description */,
                       cms::DDParsingContext& ctxt,
@@ -27,8 +29,8 @@ static long algorithm(Detector& /* description */,
 
   LogDebug("TrackerGeom") << "Parent " << mother.name() << "\tChild " << child.name() << " NameSpace " << ns.name();
   LogDebug("TrackerGeom") << "Parameters for positioning-- Tilt " << tilt 
-                          << "\tStartAngle " << ConvertTo( startAngle, deg )
-                          << "\tRangeAngle " << ConvertTo( rangeAngle, deg ) 
+                          << "\tStartAngle " << CMS_CONVERT_TO( startAngle, deg )
+                          << "\tRangeAngle " << CMS_CONVERT_TO( rangeAngle, deg ) 
                           << "\tRin " << radiusIn << "\tRout " << radiusOut 
                           << "\t ZPos " << zpos << "\tCopy Numbers " << number 
                           << " Start/Increment " << startCopyNo << ", " 
@@ -47,7 +49,7 @@ static long algorithm(Detector& /* description */,
       double phi  = startAngle + i*dphi;
       double phix = phi - tilt + 90._deg;
       double phiy = phix + 90._deg;
-      double phideg = ConvertTo( phix, deg );
+      double phideg = CMS_CONVERT_TO( phix, deg );
   
       Rotation3D rotation;
       if (phideg != 0) {
