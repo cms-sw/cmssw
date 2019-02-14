@@ -1,6 +1,7 @@
 //to allow combining multiple user hooks
 
 #include "Pythia8/UserHooks.h"
+#include "Pythia8/StringFragmentation.h"
 
 class MultiUserHook : public Pythia8::UserHooks {
 
@@ -439,19 +440,19 @@ public:
   // Do change fragmentation parameters.
   // Input: flavPtr, zPtr, pTPtr, idEnd, m2Had, iParton.
   bool doChangeFragPar( Pythia8::StringFlav* flavPtr, Pythia8::StringZ* zPtr, Pythia8::StringPT* pTPtr, int idEnd,
-    double m2Had, std::vector<int> iParton) override {
+    double m2Had, std::vector<int> iParton, const Pythia8::StringEnd* SE) override {
       bool test = true;
       for (Pythia8::UserHooks *hook : hooks_) {
-        if (hook->canChangeFragPar()) test &= hook->doChangeFragPar(flavPtr, zPtr, pTPtr, idEnd, m2Had, iParton);
+        if (hook->canChangeFragPar()) test &= hook->doChangeFragPar(flavPtr, zPtr, pTPtr, idEnd, m2Had, iParton, SE);
       }
       return test;
   }
 
  // Do a veto on a hadron just before it is added to the final state.
-  bool doVetoFragmentation( Pythia8::Particle part) override {
+  bool doVetoFragmentation( Pythia8::Particle part, const Pythia8::StringEnd* SE) override {
     bool test = false;
     for (Pythia8::UserHooks *hook : hooks_) {
-      if (hook->canChangeFragPar()) test |= hook->doVetoFragmentation(part);
+      if (hook->canChangeFragPar()) test |= hook->doVetoFragmentation(part, SE);
     }
     return test;
   }
