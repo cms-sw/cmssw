@@ -12,15 +12,6 @@ namespace pixelVertexHeterogeneousProduct {
     reco::VertexCollection collection;
   };
 
-  struct VerticesOnGPU{
-    float * z_d;
-    float * zerr_d;
-    float * chi2_d;
-    uint16_t * sortInd_d;
-    int32_t * ivtx_d; // this should be indexed with the original tracks, not the reduced set (oops)
-  };
-
-
   struct VerticesOnCPU {
     VerticesOnCPU() = default;
 
@@ -31,7 +22,6 @@ namespace pixelVertexHeterogeneousProduct {
 
     uint32_t nVertices=0;
     uint32_t nTracks=0;
-    VerticesOnGPU const * gpu_d = nullptr;
   };
 
 

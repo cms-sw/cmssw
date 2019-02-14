@@ -17,19 +17,19 @@ namespace gpuClustering {
                                int32_t * __restrict__ clusterId,
                                int numElements)
   {
-    int i = blockDim.x * blockIdx.x + threadIdx.x;
-    if (i >= numElements)
-      return;
-    clusterId[i] = i;
-    if (InvId == id[i])
-      return;
-    auto j = i - 1;
-    while (j >= 0 and id[j] == InvId)
-      --j;
-    if (j < 0 or id[j] != id[i]) {
-      // boundary...
-      auto loc = atomicInc(moduleStart, MaxNumModules);
-      moduleStart[loc + 1] = i;
+    int first = blockDim.x * blockIdx.x + threadIdx.x;
+    for (int i = first; i < numElements; i += gridDim.x*blockDim.x) {
+      clusterId[i] = i;
+      if (InvId == id[i])
+        continue;
+      auto j = i - 1;
+      while (j >= 0 and id[j] == InvId)
+        --j;
+      if (j < 0 or id[j] != id[i]) {
+        // boundary...
+        auto loc = atomicInc(moduleStart, MaxNumModules);
+        moduleStart[loc + 1] = i;
+      }
     }
   }
 
@@ -120,15 +120,20 @@ namespace gpuClustering {
         hist.fill(y[i],i-firstPixel);
       }
 
+#ifdef __CUDA_ARCH__
     // assume that we can cover the whole module with up to 10 blockDim.x-wide iterations
     constexpr int maxiter = 10;
+#else
+    auto maxiter = hist.size();
+#endif
+    constexpr int maxNeighbours = 10;  // allocate space for duplicate pixels: a pixel can appear more than once with different charge in the same event
     if (threadIdx.x==0) {
       assert((hist.size()/ blockDim.x) <= maxiter);
     }
     // nearest neighbour
-    uint16_t nn[maxiter][5];
+    uint16_t nn[maxiter][maxNeighbours];
     uint8_t nnn[maxiter]; // number of nn
-    for (int k = 0; k < maxiter; ++k)
+    for (uint32_t k = 0; k < maxiter; ++k)
       nnn[k] = 0;
 
     __syncthreads();  // for hit filling!
@@ -151,7 +156,7 @@ namespace gpuClustering {
 #endif
 
     // fill NN
-    for (int j=threadIdx.x, k = 0; j<hist.size(); j+=blockDim.x, ++k) {
+    for (auto j=threadIdx.x, k = 0U; j<hist.size(); j+=blockDim.x, ++k) {
         auto p = hist.begin()+j;
         auto i = *p + firstPixel;
         assert (id[i] != InvId);
@@ -164,10 +169,10 @@ namespace gpuClustering {
           assert(m!=i);
           if (std::abs(int(x[m]) - int(x[i])) > 1) continue;
           auto l = nnn[k]++;
-          assert(l<5);
+          assert(l < maxNeighbours);
           nn[k][l]=*p;
         }
-     }
+    }
 
     // for each pixel, look at all the pixels until the end of the module;
     // when two valid pixels within +/- 1 in x or y are found, set their id to the minimum;
@@ -177,7 +182,7 @@ namespace gpuClustering {
     int nloops=0;
     while (__syncthreads_or(more)) {
       if (1==nloops%2) {
-        for (int j=threadIdx.x, k = 0; j<hist.size(); j+=blockDim.x, ++k) {
+        for (auto j=threadIdx.x, k = 0U; j<hist.size(); j+=blockDim.x, ++k) {
              auto p = hist.begin()+j;
              auto i = *p + firstPixel;
              auto m = clusterId[i];
@@ -186,7 +191,7 @@ namespace gpuClustering {
         }
       } else {
         more = false;
-        for (int j=threadIdx.x, k = 0; j<hist.size(); j+=blockDim.x, ++k) {
+        for (auto j=threadIdx.x, k = 0U; j<hist.size(); j+=blockDim.x, ++k) {
           auto p = hist.begin()+j;
           auto i = *p + firstPixel;
           for (int kk=0; kk<nnn[k]; ++kk) {

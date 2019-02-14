@@ -7,8 +7,6 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/radixSort.h"
-
 
 #include "gpuVertexFinder.h"
 
@@ -17,24 +15,25 @@ namespace gpuVertexFinder {
 
   __global__
   void fitVertices(
-                   OnGPU * pdata,
+                   ZVertices * pdata, WorkSpace * pws,
                    float chi2Max // for outlier rejection
                   )  {
 
     constexpr bool verbose = false; // in principle the compiler should optmize out if false
 
     auto & __restrict__ data = *pdata;
-    auto nt = *data.ntrks;
-    float const * __restrict__ zt = data.zt;
-    float const * __restrict__ ezt2 = data.ezt2;
+    auto & __restrict__ ws = *pws;
+    auto nt = ws.ntrks;
+    float const * __restrict__ zt = ws.zt;
+    float const * __restrict__ ezt2 = ws.ezt2;
     float * __restrict__ zv = data.zv;
     float * __restrict__ wv = data.wv;
     float * __restrict__ chi2 = data.chi2;
-    uint32_t & nvFinal  = *data.nvFinal;
-    uint32_t & nvIntermediate = *data.nvIntermediate;
+    uint32_t & nvFinal  = data.nvFinal;
+    uint32_t & nvIntermediate = ws.nvIntermediate;
 
-    int32_t * __restrict__ nn = data.nn;
-    int32_t * __restrict__ iv = data.iv;
+    int32_t * __restrict__ nn = data.ndof;
+    int32_t * __restrict__ iv = ws.iv;
 
     assert(pdata);
     assert(zt);
@@ -44,7 +43,7 @@ namespace gpuVertexFinder {
     auto foundClusters = nvFinal;
  
     // zero
-    for (int i = threadIdx.x; i < foundClusters; i += blockDim.x) {
+    for (auto i = threadIdx.x; i < foundClusters; i += blockDim.x) {
       zv[i]=0;
       wv[i]=0;
       chi2[i]=0;
@@ -57,13 +56,13 @@ namespace gpuVertexFinder {
     __syncthreads();
 
     // compute cluster location
-    for (int i = threadIdx.x; i < nt; i += blockDim.x) {
+    for (auto i = threadIdx.x; i < nt; i += blockDim.x) {
       if (iv[i]>9990) {
         if (verbose) atomicAdd(&noise, 1);
         continue;
       }
       assert(iv[i]>=0);
-      assert(iv[i]<foundClusters);
+      assert(iv[i]<int(foundClusters));
       auto w = 1.f/ezt2[i];
       atomicAdd(&zv[iv[i]],zt[i]*w);
       atomicAdd(&wv[iv[i]],w);
@@ -71,7 +70,7 @@ namespace gpuVertexFinder {
 
     __syncthreads();
     // reuse nn
-    for (int i = threadIdx.x; i < foundClusters; i += blockDim.x) {
+    for (auto i = threadIdx.x; i < foundClusters; i += blockDim.x) {
       assert(wv[i]>0.f);
       zv[i]/=wv[i];
       nn[i]=-1;  // ndof
@@ -80,7 +79,7 @@ namespace gpuVertexFinder {
 
 
     // compute chi2
-    for (int i = threadIdx.x; i < nt; i += blockDim.x) {
+    for (auto i = threadIdx.x; i < nt; i += blockDim.x) {
       if (iv[i]>9990) continue;
 
       auto c2 = zv[iv[i]]-zt[i]; c2 *=c2/ezt2[i];
@@ -89,7 +88,7 @@ namespace gpuVertexFinder {
       atomicAdd(&nn[iv[i]],1);
     }
     __syncthreads();
-    for (int i = threadIdx.x; i < foundClusters; i += blockDim.x) if(nn[i]>0) wv[i] *= float(nn[i])/chi2[i];
+    for (auto i = threadIdx.x; i < foundClusters; i += blockDim.x) if(nn[i]>0) wv[i] *= float(nn[i])/chi2[i];
 
     if(verbose && 0==threadIdx.x) printf("found %d proto clusters ",foundClusters);
     if(verbose && 0==threadIdx.x) printf("and %d noise\n",noise);

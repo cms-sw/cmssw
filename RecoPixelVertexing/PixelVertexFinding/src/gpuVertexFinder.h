@@ -9,41 +9,55 @@
 
 namespace gpuVertexFinder {
 
-  struct OnGPU {
-
+  // SOA for vertices 
+  // These vertices are clusterized and fitted only along the beam line (z)
+  // to obtain their global coordinate the beam spot position shall be added (eventually correcting for the beam angle as well) 
+  // FIXME move to DataFormats
+  struct ZVertices {
     static constexpr uint32_t MAXTRACKS = 16000;
     static constexpr uint32_t MAXVTX    = 1024;
 
-    OnGPU() = default;
+    int32_t idv[MAXTRACKS];  // vertex index for each associated (original) track
+    float zv[MAXVTX];  // output z-posistion of found vertices
+    float wv[MAXVTX];  //  output weight (1/error^2) on the above
+    float chi2[MAXVTX];  // vertices chi2
+    float ptv2[MAXVTX];  // vertices pt^2
+    int32_t ndof[MAXVTX]; // vertices number of dof (resued as workspace for the number of nearest neighbours)
+    uint16_t sortInd[MAXVTX]; // sorted index (by pt2)
+    uint32_t nvFinal;  // the number of vertices
 
-    OnGPU(std::nullptr_t) noexcept:
-      ntrks{nullptr}, itrk{nullptr}, zt{nullptr}, ezt2{nullptr}, ptt2{nullptr},
-      zv{nullptr}, wv{nullptr}, chi2{nullptr}, ptv2{nullptr}, nvFinal{nullptr},
-      nvIntermediate{nullptr}, iv{nullptr}, sortInd{nullptr},
-      izt{nullptr}, nn{nullptr}
-    {}
+    __host__ __device__
+    void init() { nvFinal=0;}
 
-    uint32_t * ntrks; // number of "selected tracks"
-    uint16_t * itrk; // index of original track    
-    float * zt;   // input track z at bs
-    float * ezt2; // input error^2 on the above
-    float * ptt2; // input pt^2 on the above
 
-    float * zv;  // output z-posistion of found vertices
-    float * wv;  //  output weight (1/error^2) on the above
-    float * chi2;  // vertices chi2
-    float * ptv2;  // vertices pt^2
-    uint32_t * nvFinal;  // the number of vertices
-    uint32_t * nvIntermediate;  // the number of vertices after splitting pruning etc.
-    int32_t * iv;  // vertex index for each associated track
-    uint16_t * sortInd; // sorted index (by pt2)
+  };
 
-    // workspace  
-    uint8_t * izt;  // interized z-position of input tracks
-    int32_t * nn; // number of nearest neighbours (reused as number of dof for output vertices)
+  // workspace used in the vertex reco algos 
+  struct WorkSpace {
+    static constexpr uint32_t MAXTRACKS = 16000;
+    static constexpr uint32_t MAXVTX    = 1024;
+
+    uint32_t ntrks; // number of "selected tracks"
+    uint16_t itrk[MAXTRACKS]; // index of original track
+    float zt[MAXTRACKS];   // input track z at bs
+    float ezt2[MAXTRACKS]; // input error^2 on the above
+    float ptt2[MAXTRACKS]; // input pt^2 on the above
+    uint8_t izt[MAXTRACKS];  // interized z-position of input tracks
+    int32_t iv[MAXTRACKS];  // vertex index for each associated track
+
+    uint32_t nvIntermediate;  // the number of vertices after splitting pruning etc.
+
+    __host__ __device__
+    void init() { ntrks=0; nvIntermediate=0;}
+
   };
   
+#ifdef __CUDACC__
+  __global__
+  void init(ZVertices * pdata, WorkSpace * pws) {pdata->init(); pws->init();}
+#endif
 
+  // Data Format on cpu???
   struct OnCPU {
     OnCPU() = default;
 
@@ -54,7 +68,7 @@ namespace gpuVertexFinder {
 
     uint32_t nVertices=0;
     uint32_t nTracks=0;
-    OnGPU const * gpu_d = nullptr;
+    ZVertices const * gpu_d = nullptr;
   };
 
   class Producer {
@@ -63,7 +77,8 @@ namespace gpuVertexFinder {
     using TuplesOnCPU = pixelTuplesHeterogeneousProduct::TuplesOnCPU;
 
     using OnCPU = gpuVertexFinder::OnCPU;
-    using OnGPU = gpuVertexFinder::OnGPU;
+    using ZVertices = gpuVertexFinder::ZVertices;
+    using WorkSpace = gpuVertexFinder::WorkSpace;
 
 
     Producer(
@@ -73,7 +88,6 @@ namespace gpuVertexFinder {
 	     float ichi2max,   // max normalized distance to cluster
              bool ienableTransfer
 	     ) :
-      onGPU(nullptr),
       minT(iminT),
       eps(ieps),
       errmax(ierrmax),
@@ -81,20 +95,20 @@ namespace gpuVertexFinder {
       enableTransfer(ienableTransfer)
     {}
     
-    ~Producer() { deallocateOnGPU();}
+    ~Producer() { deallocate();}
 
     void produce(cudaStream_t stream, TuplesOnCPU const & tuples, float ptMin);
 
     OnCPU const & fillResults(cudaStream_t stream);
     
 
-    void allocateOnGPU();
-    void deallocateOnGPU();
+    void allocate();
+    void deallocate();
 
   private:
     OnCPU gpuProduct;
-    OnGPU onGPU;
-    OnGPU * onGPU_d=nullptr;
+    ZVertices * gpu_d=nullptr;
+    WorkSpace * ws_d=nullptr;
 
     int minT;  // min number of neighbours to be "core"
     float eps; // max absolute distance to cluster
