@@ -65,21 +65,12 @@ class HGCalTriggerGeometryV9Imp2 : public HGCalTriggerGeometryBase
         unsigned totalLayers_;
 
         void fillMaps();
-        unsigned packTriggerCell(unsigned, unsigned) const;
-        unsigned packTriggerCellWithType(unsigned, unsigned, unsigned) const;
         bool validCellId(unsigned det, unsigned cell_id) const;
         bool validTriggerCellFromCells( const unsigned ) const;
 
         int detIdWaferType(unsigned det, unsigned layer, short waferU, short waferV) const;
-        unsigned packWaferCellId(unsigned subdet, unsigned wafer, unsigned cell) const;
         unsigned packWaferId(int waferU, int waferV) const;
-        unsigned packCellId(unsigned type, unsigned cellU, unsigned cellV) const;
-        unsigned packCellId(unsigned type, unsigned cell) const;
-        unsigned packIetaIphi(unsigned ieta, unsigned iphi) const;
-        void unpackWaferCellId(unsigned wafer_cell, unsigned& wafer, unsigned& cell) const;
         void unpackWaferId(unsigned wafer, int& waferU, int& waferV) const;
-        void unpackCellId(unsigned cell, unsigned& cellU, unsigned& cellV) const;
-        void unpackIetaIphi(unsigned ieta_iphi, unsigned& ieta, unsigned& iphi) const;
 
         unsigned layerWithOffset(unsigned) const;
 };
@@ -522,38 +513,6 @@ fillMaps()
     l1tModulesMappingStream.close();
 }
 
-unsigned 
-HGCalTriggerGeometryV9Imp2::
-packWaferCellId(unsigned subdet, unsigned wafer, unsigned cell) const
-{
-    unsigned packed_value = 0;
-    const int kSubdetMask = 0x7;
-    packed_value |= ((cell & HGCalDetId::kHGCalCellMask) << HGCalDetId::kHGCalCellOffset);
-    packed_value |= ((wafer & HGCalDetId::kHGCalWaferMask) << HGCalDetId::kHGCalWaferOffset);
-    packed_value |= ((subdet & kSubdetMask) << (HGCalDetId::kHGCalWaferTypeOffset));
-    return packed_value;
-}
-
-unsigned 
-HGCalTriggerGeometryV9Imp2::
-packCellId(unsigned type, unsigned cell) const
-{
-    unsigned packed_value = 0;
-    packed_value |= ((cell & HGCalDetId::kHGCalCellMask) << HGCalDetId::kHGCalCellOffset);
-    packed_value |= ((type & HGCSiliconDetId::kHGCalTypeMask) << HGCSiliconDetId::kHGCalTypeOffset);
-    return packed_value;
-}
-
-unsigned 
-HGCalTriggerGeometryV9Imp2::
-packCellId(unsigned type, unsigned cellU, unsigned cellV) const
-{
-    unsigned packed_value = 0;
-    packed_value |= ((cellU & HGCSiliconDetId::kHGCalCellUMask) << HGCSiliconDetId::kHGCalCellUOffset);
-    packed_value |= ((cellV & HGCSiliconDetId::kHGCalCellVMask) << HGCSiliconDetId::kHGCalCellVOffset);
-    packed_value |= ((type & HGCSiliconDetId::kHGCalTypeMask) << HGCSiliconDetId::kHGCalTypeOffset);
-    return packed_value;
-}
 
 unsigned 
 HGCalTriggerGeometryV9Imp2::
@@ -571,32 +530,6 @@ packWaferId(int waferU, int waferV) const
     return packed_value;
 }
 
-unsigned 
-HGCalTriggerGeometryV9Imp2::
-packIetaIphi(unsigned ieta, unsigned iphi) const
-{
-    unsigned packed_value = 0;
-    packed_value |= ((iphi & HGCScintillatorDetId::kHGCalPhiMask) << HGCScintillatorDetId::kHGCalPhiOffset);
-    packed_value |= ((ieta & HGCScintillatorDetId::kHGCalRadiusMask) << HGCScintillatorDetId::kHGCalRadiusOffset);
-    return packed_value;
-}
-
-void
-HGCalTriggerGeometryV9Imp2::
-unpackWaferCellId(unsigned wafer_cell, unsigned& wafer, unsigned& cell) const
-{
-    cell =  wafer_cell & HGCalDetId::kHGCalCellMask;
-    wafer = (wafer_cell>>HGCalDetId::kHGCalWaferOffset) & HGCalDetId::kHGCalWaferMask;
-}
-
-void
-HGCalTriggerGeometryV9Imp2::
-unpackCellId(unsigned cell, unsigned& cellU, unsigned& cellV) const
-{
-    cellU =  (cell >> HGCSiliconDetId::kHGCalCellUOffset) & HGCSiliconDetId::kHGCalCellUMask; 
-    cellV =  (cell >> HGCSiliconDetId::kHGCalCellVOffset) & HGCSiliconDetId::kHGCalCellVMask; 
-}
-
 
 void
 HGCalTriggerGeometryV9Imp2::
@@ -609,19 +542,11 @@ unpackWaferId(unsigned wafer, int& waferU, int& waferV) const
 }
 
 
-void
-HGCalTriggerGeometryV9Imp2::
-unpackIetaIphi(unsigned ieta_iphi, unsigned& ieta, unsigned& iphi) const
-{
-    iphi =  (ieta_iphi>>HGCScintillatorDetId::kHGCalPhiOffset) & HGCScintillatorDetId::kHGCalPhiMask;
-    ieta = (ieta_iphi>>HGCScintillatorDetId::kHGCalRadiusOffset) & HGCScintillatorDetId::kHGCalRadiusMask;
-}
-
 bool 
 HGCalTriggerGeometryV9Imp2::
 validTriggerCell(const unsigned trigger_cell_id) const
 {
-    return true;
+    return validTriggerCellFromCells(trigger_cell_id);
 }
 
 bool 
@@ -685,26 +610,6 @@ validCellId(unsigned subdet, unsigned cell_id) const
 }
 
 
-unsigned 
-HGCalTriggerGeometryV9Imp2::
-packTriggerCell(unsigned module, unsigned trigger_cell) const
-{
-    unsigned packed_value = 0;
-    packed_value |= ((trigger_cell & HGCalDetId::kHGCalCellMask) << HGCalDetId::kHGCalCellOffset);
-    packed_value |= ((module & HGCalDetId::kHGCalWaferMask) << HGCalDetId::kHGCalWaferOffset);
-    return packed_value;
-}
-
-unsigned 
-HGCalTriggerGeometryV9Imp2::
-packTriggerCellWithType(unsigned type, unsigned module, unsigned trigger_cell) const
-{
-    unsigned packed_value = 0;
-    packed_value |= ((trigger_cell & HGCalDetId::kHGCalCellMask) << HGCalDetId::kHGCalCellOffset);
-    packed_value |= ((module & HGCalDetId::kHGCalWaferMask) << HGCalDetId::kHGCalWaferOffset);
-    packed_value |= ((type & HGCalDetId::kHGCalWaferTypeMask) << HGCalDetId::kHGCalWaferTypeOffset);
-    return packed_value;
-}
 
 int 
 HGCalTriggerGeometryV9Imp2::

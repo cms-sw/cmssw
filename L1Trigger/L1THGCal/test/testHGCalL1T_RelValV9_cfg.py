@@ -69,11 +69,12 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 # load HGCAL TPG simulation
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
-from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
-process = custom_geometry_V9(process, implementation=2)
-from L1Trigger.L1THGCal.customClustering import custom_2dclustering_dummy, custom_3dclustering_histoMax
-process = custom_2dclustering_dummy(process)
-process = custom_3dclustering_histoMax(process)
+# To test V9Imp2
+#from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
+#process = custom_geometry_V9(process, implementation=2)
+#from L1Trigger.L1THGCal.customClustering import custom_2dclustering_dummy, custom_3dclustering_histoMax
+#process = custom_2dclustering_dummy(process)
+#process = custom_3dclustering_histoMax(process)
 
 
 # load ntuplizer
