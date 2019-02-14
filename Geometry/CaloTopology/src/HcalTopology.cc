@@ -7,10 +7,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/Units.h"
 
-using namespace dd;
-using namespace dd::operators;
+using namespace cms_units;
+using namespace cms_units::operators;
 
 static const int IPHI_MAX=72;
 

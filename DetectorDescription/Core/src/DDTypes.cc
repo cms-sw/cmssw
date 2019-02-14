@@ -1,11 +1,11 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/Units.h"
 
 #include <iostream>
 #include <utility>
 
-using namespace dd;
-using namespace dd::operators;
+using namespace cms_units;
+using namespace cms_units::operators;
 
 
 ////////// output operator for printing the arguments of an algorithm
@@ -76,7 +76,7 @@ std::string formatAsDegrees(double radianVal)
 {
 	const unsigned short numlen = 12;
 	char degstr[numlen];
-	int retval = snprintf(degstr, numlen, "%0*Lf", numlen - 1, CONVERT_TO( radianVal, deg ));
+	int retval = snprintf(degstr, numlen, "%0*Lf", numlen - 1, CMS_CONVERT_TO( radianVal, deg ));
 	if (retval == numlen - 1)
 		return degstr;
 	else return "0000.000000";

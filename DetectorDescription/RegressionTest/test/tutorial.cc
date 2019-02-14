@@ -25,12 +25,12 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/Units.h"
 #include "DataFormats/Math/interface/Graph.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-using namespace dd::operators;
+using namespace cms_units::operators;
 
 namespace {
   class GroupFilter : public DDFilter {
@@ -102,9 +102,9 @@ void goPersistent(const DDCompactView & cv, const std::string& file) {
       int copyno = g.edgeData(eit->second)->copyno();
       double x,y,z;
       
-      x = CONVERT_TO( g.edgeData(eit->second)->trans().x(), mm );
-      y = CONVERT_TO( g.edgeData(eit->second)->trans().y(), mm );
-      z = CONVERT_TO( g.edgeData(eit->second)->trans().z(), mm );
+      x = CMS_CONVERT_TO( g.edgeData(eit->second)->trans().x(), mm );
+      y = CMS_CONVERT_TO( g.edgeData(eit->second)->trans().y(), mm );
+      z = CMS_CONVERT_TO( g.edgeData(eit->second)->trans().z(), mm );
       f << node << " " << eindex << " " << copyno 
         << " " << x << " " << y << " " << z 
 	<< " " << g.edgeData(eit->second)->ddrot().ddname().ns()
@@ -148,7 +148,7 @@ void dumpHistory(const DDGeoHistory & h, bool short_dump=false)
     if (!short_dump) { 
       DDAxisAngle ra(h[i].absRotation());
       std::cout  << h[i].absTranslation() 
-		 << ra.Axis() << CONVERT_TO( ra.Angle(), deg );
+		 << ra.Axis() << CMS_CONVERT_TO( ra.Angle(), deg );
     }	  
   }
 }
@@ -499,12 +499,12 @@ void tutorial()
 	  {	 
 	    DDAxisAngle   aa(fv.rotation());
 	    std::cout << "rotation: axis=" << aa.Axis() 
-		      << " angle=" << CONVERT_TO( aa.Angle(), deg ) << std::endl << std::endl;
+		      << " angle=" << CMS_CONVERT_TO( aa.Angle(), deg ) << std::endl << std::endl;
 	  }
 	  std::cout << "sibling-stack=" << fv.navPos() << std::endl << std::endl;
 	  std::cout << "material=" << fv.logicalPart().material().ddname() << std::endl;
 	  std::cout << "solid=" << fv.logicalPart().solid().ddname() <<
-	    " volume[m3]=" << CONVERT_TO( fv.logicalPart().solid().volume(), m3 ) << std::endl;	      
+	    " volume[m3]=" << CMS_CONVERT_TO( fv.logicalPart().solid().volume(), m3 ) << std::endl;
 	  break;
 	case 'e':
 	  break;	 

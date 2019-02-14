@@ -9,7 +9,7 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/Units.h"
 
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
@@ -35,8 +35,8 @@
 #include "TH1D.h"
 #include "TProfile.h"
 
-using namespace dd;
-using namespace dd::operators;
+using namespace cms_units;
+using namespace cms_units::operators;
 
 
 class CaloGeometryAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
@@ -357,7 +357,7 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry* cg      ,
          const GlobalVector cv ( cell->getPosition()-origin ) ;
          const GlobalVector ov ( other->getPosition()-origin ) ;
          const double cosang ( cv.dot(ov)/(cv.mag()*ov.mag() ) ) ;
-         const double angle ( CONVERT_TO( acos( std::abs(cosang) < 1. ? cosang : 1. ), deg) ) ;
+         const double angle ( CMS_CONVERT_TO( acos( std::abs(cosang) < 1. ? cosang : 1. ), deg) ) ;
          fOvr << ", angle = "<<angle<< std::endl ;
         }
       }
@@ -388,7 +388,7 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry* cg      ,
          const GlobalVector cv ( cell->getPosition()-origin ) ;
          const GlobalVector ov ( other->getPosition()-origin ) ;
          const double cosang ( cv.dot(ov)/(cv.mag()*ov.mag() ) ) ;
-         const double angle ( CONVERT_TO( acos( std::abs(cosang) < 1. ? cosang : 1. ), deg) ) ;
+         const double angle ( CMS_CONVERT_TO( acos( std::abs(cosang) < 1. ? cosang : 1. ), deg) ) ;
          fOvr << ", angle = "<<angle<< std::endl ;
         }
       } else { fOvr << "endcap ecal ptr is null " << std::endl; }

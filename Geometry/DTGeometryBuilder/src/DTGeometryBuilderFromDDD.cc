@@ -11,7 +11,7 @@
 #include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/Units.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
@@ -23,8 +23,8 @@
 #include <string>
 
 using namespace std;
-using namespace dd;
-using namespace dd::operators;
+using namespace cms_units;
+using namespace cms_units::operators;
 
 #include <string>
 #include <utility>
@@ -181,7 +181,7 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
   int WCounter=0;
   int firstWire=fv.copyno();
   par = extractParameters(fv);
-  float wireLength = CONVERT_TO( par[1], cm );
+  float wireLength = CMS_CONVERT_TO( par[1], cm );
   while (doWire) {
     WCounter++;
     doWire = fv.nextSibling(); // next wire
@@ -220,9 +220,9 @@ DTGeometryBuilderFromDDD::plane(const DDFilteredView& fv,
   // extract the position
   const DDTranslation & trans(fv.translation());
 
-  const Surface::PositionType posResult(float(CONVERT_TO( trans.x(), cm )), 
-                                        float(CONVERT_TO( trans.y(), cm )), 
-                                        float(CONVERT_TO( trans.z(), cm ))); 
+  const Surface::PositionType posResult(float(CMS_CONVERT_TO( trans.x(), cm )), 
+                                        float(CMS_CONVERT_TO( trans.y(), cm )), 
+                                        float(CMS_CONVERT_TO( trans.z(), cm ))); 
   LogTrace("DTGeometryBuilderFromDDD") << "DTGeometryBuilderFromDDD::plane " <<" posResult: "
 		<< posResult << std::endl;
   // now the rotation

@@ -17,14 +17,14 @@
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/Units.h"
 
 #include <string>
 
 using namespace std;
 
-using namespace dd;
-using namespace dd::operators;
+using namespace cms_units;
+using namespace cms_units::operators;
 
 DTGeometryParsFromDD::DTGeometryParsFromDD() {}
 
@@ -209,9 +209,9 @@ DTGeometryParsFromDD::plane(const DDFilteredView& fv) const {
   const DDTranslation & trans(fv.translation());
 
   std::vector<double> gtran( 3 );
-  gtran[0] = CONVERT_TO( trans.x(), cm );
-  gtran[1] = CONVERT_TO( trans.y(), cm );
-  gtran[2] = CONVERT_TO( trans.z(), cm );
+  gtran[0] = CMS_CONVERT_TO( trans.x(), cm );
+  gtran[1] = CMS_CONVERT_TO( trans.y(), cm );
+  gtran[2] = CMS_CONVERT_TO( trans.z(), cm );
 
   // now the rotation
   //     'active' and 'passive' rotations are inverse to each other

@@ -9,14 +9,14 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDTypes.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/Units.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include <cmath>
 #include <memory>
 
-using namespace dd::operators;
+using namespace cms_units::operators;
 
 class DDLinear : public DDAlgorithm
 {
@@ -68,9 +68,9 @@ DDLinear::initialize( const DDNumericArguments & nArgs,
 
   LogDebug( "DDAlgorithm" ) << "DDLinear: Parameters for position"
 			    << "ing:: n " << m_n << " Direction Theta, Phi, Offset, Delta " 
-			    << CONVERT_TO( m_theta, deg ) << " " 
-			    << CONVERT_TO( m_phi, deg ) << " "
-			    << " " << CONVERT_TO( m_delta, deg )
+			    << CMS_CONVERT_TO( m_theta, deg ) << " " 
+			    << CMS_CONVERT_TO( m_phi, deg ) << " "
+			    << " " << CMS_CONVERT_TO( m_delta, deg )
 			    << " Base " << m_base[0] 
 			    << ", " << m_base[1] << ", " << m_base[2];
   
