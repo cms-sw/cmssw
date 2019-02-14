@@ -19,7 +19,7 @@ namespace edm {
 
   class StreamerOutputModuleCommon {
   public:
-    explicit StreamerOutputModuleCommon(ParameterSet const& ps, SelectedProducts const* selections) :
+    explicit StreamerOutputModuleCommon(ParameterSet const& ps, SelectedProducts const* selections);
     ~StreamerOutputModuleCommon();
     static void fillDescription(ParameterSetDescription & desc);
 
@@ -38,14 +38,10 @@ namespace edm {
       serializeDataBuffer_.header_buf_.shrink_to_fit();
     }
 
-  protected:
-    //virtual void getSelections() = 0;
-
-    SelectedProducts const* selections_;
-    std::unique_ptr<StreamSerializer> serializer_;
-
   private:
     void setHltMask(EventForOutput const& e, Handle<TriggerResults> const& triggerResults, std::vector<unsigned char>& hltbits) const;
+
+    StreamSerializer serializer_;
 
     int maxEventSize_;
     bool useCompression_;

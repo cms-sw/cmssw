@@ -25,8 +25,7 @@
 namespace edm {
   StreamerOutputModuleCommon::StreamerOutputModuleCommon(ParameterSet const& ps, SelectedProducts const* selections) :
 
-    selections_(selections),
-    serializer_(selections_),
+    serializer_(selections),
     maxEventSize_(ps.getUntrackedParameter<int>("max_event_size")),
     useCompression_(ps.getUntrackedParameter<bool>("use_compression")),
     compressionLevel_(ps.getUntrackedParameter<int>("compression_level")),
@@ -78,7 +77,7 @@ namespace edm {
                                                  ParameterSetID const& toplevel)
   {
 
-    serializer_->serializeRegistry(serializeDataBuffer_, branchLists, helper);
+    serializer_.serializeRegistry(serializeDataBuffer_, branchLists, helper);
 
     // resize bufs_ to reflect space used in serializer_ + header
     // I just added an overhead for header of 50000 for now
@@ -194,7 +193,7 @@ namespace edm {
       if(lumiSectionInterval_ > 0) lumi = static_cast<uint32>(timeInSec/lumiSectionInterval_) + 1;
     }
 
-    serializer_->serializeEvent(e, selectorCfg, useCompression_, compressionLevel_, serializeDataBuffer_);
+    serializer_.serializeEvent(e, selectorCfg, useCompression_, compressionLevel_, serializeDataBuffer_);
 
     // resize bufs_ to reflect space used in serializer_ + header
     // I just added an overhead for header of 50000 for now

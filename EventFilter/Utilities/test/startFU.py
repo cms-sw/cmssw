@@ -55,7 +55,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.options = cms.untracked.PSet(
     numberOfThreads = cms.untracked.uint32(options.numThreads),
-    numberOfStreams = cms.untracked.uint32(options.numThreads)
+    numberOfStreams = cms.untracked.uint32(options.numFwkStreams)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(threshold = cms.untracked.string( "INFO" )),
@@ -135,4 +135,14 @@ process.streamB = cms.OutputModule("EvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
 )
 
-process.ep = cms.EndPath(process.streamA+process.streamB)
+process.streamC = cms.OutputModule("ShmStreamConsumer",
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
+)
+
+#process.streamD = cms.OutputModule("EventStreamFileWriter",
+#    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
+#)
+
+process.ep = cms.EndPath(process.streamA+process.streamB+process.streamC
+  #+process.streamD
+)
