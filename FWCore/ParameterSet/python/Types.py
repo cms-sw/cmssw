@@ -1,5 +1,5 @@
 from Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable, _modifyParametersFromDict, saveOrigin
-from Mixins import _ValidatingParameterListBase
+from Mixins import _ValidatingParameterListBase, specialImportRegistry
 from ExceptionHandling import format_typename, format_outerframe
 
 import copy
@@ -1172,6 +1172,7 @@ class EDAlias(_ConfigureComponent,_Labelable,_Parameterizable):
         parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
 
     def dumpPython(self, options=PrintOptions()):
+        specialImportRegistry.registerUse(self)
         resultList = ['cms.EDAlias(']
         separator = ""
         for name in self.parameterNames_():

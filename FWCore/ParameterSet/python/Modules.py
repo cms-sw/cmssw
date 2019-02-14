@@ -1,6 +1,6 @@
 from Mixins import _ConfigureComponent, saveOrigin
 from Mixins import _Unlabelable, _Labelable
-from Mixins import _TypedParameterizable, _Parameterizable, PrintOptions
+from Mixins import _TypedParameterizable, _Parameterizable, PrintOptions, specialImportRegistry
 from SequenceTypes import _SequenceLeaf
 from Types import vstring, EDAlias
 
@@ -346,6 +346,7 @@ class SwitchProducer(EDProducer):
         # Note that if anyone uses the generic SwitchProducer instead
         # of a derived-one, the information on the functions for the
         # producer decision is lost
+        specialImportRegistry.registerUse(self)
         result = "%s(" % self.__class__.__name__ # not including cms. since the deriving classes are not in cms "namespace"
         options.indent()
         for resource in sorted(self.parameterNames_()):
