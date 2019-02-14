@@ -286,11 +286,12 @@ TwoLayerJets::produce(Event& iEvent, const EventSetup& iSetup)
 	//flag as displaced tracks:NOTE Exclusive categories
 	//int whichcase=0;
 			
-	if ((abs(trk_d0)>D0_Cut && tracknstubs>=5)||(tracknstubs==4 && abs(trk_d0)>1.0))tdtrk.push_back(1);
+	if ((abs(trk_d0)>D0_Cut && tracknstubs>=5)||(tracknstubs==4 && fabs(trk_d0)>D0_Cut))tdtrk.push_back(1);
 	else tdtrk.push_back(0);//displaced track
-        if ( (trackchi2/(tracknstubs-3)) <NStubs5Chi2_rphi_Loose && (trackchi2z/(tracknstubs-2))<NStubs5Chi2_rz_Loose && tracknstubs>=5 && trk_bstubPt<BendConsistency_Cut)ttrk.push_back(1);
+        if (( tracknstubs==4 && (trackchi2/(tracknstubs-3))<NStubs4Chi2_rphi_Loose && (trackchi2z/(tracknstubs-2))<NStubs4Chi2_rz_Loose && trk_bstubPt<NStubs4Displacedbend_Loose  )||( (trackchi2/(tracknstubs-3)) <NStubs5Chi2_rphi_Tight && (trackchi2z/(tracknstubs-2))<NStubs5Chi2_rz_Tight && tracknstubs>=5 && trk_bstubPt<NStubs5Displacedbend_Tight) || ( (trackchi2/(tracknstubs-3)) <NStubs5Chi2_rphi_Loose && (trackchi2z/(tracknstubs-2))<NStubs5Chi2_rz_Loose && tracknstubs>=5 && trk_bstubPt<NStubs5Displacedbend_Loose))ttrk.push_back(1);
 	else ttrk.push_back(0); 
-	if ( (trackchi2/(tracknstubs-3)) <NStubs5Chi2_rphi_Loose && (trackchi2z/(tracknstubs-2))<NStubs5Chi2_rz_Loose && tracknstubs>=5 && trk_bstubPt<BendConsistency_Cut && ((abs(trk_d0)>D0_Cut && tracknstubs>=5)||(tracknstubs==4 && abs(trk_d0)>1.0)) )ttdtrk.push_back(1);
+        if ((( tracknstubs==4 && (trackchi2/(tracknstubs-3))<NStubs4Chi2_rphi_Loose && (trackchi2z/(tracknstubs-2))<NStubs4Chi2_rz_Loose && trk_bstubPt<NStubs4Displacedbend_Loose  )||( (trackchi2/(tracknstubs-3)) <NStubs5Chi2_rphi_Tight && (trackchi2z/(tracknstubs-2))<NStubs5Chi2_rz_Tight && tracknstubs>=5 && trk_bstubPt<NStubs5Displacedbend_Tight) || ( (trackchi2/(tracknstubs-3)) <NStubs5Chi2_rphi_Loose && (trackchi2z/(tracknstubs-2))<NStubs5Chi2_rz_Loose && tracknstubs>=5 && trk_bstubPt<NStubs5Displacedbend_Loose)) && fabs(trk_d0)>D0_Cut)ttrk.push_back(1);
+	//if ( (trackchi2/(tracknstubs-3)) <NStubs5Chi2_rphi_Loose && (trackchi2z/(tracknstubs-2))<NStubs5Chi2_rz_Loose && tracknstubs>=5 && trk_bstubPt<NStubs5Displacedbend_Tight && ((abs(trk_d0)>D0_Cut && tracknstubs>=5)||(tracknstubs==4 && abs(trk_d0)>D0_Cut)) )ttdtrk.push_back(1);
 	else ttdtrk.push_back(0);
   } 
     if(L1TrackPtrs.size()>0){
