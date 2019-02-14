@@ -2,7 +2,7 @@
 #define RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedValueMapsProducer_h
 
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PreIdFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -24,11 +24,10 @@ class LowPtGsfElectronSeedValueMapsProducer : public edm::stream::EDProducer<> {
 
  private:
   
-  const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectrons_;
+  const edm::EDGetTokenT<reco::GsfTrackCollection> gsfTracks_;
   const edm::EDGetTokenT< edm::ValueMap<reco::PreIdRef> > preIdsValueMap_;
   const std::vector<std::string> names_;
 
 };
 
 #endif // RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedValueMapsProducer_h
-
