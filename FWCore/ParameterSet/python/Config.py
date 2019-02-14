@@ -2725,6 +2725,7 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assertEqual((True,"Bar"), p.values["sp@test1"][1].values["@module_type"])
             self.assertEqual((True,"EDProducer"), p.values["sp@test2"][1].values["@module_edm_type"])
             self.assertEqual((True,"Foo"), p.values["sp@test2"][1].values["@module_type"])
+            self.assertEqual(proc.dumpPython().find('@'), -1)
 
             # EDAlias as non-chosen case
             proc = Process("test")
