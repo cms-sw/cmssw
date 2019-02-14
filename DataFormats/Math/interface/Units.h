@@ -1,15 +1,16 @@
-#ifndef DETECTOR_DESCRIPTION_DD_UNITS_H
-#define DETECTOR_DESCRIPTION_DD_UNITS_H
+#ifndef DATA_FORMATS_MATH_UNITS_H
+#define DATA_FORMATS_MATH_UNITS_H
 
 #include <cmath>
 
-#define CONVERT_TO(_x, _y) (_x)/(1.0_##_y)
+#define CMS_CONVERT_TO(_x, _y) (_x)/(1.0_##_y)
 
-namespace dd {
+namespace cms_units {
   
   constexpr long double _pi(M_PI);
   constexpr long double _joule(6.24150e+12);
   constexpr long double _s(1.e+9);
+  constexpr long double _ns(1.);
   
   namespace operators {
 
@@ -63,6 +64,10 @@ namespace dd {
     { return energy * 1.; }
     constexpr long double operator "" _eV( long double energy ) 
     { return energy * 1.e-6_MeV; }
+    constexpr long double operator "" _TeV( long double energy ) 
+    { return energy * 1.e6_MeV; }
+    constexpr long double operator "" _GeV( long double energy ) 
+    { return energy * 1000._MeV; }
 
     // Mass
     constexpr long double operator "" _kg( long double mass ) 

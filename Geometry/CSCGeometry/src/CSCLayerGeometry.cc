@@ -10,13 +10,13 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/Units.h"
 
 #include <algorithm>
 #include <iostream>
 
-using namespace dd;
-using namespace dd::operators;
+using namespace cms_units;
+using namespace cms_units::operators;
 
 
 // Complicated initialization list since the chamber Bounds passed in must have its thickness reset to that of the layer
@@ -56,7 +56,7 @@ CSCLayerGeometry::CSCLayerGeometry( const CSCGeometry* geom, int iChamberType,
     float wireCos = cos(wangler);
     float wireSin = sin(wangler);
     float y2 = apothem * wireCos + hBottomEdge * fabs(wireSin);
-    float wireSpacing = CONVERT_TO( wg.wireSpacing, cm );
+    float wireSpacing = CMS_CONVERT_TO( wg.wireSpacing, cm );
     float wireOffset = -y2 + wireSpacing/2.;
     yOfFirstWire = wireOffset/wireCos;
   }

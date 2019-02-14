@@ -1,5 +1,5 @@
 #include "DetectorDescription/Core/src/Trap.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/Units.h"
 
 #include <cmath>
 #include <vector>
@@ -8,7 +8,7 @@
 #include "DetectorDescription/Core/src/Solid.h"
 
 using std::sqrt;
-using namespace dd::operators;
+using namespace cms_units::operators;
 
 DDI::Trap::Trap( double pDz, 
                  double pTheta,
@@ -35,17 +35,17 @@ DDI::Trap::Trap( double pDz,
 
 void DDI::Trap::stream(std::ostream & os) const
 {
-  os << " dz=" << CONVERT_TO( p_[0], cm )
-     << " theta=" << CONVERT_TO( p_[1], deg )
-     << " phi=" << CONVERT_TO( p_[2], deg )
-     << " dy1=" << CONVERT_TO( p_[3], cm )
-     << " dx1=" << CONVERT_TO( p_[4], cm )
-     << " dx2=" << CONVERT_TO( p_[5], cm )
-     << " alpha1=" << CONVERT_TO( p_[6], deg )
-     << " dy2=" << CONVERT_TO( p_[7], cm )
-     << " dx3=" << CONVERT_TO( p_[8], cm )
-     << " dx4=" << CONVERT_TO( p_[9], cm )
-     << " alpha2=" << CONVERT_TO( p_[10], deg );
+  os << " dz=" << CMS_CONVERT_TO( p_[0], cm )
+     << " theta=" << CMS_CONVERT_TO( p_[1], deg )
+     << " phi=" << CMS_CONVERT_TO( p_[2], deg )
+     << " dy1=" << CMS_CONVERT_TO( p_[3], cm )
+     << " dx1=" << CMS_CONVERT_TO( p_[4], cm )
+     << " dx2=" << CMS_CONVERT_TO( p_[5], cm )
+     << " alpha1=" << CMS_CONVERT_TO( p_[6], deg )
+     << " dy2=" << CMS_CONVERT_TO( p_[7], cm )
+     << " dx3=" << CMS_CONVERT_TO( p_[8], cm )
+     << " dx4=" << CMS_CONVERT_TO( p_[9], cm )
+     << " alpha2=" << CMS_CONVERT_TO( p_[10], deg );
 }
 
 double DDI::Trap::volume() const

@@ -1,5 +1,5 @@
 #include "DetectorDescription/Core/src/Torus.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/Units.h"
 
 #include <cmath>
 #include <vector>
@@ -8,8 +8,8 @@
 #include "DetectorDescription/Core/src/Solid.h"
 
 using std::sqrt;
-using namespace dd;
-using namespace dd::operators;
+using namespace cms_units;
+using namespace cms_units::operators;
 
 DDI::Torus::Torus( double pRMin,
 		   double pRMax,
@@ -29,11 +29,11 @@ DDI::Torus::Torus( double pRMin,
 
 void DDI::Torus::stream(std::ostream & os) const
 {
-  os << " rMin=" << CONVERT_TO( p_[0], cm )
-     << " rMax=" << CONVERT_TO( p_[1], deg )
-     << " rTor=" << CONVERT_TO( p_[2], deg )
-     << " sPhi=" << CONVERT_TO( p_[3], cm )
-     << " dPhi=" << CONVERT_TO( p_[4], cm );
+  os << " rMin=" << CMS_CONVERT_TO( p_[0], cm )
+     << " rMax=" << CMS_CONVERT_TO( p_[1], deg )
+     << " rTor=" << CMS_CONVERT_TO( p_[2], deg )
+     << " sPhi=" << CMS_CONVERT_TO( p_[3], cm )
+     << " dPhi=" << CMS_CONVERT_TO( p_[4], cm );
 }
 
 double DDI::Torus::volume() const
