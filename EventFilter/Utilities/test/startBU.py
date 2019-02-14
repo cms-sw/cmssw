@@ -43,9 +43,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.options = cms.untracked.PSet(
-    multiProcesses = cms.untracked.PSet(
-    maxChildProcesses = cms.untracked.int32(0)
-    )
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -61,7 +58,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.source = cms.Source("EmptySource",
      firstRun= cms.untracked.uint32(options.runNumber),
-     numberEventsInLuminosityBlock = cms.untracked.uint32(5),
+     numberEventsInLuminosityBlock = cms.untracked.uint32(105),
      numberEventsInRun       = cms.untracked.uint32(0)    
 )
 
@@ -94,7 +91,7 @@ process.s = cms.EDProducer("DaqFakeReader",
 process.out = cms.OutputModule("RawStreamFileWriterForBU",
     ProductLabel = cms.untracked.string("s"),
     numWriters = cms.untracked.uint32(1),
-    eventBufferSize = cms.untracked.uint32(100),
+    eventBufferSize = cms.untracked.uint32(105),
     numEventsPerFile= cms.untracked.uint32(20),
     jsonDefLocation = cms.untracked.string(cmsswbase+"/src/EventFilter/Utilities/plugins/budef.jsd"),
     jsonEoLDefLocation = cms.untracked.string(cmsswbase+"/src/EventFilter/Utilities/plugins/eols.jsd"),
