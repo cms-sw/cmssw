@@ -202,7 +202,7 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
             			if(nFEDEvtsUros!=0)
                 			result1 =  max((float)0., ((float)nFEDEvtsUros-nROBErrors1)/(float)nFEDEvtsUros);
             			summaryHisto->setBinContent(iros,wheel+3,result1);
-            			int tdcResult1 = -2;
+            			double tdcResult1 = -2;
             			float nTDCErrors1 = histoFEDSummary1->Integral(6,6,iros,iros); //Only TDC fatal considered
             			if(nTDCErrors1 == 0) { // no errors
               				tdcResult1 = 0.5;
@@ -226,7 +226,7 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
                                         result2 =  max((float)0., ((float)nFEDEvtsUros-nROBErrors2)/(float)nFEDEvtsUros);
                                 summaryHisto->setBinContent(iros,wheel*2+3,result2);
 
-                                int tdcResult2 = -2;
+                                double tdcResult2 = -2;
                                 float nTDCErrors2 = histoFEDSummary2->Integral(6,6,iros,iros); //Only TDC fatal considered
                                 if(nTDCErrors2 == 0) { // no errors
                                         tdcResult2 = 0.5;
