@@ -112,8 +112,7 @@ _fastSim_detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProduc
     hitMasks = cms.InputTag("detachedTripletStepMasks"),
     seedFinderSelector = dict( pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedTripletStepHitTriplets),
                                layerList = detachedTripletStepSeedLayers.layerList.value())
-)
-#new for phase1
+)#new for phase1
 trackingPhase1.toModify(_fastSim_detachedTripletStepSeeds, seedFinderSelector = dict(
         pixelTripletGeneratorFactory = None,
         CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedTripletStepHitTriplets),
@@ -253,15 +252,25 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 detachedTripletStep = ClassifierMerger.clone()
 detachedTripletStep.inputClassifiers=['detachedTripletStepClassifier1','detachedTripletStepClassifier2']
 
-trackingPhase1.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1'),
-     qualityCuts = [-0.2,0.3,0.8],
+
+#LWTNN selector
+from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
+trackingPhase1.toReplaceWith(detachedTripletStep, TrackLwtnnClassifier.clone(
+     src = 'detachedTripletStepTracks',
+     qualityCuts = [0.0, 0.4, 0.8],
 ))
-highBetaStar_2018.toModify(detachedTripletStep,qualityCuts = [-0.5,0.0,0.5])
-pp_on_AA_2018.toModify(detachedTripletStep, 
-        mva = dict(GBRForestLabel = 'HIMVASelectorDetachedTripletStep_Phase1'),
-        qualityCuts = [-0.2, 0.4, 0.85],
-)
+
+highBetaStar_2018.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1.clone(
+     qualityCuts = [-0.5,0.0,0.5],
+     mva = dict(GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1')
+))
+
+pp_on_AA_2018.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1.clone(
+     qualityCuts = [-0.2, 0.4, 0.85],
+     mva = dict(GBRForestLabel = 'HIMVASelectorDetachedTripletStep_Phase1')
+))
+
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
