@@ -297,6 +297,7 @@ trackingPhase1.toReplaceWith(initialStep, TrackLwtnnClassifier.clone(
 	src = 'initialStepTracks',
 	qualityCuts = [0.0, 0.3, 0.6],
 ))
+(trackingPhase1 & fastSim).toModify(initialStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 pp_on_AA_2018.toReplaceWith(initialStep, initialStepClassifier1.clone( 
      qualityCuts = [-0.9, -0.5, 0.2],
