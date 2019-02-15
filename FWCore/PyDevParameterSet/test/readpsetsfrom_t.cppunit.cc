@@ -11,7 +11,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PyBind11ParameterSet/interface/MakePyBind11ParameterSets.h"
+#include "FWCore/PyDevParameterSet/interface/MakePyBind11ParameterSets.h"
 
 #include <memory>
 

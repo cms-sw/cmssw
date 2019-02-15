@@ -7,7 +7,7 @@
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PyBind11ParameterSet/interface/PyBind11ProcessDesc.h"
+#include "FWCore/PyDevParameterSet/interface/PyBind11ProcessDesc.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 

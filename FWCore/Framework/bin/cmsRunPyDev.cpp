@@ -24,7 +24,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/Utilities/interface/TimingServiceBase.h"
-#include "FWCore/PyBind11ParameterSet/interface/MakePyBind11ParameterSets.h"
+#include "FWCore/PyDevParameterSet/interface/MakePyBind11ParameterSets.h"
 #include "TError.h"
 
 #include "boost/program_options.hpp"

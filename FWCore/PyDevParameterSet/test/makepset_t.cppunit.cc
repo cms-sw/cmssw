@@ -7,7 +7,7 @@
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PyBind11ParameterSet/interface/PyBind11ProcessDesc.h"
+#include "FWCore/PyDevParameterSet/interface/PyBind11ProcessDesc.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/resolveSymbolicLinks.h"
 
@@ -188,8 +188,8 @@ void testmakepset::fileinpathAux() {
   "process = cms.Process('PROD')\n"
   "process.main = cms.PSet(\n"
   "    topo = cms.FileInPath('Geometry/TrackerSimData/data/trackersens.xml'),\n"
-  "    fip = cms.FileInPath('FWCore/PyBind11ParameterSet/test/fip.txt'),\n"
-  "    ufip = cms.untracked.FileInPath('FWCore/PyBind11ParameterSet/test/ufip.txt'),\n"
+  "    fip = cms.FileInPath('FWCore/PyDevParameterSet/test/fip.txt'),\n"
+  "    ufip = cms.untracked.FileInPath('FWCore/PyDevParameterSet/test/ufip.txt'),\n"
   "    extraneous = cms.int32(12)\n"
   ")\n"
   "process.source = cms.Source('EmptySource')\n";
@@ -224,15 +224,15 @@ void testmakepset::fileinpathAux() {
   if(localArea) {
     CPPUNIT_ASSERT(fip.location() == edm::FileInPath::Local);
   }
-  CPPUNIT_ASSERT(fip.relativePath()  == "FWCore/PyBind11ParameterSet/test/fip.txt");
-  CPPUNIT_ASSERT(ufip.relativePath() == "FWCore/PyBind11ParameterSet/test/ufip.txt");
+  CPPUNIT_ASSERT(fip.relativePath()  == "FWCore/PyDevParameterSet/test/fip.txt");
+  CPPUNIT_ASSERT(ufip.relativePath() == "FWCore/PyDevParameterSet/test/ufip.txt");
   std::string fullpath = fip.fullPath();
   std::cerr << "fullPath is: " << fip.fullPath() << std::endl;
   std::cerr << "copy of fullPath is: " << fullpath << std::endl;
 
   CPPUNIT_ASSERT(!fullpath.empty());
 
-  tmpout = fullpath.substr(0, fullpath.find("FWCore/PyBind11ParameterSet/test/fip.txt")) + "tmp.py";
+  tmpout = fullpath.substr(0, fullpath.find("FWCore/PyDevParameterSet/test/fip.txt")) + "tmp.py";
 
   edm::FileInPath topo = innerps.getParameter<edm::FileInPath>("topo");
   // if the file is local, then just disable this check as then it is expected to fail

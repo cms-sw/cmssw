@@ -1,8 +1,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include "FWCore/PyBind11ParameterSet/interface/PyBind11ProcessDesc.h"
-#include "FWCore/PyBind11ParameterSet/src/initializePyBind11Module.h"
-#include "FWCore/PyBind11ParameterSet/src/PyBind11Wrapper.h"
+#include "FWCore/PyDevParameterSet/interface/PyBind11ProcessDesc.h"
+#include "FWCore/PyDevParameterSet/src/initializePyBind11Module.h"
+#include "FWCore/PyDevParameterSet/src/PyBind11Wrapper.h"
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
 

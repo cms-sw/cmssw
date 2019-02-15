@@ -1,8 +1,8 @@
 #ifndef FWCore_PythonParameterSet_PyBind11Module_h
 #define FWCore_PythonParameterSet_PyBind11Module_h
 
-#include "FWCore/PyBind11ParameterSet/interface/Python11ParameterSet.h"
-#include "FWCore/PyBind11ParameterSet/interface/PyBind11ProcessDesc.h"
+#include "FWCore/PyDevParameterSet/interface/Python11ParameterSet.h"
+#include "FWCore/PyDevParameterSet/interface/PyBind11ProcessDesc.h"
 
 #include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
