@@ -32,16 +32,16 @@ namespace evf {
 
     explicit EvFOutputEventWriter(std::string const& filePath):
       filePath_(filePath),
-      accepted_(0)
+      accepted_(0),
+      stream_writer_events_(new StreamerOutputFile(filePath))
     {
-      stream_writer_events_.reset(new StreamerOutputFile(filePath));
     }
 
     ~EvFOutputEventWriter() {
     }
 
-    void reset() {
-        stream_writer_events_.reset();
+    void close() {
+        stream_writer_events_->close();
     }
 
     void doOutputEvent(EventMsgBuilder const& msg) {
@@ -61,7 +61,7 @@ namespace evf {
   private:
     std::string filePath_;
     unsigned long accepted_;
-    std::shared_ptr<StreamerOutputFile> stream_writer_events_;
+    edm::propagate_const<std::shared_ptr<StreamerOutputFile>> stream_writer_events_;
 
   };
 
@@ -308,10 +308,12 @@ namespace evf {
   EvFOutputModule::write(edm::EventForOutput const& e) {
 
     edm::Handle<edm::TriggerResults> const& triggerResults = getTriggerResults(trToken_, e);
+
     //runCache parameter at this time is ignored. Obtaning index is also currently not possible from RunOutput returned by e.getRun() 
     auto rc = const_cast<EvFOutputJSONWriter*>(EvFOutputModuleType::runCache(edm::RunIndex::invalidRunIndex()));
-    std::unique_ptr<EventMsgBuilder> msg = rc->streamerCommon_.serializeEvent(e, triggerResults, selectorConfig());
     auto lumiWriter = const_cast<EvFOutputEventWriter*>(luminosityBlockCache(e.getLuminosityBlock().index() ));
+
+    std::unique_ptr<EventMsgBuilder> msg = rc->streamerCommon_.serializeEvent(e, triggerResults, selectorConfig());
     lumiWriter->incAccepted();
     lumiWriter->doOutputEvent(*msg); //msg is written and discarded at this point
   }
@@ -320,12 +322,12 @@ namespace evf {
   void
   EvFOutputModule::globalEndLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) const
   {
-    auto lumiWriter = luminosityBlockCache(iLB.index());
     //runCache parameter at this time is ignored. Obtaning index is also currently not possible from RunOutput returned by iLB.getRun() 
     auto rc = const_cast<EvFOutputJSONWriter*>(EvFOutputModuleType::runCache(edm::RunIndex::invalidRunIndex()));
+    auto lumiWriter = luminosityBlockCache(iLB.index());
 
     rc->fileAdler32_.value() = lumiWriter->get_adler32();
-    const_cast<EvFOutputEventWriter*>(lumiWriter)->reset();
+    const_cast<EvFOutputEventWriter*>(lumiWriter)->close();
 
     bool abortFlag = false;
     rc->processed_.value() = fms_->getEventsProcessedForLumi(iLB.luminosityBlock(),&abortFlag);

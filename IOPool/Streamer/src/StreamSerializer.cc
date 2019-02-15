@@ -128,7 +128,7 @@ namespace edm {
   int StreamSerializer::serializeEvent(EventForOutput const& event,
                                        ParameterSetID const& selectorConfig,
                                        bool use_compression, int compression_level,
-                                       SerializeDataBuffer& data_buffer) {
+                                       SerializeDataBuffer& data_buffer) const {
 
     EventSelectionIDVector selectionIDs = event.eventSelectionIDs();
     selectionIDs.push_back(selectorConfig);
