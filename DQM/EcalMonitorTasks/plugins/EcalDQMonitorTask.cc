@@ -37,7 +37,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps) :
   std::bitset<ecaldqm::nCollections> hasTaskToRun;
   edm::ConsumesCollector collector(consumesCollector());
 
-  executeOnWorkers_([&dependencies, &hasTaskToRun, &collector, this](ecaldqm::DQWorker* worker){
+  executeOnWorkers_([&dependencies, &hasTaskToRun, &collector](ecaldqm::DQWorker* worker){
                       ecaldqm::DQWorkerTask* task(dynamic_cast<ecaldqm::DQWorkerTask*>(worker));
                       if(!task)
                         throw cms::Exception("InvalidConfiguration") << "Non-task DQWorker " << worker->getName() << " passed";
