@@ -34,12 +34,12 @@ public:
     L1TEMTFEventInfoClient(const edm::ParameterSet&);
 
     /// Destructor
-    virtual ~L1TEMTFEventInfoClient();
+    virtual ~L1TEMTFEventInfoClient() override;
 
 protected:
     
     void
-    dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock&, const edm::EventSetup&);
+    dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
     /// end job
     void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)override;
