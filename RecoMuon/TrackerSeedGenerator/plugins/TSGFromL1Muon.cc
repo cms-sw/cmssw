@@ -32,11 +32,12 @@
 using namespace reco;
 using namespace l1extra;
 
-template <class T> T sqr( T t) {return t*t;}
+namespace {
+  template <class T> T sqr( T t) {return t*t;}
+}
 
 
 TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
-  : theConfig(cfg),theHitGenerator(nullptr),theMerger(nullptr)
 {
   produces<L3MuonTrajectorySeedCollection>();
   theSourceTag = cfg.getParameter<edm::InputTag>("L1MuonLabel");
@@ -45,28 +46,20 @@ TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
   theFilterToken = consumes<PixelTrackFilter>(cfg.getParameter<edm::InputTag>("Filter"));
 
   edm::ParameterSet hitsfactoryPSet =
-      theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
+      cfg.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
-  theHitGenerator = OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC);
+  theHitGenerator = std::unique_ptr<OrderedHitsGenerator>{OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC)};
 
   theSourceToken=iC.consumes<L1MuonParticleCollection>(theSourceTag);
 
-  theRegionProducer = std::make_unique<L1MuonRegionProducer>(theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet"));
+  theRegionProducer = std::make_unique<L1MuonRegionProducer>(cfg.getParameter<edm::ParameterSet>("RegionFactoryPSet"));
   theFitter = std::make_unique<L1MuonPixelTrackFitter>(cfg.getParameter<edm::ParameterSet>("FitterPSet"));
-}
 
-TSGFromL1Muon::~TSGFromL1Muon()
-{
-  delete theMerger;
-  delete theHitGenerator;
-}
-
-void TSGFromL1Muon::beginRun(const edm::Run & run, const edm::EventSetup&es)
-{
   edm::ParameterSet cleanerPSet = theConfig.getParameter<edm::ParameterSet>("CleanerPSet");
-  theMerger = new L1MuonSeedsMerger(cleanerPSet);
+  theMerger = std::make_unique<L1MuonSeedsMerger>(cleanerPSet);
 }
 
+TSGFromL1Muon::~TSGFromL1Muon() = default;
 
 void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 {

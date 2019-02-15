@@ -58,8 +58,8 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float> > theCaloDepsToken;
 
   // MuIsoExtractor
-  reco::isodeposit::IsoDepositExtractor * caloExtractor;
-  reco::isodeposit::IsoDepositExtractor * trkExtractor;
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> caloExtractor;
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> trkExtractor;
 
   //! pt cut to consider track in sumPt after extracting iso deposit
   //! better split this off into a filter

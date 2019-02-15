@@ -32,13 +32,13 @@ public:
   void setConeSize(float dr);
   void setCut(float cut) { theCut = cut; }
 
-  virtual reco::isodeposit::IsoDepositExtractor * extractor() { return theExtractor; }
-  virtual muonisolation::IsolatorByDeposit * isolator() { return theIsolator; }
+  virtual reco::isodeposit::IsoDepositExtractor * extractor() { return theExtractor.get(); }
+  virtual muonisolation::IsolatorByDeposit * isolator() { return theIsolator.get(); }
 
 private:
   float theCut;
-  reco::isodeposit::IsoDepositExtractor * theExtractor;
-  muonisolation::IsolatorByDeposit * theIsolator;
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> theExtractor;
+  std::unique_ptr<muonisolation::IsolatorByDeposit> theIsolator;
 };
 
 #endif
