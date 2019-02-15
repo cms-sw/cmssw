@@ -4,7 +4,7 @@
 // Class  :     initializePyBind11Module
 // 
 
-#include "FWCore/PyBind11ParameterSet/src/initializePyBind11Module.h"
+#include "FWCore/PyDevParameterSet/src/initializePyBind11Module.h"
 #include "PyBind11Module.h"
 #include <pybind11/embed.h>
 #include <iostream>

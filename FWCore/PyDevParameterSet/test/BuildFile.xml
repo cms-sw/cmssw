@@ -2,6 +2,6 @@
   <use   name="py2-pybind11"/>
   <use   name="cppunit"/>
   <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PyBind11ParameterSet"/>
+  <use   name="FWCore/PyDevParameterSet"/>
   <use   name="FWCore/Utilities"/>
 </bin>

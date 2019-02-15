@@ -1,7 +1,7 @@
 #ifndef FWCore_PyBind11ParameterSet_PyBind11ProcessDesc_h
 #define FWCore_PyBind11ParameterSet_PyBind11ProcessDesc_h
 
-#include "FWCore/PyBind11ParameterSet/interface/Python11ParameterSet.h"
+#include "FWCore/PyDevParameterSet/interface/Python11ParameterSet.h"
 
 #include <memory>
 

@@ -1,4 +1,4 @@
-#include "FWCore/PyBind11ParameterSet/interface/Python11ParameterSet.h"
+#include "FWCore/PyDevParameterSet/interface/Python11ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 Python11ParameterSet::Python11ParameterSet()
