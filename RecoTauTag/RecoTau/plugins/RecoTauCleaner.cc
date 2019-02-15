@@ -82,21 +82,21 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset)
   const VPSet& cleaners = pset.getParameter<VPSet>("cleaners");
   for ( VPSet::const_iterator cleanerPSet = cleaners.begin();
 	cleanerPSet != cleaners.end(); ++cleanerPSet ) {
-    CleanerEntryType* cleanerEntry = new CleanerEntryType();
+    auto cleanerEntry = std::make_unique<CleanerEntryType>();
     // Get plugin name
     const std::string& pluginType = cleanerPSet->getParameter<std::string>("plugin");
     // Build the plugin
-    cleanerEntry->plugin_.reset(RecoTauCleanerPluginFactory::get()->create(pluginType, *cleanerPSet, consumesCollector()));
+    cleanerEntry->plugin_ = std::unique_ptr<Cleaner>{RecoTauCleanerPluginFactory::get()->create(pluginType, *cleanerPSet, consumesCollector())};
     cleanerEntry->tolerance_ = ( cleanerPSet->exists("tolerance") ) ?
     cleanerPSet->getParameter<double>("tolerance") : 0.;
-    cleaners_.emplace_back(cleanerEntry);
+    cleaners_.emplace_back(std::move(cleanerEntry));
   }
 
   // Check if we want to apply a final output selection
   if ( pset.exists("outputSelection") ) {
     std::string selection = pset.getParameter<std::string>("outputSelection");
-    if ( selection != "" ) {
-      outputSelector_.reset(new StringCutObjectSelector<reco::PFTau>(selection));
+    if ( !selection.empty() ) {
+      outputSelector_ = std::make_unique<StringCutObjectSelector<reco::PFTau>>(selection);
     }
   }
 
