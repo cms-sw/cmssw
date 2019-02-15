@@ -36,6 +36,7 @@ class L1TPFCaloProducer : public edm::stream::EDProducer<> {
 
         std::vector<edm::EDGetTokenT<HcalTrigPrimDigiCollection>> hcalDigis_;
         edm::ESHandle<CaloTPGTranscoder> decoder_;
+        bool hcalDigisBarrel_, hcalDigisHF_;
         std::vector<edm::EDGetTokenT<l1t::HGCalTowerBxCollection>> hcalHGCTowers_;
         bool hcalHGCTowersHadOnly_;
 
@@ -100,6 +101,11 @@ L1TPFCaloProducer::L1TPFCaloProducer(const edm::ParameterSet& iConfig):
     for (auto & tag : iConfig.getParameter<std::vector<edm::InputTag>>("hcalDigis")) {
         hcalDigis_.push_back(consumes<HcalTrigPrimDigiCollection>(tag));
     }
+    if (!hcalDigis_.empty()) {
+        hcalDigisBarrel_ = iConfig.getParameter<bool>("hcalDigisBarrel");
+        hcalDigisHF_     = iConfig.getParameter<bool>("hcalDigisHF");
+    }
+    
     for (auto & tag : iConfig.getParameter<std::vector<edm::InputTag>>("hcalHGCTowers")) {
         hcalHGCTowers_.push_back(consumes<l1t::HGCalTowerBxCollection>(tag));
     }
@@ -221,6 +227,8 @@ L1TPFCaloProducer::readHcalDigis_(edm::Event& iEvent, const edm::EventSetup& iSe
             if (et <= 0) continue;
             float towerEta = l1t::CaloTools::towerEta(id.ieta());
             float towerPhi = l1t::CaloTools::towerPhi(id.ieta(), id.iphi());
+            if (!hcalDigisBarrel_ && std::abs(towerEta) < 2) continue;
+            if (!hcalDigisHF_     && std::abs(towerEta) > 2) continue;
             if (debug_) std::cout << "L1TPFCaloProducer: adding HCal digi input pt " << et << ", eta " << towerEta << ", phi " << towerPhi << std::endl;
             hcalClusterer_.add(et, towerEta, towerPhi);
         }
