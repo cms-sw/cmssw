@@ -4,7 +4,7 @@ import re
 
 def getMixture(line) :
     mixture = re.search(
-        r'^#\s*"(?P<MixtureName>[^"]+)"\s+"(?P<GMIXName>[^"]+)"\s+(?P<MCVolume>[0-9.-]+)\s+(?P<MCArea>[0-9.-]+)',
+        r'^#\s*"(?P<MixtureName>[^"]+)"\s+"(?P<GMIXName>[^"]+)"\s+(?P<MCVolume>[0-9.Ee-]+)\s+(?P<MCArea>[0-9.Ee-]+)',
         line
     )
     return {
@@ -17,7 +17,7 @@ def getMixture(line) :
 
 def getCompound(line) :
     compound = re.search(
-        r'^\*\s*(?P<Index>[0-9]+)\s+"(?P<Comment>[^"]+)"\s+"(?P<Material>[^"]+)"\s+(?P<Volume>[0-9.]+)\s+(?P<Mult>[0-9.]+)\s+(?P<Type>[^ ]{3})',
+        r'^\*\s*(?P<Index>[0-9]+)\s+"(?P<Comment>[^"]+)"\s+"(?P<Material>[^"]+)"\s+(?P<Volume>[0-9.Ee-]+)\s+(?P<Mult>[0-9.]+)\s+(?P<Type>[^ ]{3})',
         line
     )
     return {
@@ -51,10 +51,10 @@ def getMixtures() :
                 mixtures.append(dict(mixture)) #Just to make a copy
             mixture.clear()
             mixture = getMixture(line)
-            mixture.update({ 'compounds' : [] })
+            mixture.update({ 'components' : [] })
 
         if line[0] == "*":
-            mixture['compounds'].append(dict(getCompound(line)))
+            mixture['components'].append(dict(getCompound(line)))
 
     inFile.close()
 
@@ -70,7 +70,7 @@ def loadMaterialsFile(inputFile):
 
         if line[0] == '"':
             mixMat = re.search(
-                r'^"(?P<name>[^"]+)"\s+(?P<weight>[0-9.E-]+)\s+(?P<number>[0-9.E-]+)\s+(?P<density>[0-9.E-]+)\s+(?P<x0>[0-9.E-]+)\s+(?P<l0>[0-9E.-]+)',
+                r'^"(?P<name>[^"]+)"\s+(?P<weight>[0-9.Ee-]+)\s+(?P<number>[0-9.Ee-]+)\s+(?P<density>[0-9.Ee-]+)\s+(?P<x0>[0-9.Ee-]+)\s+(?P<l0>[0-9Ee.-]+)',
                 line
                 )
 
