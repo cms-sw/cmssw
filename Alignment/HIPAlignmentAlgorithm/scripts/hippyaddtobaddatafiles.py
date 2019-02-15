@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import argparse, contextlib, os, re, shutil, subprocess, tempfile, time
 
 if __name__ == "__main__":
@@ -28,11 +30,11 @@ def runcfg(cfgfile, badfilelist):
         contents = sorted(contents)
         with open(badfilelist, "w") as f:
           f.write("\n".join(contents)+"\n")
-        print "found and added a bad file:\n"+filename
+        print("found and added a bad file:\n"+filename)
     else:
       raise
     return runcfg(cfgfile, badfilelist)
-  print "all files left are good"
+  print("all files left are good")
 
 @contextlib.contextmanager
 def cd(newdir):
@@ -111,7 +113,7 @@ class OneAtATime(KeepWhileOpenFile):
       result = super(OneAtATime, self).__enter__()
       if result:
         return result
-      print self.__printmessage
+      print(self.__printmessage)
       time.sleep(self.delay)
 
 if __name__ == "__main__":
@@ -120,6 +122,6 @@ if __name__ == "__main__":
 
     badfilelist = args.badfilelist
     if badfilelist is None:
-      badfilelist = os.path.join(os.path.dirname(cfgfile, "../../../run/DataFiles/baddatafiles.txt")
+      badfilelist = os.path.join(os.path.dirname(cfgfile, "../../../run/DataFiles/baddatafiles.txt"))
 
     runcfg(os.path.basename(args.cfgfile), args.badfilelist)
