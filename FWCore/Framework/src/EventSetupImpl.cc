@@ -67,6 +67,9 @@ EventSetupImpl::find(const eventsetup::EventSetupRecordKey& iKey) const
       return std::nullopt;
    }
    auto index = std::distance(keysBegin_, lb);
+   if (recordImpls_[index] == nullptr) {
+      return std::nullopt;
+   }
    return eventsetup::EventSetupRecordGeneric(recordImpls_[index]);
 }
 
