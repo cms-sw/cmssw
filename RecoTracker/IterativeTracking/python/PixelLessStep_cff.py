@@ -295,6 +295,7 @@ trackingPhase1.toReplaceWith(pixelLessStep, TrackLwtnnClassifier.clone(
      src = 'pixelLessStepTracks',
      qualityCuts = [-0.6, -0.05, 0.5],
 ))
+(trackingPhase1 & fastSim).toModify(pixelLessStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 pp_on_AA_2018.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
      qualityCuts = [-0.4,0.0,0.8],
