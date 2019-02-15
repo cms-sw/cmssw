@@ -25,6 +25,6 @@ phiWidth                  superCluster.phiWidth                                 
 CITK_isoPhotons           egmPhotonIsolation:gamma-DR030-                                     None None
 CITK_isoPhoCorrMax2p5     egmPhotonIsolation:gamma-DR030-                                     None None
 CITK_isoChargedHad        egmPhotonIsolation:h+-DR030-                                        None None
-chgIsoWrtWorstVtx         photonIDValueMapProducer:phoWorstChargedIsolationWithConeVeto       None None
+chgIsoWrtWorstVtx         photonIDValueMapProducer:phoWorstChargedIsolationConeVeto           None None
 esEffSigmaRR              full5x5_showerShapeVariables.effSigmaRR                             None None
 esEnergy/SCRawE           superCluster.preshowerEnergy/superCluster.rawEnergy                 None None

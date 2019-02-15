@@ -1,5 +1,5 @@
-#ifndef DataFormats_BTauReco_DeepDoubleBFeatures_h
-#define DataFormats_BTauReco_DeepDoubleBFeatures_h
+#ifndef DataFormats_BTauReco_DeepDoubleXFeatures_h
+#define DataFormats_BTauReco_DeepDoubleXFeatures_h
 
 #include <vector>
 
@@ -10,9 +10,18 @@
 
 namespace btagbtvdeep {
 
-class DeepDoubleBFeatures {
+class DeepDoubleXFeatures {
 
   public:
+
+    bool empty() const {
+      return is_empty_;
+    }  
+  
+    void filled(){
+      is_empty_ = false;
+    } 
+
     JetFeatures jet_features;
     BoostedDoubleSVTagInfoFeatures tag_info_features;
 
@@ -21,9 +30,12 @@ class DeepDoubleBFeatures {
     std::vector<ChargedCandidateFeatures> c_pf_features;
 
     std::size_t npv; // used by deep flavour     
-};    
 
+  private:
+    bool is_empty_ = true;
+
+};    
 
 }  
 
-#endif //DataFormats_BTauReco_DeepDoubleBFeatures_h
+#endif //DataFormats_BTauReco_DeepDoubleXFeatures_h
