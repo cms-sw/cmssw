@@ -64,7 +64,6 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
   }
   // loop on the rbx's we found and clean RBX's with tons of rechits
   // and lots of energy
-  unsigned nSeeds = 0, nSeeds0 = 0;
   std::unordered_map<int, std::vector<unsigned> > theHPDs;
   std::unordered_multimap<double, unsigned> theEnergies;
   for( const auto& itrbx : _rbxs ) {
@@ -73,7 +72,7 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
       const std::vector<unsigned>& rechits = itrbx.second;
       theHPDs.clear();
       theEnergies.clear();
-      nSeeds = nSeeds0 = rechits.size();
+      int nSeeds0 = rechits.size();
       for( unsigned jh = 0; jh < rechits.size(); ++jh ) {
 	const reco::PFRecHit&  rechit = (*input)[jh];
 	// check if rechit is a seed
@@ -83,7 +82,7 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 	for( auto k : neighbours4 ) {
           auto const & neighbour = (*input)[k]; 
 	  if( neighbour.energy() > rechit.energy() ) {	    
-	    --nSeeds; --nSeeds0;
+	    --nSeeds0;
 	    isASeed = false;
 	    break;
 	  } else {
