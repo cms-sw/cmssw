@@ -1,6 +1,7 @@
 #!/bin/python3
 
 import re
+import pandas as pd
 
 def getMixture(line) :
     mixture = re.search(
@@ -36,7 +37,7 @@ def getMixtures() :
     mixture contains a list of compounds.
     """
 
-    inFile = open("pixel_fwd.in","r")
+    inFile = open("pixel_bar.in","r")
 
     mixtures = []
     mixture = {}
@@ -90,3 +91,75 @@ listOfMixtures = getMixtures()
 listOfMixedMaterials = loadMaterialsFile(inputFile="mixed_materials.input")
 listOfPureMaterials = loadMaterialsFile(inputFile="pure_materials.input")
 listOfMaterials = listOfMixedMaterials + listOfPureMaterials
+
+
+dfAllMaterials = pd.DataFrame(listOfMaterials)
+
+
+for index in range(len(listOfMixtures)):
+    print("================================")
+    print(listOfMixtures[index]["gmix_name"])
+
+
+    components = pd.DataFrame(listOfMixtures[index]['components'])
+
+    components["volume"] = components["multiplicity"]*components["volume"]
+    totalVolume = sum(
+        components["volume"]
+        )
+
+    components["percentVolume"] = components["volume"] / totalVolume
+
+    components = pd.merge(
+        components,
+        dfAllMaterials[["name","density","x0","l0"]],
+        left_on="material",
+        right_on="name"
+        )
+
+    print(components)
+    components["weight"] = components["density"] * components["volume"]
+
+    totalDensity = sum(
+        components["percentVolume"] * components["density"]
+        )
+
+    totalWeight = totalDensity * totalVolume
+
+    components["percentWeight"] = (
+        components["density"] * components["volume"] / totalWeight
+        )
+
+    components["ws"] = (
+        components["percentWeight"] / (components["density"]*components["x0"])
+        )
+
+    components["ws2"] = (
+        components["percentWeight"] / (components["density"]*components["l0"])
+        )
+
+    totalRadLen = 1 / ( sum(components["ws"]) * totalDensity )
+
+    totalIntLen = 1/ ( sum(components["ws2"]) * totalDensity )
+
+    components["percentRadLen"] = (
+        components["ws"] * totalRadLen * totalDensity
+        )
+
+    components["percentIntLen"] = (
+        components["ws2"] * totalIntLen * totalDensity
+        )
+
+
+    print("Mixture Density:" , totalDensity)
+    print("Mixture Volume:", totalVolume)
+    print("Mixture x0:",totalRadLen)
+    print("Mixture l0:",totalIntLen)
+    print("Total Weight:",totalWeight)
+
+    print(components[[
+                "name","material","volume",
+                "percentVolume","percentWeight",
+                "density","weight","x0","percentRadLen",
+                "l0","percentRadLen"
+                ]])
