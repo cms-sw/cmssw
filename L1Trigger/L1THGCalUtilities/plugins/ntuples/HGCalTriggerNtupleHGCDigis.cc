@@ -2,7 +2,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerNtupleBase.h"
+#include "L1Trigger/L1THGCalUtilities/interface/HGCalTriggerNtupleBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
