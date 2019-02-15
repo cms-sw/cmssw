@@ -56,16 +56,11 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('Applications')
 )
 
-process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = cms.untracked.vstring(
-        'keep *_hgcalBackEndLayer2Producer_*_*',
-        'keep *_hgcalTowerProducer_*_*',
-    ),
-    fileName = cms.untracked.string('file:test.root')
-)
-
+# Output definition
+process.TFileService = cms.Service(
+    "TFileService",
+    fileName = cms.string("ntuple.root")
+    )
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -75,18 +70,19 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
 # To test V9Imp2
-#from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
-#process = custom_geometry_V9(process, implementation=2)
-#from L1Trigger.L1THGCal.customClustering import custom_2dclustering_dummy, custom_3dclustering_histoMax
-#process = custom_2dclustering_dummy(process)
-#process = custom_3dclustering_histoMax(process)
+from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
+process = custom_geometry_V9(process, implementation=2)
+from L1Trigger.L1THGCal.customClustering import custom_2dclustering_dummy, custom_3dclustering_histoMax
+process = custom_2dclustering_dummy(process)
+process = custom_3dclustering_histoMax(process)
 
 
-process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
+# load ntuplizer
+process.load('L1Trigger.L1THGCalUtilities.hgcalTriggerNtuples_cff')
+process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.hgcl1tpg_step, process.FEVTDEBUGoutput_step)
-
+process.schedule = cms.Schedule(process.hgcl1tpg_step, process.ntuple_step)
 
 # Add early deletion of temporary data products to reduce peak memory need
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete

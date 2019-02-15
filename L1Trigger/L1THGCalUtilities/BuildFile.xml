@@ -1,0 +1,9 @@
+<use   name="FWCore/Framework"/>
+<use   name="DataFormats/L1THGCal"/>
+<use   name="CommonTools/Utils"/>
+<export>
+  <lib   name="1"/>
+</export>
+<flags ADD_SUBDIR="1"/>
+
+
