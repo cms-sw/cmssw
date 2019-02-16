@@ -1,6 +1,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/ValidHandle.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -38,14 +39,10 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
 {
 
   // Input GsfPFRecTracks collection
-  edm::Handle<reco::GsfPFRecTrackCollection> gsfPfRecTracks;
-  event.getByToken(gsfPfRecTracks_,gsfPfRecTracks);
-  if ( !gsfPfRecTracks.isValid() ) { edm::LogError("Problem with gsfPfRecTracks handle"); }
+  auto gsfPfRecTracks=edm::makeValid(event.getHandle(gsfPfRecTracks_));
 
   // Input EcalClusters collection
-  edm::Handle<reco::PFClusterCollection> ecalClusters;
-  event.getByToken(ecalClusters_,ecalClusters);
-  if ( !ecalClusters.isValid() ) { edm::LogError("Problem with ecalClusters handle"); }
+  reco::PFClusterCollection const& ecalClusters = event.get(ecalClusters_);
 
   // Output SuperClusters collection and getRefBeforePut
   auto superClusters = std::make_unique<reco::SuperClusterCollection>( reco::SuperClusterCollection() );
@@ -57,7 +54,7 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
 
   // Output CaloClusters collection
   auto caloClusters = std::make_unique<reco::CaloClusterCollection>( reco::CaloClusterCollection() );
-  caloClusters->reserve(ecalClusters->size());
+  caloClusters->reserve(ecalClusters.size());
 
   // Index[GSF track][trajectory point] for "best" CaloCluster
   std::vector< std::vector<int> > cluster_idx;
@@ -92,13 +89,13 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
   }
 
   // For each cluster, find closest trajectory point ("global" arbitration at event level)
-  for ( size_t iclu = 0; iclu < ecalClusters->size(); ++iclu ) { // Cluster loop
+  for ( size_t iclu = 0; iclu < ecalClusters.size(); ++iclu ) { // Cluster loop
     std::pair<int,int> point = std::make_pair(-1,-1);
     float dr2min = 1.e6;
     for ( size_t ipoint = 0; ipoint < points.size(); ++ipoint ) { // GSF track loop
       for ( size_t jpoint = 0; jpoint < points[ipoint].size(); ++jpoint ) { // Traj point loop
 	if ( points[ipoint][jpoint]->isValid() ) {
-	  float dr2 = reco::deltaR2( ecalClusters->at(iclu), points[ipoint][jpoint]->positionREP() );
+	  float dr2 = reco::deltaR2( ecalClusters.at(iclu), points[ipoint][jpoint]->positionREP() );
 	  if ( dr2 < dr2min ) {
 	    // Store nearest point to this cluster
 	    dr2min = dr2;
@@ -110,7 +107,7 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
     if ( point.first >= 0 && point.second >= 0 && // if this cluster is matched to a point ...
 	 dr2min < cluster_dr2min[point.first][point.second] ) { // ... and cluster is closest to the same point 
       // Copy CaloCluster to new collection
-      caloClusters->push_back(ecalClusters->at(iclu));
+      caloClusters->push_back(ecalClusters.at(iclu));
       // Store cluster index for creation of SC later
       cluster_idx[point.first][point.second] = caloClusters->size()-1;
       pfcluster_idx[point.first][point.second] = iclu;
@@ -156,8 +153,8 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
       Y += clu->position().Y() * clu->correctedEnergy();
       Z += clu->position().Z() * clu->correctedEnergy();
       auto index = pfcluster_idx[itrk][ipoint];
-      if(index < static_cast<decltype(index)>(ecalClusters->size())) {
-        barePtrs.push_back(&(*ecalClusters)[index]);
+      if(index < static_cast<decltype(index)>(ecalClusters.size())) {
+        barePtrs.push_back(&(ecalClusters[index]));
       }
     }
     X /= energy;
