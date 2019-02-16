@@ -32,7 +32,7 @@
 
 #include <pybind11/pybind11.h>
 
-PYBIND11_MODULE(libFWCorePyBind11ParameterSet,m) 
+PYBIND11_MODULE(libFWCorePyDevParameterSet,m) 
 {
 
   //  pybind11::register_exception_translator<cms::Exception>(translatorlibFWCorePythonParameterSet);
