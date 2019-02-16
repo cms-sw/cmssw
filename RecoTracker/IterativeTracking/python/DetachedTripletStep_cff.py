@@ -260,6 +260,7 @@ trackingPhase1.toReplaceWith(detachedTripletStep, TrackLwtnnClassifier.clone(
      src = 'detachedTripletStepTracks',
      qualityCuts = [0.0, 0.4, 0.8],
 ))
+(trackingPhase1 & fastSim).toModify(detachedTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 highBetaStar_2018.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1.clone(
      qualityCuts = [-0.5,0.0,0.5],
