@@ -12,7 +12,7 @@
 namespace edm {
    namespace python {
       void initializePyBind11Module() {
-	 char *libFWCoreParameterSet = const_cast<char *>("libFWCorePyBind11ParameterSet");
+	 char *libFWCoreParameterSet = const_cast<char *>("libFWCorePyDevParameterSet");
 	 pybind11::module::import(libFWCoreParameterSet);
       }
    }
