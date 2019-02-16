@@ -46,7 +46,7 @@ class TrackingRecHitProducer:
 {
     private:
         edm::EDGetTokenT<std::vector<PSimHit>> _simHitToken;
-        std::vector<TrackingRecHitAlgorithm*> _recHitAlgorithms;
+        std::vector<std::unique_ptr<TrackingRecHitAlgorithm>> _recHitAlgorithms;
         unsigned long long _trackerGeometryCacheID = 0;
         unsigned long long _trackerTopologyCacheID = 0;
         std::map<unsigned int, TrackingRecHitPipe> _detIdPipes;
@@ -79,11 +79,11 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
         const std::string pluginType = pluginConfig.getParameter<std::string>("type");
         const std::string pluginName = pluginConfig.getParameter<std::string>("name");
 
-        TrackingRecHitAlgorithm* recHitAlgorithm = TrackingRecHitAlgorithmFactory::get()->tryToCreate(pluginType,pluginName,pluginConfig,consumeCollector);
+        std::unique_ptr<TrackingRecHitAlgorithm> recHitAlgorithm{TrackingRecHitAlgorithmFactory::get()->tryToCreate(pluginType,pluginName,pluginConfig,consumeCollector)};
         if (recHitAlgorithm)
         {
             edm::LogInfo("TrackingRecHitProducer: ")<< "adding plugin type '"<<pluginType<<"' as '"<<pluginName<<"'"<<std::endl;
-            _recHitAlgorithms.push_back(recHitAlgorithm);
+            _recHitAlgorithms.push_back(std::move(recHitAlgorithm));
         }
         else
         {
@@ -100,12 +100,6 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
 
 TrackingRecHitProducer::~TrackingRecHitProducer()
 {
-    for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
-    {
-        delete algo;
-    }
-    _recHitAlgorithms.clear();
-
     //--- Delete the templates. This is safe even if thePixelTemp_ vector is empty.
     for (auto x : _pixelTempStore) x.destroy();
 }
@@ -113,7 +107,7 @@ TrackingRecHitProducer::~TrackingRecHitProducer()
 
 void TrackingRecHitProducer::beginStream(edm::StreamID id)
 {
-    for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
+    for (auto& algo: _recHitAlgorithms)
     {
         algo->beginStream(id);
     }
@@ -139,7 +133,7 @@ void TrackingRecHitProducer::beginRun(edm::Run const& run, const edm::EventSetup
 	   << "SiPixel Templates not loaded correctly from the DB object!" << std::endl;
     }
 
-    for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
+    for (auto& algo: _recHitAlgorithms)
     {
       algo->beginRun(run, eventSetup, pixelTemplateDBObject, _pixelTempStore );
     }
@@ -174,11 +168,11 @@ void TrackingRecHitProducer::setupDetIdPipes(const edm::EventSetup& eventSetup)
             TrackingRecHitPipe pipe;
             for (unsigned int ialgo = 0; ialgo < _recHitAlgorithms.size(); ++ialgo)
             {
-                TrackingRecHitAlgorithm* algo = _recHitAlgorithms[ialgo];
+                auto& algo = _recHitAlgorithms[ialgo];
                 if (selector.passSelection(algo->getSelectionString()))
                 {
                     numberOfDetIdsPerAlgorithm[ialgo]+=1;
-                    pipe.addAlgorithm(algo);
+                    pipe.addAlgorithm(algo.get());
                 }
             }
             if (pipe.size()==0)
@@ -197,7 +191,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     //resetup pipes if new iov
     setupDetIdPipes(eventSetup);
     //begin event
-    for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
+    for (auto& algo: _recHitAlgorithms)
     {
         algo->beginEvent(event,eventSetup);
     }
@@ -206,11 +200,11 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     edm::Handle<std::vector<PSimHit>> simHits;
     event.getByToken(_simHitToken,simHits);
 
-    std::unique_ptr<FastTrackerRecHitCollection> output_recHits(new FastTrackerRecHitCollection);
+    auto output_recHits = std::make_unique<FastTrackerRecHitCollection>();
     output_recHits->reserve(simHits->size());
 
     edm::RefProd<FastTrackerRecHitCollection> output_recHits_refProd = event.getRefBeforePut<FastTrackerRecHitCollection>();
-    std::unique_ptr<FastTrackerRecHitRefCollection> output_recHitRefs(new FastTrackerRecHitRefCollection(simHits->size(),FastTrackerRecHitRef()));
+    auto output_recHitRefs = std::make_unique<FastTrackerRecHitRefCollection>(simHits->size(),FastTrackerRecHitRef());
 
     std::map<unsigned int,std::vector<std::pair<unsigned int,const PSimHit*>>> simHitsIdPairPerDetId;
     for (unsigned int ihit = 0; ihit < simHits->size(); ++ihit)
@@ -261,7 +255,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     }
 
     //end event
-    for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
+    for (auto& algo: _recHitAlgorithms)
     {
         algo->endEvent(event,eventSetup);
     }
@@ -280,7 +274,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
 
 void TrackingRecHitProducer::endStream()
 {
-    for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
+    for (auto& algo: _recHitAlgorithms)
     {
         algo->endStream();
     }
