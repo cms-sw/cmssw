@@ -61,32 +61,34 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
 
   // Index[GSF track][trajectory point] for "best" CaloCluster
   std::vector< std::vector<int> > cluster_idx;
-  cluster_idx.resize( gsfPfRecTracks->size(), std::vector<int>() );
+  cluster_idx.reserve( gsfPfRecTracks->size());
 
   // Index[GSF track][trajectory point] for "best" PFCluster
   std::vector< std::vector<int> > pfcluster_idx;
-  pfcluster_idx.resize( gsfPfRecTracks->size(), std::vector<int>() );
+  pfcluster_idx.reserve( gsfPfRecTracks->size());
 
   // dr2min[GSF track][trajectory point] for "best" CaloCluster
   std::vector< std::vector<float> > cluster_dr2min;
-  cluster_dr2min.resize( gsfPfRecTracks->size(), std::vector<float>() );
+  cluster_dr2min.reserve( gsfPfRecTracks->size());
 
   // Construct list of trajectory points from the GSF track and electron brems
   std::vector< std::vector<const reco::PFTrajectoryPoint*> > points;
-  points.resize( gsfPfRecTracks->size(), std::vector<const reco::PFTrajectoryPoint*>() );
-  for ( size_t itrk = 0; itrk < gsfPfRecTracks->size(); ++itrk ) { 
+  points.reserve( gsfPfRecTracks->size());
+  for ( auto const& trk:  *gsfPfRecTracks) {
     // Extrapolated track
-    reco::GsfPFRecTrackRef trk(gsfPfRecTracks,itrk);
-    points[itrk].reserve(trk->PFRecBrem().size()+1);
-    points[itrk].push_back( &trk->extrapolatedPoint(reco::PFTrajectoryPoint::LayerType::ECALShowerMax) );
+    std::vector<const reco::PFTrajectoryPoint*> traj;
+    traj.reserve(trk.PFRecBrem().size()+1);
+    traj.push_back( &trk.extrapolatedPoint(reco::PFTrajectoryPoint::LayerType::ECALShowerMax) );
     // Extrapolated brem trajectories
-    for ( auto const& brem : trk->PFRecBrem() ) {
-      points[itrk].push_back( &brem.extrapolatedPoint(reco::PFTrajectoryPoint::LayerType::ECALShowerMax) ); 
+    for ( auto const& brem : trk.PFRecBrem() ) {
+      traj.push_back( &brem.extrapolatedPoint(reco::PFTrajectoryPoint::LayerType::ECALShowerMax) ); 
     }
-    // Resize containers
-    cluster_idx[itrk].resize(points[itrk].size(),-1);
-    pfcluster_idx[itrk].resize(points[itrk].size(),-1);
-    cluster_dr2min[itrk].resize(points[itrk].size(),1.e6);
+    auto size = traj.size();
+    points.push_back(std::move(traj));
+    // Size containers
+    cluster_idx.emplace_back(size,-1);
+    pfcluster_idx.emplace_back(size,-1);
+    cluster_dr2min.emplace_back(size,1.e6);
   }
 
   // For each cluster, find closest trajectory point ("global" arbitration at event level)
@@ -153,8 +155,10 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
       X += clu->position().X() * clu->correctedEnergy();
       Y += clu->position().Y() * clu->correctedEnergy();
       Z += clu->position().Z() * clu->correctedEnergy();
-      reco::PFClusterRef pfclu(ecalClusters,pfcluster_idx[itrk][ipoint]);
-      if ( pfclu.isNonnull() ) { barePtrs.push_back(&*pfclu); }
+      auto index = pfcluster_idx[itrk][ipoint];
+      if(index < static_cast<decltype(index)>(ecalClusters->size())) {
+        barePtrs.push_back(&(*ecalClusters)[index]);
+      }
     }
     X /= energy;
     Y /= energy;
