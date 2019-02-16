@@ -95,7 +95,7 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
     for ( size_t ipoint = 0; ipoint < points.size(); ++ipoint ) { // GSF track loop
       for ( size_t jpoint = 0; jpoint < points[ipoint].size(); ++jpoint ) { // Traj point loop
 	if ( points[ipoint][jpoint]->isValid() ) {
-	  float dr2 = reco::deltaR2( ecalClusters.at(iclu), points[ipoint][jpoint]->positionREP() );
+	  float dr2 = reco::deltaR2( ecalClusters[iclu], points[ipoint][jpoint]->positionREP() );
 	  if ( dr2 < dr2min ) {
 	    // Store nearest point to this cluster
 	    dr2min = dr2;
@@ -107,7 +107,7 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
     if ( point.first >= 0 && point.second >= 0 && // if this cluster is matched to a point ...
 	 dr2min < cluster_dr2min[point.first][point.second] ) { // ... and cluster is closest to the same point 
       // Copy CaloCluster to new collection
-      caloClusters->push_back(ecalClusters.at(iclu));
+      caloClusters->push_back(ecalClusters[iclu]);
       // Store cluster index for creation of SC later
       cluster_idx[point.first][point.second] = caloClusters->size()-1;
       pfcluster_idx[point.first][point.second] = iclu;
