@@ -80,7 +80,7 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
     points[itrk].reserve(trk->PFRecBrem().size()+1);
     points[itrk].push_back( &trk->extrapolatedPoint(reco::PFTrajectoryPoint::LayerType::ECALShowerMax) );
     // Extrapolated brem trajectories
-    for ( auto brem : trk->PFRecBrem() ) {
+    for ( auto const& brem : trk->PFRecBrem() ) {
       points[itrk].push_back( &brem.extrapolatedPoint(reco::PFTrajectoryPoint::LayerType::ECALShowerMax) ); 
     }
     // Resize containers
