@@ -369,6 +369,7 @@ trackingPhase1.toReplaceWith(tobTecStep, TrackLwtnnClassifier.clone(
      src = 'tobTecStepTracks',
      qualityCuts = [-0.4, -0.25, -0.1]
 ))
+(trackingPhase1 & fastSim).toModify(tobTecStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 pp_on_AA_2018.toReplaceWith(tobTecStep, TrackMVAClassifierDetached.clone(
      src = 'tobTecStepTracks',

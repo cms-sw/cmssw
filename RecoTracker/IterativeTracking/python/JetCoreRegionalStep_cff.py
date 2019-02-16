@@ -196,6 +196,7 @@ trackingPhase1.toReplaceWith(jetCoreRegionalStep, TrackLwtnnClassifier.clone(
      src = 'jetCoreRegionalStepTracks',
      qualityCuts = [0.6, 0.7, 0.8],
 ))
+(trackingPhase1 & fastSim).toModify(jetCoreRegionalStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # Final sequence
 JetCoreRegionalStepTask = cms.Task(jetsForCoreTracking,                 
