@@ -14,28 +14,28 @@ using namespace reco ;
 namespace EgAmbiguityTools
 {
 
-bool isBetter( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
- { return (std::abs(e1->eSuperClusterOverP()-1) < std::abs(e2->eSuperClusterOverP() - 1)) ; }
+bool isBetter( reco::GsfElectron const& e1, reco::GsfElectron const& e2 )
+ { return (std::abs(e1.eSuperClusterOverP()-1) < std::abs(e2.eSuperClusterOverP() - 1)) ; }
 
-bool isInnerMost(const reco::GsfElectron *e1, const reco::GsfElectron *e2)
+bool isInnerMost( reco::GsfElectron const& e1, reco::GsfElectron const& e2)
 {
     // retreive first valid hit
     int gsfHitCounter1 = 0 ;
-    for(auto const& elHit : e1->gsfTrack()->recHits())
+    for(auto const& elHit : e1.gsfTrack()->recHits())
     {
         if (elHit->isValid()) break;
         gsfHitCounter1++;
     }
 
     int gsfHitCounter2 = 0 ;
-    for(auto const& elHit : e2->gsfTrack()->recHits())
+    for(auto const& elHit : e2.gsfTrack()->recHits())
     {
         if (elHit->isValid()) break;
         gsfHitCounter2++;
     }
 
-    uint32_t gsfHit1 = e1->gsfTrack()->hitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter1);
-    uint32_t gsfHit2 = e2->gsfTrack()->hitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter2);
+    uint32_t gsfHit1 = e1.gsfTrack()->hitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter1);
+    uint32_t gsfHit2 = e2.gsfTrack()->hitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter2);
 
     if (HitPattern::getSubStructure(gsfHit1) != HitPattern::getSubStructure(gsfHit2)){
         return (HitPattern::getSubStructure(gsfHit1) < HitPattern::getSubStructure(gsfHit2));
