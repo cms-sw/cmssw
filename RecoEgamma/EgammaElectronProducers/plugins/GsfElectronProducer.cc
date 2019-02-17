@@ -49,7 +49,7 @@ void GsfElectronProducer::beginEvent( edm::Event & event, const edm::EventSetup 
    {
     pfTranslatorParametersChecked_ = true ;
     edm::Handle<edm::ValueMap<float> > pfMva ;
-    event.getByToken(inputCfg_.pfMVA,pfMva) ;
+    event.getByToken(pfMVA_,pfMva) ;
     checkPfTranslatorParameters(edm::parameterSet(*pfMva.provenance())) ;
    }
 
