@@ -289,9 +289,9 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
 {
     printf("L1CaloJetProducer setup\n");
     produces<l1slhc::L1CaloJetsCollection>("L1CaloJetsNoCuts");
-    produces<l1slhc::L1CaloJetsCollection>("L1CaloJetsWithCuts");
+    //produces<l1slhc::L1CaloJetsCollection>("L1CaloJetsWithCuts");
     //produces<l1extra::L1JetParticleCollection>("L1CaloClusterCollectionWithCuts");
-    //produces< BXVector<l1t::Jet> >("L1CaloClusterCollectionBXVWithCuts");
+    produces< BXVector<l1t::Jet> >("L1CaloJetCollectionBXV");
 
 
     //// Fit parameters measured on 11 Aug 2018, using 500 MeV threshold for ECAL TPs
@@ -355,9 +355,9 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     // Output collections
     std::unique_ptr<l1slhc::L1CaloJetsCollection> L1CaloJetsNoCuts (new l1slhc::L1CaloJetsCollection );
-    std::unique_ptr<l1slhc::L1CaloJetsCollection> L1CaloJetsWithCuts( new l1slhc::L1CaloJetsCollection );
+    //std::unique_ptr<l1slhc::L1CaloJetsCollection> L1CaloJetsWithCuts( new l1slhc::L1CaloJetsCollection );
     //std::unique_ptr<l1extra::L1JetParticleCollection> L1CaloClusterCollectionWithCuts( new l1extra::L1JetParticleCollection );
-    //std::unique_ptr<BXVector<l1t::Jet>> L1CaloClusterCollectionBXVWithCuts(new l1t::JetBxCollection);
+    std::unique_ptr<BXVector<l1t::Jet>> L1CaloJetCollectionBXV(new l1t::JetBxCollection);
 
 
 
@@ -1114,8 +1114,10 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         if (caloJetObj.jetClusterET >= EtMinForCollection)
         {
             L1CaloJetsNoCuts->push_back( caloJet );
-            // Same for the moment...
-            L1CaloJetsWithCuts->push_back( caloJet );
+            //L1CaloJetsWithCuts->push_back( caloJet );
+            reco::Candidate::PolarLorentzVector jet_p4 = reco::Candidate::PolarLorentzVector( 
+                    params["jet_pt_calibration"], caloJet.p4().eta(), caloJet.p4().phi(), caloJet.p4().M() );
+            L1CaloJetCollectionBXV->push_back( 0, l1t::Jet( jet_p4 ) );
 
             if (debug) printf("Made a Jet, eta %f phi %f pt %f\n", caloJetObj.jetCluster.eta(), caloJetObj.jetCluster.phi(), caloJetObj.jetClusterET);
         }
@@ -1125,9 +1127,9 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
     iEvent.put(std::move(L1CaloJetsNoCuts),"L1CaloJetsNoCuts");
-    iEvent.put(std::move(L1CaloJetsWithCuts), "L1CaloJetsWithCuts" );
+    //iEvent.put(std::move(L1CaloJetsWithCuts), "L1CaloJetsWithCuts" );
     //iEvent.put(std::move(L1CaloClusterCollectionWithCuts), "L1CaloClusterCollectionWithCuts" );
-    //iEvent.put(std::move(L1CaloClusterCollectionBXVWithCuts),"L1CaloClusterCollectionBXVWithCuts");
+    iEvent.put(std::move(L1CaloJetCollectionBXV),"L1CaloJetCollectionBXV");
 
     //printf("end L1CaloJetProducer\n");
 }
