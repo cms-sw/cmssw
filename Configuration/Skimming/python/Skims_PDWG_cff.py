@@ -293,6 +293,18 @@ SKIMStreamHLTZEROBIASSIGSD = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW') # for the moment, it could be DIGI in the future
     )
+################################################## B parking
+from Configuration.Skimming.pwdgSkimBPark_cfi import *
+SkimBParkPath = cms.Path(SkimBPark)
+SKIMStreamSkimBPark = cms.FilteredStream(
+    responsible = 'BPH PAG',
+    name = 'SkimBPark',
+    paths = ( SkimBParkPath ),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+)
+
 
 ####################
    
