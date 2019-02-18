@@ -39,7 +39,15 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class TotemTimingDQMSource : public DQMEDAnalyzer
+namespace totemds {
+  struct Cache {
+    std::unordered_map<unsigned int, std::unique_ptr<TH2F>> hitDistribution2dMap;
+
+    std::unordered_map<unsigned int, unsigned long> hitsCounterMap;
+  };
+}
+
+class TotemTimingDQMSource : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<totemds::Cache>>
 {
 public:
   TotemTimingDQMSource(const edm::ParameterSet &);
@@ -50,10 +58,10 @@ protected:
   void bookHistograms(DQMStore::IBooker &, const edm::Run &,
                       const edm::EventSetup &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock &,
-                            const edm::EventSetup &) override;
-  void endLuminosityBlock(const edm::LuminosityBlock &,
-                          const edm::EventSetup &) override;
+  std::shared_ptr<totemds::Cache> globalBeginLuminosityBlock(const edm::LuminosityBlock &,
+                                                             const edm::EventSetup &) const override;
+  void globalEndLuminosityBlock(const edm::LuminosityBlock &,
+                                const edm::EventSetup &) override;
   void endRun(const edm::Run &, const edm::EventSetup &) override;
 
 private:
@@ -192,12 +200,11 @@ private:
 
     MonitorElement *hitTime = nullptr;
     MonitorElement *hitRate = nullptr;
-    unsigned long hitsCounterPerLumisection;
 
     MonitorElement *stripTomography210 = nullptr;
     MonitorElement *stripTomography220 = nullptr;
 
-    ChannelPlots() : hitsCounterPerLumisection(0) {}
+    ChannelPlots() {}
     ChannelPlots(DQMStore::IBooker &ibooker, unsigned int id);
   };
 
@@ -364,7 +371,6 @@ TotemTimingDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker &ibooker, unsigne
 //----------------------------------------------------------------------------------------------------
 
 TotemTimingDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker &ibooker, unsigned int id)
-                     : hitsCounterPerLumisection(0)
 {
   std::string path, title;
   TotemTimingDetId(id).channelName(path, TotemTimingDetId::nPath);
@@ -488,11 +494,15 @@ void TotemTimingDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemTimingDQMSource::beginLuminosityBlock(const edm::LuminosityBlock &,
-                                                const edm::EventSetup &)
+std::shared_ptr<totemds::Cache>
+TotemTimingDQMSource::globalBeginLuminosityBlock(const edm::LuminosityBlock &,
+                                                 const edm::EventSetup &) const
 {
+  auto d = std::make_shared<totemds::Cache>();
+  d->hitDistribution2dMap.reserve(potPlots_.size());
   for ( auto& plot : potPlots_ )
-    plot.second.hitDistribution2d_lumisection->Reset();
+    d->hitDistribution2dMap[plot.first] = std::unique_ptr<TH2F>(static_cast<TH2F*>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
+  return d;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -544,6 +554,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
   std::unordered_map<unsigned int, unsigned int> channelsPerPlane;
   std::unordered_map<unsigned int, unsigned int> channelsPerPlaneWithTime;
 
+  auto lumiCache = luminosityBlockCache(event.getLuminosityBlock().index());
   for (const auto &digis : *timingDigis)
   {
     const TotemTimingDetId detId(digis.detId());
@@ -615,7 +626,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
           channelPlots_[detId].hitTime->Fill(
               1e-3 * LHC_CLOCK_PERIOD_NS *
               (event.time().value() - timeOfPreviousEvent_));
-        ++(channelPlots_[detId].hitsCounterPerLumisection);
+        ++(lumiCache->hitsCounterMap[detId]);
       }
     }
   }
@@ -805,8 +816,13 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemTimingDQMSource::endLuminosityBlock(const edm::LuminosityBlock &,
-                                              const edm::EventSetup &) {
+void TotemTimingDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock & iLumi,
+                                                    const edm::EventSetup &) {
+  auto lumiCache = luminosityBlockCache(iLumi.index());
+  for ( auto& plot : potPlots_ ) {
+    *(plot.second.hitDistribution2d_lumisection->getTH2F())=*(lumiCache->hitDistribution2dMap[plot.first]);
+  }
+
   globalPlot_.digiSentPercentage->Reset();
   TH2F *hitHistoGlobalTmp = globalPlot_.digiSentPercentage->getTH2F();
   for (auto &plot : potPlots_) {
@@ -839,19 +855,20 @@ void TotemTimingDQMSource::endLuminosityBlock(const edm::LuminosityBlock &,
         plot.second.cellOfMax->Fill(
             chId.plane(), chId.channel(),
             chPlot.second.cellOfMax->getTH1F()->GetMean());
+        auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[chPlot.first];
         plot.second.hitRate->Fill(
             chId.plane(), chId.channel(),
-            (double)chPlot.second.hitsCounterPerLumisection * HIT_RATE_FACTOR);
+            (double)hitsCounterPerLumisection * HIT_RATE_FACTOR);
       }
     }
   }
 
   for (auto &plot : channelPlots_) {
-    if (plot.second.hitsCounterPerLumisection != 0) {
-      plot.second.hitRate->Fill((double)plot.second.hitsCounterPerLumisection *
+        auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[plot.first];
+    if (hitsCounterPerLumisection != 0) {
+      plot.second.hitRate->Fill((double)hitsCounterPerLumisection *
                                 HIT_RATE_FACTOR);
     }
-    plot.second.hitsCounterPerLumisection = 0;
   }
 }
 

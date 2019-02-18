@@ -48,7 +48,10 @@ class EventSetupRecordKey
       bool operator==(const EventSetupRecordKey& iRHS) const {
          return type_ == iRHS.type_;
       }
-      
+      inline bool operator!=(const EventSetupRecordKey& iRHS) const {
+         return not (*this == iRHS);
+      }
+
       const char* name() const { return type().name(); }
       // ---------- static member functions --------------------
       template<class T>

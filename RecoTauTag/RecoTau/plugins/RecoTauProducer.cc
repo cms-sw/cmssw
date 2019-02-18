@@ -46,8 +46,8 @@ class RecoTauProducer : public edm::stream::EDProducer<>
  public:
   typedef reco::tau::RecoTauBuilderPlugin Builder;
   typedef reco::tau::RecoTauModifierPlugin Modifier;
-  typedef boost::ptr_vector<Builder> BuilderList;
-  typedef boost::ptr_vector<Modifier> ModifierList;
+  typedef std::vector<std::unique_ptr<Builder>> BuilderList;
+  typedef std::vector<std::unique_ptr<Modifier>> ModifierList;
 
   explicit RecoTauProducer(const edm::ParameterSet& pset);
   ~RecoTauProducer() override {}
@@ -100,7 +100,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
     // Get plugin name
     const std::string& pluginType = builderPSet->getParameter<std::string>("plugin");
     // Build the plugin
-    builders_.push_back(RecoTauBuilderPluginFactory::get()->create(pluginType, *builderPSet, consumesCollector()));
+    builders_.emplace_back(RecoTauBuilderPluginFactory::get()->create(pluginType, *builderPSet, consumesCollector()));
   }
 
   const VPSet& modfiers = pset.getParameter<VPSet>("modifiers");
@@ -109,9 +109,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
     // Get plugin name
     const std::string& pluginType = modfierPSet->getParameter<std::string>("plugin");
     // Build the plugin
-    reco::tau::RecoTauModifierPlugin* plugin = nullptr;
-    plugin = RecoTauModifierPluginFactory::get()->create(pluginType, *modfierPSet, consumesCollector());
-    modifiers_.push_back(plugin);
+    modifiers_.emplace_back(RecoTauModifierPluginFactory::get()->create(pluginType, *modfierPSet, consumesCollector()));
   }
 
   // Check if we want to apply a final output selection
@@ -148,12 +146,10 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   evt.getByToken(piZero_token, piZeroAssoc);
 
   // Update all our builders and modifiers with the event info
-  for (BuilderList::iterator builder = builders_.begin();
-      builder != builders_.end(); ++builder) {
+  for (auto& builder: builders_) {
     builder->setup(evt, es);
   }
-  for (ModifierList::iterator modifier = modifiers_.begin();
-      modifier != modifiers_.end(); ++modifier) {
+  for (auto& modifier: modifiers_) {
     modifier->setup(evt, es);
   }
 
@@ -198,8 +194,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     const std::vector<reco::RecoTauPiZero>& piZeros = (*piZeroAssoc)[jetRef];
     // Loop over our builders and create the set of taus for this jet
     unsigned int nTausBuilt = 0;
-    for ( BuilderList::const_iterator builder = builders_.begin();
-	  builder != builders_.end(); ++builder) {
+    for ( const auto& builder: builders_ ) {
       // Get a ptr_vector of taus from the builder
       reco::tau::RecoTauBuilderPlugin::output_type taus((*builder)(jetRef, chargedHadrons, piZeros, uniqueRegionalCands));
       // Make sure all taus have their jetref set correctly
@@ -231,14 +226,12 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   // Loop over the taus we have created and apply our modifiers to the taus
   for ( reco::PFTauCollection::iterator tau = output->begin();
 	tau != output->end(); ++tau ) {
-    for ( ModifierList::const_iterator modifier = modifiers_.begin();
-	  modifier != modifiers_.end(); ++modifier ) {
+    for ( const auto& modifier: modifiers_ ) {
       (*modifier)(*tau);
     }
   }
   
-  for ( ModifierList::iterator modifier = modifiers_.begin();
-        modifier != modifiers_.end(); ++modifier ) {
+  for ( auto& modifier: modifiers_ ) {
     modifier->endEvent();
   }
   

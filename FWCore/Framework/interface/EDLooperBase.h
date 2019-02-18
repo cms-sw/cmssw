@@ -85,16 +85,17 @@ namespace edm {
       EDLooperBase& operator=(EDLooperBase const&) = delete; // Disallow copying and moving
 
       void doStartingNewLoop();
-      Status doDuringLoop(EventPrincipal& eventPrincipal, EventSetup const& es, ProcessingController&, StreamContext*);
-      Status doEndOfLoop(EventSetup const& es);
+      Status doDuringLoop(EventPrincipal& eventPrincipal, EventSetupImpl const&  es, ProcessingController&, StreamContext*);
+      Status doEndOfLoop(EventSetupImpl const&  es);
       void prepareForNextLoop(eventsetup::EventSetupProvider* esp);
-      void doBeginRun(RunPrincipal&, EventSetup const&, ProcessContext*);
-      void doEndRun(RunPrincipal&, EventSetup const&, ProcessContext*);
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&, ProcessContext*);
-      void doEndLuminosityBlock(LuminosityBlockPrincipal&, EventSetup const&, ProcessContext*);
+      void doBeginRun(RunPrincipal&, EventSetupImpl const& , ProcessContext*);
+      void doEndRun(RunPrincipal&, EventSetupImpl const& , ProcessContext*);
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal&, EventSetupImpl const& , ProcessContext*);
+      void doEndLuminosityBlock(LuminosityBlockPrincipal&, EventSetupImpl const& , ProcessContext*);
 
+      void beginOfJob(EventSetupImpl const& );
       //This interface is deprecated
-      virtual void beginOfJob(EventSetup const&);
+      virtual void beginOfJob(EventSetup const& );
       virtual void beginOfJob();
 
       virtual void endOfJob();

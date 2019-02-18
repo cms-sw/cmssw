@@ -6,6 +6,7 @@
 #include "PhysicsTools/Utilities/interface/DecomposePower.h"
 #include "PhysicsTools/Utilities/interface/ParametricTrait.h"
 #include <boost/mpl/if.hpp>
+#include <type_traits>
 
 #include "PhysicsTools/Utilities/interface/Simplify_begin.h"
 
@@ -193,7 +194,7 @@ namespace funct {
       inline static const A& a(const F& f, const G& g, const H& h) { return f; }
       inline static const B& b(const F& f, const G& g, const H& h) { return h; }
       inline static const C& c(const F& f, const G& g, const H& h) { return g; }
-      enum { value = not ::boost::is_same<AB, base>::value };
+      enum { value = not ::std::is_same<AB, base>::value };
     };
     struct prod2 { 
       typedef G A; typedef H B; typedef F C;
@@ -202,7 +203,7 @@ namespace funct {
       inline static const A& a(const F& f, const G& g, const H& h) { return g; }
       inline static const B& b(const F& f, const G& g, const H& h) { return h; }
       inline static const C& c(const F& f, const G& g, const H& h) { return f; }
-      enum { value = not ::boost::is_same<AB, base>::value };
+      enum { value = not ::std::is_same<AB, base>::value };
     };
     
     typedef typename 

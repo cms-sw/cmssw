@@ -1,0 +1,7 @@
+arguments             = $(par1) $(par2)
+executable            = batch_HTCondor.csh 
+output                = pi50_$(par1).out
+error                 = pi50_$(par1).err
+log                   = pi50_$(par1).log
++JobFlavour = "workday" 
+queue

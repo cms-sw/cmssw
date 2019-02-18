@@ -314,7 +314,6 @@ bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
     swissCrossVec.push_back(navigator.south());
     navigator.home();
 
-    std::vector<DetId>::const_iterator detItr;
     for (unsigned int i = 0; i < swissCrossVec.size(); ++i)
     {
 

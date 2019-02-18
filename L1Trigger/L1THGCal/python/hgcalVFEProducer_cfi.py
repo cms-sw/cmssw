@@ -49,7 +49,10 @@ vfe_proc = cms.PSet( ProcessorName = cms.string('HGCalVFEProcessorSums'),
                      adcnBits = adcNbits,
                      tdcsaturation = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
                      linnBits = cms.uint32(16),
-                     ThicknessCorrections = cms.vdouble(frontend_thickness_corrections)
+                     ThicknessCorrections = cms.vdouble(frontend_thickness_corrections),
+                     exponentBits = cms.uint32(4),
+                     mantissaBits = cms.uint32(4),
+                     rounding = cms.bool(True)
                    )
 
 hgcalVFEProducer = cms.EDProducer(

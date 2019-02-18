@@ -5,6 +5,7 @@ eV_per_eh_pair = 3.62
 fC_per_ele     = 1.6020506e-4
 nonAgedCCEs    = [1.0, 1.0, 1.0]
 nonAgedNoises  = [2100.0,2100.0,1600.0] #100,200,300 um (in electrons)
+nonAgedNoises_v9 = [2000.0,2400.0,2000.0] # 120,200,300 um (in electrons)
 thresholdTracksMIP = False
 
 HGCAL_noise_fC = cms.PSet(
@@ -304,3 +305,5 @@ phase2_hgcalV9.toModify( hgchebackDigitizer,
       geometryType      = cms.uint32(1),
       hitCollection = cms.string("HGCHitsHEback"),
 )
+phase2_hgcalV9.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in nonAgedNoises_v9])
+phase2_hgcalV9.toModify(HGCAL_noises, values = [x for x in nonAgedNoises_v9])

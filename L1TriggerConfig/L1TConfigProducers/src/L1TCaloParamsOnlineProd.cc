@@ -27,7 +27,7 @@ l1t::Mask>& );
     bool readCaloLayer2OnlineSettings(l1t::CaloParamsHelperO2O& paramsHelper, std::map<std::string, l1t::Parameter>& conf, std::map<std::string, 
 l1t::Mask>& );
 public:
-    std::shared_ptr<l1t::CaloParams> newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) override ;
+    std::unique_ptr<const l1t::CaloParams> newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) override ;
 
     L1TCaloParamsOnlineProd(const edm::ParameterSet&);
     ~L1TCaloParamsOnlineProd(void) override{}
@@ -209,8 +209,7 @@ L1TCaloParamsOnlineProd::L1TCaloParamsOnlineProd(const edm::ParameterSet& iConfi
     transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 
-std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) {
-    using namespace edm::es;
+std::unique_ptr<const l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) {
 
     const L1TCaloParamsRcd& baseRcd = record.template getRecord< L1TCaloParamsRcd >() ;
     edm::ESHandle< l1t::CaloParams > baseSettings ;
@@ -223,7 +222,7 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
             throw std::runtime_error("SummaryForFunctionManager: Calo  | Faulty  | Empty objectKey");
         else {
             edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "returning unmodified prototype of l1t::CaloParams";
-            return std::make_shared< l1t::CaloParams >( *(baseSettings.product()) ) ;
+            return std::make_unique< const l1t::CaloParams >( *(baseSettings.product()) ) ;
         }
     }
 
@@ -305,7 +304,7 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
             throw std::runtime_error(std::string("SummaryForFunctionManager: Calo  | Faulty  | ") + e.what());
         else {
             edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "returning unmodified prototype of l1t::CaloParams";
-            return std::make_shared< l1t::CaloParams >( *(baseSettings.product()) ) ;
+            return std::make_unique< const l1t::CaloParams >( *(baseSettings.product()) ) ;
         }
     }
 
@@ -352,7 +351,7 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
                 throw std::runtime_error(std::string("SummaryForFunctionManager: Calo  | Faulty  | ") + e.what());
             else {
                 edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "returning unmodified prototype of l1t::CaloParams";
-                return std::make_shared< l1t::CaloParams >( *(baseSettings.product()) ) ;
+                return std::make_unique< const l1t::CaloParams >( *(baseSettings.product()) ) ;
             }
         }
     }
@@ -387,12 +386,12 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
                 throw std::runtime_error(std::string("SummaryForFunctionManager: Calo  | Faulty  | ") + e.what());
             else {
                 edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "returning unmodified prototype of l1t::CaloParams";
-                return std::make_shared< l1t::CaloParams >( *(baseSettings.product()) ) ;
+                return std::make_unique< const l1t::CaloParams >( *(baseSettings.product()) ) ;
             }
         }
     }
     
-    std::shared_ptr< l1t::CaloParams > retval = std::make_shared< l1t::CaloParams >( m_params_helper ) ;
+    auto retval = std::make_unique< const l1t::CaloParams >( m_params_helper ) ;
     
     edm::LogInfo( "L1-O2O: L1TCaloParamsOnlineProd" ) << "SummaryForFunctionManager: Calo  | OK      | All looks good";
     return retval;

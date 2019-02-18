@@ -55,7 +55,7 @@ public:
 
 private:
   const RPCGeometry * theGeometry;
-  RPCSim* theRPCSim;
+  std::unique_ptr<RPCSim> theRPCSim;
   RPCSimSetUp * theSimSetUp;
   std::string theName;
   bool theNoise;

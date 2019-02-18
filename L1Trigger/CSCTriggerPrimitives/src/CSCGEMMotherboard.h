@@ -67,6 +67,8 @@ public:
 protected:
 
   virtual const CSCGEMMotherboardLUT* getLUT() const=0;
+  // check wether wiregroup corss strip or not. ME11 case would redefine this function
+  virtual bool doesWiregroupCrossStrip(int key_wg, int key_strip) const {return true;}
 
   // check if a GEMDetId is valid
   bool isGEMDetId(unsigned int) const;

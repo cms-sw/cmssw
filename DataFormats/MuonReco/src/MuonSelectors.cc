@@ -999,9 +999,9 @@ bool outOfTimeMuon(const reco::Muon& muon){
 }
 
 
-void muon::setCutBasedSelectorFlags(reco::Muon& muon, 
-				    const reco::Vertex* vertex,
-				    bool run2016_hip_mitigation)
+reco::Muon::Selector muon::makeSelectorBitset( reco::Muon const& muon, 
+                                               reco::Vertex const* vertex,
+                                               bool run2016_hip_mitigation )
 {
   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
   unsigned int selectors = muon.selectors();
@@ -1048,5 +1048,5 @@ void muon::setCutBasedSelectorFlags(reco::Muon& muon,
   // Timing
   if (!outOfTimeMuon(muon))     selectors |= reco::Muon::InTimeMuon;
 
-  muon.setSelectors(selectors);
+  return static_cast<reco::Muon::Selector>(selectors);
 }

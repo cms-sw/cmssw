@@ -44,10 +44,10 @@ class EcalRecHitProducer : public edm::stream::EDProducer<> {
                 bool killDeadChannels_;
 
 
-                EcalRecHitWorkerBaseClass * worker_;
-                EcalRecHitWorkerBaseClass * workerRecover_;
+                std::unique_ptr<EcalRecHitWorkerBaseClass> worker_;
+                std::unique_ptr<EcalRecHitWorkerBaseClass> workerRecover_;
 
-		EcalCleaningAlgo * cleaningAlgo_;  
+                std::unique_ptr<EcalCleaningAlgo> cleaningAlgo_;
 		
 		edm::EDGetTokenT<EBUncalibratedRecHitCollection> ebUncalibRecHitToken_;
 		edm::EDGetTokenT<EEUncalibratedRecHitCollection> eeUncalibRecHitToken_;

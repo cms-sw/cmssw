@@ -303,7 +303,10 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 	  int depth = (touchable->GetReplicaNumber(0))%10 + 1;
 	  int lay   = (touchable->GetReplicaNumber(0)/10)%100 + 1;
 	  int det   = (touchable->GetReplicaNumber(1))/1000;
-	  HcalNumberingFromDDD::HcalID tmp = numberingFromDDD_->unitID(det, hitPoint, depth, lay);
+	  HcalNumberingFromDDD::HcalID tmp = 
+	    numberingFromDDD_->unitID(det, 
+				      math::XYZVectorD(hitPoint.x(),hitPoint.y(),
+						       hitPoint.z()), depth, lay);
 	  index = HcalTestNumbering::packHcalIndex(tmp.subdet,tmp.zside,tmp.depth,tmp.etaR,tmp.phis,tmp.lay);
 	  layer = tmp.lay;
 	  if (verbosity_ > 1)

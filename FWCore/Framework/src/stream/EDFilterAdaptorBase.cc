@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -47,7 +48,7 @@ namespace edm {
     }
     
     bool
-    EDFilterAdaptorBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
+    EDFilterAdaptorBase::doEvent(EventPrincipal const& ep, EventSetupImpl const& ci,
                                  ActivityRegistry* act,
                                  ModuleCallingContext const* mcc) {
       assert(ep.streamID()<m_streamModules.size());
@@ -58,13 +59,14 @@ namespace edm {
                     &mod->previousParentage_,
                     &mod->gotBranchIDsFromAcquire_);
       EventSignalsSentry sentry(act,mcc);
+      const EventSetup c{ci};
       bool result = mod->filter(e, c);
       commit(e, &mod->previousParentageId_);
       return result;
     }
     
     void
-    EDFilterAdaptorBase::doAcquire(EventPrincipal const& ep, EventSetup const& c,
+    EDFilterAdaptorBase::doAcquire(EventPrincipal const& ep, EventSetupImpl const& ci,
                                    ActivityRegistry* act,
                                    ModuleCallingContext const* mcc,
                                    WaitingTaskWithArenaHolder& holder) {
@@ -76,6 +78,7 @@ namespace edm {
                               nullptr,
                               mod->gotBranchIDsFromAcquire_);
       EventAcquireSignalsSentry sentry(act,mcc);
+      const EventSetup c{ci};
       mod->doAcquire_(e, c, holder);
     }
 

@@ -38,7 +38,7 @@ class DTGeometry;
 
 
 //-class DTNoiseTask : public edm::EDAnalyzer {
-class DTNoiseTask : public DQMEDAnalyzer {
+class DTNoiseTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   DTNoiseTask(const edm::ParameterSet& ps);
@@ -54,6 +54,7 @@ protected:
 
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) final {}
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) override;
 
 

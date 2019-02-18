@@ -56,8 +56,7 @@ IntermediateTrajectoryCleaner::clean(IntermediateTrajectoryCleaner::TempTrajecto
     }
   }
   theTrajectories.erase(std::remove_if( theTrajectories.begin(),theTrajectories.end(),
-					std::not1(std::mem_fun_ref(&TempTrajectory::isValid))),
- //					boost::bind(&TempTrajectory::isValid,_1)), 
-			theTrajectories.end());
+                                        std::not_fn(&TempTrajectory::isValid)),
+                        theTrajectories.end());
 }
 #endif

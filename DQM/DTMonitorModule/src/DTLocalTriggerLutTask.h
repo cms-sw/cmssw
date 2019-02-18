@@ -42,7 +42,7 @@ typedef std::array<std::array<std::array<int,13>, 5 > ,6> DTArr3int;
 typedef std::array<std::array<std::array<int,15>, 5 > ,6> DTArr3bool;
 typedef std::array<std::array<std::array<const L1MuDTChambPhDigi*,15>, 5 > ,6> DTArr3Digi;
 
-class DTLocalTriggerLutTask: public DQMEDAnalyzer{
+class DTLocalTriggerLutTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 
   friend class DTMonitorModule;
 
@@ -71,6 +71,7 @@ class DTLocalTriggerLutTask: public DQMEDAnalyzer{
 
   /// To reset the MEs
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override ;
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) final {}
 
   const int wheelArrayShift = 3;
 

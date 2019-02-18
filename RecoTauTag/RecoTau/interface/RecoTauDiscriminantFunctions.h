@@ -18,7 +18,7 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include <vector>
 
-namespace reco { namespace tau { namespace disc {
+namespace reco::tau::disc {
 
 // Save typing
 typedef const PFTau& Tau;
@@ -122,5 +122,5 @@ VDouble InvariantMassOfSignalWithFiltered(Tau);
 VDouble InvariantMass(Tau);
 VDouble OutlierMass(Tau);
 
-}}} // end namespace reco::tau::disc
+} // end namespace reco::tau::disc
 #endif

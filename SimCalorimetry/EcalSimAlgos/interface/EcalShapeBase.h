@@ -48,7 +48,7 @@ class EcalShapeBase : public CaloVShape
 
       unsigned int timeIndex( double aTime ) const ;
 
-      void buildMe() ;
+      void buildMe(const edm::EventSetup* = nullptr ) ;
 
       virtual void   fillShape(float &time_interval, double &m_thresh, EcalShapeBase::DVec& aVec, const edm::EventSetup* es) const = 0 ;
       bool         m_useDBShape;
@@ -67,7 +67,6 @@ class EcalShapeBase : public CaloVShape
       unsigned int m_arraySize;
       unsigned int m_denseArraySize;   
       double m_qNSecPerBin;
-      const edm::EventSetup *m_es;
 };
   
 

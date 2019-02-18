@@ -6,7 +6,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
 //#define EDM_ML_DEBUG

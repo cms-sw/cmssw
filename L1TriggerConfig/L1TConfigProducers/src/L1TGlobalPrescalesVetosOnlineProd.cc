@@ -29,7 +29,7 @@ class L1TGlobalPrescalesVetosOnlineProd : public L1ConfigOnlineProdBaseExt<L1TGl
 private:
     bool transactionSafe;
 public:
-    std::shared_ptr<L1TGlobalPrescalesVetos> newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) override ;
+    std::unique_ptr<const L1TGlobalPrescalesVetos> newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) override ;
 
     L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet&);
     ~L1TGlobalPrescalesVetosOnlineProd(void) override{}
@@ -39,8 +39,7 @@ L1TGlobalPrescalesVetosOnlineProd::L1TGlobalPrescalesVetosOnlineProd(const edm::
     transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 
-std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) {
-    using namespace edm::es;
+std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) {
 
     edm::LogInfo( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Producing L1TGlobalPrescalesVetos with TSC:RS key = " << objectKey ;
 
@@ -49,7 +48,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
             throw std::runtime_error("SummaryForFunctionManager: uGTrs | Faulty  | Empty objectKey");
         else {
             edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-            return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
+            return std::make_unique< const L1TGlobalPrescalesVetos >( ) ;
         }
     }
 
@@ -82,7 +81,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
                 throw std::runtime_error("SummaryForFunctionManager: uGTrs | Faulty  | Broken key");
             else {
                 edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-                return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
+                return std::make_unique< const L1TGlobalPrescalesVetos >( ) ;
             }
         }
 
@@ -96,7 +95,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
                 throw std::runtime_error("SummaryForFunctionManager: uGTrs | Faulty  | Empty objectKey");
             else {
                 edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-                return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
+                return std::make_unique< const L1TGlobalPrescalesVetos >( ) ;
             }
         }
 
@@ -117,7 +116,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
                 throw std::runtime_error("SummaryForFunctionManager: uGTrs | Faulty  | Broken key");
             else {
                 edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-                return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
+                return std::make_unique< const L1TGlobalPrescalesVetos >( ) ;
             }
         }
 
@@ -163,7 +162,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
             throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
         else {
             edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-            return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
+            return std::make_unique< const L1TGlobalPrescalesVetos >( ) ;
         }
     }
 
@@ -234,7 +233,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
             throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
         else {
             edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-            return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
+            return std::make_unique< const L1TGlobalPrescalesVetos >( ) ;
         }
     }
 
@@ -289,7 +288,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
             throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
         else {
             edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-            return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
+            return std::make_unique< const L1TGlobalPrescalesVetos >( ) ;
         }
     }
 
@@ -343,7 +342,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
             throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
         else {
             edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-            return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
+            return std::make_unique< const L1TGlobalPrescalesVetos >( ) ;
         }
     }
 
@@ -376,7 +375,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
             throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
         else {
             edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-            return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
+            return std::make_unique< const L1TGlobalPrescalesVetos >( ) ;
         }
     }
 
@@ -650,8 +649,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
   data_.setTriggerMaskVeto     ( triggerVetoMasks          );
   data_.setTriggerAlgoBxMask   ( triggerAlgoBxMaskAlgoTrig );
 
-  using namespace edm::es;
-  std::shared_ptr<L1TGlobalPrescalesVetos> payload( std::make_shared<L1TGlobalPrescalesVetos>(*data_.getWriteInstance()) );
+  auto payload = std::make_unique<const L1TGlobalPrescalesVetos>(*data_.getWriteInstance());
 
   edm::LogInfo( "L1-O2O: L1TCaloParamsOnlineProd" ) << "SummaryForFunctionManager: uGTrs | OK      | All looks good";
 

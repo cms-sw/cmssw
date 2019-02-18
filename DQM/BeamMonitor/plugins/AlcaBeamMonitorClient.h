@@ -33,7 +33,6 @@ class AlcaBeamMonitorClient : public edm::EDAnalyzer {
   void analyze  	   (const edm::Event& iEvent, 	       const edm::EventSetup& iSetup) override;
   void endLuminosityBlock  (const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
   void endRun		   (const edm::Run& iRun,              const edm::EventSetup& iSetup) override;
-  void endJob		   (const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup);
   
  private:
   //                x,y,z,sigmax(y,z)... [run,lumi]          Histo name      

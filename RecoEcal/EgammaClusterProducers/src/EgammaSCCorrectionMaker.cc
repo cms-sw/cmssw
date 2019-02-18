@@ -77,36 +77,23 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   produces<reco::SuperClusterCollection>(outputCollection_);
 
   // instanciate the correction algo object
-  energyCorrector_ = new EgammaSCEnergyCorrectionAlgo(sigmaElectronicNoise_, sCAlgo_, fCorrPset);
+  energyCorrector_ = std::make_unique<EgammaSCEnergyCorrectionAlgo>(sigmaElectronicNoise_, sCAlgo_, fCorrPset);
   
   // energy correction class
   if (applyEnergyCorrection_ )
-    energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(energyCorrectorName_, ps);
+    energyCorrectionFunction_ = std::unique_ptr<EcalClusterFunctionBaseClass>(EcalClusterFunctionFactory::get()->create(energyCorrectorName_, ps));
     //energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
-  else
-    energyCorrectionFunction_=nullptr;
 
   if (applyCrackCorrection_ )
-    crackCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(crackCorrectorName_, ps);
-  else
-    crackCorrectionFunction_=nullptr;
+    crackCorrectionFunction_ = std::unique_ptr<EcalClusterFunctionBaseClass>(EcalClusterFunctionFactory::get()->create(crackCorrectorName_, ps));
 
 
   if (applyLocalContCorrection_ )
-    localContCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(localContCorrectorName_, ps);
-  else
-    localContCorrectionFunction_=nullptr;
+    localContCorrectionFunction_ = std::unique_ptr<EcalClusterFunctionBaseClass>(EcalClusterFunctionFactory::get()->create(localContCorrectorName_, ps));
 
 }
 
-EgammaSCCorrectionMaker::~EgammaSCCorrectionMaker()
-{
-  if (energyCorrectionFunction_)    delete energyCorrectionFunction_;
-  if (crackCorrectionFunction_)     delete crackCorrectionFunction_;
-  if (localContCorrectionFunction_) delete localContCorrectionFunction_;
-
-  delete energyCorrector_;
-}
+EgammaSCCorrectionMaker::~EgammaSCCorrectionMaker() = default;
 
 void
 EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
@@ -169,19 +156,19 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
       i++;
 
       if(applyEnergyCorrection_) 
-        enecorrClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p, energyCorrectionFunction_, energyCorrectorName_, modeEB_, modeEE_);
+        enecorrClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p, energyCorrectionFunction_.get(), energyCorrectorName_, modeEB_, modeEE_);
       else
 	enecorrClus=*aClus;
 
 
       if(applyCrackCorrection_)
-	crackcorrClus=energyCorrector_->applyCrackCorrection(enecorrClus,crackCorrectionFunction_);
+	crackcorrClus=energyCorrector_->applyCrackCorrection(enecorrClus,crackCorrectionFunction_.get());
       else 
 	crackcorrClus=enecorrClus;
 
       if (applyLocalContCorrection_)
 	localContCorrClus = 
-	  energyCorrector_->applyLocalContCorrection(crackcorrClus,localContCorrectionFunction_);
+	  energyCorrector_->applyLocalContCorrection(crackcorrClus,localContCorrectionFunction_.get());
       else
 	localContCorrClus = crackcorrClus;
       

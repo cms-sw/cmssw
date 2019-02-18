@@ -93,7 +93,7 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
 
     const char *classname() const override { return "Pythia8Hadronizer"; }
     
-    GenLumiInfoHeader *getGenLumiInfoHeader() const override;
+  std::unique_ptr<GenLumiInfoHeader> getGenLumiInfoHeader() const override;
     
   private:
 
@@ -944,8 +944,8 @@ void Pythia8Hadronizer::finalizeEvent()
   }
 }
 
-GenLumiInfoHeader *Pythia8Hadronizer::getGenLumiInfoHeader() const {
-  GenLumiInfoHeader *genLumiInfoHeader = BaseHadronizer::getGenLumiInfoHeader();
+std::unique_ptr<GenLumiInfoHeader> Pythia8Hadronizer::getGenLumiInfoHeader() const {
+  auto genLumiInfoHeader = BaseHadronizer::getGenLumiInfoHeader();
   
   //fill lhe headers
   //*FIXME* initrwgt header is corrupt due to pythia bug

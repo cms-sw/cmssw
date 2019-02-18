@@ -108,7 +108,7 @@ namespace edm {
     }
   }
 
-  void SecondaryProducer::processOneEvent(EventPrincipal const& eventPrincipal, Event& e) {
+  bool SecondaryProducer::processOneEvent(EventPrincipal const& eventPrincipal, Event& e) {
     typedef edmtest::ThingCollection TC;
     typedef Wrapper<TC> WTC;
 
@@ -122,8 +122,7 @@ namespace edm {
                                                     nullptr,
                                                     nullptr);
     assert(bhandle.isValid());
-    Handle<edmtest::UInt64Product> handle;
-    convert_handle<edmtest::UInt64Product>(std::move(bhandle), handle);
+    Handle<edmtest::UInt64Product> handle = convert_handle<edmtest::UInt64Product>(std::move(bhandle));
     assert(static_cast<EventNumber_t>(handle->value) == en);
 
     // Check that primary source products are retrieved from the same event as the EventAuxiliary
@@ -158,6 +157,8 @@ namespace edm {
     }
     assert (expectedEventNumber_ == en);
     ++expectedEventNumber_;
+
+    return true;
   }
 
   std::shared_ptr<VectorInputSource> SecondaryProducer::makeSecInput(ParameterSet const& ps) {

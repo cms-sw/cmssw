@@ -46,7 +46,6 @@ namespace cms {
     
     void addConstant( const std::string& name, const std::string& value, const std::string& type ) const;
     void addConstantNS( const std::string& name, const std::string& value, const std::string& type ) const;
-    void addVector( const std::string& name, const std::vector<double>& value ) const;
     
     dd4hep::Material material( const std::string& name ) const;
     dd4hep::Solid solid( const std::string& name ) const;
@@ -63,7 +62,7 @@ namespace cms {
     DDParsingContext* const context() const { return m_context; }
     DDParsingContext* setContext() { return m_context; }
     
-    const std::string& name() const {
+    std::string_view name() const {
       return m_name;
     }
    

@@ -825,7 +825,7 @@ void CalibMonitor::Loop() {
     }
     if (cSelect_ != nullptr) {
       if (exclude_) {
-	if (cSelect_->isItRBX(t_DetIds))          continue;
+	if (cSelect_->isItRBX(t_DetIds))         continue;
       } else {
 	if (!(cSelect_->isItRBX(t_ieta,t_iphi)))  continue;
       }
@@ -1269,7 +1269,7 @@ void CalibMonitor::correctEnergy(double& eHcal) {
     }
     double fac = puFactor(-corrPU_,t_ieta,pmom,eHcal,ediff);
     eHcal     *= fac;
-  } else if (corrPU_ > 1) {
+  } else if (corrPU_ > 0) {
     eHcal      = puFactorRho(corrPU_,t_ieta,t_rhoh,eHcal);
   }
 }
@@ -2671,7 +2671,7 @@ void CalibPlotProperties::correctEnergy(double& eHcal) {
     }
     double fac = puFactor(-corrPU_,t_ieta,pmom,eHcal,ediff);
     eHcal     *= fac;
-  } else if (corrPU_ > 1) {
+  } else if (corrPU_ > 0) {
     eHcal      = puFactorRho(corrPU_,t_ieta,t_rhoh,eHcal);
   }
 }

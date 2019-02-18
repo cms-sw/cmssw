@@ -4,38 +4,16 @@
  * Authors:
  *   Laurent Forthomme (laurent.forthomme@cern.ch)
  *   Nicola Minafra (nicola.minafra@cern.ch)
+ *   Mateusz Szpyrka (mateusz.szpyrka@cern.ch)
  *
  ****************************************************************************/
 
 #include "RecoCTPPS/TotemRPLocal/interface/CTPPSDiamondTrackRecognition.h"
 
-#include <cmath>
-#include <cstdio>
-#include <algorithm>
-
 //----------------------------------------------------------------------------------------------------
-
-const std::string CTPPSDiamondTrackRecognition::pixelEfficiencyDefaultFunction_ = "(x>[0]-0.5*[1])*(x<[0]+0.5*[1])";
 
 CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::ParameterSet& iConfig ) :
-  threshold_           ( iConfig.getParameter<double>( "threshold" ) ),
-  thresholdFromMaximum_( iConfig.getParameter<double>( "thresholdFromMaximum" ) ),
-  resolution_          ( iConfig.getParameter<double>( "resolution" ) ),
-  sigma_               ( iConfig.getParameter<double>( "sigma" ) ),
-  startFromX_          ( iConfig.getParameter<double>( "startFromX" ) ),
-  stopAtX_             ( iConfig.getParameter<double>( "stopAtX" ) ),
-  yPositionInitial_    ( iConfig.getParameter<double>( "yPosition" ) ),
-  yWidthInitial_       ( iConfig.getParameter<double>( "yWidth" ) ),
-  hit_f_( "hit_TF1_CTPPS", iConfig.getParameter<std::string>( "pixelEfficiencyFunction" ).c_str(), startFromX_, stopAtX_ )
-{
-  if ( sigma_ == 0. ) {
-    hit_f_ = TF1( "hit_TF1_CTPPS", pixelEfficiencyDefaultFunction_.c_str(), startFromX_, stopAtX_ ); // simple step function
-  }
-}
-
-//----------------------------------------------------------------------------------------------------
-
-CTPPSDiamondTrackRecognition::~CTPPSDiamondTrackRecognition()
+  CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>( iConfig )
 {}
 
 //----------------------------------------------------------------------------------------------------
@@ -43,12 +21,8 @@ CTPPSDiamondTrackRecognition::~CTPPSDiamondTrackRecognition()
 void
 CTPPSDiamondTrackRecognition::clear()
 {
-  hitParametersVectorMap_.clear();
+  CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>::clear();
   mhMap_.clear();
-  yPosition_ = yPositionInitial_;
-  yWidth_ = yWidthInitial_;
-  zPosition_ = zPositionInitial_;
-  zWidth_ = zWidthInitial_;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -57,19 +31,7 @@ void
 CTPPSDiamondTrackRecognition::addHit( const CTPPSDiamondRecHit& recHit )
 {
   // store hit parameters
-  hitParametersVectorMap_[recHit.getOOTIndex()].emplace_back( recHit.getX(), recHit.getXWidth() );
-
-  // check y
-  if ( yPosition_ == yPositionInitial_ && yWidth_ == yWidthInitial_ ) {
-    yPosition_ = recHit.getY();
-    yWidth_ = recHit.getYWidth();
-  }
-
-  // check z
-  if ( zPosition_ == zPositionInitial_ && zWidth_ == zWidthInitial_ ) {
-    zPosition_ = recHit.getZ();
-    zWidth_ = recHit.getZWidth();
-  }
+  hitVectorMap_[recHit.getOOTIndex()].emplace_back( recHit );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -77,62 +39,49 @@ CTPPSDiamondTrackRecognition::addHit( const CTPPSDiamondRecHit& recHit )
 int
 CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>& tracks )
 {
-  int number_of_tracks = 0;
-  const double inv_resolution = 1./resolution_;
+  int numberOfTracks = 0;
+  DimensionParameters param;
 
-  for ( auto const& oot : hitParametersVectorMap_ ) {
-    std::vector<float> hit_profile( ( stopAtX_-startFromX_ ) * inv_resolution, 0. );
-    for ( auto const& param : oot.second ) {
-      hit_f_.SetParameters( param.center, param.width, sigma_ );
-      for ( unsigned int i = 0; i < hit_profile.size(); ++i ) {
-        hit_profile[i] += hit_f_.Eval( startFromX_ + i*resolution_ );
-      }
-    }
+  auto getX = []( const CTPPSDiamondRecHit& hit ){ return hit.getX(); };
+  auto getXWidth = []( const CTPPSDiamondRecHit& hit ){ return hit.getXWidth(); };
+  auto setX = []( CTPPSDiamondLocalTrack& track, float x ){ track.setPosition( math::XYZPoint( x, 0., 0. ) ); };
+  auto setXSigma = []( CTPPSDiamondLocalTrack& track, float sigma ){ track.setPositionSigma( math::XYZPoint( sigma, 0., 0. ) ); };
 
-    float maximum = 0.;
-    bool below = true; // start below the threshold
-    int track_start_n = 0;
+  for ( const auto& hitBatch: hitVectorMap_ ) {
+    const auto& oot = hitBatch.first;
+    const auto& hits = hitBatch.second;
 
-    for ( unsigned int i = 0; i < hit_profile.size(); ++i ) {
-      if ( below && hit_profile[i] >= threshold_ ) { // going above the threshold
-        track_start_n = i;
-        maximum = 0;
-        below = false;
-      }
-      if ( !below ) {
-        if ( hit_profile[i] > maximum ) {
-          maximum = hit_profile[i];
-        }
-        if ( hit_profile[i] < threshold_ ) { // going back below the threshold
-          below = true;
+    auto hitRange = getHitSpatialRange( hits );
 
-          // go back and use new threshold
-          const float threshold = maximum - thresholdFromMaximum_;
-          for ( unsigned int j = track_start_n; j <= i; ++j ) {
-            if ( below && hit_profile[j] >= threshold ) { // going above the threshold
-              track_start_n = j;
-              below = false;
-            }
-            if ( !below && hit_profile[j] < threshold ) { // going back below the threshold
-              below = true;
+    std::vector<CTPPSDiamondLocalTrack> xPartTracks;
 
-              //store track
-              math::XYZPoint pos0_sigma( ( j-track_start_n )*resolution_*0.5, yWidth_ * 0.5, zWidth_ * 0.5 );
-              math::XYZPoint pos0( startFromX_ + track_start_n*resolution_ + pos0_sigma.X(), yPosition_, zPosition_ );
-              int mult_hits = 0;
-              if ( mhMap_.find( oot.first ) != mhMap_.end() ) mult_hits = mhMap_[oot.first];
+    // Produces tracks in x dimension
+    param.rangeBegin = hitRange.xBegin;
+    param.rangeEnd = hitRange.xEnd;
+    producePartialTracks( hits, param, getX, getXWidth, setX, setXSigma, xPartTracks );
 
-              CTPPSDiamondLocalTrack track( pos0, pos0_sigma, 0., 0., oot.first, mult_hits );
-              track.setValid( true );
-              tracks.push_back( track );
-              ++number_of_tracks;
-            }
-          }
-        }
-      }
+    if ( xPartTracks.empty() )
+      continue;
+
+    const float yRangeCenter = 0.5f*( hitRange.yBegin + hitRange.yEnd );
+    const float zRangeCenter = 0.5f*( hitRange.zBegin + hitRange.zEnd );
+    const float ySigma = 0.5f*( hitRange.yEnd - hitRange.yBegin );
+    const float zSigma = 0.5f*( hitRange.zEnd - hitRange.zBegin );
+
+    for ( const auto& xTrack: xPartTracks ) {
+      math::XYZPoint position( xTrack.getX0(), yRangeCenter, zRangeCenter );
+      math::XYZPoint positionSigma( xTrack.getX0Sigma(), ySigma, zSigma );
+
+      const int multipleHits = ( mhMap_.find(oot) != mhMap_.end() )
+        ? mhMap_[oot]
+        : 0;
+      CTPPSDiamondLocalTrack newTrack( position, positionSigma, 0.f, 0.f, oot, multipleHits );
+      newTrack.setValid( true );
+
+      tracks.push_back( newTrack );
     }
   }
 
-  return number_of_tracks;
+  return numberOfTracks;
 }
 

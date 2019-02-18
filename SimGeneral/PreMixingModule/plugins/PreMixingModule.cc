@@ -14,9 +14,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/transform.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNew.h"
@@ -26,6 +30,8 @@
 #include "SimGeneral/PreMixingModule/interface/PreMixingWorker.h"
 #include "SimGeneral/PreMixingModule/interface/PreMixingWorkerFactory.h"
 #include "PreMixingPileupCopy.h"
+
+#include <CLHEP/Random/RandomEngine.h>
 
 #include <functional>
 #include <vector>
@@ -50,18 +56,56 @@ namespace edm {
     void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
 
   private:
-    void pileWorker(const edm::EventPrincipal&, int bcr, int EventId,const edm::EventSetup& ES, ModuleCallingContext const*);
+    class AdjustPileupDistribution {
+    public:
+      AdjustPileupDistribution(const edm::ParameterSet& ps):
+        firstRun_(ps.getParameter<unsigned int>("firstRun")),
+        firstBinPileup_(ps.getParameter<unsigned int>("firstBinPileup")),
+        pileupProbabilities_(ps.getParameter<std::vector<double>>("pileupProbabilities"))
+      {
+        for(double p: pileupProbabilities_) {
+          if(p < 0. or p > 1.) {
+            throw cms::Exception("Configuration") << "Invalid probability value " << p << " for firstRun " << firstRun_ << ". The probability must be >= 0. and <= 1.";
+          }
+        }
+      }
+
+      edm::RunNumber_t firstRun() const { return firstRun_; }
+      double probability(float pileup) const {
+        unsigned int bin = static_cast<unsigned int>(pileup);
+        if(bin < firstBinPileup_ or bin >= firstBinPileup_+pileupProbabilities_.size()) {
+          edm::LogWarning("PreMixingModule") << "Got pileup event with true pileup " << pileup << " that is outside of the configured pileup adjustment bounds [" << firstBinPileup_ << ", " << firstBinPileup_+pileupProbabilities_.size()-1 << "]. Using probability 0.";
+          return 0.;
+        }
+        return pileupProbabilities_[bin-firstBinPileup_];
+      }
+
+    private:
+      edm::RunNumber_t firstRun_;
+      unsigned int firstBinPileup_;
+      std::vector<double> pileupProbabilities_;
+    };
+
+    bool pileWorker(const edm::EventPrincipal&, int bcr, int EventId,const edm::EventSetup& ES, ModuleCallingContext const*, AdjustPileupDistribution const* pileupAdjuster);
 
     PreMixingPileupCopy puWorker_;
     bool addedPileup_ = false;
 
+    std::vector<AdjustPileupDistribution> pileupAdjusters_;
     std::vector<std::unique_ptr<PreMixingWorker> > workers_;
   };
 
   PreMixingModule::PreMixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf):
     BMixingModule(ps, globalConf),
-    puWorker_(ps.getParameter<edm::ParameterSet>("workers").getParameter<edm::ParameterSet>("pileup"), *this, consumesCollector())
+    puWorker_(ps.getParameter<edm::ParameterSet>("workers").getParameter<edm::ParameterSet>("pileup"), *this, consumesCollector()),
+    pileupAdjusters_(edm::vector_transform(ps.getParameter<std::vector<edm::ParameterSet> >("adjustPileupDistribution"),
+                                           [](const auto& ps) { return AdjustPileupDistribution(ps); }))
   {  
+    std::sort(pileupAdjusters_.begin(), pileupAdjusters_.end(),
+              [](const auto& a, const auto& b) {
+                return a.firstRun() < b.firstRun();
+              });
+
     const auto& workers = ps.getParameter<edm::ParameterSet>("workers");
     std::vector<std::string> names = workers.getParameterNames();
 
@@ -129,13 +173,27 @@ namespace edm {
     addedPileup_ = false; 
   }
 
-  void PreMixingModule::pileWorker(const EventPrincipal &ep, int bcr, int eventNr, const edm::EventSetup& ES, edm::ModuleCallingContext const* mcc) {  
+  bool PreMixingModule::pileWorker(const EventPrincipal &ep, int bcr, int eventNr, const edm::EventSetup& ES, edm::ModuleCallingContext const* mcc,
+                                   AdjustPileupDistribution const* pileupAdjuster) {
     InternalContext internalContext(ep.id(), mcc);
     ParentContext parentContext(&internalContext);
     ModuleCallingContext moduleCallingContext(&moduleDescription());
     ModuleContextSentry moduleContextSentry(&moduleCallingContext, parentContext);
 
     PileUpEventPrincipal pep(ep, &moduleCallingContext, bcr);
+
+    if(pileupAdjuster) {
+      float trueNumInteractions = puWorker_.getTrueNumInteractions(pep);
+      double prob = pileupAdjuster->probability(static_cast<unsigned int>(trueNumInteractions));
+      edm::Service<edm::RandomNumberGenerator> rng;
+      CLHEP::HepRandomEngine& engine = rng->getEngine(ep.streamID());
+      if(engine.flat() > prob) {
+        // engine.flat() should give a double in ]0,1[ range
+        // the choice above means that "prob = 1-ulp" is treatead as 1
+        return false;
+      }
+    }
+
 
     LogDebug("PreMixingModule") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
 
@@ -155,6 +213,8 @@ namespace edm {
     for(auto& w: workers_) {
       w->addPileups(pep, ES);
     }
+
+    return true;
   }
   
   void PreMixingModule::doPileUp(edm::Event &e, const edm::EventSetup& ES)
@@ -166,6 +226,22 @@ namespace edm {
     TrueNumInteractions_.clear();
 
     ModuleCallingContext const* mcc = e.moduleCallingContext();
+
+    AdjustPileupDistribution const* pileupAdjuster = nullptr;
+    if(not pileupAdjusters_.empty()) {
+      // Find the adjustment settings for the run of the signal event
+      // the container should be small-enough to not really gain
+      // anything with binary search
+      auto it = std::find_if(pileupAdjusters_.rbegin(), pileupAdjusters_.rend(),
+                             [iRun=e.id().run()](const auto& elem) {
+                               return elem.firstRun() <= iRun;
+                             });
+      if(it == pileupAdjusters_.rend()) {
+        throw cms::Exception("LogicError") << "Encountered run " << e.id().run() << ", but the first run available in the pileup adjustment configuration is "
+                                           << pileupAdjusters_.front().firstRun() << ". Please fix the configuration.";
+      }
+      pileupAdjuster = &*it;
+    }
 
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
       for (unsigned int isource=0;isource<maxNbSources_;++isource) {
@@ -192,7 +268,7 @@ namespace edm {
                 e.id(),
                 recordEventID,
                 std::bind(&PreMixingModule::pileWorker, std::ref(*this),
-			  _1, bunchCrossing, _2, std::cref(ES), mcc),
+			  _1, bunchCrossing, _2, std::cref(ES), mcc, pileupAdjuster),
 		NumPU_Events,
                 e.streamID()
 			   );

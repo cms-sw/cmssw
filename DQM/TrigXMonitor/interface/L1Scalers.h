@@ -14,7 +14,10 @@
 #define MAX_LUMI_SEG 2000
 #define MAX_LUMI_BIN 400
 
-class L1Scalers : public DQMEDAnalyzer {
+namespace l1s {
+  struct Empty {};
+}
+class L1Scalers : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<l1s::Empty>> {
  public:
   L1Scalers(const edm::ParameterSet &ps);
   ~L1Scalers() override{};
@@ -22,8 +25,10 @@ class L1Scalers : public DQMEDAnalyzer {
                       edm::EventSetup const &) override;
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
   /// DQM Client Diagnostic should be performed here:
-  void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                          const edm::EventSetup &c) override;
+  std::shared_ptr<l1s::Empty>  globalBeginLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
+                                                    const edm::EventSetup &c) const final;
+  void globalEndLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
+                                const edm::EventSetup &c) override;
 
  private:
   int nev_;  // Number of events processed

@@ -20,6 +20,7 @@ class G4Event;
 class G4Track;
 class G4Step;
 class G4SteppingManager;
+class G4SteppingVerbose;
 
 class CMSSteppingVerbose 
 {
@@ -42,6 +43,7 @@ private:
 
   G4bool m_PrintEvent;
   G4bool m_PrintTrack;
+  G4bool m_smInitialized;
   G4int m_verbose;
   G4int m_nEvents;
   G4int m_nVertex;
@@ -50,6 +52,7 @@ private:
   std::vector<G4int> m_PrimaryVertex;
   std::vector<G4int> m_TrackNumbers;
   G4double m_EkinThreshold;
+  G4SteppingVerbose* m_g4SteppingVerbose;
 };
 
 #endif

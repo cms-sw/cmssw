@@ -242,8 +242,7 @@ void RunManager::initG4(const edm::EventSetup & es)
   
   std::pair< std::vector<SensitiveTkDetector*>,
     std::vector<SensitiveCaloDetector*> > sensDets = 
-    m_attach->create(*world,(*pDD),catalog_,m_p,m_trackManager.get(),
-		     m_registry);
+    m_attach->create((*pDD),catalog_,m_p,m_trackManager.get(),m_registry);
       
   m_sensTkDets.swap(sensDets.first);
   m_sensCaloDets.swap(sensDets.second);
@@ -289,7 +288,6 @@ void RunManager::initG4(const edm::EventSetup & es)
   // step limiters on top of any Physics Lists
   phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions",m_pPhysics));
 
-  m_physicsList->ResetStoredInAscii();
   std::string tableDir = m_PhysicsTablesDir;
   if (m_RestorePhysicsTables) {
     m_physicsList->SetPhysicsTableRetrieved(tableDir);

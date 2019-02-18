@@ -89,6 +89,16 @@ namespace edmtest {
     // Step D: Put outputs into event
     r.put(std::move(result), "endRun");
   }
+
+
+  void
+  ThingSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.setComment("Creates ThingCollections for testing.");
+    edm::ProducerSourceBase::fillDescription(desc);
+    descriptions.add("source", desc);
+  }
+
 }
 using edmtest::ThingSource;
 DEFINE_FWK_INPUT_SOURCE(ThingSource);

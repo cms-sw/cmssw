@@ -17,6 +17,8 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
+#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
+#include "CalibTracker/Records/interface/SiPixelFEDChannelContainerESProducerRcd.h"
 #include "boost/multi_array.hpp"
 
 typedef boost::multi_array<float, 2> array_2d;
@@ -47,6 +49,8 @@ class SiPixelQuality;
 class SiPixelDynamicInefficiency;
 class TrackerGeometry;
 class TrackerTopology;
+class SiPixelFEDChannelContainer;
+class SiPixelQualityProbabilities;
 
 class SiPixelDigitizerAlgorithm  {
  public:
@@ -81,6 +85,11 @@ class SiPixelDigitizerAlgorithm  {
   void calculateInstlumiFactor(const std::vector<PileupSummaryInfo> &ps, int bunchSpacing); // TODO: try to remove the duplication of logic...
   void setSimAccumulator(const std::map<uint32_t, std::map<int, int> >& signalMap);
   
+  std::unique_ptr<PixelFEDChannelCollection> chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine *);
+  bool killBadFEDChannels() const;
+  typedef std::unordered_map<std::string,PixelFEDChannelCollection> PixelFEDChannelCollectionMap;
+  const PixelFEDChannelCollectionMap* quality_map;
+
  private:
   
   //Accessing Lorentz angle from DB:
@@ -95,7 +104,10 @@ class SiPixelDigitizerAlgorithm  {
 
   // Get Dynamic Inefficiency scale factors from DB
   edm::ESHandle<SiPixelDynamicInefficiency> SiPixelDynamicInefficiency_;
-
+  
+  // For BadFEDChannel simulation 
+  edm::ESHandle<SiPixelQualityProbabilities> scenarioProbabilityHandle;
+  edm::ESHandle<PixelFEDChannelCollectionMap> PixelFEDChannelCollectionMapHandle;
   // Define internal classes
 
   // definition class
@@ -268,7 +280,8 @@ class SiPixelDigitizerAlgorithm  {
      enum shiftEnumerator {FPixRocIdShift = 3, BPixRocIdShift = 6};     
      static const int rocIdMaskBits = 0x1F;      
      void init_from_db(const edm::ESHandle<TrackerGeometry>&, const edm::ESHandle<SiPixelDynamicInefficiency>&);
-     bool matches(const DetId&, const DetId&, const std::vector<uint32_t >&);
+     bool matches(const DetId&, const DetId&, const std::vector<uint32_t >&);     
+     std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_;
    };
 
  //
@@ -380,9 +393,10 @@ class SiPixelDigitizerAlgorithm  {
     const bool addChargeVCALSmearing;
     const bool addNoisyPixels;
     const bool fluctuateCharge;
+    
     //-- pixel efficiency
     const bool AddPixelInefficiency;        // bool to read in inefficiencies
-
+    const bool KillBadFEDChannels;
     const bool addThresholdSmearing;
         
     //-- calibration smearing

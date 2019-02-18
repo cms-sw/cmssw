@@ -16,9 +16,9 @@ class HGCalTowerMapProcessor : public HGCalTowerMapProcessorBase
   public:
 
     HGCalTowerMapProcessor(const edm::ParameterSet& conf) :
-    HGCalTowerMapProcessorBase(conf),
-    towermap2D_( conf.getParameterSet("towermap_parameters") )
+    HGCalTowerMapProcessorBase(conf)
     {
+      towermap2D_ = std::make_unique<HGCalTowerMap2DImpl>( conf.getParameterSet("towermap_parameters") );
     }
                 
     void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle,
@@ -26,7 +26,7 @@ class HGCalTowerMapProcessor : public HGCalTowerMapProcessorBase
              const edm::EventSetup& es) override
     {
       es.get<CaloGeometryRecord>().get("", triggerGeometry_);
-      towermap2D_.eventSetup(es);
+      towermap2D_->eventSetup(es);
       
       /* create a persistent vector of pointers to the trigger-cells */
       std::vector<edm::Ptr<l1t::HGCalTriggerCell>> triggerCellsPtrs;
@@ -36,7 +36,7 @@ class HGCalTowerMapProcessor : public HGCalTowerMapProcessorBase
       }    
 
       /* call to towerMap2D clustering */
-      towermap2D_.buildTowerMap2D( triggerCellsPtrs, collTowerMap); 
+      towermap2D_->buildTowerMap2D( triggerCellsPtrs, collTowerMap); 
     }               
 
     
@@ -45,7 +45,7 @@ class HGCalTowerMapProcessor : public HGCalTowerMapProcessorBase
     edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
 
     /* algorithms instances */
-    HGCalTowerMap2DImpl towermap2D_;
+    std::unique_ptr<HGCalTowerMap2DImpl> towermap2D_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalTowerMapFactory, 

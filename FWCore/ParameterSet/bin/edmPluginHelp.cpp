@@ -104,7 +104,7 @@ namespace {
     std::unique_ptr<edm::ParameterSetDescriptionFillerBase> filler;
 
     try {
-      filler.reset(factory->create(pluginInfo.name_));
+      filler = std::unique_ptr<edm::ParameterSetDescriptionFillerBase>{factory->create(pluginInfo.name_)};
     }
     catch(cms::Exception& e) {
       os << "\nSTART ERROR FROM edmPluginHelp\n";

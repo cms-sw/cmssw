@@ -6,30 +6,20 @@
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 
 #include <algorithm>
+#include <functional>
 
-namespace reco { namespace tau { namespace disc {
+namespace reco::tau::disc {
 
 // Helper functions
 namespace {
 
-const PFCandidate& removeRef(const PFCandidatePtr& pfRef) {
-  return *pfRef;
-}
+template<class T> T const& removePtr(T const& t) { return t; }
+template<class T> T const& removePtr(edm::Ptr<T> const& t) { return *t; }
 
-const RecoTauPiZero& removeRef(const RecoTauPiZero& piZero) {
-  return piZero;
-}
-
-// Function = A PFTau member function
-template<typename Collection, typename Function>
-VDouble extract(const Collection& cands, Function func) {
-  // #define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
-  VDouble output;
-  output.reserve(cands.size());
-  for(typename Collection::const_iterator cand = cands.begin();
-      cand != cands.end(); ++cand) {
-    output.push_back(func(removeRef(*cand)));
-  }
+template<class T, class F>
+VDouble extract(std::vector<T> const& cands, F f) {
+  VDouble output( cands.size() );
+  for(auto const& x : cands) output.push_back(f(removePtr(x)));
   return output;
 }
 
@@ -204,8 +194,7 @@ VDouble Dalitz2(Tau tau) {
 }
 
 double IsolationChargedSumHard(Tau tau) {
-  VDouble isocands = extract(tau.isolationPFChargedHadrCands(),
-                             std::mem_fun_ref(&PFCandidate::pt));
+  VDouble isocands = extract(tau.isolationPFChargedHadrCands(), std::mem_fn(&PFCandidate::pt));
   double output = 0.0;
   for(double pt : isocands) {
     if (pt > 1.0)
@@ -215,8 +204,7 @@ double IsolationChargedSumHard(Tau tau) {
 }
 
 double IsolationChargedSumSoft(Tau tau) {
-  VDouble isocands = extract(tau.isolationPFChargedHadrCands(),
-                             std::mem_fun_ref(&PFCandidate::pt));
+  VDouble isocands = extract(tau.isolationPFChargedHadrCands(), std::mem_fn(&PFCandidate::pt));
   double output = 0.0;
   for(double pt : isocands) {
     if (pt < 1.0)
@@ -235,8 +223,7 @@ double IsolationChargedSumSoftRelative(Tau tau) {
 }
 
 double IsolationECALSumHard(Tau tau) {
-  VDouble isocands = extract(tau.isolationPFGammaCands(),
-                             std::mem_fun_ref(&PFCandidate::pt));
+  VDouble isocands = extract(tau.isolationPFGammaCands(), std::mem_fn(&PFCandidate::pt));
   double output = 0.0;
   for(double pt : isocands) {
     if (pt > 1.5)
@@ -246,8 +233,7 @@ double IsolationECALSumHard(Tau tau) {
 }
 
 double IsolationECALSumSoft(Tau tau) {
-  VDouble isocands = extract(tau.isolationPFGammaCands(),
-                             std::mem_fun_ref(&PFCandidate::pt));
+  VDouble isocands = extract(tau.isolationPFGammaCands(), std::mem_fn(&PFCandidate::pt));
   double output = 0.0;
   for(double pt : isocands) {
     if (pt < 1.5)
@@ -330,11 +316,11 @@ double NeutralOutlierSumPt(Tau tau) {
 
 // Quantities associated to tracks - that are not the main track
 VDouble TrackPt(Tau tau) {
-  return extract(notMainTrack(tau), std::mem_fun_ref(&PFCandidate::pt));
+  return extract(notMainTrack(tau), std::mem_fn(&PFCandidate::pt));
 }
 
 VDouble TrackEta(Tau tau) {
-  return extract(notMainTrack(tau), std::mem_fun_ref(&PFCandidate::eta));
+  return extract(notMainTrack(tau), std::mem_fn(&PFCandidate::eta));
 }
 
 VDouble TrackAngle(Tau tau) {
@@ -343,11 +329,11 @@ VDouble TrackAngle(Tau tau) {
 
 // Quantities associated to PiZeros
 VDouble PiZeroPt(Tau tau) {
-  return extract(tau.signalPiZeroCandidates(), std::mem_fun_ref(&RecoTauPiZero::pt));
+  return extract(tau.signalPiZeroCandidates(), std::mem_fn(&RecoTauPiZero::pt));
 }
 
 VDouble PiZeroEta(Tau tau) {
-  return extract(tau.signalPiZeroCandidates(), std::mem_fun_ref(&RecoTauPiZero::eta));
+  return extract(tau.signalPiZeroCandidates(), std::mem_fn(&RecoTauPiZero::eta));
 }
 
 VDouble PiZeroAngle(Tau tau) {
@@ -356,7 +342,7 @@ VDouble PiZeroAngle(Tau tau) {
 
 // Isolation quantities
 VDouble OutlierPt(Tau tau) {
-  return extract(tau.isolationPFCands(), std::mem_fun_ref(&PFCandidate::pt));
+  return extract(tau.isolationPFCands(), std::mem_fn(&PFCandidate::pt));
 }
 
 VDouble OutlierAngle(Tau tau) {
@@ -364,8 +350,7 @@ VDouble OutlierAngle(Tau tau) {
 }
 
 VDouble ChargedOutlierPt(Tau tau) {
-  return extract(tau.isolationPFChargedHadrCands(),
-                 std::mem_fun_ref(&PFCandidate::pt));
+  return extract(tau.isolationPFChargedHadrCands(), std::mem_fn(&PFCandidate::pt));
 }
 
 VDouble ChargedOutlierAngle(Tau tau) {
@@ -373,8 +358,7 @@ VDouble ChargedOutlierAngle(Tau tau) {
 }
 
 VDouble NeutralOutlierPt(Tau tau) {
-  return extract(tau.isolationPFGammaCands(),
-                 std::mem_fun_ref(&PFCandidate::pt));
+  return extract(tau.isolationPFGammaCands(), std::mem_fn(&PFCandidate::pt));
 }
 
 VDouble NeutralOutlierAngle(Tau tau) {
@@ -395,5 +379,5 @@ VDouble InvariantMassOfSignalWithFiltered(Tau tau) { return VDouble(); }
 VDouble InvariantMass(Tau tau) { return VDouble(); }
 VDouble OutlierMass(Tau tau) { return VDouble(); }
 
-}}} // end reco::tau::disc namespace
+} // end reco::tau::disc namespace
 

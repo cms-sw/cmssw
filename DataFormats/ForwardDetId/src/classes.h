@@ -11,35 +11,3 @@
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 
-namespace DataFormats_ForwardDetId {
-  struct dictionary {
-
-    //EE specific
-    HGCEEDetId anHGCEEDetId;
-
-    //HE specific
-    HGCHEDetId anHGCHEDetId;
-
-    //HGCal specific
-    HGCalDetId anHGCalDetId;
-
-    //HGCal specific (new format)
-    HGCSiliconDetId anHGCSiliconDetid;
-    HGCScintillatorDetId anHGCScintillatorDetId;
-
-    //FastTimer specific
-    FastTimeDetId anFastTimeDetId;
-
-    //MTD specific 
-    MTDDetId anMTDDetId;
-
-    //BTL specific 
-    BTLDetId aBTLDetId;
-
-    //ETL specific 
-    ETLDetId anETLDetId;
-
-    //HF Nose specific
-    HFNoseDetId aHFNoseDetId;
-  };
-}

@@ -284,7 +284,7 @@ enum CSCPart CSCUpgradeMotherboard::getCSCPart(int keystrip) const
 {
   if (theStation == 1 and (theRing ==1 or theRing == 4)){
     if (keystrip > CSCConstants::MAX_HALF_STRIP_ME1B){
-      if ( !gangedME1a_ )
+      if ( gangedME1a_ )
         return CSCPart::ME1Ag;
       else
         return CSCPart::ME1A;

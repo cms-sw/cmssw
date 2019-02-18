@@ -3487,7 +3487,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7];
+  char pagenum[15];
   TPaveLabel *title;
   Int_t nbins;
 

@@ -53,7 +53,7 @@ namespace edm {
     SerialTaskQueue* globalRunsQueue() { return &runQueue_;}
     SerialTaskQueue* globalLuminosityBlocksQueue() { return &luminosityBlockQueue_;}
   private:
-    bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+    bool doEvent(EventPrincipal const& ep, EventSetupImpl const&  c,
                  ActivityRegistry* act,
                  ModuleCallingContext const* mcc);
     //Needed by Worker but not something supported
@@ -62,13 +62,13 @@ namespace edm {
     void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
     void doEndJob();
-    bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+    bool doBeginRun(RunPrincipal const& rp, EventSetupImpl const&  c,
                     ModuleCallingContext const* mcc);
-    bool doEndRun(RunPrincipal const& rp, EventSetup const& c,
+    bool doEndRun(RunPrincipal const& rp, EventSetupImpl const&  c,
                   ModuleCallingContext const* mcc);
-    bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  c,
                                 ModuleCallingContext const* mcc);
-    bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  c,
                               ModuleCallingContext const* mcc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
