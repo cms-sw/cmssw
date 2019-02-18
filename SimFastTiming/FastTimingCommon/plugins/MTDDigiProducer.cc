@@ -18,8 +18,7 @@ MTDDigiProducer::MTDDigiProducer(edm::ParameterSet const& pset, edm::ProducerBas
   for(const auto& psname : psetNames) {
     const auto& ps = pset.getParameterSet(psname);
     const std::string& digitizerName = ps.getParameter<std::string>("digitizerName");
-    auto temp = MTDDigitizerFactory::get()->create(digitizerName,ps,iC,mixMod);
-    theDigitizers_.emplace_back(temp);
+    theDigitizers_.emplace_back(MTDDigitizerFactory::get()->create(digitizerName,ps,iC,mixMod));
   } 
 }
 

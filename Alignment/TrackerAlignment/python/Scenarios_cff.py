@@ -9,23 +9,19 @@ import copy # for deepcopy used below
 #
 # See corresponding .cff files for examples.
 #
-# Note: following scenarios updated to new hierarchy
-# with CMSSW_1_7_0 (numbers only copied, scenarios were
-# not revised): 10/100/1000 pb-1, TrackerSurveyOnly,
-# TrackerSurveyLAS
+# Note: following scenarios are and update for phase1 geometry of phase0 geometry scenarios defined in: 
+# https://github.com/cms-sw/cmssw/blob/master/Alignment/TrackerAlignment/python/Scenarios_phase0_cff.py
 #
-# Hierarchylevels not used in this update:
-# TPBHalfBarrel
-# TPBBarrel
-# TPEEndcap
-# TIBSurface
-# TIBHalfShell
-# TIBHalfBarrel
-# TIBBarrel
-# TIDSide
-# TOBBarrel
-# TECRing
-# TECEndcap
+# Updated Hierarchy levels:
+# P1PXBLadder
+# P1PXBLayer
+# P1PXBHalfBarrel
+# P1PXBBarrel
+# P1PXECPanel
+# P1PXECBlade
+# P1PXECHalfDisk
+# P1PXECHalfCylinder
+# P1PXECEndcap
 # -----------------------------------------------------------------------
 # General settings common to all scenarios
 MisalignmentScenarioSettings = cms.PSet(
@@ -86,35 +82,35 @@ shift_0006_000027 = cms.PSet(
         dZlocal = cms.double(0.006), phiZlocal = cms.double(0.00027)
 )# end of shift_0006_000027
 
-LS1BPixRepair_TPBHalfBarrel2 = cms.PSet(
-    TPBHalfBarrel2=cms.PSet(
-        TPBLayers=cms.PSet(
+LS1BPixRepair_P1PXBHalfBarrel2 = cms.PSet(
+    P1PXBHalfBarrel2=cms.PSet(
+        P1PXBLayers=cms.PSet(
             dX= cms.double(0.01),
             dY= cms.double(0.01),
             dZ= cms.double(0.02),
-            TPBLadders=cms.PSet(
+            P1PXBLadders=cms.PSet(
                 DetUnit1=cms.PSet( shift_0006_000027 ),#DetUnit1
                 DetUnit2=cms.PSet( shift_0006_000027 ),#DetUnit2
                 DetUnit3=cms.PSet( shift_0006_000027 ),#DetUnit3
                 DetUnit4=cms.PSet( shift_0006_000027 ) #DetUnit4
-            )#TPBLadders
-        )#TPBLayers
-    )#TPBHalfBarrel2
-)# end of LS1BPixRepair_TPBHalfBarrel2
+            )#P1PXBLadders
+        )#P1PXBLayers
+    )#P1PXBHalfBarrel2
+)# end of LS1BPixRepair_P1PXBHalfBarrel2
 
 LS1BPixRepairScenario = cms.PSet(
     MisalignmentScenarioSettings,
-    LS1BPixRepair_TPBHalfBarrel2
+    LS1BPixRepair_P1PXBHalfBarrel2
 )
 
 LS1BPixRepairAndTECRing7Plus133mmScenario = cms.PSet(
     TECRing7Plus133mmScenario,
-    LS1BPixRepair_TPBHalfBarrel2
+    LS1BPixRepair_P1PXBHalfBarrel2
 )
 
 LS1BPixRepairAndTECRing7Minus133mmScenario = cms.PSet(
     TECRing7Minus133mmScenario,
-    LS1BPixRepair_TPBHalfBarrel2
+    LS1BPixRepair_P1PXBHalfBarrel2
 )
 
 
@@ -132,10 +128,10 @@ shift_0050_10em06 = cms.PSet(
         dZlocal = cms.double(0.0050), phiZlocal = cms.double(10e-06)
 )# end of shift_0050_10em06
 
-TrackerCSA14_TPBHalfBarrel1 = cms.PSet(
-        TPBHalfBarrel1 = cms.PSet(
-                TPBLayer3 = cms.PSet(
-                        TPBLadder1 = cms.PSet(
+TrackerCSA14_P1PXBHalfBarrel1 = cms.PSet(
+        P1PXBHalfBarrel1 = cms.PSet(
+                P1PXBLayer3 = cms.PSet(
+                        P1PXBLadder1 = cms.PSet(
                                 DetUnit1 = cms.PSet( shift_0050_10em06 ),
                                 DetUnit2 = cms.PSet( shift_0050_10em06 ),
                                 DetUnit3 = cms.PSet( shift_0050_10em06 ),
@@ -144,32 +140,32 @@ TrackerCSA14_TPBHalfBarrel1 = cms.PSet(
                                 DetUnit6 = cms.PSet( shift_0050_10em06 ),
                                 DetUnit7 = cms.PSet( shift_0050_10em06 ),
                                 DetUnit8 = cms.PSet( shift_0050_10em06 ),
-                        ), # TPBLadder1
-                        TPBLadder3 = cms.PSet(
+                        ), # P1PXBLadder1
+                        P1PXBLadder3 = cms.PSet(
                                 DetUnit1 = cms.PSet( shift_0050_10em06 ),
                                 DetUnit2 = cms.PSet( shift_0050_10em06 ),
                                 DetUnit3 = cms.PSet( shift_0050_10em06 ),
                                 DetUnit4 = cms.PSet( shift_0050_10em06 ),
-                        ), # TPBLadder3
-                        TPBLadder9 = cms.PSet(
+                        ), # P1PXBLadder3
+                        P1PXBLadder9 = cms.PSet(
                                 DetUnit6 = cms.PSet( shift_0050_10em06 ),
                                 DetUnit7 = cms.PSet( shift_0050_10em06 ),
                                 DetUnit8 = cms.PSet( shift_0050_10em06 ),
-                        ), # TPBLadder9
-                        TPBLadder21 = cms.PSet(
+                        ), # P1PXBLadder9
+                        P1PXBLadder21 = cms.PSet(
                                 DetUnit1 = cms.PSet( shift_0050_10em06 ),
                                 DetUnit2 = cms.PSet( shift_0050_10em06 ),
                                 DetUnit3 = cms.PSet( shift_0050_10em06 )
-                        )# TPBLadder21
-                )# TPBLayer3
-        )# TPBHalfBarrel1
-)#end of TrackerCSA14_TPBHalfBarrel1
+                        )# P1PXBLadder21
+                )# P1PXBLayer3
+        )# P1PXBHalfBarrel1
+)#end of TrackerCSA14_P1PXBHalfBarrel1
 
 TrackerCSA14_BarrelsGeneralSettings = cms.PSet(
         distribution = cms.string('gaussian'), scale = cms.double(1.0), scaleError = cms.double(1.0),
-        TPBHalfBarrels = cms.PSet( distribution = cms.string('flat'), dX = cms.double(0.0005), dY = cms.double(0.0010),
+        P1PXBHalfBarrels = cms.PSet( distribution = cms.string('flat'), dX = cms.double(0.0005), dY = cms.double(0.0010),
                 dZ = cms.double(0.0050), phiX = cms.double(30e-6),
-                phiY = cms.double(30e-06), phiZ = cms.double(30e-06)),# TPBHalfBarrels
+                phiY = cms.double(30e-06), phiZ = cms.double(30e-06)),# P1PXBHalfBarrels
         DetUnits = cms.PSet( dXlocal = cms.double(0.0001), dYlocal = cms.double(0.0001),
                 dZlocal = cms.double(0.0001), phiXlocal = cms.double(0.5e-04),
                 phiYlocal = cms.double(0.5e-04), phiZlocal = cms.double(0.5e-04))# DetUnits
@@ -188,38 +184,38 @@ shift_00002_05em04 = cms.PSet(
 )# end of shift_00002_05em04
 
 TrackerCSA14_OtherThanBarrels = cms.PSet(
- TPEEndcap1 = cms.PSet(
+ P1PXECEndcap1 = cms.PSet(
     distribution = cms.string('gaussian'), scale = cms.double(1.0), scaleError = cms.double(1.0),
      dX = cms.double(0.01), dY = cms.double(0.01), dZ = cms.double(0.01),
     phiX = cms.double(10e-06), phiY = cms.double(10e-06), phiZ = cms.double(10e-06)
- ),#TPEEndcap1
- TPEEndcap2 = cms.PSet(
+ ),#P1PXECEndcap1
+ P1PXECEndcap2 = cms.PSet(
     distribution = cms.string('gaussian'), scale = cms.double(1.0), scaleError = cms.double(1.0),
-    TPEPanels = cms.PSet ( shift_0010_10em06 ), # TPEPanels
-    TPEHalfCylinder1 = cms.PSet(
-        TPEHalfDisk1 = cms.PSet(
-             TPEBlade1 = cms.PSet(
-                TPEPanel1 = cms.PSet(
+    P1PXECPanels = cms.PSet ( shift_0010_10em06 ), # P1PXECPanels
+    P1PXECHalfCylinder1 = cms.PSet(
+        P1PXECHalfDisk1 = cms.PSet(
+             P1PXECBlade1 = cms.PSet(
+                P1PXECPanel1 = cms.PSet(
                     DetUnits = cms.PSet( shift_0010_10em06 )#DetUnits
-                )# TPEPanel1
-            ), #TPEBlade1
-             TPEBlade8 = cms.PSet(
-                TPEPanel2 = cms.PSet(
+                )# P1PXECPanel1
+            ), #P1PXECBlade1
+             P1PXECBlade8 = cms.PSet(
+                P1PXECPanel2 = cms.PSet(
                     DetUnits = cms.PSet( shift_0010_10em06 ) #DetUnits
-                )# TPEPanel2
-            )#TPEBlade8
-         )#TPEHalfDisk1
-    ),#TPEHalfCylinder1
-     TPEHalfCylinder2 = cms.PSet(
-        TPEHalfDisk1 = cms.PSet(
-            TPEBlade9 = cms.PSet(
-                TPEPanel2 = cms.PSet(
+                )# P1PXECPanel2
+            )#P1PXECBlade8
+         )#P1PXECHalfDisk1
+    ),#P1PXECHalfCylinder1
+     P1PXECHalfCylinder2 = cms.PSet(
+        P1PXECHalfDisk1 = cms.PSet(
+            P1PXECBlade9 = cms.PSet(
+                P1PXECPanel2 = cms.PSet(
                     DetUnits = cms.PSet( shift_0010_10em06 ) #DetUnits
-                )# TPEPanel2
-            )#TPEBlade9
-         )#TPEHalfDisk1
-    )#TPEHalfCylinder2
- ),#TPEEndcap2
+                )# P1PXECPanel2
+            )#P1PXECBlade9
+         )#P1PXECHalfDisk1
+    )#P1PXECHalfCylinder2
+ ),#P1PXECEndcap2
  TIBHalfBarrels = cms.PSet(distribution = cms.string('gaussian'), scale = cms.double(1.0), scaleError = cms.double(1.0),
      DetUnits = cms.PSet( shift_00002_05em04 )#DetUnits
  ), # TIBHalfBarrels
@@ -239,10 +235,10 @@ TrackerCSA14_OtherThanBarrels = cms.PSet(
 TrackerCSA14Scenario = cms.PSet(
         MisalignmentScenarioSettings,
         TrackerCSA14_OtherThanBarrels,
-        TPBBarrels = cms.PSet(
+        P1PXBBarrels = cms.PSet(
                 TrackerCSA14_BarrelsGeneralSettings,
-                TrackerCSA14_TPBHalfBarrel1
-        )#TPBBarrels
+                TrackerCSA14_P1PXBHalfBarrel1
+        )#P1PXBBarrels
 )#end of TrackerCSA14Scenario
 
 #------------------------------------------------------------------------
@@ -251,11 +247,11 @@ TrackerCSA14Scenario = cms.PSet(
 TrackerCSA14AndLS1BPixRepairScenario = cms.PSet(
         MisalignmentScenarioSettings,
         TrackerCSA14_OtherThanBarrels,
-        TPBBarrels = cms.PSet(
+        P1PXBBarrels = cms.PSet(
                 TrackerCSA14_BarrelsGeneralSettings,
-                TrackerCSA14_TPBHalfBarrel1,
-                LS1BPixRepair_TPBHalfBarrel2
-        )#TPBBarrels
+                TrackerCSA14_P1PXBHalfBarrel1,
+                LS1BPixRepair_P1PXBHalfBarrel2
+        )#P1PXBBarrels
 )#end of TrackerCSA14AndLS1BPixRepairScenario
 
 
@@ -348,7 +344,7 @@ Tracker10pbScenario = cms.PSet(
             phiYlocal = cms.double(6.5e-05)
         )
     ),
-    TPBHalfBarrels = cms.PSet(
+    P1PXBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         DetUnits = cms.PSet(
             dZlocal = cms.double(0.006),
@@ -359,7 +355,7 @@ Tracker10pbScenario = cms.PSet(
             dXlocal = cms.double(0.006),
             phiYlocal = cms.double(0.00027)
         ),
-        TPBLayers = cms.PSet(
+        P1PXBLayers = cms.PSet(
             phiXlocal = cms.double(7e-06),
             phiZlocal = cms.double(7e-06),
             dZ = cms.double(0.001),
@@ -369,7 +365,7 @@ Tracker10pbScenario = cms.PSet(
             phiYlocal = cms.double(7e-06)
         ),
         scaleError = cms.double(1.0),
-        TPBLadders = cms.PSet(
+        P1PXBLadders = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(7e-06),
             dYlocal = cms.double(0.001),
@@ -478,8 +474,8 @@ Tracker10pbScenario = cms.PSet(
             )
         )
     ),
-    TPEEndcaps = cms.PSet(
-        TPEPanels = cms.PSet(
+    P1PXECEndcaps = cms.PSet(
+        P1PXECPanels = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(0.0002),
             dYlocal = cms.double(0.001),
@@ -489,7 +485,7 @@ Tracker10pbScenario = cms.PSet(
         ),
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
-        TPEHalfDisks = cms.PSet(
+        P1PXECHalfDisks = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(1.5e-05),
             dYlocal = cms.double(0.001),
@@ -505,7 +501,7 @@ Tracker10pbScenario = cms.PSet(
             dXlocal = cms.double(0.0005),
             phiYlocal = cms.double(0.0001)
         ),
-        TPEBlades = cms.PSet(
+        P1PXECBlades = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(1.5e-05),
             dYlocal = cms.double(0.001),
@@ -624,7 +620,7 @@ Tracker100pbScenario = cms.PSet(
             phiYlocal = cms.double(2e-05)
         )
     ),
-    TPBHalfBarrels = cms.PSet(
+    P1PXBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         DetUnits = cms.PSet(
             dZlocal = cms.double(0.001),
@@ -635,7 +631,7 @@ Tracker100pbScenario = cms.PSet(
             dXlocal = cms.double(0.001),
             phiYlocal = cms.double(4.5e-05)
         ),
-        TPBLayers = cms.PSet(
+        P1PXBLayers = cms.PSet(
             phiXlocal = cms.double(3e-06),
             phiZlocal = cms.double(3e-06),
             dZ = cms.double(0.0005),
@@ -645,7 +641,7 @@ Tracker100pbScenario = cms.PSet(
             phiYlocal = cms.double(3e-06)
         ),
         scaleError = cms.double(1.0),
-        TPBLadders = cms.PSet(
+        P1PXBLadders = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(7e-06),
             dYlocal = cms.double(0.001),
@@ -755,8 +751,8 @@ Tracker100pbScenario = cms.PSet(
             )
         )
     ),
-    TPEEndcaps = cms.PSet(
-        TPEPanels = cms.PSet(
+    P1PXECEndcaps = cms.PSet(
+        P1PXECPanels = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(2.2e-05),
             dYlocal = cms.double(0.001),
@@ -766,7 +762,7 @@ Tracker100pbScenario = cms.PSet(
         ),
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
-        TPEHalfDisks = cms.PSet(
+        P1PXECHalfDisks = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(1.5e-05),
             dYlocal = cms.double(0.001),
@@ -782,7 +778,7 @@ Tracker100pbScenario = cms.PSet(
             dXlocal = cms.double(0.0005),
             phiYlocal = cms.double(1.1e-05)
         ),
-        TPEBlades = cms.PSet(
+        P1PXECBlades = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(1.5e-05),
             dYlocal = cms.double(0.001),
@@ -902,7 +898,7 @@ Tracker1000pbScenario = cms.PSet(
             phiYlocal = cms.double(5e-06)
         )
     ),
-    TPBHalfBarrels = cms.PSet(
+    P1PXBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         DetUnits = cms.PSet(
             dZlocal = cms.double(0.0005),
@@ -913,7 +909,7 @@ Tracker1000pbScenario = cms.PSet(
             dXlocal = cms.double(0.0005),
             phiYlocal = cms.double(2.2e-05)
         ),
-        TPBLayers = cms.PSet(
+        P1PXBLayers = cms.PSet(
             phiXlocal = cms.double(3e-06),
             phiZlocal = cms.double(3e-06),
             dZ = cms.double(0.0005),
@@ -923,7 +919,7 @@ Tracker1000pbScenario = cms.PSet(
             phiYlocal = cms.double(3e-06)
         ),
         scaleError = cms.double(1.0),
-        TPBLadders = cms.PSet(
+        P1PXBLadders = cms.PSet(
             dZlocal = cms.double(0.0005),
             phiXlocal = cms.double(3e-06),
             dYlocal = cms.double(0.0005),
@@ -1032,8 +1028,8 @@ Tracker1000pbScenario = cms.PSet(
             )
         )
     ),
-    TPEEndcaps = cms.PSet(
-        TPEPanels = cms.PSet(
+    P1PXECEndcaps = cms.PSet(
+        P1PXECPanels = cms.PSet(
             dZlocal = cms.double(0.0005),
             phiXlocal = cms.double(1.1e-05),
             dYlocal = cms.double(0.0005),
@@ -1043,7 +1039,7 @@ Tracker1000pbScenario = cms.PSet(
         ),
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
-        TPEHalfDisks = cms.PSet(
+        P1PXECHalfDisks = cms.PSet(
             dZlocal = cms.double(0.0005),
             phiXlocal = cms.double(7e-06),
             dYlocal = cms.double(0.0005),
@@ -1059,7 +1055,7 @@ Tracker1000pbScenario = cms.PSet(
             dXlocal = cms.double(0.0005),
             phiYlocal = cms.double(1.1e-05)
         ),
-        TPEBlades = cms.PSet(
+        P1PXECBlades = cms.PSet(
             dZlocal = cms.double(0.0005),
             phiXlocal = cms.double(7e-06),
             dYlocal = cms.double(0.0005),
@@ -1179,7 +1175,7 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             phiYlocal = cms.double(0.000293)
         )
     ),
-    TPBHalfBarrels = cms.PSet(
+    P1PXBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         DetUnits = cms.PSet(
             dZlocal = cms.double(0.006),
@@ -1190,7 +1186,7 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             dXlocal = cms.double(0.006),
             phiYlocal = cms.double(0.00027)
         ),
-        TPBLayers = cms.PSet(
+        P1PXBLayers = cms.PSet(
             phiXlocal = cms.double(1e-05),
             phiZlocal = cms.double(1e-05),
             dZ = cms.double(0.0337),
@@ -1200,7 +1196,7 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             phiYlocal = cms.double(1e-05)
         ),
         scaleError = cms.double(1.0),
-        TPBLadders = cms.PSet(
+        P1PXBLadders = cms.PSet(
             dZlocal = cms.double(0.005),
             phiXlocal = cms.double(2e-05),
             dYlocal = cms.double(0.005),
@@ -1309,8 +1305,8 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             )
         )
     ),
-    TPEEndcaps = cms.PSet(
-        TPEPanels = cms.PSet(
+    P1PXECEndcaps = cms.PSet(
+        P1PXECPanels = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(0.0002),
             dYlocal = cms.double(0.001),
@@ -1320,7 +1316,7 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
         ),
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
-        TPEHalfDisks = cms.PSet(
+        P1PXECHalfDisks = cms.PSet(
             dZlocal = cms.double(0.005),
             phiXlocal = cms.double(0.001),
             dYlocal = cms.double(0.005),
@@ -1328,7 +1324,7 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             dXlocal = cms.double(0.005),
             phiYlocal = cms.double(0.001)
         ),
-        TPEHalfCylinders = cms.PSet(
+        P1PXECHalfCylinders = cms.PSet(
             dZlocal = cms.double(0.005),
             phiXlocal = cms.double(0.001),
             dYlocal = cms.double(0.005),
@@ -1344,7 +1340,7 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             dXlocal = cms.double(0.0005),
             phiYlocal = cms.double(0.0001)
         ),
-        TPEBlades = cms.PSet(
+        P1PXECBlades = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(0.0002),
             dYlocal = cms.double(0.001),
@@ -1494,7 +1490,7 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             phiYlocal = cms.double(0.000179)
         )
     ),
-    TPBHalfBarrels = cms.PSet(
+    P1PXBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         DetUnits = cms.PSet(
             dZlocal = cms.double(0.006),
@@ -1505,7 +1501,7 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             dXlocal = cms.double(0.006),
             phiYlocal = cms.double(0.00027)
         ),
-        TPBLayers = cms.PSet(
+        P1PXBLayers = cms.PSet(
             phiXlocal = cms.double(9e-06),
             phiZlocal = cms.double(9e-06),
             dZ = cms.double(0.0174),
@@ -1515,7 +1511,7 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             phiYlocal = cms.double(9e-06)
         ),
         scaleError = cms.double(1.0),
-        TPBLadders = cms.PSet(
+        P1PXBLadders = cms.PSet(
             dZlocal = cms.double(0.002),
             phiXlocal = cms.double(9e-06),
             dYlocal = cms.double(0.002),
@@ -1624,8 +1620,8 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             )
         )
     ),
-    TPEEndcaps = cms.PSet(
-        TPEPanels = cms.PSet(
+    P1PXECEndcaps = cms.PSet(
+        P1PXECPanels = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(0.0002),
             dYlocal = cms.double(0.001),
@@ -1635,7 +1631,7 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
         ),
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
-        TPEHalfDisks = cms.PSet(
+        P1PXECHalfDisks = cms.PSet(
             dZlocal = cms.double(0.005),
             phiXlocal = cms.double(0.001),
             dYlocal = cms.double(0.005),
@@ -1643,7 +1639,7 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             dXlocal = cms.double(0.005),
             phiYlocal = cms.double(0.001)
         ),
-        TPEHalfCylinders = cms.PSet(
+        P1PXECHalfCylinders = cms.PSet(
             dZlocal = cms.double(0.005),
             phiXlocal = cms.double(0.001),
             dYlocal = cms.double(0.005),
@@ -1659,7 +1655,7 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             dXlocal = cms.double(0.0005),
             phiYlocal = cms.double(0.0001)
         ),
-        TPEBlades = cms.PSet(
+        P1PXECBlades = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(0.0002),
             dYlocal = cms.double(0.001),
@@ -1830,8 +1826,8 @@ TrackerNoKnowledgeScenario = cms.PSet(
             phiYlocal = cms.double(0.0002)
         )
     ),
-    TPBHalfBarrels = cms.PSet(
-        TPBHalfBarrels = cms.PSet( # FIXME??
+    P1PXBHalfBarrels = cms.PSet(
+        P1PXBHalfBarrels = cms.PSet( # FIXME??
             phiXlocal = cms.double(0.0008),
             phiZlocal = cms.double(0.0008),
             dZ = cms.double(0.05),
@@ -1842,7 +1838,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
         ),
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
-        TPBLadders = cms.PSet(
+        P1PXBLadders = cms.PSet(
             dZlocal = cms.double(0.005),
             phiXlocal = cms.double(0.0002),
             dYlocal = cms.double(0.01),
@@ -1860,7 +1856,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
             dXlocal = cms.double(0.006),
             phiYlocal = cms.double(0.001)
         ),
-        TPBLayers = cms.PSet(
+        P1PXBLayers = cms.PSet(
             phiXlocal = cms.double(0.0004),
             phiZlocal = cms.double(0.0004),
             dZ = cms.double(0.02),
@@ -1869,7 +1865,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
             distribution = cms.string('gaussian'),
             phiYlocal = cms.double(0.0004)
         ),
-        TPBBarrels = cms.PSet( # FIXME??
+        P1PXBBarrels = cms.PSet( # FIXME??
             phiXlocal = cms.double(0.003),
             phiZlocal = cms.double(0.003),
             dZ = cms.double(0.1),
@@ -1997,8 +1993,8 @@ TrackerNoKnowledgeScenario = cms.PSet(
         ),
         distribution = cms.string('gaussian')
     ),
-    TPEEndcaps = cms.PSet(
-        TPEPanels = cms.PSet(
+    P1PXECEndcaps = cms.PSet(
+        P1PXECPanels = cms.PSet(
             dZlocal = cms.double(0.005),
             phiXlocal = cms.double(0.002),
             dYlocal = cms.double(0.01),
@@ -2008,7 +2004,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
         ),
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
-        TPEHalfDisks = cms.PSet(
+        P1PXECHalfDisks = cms.PSet(
             dZlocal = cms.double(0.02),
             phiXlocal = cms.double(0.001),
             dYlocal = cms.double(0.02),
@@ -2016,7 +2012,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
             dXlocal = cms.double(0.02),
             phiYlocal = cms.double(0.001)
         ),
-        TPEEndcaps = cms.PSet( # FIXME??
+        P1PXECEndcaps = cms.PSet( # FIXME??
             dZlocal = cms.double(0.1),
             phiXlocal = cms.double(0.0017),
             dYlocal = cms.double(0.1),
@@ -2024,7 +2020,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
             dXlocal = cms.double(0.1),
             phiYlocal = cms.double(0.0017)
         ),
-        TPEHalfCylinders = cms.PSet(
+        P1PXECHalfCylinders = cms.PSet(
             dZlocal = cms.double(0.05),
             phiXlocal = cms.double(0.0004),
             dYlocal = cms.double(0.05),
@@ -2040,7 +2036,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
             dXlocal = cms.double(0.005),
             phiYlocal = cms.double(0.001)
         ),
-        TPEBlades = cms.PSet(
+        P1PXECBlades = cms.PSet(
             dZlocal = cms.double(0.01),
             phiXlocal = cms.double(0.001),
             dYlocal = cms.double(0.01),
@@ -2125,16 +2121,16 @@ TrackerNoKnowledgeScenario = cms.PSet(
 TrackerCRAFTScenario = copy.deepcopy(Tracker10pbScenario)
 TrackerCRAFTScenario.TIBHalfBarrels = copy.deepcopy(Tracker100pbScenario.TIBHalfBarrels)
 TrackerCRAFTScenario.TOBHalfBarrels = copy.deepcopy(Tracker100pbScenario.TOBHalfBarrels)
-TrackerCRAFTScenario.TPEEndcaps = copy.deepcopy(TrackerSurveyLASOnlyScenario.TPEEndcaps)
+TrackerCRAFTScenario.P1PXECEndcaps = copy.deepcopy(TrackerSurveyLASOnlyScenario.P1PXECEndcaps)
 
 # -----------------------------------------------------------------------
 # Pixel Tracker Only z Shifts and Rotations
 # ----------------------------------------------------------------------
 PixelTrackerOnlyZShift = cms.PSet(MisalignmentScenarioSettings,
-                                  TPBHalfBarrel1 = cms.PSet(distribution = cms.string('fixed'),
+                                  P1PXBHalfBarrel1 = cms.PSet(distribution = cms.string('fixed'),
                                                             DetUnits = cms.PSet(dZ = cms.double(0.0015))
                                                             ),
-                                  TPBHalfBarrel2 = cms.PSet(distribution = cms.string('fixed'),
+                                  P1PXBHalfBarrel2 = cms.PSet(distribution = cms.string('fixed'),
                                                             DetUnits = cms.PSet(dZ = cms.double(-0.0015))
                                                             )
                                   )
@@ -2143,7 +2139,7 @@ PixelTrackerOnlyZShift = cms.PSet(MisalignmentScenarioSettings,
 # Pixel Tracker Fixed Shifts and Rotations
 # ----------------------------------------------------------------------
 PixelTrackerFixedShiftsAndRotations = cms.PSet(MisalignmentScenarioSettings,
-                                          TPBHalfBarrel1 = cms.PSet(distribution = cms.string('fixed'),
+                                          P1PXBHalfBarrel1 = cms.PSet(distribution = cms.string('fixed'),
                                                                     DetUnits = cms.PSet(dX = cms.double(0.0005),
                                                                                         dY = cms.double(0.0010),
                                                                                         dZ = cms.double(0.0015),
@@ -2152,7 +2148,7 @@ PixelTrackerFixedShiftsAndRotations = cms.PSet(MisalignmentScenarioSettings,
                                                                                         phiZ = cms.double(30e-06)
                                                                                         )
                                                                     ),
-                                          TPBHalfBarrel2 = cms.PSet(distribution = cms.string('fixed'),
+                                          P1PXBHalfBarrel2 = cms.PSet(distribution = cms.string('fixed'),
                                                                     DetUnits = cms.PSet(dX = cms.double(-0.0005),
                                                                                         dY = cms.double(-0.0010),
                                                                                         dZ = cms.double(-0.0015),
@@ -2169,10 +2165,10 @@ PixelTrackerFixedShiftsAndRotations = cms.PSet(MisalignmentScenarioSettings,
 # ----------------------------------------------------------------------
 
 PixelTrackerDicedShiftsAndRotations = cms.PSet(MisalignmentScenarioSettings,
-                                               TPBBarrels = cms.PSet(distribution = cms.string('gaussian'),
+                                               P1PXBBarrels = cms.PSet(distribution = cms.string('gaussian'),
                                                                      scale = cms.double(1.0),
                                                                      scaleError = cms.double(1.0),
-                                                                     TPBHalfBarrels = cms.PSet(distribution = cms.string('flat'),
+                                                                     P1PXBHalfBarrels = cms.PSet(distribution = cms.string('flat'),
                                                                                                dX = cms.double(0.0005),
                                                                                                dY = cms.double(0.0010),
                                                                                                dZ = cms.double(0.0015),
@@ -2189,7 +2185,7 @@ MisalignmentScenario_5mu = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.05),
       dYlocal = cms.double(0.05),
@@ -2208,7 +2204,7 @@ MisalignmentScenario_5mu = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.05),
       dYlocal = cms.double(0.05),
@@ -2232,7 +2228,7 @@ MisalignmentScenario_10mu = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.1),
       dYlocal = cms.double(0.1),
@@ -2251,7 +2247,7 @@ MisalignmentScenario_10mu = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.1),
       dYlocal = cms.double(0.1),
@@ -2275,7 +2271,7 @@ MisalignmentScenario_15mu = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.15),
       dYlocal = cms.double(0.15),
@@ -2294,7 +2290,7 @@ MisalignmentScenario_15mu = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.15),
       dYlocal = cms.double(0.15),
@@ -2318,7 +2314,7 @@ MisalignmentScenario_20mu = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.2),
       dYlocal = cms.double(0.2),
@@ -2337,7 +2333,7 @@ MisalignmentScenario_20mu = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.2),
       dYlocal = cms.double(0.2),
@@ -2361,7 +2357,7 @@ MisalignmentScenario_20muGlobalX = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dX = cms.double(0.2),
     ),
@@ -2379,7 +2375,7 @@ MisalignmentScenario_20muGlobalX = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dX = cms.double(0.2),
     ),
@@ -2402,7 +2398,7 @@ MisalignmentScenario_20muLocalX = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.2),
     ),
@@ -2420,7 +2416,7 @@ MisalignmentScenario_20muLocalX = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.2),
     ),
@@ -2442,7 +2438,7 @@ MisalignmentScenario_20muLocalX = MisalignmentScenarioSettings.clone(
 MisalignmentScenario_20muGlobalY = MisalignmentScenarioSettings.clone(
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dY = cms.double(0.2),
     ),
@@ -2460,7 +2456,7 @@ MisalignmentScenario_20muGlobalY = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dY = cms.double(0.2),
     ),
@@ -2483,7 +2479,7 @@ MisalignmentScenario_20muLocalY = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dYlocal = cms.double(0.2),
     ),
@@ -2501,7 +2497,7 @@ MisalignmentScenario_20muLocalY = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dYlocal = cms.double(0.2),
     ),
@@ -2524,7 +2520,7 @@ MisalignmentScenario_20muGlobalZ = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dZ = cms.double(0.2),
     ),
@@ -2542,7 +2538,7 @@ MisalignmentScenario_20muGlobalZ = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dZ = cms.double(0.2),
     ),
@@ -2565,7 +2561,7 @@ MisalignmentScenario_20muLocalZ = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(0.2),
     ),
@@ -2583,7 +2579,7 @@ MisalignmentScenario_20muLocalZ = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(0.2),
     ),
@@ -2605,7 +2601,7 @@ MisalignmentScenario_20muLocalZ = MisalignmentScenarioSettings.clone(
 MisalignmentScenario_20muGlobalXY = MisalignmentScenarioSettings.clone(
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dX = cms.double(0.2),
       dY = cms.double(0.2),
@@ -2626,7 +2622,7 @@ MisalignmentScenario_20muGlobalXY = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dX = cms.double(0.2),
       dY = cms.double(0.2),
@@ -2652,7 +2648,7 @@ MisalignmentScenario_20muLocalXY = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.2),
       dYlocal = cms.double(0.2),
@@ -2673,7 +2669,7 @@ MisalignmentScenario_20muLocalXY = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.2),
       dYlocal = cms.double(0.2),
@@ -2699,7 +2695,7 @@ MisalignmentScenario_20muGlobalXYZ = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dX = cms.double(0.2),
       dY = cms.double(0.2),
@@ -2723,7 +2719,7 @@ MisalignmentScenario_20muGlobalXYZ = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dX = cms.double(0.2),
       dY = cms.double(0.2),
@@ -2752,7 +2748,7 @@ MisalignmentScenario_20muLocalXYZ = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.2),
       dYlocal = cms.double(0.2),
@@ -2776,7 +2772,7 @@ MisalignmentScenario_20muLocalXYZ = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.2),
       dYlocal = cms.double(0.2),
@@ -2805,7 +2801,7 @@ MisalignmentScenario_BPIX20muGlobalX = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dX = cms.double(0.2),
     ),
@@ -2816,7 +2812,7 @@ MisalignmentScenario_BPIX20muGlobalY = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dY = cms.double(0.2),
     ),
@@ -2827,7 +2823,7 @@ MisalignmentScenario_BPIX20muGlobalZ = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dZ = cms.double(0.2),
     ),
@@ -2838,7 +2834,7 @@ MisalignmentScenario_BPIX20muLocalX = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.2),
     ),
@@ -2849,7 +2845,7 @@ MisalignmentScenario_BPIX20muLocalY = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dYlocal = cms.double(0.2),
     ),
@@ -2860,7 +2856,7 @@ MisalignmentScenario_BPIX20muLocalZ = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(0.2),
     ),
@@ -2871,7 +2867,7 @@ MisalignmentScenario_NonMisalignedBPIX = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       #~ dYLocal = cms.double(0.1),
     ),
@@ -2893,7 +2889,7 @@ MisalignmentScenario_NonMisalignedBPIX = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.25),
       dYlocal = cms.double(0.25),
@@ -2922,7 +2918,7 @@ MisalignmentScenarioDifferentSubdetectors = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       #~ dYLocal = cms.double(0.1),
     ),
@@ -2941,7 +2937,7 @@ MisalignmentScenarioDifferentSubdetectors = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(0.4),
     ),
@@ -2966,7 +2962,7 @@ MisalignmentScenarioDifferentSubdetectorsLarge = MisalignmentScenarioSettings.cl
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       #~ dYLocal = cms.double(0.1),
     ),
@@ -2985,7 +2981,7 @@ MisalignmentScenarioDifferentSubdetectorsLarge = MisalignmentScenarioSettings.cl
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(0.4),
     ),
@@ -3010,7 +3006,7 @@ MisalignmentScenarioDifferentSubdetectorsLocal = MisalignmentScenarioSettings.cl
   setError = cms.bool(False),
   #~ scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dYlocal = cms.double(0.001),
     ),
@@ -3028,7 +3024,7 @@ MisalignmentScenarioDifferentSubdetectorsLocal = MisalignmentScenarioSettings.cl
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dXlocal = cms.double(0.002),
     ),
@@ -3051,7 +3047,7 @@ MisalignmentScenario10Mu = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dYlocal = cms.double(0.1),
       dXlocal = cms.double(0.1),
@@ -3072,7 +3068,7 @@ MisalignmentScenario10Mu = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dYlocal = cms.double(0.1),
       dXlocal = cms.double(0.1),
@@ -3098,7 +3094,7 @@ MisalignmentScenario100Mu = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(1),
       dYlocal = cms.double(1),
@@ -3122,7 +3118,7 @@ MisalignmentScenario100Mu = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(1),
       dYlocal = cms.double(1),
@@ -3152,7 +3148,7 @@ MisalignmentScenario200Mu = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01),# shifts in 100mum
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(2),
       dYlocal = cms.double(2),
@@ -3176,7 +3172,7 @@ MisalignmentScenario200Mu = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(2),
       dYlocal = cms.double(2),
@@ -3206,7 +3202,7 @@ MisalignmentScenario300Mu = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01),# shifts in 100mum
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(3),
       dYlocal = cms.double(3),
@@ -3230,7 +3226,7 @@ MisalignmentScenario300Mu = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(3),
       dYlocal = cms.double(3),
@@ -3261,7 +3257,7 @@ MisalignmentScenarioBPIX100Mu = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01),# shifts in 100mum
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(1),
       dYlocal = cms.double(1),
@@ -3271,11 +3267,11 @@ MisalignmentScenarioBPIX100Mu = MisalignmentScenarioSettings.clone(
 )
 
 
-MisalignedTPB = MisalignmentScenarioSettings.clone(
+MisalignedP1PXB = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(1),
       dYlocal = cms.double(1),
@@ -3284,11 +3280,11 @@ MisalignedTPB = MisalignmentScenarioSettings.clone(
   )
 )
 
-MisalignedTPE = MisalignmentScenarioSettings.clone(
+MisalignedP1PXEC = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(1),
       dYlocal = cms.double(1),
@@ -3363,7 +3359,7 @@ MisalignmentAPEScenarioBase = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.0001), # shifts in 1um
 
-  TPBHalfBarrels = cms.PSet(
+  P1PXBHalfBarrels = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(20),
       dYlocal = cms.double(10),
@@ -3387,7 +3383,7 @@ MisalignmentAPEScenarioBase = MisalignmentScenarioSettings.clone(
     ),
   ),
 
-  TPEEndcaps = cms.PSet(
+  P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
       dZlocal = cms.double(20),
       dYlocal = cms.double(20),
@@ -3445,3 +3441,4 @@ MisalignmentScenario_PhaseI_PseudoAsymptotic = MisalignmentScenarioSettings.clon
     ),
   ),
 )
+

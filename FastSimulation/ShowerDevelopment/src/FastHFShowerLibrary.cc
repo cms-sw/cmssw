@@ -122,7 +122,9 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
       int det = 5;
       int lay = 1;
       uint32_t id = 0;
-      HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det, pos, depth, lay);
+      HcalNumberingFromDDD::HcalID tmp = 
+	numberingFromDDD->unitID(det, math::XYZVectorD(pos.x(),pos.y(),
+						       pos.z()), depth, lay);
       modifyDepth(tmp);
       id = numberingScheme.getUnitID(tmp);
 

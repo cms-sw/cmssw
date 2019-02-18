@@ -33,7 +33,10 @@ using namespace std;
 /* ====================================================================== */
 
 /// Constructor
-DTRecSegment2DProducer::DTRecSegment2DProducer(const edm::ParameterSet& pset) {
+DTRecSegment2DProducer::DTRecSegment2DProducer(const edm::ParameterSet& pset):
+  theAlgo{DTRecSegment2DAlgoFactory::get()->create(pset.getParameter<string>("Reco2DAlgoName"),
+                                                   pset.getParameter<ParameterSet>("Reco2DAlgoConfig"))}
+ {
   // Set verbose output
   debug = pset.getUntrackedParameter<bool>("debug"); 
 
@@ -46,17 +49,13 @@ DTRecSegment2DProducer::DTRecSegment2DProducer(const edm::ParameterSet& pset) {
   produces<DTRecSegment2DCollection>();
 
   // Get the concrete reconstruction algo from the factory
-  string theAlgoName = pset.getParameter<string>("Reco2DAlgoName");
-  if(debug) cout << "the Reco2D AlgoName is " << theAlgoName << endl;
-  theAlgo = DTRecSegment2DAlgoFactory::get()->create(theAlgoName,
-                                                     pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+  if(debug) cout << "the Reco2D AlgoName is " << pset.getParameter<string>("Reco2DAlgoName") << endl;
 }
 
 /// Destructor
 DTRecSegment2DProducer::~DTRecSegment2DProducer() {
   if(debug)
     cout << "[DTRecSegment2DProducer] Destructor called" << endl;
-  delete theAlgo;
 }
 
 /* Operations */ 

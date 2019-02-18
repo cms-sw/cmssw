@@ -289,6 +289,92 @@ namespace edm {
 
     typedef std::vector<std::string> vstring;
 
+    void processSwitchProducers(ParameterSet const& proc_pset, std::string const& processName, ProductRegistry& preg) {
+      // Update Switch BranchDescriptions for the chosen case
+      struct BranchesCases {
+        BranchesCases(std::vector<std::string> cases): caseLabels{std::move(cases)} {}
+        std::vector<BranchKey> chosenBranches;
+        std::vector<std::string> caseLabels;
+      };
+      std::map<std::string, BranchesCases> switchMap;
+      for(auto& prod: preg.productListUpdator()) {
+        if(prod.second.isSwitchAlias()) {
+          auto it = switchMap.find(prod.second.moduleLabel());
+          if(it == switchMap.end())  {
+            auto const& switchPSet = proc_pset.getParameter<edm::ParameterSet>(prod.second.moduleLabel());
+            auto inserted = switchMap.emplace(prod.second.moduleLabel(), switchPSet.getParameter<std::vector<std::string>>("@all_cases"));
+            assert(inserted.second);
+            it = inserted.first;
+          }
+
+          for(auto const& item: preg.productList()) {
+            if(item.second.branchType() == prod.second.branchType() and
+               item.second.unwrappedTypeID().typeInfo() == prod.second.unwrappedTypeID().typeInfo() and
+               item.first.moduleLabel() == prod.second.switchAliasModuleLabel() and
+               item.first.productInstanceName() == prod.second.productInstanceName()
+               ) {
+              if(item.first.processName() != processName) {
+                throw Exception(errors::LogicError)
+                  << "Encountered a BranchDescription that is aliased-for by SwitchProducer, and whose processName " << item.first.processName() << " differs from current process " << processName
+                  << ". Module label is " << item.first.moduleLabel() << ".\nPlease contact a framework developer.";
+              }
+              prod.second.setSwitchAliasForBranch(item.second);
+              it->second.chosenBranches.push_back(prod.first); // with moduleLabel of the Switch
+            }
+          }
+        }
+      }
+      if(switchMap.empty())
+        return;
+
+      for(auto& elem: switchMap) {
+        std::sort(elem.second.chosenBranches.begin(), elem.second.chosenBranches.end());
+      }
+
+      // Check that non-chosen cases declare exactly the same branches
+      std::vector<bool> foundBranches;
+      for(auto const& switchItem: switchMap) {
+        auto const& switchLabel = switchItem.first;
+        auto const& chosenBranches = switchItem.second.chosenBranches;
+        auto const& caseLabels = switchItem.second.caseLabels;
+        foundBranches.resize(chosenBranches.size());
+        for(auto const& caseLabel: caseLabels) {
+          std::fill(foundBranches.begin(), foundBranches.end(), false);
+          for(auto const& item: preg.productList()) {
+            if(item.first.moduleLabel() == caseLabel) {
+              auto range = std::equal_range(chosenBranches.begin(), chosenBranches.end(), BranchKey(item.first.friendlyClassName(),
+                                                                                                    switchLabel,
+                                                                                                    item.first.productInstanceName(),
+                                                                                                    item.first.processName()));
+              if(range.first == range.second) {
+                throw Exception(errors::Configuration)
+                  << "SwitchProducer " << switchLabel << " has a case " << caseLabel << " with a product " << item.first << " that is not produced by the chosen case " << proc_pset.getParameter<edm::ParameterSet>(switchLabel).getUntrackedParameter<std::string>("@chosen_case");
+              }
+              assert(std::distance(range.first, range.second) == 1);
+              foundBranches[std::distance(chosenBranches.begin(), range.first)] = true;
+
+              // Check that there are no BranchAliases for any of the cases
+              auto const& bd = item.second;
+              if(not bd.branchAliases().empty()) {
+                auto ex = Exception(errors::UnimplementedFeature) << "SwitchProducer does not support ROOT branch aliases. Got the following ROOT branch aliases for SwitchProducer with label " << switchLabel << " for case " << caseLabel << ":";
+                for(auto const& item: bd.branchAliases()) {
+                  ex << " " << item;
+                }
+                throw ex;
+              }
+            }
+          }
+
+          for(size_t i=0; i<chosenBranches.size(); i++) {
+            if(not foundBranches[i]) {
+              throw Exception(errors::Configuration)
+                << "SwitchProducer " << switchLabel << " has a case " << caseLabel << " that does not produce a product " << chosenBranches[i] << " that is produced by the chosen case " << proc_pset.getParameter<edm::ParameterSet>(switchLabel).getUntrackedParameter<std::string>("@chosen_case");
+            }
+          }
+        }
+      }
+    }
+
     void reduceParameterSet(ParameterSet& proc_pset,
                             vstring const& end_path_name_list,
                             vstring& modulesInConfig,
@@ -535,6 +621,7 @@ namespace edm {
     reduceParameterSet(proc_pset, tns.getEndPaths(), modulesInConfig, usedModuleLabels,
                        outputModulePathPositions);
     processEDAliases(proc_pset, processConfiguration->processName(), preg);
+    processSwitchProducers(proc_pset, processConfiguration->processName(), preg);
     proc_pset.registerIt();
     processConfiguration->setParameterSetID(proc_pset.id());
     processConfiguration->setProcessConfigurationID();
@@ -1054,7 +1141,7 @@ namespace edm {
   void Schedule::processOneEventAsync(WaitingTaskHolder iTask,
                                       unsigned int iStreamID,
                                       EventPrincipal& ep,
-                                      EventSetup const& es,
+                                      EventSetupImpl const& es,
                                       ServiceToken const& token) {
     assert(iStreamID<streamSchedules_.size());
     streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask),ep,es,token,pathStatusInserters_);

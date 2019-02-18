@@ -77,32 +77,23 @@ namespace edmtest {
     
     auto const& run = lumi.getRun();
     
-    edm::Handle<ThingCollection> h;
-    run.getByToken(beginRun_,h);
-    *h;
+    (void) run.get(beginRun_);
     
-    run.getByToken(endRun_,h);
-    shouldBeInvalid(h);
+    shouldBeInvalid(run.getHandle(endRun_));
     
-    lumi.getByToken(beginLumi_,h);
-    *h;
+    (void) lumi.get(beginLumi_);
     
-    lumi.getByToken(endLumi_,h);
-    shouldBeInvalid(h);
+    shouldBeInvalid(lumi.getHandle(endLumi_));
 
-    iEvent.getByToken(event_,h);
-    *h;
+    (void) iEvent.get(event_);
   }
   
   std::shared_ptr<Empty>
   ThingAnalyzer::globalBeginRun(edm::Run const& iRun, edm::EventSetup const&) const
   {
-    edm::Handle<ThingCollection> h;
-    iRun.getByToken(beginRun_,h);
-    *h;
+    (void) iRun.get(beginRun_);
     
-    iRun.getByToken(endRun_,h);
-    shouldBeInvalid(h);
+    shouldBeInvalid(iRun.getHandle(endRun_));
     
     return std::shared_ptr<Empty>();
   }
@@ -110,12 +101,9 @@ namespace edmtest {
   void
   ThingAnalyzer::globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const
   {
-    edm::Handle<ThingCollection> h;
-    iRun.getByToken(beginRun_,h);
-    *h;
+    (void) iRun.get(beginRun_);
     
-    iRun.getByToken(endRun_,h);
-    *h;
+    (void) iRun.get(endRun_);
   }
   
   std::shared_ptr<Empty>
@@ -123,19 +111,13 @@ namespace edmtest {
   {
     auto const& run = iLumi.getRun();
     
-    edm::Handle<ThingCollection> h;
-    run.getByToken(beginRun_,h);
-    *h;
+    (void) run.get(beginRun_);
     
-    run.getByToken(endRun_,h);
-    shouldBeInvalid(h);
+    shouldBeInvalid(run.getHandle(endRun_));
 
-    iLumi.getByToken(beginLumi_,h);
-    *h;
+    (void) iLumi.get(beginLumi_);
     
-    iLumi.getByToken(endLumi_,h);
-    shouldBeInvalid(h);
-
+    shouldBeInvalid(iLumi.getHandle(endLumi_));
     
     return std::shared_ptr<Empty>();
   }
@@ -145,18 +127,13 @@ namespace edmtest {
   {
     auto const& run = iLumi.getRun();
     
-    edm::Handle<ThingCollection> h;
-    run.getByToken(beginRun_,h);
-    *h;
+    (void) run.get(beginRun_);
     
-    run.getByToken(endRun_,h);
-    shouldBeInvalid(h);
+    shouldBeInvalid(run.getHandle(endRun_));
     
-    iLumi.getByToken(beginLumi_,h);
-    *h;
+    (void) iLumi.get(beginLumi_);
     
-    iLumi.getByToken(endLumi_,h);
-    *h;
+    (void) iLumi.get(endLumi_);
     
   }
   

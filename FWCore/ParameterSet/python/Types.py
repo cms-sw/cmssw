@@ -5,6 +5,7 @@ from ExceptionHandling import format_typename, format_outerframe
 import copy
 import math
 import six
+from six.moves import builtins
 
 class _Untracked(object):
     """Class type for 'untracked' to allow nice syntax"""
@@ -127,7 +128,6 @@ class double(_SimpleParameterTypeBase):
 
 
 
-import __builtin__
 class bool(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
@@ -140,7 +140,7 @@ class bool(_SimpleParameterTypeBase):
         if value.lower() in ('false','f','off','no', '0'):
             return bool(False)
         try:
-            return bool(__builtin__.bool(eval(value)))
+            return bool(builtins.bool(eval(value)))
         except:
             pass
         raise RuntimeError('can not make bool from string '+value)
@@ -1166,6 +1166,9 @@ class EDAlias(_ConfigureComponent,_Labelable):
 
     def nameInProcessDesc_(self, myname):
         return myname;
+
+    def appendToProcessDescList_(self, lst, myname):
+        lst.append(self.nameInProcessDesc_(myname))
 
     def insertInto(self, parameterSet, myname):
         newpset = parameterSet.newPSet()

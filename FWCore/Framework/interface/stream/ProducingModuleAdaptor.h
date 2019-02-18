@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/stream/callAbilities.h"
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
 #include "FWCore/Framework/interface/stream/makeGlobal.h"
@@ -128,28 +129,29 @@ namespace edm {
       }
 
       void doBeginRun(RunPrincipal const& rp,
-                      EventSetup const& c,
+                      EventSetupImpl const&  ci,
                       ModuleCallingContext const* mcc) final {
-        if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kBeginRunProducer) {
+        if constexpr (T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kBeginRunProducer) {
           Run r(rp, this->moduleDescription(), mcc, false);
           r.setConsumer(this->consumer());
           r.setProducer(this->producer());
           Run const& cnstR = r;
           RunIndex ri = rp.index();
+          const EventSetup c{ci};
           MyGlobalRun::beginRun(cnstR,c,m_global.get(),m_runs[ri]);
           typename T::RunContext rc(m_runs[ri].get(),m_global.get());
           MyGlobalRunSummary::beginRun(cnstR,c,&rc,m_runSummaries[ri]);
-          if(T::HasAbility::kBeginRunProducer) {
+          if constexpr (T::HasAbility::kBeginRunProducer) {
             MyBeginRunProduce::produce(r,c,&rc);
             this->commit(r);
           }
         }
       }
       void doEndRun(RunPrincipal const& rp,
-                    EventSetup const& c,
+                    EventSetupImpl const&  ci,
                     ModuleCallingContext const* mcc) final
       {
-        if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kEndRunProducer) {
+        if constexpr (T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kEndRunProducer) {
           
           Run r(rp, this->moduleDescription(), mcc, true);
           r.setConsumer(this->consumer());
@@ -157,7 +159,8 @@ namespace edm {
 
           RunIndex ri = rp.index();
           typename T::RunContext rc(m_runs[ri].get(),m_global.get());
-          if(T::HasAbility::kEndRunProducer) {
+          const EventSetup c{ci};
+          if constexpr (T::HasAbility::kEndRunProducer) {
             MyEndRunProduce::produce(r,c,&rc,m_runSummaries[ri].get());
             this->commit(r);
           }
@@ -166,10 +169,10 @@ namespace edm {
         }
       }
 
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  ci,
                                   ModuleCallingContext const* mcc) final
       {
-        if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kBeginLuminosityBlockProducer) {
+        if constexpr (T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kBeginLuminosityBlockProducer) {
           LuminosityBlock lb(lbp, this->moduleDescription(), mcc, false);
           lb.setConsumer(this->consumer());
           lb.setProducer(this->producer());
@@ -177,10 +180,12 @@ namespace edm {
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::RunContext rc(m_runs[ri].get(),m_global.get());
+          const EventSetup c{ci};
+
           MyGlobalLuminosityBlock::beginLuminosityBlock(cnstLb,c,&rc,m_lumis[li]);
           typename T::LuminosityBlockContext lc(m_lumis[li].get(),m_runs[ri].get(),m_global.get());
           MyGlobalLuminosityBlockSummary::beginLuminosityBlock(cnstLb,c,&lc,m_lumiSummaries[li]);
-          if(T::HasAbility::kBeginLuminosityBlockProducer) {
+          if constexpr (T::HasAbility::kBeginLuminosityBlockProducer) {
             MyBeginLuminosityBlockProduce::produce(lb,c,&lc);
             this->commit(lb);
           }
@@ -188,9 +193,9 @@ namespace edm {
         
       }
       void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                EventSetup const& c,
+                                EventSetupImpl const&  ci,
                                 ModuleCallingContext const* mcc) final {
-        if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kEndLuminosityBlockProducer) {
+        if constexpr (T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kEndLuminosityBlockProducer) {
           
           LuminosityBlock lb(lbp, this->moduleDescription(), mcc, true);
           lb.setConsumer(this->consumer());
@@ -199,7 +204,8 @@ namespace edm {
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::LuminosityBlockContext lc(m_lumis[li].get(),m_runs[ri].get(),m_global.get());
-          if(T::HasAbility::kEndLuminosityBlockProducer) {
+          const EventSetup c{ci};
+          if constexpr (T::HasAbility::kEndLuminosityBlockProducer) {
             MyEndLuminosityBlockProduce::produce(lb,c,&lc,m_lumiSummaries[li].get());
             this->commit(lb);
           }

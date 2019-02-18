@@ -43,8 +43,7 @@ HGCalBackendLayer2Producer(const edm::ParameterSet& conf):
   //setup Backend parameters
   const edm::ParameterSet& beParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& beProcessorName = beParamConfig.getParameter<std::string>("ProcessorName");
-  HGCalBackendLayer2ProcessorBase* beProc = HGCalBackendLayer2Factory::get()->create(beProcessorName, beParamConfig);
-  backendProcess_.reset(beProc);
+  backendProcess_ = std::unique_ptr<HGCalBackendLayer2ProcessorBase>{HGCalBackendLayer2Factory::get()->create(beProcessorName, beParamConfig)};
 
   produces<l1t::HGCalMulticlusterBxCollection>(backendProcess_->name());
 }

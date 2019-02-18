@@ -61,11 +61,11 @@ class WhatsItESProducer : public edm::ESProducer {
 
    private:
       // ----------member data ---------------------------
-      edm::ESGetTokenT<edmtest::Doodad> token_;
-      edm::ESGetTokenT<edmtest::Doodad> tokenA_;
-      edm::ESGetTokenT<edmtest::Doodad> tokenB_;
-      edm::ESGetTokenT<edmtest::Doodad> tokenC_;
-      edm::ESGetTokenT<edmtest::Doodad> tokenD_;
+      edm::ESGetToken<edmtest::Doodad,GadgetRcd> token_;
+      edm::ESGetToken<edmtest::Doodad,GadgetRcd> tokenA_;
+      edm::ESGetToken<edmtest::Doodad,GadgetRcd> tokenB_;
+      edm::ESGetToken<edmtest::Doodad,GadgetRcd> tokenC_;
+      edm::ESGetToken<edmtest::Doodad,GadgetRcd> tokenD_;
 };
 
 //
@@ -118,8 +118,7 @@ WhatsItESProducer::~WhatsItESProducer()
 WhatsItESProducer::ReturnType
 WhatsItESProducer::produce(const GadgetRcd& iRecord)
 {
-   edm::ESHandle<Doodad> doodad;
-   iRecord.get(token_, doodad);
+   edm::ESHandle<Doodad> doodad = iRecord.getHandle(token_);
    auto pWhatsIt = std::make_unique<WhatsIt>() ;
    pWhatsIt->a = doodad->a;
    return pWhatsIt ;
@@ -128,8 +127,7 @@ WhatsItESProducer::produce(const GadgetRcd& iRecord)
 WhatsItESProducer::ReturnTypeA
 WhatsItESProducer::produceA(const GadgetRcd& iRecord)
 {
-   edm::ESHandle<Doodad> doodad;
-   iRecord.get(tokenA_, doodad);
+   edm::ESHandle<Doodad> doodad = iRecord.getHandle(tokenA_);
    auto pWhatsIt = std::make_unique<WhatsIt>() ;
    pWhatsIt->a = doodad->a;
    return pWhatsIt ;
@@ -138,8 +136,7 @@ WhatsItESProducer::produceA(const GadgetRcd& iRecord)
 WhatsItESProducer::ReturnTypeB
 WhatsItESProducer::produceB(const GadgetRcd& iRecord)
 {
-   edm::ESHandle<Doodad> doodad;
-   iRecord.get(tokenB_ ,doodad);
+   edm::ESHandle<Doodad> doodad = iRecord.getHandle(tokenB_);
    auto pWhatsIt = std::make_shared<WhatsIt>() ;
    pWhatsIt->a = doodad->a;
    return pWhatsIt ;
@@ -148,8 +145,7 @@ WhatsItESProducer::produceB(const GadgetRcd& iRecord)
 WhatsItESProducer::ReturnTypeC
 WhatsItESProducer::produceC(const GadgetRcd& iRecord)
 {
-   edm::ESHandle<Doodad> doodad;
-   iRecord.get(tokenC_, doodad);
+   edm::ESHandle<Doodad> doodad = iRecord.getHandle(tokenC_);
    auto pWhatsIt = std::make_shared<WhatsIt>() ;
    pWhatsIt->a = doodad->a;
    return pWhatsIt ;
@@ -158,8 +154,7 @@ WhatsItESProducer::produceC(const GadgetRcd& iRecord)
 WhatsItESProducer::ReturnTypeD
 WhatsItESProducer::produceD(const GadgetRcd& iRecord)
 {
-   edm::ESHandle<Doodad> doodad;
-   iRecord.get(tokenD_, doodad);
+   edm::ESHandle<Doodad> doodad = iRecord.getHandle(tokenD_);
    auto pWhatsIt = std::make_optional<WhatsIt>() ;
    pWhatsIt->a = doodad->a;
    return pWhatsIt ;

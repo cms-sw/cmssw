@@ -36,11 +36,9 @@ L1MuTriggerPtScaleOnlineProducer::~L1MuTriggerPtScaleOnlineProducer() {}
 //
 
 // ------------ method called to produce the data  ------------
-std::shared_ptr<L1MuTriggerPtScale> 
+std::unique_ptr<L1MuTriggerPtScale> 
 L1MuTriggerPtScaleOnlineProducer::newObject(const std::string& objectKey )
 {
-   using namespace edm::es;
-
    // find Pt key from main scales key
    l1t::OMDSReader::QueryResults keysRecord = 
          m_omdsReader.basicQuery(
@@ -98,7 +96,7 @@ SQL> describe cms_gt.l1t_scale_muon_pt;
    vector<double> scales;
    h.extractScales(resultRecord, scales);
    
-   auto result = std::make_shared<L1MuTriggerPtScale>(m_nbitsPacking, m_signedPacking, m_nBins, scales);
+   auto result = std::make_unique<L1MuTriggerPtScale>(m_nbitsPacking, m_signedPacking, m_nBins, scales);
    
 #ifdef DEBUG_PT_SCALE
    cout << "PT scale:" << endl << result->getPtScale()->print() << endl;

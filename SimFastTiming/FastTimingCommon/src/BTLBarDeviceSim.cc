@@ -52,9 +52,7 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,
     if(id==0) continue; // to be ignored at RECO level                                                              
 
     BTLDetId btlid(detId);
-    const int boundRef = ( topo_->getMTDTopologyMode() == (int ) BTLDetId::CrysLayout::barzflat ?
-			   BTLDetId::kTypeBoundariesBarZflat[1]   :
-			   BTLDetId::kTypeBoundariesReference[1] );
+    const int boundRef = btlid.modulesPerType(static_cast<BTLDetId::CrysLayout>(topo_->getMTDTopologyMode()));
     DetId geoId = BTLDetId(btlid.mtdSide(),btlid.mtdRR(),btlid.module()+boundRef*(btlid.modType()-1),0,1);
     const MTDGeomDet* thedet = geom_->idToDet(geoId);
 
@@ -93,28 +91,37 @@ void BTLBarDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,
     // --- Get the simHit time of arrival
     float toa = std::get<2>(hitRef);
 
-    // --- Accumulate the energy of simHits in the same crystal
-    if ( toa < bxTime_ ){  // this is to simulate the charge integration in a 25 ns window
-      (simHitIt->second).hit_info[0][0] += Npe;
-      (simHitIt->second).hit_info[0][1] += Npe;
-    }
-
-    // --- Store the time of the first SimHit
-    if ( (simHitIt->second).hit_info[1][0] == 0 ){
-
-      double distR = 0.5*topo.pitch().second - 0.1*hit.localPosition().y();
-      double distL = 0.5*topo.pitch().second + 0.1*hit.localPosition().y();
-
-      // This is for the layout with bars along phi
-      if ( topo_->getMTDTopologyMode() == (int) BTLDetId::CrysLayout::bar ){
+    if ( toa > bxTime_ || toa < 0 ) //just consider BX==0
+      continue;
+ 
+    // --- Accumulate the energy of simHits in the same crystal for the BX==0
+    // this is to simulate the charge integration in a 25 ns window
+    (simHitIt->second).hit_info[0][0] += Npe;
+    (simHitIt->second).hit_info[0][1] += Npe;
+ 
+    double distR = 0.5*topo.pitch().second - 0.1*hit.localPosition().y();
+    double distL = 0.5*topo.pitch().second + 0.1*hit.localPosition().y();
+    
+    // This is for the layout with bars along phi
+    if ( topo_->getMTDTopologyMode() == (int) BTLDetId::CrysLayout::bar ||
+	 topo_->getMTDTopologyMode() == (int) BTLDetId::CrysLayout::barphiflat 
+	 )
+      {
 	distR = 0.5*topo.pitch().first - 0.1*hit.localPosition().x();
 	distL = 0.5*topo.pitch().first + 0.1*hit.localPosition().x();
       }
-
-      (simHitIt->second).hit_info[1][0] = toa + LightCollSlopeR_*distR;
-      (simHitIt->second).hit_info[1][1] = toa + LightCollSlopeL_*distL;
-
-    }
+    
+    double tR = toa + LightCollSlopeR_*distR;
+    double tL = toa + LightCollSlopeL_*distL;
+   
+    // --- Store the time of the first SimHit
+    if ( (simHitIt->second).hit_info[1][0] == 0 
+	 || tR < (simHitIt->second).hit_info[1][0] )
+      (simHitIt->second).hit_info[1][0] = tR;
+    
+    if ( (simHitIt->second).hit_info[1][1] == 0 
+	 || tL < (simHitIt->second).hit_info[1][1] )
+      (simHitIt->second).hit_info[1][1] = tL;
 
   } // hitRef loop
 

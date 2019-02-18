@@ -36,13 +36,12 @@ DEFINE_FWK_MODULE(HGCalTowerProducer);
 
 HGCalTowerProducer::
 HGCalTowerProducer(const edm::ParameterSet& conf):
-  input_towers_map_(consumes<l1t::HGCalTowerMapBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerCells")))
+  input_towers_map_(consumes<l1t::HGCalTowerMapBxCollection>(conf.getParameter<edm::InputTag>("InputTowerMaps")))
 { 
   //setup TowerMap parameters
   const edm::ParameterSet& towerParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& towerProcessorName = towerParamConfig.getParameter<std::string>("ProcessorName");
-  HGCalTowerProcessorBase* towerProc = HGCalTowerFactory::get()->create(towerProcessorName, towerParamConfig);
-  towersProcess_.reset(towerProc);
+  towersProcess_ = std::unique_ptr<HGCalTowerProcessorBase>{HGCalTowerFactory::get()->create(towerProcessorName, towerParamConfig)};
   
   produces<l1t::HGCalTowerBxCollection>(towersProcess_->name());
 }

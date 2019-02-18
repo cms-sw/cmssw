@@ -274,12 +274,8 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         iEvent.getByToken(mvaCatTokens_[k],mvaCats[k]);
     }
 
-    int nPho = src->size();
-
-    for(int iPho = 0; iPho < nPho; ++iPho) {
-
-        const auto pho =  src->ptrAt(iPho);
-
+    for(auto const& pho : src->ptrs())
+    {
         if (pho->pt() < ptThreshold_) {
             continue;
         }

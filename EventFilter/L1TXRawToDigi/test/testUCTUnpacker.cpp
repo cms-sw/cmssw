@@ -16,11 +16,12 @@ int main(int argc, char **argv) {
   uint64_t fedRawDataArray[694];
   char line[256];
   while(cin.getline(line, 256)) {
-    char* iToken = strtok(line, ":");
+    char* saveptr;
+    char* iToken = strtok_r(line, ":",&saveptr);
     if(iToken == 0) continue;
     if(sscanf(iToken, "%d", &index) == 1) {
       if(index < 694) {
-	char* fToken = strtok(NULL, "\n");
+	char* fToken = strtok_r(nullptr, "\n",&saveptr);
 	if(fToken == 0) continue;
 	if(sscanf(fToken, "%lX", &fedRawDataArray[index]) != 1) {
 	  cerr << "oops! format error :(" << endl;

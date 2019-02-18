@@ -23,7 +23,8 @@ enum TrackStatus {
   sDeadRegion = 2, 
   sOutOfTime = 3, 
   sLowEnergy = 4, 
-  sLowEnergyInVacuum = 5
+  sLowEnergyInVacuum = 5,
+  sEnergyDepNaN = 6
 };
 
 class SteppingAction: public G4UserSteppingAction {
@@ -65,6 +66,7 @@ private:
   unsigned int                  numberEkins;
   unsigned int                  numberPart;
   unsigned int                  ndeadRegions;
+  unsigned int                  nWarnings;
 
   bool                          initialized;
   bool                          killBeamPipe;

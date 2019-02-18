@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -138,13 +139,14 @@ EDAnalyzerAdaptorBase::consumesInfo() const {
 }
 
 bool
-EDAnalyzerAdaptorBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
+EDAnalyzerAdaptorBase::doEvent(EventPrincipal const& ep, EventSetupImpl const& ci,
                                ActivityRegistry* act,
                                ModuleCallingContext const* mcc) {
   assert(ep.streamID()<m_streamModules.size());
   auto mod = m_streamModules[ep.streamID()];
   Event e(ep, moduleDescription_, mcc);
   e.setConsumer(mod);
+  const EventSetup c{ci};
   EventSignalsSentry sentry(act,mcc);
   mod->analyze(e, c);
   return true;
@@ -166,13 +168,14 @@ EDAnalyzerAdaptorBase::doEndStream(StreamID id) {
 void
 EDAnalyzerAdaptorBase::doStreamBeginRun(StreamID id,
                                         RunPrincipal const& rp,
-                                        EventSetup const& c,
+                                        EventSetupImpl const& ci,
                                         ModuleCallingContext const* mcc)
 {
   auto mod = m_streamModules[id];
   setupRun(mod, rp.index());
   
   Run r(rp, moduleDescription_, mcc, false);
+  const EventSetup c{ci};
   r.setConsumer(mod);
   mod->beginRun(r, c);
 
@@ -181,12 +184,13 @@ EDAnalyzerAdaptorBase::doStreamBeginRun(StreamID id,
 void
 EDAnalyzerAdaptorBase::doStreamEndRun(StreamID id,
                     RunPrincipal const& rp,
-                    EventSetup const& c,
+                    EventSetupImpl const& ci,
                     ModuleCallingContext const* mcc)
 {
   auto mod = m_streamModules[id];
   Run r(rp, moduleDescription_, mcc, true);
   r.setConsumer(mod);
+  const EventSetup c{ci};
   mod->endRun(r, c);
   streamEndRunSummary(mod,r,c);
 }
@@ -194,24 +198,26 @@ EDAnalyzerAdaptorBase::doStreamEndRun(StreamID id,
 void
 EDAnalyzerAdaptorBase::doStreamBeginLuminosityBlock(StreamID id,
                                                     LuminosityBlockPrincipal const& lbp,
-                                                    EventSetup const& c,
+                                                    EventSetupImpl const& ci,
                                                     ModuleCallingContext const* mcc) {
   auto mod = m_streamModules[id];
   setupLuminosityBlock(mod,lbp.index());
   
   LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
   lb.setConsumer(mod);
+  const EventSetup c{ci};
   mod->beginLuminosityBlock(lb, c);
 }
 void
 EDAnalyzerAdaptorBase::doStreamEndLuminosityBlock(StreamID id,
                                 LuminosityBlockPrincipal const& lbp,
-                                EventSetup const& c,
+                                EventSetupImpl const& ci,
                                 ModuleCallingContext const* mcc)
 {
   auto mod = m_streamModules[id];
   LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
   lb.setConsumer(mod);
+  const EventSetup c{ci};
   mod->endLuminosityBlock(lb, c);
   streamEndLuminosityBlockSummary(mod,lb, c);
 

@@ -270,14 +270,15 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
     unsigned int detid=0;
     char title[128];
     sprintf(title,"%s",me_name.c_str());
-    char *ptr=strtok(title,"__");
+    char* saveptr;
+    char *ptr=strtok_r(title,"__",&saveptr);
     int c=0;
     while (ptr!=nullptr){
       if (c==2){
 	detid=atol(ptr);
 	break;
       }
-      ptr=strtok(nullptr,"_");
+      ptr=strtok_r(nullptr,"_",&saveptr);
       c++;
     }
     LogDebug("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::bookHistos] detid " << detid<< std::endl;

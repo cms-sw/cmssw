@@ -49,7 +49,7 @@ namespace cond {
       virtual ~IIOVTable(){}
       virtual bool exists() = 0;
       virtual void create() = 0;
-      virtual size_t getGroups( const std::string& tag, const boost::posix_time::ptime& snapshotTime, 
+      virtual size_t getGroups( const std::string& tag, const boost::posix_time::ptime& snapshotTime, unsigned long long groupSize,
 				std::vector<cond::Time_t>& groups ) = 0;
       virtual size_t select( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup, 
 			     const boost::posix_time::ptime& snapshotTime, 

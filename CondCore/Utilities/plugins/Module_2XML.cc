@@ -87,6 +87,7 @@ PAYLOAD_2XML_MODULE( pluginUtilities_payload2xml ){
   PAYLOAD_2XML_CLASS( EcalSRSettings );
   PAYLOAD_2XML_CLASS( EcalSampleMask );
   PAYLOAD_2XML_CLASS( EcalSamplesCorrelation );
+  PAYLOAD_2XML_CLASS( EcalSimPulseShape );
   PAYLOAD_2XML_CLASS( EcalTBWeights );
   PAYLOAD_2XML_CLASS( EcalTPGFineGrainEBGroup );
   PAYLOAD_2XML_CLASS( EcalTPGFineGrainEBIdMap );
@@ -245,6 +246,8 @@ PAYLOAD_2XML_MODULE( pluginUtilities_payload2xml ){
   PAYLOAD_2XML_CLASS( SiPixelGenErrorDBObject );
   PAYLOAD_2XML_CLASS( SiPixelLorentzAngle );
   PAYLOAD_2XML_CLASS( SiPixelQuality );
+  PAYLOAD_2XML_CLASS( SiPixelFEDChannelContainer );
+  PAYLOAD_2XML_CLASS( SiPixelQualityProbabilities );
   PAYLOAD_2XML_CLASS( SiPixelTemplateDBObject );
   PAYLOAD_2XML_CLASS( SiStripApvGain );
   PAYLOAD_2XML_CLASS( SiStripBackPlaneCorrection );

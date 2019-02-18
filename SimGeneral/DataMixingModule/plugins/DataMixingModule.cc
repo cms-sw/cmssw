@@ -307,7 +307,7 @@ namespace edm
   
 
 
-  void DataMixingModule::pileWorker(const EventPrincipal &ep, int bcr, int eventNr, const edm::EventSetup& ES, edm::ModuleCallingContext const* mcc) {  
+  bool DataMixingModule::pileWorker(const EventPrincipal &ep, int bcr, int eventNr, const edm::EventSetup& ES, edm::ModuleCallingContext const* mcc) {  
 
     InternalContext internalContext(ep.id(), mcc);
     ParentContext parentContext(&internalContext);
@@ -359,6 +359,8 @@ namespace edm
     // SiPixels
     //whoops this should be for the MC worker ????? SiPixelWorker_->setPileupInfo(ps,bunchSpacing);
     SiPixelWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
+
+    return true;
   }
 
 

@@ -40,6 +40,9 @@ MuonGmtPair::MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu, const P
         if (trajectory.isValid()) {
             m_eta = trajectory.globalPosition().eta();
             m_phi = trajectory.globalPosition().phi();
+        } else {
+            m_eta = 999.;
+            m_phi = 999.;
         }
     } else {
         m_eta = 999.;

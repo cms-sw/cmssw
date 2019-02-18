@@ -35,7 +35,7 @@ AlignmentCSCOverlapSelector::Tracks
 AlignmentCSCOverlapSelector::select(const Tracks &tracks, const edm::Event &iEvent) const {
    Tracks result;
 
-   for (Tracks::const_iterator track = tracks.begin();  track != tracks.end();  ++track) {
+   for(auto const& track : tracks) {
       unsigned int MEminus4_even = 0;
       unsigned int MEminus4_odd = 0;
       unsigned int MEminus3_even = 0;
@@ -54,8 +54,8 @@ AlignmentCSCOverlapSelector::select(const Tracks &tracks, const edm::Event &iEve
       unsigned int MEplus4_even = 0;
       unsigned int MEplus4_odd = 0;
 
-      for (trackingRecHit_iterator hit = (*track)->recHitsBegin();  hit != (*track)->recHitsEnd();  ++hit) {
-	 DetId id = (*hit)->geographicalId();
+      for(auto const& hit : track->recHits()) {
+	 DetId id = hit->geographicalId();
 	 if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
 	    CSCDetId cscid(id.rawId());
 	    int station = (cscid.endcap() == 1 ? 1 : -1) * cscid.station();
@@ -98,28 +98,28 @@ AlignmentCSCOverlapSelector::select(const Tracks &tracks, const edm::Event &iEve
       } // end loop over hits
 
       if ((m_station == 0  ||  m_station == -4)  &&
-	  (MEminus4_even >= m_minHitsPerChamber)  &&  (MEminus4_odd >= m_minHitsPerChamber)) result.push_back(*track);
+	  (MEminus4_even >= m_minHitsPerChamber)  &&  (MEminus4_odd >= m_minHitsPerChamber)) result.push_back(track);
 
       else if ((m_station == 0  ||  m_station == -3)  &&
-	       (MEminus3_even >= m_minHitsPerChamber)  &&  (MEminus3_odd >= m_minHitsPerChamber)) result.push_back(*track);
+	       (MEminus3_even >= m_minHitsPerChamber)  &&  (MEminus3_odd >= m_minHitsPerChamber)) result.push_back(track);
 
       else if ((m_station == 0  ||  m_station == -2)  &&
-	       (MEminus2_even >= m_minHitsPerChamber)  &&  (MEminus2_odd >= m_minHitsPerChamber)) result.push_back(*track);
+	       (MEminus2_even >= m_minHitsPerChamber)  &&  (MEminus2_odd >= m_minHitsPerChamber)) result.push_back(track);
 
       else if ((m_station == 0  ||  m_station == -1)  &&
-	       (MEminus1_even >= m_minHitsPerChamber)  &&  (MEminus1_odd >= m_minHitsPerChamber)) result.push_back(*track);
+	       (MEminus1_even >= m_minHitsPerChamber)  &&  (MEminus1_odd >= m_minHitsPerChamber)) result.push_back(track);
 
       else if ((m_station == 0  ||  m_station == 1)  &&
-	       (MEplus1_even >= m_minHitsPerChamber)  &&  (MEplus1_odd >= m_minHitsPerChamber)) result.push_back(*track);
+	       (MEplus1_even >= m_minHitsPerChamber)  &&  (MEplus1_odd >= m_minHitsPerChamber)) result.push_back(track);
 
       else if ((m_station == 0  ||  m_station == 2)  &&
-	       (MEplus2_even >= m_minHitsPerChamber)  &&  (MEplus2_odd >= m_minHitsPerChamber)) result.push_back(*track);
+	       (MEplus2_even >= m_minHitsPerChamber)  &&  (MEplus2_odd >= m_minHitsPerChamber)) result.push_back(track);
 
       else if ((m_station == 0  ||  m_station == 3)  &&
-	       (MEplus3_even >= m_minHitsPerChamber)  &&  (MEplus3_odd >= m_minHitsPerChamber)) result.push_back(*track);
+	       (MEplus3_even >= m_minHitsPerChamber)  &&  (MEplus3_odd >= m_minHitsPerChamber)) result.push_back(track);
 
       else if ((m_station == 0  ||  m_station == 4)  &&
-	       (MEplus4_even >= m_minHitsPerChamber)  &&  (MEplus4_odd >= m_minHitsPerChamber)) result.push_back(*track);
+	       (MEplus4_even >= m_minHitsPerChamber)  &&  (MEplus4_odd >= m_minHitsPerChamber)) result.push_back(track);
 
    } // end loop over tracks
   

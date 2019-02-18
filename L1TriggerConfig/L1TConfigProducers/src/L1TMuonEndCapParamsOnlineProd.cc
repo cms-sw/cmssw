@@ -16,7 +16,7 @@ class L1TMuonEndCapParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonEn
 private:
     bool transactionSafe;
 public:
-    std::shared_ptr<L1TMuonEndCapParams> newObject(const std::string& objectKey, const L1TMuonEndCapParamsO2ORcd& record) override ;
+    std::unique_ptr<const L1TMuonEndCapParams> newObject(const std::string& objectKey, const L1TMuonEndCapParamsO2ORcd& record) override ;
 
     L1TMuonEndCapParamsOnlineProd(const edm::ParameterSet&);
     ~L1TMuonEndCapParamsOnlineProd(void) override{}
@@ -26,8 +26,7 @@ L1TMuonEndCapParamsOnlineProd::L1TMuonEndCapParamsOnlineProd(const edm::Paramete
     transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 
-std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonEndCapParamsO2ORcd& record) {
-    using namespace edm::es;
+std::unique_ptr<const L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonEndCapParamsO2ORcd& record) {
 
     const L1TMuonEndCapParamsRcd& baseRcd = record.template getRecord< L1TMuonEndCapParamsRcd >() ;
     edm::ESHandle< L1TMuonEndCapParams > baseSettings ;
@@ -40,7 +39,7 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(co
             throw std::runtime_error("SummaryForFunctionManager: BMTF  | Faulty  | Empty objectKey");
         else {
             edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonEndCapParams";
-            return std::make_shared< L1TMuonEndCapParams >( *(baseSettings.product()) ) ;
+            return std::make_unique< const L1TMuonEndCapParams >( *(baseSettings.product()) ) ;
         }
     }
 
@@ -80,7 +79,7 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(co
             throw std::runtime_error("SummaryForFunctionManager: EMTF  | Faulty  | Broken key");
         else {
             edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonEndCapParams";
-            return std::make_shared< L1TMuonEndCapParams >( *(baseSettings.product()) ) ;
+            return std::make_unique< const L1TMuonEndCapParams >( *(baseSettings.product()) ) ;
         }
     }
 
@@ -113,7 +112,7 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(co
             throw std::runtime_error("SummaryForFunctionManager: EMTF  | Faulty  | Cannot parse XMLs");
         else {
             edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonEndCapParams";
-            return std::make_shared< L1TMuonEndCapParams >( *(baseSettings.product()) ) ;
+            return std::make_unique< const L1TMuonEndCapParams >( *(baseSettings.product()) ) ;
         }
     }
 
@@ -130,7 +129,7 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(co
 //    strptime(pclut_v.c_str(), "%Y-%m-%d", &brokenTime);
 //    time_t pclut_sinceEpoch = timegm(&brokenTime);
 
-    std::shared_ptr< L1TMuonEndCapParams > retval( new L1TMuonEndCapParams() ); 
+    auto retval = std::make_unique<L1TMuonEndCapParams>();
     
     retval->firmwareVersion_ = fw_sinceEpoch;
     retval->PtAssignVersion_ = conf["pt_lut_version"].getValue<unsigned int>();

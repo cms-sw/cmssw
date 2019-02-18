@@ -26,7 +26,7 @@
 // forward declarations
 
 namespace edm {
-  class EventSetup;
+  class EventSetupImpl;
   class ModuleCallingContext;
   class StreamContext;
   
@@ -37,12 +37,12 @@ namespace edm {
     UnscheduledAuxiliary(): m_eventSetup(nullptr) {}
 
     // ---------- const member functions ---------------------
-    EventSetup const* eventSetup() const { return m_eventSetup;}
+    EventSetupImpl const* eventSetup() const { return m_eventSetup;}
     
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
-    void setEventSetup( EventSetup const* iSetup) {
+    void setEventSetup( EventSetupImpl const* iSetup) {
       m_eventSetup = iSetup;
     }
 
@@ -51,7 +51,7 @@ namespace edm {
   private:
 
     // ---------- member data --------------------------------
-    EventSetup const * m_eventSetup;
+    EventSetupImpl const * m_eventSetup;
 
   };
 }

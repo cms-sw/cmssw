@@ -74,7 +74,14 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
    iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
    tTopo = tTopoHandle.product();
  
-   eventSetupCopy_ = &iSetup;
+   edm::ESHandle<SiStripDetCabling> siStripDetCablingH; 
+   iSetup.get<SiStripDetCablingRcd>().get(siStripDetCablingH);
+   siStripDetCabling = siStripDetCablingH.product();
+
+   edm::ESHandle<TrackerGeometry> tkGeomH; 
+   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeomH );
+   tkGeom = tkGeomH.product();
+
    std::cout<<"SiStripGainCosmicCalculator::algoBeginJob called"<<std::endl;
    total_nr_of_events = 0;
    HlistAPVPairs = new TObjArray(); HlistOtherHistos = new TObjArray();
@@ -181,10 +188,10 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & iEvent, const e
         const SiStripRecHit2D::ClusterRef & cluster=sistripsimplehit->cluster();
         const auto & ampls = cluster->amplitudes();
         uint32_t thedetid  = 0; // is zero since long time cluster->geographicalId();
-        double module_width = moduleWidth(thedetid, &iSetup);
+        double module_width = moduleWidth(thedetid);
         ((TH1F*) HlistOtherHistos->FindObject("LocalPosition_cm"))->Fill(local_position.x());
         ((TH1F*) HlistOtherHistos->FindObject("LocalPosition_normalized"))->Fill(local_position.x()/module_width);
-        double module_thickness = moduleThickness(thedetid, &iSetup);
+        double module_thickness = moduleThickness(thedetid);
         int ifirststrip= cluster->firstStrip();
         int theapvpairid = int(float(ifirststrip)/256.);
         TH1F* histopointer = (TH1F*) HlistAPVPairs->FindObject(Form("ChargeAPVPair_%i_%i",thedetid,theapvpairid));
@@ -248,9 +255,8 @@ std::pair<double,double> SiStripGainCosmicCalculator::getPeakOfLandau( TH1F * in
 }
 
 //---------------------------------------------------------------------------------------------------------
-double SiStripGainCosmicCalculator::moduleWidth(const uint32_t detid, const edm::EventSetup* iSetup) // get width of the module detid
+double SiStripGainCosmicCalculator::moduleWidth(const uint32_t detid) // get width of the module detid
 { //dk: copied from A. Giammanco and hacked,  module_width values : 10.49 12.03 6.144 7.14 9.3696
-  edm::ESHandle<TrackerGeometry> tkGeom; iSetup->get<TrackerDigiGeometryRecord>().get( tkGeom );     
   double module_width=0.;
   const GeomDetUnit* it = tkGeom->idToDetUnit(DetId(detid));
   if (dynamic_cast<const StripGeomDetUnit*>(it)==nullptr && dynamic_cast<const PixelGeomDetUnit*>(it)==nullptr) {
@@ -262,9 +268,8 @@ double SiStripGainCosmicCalculator::moduleWidth(const uint32_t detid, const edm:
 }
 
 //---------------------------------------------------------------------------------------------------------
-double SiStripGainCosmicCalculator::moduleThickness(const uint32_t detid, const edm::EventSetup* iSetup) // get thickness of the module detid
+double SiStripGainCosmicCalculator::moduleThickness(const uint32_t detid) // get thickness of the module detid
 { //dk: copied from A. Giammanco and hacked
-  edm::ESHandle<TrackerGeometry> tkGeom; iSetup->get<TrackerDigiGeometryRecord>().get( tkGeom );
   double module_thickness=0.;
   const GeomDetUnit* it = tkGeom->idToDetUnit(DetId(detid));
   if (dynamic_cast<const StripGeomDetUnit*>(it)==nullptr && dynamic_cast<const PixelGeomDetUnit*>(it)==nullptr) {
@@ -379,7 +384,6 @@ TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairCont
         ((TH1F*) HlistOtherHistos->FindObject("APVPairCorrectionsTOB2"))->Fill(local_correction);
        }
        // control view
-       edm::ESHandle<SiStripDetCabling> siStripDetCabling; eventSetupCopy_->get<SiStripDetCablingRcd>().get(siStripDetCabling);
        const FedChannelConnection& fedchannelconnection = siStripDetCabling->getConnection( extracted_detid, extracted_apvpairid );
        std::ostringstream local_key;
        // in S. Mersi's analysis the APVPair id seems to be used instead of the lldChannel, hence use the same here
@@ -392,11 +396,11 @@ TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairCont
        int ibin2  = CorrectionOfEachAPVPairControlView->GetXaxis()->FindBin(control_key);
        CorrectionOfEachAPVPairControlView->SetBinError(ibin2, local_error_correction);
        // thickness of each module
-       double module_thickness = moduleThickness(extracted_detid, eventSetupCopy_);
+       double module_thickness = moduleThickness(extracted_detid);
        if( fabs(module_thickness - 0.032)<0.001 ) ModuleThickness->Fill(1);
        if( fabs(module_thickness - 0.05)<0.001 )  ModuleThickness->Fill(2);
        // width of each module     
-       double module_width = moduleWidth(extracted_detid, eventSetupCopy_);
+       double module_width = moduleWidth(extracted_detid);
        if(fabs(module_width-6.144)<0.01) ModuleWidth->Fill(1);
        if(fabs(module_width-7.14)<0.01) ModuleWidth->Fill(2);
        if(fabs(module_width-9.3696)<0.01) ModuleWidth->Fill(3);

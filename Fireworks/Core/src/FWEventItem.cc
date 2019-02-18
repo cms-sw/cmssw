@@ -367,13 +367,16 @@ FWEventItem::moveToLayer(int layer)
 }
 
 void
-FWEventItem::proxyConfigChanged()
+FWEventItem::proxyConfigChanged(bool k)
 {
-   m_itemInfos.clear();
-   m_accessor->reset();
-   if (m_context->eventItemsManager())
-      handleChange();
-
+   if(!k){
+      m_itemInfos.clear();
+      m_accessor->reset();
+      if (m_context->eventItemsManager())
+         handleChange();
+   } else {
+      changeManager()->changed(this);
+   }
 }
 
 void 

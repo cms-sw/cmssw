@@ -81,10 +81,15 @@ namespace edm {
       if(iExcept) {
         m_task->dependentTaskFailed(iExcept);
       }
-      if(0==m_task->decrement_ref_count()){
-        tbb::task::spawn(*m_task);
-      }
+      //spawn can run the task before we finish
+      // doneWaiting and some other thread might
+      // try to reuse this object. Resetting
+      // before spawn avoids problems
+      auto task = m_task;
       m_task = nullptr;
+      if(0==task->decrement_ref_count()){
+        tbb::task::spawn(*task);
+      }
     }
     
   private:

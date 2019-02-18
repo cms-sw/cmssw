@@ -17,7 +17,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
@@ -62,7 +62,7 @@ EventSetupRecordImpl::getESProducers(std::vector<ComponentDescription const*>& e
    esproducers.clear();
    esproducers.reserve(proxies_.size());
    for (auto const& iData : proxies_) {
-      ComponentDescription const* componentDescription = iData.second->providerDescription();
+      ComponentDescription const* componentDescription = iData->providerDescription();
       if (!componentDescription->isLooper_ && !componentDescription->isSource_) {
          esproducers.push_back(componentDescription);
       }
@@ -72,8 +72,10 @@ EventSetupRecordImpl::getESProducers(std::vector<ComponentDescription const*>& e
 void
 EventSetupRecordImpl::fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys) {
    referencedDataKeys.clear();
-   for (auto const& iData : proxies_) {
-      referencedDataKeys[iData.first] = iData.second->providerDescription();
+   auto itProxies = proxies_.begin();
+   for (auto const& iData : keysForProxies_) {
+      referencedDataKeys.emplace(iData, (*itProxies)->providerDescription());
+      ++itProxies;
    }
 }
 
@@ -96,8 +98,11 @@ EventSetupRecordImpl::add(const DataKey& iKey ,
       assert(proxy->providerDescription());
       assert(iProxy->providerDescription());
       if(iProxy->providerDescription()->isLooper_) {
-         (*proxies_.find(iKey)).second = iProxy ;
-	 return true;
+        proxies_[std::distance(keysForProxies_.begin(),
+                               std::lower_bound(keysForProxies_.begin(),
+                                                keysForProxies_.end(),
+                                                iKey))] = iProxy;
+         return true;
       }
 	 
       if(proxy->providerDescription()->isSource_ == iProxy->providerDescription()->isSource_) {
@@ -112,13 +117,19 @@ EventSetupRecordImpl::add(const DataKey& iKey ,
          <<"\n   or find a way of configuring one of them so it does not deliver this data"
          <<"\n   or use an es_prefer statement in the configuration to choose one.";
       } else if(proxy->providerDescription()->isSource_) {
-         (*proxies_.find(iKey)).second = iProxy ;
+        proxies_[std::distance(keysForProxies_.begin(),
+                               std::lower_bound(keysForProxies_.begin(),
+                                                keysForProxies_.end(),
+                                                iKey) )] = iProxy;
       } else {
          return false;
       }
    }
    else {
-      proxies_.insert(Proxies::value_type(iKey , iProxy)) ;
+      auto lb = std::lower_bound(keysForProxies_.begin(),keysForProxies_.end(), iKey);
+      auto index = std::distance(keysForProxies_.begin(), lb);
+      keysForProxies_.insert(lb, iKey);
+      proxies_.insert(proxies_.begin()+index, iProxy);
    }
    return true ;
 }
@@ -126,6 +137,7 @@ EventSetupRecordImpl::add(const DataKey& iKey ,
 void 
 EventSetupRecordImpl::clearProxies()
 {
+   keysForProxies_.clear();
    proxies_.clear();
 }
 
@@ -179,11 +191,11 @@ EventSetupRecordImpl::getFromProxy(DataKey const & iKey ,
 const DataProxy* 
 EventSetupRecordImpl::find(const DataKey& iKey) const
 {
-   Proxies::const_iterator entry(proxies_.find(iKey)) ;
-   if (entry != proxies_.end()) {
-      return entry->second;
+   auto lb = std::lower_bound(keysForProxies_.begin(),keysForProxies_.end(), iKey);
+   if( (lb == keysForProxies_.end()) or (*lb != iKey)) {
+     return nullptr;
    }
-   return nullptr;
+   return proxies_[std::distance(keysForProxies_.begin(), lb)];
 }
       
 bool 
@@ -226,15 +238,7 @@ EventSetupRecordImpl::providerDescription(const DataKey& aKey) const {
 void 
 EventSetupRecordImpl::fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const
 {
-  oToFill.clear();
-  oToFill.reserve(proxies_.size());
-  
-  for(std::map< DataKey , const DataProxy* >::const_iterator it = proxies_.begin(), itEnd=proxies_.end();
-      it != itEnd;
-      ++it) {
-    oToFill.push_back(it->first);
-  }
-  
+  oToFill = keysForProxies_;
 }
 
 void 

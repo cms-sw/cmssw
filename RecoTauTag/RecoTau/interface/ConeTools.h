@@ -6,14 +6,13 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
-#include <functional>
 
-namespace reco { namespace tau { namespace cone {
+namespace reco::tau::cone {
 
 // Predicate class that tests if a candidate lies within some deltaR (min,
 // max) about a supplied axis
 template<class CandType>
-class DeltaRFilter : public std::unary_function<CandType, bool> {
+class DeltaRFilter {
   public:
     DeltaRFilter(const reco::Candidate::LorentzVector& axis, double min, double max)
       : eta_(axis.eta()),
@@ -35,7 +34,7 @@ class DeltaRFilter : public std::unary_function<CandType, bool> {
 
 // Wrapper around DeltaRFilter to support reference types like Ptr<>
 template<class CandType>
-class DeltaRPtrFilter : public std::unary_function<CandType, bool> {
+class DeltaRPtrFilter {
   public:
     DeltaRPtrFilter(const reco::Candidate::LorentzVector& axis,
                     double min, double max): filter_(axis, min, max) {}
@@ -57,6 +56,6 @@ typedef DeltaRFilter<RecoTauPiZero> PiZeroDRFilter;
 typedef boost::filter_iterator< PiZeroDRFilter,
         std::vector<RecoTauPiZero>::const_iterator> PiZeroDRFilterIter;
 
-}}}  // end namespace reco::tau::cone
+}  // end namespace reco::tau::cone
 
 #endif

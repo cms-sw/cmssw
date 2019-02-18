@@ -46,8 +46,11 @@
 //
 // class declaration
 //
+namespace l1tderct{
+  struct Empty{};
+}
 
-class L1TdeRCT : public DQMEDAnalyzer {
+class L1TdeRCT : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<l1tderct::Empty>> {
 
 public:
 
@@ -63,9 +66,9 @@ protected:
 
 //For FED vector monitoring 
   void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void readFEDVector(MonitorElement*,const edm::EventSetup&); 
+  std::shared_ptr<l1tderct::Empty> globalBeginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) const override;
+  void globalEndLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final {}
+  void readFEDVector(MonitorElement*,const edm::EventSetup&) const;
 
 private:
   // ----------member data ---------------------------
@@ -257,12 +260,9 @@ private:
 
 
   int nev_; // Number of events processed
-  std::string outputFile_; //file name for ROOT ouput
   std::string histFolder_; // base dqm folder
   bool verbose_;
   bool singlechannelhistos_;
-  bool monitorDaemon_;
-  std::ofstream logFile_;
 
   edm::EDGetTokenT<L1CaloRegionCollection> rctSourceEmul_rgnEmul_;
   edm::EDGetTokenT<L1CaloEmCollection> rctSourceEmul_emEmul_;

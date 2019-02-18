@@ -71,7 +71,7 @@ PFTauMVAInputDiscriminantTranslator::PFTauMVAInputDiscriminantTranslator(
         newDisc.collName = collectionName.str();
         // Build the plugin
         edm::ParameterSet fakePSet;
-        newDisc.plugin.reset(
+        newDisc.plugin = std::unique_ptr<reco::tau::RecoTauDiscriminantPlugin>(
             RecoTauDiscriminantPluginFactory::get()->create(
                 reco::tau::discPluginName(name), fakePSet));
         discriminators_.push_back(newDisc);
@@ -85,7 +85,7 @@ PFTauMVAInputDiscriminantTranslator::PFTauMVAInputDiscriminantTranslator(
       newDisc.defaultValue = defaultValue;
       // Build the plugin
       edm::ParameterSet fakePSet;
-      newDisc.plugin.reset(
+      newDisc.plugin = std::unique_ptr<reco::tau::RecoTauDiscriminantPlugin>(
           RecoTauDiscriminantPluginFactory::get()->create(
               reco::tau::discPluginName(name), fakePSet));
       discriminators_.push_back(newDisc);

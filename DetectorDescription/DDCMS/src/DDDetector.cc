@@ -2,21 +2,29 @@
 #include "DD4hep/Detector.h"
 
 #include <iostream>
-
+ 
 using namespace cms;
+using namespace std;
 
-DDDetector::DDDetector()
-  : m_description(nullptr)
+DDDetector::DDDetector(const string& tag, const string& fileName)
+  : m_tag(tag)
 {
+  m_description = &Detector::getInstance(tag);
+  m_description->addExtension<DDVectorsMap>(&m_vectors);
+  m_description->addExtension<DDPartSelectionMap>(&m_partsels);
+  m_description->addExtension<DDSpecParRegistry>(&m_specpars);
+  process(fileName);
+}
+
+DDDetector::~DDDetector()
+{
+  Detector::destroyInstance(m_tag);
 }
 
 void
-DDDetector::process(const std::string& fileName)
+DDDetector::process(const string& fileName)
 {
-  m_description = &dd4hep::Detector::getInstance();
-
   std::string name("DD4hep_CompactLoader");
   const char* files[] = { fileName.c_str(), nullptr };
   m_description->apply( name.c_str(), 2, (char**)files );
 }
-

@@ -114,7 +114,6 @@ RPCTriggerHwConfig::~RPCTriggerHwConfig()
 RPCTriggerHwConfig::ReturnType
 RPCTriggerHwConfig::produce(const L1RPCHwConfigRcd& iRecord)
 {
-   using namespace edm::es;
    auto pL1RPCHwConfig = std::make_unique<L1RPCHwConfig>();
 
    if (m_disableAll) {

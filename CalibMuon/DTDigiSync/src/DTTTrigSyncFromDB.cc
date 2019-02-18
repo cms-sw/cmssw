@@ -75,7 +75,7 @@ double DTTTrigSyncFromDB::offset(const DTLayer* layer,
 				  const GlobalPoint& globPos,
 				  double& tTrig,
 				  double& wirePropCorr,
-				  double& tofCorr) {
+				  double& tofCorr) const {
   // Correction for the float to int conversion while writeing the ttrig in ns into an int variable
   // (half a bin on average)
   // FIXME: this should disappear as soon as the ttrig object will become a float
@@ -167,7 +167,7 @@ double DTTTrigSyncFromDB::offset(const DTLayer* layer,
     return tTrig + wirePropCorr - tofCorr;
 }
 
-double DTTTrigSyncFromDB::offset(const DTWireId& wireId) {
+double DTTTrigSyncFromDB::offset(const DTWireId& wireId) const {
   float t0 = 0;
   float t0rms = 0;
   if(doT0Correction)
@@ -200,7 +200,7 @@ double DTTTrigSyncFromDB::offset(const DTWireId& wireId) {
 
 double DTTTrigSyncFromDB::emulatorOffset(const DTWireId& wireId,
 					 double &tTrig,
-					 double &t0cell) {
+					 double &t0cell) const {
   float t0 = 0;
   float t0rms = 0;
   if(doT0Correction)

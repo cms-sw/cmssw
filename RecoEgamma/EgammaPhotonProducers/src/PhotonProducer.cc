@@ -155,19 +155,6 @@ PhotonProducer::~PhotonProducer()
   //delete energyCorrectionF;
 }
 
-
-
-void  PhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
-
-
-
-    thePhotonEnergyCorrector_ -> init(theEventSetup);
-}
-
-void  PhotonProducer::endRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
-}
-
-
 void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
 
   using namespace edm;
@@ -292,6 +279,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
   std::vector<double> preselCutValues;
   float minR9=0;
 
+  thePhotonEnergyCorrector_ -> init(es);
 
   std::vector<int> flags_, severitiesexcl_;
 

@@ -90,7 +90,6 @@ bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::Event
    bool accept = false;
    auto apixl(tracks->begin());
    auto epixl(tracks->end());
-   RecoChargedCandidateCollection::const_iterator ipixl, jpixl;
    int itrk = 0;
    double zvtxfit = 0.0;
    double zvtxfit2 = 0.0;
@@ -98,7 +97,7 @@ bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::Event
      etastore.clear();
      phistore.clear();
      itstore.clear();
-     for (ipixl=apixl; ipixl!=epixl; ipixl++){
+     for (auto ipixl=apixl; ipixl!=epixl; ipixl++){
        const double& ztrk1 = ipixl->vz();
        const double& etatrk1 = ipixl->momentum().eta();
        const double& phitrk1 = ipixl->momentum().phi();
@@ -129,7 +128,7 @@ bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::Event
        for (unsigned int i=0; i<itstore.size(); i++) {
          int nincone=0;
 //       check isolation wrt ALL tracks, not only those above ptcut
-         for (ipixl=apixl; ipixl!=epixl; ipixl++){
+         for (auto ipixl=apixl; ipixl!=epixl; ipixl++){
            double phidist=std::abs( phistore.at(i) - ipixl->momentum().phi() );
            double etadist=std::abs( etastore.at(i) - ipixl->momentum().eta() );
            double trkdist = sqrt(phidist*phidist + etadist*etadist);

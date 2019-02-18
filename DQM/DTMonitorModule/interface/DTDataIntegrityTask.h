@@ -40,7 +40,7 @@ class DTuROSROSData;
 class DTuROSFEDData;
 class DTTimeEvolutionHisto;
 
-class DTDataIntegrityTask: public DQMEDAnalyzer {
+class DTDataIntegrityTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 
 public:
 

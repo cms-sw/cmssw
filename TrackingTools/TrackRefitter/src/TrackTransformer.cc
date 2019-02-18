@@ -22,6 +22,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 using namespace std;
 using namespace edm;
 
@@ -34,12 +36,33 @@ TrackTransformer::TrackTransformer(const ParameterSet& parameterSet):
     theSmootherName(parameterSet.getParameter<string>("Smoother")),  
     thePropagatorName(parameterSet.getParameter<string>("Propagator")),
     theTrackerRecHitBuilderName(parameterSet.getParameter<string>("TrackerRecHitBuilder")),
-    theMuonRecHitBuilderName(parameterSet.getParameter<string>("MuonRecHitBuilder"))
+    theMuonRecHitBuilderName(parameterSet.getParameter<string>("MuonRecHitBuilder")),
+    theMTDRecHitBuilderName(parameterSet.getParameter<string>("MTDRecHitBuilder"))
     {}
 
 /// Destructor
 TrackTransformer::~TrackTransformer(){}
 
+void TrackTransformer::fillPSetDescription(edm::ParameterSetDescription& desc,
+					   bool DoPredictionsOnly,
+					   const std::string& Fitter,
+					   const std::string& Smoother,
+					   const std::string& Propagator,
+					   const std::string& RefitDirection,
+					   bool RefitRPCHits,
+					   const std::string& TrackerRecHitBuilder,
+					   const std::string& MuonRecHitBuilder,
+					   const std::string& MTDRecHitBuilder) {
+  desc.add<bool>("DoPredictionsOnly",DoPredictionsOnly);
+  desc.add<std::string>("Fitter",Fitter);
+  desc.add<std::string>("Smoother",Smoother);
+  desc.add<std::string>("Propagator",Propagator);
+  desc.add<std::string>("RefitDirection",RefitDirection);  
+  desc.add<bool>("RefitRPCHits",RefitRPCHits);
+  desc.add<std::string>("TrackerRecHitBuilder",TrackerRecHitBuilder);
+  desc.add<std::string>("MuonRecHitBuilder",MuonRecHitBuilder);
+  desc.add<std::string>("MTDRecHitBuilder",MTDRecHitBuilder);
+}
 
 void TrackTransformer::setServices(const EventSetup& setup){
   
@@ -83,6 +106,8 @@ void TrackTransformer::setServices(const EventSetup& setup){
     LogTrace(metname) << "TransientRecHitRecord changed!";
     setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
     setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
+    setup.get<TransientRecHitRecord>().get(theMTDRecHitBuilderName,theMTDRecHitBuilder);
+    theMtdAvailable = theMTDRecHitBuilder.isValid();
     hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
   }
   theFitter->setHitCloner(&hitCloner);
@@ -113,6 +138,10 @@ TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
 	  continue;
 	}
 	result.push_back(theMuonRecHitBuilder->build(&**hit));
+      } else if ( (*hit)->geographicalId().det() == DetId::Forward && 
+		  (*hit)->geographicalId().subdetId() == FastTime  ) {
+	if (  theMtdAvailable ) result.push_back(theMTDRecHitBuilder->build(&**hit));
+	else throw cms::Exception("TrackTransformer") << "MTD hit encountered but MTD not available!";
       }
     }
   }

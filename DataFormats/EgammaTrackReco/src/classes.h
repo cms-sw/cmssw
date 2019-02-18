@@ -24,30 +24,4 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace DataFormats_EgammaTrackReco {
-  struct dictionary {
-
-    reco::TrackCandidateSuperClusterAssociationCollection v5;
-    edm::Wrapper<edm::ValueMap<reco::SuperClusterRef> > m5;
-
-    reco::TrackSuperClusterAssociationCollection v6;
-    edm::Wrapper<edm::ValueMap<reco::SuperClusterRef> > m6;
-
-    reco::TrackCandidateCaloClusterPtrVectorAssociation v7;
-    edm::Wrapper<edm::ValueMap<reco::CaloClusterPtrVector> > m7;
-
-    reco::TrackCandidateCaloClusterPtrAssociation v8;
-    edm::Wrapper<edm::ValueMap<reco::CaloClusterPtr> > m8;
-
-    reco::TrackCaloClusterPtrVectorAssociation v9;
-    edm::Wrapper<edm::ValueMap<reco::CaloClusterPtrVector> > m9;
-
-    reco::TrackCaloClusterPtrAssociation v10;
-    edm::Wrapper<edm::ValueMap<reco::CaloClusterPtr> > m10;
-
-    reco::ConversionTrackCollection v11;
-    edm::Wrapper<reco::ConversionTrackCollection> m11;    
-    
-  };
-}
 
