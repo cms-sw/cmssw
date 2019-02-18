@@ -214,8 +214,7 @@ _effandfakePos = PlotGroup("effandfakePos",
 )
 _effandfakeDeltaRPU = PlotGroup("effandfakeDeltaRPU",
                                 _makeEffFakeDupPlots("dr"     , "#DeltaR", effopts=dict(xtitle="TP min #DeltaR"), fakeopts=dict(xtitle="track min #DeltaR"), common=dict(xlog=True)) +
-                                _makeEffFakeDupPlots("drj"     , "#DeltaR(track, jet)", common=dict(xtitle="#DeltaR(track, jet)", xlog=True))+
-                                _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
+                                _makeEffFakeDupPlots("drj" , "#DeltaR(track, jet)", effopts=dict(xtitle="#DeltaR(TP, jet)"), fakeopts=dict(xtitle="#DeltaR(track, jet)"), common=dict(xlog=True))+                                _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
                                 legendDy=_legendDy_4rows
 )
 
@@ -501,7 +500,7 @@ _extDistSimPos = PlotGroup("distsimPos",
 )
 _extDistSimDeltaR = PlotGroup("distsimDeltaR",
                                  _makeDistSimPlots("dr"     , "min #DeltaR", common=dict(xlog=True)) +
-                                 _makeDistSimPlots("drj"     , "#DeltaR(track, jet)", common=dict(xlog=True)),
+                                 _makeDistSimPlots("drj" , "#DeltaR(TP, jet)", common=dict(xlog=True)),
                                  ncols=2, legendDy=_legendDy_2rows,
 )
 
