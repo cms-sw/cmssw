@@ -52,6 +52,7 @@ void L1EGammaEEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
          l1t::EGamma eg=l1t::EGamma(reco::Candidate::PolarLorentzVector(cl3d->pt()/calib_factor, cl3d->eta(), cl3d->phi(), 0.));
          eg.setHwQual(hw_quality);
          eg.setHwIso(1);
+         eg.setIsoEt(-1); // just temporarily as a dummy value 
          l1EgammaBxCollection->push_back(0,eg);
       }
     }

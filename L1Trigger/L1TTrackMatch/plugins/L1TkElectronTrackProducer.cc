@@ -236,7 +236,11 @@ L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 				  EGammaRef,
 				  matchedL1TrackPtr, 
 				  trkisol );
-      
+     
+      trkEm.setTrackCurvature(matchedL1TrackPtr->getRInv());   // should this have npars? 4? 5? 
+ 
+      //std::cout<<matchedL1TrackPtr->getRInv()<<"  "<<matchedL1TrackPtr->getRInv(4)<<"   "<<matchedL1TrackPtr->getRInv(5)<<std::endl;
+
       if (IsoCut <= 0) {
 	// write the L1TkEm particle to the collection, 
 	// irrespective of its relative isolation

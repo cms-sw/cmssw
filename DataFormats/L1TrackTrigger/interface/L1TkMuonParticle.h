@@ -49,8 +49,11 @@ namespace l1t
       const L1MuKBMTCombinedStubRefVector getBarrelStubs() const { return barrelStubs_; }
       float dR()  const { return dR_;}
       int nTracksMatched() const { return nTracksMatch_;}
+      double trackCurvature()  const { return trackCurvature_;}
 
       unsigned int quality()  const {return quality_;}
+
+      unsigned int muonDetector() const {return muonDetector_;}  
 
       void setTrkPtr(const edm::Ptr< L1TTTrackType >& p) {trkPtr_ = p;}
 
@@ -61,7 +64,9 @@ namespace l1t
 
       void setdR(float dR) { dR_=dR;}
       void setNTracksMatched(int nTracksMatch) { nTracksMatch_=nTracksMatch;}
+      void setTrackCurvature(double trackCurvature) { trackCurvature_=trackCurvature;} // this is signed
 
+      void setMuonDetector(unsigned int detector) {muonDetector_=detector;}
 
     private:
 
@@ -78,8 +83,11 @@ namespace l1t
       float TrkzVtx_ ;
       float dR_;
       int nTracksMatch_;
-      unsigned int quality_;
+      double trackCurvature_;
 
+      unsigned int quality_;
+ 
+      int muonDetector_;     
 
   };
 }

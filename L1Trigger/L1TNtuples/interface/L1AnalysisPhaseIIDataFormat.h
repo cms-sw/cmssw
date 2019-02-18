@@ -65,33 +65,35 @@ namespace L1Analysis
       jetPUDonutEt2.clear();
       jetPUDonutEt3.clear();
 
-      nMuons = 0;
-      muonEt.clear();
-      muonEta.clear();
-      muonPhi.clear();
-      muonEtaAtVtx.clear();
-      muonPhiAtVtx.clear();
-      muonIEt.clear();
-      muonIEta.clear();
-      muonIPhi.clear();
-      muonIEtaAtVtx.clear();
-      muonIPhiAtVtx.clear();
-      muonIDEta.clear();
-      muonIDPhi.clear();
-      muonChg.clear();
-      muonIso.clear();
-      muonQual.clear();
-      muonTfMuonIdx.clear();
-      muonBx.clear();
+      nGlobalMuons = 0;
+      globalMuonPt.clear();
+      globalMuonEta.clear();
+      globalMuonPhi.clear();
+      globalMuonEtaAtVtx.clear();
+      globalMuonPhiAtVtx.clear();
+      globalMuonIEt.clear();
+      globalMuonIEta.clear();
+      globalMuonIPhi.clear();
+      globalMuonIEtaAtVtx.clear();
+      globalMuonIPhiAtVtx.clear();
+      globalMuonIDEta.clear();
+      globalMuonIDPhi.clear();
+      globalMuonChg.clear();
+      globalMuonIso.clear();
+      globalMuonQual.clear();
+      globalMuonTfMuonIdx.clear();
+      globalMuonBx.clear();
 
 
-      nMuonsKF = 0;
-      muonKFEt.clear();
-      muonKFEta.clear();
-      muonKFPhi.clear();
-      muonKFChg.clear();
-      muonKFQual.clear();
-      muonKFBx.clear();
+      nStandaloneMuons = 0;
+      standaloneMuonPt.clear();
+      standaloneMuonPt2.clear();
+      standaloneMuonEta.clear();
+      standaloneMuonPhi.clear();
+      standaloneMuonChg.clear();
+      standaloneMuonQual.clear();
+      standaloneMuonBx.clear();
+      standaloneMuonRegion.clear();
 
 
 
@@ -111,44 +113,54 @@ namespace L1Analysis
       EGIso.clear();
       EGzVtx.clear();
       EGHwQual.clear();      
- 
-      nTkEG = 0;
-      tkEGEt.clear();
-      tkEGEta.clear();
-      tkEGPhi.clear();
-      tkEGBx.clear();
-      tkEGTrkIso.clear();
-      tkEGzVtx.clear();
-      tkEGHwQual.clear();
-      tkEGEGRefPt.clear(); 
-      tkEGEGRefEta.clear();
-      tkEGEGRefPhi.clear();
+      EGHGC.clear();
+      EGPassesID.clear();
+
+      nTkElectrons = 0;
+      tkElectronEt.clear();
+      tkElectronEta.clear();
+      tkElectronPhi.clear();
+      tkElectronChg.clear();
+      tkElectronBx.clear();
+      tkElectronTrkIso.clear();
+      tkElectronzVtx.clear();
+      tkElectronHwQual.clear();
+      tkElectronEGRefPt.clear(); 
+      tkElectronEGRefEta.clear();
+      tkElectronEGRefPhi.clear();
+      tkElectronHGC.clear();
+      tkElectronPassesID.clear();
 
 
 
-      ntkEGLoose = 0;
-      tkEGLooseEt.clear();
-      tkEGLooseEta.clear();
-      tkEGLoosePhi.clear();
-      tkEGLooseBx.clear();
-      tkEGLooseTrkIso.clear();
-      tkEGLoosezVtx.clear();
-      tkEGLooseHwQual.clear();
-      tkEGLooseEGRefPt.clear();
-      tkEGLooseEGRefEta.clear();
-      tkEGLooseEGRefPhi.clear();
+      nTkElectronsLoose = 0;
+      tkElectronLooseEt.clear();
+      tkElectronLooseEta.clear();
+      tkElectronLoosePhi.clear();
+      tkElectronLooseChg.clear();
+      tkElectronLooseBx.clear();
+      tkElectronLooseTrkIso.clear();
+      tkElectronLoosezVtx.clear();
+      tkElectronLooseHwQual.clear();
+      tkElectronLooseEGRefPt.clear();
+      tkElectronLooseEGRefEta.clear();
+      tkElectronLooseEGRefPhi.clear();
+      tkElectronLooseHGC.clear();
+      tkElectronLoosePassesID.clear();         
 
-      nTkEM = 0;
-      tkEMEt.clear();
-      tkEMEta.clear();
-      tkEMPhi.clear();
-      tkEMBx.clear();
-      tkEMTrkIso.clear();
-      tkEMzVtx.clear();
-      tkEMHwQual.clear();
-      tkEMEGRefPt.clear();
-      tkEMEGRefEta.clear();
-      tkEMEGRefPhi.clear();
+      nTkPhotons = 0;
+      tkPhotonEt.clear();
+      tkPhotonEta.clear();
+      tkPhotonPhi.clear();
+      tkPhotonBx.clear();
+      tkPhotonTrkIso.clear();
+      tkPhotonzVtx.clear();
+      tkPhotonHwQual.clear();
+      tkPhotonEGRefPt.clear();
+      tkPhotonEGRefEta.clear();
+      tkPhotonEGRefPhi.clear();
+      tkPhotonHGC.clear();
+      tkPhotonPassesID.clear();
 
       // TkTaus
       nTkTau = 0;
@@ -176,7 +188,7 @@ namespace L1Analysis
 
       // tkTkGlbMuons
       nTkGlbMuons = 0;
-      tkGlbMuonEt.clear();
+      tkGlbMuonPt.clear();
       tkGlbMuonEta.clear();
       tkGlbMuonPhi.clear();
       tkGlbMuonChg.clear();
@@ -192,7 +204,7 @@ namespace L1Analysis
       tkGlbMuonNMatchedTracks.clear();
 
       nTkMuons = 0;
-      tkMuonEt.clear();
+      tkMuonPt.clear();
       tkMuonEta.clear();
       tkMuonPhi.clear();
       tkMuonChg.clear();
@@ -206,6 +218,21 @@ namespace L1Analysis
       tkMuonMuRefEta.clear();
       tkMuonDRMuTrack.clear();
       tkMuonNMatchedTracks.clear();
+      tkMuonMuRefChg.clear();
+      tkMuonRegion.clear();
+
+      nTkMuonStubs = 0;
+      tkMuonStubsPt.clear();
+      tkMuonStubsEta.clear();
+      tkMuonStubsPhi.clear();
+      tkMuonStubsChg.clear();
+      tkMuonStubsTrkIso.clear();
+      tkMuonStubsBx.clear();
+      tkMuonStubsQuality.clear();
+      tkMuonStubszVtx.clear();
+      tkMuonStubsRegion.clear();
+      tkMuonStubsBarrelStubs.clear();
+      tkMuonStubsRegion.clear();
 
       // TrackerMet
       nTrackerMet = 0;
@@ -235,6 +262,30 @@ namespace L1Analysis
       puppiMHTEt.clear();
       puppiMHTPhi.clear();
       nPuppiMHT=0;
+
+      nPFMuons = 0;
+      pfMuonPt.clear();
+      pfMuonEta.clear();
+      pfMuonPhi.clear();
+      pfMuonzVtx.clear();
+
+      nPFCands = 0;
+      pfCandId.clear();
+      pfCandEt.clear();
+      pfCandEta.clear();
+      pfCandPhi.clear();
+      pfCandzVtx.clear();
+
+      nPFTaus = 0; 
+      pfTauEt.clear();
+      pfTauEta.clear();
+      pfTauPhi.clear();
+      pfTauChargedIso.clear();
+      pfTauType.clear();
+      pfTauIsoFlag.clear();
+      pfTauRelIsoFlag.clear();
+      pfTauPassesMediumIso.clear();
+
     }
  
     float z0Puppi;
@@ -281,33 +332,36 @@ namespace L1Analysis
     std::vector<short int> jetPUDonutEt2;
     std::vector<short int> jetPUDonutEt3;
 
-    unsigned short int nMuons;
-    std::vector<float>   muonEt;
-    std::vector<float>   muonEta;
-    std::vector<float>   muonPhi;
-    std::vector<float>   muonEtaAtVtx;
-    std::vector<float>   muonPhiAtVtx;
-    std::vector<short int>   muonIEt;
-    std::vector<short int>   muonIEta;
-    std::vector<short int>   muonIPhi;
-    std::vector<short int>   muonIEtaAtVtx;
-    std::vector<short int>   muonIPhiAtVtx;
-    std::vector<short int>   muonIDEta;
-    std::vector<short int>   muonIDPhi;
-    std::vector<short int>      muonChg;
-    std::vector<unsigned short int> muonIso;
-    std::vector<unsigned short int> muonQual;
-    std::vector<unsigned short int> muonTfMuonIdx;
-    std::vector<short int>      muonBx;
+    unsigned short int nGlobalMuons;
+    std::vector<float>   globalMuonPt;
+    std::vector<float>   globalMuonEta;
+    std::vector<float>   globalMuonPhi;
+    std::vector<float>   globalMuonEtaAtVtx;
+    std::vector<float>   globalMuonPhiAtVtx;
+    std::vector<short int>   globalMuonIEt;
+    std::vector<short int>   globalMuonIEta;
+    std::vector<short int>   globalMuonIPhi;
+    std::vector<short int>   globalMuonIEtaAtVtx;
+    std::vector<short int>   globalMuonIPhiAtVtx;
+    std::vector<short int>   globalMuonIDEta;
+    std::vector<short int>   globalMuonIDPhi;
+    std::vector<short int>      globalMuonChg;
+    std::vector<unsigned short int> globalMuonIso;
+    std::vector<unsigned short int> globalMuonQual;
+    std::vector<unsigned short int> globalMuonTfMuonIdx;
+    std::vector<short int>      globalMuonBx;
 
 
-    unsigned short int nMuonsKF;
-    std::vector<float>   muonKFEt;
-    std::vector<float>   muonKFEta;
-    std::vector<float>   muonKFPhi;
-    std::vector<short int>      muonKFChg;
-    std::vector<unsigned short int> muonKFQual;
-    std::vector<short int>      muonKFBx;
+    unsigned short int nStandaloneMuons;
+    std::vector<float>   standaloneMuonPt;
+    std::vector<float>   standaloneMuonPt2;
+    std::vector<float>   standaloneMuonEta;
+    std::vector<float>   standaloneMuonPhi;
+    std::vector<short int>      standaloneMuonChg;
+    std::vector<unsigned short int> standaloneMuonQual;
+    std::vector<short int>      standaloneMuonBx;
+    std::vector<unsigned int>     standaloneMuonRegion;
+
 
     unsigned short int nSums;
     std::vector<short int> sumType;
@@ -326,43 +380,53 @@ namespace L1Analysis
     std::vector<double> EGIso;
     std::vector<double> EGzVtx;
     std::vector<int>    EGHwQual;
+    std::vector<bool> EGHGC;
+    std::vector<bool>   EGPassesID;
 
-    unsigned int nTkEG;
-    std::vector<double> tkEGEt;
-    std::vector<double> tkEGEta;
-    std::vector<double> tkEGPhi;
-    std::vector<int>    tkEGBx;
-    std::vector<double> tkEGTrkIso;
-    std::vector<double> tkEGzVtx;
-    std::vector<double> tkEGHwQual;
-    std::vector<double>   tkEGEGRefPt;
-    std::vector<double>   tkEGEGRefEta;
-    std::vector<double>   tkEGEGRefPhi;
+    unsigned int nTkElectrons;
+    std::vector<double> tkElectronEt;
+    std::vector<double> tkElectronEta;
+    std::vector<double> tkElectronPhi;
+    std::vector<int>    tkElectronChg;
+    std::vector<int>    tkElectronBx;
+    std::vector<double> tkElectronTrkIso;
+    std::vector<double> tkElectronzVtx;
+    std::vector<double> tkElectronHwQual;
+    std::vector<double>   tkElectronEGRefPt;
+    std::vector<double>   tkElectronEGRefEta;
+    std::vector<double>   tkElectronEGRefPhi;
+    std::vector<bool> tkElectronHGC;
+    std::vector<bool> tkElectronPassesID;
 
+    unsigned int nTkElectronsLoose;
+    std::vector<double> tkElectronLooseEt;
+    std::vector<double> tkElectronLooseEta;
+    std::vector<double> tkElectronLoosePhi;
+    std::vector<double> tkElectronLooseChg;
+    std::vector<int>    tkElectronLooseBx;
+    std::vector<double> tkElectronLooseTrkIso;
+    std::vector<double> tkElectronLoosezVtx;
+    std::vector<double> tkElectronLooseHwQual;
+    std::vector<double>   tkElectronLooseEGRefPt;
+    std::vector<double>   tkElectronLooseEGRefEta;
+    std::vector<double>   tkElectronLooseEGRefPhi;
+    std::vector<bool> tkElectronLooseHGC;
+    std::vector<bool> tkElectronLoosePassesID;
 
-    unsigned int ntkEGLoose;
-    std::vector<double> tkEGLooseEt;
-    std::vector<double> tkEGLooseEta;
-    std::vector<double> tkEGLoosePhi;
-    std::vector<int>    tkEGLooseBx;
-    std::vector<double> tkEGLooseTrkIso;
-    std::vector<double> tkEGLoosezVtx;
-    std::vector<double> tkEGLooseHwQual;
-    std::vector<double>   tkEGLooseEGRefPt;
-    std::vector<double>   tkEGLooseEGRefEta;
-    std::vector<double>   tkEGLooseEGRefPhi;
+    unsigned int nTkPhotons;
+    std::vector<double> tkPhotonEt;
+    std::vector<double> tkPhotonEta;
+    std::vector<double> tkPhotonPhi;
+    std::vector<int>    tkPhotonBx;
+    std::vector<double> tkPhotonTrkIso;
+    std::vector<double> tkPhotonzVtx;
+    std::vector<double> tkPhotonHwQual;
+    std::vector<double>   tkPhotonEGRefPt;
+    std::vector<double>   tkPhotonEGRefEta;
+    std::vector<double>   tkPhotonEGRefPhi;
+    std::vector<bool> tkPhotonHGC;
+    std::vector<bool> tkPhotonPassesID;
 
-    unsigned int nTkEM;
-    std::vector<double> tkEMEt;
-    std::vector<double> tkEMEta;
-    std::vector<double> tkEMPhi;
-    std::vector<int>    tkEMBx;
-    std::vector<double> tkEMTrkIso;
-    std::vector<double> tkEMzVtx;
-    std::vector<double> tkEMHwQual;
-    std::vector<double>   tkEMEGRefPt;
-    std::vector<double>   tkEMEGRefEta;
-    std::vector<double>   tkEMEGRefPhi;
 
     unsigned int nTkTau;
     std::vector<double> tkTauEt;
@@ -387,7 +451,7 @@ namespace L1Analysis
     std::vector<double> tkCaloJetzVtx;
 
     unsigned int nTkGlbMuons;
-    std::vector<double>   tkGlbMuonEt;
+    std::vector<double>   tkGlbMuonPt;
     std::vector<double>   tkGlbMuonEta;
     std::vector<double>   tkGlbMuonPhi;
     std::vector<int>      tkGlbMuonChg;
@@ -404,7 +468,7 @@ namespace L1Analysis
     std::vector<double>  tkGlbMuonNMatchedTracks;
 
     unsigned int nTkMuons;
-    std::vector<double>   tkMuonEt;
+    std::vector<double>   tkMuonPt;
     std::vector<double>   tkMuonEta;
     std::vector<double>   tkMuonPhi;
     std::vector<int>      tkMuonChg;
@@ -422,6 +486,24 @@ namespace L1Analysis
     std::vector<double>  tkMuonMuRefEta;
     std::vector<double>  tkMuonDRMuTrack;
     std::vector<double>  tkMuonNMatchedTracks;
+    std::vector<int>  tkMuonMuRefChg;
+    std::vector<unsigned int>   tkMuonRegion;
+
+    unsigned int nTkMuonStubs;
+    std::vector<double>   tkMuonStubsPt;
+    std::vector<double>   tkMuonStubsEta;
+    std::vector<double>   tkMuonStubsPhi;
+    std::vector<int>      tkMuonStubsChg;
+    std::vector<unsigned int> tkMuonStubsIso;
+    std::vector<double> tkMuonStubsTrkIso;
+    std::vector<unsigned int> tkMuonStubsFwd;
+    std::vector<unsigned int> tkMuonStubsMip;
+    std::vector<unsigned int> tkMuonStubsRPC;
+    std::vector<int>      tkMuonStubsBx;
+    std::vector<unsigned int>      tkMuonStubsQuality;
+    std::vector<double>   tkMuonStubszVtx;
+    std::vector<double>   tkMuonStubsBarrelStubs;
+    std::vector<unsigned int>   tkMuonStubsRegion;
 
     unsigned int nTrackerMet;
     std::vector<double> trackerMetSumEt;
@@ -450,6 +532,33 @@ namespace L1Analysis
     std::vector<double> puppiMHTEt;
     std::vector<double> puppiMHTPhi;
      unsigned int nPuppiMHT;
+
+    unsigned int  nPFMuons;
+    std::vector<double> pfMuonPt;
+    std::vector<double> pfMuonEta;
+    std::vector<double> pfMuonPhi;
+    std::vector<double>pfMuonzVtx;
+    std::vector<int> pfMuonChg;
+
+    unsigned int  nPFCands;
+    std::vector<int> pfCandId;
+    std::vector<double> pfCandEt;
+    std::vector<double> pfCandEta;
+    std::vector<double> pfCandPhi;
+    std::vector<double>pfCandzVtx;
+    std::vector<int> pfCandChg;
+
+    unsigned int  nPFTaus;
+    std::vector<double> pfTauEt;
+    std::vector<double> pfTauEta;
+    std::vector<double> pfTauPhi;
+    std::vector<double> pfTauType;
+    std::vector<double> pfTauChargedIso;
+    std::vector<unsigned int> pfTauIsoFlag;
+    std::vector<unsigned int> pfTauRelIsoFlag;
+    std::vector<bool> pfTauPassesMediumIso;
+    std::vector<int> pfTauChg;
+
 
   }; 
 }

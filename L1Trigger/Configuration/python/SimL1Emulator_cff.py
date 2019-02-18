@@ -163,7 +163,7 @@ l1MetTKV     = pfMet.clone(src = "l1pfProducer:TKVtx")
 l1MetTightTK      = pfMet.clone(src = "l1pfProducerTightTK:TK")
 l1MetTightTKV     = pfMet.clone(src = "l1pfProducerTightTK:TKVtx")
 l1MetPF      = pfMet.clone(src = "l1pfProducerForMET:PF")
-l1MetPuppi   = pfMet.clone(src = "l1pfProducer:Puppi")
+l1MetPuppi   = pfMet.clone(src = "l1pfProducerForMET:Puppi")
 l1PFMets = cms.Sequence( l1MetCalo + l1MetTK + l1MetTKV + l1MetPF + l1MetPuppi
                         + l1MetTightTK + l1MetTightTKV)
 
