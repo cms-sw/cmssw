@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import re
 import json
 import ROOT
@@ -10,10 +11,13 @@ parser.add_argument('inputfile', help='ROOT file to read')
 parser.add_argument('-o', '--output', help='SQLite file to write', default='root.sqlite')
 args = parser.parse_args()
 
-f = ROOT.TFile(args.inputfile)
+f = ROOT.TFile.Open(args.inputfile)
 db = sqlite3.connect(args.output)
 
 basic_objects = {}
+
+inf = re.compile("([- \[])inf([,}\]])")
+nan = re.compile("([- \[])nan([,}\]])")
 
 def tosqlite(x):
     if isinstance(x, ROOT.string):
@@ -31,12 +35,12 @@ def tosqlite(x):
         try: 
             rootobj = unicode(ROOT.TBufferJSON.ConvertToJSON(x))
             # turns out ROOT does not generate valid JSON for NaN/inf
-            obj = json.loads(rootobj)
+            clean = nan.sub('\\g<1>0\\g<2>', inf.sub('\\g<1>1e38\\g<2>', rootobj))
+            obj = json.loads(clean)
             jsonobj = json.dumps(obj, allow_nan=False)
             return jsonobj
-        except:
-            print x, x.__class__
-            return "<%s>" % x
+        except Exception as e:
+            return json.dumps({"root2sqlite_error": e.__repr__(), "root2sqlite_object": x.__repr__()})
 
 def columnescape(s):
     # add whatever is not a valid column name here
