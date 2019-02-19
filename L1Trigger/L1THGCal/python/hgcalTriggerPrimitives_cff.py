@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.L1THGCal.hgcalTriggerGeometryESProducer_cfi import *
-from L1Trigger.L1THGCal.hgcalVFEProducer_cfi import *
-from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import *
-from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import *
-from L1Trigger.L1THGCal.hgcalBackEndLayer2Producer_cfi import *
-from L1Trigger.L1THGCal.hgcalTowerMapProducer_cfi import *
-from L1Trigger.L1THGCal.hgcalTowerProducer_cfi import *
+from L1Trigger.L1THGCal.hgcalVFE_cff import *
+from L1Trigger.L1THGCal.hgcalConcentrator_cff import *
+from L1Trigger.L1THGCal.hgcalBackEndLayer1_cff import *
+from L1Trigger.L1THGCal.hgcalBackEndLayer2_cff import *
+from L1Trigger.L1THGCal.hgcalTowerMap_cff import *
+from L1Trigger.L1THGCal.hgcalTower_cff import *
 
 
-hgcalTriggerPrimitives = cms.Sequence(hgcalVFEProducer*hgcalConcentratorProducer*hgcalBackEndLayer1Producer*hgcalBackEndLayer2Producer*hgcalTowerMapProducer*hgcalTowerProducer)
+hgcalTriggerPrimitives = cms.Sequence(hgcalVFE*hgcalConcentrator*hgcalBackEndLayer1*hgcalBackEndLayer2*hgcalTowerMap*hgcalTower)
 
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
