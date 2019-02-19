@@ -2,6 +2,7 @@
 
 import re
 import pandas as pd
+import sys
 
 def getMixture(line) :
     mixture = re.search(
@@ -30,14 +31,14 @@ def getCompound(line) :
         'category' : compound.group("Type"),
     }
 
-def getMixtures() :
+def getMixtures(inputFile) :
 
     """
     Returns a list of Mixtures (dict). Each
     mixture contains a list of compounds.
     """
 
-    inFile = open("pixel_bar.in","r")
+    inFile = open(inputFile,"r")
 
     mixtures = []
     mixture = {}
@@ -86,164 +87,166 @@ def loadMaterialsFile(inputFile):
 
     return mixMats
 
-listOfMixtures = getMixtures()
+def main(argv):
 
-listOfMixedMaterials = loadMaterialsFile(inputFile="mixed_materials.input")
-listOfPureMaterials = loadMaterialsFile(inputFile="pure_materials.input")
-listOfMaterials = listOfMixedMaterials + listOfPureMaterials
+    listOfMixtures = getMixtures(argv[1])
 
+    listOfMixedMaterials = loadMaterialsFile(inputFile="mixed_materials.input")
+    listOfPureMaterials = loadMaterialsFile(inputFile="pure_materials.input")
+    listOfMaterials = listOfMixedMaterials + listOfPureMaterials
 
-dfAllMaterials = pd.DataFrame(listOfMaterials)
+    dfAllMaterials = pd.DataFrame(listOfMaterials)
 
+    for index in range(len(listOfMixtures)):
 
-for index in range(len(listOfMixtures)):
-    print("================================")
-    print(listOfMixtures[index]["gmix_name"])
-
-
-    components = pd.DataFrame(listOfMixtures[index]['components'])
-
-    components["volume"] = components["multiplicity"]*components["volume"]
-    totalVolume = sum(
-        components["volume"]
-        )
-
-    components["percentVolume"] = components["volume"] / totalVolume
-
-    components = pd.merge(
-        components,
-        dfAllMaterials[["name","density","x0","l0"]],
-        left_on="material",
-        right_on="name"
-        )
-
-    components["weight"] = components["density"] * components["volume"]
-
-    totalDensity = sum(
-        components["percentVolume"] * components["density"]
-        )
-
-    totalWeight = totalDensity * totalVolume
-
-    components["percentWeight"] = (
-        components["density"] * components["volume"] / totalWeight
-        )
-
-    components["ws"] = (
-        components["percentWeight"] / (components["density"]*components["x0"])
-        )
-
-    components["ws2"] = (
-        components["percentWeight"] / (components["density"]*components["l0"])
-        )
-
-    totalRadLen = 1 / ( sum(components["ws"]) * totalDensity )
-
-    totalIntLen = 1/ ( sum(components["ws2"]) * totalDensity )
-
-    components["percentRadLen"] = (
-        components["ws"] * totalRadLen * totalDensity
-        )
-
-    components["percentIntLen"] = (
-        components["ws2"] * totalIntLen * totalDensity
-        )
+        print("================================")
+        print(listOfMixtures[index]["gmix_name"])
 
 
-    print(components[[
-                "comment",
-                "name","material","volume",
-                "percentVolume","percentWeight",
-                "density","weight","x0","percentRadLen",
-                "l0","percentIntLen"
-                ]])
+        components = pd.DataFrame(listOfMixtures[index]['components'])
+
+        components["volume"] = components["multiplicity"]*components["volume"]
+        totalVolume = sum(
+            components["volume"]
+            )
+
+        components["percentVolume"] = components["volume"] / totalVolume
+
+        components = pd.merge(
+            components,
+            dfAllMaterials[["name","density","x0","l0"]],
+            left_on="material",
+            right_on="name"
+            )
+
+        components["weight"] = components["density"] * components["volume"]
+
+        totalDensity = sum(
+            components["percentVolume"] * components["density"]
+            )
+
+        totalWeight = totalDensity * totalVolume
+
+        components["percentWeight"] = (
+            components["density"] * components["volume"] / totalWeight
+            )
+
+        components["ws"] = (
+            components["percentWeight"] / (components["density"]*components["x0"])
+            )
+
+        components["ws2"] = (
+            components["percentWeight"] / (components["density"]*components["l0"])
+            )
+
+        totalRadLen = 1 / ( sum(components["ws"]) * totalDensity )
+
+        totalIntLen = 1/ ( sum(components["ws2"]) * totalDensity )
+
+        components["percentRadLen"] = (
+            components["ws"] * totalRadLen * totalDensity
+            )
+
+        components["percentIntLen"] = (
+            components["ws2"] * totalIntLen * totalDensity
+            )
 
 
-    # Normalized vars:
-
-    mcVolume = listOfMixtures[index]["mc_volume"]
-    mcArea = listOfMixtures[index]["mc_area"]
-    normalizationFactor = -1.
-
-    if mcVolume > 0:
-        normalizationFactor = totalVolume / mcVolume
-    else:
-        normalizationFactor = 1.
-
-    normalizedDensity = totalDensity * normalizationFactor
-    normalizedRadLen = totalRadLen / normalizationFactor
-    normalizedIntLen = totalIntLen / normalizationFactor
-
-    percentRadL = -1.
-    percentIntL = -1.
-
-    if mcArea > 0:
-        percentRadL = mcVolume / (mcArea*normalizedRadLen)
-        percentIntL = mcVolume / (mcArea*normalizedIntLen)
-
-    pSupRadLen = 0.
-    pSenRadLen = 0.
-    pCabRadLen = 0.
-    pColRadLen = 0.
-    pEleRadLen = 0.
-
-    pSupIntLen = 0.
-    pSenIntLen = 0.
-    pCabIntLen = 0.
-    pColIntLen = 0.
-    pEleIntLen = 0.
+        print(components[[
+                    "comment",
+                    "name","material","volume",
+                    "percentVolume","percentWeight",
+                    "density","weight","x0","percentRadLen",
+                    "l0","percentIntLen"
+                    ]])
 
 
-    for index, component in components.iterrows():
-        catg = component["category"]
-        prl = component["percentRadLen"]
-        irl = component["percentIntLen"]
-        if catg.upper() == "SUP":
-            pSupRadLen += prl
-            pSupIntLen += irl
-        elif catg.upper() == "SEN":
-            pSenRadLen += prl
-            pSenIntLen += irl
-        elif catg.upper() == "CAB":
-            pCabRadLen += prl
-            pCabIntLen += irl
-        elif catg.upper() == "COL":
-            pColRadLen += prl
-            pColIntLen += irl
-        elif catg.upper() == "ELE":
-            pEleRadLen += prl
-            pEleIntLen += irl
+        # Normalized vars:
 
-    print("================================")
-    print("Mixture Density       [g/cm^3]: " , totalDensity)
-    print("Norm. mixture density [g/cm^3]: ", normalizedDensity)
-    print("Mixture Volume        [cm^3]: ", totalVolume)
-    print("MC Volume             [cm^3]: ", mcVolume)
-    print("MC Area               [cm^2]: ", mcArea)
-    print("Normalization Factor:       ",  normalizationFactor)
-    print("Mixture x0            [cm]: ", totalRadLen)
-    print("Norm. Mixture x0      [cm]: ", normalizedRadLen)
-    if mcArea > 0 :
-        print("Norm. Mixture x0      [%]: ", 100. * percentRadL)
-    print("Mixture l0            [cm]: ", totalIntLen)
-    print("Norm. Mixture l0      [cm]: ", normalizedIntLen)
-    if mcArea > 0 :
-        print("Norm. Mixture l0      [%]: ", 100. * percentIntL)
-    print("Total Weight          [g]: ", totalWeight)
+        mcVolume = listOfMixtures[index]["mc_volume"]
+        mcArea = listOfMixtures[index]["mc_area"]
+        normalizationFactor = -1.
 
-    print("================================")
-    print("X0 Contribution: ")
-    print("Support     :", pSupRadLen)
-    print("Sensitive   :", pSenRadLen)
-    print("Cables      :", pCabRadLen)
-    print("Cooling     :", pColRadLen)
-    print("Electronics :", pEleRadLen)
+        if mcVolume > 0:
+            normalizationFactor = totalVolume / mcVolume
+        else:
+            normalizationFactor = 1.
 
-    print("================================")
-    print("l0 Contribution: ")
-    print("Support     :", pSupIntLen)
-    print("Sensitive   :", pSenIntLen)
-    print("Cables      :", pCabIntLen)
-    print("Cooling     :", pColIntLen)
-    print("Electronics :", pEleIntLen)
+        normalizedDensity = totalDensity * normalizationFactor
+        normalizedRadLen = totalRadLen / normalizationFactor
+        normalizedIntLen = totalIntLen / normalizationFactor
 
+        percentRadL = -1.
+        percentIntL = -1.
+
+        if mcArea > 0:
+            percentRadL = mcVolume / (mcArea*normalizedRadLen)
+            percentIntL = mcVolume / (mcArea*normalizedIntLen)
+
+        pSupRadLen = 0.
+        pSenRadLen = 0.
+        pCabRadLen = 0.
+        pColRadLen = 0.
+        pEleRadLen = 0.
+
+        pSupIntLen = 0.
+        pSenIntLen = 0.
+        pCabIntLen = 0.
+        pColIntLen = 0.
+        pEleIntLen = 0.
+
+        for index, component in components.iterrows():
+            catg = component["category"]
+            prl = component["percentRadLen"]
+            irl = component["percentIntLen"]
+            if catg.upper() == "SUP":
+                pSupRadLen += prl
+                pSupIntLen += irl
+            elif catg.upper() == "SEN":
+                pSenRadLen += prl
+                pSenIntLen += irl
+            elif catg.upper() == "CAB":
+                pCabRadLen += prl
+                pCabIntLen += irl
+            elif catg.upper() == "COL":
+                pColRadLen += prl
+                pColIntLen += irl
+            elif catg.upper() == "ELE":
+                pEleRadLen += prl
+                pEleIntLen += irl
+
+        print("================================")
+        print("Mixture Density       [g/cm^3]: " , totalDensity)
+        print("Norm. mixture density [g/cm^3]: ", normalizedDensity)
+        print("Mixture Volume        [cm^3]: ", totalVolume)
+        print("MC Volume             [cm^3]: ", mcVolume)
+        print("MC Area               [cm^2]: ", mcArea)
+        print("Normalization Factor:       ",  normalizationFactor)
+        print("Mixture x0            [cm]: ", totalRadLen)
+        print("Norm. Mixture x0      [cm]: ", normalizedRadLen)
+        if mcArea > 0 :
+            print("Norm. Mixture x0      [%]: ", 100. * percentRadL)
+        print("Mixture l0            [cm]: ", totalIntLen)
+        print("Norm. Mixture l0      [cm]: ", normalizedIntLen)
+        if mcArea > 0 :
+            print("Norm. Mixture l0      [%]: ", 100. * percentIntL)
+        print("Total Weight          [g]: ", totalWeight)
+
+        print("================================")
+        print("X0 Contribution: ")
+        print("Support     :", pSupRadLen)
+        print("Sensitive   :", pSenRadLen)
+        print("Cables      :", pCabRadLen)
+        print("Cooling     :", pColRadLen)
+        print("Electronics :", pEleRadLen)
+
+        print("================================")
+        print("l0 Contribution: ")
+        print("Support     :", pSupIntLen)
+        print("Sensitive   :", pSenIntLen)
+        print("Cables      :", pCabIntLen)
+        print("Cooling     :", pColIntLen)
+        print("Electronics :", pEleIntLen)
+
+if __name__== "__main__":
+    main(sys.argv)
