@@ -356,8 +356,8 @@ class GsfElectronAlgo {
       GlobalVector vtxMomWithConstraint ;
      } ;
 
-    std::unique_ptr<GeneralData> generalData_ ;
-    std::unique_ptr<EventSetupData> eventSetupData_ ;
+    GeneralData generalData_ ;
+    EventSetupData eventSetupData_ ;
     std::unique_ptr<EventData> eventData_ ;
     std::unique_ptr<ElectronData> electronData_ ;
 
