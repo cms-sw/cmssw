@@ -16,8 +16,23 @@ from L1Trigger.Phase2L1ParticleFlow.l1pfProducer_cfi import l1pfProducer
 
 # Calorimeter part: ecal + hcal + hf only
 pfClustersFromCombinedCaloHCal = pfClustersFromCombinedCalo.clone(
-    hcalHGCTowers = [],
+    hcalHGCTowers = [], 
+    hcalDigisBarrel = True, hcalDigisHF = False,
+    hadCorrector = cms.string("L1Trigger/Phase2L1ParticleFlow/data/hadcorr_barrel.root"),
     )
+pfClustersFromCombinedCaloHF = pfClustersFromCombinedCalo.clone(
+    ecalCandidates = [], hcalHGCTowers = [],
+    hcalDigisBarrel = False, hcalDigisHF = True,
+    hadCorrector = cms.string("L1Trigger/Phase2L1ParticleFlow/data/hfcorr.root"),
+    resol = cms.PSet(
+            etaBins = cms.vdouble( 3.500,  4.000,  4.500,  5.000),
+            offset  = cms.vdouble( 0.580,  0.594,  0.355, -1.310),
+            scale   = cms.vdouble( 0.174,  0.172,  0.220,  0.692),
+            ptMin   = cms.vdouble( 5.000,  5.000,  5.000,  5.000),
+            ptMax   = cms.vdouble(999999, 999999, 999999, 999999),
+            kind    = cms.string('calo'),
+    ))
+
 
 
 # Calorimeter part: hgcal
@@ -32,9 +47,9 @@ pfClustersFromHGC3DClusters = L1Trigger.Phase2L1ParticleFlow.pfClustersFromHGC3D
     emId  = cms.string("hOverE < 0.25 && hOverE >= 0"),
     etMin = 1.0, 
     resol = cms.PSet(
-        etaBins = cms.vdouble( 1.900,  2.200,  2.500,  2.800,  3.000),
-        offset  = cms.vdouble( 1.185,  1.041,  0.861,  0.629,  0.468),
-        scale   = cms.vdouble( 0.101,  0.094,  0.092,  0.103,  0.145),
+        etaBins = cms.vdouble( 1.900,  2.200,  2.500,  2.800,  3.100),
+        offset  = cms.vdouble( 0.731,  1.632,  0.282,  0.926,  1.122),
+        scale   = cms.vdouble( 0.114,  0.065,  0.098,  0.075,  0.103),
         kind    = cms.string('calo')
     ),
 )
@@ -42,6 +57,7 @@ pfClustersFromHGC3DClusters = L1Trigger.Phase2L1ParticleFlow.pfClustersFromHGC3D
 l1ParticleFlow_calo = cms.Sequence(
     pfClustersFromL1EGClusters +
     pfClustersFromCombinedCaloHCal +
+    pfClustersFromCombinedCaloHF +
     hgc3DClustersNoNoise +
     pfClustersFromHGC3DClusters
 )
@@ -124,7 +140,7 @@ l1ParticleFlow_pf_hgcal = cms.Sequence(
 l1pfProducerHF = l1pfProducer.clone(
     # inputs
     emClusters = [ ],
-    hadClusters = [ cms.InputTag('pfClustersFromCombinedCaloHCal:calibrated') ],
+    hadClusters = [ cms.InputTag('pfClustersFromCombinedCaloHF:calibrated') ],
     # not really useful, but for consistency
     puppiDrMin = 0.1,
     puppiPtMax = 100.,
