@@ -96,6 +96,7 @@ class SiPixelDigitizerAlgorithm  {
   edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
 
   //Accessing Dead pixel modules from DB:
+  std::string siPixelQualityLabel;
   edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
 
   //Accessing Map and Geom:

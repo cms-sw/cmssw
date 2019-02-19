@@ -198,7 +198,7 @@ class HipPyOptionParser:
             self.uniformetaformula=val
          ## Options for mMin. bias
          # Apply vertex constraint
-         elif (key=="primaryvertextpye" or key=="pvtype"):
+         elif (key=="primaryvertextype" or key=="pvtype"):
             val=val.lower()
             if (val=="nobs" or val=="withbs"):
                self.PVtype=val
