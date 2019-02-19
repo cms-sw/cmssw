@@ -6,7 +6,7 @@ import sys
 
 def getMixture(line) :
     mixture = re.search(
-        r'^#\s*"(?P<MixtureName>[^"]+)"\s+"(?P<GMIXName>[^"]+)"\s+(?P<MCVolume>[0-9.Ee-]+)\s+(?P<MCArea>[0-9.Ee-]+)',
+        r'^#\s*"(?P<MixtureName>[^"]+)"\s+"(?P<GMIXName>[^"]+)"\s+(?P<MCVolume>[0-9.Ee\-+]+)\s+(?P<MCArea>[0-9.Ee\-+]+)',
         line
     )
     return {
@@ -19,7 +19,7 @@ def getMixture(line) :
 
 def getCompound(line) :
     compound = re.search(
-        r'^\*\s*(?P<Index>[0-9]+)\s+"(?P<Comment>[^"]+)"\s+"(?P<Material>[^"]+)"\s+(?P<Volume>[0-9.Ee-]+)\s+(?P<Mult>[0-9.]+)\s+(?P<Type>[^ ]{3})',
+        r'^\*\s*(?P<Index>[0-9]+)\s+"(?P<Comment>[^"]+)"\s+"(?P<Material>[^"]+)"\s+(?P<Volume>[0-9.Ee\-+]+)\s+(?P<Mult>[0-9.]+)\s+(?P<Type>[^ ]{3})',
         line
     )
     return {
