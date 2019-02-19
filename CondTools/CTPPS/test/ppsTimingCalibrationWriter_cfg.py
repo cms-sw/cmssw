@@ -11,7 +11,9 @@ process.source = cms.Source('EmptyIOVSource',
 
 # load calibrations from JSON file
 process.load('CondFormats.CTPPSReadoutObjects.ppsTimingCalibrationESSource_cfi')
-process.ppsTimingCalibrationESSource.calibrationFile = cms.FileInPath('RecoCTPPS/TotemRPLocal/data/timing_offsets_ufsd_2018.dec18.cal.json')
+#process.ppsTimingCalibrationESSource.calibrationFile = cms.FileInPath('RecoCTPPS/TotemRPLocal/data/timing_offsets_ufsd_2018.dec18.cal.json')
+process.ppsTimingCalibrationESSource.calibrationFile = cms.FileInPath('DiamondCalibrationExample.json')
+process.ppsTimingCalibrationESSource.subDetector = cms.uint32(2)
 
 # output service for database
 process.load('CondCore.CondDB.CondDB_cfi')
