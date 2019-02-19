@@ -1,5 +1,5 @@
-#ifndef FastPUPPI_NtupleProducer_SimpleCalibrations_h
-#define FastPUPPI_NtupleProducer_SimpleCalibrations_h
+#ifndef L1Trigger_Phase2L1ParticleFlow_SimpleCalibrations_h
+#define L1Trigger_Phase2L1ParticleFlow_SimpleCalibrations_h
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 
