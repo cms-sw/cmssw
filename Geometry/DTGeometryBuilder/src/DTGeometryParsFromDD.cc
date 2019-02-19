@@ -209,9 +209,9 @@ DTGeometryParsFromDD::plane(const DDFilteredView& fv) const {
   const DDTranslation & trans(fv.translation());
 
   std::vector<double> gtran( 3 );
-  gtran[0] = CMS_CONVERT_TO( trans.x(), cm );
-  gtran[1] = CMS_CONVERT_TO( trans.y(), cm );
-  gtran[2] = CMS_CONVERT_TO( trans.z(), cm );
+  gtran[0] = CONVERT_UNITS_TO( trans.x(), cm );
+  gtran[1] = CONVERT_UNITS_TO( trans.y(), cm );
+  gtran[2] = CONVERT_UNITS_TO( trans.z(), cm );
 
   // now the rotation
   //     'active' and 'passive' rotations are inverse to each other

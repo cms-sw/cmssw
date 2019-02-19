@@ -9,7 +9,7 @@
 
 #include <cmath>
 
-#define CMS_CONVERT_TO(_x, _y) (_x)/(1.0_##_y)
+#define CONVERT_UNITS_TO(_x, _y) (_x)/(1.0_##_y)
 
 namespace geant_units {
   

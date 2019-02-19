@@ -32,13 +32,13 @@ DDI::Cons::Cons(double zhalf,
 void
 DDI::Cons::stream( std::ostream & os ) const
 {
-  os << " zhalf=" << CMS_CONVERT_TO( p_[0], cm )
-     << " rIn-Z=" << CMS_CONVERT_TO( p_[1], cm )
-     << " rOut-Z=" << CMS_CONVERT_TO( p_[2], cm )
-     << " rIn+Z=" << CMS_CONVERT_TO( p_[3], cm )
-     << " rOut+Z=" << CMS_CONVERT_TO( p_[4], cm )
-     << " startPhi=" << CMS_CONVERT_TO( p_[5], deg )
-     << " deltaPhi=" << CMS_CONVERT_TO( p_[6], deg );
+  os << " zhalf=" << CONVERT_UNITS_TO( p_[0], cm )
+     << " rIn-Z=" << CONVERT_UNITS_TO( p_[1], cm )
+     << " rOut-Z=" << CONVERT_UNITS_TO( p_[2], cm )
+     << " rIn+Z=" << CONVERT_UNITS_TO( p_[3], cm )
+     << " rOut+Z=" << CONVERT_UNITS_TO( p_[4], cm )
+     << " startPhi=" << CONVERT_UNITS_TO( p_[5], deg )
+     << " deltaPhi=" << CONVERT_UNITS_TO( p_[6], deg );
 }
 
 double DDI::Cons::volume() const
@@ -67,7 +67,7 @@ double DDI::Cons::volume() const
    double rInPlusZ=p_[3]; 
    double rOutPlusZ=p_[4];
    //double phiFrom=p_[5]/rad;
-   double deltaPhi=std::abs( CMS_CONVERT_TO( p_[6], rad )); 
+   double deltaPhi=std::abs( CONVERT_UNITS_TO( p_[6], rad )); 
    double z=2*zhalf;
 
   double volume1=1_pi*(rInPlusZ*rInPlusZ+rInMinusZ*rInMinusZ+rInMinusZ*rInPlusZ)*z/3;

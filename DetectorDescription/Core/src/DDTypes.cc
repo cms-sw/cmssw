@@ -76,7 +76,7 @@ std::string formatAsDegrees(double radianVal)
 {
 	const unsigned short numlen = 12;
 	char degstr[numlen];
-	int retval = snprintf(degstr, numlen, "%0*Lf", numlen - 1, CMS_CONVERT_TO( radianVal, deg ));
+	int retval = snprintf(degstr, numlen, "%0*Lf", numlen - 1, CONVERT_UNITS_TO( radianVal, deg ));
 	if (retval == numlen - 1)
 		return degstr;
 	else return "0000.000000";

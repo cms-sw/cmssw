@@ -208,7 +208,7 @@ void output(string filename)
        << "  " << exv.logicalPart().material() << endl
        << "  " << exv.logicalPart().solid() << endl
        << "  " << exv.translation() << endl;
-    os << "  " << ra.Axis() << CMS_CONVERT_TO( ra.Angle(), deg ) << endl;
+    os << "  " << ra.Axis() << CONVERT_UNITS_TO( ra.Angle(), deg ) << endl;
     tvec.emplace_back(exv.translation());   
     loop = exv.next();
   }
@@ -258,17 +258,17 @@ void printRot(const DDRotationMatrix & rot) {
 	    << y << "\n"
 	    << z << std::endl;
   cout << "phiX=" << x.phi() << " or in degrees = " 
-       << CMS_CONVERT_TO( x.phi(), deg ) << endl;
+       << CONVERT_UNITS_TO( x.phi(), deg ) << endl;
   cout << "thetaX=" << x.theta() << " or in degrees = " 
-       << CMS_CONVERT_TO( x.theta(), deg ) << endl;
+       << CONVERT_UNITS_TO( x.theta(), deg ) << endl;
   cout << "phiY=" << y.phi() << " or in degrees = " 
-       << CMS_CONVERT_TO( y.phi(), deg ) << endl;
+       << CONVERT_UNITS_TO( y.phi(), deg ) << endl;
   cout << "thetaY=" << y.theta() << " or in degrees = " 
-       << CMS_CONVERT_TO( y.theta(), deg ) << endl;
+       << CONVERT_UNITS_TO( y.theta(), deg ) << endl;
   cout << "phiZ=" << z.phi() << " or in degrees = " 
-       << CMS_CONVERT_TO( z.phi(), deg ) << endl;
+       << CONVERT_UNITS_TO( z.phi(), deg ) << endl;
   cout << "thetaZ=" << z.theta() << " or in degrees = " 
-       << CMS_CONVERT_TO( z.theta(), deg ) << endl;
+       << CONVERT_UNITS_TO( z.theta(), deg ) << endl;
   
   cout << "some factor/equations..." << endl;
   cout << " sin(thetaX()) * cos(phiX()) = " 

@@ -7,9 +7,9 @@ using namespace geant_units::operators;
 
 void DDI::EllipticalTube::stream(std::ostream & os) const
 {
-  os << " xSemiAxis[cm]=" << CMS_CONVERT_TO( p_[0], cm )
-     << " ySemiAxis[cm]=" << CMS_CONVERT_TO( p_[1], cm )
-     << " zHeight[cm]=" << CMS_CONVERT_TO( p_[2], cm );
+  os << " xSemiAxis[cm]=" << CONVERT_UNITS_TO( p_[0], cm )
+     << " ySemiAxis[cm]=" << CONVERT_UNITS_TO( p_[1], cm )
+     << " zHeight[cm]=" << CONVERT_UNITS_TO( p_[2], cm );
 }
 
 double DDI::EllipticalTube::volume() const { 

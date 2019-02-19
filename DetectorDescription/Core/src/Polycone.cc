@@ -79,14 +79,14 @@ double Polycone::volume() const
          sec += s;
          i += 3;			    			    					   
       }  
-      result = sec * CMS_CONVERT_TO( std::fabs(p_[1]), rad )/2._pi;
+      result = sec * CONVERT_UNITS_TO( std::fabs(p_[1]), rad )/2._pi;
    }
    
    if (shape_==DDSolidShape::ddpolycone_rz) 
    {
       double volume=0;
-      double phiFrom=CMS_CONVERT_TO( p_[0], rad );
-      double phiTo=CMS_CONVERT_TO( p_[0]+p_[1], rad );
+      double phiFrom=CONVERT_UNITS_TO( p_[0], rad );
+      double phiTo=CONVERT_UNITS_TO( p_[0]+p_[1], rad );
       double slice=(std::fabs(phiFrom-phiTo))/2_pi;
       double zBegin=0;
       double zEnd=0;
@@ -127,9 +127,9 @@ double Polycone::volume() const
 
 void DDI::Polycone::stream(std::ostream & os) const
 {
-  os << " startPhi[deg]=" << CMS_CONVERT_TO( p_[0], deg )
-     << " dPhi[deg]=" << CMS_CONVERT_TO( p_[1], deg )
+  os << " startPhi[deg]=" << CONVERT_UNITS_TO( p_[0], deg )
+     << " dPhi[deg]=" << CONVERT_UNITS_TO( p_[1], deg )
      << " Sizes[cm]=";
   for (unsigned k=2; k<p_.size(); ++k)
-    os << CMS_CONVERT_TO( p_[k], cm ) << " ";
+    os << CONVERT_UNITS_TO( p_[k], cm ) << " ";
 }

@@ -91,7 +91,7 @@ double Polyhedra::volume() const
   {
     int loop = (p_.size()-3)/3 -1;
     double sec=0;
-    double a = 0.5*fabs(CMS_CONVERT_TO( p_[2], rad ) / p_[0]);
+    double a = 0.5*fabs(CONVERT_UNITS_TO( p_[2], rad ) / p_[0]);
     int i=3;
     for (int j=3; j<(loop+3); ++j) 
     {
@@ -123,7 +123,7 @@ double Polyhedra::volume() const
   }  
   int sides=int(p_[0]);
   //double phiFrom=p_[1]/rad;
-  double phiDelta=CMS_CONVERT_TO( p_[2], rad );
+  double phiDelta=CONVERT_UNITS_TO( p_[2], rad );
   
   double zBegin=0;
   double zEnd=0;
@@ -174,9 +174,9 @@ double Polyhedra::volume() const
 void DDI::Polyhedra::stream(std::ostream & os) const
 {
   os << " sides=" << p_[0]
-     << " startPhi[deg]=" << CMS_CONVERT_TO( p_[1], deg )
-     << " dPhi[deg]=" << CMS_CONVERT_TO( p_[2], deg )
+     << " startPhi[deg]=" << CONVERT_UNITS_TO( p_[1], deg )
+     << " dPhi[deg]=" << CONVERT_UNITS_TO( p_[2], deg )
      << " Sizes[cm]=";
   for (unsigned k=3; k<p_.size(); ++k)
-    os << CMS_CONVERT_TO( p_[k], cm ) << " ";
+    os << CONVERT_UNITS_TO( p_[k], cm ) << " ";
 }

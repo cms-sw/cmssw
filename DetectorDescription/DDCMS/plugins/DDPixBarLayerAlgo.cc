@@ -60,7 +60,7 @@ static long algorithm(Detector& description, cms::DDParsingContext& ctxt, xml_h 
   double rtmx = sqrt(rmxh*rmxh+ladderWidth[1]*ladderWidth[1]);
   Solid solid = ns.addSolid(idName,Tube(rtmi, rtmx, 0.5*layerDz, 0, 2_pi));
   LogDebug("PixelGeom") << "IDname "<< idName << " Tubs made of " 
-			<< genMat << " from 0 to " << CMS_CONVERT_TO( 2_pi, deg ) 
+			<< genMat << " from 0 to " << CONVERT_UNITS_TO( 2_pi, deg ) 
 			<< " with Rin " << rtmi << " Rout " << rtmx 
 			<< " ZHalf " << 0.5*layerDz;
   
@@ -116,7 +116,7 @@ static long algorithm(Detector& description, cms::DDParsingContext& ctxt, xml_h 
       phiy = 90_deg+phix;
       LogDebug("PixelGeom") << "Creating a new "
 			    << "rotation: " << rots << "\t90., " 
-			    << CMS_CONVERT_TO( phix, deg ) << ", 90.," << CMS_CONVERT_TO( phiy, deg )
+			    << CONVERT_UNITS_TO( phix, deg ) << ", 90.," << CONVERT_UNITS_TO( phiy, deg )
           << ", 0, 0";
       rot = makeRotation3D(90_deg, phix, 90_deg, phiy, 0.,0.);
 
@@ -135,7 +135,7 @@ static long algorithm(Detector& description, cms::DDParsingContext& ctxt, xml_h 
       phix = phi+90_deg;
       phiy = 90_deg+phix;
       LogDebug("PixelGeom") << "Creating a new rotation: " << rots << "\t90., " 
-			    << CMS_CONVERT_TO( phix, deg ) << ", 90.," << CMS_CONVERT_TO( phiy, deg )
+			    << CONVERT_UNITS_TO( phix, deg ) << ", 90.," << CONVERT_UNITS_TO( phiy, deg )
 			    << ", 0, 0";
       rot = makeRotation3D(90_deg, phix, 90_deg, phiy, 0.,0.);
       //cpv.position(ladderHalf, layer, copy, tran, rot);
@@ -156,7 +156,7 @@ static long algorithm(Detector& description, cms::DDParsingContext& ctxt, xml_h 
       phiy = phix+90._deg;
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Creating a new "
 			    << "rotation: " << rots << "\t90., " 
-			    << CMS_CONVERT_TO( phix, deg ) << ", 90.," << CMS_CONVERT_TO( phiy, deg ) 
+			    << CONVERT_UNITS_TO( phix, deg ) << ", 90.," << CONVERT_UNITS_TO( phiy, deg ) 
 			    << ", 0, 0";
       rot = makeRotation3D(90_deg, phix, 90_deg, phiy, 0.,0.);
 
@@ -176,7 +176,7 @@ static long algorithm(Detector& description, cms::DDParsingContext& ctxt, xml_h 
     if (iup > 0) phix += 180_deg;
     phiy = phix+90._deg;
     LogDebug("PixelGeom") << "Creating a new rotation: " << rots << "\t90., " 
-			  << CMS_CONVERT_TO( phix, deg ) << ", 90.," << CMS_CONVERT_TO( phiy, deg ) 
+			  << CONVERT_UNITS_TO( phix, deg ) << ", 90.," << CONVERT_UNITS_TO( phiy, deg ) 
 			  << ", 0, 0";
     
     rot = makeRotation3D(90_deg, phix, 90_deg, phiy, 0.,0.);

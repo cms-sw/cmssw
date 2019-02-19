@@ -36,8 +36,8 @@ static long  algorithm(Detector& /* description */,
 
   LogDebug("TrackerGeom") << "debug: Parameters for positioning:: n "
 			  << n << " Start, Range, Delta " 
-			  << CMS_CONVERT_TO( startAngle, deg ) << " " 
-			  << CMS_CONVERT_TO( rangeAngle, deg ) << " " << CMS_CONVERT_TO( delta, deg )
+			  << CONVERT_UNITS_TO( startAngle, deg ) << " " 
+			  << CONVERT_UNITS_TO( rangeAngle, deg ) << " " << CONVERT_UNITS_TO( delta, deg )
 			  << " Radius " << radius << " Centre " << center[0] 
 			  << ", " << center[1] << ", "<<center[2];
   LogDebug("TrackerGeom") << "debug: Parent " << mother.name() 
@@ -50,7 +50,7 @@ static long  algorithm(Detector& /* description */,
   for (int i=0; i<n; i++) {
     double phix = phi;
     double phiy = phix + 90._deg;
-    double phideg = CMS_CONVERT_TO( phix, deg );
+    double phideg = CONVERT_UNITS_TO( phix, deg );
 
     Rotation3D rotation;
     if (phideg != 0) {
@@ -62,8 +62,8 @@ static long  algorithm(Detector& /* description */,
       else  {
         LogDebug("TrackerGeom") << "Creating a new "
 				<< "rotation: " << rotstr << "\t90., " 
-				<< CMS_CONVERT_TO( phix, deg ) << ", 90.," 
-				<< CMS_CONVERT_TO( phiy, deg ) <<", 0, 0";
+				<< CONVERT_UNITS_TO( phix, deg ) << ", 90.," 
+				<< CONVERT_UNITS_TO( phiy, deg ) <<", 0, 0";
         RotationZYX   rot;
         rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
       }

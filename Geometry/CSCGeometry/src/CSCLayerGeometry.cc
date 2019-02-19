@@ -56,7 +56,7 @@ CSCLayerGeometry::CSCLayerGeometry( const CSCGeometry* geom, int iChamberType,
     float wireCos = cos(wangler);
     float wireSin = sin(wangler);
     float y2 = apothem * wireCos + hBottomEdge * fabs(wireSin);
-    float wireSpacing = CMS_CONVERT_TO( wg.wireSpacing, cm );
+    float wireSpacing = CONVERT_UNITS_TO( wg.wireSpacing, cm );
     float wireOffset = -y2 + wireSpacing/2.;
     yOfFirstWire = wireOffset/wireCos;
   }

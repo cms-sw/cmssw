@@ -70,7 +70,7 @@ static long algorithm(Detector& /* description */,
   LogDebug("TIDGeom") << "Parent " << parentName
                       << " Detector Planes " << detectorN;
   LogDebug("TIDGeom") << "Detector Tilt " 
-                      << CMS_CONVERT_TO( detTilt, deg ) << " Height " << fullHeight 
+                      << CONVERT_UNITS_TO( detTilt, deg ) << " Height " << fullHeight 
                       << " dl(Top) " << dlTop << " dl(Bottom) " << dlBottom
                       << " dl(Hybrid) " << dlHybrid;
   LogDebug("TIDGeom") << boxFrameName  << " positioned at Z";

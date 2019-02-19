@@ -35,17 +35,17 @@ DDI::Trap::Trap( double pDz,
 
 void DDI::Trap::stream(std::ostream & os) const
 {
-  os << " dz=" << CMS_CONVERT_TO( p_[0], cm )
-     << " theta=" << CMS_CONVERT_TO( p_[1], deg )
-     << " phi=" << CMS_CONVERT_TO( p_[2], deg )
-     << " dy1=" << CMS_CONVERT_TO( p_[3], cm )
-     << " dx1=" << CMS_CONVERT_TO( p_[4], cm )
-     << " dx2=" << CMS_CONVERT_TO( p_[5], cm )
-     << " alpha1=" << CMS_CONVERT_TO( p_[6], deg )
-     << " dy2=" << CMS_CONVERT_TO( p_[7], cm )
-     << " dx3=" << CMS_CONVERT_TO( p_[8], cm )
-     << " dx4=" << CMS_CONVERT_TO( p_[9], cm )
-     << " alpha2=" << CMS_CONVERT_TO( p_[10], deg );
+  os << " dz=" << CONVERT_UNITS_TO( p_[0], cm )
+     << " theta=" << CONVERT_UNITS_TO( p_[1], deg )
+     << " phi=" << CONVERT_UNITS_TO( p_[2], deg )
+     << " dy1=" << CONVERT_UNITS_TO( p_[3], cm )
+     << " dx1=" << CONVERT_UNITS_TO( p_[4], cm )
+     << " dx2=" << CONVERT_UNITS_TO( p_[5], cm )
+     << " alpha1=" << CONVERT_UNITS_TO( p_[6], deg )
+     << " dy2=" << CONVERT_UNITS_TO( p_[7], cm )
+     << " dx3=" << CONVERT_UNITS_TO( p_[8], cm )
+     << " dx4=" << CONVERT_UNITS_TO( p_[9], cm )
+     << " alpha2=" << CONVERT_UNITS_TO( p_[10], deg );
 }
 
 double DDI::Trap::volume() const

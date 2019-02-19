@@ -357,7 +357,7 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry* cg      ,
          const GlobalVector cv ( cell->getPosition()-origin ) ;
          const GlobalVector ov ( other->getPosition()-origin ) ;
          const double cosang ( cv.dot(ov)/(cv.mag()*ov.mag() ) ) ;
-         const double angle ( CMS_CONVERT_TO( acos( std::abs(cosang) < 1. ? cosang : 1. ), deg) ) ;
+         const double angle ( CONVERT_UNITS_TO( acos( std::abs(cosang) < 1. ? cosang : 1. ), deg) ) ;
          fOvr << ", angle = "<<angle<< std::endl ;
         }
       }
@@ -388,7 +388,7 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry* cg      ,
          const GlobalVector cv ( cell->getPosition()-origin ) ;
          const GlobalVector ov ( other->getPosition()-origin ) ;
          const double cosang ( cv.dot(ov)/(cv.mag()*ov.mag() ) ) ;
-         const double angle ( CMS_CONVERT_TO( acos( std::abs(cosang) < 1. ? cosang : 1. ), deg) ) ;
+         const double angle ( CONVERT_UNITS_TO( acos( std::abs(cosang) < 1. ? cosang : 1. ), deg) ) ;
          fOvr << ", angle = "<<angle<< std::endl ;
         }
       } else { fOvr << "endcap ecal ptr is null " << std::endl; }

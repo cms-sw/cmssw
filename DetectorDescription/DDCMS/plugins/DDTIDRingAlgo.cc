@@ -31,7 +31,7 @@ static long algorithm(Detector& /* description */,
                       << moduleName[1] << "\tICC " << iccName 
                       << "\tNameSpace " << ns.name();
   LogDebug("TIDGeom") << "Parameters for positioning--"
-                      << " StartAngle " << CMS_CONVERT_TO( startAngle, deg )
+                      << " StartAngle " << CONVERT_UNITS_TO( startAngle, deg )
                       << " Copy Numbers " << number << " Modules at R " 
                       << rModule << " Z " << zModule[0] << ", " << zModule[1] 
                       << " ICCs at R " << rICC << " Z " << zICC[0] << ", " 

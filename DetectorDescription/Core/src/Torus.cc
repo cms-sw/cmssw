@@ -29,11 +29,11 @@ DDI::Torus::Torus( double pRMin,
 
 void DDI::Torus::stream(std::ostream & os) const
 {
-  os << " rMin=" << CMS_CONVERT_TO( p_[0], cm )
-     << " rMax=" << CMS_CONVERT_TO( p_[1], deg )
-     << " rTor=" << CMS_CONVERT_TO( p_[2], deg )
-     << " sPhi=" << CMS_CONVERT_TO( p_[3], cm )
-     << " dPhi=" << CMS_CONVERT_TO( p_[4], cm );
+  os << " rMin=" << CONVERT_UNITS_TO( p_[0], cm )
+     << " rMax=" << CONVERT_UNITS_TO( p_[1], deg )
+     << " rTor=" << CONVERT_UNITS_TO( p_[2], deg )
+     << " sPhi=" << CONVERT_UNITS_TO( p_[3], cm )
+     << " dPhi=" << CONVERT_UNITS_TO( p_[4], cm );
 }
 
 double DDI::Torus::volume() const

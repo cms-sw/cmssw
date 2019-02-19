@@ -29,8 +29,8 @@ static long algorithm(Detector& /* description */,
 
   LogDebug("TrackerGeom") << "Parent " << mother.name() << "\tChild " << child.name() << " NameSpace " << ns.name();
   LogDebug("TrackerGeom") << "Parameters for positioning-- Tilt " << tilt 
-                          << "\tStartAngle " << CMS_CONVERT_TO( startAngle, deg )
-                          << "\tRangeAngle " << CMS_CONVERT_TO( rangeAngle, deg ) 
+                          << "\tStartAngle " << CONVERT_UNITS_TO( startAngle, deg )
+                          << "\tRangeAngle " << CONVERT_UNITS_TO( rangeAngle, deg ) 
                           << "\tRin " << radiusIn << "\tRout " << radiusOut 
                           << "\t ZPos " << zpos << "\tCopy Numbers " << number 
                           << " Start/Increment " << startCopyNo << ", " 
@@ -49,7 +49,7 @@ static long algorithm(Detector& /* description */,
       double phi  = startAngle + i*dphi;
       double phix = phi - tilt + 90._deg;
       double phiy = phix + 90._deg;
-      double phideg = CMS_CONVERT_TO( phix, deg );
+      double phideg = CONVERT_UNITS_TO( phix, deg );
   
       Rotation3D rotation;
       if (phideg != 0) {

@@ -45,7 +45,7 @@ static long algorithm(Detector& /* description */,
 
     Rotation3D rotation;
     double phiy = phix + 90._deg;
-    double phideg = CMS_CONVERT_TO( phix, deg );
+    double phideg = CONVERT_UNITS_TO( phix, deg );
     if (phideg != 0) {
       string rotstr= ns.nsName(child.name()) + std::to_string(phideg*1000.);
       auto irot = ctxt.rotations.find(ns.prepend(rotstr));
@@ -56,7 +56,7 @@ static long algorithm(Detector& /* description */,
         double theta = 90._deg;
         LogDebug("TECGeom") << "test: Creating a new "
                             << "rotation: " << rotstr << "\t90., " 
-                            << CMS_CONVERT_TO( phix, deg ) << ", 90.," << CMS_CONVERT_TO( phiy, deg )
+                            << CONVERT_UNITS_TO( phix, deg ) << ", 90.," << CONVERT_UNITS_TO( phiy, deg )
                             << ", 0, 0";
         rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
       }
