@@ -11,7 +11,7 @@
 
 #define CMS_CONVERT_TO(_x, _y) (_x)/(1.0_##_y)
 
-namespace cms_geant_units {
+namespace geant_units {
   
   constexpr long double _pi(M_PI);
   constexpr long double _joule(6.24150e+12);
