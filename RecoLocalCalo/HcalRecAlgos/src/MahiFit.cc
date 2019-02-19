@@ -275,10 +275,12 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
   //with previous SOI=TS4 case assumed by psfPtr_->getPulseShape()
   int delta =  4 - nnlsWork_. tsOffset;
 
+  auto invDt = ( 1./2*nnlsWork_.dt );
+
   for (unsigned int iTS=0; iTS<nnlsWork_.tsSize; ++iTS) {
 
     pulseShape.coeffRef(iTS+nnlsWork_.maxoffset) = nnlsWork_.pulseN[iTS+delta];
-    pulseDeriv.coeffRef(iTS+nnlsWork_.maxoffset) = 0.5*(nnlsWork_.pulseM[iTS+delta]-nnlsWork_.pulseP[iTS+delta])/(2*nnlsWork_.dt);
+    pulseDeriv.coeffRef(iTS+nnlsWork_.maxoffset) = 0.5*(nnlsWork_.pulseM[iTS+delta]-nnlsWork_.pulseP[iTS+delta])*invDt;
 
     nnlsWork_.pulseM[iTS] -= nnlsWork_.pulseN[iTS];
     nnlsWork_.pulseP[iTS] -= nnlsWork_.pulseN[iTS];
