@@ -5,6 +5,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "DataFormats/Math/interface/Vector3D.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -31,6 +33,7 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
   fZ = pgun_params.getParameter<double>("Z")*cm;
   fDelta = pgun_params.getParameter<double>("Delta")*cm;
   fPartIDs = pgun_params.getParameter< vector<int> >("PartID");
+  fPointing = pgun_params.getParameter<bool>("Pointing");
 
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
@@ -78,15 +81,26 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
      double pz     = mom;
      double energy = fEn;
 
+     // Compute Vertex Position
+     double x=fR*cos(phi);
+     double y=fR*sin(phi);
+     HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(x,y,fZ));
+
      HepMC::FourVector p(px,py,pz,energy) ;
+     // If we are requested to be pointing to (0,0,0), corect the momentum direction
+     if (fPointing) {
+       math::XYZVector direction(x,y,fZ);
+       math::XYZVector momentum = direction.unit() * mom;
+       p.setX(momentum.x());
+       p.setY(momentum.y());
+       p.setZ(momentum.z());
+     }
      HepMC::GenParticle* Part = new HepMC::GenParticle(p,PartID,1);
      Part->suggest_barcode( barcode ) ;
      barcode++ ;
 
-     double x=fR*cos(phi);
-     double y=fR*sin(phi);
-     HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(x,y,fZ));
      Vtx->add_particle_out(Part);
+
      if (fVerbosity > 0) {
        Vtx->print();
        Part->print();

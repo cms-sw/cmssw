@@ -21,6 +21,7 @@ namespace edm
 
     // data members
     double fEn,fR,fZ,fDelta;
+    bool fPointing = false;
     std::vector<int> fPartIDs;
   };
 }
