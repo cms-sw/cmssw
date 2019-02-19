@@ -89,7 +89,13 @@ def loadMaterialsFile(inputFile):
 
 def main(argv):
 
-    listOfMixtures = getMixtures(argv[1])
+    listOfMixtures = getMixtures(str(argv[1]))
+
+    fname = re.search("(?P<filename>[a-zA-Z0-9_]+)",str(argv[1]))
+
+    fname = str(fname.group("filename"))
+    radLenFile = open(fname + ".x0","w");
+    intLenFile = open(fname + ".l0","w");
 
     listOfMixedMaterials = loadMaterialsFile(inputFile="mixed_materials.input")
     listOfPureMaterials = loadMaterialsFile(inputFile="pure_materials.input")
@@ -99,9 +105,9 @@ def main(argv):
 
     for index in range(len(listOfMixtures)):
 
+        gmixName = listOfMixtures[index]["gmix_name"]
         print("================================")
-        print(listOfMixtures[index]["gmix_name"])
-
+        print(gmixName)
 
         components = pd.DataFrame(listOfMixtures[index]['components'])
 
@@ -151,14 +157,36 @@ def main(argv):
             components["ws2"] * totalIntLen * totalDensity
             )
 
-
-        print(components[[
+        displayDf = components[[
                     "comment",
-                    "name","material","volume",
+                    "material","volume",
                     "percentVolume","percentWeight",
                     "density","weight","x0","percentRadLen",
                     "l0","percentIntLen"
-                    ]])
+                    ]].copy()
+
+        displayDf["percentVolume"] *= 100.
+        displayDf["percentWeight"] *= 100.
+        displayDf["percentRadLen"] *= 100.
+        displayDf["percentIntLen"] *= 100.
+
+        displayDf = displayDf.rename(
+            columns = {
+                "comment" : "Component",
+                "material" : "Material",
+                "volume" : "Volume [cm^3]",
+                "percentVolume" : "Volume %",
+                "density" : "Density",
+                "weight" : "Weight",
+                "percentWeight" : "Weight %",
+                "x0" : "X_0 [cm]",
+                "percentRadLen" : "X_0 %",
+                "l0": "lambda_0 [cm]",
+                "percentIntLen" : "lambda_0 %",
+                }
+            )
+
+        print(displayDf)
 
 
         # Normalized vars:
@@ -247,6 +275,23 @@ def main(argv):
         print("Cables      :", pCabIntLen)
         print("Cooling     :", pColIntLen)
         print("Electronics :", pEleIntLen)
+
+        radLenFile.write("{0:<50}{1:>8}{2:>8}{3:>8}{4:>8}{5:>8}\n".format(
+                gmixName,
+                round(pSupRadLen,3), round(pSenRadLen,3),
+                round(pCabRadLen,3), round(pColRadLen,3),
+                round(pEleRadLen,3)
+                ))
+
+        intLenFile.write("{0:<50}{1:>8}{2:>8}{3:>8}{4:>8}{5:>8}\n".format(
+                gmixName,
+                round(pSupIntLen,3), round(pSenIntLen,3),
+                round(pCabIntLen,3), round(pColIntLen,3),
+                round(pEleIntLen,3)
+                ))
+
+    radLenFile.close()
+    intLenFile.close()
 
 if __name__== "__main__":
     main(sys.argv)
