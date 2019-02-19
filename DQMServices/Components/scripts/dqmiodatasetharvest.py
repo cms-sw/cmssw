@@ -4,14 +4,12 @@ import json
 import ROOT
 import sqlite3
 import argparse
-import threading
 import subprocess
 
 parser = argparse.ArgumentParser(description="Collect a MEs from DQMIO data, with maximum possible granularity")
 
 parser.add_argument('dataset', help='dataset name, like "/StreamHIExpress/HIRun2018A-Express-v1/DQMIO"')
 parser.add_argument('-o', '--output', help='SQLite file to write', default='dqmio.sqlite')
-parser.add_argument('-j', '--njobs', help='Number of threads to read files', type=int, default=1)
 args = parser.parse_args()
 
 
@@ -162,16 +160,6 @@ insertinto = """
 
 db = sqlite3.connect(args.output)
 db.execute(maketable)
-outputqueue = []
-
-def insertintodb():
-    try:
-        while True:
-            rows = outputqueue.pop()
-            db.executemany(insertinto, rows);
-            db.commit()
-    except IndexError:
-        pass
 
 def harvestfile(fname):
     f = ROOT.TFile.Open("root://eoscms//eos/cms" + fname)
@@ -220,27 +208,10 @@ def harvestfile(fname):
                 )
 
         print "Processing run %d, lumi %d, type %s, found %d" % (run, lumi, treenames[metype], len(mes_to_store))
-        outputqueue.append(mes_to_store)
-
-def poolexec(func, queue, njobs, mainwork):
-    class executor(threading.Thread):
-        def run(self):
-            try:
-                # there is no point in checking for empty here, since it might not be atomic
-                while True:
-                    item = queue.pop()
-                    func(item)
-            except IndexError:
-                # queue is drained, all is fine.
-                pass
-    workers = [executor() for _ in range(njobs)]
-    for worker in workers:
-        worker.start()
-    while any(w.isAlive() for w in workers):
-        for worker in workers:
-            worker.join(0.1)
-        mainwork()
+        db.executemany(insertinto, mes_to_store);
+        db.commit()
 
 files = dasquery(args.dataset)
-poolexec(harvestfile, files, args.njobs, insertintodb)
+for fname in files:
+    harvestfile(fname)
 
