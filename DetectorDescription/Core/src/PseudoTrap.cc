@@ -1,7 +1,7 @@
 #include "DetectorDescription/Core/src/PseudoTrap.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 void DDI::PseudoTrap::stream(std::ostream & os) const
 {

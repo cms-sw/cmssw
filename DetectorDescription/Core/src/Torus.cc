@@ -1,5 +1,5 @@
 #include "DetectorDescription/Core/src/Torus.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cmath>
 #include <vector>
@@ -8,8 +8,8 @@
 #include "DetectorDescription/Core/src/Solid.h"
 
 using std::sqrt;
-using namespace cms_units;
-using namespace cms_units::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 DDI::Torus::Torus( double pRMin,
 		   double pRMax,

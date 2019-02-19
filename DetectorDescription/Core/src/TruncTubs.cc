@@ -3,10 +3,10 @@
 #include <vector>
 
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/src/Solid.h"
 
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 DDI::TruncTubs::TruncTubs(double zHalf,
 			  double rIn, double rOut,

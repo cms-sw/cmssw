@@ -10,13 +10,13 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <algorithm>
 #include <iostream>
 
-using namespace cms_units;
-using namespace cms_units::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 
 // Complicated initialization list since the chamber Bounds passed in must have its thickness reset to that of the layer

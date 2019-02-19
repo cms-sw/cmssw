@@ -15,7 +15,7 @@
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Core/src/Specific.h"
 #include "DetectorDescription/Core/src/Solid.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include "DetectorDescription/RegressionTest/interface/DDHtmlFormatter.h"
 
@@ -29,7 +29,7 @@
 #include <vector>
 
 using namespace std;
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 ostream & operator<<(ostream & o, const DDHtmlFormatter & f)
 {

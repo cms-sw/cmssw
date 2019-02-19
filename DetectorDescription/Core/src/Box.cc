@@ -1,9 +1,9 @@
 #include "DetectorDescription/Core/src/Box.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <ostream>
 
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 void DDI::Box::stream( std::ostream & os ) const
 {

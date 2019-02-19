@@ -1,5 +1,5 @@
 #include "DetectorDescription/Core/src/Polycone.h" 
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cassert>
 #include <cmath>
@@ -10,7 +10,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 using DDI::Polycone;
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 Polycone::Polycone (double startPhi, double deltaPhi,
                     const std::vector<double> & z,

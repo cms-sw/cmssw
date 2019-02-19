@@ -1,5 +1,5 @@
 #include "DetectorDescription/Core/src/Cons.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cmath>
 #include <ostream>
@@ -8,8 +8,8 @@
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/src/Solid.h"
 
-using namespace cms_units;
-using namespace cms_units::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 DDI::Cons::Cons(double zhalf,
 		double rInMinusZ,

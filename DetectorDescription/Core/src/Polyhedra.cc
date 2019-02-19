@@ -1,5 +1,5 @@
 #include "DetectorDescription/Core/src/Polyhedra.h" 
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cmath>
 
@@ -13,8 +13,8 @@ using DDI::Polyhedra;
 using std::fabs;
 using std::cos;
 using std::sin;
-using namespace cms_units;
-using namespace cms_units::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 Polyhedra::Polyhedra( int sides, double startPhi, double deltaPhi,
                       const std::vector<double> & z,

@@ -1,5 +1,5 @@
 #include "DetectorDescription/Core/src/ExtrudedPolygon.h" 
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/src/Solid.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,7 +8,7 @@
 #include <cassert>
 
 using DDI::ExtrudedPolygon;
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 ExtrudedPolygon::ExtrudedPolygon( const std::vector<double> & x,
 				  const std::vector<double> & y,
