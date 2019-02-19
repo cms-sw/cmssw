@@ -262,13 +262,13 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
   const double xxm[4]={-nnlsWork_.dt+t0, 1.0, 0.0, 3};
   const double xxp[4]={ nnlsWork_.dt+t0, 1.0, 0.0, 3};
 
-  (*pfunctor_)(&xx[0]);
+  psfPtr_->singlePulseShapeFuncMahi(&xx[0]);
   psfPtr_->getPulseShape(nnlsWork_.pulseN);
 
-  (*pfunctor_)(&xxm[0]);
+  psfPtr_->singlePulseShapeFuncMahi(&xxm[0]);
   psfPtr_->getPulseShape(nnlsWork_.pulseM);
   
-  (*pfunctor_)(&xxp[0]);
+  psfPtr_->singlePulseShapeFuncMahi(&xxp[0]);
   psfPtr_->getPulseShape(nnlsWork_.pulseP);
 
   //in the 2018+ case where the sample of interest (SOI) is in TS3, add an extra offset to align 
@@ -478,8 +478,6 @@ void MahiFit::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps) {
   // the uncertainty terms calculated inside PulseShapeFunctor are used for Method 2 only
   psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,false,false,false,
 						   1,0,0,10));
-  pfunctor_ = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3) );
-
 
 }
 
