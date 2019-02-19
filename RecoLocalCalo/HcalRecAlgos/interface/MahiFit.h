@@ -30,9 +30,6 @@ struct MahiNnlsWorkspace {
   //holds data samples
   SampleVector amplitudes;
 
-  //holds inverse covariance matrix
-  SampleMatrix invCovMat;
-
   //holds diagonal noise terms
   SampleVector noiseTerms;
 
@@ -49,30 +46,19 @@ struct MahiNnlsWorkspace {
   //holds full pulse shape derivatives
   std::array<FullSampleVector, MaxPVSize> pulseDerivArray;
 
-  //holders for calculating pulse shape & covariance matrices
-  std::array<double, MaxSVSize> pulseN;
-  std::array<double, MaxSVSize> pulseM;
-  std::array<double, MaxSVSize> pulseP;
-
   //holds matrix of pulse shape templates for each BX
   SamplePulseMatrix pulseMat;
 
   //holds matrix of pulse shape derivatives for each BX
   SamplePulseMatrix pulseDerivMat;
 
-  //holds residual vector
-  PulseVector residuals;
-
   //for FNNLS algorithm
   unsigned int nP;
   PulseVector ampVec;
 
-  PulseVector ampvecpermtest;
-
   SamplePulseMatrix invcovp;
   PulseMatrix aTaMat; // A-transpose A (matrix)
   PulseVector aTbVec; // A-transpose b (vector)
-  PulseVector updateWork; // w (vector)
 
   SampleDecompLLT covDecomp;
   PulseDecompLDLT pulseDecomp;
