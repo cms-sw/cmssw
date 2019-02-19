@@ -154,7 +154,7 @@ class MahiFit
 			FullSampleVector &pulseDeriv,
 			FullSampleMatrix &pulseCov) const;
 
-  double calculateArrivalTime() const;
+  float calculateArrivalTime() const;
   double calculateChiSq() const;
   void nnls() const;
   void resetWorkspace() const;
@@ -183,7 +183,7 @@ class MahiFit
 
   bool applyTimeSlew_; 
   HcalTimeSlew::BiasSetting slewFlavor_;
-  double tsDelay1GeV_=0;
+  float tsDelay1GeV_=0.f;
 
   float meanTime_;
   float timeSigmaHPD_; 

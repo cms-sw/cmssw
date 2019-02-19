@@ -200,7 +200,7 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
   if (foundintime) {
     correctedOutput.at(0) = nnlsWork_.ampVec.coeff(ipulseintime); //charge
     if (correctedOutput.at(0)!=0) {
-	double arrivalTime = calculateArrivalTime();
+	float arrivalTime = calculateArrivalTime();
 	correctedOutput.at(1) = arrivalTime; //time
     }
     else correctedOutput.at(1) = -9999;//time
@@ -251,7 +251,7 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
 
   if(applyTimeSlew_) {
     if(itQ<=1.0) t0+=tsDelay1GeV_;
-    else t0+=hcalTimeSlewDelay_->delay(itQ,slewFlavor_);
+    else t0+=hcalTimeSlewDelay_->delay(float(itQ),slewFlavor_);
   }
 
   nnlsWork_.pulseN.fill(0);
@@ -320,7 +320,7 @@ void MahiFit::updateCov() const {
   nnlsWork_.covDecomp.compute(nnlsWork_.invCovMat);
 }
 
-double MahiFit::calculateArrivalTime() const {
+float MahiFit::calculateArrivalTime() const {
 
   nnlsWork_.residuals = nnlsWork_.pulseMat*nnlsWork_.ampVec - nnlsWork_.amplitudes;
 
