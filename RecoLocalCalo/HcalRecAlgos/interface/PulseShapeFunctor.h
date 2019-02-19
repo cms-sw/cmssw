@@ -23,7 +23,8 @@ namespace FitterFuncs{
 		       unsigned int nSamplesToFit);
      ~PulseShapeFunctor();
      
-     double EvalPulse(const double *pars, const unsigned nPar);
+     void EvalPulse(const double *pars);
+     double EvalPulseM2(const double *pars, const unsigned nPar);
      
      void setDefaultcntNANinfit(){ cntNANinfit =0; }
      int getcntNANinfit(){ return cntNANinfit; }
@@ -37,6 +38,7 @@ namespace FitterFuncs{
      void setinvertpedSig2(double x) { invertpedSig2_ = x; }
      void setinverttimeSig2(double x) { inverttimeSig2_ = x; }
 
+     void singlePulseShapeFuncMahi( const double *x );
      double singlePulseShapeFunc( const double *x );
      double doublePulseShapeFunc( const double *x );
      double triplePulseShapeFunc( const double *x );
