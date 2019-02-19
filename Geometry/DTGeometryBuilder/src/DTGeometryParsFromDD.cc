@@ -17,14 +17,14 @@
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <string>
 
 using namespace std;
 
-using namespace cms_units;
-using namespace cms_units::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 DTGeometryParsFromDD::DTGeometryParsFromDD() {}
 

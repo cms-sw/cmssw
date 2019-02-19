@@ -9,11 +9,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "Geometry/MuonCommonData/plugins/DDMuonAngular.h"
 
-using namespace cms_units;
-using namespace cms_units::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 //#define EDM_ML_DEBUG
 

@@ -1,12 +1,12 @@
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include "cppunit/TestAssert.h"
 #include "cppunit/TestFixture.h"
 
-using namespace cms_units;
-using namespace cms_units::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 class testDDUnits : public CppUnit::TestFixture {
   

@@ -6,12 +6,12 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cmath>
 
-using namespace cms_units;
-using namespace cms_units::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 CSCWireTopology::~CSCWireTopology() { 
   delete theWireGrouping;

@@ -9,7 +9,7 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
@@ -35,8 +35,8 @@
 #include "TH1D.h"
 #include "TProfile.h"
 
-using namespace cms_units;
-using namespace cms_units::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 
 class CaloGeometryAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {

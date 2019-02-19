@@ -3,7 +3,7 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,7 +17,7 @@
 
 class DDCompactView;
 
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 DDLRotationAndReflection::DDLRotationAndReflection( DDLElementRegistry* myreg )
   : DDXMLElement( myreg ) 

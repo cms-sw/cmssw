@@ -6,11 +6,11 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/src/Material.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using DDI::Material;
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 DDMaterial::DDMaterial() : DDBase< DDName, std::unique_ptr<Material>>() { }
 

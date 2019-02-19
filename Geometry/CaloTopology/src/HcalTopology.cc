@@ -7,10 +7,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
-using namespace cms_units;
-using namespace cms_units::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 static const int IPHI_MAX=72;
 

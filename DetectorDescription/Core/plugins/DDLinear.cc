@@ -9,14 +9,14 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDTypes.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include <cmath>
 #include <memory>
 
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 class DDLinear : public DDAlgorithm
 {

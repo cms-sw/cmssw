@@ -9,14 +9,14 @@
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Math/GenVector/AxisAngle.h"
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"
 
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 std::ostream & operator<<(std::ostream & os, const DDRotation & r)
 {

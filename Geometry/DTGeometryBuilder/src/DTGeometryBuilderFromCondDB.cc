@@ -19,15 +19,15 @@
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 /* C++ Headers */
 #include <iostream>
 using namespace std;
 
-using namespace cms_units;
-using namespace cms_units::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 /* ====================================================================== */
 

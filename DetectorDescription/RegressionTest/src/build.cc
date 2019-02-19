@@ -13,7 +13,7 @@
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -24,7 +24,7 @@
 #include "Math/GenVector/RotationZ.h"
 
 using namespace std;
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 /*
 File setup.xml:

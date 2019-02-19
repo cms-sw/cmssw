@@ -4,11 +4,11 @@
 #include <vector>
 
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/src/Solid.h"
 
 using std::fabs;
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 DDI::Tubs::Tubs(double zhalf,
     	        double rIn, double rOut,	      	      

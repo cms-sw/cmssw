@@ -1,11 +1,17 @@
 #ifndef DATA_FORMATS_MATH_UNITS_H
 #define DATA_FORMATS_MATH_UNITS_H
 
+// This file provides units represented with user-defined literals to more easily attach units to numerical values.
+// Units here are based upon Geant conventions: millimeter = 1, MeV = 1.
+// The CMS convention is that centimeter = 1 and GeV = 1, so care must be taken with code that converts between
+// the two conventions.
+
+
 #include <cmath>
 
 #define CMS_CONVERT_TO(_x, _y) (_x)/(1.0_##_y)
 
-namespace cms_units {
+namespace cms_geant_units {
   
   constexpr long double _pi(M_PI);
   constexpr long double _joule(6.24150e+12);

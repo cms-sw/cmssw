@@ -25,12 +25,12 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
-#include "DataFormats/Math/interface/Units.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/Math/interface/Graph.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 namespace {
   class GroupFilter : public DDFilter {
