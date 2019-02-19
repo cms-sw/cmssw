@@ -11,6 +11,9 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Random/RandFlat.h"
 
 using namespace edm;
 using namespace std;
@@ -24,9 +27,9 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
     pset.getParameter<ParameterSet>("PGunParameters") ;
 
   fEn = pgun_params.getParameter<double>("En");
-  fR = pgun_params.getParameter<double>("R");
-  fZ = pgun_params.getParameter<double>("Z");
-  fDelta = pgun_params.getParameter<double>("Delta");
+  fR = pgun_params.getParameter<double>("R")*cm;
+  fZ = pgun_params.getParameter<double>("Z")*cm;
+  fDelta = pgun_params.getParameter<double>("Delta")*cm;
   fPartIDs = pgun_params.getParameter< vector<int> >("PartID");
 
   produces<HepMCProduct>("unsmeared");
@@ -84,8 +87,10 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
      double y=fR*sin(phi);
      HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(x,y,fZ));
      Vtx->add_particle_out(Part);
-     if (fVerbosity > 0)
+     if (fVerbosity > 0) {
        Vtx->print();
+       Part->print();
+     }
      fEvt->add_vertex(Vtx) ;
    }
 
