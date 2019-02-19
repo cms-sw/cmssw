@@ -1,5 +1,5 @@
-#ifndef DATA_FORMATS_MATH_UNITS_H
-#define DATA_FORMATS_MATH_UNITS_H
+#ifndef DATA_FORMATS_MATH_GEANT_UNITS_H
+#define DATA_FORMATS_MATH_GEANT_UNITS_H
 
 // This file provides units represented with user-defined literals to more easily attach units to numerical values.
 // Units here are based upon Geant conventions: millimeter = 1, MeV = 1.
