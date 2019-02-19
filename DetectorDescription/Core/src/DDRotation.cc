@@ -26,9 +26,9 @@ std::ostream & operator<<(std::ostream & os, const DDRotation & r)
     if (defined.second) {
       const DDRotationMatrix & rm = r.rotation();
       DDAxisAngle   ra(rm);
-      os << "t=" << CMS_CONVERT_TO( ra.Axis().Theta(), deg ) << "deg "
-         << "p=" << CMS_CONVERT_TO( ra.Axis().Phi(), deg ) << "deg "
-	 << "a=" << CMS_CONVERT_TO( ra.Angle(), deg ) << "deg"; 
+      os << "t=" << CONVERT_UNITS_TO( ra.Axis().Theta(), deg ) << "deg "
+         << "p=" << CONVERT_UNITS_TO( ra.Axis().Phi(), deg ) << "deg "
+	 << "a=" << CONVERT_UNITS_TO( ra.Angle(), deg ) << "deg"; 
     }
     else {
       os << "* rotation not defined * ";  
@@ -160,9 +160,9 @@ DDcreateRotationMatrix( double thetaX, double phiX,
   if ((1.-fabs(check))>tol) {
     std::ostringstream o;
     o << "matrix is not an (left or right handed) orthonormal matrix! (in deg)" << std::endl
-      << " thetaX=" << CMS_CONVERT_TO( thetaX, deg ) << " phiX=" << CMS_CONVERT_TO( phiX, deg ) << std::endl
-      << " thetaY=" << CMS_CONVERT_TO( thetaY, deg ) << " phiY=" << CMS_CONVERT_TO( phiY, deg ) << std::endl
-      << " thetaZ=" << CMS_CONVERT_TO( thetaZ, deg ) << " phiZ=" << CMS_CONVERT_TO( phiZ, deg ) << std::endl;
+      << " thetaX=" << CONVERT_UNITS_TO( thetaX, deg ) << " phiX=" << CONVERT_UNITS_TO( phiX, deg ) << std::endl
+      << " thetaY=" << CONVERT_UNITS_TO( thetaY, deg ) << " phiY=" << CONVERT_UNITS_TO( phiY, deg ) << std::endl
+      << " thetaZ=" << CONVERT_UNITS_TO( thetaZ, deg ) << " phiZ=" << CONVERT_UNITS_TO( phiZ, deg ) << std::endl;
     edm::LogError("DDRotation") << o.str() << std::endl;
      
     throw cms::Exception("DDException") << o.str();

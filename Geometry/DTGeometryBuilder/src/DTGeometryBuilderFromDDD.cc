@@ -181,7 +181,7 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
   int WCounter=0;
   int firstWire=fv.copyno();
   par = extractParameters(fv);
-  float wireLength = CMS_CONVERT_TO( par[1], cm );
+  float wireLength = CONVERT_UNITS_TO( par[1], cm );
   while (doWire) {
     WCounter++;
     doWire = fv.nextSibling(); // next wire
@@ -220,9 +220,9 @@ DTGeometryBuilderFromDDD::plane(const DDFilteredView& fv,
   // extract the position
   const DDTranslation & trans(fv.translation());
 
-  const Surface::PositionType posResult(float(CMS_CONVERT_TO( trans.x(), cm )), 
-                                        float(CMS_CONVERT_TO( trans.y(), cm )), 
-                                        float(CMS_CONVERT_TO( trans.z(), cm ))); 
+  const Surface::PositionType posResult(float(CONVERT_UNITS_TO( trans.x(), cm )), 
+                                        float(CONVERT_UNITS_TO( trans.y(), cm )), 
+                                        float(CONVERT_UNITS_TO( trans.z(), cm ))); 
   LogTrace("DTGeometryBuilderFromDDD") << "DTGeometryBuilderFromDDD::plane " <<" posResult: "
 		<< posResult << std::endl;
   // now the rotation

@@ -94,8 +94,8 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
   
   LogDebug( "DDAlgorithm" ) << "DDAngular: Parameters for position"
 			    << "ing:: n " << m_n << " Start, Range, Delta " 
-			    << CMS_CONVERT_TO( m_startAngle, deg ) << " " 
-			    << CMS_CONVERT_TO( m_rangeAngle, deg ) << " " << CMS_CONVERT_TO( m_delta, deg )
+			    << CONVERT_UNITS_TO( m_startAngle, deg ) << " " 
+			    << CONVERT_UNITS_TO( m_rangeAngle, deg ) << " " << CONVERT_UNITS_TO( m_delta, deg )
 			    << " Radius " << m_radius << " Centre " << m_center[0] 
 			    << ", " << m_center[1] << ", " << m_center[2];
   
@@ -112,12 +112,12 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
     if(( m_rotateSolid[i] > 180._deg ) || ( m_rotateSolid[i] < 0._deg ))
     {
       LogDebug( "DDAlgorithm" ) << "\trotateSolid \'theta\' must be in range [0,180*deg]\n"
-				<< "\t  currently it is " << CMS_CONVERT_TO( m_rotateSolid[i], deg ) 
+				<< "\t  currently it is " << CONVERT_UNITS_TO( m_rotateSolid[i], deg ) 
 				<< "*deg in rotateSolid[" << double(i) << "]!\n";
     }
     DDAxisAngle temp( fUnitVector( m_rotateSolid[i], m_rotateSolid[i + 1] ),
 		      m_rotateSolid[i + 2] );
-    LogDebug( "DDAlgorithm" ) << "  rotsolid[" << i <<  "] axis=" << temp.Axis() << " rot.angle=" << CMS_CONVERT_TO( temp.Angle(), deg );
+    LogDebug( "DDAlgorithm" ) << "  rotsolid[" << i <<  "] axis=" << temp.Axis() << " rot.angle=" << CONVERT_UNITS_TO( temp.Angle(), deg );
     m_solidRot = temp * m_solidRot;			  
   }
 
@@ -145,7 +145,7 @@ DDAngular::execute( DDCompactView& cpv )
   {
     double phix = phi;
     double phiy = phix + 90._deg;
-    double phideg = CMS_CONVERT_TO( phix, deg );
+    double phideg = CONVERT_UNITS_TO( phix, deg );
 
     std::string rotstr = m_childNmNs.first + "_" + std::to_string( phideg * 10.);
     DDRotation rotation = DDRotation( DDName( rotstr, m_idNameSpace ));
@@ -153,8 +153,8 @@ DDAngular::execute( DDCompactView& cpv )
     {
       LogDebug( "DDAlgorithm" ) << "DDAngular: Creating a new "
 				<< "rotation: " << rotstr << "\t90., " 
-				<< CMS_CONVERT_TO( phix, deg ) << ", 90.," 
-				<< CMS_CONVERT_TO( phiy, deg ) << ", 0, 0";
+				<< CONVERT_UNITS_TO( phix, deg ) << ", 90.," 
+				<< CONVERT_UNITS_TO( phiy, deg ) << ", 0, 0";
 	
       rotation = DDrot( DDName( rotstr, m_idNameSpace ),
 			std::make_unique<DDRotationMatrix>( *DDcreateRotationMatrix( theta, phix, theta, phiy,

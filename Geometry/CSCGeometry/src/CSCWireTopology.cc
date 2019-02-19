@@ -37,10 +37,10 @@ CSCWireTopology::CSCWireTopology(
   float wireAngleInRadians = wireAngleInDegrees * 1._deg;
 
   //@@ Conversion from mm to cm
-  float wireSpacing = CMS_CONVERT_TO( wg.wireSpacing,            cm );
-  float nw =          CMS_CONVERT_TO( wg.narrowWidthOfWirePlane, cm );
-  float ww =          CMS_CONVERT_TO( wg.wideWidthOfWirePlane,   cm );
-  float lw =          CMS_CONVERT_TO( wg.lengthOfWirePlane,      cm );
+  float wireSpacing = CONVERT_UNITS_TO( wg.wireSpacing,            cm );
+  float nw =          CONVERT_UNITS_TO( wg.narrowWidthOfWirePlane, cm );
+  float ww =          CONVERT_UNITS_TO( wg.wideWidthOfWirePlane,   cm );
+  float lw =          CONVERT_UNITS_TO( wg.lengthOfWirePlane,      cm );
 
    LogTrace("CSCWireTopology|CSC") <<  
        "CSCWireTopology constructing CSCWireGeometry with:\n" <<

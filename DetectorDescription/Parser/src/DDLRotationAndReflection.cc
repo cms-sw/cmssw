@@ -108,17 +108,17 @@ DDLRotationAndReflection::isLeftHanded (const DD3Vector& x, const DD3Vector& y, 
 	      << " check=" << std::abs(check)  << ")" 
 	      << std::endl
 	      << " thetaX=" << (atts.find("thetaX")->second) 
-	      << ' ' << CMS_CONVERT_TO( ev.eval(nmspace, atts.find("thetaX")->second), deg ) << std::endl
+	      << ' ' << CONVERT_UNITS_TO( ev.eval(nmspace, atts.find("thetaX")->second), deg ) << std::endl
 	      << " phiX=" << (atts.find("phiX")->second) 
-	      << ' ' << CMS_CONVERT_TO( ev.eval(nmspace, atts.find("phiX")->second), deg ) << std::endl
+	      << ' ' << CONVERT_UNITS_TO( ev.eval(nmspace, atts.find("phiX")->second), deg ) << std::endl
 	      << " thetaY=" << (atts.find("thetaY")->second) 
-	      << ' ' << CMS_CONVERT_TO( ev.eval(nmspace, atts.find("thetaY")->second), deg ) << std::endl
+	      << ' ' << CONVERT_UNITS_TO( ev.eval(nmspace, atts.find("thetaY")->second), deg ) << std::endl
 	      << " phiY=" << (atts.find("phiY")->second)
-	      << ' ' << CMS_CONVERT_TO( ev.eval(nmspace, atts.find("phiY")->second), deg ) << std::endl
+	      << ' ' << CONVERT_UNITS_TO( ev.eval(nmspace, atts.find("phiY")->second), deg ) << std::endl
 	      << " thetaZ=" << (atts.find("thetaZ")->second)
-	      << ' ' << CMS_CONVERT_TO( ev.eval(nmspace, atts.find("thetaZ")->second), deg ) << std::endl
+	      << ' ' << CONVERT_UNITS_TO( ev.eval(nmspace, atts.find("thetaZ")->second), deg ) << std::endl
 	      << " phiZ=" << (atts.find("phiZ")->second)
-	      << ' ' << CMS_CONVERT_TO( ev.eval(nmspace, atts.find("phiZ")->second), deg ) 
+	      << ' ' << CONVERT_UNITS_TO( ev.eval(nmspace, atts.find("phiZ")->second), deg ) 
 	      << std::endl
 	      << "  WAS NOT CREATED!" << std::endl;
     ret = -1;

@@ -82,9 +82,9 @@ DTGeometryBuilderFromCondDB::build(const std::shared_ptr<DTGeometry>& theGeometr
 
 // Calling function has the responsibility to delete the allocated RectangularPlaneBounds object
 RectangularPlaneBounds* dtGeometryBuilder::getRecPlaneBounds( const std::vector<double>::const_iterator &shapeStart ) {
-  float width =     CMS_CONVERT_TO( *(shapeStart), cm );     // r-phi  dimension - different in different chambers
-  float length =    CMS_CONVERT_TO( *(shapeStart + 1), cm );    // z      dimension - constant
-  float thickness = CMS_CONVERT_TO( *(shapeStart + 2), cm );   // radial thickness - almost constant
+  float width =     CONVERT_UNITS_TO( *(shapeStart), cm );     // r-phi  dimension - different in different chambers
+  float length =    CONVERT_UNITS_TO( *(shapeStart + 1), cm );    // z      dimension - constant
+  float thickness = CONVERT_UNITS_TO( *(shapeStart + 2), cm );   // radial thickness - almost constant
   return new RectangularPlaneBounds(width, length, thickness);
 }
 
@@ -150,7 +150,7 @@ DTGeometryBuilderFromCondDB::buildLayer(DTSuperLayer* sl,
   // Loop on wires
   int firstWire = static_cast<int>(*(shapeStartPtr + 4 )); //par[4]);
   int WCounter = static_cast<int>(*(shapeStartPtr  + 5 )); //par[5]);
-  double sensibleLength = CMS_CONVERT_TO( *(shapeStartPtr  + 6 ), cm ); //par[6] in cm;
+  double sensibleLength = CONVERT_UNITS_TO( *(shapeStartPtr  + 6 ), cm ); //par[6] in cm;
   DTTopology topology(firstWire, WCounter, sensibleLength);
 
   DTLayerType layerType;

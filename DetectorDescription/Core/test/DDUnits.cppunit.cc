@@ -38,7 +38,7 @@ void testDDUnits::checkUnits()
 
   double twoPiAngle = 2_pi;
   std::cout << "My 2pi angle: " << twoPiAngle
-	    << " [rad] == " << CMS_CONVERT_TO( twoPiAngle, deg )
+	    << " [rad] == " << CONVERT_UNITS_TO( twoPiAngle, deg )
 	    << " [deg]\n";
 
   CPPUNIT_ASSERT( 2*M_PI == 2*_pi );
@@ -51,16 +51,16 @@ void testDDUnits::checkUnits()
   CPPUNIT_ASSERT( 135_deg == 3_pi/4 );
   CPPUNIT_ASSERT( 150_deg == 5_pi/6 );
 
-  double angle90 = CMS_CONVERT_TO( 1_pi/2, deg );
+  double angle90 = CONVERT_UNITS_TO( 1_pi/2, deg );
   CPPUNIT_ASSERT( angle90 == 90 );
   
-  double angle120 = CMS_CONVERT_TO( 2_pi/3, deg );
+  double angle120 = CONVERT_UNITS_TO( 2_pi/3, deg );
   CPPUNIT_ASSERT( angle120 == 120. );
 
-  double angle135 = CMS_CONVERT_TO( 3_pi/4, deg );
+  double angle135 = CONVERT_UNITS_TO( 3_pi/4, deg );
   CPPUNIT_ASSERT( angle135 == 135. );
 
-  double angle150 = CMS_CONVERT_TO( 5_pi/6, deg );
+  double angle150 = CONVERT_UNITS_TO( 5_pi/6, deg );
   CPPUNIT_ASSERT( angle150 == 150. );
 
   cout << "Mass of 1 kg is " << 1._kg

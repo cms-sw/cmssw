@@ -39,8 +39,8 @@ void DDMuonAngular::initialize(const DDNumericArguments & nArgs,
   incrCopyNo  = int (nArgs["incrCopyNo"]);
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MuonGeom") << "DDMuonAngular debug: Parameters for positioning-- "
-			   << n << " copies in steps of " << CMS_CONVERT_TO( stepAngle, deg )
-			   << " from " << CMS_CONVERT_TO( startAngle, deg ) << " \tZoffest "
+			   << n << " copies in steps of " << CONVERT_UNITS_TO( stepAngle, deg )
+			   << " from " << CONVERT_UNITS_TO( startAngle, deg ) << " \tZoffest "
 			   << zoffset << "\tStart and inremental copy nos " 
 			   << startCopyNo << ", " << incrCopyNo;
 #endif
@@ -75,7 +75,7 @@ void DDMuonAngular::execute(DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
         edm::LogInfo("MuonGeom") << "DDMuonAngular test: Creating a new rotation "
 				 << DDName(rotstr, idNameSpace) << "\t90, " 
-				 << CMS_CONVERT_TO( phitmp, deg ) << ", 90, " << CONVERT_TO(phitmp + 90._deg, deg) << ", 0, 0";
+				 << CONVERT_UNITS_TO( phitmp, deg ) << ", 90, " << CONVERT_TO(phitmp + 90._deg, deg) << ", 0, 0";
 #endif
         rotation = DDrot(DDName(rotstr, rotns), 90._deg, phitmp, 90._deg, 90._deg + phitmp, 0., 0.);
       } 

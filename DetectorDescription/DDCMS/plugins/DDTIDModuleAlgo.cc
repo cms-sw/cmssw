@@ -81,7 +81,7 @@ static long algorithm(Detector& /* description */,
       << " Detector Planes " << detectorN;
 
   LogDebug("TIDGeom") << "ModuleThick " 
-		      << moduleThick << " Detector Tilt " << CMS_CONVERT_TO( detTilt, deg )
+		      << moduleThick << " Detector Tilt " << CONVERT_UNITS_TO( detTilt, deg )
 		      << " Height " << fullHeight << " dl(Top) " << dlTop
 		      << " dl(Bottom) " << dlBottom << " dl(Hybrid) "
 		      << dlHybrid << " doComponents " << doComponents;
@@ -437,7 +437,7 @@ static long algorithm(Detector& /* description */,
         solid   = ns.addSolidNS(name,Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0));
         LogDebug("TIDGeom") << solid.name() 
 			    << " Trap made of " << pitchMat << " of "
-			    << "dimensions " << dz << ", " << CMS_CONVERT_TO( thet, deg )
+			    << "dimensions " << dz << ", " << CONVERT_UNITS_TO( thet, deg )
 			    << ", 0, " << h1 << ", " << bl1 << ", " << bl1 
 			    << ", 0, " << h1 << ", " << bl2 << ", " << bl2 
 			    << ", 0";

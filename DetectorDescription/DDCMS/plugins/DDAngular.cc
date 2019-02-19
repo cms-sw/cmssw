@@ -57,8 +57,8 @@ static long algorithm( Detector& /* description */,
 
   LogDebug("DDAlgorithm") << "debug: Parameters for positioning:: n "
 			  << n << " Start, Range, Delta " 
-			  << CMS_CONVERT_TO( startAngle, deg ) << " " 
-			  << CMS_CONVERT_TO( rangeAngle, deg ) << " " << CMS_CONVERT_TO( delta, deg )
+			  << CONVERT_UNITS_TO( startAngle, deg ) << " " 
+			  << CONVERT_UNITS_TO( rangeAngle, deg ) << " " << CONVERT_UNITS_TO( delta, deg )
 			  << " Radius " << radius << " Centre " << center[0]
 			  << ", " << center[1] << ", " << center[2]
 			  << ", Rotate solid " << rotateSolid[0] << ", " << rotateSolid[1]
@@ -79,12 +79,12 @@ static long algorithm( Detector& /* description */,
     if(( i > 180._deg ) || ( i < 0._deg ))
     {
       LogDebug( "DDAlgorithm" ) << "\trotateSolid \'theta\' must be in range [0,180*deg]\n"
-				<< "\t  currently it is " << CMS_CONVERT_TO( i, deg )
+				<< "\t  currently it is " << CONVERT_UNITS_TO( i, deg )
 				<< "*deg in rotateSolid[" << double(i) << "]!\n";
     }
     DDAxisAngle temp( fUnitVector( rotateSolid[i], rotateSolid[i + 1] ),
 		      rotateSolid[i + 2] );
-    LogDebug( "DDAlgorithm" ) << "  rotsolid[" << i <<  "] axis=" << temp.Axis() << " rot.angle=" << CMS_CONVERT_TO( temp.Angle(), deg );
+    LogDebug( "DDAlgorithm" ) << "  rotsolid[" << i <<  "] axis=" << temp.Axis() << " rot.angle=" << CONVERT_UNITS_TO( temp.Angle(), deg );
     solidRot = temp * solidRot;
   }
 
@@ -95,7 +95,7 @@ static long algorithm( Detector& /* description */,
   {
     double phix = phi;
     double phiy = phix + 90._deg;
-    double phideg = CMS_CONVERT_TO( phix, deg );
+    double phideg = CONVERT_UNITS_TO( phix, deg );
 
     Rotation3D rotation = makeRotation3D( theta, phix, theta, phiy, 0., 0. ) * solidRot;
     string rotstr = ns.nsName( child.name()) + std::to_string( phideg * 10. );

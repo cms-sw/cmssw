@@ -68,9 +68,9 @@ DDLinear::initialize( const DDNumericArguments & nArgs,
 
   LogDebug( "DDAlgorithm" ) << "DDLinear: Parameters for position"
 			    << "ing:: n " << m_n << " Direction Theta, Phi, Offset, Delta " 
-			    << CMS_CONVERT_TO( m_theta, deg ) << " " 
-			    << CMS_CONVERT_TO( m_phi, deg ) << " "
-			    << " " << CMS_CONVERT_TO( m_delta, deg )
+			    << CONVERT_UNITS_TO( m_theta, deg ) << " " 
+			    << CONVERT_UNITS_TO( m_phi, deg ) << " "
+			    << " " << CONVERT_UNITS_TO( m_delta, deg )
 			    << " Base " << m_base[0] 
 			    << ", " << m_base[1] << ", " << m_base[2];
   

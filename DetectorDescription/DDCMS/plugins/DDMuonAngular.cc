@@ -31,8 +31,8 @@ static long algorithm( Detector& /* description */,
 
   LogDebug("DDAlgorithm") << "debug: Parameters for positioning:: n "
 			  << n << " Start, Step " 
-			  << CMS_CONVERT_TO( startAngle, deg ) << " " 
-			  << CMS_CONVERT_TO( stepAngle, deg ) << " " 
+			  << CONVERT_UNITS_TO( startAngle, deg ) << " " 
+			  << CONVERT_UNITS_TO( stepAngle, deg ) << " " 
 			  << ", zoffset " << zoffset << " "
 			  << ", RotNameSpace " << rotns.c_str();
   LogDebug("DDAlgorithm") << "debug: Parent " << mother.name() 

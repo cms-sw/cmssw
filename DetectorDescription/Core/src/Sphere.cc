@@ -29,12 +29,12 @@ DDI::Sphere::Sphere(double innerRadius,
 
 void DDI::Sphere::stream(std::ostream & os) const
 {
-  os << " innerRadius=" << CMS_CONVERT_TO( p_[0], cm )
-     << " outerRadius=" << CMS_CONVERT_TO( p_[1], cm )
-     << " startPhi=" << CMS_CONVERT_TO( p_[2], deg )
-     << " deltaPhi=" << CMS_CONVERT_TO( p_[3], deg )
-     << " startTheta=" << CMS_CONVERT_TO( p_[4], deg )
-     << " deltaTheta=" << CMS_CONVERT_TO( p_[5], deg );
+  os << " innerRadius=" << CONVERT_UNITS_TO( p_[0], cm )
+     << " outerRadius=" << CONVERT_UNITS_TO( p_[1], cm )
+     << " startPhi=" << CONVERT_UNITS_TO( p_[2], deg )
+     << " deltaPhi=" << CONVERT_UNITS_TO( p_[3], deg )
+     << " startTheta=" << CONVERT_UNITS_TO( p_[4], deg )
+     << " deltaTheta=" << CONVERT_UNITS_TO( p_[5], deg );
 }
 
 double DDI::Sphere::volume() const
