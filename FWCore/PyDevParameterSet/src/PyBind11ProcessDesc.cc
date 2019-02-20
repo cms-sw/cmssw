@@ -26,7 +26,7 @@ PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config) :
   read(config);
 }
 
-/*
+
 PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, int argc, char* argv[]) :
    theProcessPSet(),
    theMainModule()
@@ -34,11 +34,16 @@ PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, int argc, ch
   pybind11::initialize_interpreter();
   edm::python::initializePyBind11Module();
   prepareToRead();
-  PySys_SetArgv(argc, argv);
+
+  if ( argc > 0 ) {
+    pybind11::list argvList;
+    for ( int i=0; i<argc; i++)
+      argvList.append(argv[i]);
+    pybind11::module::import("sys").attr("argv") = argvList;
+  }
   read(config);
-  //py::module::import("sys").attr("argv") = py::make_tuple("test.py", "embed.cpp"); might work
 }
-*/
+
 
 PyBind11ProcessDesc::~PyBind11ProcessDesc() {
   theMainModule=pybind11::object();
