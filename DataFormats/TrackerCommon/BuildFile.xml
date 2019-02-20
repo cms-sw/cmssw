@@ -3,6 +3,7 @@
 <use name="DataFormats/SiPixelDetId"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
+<release name="_CXXMODULE_"><flags   GENREFLEX_ARGS="--deep --cxxmodule"/></release>
 <export>
  <lib   name="1"/>
 </export>

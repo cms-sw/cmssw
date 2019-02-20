@@ -3,6 +3,7 @@
 <use   name="rootcore"/>
 <use   name="rootsmatrix"/>
 <use   name="clhep"/>
+<release name="_CXXMODULE_"><flags   GENREFLEX_ARGS="--deep --cxxmodule"/></release>
 
 <export>
   <lib   name="1"/>

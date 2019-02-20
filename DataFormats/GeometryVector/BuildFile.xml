@@ -1,6 +1,6 @@
 <use   name="rootmath"/>
-
 <use   name="DataFormats/Math"/>
+<release name="_CXXMODULE_"><flags   GENREFLEX_ARGS="--deep --cxxmodule"/></release>
 <export>
   <lib   name="1"/>
 </export>

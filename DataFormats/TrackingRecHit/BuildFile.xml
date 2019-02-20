@@ -4,6 +4,7 @@
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="FWCore/Utilities"/>
 <use   name="clhep"/>
+<release name="_CXXMODULE_"><flags   GENREFLEX_ARGS="--deep --cxxmodule"/></release>
 
 <export>
   <lib   name="1"/>

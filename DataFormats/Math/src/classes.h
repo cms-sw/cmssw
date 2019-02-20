@@ -3,21 +3,53 @@
 #define SMATRIX_USE_CONSTEXPR
 #include <Math/SVector.h>
 #include <Math/SMatrix.h>
+#include <Math/MinimTransformVariable.h>
+#include <Math/Delaunay2D.h>
 
-#include "DataFormats/Math/interface/LorentzVector.h"
 #include "Rtypes.h" 
 #include "Math/PxPyPzE4D.h" 
-#include "DataFormats/Math/interface/Vector3D.h"
 #include "Math/Cartesian3D.h" 
 #include "Math/Polar3D.h" 
 #include "Math/CylindricalEta3D.h" 
-#include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Math/interface/Vector.h"
-#include "DataFormats/Math/interface/Error.h"
-#include "DataFormats/Math/interface/Matrix.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+
+#include "DataFormats/Math/interface/SSEVec.h"
+#include "DataFormats/Math/interface/approx_atan2.h"
+#include "DataFormats/Math/interface/Matrix.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/SSEArray.h"
+#include "DataFormats/Math/interface/liblogintpack.h"
+#include "DataFormats/Math/interface/approx_log.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/Math/interface/libminifloat.h"
+#include "DataFormats/Math/interface/invertPosDefMatrix.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
+#include "DataFormats/Math/interface/ExtVec.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/GraphUtil.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
+#include "DataFormats/Math/interface/SSERot.h"
+#include "DataFormats/Math/interface/ProjectMatrix.h"
+#include "DataFormats/Math/interface/Graph.h"
+#include "DataFormats/Math/interface/approx_math.h"
+#include "DataFormats/Math/interface/Error.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/LorentzVectorFwd.h"
+#include "DataFormats/Math/interface/angle.h"
+#include "DataFormats/Math/interface/approx_exp.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/approx_erf.h"
+// #include "DataFormats/Math/interface/AVXVec.h"
+#include "DataFormats/Math/interface/PtEtaPhiMass.h"
+#include "DataFormats/Math/interface/approx_asin.h"
+#include "DataFormats/Math/interface/Vector.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
+#include "DataFormats/Math/interface/FastMath.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/SIMDVec.h"
+
 #include <vector>
 
 namespace DataFormats_Math {

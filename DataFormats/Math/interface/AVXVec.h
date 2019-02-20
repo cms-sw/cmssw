@@ -1,6 +1,8 @@
 #ifndef DataFormat_Math_AVXVec_H
 #define DataFormat_Math_AVXVec_H
 
+#include "DataFormats/Math/interface/SSEVec.h"
+
 // in principle it should not be used alone
 // only as part of SSEVec
 namespace mathSSE {

@@ -1,4 +1,3 @@
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/CLHEP/interface/Migration.h" 
 #include <boost/cstdint.hpp> 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" 
@@ -8,6 +7,10 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/RefHolder.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/BasicTrajectorySeed.h"
 
 namespace DataFormats_TrajectorySeed {
   struct dictionary {

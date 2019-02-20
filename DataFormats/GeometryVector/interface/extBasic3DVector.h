@@ -1,14 +1,15 @@
 #ifndef GeometryVector_newBasic3DVector_h
 #define GeometryVector_newBasic3DVector_h
 
+#include "DataFormats/Math/interface/ExtVec.h"
+#include <iosfwd>
+#include <cmath>
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "DataFormats/GeometryVector/interface/Theta.h"
 #include "DataFormats/GeometryVector/interface/Phi.h"
 #include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
-#include "DataFormats/Math/interface/ExtVec.h"
-#include <iosfwd>
-#include <cmath>
 
 namespace detailsBasic3DVector {
   inline float __attribute__((always_inline)) __attribute__ ((pure))
