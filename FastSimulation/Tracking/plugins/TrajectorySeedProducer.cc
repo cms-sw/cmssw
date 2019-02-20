@@ -134,7 +134,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
     // seed finder selector
     if(conf.exists("seedFinderSelector"))
     {
-	seedFinderSelector.reset(new SeedFinderSelector(conf.getParameter<edm::ParameterSet>("seedFinderSelector"),consumesCollector()));
+	seedFinderSelector = std::make_unique<SeedFinderSelector>(conf.getParameter<edm::ParameterSet>("seedFinderSelector"),consumesCollector());
     }
 
     /// regions
@@ -143,7 +143,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
     // seed creator
     const edm::ParameterSet & seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
     std::string seedCreatorName = seedCreatorPSet.getParameter<std::string>("ComponentName");
-    seedCreator.reset(SeedCreatorFactory::get()->create( seedCreatorName, seedCreatorPSet));
+    seedCreator = std::unique_ptr<SeedCreator>{SeedCreatorFactory::get()->create( seedCreatorName, seedCreatorPSet)};
 
 }
 

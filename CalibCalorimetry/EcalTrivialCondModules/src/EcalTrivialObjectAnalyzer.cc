@@ -391,7 +391,6 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
 
    // laser timestamps
    EcalLaserAPDPNRatios::EcalLaserTimeStamp ltimestamp;
-   EcalLaserAPDPNRatios::EcalLaserTimeStampMap::const_iterator ltimeit;
    for (int i=1; i<=92; i++) {     
      ltimestamp = lratio->getTimeMap()[i];
      std::cout << "i = " << std::setprecision(6) << i

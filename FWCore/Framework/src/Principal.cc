@@ -139,12 +139,15 @@ namespace edm {
     // So, the non-alias product holders must be created first.
     // Therefore, on this first pass, skip current EDAliases.
     bool hasAliases = false;
+    bool hasSwitchAliases = false;
     for(auto const& prod : prodsList) {
       BranchDescription const& bd = prod.second;
       if(bd.branchType() == branchType_) {
         if(isForPrimaryProcess or bd.processName() == pc.processName()) {
-          if(bd.isAnyAlias()) {
+          if(bd.isAlias()) {
             hasAliases = true;
+          } else if(bd.isSwitchAlias()) {
+            hasSwitchAliases = true;
           } else {
             auto cbd = std::make_shared<BranchDescription const>(bd);
             if(bd.produced()) {
@@ -171,24 +174,28 @@ namespace edm {
     if(hasAliases) {
       for(auto const& prod : prodsList) {
         BranchDescription const& bd = prod.second;
-        if(bd.isAnyAlias() && bd.branchType() == branchType_) {
+        if(bd.isAlias() && bd.branchType() == branchType_) {
+          addAliasedProduct(std::make_shared<BranchDescription const>(bd));
+        }
+      }
+    }
+    // Finally process any SwitchProducer aliases
+    if(hasSwitchAliases) {
+      for(auto const& prod : prodsList) {
+        BranchDescription const& bd = prod.second;
+        if(bd.isSwitchAlias() && bd.branchType() == branchType_) {
+          assert(branchType_ == InEvent);
           auto cbd = std::make_shared<BranchDescription const>(bd);
-          if(bd.isSwitchAlias()) {
-            assert(branchType_ == InEvent);
-            // Need different implementation for SwitchProducers not
-            // in any Path (onDemand) and for those in a Path in order
-            // to prevent the switch-aliased-for EDProducers from
-            // being run when the SwitchProducer is in a Path after a
-            // failing EDFilter.
-            if(bd.onDemand()) {
-              addSwitchAliasProduct(cbd);
-            }
-            else {
-              addSwitchProducerProduct(cbd);
-            }
+          // Need different implementation for SwitchProducers not
+          // in any Path (onDemand) and for those in a Path in order
+          // to prevent the switch-aliased-for EDProducers from
+          // being run when the SwitchProducer is in a Path after a
+          // failing EDFilter.
+          if(bd.onDemand()) {
+            addSwitchAliasProduct(cbd);
           }
           else {
-            addAliasedProduct(cbd);
+            addSwitchProducerProduct(cbd);
           }
         }
       }
@@ -343,7 +350,7 @@ namespace edm {
     ProductResolverIndex index = preg_->indexFrom(bd->originalBranchID());
     assert(index != ProductResolverIndexInvalid);
 
-    addProductOrThrow(std::make_unique<AliasProductResolver>(std::move(bd), dynamic_cast<ProducedProductResolver&>(*productResolvers_[index])));
+    addProductOrThrow(std::make_unique<AliasProductResolver>(std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*productResolvers_[index])));
   }
 
   void
@@ -351,7 +358,7 @@ namespace edm {
     ProductResolverIndex index = preg_->indexFrom(bd->switchAliasForBranchID());
     assert(index != ProductResolverIndexInvalid);
 
-    addProductOrThrow(std::make_unique<SwitchProducerProductResolver>(std::move(bd), dynamic_cast<ProducedProductResolver&>(*productResolvers_[index])));
+    addProductOrThrow(std::make_unique<SwitchProducerProductResolver>(std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*productResolvers_[index])));
   }
 
   void
@@ -359,7 +366,7 @@ namespace edm {
     ProductResolverIndex index = preg_->indexFrom(bd->switchAliasForBranchID());
     assert(index != ProductResolverIndexInvalid);
 
-    addProductOrThrow(std::make_unique<SwitchAliasProductResolver>(std::move(bd), dynamic_cast<ProducedProductResolver&>(*productResolvers_[index])));
+    addProductOrThrow(std::make_unique<SwitchAliasProductResolver>(std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*productResolvers_[index])));
   }
 
   void

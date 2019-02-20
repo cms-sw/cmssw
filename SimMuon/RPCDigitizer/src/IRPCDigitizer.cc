@@ -9,17 +9,14 @@
 
 // default constructor allocates default wire and strip digitizers
 
-IRPCDigitizer::IRPCDigitizer(const edm::ParameterSet& config) {
-  theName = config.getParameter<std::string>("digiIRPCModel");
-  theRPCSim = RPCSimFactory::get()->create(theName,config.getParameter<edm::ParameterSet>("digiIRPCModelConfig"));
+IRPCDigitizer::IRPCDigitizer(const edm::ParameterSet& config):
+  theRPCSim{RPCSimFactory::get()->create(config.getParameter<std::string>("digiIRPCModel"),
+                                         config.getParameter<edm::ParameterSet>("digiIRPCModelConfig"))}
+{
   theNoise=config.getParameter<bool>("doBkgNoise");
 }
 
-IRPCDigitizer::~IRPCDigitizer() {
-  if( theRPCSim )
-    delete theRPCSim;
-  theRPCSim = nullptr;
-}
+IRPCDigitizer::~IRPCDigitizer() = default;
 
 void IRPCDigitizer::doAction(MixCollection<PSimHit> & simHits, 
                             RPCDigiCollection & rpcDigis,

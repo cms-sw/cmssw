@@ -32,7 +32,7 @@ private:
   edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token; 
 
   std::string digiPreRecoModelString_;
-  ME0DigiPreRecoModel* me0DigiPreRecoModel_;
+  std::unique_ptr<ME0DigiPreRecoModel> me0DigiPreRecoModel_;
 };
 
 #endif

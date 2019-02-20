@@ -389,7 +389,6 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
       ph->RegisterProcess(pb, particle);
       ph->RegisterProcess(pp, particle);
       ph->RegisterProcess(pss, particle);
-      ph->RegisterProcess(pnuc, particle);
 
     } else if (particleName == "B+" ||
 	       particleName == "B-" ||

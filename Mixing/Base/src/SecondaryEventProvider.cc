@@ -3,6 +3,7 @@
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 namespace edm {
   SecondaryEventProvider::SecondaryEventProvider(std::vector<ParameterSet>& psets,
@@ -24,7 +25,7 @@ namespace edm {
                                                shouldBeUsedLabels);
     }
     if(!unscheduledLabels.empty()) {
-      workerManager_.setOnDemandProducts(preg, unscheduledLabels);
+      preg.setUnscheduledProducts(unscheduledLabels);
     }
   } // SecondaryEventProvider::SecondaryEventProvider
 

@@ -114,6 +114,10 @@
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestSwitchProducer.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <bin   file="TestIntegration.cpp" name="TestIntegration_TestEDAlias">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestEDAlias.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
   <bin   file="TestIntegration.cpp" name="CatchStdExceptiontest">
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test CatchStdExceptiontest.sh"/>
     <use   name="FWCore/Utilities"/>
@@ -133,6 +137,13 @@
     <use   name="FWCore/Utilities"/>
   </bin>
   <bin   file="SwitchProducer_t.cpp">
+    <use   name="FWCore/Framework"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="FWCore/TestProcessor"/>
+    <use   name="DataFormats/Provenance"/>
+    <use   name="catch2"/>
+  </bin>
+  <bin   file="EDAlias_t.cpp">
     <use   name="FWCore/Framework"/>
     <use   name="FWCore/ParameterSet"/>
     <use   name="FWCore/TestProcessor"/>

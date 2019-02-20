@@ -195,18 +195,27 @@ fastSim.toModify(lowPtQuadStepTracks,TTRHBuilder = 'WithoutRefit')
 
 
 # Final selection
-from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
-lowPtQuadStep =  TrackMVAClassifierPrompt.clone(
+from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
+lowPtQuadStep = TrackLwtnnClassifier.clone(
     src = 'lowPtQuadStepTracks',
-    mva = dict(GBRForestLabel = 'MVASelectorLowPtQuadStep_Phase1'),
-    qualityCuts = [-0.7,-0.35,-0.15],
+    qualityCuts = [0.2, 0.425, 0.75],
 )
 fastSim.toModify(lowPtQuadStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
-highBetaStar_2018.toModify(lowPtQuadStep,qualityCuts = [-0.9,-0.35,-0.15])
-pp_on_AA_2018.toModify(lowPtQuadStep, 
-        mva = dict(GBRForestLabel = 'HIMVASelectorLowPtQuadStep_Phase1'),
-        qualityCuts = [-0.9, -0.4, 0.3],
-)
+
+from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
+
+highBetaStar_2018.toReplaceWith(lowPtQuadStep, TrackMVAClassifierPrompt.clone(
+    src = 'lowPtQuadStepTracks',
+    qualityCuts = [-0.9,-0.35,-0.15],
+    mva = dict(GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1') 
+))
+
+pp_on_AA_2018.toReplaceWith(lowPtQuadStep, TrackMVAClassifierPrompt.clone(
+    src = 'lowPtQuadStepTracks',
+    qualityCuts = [-0.9, -0.4, 0.3],
+    mva = dict(GBRForestLabel = 'HIMVASelectorLowPtQuadStep_Phase1')
+))
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
