@@ -5,11 +5,14 @@ import ROOT
 import sqlite3
 import argparse
 import subprocess
+import multiprocessing
 
 parser = argparse.ArgumentParser(description="Collect a MEs from DQMIO data, with maximum possible granularity")
 
 parser.add_argument('dataset', help='dataset name, like "/StreamHIExpress/HIRun2018A-Express-v1/DQMIO"')
 parser.add_argument('-o', '--output', help='SQLite file to write', default='dqmio.sqlite')
+parser.add_argument('-j', '--njobs', help='Number of threads to read files', type=int, default=1)
+parser.add_argument('-l', '--limit', help='Only load up to LIMIT files', type=int, default=-1)
 args = parser.parse_args()
 
 
@@ -171,6 +174,7 @@ def harvestfile(fname):
     # are covered in the end-of-job MEs. This might fail if there are no 
     # per-lumi MEs.
     knownlumis = set()
+    mes_to_store = []
 
     for i in range(idxtree.GetEntries()):
         idxtree.GetEntry(i)
@@ -181,7 +185,6 @@ def harvestfile(fname):
         if not treenames[metype] in interesting_types:
             continue
 
-        mes_to_store = []
 
         endrun = run # assume no multi-run files for now
         if lumi == 0: # per-job ME
@@ -208,10 +211,14 @@ def harvestfile(fname):
                 )
 
         print "Processing run %d, lumi %d, type %s, found %d" % (run, lumi, treenames[metype], len(mes_to_store))
-        db.executemany(insertinto, mes_to_store);
-        db.commit()
+
+    return mes_to_store
 
 files = dasquery(args.dataset)
-for fname in files:
-    harvestfile(fname)
+if args.limit > 0: files = files[:args.limit]
 
+pool = multiprocessing.Pool(processes=args.njobs)
+for mes_to_store in pool.imap_unordered(harvestfile, files):
+#for mes_to_store in map(harvestfile, files):
+    db.executemany(insertinto, mes_to_store);
+    db.commit()
