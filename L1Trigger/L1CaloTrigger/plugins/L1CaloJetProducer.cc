@@ -80,13 +80,21 @@ class L1CaloJetProducer : public edm::EDProducer {
         double EtMinForCollection;
 
         // For fetching calibrations
-        std::vector< double > emFractionBins;
-        std::vector< double > absEtaBins;
         std::vector< double > jetPtBins;
-        std::vector< double > jetCalibrations;
+        std::vector< double > emFractionBinsBarrel;
+        std::vector< double > absEtaBinsBarrel;
+        std::vector< double > jetCalibrationsBarrel;
+        std::vector< double > emFractionBinsHGCal;
+        std::vector< double > absEtaBinsHGCal;
+        std::vector< double > jetCalibrationsHGCal;
+        std::vector< double > emFractionBinsHF;
+        std::vector< double > absEtaBinsHF;
+        std::vector< double > jetCalibrationsHF;
 
         // For storing calibrations
-        std::vector< std::vector< std::vector< double >>> calibrations;
+        std::vector< std::vector< std::vector< double >>> calibrationsBarrel;
+        std::vector< std::vector< std::vector< double >>> calibrationsHGCal;
+        std::vector< std::vector< std::vector< double >>> calibrationsHF;
 
         bool debug;
         edm::EDGetTokenT< L1CaloTowerCollection > l1TowerToken_;
@@ -276,10 +284,16 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     HFTpEtMin(iConfig.getParameter<double>("HFTpEtMin")), // Should default to 0 MeV
     EtMinForSeedHit(iConfig.getParameter<double>("EtMinForSeedHit")), // Should default to 2.5 GeV
     EtMinForCollection(iConfig.getParameter<double>("EtMinForCollection")), // Testing 10 GeV
-    emFractionBins(iConfig.getParameter<std::vector<double>>("emFractionBins")),
-    absEtaBins(iConfig.getParameter<std::vector<double>>("absEtaBins")),
     jetPtBins(iConfig.getParameter<std::vector<double>>("jetPtBins")),
-    jetCalibrations(iConfig.getParameter<std::vector<double>>("jetCalibrations")),
+    emFractionBinsBarrel(iConfig.getParameter<std::vector<double>>("emFractionBinsBarrel")),
+    absEtaBinsBarrel(iConfig.getParameter<std::vector<double>>("absEtaBinsBarrel")),
+    jetCalibrationsBarrel(iConfig.getParameter<std::vector<double>>("jetCalibrationsBarrel")),
+    emFractionBinsHGCal(iConfig.getParameter<std::vector<double>>("emFractionBinsHGCal")),
+    absEtaBinsHGCal(iConfig.getParameter<std::vector<double>>("absEtaBinsHGCal")),
+    jetCalibrationsHGCal(iConfig.getParameter<std::vector<double>>("jetCalibrationsHGCal")),
+    emFractionBinsHF(iConfig.getParameter<std::vector<double>>("emFractionBinsHF")),
+    absEtaBinsHF(iConfig.getParameter<std::vector<double>>("absEtaBinsHF")),
+    jetCalibrationsHF(iConfig.getParameter<std::vector<double>>("jetCalibrationsHF")),
     debug(iConfig.getParameter<bool>("debug")),
     l1TowerToken_(consumes< L1CaloTowerCollection >(iConfig.getParameter<edm::InputTag>("l1CaloTowers"))),
     crystalClustersToken_(consumes<l1slhc::L1EGCrystalClusterCollection>(iConfig.getParameter<edm::InputTag>("L1CrystalClustersInputTag")))
@@ -287,7 +301,7 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     //hcalToken_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigis")))
 
 {
-    printf("L1CaloJetProducer setup\n");
+    if (debug) printf("L1CaloJetProducer setup\n");
     produces<l1slhc::L1CaloJetsCollection>("L1CaloJetsNoCuts");
     //produces<l1slhc::L1CaloJetsCollection>("L1CaloJetsWithCuts");
     //produces<l1extra::L1JetParticleCollection>("L1CaloClusterCollectionWithCuts");
@@ -325,27 +339,117 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     // Dimension 2 is AbsEta bin
     // Dimension 3 is jet pT bin which is filled with the actual callibration value
     // size()-1 b/c the inputs have lower and upper bounds
+    // Do Barrel, then HGCal, then HF
     int index = 0;
-                //calibrations[em_frac][abs_eta].push_back( jetCalibrations.at(index) );
-    for( unsigned int em_frac = 0; em_frac < emFractionBins.size()-1; em_frac++)
+    //calibrations[em_frac][abs_eta].push_back( jetCalibrationsBarrel.at(index) );
+    for( unsigned int abs_eta = 0; abs_eta < absEtaBinsBarrel.size()-1; abs_eta++)
     {
-        std::vector< std::vector< double >> eta_bins;
-        for( unsigned int abs_eta = 0; abs_eta < absEtaBins.size()-1; abs_eta++)
+        std::vector< std::vector< double >> em_bins;
+        for( unsigned int em_frac = 0; em_frac < emFractionBinsBarrel.size()-1; em_frac++)
         {
             std::vector< double > pt_bin_calibs;
             for( unsigned int pt = 0; pt < jetPtBins.size()-1; pt++)
             {
                 //printf("\n em_frac %d abs_eta %d pt %d", em_frac, abs_eta, pt);
-                //printf("\n - em_frac %f abs_eta %f pt %f = %f\n", emFractionBins.at(em_frac), absEtaBins.at(abs_eta), jetPtBins.at(pt), jetCalibrations.at(index));
-                pt_bin_calibs.push_back( jetCalibrations.at(index) );
+                //printf("\n - em_frac %f abs_eta %f pt %f = %f\n", emFractionBinsBarrel.at(em_frac), absEtaBinsBarrel.at(abs_eta), jetPtBins.at(pt), jetCalibrationsBarrel.at(index));
+                pt_bin_calibs.push_back( jetCalibrationsBarrel.at(index) );
                 index++;
             }
-            eta_bins.push_back( pt_bin_calibs );
+            em_bins.push_back( pt_bin_calibs );
         }
-        calibrations.push_back( eta_bins );
+        calibrationsBarrel.push_back( em_bins );
     }
-    if(debug) printf("\nLoading calibrations: Loaded %i values vs. size() of input calibration file: %i", index, int(jetCalibrations.size()));
-    printf("L1CaloJetProducer end\n");
+    if(debug) printf("\nLoading Barrel calibrations: Loaded %i values vs. size() of input calibration file: %i", index, int(jetCalibrationsBarrel.size()));
+
+    index = 0;
+    //calibrations[em_frac][abs_eta].push_back( jetCalibrationsHGCal.at(index) );
+    for( unsigned int abs_eta = 0; abs_eta < absEtaBinsHGCal.size()-1; abs_eta++)
+    {
+        std::vector< std::vector< double >> em_bins;
+        for( unsigned int em_frac = 0; em_frac < emFractionBinsHGCal.size()-1; em_frac++)
+        {
+            std::vector< double > pt_bin_calibs;
+            for( unsigned int pt = 0; pt < jetPtBins.size()-1; pt++)
+            {
+                //printf("\n em_frac %d abs_eta %d pt %d", em_frac, abs_eta, pt);
+                //printf("\n - em_frac %f abs_eta %f pt %f = %f\n", emFractionBinsHGCal.at(em_frac), absEtaBinsHGCal.at(abs_eta), jetPtBins.at(pt), jetCalibrationsHGCal.at(index));
+                pt_bin_calibs.push_back( jetCalibrationsHGCal.at(index) );
+                index++;
+            }
+            em_bins.push_back( pt_bin_calibs );
+        }
+        calibrationsHGCal.push_back( em_bins );
+    }
+    if(debug) printf("\nLoading HGCal calibrations: Loaded %i values vs. size() of input calibration file: %i", index, int(jetCalibrationsHGCal.size()));
+
+    index = 0;
+    //calibrations[em_frac][abs_eta].push_back( jetCalibrationsHF.at(index) );
+    for( unsigned int abs_eta = 0; abs_eta < absEtaBinsHF.size()-1; abs_eta++)
+    {
+        std::vector< std::vector< double >> em_bins;
+        for( unsigned int em_frac = 0; em_frac < emFractionBinsHF.size()-1; em_frac++)
+        {
+            std::vector< double > pt_bin_calibs;
+            for( unsigned int pt = 0; pt < jetPtBins.size()-1; pt++)
+            {
+                //printf("\n em_frac %d abs_eta %d pt %d", em_frac, abs_eta, pt);
+                //printf("\n - em_frac %f abs_eta %f pt %f = %f\n", emFractionBinsHF.at(em_frac), absEtaBinsHF.at(abs_eta), jetPtBins.at(pt), jetCalibrationsHF.at(index));
+                pt_bin_calibs.push_back( jetCalibrationsHF.at(index) );
+                index++;
+            }
+            em_bins.push_back( pt_bin_calibs );
+        }
+        calibrationsHF.push_back( em_bins );
+    }
+    if(debug) printf("\nLoading HF calibrations: Loaded %i values vs. size() of input calibration file: %i", index, int(jetCalibrationsHF.size()));
+
+    //index = 0;
+    //printf("Barrel Calibrations:\n");
+    //for( unsigned int i = 0; i < calibrationsBarrel.size(); i++)
+    //{
+    //    for( unsigned int j = 0; j < calibrationsBarrel[i].size(); j++)
+    //    {
+    //        for( unsigned int k = 0; k < calibrationsBarrel[i][j].size(); k++)
+    //        {
+    //            printf("i %i j %i k %i index %i: Input Value %f   Loaded Value %f   Input/Loaded %f\n", 
+    //                int(i), int(j), int(k), int(index), jetCalibrationsBarrel.at(index),
+    //                calibrationsBarrel[ i ][ j ][ k ], jetCalibrationsBarrel.at(index) / calibrationsBarrel[ i ][ j ][ k ] );
+    //            index++;
+    //        }
+    //    }
+    //}
+    //index = 0;
+    //printf("HGCal Calibrations:\n");
+    //for( unsigned int i = 0; i < calibrationsHGCal.size(); i++)
+    //{
+    //    for( unsigned int j = 0; j < calibrationsHGCal[i].size(); j++)
+    //    {
+    //        for( unsigned int k = 0; k < calibrationsHGCal[i][j].size(); k++)
+    //        {
+    //            printf("i %i j %i k %i index %i: Input Value %f   Loaded Value %f   Input/Loaded %f\n", 
+    //                int(i), int(j), int(k), int(index), jetCalibrationsHGCal.at(index),
+    //                calibrationsHGCal[ i ][ j ][ k ], jetCalibrationsHGCal.at(index) / calibrationsHGCal[ i ][ j ][ k ] );
+    //            index++;
+    //        }
+    //    }
+    //}
+    //index = 0;
+    //printf("HF Calibrations:\n");
+    //for( unsigned int i = 0; i < calibrationsHF.size(); i++)
+    //{
+    //    for( unsigned int j = 0; j < calibrationsHF[i].size(); j++)
+    //    {
+    //        for( unsigned int k = 0; k < calibrationsHF[i][j].size(); k++)
+    //        {
+    //            printf("i %i j %i k %i index %i: Input Value %f   Loaded Value %f   Input/Loaded %f\n", 
+    //                int(i), int(j), int(k), int(index), jetCalibrationsHF.at(index),
+    //                calibrationsHF[ i ][ j ][ k ], jetCalibrationsHF.at(index) / calibrationsHF[ i ][ j ][ k ] );
+    //            index++;
+    //        }
+    //    }
+    //}
+
+    if (debug) printf("\nL1CaloJetProducer end\n");
 }
 
 void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -1082,7 +1186,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                     params["jet_pt_calibration"], caloJet.p4().eta(), caloJet.p4().phi(), caloJet.p4().M() );
             L1CaloJetCollectionBXV->push_back( 0, l1t::Jet( jet_p4 ) );
 
-            if (debug) printf("Made a Jet, eta %f phi %f pt %f\n", caloJetObj.jetCluster.eta(), caloJetObj.jetCluster.phi(), caloJetObj.jetClusterET);
+            if (debug) printf("Made a Jet, eta %f phi %f pt %f calibrated pt %f\n", caloJetObj.jetCluster.eta(), caloJetObj.jetCluster.phi(), caloJetObj.jetClusterET, params["jet_pt_calibration"] );
         }
 
 
@@ -1170,43 +1274,97 @@ L1CaloJetProducer::get_hcal_calibration( float &jet_pt, float &ecal_pt,
     float tmp_jet_pt = jet_pt;
     if (tmp_jet_pt > 499) tmp_jet_pt = 499;
 
-    // Treat anything beyond the barrel as boundary
-    // FIXME with HGCal calibrations
-    if(abs_eta > 1.5) abs_eta = 1.5;
-
+    // Different indices sizes in different calo regions.
+    // Barrel...
     size_t em_index = 0;
-    // Start loop checking 2nd value
-    for( unsigned int i = 1; i < emFractionBins.size(); i++)
-    {
-        if(em_frac <= emFractionBins.at(i)) break;
-        em_index++;
-    }
-
     size_t eta_index = 0;
-    // Start loop checking 2nd value
-    for( unsigned int i = 1; i < absEtaBins.size(); i++)
-    {
-        if(abs_eta <= absEtaBins.at(i)) break;
-        eta_index++;
-    }
-
     size_t pt_index = 0;
-    // Start loop checking 2nd value
-    for( unsigned int i = 1; i < jetPtBins.size(); i++)
+    float calib = 1.0;
+    if (abs_eta <= 1.5)
     {
-        if(tmp_jet_pt <= jetPtBins.at(i)) break;
-        pt_index++;
-    }
+        // Start loop checking 2nd value
+        for( unsigned int i = 1; i < emFractionBinsBarrel.size(); i++)
+        {
+            if(em_frac <= emFractionBinsBarrel.at(i)) break;
+            em_index++;
+        }
+
+        // Start loop checking 2nd value
+        for( unsigned int i = 1; i < absEtaBinsBarrel.size(); i++)
+        {
+            if(abs_eta <= absEtaBinsBarrel.at(i)) break;
+            eta_index++;
+        }
+
+        // Start loop checking 2nd value
+        for( unsigned int i = 1; i < jetPtBins.size(); i++)
+        {
+            if(tmp_jet_pt <= jetPtBins.at(i)) break;
+            pt_index++;
+        }
+        //printf("Barrel calib emId %i etaId %i jetPtId %i\n",int(em_index),int(eta_index),int(pt_index));
+        calib = calibrationsBarrel[ eta_index ][ em_index ][ pt_index ];
+    } // end Barrel
+    else if (abs_eta <= 3.0) // HGCal
+    {
+        // Start loop checking 2nd value
+        for( unsigned int i = 1; i < emFractionBinsHGCal.size(); i++)
+        {
+            if(em_frac <= emFractionBinsHGCal.at(i)) break;
+            em_index++;
+        }
+
+        // Start loop checking 2nd value
+        for( unsigned int i = 1; i < absEtaBinsHGCal.size(); i++)
+        {
+            if(abs_eta <= absEtaBinsHGCal.at(i)) break;
+            eta_index++;
+        }
+
+        // Start loop checking 2nd value
+        for( unsigned int i = 1; i < jetPtBins.size(); i++)
+        {
+            if(tmp_jet_pt <= jetPtBins.at(i)) break;
+            pt_index++;
+        }
+        //printf("HGCal calib emId %i etaId %i jetPtId %i\n",int(em_index),int(eta_index),int(pt_index));
+        calib = calibrationsHGCal[ eta_index ][ em_index ][ pt_index ];
+    } // end HGCal
+    else // HF
+    {
+        // Start loop checking 2nd value
+        for( unsigned int i = 1; i < emFractionBinsHF.size(); i++)
+        {
+            if(em_frac <= emFractionBinsHF.at(i)) break;
+            em_index++;
+        }
+
+        // Start loop checking 2nd value
+        for( unsigned int i = 1; i < absEtaBinsHF.size(); i++)
+        {
+            if(abs_eta <= absEtaBinsHF.at(i)) break;
+            eta_index++;
+        }
+
+        // Start loop checking 2nd value
+        for( unsigned int i = 1; i < jetPtBins.size(); i++)
+        {
+            if(tmp_jet_pt <= jetPtBins.at(i)) break;
+            pt_index++;
+        }
+        //printf("HF calib emId %i etaId %i jetPtId %i\n",int(em_index),int(eta_index),int(pt_index));
+        calib = calibrationsHF[ eta_index ][ em_index ][ pt_index ];
+    } // end HF
+
     //printf(" - jet pt %f index %i\n", jet_pt, int(pt_index));
     //printf(" --- calibration: %f\n", calibrations[ em_index ][ eta_index ][ pt_index ] );
 
-    float calib = calibrations[ em_index ][ eta_index ][ pt_index ];
-    if(calib > 50 && debug)
+    if(calib > 5 && debug)
     {
-        printf(" - em frac %f index %i\n", em_frac, int(em_index));
-        printf(" - abs eta %f index %i\n", abs_eta, int(eta_index));
+        printf(" - l1eg %f, ecal %f, jet %f, em frac %f index %i\n", ecal_L1EG_jet_pt, ecal_pt, jet_pt, em_frac, int(em_index));
+        printf(" - eta %f, abs eta %f index %i\n", jet_eta, abs_eta, int(eta_index));
         printf(" - jet pt %f tmp_jet_pt %f index %i\n", jet_pt, tmp_jet_pt, int(pt_index));
-        printf(" --- calibration: %f\n", calibrations[ em_index ][ eta_index ][ pt_index ] );
+        printf(" --- calibration: %f\n\n", calib );
     }
     return calib;
 }
