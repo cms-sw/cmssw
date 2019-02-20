@@ -48,7 +48,7 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
       cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
   std::unique_ptr<SeedComparitor> aComparitor;
-  if(comparitorName == "none") {
+  if(comparitorName != "none") {
     aComparitor = std::unique_ptr<SeedComparitor>{SeedComparitorFactory::get()->create( comparitorName, comparitorPSet, iC)};
   }
 
