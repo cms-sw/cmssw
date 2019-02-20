@@ -21,6 +21,12 @@
   <class name="l1t::PFCandidateCollection" />
   <class name="edm::Wrapper<l1t::PFCandidateCollection>" />
 
+  <class name="l1t::PFJet"  ClassVersion="3">
+        <version ClassVersion="3" checksum="133342988"/>
+  </class>
+  <class name="l1t::PFJetCollection" />
+  <class name="edm::Wrapper<l1t::PFJetCollection>" />
+
 
 </lcgdict>
 
