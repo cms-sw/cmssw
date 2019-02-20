@@ -35,7 +35,6 @@
 #include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DetectorDescription/RecoGeometry/interface/DTNumberingScheme.h"
 #include "DetectorDescription/RecoGeometry/interface/DTGeometryBuilder.h"
