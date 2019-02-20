@@ -33,8 +33,8 @@ class DTT0WireWorkflow(DTWorkflow):
         fill_function()
 
     def prepare_all_submit(self):
-        self.pset_name = 'dtT0WireCalibrationNew_cfg.py'
-        self.pset_template = 'CalibMuon.DTCalibration.dtT0WireCalibrationNew_cfg'
+        self.pset_name = 'dtT0WireCalibration_cfg.py'
+        self.pset_template = 'CalibMuon.DTCalibration.dtT0WireCalibration_cfg'
 
         self.process = tools.loadCmsProcess(self.pset_template)
         self.process.GlobalTag.globaltag = self.options.globaltag
