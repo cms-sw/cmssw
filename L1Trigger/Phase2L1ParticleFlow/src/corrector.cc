@@ -21,18 +21,38 @@
 l1tpf::corrector::corrector(const std::string &filename, float emfMax, bool debug) :
     emfMax_(emfMax)
 {
-    if (!filename.empty()) init_(filename, debug);
+    if (!filename.empty()) init_(filename, "", debug);
+}
+l1tpf::corrector::corrector(const std::string &filename, const std::string &directory, float emfMax, bool debug) :
+    emfMax_(emfMax)
+{
+    if (!filename.empty()) init_(filename, directory, debug);
 }
 
-void l1tpf::corrector::init_(const std::string &filename, bool debug)
+l1tpf::corrector::corrector(TDirectory *src, float emfMax, bool debug) :
+    emfMax_(emfMax)
+{
+    init_(src, debug);
+}
+
+void l1tpf::corrector::init_(const std::string &filename, const std::string &directory, bool debug)
 {
     std::string resolvedFileName = filename; 
     if (filename[0] != '/') resolvedFileName = edm::FileInPath(filename).fullPath();
     TFile *lFile = TFile::Open(resolvedFileName.c_str());
     if (!lFile || lFile->IsZombie()) throw cms::Exception("Configuration", "cannot read file "+filename);
 
+    TDirectory *dir = directory.empty() ? lFile : lFile->GetDirectory(directory.c_str());
+    if (!dir) throw cms::Exception("Configuration", "cannot find directory '"+directory+"' in file "+filename);
+    init_(dir, debug);
+
+    lFile->Close();
+}
+
+void l1tpf::corrector::init_(TDirectory *lFile, bool debug) 
+{
     TH1 *index = (TH1*) lFile->Get("INDEX");
-    if (!index) throw cms::Exception("Configuration", "invalid input file "+filename+": index histogram not found.\n");
+    if (!index) throw cms::Exception("Configuration") <<  "invalid input file " << lFile->GetPath() << ": INDEX histogram not found.\n";
     index_.reset((TH1*)index->Clone()); 
     index_->SetDirectory(nullptr);
 
@@ -76,9 +96,19 @@ void l1tpf::corrector::init_(const std::string &filename, bool debug)
         }
     }
     timer.stop();
-    if (debug) std::cout << "Read " << ngraphs << " graphs from " << filename << " in " << timer.realTime() << " s"  << std::endl; 
+    if (debug) std::cout << "Read " << ngraphs << " graphs from " << lFile->GetPath() << " in " << timer.realTime() << " s"  << std::endl; 
+}
 
-    lFile->Close();
+l1tpf::corrector::corrector(const TH1* index, float emfMax) :
+    index_((TH1*)index->Clone("INDEX")), 
+    is2d_(index->InheritsFrom("TH2")),
+    neta_(index->GetNbinsX()),
+    nemf_(is2d_ ? index->GetNbinsY() : 1),
+    emfMax_(emfMax)
+{
+    index_->SetDirectory(nullptr);
+    corrections_.resize(neta_*nemf_);
+    std::fill(corrections_.begin(), corrections_.end(), nullptr);
 }
 
 l1tpf::corrector::~corrector() {
@@ -109,7 +139,7 @@ l1tpf::corrector & l1tpf::corrector::operator=(corrector && corr) {
     return *this;
 }
 
-float l1tpf::corrector::correctedPt(float pt, float emPt, float eta) { 
+float l1tpf::corrector::correctedPt(float pt, float emPt, float eta) const { 
     float total = std::max(pt, emPt), abseta = std::abs(eta);
     float emf   = emPt/total;
     if (emfMax_ > 0 && emf > emfMax_) return total; // no correction
@@ -123,9 +153,38 @@ float l1tpf::corrector::correctedPt(float pt, float emPt, float eta) {
     return ptcorr;
 }
 
-void l1tpf::corrector::correctPt(l1t::PFCluster & cluster, float preserveEmEt) {
+void l1tpf::corrector::correctPt(l1t::PFCluster & cluster, float preserveEmEt) const {
     float newpt = correctedPt(cluster.pt(), cluster.emEt(), cluster.eta());
     cluster.calibratePt(newpt, preserveEmEt);
 }
 
+void l1tpf::corrector::setGraph(const TGraph &graph, int ieta, int iemf) {
+    char buff[32];
+    if (is2d_) {
+        snprintf(buff, 31, "eta_bin%d_emf_bin%d", ieta+1, iemf+1);
+    } else {
+        snprintf(buff, 31, "eta_bin%d", ieta+1);
+    }
+    TGraph *gclone = (TGraph *) graph.Clone(buff);
+    delete corrections_[ieta * nemf_ + iemf];
+    corrections_[ieta * nemf_ + iemf] = gclone;
+}
 
+void l1tpf::corrector::writeToFile(const std::string & filename, const std::string &directory) const {
+    TFile *lFile = TFile::Open(filename.c_str(), "RECREATE");
+    TDirectory *dir = directory.empty() ? lFile : lFile->mkdir(directory.c_str());
+    writeToFile(dir);
+    lFile->Close();
+}
+
+void l1tpf::corrector::writeToFile(TDirectory *dest) const {
+    TH1 *index = (TH1*) index_->Clone();
+    index->SetDirectory(dest);
+    dest->WriteTObject(index);
+
+    for (const TGraph * p : corrections_) {
+        if (p != nullptr) {
+            dest->WriteTObject((TGraph*)p->Clone(), p->GetName());
+        }
+    }
+}
