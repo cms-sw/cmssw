@@ -44,7 +44,7 @@ void PixelFitterByRiemannParaboloidProducer::produce(edm::StreamID, edm::Event& 
   edm::ESHandle<MagneticField> fieldESH;
   iSetup.get<IdealMagneticFieldRecord>().get(fieldESH);
 
-  auto impl = std::make_unique<PixelFitterByRiemannParaboloid>(&iSetup,
+  auto impl = std::make_unique<PixelFitterByRiemannParaboloid>(
       fieldESH.product(), useErrors_, useMultipleScattering_);
   auto prod = std::make_unique<PixelFitter>(std::move(impl));
   iEvent.put(std::move(prod));

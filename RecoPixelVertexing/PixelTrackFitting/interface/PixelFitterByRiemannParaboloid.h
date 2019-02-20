@@ -12,14 +12,14 @@
 
 class PixelFitterByRiemannParaboloid final : public PixelFitterBase {
 public:
-  explicit PixelFitterByRiemannParaboloid(const edm::EventSetup *es, const MagneticField *field,
+  explicit PixelFitterByRiemannParaboloid(const MagneticField *field,
       bool useErrors, bool useMultipleScattering);
   ~PixelFitterByRiemannParaboloid() override = default;
   std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits,
-                                   const TrackingRegion& region) const override;
+                                   const TrackingRegion& region,
+                                   const edm::EventSetup& setup) const override;
 
 private:
-  const edm::EventSetup *es_;
   const MagneticField *field_;
   bool useErrors_;
   bool useMultipleScattering_;

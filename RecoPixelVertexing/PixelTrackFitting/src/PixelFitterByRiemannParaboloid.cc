@@ -30,15 +30,16 @@
 using namespace std;
 
 
-PixelFitterByRiemannParaboloid::PixelFitterByRiemannParaboloid(const edm::EventSetup* es,
-                                                               const MagneticField* field,
+PixelFitterByRiemannParaboloid::PixelFitterByRiemannParaboloid(const MagneticField* field,
                                                                bool useErrors,
                                                                bool useMultipleScattering)
-    : es_(es), field_(field),
+    : field_(field),
     useErrors_(useErrors), useMultipleScattering_(useMultipleScattering) {}
 
 std::unique_ptr<reco::Track> PixelFitterByRiemannParaboloid::run(
-    const std::vector<const TrackingRecHit*>& hits, const TrackingRegion& region) const {
+    const std::vector<const TrackingRecHit*>& hits,
+    const TrackingRegion& region,
+    const edm::EventSetup& setup) const {
 
   using namespace Rfit;
 
@@ -71,7 +72,7 @@ std::unique_ptr<reco::Track> PixelFitterByRiemannParaboloid::run(
                               errors[i].czx(), errors[i].czy(), errors[i].czz();
   }
 
-  float bField = 1 / PixelRecoUtilities::fieldInInvGev(*es_);
+  float bField = 1 / PixelRecoUtilities::fieldInInvGev(setup);
   helix_fit fittedTrack = Rfit::Helix_fit(riemannHits, riemannHits_ge, bField, useErrors_);
   int iCharge = fittedTrack.q;
 
