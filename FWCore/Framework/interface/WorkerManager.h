@@ -46,8 +46,6 @@ namespace edm {
                                  std::set<std::string>& unscheduledLabels,
                                  std::vector<std::string>& shouldBeUsedLabels);
 
-    void setOnDemandProducts(ProductRegistry& pregistry, std::set<std::string> const& unscheduledLabels) const;
-
     template <typename T, typename U>
       void processOneOccurrence(typename T::MyPrincipal& principal,
                                 EventSetupImpl const& eventSetup,
