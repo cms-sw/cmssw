@@ -79,15 +79,24 @@ namespace edm {
     // Check if an equivalent branch has already been selected due to an EDAlias.
     // We only need the check for products produced in this process.
     if(desc.produced()) {
+      auto check = [&](BranchID const& branchID) {
+        auto iter = trueBranchIDToKeptBranchDesc.find(branchID);
+        if(iter != trueBranchIDToKeptBranchDesc.end()) {
+          throw edm::Exception(errors::Configuration, "Duplicate Output Selection")
+            << "Two (or more) equivalent branches have been selected for output.\n"
+            << "#1: " << BranchKey(desc) << "\n"
+            << "#2: " << BranchKey(*iter->second) << "\n"
+            << "Please drop at least one of them.\n";
+        }
+      };
       BranchID const& trueBranchID = desc.originalBranchID();
-      std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(trueBranchID);
-      if(iter != trueBranchIDToKeptBranchDesc.end()) {
-        throw edm::Exception(errors::Configuration, "Duplicate Output Selection")
-          << "Two (or more) equivalent branches have been selected for output.\n"
-          << "#1: " << BranchKey(desc) << "\n"
-          << "#2: " << BranchKey(*iter->second) << "\n"
-          << "Please drop at least one of them.\n";
+      check(trueBranchID);
+      // In case of SwitchProducer, we have to check also the
+      // aliased-for BranchID for the case that the chosen case is an EDAlias
+      if(desc.isSwitchAlias()) {
+        check(desc.switchAliasForBranchID());
       }
+
       trueBranchIDToKeptBranchDesc.insert(std::make_pair(trueBranchID, &desc));
     }
   }
