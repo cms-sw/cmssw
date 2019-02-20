@@ -477,29 +477,8 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     // double counted for some reason, use "associated_with_tower".
     // This associate will be semi-crude, with barrel geometry, a tower is
     // 0.087 wide, associate them if they are within dEta/dPhi 0.0435.
-    //
-    // As we prepare this also store the total ET sums for the event
-    std::map< int, float > iPhi_ET_rings_ecal;
-    std::map< int, float > iPhi_ET_rings_l1eg;
-    std::map< int, float > iPhi_ET_rings_hcal;
-    std::map< int, float > iPhi_ET_rings_total;
-    std::map< int, float > iPhi_nTower_rings_ecal;
-    std::map< int, float > iPhi_nTower_rings_l1eg;
-    std::map< int, float > iPhi_nTower_rings_hcal;
-    std::map< int, float > iPhi_nTower_rings_total;
     float total_et = 0.0;
     int total_nTowers = 0;
-    for (int i = 1; i < 21; i++)
-    {
-        iPhi_ET_rings_ecal[ i ] = 0.0;
-        iPhi_ET_rings_l1eg[ i ] = 0.0;
-        iPhi_ET_rings_hcal[ i ] = 0.0;
-        iPhi_ET_rings_total[ i ] = 0.0;
-        iPhi_nTower_rings_ecal[ i ] = 0.0;
-        iPhi_nTower_rings_l1eg[ i ] = 0.0;
-        iPhi_nTower_rings_hcal[ i ] = 0.0;
-        iPhi_nTower_rings_total[ i ] = 0.0;
-    }
     for (auto &l1CaloTower : l1CaloTowers)
     {
 
@@ -527,14 +506,6 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
         total_et += l1CaloTower.total_tower_plus_L1EGs_et;
         if (l1CaloTower.total_tower_plus_L1EGs_et > 0) total_nTowers++;
-        iPhi_ET_rings_total[ abs( l1CaloTower.tower_iEta ) ] += l1CaloTower.total_tower_et;
-        iPhi_ET_rings_hcal[ abs( l1CaloTower.tower_iEta ) ] += l1CaloTower.hcal_tower_et;
-        iPhi_ET_rings_ecal[ abs( l1CaloTower.tower_iEta ) ] += l1CaloTower.ecal_tower_et;
-        iPhi_ET_rings_l1eg[ abs( l1CaloTower.tower_iEta ) ] += l1CaloTower.total_tower_plus_L1EGs_et - l1CaloTower.ecal_tower_et;
-        if (l1CaloTower.total_tower_et > 0) iPhi_nTower_rings_total[ abs( l1CaloTower.tower_iEta ) ]++;
-        if (l1CaloTower.hcal_tower_et > 0) iPhi_nTower_rings_hcal[ abs( l1CaloTower.tower_iEta ) ]++;
-        if (l1CaloTower.ecal_tower_et > 0) iPhi_nTower_rings_ecal[ abs( l1CaloTower.tower_iEta ) ]++;
-        if (l1CaloTower.total_tower_plus_L1EGs_et != l1CaloTower.ecal_tower_et) iPhi_nTower_rings_l1eg[ abs( l1CaloTower.tower_iEta ) ]++;
     }
 
     //for (auto &l1eg : crystalClustersVect)
@@ -983,14 +954,6 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         params["jet_PU_cor_pt"] = jet_tmp;
 
 
-        params["iPhi_ET_rings_ecal"] = iPhi_ET_rings_ecal[ caloJetObj.seed_iEta ];
-        params["iPhi_ET_rings_l1eg"] = iPhi_ET_rings_l1eg[ caloJetObj.seed_iEta ];
-        params["iPhi_ET_rings_hcal"] = iPhi_ET_rings_hcal[ caloJetObj.seed_iEta ];
-        params["iPhi_ET_rings_total"] = iPhi_ET_rings_total[ caloJetObj.seed_iEta ];
-        params["iPhi_nTowers_rings_ecal"] = iPhi_nTower_rings_ecal[ caloJetObj.seed_iEta ];
-        params["iPhi_nTowers_rings_l1eg"] = iPhi_nTower_rings_l1eg[ caloJetObj.seed_iEta ];
-        params["iPhi_nTowers_rings_hcal"] = iPhi_nTower_rings_hcal[ caloJetObj.seed_iEta ];
-        params["iPhi_nTowers_rings_total"] = iPhi_nTower_rings_total[ caloJetObj.seed_iEta ];
         params["total_et"] = total_et;
         params["total_nTowers"] = total_nTowers;
 
