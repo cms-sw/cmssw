@@ -49,6 +49,7 @@ GEMGeometryBuilderFromDDD::build( GEMGeometry& theGeometry,
   bool doSuper = fv.firstChild();
   LogDebug("GEMGeometryBuilderFromDDD") << "doSuperChamber = " << doSuper;
   // loop over superchambers
+  std::vector<GEMSuperChamber*> superChambers;
   while (doSuper){
 
     // getting chamber id from eta partitions
@@ -65,7 +66,7 @@ GEMGeometryBuilderFromDDD::build( GEMGeometry& theGeometry,
     // making superchamber out of the first chamber layer including the gap between chambers
     if (detIdCh.layer() == 1){// only make superChambers when doing layer 1
       GEMSuperChamber *gemSuperChamber = buildSuperChamber(fv, detIdCh);
-      theGeometry.add(gemSuperChamber);
+      superChambers.push_back(gemSuperChamber);
     }
     GEMChamber *gemChamber = buildChamber(fv, detIdCh);
     
@@ -102,8 +103,7 @@ GEMGeometryBuilderFromDDD::build( GEMGeometry& theGeometry,
     if (!loopExecuted) delete gemChamber;
   }
   
-  auto& superChambers(theGeometry.superChambers());
-  // construct the regions, stations and rings. 
+  // construct the regions, stations and rings.
   for (int re = -1; re <= 1; re = re+2) {
     GEMRegion* region = new GEMRegion(re);
     for (int st=1; st<=GEMDetId::maxStationId; ++st) {
@@ -113,8 +113,7 @@ GEMGeometryBuilderFromDDD::build( GEMGeometry& theGeometry,
       station->setName(name);
       for (int ri=1; ri<=1; ++ri) {
 	GEMRing* ring = new GEMRing(re, st, ri);
-	for (auto sch : superChambers){
-	  GEMSuperChamber* superChamber = const_cast<GEMSuperChamber*>(sch);
+	for (auto superChamber : superChambers){
 	  const GEMDetId detId(superChamber->id());
 	  if (detId.region() != re || detId.station() != st || detId.ring() != ri) continue;
 	  
@@ -122,6 +121,7 @@ GEMGeometryBuilderFromDDD::build( GEMGeometry& theGeometry,
 	  superChamber->add( theGeometry.chamber(GEMDetId(detId.region(),detId.ring(),detId.station(),2,detId.chamber(),0)));
 	  
 	  ring->add(superChamber);
+	  theGeometry.add(superChamber);
 	  LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << detId << " to ring: " 
 						<< "re " << re << " st " << st << " ri " << ri << std::endl;
  	}

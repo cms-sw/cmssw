@@ -18,9 +18,9 @@ extraopts="--redirectproxy"
 #alignmentname=pick a name
 #niterations=pick a number
 
-[ -e $lstfile ] || echo "$lstfile does not exist!"
-[ -e $common ] || echo "$common does not exist!"
-[ -e $IOVfile ] || echo "$IOVfile does not exist!"
+[ -e $lstfile ] || (echo "$lstfile does not exist!"; exit 1)
+[ -e $common ] || (echo "$common does not exist!"; exit 1)
+[ -e $IOVfile ] || (echo "$IOVfile does not exist!"; exit 1)
 
 commitid=$(git rev-parse HEAD)
 

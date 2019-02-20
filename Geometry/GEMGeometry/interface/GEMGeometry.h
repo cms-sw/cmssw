@@ -119,7 +119,7 @@ class GEMGeometry : public TrackingGeometry {
   mapIdToDet theMap;
 
   std::vector<const GEMEtaPartition*> allEtaPartitions; // Are not owned by this class; are owned by their chamber.
-  std::vector<const GEMChamber*> allChambers; // Are not owned by this class; are owned by their chamber.
+  std::vector<const GEMChamber*> allChambers; // Are not owned by this class; are owned by their superchamber.
   std::vector<const GEMSuperChamber*> allSuperChambers; // Are owned by this class.
   std::vector<const GEMRing*> allRings; // Are owned by this class.
   std::vector<const GEMStation*> allStations; // Are owned by this class.

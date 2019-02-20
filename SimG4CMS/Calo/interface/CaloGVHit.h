@@ -39,41 +39,46 @@ public:
   
 public:
   
-  double         getEM() const                 {return elem;}
-  void           setEM (double e)              {elem = e;}
+  inline double    getEM() const                 {return elem_;}
+  inline void      setEM (double e)              {elem_ = e;}
   
-  double         getHadr() const               {return hadr;}
-  void           setHadr (double e)            {hadr = e;}
+  inline double    getHadr() const               {return hadr_;}
+  inline void      setHadr (double e)            {hadr_ = e;}
   
-  int            getTrackID() const            {return hitID.trackID();}
-  uint32_t       getUnitID() const             {return hitID.unitID();}
-  double         getTimeSlice() const          {return hitID.timeSlice();}
-  int            getTimeSliceID() const        {return hitID.timeSliceID();}
-  uint16_t       getDepth() const              {return hitID.depth();}
+  inline int       getEventID() const            {return eventID_;}
+  inline void      setEventID(int id)            {eventID_ = id;}
 
-  CaloHitID      getID() const                 {return hitID;}
-  void           setID (uint32_t i, double d, int j, uint16_t k=0) {
-    hitID.setID(i,d,j,k);}
-  void           setID (const CaloHitID& id)   {hitID = id;}
+  inline int       getTrackID() const            {return hitID_.trackID();}
+  inline uint32_t  getUnitID() const             {return hitID_.unitID();}
+  inline double    getTimeSlice() const          {return hitID_.timeSlice();}
+  inline int       getTimeSliceID() const        {return hitID_.timeSliceID();}
+  inline uint16_t  getDepth() const              {return hitID_.depth();}
+
+  inline CaloHitID getID() const                 {return hitID_;}
+  inline void      setID (uint32_t i, double d, int j, uint16_t k=0) {
+    hitID_.setID(i,d,j,k);}
+  inline void      setID (const CaloHitID& id)   {hitID_ = id;}
   
-  void           addEnergyDeposit(double em, double hd);
-  void           addEnergyDeposit(const CaloGVHit& aHit);
+  void             addEnergyDeposit(double em, double hd);
+  void             addEnergyDeposit(const CaloGVHit& aHit);
   
-  double         getEnergyDeposit() const      {return (elem+hadr);}
+  inline double    getEnergyDeposit() const      {return (elem_+hadr_);}
   
 private:
-  
-  double           elem;              //EnergyDeposit of EM particles
-  double           hadr;              //EnergyDeposit of HD particles
-  CaloHitID        hitID;             //Identification number of the hit given 
+  int              eventID_;          //Event ID
+  double           elem_;             //EnergyDeposit of EM particles
+  double           hadr_;             //EnergyDeposit of HD particles
+  CaloHitID        hitID_;            //Identification number of the hit given 
                                       //by primary particle, Cell ID, Time of 
                                       //the hit
 };
 
 class CaloGVHitLess {
 public:
-  bool operator()( const CaloGVHit* a, const CaloGVHit* b) {
-    if (a->getTrackID() != b->getTrackID()) {
+  inline bool operator()( const CaloGVHit* a, const CaloGVHit* b) {
+    if (a->getEventID() != b->getEventID()) {
+      return (a->getEventID() < b->getEventID());
+    } else if (a->getTrackID() != b->getTrackID()) {
       return (a->getTrackID() < b->getTrackID());
     } else if (a->getUnitID() != b->getUnitID()) {
       return (a->getUnitID() < b->getUnitID());
@@ -87,8 +92,9 @@ public:
 
 class CaloGVHitEqual {
 public:
-  bool operator()( const CaloGVHit* a, const CaloGVHit* b) {
-    return (a->getTrackID()     == b->getTrackID() && 
+  inline bool operator()( const CaloGVHit* a, const CaloGVHit* b) {
+    return (a->getEventID()     == b->getEventID() && 
+	    a->getTrackID()     == b->getTrackID() && 
 	    a->getUnitID()      == b->getUnitID()  && 
 	    a->getDepth()       == b->getDepth()   &&
 	    a->getTimeSliceID() == b->getTimeSliceID());

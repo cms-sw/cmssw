@@ -25,11 +25,15 @@ namespace edmtest {
 
     edm::EDGetTokenT<IntProduct> inputToken1_;
     edm::EDGetTokenT<IntProduct> inputToken2_;
+    std::string producerPrefix_;
+    bool const aliasMode_;
   };
 
   SwitchProducerProvenanceAnalyzer::SwitchProducerProvenanceAnalyzer(edm::ParameterSet const& iConfig):
     inputToken1_(consumes<IntProduct>(iConfig.getParameter<edm::InputTag>("src1"))),
-    inputToken2_(consumes<IntProduct>(iConfig.getParameter<edm::InputTag>("src2")))
+    inputToken2_(consumes<IntProduct>(iConfig.getParameter<edm::InputTag>("src2"))),
+    producerPrefix_(iConfig.getParameter<std::string>("producerPrefix")),
+    aliasMode_(iConfig.getParameter<bool>("aliasMode"))
   {}
     
   void SwitchProducerProvenanceAnalyzer::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const& iSetup) const {
@@ -82,15 +86,27 @@ namespace edmtest {
     // Here is where Switch differs from a normal EDProducer: each Switch output branch has exactly one parent
     assert(parent.parents().size() == 1);
     auto const& parentProvenance = iEvent.getProvenance(parent.parents()[0]);
-    assert(parentProvenance.branchDescription().moduleLabel() == moduleLabel+"@test"+std::to_string(mode));
+    edm::ProductProvenance const *parentProductProvenance = nullptr;
+    if(not (aliasMode_ and mode == 2)) {
+      // If parent is EDAlias, it is skipped in the provenance, so in
+      // that case the normal grandparent can be found on the place of
+      // the parent.
 
-    // Check grandparent as well
-    auto const *parentProductProvenance = parentProvenance.productProvenance();
-    assert(parentProductProvenance != nullptr);
-    auto const& grandParent = parentProductProvenance->parentage();
+      assert(parentProvenance.branchDescription().moduleLabel() == moduleLabel+"@test"+std::to_string(mode));
+
+      // Check grandparent as well
+      parentProductProvenance = parentProvenance.productProvenance();
+      assert(parentProductProvenance != nullptr);
+      }
+    auto const& grandParent = parentProductProvenance ? parentProductProvenance->parentage() : parent;
+    //auto const& grandParent = parentProductProvenance->parentage();
     assert(grandParent.parents().size() == 1); // behaviour of the AddIntsProducer
     auto const& grandParentProvenance = iEvent.getProvenance(grandParent.parents()[0]);
-    assert(grandParentProvenance.branchDescription().moduleLabel() == moduleLabel+std::to_string(mode));
+    int postfix = mode;
+    if(aliasMode_ and mode == 2) {
+      postfix = 3;
+    }
+    assert(grandParentProvenance.branchDescription().moduleLabel() == producerPrefix_+std::to_string(postfix));
   }
 }
 using edmtest::SwitchProducerProvenanceAnalyzer;

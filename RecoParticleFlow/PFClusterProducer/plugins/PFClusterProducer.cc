@@ -22,9 +22,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
   for( const auto& conf : cleanerConfs ) {
     const std::string& cleanerName = 
       conf.getParameter<std::string>("algoName");
-    RHCB* cleaner = 
-      RecHitTopologicalCleanerFactory::get()->create(cleanerName,conf);
-    _cleaners.push_back(std::unique_ptr<RHCB>(cleaner));
+    _cleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(cleanerName,conf));
   }
   edm::ConsumesCollector sumes = consumesCollector();
 
@@ -32,37 +30,29 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
   const edm::ParameterSet& sfConf = 
     conf.getParameterSet("seedFinder");
   const std::string& sfName = sfConf.getParameter<std::string>("algoName");
-  SeedFinderBase* sfb = SeedFinderFactory::get()->create(sfName,sfConf);
-  _seedFinder.reset(sfb);
+  _seedFinder = std::unique_ptr<SeedFinderBase>{SeedFinderFactory::get()->create(sfName,sfConf)};
   //setup topo cluster builder
   const edm::ParameterSet& initConf = 
     conf.getParameterSet("initialClusteringStep");
   const std::string& initName = initConf.getParameter<std::string>("algoName");
-  ICSB* initb = InitialClusteringStepFactory::get()->create(initName,initConf,sumes);
-  _initialClustering.reset(initb);
+  _initialClustering = std::unique_ptr<ICSB>{InitialClusteringStepFactory::get()->create(initName,initConf,sumes)};
   //setup pf cluster builder if requested
-  _pfClusterBuilder.reset(nullptr);
   const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
   if( !pfcConf.empty() ) {
     const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
-    PFCBB* pfcb = PFClusterBuilderFactory::get()->create(pfcName,pfcConf);
-    _pfClusterBuilder.reset(pfcb);
+    _pfClusterBuilder = std::unique_ptr<PFCBB>{PFClusterBuilderFactory::get()->create(pfcName,pfcConf)};
   }
   //setup (possible) recalcuation of positions
-  _positionReCalc.reset(nullptr);
   const edm::ParameterSet& pConf = conf.getParameterSet("positionReCalc");
   if( !pConf.empty() ) {
     const std::string& pName = pConf.getParameter<std::string>("algoName");
-    PosCalc* pcalc = PFCPositionCalculatorFactory::get()->create(pName,pConf);
-    _positionReCalc.reset(pcalc);
+    _positionReCalc = std::unique_ptr<PosCalc>{PFCPositionCalculatorFactory::get()->create(pName,pConf)};
   }
   // see if new need to apply corrections, setup if there.
   const edm::ParameterSet& cConf =  conf.getParameterSet("energyCorrector");
   if( !cConf.empty() ) {
     const std::string& cName = cConf.getParameter<std::string>("algoName");
-    PFClusterEnergyCorrectorBase* eCorr =
-      PFClusterEnergyCorrectorFactory::get()->create(cName,cConf);
-    _energyCorrector.reset(eCorr);
+    _energyCorrector = std::unique_ptr<PFClusterEnergyCorrectorBase>{PFClusterEnergyCorrectorFactory::get()->create(cName,cConf)};
   }
   
 

@@ -21,9 +21,9 @@ private:
 
 private:
   edm::ParameterSet theConfig;
-  SeedGeneratorFromRegionHits * thePairGenerator; 
-  SeedGeneratorFromRegionHits * theTripletGenerator; 
-  SeedGeneratorFromRegionHits * theMixedGenerator; 
+  std::unique_ptr<SeedGeneratorFromRegionHits> thePairGenerator;
+  std::unique_ptr<SeedGeneratorFromRegionHits> theTripletGenerator;
+  std::unique_ptr<SeedGeneratorFromRegionHits> theMixedGenerator;
 
   double theEtaBound;
 };
