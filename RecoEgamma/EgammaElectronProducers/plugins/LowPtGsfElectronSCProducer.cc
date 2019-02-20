@@ -167,7 +167,6 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
       sc.setCorrectedEnergy(energy);
       sc.setSeed(seed);
       sc.setClusters(clusters);
-      for ( const auto clu : clusters ) { sc.addCluster(clu); }
       PFClusterWidthAlgo pfwidth(barePtrs);
       sc.setEtaWidth(pfwidth.pflowEtaWidth());
       sc.setPhiWidth(pfwidth.pflowPhiWidth());
