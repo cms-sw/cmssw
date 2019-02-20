@@ -656,7 +656,7 @@ namespace edm {
   }
   
 
-  SwitchBaseProductResolver::SwitchBaseProductResolver(std::shared_ptr<BranchDescription const> bd, ProducedProductResolver& realProduct):
+  SwitchBaseProductResolver::SwitchBaseProductResolver(std::shared_ptr<BranchDescription const> bd, DataManagingOrAliasProductResolver& realProduct):
     realProduct_(realProduct),
     productData_(std::move(bd)),
     prefetchRequested_(false),
@@ -664,7 +664,7 @@ namespace edm {
   {
     // Parentage of this branch is always the same by construction, so we can compute the ID just "once" here.
     Parentage p;
-    p.setParents(std::vector<BranchID>{realProduct.branchDescription().branchID()});
+    p.setParents(std::vector<BranchID>{realProduct.branchDescription().originalBranchID()});
     parentageID_ = p.id();
     ParentageRegistry::instance()->insertMapped(p);
   }
