@@ -30,9 +30,8 @@ static CLHEP::HepRandomEngine* amptRandomEngine;
 
 extern "C"
 {
-  float gen::ranart_(int *idummy)
+  float gen::ranart_(int *)
   {
-    if(false) idummy = idummy; 
     float rannum = amptRandomEngine->flat();
     return rannum;
   }
@@ -40,9 +39,8 @@ extern "C"
 
 extern "C"
 {
-  float gen::ran1_(int *idummy)
+  float gen::ran1_(int *)
   {
-    if(false) idummy = idummy;
     return amptRandomEngine->flat();
   }
 }
