@@ -127,7 +127,9 @@ namespace edm {
       eventTree_.setAutoFlush(-1*om->eventAutoFlushSize());
     }
     eventTree_.addAuxiliary<EventAuxiliary>(BranchTypeToAuxiliaryBranchName(InEvent),
-                                            pEventAux_, om_->auxItems()[InEvent].basketSize_);
+                                            pEventAux_, om_->auxItems()[InEvent].basketSize_, false);
+    eventTree_.tree()->SetBranchStatus(BranchTypeToAuxiliaryBranchName(InEvent).c_str(), 0); // see writeEventAuxiliary
+
     eventTree_.addAuxiliary<StoredProductProvenanceVector>(BranchTypeToProductProvenanceBranchName(InEvent),
                                                      pEventEntryInfoVector(), om_->auxItems()[InEvent].basketSize_);
     eventTree_.addAuxiliary<EventSelectionIDVector>(poolNames::eventSelectionsBranchName(),
@@ -383,7 +385,9 @@ namespace edm {
   }
 
   void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
-    eventTree_.setEntries();
+    // We can't do setEntries() on the event tree because EventAuxiliary is empty;
+    // only do setEntries() when the output file closes
+    //eventTree_.setEntries();
     lumiTree_.setEntries();
     runTree_.setEntries();
   }
@@ -400,7 +404,7 @@ namespace edm {
 
     // Because getting the data may cause an exception to be thrown we want to do that
     // first before writing anything to the file about this event
-    // NOTE: pEventAux_, pBranchListIndexes_, pEventSelectionIDs_, and pEventEntryInfoVector_
+    // NOTE: pBranchListIndexes_, pEventSelectionIDs_, and pEventEntryInfoVector_
     // must be set before calling fillBranches since they get written out in that routine.
     assert(pEventAux_->processHistoryID() == e.processHistoryID());
     pBranchListIndexes_ = &e.branchListIndexes();
@@ -431,9 +435,9 @@ namespace edm {
     processHistoryRegistry_.registerProcessHistory(e.processHistory());
     // Store the reduced ID in the IndexIntoFile
     ProcessHistoryID reducedPHID = processHistoryRegistry_.reducedProcessHistoryID(e.processHistoryID());
-    // Add event to index
-    indexIntoFile_.addEntry(reducedPHID, pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
-    ++eventEntryNumber_;
+
+    // save the EventAuxiliary record for writing at end
+    eventAuxiliaryVector_.emplace_back(*pEventAux_, reducedPHID);
 
     // Report event written
     Service<JobReport> reportSvc;
@@ -608,11 +612,40 @@ namespace edm {
     b->Fill();
   }
 
+  // For duplicate removal and to determine if fast cloning is possible, the input
+  // module by default reads the entire EventAuxiliary branch when it opens the
+  // input files.  If EventAuxiliary is written in the usual way, this results
+  // in many small reads scattered throughout the file, which can have very poor
+  // performance characteristics on some filesystems.  As a workaround, we save
+  // EventAuxiliary data and the ProcessHistoryID, writing the branch as we are
+  // closing the file, resulting in (hopefully) one basket at the end of the file
+  // that can be accessed with one read.
+  void RootOutputFile::writeEventAuxiliary() {
+    auto tree = eventTree_.tree();
+    auto bname = BranchTypeToAuxiliaryBranchName(InEvent).c_str();
+
+    tree->SetBranchStatus(bname, 1);
+    auto basketsize = eventAuxiliaryVector_.size()*(sizeof(EventAuxiliary)+26); // 26 is an empirical fudge factor
+    tree->SetBasketSize(bname, basketsize);
+    auto b = tree->GetBranch(bname);
+
+    assert(tree->GetEntries() == static_cast<Long64_t>(eventAuxiliaryVector_.size()));
+    assert(b);
+
+    for (auto const& aux : eventAuxiliaryVector_) {
+      pEventAux_ = &aux.first;
+      // Add event to index
+      indexIntoFile_.addEntry(aux.second, pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
+      ++eventEntryNumber_;
+      // Fill EventAuxiliary branch
+      b->Fill();
+    }
+  }
+
   void RootOutputFile::finishEndFile() {
     metaDataTree_->SetEntries(-1);
     RootOutputTree::writeTTree(metaDataTree_);
     RootOutputTree::writeTTree(parameterSetsTree_);
-
     RootOutputTree::writeTTree(parentageTree_);
 
     // Create branch aliases for all the branches in the

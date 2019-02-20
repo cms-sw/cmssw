@@ -66,6 +66,7 @@ namespace edm {
     void writeBranchIDListRegistry();
     void writeThinnedAssociationsHelper();
     void writeProductDependencies();
+    void writeEventAuxiliary();
 
     void finishEndFile();
     void beginInputFile(FileBlock const& fb, int remainingEvents);
@@ -142,6 +143,7 @@ namespace edm {
     std::map<ParentageID,unsigned int> parentageIDs_;
     std::set<BranchID> branchesWithStoredHistory_;
     edm::propagate_const<TClass*> wrapperBaseTClass_;
+    std::vector<std::pair<EventAuxiliary, ProcessHistoryID>> eventAuxiliaryVector_;
   };
 
 }

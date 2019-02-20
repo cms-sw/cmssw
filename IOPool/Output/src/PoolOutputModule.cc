@@ -288,6 +288,7 @@ namespace edm {
   }
 
   void PoolOutputModule::reallyCloseFile() {
+    writeEventAuxiliary();
     fillDependencyGraph();
     branchParents_.clear();
     startEndFile();
@@ -323,6 +324,7 @@ namespace edm {
   void PoolOutputModule::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
   void PoolOutputModule::writeThinnedAssociationsHelper() { rootOutputFile_->writeThinnedAssociationsHelper(); }
   void PoolOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
+  void PoolOutputModule::writeEventAuxiliary() { rootOutputFile_->writeEventAuxiliary(); }
   void PoolOutputModule::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_ = nullptr; } // propagate_const<T> has no reset() function
   void PoolOutputModule::doExtrasAfterCloseFile() {}
   bool PoolOutputModule::isFileOpen() const { return rootOutputFile_.get() != nullptr; }

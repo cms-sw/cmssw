@@ -164,6 +164,7 @@ namespace edm {
     void writeBranchIDListRegistry();
     void writeThinnedAssociationsHelper();
     void writeProductDependencies();
+    void writeEventAuxiliary();
     void finishEndFile();
 
     void fillSelectedItemList(BranchType branchtype, TTree* theInputTree);
