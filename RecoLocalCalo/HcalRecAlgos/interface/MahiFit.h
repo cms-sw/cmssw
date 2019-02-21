@@ -40,12 +40,6 @@ struct MahiNnlsWorkspace {
   //varied in time
   std::array<FullSampleMatrix, MaxPVSize> pulseCovArray;
 
-  //holds full pulse shape template
-  std::array<FullSampleVector, MaxPVSize> pulseShapeArray;
-
-  //holds full pulse shape derivatives
-  std::array<FullSampleVector, MaxPVSize> pulseDerivArray;
-
   //holds matrix of pulse shape templates for each BX
   SamplePulseMatrix pulseMat;
 
