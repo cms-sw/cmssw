@@ -3025,6 +3025,15 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
+    upgradeStepDict['MiniAODFullGlobal'][k] = {'-s':'PAT',
+                                      '--conditions':gt,
+                                      '--datatier':'MINIAODSIM',
+                                      '-n':'10',
+                                      '--runUnscheduled':'',
+                                      '--eventcontent':'MINIAODSIM',
+                                      '--geometry' : geom
+                                      }
+
     upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM',
                                     '--conditions':gt,
                                     '--mc':'',
@@ -3132,7 +3141,10 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     for step in upgradeSteps['ProdLike']['steps']:
         stepName = step + upgradeSteps['ProdLike']['suffix']
         if 'Reco' in step:
-            upgradeStepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM,PAT', '--datatier':'GEN-SIM-RECO,MINIAODSIM', '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM'}, upgradeStepDict[step][k]])
+            upgradeStepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'GEN-SIM-RECO', '--eventcontent':'FEVTDEBUGHLT'}, upgradeStepDict[step][k]])
+        elif 'MiniAOD' in step:
+            # the separate miniAOD step is used here
+            upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
         if 'HARVEST' in step:
             # remove step
             upgradeStepDict[stepName][k] = None
