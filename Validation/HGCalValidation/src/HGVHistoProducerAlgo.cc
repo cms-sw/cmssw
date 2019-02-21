@@ -238,7 +238,7 @@ void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
 void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histograms,
 						       int count,
 						       const reco::CaloClusterCollection &clusters, 
-						       const Density &densities,
+						       // const Density &densities,
 						       std::vector<CaloParticle> const & cP,
 						       std::map<double, double> cummatbudg,
 						       unsigned layers, 
@@ -377,14 +377,14 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
       	histograms.h_distancetomaxcell_perthickperlayer_eneweighted.at(curistr).fill( distancetomax , hit->energy() );    } 
 
       //Let's check the density
-      std::map< DetId, float >::const_iterator dit = densities.find( rh_detid );
-      if ( dit == densities.end() ){
-	std::cout << " You shouldn't be here - Unable to find a density " << rh_detid.rawId() << " " << rh_detid.det() << " " << HGCalDetId(rh_detid) << std::endl;
-	continue;
-      }
+      // std::map< DetId, float >::const_iterator dit = densities.find( rh_detid );
+      // if ( dit == densities.end() ){
+      // 	std::cout << " You shouldn't be here - Unable to find a density " << rh_detid.rawId() << " " << rh_detid.det() << " " << HGCalDetId(rh_detid) << std::endl;
+      // 	continue;
+      // }
 
-      // std::cout << " Detid " << dit->first << " Density " << dit->second << std::endl;
-      std::cout << " Density " << dit->second << std::endl;
+      // // std::cout << " Detid " << dit->first << " Density " << dit->second << std::endl;
+      // std::cout << " Density " << dit->second << std::endl;
 
       
 
