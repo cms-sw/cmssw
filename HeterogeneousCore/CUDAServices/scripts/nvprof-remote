@@ -1,0 +1,23 @@
+#! /bin/bash
+
+# find the CMSSW release
+if [ -z "$CMSSW_BASE" ]; then
+  export CMSSW_BASE=$(readlink -f $(dirname $0)/../..)
+fi
+
+# load the CMS environment
+source $(< "$CMSSW_BASE"/config/scram_basedir)/cmsset_default.sh
+
+# load the CMSSW release environment
+eval `cd "$CMSSW_BASE"; scram runtime -sh 2> /dev/null`
+
+# log the commands being run
+{
+  date
+  echo "cwd: $PWD"
+  echo "cmd: $0 $@"
+  echo
+} >> $CMSSW_BASE/tmp/nvprof.log
+
+# run the CUDA profiler
+nvprof "$@"
