@@ -151,7 +151,7 @@ phase2_SimL1Emulator += L1TkTauFromCalo
 from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
 phase2_SimL1Emulator += l1ParticleFlow
 
-from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff.py import *
+from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
 phase2_SimL1Emulator += l1PFJets
 phase2_SimL1Emulator += l1PFMets
 
