@@ -94,6 +94,10 @@ for year in upgradeKeys:
             if any(upgradeDatasetFromFragment[frag]==nfrag for nfrag in tbmFrags) and '2018' in key:
                 workflows[numWF+upgradeSteps['killStuckTBM']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['killStuckTBM']]
 
+            # workflow for profiling
+            if upgradeDatasetFromFragment[frag]=="TTbar_14TeV" and '2023' in key:
+                workflows[numWF+upgradeSteps['ProdLike']['offset']] = [ upgradeDatasetFromFragment[frag]+"_ProdLike", stepList['ProdLike']]
+
             # premixing stage1, only for NuGun
             if upgradeDatasetFromFragment[frag]=="NuGun" and 'PU' in key and '2023' in key:
                 workflows[numWF+upgradeSteps['Premix']['offset']] = [upgradeDatasetFromFragment[frag], stepList['Premix']]

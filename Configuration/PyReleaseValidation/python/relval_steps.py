@@ -3129,6 +3129,14 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         stepName = step + upgradeSteps['killStuckTBM']['suffix']
         upgradeStepDict[stepName][k] = merge([{'--customise': 'SimTracker/SiPixelDigitizer/customiseStuckTBMSimulation.activateStuckTBMSimulation2018NoPU'}, upgradeStepDict[step][k]])
 
+    for step in upgradeSteps['ProdLike']['steps']:
+        stepName = step + upgradeSteps['ProdLike']['suffix']
+        if 'Reco' in step:
+            upgradeStepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM,PAT', '--datatier':'GEN-SIM-RECO,MINIAODSIM', '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM'}, upgradeStepDict[step][k]])
+        if 'HARVEST' in step:
+            # remove step
+            upgradeStepDict[stepName][k] = None
+
     # setup PU
     if k2 in PUDataSets:
         # Setup premixing stage1
@@ -3157,7 +3165,10 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
             for step in upgradeSteps[stepType]['PU']:
                 stepName = step + upgradeSteps[stepType]['suffix']
                 stepNamePU = step + 'PU' + upgradeSteps[stepType]['suffix']
-                upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
+                if upgradeStepDict[stepName][k] is None:
+                    upgradeStepDict[stepNamePU][k] = None
+                else:
+                    upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
 
                 # Setup premixing stage2
                 if "Digi" in step or "Reco" in step:
@@ -3203,5 +3214,8 @@ for step in upgradeStepDict.keys():
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
             k=step+'_'+key
             if step in upgradeStepDict and key in upgradeStepDict[step]:
-                steps[k]=merge([upgradeStepDict[step][key]])
+                if upgradeStepDict[step][key] is None:
+                    steps[k]=None
+                else:
+                    steps[k]=merge([upgradeStepDict[step][key]])
 

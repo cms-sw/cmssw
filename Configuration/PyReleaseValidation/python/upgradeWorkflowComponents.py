@@ -164,6 +164,18 @@ upgradeSteps['Timing'] = {
     'suffix' : '_Timing',
     'offset' : 0.11,
 }
+upgradeSteps['ProdLike'] = {
+    'steps' : [
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    'PU' : [
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    'suffix' : '_ProdLike',
+    'offset' : 0.21,
+}
 upgradeSteps['Neutron'] = {
     'steps' : [
         'GenSimFull',
