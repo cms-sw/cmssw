@@ -34,3 +34,36 @@ L1TkElectronsLoose = L1TkElectrons.clone()
 L1TkElectronsLoose.TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0)
 L1TkElectronsLoose.TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0)
 L1TkElectronsLoose.TrackMinPt = cms.double( 3.0 )
+
+
+#### Additional collections that right now only the menu team is using - to be renamed/redefined by the EGamma group
+# The important change is the EG seed -> PhaseII instead of PhaseI
+
+#barrel
+L1TkElectronsCrystal = L1TkElectrons.clone()
+L1TkElectronsCrystal.L1EGammaInputTag = cms.InputTag("L1EGammaClusterEmuProducer","L1EGammaCollectionBXVEmulator")
+L1TkElectronsCrystal.IsoCut = cms.double(-0.1)
+
+L1TkIsoElectronsCrystal=L1TkElectronsCrystal.clone()
+L1TkIsoElectronsCrystal.IsoCut = cms.double(0.12)
+
+L1TkElectronsLooseCrystal = L1TkElectronsCrystal.clone()
+L1TkElectronsLooseCrystal.TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0)
+L1TkElectronsLooseCrystal.TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0)
+L1TkElectronsLooseCrystal.TrackMinPt = cms.double( 3.0 )
+
+
+#endcap
+L1TkElectronsHGC=L1TkElectrons.clone()
+L1TkElectronsHGC.L1EGammaInputTag = cms.InputTag("l1EGammaEEProducer","L1EGammaCollectionBXVWithCuts")
+L1TkElectronsHGC.IsoCut = cms.double(-0.1)
+
+L1TkIsoElectronsHGC=L1TkElectronsHGC.clone()
+L1TkIsoElectronsHGC.IsoCut = cms.double(0.30)
+
+L1TkElectronsLooseHGC = L1TkElectronsHGC.clone()
+L1TkElectronsLooseHGC.TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0)
+L1TkElectronsLooseHGC.TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0)
+L1TkElectronsLooseHGC.TrackMinPt = cms.double( 3.0 )
+
+

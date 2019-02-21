@@ -41,3 +41,16 @@ L1TkPhotons = cms.EDProducer("L1TkEmParticleProducer",
 L1TkPhotonsTightIsol = L1TkPhotons.clone()
 L1TkPhotonsTightIsol.IsoCut = cms.double( 0.10)
 
+#### Additional collections that right now only the menu team is using - to be renamed/redefined by the EGamma group
+# The important change is the EG seed -> PhaseII instead of PhaseI
+
+L1TkPhotonsCrystal=L1TkPhotons.clone()
+L1TkPhotonsCrystal.L1EGammaInputTag = cms.InputTag("L1EGammaClusterEmuProducer", "L1EGammaCollectionBXVEmulator")
+L1TkPhotonsCrystal.IsoCut = cms.double(-0.1)
+
+
+L1TkPhotonsHGC=L1TkPhotons.clone()
+L1TkPhotonsHGC.L1EGammaInputTag = cms.InputTag("l1EGammaEEProducer","L1EGammaCollectionBXVWithCuts")
+L1TkPhotonsHGC.IsoCut = cms.double(-0.1)
+
+

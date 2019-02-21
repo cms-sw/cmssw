@@ -124,9 +124,19 @@ phase2_SimL1Emulator += l1TkMuonStubEndCap
 # ########################################################################
 from L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff import *
 phase2_SimL1Emulator += L1TkPrimaryVertex
-phase2_SimL1Emulator += L1TkElectrons
-phase2_SimL1Emulator += L1TkIsoElectrons
-phase2_SimL1Emulator += L1TkPhotons
+
+#phase2_SimL1Emulator += L1TkElectrons # warning this has a PhaseI EG seed!
+#phase2_SimL1Emulator += L1TkIsoElectrons # warning this has a PhaseI EG seed!
+#phase2_SimL1Emulator += L1TkPhotons # warning this has a PhaseI EG seed!
+phase2_SimL1Emulator += L1TkElectronsCrystal
+phase2_SimL1Emulator += L1TkIsoElectronsCrystal
+phase2_SimL1Emulator += L1TkElectronsLooseCrystal
+phase2_SimL1Emulator += L1TkPhotonsCrystal
+phase2_SimL1Emulator += L1TkElectronsHGC
+phase2_SimL1Emulator += L1TkIsoElectronsHGC
+phase2_SimL1Emulator += L1TkElectronsLooseHGC
+phase2_SimL1Emulator += L1TkPhotonsHGC
+
 phase2_SimL1Emulator += L1TkCaloJets
 phase2_SimL1Emulator += L1TrackerJets
 phase2_SimL1Emulator += L1TrackerEtMiss
