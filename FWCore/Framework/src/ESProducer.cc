@@ -27,7 +27,8 @@ namespace edm {
 //
 // constructors and destructor
 //
-ESProducer::ESProducer()
+  ESProducer::ESProducer():
+  consumesInfos_{}
 {
 }
 
