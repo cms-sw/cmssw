@@ -197,6 +197,43 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
   }
 }
 
+unsigned int
+EDConsumerBase::recordESConsumes(Transition iTrans,
+                                 eventsetup::EventSetupRecordKey const& iRecord,
+                                 eventsetup::heterocontainer::HCTypeTag const& iDataType,
+                                 edm::ESInputTag const& iTag) {
+  //m_tokenLabels first entry is a null. Since most ES data requests have
+  // empty labels we will assume we can reuse the first entry
+  unsigned int startOfName = 0;
+  unsigned int startOfComponentName=0;
+  if( not iTag.data().empty()) {
+    startOfName = m_tokenLabels.size();
+
+    m_tokenLabels.reserve(m_tokenLabels.size()+iTag.data().size()+1);
+    {
+      const std::string& m =iTag.data();
+      m_tokenLabels.insert(m_tokenLabels.end(),m.begin(),m.end());
+      m_tokenLabels.push_back('\0');
+    }
+  }
+
+  if( not iTag.module().empty()) {
+    startOfName = m_tokenLabels.size();
+    
+    m_tokenLabels.reserve(m_tokenLabels.size()+iTag.module().size()+1);
+    {
+      const std::string& m =iTag.module();
+      m_tokenLabels.insert(m_tokenLabels.end(),m.begin(),m.end());
+      m_tokenLabels.push_back('\0');
+    }
+  }
+
+  auto index = m_esTokenInfo.size();
+  m_esTokenInfo.emplace_back(ESTokenLookupInfo{iRecord, iDataType,startOfName,startOfComponentName},-1 );
+  esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].push_back(-1*index);
+  return index;
+}
+
 //
 // const member functions
 //

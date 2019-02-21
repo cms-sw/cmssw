@@ -28,6 +28,8 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/HCTypeTag.h"
+#include "FWCore/Framework/interface/data_default_record_trait.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeToGet.h"
@@ -55,7 +57,9 @@ namespace edm {
   {
 
   public:
-    EDConsumerBase() : frozen_(false), containsCurrentProcessAlias_(false) {}
+    EDConsumerBase() :
+    m_tokenLabels{{'\0'}},
+    frozen_(false), containsCurrentProcessAlias_(false) {}
     virtual ~EDConsumerBase() noexcept(false);
 
     // disallow copying
@@ -161,11 +165,20 @@ namespace edm {
     template <typename ESProduct, typename ESRecord, Transition Tr = Transition::Event>
     auto esConsumes(ESInputTag const& tag)
     {
+      (void) recordESConsumes(Tr,
+                              eventsetup::EventSetupRecordKey::makeKey<std::conditional_t<
+                                    std::is_same_v<ESRecord, edm::DefaultRecord>,
+                                    eventsetup::default_record_t<ESHandleAdapter<ESProduct>>,
+                                    ESRecord>>(),
+                              eventsetup::heterocontainer::HCTypeTag::make<ESProduct>(), tag);
       return ESGetToken<ESProduct, ESRecord>{static_cast<unsigned int>(Tr),tag};
     }
 
   private:
     unsigned int recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets);
+    unsigned int recordESConsumes(Transition,
+                                  eventsetup::EventSetupRecordKey const&,
+                                  eventsetup::heterocontainer::HCTypeTag const&, edm::ESInputTag const& iTag);
 
     void throwTypeMismatch(edm::TypeID const&, EDGetToken) const;
     void throwBranchMismatch(BranchType, EDGetToken) const;
@@ -208,6 +221,16 @@ namespace edm {
 
     std::array<std::vector<ProductResolverIndexAndSkipBit>, edm::NumBranchTypes> itemsToGetFromBranch_;
 
+    struct ESTokenLookupInfo {
+      eventsetup::EventSetupRecordKey m_record;
+      eventsetup::heterocontainer::HCTypeTag m_dataType;
+      unsigned int m_startOfName;
+      unsigned int m_startOfComponentName;
+    };
+    
+    enum {kESLookupInfo, kESProxyIndex};
+    edm::SoATuple<ESTokenLookupInfo, int> m_esTokenInfo;
+    std::array<std::vector<int>, static_cast<unsigned int>(edm::Transition::NumberOfTransitions)> esItemsToGetFromTransition_;
     bool frozen_;
     bool containsCurrentProcessAlias_;
   };
