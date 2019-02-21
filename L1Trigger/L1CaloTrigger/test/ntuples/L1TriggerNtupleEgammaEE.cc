@@ -1,5 +1,5 @@
 #include "DataFormats/L1Trigger/interface/EGamma.h"
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerNtupleBase.h"
+#include "L1Trigger/L1THGCalUtilities/interface/HGCalTriggerNtupleBase.h"
 
 
 

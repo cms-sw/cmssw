@@ -1,5 +1,6 @@
 <library   name="L1TriggerL1CaloTriggerPlugins_test_ntuples" file="ntuples/*.cc">
   <use   name="L1Trigger/L1THGCal"/>
+  <use   name="L1Trigger/L1THGCalUtilities"/>
   <use   name="FastSimulation/BaseParticlePropagator"/>
   <use   name="MagneticField/Engine"/>
   <use   name="MagneticField/Records"/>
