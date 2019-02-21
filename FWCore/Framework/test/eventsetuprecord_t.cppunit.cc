@@ -494,6 +494,13 @@ void testEventsetupRecord::doGetTest()
    
 }
 
+namespace {
+  ComponentDescription const* find(std::vector<DataKey> const& iKeys,
+                                   std::vector<ComponentDescription const*> const& iComp,
+                                   DataKey const& iKey) {
+    return iComp[ std::lower_bound(iKeys.begin(), iKeys.end(), iKey) - iKeys.begin()];
+  }
+}
 void testEventsetupRecord::introspectionTest()
 {
   eventsetup::EventSetupRecordImpl dummyRecordImpl{dummyRecordKey_};
@@ -520,9 +527,11 @@ void testEventsetupRecord::introspectionTest()
   dummyRecordImpl.getESProducers(esproducers);
   CPPUNIT_ASSERT(esproducers.empty()) ;
 
-  std::map<DataKey, ComponentDescription const*> referencedDataKeys;
-  dummyRecordImpl.fillReferencedDataKeys(referencedDataKeys);
+  std::vector<DataKey> referencedDataKeys;
+  dummyRecordImpl.fillRegisteredDataKeys(referencedDataKeys);
+  auto referencedComponents = dummyRecordImpl.componentsForRegisteredDataKeys();
   CPPUNIT_ASSERT(referencedDataKeys.empty()) ;  
+  CPPUNIT_ASSERT(referencedComponents.empty()) ;
 
   dummyRecordImpl.add(dummyDataKey,
                   &dummyProxy);
@@ -534,9 +543,12 @@ void testEventsetupRecord::introspectionTest()
   CPPUNIT_ASSERT(esproducers.size() == 1);
   CPPUNIT_ASSERT(esproducers[0] == &cd1);
 
-  dummyRecordImpl.fillReferencedDataKeys(referencedDataKeys);
+  dummyRecordImpl.fillRegisteredDataKeys(referencedDataKeys);
+  referencedComponents = dummyRecordImpl.componentsForRegisteredDataKeys();
   CPPUNIT_ASSERT(referencedDataKeys.size() == 1);  
-  CPPUNIT_ASSERT(referencedDataKeys[dummyDataKey] == &cd1);  
+  CPPUNIT_ASSERT(referencedComponents.size() == 1);
+  CPPUNIT_ASSERT(referencedComponents[0] == &cd1);
+  CPPUNIT_ASSERT(find(referencedDataKeys,referencedComponents,dummyDataKey) == &cd1);
 
   Dummy myDummy;
   WorkingDummyProxy workingProxy(&myDummy);
@@ -560,9 +572,11 @@ void testEventsetupRecord::introspectionTest()
   dummyRecordImpl.getESProducers(esproducers);
   CPPUNIT_ASSERT(esproducers.size() == 1);
 
-  dummyRecordImpl.fillReferencedDataKeys(referencedDataKeys);
+  dummyRecordImpl.fillRegisteredDataKeys(referencedDataKeys);
+  referencedComponents = dummyRecordImpl.componentsForRegisteredDataKeys();
   CPPUNIT_ASSERT(referencedDataKeys.size() == 2);  
-  CPPUNIT_ASSERT(referencedDataKeys[workingDataKey] == &cd2);  
+  CPPUNIT_ASSERT(referencedComponents.size() == 2);
+  CPPUNIT_ASSERT(find(referencedDataKeys,referencedComponents,workingDataKey) == &cd2);
 
   Dummy myDummy3;
   WorkingDummyProxy workingProxy3(&myDummy3);
@@ -583,9 +597,11 @@ void testEventsetupRecord::introspectionTest()
   dummyRecordImpl.getESProducers(esproducers);
   CPPUNIT_ASSERT(esproducers.size() == 1);
 
-  dummyRecordImpl.fillReferencedDataKeys(referencedDataKeys);
-  CPPUNIT_ASSERT(referencedDataKeys.size() == 3);  
-  CPPUNIT_ASSERT(referencedDataKeys[workingDataKey3] == &cd3);  
+  dummyRecordImpl.fillRegisteredDataKeys(referencedDataKeys);
+  referencedComponents = dummyRecordImpl.componentsForRegisteredDataKeys();
+  CPPUNIT_ASSERT(referencedDataKeys.size() == 3);
+  CPPUNIT_ASSERT(referencedComponents.size() == 3);
+  CPPUNIT_ASSERT(find(referencedDataKeys,referencedComponents,workingDataKey3) == &cd3);
 
   Dummy myDummy4;
   WorkingDummyProxy workingProxy4(&myDummy4);
@@ -607,9 +623,11 @@ void testEventsetupRecord::introspectionTest()
   CPPUNIT_ASSERT(esproducers.size() == 2);
   CPPUNIT_ASSERT(esproducers[1] == &cd4);
 
-  dummyRecordImpl.fillReferencedDataKeys(referencedDataKeys);
-  CPPUNIT_ASSERT(referencedDataKeys.size() == 4);  
-  CPPUNIT_ASSERT(referencedDataKeys[workingDataKey4] == &cd4);  
+  dummyRecordImpl.fillRegisteredDataKeys(referencedDataKeys);
+  referencedComponents = dummyRecordImpl.componentsForRegisteredDataKeys();
+  CPPUNIT_ASSERT(referencedDataKeys.size() == 4);
+  CPPUNIT_ASSERT(referencedComponents.size() == 4);
+  CPPUNIT_ASSERT(find(referencedDataKeys,referencedComponents,workingDataKey4) == &cd4);
 
   dummyRecordImpl.clearProxies();
   dummyRecord.fillRegisteredDataKeys(keys);
