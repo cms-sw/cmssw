@@ -60,6 +60,9 @@ for year in upgradeKeys:
                         stepList[stepType].append(stepMaker(key,"SingleNuE10_cf",s,upgradeSteps[stepType]['suffix']))
                     elif (stepType is not 'baseline') and ( ('PU' in step and step.replace('PU','') in upgradeSteps[stepType]['PU']) or (step in upgradeSteps[stepType]['steps']) ):
                         stepList[stepType].append(stepMaker(key,frag[:-4],step,upgradeSteps[stepType]['suffix']))
+                        # hack to add an extra step
+                        if stepType == 'ProdLike' and 'RecoFullGlobal' in step:
+                            stepList[stepType].append(stepMaker(key,frag[:-4],step.replace('RecoFullGlobal','MiniAODFullGlobal'),upgradeSteps[stepType]['suffix']))
                     else:
                         stepList[stepType].append(stepMaker(key,frag[:-4],step,upgradeSteps['baseline']['suffix']))
 
