@@ -14,7 +14,8 @@ namespace edm {
     BeginLuminosityBlock,
     EndLuminosityBlock,
     BeginRun,
-    EndRun
+    EndRun,
+    NumberOfTransitions
   };
   
   //Useful for converting EndBranchType to BranchType
