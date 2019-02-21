@@ -1178,7 +1178,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         //}
 
         // Only store jets passing ET threshold and within Barrel
-        if (caloJetObj.jetClusterET >= EtMinForCollection)
+        if (params["jet_pt_calibration"] >= EtMinForCollection)
         {
             L1CaloJetsNoCuts->push_back( caloJet );
             //L1CaloJetsWithCuts->push_back( caloJet );
