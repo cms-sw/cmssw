@@ -24,6 +24,9 @@ ctppsAlignmentPoolDBESSource = cms.ESSource("PoolDBESSource",
   )
 )
 
+# TODO: remove this line once alignment is loaded using global tag
+es_prefer_ctppsAlignment = cms.ESPrefer("PoolDBESSource", "ctppsAlignmentPoolDBESSource")
+
 # TODO: load these data from DB
 # NB: this example only works for 2016 data
 ctppsLHCInfoESSource = cms.ESSource("CTPPSLHCInfoESSource",
@@ -31,6 +34,9 @@ ctppsLHCInfoESSource = cms.ESSource("CTPPSLHCInfoESSource",
   beamEnergy = cms.double(6500),  # GeV
   xangle = cms.double(185)  # murad
 )
+
+# TODO: remove this line once LHCInfo is loaded from DB
+es_prefer_LHCInfo = cms.ESPrefer("CTPPSLHCInfoESSource", "ctppsLHCInfoESSource")
 
 # TODO: load these data from DB
 # NB: this example only works for 2016 data
