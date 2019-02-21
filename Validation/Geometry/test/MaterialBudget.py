@@ -837,7 +837,7 @@ def createCompoundPlots(detector, plot, geometry):
         hist_X0_elements[label].SetFillColor(color)
         hist_X0_elements[label].SetLineColor(kBlack)
         stack_X0.Add(hist_X0_elements[label])
-        theLegend.AddEntry(hist_X0_elements[label], leg, "f")
+        if hist_X0_elements[label].Integral() > 0.: theLegend.AddEntry(hist_X0_elements[label], leg, "f")
 
     # canvas
     canname = "MBCan_1D_%s_%s"  % (detector, plot)
@@ -851,8 +851,9 @@ def createCompoundPlots(detector, plot, geometry):
 
     # Draw
     setRanges(stack_X0.GetStack().Last())
-    #stack_X0.SetTitle(';'+(stack_X0.GetTitle().split(';', 1)[1] if ';' in stack_X0.GetTitle() else ""))
     stack_X0.Draw("HIST");
+    stack_X0.GetXaxis().SetLabelSize(0.035)
+    stack_X0.GetYaxis().SetLabelSize(0.035)
     theLegend.Draw();
 
     cmsMark = TLatex()
