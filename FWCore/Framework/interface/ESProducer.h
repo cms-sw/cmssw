@@ -166,7 +166,9 @@ namespace edm {
                        static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
-      return ESConsumesCollectorT<TRecord>{iThis,id};
+      assert(id == consumesInfos_.size());
+      consumesInfos_.push_back(std::make_unique<ESConsumesInfo>());
+      return ESConsumesCollectorT<TRecord>(consumesInfos_.back().get(),id);
     }
 
     ESProducer(const ESProducer&) = delete; // stop default
@@ -207,6 +209,7 @@ namespace edm {
       registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.labels_[IIndex]);
     }
 
+    std::vector<std::unique_ptr<ESConsumesInfo>> consumesInfos_;
   };
 }
 #endif

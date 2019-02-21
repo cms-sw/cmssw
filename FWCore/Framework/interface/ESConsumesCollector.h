@@ -29,12 +29,18 @@
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/Transition.h"
 
+#include <vector>
 namespace edm {
+  using ESConsumesInfo = std::vector<std::tuple<edm::eventsetup::EventSetupRecordKey,
+                                     edm::eventsetup::DataKey,
+                                     std::string> >;
+  
   class ESConsumesCollector {
   public:
 
@@ -47,11 +53,15 @@ namespace edm {
     // ---------- member functions ---------------------------
     template <typename Product, typename Record>
     auto consumesFrom(ESInputTag const& tag) {
+      using namespace edm::eventsetup;
+      m_consumer->emplace_back( EventSetupRecordKey::makeKey<Record>(),
+                               DataKey( DataKey::makeTypeTag<Product>(), tag.data().c_str()),
+                               tag.module());
       return ESGetToken<Product,Record>{m_transitionID, tag};
     }
 
   protected:
-    explicit ESConsumesCollector(ESProducer* const iConsumer, unsigned int iTransitionID) :
+    explicit ESConsumesCollector(ESConsumesInfo* const iConsumer, unsigned int iTransitionID) :
     m_consumer{iConsumer},
     m_transitionID{iTransitionID}
     {}
@@ -59,7 +69,7 @@ namespace edm {
   private:
 
     // ---------- member data --------------------------------
-    edm::propagate_const<ESProducer*> m_consumer{nullptr};
+    edm::propagate_const<ESConsumesInfo*> m_consumer{nullptr};
     unsigned int m_transitionID{0};
   };
   
@@ -84,7 +94,7 @@ namespace edm {
     //only ESProducer is allowed to make an instance of this class
     friend class ESProducer;
     
-    explicit ESConsumesCollectorT(ESProducer* const iConsumer, unsigned int iTransitionID) :
+    explicit ESConsumesCollectorT(ESConsumesInfo* const iConsumer, unsigned int iTransitionID) :
     ESConsumesCollector(iConsumer,iTransitionID)
     {}
     
