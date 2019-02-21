@@ -26,7 +26,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset):
   recHitsFH_ = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
   recHitsBH_ = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
 
-  density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));
+  // density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));
 
   for (auto& itag : label) {
     labelToken.push_back(consumes<reco::CaloClusterCollection>(itag));
@@ -185,16 +185,17 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event, const edm::EventSetup& 
     const reco::CaloClusterCollection &clusters = *clusterHandle;
 
     //Density
-    edm::Handle<Density> densityHandle;
-    event.getByToken( density_, densityHandle);
-    const Density &densities = *densityHandle;
+    // edm::Handle<Density> densityHandle;
+    // event.getByToken( density_, densityHandle);
+    // const Density &densities = *densityHandle;
   
     // ##############################################
     // fill cluster histograms (LOOP OVER CLUSTERS)
     // ##############################################
     if(!dolayerclustersPlots_){continue;}
 
-    histoProducerAlgo_->fill_generic_cluster_histos(histograms.histoProducerAlgo,w,clusters,densities,caloParticles,cummatbudg,totallayers_to_monitor_, thicknesses_to_monitor_);
+    // histoProducerAlgo_->fill_generic_cluster_histos(histograms.histoProducerAlgo,w,clusters,densities,caloParticles,cummatbudg,totallayers_to_monitor_, thicknesses_to_monitor_);
+    histoProducerAlgo_->fill_generic_cluster_histos(histograms.histoProducerAlgo,w,clusters,caloParticles,cummatbudg,totallayers_to_monitor_, thicknesses_to_monitor_);
 
     for (unsigned int layerclusterIndex = 0; layerclusterIndex < clusters.size(); layerclusterIndex++) {
 

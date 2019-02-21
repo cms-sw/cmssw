@@ -66,7 +66,7 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
   edm::EDGetTokenT<HGCRecHitCollection> recHitsEE_;
   edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;
   edm::EDGetTokenT<HGCRecHitCollection> recHitsBH_;
-  edm::EDGetTokenT<Density> density_;
+  /* edm::EDGetTokenT<Density> density_; */
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
 
 
