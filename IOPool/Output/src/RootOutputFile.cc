@@ -128,7 +128,7 @@ namespace edm {
     }
     eventTree_.addAuxiliary<EventAuxiliary>(BranchTypeToAuxiliaryBranchName(InEvent),
                                             pEventAux_, om_->auxItems()[InEvent].basketSize_, false);
-    eventTree_.tree()->SetBranchStatus(BranchTypeToAuxiliaryBranchName(InEvent).c_str(), 0); // see writeEventAuxiliary
+    eventTree_.tree()->SetBranchStatus(BranchTypeToAuxiliaryBranchName(InEvent).c_str(), false); // see writeEventAuxiliary
 
     eventTree_.addAuxiliary<StoredProductProvenanceVector>(BranchTypeToProductProvenanceBranchName(InEvent),
                                                      pEventEntryInfoVector(), om_->auxItems()[InEvent].basketSize_);
@@ -624,7 +624,7 @@ namespace edm {
     auto tree = eventTree_.tree();
     auto bname = BranchTypeToAuxiliaryBranchName(InEvent).c_str();
 
-    tree->SetBranchStatus(bname, 1);
+    tree->SetBranchStatus(bname, true);
     auto basketsize = eventAuxiliaryVector_.size()*(sizeof(EventAuxiliary)+26); // 26 is an empirical fudge factor
     tree->SetBasketSize(bname, basketsize);
     auto b = tree->GetBranch(bname);
