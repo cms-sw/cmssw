@@ -284,7 +284,7 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
   //with previous SOI=TS4 case assumed by psfPtr_->getPulseShape()
   int delta =  4 - nnlsWork_. tsOffset;
 
-  auto invDt = ( 1./2*nnlsWork_.dt );
+  auto invDt = 1./ ( 2*nnlsWork_.dt );
 
   for (unsigned int iTS=0; iTS<nnlsWork_.tsSize; ++iTS) {
 
