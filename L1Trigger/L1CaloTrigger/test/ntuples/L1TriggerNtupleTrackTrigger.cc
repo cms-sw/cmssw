@@ -5,6 +5,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -38,7 +39,9 @@ class L1TriggerNtupleTrackTrigger : public HGCalTriggerNtupleBase {
     // std::vector<float> l1track_energy_;
     std::vector<float> l1track_eta_;
     std::vector<float> l1track_phi_;
+    std::vector<float> l1track_curv_;
     std::vector<float> l1track_chi2_;
+    std::vector<float> l1track_chi2Red_;
     std::vector<int> l1track_nStubs_;
     std::vector<float> l1track_z0_;
     std::vector<int> l1track_charge_;
@@ -71,7 +74,9 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   // tree.Branch("l1track_energy", &l1track_energy_);
   tree.Branch("l1track_eta",     &l1track_eta_);
   tree.Branch("l1track_phi",     &l1track_phi_);
+  tree.Branch("l1track_curv",    &l1track_curv_);
   tree.Branch("l1track_chi2",    &l1track_chi2_);
+  tree.Branch("l1track_chi2Red",    &l1track_chi2Red_);
   tree.Branch("l1track_nStubs",  &l1track_nStubs_);
   tree.Branch("l1track_z0",      &l1track_z0_);
   tree.Branch("l1track_charge",  &l1track_charge_);
@@ -110,7 +115,9 @@ L1TriggerNtupleTrackTrigger::fill(const edm::Event& ev, const edm::EventSetup& e
     // l1track_energy_.emplace_back(trackIter->energy());
     l1track_eta_.emplace_back(trackIter->getMomentum().eta());
     l1track_phi_.emplace_back(trackIter->getMomentum().phi());
+    l1track_curv_.emplace_back(trackIter->getRInv());
     l1track_chi2_.emplace_back(trackIter->getChi2());
+    l1track_chi2Red_.emplace_back(trackIter->getChi2Red());
     l1track_nStubs_.emplace_back(trackIter->getStubRefs().size());
     // FIXME: need to be configuratble?
     int nParam_ = 4;
@@ -124,6 +131,7 @@ L1TriggerNtupleTrackTrigger::fill(const edm::Event& ev, const edm::EventSetup& e
     reco::Particle::Point vtx(0.,0.,z0);
 
     auto caloetaphi = propagateToCalo(p4, math::XYZTLorentzVector(0.,0.,z0,0.), charge, fBz);
+
     l1track_z0_.emplace_back(z0);
     l1track_charge_.emplace_back(charge);
     l1track_caloeta_.emplace_back(caloetaphi.first);
@@ -139,7 +147,9 @@ L1TriggerNtupleTrackTrigger::clear() {
   // l1track_energy_.clear();
   l1track_eta_.clear();
   l1track_phi_.clear();
+  l1track_curv_.clear();
   l1track_chi2_.clear();
+  l1track_chi2Red_.clear();
   l1track_nStubs_.clear();
   l1track_z0_.clear();
   l1track_charge_.clear();
@@ -162,7 +172,9 @@ std::pair<float,float> L1TriggerNtupleTrackTrigger::propagateToCalo(const math::
     // particle.propagateToEcalEntrance(false);
     particle.setPropagationConditions(129.0 , triggerTools_.getLayerZ(1) , false);
     particle.propagate();
+    double ecalShowerDepth = reco::PFCluster::getDepthCorrection(particle.momentum().E(),false,false);
+    math::XYZVector point = math::XYZVector(particle.vertex())+math::XYZTLorentzVector(particle.momentum()).Vect().Unit()*ecalShowerDepth;
     // math::XYZVector point  = particle.vertex();
     // math::XYZVector point = math::XYZVector(particle.vertex())+math::XYZTLorentzVector(particle.momentum()).Vect().Unit()*ecalShowerDepth;
-    return std::make_pair(particle.vertex().eta(), particle.vertex().phi());
+    return std::make_pair(point.eta(), point.phi());
 }
