@@ -44,7 +44,7 @@ process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi")
 del(process.XMLIdealGeometryESSource_CTPPS.geomXMLFiles[-1])
 process.XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Validation/CTPPS/test/year_2016/RP_Dist_Beam_Cent.xml")
 
-process.load("Geometry.VeryForwardGeometryBuilder.ctppsIncludeAlignmentsFromXML_cfi")
+process.load("CalibPPS.ESProducers.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
 
 # beam-smearing settings
 process.load("IOMC.EventVertexGenerators.beamDivergenceVtxGenerator_cfi")

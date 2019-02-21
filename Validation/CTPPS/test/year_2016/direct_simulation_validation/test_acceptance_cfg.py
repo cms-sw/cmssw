@@ -30,6 +30,8 @@ process.load("Validation.CTPPS.year_2016.ctppsLHCInfoESSource_cfi")
 # supply optics
 process.load("Validation.CTPPS.year_2016.ctppsOpticalFunctionsESSource_cfi")
 
+process.ctppsInterpolatedOpticalFunctionsESSource = cms.ESProducer("CTPPSInterpolatedOpticalFunctionsESSource")
+
 # supply beam parameters
 process.load("Validation.CTPPS.year_2016.ctppsBeamParametersESSource_cfi")
 
