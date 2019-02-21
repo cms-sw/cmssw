@@ -123,6 +123,8 @@ namespace edm {
 
          ///clears the oToFill vector and then fills it with the keys for all registered data keys
          void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const;
+        ///there is a 1-to-1 correspondence between elements returned and the elements returned from fillRegisteredDataKey.
+        std::vector<ComponentDescription const*> componentsForRegisteredDataKeys() const;
          // ---------- static member functions --------------------
 
          // ---------- member functions ---------------------------
@@ -139,8 +141,6 @@ namespace edm {
          void setEventSetup(EventSetupImpl const* iEventSetup) {eventSetup_ = iEventSetup; }
 
          void getESProducers(std::vector<ComponentDescription const*>& esproducers);
-         void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys);
-
       //protected:
 
          DataProxy const* find(DataKey const& aKey) const ;

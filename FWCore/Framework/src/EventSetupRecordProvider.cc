@@ -242,8 +242,15 @@ EventSetupRecordProvider::getReferencedESProducers(std::map<EventSetupRecordKey,
 }
 
 void
-EventSetupRecordProvider::fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys) {
-   record().fillReferencedDataKeys(referencedDataKeys);
+EventSetupRecordProvider::fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys) const {
+   std::vector<DataKey> keys;
+   record().fillRegisteredDataKeys(keys);
+  std::vector<ComponentDescription const*> components = record().componentsForRegisteredDataKeys();
+   auto itComponents = components.begin();
+   for(auto const& k: keys) {
+     referencedDataKeys.emplace(k, *itComponents);
+     ++itComponents;
+   }
 }
 
 void
@@ -313,6 +320,18 @@ EventSetupRecordProvider::resetProxyProvider(ParameterSetIDHolder const& psetID,
          dataProxyProvider = sharedDataProxyProvider;
       }
    }
+}
+
+std::vector<DataKey>
+EventSetupRecordProvider::registeredDataKeys() const {
+  std::vector<DataKey> ret;
+  record_.fillRegisteredDataKeys(ret);
+  return ret;
+}
+
+std::vector<ComponentDescription const*>
+EventSetupRecordProvider::componentsForRegisteredDataKeys() const {
+  return record_.componentsForRegisteredDataKeys();
 }
 
 //

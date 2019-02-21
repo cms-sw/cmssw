@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ParameterSetIDHolder.h"
+#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -754,6 +755,18 @@ EventSetupProvider::isWithinValidityInterval(IOVSyncValue const& iSync) const {
   }
   return true;
 }
+     
+ESRecordsToProxyIndices EventSetupProvider::recordsToProxyIndices() const {
+  ESRecordsToProxyIndices ret(recordKeys_);
+
+  unsigned int index=0;
+  for( auto provider : recordProviders_) {
+    index = ret.dataKeysInRecord(index,provider->key(), provider->registeredDataKeys(), provider->componentsForRegisteredDataKeys());
+  }
+  
+  return ret;
+}
+
 //
 // static member functions
 //

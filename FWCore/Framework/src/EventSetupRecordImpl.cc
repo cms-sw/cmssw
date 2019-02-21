@@ -69,15 +69,17 @@ EventSetupRecordImpl::getESProducers(std::vector<ComponentDescription const*>& e
    }
 }
 
-void
-EventSetupRecordImpl::fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys) {
-   referencedDataKeys.clear();
-   auto itProxies = proxies_.begin();
-   for (auto const& iData : keysForProxies_) {
-      referencedDataKeys.emplace(iData, (*itProxies)->providerDescription());
-      ++itProxies;
-   }
+std::vector<ComponentDescription const*>
+EventSetupRecordImpl::componentsForRegisteredDataKeys() const
+{
+  std::vector<ComponentDescription const*> ret;
+  ret.reserve(proxies_.size());
+  for (auto const& proxy : proxies_) {
+    ret.push_back(proxy->providerDescription());
+  }
+  return ret;
 }
+
 
 bool 
 EventSetupRecordImpl::add(const DataKey& iKey ,
