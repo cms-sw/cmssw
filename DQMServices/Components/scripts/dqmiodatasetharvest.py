@@ -196,11 +196,14 @@ def harvestfile(fname):
         # inclusive range -- for 0 entries, row is left out
         firstidx, lastidx = idxtree.FirstIndex, idxtree.LastIndex
         metree = getattr(f, treenames[metype])
+        metree.SetBranchStatus("*",0)
+        metree.SetBranchStatus("FullName",1)
 
         for x in range(firstidx, lastidx+1):
             metree.GetEntry(x)
             mename = str(metree.FullName)
             if mename in interesting_mes:
+                metree.GetEntry(x, 1)
                 value = metree.Value
 
                 mes_to_store.append((
@@ -210,15 +213,17 @@ def harvestfile(fname):
                   tosqlite(value)),
                 )
 
-        print "Processing run %d, lumi %d, type %s, found %d" % (run, lumi, treenames[metype], len(mes_to_store))
-
     return mes_to_store
 
 files = dasquery(args.dataset)
 if args.limit > 0: files = files[:args.limit]
 
 pool = multiprocessing.Pool(processes=args.njobs)
+ctr = 0
 for mes_to_store in pool.imap_unordered(harvestfile, files):
 #for mes_to_store in map(harvestfile, files):
     db.executemany(insertinto, mes_to_store);
     db.commit()
+    ctr += 1
+    print "Processed %d files of %d, got %d MEs...\r" % (ctr, len(files), len(mes_to_store)),
+print "\nDone."
