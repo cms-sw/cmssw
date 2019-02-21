@@ -157,15 +157,15 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
   nnlsWork_.pulseMat.setZero(nnlsWork_.tsSize,nnlsWork_.nPulseTot);  
   nnlsWork_.pulseDerivMat.setZero(nnlsWork_.tsSize,nnlsWork_.nPulseTot);
 
-  std::array<FullSampleVector, MaxPVSize> pulseShapeArray;
-  std::array<FullSampleVector, MaxPVSize> pulseDerivArray;
+  FullSampleVector pulseShapeArray;
+  FullSampleVector pulseDerivArray;
 
   int offset=0;
   for (unsigned int iBX=0; iBX<nnlsWork_.nPulseTot; ++iBX) {
     offset=nnlsWork_.bxs.coeff(iBX);
 
-    pulseShapeArray[iBX].setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
-    pulseDerivArray[iBX].setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
+    pulseShapeArray.setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
+    pulseDerivArray.setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
     nnlsWork_.pulseCovArray[iBX].setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset, nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
 
 
@@ -175,12 +175,12 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
     }
     else {
       updatePulseShape(nnlsWork_.amplitudes.coeff(nnlsWork_.tsOffset + offset), 
-		       pulseShapeArray[iBX],
-		       pulseDerivArray[iBX],
+		       pulseShapeArray,
+		       pulseDerivArray,
 		       nnlsWork_.pulseCovArray[iBX]);
       
-      nnlsWork_.pulseMat.col(iBX) = pulseShapeArray[iBX].segment(nnlsWork_.maxoffset - offset, nnlsWork_.tsSize);
-      nnlsWork_.pulseDerivMat.col(iBX) = pulseDerivArray[iBX].segment(nnlsWork_.maxoffset-offset, nnlsWork_.tsSize);
+      nnlsWork_.pulseMat.col(iBX) = pulseShapeArray.segment(nnlsWork_.maxoffset - offset, nnlsWork_.tsSize);
+      nnlsWork_.pulseDerivMat.col(iBX) = pulseDerivArray.segment(nnlsWork_.maxoffset-offset, nnlsWork_.tsSize);
     }
   }
 
