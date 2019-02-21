@@ -47,6 +47,7 @@ class TrackPUIDMVAProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<edm::ValueMap<float> > pathLengthToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > t0PIDToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > sigmat0PIDToken_;
+  edm::EDGetTokenT<edm::ValueMap<int> > assocMtdTrackToken_;
 
   edm::EDGetTokenT<reco::VertexCollection> vtxsToken_;
   edm::EDGetTokenT<reco::VertexCollection> vtxs4DToken_;
@@ -69,6 +70,7 @@ TrackPUIDMVAProducer::TrackPUIDMVAProducer(const ParameterSet& iConfig) :
   pathLengthToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("pathLengthSrc"))),
   t0PIDToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("t0TOFPIDSrc"))),
   sigmat0PIDToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("sigmat0TOFPIDSrc"))),
+  assocMtdTrackToken_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("assocMtdTrackSrc"))),
   vtxsToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxsSrc"))),
   vtxs4DToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxs4DSrc"))),
   maxDz_(iConfig.getParameter<double>("maxDz")),
@@ -106,6 +108,8 @@ void TrackPUIDMVAProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
     setComment("TOFPID T0 value Map");
   desc.add<edm::InputTag>("sigmat0TOFPIDSrc", edm::InputTag("tofPID", "sigmat0"))->
     setComment("TOFPID sigmaT0 value Map");
+  desc.add<edm::InputTag>("assocMtdTrackSrc", edm::InputTag("trackExtenderWithMTD", "generalTrackassoc"))->
+    setComment("General Track to MTD Track Assoc");
   desc.add<double>("maxDz", 1.)->
     setComment("Maximum distance in z for track-primary vertex association for particle id [cm]");
   desc.add<edm::FileInPath>("trackPUID_3DBDT_weights_file",edm::FileInPath("CommonTools/RecoAlgos/data/clf3D_dz1cm_bo.xml"))->
@@ -149,6 +153,7 @@ void TrackPUIDMVAProducer::produce( edm::Event& ev, const edm::EventSetup& es ) 
   edm::Handle<edm::ValueMap<float> > pathLengthH;
   edm::Handle<edm::ValueMap<float> > t0PIDH;
   edm::Handle<edm::ValueMap<float> > sigmat0PIDH;
+  edm::Handle<edm::ValueMap<int> > assocMTDH;
   
   ev.getByToken(btlMatchChi2Token_, btlMatchChi2H);
   auto btlMatchChi2 = *btlMatchChi2H.product();
@@ -166,32 +171,40 @@ void TrackPUIDMVAProducer::produce( edm::Event& ev, const edm::EventSetup& es ) 
   auto t0PID = *t0PIDH.product();    
   ev.getByToken(sigmat0PIDToken_, sigmat0PIDH);
   auto sigmat0PID = *sigmat0PIDH.product();    
+  ev.getByToken(assocMtdTrackToken_, assocMTDH);
+  auto assocMTD = *assocMTDH.product();    
   
   std::vector<float> puID3DmvaOutRaw;
   std::vector<float> puID4DmvaOutRaw;
 
   //Loop over tracks collection
-  for (unsigned int itrack = 0; itrack<tracks.size(); ++itrack) {
-    const reco::Track &track = tracks[itrack];
-    const reco::TrackRef trackref(tracksH,itrack);
-    const reco::TrackRef mtdTrackref(tracksMTDH,itrack);
-
-    //---training performed only above 0.5 GeV
-    if(track.pt() < 0.5)
-      {
-	puID3DmvaOutRaw.push_back(-1.);
-	puID4DmvaOutRaw.push_back(-1.);
-      }
-    else
+  for (unsigned int itrack = 0; itrack<tracks.size(); ++itrack) 
+    {
+      const reco::Track &track = tracks[itrack];
+      const reco::TrackRef trackref(tracksH,itrack);
+      
+      //---training performed only above 0.5 GeV
+      if(track.pt() < 0.5)
+	{
+	  puID3DmvaOutRaw.push_back(-1.);
+	  puID4DmvaOutRaw.push_back(-1.);
+	}
+      else
       {
 	puID3DmvaOutRaw.push_back(vtxs.size()>0  && std::abs(track.dz(vtxs[0].position()))<maxDz_ ? mva3D_(trackref, vtxs[0]) : -1.); 
-	puID4DmvaOutRaw.push_back(vtxs4D.size()>0 && std::abs(track.dz(vtxs4D[0].position()))<maxDz_ ? 
-				  mva4D_(trackref, mtdTrackref, vtxs4D[0],
-					 t0PID, sigmat0PID, btlMatchChi2, btlMatchTimeChi2, etlMatchChi2, etlMatchTimeChi2,
-					 mtdTime, pathLength) : -1.);
+	if ( assocMTD.contains(trackref.id()) && assocMTD[trackref] > 0 )
+	  {
+	    const reco::TrackRef mtdTrackref(tracksMTDH,assocMTD[trackref]);
+	    puID4DmvaOutRaw.push_back(vtxs4D.size()>0 && std::abs(track.dz(vtxs4D[0].position()))<maxDz_ ? 
+				      mva4D_(trackref, mtdTrackref, vtxs4D[0],
+					     t0PID, sigmat0PID, btlMatchChi2, btlMatchTimeChi2, etlMatchChi2, etlMatchTimeChi2,
+					     mtdTime, pathLength) : -1.);
+	  }
+	else
+	  puID4DmvaOutRaw.push_back(-1.);
       }
-  }
-
+    }
+  
   fillValueMap(ev, tracksH, puID3DmvaOutRaw, puId3DmvaName);
   fillValueMap(ev, tracksH, puID4DmvaOutRaw, puId4DmvaName);  
 }

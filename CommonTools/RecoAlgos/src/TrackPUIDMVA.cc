@@ -1,3 +1,4 @@
+
 #include "CommonTools/RecoAlgos/interface/TrackPUIDMVA.h"
 
 TrackPUIDMVA::TrackPUIDMVA(std::string weights_file, bool is4D):
@@ -82,8 +83,9 @@ float TrackPUIDMVA::operator() (const reco::TrackRef& trk, const reco::TrackRef&
     std::get<1>(vars_[15]) = btl_time_chi2s.contains(ext_trk.id()) ? btl_time_chi2s[ext_trk] : -1;    
     std::get<1>(vars_[16]) = etl_chi2s.contains(ext_trk.id()) ? etl_chi2s[ext_trk] : -1;
     std::get<1>(vars_[17]) = etl_time_chi2s.contains(ext_trk.id()) ? etl_time_chi2s[ext_trk] : -1;    
-    std::get<1>(vars_[18]) = tmtds[ext_trk];
-    std::get<1>(vars_[19]) = trk_lengths[ext_trk];
+    std::get<1>(vars_[18]) = tmtds.contains(ext_trk.id()) ? tmtds[ext_trk] : -1;
+    std::get<1>(vars_[19]) = trk_lengths.contains(ext_trk.id()) ? trk_lengths[ext_trk] : -1;
+
 
     return mva_();
 }
