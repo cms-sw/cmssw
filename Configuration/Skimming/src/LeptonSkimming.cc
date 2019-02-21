@@ -280,7 +280,8 @@ LeptonSkimming::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       count_el++;
       bool passConvVeto = !ConversionTools::hasMatchedConversion(*(&el), conversions, theBeamSpot->position());
       if (!passConvVeto) continue;   
-      reco::GsfElectronRef seed(electrons,count_el);
+      reco::GsfTrackRef seed = el.gsfTrack();
+      if ( seed.isNull() ) continue;
       if ((*ele_mva_wp_biased)[seed] <BiasedWP) continue;
       if ((*ele_mva_wp_unbiased)[seed] <UnbiasedWP) continue;
       const Track * eltrack= el.bestTrack();
