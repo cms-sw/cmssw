@@ -620,7 +620,7 @@ baseDataSetRelease=[
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM
     'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2cosmics_startup_peak_v2-v1', # 12 - GEN-SIM input for 1307 cosmics wf from 810_p2
-    'CMSSW_10_0_0_pre2-100X_mc2017_realistic_v1-v1',     # 13 - GENSIM input for 2017 fullSim premix workflows
+    'CMSSW_10_4_0-103X_mc2017_realistic_v2-v1',     # 13 - GENSIM input for 2017 fullSim premix workflows
     'CMSSW_10_4_0_pre1-PU25ns_103X_mc2017_realistic_v1-v1',     # 14 - fullSim PU 25ns UP17 premix library
     'CMSSW_10_5_0_pre1-103X_mc2017_realistic_v2_FastSim-v1',    # 15 - fastSim MinBias for mixing UP17
     'CMSSW_10_5_0_pre1-PU25ns_103X_mc2017_realistic_v2_FastSim-v1',# 16 - fastSim premix library UP17 
