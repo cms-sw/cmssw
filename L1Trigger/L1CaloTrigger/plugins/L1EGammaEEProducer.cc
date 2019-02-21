@@ -143,7 +143,9 @@ void L1EGammaEEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
           }
         }
       }
-      l1t::EGamma eg(mom);
+      float calib_factor = calibrator_.calibrationFactor(mom.pt(), mom.eta());
+      l1t::EGamma eg=l1t::EGamma(reco::Candidate::PolarLorentzVector(mom.pt()/calib_factor, mom.eta(), mom.phi(), 0.));
+      // l1t::EGamma eg(mom);
       // FIXME: full duplication with HWqual 2
       eg.setHwQual(3);
       eg.setHwIso(1);
