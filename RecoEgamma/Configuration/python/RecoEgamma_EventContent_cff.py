@@ -42,7 +42,13 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
         'keep *_gedGsfElectrons_*_*',
-        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*'
+        'keep recoCaloClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep recoGsfElectrons_lowPtGsfElectrons_*_*',
+        'keep recoGsfElectronCores_lowPtGsfElectronCores_*_*',
+        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
+        'keep recoSuperClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronID_*_*',
   )                                                                 
 )
 
@@ -100,7 +106,13 @@ RecoEgammaRECO = cms.PSet(
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
         'keep *_gedGsfElectrons_*_*',
-        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*'
+        'keep recoCaloClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep recoGsfElectrons_lowPtGsfElectrons_*_*',
+        'keep recoGsfElectronCores_lowPtGsfElectronCores_*_*',
+        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
+        'keep recoSuperClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronID_*_*',
   )                                                                 
 )
 
@@ -147,7 +159,13 @@ RecoEgammaAOD = cms.PSet(
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
         'keep *_gedGsfElectrons_*_*',
-        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*'
+        'keep recoCaloClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep recoGsfElectrons_lowPtGsfElectrons_*_*',
+        'keep recoGsfElectronCores_lowPtGsfElectronCores_*_*',
+        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
+        'keep recoSuperClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronID_*_*',
   )                                                                 
 )
 
