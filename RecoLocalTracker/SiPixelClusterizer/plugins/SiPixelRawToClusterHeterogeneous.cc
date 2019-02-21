@@ -243,7 +243,7 @@ void SiPixelRawToClusterHeterogeneous::fillDescriptions(edm::ConfigurationDescri
   desc.add<int>("VCaltoElectronGain_L1", 65);
   desc.add<int>("VCaltoElectronOffset", -414);
   desc.add<int>("VCaltoElectronOffset_L1", -414);
-  desc.addUntracked<bool>("MissCalibrate", true);
+  desc.add<bool>("MissCalibrate", true);
   desc.add<bool>("SplitClusters", false);
   desc.add<double>("ElectronPerADCGain", 135.);
   // Phase 2 clusterizer
