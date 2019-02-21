@@ -3,6 +3,7 @@
   <use   name="FastSimulation/BaseParticlePropagator"/>
   <use   name="MagneticField/Engine"/>
   <use   name="MagneticField/Records"/>
+  <use   name="L1Trigger/Phase2L1ParticleFlow"/>
   <!-- <use   name="CommonTools/UtilAlgos"/>
   <use   name="SimDataFormats/CaloTest"/>
   <use   name="DataFormats/JetReco"/>
