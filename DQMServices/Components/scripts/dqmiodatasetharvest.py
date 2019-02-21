@@ -102,7 +102,7 @@ def tosqlite(x):
         except:
             return buffer(x.data())
     if isinstance(x, int):
-          return x
+        return x
     if isinstance(x, float):
         return x
     if isinstance(x, long):
@@ -160,6 +160,9 @@ insertinto = """
   ) VALUES (
     ?, ?, ?, ?, ?, ?, ?
   ); """
+dumpmes = """
+  SELECT fromlumi, tolumi, fromrun, name, value FROM monitorelements ORDER BY fromrun, fromlumi ASC;
+"""
 
 db = sqlite3.connect(args.output)
 db.execute(maketable)
@@ -210,8 +213,8 @@ def harvestfile(fname):
                   mename,
                   run, lumi, endrun, endlumi,
                   metype,
-                  tosqlite(value)),
-                )
+                  tosqlite(value),
+                ))
 
     return mes_to_store
 
@@ -227,3 +230,47 @@ for mes_to_store in pool.imap_unordered(harvestfile, files):
     ctr += 1
     print "Processed %d files of %d, got %d MEs...\r" % (ctr, len(files), len(mes_to_store)),
 print "\nDone."
+
+sqlite2tree = """
+// Convert the sqlite format saved above back into a TTree.
+// Saving TTrees with objects (TH1's) seems to be close to impossible in Python,
+// so we do the roundtrip via SQLite and JSON in a ROOT macro.
+// This needs a ROOT with TBufferJSON::FromJSON, which the 6.12 in CMSSW for
+// for now does not have. We can load a newer version from SFT (on lxplus6,
+// in (!) a cmsenv):
+// source /cvmfs/sft.cern.ch/lcg/releases/ROOT/6.16.00-f8770/x86_64-slc6-gcc8-opt/bin/thisroot.sh
+// root sqlite2tree.C
+// It is rather slow, but the root file is a lot more compact.
+
+int run;
+int fromlumi;
+int tolumi;
+
+int sqlite2tree() {
+
+  auto sql = TSQLiteServer("sqlite:///tmp/dqmio.sqlite");
+  auto query = "SELECT fromlumi, tolumi, fromrun, name, value FROM monitorelements ORDER BY fromrun, fromlumi ASC;";
+  auto res = sql.Query(query);
+
+  TFile outfile("/tmp/dqmio.root", "RECREATE");
+  auto outtree = new TTree("MEs", "MonitorElements by run and lumisection");
+  auto nameb     = outtree->Branch("name",    &name);
+  auto valueb    = outtree->Branch("value",   &value,128*1024,0);
+  auto runb      = outtree->Branch("run",     &run);
+  auto fromlumib = outtree->Branch("fromlumi",&fromlumi);
+  auto tolumib   = outtree->Branch("tolumi",  &tolumi);
+
+
+  while (auto row = res->Next()) {
+    fromlumi = atoi(row->GetField(0));
+    tolumi   = atoi(row->GetField(1));
+    run      = atoi(row->GetField(2));
+    name  = new TString(row->GetField(3));
+    TBufferJSON::FromJSON(value, row->GetField(4));
+    outtree->Fill();
+  }
+  return 0;
+}
+"""
+
+    
