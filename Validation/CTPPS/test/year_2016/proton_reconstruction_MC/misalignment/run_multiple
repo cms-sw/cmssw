@@ -24,7 +24,7 @@ function RunOne()
 	(
 		echo "process.maxEvents.input = $events"
 
-		echo "process.ctppsIncludeAlignmentsFromXML.MisalignedFiles += cms.vstring(\"Validation/CTPPS/test/year_2016/proton_reconstruction_MC/misalignment/$dir/$aligFile\")"
+		echo "process.ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles += cms.vstring(\"Validation/CTPPS/test/year_2016/proton_reconstruction_MC/misalignment/$dir/$aligFile\")"
 		echo "process.ctppsProtonReconstructionSimulationValidator.outputFile = \"${tag}_validation.root\""
 	) >> "$dir/$cfgFile"
 

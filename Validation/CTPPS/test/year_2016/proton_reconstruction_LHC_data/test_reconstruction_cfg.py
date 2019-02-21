@@ -3,6 +3,11 @@ from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process("CTPPSTestProtonReconstruction", eras.ctpps_2016)
 
+# declare global tag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run2_data")
+
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
   statistics = cms.untracked.vstring(),
@@ -29,14 +34,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # load reconstruction sequences
-process.load("RecoCTPPS.Configuration.recoCTPPS_sequences_cff")
+process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 process.ctppsLocalTrackLiteProducer.includeDiamonds = False
 process.ctppsLocalTrackLiteProducer.includePixels = False
 
 process.ctppsProtons.verbosity = 0
-
-# load geometry
-process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi") # 2017 is OK here
 
 # reconstruction validator
 process.ctppsProtonReconstructionValidator = cms.EDAnalyzer("CTPPSProtonReconstructionValidator",
