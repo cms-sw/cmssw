@@ -14,6 +14,8 @@
 #include <iostream>
 
 using namespace edm;
+using namespace std;
+using namespace ctppspixelobjects;
 
 namespace {
   constexpr int m_LINK_bits = 6;
@@ -43,13 +45,10 @@ CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePositio
       <<", send exception" ;
   }
 
-  m_IncludeErrors = false;
-
   m_ADC_shift  = 0;
   m_PXID_shift = m_ADC_shift + m_ADC_bits;
   m_DCOL_shift = m_PXID_shift + m_PXID_bits;
   m_ROC_shift  = m_DCOL_shift + m_DCOL_bits;
-
 
   m_LINK_shift = m_ROC_shift + m_ROC_bits;
   m_LINK_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << m_LINK_bits);
@@ -61,26 +60,24 @@ CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePositio
 
 }
 
-
 void CTPPSPixelDataFormatter::setErrorStatus(bool errorStatus)
 {
   m_IncludeErrors = errorStatus;
   m_ErrorCheck.setErrorStatus(m_IncludeErrors);
 }
 
-
 void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId, const FEDRawData& rawData, 
-						 Collection & digis, Errors & errors)
+    Collection & digis, Errors & errors)
 {
 
   int nWords = rawData.size()/sizeof(Word64);
   if (nWords==0) return;
 
-/// check CRC bit
+  /// check CRC bit
   const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);  
   if(!m_ErrorCheck.checkCRC(errorsInEvent, fedId, trailer, errors)) return;
 
-/// check headers
+  /// check headers
   const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); header--;
   bool moreHeaders = true;
   while (moreHeaders) {
@@ -90,7 +87,7 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
     moreHeaders = headerStatus;
   }
 
-/// check trailers
+  /// check trailers
   bool moreTrailers = true;
   trailer++;
   while (moreTrailers) {
@@ -100,7 +97,7 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
     moreTrailers = trailerStatus;
   }
 
-/// data words
+  /// data words
   m_WordCounter += 2*(nWords-2);
   LogTrace("")<<"data words: "<< (trailer-header-1);
 
@@ -131,12 +128,12 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
 
     if (mit == m_Mapping.end()){      
       if(nlink >= maxLinkIndex){
-	m_ErrorCheck.conversionError(fedId, iD, InvalidLinkId, ww, errors);
+        m_ErrorCheck.conversionError(fedId, iD, InvalidLinkId, ww, errors);
       }
       else if((nroc-1)>=maxRocIndex){
-	m_ErrorCheck.conversionError(fedId, iD, InvalidROCId, ww, errors);
+        m_ErrorCheck.conversionError(fedId, iD, InvalidROCId, ww, errors);
       }else{
-	m_ErrorCheck.conversionError(fedId, iD, Unknown, ww, errors);
+        m_ErrorCheck.conversionError(fedId, iD, Unknown, ww, errors);
       }
       continue; //skip word
     }
@@ -157,15 +154,15 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
       if ( (*detDigis).empty() ) (*detDigis).data.reserve(32); // avoid the first relocations
 
     }
-  
+
     int adc  = (ww >> m_ADC_shift) & m_ADC_mask;
- 
+
     int dcol = (ww >> m_DCOL_shift) & m_DCOL_mask;
     int pxid = (ww >> m_PXID_shift) & m_PXID_mask;
 
     if(dcol<min_Dcol || dcol>max_Dcol || pxid<min_Pixid || pxid>max_Pixid){
       edm::LogError("CTPPSPixelDataFormatter")<< " unphysical dcol and/or pxid "  << " nllink=" << nlink 
-					      << " nroc="<< nroc << " adc=" << adc << " dcol=" << dcol << " pxid=" << pxid;
+        << " nroc="<< nroc << " adc=" << adc << " dcol=" << dcol << " pxid=" << pxid;
 
       m_ErrorCheck.conversionError(fedId, iD, InvalidPixelId, ww, errors);
 
@@ -182,12 +179,104 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
     CTPPSPixelDigi testdigi(modPixel.first, modPixel.second, adc);
 
     if(detDigis)
-    (*detDigis).data.emplace_back( modPixel.first, modPixel.second, adc); 
- 
+      (*detDigis).data.emplace_back( modPixel.first, modPixel.second, adc); 
+
   }
 
 }
 
+void CTPPSPixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis, std::vector<PPSPixelIndex> iDdet2fed)
+{
+  std::map<int, vector< Word32 > > words; 
+  // translate digis into 32-bit raw words and store in map indexed by Fed
+  for (auto const &im : digis) {
+    m_allDetDigis++;
+    cms_uint32_t rawId = im.first;
+
+    m_hasDetDigis++;
+    const DetDigis & detDigis = im.second;
+    for (auto const &it : detDigis) {
+      m_DigiCounter++;
+
+      int nroc = 999, nlink = 999;
+      int rocPixelRow = -1, rocPixelColumn = -1, rocID = -1;
+      int modulePixelColumn = it.column();
+      int modulePixelRow = it.row();
+
+      theIndices.transformToROC(modulePixelColumn, modulePixelRow, rocID, rocPixelColumn, rocPixelRow);
+      const int dcol = theIndices.DColumn(rocPixelColumn);
+      const int pxid =  2*(ROCSizeInX-rocPixelRow)+ (rocPixelColumn%2);
+
+      unsigned int urocID  = rocID; 
+      PPSPixelIndex myTest =  {rawId, urocID};  
+      // the range has always at most one element
+      auto range = std::equal_range(iDdet2fed.begin(), iDdet2fed.end(), myTest, compare);
+      if(range.first != range.second) {
+        auto i = range.first - iDdet2fed.begin() ; 
+        nlink = iDdet2fed.at(i).fedch;
+        nroc = iDdet2fed.at(i).rocch + 1; 
+
+        CTPPSElectronicIndex cabling = {nlink, nroc, dcol, pxid};
+
+        cms_uint32_t word =
+          (cabling.link << m_LINK_shift)
+          | (cabling.roc  << m_ROC_shift)
+          | (cabling.dcol << m_DCOL_shift)
+          | (cabling.pxid << m_PXID_shift)
+          | (it.adc() << m_ADC_shift);
+
+        words[iDdet2fed.at(i).fedid].push_back(word);
+        m_WordCounter++;
+
+      } // range 
+    } // for DetDigis
+  } // for Digis
+
+  LogTrace(" allDetDigis/hasDetDigis : ") << m_allDetDigis<<"/"<<m_hasDetDigis;
+  for (auto const &feddata : words) {
+    int fedId = feddata.first;
+
+    // since raw words are written in the form of 64-bit packets
+    // add extra 32-bit word to make number of words even if necessary
+    if (words.find(fedId)->second.size() %2 != 0) words[fedId].push_back( Word32(0) );
+
+    // size in Bytes; create output structure
+    int dataSize = words.find(fedId)->second.size() * sizeof(Word32);
+    int nHeaders = 1;
+    int nTrailers = 1;
+    dataSize += (nHeaders+nTrailers)*sizeof(Word64);
+
+    FEDRawData * rawData = new FEDRawData(dataSize);
+
+    // get begining of data;
+    Word64 * word = reinterpret_cast<Word64* >(rawData->data());
+
+    // write one header
+    FEDHeader::set(  reinterpret_cast<unsigned char*>(word), 0, lvl1_ID, 0, fedId);
+    word++;
+
+    // write data
+    unsigned int nWord32InFed = words.find(fedId)->second.size();
+    for (unsigned int i=0; i < nWord32InFed; i+=2) {
+      *word = (Word64(words.find(fedId)->second[i]) << 32 ) | words.find(fedId)->second[i+1];
+      LogDebug("CTPPSPixelDataFormatter")  << print(*word);
+      word++;
+    }
+
+    // write one trailer
+    FEDTrailer::set(  reinterpret_cast<unsigned char*>(word), dataSize/sizeof(Word64), 0,0,0);
+    word++;
+
+    // check memory
+    if (word != reinterpret_cast<Word64* >(rawData->data()+dataSize)) {
+      string s = "** PROBLEM in CTPPSPixelDataFormatter !!!";
+      LogError("CTPPSPixelDataFormatter") << "** PROBLEM in CTPPSPixelDataFormatter!!!";
+      throw cms::Exception(s);
+    } // if (word !=
+    fedRawData[fedId] = *rawData;
+    delete rawData;
+  } // for (RI feddata 
+}
 
 std::string CTPPSPixelDataFormatter::print(const  Word64 & word) const
 {

@@ -467,7 +467,13 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         WaferAngles      = cms.untracked.vdouble(90.0,30.0),
         CheckID          = cms.untracked.bool(True),
     ),
-    TotemSD = cms.PSet(
+    Totem_RP_SD = cms.PSet(
+        Verbosity = cms.int32(0)
+    ),
+    CTPPS_Diamond_SD = cms.PSet(
+        Verbosity = cms.int32(0)
+    ),
+    PPSPixelSD = cms.PSet(
         Verbosity = cms.untracked.int32(0)
     ),
     ZdcSD = cms.PSet(

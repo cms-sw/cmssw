@@ -20,6 +20,10 @@ from SimCalorimetry.Configuration.SimCalorimetry_cff import *
 #
 from SimMuon.Configuration.SimMuon_cff import *
 #
+# PPS Digis 
+# returns sequence "ppsDigi"
+from SimPPS.Configuration.SimPPS_cff import *
+# 
 # TrackingParticle Producer is now part of the mixing module, so
 # it is no longer run here.
 #
@@ -30,7 +34,7 @@ from Configuration.StandardSequences.Generator_cff import *
 from GeneratorInterface.Core.generatorSmeared_cfi import *
 from SimGeneral.PileupInformation.genPUProtons_cfi import *
 
-doAllDigi = cms.Sequence(generatorSmeared*calDigi+muonDigi)
+doAllDigi = cms.Sequence(generatorSmeared*calDigi+muonDigi+ppsDigi)
 pdigi = cms.Sequence(generatorSmeared*fixGenInfo*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo*genPUProtons)
 pdigi_valid = cms.Sequence(pdigi)
 pdigi_nogen=cms.Sequence(generatorSmeared*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo*genPUProtons)

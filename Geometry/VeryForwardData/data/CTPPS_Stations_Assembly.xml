@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    <ConstantsSection label="CTPPS_Stations_Assembly.xml">
+        <!--positions of the stations from the IP5 to the first element of the station-->
+        <!--coordinate system is relative to CMS 1 (z>0) and 2 (z<0)-->
+        <Constant name="CTPPS_210_Left_Station_Position_z" value="202769*mm"/>
+        <Constant name="CTPPS_210_Right_Station_Position_z" value="-202769*mm"/>
+        <Constant name="CTPPS_220_Left_Station_Position_z" value="214020*mm"/>
+        <Constant name="CTPPS_220_Right_Station_Position_z" value="-214020*mm"/>
+        <!-- +-1500 mm for the two 220 m stations outside the IP-->
+    </ConstantsSection>
+    
+    <PosPartSection label="CTPPS_Stations_Assembly.xml">
+<!--todo if we remove this the alignment module hangs forever-->
+        <PosPart copyNumber="1">
+            <rParent name="cms:CMSE"/>
+            <rChild name="CTPPS_220_Right_Station:RP_220_Right_Station"/>
+            <Translation x="0*mm" y="0*mm" z="[CTPPS_220_Right_Station_Position_z]-[CTPPS_220_Right_Station:RP_220_Right_Station_Length]/2"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="cms:CMSE"/>
+            <rChild name="CTPPS_220_Left_Station:RP_220_Left_Station"/>
+            <Translation x="0*mm" y="0*mm" z="[CTPPS_220_Left_Station_Position_z]+[CTPPS_220_Left_Station:RP_220_Left_Station_Length]/2"/>
+        </PosPart>
+<!---->
+        <PosPart copyNumber="1">
+            <rParent name="cms:CMSE"/>
+            <rChild name="CTPPS_210_Right_Station:RP_210_Right_Station"/>
+            <Translation x="0*mm" y="0*mm" z="[CTPPS_210_Right_Station_Position_z]-[CTPPS_210_Right_Station:RP_210_Right_Station_Length]/2"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="cms:CMSE"/>
+            <rChild name="CTPPS_210_Left_Station:RP_210_Left_Station"/>
+            <Translation x="0*mm" y="0*mm" z="[CTPPS_210_Left_Station_Position_z]+[CTPPS_210_Left_Station:RP_210_Left_Station_Length]/2"/>
+        </PosPart>
+    </PosPartSection>
+</DDDefinition>
