@@ -214,7 +214,7 @@ _effandfakePos = PlotGroup("effandfakePos",
 )
 _effandfakeDeltaRPU = PlotGroup("effandfakeDeltaRPU",
                                 _makeEffFakeDupPlots("dr"     , "#DeltaR", effopts=dict(xtitle="TP min #DeltaR"), fakeopts=dict(xtitle="track min #DeltaR"), common=dict(xlog=True)) +
-                                _makeEffFakeDupPlots("drj" , "#DeltaR(track, jet)", effopts=dict(xtitle="#DeltaR(TP, jet)"), fakeopts=dict(xtitle="#DeltaR(track, jet)"), common=dict(xlog=True))+
+                                _makeEffFakeDupPlots("drj" , "#DeltaR(track, jet)", effopts=dict(xtitle="#DeltaR(TP, jet)", ytitle="efficiency vs #DeltaR(TP, jet"), fakeopts=dict(xtitle="#DeltaR(track, jet)"), common=dict(xlog=True))+
                                 _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
                                 legendDy=_legendDy_4rows
 )
@@ -422,7 +422,7 @@ _extDistHitsLayers = PlotGroup("distHitsLayers",
                                _makeDistPlots("3Dlayer"   , "3D layers"   , common=dict(xmin=_min3DLayers, xmax=_max3DLayers)),
                                ncols=4, legendDy=_legendDy_4rows,
 )
-_extDistPos = PlotGroup("distPosDeltaR",
+_extDistPos = PlotGroup("distPos",
                               _makeDistPlots("vertpos", "ref. point r (cm)", common=dict(xlog=True)) +
                               _makeDistPlots("zpos"   , "ref. point z (cm)") +
                               _makeDistPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)),
