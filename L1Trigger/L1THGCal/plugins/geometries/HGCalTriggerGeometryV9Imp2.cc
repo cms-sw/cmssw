@@ -81,10 +81,9 @@ HGCalTriggerGeometryV9Imp2(const edm::ParameterSet& conf):
     HGCalTriggerGeometryBase(conf),
     hSc_triggercell_size_(conf.getParameter<unsigned>("ScintillatorTriggerCellSize")),
     hSc_module_size_(conf.getParameter<unsigned>("ScintillatorModuleSize")),
-    l1tModulesMapping_(conf.getParameter<edm::FileInPath>("L1TModulesMapping"))
+    l1tModulesMapping_(conf.getParameter<edm::FileInPath>("L1TModulesMapping")),
+    disconnected_layers_(conf.getParameter<std::vector<unsigned>>("DisconnectedLayers").begin(),conf.getParameter<std::vector<unsigned>>("DisconnectedLayers").end())
 {
-    std::vector<unsigned> tmp_vector = conf.getParameter<std::vector<unsigned>>("DisconnectedLayers");
-    std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_layers_, disconnected_layers_.end()));
 }
 
 void
@@ -154,15 +153,14 @@ getTriggerCellFromCell( const unsigned cell_id ) const
     else if(det == DetId::HGCalEE || det == DetId::HGCalHSi)
     {
         HGCSiliconDetId cell_si_id(cell_id);
-        unsigned subdet = (det==DetId::HGCalEE ? HGCalTriggerSubdetector::HGCalEETrigger : HGCalTriggerSubdetector::HGCalHSiTrigger);
-        int layer = cell_si_id.layer();
-        int zside = cell_si_id.zside();
-        int type =  cell_si_id.type();
-        int waferu = cell_si_id.waferU();
-        int waferv = cell_si_id.waferV();
-        int triggercellu = cell_si_id.triggerCellU();
-        int triggercellv = cell_si_id.triggerCellV();
-        trigger_cell_id = HGCalTriggerDetId(subdet, zside, type, layer, waferu, waferv, triggercellu, triggercellv);
+        trigger_cell_id = HGCalTriggerDetId(
+                det==DetId::HGCalEE ? HGCalTriggerSubdetector::HGCalEETrigger : HGCalTriggerSubdetector::HGCalHSiTrigger,
+                cell_si_id.zside(),
+                cell_si_id.type(),
+                cell_si_id.layer(),
+                cell_si_id.waferU(), cell_si_id.waferV(),
+                cell_si_id.triggerCellU(), cell_si_id.triggerCellV()
+                );
     }
     return trigger_cell_id;
 
@@ -519,13 +517,11 @@ HGCalTriggerGeometryV9Imp2::
 packWaferId(int waferU, int waferV) const
 {
     unsigned packed_value = 0;
-    unsigned waferUabs = std::abs(waferU); 
-    unsigned waferVabs = std::abs(waferV);
     unsigned waferUsign = (waferU >= 0) ? 0 : 1;
     unsigned waferVsign = (waferV >= 0) ? 0 : 1;
-    packed_value |= ((waferUabs & HGCSiliconDetId::kHGCalWaferUMask) << HGCSiliconDetId::kHGCalWaferUOffset);
+    packed_value |= ((std::abs(waferU) & HGCSiliconDetId::kHGCalWaferUMask) << HGCSiliconDetId::kHGCalWaferUOffset);
     packed_value |= ((waferUsign & HGCSiliconDetId::kHGCalWaferUSignMask) << HGCSiliconDetId::kHGCalWaferUSignOffset);
-    packed_value |= ((waferVabs & HGCSiliconDetId::kHGCalWaferVMask) << HGCSiliconDetId::kHGCalWaferVOffset);
+    packed_value |= ((std::abs(waferV) & HGCSiliconDetId::kHGCalWaferVMask) << HGCSiliconDetId::kHGCalWaferVOffset);
     packed_value |= ((waferVsign & HGCSiliconDetId::kHGCalWaferVSignMask) << HGCSiliconDetId::kHGCalWaferVSignOffset);
     return packed_value;
 }
