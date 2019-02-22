@@ -63,8 +63,9 @@ float TrackPUIDMVA::operator() (const reco::TrackRef& trk, const reco::TrackRef&
                                 edm::ValueMap<float>& tmtds,                                
                                 edm::ValueMap<float>& trk_lengths)
 {
-    const auto& pattern = ext_trk->hitPattern();                
-    
+  
+  const auto& pattern = !ext_trk.isNull() ? ext_trk->hitPattern() : trk->hitPattern();                
+  
     std::get<1>(vars_[0]) = trk->pt();
     std::get<1>(vars_[1]) = trk->eta();
     std::get<1>(vars_[2]) = trk->phi();
@@ -79,13 +80,12 @@ float TrackPUIDMVA::operator() (const reco::TrackRef& trk, const reco::TrackRef&
     std::get<1>(vars_[11]) = pattern.numberOfValidPixelEndcapHits();
     std::get<1>(vars_[12]) = t0s.contains(trk.id()) ? std::abs(t0s[trk]-vtx.t()) : std::abs(-1-vtx.t());
     std::get<1>(vars_[13]) = sigma_t0s.contains(trk.id()) ? sigma_t0s[trk] : -1;    
-    std::get<1>(vars_[14]) = btl_chi2s.contains(ext_trk.id()) ? btl_chi2s[ext_trk] : -1;
-    std::get<1>(vars_[15]) = btl_time_chi2s.contains(ext_trk.id()) ? btl_time_chi2s[ext_trk] : -1;    
-    std::get<1>(vars_[16]) = etl_chi2s.contains(ext_trk.id()) ? etl_chi2s[ext_trk] : -1;
-    std::get<1>(vars_[17]) = etl_time_chi2s.contains(ext_trk.id()) ? etl_time_chi2s[ext_trk] : -1;    
-    std::get<1>(vars_[18]) = tmtds.contains(ext_trk.id()) ? tmtds[ext_trk] : -1;
-    std::get<1>(vars_[19]) = trk_lengths.contains(ext_trk.id()) ? trk_lengths[ext_trk] : -1;
-
+    std::get<1>(vars_[14]) = !ext_trk.isNull() ? btl_chi2s[ext_trk] : -1;
+    std::get<1>(vars_[15]) = !ext_trk.isNull() ? btl_time_chi2s[ext_trk] : -1;    
+    std::get<1>(vars_[16]) = !ext_trk.isNull() ? etl_chi2s[ext_trk] : -1;
+    std::get<1>(vars_[17]) = !ext_trk.isNull() ? etl_time_chi2s[ext_trk] : -1;    
+    std::get<1>(vars_[18]) = !ext_trk.isNull() ? tmtds[ext_trk] : -1;
+    std::get<1>(vars_[19]) = !ext_trk.isNull() ? trk_lengths[ext_trk] : -1;
 
     return mva_();
 }
