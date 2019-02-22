@@ -95,7 +95,12 @@ TrackingMaterialProducer::TrackingMaterialProducer(const edm::ParameterSet& iPSe
   if (std::find(m_selectedNames.begin(), m_selectedNames.end(), "HGCal") != m_selectedNames.end()) {
     isHGCal = true;
   }
-  if (isHGCal) {
+  //Check if HFNose volumes are selected
+  isHFNose = false;
+  if (std::find(m_selectedNames.begin(), m_selectedNames.end(), "HFNose") != m_selectedNames.end()) {
+    isHFNose = true;
+  }
+  if (isHGCal or isHFNose) {
     outVolumeZpositionTxt.open(m_txtOutFile.c_str(), std::ios::out);
   }
 }
@@ -159,6 +164,19 @@ void TrackingMaterialProducer::update(const BeginOfTrack* event) {
                             << std::endl;
     }
   }
+
+  //For the HFnose case:
+  //restrict the outher radius to eta 3.3 since there is HGCAL shadowing
+  //restrict the innner radius to eta 4 since it's non projective
+
+  if (isHFNose && track->GetTrackStatus() != fStopAndKill && fabs(track->GetMomentum().eta()) > 3.3 && fabs(track->GetMomentum().eta()) < 4) {
+    if(track->GetMomentum().eta() > 0.){
+      outVolumeZpositionTxt << "Polyethylene " << m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0 <<std::endl;
+    } else if (track->GetMomentum().eta() <= 0.){
+      outVolumeZpositionTxt << "Polyethylene " << - m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0 <<std::endl;
+    }
+  }
+
 }
 
 bool TrackingMaterialProducer::isSelectedFast(const G4TouchableHistory* touchable) {
@@ -198,7 +216,7 @@ void TrackingMaterialProducer::update(const G4Step* step) {
   G4StepPoint* postPoint = step->GetPostStepPoint();
   const CLHEP::Hep3Vector& postPos = postPoint->GetPosition();
   //Go below only in HGCal case
-  if (isHGCal) {
+  if (isHGCal or isHFNose) {
     //A step never spans across boundaries: geometry or physics define the end points
     //If the step is limited by a boundary, the post-step point stands on the
     //boundary and it logically belongs to the next volume.
@@ -213,7 +231,16 @@ void TrackingMaterialProducer::update(const G4Step* step) {
                             << sqrt(postPos.x() * postPos.x() + postPos.y() * postPos.y()) << " " << 0 << " " << 0
                             << std::endl;
     }
-  }  //end of isHGCal if
+
+    if (postPoint->GetStepStatus() == fGeomBoundary && fabs(postPoint->GetMomentum().eta()) > 3.3 &&
+        fabs(postPoint->GetMomentum().eta()) < 4.) {
+      outVolumeZpositionTxt << prePoint->GetMaterial()->GetName() << " " << postPos.z() << " "
+                            << postPoint->GetMomentum().eta() << " "
+                            << sqrt(postPos.x() * postPos.x() + postPos.y() * postPos.y()) << " " << 0 << " " << 0
+                            << std::endl;
+    }
+
+  }  //end of isHGCal  or HFnose if
 
   // check for a sensitive detector
   bool enter_sensitive = false;
