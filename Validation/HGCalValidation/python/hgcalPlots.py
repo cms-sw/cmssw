@@ -71,7 +71,7 @@ _totclusternum_thick = PlotGroup("totclusternum_thick", [
     ])
 
 #We will plot the density in logy scale. 
-_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ylog": True }
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ylog": True}
 
 _cellsenedens_thick =  PlotGroup("cellsenedens_thick", [
     Plot("cellsenedens_thick_120", xtitle="", **_common),
