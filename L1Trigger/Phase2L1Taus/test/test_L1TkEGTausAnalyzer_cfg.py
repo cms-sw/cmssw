@@ -210,7 +210,7 @@ process.pTrkObjAna = cms.Path(process.MuonRate +  process.PhotonRate + process.E
 
 
 # root file with histograms produced by the analyzer
-filename = "L1TausPerformance.root"
+filename = "L1TkEGTausPerformance.root"
 process.TFileService = cms.Service("TFileService", fileName = cms.string(filename), closeFileFast = cms.untracked.bool(True))
 
 # ---------------------------------------------------------------------------

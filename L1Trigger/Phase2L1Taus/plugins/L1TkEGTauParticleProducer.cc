@@ -257,9 +257,9 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     std::vector< L1TTStubRef > Stubs = trkIter-> getStubRefs();
     unsigned int NStubs              = Stubs.size();
 
-    if ( Pt   < cfg_tk_minPt ) continue;
-    if ( Eta  < cfg_tk_minEta ) continue;
-    if ( Eta  > cfg_tk_maxEta ) continue;
+    if ( Pt < cfg_tk_minPt ) continue;
+    if ( fabs(Eta) < cfg_tk_minEta ) continue;
+    if ( fabs(Eta) > cfg_tk_maxEta ) continue;
     if ( Chi2 > cfg_tk_maxChiSq ) continue;
     if ( NStubs < cfg_tk_minStubs ) continue;
 
@@ -288,9 +288,9 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     float Et = egIter -> et();
     float Eta = egIter -> eta();
     
-    if (Et < 5) continue;
-    if (Eta < cfg_eg_minEta) continue;
-    if (Eta > cfg_eg_maxEta) continue;
+    if (Et < cfg_eg_minEt) continue;
+    if (fabs(Eta) < cfg_eg_minEta) continue;
+    if (fabs(Eta) > cfg_eg_maxEta) continue;
     
     SelEGsPtrs.push_back(EGammaRef);
 
@@ -332,7 +332,7 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
     // Apply seed track cuts
     if ( iPt   < cfg_seedtk_minPt ) continue;
-    if ( iEta  > cfg_seedtk_maxEta ) continue;
+    if ( fabs(iEta)  > cfg_seedtk_maxEta ) continue;
     if ( iChi2 > cfg_seedtk_maxChiSq ) continue;
     if ( iNStubs < cfg_seedtk_minStubs ) continue;
     
@@ -372,7 +372,7 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	float jEta  = jTrk->getMomentum(cfg_tk_nFitParams).eta();
 	float jPhi  = jTrk->getMomentum(cfg_tk_nFitParams).phi();
 	float jz0   = jTrk->getPOCA(cfg_tk_nFitParams).z();
-   
+
 	// Apply dz0 and dR criteria for track clustering 
 	float deltaz0 = fabs(iz0-jz0);
 	if (deltaz0 > cfg_maxDeltaZ_trks) continue;
@@ -448,7 +448,6 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    
       // Calculate Isolation
       float vtxIso = CalculateVtxIso(SelTTTrackPtrs, TrackClusterIndx, cfg_isoCone_useCone);
-
       
       // Build the tau candidate
       p4_total = p4_trks + p4_egs;
@@ -468,7 +467,7 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   }// End-loop: All the L1TTTracks
   
   // Sort the TkEG candidates by eT before saving to the event 
-  sort( result->begin(), result->end(), L1TkEG::EtComparator() );
+  sort( result->begin(), result->end(), L1TkEGTau::EtComparator() );
 
   iEvent.put(std::move(result), label );
   

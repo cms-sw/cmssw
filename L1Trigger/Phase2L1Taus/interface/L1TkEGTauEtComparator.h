@@ -2,7 +2,7 @@
 #define L1TkEGEtComparator_HH
 #include "DataFormats/L1TrackTrigger/interface/L1TkEGTauParticle.h"
 
-namespace L1TkEG{
+namespace L1TkEGTau{
   class EtComparator {
   public:
     bool operator()(const l1t::L1TkEGTauParticle& a, const l1t::L1TkEGTauParticle& b) const {

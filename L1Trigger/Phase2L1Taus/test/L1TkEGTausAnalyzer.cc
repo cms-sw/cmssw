@@ -70,28 +70,33 @@ private:
   template<class T1> 
   void checkRate(const T1 & tkObjCollection);
 
-  std::vector<unsigned int> findGenParticles(const edm::Handle<reco::GenParticleCollection>& genH, std::vector<float>& pt, std::vector<float>& eta, std::vector<float>& phi );
+  std::vector<unsigned int> findGenParticles(const edm::Handle<reco::GenParticleCollection>& genH, std::vector<float>& et, std::vector<float>& eta, std::vector<float>& phi );
+  bool isLepton(unsigned int pdgId);
 
   /////////////////////////////////////////////////////
   // Histograms Definitions
   /////////////////////////////////////////////////////
 
   // Gen Particles 
+  TH1F* etGenL1Obj;
   TH1F* etaGenL1Obj;
   TH1F* phiGenL1Obj;
-  TH1F* etGenL1Obj;
 
   // L1-Track Objects 
   TH1F* nL1TrkObj;
+  TH1F* etL1TrkObj;  
   TH1F* etaL1TrkObj;
   TH1F* phiL1TrkObj;
-  TH1F* etL1TrkObj;  
+  TH1F* etL1TrkObjMatched;  
+  TH1F* etaL1TrkObjMatched;
+  TH1F* phiL1TrkObjMatched;
 
   // Performance 
   TH1F* etL1TrkObjTurnOn;
-  TH1F* ptGenObjTurnOn;
+  TH1F* etGenObjTurnOn;
   TH1F* etThrL1TrkObj;
-  
+  TH1F* effL1TrkObj;
+
   // TH2
   TH2F* etGenVsL1TrkObj;
 
@@ -115,20 +120,18 @@ private:
 
   // Gen Particles Properties 
   std::vector<unsigned int> genIndices;
-  std::vector<float > genPts;
+  std::vector<float > genEts;
   std::vector<float > genEtas;
   std::vector<float > genPhis;
 
   // Tokens 
-  const edm::EDGetTokenT< std::vector< L1TTTrackType > > trackToken;
-  const edm::EDGetTokenT< L1TkEGTauParticleCollection > tkegToken;
+  const edm::EDGetTokenT< L1TkEGTauParticleCollection > tkegtauToken;
   const edm::EDGetTokenT< reco::GenParticleCollection > genToken;
 
 };
 
 L1TkEGTausAnalyzer::L1TkEGTausAnalyzer(const edm::ParameterSet& iConfig) :
-  trackToken(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-  tkegToken(consumes< L1TkEGTauParticleCollection > (iConfig.getParameter<edm::InputTag>("L1TkEGInputTag"))),
+  tkegtauToken(consumes< L1TkEGTauParticleCollection > (iConfig.getParameter<edm::InputTag>("L1TkEGTauInputTag"))),
   genToken(consumes < reco::GenParticleCollection > (iConfig.getParameter<edm::InputTag>("GenParticleInputTag")))
 {
 
@@ -137,66 +140,47 @@ L1TkEGTausAnalyzer::L1TkEGTausAnalyzer(const edm::ParameterSet& iConfig) :
   objectType_ = iConfig.getParameter<std::string>("ObjectType");
   genEtaCutoff_ = iConfig.getParameter<double>("GenEtaCutOff");
   etaCutoff_ = iConfig.getParameter<double>("EtaCutOff");
-  trkPtCutoff_ = iConfig.getParameter<double>("TrackPtCutOff");
   genPtThreshold_ = iConfig.getParameter<double>("GenPtThreshold");
   etThreshold_    = iConfig.getParameter<double>("EtThreshold");
-  
 }
 
 void L1TkEGTausAnalyzer::beginJob() {
   edm::Service<TFileService> fs;
   
   std::ostringstream HistoName;
-
-  // L1-Track Objects
-  HistoName.str("");
-  HistoName << "NumberOf" << objectType_;
-  nL1TrkObj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 500, -0.5, 499.5);
   
-  HistoName.str("");
-  HistoName << "Et" << objectType_;
-  etL1TrkObj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 60, 0.0, 300.0);
-
-  HistoName.str("");
-  HistoName << "Eta" << objectType_;
-  etaL1TrkObj = fs->make<TH1F>(HistoName.str().c_str(),HistoName.str().c_str(), 90, -4.5, 4.5);
-
-  HistoName.str("");
-  HistoName << "Phi" << objectType_;
-  phiL1TrkObj = fs->make<TH1F>(HistoName.str().c_str(),HistoName.str().c_str(), 64, -3.2, 3.2);
-
+  // L1 Objects
+  nL1TrkObj = fs->make<TH1F>("Multiplicity","Multiplicity", 50, -0.5, 49.5);
+  etL1TrkObj  = fs->make<TH1F>("Et", "Et", 60, 0.0, 300.0);
+  etaL1TrkObj = fs->make<TH1F>("Eta","Eta", 90, -4.5, 4.5);
+  phiL1TrkObj = fs->make<TH1F>("Phi","Phi", 64, -3.2, 3.2);
+  
   if (analysisOption_ == "Efficiency") {
-
+    
     // Gen Particles
-    HistoName.str("");
-    HistoName << "EtaGen" << objectType_;
-    etaGenL1Obj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 90, -4.5, 4.5);
-    HistoName.str("");
-    HistoName << "PhiGen" << objectType_;
-    phiGenL1Obj = fs->make<TH1F>(HistoName.str().c_str(),HistoName.str().c_str(), 64, -3.2, 3.2);
-    HistoName.str("");
-    HistoName << "EtGen" << objectType_;
-    etGenL1Obj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 60, 0.0, 300.0);
-
+    etGenL1Obj  = fs->make<TH1F>("GenEt", "GenEt", 201, -0.5, 200.5);
+    etaGenL1Obj = fs->make<TH1F>("GenEta", "GenEta", 90, -4.5, 4.5);
+    phiGenL1Obj = fs->make<TH1F>("GenPhi","GenPhi", 64, -3.2, 3.2);
+    
+    // L1 Matched objects
+    etL1TrkObjMatched  = fs->make<TH1F>("EtMatched", "EtMatched", 201, -0.5, 200.5);
+    etaL1TrkObjMatched = fs->make<TH1F>("EtaMatched","EtaMatched", 90, -4.5, 4.5);
+    phiL1TrkObjMatched = fs->make<TH1F>("PhiMatched","PhiMatched", 64, -3.2, 3.2);
+    
     // 2D Plots
-    HistoName.str("");
-    HistoName << "EtGenVsEt" << objectType_;
-    etGenVsL1TrkObj = fs->make<TH2F>(HistoName.str().c_str(), HistoName.str().c_str(), 60, 0.0, 300.0, 60, 0.0, 300.0);
+    etGenVsL1TrkObj = fs->make<TH2F>("GenEtVsEt", "GenEtVsEt", 201, -0.5, 200.5, 201, -0.5, 200.5);
     
     // Turn-on numerator plots
-    HistoName.str("");
-    HistoName << "EtTurnOn" << objectType_;
-    etL1TrkObjTurnOn = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 60, 0.0, 300.0);
-    HistoName.str("");
-    HistoName << "PtTurnOn" << objectType_;
-    ptGenObjTurnOn = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 60, 0.0, 300.0);
+    etL1TrkObjTurnOn = fs->make<TH1F>("EtTurnOn", "EtTurnOn", 201, -0.5, 200.5);
+    etGenObjTurnOn   = fs->make<TH1F>("GenEtTurnOn", "GenEtTurnOn", 201, -0.5, 200.5);
+
+    // Efficiency plot
+    effL1TrkObj = fs->make<TH1F>("EtEfficiency", "EtEfficiency", 201, -0.5, 200.5);
     
   } else {
     
     // Rate plot
-    HistoName.str("");
-    HistoName << "EtThreshold" << objectType_;
-    etThrL1TrkObj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 90, 4.5, 94.5);
+    etThrL1TrkObj = fs->make<TH1F>("EtThreshold", "EtThreshold", 201, -0.5, 200.5);
   }
   
   selectedL1TkObjTot = 0;
@@ -225,7 +209,7 @@ L1TkEGTausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
   // Clear global vectors 
   genIndices.clear();
-  genPts.clear();
+  genEts.clear();
   genEtas.clear();
   genPhis.clear();
 
@@ -233,21 +217,29 @@ L1TkEGTausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (analysisOption_ == "Efficiency") {
     edm::Handle<reco::GenParticleCollection> genParticleHandle;
     iEvent.getByToken(genToken, genParticleHandle);
-    genIndices = findGenParticles(genParticleHandle, genPts, genEtas, genPhis);
+    genIndices = findGenParticles(genParticleHandle, genEts, genEtas, genPhis);
   }
 
   // TkEG: start
   if (objectType_ == "TkEG"){
 
-    edm::Handle< L1TkEGTauParticleCollection > l1TkEGHandle;
-    iEvent.getByToken(tkegToken, l1TkEGHandle);
-    L1TkEGTauParticleCollection l1TkEGCollection = (*l1TkEGHandle.product()); 
-    nL1TrkObj->Fill(l1TkEGCollection.size());
+    edm::Handle< L1TkEGTauParticleCollection > l1TkEGTauHandle;
+    iEvent.getByToken(tkegtauToken, l1TkEGTauHandle);
+    L1TkEGTauParticleCollection l1TkEGTauCollection = (*l1TkEGTauHandle.product());
+    sort( l1TkEGTauCollection.begin(), l1TkEGTauCollection.end(), L1TkEGTau::EtComparator() );
     
-    sort( l1TkEGCollection.begin(), l1TkEGCollection.end(), L1TkEG::EtComparator() );
+    // Plot the Properties
+    nL1TrkObj->Fill(l1TkEGTauCollection.size());
+    for (auto tkObjIter = l1TkEGTauCollection.begin(); tkObjIter != l1TkEGTauCollection.end(); ++tkObjIter) {
+      if (fabs(tkObjIter->eta()) < etaCutoff_ && tkObjIter->pt() > 0) {
+	etL1TrkObj  -> Fill(tkObjIter->et());
+	etaL1TrkObj -> Fill(tkObjIter->eta());
+	phiL1TrkObj -> Fill(tkObjIter->phi());
+      }
+    }
 
-    if (analysisOption_ == "Efficiency" && genIndices.size() > 0) checkEfficiency(l1TkEGCollection);
-    else if (analysisOption_ == "Rate") checkRate(l1TkEGCollection);    
+    if (analysisOption_ == "Efficiency" && genIndices.size() > 0) checkEfficiency(l1TkEGTauCollection);
+    else if (analysisOption_ == "Rate") checkRate(l1TkEGTauCollection);    
     
   }// TkEG: end
 
@@ -255,33 +247,49 @@ L1TkEGTausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 void L1TkEGTausAnalyzer::endJob() {
-  std::cout << " Number of Selected " << objectType_ << " : "<< selectedL1TkObjTot << std::endl;
-  std::cout << " Number of Events Proccessed  " << ievent << std::endl;
+
+  if (analysisOption_ == "Efficiency") {
+    std::cout << " Number of Selected " << objectType_ << " : "<< selectedL1TkObjTot << std::endl;
+    std::cout << " Number of Events Proccessed  " << ievent << std::endl;
+  }
 }
 
 
 template<class T1> 
 void L1TkEGTausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
+  
+  std::vector<unsigned int> matchedL1TkObjIndx;
 
   // For-loop: All the gen objects in the event
   for (size_t i = 0; i < genIndices.size(); i++) {
 
     // Initializations
     float dRminTkObj = 999.9; 
+    unsigned int indxTkObj = -1 ;
     float etTkObj, etaTkObj, phiTkObj;
 
     // Find the closest track object to the gen particle
+    unsigned int iTkObj = 0;
     // For-loop: All the track objects in the event
     for (auto tkObjIter = tkObjCollection.begin(); tkObjIter != tkObjCollection.end(); ++tkObjIter) {
-      if (fabs(tkObjIter->eta()) < etaCutoff_ && tkObjIter->pt() > 0) {
-	float dPhi = reco::deltaPhi(tkObjIter->phi(), genPhis.at(i));
-	float dEta = (tkObjIter->eta() - genEtas.at(i));
+      iTkObj++;
+      
+      // Get seed track properties
+      L1TTTrackRefPtr seedTk = tkObjIter->getSeedTrk();
+      float seedPt  = seedTk->getMomentum().perp();
+      float seedEta = seedTk->getMomentum().eta();
+      float seedPhi = seedTk->getMomentum().phi();
+
+      if (fabs(seedEta) < etaCutoff_ && seedPt > 0) {
+	float dPhi = reco::deltaPhi(seedPhi, genPhis.at(i));
+	float dEta = (seedEta - genEtas.at(i));
 	float dR =  sqrt(dPhi*dPhi + dEta*dEta);
 	if  (dR < dRminTkObj ) {
 	  dRminTkObj = dR;
-	  etTkObj  = tkObjIter->et();
-	  etaTkObj = tkObjIter->eta();
-	  phiTkObj = tkObjIter->phi();
+	  indxTkObj  = iTkObj;
+	  etTkObj    = tkObjIter->et();
+	  etaTkObj   = tkObjIter->eta();
+	  phiTkObj   = tkObjIter->phi();
 	}
       }
     }// End-loop: All the track objects in the event
@@ -289,27 +297,39 @@ void L1TkEGTausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
     // Apply the matching dR criteria
     if (dRminTkObj < 0.3) {
       selectedL1TkObjTot++;
+      matchedL1TkObjIndx.push_back(indxTkObj);
 
       // Fill histos with properties of the matched track objects 
-      etL1TrkObj->Fill(etTkObj);
-      etaL1TrkObj->Fill(etaTkObj);
-      phiL1TrkObj->Fill(phiTkObj);
+      etL1TrkObjMatched->Fill(etTkObj);
+      etaL1TrkObjMatched->Fill(etaTkObj);
+      phiL1TrkObjMatched->Fill(phiTkObj);
 
-      etGenVsL1TrkObj->Fill(etTkObj, genPts.at(i));
+      etGenVsL1TrkObj->Fill(etTkObj, genEts.at(i));
 
       // Fill turn-on numerator for a given Et threshold
       if (etTkObj > etThreshold_)  {
 	selectedL1TkObjEtTot++;
 	etL1TrkObjTurnOn->Fill(etTkObj);
-	ptGenObjTurnOn->Fill(genPts.at(i));
+	etGenObjTurnOn->Fill(genEts.at(i));
       }
     }
 
-  // std::cout << " Gen Info : eta, phi, Et " << genEtas.at(i) << " " <<  genPhis.at(i) << " " << genPts.at(i) << std::endl;
+  // std::cout << " Gen Info : eta, phi, Et " << genEtas.at(i) << " " <<  genPhis.at(i) << " " << genEts.at(i) << std::endl;
   // std::cout << " L1TkObject Info : dR Gen , et " << dRminTkObj << " " << etTkObj << std::endl;
   // std::cout << " Selected Candidate : L1TkObject, L1TkObjectEtThr " << selectedL1TkObjTot  << " " << selectedL1TkObjEtTot <<  std::endl;
 
   } // End-loop: All gen objects in the event
+
+  // Calculate efficiency
+  if (matchedL1TkObjIndx.size() <= 0) return;
+
+  // Find the ET of the leading matched L1TrkObj
+  float maxEt = 0;
+  for (unsigned int i=0; i < matchedL1TkObjIndx.size(); i++) {
+    if (tkObjCollection.at(i).et() > maxEt) maxEt = tkObjCollection.at(i).et();
+  }
+  // Fill efficiency histo 
+  fillIntegralHistos(effL1TrkObj, maxEt);
 
   
   return;
@@ -344,7 +364,7 @@ void L1TkEGTausAnalyzer::fillIntegralHistos(TH1F* th, float var){
 }
 
 
-std::vector<unsigned int> L1TkEGTausAnalyzer::findGenParticles(const edm::Handle<reco::GenParticleCollection>& genH, std::vector<float>& pt, std::vector<float>& eta, std::vector<float>& phi ) {
+std::vector<unsigned int> L1TkEGTausAnalyzer::findGenParticles(const edm::Handle<reco::GenParticleCollection>& genH, std::vector<float>& et, std::vector<float>& eta, std::vector<float>& phi ) {
   std::vector<unsigned int> indx;
 
   int pId = 0;
@@ -363,26 +383,32 @@ std::vector<unsigned int> L1TkEGTausAnalyzer::findGenParticles(const edm::Handle
     if (p.pt() < genPtThreshold_) continue;
     if (abs(p.pdgId()) != pId) continue;
 
-    // Determine if it's a last copy
-    bool bDecaysToSelf = false;
-
+    // Get the daughters of the genParticle
     const reco::GenParticleRefVector& daughters = p.daughterRefVector();
 
-    for (const auto& d : daughters )
-      {
-       
-	if (abs(d->pdgId()) == pId)
-	  {
-	    bDecaysToSelf = true;
-	    break;
-	  }
+    // Determine if it's a last copy
+    bool bDecaysToSelf = false;
+    for (const auto& d : daughters) { 
+      if (abs(d->pdgId()) == pId) {
+	bDecaysToSelf = true;
+	break;
       }
-    
+    }
     if (bDecaysToSelf) continue;
     
-    // If it is a last copy keep it 
+    // Determine if it's a hadronic decay
+    bool bLeptonicDecay = false;
+    for (const auto& d : daughters) {
+      if (isLepton(d->pdgId())) {
+	bLeptonicDecay = true;
+	break;
+      }
+    }
+    if (bLeptonicDecay) continue;
+
+    // If it is a last copy and it is a hadronic decay keep it 
     indx.push_back(i);
-    pt.push_back(p.pt());
+    et.push_back(p.et());
     eta.push_back(p.eta());
     phi.push_back(p.phi());
     
@@ -392,6 +418,19 @@ std::vector<unsigned int> L1TkEGTausAnalyzer::findGenParticles(const edm::Handle
   }
 
   return indx;
+}
+
+
+bool L1TkEGTausAnalyzer::isLepton(unsigned int pdgId) {
+
+  bool islepton = false;
+  
+  // Check if the genParticle is e,mu or 
+  if ((fabs(pdgId) == 11) || (fabs(pdgId) == 12) || (fabs(pdgId) == 13) || (fabs(pdgId) == 14)) {
+    islepton = true;
+  }
+
+  return islepton;
 }
 
 //define this as a plug-in

@@ -223,9 +223,9 @@ L1TrkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     std::vector< L1TTStubRef > Stubs = trkIter-> getStubRefs();
     unsigned int NStubs              = Stubs.size();
 
-    if ( Pt   < cfg_tk_minPt ) continue;
-    if ( Eta  < cfg_tk_minEta ) continue;
-    if ( Eta  > cfg_tk_maxEta ) continue;
+    if ( Pt < cfg_tk_minPt ) continue;
+    if ( fabs(Eta) < cfg_tk_minEta ) continue;
+    if ( fabs(Eta) > cfg_tk_maxEta ) continue;
     if ( Chi2 > cfg_tk_maxChiSq ) continue;
     if ( NStubs < cfg_tk_minStubs ) continue;
 
@@ -266,8 +266,8 @@ L1TrkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     unsigned int iNStubs              = iStubs.size();
 
     // Apply seed track cuts
-    if ( iPt   < cfg_seedtk_minPt ) continue;
-    if ( iEta  > cfg_seedtk_maxEta ) continue;
+    if ( iPt < cfg_seedtk_minPt ) continue;
+    if ( fabs(iEta) > cfg_seedtk_maxEta ) continue;
     if ( iChi2 > cfg_seedtk_maxChiSq ) continue;
     if ( iNStubs < cfg_seedtk_minStubs ) continue;
     
