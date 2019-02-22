@@ -11,6 +11,7 @@
 #include "CondCore/Utilities/interface/PayloadInspectorModule.h"
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
+#include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
@@ -147,12 +148,12 @@ namespace {
   };
 
   /************************************************
-   occupancy style map
+   occupancy style map BPix
   *************************************************/
  
-  class SiPixelQualityMap : public cond::payloadInspector::PlotImage<SiPixelQuality> {
+  class SiPixelBPixQualityMap : public cond::payloadInspector::PlotImage<SiPixelQuality> {
   public:
-    SiPixelQualityMap () : cond::payloadInspector::PlotImage<SiPixelQuality>("SiPixelQuality Map"),
+    SiPixelBPixQualityMap () : cond::payloadInspector::PlotImage<SiPixelQuality>("SiPixelQuality Barrel Pixel Map"),
 			   m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())}
     {
       setSingleIov( true );
@@ -188,7 +189,7 @@ namespace {
 	    auto layer  = m_trackerTopo.pxbLayer(DetId(mod.DetID));
 	    auto ladder = m_trackerTopo.pxbLadder(DetId(mod.DetID));
 	    auto module = m_trackerTopo.pxbModule(DetId(mod.DetID));
-	    std::cout << layer << " " << ladder << " " << module << std::endl;
+	    //std::cout <<"layer:" << layer << " ladder:" << ladder << " module:" << module << std::endl;
 
 	    std::vector<std::pair<int,int> > rocsToMask = maskedBarrelRocsToBins(layer,ladder,module);
 	    for(const auto& bin : rocsToMask ){
@@ -209,7 +210,8 @@ namespace {
       canvas.Modified();
   
       for(unsigned int lay=1;lay<=4;lay++){
-	dress_occ_plot_bpix(canvas,h_bpix_occ[lay-1],lay);
+	//dress_occ_plot_bpix(canvas,h_bpix_occ[lay-1],lay);
+	SiPixelPI::dress_occup_plot(canvas,h_bpix_occ[lay-1],lay,0,1);
       }
 
       std::string fileName(m_imageFileName);
@@ -227,10 +229,13 @@ namespace {
       int nlad_list[4] = {6, 14, 22, 32};
       int nlad = nlad_list[layer-1];
 
-      int start_x = module<=4 ? ((module-1)*8)+1 : ((module-1)*8)+9;
+      int start_x = module<=4     ? ((module-1)*8)+1 : ((module-1)*8)+9;
       int start_y = ladder<nlad/2 ? ((ladder-1)*2)+1 : ((ladder-1)*2)+3 ;
-      int end_x   = start_y+8;
+      int end_x   = start_x+7;
       int end_y   = start_y+1;
+
+      //std::cout << module << " start_x:" << start_x << " end_x:" << end_x << std::endl;
+      //td::cout << ladder << " start_y:" << start_y << " end_y:" << end_y << std::endl;
 
       for(int bin_x=1;bin_x<=72;bin_x++){
 	for(int bin_y=1;bin_y<= (nlad*4+2);bin_y++){
@@ -248,9 +253,12 @@ namespace {
     void dress_occ_plot_bpix(TCanvas& canv,TH2D *h,int lay){
 
       canv.cd(lay);
+      
       gStyle->SetPadRightMargin(0.125);
+      gStyle->SetPalette(56);
 
       h->Draw("zcol");
+
       int phase      = 1;
       int half_shift = 1;
       unsigned int n_ladder[4] = {6, 14, 22, 32};
@@ -335,6 +343,80 @@ namespace {
   private:
     TrackerTopology m_trackerTopo;
   };
+
+  /************************************************
+   occupancy style map FPix
+  *************************************************/
+ 
+  class SiPixelFPixQualityMap : public cond::payloadInspector::PlotImage<SiPixelQuality> {
+  public:
+    SiPixelFPixQualityMap () : cond::payloadInspector::PlotImage<SiPixelQuality>("SiPixelQuality Forward Pixel Map"),
+			   m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())}
+    {
+      setSingleIov( true );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      auto iov = iovs.front();
+      std::shared_ptr<SiPixelQuality> payload = fetchPayload( std::get<1>(iov));
+
+      static const int n_rings = 2;
+      std::array<TH2D*,n_rings> h_fpix_occ;
+      int divide_roc = 1;
+
+      // ---------------------    BOOK HISTOGRAMS                                                                        
+      for(unsigned int ring=1;ring<=n_rings;ring++){
+
+        int   n = ring==1 ? 92 : 140;
+	float y = ring==1 ? 11.5 : 17.5;
+	std::string name  = "occ_ring_" + std::to_string(ring);
+	std::string title = "; Disk # ; Blade/Panel #";
+                
+	h_fpix_occ[ring-1] = new TH2D(name.c_str(), title.c_str(), 
+				      56*divide_roc, -3.5, 3.5, 
+				      n*divide_roc, -y, y);
+      }
+      
+      auto theDisabledModules = payload->getBadComponentList();
+      for (const auto &mod : theDisabledModules){
+	int coded_badRocs = mod.BadRocs;
+	if(payload->IsModuleBad(mod.DetID)){
+	  int subid = DetId(mod.DetID).subdetId();
+	  if(subid==PixelSubdetector::PixelEndcap){
+	    //auto ring   = m_trackerTopo.pxf(DetId(mod.DetID));
+	    auto disk   = m_trackerTopo.pxfDisk(DetId(mod.DetID));
+	  //   //std::cout <<"layer:" << layer << " ladder:" << ladder << " module:" << module << std::endl;
+	  //   //std::vector<std::pair<int,int> > rocsToMask = maskedForwardRocsToBins(layer,ladder,module);
+	  //   // for(const auto& bin : rocsToMask ){
+	  //   //  h_fpix_occ[layer-1]->SetBinContent(bin.first,bin.second,1);
+	  //}
+	  }
+	}
+	std::bitset<16> bad_rocs(coded_badRocs);	  
+      }
+   
+      gStyle->SetOptStat(0);
+      //=========================
+      TCanvas canvas("Summary","Summary",1200,600);
+      canvas.Divide(2,1);
+      canvas.SetBottomMargin(0.11);
+      canvas.SetLeftMargin(0.13);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+  
+      for(unsigned int ring=1;ring<=n_rings;ring++){
+	SiPixelPI::dress_occup_plot(canvas,h_fpix_occ[ring-1],0,ring,1);
+      }
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  private:
+    TrackerTopology m_trackerTopo;
+  };
+
 } // namespace
 
 // Register the classes as boost python plugin
@@ -342,5 +424,6 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelQuality){
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityTest);
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsSummary);
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsTimeHistory);
-  PAYLOAD_INSPECTOR_CLASS(SiPixelQualityMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelBPixQualityMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelFPixQualityMap);
 }
