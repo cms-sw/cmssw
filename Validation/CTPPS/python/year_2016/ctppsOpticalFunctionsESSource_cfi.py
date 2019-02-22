@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 from CalibPPS.ESProducers.ctppsOpticalFunctionsESSource_cfi import ctppsOpticalFunctionsESSource as _optics_tmp
 
 ctppsOpticalFunctionsESSource = _optics_tmp.clone(
+    validityRange = cms.EventRange("270293:min - 290872:max"),
+
     opticalFunctions = cms.VPSet(
         cms.PSet( xangle = cms.double(185), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions_2016.root") )
     ),
