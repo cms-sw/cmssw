@@ -73,8 +73,8 @@ private:
   void checkEfficiency(const T1 & tkObjCollection);
   template<class T1> 
   void checkRate(const T1 & tkObjCollection);
-
-  std::vector<unsigned int> findGenParticles(const edm::Handle<reco::GenParticleCollection>& genH, std::vector<float>& et, std::vector<float>& eta, std::vector<float>& phi );
+  std::vector<unsigned int> findGenParticles(const edm::Handle<reco::GenParticleCollection>& genH, std::vector<float>& etVis, std::vector<float>& et, std::vector<float>& eta, std::vector<float>& phi );
+  math::XYZTLorentzVector GetVisP4(reco::GenParticle p);
   bool isLepton(unsigned int pdgId);
 
   /////////////////////////////////////////////////////
@@ -82,6 +82,7 @@ private:
   /////////////////////////////////////////////////////
 
   // Gen Particles 
+  TH1F* etVisGenL1Obj;
   TH1F* etGenL1Obj;
   TH1F* etaGenL1Obj;
   TH1F* phiGenL1Obj;
@@ -102,7 +103,7 @@ private:
   TH1F* effL1TrkObj;
 
   // TH2
-  TH2F* etGenVsL1TrkObj;
+  TH2F* etL1TrkObjVsGen;
 
   /////////////////////////////////////////////////////
   // Variables Definitions
@@ -128,6 +129,7 @@ private:
 
   // Gen Particles Properties 
   std::vector<unsigned int> genIndices;
+  std::vector<float > genEtsVis;
   std::vector<float > genEts;
   std::vector<float > genEtas;
   std::vector<float > genPhis;
@@ -169,9 +171,10 @@ void L1TausAnalyzer::beginJob() {
   if (analysisOption_ == "Efficiency") {
     
     // Gen Particles
-    etGenL1Obj  = fs->make<TH1F>("GenEt", "GenEt", 200, 0.5, 200.5);
-    etaGenL1Obj = fs->make<TH1F>("GenEta", "GenEta", 90, -4.5, 4.5);
-    phiGenL1Obj = fs->make<TH1F>("GenPhi","GenPhi", 64, -3.2, 3.2);
+    etVisGenL1Obj = fs->make<TH1F>("GenEtVis", "GenEtVis", 200, 0.5, 200.5);
+    etGenL1Obj    = fs->make<TH1F>("GenEt", "GenEt", 200, 0.5, 200.5);
+    etaGenL1Obj   = fs->make<TH1F>("GenEta", "GenEta", 90, -4.5, 4.5);
+    phiGenL1Obj   = fs->make<TH1F>("GenPhi","GenPhi", 64, -3.2, 3.2);
 
     // L1 Matched objects
     etL1TrkObjMatched  = fs->make<TH1F>("EtMatched", "EtMatched", 200, 0.5, 200.5);
@@ -179,7 +182,7 @@ void L1TausAnalyzer::beginJob() {
     phiL1TrkObjMatched = fs->make<TH1F>("PhiMatched","PhiMatched", 64, -3.2, 3.2);
     
     // 2D Plots
-    etGenVsL1TrkObj = fs->make<TH2F>("GenEtVsEt", "GenEtVsEt", 200, 0.5, 200.5, 200, 0.5, 200.5);
+    etL1TrkObjVsGen = fs->make<TH2F>("EtVsGenEt", "EtVsGenEt", 200, 0.5, 200.5, 200, 0.5, 200.5);
     
     // Turn-on numerator plots
     etL1TrkObjTurnOn = fs->make<TH1F>("EtTurnOn", "EtTurnOn", 200, 0.5, 200.5);
@@ -219,10 +222,9 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   ievent++;  
   
-  // std::cout<<"************************************************"<<std::endl; //marina
-
   // Clear global vectors 
   genIndices.clear();
+  genEtsVis.clear();
   genEts.clear();
   genEtas.clear();
   genPhis.clear();
@@ -232,7 +234,7 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (analysisOption_ == "Efficiency") {
     edm::Handle<reco::GenParticleCollection> genParticleHandle;
     iEvent.getByToken(genToken, genParticleHandle);
-    genIndices = findGenParticles(genParticleHandle, genEts, genEtas, genPhis);
+    genIndices = findGenParticles(genParticleHandle, genEtsVis, genEts, genEtas, genPhis);
     
     // Check
     unsigned int nTrigTaus=0;
@@ -243,8 +245,7 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (bFoundAllTaus) nEvtsWithMaxHadTaus++;
     
   }
-  //std::cout <<"found: "<<bFoundAllTaus<< "   events: "<<nEvtsWithMaxHadTaus<<std::endl;
-
+  
   // TrkTau: start
   if (objectType_ == "TrkTau"){
 
@@ -311,7 +312,7 @@ void L1TausAnalyzer::endJob() {
 template<class T1> 
 void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
 
-  std::vector<unsigned int> matchedL1TkObjIndx;
+  std::vector<unsigned int> matchedL1TkObjIndices;
 
   // For-loop: All the gen objects in the event
   for (size_t i = 0; i < genIndices.size(); i++) {
@@ -329,7 +330,7 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
 
       // Get seed track properties
       L1TTTrackRefPtr seedTk = tkObjIter->getSeedTrk();
-      float seedPt  = seedTk->getMomentum().perp();
+      //float seedPt  = seedTk->getMomentum().perp();
       float seedEta = seedTk->getMomentum().eta();
       float seedPhi = seedTk->getMomentum().phi();
 
@@ -350,38 +351,39 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
     // Apply the matching dR criteria
     if (dRminTkObj < 0.3) {
       selectedL1TkObjTot++;
-      matchedL1TkObjIndx.push_back(indxTkObj);
+      matchedL1TkObjIndices.push_back(indxTkObj);
       
       // Fill histos with properties of the matched track objects 
       etL1TrkObjMatched->Fill(etTkObj);
       etaL1TrkObjMatched->Fill(etaTkObj);
       phiL1TrkObjMatched->Fill(phiTkObj);
       
-      etGenVsL1TrkObj->Fill(etTkObj, genEts.at(i)); //fix-me: change the order of the names etL1TrkObjVsGen
+      etL1TrkObjVsGen->Fill(etTkObj, genEts.at(i)); //fix-me: visible Et?
       
       // Fill turn-on numerator for a given Et threshold
       if (etTkObj > etThreshold_)  {
 	selectedL1TkObjEtTot++;
 	etL1TrkObjTurnOn->Fill(etTkObj);
-	etGenObjTurnOn->Fill(genEts.at(i));
-	//std::cout<<"Fill numerator-----------------"<<genEts.at(i)<<std::endl; //marina
+	etGenObjTurnOn->Fill(genEtsVis.at(i));
       }
     }
-    // else { std::cout<< dRminTkObj <<std::endl;} //marina
-    
-    // std::cout << " Gen Info : eta, phi, Et " << genEtas.at(i) << " " <<  genPhis.at(i) << " " << genEts.at(i) << std::endl;
-    // std::cout << " L1TkObject Info : dR Gen , et " << dRminTkObj << " " << etTkObj << std::endl;
-    // std::cout << " Selected Candidate : L1TkObject, L1TkObjectEtThr " << selectedL1TkObjTot  << " " << selectedL1TkObjEtTot <<  std::endl;
-    
+
+    // Debug
+    if (0) {
+      std::cout << " Gen Info : eta, phi, Et " << genEtas.at(i) << " " <<  genPhis.at(i) << " " << genEts.at(i) << std::endl;
+      std::cout << " L1TkObject Info : dR Gen , et " << dRminTkObj << " " << etTkObj << std::endl;
+      std::cout << " Selected Candidate : L1TkObject, L1TkObjectEtThr " << selectedL1TkObjTot  << " " << selectedL1TkObjEtTot <<  std::endl;
+    }
+
   } // End-loop: All gen objects in the event
   
   // Calculate efficiency
-  if (matchedL1TkObjIndx.size() <= 0) return;
+  if (matchedL1TkObjIndices.size() <= 0) return;
   if (!bFoundAllTaus) return;
   
   // Find the ET of the leading matched L1TrkObj
   float maxEt = 0;
-  for (unsigned int i=0; i < matchedL1TkObjIndx.size(); i++) {
+  for (unsigned int i=0; i < matchedL1TkObjIndices.size(); i++) {
     if (tkObjCollection.at(i).et() > maxEt) maxEt = tkObjCollection.at(i).et();
   }
   // Fill and finalise efficiency histo 
@@ -421,8 +423,6 @@ void L1TausAnalyzer::finaliseEfficiencyHisto(TH1F* th, const int nEvtsTotal){
   
   const int nBinsX  = th->GetNbinsX()+1;
   double eff, err;
-  
-  // std::cout<< nBinsX << "  "<<nBinsY<<std::endl; //marina
 
   // For-loop: x-axis bins
   for (int i=0; i <= nBinsX; i++){
@@ -439,7 +439,7 @@ void L1TausAnalyzer::finaliseEfficiencyHisto(TH1F* th, const int nEvtsTotal){
 	eff = double(nPass)/double(nEvtsTotal);
 	err = (1.0/nEvtsTotal) * sqrt(nPass * (1.0 - nPass/nEvtsTotal) ); //Louise
       }
-      //std::cout<<eff<<std::endl;
+
       // Update current histo bin to true eff value and error
       th->SetBinContent(i, eff);
       th->SetBinError  (i, err);
@@ -451,8 +451,8 @@ void L1TausAnalyzer::finaliseEfficiencyHisto(TH1F* th, const int nEvtsTotal){
 }
 
 
-std::vector<unsigned int> L1TausAnalyzer::findGenParticles(const edm::Handle<reco::GenParticleCollection>& genH, std::vector<float>& et, std::vector<float>& eta, std::vector<float>& phi ) {
-  std::vector<unsigned int> indx;
+std::vector<unsigned int> L1TausAnalyzer::findGenParticles(const edm::Handle<reco::GenParticleCollection>& genH, std::vector<float>& etVis, std::vector<float>& et, std::vector<float>& eta, std::vector<float>& phi ) {
+  std::vector<unsigned int> indices;
   
   int pId = 0;
   
@@ -460,8 +460,10 @@ std::vector<unsigned int> L1TausAnalyzer::findGenParticles(const edm::Handle<rec
     {
       pId = 15;
     }
-  
+
+  // Get GenParticles collection 
   const reco::GenParticleCollection& genParticles = *genH;
+
   unsigned int i=0;
   for(const auto& p : genParticles) {
     i++;
@@ -494,20 +496,46 @@ std::vector<unsigned int> L1TausAnalyzer::findGenParticles(const edm::Handle<rec
     
     if (bLeptonicDecay) continue;
 
+    // Get visible P4 of genParticle
+    math::XYZTLorentzVector p4vis = GetVisP4(p);
+
     // If it is a last copy and it is a hadronic decay keep it 
-    indx.push_back(i);
+    indices.push_back(i);
+    etVis.push_back(p4vis.Et());
     et.push_back(p.et());
     eta.push_back(p.eta());
     phi.push_back(p.phi());
     
+    // Fill histos
+    etVisGenL1Obj->Fill(p4vis.Et()); 
     etGenL1Obj->Fill(p.et()); 
     etaGenL1Obj->Fill(p.eta());
     phiGenL1Obj->Fill(p.phi());
 
-    //std::cout<<"Fill gen!! ---"<< p.et() <<std::endl; //marina
   }
 
-  return indx;
+  return indices;
+}
+
+math::XYZTLorentzVector L1TausAnalyzer::GetVisP4(reco::GenParticle p) {
+
+  math::XYZTLorentzVector p4vis;
+  std::vector<unsigned int> nuIds;
+  nuIds.push_back(12);  // nu_e
+  nuIds.push_back(14);  // nu_mu
+  nuIds.push_back(16);  // nu_tau
+
+  // Get the daughters of the genParticle
+  const reco::GenParticleRefVector& daughters = p.daughterRefVector();
+
+  for (const auto& d : daughters) { 
+    // Skip if it's a neutrino
+    if ( std::find(nuIds.begin(), nuIds.end(), abs(d->pdgId()) ) != nuIds.end() ) continue;
+
+    p4vis += d->p4();                                                                                                                                                   
+  }
+
+  return p4vis;   
 }
 
 
