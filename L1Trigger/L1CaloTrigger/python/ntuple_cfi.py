@@ -9,3 +9,8 @@ ntuple_TTTracks = cms.PSet(
     NtupleName = cms.string('L1TriggerNtupleTrackTrigger'),
     TTTracks = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks")
 )
+
+ntuple_tkEle = cms.PSet(
+    NtupleName = cms.string('L1TriggerNtupleTkElectrons'),
+    TkElectrons = cms.InputTag("L1TkElectrons","EG")
+)
