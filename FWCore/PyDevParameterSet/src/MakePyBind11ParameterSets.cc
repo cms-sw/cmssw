@@ -35,7 +35,7 @@ namespace edm {
 
     std::unique_ptr<ParameterSet>
     readConfig(std::string const& config, int argc, char* argv[]) {
-      PyBind11ProcessDesc pythonProcessDesc(config);//, argc, argv);
+      PyBind11ProcessDesc pythonProcessDesc(config, argc, argv);
       return pythonProcessDesc.parameterSet();
     }
 
