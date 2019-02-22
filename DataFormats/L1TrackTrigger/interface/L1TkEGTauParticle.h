@@ -49,22 +49,11 @@ namespace l1t {
     virtual ~L1TkEGTauParticle() {}
       
     // ---------- const member functions ---------------------
-    /*
-    const edm::Ref< EGammaBxCollection >& getEGRef() const
-    { return egRef_ ; }
-    
-    const double l1RefEta() const
-    { return egRef_->eta() ; }
-    
-    const double l1RefPhi() const
-    { return egRef_->phi() ; }
-    
-    const double l1RefEt() const
-    { return egRef_->et() ; }
-    */
 
-    float getVtxIso() const { return vtxIso_ ; } 
-    
+    const L1TTTrackRefPtr getSeedTrk() const { return clustTracks_.at(0); }
+
+    float getVtxIso() const { return vtxIso_ ; }     
+
     // ---------- member functions ---------------------------
     
     void setVtxIso(float VtxIso)  { vtxIso_ = VtxIso ; }

@@ -46,19 +46,8 @@ namespace l1t {
     virtual ~L1TrkTauParticle() {}
       
     // ---------- const member functions ---------------------
-    /*
-    const edm::Ref< EGammaBxCollection >& getEGRef() const
-    { return egRef_ ; }
-    
-    const double l1RefEta() const
-    { return egRef_->eta() ; }
-    
-    const double l1RefPhi() const
-    { return egRef_->phi() ; }
-    
-    const double l1RefEt() const
-    { return egRef_->et() ; }
-    */
+
+    const L1TTTrackRefPtr getSeedTrk() const { return clustTracks_.at(0); }
 
     float getVtxIso() const { return vtxIso_ ; } 
     
