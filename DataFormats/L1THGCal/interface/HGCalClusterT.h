@@ -131,21 +131,17 @@ namespace l1t
           DetId id(id_constituent.first);
           auto id_fraction = constituentsFraction_.find(id_constituent.first);
           double fraction = (id_fraction!=constituentsFraction_.end() ? id_fraction->second : 1.);
-          if (id.det() == DetId::Forward && id.subdetId()==HGCEE) {
+          if ((id.det() == DetId::Forward && id.subdetId()==HGCEE) ||
+              (id.det() == DetId::HGCalEE) ||
+              (id.det() == DetId::HGCalTrigger && HGCalTriggerDetId(id).subdet()==HGCalTriggerSubdetector::HGCalEETrigger)
+              ) {
             pt_em += id_constituent.second->pt() * fraction;
-          } else if (id.det() == DetId::HGCalEE) {
-            pt_em += id_constituent.second->pt() * fraction;
-          } else if (id.det() == DetId::HGCalTrigger && HGCalTriggerDetId(id).subdet()==HGCalTriggerSubdetector::HGCalEETrigger) {
-            pt_em += id_constituent.second->pt() * fraction;
-          } else if(id.det() == DetId::Forward && id.subdetId()==HGCHEF) {
-            pt_had += id_constituent.second->pt() * fraction;
-          } else if( id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
-            pt_had += id_constituent.second->pt() * fraction;
-          } else if (id.det() == DetId::HGCalHSi) {
-            pt_had += id_constituent.second->pt() * fraction;
-          } else if (id.det() == DetId::HGCalHSc) {
-            pt_had += id_constituent.second->pt() * fraction;
-          } else if (id.det() == DetId::HGCalTrigger && HGCalTriggerDetId(id).subdet()==HGCalTriggerSubdetector::HGCalHSiTrigger) {
+          } else if((id.det() == DetId::Forward && id.subdetId()==HGCHEF) ||
+               (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) ||
+               (id.det() == DetId::HGCalHSi) ||
+               (id.det() == DetId::HGCalHSc) ||
+               (id.det() == DetId::HGCalTrigger && HGCalTriggerDetId(id).subdet()==HGCalTriggerSubdetector::HGCalHSiTrigger)
+              ) {
             pt_had += id_constituent.second->pt() * fraction;
           }
         }

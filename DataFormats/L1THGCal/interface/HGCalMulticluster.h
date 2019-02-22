@@ -26,6 +26,7 @@ namespace l1t {
       float hOverE() const { 
         // --- this below would be faster when reading old objects, as HoE will only be computed once, 
         // --- but it may not be allowed by CMS rules because of the const_cast
+        // --- and could potentially cause a data race
         // if (!hOverEValid_) (const_cast<HGCalMulticluster*>(this))->saveHOverE();
         // --- this below is safe in any case
         return hOverEValid_ ? hOverE_ : l1t::HGCalClusterT<l1t::HGCalCluster>::hOverE(); 
