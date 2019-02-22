@@ -36,7 +36,6 @@ TrackPUIDMVA::TrackPUIDMVA(std::string weights_file, bool is4D):
 float TrackPUIDMVA::operator() (const reco::TrackRef& trk, const reco::Vertex& vtx)
 {
     const auto& pattern = trk->hitPattern();                
-    
     std::get<1>(vars_[0]) = trk->pt();
     std::get<1>(vars_[1]) = trk->eta();
     std::get<1>(vars_[2]) = trk->phi();
@@ -64,8 +63,8 @@ float TrackPUIDMVA::operator() (const reco::TrackRef& trk, const reco::TrackRef&
                                 edm::ValueMap<float>& trk_lengths)
 {
   
-  const auto& pattern = !ext_trk.isNull() ? ext_trk->hitPattern() : trk->hitPattern();                
-  
+    //All 3d informations are taken from the 3D track for the moment
+    const auto& pattern = trk->hitPattern();                
     std::get<1>(vars_[0]) = trk->pt();
     std::get<1>(vars_[1]) = trk->eta();
     std::get<1>(vars_[2]) = trk->phi();
@@ -78,8 +77,10 @@ float TrackPUIDMVA::operator() (const reco::TrackRef& trk, const reco::TrackRef&
     std::get<1>(vars_[9]) = trk->numberOfValidHits();
     std::get<1>(vars_[10]) = pattern.numberOfValidPixelBarrelHits();
     std::get<1>(vars_[11]) = pattern.numberOfValidPixelEndcapHits();
-    std::get<1>(vars_[12]) = t0s.contains(trk.id()) ? std::abs(t0s[trk]-vtx.t()) : std::abs(-1-vtx.t());
+    std::get<1>(vars_[12]) = t0s.contains(trk.id()) ? t0s[trk]-vtx.t() : -1-vtx.t();
     std::get<1>(vars_[13]) = sigma_t0s.contains(trk.id()) ? sigma_t0s[trk] : -1;    
+
+    //MTD hit quality association and hit time from ext_trk
     std::get<1>(vars_[14]) = !ext_trk.isNull() ? btl_chi2s[ext_trk] : -1;
     std::get<1>(vars_[15]) = !ext_trk.isNull() ? btl_time_chi2s[ext_trk] : -1;    
     std::get<1>(vars_[16]) = !ext_trk.isNull() ? etl_chi2s[ext_trk] : -1;
