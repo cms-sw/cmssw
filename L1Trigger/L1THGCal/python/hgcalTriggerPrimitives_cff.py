@@ -13,7 +13,9 @@ hgcalTriggerPrimitives = cms.Sequence(hgcalVFEProducer*hgcalConcentratorProducer
 
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
+from L1Trigger.L1THGCal.customCalibration import  custom_cluster_calibration_global
 modifyHgcalTriggerPrimitivesWithV9Geometry_ = phase2_hgcalV9.makeProcessModifier(custom_geometry_V9)
+modifyHgcalTriggerPrimitivesCalibWithV9Geometry_ = phase2_hgcalV9.makeProcessModifier(lambda process : custom_cluster_calibration_global(process, factor=1))
 
 from Configuration.ProcessModifiers.convertHGCalDigisSim_cff import convertHGCalDigisSim
 # can't declare a producer version of simHGCalUnsuppressedDigis in the normal flow of things,
