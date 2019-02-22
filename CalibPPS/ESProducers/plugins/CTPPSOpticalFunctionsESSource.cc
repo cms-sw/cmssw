@@ -28,6 +28,9 @@ class CTPPSOpticalFunctionsESSource: public edm::ESProducer, public edm::EventSe
   private:
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 
+    edm::EventRange m_validityRange;
+    bool m_insideValidityRange;
+
     struct FileInfo
     {
       double xangle;
@@ -46,7 +49,9 @@ class CTPPSOpticalFunctionsESSource: public edm::ESProducer, public edm::EventSe
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
-CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::ParameterSet& conf)
+CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::ParameterSet& conf) :
+  m_validityRange(conf.getParameter<edm::EventRange>("validityRange")),
+  m_insideValidityRange(false)
 {
   for (const auto &pset : conf.getParameter<std::vector<edm::ParameterSet>>("opticalFunctions"))
   {
@@ -71,9 +76,30 @@ CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::Paramete
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSOpticalFunctionsESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
-                                                   const edm::IOVSyncValue& iosv, edm::ValidityInterval& oValidity)
+  const edm::IOVSyncValue& iosv, edm::ValidityInterval& oValidity)
 {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
+  if (edm::contains(m_validityRange, iosv.eventID()))
+  {
+    m_insideValidityRange = true;
+    oValidity = edm::ValidityInterval(edm::IOVSyncValue(m_validityRange.startEventID()), edm::IOVSyncValue(m_validityRange.endEventID()));
+  } else {
+    m_insideValidityRange = false;
+
+    if (iosv.eventID() < m_validityRange.startEventID())
+    {
+      edm::RunNumber_t run = m_validityRange.startEventID().run();
+      edm::LuminosityBlockNumber_t lb = m_validityRange.startEventID().luminosityBlock();
+      edm::EventID endEvent = (lb > 1) ? edm::EventID(run, lb-1, 0) : edm::EventID(run-1, edm::EventID::maxLuminosityBlockNumber(), 0);
+
+      oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue(endEvent));
+    } else {
+      edm::RunNumber_t run = m_validityRange.startEventID().run();
+      edm::LuminosityBlockNumber_t lb = m_validityRange.startEventID().luminosityBlock();
+      edm::EventID beginEvent = (lb < edm::EventID::maxLuminosityBlockNumber()-1) ? edm::EventID(run, lb+1, 0) : edm::EventID(run+1, 0, 0);
+
+      oValidity = edm::ValidityInterval(edm::IOVSyncValue(beginEvent), edm::IOVSyncValue::endOfTime());
+    }
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -84,17 +110,20 @@ CTPPSOpticalFunctionsESSource::produce(const CTPPSOpticsRcd &)
   // fill the output
   auto output = std::make_unique<LHCOpticalFunctionsSetCollection>();
 
-  for (const auto &fi : m_fileInfo)
+  if (m_insideValidityRange)
   {
-    std::unordered_map<unsigned int, LHCOpticalFunctionsSet> xa_data;
-
-    for (const auto &rpi : m_rpInfo)
+    for (const auto &fi : m_fileInfo)
     {
-      LHCOpticalFunctionsSet fcn(fi.fileName, rpi.second.dirName, rpi.second.scoringPlaneZ);
-      xa_data.emplace(rpi.first, std::move(fcn));
-    }
+      std::unordered_map<unsigned int, LHCOpticalFunctionsSet> xa_data;
 
-    output->emplace(fi.xangle, xa_data);
+      for (const auto &rpi : m_rpInfo)
+      {
+        LHCOpticalFunctionsSet fcn(fi.fileName, rpi.second.dirName, rpi.second.scoringPlaneZ);
+        xa_data.emplace(rpi.first, std::move(fcn));
+      }
+
+      output->emplace(fi.xangle, xa_data);
+    }
   }
 
   // commit the output
@@ -107,6 +136,8 @@ void
 CTPPSOpticalFunctionsESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
   edm::ParameterSetDescription desc;
+
+  desc.add<edm::EventRange>("validityRange", edm::EventRange())->setComment("interval of validity");
 
   edm::ParameterSetDescription of_desc;
   of_desc.add<double>("xangle")->setComment("half crossing angle value in urad");
