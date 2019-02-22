@@ -7,14 +7,18 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
 
-if not (stage2L1Trigger.isChosen()):
+def _print(ignored):
     print("L1T WARN:  L1REPACK:Full (intended for 2016 data) only supports Stage 2 eras for now.")
     print("L1T WARN:  Use a legacy version of L1REPACK for now.")
-else:
-    print("L1T INFO:  L1REPACK:Full (intended for 2016 & 2017 data) will unpack all L1T inputs, re-emulated (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output.")
+stage2L1Trigger.toModify(None, _print)
+(~stage2L1Trigger).toModify(None, lambda x: print("L1T INFO:  L1REPACK:Full (intended for 2016 & 2017 data) will unpack all L1T inputs, re-emulated (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output."))
 
 # First, Unpack all inputs to L1:
-    
+
+import EventFilter.Utilities.tcdsRawToDigi_cfi
+tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone(
+    InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
+
 import EventFilter.L1TRawToDigi.bmtfDigis_cfi
 unpackBmtf = EventFilter.L1TRawToDigi.bmtfDigis_cfi.bmtfDigis.clone(
     InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
@@ -141,6 +145,7 @@ rawDataCollector = EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi.rawD
 SimL1Emulator = cms.Sequence()
 stage2L1Trigger.toReplaceWith(SimL1Emulator, cms.Sequence(unpackEcal+unpackHcal+unpackCSC+unpackDT+unpackRPC+unpackRPCTwinMux+unpackTwinMux+unpackOmtf+unpackEmtf+unpackCsctf+unpackBmtf
                                                           +unpackLayer1
+                                                          +tcdsDigis
                                                           +SimL1EmulatorCore+packCaloStage2
                                                           +packGmtStage2+packGtStage2+rawDataCollector))
 
