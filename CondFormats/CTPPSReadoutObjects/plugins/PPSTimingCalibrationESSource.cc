@@ -72,6 +72,7 @@ PPSTimingCalibrationESSource::PPSTimingCalibrationESSource( const edm::Parameter
 edm::ESProducts<std::unique_ptr<PPSTimingCalibration> >
 PPSTimingCalibrationESSource::produce( const PPSTimingCalibrationRcd& )
 {
+  edm::LogInfo("ddd") << "---> " << (int)subdetector_;
   switch ( subdetector_ ) {
     case Detector::TOTEM_VERTICAL:
       return edm::es::products( parseTotemJsonFile() );
@@ -141,19 +142,26 @@ PPSTimingCalibrationESSource::parsePPSDiamondJsonFile() const
   const std::string formula = node.get<std::string>( "formula" );
   PPSTimingCalibration::ParametersMap params;
   PPSTimingCalibration::TimingMap time_info;
+  edm::LogInfo("cc") << formula << std::endl;
 
   for ( pt::ptree::value_type& par : node.get_child( "Parameters.Sectors" ) ) {
     PPSTimingCalibration::Key key;
     key.db = par.second.get<int>( "sector" );
+    edm::LogInfo("bb") << key.db << std::endl;
 
     for ( pt::ptree::value_type& pl : par.second.get_child( "Planes" ) ) {
       key.sampic = pl.second.get<int>( "plane" );
       for ( pt::ptree::value_type& ch : pl.second.get_child( "Channels" ) ) {
         key.channel = ch.second.get<int>( "channel" );
+        key.cell = -1;
+        double timeOffset = ch.second.get<double>( "time_offset" );
+        double timePrecision = ch.second.get<double>( "time_precision" );
+        time_info[key] = { timeOffset, timePrecision };
         std::vector<double> values;
         for ( pt::ptree::value_type& param : ch.second.get_child( "param" ) )
           values.emplace_back( std::stod( param.second.data(), nullptr ) );
         params[key] = values;
+        edm::LogInfo("aa") << key << "|" << values[0];
       }
     }
   }

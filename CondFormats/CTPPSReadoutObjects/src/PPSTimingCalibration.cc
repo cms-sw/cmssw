@@ -63,6 +63,8 @@ PPSTimingCalibration::timePrecision( int db, int sampic, int channel ) const
   return out->second.second;
 }
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 std::ostream&
 operator<<( std::ostream& os, const PPSTimingCalibration& data )
 {
