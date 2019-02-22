@@ -39,7 +39,7 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
 
   /// Constructor
   HGCalValidator(const edm::ParameterSet& pset);
-  
+
   /// Destructor
   ~HGCalValidator() override;
 
@@ -48,8 +48,8 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
   void dqmAnalyze(const edm::Event&, const edm::EventSetup&, const Histograms& ) const override;
   /// Method called to book the DQM histograms
   void bookHistograms(DQMStore::ConcurrentBooker&, edm::Run const&, edm::EventSetup const&, Histograms&) const override;
-  
-  void cpParametersAndSelection(const Histograms& histograms, std::vector<CaloParticle> const & cPeff, std::vector<SimVertex> const & simVertices, std::vector<size_t>& selected_cPeff) const; 
+
+  void cpParametersAndSelection(const Histograms& histograms, std::vector<CaloParticle> const & cPeff, std::vector<SimVertex> const & simVertices, std::vector<size_t>& selected_cPeff) const;
 
 
  protected:
@@ -73,14 +73,17 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
 
  private:
 
-  CaloParticleSelector cpSelector; 
+  void fillHitMap(std::map<DetId, const HGCRecHit * > &,
+      const HGCRecHitCollection &,
+      const HGCRecHitCollection &,
+      const HGCRecHitCollection &) const;
+  CaloParticleSelector cpSelector;
   std::shared_ptr<hgcal::RecHitTools> tools_;
   std::map<double, double> cummatbudg;
   std::vector<int> particles_to_monitor_;
   unsigned totallayers_to_monitor_;
   std::vector<int> thicknesses_to_monitor_;
   std::string dirName_;
-
 };
 
 
