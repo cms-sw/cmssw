@@ -1,4 +1,4 @@
-1;4205;0c// -*- C++ -*-
+// -*- C++ -*-
 //
 // Package:    L1TausAnalyzer
 // Class:      L1TausAnalyzer
@@ -161,7 +161,7 @@ void L1TausAnalyzer::beginJob() {
 
   // L1 Objects
   nL1TrkObj = fs->make<TH1F>("Multiplicity","Multiplicity", 50, -0.5, 49.5);
-  etL1TrkObj  = fs->make<TH1F>("Et", "Et", 20, 0.5, 200.5);
+  etL1TrkObj  = fs->make<TH1F>("Et", "Et", 200, 0.5, 200.5);
   etaL1TrkObj = fs->make<TH1F>("Eta","Eta", 90, -4.5, 4.5);
   phiL1TrkObj = fs->make<TH1F>("Phi","Phi", 64, -3.2, 3.2);
   
@@ -169,29 +169,29 @@ void L1TausAnalyzer::beginJob() {
   if (analysisOption_ == "Efficiency") {
     
     // Gen Particles
-    etGenL1Obj  = fs->make<TH1F>("GenEt", "GenEt", 20, 0.5, 200.5);
+    etGenL1Obj  = fs->make<TH1F>("GenEt", "GenEt", 200, 0.5, 200.5);
     etaGenL1Obj = fs->make<TH1F>("GenEta", "GenEta", 90, -4.5, 4.5);
     phiGenL1Obj = fs->make<TH1F>("GenPhi","GenPhi", 64, -3.2, 3.2);
 
     // L1 Matched objects
-    etL1TrkObjMatched  = fs->make<TH1F>("EtMatched", "EtMatched", 20, 0.5, 200.5);
+    etL1TrkObjMatched  = fs->make<TH1F>("EtMatched", "EtMatched", 200, 0.5, 200.5);
     etaL1TrkObjMatched = fs->make<TH1F>("EtaMatched","EtaMatched", 90, -4.5, 4.5);
     phiL1TrkObjMatched = fs->make<TH1F>("PhiMatched","PhiMatched", 64, -3.2, 3.2);
     
     // 2D Plots
-    etGenVsL1TrkObj = fs->make<TH2F>("GenEtVsEt", "GenEtVsEt", 20, 0.5, 200.5, 20, 0.5, 200.5);
+    etGenVsL1TrkObj = fs->make<TH2F>("GenEtVsEt", "GenEtVsEt", 200, 0.5, 200.5, 200, 0.5, 200.5);
     
     // Turn-on numerator plots
-    etL1TrkObjTurnOn = fs->make<TH1F>("EtTurnOn", "EtTurnOn", 20, 0.5, 200.5);
-    etGenObjTurnOn   = fs->make<TH1F>("GenEtTurnOn", "GenEtTurnOn", 20, 0.5, 200.5);
+    etL1TrkObjTurnOn = fs->make<TH1F>("EtTurnOn", "EtTurnOn", 200, 0.5, 200.5);
+    etGenObjTurnOn   = fs->make<TH1F>("GenEtTurnOn", "GenEtTurnOn", 200, 0.5, 200.5);
     
     // Efficiency plot
-    effL1TrkObj = fs->make<TH1F>("EtEfficiency", "EtEfficiency", 20, 0.5, 200.5);
+    effL1TrkObj = fs->make<TH1F>("EtEfficiency", "EtEfficiency", 200, 0.5, 200.5);
    
   } else {
     
     // Rate plot
-    etThrL1TrkObj = fs->make<TH1F>("EtThreshold", "EtThreshold", 20, 0.5, 200.5);
+    etThrL1TrkObj = fs->make<TH1F>("EtThreshold", "EtThreshold", 200, 0.5, 200.5);
   }
   
   selectedL1TkObjTot = 0;
@@ -219,7 +219,7 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   ievent++;  
   
-  //  std::cout<<"************************************************"<<std::endl; //marina
+  // std::cout<<"************************************************"<<std::endl; //marina
 
   // Clear global vectors 
   genIndices.clear();
@@ -296,10 +296,17 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void L1TausAnalyzer::endJob() {
-  std::cout << " Number of Selected " << objectType_ << " : "<< selectedL1TkObjTot << std::endl;
-  std::cout << " Number of Events Proccessed  " << ievent << std::endl;
-}
 
+  if (analysisOption_ == "Efficiency") {
+    // Finalise efficiency histogram
+    finaliseEfficiencyHisto(effL1TrkObj, nEvtsWithMaxHadTaus);
+    
+    // Print Efficiency Information
+    std::cout << " Number of Selected " << objectType_ << " : "<< selectedL1TkObjTot << std::endl;
+    std::cout << " Number of Events Proccessed  " << ievent << std::endl;
+  }
+  
+}
 
 template<class T1> 
 void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
@@ -379,8 +386,6 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
   }
   // Fill and finalise efficiency histo 
   fillIntegralHistos(effL1TrkObj, maxEt);
-  finaliseEfficiencyHisto(effL1TrkObj, nEvtsWithMaxHadTaus);
-
   return;
 }
 
@@ -413,21 +418,18 @@ void L1TausAnalyzer::fillIntegralHistos(TH1F* th, float var){
 }
 
 void L1TausAnalyzer::finaliseEfficiencyHisto(TH1F* th, const int nEvtsTotal){
-
+  
   const int nBinsX  = th->GetNbinsX()+1;
-  const int nBinsY  = th->GetNbinsY()+1;
   double eff, err;
   
-  //std::cout<< nBinsX << "  "<<nBinsY<<std::endl;
-  // For-loop: x-axis bins
-  for (int bx=0; bx <= nBinsX; bx++){
-    
-    // For-loop: y-axis bins
-    for (int by=0; by <= nBinsY; by++){
-      
-      const int nPass = th->GetBinContent(bx, by);
+  // std::cout<< nBinsX << "  "<<nBinsY<<std::endl; //marina
 
-      // Calculate the Efficiency
+  // For-loop: x-axis bins
+  for (int i=0; i <= nBinsX; i++){
+    
+    const int nPass = th->GetBinContent(i);
+    
+    // Calculate the Efficiency
       if (nEvtsTotal == 0)
 	{
 	  eff = 0.0;
@@ -437,13 +439,11 @@ void L1TausAnalyzer::finaliseEfficiencyHisto(TH1F* th, const int nEvtsTotal){
 	eff = double(nPass)/double(nEvtsTotal);
 	err = (1.0/nEvtsTotal) * sqrt(nPass * (1.0 - nPass/nEvtsTotal) ); //Louise
       }
-      
+      //std::cout<<eff<<std::endl;
       // Update current histo bin to true eff value and error
-      th->SetBinContent(bx, by, eff);
-      th->SetBinError  (bx, by, err);
+      th->SetBinContent(i, eff);
+      th->SetBinError  (i, err);
       
-    } // For-loop: y-axis bins
-    
   }// For-loop: x-axis bins
   
   return;
@@ -453,9 +453,9 @@ void L1TausAnalyzer::finaliseEfficiencyHisto(TH1F* th, const int nEvtsTotal){
 
 std::vector<unsigned int> L1TausAnalyzer::findGenParticles(const edm::Handle<reco::GenParticleCollection>& genH, std::vector<float>& et, std::vector<float>& eta, std::vector<float>& phi ) {
   std::vector<unsigned int> indx;
-
+  
   int pId = 0;
-
+  
   if ((objectType_ == "TkEG") || (objectType_ == "TrkTau"))
     {
       pId = 15;
@@ -465,7 +465,7 @@ std::vector<unsigned int> L1TausAnalyzer::findGenParticles(const edm::Handle<rec
   unsigned int i=0;
   for(const auto& p : genParticles) {
     i++;
-
+    
     if (fabs(p.eta()) > genEtaCutoff_ || p.pt() <= 0.0) continue;
     if (p.pt() < genPtThreshold_) continue;
     if (abs(p.pdgId()) != pId) continue;
