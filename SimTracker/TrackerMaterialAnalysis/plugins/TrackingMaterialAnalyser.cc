@@ -50,9 +50,12 @@ TrackingMaterialAnalyser::TrackingMaterialAnalyser(const edm::ParameterSet& iPSe
   m_saveParameters = iPSet.getParameter<bool>("SaveParameters");
   m_saveXml = iPSet.getParameter<bool>("SaveXML");
   m_isHGCal = iPSet.getParameter<bool>("isHGCal");
+  m_isHFNose = iPSet.getParameter<bool>("isHFNose");
   if (m_saveSummaryPlot) {
     if (m_isHGCal) {
       m_plotter = new TrackingMaterialPlotter(550., 300., 10);
+    } else if (m_isHFNose) {
+      m_plotter = new TrackingMaterialPlotter(1200., 350., 10);
     } else {
       m_plotter = new TrackingMaterialPlotter(300., 120., 10);
     }  // 10x10 points per cm2

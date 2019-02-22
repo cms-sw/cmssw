@@ -41,6 +41,7 @@ private:
   bool m_saveParameters;
   bool m_saveXml;
   bool m_isHGCal;
+  bool m_isHFNose;
   std::vector<MaterialAccountingGroup *> m_groups;
   std::vector<std::string> m_groupNames;
   TrackingMaterialPlotter *m_plotter;
