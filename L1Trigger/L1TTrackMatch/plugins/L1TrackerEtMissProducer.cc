@@ -1,5 +1,6 @@
 // Original Author:  Emmanuelle Perez,40 1-A28,+41227671915,
 //         Created:  Tue Nov 12 17:03:19 CET 2013
+//Modified by Emily MacDonald, 30 Nov 2018
 
 // system include files
 #include <memory>
@@ -16,6 +17,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkEtMissParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkEtMissParticleFwd.h"
+#include "DataFormats/L1TVertex/interface/Vertex.h"
 
 // detector geometry
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -26,53 +28,54 @@
 using namespace l1t;
 
 class L1TrackerEtMissProducer : public edm::EDProducer {
-  public:
+public:
 
-    typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TTTrackType;
-    typedef std::vector< L1TTTrackType > L1TTTrackCollectionType;
+  typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TTTrackType;
+  typedef std::vector< L1TTTrackType > L1TTTrackCollectionType;
 
-    explicit L1TrackerEtMissProducer(const edm::ParameterSet&);
-    ~L1TrackerEtMissProducer();
+  explicit L1TrackerEtMissProducer(const edm::ParameterSet&);
+  ~L1TrackerEtMissProducer();
 
-  private:
-    virtual void beginJob() ;
-    virtual void produce(edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+private:
+  virtual void beginJob() ;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
-    // ----------member data ---------------------------
-    float maxZ0;	    // in cm
-    float DeltaZ;	    // in cm
-    float chi2Max;
-    float minPt;	    // in GeV
-    int nStubsmin;
-    int nStubsPSmin;  // minimum number of stubs in PS modules
-    float maxPt;	    // in GeV
-    int HighPtTracks; // saturate or truncate
-    bool doPtComp;
-    bool doTightChi2;
-    const edm::EDGetTokenT< L1TkPrimaryVertexCollection > pvToken;
-    const edm::EDGetTokenT<std::vector<TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
+  // ----------member data ---------------------------
+  float maxZ0;	    // in cm
+  float DeltaZ;	    // in cm
+  float maxEta;
+  float chi2dofMax;
+  float bendchi2Max;
+  float minPt;	    // in GeV
+  int nStubsmin;
+  int nStubsPSmin;  // minimum number of stubs in PS modules
+  float maxPt;	    // in GeV
+  int HighPtTracks; // saturate or truncate
+
+  const edm::EDGetTokenT< VertexCollection > pvToken;
+  const edm::EDGetTokenT<std::vector<TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
 };
 
 ///////////////
 //constructor//
 ///////////////
 L1TrackerEtMissProducer::L1TrackerEtMissProducer(const edm::ParameterSet& iConfig) :
-  pvToken(consumes<L1TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
-  trackToken(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag")))
+pvToken(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
+trackToken(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag")))
 {
   maxZ0 = (float)iConfig.getParameter<double>("maxZ0");
   DeltaZ = (float)iConfig.getParameter<double>("DeltaZ");
-  chi2Max = (float)iConfig.getParameter<double>("chi2Max");
+  chi2dofMax = (float)iConfig.getParameter<double>("chi2dofMax");
+  bendchi2Max = (float)iConfig.getParameter<double>("bendchi2Max");
   minPt = (float)iConfig.getParameter<double>("minPt");
   nStubsmin = iConfig.getParameter<int>("nStubsmin");
   nStubsPSmin = iConfig.getParameter<int>("nStubsPSmin");
   maxPt = (float)iConfig.getParameter<double>("maxPt");
+  maxEta = (float)iConfig.getParameter<double>("maxEta");
   HighPtTracks = iConfig.getParameter<int>("HighPtTracks");
-  doPtComp     = iConfig.getParameter<bool>("doPtComp");
-  doTightChi2 = iConfig.getParameter<bool>("doTightChi2");
 
-  produces<L1TkEtMissParticleCollection>("MET");
+  produces<L1TkEtMissParticleCollection>("trkMET");
 }
 
 //////////////
@@ -93,123 +96,107 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
   std::unique_ptr<L1TkEtMissParticleCollection> METCollection(new L1TkEtMissParticleCollection);
 
-  edm::Handle<L1TkPrimaryVertexCollection> L1VertexHandle;
+  edm::Handle<VertexCollection> L1VertexHandle;
   iEvent.getByToken(pvToken,L1VertexHandle);
-  std::vector<L1TkPrimaryVertex>::const_iterator vtxIter;
 
   edm::Handle<L1TTTrackCollectionType> L1TTTrackHandle;
   iEvent.getByToken(trackToken, L1TTTrackHandle);
   L1TTTrackCollectionType::const_iterator trackIter;
 
   if( !L1VertexHandle.isValid() ) {
-    LogError("L1TrackerEtMissProducer")<< "\nWarning: L1TkPrimaryVertexCollection not found in the event. Exit"<< std::endl;
+    LogError("L1TrackerEtMissProducer")<< "\nWarning: VertexCollection not found in the event. Exit"<< std::endl;
     return;
   }
 
   if( !L1TTTrackHandle.isValid() ) {
-    LogError("L1TrackerEtMissProducer")<< "\nWarning: L1TTTrackCollectionType not found in the event. Exit"<< std::endl;
+    LogError("L1TrackerEtMissProducer")<< "\nWarning: L1TTTrackCollection not found in the event. Exit"<< std::endl;
     return;
   }
 
-  int ivtx = 0;
-  for (vtxIter = L1VertexHandle->begin(); vtxIter != L1VertexHandle->end(); ++vtxIter) {
-    float zVTX = vtxIter -> getZvertex();
-    edm::Ref< L1TkPrimaryVertexCollection > vtxRef( L1VertexHandle, ivtx );
-    ivtx ++;
 
-    float sumPx = 0;
-    float sumPy = 0;
-    float etTot = 0;
-    double sumPx_PU = 0;
-    double sumPy_PU = 0;
-    double etTot_PU = 0;
+  float sumPx = 0;
+  float sumPy = 0;
+  float etTot = 0;
+  double sumPx_PU = 0;
+  double sumPy_PU = 0;
+  double etTot_PU = 0;
 
-    for (trackIter = L1TTTrackHandle->begin(); trackIter != L1TTTrackHandle->end(); ++trackIter) {
-      float pt = trackIter->getMomentum().perp();
-      float eta = trackIter->getMomentum().eta();
-      float chi2 = trackIter->getChi2();
-      float ztr  = trackIter->getPOCA().z();
+  float zVTX = L1VertexHandle->begin()->z0();
 
-      if (pt < minPt) continue;
-      if (fabs(ztr) > maxZ0 ) continue;
-      if (chi2 > chi2Max) continue;
+  for (trackIter = L1TTTrackHandle->begin(); trackIter != L1TTTrackHandle->end(); ++trackIter) {
+    float pt = trackIter->getMomentum().perp();
+    float phi = trackIter->getMomentum().phi();
+    float eta = trackIter->getMomentum().eta();
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = trackIter -> getStubRefs() ;
+    int nstubs = (int) theStubs.size();
 
-      float pt_rescale = 1;
-      if ( maxPt > 0 && pt > maxPt)  {
-        if (HighPtTracks == 0)  continue;	// ignore these very high PT tracks.
-        if (HighPtTracks == 1)  {
-          pt_rescale = maxPt / pt;	// will be used to rescale px and py
-          pt = maxPt;     // saturate
-        }
+    float chi2 = trackIter->getChi2();
+    float chi2dof = chi2 / (2*nstubs-4);
+    float bendchi2 = trackIter->getStubPtConsistency();
+    float z0  = trackIter->getPOCA().z();
+
+    if (pt < minPt) continue;
+    if (fabs(z0) > maxZ0) continue;
+    if (fabs(eta) > maxEta) continue;
+    if (chi2dof > chi2dofMax) continue;
+    if (bendchi2 > bendchi2Max) continue;
+
+    if ( maxPt > 0 && pt > maxPt)  {
+      if (HighPtTracks == 0)  continue;	// ignore these very high PT tracks: truncate
+      if (HighPtTracks == 1)  pt = maxPt; // saturate
+    }
+
+    int nPS = 0.;     // number of stubs in PS modules
+    // loop over the stubs
+    for (unsigned int istub=0; istub<(unsigned int)theStubs.size(); istub++) {
+      DetId detId( theStubs.at(istub)->getDetId() );
+      if (detId.det() == DetId::Detector::Tracker) {
+        if ( (detId.subdetId() == StripSubdetector::TOB && tTopo->tobLayer(detId) <= 3) || (detId.subdetId() == StripSubdetector::TID && tTopo->tidRing(detId) <= 9) ) nPS++;
       }
+    }
 
-      int nstubs = 0;
-      float nPS = 0.;     // number of stubs in PS modules
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = trackIter -> getStubRefs() ;
+    if (nstubs < nStubsmin) continue;
+    if (nPS < nStubsPSmin) continue;
 
-      int tmp_trk_nstub = (int) theStubs.size();
-      if ( tmp_trk_nstub < 0) continue;
-      // loop over the stubs
-      for (unsigned int istub=0; istub<(unsigned int)theStubs.size(); istub++) {
-        nstubs ++;
-        DetId detId( theStubs.at(istub)->getDetId() );
-        bool isPS = false;
-        if (detId.det() == DetId::Detector::Tracker) {
-          if (detId.subdetId() == StripSubdetector::TOB && tTopo->tobLayer(detId) <= 3)        isPS = true;
-          else if (detId.subdetId() == StripSubdetector::TID && tTopo->tidRing(detId) <= 9)  isPS = true;
-        }
-        if (isPS) nPS ++;
-      }
-      if (nstubs < nStubsmin) continue;
-      if (nPS < nStubsPSmin) continue;
+    // construct deltaZ cut to be based on track eta
+    if      ( fabs(eta)>=0   &&  fabs(eta)<0.7)  DeltaZ = 0.4;
+    else if ( fabs(eta)>=0.7 &&  fabs(eta)<1.0)  DeltaZ = 0.6;
+    else if ( fabs(eta)>=1.0 &&  fabs(eta)<1.2)  DeltaZ = 0.76;
+    else if ( fabs(eta)>=1.2 &&  fabs(eta)<1.6)  DeltaZ = 1.0;
+    else if ( fabs(eta)>=1.6 &&  fabs(eta)<2.0)  DeltaZ = 1.7;
+    else if ( fabs(eta)>=2.0 &&  fabs(eta)<=2.4) DeltaZ = 2.2;
 
-      float trk_consistency = trackIter ->getStubPtConsistency();
-      float chi2dof = chi2 / (2*nstubs-4);
+    if ( fabs(z0 - zVTX) <= DeltaZ) {
+      sumPx += pt*cos(phi);
+      sumPy += pt*sin(phi);
+      etTot += pt ;
+    }
+    else {	// PU sums
+      sumPx_PU += pt*cos(phi);
+      sumPy_PU += pt*sin(phi);
+      etTot_PU += pt ;
+    }
+  } // end loop over tracks
 
-      if(doPtComp && nstubs==4) {
-        if (fabs(eta)<2.2 && trk_consistency>10) continue;
-        else if (fabs(eta)>2.2 && chi2dof>5.0) continue;
-      }
+  float et = sqrt( sumPx*sumPx + sumPy*sumPy );
+  double etmiss_PU = sqrt( sumPx_PU*sumPx_PU + sumPy_PU*sumPy_PU );
 
-      if(doTightChi2) {
-        if(pt>10.0 && chi2dof>5.0 ) continue;
-      }
+  math::XYZTLorentzVector missingEt( -sumPx, -sumPy, 0, et);
 
-      if ( fabs(ztr - zVTX) <= DeltaZ) {   // eg DeltaZ = 1 cm
-        sumPx += trackIter->getMomentum().x() * pt_rescale ;
-        sumPy += trackIter->getMomentum().y() * pt_rescale ;
-        etTot += pt ;
-      }
-      else {	// PU sums
-        sumPx_PU += trackIter->getMomentum().x() * pt_rescale ;
-        sumPy_PU += trackIter->getMomentum().y() * pt_rescale ;
-        etTot_PU += pt ;
-      }
-    } // end loop over tracks
+  int ibx = 0;
+  METCollection->push_back( L1TkEtMissParticle( missingEt,
+    L1TkEtMissParticle::kMET,
+    etTot,
+    etmiss_PU,
+    etTot_PU,
+    ibx ) );
 
-    float et = sqrt( sumPx*sumPx + sumPy*sumPy );
-    double etmiss_PU = sqrt( sumPx_PU*sumPx_PU + sumPy_PU*sumPy_PU );
-
-    math::XYZTLorentzVector missingEt( -sumPx, -sumPy, 0, et);
-
-    int ibx = 0;
-    METCollection->push_back( L1TkEtMissParticle( missingEt,
-      L1TkEtMissParticle::kMET,
-      etTot,
-      etmiss_PU,
-      etTot_PU,
-      vtxRef,
-      ibx ) );
-  } // end loop over vertices
-
-  iEvent.put( std::move(METCollection), "MET");
+  iEvent.put( std::move(METCollection), "trkMET");
 } // end producer
 
-// ------------ method called once each job just before starting event loop  ------------
 void L1TrackerEtMissProducer::beginJob() {
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
 void L1TrackerEtMissProducer::endJob() {
 }
 

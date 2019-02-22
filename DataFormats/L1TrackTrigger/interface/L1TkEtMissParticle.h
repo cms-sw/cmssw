@@ -25,6 +25,14 @@ namespace l1t {
         const edm::Ref< L1TkPrimaryVertexCollection >& aVtxRef = edm::Ref< L1TkPrimaryVertexCollection >(),
         int bx = 0 ) ;
 
+        L1TkEtMissParticle(
+          const LorentzVector& p4,
+          EtMissType type,
+          const double& etTotal,
+          const double& etMissPU,
+          const double& etTotalPU,
+          int bx = 0 ) ;
+
         // ---------- const member functions ---------------------
         EtMissType type() const { return type_ ; }  // kET or kHT
         // For type = kET, this is |MET|; for type = kHT, this is |MHT|
@@ -45,7 +53,7 @@ namespace l1t {
         int bx() const {
           return bx_;
         }
-        const edm::Ref< L1TkPrimaryVertexCollection >& getVtxRef() const {
+          const edm::Ref< L1TkPrimaryVertexCollection >& getVtxRef() const {
           return vtxRef_;
         }
 
