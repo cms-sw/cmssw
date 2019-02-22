@@ -584,7 +584,7 @@ baseDataSetRelease=[
     'CMSSW_10_2_0-102X_upgrade2018_realistic_v9_gcc7-v1',  #16 - GENSIM input 2018
     'CMSSW_10_2_8-102X_mc2017_realistic_v5_FastSim-v1',    # 17 - fastSim MinBias for mixing UP17
     'CMSSW_10_2_9-PU25ns_102X_mc2017_realistic_v5_FastSim-v1',# 18 - fastSim premixed MinBias UP17
-    'CMSSW_10_2_11_102X_upgrade2018_realistic_v15_FastSim-v1',    # 19 - fastSim MinBias for mixing UP18
+    'CMSSW_10_2_11-102X_upgrade2018_realistic_v15_FastSim-v1',    # 19 - fastSim MinBias for mixing UP18
     'CMSSW_10_2_11-PU25ns_102X_upgrade2018_realistic_v15_FastSim-v1',# 20 - fastSim premix library UP18 
     ]
 
