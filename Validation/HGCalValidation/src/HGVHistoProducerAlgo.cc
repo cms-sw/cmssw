@@ -152,6 +152,7 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, 
   //---------------------------------------------------------------------------------------------------------------------------
   for (unsigned ilayer = 0; ilayer < 2*layers; ++ilayer) {
     auto istr1 = std::to_string(ilayer);
+    while(istr1.size() < 2) {istr1.insert(0, "0");}
     //We will make a mapping to the regural layer naming plus z- or z+ for convenience
     std::string istr2 = "";
     //First with the -z endcap
@@ -205,6 +206,8 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, 
     for (unsigned ilayer = 0; ilayer < 2*layers; ++ilayer) {
       auto istr1 = std::to_string(*it);
       auto istr2 = std::to_string(ilayer);
+      while(istr2.size() < 2)
+        istr2.insert(0, "0");
       auto istr = istr1 + "_" + istr2;
       //We will make a mapping to the regural layer naming plus z- or z+ for convenience
       std::string istr3 = "";
