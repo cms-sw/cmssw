@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <memory>
+#include <variant>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -143,7 +144,8 @@ namespace edm {
     std::map<ParentageID,unsigned int> parentageIDs_;
     std::set<BranchID> branchesWithStoredHistory_;
     edm::propagate_const<TClass*> wrapperBaseTClass_;
-    std::vector<std::pair<EventAuxiliary, ProcessHistoryID>> eventAuxiliaryVector_;
+    using AuxVariant = std::variant<EventAuxiliary, LuminosityBlockAuxiliary, RunAuxiliary>;
+    std::vector<std::pair<AuxVariant, ProcessHistoryID>> auxiliaryVector_;
   };
 
 }

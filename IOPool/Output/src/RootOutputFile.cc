@@ -437,7 +437,7 @@ namespace edm {
     ProcessHistoryID reducedPHID = processHistoryRegistry_.reducedProcessHistoryID(e.processHistoryID());
 
     // save the EventAuxiliary record for writing at end
-    eventAuxiliaryVector_.emplace_back(*pEventAux_, reducedPHID);
+    auxiliaryVector_.emplace_back(*pEventAux_, reducedPHID);
 
     // Report event written
     Service<JobReport> reportSvc;
@@ -456,8 +456,7 @@ namespace edm {
     // Store the reduced ID in the IndexIntoFile
     ProcessHistoryID reducedPHID = processHistoryRegistry_.reducedProcessHistoryID(lb.processHistoryID());
     // Add lumi to index.
-    indexIntoFile_.addEntry(reducedPHID, lumiAux_.run(), lumiAux_.luminosityBlock(), 0U, lumiEntryNumber_);
-    ++lumiEntryNumber_;
+    auxiliaryVector_.emplace_back(lumiAux_, reducedPHID);
     fillBranches(InLumi, lb);
     lumiTree_.optimizeBaskets(10ULL*1024*1024);
 
@@ -477,9 +476,8 @@ namespace edm {
     // Store the reduced ID in the IndexIntoFile
     ProcessHistoryID reducedPHID = processHistoryRegistry_.reducedProcessHistoryID(r.processHistoryID());
     // Add run to index.
-    indexIntoFile_.addEntry(reducedPHID, runAux_.run(), 0U, 0U, runEntryNumber_);
+    auxiliaryVector_.emplace_back(runAux_, reducedPHID);
     r.mergeableRunProductMetadata()->addEntryToStoredMetadata(storedMergeableRunProductMetadata_);
-    ++runEntryNumber_;
     fillBranches(InRun, r);
     runTree_.optimizeBaskets(10ULL*1024*1024);
 
@@ -625,20 +623,29 @@ namespace edm {
     auto bname = BranchTypeToAuxiliaryBranchName(InEvent).c_str();
 
     tree->SetBranchStatus(bname, true);
-    auto basketsize = eventAuxiliaryVector_.size()*(sizeof(EventAuxiliary)+26); // 26 is an empirical fudge factor
+    auto basketsize = auxiliaryVector_.size()*(sizeof(EventAuxiliary)+26); // 26 is an empirical fudge factor
     tree->SetBasketSize(bname, basketsize);
     auto b = tree->GetBranch(bname);
 
-    assert(tree->GetEntries() == static_cast<Long64_t>(eventAuxiliaryVector_.size()));
     assert(b);
 
-    for (auto const& aux : eventAuxiliaryVector_) {
-      pEventAux_ = &aux.first;
+    for (auto const& aux : auxiliaryVector_) {
       // Add event to index
-      indexIntoFile_.addEntry(aux.second, pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
-      ++eventEntryNumber_;
-      // Fill EventAuxiliary branch
-      b->Fill();
+      if (std::holds_alternative<EventAuxiliary>(aux.first)) {
+        pEventAux_ = &std::get<EventAuxiliary>(aux.first);
+        indexIntoFile_.addEntry(aux.second, pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
+        ++eventEntryNumber_;
+        // Fill EventAuxiliary branch
+        b->Fill();
+      } else if (std::holds_alternative<LuminosityBlockAuxiliary>(aux.first)) {
+        lumiAux_ = std::get<LuminosityBlockAuxiliary>(aux.first);
+        indexIntoFile_.addEntry(aux.second, lumiAux_.run(), lumiAux_.luminosityBlock(), 0U, lumiEntryNumber_);
+        ++lumiEntryNumber_;
+      } else if (std::holds_alternative<RunAuxiliary>(aux.first)) {
+        runAux_ = std::get<RunAuxiliary>(aux.first);
+        indexIntoFile_.addEntry(aux.second, runAux_.run(), 0U, 0U, runEntryNumber_);
+        ++runEntryNumber_;
+      }
     }
   }
 
