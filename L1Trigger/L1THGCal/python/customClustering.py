@@ -91,8 +91,13 @@ def custom_3dclustering_histoMax(process,
     parameters_c3d.type_multicluster = cms.string('HistoMaxC3d')
     return process
 
+
+dr_layerbylayer = ([0] + # no layer 0
+        [0.010]*7 + [0.020]*7 + [0.030]*7 + [0.040]*7 + # EM
+        [0.040]*6 + [0.050]*6 + # FH
+        [0.050]*12) # BH
 def custom_3dclustering_histoMax_variableDr(process,
-        distances = ([0] + [0.010]*7 + [0.020]*7 + [0.030]*7 + [0.040]*7 +   [0.040]*6 + [0.050]*6  +  [0.050]*12),
+        distances = dr_layerbylayer,
         nBins_R = 36,
         nBins_Phi = 216,
         binSumsHisto = binSums,                        

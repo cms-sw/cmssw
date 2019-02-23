@@ -101,7 +101,6 @@ hgcalTriggerNtuplizer = cms.EDAnalyzer(
         ntuple_gentau,
         ntuple_digis,
         ntuple_triggercells,
-        ntuple_clusters,
         ntuple_multicluster,
         ntuple_tower
     )
