@@ -36,8 +36,6 @@
 
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
-#include "DataFormats/TCDS/interface/TCDSRecord.h"
-
 using namespace std;
 using namespace edm;
 using namespace l1t;
@@ -73,8 +71,6 @@ using namespace l1t;
 
     unsigned long long m_l1GtMenuCacheID;
     std::map<std::string, unsigned int> m_extBitMap;
-
-    edm::EDGetTokenT<TCDSRecord> tcdsRecordToken_;
   };
 
   //
@@ -86,8 +82,7 @@ using namespace l1t;
     setBptxAND_ (iConfig.getParameter<bool>("setBptxAND")),
     setBptxPlus_ (iConfig.getParameter<bool>("setBptxPlus")),
     setBptxMinus_ (iConfig.getParameter<bool>("setBptxMinus")),
-    setBptxOR_ (iConfig.getParameter<bool>("setBptxOR")),
-    tcdsRecordToken_(consumes<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel")))
+    setBptxOR_ (iConfig.getParameter<bool>("setBptxOR"))
   {
     // register what you produce
     produces<GlobalExtBlkBxCollection>();
@@ -133,51 +128,6 @@ using namespace l1t;
 	m_extBitMap = extBitMap;
     }
 
-    bool TriggerRulePrefireVetoBit(false);
-    if (iEvent.run() != 1){
-      // code taken from Nick Smith's EventFilter/L1TRawToDigi/plugins/TriggerRulePrefireVetoFilter.cc
-      edm::Handle<TCDSRecord> tcdsRecordH;
-      iEvent.getByToken(tcdsRecordToken_, tcdsRecordH);
-      const auto& tcdsRecord = *tcdsRecordH.product();
-
-      uint64_t thisEvent = (tcdsRecord.getBXID()-1) + tcdsRecord.getOrbitNr()*3564ull;
-
-      std::vector<uint64_t> eventHistory;
-      for (auto&& l1a : tcdsRecord.getFullL1aHistory()) {
-	eventHistory.push_back(thisEvent - ((l1a.getBXID()-1) + l1a.getOrbitNr()*3564ull));
-      }
-
-      // should be 16 according to TCDSRecord.h, we only care about the last 4
-      if ( eventHistory.size() < 4 ) {
-	edm::LogError("L1TExtCondProducer") << "Unexpectedly small L1A history from TCDSRecord";
-      }
-
-      // No more than 1 L1A in 3 BX
-      if ( eventHistory[0] < 3ull ) {
-	edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (1 in 3)";
-      }
-
-      if ( eventHistory[0] == 3ull ) TriggerRulePrefireVetoBit = true;
-
-      // No more than 2 L1As in 25 BX
-      if ( eventHistory[0] < 25ull and eventHistory[1] < 25ull ) {
-	edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (2 in 25)";
-      }
-      if ( eventHistory[0] < 25ull and eventHistory[1] == 25ull ) TriggerRulePrefireVetoBit = true;
-
-      // No more than 3 L1As in 100 BX
-      if ( eventHistory[0] < 100ull and eventHistory[1] < 100ull and eventHistory[2] < 100ull ) {
-	edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (3 in 100)";
-      }
-      if ( eventHistory[0] < 100ull and eventHistory[1] < 100ull and eventHistory[2] == 100ull ) TriggerRulePrefireVetoBit = true;
-
-      // No more than 4 L1As in 240 BX
-      if ( eventHistory[0] < 240ull and eventHistory[1] < 240ull and eventHistory[2] < 240ull and eventHistory[3] < 240ull ) {
-	edm::LogError("L1TExtCondProducer") << "Found an L1A in an impossible location?! (4 in 240)";
-      }
-      if ( eventHistory[0] < 240ull and eventHistory[1] < 240ull and eventHistory[2] < 240ull and eventHistory[3] == 240ull ) TriggerRulePrefireVetoBit = true;
-    }
-
     // Setup vectors
     GlobalExtBlk extCond_bx;
 
@@ -207,11 +157,6 @@ using namespace l1t;
     if( setBptxMinus_ && foundBptxMinus ) extCond_bx.setExternalDecision(m_extBitMap["BPTX_B2_VME"],true);
     if( setBptxOR_ && foundBptxOR ) extCond_bx.setExternalDecision(m_extBitMap["BPTX_OR_VME"],true);
 
-    // set the bit for the TriggerRulePrefireVeto if true
-    if (TriggerRulePrefireVetoBit)
-      extCond_bx.setExternalDecision(GlobalExtBlk::maxExternalConditions-1,true);
-
-
     // Fill Externals
     for( int iBx=bxFirst_; iBx<=bxLast_; iBx++ ){
       extCond->push_back(iBx, extCond_bx);
@@ -233,7 +178,6 @@ using namespace l1t;
     desc.add<bool>("setBptxOR", true);
     desc.add<int>("bxLast", 2);
     desc.add<bool>("setBptxPlus", true);
-    desc.add<edm::InputTag> ("tcdsRecordLabel", edm::InputTag("tcdsDigis","tcdsRecord"));
     descriptions.add("simGtExtFakeProd", desc);
   }
 
