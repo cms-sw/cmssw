@@ -35,7 +35,7 @@ public:
   virtual T* getObj() const = 0;
 
   virtual std::string getMetaDataString() const;
-  virtual bool checkForCompatibility( const std::string otherMetaData ) const { return otherMetaData != getMetaDataString(); }
+  virtual bool checkForCompatibility( const std::string& otherMetaData ) const { return otherMetaData != getMetaDataString(); }
 
   // additional methods needed for SiStripPopConDQMEDHarvester
   virtual void initES(const edm::EventSetup&) {}
