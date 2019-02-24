@@ -548,10 +548,10 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles (const Histograms& his
                 << "\t CP id: \t" << cpPair.first
                 << "\t score \t" << cpPair.second
                 << std::endl;
-      histograms.h_score_layercl2caloparticle_perlayer.at(lcLayerId%52+1).fill(cpPair.second);
+      histograms.h_score_layercl2caloparticle_perlayer.at(lcLayerId).fill(cpPair.second);
       auto const & cp_linked = cPOnLayer[cpPair.first][lcLayerId].layerClusterIdToEnergyAndScore[lcId];
-      histograms.h_sharedenergy_layercl2caloparticle_perlayer.at(lcLayerId%52+1).fill(cp_linked.first/clusters[lcId].energy());
-      histograms.h_energy_vs_score_layercl2caloparticle_perlayer.at(lcLayerId%52+1).fill(cpPair.second  > 1. ? 1. : cpPair.second, cp_linked.first/clusters[lcId].energy());
+      histograms.h_sharedenergy_layercl2caloparticle_perlayer.at(lcLayerId).fill(cp_linked.first/clusters[lcId].energy());
+      histograms.h_energy_vs_score_layercl2caloparticle_perlayer.at(lcLayerId).fill(cpPair.second  > 1. ? 1. : cpPair.second, cp_linked.first/clusters[lcId].energy());
     }
 
     auto assoc = std::count_if(
@@ -559,22 +559,22 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles (const Histograms& his
         std::end(cpsInLayerCluster[lcId]),
         [](const auto &obj){return obj.second < 0.1;});
     if (assoc) {
-      histograms.h_num_layercl_eta_perlayer.at(lcLayerId%52+1).fill(clusters[lcId].eta());
-      histograms.h_num_layercl_phi_perlayer.at(lcLayerId%52+1).fill(clusters[lcId].phi());
+      histograms.h_num_layercl_eta_perlayer.at(lcLayerId).fill(clusters[lcId].eta());
+      histograms.h_num_layercl_phi_perlayer.at(lcLayerId).fill(clusters[lcId].phi());
       if (assoc > 1) {
-        histograms.h_numMerge_layercl_eta_perlayer.at(lcLayerId%52+1).fill(clusters[lcId].eta());
-        histograms.h_numMerge_layercl_phi_perlayer.at(lcLayerId%52+1).fill(clusters[lcId].phi());
+        histograms.h_numMerge_layercl_eta_perlayer.at(lcLayerId).fill(clusters[lcId].eta());
+        histograms.h_numMerge_layercl_phi_perlayer.at(lcLayerId).fill(clusters[lcId].phi());
       }
       auto best = std::min_element(
           std::begin(cpsInLayerCluster[lcId]),
           std::end(cpsInLayerCluster[lcId]),
           [](const auto &obj1, const auto &obj2){return obj1.second < obj2.second;});
       auto const & best_cp_linked = cPOnLayer[best->first][lcLayerId].layerClusterIdToEnergyAndScore[lcId];
-      histograms.h_sharedenergy_layercl2caloparticle_vs_eta_perlayer.at(lcLayerId%52+1).fill(clusters[lcId].eta(), best_cp_linked.first/clusters[lcId].energy());
-      histograms.h_sharedenergy_layercl2caloparticle_vs_phi_perlayer.at(lcLayerId%52+1).fill(clusters[lcId].phi(), best_cp_linked.first/clusters[lcId].energy());
+      histograms.h_sharedenergy_layercl2caloparticle_vs_eta_perlayer.at(lcLayerId).fill(clusters[lcId].eta(), best_cp_linked.first/clusters[lcId].energy());
+      histograms.h_sharedenergy_layercl2caloparticle_vs_phi_perlayer.at(lcLayerId).fill(clusters[lcId].phi(), best_cp_linked.first/clusters[lcId].energy());
     }
-    histograms.h_denom_layercl_eta_perlayer.at(lcLayerId%52+1).fill(clusters[lcId].eta());
-    histograms.h_denom_layercl_phi_perlayer.at(lcLayerId%52+1).fill(clusters[lcId].phi());
+    histograms.h_denom_layercl_eta_perlayer.at(lcLayerId).fill(clusters[lcId].eta());
+    histograms.h_denom_layercl_phi_perlayer.at(lcLayerId).fill(clusters[lcId].phi());
   }
 
 
@@ -670,30 +670,30 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles (const Histograms& his
                   << lcPair.second.second << "\t"
                   << "shared energy:\t" << lcPair.second.first << "\t"
                   << "shared energy fraction:\t" << (lcPair.second.first/CPenergy) << std::endl;
-        histograms.h_score_caloparticle2layercl_perlayer.at(layerId%52+1).fill(lcPair.second.second > 1. ? 1. : lcPair.second.second);
-        histograms.h_sharedenergy_caloparticle2layercl_perlayer.at(layerId%52+1).fill(lcPair.second.first/CPenergy);
-        histograms.h_energy_vs_score_caloparticle2layercl_perlayer.at(layerId%52+1).fill(lcPair.second.second  > 1. ? 1. : lcPair.second.second, lcPair.second.first/CPenergy);
+        histograms.h_score_caloparticle2layercl_perlayer.at(layerId).fill(lcPair.second.second > 1. ? 1. : lcPair.second.second);
+        histograms.h_sharedenergy_caloparticle2layercl_perlayer.at(layerId).fill(lcPair.second.first/CPenergy);
+        histograms.h_energy_vs_score_caloparticle2layercl_perlayer.at(layerId).fill(lcPair.second.second  > 1. ? 1. : lcPair.second.second, lcPair.second.first/CPenergy);
       }
       auto assoc = std::count_if(
             std::begin(cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore),
             std::end(cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore),
             [](const auto &obj){return obj.second.second < 0.2;});
       if (assoc) {
-        histograms.h_num_caloparticle_eta_perlayer.at(layerId%52+1).fill(cP[cpId].g4Tracks()[0].momentum().eta());
-        histograms.h_num_caloparticle_phi_perlayer.at(layerId%52+1).fill(cP[cpId].g4Tracks()[0].momentum().phi());
+        histograms.h_num_caloparticle_eta_perlayer.at(layerId).fill(cP[cpId].g4Tracks()[0].momentum().eta());
+        histograms.h_num_caloparticle_phi_perlayer.at(layerId).fill(cP[cpId].g4Tracks()[0].momentum().phi());
         if (assoc > 1) {
-          histograms.h_numDup_caloparticle_eta_perlayer.at(layerId%52+1).fill(cP[cpId].g4Tracks()[0].momentum().eta());
-          histograms.h_numDup_caloparticle_phi_perlayer.at(layerId%52+1).fill(cP[cpId].g4Tracks()[0].momentum().phi());
+          histograms.h_numDup_caloparticle_eta_perlayer.at(layerId).fill(cP[cpId].g4Tracks()[0].momentum().eta());
+          histograms.h_numDup_caloparticle_phi_perlayer.at(layerId).fill(cP[cpId].g4Tracks()[0].momentum().phi());
         }
         auto best = std::min_element(
             std::begin(cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore),
             std::end(cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore),
               [](const auto &obj1, const auto &obj2){return obj1.second.second < obj2.second.second;});
-        histograms.h_sharedenergy_caloparticle2layercl_vs_eta_perlayer.at(layerId%52+1).fill(cP[cpId].g4Tracks()[0].momentum().eta(), best->second.first/CPenergy);
-        histograms.h_sharedenergy_caloparticle2layercl_vs_phi_perlayer.at(layerId%52+1).fill(cP[cpId].g4Tracks()[0].momentum().phi(), best->second.first/CPenergy);
+        histograms.h_sharedenergy_caloparticle2layercl_vs_eta_perlayer.at(layerId).fill(cP[cpId].g4Tracks()[0].momentum().eta(), best->second.first/CPenergy);
+        histograms.h_sharedenergy_caloparticle2layercl_vs_phi_perlayer.at(layerId).fill(cP[cpId].g4Tracks()[0].momentum().phi(), best->second.first/CPenergy);
       }
-      histograms.h_denom_caloparticle_eta_perlayer.at(layerId%52+1).fill(cP[cpId].g4Tracks()[0].momentum().eta());
-      histograms.h_denom_caloparticle_phi_perlayer.at(layerId%52+1).fill(cP[cpId].g4Tracks()[0].momentum().phi());
+      histograms.h_denom_caloparticle_eta_perlayer.at(layerId).fill(cP[cpId].g4Tracks()[0].momentum().eta());
+      histograms.h_denom_caloparticle_phi_perlayer.at(layerId).fill(cP[cpId].g4Tracks()[0].momentum().phi());
     }
   }
 }
