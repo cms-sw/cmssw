@@ -150,15 +150,17 @@ class HGVHistoProducerAlgo {
 
   //private data members
   double minEta, maxEta;  int nintEta; bool useFabsEta;
-  double minCaloEne, maxCaloEne;  int nintCaloEne;
-  double minCaloPt, maxCaloPt;  int nintCaloPt;
-  double minCaloPhi, maxCaloPhi;  int nintCaloPhi;
+  double minEne, maxEne;  int nintEne;
+  double minPt, maxPt;  int nintPt;
+  double minPhi, maxPhi;  int nintPhi;
   double minMixedHitsCluster, maxMixedHitsCluster;  int nintMixedHitsCluster;
   double minEneCl, maxEneCl;  int nintEneCl;
   double minLongDepBary, maxLongDepBary;  int nintLongDepBary;
   double minZpos, maxZpos; int nintZpos;
   double minTotNClsperlay, maxTotNClsperlay; int nintTotNClsperlay;
   double minEneClperlay, maxEneClperlay; int nintEneClperlay;
+  double minScore, maxScore; int nintScore;
+  double minSharedEneFrac,maxSharedEneFrac; int nintSharedEneFrac;
   double minTotNClsperthick, maxTotNClsperthick; int nintTotNClsperthick;
   double minTotNcellsperthickperlayer, maxTotNcellsperthickperlayer; int nintTotNcellsperthickperlayer;
   double minDisToSeedperthickperlayer, maxDisToSeedperthickperlayer; int nintDisToSeedperthickperlayer;
