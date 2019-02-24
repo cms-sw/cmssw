@@ -7,21 +7,22 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     nintEta = cms.int32(100),
     useFabsEta = cms.bool(False),
 
-    #parameters for calo particles energy 
-    minCaloEne  = cms.double(0.),
-    maxCaloEne  = cms.double(500.),
-    nintCaloEne = cms.int32(250),
+    #parameters for energy 
+    minEne  = cms.double(0.),
+    maxEne  = cms.double(500.),
+    nintEne = cms.int32(250),
 
-    #parameters for calo particles pt 
-    minCaloPt  = cms.double(0.),
-    maxCaloPt  = cms.double(100.),
-    nintCaloPt = cms.int32(100),
+    #parameters for pt 
+    minPt  = cms.double(0.),
+    maxPt  = cms.double(100.),
+    nintPt = cms.int32(100),
 
-    #parameters for calo particles phi
-    minCaloPhi  = cms.double(-4.),
-    maxCaloPhi  = cms.double(4.),
-    nintCaloPhi = cms.int32(100),
+    #parameters for phi
+    minPhi  = cms.double(-4.),
+    maxPhi  = cms.double(4.),
+    nintPhi = cms.int32(100),
 
+    #parameters for counting mixed hits clusters
     minMixedHitsCluster = cms.double(0.),
     maxMixedHitsCluster = cms.double(800.),
     nintMixedHitsCluster = cms.int32(100),
@@ -50,7 +51,23 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     minEneClperlay = cms.double(0.),
     maxEneClperlay = cms.double(110.),
     nintEneClperlay = cms.int32(110),
-                             
+
+    #Parameters for the score both for: 
+    #1. calo particle to layer clusters association per layer
+    #2. layer cluster to calo particles association per layer
+    minScore = cms.double(-1.01),
+    maxScore = cms.double(1.01),
+    nintScore = cms.int32(200),
+             
+    #Parameters for shared energy fraction. That is: 
+    #1. Fraction of each of the layer clusters energy related to a 
+    #   calo particle over that calo particle's energy.
+    #2. Fraction of each of the calo particles energy 
+    #   related to a layer cluster over that layer cluster's energy.
+    minSharedEneFrac = cms.double(0.),
+    maxSharedEneFrac = cms.double(1.),
+    nintSharedEneFrac = cms.int32(100),
+
     #Parameters for the total number of layer clusters per thickness
     minTotNClsperthick = cms.double(0.),
     maxTotNClsperthick = cms.double(800.),
