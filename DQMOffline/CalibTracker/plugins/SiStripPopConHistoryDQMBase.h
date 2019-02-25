@@ -14,7 +14,7 @@ public:
   ~SiStripPopConHistoryDQMBase() override;
   void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
   HDQMSummary* getObj() const override;
-  bool checkForCompatibility( const std::string& otherMetaData );
+  bool checkForCompatibility( const std::string& otherMetaData ) const override;
 private:
   std::unique_ptr<HDQMfitUtilities> fitME_;
   std::string MEDir_;
