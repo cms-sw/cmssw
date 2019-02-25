@@ -41,7 +41,7 @@ SkimBPark = cms.EDFilter('LeptonSkimming',
         PtMu_Cut=cms.double(0.0),QualMu_Cut=cms.double(0),
         MuTrgMuDz_Cut=cms.double(0.3),ElTrgMuDz_Cut=cms.double(0.3),
         SkimOnlyMuons=cms.bool(False), SkimOnlyElectrons=cms.bool(True),
-        BiasedWP=cms.double(-100), UnbiasedWP=cms.double(6.25),
+        BiasedWP=cms.double(-100), UnbiasedWP=cms.double(6.0),
         #trkobj pair related
         MaxMee_Cut=cms.double(500),EpairZvtx_Cut=cms.double(1000),
         MinMee_Cut=cms.double(0),Cosee_Cut=cms.double(-10.99),
