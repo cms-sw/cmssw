@@ -10,6 +10,6 @@
 
 #### Please fill the following checklist:
 
-- [ ] I have verified that this PR submission is really indended for the chosen branch
+- [ ] I have verified that this PR submission is really intended for the chosen branch
 - [ ] I have verified that changes follow [CMS Naming, Coding, And Style Rules](http://cms-sw.github.io/cms_coding_rules.html)
 - [ ] I have succesfully performed the basic test procedure suggested in the [CMSSW PR instructions](https://cms-sw.github.io/PRWorkflow.html)
