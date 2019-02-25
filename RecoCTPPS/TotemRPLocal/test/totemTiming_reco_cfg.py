@@ -15,7 +15,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 if calibrationMode == CalibrationMode.JSON:
     process.load('CondFormats.CTPPSReadoutObjects.ppsTimingCalibrationESSource_cfi')
