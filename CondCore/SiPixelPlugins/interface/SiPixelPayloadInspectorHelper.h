@@ -14,8 +14,81 @@
 #include "TPaveText.h"
 #include "TStyle.h"
 #include "TCanvas.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 
 namespace SiPixelPI {
+
+  //============================================================================                     
+  // Taken from pixel naming classes
+  // BmO (-z-x) = 1, BmI (-z+x) = 2 , BpO (+z-x) = 3 , BpI (+z+x) = 4
+  int quadrant(const DetId& detid, const TrackerTopology* tTopo_,bool phase_) {
+    if(detid.subdetId() == PixelSubdetector::PixelBarrel){
+      return PixelBarrelName(detid,tTopo_, phase_).shell();
+    } else {
+      return PixelEndcapName(detid,tTopo_, phase_).halfCylinder();
+    }
+  }
+
+  //============================================================================               
+  // Online ladder convention taken from pixel naming class for barrel
+  // Apply sign convention (- sign for BmO and BpO)
+  int signed_ladder(const DetId& detid, const TrackerTopology& tTopo_,bool phase_) {
+    if (detid.subdetId() != PixelSubdetector::PixelBarrel) return -9999;
+    int signed_ladder = PixelBarrelName(detid, &tTopo_, phase_).ladderName();
+    if (quadrant(detid,&tTopo_,phase_)%2) signed_ladder *= -1;
+    return signed_ladder;
+  }
+
+  //============================================================================               
+  // Online mdoule convention taken from pixel naming class for barrel
+  // Apply sign convention (- sign for BmO and BmI)
+  int signed_module(const DetId& detid,const TrackerTopology& tTopo_,bool phase_) {
+    if (detid.subdetId() != PixelSubdetector::PixelBarrel) return -9999;
+    int signed_module = PixelBarrelName(detid, &tTopo_, phase_).moduleName();
+    if (quadrant(detid,&tTopo_,phase_)<3) signed_module *= -1;
+    return signed_module;
+  }
+
+  //============================================================================               
+  // Phase 0: Ring was not an existing convention
+  //   but the 7 plaquettes were split by HV group
+  //   --> Derive Ring 1/2 for them
+  //   Panel 1 plq 1-2, Panel 2, plq 1   = Ring 1
+  //   Panel 1 plq 3-4, Panel 2, plq 2-3 = Ring 2
+  // Phase 1: Using pixel naming class for endcap
+  int ring(const DetId& detid,const TrackerTopology& tTopo_,bool phase_) {
+    if (detid.subdetId() != PixelSubdetector::PixelEndcap) return -9999;
+    int ring = -9999;
+    if (phase_==0) {
+      ring = 1 + (tTopo_.pxfPanel(detid)+tTopo_.pxfModule(detid)>3);
+    } else if (phase_==1) {
+      ring = PixelEndcapName(detid,&tTopo_, phase_).ringName();
+    }
+    return ring;
+  }
+
+  //============================================================================               
+  // Online blade convention taken from pixel naming class for endcap
+  // Apply sign convention (- sign for BmO and BpO)
+  int signed_blade(const DetId& detid,const TrackerTopology& tTopo_,bool phase_) {
+    if (detid.subdetId() != PixelSubdetector::PixelEndcap) return -9999;
+    int signed_blade = PixelEndcapName(detid,&tTopo_, phase_).bladeName();
+    if (quadrant(detid,&tTopo_,phase_)%2) signed_blade *= -1;
+    return signed_blade;
+  }
+
+  //============================================================================               
+  // Online disk convention
+  // Apply sign convention (- sign for BmO and BmI)
+  int signed_disk(const DetId& detid,const TrackerTopology& tTopo_,bool phase_) {
+    if (detid.subdetId() != PixelSubdetector::PixelEndcap) return -9999;
+    int signed_disk = tTopo_.pxfDisk(DetId(detid));
+    if (quadrant(detid,&tTopo_,phase_)<3) signed_disk *= -1;
+    return signed_disk;
+  }
 
   //============================================================================                     
   void draw_line(double x1, double x2, double y1, double y2, int width=2, int style=1, int color=1) {

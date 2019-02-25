@@ -186,12 +186,18 @@ namespace {
 	if(payload->IsModuleBad(mod.DetID)){
 	  int subid = DetId(mod.DetID).subdetId();
 	  if(subid==PixelSubdetector::PixelBarrel){
-	    auto layer  = m_trackerTopo.pxbLayer(DetId(mod.DetID));
-	    auto ladder = m_trackerTopo.pxbLadder(DetId(mod.DetID));
-	    auto module = m_trackerTopo.pxbModule(DetId(mod.DetID));
-	    //std::cout <<"layer:" << layer << " ladder:" << ladder << " module:" << module << std::endl;
 
-	    std::vector<std::pair<int,int> > rocsToMask = maskedBarrelRocsToBins(layer,ladder,module);
+	    auto layer  = m_trackerTopo.pxbLayer(DetId(mod.DetID));
+	    auto s_ladder = SiPixelPI::signed_ladder(DetId(mod.DetID),m_trackerTopo,1);
+	    auto s_module = SiPixelPI::signed_module(DetId(mod.DetID),m_trackerTopo,1);
+
+	    //auto ladder = m_trackerTopo.pxbLadder(DetId(mod.DetID));
+	    //auto module = m_trackerTopo.pxbModule(DetId(mod.DetID));
+	    // std::cout <<"layer:" << layer << " ladder:" << ladder << " module:" << module 
+	    //	         <<" signed ladder: "<< s_ladder
+	    //           <<" signed module: "<< s_module << std::endl;
+
+	    std::vector<std::pair<int,int> > rocsToMask = maskedBarrelRocsToBins(layer,s_ladder,s_module);
 	    for(const auto& bin : rocsToMask ){
 	      h_bpix_occ[layer-1]->SetBinContent(bin.first,bin.second,1);
 	    }
@@ -229,13 +235,15 @@ namespace {
       int nlad_list[4] = {6, 14, 22, 32};
       int nlad = nlad_list[layer-1];
 
-      int start_x = module<=4     ? ((module-1)*8)+1 : ((module-1)*8)+9;
-      int start_y = ladder<nlad/2 ? ((ladder-1)*2)+1 : ((ladder-1)*2)+3 ;
+      int start_x = module > 0 ? ((module+4)*8)+1     : ((4-(std::abs(module)))*8)+1;
+      int start_y = ladder > 0 ? ((ladder+nlad)*2)+1  : ((nlad-(std::abs(ladder)))*2)+1;
+
       int end_x   = start_x+7;
       int end_y   = start_y+1;
 
-      //std::cout << module << " start_x:" << start_x << " end_x:" << end_x << std::endl;
-      //td::cout << ladder << " start_y:" << start_y << " end_y:" << end_y << std::endl;
+      std::cout <<"module: " << module << " start_x:" << start_x << " end_x:" << end_x << std::endl;
+      std::cout <<"ladder: " << ladder << " start_y:" << start_y << " end_y:" << end_y << std::endl;
+      std::cout <<"==================================================================" << std::endl;
 
       for(int bin_x=1;bin_x<=72;bin_x++){
 	for(int bin_y=1;bin_y<= (nlad*4+2);bin_y++){
@@ -383,13 +391,17 @@ namespace {
 	if(payload->IsModuleBad(mod.DetID)){
 	  int subid = DetId(mod.DetID).subdetId();
 	  if(subid==PixelSubdetector::PixelEndcap){
-	    //auto ring   = m_trackerTopo.pxf(DetId(mod.DetID));
-	    auto disk   = m_trackerTopo.pxfDisk(DetId(mod.DetID));
-	  //   //std::cout <<"layer:" << layer << " ladder:" << ladder << " module:" << module << std::endl;
-	  //   //std::vector<std::pair<int,int> > rocsToMask = maskedForwardRocsToBins(layer,ladder,module);
-	  //   // for(const auto& bin : rocsToMask ){
-	  //   //  h_fpix_occ[layer-1]->SetBinContent(bin.first,bin.second,1);
-	  //}
+
+	    auto ring    =  SiPixelPI::ring(DetId(mod.DetID),m_trackerTopo,1);
+	    auto s_blade =  SiPixelPI::signed_blade(DetId(mod.DetID),m_trackerTopo,1); 
+	    auto s_disk  =  SiPixelPI::signed_disk(DetId(mod.DetID),m_trackerTopo,1);
+
+	    std::cout << "ring:" << ring << " blade: "<<s_blade<<" disk: "<<s_disk<<std::endl;
+
+	    std::vector<std::pair<int,int> > rocsToMask = maskedForwardRocsToBins(ring,s_blade,s_disk);	   
+	    for(const auto& bin : rocsToMask ){
+	     h_fpix_occ[ring-1]->SetBinContent(bin.first,bin.second,1);
+	    }
 	  }
 	}
 	std::bitset<16> bad_rocs(coded_badRocs);	  
@@ -410,9 +422,44 @@ namespace {
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
+      canvas.SaveAs("out.root");
 
       return true;
     }
+
+    // #============================================================================     
+    std::vector<std::pair<int,int> > maskedForwardRocsToBins(int ring, int blade, int disk){
+
+      std::vector<std::pair<int,int> > rocsToMask;
+
+      int nblade_list[2] = {11,17};
+      int nybins_list[2] = {92,140};
+      int nblade = nblade_list[ring-1];
+      int nybins = nybins_list[ring-1];
+
+      int start_x = disk  > 0 ? ((disk+3)*8)+1        : ((3-(std::abs(disk)))*8)+1;
+      int start_y = blade > 0 ? ((blade+nblade)*4)+3  : ((nblade-(std::abs(blade)))*4)+3;
+
+      int end_x   = start_x+7;
+      int end_y   = start_y+1;
+
+      std::cout <<"disk:  " << disk  << " start_x:" << start_x << " end_x:" << end_x << std::endl;
+      std::cout <<"blade: " << blade << " start_y:" << start_y << " end_y:" << end_y << std::endl;
+      std::cout <<"==================================================================" << std::endl;
+
+      for(int bin_x=1;bin_x<=56;bin_x++){
+	for(int bin_y=1;bin_y<=nybins;bin_y++){
+	  if(bin_x >= start_x && bin_x<=end_x && bin_y >= start_y && bin_y <=end_y){
+	    rocsToMask.push_back(std::make_pair(bin_x,bin_y));
+	  }
+	}
+      }
+      
+      return rocsToMask;
+
+    }
+
+
   private:
     TrackerTopology m_trackerTopo;
   };
