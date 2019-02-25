@@ -27,6 +27,10 @@ from DQM.L1TMonitor.L1TObjectsTiming_cfi import *
 # uGT
 from DQM.L1TMonitor.L1TStage2uGT_cff import *
 
+# CPPF 
+from DQM.L1TMonitor.L1TStage2CPPF_cff import *
+
+
 #-------------------------------------------------
 # Stage2 Unpacking and DQM Sequences
 
@@ -39,7 +43,8 @@ l1tStage2OnlineDQM = cms.Sequence(
     l1tStage2Emtf +
     l1tStage2uGMTOnlineDQMSeq +
     l1tObjectsTiming +
-    l1tStage2uGTOnlineDQMSeq
+    l1tStage2uGTOnlineDQMSeq +
+    l1tStage2cppf
 )
 
 # sequence to run only for validation events
