@@ -1,6 +1,6 @@
 #ifndef FWCore_Framework_EDProducer_h
 #define FWCore_Framework_EDProducer_h
-
+ 
 /*----------------------------------------------------------------------
 
 EDProducer: The base class of "modules" whose main purpose is to insert new
