@@ -108,6 +108,13 @@ phase2_SimL1Emulator += L1EGammaClusterEmuProducer
 from L1Trigger.L1CaloTrigger.l1EGammaEEProducer_cfi import * 
 phase2_SimL1Emulator += l1EGammaEEProducer
 
+#  CaloJets
+# ########################################################################
+from L1Trigger.L1CaloTrigger.L1TowerCalibrationProducer_cfi import *
+phase2_SimL1Emulator += L1TowerCalibrationProducer
+from L1Trigger.L1CaloTrigger.L1CaloJetProducer_cfi import *
+phase2_SimL1Emulator += L1CaloJetProducer
+
 # Barrel L1Tk + Stub
 # ########################################################################
 from L1Trigger.L1TTrackMatch.L1TTrackerPlusStubs_cfi import *
