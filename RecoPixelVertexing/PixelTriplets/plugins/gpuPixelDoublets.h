@@ -15,6 +15,12 @@
 #include "GPUCACell.h"
 #include "CAConstants.h"
 
+
+// useful for benchmark
+// #define ONLY_PHICUT
+// #define USE_ZCUT
+// #define NO_CLSCUT
+
 namespace gpuPixelDoublets {
 
   constexpr uint32_t MaxNumOfDoublets = CAConstants::maxNumberOfDoublets();  // not really relevant
@@ -32,10 +38,21 @@ namespace gpuPixelDoublets {
                          siPixelRecHitsHeterogeneousProduct::HitsOnGPU const &  __restrict__ hh,
                          GPUCACell::OuterHitOfCell * isOuterHitOfCell,
                          int16_t const * __restrict__ phicuts,
+#ifdef USE_ZCUT
                          float const * __restrict__ minz,
                          float const * __restrict__ maxz,
-                         float const * __restrict__ maxr)
+#endif
+                         float const * __restrict__ maxr, bool ideal_cond)
   {
+
+#ifndef NO_CLSCUT 
+    // ysize cuts (z in the barrel)  times 8
+    constexpr int minYsizeB1=36;
+    constexpr int minYsizeB2=28;
+    constexpr int maxDYsize12=28;
+    constexpr int maxDYsize=20;
+#endif
+
     auto layerSize = [=](uint8_t li) { return offsets[li+1]-offsets[li]; };
 
     // nPairsMax to be optimized later (originally was 64).
@@ -79,10 +96,33 @@ namespace gpuPixelDoublets {
       assert(i < offsets[inner+1]);
 
       // found hit corresponding to our cuda thread, now do the job
-      auto mep = iphi[i];
       auto mez = __ldg(hh.zg_d+i);
-      auto mer = __ldg(hh.rg_d+i);
 
+#ifdef USE_ZCUT
+     // this statement is responsible for a 10% slow down of the kernel once all following cuts are optimized...
+     if (mez<minz[pairLayerId] || mez>maxz[pairLayerId]) continue;
+#endif
+
+#ifndef NO_CLSCUT
+      auto mes = __ldg(hh.ysize_d+i);
+
+      // if ideal treat inner ladder as outer
+      auto mi = __ldg(hh.detInd_d+i);
+      if (inner==0) assert(mi<96);    
+      const bool isOuterLadder = ideal_cond ? true : 0 == (mi/8)%2; // only for B1/B2/B3 B4 is opposite, FPIX:noclue...
+
+      // auto mesx = __ldg(hh.xsize_d+i);
+      // if (mesx<0) continue; // remove edges in x as overlap will take care
+
+      if (inner==0 && outer>3 && isOuterLadder)  // B1 and F1
+         if (mes>0 && mes<minYsizeB1) continue; // only long cluster  (5*8)
+      if (inner==1 && outer>3)  // B2 and F1
+         if (mes>0 && mes<minYsizeB2) continue;
+#endif // NO_CLSCUT
+
+      auto mep = iphi[i];
+      auto mer = __ldg(hh.rg_d+i);
+ 
       constexpr float z0cut = 12.f;                     // cm
       constexpr float hardPtCut = 0.5f;                 // GeV
       constexpr float minRadius = hardPtCut * 87.78f;   // cm (1 GeV track has 1 GeV/c / (e * 3.8T) ~ 87 cm radius in a 3.8T field)
@@ -101,6 +141,16 @@ namespace gpuPixelDoublets {
         return dr > maxr[pairLayerId] ||
           dr<0 || std::abs((mez*ro - mer*zo)) > z0cut*dr;
       };
+
+#ifndef NO_CLSCUT
+      auto zsizeCut = [&](int j) {
+        auto onlyBarrel = outer<4;
+        auto so = __ldg(hh.ysize_d+j);
+        //auto sox = __ldg(hh.xsize_d+j);
+        auto dy = inner==0 ? ( isOuterLadder ? maxDYsize12: 100 ) : maxDYsize;
+        return onlyBarrel && mes>0 && so>0 && std::abs(so-mes)>dy;
+      };
+#endif
 
       auto iphicut = phicuts[pairLayerId];
 
@@ -131,7 +181,12 @@ namespace gpuPixelDoublets {
 
           if (std::min(std::abs(int16_t(iphi[oi]-mep)), std::abs(int16_t(mep-iphi[oi]))) > iphicut)
             continue;
+#ifndef ONLY_PHICUT
+#ifndef NO_CLSCUT
+          if (zsizeCut(oi)) continue;
+#endif
           if (z0cutoff(oi) || ptcut(oi)) continue;
+#endif
           auto ind = atomicAdd(nCells, 1); 
           if (ind>=MaxNumOfDoublets) {atomicSub(nCells, 1); break; } // move to SimpleVector??
           // int layerPairId, int doubletId, int innerHitId, int outerHitId)
@@ -158,14 +213,15 @@ namespace gpuPixelDoublets {
   void getDoubletsFromHisto(GPUCACell * cells,
                             uint32_t * nCells,
                             siPixelRecHitsHeterogeneousProduct::HitsOnGPU const *  __restrict__ hhp,
-                            GPUCACell::OuterHitOfCell * isOuterHitOfCell)
+                            GPUCACell::OuterHitOfCell * isOuterHitOfCell,
+                            bool ideal_cond)
   {
     constexpr int nPairs = 13;
     constexpr const uint8_t layerPairs[2*nPairs] = {
       0, 1,  1, 2,  2, 3,
-   // 0, 4,  1, 4,  2, 4,  4, 5,  5, 6,
-      0, 7,  1, 7,  2, 7,  7, 8,  8, 9,
-      0, 4,  1, 4,  2, 4,  4, 5,  5, 6
+      // 0, 4,  1, 4,  2, 4,  4, 5,  5, 6,
+      0, 7,  1, 7,  2, 7,  7, 8,  8, 9, // neg
+      0, 4,  1, 4,  2, 4,  4, 5,  5, 6,  // pos
     };
 
     constexpr int16_t phi0p05 = 522;    // round(521.52189...) = phi2short(0.05);
@@ -178,17 +234,19 @@ namespace gpuPixelDoublets {
       phi0p07, phi0p06, phi0p06, phi0p05, phi0p05
     };
 
+#ifdef USE_ZCUT
     float const minz[nPairs] = {
-      0., 0., 0.,
-      0., 0., 0., 0., 0.,
-      0., 0., 0., 0., 0.
+      -20., -22., -22.,
+      -30., -30.,-30., -70., -70.,
+        0., 10., 15., -70., -70.
     };
 
     float const maxz[nPairs] = {
-      20., 15., 12.,
-      30., 20., 20., 50., 50.,
-      30., 20., 20., 50., 50.
+      20., 22., 22.,
+       0., -10., -15., 70., 70.,
+      30., 30., 30., 70., 70.
     };
+#endif
 
     float const maxr[nPairs] = {
       20., 20., 20.,
@@ -200,7 +258,11 @@ namespace gpuPixelDoublets {
     doubletsFromHisto(layerPairs, nPairs, cells, nCells,
                       hh.iphi_d, *hh.hist_d, hh.hitsLayerStart_d,
                       hh, isOuterHitOfCell,
-                      phicuts, minz, maxz, maxr);
+                      phicuts, 
+#ifdef USE_ZCUT
+                      minz, maxz, 
+#endif
+                      maxr , ideal_cond);
   }
 
 

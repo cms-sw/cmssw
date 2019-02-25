@@ -30,7 +30,8 @@ CAHitQuadrupletGeneratorGPU::CAHitQuadrupletGeneratorGPU(
     const edm::ParameterSet &cfg,
     edm::ConsumesCollector &iC) : 
     kernels(cfg.getParameter<unsigned int>("minHitsPerNtuplet"), 
-            cfg.getParameter<bool>("earlyFishbone"),cfg.getParameter<bool>("lateFishbone")),
+            cfg.getParameter<bool>("earlyFishbone"),cfg.getParameter<bool>("lateFishbone"),
+            cfg.getParameter<bool>("idealConditions"), cfg.getParameter<bool>("fillStatistics")),
     fitter(cfg.getParameter<bool>("fit5as4")),
     caThetaCut(cfg.getParameter<double>("CAThetaCut")),
     caPhiCut(cfg.getParameter<double>("CAPhiCut")),
@@ -44,6 +45,8 @@ void CAHitQuadrupletGeneratorGPU::fillDescriptions(edm::ParameterSetDescription 
   desc.add<double>("CAHardPtCut", 0);
   desc.add<bool>("earlyFishbone",false);
   desc.add<bool>("lateFishbone",true);
+  desc.add<bool>("idealConditions",true),
+  desc.add<bool>("fillStatistics",false),
   desc.add<unsigned int>("minHitsPerNtuplet",4);
   desc.add<bool>("fit5as4",true);
 }

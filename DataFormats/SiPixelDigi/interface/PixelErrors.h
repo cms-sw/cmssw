@@ -12,8 +12,8 @@
 struct PixelErrorCompact {
   uint32_t rawId;
   uint32_t word;
-  unsigned char errorType;
-  unsigned char fedId;
+  uint8_t errorType;
+  uint8_t fedId;
 };
 
 using PixelFormatterErrors = std::map<cms_uint32_t, std::vector<SiPixelRawDataError>>;

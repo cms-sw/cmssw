@@ -8,8 +8,23 @@
 
 #include "GPUCACell.h"
 
+
+
+
 class CAHitQuadrupletGeneratorKernels {
 public:
+
+    // counters
+    struct Counters {
+      unsigned long long nEvents;
+      unsigned long long nHits;
+      unsigned long long nCells;
+      unsigned long long nTuples;
+      unsigned long long nGoodTracks;
+      unsigned long long nUsedHits;
+      unsigned long long nDupHits;
+      unsigned long long nKilledCells;
+    };
 
    using HitsOnGPU = siPixelRecHitsHeterogeneousProduct::HitsOnGPU;
    using HitsOnCPU = siPixelRecHitsHeterogeneousProduct::HitsOnCPU;
@@ -20,10 +35,13 @@ public:
    using TupleMultiplicity = CAConstants::TupleMultiplicity;
 
    CAHitQuadrupletGeneratorKernels(uint32_t minHitsPerNtuplet,
-    bool earlyFishbone, bool lateFishbone) :
+    bool earlyFishbone, bool lateFishbone, 
+    bool idealConditions, bool doStats) :
     minHitsPerNtuplet_(minHitsPerNtuplet),
     earlyFishbone_(earlyFishbone),
-    lateFishbone_(lateFishbone){}
+    lateFishbone_(lateFishbone),
+    idealConditions_(idealConditions),
+    doStats_(doStats){}
    ~CAHitQuadrupletGeneratorKernels() { deallocateOnGPU();}
 
 
@@ -37,8 +55,11 @@ public:
    void allocateOnGPU();
    void deallocateOnGPU();
    void cleanup(cudaStream_t cudaStream);
+   void printCounters() const;
 
 private:
+
+    Counters * counters_ = nullptr;
 
     // workspace
     GPUCACell* device_theCells_ = nullptr;
@@ -54,7 +75,8 @@ private:
     const uint32_t minHitsPerNtuplet_;
     const bool earlyFishbone_;
     const bool lateFishbone_;
-
+    const bool idealConditions_;
+    const bool doStats_;
 };
 
 #endif // RecoPixelVertexing_PixelTriplets_plugins_CAHitQuadrupletGeneratorKernels_h

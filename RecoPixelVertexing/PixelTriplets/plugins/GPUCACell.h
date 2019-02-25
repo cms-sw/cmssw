@@ -18,8 +18,8 @@
 class GPUCACell {
 public:
 
-  static constexpr int maxCellsPerHit = 128; // was 256
-  using OuterHitOfCell = GPU::VecArray< unsigned int, maxCellsPerHit>;
+  static constexpr int maxCellsPerHit = CAConstants::maxCellsPerHit();
+  using OuterHitOfCell = CAConstants::OuterHitOfCell;
 
 
   using Hits = siPixelRecHitsHeterogeneousProduct::HitsOnGPU;
@@ -93,7 +93,8 @@ public:
 
     auto r1 = otherCell.get_inner_r(hh);
     auto z1 = otherCell.get_inner_z(hh);
-    bool aligned = areAlignedRZ(r1, z1, ri, zi, ro, zo, ptmin, 0.003f); // 2.f*thetaCut); // FIXME tune cuts
+    auto isBarrel = otherCell.get_outer_detId(hh)<1184;
+    bool aligned = areAlignedRZ(r1, z1, ri, zi, ro, zo, ptmin, isBarrel ? 0.002f : 0.003f); // 2.f*thetaCut); // FIXME tune cuts
     return (aligned &&  dcaCut(hh, otherCell, otherCell.get_inner_detId(hh)<96 ? 0.15f : 0.25f, hardCurvCut));  // FIXME tune cuts
                             // region_origin_radius_plus_tolerance,  hardCurvCut));
   }
@@ -183,14 +184,19 @@ public:
       }
     } else {  // if long enough save...
       if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet-1) {
+#ifndef ALL_TRIPLETS
         // triplets accepted only pointing to the hole
-        if (tmpNtuplet.size()>=3 || hole(hh, cells[tmpNtuplet[0]])) {
+        if (tmpNtuplet.size()>=3 || hole(hh, cells[tmpNtuplet[0]]))
+#endif
+       {
           hindex_type hits[6]; auto nh=0U;
           for (auto c : tmpNtuplet) hits[nh++] = cells[c].theInnerHitId;
           hits[nh] = theOuterHitId; 
-          uint16_t it = foundNtuplets.bulkFill(apc,hits,tmpNtuplet.size()+1);
-          for (auto c : tmpNtuplet) cells[c].theTracks.push_back(it);
-          tupleMultiplicity.countDirect(tmpNtuplet.size()+1);
+          auto it = foundNtuplets.bulkFill(apc,hits,tmpNtuplet.size()+1);
+          if (it>=0)  { // if negative is overflow....
+            for (auto c : tmpNtuplet) cells[c].theTracks.push_back(it);
+            tupleMultiplicity.countDirect(tmpNtuplet.size()+1);
+          }
         }
       }
     }

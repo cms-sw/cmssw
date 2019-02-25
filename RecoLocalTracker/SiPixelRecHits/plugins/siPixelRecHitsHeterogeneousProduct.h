@@ -33,6 +33,9 @@ namespace siPixelRecHitsHeterogeneousProduct {
      uint16_t * sortIndex_d;
      uint16_t * mr_d;
      uint16_t * mc_d;
+     int16_t * xsize_d;
+     int16_t * ysize_d;
+
 
      using Hist = HistoContainer<int16_t,128,maxHits(),8*sizeof(int16_t),uint16_t,10>;
      Hist * hist_d;
