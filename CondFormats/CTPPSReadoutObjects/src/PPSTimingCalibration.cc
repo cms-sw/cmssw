@@ -63,8 +63,6 @@ PPSTimingCalibration::timePrecision( int db, int sampic, int channel ) const
   return out->second.second;
 }
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 std::ostream&
 operator<<( std::ostream& os, const PPSTimingCalibration& data )
 {
@@ -74,7 +72,6 @@ operator<<( std::ostream& os, const PPSTimingCalibration& data )
     for ( size_t i = 0; i < kv.second.size(); ++i )
       os << ( i > 0 ? ", " : "" ) << kv.second.at( i );
     PPSTimingCalibration::Key k = kv.first;
-    k.cell = -1;
     const auto& time = data.timeInfo_.at( k );
     os << "] " << time.first << " " <<  time.second << "\n";
   }

@@ -119,7 +119,7 @@ PPSTimingCalibrationESSource::parseTotemJsonFile() const
       time_info[key] = { timeOffset, timePrecision };
 
       int cell_ct = 0;
-      for ( pt::ptree::value_type &cell : board.second.get_child( "cells" ) ) {
+      for ( pt::ptree::value_type& cell : board.second.get_child( "cells" ) ) {
         std::vector<double> values;
         key.cell = cell_ct;
 
@@ -142,26 +142,28 @@ PPSTimingCalibrationESSource::parsePPSDiamondJsonFile() const
   const std::string formula = node.get<std::string>( "formula" );
   PPSTimingCalibration::ParametersMap params;
   PPSTimingCalibration::TimingMap time_info;
-  edm::LogInfo("cc") << formula << std::endl;
 
   for ( pt::ptree::value_type& par : node.get_child( "Parameters.Sectors" ) ) {
     PPSTimingCalibration::Key key;
     key.db = par.second.get<int>( "sector" );
-    edm::LogInfo("bb") << key.db << std::endl;
 
-    for ( pt::ptree::value_type& pl : par.second.get_child( "Planes" ) ) {
-      key.sampic = pl.second.get<int>( "plane" );
-      for ( pt::ptree::value_type& ch : pl.second.get_child( "Channels" ) ) {
-        key.channel = ch.second.get<int>( "channel" );
-        key.cell = -1;
-        double timeOffset = ch.second.get<double>( "time_offset" );
-        double timePrecision = ch.second.get<double>( "time_precision" );
-        time_info[key] = { timeOffset, timePrecision };
-        std::vector<double> values;
-        for ( pt::ptree::value_type& param : ch.second.get_child( "param" ) )
-          values.emplace_back( std::stod( param.second.data(), nullptr ) );
-        params[key] = values;
-        edm::LogInfo("aa") << key << "|" << values[0];
+    for ( pt::ptree::value_type& st : par.second.get_child( "Stations" ) ) {
+      key.sampic = st.second.get<int>( "station" );
+
+      for ( pt::ptree::value_type& pl : st.second.get_child( "Planes" ) ) {
+        key.channel = pl.second.get<int>( "plane" );
+
+        for ( pt::ptree::value_type& ch : pl.second.get_child( "Channels" ) ) {
+          key.cell = ch.second.get<int>( "channel" );
+          double timeOffset = ch.second.get<double>( "time_offset" );
+          double timePrecision = ch.second.get<double>( "time_precision" );
+          time_info[key] = { timeOffset, timePrecision };
+
+          std::vector<double> values;
+          for ( pt::ptree::value_type& param : ch.second.get_child( "param" ) )
+            values.emplace_back( std::stod( param.second.data(), nullptr ) );
+          params[key] = values;
+        }
       }
     }
   }

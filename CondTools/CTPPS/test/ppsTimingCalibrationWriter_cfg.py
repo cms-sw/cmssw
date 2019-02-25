@@ -11,15 +11,12 @@ process.source = cms.Source('EmptyIOVSource',
 
 # load calibrations from JSON file
 process.load('CondFormats.CTPPSReadoutObjects.ppsTimingCalibrationESSource_cfi')
-#process.ppsTimingCalibrationESSource.calibrationFile = cms.FileInPath('RecoCTPPS/TotemRPLocal/data/timing_offsets_ufsd_2018.dec18.cal.json')
 process.ppsTimingCalibrationESSource.calibrationFile = cms.FileInPath('DiamondCalibrationExample.json')
 process.ppsTimingCalibrationESSource.subDetector = cms.uint32(2)
 
 # output service for database
 process.load('CondCore.CondDB.CondDB_cfi')
-process.CondDB.connect = 'sqlite_file:totemTiming_calibration.sqlite' # SQLite output
-#process.CondDB.connect = 'oracle://cmsprep/TimingCalibration' # Oracle output
-#process.CondDB.connect = 'frontier://cmsfrontier.cern.ch:8000/FrontierPrep/TimingCalibration' # Frontier output
+process.CondDB.connect = 'sqlite_file:ppsDiamondTiming_calibration.sqlite' # SQLite output
 
 process.PoolDBOutputService = cms.Service('PoolDBOutputService',
     process.CondDB,
@@ -27,7 +24,7 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
     toPut = cms.VPSet(
         cms.PSet(
             record = cms.string('PPSTimingCalibrationRcd'),
-            tag = cms.string('TotemTimingCalibration'),
+            tag = cms.string('PPSDiamondTimingCalibration'),
         )
     )
 )
