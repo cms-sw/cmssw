@@ -14,7 +14,7 @@ SiStripPopConHistoryDQMBase::~SiStripPopConHistoryDQMBase()
   edm::LogInfo("SiStripHistoryDQMService") <<  "[SiStripHistoryDQMService::~SiStripHistoryDQMService]";
 }
 
-bool SiStripPopConHistoryDQMBase::checkForCompatibility(const std::string& otherMetaData)
+bool SiStripPopConHistoryDQMBase::checkForCompatibility(const std::string& otherMetaData) const
 {
   if ( otherMetaData.empty() )
     return true;
