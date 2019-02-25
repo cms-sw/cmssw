@@ -72,7 +72,6 @@ PPSTimingCalibrationESSource::PPSTimingCalibrationESSource( const edm::Parameter
 edm::ESProducts<std::unique_ptr<PPSTimingCalibration> >
 PPSTimingCalibrationESSource::produce( const PPSTimingCalibrationRcd& )
 {
-  edm::LogInfo("ddd") << "---> " << (int)subdetector_;
   switch ( subdetector_ ) {
     case Detector::TOTEM_VERTICAL:
       return edm::es::products( parseTotemJsonFile() );
