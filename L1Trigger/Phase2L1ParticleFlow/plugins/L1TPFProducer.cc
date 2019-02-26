@@ -29,6 +29,7 @@ class L1TPFProducer : public edm::stream::EDProducer<> {
     private:
         int debug_;
 
+        bool hasTracks_;
         edm::EDGetTokenT<l1t::PFTrackCollection> tkCands_;
         float trkPt_, trkMaxChi2_;
         unsigned trkMinStubs_;
@@ -56,7 +57,8 @@ class L1TPFProducer : public edm::stream::EDProducer<> {
 //
 L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig):
     debug_(iConfig.getUntrackedParameter<int>("debug",0)),
-    tkCands_(consumes<l1t::PFTrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
+    hasTracks_(!iConfig.getParameter<edm::InputTag>("tracks").label().empty()),
+    tkCands_(hasTracks_ ? consumes<l1t::PFTrackCollection>(iConfig.getParameter<edm::InputTag>("tracks")) : edm::EDGetTokenT<l1t::PFTrackCollection>()),
     trkPt_(iConfig.getParameter<double>("trkPtCut")),
     trkMaxChi2_(iConfig.getParameter<double>("trkMaxChi2")),
     trkMinStubs_(iConfig.getParameter<unsigned>("trkMinStubs")),
@@ -114,15 +116,17 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig):
 void
 L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     /// ------ READ TRACKS ----
-    edm::Handle<l1t::PFTrackCollection> htracks;
-    iEvent.getByToken(tkCands_, htracks);
-    const auto & tracks = *htracks;
-    for (unsigned int itk = 0, ntk = tracks.size(); itk < ntk; ++itk) {
-        const auto & tk = tracks[itk];
-        // adding objects to PF
-        if (debugR_ > 0 && deltaR(tk.eta(),tk.phi(),debugEta_,debugPhi_) > debugR_) continue;
-        if (tk.pt() > trkPt_ && tk.nStubs() >= trkMinStubs_ && tk.normalizedChi2() < trkMaxChi2_) {
-            l1regions_.addTrack(tk, l1t::PFTrackRef(htracks,itk)); 
+    if (hasTracks_) {
+        edm::Handle<l1t::PFTrackCollection> htracks;
+        iEvent.getByToken(tkCands_, htracks);
+        const auto & tracks = *htracks;
+        for (unsigned int itk = 0, ntk = tracks.size(); itk < ntk; ++itk) {
+            const auto & tk = tracks[itk];
+            // adding objects to PF
+            if (debugR_ > 0 && deltaR(tk.eta(),tk.phi(),debugEta_,debugPhi_) > debugR_) continue;
+            if (tk.pt() > trkPt_ && tk.nStubs() >= trkMinStubs_ && tk.normalizedChi2() < trkMaxChi2_) {
+                l1regions_.addTrack(tk, l1t::PFTrackRef(htracks,itk)); 
+            }
         }
     }
 
