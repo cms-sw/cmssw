@@ -2,7 +2,7 @@
 #define MultiGaussianState_H
 
 #include "TrackingTools/GsfTools/interface/SingleGaussianState.h"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <vector>
 
