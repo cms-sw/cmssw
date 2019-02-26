@@ -514,7 +514,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles (const Histograms& his
       }
       continue;
     }
-    float invLayerClusterEnergySquared = 1.f/(clusters[lcId].energy()*clusters[lcId].energy());
+    float invLayerClusterEnergyWeight = 1.f/(clusters[lcId].energy()*clusters[lcId].energy());
     for(unsigned int i = 0; i < numberOfHitsInLC; ++i)
     {
       DetId rh_detid = hits_and_fractions[i].first;
@@ -525,7 +525,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles (const Histograms& his
       if(hit_find_in_CP == detIdToCaloParticleId_Map.end()) hitWithNoCP = true;
       auto itcheck= hitMap.find(rh_detid);
       const HGCRecHit *hit = itcheck->second;
-      float hitEnergySquared = hit->energy()*hit->energy();
+      float hitEnergyWeight = hit->energy()*hit->energy();
 
       for(auto& cpPair : cpsInLayerCluster[lcId])
       {
@@ -536,7 +536,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles (const Histograms& his
           if(findHitIt != detIdToCaloParticleId_Map[rh_detid].end())
             cpFraction = findHitIt->fraction;
         }
-        cpPair.second += (rhFraction - cpFraction)*(rhFraction - cpFraction)*hitEnergySquared*invLayerClusterEnergySquared;
+        cpPair.second += (rhFraction - cpFraction)*(rhFraction - cpFraction)*hitEnergyWeight*invLayerClusterEnergyWeight;
       }
     }
 
@@ -557,7 +557,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles (const Histograms& his
     auto assoc = std::count_if(
         std::begin(cpsInLayerCluster[lcId]),
         std::end(cpsInLayerCluster[lcId]),
-        [](const auto &obj){return obj.second < 0.1;});
+        [](const auto &obj){return obj.second < 0.2;});
     if (assoc) {
       histograms.h_num_layercl_eta_perlayer.at(lcLayerId).fill(clusters[lcId].eta());
       histograms.h_num_layercl_phi_perlayer.at(lcLayerId).fill(clusters[lcId].phi());
@@ -629,8 +629,8 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles (const Histograms& his
         if(hit_find_in_LC == detIdToLayerClusterId_Map.end()) hitWithNoLC = true;
         auto itcheck= hitMap.find(cp_hitDetId);
         const HGCRecHit *hit = itcheck->second;
-        float hitEnergySquared = hit->energy()*hit->energy();
-        float invCPEnergySquared = 1.f/(CPenergy*CPenergy);
+        float hitEnergyWeight = hit->energy()*hit->energy();
+        float invCPEnergyWeight = 1.f/(CPenergy*CPenergy);
         for(auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore)
         {
           unsigned int layerClusterId = lcPair.first;
@@ -649,12 +649,12 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles (const Histograms& his
           if (lcFraction == 0.) {
             lcFraction = -1.;
           }
-          lcPair.second.second += (lcFraction - cpFraction)*(lcFraction - cpFraction)*hitEnergySquared*invCPEnergySquared;
+          lcPair.second.second += (lcFraction - cpFraction)*(lcFraction - cpFraction)*hitEnergyWeight*invCPEnergyWeight;
           std::cout << "layerClusterId:\t" << layerClusterId << "\t"
                     << "lcfraction,cpfraction:\t" << lcFraction << ", " << cpFraction << "\t"
-                    << "hitEnergySquared:\t" << hitEnergySquared << "\t"
+                    << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
                     << "currect score:\t" << lcPair.second.second << "\t"
-                    << "invCPEnergySquared:\t" << invCPEnergySquared << std::endl;
+                    << "invCPEnergyWeight:\t" << invCPEnergyWeight << std::endl;
         }
       }
 
