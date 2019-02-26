@@ -1,7 +1,9 @@
 #ifndef MultiGaussianStateCombiner_H
 #define MultiGaussianStateCombiner_H
 
+#define EXCLUDE_MultiGaussianState_ICC
 #include "TrackingTools/GsfTools/interface/MultiGaussianState.h"
+#undef EXCLUDE_MultiGaussianState_ICC
 #include "TrackingTools/GsfTools/interface/SingleGaussianState.h"
 
   /**
@@ -29,5 +31,6 @@ public:
 };
 
 #include "TrackingTools/GsfTools/interface/MultiGaussianStateCombiner.icc"
+#include "TrackingTools/GsfTools/interface/MultiGaussianState.icc"
 
 #endif

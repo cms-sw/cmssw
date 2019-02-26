@@ -109,8 +109,9 @@ private:
 //   static int constructsCombinedState_;
 };
 
+#if !defined(EXCLUDE_MultiGaussianState_ICC)
 #include "TrackingTools/GsfTools/interface/MultiGaussianState.icc"
-
+#endif
 //   template <unsigned int N> int MultiGaussianState<N>::instances_ = 0;
 //   template <unsigned int N> int MultiGaussianState<N>::maxInstances_ = 0;
 //   template <unsigned int N> int MultiGaussianState<N>::constructsCombinedState_ = 0;
