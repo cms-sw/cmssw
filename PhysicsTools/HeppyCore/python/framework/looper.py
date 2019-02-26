@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 # Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
@@ -8,7 +9,7 @@ import imp
 import logging
 import pprint
 from math import ceil
-from event import Event
+from .event import Event
 import timeit
 import resource
 import json

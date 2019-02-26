@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 import copy
 import collections
@@ -7,11 +8,11 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-from plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotEmpty, PlotGroup, PlotOnSideGroup, PlotFolder, Plotter
-from html import PlotPurpose
-import plotting
-import validation
-import html
+from .plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotEmpty, PlotGroup, PlotOnSideGroup, PlotFolder, Plotter
+from .html import PlotPurpose
+from . import plotting
+from . import validation
+from . import html
 
 ########################################
 #

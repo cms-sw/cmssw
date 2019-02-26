@@ -1,11 +1,12 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import logging
 import sys
 import os
 from importlib import import_module
 import subprocess
 import time
-import tools
+from . import tools
 
 log = logging.getLogger(__name__)
 class CrabHelper(object):

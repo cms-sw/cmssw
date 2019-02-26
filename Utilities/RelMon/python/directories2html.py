@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -22,9 +23,9 @@ sys.argv=theargv
 
 import os
 if "RELMON_SA" in os.environ:
-  from dirstructure import Comparison,Directory
-  from definitions import *
-  from utils import unpickler
+  from .dirstructure import Comparison,Directory
+  from .definitions import *
+  from .utils import unpickler
 else:
   from Utilities.RelMon.dirstructure import Comparison,Directory
   from Utilities.RelMon.definitions import *
