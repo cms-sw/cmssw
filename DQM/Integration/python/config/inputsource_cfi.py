@@ -67,7 +67,7 @@ if not options.inputFiles:
         SelectEvents = cms.untracked.vstring('*'),
         streamLabel = cms.untracked.string('streamDQM'),
         scanOnce = cms.untracked.bool(options.scanOnce),
-        minEventsPerLumi = cms.untracked.int32(1),
+        minEventsPerLumi = cms.untracked.int32(-1),
         delayMillis = cms.untracked.uint32(500),
         nextLumiTimeoutMillis = cms.untracked.int32(nextLumiTimeoutMillis),
         skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
@@ -81,7 +81,6 @@ else:
         fileNames = cms.untracked.vstring(files),
         secondaryFileNames = cms.untracked.vstring()
     )
-    
 #source = cms.Source("PoolSource",
 #    fileNames = cms.untracked.vstring(
 #       '/store/user/tosi/STEAM/DQM/online/outputDQM_3.root'
