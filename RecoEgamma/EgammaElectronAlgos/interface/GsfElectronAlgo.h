@@ -334,7 +334,6 @@ class GsfElectronAlgo {
          const reco::BeamSpot & bs ) ;
 
       // utilities
-      void checkCtfTrack( edm::Handle<reco::TrackCollection> currentCtfTracks ) ;
       void computeCharge( int & charge, reco::GsfElectron::ChargeInfo & info ) ;
       reco::CaloClusterPtr getEleBasicCluster( MultiTrajectoryStateTransform const& ) ;
       bool calculateTSOS( MultiTrajectoryStateTransform const&, GsfConstraintAtVertex const& ) ;
