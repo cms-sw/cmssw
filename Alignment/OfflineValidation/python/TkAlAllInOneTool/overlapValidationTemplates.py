@@ -24,6 +24,18 @@ overlapValidationSequence = "process.analysis"
 
 overlapPlottingTemplate = """
 
+import os
+import ROOT
+from Alignment.OfflineValidation.TkAlStyle import TkAlStyle
+
+TkAlStyle.legendheader = ".oO[legendheader]Oo."
+TkAlStyle.set(ROOT..oO[publicationstatus]Oo., ROOT..oO[era]Oo., ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.")
+
+try:
+  os.makedirs(".oO[datadir]Oo./.oO[PlotsDirName]Oo./")
+except OSError:
+  pass
+
 from Alignment.OfflineValidation.overlapValidationPlot import plot
 
 plot(
