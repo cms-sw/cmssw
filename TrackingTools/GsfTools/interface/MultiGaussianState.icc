@@ -1,3 +1,5 @@
+#ifndef TrackingTools_GsfTools_MultiGaussianState_icc
+#define TrackingTools_GsfTools_MultiGaussianState_icc
 #include "TrackingTools/GsfTools/interface/MultiGaussianState.h"
 #include "TrackingTools/GsfTools/interface/MultiGaussianStateCombiner.h"
 
@@ -69,3 +71,4 @@ MultiGaussianState<N>::rescaleWeight (double scale)
 	ic!=theComponents.end(); ic++ )  (**ic).rescaleWeight(scale);
   if (theCombinedStateUp2Date)  theCombinedState->rescaleWeight(scale);
 }
+#endif
