@@ -1,6 +1,6 @@
 #include "OuterDetCompatibility.h"
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 
 using namespace std;
 
@@ -19,7 +19,8 @@ bool OuterDetCompatibility::operator() (const BoundPlane& plane) const
 
 bool OuterDetCompatibility::checkPhi(
     const OuterHitPhiPrediction::Range & detPhiRange) const
-{ return rangesIntersect(detPhiRange, hitDetPhiRange, PhiLess()); }
+{ return rangesIntersect(detPhiRange, hitDetPhiRange,
+        [](auto x, auto y){ return Geom::phiLess(x,y); }); }
 
 bool OuterDetCompatibility::checkR(
     const Range & detRRange) const

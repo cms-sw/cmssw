@@ -33,7 +33,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/ParameterSetReader/interface/ProcessDescImpl.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 
@@ -90,7 +90,7 @@ TestProcessor::TestProcessor(Config const& iConfig):
   //Setup various singletons
   (void) oneTimeInitialization();
   
-  PythonProcessDesc desc(iConfig.pythonConfiguration());
+  ProcessDescImpl desc(iConfig.pythonConfiguration());
   
   auto psetPtr = desc.parameterSet();
   
@@ -298,7 +298,7 @@ TestProcessor::beginRun() {
                   runPrincipal.beginTime());
   espController_->eventSetupForInstance(ts);
   
-  EventSetup const& es = esp_->eventSetup();
+  auto const& es = esp_->eventSetup();
 
   std::vector<edm::SubProcess> emptyList;
   {
@@ -354,7 +354,7 @@ TestProcessor::beginLuminosityBlock() {
                   lumiPrincipal_->beginTime());
   espController_->eventSetupForInstance(ts);
   
-  EventSetup const& es = esp_->eventSetup();
+  auto const& es = esp_->eventSetup();
   
   std::vector<edm::SubProcess> emptyList;
   {
@@ -448,7 +448,7 @@ TestProcessor::endLuminosityBlock() {
                     lumiPrincipal->endTime());
     espController_->eventSetupForInstance(ts);
     
-    EventSetup const& es = esp_->eventSetup();
+    auto const& es = esp_->eventSetup();
 
     std::vector<edm::SubProcess> emptyList;
 
@@ -507,7 +507,7 @@ TestProcessor::endRun() {
                     runPrincipal.endTime());
     espController_->eventSetupForInstance(ts);
     
-    EventSetup const& es = esp_->eventSetup();
+    auto const& es = esp_->eventSetup();
     
     std::vector<edm::SubProcess> emptyList;
     

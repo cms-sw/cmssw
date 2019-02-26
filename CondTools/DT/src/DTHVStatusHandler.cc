@@ -291,7 +291,7 @@ void DTHVStatusHandler::getChannelMap() {
     std::cout << "retrieve aliases table..." << std::endl;
     coral::ITable& hvalTable =
       buff_session.nominalSchema().tableHandle( "HVALIASES" );
-    std::auto_ptr<coral::IQuery> hvalQuery( hvalTable.newQuery() );
+    std::unique_ptr<coral::IQuery> hvalQuery( hvalTable.newQuery() );
     hvalQuery->addToOutputList( "DETID" );
     hvalQuery->addToOutputList(  "DPID" );
     coral::ICursor& hvalCursor = hvalQuery->execute();
@@ -323,7 +323,7 @@ void DTHVStatusHandler::getLayerSplit() {
   coral::ITable& lsplTable =
     util_session.nominalSchema().tableHandle( "DT_HV_LAYER_SPLIT" );
   std::cout << "         layer split table got..." << std::endl;
-  std::auto_ptr<coral::IQuery> lsplQuery( lsplTable.newQuery() );
+  std::unique_ptr<coral::IQuery> lsplQuery( lsplTable.newQuery() );
   coral::AttributeList versionBindVariableList;
   versionBindVariableList.extend( "version", typeid(std::string) );
   versionBindVariableList["version"].data<std::string>() = mapVersion;
@@ -371,7 +371,7 @@ void DTHVStatusHandler::getChannelSplit() {
   int sl_p;
   coral::ITable& csplTable =
     util_session.nominalSchema().tableHandle( "DT_HV_CHANNEL_SPLIT" );
-  std::auto_ptr<coral::IQuery> csplQuery( csplTable.newQuery() );
+  std::unique_ptr<coral::IQuery> csplQuery( csplTable.newQuery() );
   coral::AttributeList versionBindVariableList;
   versionBindVariableList.extend( "version", typeid(std::string) );
   versionBindVariableList["version"].data<std::string>() = splitVersion;
@@ -448,7 +448,7 @@ void DTHVStatusHandler::dumpHVAliases() {
   std::map<int,std::string> idMap;
   coral::ITable& dpidTable =
     omds_session.nominalSchema().tableHandle( "DP_NAME2ID" );
-  std::auto_ptr<coral::IQuery> dpidQuery( dpidTable.newQuery() );
+  std::unique_ptr<coral::IQuery> dpidQuery( dpidTable.newQuery() );
   dpidQuery->addToOutputList( "ID" );
   dpidQuery->addToOutputList( "DPNAME" );
   coral::ICursor& dpidCursor = dpidQuery->execute();
@@ -465,7 +465,7 @@ void DTHVStatusHandler::dumpHVAliases() {
   std::map<std::string,std::string> cnMap;
   coral::ITable& nameTable =
     omds_session.nominalSchema().tableHandle( "ALIASES" );
-  std::auto_ptr<coral::IQuery> nameQuery( nameTable.newQuery() );
+  std::unique_ptr<coral::IQuery> nameQuery( nameTable.newQuery() );
   nameQuery->addToOutputList( "DPE_NAME" );
   nameQuery->addToOutputList( "ALIAS" );
   coral::ICursor& nameCursor = nameQuery->execute();
@@ -715,7 +715,7 @@ int DTHVStatusHandler::recoverSnapshot() {
   std::cout << "retrieve snapshot table..." << std::endl;
   coral::ITable& hvssTable =
          buff_session.nominalSchema().tableHandle( "HVSNAPSHOT" );
-  std::auto_ptr<coral::IQuery> hvssQuery( hvssTable.newQuery() );
+  std::unique_ptr<coral::IQuery> hvssQuery( hvssTable.newQuery() );
   hvssQuery->addToOutputList( "TIME" );
   hvssQuery->addToOutputList( "WHEEL" );
   hvssQuery->addToOutputList( "STATION" );
@@ -767,7 +767,7 @@ cond::Time_t DTHVStatusHandler::recoverLastTime() {
 /*
   coral::ITable& infoTable =
          buff_session.nominalSchema().tableHandle( "LOG" );
-  std::auto_ptr<coral::IQuery> infoQuery( infoTable.newQuery() );
+  std::unique_ptr<coral::IQuery> infoQuery( infoTable.newQuery() );
   infoQuery->addToOutputList( "SNAPSHOT" );
   coral::ICursor& infoCursor = infoQuery->execute();
   coral::TimeStamp time;
@@ -871,7 +871,7 @@ int DTHVStatusHandler::checkForPeriod( cond::Time_t condSince,
 
   coral::ITable& fwccTable =
     omds_session.nominalSchema().tableHandle( "FWCAENCHANNEL" );
-  std::auto_ptr<coral::IQuery> fwccQuery( fwccTable.newQuery() );
+  std::unique_ptr<coral::IQuery> fwccQuery( fwccTable.newQuery() );
   fwccQuery->addToOutputList( "DPID"          );
   fwccQuery->addToOutputList( "CHANGE_DATE"   );
   fwccQuery->addToOutputList( "ACTUAL_VMON"   );

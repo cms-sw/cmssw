@@ -18,15 +18,6 @@ mvaWeightFiles = cms.vstring(
      path.join(weightFileDir, "EE_10.weights.xml.gz"), # EE_10
      )
 
-categoryCuts = cms.vstring(
-     "pt < 10. && abs(superCluster.eta) < 0.800", # EB1_5
-     "pt < 10. && abs(superCluster.eta) >= 0.800 && abs(superCluster.eta) < 1.479", # EB2_5
-     "pt < 10. && abs(superCluster.eta) >= 1.479", # EE_5
-     "pt >= 10. && abs(superCluster.eta) < 0.800", # EB1_10
-     "pt >= 10. && abs(superCluster.eta) >= 0.800 && abs(superCluster.eta) < 1.479", # EB2_10
-     "pt >= 10. && abs(superCluster.eta) >= 1.479", # EE_10
-     )
-
 mvaEleID_Fall17_noIso_V2_wp80_container = EleMVARaw_WP(
     idName = "mvaEleID-Fall17-noIso-V2-wp80", mvaTag = mvaTag,
     cutCategory0 = "3.26449620468 - exp(-pt / 3.32657149223) * 8.84669783568", # EB1_5
@@ -57,12 +48,17 @@ mvaEleID_Fall17_noIso_V2_wp90_container = EleMVARaw_WP(
     cutCategory5 = "4.16921343208 - exp(-pt / 13.2017224621) * 9.00720913211", # EE_10
     )
 
+workingPoints = dict(
+    wp80 = mvaEleID_Fall17_noIso_V2_wp80_container,
+    wpLoose = mvaEleID_Fall17_noIso_V2_wpLoose_container,
+    wp90 = mvaEleID_Fall17_noIso_V2_wp90_container
+)
 
 mvaEleID_Fall17_noIso_V2_producer_config = cms.PSet(
     mvaName             = cms.string(mvaClassName),
     mvaTag              = cms.string(mvaTag),
     nCategories         = cms.int32(6),
-    categoryCuts        = categoryCuts,
+    categoryCuts        = cms.vstring(*EleMVA_6CategoriesCuts),
     weightFileNames     = mvaWeightFiles,
     variableDefinition  = cms.string(mvaVariablesFile)
     )

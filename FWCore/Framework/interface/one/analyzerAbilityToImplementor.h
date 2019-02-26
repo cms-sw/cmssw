@@ -47,6 +47,16 @@ namespace edm {
       struct AbilityToImplementor<edm::one::WatchLuminosityBlocks> {
         typedef edm::one::impl::LuminosityBlockWatcher<edm::one::EDAnalyzerBase> Type;
       };
+      
+      template<typename C>
+      struct AbilityToImplementor<edm::RunCache<C>> {
+        typedef edm::one::impl::RunCacheHolder<edm::one::EDAnalyzerBase,C> Type;
+      };
+
+      template<typename C>
+      struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
+        typedef edm::one::impl::LuminosityBlockCacheHolder<edm::one::EDAnalyzerBase,C> Type;
+      };
     }
   }
 }

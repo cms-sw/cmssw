@@ -25,7 +25,7 @@ void CmsTrackerPanelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
  GeometricDet::ConstGeometricDetContainer & comp = det->components();
 
  if (comp.front()->type()==GeometricDet::DetUnit) 
-   std::sort(comp.begin(),comp.end(),LessR()); 
+   std::sort(comp.begin(),comp.end(),isLessR);
  else
    edm::LogError("CmsTrackerPanelBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
 

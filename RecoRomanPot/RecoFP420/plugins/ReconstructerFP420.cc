@@ -167,7 +167,7 @@ namespace cms
     for(uint32_t i = 0; i< trackerContainers.size();i++){
       iEvent.getByLabel( trackerContainers[i], cf_simhit);
       cf_simhitvec.push_back(cf_simhit.product());   }
-    std::auto_ptr<ClusterCollectionFP420 > input(new DigiCollectionFP420(cf_simhitvec));
+    std::unique_ptr<ClusterCollectionFP420 > input(new DigiCollectionFP420(cf_simhitvec));
     */   
     
     //B

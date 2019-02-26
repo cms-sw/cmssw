@@ -93,15 +93,10 @@ L1GtParametersTrivialProducer::~L1GtParametersTrivialProducer()
 // member functions
 
 // method called to produce the data
-std::shared_ptr<L1GtParameters> L1GtParametersTrivialProducer::produceGtParameters(
+std::unique_ptr<L1GtParameters> L1GtParametersTrivialProducer::produceGtParameters(
     const L1GtParametersRcd& iRecord)
 {
-
-    using namespace edm::es;
-
-
-    auto pL1GtParameters = std::make_shared<L1GtParameters>();
-
+    auto pL1GtParameters = std::make_unique<L1GtParameters>();
 
     // set total Bx's in the event
     pL1GtParameters->setGtTotalBxInEvent(m_totalBxInEvent);
@@ -123,4 +118,3 @@ std::shared_ptr<L1GtParameters> L1GtParametersTrivialProducer::produceGtParamete
 
     return pL1GtParameters ;
 }
-

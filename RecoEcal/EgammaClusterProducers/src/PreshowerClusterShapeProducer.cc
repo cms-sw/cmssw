@@ -137,11 +137,9 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
 
       SuperClusterRef it_super(reco::SuperClusterRef(pSuperClusters,SC_index));
       
-      float SC_Et   = it_super->energy()*sin(2*atan(exp(-it_super->eta())));
       float SC_eta  = it_super->eta();
-      float SC_phi  = it_super->phi();
 
-      LogTrace("EcalClusters") << "PreshowerClusterShapeProducer: superCl_E = " << it_super->energy() << " superCl_Et = " << SC_Et << " superCl_Eta = " << SC_eta << " superCl_Phi = " << SC_phi ;
+      LogTrace("EcalClusters") << "PreshowerClusterShapeProducer: superCl_E = " << it_super->energy() << " superCl_Et = " << it_super->energy()*sin(2*atan(exp(-it_super->eta()))) << " superCl_Eta = " << SC_eta << " superCl_Phi = " << it_super->phi() ;
 
       
       if(fabs(SC_eta) >= 1.65 && fabs(SC_eta) <= 2.5) 

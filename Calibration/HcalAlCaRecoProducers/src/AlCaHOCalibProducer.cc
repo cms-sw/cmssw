@@ -165,7 +165,9 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void beginJob() override ;
   void endJob() override ;
-  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  //  void beginRun(edm::Run const &, edm::EventSetup const &) override;
   void fillHOStore(const reco::TrackRef& ncosm,
 		   HOCalibVariables& tmpHOCalib,
 		   std::unique_ptr<HOCalibVariableCollection> &hostore,
@@ -386,20 +388,19 @@ void AlCaHOCalibProducer::endJob() {
   edm::LogInfo("HOCalib") <<" AlCaHOCalibProducer processed event "<< Nevents;
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-//void 
-//  AlCaHOCalibProducer::endRun(edm::Run const & run, edm::EventSetup & es) {}
-// ------------ method called once each job just before starting event loop  ------------
-void 
-AlCaHOCalibProducer::beginRun(edm::Run const & run,
-			      const edm::EventSetup & es) {
-  
-  // HCAL channel status map ****************************************
+// ------------ method called once each run just after ending the event loop  ------------
+//void AlCaHOCalibProducer::endRun(edm::Run const & run, edm::EventSetup & es) {}
+// ------------ method called once each run before starting event loop  ------------
+//void AlCaHOCalibProducer::beginRun(edm::Run const & run, const edm::EventSetup & es) {}
+
+void AlCaHOCalibProducer::beginLuminosityBlock(const edm::LuminosityBlock & lBlock, const edm::EventSetup & es) {
+
   edm::ESHandle<HcalChannelQuality> hcalChStatus;    
   es.get<HcalChannelQualityRcd>().get("withTopo", hcalChStatus );
   theHcalChStatus = hcalChStatus.product();
-}
 
+  return;
+}
 
 void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
 				      HOCalibVariables& tmpHOCalib,

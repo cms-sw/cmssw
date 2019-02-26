@@ -11,13 +11,14 @@
 #include "G4SystemOfUnits.hh"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 //#define DebugLog
 
 SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet & p,
 			       const CMSSteppingVerbose* sv, bool hasW) 
   : eventAction_(e), tracker(nullptr), calo(nullptr), steppingVerbose(sv),
-    initialized(false), killBeamPipe(false),hasWatcher(hasW)
+    nWarnings(0),initialized(false), killBeamPipe(false),hasWatcher(hasW)
 {
   theCriticalEnergyForVacuum = 
     (p.getParameter<double>("CriticalEnergyForVacuum")*CLHEP::MeV);
@@ -86,14 +87,15 @@ void SteppingAction::UserSteppingAction(const G4Step * aStep)
 {
   if (!initialized) { initialized = initPointer(); }
 
-  //  if(hasWatcher) { m_g4StepSignal(aStep); }
+  //if(hasWatcher) { m_g4StepSignal(aStep); }
   m_g4StepSignal(aStep); 
 
   G4Track * theTrack = aStep->GetTrack();
   TrackStatus tstat = (theTrack->GetTrackStatus() == fAlive) ? sAlive : sKilledByProcess;
+
   G4StepPoint* postStep = aStep->GetPostStepPoint();
 
-  if(0 == tstat && postStep->GetPhysicalVolume() != nullptr) {
+  if(sAlive == tstat && postStep->GetPhysicalVolume() != nullptr) {
 
     G4StepPoint* preStep = aStep->GetPreStepPoint();
     const G4Region* theRegion = 
@@ -102,23 +104,39 @@ void SteppingAction::UserSteppingAction(const G4Step * aStep)
     // kill in dead regions
     if(isInsideDeadRegion(theRegion)) { tstat = sDeadRegion; }
 
+    // NaN energy deposit
+    if(sAlive == tstat && edm::isNotFinite(aStep->GetTotalEnergyDeposit())) {
+      tstat = sEnergyDepNaN;
+      if(nWarnings < 20) {
+	++nWarnings;
+	edm::LogWarning("SimG4CoreApplication") 
+	  << "Track #" << theTrack->GetTrackID()
+	  << " " << theTrack->GetDefinition()->GetParticleName()
+	  << " E(MeV)= " << preStep->GetKineticEnergy()/MeV  
+	  << " is killed due to edep=NaN inside PV: " 
+	  << preStep->GetPhysicalVolume()->GetName()
+	  << " at " << theTrack->GetPosition()
+          << " StepLen(mm)= " << aStep->GetStepLength();
+      }
+    }
+
     // kill out of time
-    if(0 == tstat && isOutOfTimeWindow(theTrack, theRegion)) { tstat = sOutOfTime; }
+    if(sAlive == tstat && isOutOfTimeWindow(theTrack, theRegion)) { tstat = sOutOfTime; }
 
     // kill low-energy in volumes on demand
-    if(0 == tstat && numberEkins > 0 && isLowEnergy(aStep)) { tstat = sLowEnergy; }
+    if(sAlive == tstat && numberEkins > 0 && isLowEnergy(aStep)) { tstat = sLowEnergy; }
 
     // kill low-energy in vacuum
     G4double kinEnergy = theTrack->GetKineticEnergy();
-    if(0 == tstat && killBeamPipe && kinEnergy < theCriticalEnergyForVacuum
-	&& theTrack->GetDefinition()->GetPDGCharge() != 0.0 && kinEnergy > 0.0
-        && theTrack->GetNextVolume()->GetLogicalVolume()->GetMaterial()->GetDensity() 
+    if(sAlive == tstat && killBeamPipe && kinEnergy < theCriticalEnergyForVacuum
+       && theTrack->GetDefinition()->GetPDGCharge() != 0.0 && kinEnergy > 0.0
+       && theTrack->GetNextVolume()->GetLogicalVolume()->GetMaterial()->GetDensity() 
        <= theCriticalDensity) {
       tstat = sLowEnergyInVacuum;
     }
 
     // check transition tracker/calo
-    if(0 == tstat) {
+    if(sAlive == tstat) {
 
       if(isThisVolume(preStep->GetTouchable(),tracker) &&
 	 isThisVolume(postStep->GetTouchable(),calo)) {
@@ -274,6 +292,9 @@ void SteppingAction::PrintKilledTrack(const G4Track* aTrack,
     break;
   case sLowEnergyInVacuum:
     typ = " low energy limit in vacuum ";
+    break;
+  case sEnergyDepNaN:
+    typ = " energy deposition is NaN ";
     break;
   default:
     break;

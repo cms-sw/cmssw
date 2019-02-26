@@ -4,8 +4,10 @@ process = cms.Process("GeometryTest")
 # empty input service, fire 10 events
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
+process.MessageLogger.cerr.INFO.limit = -1
+
 # Choose Tracker Geometry
-process.load("Configuration.Geometry.GeometryExtended2023D24_cff")
+process.load("Configuration.Geometry.GeometryExtended2023D35_cff")
 
 process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi")
 

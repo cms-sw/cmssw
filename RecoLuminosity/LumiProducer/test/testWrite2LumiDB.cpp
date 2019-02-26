@@ -27,7 +27,7 @@ int main(int argc, char** argv){
   /**
   std::cout<<"filling hlx/dip data"<<std::endl;
   try{
-    std::auto_ptr<lumi::DataPipe> ptr(lumi::DataPipeFactory::get()->create("Lumi2DB",con));
+    std::unique_ptr<lumi::DataPipe> ptr(lumi::DataPipeFactory::get()->create("Lumi2DB",con));
     ptr->setAuthPath(authpath);
     //ptr->setSource("rfio:/castor/cern.ch/cms/store/lumi/200912/CMS_LUMI_RAW_20091212_000124025_0001_1.root");
     ptr->setSource(lumifile);
@@ -42,7 +42,7 @@ int main(int argc, char** argv){
   //
   try{
     std::cout<<"fill out runsummary data"<<std::endl;
-    std::auto_ptr<lumi::DataPipe> runptr(lumi::DataPipeFactory::get()->create("CMSRunSummary2DB",con));
+    std::unique_ptr<lumi::DataPipe> runptr(lumi::DataPipeFactory::get()->create("CMSRunSummary2DB",con));
     runptr->setSource("oracle://cms_omds_lb/CMS_RUNINFO");
     runptr->setAuthPath(authpath);
     runptr->retrieveData(runnumber);
@@ -55,7 +55,7 @@ int main(int argc, char** argv){
   //
   try{
     std::cout<<"fill out conf data"<<std::endl;
-    std::auto_ptr<lumi::DataPipe> confptr(lumi::DataPipeFactory::get()->create("HLTConf2DB",con));
+    std::unique_ptr<lumi::DataPipe> confptr(lumi::DataPipeFactory::get()->create("HLTConf2DB",con));
     //confptr->setSource("oracle://cms_omds_lb/CMS_HLT_V0");
     confptr->setSource("oracle://cms_omds_lb/CMS_HLT");
     confptr->setAuthPath(authpath);
@@ -68,7 +68,7 @@ int main(int argc, char** argv){
   //fill trg data
   try{
     std::cout<<"fill out trg data"<<std::endl;
-    std::auto_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create("TRG2DB",con));
+    std::unique_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create("TRG2DB",con));
     trgptr->setAuthPath(authpath);
     //trgptr->setSource("oracle://cms_omds_lb/CMS_GT_MON");
     trgptr->setSource("oracle://cms_orcoff_prod/CMS_GT_MON");
@@ -81,7 +81,7 @@ int main(int argc, char** argv){
   /**
   try{
     std::cout<<"fill out hlt data"<<std::endl;
-    std::auto_ptr<lumi::DataPipe> hltptr(lumi::DataPipeFactory::get()->create("HLT2DB",con));
+    std::unique_ptr<lumi::DataPipe> hltptr(lumi::DataPipeFactory::get()->create("HLT2DB",con));
     hltptr->setSource("oracle://cms_omds_lb/CMS_RUNINFO");
     hltptr->setAuthPath(authpath);
     hltptr->retrieveData(runnumber);

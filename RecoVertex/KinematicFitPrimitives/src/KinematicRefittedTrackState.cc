@@ -64,7 +64,7 @@ TrajectoryStateOnSurface KinematicRefittedTrackState::trajectoryStateOnSurface(c
 TrajectoryStateOnSurface KinematicRefittedTrackState::trajectoryStateOnSurface(const Surface & surface, 
                                                    const Propagator & propagator) const
 {
- std::auto_ptr<Propagator> thePropagator( propagator.clone());
+ std::unique_ptr<Propagator> thePropagator( propagator.clone());
  thePropagator->setPropagationDirection(anyDirection);
  return thePropagator->propagate(freeTrajectoryState(), surface);
 }

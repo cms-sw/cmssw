@@ -50,7 +50,7 @@ CmsTrackerPixelPhase2EndcapBuilder::sortNS( DDFilteredView& fv, GeometricDet* de
 {
   GeometricDet::ConstGeometricDetContainer & comp = det->components();
 
-  std::sort( comp.begin(), comp.end(), LessModZ());
+  std::sort( comp.begin(), comp.end(), isLessModZ);
   
   for( uint32_t i = 0; i < comp.size(); i++ )
   {

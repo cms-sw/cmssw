@@ -74,9 +74,9 @@ public:
 			const GlobalPoint& globPos,
 			double& tTrig,
 			double& wirePropCorr,
-			double& tofCorr) override;
+			double& tofCorr) const override;
 
-  double offset(const DTWireId& wireId) override;
+  double offset(const DTWireId& wireId) const override;
 
   /// Time (ns) to be subtracted to the digi time for emulation purposes
   /// It does not take into account TOF and signal propagation along the wire
@@ -85,7 +85,7 @@ public:
   ///     - t0cell is the t0 from pulses (always 0 in this case)
   double emulatorOffset(const DTWireId& wireId,
 				double &tTrig,
-				double &t0cell) override;
+				double &t0cell) const override;
 
  private:
   // The fixed t_trig to be subtracted to digi time (ns)

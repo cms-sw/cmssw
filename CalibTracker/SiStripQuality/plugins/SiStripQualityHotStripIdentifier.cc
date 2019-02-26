@@ -172,8 +172,7 @@ void SiStripQualityHotStripIdentifier::algoAnalyze(const edm::Event& e, const ed
 	<<"\n\t\touter PT "<< track->outerPt()<<std::endl;
 
       //Loop on rechits
-      for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); ++it){
-	const TrackingRecHit* recHit = &(**it);
+      for(auto const& recHit : track->recHits()) {
 	
 	if (!recHit->isValid()){
 	  LogTrace("SiStripQualityHotStripIdentifier") <<"\t\t Invalid Hit "<<std::endl;

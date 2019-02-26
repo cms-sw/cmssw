@@ -44,6 +44,8 @@
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
+#include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
+#include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
 #include "G4Event.hh"
 #include "G4Run.hh"
@@ -140,12 +142,12 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
   m_pCustomUIsession(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomUIsession")),
   m_p(iConfig)
 {
-  initializeTLS();
   m_simEvent.reset(nullptr);
   m_sVerbose.reset(nullptr);
   std::vector<edm::ParameterSet> watchers = 
     iConfig.getParameter<std::vector<edm::ParameterSet> >("Watchers");
   m_hasWatchers = (watchers.empty()) ? false : true;
+  initializeTLS();
 }
 
 RunManagerMTWorker::~RunManagerMTWorker() {
@@ -245,10 +247,7 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   AttachSD attach;
   std::pair< std::vector<SensitiveTkDetector*>,
     std::vector<SensitiveCaloDetector*> > sensDets =
-    attach.create(runManagerMaster.world(),
-                  (*pDD),
-                  runManagerMaster.catalog(),
-                  m_p,
+    attach.create(*pDD, runManagerMaster.catalog(), m_p,
                   m_tls->trackManager.get(),
                   *(m_tls->registry.get()));
 
@@ -265,6 +264,16 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
 
   edm::LogVerbatim("SimG4CoreApplication") 
     << "RunManagerMTWorker: start initialisation of PhysicsList for the thread";
+
+  // Geant4 UI commands in PreInit state
+  if(!runManagerMaster.G4Commands().empty()) {
+    G4cout << "RunManagerMTWorker: Requested UI commands: " << G4endl;
+    for(const std::string& command: runManagerMaster.G4Commands()) {
+      G4cout << "          " << command << G4endl;
+      G4UImanager::GetUIpointer()->ApplyCommand(command);
+    }
+  }
+  G4StateManager::GetStateManager()->SetNewState(G4State_Init);
 
   physicsList->InitializeWorker();
   m_tls->kernel->SetPhysics(physicsList);
@@ -293,11 +302,7 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   edm::LogVerbatim("SimG4CoreApplication")
     << "RunManagerMTWorker::initializeThread done for the thread " << thisID;
 
-  for(const std::string& command: runManagerMaster.G4Commands()) {
-    edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker:: Requests UI: "
-                                         << command;
-    G4UImanager::GetUIpointer()->ApplyCommand(command);
-  }
+  G4StateManager::GetStateManager()->SetNewState(G4State_Idle);
 }
 
 void RunManagerMTWorker::initializeUserActions() {

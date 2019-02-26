@@ -330,7 +330,7 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     bool passelectronveto = false;
     if( hConversions.isValid()){
     // this is recommended method
-      passelectronveto = !ConversionTools::hasMatchedPromptElectron(photonRef->superCluster(), hElectrons, hConversions, beamSpotHandle->position());
+      passelectronveto = !ConversionTools::hasMatchedPromptElectron(photonRef->superCluster(), *hElectrons, *hConversions, beamSpotHandle->position());
     }
     aPhoton.setPassElectronVeto( passelectronveto );
 

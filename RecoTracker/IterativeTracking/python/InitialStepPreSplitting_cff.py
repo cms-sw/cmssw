@@ -38,7 +38,7 @@ initialStepHitDoubletsPreSplitting = _hitPairEDProducer.clone(
     seedingLayers = "initialStepSeedLayersPreSplitting",
     trackingRegions = "initialStepTrackingRegionsPreSplitting",
     clusterCheck = "trackerClusterCheckPreSplitting",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer

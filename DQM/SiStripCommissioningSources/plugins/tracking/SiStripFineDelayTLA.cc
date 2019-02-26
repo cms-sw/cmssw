@@ -61,7 +61,7 @@ std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTL
     const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>((*thit).hit());
     LocalVector trackdirection=tsos.localDirection();
     if(matchedhit){//if matched hit...
-	GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(matchedhit->geographicalId());
+	const GluedGeomDet * gdet=static_cast<const GluedGeomDet *>(tracker->idToDet(matchedhit->geographicalId()));
 	GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
 	// trackdirection on mono det
 	// this the pointer to the mono hit of a matched hit 
@@ -70,7 +70,7 @@ std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTL
 	LocalVector monotkdir=monodet->toLocal(gtrkdir);
 	if(monotkdir.z()!=0){
 	  // the local angle (mono)
-          float localpitch = ((StripTopology*)(&monodet->topology()))->localPitch(tsos.localPosition());
+          float localpitch = static_cast<const StripTopology&>(monodet->topology()).localPitch(tsos.localPosition());
           float thickness = ((((((monohit.geographicalId())>>25)&0x7f)==0xd)||
 	                     ((((monohit.geographicalId())>>25)&0x7f)==0xe))&&
 			           ((((monohit.geographicalId())>>5)&0x7)>4)) ? 0.0500 : 0.0320;
@@ -83,7 +83,7 @@ std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTL
 	  LocalVector stereotkdir=stereodet->toLocal(gtrkdir);
 	  if(stereotkdir.z()!=0){
 	    // the local angle (stereo)
-            float localpitch = ((StripTopology*)(&stereodet->topology()))->localPitch(tsos.localPosition());
+            float localpitch = static_cast<const StripTopology&>(stereodet->topology()).localPitch(tsos.localPosition());
             float thickness = ((((((stereohit.geographicalId())>>25)&0x7f)==0xd)||
 	                       ((((stereohit.geographicalId())>>25)&0x7f)==0xe))&&
 			             ((((stereohit.geographicalId())>>5)&0x7)>4)) ? 0.0500 : 0.0320;
@@ -93,11 +93,11 @@ std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTL
 	}
     }
     else if(hit){
-        GeomDetUnit * det=(GeomDetUnit *)tracker->idToDet(hit->geographicalId());
+	const GeomDetUnit * det=tracker->idToDet(hit->geographicalId());
 	//  hit= pointer to the rechit
 	if(trackdirection.z()!=0){
           // the local angle (single hit)
-          float localpitch = ((StripTopology*)(&det->topology()))->localPitch(tsos.localPosition());
+          float localpitch = static_cast<const StripTopology&>(det->topology()).localPitch(tsos.localPosition());
           float thickness = ((((((hit->geographicalId())>>25)&0x7f)==0xd)||
 	                     ((((hit->geographicalId())>>25)&0x7f)==0xe))&&
 			           ((((hit->geographicalId())>>5)&0x7)>4)) ? 0.0500 : 0.0320;

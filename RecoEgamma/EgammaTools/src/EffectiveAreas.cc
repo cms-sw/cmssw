@@ -43,9 +43,6 @@ EffectiveAreas::EffectiveAreas(const std::string& filename):
   checkConsistency();
 }
 
-EffectiveAreas::~EffectiveAreas(){
-}
-
 // Return effective area for given eta
 const float EffectiveAreas::getEffectiveArea(float eta) const{
 

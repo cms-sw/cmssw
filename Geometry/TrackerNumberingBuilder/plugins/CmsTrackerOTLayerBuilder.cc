@@ -4,11 +4,11 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerOTRingBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLadderBuilder.h"
-#include "Geometry/TrackerNumberingBuilder/plugins/TrackerStablePhiSort.h"
+#include "Geometry/TrackerNumberingBuilder/interface/trackerStablePhiSort.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <vector>
 
+#include <vector>
 #include <bitset>
 
 void CmsTrackerOTLayerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
@@ -61,7 +61,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       
   // negative rings 
   if(!ringsNeg.empty()){
-    std::sort(ringsNeg.begin(),ringsNeg.end(),LessZ());  
+    std::sort(ringsNeg.begin(),ringsNeg.end(),isLessZ);
     uint32_t  totalringsNeg = ringsNeg.size();
   
     LogTrace("DetConstruction") << " Neg rings ordered by z: ";
@@ -75,7 +75,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
   // rods 
   if(!rods.empty()){
-    TrackerStablePhiSort(rods.begin(), rods.end(), ExtractPhi());
+    trackerStablePhiSort(rods.begin(), rods.end(), getPhi);
     uint32_t  totalrods = rods.size();
   
     LogTrace("DetConstruction") << " Rods ordered by phi: ";
@@ -89,7 +89,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
   // positive rings 
   if(!ringsPos.empty()){
-    std::sort(ringsPos.begin(),ringsPos.end(),LessZ());  
+    std::sort(ringsPos.begin(),ringsPos.end(),isLessZ);
     uint32_t  totalringsPos = ringsPos.size();
   
   
@@ -108,4 +108,3 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   det->addComponents(ringsPos);
 
 }
-

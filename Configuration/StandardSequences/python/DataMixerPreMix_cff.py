@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # Start with Standard Digitization:
 
 from SimCalorimetry.Configuration.SimCalorimetry_cff import *
+from SimMuon.Configuration.SimMuon_cff import *
 
 from SimGeneral.PreMixingModule.mixOne_premix_on_sim_cfi import *
 
@@ -55,15 +56,7 @@ DMHcalTTPDigis.HFDigiCollection = cms.InputTag("mixData")
 
 hcalDigiSequenceDM = cms.Sequence(DMHcalTriggerPrimitiveDigis+DMHcalDigis*DMHcalTTPDigis)
 
-postDMDigi = cms.Sequence(ecalDigiSequenceDM+hcalDigiSequenceDM)
-
-# GEM and ME0 have additional digi sequences
-from SimMuon.GEMDigitizer.muonGEMDigi_cff import muonGEMDigiDM
-from SimMuon.GEMDigitizer.muonME0Digi_cff import muonME0DigiDM
-_phase2_postDMDigi = postDMDigi.copy()
-_phase2_postDMDigi += (muonGEMDigiDM+muonME0DigiDM)
-from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-phase2_muon.toReplaceWith(postDMDigi, _phase2_postDMDigi)
+postDMDigi = cms.Sequence(ecalDigiSequenceDM+hcalDigiSequenceDM+muonDigi)
 
 # disable adding noise to HCAL cells with no MC signal
 #mixData.doEmpty = False

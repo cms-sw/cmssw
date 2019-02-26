@@ -28,7 +28,7 @@ class GenericMVAComputerCache {
 		~IndividualComputer();
 
 		std::string						label;
-		std::auto_ptr<GenericMVAComputer>			computer;
+		std::unique_ptr<GenericMVAComputer>			computer;
 		PhysicsTools::Calibration::MVAComputer::CacheId		cacheId;
 	};
 

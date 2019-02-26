@@ -52,7 +52,7 @@ ________________________________________________________________**/
 class DQMStore;
 class MonitorElement;
 
-class CorrPCCProducer : public DQMEDAnalyzer {
+class CorrPCCProducer : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
     public:
         explicit CorrPCCProducer(const edm::ParameterSet&);
         ~CorrPCCProducer() override;

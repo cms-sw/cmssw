@@ -22,6 +22,7 @@ class TaggingVariablePlotter: public BaseTagInfoPlotter {
 
   ~TaggingVariablePlotter () override;
 
+  using BaseTagInfoPlotter::analyzeTag;
   void analyzeTag(const reco::BaseTagInfo * baseTagInfo, double jec, int jetFlavour, float w=1) override;
   void analyzeTag(const reco::TaggingVariableList & variables, int jetFlavour, float w=1);
 

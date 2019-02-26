@@ -52,7 +52,7 @@ void NamedCandCombinerBase::combine(NamedCompositeCandidate & cmp, const Candida
   setup(cmp);
 }
 
-auto_ptr<NamedCompositeCandidateCollection> 
+unique_ptr<NamedCompositeCandidateCollection> 
 NamedCandCombinerBase::combine(const vector<CandidatePtrVector> & src,
 			       string_coll const & names) const {
   size_t srcSize = src.size();
@@ -65,7 +65,7 @@ NamedCandCombinerBase::combine(const vector<CandidatePtrVector> & src,
     throw edm::Exception(edm::errors::Configuration)
       << "NamedCandCombiner: need to add 2 names, but size is " << names.size();
   
-  auto_ptr<NamedCompositeCandidateCollection> comps(new NamedCompositeCandidateCollection);
+  unique_ptr<NamedCompositeCandidateCollection> comps(new NamedCompositeCandidateCollection);
   if(srcSize == 2) {
     CandidatePtrVector src1 = src[0], src2 = src[1];
     if(src1 == src2) {
@@ -106,7 +106,7 @@ NamedCandCombinerBase::combine(const vector<CandidatePtrVector> & src,
   return comps;
 }
 
-auto_ptr<NamedCompositeCandidateCollection> 
+unique_ptr<NamedCompositeCandidateCollection> 
 NamedCandCombinerBase::combine(const CandidatePtrVector & src, string_coll const & names) const {
   if(checkCharge_ && dauCharge_.size() != 2)
     throw edm::Exception(edm::errors::Configuration) 
@@ -117,7 +117,7 @@ NamedCandCombinerBase::combine(const CandidatePtrVector & src, string_coll const
     throw edm::Exception(edm::errors::Configuration)
       << "NamedCandCombiner: need to add 2 names, but size is " << names.size();
 
-  auto_ptr<NamedCompositeCandidateCollection> comps(new NamedCompositeCandidateCollection);
+  unique_ptr<NamedCompositeCandidateCollection> comps(new NamedCompositeCandidateCollection);
   const int n = src.size();
   for(int i1 = 0; i1 < n; ++i1) {
     const Candidate & c1 = *(src[i1]);
@@ -135,7 +135,7 @@ NamedCandCombinerBase::combine(const CandidatePtrVector & src, string_coll const
   return comps;
 }
 
-auto_ptr<NamedCompositeCandidateCollection> 
+unique_ptr<NamedCompositeCandidateCollection> 
 NamedCandCombinerBase::combine(const CandidatePtrVector & src1, const CandidatePtrVector & src2, string_coll const & names) const {
   vector<CandidatePtrVector> src;
   src.push_back(src1);
@@ -143,7 +143,7 @@ NamedCandCombinerBase::combine(const CandidatePtrVector & src1, const CandidateP
   return combine(src, names);
 }
 
-auto_ptr<NamedCompositeCandidateCollection> 
+unique_ptr<NamedCompositeCandidateCollection> 
 NamedCandCombinerBase::combine(const CandidatePtrVector & src1, const CandidatePtrVector & src2, const CandidatePtrVector & src3, 
 			       string_coll const & names) const {
   vector<CandidatePtrVector> src;
@@ -153,7 +153,7 @@ NamedCandCombinerBase::combine(const CandidatePtrVector & src1, const CandidateP
   return combine(src, names);
 }
 
-auto_ptr<NamedCompositeCandidateCollection> 
+unique_ptr<NamedCompositeCandidateCollection> 
 NamedCandCombinerBase::combine(const CandidatePtrVector & src1, const CandidatePtrVector & src2, 
 			       const CandidatePtrVector & src3, const CandidatePtrVector & src4, 
 			       string_coll const & names) const {
@@ -169,7 +169,7 @@ void NamedCandCombinerBase::combine(size_t collectionIndex, CandStack & stack, C
 				    string_coll const & names,
 				    vector<CandidatePtrVector>::const_iterator collBegin,
 				    vector<CandidatePtrVector>::const_iterator collEnd,
-				    auto_ptr<NamedCompositeCandidateCollection> & comps) const {
+				    unique_ptr<NamedCompositeCandidateCollection> & comps) const {
   if(collBegin == collEnd) {
     static const int undetermined = 0, sameDecay = 1, conjDecay = -1, wrongDecay = 2;
     int decayType = undetermined;

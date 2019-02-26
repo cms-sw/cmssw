@@ -20,6 +20,7 @@
   <use   name="PhysicsTools/PatUtils"/>
   <use   name="CondFormats/JetMETObjects"/>
   <use   name="CommonTools/CandAlgos"/>
+  <use   name="CommonTools/MVAUtils"/>
   <use   name="JetMETCorrections/Objects"/>
   <use   name="JetMETCorrections/JetCorrector"/>
   <use   name="TrackingTools/TransientTrack"/>

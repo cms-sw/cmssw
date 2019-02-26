@@ -4,9 +4,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include <boost/bind.hpp>
-
-namespace reco { namespace tau {
+namespace reco::tau {
 
 namespace {
   // Get the KF track if it exists.  Otherwise, see if PFCandidate has a GSF track.
@@ -194,7 +192,7 @@ bool trkChi2_cand(const PFCandidate& cand, double cut)
 // And a set of qcuts
 bool AND(const TrackBaseRef& track, const RecoTauQualityCuts::TrackQCutFuncCollection& cuts) 
 {
-  BOOST_FOREACH( const RecoTauQualityCuts::TrackQCutFunc& func, cuts ) {
+  for(auto const& func : cuts ) {
     if ( !func(track) ) return false;
   }
   return true;
@@ -202,7 +200,7 @@ bool AND(const TrackBaseRef& track, const RecoTauQualityCuts::TrackQCutFuncColle
 
 bool AND_cand(const PFCandidate& cand, const RecoTauQualityCuts::CandQCutFuncCollection& cuts) 
 {
-  BOOST_FOREACH( const RecoTauQualityCuts::CandQCutFunc& func, cuts ) {
+  for(auto const& func : cuts ) {
     if ( !func(cand) ) return false;
   }
   return true;
@@ -231,7 +229,7 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts)
   std::set<std::string> passedOptionSet;
   std::vector<std::string> passedOptions = qcuts.getParameterNames();
 
-  BOOST_FOREACH(const std::string& option, passedOptions) {
+  for(auto const& option : passedOptions) {
     passedOptionSet.insert(option);
   }
 
@@ -281,7 +279,7 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts)
   if ( !passedOptionSet.empty() ) {
     std::string unParsedOptions;
     bool thereIsABadParameter = false;
-    BOOST_FOREACH( const std::string& option, passedOptionSet ) {
+    for(auto const& option : passedOptionSet ) {
       // Workaround for HLT - TODO FIXME
       if ( option == "useTracksInsteadOfPFHadrons" ) {
         // Crash if true - no one should have this option enabled.
@@ -320,7 +318,7 @@ std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(const edm::Para
   edm::ParameterSet nonPUCuts;
 
   std::vector<std::string> inputNames = input.getParameterNames();
-  BOOST_FOREACH( const std::string& cut, inputNames ) {
+  for(auto const& cut : inputNames ) {
     if ( cut == "minTrackVertexWeight" || 
 	 cut == "maxDeltaZ"            ||
 	 cut == "maxDeltaZToLeadTrack" ) {
@@ -445,4 +443,4 @@ void RecoTauQualityCuts::setLeadTrack(const reco::PFCandidateRef& leadCand) cons
   }
 }
 
-}} // end namespace reco::tau
+} // end namespace reco::tau

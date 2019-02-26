@@ -87,7 +87,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   if (h_gem.isValid()) {
     streamCache(iID)->setGEMGeometry(&*h_gem);
   } else {
-    edm::LogInfo("L1CSCTPEmulatorNoGEMGeometry")
+    edm::LogInfo("CSCTriggerPrimitivesProducer|NoGEMGeometry")
       << "+++ Info: GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
   }
 
@@ -102,7 +102,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
     edm::ESHandle<CSCDBL1TPParameters> conf;
     setup.get<CSCDBL1TPParametersRcd>().get(conf);
     if (conf.product() == nullptr) {
-      edm::LogError("L1CSCTPEmulatorConfigError")
+      edm::LogError("CSCTriggerPrimitivesProducer|ConfigError")
         << "+++ Failed to find a CSCDBL1TPParametersRcd in EventSetup! +++\n"
         << "+++ Cannot continue emulation without these parameters +++\n";
       return;
@@ -143,14 +143,14 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   std::unique_ptr<GEMCoPadDigiCollection> oc_gemcopad(new GEMCoPadDigiCollection);
 
   if (!wireDigis.isValid()) {
-    edm::LogWarning("L1CSCTPEmulatorNoInputCollection")
+    edm::LogWarning("CSCTriggerPrimitivesProducer|NoInputCollection")
       << "+++ Warning: Collection of wire digis with label "
       << wireDigiProducer_.label()
       << " requested in configuration, but not found in the event..."
       << " Skipping production of CSC TP digis +++\n";
   }
   if (!compDigis.isValid()) {
-    edm::LogWarning("L1CSCTPEmulatorNoInputCollection")
+    edm::LogWarning("CSCTriggerPrimitivesProducer|NoInputCollection")
       << "+++ Warning: Collection of comparator digis with label "
       << compDigiProducer_.label()
       << " requested in configuration, but not found in the event..."

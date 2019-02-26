@@ -79,7 +79,7 @@ public:
   static double invDimuonMass( const lorentzVector & mu1, const lorentzVector & mu2 );
   static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2 );
   static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, const std::vector<double> & parval );
-  static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, std::auto_ptr<double> parval );
+  static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, std::unique_ptr<double> parval );
   static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, double* parval );
   static double massResolution( const lorentzVector& mu1, const lorentzVector& mu2, const ResolutionFunction & resolFunc );
 

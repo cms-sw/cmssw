@@ -34,7 +34,7 @@ public:
     /// public methods
 
     /// L1 GT parameters
-    std::shared_ptr<L1TGlobalParameters> produceGtStableParameters(
+    std::unique_ptr<L1TGlobalParameters> produceGtStableParameters(
         const L1TGlobalParametersRcd&);
 
 private:
@@ -157,13 +157,10 @@ StableParametersTrivialProducer::~StableParametersTrivialProducer() {
 // member functions
 
 // method called to produce the data
-std::shared_ptr<L1TGlobalParameters> StableParametersTrivialProducer::produceGtStableParameters(const L1TGlobalParametersRcd& iRecord) {
+std::unique_ptr<L1TGlobalParameters> StableParametersTrivialProducer::produceGtStableParameters(const L1TGlobalParametersRcd& iRecord) {
 
   // Return copy so that we don't give away our owned pointer to framework
-  auto pL1uGtStableParameters = std::make_shared<L1TGlobalParameters>(*data_.getWriteInstance());
-
-  return pL1uGtStableParameters;
-  
+  return std::make_unique<L1TGlobalParameters>(*data_.getWriteInstance());
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(StableParametersTrivialProducer);

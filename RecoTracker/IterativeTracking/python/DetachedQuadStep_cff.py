@@ -54,7 +54,7 @@ detachedQuadStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "detachedQuadStepSeedLayers",
     trackingRegions = "detachedQuadStepTrackingRegions",
     layerPairs = [0,1,2], # layer pairs (0,1), (1,2), (2,3),
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
@@ -203,18 +203,26 @@ detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
 fastSim.toModify(detachedQuadStepTracks,TTRHBuilder = 'WithoutRefit')
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
-from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
-detachedQuadStep = TrackMVAClassifierDetached.clone(
+from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
+detachedQuadStep = TrackLwtnnClassifier.clone(
     src = 'detachedQuadStepTracks',
-    mva = dict(GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1'),
-    qualityCuts = [-0.5,0.0,0.5],
+    qualityCuts = [-0.6, 0.05, 0.7],
 )
 fastSim.toModify(detachedQuadStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
-highBetaStar_2018.toModify(detachedQuadStep,qualityCuts = [-0.7,0.0,0.5])
-pp_on_AA_2018.toModify(detachedQuadStep, 
-        mva = dict(GBRForestLabel = 'HIMVASelectorDetachedQuadStep_Phase1'),
-        qualityCuts = [-0.2, 0.2, 0.5],
-)
+
+from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
+highBetaStar_2018.toReplaceWith(detachedQuadStep, TrackMVAClassifierDetached.clone(
+    src = 'detachedQuadStepTracks',
+    qualityCuts = [-0.7,0.0,0.5],
+    mva = dict(GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1')
+))
+
+pp_on_AA_2018.toReplaceWith(detachedQuadStep, TrackMVAClassifierDetached.clone(
+    src = 'detachedQuadStepTracks',
+    qualityCuts = [-0.2, 0.2, 0.5],
+    mva = dict(GBRForestLabel = 'HIMVASelectorDetachedQuadStep_Phase1')
+))
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

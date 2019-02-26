@@ -54,6 +54,15 @@ simHGCalUnsuppressedDigis = cms.EDAlias(
         ),
     )
 )
+simHFNoseUnsuppressedDigis = cms.EDAlias(
+    mix = cms.VPSet(
+        cms.PSet(
+            type = cms.string("DetIdHGCSampleHGCDataFramesSorted"),
+            fromProductInstance = cms.string("HFNoseDigis"),
+            toProductInstance = cms.string("HFNose"),
+        ),
+    )
+)
 
 # no castor,pixel,strip digis in fastsim
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
@@ -75,3 +84,6 @@ from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
         2 : dict(type = "PHGCSimAccumulator"),
     }
 )
+
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+(~phase2_hfnose).toModify(simHFNoseUnsuppressedDigis, mix = None)

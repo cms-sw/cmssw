@@ -36,7 +36,7 @@ class DTTFParametersOnlineProd :
       DTTFParametersOnlineProd(const edm::ParameterSet&);
       ~DTTFParametersOnlineProd() override;
 
-      std::shared_ptr< L1MuDTTFParameters > newObject(
+      std::unique_ptr< L1MuDTTFParameters > newObject(
         const std::string& objectKey ) override ;
 
    private:
@@ -66,12 +66,10 @@ DTTFParametersOnlineProd::~DTTFParametersOnlineProd()
 
 }
 
-std::shared_ptr< L1MuDTTFParameters >
+std::unique_ptr< L1MuDTTFParameters >
 DTTFParametersOnlineProd::newObject( const std::string& objectKey )
 {
-     using namespace edm::es;
-
-     auto pDTTFParameters = std::make_shared< L1MuDTTFParameters >() ;
+     auto pDTTFParameters = std::make_unique< L1MuDTTFParameters >() ;
 
      pDTTFParameters->reset() ;
 
@@ -98,7 +96,7 @@ DTTFParametersOnlineProd::newObject( const std::string& objectKey )
        {
 	 edm::LogError( "L1-O2O" )
 	   << "Problem with L1MuDTTFParameters key " << objectKey ;
-	 return std::shared_ptr< L1MuDTTFParameters >() ;
+	 return std::unique_ptr< L1MuDTTFParameters >() ;
        }
 
      // print crate keys -- delete when done debugging
@@ -180,7 +178,7 @@ DTTFParametersOnlineProd::newObject( const std::string& objectKey )
 		   {
 		     edm::LogError( "L1-O2O" )
 		       << "Problem with WEDGE_CRATE_CONF key." ;
-		     return std::shared_ptr< L1MuDTTFParameters >() ;
+		     return std::unique_ptr< L1MuDTTFParameters >() ;
 		   }
 		 
 		 std::string dummy ;
@@ -200,7 +198,7 @@ DTTFParametersOnlineProd::newObject( const std::string& objectKey )
 		       {
 			 edm::LogError( "L1-O2O" )
 			   << "Problem with PHTF_CONF key." ;
-			 return std::shared_ptr< L1MuDTTFParameters >() ;
+			 return std::unique_ptr< L1MuDTTFParameters >() ;
 		       }
 		     
 		     long long tmp ;

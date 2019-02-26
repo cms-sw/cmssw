@@ -36,6 +36,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
   int nTT4 = CaloTools::calNrTowers(-1*params_->egPUSParam(1),
 				    params_->egPUSParam(1),
 				    1,72,towers,1+params_->pileUpTowerThreshold(),999,CaloTools::CALO);
+  if(nTT4 > 255) nTT4 = 255;
   unsigned int compNTT4 = params_->egCompressShapesLUT()->data((0x1<<7)+(0x1<<8)+(0x1<<5)+nTT4);
 
 
@@ -181,17 +182,13 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
     // saturate energy sums if saturated TP/tower
 
-    if(ecalEtSat) etem = 0xffff;
-    if(ettSat) et = 0xffff;
-    if(ettHFSat) etHF = 0xffff;
-    if(metSat){ 
-      ex = 0x7fffffff;
-      ey = 0x7fffffff;
-    }
-    if(metHFSat){
-      exHF = 0x7fffffff;
-      eyHF = 0x7fffffff;
-    }
+    if(ecalEtSat || etem > 0xffff) etem = 0xffff;
+    if(ettSat || et > 0xffff) et = 0xffff;
+    if(ettHFSat || etHF > 0xffff) etHF = 0xffff;
+    if(metSat || ex > 0x7fffffff) ex = 0x7fffffff;
+    if(metSat || ey > 0x7fffffff) ey = 0x7fffffff;
+    if(metHFSat || exHF > 0x7fffffff) exHF = 0x7fffffff;
+    if(metHFSat || eyHF > 0x7fffffff) eyHF = 0x7fffffff;
     
     l1t::EtSum etSumTotalEt(p4,l1t::EtSum::EtSumType::kTotalEt,et,0,0,0);
     l1t::EtSum etSumEx(p4,l1t::EtSum::EtSumType::kTotalEtx,ex,0,0,0);

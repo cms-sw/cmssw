@@ -31,7 +31,6 @@ class L1GctElectronFinalSort : public L1GctProcessor
 public:
   /// Use some definitions from the ElectronSorter in the leaf cards
   typedef L1GctElectronSorter::prioritisedEmCand prioritisedEmCand;
-  typedef L1GctElectronSorter::rank_gt           rank_gt;
   ///     
   /// constructor
   L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* posEtaCard,

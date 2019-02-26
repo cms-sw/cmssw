@@ -54,27 +54,34 @@ void TrackMVAClassifierBase::produce(edm::Event& evt, const edm::EventSetup& es 
   initEvent(es);
 
   // products
+  auto mvaPairs = std::make_unique<MVAPairCollection>(tracks.size(),std::make_pair(-99.f,true));
   auto mvas  = std::make_unique<MVACollection>(tracks.size(),-99.f);
   auto quals = std::make_unique<QualityMaskCollection>(tracks.size(),0);
 
   if ( hVtx.isValid() && !ignoreVertices_ ) {
-    computeMVA(tracks,*hBsp,*hVtx,*mvas);
+    computeMVA(tracks,*hBsp,*hVtx,*mvaPairs);
   } else {
     if ( !ignoreVertices_ ) 
       edm::LogWarning("TrackMVAClassifierBase") << "ignoreVertices is set to False in the configuration, but the vertex collection is not valid"; 
     std::vector<reco::Vertex> vertices;
-    computeMVA(tracks,*hBsp,vertices,*mvas);
+    computeMVA(tracks,*hBsp,vertices,*mvaPairs);
   }    
-  assert((*mvas).size()==tracks.size());
+  assert((*mvaPairs).size()==tracks.size());
 
   unsigned int k=0;
-  for (auto mva : *mvas) {
+  for (auto const& output : *mvaPairs) {
+    if(output.second){
+      (*mvas)[k] = output.first;
+    }else{
+      // If the MVA value is known to be unreliable, force into generalTracks collection
+      (*mvas)[k] = std::max(output.first, float(qualityCuts[0]+0.001));
+    }
+    float mva = (*mvas)[k];
     (*quals)[k++]
       =  (mva>qualityCuts[0]) << reco::TrackBase::loose
       |  (mva>qualityCuts[1]) << reco::TrackBase::tight
       |  (mva>qualityCuts[2]) << reco::TrackBase::highPurity
-     ;
-
+    ;
   }
   
 

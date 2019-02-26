@@ -18,7 +18,7 @@ public:
   HcalParametersESModule( const edm::ParameterSet & );
   ~HcalParametersESModule( void ) override;
   
-  typedef std::shared_ptr<HcalParameters> ReturnType;
+  using ReturnType = std::unique_ptr<HcalParameters>;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & );
   
@@ -45,11 +45,11 @@ HcalParametersESModule::produce( const HcalParametersRcd& iRecord ) {
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
   
-  HcalParameters* ptp = new HcalParameters();
+  auto ptp = std::make_unique<HcalParameters>();
   HcalParametersFromDD builder;
   builder.build( &(*cpv), *ptp );
   
-  return ReturnType( ptp ) ;
+  return ptp;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE( HcalParametersESModule);

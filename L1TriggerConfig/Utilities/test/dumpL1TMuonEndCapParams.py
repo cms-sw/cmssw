@@ -62,13 +62,13 @@ if len(options.topKey) :
     process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('EMTF')
     # include the system-specific subkeys ESProducer (generates EMTF labeled L1TriggerKey)
-    process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonEndcapObjectKeysOnline_cfi")
-    process.L1TMuonEndcapObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth    )
-    process.L1TMuonEndcapObjectKeysOnline.onlineDB             = cms.string( options.DBConnect )
+    process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonEndCapObjectKeysOnline_cfi")
+    process.L1TMuonEndCapObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth    )
+    process.L1TMuonEndCapObjectKeysOnline.onlineDB             = cms.string( options.DBConnect )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
     process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
-    process.L1TriggerKeyDummyExt.tscKey = cms.string('dummyL1TMuonEndcap')
+    process.L1TriggerKeyDummyExt.tscKey = cms.string('dummyL1TMuonEndCap')
     process.L1TriggerKeyDummyExt.objectKeys = cms.VPSet(
         cms.PSet(
             record = cms.string('L1TMuonEndCapParamsO2ORcd'),

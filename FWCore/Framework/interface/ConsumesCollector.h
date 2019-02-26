@@ -92,6 +92,24 @@ namespace edm {
       m_consumer->consumesMany<B>(id);
     }
     
+    // For consuming event-setup products
+    template <typename ESProduct, typename ESRecord, Transition Tr = Transition::Event>
+    auto esConsumes()
+    {
+      return esConsumes<ESProduct, ESRecord, Tr>(ESInputTag{});
+    }
+
+    template <typename ESProduct, typename ESRecord, Transition Tr = Transition::Event>
+    auto esConsumes(ESInputTag const& tag)
+    {
+      return m_consumer->esConsumes<ESProduct, ESRecord, Tr>(tag);
+    }
+
+    template <typename ESProduct, Transition Tr = Transition::Event>
+    auto esConsumes(eventsetup::EventSetupRecordKey const& key, ESInputTag const& tag)
+    {
+      return m_consumer->esConsumes<ESProduct, Tr>(key, tag);
+    }
 
   private:
     //only EDConsumerBase is allowed to make an instance of this class

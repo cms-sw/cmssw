@@ -61,7 +61,7 @@ print("submitted jobs:", len(submitted_jobs))
 # deal with submitted jobs by looking into output of shell (bjobs/condor_q)
 if len(submitted_jobs) > 0:
     job_status = {}
-    if "htcondor" in lib.get_class("pede"):
+    if "htcondor" in lib.get_class("pede") or "htcondor" in lib.get_class("mille"):
         condor_q = subprocess.check_output(["condor_q", "-af:j",
                                             "JobStatus", "RemoteSysCpu"],
                                            stderr = subprocess.STDOUT)
@@ -128,7 +128,7 @@ for job_id, mps_index in submitted_jobs.items(): # IMPORTANT to copy here (no it
         continue
 
     # check if it is a HTCondor job already moved to "history"
-    elif "htcondor" in lib.get_class("pede"):
+    elif "htcondor" in lib.get_class("pede") or "htcondor" in lib.get_class("mille"):
         userlog = os.path.join("jobData", lib.JOBDIR[mps_index], "HTCJOB")
         condor_h = subprocess.check_output(["condor_history", job_id, "-limit", "1",
                                             "-userlog", userlog,

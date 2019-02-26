@@ -25,7 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <Math/VectorUtil.h>
 
-class CATopJetHelperUser : public std::unary_function<reco::Jet, reco::CATopJetProperties> {
+class CATopJetHelperUser {
  public:
 
   CATopJetHelperUser(double TopMass) :

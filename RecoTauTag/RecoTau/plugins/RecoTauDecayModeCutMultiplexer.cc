@@ -1,4 +1,3 @@
-#include <boost/foreach.hpp>
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -27,7 +26,7 @@ RecoTauDecayModeCutMultiplexer::RecoTauDecayModeCutMultiplexer(
   typedef std::vector<edm::ParameterSet> VPSet;
   const VPSet& decayModes = pset.getParameter<VPSet>("decayModes");
   // Setup our cut map
-  BOOST_FOREACH(const edm::ParameterSet &dm, decayModes) {
+  for(auto const& dm : decayModes) {
     // Get the mass window for each decay mode
     decayModeCuts_.insert(std::make_pair(
             // The decay mode as a key

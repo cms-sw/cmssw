@@ -76,7 +76,8 @@ private:
   // ----------member data ---------------------------
   const std::vector<std::string>        nameDetectors_, caloHitSources_;
   const double                          rmin_, rmax_, zmin_, zmax_;
-  const int                             nbinR_, nbinZ_, verbosity_;
+  const double                          etamin_, etamax_;
+  const int                             nbinR_, nbinZ_, nbinEta_, verbosity_;
   const bool                            ifNose_;
   std::vector<const HGCalDDDConstants*> hgcons_;
   const HcalDDDRecConstants*            hcons_;
@@ -96,8 +97,11 @@ HGCalSimHitStudy::HGCalSimHitStudy(const edm::ParameterSet& iConfig) :
   rmax_(iConfig.getUntrackedParameter<double>("rMax",3000.0)),
   zmin_(iConfig.getUntrackedParameter<double>("zMin",3000.0)),
   zmax_(iConfig.getUntrackedParameter<double>("zMax",6000.0)),
+  etamin_(iConfig.getUntrackedParameter<double>("etaMin",1.0)),
+  etamax_(iConfig.getUntrackedParameter<double>("etaMax",3.0)),
   nbinR_(iConfig.getUntrackedParameter<int>("nBinR",300)),
   nbinZ_(iConfig.getUntrackedParameter<int>("nBinZ",300)),
+  nbinEta_(iConfig.getUntrackedParameter<int>("nBinEta",200)),
   verbosity_(iConfig.getUntrackedParameter<int>("verbosity",0)),
   ifNose_(iConfig.getUntrackedParameter<bool>("ifNose",false)) {
 
@@ -125,8 +129,11 @@ void HGCalSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.addUntracked<double>("rMax",3000.0);
   desc.addUntracked<double>("zMin",3000.0);
   desc.addUntracked<double>("zMax",6000.0);
+  desc.addUntracked<double>("etaMin",1.0);
+  desc.addUntracked<double>("etaMax",3.0);
   desc.addUntracked<int>("nBinR",300);
   desc.addUntracked<int>("nBinZ",300);
+  desc.addUntracked<int>("nBinEta",200);
   desc.addUntracked<int>("verbosity",0);
   desc.addUntracked<bool>("ifNose",false);
   descriptions.add("hgcalSimHitStudy",desc);
@@ -378,7 +385,8 @@ void HGCalSimHitStudy::beginJob() {
     }
     h_EtaPhi_.emplace_back(fs->make<TH2D>(name.str().c_str(), 
 					  title.str().c_str(),
-					  200,1.0,3.0,200,-M_PI,M_PI));
+					  nbinEta_,etamin_,etamax_,
+					  200,-M_PI,M_PI));
     name.str(""); title.str("");
     if (ih == 0) {
       name << "EtFiZp_AllDetectors";
@@ -389,7 +397,8 @@ void HGCalSimHitStudy::beginJob() {
     }
     h_EtFiZp_.emplace_back(fs->make<TH2D>(name.str().c_str(), 
 					  title.str().c_str(),
-					  200,1.0,3.0,200,-M_PI,M_PI));
+					  nbinEta_,etamin_,etamax_,
+					  200,-M_PI,M_PI));
     name.str(""); title.str("");
     if (ih == 0) {
       name << "EtFiZm_AllDetectors";
@@ -400,7 +409,8 @@ void HGCalSimHitStudy::beginJob() {
     }
     h_EtFiZm_.emplace_back(fs->make<TH2D>(name.str().c_str(), 
 					  title.str().c_str(),
-					  200,1.0,3.0,200,-M_PI,M_PI));
+					  nbinEta_,etamin_,etamax_,
+					  200,-M_PI,M_PI));
     name.str(""); title.str("");
     if (ih == 0) {
       name << "LayerZp_AllDetectors";

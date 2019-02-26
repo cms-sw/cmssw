@@ -3,14 +3,13 @@
 
 #include "PhysicsTools/Utilities/interface/Numerical.h"
 #include "PhysicsTools/Utilities/interface/Operations.h"
-#include <boost/math/common_factor.hpp>
-#include <boost/static_assert.hpp>
+#include <boost/integer/common_factor.hpp>
 
 namespace funct {
 
   template<int n, int m>
   struct FractionStruct { 
-    BOOST_STATIC_ASSERT(m != 0);
+    static_assert(m != 0);
     static const int numerator = n, denominator = m;
     double operator()() const { return double(n) / double (m); }
     operator double() const { return double(n) / double (m); }
@@ -18,7 +17,7 @@ namespace funct {
     double operator()(double, double) const { return double(n) / double (m); }
   };
   
-  template<int n, int m, unsigned gcd = boost::math::static_gcd<n, m>::value,
+  template<int n, int m, unsigned gcd = boost::integer::static_gcd<n, m>::value,
     int num = n / gcd, int den = m / gcd>
   struct PositiveFraction {
     typedef FractionStruct<num, den> type;

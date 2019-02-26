@@ -100,7 +100,7 @@ string printseed(const L3TkMuonProducer::SeedRef & s){
   TrajectorySeed::range r=s->recHits();
   TrajectorySeed::const_iterator it=r.first;
   for (;it!=r.second;++it)
-    ss<<"\n detId: "<<it->geographicalId()<<" position: "<<it->localPosition()<<" and error: "<<it->localPositionError();
+    ss<<"\n detId: " << std::hex <<it->geographicalId().rawId() << std::dec <<" position: "<<it->localPosition()<<" and error: "<<it->localPositionError();
   return ss.str();
 }
 

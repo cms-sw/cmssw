@@ -1,8 +1,7 @@
 #include "ForwardDiskSectorBuilderFromWedges.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 
 using namespace std;
 
@@ -20,7 +19,7 @@ ForwardDiskSectorBuilderFromWedges::operator()( const vector<const TECWedge*>& w
       edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromWedges: Trying to build " 
 				   << "Petal from Wedges at different z ! Delta Z = " << zdiff ;
     float wphi = (**i).surface().position().phi();
-    if ( PhiLess()( phiStart, wphi)) {
+    if ( Geom::phiLess( phiStart, wphi)) {
       wphimin = phiStart;
       wphimax = wphi;
     } else {
@@ -68,11 +67,11 @@ ForwardDiskSectorBuilderFromWedges::computeBounds( const vector<const TECWedge*>
     rmax = max( rmax, ro);
     zmin = min( zmin, zmi);
     zmax = max( zmax, zma);
-    if ( PhiLess()( phi1, phimin)) phimin = phi1;
-    if ( PhiLess()( phimax, phi2)) phimax = phi2;
+    if ( Geom::phiLess( phi1, phimin)) phimin = phi1;
+    if ( Geom::phiLess( phimax, phi2)) phimax = phi2;
   }
 
-  if (!PhiLess()(phimin, phimax)) 
+  if (!Geom::phiLess(phimin, phimax)) 
     edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromWedges : " 
 				 << "Something went wrong with Phi Sorting !";
   float zPos = (zmax+zmin)/2.;

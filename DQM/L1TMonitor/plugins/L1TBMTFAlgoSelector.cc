@@ -23,19 +23,47 @@ dqmBmtfAlgoSelector::L1TBMTFAlgoSelector::~L1TBMTFAlgoSelector() {
 void dqmBmtfAlgoSelector::L1TBMTFAlgoSelector::produce(edm::Event & eve, const edm::EventSetup & eveSetup)
 {
 
+  //Declare the Handlers
   edm::Handle<FEDRawDataCollection> feds;
   eve.getByToken(fedToken, feds);
+  edm::Handle<l1t::RegionalMuonCandBxCollection> bmtfKalman;
+  eve.getByToken(bmtfKalmanToken, bmtfKalman);
+  edm::Handle<l1t::RegionalMuonCandBxCollection> bmtfLegacy;
+  eve.getByToken(bmtfLegacyToken, bmtfLegacy);
 
-  //Get the fw-ver
+
+  //----> Make RegMuonCand Copies
+  auto *bmtfKalman_copy = new l1t::RegionalMuonCandBxCollection(*bmtfKalman);
+  auto *bmtfLegacy_copy = new l1t::RegionalMuonCandBxCollection(*bmtfLegacy);
+  edm::LogInfo("L1TDQM") << "copy RegionalMuonCandBxCollections created";
+  edm::LogInfo("L1TDQM") << "bmtfKalman_copy address: " << bmtfKalman_copy;
+  edm::LogInfo("L1TDQM") << "bmtfLegacy_copy address: " << bmtfLegacy_copy;
+
+
+  //-----> Get the fw-ver
   int nonEmptyFed=0;
   if (feds->FEDData(1376).size() > 0)
     nonEmptyFed = 1376;
   else if (feds->FEDData(1377).size() > 0)
     nonEmptyFed = 1377;
   else {
-    edm::LogError("L1TDQM") << "[L1TBMTFAlgoSelector] Both BMTF feds (1376, 1377) seem empty.";
-   // return;
+    edm::LogError("L1TDQM") << "[L1TBMTFAlgoSelector] Both BMTF feds (1376, 1377) seem empty."
+			    << "Using Default Configuration."
+			    << "Will be wrong if this is Kalman triggering and ZS is enabled";
+    //Define the default configuration
+    std::unique_ptr<l1t::RegionalMuonCandBxCollection> bmtfTriggering, bmtfSecondary;
+    bmtfTriggering.reset(bmtfLegacy_copy);
+    bmtfSecondary.reset(bmtfKalman_copy);
+    //Print in log the addresses
+    edm::LogInfo("L1TDQM") << "Triggering and Secondary pointers filled:";
+    edm::LogInfo("L1TDQM") << "bmtfTriggering address: " << bmtfTriggering.get();
+    edm::LogInfo("L1TDQM") << "bmtfSecondary address: " << bmtfSecondary.get();
+    //Produce the products
+    eve.put(std::move(bmtfTriggering),"BMTF");
+    eve.put(std::move(bmtfSecondary),"BMTF2");
+    return;
   }
+
   const FEDRawData& l1tRcd = feds->FEDData(nonEmptyFed);;
   edm::LogInfo("L1TDQM") << "L1T Rcd taken from the FEDData.";
   edm::LogInfo("L1TDQM") << "l1tRcd.size=" << l1tRcd.size() << "   for fed:" << nonEmptyFed;
@@ -70,21 +98,8 @@ void dqmBmtfAlgoSelector::L1TBMTFAlgoSelector::produce(edm::Event & eve, const e
     return;
   }
 
-  std::cout << "algo-rev obtained: " << algo_ver << std::endl;
 
-  // Make the Decision which Algo Triggers
-  edm::Handle<l1t::RegionalMuonCandBxCollection> bmtfKalman;
-  eve.getByToken(bmtfKalmanToken, bmtfKalman);
-  edm::Handle<l1t::RegionalMuonCandBxCollection> bmtfLegacy;
-  eve.getByToken(bmtfLegacyToken, bmtfLegacy);
-
-  auto *bmtfKalman_copy = new l1t::RegionalMuonCandBxCollection(*bmtfKalman);
-  auto *bmtfLegacy_copy = new l1t::RegionalMuonCandBxCollection(*bmtfLegacy);
-
-  edm::LogInfo("L1TDQM") << "copy RegionalMuonCandBxCollections created";
-  edm::LogInfo("L1TDQM") << "bmtfKalman_copy address: " << bmtfKalman_copy;
-  edm::LogInfo("L1TDQM") << "bmtfLegacy_copy address: " << bmtfLegacy_copy;
-
+  //----->Make the Decision which Algo Triggers
   std::unique_ptr<l1t::RegionalMuonCandBxCollection> bmtfTriggering, bmtfSecondary;
   if ( algo_ver >= 2499805536) {//95000160(hex)
     // kalman triggers

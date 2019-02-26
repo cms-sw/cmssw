@@ -281,12 +281,12 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
 
   //Get JEC
   const JetCorrector* corrector = nullptr;
-  if(doJEC) {
+  if (doJEC) {
     edm::Handle<GenEventInfoProduct> genInfoHandle; //check if data or MC
     iEvent.getByToken(genToken, genInfoHandle);
     edm::Handle<JetCorrector> corrHandle;
-    if( !genInfoHandle.isValid() ) iEvent.getByToken( jecDataToken, corrHandle);
-    else iEvent.getByToken( jecMCToken, corrHandle);
+    if ( !genInfoHandle.isValid() ) iEvent.getByToken(jecDataToken, corrHandle);
+    else iEvent.getByToken(jecMCToken, corrHandle);
     corrector = corrHandle.product();
   }
   //
@@ -309,14 +309,15 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
            (muonPlots && !leptons[tagI->first].muon) ||
            (tauPlots && !leptons[tagI->first].tau)))
          continue;
-      //JEC
-      reco::Jet correctedJet = *(tagI->first);
+      // JEC
       double jec = 1.0;
+      /*reco::Jet correctedJet = *(tagI->first);
       if(doJEC && corrector) {
         jec = corrector->correction(*(tagI->first));
-      }
+      }*/
 
       JetWithFlavour jetWithFlavour;
+      // also applies JEC to jet
       if (!getJetWithFlavour(iEvent, tagI->first, flavours, jetWithFlavour, corrector, genJetsMatched))
         continue;
       if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getPartonFlavour()), infoHandle, jec))
@@ -356,13 +357,14 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
         continue;
       
       //JEC
-      reco::Jet correctedJet = *(tagI->first);
       double jec = 1.0;
+      /*reco::Jet correctedJet = *(tagI->first);
       if(doJEC && corrector) {
         jec = corrector->correction(*(tagI->first));
-      }
+      }*/
 
       JetWithFlavour jetWithFlavour;
+      // also applies JEC to jet
       if (!getJetWithFlavour(iEvent, tagI->first, flavours, jetWithFlavour, corrector, genJetsMatched))
         continue;
       if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getPartonFlavour()), infoHandle, jec))
@@ -440,13 +442,14 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
          continue;
       
       //JEC
-      reco::Jet correctedJet = *(jetRef);
       double jec = 1.0;
+      /*reco::Jet correctedJet = *(jetRef);
       if(doJEC && corrector) {
         jec = corrector->correction(*(jetRef));
-      }
+      }*/
 
       JetWithFlavour jetWithFlavour;
+      // also applies JEC to jet
       if (!getJetWithFlavour(iEvent, jetRef, flavours, jetWithFlavour, corrector, genJetsMatched))
         continue;
       if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getPartonFlavour()), infoHandle, jec))
@@ -503,6 +506,7 @@ bool  BTagPerformanceAnalyzerMC::getJetWithFlavour(const edm::Event& iEvent,
       return false;
   }
 
+  // apply JEC
   jetWithFlavour.first = jetCorrector(*jetRef);
 
   auto itFound = flavours.find(jetRef);

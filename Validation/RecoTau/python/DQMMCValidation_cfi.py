@@ -32,12 +32,19 @@ produceDenoms = cms.Sequence(
 
 runTauEff = cms.Sequence(
     efficienciesQCD+
+    efficienciesQCDSummary+
     efficienciesRealData+
+    efficienciesRealDataSummary+
     efficienciesRealElectronsData+
+    efficienciesRealElectronsDataSummary+
     efficienciesRealMuonsData+
+    efficienciesRealMuonsDataSummary+
     efficienciesZEE+
+    efficienciesZEESummary+
     efficienciesZMM+
+    efficienciesZMMSummary+
     efficienciesZTT+
+    efficienciesZTTSummary+
     normalizePlotsZTT
     )
 ##Full sequences, including normalizations

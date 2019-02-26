@@ -46,13 +46,13 @@ class HiEgammaSCCorrectionMaker : public edm::stream::EDProducer<> {
 
    private:
 
-     EcalClusterFunctionBaseClass* EnergyCorrection_;
+     std::unique_ptr<EcalClusterFunctionBaseClass> EnergyCorrection_;
 
      // the debug level
      HiEgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity_;
 
      // pointer to the correction algo object
-     HiEgammaSCEnergyCorrectionAlgo *energyCorrector_;
+     std::unique_ptr<HiEgammaSCEnergyCorrectionAlgo> energyCorrector_;
     
      // vars for the correction algo
      bool applyEnergyCorrection_;

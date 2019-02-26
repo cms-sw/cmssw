@@ -5,9 +5,9 @@
 #include "Geometry/MTDNumberingBuilder/plugins/CmsMTDConstruction.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include <vector>
+#include "Geometry/MTDNumberingBuilder/plugins/mtdStablePhiSort.h"
 
-#include "Geometry/MTDNumberingBuilder/plugins/MTDStablePhiSort.h"
+#include <vector>
 
 void CmsMTDETLRingBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string s){
 
@@ -23,6 +23,6 @@ void CmsMTDETLRingBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det){
   GeometricTimingDet::ConstGeometricTimingDetContainer & comp = det->components();
 
   //increasing phi taking into account the sub-modules
-  MTDStablePhiSort(comp.begin(), comp.end(), ExtractPhiGluedModule());
+  mtdStablePhiSort(comp.begin(), comp.end(), getPhiGluedModule);
   
 }

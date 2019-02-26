@@ -46,8 +46,6 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   theCaloDepsLabel(par.existsAs<InputTag>("CaloDepositsLabel") ?
                    par.getParameter<InputTag>("CaloDepositsLabel") :
                    InputTag("hltL3CaloMuonCorrectedIsolations")),
-  caloExtractor(nullptr),
-  trkExtractor(nullptr),
   theTrackPt_Min(-1),
   printDebug (par.getParameter<bool>("printDebug"))
   {
@@ -74,7 +72,7 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
     edm::ParameterSet caloExtractorPSet = theConfig.getParameter<edm::ParameterSet>("CaloExtractorPSet");
 
     std::string caloExtractorName = caloExtractorPSet.getParameter<std::string>("ComponentName");
-    caloExtractor = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet, consumesCollector());
+    caloExtractor = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet, consumesCollector())};
     //std::string caloDepositType = caloExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
   }
 
@@ -84,7 +82,7 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
 
   theTrackPt_Min = theConfig.getParameter<double>("TrackPt_Min");
   std::string trkExtractorName = trkExtractorPSet.getParameter<std::string>("ComponentName");
-  trkExtractor = IsoDepositExtractorFactory::get()->create( trkExtractorName, trkExtractorPSet, consumesCollector());
+  trkExtractor = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{IsoDepositExtractorFactory::get()->create( trkExtractorName, trkExtractorPSet, consumesCollector())};
   //std::string trkDepositType = trkExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
 
   //
@@ -119,8 +117,6 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
 /// destructor
 L3MuonCombinedRelativeIsolationProducer::~L3MuonCombinedRelativeIsolationProducer(){
   LogDebug("RecoMuon|L3MuonCombinedRelativeIsolationProducer")<<" L3MuonCombinedRelativeIsolationProducer DTOR";
-  if (caloExtractor) delete caloExtractor;
-  if (trkExtractor) delete trkExtractor;
 }
 
 /// ParameterSet descriptions

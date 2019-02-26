@@ -38,6 +38,8 @@ public:
 private:
    FWTrackingParticleProxyBuilderFullFramework( const FWTrackingParticleProxyBuilderFullFramework& ) = delete;
    const FWTrackingParticleProxyBuilderFullFramework& operator=( const FWTrackingParticleProxyBuilderFullFramework& ) = delete;
+
+   using FWSimpleProxyBuilderTemplate<TrackingParticle>::build;
    void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
   
    void build( const TrackingParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;

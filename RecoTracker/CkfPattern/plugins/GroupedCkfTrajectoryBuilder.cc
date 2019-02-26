@@ -305,7 +305,7 @@ for (auto const & tm : traj.measurements()) {
   if ( trackerHitRTTI::isUndef(hit) ) continue;
   if ( hit.dimension()!=2 ) {
     ++chit[2];
-  } else {
+  } else if ( trackerHitRTTI::isFromDet(hit) ) {
     auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
     auto const & clus = thit.firstClusterRef();
     if (clus.isPixel()) ++chit[3];
@@ -315,7 +315,7 @@ for (auto const & tm : traj.measurements()) {
       ++chit[5];
     } else {
       ++chit[6];
-        }
+    }
   }
  }
 
@@ -817,8 +817,7 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
   return result;
 */
   theTrajectories.erase(std::remove_if( theTrajectories.begin(),theTrajectories.end(),
-                                        std::not1(std::mem_fun_ref(&TempTrajectory::isValid))),
- //                                     boost::bind(&TempTrajectory::isValid,_1)), 
+                                        std::not_fn(&TempTrajectory::isValid)),
                         theTrajectories.end());
 }
 
@@ -890,8 +889,8 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
   //
   result.swap(rebuiltTrajectories);
   result.erase(std::remove_if( result.begin(),result.end(),
-			       std::not1(std::mem_fun_ref(&TempTrajectory::isValid))),
-	       result.end());
+                               std::not_fn(&TempTrajectory::isValid)),
+               result.end());
 }
 
 int

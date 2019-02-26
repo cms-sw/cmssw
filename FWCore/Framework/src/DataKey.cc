@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     DataKey
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -22,33 +22,14 @@
 // constants, enums and typedefs
 //
 
-static const char kBlank[] = {'\0'};
-
-namespace edm {
-   namespace eventsetup {
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-DataKey::DataKey(): type_(), name_(), ownMemory_(false)
-{
+namespace {
+constexpr char kBlank[] = {'\0'};
 }
 
-// DataKey::DataKey(const DataKey& rhs)
-// {
-//    // do actual copying here;
-// }
+namespace edm::eventsetup {
 
-//DataKey::~DataKey()
-//{
-//}
+DataKey::DataKey() = default;
 
-//
-// assignment operators
-//
 DataKey& DataKey::operator=(const DataKey& rhs)
 {
    //An exception safe implementation is
@@ -76,8 +57,8 @@ DataKey::swap(DataKey& iOther)
          //used for exception safety
          class ArrayHolder {
          public:
-            ArrayHolder():ptr_(nullptr){}
-            
+            ArrayHolder() = default;
+
             void swap(ArrayHolder& iOther) {
                const char* t = iOther.ptr_;
                iOther.ptr_ = ptr_;
@@ -87,16 +68,17 @@ DataKey::swap(DataKey& iOther)
             ~ArrayHolder() { delete [] ptr_; }
             void release() { ptr_=nullptr;}
          private:
-            const char* ptr_;
+            const char* ptr_{nullptr};
          };
       }
-void 
+
+void
 DataKey::makeCopyOfMemory()
 {
    //empty string is the most common case, so handle it special
-   
+
    char* pName = const_cast<char*>(kBlank);
-   //NOTE: if in the future additional tags are added then 
+   //NOTE: if in the future additional tags are added then
    // I should make sure that pName gets deleted in the case
    // where an exception is thrown
    ArrayHolder pNameHolder;
@@ -124,30 +106,16 @@ DataKey::deleteMemory()
 // const member functions
 //
 bool
-DataKey::operator==(const DataKey& iRHS) const 
+DataKey::operator==(const DataKey& iRHS) const
 {
    return ((type_ == iRHS.type_) &&
             (name_ == iRHS.name_));
 }
 
 bool
-DataKey::operator<(const DataKey& iRHS) const 
+DataKey::operator<(const DataKey& iRHS) const
 {
    return (type_ < iRHS.type_) ||
    ((type_ == iRHS.type_) && (name_ < iRHS.name_));
-/*
-   if(type_ < iRHS.type_) {
-      return true;
-   } else if (type_ == iRHS.type_) {
-      if(name_ < iRHS.name_) {
-         return true;
-   }
-   return false;
-      */
 }
-
-//
-// static member functions
-//
-   }
 }

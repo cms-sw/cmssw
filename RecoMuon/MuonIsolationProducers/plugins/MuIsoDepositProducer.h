@@ -24,9 +24,6 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
   
 private:
-  //! module configuration
-  edm::ParameterSet theConfig;
-
   //! input type. Choose from:
   //! 
   std::string theInputType;
@@ -37,7 +34,6 @@ private:
   edm::EDGetToken theMuonCollectionTag;
   std::vector<std::string> theDepositNames;
   bool theMultipleDepositsFlag;
-  reco::isodeposit::IsoDepositExtractor * theExtractor;
-
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> theExtractor;
 };
 #endif

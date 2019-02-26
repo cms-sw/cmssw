@@ -49,11 +49,9 @@ class L1GctElectronSorter : public L1GctProcessor
   
   /// comparison operator for sort, used here and in the ElectronFinalSort
   /// Candidates of equal rank are sorted by priority, with the lower value given precedence
-  struct rank_gt : public std::binary_function<prioritisedEmCand, prioritisedEmCand, bool> {
-    bool operator()(const prioritisedEmCand& x, const prioritisedEmCand& y) {
-      return ( x.rank() > y.rank() || ( (x.rank() == y.rank()) && (x.priority < y.priority) ) ) ;
-    }
-  };
+  static bool rankByGt(const prioritisedEmCand& x, const prioritisedEmCand& y) {
+    return ( x.rank() > y.rank() || ( (x.rank() == y.rank()) && (x.priority < y.priority) ) ) ;
+  }
 
   /// constructor; set type (isolated or non-isolated)
   L1GctElectronSorter(int nInputs, bool iso);

@@ -1,20 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
-_barrel_MTDDigitizer = cms.PSet(
-    digitizerName     = cms.string("BTLDigitizer"),
+_barrel_tile_MTDDigitizer = cms.PSet(
+    digitizerName     = cms.string("BTLTileDigitizer"),
     inputSimHits      = cms.InputTag("g4SimHits:FastTimerHitsBarrel"),
     digiCollectionTag = cms.string("FTLBarrel"),
     maxSimHitsAccTime = cms.uint32(100),
     DeviceSimulation = cms.PSet(
         bxTime                   = cms.double(25),      # [ns] 
         LightYield               = cms.double(40000.),  # [photons/MeV]
-        LightCollectionEff       = cms.double(0.30),
+        LightCollectionEff       = cms.double(0.25),
         LightCollectionTime      = cms.double(0.2),     # [ns]
         smearLightCollectionTime = cms.double(0.),      # [ns]
         PhotonDetectionEff       = cms.double(0.20),
         ),
     ElectronicsSimulation = cms.PSet(
-        bxTime                     = cms.double(25),    # [ns] 
+        bxTime                     = cms.double(25),    # [ns]
+        TestBeamMIPTimeRes         = cms.double(4.293), # This is given by 0.048[ns]*sqrt(8000.), in order to
+                                                        # rescale the time resolution of 1 MIP = 8000 p.e.
         ScintillatorRiseTime       = cms.double(1.1),   # [ns]
         ScintillatorDecayTime      = cms.double(40.),   # [ns]
         ChannelTimeOffset          = cms.double(0.),    # [ns]
@@ -35,14 +37,31 @@ _barrel_MTDDigitizer = cms.PSet(
         adcNbits          = cms.uint32(10),
         # n bits for the TDC
         tdcNbits          = cms.uint32(10),
-        # ADC saturation (in pC)
-        adcSaturation_MIP = cms.double(600.),
+        # ADC saturation
+        adcSaturation_MIP = cms.double(600.),           # [pC]
         # for different thickness
-        adcThreshold_MIP   = cms.double(0.064),
-        # LSB for time of arrival estimate from TDC in ns
-        toaLSB_ns         = cms.double(0.020),
+        adcThreshold_MIP   = cms.double(0.064),         # [pC]
+        # LSB for time of arrival estimate from TDC
+        toaLSB_ns         = cms.double(0.020),          # [ns]
         )
     )
+
+_barrel_bar_MTDDigitizer = cms.PSet(
+    digitizerName     = cms.string("BTLBarDigitizer"),
+    inputSimHits      = cms.InputTag("g4SimHits:FastTimerHitsBarrel"),
+    digiCollectionTag = cms.string("FTLBarrel"),
+    maxSimHitsAccTime = cms.uint32(100),
+    DeviceSimulation = cms.PSet(
+        bxTime                   = cms.double(25),      # [ns]
+        LightYield               = cms.double(40000.),  # [photons/MeV]
+        LightCollectionEff       = cms.double(0.25),
+        LightCollectionSlopeR    = cms.double(0.075),   # [ns/cm]
+        LightCollectionSlopeL    = cms.double(0.075),   # [ns/cm]
+        PhotonDetectionEff       = cms.double(0.20),
+        ),
+    # The readout electronics is the same for both geometries:
+    ElectronicsSimulation = _barrel_tile_MTDDigitizer.ElectronicsSimulation
+)
 
 _endcap_MTDDigitizer = cms.PSet(
     digitizerName     = cms.string("ETLDigitizer"),
@@ -58,17 +77,17 @@ _endcap_MTDDigitizer = cms.PSet(
         bxTime             = cms.double(25),
         etaResolution      = cms.string("0.03+0.0025*x"), # This is just a dummy dependence on eta.
         # n bits for the ADC 
-        adcNbits           = cms.uint32(12),
+        adcNbits           = cms.uint32(8),
         # n bits for the TDC
-        tdcNbits           = cms.uint32(12),
+        tdcNbits           = cms.uint32(11),
         # ADC saturation
-        adcSaturation_MIP  = cms.double(102),
+        adcSaturation_MIP  = cms.double(25),
         # for different thickness
         adcThreshold_MIP   = cms.double(0.025),
         # LSB for time of arrival estimate from TDC in ns
-        toaLSB_ns          = cms.double(0.005),
+        toaLSB_ns          = cms.double(0.013),
         )
-    )
+)
 
 # Fast Timing
 mtdDigitizer = cms.PSet( 
@@ -76,7 +95,7 @@ mtdDigitizer = cms.PSet(
     makeDigiSimLinks  = cms.bool(False),
     verbosity         = cms.untracked.uint32(0),
 
-    barrelDigitizer = _barrel_MTDDigitizer,    
+    barrelDigitizer = _barrel_tile_MTDDigitizer,
     endcapDigitizer = _endcap_MTDDigitizer
 )
 

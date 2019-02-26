@@ -16,6 +16,7 @@
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 
 #include "cppunit/extensions/HelperMacros.h"
 
@@ -209,7 +210,7 @@ void testProductRegistry:: testProductRegistration() {
       "process.m2 = cms.EDProducer('TestPRegisterModule2')\n"
       "process.p = cms.Path(process.m1*process.m2)\n");
   try {
-    edm::EventProcessor proc(configuration, true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
   } catch(cms::Exception const& iException) {
     std::cout << "caught " << iException.explainSelf() << std::endl;
     throw;

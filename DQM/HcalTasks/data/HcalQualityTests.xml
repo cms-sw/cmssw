@@ -11,6 +11,9 @@
   <LINK name="*Hcal/DigiTask/LED_CUCountvsLS/Subdet/*">
     <TestName activate="true">LEDMisfireThreshold</TestName>
   </LINK>
+  <LINK name="*Hcal/DigiTask/LED_CUCountvsLSmod60/Subdet/*">
+    <TestName activate="true">LEDMisfireThreshold</TestName>
+  </LINK>
 
   <QTEST name="BadCapIDThreshold">
     <TYPE>ContentsWithinExpected</TYPE>

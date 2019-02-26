@@ -42,7 +42,7 @@ void
 CmsMTDBuilder::sortNS( DDFilteredView& fv, GeometricTimingDet* det )
 {  
   GeometricTimingDet::ConstGeometricTimingDetContainer & comp = det->components();
-  std::stable_sort( comp.begin(), comp.end(), subDetByType());
+  std::stable_sort( comp.begin(), comp.end(), subDetByType);
   
   for( uint32_t i = 0; i < comp.size(); i++ )
   {

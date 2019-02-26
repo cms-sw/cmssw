@@ -572,6 +572,8 @@ def _trackingSubFoldersFallbackFromPV(subfolder):
     return subfolder.replace("trackingParticleRecoAsssociation", "trackingParticleRecoAsssociationSignal")
 def _trackingSubFoldersFallbackConversion(subfolder):
     return subfolder.replace("quickAssociatorByHits", "quickAssociatorByHitsConversion")
+def _trackingSubFoldersFallbackPreSplitting(subfolder):
+    return subfolder.replace("quickAssociatorByHits", "quickAssociatorByHitsPreSplitting")
 
 # Additional "quality" flags than highPurity. In a separate list to
 # allow customization.
@@ -1294,7 +1296,8 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, only
     ], **limiters)
     common = dict(fallbackDqmSubFolders=[
         _trackingSubFoldersFallbackSLHC_Phase1PU140,
-        _trackingSubFoldersFallbackFromPV, _trackingSubFoldersFallbackConversion])
+        _trackingSubFoldersFallbackFromPV, _trackingSubFoldersFallbackConversion,
+        _trackingSubFoldersFallbackPreSplitting])
     plotter.append(name, folders, TrackingPlotFolder(*algoPlots, **commonForTPF), **common)
     extendedPlots = []
     if building:

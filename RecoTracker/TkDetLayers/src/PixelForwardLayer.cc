@@ -6,7 +6,7 @@
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
 #include "TrackingTools/DetLayers/interface/simple_stat.h"
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing2Order.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
@@ -216,7 +216,7 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
 
   //int next = turbinePoint.phi() - closestPlane.position().phi() > 0 ? closest+1 : closest-1;
 
-  int nextIndex = PhiLess()( closestPlane.phi(), turbinePoint.barePhi()) ? 
+  int nextIndex = Geom::phiLess( closestPlane.phi(), turbinePoint.barePhi()) ? 
     closestIndex+1 : closestIndex-1;
 
   const Plane& nextPlane( static_cast<const Plane&>( 

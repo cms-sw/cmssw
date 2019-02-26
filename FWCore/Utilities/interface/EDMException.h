@@ -58,6 +58,7 @@ namespace edm {
        NotFound = 8026,
        FormatIncompatibility = 8027,
        FallbackFileOpenError = 8028,
+       NoSecondaryFiles = 8029,
       
        ExceededResourceVSize = 8030,
        ExceededResourceRSS = 8031,

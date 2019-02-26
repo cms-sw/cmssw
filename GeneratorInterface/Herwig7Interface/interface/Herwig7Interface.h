@@ -43,7 +43,7 @@ namespace CLHEP {
 class Herwig7Interface {
     public:
 	Herwig7Interface(const edm::ParameterSet &params);
-	~Herwig7Interface();
+	~Herwig7Interface() noexcept;
 
         void setPEGRandomEngine(CLHEP::HepRandomEngine*);
 
@@ -56,14 +56,14 @@ class Herwig7Interface {
 	bool initGenerator();
 	void flushRandomNumberGenerator();
 
-	static std::auto_ptr<HepMC::GenEvent>
+	static std::unique_ptr<HepMC::GenEvent>
 				convert(const ThePEG::EventPtr &event);
 
 	static double pthat(const ThePEG::EventPtr &event);
 
 	
 
-	std::auto_ptr<HepMC::IO_BaseClass>	iobc_;
+	std::unique_ptr<HepMC::IO_BaseClass>	iobc_;
 
 	// HerwigUi contains settings piped to Herwig7
 	Herwig::HerwigUIProvider* HwUI_;
@@ -91,6 +91,7 @@ class Herwig7Interface {
 	// File name containing Herwig input config 
 	std::string				dumpConfig_;
 	const unsigned int			skipEvents_;
+    CLHEP::HepRandomEngine* randomEngine;
 };
 
 

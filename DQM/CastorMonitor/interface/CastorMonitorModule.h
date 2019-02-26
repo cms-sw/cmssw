@@ -84,19 +84,11 @@ protected:
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                            const edm::EventSetup& eventSetup) override;
-
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& eventSetup) override;
-  
   void endRun(const edm::Run& run, const edm::EventSetup& eventSetup) override;
 
 private:
 
   int fVerbosity;  
-  bool rawOK_,reportOK_,digiOK_,rechitOK_ ;
-  int irun_,ilumisec_,ievent_,ibunch_;
   std::string subsystemname_;
 //  int NBunchesOrbit;
   int ievt_;
@@ -115,20 +107,17 @@ private:
 
 //  std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
 
-  CastorRecHitMonitor*      RecHitMon_;
-  CastorDigiMonitor*        DigiMon_;
-  CastorLEDMonitor*         LedMon_;
+  std::unique_ptr<CastorRecHitMonitor>      RecHitMon_;
+  std::unique_ptr<CastorDigiMonitor>        DigiMon_;
+  std::unique_ptr<CastorLEDMonitor>         LedMon_;
 
 //  MonitorElement* algoBits_before_bxmask_bx_inEvt;
 //  MonitorElement* algoBits_before_bxmask_bx_global;
   MonitorElement* CastorEventProduct;
   MonitorElement* hunpkrep;
 
-  edm::ESHandle<CastorDbService> conditions_;
-
   bool showTiming_; 
   edm::CPUTimer cpu_timer; 
-  edm::ESHandle<CastorPedestals> dbPedestals;
 };
 
 #endif

@@ -143,14 +143,12 @@ namespace { // anonymous
 	// useful litte helpers
 
  	template<typename T>
-	struct deleter : public std::unary_function<T*, void> {
-		inline void operator() (T *ptr) const { delete ptr; }
-	};
+	static inline void deleter(T *ptr) { delete ptr; }
 
 	template<typename T>
 	struct auto_cleaner {
 		inline ~auto_cleaner()
-		{ std::for_each(clean.begin(), clean.end(), deleter<T>()); }
+		{ std::for_each(clean.begin(), clean.end(), deleter<T>); }
 
 		inline void add(T *ptr) { clean.push_back(ptr); }
 		std::vector<T*>	clean;
@@ -577,7 +575,7 @@ MVATrainer::~MVATrainer()
 	}
 	delete output;
 	std::for_each(variables.begin(), variables.end(),
-	              deleter<SourceVariable>());
+	              deleter<SourceVariable>);
 }
 
 void MVATrainer::loadState()

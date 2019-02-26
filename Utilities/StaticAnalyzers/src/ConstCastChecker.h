@@ -11,12 +11,14 @@
 #include <clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h>
 #include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
 #include "CmsException.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 
 namespace clangcms {
 
 class ConstCastChecker: public clang::ento::Checker< clang::ento::check::PreStmt< clang::CXXConstCastExpr> > {
 public:
-	mutable std::unique_ptr<clang::ento::BugType> BT;
+	CMS_THREAD_SAFE mutable std::unique_ptr<clang::ento::BugType> BT;
 	void checkPreStmt(const clang::CXXConstCastExpr *CE, clang::ento::CheckerContext &C) const;
 
 private:

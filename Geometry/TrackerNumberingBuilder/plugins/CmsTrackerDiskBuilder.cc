@@ -3,9 +3,10 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPanelBuilder.h"
-#include "Geometry/TrackerNumberingBuilder/plugins/TrackerStablePhiSort.h"
+#include "Geometry/TrackerNumberingBuilder/interface/trackerStablePhiSort.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <vector>
 #include <algorithm>
 
@@ -38,7 +39,7 @@ CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   switch( det->components().front()->type())
   {
   case GeometricDet::panel:
-    TrackerStablePhiSort( comp.begin(), comp.end(), ExtractPhi());
+    trackerStablePhiSort( comp.begin(), comp.end(), getPhi);
     break;
   default:
     edm::LogError( "CmsTrackerDiskBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();
@@ -54,13 +55,13 @@ CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   zmaxpanels.reserve( totalblade );
   for( uint32_t j = 0; j < totalblade; j++ )
   {
-    if( fabs( comp[2*j]->translation().z()) > fabs( comp[ 2*j +1 ]->translation().z()))
+    if( std::abs( comp[2*j]->translation().z()) > std::abs( comp[ 2*j +1 ]->translation().z()))
     {
       zmaxpanels.emplace_back( det->component(2*j) );
       zminpanels.emplace_back( det->component(2*j+1) );
 
     }
-    else if( fabs( comp[2*j]->translation().z()) < fabs( comp[ 2*j +1 ]->translation().z()))
+    else if( std::abs( comp[2*j]->translation().z()) < std::abs( comp[ 2*j +1 ]->translation().z()))
     {
       zmaxpanels.emplace_back( det->component(2*j+1) );
       zminpanels.emplace_back( det->component(2*j) );

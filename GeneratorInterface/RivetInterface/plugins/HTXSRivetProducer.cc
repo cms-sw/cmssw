@@ -44,11 +44,10 @@ public:
         produces<HTXS::HiggsClassification>("HiggsClassification").setBranchAlias("HiggsClassification");
 
     }
-    ~HTXSRivetProducer() ;
     
 private:
     
-    void produce( edm::Event&, const edm::EventSetup&) ;
+    void produce( edm::Event&, const edm::EventSetup&) override;
     
     void beginRun(edm::Run const& iRun, edm::EventSetup const& es) override ;
     void endRun(edm::Run const& iRun, edm::EventSetup const& es) override ;
@@ -66,9 +65,6 @@ private:
     HTXS::HiggsClassification cat_;
     
 };
-
-HTXSRivetProducer::~HTXSRivetProducer(){
-}
 
 void HTXSRivetProducer::produce( edm::Event & iEvent, const edm::EventSetup & ) {
     

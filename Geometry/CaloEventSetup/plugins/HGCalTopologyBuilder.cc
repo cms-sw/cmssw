@@ -45,7 +45,7 @@ public:
   HGCalTopologyBuilder( const edm::ParameterSet& iP );
   ~HGCalTopologyBuilder() override ;
 
-  typedef std::shared_ptr< HGCalTopology > ReturnType;
+  using ReturnType = std::unique_ptr<HGCalTopology>;
 
   ReturnType produce(const IdealGeometryRecord&);
 
@@ -82,11 +82,10 @@ HGCalTopologyBuilder::produce(const IdealGeometryRecord& iRecord ) {
   iRecord.get(name_, pHGDC);
   const HGCalDDDConstants & hgdc = (*pHGDC);
 
-  ReturnType ct ( new HGCalTopology(hgdc, det_) ) ;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Create HGCalTopology(hgdc,det)";
 #endif
-  return ct;
+  return std::make_unique<HGCalTopology>(hgdc, det_);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(HGCalTopologyBuilder);

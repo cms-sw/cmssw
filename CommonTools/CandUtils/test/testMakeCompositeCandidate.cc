@@ -32,7 +32,7 @@ void testMakeCompositeCandidate::checkAll() {
   test::DummyCandidate t1( p1, q1 );
   test::DummyCandidate t2( p2, q2 );
 
-  auto_ptr<Candidate> cmp = makeCompositeCandidate( t1, t2 )[ AddFourMomenta() ];  
+  unique_ptr<Candidate> cmp = makeCompositeCandidate( t1, t2 )[ AddFourMomenta() ];  
   CPPUNIT_ASSERT( cmp->numberOfDaughters() == 2 );
   const reco::Candidate * d[ 2 ];
   d[ 0 ] = cmp->daughter( 0 );
@@ -52,6 +52,6 @@ void testMakeCompositeCandidate::checkAll() {
   CPPUNIT_ASSERT( fabs(cmp->eta() - ptot.eta()) < epsilon );
   CPPUNIT_ASSERT( fabs(cmp->phi() - ptot.phi()) < epsilon );
 
-  auto_ptr<Candidate> cmp3 = makeCompositeCandidate( t1, t2, t1 )[ AddFourMomenta() ];  
-  auto_ptr<Candidate> cmp4 = makeCompositeCandidate( t1, t2, t1, t2 )[ AddFourMomenta() ];  
+  unique_ptr<Candidate> cmp3 = makeCompositeCandidate( t1, t2, t1 )[ AddFourMomenta() ];  
+  unique_ptr<Candidate> cmp4 = makeCompositeCandidate( t1, t2, t1, t2 )[ AddFourMomenta() ];  
 }

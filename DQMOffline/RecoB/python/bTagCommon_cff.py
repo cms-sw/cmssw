@@ -12,6 +12,7 @@ from DQMOffline.RecoB.bTagGenericAnalysis_cff import *
 from DQMOffline.RecoB.bTagSimpleSVAnalysis_cff import *
 from DQMOffline.RecoB.bTagSoftLeptonAnalysis_cff import *
 from DQMOffline.RecoB.cTagGenericAnalysis_cff import *
+from DQMOffline.RecoB.cTagSymmetricAnalysis_cff import *
 from DQMOffline.RecoB.cTagCombinedSVVariables_cff import *
 from DQMOffline.RecoB.cTagCombinedSVAnalysis_cff import *
 from DQMOffline.RecoB.cTagCorrelationAnalysis_cff import *
@@ -92,55 +93,20 @@ bTagCommonBlock = cms.PSet(
             label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
             folder = cms.string("CSVv2"),
             differentialPlots = cms.bool(True),
-            discrCut = cms.double(0.5426)
+            discrCut = cms.double(0.5803)
         ),
         cms.PSet(
             bTagSymmetricAnalysisBlock,
             label = cms.InputTag("pfCombinedMVAV2BJetTags"),
             folder = cms.string("combMVAv2"),
-            differentialPlots = cms.bool(True),
-            discrCut = cms.double(-0.5884)
         ), 
         cms.PSet(
             bTagGenericAnalysisBlock,
-            label = cms.InputTag("pfDeepCSVJetTags:probb"),
-            folder = cms.string("deepCSV_probb")
+            label = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll"),
+            folder = cms.string("deepCSV_BvsAll"),
+            differentialPlots = cms.bool(True),
+            discrCut = cms.double(0.1522)
         ),
-        cms.PSet(
-            bTagGenericAnalysisBlock,
-            label = cms.InputTag("pfDeepCSVJetTags:probc"),
-            folder = cms.string("deepCSV_probc")
-        ),
-        cms.PSet(
-            bTagGenericAnalysisBlock,
-            label = cms.InputTag("pfDeepCSVJetTags:probudsg"),
-            folder = cms.string("deepCSV_probudsg")
-        ),
-        cms.PSet(
-            bTagGenericAnalysisBlock,
-            label = cms.InputTag("pfDeepCSVJetTags:probbb"),
-            folder = cms.string("deepCSV_probbb")
-        ),
-        #cms.PSet(
-        #    bTagGenericAnalysisBlock,
-        #    label = cms.InputTag("pfDeepCMVAJetTags:probb"),
-        #    folder = cms.string("deepCMVA_probb")
-        #),
-        #cms.PSet(
-        #    bTagGenericAnalysisBlock,
-        #    label = cms.InputTag("pfDeepCMVAJetTags:probc"),
-        #    folder = cms.string("deepCMVA_probc")
-        #),
-        #cms.PSet(
-        #    bTagGenericAnalysisBlock,
-        #    label = cms.InputTag("pfDeepCMVAJetTags:probudsg"),
-        #    folder = cms.string("deepCMVA_probudsg")
-        #),
-        #cms.PSet(
-        #    bTagGenericAnalysisBlock,
-        #    label = cms.InputTag("pfDeepCMVAJetTags:probbb"),
-        #    folder = cms.string("deepCMVA_probbb")
-        #),
        cms.PSet(
             bTagSoftLeptonAnalysisBlock,
             label = cms.InputTag("softPFMuonBJetTags"),
@@ -164,20 +130,36 @@ bTagCommonBlock = cms.PSet(
            folder = cms.string("CtaggerTag")
         ),
         cms.PSet(
-            cTagGenericAnalysisBlock,
+            cTagSymmetricAnalysisBlock,
             label = cms.InputTag("pfCombinedCvsLJetTags"),
             folder = cms.string("Ctagger_CvsL"),
             doCTagPlots = cms.bool(True),
             differentialPlots = cms.bool(True),
-            discrCut = cms.double(-0.1)
+            discrCut = cms.double(0.07)
         ),
         cms.PSet(
-            cTagGenericAnalysisBlock,
+            cTagSymmetricAnalysisBlock,
             label = cms.InputTag("pfCombinedCvsBJetTags"),
             folder = cms.string("Ctagger_CvsB"),
             doCTagPlots = cms.bool(True),
             differentialPlots = cms.bool(True),
-            discrCut = cms.double(0.08)
+            discrCut = cms.double(-0.10)
+        ),
+        cms.PSet(
+            cTagGenericAnalysisBlock,
+            label = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:CvsL"),
+            folder = cms.string("deepCSV_CvsL"),
+            doCTagPlots = cms.bool(True),
+            differentialPlots = cms.bool(True),
+            discrCut = cms.double(0.15)
+        ),
+        cms.PSet(
+            cTagGenericAnalysisBlock,
+            label = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:CvsB"),
+            folder = cms.string("deepCSV_CvsB"),
+            doCTagPlots = cms.bool(True),
+            differentialPlots = cms.bool(True),
+            discrCut = cms.double(0.28)
         ),
         cms.PSet(
             cTagCorrelationAnalysisBlock,

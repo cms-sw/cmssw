@@ -13,6 +13,11 @@ _simMuonRPCDigis_orig = simMuonRPCDigis.clone()
 # If we are going to run this with the DataMixer to follow adding
 # detector noise, turn this off for now:
 
+# In premixing stage2 muon digis are produced after PreMixingModule
+# The simMuon*Digis modules get used in DataMixerPreMix_cff, so better
+# leave them untouched here.
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+
 ##### #turn off noise in all subdetectors
 #simHcalUnsuppressedDigis.doNoise = False
 #mix.digitizers.hcal.doNoise = False
@@ -23,12 +28,14 @@ _simMuonRPCDigis_orig = simMuonRPCDigis.clone()
 #mix.digitizers.pixel.AddNoise = False
 #simSiStripDigis.Noise = False
 #mix.digitizers.strip.AddNoise = False
-simMuonCSCDigis.strips.doNoise = False
-simMuonCSCDigis.wires.doNoise = False
+(~premix_stage2).toModify(simMuonCSCDigis,
+    strips = dict(doNoise = False),
+    wires  = dict(doNoise = False)
+)
 #DTs are strange - no noise flag - only use true hits?
 #simMuonDTDigis.IdealModel = True
-simMuonDTDigis.onlyMuHits = True
-simMuonRPCDigis.Noise = False
+(~premix_stage2).toModify(simMuonDTDigis, onlyMuHits = True)
+(~premix_stage2).toModify(simMuonRPCDigis, Noise = False)
 
 # remove unnecessary modules from 'pdigi' sequence - run after DataMixing
 # standard mixing module now makes unsuppressed digis for calorimeter
@@ -39,14 +46,8 @@ pdigi.remove(simEcalPreshowerDigis)  # does zero suppression
 pdigi.remove(simHcalDigis)
 pdigi.remove(simHcalTTPDigis)
 
-from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-# for PreMixing, to first approximation, allow noise in Muon system
-premix_stage2.toReplaceWith(simMuonCSCDigis, _simMuonCSCDigis_orig)
-premix_stage2.toReplaceWith(simMuonDTDigis , _simMuonDTDigis_orig )
-premix_stage2.toReplaceWith(simMuonRPCDigis, _simMuonRPCDigis_orig)
-
-# premixing stage2 runs addPileupInfo after DataMixer (configured in DataMixerPreMix_cff)
-premix_stage2.toReplaceWith(pdigi, pdigi.copyAndExclude([addPileupInfo, genPUProtons]))
+# premixing stage2 runs addPileupInfo, and muon digis after PreMixingModule (configured in DataMixerPreMix_cff)
+premix_stage2.toReplaceWith(pdigi, pdigi.copyAndExclude([addPileupInfo, genPUProtons, muonDigi]))
 
 # genPUProtons, on the other hand, is an EDAlias. In principle it is
 # already loaded with digitizers_cfi, but in practice that gets

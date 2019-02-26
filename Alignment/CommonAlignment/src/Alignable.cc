@@ -11,7 +11,6 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
-#include "CondFormats/Alignment/interface/AlignmentSorter.h"
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
@@ -267,9 +266,7 @@ AlignmentSurfaceDeformations* Alignable::surfaceDeformations( void ) const
 
   std::vector<IdSurfaceDeformationPtrPair> result;
   surfaceDeformationIdPairs(result);
-  std::sort( result.begin(), 
- 	     result.end(), 
-	     lessIdAlignmentPair<IdSurfaceDeformationPtrPair>() );
+  std::sort( result.begin(), result.end(), [](auto& a, auto& b){return  a.first < b.first;});
   
   AlignmentSurfaceDeformations* allSurfaceDeformations = new AlignmentSurfaceDeformations();
   

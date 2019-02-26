@@ -55,9 +55,7 @@ namespace edmtest {
     }
 
     if(dumpTriggerResults_) {
-      edm::Handle<edm::TriggerResults> triggerResults;
-      event.getByToken(triggerResultsToken_, triggerResults);
-      if(triggerResults.isValid()) {
+      if( auto triggerResults=event.getHandle(triggerResultsToken_)) {
         edm::LogAbsolute("RunLumiEvent") << "TestFailuresAnalyzer dumping TriggerResults";
         edm::LogAbsolute("RunLumiEvent") << *triggerResults;
       } else {

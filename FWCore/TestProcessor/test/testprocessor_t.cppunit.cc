@@ -8,7 +8,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 

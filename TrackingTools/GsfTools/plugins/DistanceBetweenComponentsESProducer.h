@@ -16,7 +16,7 @@ class  DistanceBetweenComponentsESProducer : public edm::ESProducer{
  public:
   DistanceBetweenComponentsESProducer(const edm::ParameterSet & p);
   ~DistanceBetweenComponentsESProducer() override; 
-  std::shared_ptr< DistanceBetweenComponents<N> > produce(const TrackingComponentsRecord &);
+  std::unique_ptr< DistanceBetweenComponents<N> > produce(const TrackingComponentsRecord &);
  private:
   edm::ParameterSet pset_;
 };

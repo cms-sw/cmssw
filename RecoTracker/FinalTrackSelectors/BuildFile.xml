@@ -1,4 +1,4 @@
-<flags   CXXFLAGS="-Ofast"/>
+<use   name="ofast-flag"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
@@ -9,6 +9,7 @@
 <use   name="CondFormats/EgammaObjects"/>
 <use   name="TrackingTools/Records"/>
 <use   name="roottmva"/>
+<use   name="lwtnn"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -118,19 +118,19 @@ namespace edm {
 
     void doBeginJob();
     void doEndJob();
-    bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+    bool doEvent(EventPrincipal const& ep, EventSetupImpl const&  c,
                  ActivityRegistry* act,
                  ModuleCallingContext const* mcc);
     //Needed by WorkerT but not supported
     void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
 
-    bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+    bool doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c,
                     ModuleCallingContext const* mcc);
-    bool doEndRun(RunPrincipal const& rp, EventSetup const& c,
+    bool doEndRun(RunPrincipal const& rp, EventSetupImpl const& c,
                   ModuleCallingContext const* mcc);
-    bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& c,
                                 ModuleCallingContext const* mcc);
-    bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& c,
                               ModuleCallingContext const* mcc);
 
     void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,

@@ -10,11 +10,10 @@
  * ===========================================================================
  */
 
-#include <boost/foreach.hpp>
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 
-namespace reco { namespace tau {
+namespace reco::tau {
 
 // Filter photons
 class RecoTauPhotonFilter : public RecoTauModifierPlugin {
@@ -56,7 +55,7 @@ bool RecoTauPhotonFilter::filter( const RecoTauPiZero* piZero,
 
 void RecoTauPhotonFilter::operator()(PFTau& tau) const {
   std::vector<const RecoTauPiZero*> signalPiZeros;
-  BOOST_FOREACH(const RecoTauPiZero& piZero, tau.signalPiZeroCandidates()) {
+  for(auto const& piZero : tau.signalPiZeroCandidates()) {
     signalPiZeros.push_back(&piZero);
   }
   std::sort(signalPiZeros.begin(), signalPiZeros.end(), PiZeroPtSorter());
@@ -107,7 +106,7 @@ void RecoTauPhotonFilter::operator()(PFTau& tau) const {
 
     // Copy the keys to move
     std::set<size_t> keysToMove;
-    BOOST_FOREACH(const PFCandidatePtr& ptr, pfcandsToMove) {
+    for(auto const& ptr : pfcandsToMove) {
       keysToMove.insert(ptr.key());
     }
 
@@ -117,14 +116,14 @@ void RecoTauPhotonFilter::operator()(PFTau& tau) const {
     std::vector<PFCandidatePtr> newIsolationPFCands = tau.isolationPFCands();
 
     // Move the necessary signal pizeros - what a mess!
-    BOOST_FOREACH(const PFCandidatePtr& ptr, tau.signalPFCands()) {
+    for(auto const& ptr : tau.signalPFCands()) {
       if (keysToMove.count(ptr.key()))
         newIsolationPFCands.push_back(ptr);
       else
         newSignalPFCands.push_back(ptr);
     }
 
-    BOOST_FOREACH(const PFCandidatePtr& ptr, tau.signalPFGammaCands()) {
+    for(auto const& ptr : tau.signalPFGammaCands()) {
       if (keysToMove.count(ptr.key()))
         newIsolationPFGammas.push_back(ptr);
       else
@@ -137,7 +136,7 @@ void RecoTauPhotonFilter::operator()(PFTau& tau) const {
     tau.setisolationPFCands(newIsolationPFCands);
   }
 }
-}}  // end namespace reco::tau
+}  // end namespace reco::tau
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_EDM_PLUGIN(RecoTauModifierPluginFactory,
     reco::tau::RecoTauPhotonFilter,

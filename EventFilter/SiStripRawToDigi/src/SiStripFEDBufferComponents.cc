@@ -1506,7 +1506,10 @@ namespace sistrip {
 
   uint16_t FEDChannel::cmMedian(const uint8_t apvIndex) const
   {
-    if (packetCode() != PACKET_CODE_ZERO_SUPPRESSED) {
+    const auto pCode = packetCode();
+    if ( ( pCode != PACKET_CODE_ZERO_SUPPRESSED ) && ( pCode != PACKET_CODE_ZERO_SUPPRESSED10 )
+      && ( pCode != PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT ) && ( pCode != PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT ) )
+    {
       std::ostringstream ss;
       ss << "Request for CM median from channel with non-ZS packet code. "
          << "Packet code is " << uint16_t(packetCode()) << "."

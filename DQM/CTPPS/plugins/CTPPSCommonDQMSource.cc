@@ -26,7 +26,7 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class CTPPSCommonDQMSource: public DQMEDAnalyzer
+class CTPPSCommonDQMSource: public one::DQMEDAnalyzer<edm::LuminosityBlockCache<std::vector<int>>>
 {
   public:
 
@@ -38,21 +38,16 @@ class CTPPSCommonDQMSource: public DQMEDAnalyzer
 
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-    void beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) override;
-    void endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) override;
+    std::shared_ptr<std::vector<int>> globalBeginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) const override;
+    void globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) override;
 
   private:
-    unsigned int verbosity;
-    const static int MAX_LUMIS = 6000;
-    const static int MAX_VBINS = 18;
+    const unsigned int verbosity;
+    constexpr static int MAX_LUMIS = 6000;
+    constexpr static int MAX_VBINS = 18;
 
-    edm::EDGetTokenT< std::vector<CTPPSLocalTrackLite> > tokenLocalTrackLite;
-    edm::EDGetTokenT<CTPPSRecord> ctppsRecordToken;
-
-    int currentLS;
-    int endLS;
-
-    std::vector<int> rpstate;
+    const edm::EDGetTokenT< std::vector<CTPPSLocalTrackLite> > tokenLocalTrackLite;
+    const edm::EDGetTokenT<CTPPSRecord> ctppsRecordToken;
 
     /// plots related to the whole system
     struct GlobalPlots
@@ -194,14 +189,10 @@ CTPPSCommonDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id) : 
 //----------------------------------------------------------------------------------------------------
 
 CTPPSCommonDQMSource::CTPPSCommonDQMSource(const edm::ParameterSet& ps) :
-  verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0))
+  verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
+  tokenLocalTrackLite{consumes< vector<CTPPSLocalTrackLite> >(ps.getParameter<edm::InputTag>("tagLocalTrackLite"))},
+  ctppsRecordToken {consumes<CTPPSRecord>(ps.getUntrackedParameter<edm::InputTag>("ctppsmetadata"))}
 {
-  tokenLocalTrackLite = consumes< vector<CTPPSLocalTrackLite> >(ps.getParameter<edm::InputTag>("tagLocalTrackLite"));
-  ctppsRecordToken = consumes<CTPPSRecord>(ps.getUntrackedParameter<edm::InputTag>("ctppsmetadata"));
-
-  currentLS = 0;
-  endLS = 0;
-  rpstate.clear();
 
 }
 
@@ -262,12 +253,12 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
      RP name: RP_56_220_NR_TP
      */
 
-  if(currentLS > endLS){
-    rpstate.clear();
+  auto& rpstate = *luminosityBlockCache(event.getLuminosityBlock().index());
+  if(rpstate.empty()){
+    rpstate.reserve(CTPPSRecord::RomanPot::Last);
     for (uint8_t i = 0; i < CTPPSRecord::RomanPot::Last; ++i) {
       rpstate.push_back(rp->status(i));
     }
-    endLS=currentLS;
   }  
 
   // get event data
@@ -400,23 +391,19 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
 }
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSCommonDQMSource::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) {
-
-  currentLS = iLumi.id().luminosityBlock();
-
+std::shared_ptr<std::vector<int>> CTPPSCommonDQMSource::globalBeginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& ) const {
+  return std::make_shared<std::vector<int>>();
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSCommonDQMSource::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) {
+void CTPPSCommonDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) {
 
+  auto const& rpstate = *luminosityBlockCache(iLumi.index());
+  auto currentLS = iLumi.id().luminosityBlock();
   for(std::vector<int>::size_type i=0; i<rpstate.size();i++){
     globalPlots.RPState->setBinContent(currentLS, i+1, rpstate[i]);
   }
-
-  endLS = iLumi.luminosityBlock();
-  rpstate.clear();
-
 }
 //----------------------------------------------------------------------------------------------------
 

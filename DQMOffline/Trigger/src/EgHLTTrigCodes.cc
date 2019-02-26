@@ -43,28 +43,22 @@ void TrigCodes::setCode(const char* descript,TrigBitSet code)
 
 TrigCodes::TrigBitSet TrigCodes::getCode(const char* descript)const
 { 
-  //first copy the character string to a local array so we can manipulate it
-  char localDescript[512];
-  strcpy(localDescript,descript);
-  
   TrigBitSet code; 
-  char* codeKey = strtok(localDescript,":");
-  //  std::map<std::string,int> ::const_iterator mapIt;
-  while(codeKey!=nullptr){
-    bool found=false;
 
-    for(size_t i=0;i<codeDefs_.size() && !found;i++){
-      if(codeDefs_[i].first==codeKey){
- 	found=true;
- 	code |= codeDefs_[i].second;
+  char const * const end = descript+strlen(descript);
+  char const * codeKey = descript;
+  char const * token = nullptr;
+  do {
+    token = std::find(codeKey, end, ':');
 
+    for(auto const& c: codeDefs_) {
+      if(0==c.first.compare(0,std::string::npos,codeKey, token-codeKey)){
+ 	code |= c.second;
+        break;
        }
     }
-   
-    //  if(!found)  edm::LogError("TrigCodes::TrigBitSetMap") <<"TrigCodes::TrigBitSetMap::getCode : Error, Key "<<codeKey<<" not found";
-    codeKey = strtok(nullptr,":"); //getting new substring
-    
-  }
+    codeKey = token+1;
+  } while(token != end);
   return code;
 }
 

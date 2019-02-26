@@ -5,10 +5,10 @@
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/CylinderBuilderFromDet.h"
 #include "TrackingTools/DetLayers/interface/simple_stat.h"
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossing2OrderLocal.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 
 #include "LayerCrossingSide.h"
 #include "DetGroupMerger.h"
@@ -107,7 +107,7 @@ void TIBRing::computeHelicity() {
   if(normal.dot(radial)<=0)normal*=-1;
 //   edm::LogInfo(TkDetLayers) << "BarrelDetRing::computeHelicity: phi(normal) " << normal.phi()
 //        << " phi(radial) " << radial.phi() ;
-  if (PhiLess()( normal.phi(), radial.phi())) {
+  if (Geom::phiLess( normal.phi(), radial.phi())) {
     theHelicity = 1;  // smaller phi angles mean "inner" group
   }
   else {
@@ -250,7 +250,7 @@ TIBRing::computeCrossings( const TrajectoryStateOnSurface& startingState,
   float closestDist = closestPos.x(); // use fact that local X perp to global Z 
 
   //int next = cylPoint.phi() - closestPlane.position().phi() > 0 ? closest+1 : closest-1;
-  int nextIndex = PhiLess()( closestPlane.position().barePhi(), cylPoint.barePhi()) ? 
+  int nextIndex = Geom::phiLess( closestPlane.position().barePhi(), cylPoint.barePhi()) ? 
     closestIndex+1 : closestIndex-1;
 
   const Plane& nextPlane( theDets[ theBinFinder.binIndex(nextIndex)]->surface());

@@ -426,7 +426,6 @@ void ME0SegAlgoRU::compareProtoSegment(std::unique_ptr<MuonSegFit>& current_fit,
 	const HitAndPosition * old_hit = nullptr;
 	HitAndPositionPtrContainer new_proto_segment = current_proto_segment;
 
-	HitAndPositionPtrContainer::const_iterator it;
 	for (auto it = new_proto_segment.begin(); it != new_proto_segment.end();) {
 		if ((*it)->layer == new_hit.layer) {
 			old_hit = *it;

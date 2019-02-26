@@ -50,9 +50,6 @@ public:
   /// Destructor
   ~ME0RecHitProducer() override;
 
-  // Method that access the EventSetup for each run
-  void beginRun(const edm::Run&, const edm::EventSetup& ) override;
-
   /// The method which produces the rechits
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
@@ -63,8 +60,7 @@ private:
   edm::EDGetTokenT<ME0DigiPreRecoCollection> m_token;
 
   // The reconstruction algorithm
-  ME0RecHitBaseAlgo *theAlgo;
-  //   static std::string theAlgoName;
+  std::unique_ptr<ME0RecHitBaseAlgo> theAlgo;
 };
 
 #endif

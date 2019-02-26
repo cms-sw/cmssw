@@ -70,14 +70,14 @@ class LHEReader::FileSource : public LHEReader::Source {
 	{ return new XMLDocument(fileStream, handler); }
 
     private:
-	std::auto_ptr<StorageWrap>	fileStream;
+	std::unique_ptr<StorageWrap>	fileStream;
 };
 
 class LHEReader::StringSource : public LHEReader::Source {
     public:
 	StringSource(const std::string &inputs)
 	{
-		if (inputs == "")
+		if (inputs.empty())
 			throw cms::Exception("StreamOpenError")
 				<< "Empty LHE file string name \""
 				<< std::endl;
@@ -92,7 +92,7 @@ class LHEReader::StringSource : public LHEReader::Source {
 	{ return new XMLDocument(fileStream, handler); }
 
     private:
-  std::auto_ptr<std::istream>	fileStream;
+  std::unique_ptr<std::istream>	fileStream;
 };
 
 class LHEReader::XMLHandler : public XMLDocument::Handler {
@@ -487,9 +487,9 @@ LHEReader::~LHEReader()
   curSource.release();
 }
 
-  boost::shared_ptr<LHEEvent> LHEReader::next(bool* newFileOpened)
+  std::shared_ptr<LHEEvent> LHEReader::next(bool* newFileOpened)
   {
-    while(curDoc.get() || curIndex < fileURLs.size() || (fileURLs.empty() && strName != "" ) ) {
+    while(curDoc.get() || curIndex < fileURLs.size() || (fileURLs.empty() && !strName.empty() ) ) {
       if (!curDoc.get()) {
         if(!platform) {
           //If we read multiple files, the XercesPlatform must live longer than any one
@@ -502,7 +502,7 @@ LHEReader::~LHEReader()
           logFileAction("  Successfully opened LHE file ", fileURLs[curIndex]);
           if ( newFileOpened != nullptr ) *newFileOpened = true;
           ++curIndex;
-        } else if ( strName != "" ) {
+        } else if ( !strName.empty() ) {
           curSource.reset(new StringSource(strName));
         }
         handler->reset();
@@ -520,7 +520,7 @@ LHEReader::~LHEReader()
         if (!curDoc->parse()) {
           curDoc.reset();
           logFileAction("  Closed LHE file ", fileURLs[curIndex - 1]);
-          return boost::shared_ptr<LHEEvent>();
+          return std::shared_ptr<LHEEvent>();
         }
         break;
         
@@ -559,7 +559,7 @@ LHEReader::~LHEReader()
         }
         
         if (maxEvents == 0)
-          return boost::shared_ptr<LHEEvent>();
+          return std::shared_ptr<LHEEvent>();
         else if (maxEvents > 0)
           maxEvents--;
 
@@ -567,7 +567,7 @@ LHEReader::~LHEReader()
 	data.str(handler->buffer);
 	handler->buffer.clear();
 
-	boost::shared_ptr<LHEEvent> lheevent;
+	std::shared_ptr<LHEEvent> lheevent;
 	lheevent.reset(new LHEEvent(curRunInfo, data));
 	const XMLHandler::wgt_info& info = handler->weightsinevent;
 	for( size_t i=0; i< info.size(); ++i ) {
@@ -586,7 +586,7 @@ LHEReader::~LHEReader()
       }
     }
     
-    return boost::shared_ptr<LHEEvent>();
+    return std::shared_ptr<LHEEvent>();
   }
   
 } // namespace lhef

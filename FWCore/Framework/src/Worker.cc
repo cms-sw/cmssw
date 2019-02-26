@@ -379,7 +379,7 @@ private:
   }
 
   void Worker::runAcquire(EventPrincipal const& ep,
-                          EventSetup const& es,
+                          EventSetupImpl const& es,
                           ParentContext const& parentContext,
                           WaitingTaskWithArenaHolder& holder) {
 
@@ -401,7 +401,7 @@ private:
 
   void Worker::runAcquireAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
                                             EventPrincipal const& ep,
-                                            EventSetup const& es,
+                                            EventSetupImpl const& es,
                                             ParentContext const& parentContext,
                                             WaitingTaskWithArenaHolder holder) {
     ranAcquireWithoutException_ = false;

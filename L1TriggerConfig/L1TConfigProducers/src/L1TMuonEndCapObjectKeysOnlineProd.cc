@@ -9,7 +9,7 @@ class L1TMuonEndCapObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBaseExt {
 private:
     bool transactionSafe;
 public:
-    void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+    void fillObjectKeys( L1TriggerKeyExt* pL1TriggerKey ) override ;
 
     L1TMuonEndCapObjectKeysOnlineProd(const edm::ParameterSet&);
     ~L1TMuonEndCapObjectKeysOnlineProd(void) override{}
@@ -22,7 +22,7 @@ L1TMuonEndCapObjectKeysOnlineProd::L1TMuonEndCapObjectKeysOnlineProd(const edm::
 }
 
 
-void L1TMuonEndCapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey ){
+void L1TMuonEndCapObjectKeysOnlineProd::fillObjectKeys( L1TriggerKeyExt* pL1TriggerKey ){
 
     std::string EMTFKey = pL1TriggerKey->subsystemKey( L1TriggerKeyExt::kEMTF ) ;
 
@@ -98,7 +98,9 @@ void L1TMuonEndCapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey
         }
     }
 
-    std::map<std::string, l1t::Parameter> conf = trgSys.getParameters("EMTF-1"); // any processor will do
+    // Changed from "EMTF-1" to "EMTFp1", but is this backwards compatible? Does it need to be? - AWB 10.04.2018
+    std::map<std::string, l1t::Parameter> conf = trgSys.getParameters("EMTFp1"); // any processor will do
+    // if (conf still empty) conf = trgSys.getParameters("EMTF+1"); // Should add some conditional for backwards-compatibility
 
 ////////////////////////
 

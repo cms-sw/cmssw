@@ -1,5 +1,3 @@
-#include <boost/foreach.hpp>
-
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -70,7 +68,7 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(con
   // Get the mass cuts for each decay mode
   typedef std::vector<edm::ParameterSet> VPSet;
   const VPSet& decayModes = pset.getParameter<VPSet>("decayModes");
-  BOOST_FOREACH( const edm::ParameterSet &decayMode, decayModes ) {
+  for(auto const& decayMode : decayModes ) {
     // The mass window(s)
     DecayModeCuts cuts;
     if ( decayMode.exists("nTracksMin") ) {
@@ -200,16 +198,14 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
   }
   // Find the total pizero p4
   reco::Candidate::LorentzVector stripsP4;
-  BOOST_FOREACH(const reco::RecoTauPiZero& cand, 
-      tau->signalPiZeroCandidates()){
+  for(auto const& cand : tau->signalPiZeroCandidates()){
     const math::XYZTLorentzVector& candP4 = cand.p4();
     stripsP4 += candP4;
   }
 
   // Apply strip mass assumption corrections
   if (massWindow.assumeStripMass_ >= 0) {
-    BOOST_FOREACH(const reco::RecoTauPiZero& cand, 
-        tau->signalPiZeroCandidates()){
+    for(auto const& cand : tau->signalPiZeroCandidates()){
       const math::XYZTLorentzVector& uncorrected = cand.p4();
       math::XYZTLorentzVector corrected = 
         applyMassConstraint(uncorrected, massWindow.assumeStripMass_);
@@ -297,7 +293,7 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
   }
 
   if ( requireTauChargedHadronsToBeChargedPFCands_ ) {
-    BOOST_FOREACH(const reco::PFRecoTauChargedHadron& cand, tau->signalTauChargedHadronCandidates()) {
+    for(auto const& cand : tau->signalTauChargedHadronCandidates()) {
       if ( verbosity_ ) {
 	std::string algo_string;
 	if      ( cand.algo() == reco::PFRecoTauChargedHadron::kChargedPFCandidate ) algo_string = "ChargedPFCandidate";

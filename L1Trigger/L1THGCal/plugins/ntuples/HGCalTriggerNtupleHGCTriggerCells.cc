@@ -23,7 +23,7 @@ class HGCalTriggerNtupleHGCTriggerCells : public HGCalTriggerNtupleBase
     void fill(const edm::Event& e, const edm::EventSetup& es) final;
 
   private:
-    double calibrate(double, int, int);
+    double calibrate(double, int, unsigned);
     void simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, std::unordered_map<uint32_t, double>& simhits_fh, std::unordered_map<uint32_t, double>& simhits_bh);
     void clear() final;
 
@@ -49,6 +49,8 @@ class HGCalTriggerNtupleHGCTriggerCells : public HGCalTriggerNtupleBase
     std::vector<int> tc_wafertype_ ;
     std::vector<int> tc_cell_;
     std::vector<uint32_t> tc_data_;
+    std::vector<uint32_t> tc_uncompressedCharge_;
+    std::vector<uint32_t> tc_compressedCharge_;
     std::vector<float> tc_mipPt_;
     std::vector<float> tc_pt_;
     std::vector<float> tc_energy_;
@@ -105,6 +107,8 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("tc_wafertype", &tc_wafertype_);
   tree.Branch("tc_cell", &tc_cell_);
   tree.Branch("tc_data", &tc_data_);
+  tree.Branch("tc_uncompressedCharge", &tc_uncompressedCharge_);
+  tree.Branch("tc_compressedCharge", &tc_compressedCharge_);
   tree.Branch("tc_pt", &tc_pt_);
   tree.Branch("tc_mipPt", &tc_mipPt_);
   tree.Branch("tc_energy", &tc_energy_);
@@ -186,6 +190,8 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       tc_wafertype_.emplace_back(id.waferType());
       tc_cell_.emplace_back(id.cell());
       tc_data_.emplace_back(tc_itr->hwPt());
+      tc_uncompressedCharge_.emplace_back(tc_itr->uncompressedCharge());
+      tc_compressedCharge_.emplace_back(tc_itr->compressedCharge());
       tc_mipPt_.emplace_back(tc_itr->mipPt());
       // physical values 
       tc_pt_.emplace_back(tc_itr->pt());
@@ -204,33 +210,23 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       {
         double energy = 0;
         int subdet = id.subdetId();
+        unsigned layer = triggerTools_.layerWithOffset(id);
         // search for simhit for all the cells inside the trigger cell
         for(uint32_t c_id : geometry_->getCellsFromTriggerCell(id))
         {
+          int thickness = triggerTools_.thicknessIndex(c_id);
           switch(subdet)
           {
             case ForwardSubdetector::HGCEE:
               {
                 auto itr = simhits_ee.find(c_id);
-                if(itr!=simhits_ee.end())
-                {
-                  HGCalDetId detid(c_id);
-                  int thickness = geometry_->eeTopology().dddConstants().waferTypeL(detid.wafer())-1;
-                  int layer = detid.layer();
-                  energy += calibrate(itr->second, thickness, layer);
-                }
+                if(itr!=simhits_ee.end()) energy += calibrate(itr->second, thickness, layer);
                 break;
               }
             case ForwardSubdetector::HGCHEF:
               {
                 auto itr = simhits_fh.find(c_id);
-                if(itr!=simhits_fh.end())
-                {
-                  HGCalDetId detid(c_id);
-                  int thickness = geometry_->fhTopology().dddConstants().waferTypeL(detid.wafer())-1;
-                  int layer = detid.layer();
-                  energy += calibrate(itr->second, thickness, layer);
-                }
+                if(itr!=simhits_fh.end()) energy += calibrate(itr->second, thickness, layer);
                 break;
               }
             case ForwardSubdetector::HGCHEB:
@@ -251,7 +247,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
 
 double
 HGCalTriggerNtupleHGCTriggerCells::
-calibrate(double energy, int thickness, int layer)
+calibrate(double energy, int thickness, unsigned layer)
 {
   double fcPerMip = fcPerMip_[thickness];
   double thicknessCorrection = thicknessCorrections_[thickness];
@@ -327,6 +323,8 @@ clear()
   tc_wafertype_.clear();
   tc_cell_.clear();
   tc_data_.clear();
+  tc_uncompressedCharge_.clear();
+  tc_compressedCharge_.clear();
   tc_mipPt_.clear();
   tc_pt_.clear();
   tc_energy_.clear();

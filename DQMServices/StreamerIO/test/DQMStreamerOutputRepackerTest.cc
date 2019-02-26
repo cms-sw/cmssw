@@ -28,8 +28,6 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
 
-#include "DQMServices/Components/src/DQMFileSaver.h"
-
 namespace dqmservices {
 
 class DQMStreamerOutputRepackerTest : public edm::StreamerOutputModuleBase {
@@ -50,7 +48,7 @@ class DQMStreamerOutputRepackerTest : public edm::StreamerOutputModuleBase {
       edm::LuminosityBlockForOutput const&) override{};
 
  private:
-  void openFile(uint32_t run, uint32_t lumi);
+  void openFile_(uint32_t run, uint32_t lumi);
   void closeFile();
 
  private:
@@ -83,7 +81,7 @@ DQMStreamerOutputRepackerTest::DQMStreamerOutputRepackerTest(
 
 DQMStreamerOutputRepackerTest::~DQMStreamerOutputRepackerTest() {}
 
-void DQMStreamerOutputRepackerTest::openFile(uint32_t run, uint32_t lumi) {
+void DQMStreamerOutputRepackerTest::openFile_(uint32_t run, uint32_t lumi) {
   if (streamFile_) {
     closeFile();
   }
@@ -172,7 +170,7 @@ void DQMStreamerOutputRepackerTest::doOutputEvent(
   auto lumi = view.lumi();
 
   if ((!streamFile_) || (streamRun_ != run) || (streamLumi_ != lumi)) {
-    openFile(run, lumi);
+    openFile_(run, lumi);
   }
 
   eventsProcessedFile_ += 1;

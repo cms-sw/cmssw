@@ -16,12 +16,11 @@ EcalShapeBase::EcalShapeBase(bool useDBShape) :
    m_firstTimeOverThreshold  ( 0.0 ) ,
    m_indexOfMax              ( 0   ) ,
    m_timeOfMax               ( 0.0 ) , 
-   m_thresh                  ( 0.0 ) , 
-   m_es                      ( nullptr )
+   m_thresh                  ( 0.0 )
 {
 }
 
-void EcalShapeBase::setEventSetup( const edm::EventSetup & evtSetup ){ m_es = &evtSetup;  buildMe();} 
+void EcalShapeBase::setEventSetup( const edm::EventSetup & evtSetup ){ buildMe( &evtSetup );} 
 
 
 double 
@@ -51,19 +50,20 @@ EcalShapeBase::threshold()  const
 
 
 void
-EcalShapeBase::buildMe()
+EcalShapeBase::buildMe(const edm::EventSetup* evtSetup )
 {
    DVec shapeArray;
 
    float time_interval = 0;
-   fillShape(time_interval, m_thresh, shapeArray, m_es) ; // pure virtual function, implementation may vary for EB/EE/APD ...
+   fillShape(time_interval, m_thresh, shapeArray, evtSetup) ; // pure virtual function, implementation may vary for EB/EE/APD ...
    m_arraySize = shapeArray.size();  // original data
   
    m_denseArraySize    = 10*m_arraySize; // dense array with interpolation between data 
    m_kNBinsPerNSec     = (unsigned int) (10/time_interval); // used to be an unsigned int = 10 in  < CMSSW10X, should work for time intervals ~0.1, 0.2, 0.5, 1
    m_qNSecPerBin = time_interval/10.; 
 
-   for(unsigned int i = 0; i < m_denseArraySize; ++i) { m_deriv.push_back(0.0); m_shape.push_back(0.0); }
+   m_deriv.resize(m_denseArraySize);
+   m_shape.resize(m_denseArraySize);
 
    const double maxel ( *max_element( shapeArray.begin(), shapeArray.end() ) ) ;
 

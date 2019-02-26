@@ -16,10 +16,6 @@
 
 
 namespace {
-  constexpr char hgcalee_sens[] = "HGCalEESensitive";
-  constexpr char hgcalfh_sens[] = "HGCalHESiliconSensitive";
-
-
   template<typename DDD>
   inline void check_ddd(const DDD* ddd) {
     if( nullptr == ddd ) {
@@ -35,23 +31,6 @@ namespace {
         << "Geometry not provided yet to hgcal::HGCalTriggerTools!";
     }
   }
-
-  inline const HcalDDDRecConstants* get_ddd(const CaloSubdetectorGeometry* geom,
-					    const HcalDetId& detid) {
-    const HcalGeometry* hc = static_cast<const HcalGeometry*>(geom);
-    const HcalDDDRecConstants* ddd = hc->topology().dddConstants();
-    check_ddd(ddd);
-    return ddd;
-  }
-
-  inline const HGCalDDDConstants* get_ddd(const CaloSubdetectorGeometry* geom,
-					  const HGCalDetId& detid) {
-    const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom);
-    const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
-    check_ddd(ddd);
-    return ddd;
-  }
-
 }
 
 void 
@@ -140,6 +119,34 @@ layerWithOffset(const DetId& id) const {
     else l += eeLayers_ + fhLayers_;
   }
   return l;
+}
+
+int
+HGCalTriggerTools::
+thicknessIndex(const DetId& id) const {
+  unsigned det = id.det();
+  int thickness = 0;
+  // For the v8 geometry
+  if(det==DetId::Forward)
+  {
+    switch(id.subdetId())
+    { 
+      case ForwardSubdetector::HGCEE:
+        thickness = geom_->eeTopology().dddConstants().waferTypeL(HGCalDetId(id).wafer())-1;
+        break;
+      case ForwardSubdetector::HGCHEF:
+        thickness = geom_->fhTopology().dddConstants().waferTypeL(HGCalDetId(id).wafer())-1;
+        break;
+      default:
+        break;
+    };
+  }
+  // For the v9 geometry
+  else if(det==DetId::HGCalEE || det==DetId::HGCalHSi)
+  {
+    thickness = HGCSiliconDetId(id).type();
+  }
+  return thickness;
 }
 
 float HGCalTriggerTools::getEta(const GlobalPoint& position, const float& vertex_z) const {

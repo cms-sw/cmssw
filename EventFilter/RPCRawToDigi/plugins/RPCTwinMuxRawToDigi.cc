@@ -54,7 +54,7 @@ void RPCTwinMuxRawToDigi::fillDescriptions(edm::ConfigurationDescriptions & desc
     desc.add<bool>("fillCounters", true);
     desc.add<int>("bxMin", -2);
     desc.add<int>("bxMax", 2);
-    descs.add("RPCTwinMuxRawToDigi", desc);
+    descs.add("rpcTwinMuxRawToDigi", desc);
 }
 
 void RPCTwinMuxRawToDigi::beginRun(edm::Run const & run, edm::EventSetup const & setup)

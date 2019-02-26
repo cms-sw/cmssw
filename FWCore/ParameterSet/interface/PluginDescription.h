@@ -145,9 +145,11 @@ protected:
                  int indentation,
                  bool& wroteSomething) const final {
     if(not defaultType_.empty()) {
-      auto conf = edmplugin::standard::config();
-      conf.allowNoCache();
-      edmplugin::PluginManager::configure(conf);
+      if (!edmplugin::PluginManager::isAvailable()) {
+        auto conf = edmplugin::standard::config();
+        conf.allowNoCache();
+        edmplugin::PluginManager::configure(conf);
+      }
 
       loadPlugin(defaultType_);
       
@@ -183,8 +185,13 @@ protected:
 
     //loop over all possible plugins
     unsigned int pluginCount = 0;
+    std::string previousName;
     for(auto const& info: edmplugin::PluginManager::get()->categoryToInfos().find(Factory::get()->category())->second) {
 
+      // We only want to print the first instance of each plugin name
+      if (previousName == info.name_) {
+        continue;
+      }
 
       std::stringstream ss;
       ss << dfh.section() << "." << dfh.counter();
@@ -199,6 +206,8 @@ protected:
       new_dfh.setSection(newSection);
 
       loadDescription(info.name_)->print(os,new_dfh);
+
+      previousName = info.name_;
     }
   }
   
@@ -215,12 +224,12 @@ protected:
   }
 
 private:
+
   std::string findType(edm::ParameterSet const& iPSet) const {
     if(typeLabelIsTracked_) {
-      if(defaultType_.empty()) {
+      if(iPSet.existsAs<std::string>(typeLabel_) || defaultType_.empty()) {
         return iPSet.getParameter<std::string>(typeLabel_);
-      }
-      if(not iPSet.existsAs<std::string>(typeLabel_) ) {
+      } else {
         return defaultType_;
       }
     }

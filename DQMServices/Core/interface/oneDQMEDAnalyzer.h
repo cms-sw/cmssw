@@ -104,6 +104,7 @@ template <typename... T> class DQMBaseClass;
 template<> class DQMBaseClass<> : public DQMRunEDProducer<> {};
 template<> class DQMBaseClass<DQMLuminosityBlockElements> : public DQMLumisEDProducer {};
 template<> class DQMBaseClass<edm::one::WatchLuminosityBlocks> : public DQMRunEDProducer<edm::one::WatchLuminosityBlocks> {};
+template<typename T> class DQMBaseClass<edm::LuminosityBlockCache<T>> : public DQMRunEDProducer<edm::LuminosityBlockCache<T>>{};
 }
 
 template <typename... T>

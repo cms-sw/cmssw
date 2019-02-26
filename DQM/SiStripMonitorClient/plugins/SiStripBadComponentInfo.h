@@ -54,25 +54,20 @@ protected:
 
 private:
   void checkBadComponents(edm::EventSetup const& eSetup);
-  void bookBadComponentHistos(DQMStore::IBooker& ibooker,
-                              DQMStore::IGetter& igetter);
-  void fillBadComponentMaps(int xbin,
-                            int component,
-                            SiStripQuality::BadComponent& BC);
-  void createSummary(MonitorElement* me,
-                     const std::map<std::pair<int, int>, float>& map);
+  void bookBadComponentHistos(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
+  void fillBadComponentMaps(int xbin, int component,SiStripQuality::BadComponent const& BC);
+  void createSummary(MonitorElement* me,const std::map<std::pair<int,int>,float >& map);
 
-  MonitorElement* badAPVME_;
-  MonitorElement* badFiberME_;
-  MonitorElement* badStripME_;
+  MonitorElement * badAPVME_;
+  MonitorElement * badFiberME_;
+  MonitorElement * badStripME_;
 
-  std::map<std::pair<int, int>, float> mapBadAPV;
-  std::map<std::pair<int, int>, float> mapBadFiber;
-  std::map<std::pair<int, int>, float> mapBadStrip;
+  std::map<std::pair<int,int>,float > mapBadAPV;
+  std::map<std::pair<int,int>,float > mapBadFiber;
+  std::map<std::pair<int,int>,float > mapBadStrip;
 
-  unsigned long long m_cacheID_{};
-  bool bookedStatus_{false};
-  int nSubSystem_{6};
+  bool bookedStatus_;
+  int nSubSystem_;
   std::string qualityLabel_;
 
   edm::ESHandle<SiStripQuality> siStripQuality_;

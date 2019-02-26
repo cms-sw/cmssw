@@ -6,19 +6,12 @@
 ///   Encodes the PMT response function
 ///
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 class PMTResponse {
 
 public:    
 
-  /// Default constructor
-  PMTResponse() {}
-
   /// Return efficiency for given photon wavelength (in nm)
-  static const double  getEfficiency( const double& waveLengthNm );
-
-private:    
+  static double getEfficiency( const double& waveLengthNm );
 
 };
 

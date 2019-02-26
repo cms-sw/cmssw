@@ -1,5 +1,6 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EgammaObjects"/>
+<use   name="CommonTools/MVAUtils"/>
 <use   name="DataFormats/CaloRecHit"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/EgammaCandidates"/>
@@ -17,7 +18,6 @@
 <use   name="boost"/>
 <use   name="clhep"/>
 <use   name="rootmath"/>
-<use   name="roottmva"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -1,11 +1,11 @@
 import os
 import configTemplates
 import globalDictionaries
-from genericValidation import GenericValidationData_CTSR, ValidationWithPlots, pythonboolstring
+from genericValidation import GenericValidationData_CTSR, ParallelValidation, ValidationWithPlots, pythonboolstring
 from helperFunctions import replaceByMap
 from TkAlExceptions import AllInOneError
 
-class PrimaryVertexValidation(GenericValidationData_CTSR, ValidationWithPlots):
+class PrimaryVertexValidation(GenericValidationData_CTSR, ParallelValidation, ValidationWithPlots):
     configBaseName  = "TkAlPrimaryVertexValidation"
     scriptBaseName  = "TkAlPrimaryVertexValidation"
     crabCfgBaseName = "TkAlPrimaryVertexValidation"
@@ -28,10 +28,7 @@ class PrimaryVertexValidation(GenericValidationData_CTSR, ValidationWithPlots):
 
         if self.general["pvvalidationreference"].startswith("/store"):
             self.general["pvvalidationreference"] = "root://eoscms//eos/cms" + self.general["pvvalidationreference"]
-        if self.NJobs > 1:
-            raise AllInOneError("Parallel jobs not implemented for the PrimaryVertex validation!\n"
-                                "Please set parallelJobs = 1.")
-
+            
     @property
     def ValidationTemplate(self):
         return configTemplates.PrimaryVertexValidationTemplate
@@ -75,6 +72,7 @@ class PrimaryVertexValidation(GenericValidationData_CTSR, ValidationWithPlots):
             #"eosdir": os.path.join(self.general["eosdir"], "%s/%s/%s" % (self.outputBaseName, self.name, alignment.name)),
             "workingdir": ".oO[datadir]Oo./%s/%s/%s" % (self.outputBaseName, self.name, alignment.name),
             "plotsdir": ".oO[datadir]Oo./%s/%s/%s/plots" % (self.outputBaseName, self.name, alignment.name),
+            "filetoplot": "root://eoscms//eos/cms.oO[finalResultFile]Oo.",
             })
 
         return repMap
@@ -93,8 +91,8 @@ class PrimaryVertexValidation(GenericValidationData_CTSR, ValidationWithPlots):
 
     def appendToPlots(self):
         repMap = self.getRepMap()
-        return (' loadFileList("root://eoscms//eos/cms%(finalResultFile)s",'
-                '"PVValidation","%(title)s", %(color)s, %(style)s);\n')%repMap
+        return (' loadFileList("%(filetoplot)s",'
+                '"PVValidation", "%(title)s", %(color)s, %(style)s);\n')%repMap
 
     @classmethod
     def runPlots(cls, validations):

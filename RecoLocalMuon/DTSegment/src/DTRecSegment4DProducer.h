@@ -40,10 +40,9 @@ private:
   bool debug;
 
   edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
-  //static std::string theAlgoName;
   edm::EDGetTokenT<DTRecSegment2DCollection> recHits2DToken_;
   // The 4D-segments reconstruction algorithm
-  DTRecSegment4DBaseAlgo* the4DAlgo;
+  std::unique_ptr<DTRecSegment4DBaseAlgo> the4DAlgo;
 };
 #endif
 

@@ -38,7 +38,7 @@ class PythiaFilterGammaGamma : public edm::global::EDFilter<> {
       We make this a pointer because EDFilter::filter() is const
       while BaseHepMCFilter::filter() is not.
  */
-  std::auto_ptr<PythiaHepMCFilterGammaGamma> hepMCFilter_;
+  std::unique_ptr<PythiaHepMCFilterGammaGamma> hepMCFilter_;
 
 };
 #endif

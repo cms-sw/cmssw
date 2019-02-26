@@ -9,9 +9,6 @@
  *
  */
 
-#include <boost/shared_ptr.hpp>
-#include <boost/foreach.hpp>
-
 #include <memory>
 #include <string>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -33,7 +30,7 @@ class PFTauMVAInputDiscriminantTranslator : public edm::EDProducer {
       std::string collName;
       size_t index;
       float defaultValue;
-      boost::shared_ptr<reco::tau::RecoTauDiscriminantPlugin> plugin;
+      std::shared_ptr<reco::tau::RecoTauDiscriminantPlugin> plugin;
     };
 
     PFTauMVAInputDiscriminantTranslator(const edm::ParameterSet&);
@@ -74,7 +71,7 @@ PFTauMVAInputDiscriminantTranslator::PFTauMVAInputDiscriminantTranslator(
         newDisc.collName = collectionName.str();
         // Build the plugin
         edm::ParameterSet fakePSet;
-        newDisc.plugin.reset(
+        newDisc.plugin = std::unique_ptr<reco::tau::RecoTauDiscriminantPlugin>(
             RecoTauDiscriminantPluginFactory::get()->create(
                 reco::tau::discPluginName(name), fakePSet));
         discriminators_.push_back(newDisc);
@@ -88,14 +85,14 @@ PFTauMVAInputDiscriminantTranslator::PFTauMVAInputDiscriminantTranslator(
       newDisc.defaultValue = defaultValue;
       // Build the plugin
       edm::ParameterSet fakePSet;
-      newDisc.plugin.reset(
+      newDisc.plugin = std::unique_ptr<reco::tau::RecoTauDiscriminantPlugin>(
           RecoTauDiscriminantPluginFactory::get()->create(
               reco::tau::discPluginName(name), fakePSet));
       discriminators_.push_back(newDisc);
     }
   }
   // register products
-  BOOST_FOREACH(const DiscriminantInfo& disc, discriminators_) {
+  for(auto const& disc : discriminators_) {
     produces<PFTauDiscriminator>(disc.collName);
   }
 }
@@ -106,7 +103,7 @@ void PFTauMVAInputDiscriminantTranslator::produce(edm::Event& evt,
   edm::Handle<PFTauCollection> pfTaus;
   evt.getByLabel(pfTauSource_, pfTaus);
 
-  BOOST_FOREACH(const DiscriminantInfo& disc, discriminators_) {
+  for(auto const& disc : discriminators_) {
     // output for this discriminator
     auto output = std::make_unique<PFTauDiscriminator>(edm::RefProd<PFTauCollection>(pfTaus));
     // loop over taus

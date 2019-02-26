@@ -14,7 +14,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
 
-class CATopJetHelper : public std::unary_function<reco::Jet, reco::CATopJetProperties> {
+class CATopJetHelper {
  public:
 
   CATopJetHelper(double TopMass, double WMass) :

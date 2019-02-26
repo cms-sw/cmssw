@@ -193,8 +193,7 @@ void SimG4HGCalValidation::update(const BeginOfJob * job) {
       edm::ESHandle<HcalDDDSimConstants>    hdc;
       es->get<HcalSimNumberingRecord>().get(hdc);
       if (hdc.isValid()) {
-	HcalDDDSimConstants* hcalConstants = (HcalDDDSimConstants*)(&(*hdc));
-	numberingFromDDD_ = new HcalNumberingFromDDD(hcalConstants);
+	numberingFromDDD_ = new HcalNumberingFromDDD(hdc.product());
 	layers = 18;
       } else {
 	edm::LogError("ValidHGCal") << "Cannot find HcalDDDSimConstant";
@@ -263,7 +262,7 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
       // Right type of SD
       if (type >= 0) {
 	//Get the 32-bit index of the hit cell
-	G4TouchableHistory* touchable = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
+	const G4TouchableHistory* touchable = static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
 	unsigned int index(0);
 	int          layer(0);
 	G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
@@ -304,7 +303,10 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 	  int depth = (touchable->GetReplicaNumber(0))%10 + 1;
 	  int lay   = (touchable->GetReplicaNumber(0)/10)%100 + 1;
 	  int det   = (touchable->GetReplicaNumber(1))/1000;
-	  HcalNumberingFromDDD::HcalID tmp = numberingFromDDD_->unitID(det, hitPoint, depth, lay);
+	  HcalNumberingFromDDD::HcalID tmp = 
+	    numberingFromDDD_->unitID(det, 
+				      math::XYZVectorD(hitPoint.x(),hitPoint.y(),
+						       hitPoint.z()), depth, lay);
 	  index = HcalTestNumbering::packHcalIndex(tmp.subdet,tmp.zside,tmp.depth,tmp.etaR,tmp.phis,tmp.lay);
 	  layer = tmp.lay;
 	  if (verbosity_ > 1)

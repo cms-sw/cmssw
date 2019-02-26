@@ -250,7 +250,6 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
     for (JetTagCollection::const_iterator tagI = tagColl.begin(); tagI != tagColl.end(); ++tagI) {
       
       //JEC
-      reco::Jet correctedJet = *(tagI->first);     
       double jec = 1.0;
       if(doJEC && corrector) {
         jec = corrector->correction(*(tagI->first));
@@ -285,7 +284,6 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
     int plotterSize = binTagCorrelationPlotters[iJetLabel].size();
     for (JetTagCollection::const_iterator tagI = tagColl1.begin(); tagI != tagColl1.end(); ++tagI) {
       //JEC
-      reco::Jet correctedJet = *(tagI->first);     
       double jec = 1.0;
       if(doJEC && corrector) {
         jec = corrector->correction(*(tagI->first));
@@ -359,7 +357,6 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
       }
 
       //JEC
-      reco::Jet correctedJet = *(jetRef);     
       double jec = 1.0;
       if(doJEC && corrector) {
         jec = corrector->correction(*(jetRef));

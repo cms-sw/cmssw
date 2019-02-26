@@ -68,6 +68,11 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   doMVAPlots_(pset.getUntrackedParameter<bool>("doMVAPlots")),
   simPVMaxZ_(pset.getUntrackedParameter<double>("simPVMaxZ"))
 {
+  if(label.empty()) {
+    // Disable prefetching of everything if there are no track collections
+    return;
+  }
+
   const edm::InputTag& label_tp_effic_tag = pset.getParameter< edm::InputTag >("label_tp_effic");
   const edm::InputTag& label_tp_fake_tag = pset.getParameter< edm::InputTag >("label_tp_fake");
 
@@ -211,6 +216,10 @@ MultiTrackValidator::~MultiTrackValidator() {}
 
 
 void MultiTrackValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook, edm::Run const&, edm::EventSetup const& setup, Histograms& histograms) const {
+  if(label.empty()) {
+    // Disable histogram booking if there are no track collections
+    return;
+  }
 
   const auto minColl = -0.5;
   const auto maxColl = label.size()-0.5;
@@ -481,6 +490,11 @@ void MultiTrackValidator::trackDR(const edm::View<reco::Track>& trackCollection,
 
 
 void MultiTrackValidator::dqmAnalyze(const edm::Event& event, const edm::EventSetup& setup, const Histograms& histograms) const {
+  if(label.empty()) {
+    // Disable if there are no track collections
+    return;
+  }
+
   using namespace reco;
 
   LogDebug("TrackValidator") << "\n====================================================" << "\n"

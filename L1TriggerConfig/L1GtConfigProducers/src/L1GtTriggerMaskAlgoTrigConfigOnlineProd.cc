@@ -42,11 +42,10 @@ L1GtTriggerMaskAlgoTrigConfigOnlineProd::~L1GtTriggerMaskAlgoTrigConfigOnlinePro
 
 // public methods
 
-std::shared_ptr<L1GtTriggerMask> L1GtTriggerMaskAlgoTrigConfigOnlineProd::newObject(
+std::unique_ptr<L1GtTriggerMask> L1GtTriggerMaskAlgoTrigConfigOnlineProd::newObject(
         const std::string& objectKey) {
 
-    // shared pointer for L1GtTriggerMask
-    auto pL1GtTriggerMask = std::make_shared<L1GtTriggerMask>();
+    auto pL1GtTriggerMask = std::make_unique<L1GtTriggerMask>();
 
     // l1GtTriggerMaskAlgoTrig: FINOR_ALGO_FK key in GT_PARTITION_FINOR_ALGO
 

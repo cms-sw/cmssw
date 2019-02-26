@@ -24,7 +24,6 @@ class ScoutingAnalyzerBase : public DQMEDAnalyzer {
     ~ScoutingAnalyzerBase() override;
     //virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
     void analyze( const edm::Event & e, const edm::EventSetup & c ) override {}
-    void endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) override {}
 
     std::string newName(const std::string & name);
 

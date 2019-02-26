@@ -112,9 +112,7 @@ namespace edm {
       }
 
       bool evaluate(Event const& event) const override {
-        Handle<PathStatus> handle;
-        event.getByToken(token_, handle);
-        return handle->accept();
+        return event.get(token_).accept();
       }
 
     private:

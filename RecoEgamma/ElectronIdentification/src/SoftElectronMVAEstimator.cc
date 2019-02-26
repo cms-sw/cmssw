@@ -3,6 +3,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration & cfg):cfg_(cfg)
 {
@@ -17,7 +18,7 @@ SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration & cfg):cf
   for(auto& weightsfile : cfg_.vweightsfiles) {
     // Taken from Daniele (his mail from the 30/11)    
     // training of the 7/12 with Nvtx added
-    gbr_.push_back( GBRForestTools::createGBRForest( weightsfile ));
+    gbr_.push_back(createGBRForest( weightsfile ));
   }
 }
 

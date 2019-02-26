@@ -20,20 +20,20 @@ mvaVariablesFile        = "RecoEgamma/ElectronIdentification/data/ElectronMVAEst
 # Define some commonly used category cuts
 # =======================================
 
-EleMVA_3CategoriesCuts = cms.vstring(
+EleMVA_3CategoriesCuts = [
     "abs(superCluster.eta) < 0.800",
     "abs(superCluster.eta) >= 0.800 && abs(superCluster.eta) < 1.479",
     "abs(superCluster.eta) >= 1.479"
-    )
+    ]
 
-EleMVA_6CategoriesCuts = cms.vstring(
+EleMVA_6CategoriesCuts = [
     "pt < 10. && abs(superCluster.eta) < 0.800",
     "pt < 10. && abs(superCluster.eta) >= 0.800 && abs(superCluster.eta) < 1.479",
     "pt < 10. && abs(superCluster.eta) >= 1.479",
     "pt >= 10. && abs(superCluster.eta) < 0.800",
     "pt >= 10. && abs(superCluster.eta) >= 0.800 && abs(superCluster.eta) < 1.479",
     "pt >= 10. && abs(superCluster.eta) >= 1.479",
-    )
+    ]
 
 # =======================================================
 # Define simple containers for MVA cut values and related

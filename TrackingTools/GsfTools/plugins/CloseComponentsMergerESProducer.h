@@ -16,7 +16,7 @@ class  CloseComponentsMergerESProducer: public edm::ESProducer{
  public:
   CloseComponentsMergerESProducer(const edm::ParameterSet & p);
   ~CloseComponentsMergerESProducer() override; 
-  std::shared_ptr< MultiGaussianStateMerger<N> > produce(const TrackingComponentsRecord &);
+  std::unique_ptr< MultiGaussianStateMerger<N> > produce(const TrackingComponentsRecord &);
  private:
   edm::ParameterSet pset_;
 };

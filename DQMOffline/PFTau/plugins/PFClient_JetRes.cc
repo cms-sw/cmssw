@@ -186,7 +186,7 @@ void PFClient_JetRes::getHistogramParameters(MonitorElement* me_slice, double& a
     if (th_slice && th_slice->GetEntries() > 0) {
       //need our own copy for thread safety
       TF1 gaus("mygaus","gaus");
-      th_slice->Fit( &gaus,"Q0");
+      th_slice->Fit( &gaus,"Q0 SERIAL");
       sigma = gaus.GetParameter(2);
       mean  = gaus.GetParameter(1);
     }

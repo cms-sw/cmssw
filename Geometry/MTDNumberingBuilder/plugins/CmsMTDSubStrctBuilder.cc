@@ -44,7 +44,7 @@ CmsMTDSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricTimingDet* det )
   switch( comp.front()->type())
   {  
   case GeometricTimingDet::BTLLayer:
-    std::stable_sort( comp.begin(), comp.end(), LessR());
+    std::stable_sort( comp.begin(), comp.end(), isLessR);
     break;    
   default:
     edm::LogError( "CmsMTDSubStrctBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type(); 

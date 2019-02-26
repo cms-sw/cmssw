@@ -1,5 +1,5 @@
-#ifndef SimG4Core_FieldBuilder_H
-#define SimG4Core_FieldBuilder_H
+#ifndef SimG4Core_MagneticField_FieldBuilder_H
+#define SimG4Core_MagneticField_FieldBuilder_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <memory>
@@ -33,7 +33,7 @@ namespace sim {
     G4Mag_UsualEqRhs *theFieldEquation;
     G4LogicalVolume  *theTopVolume;	 
     edm::ParameterSet thePSet;
-    double delta;
+    double theDelta;
   };
 };
 

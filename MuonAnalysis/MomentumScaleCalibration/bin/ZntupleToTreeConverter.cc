@@ -32,7 +32,7 @@ lorentzVector fromPtEtaPhiToPxPyPz( const double* ptEtaPhiE )
 
   // lorentzVector corrMu(px,py,pz,E);
   // To fix memory leaks, this is to be substituted with
-  // std::auto_ptr<lorentzVector> corrMu(new lorentzVector(px, py, pz, E));
+  // std::unique_ptr<lorentzVector> corrMu(new lorentzVector(px, py, pz, E));
 
   return lorentzVector(px,py,pz,E);
 }

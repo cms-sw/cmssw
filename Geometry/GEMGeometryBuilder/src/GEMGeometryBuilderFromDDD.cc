@@ -30,7 +30,7 @@ GEMGeometryBuilderFromDDD::~GEMGeometryBuilderFromDDD()
 { }
 
 void
-GEMGeometryBuilderFromDDD::build( const std::shared_ptr<GEMGeometry>& theGeometry,
+GEMGeometryBuilderFromDDD::build( GEMGeometry& theGeometry,
 				  const DDCompactView* cview,
 				  const MuonDDDConstants& muonConstants )
 {
@@ -49,6 +49,7 @@ GEMGeometryBuilderFromDDD::build( const std::shared_ptr<GEMGeometry>& theGeometr
   bool doSuper = fv.firstChild();
   LogDebug("GEMGeometryBuilderFromDDD") << "doSuperChamber = " << doSuper;
   // loop over superchambers
+  std::vector<GEMSuperChamber*> superChambers;
   while (doSuper){
 
     // getting chamber id from eta partitions
@@ -65,7 +66,7 @@ GEMGeometryBuilderFromDDD::build( const std::shared_ptr<GEMGeometry>& theGeometr
     // making superchamber out of the first chamber layer including the gap between chambers
     if (detIdCh.layer() == 1){// only make superChambers when doing layer 1
       GEMSuperChamber *gemSuperChamber = buildSuperChamber(fv, detIdCh);
-      theGeometry->add(gemSuperChamber);
+      superChambers.push_back(gemSuperChamber);
     }
     GEMChamber *gemChamber = buildChamber(fv, detIdCh);
     
@@ -87,12 +88,12 @@ GEMGeometryBuilderFromDDD::build( const std::shared_ptr<GEMGeometry>& theGeometr
 
 	GEMEtaPartition *etaPart = buildEtaPartition(fv, detId);
 	gemChamber->add(etaPart);
-	theGeometry->add(etaPart);
+	theGeometry.add(etaPart);
 	doEtaPart = fv.nextSibling();
       }
       fv.parent();
 
-      theGeometry->add(gemChamber);
+      theGeometry.add(gemChamber);
       
       doChambers = fv.nextSibling();
     }
@@ -102,8 +103,7 @@ GEMGeometryBuilderFromDDD::build( const std::shared_ptr<GEMGeometry>& theGeometr
     if (!loopExecuted) delete gemChamber;
   }
   
-  auto& superChambers(theGeometry->superChambers());
-  // construct the regions, stations and rings. 
+  // construct the regions, stations and rings.
   for (int re = -1; re <= 1; re = re+2) {
     GEMRegion* region = new GEMRegion(re);
     for (int st=1; st<=GEMDetId::maxStationId; ++st) {
@@ -113,28 +113,28 @@ GEMGeometryBuilderFromDDD::build( const std::shared_ptr<GEMGeometry>& theGeometr
       station->setName(name);
       for (int ri=1; ri<=1; ++ri) {
 	GEMRing* ring = new GEMRing(re, st, ri);
-	for (auto sch : superChambers){
-	  GEMSuperChamber* superChamber = const_cast<GEMSuperChamber*>(sch);
+	for (auto superChamber : superChambers){
 	  const GEMDetId detId(superChamber->id());
 	  if (detId.region() != re || detId.station() != st || detId.ring() != ri) continue;
 	  
-	  superChamber->add( theGeometry->chamber(GEMDetId(detId.region(),detId.ring(),detId.station(),1,detId.chamber(),0)));
-	  superChamber->add( theGeometry->chamber(GEMDetId(detId.region(),detId.ring(),detId.station(),2,detId.chamber(),0)));
+	  superChamber->add( theGeometry.chamber(GEMDetId(detId.region(),detId.ring(),detId.station(),1,detId.chamber(),0)));
+	  superChamber->add( theGeometry.chamber(GEMDetId(detId.region(),detId.ring(),detId.station(),2,detId.chamber(),0)));
 	  
 	  ring->add(superChamber);
+	  theGeometry.add(superChamber);
 	  LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << detId << " to ring: " 
 						<< "re " << re << " st " << st << " ri " << ri << std::endl;
  	}
 	LogDebug("GEMGeometryBuilderFromDDD") << "Adding ring " <<  ri << " to station " << "re " << re << " st " << st << std::endl;
 	station->add(ring);
-	theGeometry->add(ring);
+	theGeometry.add(ring);
       }
       LogDebug("GEMGeometryBuilderFromDDD") << "Adding station " << st << " to region " << re << std::endl;
       region->add(station);
-      theGeometry->add(station);
+      theGeometry.add(station);
     }
     LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
-    theGeometry->add(region);
+    theGeometry.add(region);
   }  
 }
 

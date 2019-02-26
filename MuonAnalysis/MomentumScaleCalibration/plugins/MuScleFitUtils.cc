@@ -462,7 +462,7 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
 {
   double * p = new double[(int)(parval.size())];
   // Replaced by auto_ptr, which handles delete at the end
-  // std::auto_ptr<double> p(new double[(int)(parval.size())]);
+  // std::unique_ptr<double> p(new double[(int)(parval.size())]);
   // Removed auto_ptr, check massResolution for an explanation.
   int id = 0;
   for (std::vector<double>::const_iterator it=parval.begin(); it!=parval.end(); ++it, ++id) {
@@ -506,7 +506,7 @@ lorentzVector MuScleFitUtils::fromPtEtaPhiToPxPyPz( const double* ptEtaPhiE )
 
   // lorentzVector corrMu(px,py,pz,E);
   // To fix memory leaks, this is to be substituted with
-  // std::auto_ptr<lorentzVector> corrMu(new lorentzVector(px, py, pz, E));
+  // std::unique_ptr<lorentzVector> corrMu(new lorentzVector(px, py, pz, E));
 
   return lorentzVector(px,py,pz,E);
 }
@@ -534,7 +534,7 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
   // not be used with arrays. There are alternatives see
   // e.g.: http://www.gotw.ca/gotw/042.htm. The best
   // alternative seems to be to switch to vector though.
-  // std::auto_ptr<double> p(new double[(int)(parval.size())]);
+  // std::unique_ptr<double> p(new double[(int)(parval.size())]);
 
   double * p = new double[(int)(parval.size())];
   std::vector<double>::const_iterator it = parval.begin();
@@ -711,7 +711,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
   double * p = new double[(int)(parval.size())];
   // Replaced by auto_ptr, which handles delete at the end
   // Removed auto_ptr, check massResolution for an explanation.
-  // std::auto_ptr<double> p(new double[(int)(parval.size())]);
+  // std::unique_ptr<double> p(new double[(int)(parval.size())]);
 
   std::vector<double>::const_iterator it = parval.begin();
   int id = 0;

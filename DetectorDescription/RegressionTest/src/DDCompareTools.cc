@@ -14,11 +14,8 @@
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "Math/GenVector/Rotation3D.h"
 
-DDCompareEPV::DDCompareEPV() : ddco_() { }
-
-DDCompareEPV::DDCompareEPV(const DDCompOptions& ddco) : ddco_(ddco) { }
-
-bool DDCompareEPV::operator()(DDExpandedView& lhs, DDExpandedView& rhs) const {
+bool DDCompareEPV( DDExpandedView& lhs, DDExpandedView& rhs, const DDCompOptions& ddco)
+{
   bool ret(true);
 
   std::cout <<"*********FIRST BY firstChild, firstChild, nextSibling, nextSibling*********" << std::endl;
@@ -73,11 +70,8 @@ bool DDCompareEPV::operator()(DDExpandedView& lhs, DDExpandedView& rhs) const {
   return ret;
 }
 
-DDCompareCPV::DDCompareCPV() : ddco_() { }
-
-DDCompareCPV::DDCompareCPV(const DDCompOptions& ddco) : ddco_(ddco) { }
-
-bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs) const {
+bool DDCompareCPV(const DDCompactView& lhs, const DDCompactView& rhs, const DDCompOptions& ddco)
+{
   bool ret(true);
 
   const auto & g1 = lhs.graph();
@@ -97,7 +91,7 @@ bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs
     const DDLogicalPart & ddLP1 = g1.nodeData(git1);
     const DDLogicalPart & ddLP2 = g2.nodeData(git2);
     std::cout << ++i << " P " << ddLP1.name() << " " << ddLP2.name() << std::endl;
-    if ( ! DDCompareLP(ddco_)(ddLP1, ddLP2) ) {
+    if ( ! DDCompareLP(ddLP1, ddLP2, ddco) ) {
       ret = false;
       break;
     } else if (!git1->empty() && !git2->empty() ) { 
@@ -115,17 +109,17 @@ bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs
 	const DDPosData* p2(g2.edgeData(cit2->second));
 
 	if ( p1->copyno() != p2->copyno() || 
-	     ! DDCompareLP(ddco_)(ddcurLP1,ddcurLP2) ) {
+	     ! DDCompareLP(ddcurLP1,ddcurLP2,ddco) ) {
 	  std::cout << "Failed to match node (fullname:copy_no): 1: " 
 		    << ddcurLP1.name().fullname() << ":" << p1->copyno() << " 2: " 
 		    << ddcurLP2.name().fullname() << ":" << p2->copyno() << std::endl;
 	  ret = false;
 	  break;
-	} else if ( ! DDCompareDDTrans()(p1->trans(), p2->trans()) ) {
+	} else if ( ! DDCompareDDTrans(p1->trans(), p2->trans()) ) {
 	  std::cout << "Failed to match translation " << std::endl;
 	  ret = false;
 	  break;
-	} else if ( ! DDCompareDDRot(ddco_)(p1->ddrot(), p2->ddrot()) ) {
+	} else if ( ! DDCompareDDRot(p1->ddrot(), p2->ddrot(), ddco) ) {
 	  std::cout << "Failed to match rotation " << std::endl;
 	  ret = false;
 	  break;
@@ -145,18 +139,15 @@ bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs
   return ret;
 }
 
-DDCompareLP::DDCompareLP() : ddco_() { }
-
-DDCompareLP::DDCompareLP(const DDCompOptions& ddco) : ddco_(ddco) { }
-
-bool DDCompareLP::operator()(const DDLogicalPart& lhs, const DDLogicalPart& rhs) const {
+bool DDCompareLP(const DDLogicalPart& lhs, const DDLogicalPart& rhs, const DDCompOptions& ddco)
+{
   bool ret(true);
   // for a logical part to be equal, the solid must be equal and the name must be equal.
   if ( lhs.name().fullname() != rhs.name().fullname() ) {
     ret = false;
     std::cout << "LogicalPart names do not match " << lhs.name().fullname() 
 	      << " and " << rhs.name().fullname() << std::endl;
-  } else if ( ! DDCompareSolid(ddco_)(lhs.solid(), rhs.solid()) ){
+  } else if ( ! DDCompareSolid(lhs.solid(), rhs.solid(), ddco) ){
     ret = false;
     std::cout << "LogicalPart Solids do not match " << lhs.name().fullname() 
 	      << " and " << rhs.name().fullname() << std::endl;
@@ -164,11 +155,8 @@ bool DDCompareLP::operator()(const DDLogicalPart& lhs, const DDLogicalPart& rhs)
   return ret;
 }
 
-DDCompareSolid::DDCompareSolid() : ddco_() { }
-
-DDCompareSolid::DDCompareSolid(const DDCompOptions& ddco) : ddco_(ddco) { }
-
-bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
+bool DDCompareSolid(const DDSolid& lhs, const DDSolid& rhs, const DDCompOptions& ddco)
+{
   bool ret(true);
     switch ( lhs.shape() ) {
     case DDSolidShape::dd_not_init:
@@ -197,7 +185,7 @@ bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
 	  std::cout << "Shape types do not match for solids " << lhs.name().fullname() 
 		    << " and " << rhs.name().fullname() 
 		    << " even though their names match " << std::endl;
-	} else if ( ! DDCompareDBLVEC()(lhs.parameters(), rhs.parameters()) ) {
+	} else if ( ! DDCompareDBLVEC(lhs.parameters(), rhs.parameters()) ) {
 	  ret = false;
 	  std::cout << "Parameters do not match for solids " << lhs.name().fullname() 
 		    << " and " << rhs.name().fullname() 
@@ -210,7 +198,7 @@ bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
     case DDSolidShape::ddsubtraction:
     case DDSolidShape::ddintersection: 
       {
-	if ( ! DDCompareBoolSol(ddco_)(lhs, rhs) ) {
+	if ( ! DDCompareBoolSol(lhs, rhs, ddco) ) {
 	  ret = false;
 	}
 	break;
@@ -221,12 +209,8 @@ bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
     return ret;
 }
 
-DDCompareDBLVEC::DDCompareDBLVEC() : tol_(0.0004) { }
-
-DDCompareDBLVEC::DDCompareDBLVEC(double tol) : tol_(tol) { }
-
-bool
-DDCompareDBLVEC::operator() ( const std::vector<double>& lhs, const std::vector<double>& rhs ) const
+// Default tolerance was 0.0004
+bool DDCompareDBLVEC( const std::vector<double>& lhs, const std::vector<double>& rhs, double tol)
 {
   bool ret(true);
   std::ios_base::fmtflags originalFlags = std::cout.flags();
@@ -240,7 +224,7 @@ DDCompareDBLVEC::operator() ( const std::vector<double>& lhs, const std::vector<
   {
     for( size_t i = 0; i < lhs.size() ; ++i )
     {
-      if( std::fabs( lhs[i] - rhs[i] ) > tol_ )
+      if( std::fabs( lhs[i] - rhs[i] ) > tol )
       {
 	ret = false;
 	std::cout << "Vector content at index " << i << " does not match " ;
@@ -255,10 +239,8 @@ DDCompareDBLVEC::operator() ( const std::vector<double>& lhs, const std::vector<
   return ret;
 }
 
-DDCompareBoolSol::DDCompareBoolSol() : ddco_() { }
-
-DDCompareBoolSol::DDCompareBoolSol(const DDCompOptions& ddco) : ddco_(ddco) { }
-bool DDCompareBoolSol::operator() ( const DDBooleanSolid& lhs, const DDBooleanSolid& rhs ) const {
+bool DDCompareBoolSol( const DDBooleanSolid& lhs, const DDBooleanSolid& rhs, const DDCompOptions& ddco)
+{
   bool ret(true);
   if ( lhs.name().fullname() != rhs.name().fullname() ) {
     ret = false;
@@ -266,19 +248,19 @@ bool DDCompareBoolSol::operator() ( const DDBooleanSolid& lhs, const DDBooleanSo
   } else if ( lhs.shape() != rhs.shape() ) {
     ret = false;
     std::cout << "BooleanSolid shape types do not match ";
-  } else if ( ! DDCompareDBLVEC(ddco_.distTol_)(lhs.parameters(), rhs.parameters()) ) {
+  } else if ( ! DDCompareDBLVEC(lhs.parameters(), rhs.parameters(), ddco.distTol_) ) {
     ret = false;
     std::cout << "BooleanSolid parameters do not match ";
-  } else if ( ! DDCompareSolid(ddco_)(lhs.solidA(), rhs.solidA()) ) {
+  } else if ( ! DDCompareSolid(lhs.solidA(), rhs.solidA(), ddco) ) {
     ret = false;
     std::cout << "BooleanSolid SolidA solids do not match ";
-  } else if ( ! DDCompareSolid(ddco_)(lhs.solidB(), rhs.solidB()) ) {
+  } else if ( ! DDCompareSolid(lhs.solidB(), rhs.solidB(), ddco) ) {
     ret= false;
     std::cout << "BooleanSolid SolidB solids do not match ";
-  } else if ( ! DDCompareDDTrans(ddco_.distTol_)(lhs.translation(), rhs.translation()) ) {
+  } else if ( ! DDCompareDDTrans(lhs.translation(), rhs.translation(), ddco.distTol_) ) {
     ret = false;
     std::cout << "BooleanSolid Translations do not match ";
-  } else if ( ! DDCompareDDRot(ddco_)(lhs.rotation(), rhs.rotation()) ) {
+  } else if ( ! DDCompareDDRot(lhs.rotation(), rhs.rotation(), ddco) ) {
     ret = false;
     std::cout << "BooleanSolid Rotations do not match ";
   }
@@ -290,32 +272,27 @@ bool DDCompareBoolSol::operator() ( const DDBooleanSolid& lhs, const DDBooleanSo
   return ret;
 }
 
-DDCompareDDTrans::DDCompareDDTrans() : tol_(0.0004) { }
-
-DDCompareDDTrans::DDCompareDDTrans(double tol) : tol_(tol) { }
-
-bool DDCompareDDTrans::operator() ( const DDTranslation& lhs, const DDTranslation& rhs ) const {
+// Default tolerance was 0.0004
+bool DDCompareDDTrans( const DDTranslation& lhs, const DDTranslation& rhs, double tol)
+{
   bool ret(true);
-  if ( std::fabs(lhs.x() - rhs.x()) > tol_
-       || std::fabs(lhs.y() - rhs.y()) > tol_
-       || std::fabs(lhs.z() - rhs.z()) > tol_ ) {  
+  if ( std::fabs(lhs.x() - rhs.x()) > tol
+       || std::fabs(lhs.y() - rhs.y()) > tol
+       || std::fabs(lhs.z() - rhs.z()) > tol ) {  
     ret=false;
   }
   return ret;
 }
 
-DDCompareDDRot::DDCompareDDRot( ) : ddco_() { }
-
-DDCompareDDRot::DDCompareDDRot( const DDCompOptions& ddco ) : ddco_(ddco) { }
-
-bool DDCompareDDRot::operator() ( const DDRotation& lhs, const DDRotation& rhs ) const {
+bool DDCompareDDRot( const DDRotation& lhs, const DDRotation& rhs, const DDCompOptions& ddco)
+{
   bool ret(true);
-  if ( ddco_.compRotName_ && lhs.name().fullname() != rhs.name().fullname() ) {
+  if ( ddco.compRotName_ && lhs.name().fullname() != rhs.name().fullname() ) {
     ret = false;
     std::cout << "DDRotation names do not match " 
 	      << lhs.name().fullname() << " and " 
 	      << rhs.name().fullname() << std::endl;
-  } else if ( ! DDCompareDDRotMat()( lhs.rotation(), rhs.rotation()) ) {
+  } else if ( ! DDCompareDDRotMat( lhs.rotation(), rhs.rotation()) ) {
     ret = false;
     std::cout << "DDRotationMatrix values do not match " 
 	      << lhs.name().fullname() << " and " 
@@ -324,11 +301,9 @@ bool DDCompareDDRot::operator() ( const DDRotation& lhs, const DDRotation& rhs )
   return ret;
 }
 
-DDCompareDDRotMat::DDCompareDDRotMat() : tol_(0.0004) { }
-
-DDCompareDDRotMat::DDCompareDDRotMat(double tol) : tol_(tol) { }
-
-bool DDCompareDDRotMat::operator() ( const DDRotationMatrix& lhs, const DDRotationMatrix& rhs ) const {
+// Default tolerance was 0.0004
+bool DDCompareDDRotMat( const DDRotationMatrix& lhs, const DDRotationMatrix& rhs, double tol )
+{
   bool ret(true);
   // manual way to do it... postponed.  Tested with Distance method from root::math
   //DD3Vector x1, y1, z1;
@@ -336,7 +311,7 @@ bool DDCompareDDRotMat::operator() ( const DDRotationMatrix& lhs, const DDRotati
   //DD3Vector x2, y2, z2;
   //rhs.GetComponents(x2,y2,z2);
   double dist = Distance(lhs,rhs);
-  if ( std::fabs(dist) > tol_ ) {
+  if ( std::fabs(dist) > tol ) {
     std::cout << "Rotation matrices do not match." << std::endl;
     ret = false;
     DD3Vector x, y, z;
@@ -366,5 +341,3 @@ bool DDCompareDDRotMat::operator() ( const DDRotationMatrix& lhs, const DDRotati
 
   return ret;
 }
-
-

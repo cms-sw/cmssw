@@ -37,29 +37,28 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCBaseboard.h"
 
-class CSCGeometry;
-
-class CSCMotherboard
+class CSCMotherboard : public CSCBaseboard
 {
  public:
   /** Normal constructor. */
   CSCMotherboard(unsigned endcap, unsigned station, unsigned sector,
-		 unsigned subsector, unsigned chamber,
-		 const edm::ParameterSet& conf);
+                 unsigned subsector, unsigned chamber,
+                 const edm::ParameterSet& conf);
 
   /** Constructor for use during testing. */
   CSCMotherboard();
 
   /** Default destructor. */
-  virtual ~CSCMotherboard() = default;
+  ~CSCMotherboard() override = default;
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
-  void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
+  virtual void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
 
   /** Returns vector of correlated LCTs in the read-out time window, if any. */
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const;
+  virtual std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const;
 
   /** Returns vector of all found correlated LCTs, if any. */
   std::vector<CSCCorrelatedLCTDigi> getLCTs() const;
@@ -71,36 +70,27 @@ class CSCMotherboard
   /** Set configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
 
-  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
-
   /** Anode LCT processor. */
-  std::unique_ptr<CSCAnodeLCTProcessor> alct;
+  std::unique_ptr<CSCAnodeLCTProcessor> alctProc;
 
   /** Cathode LCT processor. */
-  std::unique_ptr<CSCCathodeLCTProcessor> clct;
+  std::unique_ptr<CSCCathodeLCTProcessor> clctProc;
 
  // VK: change to protected, to allow inheritance
  protected:
 
+  /* Containers for reconstructed ALCTs and CLCTs */
+  std::vector<CSCALCTDigi> alctV;
+  std::vector<CSCCLCTDigi> clctV;
+
+  /** Container for first correlated LCT. */
+  CSCCorrelatedLCTDigi firstLCT[CSCConstants::MAX_LCT_TBINS];
+
+  /** Container for second correlated LCT. */
+  CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
+
   // helper function to return ALCT with correct central BX
   CSCALCTDigi getBXShiftedALCT(const CSCALCTDigi&) const;
-
-  /** Verbosity level: 0: no print (default).
-   *                   1: print LCTs found. */
-  int infoV;
-
-  /** Chamber id (trigger-type labels). */
-  const unsigned theEndcap;
-  const unsigned theStation;
-  const unsigned theSector;
-  const unsigned theSubsector;
-  const unsigned theTrigChamber;
-  unsigned theRing;
-
-  const CSCGeometry* csc_g;
-
-  /** Flag for SLHC studies. */
-  bool isSLHC;
 
   /** Configuration parameters. */
   unsigned int mpc_block_me1a;
@@ -123,19 +113,11 @@ class CSCMotherboard
       if false: do ALCT-to-CLCT matching */
   bool clct_to_alct;
 
-  unsigned int alctClctOffset;
-
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;
   static const unsigned int def_alct_trig_enable, def_clct_trig_enable;
   static const unsigned int def_match_trig_enable, def_match_trig_window_size;
   static const unsigned int def_tmb_l1a_window_size;
-
-  /** Container for first correlated LCT. */
-  CSCCorrelatedLCTDigi firstLCT[CSCConstants::MAX_LCT_TBINS];
-
-  /** Container for second correlated LCT. */
-  CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
 
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
@@ -150,9 +132,8 @@ class CSCMotherboard
                                      const CSCCLCTDigi& cLCT,
                                      int type, int trknmb) const;
 
-  // CLCT pattern number: encodes the pattern number itself and
-  // whether the pattern consists of half-strips or di-strips.
-  unsigned int encodePattern(const int ptn, const int highPt) const;
+  // CLCT pattern number: encodes the pattern number itself
+  unsigned int encodePattern(const int clctPattern) const;
 
   // 4-bit LCT quality number.Made by TMB lookup tables and used for MPC sorting.
   unsigned int findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
@@ -178,8 +159,5 @@ class CSCMotherboard
 
   /** Dump TMB/MPC configuration parameters. */
   void dumpConfigParams() const;
-
-  // Method for tests
-  void testLCT();
 };
 #endif

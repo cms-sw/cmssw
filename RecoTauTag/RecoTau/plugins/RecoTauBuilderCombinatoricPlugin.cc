@@ -113,7 +113,7 @@ namespace xclean
   template<>
   inline void CrossCleanPtrs<PiZeroList::const_iterator>::initialize(const PiZeroList::const_iterator& piZerosBegin, const PiZeroList::const_iterator& piZerosEnd) 
   {
-    BOOST_FOREACH( const PFCandidatePtr &ptr, flattenPiZeros(piZerosBegin, piZerosEnd) ) {
+    for(auto const& ptr : flattenPiZeros(piZerosBegin, piZerosEnd) ) {
       toRemove_.insert(CandidatePtr(ptr));
     }
   }
@@ -297,7 +297,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 	  toRemove.insert(signalPiZero->daughterPtrVector().begin(), signalPiZero->daughterPtrVector().end());
 	}
 	PiZeroList cleanIsolationPiZeros;
-	BOOST_FOREACH( const RecoTauPiZero& precleanedPiZero, precleanedIsolationPiZeros ) {	  
+	for(auto const& precleanedPiZero : precleanedIsolationPiZeros ) {
 	  std::set<reco::CandidatePtr> toCheck(precleanedPiZero.daughterPtrVector().begin(), precleanedPiZero.daughterPtrVector().end());
 	  std::vector<reco::CandidatePtr> cleanDaughters;
 	  std::set_difference(toCheck.begin(), toCheck.end(), toRemove.begin(), toRemove.end(), std::back_inserter(cleanDaughters));

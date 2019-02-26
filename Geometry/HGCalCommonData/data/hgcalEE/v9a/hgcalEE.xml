@@ -10,8 +10,8 @@
       hgcalwafer:HGCalEEWafer1Coarse1, hgcalwafer:HGCalEEWafer1Coarse2</Vector>
     <Vector name="MaterialNames" type="string" nEntries="9">
       materials:StainlessSteel, materials:Lead, materials:Copper,
-      materials:M_NEMA FR4 plate, materials:Air, materials:Silicon,
-      hgcal:WCu, materials:Copper, materials:Copper</Vector>
+      hgcalMaterial:HGC_G10-FR4, materials:Air, materials:Silicon,
+      hgcalMaterial:WCu, materials:Copper, materials:Copper</Vector>
     <Vector name="VolumeNames" type="string" nEntries="9">
       HGCalEEAbsorberCover, HGCalEEAbsorber1, HGCalEEAbsorber2, HGCalEEPCB,
       HGCalEEAirGap, HGCalEESensitive, HGCalEEBasePlate, HGCalEEHeatShield,

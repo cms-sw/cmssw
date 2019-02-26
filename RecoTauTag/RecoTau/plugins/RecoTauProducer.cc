@@ -18,7 +18,6 @@
  */
 #include "boost/bind.hpp"
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/foreach.hpp>
 
 #include <algorithm>
 #include <functional>
@@ -47,8 +46,8 @@ class RecoTauProducer : public edm::stream::EDProducer<>
  public:
   typedef reco::tau::RecoTauBuilderPlugin Builder;
   typedef reco::tau::RecoTauModifierPlugin Modifier;
-  typedef boost::ptr_vector<Builder> BuilderList;
-  typedef boost::ptr_vector<Modifier> ModifierList;
+  typedef std::vector<std::unique_ptr<Builder>> BuilderList;
+  typedef std::vector<std::unique_ptr<Modifier>> ModifierList;
 
   explicit RecoTauProducer(const edm::ParameterSet& pset);
   ~RecoTauProducer() override {}
@@ -71,7 +70,7 @@ class RecoTauProducer : public edm::stream::EDProducer<>
   BuilderList builders_;
   ModifierList modifiers_;
   // Optional selection on the output of the taus
-  std::auto_ptr<StringCutObjectSelector<reco::PFTau> > outputSelector_;
+  std::unique_ptr<StringCutObjectSelector<reco::PFTau> > outputSelector_;
   // Whether or not to add build a tau from a jet for which the builders
   // return no taus.  The tau will have no content, only the four vector of
   // the orginal jet.
@@ -101,7 +100,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
     // Get plugin name
     const std::string& pluginType = builderPSet->getParameter<std::string>("plugin");
     // Build the plugin
-    builders_.push_back(RecoTauBuilderPluginFactory::get()->create(pluginType, *builderPSet, consumesCollector()));
+    builders_.emplace_back(RecoTauBuilderPluginFactory::get()->create(pluginType, *builderPSet, consumesCollector()));
   }
 
   const VPSet& modfiers = pset.getParameter<VPSet>("modifiers");
@@ -110,15 +109,13 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
     // Get plugin name
     const std::string& pluginType = modfierPSet->getParameter<std::string>("plugin");
     // Build the plugin
-    reco::tau::RecoTauModifierPlugin* plugin = nullptr;
-    plugin = RecoTauModifierPluginFactory::get()->create(pluginType, *modfierPSet, consumesCollector());
-    modifiers_.push_back(plugin);
+    modifiers_.emplace_back(RecoTauModifierPluginFactory::get()->create(pluginType, *modfierPSet, consumesCollector()));
   }
 
   // Check if we want to apply a final output selection
   if ( pset.exists("outputSelection") ) {
     std::string selection = pset.getParameter<std::string>("outputSelection");
-    if ( selection != "" ) {
+    if ( !selection.empty() ) {
       outputSelector_.reset(new StringCutObjectSelector<reco::PFTau>(selection));
     }
   }
@@ -149,12 +146,10 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   evt.getByToken(piZero_token, piZeroAssoc);
 
   // Update all our builders and modifiers with the event info
-  for (BuilderList::iterator builder = builders_.begin();
-      builder != builders_.end(); ++builder) {
+  for (auto& builder: builders_) {
     builder->setup(evt, es);
   }
-  for (ModifierList::iterator modifier = modifiers_.begin();
-      modifier != modifiers_.end(); ++modifier) {
+  for (auto& modifier: modifiers_) {
     modifier->setup(evt, es);
   }
 
@@ -163,7 +158,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   output->reserve(jets.size());
   
   // Loop over the jets and build the taus for each jet
-  BOOST_FOREACH( reco::PFJetRef jetRef, jets ) {
+  for(auto const& jetRef : jets ) {
     // Get the jet with extra constituents from an area around the jet
     if(jetRef->pt() - minJetPt_ < 1e-5) continue;
     if(std::abs(jetRef->eta()) - maxJetAbsEta_ > -1e-5) continue;
@@ -199,8 +194,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     const std::vector<reco::RecoTauPiZero>& piZeros = (*piZeroAssoc)[jetRef];
     // Loop over our builders and create the set of taus for this jet
     unsigned int nTausBuilt = 0;
-    for ( BuilderList::const_iterator builder = builders_.begin();
-	  builder != builders_.end(); ++builder) {
+    for ( const auto& builder: builders_ ) {
       // Get a ptr_vector of taus from the builder
       reco::tau::RecoTauBuilderPlugin::output_type taus((*builder)(jetRef, chargedHadrons, piZeros, uniqueRegionalCands));
       // Make sure all taus have their jetref set correctly
@@ -211,7 +205,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         nTausBuilt += taus.size();
       } else {
         // Copy only those that pass the selection.
-        BOOST_FOREACH( const reco::PFTau& tau, taus ) {
+        for(auto const& tau : taus ) {
           if ( (*outputSelector_)(tau) ) {
             nTausBuilt++;
             output->push_back(tau);
@@ -232,14 +226,12 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   // Loop over the taus we have created and apply our modifiers to the taus
   for ( reco::PFTauCollection::iterator tau = output->begin();
 	tau != output->end(); ++tau ) {
-    for ( ModifierList::const_iterator modifier = modifiers_.begin();
-	  modifier != modifiers_.end(); ++modifier ) {
+    for ( const auto& modifier: modifiers_ ) {
       (*modifier)(*tau);
     }
   }
   
-  for ( ModifierList::iterator modifier = modifiers_.begin();
-        modifier != modifiers_.end(); ++modifier ) {
+  for ( auto& modifier: modifiers_ ) {
     modifier->endEvent();
   }
   

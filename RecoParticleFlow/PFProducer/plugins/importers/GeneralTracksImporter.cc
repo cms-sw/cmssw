@@ -52,10 +52,8 @@ void GeneralTracksImporter::
 importToBlock( const edm::Event& e, 
 	       BlockElementImporterBase::ElementList& elems ) const {
   typedef BlockElementImporterBase::ElementList::value_type ElementType;  
-  edm::Handle<reco::PFRecTrackCollection> tracks;
-  e.getByToken(src_,tracks);
-   edm::Handle<reco::MuonCollection> muons;
-  e.getByToken(muons_,muons);
+  auto tracks = e.getHandle(src_);
+  auto muons = e.getHandle(muons_);
   elems.reserve(elems.size() + tracks->size());
   std::vector<bool> mask(tracks->size(),true);
   reco::MuonRef muonref;

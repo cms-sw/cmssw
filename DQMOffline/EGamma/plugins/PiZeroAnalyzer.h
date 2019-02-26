@@ -131,14 +131,4 @@ class PiZeroAnalyzer : public DQMEDAnalyzer
   MonitorElement*  hPtPi0EB_;
 };
 
-
-class ecalRecHitLess : public std::binary_function<EcalRecHit, EcalRecHit, bool> 
-{
-public:
-  bool operator()(EcalRecHit x, EcalRecHit y) 
-  { 
-    return (x.energy() > y.energy()); 
-  }
-};
-
 #endif

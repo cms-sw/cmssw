@@ -125,34 +125,34 @@ namespace edm {
       void doEndStream(StreamID id);
       void doStreamBeginRun(StreamID id,
                             RunPrincipal& ep,
-                            EventSetup const& c,
+                            EventSetupImpl const&  c,
                             ModuleCallingContext const*);
       void doStreamEndRun(StreamID id,
                           RunPrincipal& ep,
-                          EventSetup const& c,
+                          EventSetupImpl const&  c,
                           ModuleCallingContext const*);
       void doStreamBeginLuminosityBlock(StreamID id,
                                         LuminosityBlockPrincipal& ep,
-                                        EventSetup const& c,
+                                        EventSetupImpl const&  c,
                                         ModuleCallingContext const*);
       void doStreamEndLuminosityBlock(StreamID id,
                                       LuminosityBlockPrincipal& ep,
-                                      EventSetup const& c,
+                                      EventSetupImpl const&  c,
                                       ModuleCallingContext const*);
 
-      bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+      bool doEvent(EventPrincipal const& ep, EventSetupImpl const&  c,
                    ActivityRegistry*,
                    ModuleCallingContext const*);
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
 
-      bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+      bool doBeginRun(RunPrincipal const& rp, EventSetupImpl const&  c,
                       ModuleCallingContext const*);
-      bool doEndRun(RunPrincipal const& rp, EventSetup const& c,
+      bool doEndRun(RunPrincipal const& rp, EventSetupImpl const&  c,
                     ModuleCallingContext const*);
-      bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+      bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  c,
                                   ModuleCallingContext const*);
-      bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+      bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  c,
                                 ModuleCallingContext const*);
       
       void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,

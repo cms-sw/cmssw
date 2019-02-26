@@ -160,7 +160,7 @@ namespace cond {
         m_session->iovSchema().iovTable().select( m_data->tag, m_data->groupLowerIov, m_data->groupHigherIov, snapshotTime, m_data->iovSequence );
         m_data->full = true;
       } else {
-	m_session->iovSchema().iovTable().getGroups( m_data->tag, snapshotTime, m_data->sinceGroups );
+	m_session->iovSchema().iovTable().getGroups( m_data->tag, snapshotTime, cond::time::sinceGroupSize( m_data->timeType ), m_data->sinceGroups );
         m_data->full = false;
       }
       m_data->range = false;

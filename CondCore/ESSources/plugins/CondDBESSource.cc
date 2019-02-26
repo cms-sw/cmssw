@@ -210,11 +210,11 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
    * this will allow to initialize POOL in one go for each "database"
    * The real initialization of the Data-Proxies is done in the second loop 
    */
-  std::vector<cond::DataProxyWrapperBase *> proxyWrappers(m_tagCollection.size());
+  std::vector<std::unique_ptr<cond::DataProxyWrapperBase>> proxyWrappers(m_tagCollection.size());
   size_t ipb=0;
   for(it=itBeg;it!=itEnd;++it){
-    proxyWrappers[ipb++] =  
-      cond::ProxyFactory::get()->create(buildName(it->second.recordName()));
+    proxyWrappers[ipb++] = std::unique_ptr<cond::DataProxyWrapperBase>{
+      cond::ProxyFactory::get()->create(buildName(it->second.recordName()))};
   }
 
   // now all required libraries have been loaded
@@ -243,7 +243,7 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
     } else nsess = (*p).second;
 
     // ownership...
-    ProxyP proxy(proxyWrappers[ipb++]);
+    ProxyP proxy(std::move(proxyWrappers[ipb++]));
    //  instert in the map
     m_proxies.insert(std::make_pair(it->second.recordName(), proxy));
     // initialize

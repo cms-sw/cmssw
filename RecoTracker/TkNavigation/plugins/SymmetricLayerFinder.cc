@@ -2,10 +2,8 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
-#include "TrackingTools/DetLayers/src/DetBelowZ.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <functional>
 #include <algorithm>
 #include <cmath>
 
@@ -14,7 +12,8 @@ using namespace std;
 
 SymmetricLayerFinder::SymmetricLayerFinder( const FDLC& flc)
 {
-  ConstFDLI middle = find_if( flc.begin(), flc.end(), not1(DetBelowZ(0)));
+  ConstFDLI middle = find_if( flc.begin(), flc.end(),
+          [](const GeometricSearchDet* a){ return a->position().z() >= 0.0; });
 
   FDLC leftLayers = FDLC( flc.begin(),  middle);
   FDLC rightLayers = FDLC( middle, flc.end());

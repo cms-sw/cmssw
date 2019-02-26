@@ -71,7 +71,7 @@ from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _h
 tobTecStepHitDoubletsTripl = _hitPairEDProducer.clone(
     seedingLayers = "tobTecStepSeedLayersTripl",
     trackingRegions = "tobTecStepTrackingRegionsTripl",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoTracker.TkSeedGenerator.multiHitFromChi2EDProducer_cfi import multiHitFromChi2EDProducer as _multiHitFromChi2EDProducer
@@ -158,6 +158,7 @@ tobTecStepHitDoubletsPair = _hitPairEDProducer.clone(
     seedingLayers = "tobTecStepSeedLayersPair",
     trackingRegions = "tobTecStepTrackingRegionsPair",
     produceSeedingHitSets = True,
+    maxElementTotal = 12000000,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 tobTecStepSeedsPair = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
@@ -360,11 +361,22 @@ tobTecStep = ClassifierMerger.clone()
 tobTecStep.inputClassifiers=['tobTecStepClassifier1','tobTecStepClassifier2']
 
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorTobTecStep_Phase1'),
-     qualityCuts = [-0.6,-0.45,-0.3],
+
+#LWTNN selector
+from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
+trackingPhase1.toReplaceWith(tobTecStep, TrackLwtnnClassifier.clone(
+     src = 'tobTecStepTracks',
+     qualityCuts = [-0.4, -0.25, -0.1]
 ))
-pp_on_AA_2018.toModify(tobTecStep, qualityCuts = [-0.6,-0.3,0.7])
+(trackingPhase1 & fastSim).toModify(tobTecStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
+
+pp_on_AA_2018.toReplaceWith(tobTecStep, TrackMVAClassifierDetached.clone(
+     src = 'tobTecStepTracks',
+     qualityCuts = [-0.6,-0.3,0.7],
+     mva = dict(GBRForestLabel = 'MVASelectorTobTecStep_Phase1')
+))
+
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 trackingLowPU.toReplaceWith(tobTecStep, RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(

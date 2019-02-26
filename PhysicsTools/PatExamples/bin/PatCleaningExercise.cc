@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "PhysicsTools/FWLite/interface/TFileService.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/ParameterSetReader/interface/ProcessDescImpl.h"
 
 
 //using namespace std;
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]){
   }
 
   // get the python configuration
-  PythonProcessDesc builder(argv[1]);
+  ProcessDescImpl builder(argv[1]);
   const edm::ParameterSet& fwliteParameters = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("FWLiteParams");
 
   // now get each parameter
