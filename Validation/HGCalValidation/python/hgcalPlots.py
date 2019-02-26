@@ -66,11 +66,17 @@ _longdepthbarycentre = PlotGroup("longdepthbarycentre", [
         Plot("longdepthbarycentre_zplus", xtitle="", **_common),
         ],ncols=2)
 
+_common_layerperthickness = {}
+_common_layerperthickness.update(_common)
+_common_layerperthickness['xmin'] = 0.
+_common_layerperthickness['xmax'] = 100
+
 _totclusternum_thick = PlotGroup("totclusternum_thick", [
-    Plot("totclusternum_thick_120", xtitle="", **_common),
-    Plot("totclusternum_thick_200", xtitle="", **_common),
-    Plot("totclusternum_thick_300", xtitle="", **_common),
-    Plot("totclusternum_thick_-1", xtitle="", **_common),
+    Plot("totclusternum_thick_120", xtitle="", **_common_layerperthickness),
+    Plot("totclusternum_thick_200", xtitle="", **_common_layerperthickness),
+    Plot("totclusternum_thick_300", xtitle="", **_common_layerperthickness),
+    Plot("totclusternum_thick_-1", xtitle="", **_common_layerperthickness),
+    Plot("mixedhitscluster", xtitle="", **_common_layerperthickness),    
     ])
 
 #We will plot the density in logy scale. 
@@ -1324,8 +1330,10 @@ _common_assoc = {#"title": "Cell Association Table",
                  "stat": False,
                  "legend": False,
                  "xbinlabels": ["", "TN(pur)", "FN(ineff.)", "FP(fake)", "TP(eff)"],
-                 "drawStyle": "hist"
-                }
+                 "drawStyle": "hist",
+                 "ymin": 0.1,
+                 "ymax": 10000,
+                 "ylog": True}
 _common_assoc.update(_legend_common)
 _cell_association_table = PlotGroup("cellAssociation_table", [
         Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(0,maxlayerzp)
