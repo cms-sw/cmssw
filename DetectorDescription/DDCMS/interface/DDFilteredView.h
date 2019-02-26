@@ -24,13 +24,21 @@
 
 namespace cms {
 
+  class DDDetector;
+
   //! Geometrical 'path' of the current node up to the root-node
   using DDGeoHistory = std::vector<DDExpandedNode>;
   using Volume = dd4hep::Volume;
     
   struct DDFilteredView {
-
-    DDFilteredView(DDVolume const&, DDTranslation const&, DDRotationMatrix const&);
+    
+    struct ExpandedNodes {
+      std::vector<double> tags;
+      std::vector<double> offsets;
+      std::vector<int> copyNos;
+    } nodes;
+    
+    DDFilteredView(const DDDetector*);
     
     //! The logical-part of the current node in the filtered-view
     const DDVolume & volume() const;
@@ -42,7 +50,7 @@ namespace cms {
     const DDRotationMatrix & rotation() const;
 
     //! User specific data
-    void mergedSpecifics(DDSpecParRefMap const&);
+    void mergedSpecifics(DDSpecParRefs const&);
     
     //! set the current node to the first child
     bool firstChild();
@@ -57,18 +65,41 @@ namespace cms {
     const DDGeoHistory & geoHistory() const;
 
     bool accepted(std::string_view, std::string_view) const;
-    bool accepted(std::vector<std::string_view>, std::string_view) const;
+    bool accepted(std::vector<std::string_view> const&, std::string_view) const;
+    bool acceptedM(std::vector<std::string_view>&, std::string_view) const;
     std::vector<std::string_view> const& topNodes() const { return topNodes_; }
+    std::vector<std::string_view> const& nextNodes() const { return nextNodes_; }
+    std::vector<std::string_view> const& afterNextNodes() const { return afterNextNodes_; }
     
-    std::vector<double> extractParameters(Volume) const;
+    std::vector<double> extractParameters() const;
+    std::vector<std::string_view> paths(const char*) const;
+    bool checkPath(std::string_view, TGeoNode *);
+    bool checkNode(TGeoNode *);
+    void unCheckNode();
+    void filter(DDSpecParRefs&, std::string_view, std::string_view) const;
+    std::vector<std::string_view> vPathsTo(const DDSpecPar&, unsigned int) const;
+    std::vector<std::string_view> tails(const std::vector<std::string_view>& fullPath) const;
+
+    DDGeoHistory parents_;
     
   private:
+    const DDSpecParRegistry* registry_;
+    
     bool isRegex(std::string_view) const;
     int contains(std::string_view, std::string_view) const;
     std::string_view realTopName(std::string_view input) const;
+    int copyNo(std::string_view input) const;
+    std::string_view noCopyNo(std::string_view input) const;
+    std::string_view noNamespace(std::string_view input) const;
+    std::vector<std::string_view> split(std::string_view, const char*) const;
+    bool acceptRegex(std::string_view, std::string_view) const;
     
-    DDGeoHistory parents_;
     std::vector<std::string_view> topNodes_;
+    std::vector<std::string_view> nextNodes_;
+    std::vector<std::string_view> afterNextNodes_;
+
+    TGeoVolume *topVolume_ = nullptr;
+    TGeoNode *node_ = nullptr;
   };
 }
 

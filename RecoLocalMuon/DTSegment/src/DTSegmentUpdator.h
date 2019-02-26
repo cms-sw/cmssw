@@ -79,8 +79,8 @@ class DTSegmentUpdator{
   protected:
 
   private:
-    DTLinearFit* theFitter; // the linear fitter
-    DTRecHitBaseAlgo* theAlgo; // the algo for hit reconstruction
+    std::unique_ptr<DTLinearFit> theFitter; // the linear fitter
+    std::unique_ptr<DTRecHitBaseAlgo> theAlgo; // the algo for hit reconstruction
     edm::ESHandle<DTGeometry> theGeom; // the geometry
 
     void updateHits(DTRecSegment2D* seg,

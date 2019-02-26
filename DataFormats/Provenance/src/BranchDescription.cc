@@ -100,7 +100,7 @@ namespace edm {
       transient_() {
     setDropped(false);
     setProduced(aliasForBranch.produced());
-    setOnDemand(aliasForBranch.onDemand());
+    setOnDemand(false); // will be re-set externally to the aliasForBranch.onDemand() after that one has been set
     transient_.availableOnlyAtEndTransition_=aliasForBranch.availableOnlyAtEndTransition();
     transient_.moduleName_ = aliasForBranch.moduleName();
     transient_.parameterSetID_ = aliasForBranch.parameterSetID();
@@ -254,7 +254,7 @@ namespace edm {
     }
 
     branchAliases_ = aliasForBranch.branchAliases();
-    transient_.switchAliasForBranchID_ = aliasForBranch.branchID();
+    transient_.switchAliasForBranchID_ = aliasForBranch.originalBranchID();
     transient_.availableOnlyAtEndTransition_ = aliasForBranch.availableOnlyAtEndTransition();
   }
 

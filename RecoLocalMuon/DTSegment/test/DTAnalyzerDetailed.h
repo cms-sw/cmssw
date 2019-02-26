@@ -91,10 +91,7 @@ class DTAnalyzerDetailed : public edm::EDAnalyzer {
     bool doHits;
     bool doSegs;
 
-    DTTTrigBaseSync *theSync;
-
-  protected:
-
+    std::unique_ptr<DTTTrigBaseSync> theSync;
 };
 #endif // DTANALYZER_H
 

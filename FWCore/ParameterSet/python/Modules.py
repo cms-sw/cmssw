@@ -1,8 +1,8 @@
 from Mixins import _ConfigureComponent, saveOrigin
 from Mixins import _Unlabelable, _Labelable
-from Mixins import _TypedParameterizable, _Parameterizable, PrintOptions
+from Mixins import _TypedParameterizable, _Parameterizable, PrintOptions, specialImportRegistry
 from SequenceTypes import _SequenceLeaf
-from Types import vstring
+from Types import vstring, EDAlias
 
 import six
 import copy
@@ -272,9 +272,13 @@ class SwitchProducer(EDProducer):
         """Returns the EDroducer of the chosen case"""
         return self.__dict__[self._chooseCase()]
 
+    @staticmethod
+    def __typeIsValid(typ):
+        return (isinstance(typ, EDProducer) and not isinstance(typ, SwitchProducer)) or isinstance(typ, EDAlias)
+
     def __addParameter(self, name, value):
-        if not (isinstance(value, EDProducer) and not isinstance(value, SwitchProducer)):
-            raise TypeError(name+" does not already exist, so it can only be set to a cms.EDProducer")
+        if not self.__typeIsValid(value):
+            raise TypeError(name+" does not already exist, so it can only be set to a cms.EDProducer or cms.EDAlias")
         if name not in self._caseFunctionDict:
             raise ValueError("Case '%s' is not allowed (allowed ones are %s)" % (name, ",".join(six.iterkeys(self._caseFunctionDict))))
         if name in self.__dict__:
@@ -309,8 +313,8 @@ class SwitchProducer(EDProducer):
             self.__addParameter(name, value)
             self._isModified = True
         else:
-            if not (isinstance(value, EDProducer) and not isinstance(value, SwitchProducer)):
-                raise TypeError(name+" can only be set to a cms.EDProducer")
+            if not self.__typeIsValid(value):
+                raise TypeError(name+" can only be set to a cms.EDProducer or cms.EDAlias")
             # We should always receive an cms.EDProducer
             self.__dict__[name] = value
             self._isModified = True
@@ -342,6 +346,7 @@ class SwitchProducer(EDProducer):
         # Note that if anyone uses the generic SwitchProducer instead
         # of a derived-one, the information on the functions for the
         # producer decision is lost
+        specialImportRegistry.registerUse(self)
         result = "%s(" % self.__class__.__name__ # not including cms. since the deriving classes are not in cms "namespace"
         options.indent()
         for resource in sorted(self.parameterNames_()):
@@ -358,12 +363,15 @@ class SwitchProducer(EDProducer):
         return myname
     def caseLabel_(self, name, case):
         return name+"@"+case
-    def appendToProcessDescList_(self, lst, myname):
+    def appendToProcessDescLists_(self, modules, aliases, myname):
         # This way we can insert the chosen EDProducer to @all_modules
         # so that we get easily a worker for it
-        lst.append(myname)
+        modules.append(myname)
         for case in self.parameterNames_():
-            lst.append(self.caseLabel_(myname, case))
+            if isinstance(self.__dict__[case], EDAlias):
+                aliases.append(self.caseLabel_(myname, case))
+            else:
+                modules.append(self.caseLabel_(myname, case))
 
     def insertInto(self, parameterSet, myname):
         for case in self.parameterNames_():
@@ -378,12 +386,19 @@ class SwitchProducer(EDProducer):
         parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
 
     def _placeImpl(self,name,proc):
-        proc._placeProducer(name,self)
-        for case in self.parameterNames_():
-            # Note that these don't end up in @all_modules
-            # automatically because they're not part of any
-            # Task/Sequence/Path
-            proc._placeProducer(self.caseLabel_(name, case), self.__dict__[case])
+        proc._placeSwitchProducer(name,self)
+#        for case in self.parameterNames_():
+#            caseLabel = self.caseLabel_(name, case)
+#            caseObj = self.__dict__[case]
+#
+#            if isinstance(caseObj, EDAlias):
+#                # EDAliases end up in @all_aliases automatically
+#                proc._placeAlias(caseLabel, caseObj)
+#            else:
+#                # Note that these don't end up in @all_modules
+#                # automatically because they're not part of any
+#                # Task/Sequence/Path
+#                proc._placeProducer(caseLabel, caseObj)
 
     def _clonesequence(self, lookuptable):
         try:
@@ -539,7 +554,6 @@ if __name__ == "__main__":
             self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = Source("Foo")))
             self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = OutputModule("Foo")))
             self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = Looper("Foo")))
-            self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = EDAlias()))
             self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = Service("Foo")))
             self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = ESSource("Foo")))
             self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = ESProducer("Foo")))
@@ -574,6 +588,7 @@ if __name__ == "__main__":
             self.assertEqual(cl.test2.type_(), "Bar")
             self.assertEqual(cl.test2.aa.value(), 11)
             self.assertEqual(cl.test2.bb.cc.value(), 12)
+            self.assertEqual(sp._getProducer().type_(), "Bar")
             # Modify clone
             cl.test1.a = 3
             self.assertEqual(cl.test1.a.value(), 3)
@@ -635,4 +650,58 @@ if __name__ == "__main__":
             unpkl = pickle.loads(pkl)
             self.assertEqual(unpkl.cpu.type_(), "Foo")
 
+        def testSwithProducerWithAlias(self):
+            # Constructor
+            sp = SwitchProducerTest(test1 = EDProducer("Foo"), test2 = EDAlias())
+            self.assertEqual(sp.test1.type_(), "Foo")
+            self.assertTrue(isinstance(sp.test2, EDAlias))
+
+            # Modifications
+            from Types import int32, string, PSet, VPSet
+            sp = SwitchProducerTest(test1 = EDProducer("Foo"),
+                                    test2 = EDAlias(foo = VPSet(PSet(type = string("Foo2")))))
+
+            # Simple clone
+            cl = sp.clone()
+            self.assertTrue(hasattr(cl.test2, "foo"))
+            # Modify clone
+            cl.test2.foo[0].type = "Foo3"
+            self.assertEqual(cl.test2.foo[0].type, "Foo3")
+            # Modify values with a dict
+            cl = sp.clone(test2 = dict(foo = {0: dict(type = "Foo4")}))
+            self.assertEqual(cl.test2.foo[0].type, "Foo4")
+            # Replace or add EDAlias
+            cl = sp.clone(test1 = EDAlias(foo = VPSet(PSet(type = string("Foo5")))),
+                          test3 = EDAlias(foo = VPSet(PSet(type = string("Foo6")))))
+            self.assertEqual(cl.test1.foo[0].type, "Foo5")
+            self.assertEqual(cl.test3.foo[0].type, "Foo6")
+            # Modify clone
+            cl.test1 = EDProducer("Xyzzy")
+            self.assertEqual(cl.test1.type_(), "Xyzzy")
+            cl.test1 = EDAlias(foo = VPSet(PSet(type = string("Foo7"))))
+            self.assertEqual(cl.test1.foo[0].type, "Foo7")
+
+
+            # Dump
+            from Types import int32, string, PSet, VPSet
+            sp = SwitchProducerTest(test1 = EDProducer("Foo"),
+                                    test2 = EDAlias(foo = VPSet(PSet(type = string("Foo2")))))
+
+            self.assertEqual(sp.dumpPython(),
+"""SwitchProducerTest(
+    test1 = cms.EDProducer("Foo"),
+    test2 = cms.EDAlias(
+        foo = cms.VPSet(cms.PSet(
+            type = cms.string('Foo2')
+        ))
+)
+)
+""")
+
+            # Pickle
+            import pickle
+            sp = SwitchProducerPickleable(cpu = EDAlias(foo = VPSet(PSet(type = string("Foo2")))))
+            pkl = pickle.dumps(sp)
+            unpkl = pickle.loads(pkl)
+            self.assertEqual(sp.cpu.foo[0].type, "Foo2")
     unittest.main()
