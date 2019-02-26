@@ -39,6 +39,7 @@
 #include "L1Trigger/Phase2L1Taus/interface/L1TrkTauEtComparator.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkEGTauParticle.h"
 #include "L1Trigger/Phase2L1Taus/interface/L1TkEGTauEtComparator.h"
+#include "DataFormats/L1TrackTrigger/interface/L1CaloTkTauParticle.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -137,6 +138,7 @@ private:
   // Tokens 
   const edm::EDGetTokenT< L1TrkTauParticleCollection > trktauToken;
   const edm::EDGetTokenT< L1TkEGTauParticleCollection > tkegtauToken;
+  const edm::EDGetTokenT< L1CaloTkTauParticleCollection > calotktauToken;
   const edm::EDGetTokenT< reco::GenParticleCollection > genToken;
 
 };
@@ -144,6 +146,7 @@ private:
 L1TausAnalyzer::L1TausAnalyzer(const edm::ParameterSet& iConfig) :
   trktauToken(consumes< L1TrkTauParticleCollection > (iConfig.getParameter<edm::InputTag>("L1TrkTauInputTag"))),
   tkegtauToken(consumes< L1TkEGTauParticleCollection > (iConfig.getParameter<edm::InputTag>("L1TkEGTauInputTag"))),
+  calotktauToken(consumes< L1CaloTkTauParticleCollection > (iConfig.getParameter<edm::InputTag>("L1CaloTkTauInputTag"))),
   genToken(consumes < reco::GenParticleCollection > (iConfig.getParameter<edm::InputTag>("GenParticleInputTag")))
 {
 
@@ -171,8 +174,8 @@ void L1TausAnalyzer::beginJob() {
   if (analysisOption_ == "Efficiency") {
     
     // Gen Particles
-    etVisGenL1Obj = fs->make<TH1F>("GenEtVis", "GenEtVis", 200, 0.5, 200.5);
-    etGenL1Obj    = fs->make<TH1F>("GenEt", "GenEt", 200, 0.5, 200.5);
+    etVisGenL1Obj = fs->make<TH1F>("GenEtVis", "GenEtVis", 100, 0.5, 200.5);
+    etGenL1Obj    = fs->make<TH1F>("GenEt", "GenEt", 100, 0.5, 200.5);
     etaGenL1Obj   = fs->make<TH1F>("GenEta", "GenEta", 90, -4.5, 4.5);
     phiGenL1Obj   = fs->make<TH1F>("GenPhi","GenPhi", 64, -3.2, 3.2);
 
@@ -185,8 +188,8 @@ void L1TausAnalyzer::beginJob() {
     etL1TrkObjVsGen = fs->make<TH2F>("EtVsGenEt", "EtVsGenEt", 200, 0.5, 200.5, 200, 0.5, 200.5);
     
     // Turn-on numerator plots
-    etL1TrkObjTurnOn = fs->make<TH1F>("EtTurnOn", "EtTurnOn", 200, 0.5, 200.5);
-    etGenObjTurnOn   = fs->make<TH1F>("GenEtTurnOn", "GenEtTurnOn", 200, 0.5, 200.5);
+    etL1TrkObjTurnOn = fs->make<TH1F>("EtTurnOn", "EtTurnOn", 100, 0.5, 200.5);
+    etGenObjTurnOn   = fs->make<TH1F>("GenEtTurnOn", "GenEtTurnOn", 100, 0.5, 200.5);
     
     // Efficiency plot
     effL1TrkObj = fs->make<TH1F>("EtEfficiency", "EtEfficiency", 200, 0.5, 200.5);
@@ -293,15 +296,39 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
   }// TkEGTau: end
 
-  
+
+  // CaloTkTau: start
+  if (objectType_ == "CaloTk"){
+
+    edm::Handle< L1CaloTkTauParticleCollection > l1CaloTkTauHandle;
+    iEvent.getByToken(calotktauToken, l1CaloTkTauHandle);
+    L1CaloTkTauParticleCollection l1CaloTkTauCollection = (*l1CaloTkTauHandle.product()); 
+    //sort( l1CaloTkTauCollection.begin(), l1CaloTkTauCollection.end(), L1CaloTkTau::EtComparator() );
+
+    // Plot the Properties
+    nL1TrkObj->Fill(l1CaloTkTauCollection.size());
+    for (auto tkObjIter = l1CaloTkTauCollection.begin(); tkObjIter != l1CaloTkTauCollection.end(); ++tkObjIter) {
+      //if (fabs(tkObjIter->eta()) < etaCutoff_ && tkObjIter->pt() > 0) {
+	etL1TrkObj  -> Fill(tkObjIter->et());
+	etaL1TrkObj -> Fill(tkObjIter->eta());
+	phiL1TrkObj -> Fill(tkObjIter->phi());
+	//}
+    }
+        
+    if (analysisOption_ == "Efficiency" && genIndices.size() > 0) checkEfficiency(l1CaloTkTauCollection);
+    else if (analysisOption_ == "Rate") checkRate(l1CaloTkTauCollection);    
+    
+  }// CaloTkTau: end
+
 }
 
 void L1TausAnalyzer::endJob() {
 
   if (analysisOption_ == "Efficiency") {
+    
     // Finalise efficiency histogram
     finaliseEfficiencyHisto(effL1TrkObj, nEvtsWithMaxHadTaus);
-    
+   
     // Print Efficiency Information
     std::cout << " Number of Selected " << objectType_ << " : "<< selectedL1TkObjTot << std::endl;
     std::cout << " Number of Events Proccessed  " << ievent << std::endl;
@@ -384,10 +411,14 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
   // Find the ET of the leading matched L1TrkObj
   float maxEt = 0;
   for (unsigned int i=0; i < matchedL1TkObjIndices.size(); i++) {
-    if (tkObjCollection.at(i).et() > maxEt) maxEt = tkObjCollection.at(i).et();
+    if (tkObjCollection.at(i).et() > maxEt) maxEt = tkObjCollection.at(i).et(); // fix-me: use matchedTkObjCollection
+    //unsigned int indx = matchedL1TkObjIndices.at(i); //marina
+    //std::cout<<"--- "<<indx<< "   size = "<< tkObjCollection.size()<<std::endl; //marina
+    //if (tkObjCollection.at(indx).et() > maxEt) maxEt = tkObjCollection.at(indx).et(); //marina
   }
-  // Fill and finalise efficiency histo 
+  // Fill  efficiency histo 
   fillIntegralHistos(effL1TrkObj, maxEt);
+
   return;
 }
 
@@ -456,7 +487,7 @@ std::vector<unsigned int> L1TausAnalyzer::findGenParticles(const edm::Handle<rec
   
   int pId = 0;
   
-  if ((objectType_ == "TkEG") || (objectType_ == "TrkTau"))
+  if ((objectType_ == "TkEG") || (objectType_ == "TrkTau") || (objectType_ == "CaloTk"))
     {
       pId = 15;
     }

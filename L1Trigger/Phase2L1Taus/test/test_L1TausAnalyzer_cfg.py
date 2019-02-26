@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(200)
 )
 
 
@@ -35,7 +35,10 @@ process.source = cms.Source("PoolSource",
         "/store/mc/PhaseIIFall17D/GluGluHToTauTau_M125_14TeV_powheg_pythia8/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/90000/08467E34-8139-E811-8059-008CFA1C6564.root",
         "/store/mc/PhaseIIFall17D/GluGluHToTauTau_M125_14TeV_powheg_pythia8/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/90000/08732B85-7E39-E811-A730-008CFA197BBC.root",
         "/store/mc/PhaseIIFall17D/GluGluHToTauTau_M125_14TeV_powheg_pythia8/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/90000/0A0DD1BB-7E39-E811-AC07-B496910A85DC.root",
-    ),
+        #"/store/mc/PhaseIIFall17D/GluGluHToTauTau_M125_14TeV_powheg_pythia8/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/90000/F447DAA6-7E39-E811-8983-008CFA0A5738.root",
+        #"/store/mc/PhaseIIFall17D/GluGluHToTauTau_M125_14TeV_powheg_pythia8/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/90000/F41AE739-8439-E811-86BA-B496910A80D4.root",
+        #"/store/mc/PhaseIIFall17D/GluGluHToTauTau_M125_14TeV_powheg_pythia8/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/90000/F4170A34-7E39-E811-B03E-008CFA1C645C.root",
+        ),
     secondaryFileNames = cms.untracked.vstring(),
     inputCommands = cms.untracked.vstring(
                     "keep *",
@@ -75,16 +78,19 @@ process.pL1EG = cms.Path( process.L1EGammaClusterEmuProducer )
 
 # ----                                                                                                                                                        
 
-# Now we produce L1TkEGTauParticles and the L1TrkTauParticles 
+# Now we produce the L1TkEGTauParticles, the L1TrkTauParticles and the L1CaloTkTauParticles 
 process.load("L1Trigger.Phase2L1Taus.L1TkEGTauParticleProducer_cfi")
 process.pL1TkEGTausProd = cms.Path( process.L1TkEGTaus )
 
 process.load("L1Trigger.Phase2L1Taus.L1TrkTauParticleProducer_cfi")
 process.pL1TrkTausProd = cms.Path( process.L1TrkTaus )
 
-process.load("L1Trigger.Phase2L1Taus.L1TausAnalyzer_cff")
-process.pL1TausAna = cms.Path(process.TkEGRate + process.TkEGEff + process.TrkTauRate + process.TrkTauEff)
+process.load("L1Trigger.Phase2L1Taus.L1CaloTkTauParticleProducer_cfi")
+process.pL1CaloTkTausProd = cms.Path( process.L1CaloTkTaus ) 
 
+# Run the analyzer
+process.load("L1Trigger.Phase2L1Taus.L1TausAnalyzer_cff")
+process.pL1TausAna = cms.Path(process.TkEGRate + process.TkEGEff + process.TrkTauRate + process.TrkTauEff + process.CaloTkRate + process.CaloTkEff)
 
 # ---------------------------------------------------------------------------
 
@@ -97,7 +103,7 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string(filenam
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.pDumpED = cms.Path(process.dumpED)
 
-process.schedule = cms.Schedule(process.L1TrackTrigger_step, process.pL1EG, process.pL1TrkTausProd, process.pL1TkEGTausProd, process.pL1TausAna)
+process.schedule = cms.Schedule(process.L1TrackTrigger_step, process.pL1EG, process.pL1CaloTkTausProd, process.pL1TrkTausProd, process.pL1TkEGTausProd, process.pL1TausAna)
 
 #dump_file = open("dump_file.py", "w")
 #dump_file.write(process.dumpPython())
