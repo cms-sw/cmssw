@@ -471,6 +471,52 @@ namespace edmtest {
     }
   }
 
+  //
+  // Produces multiple IntProduct products based on other products
+  //
+
+  class ManyIntWhenRegisteredProducer: public edm::global::EDProducer<> {
+  public:
+    explicit ManyIntWhenRegisteredProducer(edm::ParameterSet const& p):
+      sourceLabel_(p.getParameter<std::string>("src"))
+    {
+      callWhenNewProductsRegistered([=](edm::BranchDescription const& iBranch) {
+          if(iBranch.moduleLabel() == sourceLabel_) {
+            if(iBranch.branchType() != edm::InEvent) {
+              throw edm::Exception(edm::errors::UnimplementedFeature) << "ManyIntWhenRegisteredProducer supports only event branches";
+            }
+
+            this->tokens_.push_back(Tokens{this->consumes<IntProduct>(edm::InputTag{iBranch.moduleLabel(), iBranch.productInstanceName(), iBranch.processName()}),
+                                           this->produces<IntProduct>(iBranch.productInstanceName())});
+          }
+        });
+    }
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<std::string>("src");
+      descriptions.addDefault(desc);
+    }
+
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+  private:
+    struct Tokens {
+      edm::EDGetTokenT<IntProduct> get;
+      edm::EDPutTokenT<IntProduct> put;
+    };
+
+    std::string sourceLabel_;
+    std::vector<Tokens> tokens_;
+  };
+
+  void
+  ManyIntWhenRegisteredProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
+    for(auto const& toks: tokens_) {
+      e.emplace(toks.put, e.get(toks.get));
+    }
+  };
+
 }
 
 using edmtest::FailingProducer;
@@ -487,6 +533,7 @@ using edmtest::IntProducerFromTransient;
 using edmtest::Int16_tProducer;
 using edmtest::AddIntsProducer;
 using edmtest::ManyIntProducer;
+using edmtest::ManyIntWhenRegisteredProducer;
 DEFINE_FWK_MODULE(FailingProducer);
 DEFINE_FWK_MODULE(edmtest::FailingInRunProducer);
 DEFINE_FWK_MODULE(NonProducer);
@@ -502,3 +549,4 @@ DEFINE_FWK_MODULE(IntProducerFromTransient);
 DEFINE_FWK_MODULE(Int16_tProducer);
 DEFINE_FWK_MODULE(AddIntsProducer);
 DEFINE_FWK_MODULE(ManyIntProducer);
+DEFINE_FWK_MODULE(ManyIntWhenRegisteredProducer);

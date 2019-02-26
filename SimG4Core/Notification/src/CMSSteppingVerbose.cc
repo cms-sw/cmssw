@@ -1,10 +1,12 @@
 
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 #include "G4Event.hh"
+#include "G4EventManager.hh"
 #include "G4Track.hh"
 #include "G4TrackStatus.hh"
 #include "G4Step.hh"
 #include "G4SteppingManager.hh"
+#include "G4SteppingVerbose.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4VProcess.hh"
 #include "G4SystemOfUnits.hh"
@@ -13,13 +15,16 @@ CMSSteppingVerbose::CMSSteppingVerbose(G4int verb, G4double ekin,
 				       std::vector<G4int>& evtNum,
 				       std::vector<G4int>& primV,
 				       std::vector<G4int>& trNum)
-  : m_PrintEvent(false),m_PrintTrack(false),m_verbose(verb),
+  : m_PrintEvent(false),m_PrintTrack(false),m_smInitialized(false),m_verbose(verb),
     m_EventNumbers(evtNum),m_PrimaryVertex(primV),m_TrackNumbers(trNum),
     m_EkinThreshold(ekin)
 {
   m_nEvents = m_EventNumbers.size();
   m_nVertex = m_PrimaryVertex.size();
   m_nTracks = m_TrackNumbers.size();
+  m_g4SteppingVerbose = new G4SteppingVerbose();
+  G4VSteppingVerbose::SetInstance(m_g4SteppingVerbose);
+  m_g4SteppingVerbose->SetSilent(1);
 }
 
 CMSSteppingVerbose::~CMSSteppingVerbose()
@@ -57,6 +62,14 @@ void CMSSteppingVerbose::TrackStarted(const G4Track* track, bool isKilled)
 {
   m_PrintTrack = false;
   if(!m_PrintEvent) { return; }
+
+  if(!m_smInitialized) { 
+    G4SteppingManager* stepman = 
+      G4EventManager::GetEventManager()->GetTrackingManager()->GetSteppingManager();
+    m_g4SteppingVerbose->SetManager(stepman);
+    stepman->SetVerboseLevel(m_verbose); 
+    m_smInitialized = true;
+  }
 
   if(m_nTracks == 0) { 
     if(track->GetKineticEnergy() >= m_EkinThreshold) { m_PrintTrack = true; }
@@ -134,7 +147,7 @@ void CMSSteppingVerbose::StackFilled(const G4Track* track, bool isKilled) const
 
 void CMSSteppingVerbose::NextStep(const G4Step* step, 
 				  const G4SteppingManager* sManager,
-				  bool isKilled) const 
+				  bool isKilled) const
 {
   if(!m_PrintTrack) { return; }
 
@@ -144,6 +157,16 @@ void CMSSteppingVerbose::NextStep(const G4Step* step,
   const G4StepPoint* postStep = step->GetPostStepPoint();
   
   if(3 <= m_verbose) {
+
+    m_g4SteppingVerbose->SetSilent(0);
+    m_g4SteppingVerbose->DPSLStarted();
+    m_g4SteppingVerbose->DPSLAlongStep();
+    m_g4SteppingVerbose->DPSLPostStep();
+    if(4 <= m_verbose) {
+      m_g4SteppingVerbose->AlongStepDoItAllDone();
+      m_g4SteppingVerbose->PostStepDoItAllDone();
+    }
+    m_g4SteppingVerbose->SetSilent(1);
 
     prec = G4cout.precision(16);
 
@@ -361,12 +384,14 @@ void CMSSteppingVerbose::NextStep(const G4Step* step,
   if(!endTracking && fStopAndKill != track->GetTrackStatus()) { return; }
 
   prec = G4cout.precision(4);
-  G4cout << "    ++List of " << step->GetSecondary()->size()
-	 << " secondaries generated " << G4endl;
-  const G4TrackVector* tv = sManager->GetSecondary();
-  G4int n = tv->size();
-  for(G4int i=0; i<n; ++i) {
-    if((*tv)[i]->GetKineticEnergy() < m_EkinThreshold) { continue; }
+  const G4TrackVector* tv = step->GetSecondary();
+  G4int nt = tv->size();
+  if(nt > 0) {
+    G4cout << "    ++List of " << nt << " secondaries generated; " 
+	   << " Ekin > " << m_EkinThreshold << " MeV are shown:" << G4endl;
+  }
+  for(G4int i=0; i<nt; ++i) {
+    if((*tv)[i]->GetKineticEnergy() < m_EkinThreshold) { continue; } 
     G4cout << "      ("
 	   << std::setw( 9)
 	   << (*tv)[i]->GetPosition().x()/CLHEP::cm << " "

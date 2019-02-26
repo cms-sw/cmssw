@@ -185,10 +185,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
   if(rpcHits.isValid()){
    
     //    RPC rec hits NOT associated to a muon
-    RPCRecHitCollection::const_iterator rpcRecHitIter;
-    std::vector<RPCRecHit>::const_iterator muonRecHitIter;
-    
-    for (rpcRecHitIter = rpcHits->begin(); rpcRecHitIter != rpcHits->end() ; rpcRecHitIter++) {
+    for (auto rpcRecHitIter = rpcHits->begin(); rpcRecHitIter != rpcHits->end() ; rpcRecHitIter++) {
       RPCRecHit rpcRecHit = (*rpcRecHitIter);
       int detId = (int)rpcRecHit.rpcId();
       if(rechitNoise.find(detId) == rechitNoise.end() || rechitNoise[detId].empty() ){

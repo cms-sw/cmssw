@@ -7,8 +7,7 @@ MCPdgIndexFilter::MCPdgIndexFilter(const edm::ParameterSet& cfg) :
   pdgID(cfg.getParameter<std::vector<int> >("PdgId")),
   index(cfg.getParameter<std::vector<unsigned> >("Index")),
   maxIndex(*std::max_element(index.begin(),index.end())),
-  taggingMode(cfg.getUntrackedParameter<bool>("TagMode",false)),
-  tag(cfg.getUntrackedParameter<std::string>("Tag",""))
+  taggingMode(cfg.getUntrackedParameter<bool>("TagMode",false))
 {
   if (pdgID.size() != index.size())
     edm::LogWarning("MCPdgIndexFilter")
@@ -16,22 +15,23 @@ MCPdgIndexFilter::MCPdgIndexFilter(const edm::ParameterSet& cfg) :
       << "Sizes of array parameters 'PdgId' and 'Index' differ.";
 
   if (taggingMode) {
-    produces<bool>(tag);
+    auto tag = cfg.getUntrackedParameter<std::string>("Tag","");
+    putToken_ = produces<bool>(tag);
     edm::LogInfo("TagMode") << "Filter result in '" << tag << "', filtering disabled.";
   }
 }
 
 
-bool MCPdgIndexFilter::filter(edm::Event& evt, const edm::EventSetup&) {
+bool MCPdgIndexFilter::filter(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const {
   bool result = pass(evt);
   LogDebug("FilterResult") << (result?"Pass":"Fail");
   if (!taggingMode) return result;
-  evt.put(std::move(std::unique_ptr<bool>(new bool(result))), tag);
+  evt.emplace(putToken_,result);
   return true;
 }
 
 
-bool MCPdgIndexFilter::pass(const edm::Event& evt) {
+bool MCPdgIndexFilter::pass(const edm::Event& evt) const {
   edm::Handle<edm::HepMCProduct> hepmc;
   evt.getByToken(token_, hepmc);
 

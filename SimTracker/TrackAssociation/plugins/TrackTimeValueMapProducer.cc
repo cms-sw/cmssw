@@ -98,8 +98,7 @@ TrackTimeValueMapProducer::TrackTimeValueMapProducer(const edm::ParameterSet& co
   const std::vector<edm::ParameterSet>& resos = conf.getParameterSetVector("resolutionModels");
   for( const auto& reso : resos ) {
     const std::string& name = reso.getParameter<std::string>("modelName");
-    ResolutionModel* resomod = ResolutionModelFactory::get()->create(name,reso);
-    resolutions_.emplace_back( resomod );  
+    resolutions_.emplace_back( ResolutionModelFactory::get()->create(name,reso) );
 
     // times and time resolutions for general tracks
     produces<edm::ValueMap<float> >(tracksName_+name);

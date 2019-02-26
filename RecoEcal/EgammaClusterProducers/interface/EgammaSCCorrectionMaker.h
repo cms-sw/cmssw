@@ -44,13 +44,13 @@ class EgammaSCCorrectionMaker : public edm::stream::EDProducer<> {
 
    private:
 
-     EcalClusterFunctionBaseClass* energyCorrectionFunction_;
-     EcalClusterFunctionBaseClass* crackCorrectionFunction_;
-     EcalClusterFunctionBaseClass* localContCorrectionFunction_;
+     std::unique_ptr<EcalClusterFunctionBaseClass> energyCorrectionFunction_;
+     std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction_;
+     std::unique_ptr<EcalClusterFunctionBaseClass> localContCorrectionFunction_;
 
 
      // pointer to the correction algo object
-     EgammaSCEnergyCorrectionAlgo *energyCorrector_;
+     std::unique_ptr<EgammaSCEnergyCorrectionAlgo> energyCorrector_;
     
      
 

@@ -109,6 +109,7 @@ class Process(object):
             raise RuntimeError("Error: The process name is an empty string or contains non-alphanumeric characters")
         self.__dict__['_Process__filters'] = {}
         self.__dict__['_Process__producers'] = {}
+        self.__dict__['_Process__switchproducers'] = {}
         self.__dict__['_Process__source'] = None
         self.__dict__['_Process__looper'] = None
         self.__dict__['_Process__subProcesses'] = []
@@ -143,6 +144,9 @@ class Process(object):
     def producerNames(self):
         """Returns a string containing all the EDProducer labels separated by a blank"""
         return ' '.join(self.producers_().keys())
+    def switchProducerNames(self):
+        """Returns a string containing all the SwitchProducer labels separated by a blank"""
+        return ' '.join(self.switchProducers_().keys())
     def analyzerNames(self):
         """Returns a string containing all the EDAnalyzer labels separated by a blank"""
         return ' '.join(self.analyzers_().keys())
@@ -185,6 +189,10 @@ class Process(object):
         """returns a dict of the producers that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__producers)
     producers = property(producers_,doc="dictionary containing the producers for the process")
+    def switchProducers_(self):
+        """returns a dict of the SwitchProducers that have been added to the Process"""
+        return DictTypes.FixedKeysDict(self.__switchproducers)
+    switchProducers = property(switchProducers_,doc="dictionary containing the SwitchProducers for the process")
     def source_(self):
         """returns the source that has been added to the Process or None if none have been added"""
         return self.__source
@@ -520,6 +528,8 @@ class Process(object):
         self._place(name, mod, self.__outputmodules)
     def _placeProducer(self,name,mod):
         self._place(name, mod, self.__producers)
+    def _placeSwitchProducer(self,name,mod):
+        self._place(name, mod, self.__switchproducers)
     def _placeFilter(self,name,mod):
         self._place(name, mod, self.__filters)
     def _placeAnalyzer(self,name,mod):
@@ -673,6 +683,9 @@ class Process(object):
         config+=self._dumpConfigNamedList(six.iteritems(self.producers_()),
                                   'module',
                                   options)
+        config+=self._dumpConfigNamedList(six.iteritems(self.switchProducers_()),
+                                  'module',
+                                  options)
         config+=self._dumpConfigNamedList(six.iteritems(self.filters_()),
                                   'module',
                                   options)
@@ -818,8 +831,9 @@ class Process(object):
         return result
     def dumpPython(self, options=PrintOptions()):
         """return a string containing the equivalent process defined using python"""
-        result = "import FWCore.ParameterSet.Config as cms\n\n"
-        result += "process = cms.Process(\""+self.__name+"\")\n\n"
+        specialImportRegistry._reset()
+        header = "import FWCore.ParameterSet.Config as cms"
+        result = "process = cms.Process(\""+self.__name+"\")\n\n"
         if self.source_():
             result += "process.source = "+self.source_().dumpPython(options)
         if self.looper_():
@@ -828,6 +842,7 @@ class Process(object):
         result+=self._dumpPythonList(self.vpsets, options)
         result+=self._dumpPythonSubProcesses(self.subProcesses_(), options)
         result+=self._dumpPythonList(self.producers_(), options)
+        result+=self._dumpPythonList(self.switchProducers_(), options)
         result+=self._dumpPythonList(self.filters_() , options)
         result+=self._dumpPythonList(self.analyzers_(), options)
         result+=self._dumpPythonList(self.outputModules_(), options)
@@ -842,7 +857,11 @@ class Process(object):
         result+=self._dumpPythonList(self.aliases_(), options)
         if not self.schedule_() == None:
             result += 'process.schedule = ' + self.schedule.dumpPython(options)
-        return result
+        imports = specialImportRegistry.getSpecialImports()
+        if len(imports) > 0:
+            header += "\n" + "\n".join(imports)
+        header += "\n\n"
+        return header+result
     def _replaceInSequences(self, label, new):
         old = getattr(self,label)
         #TODO - replace by iterator concatenation
@@ -885,6 +904,16 @@ class Process(object):
         # alphabetical order is easier to compare with old language
         l.sort()
         parameterSet.addVString(tracked, label, l)
+    def _insertSwitchProducersInto(self, parameterSet, labelModules, labelAliases, itemDict, tracked):
+        modules = parameterSet.getVString(tracked, labelModules)
+        aliases = parameterSet.getVString(tracked, labelAliases)
+        for name,value in six.iteritems(itemDict):
+            value.appendToProcessDescLists_(modules, aliases, name)
+            value.insertInto(parameterSet, name)
+        modules.sort()
+        aliases.sort()
+        parameterSet.addVString(tracked, labelModules, modules)
+        parameterSet.addVString(tracked, labelAliases, aliases)
     def _insertSubProcessesInto(self, parameterSet, label, itemList, tracked):
         l = []
         subprocs = []
@@ -992,6 +1021,7 @@ class Process(object):
             temp = Schedule(*pths)
             usedModules=set(temp.moduleNames())
         unneededModules = self._pruneModules(self.producers_(), usedModules)
+        unneededModules.update(self._pruneModules(self.switchProducers_(), usedModules))
         unneededModules.update(self._pruneModules(self.filters_(), usedModules))
         unneededModules.update(self._pruneModules(self.analyzers_(), usedModules))
         #remove sequences that do not appear in remaining paths and endpaths
@@ -1073,6 +1103,9 @@ class Process(object):
         self._insertPaths(adaptor, nodeVisitor)
         all_modules_onTasksOrScheduled = { key:value for key, value in six.iteritems(all_modules) if value in nodeVisitor.modules }
         self._insertManyInto(adaptor, "@all_modules", all_modules_onTasksOrScheduled, True)
+        all_switches = self.switchProducers_().copy()
+        all_switches_onTasksOrScheduled = {key:value for key, value in six.iteritems(all_switches) if value in nodeVisitor.modules }
+        self._insertSwitchProducersInto(adaptor, "@all_modules", "@all_aliases", all_switches_onTasksOrScheduled, True)
         # Same as nodeVisitor except this one visits all the Tasks attached
         # to the process.
         processNodeVisitor = NodeVisitor()
@@ -1495,6 +1528,13 @@ if __name__=="__main__":
             self.values = dict()
         def __insertValue(self,tracked,label,value):
             self.values[label]=(tracked,value)
+        def __getValue(self,tracked,label):
+            pair = self.values[label]
+            if pair[0] != tracked:
+               raise Exception("Asked for %s parameter '%s', but it is %s" % ("tracked" if tracked else "untracked",
+                                                                              label,
+                                                                              "tracked" if pair[0] else "untracked"))
+            return pair[1]
         def addInt32(self,tracked,label,value):
             self.__insertValue(tracked,label,value)
         def addVInt32(self,tracked,label,value):
@@ -1521,6 +1561,8 @@ if __name__=="__main__":
             self.__insertValue(tracked,label,value)
         def addVString(self,tracked,label,value):
             self.__insertValue(tracked,label,value)
+        def getVString(self,tracked,label):
+            return self.__getValue(tracked, label)
         def addInputTag(self,tracked,label,value):
             self.__insertValue(tracked,label,value)
         def addVInputTag(self,tracked,label,value):
@@ -1559,6 +1601,7 @@ if __name__=="__main__":
                     test3 = lambda: (True, -8),
                     test4 = lambda: (True, -7)
                 ), **kargs)
+    specialImportRegistry.registerSpecialImportForType(SwitchProducerTest, "from test import SwitchProducerTest")
 
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
@@ -2688,6 +2731,61 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assertEqual((True,"Bar"), p.values["sp@test1"][1].values["@module_type"])
             self.assertEqual((True,"EDProducer"), p.values["sp@test2"][1].values["@module_edm_type"])
             self.assertEqual((True,"Foo"), p.values["sp@test2"][1].values["@module_type"])
+            dump = proc.dumpPython()
+            self.assertEqual(dump.find('@'), -1)
+            self.assertEqual(specialImportRegistry.getSpecialImports(), ["from test import SwitchProducerTest"])
+            self.assertTrue(dump.find("\nfrom test import SwitchProducerTest\n") != -1)
+
+            # EDAlias as non-chosen case
+            proc = Process("test")
+            proc.sp = SwitchProducerTest(test2 = EDProducer("Foo",
+                                                            a = int32(1),
+                                                            b = PSet(c = int32(2))),
+                                         test1 = EDAlias(a = VPSet(PSet(type = string("Bar")))))
+            proc.a = EDProducer("A")
+            proc.s = Sequence(proc.a + proc.sp)
+            proc.t = Task(proc.a, proc.sp)
+            proc.p = Path()
+            proc.p.associate(proc.t)
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertEqual((True,"EDProducer"), p.values["sp"][1].values["@module_edm_type"])
+            self.assertEqual((True, "SwitchProducer"), p.values["sp"][1].values["@module_type"])
+            self.assertEqual((True, "sp"), p.values["sp"][1].values["@module_label"])
+            self.assertEqual((True, ["sp@test1", "sp@test2"]), p.values["sp"][1].values["@all_cases"])
+            self.assertEqual((False, "sp@test2"), p.values["sp"][1].values["@chosen_case"])
+            self.assertEqual(["a", "sp", "sp@test2"], p.values["@all_modules"][1])
+            self.assertEqual(["sp@test1"], p.values["@all_aliases"][1])
+            self.assertEqual((True,"EDProducer"), p.values["sp@test2"][1].values["@module_edm_type"])
+            self.assertEqual((True,"Foo"), p.values["sp@test2"][1].values["@module_type"])
+            self.assertEqual((True,"EDAlias"), p.values["sp@test1"][1].values["@module_edm_type"])
+            self.assertEqual((True,"Bar"), p.values["sp@test1"][1].values["a"][1][0].values["type"])
+
+            # EDAlias as chosen case
+            proc = Process("test")
+            proc.sp = SwitchProducerTest(test1 = EDProducer("Foo",
+                                                            a = int32(1),
+                                                            b = PSet(c = int32(2))),
+                                         test2 = EDAlias(a = VPSet(PSet(type = string("Bar")))))
+            proc.a = EDProducer("A")
+            proc.s = Sequence(proc.a + proc.sp)
+            proc.t = Task(proc.a, proc.sp)
+            proc.p = Path()
+            proc.p.associate(proc.t)
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertEqual((True,"EDProducer"), p.values["sp"][1].values["@module_edm_type"])
+            self.assertEqual((True, "SwitchProducer"), p.values["sp"][1].values["@module_type"])
+            self.assertEqual((True, "sp"), p.values["sp"][1].values["@module_label"])
+            self.assertEqual((True, ["sp@test1", "sp@test2"]), p.values["sp"][1].values["@all_cases"])
+            self.assertEqual((False, "sp@test2"), p.values["sp"][1].values["@chosen_case"])
+            self.assertEqual(["a", "sp", "sp@test1"], p.values["@all_modules"][1])
+            self.assertEqual(["sp@test2"], p.values["@all_aliases"][1])
+            self.assertEqual((True,"EDProducer"), p.values["sp@test1"][1].values["@module_edm_type"])
+            self.assertEqual((True,"Foo"), p.values["sp@test1"][1].values["@module_type"])
+            self.assertEqual((True,"EDAlias"), p.values["sp@test2"][1].values["@module_edm_type"])
+            self.assertEqual((True,"Bar"), p.values["sp@test2"][1].values["a"][1][0].values["type"])
+
         def testPrune(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -3224,6 +3322,28 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             (m3 | m4).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer4"))
             self.assertEqual(p.a.type_(), "YourAnalyzer3")
 
+            # EDAlias
+            a = EDAlias(foo2 = VPSet(PSet(type = string("Foo2"))))
+            m = Modifier()
+            m._setChosen()
+            # Modify parameters
+            m.toModify(a, foo2 = {0: dict(type = "Foo3")})
+            self.assertEqual(a.foo2[0].type, "Foo3")
+            # Add an alias
+            m.toModify(a, foo4 = VPSet(PSet(type = string("Foo4"))))
+            self.assertEqual(a.foo2[0].type, "Foo3")
+            self.assertEqual(a.foo4[0].type, "Foo4")
+            # Remove an alias
+            m.toModify(a, foo2 = None)
+            self.assertFalse(hasattr(a, "foo2"))
+            self.assertEqual(a.foo4[0].type, "Foo4")
+            # Replace (doesn't work out of the box because EDAlias is not _Parameterizable
+            m.toReplaceWith(a, EDAlias(bar = VPSet(PSet(type = string("Bar")))))
+            self.assertFalse(hasattr(a, "foo2"))
+            self.assertFalse(hasattr(a, "foo4"))
+            self.assertTrue(hasattr(a, "bar"))
+            self.assertEqual(a.bar[0].type, "Bar")
+
             # SwitchProducer
             sp = SwitchProducerTest(test1 = EDProducer("Foo",
                                                        a = int32(1),
@@ -3260,5 +3380,18 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             # Remove a producer
             m.toModify(sp, test2 = None)
             self.assertEqual(hasattr(sp, "test2"), False)
+            # Add an alias
+            m.toModify(sp, test2 = EDAlias(foo = VPSet(PSet(type = string("int")))))
+            self.assertTrue(hasattr(sp.test2, "foo"))
+            # Replace an alias
+            m.toReplaceWith(sp.test2, EDAlias(bar = VPSet(PSet(type = string("int")))))
+            self.assertTrue(hasattr(sp.test2, "bar"))
+            # Alternative way
+            m.toModify(sp, test2 = EDAlias(xyzzy = VPSet(PSet(type = string("int")))))
+            self.assertTrue(hasattr(sp.test2, "xyzzy"))
+            # Replace an alias with EDProducer
+            self.assertRaises(TypeError, lambda: m.toReplaceWith(sp.test2, EDProducer("Foo")))
+            m.toModify(sp, test2 = EDProducer("Foo"))
+
 
     unittest.main()

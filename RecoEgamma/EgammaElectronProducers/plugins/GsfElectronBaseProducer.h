@@ -59,6 +59,10 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
     const GsfElectronAlgo::CutsConfiguration cutsCfgPflow_ ;
     ElectronHcalHelper::Configuration hcalCfg_ ;
     ElectronHcalHelper::Configuration hcalCfgPflow_ ;
+
+    // used to make some provenance checks
+    edm::EDGetTokenT<edm::ValueMap<float>> pfMVA_;
+
   private :
 
     // check expected configuration of previous modules
@@ -66,6 +70,7 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
     void checkEcalSeedingParameters( edm::ParameterSet const & ) ;
     edm::OrphanHandle<reco::GsfElectronCollection> orphanHandle_;
 
+    const edm::EDPutTokenT<reco::GsfElectronCollection> electronPutToken_;
  } ;
 
 #endif
