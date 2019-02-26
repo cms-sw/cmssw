@@ -59,7 +59,7 @@ def unpack_stage2():
     global L1TRawToDigi_Stage2
     global rpcCPPFRawToDigi, RPCTwinMuxRawToDigi, twinMuxStage2Digis, bmtfDigis, omtfStage2Digis, emtfStage2Digis, caloLayer1Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
     from EventFilter.RPCRawToDigi.RPCCPPFRawToDigi_cfi import rpcCPPFRawToDigi
-    from EventFilter.RPCRawToDigi.RPCTwinMuxRawToDigi_cfi import RPCTwinMuxRawToDigi
+    from EventFilter.RPCRawToDigi.rpcTwinMuxRawToDigi_cfi import rpcTwinMuxRawToDigi
     from EventFilter.L1TRawToDigi.bmtfDigis_cfi import bmtfDigis 
     from EventFilter.L1TRawToDigi.omtfStage2Digis_cfi import omtfStage2Digis
     from EventFilter.L1TRawToDigi.emtfStage2Digis_cfi import emtfStage2Digis
