@@ -80,6 +80,8 @@ private:
   std::map<std::string, MonitorElement*> meOutputDiskRing_channel;
   std::map<std::string, MonitorElement*> meOutputDiskRing_emtf_sector;
   std::map<std::string, MonitorElement*> meOutputDiskRing_emtf_link;
+  std::map<std::string, MonitorElement*> meOutputDiskRing_theta;
+  std::map<std::string, MonitorElement*> meOutputDiskRing_phi;  
 
   MonitorElement* CPPFInput_DiskRing_Vs_BX;
   MonitorElement* CPPFInput_Occupancy_DiskRing_Vs_Segment;
