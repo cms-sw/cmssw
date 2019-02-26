@@ -6,8 +6,9 @@ They should be used to decorate the method that holds the script that is being p
 Note: may also contain a decorator that can wrap a class around a function that contains a script (future development).
 
 """
+from __future__ import absolute_import
 
-from data_sources import json_data_node, json_list, json_dict, json_basic
+from .data_sources import json_data_node, json_list, json_dict, json_basic
 
 # decorators
 

@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from RecoTracker.IterativeTracking.PixelLessStep_cff import *
-from HIPixelTripletSeeds_cff import *
-from HIPixel3PrimTracks_cfi import *
+from .HIPixelTripletSeeds_cff import *
+from .HIPixel3PrimTracks_cfi import *
 
 ##########################################################################
 # Large impact parameter tracking using TIB/TID/TEC stereo layer seeding #

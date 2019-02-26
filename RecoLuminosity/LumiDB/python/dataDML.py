@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import os,coral,fnmatch,time
 from RecoLuminosity.LumiDB import nameDealer,dbUtil,revisionDML,lumiTime,CommonUtil,lumiCorrections
 from datetime import datetime
@@ -2326,8 +2327,8 @@ def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,tableName,bulks
 #   Unit Test
 #=======================================================
 if __name__ == "__main__":
-    import sessionManager
-    import lumidbDDL,revisionDML,generateDummyData
+    from . import sessionManager
+    from . import lumidbDDL,revisionDML,generateDummyData
     #myconstr='sqlite_file:test2.db'
     myconstr='oracle://devdb10/cms_xiezhen_dev'
     svc=sessionManager.sessionManager(myconstr,authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
