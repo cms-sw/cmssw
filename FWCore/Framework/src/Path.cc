@@ -208,7 +208,7 @@ namespace edm {
   void
   Path::processOneOccurrenceAsync(WaitingTask* iTask,
                                   EventPrincipal const& iEP,
-                                  EventSetup const& iES,
+                                  EventSetupImpl const& iES,
                                   ServiceToken const& iToken,
                                   StreamID const& iStreamID,
                                   StreamContext const* iStreamContext) {
@@ -233,7 +233,7 @@ namespace edm {
   void
   Path::workerFinished(std::exception_ptr const* iException,
                        unsigned int iModuleIndex,
-                       EventPrincipal const& iEP, EventSetup const& iES,
+                       EventPrincipal const& iEP, EventSetupImpl const& iES,
                        ServiceToken const& iToken,
                        StreamID const& iID, StreamContext const* iContext) {
     ServiceRegistry::Operate guard(iToken);
@@ -291,7 +291,7 @@ namespace edm {
   void
   Path::finished(int iModuleIndex, bool iSucceeded, std::exception_ptr iException, StreamContext const* iContext,
                  EventPrincipal const& iEP,
-                 EventSetup const& iES,
+                 EventSetupImpl const& iES,
                  StreamID const& streamID) {
     
     if(not iException) {
@@ -323,7 +323,7 @@ namespace edm {
   
   void
   Path::runNextWorkerAsync(unsigned int iNextModuleIndex,
-                           EventPrincipal const& iEP, EventSetup const& iES,
+                           EventPrincipal const& iEP, EventSetupImpl const& iES,
                            ServiceToken const& iToken,
                            StreamID const& iID, StreamContext const* iContext) {
     

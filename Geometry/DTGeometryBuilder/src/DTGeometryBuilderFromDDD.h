@@ -10,7 +10,8 @@
  */
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
-#include <memory>
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+
 #include <vector>
 
 class DTGeometry;
@@ -22,6 +23,11 @@ class DTLayer;
 class Bounds;
 class MuonDDDConstants;
 
+namespace dtGeometryBuilder {
+	// Helper function from DTGeometryBuilderFromCondDB.cc
+  RectangularPlaneBounds* getRecPlaneBounds( const std::vector<double>::const_iterator &shapeStart );
+}
+
 class DTGeometryBuilderFromDDD {
   public:
     /// Constructor
@@ -31,7 +37,7 @@ class DTGeometryBuilderFromDDD {
     virtual ~DTGeometryBuilderFromDDD();
 
     // Operations
-    void build(std::shared_ptr<DTGeometry> theGeometry,
+    void build(DTGeometry& theGeometry,
                const DDCompactView* cview, 
                const MuonDDDConstants& muonConstants);
 
@@ -61,7 +67,7 @@ class DTGeometryBuilderFromDDD {
     RCPPlane plane(const DDFilteredView& fv, 
                    Bounds * bounds) const ;
 
-    void buildGeometry(const std::shared_ptr<DTGeometry>& theGeometry,
+    void buildGeometry(DTGeometry& theGeometry,
                        DDFilteredView& fv,
                        const MuonDDDConstants& muonConstants) const;
 

@@ -1,12 +1,17 @@
+
 #ifndef MaterialBudgetData_h
 #define MaterialBudgetData_h 1
 
+
 #include "Validation/Geometry/interface/MaterialBudgetCategorizer.h"
+
 #include "G4ThreeVector.hh"
 
-// rr
 #include <CLHEP/Vector/LorentzVector.h>
-// rr
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <memory>
 
 class MaterialBudgetData;
 class G4Step;
@@ -29,7 +34,7 @@ public:
  public:
   float getTotalMB() const {
     return theTotalMB; }
-  // rr
+  
   float getSupportFractionMB() const {
     return theSupportFractionMB; }
   float getSensitiveFractionMB() const {
@@ -149,12 +154,12 @@ public:
   float getWCuIL()     const {         
     return theWCuIL; }
 
-  // rr
+  
   float getEta() const {
     return theEta; }
   float getPhi() const {
     return thePhi; }
-  // rr
+  
   int getID() const {
     return theID; }
   float getPt() const {
@@ -163,7 +168,7 @@ public:
     return theEnergy; }
   float getMass() const {
     return theMass; }
-  // rr
+  
   
   int getNumberOfSteps() const {
     return theStepN; }
@@ -331,7 +336,7 @@ public:
   int getStepPostProcess( int is) {
     return theStepPostProcess[is];
   }
-  // rr
+  
   int getStepVolumeID( int is ) {
     return theVolumeID[is];
   }
@@ -374,7 +379,6 @@ public:
   float getStepMaterialDensity( int is ) {
     return theMaterialDensity[is];
   }
-  // rr
   
   bool allStepsON() {
     return allStepsToTree;
@@ -384,95 +388,179 @@ public:
   inline void setHGCalmode(bool t) {isHGCal=t;}
  
  private:
-  float theTotalMB, theEta, thePhi;
-  // rr
+  
+  static constexpr int MAXNUMBERSTEPS = 10000;
+
+  float theTotalMB;
+  float theEta;
+  float thePhi; 
+
   float thePt;
   int   theID;
   float theEnergy;
   float theMass;
-  float theSupportFractionMB, theSensitiveFractionMB, theCablesFractionMB,
-    theCoolingFractionMB, theElectronicsFractionMB, theOtherFractionMB, theAirFractionMB;
-  float theSupportFractionIL, theSensitiveFractionIL, theCablesFractionIL,
-    theCoolingFractionIL, theElectronicsFractionIL, theOtherFractionIL, theAirFractionIL;
-  float theSupportMB, theSensitiveMB, theCablesMB, theCoolingMB, theElectronicsMB, theOtherMB, theAirMB;
-  //HGCal
-  float theCopperFractionMB, theH_ScintillatorFractionMB, theLeadFractionMB, theM_NEMA_FR4_plateFractionMB, theSiliconFractionMB, theStainlessSteelFractionMB, theWCuFractionMB;
-  float theCopperMB, theH_ScintillatorMB, theLeadMB, theM_NEMA_FR4_plateMB, theSiliconMB, theStainlessSteelMB, theWCuMB;
+  float theSupportFractionMB;
+  float theSensitiveFractionMB;
+  float theCablesFractionMB;
+  float theCoolingFractionMB;
+  float theElectronicsFractionMB;
+  float theOtherFractionMB;
+  float theAirFractionMB;
+  float theSupportFractionIL;
+  float theSensitiveFractionIL;
+  float theCablesFractionIL;
+  float theCoolingFractionIL;
+  float theElectronicsFractionIL;
+  float theOtherFractionIL;
+  float theAirFractionIL;
+  float theSupportMB;
+  float theSensitiveMB;
+  float theCablesMB;
+  float theCoolingMB;
+  float theElectronicsMB;
+  float theOtherMB;
+  float theAirMB;
+
+  //HGCal MB
+  float theCopperFractionMB;
+  float theH_ScintillatorFractionMB;
+  float theLeadFractionMB;
+  float theM_NEMA_FR4_plateFractionMB;
+  float theSiliconFractionMB;
+  float theStainlessSteelFractionMB;
+  float theWCuFractionMB;
+  float theCopperMB;
+  float theH_ScintillatorMB;
+  float theLeadMB;
+  float theM_NEMA_FR4_plateMB;
+  float theSiliconMB;
+  float theStainlessSteelMB;
+  float theWCuMB;
   float theTotalIL;
-  float theSupportIL, theSensitiveIL, theCablesIL, theCoolingIL, theElectronicsIL, theOtherIL, theAirIL;
-  //HGCal
-  float theCopperFractionIL, theH_ScintillatorFractionIL, theLeadFractionIL, theM_NEMA_FR4_plateFractionIL, theSiliconFractionIL, theStainlessSteelFractionIL, theWCuFractionIL;
-  float theCopperIL, theH_ScintillatorIL, theLeadIL, theM_NEMA_FR4_plateIL, theSiliconIL, theStainlessSteelIL, theWCuIL;
-  // rr
+  float theSupportIL;
+  float theSensitiveIL;
+  float theCablesIL;
+  float theCoolingIL;
+  float theElectronicsIL;
+  float theOtherIL;
+  float theAirIL;
+
+  //HGCal IL
+  float theCopperFractionIL;
+  float theH_ScintillatorFractionIL;
+  float theLeadFractionIL;
+  float theM_NEMA_FR4_plateFractionIL;
+  float theSiliconFractionIL;
+  float theStainlessSteelFractionIL;
+  float theWCuFractionIL;
+  float theCopperIL;
+  float theH_ScintillatorIL;
+  float theLeadIL;
+  float theM_NEMA_FR4_plateIL;
+  float theSiliconIL;
+  float theStainlessSteelIL;
+  float theWCuIL;
+
   int theStepN;
-  double *theInitialX, *theInitialY, *theInitialZ;
-  double *theFinalX,   *theFinalY,   *theFinalZ;
-  float *theDmb;
-  float *theSupportDmb, *theSensitiveDmb, *theCablesDmb, *theCoolingDmb, *theElectronicsDmb, *theOtherDmb, *theAirDmb;
-  float *theCopperDmb, *theH_ScintillatorDmb, *theLeadDmb, *theM_NEMA_FR4_plateDmb, *theSiliconDmb, *theStainlessSteelDmb, *theWCuDmb;
-  float *theDil;
-  float *theSupportDil, *theSensitiveDil, *theCablesDil, *theCoolingDil, *theElectronicsDil, *theOtherDil, *theAirDil;
-  float *theCopperDil, *theH_ScintillatorDil, *theLeadDil, *theM_NEMA_FR4_plateDil, *theSiliconDil, *theStainlessSteelDil, *theWCuDil;
-  //  int *theVoluId;
-  //  int *theMateId;
-  // rr
-  int *theVolumeID;
-  std::string* theVolumeName;
-  int*   theVolumeCopy;
-  float* theVolumeX;
-  float* theVolumeY;
-  float* theVolumeZ;
-  float* theVolumeXaxis1;
-  float* theVolumeXaxis2;
-  float* theVolumeXaxis3;
-  float* theVolumeYaxis1;
-  float* theVolumeYaxis2;
-  float* theVolumeYaxis3;
-  float* theVolumeZaxis1;
-  float* theVolumeZaxis2;
-  float* theVolumeZaxis3;
-  int*         theMaterialID;
-  std::string* theMaterialName;
-  float*       theMaterialX0;
-  float*       theMaterialLambda0;
-  float*       theMaterialDensity;
-  int*   theStepID;
-  float* theStepInitialPt;
-  float* theStepInitialEta;
-  float* theStepInitialPhi;
-  float* theStepInitialEnergy;
-  float* theStepInitialPx;
-  float* theStepInitialPy;
-  float* theStepInitialPz;
-  float* theStepInitialBeta;
-  float* theStepInitialGamma;
-  float* theStepInitialMass;
-  float* theStepFinalPt;
-  float* theStepFinalEta;
-  float* theStepFinalPhi;
-  float* theStepFinalEnergy;
-  float* theStepFinalPx;
-  float* theStepFinalPy;
-  float* theStepFinalPz;
-  float* theStepFinalBeta;
-  float* theStepFinalGamma;
-  float* theStepFinalMass;
-  int*   theStepPreProcess;
-  int*   theStepPostProcess;
-  // rr
+  std::array<double,MAXNUMBERSTEPS> theInitialX; 
+  std::array<double,MAXNUMBERSTEPS> theInitialY;
+  std::array<double,MAXNUMBERSTEPS> theInitialZ;
+
+  std::array<double,MAXNUMBERSTEPS> theFinalX;
+  std::array<double,MAXNUMBERSTEPS> theFinalY;
+  std::array<double,MAXNUMBERSTEPS> theFinalZ;
+
+  std::array<float,MAXNUMBERSTEPS> theDmb;
+  std::array<float,MAXNUMBERSTEPS> theSupportDmb;
+  std::array<float,MAXNUMBERSTEPS> theSensitiveDmb;
+  std::array<float,MAXNUMBERSTEPS> theCablesDmb;
+  std::array<float,MAXNUMBERSTEPS> theCoolingDmb;
+  std::array<float,MAXNUMBERSTEPS> theElectronicsDmb;
+  std::array<float,MAXNUMBERSTEPS> theOtherDmb;
+  std::array<float,MAXNUMBERSTEPS> theAirDmb;
+  std::array<float,MAXNUMBERSTEPS> theCopperDmb;
+  std::array<float,MAXNUMBERSTEPS> theH_ScintillatorDmb;
+  std::array<float,MAXNUMBERSTEPS> theLeadDmb;
+  std::array<float,MAXNUMBERSTEPS> theM_NEMA_FR4_plateDmb;
+  std::array<float,MAXNUMBERSTEPS> theSiliconDmb;
+  std::array<float,MAXNUMBERSTEPS> theStainlessSteelDmb;
+  std::array<float,MAXNUMBERSTEPS> theWCuDmb;
+
+  std::array<float,MAXNUMBERSTEPS> theDil;
+  std::array<float,MAXNUMBERSTEPS> theSupportDil;
+  std::array<float,MAXNUMBERSTEPS> theSensitiveDil;
+  std::array<float,MAXNUMBERSTEPS> theCablesDil;
+  std::array<float,MAXNUMBERSTEPS> theCoolingDil;
+  std::array<float,MAXNUMBERSTEPS> theElectronicsDil;
+  std::array<float,MAXNUMBERSTEPS> theOtherDil;
+  std::array<float,MAXNUMBERSTEPS> theAirDil;
+  std::array<float,MAXNUMBERSTEPS> theCopperDil;
+  std::array<float,MAXNUMBERSTEPS> theH_ScintillatorDil;
+  std::array<float,MAXNUMBERSTEPS> theLeadDil;
+  std::array<float,MAXNUMBERSTEPS> theM_NEMA_FR4_plateDil;
+  std::array<float,MAXNUMBERSTEPS> theSiliconDil;
+  std::array<float,MAXNUMBERSTEPS> theStainlessSteelDil;
+  std::array<float,MAXNUMBERSTEPS> theWCuDil;
+  
+  std::array<int,MAXNUMBERSTEPS> theVolumeID;
+  std::array<std::string,MAXNUMBERSTEPS> theVolumeName;
+  std::array<int,MAXNUMBERSTEPS>   theVolumeCopy;
+  std::array<float,MAXNUMBERSTEPS> theVolumeX;
+  std::array<float,MAXNUMBERSTEPS> theVolumeY;
+  std::array<float,MAXNUMBERSTEPS> theVolumeZ;
+  std::array<float,MAXNUMBERSTEPS> theVolumeXaxis1;
+  std::array<float,MAXNUMBERSTEPS> theVolumeXaxis2;
+  std::array<float,MAXNUMBERSTEPS> theVolumeXaxis3;
+  std::array<float,MAXNUMBERSTEPS> theVolumeYaxis1;
+  std::array<float,MAXNUMBERSTEPS> theVolumeYaxis2;
+  std::array<float,MAXNUMBERSTEPS> theVolumeYaxis3;
+  std::array<float,MAXNUMBERSTEPS> theVolumeZaxis1;
+  std::array<float,MAXNUMBERSTEPS> theVolumeZaxis2;
+  std::array<float,MAXNUMBERSTEPS> theVolumeZaxis3;
+
+  std::array<int,MAXNUMBERSTEPS>         theMaterialID;
+  std::array<std::string,MAXNUMBERSTEPS> theMaterialName;
+  std::array<float,MAXNUMBERSTEPS>       theMaterialX0;
+  std::array<float,MAXNUMBERSTEPS>       theMaterialLambda0;
+  std::array<float,MAXNUMBERSTEPS>       theMaterialDensity;
+
+  std::array<int,MAXNUMBERSTEPS>   theStepID;
+  std::array<float,MAXNUMBERSTEPS> theStepInitialPt;
+  std::array<float,MAXNUMBERSTEPS> theStepInitialEta;
+  std::array<float,MAXNUMBERSTEPS> theStepInitialPhi;
+  std::array<float,MAXNUMBERSTEPS> theStepInitialEnergy;
+  std::array<float,MAXNUMBERSTEPS> theStepInitialPx;
+  std::array<float,MAXNUMBERSTEPS> theStepInitialPy;
+  std::array<float,MAXNUMBERSTEPS> theStepInitialPz;
+  std::array<float,MAXNUMBERSTEPS> theStepInitialBeta;
+  std::array<float,MAXNUMBERSTEPS> theStepInitialGamma;
+  std::array<float,MAXNUMBERSTEPS> theStepInitialMass;
+  std::array<float,MAXNUMBERSTEPS> theStepFinalPt;
+  std::array<float,MAXNUMBERSTEPS> theStepFinalEta;
+  std::array<float,MAXNUMBERSTEPS> theStepFinalPhi;
+  std::array<float,MAXNUMBERSTEPS> theStepFinalEnergy;
+  std::array<float,MAXNUMBERSTEPS> theStepFinalPx;
+  std::array<float,MAXNUMBERSTEPS> theStepFinalPy;
+  std::array<float,MAXNUMBERSTEPS> theStepFinalPz;
+  std::array<float,MAXNUMBERSTEPS> theStepFinalBeta;
+  std::array<float,MAXNUMBERSTEPS> theStepFinalGamma;
+  std::array<float,MAXNUMBERSTEPS> theStepFinalMass;
+  std::array<int,MAXNUMBERSTEPS>   theStepPreProcess;
+  std::array<int,MAXNUMBERSTEPS>   theStepPostProcess;
+
   float theTrkLen;
+
   std::string thePVname;
+
   int thePVcopyNo;
 
-  MaterialBudgetCategorizer* myMaterialBudgetCategorizer;
+  std::unique_ptr<MaterialBudgetCategorizer> myMaterialBudgetCategorizer;
 
   float theRadLen;
   float theIntLen;
   int stepN;
-  int MAXNUMBERSTEPS;
   bool allStepsToTree;
-  //HGCal mode
-  bool isHGCal;
+  bool isHGCal;   //HGCal mode
   
   double densityConvertionFactor;
 };

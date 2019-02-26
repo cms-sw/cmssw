@@ -8,7 +8,7 @@ class L1MuCSCPtLutConfigOnlineProd : public L1ConfigOnlineProdBase< L1MuCSCPtLut
          : L1ConfigOnlineProdBase< L1MuCSCPtLutRcd, L1MuCSCPtLut >( iConfig ) {}
       ~L1MuCSCPtLutConfigOnlineProd() override {}
 
-      std::shared_ptr< L1MuCSCPtLut > newObject( const std::string& objectKey ) override ;
+      std::unique_ptr< L1MuCSCPtLut > newObject( const std::string& objectKey ) override ;
    private:
 };
 

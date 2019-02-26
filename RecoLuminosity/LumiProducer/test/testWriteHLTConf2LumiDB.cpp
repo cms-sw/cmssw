@@ -7,7 +7,7 @@ int main(){
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
   const std::string con("sqlite_file:pippo.db");
-  std::auto_ptr<lumi::DataPipe> ptr(lumi::DataPipeFactory::get()->create("HLTConfDummy2DB",con));
+  std::unique_ptr<lumi::DataPipe> ptr(lumi::DataPipeFactory::get()->create("HLTConfDummy2DB",con));
   unsigned int hltconfId=5678;
   ptr->retrieveData(hltconfId);
   return 0;

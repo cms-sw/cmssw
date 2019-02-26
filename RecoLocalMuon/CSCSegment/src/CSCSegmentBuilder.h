@@ -45,7 +45,7 @@ public:
 private:
 
     const CSCGeometry* geom_;
-    std::map<std::string, CSCSegmentAlgorithm*> algoMap;
+    std::map<std::string, std::unique_ptr<CSCSegmentAlgorithm>> algoMap;
 };
 
 #endif

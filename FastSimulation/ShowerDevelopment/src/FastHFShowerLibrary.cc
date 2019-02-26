@@ -55,7 +55,7 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
 
   edm::ESHandle<HcalDDDSimConstants>    hdc;
   iSetup.get<HcalSimNumberingRecord>().get(hdc);
-  hcalConstants = (HcalDDDSimConstants*)(&(*hdc));
+  hcalConstants = hdc.product();
 
   std::string name = "HcalHits";
   numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));  
@@ -122,7 +122,9 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
       int det = 5;
       int lay = 1;
       uint32_t id = 0;
-      HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det, pos, depth, lay);
+      HcalNumberingFromDDD::HcalID tmp = 
+	numberingFromDDD->unitID(det, math::XYZVectorD(pos.x(),pos.y(),
+						       pos.z()), depth, lay);
       modifyDepth(tmp);
       id = numberingScheme.getUnitID(tmp);
 

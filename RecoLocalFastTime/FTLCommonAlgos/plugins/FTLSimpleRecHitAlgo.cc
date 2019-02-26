@@ -26,8 +26,8 @@ class FTLSimpleRecHitAlgo : public FTLRecHitAlgoBase {
 FTLRecHit 
 FTLSimpleRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags ) const { 
   
-  float energy = uRecHit.amplitude() * calibration_;
-  float time   = uRecHit.time();
+  float energy = uRecHit.amplitude().first * calibration_;
+  float time   = uRecHit.time().first;
   float timeError = uRecHit.timeError();
   
   FTLRecHit rh( uRecHit.id(), energy, time, timeError );

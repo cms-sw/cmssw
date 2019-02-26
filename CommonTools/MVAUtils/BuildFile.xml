@@ -1,0 +1,10 @@
+<use   name="CondFormats/EgammaObjects"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="roottmva"/>
+<use   name="tinyxml2"/>
+
+<export>
+  <lib   name="1"/>
+</export>

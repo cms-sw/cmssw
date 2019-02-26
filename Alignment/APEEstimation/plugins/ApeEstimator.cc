@@ -304,7 +304,6 @@ ApeEstimator::sectorBuilder(){
   unsigned int sectorCounter(0);
   std::vector<edm::ParameterSet> v_sectorDef(parameterSet_.getParameter<std::vector<edm::ParameterSet> >("Sectors"));
   edm::LogInfo("SectorBuilder")<<"There are "<<v_sectorDef.size()<<" Sectors definded";
-  std::vector<edm::ParameterSet>::const_iterator i_parSet;
   for(auto const & parSet : v_sectorDef){
       ++sectorCounter;
       const std::string& sectorName(parSet.getParameter<std::string>("name"));
@@ -994,7 +993,6 @@ ApeEstimator::fillTrackVariables(const reco::Track& track, const Trajectory& tra
   const std::vector<TrajectoryMeasurement>& v_meas = traj.measurements();
      
   int count2D(0); float meanPhiSensToNorm(0.F);
-  std::vector<TrajectoryMeasurement>::const_iterator i_meas;
   for(auto const & i_meas : v_meas){     
     const TrajectoryMeasurement& meas = i_meas;
     const TransientTrackingRecHit& hit = *meas.recHit();

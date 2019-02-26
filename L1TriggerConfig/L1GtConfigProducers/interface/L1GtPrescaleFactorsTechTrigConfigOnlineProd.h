@@ -42,7 +42,7 @@ public:
     ~L1GtPrescaleFactorsTechTrigConfigOnlineProd() override;
 
     /// public methods
-    std::shared_ptr<L1GtPrescaleFactors> newObject(const std::string& objectKey) override;
+    std::unique_ptr<L1GtPrescaleFactors> newObject(const std::string& objectKey) override;
 
 private:
 

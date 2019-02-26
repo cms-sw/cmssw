@@ -45,14 +45,9 @@ typedef edm::ParameterSet PSet;
 
 namespace {  
   template<typename T>
-  struct array_deleter{
-    void operator () (T* arr) { delete [] arr; }
-  };
+  void array_deleter (T* arr) { delete [] arr; }
 
-  typedef std::unary_function<const edm::Ptr<reco::PFCluster>&, 
-			      double> ClusUnaryFunction;  
-
-  struct GetSharedRecHitFraction : public ClusUnaryFunction {
+  struct GetSharedRecHitFraction {
     const edm::Ptr<reco::CaloCluster> the_seed;    
     double x_rechits_tot, x_rechits_match;
     GetSharedRecHitFraction(const edm::Ptr<reco::CaloCluster>& s) : 
@@ -326,49 +321,49 @@ PFSuperClusterTreeMaker::PFSuperClusterTreeMaker(const PSet& p) {
   _tree->Branch("scSeedEta",&scSeedEta,"scSeedEta/F");
   _tree->Branch("scSeedPhi",&scSeedPhi,"scSeedPhi/F");
   // ecal cluster information
-  clusterRawEnergy.reset(new Float_t[1],array_deleter<Float_t>());
+  clusterRawEnergy.reset(new Float_t[1],array_deleter<Float_t>);
   _tree->Branch("clusterRawEnergy",clusterRawEnergy.get(),
 		"clusterRawEnergy[N_ECALClusters]/F");
-  clusterCalibEnergy.reset(new Float_t[1],array_deleter<Float_t>());
+  clusterCalibEnergy.reset(new Float_t[1],array_deleter<Float_t>);
   _tree->Branch("clusterCalibEnergy",clusterCalibEnergy.get(),
 		"clusterCalibEnergy[N_ECALClusters]/F");
-  clusterEta.reset(new Float_t[1],array_deleter<Float_t>());
+  clusterEta.reset(new Float_t[1],array_deleter<Float_t>);
   _tree->Branch("clusterEta",clusterEta.get(),
 		"clusterEta[N_ECALClusters]/F");
-  clusterPhi.reset(new Float_t[1],array_deleter<Float_t>());
+  clusterPhi.reset(new Float_t[1],array_deleter<Float_t>);
   _tree->Branch("clusterPhi",clusterPhi.get(),
 		"clusterPhi[N_ECALClusters]/F");
-  clusterDPhiToSeed.reset(new Float_t[1],array_deleter<Float_t>());
+  clusterDPhiToSeed.reset(new Float_t[1],array_deleter<Float_t>);
   _tree->Branch("clusterDPhiToSeed",clusterDPhiToSeed.get(),
 		"clusterDPhiToSeed[N_ECALClusters]/F");
-  clusterDEtaToSeed.reset(new Float_t[1],array_deleter<Float_t>());  
+  clusterDEtaToSeed.reset(new Float_t[1],array_deleter<Float_t>);  
   _tree->Branch("clusterDEtaToSeed",clusterDEtaToSeed.get(),
 		"clusterDEtaToSeed[N_ECALClusters]/F");  
-  clusterDPhiToCentroid.reset(new Float_t[1],array_deleter<Float_t>());
+  clusterDPhiToCentroid.reset(new Float_t[1],array_deleter<Float_t>);
   _tree->Branch("clusterDPhiToCentroid",clusterDPhiToCentroid.get(),
 		"clusterDPhiToCentroid[N_ECALClusters]/F");
-  clusterDEtaToCentroid.reset(new Float_t[1],array_deleter<Float_t>());
+  clusterDEtaToCentroid.reset(new Float_t[1],array_deleter<Float_t>);
   _tree->Branch("clusterDEtaToCentroid",clusterDEtaToCentroid.get(),
 		"clusterDEtaToCentroid[N_ECALClusters]/F");
   clusterHitFractionSharedWithSeed.reset(new Float_t[1],
-					 array_deleter<Float_t>());
+					 array_deleter<Float_t>);
   _tree->Branch("clusterHitFractionSharedWithSeed",
 		clusterHitFractionSharedWithSeed.get(),
 		"clusterHitFractionSharedWithSeed[N_ECALClusters]/F");
-  clusterInMustache.reset(new Int_t[1],array_deleter<Int_t>());
+  clusterInMustache.reset(new Int_t[1],array_deleter<Int_t>);
   _tree->Branch("clusterInMustache",clusterInMustache.get(),
 		"clusterInMustache[N_ECALClusters]/I");
-  clusterInDynDPhi.reset(new Int_t[1],array_deleter<Int_t>());
+  clusterInDynDPhi.reset(new Int_t[1],array_deleter<Int_t>);
   _tree->Branch("clusterInDynDPhi",clusterInDynDPhi.get(),
 		"clusterInDynDPhi[N_ECALClusters]/I");
   // preshower information
-  psClusterRawEnergy.reset(new Float_t[1],array_deleter<Float_t>());
+  psClusterRawEnergy.reset(new Float_t[1],array_deleter<Float_t>);
   _tree->Branch("psClusterRawEnergy",psClusterRawEnergy.get(),
 		   "psClusterRawEnergy[N_PSClusters]/F");
-  psClusterEta.reset(new Float_t[1],array_deleter<Float_t>());
+  psClusterEta.reset(new Float_t[1],array_deleter<Float_t>);
   _tree->Branch("psClusterEta",psClusterEta.get(),
 		"psClusterEta[N_PSClusters]/F");
-  psClusterPhi.reset(new Float_t[1],array_deleter<Float_t>());
+  psClusterPhi.reset(new Float_t[1],array_deleter<Float_t>);
   _tree->Branch("psClusterPhi",psClusterPhi.get(),
 		"psClusterPhi[N_PSClusters]/F");
 
@@ -381,10 +376,10 @@ PFSuperClusterTreeMaker::PFSuperClusterTreeMaker(const PSet& p) {
     _tree->Branch("genDRToCentroid",&genDRToCentroid,"genDRToCentroid/F");
     _tree->Branch("genDRToSeed",&genDRToSeed,"genDRToSeed/F");
     
-    clusterDPhiToGen.reset(new Float_t[1],array_deleter<Float_t>());
+    clusterDPhiToGen.reset(new Float_t[1],array_deleter<Float_t>);
     _tree->Branch("clusterDPhiToGen",clusterDPhiToGen.get(),
 		  "clusterDPhiToGen[N_ECALClusters]/F");
-    clusterDEtaToGen.reset(new Float_t[1],array_deleter<Float_t>());
+    clusterDEtaToGen.reset(new Float_t[1],array_deleter<Float_t>);
     _tree->Branch("clusterDEtaToGen",clusterDEtaToGen.get(),
 		  "clusterDPhiToGen[N_ECALClusters]/F");
   }
@@ -405,56 +400,56 @@ PFSuperClusterTreeMaker::PFSuperClusterTreeMaker(const PSet& p) {
 void PFSuperClusterTreeMaker::setTreeArraysForSize(const size_t N_ECAL,
 						   const size_t N_PS) {
   Float_t* cRE_new = new Float_t[N_ECAL];
-  clusterRawEnergy.reset(cRE_new,array_deleter<Float_t>());
+  clusterRawEnergy.reset(cRE_new,array_deleter<Float_t>);
   _tree->GetBranch("clusterRawEnergy")->SetAddress(clusterRawEnergy.get());
   Float_t* cCE_new = new Float_t[N_ECAL];
-  clusterCalibEnergy.reset(cCE_new,array_deleter<Float_t>());
+  clusterCalibEnergy.reset(cCE_new,array_deleter<Float_t>);
   _tree->GetBranch("clusterCalibEnergy")->SetAddress(clusterCalibEnergy.get());
   Float_t* cEta_new = new Float_t[N_ECAL];
-  clusterEta.reset(cEta_new,array_deleter<Float_t>());
+  clusterEta.reset(cEta_new,array_deleter<Float_t>);
   _tree->GetBranch("clusterEta")->SetAddress(clusterEta.get());
   Float_t* cPhi_new = new Float_t[N_ECAL];
-  clusterPhi.reset(cPhi_new,array_deleter<Float_t>());
+  clusterPhi.reset(cPhi_new,array_deleter<Float_t>);
   _tree->GetBranch("clusterPhi")->SetAddress(clusterPhi.get());
   Float_t* cDPhiSeed_new = new Float_t[N_ECAL];
-  clusterDPhiToSeed.reset(cDPhiSeed_new,array_deleter<Float_t>());
+  clusterDPhiToSeed.reset(cDPhiSeed_new,array_deleter<Float_t>);
   _tree->GetBranch("clusterDPhiToSeed")->SetAddress(clusterDPhiToSeed.get());
   Float_t* cDEtaSeed_new = new Float_t[N_ECAL];
-  clusterDEtaToSeed.reset(cDEtaSeed_new,array_deleter<Float_t>());  
+  clusterDEtaToSeed.reset(cDEtaSeed_new,array_deleter<Float_t>);  
   _tree->GetBranch("clusterDEtaToSeed")->SetAddress(clusterDEtaToSeed.get());
   Float_t* cDPhiCntr_new = new Float_t[N_ECAL];
-  clusterDPhiToCentroid.reset(cDPhiCntr_new,array_deleter<Float_t>());
+  clusterDPhiToCentroid.reset(cDPhiCntr_new,array_deleter<Float_t>);
   _tree->GetBranch("clusterDPhiToCentroid")->SetAddress(clusterDPhiToCentroid.get());
   Float_t* cDEtaCntr_new = new Float_t[N_ECAL];
-  clusterDEtaToCentroid.reset(cDEtaCntr_new,array_deleter<Float_t>());
+  clusterDEtaToCentroid.reset(cDEtaCntr_new,array_deleter<Float_t>);
   _tree->GetBranch("clusterDEtaToCentroid")->SetAddress(clusterDEtaToCentroid.get());
   Float_t* cHitFracShared_new = new Float_t[N_ECAL];
   clusterHitFractionSharedWithSeed.reset(cHitFracShared_new,
-					 array_deleter<Float_t>());
+					 array_deleter<Float_t>);
   _tree->GetBranch("clusterHitFractionSharedWithSeed")->SetAddress(clusterHitFractionSharedWithSeed.get());
   
   if( _dogen ) {
     Float_t* cDPhiGen_new = new Float_t[N_ECAL];
-    clusterDPhiToGen.reset(cDPhiGen_new,array_deleter<Float_t>());
+    clusterDPhiToGen.reset(cDPhiGen_new,array_deleter<Float_t>);
     _tree->GetBranch("clusterDPhiToGen")->SetAddress(clusterDPhiToGen.get());
     Float_t* cDEtaGen_new = new Float_t[N_ECAL];
-    clusterDEtaToGen.reset(cDEtaGen_new,array_deleter<Float_t>());
+    clusterDEtaToGen.reset(cDEtaGen_new,array_deleter<Float_t>);
     _tree->GetBranch("clusterDEtaToGen")->SetAddress(clusterDEtaToGen.get());
   }
   Int_t* cInMust_new = new Int_t[N_ECAL];
-  clusterInMustache.reset(cInMust_new,array_deleter<Int_t>());
+  clusterInMustache.reset(cInMust_new,array_deleter<Int_t>);
   _tree->GetBranch("clusterInMustache")->SetAddress(clusterInMustache.get());
   Int_t* cInDynDPhi_new = new Int_t[N_ECAL];
-  clusterInDynDPhi.reset(cInDynDPhi_new,array_deleter<Int_t>());
+  clusterInDynDPhi.reset(cInDynDPhi_new,array_deleter<Int_t>);
   _tree->GetBranch("clusterInDynDPhi")->SetAddress(clusterInDynDPhi.get());
   Float_t* psRE_new = new Float_t[N_PS];
-  psClusterRawEnergy.reset(psRE_new,array_deleter<Float_t>());
+  psClusterRawEnergy.reset(psRE_new,array_deleter<Float_t>);
   _tree->GetBranch("psClusterRawEnergy")->SetAddress(psClusterRawEnergy.get());
   Float_t* psEta_new = new Float_t[N_PS];
-  psClusterEta.reset(psEta_new,array_deleter<Float_t>());
+  psClusterEta.reset(psEta_new,array_deleter<Float_t>);
   _tree->GetBranch("psClusterEta")->SetAddress(psClusterEta.get());
   Float_t* psPhi_new = new Float_t[N_PS];
-  psClusterPhi.reset(psPhi_new,array_deleter<Float_t>());
+  psClusterPhi.reset(psPhi_new,array_deleter<Float_t>);
   _tree->GetBranch("psClusterPhi")->SetAddress(psClusterPhi.get());
 }
 

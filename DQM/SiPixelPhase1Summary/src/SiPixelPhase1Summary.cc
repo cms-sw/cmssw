@@ -143,7 +143,7 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
     summaryMap_["Grand"]->setAxisTitle("Subdetector",1);
     for (unsigned int i = 0; i < xAxisLabelsReduced_.size(); i++){
       summaryMap_["Grand"]->setBinLabel(i+1,xAxisLabelsReduced_[i]);
-      for (unsigned int j = 0; j < 4; j++){ summaryMap_["Grand"]->setBinContent(i,j,-1);}
+      for (unsigned int j = 0; j < 4; j++){ summaryMap_["Grand"]->Fill(i,j,-1);}
     }
   }
   else{
@@ -388,8 +388,8 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
       toReset->Reset();
     }
   }
-  for (auto it : {-3,-2,-1,1,2,3}){ //PXForward
-    histName = "PixelPhase1/Phase1_MechanicalView/PXForward/clusterposition_xy_PXDisk_" + std::to_string(it);
+  for (auto it : {"-3","-2","-1","+1","+2","+3"}){ //PXForward
+    histName = "PixelPhase1/Phase1_MechanicalView/PXForward/clusterposition_xy_PXDisk_" + std::string(it);
     MonitorElement * toReset = iGetter.get(histName);
     if (toReset!=nullptr) {
       toReset->Reset();

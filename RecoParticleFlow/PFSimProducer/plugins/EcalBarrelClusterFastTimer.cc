@@ -84,8 +84,7 @@ EcalBarrelClusterFastTimer::EcalBarrelClusterFastTimer(const edm::ParameterSet& 
   const std::vector<edm::ParameterSet>& resos = conf.getParameterSetVector("resolutionModels");
   for( const auto& reso : resos ) {
     const std::string& name = reso.getParameter<std::string>("modelName");
-    ResolutionModel* resomod = ResolutionModelFactory::get()->create(name,reso);
-    _resolutions.emplace_back( resomod );  
+    _resolutions.emplace_back( ResolutionModelFactory::get()->create(name,reso) );
 
     // times and time resolutions for general tracks
     produces<edm::ValueMap<float> >(name); 
@@ -175,7 +174,7 @@ float EcalBarrelClusterFastTimer::correctTimeToVertex(const float intime, const 
   auto cellGeometry = ecalGeom->getGeometry(timeDet);
   if( nullptr == cellGeometry ) {
     throw cms::Exception("BadECALBarrelCell")
-      << timeDet << " is not a valid ECAL Barrel DetId!";
+      << std::hex << timeDet.rawId() << std::dec<< " is not a valid ECAL Barrel DetId!";
   }
   //depth in mm in the middle of the layer position;
   GlobalPoint layerPos = cellGeometry->getPosition( ecalDepth_+0.5 ); 

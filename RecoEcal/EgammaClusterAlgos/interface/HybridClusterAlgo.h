@@ -24,11 +24,6 @@
 
 class EcalSeverityLevelAlgo;
 
-//Less than operator for sorting EcalRecHits according to energy.
-struct less_mag : public std::binary_function<EcalRecHit, EcalRecHit, bool> {
-  bool operator()(EcalRecHit x, EcalRecHit y) { return x.energy() > y.energy() ; }
-};
-
 class HybridClusterAlgo
 {
  private:

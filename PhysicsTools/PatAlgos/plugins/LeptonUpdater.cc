@@ -107,7 +107,7 @@ namespace pat {
 
   template<>
   void LeptonUpdater<pat::Muon>::recomputeMuonBasicSelectors(pat::Muon & lep, const reco::Vertex & pv, const bool do_hip_mitigation_2016) const {
-    muon::setCutBasedSelectorFlags(lep, &pv, do_hip_mitigation_2016);
+    lep.setSelectors(muon::makeSelectorBitset(lep, &pv, do_hip_mitigation_2016));
   }
 
 } // namespace

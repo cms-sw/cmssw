@@ -6,7 +6,7 @@ class L1TCaloParamsObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBaseExt {
 private:
 
 public:
-    void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+    void fillObjectKeys( L1TriggerKeyExt* pL1TriggerKey ) override ;
 
     L1TCaloParamsObjectKeysOnlineProd(const edm::ParameterSet&);
     ~L1TCaloParamsObjectKeysOnlineProd(void) override{}
@@ -17,7 +17,7 @@ L1TCaloParamsObjectKeysOnlineProd::L1TCaloParamsObjectKeysOnlineProd(const edm::
 }
 
 
-void L1TCaloParamsObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey ){
+void L1TCaloParamsObjectKeysOnlineProd::fillObjectKeys( L1TriggerKeyExt* pL1TriggerKey ){
 
     std::string CALOKey = pL1TriggerKey->subsystemKey( L1TriggerKeyExt::kCALO ) ;
 

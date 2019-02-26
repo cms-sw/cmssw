@@ -62,8 +62,7 @@ CMSInsideOutAlgorithm::run(const std::vector<fastjet::PseudoJet>& fInput, std::v
       }
       fOutput.push_back(final);
    } // end loop over seeds
-   GreaterByEtPseudoJet compJets;
-   sort (fOutput.begin (), fOutput.end (), compJets);
+   sort (fOutput.begin (), fOutput.end (), greaterByEtPseudoJet);
 }
          
 

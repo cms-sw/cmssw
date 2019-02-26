@@ -37,50 +37,50 @@ makePSetsFromString(std::string const& module, boost::python::object& mainNamesp
 }
 
 namespace edm {
-
-  std::shared_ptr<ParameterSet>
-  readConfig(std::string const& config) {
-    PythonProcessDesc pythonProcessDesc(config);
-    return pythonProcessDesc.parameterSet();
-  }
-
-  std::shared_ptr<ParameterSet>
-  readConfig(std::string const& config, int argc, char* argv[]) {
-    PythonProcessDesc pythonProcessDesc(config, argc, argv);
-    return pythonProcessDesc.parameterSet();
-  }
-
-  void
-  makeParameterSets(std::string const& configtext,
-                  std::shared_ptr<ParameterSet>& main) {
-    PythonProcessDesc pythonProcessDesc(configtext);
-    main = pythonProcessDesc.parameterSet();
-  }
-
-  std::shared_ptr<ParameterSet>
-  readPSetsFrom(std::string const& module) {
-    python::initializeModule();
-
-    boost::python::object mainModule = object(handle<>(borrowed(PyImport_AddModule(const_cast<char*>("__main__")))));
-
-    boost::python::object mainNamespace = mainModule.attr("__dict__");
-    PythonParameterSet theProcessPSet;
-    mainNamespace["topPSet"] = ptr(&theProcessPSet);
-
-    try {
-      // if it ends with py, it's a file
-      if(module.substr(module.size()-3) == ".py") {
-        makePSetsFromFile(module,mainNamespace);
-      } else {
-        makePSetsFromString(module,mainNamespace);
+  namespace boost_python {
+    
+    std::unique_ptr<edm::ParameterSet>
+    readConfig(std::string const& config) {
+      PythonProcessDesc pythonProcessDesc(config);
+      return pythonProcessDesc.parameterSet();
+    }
+    
+    std::unique_ptr<edm::ParameterSet>
+    readConfig(std::string const& config, int argc, char* argv[]) {
+      PythonProcessDesc pythonProcessDesc(config, argc, argv);
+      return pythonProcessDesc.parameterSet();
+    }
+    
+    void
+    makeParameterSets(std::string const& configtext,
+		      std::unique_ptr<edm::ParameterSet>& main) {
+      PythonProcessDesc pythonProcessDesc(configtext);
+      main = pythonProcessDesc.parameterSet();
+    }
+    
+    std::unique_ptr<edm::ParameterSet>
+    readPSetsFrom(std::string const& module) {
+      python::initializeModule();
+      
+      boost::python::object mainModule = object(handle<>(borrowed(PyImport_AddModule(const_cast<char*>("__main__")))));
+      
+      boost::python::object mainNamespace = mainModule.attr("__dict__");
+      PythonParameterSet theProcessPSet;
+      mainNamespace["topPSet"] = ptr(&theProcessPSet);
+      
+      try {
+	// if it ends with py, it's a file
+	if(module.substr(module.size()-3) == ".py") {
+	  makePSetsFromFile(module,mainNamespace);
+	} else {
+	  makePSetsFromString(module,mainNamespace);
+	}
       }
+      catch( error_already_set const& ) {
+	pythonToCppException("Configuration");
+	Py_Finalize();
+      }
+      return std::make_unique<edm::ParameterSet>(ParameterSet(theProcessPSet.pset()));
     }
-    catch( error_already_set const& ) {
-      pythonToCppException("Configuration");
-      Py_Finalize();
-    }
-    auto returnValue = std::make_shared<ParameterSet>();
-    theProcessPSet.pset().swap(*returnValue);
-    return returnValue;
-  }
+  } // namespace boost_python
 } // namespace edm

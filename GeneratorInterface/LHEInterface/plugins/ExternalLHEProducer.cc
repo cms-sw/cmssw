@@ -97,9 +97,9 @@ private:
   std::string outputContents_;
 
   std::unique_ptr<lhef::LHEReader>	reader_;
-  boost::shared_ptr<lhef::LHERunInfo>	runInfoLast;
-  boost::shared_ptr<lhef::LHERunInfo>	runInfo;
-  boost::shared_ptr<lhef::LHEEvent>	partonLevel;
+  std::shared_ptr<lhef::LHERunInfo>	runInfoLast;
+  std::shared_ptr<lhef::LHERunInfo>	runInfo;
+  std::shared_ptr<lhef::LHEEvent>	partonLevel;
   boost::ptr_deque<LHERunInfoProduct>	runInfoProducts;
   bool					wasMerged;
   
@@ -195,7 +195,7 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(std::move(product));
 
   if (runInfo) {
-    std::auto_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo->getHEPRUP()));
+    std::unique_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo->getHEPRUP()));
     std::for_each(runInfo->getHeaders().begin(),
                   runInfo->getHeaders().end(),
                   boost::bind(&LHERunInfoProduct::addHeader,
@@ -209,7 +209,7 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       runInfoProducts.front().mergeProduct(*product);
       if (!wasMerged) {
         runInfoProducts.pop_front();
-        runInfoProducts.push_front(product);
+        runInfoProducts.push_front(product.release());
         wasMerged = true;
       }
     }
@@ -513,7 +513,7 @@ void ExternalLHEProducer::nextEvent()
   if (!partonLevel)
     return;
 
-  boost::shared_ptr<lhef::LHERunInfo> runInfoThis = partonLevel->getRunInfo();
+  std::shared_ptr<lhef::LHERunInfo> runInfoThis = partonLevel->getRunInfo();
   if (runInfoThis != runInfoLast) {
     runInfo = runInfoThis;
     runInfoLast = runInfoThis;

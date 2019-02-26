@@ -234,11 +234,7 @@ namespace edm {
           << "\n";
       }
     }
-    if (!unscheduledLabels.empty()) {
-      number_of_unscheduled_modules_=unscheduledLabels.size();
-      workerManager_.setOnDemandProducts(preg, unscheduledLabels);
-    }
-
+    number_of_unscheduled_modules_ = unscheduledLabels.size();
 
     initializeEarlyDelete(*modReg, opts,preg,allowEarlyDelete);
     
@@ -537,7 +533,7 @@ namespace edm {
   
   void StreamSchedule::processOneEventAsync(WaitingTaskHolder iTask,
                                             EventPrincipal& ep,
-                                            EventSetup const& es,
+                                            EventSetupImpl const& es,
                                             ServiceToken const& serviceToken,
                                             std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters) {
     try {
@@ -639,7 +635,7 @@ namespace edm {
   
   void
   StreamSchedule::finishedPaths(std::atomic<std::exception_ptr*>& iExcept, WaitingTaskHolder iWait, EventPrincipal& ep,
-                                EventSetup const& es) {
+                                EventSetupImpl const& es) {
     
     if(iExcept) {
       try {

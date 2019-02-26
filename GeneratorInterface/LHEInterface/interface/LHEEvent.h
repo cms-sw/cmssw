@@ -7,8 +7,6 @@
 #include <vector>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
 #include "HepMC/PdfInfo.h"
@@ -24,22 +22,22 @@ namespace lhef {
 
 class LHEEvent {
     public:
-	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+	LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
 	         std::istream &in);
-	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+	LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
 	         const HEPEUP &hepeup);
-	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+	LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
 	         const HEPEUP &hepeup,
 	         const LHEEventProduct::PDF *pdf,
 	         const std::vector<std::string> &comments);
-	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+	LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
 	         const LHEEventProduct &product);
 	~LHEEvent();
 
 	typedef LHEEventProduct::PDF PDF;
 	typedef LHEEventProduct::WGT WGT;
 
-	const boost::shared_ptr<LHERunInfo> &getRunInfo() const { return runInfo; }
+	const std::shared_ptr<LHERunInfo> &getRunInfo() const { return runInfo; }
 	const HEPEUP *getHEPEUP() const { return &hepeup; }
 	const HEPRUP *getHEPRUP() const { return runInfo->getHEPRUP(); }
 	const PDF *getPDF() const { return pdf.get(); }
@@ -47,7 +45,7 @@ class LHEEvent {
 	const int getReadAttempts() { return readAttemptCounter; }
 
 	void addWeight(const WGT& wgt) { weights_.push_back(wgt); }
-	void setPDF(std::auto_ptr<PDF> pdf) { this->pdf = pdf; }
+	void setPDF(std::unique_ptr<PDF> pdf) { this->pdf = std::move(pdf); }
 
 	double originalXWGTUP() const { return originalXWGTUP_; }
 	const std::vector<WGT>& weights() const { return weights_; }
@@ -74,7 +72,7 @@ class LHEEvent {
 	void fillPdfInfo(HepMC::PdfInfo *info) const;
 	void fillEventInfo(HepMC::GenEvent *hepmc) const;
 
-	std::auto_ptr<HepMC::GenEvent> asHepMCEvent() const;
+	std::unique_ptr<HepMC::GenEvent> asHepMCEvent() const;
 
 	static const HepMC::GenVertex *findSignalVertex(
 			const HepMC::GenEvent *event, bool status3 = true);
@@ -85,10 +83,10 @@ class LHEEvent {
 	static bool checkHepMCTree(const HepMC::GenEvent *event);
 	HepMC::GenParticle *makeHepMCParticle(unsigned int i) const;
 
-	const boost::shared_ptr<LHERunInfo>	runInfo;
+	const std::shared_ptr<LHERunInfo>	runInfo;
 
 	HEPEUP					hepeup;
-	std::auto_ptr<PDF>			pdf;
+	std::unique_ptr<PDF>			pdf;
 	std::vector<WGT>	          	weights_;
 	std::vector<std::string>		comments;
 	bool					counted;

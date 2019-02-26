@@ -63,4 +63,4 @@ _phase2_siml1emulator += hgcalTriggerPrimitives
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
-(phase2_hgcal & ~phase2_hgcalV9).toReplaceWith( SimL1Emulator , _phase2_siml1emulator )
+phase2_hgcal.toReplaceWith( SimL1Emulator , _phase2_siml1emulator )

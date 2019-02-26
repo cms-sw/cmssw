@@ -78,14 +78,14 @@ class MVAComputerCache {
 	MVAComputer *get() { return computer.get(); }
 	const MVAComputer *get() const { return computer.get(); }
 
-	std::auto_ptr<MVAComputer> release();
+	std::unique_ptr<MVAComputer> release();
 
 	void reset() { computer.reset(); }
 
     private:
 	Calibration::MVAComputerContainer::CacheId	containerCacheId;
 	Calibration::MVAComputer::CacheId		computerCacheId;
-	std::auto_ptr<MVAComputer>			computer;
+	std::unique_ptr<MVAComputer>			computer;
 };
 
 } // namespace PhysicsTools

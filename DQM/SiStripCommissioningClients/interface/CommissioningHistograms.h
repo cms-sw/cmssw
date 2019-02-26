@@ -141,7 +141,7 @@ class CommissioningHistograms {
 
  protected:
 
-  std::auto_ptr<Factory> factory_;
+  std::unique_ptr<Factory> factory_;
   
  private:
   

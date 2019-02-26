@@ -45,7 +45,7 @@ typedef struct
 } VertexType;
 
 
-class Vx3DHLTAnalyzer : public DQMEDAnalyzer
+class Vx3DHLTAnalyzer : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements>
 {
 
 

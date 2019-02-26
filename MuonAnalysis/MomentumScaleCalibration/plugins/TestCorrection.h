@@ -119,9 +119,9 @@ private:
 
   int eventCounter_;
 
-  std::auto_ptr<MomentumScaleCorrector> corrector_;
-  std::auto_ptr<ResolutionFunction> resolution_;
-  std::auto_ptr<BackgroundFunction> background_;
+  std::unique_ptr<MomentumScaleCorrector> corrector_;
+  std::unique_ptr<ResolutionFunction> resolution_;
+  std::unique_ptr<BackgroundFunction> background_;
 };
 
 #endif // TESTCORRECTION_HH

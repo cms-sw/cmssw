@@ -9,13 +9,25 @@ import shutil
 import re
 import json
 
-readers = { 'CMSSW_9_0_1'        : ['slc6_amd64_gcc530'], 
+# Boost 1.51 [no writers available - a back-port is required!]
+#readers = { 'CMSSW_7_1_0'        : ['slc6_amd64_gcc490'], 
+#          }
+
+# Boost 1.57
+#readers = { 'CMSSW_7_5_0'        : ['slc6_amd64_gcc491'], 
+#          }
+
+# Boost 1.63
+#readers = { 'CMSSW_9_0_0'        : ['slc6_amd64_gcc530'], 
+#          }
+
+# Boost 1.67 [No reference release yet...]
+readers = {
           }
 
-writers = { 'CMSSW_9_0_1'        : [ ('slc6_amd64_gcc530', 'ref901-s6530.db') ],
-            'CMSSW_8_1_0'        : [ ('slc6_amd64_gcc530', 'ref810-s6530.db') ],
-            'CMSSW_8_0_26'       : [ ('slc6_amd64_gcc530', 'ref8026-s6530.db')],
-            'CMSSW_7_6_6'        : [ ('slc6_amd64_gcc493', 'ref766-s6493.db')],
+writers = { 'CMSSW_9_0_1'        : [ ('slc6_amd64_gcc630', 'ref901-s6630.db')],
+            'CMSSW_8_1_0'        : [ ('slc6_amd64_gcc530', 'ref750-s6530.db'),('slc6_amd64_gcc600', 'ref750-s600.db')],
+            'CMSSW_7_6_6'        : [ ('slc6_amd64_gcc493', 'ref750-s6493.db')]
           }
 
 def check_output(*popenargs, **kwargs):
@@ -98,7 +110,7 @@ class CondRegressionTester(object):
               for reader in sorted(allReaders.keys()):
                   for arch in allReaders[reader]:
                       if reader == 'SELF':
-                          readerArch = 'Read: %s' %reader
+                          readerArch = 'Read: %s [%s]' %(self.rel,self.arch)
                       else:
                           readerArch = 'Read: %s [%s]' %(reader,arch)
                       fmt += '| %' + '%s' %len(readerArch) + 's '
@@ -156,7 +168,7 @@ class CondRegressionTester(object):
           if dbNameIn : dbName = dbNameIn
           
           if readOrWrite == 'write':
-              self.dbList['SELF'] = dbName
+              self.dbList['%s [%s]'%(self.rel,self.arch)] = dbName
 
           execName = 'test/%s/testReadWritePayloads' %self.arch
           executable = '%s/%s' %(os.environ['LOCALRT'],execName)

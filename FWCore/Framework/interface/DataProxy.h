@@ -43,8 +43,8 @@ namespace edm {
          // ---------- const member functions ---------------------
          bool cacheIsValid() const { return cacheIsValid_.load(std::memory_order_acquire); }
 
-         void doGet(EventSetupRecordImpl const& iRecord, DataKey const& iKey, bool iTransiently, ActivityRegistry*) const;
-         void const* get(EventSetupRecordImpl const&, DataKey const& iKey, bool iTransiently, ActivityRegistry*) const;
+         void doGet(EventSetupRecordImpl const& iRecord, DataKey const& iKey, bool iTransiently, ActivityRegistry const*) const;
+         void const* get(EventSetupRecordImpl const&, DataKey const& iKey, bool iTransiently, ActivityRegistry const*) const;
 
          ///returns the description of the DataProxyProvider which owns this Proxy
          ComponentDescription const* providerDescription() const {

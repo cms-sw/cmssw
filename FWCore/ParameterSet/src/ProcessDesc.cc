@@ -8,6 +8,10 @@ namespace edm {
       pset_(pset), services_(pset_->popVParameterSet(std::string("services"))) {
   }
 
+  ProcessDesc::ProcessDesc(std::unique_ptr<ParameterSet> pset) :
+    pset_(std::move(pset)), services_(pset_->popVParameterSet(std::string("services"))) {
+  }
+
   ProcessDesc::ProcessDesc(std::string const&) :
       pset_(new ParameterSet),
       services_{} {

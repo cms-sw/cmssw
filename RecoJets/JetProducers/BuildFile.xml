@@ -10,9 +10,8 @@
 <use   name="SimDataFormats/CaloHit"/>
 <use   name="RecoJets/JetAlgorithms"/>
 <use   name="DataFormats/CastorReco"/>
-<use   name="CommonTools/Utils"/>
+<use   name="CommonTools/MVAUtils"/>
 <use   name="fastjet"/>
-<use   name="roottmva"/>
 <use   name="vdt_headers"/>
 <use   name="boost_serialization"/>
 <use   name="CondFormats/DataRecord"/>

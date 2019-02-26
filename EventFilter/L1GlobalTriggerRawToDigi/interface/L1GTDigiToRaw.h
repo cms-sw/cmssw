@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -42,7 +42,7 @@ class L1GtFdlWord;
 class L1GtPsbWord;
 
 // class declaration
-class L1GTDigiToRaw : public edm::EDProducer
+class L1GTDigiToRaw : public edm::stream::EDProducer<>
 {
 
 public:
@@ -50,13 +50,7 @@ public:
     /// constructor(s)
     explicit L1GTDigiToRaw(const edm::ParameterSet&);
 
-    /// destructor
-    ~L1GTDigiToRaw() override;
-
 private:
-
-    /// beginning of job stuff
-    void beginJob() override;
 
     /// loop over events
     void produce(edm::Event&, const edm::EventSetup&) override;
@@ -91,9 +85,6 @@ private:
     /// pack trailer word
     void packTrailer(unsigned char*, unsigned char*, int);
 
-    /// end of job stuff
-    void endJob() override;
-
 private:
 
     /// FED Id for GT DAQ record
@@ -101,12 +92,12 @@ private:
     int m_daqGtFedId;
 
     /// input tag for GT DAQ record
-    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_daqGtInputToken;
+    const edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_daqGtInputToken;
 
     /// input tag for GMT record
-    edm::EDGetTokenT<L1MuGMTReadoutCollection> m_muGmtInputToken;
-    edm::InputTag m_daqGtInputTag;
-    edm::InputTag m_muGmtInputTag;
+    const edm::EDGetTokenT<L1MuGMTReadoutCollection> m_muGmtInputToken;
+    const edm::InputTag m_daqGtInputTag;
+    const edm::InputTag m_muGmtInputTag;
 
     /// mask for active boards
     cms_uint16_t m_activeBoardsMaskGt;

@@ -4,6 +4,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/EndOfRun.h"
@@ -37,45 +38,44 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
   //---- Accumulate material budget only inside selected volumes
   std::string theHistoList = m_Anal.getParameter<std::string>("HistogramList");
   std::vector<std::string> volList = m_Anal.getParameter< std::vector<std::string> >("SelectedVolumes");
-  std::vector<std::string>::const_iterator ite;
-  std::cout << "TestGeometry: List of the selected volumes: " << std::endl;
-  for( ite = volList.begin(); ite != volList.end(); ite++ ){
-    if( (*ite) != "None" ) {
-      theVolumeList.push_back( *ite );
-      std::cout << (*ite) << std::endl;
+
+  edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: List of the selected volumes:";
+  for( const auto& it : volList) {
+    if( it != "None" ) {
+      theVolumeList.push_back(it);
+      edm::LogInfo("MaterialBudget") << it ;
     }
   }
+
   // log
   if(theHistoList == "Tracker" ) {
-    std::cout << "TestGeometry: MaterialBudgetAction running in Tracker Mode" << std::endl;
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: running in Tracker Mode";
   } 
   else if(theHistoList == "ECAL" ) {
-    std::cout << "TestGeometry: MaterialBudgetAction running in Ecal Mode" << std::endl;
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: running in Ecal Mode";
   } 
   else if(theHistoList == "HGCal" ) {
-    std::cout << "TestGeometry: MaterialBudgetAction running in HGCal Mode" << std::endl;
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: running in HGCal Mode";
   } 
   else {
-    std::cout << "TestGeometry: MaterialBudgetAction running in General Mode" << std::endl;
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: running in General Mode";
   }
-  //
     
   //---- Stop track when a process occurs
   theProcessToStop = m_Anal.getParameter<std::string>("StopAfterProcess");
-  std::cout << "TestGeometry: stop at process " << theProcessToStop << std::endl;
+  LogDebug("MaterialBudget") << "MaterialBudgetAction: stop at process " << theProcessToStop;
 
   //---- Save histos to ROOT file 
   std::string saveToHistosFile = m_Anal.getParameter<std::string>("HistosFile");
   if( saveToHistosFile != "None" ) {
     saveToHistos = true;
-    std::cout << "TestGeometry: saving histograms to " << saveToHistosFile << std::endl;
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: saving histograms to " << saveToHistosFile;
     theHistoMgr = std::make_shared<TestHistoMgr>();
-    // rr
     if(theHistoList == "Tracker" ) {
       theHistos = std::make_shared<MaterialBudgetTrackerHistos>(theData, theHistoMgr, saveToHistosFile);
-    } 
+    }
     else if (theHistoList == "ECAL") {
-      theHistos = std::make_shared<MaterialBudgetEcalHistos>(theData, theHistoMgr, saveToHistosFile); 
+      theHistos = std::make_shared<MaterialBudgetEcalHistos>(theData, theHistoMgr, saveToHistosFile);
     }
     else if (theHistoList == "HGCal") {
       theHistos = std::make_shared<MaterialBudgetHGCalHistos>( theData, theHistoMgr, saveToHistosFile );
@@ -85,8 +85,8 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
     else {
       theHistos = std::make_shared<MaterialBudgetHistos>( theData, theHistoMgr, saveToHistosFile ); 
     }
-    // rr
   } else {
+    edm::LogWarning("MaterialBudget") << "MaterialBudgetAction: No histograms file specified";
     saveToHistos = false;
   }
   
@@ -94,7 +94,7 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
   std::string saveToTxtFile = m_Anal.getParameter<std::string>("TextFile");
   if( saveToTxtFile != "None" ) {
     saveToTxt = true;
-    std::cout << "TestGeometry: saving text info to " << saveToTxtFile << std::endl;
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: saving text info to " << saveToTxtFile;
     theTxt = std::make_shared<MaterialBudgetTxt>( theData, saveToTxtFile );
   } else {
     saveToTxt = false;
@@ -102,29 +102,28 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
   
   //---- Compute all the steps even if not stored on file
   bool allSteps = m_Anal.getParameter<bool>("AllStepsToTree");  
-  std::cout << "TestGeometry: all steps are computed " << allSteps << std::endl;
+  edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: all steps are computed " << allSteps;
   if( allSteps ) theData->SetAllStepsToTree();
   
   //---- Save tree to ROOT file
   std::string saveToTreeFile = m_Anal.getParameter<std::string>("TreeFile");
-  //  std::string saveToTreeFile = ""; 
   if( saveToTreeFile != "None" ) {
     saveToTree = true;
     theTree = std::make_shared<MaterialBudgetTree>( theData, saveToTreeFile );
   } else {
     saveToTree = false;
   }
-  std::cout << "TestGeometry: saving ROOT TREE to " << saveToTreeFile << std::endl;
+  edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: saving ROOT TTree to " << saveToTreeFile;
   
   //---- Track the first decay products of the main particle
   // if their kinetic energy is greater than  Ekin
   storeDecay = m_Anal.getUntrackedParameter<bool>("storeDecay",false);  
   Ekin       = m_Anal.getUntrackedParameter<double>("EminDecayProd",1000.0); // MeV
-  std::cout << "TestGeometry: decay products steps are stored " << storeDecay;
-  if(storeDecay) std::cout << " if their kinetic energy is greater than " << Ekin << " MeV";
-  std::cout << std::endl;
+  edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: decay products steps are stored (" 
+				 << storeDecay << ") if their kinetic energy is greater than " 
+				 << Ekin << " MeV";
   firstParticle = false;
-  }
+}
 
 
 //-------------------------------------------------------------------------
@@ -137,19 +136,17 @@ void MaterialBudgetAction::update(const BeginOfRun* )
 {
   //----- Check that selected volumes are indeed part of the geometry
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
-  std::vector<G4LogicalVolume*>::const_iterator lvcite;
-  std::vector<G4String>::const_iterator volcite;
 
-  for( volcite = theVolumeList.begin(); volcite != theVolumeList.end(); volcite++ ){
+  for(const auto& volcite: theVolumeList) {
     bool volFound = false;
-    for( lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++ ) {
-      if( (*lvcite)->GetName() == *volcite )  {
+    for(const auto& lvcite: *lvs) {
+      if( lvcite->GetName() == volcite )  {
 	volFound = true;
 	break;
       }
     }
     if( !volFound ) {
-      std::cerr << " @@@@@@@ WARNING at MaterialBudgetAction: selected volume not found in geometry " << *volcite << std::endl;
+       edm::LogWarning("MaterialBudget") << "MaterialBudgetAction: selected volume not found in geometry " << volcite;
     }
   }
 
@@ -178,11 +175,9 @@ void MaterialBudgetAction::update(const BeginOfRun* )
   }
 
   if( !procFound ) {
-      std::cerr << " @@@@@@@ WARNING at MaterialBudgetAction: selected process to stop tracking not found " << theProcessToStop << std::endl;
-    }
-
+    edm::LogWarning("MaterialBudget") << "MaterialBudgetAction: selected process to stop tracking not found " << theProcessToStop;
+  }
 }
-
 
 //-------------------------------------------------------------------------
 void MaterialBudgetAction::update(const BeginOfTrack* trk)
@@ -191,11 +186,14 @@ void MaterialBudgetAction::update(const BeginOfTrack* trk)
   
   // that was a temporary action while we're sorting out
   // about # of secondaries (produced if CutsPerRegion=true)
-  //
-  std::cout << "Track ID " << aTrack->GetTrackID() << " Track parent ID " << aTrack->GetParentID() 
-	    << " PDG Id. = " << aTrack->GetDefinition()->GetPDGEncoding()
-	    << " Ekin = " << aTrack->GetKineticEnergy() << " MeV" << std::endl;
-  if( aTrack->GetCreatorProcess() ) std::cout << " produced through " << aTrack->GetCreatorProcess()->GetProcessType() << std::endl;
+
+  LogDebug("MaterialBudget") << "MaterialBudgetAction: Track ID " << aTrack->GetTrackID() 
+				  << "Track parent ID " << aTrack->GetParentID() 
+				  << "PDG Id. = " << aTrack->GetDefinition()->GetPDGEncoding()
+				  << "Ekin = " << aTrack->GetKineticEnergy() << " MeV";
+
+  if( aTrack->GetCreatorProcess() ) 
+    LogDebug("MaterialBudget") << "MaterialBudgetAction: produced through " << aTrack->GetCreatorProcess()->GetProcessType();
   
   if(aTrack->GetTrackID() == 1) {
     firstParticle = true;
@@ -227,33 +225,26 @@ void MaterialBudgetAction::update(const BeginOfTrack* trk)
     }
   }
   
-  
-  // if(firstParticle) {
-    //--------- start of track
-    //-    std::cout << " Data Start Track " << std::endl;
-    theData->dataStartTrack( aTrack );
-    if (saveToTree) theTree->fillStartTrack();
-    if (saveToHistos) theHistos->fillStartTrack();
-    if (saveToTxt) theTxt->fillStartTrack();
-  // }
+  theData->dataStartTrack( aTrack );
+
+  if (saveToTree) theTree->fillStartTrack();
+  if (saveToHistos) theHistos->fillStartTrack();
+  if (saveToTxt) theTxt->fillStartTrack();
 }
  
-
 //-------------------------------------------------------------------------
 void MaterialBudgetAction::update(const G4Step* aStep)
 {
   //----- Check it is inside one of the volumes selected
   if( !theVolumeList.empty() ) {
     if( !CheckTouchableInSelectedVolumes( aStep->GetTrack()->GetTouchable() ) ) return;
-  } 
+  }
 
   //---------- each step
   theData->dataPerStep( aStep );
-  //-  std::cout << " aStep->GetPostStepPoint()->GetTouchable() " << aStep->GetPostStepPoint()->GetTouchable()->GetVolume() << " " << aStep->GetPreStepPoint()->GetTouchable()->GetVolume() << std::endl;
   if (saveToTree) theTree->fillPerStep();
   if (saveToHistos) theHistos->fillPerStep();
   if (saveToTxt) theTxt->fillPerStep();
-
 
   //----- Stop tracking after selected process
   if( StopAfterProcess( aStep ) ) {
@@ -262,9 +253,7 @@ void MaterialBudgetAction::update(const G4Step* aStep)
   }
 
   return;
-
 }
-
 
 //-------------------------------------------------------------------------
 std::string MaterialBudgetAction::getSubDetectorName( G4StepPoint* aStepPoint )
@@ -275,7 +264,7 @@ std::string MaterialBudgetAction::getSubDetectorName( G4StepPoint* aStepPoint )
   
   if( theTouchable->GetVolume() ) {
     return theTouchable->GetVolume(num_levels-1)->GetName();
-  } else { 
+  } else {
     return "OutOfWorld";
   }
 }
@@ -287,7 +276,6 @@ std::string MaterialBudgetAction::getPartName( G4StepPoint* aStepPoint )
   const G4TouchableHistory* theTouchable
     = (const G4TouchableHistory*)(aStepPoint->GetTouchable());
   G4int num_levels = theTouchable->GetHistoryDepth();
-  //  theTouchable->MoveUpHistory(num_levels-3);
   
   if( theTouchable->GetVolume() ) {
     return theTouchable->GetVolume(num_levels-3)->GetName();
@@ -300,41 +288,37 @@ std::string MaterialBudgetAction::getPartName( G4StepPoint* aStepPoint )
 void MaterialBudgetAction::update(const EndOfTrack* trk)
 {
   const G4Track * aTrack = (*trk)(); // recover G4 pointer if wanted
-  //  if( aTrack->GetParentID() != 0 ) return;
-  
-  //---------- end of track (OutOfWorld)
-  //-  std::cout << " Data End Track " << std::endl;
   theData->dataEndTrack( aTrack );
 
-  //-  std::cout << " Data End Event " << std::endl;
   if (saveToTree) theTree->fillEndTrack();
   if (saveToHistos) theHistos->fillEndTrack();
-  if (saveToTxt) theTxt->fillEndTrack();  
+  if (saveToTxt) theTxt->fillEndTrack();
 }
 
 //-------------------------------------------------------------------------
 void MaterialBudgetAction::update(const EndOfRun* )
 {
+  // endOfRun calls TestHistoMgr::save() allowing to write 
+  // the ROOT files containing the histograms
+
+  if (saveToHistos) theHistos->endOfRun();
+  if (saveToTxt) theHistos->endOfRun();
+  if (saveToTree) theTree->endOfRun();
+
   return;
 }
 
 //-------------------------------------------------------------------------
 bool MaterialBudgetAction::CheckTouchableInSelectedVolumes( const G4VTouchable*  touch ) 
 {
-  // std::vector<G4String>::const_iterator ite;
   size_t volh = touch->GetHistoryDepth();
-//  for( ite = theVolumeList.begin(); ite != theVolumeList.end(); ite++ ){
-//     //-  std::cout << " CheckTouchableInSelectedVolumes vol " << *ite << std::endl;
     for( int ii = volh; ii >= 0; ii-- ){
-//       //-  std::cout << ii << " CheckTouchableInSelectedVolumes parent  " << touch->GetVolume(ii)->GetName() << std::endl;
       if ( 
         std::find(theVolumeList.begin(),
                   theVolumeList.end(),
                   touch->GetVolume(ii)->GetName()) != theVolumeList.end() )
           return true;
     }
-//  }
-
   return false;
 }
 
@@ -343,9 +327,10 @@ bool MaterialBudgetAction::StopAfterProcess( const G4Step* aStep )
 {
   if( theProcessToStop.empty() ) return false;
 
-  if(aStep->GetPostStepPoint()->GetProcessDefinedStep() == nullptr) return false;
+  if( aStep->GetPostStepPoint()->GetProcessDefinedStep() == nullptr) return false;
   if( aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == theProcessToStop ) {
-    std::cout << " MaterialBudgetAction::StopAfterProcess " << aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
+    edm::LogInfo("MaterialBudget" )<< "MaterialBudgetAction :" 
+				   << aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
     return true;
   } else {
     return false;

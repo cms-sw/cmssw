@@ -12,6 +12,8 @@ for testing purposes only.
 #include <map>
 #include <functional>
 #include "FWCore/Framework/interface/one/EDFilter.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
@@ -147,6 +149,110 @@ namespace one {
       }
     }
   };
+  
+  namespace fltr {
+    struct Cache { bool begin = true; bool end = false; };
+  }
+  class RunCacheFilter: public edm::one::EDFilter<edm::RunCache<fltr::Cache>> {
+  public:
+    explicit RunCacheFilter(edm::ParameterSet const& p) :
+    trans_(p.getParameter<int>("transitions")) {
+    }
+    const unsigned int trans_;
+    mutable unsigned int m_count = 0;
+    
+    bool filter(edm::Event& iEvent, edm::EventSetup const&) override {
+      ++m_count;
+      auto c = runCache(iEvent.getRun().index());
+      if( nullptr == c) {
+        throw cms::Exception("Missing cache") <<" no cache in analyze";
+      }
+      
+      if ( !c->begin  || c->end ) {
+        throw cms::Exception("out of sequence")
+        << " produce before beginRun or after endRun";
+      }
+      
+      return true;
+    }
+    
+    std::shared_ptr<fltr::Cache> globalBeginRun(edm::Run const&, edm::EventSetup const&) const final {
+      ++m_count;
+      return std::make_shared<fltr::Cache>();
+    }
+    
+    void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) final {
+      ++m_count;
+      auto c = runCache(iRun.index());
+      if( nullptr == c) {
+        throw cms::Exception("Missing cache") <<" no cache in globalEndRun";
+      }
+      if ( !c->begin ) {
+        throw cms::Exception("out of sequence")
+        << " endRun before beginRun";
+      }
+      c->begin = false;
+      c->end = true;
+    }
+    
+    ~RunCacheFilter() {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+        << "WatchRunsAnalyzer transitions "
+        << m_count<< " but it was supposed to be " << trans_;
+      }
+    }
+  };
+  
+  
+  class LumiBlockCacheFilter: public edm::one::EDFilter<edm::LuminosityBlockCache<fltr::Cache>> {
+  public:
+    explicit LumiBlockCacheFilter(edm::ParameterSet const& p) :
+    trans_(p.getParameter<int>("transitions")) {
+    }
+    const unsigned int trans_;
+    mutable unsigned int m_count = 0;
+    
+    bool filter(edm::Event& iEvent, edm::EventSetup const&) override {
+      ++m_count;
+      
+      auto c = luminosityBlockCache(iEvent.getLuminosityBlock().index());
+      if( nullptr == c) {
+        throw cms::Exception("Missing cache") <<" no cache in analyze";
+      }
+      
+      if ( !c->begin  || c->end ) {
+        throw cms::Exception("out of sequence")
+        << " produce before beginLumiBlock or after endLumiBlock";
+      }
+      return true;
+    }
+    
+    std::shared_ptr<fltr::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const final {
+      ++m_count;
+      return std::make_shared<fltr::Cache>();
+    }
+    
+    void globalEndLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) override {
+      ++m_count;
+      auto c = luminosityBlockCache(iLumi.index());
+      if ( !c->begin ) {
+        throw cms::Exception("out of sequence")
+        << " endLumiBlock before beginLumiBlock";
+      }
+      c->begin = false;
+      c->end = true;
+    }
+    
+    ~LumiBlockCacheFilter() {
+      if(m_count != trans_) {
+        throw cms::Exception("transitions")
+        << "WatchLumiBlocksAnalyzer transitions "
+        << m_count<< " but it was supposed to be " << trans_;
+      }
+    }
+  };
+
   
   class BeginRunFilter : public edm::one::EDFilter<edm::one::WatchRuns,edm::BeginRunProducer> {
   public:
@@ -318,6 +424,8 @@ namespace one {
 DEFINE_FWK_MODULE(edmtest::one::SharedResourcesFilter);
 DEFINE_FWK_MODULE(edmtest::one::WatchRunsFilter);
 DEFINE_FWK_MODULE(edmtest::one::WatchLumiBlocksFilter);
+DEFINE_FWK_MODULE(edmtest::one::RunCacheFilter);
+DEFINE_FWK_MODULE(edmtest::one::LumiBlockCacheFilter);
 DEFINE_FWK_MODULE(edmtest::one::BeginRunFilter);
 DEFINE_FWK_MODULE(edmtest::one::BeginLumiBlockFilter);
 DEFINE_FWK_MODULE(edmtest::one::EndRunFilter);

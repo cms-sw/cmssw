@@ -66,10 +66,10 @@
 
 //double PI = 3.141592654;
 
-class ModuleNumbering : public edm::one::EDAnalyzer<> {
+class MTDModuleNumbering : public edm::one::EDAnalyzer<> {
 public:
-  explicit ModuleNumbering( const edm::ParameterSet& );
-  ~ModuleNumbering() override;
+  explicit MTDModuleNumbering( const edm::ParameterSet& );
+  ~MTDModuleNumbering() override;
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -101,14 +101,14 @@ static const double tolerance_angle = 0.001; // 0.001 rad
 //
 // constructors and destructor
 //
-ModuleNumbering::ModuleNumbering( const edm::ParameterSet& iConfig )
+MTDModuleNumbering::MTDModuleNumbering( const edm::ParameterSet& iConfig )
 {
   //now do what ever initialization is needed
 
 }
 
 
-ModuleNumbering::~ModuleNumbering()
+MTDModuleNumbering::~MTDModuleNumbering()
 {
   
   // do anything here that needs to be done at desctruction time
@@ -121,12 +121,12 @@ ModuleNumbering::~ModuleNumbering()
 // member functions
 //
 
-void ModuleNumbering::fillModuleVariables(const GeometricDet* module, double& polarRadius, double& phiRad, double& z) {
+void MTDModuleNumbering::fillModuleVariables(const GeometricDet* module, double& polarRadius, double& phiRad, double& z) {
   // module variables
   polarRadius = std::sqrt(module->translation().X()*module->translation().X()+module->translation().Y()*module->translation().Y());
   phiRad = atan2(module->translation().Y(),module->translation().X());
   // tolerance near phi=0
-  if(fabs(phiRad) < tolerance_angle) phiRad=0.0;
+  if(std::abs(phiRad) < tolerance_angle) phiRad=0.0;
   // negative phi: from [-PI,+PI) to [0,2PI)
   if(phiRad < 0) phiRad+=2*M_PI;
   //
@@ -134,30 +134,30 @@ void ModuleNumbering::fillModuleVariables(const GeometricDet* module, double& po
   //
 }
 
-double ModuleNumbering::changePhiRange_From_ZeroTwoPi_To_MinusPiPlusPi(double phiRad) {
+double MTDModuleNumbering::changePhiRange_From_ZeroTwoPi_To_MinusPiPlusPi(double phiRad) {
   double new_phiRad = phiRad;
   // tolerance near phi=PI
-  if(fabs(new_phiRad-M_PI) < tolerance_angle) new_phiRad=M_PI;
+  if(std::abs(new_phiRad-M_PI) < tolerance_angle) new_phiRad=M_PI;
   // phi greater than PI: from [0,2PI) to [-PI,+PI)
   if(new_phiRad > M_PI) new_phiRad-=2*M_PI;
   //
   return new_phiRad;
 }
 
-double ModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_MinusTwoPiZero(double phiRad) {
+double MTDModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_MinusTwoPiZero(double phiRad) {
   double new_phiRad = phiRad;
   // tolerance near phi=PI
-  if(fabs(fabs(new_phiRad)-M_PI) < tolerance_angle) new_phiRad=M_PI;
+  if(std::abs(std::abs(new_phiRad)-M_PI) < tolerance_angle) new_phiRad=M_PI;
   // phi greater than PI: from [-PI,+PI) to [0,2PI)
   if(new_phiRad > 0) new_phiRad-=2*M_PI;
   //
   return new_phiRad;
 }
 
-double ModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_ZeroTwoPi(double phiRad) {
+double MTDModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_ZeroTwoPi(double phiRad) {
   double new_phiRad = phiRad;
   // tolerance near phi=PI
-  if(fabs(fabs(new_phiRad)-M_PI) < tolerance_angle) new_phiRad=M_PI;
+  if(std::abs(std::abs(new_phiRad)-M_PI) < tolerance_angle) new_phiRad=M_PI;
   // phi greater than PI: from [-PI,+PI) to [0,2PI)
   if(new_phiRad < 0) new_phiRad+=2*M_PI;
   //
@@ -166,7 +166,7 @@ double ModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_ZeroTwoPi(double ph
 
 // ------------ method called to produce the data  ------------
 void
-ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+MTDModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -175,10 +175,10 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
   
-  edm::LogInfo("ModuleNumbering") << "begins";
+  edm::LogInfo("MTDModuleNumbering") << "begins";
   
   // output file
-  std::ofstream Output("ModuleNumbering.log",std::ios::out);
+  std::ofstream Output("MTDModuleNumbering.log",std::ios::out);
   //
   
   // reset counters
@@ -193,8 +193,8 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::ESHandle<std::vector<GeometricDetExtra> > rDDE;
   iSetup.get<IdealGeometryRecord>().get( rDD );     
   iSetup.get<IdealGeometryRecord>().get( rDDE );     
-  edm::LogInfo("ModuleNumbering") << " Top node is  " << rDD.product() << " " <<  rDD.product()->name().name() << std::endl;
-  edm::LogInfo("ModuleNumbering") << " And Contains  Daughters: " << rDD.product()->deepComponents().size() << std::endl;
+  edm::LogInfo("MTDModuleNumbering") << " Top node is  " << rDD.product() << " " <<  rDD.product()->name().name() << std::endl;
+  edm::LogInfo("MTDModuleNumbering") << " And Contains  Daughters: " << rDD.product()->deepComponents().size() << std::endl;
   CmsTrackerDebugNavigator nav(*rDDE.product());
   nav.dump(*rDD.product(), *rDDE.product());
   //
@@ -337,7 +337,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  
 		  // module: |z| check
 		  Output << "\t # ";
-		  if( ( fabs(module_z) - fabs(module_z_previous) ) < (0 + tolerance_space) ) {
+		  if( ( std::abs(module_z) - std::abs(module_z_previous) ) < (0 + tolerance_space) ) {
 		    Output << "\t ERROR |z| ordering not respected in module ";
 		    iERROR++;
 		  } else {
@@ -539,7 +539,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		
 		// part: |z| check
 		Output << "\t ## ";
-		if( ( fabs(part_z) - fabs(part_z_previous) ) < (0 + tolerance_space) ) {
+		if( ( std::abs(part_z) - std::abs(part_z_previous) ) < (0 + tolerance_space) ) {
 		  Output << "\t ERROR |z| ordering (front/back) not respected in ring ";
 		  iERROR++;
 		} else {
@@ -572,7 +572,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    
 	    // disk: |z| check
 	    Output << "\t #### ";
-	    if( ( fabs(disk_z) - fabs(disk_z_previous) ) < (0 + tolerance_space) ) {
+	    if( ( std::abs(disk_z) - std::abs(disk_z_previous) ) < (0 + tolerance_space) ) {
 	      Output << "\t ERROR |z| ordering not respected in disk ";
 	      iERROR++;
 	    } else {
@@ -696,7 +696,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  
 		  // module: |z| check
 		  Output << "\t # ";
-		  if( ( fabs(module_z) - fabs(module_z_previous) ) < (0 + tolerance_space) ) {
+		  if( ( std::abs(module_z) - std::abs(module_z_previous) ) < (0 + tolerance_space) ) {
 		    Output << "\t ERROR |z| ordering not respected in module ";
 		    iERROR++;
 		  } else {
@@ -1103,7 +1103,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      
 	      // part: |z| check
 	      Output << "\t #### ";
-	      if( ( fabs(part_z) - fabs(part_z_previous) ) < (0 + tolerance_space) ) {
+	      if( ( std::abs(part_z) - std::abs(part_z_previous) ) < (0 + tolerance_space) ) {
 		Output << "\t ERROR |z| ordering (front/back) not respected in wheel ";
 		iERROR++;
 	      } else {
@@ -1141,7 +1141,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    
 	    // wheel: |z| check
 	    Output << "\t ##### ";
-	    if( ( fabs(wheel_z) - fabs(wheel_z_previous) ) < (0 + tolerance_space) ) {
+	    if( ( std::abs(wheel_z) - std::abs(wheel_z_previous) ) < (0 + tolerance_space) ) {
 	      Output << "\t ERROR |z| ordering not respected in wheel ";
 	      iERROR++;
 	    } else {
@@ -1247,5 +1247,5 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(ModuleNumbering);
+DEFINE_FWK_MODULE(MTDModuleNumbering);
   

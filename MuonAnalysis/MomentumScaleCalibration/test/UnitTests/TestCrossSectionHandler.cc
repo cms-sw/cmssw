@@ -9,7 +9,6 @@
 
 #include <algorithm>
 #include <iterator>
-#include <boost/foreach.hpp>
 
 #include "MuonAnalysis/MomentumScaleCalibration/interface/CrossSectionHandler.h"
 

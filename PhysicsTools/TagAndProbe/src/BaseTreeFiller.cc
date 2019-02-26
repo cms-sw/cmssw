@@ -115,9 +115,6 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet& i
       rhoToken_ = iC.consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
       tree_->Branch("event_rho"    ,&rho_   ,"rho/F");
     }
-    
-
-    ignoreExceptions_ = iConfig.existsAs<bool>("ignoreExceptions") ? iConfig.getParameter<bool>("ignoreExceptions") : false;
 }
 
 tnp::BaseTreeFiller::BaseTreeFiller(BaseTreeFiller &main, const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC, const std::string &branchNamePrefix) :
@@ -304,22 +301,10 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
 }
 
 void tnp::BaseTreeFiller::fill(const reco::CandidateBaseRef &probe) const {
-    for (std::vector<tnp::ProbeVariable>::const_iterator it = vars_.begin(), ed = vars_.end(); it != ed; ++it) {
-      if (ignoreExceptions_)  {
-            try{ it->fill(probe); } catch(cms::Exception &ex ){}
-        } else {
-	  
-            it->fill(probe);
-        }
-    }
 
-    for (std::vector<tnp::ProbeFlag>::const_iterator it = flags_.begin(), ed = flags_.end(); it != ed; ++it) {
-        if (ignoreExceptions_)  {
-            try{ it->fill(probe); } catch(cms::Exception &ex ){}
-        } else {
-            it->fill(probe);
-        }
-    }
+    for(auto const& var : vars_) var.fill(probe);
+    for(auto const& flag : flags_) flag.fill(probe);
+
     if (tree_) tree_->Fill();
 }
 void tnp::BaseTreeFiller::writeProvenance(const edm::ParameterSet &pset) const {

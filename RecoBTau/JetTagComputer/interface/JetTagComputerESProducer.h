@@ -15,7 +15,7 @@ template <typename ConcreteJetTagComputer>
 class JetTagComputerESProducer: public edm::ESProducer {
 private:
   // check that the template parameter inherits from JetTagComputer
-  BOOST_STATIC_ASSERT((boost::is_convertible<ConcreteJetTagComputer*,JetTagComputer*>::value));
+  static_assert((boost::is_convertible<ConcreteJetTagComputer*,JetTagComputer*>::value));
   
 public:
   JetTagComputerESProducer(const edm::ParameterSet & pset) : m_pset(pset) {

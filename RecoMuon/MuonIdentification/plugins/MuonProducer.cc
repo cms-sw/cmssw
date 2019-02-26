@@ -12,9 +12,6 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
-
 #ifndef dout
 #define dout if(debug_) std::cout
 #endif
@@ -185,7 +182,7 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
 
 /// Destructor
 MuonProducer::~MuonProducer(){ 
-  if (thePFIsoHelper && fillPFIsolation_) delete thePFIsoHelper;
+  if (fillPFIsolation_ && thePFIsoHelper) delete thePFIsoHelper;
 }
 
 
@@ -368,7 +365,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
    reco::MuonRef::key_type muIndex = 0;
    unsigned int i = 0;
-   foreach(const reco::Muon &inMuon, *inputMuons){
+   for(auto const& inMuon : *inputMuons){
      
      reco::MuonRef muRef(inputMuons, muIndex);
      muonRefColl[i] = reco::MuonRef(outputMuonsRefProd, muIndex++);
@@ -447,7 +444,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      if (computeStandardSelectors_){
        outMuon.setSelectors(0); // reset flags
        bool isRun2016BCDEF = (272728 <= event.run() && event.run() <= 278808);
-       muon::setCutBasedSelectorFlags(outMuon, vertex, isRun2016BCDEF);
+       outMuon.setSelectors(muon::makeSelectorBitset(outMuon, vertex, isRun2016BCDEF));
      }
 
      outputMuons->push_back(outMuon); 

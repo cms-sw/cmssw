@@ -8,5 +8,6 @@
  <use name="SimDataFormats/CaloAnalysis"/>
  <lib name="Eve"/>
  <lib name="EG"/>
+ <lib name="Geom"/>
  <flags EDM_PLUGIN="1"/>
 </library>

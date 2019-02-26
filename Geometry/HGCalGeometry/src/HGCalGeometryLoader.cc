@@ -86,9 +86,9 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 					<< " and " << ht3d.getRotation();
 #endif
 	  HGCalParameters::hgtrap vol = topology.dddConstants().getModule(wafer,true,true);
-	  params[0] = vol.dz;
-	  params[1] = topology.dddConstants().cellSizeHex(type);
-	  params[2] = twoBysqrt3_*params[1];
+	  params[FlatHexagon::k_dZ]= vol.dz;
+	  params[FlatHexagon::k_r] = topology.dddConstants().cellSizeHex(type);
+	  params[FlatHexagon::k_R] = twoBysqrt3_*params[FlatHexagon::k_r];
 
 	  buildGeom(params, ht3d, detId, geom, 0);
 	  counter++;
@@ -121,13 +121,13 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 					<< ht3d.getRotation();
 #endif
 	  HGCalParameters::hgtrap vol = topology.dddConstants().getModule(md,false,true);
-	  params[0] = vol.dz;
-	  params[1] = params[2] = 0;
-	  params[3] = params[7] = vol.h;
-	  params[4] = params[8] = vol.bl;
-	  params[5] = params[9] = vol.tl;
-	  params[6] = params[10]= 0;
-	  params[11]= topology.dddConstants().cellSizeHex(type);
+	  params[FlatTrd::k_dZ] = vol.dz;
+	  params[FlatTrd::k_Theta] = params[FlatTrd::k_Phi] = 0;
+	  params[FlatTrd::k_dY1]   = params[FlatTrd::k_dY2] = vol.h;
+	  params[FlatTrd::k_dX1]   = params[FlatTrd::k_dX3] = vol.bl;
+	  params[FlatTrd::k_dX2]   = params[FlatTrd::k_dX4] = vol.tl;
+	  params[FlatTrd::k_Alp1]  = params[FlatTrd::k_Alp2]= 0;
+	  params[FlatTrd::k_Cell]  = topology.dddConstants().cellSizeHex(type);
 
 	  buildGeom(params, ht3d, detId, geom, 1);
 	  counter++;
@@ -169,9 +169,9 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 					  << " and " << ht3d.getRotation();
 #endif
 	  HGCalParameters::hgtrap vol = topology.dddConstants().getModule(type,false,true);
-	  params[0] = vol.dz;
-	  params[1] = topology.dddConstants().cellSizeHex(type);
-	  params[2] = twoBysqrt3_*params[1];
+	  params[FlatHexagon::k_dZ]= vol.dz;
+	  params[FlatHexagon::k_r] = topology.dddConstants().cellSizeHex(type);
+	  params[FlatHexagon::k_R] = twoBysqrt3_*params[FlatHexagon::k_r];
 
 	  buildGeom(params, ht3d, detId, geom, 0);
 	  counter++;

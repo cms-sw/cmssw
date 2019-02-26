@@ -15,11 +15,9 @@ FastSimGeometryESProducer::FastSimGeometryESProducer(const edm::ParameterSet & p
 
 FastSimGeometryESProducer::~FastSimGeometryESProducer() {}
 
-std::shared_ptr<fastsim::Geometry>
-FastSimGeometryESProducer::produce(const GeometryRecord & iRecord){  
-    _tracker = std::make_shared<fastsim::Geometry>(theTrackerMaterial);
-    return _tracker;
+std::unique_ptr<fastsim::Geometry>
+FastSimGeometryESProducer::produce(const GeometryRecord & iRecord){
+    return std::make_unique<fastsim::Geometry>(theTrackerMaterial);
 }
-
 
 DEFINE_FWK_EVENTSETUP_MODULE(FastSimGeometryESProducer);

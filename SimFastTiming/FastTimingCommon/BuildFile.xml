@@ -5,8 +5,7 @@
 <use   name="DataFormats/ForwardDetId"/>
 <use   name="SimDataFormats/CaloTest"/>
 <use   name="Geometry/Records"/>
-<use   name="Geometry/HGCalGeometry"/>
-<use   name="Geometry/HcalTowerAlgo"/>
+<use   name="Geometry/MTDGeometryBuilder"/>
 <use   name="hepmc"/>
 <use   name="CLHEP"/>
 <use   name="CommonTools/Utils"/>

@@ -100,7 +100,7 @@ namespace edm {
       transient_() {
     setDropped(false);
     setProduced(aliasForBranch.produced());
-    setOnDemand(aliasForBranch.onDemand());
+    setOnDemand(false); // will be re-set externally to the aliasForBranch.onDemand() after that one has been set
     transient_.availableOnlyAtEndTransition_=aliasForBranch.availableOnlyAtEndTransition();
     transient_.moduleName_ = aliasForBranch.moduleName();
     transient_.parameterSetID_ = aliasForBranch.parameterSetID();
@@ -235,6 +235,27 @@ namespace edm {
     branchAliases_.insert(other.branchAliases().begin(), other.branchAliases().end());
     if(splitLevel() == invalidSplitLevel) setSplitLevel(other.splitLevel());
     if(basketSize() == invalidBasketSize) setBasketSize(other.basketSize());
+  }
+
+  void
+  BranchDescription::setSwitchAliasForBranch(BranchDescription const& aliasForBranch) {
+    if(branchType_ != aliasForBranch.branchType()) {
+      throw Exception(errors::LogicError) << "BranchDescription::setSwitchAliasForBranch: branchType ("
+                                          << branchType_ << ") differs from aliasForBranch ("
+                                          << aliasForBranch.branchType() << ").\nPlease report this error to the FWCore developers";
+    }
+    if(produced() != aliasForBranch.produced()) {
+      throw Exception(errors::LogicError) << "BranchDescription::setSwitchAliasForBranch: produced differs from aliasForBranch.\nPlease report this error to the FWCore developers";
+    }
+    if(unwrappedTypeID().typeInfo() != aliasForBranch.unwrappedType().typeInfo()) {
+      throw Exception(errors::LogicError) << "BranchDescription::setSwitchAliasForBranch: unwrapped type info ("
+                                          << unwrappedTypeID().name() << ") differs from aliasForBranch ("
+                                          << aliasForBranch.unwrappedType().typeInfo().name() << ").\nPlease report this error to the FWCore developers";
+    }
+
+    branchAliases_ = aliasForBranch.branchAliases();
+    transient_.switchAliasForBranchID_ = aliasForBranch.originalBranchID();
+    transient_.availableOnlyAtEndTransition_ = aliasForBranch.availableOnlyAtEndTransition();
   }
 
   void

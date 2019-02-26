@@ -121,13 +121,13 @@ class MVAComputer {
 			processor(processor), nOutput(nOutput) {}
 
 		inline Processor(const Processor &orig)
-		{ processor = orig.processor; nOutput = orig.nOutput; }
+		{ processor = std::move(orig.processor); nOutput = orig.nOutput; }
 
 		inline Processor &operator = (const Processor &orig)
-		{ processor = orig.processor; nOutput = orig.nOutput; return *this; }
+		{ processor = std::move(orig.processor); nOutput = orig.nOutput; return *this; }
 
 		/// owned variable processor instance
-		mutable std::auto_ptr<VarProcessor>	processor;
+		mutable std::unique_ptr<VarProcessor>	processor;
 
 		/// number of output variables
 		unsigned int				nOutput;
@@ -199,7 +199,7 @@ class MVAComputer {
 	unsigned int		output;
 
 	/// in case calibration object is owned by the MVAComputer
-	std::auto_ptr<Calibration::MVAComputer> owned;
+	std::unique_ptr<Calibration::MVAComputer> owned;
 };
 
 } // namespace PhysicsTools

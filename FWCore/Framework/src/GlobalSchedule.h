@@ -63,7 +63,7 @@ namespace edm {
   }
 
   class ActivityRegistry;
-  class EventSetup;
+  class EventSetupImpl;
   class ExceptionCollector;
   class ProcessContext;
   class PreallocationConfiguration;
@@ -96,7 +96,7 @@ namespace edm {
     template <typename T>
     void processOneGlobalAsync(WaitingTaskHolder holder,
                                typename T::MyPrincipal& principal,
-                               EventSetup const& eventSetup,
+                               EventSetupImpl const& eventSetup,
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
@@ -165,7 +165,7 @@ namespace edm {
   void
   GlobalSchedule::processOneGlobalAsync(WaitingTaskHolder iHolder,
                                         typename T::MyPrincipal& ep,
-                                        EventSetup const& es,
+                                        EventSetupImpl const& es,
                                         ServiceToken const& token,
                                         bool cleaningUpAfterException) {
     try {

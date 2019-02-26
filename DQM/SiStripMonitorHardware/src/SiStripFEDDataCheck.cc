@@ -224,7 +224,7 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     bool hasFatalErrors = false;
     float rateNonFatal = 0;
 
-    std::auto_ptr<const sistrip::FEDBuffer> buffer;
+    std::unique_ptr<const sistrip::FEDBuffer> buffer;
 
     if (!lFedErrors.fillFatalFEDErrors(fedData,0)) {
       hasFatalErrors = true;

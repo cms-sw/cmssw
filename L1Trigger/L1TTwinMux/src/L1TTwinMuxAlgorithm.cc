@@ -47,9 +47,9 @@ edm::Handle<L1MuDTChambThContainer> thetaDigis, edm::Handle<RPCDigiCollection> r
 
 
   ///Align track segments that are coming in bx-1.
-  auto alignedDTs=std::make_shared<AlignTrackSegments>(*inphiDigis);
-  alignedDTs->run(c);
-  L1MuDTChambPhContainer phiDigis = alignedDTs->getDTContainer();
+  AlignTrackSegments alignedDTs{*inphiDigis};
+  alignedDTs.run(c);
+  L1MuDTChambPhContainer const& phiDigis = alignedDTs.getDTContainer();
   //if only DTs are required without bx correction
   //return the aligned track segments
   if(onlyDT && !correctBX && !useLowQDT) {
@@ -57,19 +57,19 @@ edm::Handle<L1MuDTChambThContainer> thetaDigis, edm::Handle<RPCDigiCollection> r
     return;
   }
   ///Clean RPC hits
-  auto rpcHitCl=std::make_shared<RPCHitCleaner>(*rpcDigis);
-  rpcHitCl->run(c);
-  RPCDigiCollection rpcDigisCleaned = rpcHitCl->getRPCCollection();
+  RPCHitCleaner rpcHitCl{*rpcDigis};
+  rpcHitCl.run(c);
+  RPCDigiCollection const& rpcDigisCleaned = rpcHitCl.getRPCCollection();
 
   ///Translate RPC digis to DT primitives.
-  auto dt_from_rpc= std::make_shared<RPCtoDTTranslator>(rpcDigisCleaned);
-  dt_from_rpc->run(c);
-  L1MuDTChambPhContainer rpcPhiDigis = dt_from_rpc->getDTContainer();            //Primitves used for RPC->DT (only station 1 and 2)
-  L1MuDTChambPhContainer rpcHitsPhiDigis = dt_from_rpc->getDTRPCHitsContainer(); //Primitves used for bx correction
+  RPCtoDTTranslator dt_from_rpc{rpcDigisCleaned};
+  dt_from_rpc.run(c);
+  L1MuDTChambPhContainer const& rpcPhiDigis = dt_from_rpc.getDTContainer();            //Primitves used for RPC->DT (only station 1 and 2)
+  L1MuDTChambPhContainer const& rpcHitsPhiDigis = dt_from_rpc.getDTRPCHitsContainer(); //Primitves used for bx correction
 
   ///Match low q DT primitives with RPC hits in dphiWindow
-  auto dtlowq= std::make_shared<DTLowQMatching>(&phiDigis, rpcHitsPhiDigis);
-  dtlowq->run(c);
+  DTLowQMatching dtlowq{&phiDigis, rpcHitsPhiDigis};
+  dtlowq.run(c);
 
   if(onlyDT && !correctBX && useLowQDT) {
     m_tm_phi_output = phiDigis;
@@ -88,10 +88,10 @@ edm::Handle<L1MuDTChambThContainer> thetaDigis, edm::Handle<RPCDigiCollection> r
 
   ///Correct(in bx) DT primitives by comparing them to RPC.
 //  DTRPCBxCorrection *rpc_dt_bx = new DTRPCBxCorrection(phiDigis,rpcHitsPhiDigis);
-  auto rpc_dt_bx=std::make_shared<DTRPCBxCorrection>(phiDigis,rpcHitsPhiDigis);
-  rpc_dt_bx->run(c);
+  DTRPCBxCorrection rpc_dt_bx{phiDigis,rpcHitsPhiDigis};
+  rpc_dt_bx.run(c);
 
-  L1MuDTChambPhContainer phiDigiscp = rpc_dt_bx->getDTContainer();
+  L1MuDTChambPhContainer const& phiDigiscp = rpc_dt_bx.getDTContainer();
 
   ///Add RPC primitives in case that there are no DT primitives.
   std::vector<L1MuDTChambPhDigi> l1ttma_out;

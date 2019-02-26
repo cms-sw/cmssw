@@ -507,9 +507,9 @@ static std::vector<std::string> domToLines(const DOMNode *node)
 	DOMImplementation *impl =
 		DOMImplementationRegistry::getDOMImplementation(
 							XMLUniStr("Core"));
-	std::auto_ptr<DOMLSSerializer> writer(((DOMImplementationLS*)(impl))->createLSSerializer());
+	std::unique_ptr<DOMLSSerializer> writer(((DOMImplementationLS*)(impl))->createLSSerializer());
 
-	std::auto_ptr<DOMLSOutput> outputDesc(((DOMImplementationLS*)impl)->createLSOutput());
+	std::unique_ptr<DOMLSOutput> outputDesc(((DOMImplementationLS*)impl)->createLSOutput());
  	assert(outputDesc.get());
 	outputDesc->setEncoding(XMLUniStr("UTF-8"));
 	
@@ -612,7 +612,7 @@ const DOMNode *LHERunInfo::Header::getXMLNode() const
 		parser.setCreateEntityReferenceNodes(false);
 
 		try {
-			std::auto_ptr<CBInputStream::Reader> reader(
+			std::unique_ptr<CBInputStream::Reader> reader(
 						new HeaderReader(this));
 			CBInputSource source(reader);
 			parser.parse(source);

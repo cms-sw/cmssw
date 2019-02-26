@@ -24,8 +24,10 @@ ecalDrivenGsfElectrons.ctfTracksTag = cms.InputTag("hiGeneralTracks")
 ecalDrivenGsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
 ecalDrivenGsfElectrons.vtxTag = cms.InputTag("hiSelectedVertex")
 
-ecalDrivenGsfElectrons.maxHOverEBarrel = cms.double(0.25)
-ecalDrivenGsfElectrons.maxHOverEEndcaps = cms.double(0.25)
+ecalDrivenGsfElectrons.preselection.maxHOverEBarrelCone = cms.double(0.25)
+ecalDrivenGsfElectrons.preselection.maxHOverEEndcapsCone = cms.double(0.25)
+ecalDrivenGsfElectrons.preselection.maxHOverEBarrelTower = cms.double(0.)
+ecalDrivenGsfElectrons.preselection.maxHOverEEndcapsTower = cms.double(0.)
 
 
 

@@ -92,6 +92,10 @@ namespace l1t {
          auto jet_unp =    static_pointer_cast<l1t::stage2::JetUnpacker>(UnpackerFactory::get()->make("stage2::JetUnpacker"));
          auto tau_unp =    static_pointer_cast<l1t::stage2::TauUnpacker>(UnpackerFactory::get()->make("stage2::TauUnpacker"));
 
+	 if (fw >=0x10f2) {
+	   etsum_unp =  static_pointer_cast<l1t::stage2::EtSumUnpacker>(UnpackerFactory::get()->make("stage2::EtSumUnpacker_0x10010057"));
+	 }
+
          auto alg_unp = UnpackerFactory::get()->make("stage2::GlobalAlgBlkUnpacker");
          auto ext_unp = UnpackerFactory::get()->make("stage2::GlobalExtBlkUnpacker");
 

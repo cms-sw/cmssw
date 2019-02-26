@@ -95,7 +95,7 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
     
   }
   
-  sort(seeds.begin(), seeds.end(), EcalRecHitLess());
+  sort(seeds.begin(), seeds.end(), [](auto const& x, auto const& y){ return x.energy() > y.energy();});
 
   if (verbosity < pINFO)
     {
@@ -103,7 +103,7 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
     }
 
   mainSearch(hits,geometry_p,topology_p,geometryES_p,ecalPart);
-  sort(clusters_v.rbegin(), clusters_v.rend(), ClusterEtLess());
+  sort(clusters_v.rbegin(), clusters_v.rend(), isClusterEtLess);
 
   if (verbosity < pINFO)
     {

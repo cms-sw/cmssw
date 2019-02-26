@@ -77,7 +77,7 @@ namespace sistrip {
       void findChannels();
       inline uint8_t getCorrectPacketCode() const { return packetCode(legacyUnpacker_); }
       uint16_t calculateFEUnitLength(const uint8_t internalFEUnitNumber) const;
-      std::auto_ptr<FEDFEHeader> feHeader_;
+      std::unique_ptr<FEDFEHeader> feHeader_;
       const uint8_t* payloadPointer_;
       uint16_t payloadLength_;
       uint8_t validChannels_;

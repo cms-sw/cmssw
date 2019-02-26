@@ -25,8 +25,23 @@ zttLabeler = lambda module : SetValidationExtention(module, 'QCD')
 zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorQCD.visit(zttModifier)
 
+#Set discriminators
+discs_to_retain = ['ByDecayModeFinding', 'CombinedIsolationDBSumPtCorr3Hits', 'IsolationMVArun2v1DBoldDMwLT', 'IsolationMVArun2v1DBnewDMwLT']
+proc.RunHPSValidationQCD.discriminators = cms.VPSet([p for p in proc.RunHPSValidationQCD.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
+
 #Sets the correct naming to efficiency histograms
 proc.efficienciesQCD.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorQCD)
+proc.efficienciesQCDSummary = cms.EDProducer("TauDQMHistEffProducer",
+    plots = cms.PSet(
+        Summary = cms.PSet(
+            denominator = cms.string('RecoTauV/hpsPFTauProducerQCD_Summary/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/hpsPFTauProducerQCD_Summary/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/hpsPFTauProducerQCD_Summary/#PAR#PlotNum'),
+            parameter = cms.vstring('summary'),
+            stepByStep = cms.bool(True)
+        ),
+    )
+)
 
 #checks what's new in the process (the cloned sequences and modules in them)
 newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.find('QCD') != -1)]

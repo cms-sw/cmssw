@@ -153,7 +153,7 @@ void TrackFinder::process(
   // Run each sector processor
 
   // Reload primitive conversion LUTs if necessary
-  sector_processor_lut_.read(fwConfig_ ? condition_helper_.get_pc_lut_version() : primConvLUT_);
+  sector_processor_lut_.read(iEvent.isRealData(), fwConfig_ ? condition_helper_.get_pc_lut_version() : primConvLUT_);
 
   // Reload pT LUT if necessary
   pt_assign_engine_->load(condition_helper_.get_pt_lut_version(), &(condition_helper_.getForest()));

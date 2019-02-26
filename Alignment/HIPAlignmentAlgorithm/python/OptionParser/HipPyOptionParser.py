@@ -60,8 +60,8 @@ def isGoodEntry(var):
 class HipPyOptionParser:
    def __init__(self, strflag, stropt):
       # input file
-      self.flag=strflag.lower()
-      self.rawopt = stropt
+      self.flag=strflag.lower().strip()
+      self.rawopt = stropt.strip()
       self.optdict=dict()
 
       self.datatype=-1
@@ -198,7 +198,7 @@ class HipPyOptionParser:
             self.uniformetaformula=val
          ## Options for mMin. bias
          # Apply vertex constraint
-         elif (key=="primaryvertextpye" or key=="pvtype"):
+         elif (key=="primaryvertextype" or key=="pvtype"):
             val=val.lower()
             if (val=="nobs" or val=="withbs"):
                self.PVtype=val

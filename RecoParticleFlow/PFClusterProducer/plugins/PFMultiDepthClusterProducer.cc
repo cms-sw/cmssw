@@ -15,20 +15,16 @@
 PFMultiDepthClusterProducer::PFMultiDepthClusterProducer(const edm::ParameterSet& conf)
 {
   _clustersLabel = consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("clustersSource")); 
-  _pfClusterBuilder.reset(nullptr);
   const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
   if( !pfcConf.empty() ) {
     const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
-    PFCBB* pfcb = PFClusterBuilderFactory::get()->create(pfcName,pfcConf);
-    _pfClusterBuilder.reset(pfcb);
+    _pfClusterBuilder = std::unique_ptr<PFCBB>{PFClusterBuilderFactory::get()->create(pfcName,pfcConf)};
   }
   // see if new need to apply corrections, setup if there.
   const edm::ParameterSet& cConf =  conf.getParameterSet("energyCorrector");
   if( !cConf.empty() ) {
     const std::string& cName = cConf.getParameter<std::string>("algoName");
-    PFClusterEnergyCorrectorBase* eCorr =
-      PFClusterEnergyCorrectorFactory::get()->create(cName,cConf);
-    _energyCorrector.reset(eCorr);
+    _energyCorrector = std::unique_ptr<PFClusterEnergyCorrectorBase>{PFClusterEnergyCorrectorFactory::get()->create(cName,cConf)};
   }
   
   produces<reco::PFClusterCollection>();

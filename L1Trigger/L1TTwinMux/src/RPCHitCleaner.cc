@@ -26,8 +26,9 @@
 using namespace std;
 
 
-RPCHitCleaner::RPCHitCleaner(RPCDigiCollection inrpcDigis){
-  m_inrpcDigis = inrpcDigis;
+RPCHitCleaner::RPCHitCleaner(RPCDigiCollection const& inrpcDigis):
+  m_inrpcDigis {inrpcDigis}
+{
 }
 
 namespace {

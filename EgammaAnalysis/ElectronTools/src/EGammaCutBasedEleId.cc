@@ -121,7 +121,7 @@ unsigned int EgammaCutBasedEleId::TestWP(WorkingPoint workingPoint,
     }
 
     // conversion rejection variables
-    bool vtxFitConversion = ConversionTools::hasMatchedConversion(ele, conversions, beamspot.position());
+    bool vtxFitConversion = ConversionTools::hasMatchedConversion(ele, *conversions, beamspot.position());
     float mHits = ele.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS); 
 
     // get the mask value

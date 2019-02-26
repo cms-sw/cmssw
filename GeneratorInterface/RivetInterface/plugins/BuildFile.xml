@@ -6,6 +6,7 @@
 <use   name="rivet"/>
 <use   name="yoda"/>
 <use   name="gsl"/>
+<use   name="tinyxml2"/>
 <use   name="DQMServices/Core"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="DataFormats/HepMCCandidate"/>

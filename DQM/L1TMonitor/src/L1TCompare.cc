@@ -310,9 +310,9 @@ void L1TCompare::analyze(const Event & e, const EventSetup & c)
     rcj.push_back(h);
   }
   // not so smart but ...
-  std::sort(rcj.begin(), rcj.end(), RctObjectComp());
-  std::sort(rcj_non_iso.begin(), rcj_non_iso.end(), RctObjectComp());
-  std::sort(rcj_iso.begin(), rcj_iso.end(), RctObjectComp());
+  std::sort(rcj.begin(), rcj.end(), rctObjectComp);
+  std::sort(rcj_non_iso.begin(), rcj_non_iso.end(), rctObjectComp);
+  std::sort(rcj_iso.begin(), rcj_iso.end(), rctObjectComp);
   if ( verbose() ) {
     for (RctObjectCollection::reverse_iterator ij = rcj_iso.rbegin();
 	 ij != rcj_iso.rend() && ij != rcj_iso.rbegin()+8; ++ij) {
@@ -379,7 +379,7 @@ void L1TCompare::analyze(const Event & e, const EventSetup & c)
 				 ieTP->id().iphi(), 
 				 ieTP->compressedEt()));
   }
-  std::sort(ecalobs.begin(), ecalobs.end(), RctObjectComp());
+  std::sort(ecalobs.begin(), ecalobs.end(), rctObjectComp);
   if ( verbose() ) {
     for (RctObjectCollection::reverse_iterator ij = ecalobs.rbegin();
 	 ij != ecalobs.rend() && ij != ecalobs.rbegin()+8; ++ij) {

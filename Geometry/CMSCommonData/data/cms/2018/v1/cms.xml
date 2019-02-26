@@ -56,19 +56,18 @@
  <Constant name="MuonBeamR0"   value="10.50*cm"/>
  <Constant name="MuonBeamR1"   value="11.785*cm"/>
  <Constant name="MuonBeamR2"   value="76.80*cm"/>
- <Constant name="TotemMuonZ1"  value="10.165*m"/>
- <Constant name="TotemMuonZ2"  value="10.50*m"/>
  <Constant name="TotemMuonR1"  value="1.0411*m"/>
  <Constant name="TotemMuonR2"  value="1.1300*m"/>
- <Constant name="TotemBeamZ1"  value="7.9500*m"/>
- <Constant name="TotemBeamZ2"  value="13.381*m"/>
- <Constant name="TotemBeamZ3"  value="14.380*m"/>
- <Constant name="TotemBeamZ4"  value="15.350*m"/>
- <Constant name="TotemBeamR1"  value="[MuonBeamR1]"/>
  <Constant name="TotemBeamR2"  value="12.15*cm"/>
  <Constant name="TotemBeamR3"  value="12.20*cm"/>
- <Constant name="TotemBeamR4"  value="4.20*cm"/>
- <Constant name="TotemBeamR5"  value="320.0*cm"/>
+ <Constant name="TotemBeamR4"  value="3.675*cm"/>
+ <Constant name="TotemBeamR5"  value="3.575*cm"/>
+ <Constant name="TotemBeamZ1"  value="7.9500*m"/>
+ <Constant name="TotemBeamZ2"  value="13.381*m"/>
+ <Constant name="TotemBeamZ3"  value="13.439*m"/>
+ <Constant name="TotemBeamZ4"  value="13.465*m"/>
+ <Constant name="TotemMuonZ1"  value="10.165*m"/>
+ <Constant name="TotemMuonZ2"  value="10.50*m"/>
  <Constant name="ForwdBeamZ1"  value="10.539*m"/>
  <Constant name="ForwdBeamZ2"  value="13.109*m"/>
  <Constant name="ForwdBeamZ3"  value="13.290*m"/>

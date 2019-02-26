@@ -104,56 +104,42 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
   int bunchSpacing;
 
+  // extract information - way easier than counting vertices
   const PileupMixingContent* MixInfo = MixingPileup.product();
+  const std::vector<int>& bunchCrossing = MixInfo->getMix_bunchCrossing();
+  const std::vector<int>& interactions = MixInfo->getMix_Ninteractions();
+  const std::vector<float>& TrueInteractions = MixInfo->getMix_TrueInteractions();
+  const std::vector<edm::EventID> eventInfoList= MixInfo->getMix_eventInfo();
 
-  if(MixInfo) {  // extract information - way easier than counting vertices
+  bunchSpacing = MixInfo->getMix_bunchSpacing();
+  unsigned int totalIntPU=0;
 
-    const std::vector<int>& bunchCrossing = MixInfo->getMix_bunchCrossing();
-    const std::vector<int>& interactions = MixInfo->getMix_Ninteractions();
-    const std::vector<float>& TrueInteractions = MixInfo->getMix_TrueInteractions();
-    const std::vector<edm::EventID> eventInfoList= MixInfo->getMix_eventInfo();
+  for(int ib=0; ib<(int)bunchCrossing.size(); ++ib){
+    //      std::cout << " bcr, nint " << bunchCrossing[ib] << " " << interactions[ib] << std::endl;
+    BunchCrossings.push_back(bunchCrossing[ib]);
+    Interactions_Xing.push_back(interactions[ib]);
+    TrueInteractions_Xing.push_back(TrueInteractions[ib]);
 
-    bunchSpacing = MixInfo->getMix_bunchSpacing();
-    unsigned int totalIntPU=0;
-
-    for(int ib=0; ib<(int)bunchCrossing.size(); ++ib){
-      //      std::cout << " bcr, nint " << bunchCrossing[ib] << " " << interactions[ib] << std::endl;
-      BunchCrossings.push_back(bunchCrossing[ib]);
-      Interactions_Xing.push_back(interactions[ib]);
-      TrueInteractions_Xing.push_back(TrueInteractions[ib]);
-      
-      std::vector<edm::EventID> eventInfos;
-      eventInfos.reserve( interactions[ib] );
-      for ( int pu=0; pu< interactions[ib]; pu++) {
-	eventInfos.push_back(eventInfoList[totalIntPU+pu]);
-      }
-      totalIntPU+=(interactions[ib]);
-      eventInfoList_Xing.push_back(eventInfos);
-
+    std::vector<edm::EventID> eventInfos;
+    eventInfos.reserve( interactions[ib] );
+    for ( int pu=0; pu< interactions[ib]; pu++) {
+      eventInfos.push_back(eventInfoList[totalIntPU+pu]);
     }
-  }
-  else{ // have to throw an exception..
-
-    throw cms::Exception("PileupInformation") << " PileupMixingContent is missing from the event.\n" 
-                                                 "There must be some breakdown in the Simulation Chain.\n"
-                                                 "You must run the MixingModule before calling this routine."; 
+    totalIntPU+=(interactions[ib]);
+    eventInfoList_Xing.push_back(eventInfos);
 
   }
   
   // store information from pileup vertices, if it's in the event. Have to loop on interactions again.
-
-  edm::Handle< PileupVertexContent > MixingPileupVtx;  // Get True pileup information from MixingModule
-  event.getByToken(PileupVtxLabel_, MixingPileupVtx);
-
-  const PileupVertexContent* MixVtxInfo = MixingPileupVtx.product();
-
   std::vector< std::vector<float> > ptHatList_Xing;
   std::vector< std::vector<float> > zPosList_Xing;
   std::vector< std::vector<float> > tPosList_Xing;
 
   bool Have_pThats = false;
 
-  if(MixVtxInfo) {  // extract information - way easier than counting vertices
+  edm::Handle< PileupVertexContent > MixingPileupVtx;  // Get True pileup information from MixingModule
+  if(event.getByToken(PileupVtxLabel_, MixingPileupVtx)) {  // extract information - way easier than counting vertices
+    const PileupVertexContent* MixVtxInfo = MixingPileupVtx.product();
 
 
     Have_pThats = true;

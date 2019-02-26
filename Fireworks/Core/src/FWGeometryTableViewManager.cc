@@ -88,7 +88,7 @@ FWGeometryTableViewManager::colorsChanged()
 TGeoManager*
 FWGeometryTableViewManager::getGeoMangeur()
 {
-   // Function used in geomtery table views.
+   // Function used in geometry table views.
 
    assert( s_geoManager);
    return s_geoManager;
@@ -123,7 +123,7 @@ FWGeometryTableViewManager::setGeoManagerFromFile()
    }
    catch (std::runtime_error &e)
    {
-      fwLog(fwlog::kError) << "Failed to find simulation geomtery file. Please set the file path with --sim-geom-file option.\n";
+      fwLog(fwlog::kError) << "Failed to find simulation geometry file. Please set the file path with --sim-geom-file option.\n";
       exit(0);
    }
 }

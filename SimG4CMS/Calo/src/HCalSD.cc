@@ -601,7 +601,9 @@ uint32_t HCalSD::setDetUnitId (int det, const G4ThreeVector& pos, int depth, int
   uint32_t id = 0;
   if (numberingFromDDD.get()) {
     //get the ID's as eta, phi, depth, ... indices
-    HcalNumberingFromDDD::HcalID tmp = numberingFromDDD.get()->unitID(det, pos, depth, lay);
+    HcalNumberingFromDDD::HcalID tmp = 
+      numberingFromDDD.get()->unitID(det, math::XYZVectorD(pos.x(),pos.y(),
+							   pos.z()),depth,lay);
     id = setDetUnitId(tmp);
   }
   return id;
@@ -884,8 +886,8 @@ void HCalSD::getHitPMT (const G4Step * aStep) {
     double time = (aStep->GetPostStepPoint()->GetGlobalTime());
     uint32_t unitID = 0;
     if (numberingFromDDD) {
-      HcalNumberingFromDDD::HcalID tmp = numberingFromDDD.get()->unitID(det,etaR,phi,
-                                                                  depth,1);
+      HcalNumberingFromDDD::HcalID tmp = 
+	numberingFromDDD.get()->unitID(det,etaR,phi,depth,1);
       unitID = setDetUnitId(tmp);
     }
     currentID.setID(unitID, time, primaryID, 1);
@@ -1000,8 +1002,9 @@ double HCalSD::layerWeight(int det, const G4ThreeVector& pos, int depth, int lay
   double wt = 1.;
   if (numberingFromDDD) {
     //get the ID's as eta, phi, depth, ... indices
-    HcalNumberingFromDDD::HcalID tmp = numberingFromDDD.get()->unitID(det, pos, 
-                                                                depth, lay);
+    HcalNumberingFromDDD::HcalID tmp = 
+      numberingFromDDD.get()->unitID(det, math::XYZVectorD(pos.x(),pos.y(),
+							   pos.z()),depth,lay);
     modifyDepth(tmp);
     uint32_t id = HcalTestNumbering::packHcalIndex(tmp.subdet, tmp.zside, 1,
                                                    tmp.etaR, tmp.phis,tmp.lay);

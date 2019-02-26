@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
@@ -50,7 +51,7 @@ namespace edm {
     }
     
     bool
-    EDFilterBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
+    EDFilterBase::doEvent(EventPrincipal const& ep, EventSetupImpl const& ci,
                           ActivityRegistry* act,
                           ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
@@ -59,6 +60,7 @@ namespace edm {
       bool returnValue =true;
       e.setSharedResourcesAcquirer(&resourcesAcquirer_);
       EventSignalsSentry sentry(act,mcc);
+      const EventSetup c{ci};
       returnValue = this->filter(e, c);
       commit_(e, &previousParentageId_);
       return returnValue;
@@ -88,14 +90,17 @@ namespace edm {
     EDFilterBase::doPreallocate(PreallocationConfiguration const&iPrealloc) {
       auto const nThreads = iPrealloc.numberOfThreads();
       preallocThreads(nThreads);
+      preallocLumis(iPrealloc.numberOfLuminosityBlocks());
     }
+    void EDFilterBase::preallocLumis(unsigned int) {};
 
     void
-    EDFilterBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+    EDFilterBase::doBeginRun(RunPrincipal const& rp, EventSetupImpl const& ci,
                              ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
       Run const& cnstR = r;
+      const EventSetup c{ci};
       this->doBeginRun_(cnstR, c);
       r.setProducer(this);
       this->doBeginRunProduce_(r,c);
@@ -103,11 +108,12 @@ namespace edm {
     }
     
     void
-    EDFilterBase::doEndRun(RunPrincipal const& rp, EventSetup const& c,
+    EDFilterBase::doEndRun(RunPrincipal const& rp, EventSetupImpl const& ci,
                            ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       Run const& cnstR = r;
+      const EventSetup c{ci};
       this->doEndRun_(cnstR, c);
       r.setProducer(this);
       this->doEndRunProduce_(r, c);
@@ -115,11 +121,12 @@ namespace edm {
     }
     
     void
-    EDFilterBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    EDFilterBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& ci,
                                          ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
+      const EventSetup c{ci};
       this->doBeginLuminosityBlock_(cnstLb, c);
       lb.setProducer(this);
       this->doBeginLuminosityBlockProduce_(lb, c);
@@ -127,11 +134,12 @@ namespace edm {
     }
     
     void
-    EDFilterBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    EDFilterBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& ci,
                                        ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
+      const EventSetup c{ci};
       this->doEndLuminosityBlock_(cnstLb, c);
       lb.setProducer(this);
       this->doEndLuminosityBlockProduce_(lb, c);

@@ -46,11 +46,9 @@ namespace edm {
                                  std::set<std::string>& unscheduledLabels,
                                  std::vector<std::string>& shouldBeUsedLabels);
 
-    void setOnDemandProducts(ProductRegistry& pregistry, std::set<std::string> const& unscheduledLabels) const;
-
     template <typename T, typename U>
       void processOneOccurrence(typename T::MyPrincipal& principal,
-                                EventSetup const& eventSetup,
+                                EventSetupImpl const& eventSetup,
                                 StreamID streamID,
                                 typename T::Context const* topContext,
                                 U const* context,
@@ -59,7 +57,7 @@ namespace edm {
     void processOneOccurrenceAsync(
                               WaitingTask* task,
                               typename T::MyPrincipal& principal,
-                              EventSetup const& eventSetup,
+                              EventSetupImpl const& eventSetup,
                               ServiceToken const& token,
                               StreamID streamID,
                               typename T::Context const* topContext,
@@ -68,13 +66,13 @@ namespace edm {
     template <typename T>
     void processAccumulatorsAsync(WaitingTask* task,
                                   typename T::MyPrincipal const& ep,
-                                  EventSetup const& es,
+                                  EventSetupImpl const& es,
                                   ServiceToken const& token,
                                   StreamID streamID,
                                   ParentContext const& parentContext,
                                   typename T::Context const* context);
 
-    void setupOnDemandSystem(Principal& principal, EventSetup const& es);
+    void setupOnDemandSystem(Principal& principal, EventSetupImpl const& es);
 
     void beginJob(ProductRegistry const& iRegistry);
     void endJob();
@@ -109,7 +107,7 @@ namespace edm {
   template <typename T, typename U>
   void
     WorkerManager::processOneOccurrence(typename T::MyPrincipal& ep,
-                                        EventSetup const& es,
+                                        EventSetupImpl const& es,
                                         StreamID streamID,
                                         typename T::Context const* topContext,
                                         U const* context,
@@ -140,7 +138,7 @@ namespace edm {
   void
   WorkerManager::processOneOccurrenceAsync(WaitingTask* task,
                                            typename T::MyPrincipal& ep,
-                                           EventSetup const& es,
+                                           EventSetupImpl const& es,
                                            ServiceToken const& token,
                                            StreamID streamID,
                                            typename T::Context const* topContext,
@@ -153,7 +151,7 @@ namespace edm {
   void
   WorkerManager::processAccumulatorsAsync(WaitingTask* task,
                                           typename T::MyPrincipal const& ep,
-                                          EventSetup const& es,
+                                          EventSetupImpl const& es,
                                           ServiceToken const& token,
                                           StreamID streamID,
                                           ParentContext const& parentContext,

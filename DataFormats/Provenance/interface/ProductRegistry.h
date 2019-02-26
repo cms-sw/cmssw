@@ -59,6 +59,8 @@ namespace edm {
                    std::set<TypeID> const& elementTypesConsumed,
                    std::string const& processName);
 
+    void setUnscheduledProducts(std::set<std::string> const& unscheduledLabels);
+
     std::string merge(ProductRegistry const& other,
         std::string const& fileName,
         BranchDescription::MatchMode branchesMustMatch = BranchDescription::Permissive);

@@ -95,15 +95,6 @@ AlignmentTwoBodyDecayTrackSelector::select(const Tracks& tracks, const edm::Even
   return result;
 }
 
-template<class T>
-struct higherTwoBodyDecayPt : public std::binary_function<T,T,bool>
-{
-  bool operator()( const T& a, const T& b ) 
-  { 
-    return a.first > b.first ; 
-  }
-};
-
 ///checks if the mass of the X is in the mass region
 AlignmentTwoBodyDecayTrackSelector::Tracks 
 AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
@@ -158,8 +149,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
 
   if (candCollection.empty()) return result;
 
-  sort(candCollection.begin(), candCollection.end(), 
-       higherTwoBodyDecayPt<candCollectionItem>());
+  sort(candCollection.begin(), candCollection.end(), [](auto& a, auto& b){return a.first > b.first ;});
 
   std::map<const reco::Track*,unsigned int> uniqueTrackIndex;
   std::map<const reco::Track*,unsigned int>::iterator it;
@@ -247,8 +237,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
 
   if (candCollection.empty()) return result;
 
-  sort(candCollection.begin(), candCollection.end(), 
-       higherTwoBodyDecayPt<candCollectionItem>());
+  sort(candCollection.begin(), candCollection.end(), [](auto& a, auto& b){return a.first > b.first ;});
   
   std::map<const reco::Track*,unsigned int> uniqueTrackIndex;
   std::map<const reco::Track*,unsigned int>::iterator it;

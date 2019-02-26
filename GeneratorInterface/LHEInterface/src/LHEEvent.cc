@@ -33,7 +33,7 @@ static int skipWhitespace(std::istream &in)
 
 namespace lhef {
 
-LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+LHEEvent::LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
                    std::istream &in) :
   runInfo(runInfo), weights_(0), counted(false), 
   readAttemptCounter(0), npLO_(-99), npNLO_(-99)
@@ -113,14 +113,14 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	    " content after event data." << std::endl;
 }
 
-LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+LHEEvent::LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
                    const HEPEUP &hepeup) :
 	runInfo(runInfo), hepeup(hepeup), counted(false), readAttemptCounter(0),
         npLO_(-99), npNLO_(-99)
 {
 }
 
-LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+LHEEvent::LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
                    const HEPEUP &hepeup,
                    const LHEEventProduct::PDF *pdf,
                    const std::vector<std::string> &comments) :
@@ -130,7 +130,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 {
 }
 
-LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+LHEEvent::LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
                    const LHEEventProduct &product) :
 	runInfo(runInfo), hepeup(product.hepeup()),
 	pdf(product.pdf() ? new PDF(*product.pdf()) : nullptr),
@@ -247,9 +247,9 @@ void LHEEvent::fillEventInfo(HepMC::GenEvent *event) const
 	event->set_alphaQCD(hepeup.AQCDUP);
 }
 
-std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
+std::unique_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
 {
-	std::auto_ptr<HepMC::GenEvent> hepmc(new HepMC::GenEvent);
+	std::unique_ptr<HepMC::GenEvent> hepmc(new HepMC::GenEvent);
 
 	hepmc->set_signal_process_id(hepeup.IDPRUP);
 	hepmc->set_event_scale(hepeup.SCALUP);

@@ -248,6 +248,38 @@ namespace edm {
     }
   }
 
+  void
+  ProductRegistry::setUnscheduledProducts(std::set<std::string> const& unscheduledLabels) {
+    throwIfFrozen();
+
+    bool hasAliases = false;
+    std::vector<BranchID> onDemandIDs;
+    for(auto& prod: productList_) {
+      if(prod.second.produced() &&
+         prod.second.branchType() == InEvent &&
+         unscheduledLabels.end() != unscheduledLabels.find(prod.second.moduleLabel())) {
+
+        prod.second.setOnDemand(true);
+        onDemandIDs.push_back(prod.second.branchID());
+      }
+      if(prod.second.produced() && prod.second.isAlias()) {
+        hasAliases = true;
+      }
+    }
+
+    // Need to loop over EDAliases to set their on-demand flag based on the pointed-to branch
+    if(hasAliases) {
+      std::sort(onDemandIDs.begin(), onDemandIDs.end());
+      for(auto& prod: productList_) {
+        if(prod.second.isAlias()) {
+          if(std::binary_search(onDemandIDs.begin(), onDemandIDs.end(), prod.second.aliasForBranchID())) {
+            prod.second.setOnDemand(true);
+          }
+        }
+      }
+    }
+  }
+
   std::string
   ProductRegistry::merge(ProductRegistry const& other,
         std::string const& fileName,

@@ -67,16 +67,6 @@ namespace edm {
     }
   }
 
-  void WorkerManager::setOnDemandProducts(ProductRegistry& pregistry, std::set<std::string> const& unscheduledLabels) const {
-    for(auto& prod : pregistry.productListUpdator()) {
-      if(prod.second.produced() &&
-          prod.second.branchType() == InEvent &&
-          unscheduledLabels.end() != unscheduledLabels.find(prod.second.moduleLabel())) {
-        prod.second.setOnDemand(true);
-      }
-    }
-  }
-  
   void WorkerManager::endJob() {
     for(auto& worker : allWorkers_) {
       worker->endJob();
@@ -146,7 +136,7 @@ namespace edm {
   }
 
   void
-  WorkerManager::setupOnDemandSystem(Principal& ep, EventSetup const& es) {
+  WorkerManager::setupOnDemandSystem(Principal& ep, EventSetupImpl const& es) {
     this->resetAll();
     unscheduled_.setEventSetup(es);
     if(&ep != lastSetupEventPrincipal_) {

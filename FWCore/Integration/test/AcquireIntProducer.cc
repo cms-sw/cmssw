@@ -87,9 +87,7 @@ namespace edmtest {
     streamCacheData->processed().clear();
 
     for(auto const& token: m_tokens) {
-      edm::Handle<IntProduct> handle;
-      event.getByToken(token, handle);
-      streamCacheData->retrieved().push_back(handle->value);
+      streamCacheData->retrieved().push_back(event.get(token).value);
     }
     m_server->requestValuesAsync(streamID.value(),
                                  &streamCacheData->retrieved(),
@@ -109,9 +107,7 @@ namespace edmtest {
     event.put(std::make_unique<IntProduct>(sum));
 
     // This part is here only for the Parentage test.
-    edm::Handle<IntProduct> handle;
-    event.getByToken(m_tokenForProduce, handle);
-    *handle;
+    (void) event.get(m_tokenForProduce);
   }
 
   void AcquireIntProducer::endJob() {

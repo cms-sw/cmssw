@@ -7,6 +7,7 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "FWCore/Utilities/interface/CRC16.h"
 
+namespace {
 template <class Coll, class DetIdClass> 
 int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presamples) {
   if (pt==nullptr) return 0;
@@ -19,6 +20,7 @@ int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presa
       buffer[j]=(*i)[j].raw();
   }
   return size;
+}
 }
 
 int CastorPacker::findSamples(const DetId& did, const CastorCollections& inputs,
@@ -42,7 +44,7 @@ void CastorPacker::pack(int fedid, int dccnumber,
   std::vector<unsigned short> trigdata(HcalHTRData::CHANNELS_PER_SPIGOT*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL);
   std::vector<unsigned char> preclen(HcalHTRData::CHANNELS_PER_SPIGOT);
   std::vector<unsigned char> triglen(HcalHTRData::CHANNELS_PER_SPIGOT);
-  static const int HTRFormatVersion=3;
+  constexpr int HTRFormatVersion=3;
 
   HcalHTRData spigots[15];
   // loop over all valid channels in the given dcc, spigot by spigot.
@@ -93,8 +95,8 @@ void CastorPacker::pack(int fedid, int dccnumber,
       spigots[spigot].pack(&(preclen[0]),&(precdata[0]),
 			   &(triglen[0]),&(trigdata[0]),
 			   false);
-      static const int pipeline=0x22;
-      static const int firmwareRev=0;
+      constexpr int pipeline=0x22;
+      constexpr int firmwareRev=0;
       int submodule=exampleEId.htrTopBottom()&0x1;
       submodule|=(exampleEId.htrSlot()&0x1F)<<1;
       submodule|=(exampleEId.readoutVMECrateId()&0x1f)<<6;

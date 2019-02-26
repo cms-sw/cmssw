@@ -12,7 +12,6 @@
 #include "DQMOffline/Lumi/interface/TTrigger.h"
 #include "DQMOffline/Lumi/interface/TriggerTools.h"
 
-#include <boost/foreach.hpp>
 #include <TLorentzVector.h>
 
 #include "DQMOffline/Lumi/plugins/ZCounting.h"
@@ -663,7 +662,7 @@ void ZCounting::initHLT(const edm::TriggerResults& result, const edm::TriggerNam
       if(matches.empty()) {
         edm::LogWarning("ZCounting") << "requested pattern [" << pattern << "] does not match any HLT paths" << std::endl;
       } else {
-        BOOST_FOREACH(std::vector<std::string>::const_iterator match, matches) {
+        for(auto const& match : matches) {
           fTrigger->fRecords[irec].hltPathName = *match;
         }
       }

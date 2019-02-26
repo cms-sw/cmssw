@@ -46,6 +46,8 @@
 #include "GeneratorInterface/Herwig7Interface/interface/RandomEngineGlue.h"
 #include "GeneratorInterface/Herwig7Interface/interface/Herwig7Interface.h"
 
+#include "CLHEP/Random/RandomEngine.h"
+
 using namespace std;
 using namespace gen;
 
@@ -60,7 +62,7 @@ Herwig7Interface::Herwig7Interface(const edm::ParameterSet &pset) :
 	// Write events in hepmc ascii format for debugging purposes
 	string dumpEvents = pset.getUntrackedParameter<string>("dumpEvents", "");
 	if (!dumpEvents.empty()) {
-		iobc_.reset(new HepMC::IO_GenEvent(dumpEvents.c_str(), ios::out));
+		iobc_.reset(new HepMC::IO_GenEvent(dumpEvents, ios::out));
 		edm::LogInfo("ThePEGSource") << "Event logging switched on (=> " << dumpEvents << ")";
 	}
 	// Clear dumpConfig target
@@ -76,10 +78,12 @@ Herwig7Interface::~Herwig7Interface () noexcept
 }
 
 void Herwig7Interface::setPEGRandomEngine(CLHEP::HepRandomEngine* v) {
+    
         randomEngineGlueProxy_->setRandomEngine(v);
+        randomEngine = v;
         ThePEG::RandomEngineGlue *rnd = randomEngineGlueProxy_->getInstance();
         if(rnd) {
-          rnd->setRandomEngine(v);
+            rnd->setRandomEngine(v);
         }
 }
 
@@ -167,7 +171,9 @@ void Herwig7Interface::callHerwigGenerator()
     case Herwig::RunMode::BUILD:       Herwig::API::build(*HwUI_);      break;
     case Herwig::RunMode::INTEGRATE:   Herwig::API::integrate(*HwUI_);  break;
     case Herwig::RunMode::MERGEGRIDS:  Herwig::API::mergegrids(*HwUI_); break;
-    case Herwig::RunMode::RUN:         eg_ =  Herwig::API::prepareRun(*HwUI_); break;
+    case Herwig::RunMode::RUN:         {    
+                                            HwUI_->setSeed(randomEngine->getSeed());
+                                            eg_ =  Herwig::API::prepareRun(*HwUI_); break;}
     case Herwig::RunMode::ERROR:       
       edm::LogError("Herwig7Interface") << "Error during read in of command line parameters.\n"
                 << "Program execution will stop now."; 
@@ -237,10 +243,10 @@ void Herwig7Interface::flushRandomNumberGenerator()
       */
 }
 
-auto_ptr<HepMC::GenEvent> Herwig7Interface::convert(
+unique_ptr<HepMC::GenEvent> Herwig7Interface::convert(
 					const ThePEG::EventPtr &event)
 {
-	return std::auto_ptr<HepMC::GenEvent>(
+	return std::unique_ptr<HepMC::GenEvent>(
 		ThePEG::HepMCConverter<HepMC::GenEvent>::convert(*event));
 }
 

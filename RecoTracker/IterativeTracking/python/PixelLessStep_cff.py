@@ -139,7 +139,7 @@ from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _h
 pixelLessStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "pixelLessStepSeedLayers",
     trackingRegions = "pixelLessStepTrackingRegions",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoTracker.TkSeedGenerator.multiHitFromChi2EDProducer_cfi import multiHitFromChi2EDProducer as _multiHitFromChi2EDProducer
@@ -287,11 +287,20 @@ pixelLessStep = ClassifierMerger.clone()
 pixelLessStep.inputClassifiers=['pixelLessStepClassifier1','pixelLessStepClassifier2']
 
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1'),
-     qualityCuts = [-0.4,0.0,0.4],
+
+#LWTNN selector
+from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
+trackingPhase1.toReplaceWith(pixelLessStep, TrackLwtnnClassifier.clone(
+     src = 'pixelLessStepTracks',
+     qualityCuts = [-0.6, -0.05, 0.5],
 ))
-pp_on_AA_2018.toModify(pixelLessStep, qualityCuts = [-0.4,0.0,0.8])
+(trackingPhase1 & fastSim).toModify(pixelLessStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
+
+pp_on_AA_2018.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
+     qualityCuts = [-0.4,0.0,0.8],
+     mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1')
+))
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

@@ -71,7 +71,7 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
   adcToGeV = settings->eeDccAdcToGeV_;
   thrUnit[ENDCAP] = adcToGeV/4.; //unit=1/4th ADC count
   ecalSelectiveReadout
-    = auto_ptr<EcalSelectiveReadout>(new EcalSelectiveReadout(
+    = unique_ptr<EcalSelectiveReadout>(new EcalSelectiveReadout(
 							      settings->deltaEta_[0],
 							      settings->deltaPhi_[0]));
   const int eb = 0;

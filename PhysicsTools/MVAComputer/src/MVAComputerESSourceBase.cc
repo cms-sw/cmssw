@@ -44,11 +44,11 @@ MVAComputerESSourceBase::~MVAComputerESSourceBase()
 MVAComputerESSourceBase::ReturnType
 MVAComputerESSourceBase::produce() const
 {
-	ReturnType container(new Calibration::MVAComputerContainer);
+	auto container = std::make_unique<Calibration::MVAComputerContainer>();
 
 	for(LabelFileMap::const_iterator iter = mvaCalibrations.begin();
 	    iter != mvaCalibrations.end(); iter++) {
-		std::auto_ptr<Calibration::MVAComputer> calibration(
+		std::unique_ptr<Calibration::MVAComputer> calibration(
 			MVAComputer::readCalibration(iter->second.c_str()));
 
 		container->add(iter->first) = *calibration;

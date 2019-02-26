@@ -205,7 +205,7 @@ namespace cond {
 			const std::string& principal, 
 			PrincipalData& destination ){
     
-    std::auto_ptr<coral::IQuery> query(schema.tableHandle(COND_AUTHENTICATION_TABLE).newQuery());
+    std::unique_ptr<coral::IQuery> query(schema.tableHandle(COND_AUTHENTICATION_TABLE).newQuery());
     coral::AttributeList readBuff;
     readBuff.extend<int>(PRINCIPAL_ID_COL);
     readBuff.extend<std::string>(VERIFICATION_COL);
@@ -252,7 +252,7 @@ namespace cond {
 			 const std::string& connectionLabel, 
 			 CredentialData& destination ){
 
-    std::auto_ptr<coral::IQuery> query(schema.tableHandle(COND_CREDENTIAL_TABLE).newQuery());
+    std::unique_ptr<coral::IQuery> query(schema.tableHandle(COND_CREDENTIAL_TABLE).newQuery());
     coral::AttributeList readBuff;
     readBuff.extend<int>( CONNECTION_ID_COL );
     readBuff.extend<std::string>( USERNAME_COL );
@@ -299,7 +299,7 @@ namespace cond {
 			    const std::string& role, 
 			    const std::string& connectionString, 
 			    AuthorizationData& destination ){
-    std::auto_ptr<coral::IQuery> query(schema.tableHandle(COND_AUTHORIZATION_TABLE).newQuery());
+    std::unique_ptr<coral::IQuery> query(schema.tableHandle(COND_AUTHORIZATION_TABLE).newQuery());
     coral::AttributeList readBuff;
     readBuff.extend<int>(AUTH_ID_COL);
     readBuff.extend<int>(C_ID_COL);
@@ -336,7 +336,7 @@ namespace cond {
 			     const std::string& sequenceName, 
 			     int& value ){
     bool ret = false;
-    std::auto_ptr< coral::IQuery > query( schema.tableHandle( SEQUENCE_TABLE_NAME ).newQuery() );
+    std::unique_ptr< coral::IQuery > query( schema.tableHandle( SEQUENCE_TABLE_NAME ).newQuery() );
     query->limitReturnedRows( 1, 0 );
     query->addToOutputList( SEQUENCE_VALUE_COL );
     query->defineOutputType( SEQUENCE_VALUE_COL, coral::AttributeSpecification::typeNameForType<int>() );
@@ -645,7 +645,7 @@ void cond::CredentialStore::startSession( bool readMode ){
     }
     
     // first find the credentials for WRITING in the security tables
-    std::auto_ptr<coral::IQuery> query(schema.newQuery());
+    std::unique_ptr<coral::IQuery> query(schema.newQuery());
     query->addToTableList(COND_AUTHORIZATION_TABLE, "AUTHO");
     query->addToTableList(COND_CREDENTIAL_TABLE, "CREDS");
     coral::AttributeList readBuff;
@@ -1197,7 +1197,7 @@ bool cond::CredentialStore::selectForUser( coral_bridge::AuthenticationCredentia
 
   auth::Cipher cipher( m_principalKey );
 
-  std::auto_ptr<coral::IQuery> query(schema.newQuery());
+  std::unique_ptr<coral::IQuery> query(schema.newQuery());
   query->addToTableList(COND_AUTHORIZATION_TABLE, "AUTHO");
   query->addToTableList(COND_CREDENTIAL_TABLE, "CREDS");
   coral::AttributeList readBuff;
@@ -1288,7 +1288,7 @@ bool cond::CredentialStore::listPrincipals( std::vector<std::string>& destinatio
   session.start( true  );
   coral::ISchema& schema = m_session->nominalSchema();
 
-  std::auto_ptr<coral::IQuery> query(schema.tableHandle(COND_AUTHENTICATION_TABLE).newQuery());
+  std::unique_ptr<coral::IQuery> query(schema.tableHandle(COND_AUTHENTICATION_TABLE).newQuery());
   coral::AttributeList readBuff;
   readBuff.extend<std::string>(PRINCIPAL_NAME_COL);
   query->defineOutput(readBuff);
@@ -1310,7 +1310,7 @@ bool cond::CredentialStore::listConnections( std::map<std::string,std::pair<std:
   session.start( true  );
   coral::ISchema& schema = m_session->nominalSchema();
 
-  std::auto_ptr<coral::IQuery> query(schema.tableHandle(COND_CREDENTIAL_TABLE).newQuery());
+  std::unique_ptr<coral::IQuery> query(schema.tableHandle(COND_CREDENTIAL_TABLE).newQuery());
   coral::AttributeList readBuff;
   readBuff.extend<std::string>( CONNECTION_LABEL_COL );
   readBuff.extend<std::string>( USERNAME_COL );
@@ -1356,7 +1356,7 @@ bool cond::CredentialStore::selectPermissions( const std::string& principalName,
   CSScopedSession session( *this );
   session.start( true  );
   coral::ISchema& schema = m_session->nominalSchema();
-  std::auto_ptr<coral::IQuery> query(schema.newQuery());
+  std::unique_ptr<coral::IQuery> query(schema.newQuery());
   query->addToTableList(COND_AUTHENTICATION_TABLE, "AUTHE");
   query->addToTableList(COND_AUTHORIZATION_TABLE, "AUTHO");
   query->addToTableList(COND_CREDENTIAL_TABLE, "CREDS");
@@ -1414,7 +1414,7 @@ bool cond::CredentialStore::exportAll( coral_bridge::AuthenticationCredentialSet
   CSScopedSession session( *this );
   session.start( true  );
   coral::ISchema& schema = m_session->nominalSchema();
-  std::auto_ptr<coral::IQuery> query(schema.newQuery());
+  std::unique_ptr<coral::IQuery> query(schema.newQuery());
   query->addToTableList(COND_AUTHORIZATION_TABLE, "AUTHO");
   query->addToTableList(COND_CREDENTIAL_TABLE, "CREDS");
   coral::AttributeList readBuff;

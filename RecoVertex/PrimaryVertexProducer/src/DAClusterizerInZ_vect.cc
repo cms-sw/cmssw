@@ -230,7 +230,11 @@ double DAClusterizerInZ_vect::update(double beta, track_t & gtracks,
   }
   
   // now update z and pk
-  auto kernel_calc_z = [  sumpi, nv, this, useRho0 ] (vertex_t & vertices ) -> double {
+  auto kernel_calc_z = [  sumpi, nv
+#ifdef VI_DEBUG
+                          , this
+#endif
+                          ] (vertex_t & vertices ) -> double {
     
     double delta=0;
     // does not vectorizes

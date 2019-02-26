@@ -60,7 +60,7 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
-  theFitter = new DTTimeBoxFitter();
+  theFitter = std::make_unique<DTTimeBoxFitter>();
   if(debug)
     theFitter->setVerbosity(1);
 
@@ -70,10 +70,8 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   doSubtractT0 = pset.getUntrackedParameter<bool>("doSubtractT0","false");
   // Get the synchronizer
   if(doSubtractT0) {
-    theSync = DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
-						pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"));
-  } else {
-    theSync = nullptr;
+    theSync = std::unique_ptr<DTTTrigBaseSync>{DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
+                                                                                 pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"))};
   }
 
   checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels","false");
@@ -100,7 +98,6 @@ DTTTrigCalibration::~DTTTrigCalibration(){
   //   }
 
   theFile->Close();
-  delete theFitter;
 }
 
 

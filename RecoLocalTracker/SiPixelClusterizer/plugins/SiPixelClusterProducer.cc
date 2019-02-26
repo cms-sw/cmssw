@@ -32,6 +32,7 @@
 // Framework
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // STL
 #include <vector>
@@ -48,26 +49,22 @@
   //---------------------------------------------------------------------------
   SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf) 
     : 
-    theSiPixelGainCalibration_(nullptr), 
-    clusterMode_( conf.getUntrackedParameter<std::string>("ClusterMode","PixelThresholdClusterizer") ),
-    clusterizer_(nullptr),          // the default, in case we fail to make one
-    readyToCluster_(false),   // since we obviously aren't
-    maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) ),
-    payloadType_( conf.getParameter<std::string>( "payloadType" ) )
+    tPutPixelClusters(produces<SiPixelClusterCollectionNew>()),
+    clusterMode_( conf.getParameter<std::string>("ClusterMode") ),
+    maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) )
   {
     if ( clusterMode_ == "PixelThresholdReclusterizer" )
       tPixelClusters = consumes<SiPixelClusterCollectionNew>( conf.getParameter<edm::InputTag>("src") );
     else
       tPixelDigi = consumes<edm::DetSetVector<PixelDigi>>( conf.getParameter<edm::InputTag>("src") );
-    //--- Declare to the EDM what kind of collections we will be making.
-    produces<SiPixelClusterCollectionNew>(); 
 
-    if (strcmp(payloadType_.c_str(), "HLT") == 0)
-       theSiPixelGainCalibration_ = new SiPixelGainCalibrationForHLTService(conf);
-    else if (strcmp(payloadType_.c_str(), "Offline") == 0)
-       theSiPixelGainCalibration_ = new SiPixelGainCalibrationOfflineService(conf);
-    else if (strcmp(payloadType_.c_str(), "Full") == 0)
-       theSiPixelGainCalibration_ = new SiPixelGainCalibrationService(conf);
+    const auto& payloadType = conf.getParameter<std::string>( "payloadType" );
+    if (payloadType == "HLT")
+        theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationForHLTService>(conf);
+    else if (payloadType == "Offline")
+        theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationOfflineService>(conf);
+    else if (payloadType == "Full")
+        theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationService>(conf);
 
     //--- Make the algorithm(s) according to what the user specified
     //--- in the ParameterSet.
@@ -76,10 +73,21 @@
   }
 
   // Destructor
-  SiPixelClusterProducer::~SiPixelClusterProducer() { 
-    delete clusterizer_;
-    delete theSiPixelGainCalibration_;
-  }  
+SiPixelClusterProducer::~SiPixelClusterProducer() = default;
+
+void SiPixelClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("src", edm::InputTag("siPixelDigis"));
+  desc.add<std::string>("ClusterMode", "PixelThresholdClusterizer");
+  desc.add<int>("maxNumberOfClusters", -1)->setComment("-1 means no limit");
+  desc.add<std::string>("payloadType", "Offline")->setComment("Options: HLT - column granularity, Offline - gain:col/ped:pix");
+
+  PixelThresholdClusterizer::fillPSetDescription(desc);
+  SiPixelGainCalibrationServiceBase::fillPSetDescription(desc); // no-op, but in principle the structures are there...
+
+  descriptions.add("SiPixelClusterizerDefault", desc);
+}
 
   
   //---------------------------------------------------------------------------
@@ -120,7 +128,7 @@
 
     // Step D: write output to file
     output->shrink_to_fit();
-    e.put(std::move(output));
+    e.put(tPutPixelClusters, std::move(output));
 
   }
 
@@ -132,16 +140,14 @@
   void SiPixelClusterProducer::setupClusterizer(const edm::ParameterSet& conf)  {
 
     if ( clusterMode_ == "PixelThresholdReclusterizer" || clusterMode_ == "PixelThresholdClusterizer" ) {
-      clusterizer_ = new PixelThresholdClusterizer(conf);
-      clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_);
-      readyToCluster_ = true;
+      clusterizer_ = std::make_unique<PixelThresholdClusterizer>(conf);
+      clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_.get());
     } 
     else {
-      edm::LogError("SiPixelClusterProducer") << "[SiPixelClusterProducer]:"
+      throw cms::Exception("Configuration") << "[SiPixelClusterProducer]:"
 		<<" choice " << clusterMode_ << " is invalid.\n"
 		<< "Possible choices:\n" 
 		<< "    PixelThresholdClusterizer";
-      readyToCluster_ = false;
     }
   }
 
@@ -153,13 +159,6 @@
   void SiPixelClusterProducer::run(const T                              & input, 
                                    const edm::ESHandle<TrackerGeometry> & geom,
                                    edmNew::DetSetVector<SiPixelCluster> & output) {
-    if ( ! readyToCluster_ ) {
-      edm::LogError("SiPixelClusterProducer")
-		<<" at least one clusterizer is not ready -- can't run!" ;
-      // TO DO: throw an exception here?  The user may want to know...
-      return;   // clusterizer is invalid, bail out
-    }
-
     int numberOfDetUnits = 0;
     int numberOfClusters = 0;
  

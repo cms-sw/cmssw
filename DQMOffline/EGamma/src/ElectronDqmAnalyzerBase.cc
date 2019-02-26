@@ -68,14 +68,18 @@ void ElectronDqmAnalyzerBase::endRun( edm::Run const &, edm::EventSetup const & 
     finalDone_ = true ;
 
     // --- transfert from endJob()
-    if (outputFile_!="")
+    if (!outputFile_.empty())
      { 
 //     edm::LogWarning("ElectronDqmAnalyzerBase::endRun")<<"finalize() already called" ;
 	 } /**/
    }
  }
 
-void ElectronDqmAnalyzerBase::endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & )
+std::shared_ptr<edab::Empty> 
+ElectronDqmAnalyzerBase::globalBeginLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) const {
+  return std::shared_ptr<edab::Empty>();
+}
+void ElectronDqmAnalyzerBase::globalEndLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & )
  {
   if (finalStep_=="AtLumiEnd")
    {
@@ -99,8 +103,8 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1
  {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.book1D(newName(name),title,nchX,lowX,highX) ;
-  if (titleX!="") { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (!titleX.empty()) { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (!titleY.empty()) { me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH1F()->SetOption(option) ; }
   if (bookStatOverflowFlag_) {me->getTH1()->StatOverflows(kTRUE) ; }
   return me ;
@@ -115,8 +119,8 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1withSumw2
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.book1D(newName(name),title,nchX,lowX,highX) ;
   if (me->getTH1F()->GetSumw2N() == 0) me->getTH1F()->Sumw2() ;
-  if (titleX!="") { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (!titleX.empty()) { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (!titleY.empty()) { me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH1F()->SetOption(option) ; }
   if (bookStatOverflowFlag_) {me->getTH1()->StatOverflows(kTRUE) ; }
   return me ;
@@ -131,8 +135,8 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH2
  {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
-  if (titleX!="") { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (!titleX.empty()) { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (!titleY.empty()) { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH2F()->SetOption(option) ; }
   if (bookStatOverflowFlag_) {me->getTH1()->StatOverflows(kTRUE) ; }
  return me ;
@@ -148,8 +152,8 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH2withSumw2
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
   if (me->getTH2F()->GetSumw2N() == 0) me->getTH2F()->Sumw2() ;
-  if (titleX!="") { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (!titleX.empty()) { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (!titleY.empty()) { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH2F()->SetOption(option) ; }
   if (bookStatOverflowFlag_) {me->getTH1()->StatOverflows(kTRUE) ; }
   return me ;
@@ -164,8 +168,8 @@ MonitorElement * ElectronDqmAnalyzerBase::bookP1
  {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.bookProfile(newName(name),title,nchX,lowX,highX,lowY,highY," ") ;
-  if (titleX!="") { me->getTProfile()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTProfile()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (!titleX.empty()) { me->getTProfile()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (!titleY.empty()) { me->getTProfile()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTProfile()->SetOption(option) ; }
   if (bookStatOverflowFlag_) {me->getTH1()->StatOverflows(kTRUE) ; }
   return me ;

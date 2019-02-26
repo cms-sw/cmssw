@@ -10,9 +10,11 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 #include <memory>
+#include <vector>
 
 namespace edm {
   class ParameterSet;
@@ -55,7 +57,9 @@ namespace edm {
 
     void advanceToNext(EventID& eventID, TimeValue_t& time);
     void retreatToPrevious(EventID& eventID, TimeValue_t& time);
+    RunNumber_t runForLumi(LuminosityBlockNumber_t) const;
 
+    std::vector<edm::LuminosityBlockID> firstLumiForRuns_;
     unsigned int numberEventsInRun_;
     unsigned int numberEventsInLumi_;
     TimeValue_t presentTime_;

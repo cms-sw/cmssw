@@ -171,6 +171,8 @@
     allowedLabelsPset       PSet                           see Section 1.1.19
     noDefaultPset3          PSet                           see Section 1.1.20
     noDefaultPset4          PSet                           see Section 1.1.21
+    plugin                  PSet                           see Section 1.1.22
+    plugin1                 PSet                           see Section 1.1.23
     mightGet                untracked vstring     optional none (do not write to cfi)
     Section 1.1.1 vuint5 default contents: (vector size = 6)
         [0]: 4294967295
@@ -669,6 +671,20 @@
         noDefault22 untracked VLuminosityBlockRange optional none (do not write to cfi)
         noDefault23 untracked EventRange            optional none (do not write to cfi)
         noDefault24 untracked VEventRange           optional none (do not write to cfi)
+    Section 1.1.22 plugin PSet description:
+        Section 1.1.22.1 PluginDescriptoredmtestAnotherIntFactory Plugins description:
+        Section 1.1.22.1.1 edmtestAnotherOneMaker Plugin description:
+        type string  'edmtestAnotherValueMaker'
+        Section 1.1.22.1.2 edmtestAnotherValueMaker Plugin description:
+        value int32   5
+        type  string  'edmtestAnotherValueMaker'
+    Section 1.1.23 plugin1 PSet description:
+        Section 1.1.23.1 PluginDescriptoredmtestAnotherIntFactory Plugins description:
+        Section 1.1.23.1.1 edmtestAnotherOneMaker Plugin description:
+        type string  none (do not write to cfi)
+        Section 1.1.23.1.2 edmtestAnotherValueMaker Plugin description:
+        value int32   5
+        type  string  none (do not write to cfi)
   1.2 testLabel1
     Description allows anything. If the configured PSet contains illegal parameters,
     then validation will ignore them instead of throwing an exception.

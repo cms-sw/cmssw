@@ -73,7 +73,7 @@ namespace cms {
 namespace edm {
    class ESHandleExceptionFactory;
    class ESInputTag;
-   class EventSetup;
+   class EventSetupImpl;
 
    namespace eventsetup {
       struct ComponentDescription;
@@ -82,7 +82,7 @@ namespace edm {
       class EventSetupRecordImpl {
 
         friend class EventSetupRecord;
-        
+
       public:
          EventSetupRecordImpl(const EventSetupRecordKey& iKey);
 
@@ -136,7 +136,7 @@ namespace edm {
          bool transientReset() ;
 
          void set(ValidityInterval const&);
-         void setEventSetup(EventSetup const* iEventSetup) {eventSetup_ = iEventSetup; }
+         void setEventSetup(EventSetupImpl const* iEventSetup) {eventSetup_ = iEventSetup; }
 
          void getESProducers(std::vector<ComponentDescription const*>& esproducers);
          void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys);
@@ -145,7 +145,7 @@ namespace edm {
 
          DataProxy const* find(DataKey const& aKey) const ;
 
-        EventSetup const& eventSetup() const {
+        EventSetupImpl const& eventSetup() const {
           return *eventSetup_;
         }
 
@@ -177,7 +177,7 @@ namespace edm {
             void const* pValue = this->getFromProxy(dataKey, iDesc, iTransientAccessOnly);
             if(nullptr == pValue) {
               whyFailedFactory =
-                makeESHandleExceptionFactory([=]()->std::exception_ptr {
+                makeESHandleExceptionFactory([=] {
                     NoProxyException<DataT> ex(this->key(), dataKey);
                     return std::make_exception_ptr(ex);
                 });
@@ -188,8 +188,9 @@ namespace edm {
          // ---------- member data --------------------------------
          ValidityInterval validity_;
          EventSetupRecordKey key_;
-         std::map<DataKey, DataProxy const*> proxies_ ;
-         EventSetup const* eventSetup_;
+         std::vector<DataKey> keysForProxies_;
+         std::vector<DataProxy const*> proxies_;
+         EventSetupImpl const* eventSetup_;
          unsigned long long cacheIdentifier_;
          mutable std::atomic<bool> transientAccessRequested_;
       };

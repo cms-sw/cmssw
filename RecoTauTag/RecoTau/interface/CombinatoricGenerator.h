@@ -82,7 +82,7 @@ template <typename T>
         bool negate_;
     };
 
-    class ValueAccessor : public std::unary_function<index_type const&, const value_type&>
+    class ValueAccessor
     {
       /* Class to extract a value from a collection given the beginning of the collection
        * and the index into the colleciton */
@@ -177,7 +177,7 @@ template <typename T>
       //std::copy(newCombo.begin(), newCombo.end(), std::ostream_iterator<int>(std::cout, " "));
       //std::cout << std::endl;
 
-      //return std::auto_ptr<Combinatoric<T> >(new Combinatoric<T>(begin_, indices_, newCombo));
+      //return std::unique_ptr<Combinatoric<T> >(new Combinatoric<T>(begin_, indices_, newCombo));
       return Combinatoric<T>(begin_, indices_, newCombo, done);
     }
 
@@ -257,7 +257,7 @@ template<typename T>
 
     public:
 
-    typedef std::auto_ptr<CombinatoricIterator<T> > CombIterPtr;
+    typedef std::unique_ptr<CombinatoricIterator<T> > CombIterPtr;
     typedef CombinatoricIterator<T> iterator;
     typedef typename iterator::value_type::ValueIter combo_iterator;
 

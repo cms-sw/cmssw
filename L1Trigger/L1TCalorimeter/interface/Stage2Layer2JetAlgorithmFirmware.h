@@ -50,6 +50,7 @@ namespace l1t {
     int chunkySandwichPUEstimate(Jet & jet, int pos,
 				 const std::vector<l1t::CaloTower> & towers,
 				 const std::string chunkySandwichStr);
+    std::map<int,int> getSumEtEtaMap(const std::vector<l1t::CaloTower> & towers);
 
   private:
 

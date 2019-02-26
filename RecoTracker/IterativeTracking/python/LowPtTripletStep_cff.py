@@ -80,7 +80,7 @@ from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _h
 lowPtTripletStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "lowPtTripletStepSeedLayers",
     trackingRegions = "lowPtTripletStepTrackingRegions",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
@@ -274,17 +274,26 @@ lowPtTripletStep.src = 'lowPtTripletStepTracks'
 lowPtTripletStep.mva.GBRForestLabel = 'MVASelectorIter1_13TeV'
 lowPtTripletStep.qualityCuts = [-0.6,-0.3,-0.1]
 
-trackingPhase1.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1'),
-     qualityCuts = [-0.4,0.0,0.3],
+#LWTNN selector
+from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
+trackingPhase1.toReplaceWith(lowPtTripletStep, TrackLwtnnClassifier.clone(
+     src = 'lowPtTripletStepTracks',
+     qualityCuts = [0.2, 0.5, 0.8],
 ))
-highBetaStar_2018.toModify(lowPtTripletStep,qualityCuts = [-0.7,-0.3,-0.1])
-fastSim.toModify(lowPtTripletStep, vertices = "firstStepPrimaryVerticesBeforeMixing")
-pp_on_AA_2018.toModify(lowPtTripletStep, 
-        mva = dict(GBRForestLabel = 'HIMVASelectorLowPtTripletStep_Phase1'),
-        qualityCuts = [-0.8, -0.4, 0.5],
-)
 
+fastSim.toModify(lowPtTripletStep, vertices = "firstStepPrimaryVerticesBeforeMixing")
+highBetaStar_2018.toReplaceWith(lowPtTripletStep, TrackMVAClassifierPrompt.clone(
+     src = 'lowPtTripletStepTracks',
+     qualityCuts = [-0.7,-0.3,-0.1],
+     mva = dict(GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1')
+))
+
+pp_on_AA_2018.toReplaceWith(lowPtTripletStep, TrackMVAClassifierPrompt.clone( 
+     src = 'lowPtTripletStepTracks',
+     qualityCuts = [-0.8, -0.4, 0.5],
+     mva = dict(GBRForestLabel = 'HIMVASelectorLowPtTripletStep_Phase1')
+))
 
 # For LowPU and Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

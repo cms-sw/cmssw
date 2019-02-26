@@ -100,7 +100,7 @@ private:
   TFile *theFile;
 
   // The fitter
-  DTMeanTimerFitter *theFitter;
+  std::unique_ptr<DTMeanTimerFitter> theFitter;
 
   // Perform the vDrift and t0 evaluation or just fill the
   //  tMaxHists (if you read the dataset in different jobs)
@@ -116,7 +116,7 @@ private:
   //bool checkNoisyChannels;
 
   // The module for t0 subtraction
-  DTTTrigBaseSync *theSync;//FIXME: should be const
+  std::unique_ptr<DTTTrigBaseSync> theSync;//FIXME: should be const
 
   // parameter set for DTCalibrationMap constructor
   edm::ParameterSet theCalibFilePar;

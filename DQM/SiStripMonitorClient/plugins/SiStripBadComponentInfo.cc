@@ -17,11 +17,16 @@
 #include <sstream>
 #include <string>
 
-SiStripBadComponentInfo::SiStripBadComponentInfo(edm::ParameterSet const& pSet) :
-  qualityLabel_{pSet.getParameter<std::string>("StripQualityLabel")}
-{
-  LogDebug("SiStripBadComponentInfo")
-    << "SiStripBadComponentInfo::Deleting SiStripBadComponentInfo ";
+//
+// -- Contructor
+//
+SiStripBadComponentInfo::SiStripBadComponentInfo(edm::ParameterSet const& pSet) : 
+    bookedStatus_(false),
+    nSubSystem_(6),
+    qualityLabel_(pSet.getParameter<std::string>("StripQualityLabel"))
+{ 
+  // Create MessageSender
+  LogDebug( "SiStripBadComponentInfo") << "SiStripBadComponentInfo::Deleting SiStripBadComponentInfo ";
 }
 
 SiStripBadComponentInfo::~SiStripBadComponentInfo()
@@ -43,22 +48,14 @@ SiStripBadComponentInfo::checkBadComponents(edm::EventSetup const& eSetup)
   eSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
   const TrackerTopology* const topo = tTopoHandle_.product();
 
-  unsigned long long cacheID =
-    eSetup.get<SiStripQualityRcd>().cacheIdentifier();
-  if (m_cacheID_ == !cacheID) {
-    m_cacheID_ = cacheID;
-    LogDebug("SiStripBadComponentInfo")
-      << "SiStripBadchannelInfoNew::readCondition : "
-      << " Change in Cache";
-    eSetup.get<SiStripQualityRcd>().get(qualityLabel_, siStripQuality_);
-  }
+ 
+  eSetup.get<SiStripQualityRcd>().get(qualityLabel_,siStripQuality_);
+ 
+  auto const& BC = siStripQuality_->getBadComponentList();
+  
+  for (size_t i=0;i<BC.size();++i){
+    int subdet=-999; int component=-999;
 
-  std::vector<SiStripQuality::BadComponent> BC =
-    siStripQuality_->getBadComponentList();
-
-  for (size_t i = 0; i < BC.size(); ++i) {
-    int subdet = -999;
-    int component = -999;
     //&&&&&&&&&&&&&&&&&
     // Single SubSyste
     //&&&&&&&&&&&&&&&&&
@@ -233,11 +230,8 @@ SiStripBadComponentInfo::bookBadComponentHistos(DQMStore::IBooker& ibooker,
     ibooker.cd();
   }
 }
-void
-SiStripBadComponentInfo::fillBadComponentMaps(int xbin,
-                                              int component,
-                                              SiStripQuality::BadComponent& BC)
-{
+
+void SiStripBadComponentInfo::fillBadComponentMaps(int xbin,int component,SiStripQuality::BadComponent const& BC){
 
   auto index = std::make_pair(xbin, component);
 

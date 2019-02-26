@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -51,18 +51,19 @@ namespace gen {
 
     // GenRunInfo and GenEvent passing
     GenRunInfoProduct &getGenRunInfo() { return genRunInfo_; }
-    HepMC::GenEvent *getGenEvent() { return genEvent_.release(); }
-    GenEventInfoProduct *getGenEventInfo() { return genEventInfo_.release(); }
-    virtual GenLumiInfoHeader *getGenLumiInfoHeader() const;
-    
-    void resetEvent(HepMC::GenEvent *event) { genEvent_.reset(event); }
-    void resetEventInfo(GenEventInfoProduct *eventInfo) { genEventInfo_.reset(eventInfo); }
+    std::unique_ptr<HepMC::GenEvent> getGenEvent() { return std::move(genEvent_); }
+    std::unique_ptr<GenEventInfoProduct> getGenEventInfo() { return std::move(genEventInfo_); }
+    virtual std::unique_ptr<GenLumiInfoHeader> getGenLumiInfoHeader() const;
+    std::unique_ptr<lhef::LHEEvent> getLHEEvent() { return std::move(lheEvent_);}
+
+    void resetEvent(std::unique_ptr<HepMC::GenEvent> event) { genEvent_ = std::move(event); }
+    void resetEventInfo(std::unique_ptr<GenEventInfoProduct> eventInfo) { genEventInfo_ = std::move(eventInfo); }
 
     // LHERunInfo and LHEEvent passing
-    const boost::shared_ptr<lhef::LHERunInfo> &getLHERunInfo() const { return lheRunInfo_; }
+    const std::shared_ptr<lhef::LHERunInfo> &getLHERunInfo() const { return lheRunInfo_; }
 
-    void setLHERunInfo(lhef::LHERunInfo *runInfo) { lheRunInfo_.reset(runInfo); }
-    void setLHEEvent(lhef::LHEEvent *event) { lheEvent_.reset(event); }
+    void setLHERunInfo(std::unique_ptr<lhef::LHERunInfo> runInfo) { lheRunInfo_ = std::move(runInfo); }
+    void setLHEEvent(std::unique_ptr<lhef::LHEEvent> event) { lheEvent_ = std::move(event); }
 
     // interface for accessing the EDM information from the hadronizer
     void setEDMEvent(edm::Event &event) { edmEvent_ = &event; }
@@ -83,8 +84,8 @@ namespace gen {
 
   protected:
     GenRunInfoProduct& runInfo() { return genRunInfo_; }
-    std::auto_ptr<HepMC::GenEvent>& event() { return genEvent_; }
-    std::auto_ptr<GenEventInfoProduct>& eventInfo() { return genEventInfo_; }
+    std::unique_ptr<HepMC::GenEvent>& event() { return genEvent_; }
+    std::unique_ptr<GenEventInfoProduct>& eventInfo() { return genEventInfo_; }
 
     lhef::LHEEvent* lheEvent() { return lheEvent_.get(); }
     lhef::LHERunInfo *lheRunInfo() { return lheRunInfo_.get(); }
@@ -98,11 +99,11 @@ namespace gen {
     virtual std::vector<std::string> const& doSharedResources() const { return theSharedResources; }
 
     GenRunInfoProduct                   genRunInfo_;
-    std::auto_ptr<HepMC::GenEvent>      genEvent_;
-    std::auto_ptr<GenEventInfoProduct>  genEventInfo_;
+    std::unique_ptr<HepMC::GenEvent>      genEvent_;
+    std::unique_ptr<GenEventInfoProduct>  genEventInfo_;
 
-    boost::shared_ptr<lhef::LHERunInfo> lheRunInfo_;
-    std::auto_ptr<lhef::LHEEvent>       lheEvent_;
+    std::shared_ptr<lhef::LHERunInfo>     lheRunInfo_;
+    std::unique_ptr<lhef::LHEEvent>       lheEvent_;
 
     edm::Event                          *edmEvent_;
 

@@ -33,7 +33,7 @@ class DQMStore;
 class MonitorElement;
 class DTHVStatus;
 
-class DTDCSByLumiTask: public DQMEDAnalyzer{
+class DTDCSByLumiTask: public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
 
 public:
 

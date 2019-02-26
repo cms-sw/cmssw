@@ -21,7 +21,7 @@ caloStage2Params.regionPUSParams  = cms.vdouble()
 
 # EG
 caloStage2Params.egLsb                      = cms.double(0.5)
-caloStage2Params.egEtaCut                   = cms.int32(28)
+caloStage2Params.egEtaCut                   = cms.int32(24)
 caloStage2Params.egSeedThreshold            = cms.double(2.)
 caloStage2Params.egNeighbourThreshold       = cms.double(1.)
 caloStage2Params.egHcalThreshold            = cms.double(0.)
@@ -65,8 +65,8 @@ caloStage2Params.tauIsoAreaNrTowersEta         = cms.uint32(2)
 caloStage2Params.tauIsoAreaNrTowersPhi         = cms.uint32(4)
 caloStage2Params.tauIsoVetoNrTowersPhi         = cms.uint32(2)
 caloStage2Params.tauPUSType                    = cms.string("None")
-caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_22_2017_FW_v9.0.0.txt")
-caloStage2Params.tauIsoLUTFile2                = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_22_2017_FW_v9.0.0.txt")
+caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_31_extrap_2018_FW_v10.0.0.txt")
+caloStage2Params.tauIsoLUTFile2                = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_31_extrap_2018_FW_v10.0.0.txt")
 #caloStage2Params.tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Calibration_LUT_2017_Layer1Calibration_FW_v12.0.0.txt")
 caloStage2Params.tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Calibration_LUT_2018_Layer1CalibrationNewHCAL_FW_v13.0.0.txt")
 caloStage2Params.tauCompressLUTFile            = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCompressAllLUT_12bit_v3.txt")
@@ -76,8 +76,8 @@ caloStage2Params.tauPUSParams                  = cms.vdouble(1,4,32)
 caloStage2Params.jetLsb                = cms.double(0.5)
 caloStage2Params.jetSeedThreshold      = cms.double(4.0)
 caloStage2Params.jetNeighbourThreshold = cms.double(0.)
-caloStage2Params.jetPUSType            = cms.string("ChunkySandwich")
-caloStage2Params.jetPUSUseChunkySandwich = cms.uint32(True)
+caloStage2Params.jetPUSType            = cms.string("PhiRing1")
+caloStage2Params.jetPUSUsePhiRing      = cms.uint32(True)
 caloStage2Params.jetBypassPUS          = cms.uint32(0)
 
 # Calibration options
@@ -85,7 +85,7 @@ caloStage2Params.jetCalibrationType = cms.string("LUT")
 
 caloStage2Params.jetCompressPtLUTFile     = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress_2017v1.txt")
 caloStage2Params.jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress_2017v1.txt")
-caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_calib_2018v1_ECALZS_noHFJEC.txt")
+caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_calib_2018v1_ECALZS_noHFJEC_HI.txt")
 
 
 # sums: 0=ET, 1=HT, 2=MET, 3=MHT
@@ -104,16 +104,18 @@ caloStage2Params.etSumYCalibrationType    = cms.string("None")
 caloStage2Params.etSumEttCalibrationType  = cms.string("None")
 caloStage2Params.etSumEcalSumCalibrationType = cms.string("None")
 
-caloStage2Params.etSumCentralityLower =   cms.vdouble(16.5,183.5,1460.0,3143.5,5837.0,1.0,1.0,1.0)
-caloStage2Params.etSumCentralityUpper = cms.vdouble(  25.5,230.5,1612.5,3316.0,5965.0,0.0,0.0,0.0)
+caloStage2Params.etSumCentralityLower = cms.vdouble(0.0, 1.5, 7.5, 80.5, 268.0, 699.0, 1514.0, 65535.0)
+caloStage2Params.etSumCentralityUpper = cms.vdouble(4.0, 10.5, 117.5, 342.0, 809.5, 1641.0, 2966.0, 65535.0)
 
 caloStage2Params.etSumMetPUSLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v7.txt")
 caloStage2Params.etSumEttPUSLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_dummy.txt")
 caloStage2Params.etSumEcalSumPUSLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_dummy.txt")
-caloStage2Params.etSumXCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
-caloStage2Params.etSumYCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
-caloStage2Params.etSumEttCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
-caloStage2Params.etSumEcalSumCalibrationLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
+caloStage2Params.metCalibrationLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumCalib_dummy.txt")
+caloStage2Params.metHFCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumCalib_dummy.txt")
+caloStage2Params.etSumEttCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumCalib_dummy.txt")
+caloStage2Params.etSumEcalSumCalibrationLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumCalib_dummy.txt")
+caloStage2Params.metPhiCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumCalib_dummy.txt")
+caloStage2Params.metHFPhiCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumCalib_dummy.txt")
 
 
 # Layer 1 SF

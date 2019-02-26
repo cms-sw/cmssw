@@ -30,7 +30,7 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
  {
   public:
 
-    static void fillDescription( edm::ParameterSetDescription & ) ;
+    static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
 
     explicit GsfElectronBaseProducer( const edm::ParameterSet &, const gsfAlgoHelpers::HeavyObjectCache* ) ;
     ~GsfElectronBaseProducer() override ;
@@ -50,18 +50,19 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
     void beginEvent( edm::Event &, const edm::EventSetup & ) ;
     void fillEvent( edm::Event & ) ;
     void endEvent() ;
-    reco::GsfElectron * newElectron() { return nullptr ; }
     const edm::OrphanHandle<reco::GsfElectronCollection> & orphanHandle() const { return orphanHandle_;}
 
     // configurables
     GsfElectronAlgo::InputTagsConfiguration inputCfg_ ;
     GsfElectronAlgo::StrategyConfiguration strategyCfg_ ;
-    GsfElectronAlgo::CutsConfiguration cutsCfg_ ;
-    GsfElectronAlgo::CutsConfiguration cutsCfgPflow_ ;
+    const GsfElectronAlgo::CutsConfiguration cutsCfg_ ;
+    const GsfElectronAlgo::CutsConfiguration cutsCfgPflow_ ;
     ElectronHcalHelper::Configuration hcalCfg_ ;
     ElectronHcalHelper::Configuration hcalCfgPflow_ ;
-    SoftElectronMVAEstimator::Configuration mva_NIso_Cfg_ ;
-    ElectronMVAEstimator::Configuration mva_Iso_Cfg_ ;
+
+    // used to make some provenance checks
+    edm::EDGetTokenT<edm::ValueMap<float>> pfMVA_;
+
   private :
 
     // check expected configuration of previous modules
@@ -69,6 +70,7 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
     void checkEcalSeedingParameters( edm::ParameterSet const & ) ;
     edm::OrphanHandle<reco::GsfElectronCollection> orphanHandle_;
 
+    const edm::EDPutTokenT<reco::GsfElectronCollection> electronPutToken_;
  } ;
 
 #endif

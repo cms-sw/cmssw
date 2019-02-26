@@ -44,10 +44,10 @@ L1GlobalTriggerRecordProducer::L1GlobalTriggerRecordProducer(const edm::Paramete
     // input tag for DAQ GT record
     m_l1GtReadoutRecordTag = consumes<L1GlobalTriggerReadoutRecord>(parSet.getParameter<edm::InputTag>("L1GtReadoutRecordTag"));
 
-    LogDebug("L1GlobalTriggerRecordProducer")
-    << "\nInput tag for L1 GT DAQ record:             "
-    << m_l1GtReadoutRecordTag
-    << std::endl;
+    LogDebug("L1GlobalTriggerRecordProducer").log([&parSet](auto& l) {
+        l<< "\nInput tag for L1 GT DAQ record:             "
+         << parSet.getParameter<edm::InputTag>("L1GtReadoutRecordTag");
+      });
 
     // initialize cached IDs
     
@@ -80,14 +80,15 @@ void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::Event
     
     if (!gtReadoutRecord.isValid()) {
         
-        LogDebug("L1GlobalTriggerRecordProducer")
-        << "\n\n Error: no L1GlobalTriggerReadoutRecord found with input tag "
-        << m_l1GtReadoutRecordTag
-        << "\n Returning empty L1GlobalTriggerRecord.\n\n"
-        << std::endl;
-        
-        iEvent.put(std::move(gtRecord));
-        return;
+       LogDebug("L1GlobalTriggerRecordProducer").log([this](auto& l) {
+           l << "\n\n Error: no L1GlobalTriggerReadoutRecord found with input tag ";
+           edm::ProductLabels labels;
+           labelsForToken(m_l1GtReadoutRecordTag,labels);
+           l << labels.module<<" "<<labels.productInstance<<" "<<labels.process
+             << "\n Returning empty L1GlobalTriggerRecord.\n\n";
+         });
+       iEvent.put(std::move(gtRecord));
+       return;
     }
 
     //

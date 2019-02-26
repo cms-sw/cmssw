@@ -119,21 +119,11 @@ class PFBlockAlgo {
   void buildElements(const edm::Event&);
   
   /// build blocks
-  void findBlocks();
+  reco::PFBlockCollection  findBlocks();
 
   /// sets debug printout flag
   void setDebug( bool debug ) {debug_ = debug;}
-  
-  /// \return collection of blocks
-  /*   const  reco::PFBlockCollection& blocks() const {return *blocks_;} */
-  const std::unique_ptr< reco::PFBlockCollection >& blocks() const 
-    {return blocks_;}
-  
-  //uniquen unique_ptr to collection of blocks
-  std::unique_ptr< reco::PFBlockCollection > transferBlocks() {return std::move(blocks_);}
-
-  
-  
+    
  private:
   
   /// compute missing links in the blocks 
@@ -152,11 +142,8 @@ class PFBlockAlgo {
 		    reco::PFBlock::LinkTest& linktest,
 		    double& dist) const;
   
-  std::unique_ptr< reco::PFBlockCollection >    blocks_;
-  
   // the test elements will be transferred to the blocks
   ElementList       elements_; 
-  std::vector<ElementList::value_type::pointer> bare_elements_;
   ElementRanges     ranges_;
   
   /// if true, debug printouts activated

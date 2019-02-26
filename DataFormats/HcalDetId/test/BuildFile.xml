@@ -1,6 +1,6 @@
-<architecture match="_amd64_">
+<iftool name="cuda-gcc-support">
 <bin name="test_hcal_detid" file="test_hcal_detid.cu">
     <use name="DataFormats/DetId"/>
     <use name="DataFormats/HcalDetId"/>
 </bin>
-</architecture>
+</iftool>

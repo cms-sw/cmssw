@@ -49,8 +49,8 @@ public:
   ~MisalignedMuonESProducer() override; 
   
   /// Produce the misaligned Muon geometry and store it
-  edm::ESProducts< std::shared_ptr<DTGeometry>,
- 				   std::shared_ptr<CSCGeometry> > produce( const MuonGeometryRecord&  );
+  edm::ESProducts< std::unique_ptr<DTGeometry>,
+                   std::unique_ptr<CSCGeometry> > produce( const MuonGeometryRecord&  );
 
   /// Save alignemnts and error to database
   void saveToDB();
@@ -61,9 +61,6 @@ private:
 
   std::string theDTAlignRecordName, theDTErrorRecordName;
   std::string theCSCAlignRecordName, theCSCErrorRecordName;
-  
-  std::shared_ptr<DTGeometry> theDTGeometry;
-  std::shared_ptr<CSCGeometry> theCSCGeometry;
 
   Alignments*      dt_Alignments;
   AlignmentErrorsExtended* dt_AlignmentErrorsExtended;
@@ -97,7 +94,7 @@ MisalignedMuonESProducer::~MisalignedMuonESProducer() {}
 
 
 //__________________________________________________________________________________________________
-edm::ESProducts< std::shared_ptr<DTGeometry>, std::shared_ptr<CSCGeometry> >
+edm::ESProducts< std::unique_ptr<DTGeometry>, std::unique_ptr<CSCGeometry> >
 MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
 { 
 
@@ -114,11 +111,10 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
   DTGeometryBuilderFromDDD  DTGeometryBuilder;
   CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
-  theDTGeometry = std::make_shared<DTGeometry>();
-  DTGeometryBuilder.build(theDTGeometry,  &(*cpv), *mdc );
-  theCSCGeometry  = std::make_shared<CSCGeometry>();
-  CSCGeometryBuilder.build( theCSCGeometry,  &(*cpv), *mdc );
-
+  auto theDTGeometry = std::make_unique<DTGeometry>();
+  DTGeometryBuilder.build(*theDTGeometry,  &(*cpv), *mdc);
+  auto theCSCGeometry  = std::make_unique<CSCGeometry>();
+  CSCGeometryBuilder.build(*theCSCGeometry,  &(*cpv), *mdc);
 
   // Create the alignable hierarchy
   AlignableMuon* theAlignableMuon = new AlignableMuon( &(*theDTGeometry) , &(*theCSCGeometry) );
@@ -151,8 +147,7 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
 
   edm::LogInfo("MisalignedMuon") << "Producer done";
 
-  return edm::es::products( theDTGeometry, theCSCGeometry ); 
-  
+  return edm::es::products( std::move(theDTGeometry), std::move(theCSCGeometry) );
 }
 
 

@@ -187,7 +187,7 @@ public:
    void moveToBack();
    void moveToLayer(int layer);
 
-   void proxyConfigChanged();
+   void proxyConfigChanged(bool k = false);
 
    void unselect(int iIndex) const;
    void select(int iIndex) const;

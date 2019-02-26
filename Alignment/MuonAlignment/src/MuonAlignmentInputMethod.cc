@@ -75,7 +75,7 @@ std::shared_ptr<DTGeometry> MuonAlignmentInputMethod::idealDTGeometry(const edm:
    DTGeometryBuilderFromDDD DTGeometryBuilder;
 
    auto boost_dtGeometry = std::make_shared<DTGeometry>();
-   DTGeometryBuilder.build(boost_dtGeometry, &(*cpv), *mdc);
+   DTGeometryBuilder.build(*boost_dtGeometry, &(*cpv), *mdc);
 
    return boost_dtGeometry;
 }
@@ -89,7 +89,7 @@ std::shared_ptr<CSCGeometry> MuonAlignmentInputMethod::idealCSCGeometry(const ed
    CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
    auto boost_cscGeometry = std::make_shared<CSCGeometry>();
-   CSCGeometryBuilder.build(boost_cscGeometry, &(*cpv), *mdc);
+   CSCGeometryBuilder.build(*boost_cscGeometry, &(*cpv), *mdc);
 
    return boost_cscGeometry;
 }

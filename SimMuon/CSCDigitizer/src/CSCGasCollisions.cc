@@ -446,7 +446,7 @@ void CSCGasCollisions::writeSummary( int n_try, int n_steps, double sum_steps, f
     }
   }
 
-  int n_ic = count_if( elosses.begin(), elosses.end(), bind2nd(greater<float>(), eion) );
+  int n_ic = count_if( elosses.begin(), elosses.end(), [&](auto c){return c > this->eion;} );
 
   edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] total no. of collision steps = " << n_steps;
   edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] total sum of steps = " << sum_steps << " cm";
@@ -522,7 +522,7 @@ float CSCGasCollisions::lnEnergyLoss( float lnCollisions,
     else {
       // interpolate the value
       std::vector<float>::const_iterator loside = find_if(collisions.begin(),
-        collisions.end(), bind2nd(less<float>(), lnCollisions));
+        collisions.end(), [&lnCollisions](auto c){return c < lnCollisions;});
       std::vector<float>::difference_type ilo = loside - collisions.begin();
       if ( ilo > 0 ) {
         LogTrace(me) << ": using energy bin " 
@@ -546,7 +546,7 @@ void CSCGasCollisions::fillCollisionsForThisGamma( float logGamma,
    std::vector<float>& collisions ) const
 {
   std::vector<float>::const_iterator bigger = find_if(theGammaBins.begin(),
-    theGammaBins.end(), bind2nd(greater<float>(), logGamma));
+    theGammaBins.end(), [&logGamma](auto c){return c > logGamma;});
 
   if ( bigger == theGammaBins.end() ) {
     // use highest bin

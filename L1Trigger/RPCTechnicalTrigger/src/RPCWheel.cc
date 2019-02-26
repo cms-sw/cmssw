@@ -1,44 +1,25 @@
 // Include files
-
+#include <array>
 
 
 // local
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCWheel.h"
-
+#include "GeometryConstants.h"
 //-----------------------------------------------------------------------------
 // Implementation file for class : RPCWheel
 //
 // 2008-10-15 : Andres Osorio
 //-----------------------------------------------------------------------------
+using namespace rpctechnicaltrigger;
+
 
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-RPCWheel::RPCWheel() {
-  
-  m_id = 0; 
-  
-  m_maxrbc     = 6;
-  m_maxlayers  = 6;
-  m_maxsectors = 12;
-  
-  m_debug = false;
-
-  m_sec1id.push_back(12);
-  m_sec2id.push_back(1);
-  m_sec1id.push_back(2);
-  m_sec2id.push_back(3);
-  m_sec1id.push_back(4);
-  m_sec2id.push_back(5);
-  m_sec1id.push_back(6);
-  m_sec2id.push_back(7);
-  m_sec1id.push_back(8);
-  m_sec2id.push_back(9);
-  m_sec1id.push_back(10);
-  m_sec2id.push_back(11);
-
-  m_wheelmap = new std::bitset<6>[12];
-    
+RPCWheel::RPCWheel():
+  m_id{0},
+  m_debug{false}
+{
 }
 
 void RPCWheel::setProperties( int wid ) {
@@ -47,11 +28,12 @@ void RPCWheel::setProperties( int wid ) {
   
   int bisector[2];
   
+  m_RBCE.reserve(m_maxrbc);
   for( int k=0; k < m_maxrbc; ++k )
   {
-    bisector[0]= m_sec1id[k];
-    bisector[1]= m_sec2id[k];
-    m_RBCE.push_back( new RBCEmulator( ) ); 
+    bisector[0]= s_sec1id[k];
+    bisector[1]= s_sec2id[k];
+    m_RBCE.emplace_back(std::make_unique<RBCEmulator>());
     m_RBCE[k]->setid( wid, bisector );
   }
 
@@ -66,12 +48,12 @@ void RPCWheel::setProperties( int wid, const char * logic_type) {
   m_id = wid;
   
   int bisector[2];
-  
+  m_RBCE.reserve(m_maxrbc);
   for( int k=0; k < m_maxrbc; ++k )
   {
-    bisector[0]= m_sec1id[k];
-    bisector[1]= m_sec2id[k];
-    m_RBCE.push_back( new RBCEmulator( logic_type ) ); 
+    bisector[0]= s_sec1id[k];
+    bisector[1]= s_sec2id[k];
+    m_RBCE.push_back( std::make_unique<RBCEmulator>( logic_type ) ); 
     m_RBCE[k]->setid( wid, bisector );
   }
 
@@ -86,11 +68,12 @@ void RPCWheel::setProperties( int wid, const char * f_name, const char * logic_t
   
   int bisector[2];
   
+  m_RBCE.reserve(m_maxrbc);
   for( int k=0; k < m_maxrbc; ++k )
   {
     bisector[0]= (k*2)+1;
     bisector[1]= (k*2)+2;
-    m_RBCE.push_back( new RBCEmulator( f_name, logic_type ) ); 
+    m_RBCE.push_back(std::make_unique<RBCEmulator>( f_name, logic_type ) ); 
     m_RBCE[k]->setid( wid, bisector );
   }
   
@@ -99,23 +82,6 @@ void RPCWheel::setProperties( int wid, const char * f_name, const char * logic_t
   
 }
 
-//=============================================================================
-// Destructor
-//=============================================================================
-RPCWheel::~RPCWheel() {
-  
-  //destroy all rbc objects associated
-  std::vector<RBCEmulator*>::iterator itr;
-  for( itr = m_RBCE.begin(); itr != m_RBCE.end(); ++itr)
-    if ( (*itr) ) delete (*itr);
-  
-  m_RBCE.clear();
-  m_sec1id.clear();
-  m_sec2id.clear();
-
-  if ( m_wheelmap ) delete[] m_wheelmap;
-    
-} 
 
 //=============================================================================
 void RPCWheel::setSpecifications( const RBCBoardSpecs * rbcspecs )
@@ -162,9 +128,9 @@ bool RPCWheel::process( int bx, const std::map<int,RBCInput*> & data )
     m_RBCE[k]->reset();
     
     int key = bxsign*( 1000000 * abs(bx)
-                       + m_RBCE[k]->m_rbcinfo->wheelIdx()*10000 
-                       + m_RBCE[k]->m_rbcinfo->sector(0)*100
-                       + m_RBCE[k]->m_rbcinfo->sector(1) );
+                       + m_RBCE[k]->rbcinfo().wheelIdx()*10000 
+                       + m_RBCE[k]->rbcinfo().sector(0)*100
+                       + m_RBCE[k]->rbcinfo().sector(1) );
     
     itr = data.find( key );
     
@@ -288,7 +254,7 @@ void RPCWheel::retrieveWheelMap( TTUInput & output )
 //=============================================================================
 
 
-void RPCWheel::printinfo() 
+void RPCWheel::printinfo() const
 {
   
   std::cout << "Wheel -> " << m_id << '\n';
@@ -297,7 +263,7 @@ void RPCWheel::printinfo()
   
 }
 
-void RPCWheel::print_wheel(const TTUInput & wmap )
+void RPCWheel::print_wheel(const TTUInput & wmap ) const
 {
 
   std::cout << "RPCWheel::print_wheel> " << wmap.m_wheelId << '\t' << wmap.m_bx << std::endl;

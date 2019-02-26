@@ -35,7 +35,7 @@ public:
   std::string dump() const;
 
   // makes a new (copy) of the ParameterSet
-  std::shared_ptr<edm::ParameterSet> parameterSet() const;
+  std::unique_ptr<edm::ParameterSet> parameterSet() const;
 
   // makes a new (copy) of a ProcessDesc
   // For backward compatibility only.  Remove when no longer needed.

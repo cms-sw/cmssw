@@ -30,14 +30,6 @@ public:
     };
   };
   
-  class MatchDetSummaryDetId : public std::unary_function<DetSummary, bool> { 
-  public: 
-    MatchDetSummaryDetId(const uint32_t& detId) : detId_(detId) {} 
-    bool operator() (const DetSummary& detSumm) const { return (detSumm.detId_==detId_); } 
-  private:
-    uint32_t detId_;
-  };
-  
 public:
   SiPixelPerformanceSummary(const SiPixelPerformanceSummary&);
   SiPixelPerformanceSummary();

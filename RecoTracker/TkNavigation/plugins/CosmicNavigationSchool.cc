@@ -56,12 +56,10 @@ private:
 #include "SimpleBarrelNavigableLayer.h"
 #include "SimpleForwardNavigableLayer.h"
 #include "SimpleNavigableLayer.h"
-#include "DiskLessInnerRadius.h"
 #include "SymmetricLayerFinder.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "TrackingTools/DetLayers/src/DetBelowZ.h"
 #include "TrackingTools/DetLayers/src/DetLessZ.h"
 
 #include <functional>
@@ -120,7 +118,7 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
   }
 
   FDLI middle = find_if( theForwardLayers.begin(), theForwardLayers.end(),
-                         not1(DetBelowZ(0)));
+          [](auto const* a){ return a->position().z() >= 0.0; });
   theLeftLayers  = FDLC( theForwardLayers.begin(), middle);
   theRightLayers = FDLC( middle, theForwardLayers.end());
 
@@ -353,33 +351,28 @@ SkippingLayerCosmicNavigationSchool::SkippingLayerCosmicNavigationSchool(const G
 class dso_hidden SkippingLayerCosmicNavigationSchoolESProducer final : public edm::ESProducer {
  public:
   SkippingLayerCosmicNavigationSchoolESProducer(const edm::ParameterSet& iConfig) {
-  theNavigationPSet = iConfig;
-  theNavigationSchoolName = theNavigationPSet.getParameter<std::string>("ComponentName");
-  //the following line is needed to tell the framework what
-  // data is being produced
-  setWhatProduced(this, theNavigationSchoolName);
-  
-}
-
+    theNavigationPSet = iConfig;
+    theNavigationSchoolName = theNavigationPSet.getParameter<std::string>("ComponentName");
+    //the following line is needed to tell the framework what
+    // data is being produced
+    setWhatProduced(this, theNavigationSchoolName);
+  }
 
   ~SkippingLayerCosmicNavigationSchoolESProducer() override{}
 
-   typedef std::shared_ptr<NavigationSchool> ReturnType;
-
+  using ReturnType = std::unique_ptr<NavigationSchool>;
 
   ReturnType produce(const NavigationSchoolRecord&);
 
   // ----------member data ---------------------------
   edm::ParameterSet theNavigationPSet;
   std::string theNavigationSchoolName;
-
-
 };
 
+SkippingLayerCosmicNavigationSchoolESProducer::ReturnType
+SkippingLayerCosmicNavigationSchoolESProducer::produce(const NavigationSchoolRecord& iRecord) {
 
-SkippingLayerCosmicNavigationSchoolESProducer::ReturnType SkippingLayerCosmicNavigationSchoolESProducer::produce(const NavigationSchoolRecord& iRecord){
-  using namespace edm::es;
-  std::shared_ptr<NavigationSchool> theNavigationSchool ;
+  std::unique_ptr<NavigationSchool> theNavigationSchool ;
 
   // get the field
   edm::ESHandle<MagneticField>                field;

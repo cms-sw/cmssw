@@ -5,8 +5,6 @@ template <class T> const T& max ( const T& a, const T& b ) {
   return (b<a)?a:b;     // or: return comp(b,a)?a:b; for the comp version
 }
 
-
-
 MaterialBudgetTrackerHistos::MaterialBudgetTrackerHistos(std::shared_ptr<MaterialBudgetData> data,
 							 std::shared_ptr<TestHistoMgr> mgr,
 							 const std::string& fileName )
@@ -15,13 +13,12 @@ MaterialBudgetTrackerHistos::MaterialBudgetTrackerHistos(std::shared_ptr<Materia
 {
   theFileName = fileName;
   book();
-
 }
 
 
 void MaterialBudgetTrackerHistos::book() 
 {
-  std::cout << "=== booking user histos ===" << std::endl;
+  edm::LogInfo("MaterialBudget") << " MaterialBudgetTrackerHistos: Booking Histos";
 
   // Parameters for 2D histograms
   int nzbin = 1200;
@@ -32,15 +29,15 @@ void MaterialBudgetTrackerHistos::book()
   float rMax = 1400.;
   
   // total X0
-  hmgr->addHistoProf1( new TProfile("10", "MB prof Eta;#eta;x/X_{0} ", 250, -5., 5. ) );
+  hmgr->addHistoProf1( new TProfile("10", "MB prof Eta [Total];#eta;x/X_{0} ", 250, -5., 5. ) );
   hmgr->addHisto1( new TH1F("11", "Eta " , 501, -5., 5. ) );
-  hmgr->addHistoProf1( new TProfile("20", "MB prof Phi;#varphi [rad];x/X_{0} ", 180, -3.1416, 3.1416 ) );
+  hmgr->addHistoProf1( new TProfile("20", "MB prof Phi [Total];#varphi [rad];x/X_{0} ", 180, -3.1416, 3.1416 ) );
   hmgr->addHisto1( new TH1F("21", "Phi " , 180, -3.1416, 3.1416 ) );
-  hmgr->addHistoProf2( new TProfile2D("30", "MB prof Eta  Phi;#eta;#varphi;x/X_{0} ", 250, -5., 5., 180, -3.1416, 3.1416 ) );
+  hmgr->addHistoProf2( new TProfile2D("30", "MB prof Eta  Phi [Total];#eta;#varphi;x/X_{0} ", 250, -5., 5., 180, -3.1416, 3.1416 ) );
   hmgr->addHisto2( new TH2F("31", "Eta vs Phi " , 501, -5., 5., 180, -3.1416, 3.1416 ) );
-  hmgr->addHistoProf1( new TProfile("40", "MB prof R;R [mm];x/X_{0} ", 200, 0., 2000. ) );
+  hmgr->addHistoProf1( new TProfile("40", "MB prof R [Total];R [mm];x/X_{0} ", 200, 0., 2000. ) );
   hmgr->addHisto1( new TH1F("41", "R " , 200, 0., 2000. ) );
-  hmgr->addHistoProf2( new TProfile2D("50", "MB prof sum R  z;z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("50", "MB prof sum R  z [Total];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("999", "Tot track length for MB", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("51", "R vs z " , nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("60", "MB prof local R  z;z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
@@ -59,6 +56,7 @@ void MaterialBudgetTrackerHistos::book()
   hmgr->addHisto2( new TH2F("151", "R vs z [Support]" , nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("160", "MB prof local R  z [Support];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("161", "R vs z [Support]" , nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+
   // Sensitive
   hmgr->addHistoProf1( new TProfile("210", "MB prof Eta [Sensitive];#eta;x/X_{0}", 250, -5.0, 5.0 ) );
   hmgr->addHisto1( new TH1F("211", "Eta [Sensitive]" , 501, -5., 5. ) );
@@ -140,17 +138,17 @@ void MaterialBudgetTrackerHistos::book()
   //
   
   // total Lambda0
-  hmgr->addHistoProf1( new TProfile("1010", "MB prof Eta;#eta;#lambda/#lambda_{0} ", 250, -5., 5. ) );
+  hmgr->addHistoProf1( new TProfile("1010", "MB prof Eta [Total];#eta;#lambda/#lambda_{0} ", 250, -5., 5. ) );
   hmgr->addHisto1( new TH1F("1011", "Eta " , 501, -5., 5. ) );
-  hmgr->addHistoProf1( new TProfile("1020", "MB prof Phi;#varphi [rad];#lambda/#lambda_{0} ", 180, -3.1416, 3.1416 ) );
+  hmgr->addHistoProf1( new TProfile("1020", "MB prof Phi [Total];#varphi [rad];#lambda/#lambda_{0} ", 180, -3.1416, 3.1416 ) );
   hmgr->addHisto1( new TH1F("1021", "Phi " , 180, -3.1416, 3.1416 ) );
-  hmgr->addHistoProf2( new TProfile2D("1030", "MB prof Eta  Phi;#eta;#varphi;#lambda/#lambda_{0} ", 250, -5., 5., 180, -3.1416, 3.1416 ) );
+  hmgr->addHistoProf2( new TProfile2D("1030", "MB prof Eta  Phi [Total];#eta;#varphi;#lambda/#lambda_{0} ", 250, -5., 5., 180, -3.1416, 3.1416 ) );
   hmgr->addHisto2( new TH2F("1031", "Eta vs Phi " , 501, -5., 5., 180, -3.1416, 3.1416 ) );
   
   // rr
-  hmgr->addHistoProf1( new TProfile("1040", "MB prof R;R [mm];#lambda/#lambda_{0} ", 200, 0., 2000. ) );
+  hmgr->addHistoProf1( new TProfile("1040", "MB prof R [Total];R [mm];#lambda/#lambda_{0} ", 200, 0., 2000. ) );
   hmgr->addHisto1( new TH1F("1041", "R " , 200, 0., 2000. ) );
-  hmgr->addHistoProf2( new TProfile2D("1050", "MB prof sum R  z;z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("1050", "MB prof sum R  z [Total];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("1999", "Tot track length for l0", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("1051", "R vs z " , nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("1060", "MB prof local R  z;z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
@@ -247,12 +245,6 @@ void MaterialBudgetTrackerHistos::book()
   hmgr->addHisto2( new TH2F("1751", "R vs z [Air]" , nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("1760", "MB prof local R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("1761", "R vs z [Air]" , nzbin, zMin, zMax, nrbin, rMin, rMax ) );
-  //
-  
-  // rr
-  
-  std::cout << "=== booking user histos done ===" << std::endl;
-
 }
 
 
@@ -701,21 +693,21 @@ void MaterialBudgetTrackerHistos::fillEndTrack()
     
     // rr
   } else {
-    std::cout << "*** WARNING This event is out of the acceptance *** " << std::endl;
-    std::cout << "eta = "      << theData->getEta()
-	      << "\t phi = "   << theData->getPhi()
-	      << "\t x/X0 = "  << theData->getTotalMB()
-	      << "\t l/l0 = "  << theData->getTotalIL()
-	      << "\t steps = " << theData->getNumberOfSteps()
-	      << std::endl;
-    std::cout << "***" << std::endl;
+    edm::LogWarning("MaterialBudget") 
+      << "MaterialBudgetTrackerHistos: This event is out of the acceptance:" 
+      << "eta = "      << theData->getEta()
+      << "\t phi = "   << theData->getPhi()
+      << "\t x/X0 = "  << theData->getTotalMB()
+      << "\t l/l0 = "  << theData->getTotalIL()
+      << "\t steps = " << theData->getNumberOfSteps();
   }
-
- 
 }
 
-void MaterialBudgetTrackerHistos::hend() 
+void MaterialBudgetTrackerHistos::endOfRun()
 {
+
+  // Prefered method to include any instruction
+  // once all the tracks are done
 
   hmgr->getHisto2(60)->Divide(hmgr->getHisto2(999));
   hmgr->getHisto2(160)->Divide(hmgr->getHisto2(999));
@@ -735,9 +727,7 @@ void MaterialBudgetTrackerHistos::hend()
   hmgr->getHisto2(1660)->Divide(hmgr->getHisto2(1999));
   hmgr->getHisto2(1760)->Divide(hmgr->getHisto2(1999));
   
-  std::cout << "=== save user histos ===" << std::endl;
+  edm::LogInfo("MaterialBudget") << "MaterialBudgetTrackerHistos: Saving Histograms to: " << theFileName;
   hmgr->save( theFileName );
 
 }
-
-

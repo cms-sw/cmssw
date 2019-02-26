@@ -17,7 +17,7 @@ public:
   TrackerTopologyEP( const edm::ParameterSet & );
   ~TrackerTopologyEP( void ) override;
 
-  typedef std::shared_ptr<TrackerTopology> ReturnType;
+  using ReturnType = std::unique_ptr<TrackerTopology>;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
     

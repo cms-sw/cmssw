@@ -15,7 +15,6 @@
 #include "RecoCaloTools/Navigation/interface/EcalEndcapNavigator.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
 
 // C/C++ headers

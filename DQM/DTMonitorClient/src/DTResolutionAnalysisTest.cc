@@ -175,7 +175,7 @@ void DTResolutionAnalysisTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::
         if(histo_root->GetEntries()>20) {
           TF1 *gfit = new TF1("Gaussian","gaus",(statMean-(2*statSigma)),(statMean+(2*statSigma)));
           try {
-            histo_root->Fit(gfit, "Q0", "", -0.1, 0.1);
+            histo_root->Fit(gfit, "Q0 SERIAL", "", -0.1, 0.1);
           } catch (cms::Exception& iException) {
             LogWarning ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
               << "[DTResolutionAnalysisTask]: Exception when fitting SL : " << slID;

@@ -692,6 +692,8 @@ HLT_Mu9_IP3_part0_v*			#	CMSHLT1979
 HLT_PFHT400_FivePFJet_100_100_60_30_30_v*				#	CMSHLT-1978
 HLT_PFHT400_FivePFJet_100_100_60_30_30_DoublePFBTagDeepCSV_4p5_v*	#	CMSHLT-1978
 HLT_PFHT400_FivePFJet_120_120_60_30_30_DoublePFBTagDeepCSV_4p5_v*	#	CMSHLT-1978
+HLT_DoubleMediumChargedIsoPFTauHPS30_L1MaxMass_Trk1_eta2p1_Reg_v*	#	CMSHLT-2000
+HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS30_Trk1_eta2p1_Reg_CrossL1_v*	#	CMSHLT-2000
 
 ## EndPath ##
 

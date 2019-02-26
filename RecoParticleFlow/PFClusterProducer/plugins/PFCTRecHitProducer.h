@@ -16,7 +16,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 
-#include "CondFormats//HcalObjects/interface/HcalPFCorrs.h"
+#include "CondFormats/HcalObjects/interface/HcalPFCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
@@ -122,7 +122,7 @@ class dso_hidden PFCTRecHitProducer final : public edm::stream::EDProducer<> {
   int m_maxDepthHB;
   int m_maxDepthHE;
 
-  PFRecHitNavigatorBase* navigator_;
+  std::unique_ptr<PFRecHitNavigatorBase> navigator_;
 
 
 };

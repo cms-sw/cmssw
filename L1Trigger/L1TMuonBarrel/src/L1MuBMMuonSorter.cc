@@ -110,7 +110,7 @@ void L1MuBMMuonSorter::run() {
   }
 
   // sort pt and quality
-  stable_sort( mycands.begin(), mycands.end(), L1MuBMTrack::Rank() );
+  stable_sort( mycands.begin(), mycands.end(), L1MuBMTrack::rank );
 
   // copy the best 4 candidates
   int number_of_tracks = 0;

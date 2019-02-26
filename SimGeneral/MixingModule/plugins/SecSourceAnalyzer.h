@@ -43,9 +43,9 @@ namespace edm {
     explicit SecSourceAnalyzer(const edm::ParameterSet&);
     ~SecSourceAnalyzer() override;
 
-    virtual void getBranches(EventPrincipal const& ep,
-                             ModuleCallingContext const*);
-    virtual void dummyFunction(EventPrincipal const& ep) {}
+    bool getBranches(EventPrincipal const& ep,
+                     ModuleCallingContext const*);
+    bool dummyFunction(EventPrincipal const& ep) { return true; }
 
   private:
     void beginJob() override ;

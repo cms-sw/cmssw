@@ -1,8 +1,7 @@
 #include "BladeShapeBuilderFromDet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "DataFormats/GeometrySurface/interface/BoundingBox.h"
 
 #include <iomanip>
@@ -39,8 +38,8 @@ namespace {
 	rmax = max( rmax, r);
 	zmin = min( zmin, z);
 	zmax = max( zmax, z);
-	if ( PhiLess()( phi, phimin)) phimin = phi;
-	if ( PhiLess()( phimax, phi)) phimax = phi;
+	if ( Geom::phiLess( phi, phimin)) phimin = phi;
+	if ( Geom::phiLess( phimax, phi)) phimax = phi;
       }
       // in addition to the corners we have to check the middle of the 
       // det +/- length/2, since the min (max) radius for typical fw
@@ -54,7 +53,7 @@ namespace {
       
     }
     
-    if (!PhiLess()(phimin, phimax)) 
+    if (!Geom::phiLess(phimin, phimax)) 
       edm::LogError("TkDetLayers") << " BladeShapeBuilderFromDet : " 
 				   << "Something went wrong with Phi Sorting !" ;
     float zPos = (zmax+zmin)/2.;

@@ -1,5 +1,5 @@
 #ifndef DQM_SiStripCommissioningClients_DaqScopeModeHistosUsingDb_H
-#define DQM_SiStripCommissioningClients_DaqScopeModeHistosUsingD_H
+#define DQM_SiStripCommissioningClients_DaqScopeModeHistosUsingDb_H
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "DQM/SiStripCommissioningClients/interface/DaqScopeModeHistograms.h"

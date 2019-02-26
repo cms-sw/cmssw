@@ -33,6 +33,12 @@ public:
   typedef CaloCellGeometry::Pt3D     Pt3D     ;
   typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
+  static constexpr uint32_t k_dEta = 0;//Eta-width
+  static constexpr uint32_t k_dPhi = 1;//Phi-width
+  static constexpr uint32_t k_dZ   = 2;//Signed thickness
+  static constexpr uint32_t k_Eta  = 3;//Eta of the reference point
+  static constexpr uint32_t k_Z    = 4;//Z   of the reference point
+
   IdealObliquePrism() ;
   IdealObliquePrism( const IdealObliquePrism& idop ) ;
 

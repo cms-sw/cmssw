@@ -8,9 +8,9 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
-
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 //temporary sorter, I'm sure this must exist already in CMSSW
 template <class T1,class T2,typename Comp=std::less<T1> > struct PairSortByFirst { 
@@ -114,13 +114,13 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
 
     }
 
-    sort(seeds.begin(), seeds.end(), EcalRecHitLess());
+    sort(seeds.begin(), seeds.end(), [](auto const& x, auto const& y){return (x.energy() > y.energy());});
 
     LogTrace("EcalClusters") << "Total number of seeds found in event = " << seeds.size();
 
 
     mainSearch(hits, geometry_p, topology_p, geometryES_p);
-    sort(clusters_v.rbegin(), clusters_v.rend(), ClusterEtLess());
+    sort(clusters_v.rbegin(), clusters_v.rend(), isClusterEtLess);
 
     LogTrace("EcalClusters") << "---------- end of main search. clusters have been sorted ----";
 
@@ -314,7 +314,6 @@ bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
     swissCrossVec.push_back(navigator.south());
     navigator.home();
 
-    std::vector<DetId>::const_iterator detItr;
     for (unsigned int i = 0; i < swissCrossVec.size(); ++i)
     {
 

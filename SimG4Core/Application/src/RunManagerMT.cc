@@ -18,7 +18,6 @@
 
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
-#include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
 #include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 
@@ -84,12 +83,13 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
 
   m_runInterface.reset(nullptr);
   m_prodCuts.reset(nullptr);
-  m_chordFinderSetter.reset(nullptr);
   m_userRunAction = nullptr;
   m_currentRun = nullptr;
 
   m_kernel = new G4MTRunManagerKernel();
-  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
+  m_stateManager = G4StateManager::GetStateManager();
+  m_stateManager->SetExceptionHandler(new ExceptionHandler());
+  m_geometryManager->G4GeometryManager::GetInstance();
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
@@ -99,9 +99,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
 
 RunManagerMT::~RunManagerMT() 
 {
-  if(!m_runTerminated) { terminateRun(); }
-  G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
-  G4GeometryManager::GetInstance()->OpenGeometry();
+  stopG4();
 }
 
 void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, 
@@ -113,8 +111,8 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
     << "RunManagerMT: start initialisation of geometry";
   
   // DDDWorld: get the DDCV from the ES and use it to build the World
-  G4LogicalVolumeToDDLogicalPartMap map_;
-  m_world.reset(new DDDWorld(pDD, map_, m_catalog, false));
+  G4LogicalVolumeToDDLogicalPartMap map_lv;
+  m_world.reset(new DDDWorld(pDD, map_lv, m_catalog, false));
   m_registry.dddWorldSignal_(m_world.get());
 
   // setup the magnetic field
@@ -155,7 +153,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   // exotic particle physics
   double monopoleMass = m_pPhysics.getUntrackedParameter<double>("MonopoleMass",0);
   if(monopoleMass > 0.0) {
-    phys->RegisterPhysics(new CMSMonopolePhysics(fPDGTable,m_chordFinderSetter.get(),m_pPhysics));
+    phys->RegisterPhysics(new CMSMonopolePhysics(fPDGTable,m_pPhysics));
   }
   bool exotica = m_pPhysics.getUntrackedParameter<bool>("ExoticaTransport",false);
   if(exotica) { CMSExoticaPhysics exo(phys, m_pPhysics); }
@@ -164,7 +162,6 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   // step limiters on top of any Physics Lists
   phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions",m_pPhysics));
 
-  m_physicsList->ResetStoredInAscii();
   if (m_RestorePhysicsTables) {
     m_physicsList->SetPhysicsTableRetrieved(m_PhysicsTablesDir);
   }
@@ -179,11 +176,22 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   m_physicsList->SetCutsWithDefault();
 
   if(m_pPhysics.getParameter<bool>("CutsPerRegion")) {
-    m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));	
+    m_prodCuts.reset(new DDG4ProductionCuts(map_lv, verb, m_pPhysics));	
     m_prodCuts->update();
   }
   
   m_kernel->SetPhysics(phys);
+
+  // Geant4 UI commands before initialisation of physics
+  if(!m_G4Commands.empty()) {
+    G4cout << "RunManagerMT: Requested UI commands: " << G4endl;
+    for (const std::string& command : m_G4Commands) {
+      G4cout << "    " << command << G4endl;
+      G4UImanager::GetUIpointer()->ApplyCommand(command);
+    }
+  }
+
+  m_stateManager->SetNewState(G4State_Init);
   m_kernel->InitializePhysics();
   m_kernel->SetUpDecayChannels();
 
@@ -212,14 +220,6 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
   initializeUserActions();
 
-  if(!m_G4Commands.empty()) {
-    G4cout << "RunManagerMT: Requested UI commands: " << G4endl;
-    for (unsigned it=0; it<m_G4Commands.size(); ++it) {
-      G4cout << "    " << m_G4Commands[it] << G4endl;
-      G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
-    }
-  }
-
   if(verb > 1) { m_physicsList->DumpCutValuesTable(); }
 
   // geometry dump
@@ -243,7 +243,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   //
   //G4ParticleTable::GetParticleTable()->DumpTable("ALL");
   //
-  G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
+  m_stateManager->SetNewState(G4State_GeomClosed);
   m_currentRun = new G4Run(); 
   m_userRunAction->BeginOfRunAction(m_currentRun); 
 }
@@ -262,7 +262,8 @@ void  RunManagerMT::Connect(RunAction* runAction)
 
 void RunManagerMT::stopG4()
 {
-  G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
+  m_geometryManager->OpenGeometry();
+  m_stateManager->SetNewState(G4State_Quit);
   if(!m_runTerminated) { terminateRun(); }
 }
 
@@ -286,8 +287,9 @@ void RunManagerMT::DumpMagneticField(const G4Field* field) const
       << " RunManager WARNING : "
       << "error opening file <" << m_FieldFile << "> for magnetic field";
   } else {
+    // CMS magnetic field volume
     double rmax = 9000*mm;
-    double zmax = 16000*mm;
+    double zmax = 24000*mm;
 
     double dr = 5*cm;
     double dz = 20*cm;

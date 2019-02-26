@@ -21,7 +21,7 @@ ApvTimingHistograms::ApvTimingHistograms( const edm::ParameterSet& pset,
                              bei,
                              sistrip::APV_TIMING )
 {
-  factory_ = auto_ptr<ApvTimingSummaryFactory>( new ApvTimingSummaryFactory );
+  factory_ = unique_ptr<ApvTimingSummaryFactory>( new ApvTimingSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[ApvTimingHistograms::" << __func__ << "]"
     << " Constructing object...";

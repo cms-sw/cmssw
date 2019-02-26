@@ -6,83 +6,36 @@
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCProcessRPCDigis.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCLinkBoardGLSignal.h"
 #include "DataFormats/Common/interface/Handle.h"
-
+#include "GeometryConstants.h"
 //-----------------------------------------------------------------------------
 // Implementation file for class : RBCProcessRPCDigis
 //
 // 2009-04-15 : Andres Felipe Osorio Oliveros
 //-----------------------------------------------------------------------------
+using namespace rpctechnicaltrigger;
 
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
 RBCProcessRPCDigis::RBCProcessRPCDigis(  const edm::ESHandle<RPCGeometry> & rpcGeom, 
-                                         const edm::Handle<RPCDigiCollection> & digiColl ) 
+                                         const edm::Handle<RPCDigiCollection> & digiColl ) :
+  m_maxBxWindow{3},
+  m_debug{false}
 {
   
   m_ptr_rpcGeom  = & rpcGeom;
   m_ptr_digiColl = & digiColl;
   
-  m_lbin = dynamic_cast<RPCInputSignal*>( new RBCLinkBoardGLSignal( &m_data ) );
-  
-  m_debug = false;
-  
+  m_lbin =std::make_unique<RBCLinkBoardGLSignal>( &m_data ) ;
+    
   configure();
   
 }
 
 void RBCProcessRPCDigis::configure() 
 {
-  
-  m_wheelid.push_back(-2); //-2
-  m_wheelid.push_back(-1); //-1
-  m_wheelid.push_back(0);  // 0
-  m_wheelid.push_back( 1); //+1
-  m_wheelid.push_back( 2); //+2
-  
-  m_sec1id.push_back(12);
-  m_sec2id.push_back(1);
-  m_sec1id.push_back(2);
-  m_sec2id.push_back(3);
-  m_sec1id.push_back(4);
-  m_sec2id.push_back(5);
-  m_sec1id.push_back(6);
-  m_sec2id.push_back(7);
-  m_sec1id.push_back(8);
-  m_sec2id.push_back(9);
-  m_sec1id.push_back(10);
-  m_sec2id.push_back(11);
-  
-  m_layermap[113]     = 0;  //RB1InFw
-  m_layermap[123]     = 1;  //RB1OutFw
-  
-  m_layermap[20213]   = 2;  //RB22Fw
-  m_layermap[20223]   = 2;  //RB22Fw
-  m_layermap[30223]   = 3;  //RB23Fw
-  m_layermap[30213]   = 3;  //RB23Fw
-  m_layermap[30212]   = 4;  //RB23M
-  m_layermap[30222]   = 4;  //RB23M
-  
-  m_layermap[313]     = 5;  //RB3Fw
-  m_layermap[413]     = 6;  //RB4Fw
-  m_layermap[111]     = 7;  //RB1InBk
-  m_layermap[121]     = 8;  //RB1OutBk
-  
-  m_layermap[20211]   = 9;  //RB22Bw
-  m_layermap[20221]   = 9;  //RB22Bw
-  m_layermap[30211]   = 10; //RB23Bw
-  m_layermap[30221]   = 10; //RB23Bw
-  
-  m_layermap[311]     = 11; //RB3Bk
-  m_layermap[411]     = 12; //RB4Bk
-
-  m_maxBxWindow = 3;
-
-  std::vector<int>::iterator wheel;
-
-  for( wheel = m_wheelid.begin(); wheel != m_wheelid.end(); ++wheel)
-    m_digiCounters[(*wheel)] = new l1trigger::Counters( (*wheel) );
-  
+  for( auto wheel : s_wheelid)
+    m_digiCounters.emplace(wheel, wheel);
 }
 
 //=============================================================================
@@ -90,20 +43,6 @@ void RBCProcessRPCDigis::configure()
 //=============================================================================
 RBCProcessRPCDigis::~RBCProcessRPCDigis() {
   
-  if ( m_lbin ) delete m_lbin;
-
-  std::vector<int>::iterator wheel;
-  
-  for( wheel = m_wheelid.begin(); wheel != m_wheelid.end(); ++wheel)
-    delete m_digiCounters[(*wheel)];
-  
-  m_sec1id.clear();
-  m_sec2id.clear();
-  m_wheelid.clear();
-  m_layermap.clear();
-  
-  reset();
-    
 } 
 
 //=============================================================================
@@ -115,13 +54,12 @@ int RBCProcessRPCDigis::next() {
   
   int ndigis(0);
   
-  for (m_detUnitItr = (*m_ptr_digiColl)->begin(); 
-       m_detUnitItr != (*m_ptr_digiColl)->end(); ++m_detUnitItr ) {
+  for (auto const& detUnit : *(*m_ptr_digiColl) ) {
     
     if ( m_debug ) std::cout << "looping over digis 1 ..." << std::endl;
     
-    m_digiItr = (*m_detUnitItr ).second.first;
-    int bx = (*m_digiItr).bx();
+    auto digiItr = detUnit.second.first;
+    int bx = (*digiItr).bx();
     
     if ( abs(bx) >= m_maxBxWindow ) {
       if ( m_debug )  std::cout << "RBCProcessRPCDigis> found a bx bigger than max allowed: "
@@ -129,7 +67,7 @@ int RBCProcessRPCDigis::next() {
       continue;
     }
     
-    const RPCDetId & id  = (*m_detUnitItr).first;
+    const RPCDetId & id  = detUnit.first;
     const RPCRoll * roll = dynamic_cast<const RPCRoll* >( (*m_ptr_rpcGeom)->roll(id));
     
     if((roll->isForward())) {
@@ -166,27 +104,22 @@ int RBCProcessRPCDigis::next() {
                              << "Digi at: " << digipos << '\n';
     
     //... Construct the RBCinput objects
-    std::map<int,std::vector<RPCData*> >::iterator itr;
-    itr = m_vecDataperBx.find( bx );
+    auto itr = m_vecDataperBx.find( bx );
     
     if ( itr == m_vecDataperBx.end() ) {
       if ( m_debug ) std::cout << "Found a new Bx: " << bx << std::endl;
-      std::vector<RPCData*> wheelData;
+      auto& wheelData = m_vecDataperBx[bx];
       initialize(wheelData);
-      m_vecDataperBx[bx] = wheelData; 
-      this->m_block = wheelData[ (wheel + 2) ];
-      setDigiAt( sector, digipos );
+      setDigiAt( sector, digipos,  wheelData[ (wheel + 2) ] );
     }
     else{
-      this->m_block = (*itr).second[ (wheel + 2) ];
-      setDigiAt( sector, digipos );
+      setDigiAt( sector, digipos, (*itr).second[ (wheel + 2) ] );
     }
     
-    std::map<int, l1trigger::Counters* >::iterator wheelCounter;
-    wheelCounter = m_digiCounters.find( wheel );
+    auto wheelCounter = m_digiCounters.find( wheel );
     
     if ( wheelCounter != m_digiCounters.end() )
-      (*wheelCounter).second->incrementSector( sector );
+      (*wheelCounter).second.incrementSector( sector );
     
     if ( m_debug ) std::cout << "looping over digis 2 ..." << std::endl;
     
@@ -206,10 +139,9 @@ int RBCProcessRPCDigis::next() {
   if ( m_debug ) std::cout << "RBCProcessRPCDigis: DataSize: " << m_data.size() 
                            << " ndigis " << ndigis << std::endl;
   
-  std::map<int, l1trigger::Counters* >::iterator wheelCounter;
-  for( wheelCounter = m_digiCounters.begin(); wheelCounter != m_digiCounters.end(); ++wheelCounter) {
-    (*wheelCounter).second->evalCounters();
-    if ( m_debug ) (*wheelCounter).second->printSummary();
+  for( auto& wheelCounter : m_digiCounters) {
+    wheelCounter.second.evalCounters();
+    if ( m_debug ) wheelCounter.second.printSummary();
   }
   
   if ( m_data.empty() ) return 0;
@@ -219,45 +151,33 @@ int RBCProcessRPCDigis::next() {
 }
 
 void RBCProcessRPCDigis::reset()
-{
-  
-  std::map<int,std::vector<RPCData*> >::iterator itr1;
-  for( itr1 = m_vecDataperBx.begin(); itr1 != m_vecDataperBx.end(); ++itr1) {
-    std::vector<RPCData*>::iterator itr2;
-    for(itr2 = (*itr1).second.begin(); itr2 != (*itr1).second.end();++itr2 )
-      if ( (*itr2) ) delete *itr2;
-    (*itr1).second.clear();
-  }
+{  
   m_vecDataperBx.clear();
-  
 }
 
 
-void RBCProcessRPCDigis::initialize( std::vector<RPCData*> & dataVec ) 
+void RBCProcessRPCDigis::initialize( std::vector<RPCData> & dataVec ) const
 {
   
   if ( m_debug ) std::cout << "initialize" << std::endl;
   
-  int maxWheels = 5;
-  int maxRbcBrds = 6;
+  constexpr int maxWheels = 5;
+  constexpr int maxRbcBrds = 6;
   
+  dataVec.reserve(maxWheels);
   for(int i=0; i < maxWheels; ++i) {
+    auto& block = dataVec.emplace_back();
     
-    m_block = new RPCData();
-    
-    m_block->m_wheel = m_wheelid[i];
+    block.m_wheel = s_wheelid[i];
     
     for(int j=0; j < maxRbcBrds; ++j) {
-      m_block->m_sec1[j] = m_sec1id[j];
-      m_block->m_sec2[j] = m_sec2id[j];
-      m_block->m_orsignals[j].input_sec[0].reset();
-      m_block->m_orsignals[j].input_sec[1].reset();
-      m_block->m_orsignals[j].needmapping = false;
-      m_block->m_orsignals[j].hasData = false;
+      block.m_sec1[j] = s_sec1id[j];
+      block.m_sec2[j] = s_sec2id[j];
+      block.m_orsignals[j].input_sec[0].reset();
+      block.m_orsignals[j].input_sec[1].reset();
+      block.m_orsignals[j].needmapping = false;
+      block.m_orsignals[j].hasData = false;
     }
-
-    dataVec.push_back( m_block );
-    
   }
   
   if ( m_debug ) std::cout << "initialize: completed" << std::endl;
@@ -267,45 +187,35 @@ void RBCProcessRPCDigis::initialize( std::vector<RPCData*> & dataVec )
 void RBCProcessRPCDigis::builddata() 
 {
   
-  int bx(0);
-  int code(0);
-  int bxsign(1);
-  std::vector<RPCData*>::iterator itr;
-  std::map<int, std::vector<RPCData*> >::iterator itr2;
   
-  itr2 = m_vecDataperBx.begin();
-  if( itr2 == ( m_vecDataperBx.end() ) ) return;
-  
-  while ( itr2 != m_vecDataperBx.end() ) {
+  for(auto & vecData: m_vecDataperBx) {
     
-    bx = (*itr2).first;
+    int bx = vecData.first;
+    int bxsign(1);
     
     if ( bx != 0 ) bxsign = ( bx / abs(bx) );
     else bxsign = 1;
     
-    for(itr = (*itr2).second.begin(); itr != (*itr2).second.end(); ++itr) {
+    for(auto & item : vecData.second) {
       
       for(int k=0; k < 6; ++k) {
         
-        code = bxsign * ( 1000000*abs(bx)
-                          + 10000*(*itr)->wheelIdx()
-                          + 100  *(*itr)->m_sec1[k]
-                          + 1    *(*itr)->m_sec2[k] );
+        int code = bxsign * ( 1000000*abs(bx)
+                              + 10000*item.wheelIdx()
+                              + 100  *item.m_sec1[k]
+                              + 1    *item.m_sec2[k] );
         
-        RBCInput * signal = & (*itr)->m_orsignals[k];
+        RBCInput * signal = & item.m_orsignals[k];
         signal->needmapping = false;
         
         if ( signal->hasData )
-          m_data.insert( std::make_pair( code , signal) );
+          m_data.emplace( code , signal );
         
       }
     }
-    
-    ++itr2;
-    
   }
   
-  if ( m_debug ) std::cout << "builddata: completed. size of data: " << m_data.size() << std::endl;
+  if ( m_debug and not m_vecDataperBx.empty() ) std::cout << "builddata: completed. size of data: " << m_data.size() << std::endl;
   
 }
 
@@ -327,7 +237,7 @@ int RBCProcessRPCDigis::getBarrelLayer( const int & _layer, const int & _station
 }
 
 
-void RBCProcessRPCDigis::setDigiAt( int sector, int digipos )
+void RBCProcessRPCDigis::setDigiAt( int sector, int digipos, RPCData& block )
 {
   
   int pos   = 0;
@@ -335,26 +245,25 @@ void RBCProcessRPCDigis::setDigiAt( int sector, int digipos )
 
   if ( m_debug ) std::cout << "setDigiAt" << std::endl;
   
-  std::vector<int>::const_iterator itr;
-  itr = std::find( m_sec1id.begin(), m_sec1id.end(), sector );
+  auto itr = std::find( s_sec1id.begin(), s_sec1id.end(), sector );
   
-  if ( itr == m_sec1id.end()) {
-    itr = std::find( m_sec2id.begin(), m_sec2id.end(), sector );
+  if ( itr == s_sec1id.end()) {
+    itr = std::find( s_sec2id.begin(), s_sec2id.end(), sector );
     isAoB = 1;
   } 
   
   for ( pos = 0; pos < 6; ++pos ) {
-    if (this->m_block->m_sec1[pos] == sector || this->m_block->m_sec2[pos] == sector )
+    if (block.m_sec1[pos] == sector || block.m_sec2[pos] == sector )
       break;
   }
   
-  if ( m_debug ) std::cout << this->m_block->m_orsignals[pos];
+  if ( m_debug ) std::cout << block.m_orsignals[pos];
   
-  setInputBit( this->m_block->m_orsignals[pos].input_sec[ isAoB ] , digipos );
+  setInputBit( block.m_orsignals[pos].input_sec[ isAoB ] , digipos );
   
-  this->m_block->m_orsignals[pos].hasData = true;
+  block.m_orsignals[pos].hasData = true;
   
-  if ( m_debug ) std::cout << this->m_block->m_orsignals[pos];
+  if ( m_debug ) std::cout << block.m_orsignals[pos];
   
   if ( m_debug ) std::cout << "setDigiAt completed" << std::endl;
   
@@ -363,7 +272,7 @@ void RBCProcessRPCDigis::setDigiAt( int sector, int digipos )
 void RBCProcessRPCDigis::setInputBit( std::bitset<15> & signals , int digipos ) 
 {
   
-  int bitpos = m_layermap[digipos];
+  int bitpos = s_layermap.at(digipos);
   if( m_debug ) std::cout << "Bitpos: " << bitpos << std::endl;
   signals.set( bitpos , true );
   
@@ -374,9 +283,8 @@ void  RBCProcessRPCDigis::print_output()
 
   std::cout << "RBCProcessRPCDigis> Output starts" << std::endl;
   
-  std::map<int,RBCInput*>::const_iterator itr;
-  for( itr = m_data.begin(); itr != m_data.end(); ++itr) {
-    std::cout << (*itr).first << '\t' << (* (*itr).second ) << '\n';
+  for( auto const& item: m_data) {
+    std::cout << item.first << '\t' << (* item.second ) << '\n';
   }
 
   std::cout << "RBCProcessRPCDigis> Output ends" << std::endl;

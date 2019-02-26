@@ -19,7 +19,6 @@
 
 #include <vector>
 #include "boost/unordered_map.hpp"
-#include "boost/foreach.hpp"
 #include <string>
 
 namespace hcaldqm

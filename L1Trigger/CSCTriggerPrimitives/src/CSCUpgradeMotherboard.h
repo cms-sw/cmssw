@@ -10,10 +10,9 @@
  *
  */
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboardLUT.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboardLUTGenerator.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeAnodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeCathodeLCTProcessor.h"
 
 // generic container type
 namespace{
@@ -31,9 +30,6 @@ template <class T>
 using matchesBX = std::map<int, std::vector<std::pair<unsigned int, T> > >;
 
 }
-
-class CSCGeometry;
-class CSCChamber;
 
 class CSCUpgradeMotherboard : public CSCMotherboard
 {
@@ -56,11 +52,17 @@ public:
     // get all LCTs in the 16 BX readout window
     void getMatched(std::vector<CSCCorrelatedLCTDigi>&) const;
 
+    // clear the array with stubs
+    void clear();
+
     // array with stored LCTs
-    CSCCorrelatedLCTDigi data[CSCConstants::MAX_LCT_TBINS][15][2];
+    // 1st index: depth of pipeline that stores the ALCT and CLCT
+    // 2nd index: BX number of the ALCT-CLCT match in the matching window
+    // 3rd index: LCT number in the time bin
+    CSCCorrelatedLCTDigi data[CSCConstants::MAX_LCT_TBINS][CSCConstants::MAX_MATCH_WINDOW_SIZE][CSCConstants::MAX_LCTS_PER_CSC];
 
     // matching trigger window
-    const unsigned int match_trig_window_size;
+    const unsigned int match_trig_window_size_;
   };
 
   // standard constructor
@@ -72,6 +74,9 @@ public:
   CSCUpgradeMotherboard();
 
   ~CSCUpgradeMotherboard() override;
+
+  // Empty the LCT container
+  void clear();
 
   // Compare two matches of type <ID,DIGI>
   // The template is match<GEMPadDigi> or match<GEMCoPadDigi>
@@ -94,25 +99,33 @@ public:
                 bool (*sorter)(const CSCCorrelatedLCTDigi&,
                                const CSCCorrelatedLCTDigi&)) const;
 
+  /** get CSCPart from HS, station, ring number **/
+  enum CSCPart getCSCPart(int keystrip) const;
+
   // functions to setup geometry and LUTs
-  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
   void setupGeometry();
   void debugLUTs();
 
+  // run TMB with GEM pad clusters as input
+  void run(const CSCWireDigiCollection* wiredc,
+           const CSCComparatorDigiCollection* compdc) override;
+
+  /* readout the two best LCTs in this CSC */
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const override;
+
  protected:
 
-  /** Chamber id (trigger-type labels). */
-  unsigned theRegion;
-  unsigned theChamber;
-  Parity par;
+  void correlateLCTs(const CSCALCTDigi& bestALCT, const CSCALCTDigi& secondALCT,
+                     const CSCCLCTDigi& bestCLCT, const CSCCLCTDigi& secondCLCT,
+                     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2) const;
 
-  edm::ParameterSet tmbParams_;
-  edm::ParameterSet commonParams_;
+  Parity theParity;
 
-  const CSCGeometry* csc_g;
-  const CSCChamber* cscChamber;
+  void setPrefIndex();
 
-  std::vector<CSCALCTDigi> alctV;
+  /** for the case when more than 2 LCTs/BX are allowed;
+      maximum match window = 15 */
+  LCTContainer allLCTs;
 
   std::unique_ptr<CSCUpgradeMotherboardLUTGenerator> generator_;
 
@@ -122,14 +135,7 @@ public:
   bool match_earliest_alct_only;
   bool match_earliest_clct_only;
 
-  /** if true: use regular CLCT-to-ALCT matching in TMB
-      if false: do ALCT-to-CLCT matching */
-  bool clct_to_alct;
-
-  /** whether to not reuse CLCTs that were used by previous matching ALCTs
-      in ALCT-to-CLCT algorithm */
-  bool drop_used_clcts;
-
+  /* type of algorithm to sort the stubs */
   unsigned int tmb_cross_bx_algo;
 
   /** maximum lcts per BX in MEX1: 2, 3, 4 or 999 */

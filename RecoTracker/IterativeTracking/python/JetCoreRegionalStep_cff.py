@@ -76,6 +76,7 @@ jetCoreRegionalStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "jetCoreRegionalStepSeedLayers",
     trackingRegions = "jetCoreRegionalStepTrackingRegions",
     produceSeedingHitSets = True,
+    maxElementTotal = 12000000,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 jetCoreRegionalStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
@@ -185,12 +186,17 @@ jetCoreRegionalStep.mva.maxDr = [0.3,0.2,0.1];
 jetCoreRegionalStep.vertices = 'firstStepGoodPrimaryVertices'
 
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
-trackingPhase1.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone(
-     src = 'jetCoreRegionalStepTracks',
-     mva = dict(GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1'),
-     qualityCuts = [-0.2,0.0,0.4],
-))
+
 fastSim.toModify(jetCoreRegionalStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
+
+#LWTNN selector
+from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
+trackingPhase1.toReplaceWith(jetCoreRegionalStep, TrackLwtnnClassifier.clone(
+     src = 'jetCoreRegionalStepTracks',
+     qualityCuts = [0.6, 0.7, 0.8],
+))
+(trackingPhase1 & fastSim).toModify(jetCoreRegionalStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # Final sequence
 JetCoreRegionalStepTask = cms.Task(jetsForCoreTracking,                 

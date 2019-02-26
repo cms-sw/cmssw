@@ -1,7 +1,6 @@
 #ifndef JetSignalVertexCompatibilityAlgo_h
 #define JetSignalVertexCompatibilityAlgo_h
 
-#include <functional>
 #include <vector>
 #include <map>
 
@@ -26,9 +25,7 @@ class JetSignalVertexCompatibilityAlgo {
 
     private:
 	template<typename T>
-	struct RefToBaseLess : public std::binary_function<edm::RefToBase<T>,
-	                                                   edm::RefToBase<T>,
-                                                           bool> {
+	struct RefToBaseLess {
 		bool operator()(const edm::RefToBase<T> &r1,
 		                const edm::RefToBase<T> &r2) const;
 	};

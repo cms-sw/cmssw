@@ -108,7 +108,7 @@ class Phase2TrackerDigitizerAlgorithm  {
   //-- drift
   const bool alpha2Order;          // Switch on/off of E.B effect 
   const bool addXtalk;
-  const float interstripCoupling;     
+  const float interstripCoupling;  
   const float Sigma0; //=0.0007  // Charge diffusion in microns for 300 micron Si
   const float SigmaCoeff; // delta in the diffusion across the strip pitch 
   
@@ -181,7 +181,9 @@ class Phase2TrackerDigitizerAlgorithm  {
   void fluctuateEloss(int particleId, float momentum, float eloss, 
 		      float length, int NumberOfSegments,
 		      std::vector<float> & elossVector) const;
-  virtual void add_noise(const Phase2TrackerGeomDetUnit* pixdet, float thePixelThreshold);
+  virtual void add_noise(const Phase2TrackerGeomDetUnit* pixdet);
+  virtual void add_cross_talk(const Phase2TrackerGeomDetUnit* pixdet);
+  virtual void add_noisy_cells(const Phase2TrackerGeomDetUnit* pixdet, float thePixelThreshold);
   virtual void pixel_inefficiency(const SubdetEfficiencies& eff,
 				  const Phase2TrackerGeomDetUnit* pixdet,
 				  const TrackerTopology* tTopo);

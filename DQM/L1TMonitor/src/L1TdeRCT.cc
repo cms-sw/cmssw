@@ -27,51 +27,52 @@
 using namespace edm;
 using namespace std;
 
-const unsigned int PHIBINS = 18;
-const float PHIMIN = -0.5;
-const float PHIMAX = 17.5;
+namespace {
+constexpr unsigned int PHIBINS = 18;
+constexpr float PHIMIN = -0.5;
+constexpr float PHIMAX = 17.5;
 
-const unsigned int ETABINS = 22;
-const float ETAMIN = -0.5;
-const float ETAMAX = 21.5;
+constexpr unsigned int ETABINS = 22;
+constexpr float ETAMIN = -0.5;
+constexpr float ETAMAX = 21.5;
 
-const unsigned int BITETABINS = 44;
-const float BITETAMIN = 0;
-const float BITETAMAX = 22;
+constexpr unsigned int BITETABINS = 44;
+constexpr float BITETAMIN = 0;
+constexpr float BITETAMAX = 22;
 
-const unsigned int BITPHIBINS = 72;
-const float BITPHIMIN = 0;
-const float BITPHIMAX = 18;
+constexpr unsigned int BITPHIBINS = 72;
+constexpr float BITPHIMIN = 0;
+constexpr float BITPHIMAX = 18;
 
-const unsigned int BITRPHIBINS = 90;
-const float BITRPHIMIN = 0;
-const float BITRPHIMAX = 18;
+constexpr unsigned int BITRPHIBINS = 90;
+constexpr float BITRPHIMIN = 0;
+constexpr float BITRPHIMAX = 18;
 
-const unsigned int TPGPHIBINS = 72;
-const float TPGPHIMIN = -0.5;
-const float TPGPHIMAX = 71.5;
+constexpr unsigned int TPGPHIBINS = 72;
+constexpr float TPGPHIMIN = -0.5;
+constexpr float TPGPHIMAX = 71.5;
 
-const unsigned int TPGETABINS = 64;
-const float TPGETAMIN = -32.;
-const float TPGETAMAX = 32.;
+constexpr unsigned int TPGETABINS = 64;
+constexpr float TPGETAMIN = -32.;
+constexpr float TPGETAMAX = 32.;
 
-const unsigned int TPGRANK = 256;
-const float TPGRANKMIN = -.5;
-const float TPGRANKMAX = 255.5;
+constexpr unsigned int TPGRANK = 256;
+constexpr float TPGRANKMIN = -.5;
+constexpr float TPGRANKMAX = 255.5;
 
-const unsigned int DEBINS = 127;
-const float DEMIN = -63.5;
-const float DEMAX = 63.5;
+constexpr unsigned int DEBINS = 127;
+constexpr float DEMIN = -63.5;
+constexpr float DEMAX = 63.5;
 
-const unsigned int ELBINS = 64;
-const float ELMIN = -.5;
-const float ELMAX = 63.5;
+constexpr unsigned int ELBINS = 64;
+constexpr float ELMIN = -.5;
+constexpr float ELMAX = 63.5;
 
-const unsigned int PhiEtaMax = 396;
-const unsigned int CHNLBINS = 396;
-const float CHNLMIN = -0.5;
-const float CHNLMAX = 395.5;
-
+constexpr unsigned int PhiEtaMax = 396;
+constexpr unsigned int CHNLBINS = 396;
+constexpr float CHNLMIN = -0.5;
+constexpr float CHNLMAX = 395.5;
+}
 
 const int L1TdeRCT::crateFED[108]=
     {613, 614, 603, 702,  718,1118,
@@ -122,30 +123,12 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
   if (verbose_)
     std::cout << "L1TdeRCT: constructor...." << std::endl;
 
-  outputFile_ =
-      ps.getUntrackedParameter < std::string > ("outputFile", "");
-  if (!outputFile_.empty()) {
-    if(verbose_) std::
-  cout << "L1T Monitoring histograms will be saved to " <<
-  outputFile_.c_str() << std::endl;
-  }
-
-  bool disable =
-      ps.getUntrackedParameter < bool > ("disableROOToutput", false);
-  if (disable) {
-    outputFile_ = "";
-  }
-
   histFolder_
     = ps.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/L1TdeRCT");
 }
 
 L1TdeRCT::~L1TdeRCT()
 {
-}
-
-void L1TdeRCT::dqmBeginRun(const edm::Run&, const edm::EventSetup&){
-  //
 }
 
 void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
@@ -1901,12 +1884,14 @@ void L1TdeRCT::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run , 
   readFEDVector(fedVectorMonitorRUN_,es);
 }
 
-void L1TdeRCT::beginLuminosityBlock(const edm::LuminosityBlock& ls,const edm::EventSetup& es)
+std::shared_ptr<l1tderct::Empty>
+ L1TdeRCT::globalBeginLuminosityBlock(const edm::LuminosityBlock& ls,const edm::EventSetup& es) const
 {
   readFEDVector(fedVectorMonitorLS_,es);
+  return std::shared_ptr<l1tderct::Empty>();
 }
 
-void L1TdeRCT::readFEDVector(MonitorElement* histogram,const edm::EventSetup& es)
+void L1TdeRCT::readFEDVector(MonitorElement* histogram,const edm::EventSetup& es) const
 {
   // adding fed mask into channel mask
   edm::ESHandle<RunInfo> sum;

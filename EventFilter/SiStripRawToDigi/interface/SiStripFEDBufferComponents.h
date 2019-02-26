@@ -407,11 +407,11 @@ namespace sistrip {
     {
     public:
       //factory function: allocates new FEDFEHeader derrivative of appropriate type
-      static std::auto_ptr<FEDFEHeader> newFEHeader(const FEDHeaderType headerType, const uint8_t* headerBuffer);
+      static std::unique_ptr<FEDFEHeader> newFEHeader(const FEDHeaderType headerType, const uint8_t* headerBuffer);
       //used by digi2Raw
-      static std::auto_ptr<FEDFEHeader> newFEHeader(const FEDHeaderType headerType);
+      static std::unique_ptr<FEDFEHeader> newFEHeader(const FEDHeaderType headerType);
       //create a buffer to use with digi2Raw
-      static std::auto_ptr<FEDFEHeader> newFEFakeHeader(const FEDHeaderType headerType);
+      static std::unique_ptr<FEDFEHeader> newFEFakeHeader(const FEDHeaderType headerType);
       virtual ~FEDFEHeader();
       //the length of the header
       virtual size_t lengthInBytes() const = 0;
@@ -1011,39 +1011,39 @@ namespace sistrip {
 
   //FEDFEHeader
 
-  inline std::auto_ptr<FEDFEHeader> FEDFEHeader::newFEHeader(const FEDHeaderType headerType, const uint8_t* headerBuffer)
+  inline std::unique_ptr<FEDFEHeader> FEDFEHeader::newFEHeader(const FEDHeaderType headerType, const uint8_t* headerBuffer)
     {
       switch (headerType) {
       case HEADER_TYPE_FULL_DEBUG:
-        return std::auto_ptr<FEDFEHeader>(new FEDFullDebugHeader(headerBuffer));
+        return std::unique_ptr<FEDFEHeader>(new FEDFullDebugHeader(headerBuffer));
       case HEADER_TYPE_APV_ERROR:
-        return std::auto_ptr<FEDFEHeader>(new FEDAPVErrorHeader(headerBuffer));
+        return std::unique_ptr<FEDFEHeader>(new FEDAPVErrorHeader(headerBuffer));
       default:
-        return std::auto_ptr<FEDFEHeader>();
+        return std::unique_ptr<FEDFEHeader>();
       }
     }
   
-  inline std::auto_ptr<FEDFEHeader> FEDFEHeader::newFEHeader(const FEDHeaderType headerType)
+  inline std::unique_ptr<FEDFEHeader> FEDFEHeader::newFEHeader(const FEDHeaderType headerType)
     {
       switch (headerType) {
       case HEADER_TYPE_FULL_DEBUG:
-        return std::auto_ptr<FEDFEHeader>(new FEDFullDebugHeader());
+        return std::unique_ptr<FEDFEHeader>(new FEDFullDebugHeader());
       case HEADER_TYPE_APV_ERROR:
-        return std::auto_ptr<FEDFEHeader>(new FEDAPVErrorHeader());
+        return std::unique_ptr<FEDFEHeader>(new FEDAPVErrorHeader());
       default:
-        return std::auto_ptr<FEDFEHeader>();
+        return std::unique_ptr<FEDFEHeader>();
       }
     }
   
-  inline std::auto_ptr<FEDFEHeader> FEDFEHeader::newFEFakeHeader(const FEDHeaderType headerType)
+  inline std::unique_ptr<FEDFEHeader> FEDFEHeader::newFEFakeHeader(const FEDHeaderType headerType)
     {
       switch (headerType) {
       case HEADER_TYPE_FULL_DEBUG:
-        return std::auto_ptr<FEDFEHeader>(new FEDFullDebugHeader);
+        return std::unique_ptr<FEDFEHeader>(new FEDFullDebugHeader);
       case HEADER_TYPE_APV_ERROR:
-        return std::auto_ptr<FEDFEHeader>(new FEDAPVErrorHeader);
+        return std::unique_ptr<FEDFEHeader>(new FEDAPVErrorHeader);
       default:
-        return std::auto_ptr<FEDFEHeader>();
+        return std::unique_ptr<FEDFEHeader>();
       }
     }
   

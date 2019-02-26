@@ -9,8 +9,8 @@
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "TkDetUtil.h"
 
 
@@ -251,7 +251,8 @@ namespace {
 				    diskSector.phi() + diskSector.phiHalfExtension());
     
     
-    return rangesIntersect(phiRange, petalPhiRange, PhiLess());
+    return rangesIntersect(phiRange, petalPhiRange,
+            [](auto x,auto y){ return Geom::phiLess(x, y);});
   }
   
 }
@@ -274,7 +275,7 @@ void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int posStartIndex = closestIndex+1;
 
   if (checkClosest) { // must decide if the closest is on the neg or pos side
-    if ( PhiLess()( gphi, sLayer[closestIndex]->surface().phi())) {
+    if ( Geom::phiLess( gphi, sLayer[closestIndex]->surface().phi())) {
       posStartIndex = closestIndex;
     }
     else {

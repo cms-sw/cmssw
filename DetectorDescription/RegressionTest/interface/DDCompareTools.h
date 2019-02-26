@@ -1,4 +1,3 @@
-#include <functional>
 #include <vector>
 
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
@@ -34,76 +33,25 @@ struct DDCompOptions {
   double specTol_;
 };
 
-struct DDCompareEPV : public std::binary_function<DDExpandedView, DDExpandedView, bool> {
-  DDCompareEPV();
-  DDCompareEPV(const DDCompOptions& ddco);
-  bool operator()(DDExpandedView& lhs, DDExpandedView& rhs) const ;
-  DDCompOptions ddco_;
-};
-
-struct DDCompareCPV : public std::binary_function<DDCompactView, DDCompactView, bool> {
-  DDCompareCPV();
-  DDCompareCPV(const DDCompOptions& ddco);
-  bool operator()(const DDCompactView& lhs, const DDCompactView& rhs) const ;
-  DDCompOptions ddco_;
-};
+bool DDCompareEPV(DDExpandedView& lhs, DDExpandedView& rhs, const DDCompOptions& ddco);
+bool DDCompareCPV(const DDCompactView& lhs, const DDCompactView& rhs, const DDCompOptions& ddco);
 
 /// LogicalParts have solids which could be BooleanSolids.
 /**
    This means they need to know if the DDRotation naems matter.
  **/
-struct DDCompareLP : public std::binary_function<DDLogicalPart, DDLogicalPart, bool> {
-  DDCompareLP();
-  DDCompareLP(const DDCompOptions& ddco);
-  bool operator()(const DDLogicalPart& lhs, const DDLogicalPart& rhs) const ;
-  DDCompOptions ddco_;
-};
+bool DDCompareLP(const DDLogicalPart& lhs, const DDLogicalPart& rhs, const DDCompOptions& ddco);
 
 /// Needs to know about rotmat because of BooleanSolid
-struct DDCompareSolid : public std::binary_function<DDSolid, DDSolid, bool> {
-  DDCompareSolid();
-  DDCompareSolid(const DDCompOptions& ddco);
-  bool operator()(const DDSolid& lhs, const DDSolid& rhs) const ;
-  DDCompOptions ddco_;
-};
+bool DDCompareSolid(const DDSolid& lhs, const DDSolid& rhs, const DDCompOptions& ddco);
 
-struct DDCompareDBLVEC : public std::binary_function<std::vector<double>, std::vector<double>, bool> {
-  DDCompareDBLVEC();
-  DDCompareDBLVEC(double tol);
-  bool operator()(const std::vector<double>& lhs, const std::vector<double>& rhs) const ;
-  double tol_;
-};
+bool DDCompareDBLVEC(const std::vector<double>& lhs, const std::vector<double>& rhs, double tol=0.0004);
 
 /// Needs to know because of Rotation Matrix of Boolean Relationship.
-struct DDCompareBoolSol : public std::binary_function<DDBooleanSolid, DDBooleanSolid, bool> {
-  DDCompareBoolSol();
-  DDCompareBoolSol(const DDCompOptions& ddco);
-  bool operator()(const DDBooleanSolid& lhs, const DDBooleanSolid& rhs) const ;
-  DDCompOptions ddco_;
-};
-
-struct DDCompareDDTrans : public std::binary_function<DDTranslation, DDTranslation, bool> {
-  DDCompareDDTrans();
-  DDCompareDDTrans(double tol);
-  bool operator()(const DDTranslation& lhs, const DDTranslation& rhs) const;
-  double tol_;
-};
+bool DDCompareBoolSol(const DDBooleanSolid& lhs, const DDBooleanSolid& rhs, const DDCompOptions& ddco);
+bool DDCompareDDTrans(const DDTranslation& lhs, const DDTranslation& rhs, double tol=0.0004);
 
 /// Allows to compare name or not. If not, compares only values of the rotation matrix.
-struct DDCompareDDRot : public std::binary_function<DDRotation, DDRotation, bool> {
-  DDCompareDDRot();
-  DDCompareDDRot(const DDCompOptions& ddco);
-  bool operator()(const DDRotation& lhs, const DDRotation& rhs) const;
-  DDCompOptions ddco_;
-};
+bool DDCompareDDRot(const DDRotation& lhs, const DDRotation& rhs, const DDCompOptions& ddco);
 
-struct DDCompareDDRotMat : public std::binary_function<DDRotationMatrix, DDRotationMatrix, bool> {
-  DDCompareDDRotMat();
-  DDCompareDDRotMat(double tol);
-  bool operator()(const DDRotationMatrix& lhs, const DDRotationMatrix& rhs) const;
-  double tol_;
-};
-
-
-
-
+bool DDCompareDDRotMat(const DDRotationMatrix& lhs, const DDRotationMatrix& rhs, double tol=0.0004);

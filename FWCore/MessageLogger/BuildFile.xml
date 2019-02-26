@@ -1,6 +1,6 @@
 <use   name="FWCore/Utilities"/>
 <use   name="boost"/>
-<use   name="tinyxml"/>
+<use   name="tinyxml2"/>
 <use name="tbb"/>
 <export>
   <lib   name="1"/>

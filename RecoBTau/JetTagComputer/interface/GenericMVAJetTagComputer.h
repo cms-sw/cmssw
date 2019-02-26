@@ -28,7 +28,7 @@ class GenericMVAJetTagComputer : public JetTagComputer {
 	taggingVariables(const TagInfoHelper &info) const;
 
     private:
-	std::auto_ptr<TagInfoMVACategorySelector> categorySelector_;
+	std::unique_ptr<TagInfoMVACategorySelector> categorySelector_;
 	GenericMVAComputerCache computerCache_;
         std::string recordLabel_;
 };

@@ -24,10 +24,7 @@ CLHEP::HepRandomEngine* decayRandomEngine = nullptr;
 
 
 ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
-  : fIsInitialized(false),
-    fTauolaInterface(nullptr),
-    fEvtGenInterface(nullptr),
-    fPhotosInterface(nullptr)
+  : fIsInitialized(false)
 {
   std::vector<std::string> extGenNames =
     pset.getParameter< std::vector<std::string> >("parameterSets");
@@ -35,13 +32,13 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
   for (unsigned int ip=0; ip<extGenNames.size(); ++ip ) {
     std::string curSet = extGenNames[ip];
     if ( curSet == "EvtGen") {
-      fEvtGenInterface = (EvtGenInterfaceBase*)(EvtGenFactory::get()->create("EvtGen", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fEvtGenInterface = std::unique_ptr<EvtGenInterfaceBase>(EvtGenFactory::get()->create("EvtGen", pset.getUntrackedParameter< ParameterSet >(curSet)));
       exSharedResources.emplace_back(edm::SharedResourceNames::kEvtGen);
       exSharedResources.emplace_back(edm::SharedResourceNames::kPythia6);
       exSharedResources.emplace_back(gen::FortranInstance::kFortranInstance);
     }
     else if( curSet == "EvtGen1" || curSet == "EvtGen130" ) {
-      fEvtGenInterface = (EvtGenInterfaceBase*)(EvtGenFactory::get()->create("EvtGen130", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fEvtGenInterface = std::unique_ptr<EvtGenInterfaceBase>(EvtGenFactory::get()->create("EvtGen130", pset.getUntrackedParameter< ParameterSet >(curSet)));
       exSharedResources.emplace_back(edm::SharedResourceNames::kEvtGen);
       exSharedResources.emplace_back(edm::SharedResourceNames::kPythia8);
       exSharedResources.emplace_back(edm::SharedResourceNames::kTauola);
@@ -49,8 +46,8 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       exSharedResources.emplace_back(gen::FortranInstance::kFortranInstance);
     }
     else if ( curSet == "Tauola" || curSet == "Tauolapp" || curSet == "Tauolapp114" ) {
-      fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp114", pset.getUntrackedParameter< ParameterSet >(curSet)));
-      fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fTauolaInterface = std::unique_ptr<TauolaInterfaceBase>(TauolaFactory::get()->create("Tauolapp114", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fPhotosInterface = std::unique_ptr<PhotosInterfaceBase>(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet >(curSet)));
       fPhotosInterface->configureOnlyFor( 15 );
       fPhotosInterface->avoidTauLeptonicDecays();
       exSharedResources.emplace_back(edm::SharedResourceNames::kTauola);
@@ -58,27 +55,20 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
     }
     else if ( curSet == "Photos" || curSet == "Photos2155" ) {
       if ( !fPhotosInterface ) {
-	fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet>(curSet)));
+	fPhotosInterface = std::unique_ptr<PhotosInterfaceBase>(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet>(curSet)));
 	exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
       }
     }
     else if (curSet == "Photospp" || curSet == "Photospp356" ) {
       if ( !fPhotosInterface ) {
-        fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photospp356", pset.getUntrackedParameter< ParameterSet>(curSet)));
+        fPhotosInterface = std::unique_ptr<PhotosInterfaceBase>(PhotosFactory::get()->create("Photospp356", pset.getUntrackedParameter< ParameterSet>(curSet)));
         exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
       }
     }
   }
 }
 
-
-ExternalDecayDriver::~ExternalDecayDriver()
-{
-  if ( fEvtGenInterface ) delete fEvtGenInterface;
-  if ( fTauolaInterface ) delete fTauolaInterface;
-  if ( fPhotosInterface ) delete fPhotosInterface;
-}
-
+ExternalDecayDriver::~ExternalDecayDriver() = default;
 
 HepMC::GenEvent* ExternalDecayDriver::decay(HepMC::GenEvent* evt, lhef::LHEEvent *lheEvent){
   if(fTauolaInterface) fTauolaInterface->SetLHE(lheEvent);

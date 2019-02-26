@@ -112,7 +112,7 @@ TF1 *langaufit(TH1F *his, Double_t *fitrange, Double_t *startvalues, Double_t *p
    }
 
    try {
-     his->Fit(FunName,"RB0Q");   // fit within specified range, use ParLimits, do not plot
+     his->Fit(FunName,"RB0Q SERIAL");   // fit within specified range, use ParLimits, do not plot
    } catch (...) {}
   
    if(ffit){

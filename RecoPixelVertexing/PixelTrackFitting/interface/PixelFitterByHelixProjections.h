@@ -18,10 +18,10 @@ public:
                                          bool scaleErrorsForBPix1, float scaleFactor);
   ~PixelFitterByHelixProjections() override {}
   std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits,
-                                           const TrackingRegion& region) const override;
+                                   const TrackingRegion& region,
+                                   const edm::EventSetup& setup) const override;
 
 private:
-  const edm::EventSetup *theES;
   const MagneticField *theField;
   const bool thescaleErrorsForBPix1;
   const float thescaleFactor;

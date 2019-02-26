@@ -45,7 +45,7 @@ class RecoTauIsolationMasking {
     double hcalCone_;
     double maxSigmas_;
     double finalHcalCone_;
-    std::auto_ptr<PFEnergyResolution> resolutions_;
+    std::unique_ptr<PFEnergyResolution> resolutions_;
 };
 
 }}

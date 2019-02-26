@@ -86,7 +86,7 @@ HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet& 
 	mainFolder_                     = iConfig.getParameter<std::string>("mainFolder");
 	hlTriggerResults_   		= consumes<edm::TriggerResults>(iConfig.getParameter<InputTag> ("TriggerResults"));
 	JetTagCollection_ 			= edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "JetTag" ), [this](edm::InputTag const & tag){return mayConsume< reco::JetTagCollection>(tag);});
-        shallowTagInfosTokenCalo_ = consumes<std::vector<reco::ShallowTagInfo> > (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfosCalo"));
+    //        shallowTagInfosTokenCalo_ = consumes<std::vector<reco::ShallowTagInfo> > (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfosCalo"));
         shallowTagInfosTokenPf_ = consumes<std::vector<reco::ShallowTagInfo> > (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfos"));
 	m_mcPartons 				= consumes<JetFlavourMatchingCollection>(iConfig.getParameter<InputTag> ("mcPartons") ); 
 	hltPathNames_        		= iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");
@@ -168,122 +168,127 @@ void HLTBTagPerformanceAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::Ev
 void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-	bool trigRes=false;
-	bool MCOK=false;
-	using namespace edm;
+  bool trigRes=false;
+  bool MCOK=false;
+  using namespace edm;
 
-	//get triggerResults
-	Handle<TriggerResults> TriggerResulsHandler;
-	Handle<reco::JetFlavourMatchingCollection> h_mcPartons;
-	if ( hlTriggerResults_Label.empty() || hlTriggerResults_Label == "NULL" ) 
+  //get triggerResults
+  Handle<TriggerResults> TriggerResulsHandler;
+  Handle<reco::JetFlavourMatchingCollection> h_mcPartons;
+  if ( hlTriggerResults_Label.empty() || hlTriggerResults_Label == "NULL" ) 
 	{
-		edm::LogInfo("NoTriggerResults") << "TriggerResults ==> Empty";
-		return;
+      edm::LogInfo("NoTriggerResults") << "TriggerResults ==> Empty";
+      return;
 	}
-	iEvent.getByToken(hlTriggerResults_, TriggerResulsHandler);
-	if (TriggerResulsHandler.isValid())   trigRes=true;
-	if ( !trigRes ) { edm::LogInfo("NoTriggerResults") << "TriggerResults ==> not readable"; return;}
-	const TriggerResults & triggerResults = *(TriggerResulsHandler.product());
+  iEvent.getByToken(hlTriggerResults_, TriggerResulsHandler);
+  if (TriggerResulsHandler.isValid())   trigRes=true;
+  if ( !trigRes ) { edm::LogInfo("NoTriggerResults") << "TriggerResults ==> not readable"; return;}
+  const TriggerResults & triggerResults = *(TriggerResulsHandler.product());
 	
-	//get partons
-	if (m_mcMatching && !m_mcPartons_Label.empty() && m_mcPartons_Label != "NULL" ) {
-		iEvent.getByToken(m_mcPartons, h_mcPartons);
-		if (h_mcPartons.isValid()) MCOK=true;
-	}
+  //get partons
+  if (m_mcMatching && !m_mcPartons_Label.empty() && m_mcPartons_Label != "NULL" ) {
+    iEvent.getByToken(m_mcPartons, h_mcPartons);
+    if (h_mcPartons.isValid()) MCOK=true;
+  }
 
-	//fill the 1D and 2D DQM plot
-	Handle<reco::JetTagCollection> JetTagHandler;
-	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) {
-		bool BtagOK=false;
-		JetTagMap JetTag;
-		if ( !_isfoundHLTs[ind]) continue;	//if the hltPath is not in the event, skip the event
-		if ( !triggerResults.accept(hltPathIndexs_[ind]) ) continue;	//if the hltPath was not accepted skip the event
+  //fill the 1D and 2D DQM plot
+  Handle<reco::JetTagCollection> JetTagHandler;
+  for (unsigned int ind=0; ind<hltPathNames_.size();ind++) {
+    bool BtagOK=false;
+    JetTagMap JetTag;
+    if ( !_isfoundHLTs[ind]) continue;	//if the hltPath is not in the event, skip the event
+    if ( !triggerResults.accept(hltPathIndexs_[ind]) ) continue;	//if the hltPath was not accepted skip the event
 		
-		//get JetTagCollection
-		if (!JetTagCollection_Label[ind].empty() && JetTagCollection_Label[ind] != "NULL" )
-		{
-			iEvent.getByToken(JetTagCollection_[ind], JetTagHandler);
-                        iEvent.getByToken(shallowTagInfosTokenPf_, shallowTagInfosPf);
-                        iEvent.getByToken(shallowTagInfosTokenCalo_, shallowTagInfosCalo);
-			if (JetTagHandler.isValid())   BtagOK=true;
-		}
+    //get JetTagCollection
+    if (!JetTagCollection_Label[ind].empty() && JetTagCollection_Label[ind] != "NULL" )
+      {
+        iEvent.getByToken(JetTagCollection_[ind], JetTagHandler);
+        iEvent.getByToken(shallowTagInfosTokenPf_, shallowTagInfosPf);
+        //                        iEvent.getByToken(shallowTagInfosTokenCalo_, shallowTagInfosCalo);
+        if (JetTagHandler.isValid() )   BtagOK=true;
+      }
 
-		//fill JetTag map
-		if (BtagOK) for ( auto  iter = JetTagHandler->begin(); iter != JetTagHandler->end(); iter++ )
-		{
-			JetTag.insert(JetTagMap::value_type(iter->first, iter->second));
-		}
-		else {
-		    edm::LogInfo("NoCollection") << "Collection " << JetTagCollection_Label[ind] <<  " ==> not found"; return;
-		}
-		//fill Inputs for All
-		for(auto& info :  *(shallowTagInfosPf)) {
-			TaggingVariableList vars = info.taggingVariables();
-			for(auto entry = vars.begin(); entry != vars.end(); ++entry) 
-				{
-				if ( keepSet.find(TaggingVariableTokens[entry->first]) != keepSet.end()) {  // if Input name in defined list to keep
-					try {H1_.at(ind)[TaggingVariableTokens[entry->first]] -> Fill(std::fmax(0.0, entry->second));  }
-					catch (const std::exception& e) {
-						continue;
-						}
-					}
-				else continue; 
-				}
-			}
-		//fill tagging 
-		for (auto & BtagJT: JetTag) {
-			std::map<HCALSpecials, bool> inmodule;
-			inmodule[HEP17]=(BtagJT.first->phi() >= -0.87) && (BtagJT.first->phi() < -0.52) && (BtagJT.first->eta() > 1.3);
-			inmodule[HEP18]=(BtagJT.first->phi() >= -0.52) && (BtagJT.first->phi() < -0.17) && (BtagJT.first->eta() > 1.3);
-			inmodule[HEM17]=(BtagJT.first->phi() >= -0.87) && (BtagJT.first->phi() < -0.52) && (BtagJT.first->eta() < -1.3);
+    //fill JetTag map
+    if (BtagOK) for ( auto  iter = JetTagHandler->begin(); iter != JetTagHandler->end(); iter++ )
+                  {
+                    JetTag.insert(JetTagMap::value_type(iter->first, iter->second));
+                  }
+    else {
+      edm::LogInfo("NoCollection") << "Collection " << JetTagCollection_Label[ind] <<  " ==> not found"; return;
+    }
+    //fill Inputs for All
+    if ( shallowTagInfosPf.isValid() ) {
+      for(auto& info :  *(shallowTagInfosPf)) {
+        TaggingVariableList vars = info.taggingVariables();
+        for(auto entry = vars.begin(); entry != vars.end(); ++entry) 
+          {
+            if ( keepSet.find(TaggingVariableTokens[entry->first]) != keepSet.end()) {  // if Input name in defined list to keep
+              try {H1_.at(ind)[TaggingVariableTokens[entry->first]] -> Fill(std::fmax(0.0, entry->second));  }
+              catch (const std::exception& e) {
+                continue;
+              }
+            }
+            else continue; 
+          }
+      }
+    }
+    else {
+      edm::LogInfo("NoCollection") << "No shallowTagInfosPf collection";
+    }
+    //fill tagging 
+    for (auto & BtagJT: JetTag) {
+      std::map<HCALSpecials, bool> inmodule;
+      inmodule[HEP17]=(BtagJT.first->phi() >= -0.87) && (BtagJT.first->phi() < -0.52) && (BtagJT.first->eta() > 1.3);
+      inmodule[HEP18]=(BtagJT.first->phi() >= -0.52) && (BtagJT.first->phi() < -0.17) && (BtagJT.first->eta() > 1.3);
+      inmodule[HEM17]=(BtagJT.first->phi() >= -0.87) && (BtagJT.first->phi() < -0.52) && (BtagJT.first->eta() < -1.3);
 			
-				//fill 1D btag plot for 'all'
-			H1_.at(ind)[JetTagCollection_Label[ind]] -> Fill(std::fmax(0.0,BtagJT.second));
-			for (auto i: HCALSpecialsNames){
-				if (inmodule[i.first])
-				H1mod_.at(ind)[JetTagCollection_Label[ind]][i.first] -> Fill(std::fmax(0.0,BtagJT.second));
-			}
-			if (MCOK) {
-				int m = closestJet(BtagJT.first, *h_mcPartons, m_mcRadius);
-				unsigned int flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
-				for (unsigned int i = 0; i < m_mcLabels.size(); ++i) {
-					std::string flavour_str= m_mcLabels[i];
-					flavours_t flav_collection=  m_mcFlavours[i];
-					auto it = std::find(flav_collection.begin(), flav_collection.end(), flavour);
-					if (it== flav_collection.end())   continue;
-					std::string label=JetTagCollection_Label[ind] + "__";
-					label+=flavour_str;
-					H1_.at(ind)[label]->Fill(std::fmax(0.0,BtagJT.second));	//fill 1D btag plot for 'b,c,uds'
-					for (auto j: HCALSpecialsNames){
-						if (inmodule[j.first])
-						H1mod_.at(ind)[label][j.first]->Fill(std::fmax(0.0,BtagJT.second));	//fill 1D btag plot for 'b,c,uds' in modules (HEP17 etc.)
-					}
-					label=JetTagCollection_Label[ind] + "___";
-					label+=flavour_str;
-					std::string labelEta = label;
-					std::string labelPhi = label;
-					std::string labelEtaPhi = label;
-					std::string labelEtaPhi_threshold = label;
-					label+="_disc_pT";
-					H2_.at(ind)[label]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->pt());	//fill 2D btag, jetPt plot for 'b,c,uds'
-					for (auto j: HCALSpecialsNames){
-						if (inmodule[j.first])
-						H2mod_.at(ind)[label][j.first]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->pt());
-					}
-					labelEta+="_disc_eta";
-					H2Eta_.at(ind)[labelEta]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->eta());	//fill 2D btag, jetEta plot for 'b,c,uds'
-					labelPhi+="_disc_phi";
-					H2Phi_.at(ind)[labelPhi]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->phi());	//fill 2D btag, jetPhi plot for 'b,c,uds'
-					labelEtaPhi+="_eta_phi";
-	                                H2EtaPhi_.at(ind)[labelEtaPhi]->Fill(BtagJT.first->eta(),BtagJT.first->phi());  //fill 2D btag, jetPhi plot for 'b,c,uds'
-					labelEtaPhi_threshold+="_eta_phi_disc05";
-					if (BtagJT.second > 0.5) {
-	                                H2EtaPhi_threshold_.at(ind)[labelEtaPhi_threshold]->Fill(BtagJT.first->eta(),BtagJT.first->phi());  //fill 2D btag, jetPhi plot for 'b,c,uds' 
-					}
-				} /// for flavour
-			} /// if MCOK
-		} /// for BtagJT
-	}//for triggers
+      //fill 1D btag plot for 'all'
+      H1_.at(ind)[JetTagCollection_Label[ind]] -> Fill(std::fmax(0.0,BtagJT.second));
+      for (auto i: HCALSpecialsNames){
+        if (inmodule[i.first])
+          H1mod_.at(ind)[JetTagCollection_Label[ind]][i.first] -> Fill(std::fmax(0.0,BtagJT.second));
+      }
+      if (MCOK) {
+        int m = closestJet(BtagJT.first, *h_mcPartons, m_mcRadius);
+        unsigned int flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
+        for (unsigned int i = 0; i < m_mcLabels.size(); ++i) {
+          std::string flavour_str= m_mcLabels[i];
+          flavours_t flav_collection=  m_mcFlavours[i];
+          auto it = std::find(flav_collection.begin(), flav_collection.end(), flavour);
+          if (it== flav_collection.end())   continue;
+          std::string label=JetTagCollection_Label[ind] + "__";
+          label+=flavour_str;
+          H1_.at(ind)[label]->Fill(std::fmax(0.0,BtagJT.second));	//fill 1D btag plot for 'b,c,uds'
+          for (auto j: HCALSpecialsNames){
+            if (inmodule[j.first])
+              H1mod_.at(ind)[label][j.first]->Fill(std::fmax(0.0,BtagJT.second));	//fill 1D btag plot for 'b,c,uds' in modules (HEP17 etc.)
+          }
+          label=JetTagCollection_Label[ind] + "___";
+          label+=flavour_str;
+          std::string labelEta = label;
+          std::string labelPhi = label;
+          std::string labelEtaPhi = label;
+          std::string labelEtaPhi_threshold = label;
+          label+="_disc_pT";
+          H2_.at(ind)[label]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->pt());	//fill 2D btag, jetPt plot for 'b,c,uds'
+          for (auto j: HCALSpecialsNames){
+            if (inmodule[j.first])
+              H2mod_.at(ind)[label][j.first]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->pt());
+          }
+          labelEta+="_disc_eta";
+          H2Eta_.at(ind)[labelEta]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->eta());	//fill 2D btag, jetEta plot for 'b,c,uds'
+          labelPhi+="_disc_phi";
+          H2Phi_.at(ind)[labelPhi]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->phi());	//fill 2D btag, jetPhi plot for 'b,c,uds'
+          labelEtaPhi+="_eta_phi";
+          H2EtaPhi_.at(ind)[labelEtaPhi]->Fill(BtagJT.first->eta(),BtagJT.first->phi());  //fill 2D btag, jetPhi plot for 'b,c,uds'
+          labelEtaPhi_threshold+="_eta_phi_disc05";
+          if (BtagJT.second > 0.5) {
+            H2EtaPhi_threshold_.at(ind)[labelEtaPhi_threshold]->Fill(BtagJT.first->eta(),BtagJT.first->phi());  //fill 2D btag, jetPhi plot for 'b,c,uds' 
+          }
+        } /// for flavour
+      } /// if MCOK
+    } /// for BtagJT
+  }//for triggers
 }
 
 

@@ -5,7 +5,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
@@ -172,7 +172,7 @@ void CkfDebugger::printSimHits( const edm::Event& iEvent)
   
   for (std::map<unsigned int,std::vector<PSimHit*> >::iterator it=idHitsMap.begin();
        it!=idHitsMap.end();it++){
-    sort(it->second.begin(),it->second.end(),less_mag());
+    sort(it->second.begin(),it->second.end(),[](auto* a, auto* b){ return a->timeOfFlight()< b->timeOfFlight(); });
     for (std::vector<PSimHit*>::iterator isim = it->second.begin();
 	 isim != it->second.end(); ++isim){
       const GeomDetUnit* detUnit = theTrackerGeom->idToDetUnit( DetId((*isim)->detUnitId()));
@@ -196,7 +196,7 @@ void CkfDebugger::dumpSimHit(const SimHit& hit) const
 
 bool CkfDebugger::analyseCompatibleMeasurements(const Trajectory& traj,
 						const std::vector<TrajectoryMeasurement>& meas,
-						const MeasurementTracker* aMeasurementTracker, 
+						const MeasurementTrackerEvent* aMeasurementTracker,
 						const Propagator*                     propagator,
 						const Chi2MeasurementEstimatorBase*   estimator,
 						const TransientTrackingRecHitBuilder* aTTRHBuilder)

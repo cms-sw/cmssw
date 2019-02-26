@@ -9,7 +9,7 @@
  */
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <memory>
+
 #include <string>
 
 class DDCompactView;
@@ -25,7 +25,7 @@ public:
   virtual ~CSCGeometryBuilderFromDDD();
 
   /// Build the geometry
-  void build(std::shared_ptr<CSCGeometry> geom, const DDCompactView* fv, const MuonDDDConstants& muonConstants);
+  void build(CSCGeometry& geom, const DDCompactView* fv, const MuonDDDConstants& muonConstants);
 
 protected:
 

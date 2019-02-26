@@ -1689,7 +1689,7 @@ namespace edm {
   RootFile::initializeDuplicateChecker(
     std::vector<std::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
     std::vector<std::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile) {
-    if(duplicateChecker_) {
+    if(duplicateChecker_ && !duplicateChecker_->checkDisabled()) {
       if(eventTree_.next()) {
         fillThisEventAuxiliary();
         duplicateChecker_->inputFileOpened(eventAux().isRealData(),

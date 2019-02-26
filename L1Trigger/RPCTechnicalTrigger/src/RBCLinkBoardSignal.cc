@@ -14,19 +14,9 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-RBCLinkBoardSignal::RBCLinkBoardSignal( RBCInput * in ) {
-
-  RBCInput * m_linkboardin = new RBCInput();
-  (*m_linkboardin) = (*in);
-  
+RBCLinkBoardSignal::RBCLinkBoardSignal( RBCInput * in ) :
+  m_linkboardin{*in}
+{
 }
-//=============================================================================
-// Destructor
-//=============================================================================
-RBCLinkBoardSignal::~RBCLinkBoardSignal() {
-  
-  if ( m_linkboardin ) delete m_linkboardin;
-
-} 
 
 //=============================================================================

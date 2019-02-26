@@ -24,7 +24,7 @@
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB02NumberingScheme.h"
 
 #include "G4String.hh"
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class HcalTB02SD : public CaloSD {
 

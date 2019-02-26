@@ -32,11 +32,11 @@ MTDDetLayerGeometryESProducer::MTDDetLayerGeometryESProducer(const edm::Paramete
 MTDDetLayerGeometryESProducer::~MTDDetLayerGeometryESProducer(){}
 
 
-std::shared_ptr<MTDDetLayerGeometry>
+std::unique_ptr<MTDDetLayerGeometry>
 MTDDetLayerGeometryESProducer::produce(const MTDRecoGeometryRecord & record) {
 
   const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDDetLayerGeometryESProducer";
-  auto mtdDetLayerGeometry = std::make_shared<MTDDetLayerGeometry>();
+  auto mtdDetLayerGeometry = std::make_unique<MTDDetLayerGeometry>();
   
   edm::ESHandle<MTDGeometry> mtd;
   record.getRecord<MTDDigiGeometryRecord>().get(mtd);

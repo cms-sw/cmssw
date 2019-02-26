@@ -10,7 +10,11 @@ PFTowers = cms.EDProducer("ParticleTowerProducer",
                           useHF = cms.bool(False)
                           )
 
-
+#dummy sequence to speed-up reconstruction in pp_on_AA era
+pfNoPileUpJMEHI = cms.EDFilter('GenericPFCandidateSelector',
+                                src = cms.InputTag('particleFlow'),
+                                cut = cms.string("pt>9999")
+                                )
 
 ak5PFJets = cms.EDProducer(
     "FastjetJetProducer",

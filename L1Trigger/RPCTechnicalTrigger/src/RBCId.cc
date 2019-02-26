@@ -25,20 +25,8 @@ RBCId::RBCId( int _w, int * _s )
   m_sector[1] = _s[1];
 }
 
-RBCId::RBCId( const RBCId & id ) 
-{
-  m_wheel     = id.wheel();
-  m_sector[0] = id.sector(0);
-  m_sector[1] = id.sector(1);
-}
-
 //=============================================================================
-// Destructor
-//=============================================================================
-RBCId::~RBCId() {} 
-
-//=============================================================================
-void RBCId::printinfo()
+void RBCId::printinfo() const
 {
   
   std::cout << " ---->whe " << m_wheel << '\n';
