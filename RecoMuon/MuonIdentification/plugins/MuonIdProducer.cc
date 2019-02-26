@@ -1313,6 +1313,7 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.setAllowAnything();
   
   desc.add<bool>("arbitrateTrackerMuons",false);
+  desc.add<bool>("storeHcalRecHits",false);
 
   edm::ParameterSetDescription descTrkAsoPar;
   descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel",edm::InputTag("gemSegments"));
