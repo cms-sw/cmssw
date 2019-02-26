@@ -25,6 +25,7 @@ l1pfProducer = cms.EDProducer("L1TPFProducer",
      vtxAlgo     = cms.string("TP"),
      vtxAdaptiveCut = cms.bool(True),
      pfAlgo = cms.string("PFAlgo3"),
+     puAlgo = cms.string("Puppi"),
      linking = cms.PSet(
         # track -> mu linking configurables
         trackMuDR    = cms.double(0.2), # accounts for poor resolution of standalone, and missing propagations

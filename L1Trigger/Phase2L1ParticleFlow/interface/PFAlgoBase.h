@@ -13,23 +13,9 @@ namespace l1tpf_impl {
         PFAlgoBase( const edm::ParameterSet& ) ;
         virtual ~PFAlgoBase() ;
         virtual void runPF(Region &r) const = 0;
-        virtual void runChargedPV(Region &r, float z0) const ;
-        virtual void runPuppi(Region &r, float npu, float alphaCMed, float alphaCRms, float alphaFMed, float alphaFRms) const ;
-        /// global operations
-        enum VertexAlgo { OldVtxAlgo, TPVtxAlgo, ExternalVtxAlgo };
-        virtual void doVertexing(std::vector<Region> &rs, VertexAlgo algo, float &vz) const ; // region is not const since it sets the fromPV bit of the tracks
-        virtual void computePuppiMedRMS(const std::vector<Region> &rs, float &alphaCMed, float &alphaCRms, float &alphaFMed, float &alphaFRms) const ;
     protected:
-        float etaCharged_, puppiDr_, puppiDrMin_, puppiPtMax_;
-        std::vector<float> puppiEtaCuts_, puppiPtCuts_, puppiPtCutsPhotons_;
-        std::vector<int16_t> intPuppiEtaCuts_, intPuppiPtCuts_, intPuppiPtCutsPhotons_;
-        bool puppiUsingBareTracks_;
-        float vtxRes_;
-        bool vtxAdaptiveCut_; 
         int debug_;
         void initRegion(Region &r) const ;
-        void computePuppiWeights(Region &r, float alphaCMed, float alphaCRms, float alphaFMed, float alphaFRms) const ;
-        void fillPuppi(Region &r) const ;
         PFParticle & addTrackToPF(Region &r, const PropagatedTrack &tk) const { return addTrackToPF(r.pf, tk); }
         PFParticle & addCaloToPF(Region &r, const CaloCluster &calo) const { return addCaloToPF(r.pf, calo); }
         //PFParticle & discardTrack(Region &r, const PropagatedTrack &tk, int status) const { 
