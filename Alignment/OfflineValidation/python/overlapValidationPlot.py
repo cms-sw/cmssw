@@ -1,6 +1,6 @@
-import ROOT
 import math
-import style
+import ROOT
+from TkAlStyle import TkAlStyle
 
 def hist(tree_file_name, hist_name):
     f = ROOT.TFile(tree_file_name)
@@ -45,8 +45,8 @@ def hist(tree_file_name, hist_name):
     return h
 
 def plot(file_name, *filesTitlesColorsStyles):
-    hstack = ROOT.THStack("hstack","hstack")
-    legend = ROOT.TLegend(.6, .7, .9, .9)
+    hstack = ROOT.THStack("hstack","")
+    legend = TkAlStyle.legend(len(filesTitlesColorsStyles), 0.3)
     legend.SetBorderSize(0)
     legend.SetFillStyle(0)
     hs = []
@@ -66,6 +66,8 @@ def plot(file_name, *filesTitlesColorsStyles):
     hstack.GetXaxis().SetTitle("hit_{A} - pred_{A} - (hit_{B} - pred_{B}) (#mum)")
     hstack.GetYaxis().SetTitle("number of events")
     hstack.GetXaxis().SetNdivisions(404)
+
+    TkAlStyle.drawStandardTitle()
     
     save_as_file_name = file_name
 
