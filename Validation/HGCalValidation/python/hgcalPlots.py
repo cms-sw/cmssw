@@ -1283,10 +1283,13 @@ _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 
 _common_score = {"title": "Score CaloParticle to LayerClusters in z-",
                  "stat": False,
-                 "xmin": 0.,
-                 "xtitleoffset": 1.5,
+                 "ymin": 0.1,
+                 "ymax": 1000,
+                 "xmin": 0,
+                 "xmax": 1,
                  "drawStyle": "hist",
-                 "lineWidth": 1
+                 "lineWidth": 1,
+                 "ylog": True
                 }
 _common_score.update(_legend_common)
 _score_caloparticle_to_layerclusters_zminus = PlotGroup("score_caloparticle_to_layercluster_zminus", [
@@ -1297,10 +1300,13 @@ _score_caloparticle_to_layerclusters_zminus = PlotGroup("score_caloparticle_to_l
 
 _common_score = {"title": "Score LayerCluster to CaloParticles in z-",
                  "stat": False,
-                 "xmin": 0.,
-                 "xtitleoffset": 1.5,
+                 "ymin": 0.1,
+                 "ymax": 1000,
+                 "xmin": 0,
+                 "xmax": 1,
                  "drawStyle": "hist",
-                 "lineWidth": 1
+                 "lineWidth": 1,
+                 "ylog": True
                 }
 _common_score.update(_legend_common)
 _score_layercluster_to_caloparticles_zminus = PlotGroup("score_layercluster_to_caloparticle_zminus", [
@@ -1400,10 +1406,13 @@ for i in range(0, maxlayerzm):
 #--------------------------------------------------------------------------------------------
 _common_score = {"title": "Score CaloParticle to LayerClusters in z+",
                  "stat": False,
-                 "xmin": 0.,
-                 "xtitleoffset": 1.5,
+                 "ymin": 0.1,
+                 "ymax": 1000,
+                 "xmin": 0,
+                 "xmax": 1,
                  "drawStyle": "hist",
-                 "lineWidth": 1
+                 "lineWidth": 1,
+                 "ylog": True
                 }
 _common_score.update(_legend_common)
 _score_caloparticle_to_layerclusters_zplus = PlotGroup("score_caloparticle_to_layercluster_zplus", [
@@ -1414,10 +1423,13 @@ _score_caloparticle_to_layerclusters_zplus = PlotGroup("score_caloparticle_to_la
 
 _common_score = {"title": "Score LayerCluster to CaloParticles in z+",
                  "stat": False,
-                 "xmin": 0.,
-                 "xtitleoffset": 1.5,
+                 "ymin": 0.1,
+                 "ymax": 1000,
+                 "xmin": 0,
+                 "xmax": 1,
                  "drawStyle": "hist",
-                 "lineWidth": 1
+                 "lineWidth": 1,
+                 "ylog": True
                 }
 _common_score.update(_legend_common)
 _score_layercluster_to_caloparticles_zplus = PlotGroup("score_layercluster_to_caloparticle_zplus", [
@@ -1501,7 +1513,7 @@ _mergeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate i
 _merges_zplus = PlotGroup("MergeRate_zplus", _mergeplots_zplus, ncols=8)
 
 
-_common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d", ncols=4)
+_common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10, xbinlabeloption="d", ncols=4)
 _energyscore_cp2lc_zplus = []
 for i in range(maxlayerzm,maxlayerzp):
   _energyscore_cp2lc_zplus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score)))
