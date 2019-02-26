@@ -41,6 +41,6 @@ L1TkEGTaus = cms.EDProducer("L1TkEGTauParticleProducer",
 
         # Isolation parameters
         useVtxIso = cms.bool( True ),
-        vtxIso_WP = cms.double( 0.50 ),
+        vtxIso_WP = cms.double( 1.0 ),
         
 )
