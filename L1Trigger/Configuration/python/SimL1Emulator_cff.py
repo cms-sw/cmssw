@@ -159,7 +159,15 @@ from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
 phase2_SimL1Emulator += l1ParticleFlow
 
 from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
+# Describe here l1PFJets sequence
+# ###############################
+#l1PFJets = cms.Sequence(
+#  ak4PFL1Calo + ak4PFL1PF + ak4PFL1Puppi + ak4PFL1PuppiForMET +
+#  ak4PFL1CaloCorrected + ak4PFL1PFCorrected + ak4PFL1PuppiCorrected + ak4PFL1PuppiForMETCorrected
 phase2_SimL1Emulator += l1PFJets
+# Describe here l1PFMets sequence
+# ###############################
+#l1PFMets = cms.Sequence(l1PFMetCalo + l1PFMetPF + l1PFMetPuppi + l1PFMetPuppiForMET)
 phase2_SimL1Emulator += l1PFMets
 
 # PFTaus(HPS)
