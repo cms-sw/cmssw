@@ -395,10 +395,13 @@ namespace {
 	    auto ring    =  SiPixelPI::ring(DetId(mod.DetID),m_trackerTopo,1);
 	    auto s_blade =  SiPixelPI::signed_blade(DetId(mod.DetID),m_trackerTopo,1); 
 	    auto s_disk  =  SiPixelPI::signed_disk(DetId(mod.DetID),m_trackerTopo,1);
+	    auto s_blade_panel = SiPixelPI::signed_blade_panel(DetId(mod.DetID),m_trackerTopo,1);
+	    auto panel =  m_trackerTopo.pxfPanel(mod.DetID);
 
-	    std::cout << "ring:" << ring << " blade: "<<s_blade<<" disk: "<<s_disk<<std::endl;
+	    std::cout << "ring:" << ring << " blade: "<<s_blade<<" panel: "<<panel
+		      << " disk: "<<s_disk<<std::endl;
 
-	    std::vector<std::pair<int,int> > rocsToMask = maskedForwardRocsToBins(ring,s_blade,s_disk);	   
+	    std::vector<std::pair<int,int> > rocsToMask = maskedForwardRocsToBins(ring,s_blade,panel,s_disk);	   
 	    for(const auto& bin : rocsToMask ){
 	     h_fpix_occ[ring-1]->SetBinContent(bin.first,bin.second,1);
 	    }
@@ -428,7 +431,7 @@ namespace {
     }
 
     // #============================================================================     
-    std::vector<std::pair<int,int> > maskedForwardRocsToBins(int ring, int blade, int disk){
+    std::vector<std::pair<int,int> > maskedForwardRocsToBins(int ring, int blade, int panel,int disk){
 
       std::vector<std::pair<int,int> > rocsToMask;
 
@@ -437,15 +440,16 @@ namespace {
       int nblade = nblade_list[ring-1];
       int nybins = nybins_list[ring-1];
 
-      int start_x = disk  > 0 ? ((disk+3)*8)+1        : ((3-(std::abs(disk)))*8)+1;
-      int start_y = blade > 0 ? ((blade+nblade)*4)+3  : ((nblade-(std::abs(blade)))*4)+3;
+      int start_x = disk  > 0 ? ((disk+3)*8)+1                : ((3-(std::abs(disk)))*8)+1;
+      //int start_y = blade > 0 ? ((blade+nblade)*4)-panel*2  : ((nblade-(std::abs(blade)))*4)-panel*2;
+      int start_y = blade > 0 ? (nybins/2)+(blade*4)-(panel*2)+3 : ((nybins/2)-(std::abs(blade)*4)-panel*2)+3;
 
       int end_x   = start_x+7;
       int end_y   = start_y+1;
 
+      std::cout <<"==================================================================" << std::endl;
       std::cout <<"disk:  " << disk  << " start_x:" << start_x << " end_x:" << end_x << std::endl;
       std::cout <<"blade: " << blade << " start_y:" << start_y << " end_y:" << end_y << std::endl;
-      std::cout <<"==================================================================" << std::endl;
 
       for(int bin_x=1;bin_x<=56;bin_x++){
 	for(int bin_y=1;bin_y<=nybins;bin_y++){

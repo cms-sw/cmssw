@@ -81,6 +81,13 @@ namespace SiPixelPI {
   }
 
   //============================================================================               
+  int signed_blade_panel(const DetId& detid,const TrackerTopology& tTopo_,bool phase_) {
+    if (detid.subdetId() != PixelSubdetector::PixelEndcap) return -9999;
+    int signed_blade_panel = signed_blade(detid,tTopo_,phase_)+(tTopo_.pxfPanel(detid)-1);
+    return signed_blade_panel;
+  }
+
+  //============================================================================               
   // Online disk convention
   // Apply sign convention (- sign for BmO and BmI)
   int signed_disk(const DetId& detid,const TrackerTopology& tTopo_,bool phase_) {
