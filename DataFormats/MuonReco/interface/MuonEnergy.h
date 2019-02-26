@@ -3,6 +3,8 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
+#include <vector>
 namespace reco {
     struct MuonEnergy {
        /// CaloTower based energy
@@ -49,13 +51,36 @@ namespace reco {
        /// DetId of the central HCAL tower with smallest depth
        DetId hcal_id;
        
+       ///
+       /// RecHits
+       ///
+       /// crossed HCAL rechits
+       const std::vector<HBHERecHit>* getHadRecHits() const
+       {
+	 if (hadRecHitsValid) return &hadRecHits;
+	 return nullptr;
+       }
+		 
+       void setHadRecHits(const std::vector<const HBHERecHit*>& rechits)
+       {
+	 hadRecHitsValid = true;
+	 hadRecHits.clear();
+	 for (auto hit: rechits)
+	   hadRecHits.push_back(*hit);
+       }
+
        MuonEnergy():
        tower(0), towerS9(0),
        em(0), emS9(0), emS25(0), emMax(0),
        had(0), hadS9(0), hadMax(0),
-	   ho(0), hoS9(0), ecal_time(0), ecal_timeError(0), hcal_time(0), hcal_timeError(0)
+	 ho(0), hoS9(0), ecal_time(0), ecal_timeError(0), hcal_time(0), hcal_timeError(0),
+	 hadRecHitsValid(false)
 	 { }
-       
+
+    private:
+       /// crossed HCAL rechits
+       std::vector<HBHERecHit> hadRecHits;
+       bool hadRecHitsValid;
     };
 }
 #endif
