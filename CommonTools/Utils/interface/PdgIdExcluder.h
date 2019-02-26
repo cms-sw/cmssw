@@ -10,24 +10,18 @@
 #include <algorithm>
 
 struct PdgIdExcluder {
-  PdgIdExcluder( const std::vector<int> & pdgId ) { 
-    for( std::vector<int>::const_iterator i = pdgId.begin(); i != pdgId.end(); ++ i )
-      pdgId_.push_back( abs( * i ) );
-    begin_ = pdgId_.begin();
-    end_ = pdgId_.end();
-  }
-  PdgIdExcluder( const PdgIdExcluder & o ) :
-    pdgId_( o.pdgId_ ), begin_( pdgId_.begin() ), end_( pdgId_.end() ) { }
-  PdgIdExcluder & operator=( const PdgIdExcluder & o ) {
-    * this = o; return * this;
+  explicit PdgIdExcluder( const std::vector<int> & pdgId ) {
+    pdgId_.reserve(pdgId.size());
+    for( int i : pdgId) {
+      pdgId_.push_back( abs( i ) );
+    }
   }
   template<typename T>
   bool operator()( const T & t ) const { 
-    return std::find( begin_, end_, abs( t.pdgId() ) ) == end_;
+    return std::find( pdgId_.begin(), pdgId_.end(), abs( t.pdgId() ) ) == pdgId_.end();
   }
   private:
   std::vector<int> pdgId_;
-  std::vector<int>::const_iterator begin_, end_;
 };
 
 #endif
