@@ -82,6 +82,14 @@
   <class name="edm::Wrapper<std::vector<l1t::L1TrkTauParticle> >"/>
   <class name="edm::Ref<std::vector<l1t::L1TrkTauParticle>,l1t::L1TrkTauParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TrkTauParticle>,l1t::L1TrkTauParticle> >"/>
 
+  <class name="l1t::L1CaloTkTauParticle" ClassVersion="15">
+   <version ClassVersion="15" checksum="3464188151"/>
+   <version ClassVersion="14" checksum="848433433"/>
+  </class>
+  <class name="std::vector<l1t::L1CaloTkTauParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1t::L1CaloTkTauParticle> >"/>
+  <class name="edm::Ref<std::vector<l1t::L1CaloTkTauParticle>,l1t::L1CaloTkTauParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1CaloTkTauParticle>,l1t::L1CaloTkTauParticle> >"/>
+
   <class name="l1t::L1TkElectronParticle" ClassVersion="15">
    <version ClassVersion="15" checksum=" 733765513"/>
    <version ClassVersion="14" checksum="1208575695"/>
