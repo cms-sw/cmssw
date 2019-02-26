@@ -796,20 +796,22 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
 
       // thickness = (rh_detid.det() == DetId::Forward || rh_detid.det() == DetId::HGCalEE || rh_detid.det() == DetId::HGCalHSi) ? recHitTools_->getSiThickness(rh_detid) : -1;
       //Count here only once the layer cluster and save the combination thick_layerid
-      std::string curistr = std::to_string( (int) thickness ) + "_" + std::to_string(layerid);
+      std::string curistr = std::to_string( (int) thickness );
+      std::string lay_string = std::to_string(layerid);
+      while(lay_string.size() < 2)
+        lay_string.insert(0, "0");
+      curistr += "_" + lay_string;
       if (cluslay){ tnlcpl[layerid]++; istr = curistr; cluslay = false; }
 
       if ( (thickness == 120.) && (recHitTools_->zside(rh_detid) > 0. ) ) {nthhits120p++;}
-      if ( (thickness == 120.) && (recHitTools_->zside(rh_detid) < 0. ) ) {nthhits120m++;}
-								     	  
-      if ( (thickness == 200.) && (recHitTools_->zside(rh_detid) > 0. ) ) {nthhits200p++;}
-      if ( (thickness == 200.) && (recHitTools_->zside(rh_detid) < 0. ) ) {nthhits200m++;}
-								     	  
-      if ( (thickness == 300.) && (recHitTools_->zside(rh_detid) > 0. ) ) {nthhits300p++;}
-      if ( (thickness == 300.) && (recHitTools_->zside(rh_detid) < 0. ) ) {nthhits300m++;}
-								     	  
-      if ( (thickness == -1)   && (recHitTools_->zside(rh_detid) > 0. ) ) {nthhitsscintp++;}
-      if ( (thickness == -1)   && (recHitTools_->zside(rh_detid) < 0. ) ) {nthhitsscintm++;}
+      else if ( (thickness == 120.) && (recHitTools_->zside(rh_detid) < 0. ) ) {nthhits120m++;}
+      else if ( (thickness == 200.) && (recHitTools_->zside(rh_detid) > 0. ) ) {nthhits200p++;}
+      else if ( (thickness == 200.) && (recHitTools_->zside(rh_detid) < 0. ) ) {nthhits200m++;}
+      else if ( (thickness == 300.) && (recHitTools_->zside(rh_detid) > 0. ) ) {nthhits300p++;}
+      else if ( (thickness == 300.) && (recHitTools_->zside(rh_detid) < 0. ) ) {nthhits300m++;}
+      else if ( (thickness == -1)   && (recHitTools_->zside(rh_detid) > 0. ) ) {nthhitsscintp++;}
+      else if ( (thickness == -1)   && (recHitTools_->zside(rh_detid) < 0. ) ) {nthhitsscintm++;}
+      else {assert(0);}
 
       std::map<DetId,const HGCRecHit *>::const_iterator itcheck= hitMap.find(rh_detid);
       if (itcheck == hitMap.end()) {
@@ -886,7 +888,11 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
       bigamoth.push_back(nthhits120m);bigamoth.push_back(nthhits200m);bigamoth.push_back(nthhits300m);bigamoth.push_back(nthhitsscintm);
     }
     auto bgth = std::max_element(bigamoth.begin(),bigamoth.end());
-    istr = std::to_string(thicknesses[ std::distance(bigamoth.begin(), bgth) ]) + "_" + std::to_string(layerid);
+    istr = std::to_string(thicknesses[ std::distance(bigamoth.begin(), bgth) ]);
+    std::string lay_string = std::to_string(layerid);
+    while(lay_string.size() < 2)
+      lay_string.insert(0, "0");
+    istr += "_" + lay_string;
 
     // std::cout << istr << std::endl;
 
@@ -897,6 +903,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
     double distancebetseedandmax = distance(seedx, seedy, maxx, maxy);
     //The thickness_layer combination in this case will use the thickness of the seed as a convention. 
     std::string seedstr = std::to_string( (int) recHitTools_->getSiThickness(seedid) )+ "_" + std::to_string(layerid);
+    seedstr += "_" + lay_string;
     // std::cout << distancebetseedandmax << " cluster energy " << clusters[layerclusterIndex].energy() << " " << seedstr << std::endl;
     if (histograms.h_distancebetseedandmaxcell_perthickperlayer.count(seedstr)){ 
       histograms.h_distancebetseedandmaxcell_perthickperlayer.at(seedstr).fill( distancebetseedandmax ); 
