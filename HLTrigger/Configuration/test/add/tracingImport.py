@@ -8,7 +8,8 @@ customised version:
    in the order in which they are defined
 """
 
-import sys, imp, __builtin__
+import sys, imp, 
+from six import builtins
 import re
 
 # patterns to discover cms.Path and cms.EndPath definitions in imported files
@@ -145,9 +146,9 @@ def reload_hook(module):
 
 
 # Save the original hooks
-original_import = __builtin__.__import__
-original_reload = __builtin__.reload
+original_import = builtins.__import__
+original_reload = builtins.reload
 
 # Now install our hooks
-__builtin__.__import__ = import_hook
-__builtin__.reload = reload_hook
+builtins.__import__ = import_hook
+builtins.reload = reload_hook

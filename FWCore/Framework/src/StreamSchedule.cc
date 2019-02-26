@@ -234,11 +234,7 @@ namespace edm {
           << "\n";
       }
     }
-    if (!unscheduledLabels.empty()) {
-      number_of_unscheduled_modules_=unscheduledLabels.size();
-      workerManager_.setOnDemandProducts(preg, unscheduledLabels);
-    }
-
+    number_of_unscheduled_modules_ = unscheduledLabels.size();
 
     initializeEarlyDelete(*modReg, opts,preg,allowEarlyDelete);
     

@@ -46,8 +46,8 @@ DTGeometryTest::analyze(const Event&, const EventSetup& iEventSetup)
   
   // check chamber
   LogVerbatim("Geometry") << "CHAMBERS " << string(120, '-');
-  
-  LogVerbatim("Geometry").log([&pDD](auto& log) {
+
+  LogVerbatim("Geometry").log([&](auto& log) {
       for(auto det : pDD->chambers()){
 	const BoundPlane& surf = det->surface();
 	log << "Chamber " << det->id() 
@@ -55,6 +55,21 @@ DTGeometryTest::analyze(const Event&, const EventSetup& iEventSetup)
 	    << " normVect " << surf.normalVector() 
 	    << " bounds W/H/L: " << surf.bounds().width() << "/" 
 	    << surf.bounds().thickness() << "/" << surf.bounds().length() << "\n";
+      }
+    });
+  LogVerbatim("Geometry") << "END " << string(120, '-');
+  
+  // check superlayers
+  LogVerbatim("Geometry") << "SUPERLAYERS " << string(120, '-');
+  LogVerbatim("Geometry").log([&](auto& log) {
+      for(auto det : pDD->superLayers()) {
+  	const BoundPlane& surf = det->surface();
+  	log << "SuperLayer " << det->id() 
+	    << " chamber " << det->chamber()->id()
+  	    << " Position " << surf.position()
+  	    << " normVect " << surf.normalVector() 
+  	    << " bounds W/H/L: " << surf.bounds().width() << "/" 
+  	    << surf.bounds().thickness() << "/" << surf.bounds().length() << "\n";
       }
     });
   LogVerbatim("Geometry") << "END " << string(120, '-');

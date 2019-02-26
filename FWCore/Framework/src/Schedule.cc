@@ -184,6 +184,17 @@ namespace edm {
         }
       }
 
+      if(auto iter = aliasMap.find(key); iter != aliasMap.end()) {
+        // If the same EDAlias defines multiple products pointing to the same product, throw
+        if(iter->second.moduleLabel() == alias) {
+          throw Exception(errors::Configuration, "EDAlias conflict\n")
+            << "The module label alias '" << alias << "' is used for multiple products of type '"
+            << friendlyClassName << "' with module label '" << moduleLabel << "' and instance name '"
+            << productInstanceName << "'. One alias has the instance name '" << iter->first.productInstanceName()
+            << "' and the other has the instance name '" << instanceAlias << "'.";
+        }
+      }
+
       std::string const& theInstanceAlias(instanceAlias == star ? productInstanceName : instanceAlias);
       BranchKey aliasKey(friendlyClassName, alias, theInstanceAlias, processName);
       if(preg.productList().find(aliasKey) != preg.productList().end()) {
@@ -284,7 +295,6 @@ namespace edm {
         assert(it != preg.productList().end());
         preg.addLabelAlias(it->second, aliasEntry.second.moduleLabel(), aliasEntry.second.productInstanceName());
       }
-
     }
 
     typedef std::vector<std::string> vstring;
@@ -332,6 +342,7 @@ namespace edm {
       }
 
       // Check that non-chosen cases declare exactly the same branches
+      // Also set the alias-for branches to transient
       std::vector<bool> foundBranches;
       for(auto const& switchItem: switchMap) {
         auto const& switchLabel = switchItem.first;
@@ -340,8 +351,19 @@ namespace edm {
         foundBranches.resize(chosenBranches.size());
         for(auto const& caseLabel: caseLabels) {
           std::fill(foundBranches.begin(), foundBranches.end(), false);
-          for(auto const& item: preg.productList()) {
+          for(auto& nonConstItem: preg.productListUpdator()) {
+            auto const& item = nonConstItem;
             if(item.first.moduleLabel() == caseLabel) {
+              // Set the alias-for branch as transient so it gets fully ignored in output.
+              // I tried first to implicitly drop all branches with
+              // '@' in ProductSelector, but that gave problems on
+              // input (those branches would be implicitly dropped on
+              // input as well, leading to the SwitchProducer branches
+              // do be dropped as dependent ones, as the alias
+              // detection logic in RootFile says that the
+              // SwitchProducer branches are not alias branches)
+              nonConstItem.second.setTransient(true);
+
               auto range = std::equal_range(chosenBranches.begin(), chosenBranches.end(), BranchKey(item.first.friendlyClassName(),
                                                                                                     switchLabel,
                                                                                                     item.first.productInstanceName(),
@@ -587,11 +609,11 @@ namespace edm {
       }
     }
     //The unscheduled modules are at the end of the list, but we want them at the front
-    unsigned int n = streamSchedules_[0]->numberOfUnscheduledModules();
-    if(n>0) {
+    unsigned int const nUnscheduledModules = streamSchedules_[0]->numberOfUnscheduledModules();
+    if(nUnscheduledModules>0) {
       std::vector<std::string> temp;
       temp.reserve(modulesToUse.size());
-      auto itBeginUnscheduled = modulesToUse.begin()+modulesToUse.size()-n;
+      auto itBeginUnscheduled = modulesToUse.begin()+modulesToUse.size()-nUnscheduledModules;
       std::copy(itBeginUnscheduled,modulesToUse.end(),
                 std::back_inserter(temp));
       std::copy(modulesToUse.begin(),itBeginUnscheduled,std::back_inserter(temp));
@@ -621,6 +643,14 @@ namespace edm {
     reduceParameterSet(proc_pset, tns.getEndPaths(), modulesInConfig, usedModuleLabels,
                        outputModulePathPositions);
     processEDAliases(proc_pset, processConfiguration->processName(), preg);
+
+    // At this point all BranchDescriptions are created. Mark now the
+    // ones of unscheduled workers to be on-demand.
+    if(nUnscheduledModules > 0) {
+      std::set<std::string> unscheduledModules(modulesToUse.begin(), modulesToUse.begin()+nUnscheduledModules);
+      preg.setUnscheduledProducts(unscheduledModules);
+    }
+
     processSwitchProducers(proc_pset, processConfiguration->processName(), preg);
     proc_pset.registerIt();
     processConfiguration->setParameterSetID(proc_pset.id());

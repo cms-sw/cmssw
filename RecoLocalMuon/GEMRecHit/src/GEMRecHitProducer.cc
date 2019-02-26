@@ -34,19 +34,18 @@ using namespace edm;
 using namespace std;
 
 
-GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config){
+GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config):
+  // Get the concrete reconstruction algo from the factory
+  theAlgo{GEMRecHitAlgoFactory::get()->create(config.getParameter<string>("recAlgo"),
+                                              config.getParameter<ParameterSet>("recAlgoConfig"))}
+{
+
 
   // Set verbose output
 
   produces<GEMRecHitCollection>();
 
   theGEMDigiToken = consumes<GEMDigiCollection>(config.getParameter<edm::InputTag>("gemDigiLabel"));  
-
-  // Get the concrete reconstruction algo from the factory
-
-  string theAlgoName = config.getParameter<string>("recAlgo");
-  theAlgo = GEMRecHitAlgoFactory::get()->create(theAlgoName,
-						config.getParameter<ParameterSet>("recAlgoConfig"));
 
   // Get masked- and dead-strip information
 
@@ -91,15 +90,7 @@ GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config){
 }
 
 
-GEMRecHitProducer::~GEMRecHitProducer(){
-
-  delete theAlgo;
-  // delete GEMMaskedStripsObj;
-  // delete GEMDeadStripsObj;
-
-}
-
-
+GEMRecHitProducer::~GEMRecHitProducer() = default;
 
 void GEMRecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup){
 

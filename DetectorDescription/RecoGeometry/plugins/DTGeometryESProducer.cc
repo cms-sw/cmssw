@@ -45,6 +45,7 @@
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDUnits.h"
+#include "DetectorDescription/DDCMS/interface/BenchmarkGrd.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DetectorDescription/RecoGeometry/interface/DTGeometryBuilder.h"
 
@@ -109,21 +110,25 @@ DTGeometryESProducer::~DTGeometryESProducer(){}
 
 std::shared_ptr<DTGeometry> 
 DTGeometryESProducer::produce(const MuonGeometryRcd & record) {
-
+  
   auto host = m_holder.makeOrGet([]() {
     return new HostType;
   });
 
-  if(m_fromDDD) {
-    host->ifRecordChanges<MuonNumberingRcd>(record,
-					    [this, &host](auto const& rec) {
-					      setupGeometry(rec, host);
-					    });
-  } else {
-    host->ifRecordChanges<DTRecoGeometryRcd>(record,
-                                             [this, &host](auto const& rec) {
-    					       setupDBGeometry(rec, host);
-    					     });
+  {
+    BenchmarkGrd counter("DTGeometryESProducer");
+
+    if(m_fromDDD) {
+      host->ifRecordChanges<MuonNumberingRcd>(record,
+					      [this, &host](auto const& rec) {
+						setupGeometry(rec, host);
+					      });
+    } else {
+      host->ifRecordChanges<DTRecoGeometryRcd>(record,
+					       [this, &host](auto const& rec) {
+						 setupDBGeometry(rec, host);
+					       });
+    }
   }
   //
   // Called whenever the alignments or alignment errors change
@@ -168,9 +173,12 @@ DTGeometryESProducer::setupGeometry(const MuonNumberingRcd& record,
   ESTransientHandle<DDSpecParRegistry> registry;
   record.getRecord<DDSpecParRegistryRcd>().get(m_tag.module(), registry);
   
-  DDSpecParRefMap myReg;
-  registry->filter(myReg, m_attribute, m_value);
-    
+  DDSpecParRefs myReg;
+  {
+    BenchmarkGrd b1("DTGeometryESProducer Filter Registry");
+    registry->filter(myReg, m_attribute, m_value);
+  }
+  
   DTGeometryBuilder builder;
   builder.build(*host, &(*cpv), *mdc, myReg);
 }

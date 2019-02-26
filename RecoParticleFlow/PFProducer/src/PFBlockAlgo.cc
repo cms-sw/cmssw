@@ -113,9 +113,7 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
     const PFBlockElement::Type type1 = elementTypes_.at(link1);
     const PFBlockElement::Type type2 = elementTypes_.at(link2);    
     const unsigned index  = rowsize*std::max(type1,type2)+std::min(type1,type2);
-    BlockElementLinkerBase * linker =
-      BlockElementLinkerFactory::get()->create(linkerName,conf);
-    linkTests_[index].reset(linker);
+    linkTests_[index] = LinkTestPtr{BlockElementLinkerFactory::get()->create(linkerName,conf)};
     linkTestSquare_[type1][type2] = index;
     linkTestSquare_[type2][type1] = index;
     // setup KDtree if requested
@@ -135,9 +133,7 @@ void PFBlockAlgo::setImporters(const std::vector<edm::ParameterSet>& confs,
   for( const auto& conf : confs ) {
     const std::string& importerName = 
       conf.getParameter<std::string>("importerName");    
-    BlockElementImporterBase * importer =
-      BlockElementImporterFactory::get()->create(importerName,conf,sumes);
-    importers_.emplace_back(importer);
+    importers_.emplace_back(BlockElementImporterFactory::get()->create(importerName,conf,sumes));
   }
 }
 
