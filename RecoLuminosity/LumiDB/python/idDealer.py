@@ -1,6 +1,7 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import coral
-import nameDealer
+from . import nameDealer
 class idDealer(object):
     """Manages the autoincremental ID values.\n
     Input: coral.schema object

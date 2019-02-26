@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 import unittest
 import os
 import shutil
 
-from chain import Chain
+from .chain import Chain
 from PhysicsTools.HeppyCore.utils.testtree import create_tree
 
 testfname = 'test_tree.root'

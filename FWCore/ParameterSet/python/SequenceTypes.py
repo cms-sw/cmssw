@@ -1,9 +1,10 @@
+from __future__ import absolute_import
 
-from Mixins import _ConfigureComponent, PrintOptions
-from Mixins import _Labelable, _Unlabelable
-from Mixins import _ValidatingParameterListBase
-from ExceptionHandling import *
-from OrderedSet import OrderedSet
+from .Mixins import _ConfigureComponent, PrintOptions
+from .Mixins import _Labelable, _Unlabelable
+from .Mixins import _ValidatingParameterListBase
+from .ExceptionHandling import *
+from .OrderedSet import OrderedSet
 
 class _HardDependency(object):
     """Information relevant for when a hard dependency, 
