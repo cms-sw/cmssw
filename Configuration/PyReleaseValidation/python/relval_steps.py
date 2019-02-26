@@ -630,6 +630,8 @@ baseDataSetRelease=[
     'CMSSW_10_5_0_pre1-103X_upgrade2018_realistic_v8-v1',  # 18 - GENSIM input for 2018 fullSim premix workflows
     'CMSSW_10_5_0_pre1-103X_upgrade2018_realistic_v8_FastSim-v1',    # 19 - fastSim MinBias for mixing UP18
     'CMSSW_10_5_0_pre1-PU25ns_103X_upgrade2018_realistic_v8_FastSim-v1',# 20 - fastSim premix library UP18 
+    'CMSSW_10_4_0-103X_mc2017_realistic_v2-v1',		# 21 - GEN-SIM inputs for LHE-GEN-SIM 2017 workflows
+    'CMSSW_10_4_0-103X_upgrade2018_realistic_v8-v1',		# 22 - GEN-SIM inputs for LHE-GEN-SIM 2018 workflows
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available
@@ -1396,11 +1398,18 @@ def lhegensim(fragment,howMuch):
     return merge([{'cfg':fragment},howMuch,step1LHEGenSimDefault])
 
 # LHE-GEN-SIM step for 2017
-step1LHEGenSimUp2017Default = merge ([{'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017','--beamspot':'Realistic25ns13TeVEarly2017Collision'},step1LHEGenSimDefault])
+step1LHEGenSimUp2017Default = merge ([{'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017','--beamspot':'Realistic25ns13TeVEarly2017Collision','--geometry':'DB:Extended'},step1LHEGenSimDefault])
 
 def lhegensim2017(fragment,howMuch):
     global step1LHEGenSimUp2017Default
     return merge([{'cfg':fragment},howMuch,step1LHEGenSimUp2017Default])
+
+# LHE-GEN-SIM step for 2018
+step1LHEGenSimUp2018Default = merge ([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--beamspot':'Realistic25ns13TeVEarly2018Collision','--geometry':'DB:Extended'},step1LHEGenSimDefault])
+
+def lhegensim2018(fragment,howMuch):
+    global step1LHEGenSimUp2018Default
+    return merge([{'cfg':fragment},howMuch,step1LHEGenSimUp2018Default])
 
 steps['TTbar012Jets_NLO_Mad_py8_Evt_13']=lhegensim('Configuration/Generator/python/TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cfi.py',Kby(9,50))
 steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13']=lhegensim('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cfi.py', Kby(9,50))
@@ -1410,11 +1419,20 @@ steps['VBFHToBB_M125_Pow_py8_Evt_13']=lhegensim('Configuration/Generator/python/
 steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP17']=lhegensim2017('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cfi.py', Kby(9,100))
 steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP17']=lhegensim2017('Configuration/Generator/python/VBFHZZ4Nu_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,100))
 steps['VBFHToBB_M125_Pow_py8_Evt_13UP17']=lhegensim2017('Configuration/Generator/python/VBFHbb_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,100))
+
+steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP18']=lhegensim2018('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cfi.py', Kby(9,100))
+steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP18']=lhegensim2018('Configuration/Generator/python/VBFHZZ4Nu_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,100))
+steps['VBFHToBB_M125_Pow_py8_Evt_13UP18']=lhegensim2018('Configuration/Generator/python/VBFHbb_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,100))
+
 #GEN-SIM inputs for LHE-GEN-SIM workflows
 #steps['TTbar012Jets_NLO_Mad_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar012Jets_NLO_Mad_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 #steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToZZTo4L_M125_Pow_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 #steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToZZTo4Nu_M125_Pow_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 #steps['VBFHToBB_M125_Pow_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToBB_M125_Pow_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+#steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP17/%s/GEN-SIM'%(baseDataSetRelease[21],),location='STD')}
+#steps['VBFHToBB_M125_Pow_py8_Evt_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToBB_M125_Pow_py8_Evt_13UP17/%s/GEN-SIM'%(baseDataSetRelease[21],),location='STD')}
+#steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP18/%s/GEN-SIM'%(baseDataSetRelease[22],),location='STD')}
+#steps['VBFHToBB_M125_Pow_py8_Evt_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToBB_M125_Pow_py8_Evt_13UP18/%s/GEN-SIM'%(baseDataSetRelease[22],),location='STD')}
 
 
 #Sherpa
@@ -1511,6 +1529,7 @@ step2Upg2017Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2017'
                  '--eventcontent':'FEVTDEBUGHLT',
                  '--era'         :'Run2_2017',
                  '-n'            :'10',
+                 '--geometry'    :'DB:Extended',
                   }
 
 #for 2018
@@ -1520,6 +1539,7 @@ step2Upg2018Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2018'
                  '--eventcontent':'FEVTDEBUGHLT',
                  '--era'         :'Run2_2018',
                  '-n'            :'10',
+                 '--geometry'    :'DB:Extended',
                   }
 
 
@@ -1528,6 +1548,7 @@ steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2016','--eventc
 steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults])
 steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults50ns])
 steps['DIGIUP17']=merge([step2Upg2017Defaults])
+steps['DIGIUP18']=merge([step2Upg2018Defaults])
 steps['DIGIUP17PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2017','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2017Defaults])
 steps['DIGIUP17_PU25']=merge([PU25UP17,step2Upg2017Defaults])
 steps['DIGIUP18_PU25']=merge([PU25UP18,step2Upg2018Defaults])
@@ -2048,8 +2069,11 @@ steps['RECOUP15_trackingLowPU']=merge([step3_trackingLowPU, step3Up2015Defaults]
 steps['RECOUP15_trackingOnlyLowPU']=merge([step3_trackingLowPU, step3Up2015Defaults_trackingOnly]) # todo: remove UP from label
 steps['RECOUP15_HIPM']=merge([step3_HIPM,step3Up2015Defaults]) # todo: remove UP from label
 
-steps['RECOUP17']=merge([{'--conditions':'auto:phase1_2017_realistic','--era' : 'Run2_2017'},steps['RECOUP15']])
-steps['RECOUP17_PU25']=steps['RECOUP17']
+steps['RECOUP17']=merge([{'--conditions':'auto:phase1_2017_realistic','--era' : 'Run2_2017','--geometry' : 'DB:Extended'},steps['RECOUP15']])
+steps['RECOUP17_PU25']=merge([PU25UP17,steps['RECOUP17']])
+
+steps['RECOUP18']=merge([{'--conditions':'auto:phase1_2018_realistic','--era' : 'Run2_2018','--geometry' : 'DB:Extended'},steps['RECOUP15']])
+steps['RECOUP18_PU25']=merge([PU25UP18,steps['RECOUP18']])
 
 # for Run1 PPb data workflow
 steps['RECO_PPbData']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:TkAlMinBias+TkAlMuonIsolatedPA+TkAlUpsilonMuMuPA+TkAlZMuMuPA,SKIM:PAZMM+PAZEE+PAMinBias,EI,DQM','--scenario':'pp','--conditions':'auto:run1_data','--era':'Run1_pA','--datatier':'AOD,DQMIO','--eventcontent':'AOD,DQM'}, dataReco])
@@ -2634,8 +2658,8 @@ steps['HARVESTUP15_PU50_L1TMuDQM']=merge([{'-s':'HARVESTING:@standardValidationN
 
 steps['HARVESTUP15_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP15']])
 
-steps['HARVESTUP17']=merge([{'--conditions':'auto:phase1_2017_realistic','--era' : 'Run2_2017'},steps['HARVESTUP15']])
-steps['HARVESTUP18']=merge([{'--conditions':'auto:phase1_2018_realistic','--era' : 'Run2_2018'},steps['HARVESTUP15']])
+steps['HARVESTUP17']=merge([{'--conditions':'auto:phase1_2017_realistic','--era' : 'Run2_2017','--geometry' : 'DB:Extended'},steps['HARVESTUP15']])
+steps['HARVESTUP18']=merge([{'--conditions':'auto:phase1_2018_realistic','--era' : 'Run2_2018','--geometry' : 'DB:Extended'},steps['HARVESTUP15']])
 steps['HARVESTUP18_L1TEgDQM']=merge([{'-s':'HARVESTING:@standardValidation+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM+@L1TEgamma'},steps['HARVESTUP18']])
 steps['HARVESTUP18_L1TMuDQM']=merge([{'-s':'HARVESTING:@standardValidation+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM+@L1TMuon'},steps['HARVESTUP18']])
 
