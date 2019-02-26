@@ -158,10 +158,9 @@ L1CaloTkTauParticleProducer::L1CaloTkTauParticleProducer(const edm::ParameterSet
   for (const auto& tau: taus) {
     tauTokens.push_back(consumes<l1t::TauBxCollection>(tau));
   }
+  label = iConfig.getParameter<std::string>("label");  // label of the collection produced //marina
 
-  produces<L1CaloTkTauParticleCollection>(label);
-
-  // Common to all tracks
+    // Common to all tracks
   tk_nFitParams         = (unsigned int)iConfig.getParameter<unsigned int>("tk_nFitParams");
 
   // Seed tracks
@@ -208,6 +207,8 @@ L1CaloTkTauParticleProducer::L1CaloTkTauParticleProducer(const edm::ParameterSet
   tau_relIsoWP         = (float)iConfig.getParameter<double>("tau_relIsoWP");
   tau_relIsodZ0        = (float)iConfig.getParameter<double>("tau_relIsodZ0");
   
+  produces<L1CaloTkTauParticleCollection>(label);
+
 }
 
 L1CaloTkTauParticleProducer::~L1CaloTkTauParticleProducer() {
@@ -278,22 +279,22 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
     unsigned int NStubs              = Stubs.size();
     // Seed tracks
     if ( Pt   > seedTk_minPt  &&
-         fabs(Eta)  > seedTk_minEta && 
-         fabs(Eta)  < seedTk_maxEta &&
+         fabs(Eta)  > seedTk_minEta && //marina
+         fabs(Eta)  < seedTk_maxEta && //marina
          Chi2 < seedTk_maxChiSq &&
          NStubs > seedTk_minStubs )  
             SeedTTTrackPtrs.push_back(track_RefPtr);
     // Signal cone tracks
     if ( Pt   > sigConeTks_minPt  &&
-         fabs(Eta)  > sigConeTks_minEta && 
-         fabs(Eta)  < sigConeTks_maxEta &&
+         fabs(Eta)  > sigConeTks_minEta && //marina
+         fabs(Eta)  < sigConeTks_maxEta && //marina
          Chi2 < sigConeTks_maxChiSq &&
          NStubs > sigConeTks_minStubs )  
             SigConeTTTrackPtrs.push_back(track_RefPtr);
 /*    // Isolation cone tracks
     if ( Pt   > isoConeTks_minPt  &&
-         fabs(Eta)  > isoConeTks_minEta && 
-         fabs(Eta)  < isoConeTks_maxEta &&
+         fabs(Eta)  > isoConeTks_minEta && //marina
+         fabs(Eta)  < isoConeTks_maxEta && //marina
          Chi2 < isoConeTks_maxChiSq &&
          NStubs > isoConeTks_minStubs )  
             IsoConeTTTrackPtrs.push_back(track_RefPtr); */
@@ -351,6 +352,10 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
       // Initialize track lists
       std::vector< L1TTTrackRefPtr > sigConeTks;
       std::vector< L1TTTrackRefPtr > isoConeTks;
+      
+      // Push matching track in the sigCone Tracks Vector
+      sigConeTks.push_back(matchedTrack); //marina
+
       // Initialize isolation variables
       float vtxIso = 999.0;
       float isoConePtSum = 0.0;
@@ -360,7 +365,9 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
       for ( unsigned int i=0; i < SigConeTTTrackPtrs.size(); i++ ){
         L1TTTrackRefPtr iTrk = SigConeTTTrackPtrs.at(i);
         // Skip the matching track //FIXME: in CaloTk.C code the matching track is first skipped and them added - why?
-//      if( tk->index() == L1TkTau.GetMatchingTk().index() ) continue;
+	//      if( tk->index() == L1TkTau.GetMatchingTk().index() ) continue;
+	//if (matchedTrack==iTrk) continue; //marina - not working
+
          // Calculate dR and dPOCAz
         double dR = reco::deltaR(iTrk->getMomentum(tk_nFitParams).eta(), iTrk->getMomentum(tk_nFitParams).phi(), 
                          matchedTrack->getMomentum(tk_nFitParams).eta(), matchedTrack->getMomentum(tk_nFitParams).phi());     
@@ -437,14 +444,14 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
 
       // Relative isolation
       double relIso = isoConePtSum / matchedTrack->getMomentum(tk_nFitParams).perp();
-	  bool bPassRelIso = (relIso < tau_relIsoWP); // orthogonal to VtxIso
-	  if (!bPassRelIso) continue;
-
+      bool bPassRelIso = (relIso < tau_relIsoWP); // orthogonal to VtxIso
+      if (!bPassRelIso) continue;
+      
       // Vertex isolation      
       bool bPassVtxIso = (vtxIso > tau_vtxIsoWP); // orthogonal to RelIso
-	  if (!bPassVtxIso) continue;
-
-//      std::cout << "Passed all isolation criteria with jetWidth = " << jetWidth << ", relIso = " << relIso << " and vtxIso = " << vtxIso << std::endl;
+      if (!bPassVtxIso) continue;
+	  
+      //      std::cout << "Passed all isolation criteria with jetWidth = " << jetWidth << ", relIso = " << relIso << " and vtxIso = " << vtxIso << std::endl;
 
       const math::XYZTLorentzVector p4 = sigTks_p4;
       const Tau finalTau = *caloTauIter;

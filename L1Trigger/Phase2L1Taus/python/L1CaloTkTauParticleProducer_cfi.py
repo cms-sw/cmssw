@@ -2,7 +2,7 @@
 import FWCore.ParameterSet.Config as cms
 
 L1CaloTkTaus = cms.EDProducer("L1CaloTkTauParticleProducer",
-        label = cms.string("L1CaloTkTaus"), 	# labels the collection of L1CaloTkTauParticleProducer that is produced
+        label = cms.string("CaloTk"), 	# labels the collection of L1CaloTkTauParticleProducer that is produced
 
 #        # L1 Tracks
 #     	L1TrackInputTag = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks"),
