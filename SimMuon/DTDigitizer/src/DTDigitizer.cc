@@ -54,7 +54,11 @@ using namespace edm;
 using namespace std;
 
 // Constructor
-DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
+DTDigitizer::DTDigitizer(const ParameterSet& conf_):
+  // Sync Algo
+  theSync{DTDigiSyncFactory::get()->create(conf_.getParameter<string>("SyncName"),
+                                           conf_.getParameter<ParameterSet>("pset"))}
+ {
   
   // Set verbose output
   debug=conf_.getUntrackedParameter<bool>("debug"); 
@@ -86,10 +90,6 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   
   // further configurable smearing
   smearing=conf_.getParameter<double>("Smearing"); // 3.
-
-  // Sync Algo
-  syncName = conf_.getParameter<string>("SyncName");
-  theSync.reset( DTDigiSyncFactory::get()->create(syncName,conf_.getParameter<ParameterSet>("pset")) );
 
   // Debug flag to switch to the Ideal model
   // it uses a constant drift velocity and doesn't set any external delay

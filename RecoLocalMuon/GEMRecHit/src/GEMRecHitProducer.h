@@ -58,8 +58,7 @@ private:
   edm::EDGetTokenT<GEMDigiCollection> theGEMDigiToken;
 
   // The reconstruction algorithm
-  GEMRecHitBaseAlgo *theAlgo;
-  //   static std::string theAlgoName;
+  std::unique_ptr<GEMRecHitBaseAlgo> theAlgo;
 
   // GEMMaskedStrips* GEMMaskedStripsObj;
   // Object with mask-strips-vector for all the GEM Detectors

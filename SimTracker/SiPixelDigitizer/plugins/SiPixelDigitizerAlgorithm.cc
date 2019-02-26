@@ -118,7 +118,7 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
     theSiPixelGainCalibrationService_->setESObjects( es );
   }
   if(use_deadmodule_DB_) {
-    es.get<SiPixelQualityRcd>().get(SiPixelBadModule_);
+    es.get<SiPixelQualityRcd>().get(siPixelQualityLabel, SiPixelBadModule_);
   }
   if(use_LorentzAngle_DB_) {
     // Get Lorentz angle from DB record
@@ -191,7 +191,8 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
 //=========================================================================
 
 SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf) :
-
+  
+  siPixelQualityLabel(conf.getParameter<std::string>("SiPixelQualityLabel")), //string to specify SiPixelQuality label
   _signal(),
   makeDigiSimLinks_(conf.getUntrackedParameter<bool>("makeDigiSimLinks", true)),
   use_ineff_from_db_(conf.getParameter<bool>("useDB")),

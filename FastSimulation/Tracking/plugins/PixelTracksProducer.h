@@ -31,7 +31,7 @@ public:
 private:
 
   edm::EDGetTokenT<PixelFitter> fitterToken;
-  TrackingRegionProducer* theRegionProducer;
+  std::unique_ptr<TrackingRegionProducer> theRegionProducer;
 
   edm::EDGetTokenT<TrajectorySeedCollection> seedProducerToken;
   edm::EDGetTokenT<PixelTrackFilter> filterToken;

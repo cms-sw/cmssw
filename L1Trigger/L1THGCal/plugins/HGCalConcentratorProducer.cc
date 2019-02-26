@@ -43,8 +43,7 @@ HGCalConcentratorProducer(const edm::ParameterSet& conf):
   //setup Concentrator parameters
   const edm::ParameterSet& concParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& concProcessorName = concParamConfig.getParameter<std::string>("ProcessorName");
-  HGCalConcentratorProcessorBase* concProc = HGCalConcentratorFactory::get()->create(concProcessorName, concParamConfig);
-  concentratorProcess_.reset(concProc);
+  concentratorProcess_ = std::unique_ptr<HGCalConcentratorProcessorBase>{HGCalConcentratorFactory::get()->create(concProcessorName, concParamConfig)};
 
   produces<l1t::HGCalTriggerCellBxCollection>(concentratorProcess_->name());
   produces<l1t::HGCalTriggerSumsBxCollection>(concentratorProcess_->name());

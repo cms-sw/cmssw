@@ -14,20 +14,17 @@ CompositeTSG::CompositeTSG(const edm::ParameterSet & par,edm::ConsumesCollector&
     edm::ParameterSet TSGpset = par.getParameter<edm::ParameterSet>(*nIt);
     if (TSGpset.empty()) {
       theNames.push_back((*nIt)+":"+"NULL");
-      theTSGs.push_back((TrackerSeedGenerator*)nullptr);
+      theTSGs.emplace_back(nullptr);
     }else {
       std::string SeedGenName = TSGpset.getParameter<std::string>("ComponentName");
       theNames.push_back((*nIt)+":"+SeedGenName);
-      theTSGs.push_back(TrackerSeedGeneratorFactory::get()->create(SeedGenName,TSGpset,IC));
+      theTSGs.emplace_back(TrackerSeedGeneratorFactory::get()->create(SeedGenName,TSGpset,IC));
     }
   }
   
 }
 
-CompositeTSG::~CompositeTSG(){
-  //delete the components ?
-}
-
+CompositeTSG::~CompositeTSG() = default;
 
 void CompositeTSG::init(const MuonServiceProxy* service){
   theProxyService = service;

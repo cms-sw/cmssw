@@ -89,7 +89,7 @@ class DTRecHitBaseAlgo {
 
  protected:
   // The module to be used for digi time synchronization
-  DTTTrigBaseSync *theSync;
+  std::unique_ptr<DTTTrigBaseSync> theSync;
   
 };
 #endif

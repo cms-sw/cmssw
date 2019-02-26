@@ -44,8 +44,9 @@ class SiPixelQualityESProducer : public edm::ESProducer, public edm::EventSetupR
   
   
   /* virtual*/ std::unique_ptr<SiPixelQuality> produce(const SiPixelQualityRcd & iRecord) ;
+  /* virtual*/ std::unique_ptr<SiPixelQuality> produceWithLabel(const SiPixelQualityRcd & iRecord);
   
-protected:
+ protected:
   
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
@@ -54,10 +55,11 @@ protected:
   
  private:
   
+  std::string label;
   edm::FileInPath fp_;
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toGet;
-
-
+  std::unique_ptr<SiPixelQuality> get_pointer(const SiPixelQualityRcd & iRecord, std::string label);
+  
 };
 #endif

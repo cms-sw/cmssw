@@ -17,16 +17,12 @@ public:
 
   ~TSGFromOrderedHits() override;
 
-  using TrackerSeedGenerator::init;
 private:
   void run(TrajectorySeedCollection &seeds, 
       const edm::Event &ev, const edm::EventSetup &es, const TrackingRegion& region) override;
 
-private:
-  void init();
   edm::RunNumber_t theLastRun;
-  edm::ParameterSet theConfig;
-  SeedGeneratorFromRegionHits * theGenerator; 
+  std::unique_ptr<SeedGeneratorFromRegionHits> theGenerator;
 };
 
 

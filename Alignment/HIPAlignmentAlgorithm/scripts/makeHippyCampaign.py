@@ -21,7 +21,7 @@ def main():
   parser.add_argument("--cmssw", default=os.environ["CMSSW_VERSION"])
   parser.add_argument("--scram-arch", default=os.environ["SCRAM_ARCH"])
   parser.add_argument("--subfolder", default="", help="subfolder within "+basedir+" to make 'foldername' in.")
-  parser.add_argument("--merge-topic", action="append", help="things to cms-merge-topic within the CMSSW release created")
+  parser.add_argument("--merge-topic", action="append", help="things to cms-merge-topic within the CMSSW release created", default=[])
   parser.add_argument("--print-sys-path", action="store_true", help=argparse.SUPPRESS) #internal, don't use this
   args = parser.parse_args()
 
@@ -80,6 +80,14 @@ def main():
             f.write(os.path.join(os.getcwd(), "cosmics.txt") + ",,COSMICS,Datatype:1 APVMode:deco Bfield:3.8T\n")
             f.write(os.path.join(os.getcwd(), "CDCs.txt") + ",,CDCS,Datatype:1 APVMode:deco Bfield:3.8T\n")
           subprocess.check_call(["git", "add", "data_example.lst"])
+        if not os.path.exists("baddatafiles.txt"):
+          with open("baddatafiles.txt", "w") as f:
+            f.write("If any data files are bad (e.g. not at CERN), put them here,\n")
+            f.write("separated by newlines or spaces or nothing or whatever you like.\n")
+            f.write("Anything else in this file, like these lines, will be ignored.\n")
+            f.write("You can also run hippyaddtobaddatafiles.py .../align_cfg.py to automatically\n")
+            f.write("find bad data files.\n")
+            f.write("Running jobs will automatically pick up changes here next time they resubmit.")
 
       mkdir_p("IOV")
       with cd("IOV"):

@@ -50,7 +50,7 @@ class DTRecSegment2DProducer : public edm::stream::EDProducer<> {
   bool debug;
 
   // The 2D-segments reconstruction algorithm
-  DTRecSegment2DBaseAlgo* theAlgo;
+  std::unique_ptr<DTRecSegment2DBaseAlgo> theAlgo;
 
   //static std::string theAlgoName;
   edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;

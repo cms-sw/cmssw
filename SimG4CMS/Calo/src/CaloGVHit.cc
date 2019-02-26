@@ -3,29 +3,32 @@
 
 #include "G4SystemOfUnits.hh"
 
-CaloGVHit::CaloGVHit(){
-  elem     = 0.;
-  hadr     = 0.;
+CaloGVHit::CaloGVHit() {
+  eventID_ = 0;
+  elem_    = 0.;
+  hadr_    = 0.;
 }
 
 CaloGVHit::~CaloGVHit(){}
 
 CaloGVHit::CaloGVHit(const CaloGVHit &right) {
-  elem              = right.elem;
-  hadr              = right.hadr;
-  hitID             = right.hitID;
+  eventID_          = right.eventID_;
+  elem_             = right.elem_;
+  hadr_             = right.hadr_;
+  hitID_            = right.hitID_;
 }
 
 const CaloGVHit& CaloGVHit::operator=(const CaloGVHit &right) {
-  elem              = right.elem;
-  hadr              = right.hadr;
-  hitID             = right.hitID;
+  eventID_          = right.eventID_;
+  elem_             = right.elem_;
+  hadr_             = right.hadr_;
+  hitID_            = right.hitID_;
   return *this;
 }
 
 void CaloGVHit::addEnergyDeposit(double em, double hd) {
-  elem += em ;
-  hadr += hd;
+  elem_ += em ;
+  hadr_ += hd;
 }
 
 void CaloGVHit::addEnergyDeposit(const CaloGVHit& aHit) {
@@ -34,10 +37,10 @@ void CaloGVHit::addEnergyDeposit(const CaloGVHit& aHit) {
 }
 
 std::ostream& operator<<(std::ostream& os, const CaloGVHit& hit) {
-  os << " Data of this CaloGVHit are:" << "\n"
-     << " HitID: " << hit.getID() << "\n"
-     << " EnergyDeposit of EM particles = " << hit.getEM() << "\n"
-     << " EnergyDeposit of HD particles = " << hit.getHadr() << "\n"
-     << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+  os << " Data of this CaloGVHit are:" 
+     << " EventID: " << hit.getEventID()
+     << " HitID: " << hit.getID() 
+     << " EnergyDeposit (EM): " << hit.getEM() 
+     << " (Had): " << hit.getHadr() << "\n";
   return os;
 }

@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    DetectorDescription/DTGeometryESProducer
-// Class:      DTGeometryESProducer
+// Package:    DetectorDescription/DTGeometryBuilder
+// Class:      DTGeometryBuilder
 // 
-/**\class DTGeometryESProducer
+/**\class DTGeometryBuilder
 
  Description: DT Geometry builder from DD4hep
 
@@ -29,19 +29,9 @@
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESProductHost.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "DetectorDescription/DDCMS/interface/MuonNumbering.h"
 #include "DetectorDescription/DDCMS/interface/MuonNumberingRcd.h"
 #include "DetectorDescription/DDCMS/interface/MuonGeometryRcd.h"
-#include "DetectorDescription/DDCMS/interface/DDSpecParRegistryRcd.h"
-#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
@@ -77,22 +67,26 @@ namespace {
 }
 
 void
-DTGeometryBuilder::buildGeometry(DDFilteredView& fview, dd4hep::Volume top,
+DTGeometryBuilder::buildGeometry(DDFilteredView& fview,
 				 const DDSpecPar& specpar,
 				 DTGeometry& geom, const MuonNumbering& num) const {
-  TGeoVolume *topVolume = top;
+  TGeoVolume *topVolume = fview.geoHistory().back().volume;
   TGeoIterator next(topVolume);
   next.SetType(0); // 0: DFS; 1: BFS
   TGeoNode *node;
   
   //find all Chamber nodes
-  auto chamberSelection = specpar.vPathsTo(1);
+  auto const& chamberSelection = fview.vPathsTo(specpar, 1);
   
   //find all Super Layer nodes
-  auto superLayerSelection = specpar.tails(specpar.vPathsTo(2));
+  auto const& superLayerSelection = fview.tails(fview.vPathsTo(specpar, 2));
   
   //find all Layer nodes
-  auto layerSelection = specpar.tails(specpar.vPathsTo(3));
+  auto const& layerSelection = fview.tails(fview.vPathsTo(specpar, 3));
+  
+  // Not used:
+  // auto const& type = specpar.strValue("Type");
+  // auto const& FEPos = specpar.strValue("FEPos");
   
   while((node = next())) {
     // If the node matches the Chamber selection
@@ -103,53 +97,68 @@ DTGeometryBuilder::buildGeometry(DDFilteredView& fview, dd4hep::Volume top,
       const Double_t *tr  = matrix->GetTranslation();
       
       // FIXME: Create an ExpanedNode here
-      // int copyNo = node->GetNumber();
+      int nd = node->GetNdaughters();
+      TString path;
+      next.GetPath(path);
+      fview.checkPath(path, node);
+
+      DDTranslation chTr = DDTranslation(tr[0], tr[1], tr[2]);
+      DDRotationMatrix chRot = DDRotationMatrix(rot[0], rot[1], rot[2],
+						rot[3], rot[4], rot[5],
+						rot[6], rot[7], rot[8]);
       DTChamber* chamber = buildChamber(fview,
-					fview.extractParameters(node->GetVolume()),
-					DDTranslation(tr[0], tr[1], tr[2]),
-					DDRotationMatrix(rot[0], rot[1], rot[2],
-							 rot[3], rot[4], rot[5],
-							 rot[6], rot[7], rot[8]), num);
+					chTr, chRot,
+					num);
       // Loop on SLs
       TGeoNode *currentSLayer = nullptr;
-      int nd = node->GetNdaughters();
       
       for(int i = 0; i < nd; ++i) {
-	currentSLayer = (TGeoNode*)node->GetNodes()->At(i);
+	currentSLayer = static_cast<TGeoNode*>(node->GetNodes()->At(i));
 	
-	if(fview.accepted(superLayerSelection, noNamespace(currentSLayer->GetVolume()->GetName()))) {
-	  // FIXME: the matrix is relative
+	if(fview.accepted(superLayerSelection, noNamespace(currentSLayer->GetVolume()->GetName()))) {	  
+	  // The matrix is relative
 	  const TGeoMatrix *slMatrix = currentSLayer->GetMatrix();
 	  const Double_t *slrot = slMatrix->GetRotationMatrix();
 	  const Double_t *sltr  = slMatrix->GetTranslation();
+	  // This matrix is absolute
+	  DDTranslation slTr = chTr + (chRot * DDTranslation(sltr[0], sltr[1], sltr[2]));
+	  DDRotationMatrix slRot = chRot * DDRotationMatrix(slrot[0], slrot[1], slrot[2],
+							    slrot[3], slrot[4], slrot[5],
+							    slrot[6], slrot[7], slrot[8]);
+	    
+	  fview.checkNode(currentSLayer);
 	  
-	  DTSuperLayer* sl = buildSuperLayer(chamber,
-					     fview.extractParameters(currentSLayer->GetVolume()),
-					     DDTranslation(sltr[0], sltr[1], sltr[2]),
-					     DDRotationMatrix(slrot[0], slrot[1], slrot[2],
-							      slrot[3], slrot[4], slrot[5],
-							      slrot[6], slrot[7], slrot[8]), num);
+	  DTSuperLayer* sl = buildSuperLayer(fview, chamber,
+					     slTr, slRot,
+					     num);
 	  // Loop on Layers
 	  TGeoNode *currentLayer = nullptr;
 	  int ndLs = currentSLayer->GetNdaughters();
 	  for(int j = 0; j < ndLs; ++j) {
-	    currentLayer = (TGeoNode*)currentSLayer->GetNodes()->At(j);
+	    currentLayer = static_cast<TGeoNode*>(currentSLayer->GetNodes()->At(j));
 	    if(fview.accepted(layerSelection, noNamespace(currentLayer->GetVolume()->GetName()))) {
-	      // FIXME: the matrix is relative
+	      // The matrix is relative
 	      const TGeoMatrix *lMatrix = currentLayer->GetMatrix();
 	      const Double_t *lrot = lMatrix->GetRotationMatrix();
 	      const Double_t *ltr  = lMatrix->GetTranslation();
-	      
-	      DTLayer* l = buildLayer(sl,
-				      fview.extractParameters(currentLayer->GetVolume()),
-				      DDTranslation(ltr[0], ltr[1], ltr[2]),
-				      DDRotationMatrix(lrot[0], lrot[1], lrot[2],
-						       lrot[3], lrot[4], lrot[5],
-						       lrot[6], lrot[7], lrot[8]), num, 1);
+
+	      // This matrix is absolute
+	      DDTranslation lTr = slTr + (slRot * DDTranslation(ltr[0], ltr[1], ltr[2]));
+	      DDRotationMatrix lRot = slRot * DDRotationMatrix(lrot[0], lrot[1], lrot[2],
+							       lrot[3], lrot[4], lrot[5],
+							       lrot[6], lrot[7], lrot[8]);
+	    
+	      fview.checkNode(currentLayer);
+   
+	      DTLayer* l = buildLayer(fview, sl,
+				      lTr, lRot,
+				      num);
+	      fview.unCheckNode();
 	      geom.add(l);
 	    }
 	  }
-	  geom.add(sl);
+	  fview.unCheckNode();
+	  geom.add(sl);	  
 	}
       }
       geom.add(chamber);
@@ -177,20 +186,19 @@ DTGeometryBuilder::plane(const DDTranslation& trans,
 
 DTChamber*
 DTGeometryBuilder::buildChamber(const DDFilteredView& fview,
-				const vector<double>& par,
 				const DDTranslation& trans,
 				const DDRotationMatrix& rotation,
 				const MuonNumbering& muonConstants) const {
   MuonConstants cons = muonConstants.values;
   DTNumberingScheme dtnum(cons);
-  int rawid = 574923776; //dtnum.getDetId(muonConstants.geoHistoryToBaseNumber(fview.geoHistory()));
+  
+  int rawid = dtnum.getDetId(muonConstants.geoHistoryToBaseNumber(fview.nodes));
   DTChamberId detId(rawid);
-  
-  float width = par[0];     // r-phi  dimension - different in different chambers
-  float length = par[1];    // z      dimension - constant 125.55 cm
-  float thickness = par[2]; // radial thickness - almost constant about 18 cm
-  
-  RCPPlane surf(plane(trans, rotation, new RectangularPlaneBounds(width, length, thickness)));
+  auto const& par = fview.extractParameters();
+  // par[0] r-phi  dimension - different in different chambers
+  // par[1] z      dimension - constant 125.55 cm
+  // par[2] radial thickness - almost constant about 18 cm  
+  RCPPlane surf(plane(trans, rotation, new RectangularPlaneBounds(par[0], par[1], par[2])));
   
   DTChamber* chamber = new DTChamber(detId, surf);
   
@@ -198,23 +206,24 @@ DTGeometryBuilder::buildChamber(const DDFilteredView& fview,
 }
 
 DTSuperLayer*
-DTGeometryBuilder::buildSuperLayer(DTChamber* chamber,
-				   const vector<double>& par,
+DTGeometryBuilder::buildSuperLayer(const DDFilteredView& fview,
+				   DTChamber* chamber,
 				   const DDTranslation& trans,
 				   const DDRotationMatrix& rotation,
-				   const MuonNumbering&) const {
-  // MuonDDDNumbering mdddnum(muonConstants);
-  // DTNumberingScheme dtnum(muonConstants);
-  // int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
-  int rawid = 574923776;
+				   const MuonNumbering& muonConstants) const {
+  MuonConstants cons = muonConstants.values;
+  DTNumberingScheme dtnum(cons);
+
+  int rawid = dtnum.getDetId(muonConstants.geoHistoryToBaseNumber(fview.nodes));
   DTSuperLayerId slId(rawid);
   
-  float width = par[0];     // r-phi  dimension - changes in different chambers
-  float length = par[1];    // z      dimension - constant 126.8 cm
-  float thickness = par[2]; // radial thickness - almost constant about 20 cm
+  auto const& par = fview.extractParameters();
+  // par[0] r-phi  dimension - changes in different chambers
+  // par[1] z      dimension - constant 126.8 cm
+  // par[2] radial thickness - almost constant about 20 cm
   
   // Ok this is the slayer position...
-  RCPPlane surf(plane(trans, rotation, new RectangularPlaneBounds(width, length, thickness)));
+  RCPPlane surf(plane(trans, rotation, new RectangularPlaneBounds(par[0], par[1], par[2])));
   
   DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
   
@@ -225,29 +234,28 @@ DTGeometryBuilder::buildSuperLayer(DTChamber* chamber,
 }
 
 DTLayer*
-DTGeometryBuilder::buildLayer(DTSuperLayer* sl,
-			      const vector<double>& par,
+DTGeometryBuilder::buildLayer(const DDFilteredView& fview,
+			      DTSuperLayer* sl,
 			      const DDTranslation& trans,
 			      const DDRotationMatrix& rotation,
-			      const MuonNumbering& num,
-			      int copyno) const {
-  // MuonDDDNumbering mdddnum(muonConstants);
-  // DTNumberingScheme dtnum(muonConstants);
-  // int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
-  int rawid = 574923776;
+			      const MuonNumbering& muonConstants) const {
+  MuonConstants cons = muonConstants.values;
+  DTNumberingScheme dtnum(cons);
+
+  int rawid = dtnum.getDetId(muonConstants.geoHistoryToBaseNumber(fview.nodes));
   DTLayerId layId(rawid);
   
+  auto const& par = fview.extractParameters();
   // Layer specific parameter (size)
-  float width = par[0];     // r-phi  dimension - changes in different chambers
-  float length = par[1];    // z      dimension - constant 126.8 cm
-  float thickness = par[2]; // radial thickness - almost constant about 20 cm
-  
-  RCPPlane surf(plane(trans, rotation, new RectangularPlaneBounds(width, length, thickness)));
+  // par[0] r-phi  dimension - changes in different chambers
+  // par[1] z      dimension - constant 126.8 cm
+  // par[2] radial thickness - almost constant about 20 cm
+  RCPPlane surf(plane(trans, rotation, new RectangularPlaneBounds(par[0], par[1], par[2])));
   
   // FIXME: // Loop on wires
   // bool doWire = fv.firstChild();
   int WCounter = 0;
-  int firstWire = copyno;
+  int firstWire = 1; //FIXME: copyno;
   // par = extractParameters(fv);
   float wireLength = par[1];
   // while (doWire) {
@@ -267,17 +275,12 @@ DTGeometryBuilder::buildLayer(DTSuperLayer* sl,
 
 void
 DTGeometryBuilder::build(DTGeometry& geom,
-			 const DDDetector* det, 
+			 const cms::DDDetector* det,
 			 const MuonNumbering& num,
-			 const DDSpecParRefMap& refs) {
-  
-  dd4hep::DetElement world = det->description()->world();
-  DDFilteredView fview(world.volume(), DDTranslation(), DDRotationMatrix());
-  fview.mergedSpecifics(refs);
-  fview.firstChild();
-  // FIXME: Test for alternative iteration
-  // buildGeometry(fview, world.volume(), *begin(refs)->second, geom, num);
+			 const DDSpecParRefs& refs) {
+  DDFilteredView fview(det);
+
   for(const auto& i: refs) {
-    buildGeometry(fview, world.volume(), *i.second, geom, num);
+    buildGeometry(fview, *i, geom, num);
   }
 }
