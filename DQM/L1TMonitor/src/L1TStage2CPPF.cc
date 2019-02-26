@@ -192,7 +192,7 @@ void L1TStage2CPPF::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, 
     
        histoName.str("");
        histoName<<"CPPFOutput_OccupancyNormByEvents_Disk"<<d;
-       CPPFOutputNormOccupDisk[d+offset] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+       CPPFOutputNormOccupDisk[d+offset] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, numberOfRings_, 0.5,numberOfRings_+ 0.5);
        
        rpcUtils.labelXAxisSegment(CPPFOutputNormOccupDisk[d+offset]);
        rpcUtils.labelYAxisRing( CPPFOutputNormOccupDisk[d+offset],numberOfRings_,  useRollInfo_);
@@ -201,6 +201,7 @@ void L1TStage2CPPF::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, 
 
      for (int ring = 2  ; ring <= 3; ring ++) {
 	for( int region = -1; region < 2; region+=2){ 
+         /*
           os.str("");
           os<<"CPPFOutput_Disk_"<<(region * d)<<"_Ring_"<<ring<<"_board_Vs_Segment";
       
@@ -237,6 +238,24 @@ void L1TStage2CPPF::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, 
           rpcdqm::RPCMEHelper::setNoAlphanumeric(meOutputDiskRing_emtf_link[os.str()]);
       
 	  rpcUtils.labelXAxisSegment(meOutputDiskRing_emtf_link[os.str()]);
+          */
+          os.str("");
+          os<<"CPPFOutput_Disk_"<<(region * d)<<"_Ring_"<<ring<<"_Theta_Vs_Segment";
+      
+          meOutputDiskRing_theta[os.str()] = ibooker.book2D(os.str(), os.str(), 36, 0.5, 36.5, 32 ,0 , 32);
+          meOutputDiskRing_theta[os.str()]->setAxisTitle("Segment", 1);
+          rpcdqm::RPCMEHelper::setNoAlphanumeric(meOutputDiskRing_theta[os.str()]);
+      
+    rpcUtils.labelXAxisSegment(meOutputDiskRing_theta[os.str()]);
+
+          os.str("");
+          os<<"CPPFOutput_Disk_"<<(region * d)<<"_Ring_"<<ring<<"_Theta_Vs_Segment";
+      
+          meOutputDiskRing_phi[os.str()] = ibooker.book2D(os.str(), os.str(), 36, 0.5, 36.5, 1250 ,0 , 1250);
+          meOutputDiskRing_phi[os.str()]->setAxisTitle("Segment", 1);
+          rpcdqm::RPCMEHelper::setNoAlphanumeric(meOutputDiskRing_phi[os.str()]);
+      
+    rpcUtils.labelXAxisSegment(meOutputDiskRing_phi[os.str()]);
 
      
          } //loop on region
@@ -443,8 +462,8 @@ void L1TStage2CPPF::analyze(const Event& e, const EventSetup& c)
 	int xBin, yBin;
 	xBin = geoServ.segment();
 	//yBin = (detId.ring()-1)*3-detId.roll()+1;
-	yBin = (detId.ring()-1)*3-3+1;  // no roll information
-
+	//yBin = (detId.ring()-1)*3-3+1;  // no roll information
+  yBin = detId.ring()-1;
 	int ring = detId.ring();
 
 	wheelOrDiskType =  "Disk";
@@ -453,7 +472,7 @@ void L1TStage2CPPF::analyze(const Event& e, const EventSetup& c)
 
 	if( region !=0){
 		
-
+    /*
 		os.str("");
 		os<<"CPPFOutput_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring<<"_board_Vs_Segment";
 		if(meOutputDiskRing_board[os.str()]){
@@ -477,7 +496,18 @@ void L1TStage2CPPF::analyze(const Event& e, const EventSetup& c)
 		if(meOutputDiskRing_emtf_link[os.str()]){
 			meOutputDiskRing_emtf_link[os.str()]->Fill(xBin, (*cppfdigiItr).emtf_link() );
 		}
+    */
+    os.str("");
+    os<<"CPPFOutput_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring<<"_Theta_Vs_Segment";
+    if(meOutputDiskRing_theta[os.str()]){
+      meOutputDiskRing_theta[os.str()]->Fill(xBin, (*cppfdigiItr).theta_int() );
+    }
 
+    os.str("");
+    os<<"CPPFOutput_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring<<"_Theta_Vs_Segment";
+    if(meOutputDiskRing_phi[os.str()]){
+      meOutputDiskRing_phi[os.str()]->Fill(xBin, (*cppfdigiItr).phi_int() );
+    }
 
 		if(wheelOrDiskNumber>0) wheelOrDiskNumber--;
 		CPPFOutputNormOccupDisk[wheelOrDiskNumber + 4]->Fill(xBin, yBin, 1);
