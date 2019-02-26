@@ -74,7 +74,7 @@ _totclusternum_thick = PlotGroup("totclusternum_thick", [
     ])
 
 #We will plot the density in logy scale. 
-_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ylog": True}
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
 
 _cellsenedens_thick =  PlotGroup("cellsenedens_thick", [
     Plot("cellsenedens_thick_120", xtitle="", **_common),
@@ -1274,6 +1274,7 @@ _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 _common_score = {"title": "Score CaloParticle to LayerClusters",
                  "stat": False,
                  "xmin": 0.,
+                 "xtitleoffset": 1.5,
                  "drawStyle": "hist",
                  "lineWidth": 1
                 }
@@ -1287,6 +1288,7 @@ _score_caloparticle_to_layerclusters = PlotGroup("score_caloparticle_to_layerclu
 _common_score = {"title": "Score LayerCluster to CaloParticles",
                  "stat": False,
                  "xmin": 0.,
+                 "xtitleoffset": 1.5,
                  "drawStyle": "hist",
                  "lineWidth": 1
                 }
@@ -1765,4 +1767,5 @@ for i,item in enumerate(_energyscore_lc2cp, start=1):
               item,
               loopSubFolders=False,
               purpose=PlotPurpose.Timing, page="Energy_vs_Score_LC2CP"))
+
 
