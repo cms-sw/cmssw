@@ -29,9 +29,9 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
     pset.getParameter<ParameterSet>("PGunParameters") ;
 
   fEn = pgun_params.getParameter<double>("En");
-  fR = pgun_params.getParameter<double>("R")*cm;
-  fZ = pgun_params.getParameter<double>("Z")*cm;
-  fDelta = pgun_params.getParameter<double>("Delta")*cm;
+  fR = pgun_params.getParameter<double>("R");
+  fZ = pgun_params.getParameter<double>("Z");
+  fDelta = pgun_params.getParameter<double>("Delta");
   fPartIDs = pgun_params.getParameter< vector<int> >("PartID");
   fPointing = pgun_params.getParameter<bool>("Pointing");
 
@@ -84,7 +84,9 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
      // Compute Vertex Position
      double x=fR*cos(phi);
      double y=fR*sin(phi);
-     HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(x,y,fZ));
+     constexpr double c= 2.99792458e+1; // cm/ns
+     double timeOffset = sqrt(x*x + y*y + fZ*fZ)/c*ns*c_light;
+     HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(x*cm,y*cm,fZ*cm,timeOffset));
 
      HepMC::FourVector p(px,py,pz,energy) ;
      // If we are requested to be pointing to (0,0,0), corect the momentum direction
