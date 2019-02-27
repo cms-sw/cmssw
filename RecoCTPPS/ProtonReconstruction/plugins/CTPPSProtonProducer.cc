@@ -52,6 +52,7 @@ class CTPPSProtonProducer : public edm::stream::EDProducer<>
 
     ProtonReconstructionAlgorithm algorithm_;
 
+    bool opticsValid_;
     float currentCrossingAngle_;
 };
 
@@ -65,6 +66,7 @@ CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet& iConfig) :
   singleRPReconstructionLabel_(iConfig.getParameter<std::string>("singleRPReconstructionLabel")),
   multiRPReconstructionLabel_ (iConfig.getParameter<std::string>("multiRPReconstructionLabel")),
   algorithm_                  (iConfig.getParameter<bool>("fitVtxY"), iConfig.getParameter<bool>("useImprovedInitialEstimate"), verbosity_),
+  opticsValid_(false),
   currentCrossingAngle_(-1.)
 {
   if (doSingleRPReconstruction_)
@@ -119,11 +121,17 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     if (hOpticalFunctions->empty()) {
       edm::LogWarning("CTPPSProtonProducer") << "No optical functions available, reconstruction disabled.";
       algorithm_.release();
+      opticsValid_ = false;
     }
     else {
       algorithm_.init(*hOpticalFunctions);
+      opticsValid_ = true;
     }
   }
+
+  // stop if conditions invalid
+  if (!opticsValid_)
+    return;
 
   // prepare log
   std::ostringstream ssLog;
