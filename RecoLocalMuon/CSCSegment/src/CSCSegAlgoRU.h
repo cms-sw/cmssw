@@ -162,7 +162,7 @@ private:
     float wideSeg;
     int minLayersApart;
     bool debugInfo;
-
+    bool enlarge = false;
 };
 
 #endif
