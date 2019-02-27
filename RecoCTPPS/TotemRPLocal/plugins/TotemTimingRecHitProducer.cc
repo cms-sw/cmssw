@@ -63,23 +63,26 @@ TotemTimingRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& i
 {
   std::unique_ptr<edm::DetSetVector<TotemTimingRecHit> > pOut( new edm::DetSetVector<TotemTimingRecHit> );
 
-  // check for timing calibration parameters update
-  if ( calibWatcher_.check( iSetup ) ) {
-    edm::ESHandle<PPSTimingCalibration> hTimingCalib;
-    iSetup.get<PPSTimingCalibrationRcd>().get( hTimingCalib );
-    algo_.setCalibration( *hTimingCalib );
-  }
-
   // get the digi collection
   edm::Handle<edm::DetSetVector<TotemTimingDigi> > digis;
   iEvent.getByToken( digiToken_, digis );
 
-  // get the geometry
-  edm::ESHandle<CTPPSGeometry> geometry;
-  iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
+  // do not retrieve the calibration parameters if no digis were found
+  if ( !digis->empty() ) {
+    // check for timing calibration parameters update
+    if ( calibWatcher_.check( iSetup ) ) {
+      edm::ESHandle<PPSTimingCalibration> hTimingCalib;
+      iSetup.get<PPSTimingCalibrationRcd>().get( hTimingCalib );
+      algo_.setCalibration( *hTimingCalib );
+    }
 
-  // produce the rechits collection
-  algo_.build( *geometry, *digis, *pOut );
+    // get the geometry
+    edm::ESHandle<CTPPSGeometry> geometry;
+    iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
+
+    // produce the rechits collection
+    algo_.build( *geometry, *digis, *pOut );
+  }
 
   iEvent.put( std::move( pOut ) );
 }
