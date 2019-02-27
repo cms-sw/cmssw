@@ -1353,7 +1353,7 @@ _cell_association_table_zminus = PlotGroup("cellAssociation_table_zminus", [
                                     )
 
 _bin_count = 0
-_common_eff = {"stat": False, "legend": False}
+_common_eff = {"stat": False, "legend": False, "title": "Global Efficiencies in z-"}
 _effplots_zminus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
 _effplots_zminus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)])
 _common_eff["xmin"] = 0.
@@ -1463,6 +1463,7 @@ _common_assoc = {#"title": "Cell Association Table in z+",
                  "stat": False,
                  "legend": False,
                  "xbinlabels": ["", "TN(pur)", "FN(ineff.)", "FP(fake)", "TP(eff)"],
+                 "xbinlabeloption": "h",
                  "drawStyle": "hist",
                  "ymin": 0.1,
                  "ymax": 10000,
@@ -1475,7 +1476,7 @@ _cell_association_table_zplus = PlotGroup("cellAssociation_table_zplus", [
                                     )
 
 _bin_count = 0
-_common_eff = {"stat": False, "legend": False}
+_common_eff = {"stat": False, "legend": False, "title": "Global Efficiencies in z+"}
 _effplots_zplus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
 _effplots_zplus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)])
 _common_eff["xmin"] = maxlayerzm  
