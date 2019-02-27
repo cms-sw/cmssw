@@ -11,6 +11,10 @@ def response_distribution_name(iptbin, ietabin):
     eta_string = "{0:.1f}".format(etabins[ietabin+1]).replace(".", "")
     return "reso_dist_{0:.0f}_{1:.0f}_eta{2}".format(ptbins[iptbin], ptbins[iptbin+1], eta_string)
 
+def genjet_distribution_name(ietabin):
+    eta_string = "{0:.1f}".format(etabins[ietabin+1]).replace(".", "")
+    return "genjet_pt_eta{0}".format(eta_string)
+
 #offset config
 
 etaBinsOffset = [-5.191, -4.889, -4.716, -4.538, -4.363, -4.191, -4.013, -3.839, -3.664, -3.489, -3.314, -3.139, -2.964, -2.853, -2.65,
@@ -49,3 +53,4 @@ candidateType = ["chm", "chu", "nh", "ne", "hfh", "hfe", "lep"]
 
 offsetPlotBaseName = 'p_offset_eta'
 offsetDir = 'Physics/Offset/'
+

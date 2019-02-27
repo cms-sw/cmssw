@@ -10,12 +10,9 @@ cd CMSSW_10_5_0_pre1
 cmsenv
 
 #get the code
-git cms-merge-topic jpata:pfvalidation-10_5_0_pre1-master
+git cms-checkout-topic jpata:pfvalidation-10_5_0_pre1-master
 scram b -j4
 cd $CMSSW_BASE/src/Validation/RecoParticleFlow
-
-#make a temporary directory for the output
-mkdir tmp
 
 #RECO step, about 30 minutes
 make QCD_reco

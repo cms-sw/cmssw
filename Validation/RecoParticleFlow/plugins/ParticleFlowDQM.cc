@@ -16,6 +16,7 @@
 #include <regex>
 #include <sstream>
 #include <vector>
+#include <memory>
 
 class ParticleFlowDQM : public DQMEDAnalyzer {
 public:
@@ -34,15 +35,15 @@ private:
     public:
         const std::string name, title;
         const uint32_t nbins;
-        const double min, max;
-        const double ptbin_low, ptbin_high, etabin_low, etabin_high;
+        const float min, max;
+        const float ptbin_low, ptbin_high, etabin_low, etabin_high;
         MonitorElement* plot_;
 
         Plot1DInBin(
             const std::string _name,
             const std::string _title,
-            const uint32_t _nbins, const double _min, const double _max,
-            double _ptbin_low, double _ptbin_high, double _etabin_low, double _etabin_high
+            const uint32_t _nbins, const float _min, const float _max,
+            float _ptbin_low, float _ptbin_high, float _etabin_low, float _etabin_high
             )
             : name(_name),
             title(_title),
@@ -60,32 +61,83 @@ private:
             plot_ = booker.book1D(name, title, nbins, min, max);
         }
 
-        void fill(double value) {
+        void fill(float value) {
             assert(plot_ != nullptr);
             plot_->Fill(value);
         }
 
         //Check if a jet with a value v would be in the bin that applies to this plot
-        bool isInBin(double v, double low, double high) {
+        bool isInBin(float v, float low, float high) {
             return v >= low && v < high;
         }
 
-        bool isInPtBin(double pt) {
+        bool isInPtBin(float pt) {
             return isInBin(pt, ptbin_low, ptbin_high);
         }
 
-        bool isInEtaBin(double eta) {
+        bool isInEtaBin(float eta) {
             return isInBin(eta, etabin_low, etabin_high);
         }
 
-        bool isInPtEtaBin(double pt, double eta) {
+        bool isInPtEtaBin(float pt, float eta) {
+            return isInPtBin(pt) && isInEtaBin(eta);
+        }
+    };
+    
+    class Plot1DInBinVariable {
+    public:
+        const std::string name, title;
+        std::unique_ptr<TH1F> base_hist;
+        const float ptbin_low, ptbin_high, etabin_low, etabin_high;
+        MonitorElement* plot_;
+
+        Plot1DInBinVariable(
+            const std::string _name,
+            const std::string _title,
+            std::unique_ptr<TH1F> _base_hist, 
+            float _ptbin_low, float _ptbin_high, float _etabin_low, float _etabin_high
+            )
+            : name(_name),
+            title(_title),
+            base_hist(std::move(_base_hist)),
+            ptbin_low(_ptbin_low),
+            ptbin_high(_ptbin_high),
+            etabin_low(_etabin_low),
+            etabin_high(_etabin_high)
+        {
+        }
+
+        void book(DQMStore::IBooker& booker) {
+            plot_ = booker.book1D(name.c_str(), base_hist.get());
+        }
+
+        void fill(float value) {
+            assert(plot_ != nullptr);
+            plot_->Fill(value);
+        }
+
+        //Check if a jet with a value v would be in the bin that applies to this plot
+        bool isInBin(float v, float low, float high) {
+            return v >= low && v < high;
+        }
+
+        bool isInPtBin(float pt) {
+            return isInBin(pt, ptbin_low, ptbin_high);
+        }
+
+        bool isInEtaBin(float eta) {
+            return isInBin(eta, etabin_low, etabin_high);
+        }
+
+        bool isInPtEtaBin(float pt, float eta) {
             return isInPtBin(pt) && isInEtaBin(eta);
         }
     };
 
     std::vector<Plot1DInBin> jetResponsePlots;
+    std::vector<Plot1DInBinVariable> genJetPlots;
 
-    double jetDeltaR;
+    float jetDeltaR;
 
     edm::InputTag recoJetsLabel;
     edm::InputTag genJetsLabel;
@@ -94,18 +146,11 @@ private:
     edm::EDGetTokenT<reco::CandViewMatchMap> srcRefToJetMap;
 
     void fillJetResponse(edm::View<reco::Jet>& recoJetCollection, edm::View<reco::Jet>& genJetCollection);
+    void prepareJetResponsePlots(const std::vector<edm::ParameterSet>& genjet_plots_pset);
+    void prepareGenJetPlots(const std::vector<edm::ParameterSet>& genjet_plots_pset);
 };
 
-ParticleFlowDQM::ParticleFlowDQM(const edm::ParameterSet& iConfig)
-{
-    recoJetsLabel = iConfig.getParameter<edm::InputTag>("recoJetCollection");
-    genJetsLabel = iConfig.getParameter<edm::InputTag>("genJetCollection");
-
-    //DeltaR for reco to gen jet matching
-    jetDeltaR = iConfig.getParameter<double>("jetDeltaR");
-
-    //Create all jet response plots in bins of genjet pt and eta
-    const auto& response_plots = iConfig.getParameter<std::vector<edm::ParameterSet>>("responsePlots");
+void ParticleFlowDQM::prepareJetResponsePlots(const std::vector<edm::ParameterSet>& response_plots) {
     for (auto& pset : response_plots) {
         //Low and high edges of the pt and eta bins for jets to pass to be filled into this histogram
         const auto ptbin_low = pset.getParameter<double>("ptBinLow");
@@ -130,6 +175,48 @@ ParticleFlowDQM::ParticleFlowDQM(const edm::ParameterSet& iConfig)
     if (jetResponsePlots.size() > 200) {
         throw std::runtime_error("Requested too many jet response plots, aborting as this seems unusual.");
     }
+}
+
+void ParticleFlowDQM::prepareGenJetPlots(const std::vector<edm::ParameterSet>& genjet_plots_pset) {
+    for (auto& pset : genjet_plots_pset) {
+        const auto name = pset.getParameter<std::string>("name");
+        const auto title = pset.getParameter<std::string>("title");
+        
+        //Low and high edges of the eta bins for jets to pass to be filled into this histogram
+        const auto ptbins_d = pset.getParameter<std::vector<double>>("ptBins");
+        std::vector<float> ptbins(ptbins_d.begin(), ptbins_d.end());
+
+        const auto etabin_low = pset.getParameter<double>("etaBinLow");
+        const auto etabin_high = pset.getParameter<double>("etaBinHigh");
+        
+        for (auto v : ptbins) {
+            std::cout << " " << v;
+        }
+        std::cout << std::endl;
+
+        genJetPlots.push_back(Plot1DInBinVariable(
+            name, title,
+            std::make_unique<TH1F>(name.c_str(), title.c_str(), static_cast<int>(ptbins.size()) - 1, ptbins.data()), 
+            0.0, 0.0,
+            etabin_low, etabin_high
+        ));
+    }
+}
+
+ParticleFlowDQM::ParticleFlowDQM(const edm::ParameterSet& iConfig)
+{
+    recoJetsLabel = iConfig.getParameter<edm::InputTag>("recoJetCollection");
+    genJetsLabel = iConfig.getParameter<edm::InputTag>("genJetCollection");
+
+    //DeltaR for reco to gen jet matching
+    jetDeltaR = iConfig.getParameter<double>("jetDeltaR");
+
+    //Create all jet response plots in bins of genjet pt and eta
+    const auto& response_plots = iConfig.getParameter<std::vector<edm::ParameterSet>>("responsePlots");
+    prepareJetResponsePlots(response_plots);
+    
+    const auto& genjet_plots = iConfig.getParameter<std::vector<edm::ParameterSet>>("genJetPlots");
+    prepareGenJetPlots(genjet_plots);
 
     recoJetsToken = consumes<edm::View<reco::Jet>>(recoJetsLabel);
     genJetsToken = consumes<edm::View<reco::Jet>>(genJetsLabel);
@@ -148,14 +235,21 @@ void ParticleFlowDQM::fillJetResponse(
     for (unsigned int i = 0; i < genJetCollection.size(); i++) {
 
         const auto& genJet = genJetCollection.at(i);
-        int iMatch = matchIndices[i];
+        const auto pt_gen = genJet.pt();
+        const auto eta_gen = abs(genJet.eta());
+        const int iMatch = matchIndices[i];
+
+        //Fill genjet pt
+        for (auto& plot : genJetPlots) {
+            if (plot.isInEtaBin(eta_gen)) {
+                plot.fill(pt_gen);
+            }
+        }
         
         //If gen jet had a matched reco jet
         if (iMatch != -1) {
             const auto& recoJet = recoJetCollection[iMatch];
             const auto pt_reco = recoJet.pt();
-            const auto pt_gen = genJet.pt();
-            const auto eta_gen = abs(genJet.eta());
             const auto response = pt_reco / pt_gen;
 
             //Loop linearly through all plots and check if they match the pt and eta bin
@@ -174,6 +268,12 @@ void ParticleFlowDQM::bookHistograms(DQMStore::IBooker & booker, edm::Run const 
     std::cout << "ParticleFlowDQM booking response histograms" << std::endl;
     booker.setCurrentFolder("Physics/JetResponse/");
     for (auto& plot : jetResponsePlots) {
+        plot.book(booker);
+    }
+
+    //Book plots for gen-jet pt spectra
+    booker.setCurrentFolder("Physics/GenJets/");
+    for (auto& plot : genJetPlots) {
         plot.book(booker);
     }
 }
