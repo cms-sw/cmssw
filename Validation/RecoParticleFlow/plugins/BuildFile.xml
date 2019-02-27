@@ -8,6 +8,7 @@
   <use   name="DQMServices/Core"/>
   <use   name="DataFormats/METReco"/>
   <use   name="DataFormats/RecoCandidate"/>
+  <use   name="DataFormats/PatCandidates"/>
   <use   name="DataFormats/ParticleFlowReco"/>
   <use   name="DataFormats/ParticleFlowCandidate"/>
   <use   name="RecoParticleFlow/Benchmark"/>

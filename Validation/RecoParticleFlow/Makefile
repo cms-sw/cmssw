@@ -54,3 +54,7 @@ plots:
                 --sample MinBias:${TMPDIR}/MinBias/DQMTotal.root:${TMPDIR}/MinBias/DQMTotal.root \
                 --sample ZMM:${TMPDIR}/ZMM/DQMTotal.root:${TMPDIR}/ZMM/DQMTotal.root \
 		--doResponsePlots
+	offsetStack ${TMPDIR}/QCD/DQMTotal.root npv 0.4 QCD plots
+	offsetStack ${TMPDIR}/QCDPU/DQMTotal.root npv 0.4 QCDPU plots
+	offsetStack ${TMPDIR}/ZMM/DQMTotal.root npv 0.4 ZMM plots
+	offsetStack ${TMPDIR}/MinBias/DQMTotal.root npv 0.4 MinBias plots
