@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from .Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable, _modifyParametersFromDict
 from .Mixins import _ValidatingParameterListBase, specialImportRegistry
 from .ExceptionHandling import format_typename, format_outerframe
-
+from past.builtins import long
 
 import copy
 import math
