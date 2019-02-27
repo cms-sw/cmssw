@@ -134,77 +134,84 @@ _energyclustered_perlayer_BH_zminus = PlotGroup("energyclustered_perlayer_BH_zmi
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um 
+_common_cells = {}
+_common_cells.update(_common)
+_common_cells["xmin"] = 0
+_common_cells["xmax"] = 50
+_common_cells["ymin"] = 0.1
+_common_cells["ymax"] = 10000
+_common_cells["ylog"] = True
 _cellsnum_perthick_perlayer_120_EE_zminus = PlotGroup("cellsnum_perthick_perlayer_120_EE_zminus", [ 
-        Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm) 
+        Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm) 
         ],
                                     ncols=4
                                     )
 
 _cellsnum_perthick_perlayer_120_FH_zminus = PlotGroup("cellsnum_perthick_perlayer_120_FH_zminus", [ 
-        Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm) 
+        Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm,lastLayerFHzm) 
         ],
                                     ncols=4
                                     )
 
 _cellsnum_perthick_perlayer_120_BH_zminus = PlotGroup("cellsnum_perthick_perlayer_120_BH_zminus", [ 
-        Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm) 
+        Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzm,maxlayerzm) 
         ],
                                     ncols=4
                                     )
 
 #200 um 
 _cellsnum_perthick_perlayer_200_EE_zminus = PlotGroup("cellsnum_perthick_perlayer_200_EE_zminus", [ 
-        Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm) 
+        Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm) 
         ],
                                     ncols=4
                                     )
 
 _cellsnum_perthick_perlayer_200_FH_zminus = PlotGroup("cellsnum_perthick_perlayer_200_FH_zminus", [ 
-        Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm) 
+        Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm,lastLayerFHzm) 
         ],
                                     ncols=4
                                     )
 
 _cellsnum_perthick_perlayer_200_BH_zminus = PlotGroup("cellsnum_perthick_perlayer_200_BH_zminus", [ 
-        Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm) 
+        Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzm,maxlayerzm) 
         ],
                                     ncols=4
                                     )
 
 #300 um 
 _cellsnum_perthick_perlayer_300_EE_zminus = PlotGroup("cellsnum_perthick_perlayer_300_EE_zminus", [ 
-        Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm) 
+        Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm) 
         ],
                                     ncols=4
                                     )
 
 _cellsnum_perthick_perlayer_300_FH_zminus = PlotGroup("cellsnum_perthick_perlayer_300_FH_zminus", [ 
-        Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm) 
+        Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm,lastLayerFHzm) 
         ],
                                     ncols=4
                                     )
 
 _cellsnum_perthick_perlayer_300_BH_zminus = PlotGroup("cellsnum_perthick_perlayer_300_BH_zminus", [ 
-        Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm) 
+        Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzm,maxlayerzm) 
         ],
                                     ncols=4
                                     )
 
 #scint um 
 _cellsnum_perthick_perlayer_scint_EE_zminus = PlotGroup("cellsnum_perthick_perlayer_-1_EE_zminus", [ 
-        Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm) 
+        Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm) 
         ],
                                     ncols=4
                                     )
 
 _cellsnum_perthick_perlayer_scint_FH_zminus = PlotGroup("cellsnum_perthick_perlayer_-1_FH_zminus", [ 
-        Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm) 
+        Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm,lastLayerFHzm) 
         ],
                                     ncols=4
                                     )
 
 _cellsnum_perthick_perlayer_scint_BH_zminus = PlotGroup("cellsnum_perthick_perlayer_-1_BH_zminus", [ 
-        Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm) 
+        Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzm,maxlayerzm) 
         ],
                                     ncols=4
                                     )
@@ -728,73 +735,73 @@ _energyclustered_perlayer_BH_zplus = PlotGroup("energyclustered_perlayer_BH_zplu
 #----------------------------------------------------------------------------------------------------------------
 #120 um 
 _cellsnum_perthick_perlayer_120_EE_zplus = PlotGroup("cellsnum_perthick_perlayer_120_EE_zplus", [ 
-        Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp) 
+        Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common_cells) for i in range(maxlayerzm,lastLayerEEzp) 
         ],
                                     ncols=4
                                     )
 
 _cellsnum_perthick_perlayer_120_FH_zplus = PlotGroup("cellsnum_perthick_perlayer_120_FH_zplus", [ 
-        Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp) 
+        Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzp,lastLayerFHzp) 
         ],
                                     ncols=4
                                     )
 _cellsnum_perthick_perlayer_120_BH_zplus = PlotGroup("cellsnum_perthick_perlayer_120_BH_zplus", [ 
-        Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp) 
+        Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzp,maxlayerzp) 
         ],
                                     ncols=4
                                     )
 
 #200 um 
 _cellsnum_perthick_perlayer_200_EE_zplus = PlotGroup("cellsnum_perthick_perlayer_200_EE_zplus", [ 
-        Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp) 
+        Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common_cells) for i in range(maxlayerzm,lastLayerEEzp) 
         ],
                                     ncols=4
                                     )
 
 _cellsnum_perthick_perlayer_200_FH_zplus = PlotGroup("cellsnum_perthick_perlayer_200_FH_zplus", [ 
-        Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp) 
+        Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzp,lastLayerFHzp) 
         ],
                                     ncols=4
                                     )
 
 _cellsnum_perthick_perlayer_200_BH_zplus = PlotGroup("cellsnum_perthick_perlayer_200_BH_zplus", [ 
-        Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp) 
+        Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzp,maxlayerzp) 
         ],
                                     ncols=4
                                     )
 #300 um 
 _cellsnum_perthick_perlayer_300_EE_zplus = PlotGroup("cellsnum_perthick_perlayer_300_EE_zplus", [ 
-        Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp) 
+        Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common_cells) for i in range(maxlayerzm,lastLayerEEzp) 
         ],
                                     ncols=4
                                     )
 
 _cellsnum_perthick_perlayer_300_FH_zplus = PlotGroup("cellsnum_perthick_perlayer_300_FH_zplus", [ 
-        Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp) 
+        Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzp,lastLayerFHzp) 
         ],
                                     ncols=4
                                     )
 _cellsnum_perthick_perlayer_300_BH_zplus = PlotGroup("cellsnum_perthick_perlayer_300_BH_zplus", [ 
-        Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp) 
+        Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzp,maxlayerzp) 
         ],
                                     ncols=4
                                     )
 
 #scint um 
 _cellsnum_perthick_perlayer_scint_EE_zplus = PlotGroup("cellsnum_perthick_perlayer_-1_EE_zplus", [ 
-        Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp) 
+        Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common_cells) for i in range(maxlayerzm,lastLayerEEzp) 
         ],
                                     ncols=4
                                     )
 
 _cellsnum_perthick_perlayer_scint_FH_zplus = PlotGroup("cellsnum_perthick_perlayer_-1_FH_zplus", [ 
-        Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp) 
+        Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzp,lastLayerFHzp) 
         ],
                                     ncols=4
                                     )
 
 _cellsnum_perthick_perlayer_scint_BH_zplus = PlotGroup("cellsnum_perthick_perlayer_-1_BH_zplus", [ 
-        Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp) 
+        Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzp,maxlayerzp) 
         ],
                                     ncols=4
                                     )
@@ -1353,30 +1360,27 @@ _cell_association_table_zminus = PlotGroup("cellAssociation_table_zminus", [
                                     )
 
 _bin_count = 0
-_common_eff = {"stat": False, "legend": False, "title": "Global Efficiencies in z-"}
+_xbinlabels = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _effplots_zminus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
 _effplots_zminus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)])
 _common_eff["xmin"] = 0.
 _bin_count += maxlayerzm
 _common_eff["xmax"] =_bin_count
-_common_eff["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
-_common_eff["xbinlabelsize"] = 10.
 _effplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies in z-", **_common_eff)])
 _efficiencies_zminus = PlotGroup("Efficiencies_zminus", _effplots_zminus, ncols=8)
 
 
-_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z-"}
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _dupplots_zminus = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
 _dupplots_zminus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)])
 _common_dup["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_dup["xmax"] = _bin_count
-_common_dup["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
-_common_dup["xbinlabelsize"] = 10.
 _dupplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z-", **_common_dup)])
 _duplicates_zminus = PlotGroup("Duplicates_zminus", _dupplots_zminus, ncols=8)
 
-_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z-"}
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _fakeplots_zminus = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
 _fakeplots_zminus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)])
 _common_fake["xmin"] = _bin_count+maxlayerzm+1
@@ -1387,7 +1391,7 @@ _common_fake["xbinlabelsize"] = 10.
 _fakeplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z-", **_common_fake)])
 _fakes_zminus = PlotGroup("FakeRate_zminus", _fakeplots_zminus, ncols=8)
 
-_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z-"}
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _mergeplots_zminus = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
 _mergeplots_zminus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)])
 _common_merge["xmin"] = _bin_count+maxlayerzm+1
@@ -1484,48 +1488,40 @@ _cell_association_table_zplus = PlotGroup("cellAssociation_table_zplus", [
                                     )
 
 _bin_count = 0
-_common_eff = {"stat": False, "legend": False, "title": "Global Efficiencies in z+"}
+_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _effplots_zplus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
 _effplots_zplus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)])
 _common_eff["xmin"] = maxlayerzm  
 _bin_count += maxlayerzp
 _common_eff["xmax"] =_bin_count
-_common_eff["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
-_common_eff["xbinlabelsize"] = 10.
 _effplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies in z+", **_common_eff)])
 _efficiencies_zplus = PlotGroup("Efficiencies_zplus", _effplots_zplus, ncols=8)
 
 
-_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z+"}
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _dupplots_zplus = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
 _dupplots_zplus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)])
 _common_dup["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_dup["xmax"] = _bin_count
-_common_dup["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
-_common_dup["xbinlabelsize"] = 10.
 _dupplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z+", **_common_dup)])
 _duplicates_zplus = PlotGroup("Duplicates_zplus", _dupplots_zplus, ncols=8)
 
-_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z+"}
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _fakeplots_zplus = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
 _fakeplots_zplus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)])
 _common_fake["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_fake["xmax"] = _bin_count
-_common_fake["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
-_common_fake["xbinlabelsize"] = 10.
 _fakeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z+", **_common_fake)])
 _fakes_zplus = PlotGroup("FakeRate_zplus", _fakeplots_zplus, ncols=8)
 
-_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z+"}
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _mergeplots_zplus = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
 _mergeplots_zplus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)])
 _common_merge["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_merge["xmax"] = _bin_count
-_common_merge["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
-_common_merge["xbinlabelsize"] = 10.
 _mergeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate in z+", **_common_merge)])
 _merges_zplus = PlotGroup("MergeRate_zplus", _mergeplots_zplus, ncols=8)
 
