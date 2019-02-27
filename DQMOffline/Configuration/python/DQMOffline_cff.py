@@ -77,12 +77,14 @@ HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
 HLTMonitoringPA = cms.Sequence( OfflineHLTMonitoringPA )
 
 from Validation.RecoParticleFlow.particleFlowDQM_cff import pfDQMAnalyzer
+from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetAnalyzerDQM
 from Validation.RecoParticleFlow.PFJetValidation_cff import pfJetValidation1, pfJetValidation2 
 from Validation.RecoParticleFlow.PFJetResValidation_cff import pfJetResValidation1
 from Validation.RecoParticleFlow.PFMETValidation_cff import pfMETValidation1, pfMETValidation2
 from Validation.RecoParticleFlow.PFElectronValidation_cff import pfElectronValidation1
 DQMOfflinePF = cms.Sequence(
   pfDQMAnalyzer +
+  offsetAnalyzerDQM +
   pfJetValidation1 +
   pfJetValidation2 +
   pfJetResValidation1 +
