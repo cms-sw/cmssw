@@ -96,6 +96,9 @@ private:
   unsigned int nThreads_{1};
   std::string outputContents_;
 
+  // Used only if nPartonMapping is in the configuration
+  std::map<unsigned, std::pair<unsigned, unsigned>> nPartonMapping_{};
+
   std::unique_ptr<lhef::LHEReader>	reader_;
   std::shared_ptr<lhef::LHERunInfo>	runInfoLast;
   std::shared_ptr<lhef::LHERunInfo>	runInfo;
@@ -117,15 +120,6 @@ private:
 };
 
 //
-// constants, enums and typedefs
-//
-
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
@@ -138,6 +132,27 @@ ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
 {
   if (npars_ != args_.size())
     throw cms::Exception("ExternalLHEProducer") << "Problem with configuration: " << args_.size() << " script arguments given, expected " << npars_;
+
+  if (iConfig.exists("nPartonMapping")) {
+    auto& processMap(iConfig.getParameterSetVector("nPartonMapping"));
+    for (auto& cfg : processMap) {
+      unsigned processId(cfg.getParameter<unsigned>("idprup"));
+
+      auto orderStr(cfg.getParameter<std::string>("order"));
+      unsigned order(0);
+      if (orderStr == "LO")
+        order = 0;
+      else if (orderStr == "NLO")
+        order = 1;
+      else
+        throw cms::Exception("ExternalLHEProducer") << "Invalid order specification for process " << processId << ": " << orderStr;
+      
+      unsigned np(cfg.getParameter<unsigned>("np"));
+      
+      nPartonMapping_.emplace(processId, std::make_pair(order, np));
+    }
+  }
+
   produces<LHEXMLStringProduct, edm::Transition::BeginRun>("LHEScriptOutput"); 
 
   produces<LHEEventProduct>();
@@ -185,8 +200,38 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 boost::bind(&LHEEventProduct::addWeight,
                             product.get(), _1));
   product->setScales(partonLevel->scales());
-  product->setNpLO(partonLevel->npLO());
-  product->setNpNLO(partonLevel->npNLO());
+  if (nPartonMapping_.empty()) {
+    product->setNpLO(partonLevel->npLO());
+    product->setNpNLO(partonLevel->npNLO());
+  }
+  else {
+    // overwrite npLO and npNLO values by user-specified mapping
+    unsigned processId(partonLevel->getHEPEUP()->IDPRUP);
+    unsigned order(0);
+    unsigned np(0);
+    try {
+      auto procDef(nPartonMapping_.at(processId));
+      order = procDef.first;
+      np = procDef.second;
+    }
+    catch (std::out_of_range&) {
+      throw cms::Exception("ExternalLHEProducer") << "Unexpected IDPRUP encountered: " << partonLevel->getHEPEUP()->IDPRUP;
+    }
+
+    switch (order) {
+    case 0:
+      product->setNpLO(np);
+      product->setNpNLO(-1);
+      break;
+    case 1:
+      product->setNpLO(-1);
+      product->setNpNLO(np);
+      break;
+    default:
+      break;
+    }
+  }
+
   std::for_each(partonLevel->getComments().begin(),
                 partonLevel->getComments().end(),
                 boost::bind(&LHEEventProduct::addComment,
@@ -498,6 +543,12 @@ ExternalLHEProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<uint32_t>("numberOfParameters");
   desc.addUntracked<uint32_t>("nEvents");
   desc.addUntracked<bool>("storeXML", false);
+
+  edm::ParameterSetDescription nPartonMappingDesc;
+  nPartonMappingDesc.add<unsigned>("idprup");
+  nPartonMappingDesc.add<std::string>("order");
+  nPartonMappingDesc.add<unsigned>("np");
+  desc.addVPSetOptional("nPartonMapping", nPartonMappingDesc);
 
   descriptions.addDefault(desc);
 }
