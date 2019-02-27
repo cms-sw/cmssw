@@ -52,115 +52,132 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSInterpolatedO
   edm::ESHandle<LHCInfo> hLHCInfo;
   iRecord.getRecord<LHCInfoRcd>().get(hLHCInfo);
 
-  // process
-  if (!currentDataValid_ || hLHCInfo->crossingAngle() != currentCrossingAngle_)
+  // is there anything to do?
+  if (currentDataValid_ && hLHCInfo->crossingAngle() == currentCrossingAngle_)
+    return currentData_;
+
+  // is crossing angle reasonable (LHCInfo is correctly filled in DB)?
+  if (currentCrossingAngle_ == 0.)
   {
-    currentCrossingAngle_ = hLHCInfo->crossingAngle();
+    edm::LogWarning("CTPPSInterpolatedOpticalFunctionsESSource") << "Invalid crossing angle, no optical functions produced.";
 
-    if (currentCrossingAngle_ == 0.)
+    currentDataValid_ = false;
+    currentData_ = std::make_shared<LHCInterpolatedOpticalFunctionsSetCollection>();
+
+    return currentData_;
+  }
+
+  // set new crossing angle
+  currentCrossingAngle_ = hLHCInfo->crossingAngle();
+  edm::LogInfo("CTPPSInterpolatedOpticalFunctionsESSource") << "Crossing angle has changed to " << currentCrossingAngle_ << ".";
+
+  // is input optics available ?
+  if (hOFColl->empty())
+  {
+    edm::LogWarning("CTPPSInterpolatedOpticalFunctionsESSource") << "No input optics available, no optical functions produced.";
+
+    currentDataValid_ = false;
+    currentData_ = std::make_shared<LHCInterpolatedOpticalFunctionsSetCollection>();
+
+    return currentData_;
+  }
+
+  // regular case with single-xangle input
+  if (hOFColl->size() == 1)
+  {
+    const auto &it = hOFColl->begin();
+
+    // does the input xangle correspond to the actual one?
+    if (fabs(currentCrossingAngle_ - it->first) > 1e-6)
+      throw cms::Exception("CTPPSInterpolatedOpticalFunctionsESSource") << "Cannot interpolate: input given only for xangle "
+        << it->first << " while interpolation requested for " << currentCrossingAngle_ << ".";
+
+    currentData_ = std::make_shared<LHCInterpolatedOpticalFunctionsSetCollection>();
+    for (const auto &rp_p : it->second)
     {
-      edm::LogWarning("CTPPSInterpolatedOpticalFunctionsESSource") << "Invalid crossing angle, no optical functions produced.";
+      const auto rpId = rp_p.first;
+      LHCInterpolatedOpticalFunctionsSet iof(rp_p.second);
+      iof.initializeSplines();
+      currentData_->emplace(rpId, std::move(iof));
+    }
 
-      currentDataValid_ = false;
-      currentData_ = std::make_shared<LHCInterpolatedOpticalFunctionsSetCollection>();
-    } else {
-      edm::LogInfo("CTPPSInterpolatedOpticalFunctionsESSource") << "Crossing angle has changed to " << currentCrossingAngle_ << ".";
+    currentDataValid_ = true;
+  }
 
-      if (hOFColl->size() == 1)
+  // regular case with multi-xangle input
+  if (hOFColl->size() > 1)
+  {
+    // find the closest xangle points for interpolation
+    auto it1 = hOFColl->begin();
+    auto it2 = std::next(it1);
+
+    if (currentCrossingAngle_ > it1->first)
+    {
+      for (; it1 != hOFColl->end(); ++it1)
       {
-        // case with single-xangle input
-        const auto &it = hOFColl->begin();
-        if (fabs(currentCrossingAngle_ - it->first) < 1e-6)
+        it2 = std::next(it1);
+
+        if (it2 == hOFColl->end())
         {
-          currentData_ = std::make_shared<LHCInterpolatedOpticalFunctionsSetCollection>();
-          for (const auto &rp_p : it->second)
-          {
-            const auto rpId = rp_p.first;
-            LHCInterpolatedOpticalFunctionsSet iof(rp_p.second);
-            iof.initializeSplines();
-            currentData_->emplace(rpId, std::move(iof));
-          }
-        } else {
-          throw cms::Exception("CTPPSInterpolatedOpticalFunctionsESSource") << "Cannot interpolate: input given only for xangle "
-            << it->first << " while interpolation requested for " << currentCrossingAngle_ << ".";
-        }
-      } else {
-        // case with multi-xangle input
-
-        // find the closest xangle points for interpolation
-        auto it1 = hOFColl->begin();
-        auto it2 = std::next(it1);
-
-        if (currentCrossingAngle_ > it1->first)
-        {
-          for (; it1 != hOFColl->end(); ++it1)
-          {
-            it2 = std::next(it1);
-
-            if (it2 == hOFColl->end())
-            {
-              it2 = it1;
-              it1 = std::prev(it1);
-              break;
-            }
-
-            if (it1->first <= currentCrossingAngle_ && currentCrossingAngle_ < it2->first)
-              break;
-          }
+          it2 = it1;
+          it1 = std::prev(it1);
+          break;
         }
 
-        const auto &xangle1 = it1->first;
-        const auto &xangle2 = it2->first;
+        if (it1->first <= currentCrossingAngle_ && currentCrossingAngle_ < it2->first)
+          break;
+      }
+    }
 
-        const auto &ofs1 = it1->second;
-        const auto &ofs2 = it2->second;
+    const auto &xangle1 = it1->first;
+    const auto &xangle2 = it2->first;
 
-        // do the interpoaltion RP by RP
-        currentData_ = std::make_shared<LHCInterpolatedOpticalFunctionsSetCollection>();
-        for (const auto &rp_p : ofs1)
+    const auto &ofs1 = it1->second;
+    const auto &ofs2 = it2->second;
+
+    // do the interpoaltion RP by RP
+    currentData_ = std::make_shared<LHCInterpolatedOpticalFunctionsSetCollection>();
+    for (const auto &rp_p : ofs1)
+    {
+      const auto rpId = rp_p.first;
+      const auto &rp_it2 = ofs2.find(rpId);
+      if (rp_it2 == ofs2.end())
+        throw cms::Exception("CTPPSInterpolatedOpticalFunctionsESSource") << "Mismatch between ofs1 and ofs2.";
+
+      const auto &of1 = rp_p.second;
+      const auto &of2 = rp_it2->second;
+
+      LHCInterpolatedOpticalFunctionsSet iof;
+      iof.m_z = of1.getScoringPlaneZ();
+
+      const size_t num_xi_vals = of1.getXiValues().size();
+
+      iof.m_xi_values.resize(num_xi_vals);
+
+      for (size_t fi = 0; fi < of1.getFcnValues().size(); ++fi)
+      {
+        iof.m_fcn_values[fi].resize(num_xi_vals);
+
+        for (size_t pi = 0; pi < num_xi_vals; ++pi)
         {
-          const auto rpId = rp_p.first;
-          const auto &rp_it2 = ofs2.find(rpId);
-          if (rp_it2 == ofs2.end())
-            throw cms::Exception("CTPPSInterpolatedOpticalFunctionsESSource") << "Mismatch between ofs1 and ofs2.";
+          double xi = of1.getXiValues()[pi];
+          double xi_control = of2.getXiValues()[pi];
 
-          const auto &of1 = rp_p.second;
-          const auto &of2 = rp_it2->second;
+          if (fabs(xi - xi_control) > 1e-6)
+            throw cms::Exception("CTPPSInterpolatedOpticalFunctionsESSource") << "Xi mismatch between ofs1 and ofs2.";
 
-          LHCInterpolatedOpticalFunctionsSet iof;
-          iof.m_z = of1.getScoringPlaneZ();
+          iof.m_xi_values[pi] = xi;
 
-          const size_t num_xi_vals = of1.getXiValues().size();
-
-          iof.m_xi_values.resize(num_xi_vals);
-
-          for (size_t fi = 0; fi < of1.getFcnValues().size(); ++fi)
-          {
-            iof.m_fcn_values[fi].resize(num_xi_vals);
-
-            for (size_t pi = 0; pi < num_xi_vals; ++pi)
-            {
-              double xi = of1.getXiValues()[pi];
-              double xi_control = of2.getXiValues()[pi];
-
-              if (fabs(xi - xi_control) > 1e-6)
-                throw cms::Exception("CTPPSInterpolatedOpticalFunctionsESSource") << "Xi mismatch between ofs1 and ofs2.";
-
-              iof.m_xi_values[pi] = xi;
-
-              double v1 = of1.getFcnValues()[fi][pi];
-              double v2 = of2.getFcnValues()[fi][pi];
-              iof.m_fcn_values[fi][pi] = v1 + (v2 - v1) / (xangle2 - xangle1) * (currentCrossingAngle_ - xangle1);
-            }
-          }
-
-          iof.initializeSplines();
-
-          currentData_->emplace(rpId, std::move(iof));
+          double v1 = of1.getFcnValues()[fi][pi];
+          double v2 = of2.getFcnValues()[fi][pi];
+          iof.m_fcn_values[fi][pi] = v1 + (v2 - v1) / (xangle2 - xangle1) * (currentCrossingAngle_ - xangle1);
         }
       }
 
+      iof.initializeSplines();
+
       currentDataValid_ = true;
+      currentData_->emplace(rpId, std::move(iof));
     }
   }
 
