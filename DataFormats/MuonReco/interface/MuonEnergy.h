@@ -55,18 +55,21 @@ namespace reco {
        /// RecHits
        ///
        /// crossed HCAL rechits
-       const std::vector<HBHERecHit>* getHadRecHits() const
+       std::vector<HBHERecHit> crossedHadRecHits;
+       bool crossedHadRecHitsValid;
+
+       const std::vector<HBHERecHit>* getCrossedHadRecHits() const
        {
-	 if (hadRecHitsValid) return &hadRecHits;
+	 if (crossedHadRecHitsValid) return &crossedHadRecHits;
 	 return nullptr;
        }
 		 
-       void setHadRecHits(const std::vector<const HBHERecHit*>& rechits)
+       void setCrossedHadRecHits(const std::vector<const HBHERecHit*>& rechits)
        {
-	 hadRecHitsValid = true;
-	 hadRecHits.clear();
+	 crossedHadRecHitsValid = true;
+	 crossedHadRecHits.clear();
 	 for (auto hit: rechits)
-	   hadRecHits.push_back(*hit);
+	   crossedHadRecHits.push_back(*hit);
        }
 
        MuonEnergy():
@@ -74,13 +77,9 @@ namespace reco {
        em(0), emS9(0), emS25(0), emMax(0),
        had(0), hadS9(0), hadMax(0),
 	 ho(0), hoS9(0), ecal_time(0), ecal_timeError(0), hcal_time(0), hcal_timeError(0),
-	 hadRecHitsValid(false)
+	 crossedHadRecHitsValid(false)
 	 { }
 
-    private:
-       /// crossed HCAL rechits
-       std::vector<HBHERecHit> hadRecHits;
-       bool hadRecHitsValid;
     };
 }
 #endif
