@@ -32,17 +32,16 @@ GsfElectronProducer::~GsfElectronProducer()
 
 void GsfElectronProducer::produce( edm::Event & event, const edm::EventSetup & setup )
  {
-  beginEvent(event,setup) ;
-  algo_->clonePreviousElectrons() ;
+  auto eventData = beginEvent(event,setup) ;
+  auto electrons = algo_->clonePreviousElectrons(eventData) ;
   // don't add pflow only electrons if one so wish
   if (strategyCfg_.addPflowElectrons)
-    { algo_->completeElectrons(globalCache()) ; }
-  algo_->addPflowInfo() ;
-  fillEvent(event) ;
-  endEvent() ;
+    { algo_->completeElectrons(electrons, eventData, globalCache()) ; }
+  algo_->addPflowInfo(electrons, eventData) ;
+  fillEvent(electrons, eventData, event) ;
  }
 
-void GsfElectronProducer::beginEvent( edm::Event & event, const edm::EventSetup & setup )
+GsfElectronAlgo::EventData GsfElectronProducer::beginEvent( edm::Event & event, const edm::EventSetup & setup )
  {
   // extra configuration checks
   if (!pfTranslatorParametersChecked_)
@@ -54,7 +53,7 @@ void GsfElectronProducer::beginEvent( edm::Event & event, const edm::EventSetup 
    }
 
   // call to base class
-  GsfElectronBaseProducer::beginEvent(event,setup) ;
+  return GsfElectronBaseProducer::beginEvent(event,setup) ;
  }
 
 void GsfElectronProducer::checkPfTranslatorParameters( edm::ParameterSet const & pset )

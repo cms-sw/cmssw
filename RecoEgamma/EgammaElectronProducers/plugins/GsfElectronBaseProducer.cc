@@ -338,7 +338,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
 
 GsfElectronBaseProducer::~GsfElectronBaseProducer() { delete algo_ ; }
 
-void GsfElectronBaseProducer::beginEvent( edm::Event & event, const edm::EventSetup & setup )
+GsfElectronAlgo::EventData GsfElectronBaseProducer::beginEvent( edm::Event & event, const edm::EventSetup & setup )
  {
   // check configuration
   if (!ecalSeedingParametersChecked_)
@@ -360,31 +360,30 @@ void GsfElectronBaseProducer::beginEvent( edm::Event & event, const edm::EventSe
 
   // init the algo
   algo_->checkSetup(setup) ;
-  algo_->beginEvent(event) ;
+  return algo_->beginEvent(event) ;
  }
 
-void GsfElectronBaseProducer::fillEvent( edm::Event & event )
+void GsfElectronBaseProducer::fillEvent( reco::GsfElectronCollection & electrons, GsfElectronAlgo::EventData const& eventData, edm::Event & event )
  {
   // all electrons
-  algo_->displayInternalElectrons("GsfElectronAlgo Info (before preselection)") ;
+  algo_->displayElectrons(electrons, event, "GsfElectronAlgo Info (before preselection)") ;
   // preselection
   if (strategyCfg_.applyPreselection)
    {
-    algo_->removeNotPreselectedElectrons() ;
-    algo_->displayInternalElectrons("GsfElectronAlgo Info (after preselection)") ;
+    algo_->removeNotPreselectedElectrons(electrons) ;
+    algo_->displayElectrons(electrons, event, "GsfElectronAlgo Info (after preselection)") ;
    }
   // ambiguity
-  algo_->setAmbiguityData() ;
+  algo_->setAmbiguityData(electrons,eventData) ;
   if (strategyCfg_.applyAmbResolution)
    {
-    algo_->removeAmbiguousElectrons() ;
-    algo_->displayInternalElectrons("GsfElectronAlgo Info (after amb. solving)") ;
+    algo_->removeAmbiguousElectrons(electrons) ;
+    algo_->displayElectrons(electrons, event, "GsfElectronAlgo Info (after amb. solving)") ;
    }
   // final filling
-  orphanHandle_ = event.emplace(electronPutToken_, std::move(algo_->electrons()));
+  orphanHandle_ = event.emplace(electronPutToken_, std::move(electrons));
 }
 
-void GsfElectronBaseProducer::endEvent() { algo_->endEvent(); }
 
 void GsfElectronBaseProducer::checkEcalSeedingParameters( edm::ParameterSet const & pset )
  {
