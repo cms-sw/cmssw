@@ -152,7 +152,9 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     int int_mu = -1;
     edm::Handle< edm::View<PileupSummaryInfo> > muHandle;
     if ( iEvent.getByToken(muToken, muHandle) ) {
-      float mu = muHandle->at(1).getTrueNumInteractions();
+
+      int bx = muHandle->size()==1 ? 0 : 1;
+      float mu = muHandle->at(bx).getTrueNumInteractions();
       th1dPlots["mu"].fill( mu );
       int_mu = mu + 0.5;
     }

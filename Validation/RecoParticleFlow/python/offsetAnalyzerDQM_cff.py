@@ -59,7 +59,7 @@ def createTH1DVPSet():
             )]
     return plots
 
-offsetAnalyzerDQM = cms.EDAnalyzer("OffsetAnalyzerDQM",
+offsetAnalyzerDQM = cms.EDProducer("OffsetAnalyzerDQM",
 
     pvTag = cms.InputTag('offlineSlimmedPrimaryVertices'),
     muTag = cms.InputTag('slimmedAddPileupInfo'),
