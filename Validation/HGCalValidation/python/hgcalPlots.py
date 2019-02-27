@@ -1359,6 +1359,9 @@ _effplots_zminus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_c
 _common_eff["xmin"] = 0.
 _bin_count += maxlayerzm
 _common_eff["xmax"] =_bin_count
+_common_eff["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_common_eff["xbinlabelsize"] = maxlayerzm
+_common_eff["xbinlabelsize"] = 10.
 _effplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies in z-", **_common_eff)])
 _efficiencies_zminus = PlotGroup("Efficiencies_zminus", _effplots_zminus, ncols=8)
 
@@ -1369,6 +1372,9 @@ _dupplots_zminus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", 
 _common_dup["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_dup["xmax"] = _bin_count
+_common_dup["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_common_dup["xbinlabelsize"] = maxlayerzm
+_common_dup["xbinlabelsize"] = 10.
 _dupplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z-", **_common_dup)])
 _duplicates_zminus = PlotGroup("Duplicates_zminus", _dupplots_zminus, ncols=8)
 
@@ -1378,6 +1384,9 @@ _fakeplots_zminus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_c
 _common_fake["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_fake["xmax"] = _bin_count
+_common_fake["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_common_fake["xbinlabelsize"] = maxlayerzm
+_common_fake["xbinlabelsize"] = 10.
 _fakeplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z-", **_common_fake)])
 _fakes_zminus = PlotGroup("FakeRate_zminus", _fakeplots_zminus, ncols=8)
 
@@ -1387,6 +1396,9 @@ _mergeplots_zminus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **
 _common_merge["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_merge["xmax"] = _bin_count
+_common_merge["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_common_merge["xbinlabelsize"] = maxlayerzm
+_common_merge["xbinlabelsize"] = 10.
 _mergeplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate in z-", **_common_merge)])
 _merges_zminus = PlotGroup("MergeRate_zminus", _mergeplots_zminus, ncols=8)
 
@@ -1482,6 +1494,9 @@ _effplots_zplus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_co
 _common_eff["xmin"] = maxlayerzm  
 _bin_count += maxlayerzp
 _common_eff["xmax"] =_bin_count
+_common_eff["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_common_eff["xbinlabelsize"] = maxlayerzm
+_common_eff["xbinlabelsize"] = 10.
 _effplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies in z+", **_common_eff)])
 _efficiencies_zplus = PlotGroup("Efficiencies_zplus", _effplots_zplus, ncols=8)
 
@@ -1492,6 +1507,9 @@ _dupplots_zplus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", *
 _common_dup["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_dup["xmax"] = _bin_count
+_common_dup["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_common_dup["xbinlabelsize"] = maxlayerzm
+_common_dup["xbinlabelsize"] = 10.
 _dupplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z+", **_common_dup)])
 _duplicates_zplus = PlotGroup("Duplicates_zplus", _dupplots_zplus, ncols=8)
 
@@ -1501,6 +1519,9 @@ _fakeplots_zplus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_co
 _common_fake["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_fake["xmax"] = _bin_count
+_common_fake["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_common_fake["xbinlabelsize"] = maxlayerzm
+_common_fake["xbinlabelsize"] = 10.
 _fakeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z+", **_common_fake)])
 _fakes_zplus = PlotGroup("FakeRate_zplus", _fakeplots_zplus, ncols=8)
 
@@ -1510,6 +1531,9 @@ _mergeplots_zplus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_
 _common_merge["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_merge["xmax"] = _bin_count
+_common_merge["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_common_merge["xbinlabelsize"] = maxlayerzm
+_common_merge["xbinlabelsize"] = 10.
 _mergeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate in z+", **_common_merge)])
 _merges_zplus = PlotGroup("MergeRate_zplus", _mergeplots_zplus, ncols=8)
 
@@ -1526,6 +1550,7 @@ for i in range(maxlayerzm,maxlayerzp):
 
 #=================================================================================================
 hgcalLayerClustersPlotter = Plotter()
+'''
 #We follow Chris categories in folders
 # [A] calculated "energy density" for cells in a) 120um, b) 200um, c) 300um, d) scint
 # (one entry per rechit, in the appropriate histo)
@@ -1894,7 +1919,7 @@ hgcalLayerClustersPlotter.append("SharedEnergy_zplus", [
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page="SharedEnergyLayerClusterToCaloParticle_zplus"))
 
-
+'''
 # [L] Cell Association per Layer
 # z-
 hgcalLayerClustersPlotter.append("CellAssociation_zminus", [
