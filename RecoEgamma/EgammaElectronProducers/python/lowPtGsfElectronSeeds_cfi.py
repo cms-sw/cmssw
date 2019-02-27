@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 def thresholds( wp ) :
-    return cms.vdouble([{"L": 1.03,"M":1.75,"T":2.61}.get(wp,1.e6),  # unbiased
-                        {"L":-0.48,"M":0.76,"T":1.83}.get(wp,1.e6)]) # ptbiased
+    return cms.vdouble([{"VL": 0.19,"L":1.20,"M":2.02,"T":3.05}.get(wp,1.e6),  # unbiased
+                        {"VL":-1.99,"L":0.01,"M":1.29,"T":2.42}.get(wp,1.e6)]) # ptbiased
 
 lowPtGsfElectronSeeds = cms.EDProducer(
     "LowPtGsfElectronSeedProducer",
@@ -22,8 +22,8 @@ lowPtGsfElectronSeeds = cms.EDProducer(
             'ptbiased',
             ]),
     ModelWeights = cms.vstring([
-            'RecoEgamma/ElectronIdentification/data/LowPtElectrons/RunII_Fall17_LowPtElectrons_unbiased.xml.gz',
-            'RecoEgamma/ElectronIdentification/data/LowPtElectrons/RunII_Fall17_LowPtElectrons_displaced_pt_eta_biased.xml.gz',
+            'RecoEgamma/ElectronIdentification/data/LowPtElectrons/RunII_Autumn18_LowPtElectrons_unbiased.xml.gz',
+            'RecoEgamma/ElectronIdentification/data/LowPtElectrons/RunII_Autumn18_LowPtElectrons_displaced_pt_eta_biased.xml.gz',
             ]),
     ModelThresholds = thresholds("T"),
     PassThrough = cms.bool(False),
@@ -49,5 +49,5 @@ phase2_tracker.toModify(lowPtGsfElectronSeeds, TTRHBuilder  = 'WithTrackAngle')
 
 # Modifiers for BParking
 from Configuration.Eras.Modifier_bParking_cff import bParking
-bParking.toModify(lowPtGsfElectronSeeds, ModelThresholds = thresholds("L") )
+bParking.toModify(lowPtGsfElectronSeeds, ModelThresholds = thresholds("VL") )
 bParking.toModify(lowPtGsfElectronSeeds, MinPtThreshold = 0.5)
