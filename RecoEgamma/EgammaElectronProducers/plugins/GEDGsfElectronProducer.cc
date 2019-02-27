@@ -40,12 +40,13 @@ GEDGsfElectronProducer::~GEDGsfElectronProducer() {}
 // ------------ method called to produce the data  ------------
 void GEDGsfElectronProducer::produce( edm::Event & event, const edm::EventSetup & setup )
  {
-  beginEvent(event,setup) ;
+  auto eventData = beginEvent(event,setup) ;
   matchWithPFCandidates(event);
-  algo_->completeElectrons(globalCache()) ;
-  algo_->setMVAOutputs(globalCache(),gsfMVAOutputMap_);
-  algo_->setMVAInputs(gsfMVAInputMap_);
-  fillEvent(event) ;
+  reco::GsfElectronCollection electrons;
+  algo_->completeElectrons(electrons, eventData, globalCache()) ;
+  algo_->setMVAOutputs(electrons, globalCache(),gsfMVAOutputMap_, eventData);
+  algo_->setMVAInputs(electrons, gsfMVAInputMap_);
+  fillEvent(electrons, eventData, event) ;
 
   // ValueMap
   auto valMap_p = std::make_unique<edm::ValueMap<reco::GsfElectronRef>>();
@@ -54,8 +55,6 @@ void GEDGsfElectronProducer::produce( edm::Event & event, const edm::EventSetup 
   valMapFiller.fill();
   event.put(std::move(valMap_p));  
   // Done with the ValueMap
-
-  endEvent() ;
  }
 
 void GEDGsfElectronProducer::fillGsfElectronValueMap(edm::Event & event, edm::ValueMap<reco::GsfElectronRef>::Filler & filler)

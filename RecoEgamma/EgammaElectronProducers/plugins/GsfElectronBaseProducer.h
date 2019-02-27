@@ -47,9 +47,8 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
 
     GsfElectronAlgo * algo_ ;
 
-    void beginEvent( edm::Event &, const edm::EventSetup & ) ;
-    void fillEvent( edm::Event & ) ;
-    void endEvent() ;
+    GsfElectronAlgo::EventData beginEvent( edm::Event &, const edm::EventSetup & ) ;
+    void fillEvent( reco::GsfElectronCollection & electrons, GsfElectronAlgo::EventData const&, edm::Event & ) ;
     const edm::OrphanHandle<reco::GsfElectronCollection> & orphanHandle() const { return orphanHandle_;}
 
     // configurables

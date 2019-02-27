@@ -14,7 +14,7 @@ class GsfElectronProducer : public GsfElectronBaseProducer
 
   protected:
 
-    void beginEvent( edm::Event &, const edm::EventSetup & ) ;
+    GsfElectronAlgo::EventData beginEvent( edm::Event &, const edm::EventSetup & ) ;
 
   private :
 
