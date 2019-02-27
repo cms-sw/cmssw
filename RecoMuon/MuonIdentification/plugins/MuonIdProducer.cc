@@ -56,7 +56,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
    maxAbsPullY_             = iConfig.getParameter<double>("maxAbsPullY");
    fillCaloCompatibility_   = iConfig.getParameter<bool>("fillCaloCompatibility");
    fillEnergy_              = iConfig.getParameter<bool>("fillEnergy");
-   storeHcalRecHits_        = iConfig.getParameter<bool>("storeHcalRecHits");
+   storeCrossedHcalRecHits_ = iConfig.getParameter<bool>("storeCrossedHcalRecHits");
    fillMatching_            = iConfig.getParameter<bool>("fillMatching");
    fillIsolation_           = iConfig.getParameter<bool>("fillIsolation");
    writeIsoDeposits_        = iConfig.getParameter<bool>("writeIsoDeposits");
@@ -814,7 +814,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
       muonEnergy.hadS9   = info.nXnEnergy(TrackDetMatchInfo::HcalRecHits,1); // 3x3 energy
       muonEnergy.hoS9    = info.nXnEnergy(TrackDetMatchInfo::HORecHits,1);   // 3x3 energy
       muonEnergy.towerS9 = info.nXnEnergy(TrackDetMatchInfo::TowerTotal,1);  // 3x3 energy
-      if (storeHcalRecHits_) muonEnergy.setHadRecHits(info.crossedHcalRecHits);
+      if (storeCrossedHcalRecHits_) muonEnergy.setCrossedHadRecHits(info.crossedHcalRecHits);
       muonEnergy.ecal_position = info.trkGlobPosAtEcal;
       muonEnergy.hcal_position = info.trkGlobPosAtHcal;
       if (! info.crossedEcalIds.empty() ) muonEnergy.ecal_id = info.crossedEcalIds.front();
@@ -1313,7 +1313,7 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.setAllowAnything();
   
   desc.add<bool>("arbitrateTrackerMuons",false);
-  desc.add<bool>("storeHcalRecHits",false);
+  desc.add<bool>("storeCrossedHcalRecHits",false);
 
   edm::ParameterSetDescription descTrkAsoPar;
   descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel",edm::InputTag("gemSegments"));
