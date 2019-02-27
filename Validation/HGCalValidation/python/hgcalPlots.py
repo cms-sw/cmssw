@@ -1277,7 +1277,11 @@ _distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zplus = PlotGroup("dis
 #Just in case we add some plots below to be on the safe side. 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 
-_common_score = {"title": "Score CaloParticle to LayerClusters",
+#--------------------------------------------------------------------------------------------
+# z-
+#--------------------------------------------------------------------------------------------
+
+_common_score = {"title": "Score CaloParticle to LayerClusters in z-",
                  "stat": False,
                  "xmin": 0.,
                  "xtitleoffset": 1.5,
@@ -1285,13 +1289,13 @@ _common_score = {"title": "Score CaloParticle to LayerClusters",
                  "lineWidth": 1
                 }
 _common_score.update(_legend_common)
-_score_caloparticle_to_layerclusters = PlotGroup("score_caloparticle_to_layercluster", [
-        Plot("Score_caloparticle2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_score) for i in range(0,maxlayerzp)
+_score_caloparticle_to_layerclusters_zminus = PlotGroup("score_caloparticle_to_layercluster_zminus", [
+        Plot("Score_caloparticle2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_score) for i in range(0,maxlayerzm)
         ],
                                     ncols=8
                                     )
 
-_common_score = {"title": "Score LayerCluster to CaloParticles",
+_common_score = {"title": "Score LayerCluster to CaloParticles in z-",
                  "stat": False,
                  "xmin": 0.,
                  "xtitleoffset": 1.5,
@@ -1299,34 +1303,151 @@ _common_score = {"title": "Score LayerCluster to CaloParticles",
                  "lineWidth": 1
                 }
 _common_score.update(_legend_common)
-_score_layercluster_to_caloparticles = PlotGroup("score_layercluster_to_caloparticle", [
-        Plot("Score_layercl2caloparticle_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_score) for i in range(0,maxlayerzp)
+_score_layercluster_to_caloparticles_zminus = PlotGroup("score_layercluster_to_caloparticle_zminus", [
+        Plot("Score_layercl2caloparticle_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_score) for i in range(0,maxlayerzm)
         ],
                                     ncols=8
                                     )
 
-_common_shared= {"title": "Shared Energy CaloParticle To Layer Cluster",
+_common_shared= {"title": "Shared Energy CaloParticle To Layer Cluster in z-",
                  "stat": False,
                  "legend": False,
                 }
 _common_shared.update(_legend_common)
-_shared_plots = [Plot("SharedEnergy_caloparticle2layercl_perlayer{:02d}".format(i), xtitle="", **_common_shared) for i in range(0,maxlayerzp)]
-_shared_plots.extend([Plot("SharedEnergy_caloparticle2layercl_vs_eta_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzp)])
-_shared_plots.extend([Plot("SharedEnergy_caloparticle2layercl_vs_phi_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzp)])
-_sharedEnergy_caloparticle_to_layercluster = PlotGroup("sharedEnergy_caloparticle_to_layercluster", _shared_plots, ncols=8)
+_shared_plots_zminus = [Plot("SharedEnergy_caloparticle2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzm)]
+_shared_plots_zminus.extend([Plot("SharedEnergy_caloparticle2layercl_vs_eta_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzm)])
+_shared_plots_zminus.extend([Plot("SharedEnergy_caloparticle2layercl_vs_phi_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzm)])
+_sharedEnergy_caloparticle_to_layercluster_zminus = PlotGroup("sharedEnergy_caloparticle_to_layercluster_zminus", _shared_plots_zminus, ncols=8)
 
-_common_shared= {"title": "Shared Energy Layer Cluster To CaloParticle",
+_common_shared= {"title": "Shared Energy Layer Cluster To CaloParticle in z-",
                  "stat": False,
                  "legend": False,
                 }
 _common_shared.update(_legend_common)
-_shared_plots2 = [Plot("SharedEnergy_layercluster2caloparticle_perlayer{:02d}".format(i), xtitle="", **_common_shared) for i in range(0,maxlayerzp)]
-_shared_plots2.extend([Plot("SharedEnergy_layercl2caloparticle_vs_eta_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzp)])
-_shared_plots2.extend([Plot("SharedEnergy_layercl2caloparticle_vs_phi_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzp)])
-_sharedEnergy_layercluster_to_caloparticle = PlotGroup("sharedEnergy_layercluster_to_caloparticle", _shared_plots2, ncols=8)
+_shared_plots2_zminus = [Plot("SharedEnergy_layercluster2caloparticle_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzm)]
+_shared_plots2_zminus.extend([Plot("SharedEnergy_layercl2caloparticle_vs_eta_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzm)])
+_shared_plots2_zminus.extend([Plot("SharedEnergy_layercl2caloparticle_vs_phi_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzm)])
+_sharedEnergy_layercluster_to_caloparticle_zminus = PlotGroup("sharedEnergy_layercluster_to_caloparticle_zminus", _shared_plots2_zminus, ncols=8)
 
 
-_common_assoc = {#"title": "Cell Association Table",
+_common_assoc = {#"title": "Cell Association Table in z-",
+                 "stat": False,
+                 "legend": False,
+                 "xbinlabels": ["", "TN(pur)", "FN(ineff.)", "FP(fake)", "TP(eff)"],
+                 "xbinlabeloption": "h",
+                 "drawStyle": "hist",
+                 "ymin": 0.1,
+                 "ymax": 10000,
+                 "ylog": True}
+_common_assoc.update(_legend_common)
+_cell_association_table_zminus = PlotGroup("cellAssociation_table_zminus", [
+        Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(0,maxlayerzm)
+        ],
+                                    ncols=8
+                                    )
+
+_bin_count = 0
+_common_eff = {"stat": False, "legend": False}
+_effplots_zminus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
+_effplots_zminus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)])
+_common_eff["xmin"] = 0.
+_bin_count += maxlayerzm
+_common_eff["xmax"] =_bin_count
+_effplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies in z-", **_common_eff)])
+_efficiencies_zminus = PlotGroup("Efficiencies_zminus", _effplots_zminus, ncols=8)
+
+
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z-"}
+_dupplots_zminus = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
+_dupplots_zminus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)])
+_common_dup["xmin"] = _bin_count+maxlayerzm+1
+_bin_count += maxlayerzp
+_common_dup["xmax"] = _bin_count
+_dupplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z-", **_common_dup)])
+_duplicates_zminus = PlotGroup("Duplicates_zminus", _dupplots_zminus, ncols=8)
+
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z-"}
+_fakeplots_zminus = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
+_fakeplots_zminus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)])
+_common_fake["xmin"] = _bin_count+maxlayerzm+1
+_bin_count += maxlayerzp
+_common_fake["xmax"] = _bin_count
+_fakeplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z-", **_common_fake)])
+_fakes_zminus = PlotGroup("FakeRate_zminus", _fakeplots_zminus, ncols=8)
+
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z-"}
+_mergeplots_zminus = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
+_mergeplots_zminus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)])
+_common_merge["xmin"] = _bin_count+maxlayerzm+1
+_bin_count += maxlayerzp
+_common_merge["xmax"] = _bin_count
+_mergeplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate in z-", **_common_merge)])
+_merges_zminus = PlotGroup("MergeRate_zminus", _mergeplots_zminus, ncols=8)
+
+
+_common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d", ncols=4)
+_energyscore_cp2lc_zminus = []
+for i in range(0, maxlayerzm):
+  _energyscore_cp2lc_zminus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score)))
+
+_energyscore_lc2cp_zminus = []
+for i in range(0, maxlayerzm):
+  _energyscore_lc2cp_zminus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score)))
+#_energyclustered =
+
+#--------------------------------------------------------------------------------------------
+# z+
+#--------------------------------------------------------------------------------------------
+_common_score = {"title": "Score CaloParticle to LayerClusters in z+",
+                 "stat": False,
+                 "xmin": 0.,
+                 "xtitleoffset": 1.5,
+                 "drawStyle": "hist",
+                 "lineWidth": 1
+                }
+_common_score.update(_legend_common)
+_score_caloparticle_to_layerclusters_zplus = PlotGroup("score_caloparticle_to_layercluster_zplus", [
+        Plot("Score_caloparticle2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_score) for i in range(maxlayerzm,maxlayerzp)
+        ],
+                                    ncols=8
+                                    )
+
+_common_score = {"title": "Score LayerCluster to CaloParticles in z+",
+                 "stat": False,
+                 "xmin": 0.,
+                 "xtitleoffset": 1.5,
+                 "drawStyle": "hist",
+                 "lineWidth": 1
+                }
+_common_score.update(_legend_common)
+_score_layercluster_to_caloparticles_zplus = PlotGroup("score_layercluster_to_caloparticle_zplus", [
+        Plot("Score_layercl2caloparticle_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_score) for i in range(maxlayerzm,maxlayerzp)
+        ],
+                                    ncols=8
+                                    )
+
+_common_shared= {"title": "Shared Energy CaloParticle To Layer Cluster in z+",
+                 "stat": False,
+                 "legend": False,
+                }
+_common_shared.update(_legend_common)
+_shared_plots_zplus = [Plot("SharedEnergy_caloparticle2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(maxlayerzm,maxlayerzp)]
+_shared_plots_zplus.extend([Plot("SharedEnergy_caloparticle2layercl_vs_eta_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(maxlayerzm,maxlayerzp)])
+_shared_plots_zplus.extend([Plot("SharedEnergy_caloparticle2layercl_vs_phi_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(maxlayerzm,maxlayerzp)])
+_sharedEnergy_caloparticle_to_layercluster_zplus = PlotGroup("sharedEnergy_caloparticle_to_layercluster_zplus", _shared_plots_zplus, ncols=8)
+
+_common_shared= {"title": "Shared Energy Layer Cluster To CaloParticle in z+",
+                 "stat": False,
+                 "legend": False,
+                }
+_common_shared.update(_legend_common)
+_shared_plots2_zplus = [Plot("SharedEnergy_layercluster2caloparticle_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(maxlayerzm,maxlayerzp)]
+_shared_plots2_zplus.extend([Plot("SharedEnergy_layercl2caloparticle_vs_eta_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(maxlayerzm,maxlayerzp)])
+_shared_plots2_zplus.extend([Plot("SharedEnergy_layercl2caloparticle_vs_phi_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(maxlayerzm,maxlayerzp)])
+_sharedEnergy_layercluster_to_caloparticle_zplus = PlotGroup("sharedEnergy_layercluster_to_caloparticle_zplus", _shared_plots2_zplus, ncols=8)
+
+
+_common_assoc = {#"title": "Cell Association Table in z+",
                  "stat": False,
                  "legend": False,
                  "xbinlabels": ["", "TN(pur)", "FN(ineff.)", "FP(fake)", "TP(eff)"],
@@ -1335,61 +1456,62 @@ _common_assoc = {#"title": "Cell Association Table",
                  "ymax": 10000,
                  "ylog": True}
 _common_assoc.update(_legend_common)
-_cell_association_table = PlotGroup("cellAssociation_table", [
-        Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(0,maxlayerzp)
+_cell_association_table_zplus = PlotGroup("cellAssociation_table_zplus", [
+        Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(maxlayerzm,maxlayerzp)
         ],
                                     ncols=8
                                     )
 
 _bin_count = 0
 _common_eff = {"stat": False, "legend": False}
-_effplots = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzp)]
-_effplots.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzp)])
-_common_eff["xmin"] = 0.
-_bin_count += maxlayerzm*2.
+_effplots_zplus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
+_effplots_zplus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)])
+_common_eff["xmin"] = maxlayerzm  
+_bin_count += maxlayerzp
 _common_eff["xmax"] =_bin_count
-_effplots.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies", **_common_eff)])
-_efficiencies = PlotGroup("Efficiencies", _effplots, ncols=8)
+_effplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies in z+", **_common_eff)])
+_efficiencies_zplus = PlotGroup("Efficiencies_zplus", _effplots_zplus, ncols=8)
 
 
-_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates"}
-_dupplots = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzp)]
-_dupplots.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzp)])
-_common_dup["xmin"] = _bin_count+1
-_bin_count += maxlayerzm*2.
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z+"}
+_dupplots_zplus = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
+_dupplots_zplus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)])
+_common_dup["xmin"] = _bin_count+maxlayerzm+1
+_bin_count += maxlayerzp
 _common_dup["xmax"] = _bin_count
-_dupplots.extend([Plot("globalEfficiencies", xtitle="Global Duplicates", **_common_dup)])
-_duplicates = PlotGroup("Duplicates", _dupplots, ncols=8)
+_dupplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z+", **_common_dup)])
+_duplicates_zplus = PlotGroup("Duplicates_zplus", _dupplots_zplus, ncols=8)
 
-_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates"}
-_fakeplots = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzp)]
-_fakeplots.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzp)])
-_common_fake["xmin"] = _bin_count+1
-_bin_count += maxlayerzm*2.
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z+"}
+_fakeplots_zplus = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
+_fakeplots_zplus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)])
+_common_fake["xmin"] = _bin_count+maxlayerzm+1
+_bin_count += maxlayerzp
 _common_fake["xmax"] = _bin_count
-_fakeplots.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate", **_common_fake)])
-_fakes = PlotGroup("FakeRate", _fakeplots, ncols=8)
+_fakeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z+", **_common_fake)])
+_fakes_zplus = PlotGroup("FakeRate_zplus", _fakeplots_zplus, ncols=8)
 
-_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates"}
-_mergeplots = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzp)]
-_mergeplots.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzp)])
-_common_merge["xmin"] = _bin_count+1
-_bin_count += maxlayerzm*2.
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z+"}
+_mergeplots_zplus = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
+_mergeplots_zplus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)])
+_common_merge["xmin"] = _bin_count+maxlayerzm+1
+_bin_count += maxlayerzp
 _common_merge["xmax"] = _bin_count
-_mergeplots.extend([Plot("globalEfficiencies", xtitle="Global merge Rate", **_common_merge)])
-_merges = PlotGroup("MergeRate", _mergeplots, ncols=8)
+_mergeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate in z+", **_common_merge)])
+_merges_zplus = PlotGroup("MergeRate_zplus", _mergeplots_zplus, ncols=8)
 
 
 _common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d", ncols=4)
-_energyscore_cp2lc = []
-for i in range(0, maxlayerzp):
-  _energyscore_cp2lc.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score)))
+_energyscore_cp2lc_zplus = []
+for i in range(maxlayerzm,maxlayerzp):
+  _energyscore_cp2lc_zplus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score)))
 
-_energyscore_lc2cp = []
-for i in range(0, maxlayerzp):
-  _energyscore_lc2cp.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score)))
+_energyscore_lc2cp_zplus = []
+for i in range(maxlayerzm,maxlayerzp):
+  _energyscore_lc2cp_zplus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score)))
 #_energyclustered =
 
+#=================================================================================================
 hgcalLayerClustersPlotter = Plotter()
 #We follow Chris categories in folders
 # [A] calculated "energy density" for cells in a) 120um, b) 200um, c) 300um, d) scint
@@ -1692,88 +1814,194 @@ hgcalLayerClustersPlotter.append("SelectedCaloParticles_Photons", [
             ))
 
 # [I] Score of CaloParticles wrt Layer Clusters
-hgcalLayerClustersPlotter.append("ScoreCaloParticlesToLayerClusters", [
+# z-
+hgcalLayerClustersPlotter.append("ScoreCaloParticlesToLayerClusters_zminus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
             ], PlotFolder(
-            _score_caloparticle_to_layerclusters,
+            _score_caloparticle_to_layerclusters_zminus,
             loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="ScoreCaloParticlesToLayerClusters"))
+            purpose=PlotPurpose.Timing, page="ScoreCaloParticlesToLayerClusters_zminus"))
+
+# z+
+hgcalLayerClustersPlotter.append("ScoreCaloParticlesToLayerClusters_zplus", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+            ], PlotFolder(
+            _score_caloparticle_to_layerclusters_zplus,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="ScoreCaloParticlesToLayerClusters_zplus"))
 
 # [J] Score of LayerClusters wrt CaloParticles
-hgcalLayerClustersPlotter.append("ScoreLayerClustersToCaloParticles", [
+# z-
+hgcalLayerClustersPlotter.append("ScoreLayerClustersToCaloParticles_zminus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
             ], PlotFolder(
-            _score_layercluster_to_caloparticles,
+            _score_layercluster_to_caloparticles_zminus,
             loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="ScoreLayerClustersToCaloParticles"))
+            purpose=PlotPurpose.Timing, page="ScoreLayerClustersToCaloParticles_zminus"))
+
+# z+
+hgcalLayerClustersPlotter.append("ScoreLayerClustersToCaloParticles_zplus", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+            ], PlotFolder(
+            _score_layercluster_to_caloparticles_zplus,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="ScoreLayerClustersToCaloParticles_zplus"))
 
 # [K] Shared Energy between CaloParticle and LayerClusters
-hgcalLayerClustersPlotter.append("SharedEnergy", [
+# z-
+hgcalLayerClustersPlotter.append("SharedEnergy_zminus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
             ], PlotFolder(
-            _sharedEnergy_caloparticle_to_layercluster,
+            _sharedEnergy_caloparticle_to_layercluster_zminus,
             loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="SharedEnergyCaloParticleToLayerCluster"))
+            purpose=PlotPurpose.Timing, page="SharedEnergyCaloParticleToLayerCluster_zminus"))
+
+# z+
+hgcalLayerClustersPlotter.append("SharedEnergy_zplus", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+            ], PlotFolder(
+            _sharedEnergy_caloparticle_to_layercluster_zplus,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="SharedEnergyCaloParticleToLayerCluster_zplus"))
 
 # [K2] Shared Energy between LayerClusters and CaloParticle
-hgcalLayerClustersPlotter.append("SharedEnergy", [
+# z-
+hgcalLayerClustersPlotter.append("SharedEnergy_zminus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
             ], PlotFolder(
-            _sharedEnergy_layercluster_to_caloparticle,
+            _sharedEnergy_layercluster_to_caloparticle_zminus,
             loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="SharedEnergyLayerClusterToCaloParticle"))
+            purpose=PlotPurpose.Timing, page="SharedEnergyLayerClusterToCaloParticle_zminus"))
+
+# z+
+hgcalLayerClustersPlotter.append("SharedEnergy_zplus", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+            ], PlotFolder(
+            _sharedEnergy_layercluster_to_caloparticle_zplus,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="SharedEnergyLayerClusterToCaloParticle_zplus"))
+
 
 # [L] Cell Association per Layer
-hgcalLayerClustersPlotter.append("CellAssociation", [
+# z-
+hgcalLayerClustersPlotter.append("CellAssociation_zminus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
             ], PlotFolder(
-            _cell_association_table,
+            _cell_association_table_zminus,
             loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="CellAssociation"))
+            purpose=PlotPurpose.Timing, page="CellAssociation_zminus"))
+
+# z+
+hgcalLayerClustersPlotter.append("CellAssociation_zplus", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+            ], PlotFolder(
+            _cell_association_table_zplus,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="CellAssociation_zplus"))
 
 # [M] Efficiency Plots
-hgcalLayerClustersPlotter.append("Efficiencies", [
+# z-
+hgcalLayerClustersPlotter.append("Efficiencies_zminus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
             ], PlotFolder(
-            _efficiencies,
+            _efficiencies_zminus,
             loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Efficiencies"))
-# [L] Duplicate Plots
-hgcalLayerClustersPlotter.append("Duplicates", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _duplicates,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Duplicates"))
-# [M] Fake Rate Plots
-hgcalLayerClustersPlotter.append("FakeRate", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _fakes,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Fakes"))
-# [N] Merge Rate Plots
-hgcalLayerClustersPlotter.append("MergeRate", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _merges,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Merges"))
-# [O] Energy vs Score 2D plots CP to LC
-for i,item in enumerate(_energyscore_cp2lc, start=1):
-  hgcalLayerClustersPlotter.append("Energy_vs_Score_CP2LC", [
-              "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-              ], PlotFolder(
-              item,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Energy_vs_Score_CP2LC"))
-# [P] Energy vs Score 2D plots LC to CP
-for i,item in enumerate(_energyscore_lc2cp, start=1):
-  hgcalLayerClustersPlotter.append("Energy_vs_Score_LC2CP", [
-              "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-              ], PlotFolder(
-              item,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Energy_vs_Score_LC2CP"))
+            purpose=PlotPurpose.Timing, page="Efficiencies_zminus"))
 
+# z+
+hgcalLayerClustersPlotter.append("Efficiencies_zplus", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+            ], PlotFolder(
+            _efficiencies_zplus,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="Efficiencies_zplus"))
+
+# [L] Duplicate Plots
+# z-
+hgcalLayerClustersPlotter.append("Duplicates_zminus", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+            ], PlotFolder(
+            _duplicates_zminus,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="Duplicates_zminus"))
+
+# z+
+hgcalLayerClustersPlotter.append("Duplicates_zplus", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+            ], PlotFolder(
+            _duplicates_zplus,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="Duplicates_zplus"))
+
+# [M] Fake Rate Plots
+# z-
+hgcalLayerClustersPlotter.append("FakeRate_zminus", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+            ], PlotFolder(
+            _fakes_zminus,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="Fakes_zminus"))
+
+# z+
+hgcalLayerClustersPlotter.append("FakeRate_zplus", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+            ], PlotFolder(
+            _fakes_zplus,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="Fakes_zplus"))
+
+# [N] Merge Rate Plots
+# z-
+hgcalLayerClustersPlotter.append("MergeRate_zminus", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+            ], PlotFolder(
+            _merges_zminus,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="Merges_zminus"))
+
+# z+
+hgcalLayerClustersPlotter.append("MergeRate_zplus", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+            ], PlotFolder(
+            _merges_zplus,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="Merges_zplus"))
+
+# [O] Energy vs Score 2D plots CP to LC
+# z-
+for i,item in enumerate(_energyscore_cp2lc_zminus, start=1):
+  hgcalLayerClustersPlotter.append("Energy_vs_Score_CP2LC_zminus", [
+              "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+              ], PlotFolder(
+              item,
+              loopSubFolders=False,
+              purpose=PlotPurpose.Timing, page="Energy_vs_Score_CP2LC_zminus"))
+
+# z+
+for i,item in enumerate(_energyscore_cp2lc_zplus, start=1):
+  hgcalLayerClustersPlotter.append("Energy_vs_Score_CP2LC_zplus", [
+              "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+              ], PlotFolder(
+              item,
+              loopSubFolders=False,
+              purpose=PlotPurpose.Timing, page="Energy_vs_Score_CP2LC_zplus"))
+
+# [P] Energy vs Score 2D plots LC to CP
+# z-
+for i,item in enumerate(_energyscore_lc2cp_zminus, start=1):
+  hgcalLayerClustersPlotter.append("Energy_vs_Score_LC2CP_zminus", [
+              "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+              ], PlotFolder(
+              item,
+              loopSubFolders=False,
+              purpose=PlotPurpose.Timing, page="Energy_vs_Score_LC2CP_zminus"))
+
+# z+
+for i,item in enumerate(_energyscore_lc2cp_zplus, start=1):
+  hgcalLayerClustersPlotter.append("Energy_vs_Score_LC2CP_zplus", [
+              "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
+              ], PlotFolder(
+              item,
+              loopSubFolders=False,
+              purpose=PlotPurpose.Timing, page="Energy_vs_Score_LC2CP_zplus"))
 
