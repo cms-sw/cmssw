@@ -14,22 +14,25 @@
 void getHists( std::map<TString, TH1D*>& hists, TFile*& file, TString var, int var_val, float r );
 void setStyle();
 void setStack( THStack*& stack, std::map<TString, TH1D*>& hists );
+void split( const TString& str, TString& sub1, TString& sub2 );
 
 int main(int argc, char* argv[]) {
 
-  if (argc < 6) {
-    std::cout << "Please provide a file, variable, deltaR value, label, and an out directory." << std::endl;
+  if (argc < 5) {
+    std::cout << "Please provide a label:filename, variable, deltaR value, and an out directory." << std::endl;
     std::cout << "You may also include a second file at the end." << std::endl;
-    std::cout << "Example: offsetStack file1.root npv 0.4 dataset_label plots" << std::endl;
-    std::cout << "Example: offsetStack file1.root npv 0.4 dataset_label plots file2.root" << std::endl;
+    std::cout << "Example: offsetStack label1:file1.root npv 0.4 plots" << std::endl;
+    std::cout << "Example: offsetStack label1:file1.root npv 0.4 plots label2:file2.root" << std::endl;
     return -1;
   }
 
-  TString fname1 = argv[1];
+  TString label1, fname1;
+  split( argv[1], label1, fname1 );
+  TString label = label1;
+
   TString var = argv[2];
   float r = std::stof( argv[3] );
-  TString label = argv[4];
-  TString outdir = argv[5];
+  TString outdir = argv[4];
 
   TFile* file1 = TFile::Open( fname1 );
   if (!file1) {std::cout << "Invalid file1: " << fname1 << std::endl; return -1;}
@@ -51,8 +54,10 @@ int main(int argc, char* argv[]) {
   TLegend* leg = new TLegend(.4,.67,.65,.92);
 
   //file2 included//
-  if (argc > 6) {
-    TString fname2 = argv[6];
+  if (argc > 5) {
+    TString label2, fname2;
+    split( argv[5], label2, fname2 );
+
     TFile* file2 = TFile::Open( fname2 );
     if (!file2) {std::cout << "Invalid file2: " << fname2 << std::endl; return -1;}
 
@@ -64,7 +69,8 @@ int main(int argc, char* argv[]) {
     stack2->Draw("samepe");
 
     legPF = "PF";
-    leg->SetHeader("#bf{Markers: file2, Histograms: file1}");
+    leg->SetHeader( Form("#bf{Markers: %s, Histograms: %s}", label2.Data(), label1.Data()) );
+    label = label1 + "_vs_" + label2;
 
     //Draw Markers for EM Deposits and Hadronic Deposits in two separate regions//
     TH1D* hfe_clone = (TH1D*) hists2["hfe"]->Clone("hfe_clone");
@@ -112,10 +118,8 @@ int main(int argc, char* argv[]) {
 
   text.SetTextSize(0.045);
   text.SetTextFont(42);
-  label.ReplaceAll( '_', ' ' );
-  text.DrawLatex(0.7, 0.96, label);
+  text.DrawLatex(1-label.Length()/41., 0.96, label);
 
-  label.ReplaceAll( ' ', '_' );
   c.Print( outdir + "/stack_" + label + ".pdf" );
 }
 
@@ -186,4 +190,10 @@ void setStack( THStack*& stack, std::map<TString, TH1D*>& hists ) {
   hists["hfh"]->SetLineColor(kBlack);
   hists["chu"]->SetLineColor(kBlack);
   hists["chm"]->SetLineColor(kBlack);
+}
+
+void split( const TString& str, TString& sub1, TString& sub2 ) {
+  int pos = str.First(':');
+  sub1 = str(0, pos);
+  sub2 = str(pos+1, str.Length());
 }

@@ -181,10 +181,9 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
             if (!attached) pftype = "chu"; //unmatched charged hadron
         }
 ////AOD////
-//        bool attached = false;
 //        reco::TrackRef candTrkRef( cand.trackRef() );
-//
 //        if ( pftype == "chm" && !candTrkRef.isNull() ) { //check charged hadrons ONLY
+//            bool attached = false;
 //
 //            for (auto ipv=vertexHandle->begin(), endpv=vertexHandle->end(); ipv != endpv && !attached; ++ipv) {
 //                if ( !ipv->isFake() && ipv->ndof() >= 4 && fabs(ipv->z()) < 24 ) { //must be attached to a good pv
