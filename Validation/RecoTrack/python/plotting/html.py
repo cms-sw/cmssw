@@ -749,6 +749,17 @@ class HtmlReport:
     def addNote(self, note):
         self._index.append('  <p>%s</p>'%note)
 
+    def addLink(self, sample, str):
+        linktext = [
+            '  %s sample' % sample,
+            '  <br/>',
+            '  <ul/>',
+            '   <li><a href="%s.html">%s</a></li>' % (sample+"_"+str, str),
+            '  </ul>',
+            '  <br/>',
+        ]
+        self._index.extend( linktext )
+
     def beginSample(self, sample, fastVsFull=False, pileupComparison=None):
         # Fast vs. Full becomes just after the corresponding Fast
         # Same for PU

@@ -9,7 +9,7 @@ import argparse
 
 from Validation.RecoTrack.plotting.validation import SimpleValidation, SimpleSample
 
-from Validation.RecoTrack.plotting.plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotEmpty, PlotGroup, PlotOnSideGroup, PlotFolder, Plotter
+from Validation.RecoTrack.plotting.plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotEmpty, PlotGroup, PlotOnSideGroup, PlotFolder, Plotter, PlotterFolder
 from Validation.RecoTrack.plotting.html import PlotPurpose
 
 from Validation.RecoParticleFlow.defaults_cfi import ptbins, etabins, response_distribution_name
@@ -69,6 +69,16 @@ def parse_args():
         required=False,
         help="If enabled, do all jet response plots"
     )
+    parser.add_argument("--doOffsetPlots",
+        action='store_true',
+        required=False,
+        help="If enabled, do all offset plots"
+    )
+    parser.add_argument("--offsetOpts", type=str, action='append',
+        required=False,
+        help="Options for offset plots: variable and deltaR",
+        default="npv 0.4"
+    )
     args = parser.parse_args()
 
     #collect all the SimpleSample objects    
@@ -94,7 +104,7 @@ def parse_args():
                 pthistograms += [response_distribution_name(iptbin, ietabin)]
             plots += [("JetResponse", "response_{0:.0f}_{1:.0f}".format(ptbins[iptbin], ptbins[iptbin+1]), pthistograms)]
 
-    return samples, plots
+    return samples, plots, args.doOffsetPlots, args.offsetOpts
 
 def addPlots(plotter, folder, name, section, histograms, opts):
     folders = [folder]
@@ -112,7 +122,7 @@ def main():
     for iptbin in range(len(ptbins)-1):
         plot_opts["response_{0:.0f}_{1:.0f}".format(ptbins[iptbin], ptbins[iptbin+1])] = {"stat": True}
 
-    samples, plots = parse_args()
+    samples, plots, doOffsetPlots, offsetOpts = parse_args()
 
     plotter = Plotter()
 
@@ -133,6 +143,25 @@ def main():
     val = SimpleValidation(samples, outputDir)
     report = val.createHtmlReport(validationName=description)
     val.doPlots([plotter], plotterDrawArgs=plotterDrawArgs)
+
+    if doOffsetPlots :
+        offsetDir = os.path.join( outputDir, "Offset" )
+        os.makedirs( offsetDir )
+
+        for s in samples :
+            cmd = "offsetStack " + s.label() + ":" + s.files()[0] + " " + offsetOpts + " " + offsetDir
+            print cmd
+            os.system(cmd)
+            report.addLink(s.label(), "offset")
+#            pname = s.label() + "_" + offsetDir + "/stack_" + s.label() + ".pdf"
+
+            for s2 in samples :
+                if s == s2 : continue
+                cmd2 = cmd + " " + s2.label() + ":" + s2.files()[0]
+                print cmd2
+                os.system(cmd2)
+
+
     report.write()
 
 if __name__ == "__main__":
