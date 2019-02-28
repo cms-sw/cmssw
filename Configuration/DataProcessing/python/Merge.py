@@ -40,7 +40,7 @@ def mergeProcess(*inputFiles, **options):
     dropDQM = options.get("drop_dqm", False)
     newDQMIO = options.get("newDQMIO", False)
     mergeNANO = options.get("mergeNANO", False)
-    bypassVersionCheck = options.get("bypassVersionCheck",True)
+    bypassVersionCheck = options.get("bypassVersionCheck", True)
     #  //
     # // build process
     #//
