@@ -5,7 +5,7 @@
 // 
 /**\class L1TausAnalyzer L1TausAnalyzer.cc 
 
- Description: [one line class summary]
+ Description: Study the performace of the L1 hadronic tau algorithms (Rates, Efficiencies, Turn-on curves) 
 
  Implementation:
      [Notes on implementation]
@@ -120,13 +120,15 @@ private:
   bool bFoundAllTaus;
   
   // Configuration parameters
-  std::string analysisOption_;
-  std::string objectType_;
-  float genEtaCutoff_;
-  float etaCutoff_;
-  float trkPtCutoff_;
-  float genPtThreshold_;
-  float etThreshold_;
+  std::string cfg_analysisOption;
+  std::string cfg_objectType;
+  float cfg_genEtVisThreshold;
+  float cfg_genEtaVisCutoff;
+  float cfg_l1EtThreshold;
+  float cfg_l1EtaCutoff;
+  float cfg_genEtVisThreshold_Trigger; 
+  float cfg_l1TurnOnThreshold;
+  float cfg_dRMatching;
 
   // Gen Particles Properties 
   std::vector<unsigned int> genIndices;
@@ -151,12 +153,15 @@ L1TausAnalyzer::L1TausAnalyzer(const edm::ParameterSet& iConfig) :
 {
 
   edm::Service<TFileService> fs;
-  analysisOption_ = iConfig.getParameter<std::string>("AnalysisOption");
-  objectType_     = iConfig.getParameter<std::string>("ObjectType");
-  genEtaCutoff_   = iConfig.getParameter<double>("GenEtaCutOff");
-  cfg_etaCutoff_  = iConfig.getParameter<double>("EtaCutOff");  // fixme - use "cfg_blah" not "blah_"
-  genPtThreshold_ = iConfig.getParameter<double>("GenPtThreshold");
-  etThreshold_    = iConfig.getParameter<double>("EtThreshold");
+  cfg_analysisOption            = iConfig.getParameter<std::string>("AnalysisOption");
+  cfg_objectType                = iConfig.getParameter<std::string>("ObjectType");
+  cfg_genEtVisThreshold         = iConfig.getParameter<double>("GenEtVisThreshold");
+  cfg_genEtaVisCutoff           = iConfig.getParameter<double>("GenEtaVisCutOff");
+  cfg_l1EtThreshold             = iConfig.getParameter<double>("L1EtThreshold");
+  cfg_l1EtaCutoff               = iConfig.getParameter<double>("L1EtaCutOff");  
+  cfg_genEtVisThreshold_Trigger = iConfig.getParameter<double>("GenEtVisThreshold_Trigger");
+  cfg_l1TurnOnThreshold         = iConfig.getParameter<double>("L1TurnOnThreshold");
+  cfg_dRMatching                = iConfig.getParameter<double>("DRMatching");
 }
 
 void L1TausAnalyzer::beginJob() {
@@ -171,7 +176,7 @@ void L1TausAnalyzer::beginJob() {
   phiL1TrkObj = fs->make<TH1F>("Phi","Phi", 64, -3.2, 3.2);
   
   
-  if (analysisOption_ == "Efficiency") {
+  if (cfg_analysisOption == "Efficiency") {
     
     // Gen Particles
     etVisGenL1Obj = fs->make<TH1F>("GenEtVis", "GenEtVis", 100, 0.5, 200.5);
@@ -234,7 +239,7 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bFoundAllTaus = false;
 
   // Gen Particles
-  if (analysisOption_ == "Efficiency") {
+  if (cfg_analysisOption == "Efficiency") {
     edm::Handle<reco::GenParticleCollection> genParticleHandle;
     iEvent.getByToken(genToken, genParticleHandle);
     genIndices = findGenParticles(genParticleHandle, genEtsVis, genEts, genEtas, genPhis);
@@ -242,15 +247,15 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Check
     unsigned int nTrigTaus=0;
     for (unsigned int i=0; i < genIndices.size(); i++) {
-      if (genEts.at(i) > 20.0) nTrigTaus++;  // fix-me: use config variable genPtThreshold_
+      if (genEtsVis.at(i) > cfg_genEtVisThreshold_Trigger) nTrigTaus++;
     }
-    if (nTrigTaus >= 2) bFoundAllTaus = true; // fix-me: use the number of taus for each sample
+    if (nTrigTaus >= 2) bFoundAllTaus = true; // fixme: use the number of taus for each sample
     if (bFoundAllTaus) nEvtsWithMaxHadTaus++;
     
   }
   
   // TrkTau: start
-  if (objectType_ == "TrkTau"){
+  if (cfg_objectType == "TrkTau"){
 
     edm::Handle< L1TrkTauParticleCollection > l1TrkTauHandle;
     iEvent.getByToken(trktauToken, l1TrkTauHandle);
@@ -260,21 +265,21 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Plot the Properties
     nL1TrkObj->Fill(l1TrkTauCollection.size());
     for (auto tkObjIter = l1TrkTauCollection.begin(); tkObjIter != l1TrkTauCollection.end(); ++tkObjIter) {
-      //if (fabs(tkObjIter->eta()) < etaCutoff_ && tkObjIter->pt() > 0) {
+      if (fabs(tkObjIter->eta()) < cfg_l1EtaCutoff && tkObjIter->et() > cfg_l1EtThreshold) {
 	etL1TrkObj  -> Fill(tkObjIter->et());
 	etaL1TrkObj -> Fill(tkObjIter->eta());
 	phiL1TrkObj -> Fill(tkObjIter->phi());
-	//}      
+	}      
     }
     
-    if (analysisOption_ == "Efficiency" && genIndices.size() > 0) checkEfficiency(l1TrkTauCollection);
-    else if (analysisOption_ == "Rate") checkRate(l1TrkTauCollection);    
+    if (cfg_analysisOption == "Efficiency" && genIndices.size() > 0) checkEfficiency(l1TrkTauCollection);
+    else if (cfg_analysisOption == "Rate") checkRate(l1TrkTauCollection);    
     
   }// TrkTau: end
   
 
   // TkEGTau: start
-  if (objectType_ == "TkEG"){
+  if (cfg_objectType == "TkEG"){
     
     edm::Handle< L1TkEGTauParticleCollection > l1TkEGTauHandle;
     iEvent.getByToken(tkegtauToken, l1TkEGTauHandle);
@@ -284,39 +289,39 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Plot the Properties
     nL1TrkObj->Fill(l1TkEGTauCollection.size());
     for (auto tkObjIter = l1TkEGTauCollection.begin(); tkObjIter != l1TkEGTauCollection.end(); ++tkObjIter) {
-      //if (fabs(tkObjIter->eta()) < etaCutoff_ && tkObjIter->pt() > 0) {
+      if (fabs(tkObjIter->eta()) < cfg_l1EtaCutoff && tkObjIter->et() > cfg_l1EtThreshold) {
 	etL1TrkObj  -> Fill(tkObjIter->et());
 	etaL1TrkObj -> Fill(tkObjIter->eta());
 	phiL1TrkObj -> Fill(tkObjIter->phi());
-	//}
+      }
     }
         
-    if (analysisOption_ == "Efficiency" && genIndices.size() > 0) checkEfficiency(l1TkEGTauCollection);
-    else if (analysisOption_ == "Rate") checkRate(l1TkEGTauCollection);    
+    if (cfg_analysisOption == "Efficiency" && genIndices.size() > 0) checkEfficiency(l1TkEGTauCollection);
+    else if (cfg_analysisOption == "Rate") checkRate(l1TkEGTauCollection);    
     
   }// TkEGTau: end
 
 
   // CaloTkTau: start
-  if (objectType_ == "CaloTk"){
+  if (cfg_objectType == "CaloTk"){
 
     edm::Handle< L1CaloTkTauParticleCollection > l1CaloTkTauHandle;
     iEvent.getByToken(calotktauToken, l1CaloTkTauHandle);
     L1CaloTkTauParticleCollection l1CaloTkTauCollection = (*l1CaloTkTauHandle.product()); 
-    //sort( l1CaloTkTauCollection.begin(), l1CaloTkTauCollection.end(), L1CaloTkTau::EtComparator() );
+    //sort( l1CaloTkTauCollection.begin(), l1CaloTkTauCollection.end(), L1CaloTkTau::EtComparator() ); // fixme: use L1CaloTkTauEtComparator once implemented
 
     // Plot the Properties
     nL1TrkObj->Fill(l1CaloTkTauCollection.size());
     for (auto tkObjIter = l1CaloTkTauCollection.begin(); tkObjIter != l1CaloTkTauCollection.end(); ++tkObjIter) {
-      //if (fabs(tkObjIter->eta()) < etaCutoff_ && tkObjIter->pt() > 0) {
+      if (fabs(tkObjIter->eta()) < cfg_l1EtaCutoff && tkObjIter->et() > cfg_l1EtThreshold) {
 	etL1TrkObj  -> Fill(tkObjIter->et());
 	etaL1TrkObj -> Fill(tkObjIter->eta());
 	phiL1TrkObj -> Fill(tkObjIter->phi());
-	//}
+      }
     }
         
-    if (analysisOption_ == "Efficiency" && genIndices.size() > 0) checkEfficiency(l1CaloTkTauCollection);
-    else if (analysisOption_ == "Rate") checkRate(l1CaloTkTauCollection);    
+    if (cfg_analysisOption == "Efficiency" && genIndices.size() > 0) checkEfficiency(l1CaloTkTauCollection);
+    else if (cfg_analysisOption == "Rate") checkRate(l1CaloTkTauCollection);    
     
   }// CaloTkTau: end
 
@@ -324,13 +329,13 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 void L1TausAnalyzer::endJob() {
 
-  if (analysisOption_ == "Efficiency") {
+  if (cfg_analysisOption == "Efficiency") {
     
     // Finalise efficiency histogram
     finaliseEfficiencyHisto(effL1TrkObj, nEvtsWithMaxHadTaus);
    
     // Print Efficiency Information
-    std::cout << " Number of Selected " << objectType_ << " : "<< selectedL1TkObjTot << std::endl;
+    std::cout << " Number of Selected " << cfg_objectType << " : "<< selectedL1TkObjTot << std::endl;
     std::cout << " Number of Events Proccessed  " << ievent << std::endl;
   }
   
@@ -340,7 +345,7 @@ template<class T1>
 void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
 
   std::vector<unsigned int> matchedL1TkObjIndices;
-
+  
   // For-loop: All the gen objects in the event
   for (size_t i = 0; i < genIndices.size(); i++) {
 
@@ -357,11 +362,10 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
 
       // Get seed track properties
       L1TTTrackRefPtr seedTk = tkObjIter->getSeedTrk();
-      //float seedPt  = seedTk->getMomentum().perp();
       float seedEta = seedTk->getMomentum().eta();
       float seedPhi = seedTk->getMomentum().phi();
 
-      //if (fabs(seedEta) < etaCutoff_ && seedPt > 0) { //marina : fix all
+      if (fabs(tkObjIter->eta()) < cfg_l1EtaCutoff && tkObjIter->et() > cfg_l1EtThreshold) { 
 	float dPhi = reco::deltaPhi(seedPhi, genPhis.at(i));
 	float dEta = (seedEta - genEtas.at(i));
 	float dR =  sqrt(dPhi*dPhi + dEta*dEta);
@@ -372,11 +376,11 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
 	  etaTkObj = tkObjIter->eta();
 	  phiTkObj = tkObjIter->phi();
 	}
-	//}
+      }
     }// End-loop: All the track objects in the event
-
+    
     // Apply the matching dR criteria
-    if (dRminTkObj < 0.1) { // fixme - pass from cfg file
+    if (dRminTkObj < cfg_dRMatching) {
       selectedL1TkObjTot++;
       matchedL1TkObjIndices.push_back(indxTkObj);
       
@@ -385,10 +389,10 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
       etaL1TrkObjMatched->Fill(etaTkObj);
       phiL1TrkObjMatched->Fill(phiTkObj);
       
-      etL1TrkObjVsGen->Fill(etTkObj, genEts.at(i)); //fix-me: visible Et?
+      etL1TrkObjVsGen->Fill(etTkObj, genEtsVis.at(i));
       
       // Fill turn-on numerator for a given Et threshold
-      if (etTkObj > etThreshold_)  {
+      if (etTkObj > cfg_l1TurnOnThreshold)  {
 	selectedL1TkObjEtTot++;
 	etL1TrkObjTurnOn->Fill(etTkObj);
 	etGenObjTurnOn->Fill(genEtsVis.at(i));
@@ -411,10 +415,10 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
   // Find the ET of the leading matched L1TrkObj
   float maxEt = 0;
   for (unsigned int i=0; i < matchedL1TkObjIndices.size(); i++) {
-    if (tkObjCollection.at(i).et() > maxEt) maxEt = tkObjCollection.at(i).et(); // fix-me: use matchedTkObjCollection
-    //unsigned int indx = matchedL1TkObjIndices.at(i); //marina
-    //std::cout<<"--- "<<indx<< "   size = "<< tkObjCollection.size()<<std::endl; //marina
-    //if (tkObjCollection.at(indx).et() > maxEt) maxEt = tkObjCollection.at(indx).et(); //marina
+    if (tkObjCollection.at(i).et() > maxEt) maxEt = tkObjCollection.at(i).et(); // fix-me: use matchedTkObjCollection (?)
+    //unsigned int indx = matchedL1TkObjIndices.at(i);
+    //std::cout<<"--- "<<indx<< "   size = "<< tkObjCollection.size()<<std::endl;
+    //if (tkObjCollection.at(indx).et() > maxEt) maxEt = tkObjCollection.at(indx).et(); 
   }
   // Fill  efficiency histo 
   fillIntegralHistos(effL1TrkObj, maxEt);
@@ -430,8 +434,8 @@ void L1TausAnalyzer::checkRate(const T1 & tkObjCollection) {
   
   // For-loop: All the track objects in the event
   for (auto tkObjIter = tkObjCollection.begin(); tkObjIter != tkObjCollection.end(); ++tkObjIter) {  // not needed (could just use the first object - leading)
-    //if (fabs(tkObjIter->eta()) < etaCutoff_ && tkObjIter->et() > 0) { 
-  
+    if (fabs(tkObjIter->eta()) < cfg_l1EtaCutoff && tkObjIter->et() > cfg_l1EtThreshold) { 
+      
       nObj++;
       et = tkObjIter->et();
       
@@ -439,9 +443,9 @@ void L1TausAnalyzer::checkRate(const T1 & tkObjCollection) {
       if (nObj == 1) {
 	fillIntegralHistos(etThrL1TrkObj, et);
       }
-      //}         
+    }         
   }// End-loop: All the track objects in the event
-
+  
   return;
 }
 
@@ -487,7 +491,7 @@ std::vector<unsigned int> L1TausAnalyzer::findGenParticles(const edm::Handle<rec
   
   int pId = 0;
   
-  if ((objectType_ == "TkEG") || (objectType_ == "TrkTau") || (objectType_ == "CaloTk"))
+  if ((cfg_objectType == "TkEG") || (cfg_objectType == "TrkTau") || (cfg_objectType == "CaloTk"))
     {
       pId = 15;
     }
@@ -498,10 +502,13 @@ std::vector<unsigned int> L1TausAnalyzer::findGenParticles(const edm::Handle<rec
   unsigned int i=0;
   for(const auto& p : genParticles) {
     i++;
+
+    // Get visible P4 of genParticle
+    math::XYZTLorentzVector p4vis = GetVisP4(p);
     
-    if (fabs(p.eta()) > genEtaCutoff_ || p.pt() <= 0.0) continue; // fixme - use VISIBLE
-    // if (p.pt() < genPtThreshold_) continue; // fixme = does nothing
     if (abs(p.pdgId()) != pId) continue;
+    if (fabs(p4vis.Eta()) > cfg_genEtaVisCutoff) continue; 
+    if (p4vis.Et() < cfg_genEtVisThreshold) continue; 
 
     // Get the daughters of the genParticle
     const reco::GenParticleRefVector& daughters = p.daughterRefVector();
@@ -526,9 +533,6 @@ std::vector<unsigned int> L1TausAnalyzer::findGenParticles(const edm::Handle<rec
     }
     
     if (bLeptonicDecay) continue;
-
-    // Get visible P4 of genParticle
-    math::XYZTLorentzVector p4vis = GetVisP4(p);
 
     // If it is a last copy and it is a hadronic decay keep it 
     indices.push_back(i);
