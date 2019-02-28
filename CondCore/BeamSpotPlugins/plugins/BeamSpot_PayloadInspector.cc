@@ -238,7 +238,7 @@ namespace {
 	  case sigmaY : return payload->GetBeamWidthY(); 
 	  case sigmaZ : return payload->GetSigmaZ(); 
 	  case dxdz   : return payload->Getdxdz();   
-	  case dydz   : return payload->Getdydz();            
+	  case dydz   : return payload->Getdydz();
 	  case END_OF_TYPES : return ret;
 	  default : return ret;
 	  }
@@ -251,7 +251,7 @@ namespace {
 	  case sigmaY : return payload->GetBeamWidthYError(); 
 	  case sigmaZ : return payload->GetSigmaZError(); 
 	  case dxdz   : return payload->GetdxdzError();   
-	  case dydz   : return payload->GetdydzError();   
+	  case dydz   : return payload->GetdydzError();
 	  case END_OF_TYPES : return ret;
 	  default : return ret;
 	  }
