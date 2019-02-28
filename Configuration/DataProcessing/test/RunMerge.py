@@ -23,7 +23,7 @@ class RunMerge:
         self.outputLFN = None
         self.inputFiles = []
         self.newDQMIO = False
-        self.bypassVersionCheck = False
+        self.bypassVersionCheck = True
         
 
     def __call__(self):
@@ -55,7 +55,7 @@ class RunMerge:
 
 
 if __name__ == '__main__':
-    valid = ["input-files=", "output-file=", "output-lfn=", "dqmroot", "mergeNANO","bypassVersionCheck" ]
+    valid = ["input-files=", "output-file=", "output-lfn=", "dqmroot", "mergeNANO", "bypassVersionCheck" ]
              
     usage = """RunMerge.py <options>"""
     try:
