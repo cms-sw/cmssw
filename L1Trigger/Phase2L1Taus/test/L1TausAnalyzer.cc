@@ -355,11 +355,11 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
     float etTkObj, etaTkObj, phiTkObj;
 
     // Find the closest track object to the gen particle
-    unsigned int iTkObj = 0;
+    unsigned int iTkObj = -1;
     // For-loop: All the track objects in the event
     for (auto tkObjIter = tkObjCollection.begin(); tkObjIter != tkObjCollection.end(); ++tkObjIter) {
       iTkObj++;
-
+      
       // Get seed track properties
       L1TTTrackRefPtr seedTk = tkObjIter->getSeedTrk();
       float seedEta = seedTk->getMomentum().eta();
@@ -383,7 +383,6 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
     if (dRminTkObj < cfg_dRMatching) {
       selectedL1TkObjTot++;
       matchedL1TkObjIndices.push_back(indxTkObj);
-      
       // Fill histos with properties of the matched track objects 
       etL1TrkObjMatched->Fill(etTkObj);
       etaL1TrkObjMatched->Fill(etaTkObj);
@@ -416,10 +415,10 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
   float maxEt = 0;
   for (unsigned int i=0; i < matchedL1TkObjIndices.size(); i++) {
     if (tkObjCollection.at(i).et() > maxEt) maxEt = tkObjCollection.at(i).et(); // fix-me: use matchedTkObjCollection (?)
-    //unsigned int indx = matchedL1TkObjIndices.at(i);
-    //std::cout<<"--- "<<indx<< "   size = "<< tkObjCollection.size()<<std::endl;
-    //if (tkObjCollection.at(indx).et() > maxEt) maxEt = tkObjCollection.at(indx).et(); 
+    unsigned int indx = matchedL1TkObjIndices.at(i);
+    if (tkObjCollection.at(indx).et() > maxEt) maxEt = tkObjCollection.at(indx).et(); 
   }
+  
   // Fill  efficiency histo 
   fillIntegralHistos(effL1TrkObj, maxEt);
 
