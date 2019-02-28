@@ -152,9 +152,9 @@ L1TausAnalyzer::L1TausAnalyzer(const edm::ParameterSet& iConfig) :
 
   edm::Service<TFileService> fs;
   analysisOption_ = iConfig.getParameter<std::string>("AnalysisOption");
-  objectType_ = iConfig.getParameter<std::string>("ObjectType");
-  genEtaCutoff_ = iConfig.getParameter<double>("GenEtaCutOff");
-  etaCutoff_ = iConfig.getParameter<double>("EtaCutOff");
+  objectType_     = iConfig.getParameter<std::string>("ObjectType");
+  genEtaCutoff_   = iConfig.getParameter<double>("GenEtaCutOff");
+  cfg_etaCutoff_  = iConfig.getParameter<double>("EtaCutOff");  // fixme - use "cfg_blah" not "blah_"
   genPtThreshold_ = iConfig.getParameter<double>("GenPtThreshold");
   etThreshold_    = iConfig.getParameter<double>("EtThreshold");
 }
@@ -376,7 +376,7 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
     }// End-loop: All the track objects in the event
 
     // Apply the matching dR criteria
-    if (dRminTkObj < 0.3) {
+    if (dRminTkObj < 0.1) { // fixme - pass from cfg file
       selectedL1TkObjTot++;
       matchedL1TkObjIndices.push_back(indxTkObj);
       
@@ -499,8 +499,8 @@ std::vector<unsigned int> L1TausAnalyzer::findGenParticles(const edm::Handle<rec
   for(const auto& p : genParticles) {
     i++;
     
-    if (fabs(p.eta()) > genEtaCutoff_ || p.pt() <= 0.0) continue;
-    if (p.pt() < genPtThreshold_) continue;
+    if (fabs(p.eta()) > genEtaCutoff_ || p.pt() <= 0.0) continue; // fixme - use VISIBLE
+    // if (p.pt() < genPtThreshold_) continue; // fixme = does nothing
     if (abs(p.pdgId()) != pId) continue;
 
     // Get the daughters of the genParticle
