@@ -109,9 +109,38 @@ private:
 //   static int constructsCombinedState_;
 };
 
-#if !defined(EXCLUDE_MultiGaussianState_ICC)
+/**
+ * Class to collapse (combine) a Gaussian mixture of states
+ * into one.
+ * (c.f. R. Fruewirth et.al., Comp.Phys.Comm 100 (1997) 1
+ */
+
+//NOTE: Circular dependency between MultiGaussianState and
+// MultiGaussianStateCombiner requires they be in the same
+// headerfile
+
+template <unsigned int N>
+class MultiGaussianStateCombiner {
+
+private:
+  typedef SingleGaussianState<N> SingleState;
+  typedef MultiGaussianState<N> MultiState;
+  typedef typename MultiGaussianState<N>::SingleStatePtr SingleStatePtr;
+  typedef typename MultiGaussianState<N>::SingleStateContainer VSC;
+  
+public:
+
+//   typedef std::vector<SingleState> VSC;
+
+  SingleStatePtr combine(const MultiState & theState) const;
+  SingleStatePtr combine(const VSC& theComponents) const;
+
+};
+
+
+#include "TrackingTools/GsfTools/interface/MultiGaussianStateCombiner.icc"
 #include "TrackingTools/GsfTools/interface/MultiGaussianState.icc"
-#endif
+
 //   template <unsigned int N> int MultiGaussianState<N>::instances_ = 0;
 //   template <unsigned int N> int MultiGaussianState<N>::maxInstances_ = 0;
 //   template <unsigned int N> int MultiGaussianState<N>::constructsCombinedState_ = 0;
