@@ -18,7 +18,7 @@ L1TrkTaus = cms.EDProducer("L1TrkTauParticleProducer",
         seedtk_minPt       = cms.double( 5.0 ),
         seedtk_maxEta      = cms.double( 2.5 ),
         seedtk_maxChiSq    = cms.double( 94.0 ),
-        seedtk_useRedChiSq = cms.double( False ),
+        seedtk_useRedChiSq = cms.bool( False ),
         seedtk_minStubs    = cms.uint32( 5 ),
         seedtk_maxDeltaR   = cms.double( 0.15 ),
 
