@@ -35,18 +35,16 @@ GEDGsfElectronProducer::GEDGsfElectronProducer( const edm::ParameterSet & cfg, c
    produces<edm::ValueMap<reco::GsfElectronRef> >();
 }
 
-GEDGsfElectronProducer::~GEDGsfElectronProducer() {}
 
 // ------------ method called to produce the data  ------------
 void GEDGsfElectronProducer::produce( edm::Event & event, const edm::EventSetup & setup )
  {
-  auto eventData = beginEvent(event,setup) ;
   matchWithPFCandidates(event);
   reco::GsfElectronCollection electrons;
-  algo_->completeElectrons(electrons, eventData, globalCache()) ;
-  algo_->setMVAOutputs(electrons, globalCache(),gsfMVAOutputMap_, eventData);
-  algo_->setMVAInputs(electrons, gsfMVAInputMap_);
-  fillEvent(electrons, eventData, event) ;
+  algo_->completeElectrons(electrons, event, setup, globalCache()) ;
+  setMVAOutputs(electrons, globalCache(),gsfMVAOutputMap_, event.get(inputCfg_.vtxCollectionTag));
+  for(auto& el : electrons) el.setMvaInput(gsfMVAInputMap_.find(el.gsfTrack())->second); // set MVA inputs
+  fillEvent(electrons, event) ;
 
   // ValueMap
   auto valMap_p = std::make_unique<edm::ValueMap<reco::GsfElectronRef>>();
@@ -133,3 +131,24 @@ void GEDGsfElectronProducer::matchWithPFCandidates(edm::Event & event)
     }
   }
 }
+
+void GEDGsfElectronProducer::setMVAOutputs(reco::GsfElectronCollection & electrons,
+                                    const gsfAlgoHelpers::HeavyObjectCache* hoc,
+                                    const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs,
+                                    reco::VertexCollection const& vertices) const
+{
+  for( auto el = electrons.begin() ; el != electrons.end() ; el++ ) {
+    if(strategyCfg_.gedElectronMode==true) {
+      float mva_NIso_Value=	hoc->sElectronMVAEstimator->mva( *el, vertices);
+      float mva_Iso_Value =   hoc->iElectronMVAEstimator->mva( *el, vertices.size() );
+      GsfElectron::MvaOutput mvaOutput ;
+      mvaOutput.mva_e_pi = mva_NIso_Value ;
+      mvaOutput.mva_Isolated = mva_Iso_Value ;
+      el->setMvaOutput(mvaOutput);
+    }
+    else {
+      el->setMvaOutput(mvaOutputs.find(el->gsfTrack())->second);
+    }
+  }
+}
+
