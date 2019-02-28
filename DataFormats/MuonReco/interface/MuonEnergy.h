@@ -6,6 +6,15 @@
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include <vector>
 namespace reco {
+    struct HcalMuonRecHit{
+      float energy;
+      float chi2;
+      float time;
+      HcalDetId detId;
+      HcalMuonRecHit():
+      energy(0),chi2(0),time(0){}
+    };
+
     struct MuonEnergy {
        /// CaloTower based energy
        /// total energy
@@ -55,10 +64,10 @@ namespace reco {
        /// RecHits
        ///
        /// crossed HCAL rechits
-       std::vector<HBHERecHit> crossedHadRecHits;
+       std::vector<HcalMuonRecHit> crossedHadRecHits;
        bool crossedHadRecHitsValid;
 
-       const std::vector<HBHERecHit>* getCrossedHadRecHits() const
+       const std::vector<HcalMuonRecHit>* getCrossedHadRecHits() const
        {
 	 if (crossedHadRecHitsValid) return &crossedHadRecHits;
 	 return nullptr;
@@ -68,8 +77,14 @@ namespace reco {
        {
 	 crossedHadRecHitsValid = true;
 	 crossedHadRecHits.clear();
-	 for (auto hit: rechits)
-	   crossedHadRecHits.push_back(*hit);
+	 for (auto hit: rechits){
+	   HcalMuonRecHit mhit;
+	   mhit.energy = hit->energy();
+	   mhit.chi2   = hit->chi2();
+	   mhit.time   = hit->time();
+	   mhit.detId  = hit->id();
+	   crossedHadRecHits.push_back(mhit);
+	 }
        }
 
        MuonEnergy():
