@@ -98,6 +98,7 @@ upgradeSteps['baseline'] = {
         'HARVESTFullGlobal',
         'ALCAFull',
         'NanoFull',
+        'MiniAODFullGlobal',
     ],
     'PU' : [
         'DigiFullTrigger',
@@ -107,6 +108,7 @@ upgradeSteps['baseline'] = {
         'RecoFull',
         'HARVESTFull',
         'HARVESTFullGlobal',
+        'MiniAODFullGlobal',
     ],
     'suffix' : '',
     'offset' : 0.0,
@@ -163,6 +165,20 @@ upgradeSteps['Timing'] = {
     'PU' : upgradeSteps['baseline']['PU'],
     'suffix' : '_Timing',
     'offset' : 0.11,
+}
+upgradeSteps['ProdLike'] = {
+    'steps' : [
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+        'MiniAODFullGlobal',
+    ],
+    'PU' : [
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+        'MiniAODFullGlobal',
+    ],
+    'suffix' : '_ProdLike',
+    'offset' : 0.21,
 }
 upgradeSteps['Neutron'] = {
     'steps' : [

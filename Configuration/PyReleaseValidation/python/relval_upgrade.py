@@ -60,6 +60,9 @@ for year in upgradeKeys:
                         stepList[stepType].append(stepMaker(key,"SingleNuE10_cf",s,upgradeSteps[stepType]['suffix']))
                     elif (stepType is not 'baseline') and ( ('PU' in step and step.replace('PU','') in upgradeSteps[stepType]['PU']) or (step in upgradeSteps[stepType]['steps']) ):
                         stepList[stepType].append(stepMaker(key,frag[:-4],step,upgradeSteps[stepType]['suffix']))
+                        # hack to add an extra step
+                        if stepType == 'ProdLike' and 'RecoFullGlobal' in step:
+                            stepList[stepType].append(stepMaker(key,frag[:-4],step.replace('RecoFullGlobal','MiniAODFullGlobal'),upgradeSteps[stepType]['suffix']))
                     else:
                         stepList[stepType].append(stepMaker(key,frag[:-4],step,upgradeSteps['baseline']['suffix']))
 
@@ -93,6 +96,10 @@ for year in upgradeKeys:
             # special workflows for stuck TBM
             if any(upgradeDatasetFromFragment[frag]==nfrag for nfrag in tbmFrags) and '2018' in key:
                 workflows[numWF+upgradeSteps['killStuckTBM']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['killStuckTBM']]
+
+            # workflow for profiling
+            if upgradeDatasetFromFragment[frag]=="TTbar_14TeV" and '2023' in key:
+                workflows[numWF+upgradeSteps['ProdLike']['offset']] = [ upgradeDatasetFromFragment[frag]+"_ProdLike", stepList['ProdLike']]
 
             # premixing stage1, only for NuGun
             if upgradeDatasetFromFragment[frag]=="NuGun" and 'PU' in key and '2023' in key:
