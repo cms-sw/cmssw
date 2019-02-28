@@ -215,8 +215,9 @@ _effandfakePos = PlotGroup("effandfakePos",
 )
 _effandfakeDeltaRPU = PlotGroup("effandfakeDeltaRPU",
                                 _makeEffFakeDupPlots("dr"     , "#DeltaR", effopts=dict(xtitle="TP min #DeltaR"), fakeopts=dict(xtitle="track min #DeltaR"), common=dict(xlog=True)) +
+                                _makeEffFakeDupPlots("drj" , "#DeltaR(track, jet)", effopts=dict(xtitle="#DeltaR(TP, jet)", ytitle="efficiency vs #DeltaR(TP, jet"), fakeopts=dict(xtitle="#DeltaR(track, jet)"), common=dict(xlog=True))+
                                 _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
-                                legendDy=_legendDy_2rows
+                                legendDy=_legendDy_4rows
 )
 
 
@@ -260,8 +261,9 @@ _dupandfakePos = PlotGroup("dupandfakePos",
 )
 _dupandfakeDeltaRPU = PlotGroup("dupandfakeDeltaRPU",
                                 _makeFakeDupPileupPlots("dr"     , "#DeltaR", xquantity="min #DeltaR", common=dict(xlog=True)) +
+                                _makeFakeDupPileupPlots("drj"     , "#DeltaR(track, jet)", xtitle="#DeltaR(track, jet)", common=dict(xlog=True)) +
                                 _makeFakeDupPileupPlots("pu"     , "PU"     , xtitle="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)),
-                                ncols=3, legendDy=_legendDy_2rows_3cols
+                                ncols=3
 )
 _seedingLayerSet_common = dict(removeEmptyBins=True, xbinlabelsize=8, xbinlabeloption="d", adjustMarginRight=0.1)
 _dupandfakeSeedingPlots = _makeFakeDupPileupPlots("seedingLayerSet", "seeding layers", xtitle="", common=_seedingLayerSet_common)
@@ -421,12 +423,16 @@ _extDistHitsLayers = PlotGroup("distHitsLayers",
                                _makeDistPlots("3Dlayer"   , "3D layers"   , common=dict(xmin=_min3DLayers, xmax=_max3DLayers)),
                                ncols=4, legendDy=_legendDy_4rows,
 )
-_extDistPosDeltaR = PlotGroup("distPosDeltaR",
+_extDistPos = PlotGroup("distPos",
                               _makeDistPlots("vertpos", "ref. point r (cm)", common=dict(xlog=True)) +
                               _makeDistPlots("zpos"   , "ref. point z (cm)") +
-                              _makeDistPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)) +
-                              _makeDistPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
-                              ncols=4, legendDy=_legendDy_4rows,
+                              _makeDistPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)),
+                              ncols=3,
+)
+_extDistDeltaR = PlotGroup("distDeltaR",
+                              _makeDistPlots("dr"     , "min #DeltaR", common=dict(xlog=True)) +
+                              _makeDistPlots("drj"     , "#DeltaR(track, jet)", common=dict(xlog=True)),
+                              ncols=2, legendDy=_legendDy_2rows,
 )
 _extDistSeedingPlots = _makeDistPlots("seedingLayerSet", "seeding layers", common=dict(xtitle="", **_seedingLayerSet_common))
 _extDistChi2Seeding = PlotGroup("distChi2Seeding",
@@ -488,12 +494,16 @@ _extDistSimHitsLayers = PlotGroup("distsimHitsLayers",
                                   _makeDistSimPlots("3Dlayer"   , "3D layers"   , common=dict(xmin=_min3DLayers, xmax=_max3DLayers)),
                                   ncols=2, legendDy=_legendDy_4rows,
 )
-_extDistSimPosDeltaR = PlotGroup("distsimPosDeltaR",
+_extDistSimPos = PlotGroup("distsimPos",
                                  _makeDistSimPlots("vertpos", "vert r (cm)", common=dict(xlog=True)) +
                                  _makeDistSimPlots("zpos"   , "vert z (cm)") +
-                                 _makeDistSimPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)) +
-                                 _makeDistSimPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
-                                 ncols=2, legendDy=_legendDy_4rows,
+                                 _makeDistSimPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)),
+                                 ncols=3,
+)
+_extDistSimDeltaR = PlotGroup("distsimDeltaR",
+                                 _makeDistSimPlots("dr"     , "min #DeltaR", common=dict(xlog=True)) +
+                                 _makeDistSimPlots("drj" , "#DeltaR(TP, jet)", common=dict(xlog=True)),
+                                 ncols=2, legendDy=_legendDy_2rows,
 )
 
 ########################################
@@ -1237,7 +1247,8 @@ _extendedPlots = [
     _extDistDxyDzBS,
     _extDistDxyDzPV,
     _extDistHitsLayers,
-    _extDistPosDeltaR,
+    _extDistPos,
+    _extDistDeltaR,
     _extDistChi2Seeding,
     _extDistSeedingTable,
     _extResidualEta,
@@ -1248,7 +1259,8 @@ _extendedPlots = [
     _extDistSimDxyDzBS,
     _extDistSimDxyDzPV,
     _extDistSimHitsLayers,
-    _extDistSimPosDeltaR,
+    _extDistSimPos,
+    _extDistSimDeltaR,
 ]
 _summaryPlots = [
     _summary,
@@ -1666,7 +1678,7 @@ class TimePerTrackPlot:
             return None
 
         iterMap = copy.copy(_collLabelMapHp)
-        del iterMap["generalTracks"] 
+        del iterMap["generalTracks"]
         del iterMap["jetCoreRegionalStep"] # this is expensive per track on purpose
         if self._selectedTracks:
             renameBin = lambda bl: _summaryBinRename(bl, highPurity=True, byOriginalAlgo=False, byAlgoMask=True, ptCut=False, seeds=False)
@@ -1903,5 +1915,3 @@ tpPlotter.append("tp", [
 ], PlotFolder(
     _tplifetime,
 ))
-
-
