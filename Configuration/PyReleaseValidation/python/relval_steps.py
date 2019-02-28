@@ -2945,11 +2945,12 @@ PUDataSets={}
 for ds in defaultDataSets:
     key='MinBias_14TeV_pythia8_TuneCUETP8M1'+'_'+ds
     name=baseDataSetReleaseBetter[key]
-#    if '2017' in name or '2018' in name:
     if '2017' in name:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     elif '2018' in name:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+    elif '2023' in name:
+    	PUDataSets[ds]={'-n':10,'--pileup':'AVE_200_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
     else:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
 
@@ -3051,6 +3052,15 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--datatier':'GEN-SIM-RECO',
                                       '-n':'10',
                                       '--eventcontent':'FEVTDEBUGHLT',
+                                      '--geometry' : geom
+                                      }
+
+    upgradeStepDict['MiniAODFullGlobal'][k] = {'-s':'PAT',
+                                      '--conditions':gt,
+                                      '--datatier':'MINIAODSIM',
+                                      '-n':'10',
+                                      '--runUnscheduled':'',
+                                      '--eventcontent':'MINIAODSIM',
                                       '--geometry' : geom
                                       }
 
@@ -3158,6 +3168,17 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         stepName = step + upgradeSteps['killStuckTBM']['suffix']
         upgradeStepDict[stepName][k] = merge([{'--customise': 'SimTracker/SiPixelDigitizer/customiseStuckTBMSimulation.activateStuckTBMSimulation2018NoPU'}, upgradeStepDict[step][k]])
 
+    for step in upgradeSteps['ProdLike']['steps']:
+        stepName = step + upgradeSteps['ProdLike']['suffix']
+        if 'Reco' in step:
+            upgradeStepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'GEN-SIM-RECO', '--eventcontent':'FEVTDEBUGHLT'}, upgradeStepDict[step][k]])
+        elif 'MiniAOD' in step:
+            # the separate miniAOD step is used here
+            upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
+        if 'HARVEST' in step:
+            # remove step
+            upgradeStepDict[stepName][k] = None
+
     # setup PU
     if k2 in PUDataSets:
         # Setup premixing stage1
@@ -3186,7 +3207,10 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
             for step in upgradeSteps[stepType]['PU']:
                 stepName = step + upgradeSteps[stepType]['suffix']
                 stepNamePU = step + 'PU' + upgradeSteps[stepType]['suffix']
-                upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
+                if upgradeStepDict[stepName][k] is None:
+                    upgradeStepDict[stepNamePU][k] = None
+                else:
+                    upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
 
                 # Setup premixing stage2
                 if "Digi" in step or "Reco" in step:
@@ -3232,5 +3256,8 @@ for step in upgradeStepDict.keys():
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
             k=step+'_'+key
             if step in upgradeStepDict and key in upgradeStepDict[step]:
-                steps[k]=merge([upgradeStepDict[step][key]])
+                if upgradeStepDict[step][key] is None:
+                    steps[k]=None
+                else:
+                    steps[k]=merge([upgradeStepDict[step][key]])
 
