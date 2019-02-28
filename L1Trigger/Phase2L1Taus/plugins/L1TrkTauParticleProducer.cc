@@ -99,12 +99,14 @@ private:
   float cfg_tk_minEta;                  // Min |eta| applied on all L1TTTracks [unitless]
   float cfg_tk_maxEta;                  // Max |eta| applied on all L1TTTracks [unitless]
   float cfg_tk_maxChiSq;                // Max chi squared for L1TTTracks [unitless]
+  bool cfg_tk_useRedChiSq;              // Use chiSq or redChiSq [unitless]
   unsigned int cfg_tk_minStubs;         // Min number of stubs per L1TTTrack [unitless]   
 
   // Seed-tracks parameters
   float cfg_seedtk_minPt;               // Min pT of L1TrkTau seed L1TTTracks [GeV]
   float cfg_seedtk_maxEta;              // Max |eta| of L1TrkTau seed L1TTTracks [unitless]
   float cfg_seedtk_maxChiSq;            // Max chi squared of L1TrkTau seed L1TTTracks [unitless]
+  bool cfg_seedtk_useRedChiSq;          // Use chiSq or redChiSq [unitless]
   unsigned int cfg_seedtk_minStubs;     // Min number of stubs of L1TrkTau seed L1TTTracks [unitless]   
   float cfg_seedtk_maxDeltaR;           // Max opening of the cone in which the TrkTau seed track is the leading one in pT [unitless]
 
@@ -140,26 +142,28 @@ L1TrkTauParticleProducer::L1TrkTauParticleProducer(const edm::ParameterSet& iCon
   label = iConfig.getParameter<std::string>("label");  // label of the collection produced
   
   // L1 Tracks  
-  cfg_tk_nFitParams = (unsigned int)iConfig.getParameter<unsigned int>("tk_nFitParams");
-  cfg_tk_minPt      = (float)iConfig.getParameter<double>("tk_minPt");
-  cfg_tk_minEta     = (float)iConfig.getParameter<double>("tk_minEta");
-  cfg_tk_maxEta     = (float)iConfig.getParameter<double>("tk_maxEta");
-  cfg_tk_maxChiSq   = (float)iConfig.getParameter<double>("tk_maxChiSq");
-  cfg_tk_minStubs   = (unsigned int)iConfig.getParameter<unsigned int>("tk_minStubs");
+  cfg_tk_nFitParams  = (unsigned int)iConfig.getParameter<unsigned int>("tk_nFitParams");
+  cfg_tk_minPt       = (float)iConfig.getParameter<double>("tk_minPt");
+  cfg_tk_minEta      = (float)iConfig.getParameter<double>("tk_minEta");
+  cfg_tk_maxEta      = (float)iConfig.getParameter<double>("tk_maxEta");
+  cfg_tk_maxChiSq    = (float)iConfig.getParameter<double>("tk_maxChiSq");
+  cfg_tk_useRedChiSq = (bool)iConfig.getParameter<bool>("tk_useRedChiSq");
+  cfg_tk_minStubs    = (unsigned int)iConfig.getParameter<unsigned int>("tk_minStubs");
 
   // Seed-tracks parameters
-  cfg_seedtk_minPt      = (float)iConfig.getParameter<double>("seedtk_minPt");
-  cfg_seedtk_maxEta     = (float)iConfig.getParameter<double>("seedtk_maxEta");
-  cfg_seedtk_maxChiSq   = (float)iConfig.getParameter<double>("seedtk_maxChiSq");
-  cfg_seedtk_minStubs   = (unsigned int)iConfig.getParameter<unsigned int>("seedtk_minStubs");
-  cfg_seedtk_maxDeltaR  = (float)iConfig.getParameter<double>("seedtk_maxDeltaR");
+  cfg_seedtk_minPt       = (float)iConfig.getParameter<double>("seedtk_minPt");
+  cfg_seedtk_maxEta      = (float)iConfig.getParameter<double>("seedtk_maxEta");
+  cfg_seedtk_maxChiSq    = (float)iConfig.getParameter<double>("seedtk_maxChiSq");
+  cfg_seedtk_useRedChiSq = (bool)iConfig.getParameter<bool>("seedtk_useRedChiSq");
+  cfg_seedtk_minStubs    = (unsigned int)iConfig.getParameter<unsigned int>("seedtk_minStubs");
+  cfg_seedtk_maxDeltaR   = (float)iConfig.getParameter<double>("seedtk_maxDeltaR");
 
   // Shrinking Cone parameters
   cfg_shrinkCone_Constant  = (float)iConfig.getParameter<double>("shrinkCone_Constant");
   cfg_sigCone_cutoffDeltaR = (float)iConfig.getParameter<double>("sigCone_cutoffDeltaR");
   cfg_isoCone_useCone      = (bool)iConfig.getParameter<bool>("isoCone_useCone");
-  cfg_sigCone_dRMin            = (float)iConfig.getParameter<double>("sigCone_dRMin");
-  cfg_isoCone_dRMax            = (float)iConfig.getParameter<double>("isoCone_dRMax");
+  cfg_sigCone_dRMin        = (float)iConfig.getParameter<double>("sigCone_dRMin");
+  cfg_isoCone_dRMax        = (float)iConfig.getParameter<double>("isoCone_dRMax");
   
   // Tracks clustering parameters
   cfg_maxDeltaZ_trks  = (float)iConfig.getParameter<double>("maxDeltaZ_trks");
@@ -216,17 +220,25 @@ L1TrkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     /// Make a pointer to the L1TTTracks
     L1TTTrackRefPtr track_RefPtr( L1TTTrackHandle, track_counter++ );
 
-    // Apply quality criteria on the L1TTTracks
-    float Pt   = trkIter->getMomentum(cfg_tk_nFitParams).perp();
-    float Eta  = trkIter->getMomentum(cfg_tk_nFitParams).eta();
-    float Chi2 = trkIter->getChi2(cfg_tk_nFitParams);
+    // Retrieve track variables
+    float Pt     = trkIter->getMomentum(cfg_tk_nFitParams).perp();
+    float Eta    = trkIter->getMomentum(cfg_tk_nFitParams).eta();
+    float Chi2   = trkIter->getChi2(cfg_tk_nFitParams);
+    float myChi2 = 0.0;
     std::vector< L1TTStubRef > Stubs = trkIter-> getStubRefs();
-    unsigned int NStubs              = Stubs.size();
+    unsigned int NStubs = Stubs.size();
+    unsigned int dof    = (2 * NStubs) - cfg_tk_nFitParams;
+    float redChi2       = Chi2/dof;
 
+    // Determine which Chi2 value to consider in criteria
+    if (cfg_tk_useRedChiSq) myChi2 = redChi2;
+    else myChi2 = Chi2;
+	  
+    // Apply quality criteria on the L1TTTracks
     if ( Pt < cfg_tk_minPt ) continue;
     if ( fabs(Eta) < cfg_tk_minEta ) continue;
     if ( fabs(Eta) > cfg_tk_maxEta ) continue;
-    if ( Chi2 > cfg_tk_maxChiSq ) continue;
+    if ( myChi2 > cfg_tk_maxChiSq ) continue;
     if ( NStubs < cfg_tk_minStubs ) continue;
 
     //std::cout << track_RefPtr->getMomentum(cfg_tk_nFitParams).perp()<<"    "<< Pt << std::endl;
