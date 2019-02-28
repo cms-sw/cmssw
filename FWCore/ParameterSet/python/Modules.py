@@ -659,7 +659,7 @@ if __name__ == "__main__":
             self.assertTrue(isinstance(sp.test2, EDAlias))
 
             # Modifications
-            from Types import int32, string, PSet, VPSet
+            from .Types import int32, string, PSet, VPSet
             sp = SwitchProducerTest(test1 = EDProducer("Foo"),
                                     test2 = EDAlias(foo = VPSet(PSet(type = string("Foo2")))))
 
@@ -685,7 +685,7 @@ if __name__ == "__main__":
 
 
             # Dump
-            from Types import int32, string, PSet, VPSet
+            from .Types import int32, string, PSet, VPSet
             sp = SwitchProducerTest(test1 = EDProducer("Foo"),
                                     test2 = EDAlias(foo = VPSet(PSet(type = string("Foo2")))))
 
