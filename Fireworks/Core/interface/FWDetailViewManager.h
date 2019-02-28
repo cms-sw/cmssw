@@ -18,6 +18,7 @@
 //         Created:  Wed Mar  5 09:13:43 EST 2008
 //
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -48,11 +49,15 @@ public:
    struct ViewFrame 
    {
       TEveCompositeFrameInMainFrame *m_eveFrame;
-      FWDetailViewBase              *m_detailView;
+      std::unique_ptr<FWDetailViewBase> m_detailView;
       TEveWindow                    *m_eveWindow;
 
-      ViewFrame(TEveCompositeFrameInMainFrame *f, FWDetailViewBase* v, TEveWindow* w):
-         m_eveFrame(f), m_detailView(v), m_eveWindow(w) {}
+      ViewFrame(TEveCompositeFrameInMainFrame *f, std::unique_ptr<FWDetailViewBase> v, TEveWindow* w);
+      ~ViewFrame();
+      ViewFrame(const ViewFrame&) = delete;
+      ViewFrame& operator=(const ViewFrame&) = delete;
+      ViewFrame(ViewFrame&&) = default;
+      ViewFrame& operator=(ViewFrame&&) = default;
    };
 
 protected:
