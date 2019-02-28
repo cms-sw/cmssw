@@ -361,7 +361,7 @@ void GsfElectronAlgo::checkSetup( const edm::EventSetup & es )
  }
 
 
-GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent( edm::Event & event )
+GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent( edm::Event const& event )
  {
   // prepare access to hcal data
   generalData_.hcalHelper.readEvent(event) ;
@@ -424,51 +424,18 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent( edm::Event & event )
   eventData.ecalEndcapIsol04.doSeverityChecks(eventData.endcapRecHits.product(),generalData_.recHitsCfg.recHitSeverityToBeExcludedEndcaps);
   eventData.ecalEndcapIsol04.doFlagChecks(generalData_.recHitsCfg.recHitFlagsToBeExcludedEndcaps);
   
-  //Fill in the Isolation Value Maps for PF and EcalDriven electrons
-  std::vector<edm::InputTag> inputTagIsoVals;
-  if(! generalData_.inputCfg.pfIsoVals.empty() ) {
-    inputTagIsoVals.push_back(generalData_.inputCfg.pfIsoVals.getParameter<edm::InputTag>("pfSumChargedHadronPt"));
-    inputTagIsoVals.push_back(generalData_.inputCfg.pfIsoVals.getParameter<edm::InputTag>("pfSumPhotonEt"));
-    inputTagIsoVals.push_back(generalData_.inputCfg.pfIsoVals.getParameter<edm::InputTag>("pfSumNeutralHadronEt"));
-
-    eventData.pfIsolationValues.resize(inputTagIsoVals.size());
-
-    for (size_t j = 0; j<inputTagIsoVals.size(); ++j) {
-      event.getByLabel(inputTagIsoVals[j], eventData.pfIsolationValues[j]);
-    }
-
-  }
-
-  if(! generalData_.inputCfg.edIsoVals.empty() ) {
-    inputTagIsoVals.clear();
-    inputTagIsoVals.push_back(generalData_.inputCfg.edIsoVals.getParameter<edm::InputTag>("edSumChargedHadronPt"));
-    inputTagIsoVals.push_back(generalData_.inputCfg.edIsoVals.getParameter<edm::InputTag>("edSumPhotonEt"));
-    inputTagIsoVals.push_back(generalData_.inputCfg.edIsoVals.getParameter<edm::InputTag>("edSumNeutralHadronEt"));
-
-    eventData.edIsolationValues.resize(inputTagIsoVals.size());
-
-    for (size_t j = 0; j<inputTagIsoVals.size(); ++j) {
-      event.getByLabel(inputTagIsoVals[j], eventData.edIsolationValues[j]);
-    }
-  }
   return eventData;
  }
 
-void GsfElectronAlgo::displayElectrons( reco::GsfElectronCollection const& electrons, edm::Event const& event, const std::string & title ) const
- {
-  LogTrace("GsfElectronAlgo") << "========== " << title << " ==========";
-  LogTrace("GsfElectronAlgo") << "Event: " << event.id();
-  LogTrace("GsfElectronAlgo") << "Number of electrons: " << electrons.size() ;
-  for(auto const& ele : electrons)
-   {
-    LogTrace("GsfElectronAlgo") << "Electron with charge, pt, eta, phi: "  << ele.charge() << " , "
-        << ele.pt() << " , " << ele.eta() << " , " << ele.phi();
-   }
-  LogTrace("GsfElectronAlgo") << "=================================================";
- }
 
-void GsfElectronAlgo::completeElectrons( reco::GsfElectronCollection & electrons, EventData & eventData, const gsfAlgoHelpers::HeavyObjectCache* hoc)
+void GsfElectronAlgo::completeElectrons( reco::GsfElectronCollection & electrons,
+                                         edm::Event const& event,
+                                         edm::EventSetup const& eventSetup,
+                                         const gsfAlgoHelpers::HeavyObjectCache* hoc )
  {
+  checkSetup(eventSetup);
+  auto eventData = beginEvent(event);
+
   const GsfElectronCoreCollection * coreCollection = eventData.coreElectrons.product() ;
   for ( unsigned int i=0 ; i<coreCollection->size() ; ++i )
    {
@@ -499,146 +466,6 @@ void GsfElectronAlgo::completeElectrons( reco::GsfElectronCollection & electrons
    } // loop over tracks
 
  }
-
-reco::GsfElectronCollection GsfElectronAlgo::clonePreviousElectrons(EventData const& eventData)
-{
-  reco::GsfElectronCollection electrons;
-  const reco::GsfElectronCollection * oldElectrons = eventData.previousElectrons.product() ;
-  const GsfElectronCoreCollection * newCores = eventData.coreElectrons.product() ;
-  for
-   ( auto oldElectron = oldElectrons->begin() ;
-     oldElectron != oldElectrons->end() ;
-     ++oldElectron )
-   {
-    const GsfElectronCoreRef oldCoreRef = oldElectron->core() ;
-    const GsfTrackRef oldElectronGsfTrackRef = oldCoreRef->gsfTrack() ;
-    unsigned int icore ;
-    for ( icore=0 ; icore<newCores->size() ; ++icore )
-     {
-      if (oldElectronGsfTrackRef==(*newCores)[icore].gsfTrack())
-       {
-        const GsfElectronCoreRef coreRef = edm::Ref<GsfElectronCoreCollection>(eventData.coreElectrons,icore) ;
-        electrons.emplace_back(*oldElectron,coreRef) ;
-        break ;
-       }
-     }
-   }
-  return electrons;
-}
-
-
-// now deprecated
-void GsfElectronAlgo::addPflowInfo(reco::GsfElectronCollection & electrons, EventData const& eventData)
- {
-  bool found ;
-  const reco::GsfElectronCollection * edElectrons = eventData.previousElectrons.product() ;
-  const reco::GsfElectronCollection * pfElectrons = eventData.pflowElectrons.product() ;
-  reco::GsfElectronCollection::const_iterator pfElectron, edElectron ;
-  unsigned int edIndex, pfIndex ;
-
-  for(auto& el : electrons)
-   {
-
-    // Retreive info from pflow electrons
-    found = false ;
-    for
-     ( pfIndex = 0, pfElectron = pfElectrons->begin() ; pfElectron != pfElectrons->end() ; pfIndex++, pfElectron++ )
-     {
-      if (pfElectron->gsfTrack() == el.gsfTrack())
-       {
-        if (found)
-         {
-          edm::LogWarning("GsfElectronProducer")<<"associated pfGsfElectron already found" ;
-         }
-        else
-         {
-          found = true ;
-
-	  // Isolation Values
-        if( !(eventData.pfIsolationValues).empty() )
-        {
-	  reco::GsfElectronRef 
-		pfElectronRef(eventData.pflowElectrons, pfIndex);
-	  reco::GsfElectron::PflowIsolationVariables isoVariables;
-	  isoVariables.sumChargedHadronPt =(*(eventData.pfIsolationValues)[0])[pfElectronRef];
-	  isoVariables.sumPhotonEt        =(*(eventData.pfIsolationValues)[1])[pfElectronRef];
-	  isoVariables.sumNeutralHadronEt =(*(eventData.pfIsolationValues)[2])[pfElectronRef];
-	  el.setPfIsolationVariables(isoVariables);
-        }
-
-//          el.setPfIsolationVariables(pfElectron->pfIsolationVariables()) ;
-          el.setMvaInput(pfElectron->mvaInput()) ;
-          el.setMvaOutput(pfElectron->mvaOutput()) ;
-          if (el.ecalDrivenSeed())
-           { el.setP4(GsfElectron::P4_PFLOW_COMBINATION,pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION),false) ; }
-          else
-           { el.setP4(GsfElectron::P4_PFLOW_COMBINATION,pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION),true) ; }
-          double noCutMin = -999999999. ;
-          if (el.mva_e_pi()<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<el.mva_e_pi() ; }
-         }
-       }
-     }
-
-     // Isolation Values
-     // Retreive not found info from ed electrons
-   if( !(eventData.edIsolationValues).empty() )
-   {
-     edIndex = 0, edElectron = edElectrons->begin() ;
-     while ((found == false)&&(edElectron != edElectrons->end()))
-     {
-        if (edElectron->gsfTrack() == el.gsfTrack())
-        {
-          found = true ; 
-
-          // CONSTRUCTION D UNE REF dans le handle eventData.previousElectrons avec l'indice edIndex,
-          // puis recuperation dans la ValueMap ED
-
-	  reco::GsfElectronRef 
-		edElectronRef(eventData.previousElectrons, edIndex);
-	  reco::GsfElectron::PflowIsolationVariables isoVariables;
-	  isoVariables.sumChargedHadronPt =(*(eventData.edIsolationValues)[0])[edElectronRef];
-	  isoVariables.sumPhotonEt        =(*(eventData.edIsolationValues)[1])[edElectronRef];
-	  isoVariables.sumNeutralHadronEt =(*(eventData.edIsolationValues)[2])[edElectronRef];
-	  el.setPfIsolationVariables(isoVariables);
-        } 
-
-        edIndex++ ; 
-        edElectron++ ;
-     }
-   }
-
-    // Preselection
-    setPflowPreselectionFlag(el) ;
-
-   }
- }
-
-bool GsfElectronAlgo::isPreselected( GsfElectron const& ele )
- {
-	bool passCutBased=ele.passingCutBasedPreselection();
-	bool passPF=ele.passingPflowPreselection(); //it is worth nothing for gedGsfElectrons, this does nothing as its not set till GedGsfElectron finaliser, this is always false
-	if(generalData_.strategyCfg.gedElectronMode){
-         	bool passmva=ele.passingMvaPreselection();
-		if(!ele.ecalDrivenSeed()){
-		  if(ele.pt() > generalData_.strategyCfg.MaxElePtForOnlyMVA) 
-		    return passmva && passCutBased;
-		  else
-		    return passmva;
-		}	
-		else return (passCutBased || passPF || passmva);
-	}
-	else{
-		return passCutBased || passPF;
-	}
-
-	return true; 
- }
-
-void GsfElectronAlgo::removeNotPreselectedElectrons(reco::GsfElectronCollection & eles)
-{
-  eles.erase( std::remove_if(eles.begin(), eles.end(),
-              [this](auto const& ele){ return !isPreselected(ele); }), eles.end() );
-}
 
 
 void GsfElectronAlgo::setCutBasedPreselectionFlag( GsfElectron & ele, const reco::BeamSpot & bs )
@@ -736,48 +563,6 @@ void GsfElectronAlgo::setCutBasedPreselectionFlag( GsfElectron & ele, const reco
   ele.setPassCutBasedPreselection(true) ;
  }
 
-void GsfElectronAlgo::setPflowPreselectionFlag( GsfElectron & ele )
- {
-  ele.setPassMvaPreselection(false) ;
-
-  if (ele.core()->ecalDrivenSeed())
-   { if (ele.mvaOutput().mva_e_pi>=generalData_.cutsCfg.minMVA) ele.setPassMvaPreselection(true) ; }
-  else
-   { if (ele.mvaOutput().mva_e_pi>=generalData_.cutsCfgPflow.minMVA) ele.setPassMvaPreselection(true) ; }
-
-  if (ele.passingMvaPreselection())
-   { LogTrace("GsfElectronAlgo") << "Main mva criterion is satisfied" ; }
-
-  ele.setPassPflowPreselection(ele.passingMvaPreselection()) ;
-
- }
-
-void GsfElectronAlgo::setMVAInputs(reco::GsfElectronCollection & electrons, const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput> & mvaInputs) 
-{
-  for(auto& el : electrons) el.setMvaInput(mvaInputs.find(el.gsfTrack())->second);
-}
-
-void GsfElectronAlgo::setMVAOutputs(reco::GsfElectronCollection & electrons,
-                                    const gsfAlgoHelpers::HeavyObjectCache* hoc,
-                                    const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs,
-                                    EventData const& eventData)
-{
-  for
-    ( auto el = electrons.begin() ; el != electrons.end() ; el++ )
-    {
-	if(generalData_.strategyCfg.gedElectronMode==true){
-                float mva_NIso_Value=	hoc->sElectronMVAEstimator->mva( *el, *(eventData.vertices));
-		float mva_Iso_Value =   hoc->iElectronMVAEstimator->mva( *el, eventData.vertices->size() );
-	        GsfElectron::MvaOutput mvaOutput ;
-	        mvaOutput.mva_e_pi = mva_NIso_Value ;
-		mvaOutput.mva_Isolated = mva_Iso_Value ;
-	        el->setMvaOutput(mvaOutput);
-	}
-	else{
-        el->setMvaOutput(mvaOutputs.find(el->gsfTrack())->second);
-	}
-    }
-}
 
 void GsfElectronAlgo::createElectron(reco::GsfElectronCollection & electrons, ElectronData & electronData, EventData & eventData, const gsfAlgoHelpers::HeavyObjectCache* hoc)
  {
@@ -1083,129 +868,6 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection & electrons, El
   setPixelMatchInfomation(ele) ;
 
   LogTrace("GsfElectronAlgo")<<"Constructed new electron with energy  "<< ele.p4().e() ;
- }
-
-
-//=======================================================================================
-// Ambiguity solving
-//=======================================================================================
-
-//bool better_electron( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
-// { return (std::abs(e1->eSuperClusterOverP()-1)<std::abs(e2->eSuperClusterOverP()-1)) ; }
-
-void GsfElectronAlgo::setAmbiguityData( reco::GsfElectronCollection & electrons, EventData const& eventData , bool ignoreNotPreselected)
- {
-  if (generalData_.strategyCfg.ambSortingStrategy==0) {
-    std::sort(electrons.begin(), electrons.end(), EgAmbiguityTools::isBetter) ;
-  }
-  else if (generalData_.strategyCfg.ambSortingStrategy==1) {
-    std::sort(electrons.begin(), electrons.end(), EgAmbiguityTools::isInnerMost) ;
-  }
-  else
-   { throw cms::Exception("GsfElectronAlgo|UnknownAmbiguitySortingStrategy")<<"value of generalData_.strategyCfg.ambSortingStrategy is : "<<generalData_.strategyCfg.ambSortingStrategy ; }
-
-  // init
-  for
-   ( auto e1 = electrons.begin() ; e1 != electrons.end() ; ++e1 )
-   {
-    e1->clearAmbiguousGsfTracks() ;
-    e1->setAmbiguous(false) ;
-   }
-
-  // get ambiguous from GsfPfRecTracks
-  if (generalData_.strategyCfg.useGsfPfRecTracks)
-   {
-    for(auto& e1 : electrons)
-     {
-      bool found = false ;
-      for(auto const& gsfPfRecTrack : *eventData.gsfPfRecTracks.product())
-       {
-        if (gsfPfRecTrack.gsfTrackRef() == e1.gsfTrack())
-         {
-          if (found)
-           {
-            edm::LogWarning("GsfElectronAlgo")<<"associated gsfPfRecTrack already found" ;
-           }
-          else
-           {
-            found = true ;
-            for(auto const& duplicate : gsfPfRecTrack.convBremGsfPFRecTrackRef()) {
-                e1.addAmbiguousGsfTrack(duplicate->gsfTrackRef()) ;
-            }
-           }
-         }
-       }
-     }
-   }
-  // or search overlapping clusters
-  else
-   {
-    for
-     ( auto e1 = electrons.begin() ; e1 != electrons.end() ; ++e1 )
-     {
-      if (e1->ambiguous()) continue ;
-      if ( ignoreNotPreselected && !isPreselected(*e1)) continue ;
-
-      SuperClusterRef scRef1 = e1->superCluster();
-      CaloClusterPtr eleClu1 = e1->electronCluster();
-      LogDebug("GsfElectronAlgo")
-        << "Blessing electron with E/P " << e1->eSuperClusterOverP()
-        << ", cluster " << scRef1.get()
-        << " & track " << e1->gsfTrack().get() ;
-
-      for
-       ( auto e2 = e1 + 1 ; e2 != electrons.end() ; ++e2 )
-       {
-        if (e2->ambiguous()) continue ;
-        if ( ignoreNotPreselected && !isPreselected(*e2)) continue ;
-
-        SuperClusterRef scRef2 = e2->superCluster();
-        CaloClusterPtr eleClu2 = e2->electronCluster();
-
-        // search if same cluster
-        bool sameCluster = false ;
-        if (generalData_.strategyCfg.ambClustersOverlapStrategy==0)
-         { sameCluster = (scRef1==scRef2) ; }
-        else if (generalData_.strategyCfg.ambClustersOverlapStrategy==1)
-         {
-          float eMin = 1. ;
-          float threshold = eMin*cosh(EleRelPoint(scRef1->position(),eventData.beamspot->position()).eta()) ;
-          sameCluster =
-           ( (EgAmbiguityTools::sharedEnergy(*eleClu1,*eleClu2,*eventData.barrelRecHits,*eventData.endcapRecHits)>=threshold) ||
-             (EgAmbiguityTools::sharedEnergy(*scRef1->seed(),*eleClu2,*eventData.barrelRecHits,*eventData.endcapRecHits)>=threshold) ||
-             (EgAmbiguityTools::sharedEnergy(*eleClu1,*scRef2->seed(),*eventData.barrelRecHits,*eventData.endcapRecHits)>=threshold) ||
-             (EgAmbiguityTools::sharedEnergy(*scRef1->seed(),*scRef2->seed(),*eventData.barrelRecHits,*eventData.endcapRecHits)>=threshold) ) ;
-         }
-        else
-         { throw cms::Exception("GsfElectronAlgo|UnknownAmbiguityClustersOverlapStrategy")<<"value of generalData_.strategyCfg.ambClustersOverlapStrategy is : "<<generalData_.strategyCfg.ambClustersOverlapStrategy ; }
-
-        // main instructions
-        if (sameCluster)
-         {
-          LogDebug("GsfElectronAlgo")
-            << "Discarding electron with E/P " << e2->eSuperClusterOverP()
-            << ", cluster " << scRef2.get()
-            << " and track " << e2->gsfTrack().get() ;
-          e1->addAmbiguousGsfTrack(e2->gsfTrack()) ;
-          e2->setAmbiguous(true) ;
-         }
-        else if (e1->gsfTrack()==e2->gsfTrack())
-         {
-          edm::LogWarning("GsfElectronAlgo")
-            << "Forgetting electron with E/P " << e2->eSuperClusterOverP()
-            << ", cluster " << scRef2.get()
-            << " and track " << e2->gsfTrack().get() ;
-          e2->setAmbiguous(true) ;
-         }
-       }
-     }
-   }
- }
-
-
-void GsfElectronAlgo::removeAmbiguousElectrons(reco::GsfElectronCollection & eles)
- {
-  eles.erase( std::remove_if(eles.begin(), eles.end(), std::mem_fn(&reco::GsfElectron::ambiguous)), eles.end() );
  }
 
 

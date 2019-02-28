@@ -31,8 +31,7 @@ GsfElectronEcalDrivenProducer::~GsfElectronEcalDrivenProducer()
 // ------------ method called to produce the data  ------------
 void GsfElectronEcalDrivenProducer::produce( edm::Event & event, const edm::EventSetup & setup )
  {
-  auto eventData = beginEvent(event,setup) ;
   reco::GsfElectronCollection electrons;
-  algo_->completeElectrons(electrons, eventData, globalCache()) ;
-  fillEvent(electrons, eventData, event) ;
+  algo_->completeElectrons(electrons, event, setup, globalCache()) ;
+  fillEvent(electrons, event) ;
  }

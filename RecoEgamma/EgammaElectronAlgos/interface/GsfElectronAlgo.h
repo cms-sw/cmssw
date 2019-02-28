@@ -198,66 +198,11 @@ class GsfElectronAlgo {
       
       ) ;
 
-    //===================================================================
-    // GsfElectronAlgo::EventData
-    //===================================================================
-
-    struct EventData
-     {
-      // utilities
-      void retreiveOriginalTrackCollections
-       ( const reco::TrackRef &, const reco::GsfTrackRef & ) ;
-
-      // general
-      edm::Event * event ;
-      const reco::BeamSpot * beamspot ;
-
-      // input collections
-      edm::Handle<reco::GsfElectronCollection> previousElectrons ;
-      edm::Handle<reco::GsfElectronCollection> pflowElectrons ;
-      edm::Handle<reco::GsfElectronCoreCollection> coreElectrons ;
-      edm::Handle<EcalRecHitCollection> barrelRecHits ;
-      edm::Handle<EcalRecHitCollection> endcapRecHits ;
-      edm::Handle<reco::TrackCollection> currentCtfTracks ;
-      edm::Handle<reco::ElectronSeedCollection> seeds ;
-      edm::Handle<reco::GsfPFRecTrackCollection> gsfPfRecTracks ;
-      edm::Handle<reco::VertexCollection> vertices;
-
-      // isolation helpers
-      EgammaTowerIsolation hadDepth1Isolation03, hadDepth1Isolation04 ;
-      EgammaTowerIsolation hadDepth2Isolation03, hadDepth2Isolation04 ;
-      EgammaTowerIsolation hadDepth1Isolation03Bc, hadDepth1Isolation04Bc ;
-      EgammaTowerIsolation hadDepth2Isolation03Bc, hadDepth2Isolation04Bc ;
-      EgammaRecHitIsolation ecalBarrelIsol03, ecalBarrelIsol04 ;
-      EgammaRecHitIsolation ecalEndcapIsol03, ecalEndcapIsol04 ;
-
-      //Isolation Value Maps for PF and EcalDriven electrons
-      typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
-      IsolationValueMaps pfIsolationValues;
-      IsolationValueMaps edIsolationValues;
-
-      edm::Handle<reco::TrackCollection> originalCtfTracks ;
-      edm::Handle<reco::GsfTrackCollection> originalGsfTracks ;
-
-      bool originalCtfTrackCollectionRetreived = false ;
-      bool originalGsfTrackCollectionRetreived = false ;
-     } ;
-
     // main methods
-    void checkSetup( const edm::EventSetup & ) ;
-    EventData beginEvent( edm::Event & ) ;
-    void displayElectrons( reco::GsfElectronCollection const& electrons, edm::Event const& event, const std::string & title ) const ;
-    reco::GsfElectronCollection clonePreviousElectrons(EventData const& eventData) ;
-    void completeElectrons(reco::GsfElectronCollection & electrons, EventData & eventData, const gsfAlgoHelpers::HeavyObjectCache*) ; // do not redo cloned electrons done previously
-    void addPflowInfo(reco::GsfElectronCollection & electrons, EventData const& eventData) ; // now deprecated
-    void setAmbiguityData( reco::GsfElectronCollection & electrons, EventData const& eventData, bool ignoreNotPreselected = true ) ;
-    void removeNotPreselectedElectrons(reco::GsfElectronCollection & electrons) ;
-    void removeAmbiguousElectrons(reco::GsfElectronCollection & electrons) ;
-    void setMVAInputs(reco::GsfElectronCollection & electrons, const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput> & mvaInputs)  ;
-    void setMVAOutputs(reco::GsfElectronCollection & electrons,
-                       const gsfAlgoHelpers::HeavyObjectCache*,
-                       const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs,
-                       EventData const& eventData);
+    void completeElectrons( reco::GsfElectronCollection & electrons, // do not redo cloned electrons done previously
+                            edm::Event const& event,
+                            edm::EventSetup const& eventSetup,
+                            const gsfAlgoHelpers::HeavyObjectCache* hoc);
 
   private :
 
@@ -312,6 +257,51 @@ class GsfElectronAlgo {
     } ;
 
     //===================================================================
+    // GsfElectronAlgo::EventData
+    //===================================================================
+
+    struct EventData
+     {
+      // utilities
+      void retreiveOriginalTrackCollections
+       ( const reco::TrackRef &, const reco::GsfTrackRef & ) ;
+
+      // general
+      edm::Event const* event ;
+      const reco::BeamSpot * beamspot ;
+
+      // input collections
+      edm::Handle<reco::GsfElectronCollection> previousElectrons ;
+      edm::Handle<reco::GsfElectronCollection> pflowElectrons ;
+      edm::Handle<reco::GsfElectronCoreCollection> coreElectrons ;
+      edm::Handle<EcalRecHitCollection> barrelRecHits ;
+      edm::Handle<EcalRecHitCollection> endcapRecHits ;
+      edm::Handle<reco::TrackCollection> currentCtfTracks ;
+      edm::Handle<reco::ElectronSeedCollection> seeds ;
+      edm::Handle<reco::GsfPFRecTrackCollection> gsfPfRecTracks ;
+      edm::Handle<reco::VertexCollection> vertices;
+
+      // isolation helpers
+      EgammaTowerIsolation hadDepth1Isolation03, hadDepth1Isolation04 ;
+      EgammaTowerIsolation hadDepth2Isolation03, hadDepth2Isolation04 ;
+      EgammaTowerIsolation hadDepth1Isolation03Bc, hadDepth1Isolation04Bc ;
+      EgammaTowerIsolation hadDepth2Isolation03Bc, hadDepth2Isolation04Bc ;
+      EgammaRecHitIsolation ecalBarrelIsol03, ecalBarrelIsol04 ;
+      EgammaRecHitIsolation ecalEndcapIsol03, ecalEndcapIsol04 ;
+
+      //Isolation Value Maps for PF and EcalDriven electrons
+      typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
+      IsolationValueMaps pfIsolationValues;
+      IsolationValueMaps edIsolationValues;
+
+      edm::Handle<reco::TrackCollection> originalCtfTracks ;
+      edm::Handle<reco::GsfTrackCollection> originalGsfTracks ;
+
+      bool originalCtfTrackCollectionRetreived = false ;
+      bool originalGsfTrackCollectionRetreived = false ;
+     } ;
+
+    //===================================================================
     // GsfElectronAlgo::ElectronData
     //===================================================================
 
@@ -358,12 +348,13 @@ class GsfElectronAlgo {
     EleTkIsolFromCands tkIsol03Calc_;
     EleTkIsolFromCands tkIsol04Calc_;
 
+    void checkSetup( edm::EventSetup const& eventSetup ) ;
+    EventData beginEvent( edm::Event const& event ) ;
+
     void createElectron(reco::GsfElectronCollection & electrons, ElectronData & electronData, EventData & eventData, const gsfAlgoHelpers::HeavyObjectCache*) ;
 
     void setMVAepiBasedPreselectionFlag(reco::GsfElectron & ele);
     void setCutBasedPreselectionFlag( reco::GsfElectron & ele, const reco::BeamSpot & ) ;
-    void setPflowPreselectionFlag( reco::GsfElectron & ele ) ;
-    bool isPreselected( reco::GsfElectron const& ele ) ;
 
     template<bool full5x5>
     void calculateShowerShape( const reco::SuperClusterRef &,
