@@ -14,12 +14,20 @@
 #include "TPaveText.h"
 #include "TStyle.h"
 #include "TCanvas.h"
+#include "CondCore/CondDB/interface/Time.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 
 namespace SiPixelPI {
+
+  std::pair<unsigned int,unsigned int> unpack(cond::Time_t since){
+    auto kLowMask = 0XFFFFFFFF;
+    auto run  = (since >> 32);
+    auto lumi = (since & kLowMask);
+    return std::make_pair(run,lumi);
+  }
 
   //============================================================================                     
   // Taken from pixel naming classes

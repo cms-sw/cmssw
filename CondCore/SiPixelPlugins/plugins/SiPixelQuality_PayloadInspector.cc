@@ -220,6 +220,21 @@ namespace {
 	SiPixelPI::dress_occup_plot(canvas,h_bpix_occ[lay-1],lay,0,1);
       }
 
+
+      auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
+
+      for(unsigned int lay=1;lay<=4;lay++){
+      	canvas.cd(lay);
+	auto ltx = TLatex();
+	ltx.SetTextFont(62);
+	ltx.SetTextColor(kBlue);
+	ltx.SetTextSize(0.06);
+	ltx.SetTextAlign(11);
+	ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+			 1-gPad->GetTopMargin()+0.01,
+			 (std::to_string(unpacked.first)+","+std::to_string(unpacked.second)).c_str());
+      }
+
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
@@ -421,6 +436,20 @@ namespace {
   
       for(unsigned int ring=1;ring<=n_rings;ring++){
 	SiPixelPI::dress_occup_plot(canvas,h_fpix_occ[ring-1],0,ring,1);
+      }
+
+      auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
+
+      for(unsigned int ring=1;ring<=n_rings;ring++){
+	canvas.cd(ring);
+	auto ltx = TLatex();
+	ltx.SetTextFont(62);
+	ltx.SetTextColor(kBlue);
+	ltx.SetTextSize(0.06);
+	ltx.SetTextAlign(11);
+	ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+			 1-gPad->GetTopMargin()+0.01,
+			 (std::to_string(unpacked.first)+","+std::to_string(unpacked.second)).c_str());
       }
 
       std::string fileName(m_imageFileName);

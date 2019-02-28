@@ -14,14 +14,14 @@ cd $W_DIR;
 ####################
 # Test SiPixelQuality
 ####################
-# getPayloadData.py \
-#     --plugin pluginSiPixelQuality_PayloadInspector \
-#     --plot plot_SiPixelBPixQualityMap \
-#     --tag  SiPixelQuality_byPCL_prompt_v2 \
-#     --time_type Lumi \
-#     --iovs '{"start_iov": "1390517136916505", "end_iov": "1390517136916505"}' \
-#     --db Prod \
-#     --test;
+getPayloadData.py \
+    --plugin pluginSiPixelQuality_PayloadInspector \
+    --plot plot_SiPixelBPixQualityMap \
+    --tag  SiPixelQuality_byPCL_prompt_v2 \
+    --time_type Lumi \
+    --iovs '{"start_iov": "1390517136916505", "end_iov": "1390517136916505"}' \
+    --db Prod \
+    --test;
 
 getPayloadData.py \
     --plugin pluginSiPixelQuality_PayloadInspector \
