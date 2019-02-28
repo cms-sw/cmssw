@@ -27,7 +27,7 @@ def mergeProcess(*inputFiles, **options):
     - newDQMIO : specifies if the new DQM format should be used to merge the files
     - output_file : sets the output file name
     - output_lfn : sets the output LFN
-    - bypassVersionCheck : to bypass version check in case merging happened in lower version of CMSSW (i.e. UL HLT case)
+    - bypassVersionCheck : to bypass version check in case merging happened in lower version of CMSSW (i.e. UL HLT case). This will be TRUE by default.
 
     """
     #  //
@@ -40,7 +40,7 @@ def mergeProcess(*inputFiles, **options):
     dropDQM = options.get("drop_dqm", False)
     newDQMIO = options.get("newDQMIO", False)
     mergeNANO = options.get("mergeNANO", False)
-    bypassVersionCheck = options.get("bypassVersionCheck",False)
+    bypassVersionCheck = options.get("bypassVersionCheck",True)
     #  //
     # // build process
     #//
@@ -72,9 +72,8 @@ def mergeProcess(*inputFiles, **options):
     else:
         outMod = OutputModule("PoolOutputModule")
 
-    # To bypass the version check in the merge process
-    if bypassVersionCheck:
-        process.source.bypassVersionCheck = cms.untracked.bool(True)
+    # To bypass the version check in the merge process (TRUE by default)
+    process.source.bypassVersionCheck = cms.untracked.bool(bypassVersionCheck)
 
     outMod.fileName = CfgTypes.untracked.string(outputFilename)
     if outputLFN != None:
