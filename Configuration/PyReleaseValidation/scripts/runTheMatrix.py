@@ -51,12 +51,19 @@ if __name__ == '__main__':
                      8, #BH/Cosmic MC
                      25, #MC ttbar
                      4.22, #cosmic data
+                     4.53, #run1 data + miniAOD
                      1000, #data+prompt
                      1001, #data+express
                      136.731, #2016B Photon data
+                     136.7611, #2016E JetHT reMINIAOD from 80X legacy
                      140.53, #2011 HI data
                      1330, #Run2 MC Zmm
-                     135.4 #Run 2 Zee ttbar
+                     135.4, #Run 2 Zee ttbar
+                     10042.0, #2017 ZMM
+                     10024.0, #2017 ttbar
+                     10824.0, #2018 ttbar
+                     20034.0, #2023D17 ttbar (TDR baseline Muon/Barrel)
+                     20434.0, #2023D19 to exercise timing layer
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
@@ -68,6 +75,12 @@ if __name__ == '__main__':
     usage = 'usage: runTheMatrix.py --show -s '
 
     parser = optparse.OptionParser(usage)
+
+    parser.add_option('-b','--batchName',
+                      help='relval batch: suffix to be appended to Campaign name',
+                      dest='batchName',
+                      default=''
+                     )
 
     parser.add_option('-m','--memoryOffset',
                       help='memory of the wf for single core',
@@ -131,6 +144,12 @@ if __name__ == '__main__':
                       help='Used with --raw. Limit the production to step1',
                       dest='step1Only',
                       default=False
+                      )
+    parser.add_option('--maxSteps',
+                      help='Only run maximum on maxSteps. Used when we are only interested in first n steps.',
+                      dest='maxSteps',
+                      default=9999,
+                      type="int"
                       )
     parser.add_option('--fromScratch',
                       help='Coma separated list of wf to be run without recycling. all is not supported as default.',
@@ -209,7 +228,7 @@ if __name__ == '__main__':
                       action='store_true')
 
     parser.add_option('--das-options',
-                      help='Options to be passed to dasgoclient.py.',
+                      help='Options to be passed to das_client.py.',
                       dest='dasOptions',
                       default="--limit 0",
                       action='store')
