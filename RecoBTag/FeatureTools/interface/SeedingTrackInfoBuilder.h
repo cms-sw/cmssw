@@ -92,21 +92,19 @@ public:
         if (m_computeProbabilities) {
             
             //probability with 3D ip
-            std::cout<<"compute probability"<<std::endl;
+            //std::cout<<"compute probability"<<std::endl;
                         
             std::pair<bool,double> probability = m_probabilityEstimator->probability(false,0,ip.second.significance(),it->track(),jet,pv);
             double prob3D=(probability.first ? probability.second : -1.);
-            std::cout<<prob3D<<std::endl;
-            
+                        
             //probability with 2D ip                  
             probability = m_probabilityEstimator->probability(false,1,ip2d.second.significance(),it->track(),jet,pv);
             double prob2D=(probability.first ? probability.second : -1.);
-            std::cout<<prob2D<<std::endl;
-                    
+                                
             trackProbability3D_=prob3D;
             trackProbability2D_=prob2D;  
 
-            std::cout<<"my probability "<<prob3D<<" my probability "<<prob2D<<" jet "<<jet.pt()<<jet.eta()<<jet.phi()<<jet.mass()<<std::endl;
+            //std::cout<<"my probability "<<prob3D<<" my probability "<<prob2D<<" jet "<<jet.pt()<<jet.eta()<<jet.phi()<<jet.mass()<<std::endl;
             
             
         } 
