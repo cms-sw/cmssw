@@ -215,14 +215,6 @@ class MatrixInjector(object):
             wmsplit['RECOUP15']=1 
             wmsplit['RECOAODUP15']=5
             wmsplit['DBLMINIAODMCUP15NODQM']=5
-            wmsplit['DigiFull']=5
-            wmsplit['RecoFull']=5
-            wmsplit['DigiFullPU']=1
-            wmsplit['RecoFullPU']=1
-            wmsplit['RECOHID11']=1
-            wmsplit['DigiFullPU_2023D17PU']=1
-            wmsplit['RecoFullGlobalPU_2023D17PU']=1
-
                                     
             #import pprint
             #pprint.pprint(wmsplit)            
