@@ -25,6 +25,7 @@ PuppiAlgo::PuppiAlgo( const edm::ParameterSet & iConfig ) :
     puppiPtCutsPhotons_(vd2vf(iConfig.getParameter<std::vector<double>>("puppiPtCutsPhotons"))),
     puppiUsingBareTracks_(iConfig.getParameter<bool>("puppiUsingBareTracks")) 
 {
+    debug_ = iConfig.getUntrackedParameter<int>("puppiDebug", debug_);
     if (puppiEtaCuts_.size() != puppiPtCuts_.size() || puppiPtCuts_.size() != puppiPtCutsPhotons_.size()) {
         throw cms::Exception("Configuration", "Bad PUPPI config");
     }
@@ -49,63 +50,75 @@ void PuppiAlgo::doPUGlobals(const std::vector<Region> &rs, float npu, std::vecto
     globals.resize(4);
     computePuppiMedRMS(rs, globals[0], globals[1], globals[2], globals[3]);
 }
+
 void PuppiAlgo::runNeutralsPU(Region &r, float npu, const std::vector<float> & globals) const {
-    computePuppiWeights(r, globals[0], globals[1], globals[2], globals[3]);
+    std::vector<float> alphaC, alphaF;
+    computePuppiAlphas(r, alphaC, alphaF);
+    computePuppiWeights(r, alphaC, alphaF, globals[0], globals[1], globals[2], globals[3]);
     fillPuppi(r);
 }
 
-void PuppiAlgo::computePuppiWeights(Region &r, float alphaCMed, float alphaCRms, float alphaFMed, float alphaFRms) const {
-    int16_t ietacut = std::round(etaCharged_ * CaloCluster::ETAPHI_SCALE);
-    // FIXME floats for now
+void PuppiAlgo::computePuppiAlphas(const Region &r, std::vector<float> & alphaC, std::vector<float> & alphaF) const {
+    alphaC.resize(r.pf.size()); alphaF.resize(r.pf.size());
     float puppiDr2 = std::pow(puppiDr_,2), puppiDr2min = std::pow(puppiDrMin_,2);
-    for (PFParticle & p : r.pf) {
-        // charged
-        if (p.hwId <= 1) {
-            p.setPuppiW(p.chargedPV ? 1.0 : 0); 
-            if (debug_) printf("PUPPI \t charged id %1d pt %7.2f eta %+5.2f phi %+5.2f  alpha %+6.2f x2 %+6.2f --> puppi weight %.3f   puppi pt %7.2f \n", p.hwId, p.floatPt(), p.floatEta(), p.floatPhi(), 0., 0., p.floatPuppiW(), p.floatPt()*p.floatPuppiW());
-            continue;
-        }
+    for (unsigned int ip = 0, np = r.pf.size(); ip < np; ++ip) {
+        const PFParticle & p = r.pf[ip];
+        if (p.hwId <= 1) continue;
         // neutral
-        float alphaC = 0, alphaF = 0;
+        alphaC[ip] = 0; alphaF[ip] = 0;
         for (const PFParticle & p2 : r.pf) {
             float dr2 = ::deltaR2(p.floatEta(), p.floatPhi(), p2.floatEta(), p2.floatPhi());
             if (dr2 > 0 && dr2 < puppiDr2) {
                 float w = std::pow(std::min(p2.floatPt(), puppiPtMax_),2) / std::max<float>(puppiDr2min, dr2);
-                alphaF += w;
-                if (p2.chargedPV) alphaC += w;
+                alphaF[ip] += w;
+                if (p2.chargedPV) alphaC[ip] += w;
             }
         }
         if (puppiUsingBareTracks_) {
-            alphaC = 0;
+            alphaC[ip] = 0;
             for (const PropagatedTrack & p2 : r.track) {
                 if (!p2.fromPV) continue;
                 float dr2 = ::deltaR2(p.floatEta(), p.floatPhi(), p2.floatEta(), p2.floatPhi());
                 if (dr2 > 0 && dr2 < puppiDr2) {
-                    alphaC += std::pow(std::min(p2.floatPt(), puppiPtMax_),2) / std::max<float>(puppiDr2min, dr2);
+                    alphaC[ip] += std::pow(std::min(p2.floatPt(), puppiPtMax_),2) / std::max<float>(puppiDr2min, dr2);
                 }
             }
         }
+    }
+}
+
+void PuppiAlgo::computePuppiWeights(Region &r, const std::vector<float> & alphaC, const std::vector<float> & alphaF, float alphaCMed, float alphaCRms, float alphaFMed, float alphaFRms) const {
+    int16_t ietacut = std::round(etaCharged_ * CaloCluster::ETAPHI_SCALE);
+    for (unsigned int ip = 0, np = r.pf.size(); ip < np; ++ip) {
+        PFParticle & p = r.pf[ip];
+        // charged
+        if (p.hwId == l1t::PFCandidate::ChargedHadron || p.hwId == l1t::PFCandidate::Electron || p.hwId == l1t::PFCandidate::Muon) { 
+            p.setPuppiW(p.chargedPV || p.hwId == l1t::PFCandidate::Muon ? 1.0 : 0); 
+            if (debug_) printf("PUPPI \t charged id %1d pt %7.2f eta %+5.2f phi %+5.2f  alpha %+7.2f x2 %+7.2f --> puppi weight %.3f   puppi pt %7.2f \n", p.hwId, p.floatPt(), p.floatEta(), p.floatPhi(), 0., 0., p.floatPuppiW(), p.floatPt()*p.floatPuppiW());
+            continue;
+        }
+        // neutral
         float alpha = -99, x2 = -99;
         bool central = std::abs(p.hwEta) < ietacut;
         if (r.relativeCoordinates) central = (std::abs(r.globalAbsEta(p.floatEta())) < etaCharged_); // FIXME could make a better integer implementation
         if (central) {
-            if (alphaC > 0) {
-                alpha = std::log(alphaC);
+            if (alphaC[ip] > 0) {
+                alpha = std::log(alphaC[ip]);
                 x2 = (alpha - alphaCMed) * std::abs(alpha - alphaCMed) / std::pow(alphaCRms,2);
                 p.setPuppiW( ROOT::Math::chisquared_cdf(x2,1) );
             } else {
                 p.setPuppiW(0);
             }
         } else {
-            if (alphaF > 0) {
-                alpha = std::log(alphaF);
+            if (alphaF[ip] > 0) {
+                alpha = std::log(alphaF[ip]);
                 x2 = (alpha - alphaFMed) * std::abs(alpha - alphaFMed) / std::pow(alphaFRms,2);
                 p.setPuppiW( ROOT::Math::chisquared_cdf(x2,1) );
             } else {
                 p.setPuppiW(0);
             }
         }
-        if (debug_) printf("PUPPI \t neutral id %1d pt %7.2f eta %+5.2f phi %+5.2f  alpha %+6.2f x2 %+7.2f --> puppi weight %.3f   puppi pt %7.2f \n", p.hwId, p.floatPt(), p.floatEta(), p.floatPhi(), alpha, x2, p.floatPuppiW(), p.floatPt()*p.floatPuppiW());
+        if (debug_) printf("PUPPI \t neutral id %1d pt %7.2f eta %+5.2f phi %+5.2f  alpha %+7.2f x2 %+7.2f --> puppi weight %.3f   puppi pt %7.2f \n", p.hwId, p.floatPt(), p.floatEta(), p.floatPhi(), alpha, x2, p.floatPuppiW(), p.floatPt()*p.floatPuppiW());
     }
 }
 
@@ -174,9 +187,7 @@ void PuppiAlgo::fillPuppi(Region &r) const {
     constexpr uint16_t PUPPIW_0p01 = std::round(0.01 * PFParticle::PUPPI_SCALE);
     r.puppi.clear();
     for (PFParticle & p : r.pf) {
-        if (p.hwId == l1t::PFCandidate::Muon) {
-            r.puppi.push_back(p);
-        } else if (p.hwId <= 1) { // charged
+        if (p.hwId == l1t::PFCandidate::ChargedHadron || p.hwId == l1t::PFCandidate::Electron || p.hwId == l1t::PFCandidate::Muon) { // charged
             if (p.hwPuppiWeight > 0) {
                 r.puppi.push_back(p);
             }
