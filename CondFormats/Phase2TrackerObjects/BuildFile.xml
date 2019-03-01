@@ -1,0 +1,11 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/Utilities"/>
+<use name="CondFormats/Serialization"/>
+<use name="DataFormats/DetId"/>
+<use name="rootrflx"/>
+<use name="boost"/>
+<use name="tbb"/>
+<flags GENREFLEX_ARGS="--"/>
+<export>
+  <lib name="1"/>
+</export>

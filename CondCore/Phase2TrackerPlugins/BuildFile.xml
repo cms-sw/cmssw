@@ -1,0 +1,9 @@
+<use name="CondCore/ESSources"/>
+<use name="CondFormats/CondTest"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/Serialization"/>
+<use name="CondFormats/Phase2TrackerObjects"/>
+<use name="rootrflx"/>
+<use name="boost"/>
+<use name="tbb"/>
+<flags EDM_PLUGIN="1"/>
