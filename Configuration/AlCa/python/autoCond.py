@@ -48,7 +48,7 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
     'phase1_2017_realistic'    :  '105X_mc2017_realistic_v5',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode
-    'phase1_2017_cosmics'      :  '105X_mc2017cosmics_realistic_deco_v5',
+    'phase1_2017_cosmics'      :  '105X_mc2017cosmics_realistic_deco_v6',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
     'phase1_2017_cosmics_peak' :  '105X_mc2017cosmics_realistic_peak_v6',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
