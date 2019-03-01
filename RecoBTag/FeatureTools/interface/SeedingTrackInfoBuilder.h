@@ -11,8 +11,7 @@ class HistogramProbabilityEstimator;
 
 
 namespace btagbtvdeep{
-
-// adapted from DeepNtuples
+    
 class SeedingTrackInfoBuilder{
 public:
     SeedingTrackInfoBuilder():
