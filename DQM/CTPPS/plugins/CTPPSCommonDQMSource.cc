@@ -40,6 +40,8 @@ class CTPPSCommonDQMSource: public one::DQMEDAnalyzer<edm::LuminosityBlockCache<
     void globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) override;
 
     void analyzeCTPPSRecord(edm::Event const& event, edm::EventSetup const& eventSetup);
+    void analyzeTracks(edm::Event const& event, edm::EventSetup const& eventSetup);
+    void analyzeProtons(edm::Event const& event, edm::EventSetup const& eventSetup);
 
   private:
     const unsigned int verbosity;
@@ -284,13 +286,27 @@ void CTPPSCommonDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run c
 
 //----------------------------------------------------------------------------------------------------
 
+void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
+{
+  analyzeCTPPSRecord(event, eventSetup);
+  analyzeTracks(event, eventSetup);
+  analyzeProtons(event, eventSetup);
+}
+
+//----------------------------------------------------------------------------------------------------
+
 void CTPPSCommonDQMSource::analyzeCTPPSRecord(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
   Handle<CTPPSRecord> hCTPPSRecord;
   event.getByToken(ctppsRecordToken, hCTPPSRecord);
 
   if (!hCTPPSRecord.isValid())
+  {
+    if (verbosity)
+      LogProblem("CTPPSCommonDQMSource") << "ERROR in CTPPSCommonDQMSource::analyzeCTPPSRecord > input not available.";
+
     return;
+  }
 
   auto& rpstate = *luminosityBlockCache(event.getLuminosityBlock().index());
   if (rpstate.empty())
@@ -303,31 +319,17 @@ void CTPPSCommonDQMSource::analyzeCTPPSRecord(edm::Event const& event, edm::Even
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
+void CTPPSCommonDQMSource::analyzeTracks(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
-  analyzeCTPPSRecord(event, eventSetup);
-
   // get event data
   Handle< vector<CTPPSLocalTrackLite> > hTracks;
   event.getByToken(tokenLocalTrackLite, hTracks);
 
-  Handle<vector<reco::ForwardProton>> hRecoProtons;
-  event.getByToken(tokenRecoProtons, hRecoProtons);
-
   // check validity
-  bool valid = true;
-  valid &= hTracks.isValid();
-  valid &= hRecoProtons.isValid();
-
-  if (!valid)
+  if (!hTracks.isValid())
   {
     if (verbosity)
-    {
-      LogProblem("CTPPSCommonDQMSource")
-        << "ERROR in CTPPSCommonDQMSource::analyze > some of the required inputs are not valid. Skipping this event.\n"
-        << "    hTracks.isValid = " << hTracks.isValid() << "\n"
-        << "    hRecoProtons.isValid = " << hRecoProtons.isValid();
-    }
+      LogProblem("CTPPSCommonDQMSource") << "ERROR in CTPPSCommonDQMSource::analyzeTracks > input not available.";
 
     return;
   }
@@ -439,6 +441,51 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
     }
   }
 
+  for (auto &p : armPlots)
+  {
+    p.second.h_numRPWithTrack_top->Fill(mTop[p.first].size());
+    p.second.h_numRPWithTrack_hor->Fill(mHor[p.first].size());
+    p.second.h_numRPWithTrack_bot->Fill(mBot[p.first].size());
+  }
+
+  //------------------------------
+  // Correlation plots
+
+  for (const auto &ap : ms_rp_idx_arm)
+  {
+    auto &plots = armPlots[ap.first];
+
+    for (const auto &idx1 : ap.second)
+    {
+      for (const auto &idx2 : ap.second)
+      {
+        plots.h_trackCorr->Fill(idx1/10, idx2/10);
+
+        if ((idx1 % 10) != (idx2 % 10))
+          plots.h_trackCorr_overlap->Fill(idx1/10, idx2/10);
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void CTPPSCommonDQMSource::analyzeProtons(edm::Event const& event, edm::EventSetup const& eventSetup)
+{
+  // get event data
+  Handle<vector<reco::ForwardProton>> hRecoProtons;
+  event.getByToken(tokenRecoProtons, hRecoProtons);
+
+  // check validity
+  if (!hRecoProtons.isValid())
+  {
+    if (verbosity)
+      LogProblem("CTPPSCommonDQMSource") << "ERROR in CTPPSCommonDQMSource::analyzeProtons > input not available.";
+
+    return;
+  }
+
+  // loop over protons
   for (auto &p : *hRecoProtons)
   {
     if (!p.validFit())
@@ -458,32 +505,8 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
     plots.h_proton_t->Fill(fabs(p.t()));
     plots.h_proton_time->Fill(p.time());
   }
-
-  for (auto &p : armPlots)
-  {
-    p.second.h_numRPWithTrack_top->Fill(mTop[p.first].size());
-    p.second.h_numRPWithTrack_hor->Fill(mHor[p.first].size());
-    p.second.h_numRPWithTrack_bot->Fill(mBot[p.first].size());
-  }
-
-  // track RP correlation
-  for (const auto &ap : ms_rp_idx_arm)
-  {
-    auto &plots = armPlots[ap.first];
-
-    for (const auto &idx1 : ap.second)
-    {
-      for (const auto &idx2 : ap.second)
-      {
-        plots.h_trackCorr->Fill(idx1/10, idx2/10);
-
-        if ((idx1 % 10) != (idx2 % 10))
-          plots.h_trackCorr_overlap->Fill(idx1/10, idx2/10);
-      }
-    }
-  }
-
 }
+
 //----------------------------------------------------------------------------------------------------
 
 std::shared_ptr<std::vector<int>> CTPPSCommonDQMSource::globalBeginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& ) const
