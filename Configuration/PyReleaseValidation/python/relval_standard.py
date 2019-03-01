@@ -336,6 +336,7 @@ workflows[136.858] = ['',['RunNoBPTX2018A','HLTDR2_2018','RECODR2_2018reHLTAlCaT
 workflows[136.859] = ['',['RunDisplacedJet2018A','HLTDR2_2018','RECODR2_2018reHLT_skimDisplacedJet_Prompt','HARVEST2018']]
 workflows[136.860] = ['',['RunCharmonium2018A','HLTDR2_2018','RECODR2_2018reHLT_skimCharmonium_Prompt','HARVEST2018']]
 ### wf to test 90 m beta* Totem run reconstruction ###
+workflows[136.8501] = ['',['RunEGamma2018A','HLTDR2_2018','RECODR2_2018reHLT_skimParkingBPH_Prompt','HARVEST2018']]
 workflows[136.8561] = ['',['RunZeroBias_hBStarTk','HLTDR2_2018_hBStar','RECODR2_2018reHLT_Prompt_hBStar','HARVEST2018_hBStar']]
 workflows[136.8562] = ['',['RunZeroBias1_hBStarRP','HLTDR2_2018_hBStar','RECODR2_2018reHLT_Prompt_hBStar','HARVEST2018_hBStar']]
 
@@ -355,6 +356,7 @@ workflows[136.869] = ['',['RunMuOnia2018B','HLTDR2_2018','RECODR2_2018reHLT_skim
 workflows[136.870] = ['',['RunNoBPTX2018B','HLTDR2_2018','RECODR2_2018reHLTAlCaTkCosmics_Prompt','HARVEST2018']]
 workflows[136.871] = ['',['RunDisplacedJet2018B','HLTDR2_2018','RECODR2_2018reHLT_skimDisplacedJet_Prompt','HARVEST2018']]
 workflows[136.872] = ['',['RunCharmonium2018B','HLTDR2_2018','RECODR2_2018reHLT_skimCharmonium_Prompt','HARVEST2018']]
+workflows[136.898] = ['',['RunParkingBPH2018B','HLTDR2_2018','RECODR2_2018reHLT_skimParkingBPH_Prompt','HARVEST2018']]
 
 workflows[136.8642] = ['',['RunJetHT2018BHEfail','HLTDR2_2018','RECODR2_2018reHLT_skimJetHT_Prompt_HEfail','HARVEST2018_HEfail']]
 workflows[136.8643] = ['',['RunJetHT2018BBadHcalMitig','HLTDR2_2018_BadHcalMitig','RECODR2_2018reHLT_skimJetHT_Prompt_BadHcalMitig','HARVEST2018_BadHcalMitig']]
