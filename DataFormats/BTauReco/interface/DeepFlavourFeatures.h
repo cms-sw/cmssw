@@ -8,6 +8,8 @@
 #include "DataFormats/BTauReco/interface/ShallowTagInfoFeatures.h"
 #include "DataFormats/BTauReco/interface/NeutralCandidateFeatures.h"
 #include "DataFormats/BTauReco/interface/ChargedCandidateFeatures.h"
+#include "DataFormats/BTauReco/interface/SeedingTrackFeatures.h"
+
 
 namespace btagbtvdeep {
 
@@ -22,6 +24,8 @@ class DeepFlavourFeatures {
     std::vector<NeutralCandidateFeatures> n_pf_features;
     std::vector<ChargedCandidateFeatures> c_pf_features;
     
+    std::vector<SeedingTrackFeatures> seed_features;
+     
     std::size_t npv; // used by deep flavour
 
 };    
