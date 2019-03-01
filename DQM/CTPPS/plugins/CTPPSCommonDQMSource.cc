@@ -219,7 +219,7 @@ CTPPSCommonDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id) : 
   h_proton_t = ibooker.book1D("proton t", title+";|t|   GeV^{2}", 100, 0., 5.);
   h_proton_time = ibooker.book1D("proton time", title+";time   (ns)", 100, -25., 50.);
 
-  for (const unsigned int &rpDecId : { 2, 3, 23 })
+  for (const unsigned int &rpDecId : { 2, 3, 16, 23 })
   {
     unsigned int st = rpDecId / 10, rp = rpDecId % 10, rpFullDecId = id * 100 + rpDecId;
     CTPPSDetId rpId(CTPPSDetId::sdTrackingStrip, id, st, rp);
@@ -228,25 +228,18 @@ CTPPSCommonDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id) : 
     rpId.rpName(rpName, CTPPSDetId::nShort);
     rpName = stName + "_" + rpName;
 
-    trackingRPPlots[rpFullDecId] = {
-      ibooker.book1D(rpName + " - track x histogram", title+"/"+rpName+";track x   (mm)", 200, 0., 40.),
-      ibooker.book1D(rpName + " - track y histogram", title+"/"+rpName+";track y   (mm)", 200, -20., +20.)
-    };
-  }
-
-  for (const unsigned int &rpDecId : { 22 })
-  {
-    unsigned int st = rpDecId / 10, rp = rpDecId % 10, rpFullDecId = id * 100 + rpDecId;
-    CTPPSDetId rpId(CTPPSDetId::sdTrackingStrip, id, st, rp);
-    string stName, rpName;
-    rpId.stationName(stName, CTPPSDetId::nShort);
-    rpId.rpName(rpName, CTPPSDetId::nShort);
-    rpName = stName + "_" + rpName;
-
-    timingRPPlots[rpFullDecId] = {
-      ibooker.book1D(rpName + " - track x histogram", title+"/"+rpName+";track x   (mm)", 200, 0., 40.),
-      ibooker.book1D(rpName + " - track time histogram", title+"/"+rpName+";track time   (ns)", 100, -25., +50.)
-    };
+    if (rp == 6)
+    {
+      timingRPPlots[rpFullDecId] = {
+        ibooker.book1D(rpName + " - track x histogram", title+"/"+rpName+";track x   (mm)", 200, 0., 40.),
+        ibooker.book1D(rpName + " - track time histogram", title+"/"+rpName+";track time   (ns)", 100, -25., +50.)
+      };
+    } else {
+      trackingRPPlots[rpFullDecId] = {
+        ibooker.book1D(rpName + " - track x histogram", title+"/"+rpName+";track x   (mm)", 200, 0., 40.),
+        ibooker.book1D(rpName + " - track y histogram", title+"/"+rpName+";track y   (mm)", 200, -20., +20.)
+      };
+    }
   }
 }
 
