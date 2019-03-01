@@ -38,7 +38,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.options = cms.untracked.PSet(
-
+    numberOfThreads = cms.untracked.uint32(2)
 )
 
 # Production Info

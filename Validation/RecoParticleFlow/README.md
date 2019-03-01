@@ -43,3 +43,13 @@ cd ${CMSSW_BASE}/src/Validation/RecoParticleFlow
 
 make QCD_dqm QCD_post plots
 ~~~
+
+# Running via crab
+
+The reco step can also be run via Crab, using
+~~~
+cd crab
+python multicrab.py
+~~~
+
+Take note that the CMSSW python configuration for running the RECO sequence is dumped into `crab/step3_dump.py`.
