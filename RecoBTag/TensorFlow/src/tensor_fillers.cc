@@ -173,6 +173,100 @@ namespace btagbtvdeep {
     *(++ptr) = sv_features.d3dsig;
 
   }
+  
+  
+  void seed_tensor_filler(tensorflow::Tensor & tensor,
+                          std::size_t jet_n,
+                          std::size_t seed_n,
+                          const btagbtvdeep::SeedingTrackFeatures & seed_features) {
+
+
+    float* ptr = &tensor.tensor<float, 3>()(jet_n, seed_n, 0);    
+    
+     *ptr     = seed_features.seed_pt;
+     *(++ptr) = seed_features.seed_eta;
+     *(++ptr) = seed_features.seed_phi;
+     *(++ptr) = seed_features.seed_mass;    
+     *(++ptr) = seed_features.seed_dz;
+     *(++ptr) = seed_features.seed_dxy;
+     *(++ptr) = seed_features.seed_3D_ip;
+     *(++ptr) = seed_features.seed_3D_sip;
+     *(++ptr) = seed_features.seed_2D_ip;
+     *(++ptr) = seed_features.seed_2D_sip;    
+     *(++ptr) = seed_features.seed_3D_signedIp;
+     *(++ptr) = seed_features.seed_3D_signedSip;
+     *(++ptr) = seed_features.seed_2D_signedIp;
+     *(++ptr) = seed_features.seed_2D_signedSip;  
+     *(++ptr) = seed_features.seed_3D_TrackProbability;
+     *(++ptr) = seed_features.seed_2D_TrackProbability;
+     *(++ptr) = seed_features.seed_chi2reduced;
+     *(++ptr) = seed_features.seed_nPixelHits;
+     *(++ptr) = seed_features.seed_nHits;
+     *(++ptr) = seed_features.seed_jetAxisDistance;
+     *(++ptr) = seed_features.seed_jetAxisDlength;
+     
+  }  
+  
+  void neighbourTracks_tensor_filler(tensorflow::Tensor & tensor,
+                          std::size_t jet_n,
+                          std::size_t seed_n,
+                          const btagbtvdeep::SeedingTrackFeatures & seed_features) {
+
+    
+    std::vector<btagbtvdeep::TrackPairFeatures> neighbourTracks_features = seed_features.seed_nearTracks;      
+   
+    
+    for(unsigned int t_i=0; t_i<neighbourTracks_features.size(); t_i++){  
+
+    float* ptr = &tensor.tensor<float, 3>()(jet_n, t_i,  0);    
+        
+    *ptr  = neighbourTracks_features[t_i].nearTracks_pt;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_eta;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_phi;
+     
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_dz;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_dxy;
+     
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_mass;
+     
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_3D_ip;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_3D_sip;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_2D_ip;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_2D_sip;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAdist;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAdsig;      
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAonSeed_x;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAonSeed_y;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAonSeed_z;      
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAonSeed_xerr;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAonSeed_yerr;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAonSeed_zerr;      
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAonTrack_x;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAonTrack_y;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAonTrack_z;      
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAonTrack_xerr;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAonTrack_yerr;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAonTrack_zerr; 
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_dotprodTrack;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_dotprodSeed;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_dotprodTrackSeed2D;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_dotprodTrackSeed3D;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_dotprodTrackSeedVectors2D;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_dotprodTrackSeedVectors3D;      
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAonSeed_pvd;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAonTrack_pvd;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAjetAxis_dist;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAjetMomenta_dotprod;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAjetDirs_DEta;
+     *(++ptr) = neighbourTracks_features[t_i].nearTracks_PCAjetDirs_DPhi;
+        
+     
+    }
+
+
+  }
+  
+  
 
 }
 
