@@ -155,7 +155,7 @@ void LowPtGSFToPackedCandidateLinker::fillDescriptions(edm::ConfigurationDescrip
 	desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
 	desc.add<edm::InputTag>("gsfPreID", edm::InputTag("lowPtGsfElectronSeeds"));
 	desc.add<edm::InputTag>("gsfTracks", edm::InputTag("lowPtGsfEleGsfTracks"));
-	descriptions.add("lowPtGsfLinks", desc);
+	descriptions.add("lowPtGsfLinksDefault", desc);
 }
 
 DEFINE_FWK_MODULE(LowPtGSFToPackedCandidateLinker);
