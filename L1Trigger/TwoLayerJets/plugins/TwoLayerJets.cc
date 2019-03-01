@@ -54,8 +54,8 @@
 #include "TH2D.h"
 #include <TMath.h>
 //
-#include "tracklet_em_disp.h"
-#include "TwoLayerL1Jets.h"
+#include "L1Trigger/TwoLayerJets/interface/tracklet_em_disp.h"
+#include "L1Trigger/TwoLayerJets/interface/TwoLayerL1Jets.h"
 // class declaration
 
 

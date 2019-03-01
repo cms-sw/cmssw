@@ -18,6 +18,12 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "L1Trigger/TrackTrigger/interface/StubPtConsistency.h"
 
 #include "DataFormats/L1TrackTrigger/interface/L1TkJetParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkJetParticleFwd.h"
@@ -83,7 +89,7 @@ private:
   double CONESize;      // Use anti-kt with this cone size
   bool doPtComp;
   bool doTightChi2;
-
+  double BendConsistency;
   //need PVtx here
   const edm::EDGetTokenT<std::vector<TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
   edm::EDGetTokenT<L1TkPrimaryVertexCollection>PVertexToken;
@@ -108,7 +114,7 @@ PVertexToken(consumes<L1TkPrimaryVertexCollection>(iConfig.getParameter<edm::Inp
   CONESize =(float)iConfig.getParameter<double>("CONESize");
   doPtComp     = iConfig.getParameter<bool>("doPtComp");
   doTightChi2 = iConfig.getParameter<bool>("doTightChi2");
-
+  BendConsistency=iConfig.getParameter<double>("BendConsistency");
 }
 
 /////////////
@@ -139,6 +145,16 @@ void L1TrackerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   edm::ESHandle<TrackerTopology> tTopoHandle_;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
   const TrackerTopology* tTopo = tTopoHandle_.product();
+  ESHandle<TrackerGeometry> tGeomHandle;
+  iSetup.get<TrackerDigiGeometryRecord>().get(tGeomHandle);
+
+   
+  edm::ESHandle<MagneticField> magneticFieldHandle;
+  iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);  
+  const MagneticField* theMagneticField = magneticFieldHandle.product();
+  double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0,0,0)).z();
+  const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+  
   edm::Handle<L1TkPrimaryVertexCollection >L1TkPrimaryVertexHandle;
   iEvent.getByToken(PVertexToken, L1TkPrimaryVertexHandle);
   fastjet::JetDefinition jet_def(fastjet::antikt_algorithm, CONESize);
@@ -151,8 +167,10 @@ void L1TrackerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     if(fabs(iterL1Track->getMomentum(L1Tk_nPar).eta())>TRK_ETAMAX)continue;
     if(iterL1Track->getMomentum(L1Tk_nPar).perp()<TRK_PTMIN)continue;
     if(iterL1Track->getChi2()>TRK_CHI2MAX)continue;
-    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = iterL1Track -> getStubRefs() ;	  if(theStubs.size()<TRK_NSTUBMIN)continue;
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = iterL1Track -> getStubRefs() ;	    if(theStubs.size()<TRK_NSTUBMIN)continue;
     float chi2ndof=(iterL1Track->getChi2()/(2*theStubs.size() - L1Tk_nPar));
+    float trk_bstubPt=StubPtConsistency::getConsistency(TTTrackHandle->at(this_l1track-1), theTrackerGeom, tTopo,mMagneticFieldStrength,4);//trkPtr->getStubPtConsis
+    if(trk_bstubPt>BendConsistency)continue;
     if(doTightChi2 && (iterL1Track->getMomentum(L1Tk_nPar).perp()>20 && chi2ndof>5))continue;
     int tmp_trk_nstubPS = 0;
     for (unsigned int istub=0; istub<(unsigned int)theStubs.size(); istub++) {
