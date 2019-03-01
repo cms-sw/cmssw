@@ -3,7 +3,6 @@
 
 #include "RecoBTag/FeatureTools/interface/deep_helpers.h"
 #include "RecoBTag/FeatureTools/interface/TrackInfoBuilder.h"
-//#include "TrackInfoBuilder.h"
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -41,15 +40,12 @@ namespace btagbtvdeep {
                                             
                                             ) 
       {
-            
-            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
             GlobalVector jetdirection(jet.px(),jet.py(),jet.pz());
             GlobalPoint pvp(pv.x(),pv.y(),pv.z());
                         
             std::vector<reco::TransientTrack> selectedTracks;          
             std::vector<float> masses;
-                
-            //if primary: build transient tracks form packedCandidates
                 
             for(typename edm::View<pat::PackedCandidate>::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
                 
@@ -60,9 +56,10 @@ namespace btagbtvdeep {
                             selectedTracks.push_back(track_builder->build(tracks->ptrAt(k)));
                             masses.push_back(tracks->ptrAt(k)->mass());
                             
+                            
                         }
                     }
-                }
+            }
                 
             std::multimap<double,std::pair<btagbtvdeep::SeedingTrackInfoBuilder,std::vector<btagbtvdeep::TrackPairFeatures>>> SortedSeedsMap;
             std::multimap<double,btagbtvdeep::TrackPairInfoBuilder> SortedNeighboursMap;
@@ -87,13 +84,11 @@ namespace btagbtvdeep {
                 if (closest.isValid()) length=(closest.globalPosition() - pvp).mag();
                 
                 if (!(ip.first && ip.second.value() >= 0.0 && ip.second.significance() >= 1.0 && ip.second.value() <= 9999. && ip.second.significance() <= 9999. &&
-                    it->track().normalizedChi2()<5. && std::fabs(it->track().dxy(pv.position())) < 2 && std::fabs(it->track().dz(pv.position())) < 17 && jet_dist.second.value()<0.07 && length<5. )) continue;
-                
+                    it->track().normalizedChi2()<5. && std::fabs(it->track().dxy(pv.position())) < 2 && std::fabs(it->track().dz(pv.position())) < 17 && jet_dist.second.value()<0.07 && length<5. )) continue;                
                 
                 
                 btagbtvdeep::SeedingTrackInfoBuilder seedInfo;
-                seedInfo.buildSeedingTrackInfo(&(*it), pv, jet /*jetdirection*/, masses[it-selectedTracks.begin()], m_probabilityEstimator, m_computeProbabilities);
-                
+                seedInfo.buildSeedingTrackInfo(&(*it), pv, jet, masses[it-selectedTracks.begin()], m_probabilityEstimator, m_computeProbabilities);
                 
                 for(std::vector<reco::TransientTrack>::const_iterator tt = selectedTracks.begin();tt!=selectedTracks.end(); ++tt )   {
 
@@ -105,11 +100,10 @@ namespace btagbtvdeep {
                 SortedNeighboursMap.insert(std::make_pair(trackPairInfo.get_pca_distance(), trackPairInfo));
                     
                 }
-                
       
                 int max_counter=0;
                 
-                for(std::multimap<double,btagbtvdeep::TrackPairInfoBuilder>::const_iterator im = SortedNeighboursMap.begin(); im != SortedNeighboursMap.end(); im++){            
+                for(std::multimap<double,btagbtvdeep::TrackPairInfoBuilder>::const_iterator im = SortedNeighboursMap.begin(); im != SortedNeighboursMap.end(); im++){       
                 
                                 
                     if(max_counter>=20) break;
@@ -197,7 +191,7 @@ namespace btagbtvdeep {
                 seed_features.seed_2D_signedSip=(N+log(fabs(im->second.first.get_sip2d_Signed())))*((im->second.first.get_sip2d_Signed() < 0) ? -1 : (im->second.first.get_sip2d_Signed() > 0));
                 seed_features.seed_3D_TrackProbability=im->second.first.get_trackProbability3D();
                 seed_features.seed_2D_TrackProbability=im->second.first.get_trackProbability2D();
-                seed_features.seed_chi2reduced=im->second.first.get_chi2reduced();//log(im->second.first.get_chi2reduced());
+                seed_features.seed_chi2reduced=im->second.first.get_chi2reduced();
                 seed_features.seed_nPixelHits=im->second.first.get_nPixelHits();
                 seed_features.seed_nHits=im->second.first.get_nHits();
                 seed_features.seed_jetAxisDistance=log(im->second.first.get_jetAxisDistance());
@@ -206,8 +200,7 @@ namespace btagbtvdeep {
         
                 max_counter_seed=max_counter_seed+1;
                 seedingT_features_vector.push_back(seed_features);
-                
-                //std::cout<<"at end of filling"<<seedingT_features_vector.size()<<std::endl;
+
                 
             }
             
@@ -222,18 +215,14 @@ namespace btagbtvdeep {
                     seed_features_zeropad.seed_nearTracks=tp_features_zeropad;
                     seedingT_features_vector.push_back(seed_features_zeropad);
                     
-                }
+                }    
                 
-            }
-                        
-            
-            //std::cout<<"at end of refilling"<<seedingT_features_vector.size()<<std::endl;
+            }          
           
-            
     }
       
 };
     
 }
 
-#endif //RecoSV_DeepFlavour_SeedingTracksConverter_h
+#endif //RecoBTag_FeatureTools_SeedingTracksConverter_h

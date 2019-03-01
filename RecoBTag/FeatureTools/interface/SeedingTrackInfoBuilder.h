@@ -1,5 +1,5 @@
-#ifndef RecoBTag_DeepFlavour_SeedingTrackInfoBuilder_h
-#define RecoBTag_DeepFlavour_SeedingTrackInfoBuilder_h
+#ifndef RecoBTag_FeatureTools_SeedingTrackInfoBuilder_h
+#define RecoBTag_FeatureTools_SeedingTrackInfoBuilder_h
 
 #include "DataFormats/GeometrySurface/interface/Line.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -42,8 +42,6 @@ public:
 
 
 {
-
-
 }
 
     void buildSeedingTrackInfo(const reco::TransientTrack * it , const reco::Vertex & pv,  const reco::Jet & jet,/*GlobalVector jetdirection,*/ float mass, 
@@ -57,14 +55,12 @@ public:
         phi_=it->track().phi();
         dz_=it->track().dz(pv.position());
         dxy_=it->track().dxy(pv.position());
-        mass_=mass;
-        
+        mass_=mass;        
         
         std::pair<bool,Measurement1D> ipSigned = IPTools::signedImpactParameter3D(*it,jetdirection, pv);        
         std::pair<bool,Measurement1D> ip2dSigned = IPTools::signedTransverseImpactParameter(*it,jetdirection, pv);  
         std::pair<bool,Measurement1D> ip = IPTools::absoluteImpactParameter3D(*it, pv);        
-        std::pair<bool,Measurement1D> ip2d = IPTools::absoluteTransverseImpactParameter(*it, pv);
-        
+        std::pair<bool,Measurement1D> ip2d = IPTools::absoluteTransverseImpactParameter(*it, pv);        
         
         ip3D_=ip.second.value();
         sip3D_=ip.second.significance();
@@ -92,8 +88,6 @@ public:
         if (m_computeProbabilities) {
             
             //probability with 3D ip
-            //std::cout<<"compute probability"<<std::endl;
-                        
             std::pair<bool,double> probability = m_probabilityEstimator->probability(false,0,ip.second.significance(),it->track(),jet,pv);
             double prob3D=(probability.first ? probability.second : -1.);
                         
@@ -102,10 +96,7 @@ public:
             double prob2D=(probability.first ? probability.second : -1.);
                                 
             trackProbability3D_=prob3D;
-            trackProbability2D_=prob2D;  
-
-            //std::cout<<"my probability "<<prob3D<<" my probability "<<prob2D<<" jet "<<jet.pt()<<jet.eta()<<jet.phi()<<jet.mass()<<std::endl;
-            
+            trackProbability2D_=prob2D;            
             
         } 
         
@@ -116,8 +107,6 @@ public:
     }
     
     
-    // esempio per controllo
-   
     const float get_pt() const {return pt_;}
     const float get_eta() const {return eta_;}
     const float get_phi() const {return phi_;}
@@ -138,9 +127,7 @@ public:
     const float get_jetAxisDistance() const {return jetAxisDistance_;}
     const float get_jetAxisDlength() const {return jetAxisDlength_;}
     const float get_trackProbability3D() const {return trackProbability3D_;}
-    const float get_trackProbability2D() const {return trackProbability2D_;}
-   
-    
+    const float get_trackProbability2D() const {return trackProbability2D_;}   
 
 
 private:
@@ -170,7 +157,6 @@ private:
     
 
 };
-
 }
 
-#endif //RecoBTag_DeepFlavour_SeedingTrackInfoBuilder_h 
+#endif //RecoBTag_FeatureTools_SeedingTrackInfoBuilder_h 
