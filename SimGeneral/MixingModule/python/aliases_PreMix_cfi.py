@@ -56,3 +56,13 @@ fastSim.toModify(simSiStripDigis, mix = None)
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(simCastorDigis, mix = None)
+
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(
+    simSiPixelDigis,
+    mix = cms.VPSet(
+        cms.PSet(type = cms.string('PixelDigiedmDetSetVector')),
+        cms.PSet(type = cms.string('PixelDigiSimLinkedmDetSetVector')),
+        cms.PSet(type = cms.string('PixelFEDChanneledmNewDetSetVector'))
+        )
+    )

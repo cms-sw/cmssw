@@ -87,3 +87,13 @@ from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 (~phase2_hfnose).toModify(simHFNoseUnsuppressedDigis, mix = None)
+
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(
+    simSiPixelDigis,
+    mix = cms.VPSet(
+        cms.PSet(type = cms.string('PixelDigiedmDetSetVector')),
+        cms.PSet(type = cms.string('PixelDigiSimLinkedmDetSetVector')),
+        cms.PSet(type = cms.string('PixelFEDChanneledmNewDetSetVector'))
+        )
+    )
