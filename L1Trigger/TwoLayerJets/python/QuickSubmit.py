@@ -4,7 +4,7 @@ import sys
 #i=0;
 #for i in range(2,1000):
 #for i in range(50,150):
-for i in range(10,11):
+for i in range(10,50):
 	# Lxplus Batch Job Script
 	'''
 	f=open("bsub%d.sh" %i, 'w')
