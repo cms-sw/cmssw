@@ -15,6 +15,7 @@ class PFAlgo3 : public PFAlgoBase {
         bool useTrackCaloSigma_, rescaleUnmatchedTrack_, caloTrkWeightedAverage_;
         enum TkCaloLinkMetric { BestByDR=0, BestByDRPt=1, BestByDR2Pt2=2 };
         float drMatchEm_, ptMinFracMatchEm_, drMatchEmHad_;
+        float emHadSubtractionPtSlope_;
         TkCaloLinkMetric tkCaloLinkMetric_;
         bool caloReLinkStep_; float caloReLinkDr_, caloReLinkThreshold_;
         bool rescaleTracks_, sumTkCaloErr2_, ecalPriority_, trackEmUseAlsoTrackSigma_, emCaloUseAlsoCaloSigma_;

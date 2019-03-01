@@ -43,6 +43,7 @@ PFAlgo3::PFAlgo3( const edm::ParameterSet & iConfig ) :
     emCaloUseAlsoCaloSigma_ = linkcfg.getParameter<bool>("emCaloUseAlsoCaloSigma");
     ptMinFracMatchEm_ = linkcfg.getParameter<double>("caloEmPtMinFrac");
     drMatchEmHad_ = linkcfg.getParameter<double>("emCaloDR");
+    emHadSubtractionPtSlope_ = linkcfg.getParameter<double>("emCaloSubtractionPtSlope");
     caloReLinkStep_ = linkcfg.getParameter<bool>("caloReLink");
     caloReLinkDr_ = linkcfg.getParameter<double>("caloReLinkDR");
     caloReLinkThreshold_ = linkcfg.getParameter<double>("caloReLinkThreshold");
@@ -330,8 +331,8 @@ void PFAlgo3::sub_em2calo(Region & r, const std::vector<int> & em2calo) const {
             if (em2calo[iem] == ic) {
                 const auto & em = r.emcalo[iem];
                 if (em.isEM) {
-                    if (debug_) printf("PFAlgo3 \t EM    %3d (pt %7.2f) is  subtracted from calo %3d (pt %7.2f)\n", iem, em.floatPt(), ic, calo.floatPt());
-                    pt  -= em.floatPt();
+                    if (debug_) printf("PFAlgo3 \t EM    %3d (pt %7.2f) is  subtracted from calo %3d (pt %7.2f) scaled by %.3f (deltaPt = %7.2f)\n", iem, em.floatPt(), ic, calo.floatPt(), emHadSubtractionPtSlope_, emHadSubtractionPtSlope_ * em.floatPt());
+                    pt  -= emHadSubtractionPtSlope_ * em.floatPt();
                     ept -= em.floatPt();
                 } else {
                     keepme = true;

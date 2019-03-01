@@ -131,6 +131,7 @@ l1pfProducerHGCal = l1pfProducer.clone(
         ),
     ),
 )
+l1pfProducerHGCal.linking.trackCaloDR = 0.1 # more precise cluster positions
 
 l1ParticleFlow_pf_hgcal = cms.Sequence(
     pfTracksFromL1TracksHGCal +   
@@ -183,12 +184,22 @@ l1pfCandidates = cms.EDProducer("L1TPFCandMultiMerger",
     labelsToMerge = cms.vstring("Calo", "TK", "TKVtx", "PF", "Puppi"),
 )
 
+l1PuppiCandidatesForMET = cms.EDFilter("L1TPFCandSelector",
+    src = cms.InputTag("l1pfCandidates:Puppi"),
+    cut = cms.string("charge != 0 ||"+
+                     "abs(eta) < 1.5 ||"+
+                     "(pt > 20 && abs(eta) < 2.5) ||"+
+                     "(pt > 40 && 2.5 <= abs(eta) <= 2.85) ||"+
+                     "(pt > 30 && abs(eta) > 3.0)")
+)
+
 l1ParticleFlow_proper = cms.Sequence(
     l1ParticleFlow_calo +
     l1ParticleFlow_pf_barrel +
     l1ParticleFlow_pf_hgcal +
     l1ParticleFlow_pf_hf +
     l1pfCandidates
+    + l1PuppiCandidatesForMET
 )
 
 l1ParticleFlow = cms.Sequence(l1ParticleFlow_prerequisites + l1ParticleFlow_proper)
