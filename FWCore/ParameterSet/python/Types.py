@@ -3,7 +3,7 @@ from .Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, 
 from .Mixins import _ValidatingParameterListBase, specialImportRegistry
 from .Mixins import saveOrigin
 from .ExceptionHandling import format_typename, format_outerframe
-
+from past.builtins import long
 
 import copy
 import math

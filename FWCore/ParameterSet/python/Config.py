@@ -629,10 +629,7 @@ class Process(object):
                 self.extend(item)
 
         #now create a sequence that uses the newly made items
-        for name in seqs.iterkeys():
-            seq = seqs[name]
-            #newSeq = seq.copy()
-            #
+        for name,seq in six.iteritems(seqs):
             if id(seq) not in self._cloneToObjectDict:
                 self.__setattr__(name,seq)
             else:
@@ -642,8 +639,7 @@ class Process(object):
                 #now put in proper bucket
                 newSeq._place(name,self)
 
-        for name in tasksToAttach.iterkeys():
-            task = tasksToAttach[name]
+        for name, task in six.iteritems(tasksToAttach):
             self.__setattr__(name, task)
 
         #apply modifiers now that all names have been added
@@ -1298,11 +1294,11 @@ class _ParameterModifier(object):
         self.__args = args
     def __call__(self,obj):
         params = {}
-        for k in self.__args.iterkeys():
+        for k in six.iterkeys(self.__args):
             if hasattr(obj,k):
                 params[k] = getattr(obj,k)
         _modifyParametersFromDict(params, self.__args, self._raiseUnknownKey)
-        for k in self.__args.iterkeys():
+        for k in six.iterkeys(self.__args):
             if k in params:
                 setattr(obj,k,params[k])
             else:
@@ -1676,7 +1672,7 @@ if __name__=="__main__":
         def testProcessExtend(self):
             class FromArg(object):
                 def __init__(self,*arg,**args):
-                    for name in args.iterkeys():
+                    for name in six.iterkeys(args):
                         self.__dict__[name]=args[name]
 
             a=EDAnalyzer("MyAnalyzer")
