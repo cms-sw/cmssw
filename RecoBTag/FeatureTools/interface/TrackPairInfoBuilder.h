@@ -1,5 +1,5 @@
-#ifndef RecoBTag_DeepFlavour_TrackPairInfoBuilder_h
-#define RecoBTag_DeepFlavour_TrackPairInfoBuilder_h
+#ifndef RecoBTag_FeatureTools_TrackPairInfoBuilder_h
+#define RecoBTag_FeatureTools_TrackPairInfoBuilder_h
 
 #include "DataFormats/GeometrySurface/interface/Line.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -9,7 +9,6 @@
 
 namespace btagbtvdeep{
 
-// adapted from DeepNtuples
 class TrackPairInfoBuilder{
 public:
     TrackPairInfoBuilder():
@@ -70,11 +69,6 @@ public:
         
         VertexDistance3D distanceComputer;
         TwoTrackMinimumDistance dist;
-        
-//         if(*tt==*it) continue;
-//         if(std::fabs(pvp.z()-tt->track().vz())>0.1) continue;
-        
-        //mettere fuori dal builder
         
         if(dist.calculate(tt->impactPointState(),it->impactPointState())) {
             
@@ -156,18 +150,10 @@ public:
             pca_jetAxis_dEta_=std::fabs(PCA_pv.eta()-jetdirection.eta());
             pca_jetAxis_dPhi_=std::fabs(PCA_pv.phi()-jetdirection.phi());
 
-            
-    
-        
-        
-        //static_cast<float>// ??????????
-
 
     }
     }
-    
-    
-    // esempio per controllo
+
    
     const float get_track_pt() const {return track_pt_;}
     const float get_track_eta() const {return track_eta_;}
@@ -252,4 +238,4 @@ private:
 
 }
 
-#endif //RecoBTag_DeepFlavour_TrackPairInfoBuilder_h
+#endif //RecoBTag_FeatureTools_TrackPairInfoBuilder_h

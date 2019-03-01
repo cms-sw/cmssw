@@ -50,11 +50,11 @@ class DeepVertexTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCa
       kGlobal = 0,
       kSeedingTracks = 1,
       kNeighbourTracks = 2,
+      
     };
 
     enum OutputIndexes {
-      kJetFlavour = 0,
-      
+      kJetFlavour = 0,     
         
     };
     
@@ -206,8 +206,8 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
     }
 }
 
-////changes here:::///
-
+   //changes wrt to DeepFlavour from here
+   
   const int64_t n_jets = tag_infos->size();
   // either all jets or one per batch for the time being
   const int64_t n_batch_jets = batch_eval_ ? n_jets : 1;
@@ -242,7 +242,8 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
       input_names_[i], tensorflow::Tensor(tensorflow::DT_FLOAT, input_sizes.at(i)));
   }
   
-  // add learning-phase tensors behind them, can be useful next time
+  //can be useful if we use batchnorm
+  // add learning-phase tensors behind them
   //for (std::size_t i=0; i < lp_tensors_.size(); i++) {
   //input_tensors[input_sizes.size() + i] = tensorflow::NamedTensor(lp_names_[i], lp_tensors_[i]);
   // }  
@@ -268,61 +269,20 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
       input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 1) = (features.jet_features.eta);
       input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 2) = (features.jet_features.phi);
       input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 3) = (features.jet_features.mass);      
-      
-      //std::cout<<input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 0)<<" "<<input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 1)<<
-      //" "<<input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 2)<<" "<<input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 3)<<" "<<std::endl;
 
       // seed features
-      auto max_seed_n = std::min(features.seed_features.size(),
-        (std::size_t) input_sizes.at(kSeedingTracks).dim_size(1));
-      
-      //std::cout<<"what my size"<<" "<<max_seed_n<<" "<<std::min(features.seed_features.size(),
-      //(std::size_t) input_sizes.at(kSeedingTracks).dim_size(1))<<" "<<features.c_pf_features.size()<<" "<<features.seed_features.size()<<" "<<(std::size_t) input_sizes.at(kSeedingTracks).dim_size(1)<<std::endl;
+      auto max_seed_n = std::min(features.seed_features.size(), (std::size_t) input_sizes.at(kSeedingTracks).dim_size(1));
       
       for (std::size_t seed_n=0; seed_n < max_seed_n; seed_n++) {
         const auto & seed_features = features.seed_features.at(seed_n);
         
-        seed_tensor_filler(input_tensors.at(kSeedingTracks).second,
-                           jet_bn, seed_n, seed_features);
-        
-        auto max_neighbour_n = std::min(features.seed_features[seed_n].seed_nearTracks.size(),
-        (std::size_t) input_sizes.at(kNeighbourTracks).dim_size(1));
-        
-        //std::cout<<"what neighbours"<<" "<<(std::size_t) input_sizes.at(kNeighbourTracks).dim_size(1)<<" "<<features.seed_features[seed_n].seed_nearTracks.size()<<std::endl;
-        
+        seed_tensor_filler(input_tensors.at(kSeedingTracks).second, jet_bn, seed_n, seed_features);            
         neighbourTracks_tensor_filler(input_tensors.at(kNeighbourTracks+seed_n).second,  jet_bn, seed_n,  seed_features);
-        // neighbourTracks_tensor_filler(input_tensors.at(kNeighbourTracks-seed_n+9).second, jet_bn, 0, seed_features);
-            
-  
+     
       }
       
-    /*
-    std::cout<<"seedingtracks"<<std::endl;
-    
-    for (unsigned int f=0; f<10; f++){ 
-        for (unsigned int fj=0; fj<21; fj++){ 
-            std::cout<<input_tensors.at(kSeedingTracks).second.tensor<float, 3>()(jet_bn, f, fj)<<" ";}
-        std::cout<<" "<<" "<<std::endl;  }
-     
-     
-    std::cout<<"first neighbour"<<std::endl;
-    
-    for (unsigned int f=0; f<20; f++){ 
-        for (unsigned int fj=0; fj<36; fj++){ 
-            std::cout<<input_tensors.at(kNeighbourTracks).second.tensor<float, 3>()(jet_bn, f, fj)<<" ";}
-        std::cout<<" "<<" "<<std::endl;  }
-
-
-    std::cout<<"second neighbour"<<std::endl;
-    
-    for (unsigned int f=0; f<20; f++){ 
-        for (unsigned int fj=0; fj<36; fj++){ 
-            std::cout<<input_tensors.at(kNeighbourTracks+1).second.tensor<float, 3>()(jet_bn, f, fj)<<" ";}
-        std::cout<<" "<<" "<<std::endl;  }
-	*/
-        
-    }////different
-
+   
+    }//different block
 
     // run the session
     std::vector<tensorflow::Tensor> outputs;
@@ -347,14 +307,9 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
     }
   }  
   
-  
-
-/////
-
-
 
   for (std::size_t i=0; i < flav_pairs_.size(); i++) {
-    iEvent.put(std::move(output_tags[i]), flav_pairs_.at(i).first);
+      iEvent.put(std::move(output_tags[i]), flav_pairs_.at(i).first);
   }
 
 }
