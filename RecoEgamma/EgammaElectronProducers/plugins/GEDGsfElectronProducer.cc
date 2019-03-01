@@ -132,23 +132,18 @@ void GEDGsfElectronProducer::matchWithPFCandidates(edm::Event & event)
   }
 }
 
-void GEDGsfElectronProducer::setMVAOutputs(reco::GsfElectronCollection & electrons,
-                                    const gsfAlgoHelpers::HeavyObjectCache* hoc,
-                                    const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs,
-                                    reco::VertexCollection const& vertices) const
+
+void GEDGsfElectronProducer::setMVAOutputs(reco::GsfElectronCollection& electrons,
+                                           const gsfAlgoHelpers::HeavyObjectCache* hoc,
+                                           const std::map<reco::GsfTrackRef, reco::GsfElectron::MvaOutput>& mvaOutputs,
+                                           reco::VertexCollection const& vertices) const
 {
-  for( auto el = electrons.begin() ; el != electrons.end() ; el++ ) {
-    if(strategyCfg_.gedElectronMode==true) {
-      float mva_NIso_Value=	hoc->sElectronMVAEstimator->mva( *el, vertices);
-      float mva_Iso_Value =   hoc->iElectronMVAEstimator->mva( *el, vertices.size() );
-      GsfElectron::MvaOutput mvaOutput ;
-      mvaOutput.mva_e_pi = mva_NIso_Value ;
-      mvaOutput.mva_Isolated = mva_Iso_Value ;
-      el->setMvaOutput(mvaOutput);
-    }
-    else {
-      el->setMvaOutput(mvaOutputs.find(el->gsfTrack())->second);
-    }
+  for (auto el = electrons.begin(); el != electrons.end(); el++) {
+    float mva_NIso_Value = hoc->sElectronMVAEstimator->mva(*el, vertices);
+    float mva_Iso_Value = hoc->iElectronMVAEstimator->mva(*el, vertices.size());
+    GsfElectron::MvaOutput mvaOutput;
+    mvaOutput.mva_e_pi = mva_NIso_Value;
+    mvaOutput.mva_Isolated = mva_Iso_Value;
+    el->setMvaOutput(mvaOutput);
   }
 }
-
