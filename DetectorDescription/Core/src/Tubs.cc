@@ -25,11 +25,11 @@ DDI::Tubs::Tubs(double zhalf,
 
 void DDI::Tubs::stream(std::ostream & os) const
 {
-  os << " zhalf=" << CONVERT_UNITS_TO( p_[0], cm )
-     << " rIn=" << CONVERT_UNITS_TO( p_[1], cm )
-     << " rOut=" << CONVERT_UNITS_TO( p_[2], cm )
-     << " startPhi=" << CONVERT_UNITS_TO( p_[3], deg )
-     << " deltaPhi=" << CONVERT_UNITS_TO( p_[4], deg );
+  os << " zhalf=" << convertMmToCm( p_[0] )
+     << " rIn=" << convertMmToCm( p_[1] )
+     << " rOut=" << convertMmToCm( p_[2] )
+     << " startPhi=" << convertRadToDeg( p_[3] )
+     << " deltaPhi=" << convertRadToDeg( p_[4] );
 }
 					
 double DDI::Tubs::volume() const
@@ -38,7 +38,7 @@ double DDI::Tubs::volume() const
    double z=2.*p_[0];
    double rIn=p_[1];
    double rOut=p_[2];
-   double phi = CONVERT_UNITS_TO( p_[4], rad );
+   double phi = p_[4];
 
    double volume1=1_pi*rIn*rIn*z;
    double volume2=1_pi*rOut*rOut*z;

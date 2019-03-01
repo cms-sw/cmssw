@@ -33,8 +33,8 @@ static long algorithm( Detector& /* description */,
  
   LogDebug("DDAlgorithm") << "DDLinear: Parameters for positioning:: n "
 			  << n << "  Direction Theta, Phi, Delta "
-			  << CONVERT_UNITS_TO( theta, deg ) << " " 
-			  << CONVERT_UNITS_TO( phi, deg ) << " " << CONVERT_UNITS_TO( delta, deg )
+			  << convertRadToDeg( theta ) << " " 
+			  << convertRadToDeg( phi ) << " " << convertRadToDeg( delta )
 			  << " Base " << base[0]
 			  << ", " << base[1] << ", " << base[2];
 

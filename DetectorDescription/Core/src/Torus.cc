@@ -29,11 +29,11 @@ DDI::Torus::Torus( double pRMin,
 
 void DDI::Torus::stream(std::ostream & os) const
 {
-  os << " rMin=" << CONVERT_UNITS_TO( p_[0], cm )
-     << " rMax=" << CONVERT_UNITS_TO( p_[1], deg )
-     << " rTor=" << CONVERT_UNITS_TO( p_[2], deg )
-     << " sPhi=" << CONVERT_UNITS_TO( p_[3], cm )
-     << " dPhi=" << CONVERT_UNITS_TO( p_[4], cm );
+  os << " rMin=" << convertMmToCm( p_[0] )
+     << " rMax=" << convertRadToDeg( p_[1] )
+     << " rTor=" << convertRadToDeg( p_[2] )
+     << " sPhi=" << convertMmToCm( p_[3] )
+     << " dPhi=" << convertMmToCm( p_[4] );
 }
 
 double DDI::Torus::volume() const
@@ -44,7 +44,7 @@ double DDI::Torus::volume() const
   
   // From Geant4: { fCubicVolume = fDPhi*pi*fRtor*(fRmax*fRmax-fRmin*fRmin);
   
-  volume = p_[4]*_pi*p_[2]*(p_[1]*p_[1]-p_[0]*p_[0]);
+  volume = p_[4] * piRadians * p_[2] * (p_[1] * p_[1] - p_[0] * p_[0]);
   
   return volume;
 }

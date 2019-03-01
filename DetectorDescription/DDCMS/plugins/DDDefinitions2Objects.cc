@@ -1169,8 +1169,8 @@ template <> void Converter<DDLDivision>::operator()( xml_h element ) const {
   TClass* cl = shape->IsA();
   if(  cl == TGeoTubeSeg::Class()) {
     const TGeoTubeSeg* sh = ( const TGeoTubeSeg* )shape;
-    double widthInDeg = CONVERT_UNITS_TO( width, deg );
-    double startInDeg = CONVERT_UNITS_TO( offset, deg );
+    double widthInDeg = convertRadToDeg( width );
+    double startInDeg = convertRadToDeg( offset );
     int numCopies = ( int )(( sh->GetPhi2() - sh->GetPhi1())/ widthInDeg );
     printout( ns.context()->debug_placements ? ALWAYS : DEBUG,
 	      "DD4CMS","+++    ...divide %s along %s (%d) with offset %6.3f deg and %6.3f deg to produce %d copies",

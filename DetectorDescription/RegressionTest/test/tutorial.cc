@@ -102,9 +102,9 @@ void goPersistent(const DDCompactView & cv, const std::string& file) {
       int copyno = g.edgeData(eit->second)->copyno();
       double x,y,z;
       
-      x = CONVERT_UNITS_TO( g.edgeData(eit->second)->trans().x(), mm );
-      y = CONVERT_UNITS_TO( g.edgeData(eit->second)->trans().y(), mm );
-      z = CONVERT_UNITS_TO( g.edgeData(eit->second)->trans().z(), mm );
+      x = g.edgeData(eit->second)->trans().x();
+      y = g.edgeData(eit->second)->trans().y();
+      z = g.edgeData(eit->second)->trans().z();
       f << node << " " << eindex << " " << copyno 
         << " " << x << " " << y << " " << z 
 	<< " " << g.edgeData(eit->second)->ddrot().ddname().ns()
@@ -148,7 +148,7 @@ void dumpHistory(const DDGeoHistory & h, bool short_dump=false)
     if (!short_dump) { 
       DDAxisAngle ra(h[i].absRotation());
       std::cout  << h[i].absTranslation() 
-		 << ra.Axis() << CONVERT_UNITS_TO( ra.Angle(), deg );
+		 << ra.Axis() << convertRadToDeg( ra.Angle() );
     }	  
   }
 }
@@ -499,12 +499,12 @@ void tutorial()
 	  {	 
 	    DDAxisAngle   aa(fv.rotation());
 	    std::cout << "rotation: axis=" << aa.Axis() 
-		      << " angle=" << CONVERT_UNITS_TO( aa.Angle(), deg ) << std::endl << std::endl;
+		      << " angle=" << convertRadToDeg( aa.Angle() ) << std::endl << std::endl;
 	  }
 	  std::cout << "sibling-stack=" << fv.navPos() << std::endl << std::endl;
 	  std::cout << "material=" << fv.logicalPart().material().ddname() << std::endl;
 	  std::cout << "solid=" << fv.logicalPart().solid().ddname() <<
-	    " volume[m3]=" << CONVERT_UNITS_TO( fv.logicalPart().solid().volume(), m3 ) << std::endl;
+	    " volume[m3]=" << convertMm3ToM3(fv.logicalPart().solid().volume()) << std::endl;
 	  break;
 	case 'e':
 	  break;	 
@@ -611,4 +611,3 @@ void tutorial()
     dumpHistory(exx.geoHistory());
   }
 }
-

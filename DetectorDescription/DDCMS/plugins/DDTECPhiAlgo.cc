@@ -29,8 +29,8 @@ static long algorithm(Detector& /* description */,
 
   LogDebug("TECGeom") << "debug: Parameters for "
 		      << "positioning--" << "\tStartAngle " 
-		      << CONVERT_UNITS_TO( startAngle, deg ) << "\tIncrAngle " 
-		      << CONVERT_UNITS_TO( incrAngle, deg ) << "\tZ in/out " << zIn << ", " 
+		      << convertRadToDeg( startAngle ) << "\tIncrAngle " 
+		      << convertRadToDeg( incrAngle ) << "\tZ in/out " << zIn << ", " 
 		      << zOut 	      << "\tCopy Numbers " << number 
 		      << " Start/Increment " << startCopyNo << ", " 
 		      << incrCopyNo;

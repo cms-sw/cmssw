@@ -52,11 +52,11 @@ CSCLayerGeometry::CSCLayerGeometry( const CSCGeometry* geom, int iChamberType,
 
   if ( ! geom->realWireGeometry() ) {
     // Approximate ORCA_8_8_0 and earlier calculated geometry...
-    float wangler = wireAngleInDegrees * 1.0_deg; // convert angle to radians
+    float wangler = convertDegToRad( wireAngleInDegrees );
     float wireCos = cos(wangler);
     float wireSin = sin(wangler);
     float y2 = apothem * wireCos + hBottomEdge * fabs(wireSin);
-    float wireSpacing = CONVERT_UNITS_TO( wg.wireSpacing, cm );
+    float wireSpacing = convertMmToCm( wg.wireSpacing );
     float wireOffset = -y2 + wireSpacing/2.;
     yOfFirstWire = wireOffset/wireCos;
   }

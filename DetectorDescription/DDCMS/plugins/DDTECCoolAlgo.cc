@@ -30,7 +30,7 @@ static long algorithm(Detector& /* description */,
     for (int i=0; i<(int)(phiPosition.size()); i++)   {
       LogDebug("TECGeom") << "debug: Insert[" << i << "]: "
 			  << coolInsert.at(i) << " at Phi " 
-			  << CONVERT_UNITS_TO( phiPosition.at(i), deg );
+			  << convertRadToDeg( phiPosition.at(i) );
     }
   }
   else {
@@ -50,7 +50,7 @@ static long algorithm(Detector& /* description */,
     LogDebug("TECGeom") << "test " << child.name() << "["  
                         << copyNo << "] positioned in " << mother.name()
                         << " at " << tran
-                        << " phi " << CONVERT_UNITS_TO( phiPosition.at(i), deg ) << " r " 
+                        << " phi " << convertRadToDeg( phiPosition.at(i) ) << " r " 
                         << rPosition;
     copyNo++;
   }

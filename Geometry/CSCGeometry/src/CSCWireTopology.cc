@@ -34,13 +34,13 @@ CSCWireTopology::CSCWireTopology(
 
   const float zeroprecision = 1.E-06; // blur zero a bit, for comparisons
 
-  float wireAngleInRadians = wireAngleInDegrees * 1._deg;
+  float wireAngleInRadians = convertDegToRad( wireAngleInDegrees );
 
   //@@ Conversion from mm to cm
-  float wireSpacing = CONVERT_UNITS_TO( wg.wireSpacing,            cm );
-  float nw =          CONVERT_UNITS_TO( wg.narrowWidthOfWirePlane, cm );
-  float ww =          CONVERT_UNITS_TO( wg.wideWidthOfWirePlane,   cm );
-  float lw =          CONVERT_UNITS_TO( wg.lengthOfWirePlane,      cm );
+  float wireSpacing = convertMmToCm( wg.wireSpacing );
+  float nw =          convertMmToCm( wg.narrowWidthOfWirePlane );
+  float ww =          convertMmToCm( wg.wideWidthOfWirePlane );
+  float lw =          convertMmToCm( wg.lengthOfWirePlane );
 
    LogTrace("CSCWireTopology|CSC") <<  
        "CSCWireTopology constructing CSCWireGeometry with:\n" <<

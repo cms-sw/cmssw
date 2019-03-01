@@ -30,9 +30,9 @@ static long  algorithm(dd4hep::Detector& /* description */,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Parameters for positioning::"
 			       << " n " << n << " Start, Range, Delta " 
-			       << CONVERT_UNITS_TO( startAngle, deg ) << " " 
-			       << CONVERT_UNITS_TO( rangeAngle, deg ) << " " 
-			       << CONVERT_UNITS_TO( dphi, deg )
+			       << convertRadToDeg( startAngle ) << " " 
+			       << convertRadToDeg( rangeAngle ) << " " 
+			       << convertRadToDeg( dphi )
 			       << " Shift " << shiftX << ":" << shiftY
 			       << "\n Parent " << mother.name() 
 			       << "\tChild " << child.name() 
