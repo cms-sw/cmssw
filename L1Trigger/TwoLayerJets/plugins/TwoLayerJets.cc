@@ -356,6 +356,7 @@ void TwoLayerJets::L2_cluster(vector< Ptr< L1TTTrackType > > L1TrackPtrs, vector
        phi = phi + phistep;
    } //for each phibin (finished creating epbins)
   mzb = all_zbins[0];
+  etaphibin *L1clusters[nphibins];
 
 for(int zbin = 0; zbin < Zbins-1; ++zbin){
   
@@ -393,7 +394,6 @@ for(int zbin = 0; zbin < Zbins-1; ++zbin){
       }//for each phibin: i loop
     }
   //  etaphibin ** L1clusters = (etaphibin**)malloc(nphibins*sizeof(etaphibin*));
-      etaphibin *L1clusters[nphibins];
                 for(int phislice = 0; phislice < nphibins; ++phislice){
       L1clusters[phislice] = L1_cluster(epbins[phislice]);
       for(int ind = 0; L1clusters[phislice][ind].pTtot != 0; ++ind){
