@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// input: L1 TkTracks and  L1MuonParticleExtended (standalone with component details)
+// input: L1 TkTracks and  L1Muon
 // match the two and produce a collection of L1TkGlbMuonParticle
 // eventually, this should be made modular and allow to swap out different algorithms
 
@@ -45,12 +45,12 @@ using namespace l1t;
 
 class L1TkGlbMuonProducer : public edm::EDProducer {
 public:
-  
+
   typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TTTrackType;
   typedef std::vector< L1TTTrackType > L1TTTrackCollectionType;
-  
+
   struct PropState { //something simple, imagine it's hardware emulation
-    PropState() : 
+    PropState() :
       pt(-99),  eta(-99), phi(-99),
       sigmaPt(-99),  sigmaEta(-99), sigmaPhi(-99),
       valid(false) {}
@@ -66,21 +66,23 @@ public:
 
   explicit L1TkGlbMuonProducer(const edm::ParameterSet&);
   ~L1TkGlbMuonProducer();
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
   PropState propagateToGMT(const L1TTTrackType& l1tk) const;
-  
+  double sigmaEtaTP(const Muon& mu) const;
+  double sigmaPhiTP(const Muon& mu) const;
+
   float ETAMIN_;
   float ETAMAX_;
   float ZMAX_;             // |z_track| < ZMAX in cm
   float CHI2MAX_;
   float PTMINTRA_;
   //  float DRmax_;
-  int nStubsmin_ ;         // minimum number of stubs   
+  int nStubsmin_ ;         // minimum number of stubs
   //  bool closest_ ;
   bool correctGMTPropForTkZ_;
 
@@ -120,13 +122,13 @@ L1TkGlbMuonProducer::~L1TkGlbMuonProducer() {
 // ------------ method called to produce the data  ------------
 void
 L1TkGlbMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{  
-  
+{
+
   std::unique_ptr<L1TkGlbMuonParticleCollection> tkMuons(new L1TkGlbMuonParticleCollection);
-  
+
   // the L1EGamma objects
   edm::Handle<MuonBxCollection> l1musH;
-  iEvent.getByToken(muToken, l1musH);  
+  iEvent.getByToken(muToken, l1musH);
   const MuonBxCollection l1mus = (*l1musH.product());
   MuonBxCollection::const_iterator l1mu;
 
@@ -143,7 +145,7 @@ L1TkGlbMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     float l1mu_eta = l1mu->eta();
     float l1mu_phi = l1mu->phi();
-    
+
     float l1mu_feta = fabs( l1mu_eta );
     if (l1mu_feta < ETAMIN_) continue;
     if (l1mu_feta > ETAMAX_) continue;
@@ -152,14 +154,14 @@ L1TkGlbMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float drmin = 999;
     float ptmax = -1;
     if (ptmax < 0) ptmax = -1;	// dummy
-    
+
     PropState matchProp;
     int match_idx = -1;
     int il1tk = -1;
-   
+
     int nTracksMatch=0;
 
-    for (auto l1tk : l1tks ){
+    for (const auto& l1tk : l1tks ){
       il1tk++;
 
       unsigned int nPars = 4;
@@ -172,7 +174,7 @@ L1TkGlbMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       float l1tk_chi2 = l1tk.getChi2(nPars);
       if (l1tk_chi2 > CHI2MAX_) continue;
-      
+
       int l1tk_nstubs = l1tk.getStubRefs().size();
       if ( l1tk_nstubs < nStubsmin_) continue;
 
@@ -180,7 +182,7 @@ L1TkGlbMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       float l1tk_phi = l1tk.getMomentum(nPars).phi();
 
       float dr2 = deltaR2(l1mu_eta, l1mu_phi, l1tk_eta, l1tk_phi);
-      
+
       if (dr2 > 0.3) continue;
       nTracksMatch++;
 
@@ -188,60 +190,63 @@ L1TkGlbMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (!pstate.valid) continue;
 
       float dr2prop = deltaR2(l1mu_eta, l1mu_phi, pstate.eta, pstate.phi);
-      
+
       if (dr2prop < drmin){
-	drmin = dr2prop;
-	match_idx = il1tk;
-	matchProp = pstate;
+        drmin = dr2prop;
+        match_idx = il1tk;
+        matchProp = pstate;
       }
     }// over l1tks
 
-    
+
     LogDebug("MYDEBUG")<<"matching index is "<<match_idx;
     if (match_idx >= 0){
       const L1TTTrackType& matchTk = l1tks[match_idx];
-      
+
       //float etaCut = 3.*sqrt(l1mu->hwDEtaExtra()*l1mu->hwDEtaExtra() + matchProp.sigmaEta*matchProp.sigmaEta);
       //float phiCut = 4.*sqrt(l1mu->hwDPhiExtra()*l1mu->hwDPhiExtra() + matchProp.sigmaPhi*matchProp.sigmaPhi);
-      float etaCut = 0.08;
-      float phiCut = 0.05;
+      float sigmaEta = sigmaEtaTP(*l1mu);
+      float sigmaPhi = sigmaPhiTP(*l1mu);
 
-      float dEta = std::abs(matchProp.eta - l1mu->eta());
-      float dPhi = std::abs(deltaPhi(matchProp.phi, l1mu->phi()));
+      float etaCut = 3.*sqrt(sigmaEta*sigmaEta + matchProp.sigmaEta*matchProp.sigmaEta);
+      float phiCut = 4.*sqrt(sigmaPhi*sigmaPhi + matchProp.sigmaPhi*matchProp.sigmaPhi);
+
+      float dEta = std::abs(matchProp.eta - l1mu_eta);
+      float dPhi = std::abs(deltaPhi(matchProp.phi, l1mu_phi));
 
       LogDebug("MYDEBUG")<<"match details: prop "<<matchProp.pt<<" "<<matchProp.eta<<" "<<matchProp.phi
 			 <<" mutk "<<l1mu->pt()<<" "<<l1mu->eta()<<" "<<l1mu->phi()<<" delta "<<dEta<<" "<<dPhi<<" cut "<<etaCut<<" "<<phiCut;
 
       if (dEta < etaCut && dPhi < phiCut){
-	edm::Ptr< L1TTTrackType > l1tkPtr(l1tksH, match_idx);
+        edm::Ptr< L1TTTrackType > l1tkPtr(l1tksH, match_idx);
 
-	unsigned int nPars = 4;
-	if (use5ParameterFit_) nPars = 5;
-	auto p3 = matchTk.getMomentum(nPars);
-	float p4e = sqrt(0.105658369*0.105658369 + p3.mag2() );
+        unsigned int nPars = 4;
+        if (use5ParameterFit_) nPars = 5;
+        auto p3 = matchTk.getMomentum(nPars);
+        float p4e = sqrt(0.105658369*0.105658369 + p3.mag2() );
 
-	math::XYZTLorentzVector l1tkp4(p3.x(), p3.y(), p3.z(), p4e);
+        math::XYZTLorentzVector l1tkp4(p3.x(), p3.y(), p3.z(), p4e);
 
-	auto tkv3=matchTk.getPOCA(nPars);
-	math::XYZPoint v3(tkv3.x(), tkv3.y(), tkv3.z());
-	float trkisol = -999;
+        auto tkv3=matchTk.getPOCA(nPars);
+        math::XYZPoint v3(tkv3.x(), tkv3.y(), tkv3.z());
+        float trkisol = -999;
 
-	L1TkGlbMuonParticle l1tkmu(l1tkp4, l1muRef, l1tkPtr, trkisol);
+        L1TkGlbMuonParticle l1tkmu(l1tkp4, l1muRef, l1tkPtr, trkisol);
 
-	// EP: add the zvtx information
-	l1tkmu.setTrkzVtx( (float)tkv3.z() );
-      l1tkmu.setdR(drmin);
-      l1tkmu.setNTracksMatched(nTracksMatch);
+        // EP: add the zvtx information
+        l1tkmu.setTrkzVtx( (float)tkv3.z() );
+        l1tkmu.setdR(drmin);
+        l1tkmu.setNTracksMatched(nTracksMatch);
 
-	tkMuons->push_back(l1tkmu);
+        tkMuons->push_back(l1tkmu);
       }
     }
 
   }//over l1mus
-  
-  
+
+
   iEvent.put( std::move(tkMuons));
-  
+
 }
 
 
@@ -303,6 +308,20 @@ L1TkGlbMuonProducer::PropState L1TkGlbMuonProducer::propagateToGMT(const L1TkGlb
   dest.sigmaEta = 0.100/tk_pt; //multiple scattering term
   dest.sigmaPhi = 0.106/tk_pt; //need a better estimate for these
   return dest;
+}
+
+double L1TkGlbMuonProducer::sigmaEtaTP(const Muon& l1mu) const
+{
+  float l1mu_eta = l1mu.eta();
+  if (std::abs(l1mu_eta) <= 1.55) return 0.0288;
+  else if (std::abs(l1mu_eta) > 1.55 && std::abs(l1mu_eta) <= 1.65) return 0.025;
+  else if (std::abs(l1mu_eta) > 1.65 && std::abs(l1mu_eta) <= 2.4) return 0.0144;
+  return 0.0288;
+}
+
+double L1TkGlbMuonProducer::sigmaPhiTP(const Muon& mu) const
+{
+  return 0.0126;
 }
 
 //define this as a plug-in

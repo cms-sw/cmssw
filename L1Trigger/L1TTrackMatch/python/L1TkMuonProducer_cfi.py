@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 L1TkMuons = cms.EDProducer("L1TkMuonProducer",
     ###############################################
-    ############################################### common stuff    
+    ############################################### common stuff
     L1BMTFInputTag  = cms.InputTag("simKBmtfDigis","BMTF"),
     L1OMTFInputTag  = cms.InputTag("simOmtfDigis","OMTF"),
     L1EMTFInputTag  = cms.InputTag("simEmtfDigis","EMTF"),
@@ -21,7 +21,7 @@ L1TkMuons = cms.EDProducer("L1TkMuonProducer",
     correctGMTPropForTkZ = cms.bool(True),
     use5ParameterFit = cms.bool(False), #use 4-pars by defaults
     # emtfMatchAlgoVersion = cms.int32( 1 ),        # version of matching EMTF with Trackes (1 or 2)
-    emtfMatchAlgoVersion = cms.string( 'DynamicWindows' ), # version of matching EMTF with Trackes (string ID) : TP, DynamicWindows
+    emtfMatchAlgoVersion = cms.string( 'TP' ), # version of matching EMTF with Trackes (string ID) : TP, DynamicWindows
     ###############################################
     ############################################### DynamicWindows algo
     ##### parameters for the DynamicWindows algo - eventually to put in a separate file, that will override some dummy defaults
@@ -49,3 +49,7 @@ L1TkMuons = cms.EDProducer("L1TkMuonProducer",
 
 
 )
+
+L1TkMuonsDynamicWindows = L1TkMuons.Clone(emtfMatchAlgoVersion='DynamicWindows')
+
+L1TkMuons = cms.Sequence(L1TkMuons * L1TkMuonsDynamicWindows)
