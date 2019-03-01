@@ -33,23 +33,20 @@ reco::GsfElectronCollection GsfElectronProducer::clonePreviousElectrons(edm::Eve
   reco::GsfElectronCollection electrons;
 
   auto coreElectrons = event.getHandle(inputCfg_.gsfElectronCores);
-  const GsfElectronCoreCollection * newCores = coreElectrons.product() ;
+  const GsfElectronCoreCollection* newCores = coreElectrons.product();
 
-  for( auto const& oldElectron : event.get(inputCfg_.previousGsfElectrons))
-   {
-    const GsfElectronCoreRef oldCoreRef = oldElectron.core() ;
-    const GsfTrackRef oldElectronGsfTrackRef = oldCoreRef->gsfTrack() ;
-    unsigned int icore ;
-    for ( icore=0 ; icore<newCores->size() ; ++icore )
-     {
-      if (oldElectronGsfTrackRef==(*newCores)[icore].gsfTrack())
-       {
-        const GsfElectronCoreRef coreRef = edm::Ref<GsfElectronCoreCollection>(coreElectrons,icore) ;
-        electrons.emplace_back(oldElectron,coreRef) ;
-        break ;
-       }
-     }
-   }
+  for (auto const& oldElectron : event.get(inputCfg_.previousGsfElectrons)) {
+    const GsfElectronCoreRef oldCoreRef = oldElectron.core();
+    const GsfTrackRef oldElectronGsfTrackRef = oldCoreRef->gsfTrack();
+    unsigned int icore;
+    for (icore = 0; icore < newCores->size(); ++icore) {
+      if (oldElectronGsfTrackRef == (*newCores)[icore].gsfTrack()) {
+        const GsfElectronCoreRef coreRef = edm::Ref<GsfElectronCoreCollection>(coreElectrons, icore);
+        electrons.emplace_back(oldElectron, coreRef);
+        break;
+      }
+    }
+  }
   return electrons;
 }
 
@@ -116,29 +113,28 @@ void GsfElectronProducer::checkPfTranslatorParameters( edm::ParameterSet const &
 
 
 // now deprecated
-void GsfElectronProducer::addPflowInfo(reco::GsfElectronCollection & electrons, edm::Event const& event) const
+void GsfElectronProducer::addPflowInfo(reco::GsfElectronCollection& electrons, edm::Event const& event) const
 {
   //Isolation Value Maps for PF and EcalDriven electrons
-  typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
+  typedef std::vector<edm::Handle<edm::ValueMap<double> > > IsolationValueMaps;
   IsolationValueMaps pfIsolationValues;
   IsolationValueMaps edIsolationValues;
 
   //Fill in the Isolation Value Maps for PF and EcalDriven electrons
   std::vector<edm::InputTag> inputTagIsoVals;
-  if(! inputCfg_.pfIsoVals.empty() ) {
+  if (!inputCfg_.pfIsoVals.empty()) {
     inputTagIsoVals.push_back(inputCfg_.pfIsoVals.getParameter<edm::InputTag>("pfSumChargedHadronPt"));
     inputTagIsoVals.push_back(inputCfg_.pfIsoVals.getParameter<edm::InputTag>("pfSumPhotonEt"));
     inputTagIsoVals.push_back(inputCfg_.pfIsoVals.getParameter<edm::InputTag>("pfSumNeutralHadronEt"));
 
     pfIsolationValues.resize(inputTagIsoVals.size());
 
-    for (size_t j = 0; j<inputTagIsoVals.size(); ++j) {
+    for (size_t j = 0; j < inputTagIsoVals.size(); ++j) {
       event.getByLabel(inputTagIsoVals[j], pfIsolationValues[j]);
     }
-
   }
 
-  if(! inputCfg_.edIsoVals.empty() ) {
+  if (!inputCfg_.edIsoVals.empty()) {
     inputTagIsoVals.clear();
     inputTagIsoVals.push_back(inputCfg_.edIsoVals.getParameter<edm::InputTag>("edSumChargedHadronPt"));
     inputTagIsoVals.push_back(inputCfg_.edIsoVals.getParameter<edm::InputTag>("edSumPhotonEt"));
@@ -146,105 +142,100 @@ void GsfElectronProducer::addPflowInfo(reco::GsfElectronCollection & electrons, 
 
     edIsolationValues.resize(inputTagIsoVals.size());
 
-    for (size_t j = 0; j<inputTagIsoVals.size(); ++j) {
+    for (size_t j = 0; j < inputTagIsoVals.size(); ++j) {
       event.getByLabel(inputTagIsoVals[j], edIsolationValues[j]);
     }
   }
 
-  bool found ;
+  bool found;
   auto edElectrons = event.getHandle(inputCfg_.previousGsfElectrons);
   auto pfElectrons = event.getHandle(inputCfg_.pflowGsfElectronsTag);
-  reco::GsfElectronCollection::const_iterator pfElectron, edElectron ;
-  unsigned int edIndex, pfIndex ;
+  reco::GsfElectronCollection::const_iterator pfElectron, edElectron;
+  unsigned int edIndex, pfIndex;
 
-  for(auto& el : electrons)
-   {
-
+  for (auto& el : electrons) {
     // Retreive info from pflow electrons
-    found = false ;
-    for
-     ( pfIndex = 0, pfElectron = pfElectrons->begin() ; pfElectron != pfElectrons->end() ; pfIndex++, pfElectron++ )
-     {
-      if (pfElectron->gsfTrack() == el.gsfTrack())
-       {
-        if (found)
-         {
-          edm::LogWarning("GsfElectronProducer")<<"associated pfGsfElectron already found" ;
-         }
-        else
-         {
-          found = true ;
+    found = false;
+    for (pfIndex = 0, pfElectron = pfElectrons->begin(); pfElectron != pfElectrons->end(); pfIndex++, pfElectron++) {
+      if (pfElectron->gsfTrack() == el.gsfTrack()) {
+        if (found) {
+          edm::LogWarning("GsfElectronProducer") << "associated pfGsfElectron already found";
+        } else {
+          found = true;
 
-        // Isolation Values
-        if( !(pfIsolationValues).empty() )
-        {
-          reco::GsfElectronRef pfElectronRef(pfElectrons, pfIndex);
-          reco::GsfElectron::PflowIsolationVariables isoVariables;
-          isoVariables.sumChargedHadronPt =(*(pfIsolationValues)[0])[pfElectronRef];
-          isoVariables.sumPhotonEt        =(*(pfIsolationValues)[1])[pfElectronRef];
-          isoVariables.sumNeutralHadronEt =(*(pfIsolationValues)[2])[pfElectronRef];
-          el.setPfIsolationVariables(isoVariables);
-        }
+          // Isolation Values
+          if (!(pfIsolationValues).empty()) {
+            reco::GsfElectronRef pfElectronRef(pfElectrons, pfIndex);
+            reco::GsfElectron::PflowIsolationVariables isoVariables;
+            isoVariables.sumChargedHadronPt = (*(pfIsolationValues)[0])[pfElectronRef];
+            isoVariables.sumPhotonEt = (*(pfIsolationValues)[1])[pfElectronRef];
+            isoVariables.sumNeutralHadronEt = (*(pfIsolationValues)[2])[pfElectronRef];
+            el.setPfIsolationVariables(isoVariables);
+          }
 
           // el.setPfIsolationVariables(pfElectron->pfIsolationVariables()) ;
-          el.setMvaInput(pfElectron->mvaInput()) ;
-          el.setMvaOutput(pfElectron->mvaOutput()) ;
-          if (el.ecalDrivenSeed())
-           { el.setP4(GsfElectron::P4_PFLOW_COMBINATION,pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION),false) ; }
-          else
-           { el.setP4(GsfElectron::P4_PFLOW_COMBINATION,pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION),true) ; }
-          double noCutMin = -999999999. ;
-          if (el.mva_e_pi()<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<el.mva_e_pi() ; }
-         }
-       }
-     }
+          el.setMvaInput(pfElectron->mvaInput());
+          el.setMvaOutput(pfElectron->mvaOutput());
+          if (el.ecalDrivenSeed()) {
+            el.setP4(GsfElectron::P4_PFLOW_COMBINATION, pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),
+                     pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION), false);
+          } else {
+            el.setP4(GsfElectron::P4_PFLOW_COMBINATION, pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),
+                     pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION), true);
+          }
+          double noCutMin = -999999999.;
+          if (el.mva_e_pi() < noCutMin) {
+            throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue") << "unexpected MVA value: " << el.mva_e_pi();
+          }
+        }
+      }
+    }
 
-   // Isolation Values
-   // Retreive not found info from ed electrons
-   if( !(edIsolationValues).empty() )
-   {
-     edIndex = 0, edElectron = edElectrons->begin() ;
-     while ((found == false)&&(edElectron != edElectrons->end()))
-     {
-        if (edElectron->gsfTrack() == el.gsfTrack())
-        {
-          found = true ;
+    // Isolation Values
+    // Retreive not found info from ed electrons
+    if (!(edIsolationValues).empty()) {
+      edIndex = 0, edElectron = edElectrons->begin();
+      while ((found == false) && (edElectron != edElectrons->end())) {
+        if (edElectron->gsfTrack() == el.gsfTrack()) {
+          found = true;
 
           // CONSTRUCTION D UNE REF dans le handle previousElectrons avec l'indice edIndex,
           // puis recuperation dans la ValueMap ED
 
           reco::GsfElectronRef edElectronRef(edElectrons, edIndex);
           reco::GsfElectron::PflowIsolationVariables isoVariables;
-          isoVariables.sumChargedHadronPt =(*(edIsolationValues)[0])[edElectronRef];
-          isoVariables.sumPhotonEt        =(*(edIsolationValues)[1])[edElectronRef];
-          isoVariables.sumNeutralHadronEt =(*(edIsolationValues)[2])[edElectronRef];
+          isoVariables.sumChargedHadronPt = (*(edIsolationValues)[0])[edElectronRef];
+          isoVariables.sumPhotonEt = (*(edIsolationValues)[1])[edElectronRef];
+          isoVariables.sumNeutralHadronEt = (*(edIsolationValues)[2])[edElectronRef];
           el.setPfIsolationVariables(isoVariables);
         }
 
-        edIndex++ ;
-        edElectron++ ;
-     }
-   }
+        edIndex++;
+        edElectron++;
+      }
+    }
 
-   // Preselection
-   setPflowPreselectionFlag(el) ;
-
-   }
+    // Preselection
+    setPflowPreselectionFlag(el);
+  }
 }
 
 
-void GsfElectronProducer::setPflowPreselectionFlag( GsfElectron & ele ) const
+void GsfElectronProducer::setPflowPreselectionFlag(GsfElectron& ele) const
 {
-  ele.setPassMvaPreselection(false) ;
+  ele.setPassMvaPreselection(false);
 
-  if (ele.core()->ecalDrivenSeed())
-   { if (ele.mvaOutput().mva_e_pi>=cutsCfg_.minMVA) ele.setPassMvaPreselection(true) ; }
-  else
-   { if (ele.mvaOutput().mva_e_pi>=cutsCfgPflow_.minMVA) ele.setPassMvaPreselection(true) ; }
+  if (ele.core()->ecalDrivenSeed()) {
+    if (ele.mvaOutput().mva_e_pi >= cutsCfg_.minMVA)
+      ele.setPassMvaPreselection(true);
+  } else {
+    if (ele.mvaOutput().mva_e_pi >= cutsCfgPflow_.minMVA)
+      ele.setPassMvaPreselection(true);
+  }
 
-  if (ele.passingMvaPreselection())
-   { LogTrace("GsfElectronAlgo") << "Main mva criterion is satisfied" ; }
+  if (ele.passingMvaPreselection()) {
+    LogTrace("GsfElectronAlgo") << "Main mva criterion is satisfied";
+  }
 
-  ele.setPassPflowPreselection(ele.passingMvaPreselection()) ;
-
+  ele.setPassPflowPreselection(ele.passingMvaPreselection());
 }
