@@ -42,11 +42,11 @@ LowPtGSFToPackedCandidateLinker::LowPtGSFToPackedCandidateLinker(const edm::Para
   pfcands_{consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PFCandidates"))},
   packed_{consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedCandidates"))},
   lost_tracks_{consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("lostTracks"))},
-	tracks_{consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))},
+  tracks_{consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))},
   pf2packed_{consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedCandidates"))},
   lost2trk_{consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("lostTracks"))},
   preid_{consumes<std::vector<reco::PreId> >(iConfig.getParameter<edm::InputTag>("gsfPreID"))},
-	gsftracks_{consumes<std::vector<reco::GsfTrack> >(iConfig.getParameter<edm::InputTag>("gsfTracks"))} {     
+  gsftracks_{consumes<std::vector<reco::GsfTrack> >(iConfig.getParameter<edm::InputTag>("gsfTracks"))} {     
 		produces< edm::Association<pat::PackedCandidateCollection> > ("packedCandidates");
 		produces< edm::Association<pat::PackedCandidateCollection> > ("lostTracks");
 	}
