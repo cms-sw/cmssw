@@ -94,35 +94,35 @@ namespace geant_units {
     constexpr long double operator"" _g_per_mole( long double mass )
     { return mass * 1._g / 1._mole; }
 
-		template <class NumType>
-		inline constexpr NumType convertRadToDeg(NumType radians) // Radians -> degrees
-		{
-			return (radians * degPerRad);
-		}
+    template <class NumType>
+    inline constexpr NumType convertRadToDeg(NumType radians) // Radians -> degrees
+    {
+      return (radians * degPerRad);
+    }
 
-		template <class NumType>
-		inline constexpr long double convertDegToRad(NumType degrees) // Degrees -> radians
-		{
-			return (degrees / degPerRad);
-		}
+    template <class NumType>
+    inline constexpr long double convertDegToRad(NumType degrees) // Degrees -> radians
+    {
+      return (degrees / degPerRad);
+    }
 
-		template <class NumType>
-		inline constexpr NumType convertMmToCm(NumType millimeters) // Millimeters -> centimeters
-		{
-			return (millimeters / 10.);
-		}
+    template <class NumType>
+    inline constexpr NumType convertMmToCm(NumType millimeters) // Millimeters -> centimeters
+    {
+      return (millimeters / 10.);
+    }
 
-		template <class NumType>
-		inline constexpr NumType convertMm3ToM3(NumType mm3) // Cubic millimeters -> cubic meters
-		{
-			return (mm3 / 1.e9);
-		}
+    template <class NumType>
+    inline constexpr NumType convertMm3ToM3(NumType mm3) // Cubic millimeters -> cubic meters
+    {
+      return (mm3 / 1.e9);
+    }
 
-		template <class NumType>
-		inline constexpr NumType convertUnitsTo(long double desiredUnits, NumType val) // Convert Geant units to desired units
-		{
-			return (val / desiredUnits);
-		}
+    template <class NumType>
+    inline constexpr NumType convertUnitsTo(long double desiredUnits, NumType val) // Convert Geant units to desired units
+    {
+      return (val / desiredUnits);
+    }
   }
 }
   
