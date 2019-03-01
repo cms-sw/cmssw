@@ -9,8 +9,8 @@ env
 voms-proxy-info
 
 #abort on error
-set +e
-
+set -e
+set -x
 
 #number of events to process per job
 #passed through condor, but here is a default value
@@ -21,11 +21,12 @@ fi
 #set default conditions
 CONDITIONS=auto:phase1_2017_realistic
 ERA=Run2_2017,run2_nanoAOD_94XMiniAODv1
-NTHREADS=1
+#Running with 2 threads allows to use more memory on grid
+NTHREADS=2
 
 #Argument parsing
 if [ "$#" -ne 3 ]; then
-    echo "Must pass exactly 3 arguments: run_relval.sh [QCD|QCDPU] [reco|dqm] [njob]"
+    echo "Must pass exactly 3 arguments: run_relval.sh [QCD|QCDPU|ZMM|MinBias] [reco|dqm] [njob]"
     exit 0
 fi
 
@@ -116,10 +117,10 @@ elif [ $STEP == "DQM" ]; then
 
     #Run the DQM sequences (PF DQM only)
     #override the filenames here as cmsDriver does not allow multiple input files and there is no easy way to merge EDM files
-    cmsDriver.py step5 --conditions $CONDITIONS -s DQM:@pfDQM --datatier DQMIO --nThreads $NTHREADS --era $ERA --eventcontent DQM --filein filelist:step3_filelist.txt --fileout file:step5.root -n -1 | tee step5.log 2>&1
+    cmsDriver.py step5 --conditions $CONDITIONS -s DQM:@pfDQM --datatier DQMIO --nThreads $NTHREADS --era $ERA --eventcontent DQM --filein filelist:step3_filelist.txt --fileout file:step5.root -n -1 2>&1 | tee step5.log
 
     #Harvesting converts the histograms stored in TTrees to be stored in folders by run etc
-    cmsDriver.py step6 --conditions $CONDITIONS -s HARVESTING:@pfDQM --era $ERA --filetype DQM --filein file:step5.root --fileout file:step6.root | tee step6.log 2>&1
+    cmsDriver.py step6 --conditions $CONDITIONS -s HARVESTING:@pfDQM --era $ERA --filetype DQM --filein file:step5.root --fileout file:step6.root 2>&1 | tee step6.log
 fi
 
 #echo "Exit code was $?"
