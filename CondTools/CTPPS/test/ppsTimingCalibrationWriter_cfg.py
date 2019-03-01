@@ -9,10 +9,12 @@ process.source = cms.Source('EmptyIOVSource',
     interval = cms.uint64(1)
 )
 
+from CondFormats.CTPPSReadoutObjects.PPSTimingDetEnum_cff import PPSTimingDetEnum
+
 # load calibrations from JSON file
 process.load('CondFormats.CTPPSReadoutObjects.ppsTimingCalibrationESSource_cfi')
 process.ppsTimingCalibrationESSource.calibrationFile = cms.FileInPath('DiamondCalibrationExample.json')
-process.ppsTimingCalibrationESSource.subDetector = cms.uint32(2)
+process.ppsTimingCalibrationESSource.subDetector = PPSTimingDetEnum.PPS_DIAMOND
 
 # output service for database
 process.load('CondCore.CondDB.CondDB_cfi')

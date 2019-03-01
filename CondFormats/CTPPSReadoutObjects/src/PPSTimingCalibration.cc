@@ -14,29 +14,29 @@
 bool
 PPSTimingCalibration::Key::operator<( const PPSTimingCalibration::Key& rhs ) const
 {
-  if ( db == rhs.db ) {
-    if ( sampic == rhs.sampic ) {
-      if ( channel == rhs.channel )
-        return cell < rhs.cell;
-      return channel < rhs.channel;
+  if ( key1 == rhs.key1 ) {
+    if ( key2 == rhs.key2 ) {
+      if ( key3 == rhs.key3 )
+        return key4 < rhs.key4;
+      return key3 < rhs.key4;
     }
-    return sampic < rhs.sampic;
+    return key2 < rhs.key2;
   }
-  return db < rhs.db;
+  return key1 < rhs.key1;
 }
 
 std::ostream&
 operator<<( std::ostream& os, const PPSTimingCalibration::Key& key )
 {
-  return os << key.db << " " << key.sampic << " " << key.channel << " " << key.cell;
+  return os << key.key1 << " " << key.key2 << " " << key.key3 << " " << key.key4;
 }
 
 //--------------------------------------------------------------------------
 
 std::vector<double>
-PPSTimingCalibration::parameters( int db, int sampic, int channel, int cell ) const
+PPSTimingCalibration::parameters( int key1, int key2, int key3, int key4 ) const
 {
-  Key key{ db, sampic, channel, cell };
+  Key key{ key1, key2, key3, key4 };
   auto out = parameters_.find( key );
   if ( out == parameters_.end() )
     return {};
@@ -44,9 +44,9 @@ PPSTimingCalibration::parameters( int db, int sampic, int channel, int cell ) co
 }
 
 double
-PPSTimingCalibration::timeOffset( int db, int sampic, int channel ) const
+PPSTimingCalibration::timeOffset( int key1, int key2, int key3, int key4 ) const
 {
-  Key key{ db, sampic, channel, -1 };
+  Key key{ key1, key2, key3, key4 };
   auto out = timeInfo_.find( key );
   if ( out == timeInfo_.end() )
     return 0.;
@@ -54,9 +54,9 @@ PPSTimingCalibration::timeOffset( int db, int sampic, int channel ) const
 }
 
 double
-PPSTimingCalibration::timePrecision( int db, int sampic, int channel ) const
+PPSTimingCalibration::timePrecision( int key1, int key2, int key3, int key4 ) const
 {
-  Key key{ db, sampic, channel, -1 };
+  Key key{ key1, key2, key3, key4 };
   auto out = timeInfo_.find( key );
   if ( out == timeInfo_.end() )
     return 0.;
