@@ -45,11 +45,8 @@ namespace btagbtvdeep {
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             GlobalVector jetdirection(jet.px(),jet.py(),jet.pz());
             GlobalPoint pvp(pv.x(),pv.y(),pv.z());
-            
-            //std::cout << "Transient tracks" << std::endl;
-            std::vector<reco::TransientTrack> selectedTracks;
-            
-            //std::cout << "Masses" << std::endl;
+                        
+            std::vector<reco::TransientTrack> selectedTracks;          
             std::vector<float> masses;
                 
             //if primary: build transient tracks form packedCandidates
@@ -210,7 +207,7 @@ namespace btagbtvdeep {
                 max_counter_seed=max_counter_seed+1;
                 seedingT_features_vector.push_back(seed_features);
                 
-                std::cout<<"at end of filling"<<seedingT_features_vector.size()<<std::endl;
+                //std::cout<<"at end of filling"<<seedingT_features_vector.size()<<std::endl;
                 
             }
             
@@ -230,7 +227,7 @@ namespace btagbtvdeep {
             }
                         
             
-            std::cout<<"at end of refilling"<<seedingT_features_vector.size()<<std::endl;
+            //std::cout<<"at end of refilling"<<seedingT_features_vector.size()<<std::endl;
           
             
     }
