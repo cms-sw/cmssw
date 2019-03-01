@@ -39,6 +39,9 @@ class L1TkHTMissProducer : public edm::EDProducer {
     float DeltaZ;                   // for jets [cm] (if DoTvxConstrain)
     const edm::EDGetTokenT< L1TkPrimaryVertexCollection > pvToken;
     const edm::EDGetTokenT< L1TkJetParticleCollection > jetToken;
+    int minNtracksHighPt;
+    int minNtracksLowPt;
+
 };
 
 ///////////////
@@ -54,7 +57,8 @@ L1TkHTMissProducer::L1TkHTMissProducer(const edm::ParameterSet& iConfig) :
   UseCaloJets      = iConfig.getParameter<bool>("UseCaloJets");
   PrimaryVtxConstrain = iConfig.getParameter<bool>("PrimaryVtxConstrain");
   DeltaZ              = (float)iConfig.getParameter<double>("DeltaZ");
-
+  minNtracksHighPt=iConfig.getParameter<int>("jet_minNtracksHighPt");
+  minNtracksLowPt=iConfig.getParameter<int>("jet_minNtracksLowPt");       
   if (UseCaloJets) produces<L1TkHTMissParticleCollection>("L1TkCaloHTMiss");
   else produces<L1TkHTMissParticleCollection>("L1TrackerHTMiss");
 }

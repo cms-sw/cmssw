@@ -27,7 +27,7 @@
 
 #include "DataFormats/L1TrackTrigger/interface/L1TkJetParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkJetParticleFwd.h"
-#include "DataFormats/L1TrackTrigger/interface/L1TkPrimaryVertex.h"
+#include "DataFormats/L1TVertex/interface/Vertex.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 // L1 tracks
@@ -92,14 +92,14 @@ private:
   double BendConsistency;
   //need PVtx here
   const edm::EDGetTokenT<std::vector<TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
-  edm::EDGetTokenT<L1TkPrimaryVertexCollection>PVertexToken;
+  edm::EDGetTokenT<VertexCollection>PVertexToken;
 };
 
 //////////////
 // constructor
 L1TrackerJetProducer::L1TrackerJetProducer(const edm::ParameterSet& iConfig) :
 trackToken(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-PVertexToken(consumes<L1TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag")))
+PVertexToken(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag")))
 {
 
   produces<L1TkJetParticleCollection>("L1TrackerJets");
@@ -155,7 +155,7 @@ void L1TrackerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0,0,0)).z();
   const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
   
-  edm::Handle<L1TkPrimaryVertexCollection >L1TkPrimaryVertexHandle;
+  edm::Handle<VertexCollection >L1TkPrimaryVertexHandle;
   iEvent.getByToken(PVertexToken, L1TkPrimaryVertexHandle);
   fastjet::JetDefinition jet_def(fastjet::antikt_algorithm, CONESize);
   std::vector<fastjet::PseudoJet>  JetInputs;
@@ -183,7 +183,7 @@ void L1TrackerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       if (tmp_isPS) tmp_trk_nstubPS++;
     }
     if(tmp_trk_nstubPS<TRK_NSTUBPSMIN)continue;
-    double DeltaZtoVtx=fabs(L1TkPrimaryVertexHandle->begin()->getZvertex()-iterL1Track->getPOCA(L1Tk_nPar).z());
+    double DeltaZtoVtx=fabs(L1TkPrimaryVertexHandle->begin()->z0()-iterL1Track->getPOCA(L1Tk_nPar).z());
     if(DeltaZtoVtx>DeltaZ0Cut)continue;
 
     fastjet::PseudoJet psuedoJet(iterL1Track->getMomentum().x(), iterL1Track->getMomentum().y(), iterL1Track->getMomentum().z(), iterL1Track->getMomentum().mag());

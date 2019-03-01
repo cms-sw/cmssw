@@ -4,7 +4,7 @@ import sys
 #i=0;
 #for i in range(2,1000):
 #for i in range(50,150):
-for i in range(0,120):
+for i in range(10,11):
 	# Lxplus Batch Job Script
 	'''
 	f=open("bsub%d.sh" %i, 'w')
@@ -24,7 +24,7 @@ for i in range(0,120):
 	'''
 	#os.system("Qsub -l lnxfarm -o OutPut_LogFile%d -e cmsRun Tracklet_cfg.py %d" %(i,i))	
 	#os.system("Qsub -l lnxfarm -o OutPut_LogFile%d -e cmsRun L1TrackPrimaryVertex_cfg.py %d" %(i,i))
-	os.system("Qsub -l lnxfarm -o OutPut_LogFile%d -e cmsRun ConfFile_cfg.py %d" %(i,i))
+	os.system("Qsub -l sl6 -o OutPut_LogFile%d -e cmsRun ConfFile_cfg.py %d" %(i,i))
 	#os.system("cmsRun L1TrackFastJets_cfg.py %d" %(i))
 	#i=i+1
 	#os.system("bash bsub%d.sh " %i)

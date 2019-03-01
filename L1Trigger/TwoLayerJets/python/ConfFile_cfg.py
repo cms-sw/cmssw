@@ -50,7 +50,7 @@ process.TwoLayerJets = cms.EDProducer('TwoLayerJets',
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/nfs/data39/cms/rish/Production93X/myOutputFile%s.root' %sys.argv[2]),
+    fileName = cms.untracked.string('myOutputFile%s.root' %sys.argv[2]),
 outputCommands = cms.untracked.vstring('drop *',
 					 'keep *_TwoLayerJets_*_*',
 							
