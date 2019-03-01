@@ -402,47 +402,76 @@ std::string SiStripEnumsAndStrings::monitorable( const sistrip::Monitorable& mon
   else if ( mon == sistrip::FINE_DELAY_POS) { return sistrip::fineDelayPos_; }
   else if ( mon == sistrip::FINE_DELAY_ERROR) { return sistrip::fineDelayErr_; }
 
-  // calibration
-  else if ( mon == sistrip::CALIBRATION_AMPLITUDE) { return sistrip::calibrationAmplitude_; }
-  else if ( mon == sistrip::CALIBRATION_TAIL) { return sistrip::calibrationTail_; }
-  else if ( mon == sistrip::CALIBRATION_RISETIME) { return sistrip::calibrationRiseTime_; }
-  else if ( mon == sistrip::CALIBRATION_TIMECONSTANT) { return sistrip::calibrationTimeConstant_; }
-  else if ( mon == sistrip::CALIBRATION_TURNON) { return sistrip::calibrationTurnOn_; }
-  else if ( mon == sistrip::CALIBRATION_MAXIMUM) { return sistrip::calibrationMaximum_; }
-  else if ( mon == sistrip::CALIBRATION_UNDERSHOOT) { return sistrip::calibrationUndershoot_; }
-  else if ( mon == sistrip::CALIBRATION_BASELINE) { return sistrip::calibrationBaseline_; }
-  else if ( mon == sistrip::CALIBRATION_SMEARING) { return sistrip::calibrationSmearing_; }
-  else if ( mon == sistrip::CALIBRATION_CHI2) { return sistrip::calibrationChi2_; }
-  else if ( mon == sistrip::CALIBRATION_AMPLITUDE_ALLSTRIPS) { return sistrip::calibrationAmplitudeAS_; }
-  else if ( mon == sistrip::CALIBRATION_TAIL_ALLSTRIPS) { return sistrip::calibrationTailAS_; }
-  else if ( mon == sistrip::CALIBRATION_RISETIME_ALLSTRIPS) { return sistrip::calibrationRiseTimeAS_; }
-  else if ( mon == sistrip::CALIBRATION_TIMECONSTANT_ALLSTRIPS) { return sistrip::calibrationTimeConstantAS_; }
-  else if ( mon == sistrip::CALIBRATION_TURNON_ALLSTRIPS) { return sistrip::calibrationTurnOnAS_; }
-  else if ( mon == sistrip::CALIBRATION_MAXIMUM_ALLSTRIPS) { return sistrip::calibrationMaximumAS_; }
-  else if ( mon == sistrip::CALIBRATION_UNDERSHOOT_ALLSTRIPS) { return sistrip::calibrationUndershootAS_; }
-  else if ( mon == sistrip::CALIBRATION_BASELINE_ALLSTRIPS) { return sistrip::calibrationBaselineAS_; }
-  else if ( mon == sistrip::CALIBRATION_SMEARING_ALLSTRIPS) { return sistrip::calibrationSmearingAS_; }
-  else if ( mon == sistrip::CALIBRATION_CHI2_ALLSTRIPS) { return sistrip::calibrationChi2AS_; }
+  else if ( mon == sistrip::CALIBRATION_AMPLITUDE_MEAN) { return sistrip::calibrationAmplitudeMean_; }
+  else if ( mon == sistrip::CALIBRATION_TAIL_MEAN)      { return sistrip::calibrationTailMean_; }
+  else if ( mon == sistrip::CALIBRATION_RISETIME_MEAN)  { return sistrip::calibrationRiseTimeMean_; }
+  else if ( mon == sistrip::CALIBRATION_DECAYTIME_MEAN) { return sistrip::calibrationDecayTimeMean_; }
+  else if ( mon == sistrip::CALIBRATION_PEAKTIME_MEAN)  { return sistrip::calibrationPeakTimeMean_; }
+  else if ( mon == sistrip::CALIBRATION_TURNON_MEAN)    { return sistrip::calibrationTurnOnMean_; }
+  else if ( mon == sistrip::CALIBRATION_BASELINE_MEAN)  { return sistrip::calibrationBaselineMean_; }
+  else if ( mon == sistrip::CALIBRATION_UNDERSHOOT_MEAN) { return sistrip::calibrationUndershootMean_; }
+  else if ( mon == sistrip::CALIBRATION_SMEARING_MEAN) { return sistrip::calibrationSmearingMean_; }
+  else if ( mon == sistrip::CALIBRATION_CHI2_MEAN) { return sistrip::calibrationChi2Mean_; }
+
   else if ( mon == sistrip::CALIBRATION_AMPLITUDE_MIN) { return sistrip::calibrationAmplitudeMin_; }
-  else if ( mon == sistrip::CALIBRATION_TAIL_MIN) { return sistrip::calibrationTailMin_; }
+  else if ( mon == sistrip::CALIBRATION_TAIL_MIN)     { return sistrip::calibrationTailMin_; }
   else if ( mon == sistrip::CALIBRATION_RISETIME_MIN) { return sistrip::calibrationRiseTimeMin_; }
-  else if ( mon == sistrip::CALIBRATION_TIMECONSTANT_MIN) { return sistrip::calibrationTimeConstantMin_; }
-  else if ( mon == sistrip::CALIBRATION_TURNON_MIN) { return sistrip::calibrationTurnOnMin_; }
-  else if ( mon == sistrip::CALIBRATION_MAXIMUM_MIN) { return sistrip::calibrationMaximumMin_; }
-  else if ( mon == sistrip::CALIBRATION_UNDERSHOOT_MIN) { return sistrip::calibrationUndershootMin_; }
+  else if ( mon == sistrip::CALIBRATION_DECAYTIME_MIN){ return sistrip::calibrationDecayTimeMin_; }
+  else if ( mon == sistrip::CALIBRATION_PEAKTIME_MIN) { return sistrip::calibrationPeakTimeMin_; }
+  else if ( mon == sistrip::CALIBRATION_TURNON_MIN)   { return sistrip::calibrationTurnOnMin_; }
   else if ( mon == sistrip::CALIBRATION_BASELINE_MIN) { return sistrip::calibrationBaselineMin_; }
+  else if ( mon == sistrip::CALIBRATION_UNDERSHOOT_MIN) { return sistrip::calibrationUndershootMin_; }
   else if ( mon == sistrip::CALIBRATION_SMEARING_MIN) { return sistrip::calibrationSmearingMin_; }
-  else if ( mon == sistrip::CALIBRATION_CHI2_MIN) { return sistrip::calibrationChi2Min_; }
+  else if ( mon == sistrip::CALIBRATION_CHI2_MIN)     { return sistrip::calibrationChi2Min_; }
+
   else if ( mon == sistrip::CALIBRATION_AMPLITUDE_MAX) { return sistrip::calibrationAmplitudeMax_; }
-  else if ( mon == sistrip::CALIBRATION_TAIL_MAX) { return sistrip::calibrationTailMax_; }
+  else if ( mon == sistrip::CALIBRATION_TAIL_MAX)     { return sistrip::calibrationTailMax_; }
   else if ( mon == sistrip::CALIBRATION_RISETIME_MAX) { return sistrip::calibrationRiseTimeMax_; }
-  else if ( mon == sistrip::CALIBRATION_TIMECONSTANT_MAX) { return sistrip::calibrationTimeConstantMax_; }
-  else if ( mon == sistrip::CALIBRATION_TURNON_MAX) { return sistrip::calibrationTurnOnMax_; }
-  else if ( mon == sistrip::CALIBRATION_MAXIMUM_MAX) { return sistrip::calibrationMaximumMax_; }
-  else if ( mon == sistrip::CALIBRATION_UNDERSHOOT_MAX) { return sistrip::calibrationUndershootMax_; }
+  else if ( mon == sistrip::CALIBRATION_DECAYTIME_MAX){ return sistrip::calibrationDecayTimeMax_; }
+  else if ( mon == sistrip::CALIBRATION_PEAKTIME_MAX) { return sistrip::calibrationPeakTimeMax_; }
+  else if ( mon == sistrip::CALIBRATION_TURNON_MAX)   { return sistrip::calibrationTurnOnMax_; }
   else if ( mon == sistrip::CALIBRATION_BASELINE_MAX) { return sistrip::calibrationBaselineMax_; }
+  else if ( mon == sistrip::CALIBRATION_UNDERSHOOT_MAX) { return sistrip::calibrationUndershootMax_; }
   else if ( mon == sistrip::CALIBRATION_SMEARING_MAX) { return sistrip::calibrationSmearingMax_; }
-  else if ( mon == sistrip::CALIBRATION_CHI2_MAX) { return sistrip::calibrationChi2Max_; }
+  else if ( mon == sistrip::CALIBRATION_CHI2_MAX)     { return sistrip::calibrationChi2Max_; }
+
+  else if ( mon == sistrip::CALIBRATION_AMPLITUDE_SPREAD) { return sistrip::calibrationAmplitudeSpread_; }
+  else if ( mon == sistrip::CALIBRATION_TAIL_SPREAD)     { return sistrip::calibrationTailSpread_; }
+  else if ( mon == sistrip::CALIBRATION_RISETIME_SPREAD) { return sistrip::calibrationRiseTimeSpread_; }
+  else if ( mon == sistrip::CALIBRATION_DECAYTIME_SPREAD){ return sistrip::calibrationDecayTimeSpread_; }
+  else if ( mon == sistrip::CALIBRATION_PEAKTIME_SPREAD) { return sistrip::calibrationPeakTimeSpread_; }
+  else if ( mon == sistrip::CALIBRATION_TURNON_SPREAD)   { return sistrip::calibrationTurnOnSpread_; }
+  else if ( mon == sistrip::CALIBRATION_BASELINE_SPREAD) { return sistrip::calibrationBaselineSpread_; }
+  else if ( mon == sistrip::CALIBRATION_UNDERSHOOT_SPREAD) { return sistrip::calibrationUndershootSpread_; }
+  else if ( mon == sistrip::CALIBRATION_SMEARING_SPREAD) { return sistrip::calibrationSmearingSpread_; }
+  else if ( mon == sistrip::CALIBRATION_CHI2_SPREAD)     { return sistrip::calibrationChi2Spread_; }
+
+  else if ( mon == sistrip::CALIBRATION_AMPLITUDE_ALL_STRIPS) { return sistrip::calibrationAmplitude_; }
+  else if ( mon == sistrip::CALIBRATION_TAIL_ALL_STRIPS)     { return sistrip::calibrationTail_; }
+  else if ( mon == sistrip::CALIBRATION_RISETIME_ALL_STRIPS) { return sistrip::calibrationRiseTime_; }
+  else if ( mon == sistrip::CALIBRATION_DECAYTIME_ALL_STRIPS){ return sistrip::calibrationDecayTime_; }
+  else if ( mon == sistrip::CALIBRATION_PEAKTIME_ALL_STRIPS) { return sistrip::calibrationPeakTime_; }
+  else if ( mon == sistrip::CALIBRATION_TURNON_ALL_STRIPS)   { return sistrip::calibrationTurnOn_; }
+  else if ( mon == sistrip::CALIBRATION_BASELINE_ALL_STRIPS) { return sistrip::calibrationBaseline_; }
+  else if ( mon == sistrip::CALIBRATION_UNDERSHOOT_ALL_STRIPS) { return sistrip::calibrationUndershoot_; }
+  else if ( mon == sistrip::CALIBRATION_SMEARING_ALL_STRIPS) { return sistrip::calibrationSmearing_; }
+  else if ( mon == sistrip::CALIBRATION_CHI2_ALL_STRIPS)     { return sistrip::calibrationChi2_; }
+
+  else if ( mon == sistrip::CALIBRATION_AMPLITUDE_TUNED) { return sistrip::calibrationAmplitudeTuned_; }
+  else if ( mon == sistrip::CALIBRATION_TAIL_TUNED)      { return sistrip::calibrationTailTuned_; }
+  else if ( mon == sistrip::CALIBRATION_RISETIME_TUNED)  { return sistrip::calibrationRiseTimeTuned_; }
+  else if ( mon == sistrip::CALIBRATION_DECAYTIME_TUNED) { return sistrip::calibrationDecayTimeTuned_; }
+  else if ( mon == sistrip::CALIBRATION_PEAKTIME_TUNED)  { return sistrip::calibrationPeakTimeTuned_; }
+  else if ( mon == sistrip::CALIBRATION_TURNON_TUNED)    { return sistrip::calibrationTurnOnTuned_; }
+  else if ( mon == sistrip::CALIBRATION_BASELINE_TUNED)  { return sistrip::calibrationBaselineTuned_; }
+  else if ( mon == sistrip::CALIBRATION_UNDERSHOOT_TUNED) { return sistrip::calibrationUndershootTuned_; }
+  else if ( mon == sistrip::CALIBRATION_SMEARING_TUNED) { return sistrip::calibrationSmearingTuned_; }
+  else if ( mon == sistrip::CALIBRATION_CHI2_TUNED) { return sistrip::calibrationChi2Tuned_; }
+  else if ( mon == sistrip::CALIBRATION_ISHA_TUNED) { return sistrip::calibrationISHATuned_; }
+  else if ( mon == sistrip::CALIBRATION_VFS_TUNED) { return sistrip::calibrationVFSTuned_; }
+  else if ( mon == sistrip::CALIBRATION_ISHA_BEST) { return sistrip::calibrationISHABest_; }
+  else if ( mon == sistrip::CALIBRATION_VFS_BEST) { return sistrip::calibrationVFSBest_; }
+
     
   // scope mode 
   else if ( mon == sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL ) { return sistrip::daqScopeModeMeanSignal_; }
@@ -556,47 +585,76 @@ sistrip::Monitorable SiStripEnumsAndStrings::monitorable( const std::string& mon
   else if ( mon.find( sistrip::fineDelayPos_ ) != std::string::npos ) { return sistrip::FINE_DELAY_POS; }
   else if ( mon.find( sistrip::fineDelayErr_ ) != std::string::npos ) { return sistrip::FINE_DELAY_ERROR; }
  
-  // calibration
-  else if ( mon.find( sistrip::calibrationAmplitudeAS_ ) != std::string::npos ) { return sistrip::CALIBRATION_AMPLITUDE_ALLSTRIPS; }
-  else if ( mon.find( sistrip::calibrationTailAS_ ) != std::string::npos ) { return sistrip::CALIBRATION_TAIL_ALLSTRIPS; }
-  else if ( mon.find( sistrip::calibrationRiseTimeAS_ ) != std::string::npos ) { return sistrip::CALIBRATION_RISETIME_ALLSTRIPS; }
-  else if ( mon.find( sistrip::calibrationTimeConstantAS_ ) != std::string::npos ) { return sistrip::CALIBRATION_TIMECONSTANT_ALLSTRIPS; }
-  else if ( mon.find( sistrip::calibrationTurnOnAS_ ) != std::string::npos ) { return sistrip::CALIBRATION_TURNON_ALLSTRIPS; }
-  else if ( mon.find( sistrip::calibrationMaximumAS_ ) != std::string::npos ) { return sistrip::CALIBRATION_MAXIMUM_ALLSTRIPS; }
-  else if ( mon.find( sistrip::calibrationUndershootAS_ ) != std::string::npos ) { return sistrip::CALIBRATION_UNDERSHOOT_ALLSTRIPS; }
-  else if ( mon.find( sistrip::calibrationBaselineAS_ ) != std::string::npos ) { return sistrip::CALIBRATION_BASELINE_ALLSTRIPS; }
-  else if ( mon.find( sistrip::calibrationSmearingAS_ ) != std::string::npos ) { return sistrip::CALIBRATION_SMEARING_ALLSTRIPS; }
-  else if ( mon.find( sistrip::calibrationChi2AS_ ) != std::string::npos ) { return sistrip::CALIBRATION_CHI2_ALLSTRIPS; }
-  else if ( mon.find( sistrip::calibrationAmplitudeMin_ ) != std::string::npos ) { return sistrip::CALIBRATION_AMPLITUDE_MIN; }
-  else if ( mon.find( sistrip::calibrationTailMin_ ) != std::string::npos ) { return sistrip::CALIBRATION_TAIL_MIN; }
-  else if ( mon.find( sistrip::calibrationRiseTimeMin_ ) != std::string::npos ) { return sistrip::CALIBRATION_RISETIME_MIN; }
-  else if ( mon.find( sistrip::calibrationTimeConstantMin_ ) != std::string::npos ) { return sistrip::CALIBRATION_TIMECONSTANT_MIN; }
-  else if ( mon.find( sistrip::calibrationTurnOnMin_ ) != std::string::npos ) { return sistrip::CALIBRATION_TURNON_MIN; }
-  else if ( mon.find( sistrip::calibrationMaximumMin_ ) != std::string::npos ) { return sistrip::CALIBRATION_MAXIMUM_MIN; }
-  else if ( mon.find( sistrip::calibrationUndershootMin_ ) != std::string::npos ) { return sistrip::CALIBRATION_UNDERSHOOT_MIN; }
-  else if ( mon.find( sistrip::calibrationBaselineMin_ ) != std::string::npos ) { return sistrip::CALIBRATION_BASELINE_MIN; }
-  else if ( mon.find( sistrip::calibrationSmearingMin_ ) != std::string::npos ) { return sistrip::CALIBRATION_SMEARING_MIN; }
-  else if ( mon.find( sistrip::calibrationChi2Min_ ) != std::string::npos ) { return sistrip::CALIBRATION_CHI2_MIN; }
-  else if ( mon.find( sistrip::calibrationAmplitudeMax_ ) != std::string::npos ) { return sistrip::CALIBRATION_AMPLITUDE_MAX; }
-  else if ( mon.find( sistrip::calibrationTailMax_ ) != std::string::npos ) { return sistrip::CALIBRATION_TAIL_MAX; }
-  else if ( mon.find( sistrip::calibrationRiseTimeMax_ ) != std::string::npos ) { return sistrip::CALIBRATION_RISETIME_MAX; }
-  else if ( mon.find( sistrip::calibrationTimeConstantMax_ ) != std::string::npos ) { return sistrip::CALIBRATION_TIMECONSTANT_MAX; }
-  else if ( mon.find( sistrip::calibrationTurnOnMax_ ) != std::string::npos ) { return sistrip::CALIBRATION_TURNON_MAX; }
-  else if ( mon.find( sistrip::calibrationMaximumMax_ ) != std::string::npos ) { return sistrip::CALIBRATION_MAXIMUM_MAX; }
-  else if ( mon.find( sistrip::calibrationUndershootMax_ ) != std::string::npos ) { return sistrip::CALIBRATION_UNDERSHOOT_MAX; }
-  else if ( mon.find( sistrip::calibrationBaselineMax_ ) != std::string::npos ) { return sistrip::CALIBRATION_BASELINE_MAX; }
-  else if ( mon.find( sistrip::calibrationSmearingMax_ ) != std::string::npos ) { return sistrip::CALIBRATION_SMEARING_MAX; }
-  else if ( mon.find( sistrip::calibrationChi2Max_ ) != std::string::npos ) { return sistrip::CALIBRATION_CHI2_MAX; }
-  else if ( mon.find( sistrip::calibrationAmplitude_ ) != std::string::npos ) { return sistrip::CALIBRATION_AMPLITUDE; }
-  else if ( mon.find( sistrip::calibrationTail_ ) != std::string::npos ) { return sistrip::CALIBRATION_TAIL; }
-  else if ( mon.find( sistrip::calibrationRiseTime_ ) != std::string::npos ) { return sistrip::CALIBRATION_RISETIME; }
-  else if ( mon.find( sistrip::calibrationTimeConstant_ ) != std::string::npos ) { return sistrip::CALIBRATION_TIMECONSTANT; }
-  else if ( mon.find( sistrip::calibrationTurnOn_ ) != std::string::npos ) { return sistrip::CALIBRATION_TURNON; }
-  else if ( mon.find( sistrip::calibrationMaximum_ ) != std::string::npos ) { return sistrip::CALIBRATION_MAXIMUM; }
-  else if ( mon.find( sistrip::calibrationUndershoot_ ) != std::string::npos ) { return sistrip::CALIBRATION_UNDERSHOOT; }
-  else if ( mon.find( sistrip::calibrationBaseline_ ) != std::string::npos ) { return sistrip::CALIBRATION_BASELINE; }
-  else if ( mon.find( sistrip::calibrationSmearing_ ) != std::string::npos ) { return sistrip::CALIBRATION_SMEARING; }
-  else if ( mon.find( sistrip::calibrationChi2_ ) != std::string::npos ) { return sistrip::CALIBRATION_CHI2; }
+  // calibration                                                                                                                                                                                        
+  else if ( mon.find( sistrip::calibrationAmplitudeMean_) != std::string::npos ) { return sistrip::CALIBRATION_AMPLITUDE_MEAN; }
+  else if ( mon.find( sistrip::calibrationTailMean_) != std::string::npos )      { return sistrip::CALIBRATION_TAIL_MEAN; }
+  else if ( mon.find( sistrip::calibrationRiseTimeMean_) != std::string::npos )  { return sistrip::CALIBRATION_RISETIME_MEAN; }
+  else if ( mon.find( sistrip::calibrationDecayTimeMean_) != std::string::npos ) { return sistrip::CALIBRATION_DECAYTIME_MEAN; }
+  else if ( mon.find( sistrip::calibrationPeakTimeMean_) != std::string::npos )  { return sistrip::CALIBRATION_PEAKTIME_MEAN; }
+  else if ( mon.find( sistrip::calibrationTurnOnMean_) != std::string::npos )    { return sistrip::CALIBRATION_TURNON_MEAN; }
+  else if ( mon.find( sistrip::calibrationBaselineMean_) != std::string::npos )  { return sistrip::CALIBRATION_BASELINE_MEAN; }
+  else if ( mon.find( sistrip::calibrationUndershootMean_) != std::string::npos ) { return sistrip::CALIBRATION_UNDERSHOOT_MEAN; }
+  else if ( mon.find( sistrip::calibrationSmearingMean_) != std::string::npos ) { return sistrip::CALIBRATION_SMEARING_MEAN; }
+  else if ( mon.find( sistrip::calibrationChi2Mean_) != std::string::npos )     { return sistrip::CALIBRATION_CHI2_MEAN; }
+
+  else if ( mon.find( sistrip::calibrationAmplitudeMax_) != std::string::npos ) { return sistrip::CALIBRATION_AMPLITUDE_MAX; }
+  else if ( mon.find( sistrip::calibrationTailMax_) != std::string::npos )      { return sistrip::CALIBRATION_TAIL_MAX; }
+  else if ( mon.find( sistrip::calibrationRiseTimeMax_) != std::string::npos )  { return sistrip::CALIBRATION_RISETIME_MAX; }
+  else if ( mon.find( sistrip::calibrationDecayTimeMax_) != std::string::npos ) { return sistrip::CALIBRATION_DECAYTIME_MAX; }
+  else if ( mon.find( sistrip::calibrationPeakTimeMax_) != std::string::npos )  { return sistrip::CALIBRATION_PEAKTIME_MAX; }
+  else if ( mon.find( sistrip::calibrationTurnOnMax_) != std::string::npos )    { return sistrip::CALIBRATION_TURNON_MAX; }
+  else if ( mon.find( sistrip::calibrationBaselineMax_) != std::string::npos )  { return sistrip::CALIBRATION_BASELINE_MAX; }
+  else if ( mon.find( sistrip::calibrationUndershootMax_) != std::string::npos ) { return sistrip::CALIBRATION_UNDERSHOOT_MAX; }
+  else if ( mon.find( sistrip::calibrationSmearingMax_) != std::string::npos ) { return sistrip::CALIBRATION_SMEARING_MAX; }
+  else if ( mon.find( sistrip::calibrationChi2Max_) != std::string::npos )     { return sistrip::CALIBRATION_CHI2_MAX; }
+
+  else if ( mon.find( sistrip::calibrationAmplitudeMin_) != std::string::npos ) { return sistrip::CALIBRATION_AMPLITUDE_MIN; }
+  else if ( mon.find( sistrip::calibrationTailMin_) != std::string::npos )      { return sistrip::CALIBRATION_TAIL_MIN; }
+  else if ( mon.find( sistrip::calibrationRiseTimeMin_) != std::string::npos )  { return sistrip::CALIBRATION_RISETIME_MIN; }
+  else if ( mon.find( sistrip::calibrationDecayTimeMin_) != std::string::npos ) { return sistrip::CALIBRATION_DECAYTIME_MIN; }
+  else if ( mon.find( sistrip::calibrationPeakTimeMin_) != std::string::npos )  { return sistrip::CALIBRATION_PEAKTIME_MIN; }
+  else if ( mon.find( sistrip::calibrationTurnOnMin_) != std::string::npos )    { return sistrip::CALIBRATION_TURNON_MIN; }
+  else if ( mon.find( sistrip::calibrationBaselineMin_) != std::string::npos )  { return sistrip::CALIBRATION_BASELINE_MIN; }
+  else if ( mon.find( sistrip::calibrationUndershootMin_) != std::string::npos ) { return sistrip::CALIBRATION_UNDERSHOOT_MIN; }
+  else if ( mon.find( sistrip::calibrationSmearingMin_) != std::string::npos ) { return sistrip::CALIBRATION_SMEARING_MIN; }
+  else if ( mon.find( sistrip::calibrationChi2Min_) != std::string::npos )     { return sistrip::CALIBRATION_CHI2_MIN; }
+
+  else if ( mon.find( sistrip::calibrationAmplitudeSpread_) != std::string::npos ) { return sistrip::CALIBRATION_AMPLITUDE_SPREAD; }
+  else if ( mon.find( sistrip::calibrationTailSpread_) != std::string::npos )      { return sistrip::CALIBRATION_TAIL_SPREAD; }
+  else if ( mon.find( sistrip::calibrationRiseTimeSpread_) != std::string::npos )  { return sistrip::CALIBRATION_RISETIME_SPREAD; }
+  else if ( mon.find( sistrip::calibrationDecayTimeSpread_) != std::string::npos ) { return sistrip::CALIBRATION_DECAYTIME_SPREAD; }
+  else if ( mon.find( sistrip::calibrationPeakTimeSpread_) != std::string::npos )  { return sistrip::CALIBRATION_PEAKTIME_SPREAD; }
+  else if ( mon.find( sistrip::calibrationTurnOnSpread_) != std::string::npos )    { return sistrip::CALIBRATION_TURNON_SPREAD; }
+  else if ( mon.find( sistrip::calibrationBaselineSpread_) != std::string::npos )  { return sistrip::CALIBRATION_BASELINE_SPREAD; }
+  else if ( mon.find( sistrip::calibrationUndershootSpread_) != std::string::npos ) { return sistrip::CALIBRATION_UNDERSHOOT_SPREAD; }
+  else if ( mon.find( sistrip::calibrationSmearingSpread_) != std::string::npos ) { return sistrip::CALIBRATION_SMEARING_SPREAD; }
+  else if ( mon.find( sistrip::calibrationChi2Spread_) != std::string::npos )     { return sistrip::CALIBRATION_CHI2_SPREAD; }
+
+  else if ( mon.find( sistrip::calibrationAmplitudeTuned_) != std::string::npos ) { return sistrip::CALIBRATION_AMPLITUDE_TUNED; }
+  else if ( mon.find( sistrip::calibrationTailTuned_) != std::string::npos )      { return sistrip::CALIBRATION_TAIL_TUNED; }
+  else if ( mon.find( sistrip::calibrationRiseTimeTuned_) != std::string::npos )  { return sistrip::CALIBRATION_RISETIME_TUNED; }
+  else if ( mon.find( sistrip::calibrationDecayTimeTuned_) != std::string::npos ) { return sistrip::CALIBRATION_DECAYTIME_TUNED; }
+  else if ( mon.find( sistrip::calibrationPeakTimeTuned_) != std::string::npos )  { return sistrip::CALIBRATION_PEAKTIME_TUNED; }
+  else if ( mon.find( sistrip::calibrationTurnOnTuned_) != std::string::npos )    { return sistrip::CALIBRATION_TURNON_TUNED; }
+  else if ( mon.find( sistrip::calibrationBaselineTuned_) != std::string::npos )  { return sistrip::CALIBRATION_BASELINE_TUNED; }
+  else if ( mon.find( sistrip::calibrationUndershootTuned_) != std::string::npos ) { return sistrip::CALIBRATION_UNDERSHOOT_TUNED; }
+  else if ( mon.find( sistrip::calibrationSmearingTuned_) != std::string::npos ) { return sistrip::CALIBRATION_SMEARING_TUNED; }
+  else if ( mon.find( sistrip::calibrationChi2Tuned_) != std::string::npos )     { return sistrip::CALIBRATION_CHI2_TUNED; }
+  else if ( mon.find( sistrip::calibrationISHATuned_) != std::string::npos )     { return sistrip::CALIBRATION_ISHA_TUNED; }
+  else if ( mon.find( sistrip::calibrationVFSTuned_) != std::string::npos )     { return sistrip::CALIBRATION_VFS_TUNED; }
+  else if ( mon.find( sistrip::calibrationISHABest_) != std::string::npos )     { return sistrip::CALIBRATION_ISHA_BEST; }
+  else if ( mon.find( sistrip::calibrationVFSBest_) != std::string::npos )     { return sistrip::CALIBRATION_VFS_BEST; }
+
+  else if ( mon.find( sistrip::calibrationAmplitude_) != std::string::npos ) { return sistrip::CALIBRATION_AMPLITUDE_ALL_STRIPS; }
+  else if ( mon.find( sistrip::calibrationTail_) != std::string::npos )      { return sistrip::CALIBRATION_TAIL_ALL_STRIPS; }
+  else if ( mon.find( sistrip::calibrationRiseTime_) != std::string::npos )  { return sistrip::CALIBRATION_RISETIME_ALL_STRIPS; }
+  else if ( mon.find( sistrip::calibrationDecayTime_) != std::string::npos ) { return sistrip::CALIBRATION_DECAYTIME_ALL_STRIPS; }
+  else if ( mon.find( sistrip::calibrationPeakTime_) != std::string::npos )  { return sistrip::CALIBRATION_PEAKTIME_ALL_STRIPS; }
+  else if ( mon.find( sistrip::calibrationTurnOn_) != std::string::npos )    { return sistrip::CALIBRATION_TURNON_ALL_STRIPS; }
+  else if ( mon.find( sistrip::calibrationBaseline_) != std::string::npos )  { return sistrip::CALIBRATION_BASELINE_ALL_STRIPS; }
+  else if ( mon.find( sistrip::calibrationUndershoot_) != std::string::npos ) { return sistrip::CALIBRATION_UNDERSHOOT_ALL_STRIPS; }
+  else if ( mon.find( sistrip::calibrationSmearing_) != std::string::npos ) { return sistrip::CALIBRATION_SMEARING_ALL_STRIPS; }
+  else if ( mon.find( sistrip::calibrationChi2_) != std::string::npos )     { return sistrip::CALIBRATION_CHI2_ALL_STRIPS; }
 
   // scope mode
   else if ( mon.find( sistrip::daqScopeModeMeanSignal_ ) != std::string::npos ) { return sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL; }

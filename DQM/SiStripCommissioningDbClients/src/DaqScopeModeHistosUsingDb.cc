@@ -135,6 +135,19 @@ void DaqScopeModeHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange fe
 
          // Check if analysis is valid
          if ( !iter->second->isValid() ) { 
+	   edm::LogWarning(mlDqmClient_)
+	     << "[DaqScopeModeHistosUsingDb::" << __func__ << "]"
+	     << " Skipping invalid channel with coordinates: FedKey/Id/Ch: "
+	     << hex << setw(8) << setfill('0') << fed_key.key() << dec << "/"
+	     << (*ifed)->getFedId() << "/"
+	     << ichan
+	     << " and device with FEC/slot/ring/CCU/LLD "
+	     << fec_key.fecCrate() << "/"
+	     << fec_key.fecSlot() << "/"
+	     << fec_key.fecRing() << "/"
+	     << fec_key.ccuAddr() << "/"
+	     << fec_key.ccuChan() << "/"
+	     << fec_key.channel();
            continue; 
          }
 	 
@@ -225,7 +238,7 @@ void DaqScopeModeHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange fe
 		    << static_cast<uint16_t>( temp.getNoise() ) << "/" 
 		    << static_cast<uint16_t>( temp.getDisable() ) << std::endl;
 	       }
-	       
+
 	       // update strip inf
 	       (*ifed)->getFedStrips().setStrip( addr, data );
 
@@ -361,6 +374,7 @@ void DaqScopeModeHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& 
       fed_key.feChan(),
       fed_key.fedApv()
     );
+    
 
     // Add comments
     typedef std::vector<std::string> Strings;
@@ -399,7 +413,7 @@ void DaqScopeModeHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& 
         fed_key.feUnit(),
         fed_key.feChan(),
         fed_key.fedApv() );
-
+    
     istr = errors.begin();
     jstr = errors.end();
     for ( ; istr != jstr; ++istr ) { timing_tmp->addComments( *istr ); }
