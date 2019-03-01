@@ -135,18 +135,18 @@ void LowPtGSFToPackedCandidateLinker::produce(edm::StreamID, edm::Event& iEvent,
 	}
 
 	/*// fill PackedCandidates --> GSF
-	for(unsigned int ipack = 0; ipack < npacked; ++ipack) {
+		for(unsigned int ipack = 0; ipack < npacked; ++ipack) {
 		size_t idx = packed2trk[ipack];
 		if(idx < ntracks && trk2gsf[idx] != ngsf) {
-			pack2gsf[ipack] =  trk2gsf[idx];
+		pack2gsf[ipack] =  trk2gsf[idx];
 		}
-	}
+		}
 
-	// fill LostTracks --> GSF
-	for(unsigned int ilost = 0; ilost < nlost; ++ilost) { 
+		// fill LostTracks --> GSF
+		for(unsigned int ilost = 0; ilost < nlost; ++ilost) { 
 		size_t idx = lost2trk[ilost];
 		if(idx < ntracks && trk2gsf[idx] != ngsf) {
-			lost2gsf[ilost] = trk2gsf[idx];
+		lost2gsf[ilost] = trk2gsf[idx];
 		} 
 		}*/
 
