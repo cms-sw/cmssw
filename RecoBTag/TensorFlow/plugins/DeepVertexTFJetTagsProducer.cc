@@ -208,8 +208,6 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
 
 ////changes here:::///
 
-
-
   const int64_t n_jets = tag_infos->size();
   // either all jets or one per batch for the time being
   const int64_t n_batch_jets = batch_eval_ ? n_jets : 1;
@@ -228,20 +226,6 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
     {n_batch_jets,20, 36},      // input_10 - neighbours  
     {n_batch_jets,20, 36},      // input_11 - neighbours  
     {n_batch_jets,20, 36},      // input_12 - neighbours 
-/* 
-
-    {n_batch_jets, 21, 10},     // input_2 - tracks
-    {n_batch_jets, 36, 20},      // input_3 - neighbours  
-    {n_batch_jets, 36, 20},      // input_4 - neighbours  
-    {n_batch_jets, 36, 20},      // input_5 - neighbours  
-    {n_batch_jets, 36, 20},      // input_6 - neighbours  
-    {n_batch_jets, 36, 20},      // input_7 - neighbours  
-    {n_batch_jets, 36, 20},      // input_8 - neighbours  
-    {n_batch_jets, 36, 20},      // input_9 - neighbours  
-    {n_batch_jets, 36, 20},      // input_10 - neighbours  
-    {n_batch_jets, 36, 20},      // input_11 - neighbours  
-    {n_batch_jets, 36, 20},      // input_12 - neighbours  */
-
     
   };
   
@@ -258,13 +242,11 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
       input_names_[i], tensorflow::Tensor(tensorflow::DT_FLOAT, input_sizes.at(i)));
   }
   
-  // add learning-phase tensors behind them
- // for (std::size_t i=0; i < lp_tensors_.size(); i++) {
- //   input_tensors[input_sizes.size() + i] = tensorflow::NamedTensor(lp_names_[i], lp_tensors_[i]);
- // }
-  
-  
-  
+  // add learning-phase tensors behind them, can be useful next time
+  //for (std::size_t i=0; i < lp_tensors_.size(); i++) {
+  //input_tensors[input_sizes.size() + i] = tensorflow::NamedTensor(lp_names_[i], lp_tensors_[i]);
+  // }  
+    
   std::size_t n_batches = n_jets/n_batch_jets; // either 1 or n_jets
   for (std::size_t batch_n=0; batch_n < n_batches; batch_n++) {
 
@@ -280,29 +262,22 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
       std::size_t jet_n = batch_n*n_batch_jets + jet_bn;
 
       // jet and other global features
-      const auto & features = tag_infos->at(jet_n).features();
+      const auto & features = tag_infos->at(jet_n).features();   
+            
+      input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 0) = (features.jet_features.pt);
+      input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 1) = (features.jet_features.eta);
+      input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 2) = (features.jet_features.phi);
+      input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 3) = (features.jet_features.mass);      
       
-//       jvars_mean_BIS=numpy.array([65.0491047, -0.00124901765, -0.0179816545, 10.6507911, 7.12620145, 0.415715371, -0.33098271, 1.75991073, 0.351868548])
-//       jvars_std_BIS=numpy.array([20.19552972, 1.20940063, 1.81650516, 3.40517432, 7.31917375, 0.6973823, 0.81846396, 21.01820818, 1.88900173])
-      
-      
-      //add phi and mass!!
-      
-      input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 0) = (features.jet_features.pt);//-65.0491047)/20.19552972;
-      input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 1) = (features.jet_features.eta);//+0.00124901765)/1.20940063;
-      input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 2) = (features.jet_features.phi);//+0.0179816545)/1.81650516;
-      input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 3) = (features.jet_features.mass);//-10.6507911)/3.40517432;
-      
-      
-      std::cout<<input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 0)<<" "<<input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 1)<<
-      " "<<input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 2)<<" "<<input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 3)<<" "<<std::endl;
+      //std::cout<<input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 0)<<" "<<input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 1)<<
+      //" "<<input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 2)<<" "<<input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 3)<<" "<<std::endl;
 
       // seed features
       auto max_seed_n = std::min(features.seed_features.size(),
         (std::size_t) input_sizes.at(kSeedingTracks).dim_size(1));
       
-      std::cout<<"what my size"<<" "<<max_seed_n<<" "<<std::min(features.seed_features.size(),
-        (std::size_t) input_sizes.at(kSeedingTracks).dim_size(1))<<" "<<features.c_pf_features.size()<<" "<<features.seed_features.size()<<" "<<(std::size_t) input_sizes.at(kSeedingTracks).dim_size(1)<<std::endl;
+      //std::cout<<"what my size"<<" "<<max_seed_n<<" "<<std::min(features.seed_features.size(),
+      //(std::size_t) input_sizes.at(kSeedingTracks).dim_size(1))<<" "<<features.c_pf_features.size()<<" "<<features.seed_features.size()<<" "<<(std::size_t) input_sizes.at(kSeedingTracks).dim_size(1)<<std::endl;
       
       for (std::size_t seed_n=0; seed_n < max_seed_n; seed_n++) {
         const auto & seed_features = features.seed_features.at(seed_n);
@@ -313,16 +288,15 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
         auto max_neighbour_n = std::min(features.seed_features[seed_n].seed_nearTracks.size(),
         (std::size_t) input_sizes.at(kNeighbourTracks).dim_size(1));
         
-        std::cout<<"what neighbours"<<" "<<(std::size_t) input_sizes.at(kNeighbourTracks).dim_size(1)<<" "<<features.seed_features[seed_n].seed_nearTracks.size()<<std::endl;
+        //std::cout<<"what neighbours"<<" "<<(std::size_t) input_sizes.at(kNeighbourTracks).dim_size(1)<<" "<<features.seed_features[seed_n].seed_nearTracks.size()<<std::endl;
         
- //       for (std::size_t neighbour_n=0; neighbour_n < max_neighbour_n; seed_n++) {
         neighbourTracks_tensor_filler(input_tensors.at(kNeighbourTracks+seed_n).second,  jet_bn, seed_n,  seed_features);
-//         neighbourTracks_tensor_filler(input_tensors.at(kNeighbourTracks-seed_n+9).second, jet_bn, 0, seed_features);
+        // neighbourTracks_tensor_filler(input_tensors.at(kNeighbourTracks-seed_n+9).second, jet_bn, 0, seed_features);
             
-  //      }
+  
       }
       
-    
+    /*
     std::cout<<"seedingtracks"<<std::endl;
     
     for (unsigned int f=0; f<10; f++){ 
@@ -345,16 +319,14 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
         for (unsigned int fj=0; fj<36; fj++){ 
             std::cout<<input_tensors.at(kNeighbourTracks+1).second.tensor<float, 3>()(jet_bn, f, fj)<<" ";}
         std::cout<<" "<<" "<<std::endl;  }
+	*/
         
     }////different
 
-    
-
-    
 
     // run the session
     std::vector<tensorflow::Tensor> outputs;
-//    std::cout <<"Input size" <<  input_tensors.size() << std::endl;
+    // std::cout <<"Input size" <<  input_tensors.size() << std::endl;
     tensorflow::run(session_, input_tensors, output_names_, &outputs);
 
     // set output values for flavour probs

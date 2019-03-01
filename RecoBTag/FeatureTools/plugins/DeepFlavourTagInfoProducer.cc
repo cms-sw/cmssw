@@ -406,10 +406,11 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   
     
   std::vector<btagbtvdeep::SeedingTrackFeatures> & seedingT_features_vector = features.seed_features;//seedingT_features_vector;
+  
+  //converter does everything
   btagbtvdeep::SeedingTracksConverter::SeedingTracksToFeatures(seedingT_features_vector, tracks, jet, pv, track_builder, m_probabilityEstimator.get(), m_computeProbabilities);
-  std::cout<<"aaa " <<seedingT_features_vector.size()<<std::endl;
-
-
+ 
+ 
   output_tag_infos->emplace_back(features, jet_ref);
   }
 
@@ -429,16 +430,16 @@ void DeepFlavourTagInfoProducer::checkEventSetup(const edm::EventSetup & iSetup)
     if(cacheId2D!=m_calibrationCacheId2D || cacheId3D!=m_calibrationCacheId3D  )  //Calibration changed
    {
        
-        std::cout<<"  check setup  3  "<<std::endl;
-     //iSetup.get<BTagTrackProbabilityRcd>().get(calib);
      ESHandle<TrackProbabilityCalibration> calib2DHandle;
      iSetup.get<BTagTrackProbability2DRcd>().get(calib2DHandle);
      ESHandle<TrackProbabilityCalibration> calib3DHandle;
      iSetup.get<BTagTrackProbability3DRcd>().get(calib3DHandle);
-      const TrackProbabilityCalibration *  ca2D= calib2DHandle.product();
+     const TrackProbabilityCalibration *  ca2D= calib2DHandle.product();
      const TrackProbabilityCalibration *  ca3D= calib3DHandle.product();
-      m_probabilityEstimator.reset(new HistogramProbabilityEstimator(ca3D,ca2D));
-    }
+     m_probabilityEstimator.reset(new HistogramProbabilityEstimator(ca3D,ca2D));
+   
+   }
+  
    m_calibrationCacheId3D=cacheId3D;
    m_calibrationCacheId2D=cacheId2D;
 }
