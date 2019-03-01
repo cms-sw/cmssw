@@ -28,39 +28,39 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testDDUnits);
 
 void testDDUnits::checkUnits()
 {
-  std::cout << "\nMy pi: " << _pi
+  std::cout << "\nMy pi: " << piRadians
 	    << " == " << 1_pi
 	    << " == " << 1._pi << "\n";
   
-  CPPUNIT_ASSERT( M_PI == _pi );
+  CPPUNIT_ASSERT( M_PI == piRadians );
   CPPUNIT_ASSERT( M_PI == 1_pi );
   CPPUNIT_ASSERT( M_PI == 1._pi );
 
   double twoPiAngle = 2_pi;
   std::cout << "My 2pi angle: " << twoPiAngle
-	    << " [rad] == " << CONVERT_UNITS_TO( twoPiAngle, deg )
+	    << " [rad] == " << convertRadToDeg( twoPiAngle )
 	    << " [deg]\n";
 
-  CPPUNIT_ASSERT( 2*M_PI == 2*_pi );
+  CPPUNIT_ASSERT( 2*M_PI == 2 * piRadians );
   CPPUNIT_ASSERT( 2*M_PI == twoPiAngle );
   CPPUNIT_ASSERT( 2*M_PI == 2_pi );
   CPPUNIT_ASSERT( 2*M_PI == 2._pi );
   
-  CPPUNIT_ASSERT( 90_deg == _pi/2 );
+  CPPUNIT_ASSERT( 90_deg == 1_pi/2 );
   CPPUNIT_ASSERT( 120_deg == 2_pi/3 );
   CPPUNIT_ASSERT( 135_deg == 3_pi/4 );
   CPPUNIT_ASSERT( 150_deg == 5_pi/6 );
 
-  double angle90 = CONVERT_UNITS_TO( 1_pi/2, deg );
+  double angle90 = convertRadToDeg( 1_pi/2 );
   CPPUNIT_ASSERT( angle90 == 90 );
   
-  double angle120 = CONVERT_UNITS_TO( 2_pi/3, deg );
+  double angle120 = convertRadToDeg( 2_pi/3 );
   CPPUNIT_ASSERT( angle120 == 120. );
 
-  double angle135 = CONVERT_UNITS_TO( 3_pi/4, deg );
+  double angle135 = convertRadToDeg( 3_pi/4 );
   CPPUNIT_ASSERT( angle135 == 135. );
 
-  double angle150 = CONVERT_UNITS_TO( 5_pi/6, deg );
+  double angle150 = convertRadToDeg( 5_pi/6 );
   CPPUNIT_ASSERT( angle150 == 150. );
 
   cout << "Mass of 1 kg is " << 1._kg

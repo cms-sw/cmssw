@@ -29,22 +29,22 @@ DDI::Sphere::Sphere(double innerRadius,
 
 void DDI::Sphere::stream(std::ostream & os) const
 {
-  os << " innerRadius=" << CONVERT_UNITS_TO( p_[0], cm )
-     << " outerRadius=" << CONVERT_UNITS_TO( p_[1], cm )
-     << " startPhi=" << CONVERT_UNITS_TO( p_[2], deg )
-     << " deltaPhi=" << CONVERT_UNITS_TO( p_[3], deg )
-     << " startTheta=" << CONVERT_UNITS_TO( p_[4], deg )
-     << " deltaTheta=" << CONVERT_UNITS_TO( p_[5], deg );
+  os << " innerRadius=" << convertMmToCm( p_[0] )
+     << " outerRadius=" << convertMmToCm( p_[1] )
+     << " startPhi=" << convertRadToDeg( p_[2] )
+     << " deltaPhi=" << convertRadToDeg( p_[3] )
+     << " startTheta=" << convertRadToDeg( p_[4] )
+     << " deltaTheta=" << convertRadToDeg( p_[5] );
 }
 
 double DDI::Sphere::volume() const
 {
   double volume(0.);
-  if ( std::fabs(p_[3]) <= 2._pi && std::fabs(p_[5]) <= _pi ) {
+  if ( std::fabs(p_[3]) <= 2._pi && std::fabs(p_[5]) <= piRadians ) {
     volume = std::fabs((p_[1]*p_[1]*p_[1] - p_[0]*p_[0]*p_[0])/3. * (std::cos(p_[4]+p_[5]) - std::cos(p_[4]))*p_[3]);
-  } else if (std::fabs(p_[3]) <= 2._pi && std::fabs(p_[5]) > _pi ) {
+  } else if (std::fabs(p_[3]) <= 2._pi && std::fabs(p_[5]) > piRadians ) {
     volume = std::fabs((p_[1]*p_[1]*p_[1] - p_[0]*p_[0]*p_[0])/3. * (std::cos(p_[4]+p_[5]-180._deg) - std::cos(p_[4]))*p_[3]);
-  } else if (std::fabs(p_[3]) > 2._pi && std::fabs(p_[5]) <= _pi ) {
+  } else if (std::fabs(p_[3]) > 2._pi && std::fabs(p_[5]) <= piRadians ) {
     volume = std::fabs((p_[1]*p_[1]*p_[1] - p_[0]*p_[0]*p_[0])/3. * (std::cos(p_[4]+p_[5]) - std::cos(p_[4]))*(p_[3]-p_[2]));
   }
   return volume;

@@ -30,12 +30,12 @@ DDI::TruncTubs::TruncTubs(double zHalf,
 
 void DDI::TruncTubs::stream(std::ostream & os) const
 {
-  os << " zHalf=" << CONVERT_UNITS_TO( p_[0], cm )
-     << "cm rIn=" << CONVERT_UNITS_TO( p_[1], cm )
-     << "cm rOut=" << CONVERT_UNITS_TO( p_[2], cm )
-     << "cm startPhi=" << CONVERT_UNITS_TO( p_[3], deg )
-     << "deg deltaPhi=" << CONVERT_UNITS_TO( p_[4], deg )
-     << "deg cutAtStart=" << CONVERT_UNITS_TO( p_[5], cm )
-     << "cm cutAtDelta=" << CONVERT_UNITS_TO( p_[6], cm )
+  os << " zHalf=" << convertMmToCm( p_[0] )
+     << "cm rIn=" << convertMmToCm( p_[1] )
+     << "cm rOut=" << convertMmToCm( p_[2] )
+     << "cm startPhi=" << convertRadToDeg( p_[3] )
+     << "deg deltaPhi=" << convertRadToDeg( p_[4] )
+     << "deg cutAtStart=" << convertMmToCm( p_[5] )
+     << "cm cutAtDelta=" << convertMmToCm( p_[6] )
      << "cm cutInside=" << p_[7];
 }

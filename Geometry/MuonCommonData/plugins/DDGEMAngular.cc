@@ -42,8 +42,8 @@ void DDGEMAngular::initialize(const DDNumericArguments & nArgs,
   incrCopyNo  = int (nArgs["incrCopyNo"]);
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MuonGeom") << "DDGEMAngular debug: Parameters for positioning-- "
-			   << n << " copies in steps of " << CONVERT_UNITS_TO( stepAngle, deg )
-			   << " from " << CONVERT_UNITS_TO( startAngle, deg )
+			   << n << " copies in steps of " << convertRadToDeg( stepAngle )
+			   << " from " << convertRadToDeg( startAngle )
 			   << " (inversion flag " << invert << ") \trPos " << rPos
 			   << " Zoffest " << zoffset << "\tStart and inremental "
 			   << "copy nos " << startCopyNo << ", " << incrCopyNo;
@@ -83,8 +83,8 @@ void DDGEMAngular::execute(DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
       edm::LogInfo("MuonGeom") << "DDGEMAngular test: Creating a new rotation "
 			       << DDName(rotstr, idNameSpace) << "\t " 
-			       << CONVERT_UNITS_TO( thetax, deg ) << ", " << CONVERT_TO( phix, deg ) << ", " << CONVERT_TO( thetay, deg )
-			       << ", 0, " << CONVERT_UNITS_TO( thetax, deg )<< ", " << CONVERT_TO( phiz, deg );
+			       << convertRadToDeg( thetax ) << ", " << convertRadToDeg(  phix ) << ", " << convertRadToDeg(  thetay )
+			       << ", 0, " << convertRadToDeg( thetax )<< ", " << convertRadToDeg(  phiz );
 #endif
       rotation = DDrot(DDName(rotstr, rotns), thetax, phix, thetay, 0., thetax, phiz);
     } 

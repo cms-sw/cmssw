@@ -46,14 +46,14 @@ DDI::ExtrudedPolygon::stream( std::ostream & os ) const
   auto xysize = ( unsigned int )(( p_.size() - 4*p_[0]) * 0.5 );
   os << " XY Points[cm]=";
   for( unsigned int k = 1; k <= xysize; ++k )
-    os << CONVERT_UNITS_TO( p_[k], cm ) << ", " <<  CONVERT_UNITS_TO( p_[k + xysize], cm ) << "; ";
+    os << convertMmToCm( p_[k] ) << ", " <<  convertMmToCm( p_[k + xysize] ) << "; ";
   os << " with " << p_[0] << " Z sections:";
   unsigned int m0 = p_.size() - 4*p_[0];
   for( unsigned int m = m0; m < m0 + p_[0]; ++m )
   {
-    os << " z[cm]=" << CONVERT_UNITS_TO( p_[m], cm );
-    os << ", x[cm]=" << CONVERT_UNITS_TO( p_[m+p_[0]], cm );
-    os << ", y[cm]="  << CONVERT_UNITS_TO( p_[m+2*p_[0]], cm );
-    os << ", scale[cm]="  << CONVERT_UNITS_TO( p_[m+3*p_[0]], cm ) << ";";
+    os << " z[cm]=" << convertMmToCm( p_[m] );
+    os << ", x[cm]=" << convertMmToCm( p_[m+p_[0]] );
+    os << ", y[cm]="  << convertMmToCm( p_[m+2*p_[0]] );
+    os << ", scale[cm]="  << convertMmToCm( p_[m+3*p_[0]] ) << ";";
   }
 }

@@ -33,11 +33,11 @@ DDI::CutTubs::CutTubs( double zhalf,
 
 void DDI::CutTubs::stream(std::ostream & os) const
 {
-  os << " zhalf=" << CONVERT_UNITS_TO( p_[0], cm )
-     << " rIn=" << CONVERT_UNITS_TO( p_[1], cm )
-     << " rOut=" << CONVERT_UNITS_TO( p_[2], cm )
-     << " startPhi=" << CONVERT_UNITS_TO( p_[3], deg )
-     << " deltaPhi=" << CONVERT_UNITS_TO( p_[4], deg )
+  os << " zhalf=" << convertMmToCm( p_[0] )
+     << " rIn=" << convertMmToCm( p_[1] )
+     << " rOut=" << convertMmToCm( p_[2] )
+     << " startPhi=" << convertRadToDeg( p_[3] )
+     << " deltaPhi=" << convertRadToDeg( p_[4] )
      << " Outside Normal at -z (" << p_[5] << "," << p_[6] << "," << p_[7] << ")"
      << " Outside Normal at +z (" << p_[8] << "," << p_[9] << "," << p_[10] << ")";		
 }

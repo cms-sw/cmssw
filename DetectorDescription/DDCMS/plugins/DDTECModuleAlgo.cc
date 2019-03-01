@@ -126,7 +126,7 @@ static long algorithm(Detector& /* description */,
   string         siReenforceMat = args.value<string>("SiReenforcementMaterial");  //             Materieal
 
   LogDebug("TECGeom") << "debug: ModuleThick " << moduleThick
-		      << " Detector Tilt " << CONVERT_UNITS_TO( detTilt, deg ) << " Height "
+		      << " Detector Tilt " << convertRadToDeg( detTilt ) << " Height "
 		      << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) "
 		      << dlBottom << " dl(Hybrid) " << dlHybrid
 		      << " rPos " << rPos << " standrad rotation " 
@@ -453,7 +453,7 @@ static long algorithm(Detector& /* description */,
     ns.addSolidNS(name,solid);
     LogDebug("TECGeom") << "Solid:\t" << solid.name()
 			<< " Trap made of " <<  pitchMat
-			<< " of dimensions " << dz << ", " << CONVERT_UNITS_TO( thet, deg )
+			<< " of dimensions " << dz << ", " << convertRadToDeg( thet )
 			<< ", 0, " << h1 << ", " << bl1 << ", " << bl1
 			<< ", 0, " << h1 << ", " << bl2 << ", " << bl2
 			<< ", 0";
@@ -502,7 +502,7 @@ static long algorithm(Detector& /* description */,
     ns.addSolid(name,solid);
     LogDebug("TECGeom") << "Solid:\t" << solid.name()
 			<< " Trap made of " << topFrameMat << " of dimensions "
-			<< dz << ", " << CONVERT_UNITS_TO( thet, deg ) << ", 0, " << h1 
+			<< dz << ", " << convertRadToDeg( thet ) << ", 0, " << h1 
 			<< ", " << bl1 << ", " << bl1 << ", 0, " << h1 
 			<< ", " << bl2 << ", " << bl2 << ", 0";
   }

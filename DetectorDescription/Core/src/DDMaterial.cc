@@ -112,8 +112,8 @@ namespace {
     ++level; 
     if (mat) {
       os << '[' << mat.name() <<']' << " z=" << mat.z()
-	 << " a=" << CONVERT_UNITS_TO( mat.a(), g_per_mole ) << "*g/mole"
-	 << " d=" << CONVERT_UNITS_TO( mat.density(), g_per_cm3 ) << "*g/cm3";
+	 << " a=" << convertUnitsTo(1._g_per_mole, mat.a()) << "*g/mole"
+	 << " d=" << convertUnitsTo(1._g_per_cm3 , mat.density()) << "*g/cm3";
       std::string s(2*level,' ');
       for (int i=0; i<mat.noOfConstituents(); ++i) {
          DDMaterial::FractionV::value_type f = mat.constituent(i);
