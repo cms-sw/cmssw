@@ -1,9 +1,9 @@
 /** \Class GEMMaskReClusterizer
  *  \author J.C. Sanabria -- UniAndes, Bogota
  */
-#include "GEMCluster.h"
-#include "GEMClusterizer.h"
-#include "GEMMaskReClusterizer.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMCluster.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMClusterizer.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMMaskReClusterizer.h"
 
 GEMClusterContainer GEMMaskReClusterizer::doAction(const GEMDetId& id,
                                                    GEMClusterContainer& initClusters,
@@ -19,8 +19,7 @@ GEMClusterContainer GEMMaskReClusterizer::doAction(const GEMDetId& id,
     // So the prev. cluster is placed after the current cluster (check the < operator of GEMCluster carefully)
     if ( (prev.firstStrip()-cl->lastStrip()) == 2 and
          this->get(mask, cl->lastStrip()+1) and prev.bx() == cl->bx() ) {
-      GEMCluster merged(cl->firstStrip(), prev.lastStrip(), cl->bx());
-      prev = merged;
+      prev = GEMCluster(cl->firstStrip(), prev.lastStrip(), cl->bx());
     }
     else {
       finClusters.insert(prev);

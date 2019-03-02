@@ -1,4 +1,4 @@
-#include "GEMClusterizer.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMClusterizer.h"
 
 GEMClusterContainer GEMClusterizer::doAction(const GEMDigiCollection::Range& digiRange)
 {

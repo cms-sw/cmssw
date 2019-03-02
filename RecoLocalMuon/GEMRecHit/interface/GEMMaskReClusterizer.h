@@ -4,8 +4,8 @@
  *  \author J.C. Sanabria -- UniAndes, Bogota
  */
 
-#include "GEMEtaPartitionMask.h"
-#include "GEMClusterContainer.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMEtaPartitionMask.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMClusterContainer.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
 class GEMMaskReClusterizer

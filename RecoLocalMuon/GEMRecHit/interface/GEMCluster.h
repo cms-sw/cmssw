@@ -1,6 +1,7 @@
-#ifndef RecoLocalMuon_GEMCluster_h
-#define RecoLocalMuon_GEMCluster_h
+#ifndef RecoLocalMuon_GEMRecHit_GEMCluster_h
+#define RecoLocalMuon_GEMRecHit_GEMCluster_h
 #include <boost/cstdint.hpp>
+
 class GEMCluster{
  public:
   GEMCluster();
