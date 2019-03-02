@@ -3,10 +3,7 @@
  *
  *  \author M. Maggi -- INFN Bari
  */
-
 #include "RecoLocalMuon/GEMRecHit/interface/GEMRecHitBaseAlgo.h"
-//#include "RecoLocalMuon/GEMRecHit/interface/GEMClusterContainer.h"
-//#include "RecoLocalMuon/GEMRecHit/interface/GEMCluster.h"
 #include "RecoLocalMuon/GEMRecHit/interface/GEMClusterizer.h"
 #include "RecoLocalMuon/GEMRecHit/interface/GEMMaskReClusterizer.h"
 
@@ -14,10 +11,7 @@
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-GEMRecHitBaseAlgo::GEMRecHitBaseAlgo(const edm::ParameterSet& config) {
-  //  theSync = GEMTTrigSyncFactory::get()->create(config.getParameter<string>("tTrigMode"),
-  //config.getParameter<ParameterSet>("tTrigModeConfig"));
-}
+GEMRecHitBaseAlgo::GEMRecHitBaseAlgo(const edm::ParameterSet& config) {}
 
 GEMRecHitBaseAlgo::~GEMRecHitBaseAlgo(){}
 
