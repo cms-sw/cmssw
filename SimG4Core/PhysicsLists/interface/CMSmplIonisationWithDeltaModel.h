@@ -34,12 +34,12 @@ public:
   explicit CMSmplIonisationWithDeltaModel(G4double mCharge, 
                                 const G4String& nam = "mplIonisationWithDelta");
 
-  virtual ~CMSmplIonisationWithDeltaModel();
+  ~CMSmplIonisationWithDeltaModel() override override;
 
-  virtual void Initialise(const G4ParticleDefinition*, 
+  void Initialise(const G4ParticleDefinition*, 
                           const G4DataVector&) override;
 
-  virtual G4double ComputeDEDXPerVolume(const G4Material*,
+  G4double ComputeDEDXPerVolume(const G4Material*,
                                         const G4ParticleDefinition*,
                                         G4double kineticEnergy,
                                         G4double cutEnergy) override;
@@ -50,39 +50,39 @@ public:
                                  G4double cutEnergy,
                                  G4double maxEnergy);
 
-  virtual G4double ComputeCrossSectionPerAtom(
+  G4double ComputeCrossSectionPerAtom(
                                  const G4ParticleDefinition*,
                                  G4double kineticEnergy,
                                  G4double Z, G4double A,
                                  G4double cutEnergy,
                                  G4double maxEnergy) override;
 
-  virtual void SampleSecondaries(std::vector<G4DynamicParticle*>*,
+  void SampleSecondaries(std::vector<G4DynamicParticle*>*,
                                  const G4MaterialCutsCouple*,
                                  const G4DynamicParticle*,
                                  G4double tmin,
                                  G4double maxEnergy) override;
 
 
-  virtual G4double SampleFluctuations(const G4MaterialCutsCouple*,
+  G4double SampleFluctuations(const G4MaterialCutsCouple*,
                                       const G4DynamicParticle*,
                                       G4double tmax,
                                       G4double length,
                                       G4double meanLoss) override;
 
-  virtual G4double Dispersion(const G4Material*,
+  G4double Dispersion(const G4Material*,
                               const G4DynamicParticle*,
                               G4double tmax,
                               G4double length) override;
 
-  virtual G4double MinEnergyCut(const G4ParticleDefinition*,
+  G4double MinEnergyCut(const G4ParticleDefinition*,
                                 const G4MaterialCutsCouple* couple) override;
 
   void SetParticle(const G4ParticleDefinition* p);
 
 protected:
 
-  virtual G4double MaxSecondaryEnergy(const G4ParticleDefinition*,
+  G4double MaxSecondaryEnergy(const G4ParticleDefinition*,
                                       G4double kinEnergy) override;
 
 private:
