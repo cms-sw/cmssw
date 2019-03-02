@@ -40,22 +40,22 @@ public:
   explicit CMSmplIonisation(G4double mCharge = 0.0, 
                            const G4String& name = "mplIoni");
 
-  virtual ~CMSmplIonisation();
+  ~CMSmplIonisation() override override;
 
-  virtual G4bool IsApplicable(const G4ParticleDefinition& p) override;
+  G4bool IsApplicable(const G4ParticleDefinition& p) override;
 
-  virtual G4double MinPrimaryEnergy(const G4ParticleDefinition* p,
+  G4double MinPrimaryEnergy(const G4ParticleDefinition* p,
                                     const G4Material*, G4double cut) final;
 
   // Print out of the class parameters
-  virtual void PrintInfo() override;
+  void PrintInfo() override;
 
   // print description in html
-  virtual void ProcessDescription(std::ostream&) const override;
+  void ProcessDescription(std::ostream&) const override;
 
 protected:
 
-  virtual void InitialiseEnergyLossProcess(const G4ParticleDefinition*,
+  void InitialiseEnergyLossProcess(const G4ParticleDefinition*,
                                            const G4ParticleDefinition*) override;
 
 private:

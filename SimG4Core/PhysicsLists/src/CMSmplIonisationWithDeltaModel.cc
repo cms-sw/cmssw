@@ -271,7 +271,7 @@ CMSmplIonisationWithDeltaModel::SampleSecondaries(vector<G4DynamicParticle*>* vd
   G4double phi = twopi * G4UniformRand() ;
 
   G4ThreeVector deltaDirection(sint*cos(phi),sint*sin(phi), cost);
-  G4ThreeVector direction = dp->GetMomentumDirection();
+  const G4ThreeVector& direction = dp->GetMomentumDirection();
   deltaDirection.rotateUz(direction);
 
   // create G4DynamicParticle object for delta ray

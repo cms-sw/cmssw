@@ -73,7 +73,7 @@ void CMSmplIonisation::InitialiseEnergyLossProcess(const G4ParticleDefinition* p
 {
   if(isInitialised) { return; }
 
-  SetBaseParticle(0);
+  SetBaseParticle(nullptr);
 
   // monopole model is responsible both for energy loss and fluctuations
   CMSmplIonisationWithDeltaModel* ion =
