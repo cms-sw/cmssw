@@ -53,10 +53,6 @@ public:
   // print description in html
   void ProcessDescription(std::ostream&) const override;
 
-  // hide assignment operator
-  CMSmplIonisation & operator=(const CMSmplIonisation &right) = delete;
-  CMSmplIonisation(const CMSmplIonisation&) = delete;
-
 protected:
 
   void InitialiseEnergyLossProcess(const G4ParticleDefinition*,

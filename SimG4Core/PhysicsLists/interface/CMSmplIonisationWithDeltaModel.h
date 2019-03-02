@@ -80,11 +80,6 @@ public:
 
   void SetParticle(const G4ParticleDefinition* p);
 
-  // hide assignment operator
-  CMSmplIonisationWithDeltaModel & 
-    operator=(const  CMSmplIonisationWithDeltaModel &right) = delete;
-  CMSmplIonisationWithDeltaModel(const  CMSmplIonisationWithDeltaModel&) = delete;
-
 protected:
 
   G4double MaxSecondaryEnergy(const G4ParticleDefinition*,
