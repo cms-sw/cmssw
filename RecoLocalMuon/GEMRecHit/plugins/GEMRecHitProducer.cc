@@ -3,7 +3,7 @@
  *  \author M. Maggi -- INFN Bari
  */
 
-#include "GEMRecHitProducer.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMRecHitProducer.h"
 
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -41,8 +41,8 @@ GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config):
       edm::FileInPath fp = config.getParameter<edm::FileInPath>("maskvecfile");
       std::ifstream inputFile(fp.fullPath().c_str(), std::ios::in);
       if ( !inputFile ) {
-        std::cerr << "Masked Strips File cannot not be opened" << std::endl;
-        exit(1);
+        throw cms::Exception("GEMRecHitProducer")
+          << "Masked Strips File cannot not be opened";
       }
       theGEMMaskedStripsObj = std::make_unique<GEMMaskedStrips>();
       while ( inputFile.good() ) {
@@ -59,8 +59,8 @@ GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config):
       edm::FileInPath fp = config.getParameter<edm::FileInPath>("deadvecfile");
       std::ifstream inputFile(fp.fullPath().c_str(), std::ios::in);
       if ( !inputFile ) {
-        std::cerr << "Dead Strips File cannot not be opened" << std::endl;
-        exit(1);
+        throw cms::Exception("GEMRecHitProducer")
+          << "Dead Strips File cannot not be opened";
       }
       theGEMDeadStripsObj = std::make_unique<GEMDeadStrips>();
       while ( inputFile.good() ) {
@@ -74,6 +74,21 @@ GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config):
 }
 
 GEMRecHitProducer::~GEMRecHitProducer() = default;
+
+void GEMRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
+  edm::ParameterSetDescription desc;
+  edm::ParameterSetDescription recAlgoConfigDesc;
+  desc.add<edm::ParameterSetDescription>("recAlgoConfig", recAlgoConfigDesc);
+  desc.add<std::string>("recAlgo", 'GEMRecHitStandardAlgo');
+  desc.add<edm::InputTag>("gemDigiLabel", edm::InputTag("muonGEMDigis"));
+  desc.add<bool>("applyMasking", false);
+  desc.add<std::string>("maskSource", '');
+  desc.add<edm::FileInPath>("maskvecfile", '');
+  desc.add<std::string>("deadSource", '');
+  desc.add<edm::FileInPath>("maskvecfile", '');
+  descriptions.add("gemRecHits",desc);
+}
 
 void GEMRecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup){
   // Get the GEM Geometry
@@ -112,7 +127,7 @@ void GEMRecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup
       }
       // add to masking map if masking present in etaPartition
       if (mask.any()) {
-        gemMask_.insert(std::pair<GEMDetId,EtaPartitionMask>(gemId, mask));
+        gemMask_.emplace(gemId,mask);
       }
     }
   }
@@ -131,7 +146,6 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup)
   auto recHitCollection = std::make_unique<GEMRecHitCollection>();
 
   // Iterate through all digi collections ordered by LayerId   
-
   for ( auto gemdgIt = digis->begin(); gemdgIt != digis->end(); ++gemdgIt ) {
     // The layerId
     const GEMDetId& gemId = (*gemdgIt).first;
@@ -162,5 +176,4 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup)
   }
 
   event.put(std::move(recHitCollection));
-
 }

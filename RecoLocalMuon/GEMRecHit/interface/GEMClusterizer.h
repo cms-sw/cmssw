@@ -4,8 +4,8 @@
  *  \author M. Maggi -- INFN Bari
  */
 
-#include "GEMClusterContainer.h"
-#include "GEMCluster.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMClusterContainer.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMCluster.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
 class GEMClusterizer{

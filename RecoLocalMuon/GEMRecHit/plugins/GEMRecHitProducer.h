@@ -33,6 +33,8 @@ class GEMRecHitProducer : public edm::stream::EDProducer<> {
   /// The method which produces the rechits
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  
  private:
 
   // The token to be used to retrieve GEM digis from the event
