@@ -34,7 +34,7 @@ public:
   explicit CMSmplIonisationWithDeltaModel(G4double mCharge, 
                                 const G4String& nam = "mplIonisationWithDelta");
 
-  ~CMSmplIonisationWithDeltaModel() override override;
+  ~CMSmplIonisationWithDeltaModel() override;
 
   void Initialise(const G4ParticleDefinition*, 
                           const G4DataVector&) override;
@@ -92,8 +92,8 @@ private:
 
   // hide assignment operator
   CMSmplIonisationWithDeltaModel & 
-    operator=(const  CMSmplIonisationWithDeltaModel &right) = delete;
-  CMSmplIonisationWithDeltaModel(const  CMSmplIonisationWithDeltaModel&) = delete;
+    operator=(const  CMSmplIonisationWithDeltaModel &right);
+  CMSmplIonisationWithDeltaModel(const  CMSmplIonisationWithDeltaModel&);
 
   const G4ParticleDefinition* monopole;
   G4ParticleDefinition*       theElectron;

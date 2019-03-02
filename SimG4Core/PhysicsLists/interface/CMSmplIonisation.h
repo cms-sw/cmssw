@@ -40,7 +40,7 @@ public:
   explicit CMSmplIonisation(G4double mCharge = 0.0, 
                            const G4String& name = "mplIoni");
 
-  ~CMSmplIonisation() override override;
+  ~CMSmplIonisation() override;
 
   G4bool IsApplicable(const G4ParticleDefinition& p) override;
 
@@ -56,13 +56,13 @@ public:
 protected:
 
   void InitialiseEnergyLossProcess(const G4ParticleDefinition*,
-                                           const G4ParticleDefinition*) override;
+                                   const G4ParticleDefinition*) override;
 
 private:
 
   // hide assignment operator
-  CMSmplIonisation & operator=(const CMSmplIonisation &right) = delete;
-  CMSmplIonisation(const CMSmplIonisation&) = delete;
+  CMSmplIonisation & operator=(const CMSmplIonisation &right);
+  CMSmplIonisation(const CMSmplIonisation&);
 
   G4double    magneticCharge;
   G4bool      isInitialised;
