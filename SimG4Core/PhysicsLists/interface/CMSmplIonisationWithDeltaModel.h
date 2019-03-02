@@ -80,6 +80,11 @@ public:
 
   void SetParticle(const G4ParticleDefinition* p);
 
+  // hide assignment operator
+  CMSmplIonisationWithDeltaModel & 
+    operator=(const  CMSmplIonisationWithDeltaModel &right) = delete;
+  CMSmplIonisationWithDeltaModel(const  CMSmplIonisationWithDeltaModel&) = delete;
+
 protected:
 
   G4double MaxSecondaryEnergy(const G4ParticleDefinition*,
@@ -89,11 +94,6 @@ private:
 
   G4double ComputeDEDXAhlen(const G4Material* material, G4double bg2, 
                             G4double cut);
-
-  // hide assignment operator
-  CMSmplIonisationWithDeltaModel & 
-    operator=(const  CMSmplIonisationWithDeltaModel &right);
-  CMSmplIonisationWithDeltaModel(const  CMSmplIonisationWithDeltaModel&);
 
   const G4ParticleDefinition* monopole;
   G4ParticleDefinition*       theElectron;
