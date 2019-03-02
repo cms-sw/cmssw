@@ -10,9 +10,8 @@ static
 void
 makePSetsFromFile(std::string const& fileName) { 
   std::string initCommand("from FWCore.ParameterSet.Types import makeCppPSet\n"
-                          "execfile('");
-  initCommand += fileName + "')";
-
+                          "exec(open('");
+  initCommand += fileName + "').read())";
   pybind11::exec(initCommand);
   pybind11::exec("makeCppPSet(locals(), topPSet)");
 }
