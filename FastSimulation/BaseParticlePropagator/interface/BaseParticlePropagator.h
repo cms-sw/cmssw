@@ -165,7 +165,9 @@ private:
 
 public:
 
+  /// The particle being propagated
   inline RawParticle const& particle() const { return particle_;}
+  inline RawParticle& particle() { return particle_;}
   void setParticle(RawParticle const& iParticle) { particle_=iParticle;}
 
   /// Set the proper decay time
