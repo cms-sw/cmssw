@@ -2,9 +2,12 @@
 #include <HepMC/GenVertex.h>
 #include <iostream>
 
-//HACK
+//HACK We need to change the internals of GenVertex when reading
+// back via ROOT. We use the private access of GenEvent to 
+// accomplish it.
 namespace HepMC {
-  struct GenEvent {
+  class GenEvent {
+  public:
     static void clear_particles_in(HepMC::GenVertex* iVertex) {
       iVertex->m_particles_in.clear();
     }
