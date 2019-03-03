@@ -21,6 +21,8 @@
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.hh"
 #include "SimG4Core/CustomPhysics/interface/ToyModelHadronicProcess.hh"
 #include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.hh"
+#include "SimG4Core/CustomPhysics/src/G4QGSPSIMPBuilder.hh"
+#include "SimG4Core/CustomPhysics/src/G4SIMPInelasticProcess.hh"
 
 using namespace CLHEP;
  
@@ -57,7 +59,21 @@ void CustomPhysicsList::addCustomPhysics(){
 
   while((*aParticleIterator)()) {
     G4ParticleDefinition* particle = aParticleIterator->value();
-    if(CustomParticleFactory::isCustomParticle(particle)) {
+
+    if (particle->GetParticleType() == "simp") {
+
+      G4ProcessManager* pmanager = particle->GetProcessManager();
+      if(pmanager) {
+        G4SIMPInelasticProcess * simpInelPr = new G4SIMPInelasticProcess();
+        G4QGSPSIMPBuilder * theQGSPSIMPB = new G4QGSPSIMPBuilder(false); // false -> no QuasiElastic (not adapted for SIMP - crashes)
+        theQGSPSIMPB->SetMinEnergy(12.0*MeV); // normally this is GeV, but that
+                 // leads to crashes with the massive SIMPs
+        theQGSPSIMPB->Build(simpInelPr);
+        pmanager->AddDiscreteProcess(simpInelPr);
+      }
+      else  edm::LogInfo("CustomPhysics") << "   No pmanager";
+
+    } else if(CustomParticleFactory::isCustomParticle(particle)) {
       CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
       edm::LogInfo("CustomPhysics") << particle->GetParticleName()
 				    <<"  PDGcode= "<<particle->GetPDGEncoding()
