@@ -38,16 +38,16 @@ PythiaDecays::particleDaughters(ParticlePropagator& particle, CLHEP::HepRandomEn
   theList.clear();
 
   // inspired by method Pythia8Hadronizer::residualDecay() in GeneratorInterface/Pythia8Interface/src/Py8GunBase.cc
-  int pid = particle.pid();
+  int pid = particle.particle().pid();
   decayer->event.reset();
   Pythia8::Particle py8part( pid , 93, 0, 0, 0, 0, 0, 0,
-		     particle.momentum().x(), // note: momentum().x() and Px() are the same
-		     particle.momentum().y(),
-		     particle.momentum().z(),
-		     particle.momentum().t(),
-		     particle.mass() );
-  py8part.vProd( particle.X(), particle.Y(), 
-		 particle.Z(), particle.T() );
+		     particle.particle().momentum().x(), // note: momentum().x() and Px() are the same
+		     particle.particle().momentum().y(),
+		     particle.particle().momentum().z(),
+		     particle.particle().momentum().t(),
+		     particle.particle().mass() );
+  py8part.vProd( particle.particle().X(), particle.particle().Y(), 
+		 particle.particle().Z(), particle.particle().T() );
   decayer->event.append( py8part );
 
   int nentries_before = decayer->event.size();

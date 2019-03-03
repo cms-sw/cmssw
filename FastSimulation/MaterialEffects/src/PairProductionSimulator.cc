@@ -13,7 +13,7 @@ void
 PairProductionSimulator::compute(ParticlePropagator& Particle, RandomEngineAndDistribution const* random)
 {
 
-  double eGamma = Particle.e(); 
+  double eGamma = Particle.particle().e(); 
 
   // The photon has enough energy to create a pair
   if ( eGamma>=photonEnergy ) { 
@@ -65,8 +65,8 @@ PairProductionSimulator::compute(ParticlePropagator& Particle, RandomEngineAndDi
       }
       
       
-      double chi = Particle.theta();
-      double psi = Particle.phi();
+      double chi = Particle.particle().theta();
+      double psi = Particle.particle().phi();
       RawParticle::RotationZ rotZ(psi);
       RawParticle::RotationY rotY(chi);
      

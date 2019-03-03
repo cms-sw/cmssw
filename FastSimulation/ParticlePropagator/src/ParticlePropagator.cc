@@ -21,7 +21,7 @@ ParticlePropagator::ParticlePropagator(const RawParticle& myPart,
   theFieldMap(aFieldMap),
   random(engine)
 {
-  setMagneticField(fieldMap(X(),Y(),Z()));
+  setMagneticField(fieldMap(particle().X(),particle().Y(),particle().Z()));
   initProperDecayTime();
 }
 
@@ -33,43 +33,42 @@ ParticlePropagator::ParticlePropagator( const RawParticle& myPart,
   random(engine)
  
 {
-  setMagneticField(fieldMap(X(),Y(),Z()));
+  setMagneticField(fieldMap(particle().X(),particle().Y(),particle().Z()));
   initProperDecayTime();
 }
 
 ParticlePropagator::ParticlePropagator(const XYZTLorentzVector& mom, 
 				       const XYZTLorentzVector& vert, float q,
 				       const MagneticFieldMap* aFieldMap) :
-  BaseParticlePropagator(RawParticle(mom,vert),0.,0.,0.),
+  BaseParticlePropagator(RawParticle(mom,vert,q),0.,0.,0.),
   theFieldMap(aFieldMap),
   random(nullptr)
 {
-  setCharge(q);
-  setMagneticField(fieldMap(X(),Y(),Z()));
+  setMagneticField(fieldMap(particle().X(),particle().Y(),particle().Z()));
 }
 
 ParticlePropagator::ParticlePropagator(const XYZTLorentzVector& mom, 
 				       const XYZVector& vert, float q,
 				       const MagneticFieldMap* aFieldMap) :
   BaseParticlePropagator(
-    RawParticle(mom,XYZTLorentzVector(vert.X(),vert.Y(),vert.Z(),0.0)),0.,0.,0.),
+  RawParticle(mom,XYZTLorentzVector(vert.X(),vert.Y(),vert.Z(),0.0), q),0.,0.,0.),
   theFieldMap(aFieldMap),
   random(nullptr)
 {
-  setCharge(q);
-  setMagneticField(fieldMap(X(),Y(),Z()));
+  setMagneticField(fieldMap(particle().X(),particle().Y(),particle().Z()));
 }
 
 ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack,
 				       const MagneticFieldMap* aFieldMap,
 				       const RandomEngineAndDistribution* engine) :
-  BaseParticlePropagator(RawParticle(simTrack.type(),simTrack.momentum()),
+  BaseParticlePropagator(RawParticle(simTrack.type(),
+                                     simTrack.momentum(),
+                                     simTrack.vertex().position()),
 			 0.,0.,0.),
   theFieldMap(aFieldMap),
   random(engine)
 {
-  setVertex(simTrack.vertex().position());
-  setMagneticField(fieldMap(X(),Y(),Z()));
+  setMagneticField(fieldMap(particle().X(),particle().Y(),particle().Z()));
   if ( simTrack.decayTime() < 0. ) { 
     if ( simTrack.nDaughters() ) 
       // This particle already decayed, don't decay it twice
@@ -95,7 +94,7 @@ ParticlePropagator::ParticlePropagator(const BaseParticlePropagator& myPropPart,
   BaseParticlePropagator(myPropPart),
   theFieldMap(aFieldMap)
 {  
-  setMagneticField(fieldMap(X(),Y(),Z()));
+  setMagneticField(fieldMap(particle().X(),particle().Y(),particle().Z()));
 }
 
 
@@ -104,9 +103,9 @@ ParticlePropagator::initProperDecayTime() {
 
   // And this is the proper time at which the particle will decay
   double properDecayTime = 
-    (pid()==0||pid()==22||abs(pid())==11||abs(pid())==2112||abs(pid())==2212||
+    (particle().pid()==0||particle().pid()==22||abs(particle().pid())==11||abs(particle().pid())==2112||abs(particle().pid())==2212||
      !random) ?
-    1E99 : -PDGcTau() * std::log(random->flatShoot());
+    1E99 : -particle().PDGcTau() * std::log(random->flatShoot());
 
   this->setProperDecayTime(properDecayTime);
 
@@ -135,7 +134,7 @@ ParticlePropagator::fieldMap(double xx,double yy, double zz) {
   // Arguments now passed in cm.
   //  return MagneticFieldMap::instance()->inTesla(GlobalPoint(xx/10.,yy/10.,zz/10.)).z();
   // Return a dummy value for neutral particles!
-  return charge() == 0.0 || theFieldMap == nullptr ? 
+  return particle().charge() == 0.0 || theFieldMap == nullptr ? 
     4. : theFieldMap->inTeslaZ(GlobalPoint(xx,yy,zz));
 }
 
@@ -144,7 +143,7 @@ ParticlePropagator::fieldMap(const TrackerLayer& layer, double coord, int succes
   // Arguments now passed in cm.
   //  return MagneticFieldMap::instance()->inTesla(GlobalPoint(xx/10.,yy/10.,zz/10.)).z();
   // Return a dummy value for neutral particles!
-  return charge() == 0.0 || theFieldMap == nullptr ? 
+  return particle().charge() == 0.0 || theFieldMap == nullptr ? 
     4. : theFieldMap->inTeslaZ(layer,coord,success);
 }
 
@@ -170,14 +169,14 @@ ParticlePropagator::propagateToBoundSurface(const TrackerLayer& layer) {
   // Set the magnetic field at the new location (if succesfully propagated)
   if ( done && !hasDecayed() ) { 
     if ( success == 2 ) 
-      setMagneticField(fieldMap(layer,r(),success));
+      setMagneticField(fieldMap(layer,particle().r(),success));
     else if ( success == 1 )
-      setMagneticField(fieldMap(layer,z(),success));
+      setMagneticField(fieldMap(layer,particle().z(),success));
   }	
        
   // There is some real material here
   fiducial = !(!disk &&  success!=1) &&
-	     !( disk && (success!=2  || r()<innerradius));
+    !( disk && (success!=2  || particle().r()<innerradius));
 
   return done;
 }
