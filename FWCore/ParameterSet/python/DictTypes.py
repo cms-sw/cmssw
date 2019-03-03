@@ -48,7 +48,7 @@ class SortedKeysDict(dict):
     def keys(self):
         return self.list
     def values(self):
-        return [ dict.__getitems__(self, key) for key in self.list]
+        return [ dict.__getitem__(self, key) for key in self.list]
 
 
 class SortedAndFixedKeysDict(SortedKeysDict):
