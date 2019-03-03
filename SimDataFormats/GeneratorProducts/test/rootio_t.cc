@@ -18,7 +18,7 @@ int main() {
 
     constexpr double kMass = 1.;
     constexpr double kMom = 1.;
-    constexpr double kEnergy = sqrt( kMass*kMass+kMom*kMom);
+    const double kEnergy = sqrt( kMass*kMass+kMom*kMom);
     constexpr int id = 11;
 
     auto p1 = new HepMC::GenParticle(HepMC::FourVector{kMom,0.,0.,kEnergy}, id, 1);
