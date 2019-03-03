@@ -594,8 +594,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   GlobalVector InMom;
   GlobalPoint InPos;
   if(inTSOS.isValid()) {
-    mtsMode_->momentumFromModeCartesian(inTSOS,InMom);
-    mtsMode_->positionFromModeCartesian(inTSOS,InPos);
+    multiTrajectoryStateMode::momentumFromModeCartesian(inTSOS,InMom);
+    multiTrajectoryStateMode::positionFromModeCartesian(inTSOS,InPos);
   }
   else {
     InMom = GlobalVector(track.pxMode(),track.pyMode(),track.pzMode());
@@ -957,8 +957,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     // DANIELE ?????  if the out is not valid maybe take the last tangent?
     // From Wolfgang. It should be always valid 
 
-    mtsMode_->momentumFromModeCartesian(outTSOS,OutMom);
-    mtsMode_->positionFromModeCartesian(outTSOS,OutPos);
+    multiTrajectoryStateMode::momentumFromModeCartesian(outTSOS,OutMom);
+    multiTrajectoryStateMode::positionFromModeCartesian(outTSOS,OutPos);
 
 
 

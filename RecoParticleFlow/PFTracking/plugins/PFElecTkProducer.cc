@@ -175,7 +175,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
     TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface((*trackRef));
     GlobalVector i_innMom;
     if(i_inTSOS.isValid()){
-      mtsMode_->momentumFromModeCartesian(i_inTSOS,i_innMom);  
+      multiTrajectoryStateMode::momentumFromModeCartesian(i_inTSOS,i_innMom);  
       gsfInnerMomentumCache_.back() = i_innMom.mag();
     }
   }
@@ -513,7 +513,7 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
   GlobalVector ninnMom;
   float nPin =  nGsfTrack->pMode();
   if(inTSOS.isValid()){
-    mtsMode_->momentumFromModeCartesian(inTSOS,ninnMom);
+    multiTrajectoryStateMode::momentumFromModeCartesian(inTSOS,ninnMom);
     nPin = ninnMom.mag();
   }
   */
@@ -555,7 +555,7 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 	GlobalVector i_innMom;
 	float iPin = iGsfTrack->pMode();
 	if(i_inTSOS.isValid()){
-	  mtsMode_->momentumFromModeCartesian(i_inTSOS,i_innMom);  
+	  multiTrajectoryStateMode::momentumFromModeCartesian(i_inTSOS,i_innMom);  
 	  iPin = i_innMom.mag();
 	}
         */
