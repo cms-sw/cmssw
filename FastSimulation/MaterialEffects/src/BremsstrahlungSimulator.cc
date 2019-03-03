@@ -21,12 +21,12 @@ BremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineAndDi
   // This case corresponds to an electron entering the layer parallel to 
   // the layer axis - no reliable simulation can be done in that case...
   // 08/02/06 - pv: increase protection from 1 to 4 X0 for eta>4.8 region
-  // if ( radLengths > 1. ) Particle.SetXYZT(0.,0.,0.,0.);
-  if ( radLengths > 4. ) Particle.SetXYZT(0.,0.,0.,0.);
+  // if ( radLengths > 1. ) Particle.particle().SetXYZT(0.,0.,0.,0.);
+  if ( radLengths > 4. ) Particle.particle().SetXYZT(0.,0.,0.,0.);
 
   // Hard brem probability with a photon Energy above photonEnergy.
-  if (Particle.e()<photonEnergy) return;
-  xmin = std::max(photonEnergy/Particle.e(),photonFractE);
+  if (Particle.particle().e()<photonEnergy) return;
+  xmin = std::max(photonEnergy/Particle.particle().e(),photonFractE);
   if ( xmin >=1. || xmin <=0. ) return;
 
   double bremProba = radLengths * ( 4./3. * std::log(1./xmin)
@@ -41,8 +41,8 @@ BremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineAndDi
   if ( !nPhotons ) return;
 
   //Rotate to the lab frame
-  double chi = Particle.theta();
-  double psi = Particle.phi();
+  double chi = Particle.particle().theta();
+  double psi = Particle.particle().phi();
   RawParticle::RotationZ rotZ(psi);
   RawParticle::RotationY rotY(chi);
     
@@ -50,7 +50,7 @@ BremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineAndDi
   for ( unsigned int i=0; i<nPhotons; ++i ) {
 
     // Check that there is enough energy left.
-    if ( Particle.e() < photonEnergy ) break;
+    if ( Particle.particle().e() < photonEnergy ) break;
 
     // Add a photon
     RawParticle thePhoton(22,brem(Particle, random));
@@ -59,7 +59,7 @@ BremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineAndDi
     _theUpdatedState.push_back(thePhoton);
 	
     // Update the original e+/-
-    Particle -= thePhoton.momentum();
+    Particle.particle() -= thePhoton.momentum();
 
   }	
 }
@@ -86,7 +86,7 @@ BremsstrahlungSimulator::brem(ParticlePropagator& pp, RandomEngineAndDistributio
   // Isotropic in phi
   const double phi = random->flatShoot()*2*M_PI;
   // theta from universal distribution
-  const double theta = gbteth(pp.e(),emass,xp,random)*emass/pp.e();
+  const double theta = gbteth(pp.particle().e(),emass,xp,random)*emass/pp.particle().e();
   
   // Make momentum components
   double stheta = std::sin(theta);
@@ -94,7 +94,7 @@ BremsstrahlungSimulator::brem(ParticlePropagator& pp, RandomEngineAndDistributio
   double sphi   = std::sin(phi);
   double cphi   = std::cos(phi);
   
-  return xp * pp.e() * XYZTLorentzVector(stheta*cphi,stheta*sphi,ctheta,1.);
+  return xp * pp.particle().e() * XYZTLorentzVector(stheta*cphi,stheta*sphi,ctheta,1.);
   
 }
 
