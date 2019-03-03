@@ -32,6 +32,15 @@ RawParticle::RawParticle(const int id,
   this->setID(id);
 }
 
+RawParticle::RawParticle(const int id, 
+			 const XYZTLorentzVector& p,
+                         const XYZTLorentzVector& xStart) 
+  : XYZTLorentzVector(p), tab( ParticleTable::instance() ) {
+  this->init();
+  this->setID(id);
+  myVertex = xStart;
+}
+
 RawParticle::RawParticle(const std::string name, 
 			 const XYZTLorentzVector& p) 
   : XYZTLorentzVector(p), tab( ParticleTable::instance() ) {
@@ -40,17 +49,20 @@ RawParticle::RawParticle(const std::string name,
 }
 
 RawParticle::RawParticle(const XYZTLorentzVector& p, 
-			 const XYZTLorentzVector& xStart)  : 
+			 const XYZTLorentzVector& xStart,
+                         double charge)  : 
   XYZTLorentzVector(p), tab( ParticleTable::instance() )
 {
   init();
+  myCharge = charge;
   myVertex = xStart;
 }
 
-RawParticle::RawParticle(double px, double py, double pz, double e) : 
+RawParticle::RawParticle(double px, double py, double pz, double e, double charge) : 
   XYZTLorentzVector(px,py,pz,e), tab( ParticleTable::instance() )
 {
   init();
+  myCharge = charge;
 }
 
 RawParticle::RawParticle(const RawParticle &right) : 
@@ -312,4 +324,17 @@ RawParticle::et() const {
     tmpEt = E() * pt() / mypp;
   }
   return tmpEt;
+}
+
+namespace rawparticle {
+  RawParticle makeMuon(bool isParticle, const XYZTLorentzVector& p, 
+                       const XYZTLorentzVector& xStart) {
+    RawParticle m(p,xStart);
+    if(isParticle) {
+      m.setID(13);
+    } else {
+      m.setID(-13);
+    }
+    return m;
+  }
 }

@@ -29,6 +29,7 @@ class ParticleTable;
 typedef math::XYZTLorentzVector XYZTLorentzVector;
 typedef math::XYZVector XYZVector;
 
+
 class RawParticle : public XYZTLorentzVector {
 public:
 
@@ -60,16 +61,24 @@ public:
   RawParticle(const std::string name, 
 	      const XYZTLorentzVector& p);
 
+  /** Construct from 2 fourvectosr and a PID.
+   *  The fourvector and PID are taken for the particle, the vertex is set to 0.
+   */
+  RawParticle(const int id, 
+	      const XYZTLorentzVector& p,
+              const XYZTLorentzVector& xStart);
+
   /** Construct from 2 fourvectors.
    *  The first fourvector is taken for the particle, the second for its vertex.
    */
   RawParticle(const XYZTLorentzVector& p, 
-	      const XYZTLorentzVector& xStart);
+	      const XYZTLorentzVector& xStart,
+              double charge = 0.);
 
   /** Construct from fourmomentum components.
    *  Vertex is set to 0.
    */
-  RawParticle(double px, double py, double pz, double e);
+  RawParticle(double px, double py, double pz, double e, double charge =0.);
 
   /** Copy constructor    */
   RawParticle(const RawParticle &p);
@@ -317,6 +326,13 @@ inline void RawParticle::translate(const XYZVector& tr) {
 }
 
 
+namespace rawparticle {
+  ///Create a particle with momentum 'p' at space-time point xStart
+  /// The particle will be a muon if iParticle==true, else it will
+  /// be an anti-muon.
+  RawParticle makeMuon(bool isParticle, const XYZTLorentzVector& p, 
+                       const XYZTLorentzVector& xStart);
+}
 
 
 
