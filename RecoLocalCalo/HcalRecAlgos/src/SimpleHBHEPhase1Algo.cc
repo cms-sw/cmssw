@@ -220,13 +220,13 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
             // Simplified evaluation for Phase1
             float emax0 = info.tsEnergy(maxI);
             float emax1 = info.tsEnergy(maxI + 1U);
-            float esum  = emax0 + emax1;
 
 	    // consider soi reference for collisions  
-            if(nSamplesToExamine < (int)nSamples) maxI  -= soi;
-       
-            time = 25.f * (float)maxI;                   
-            if(emax1 > 0.f)  time += 25.f * emax1/esum; // 1-st order correction 
+            int position = (int)maxI;
+            if(nSamplesToExamine < (int)nSamples) position  -= soi;
+     
+            time = 25.f * (float)position;                   
+            if(emax1 > 0.f)  time += 25.f * emax1/(emax0+emax1); // 1-st order correction 
 
             // TimeSlew correction
             time -= hcalTimeSlew_delay_->delay(std::max(1.0, fc_ampl), HcalTimeSlew::Medium);
