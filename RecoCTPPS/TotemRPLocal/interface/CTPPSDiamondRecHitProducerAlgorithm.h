@@ -25,7 +25,7 @@ class CTPPSDiamondRecHitProducerAlgorithm
   public:
     CTPPSDiamondRecHitProducerAlgorithm( const edm::ParameterSet& conf );
 
-    void build( const CTPPSGeometry*, const edm::DetSetVector<CTPPSDiamondDigi>&, edm::DetSetVector<CTPPSDiamondRecHit>& );
+    void build( const CTPPSGeometry&, const edm::DetSetVector<CTPPSDiamondDigi>&, edm::DetSetVector<CTPPSDiamondRecHit>& );
 
   private:
     /// Conversion constant between HPTDC time slice and absolute time (in ns)

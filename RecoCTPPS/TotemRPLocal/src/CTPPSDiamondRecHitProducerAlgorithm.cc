@@ -15,7 +15,9 @@ CTPPSDiamondRecHitProducerAlgorithm::CTPPSDiamondRecHitProducerAlgorithm( const 
 {}
 
 void
-CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm::DetSetVector<CTPPSDiamondDigi>& input, edm::DetSetVector<CTPPSDiamondRecHit>& output )
+CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
+                                            const edm::DetSetVector<CTPPSDiamondDigi>& input,
+                                            edm::DetSetVector<CTPPSDiamondRecHit>& output )
 {
   for ( const auto& vec : input ) {
     const CTPPSDiamondDetId detid( vec.detId() );
@@ -23,7 +25,7 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm
     if ( detid.channel() > 20 ) continue; // VFAT-like information, to be ignored
 
     // retrieve the geometry element associated to this DetID
-    const DetGeomDesc* det = geom->getSensor( detid );
+    const DetGeomDesc* det = geom.getSensor( detid );
 
     const float x_pos = det->translation().x(),
                 y_pos = det->translation().y();
