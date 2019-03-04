@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FastSimulation/MaterialEffects/interface/PetrukhinModel.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
+#include "FastSimulation/Particle/interface/makeParticle.h"
 
 #include <cmath>
 #include <string>
@@ -103,7 +104,7 @@ MuonBremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineA
     LogDebug("MuonBremsstrahlungSimulator")<< " radLengths-> " << radLengths << std::endl; 
 
     // Add a photon
-    RawParticle thePhoton=ParticleTable::instance()->makeParticle(22,brem(Particle, random));
+    RawParticle thePhoton=makeParticle(ParticleTable::instance(),22,brem(Particle, random));
     if (thePhoton.E()>0.){
 
     thePhoton.rotate(rotY);

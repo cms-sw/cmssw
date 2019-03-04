@@ -12,6 +12,7 @@
 
 //FAMOS Headers
 #include "FastSimulation/Particle/interface/ParticleTable.h"
+#include "FastSimulation/Particle/interface/makeParticle.h"
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
@@ -212,7 +213,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
       // The next 3 lines to be then replaced by the previous line
       XYZTLorentzVector momentum(track.momentum().px(),track.momentum().py(),
 				 track.momentum().pz(),track.momentum().e());
-      RawParticle part = ParticleTable::instance()->makeParticle(track.type(),momentum,position);
+      RawParticle part = makeParticle(ParticleTable::instance(),track.type(),momentum,position);
       //
       //std::cout << "Ctau  = " << part.PDGcTau() << std::endl;
       // Don't save tracks that have decayed immediately but for which no daughters
@@ -488,7 +489,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 				 p->momentum().py(),
 				 p->momentum().pz(),
 				 p->momentum().e());
-      RawParticle part= ParticleTable::instance()->makeParticle(p->pdg_id(),momentum, vertex(originVertex).position());
+      RawParticle part= makeParticle(ParticleTable::instance(),p->pdg_id(),momentum, vertex(originVertex).position());
 
       // Add the particle to the event and to the various lists
       

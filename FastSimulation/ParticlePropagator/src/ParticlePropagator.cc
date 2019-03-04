@@ -9,6 +9,7 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
+#include "FastSimulation/Particle/interface/makeParticle.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 ParticlePropagator::ParticlePropagator() : 
@@ -62,9 +63,10 @@ ParticlePropagator::ParticlePropagator(const XYZTLorentzVector& mom,
 ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack,
 				       const MagneticFieldMap* aFieldMap,
 				       const RandomEngineAndDistribution* engine) :
-  BaseParticlePropagator(ParticleTable::instance()->makeParticle(simTrack.type(),
-                                                                 simTrack.momentum(),
-                                                                 simTrack.vertex().position()),
+  BaseParticlePropagator(makeParticle(ParticleTable::instance(),
+                                      simTrack.type(),
+                                      simTrack.momentum(),
+                                      simTrack.vertex().position()),
 			 0.,0.,0.),
   theFieldMap(aFieldMap),
   random(engine)
