@@ -66,6 +66,37 @@ def _is80XRelease(era):
     elif era!="2017-Nov17ReReco" and era!="2018-Prompt":
         raise RuntimeError('Error in postRecoEgammaTools, era '+era+' not recognised. Allowed eras are 2017-Nov17ReReco, 2016-Legacy, 2016-Feb17ReMiniAOD. 2018-Prompt')
 
+def _getMVAsBeingRun(vidMod):
+    mvasBeingRun = []
+    for id_ in vidMod.physicsObjectIDs:
+        for cut in id_.idDefinition.cutFlow:
+            if cut.cutName.value().startswith("GsfEleMVA") or cut.cutName.value().startswith("PhoMVA"):
+                mvaValueName = cut.mvaValueMapName.getProductInstanceLabel().replace("RawValues","Values")
+                
+                mvasBeingRun.append({'val' : {'prod' : cut.mvaValueMapName.getModuleLabel(),'name' : mvaValueName}, 'cat' : {'prod' : cut.mvaCategoriesMapName.getModuleLabel(),'name' : cut.mvaCategoriesMapName.getProductInstanceLabel() }})
+    return mvasBeingRun
+                
+def _addMissingMVAValuesToUserData(process,egmod):
+
+    if len(egmod)<2 or egmod[0].modifierName.value()!='EGExtraInfoModifierFromFloatValueMaps' or egmod[1].modifierName.value()!='EGExtraInfoModifierFromIntValueMaps':
+        raise RuntimeError('dumping offending module {}\nError in postRecoEgammaTools._addMissingMVAValuesToUserData, we assume that the egamma_modifiers are setup so first its the float mod and then the int mod, this is currently not the case, the offending module dump is above'.format(egmod.dumpPython()))
+    
+    eleMVAs = _getMVAsBeingRun(process.egmGsfElectronIDs)
+    phoMVAs = _getMVAsBeingRun(process.egmPhotonIDs)
+
+    addVar = lambda modifier,var: setattr(modifier,var['name'],cms.InputTag(var['prod'],var['name']))
+    
+    for eleMVA in eleMVAs:
+        if not hasattr(egmod[0].electron_config,eleMVA['val']['name']):
+            addVar(egmod[0].electron_config,eleMVA['val'])
+            addVar(egmod[1].electron_config,eleMVA['cat'])
+    
+    for phoMVA in phoMVAs:
+        if not hasattr(egmod[0].photon_config,phoMVA['val']['name']):
+            addVar(egmod[0].photon_config,phoMVA['val'])
+            addVar(egmod[1].photon_config,phoMVA['cat'])
+            
+
 
 def _setupEgammaEnergyCorrections(process,eleSrc=cms.InputTag('gedGsfElectrons'),phoSrc=cms.InputTag('gedPhotons'),applyEnergyCorrections=False,era="2017-Nov17ReReco",runEnergyCorrections=True,applyEPCombBug=False):
     """ creates the AOD modules to run the energy corrections """
@@ -254,8 +285,12 @@ def _setupEgammaPostRECOSequenceMiniAOD(process,applyEnergyCorrections=False,app
         egamma_modifications.append(makeEnergyScaleAndSmearingSysModifier("calibratedPatElectrons","calibratedPatPhotons"))
         egamma_modifications.append(egamma8XLegacyEtScaleSysModifier)
 
-    #add the HEEP trk isol to the slimmed electron
+
+    #add any missing variables to the slimmed electron 
     if runVID:
+        #MVA V2 values may not be added by default due to data format consistency issues
+        _addMissingMVAValuesToUserData(process,egamma_modifications)
+        #now add HEEP trk isolation
         for pset in egamma_modifications:
             if pset.hasParameter("modifierName") and pset.modifierName == cms.string('EGExtraInfoModifierFromFloatValueMaps'):
                 pset.electron_config.heepTrkPtIso = cms.InputTag("heepIDVarValueMaps","eleTrkPtIso")
