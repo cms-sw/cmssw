@@ -1,14 +1,12 @@
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "SimG4Core/PhysicsLists/interface/MonopoleTransportation.h"
-#include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
+#include "SimG4Core/PhysicsLists/interface/CMSmplIonisation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4ParticleDefinition.hh"
 #include "G4ProcessManager.hh"
 
 #include "G4StepLimiter.hh"
-#include "G4mplIonisation.hh"
-#include "G4mplIonisationWithDeltaModel.hh"
 #include "G4hMultipleScattering.hh"
 #include "G4hIonisation.hh"
 #include "G4hhIonisation.hh"
@@ -16,10 +14,9 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 CMSMonopolePhysics::CMSMonopolePhysics(const HepPDT::ParticleDataTable * pdt,
-				       sim::ChordFinderSetter * cfs, 
 				       const edm::ParameterSet & p) :
-  G4VPhysicsConstructor("Monopole Physics"), chordFinderSetter(cfs) {
-  
+  G4VPhysicsConstructor("Monopole Physics")
+{  
   verbose   = p.getUntrackedParameter<int>("Verbosity",0);
   magCharge = p.getUntrackedParameter<int>("MonopoleCharge",1);
   deltaRay  = p.getUntrackedParameter<bool>("MonopoleDeltaRay",true);
@@ -97,8 +94,8 @@ void CMSMonopolePhysics::ConstructProcess() {
       if(!pmanager) {
         std::ostringstream o;
         o << "Monopole without a Process Manager";
-        G4Exception("CMSMonopolePhysics::ConstructProcess()","",
-                    FatalException,o.str().c_str());
+        throw edm::Exception( edm::errors::Configuration, o.str().c_str());
+        return;
       }
 
       G4double magn = mpl->MagneticCharge();
@@ -112,9 +109,9 @@ void CMSMonopolePhysics::ConstructProcess() {
       }
   
       if (magn != 0.0) {
-	pmanager->RemoveProcess(0);
-	pmanager->AddProcess(new MonopoleTransportation(mpl,chordFinderSetter,verbose),
-                                                        -1, 0, 0);
+        G4int idxt(0);
+        pmanager->RemoveProcess(idxt);
+        pmanager->AddProcess(new MonopoleTransportation(mpl,verbose),-1,0,0);
       }
 
       if (mpl->GetPDGCharge() != 0.0) {
@@ -126,7 +123,7 @@ void CMSMonopolePhysics::ConstructProcess() {
 	ph->RegisterProcess(hioni, mpl);
       }
       if(magn != 0.0) {
-	G4mplIonisation* mplioni = new G4mplIonisation(magn);
+	CMSmplIonisation* mplioni = new CMSmplIonisation(magn);
 	ph->RegisterProcess(mplioni, mpl);
       }
       pmanager->AddDiscreteProcess(new G4StepLimiter());
