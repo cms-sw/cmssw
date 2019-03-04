@@ -209,6 +209,7 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
             ibeg = 0;
         const int iend = ibeg + nSamplesToExamine;
         unsigned maxI = info.peakEnergyTS(ibeg, iend);
+
         if (maxI < HBHEChannelInfo::MAXSAMPLES)
         {
             if (!maxI)
@@ -216,25 +217,18 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
             else if (maxI >= nSamples - 1U)
                 maxI = nSamples - 2U;
 
-            // The remaining code in this scope emulates
-            // the historic algorithm
-            float t0 = info.tsEnergy(maxI - 1U);
-            float maxA = info.tsEnergy(maxI);
-            float t2 = info.tsEnergy(maxI + 1U);
+            // Simplified evaluation for Phase1
+            float emax0 = info.tsEnergy(maxI);
+            float emax1 = info.tsEnergy(maxI + 1U);
+            float esum  = emax0 + emax1;
 
-            // Handle negative excursions by moving "zero"
-            float minA = t0;
-            if (maxA < minA) minA = maxA;
-            if (t2 < minA)   minA=t2;
-            if (minA < 0.f) { maxA-=minA; t0-=minA; t2-=minA; }
-            float wpksamp = (t0 + maxA + t2);
-            if (wpksamp) wpksamp = (maxA + 2.f*t2) / wpksamp;
-            time = (maxI - soi)*25.f + timeshift_ns_hbheho(wpksamp);
+	    // consider soi reference for collisions  
+            if(nSamplesToExamine < (int)nSamples) maxI  -= soi;
 
-            // Legacy QIE8 timing correction
+            time = 25.f * ((float)maxI + emax1/esum);
+
+            // TimeSlew correction
             time -= hcalTimeSlew_delay_->delay(std::max(1.0, fc_ampl), HcalTimeSlew::Medium);
-            // Time calibration
-            time -= calibs.timecorr();
         }
     }
     return time;
