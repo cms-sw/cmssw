@@ -2,6 +2,7 @@
  *
  * This is a part of CTPPS offline software.
  * Authors:
+ *   Edoardo Bossini
  *   Filip Dej
  *   Laurent Forthomme
  *
@@ -99,14 +100,14 @@ PPSTimingCalibrationESSource::setIntervalFor( const edm::eventsetup::EventSetupR
 std::unique_ptr<PPSTimingCalibration>
 PPSTimingCalibrationESSource::parseTotemUFSDJsonFile() const
 {
-  pt::ptree node;
-  pt::read_json( filename_, node );
+  pt::ptree mother_node;
+  pt::read_json( filename_, mother_node );
 
-  const std::string formula = node.get<std::string>( "formula" );
+  const std::string formula = mother_node.get<std::string>( "formula" );
   PPSTimingCalibration::ParametersMap params;
   PPSTimingCalibration::TimingMap time_info;
 
-  for ( pt::ptree::value_type& par : node.get_child( "parameters" ) ) {
+  for ( pt::ptree::value_type& par : mother_node.get_child( "parameters" ) ) {
     PPSTimingCalibration::Key key;
     key.key1 = (int)strtol( par.first.data(), nullptr, 10 );
 
@@ -136,14 +137,14 @@ PPSTimingCalibrationESSource::parseTotemUFSDJsonFile() const
 std::unique_ptr<PPSTimingCalibration>
 PPSTimingCalibrationESSource::parsePPSDiamondJsonFile() const
 {
-  pt::ptree node;
-  pt::read_json( filename_, node );
+  pt::ptree mother_node;
+  pt::read_json( filename_, mother_node );
 
-  const std::string formula = node.get<std::string>( "formula" );
+  const std::string formula = mother_node.get<std::string>( "formula" );
   PPSTimingCalibration::ParametersMap params;
   PPSTimingCalibration::TimingMap time_info;
 
-  for ( pt::ptree::value_type& par : node.get_child( "Parameters.Sectors" ) ) {
+  for ( pt::ptree::value_type& par : mother_node.get_child( "Parameters.Sectors" ) ) {
     PPSTimingCalibration::Key key;
     key.key1 = par.second.get<int>( "sector" );
 
