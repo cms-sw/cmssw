@@ -39,8 +39,8 @@ class L1TkHTMissProducer : public edm::EDProducer {
     float DeltaZ;                   // for jets [cm] (if DoTvxConstrain)
     const edm::EDGetTokenT< L1TkPrimaryVertexCollection > pvToken;
     const edm::EDGetTokenT< L1TkJetParticleCollection > jetToken;
-    int minNtracksHighPt;
-    int minNtracksLowPt;
+    unsigned int minNtracksHighPt;
+    unsigned int minNtracksLowPt;
 
 };
 
@@ -183,7 +183,7 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     if (DoVtxConstrain && !PrimaryVtxConstrain) {
       tkHTM.setVtx(evt_zvtx);
     }
-
+	
     MHTCollection->push_back(tkHTM);
     iEvent.put( std::move(MHTCollection), "L1TkCaloHTMiss" );
   }
@@ -196,9 +196,11 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
     // loop over jets
     for (jetIter = L1TkJetsHandle->begin(); jetIter != L1TkJetsHandle->end(); ++jetIter) {
+      //antiquated no longer using central bx
+      /*
       int ibx = jetIter->bx(); // only consider jets from the central BX
       if (ibx != 0) continue;
-
+      */
       float px = jetIter->px();
       float py = jetIter->py();
       float et = jetIter->et();
@@ -206,7 +208,8 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       float tmp_jet_eta = jetIter->eta();
       if (tmp_jet_pt < jet_minPt) continue;
       if (fabs(tmp_jet_eta) > jet_maxEta) continue;
-
+      if(jetIter->getNtracks()<minNtracksLowPt && et>50)continue;
+      if(jetIter->getNtracks()<minNtracksHighPt && et>100)continue;
       sumPx += px;
       sumPy += py;
       HT += et;

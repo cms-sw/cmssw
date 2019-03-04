@@ -331,7 +331,10 @@ TwoLayerJets::produce(Event& iEvent, const EventSetup& iSetup)
 void TwoLayerJets::L2_cluster(vector< Ptr< L1TTTrackType > > L1TrackPtrs, vector<int>ttrk, vector<int>tdtrk,vector<int>ttdtrk,maxzbin &mzb){
   const int nz = Zbins;
   //return;
-  maxzbin  all_zbins[nz];
+  maxzbin all_zbins[nz];
+  maxzbin mzbtemp;
+  for(int z=0; z<nz; ++z)all_zbins[z]=mzbtemp;
+   
   if(all_zbins==NULL){ cout<<" all_zbins memory not assigned"<<endl;return;}
   //int best_ind=0;
   //          
@@ -356,7 +359,10 @@ void TwoLayerJets::L2_cluster(vector< Ptr< L1TTTrackType > > L1TrackPtrs, vector
        phi = phi + phistep;
    } //for each phibin (finished creating epbins)
   mzb = all_zbins[0];
+  int ntracks=L1TrackPtrs.size();
+//uninitalized arrays
   etaphibin *L1clusters[nphibins];
+  etaphibin L2cluster[ntracks];// = (etaphibin *)malloc(ntracks * sizeof(etaphibin));
 
 for(int zbin = 0; zbin < Zbins-1; ++zbin){
   
@@ -370,14 +376,17 @@ for(int zbin = 0; zbin < Zbins-1; ++zbin){
                  epbins[i][j].numtdtrks = 0;
                  epbins[i][j].numttdtrks = 0;
                  }//for each etabin
+		L1clusters[i]=epbins[i];	
            } //for each phibin
 
    for (unsigned int k=0; k<L1TrackPtrs.size(); ++k){
       float trketa=L1TrackPtrs[k]->getMomentum().eta();
       float trkphi=L1TrackPtrs[k]->getMomentum().phi();
       float trkZ=L1TrackPtrs[k]->getPOCA(5).z();
+    
       for(int i = 0; i < nphibins; ++i){
         for(int j = 0; j < netabins; ++j){
+	    L2cluster[k]=epbins[i][j];
           if((zmin <= trkZ && zmax >= trkZ) &&
             ((epbins[i][j].eta - etastep / 2 <= trketa && epbins[i][j].eta + etastep / 2 >= trketa) 
               && epbins[i][j].phi - phistep / 2 <= trkphi && epbins[i][j].phi + phistep / 2 >= trkphi && (zbincount[k] != 2))){
@@ -402,22 +411,8 @@ for(int zbin = 0; zbin < Zbins-1; ++zbin){
       }
       //delete[] epbins[phislice];
     }
-/*
-      for(int i = 0; i < nphibins; ++i){
-        for(int j = 0; j < netabins; ++j){
-            free(epbins[i][j]);
-	}
-     }
-*/
   //Create clusters array to hold output cluster data for Layer2; can't have more clusters than tracks.
-    int ntracks=L1TrackPtrs.size();
 
-    //etaphibin L2cluster[ntracks];//= (etaphibin *)malloc(ntracks * sizeof(etaphibin));
-    etaphibin L2cluster[ntracks];// = (etaphibin *)malloc(ntracks * sizeof(etaphibin));
-    //etaphibin * L2cluster = (etaphibin *)malloc(ntracks * sizeof(etaphibin));
-    //if(L2cluster==NULL){
-//	 cout<<"L2cluster memory not assigned"<<endl;
-  //    }
   //Find eta-phibin with maxpT, make center of cluster, add neighbors if not already used.
     float hipT = 0;
     int nclust = 0;
