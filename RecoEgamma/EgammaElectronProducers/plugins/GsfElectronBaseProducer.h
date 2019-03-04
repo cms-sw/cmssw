@@ -48,8 +48,7 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
     GsfElectronAlgo * algo_ ;
 
     void beginEvent( edm::Event &, const edm::EventSetup & ) ;
-    void fillEvent( edm::Event & ) ;
-    void endEvent() ;
+    void fillEvent( reco::GsfElectronCollection & electrons, edm::Event & event ) ;
     const edm::OrphanHandle<reco::GsfElectronCollection> & orphanHandle() const { return orphanHandle_;}
 
     // configurables
@@ -64,6 +63,9 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
     edm::EDGetTokenT<edm::ValueMap<float>> pfMVA_;
 
   private :
+
+    bool isPreselected( reco::GsfElectron const& ele ) const ;
+    void setAmbiguityData( reco::GsfElectronCollection & electrons, edm::Event const& event, bool ignoreNotPreselected = true ) const ;
 
     // check expected configuration of previous modules
     bool ecalSeedingParametersChecked_ ;
