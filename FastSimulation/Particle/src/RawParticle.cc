@@ -26,26 +26,27 @@ RawParticle::RawParticle(const XYZTLorentzVector& p)
 }
 
 RawParticle::RawParticle(const int id, 
-			 const XYZTLorentzVector& p) 
+			 const XYZTLorentzVector& p,
+                         double mass,
+                         double charge) 
   : XYZTLorentzVector(p) {
   this->init();
-  this->setID(id);
+  myId = id;
+  myMass = mass;
+  myCharge = charge;
 }
 
 RawParticle::RawParticle(const int id, 
 			 const XYZTLorentzVector& p,
-                         const XYZTLorentzVector& xStart) 
+                         const XYZTLorentzVector& xStart,
+                         double mass,
+                         double charge) 
   : XYZTLorentzVector(p) {
   this->init();
-  this->setID(id);
+  myId = id;
+  myMass = mass;
+  myCharge = charge;
   myVertex = xStart;
-}
-
-RawParticle::RawParticle(const std::string name, 
-			 const XYZTLorentzVector& p) 
-  : XYZTLorentzVector(p) {
-  this->init();
-  this->setID(name);
 }
 
 RawParticle::RawParticle(const XYZTLorentzVector& p, 
@@ -104,29 +105,6 @@ RawParticle::init() {
   myMass=0.;
 }
 
-void 
-RawParticle::setID(const int id) {
-  myId = id;
-  
-  auto info = ParticleTable::instance()->theTable()->particle(HepPDT::ParticleID(myId));
-  if ( info ) { 
-    myCharge = info->charge();
-    myMass   = info->mass().value();
-  }
-
-}
-
-void 
-RawParticle::setID(const std::string name) {
-  auto info = ParticleTable::instance()->theTable()->particle(name);
-  if ( info ) { 
-    myId = info->pid();
-    myCharge = info->charge();
-    myMass   = info->mass().value();
-  } else {
-    myId = 0;
-  }
-}
 
 void 
 RawParticle::setStatus(int istat) {
@@ -218,12 +196,9 @@ RawParticle::et() const {
 namespace rawparticle {
   RawParticle makeMuon(bool isParticle, const XYZTLorentzVector& p, 
                        const XYZTLorentzVector& xStart) {
-    RawParticle m(p,xStart);
     if(isParticle) {
-      m.setID(13);
-    } else {
-      m.setID(-13);
+      return ParticleTable::instance()->makeParticle(13, p,xStart);
     }
-    return m;
+    return ParticleTable::instance()->makeParticle(-13,p,xStart);
   }
 }

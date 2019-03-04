@@ -1,4 +1,5 @@
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/ParticleDecay/interface/PythiaDecays.h"
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 
@@ -57,19 +58,23 @@ PythiaDecays::particleDaughters(ParticlePropagator& particle, CLHEP::HepRandomEn
   int nentries_after = decayer->event.size();
   if ( nentries_after <= nentries_before ) return theList;
 
-  theList.resize(nentries_after - nentries_before,RawParticle());
+  theList.reserve(nentries_after - nentries_before);
 
 
   for ( int ipart=nentries_before; ipart<nentries_after; ipart++ )
     {
       Pythia8::Particle& py8daughter = decayer->event[ipart];
-      theList[ipart-nentries_before].SetXYZT( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
-      theList[ipart-nentries_before].setVertex( py8daughter.xProd(),
-					   py8daughter.yProd(),
-					   py8daughter.zProd(),
-					   py8daughter.tProd() );
-      theList[ipart-nentries_before].setID( py8daughter.id() );
-      theList[ipart-nentries_before].setMass( py8daughter.m() );
+      theList.emplace_back(
+         ParticleTable::instance()->makeParticle(
+                           py8daughter.id(),
+                           XYZTLorentzVector( py8daughter.px(), 
+                                              py8daughter.py(), 
+                                              py8daughter.pz(),
+                                              py8daughter.e() ),
+                           XYZTLorentzVector( py8daughter.xProd(),
+                                              py8daughter.yProd(),
+                                              py8daughter.zProd(),
+                                              py8daughter.tProd() ) ) ).setMass( py8daughter.m() );
     }
 
   return theList;

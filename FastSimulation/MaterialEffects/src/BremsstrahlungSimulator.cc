@@ -1,5 +1,6 @@
 //FAMOS Headers
 #include "FastSimulation/MaterialEffects/interface/BremsstrahlungSimulator.h"
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include <cmath>
@@ -53,7 +54,7 @@ BremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineAndDi
     if ( Particle.particle().e() < photonEnergy ) break;
 
     // Add a photon
-    RawParticle thePhoton(22,brem(Particle, random));
+    RawParticle thePhoton = ParticleTable::instance()->makeParticle(22,brem(Particle, random));
     thePhoton.rotate(rotY);
     thePhoton.rotate(rotZ);
     _theUpdatedState.push_back(thePhoton);
