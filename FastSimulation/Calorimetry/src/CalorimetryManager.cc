@@ -907,7 +907,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
 	// The energy loss simulator
 	float charge = (float)(myTrack.charge());
         RawParticle p = rawparticle::makeMuon(charge < 0, moment, trackPosition);
-	ParticlePropagator theMuon(p,nullptr,nullptr);
+	ParticlePropagator theMuon(p,nullptr,nullptr,mySimEvent->theTable());
 	if ( energyLossECAL ) { 
 	  energyLossECAL->updateState(theMuon, segmentSizeinX0, random);
 	  energy = energyLossECAL->deltaMom().E();
@@ -962,7 +962,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
 	    // The energy loss simulator
 	    float charge = (float)(myTrack.charge());
             RawParticle p = rawparticle::makeMuon(charge < 0, moment, trackPosition);
-	    ParticlePropagator theMuon(p,nullptr,nullptr);
+	    ParticlePropagator theMuon(p,nullptr,nullptr,mySimEvent->theTable());
 	    energyLossHCAL->updateState(theMuon, segmentSizeinX0, random);
 	    mipenergy = energyLossHCAL->deltaMom().E();
 	    moment -= energyLossHCAL->deltaMom();

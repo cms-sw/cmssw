@@ -8,7 +8,6 @@
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
-#include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Particle/interface/pdg_functions.h"
 #include "FastSimulation/Particle/interface/makeParticle.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
@@ -19,10 +18,12 @@ ParticlePropagator::ParticlePropagator() :
 ParticlePropagator::ParticlePropagator(const RawParticle& myPart,
 				       double RCyl, double ZCyl, 
 				       const MagneticFieldMap* aFieldMap,
-				       const RandomEngineAndDistribution* engine) :
+				       const RandomEngineAndDistribution* engine,
+                                       const HepPDT::ParticleDataTable* table) :
   BaseParticlePropagator(myPart,RCyl,ZCyl,0.),
   theFieldMap(aFieldMap),
-  random(engine)
+  random(engine),
+  theTable(table)
 {
   setMagneticField(fieldMap(particle().X(),particle().Y(),particle().Z()));
   initProperDecayTime();
@@ -30,10 +31,12 @@ ParticlePropagator::ParticlePropagator(const RawParticle& myPart,
 
 ParticlePropagator::ParticlePropagator( const RawParticle& myPart,
 					const MagneticFieldMap* aFieldMap,
-					const RandomEngineAndDistribution* engine) :
+					const RandomEngineAndDistribution* engine,
+                                        const HepPDT::ParticleDataTable* table) :
   BaseParticlePropagator(myPart,0.,0.,0.),
   theFieldMap(aFieldMap),
-  random(engine)
+  random(engine),
+  theTable(table)
  
 {
   setMagneticField(fieldMap(particle().X(),particle().Y(),particle().Z()));
@@ -42,35 +45,41 @@ ParticlePropagator::ParticlePropagator( const RawParticle& myPart,
 
 ParticlePropagator::ParticlePropagator(const XYZTLorentzVector& mom, 
 				       const XYZTLorentzVector& vert, float q,
-				       const MagneticFieldMap* aFieldMap) :
+				       const MagneticFieldMap* aFieldMap,
+                                       const HepPDT::ParticleDataTable* table) :
   BaseParticlePropagator(RawParticle(mom,vert,q),0.,0.,0.),
   theFieldMap(aFieldMap),
-  random(nullptr)
+  random(nullptr),
+  theTable(table)
 {
   setMagneticField(fieldMap(particle().X(),particle().Y(),particle().Z()));
 }
 
 ParticlePropagator::ParticlePropagator(const XYZTLorentzVector& mom, 
 				       const XYZVector& vert, float q,
-				       const MagneticFieldMap* aFieldMap) :
+				       const MagneticFieldMap* aFieldMap,
+                                       const HepPDT::ParticleDataTable* table) :
   BaseParticlePropagator(
   RawParticle(mom,XYZTLorentzVector(vert.X(),vert.Y(),vert.Z(),0.0), q),0.,0.,0.),
   theFieldMap(aFieldMap),
-  random(nullptr)
+  random(nullptr),
+  theTable(table)
 {
   setMagneticField(fieldMap(particle().X(),particle().Y(),particle().Z()));
 }
 
 ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack,
 				       const MagneticFieldMap* aFieldMap,
-				       const RandomEngineAndDistribution* engine) :
-  BaseParticlePropagator(makeParticle(ParticleTable::instance(),
+				       const RandomEngineAndDistribution* engine,
+                                       const HepPDT::ParticleDataTable* table) :
+  BaseParticlePropagator(makeParticle(table,
                                       simTrack.type(),
                                       simTrack.momentum(),
                                       simTrack.vertex().position()),
 			 0.,0.,0.),
   theFieldMap(aFieldMap),
-  random(engine)
+  random(engine),
+  theTable(table)
 {
   setMagneticField(fieldMap(particle().X(),particle().Y(),particle().Z()));
   if ( simTrack.decayTime() < 0. ) { 
@@ -94,9 +103,11 @@ ParticlePropagator::ParticlePropagator(const ParticlePropagator& myPropPart) :
 }
 
 ParticlePropagator::ParticlePropagator(const BaseParticlePropagator& myPropPart,
-				       const MagneticFieldMap* aFieldMap) :
+				       const MagneticFieldMap* aFieldMap,
+                                       const HepPDT::ParticleDataTable* table) :
   BaseParticlePropagator(myPropPart),
-  theFieldMap(aFieldMap)
+  theFieldMap(aFieldMap),
+  theTable(table)
 {  
   setMagneticField(fieldMap(particle().X(),particle().Y(),particle().Z()));
 }
@@ -109,7 +120,7 @@ ParticlePropagator::initProperDecayTime() {
   double properDecayTime = 
     (particle().pid()==0||particle().pid()==22||abs(particle().pid())==11||abs(particle().pid())==2112||abs(particle().pid())==2212||
      !random) ?
-    1E99 : -pdg::cTau(particle().pid(),ParticleTable::instance()->theTable()) * std::log(random->flatShoot());
+    1E99 : -pdg::cTau(particle().pid(), theTable) * std::log(random->flatShoot());
 
   this->setProperDecayTime(properDecayTime);
 
@@ -130,7 +141,7 @@ ParticlePropagator::propagateToNominalVertex(const XYZTLorentzVector& v) {
 
 ParticlePropagator
 ParticlePropagator::propagated() const {
-  return ParticlePropagator(BaseParticlePropagator::propagated(),theFieldMap);
+  return ParticlePropagator(BaseParticlePropagator::propagated(),theFieldMap,theTable);
 }
 
 double

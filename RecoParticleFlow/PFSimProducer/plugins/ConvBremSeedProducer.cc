@@ -170,7 +170,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 				0,0,B_.z());
       gc.push_back(GoodCluster(p,PPP,0.2));
 
-      ParticlePropagator PP(p,fieldMap_);
+      ParticlePropagator PP(p,fieldMap_, nullptr);
 
       ///LOOP OVER TRACKER LAYER
       list<TrackerLayer>::const_iterator cyliter= geometry_->cylinderBegin();
