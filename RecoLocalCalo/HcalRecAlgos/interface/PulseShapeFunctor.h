@@ -8,7 +8,7 @@ namespace HcalConst{
    constexpr int maxSamples = 10;
    constexpr int maxPSshapeBin = 256;
    constexpr int nsPerBX = 25;
-   constexpr double iniTimeShift = 92.5;
+   constexpr float iniTimeShift = 92.5f;
    constexpr double invertnsPerBx = 0.04;
    constexpr int shiftTS = 4;
 
@@ -48,12 +48,12 @@ namespace FitterFuncs{
      }
      
    private:
-     std::array<double,HcalConst::maxPSshapeBin> pulse_hist;
+     std::array<float,HcalConst::maxPSshapeBin> pulse_hist;
      
      int cntNANinfit;
-     std::vector<double> acc25nsVec, diff25nsItvlVec;
-     std::vector<double> accVarLenIdxZEROVec, diffVarItvlIdxZEROVec;
-     std::vector<double> accVarLenIdxMinusOneVec, diffVarItvlIdxMinusOneVec;
+     std::vector<float> acc25nsVec, diff25nsItvlVec;
+     std::vector<float> accVarLenIdxZEROVec, diffVarItvlIdxZEROVec;
+     std::vector<float> accVarLenIdxMinusOneVec, diffVarItvlIdxMinusOneVec;
 
      void funcShape(std::array<double,HcalConst::maxSamples> & ntmpbin, const double pulseTime, const double pulseHeight,const double slew);
      double psFit_x[HcalConst::maxSamples], psFit_y[HcalConst::maxSamples], psFit_erry[HcalConst::maxSamples], psFit_erry2[HcalConst::maxSamples], psFit_slew[HcalConst::maxSamples];
