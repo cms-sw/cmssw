@@ -34,12 +34,24 @@ PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, int argc, ch
   pybind11::initialize_interpreter();
   edm::python::initializePyBind11Module();
   prepareToRead();
+  {
+#if PY_MAJOR_VERSION >= 3
+  typedef std::unique_ptr<wchar_t[], decltype(&PyMem_RawFree)> WArgUPtr;
+  std::vector<WArgUPtr> v_argv;
+  std::vector<wchar_t *> vp_argv;
+  v_argv.reserve(argc);
+  vp_argv.reserve(argc);
+  for (int i = 0; i < argc; i++) {
+    v_argv.emplace_back(Py_DecodeLocale(argv[i], NULL), &PyMem_RawFree);
+    vp_argv.emplace_back(v_argv.back().get());
+  }
 
-  if ( argc > 0 ) {
-    pybind11::list argvList;
-    for ( int i=0; i<argc; i++)
-      argvList.append(argv[i]);
-    pybind11::module::import("sys").attr("argv") = argvList;
+  wchar_t **argvt = vp_argv.data();
+#else
+  char **argvt = argv;
+#endif
+
+  PySys_SetArgv(argc, argvt);
   }
   read(config);
 }
