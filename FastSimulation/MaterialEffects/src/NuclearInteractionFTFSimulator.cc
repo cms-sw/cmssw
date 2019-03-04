@@ -349,7 +349,7 @@ void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle,
     if (sint > theDistCut) { 
       saveDaughter(Particle, curr4Mom, thePid); 
     } else {
-      Particle.particle().SetXYZT(curr4Mom.px(), curr4Mom.py(), curr4Mom.pz(), curr4Mom.e());
+      Particle.particle().setMomentum(curr4Mom.px(), curr4Mom.py(), curr4Mom.pz(), curr4Mom.e());
     }
 
     // inelastic interaction

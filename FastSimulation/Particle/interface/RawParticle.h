@@ -38,7 +38,7 @@ namespace rawparticle {
                        const XYZTLorentzVector& xStart);
 }
 
-class RawParticle : public XYZTLorentzVector {
+class RawParticle {
 public:
 
   friend RawParticle rawparticle::makeMuon(bool, const XYZTLorentzVector&, const XYZTLorentzVector&);
@@ -52,8 +52,6 @@ public:
   typedef ROOT::Math::Boost Boost;
 
   RawParticle();
-
-  virtual ~RawParticle();
 
   /** Construct from a fourvector.
    *  The fourvector is taken for the particle, the vertex is set to 0. 
@@ -73,10 +71,12 @@ public:
   RawParticle(double px, double py, double pz, double e, double charge =0.);
 
   /** Copy constructor    */
-  RawParticle(const RawParticle &p);
+  RawParticle(const RawParticle &p) = default;
+  RawParticle(RawParticle &&p) = default;
 
   /** Copy assignment operator */
-  RawParticle&  operator = (const RawParticle & rhs );
+  RawParticle&  operator = (const RawParticle & rhs ) = default;
+  RawParticle&  operator = (RawParticle&& rhs ) = default;
 
 public:
 
@@ -98,6 +98,15 @@ public:
   ///  set the vertex
   void setVertex(const XYZTLorentzVector& vtx); 
   void setVertex(double xv, double yv, double zv, double tv); 
+
+  ///  set the momentum
+  void setMomentum(const XYZTLorentzVector& vtx); 
+  void setMomentum(double xv, double yv, double zv, double tv); 
+
+  void SetPx(double);
+  void SetPy(double);
+  void SetPz(double);
+  void SetE(double);
 
   /***  methods to be overloaded to include vertex ***/
 
@@ -191,9 +200,36 @@ public:
   double R2() const;  //!< vertex radius**2
   
   const XYZTLorentzVector& vertex() const;   //!< the vertex fourvector
-  
+
+  double px() const; //!< x of the momentum
+  double Px() const; //!< x of the momentum
+
+  double py() const; //!< y of the momentum
+  double Py() const; //!< y of the momentum
+
+  double pz() const; //!< z of the momentum
+  double Pz() const; //!< z of the momentum
+
+  double e() const; //!< energy of the momentum
+  double E() const; //!< energy of the momentum
+
+  double Pt() const; //!< transverse momentum
+  double pt() const; //!< transverse momentum
+
+  double Perp2() const; //!< perpendicular momentum squared
+
+  double mag() const; //!< the magnitude of the momentum
+
+  double theta() const; //!< theta of momentum vector
+  double phi() const; //!< phi of momentum vector
+
+  double M2() const; //!< mass squared
+
   const XYZTLorentzVector& momentum() const;   //!< the momentum fourvector
+  XYZTLorentzVector& momentum();   //!< the momentum fourvector
   
+  XYZVector Vect() const; //!< the momentum threevector
+
   /** Print the name of the particle.
    *  The name is deduced from the particle ID using a particle data table.
    *  It is printed with a length of 10 characters. If the id number cannot
@@ -245,7 +281,8 @@ public:
   void init();
   
  protected:
-  
+
+  XYZTLorentzVector myMomentum;       //!< the four vector of the momentum
   XYZTLorentzVector myVertex;         //!< the four vector of the vertex
   double myCharge;                    //!< the MEASURED charge
   double myMass;                      //!< the RECONSTRUCTED mass
@@ -263,7 +300,7 @@ std::ostream& operator <<(std::ostream& o , const RawParticle& p);
 inline int RawParticle::pid() const { return myId; }
 inline int RawParticle::status() const { return myStatus; }
 inline double RawParticle::eta() const { return -std::log(std::tan(this->theta()/2.)); }
-inline double RawParticle::cos2Theta() const { return Pz()*Pz()/Vect().Mag2(); }
+inline double RawParticle::cos2Theta() const { return Pz()*Pz()/myMomentum.Vect().Mag2(); }
 inline double RawParticle::cos2ThetaV() const { return Z()*Z()/myVertex.Vect().Mag2(); }
 inline double RawParticle::x() const { return myVertex.Px(); }
 inline double RawParticle::y() const { return myVertex.Py(); }
@@ -279,35 +316,69 @@ inline double RawParticle::r() const { return std::sqrt(r2()); }
 inline double RawParticle::r2() const { return myVertex.Perp2(); }
 inline double RawParticle::charge() const { return myCharge; }
 inline double RawParticle::mass() const { return myMass; }
+inline double RawParticle::px() const { return myMomentum.px() ; }
+inline double RawParticle::Px() const { return myMomentum.Px() ; }
+
+inline double RawParticle::py() const { return myMomentum.py() ; }
+inline double RawParticle::Py() const { return myMomentum.Py() ; }
+
+inline double RawParticle::pz() const { return myMomentum.pz() ; }
+inline double RawParticle::Pz() const { return myMomentum.Pz() ; }
+
+inline double RawParticle::e() const { return myMomentum.e() ; }
+inline double RawParticle::E() const { return myMomentum.E() ; }
+
+inline double RawParticle::Pt() const { return myMomentum.Pt() ; }
+inline double RawParticle::pt() const { return myMomentum.pt() ; }
+
+inline double RawParticle::Perp2() const { return  myMomentum.Perp2(); }
+
+inline double RawParticle::mag() const { return  myMomentum.mag(); }
+
+inline double RawParticle::theta() const { return myMomentum.theta(); }
+inline double RawParticle::phi() const { return myMomentum.phi(); }
+
+inline double RawParticle::M2() const { return myMomentum.M2(); }
 
 inline const XYZTLorentzVector&  RawParticle::vertex() const { return myVertex ; }
-inline const XYZTLorentzVector&  RawParticle::momentum() const { return *this; }
+inline const XYZTLorentzVector&  RawParticle::momentum() const { return myMomentum; }
+inline XYZTLorentzVector&  RawParticle::momentum() { return myMomentum; }
+inline XYZVector RawParticle::Vect() const { return myMomentum.Vect(); }
 
 inline void RawParticle::setVertex(const XYZTLorentzVector& vtx) { myVertex = vtx; }
 inline void RawParticle::setVertex(double a, double b, double c, double d) { myVertex.SetXYZT(a,b,c,d); }
 
+inline void RawParticle::setMomentum(const XYZTLorentzVector& p4) { myMomentum = p4; }
+inline void RawParticle::setMomentum(double a, double b, double c, double d) { myMomentum.SetXYZT(a,b,c,d); }
+
+inline void RawParticle::SetPx(double px) {myMomentum.SetPx(px);}
+inline void RawParticle::SetPy(double py) {myMomentum.SetPy(py);}
+inline void RawParticle::SetPz(double pz) {myMomentum.SetPz(pz);}
+inline void RawParticle::SetE(double e) {myMomentum.SetE(e);}
+
+
 inline void RawParticle::rotate(const RawParticle::Rotation3D& r) { 
-  XYZVector v ( r(Vect()) ); SetXYZT(v.X(),v.Y(),v.Z(),E());
+  XYZVector v ( r(myMomentum.Vect()) ); setMomentum(v.X(),v.Y(),v.Z(),E());
 }
 
 inline void RawParticle::rotate(const RawParticle::Rotation& r) { 
-  XYZVector v ( r(Vect()) ); SetXYZT(v.X(),v.Y(),v.Z(),E());
+  XYZVector v ( r(myMomentum.Vect()) ); setMomentum(v.X(),v.Y(),v.Z(),E());
 }
 
 inline void RawParticle::rotate(const RawParticle::RotationX& r) { 
-  XYZVector v ( r(Vect()) ); SetXYZT(v.X(),v.Y(),v.Z(),E());
+  XYZVector v ( r(myMomentum.Vect()) ); setMomentum(v.X(),v.Y(),v.Z(),E());
 }
 
 inline void RawParticle::rotate(const RawParticle::RotationY& r) { 
-  XYZVector v ( r(Vect()) ); SetXYZT(v.X(),v.Y(),v.Z(),E());
+  XYZVector v ( r(myMomentum.Vect()) ); setMomentum(v.X(),v.Y(),v.Z(),E());
 }
 
 inline void RawParticle::rotate(const RawParticle::RotationZ& r) { 
-  XYZVector v ( r(Vect()) ); SetXYZT(v.X(),v.Y(),v.Z(),E());
+  XYZVector v ( r(myMomentum.Vect()) ); setMomentum(v.X(),v.Y(),v.Z(),E());
 }
 
 inline void RawParticle::boost(const RawParticle::Boost& b) { 
-  XYZTLorentzVector p ( b(momentum()) ); SetXYZT(p.Px(),p.Py(),p.Pz(),p.E());
+  XYZTLorentzVector p ( b(momentum()) ); setMomentum(p.Px(),p.Py(),p.Pz(),p.E());
 }
 
 inline void RawParticle::translate(const XYZVector& tr) { 

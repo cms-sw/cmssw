@@ -41,7 +41,7 @@ MuonBremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineA
   double NA = 6.022e+23;  //Avogadro's number
 
   if ( radLengths > 4. )  {
-    Particle.particle().SetXYZT(0.,0.,0.,0.);
+    Particle.particle().setMomentum(0.,0.,0.,0.);
     deltaPMuon.SetXYZT(0.,0.,0.,0.);
     brem_photon.SetXYZT(0.,0.,0.,0.);
   }
@@ -112,7 +112,7 @@ MuonBremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineA
     _theUpdatedState.push_back(thePhoton);
 	
     // Update the original mu +/-
-    deltaPMuon = Particle.particle() -= thePhoton.momentum();
+    deltaPMuon = Particle.particle().momentum() -= thePhoton.momentum();
     // Information of brem photon
     brem_photon.SetXYZT(thePhoton.Px(),thePhoton.Py(),thePhoton.Pz(),thePhoton.E());     
 

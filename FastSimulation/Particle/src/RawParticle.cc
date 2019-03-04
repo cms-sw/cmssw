@@ -21,7 +21,7 @@ RawParticle::RawParticle()
 }
 
 RawParticle::RawParticle(const XYZTLorentzVector& p) 
-  : XYZTLorentzVector(p) {
+  : myMomentum(p) {
   init();
 }
 
@@ -29,7 +29,7 @@ RawParticle::RawParticle(const int id,
 			 const XYZTLorentzVector& p,
                          double mass,
                          double charge) 
-  : XYZTLorentzVector(p) {
+  : myMomentum(p) {
   this->init();
   myId = id;
   myMass = mass;
@@ -41,7 +41,7 @@ RawParticle::RawParticle(const int id,
                          const XYZTLorentzVector& xStart,
                          double mass,
                          double charge) 
-  : XYZTLorentzVector(p) {
+  : myMomentum(p) {
   this->init();
   myId = id;
   myMass = mass;
@@ -52,7 +52,7 @@ RawParticle::RawParticle(const int id,
 RawParticle::RawParticle(const XYZTLorentzVector& p, 
 			 const XYZTLorentzVector& xStart,
                          double charge)  : 
-  XYZTLorentzVector(p)
+  myMomentum(p)
 {
   init();
   myCharge = charge;
@@ -60,40 +60,10 @@ RawParticle::RawParticle(const XYZTLorentzVector& p,
 }
 
 RawParticle::RawParticle(double px, double py, double pz, double e, double charge) : 
-  XYZTLorentzVector(px,py,pz,e)
+  myMomentum(px,py,pz,e)
 {
   init();
   myCharge = charge;
-}
-
-RawParticle::RawParticle(const RawParticle &right) : 
-  XYZTLorentzVector(right.Px(),right.Py(),right.Pz(),right.E())
-{
-  myId     = right.myId; 
-  myStatus = right.myStatus;
-  myUsed   = right.myUsed;
-  myCharge = right.myCharge;
-  myMass   = right.myMass;
-  myVertex = (right.myVertex);
-}
-
-RawParticle::~RawParticle() {
-  //  nParticles--;
-}
-
-RawParticle&  
-RawParticle::operator = (const RawParticle & right ) {
-  //  cout << "Copy assignment " << endl;
-  if (this != &right) { // don't copy into yourself
-    this->SetXYZT(right.Px(),right.Py(),right.Pz(),right.E());
-    myId     = right.myId; 
-    myStatus = right.myStatus;
-    myUsed   = right.myUsed;
-    myCharge = right.myCharge;
-    myMass   = right.myMass;
-    myVertex = right.myVertex;
-  }
-  return *this;
 }
 
 void 
@@ -135,36 +105,36 @@ RawParticle::setT(const double t) {
 void 
 RawParticle::rotate(double angle, const XYZVector& raxis) {
   Rotation r(raxis,angle);
-  XYZVector v(r * Vect());
-  SetXYZT(v.X(),v.Y(),v.Z(),E());
+  XYZVector v(r * myMomentum.Vect());
+  setMomentum(v.X(),v.Y(),v.Z(),E());
 }
 
 void 
 RawParticle::rotateX(double rphi) {
   RotationX r(rphi);
-  XYZVector v(r * Vect());
-  SetXYZT(v.X(),v.Y(),v.Z(),E());
+  XYZVector v(r * myMomentum.Vect());
+  setMomentum(v.X(),v.Y(),v.Z(),E());
 }
 
 void 
 RawParticle::rotateY(double rphi) {
   RotationY r(rphi);
-  XYZVector v(r * Vect());
-  SetXYZT(v.X(),v.Y(),v.Z(),E());
+  XYZVector v(r * myMomentum.Vect());
+  setMomentum(v.X(),v.Y(),v.Z(),E());
 }
 
 void 
 RawParticle::rotateZ(double rphi) {
   RotationZ r(rphi);
-  XYZVector v(r * Vect());
-  SetXYZT(v.X(),v.Y(),v.Z(),E());
+  XYZVector v(r * myMomentum.Vect());
+  setMomentum(v.X(),v.Y(),v.Z(),E());
 }
 
 void 
 RawParticle::boost(double betax, double betay, double betaz) {
   Boost b(betax,betay,betaz);
   XYZTLorentzVector p ( b * momentum() );
-  SetXYZT(p.X(),p.Y(),p.Z(),p.T());
+  setMomentum(p.X(),p.Y(),p.Z(),p.T());
 }
 
 

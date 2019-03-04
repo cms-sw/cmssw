@@ -22,8 +22,8 @@ BremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineAndDi
   // This case corresponds to an electron entering the layer parallel to 
   // the layer axis - no reliable simulation can be done in that case...
   // 08/02/06 - pv: increase protection from 1 to 4 X0 for eta>4.8 region
-  // if ( radLengths > 1. ) Particle.particle().SetXYZT(0.,0.,0.,0.);
-  if ( radLengths > 4. ) Particle.particle().SetXYZT(0.,0.,0.,0.);
+  // if ( radLengths > 1. ) Particle.particle().setMomentum(0.,0.,0.,0.);
+  if ( radLengths > 4. ) Particle.particle().setMomentum(0.,0.,0.,0.);
 
   // Hard brem probability with a photon Energy above photonEnergy.
   if (Particle.particle().e()<photonEnergy) return;
@@ -60,7 +60,7 @@ BremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineAndDi
     _theUpdatedState.push_back(thePhoton);
 	
     // Update the original e+/-
-    Particle.particle() -= thePhoton.momentum();
+    Particle.particle().momentum() -= thePhoton.momentum();
 
   }	
 }
