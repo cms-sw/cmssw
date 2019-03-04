@@ -4,7 +4,7 @@
  *  \author M. Maggi -- INFN
  */
 #include "RecoLocalMuon/GEMRecHit/interface/GEMCluster.h"
-#include "RecoLocalMuon/GEMRecHit/interface/GEMRecHitStandardAlgo.h"
+#include "RecoLocalMuon/GEMRecHit/plugins/GEMRecHitStandardAlgo.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
