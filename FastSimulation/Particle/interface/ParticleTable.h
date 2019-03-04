@@ -32,6 +32,11 @@ public:
     return myself; 
   }
 
+  constexpr static double kInvalidMass = -99999;
+  double PDGmass(int pdgID) const;
+  constexpr static double kInvalidCtau = 1E99;
+  double PDGcTau(int pdgID) const;
+
 private:
   
   ParticleTable(const HepPDT::ParticleDataTable* pdt=nullptr) : pdt_(pdt) {}

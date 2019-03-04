@@ -28,6 +28,7 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 
 //#include "FastSimulation/Utilities/interface/Histos.h"
 //#include "FastSimulation/Utilities/interface/FamosLooses.h"
@@ -259,7 +260,7 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
 
       // The particle may have decayed on its way... in which the daughters
       // have to be added to the event record
-      if ( PP.hasDecayed() || (!mySimEvent->track(fsimi).nDaughters() && PP.particle().PDGcTau()<1E-3 ) ) { 
+      if ( PP.hasDecayed() || (!mySimEvent->track(fsimi).nDaughters() && ParticleTable::instance()->PDGcTau(PP.particle().pid())<1E-3 ) ) { 
 	updateWithDaughters(PP, fsimi, random);
 	break;
       }

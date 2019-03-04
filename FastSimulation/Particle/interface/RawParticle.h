@@ -1,7 +1,6 @@
 #ifndef RAWPARTTICLE_H
 #define RAWPARTTICLE_H
 
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
@@ -179,17 +178,8 @@ public:
   
   double charge() const;      //!< get the MEASURED charge 
   
-  double PDGcharge() const;   //!< get the THEORETICAL charge
-  
   double mass() const;        //!< get the MEASURED mass
   
-  double PDGmass() const;     //!< get the THEORETICAL mass
-  
-  double PDGcTau() const;     //!< get the THEORETICAL lifetime
-  
-  /// get the PDG name
-  std::string    PDGname() const;
-
   /** Get the pseudo rapidity of the particle.
    * \f$ \eta = -\log ( \tan ( \vartheta/2)) \f$
    */
@@ -262,10 +252,9 @@ public:
   int myUsed;                         //!< status of the locking
   double myCharge;                    //!< the MEASURED charge
   double myMass;                      //!< the RECONSTRUCTED mass
-  const ParticleData* myInfo;         //!< The pointer to the PDG info
-  
+
  private:
-  const ParticleTable* tab;
+
 };
 
 
