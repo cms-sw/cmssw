@@ -3,9 +3,9 @@
 
 GEMVfatStatusDigi::GEMVfatStatusDigi(gem::VFATdata &vfat)
 {
-  quality_  = vfat.quality();
-  flag_     = vfat.flag();
-  phi_ = vfat.phi();
-  ec_       = vfat.ec();
-  bc_       = vfat.bc();
+  quality_ = vfat.quality();
+  flag_    = vfat.flag();
+  phi_     = vfat.phi();
+  ec_      = vfat.ec();
+  bc_      = vfat.bc();
 };

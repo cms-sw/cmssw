@@ -84,20 +84,16 @@ namespace gem {
     void addAMCpayload(const AMCdata& a) {amcs_.push_back(a);}
     
   private:
-    uint64_t cdfh_;
-    uint64_t amc13h_;
-    uint64_t amc13t_;
-    uint64_t cdft_;
+    uint64_t cdfh_;   // CDFHeader
+    uint64_t amc13h_; // AMC13Header
+    uint64_t amc13t_; // AMC13Trailer
+    uint64_t cdft_;   // CDFTrailer
      
     // AMC headers
     std::vector<uint64_t> amcHeaders_;    
     // AMCs payload
     std::vector<AMCdata> amcs_;
 
-    /* CDFHeader cdfh_; */
-    /* AMC13Header amc13h_; */
-    /* AMC13Trailer amc13t_; */
-    /* CDFTrailer cdft_; */
   };
 }
 #endif

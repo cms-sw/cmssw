@@ -71,9 +71,6 @@ namespace gem {
     uint16_t vfatWordCntT()    const {return GEBchamberTrailer{ct_}.vfatWordCntT;}
     uint16_t ohcrc()           const {return GEBchamberTrailer{ct_}.ohcrc;}
 
-    /* void setVfatWordCnt(uint16_t n) {ch_.vfatWordCnt = n; ct_.vfatWordCntT = n;} */
-    /* void setInputID(uint8_t n) {ch_.inputID = n;} */
-
     //!Adds VFAT data to the vector
     void addVFAT(VFATdata v) {vfatd_.push_back(v);}
     //!Returns the vector of FVAT data
@@ -82,10 +79,8 @@ namespace gem {
     static const int sizeGebID = 5;
     
   private:
-    /* GEBchamberHeader ch_; */
-    /* GEBchamberTrailer ct_; */
-    uint64_t ch_;
-    uint64_t ct_;
+    uint64_t ch_; // GEBchamberHeader
+    uint64_t ct_; // GEBchamberTrailer
 
     std::vector<VFATdata> vfatd_;
   };

@@ -122,12 +122,9 @@ namespace gem {
     int      ver_;        /// vfat version
     int      phiPos_;     /// phi position of vfat in chamber
     
-    /* VFATfirst  fw_; */
-    /* VFATsecond sw_; */
-    /* VFATthird  tw_; */
-    uint64_t  fw_;
-    uint64_t sw_;
-    uint64_t  tw_;
+    uint64_t fw_; // VFAT first word
+    uint64_t sw_; // VFAT second word
+    uint64_t tw_; // VFAT third word
   };
 }
 #endif

@@ -39,21 +39,21 @@ void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descr
 
 std::shared_ptr<GEMROMapping> GEMDigiToRawModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const
 {
-  auto gemORmap = std::make_shared<GEMROMapping>();
+  auto gemROmap = std::make_shared<GEMROMapping>();
   if (useDBEMap_) {
     edm::ESHandle<GEMeMap> gemEMapRcd;
     iSetup.get<GEMeMapRcd>().get(gemEMapRcd);
     auto gemEMap = std::make_unique<GEMeMap>(*(gemEMapRcd.product()));
-    gemEMap->convert(*gemORmap);
+    gemEMap->convert(*gemROmap);
     gemEMap.reset();    
   }
   else {
     // no EMap in DB, using dummy
     auto gemEMap = std::make_unique<GEMeMap>();
-    gemEMap->convertDummy(*gemORmap);
+    gemEMap->convertDummy(*gemROmap);
     gemEMap.reset();    
   }
-  return gemORmap;
+  return gemROmap;
 }
 
 void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::EventSetup const&) const
