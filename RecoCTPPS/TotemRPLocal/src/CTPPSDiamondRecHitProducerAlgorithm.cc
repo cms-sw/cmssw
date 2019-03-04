@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include "RecoCTPPS/TotemRPLocal/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
+#include <cmath> // isnan
 
 //----------------------------------------------------------------------------------------------------
 
@@ -45,7 +46,8 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
                 z_width = 2.0 * det->params().at( 2 );
 
     // retrieve the timing calibration part for this channel
-    const int sector = detid.arm(), station = detid.station(), plane = detid.plane(), channel = detid.channel();
+    //const int sector = detid.arm(), station = detid.station(), plane = detid.plane(), channel = detid.channel();
+    const int sector = detid.arm(), station = 0, plane = detid.plane(), channel = detid.channel();
     const auto& ch_params = calib_.parameters( sector, station, plane, channel );
     const double ch_t_offset = calib_.timeOffset( sector, station, plane, channel );
     const double ch_t_precis = calib_.timePrecision( sector, station, plane, channel );
@@ -56,15 +58,19 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
       if ( digi.getLeadingEdge() == 0 && digi.getTrailingEdge() == 0 )
         continue;
 
-      const int t = digi.getLeadingEdge();
-      const int t0 = t % 1024;
-      const int time_slice = ( t != 0 )
-        ? t / 1024
+      const int t_lead = digi.getLeadingEdge(), t_trail = digi.getTrailingEdge();
+      const int time_slice = ( t_lead != 0 )
+        ? t_lead / 1024
         : CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
 
-      const int tot = ( t != 0 && digi.getTrailingEdge() != 0 )
-        ? ( (int)digi.getTrailingEdge() ) - t
-        : 0;
+      const double tot = ( t_lead != 0 && t_trail != 0 )
+        ? ( t_trail-t_lead )*ts_to_ns_
+        : 0.;
+
+      const double t_mean = calib_fct_->evaluate( std::vector<double>{ tot }, ch_params );
+      const double t0 = ( t_lead % 1024 )*ts_to_ns_
+        + ch_t_offset
+        + ( !std::isnan( t_mean ) ? t_mean : 0. );
 
       rec_hits.push_back( CTPPSDiamondRecHit(
         // spatial information
@@ -72,8 +78,8 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
         y_pos, y_width,
         z_pos, z_width,
         // timing information
-        ( t0 * ts_to_ns_ ) + ch_t_offset,
-        ( tot * ts_to_ns_),
+        t0,
+        tot,
         ch_t_precis,
         time_slice,
         // readout information
