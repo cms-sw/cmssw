@@ -50,6 +50,4 @@ L1TkMuons = cms.EDProducer("L1TkMuonProducer",
 
 )
 
-L1TkMuonsDynamicWindows = L1TkMuons.Clone(emtfMatchAlgoVersion='DynamicWindows')
-
-L1TkMuons = cms.Sequence(L1TkMuons * L1TkMuonsDynamicWindows)
+L1TkMuonsDynamicWindows = L1TkMuons.clone(emtfMatchAlgoVersion='DynamicWindows')

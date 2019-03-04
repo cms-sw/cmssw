@@ -105,7 +105,7 @@ phase2_SimL1Emulator += l1EGammaCrystalsProducer
 from L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi import *
 phase2_SimL1Emulator += L1EGammaClusterEmuProducer
 
-from L1Trigger.L1CaloTrigger.l1EGammaEEProducer_cfi import * 
+from L1Trigger.L1CaloTrigger.l1EGammaEEProducer_cfi import *
 phase2_SimL1Emulator += l1EGammaEEProducer
 
 #  CaloJets
@@ -150,6 +150,7 @@ phase2_SimL1Emulator += L1TrackerEtMiss
 phase2_SimL1Emulator += L1TkCaloHTMissVtx
 phase2_SimL1Emulator += L1TrackerHTMiss
 phase2_SimL1Emulator += L1TkMuons
+phase2_SimL1Emulator += L1TkMuonsDynamicWindows
 phase2_SimL1Emulator += L1TkGlbMuons
 phase2_SimL1Emulator += L1TkTauFromCalo
 
