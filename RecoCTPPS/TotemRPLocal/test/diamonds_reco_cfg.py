@@ -20,12 +20,28 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
 #)
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-        '/store/data/Run2017E/ZeroBias/RAW/v1/000/304/447/00000/001C958C-7FA9-E711-858F-02163E011A5F.root',
+#        '/store/data/Run2017E/ZeroBias/RAW/v1/000/304/447/00000/001C958C-7FA9-E711-858F-02163E011A5F.root',
+        '/store/data/Commissioning2018/ZeroBias/RAW/v1/000/314/816/00000/FCDB2DE6-4845-E811-91A1-FA163E6CD0D3.root',
     ),
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
+)
+
+# load calibrations from database
+process.load('CondCore.CondDB.CondDB_cfi')
+process.CondDB.connect = 'sqlite_file:ppsDiamondTiming_calibration.sqlite' # SQLite input
+
+process.PoolDBESSource = cms.ESSource('PoolDBESSource',
+    process.CondDB,
+    DumpStats = cms.untracked.bool(True),
+    toGet = cms.VPSet(
+        cms.PSet(
+            record = cms.string('PPSTimingCalibrationRcd'),
+            tag = cms.string('PPSDiamondTimingCalibration')
+        )
+    )
 )
 
 # raw-to-digi conversion
@@ -35,7 +51,7 @@ process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 
 # rechits production
-process.load('Geometry.VeryForwardGeometry.geometryRP_cfi')
+process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi')
 process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondRecHits_cfi')
 
 # local tracks fitter
