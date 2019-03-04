@@ -29,7 +29,6 @@
 #include "RecoCTPPS/TotemRPLocal/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
 
 class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
