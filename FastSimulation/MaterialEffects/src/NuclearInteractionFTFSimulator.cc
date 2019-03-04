@@ -10,7 +10,6 @@
 #include "FastSimulation/MaterialEffects/interface/CMSDummyDeexcitation.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
-#include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Particle/interface/makeParticle.h"
 
 // Geant4 headers
@@ -422,10 +421,10 @@ void NuclearInteractionFTFSimulator::saveDaughter(ParticlePropagator& Particle,
 						  const G4LorentzVector& lv, int pdgid)
 {
   unsigned int idx = _theUpdatedState.size();   
-  _theUpdatedState.emplace_back(
-           makeParticle(ParticleTable::instance(),pdgid, 
-                        XYZTLorentzVector{lv.px()*fact,lv.py()*fact,lv.pz()*fact,lv.e()*fact}, 
-                        Particle.particle().vertex()));
+  _theUpdatedState.emplace_back(makeParticle(Particle.particleDataTable(),
+                                             pdgid, 
+                                             XYZTLorentzVector{lv.px()*fact,lv.py()*fact,lv.pz()*fact,lv.e()*fact}, 
+                                             Particle.particle().vertex()));
 
   // Store the closest daughter index (for later tracking purposes, so charged particles only) 
   double distance = distanceToPrimary(Particle.particle(),_theUpdatedState[idx]);

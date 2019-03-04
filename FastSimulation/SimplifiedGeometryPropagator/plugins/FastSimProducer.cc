@@ -34,7 +34,6 @@
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/InteractionModel.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/InteractionModelFactory.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ParticleManager.h"
-#include "FastSimulation/Particle/interface/ParticleTable.h" // TODO: move this
 #include "FastSimulation/Particle/interface/makeParticle.h" 
 
 // Hack for calorimetry
@@ -182,7 +181,6 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Get the particle data table (in case lifetime or charge of GenParticles not set)
     edm::ESHandle <HepPDT::ParticleDataTable> pdt;
     iSetup.getData(pdt);
-    ParticleTable::Sentry ptable(&(*pdt));
 
     // Get the GenParticle collection
     edm::Handle<edm::HepMCProduct> genParticles;

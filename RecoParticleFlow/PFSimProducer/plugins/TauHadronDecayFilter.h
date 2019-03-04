@@ -4,8 +4,6 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FastSimulation/Particle/interface/ParticleTable.h"
-
 // -*- C++ -*-
 //
 // Package:    TauHadronDecayFilter
@@ -40,7 +38,6 @@ class TauHadronDecayFilter : public edm::EDFilter {
   // ----------member data ---------------------------
   edm::ParameterSet  particleFilter_;
   FSimEvent* mySimEvent;
-  std::unique_ptr<ParticleTable::Sentry> pTableSentry_;
 };
 
 #endif

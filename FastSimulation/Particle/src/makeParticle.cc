@@ -14,7 +14,6 @@
 
 // user include files
 #include "FastSimulation/Particle/interface/makeParticle.h"
-#include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Particle/interface/RawParticle.h"
 
 
@@ -26,13 +25,6 @@ inline RawParticle unchecked_makeParticle(int id, const math::XYZTLorentzVector&
   return RawParticle(id,p, xStart, mass, charge);
 }
 
-
-RawParticle makeParticle(ParticleTable const* t , int id, const math::XYZTLorentzVector& p) {
-  return makeParticle(t->theTable(),id,p);
-}
-RawParticle makeParticle(ParticleTable const* t, int id, const math::XYZTLorentzVector& p, const math::XYZTLorentzVector& xStart) {
-  return makeParticle(t->theTable(),id,p,xStart);
-}
 
 RawParticle makeParticle(HepPDT::ParticleDataTable const* table, int id, const math::XYZTLorentzVector& p) {
   double charge =0.;

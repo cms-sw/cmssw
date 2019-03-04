@@ -168,7 +168,7 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
     // Get the geometry elements 
     cyliter = _theGeometry->cylinderBegin();
     // Prepare the propagation  
-    ParticlePropagator PP(mySimEvent->track(fsimi),_theFieldMap,random);
+    ParticlePropagator PP(mySimEvent->track(fsimi),_theFieldMap,random,mySimEvent->theTable());
     //The real work starts here
     int success = 1;
     int sign = +1;

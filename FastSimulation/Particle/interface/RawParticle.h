@@ -11,8 +11,6 @@
 #include "Math/GenVector/AxisAngle.h"
 #include "Math/GenVector/Boost.h"
 
-class ParticleTable;
-
 #include <string>
 #include <iosfwd>
 
