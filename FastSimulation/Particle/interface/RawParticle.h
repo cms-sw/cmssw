@@ -52,7 +52,7 @@ public:
   typedef ROOT::Math::RotationZ RotationZ;
   typedef ROOT::Math::Boost Boost;
 
-  RawParticle();
+  RawParticle() = default;
 
   /** Construct from a fourvector.
    *  The fourvector is taken for the particle, the vertex is set to 0. 
@@ -279,19 +279,15 @@ public:
               double charge);
 
   
-  void init();
-  
- protected:
+ private:
 
   XYZTLorentzVector myMomentum;       //!< the four vector of the momentum
   XYZTLorentzVector myVertex;         //!< the four vector of the vertex
-  double myCharge;                    //!< the MEASURED charge
-  double myMass;                      //!< the RECONSTRUCTED mass
-  int myId;                           //!< the particle id number HEP-PID 
-  int myStatus;                       //!< the status code according to PYTHIA
-  int myUsed;                         //!< status of the locking
-
- private:
+  double myCharge= 0.;                //!< the MEASURED charge
+  double myMass = 0.;                 //!< the RECONSTRUCTED mass
+  int myId = 0;                       //!< the particle id number HEP-PID 
+  int myStatus=99;                    //!< the status code according to PYTHIA
+  int myUsed = 0;                     //!< status of the locking
 
 };
 
