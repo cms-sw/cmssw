@@ -97,19 +97,6 @@ namespace gem {
 
     uint8_t  oosGlib()    const {return EventTrailer{et_}.oosGlib;}
     uint32_t chTimeOut()  const {return EventTrailer{et_}.chTimeOut;}
-
-
-    /* void setdataLength(uint64_t n) {amch1_.dataLength = n;} */
-    /* void setbx(uint64_t n) {amch1_.bxID = n;} */
-    /* void setl1A(uint64_t n) {amch1_.l1AID = n;} */
-    /* void setamcNum(uint64_t n) {amch1_.AMCnum = n;} */
-    
-    /* void setboardId(uint64_t n) {amch2_.boardID = n;} */
-    /* void setorbitNum(uint64_t n) {amch2_.orbitNum = n;} */
-    /* void setrunType(uint64_t n) {amch2_.runType = n;} */
-    
-    /* void setdavCnt(uint64_t n) {eh_.davCnt = n;} */
-    /* void setdavList(uint64_t n) {eh_.davList = n;} */
     
     //!Adds GEB data to vector
     void addGEB(GEBdata g) {gebd_.push_back(g);}
@@ -117,11 +104,6 @@ namespace gem {
     const std::vector<GEBdata> * gebs() const {return &gebd_;}
   
   private:
-    /* AMCheader1 amch1_; */
-    /* AMCheader2 amch2_; */
-    /* AMCTrailer amct_; */
-    /* EventHeader eh_; */
-    /* EventTrailer et_; */
 
     uint64_t amch1_;
     uint64_t amch2_;
