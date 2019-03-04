@@ -109,20 +109,20 @@ PPSTimingCalibrationESSource::parseTotemUFSDJsonFile() const
 
   for ( pt::ptree::value_type& par : mother_node.get_child( "parameters" ) ) {
     PPSTimingCalibration::Key key;
-    key.key1 = (int)strtol( par.first.data(), nullptr, 10 );
+    key.db = (int)strtol( par.first.data(), nullptr, 10 );
 
     for ( pt::ptree::value_type& board : par.second ) {
-      key.key2 = board.second.get<int>( "sampic" );
-      key.key3 = board.second.get<int>( "channel" );
+      key.sampic = board.second.get<int>( "sampic" );
+      key.channel = board.second.get<int>( "channel" );
       double timeOffset = board.second.get<double>( "time_offset" );
       double timePrecision = board.second.get<double>( "time_precision" );
-      key.key4 = -1;
+      key.cell = -1;
       time_info[key] = { timeOffset, timePrecision };
 
       int cell_ct = 0;
       for ( pt::ptree::value_type& cell : board.second.get_child( "cells" ) ) {
         std::vector<double> values;
-        key.key4 = cell_ct;
+        key.cell = cell_ct;
 
         for ( pt::ptree::value_type& param : cell.second )
           values.emplace_back( std::stod( param.second.data(), nullptr ) );
@@ -146,16 +146,16 @@ PPSTimingCalibrationESSource::parsePPSDiamondJsonFile() const
 
   for ( pt::ptree::value_type& par : mother_node.get_child( "Parameters.Sectors" ) ) {
     PPSTimingCalibration::Key key;
-    key.key1 = par.second.get<int>( "sector" );
+    key.db = par.second.get<int>( "sector" );
 
     for ( pt::ptree::value_type& st : par.second.get_child( "Stations" ) ) {
-      key.key2 = st.second.get<int>( "station" );
+      key.sampic = st.second.get<int>( "station" );
 
       for ( pt::ptree::value_type& pl : st.second.get_child( "Planes" ) ) {
-        key.key3 = pl.second.get<int>( "plane" );
+        key.channel = pl.second.get<int>( "plane" );
 
         for ( pt::ptree::value_type& ch : pl.second.get_child( "Channels" ) ) {
-          key.key4 = ch.second.get<int>( "channel" );
+          key.cell = ch.second.get<int>( "channel" );
           double timeOffset = ch.second.get<double>( "time_offset" );
           double timePrecision = ch.second.get<double>( "time_precision" );
           time_info[key] = { timeOffset, timePrecision };

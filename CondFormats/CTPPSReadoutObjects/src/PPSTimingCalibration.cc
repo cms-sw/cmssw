@@ -14,21 +14,21 @@
 bool
 PPSTimingCalibration::Key::operator<( const PPSTimingCalibration::Key& rhs ) const
 {
-  if ( key1 == rhs.key1 ) {
-    if ( key2 == rhs.key2 ) {
-      if ( key3 == rhs.key3 )
-        return key4 < rhs.key4;
-      return key3 < rhs.key4;
+  if ( db == rhs.db ) {
+    if ( sampic == rhs.sampic ) {
+      if ( channel == rhs.channel )
+        return cell < rhs.cell;
+      return channel < rhs.channel;
     }
-    return key2 < rhs.key2;
+    return sampic < rhs.sampic;
   }
-  return key1 < rhs.key1;
+  return db < rhs.db;
 }
 
 std::ostream&
 operator<<( std::ostream& os, const PPSTimingCalibration::Key& key )
 {
-  return os << key.key1 << " " << key.key2 << " " << key.key3 << " " << key.key4;
+  return os << key.db << " " << key.sampic << " " << key.channel << " " << key.cell;
 }
 
 //--------------------------------------------------------------------------
@@ -72,6 +72,7 @@ operator<<( std::ostream& os, const PPSTimingCalibration& data )
     for ( size_t i = 0; i < kv.second.size(); ++i )
       os << ( i > 0 ? ", " : "" ) << kv.second.at( i );
     PPSTimingCalibration::Key k = kv.first;
+    k.cell = -1;
     const auto& time = data.timeInfo_.at( k );
     os << "] " << time.first << " " <<  time.second << "\n";
   }
