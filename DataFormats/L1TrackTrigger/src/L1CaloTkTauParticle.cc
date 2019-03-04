@@ -16,12 +16,14 @@ L1CaloTkTauParticle::L1CaloTkTauParticle()
 
 L1CaloTkTauParticle::L1CaloTkTauParticle( const LorentzVector& p4,
 				const std::vector< L1TTTrackRefPtr >& clustTracks,
-    		    const Tau caloTau,
-				float vtxIso )
+    		    Tau& caloTau,
+				float vtxIso ,
+				float Et)
   : L1Candidate  ( p4 ),
     clustTracks_ ( clustTracks ),
     caloTau_     ( caloTau ),
-    vtxIso_      ( vtxIso ) 
+    vtxIso_      ( vtxIso ), 
+    Et_          ( Et)
 {
 
 }

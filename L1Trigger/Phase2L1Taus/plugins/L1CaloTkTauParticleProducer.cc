@@ -20,11 +20,10 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1TrackTrigger/interface/L1CaloTkTauParticle.h"
-#include "L1Trigger/L1TNtuples/interface/L1AnalysisL1Upgrade.h"
+#include "L1Trigger/Phase2L1Taus/interface/L1CaloTkTauEtComparator.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/deltaR.h" 
@@ -55,7 +54,17 @@ public:
   ~L1CaloTkTauParticleProducer();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions); //TODO: what is this?
-  
+
+  class TrackPtComparator{
+    
+    unsigned int nFitParams_;
+  public:
+    TrackPtComparator(unsigned int nFitParams){ nFitParams_ = nFitParams;}
+    bool operator() (const L1TTTrackRefPtr trackA, L1TTTrackRefPtr trackB ) const {
+      return ( trackA->getMomentum(nFitParams_).perp() > trackB->getMomentum(nFitParams_).perp() );
+    }
+  };
+
   float DeltaPhi(float phi1, float phi2) ; //TODO: double check
   float deltaR(float eta1, float eta2, float phi1, float phi2) ; //TODO: double check
   float CorrectedEta(float eta, float zv); //TODO: double check
@@ -63,6 +72,7 @@ public:
   float CalibrateCaloTau(float Et, float Eta);
   float findClosest(float arr[], int n, float target);
   float getClosest(float val1, float val2, float target);
+
   
 private:
   virtual void beginJob() ;
@@ -89,46 +99,35 @@ private:
   
   // ----------member data ---------------------------
   
+  // Label of the objects which are created
   std::string label;
  
-//  const edm::EDGetTokenT< EGammaBxCollection > egToken; //TODO: replace by tau token
-  const edm::EDGetTokenT<std::vector<TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
-  std::vector< edm::EDGetTokenT<l1t::TauBxCollection> > tauTokens;
-
-// ----- Imported from CaloTk::InitVars_
-
   unsigned int tk_nFitParams;
 
-  // Matching tracks
-  float seedTk_minPt;      
-  float seedTk_minEta;
-  float seedTk_maxEta;
-  float seedTk_maxChiSq;
-  float seedTk_minStubs;
-
-  // Signal cone tracks
+  // L1 tracks
   float sigConeTks_minPt;
   float sigConeTks_minEta;
   float sigConeTks_maxEta;
   float sigConeTks_maxChiSq;
   unsigned int sigConeTks_minStubs;
-  float sigConeTks_dPOCAz;
-  float sigConeTks_maxInvMass;
- 
-  // Isolation cone tracks
-  float isoConeTks_minPt;
-  float isoConeTks_minEta;
-  float isoConeTks_maxEta;
-  float isoConeTks_maxChiSq;
-  unsigned int isoConeTks_minStubs;
+
+  // Seed tracks
+  float seedTk_minPt;      
+  float seedTk_minEta;
+  float seedTk_maxEta;
+  float seedTk_maxChiSq;
+  float seedTk_minStubs;
+  //TODO: add seed track max delta R
 
   // Signal cone parameters
   float shrinkCone_Constant;
   float sigCone_dRMin;
   float sigCone_dRMax;
   float sigCone_cutoffDeltaR;
+  float sigConeTks_dPOCAz;
+  float sigConeTks_maxInvMass;
 
-  // Isolation cone
+  // Isolation cone parameters
   float isoCone_dRMin;
   float isoCone_dRMax;
   bool isoCone_useCone;
@@ -136,11 +135,14 @@ private:
   // CaloTaus
   bool calibrateCaloTaus;
 
-  // Tau object
+  // Isolation parameters
   float tau_jetWidth;
   float tau_vtxIsoWP;
   float tau_relIsoWP;
   float tau_relIsodZ0;
+
+  const edm::EDGetTokenT<std::vector<TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
+  std::vector< edm::EDGetTokenT<l1t::TauBxCollection> > tauTokens;
 
 // ----------------------
   
@@ -180,13 +182,6 @@ L1CaloTkTauParticleProducer::L1CaloTkTauParticleProducer(const edm::ParameterSet
   sigConeTks_dPOCAz     = (float)iConfig.getParameter<double>("sigConeTks_dPOCAz");
   sigConeTks_maxInvMass = (float)iConfig.getParameter<double>("sigConeTks_maxInvMass");
  
-  // Isolation cone tracks
-/*  isoConeTks_minPt     = (float)iConfig.getParameter<double>("isoConeTks_minPt");
-  isoConeTks_minEta    = (float)iConfig.getParameter<double>("isoConeTks_minEta");
-  isoConeTks_maxEta    = (float)iConfig.getParameter<double>("isoConeTks_maxEta");
-  isoConeTks_maxChiSq  = (float)iConfig.getParameter<double>("isoConeTks_maxChiSq");
-  isoConeTks_minStubs  = (unsigned int)iConfig.getParameter<unsigned int>("isoConeTks_minStubs"); */
-
   // Signal cone parameters
   shrinkCone_Constant  = (float)iConfig.getParameter<double>("shrinkCone_Constant");
   sigCone_dRMin        = (float)iConfig.getParameter<double>("sigCone_dRMin");
@@ -220,13 +215,15 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
   
   std::unique_ptr<L1CaloTkTauParticleCollection> L1CaloTkTauCandidates(new L1CaloTkTauParticleCollection);
 
-  std::vector<Tau> caloTaus;
+  // Constants 
+  const float pionMass  = 0.13957018;
+
   // Construct a vector of CaloTaus  
+  std::vector<Tau> caloTaus;
   for (auto & tautoken: tauTokens){
     edm::Handle<l1t::TauBxCollection> tau;
     iEvent.getByToken(tautoken,  tau);
     if (tau.isValid()){ 
-//      std::cout << "WE HAVE A GOOD TAU!" << std::endl;  
       for (int ibx = tau->getFirstBX(); ibx <= tau->getLastBX(); ++ibx) {
         for (l1t::TauBxCollection::const_iterator it=tau->begin(ibx); it!=tau->end(ibx); it++){
           if (it->pt() > 0){
@@ -235,17 +232,11 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
         }
       } // end of if(tau.isValid())
     } else {
-      edm::LogWarning("MissingProduct") << "L1Upgrade Tau not found. Branch will not be filled" << std::endl;
+      edm::LogWarning("MissingProduct") << "Warning: Valid tau not found!" << std::endl;
     }
   }
 
-  // SANITY CHECK: Loop over CaloTaus and print Et, Eta, Phi
-//  for (auto tauIter = caloTaus.begin(); tauIter != caloTaus.end(); ++tauIter) {
-//    std::cout << "Tau pT   = " << tauIter->pt() << std::endl;
-//  }
-  // Possible functions: et(), eta(), phi(), hwPt(), hwEta(), hwPhi(), hwIso() ibx, towerIPhi(), towerIEta(), rawEt(), isoEt(), nTT(), hasEM(), isMerged(), hwQual()
-
-  // Access the L1Tracks
+  // Get the L1Tracks
   edm::Handle<std::vector<TTTrack< Ref_Phase2TrackerDigi_ > > > L1TTTrackHandle;
   iEvent.getByToken(trackToken, L1TTTrackHandle);
   L1TTTrackCollectionType::const_iterator trkIter;  
@@ -261,15 +252,14 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
   std::cout<<"\n--- Select all tracks passing the quality criteria"<<std::endl;
 #endif
 
-  // Build track collections (vectors of pointers) from tracks passing the quality criteria
+  // Build a track collection using only tracks passing the quality criteria
   std::vector< L1TTTrackRefPtr > SeedTTTrackPtrs;
   std::vector< L1TTTrackRefPtr > SigConeTTTrackPtrs;
-  std::vector< L1TTTrackRefPtr > IsoConeTTTrackPtrs;
   unsigned int seedTk_counter = 0;
 
   // Loop over all tracks
   for (trkIter = L1TTTrackHandle->begin(); trkIter != L1TTTrackHandle->end(); ++trkIter) {
-    // Construct a pointer
+    // Make a pointer
     L1TTTrackRefPtr track_RefPtr(L1TTTrackHandle, seedTk_counter++);
     // Retrieve track information
     float Pt   = trkIter->getMomentum(tk_nFitParams).perp();
@@ -277,44 +267,36 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
     float Chi2 = trkIter->getChi2(tk_nFitParams);
     std::vector< L1TTStubRef > Stubs = trkIter-> getStubRefs();
     unsigned int NStubs              = Stubs.size();
-    // Seed tracks
+    // Select seed tracks
     if ( Pt   > seedTk_minPt  &&
          fabs(Eta)  > seedTk_minEta && //marina
          fabs(Eta)  < seedTk_maxEta && //marina
          Chi2 < seedTk_maxChiSq &&
          NStubs > seedTk_minStubs )  
             SeedTTTrackPtrs.push_back(track_RefPtr);
-    // Signal cone tracks
+    // Select signal cone tracks
     if ( Pt   > sigConeTks_minPt  &&
          fabs(Eta)  > sigConeTks_minEta && //marina
          fabs(Eta)  < sigConeTks_maxEta && //marina
          Chi2 < sigConeTks_maxChiSq &&
          NStubs > sigConeTks_minStubs )  
             SigConeTTTrackPtrs.push_back(track_RefPtr);
-/*    // Isolation cone tracks
-    if ( Pt   > isoConeTks_minPt  &&
-         fabs(Eta)  > isoConeTks_minEta && //marina
-         fabs(Eta)  < isoConeTks_maxEta && //marina
-         Chi2 < isoConeTks_maxChiSq &&
-         NStubs > isoConeTks_minStubs )  
-            IsoConeTTTrackPtrs.push_back(track_RefPtr); */
   }// End of the track loop
 
   /// Sort all track collections by pT
-  std::sort( SeedTTTrackPtrs.begin(), SeedTTTrackPtrs.end() );
-  std::sort( SigConeTTTrackPtrs.begin(), SigConeTTTrackPtrs.end() );
-//  std::sort( IsoConeTTTrackPtrs.begin(), IsoConeTTTrackPtrs.end() );
+  std::sort( SeedTTTrackPtrs.begin(), SeedTTTrackPtrs.end(), TrackPtComparator(tk_nFitParams) );
+  std::sort( SigConeTTTrackPtrs.begin(), SigConeTTTrackPtrs.end(), TrackPtComparator(tk_nFitParams) );
 
-  // SANITY CHECK:
-//  std::cout << "Vector sizes: " << SeedTTTrackPtrs.size() << "; " << SigConeTTTrackPtrs.size() << "; " << IsoConeTTTrackPtrs.size() << std::endl;
-
-  // **** CALOTK ALGORITHM *** //
+  ///////////////////////////////////////////////////////////////
+  //  CaloTkTau Algorithm
+  ///////////////////////////////////////////////////////////////
   
-  // Loop over calo taus
   bool foundMatchTrk;
   double matchTk_dR = 999.9;  
+
+  // Loop over calo taus
   for (std::vector<Tau>::iterator caloTauIter = caloTaus.begin(); caloTauIter != caloTaus.end(); ++caloTauIter) {
-    
+          
       // Calibrate calo taus if needed
       float caloEt = caloTauIter->et();
       float caloEta = caloTauIter->eta();
@@ -333,7 +315,6 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
         if (dR < 0.1 && dR < matchTk_dR) { //TODO: add 0.1 (matchingDR as input parameter)
           foundMatchTrk = true;
           matchedTrack = iTrk;
-//          if (foundMatchTrk) std::cout << "IT'S A MATCH!!! dR = " << dR << std::endl; 
         }
       } 
 
@@ -353,61 +334,69 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
       std::vector< L1TTTrackRefPtr > sigConeTks;
       std::vector< L1TTTrackRefPtr > isoConeTks;
       
-      // Push matching track in the sigCone Tracks Vector
-      sigConeTks.push_back(matchedTrack); //marina
-
       // Initialize isolation variables
       float vtxIso = 999.0;
       float isoConePtSum = 0.0;
       float dRtimesPtSum = 0.0;
-      math::XYZTLorentzVector sigTks_p4; // track-based four-momentum, FIXME: currently not used for anything?!
-      // Loop over tracks
+
+      // Add matching track as the first one in sigConeTks
+      sigConeTks.push_back(matchedTrack);
+      math::XYZTLorentzVector sigTks_p4; // track-based four-momentum
+      double px = matchedTrack->getMomentum().x();
+      double py = matchedTrack->getMomentum().y();
+	  double pz = matchedTrack->getMomentum().z();
+	  double e  = sqrt(px*px+py*py+pz*pz+pionMass*pionMass);
+	  sigTks_p4.SetCoordinates(px,py,pz,e);
+	  
+      // Loop over tracks to select signal and isolation cone tracks
+      bool isSignalTk = false;
       for ( unsigned int i=0; i < SigConeTTTrackPtrs.size(); i++ ){
         L1TTTrackRefPtr iTrk = SigConeTTTrackPtrs.at(i);
-        // Skip the matching track //FIXME: in CaloTk.C code the matching track is first skipped and them added - why?
-	//      if( tk->index() == L1TkTau.GetMatchingTk().index() ) continue;
-	//if (matchedTrack==iTrk) continue; //marina - not working
+        // Skip the matched track (already added)
+	    if( iTrk == matchedTrack ) continue;
 
          // Calculate dR and dPOCAz
         double dR = reco::deltaR(iTrk->getMomentum(tk_nFitParams).eta(), iTrk->getMomentum(tk_nFitParams).phi(), 
                          matchedTrack->getMomentum(tk_nFitParams).eta(), matchedTrack->getMomentum(tk_nFitParams).phi());     
-        double dPOCAz = abs(matchedTrack->getPOCA(tk_nFitParams).z() - iTrk->getPOCA(tk_nFitParams).z());
+        double dPOCAz = fabs(matchedTrack->getPOCA(tk_nFitParams).z() - iTrk->getPOCA(tk_nFitParams).z());
         // Pick signal cone tracks
         if (dR >= signalCone_dRmin && dR < signalCone_dRmax && dPOCAz < sigConeTks_dPOCAz){
-           // Add tracks (and sum four-momenta) up to tau invariant mass
-           math::XYZTLorentzVector p4tmp;
-           double px = iTrk->getMomentum().x();
-	       double py = iTrk->getMomentum().y();
-	       double pz = iTrk->getMomentum().z();
-	       double e  = sqrt(px*px+py*py+pz*pz+0.14*0.14); // assume pion mass 0.14 GeV
-	       p4tmp.SetCoordinates(px,py,pz,e);
-	       sigTks_p4 += p4tmp;
-           if (sigTks_p4.M() > sigConeTks_maxInvMass) {
-               sigTks_p4 -= p4tmp;
-	           continue;
-           }
-           else {
-            sigConeTks.push_back(iTrk);               
-           }
-         }
-      
+          // Add tracks (and sum four-momenta) up to tau invariant mass
+          math::XYZTLorentzVector p4tmp;
+          px = iTrk->getMomentum().x();
+	      py = iTrk->getMomentum().y();
+	      pz = iTrk->getMomentum().z();
+	      e  = sqrt(px*px+py*py+pz*pz+pionMass*pionMass);
+	      p4tmp.SetCoordinates(px,py,pz,e);
+	      sigTks_p4 += p4tmp;
+          if (sigTks_p4.M() > sigConeTks_maxInvMass) {
+              sigTks_p4 -= p4tmp;
+          }
+          else {
+//           std::cout << "Adding track with dR = " << dR << " and pT = " << sqrt(px*px+py*py) << "and E = " << e << std::endl;
+           sigConeTks.push_back(iTrk);
+           isSignalTk = true;               
+          }
+        } // end of signal cone checks
         // Pick isolation cone tracks
-        if (dR > isolationCone_dRmin && dR < isolationCone_dRmax){ //FIXME: should we check that the same track is not inside signal and isolation cones?
+        if (dR > isolationCone_dRmin && dR < isolationCone_dRmax && !isSignalTk){
             if (dPOCAz < vtxIso){
                 vtxIso = dPOCAz;
             }
-            if (dPOCAz < tau_relIsodZ0){ //FIXME: should this be inverted?
+            // Calculations for other isolation criteria (relative isolation, jet width)
+            if (dPOCAz < tau_relIsodZ0){
                 double tkPt = iTrk->getMomentum(tk_nFitParams).perp();
                 isoConePtSum += tkPt;
                 dRtimesPtSum += dR*tkPt;
                 isoConeTks.push_back(iTrk);
             }
         }
+        
       } // end of loop over tracks
-         
+               
       // Sanity check:
 //      std::cout << "Signal cone now contains " << sigConeTks.size() << " tracks; signalCone_dRmin = " 
-//      << signalCone_dRmin << "; signalCone_dRmax = " << signalCone_dRmax << std::endl;
+//      << signalCone_dRmin << "; signalCone_dRmax = " << signalCone_dRmax << "; total mass = " << sigTks_p4.M() << std::endl;
 //      std::cout << "Isolation cone now contains " << isoConeTks.size() << " tracks; isolationCone_dRmin = " 
 //      << isolationCone_dRmin << "; isolationCone_dRmax = " << isolationCone_dRmax << std::endl;
 
@@ -419,7 +408,7 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
         double dR = reco::deltaR(iTrk->getMomentum(tk_nFitParams).eta(), iTrk->getMomentum(tk_nFitParams).phi(), 
                          matchedTrack->getMomentum(tk_nFitParams).eta(), matchedTrack->getMomentum(tk_nFitParams).phi());
 	    // Skip tracks outside the isolation cone
-	    if (dR > isolationCone_dRmax) continue;  // FIXME: use a smaller cone instead of isoCone?
+	    if (dR > 0.15) continue;  // FIXME: make this an input parameter
 	    // Compare pT
         if (iTrk->getMomentum(tk_nFitParams).perp() > matchedTrack->getMomentum(tk_nFitParams).perp()){
 //            std::cout << "Seed track not the leading track! Reject candidate!" << std::endl;
@@ -431,36 +420,35 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
 	  // Proceed only if there is no higher pT track within signal or isolation cones
 	  if (!bIsLdgTrack) continue;      
 
-//      std::cout << "Passed all cuts before the isolation criteria!" << std::endl;
-
-      // ISOLATION OF THE TAU CANDIDATE
-
       // Jet width
-      double jetWidth = 0;
-      if (dRtimesPtSum > 0.0 && isoConePtSum > 0.0)
-          jetWidth = dRtimesPtSum / isoConePtSum;
-      bool bPassJetWidth = (jetWidth  < tau_jetWidth);
-      if (!bPassJetWidth) continue;
+//      double jetWidth = 0;
+//      if (dRtimesPtSum > 0.0 && isoConePtSum > 0.0)
+//          jetWidth = dRtimesPtSum / isoConePtSum;
+//      bool bPassJetWidth = (jetWidth  < tau_jetWidth);
+//      if (!bPassJetWidth) continue;
 
       // Relative isolation
-      double relIso = isoConePtSum / matchedTrack->getMomentum(tk_nFitParams).perp();
-      bool bPassRelIso = (relIso < tau_relIsoWP); // orthogonal to VtxIso
-      if (!bPassRelIso) continue;
+//      double relIso = isoConePtSum / matchedTrack->getMomentum(tk_nFitParams).perp();
+//      bool bPassRelIso = (relIso < tau_relIsoWP); // orthogonal to VtxIso
+//      if (!bPassRelIso) continue;
       
       // Vertex isolation      
       bool bPassVtxIso = (vtxIso > tau_vtxIsoWP); // orthogonal to RelIso
       if (!bPassVtxIso) continue;
 	  
-      //      std::cout << "Passed all isolation criteria with jetWidth = " << jetWidth << ", relIso = " << relIso << " and vtxIso = " << vtxIso << std::endl;
-
       const math::XYZTLorentzVector p4 = sigTks_p4;
-      const Tau finalTau = *caloTauIter;
-      L1CaloTkTauParticle caloTauCandidate(p4, sigConeTks, finalTau, vtxIso);
+      Tau finalTau = *caloTauIter;
+      L1CaloTkTauParticle caloTauCandidate(p4, sigConeTks, finalTau, vtxIso, caloEt);
       L1CaloTkTauCandidates -> push_back( caloTauCandidate );
       
   } // end of loop over calo taus
 
-   iEvent.put(std::move(L1CaloTkTauCandidates), label );
+  // Sort the final CaloTkTau candidates
+  std::sort( L1CaloTkTauCandidates->begin(), L1CaloTkTauCandidates->end(), L1CaloTkTau::EtComparator() );
+
+
+  // Add final CaloTkTau candidates to the event
+  iEvent.put(std::move(L1CaloTkTauCandidates), label );
   
 }
 
@@ -606,7 +594,7 @@ float L1CaloTkTauParticleProducer::deltaR(float eta1, float eta2, float phi1, fl
 
 float L1CaloTkTauParticleProducer::CalibrateCaloTau(float Et, float Eta) {
 
-    // Calibration values as a function of eta
+    // Calibration scale factors as a function of Et and eta
     float eta_values [30] = {-1.2615 , -1.1745 , -1.0875 , -1.0005 , -0.9135 , -0.8265 , -0.7395 , -0.6525 , -0.5655 , -0.4785 , -0.3915 , -0.3045 , -0.2175 , -0.1305 , -0.0435 , 0.0435 , 0.1305 , 0.2175 , 0.3045 , 0.3915 , 0.4785 , 0.5655 , 0.6525 , 0.7395 , 0.8265 , 0.9135 , 1.0005 , 1.0875 , 1.1745 , 1.2615};
 
     float et20to40 [30] = {1.08888888889 , 1.08214285714 , 1.09558823529 , 1.09705882353 , 1.08928571429 , 1.17321428571 , 1.13863636364 , 0.951388888889 , 1.04134615385 , 1.05202702703 , 1.0737804878 , 1.07928571429 , 1.03722222222 , 1.027 , 1.0625 , 1.04659090909 , 1.00663265306 , 1.08520408163 , 1.05982142857 , 1.068 , 1.09705882353 , 1.04294871795 , 1.10714285714 , 1.135 , 1.07243589744 , 1.09527027027 , 1.10227272727 , 1.045 , 1.125 , 1.17833333333};
