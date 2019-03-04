@@ -74,7 +74,7 @@ class FastSimProducer : public edm::stream::EDProducer<> {
     void beginStream(edm::StreamID id) override;
     void produce(edm::Event&, const edm::EventSetup&) override;
     void endStream() override;
-    virtual FSimTrack createFSimTrack(fastsim::Particle* particle, fastsim::ParticleManager* particleManager);
+    virtual FSimTrack createFSimTrack(fastsim::Particle* particle, fastsim::ParticleManager* particleManager, HepPDT::ParticleDataTable const& particleTable);
 
     edm::EDGetTokenT<edm::HepMCProduct> genParticlesToken_; //!< Token to get the genParticles
     fastsim::Geometry geometry_; //!< The definition of the tracker according to python config
@@ -324,7 +324,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             LogDebug(MESSAGECATEGORY) << "\n   moving particle to calorimetry: " << *particle;
 
             // create FSimTrack (this is the object the old propagation uses)
-            myFSimTracks.push_back(createFSimTrack(particle.get(), &particleManager));
+            myFSimTracks.push_back(createFSimTrack(particle.get(), &particleManager, *pdt));
             // particle was decayed
             if(!particle->isStable() && particle->remainingProperLifeTimeC() < 1E-10)
             {
@@ -401,7 +401,7 @@ FastSimProducer::endStream()
 }
 
 FSimTrack
-FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleManager* particleManager)
+FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleManager* particleManager, HepPDT::ParticleDataTable const& particleTable)
 {
     FSimTrack myFSimTrack(particle->pdgId(),
         particleManager->getSimTrack(particle->simTrackIndex()).momentum(),
@@ -435,7 +435,7 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
         // Define ParticlePropagators (RawParticle) needed for CalorimetryManager and save them
         //////////
 
-        RawParticle PP = makeParticle(ParticleTable::instance(),
+        RawParticle PP = makeParticle(&particleTable,
                                       particle->pdgId(), 
                                       particle->momentum(),
                                       particle->position());

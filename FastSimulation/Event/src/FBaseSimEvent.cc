@@ -11,7 +11,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 //FAMOS Headers
-#include "FastSimulation/Particle/interface/ParticleTable.h"
+#include "FastSimulation/Particle/interface/pdg_functions.h"
 #include "FastSimulation/Particle/interface/makeParticle.h"
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
@@ -213,7 +213,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
       // The next 3 lines to be then replaced by the previous line
       XYZTLorentzVector momentum(track.momentum().px(),track.momentum().py(),
 				 track.momentum().pz(),track.momentum().e());
-      RawParticle part = makeParticle(ParticleTable::instance(),track.type(),momentum,position);
+      RawParticle part = makeParticle(theTable(),track.type(),momentum,position);
       //
       //std::cout << "Ctau  = " << part.PDGcTau() << std::endl;
       // Don't save tracks that have decayed immediately but for which no daughters
@@ -489,7 +489,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 				 p->momentum().py(),
 				 p->momentum().pz(),
 				 p->momentum().e());
-      RawParticle part= makeParticle(ParticleTable::instance(),p->pdg_id(),momentum, vertex(originVertex).position());
+      RawParticle part= makeParticle(theTable(),p->pdg_id(),momentum, vertex(originVertex).position());
 
       // Add the particle to the event and to the various lists
       
@@ -556,7 +556,7 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig,
     // A proper decay time is scheduled
     FSimTrack(p,iv,ig,trackId,this,
 	      ev->position().t()/10.
-	      * ParticleTable::instance()->PDGmass(p->pid())
+	      * pdg::mass(p->pid(), theTable())
 	      / std::sqrt(p->momentum().Vect().Mag2())) : 
     // No proper decay time is scheduled
     FSimTrack(p,iv,ig,trackId,this);

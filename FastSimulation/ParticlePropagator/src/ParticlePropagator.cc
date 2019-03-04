@@ -9,6 +9,7 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
+#include "FastSimulation/Particle/interface/pdg_functions.h"
 #include "FastSimulation/Particle/interface/makeParticle.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
@@ -108,7 +109,7 @@ ParticlePropagator::initProperDecayTime() {
   double properDecayTime = 
     (particle().pid()==0||particle().pid()==22||abs(particle().pid())==11||abs(particle().pid())==2112||abs(particle().pid())==2212||
      !random) ?
-    1E99 : -ParticleTable::instance()->PDGcTau(particle().pid()) * std::log(random->flatShoot());
+    1E99 : -pdg::cTau(particle().pid(),ParticleTable::instance()->theTable()) * std::log(random->flatShoot());
 
   this->setProperDecayTime(properDecayTime);
 
