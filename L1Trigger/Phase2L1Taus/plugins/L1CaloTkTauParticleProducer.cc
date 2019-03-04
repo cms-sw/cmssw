@@ -65,10 +65,7 @@ public:
     }
   };
 
-  float DeltaPhi(float phi1, float phi2) ; //TODO: double check
-  float deltaR(float eta1, float eta2, float phi1, float phi2) ; //TODO: double check
   float CorrectedEta(float eta, float zv); //TODO: double check
-
   float CalibrateCaloTau(float Et, float Eta);
   float findClosest(float arr[], int n, float target);
   float getClosest(float val1, float val2, float target);
@@ -80,72 +77,63 @@ private:
   virtual void endJob() ;
   
   void GetShrinkingConeSizes(float pt, //TODO double check
-			     const float shrinkCone_Constant,
-			     const float sigCone_dRCutoff,
-  			     float &sigCone_dRMin,
+			     const float cfg_shrinkCone_Constant,
+			     const float cfg_sigCone_dRCutoff,
+  			     float &cfg_sigCone_dRMin,
   			     float &sigCone_dRMax,
   			     float &isoCone_dRMin,
-  			     float &isoCone_dRMax,
-  			     const bool isoCone_useCone);
-  
-  float CalculateVtxIso(std::vector< L1TTTrackRefPtr > allTracks, // TODO double check
-			std::vector< unsigned int > clustTracksIndx,
-			bool useIsoCone=false); 
-
-  // float CalculateRelIso(std::vector< L1TTTrackRefPtr > allTracks, //TODO implement
-  // 			std::vector< unsigned int > clustTracksIndx,
-  //                    const float deltaZ0_max, 
-  // 			bool useIsoCone=false); 
+  			     float &cfg_isoCone_dRMax,
+  			     const bool cfg_isoCone_useCone);
   
   // ----------member data ---------------------------
   
-  // Label of the objects which are created
-  std::string label;
- 
-  unsigned int tk_nFitParams;
+  // General
+  std::string label;                    // Label of the objects which are created
 
   // L1 tracks
-  float sigConeTks_minPt;
-  float sigConeTks_minEta;
-  float sigConeTks_maxEta;
-  float sigConeTks_maxChiSq;
-  unsigned int sigConeTks_minStubs;
+  unsigned int cfg_tk_nFitParams;       // Number of Fit Parameters: 4 or 5 ? (pT, eta, phi, z0, d0)
+  float cfg_tk_minPt;                   // Min pT applied on all L1TTTracks [GeV]
+  float cfg_tk_minEta;                  // Min |eta| applied on all L1TTTracks [unitless]
+  float cfg_tk_maxEta;                  // Max |eta| applied on all L1TTTracks [unitless]
+  float cfg_tk_maxChiSq;                // Max chi squared for L1TTTracks [unitless]
+  unsigned int cfg_tk_minStubs;         // Min number of stubs per L1TTTrack [unitless]   
 
   // Seed tracks
-  float seedTk_minPt;      
-  float seedTk_minEta;
-  float seedTk_maxEta;
-  float seedTk_maxChiSq;
-  float seedTk_minStubs;
-  //TODO: add seed track max delta R
+  float cfg_seedTk_minPt;               // Min pT of L1TkEG seed L1TTTracks [GeV]
+  float cfg_seedTk_minEta;              // Min |eta| of L1TkEG seed L1TTTracks [unitless]
+  float cfg_seedTk_maxEta;              // Max |eta| of L1TkEG seed L1TTTracks [unitless]
+  float cfg_seedTk_maxChiSq;            // Max chi squared of L1TkEG seed L1TTTracks [unitless]
+  float cfg_seedTk_minStubs;            // Min number of stubs of L1TkEG seed L1TTTracks [unitless]
+  float cfg_seedTk_maxDeltaR;           // Max opening of the cone in which the seed track is the leading one in pT [unitless]
 
-  // Signal cone parameters
-  float shrinkCone_Constant;
-  float sigCone_dRMin;
-  float sigCone_dRMax;
-  float sigCone_cutoffDeltaR;
-  float sigConeTks_dPOCAz;
-  float sigConeTks_maxInvMass;
+  // Signal cone and clustering parameters
+  float cfg_shrinkCone_Constant;        // Constant which is used for defining the opening of the signal cone : sigCone_dRMax = (cfg_shrinkCone_Constant)/(pT of the seed track) [GeV]    
+  float cfg_sigCone_cutoffDeltaR;       // Cutoff value for the maximum dR of the shrinking signal cone [unitless]    
+  float cfg_sigCone_dRMin;              // Min dR of signal cone [unitless]    
+  float cfg_sigConeTks_maxDeltaZ;       // Max POCAz difference between the seed track and additional signal-cone L1TTTracks [cm]       
+  float cfg_sigConeTks_maxInvMass;      // Max Invariant Mass of the Track Cluster (including the L1TkEG seed L1TTTrack) [GeV/c^2]        
 
   // Isolation cone parameters
-  float isoCone_dRMin;
-  float isoCone_dRMax;
-  bool isoCone_useCone;
+  bool cfg_isoCone_useCone;             // Usage of isolation cone (true) or isolation annulus (false)
+  float cfg_isoCone_dRMax;              // Max dR of isolation cone/annulus [unitless]
 
-  // CaloTaus
-  bool calibrateCaloTaus;
+  // CaloTau parameters
+  bool cfg_calibrateCaloTaus;               // Calibrate the Et values of CaloTaus (true) or use the default values (false)
 
   // Isolation parameters
-  float tau_jetWidth;
-  float tau_vtxIsoWP;
-  float tau_relIsoWP;
-  float tau_relIsodZ0;
+  bool  cfg_useVtxIso;                  // Usage of vertex isolation on (no tracks in the isolation cone coming from the same vertex with the seed track) 
+  float cfg_vtxIso_WP;                  // Working point of vertex isolation (no isolation cone track with |dz0| <= cfg_vtxIso_WP)
+
+  // Experimental features currently not in use
+//  bool cfg_useRelIso;
+//  float cfg_relIso_WP;
+  float cfg_relIso_maxDeltaZ;
+//  bool cfg_useJetWidth;
+//  float cfg_jetWidth_WP;
 
   const edm::EDGetTokenT<std::vector<TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
   std::vector< edm::EDGetTokenT<l1t::TauBxCollection> > tauTokens;
 
-// ----------------------
-  
 } ;
 
 
@@ -153,61 +141,59 @@ private:
 // constructors and destructor
 //
 L1CaloTkTauParticleProducer::L1CaloTkTauParticleProducer(const edm::ParameterSet& iConfig) :
-  //egToken(consumes< EGammaBxCollection >(iConfig.getParameter<edm::InputTag>("L1EGammaInputTag"))),
   trackToken(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag")))
   {
+
+  // CaloTaus
   const auto& taus = iConfig.getUntrackedParameter<std::vector<edm::InputTag>>("L1CaloTauInputTag");
   for (const auto& tau: taus) {
     tauTokens.push_back(consumes<l1t::TauBxCollection>(tau));
   }
-  label = iConfig.getParameter<std::string>("label");  // label of the collection produced //marina
 
-    // Common to all tracks
-  tk_nFitParams         = (unsigned int)iConfig.getParameter<unsigned int>("tk_nFitParams");
+  // General
+  label = iConfig.getParameter<std::string>("label");  // label of the collection produced
+
+  // L1 tracks
+  cfg_tk_nFitParams         = (unsigned int)iConfig.getParameter<unsigned int>("tk_nFitParams");
+  cfg_tk_minPt              = (float)iConfig.getParameter<double>("tk_minPt");
+  cfg_tk_minEta             = (float)iConfig.getParameter<double>("tk_minEta");
+  cfg_tk_maxEta             = (float)iConfig.getParameter<double>("tk_maxEta");
+  cfg_tk_maxChiSq           = (float)iConfig.getParameter<double>("tk_maxChiSq");
+  cfg_tk_minStubs           = (unsigned int)iConfig.getParameter<unsigned int>("tk_minStubs");
 
   // Seed tracks
-  seedTk_minPt          = (float)iConfig.getParameter<double>("seedTk_minPt");
-  seedTk_minEta         = (float)iConfig.getParameter<double>("seedTk_minEta");
-  seedTk_maxEta         = (float)iConfig.getParameter<double>("seedTk_maxEta");
-  seedTk_maxChiSq       = (float)iConfig.getParameter<double>("seedTk_maxChiSq");
-  seedTk_minStubs       = (unsigned int)iConfig.getParameter<unsigned int>("seedTk_minStubs");
+  cfg_seedTk_minPt          = (float)iConfig.getParameter<double>("seedTk_minPt");
+  cfg_seedTk_minEta         = (float)iConfig.getParameter<double>("seedTk_minEta");
+  cfg_seedTk_maxEta         = (float)iConfig.getParameter<double>("seedTk_maxEta");
+  cfg_seedTk_maxChiSq       = (float)iConfig.getParameter<double>("seedTk_maxChiSq");
+  cfg_seedTk_minStubs       = (unsigned int)iConfig.getParameter<unsigned int>("seedTk_minStubs");
+  cfg_seedTk_maxDeltaR      = (float)iConfig.getParameter<double>("seedTk_maxDeltaR");
 
-  // Signal cone tracks
-  sigConeTks_minPt      = (float)iConfig.getParameter<double>("sigConeTks_minPt");
-  sigConeTks_minEta     = (float)iConfig.getParameter<double>("sigConeTks_minEta");
-  sigConeTks_maxEta     = (float)iConfig.getParameter<double>("sigConeTks_maxEta");
-  sigConeTks_maxChiSq   = (float)iConfig.getParameter<double>("sigConeTks_maxChiSq");
-  sigConeTks_minStubs   = (unsigned int)iConfig.getParameter<unsigned int>("sigConeTks_minStubs");
-  // Signal cone tracks: extra properties //TODO: where are these applied?
-  sigConeTks_dPOCAz     = (float)iConfig.getParameter<double>("sigConeTks_dPOCAz");
-  sigConeTks_maxInvMass = (float)iConfig.getParameter<double>("sigConeTks_maxInvMass");
- 
-  // Signal cone parameters
-  shrinkCone_Constant  = (float)iConfig.getParameter<double>("shrinkCone_Constant");
-  sigCone_dRMin        = (float)iConfig.getParameter<double>("sigCone_dRMin");
-  sigCone_dRMax        = (float)iConfig.getParameter<double>("sigCone_dRMax");
-  sigCone_cutoffDeltaR = (float)iConfig.getParameter<double>("sigCone_cutoffDeltaR");
+  // Signal cone and clustering parameters
+  cfg_shrinkCone_Constant   = (float)iConfig.getParameter<double>("shrinkCone_Constant");
+  cfg_sigCone_cutoffDeltaR  = (float)iConfig.getParameter<double>("sigCone_cutoffDeltaR");
+  cfg_sigCone_dRMin         = (float)iConfig.getParameter<double>("sigCone_dRMin");
+  cfg_sigConeTks_maxDeltaZ  = (float)iConfig.getParameter<double>("sigConeTks_maxDeltaZ");
+  cfg_sigConeTks_maxInvMass = (float)iConfig.getParameter<double>("sigConeTks_maxInvMass");
 
-  // Isolation cone
-  isoCone_dRMin        = (float)iConfig.getParameter<double>("isoCone_dRMin");
-  isoCone_dRMax        = (float)iConfig.getParameter<double>("isoCone_dRMax");
-  isoCone_useCone      = (bool)iConfig.getParameter<bool>("isoCone_useCone");
+  // Isolation cone parameters
+  cfg_isoCone_useCone       = (bool)iConfig.getParameter<bool>("isoCone_useCone");
+  cfg_isoCone_dRMax         = (float)iConfig.getParameter<double>("isoCone_dRMax");
 
   // CaloTaus
-  calibrateCaloTaus    = (bool)iConfig.getParameter<bool>("calibrateCaloTaus");
+  cfg_calibrateCaloTaus     = (bool)iConfig.getParameter<bool>("calibrateCaloTaus");
 
-  // Tau object
-  tau_jetWidth         = (float)iConfig.getParameter<double>("tau_jetWidth");
-  tau_vtxIsoWP         = (float)iConfig.getParameter<double>("tau_vtxIsoWP");
-  tau_relIsoWP         = (float)iConfig.getParameter<double>("tau_relIsoWP");
-  tau_relIsodZ0        = (float)iConfig.getParameter<double>("tau_relIsodZ0");
+  // Isolation
+  cfg_vtxIso_WP             = (float)iConfig.getParameter<double>("vtxIso_WP");
+//  cfg_jetWidth_WP           = (float)iConfig.getParameter<double>("jetWidth_WP");
+//  cfg_relIso_WP             = (float)iConfig.getParameter<double>("relIso_WP");
+  cfg_relIso_maxDeltaZ      = (float)iConfig.getParameter<double>("relIso_maxDeltaZ");
   
   produces<L1CaloTkTauParticleCollection>(label);
 
 }
 
-L1CaloTkTauParticleProducer::~L1CaloTkTauParticleProducer() {
-}
+L1CaloTkTauParticleProducer::~L1CaloTkTauParticleProducer() {}
 
 // ------------ method called to produce the data  ------------
 void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -255,37 +241,37 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
   // Build a track collection using only tracks passing the quality criteria
   std::vector< L1TTTrackRefPtr > SeedTTTrackPtrs;
   std::vector< L1TTTrackRefPtr > SigConeTTTrackPtrs;
-  unsigned int seedTk_counter = 0;
+  unsigned int cfg_seedTk_counter = 0;
 
   // Loop over all tracks
   for (trkIter = L1TTTrackHandle->begin(); trkIter != L1TTTrackHandle->end(); ++trkIter) {
     // Make a pointer
-    L1TTTrackRefPtr track_RefPtr(L1TTTrackHandle, seedTk_counter++);
+    L1TTTrackRefPtr track_RefPtr(L1TTTrackHandle, cfg_seedTk_counter++);
     // Retrieve track information
-    float Pt   = trkIter->getMomentum(tk_nFitParams).perp();
-    float Eta  = trkIter->getMomentum(tk_nFitParams).eta();
-    float Chi2 = trkIter->getChi2(tk_nFitParams);
+    float Pt   = trkIter->getMomentum(cfg_tk_nFitParams).perp();
+    float Eta  = trkIter->getMomentum(cfg_tk_nFitParams).eta();
+    float Chi2 = trkIter->getChi2(cfg_tk_nFitParams);
     std::vector< L1TTStubRef > Stubs = trkIter-> getStubRefs();
     unsigned int NStubs              = Stubs.size();
     // Select seed tracks
-    if ( Pt   > seedTk_minPt  &&
-         fabs(Eta)  > seedTk_minEta && //marina
-         fabs(Eta)  < seedTk_maxEta && //marina
-         Chi2 < seedTk_maxChiSq &&
-         NStubs > seedTk_minStubs )  
+    if ( Pt   > cfg_seedTk_minPt  &&
+         fabs(Eta)  > cfg_seedTk_minEta && //marina
+         fabs(Eta)  < cfg_seedTk_maxEta && //marina
+         Chi2 < cfg_seedTk_maxChiSq &&
+         NStubs > cfg_seedTk_minStubs )  
             SeedTTTrackPtrs.push_back(track_RefPtr);
     // Select signal cone tracks
-    if ( Pt   > sigConeTks_minPt  &&
-         fabs(Eta)  > sigConeTks_minEta && //marina
-         fabs(Eta)  < sigConeTks_maxEta && //marina
-         Chi2 < sigConeTks_maxChiSq &&
-         NStubs > sigConeTks_minStubs )  
+    if ( Pt   > cfg_tk_minPt  &&
+         fabs(Eta)  > cfg_tk_minEta && //marina
+         fabs(Eta)  < cfg_tk_maxEta && //marina
+         Chi2 < cfg_tk_maxChiSq &&
+         NStubs > cfg_tk_minStubs )  
             SigConeTTTrackPtrs.push_back(track_RefPtr);
   }// End of the track loop
 
   /// Sort all track collections by pT
-  std::sort( SeedTTTrackPtrs.begin(), SeedTTTrackPtrs.end(), TrackPtComparator(tk_nFitParams) );
-  std::sort( SigConeTTTrackPtrs.begin(), SigConeTTTrackPtrs.end(), TrackPtComparator(tk_nFitParams) );
+  std::sort( SeedTTTrackPtrs.begin(), SeedTTTrackPtrs.end(), TrackPtComparator(cfg_tk_nFitParams) );
+  std::sort( SigConeTTTrackPtrs.begin(), SigConeTTTrackPtrs.end(), TrackPtComparator(cfg_tk_nFitParams) );
 
   ///////////////////////////////////////////////////////////////
   //  CaloTkTau Algorithm
@@ -300,7 +286,7 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
       // Calibrate calo taus if needed
       float caloEt = caloTauIter->et();
       float caloEta = caloTauIter->eta();
-      if(calibrateCaloTaus) {
+      if(cfg_calibrateCaloTaus) {
           caloEt = (CalibrateCaloTau(caloEt, caloEta));
       }
 
@@ -311,7 +297,7 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
       for ( unsigned int i=0; i < SeedTTTrackPtrs.size(); i++ ){
 //        std::cout << "Checking track #" << i << std::endl;
         L1TTTrackRefPtr iTrk = SeedTTTrackPtrs.at(i);
-        double dR = reco::deltaR(iTrk->getMomentum(tk_nFitParams).eta(), iTrk->getMomentum(tk_nFitParams).phi(), caloTauIter->eta(), caloTauIter->phi());
+        double dR = reco::deltaR(iTrk->getMomentum(cfg_tk_nFitParams).eta(), iTrk->getMomentum(cfg_tk_nFitParams).phi(), caloTauIter->eta(), caloTauIter->phi());
         if (dR < 0.1 && dR < matchTk_dR) { //TODO: add 0.1 (matchingDR as input parameter)
           foundMatchTrk = true;
           matchedTrack = iTrk;
@@ -325,10 +311,10 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
       float signalCone_dRmin = 0.0; // unchanged by GetShrinkingConeSizes function
       float signalCone_dRmax = -999.0;
       float isolationCone_dRmin = -999.0;
-      float isolationCone_dRmax = isoCone_dRMax; // unchanged by GetShrinkingConeSizes function
-      GetShrinkingConeSizes(caloEt, shrinkCone_Constant, sigCone_cutoffDeltaR, // input parameters
+      float isolationCone_dRmax = cfg_isoCone_dRMax; // unchanged by GetShrinkingConeSizes function
+      GetShrinkingConeSizes(caloEt, cfg_shrinkCone_Constant, cfg_sigCone_cutoffDeltaR, // input parameters
                             signalCone_dRmin, signalCone_dRmax,isolationCone_dRmin, isolationCone_dRmax, // these values are updated by this function
-                            isoCone_useCone); // input parameter (if useCone is selected, isolationCone_dRmin = 0)
+                            cfg_isoCone_useCone); // input parameter (if useCone is selected, isolationCone_dRmin = 0)
 
       // Initialize track lists
       std::vector< L1TTTrackRefPtr > sigConeTks;
@@ -356,11 +342,11 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
 	    if( iTrk == matchedTrack ) continue;
 
          // Calculate dR and dPOCAz
-        double dR = reco::deltaR(iTrk->getMomentum(tk_nFitParams).eta(), iTrk->getMomentum(tk_nFitParams).phi(), 
-                         matchedTrack->getMomentum(tk_nFitParams).eta(), matchedTrack->getMomentum(tk_nFitParams).phi());     
-        double dPOCAz = fabs(matchedTrack->getPOCA(tk_nFitParams).z() - iTrk->getPOCA(tk_nFitParams).z());
+        double dR = reco::deltaR(iTrk->getMomentum(cfg_tk_nFitParams).eta(), iTrk->getMomentum(cfg_tk_nFitParams).phi(), 
+                         matchedTrack->getMomentum(cfg_tk_nFitParams).eta(), matchedTrack->getMomentum(cfg_tk_nFitParams).phi());     
+        double dPOCAz = fabs(matchedTrack->getPOCA(cfg_tk_nFitParams).z() - iTrk->getPOCA(cfg_tk_nFitParams).z());
         // Pick signal cone tracks
-        if (dR >= signalCone_dRmin && dR < signalCone_dRmax && dPOCAz < sigConeTks_dPOCAz){
+        if (dR >= signalCone_dRmin && dR < signalCone_dRmax && dPOCAz < cfg_sigConeTks_maxDeltaZ){
           // Add tracks (and sum four-momenta) up to tau invariant mass
           math::XYZTLorentzVector p4tmp;
           px = iTrk->getMomentum().x();
@@ -369,7 +355,7 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
 	      e  = sqrt(px*px+py*py+pz*pz+pionMass*pionMass);
 	      p4tmp.SetCoordinates(px,py,pz,e);
 	      sigTks_p4 += p4tmp;
-          if (sigTks_p4.M() > sigConeTks_maxInvMass) {
+          if (sigTks_p4.M() > cfg_sigConeTks_maxInvMass) {
               sigTks_p4 -= p4tmp;
           }
           else {
@@ -384,8 +370,8 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
                 vtxIso = dPOCAz;
             }
             // Calculations for other isolation criteria (relative isolation, jet width)
-            if (dPOCAz < tau_relIsodZ0){
-                double tkPt = iTrk->getMomentum(tk_nFitParams).perp();
+            if (dPOCAz < cfg_relIso_maxDeltaZ){
+                double tkPt = iTrk->getMomentum(cfg_tk_nFitParams).perp();
                 isoConePtSum += tkPt;
                 dRtimesPtSum += dR*tkPt;
                 isoConeTks.push_back(iTrk);
@@ -405,12 +391,12 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
       bool bIsLdgTrack = true;
       for ( unsigned int i=0; i < SeedTTTrackPtrs.size(); i++ ){
         L1TTTrackRefPtr iTrk = SeedTTTrackPtrs.at(i);
-        double dR = reco::deltaR(iTrk->getMomentum(tk_nFitParams).eta(), iTrk->getMomentum(tk_nFitParams).phi(), 
-                         matchedTrack->getMomentum(tk_nFitParams).eta(), matchedTrack->getMomentum(tk_nFitParams).phi());
-	    // Skip tracks outside the isolation cone
-	    if (dR > 0.15) continue;  // FIXME: make this an input parameter
+        double dR = reco::deltaR(iTrk->getMomentum(cfg_tk_nFitParams).eta(), iTrk->getMomentum(cfg_tk_nFitParams).phi(), 
+                         matchedTrack->getMomentum(cfg_tk_nFitParams).eta(), matchedTrack->getMomentum(cfg_tk_nFitParams).phi());
+	    // Skip tracks outside the cone defined by  cfg_seedTk_maxDeltaR
+	    if (dR > cfg_seedTk_maxDeltaR) continue;
 	    // Compare pT
-        if (iTrk->getMomentum(tk_nFitParams).perp() > matchedTrack->getMomentum(tk_nFitParams).perp()){
+        if (iTrk->getMomentum(cfg_tk_nFitParams).perp() > matchedTrack->getMomentum(cfg_tk_nFitParams).perp()){
 //            std::cout << "Seed track not the leading track! Reject candidate!" << std::endl;
 		    bIsLdgTrack = false;
 		    break;
@@ -424,16 +410,16 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
 //      double jetWidth = 0;
 //      if (dRtimesPtSum > 0.0 && isoConePtSum > 0.0)
 //          jetWidth = dRtimesPtSum / isoConePtSum;
-//      bool bPassJetWidth = (jetWidth  < tau_jetWidth);
+//      bool bPassJetWidth = (jetWidth  < cfg_jetWidth_WP);
 //      if (!bPassJetWidth) continue;
 
       // Relative isolation
-//      double relIso = isoConePtSum / matchedTrack->getMomentum(tk_nFitParams).perp();
-//      bool bPassRelIso = (relIso < tau_relIsoWP); // orthogonal to VtxIso
+//      double relIso = isoConePtSum / matchedTrack->getMomentum(cfg_tk_nFitParams).perp();
+//      bool bPassRelIso = (relIso < cfg_relIso_WP); // orthogonal to VtxIso
 //      if (!bPassRelIso) continue;
       
       // Vertex isolation      
-      bool bPassVtxIso = (vtxIso > tau_vtxIsoWP); // orthogonal to RelIso
+      bool bPassVtxIso = (vtxIso > cfg_vtxIso_WP); // orthogonal to RelIso
       if (!bPassVtxIso) continue;
 	  
       const math::XYZTLorentzVector p4 = sigTks_p4;
@@ -487,59 +473,6 @@ void L1CaloTkTauParticleProducer::GetShrinkingConeSizes(float pt,
 
 // --------------------------------------------------------------------------------------
 
-float L1CaloTkTauParticleProducer::CalculateVtxIso(std::vector< L1TTTrackRefPtr > allTracks,
-					      std::vector< unsigned int > clustTracksIndx,
-					      bool useIsoCone) {
-
-  // Initializations
-  float  mindZ0 = 999.9;
-  float dz0, deltaR;
-  
-  // Seed track properties
-  L1TTTrackRefPtr seedTrack = allTracks.at(clustTracksIndx.at(0));
-  float seedEta  = seedTrack->getMomentum(tk_nFitParams).eta();
-  float seedPhi  = seedTrack->getMomentum(tk_nFitParams).phi();
-  float seedz0   = seedTrack->getPOCA(tk_nFitParams).z();
-  
-  // For-loop: All the Tracks
-  for (unsigned int i=0; i < allTracks.size(); i++) {
-
-    L1TTTrackRefPtr iTrk = allTracks.at(i);
-    float iEta  = iTrk->getMomentum(tk_nFitParams).eta();
-    float iPhi  = iTrk->getMomentum(tk_nFitParams).phi();
-    float iz0   = iTrk->getPOCA(tk_nFitParams).z();
-        
-    if (useIsoCone) {
-      // Check if the track is clustered in the tau candidate
-      bool clustered = false;
-      
-      for (unsigned int j=0; j < clustTracksIndx.size(); j++) {
-	if (i == clustTracksIndx.at(j)) clustered = true;
-      }
-      if (clustered) continue;	
-    }
-    
-    // Check if the track is in the iso-cone
-    deltaR = reco:: deltaR(seedEta, seedPhi, iEta, iPhi);
-    
-    if (deltaR > isoCone_dRMin && deltaR < isoCone_dRMax) {
-      // Calculate mindz0
-      dz0 = fabs(iz0 - seedz0);
-      if (dz0 < mindZ0) mindZ0 = dz0;
-    }
-    
-  } // End-loop: All the Tracks
-  
-  float vtxIso = mindZ0;
-
-  return vtxIso;
-  
-  
-  
-}  
-
-// --------------------------------------------------------------------------------------
-
 float L1CaloTkTauParticleProducer::CorrectedEta(float eta, float zv)  {
 
   // Correct the eta of the L1EG object once we know the zvertex
@@ -569,25 +502,6 @@ float L1CaloTkTauParticleProducer::CorrectedEta(float eta, float zv)  {
   float etaprime = -TMath::Log( TMath::Tan( thetaprime / 2.) );
   return etaprime;
   
-}
-
-// --------------------------------------------------------------------------------------
-
-float L1CaloTkTauParticleProducer::DeltaPhi(float phi1, float phi2) {
-  // dPhi between 0 and Pi
-  float dphi = phi1 - phi2;
-  if (dphi < 0) dphi = dphi + 2.*TMath::Pi();
-  if (dphi > TMath::Pi()) dphi = 2.*TMath::Pi() - dphi;
-  return dphi;
-}
-
-// --------------------------------------------------------------------------------------
-
-float L1CaloTkTauParticleProducer::deltaR(float eta1, float eta2, float phi1, float phi2) {
-  float deta = eta1 - eta2;
-  float dphi = DeltaPhi(phi1, phi2);
-  float DR= sqrt( deta*deta + dphi*dphi );
-  return DR;
 }
 
 // --------------------------------------------------------------------------------------
@@ -755,8 +669,7 @@ L1CaloTkTauParticleProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::Even
 */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-L1CaloTkTauParticleProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void L1CaloTkTauParticleProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
