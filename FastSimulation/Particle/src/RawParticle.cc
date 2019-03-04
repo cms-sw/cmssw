@@ -6,7 +6,6 @@
 // -----------------------------------------------------------------------------
 //  Author: Stephan Wynhoff - RWTH-Aachen (Email: Stephan.Wynhoff@cern.ch)
 // -----------------------------------------------------------------------------
-#include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Particle/interface/RawParticle.h"
 
 #include <iostream>
@@ -163,12 +162,3 @@ RawParticle::et() const {
   return tmpEt;
 }
 
-namespace rawparticle {
-  RawParticle makeMuon(bool isParticle, const XYZTLorentzVector& p, 
-                       const XYZTLorentzVector& xStart) {
-    if(isParticle) {
-      return ParticleTable::instance()->makeParticle(13, p,xStart);
-    }
-    return ParticleTable::instance()->makeParticle(-13,p,xStart);
-  }
-}

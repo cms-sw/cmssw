@@ -1,6 +1,7 @@
 #include "FastSimulation/MaterialEffects/interface/PairProductionSimulator.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
+#include "FastSimulation/Particle/interface/makeParticle.h"
 
 #include <cmath>
 
@@ -76,19 +77,19 @@ PairProductionSimulator::compute(ParticlePropagator& Particle, RandomEngineAndDi
 
       // The electron
       _theUpdatedState.emplace_back(
-                ParticleTable::instance()->makeParticle(+11,XYZTLorentzVector(pElectron*stheta1*cphi,
-                                                                              pElectron*stheta1*sphi,
-                                                                              pElectron*ctheta1,
-                                                                              eElectron) ));
+                makeParticle(ParticleTable::instance(),+11,XYZTLorentzVector(pElectron*stheta1*cphi,
+                                                                             pElectron*stheta1*sphi,
+                                                                             pElectron*ctheta1,
+                                                                             eElectron) ));
       _theUpdatedState[0].rotate(rotY);
       _theUpdatedState[0].rotate(rotZ);
       
       // The positron
       _theUpdatedState.emplace_back(
-                ParticleTable::instance()->makeParticle(-11,XYZTLorentzVector(-pPositron*stheta2*cphi,
-                                                                              -pPositron*stheta2*sphi,
-                                                                              pPositron*ctheta2,
-                                                                              ePositron)));
+                makeParticle(ParticleTable::instance(),-11,XYZTLorentzVector(-pPositron*stheta2*cphi,
+                                                                             -pPositron*stheta2*sphi,
+                                                                             pPositron*ctheta2,
+                                                                             ePositron)));
       _theUpdatedState[1].rotate(rotY);
       _theUpdatedState[1].rotate(rotZ);
       

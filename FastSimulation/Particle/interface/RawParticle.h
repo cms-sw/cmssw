@@ -42,7 +42,8 @@ class RawParticle {
 public:
 
   friend RawParticle rawparticle::makeMuon(bool, const XYZTLorentzVector&, const XYZTLorentzVector&);
-  friend ParticleTable;
+  friend RawParticle unchecked_makeParticle(int id, const math::XYZTLorentzVector& p, double mass, double charge);
+  friend RawParticle unchecked_makeParticle(int id, const math::XYZTLorentzVector& p, const math::XYZTLorentzVector& xStart, double mass, double charge);
 
   typedef ROOT::Math::AxisAngle Rotation;
   typedef ROOT::Math::Rotation3D Rotation3D;
@@ -384,16 +385,5 @@ inline void RawParticle::boost(const RawParticle::Boost& b) {
 inline void RawParticle::translate(const XYZVector& tr) { 
   myVertex.SetXYZT(X()+tr.X(),Y()+tr.Y(),Z()+tr.Z(),T());
 }
-
-
-namespace rawparticle {
-  ///Create a particle with momentum 'p' at space-time point xStart
-  /// The particle will be a muon if iParticle==true, else it will
-  /// be an anti-muon.
-  RawParticle makeMuon(bool isParticle, const XYZTLorentzVector& p, 
-                       const XYZTLorentzVector& xStart);
-}
-
-
 
 #endif

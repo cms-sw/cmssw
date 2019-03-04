@@ -4,6 +4,7 @@
 
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionSimulator.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
+#include "FastSimulation/Particle/interface/makeParticle.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include "FastSimDataFormats/NuclearInteractions/interface/NUEvent.h"
@@ -468,7 +469,7 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEn
 				     + aParticle.pz*aParticle.pz
 				     + aParticle.mass*aParticle.mass/(ecm*ecm) );
 
-	    RawParticle& aDaughter = _theUpdatedState.emplace_back(ParticleTable::instance()->makeParticle(
+	    RawParticle& aDaughter = _theUpdatedState.emplace_back(makeParticle(ParticleTable::instance(),
                                                                    aParticle.id,
                                                                    XYZTLorentzVector(
                                                                                      aParticle.px*ecm,aParticle.py*ecm,
@@ -518,7 +519,7 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEn
 	  // A fake particle with 0 momentum as a daughter!
 	  _theUpdatedState.reserve(1);
           _theUpdatedState.clear();
-	  _theUpdatedState.emplace_back(ParticleTable::instance()->makeParticle(22, XYZTLorentzVector(0.,0.,0.,0.)));
+	  _theUpdatedState.emplace_back(makeParticle(ParticleTable::instance(),22, XYZTLorentzVector(0.,0.,0.,0.)));
 	}
 
       }

@@ -42,9 +42,6 @@ public:
   constexpr static double kInvalidCtau = 1E99;
   double PDGcTau(int pdgID) const;
 
-
-  RawParticle makeParticle(int id, const math::XYZTLorentzVector& p);
-  RawParticle makeParticle(int id, const math::XYZTLorentzVector& p, const math::XYZTLorentzVector& xStart);
 private:
   
   ParticleTable(const HepPDT::ParticleDataTable* pdt=nullptr) : pdt_(pdt) {}

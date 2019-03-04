@@ -35,6 +35,7 @@
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/InteractionModelFactory.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ParticleManager.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h" // TODO: move this
+#include "FastSimulation/Particle/interface/makeParticle.h" 
 
 // Hack for calorimetry
 #include "FastSimulation/Event/interface/FSimTrack.h"
@@ -434,9 +435,10 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
         // Define ParticlePropagators (RawParticle) needed for CalorimetryManager and save them
         //////////
 
-        RawParticle PP = ParticleTable::instance()->makeParticle(particle->pdgId(), 
-                                                                 particle->momentum(),
-                                                                 particle->position());
+        RawParticle PP = makeParticle(ParticleTable::instance(),
+                                      particle->pdgId(), 
+                                      particle->momentum(),
+                                      particle->position());
 
         // no material
         if(caloLayer->getThickness(particle->position(), particle->momentum()) < 1E-10)

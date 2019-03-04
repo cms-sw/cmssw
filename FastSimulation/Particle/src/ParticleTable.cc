@@ -55,27 +55,3 @@ ParticleTable::PDGcTau(int pdgID) const {
   return ct;
 }
 
-RawParticle 
-ParticleTable::makeParticle(int id, const math::XYZTLorentzVector& p) {
-  double charge =0.;
-  double mass = 0.;
-  auto info = theTable()->particle(HepPDT::ParticleID(id));
-  if ( info ) { 
-    charge = info->charge();
-    mass   = info->mass().value();
-  }
-
-  return RawParticle(id,p,mass, charge);
-}
-RawParticle 
-ParticleTable::makeParticle(int id, const math::XYZTLorentzVector& p, const math::XYZTLorentzVector& xStart) {
-  double charge =0.;
-  double mass = 0.;
-  auto info = theTable()->particle(HepPDT::ParticleID(id));
-  if ( info ) { 
-    charge = info->charge();
-    mass   = info->mass().value();
-  }
-  return RawParticle(id,p, xStart, mass, charge);
-}
-
