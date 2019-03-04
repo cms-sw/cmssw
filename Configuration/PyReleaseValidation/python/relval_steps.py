@@ -2909,8 +2909,6 @@ defaultDataSets['2018Design']='CMSSW_10_5_0_pre1-103X_upgrade2018_design_v4-v'
 defaultDataSets['2023D17']='CMSSW_10_2_0_pre2-101X_upgrade2023_realistic_v5_2023D17noPU-v'
 defaultDataSets['2023D19']=''
 defaultDataSets['2023D21']=''
-defaultDataSets['2023D22']=''
-defaultDataSets['2023D23']=''
 defaultDataSets['2023D24']=''
 defaultDataSets['2023D25']=''
 defaultDataSets['2023D28']=''
@@ -2924,6 +2922,7 @@ defaultDataSets['2023D36']=''
 defaultDataSets['2023D37']=''
 defaultDataSets['2023D38']=''
 defaultDataSets['2023D39']=''
+defaultDataSets['2023D40']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
