@@ -34,7 +34,6 @@ class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
 {
   public:
     explicit CTPPSDiamondRecHitProducer( const edm::ParameterSet& );
-    ~CTPPSDiamondRecHitProducer() override;
 
     static void fillDescriptions( edm::ConfigurationDescriptions& );
 
@@ -56,9 +55,6 @@ CTPPSDiamondRecHitProducer::CTPPSDiamondRecHitProducer( const edm::ParameterSet&
   produces<edm::DetSetVector<CTPPSDiamondRecHit> >();
 }
 
-CTPPSDiamondRecHitProducer::~CTPPSDiamondRecHitProducer()
-{}
-
 void
 CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
@@ -73,7 +69,7 @@ CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
   iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
 
   // produce the rechits collection
-  algo_.build( geometry.product(), *( digis ), *( pOut ) );
+  algo_.build( *geometry, *digis, *pOut );
 
   iEvent.put( std::move( pOut ) );
 }
