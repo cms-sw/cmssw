@@ -46,8 +46,9 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-
+#include "DataFormats/Math/interface/deltaR.h" 
 #include "DataFormats/Math/interface/deltaPhi.h"
+
 #include "TH1F.h"
 #include "TH2F.h"
 
@@ -336,6 +337,7 @@ void L1TausAnalyzer::endJob() {
    
     // Print Efficiency Information
     std::cout << " Number of Selected " << cfg_objectType << " : "<< selectedL1TkObjTot << std::endl;
+    std::cout << " Number of Events with Maxium No of Gen Hadronic Taus: "<< nEvtsWithMaxHadTaus << std::endl;
     std::cout << " Number of Events Proccessed  " << ievent << std::endl;
   }
   
@@ -345,7 +347,7 @@ template<class T1>
 void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
 
   std::vector<unsigned int> matchedL1TkObjIndices;
-  
+
   // For-loop: All the gen objects in the event
   for (size_t i = 0; i < genIndices.size(); i++) {
 
@@ -369,6 +371,7 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
 	float dPhi = reco::deltaPhi(seedPhi, genPhis.at(i));
 	float dEta = (seedEta - genEtas.at(i));
 	float dR =  sqrt(dPhi*dPhi + dEta*dEta);
+	//float dR = reco::deltaR(seedEta, seedPhi, genEtas.at(i),genPhis.at(i));
 	if  (dR < dRminTkObj ) {
 	  dRminTkObj = dR;
 	  indxTkObj  = iTkObj;
@@ -414,7 +417,6 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
   // Find the ET of the leading matched L1TrkObj
   float maxEt = 0;
   for (unsigned int i=0; i < matchedL1TkObjIndices.size(); i++) {
-    if (tkObjCollection.at(i).et() > maxEt) maxEt = tkObjCollection.at(i).et(); // fix-me: use matchedTkObjCollection (?)
     unsigned int indx = matchedL1TkObjIndices.at(i);
     if (tkObjCollection.at(indx).et() > maxEt) maxEt = tkObjCollection.at(indx).et(); 
   }
