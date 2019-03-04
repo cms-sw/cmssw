@@ -3,6 +3,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionSimulator.h"
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include "FastSimDataFormats/NuclearInteractions/interface/NUEvent.h"
@@ -279,10 +280,9 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEn
 
 	// Create a daughter if the kink is large engough 
 	if ( distance > theDistCut ) { 
-	  _theUpdatedState.resize(1);
-	  _theUpdatedState[0].SetXYZT(Particle.particle().Px(), Particle.particle().Py(),
-				      Particle.particle().Pz(), Particle.particle().E());
-	  _theUpdatedState[0].setID(Particle.particle().pid());
+	  _theUpdatedState.reserve(1);
+          _theUpdatedState.clear();
+	  _theUpdatedState.emplace_back(Particle.particle());
 	}
 
 	//	hscatter->Fill(myTheta);
@@ -428,8 +428,9 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEn
 	  unsigned lastTrack = anInteraction.last;
 	  //      std::cout << "First and last tracks are " << firstTrack << " " << lastTrack << std::endl;
 	  
-	  _theUpdatedState.resize(lastTrack-firstTrack+1);
-
+	  _theUpdatedState.reserve(lastTrack-firstTrack+1);
+          _theUpdatedState.clear();
+          
 	  double distMin = 1E99;
 
 	  // Some rotation around the boost axis, for more randomness
@@ -467,11 +468,11 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEn
 				     + aParticle.pz*aParticle.pz
 				     + aParticle.mass*aParticle.mass/(ecm*ecm) );
 
-	    RawParticle& aDaughter = _theUpdatedState[idaugh]; 
-	    aDaughter.SetXYZT(aParticle.px*ecm,aParticle.py*ecm,
-			      aParticle.pz*ecm,energy*ecm);	    
-	    aDaughter.setID(aParticle.id);
-
+	    RawParticle& aDaughter = _theUpdatedState.emplace_back(ParticleTable::instance()->makeParticle(
+                                                                   aParticle.id,
+                                                                   XYZTLorentzVector(
+                                                                                     aParticle.px*ecm,aParticle.py*ecm,
+                                                                                     aParticle.pz*ecm,energy*ecm)));
 	    // Rotate to the collision axis
 	    aDaughter.rotate(orthRotation);
 
@@ -515,9 +516,9 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEn
 		    elastic > 1.- (inelastic4*theInelasticLength)
 		                  /theTotalInteractionLength ) { 
 	  // A fake particle with 0 momentum as a daughter!
-	  _theUpdatedState.resize(1);
-	  _theUpdatedState[0].SetXYZT(0.,0.,0.,0.);
-	  _theUpdatedState[0].setID(22);
+	  _theUpdatedState.reserve(1);
+          _theUpdatedState.clear();
+	  _theUpdatedState.emplace_back(ParticleTable::instance()->makeParticle(22, XYZTLorentzVector(0.,0.,0.,0.)));
 	}
 
       }

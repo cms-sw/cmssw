@@ -212,9 +212,8 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
       // The next 3 lines to be then replaced by the previous line
       XYZTLorentzVector momentum(track.momentum().px(),track.momentum().py(),
 				 track.momentum().pz(),track.momentum().e());
-      RawParticle part(momentum,position);
+      RawParticle part = ParticleTable::instance()->makeParticle(track.type(),momentum,position);
       //
-      part.setID(track.type()); 
       //std::cout << "Ctau  = " << part.PDGcTau() << std::endl;
       // Don't save tracks that have decayed immediately but for which no daughters
       // were saved (probably due to cuts on E, pT and eta)
@@ -489,8 +488,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 				 p->momentum().py(),
 				 p->momentum().pz(),
 				 p->momentum().e());
-      RawParticle part(momentum, vertex(originVertex).position());
-      part.setID(p->pdg_id());
+      RawParticle part= ParticleTable::instance()->makeParticle(p->pdg_id(),momentum, vertex(originVertex).position());
 
       // Add the particle to the event and to the various lists
       

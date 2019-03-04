@@ -434,8 +434,9 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
         // Define ParticlePropagators (RawParticle) needed for CalorimetryManager and save them
         //////////
 
-        RawParticle PP(particle->pdgId(), particle->momentum());
-        PP.setVertex(particle->position());
+        RawParticle PP = ParticleTable::instance()->makeParticle(particle->pdgId(), 
+                                                                 particle->momentum(),
+                                                                 particle->position());
 
         // no material
         if(caloLayer->getThickness(particle->position(), particle->momentum()) < 1E-10)

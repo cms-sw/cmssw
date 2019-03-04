@@ -28,9 +28,21 @@ class ParticleTable;
 typedef math::XYZTLorentzVector XYZTLorentzVector;
 typedef math::XYZVector XYZVector;
 
+class RawParticle;
+
+namespace rawparticle {
+  ///Create a particle with momentum 'p' at space-time point xStart
+  /// The particle will be a muon if iParticle==true, else it will
+  /// be an anti-muon.
+  RawParticle makeMuon(bool isParticle, const XYZTLorentzVector& p, 
+                       const XYZTLorentzVector& xStart);
+}
 
 class RawParticle : public XYZTLorentzVector {
 public:
+
+  friend RawParticle rawparticle::makeMuon(bool, const XYZTLorentzVector&, const XYZTLorentzVector&);
+  friend ParticleTable;
 
   typedef ROOT::Math::AxisAngle Rotation;
   typedef ROOT::Math::Rotation3D Rotation3D;
@@ -47,25 +59,6 @@ public:
    *  The fourvector is taken for the particle, the vertex is set to 0. 
    */
   RawParticle(const XYZTLorentzVector& p);
-
-  /** Construct from a fourvector and a PID.
-   *  The fourvector and PID are taken for the particle, the vertex is set to 0.
-   */
-  RawParticle(const int id, 
-	      const XYZTLorentzVector& p);
-
-  /** Construct from a fourvector and a name.
-   *  The fourvector and name are taken for the particle, the vertex is set to 0.
-   */
-  RawParticle(const std::string name, 
-	      const XYZTLorentzVector& p);
-
-  /** Construct from 2 fourvectosr and a PID.
-   *  The fourvector and PID are taken for the particle, the vertex is set to 0.
-   */
-  RawParticle(const int id, 
-	      const XYZTLorentzVector& p,
-              const XYZTLorentzVector& xStart);
 
   /** Construct from 2 fourvectors.
    *  The first fourvector is taken for the particle, the second for its vertex.
@@ -86,18 +79,6 @@ public:
   RawParticle&  operator = (const RawParticle & rhs );
 
 public:
-
-  /** Set identifier for this particle.
-   *  This should be a standard HEP-PID number. It will be used to deduce the 
-   *  name and the properties of the particle from a particle data table.
-   */
-  void setID(const int id); 
-
-  /** Set identifier for this particle.
-   *  This should be a standard HEP-PID name. It will be used to deduce the 
-   *  particle properties from a particle data table.
-   */
-  void setID(const std::string name); 
 
   /** Set the status of this particle.
    *  The coding follows PYTHIAs convention:
@@ -241,17 +222,36 @@ public:
   void reUse() { myUsed = 0;}  
   
  private:
+
+  /** Construct from a fourvector and a PID.
+   *  The fourvector and PID are taken for the particle, the vertex is set to 0.
+   */
+  RawParticle(const int id, 
+	      const XYZTLorentzVector& p,
+              double mass,
+              double charge);
+
+
+  /** Construct from 2 fourvectosr and a PID.
+   *  The fourvector and PID are taken for the particle, the vertex is set to 0.
+   */
+  RawParticle(const int id, 
+	      const XYZTLorentzVector& p,
+              const XYZTLorentzVector& xStart,
+              double mass,
+              double charge);
+
   
   void init();
   
  protected:
   
   XYZTLorentzVector myVertex;         //!< the four vector of the vertex
+  double myCharge;                    //!< the MEASURED charge
+  double myMass;                      //!< the RECONSTRUCTED mass
   int myId;                           //!< the particle id number HEP-PID 
   int myStatus;                       //!< the status code according to PYTHIA
   int myUsed;                         //!< status of the locking
-  double myCharge;                    //!< the MEASURED charge
-  double myMass;                      //!< the RECONSTRUCTED mass
 
  private:
 
