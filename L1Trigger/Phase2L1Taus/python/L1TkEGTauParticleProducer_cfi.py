@@ -36,9 +36,9 @@ L1TkEGTaus = cms.EDProducer("L1TkEGTauParticleProducer",
         isoCone_useCone      = cms.bool( False ), # instead of annulus
 
         # Tracks & EGs clustering parameters
-        maxDeltaZ_trks  = cms.double( 1.00 ), # cm
-        maxInvMass_trks = cms.double( 1.50 ), # GeV 
-        maxInvMass_EGs  = cms.double( 1.77 ), # GeV
+        maxDeltaZ_trks   = cms.double( 1.00 ), # cm
+        maxInvMass_trks  = cms.double( 1.50 ), # GeV 
+        maxInvMass_TkEGs = cms.double( 1.77 ), # GeV
 
         # Isolation parameters
         useVtxIso = cms.bool( True ),

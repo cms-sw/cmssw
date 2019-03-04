@@ -133,7 +133,7 @@ private:
   // Tracks & EGs clustering parameters
   float cfg_maxDeltaZ_trks;             // Max POCAz difference between TkEG seed track and additional L1TkEG signal-cone L1TTTracks [cm]
   float cfg_maxInvMass_trks;            // Max Invariant Mass of the Track Cluster (including the L1TkEG seed L1TTTrack) [GeV/c^2]
-  float cfg_maxInvMass_EGs;             // Max Invariant Mass of the Track+EG Cluster (including the L1TkEG seed L1TTTrack) [GeV/c^2]
+  float cfg_maxInvMass_TkEGs;           // Max Invariant Mass of the Track+EG Cluster (including the L1TkEG seed L1TTTrack) [GeV/c^2]
 
   // Isolation parameters
   bool  cfg_useVtxIso;                 // Usage of vertex isolation on L1TkEG candidates (no tracks in the isolation cone coming from the same vertex with the seed track)
@@ -183,9 +183,9 @@ L1TkEGTauParticleProducer::L1TkEGTauParticleProducer(const edm::ParameterSet& iC
   cfg_isoCone_dRMax            = (float)iConfig.getParameter<double>("isoCone_dRMax");
   
   // Tracks & EGs clustering parameters
-  cfg_maxDeltaZ_trks  = (float)iConfig.getParameter<double>("maxDeltaZ_trks");
-  cfg_maxInvMass_trks = (float)iConfig.getParameter<double>("maxInvMass_trks");
-  cfg_maxInvMass_EGs  = (float)iConfig.getParameter<double>("maxInvMass_EGs");
+  cfg_maxDeltaZ_trks   = (float)iConfig.getParameter<double>("maxDeltaZ_trks");
+  cfg_maxInvMass_trks  = (float)iConfig.getParameter<double>("maxInvMass_trks");
+  cfg_maxInvMass_TkEGs = (float)iConfig.getParameter<double>("maxInvMass_TkEGs");
    
   // Isolation parameters
   cfg_useVtxIso = (bool)iConfig.getParameter<bool>("useVtxIso");
@@ -315,7 +315,7 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   // For-loop: All the selected L1TTTracks
   for ( unsigned int i=0; i < SelTTTrackPtrs.size(); i++ ){
 
-    // Clear clusters vectors
+    // Clear cluster vectors
     TrackCluster.clear();
     TrackClusterIndx.clear();
     EGcluster.clear();
@@ -360,12 +360,14 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       std::cout<<"Shrinking cone for tau-seed with pT = "<< iPt <<" GeV: sigCone_dRMin = "<< cfg_sigCone_dRMin <<"  , sigCone_dRMax = "<< sigCone_dRMax <<"  , isoCone_dRMin = "<< isoCone_dRMin <<"  , isoCone_dRMax = "<< cfg_isoCone_dRMax <<std::endl;
 #endif 
       
+      // Append leading track to the track cluster
       TrackCluster.push_back(iTrk);
       TrackClusterIndx.push_back(i);
 
       // Tracks Clustering
       for (unsigned int j=0; j < SelTTTrackPtrs.size(); j++) {
 
+	// Do not double count the leading track
 	if (i == j) continue;
 	
 	L1TTTrackRefPtr jTrk = SelTTTrackPtrs.at(j);
@@ -399,12 +401,15 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	EGclusterIndx.push_back(j);
 
       }// EGs Clustering
-      
+    
       // Calculate total p4 of the tau candidate 
       math::XYZTLorentzVector p4_total, p4_trks, p4_egs, p4_tmp;
-      
-      //TLorentzVector p4, p4tmp;
 
+      // Set coordinates of p4 vectors to zero
+      p4_trks.SetCoordinates(0.,0.,0.,0.);
+      p4_egs.SetCoordinates(0.,0.,0.,0.);
+
+      // Calculate tracks p4
       for (unsigned int j=0; j < TrackCluster.size(); j++) {
 	L1TTTrackRefPtr jTrk = TrackCluster.at(j);
 	double px = jTrk->getMomentum(cfg_tk_nFitParams).x();
@@ -421,6 +426,7 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	// std::cout<<"Mass = "<<pionMass<<"   "<<p4tmp.M()<<std::endl;
       }
       
+      // Calculate EGs p4
       for (unsigned int j=0; j < EGcluster.size(); j++) {
 	EGammaRef jEG = SelEGsPtrs.at(j);
 	float jEt  = jEG->et();
@@ -448,14 +454,14 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    
       // Calculate Isolation
       float vtxIso = CalculateVtxIso(SelTTTrackPtrs, TrackClusterIndx, cfg_isoCone_useCone);
-      
+
       // Build the tau candidate
       p4_total = p4_trks + p4_egs;
       L1TkEGTauParticle trkEG(p4_total, TrackCluster, EGcluster, vtxIso);
 
       // Apply Mass cut
       if (p4_trks.M() > cfg_maxInvMass_trks) continue;
-      if (p4_egs.M() > cfg_maxInvMass_EGs) continue;
+      if (p4_total.M() > cfg_maxInvMass_TkEGs) continue;
       
       // Apply Isolation
       if (cfg_useVtxIso) {
