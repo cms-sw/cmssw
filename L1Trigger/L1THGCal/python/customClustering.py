@@ -127,7 +127,7 @@ def custom_3dclustering_histoMax_variableDr(process,
         ):
     process = custom_3dclustering_histoMax(process, 0, nBins_R, nBins_Phi, binSumsHisto, seed_threshold)
     parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
-    parameters_c3d.dR_multicluster_byLayer = cms.vdouble(distances)
+    parameters_c3d.dR_multicluster_byLayer_coefficientA = cms.vdouble(distances)
     return process
 
 
