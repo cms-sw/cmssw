@@ -224,8 +224,9 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
 
 	    // consider soi reference for collisions  
             if(nSamplesToExamine < (int)nSamples) maxI  -= soi;
-
-            time = 25.f * ((float)maxI + emax1/esum);
+       
+            time = 25.f * (float)maxI;                   
+            if(emax1 > 0.f)  time += 25.f * emax1/esum; // 1-st order correction 
 
             // TimeSlew correction
             time -= hcalTimeSlew_delay_->delay(std::max(1.0, fc_ampl), HcalTimeSlew::Medium);
