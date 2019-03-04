@@ -18,6 +18,8 @@
 
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
 
+#include "DataFormats/Phase2L1CaloTrig/interface/L1CaloTower.h"
+
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "L1Trigger/Phase2L1ParticleFlow/src/corrector.h"
@@ -37,6 +39,7 @@ class L1TPFCaloProducer : public edm::stream::EDProducer<> {
         std::vector<edm::EDGetTokenT<HcalTrigPrimDigiCollection>> hcalDigis_;
         edm::ESHandle<CaloTPGTranscoder> decoder_;
         bool hcalDigisBarrel_, hcalDigisHF_;
+        std::vector<edm::EDGetTokenT<L1CaloTowerCollection>> phase2barrelTowers_;
         std::vector<edm::EDGetTokenT<l1t::HGCalTowerBxCollection>> hcalHGCTowers_;
         bool hcalHGCTowersHadOnly_;
 
@@ -52,6 +55,7 @@ class L1TPFCaloProducer : public edm::stream::EDProducer<> {
         virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
         void readHcalDigis_(edm::Event &event, const edm::EventSetup&) ;
+        void readPhase2BarrelCaloTowers_(edm::Event &event, const edm::EventSetup&) ;
         void readHcalHGCTowers_(edm::Event &event, const edm::EventSetup &) ;
         struct SimpleHGCTC {
             float et, eta, phi;
@@ -105,7 +109,11 @@ L1TPFCaloProducer::L1TPFCaloProducer(const edm::ParameterSet& iConfig):
         hcalDigisBarrel_ = iConfig.getParameter<bool>("hcalDigisBarrel");
         hcalDigisHF_     = iConfig.getParameter<bool>("hcalDigisHF");
     }
-    
+
+    for (auto & tag : iConfig.getParameter<std::vector<edm::InputTag>>("phase2barrelCaloTowers")) {
+        phase2barrelTowers_.push_back(consumes<L1CaloTowerCollection>(tag));
+    }
+ 
     for (auto & tag : iConfig.getParameter<std::vector<edm::InputTag>>("hcalHGCTowers")) {
         hcalHGCTowers_.push_back(consumes<l1t::HGCalTowerBxCollection>(tag));
     }
@@ -139,6 +147,9 @@ L1TPFCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         }
         if (!hcalDigis_.empty()) {
             readHcalDigis_(iEvent, iSetup);
+        }
+        if (!phase2barrelTowers_.empty()) {
+            readPhase2BarrelCaloTowers_(iEvent, iSetup);
         }
         if (!hcalHGCTowers_.empty()) {
             readHcalHGCTowers_(iEvent, iSetup);
@@ -235,6 +246,25 @@ L1TPFCaloProducer::readHcalDigis_(edm::Event& iEvent, const edm::EventSetup& iSe
     }
 }
 
+
+void 
+L1TPFCaloProducer::readPhase2BarrelCaloTowers_(edm::Event &event, const edm::EventSetup&) {
+    edm::Handle<L1CaloTowerCollection> towers;
+    for (const auto & token : phase2barrelTowers_) {
+        event.getByToken(token, towers);
+        for (const auto & t : *towers) {
+            // sanity check from https://github.com/cms-l1t-offline/cmssw/blob/phase2-l1t-integration-CMSSW_10_5_0_pre1/L1Trigger/L1CaloTrigger/plugins/L1TowerCalibrator.cc#L248-L252
+            if ((int)t.tower_iEta == -1016 && (int)t.tower_iPhi == -962) continue;       
+            if (debug_ && (t.hcal_tower_et > 0 || t.ecal_tower_et > 0)) {
+                std::cout << "L1TPFCaloProducer: adding phase2 L1CaloTower eta " << t.tower_eta << "   phi " << t.tower_phi << 
+                                    "   ieta " << t.tower_iEta << "   iphi " << t.tower_iPhi << 
+                                    "   ecal " << t.ecal_tower_et << "    hcal " << t.hcal_tower_et << std::endl;
+            }
+            hcalClusterer_.add(t.hcal_tower_et, t.tower_eta, t.tower_phi);
+            ecalClusterer_.add(t.ecal_tower_et, t.tower_eta, t.tower_phi);
+        }
+    }
+}
 
 void
 L1TPFCaloProducer::readHcalHGCTowers_(edm::Event& iEvent, const edm::EventSetup& iSetup) {

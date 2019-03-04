@@ -1,15 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-### this below is not ready yet 
 pfClustersFromHGC3DClusters = cms.EDProducer("PFClusterProducerFromHGC3DClusters",
-   src = cms.InputTag("hgcalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering"),
-   emOnly = cms.bool(False),
-   etMin = cms.double(0.0), 
-   corrector  = cms.string(""), # not available yet
-   resol = cms.PSet( # dummy numbers for now
-           etaBins = cms.vdouble( 3.50),
-           offset  = cms.vdouble( 2.50),
-           scale   = cms.vdouble( 0.15),
-           kind    = cms.string('calo'),
-   )
+    src = cms.InputTag("hgcalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering"),
+    corrector = cms.string("L1Trigger/Phase2L1ParticleFlow/data/hadcorr_HGCal3D_TC.root"),
+    correctorEmfMax = cms.double(1.125),
+    emId  = cms.string("hOverE < 0.3 && hOverE >= 0"),
+    emOnly = cms.bool(False),
+    etMin = cms.double(1.0), 
+    resol = cms.PSet(
+        etaBins = cms.vdouble( 1.900,  2.200,  2.500,  2.800,  2.950),
+        offset  = cms.vdouble( 2.889,  3.215,  3.238,  2.979,  3.333),
+        scale   = cms.vdouble( 0.128,  0.111,  0.108,  0.110,  0.123),
+        kind    = cms.string('calo')
+    ),
 )
