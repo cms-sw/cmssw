@@ -15,15 +15,14 @@
 // user include files
 #include "FastSimulation/Particle/interface/makeMuon.h"
 
-#include "FastSimulation/Particle/interface/makeParticle.h"
-#include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Particle/interface/RawParticle.h"
 namespace rawparticle {
   RawParticle makeMuon(bool isParticle, const math::XYZTLorentzVector& p, 
                        const math::XYZTLorentzVector& xStart) {
+    constexpr double kMass = 0.10566; //taken from SimGeneral/HepPDTESSource/data/particle.tbl
     if(isParticle) {
-      return makeParticle(ParticleTable::instance(), 13, p,xStart);
+      return RawParticle(13, p,xStart,kMass,-1.);
     }
-    return makeParticle(ParticleTable::instance(), -13,p,xStart);
+    return RawParticle(-13,p,xStart, kMass, +1.);
   }
 }
