@@ -69,7 +69,7 @@ EnergyLossSimulator::compute(ParticlePropagator &Particle, RandomEngineAndDistri
   // Update the momentum
   deltaP.SetXYZT(Particle.particle().Px()*(1.-fac),Particle.particle().Py()*(1.-fac),
 		 Particle.particle().Pz()*(1.-fac),Particle.particle().E()-newE);
-  Particle.particle().SetXYZT(Particle.particle().Px()*fac,Particle.particle().Py()*fac, 
+  Particle.particle().setMomentum(Particle.particle().Px()*fac,Particle.particle().Py()*fac, 
 		   Particle.particle().Pz()*fac,newE);
   
 }

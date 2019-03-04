@@ -309,7 +309,7 @@ BaseParticlePropagator::propagate() {
     // ... and update the particle vertex and momentum
     //
     particle_.setVertex( XYZTLorentzVector(xProp,yProp,zProp,tProp) );
-    particle_.SetXYZT(pxProp,pyProp,pZ,particle_.E());
+    particle_.setMomentum(pxProp,pyProp,pZ,particle_.E());
     //    particle_.SetPx(pxProp);
     //    particle_.SetPy(pyProp);
     return true;
@@ -321,11 +321,11 @@ bool
 BaseParticlePropagator::backPropagate() {
 
   // Backpropagate
-  particle_.SetXYZT(-particle_.Px(),-particle_.Py(),-particle_.Pz(),particle_.E());
+  particle_.setMomentum(-particle_.Px(),-particle_.Py(),-particle_.Pz(),particle_.E());
   particle_.setCharge(-particle_.charge());
   propDir = -1;
   bool done = propagate();
-  particle_.SetXYZT(-particle_.Px(),-particle_.Py(),-particle_.Pz(),particle_.E());
+  particle_.setMomentum(-particle_.Px(),-particle_.Py(),-particle_.Pz(),particle_.E());
   particle_.setCharge(-particle_.charge());
   propDir = +1;
 
@@ -418,7 +418,7 @@ BaseParticlePropagator::propagateToClosestApproach(double x0, double y0, bool fi
   // Keep the good solution.
   if ( dist2 > dist1 ) { 
     particle_.setVertex(vertex1);
-    particle_.SetXYZT(momentum1.X(),momentum1.Y(),momentum1.Z(),momentum1.E());
+    particle_.setMomentum(momentum1.X(),momentum1.Y(),momentum1.Z(),momentum1.E());
     dist2 = dist1;
   }
 
@@ -728,8 +728,8 @@ BaseParticlePropagator::propagateToBeamCylinder(const XYZTLorentzVector& v, doub
     pT = 1000.;
     double norm = pT/SSDxy;
     particle_.setCharge(+1.);
-    particle_.SetXYZT(dx*norm,dy*norm,dz*norm,0.);
-    particle_.SetE(std::sqrt(particle_.Vect().Mag2()));
+    particle_.setMomentum(dx*norm,dy*norm,dz*norm,0.);
+    particle_.SetE(std::sqrt(particle_.momentum().Vect().Mag2()));
   // Otherwise take the solution that gives the largest transverse momentum 
   } else { 
     if (solution1<0.) { 
@@ -743,8 +743,8 @@ BaseParticlePropagator::propagateToBeamCylinder(const XYZTLorentzVector& v, doub
     }
     pT = fabs(helixR) * 1e-5 * c_light() *bField;
     double norm = pT/SSDxy;
-    particle_.SetXYZT(pT*std::cos(helixPhi),pT*std::sin(helixPhi),dz*norm,0.);
-    particle_.SetE(std::sqrt(particle_.Vect().Mag2()));      
+    particle_.setMomentum(pT*std::cos(helixPhi),pT*std::sin(helixPhi),dz*norm,0.);
+    particle_.SetE(std::sqrt(particle_.momentum().Vect().Mag2()));      
   }
     
   // Propagate to closest approach to get the Z value (a bit of an overkill)

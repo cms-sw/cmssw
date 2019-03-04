@@ -319,8 +319,8 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
       
     } else {      
       
-      myElec = (myPart) * xe;
-      myPosi = (myPart) * (1.-xe);
+      myElec = (myPart.momentum()) * xe;
+      myPosi = (myPart.momentum()) * (1.-xe);
       myElec.setVertex(myPart.vertex());
       myPosi.setVertex(myPart.vertex());
       thePart.push_back(&myElec);

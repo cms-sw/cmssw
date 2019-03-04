@@ -625,7 +625,7 @@ MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
     XYZTLorentzVector theNewPosition = theMuon.particle().vertex() + fac * deltaPos;
     fac  = (theNewMomentum.E()*theNewMomentum.E()-mu*mu)/theNewMomentum.Vect().Mag2();
     fac  = fac>0.? std::sqrt(fac) : 1E-9;
-    theMuon.particle().SetXYZT(theNewMomentum.Px()*fac,theNewMomentum.Py()*fac,
+    theMuon.particle().setMomentum(theNewMomentum.Px()*fac,theNewMomentum.Py()*fac,
                     theNewMomentum.Pz()*fac,theNewMomentum.E());    
     theMuon.particle().setVertex(theNewPosition);
 
