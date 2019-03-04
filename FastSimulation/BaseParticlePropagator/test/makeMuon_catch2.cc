@@ -1,5 +1,5 @@
-#include "FastSimulation/Particle/interface/makeMuon.h"
-#include "FastSimulation/Particle/interface/RawParticle.h"
+#include "FastSimulation/BaseParticlePropagator/interface/makeMuon.h"
+#include "FastSimulation/BaseParticlePropagator/interface/RawParticle.h"
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"

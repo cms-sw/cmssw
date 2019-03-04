@@ -77,7 +77,7 @@
 * \version 15-Dec-2003 */
 
 //FAMOS
-#include "FastSimulation/Particle/interface/RawParticle.h"
+#include "FastSimulation/BaseParticlePropagator/interface/RawParticle.h"
 
 class BaseParticlePropagator {
   

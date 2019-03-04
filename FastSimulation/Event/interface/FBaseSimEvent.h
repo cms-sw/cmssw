@@ -9,7 +9,7 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 // Famos Headers
-#include "FastSimulation/Particle/interface/RawParticle.h"
+#include "FastSimulation/BaseParticlePropagator/interface/RawParticle.h"
 #include "FastSimDataFormats/NuclearInteractions/interface/FSimVertexType.h"
 #include "FastSimDataFormats/NuclearInteractions/interface/FSimVertexTypeFwd.h"
 
