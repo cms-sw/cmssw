@@ -1,5 +1,6 @@
 //FAMOS headers
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include <array>
 
 BaseParticlePropagator::BaseParticlePropagator() :
   rCyl(0.), rCyl2(0.), zCyl(0.), bField(0), properDecayTime(1E99)
@@ -659,13 +660,13 @@ BaseParticlePropagator::propagateToBeamCylinder(const XYZTLorentzVector& v, doub
 
   // Here are the four possible solutions for
   // 1) The trajectory radius
-  std::vector<double> helixRs(4,static_cast<double>(0.));
+  std::array<double,4> helixRs = {{0.}};
   helixRs[0] = (b - std::sqrt(b*b - a*c))/(2.*a); 
   helixRs[1] = (b + std::sqrt(b*b - a*c))/(2.*a); 
   helixRs[2] = -helixRs[0]; 
   helixRs[3] = -helixRs[1]; 
   // 2) The azimuthal direction at the second point
-  std::vector<double> helixPhis(4,static_cast<double>(0.));
+  std::array<double,4> helixPhis = {{0.}};
   helixPhis[0] = std::asin ( SSDxy/(2.*helixRs[0]) );
   helixPhis[1] = std::asin ( SSDxy/(2.*helixRs[1]) );
   helixPhis[2] = -helixPhis[0];
