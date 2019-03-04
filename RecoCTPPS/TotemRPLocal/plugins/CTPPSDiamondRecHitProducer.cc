@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -29,6 +30,7 @@
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+#include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
 
 class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
 {
@@ -42,8 +44,8 @@ class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
 
     edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondDigi> > digiToken_;
 
-    /// A watcher to detect geometry changes.
-    //edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher_;
+    /// A watcher to detect timing calibration changes.
+    edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
 
     CTPPSDiamondRecHitProducerAlgorithm algo_;
 };
@@ -65,6 +67,11 @@ CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken( digiToken_, digis );
 
   if ( !digis->empty() ) {
+    if ( calibWatcher_.check( iSetup ) ) {
+      edm::ESHandle<PPSTimingCalibration> hTimingCalib;
+      iSetup.get<PPSTimingCalibrationRcd>().get( hTimingCalib );
+      algo_.setCalibration( *hTimingCalib );
+    }
     // get the geometry
     edm::ESHandle<CTPPSGeometry> geometry;
     iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );

@@ -15,6 +15,12 @@ CTPPSDiamondRecHitProducerAlgorithm::CTPPSDiamondRecHitProducerAlgorithm( const 
 {}
 
 void
+CTPPSDiamondRecHitProducerAlgorithm::setCalibration( const PPSTimingCalibration& calib )
+{
+  calib_ = calib;
+}
+
+void
 CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
                                             const edm::DetSetVector<CTPPSDiamondDigi>& input,
                                             edm::DetSetVector<CTPPSDiamondRecHit>& output )
@@ -58,3 +64,4 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
     }
   }
 }
+

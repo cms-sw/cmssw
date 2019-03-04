@@ -20,16 +20,20 @@
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
+#include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
+
 class CTPPSDiamondRecHitProducerAlgorithm
 {
   public:
     CTPPSDiamondRecHitProducerAlgorithm( const edm::ParameterSet& conf );
 
+    void setCalibration( const PPSTimingCalibration& );
     void build( const CTPPSGeometry&, const edm::DetSetVector<CTPPSDiamondDigi>&, edm::DetSetVector<CTPPSDiamondRecHit>& );
 
   private:
     /// Conversion constant between HPTDC time slice and absolute time (in ns)
     double ts_to_ns_;
+    PPSTimingCalibration calib_;
 };
 
 #endif
