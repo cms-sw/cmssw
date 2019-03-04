@@ -58,18 +58,20 @@ CTPPSDiamondRecHitProducer::CTPPSDiamondRecHitProducer( const edm::ParameterSet&
 void
 CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  std::unique_ptr<edm::DetSetVector<CTPPSDiamondRecHit> > pOut( new edm::DetSetVector<CTPPSDiamondRecHit> );
+  auto pOut = std::make_unique<edm::DetSetVector<CTPPSDiamondRecHit> >();
 
   // get the digi collection
   edm::Handle<edm::DetSetVector<CTPPSDiamondDigi> > digis;
   iEvent.getByToken( digiToken_, digis );
 
-  // get the geometry
-  edm::ESHandle<CTPPSGeometry> geometry;
-  iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
+  if ( !digis->empty() ) {
+    // get the geometry
+    edm::ESHandle<CTPPSGeometry> geometry;
+    iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
 
-  // produce the rechits collection
-  algo_.build( *geometry, *digis, *pOut );
+    // produce the rechits collection
+    algo_.build( *geometry, *digis, *pOut );
+  }
 
   iEvent.put( std::move( pOut ) );
 }
