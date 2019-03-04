@@ -8,72 +8,50 @@
 // -----------------------------------------------------------------------------
 #include "FastSimulation/Particle/interface/RawParticle.h"
 
-#include <iostream>
-#include <iomanip>
 #include <cmath>
-
-//using namespace HepPDT;
-
-RawParticle::RawParticle()
-{
-  init();
-}
 
 RawParticle::RawParticle(const XYZTLorentzVector& p) 
   : myMomentum(p) {
-  init();
 }
 
 RawParticle::RawParticle(const int id, 
 			 const XYZTLorentzVector& p,
                          double mass,
-                         double charge) 
-  : myMomentum(p) {
-  this->init();
-  myId = id;
-  myMass = mass;
-  myCharge = charge;
+                         double charge) : 
+  myMomentum(p),
+  myCharge{charge},
+  myMass{mass},
+  myId{id}
+{
 }
 
 RawParticle::RawParticle(const int id, 
 			 const XYZTLorentzVector& p,
                          const XYZTLorentzVector& xStart,
                          double mass,
-                         double charge) 
-  : myMomentum(p) {
-  this->init();
-  myId = id;
-  myMass = mass;
-  myCharge = charge;
-  myVertex = xStart;
+                         double charge) : 
+  myMomentum(p),
+  myVertex{xStart},
+  myCharge{charge},
+  myMass{mass},
+  myId{id}
+{
 }
 
 RawParticle::RawParticle(const XYZTLorentzVector& p, 
 			 const XYZTLorentzVector& xStart,
                          double charge)  : 
-  myMomentum(p)
+  myMomentum(p),
+  myVertex{xStart},
+  myCharge{charge}
 {
-  init();
-  myCharge = charge;
-  myVertex = xStart;
 }
 
 RawParticle::RawParticle(double px, double py, double pz, double e, double charge) : 
-  myMomentum(px,py,pz,e)
+  myMomentum(px,py,pz,e),
+  myCharge{charge}
 {
-  init();
-  myCharge = charge;
 }
-
-void 
-RawParticle::init() {
-  myId=0;  
-  myStatus=99;
-  myUsed=0;
-  myCharge=0.;
-  myMass=0.;
-}
-
 
 void 
 RawParticle::setStatus(int istat) {
