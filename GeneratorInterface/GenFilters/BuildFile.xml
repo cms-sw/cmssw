@@ -20,7 +20,6 @@
 <use   name="TrackingTools/Records"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="FWCore/ServiceRegistry"/>
-<use   name="FastSimulation/Particle"/>
 <use   name="FastSimulation/BaseParticlePropagator"/>
 <use   name="TrackingTools/GeomPropagators"/>
 <use   name="DataFormats/HepMCCandidate"/>
