@@ -11,6 +11,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 //FAMOS Headers
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
@@ -525,7 +526,6 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
 }
 
-
 int 
 FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig, 
 			   const HepMC::GenVertex* ev) { 
@@ -557,7 +557,7 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig,
     // A proper decay time is scheduled
     FSimTrack(p,iv,ig,trackId,this,
 	      ev->position().t()/10.
-	      * p->PDGmass()
+	      * ParticleTable::instance()->PDGmass(p->pid())
 	      / std::sqrt(p->momentum().Vect().Mag2())) : 
     // No proper decay time is scheduled
     FSimTrack(p,iv,ig,trackId,this);
