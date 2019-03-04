@@ -1,6 +1,5 @@
 #include <string>
 
-
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -18,6 +17,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PreIdFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 class LowPtGSFToPackedCandidateLinker : public edm::global::EDProducer<> {
 public:
@@ -25,6 +25,7 @@ public:
 	~LowPtGSFToPackedCandidateLinker() override;
     
 	void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+	static void fillDescriptions(edm::ConfigurationDescriptions&);
    
 private:
 	const edm::EDGetTokenT<reco::PFCandidateCollection> pfcands_;
@@ -41,12 +42,11 @@ LowPtGSFToPackedCandidateLinker::LowPtGSFToPackedCandidateLinker(const edm::Para
   pfcands_{consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PFCandidates"))},
   packed_{consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedCandidates"))},
   lost_tracks_{consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("lostTracks"))},
-	tracks_{consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))},
+  tracks_{consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))},
   pf2packed_{consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedCandidates"))},
   lost2trk_{consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("lostTracks"))},
   preid_{consumes<std::vector<reco::PreId> >(iConfig.getParameter<edm::InputTag>("gsfPreID"))},
-	gsftracks_{consumes<std::vector<reco::GsfTrack> >(iConfig.getParameter<edm::InputTag>("gsfTracks"))} { 
-    
+  gsftracks_{consumes<std::vector<reco::GsfTrack> >(iConfig.getParameter<edm::InputTag>("gsfTracks"))} {     
 		produces< edm::Association<pat::PackedCandidateCollection> > ("packedCandidates");
 		produces< edm::Association<pat::PackedCandidateCollection> > ("lostTracks");
 	}
@@ -54,7 +54,6 @@ LowPtGSFToPackedCandidateLinker::LowPtGSFToPackedCandidateLinker(const edm::Para
 LowPtGSFToPackedCandidateLinker::~LowPtGSFToPackedCandidateLinker() {}
 
 void LowPtGSFToPackedCandidateLinker::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-
 	edm::Handle<reco::PFCandidateCollection> pfcands;
 	iEvent.getByToken(pfcands_, pfcands);
 
@@ -134,23 +133,6 @@ void LowPtGSFToPackedCandidateLinker::produce(edm::StreamID, edm::Event& iEvent,
 		}
 	}
 
-	/*// fill PackedCandidates --> GSF
-	for(unsigned int ipack = 0; ipack < npacked; ++ipack) {
-		size_t idx = packed2trk[ipack];
-		if(idx < ntracks && trk2gsf[idx] != ngsf) {
-			pack2gsf[ipack] =  trk2gsf[idx];
-		}
-	}
-
-	// fill LostTracks --> GSF
-	for(unsigned int ilost = 0; ilost < nlost; ++ilost) { 
-		size_t idx = lost2trk[ilost];
-		if(idx < ntracks && trk2gsf[idx] != ngsf) {
-			lost2gsf[ilost] = trk2gsf[idx];
-		} 
-		}*/
-
-
 	// create output collections from the mappings
 	auto assoc_gsf2pack = std::make_unique< edm::Association<pat::PackedCandidateCollection> >(packed);
 	edm::Association<pat::PackedCandidateCollection>::Filler gsf2pack_filler(*assoc_gsf2pack);
@@ -165,5 +147,15 @@ void LowPtGSFToPackedCandidateLinker::produce(edm::StreamID, edm::Event& iEvent,
 	iEvent.put(std::move(assoc_gsf2lost), "lostTracks");
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
+void LowPtGSFToPackedCandidateLinker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+	edm::ParameterSetDescription desc;
+	desc.add<edm::InputTag>("PFCandidates", edm::InputTag("particleFlow"));
+	desc.add<edm::InputTag>("packedCandidates", edm::InputTag("packedPFCandidates"));
+	desc.add<edm::InputTag>("lostTracks", edm::InputTag("lostTracks"));
+	desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
+	desc.add<edm::InputTag>("gsfPreID", edm::InputTag("lowPtGsfElectronSeeds"));
+	desc.add<edm::InputTag>("gsfTracks", edm::InputTag("lowPtGsfEleGsfTracks"));
+	descriptions.add("lowPtGsfLinksDefault", desc);
+}
+
 DEFINE_FWK_MODULE(LowPtGSFToPackedCandidateLinker);
