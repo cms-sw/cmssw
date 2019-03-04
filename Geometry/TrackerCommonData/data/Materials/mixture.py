@@ -1,5 +1,93 @@
 #!/bin/python3
 
+"""
+mixture.py replaces the functionality of mixture.f
+
+Usage:
+
+$ python3 mixture.py filename.in
+
+Where `filename.in` contains a set of mixtures and its components:
+
+The format for `filename.in` is as follows:
+
+Each mixture description starts with a hash symbol (#) and contains
+the following information in a single line:
+
+ * Name (name of mixture of components)
+ * GMIX name ()
+ * MC Volume
+ * MC Area
+
+A mixture definition is followed by a set of compounds, which is the
+set of components that the mixture is made from.
+
+Each compound description starts with an asterisk (*) and contains
+the following information:
+
+ * Item number (An index for the list)
+ * Comment (A human readable name for the material)
+ * Material (Component name)
+ * Volume
+ * Multiplicity (How many times the material is in the mixture)
+ * Type (see below)
+
+Type stands for a classification of the Material using the following
+convention:
+
+ * SUP: Support
+ * COL: Cooling
+ * ELE: Electronics
+ * CAB: Cables
+ * SEN: Sensitive volumes
+
+Each Material (component of the mixture) belongs to a single category.
+`mixture.py` uses these information to compute how the mixture as a whole
+contributes to each of the categories in terms of radiation length (x0)
+and nuclear interaction length (l0) \lambda_{0}.
+
+The radiation length or the nuclear interaction lenght become relevant
+depending if we are talking about particles that interact with the detector
+mainly throgh electromagnetic forces (x0) or either strong interaction or nuclear
+forces (l0). Notice that these quantities are different and therefore the
+contribution for each category will depend on them.
+
+Any line in `filename.in` is therefore ignored unless it begins with
+a hash or an asterisk.
+
+Hardcoded in `mixture.py` are the files `mixed_materials.input` and
+`pure_materials.input`. These files act as a database that provides
+information about the compounds. From each compound defined in
+`filename.in` `mixture.py` matches the content of `Material` with a
+single element of the database and extracts the following information
+(the format of the mentioned .input files):
+
+ * Name (which should match with Material)
+ * Weight (Atomic Mass) [g/mol]
+ * Number (Atomic number)
+ * Density (g/cm^3)
+ * RadLen (Radiation lenght) (cm)
+ * IntLen (Nuclear interaction lenght) (cm)
+
+With these information `material.py` computes for each mixture:
+
+ * The radiation lenght for the mixture
+ * The nuclear interaction lenght for the mixture
+ * The mixture density
+ * The mixture volume
+ * The total weight
+ * The relative contribution in each categorio on x0 and l0
+ * Normalized quantities based on MC Volume and MC Area values
+
+As well for the compounds:
+
+ * The relative volume within the mixture
+ * The relative weight
+ * The relative radiation lenght
+ * The relative nuclear interaction length
+
+"""
+
 import re
 import pandas as pd
 import sys
@@ -34,7 +122,7 @@ def getCompound(line) :
 def getMixtures(inputFile) :
 
     """
-    Returns a list of Mixtures (dict). Each
+    Returns a `dict` of Mixtures. Each
     mixture contains a list of compounds.
     """
 
