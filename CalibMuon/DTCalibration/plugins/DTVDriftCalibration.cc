@@ -44,7 +44,12 @@ using namespace edm;
 using namespace dttmaxenums;
 
 
-DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
+DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) :
+  // Get the synchronizer
+  theSync{DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
+                                            pset.getParameter<ParameterSet>("tTrigModeConfig"))}
+
+{
 
   edm::ConsumesCollector collector(consumesCollector());
   select_ = std::make_unique<DTSegmentSelector>(pset,collector);
@@ -77,9 +82,6 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
   // the txt file which will contain the calibrated constants
   theVDriftOutputFile = pset.getUntrackedParameter<string>("vDriftFileName");
 
-  // Get the synchronizer
-  theSync{DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
-                                            pset.getParameter<ParameterSet>("tTrigModeConfig"))}
   // get parameter set for DTCalibrationMap constructor
   theCalibFilePar =  pset.getUntrackedParameter<ParameterSet>("calibFileConfig");
 
