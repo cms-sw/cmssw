@@ -93,10 +93,12 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
     bool fallback_puppi_weight_;
     bool fallback_vertex_association_;
     
-        //TrackProbability
+    bool run_deepVertex_;
+    
+    //TrackProbability
     void checkEventSetup(const edm::EventSetup& iSetup);
     std::unique_ptr<HistogramProbabilityEstimator> m_probabilityEstimator;
-    bool m_computeProbabilities=true;
+    bool m_computeProbabilities;
     unsigned long long  m_calibrationCacheId2D; 
     unsigned long long m_calibrationCacheId3D;
     
@@ -115,7 +117,9 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
   use_puppi_value_map_(false),
   use_pvasq_value_map_(false),
   fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
-  fallback_vertex_association_(iConfig.getParameter<bool>("fallback_vertex_association"))
+  fallback_vertex_association_(iConfig.getParameter<bool>("fallback_vertex_association")),
+  run_deepVertex_(false),
+  m_computeProbabilities(false)
 {
   produces<DeepFlavourTagInfoCollection>();
 
@@ -404,11 +408,16 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   }
   
-    
-  std::vector<btagbtvdeep::SeedingTrackFeatures> & seedingT_features_vector = features.seed_features;//seedingT_features_vector;
-  
-  //converter does everything
-  btagbtvdeep::SeedingTracksConverter::SeedingTracksToFeatures(seedingT_features_vector, tracks, jet, pv, track_builder, m_probabilityEstimator.get(), m_computeProbabilities);
+  if (run_deepVertex_)
+  {     
+      
+      //seedingT_features_vector;
+      std::vector<btagbtvdeep::SeedingTrackFeatures> & seedingT_features_vector = features.seed_features;
+      
+      //converter does everything
+      btagbtvdeep::SeedingTracksConverter::SeedingTracksToFeatures(seedingT_features_vector, tracks, jet, pv, track_builder, m_probabilityEstimator.get(), m_computeProbabilities);    
+      
+   }  
  
  
   output_tag_infos->emplace_back(features, jet_ref);
