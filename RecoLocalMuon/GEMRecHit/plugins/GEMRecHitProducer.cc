@@ -2,7 +2,6 @@
  *
  *  \author M. Maggi -- INFN Bari
  */
-
 #include "RecoLocalMuon/GEMRecHit/plugins/GEMRecHitProducer.h"
 
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
@@ -35,26 +34,27 @@ GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config):
   // Get masked- and dead-strip information from file
   applyMasking_ = config.getParameter<bool>("applyMasking");
   if (applyMasking_) {
-    if (config.existsAs<edm::FileInPath>("maskFile", false)) {
-      std::ifstream inputFile(config.getUntrackedParameter<edm::FileInPath>("maskFile").fullPath());
+    if (config.existsAs<edm::FileInPath>("maskFile")) {
+      maskSource_ = MaskSource::File;
+      std::ifstream inputFile(config.getParameter<edm::FileInPath>("maskFile").fullPath());
       if ( !inputFile ) {
-        throw cms::Exception("GEMRecHitProducer")
-          << "Masked Strips File cannot not be opened";
+        throw cms::Exception("GEMRecHitProducer") << "Masked Strips File cannot not be opened";
       }
       theGEMMaskedStripsObj = std::make_unique<GEMMaskedStrips>();
       while ( inputFile.good() ) {
         GEMMaskedStrips::MaskItem Item;
         inputFile >> Item.rawId >> Item.strip;
         if ( inputFile.good() ) theGEMMaskedStripsObj->fillMaskVec(Item);
+
       }
       inputFile.close();
     }
     
-    if (config.existsAs<edm::FileInPath>("deadFile", false)) {
-      std::ifstream inputFile(config.getUntrackedParameter<edm::FileInPath>("deadFile").fullPath());
+    if (config.existsAs<edm::FileInPath>("deadFile")) {
+      deadSource_ = MaskSource::File;
+      std::ifstream inputFile(config.getParameter<edm::FileInPath>("deadFile").fullPath());
       if ( !inputFile ) {
-        throw cms::Exception("GEMRecHitProducer")
-          << "Dead Strips File cannot not be opened";
+        throw cms::Exception("GEMRecHitProducer") << "Dead Strips File cannot not be opened";
       }
       theGEMDeadStripsObj = std::make_unique<GEMDeadStrips>();
       while ( inputFile.good() ) {
@@ -77,9 +77,9 @@ void GEMRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<std::string>("recAlgo", "GEMRecHitStandardAlgo");
   desc.add<edm::InputTag>("gemDigiLabel", edm::InputTag("muonGEMDigis"));
   desc.add<bool>("applyMasking", false);
-  desc.addOptionalUntracked<edm::FileInPath>("maskFile");  
-  desc.addOptionalUntracked<edm::FileInPath>("deadFile");  
-  descriptions.add("gemRecHits",desc);
+  desc.addOptional<edm::FileInPath>("maskFile");
+  desc.addOptional<edm::FileInPath>("deadFile");
+  descriptions.add("gemRecHitsDef",desc);
 }
 
 void GEMRecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup)
@@ -160,7 +160,7 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup)
       if (gemmaskIt != gemMask_.end())
         mask = gemmaskIt->second;
     }
-    
+
     // Call the reconstruction algorithm    
     OwnVector<GEMRecHit> recHits = theAlgo->reconstruct(*roll, gemId, range, mask);
     
