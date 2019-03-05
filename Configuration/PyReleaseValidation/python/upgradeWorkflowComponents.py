@@ -219,6 +219,14 @@ upgradeSteps['killStuckTBM'] = {
     'suffix' : '_killStuckTBM',
     'offset' : 0.7,
 }
+upgradeSteps['ParkingBPH'] = {
+    'steps' : [
+        'RecoFull',
+    ],
+    'PU' : [],
+    'suffix' : '_ParkingBPH',
+    'offset' : 0.8,
+}
 upgradeSteps['Premix'] = {
     'steps' : [],
     'PU': [
