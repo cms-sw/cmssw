@@ -13,7 +13,7 @@
 #PLOTMILLEPEDEDIR=
 CONFIG_TEMPLATE="$CMSSW_BASE/src/Alignment/TrackerAlignment/test/alignment_forGeomComp_cfg_TEMPLATE.py"
 PLOTMILLEPEDEDIR="$CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/"
-if [[ ! -d ${CONFIG_TEMPLATE} ]]
+if [[ ! -f ${CONFIG_TEMPLATE} ]]
 then
     CONFIG_TEMPLATE="${CMSSW_RELEASE_BASE}/src/Alignment/TrackerAlignment/test/alignment_forGeomComp_cfg_TEMPLATE.py"
 fi
