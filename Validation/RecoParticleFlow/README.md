@@ -14,6 +14,9 @@ git cms-checkout-topic jpata:pfvalidation-10_5_0_pre1-master
 scram b -j4
 cd $CMSSW_BASE/src/Validation/RecoParticleFlow
 
+# Activate reading files from remote locations (needed at lxplus at least)
+voms-proxy-init -voms cms
+
 #RECO step, about 30 minutes
 make QCD_reco
 
