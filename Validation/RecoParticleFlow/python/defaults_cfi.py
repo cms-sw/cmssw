@@ -54,3 +54,5 @@ candidateType = ["chm", "chu", "nh", "ne", "hfh", "hfe", "lep"]
 offsetPlotBaseName = 'p_offset_eta'
 offsetDir = 'Physics/Offset/'
 
+def offset_name( var, ivar, itype ) :
+    return "{0}_{1}{2}_{3}".format( offsetPlotBaseName, var, ivar, itype )

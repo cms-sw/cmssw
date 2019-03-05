@@ -143,7 +143,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     for (unsigned int i=0, n=vertexHandle->size(); i<n; i++) {
         const auto& pv = vertexHandle->at(i);
 
-        if( !pv.isFake() && pv.ndof() > 4 && fabs(pv.z()) <= 24 && fabs(pv.position().rho()) <= 2 )
+        if( !pv.isFake() && pv.ndof() >= 4 && fabs(pv.z()) <= 24.0 && fabs(pv.position().rho()) <= 2.0 )
             npv++;
     }
     th1dPlots["npv"].fill( npv );
@@ -174,7 +174,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
             for (unsigned int ipv=0, endpv=vertexHandle->size(); ipv<endpv && !attached; ipv++) {
                 const auto& pv = vertexHandle->at(ipv);
-                if ( !pv.isFake() && pv.ndof() >= 4 && fabs(pv.z()) < 24 ) { //must be attached to a good pv
+                if ( !pv.isFake() && pv.ndof() >= 4 && fabs(pv.z()) <= 24.0 && fabs(pv.position().rho()) <= 2.0 ) { //must be attached to a good pv
                     if ( cand.fromPV(ipv) == 3 ) attached = true; //pv used in fit
                 }
             }

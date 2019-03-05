@@ -23,22 +23,22 @@ def createOffsetVPSet():
 
     for pftype in default.candidateType :
         for mu in murange :
-            name = "{0}_mu{1}_{2}".format( default.offsetPlotBaseName, mu, pftype )
+            name = default.offset_name( "mu", mu, pftype )
             plots += [ plotPSet(
                 name,
                 name+";#eta;Offset Energy_{T} [GeV]",
-                default.offsetDir + "muPlots/" + pftype,
+                "{0}muPlots/mu{1}".format(default.offsetDir, mu),
                 #variable xbinning
                 0, 0, 0, default.eBinsOffset, default.eLowOffset, default.eHighOffset,
                 default.etaBinsOffset
             )]
 
         for npv in npvrange :
-            name = "{0}_npv{1}_{2}".format( default.offsetPlotBaseName, npv, pftype )
+            name = default.offset_name( "npv", npv, pftype )
             plots += [ plotPSet(
                 name,
                 name+";#eta;<Offset Energy_{T}> [GeV]",
-                default.offsetDir + "npvPlots/" + pftype,
+                "{0}npvPlots/npv{1}".format(default.offsetDir, npv),
                 #variable xbinning
                 0, 0, 0, default.eBinsOffset, default.eLowOffset, default.eHighOffset,
                 default.etaBinsOffset
