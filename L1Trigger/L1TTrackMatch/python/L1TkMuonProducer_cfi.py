@@ -51,4 +51,7 @@ L1TkMuons = cms.EDProducer("L1TkMuonProducer",
 
 )
 
-L1TkMuonsDynamicWindows = L1TkMuons.clone(emtfMatchAlgoVersion='DynamicWindows')
+L1TkMuonsTP = L1TkMuons.clone(
+    emtfMatchAlgoVersion='TP',
+    useTPMatchWindows = True
+)

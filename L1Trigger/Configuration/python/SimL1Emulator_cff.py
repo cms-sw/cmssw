@@ -150,7 +150,7 @@ phase2_SimL1Emulator += L1TrackerEtMiss
 phase2_SimL1Emulator += L1TkCaloHTMissVtx
 phase2_SimL1Emulator += L1TrackerHTMiss
 phase2_SimL1Emulator += L1TkMuons
-phase2_SimL1Emulator += L1TkMuonsDynamicWindows
+phase2_SimL1Emulator += L1TkMuonsTP
 phase2_SimL1Emulator += L1TkGlbMuons
 phase2_SimL1Emulator += L1TkTauFromCalo
 

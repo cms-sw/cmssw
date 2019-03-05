@@ -58,8 +58,8 @@ from L1Trigger.L1TTrackMatch.L1TkHTMissProducer_cfi import L1TkCaloHTMissVtx, L1
 pL1TkCaloHTMissVtx = cms.Path( L1TkCaloHTMissVtx )
 pL1TrackerHTMiss = cms.Path( L1TrackerHTMiss )
 
-from L1Trigger.L1TTrackMatch.L1TkMuonProducer_cfi import L1TkMuons, L1TkMuonsDynamicWindows
-pL1TkMuon = cms.Path( L1TkMuons * L1TkMuonsDynamicWindows )
+from L1Trigger.L1TTrackMatch.L1TkMuonProducer_cfi import L1TkMuons, L1TkMuonsTP
+pL1TkMuon = cms.Path( L1TkMuons * L1TkMuonsTP )
 
 from L1Trigger.L1TTrackMatch.L1TkGlbMuonProducer_cfi import L1TkGlbMuons
 pL1TkGlbMuon = cms.Path( L1TkGlbMuons )
