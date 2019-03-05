@@ -94,6 +94,7 @@ private:
   TH1F* etL1TrkObj;  
   TH1F* etaL1TrkObj;
   TH1F* phiL1TrkObj;
+  TH1F* massL1TrkObj;
   TH1F* etL1TrkObjMatched;  
   TH1F* etaL1TrkObjMatched;
   TH1F* phiL1TrkObjMatched;
@@ -175,18 +176,18 @@ void L1TausAnalyzer::beginJob() {
   etL1TrkObj  = fs->make<TH1F>("Et", "Et", 200, 0.5, 200.5);
   etaL1TrkObj = fs->make<TH1F>("Eta","Eta", 90, -4.5, 4.5);
   phiL1TrkObj = fs->make<TH1F>("Phi","Phi", 64, -3.2, 3.2);
-  
+  massL1TrkObj  = fs->make<TH1F>("Mass","Mass", 20, 0.0, 2.0);
   
   if (cfg_analysisOption == "Efficiency") {
     
     // Gen Particles
-    etVisGenL1Obj = fs->make<TH1F>("GenEtVis", "GenEtVis", 100, 0.5, 200.5);
-    etGenL1Obj    = fs->make<TH1F>("GenEt", "GenEt", 100, 0.5, 200.5);
+    etVisGenL1Obj = fs->make<TH1F>("GenEtVis", "GenEtVis", 40, 0.5, 200.5);
+    etGenL1Obj    = fs->make<TH1F>("GenEt", "GenEt", 40, 0.5, 200.5);
     etaGenL1Obj   = fs->make<TH1F>("GenEta", "GenEta", 90, -4.5, 4.5);
     phiGenL1Obj   = fs->make<TH1F>("GenPhi","GenPhi", 64, -3.2, 3.2);
 
     // L1 Matched objects
-    etL1TrkObjMatched  = fs->make<TH1F>("EtMatched", "EtMatched", 200, 0.5, 200.5);
+    etL1TrkObjMatched  = fs->make<TH1F>("EtMatched", "EtMatched", 40, 0.5, 200.5);
     etaL1TrkObjMatched = fs->make<TH1F>("EtaMatched","EtaMatched", 90, -4.5, 4.5);
     phiL1TrkObjMatched = fs->make<TH1F>("PhiMatched","PhiMatched", 64, -3.2, 3.2);
     
@@ -194,8 +195,8 @@ void L1TausAnalyzer::beginJob() {
     etL1TrkObjVsGen = fs->make<TH2F>("EtVsGenEt", "EtVsGenEt", 200, 0.5, 200.5, 200, 0.5, 200.5);
     
     // Turn-on numerator plots
-    etL1TrkObjTurnOn = fs->make<TH1F>("EtTurnOn", "EtTurnOn", 100, 0.5, 200.5);
-    etGenObjTurnOn   = fs->make<TH1F>("GenEtTurnOn", "GenEtTurnOn", 100, 0.5, 200.5);
+    etL1TrkObjTurnOn = fs->make<TH1F>("EtTurnOn", "EtTurnOn", 40, 0.5, 200.5);
+    etGenObjTurnOn   = fs->make<TH1F>("GenEtTurnOn", "GenEtTurnOn", 40, 0.5, 200.5);
     
     // Efficiency plot
     effL1TrkObj = fs->make<TH1F>("EtEfficiency", "EtEfficiency", 200, 0.5, 200.5);
@@ -270,7 +271,8 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	etL1TrkObj  -> Fill(tkObjIter->et());
 	etaL1TrkObj -> Fill(tkObjIter->eta());
 	phiL1TrkObj -> Fill(tkObjIter->phi());
-	}      
+	massL1TrkObj  -> Fill(tkObjIter->mass());
+      }      
     }
     
     if (cfg_analysisOption == "Efficiency" && genIndices.size() > 0) checkEfficiency(l1TrkTauCollection);
@@ -294,6 +296,7 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	etL1TrkObj  -> Fill(tkObjIter->et());
 	etaL1TrkObj -> Fill(tkObjIter->eta());
 	phiL1TrkObj -> Fill(tkObjIter->phi());
+	massL1TrkObj  -> Fill(tkObjIter->mass());
       }
     }
         
@@ -318,6 +321,7 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	etL1TrkObj  -> Fill(tkObjIter->et());
 	etaL1TrkObj -> Fill(tkObjIter->eta());
 	phiL1TrkObj -> Fill(tkObjIter->phi());
+	massL1TrkObj  -> Fill(tkObjIter->mass());
       }
     }
         
