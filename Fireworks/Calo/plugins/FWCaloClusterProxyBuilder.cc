@@ -19,8 +19,16 @@ class FWCaloClusterProxyBuilder : public FWHeatmapProxyBuilderTemplate<reco::Cal
    FWCaloClusterProxyBuilder(const FWCaloClusterProxyBuilder &) = delete;                  // stop default
    const FWCaloClusterProxyBuilder &operator=(const FWCaloClusterProxyBuilder &) = delete; // stop default
    
+   void setItem(const FWEventItem *iItem) override;
+
    void build(const reco::CaloCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *) override;
 };
+
+void FWCaloClusterProxyBuilder::setItem(const FWEventItem *iItem){
+   FWHeatmapProxyBuilderTemplate::setItem(iItem);
+   if (iItem)
+      iItem->getConfig()->assertParam("Cluster(0)/RecHit(1)", false);
+}
 
 void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *)
 {
@@ -154,6 +162,12 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
             oItemHolder.AddElement(marker);
          }
 
+         const float energy = fmin(item()->getConfig()->value<bool>("Cluster(0)/RecHit(1)") ? hitmap[it->first]->energy() : iData.energy() / saturation_energy, 1.0f);
+         const uint8_t colorFactor = gradient_steps*energy;
+
+         h_box |= isScintillator;
+         h_hex |= !isScintillator;
+
          // Scintillator
          if (isScintillator)
          {
@@ -171,12 +185,9 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
                pnts[(i * 3 + 2) + total_vertices] = corners[i * 3 + 2] + shapes[3];
             }
             boxset->AddBox(&pnts[0]);
-            if(heatmap) {
-               const uint8_t colorFactor = gradient_steps*(fmin(hitmap[it->first]->energy()/saturation_energy, 1.0f));   
-               boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]);
+            if(heatmap){
+               energy ? boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]) : boxset->DigitColor(0.7f, 0.7f, 0.7f);
             }
-
-            h_box = true;
          }
          // Silicon
          else
@@ -188,12 +199,9 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
             float radius = fabs(corners[6] - corners[6 + offset]) / 2;
             hex_boxset->AddHex(TEveVector(centerX, centerY, corners[2]),
                                radius, 90.0, shapes[3]);
-            if(heatmap) {
-               const uint8_t colorFactor = gradient_steps*(fmin(hitmap[it->first]->energy()/saturation_energy, 1.0f));   
-               hex_boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]);
+            if(heatmap){
+               energy ? hex_boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]) : hex_boxset->DigitColor(0.7f, 0.7f, 0.7f);
             }
-
-            h_hex = true;
          }
       }
       // Not HGCal
