@@ -21,7 +21,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
 #        '/store/data/Run2017E/ZeroBias/RAW/v1/000/304/447/00000/001C958C-7FA9-E711-858F-02163E011A5F.root',
-        '/store/data/Commissioning2018/ZeroBias/RAW/v1/000/314/816/00000/FCDB2DE6-4845-E811-91A1-FA163E6CD0D3.root',
+#        '/store/data/Commissioning2018/ZeroBias/RAW/v1/000/314/816/00000/FCDB2DE6-4845-E811-91A1-FA163E6CD0D3.root',
+        '/store/data/Run2018C/DoubleMuon/RAW/v1/000/319/525/00000/CE9C5CAC-AD85-E811-852B-FA163E26680F.root',
     ),
 )
 
