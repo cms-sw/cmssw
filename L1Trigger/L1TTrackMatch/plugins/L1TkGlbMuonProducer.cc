@@ -87,6 +87,7 @@ private:
   bool correctGMTPropForTkZ_;
 
   bool use5ParameterFit_;
+  bool useTPMatchWindows_;
 
   const edm::EDGetTokenT< MuonBxCollection > muToken;
   const edm::EDGetTokenT< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
@@ -113,6 +114,7 @@ L1TkGlbMuonProducer::L1TkGlbMuonProducer(const edm::ParameterSet& iConfig) :
    correctGMTPropForTkZ_ = iConfig.getParameter<bool>("correctGMTPropForTkZ");
 
    use5ParameterFit_     = iConfig.getParameter<bool>("use5ParameterFit");
+   useTPMatchWindows_     = iConfig.getParameter<bool>("useTPMatchWindows");
    produces<L1TkGlbMuonParticleCollection>();
 }
 
@@ -208,8 +210,13 @@ L1TkGlbMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       float sigmaEta = sigmaEtaTP(*l1mu);
       float sigmaPhi = sigmaPhiTP(*l1mu);
 
-      float etaCut = 3.*sqrt(sigmaEta*sigmaEta + matchProp.sigmaEta*matchProp.sigmaEta);
-      float phiCut = 4.*sqrt(sigmaPhi*sigmaPhi + matchProp.sigmaPhi*matchProp.sigmaPhi);
+      float etaCut = 0.08;
+      float phiCut = 0.05;
+
+      if (useTPMatchWindows_) {
+        etaCut = 3.*sqrt(sigmaEta*sigmaEta + matchProp.sigmaEta*matchProp.sigmaEta);
+        phiCut = 4.*sqrt(sigmaPhi*sigmaPhi + matchProp.sigmaPhi*matchProp.sigmaPhi);
+      }
 
       float dEta = std::abs(matchProp.eta - l1mu_eta);
       float dPhi = std::abs(deltaPhi(matchProp.phi, l1mu_phi));

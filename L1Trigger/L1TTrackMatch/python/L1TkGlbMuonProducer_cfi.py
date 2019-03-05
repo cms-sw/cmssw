@@ -12,8 +12,8 @@ L1TkGlbMuons = cms.EDProducer("L1TkGlbMuonProducer",
     nStubsmin = cms.int32( 4 ),        # minimum number of stubs
 #    closest = cms.bool( True ),
     correctGMTPropForTkZ = cms.bool(True),
-    use5ParameterFit = cms.bool(False) #use 4-pars by defaults
-    
+    use5ParameterFit = cms.bool(False), #use 4-pars by defaults
+    useTPMatchWindows = cms.bool(False),
 )
 
 

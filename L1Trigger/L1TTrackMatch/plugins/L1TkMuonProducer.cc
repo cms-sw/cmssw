@@ -86,6 +86,7 @@ private:
   //  bool closest_ ;
   bool correctGMTPropForTkZ_;
   bool use5ParameterFit_;
+  bool useTPMatchWindows_;
 
   // int emtfMatchAlgoVersion_ ;
   AlgoType emtfMatchAlgoVersion_ ;
@@ -130,6 +131,7 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
    correctGMTPropForTkZ_ = iConfig.getParameter<bool>("correctGMTPropForTkZ");
 
    use5ParameterFit_     = iConfig.getParameter<bool>("use5ParameterFit");
+   useTPMatchWindows_     = iConfig.getParameter<bool>("useTPMatchWindows");
    produces<L1TkMuonParticleCollection>();
 
    // initializations
@@ -301,7 +303,10 @@ L1TkMuonProducer::runOnMTFCollection_v1(const edm::Handle<RegionalMuonCandBxColl
 
       // LogDebug("MYDEBUG")<<"match details: prop "<<matchProp.pt<<" "<<matchProp.eta<<" "<<matchProp.phi
 			//  <<" mutk "<<l1mu->pt()<<" "<<l1mu->eta()<<" "<<l1mu->phi()<<" delta "<<dEta<<" "<<dPhi<<" cut "<<etaCut<<" "<<phiCut;
-      if (dEta < etaCut && dPhi < phiCut){
+
+      bool matchCondition = useTPMatchWindows_ ? dEta < etaCut && dPhi < phiCut : drmin < DRmax_;
+
+      if (matchCondition){
         edm::Ptr< L1TTTrackType > l1tkPtr(l1tksH, match_idx);
 
         unsigned int nPars = 4;

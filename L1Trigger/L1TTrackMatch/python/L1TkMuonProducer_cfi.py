@@ -20,8 +20,9 @@ L1TkMuons = cms.EDProducer("L1TkMuonProducer",
 #    closest = cms.bool( True ),
     correctGMTPropForTkZ = cms.bool(True),
     use5ParameterFit = cms.bool(False), #use 4-pars by defaults
+    useTPMatchWindows = cms.bool(False),
     # emtfMatchAlgoVersion = cms.int32( 1 ),        # version of matching EMTF with Trackes (1 or 2)
-    emtfMatchAlgoVersion = cms.string( 'TP' ), # version of matching EMTF with Trackes (string ID) : TP, DynamicWindows
+    emtfMatchAlgoVersion = cms.string( 'DynamicWindows' ), # version of matching EMTF with Trackes (string ID) : TP, DynamicWindows
     ###############################################
     ############################################### DynamicWindows algo
     ##### parameters for the DynamicWindows algo - eventually to put in a separate file, that will override some dummy defaults
