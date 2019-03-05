@@ -182,7 +182,7 @@ NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(
   theDiffuseElastic = new G4DiffuseElastic();
 
   // Geant4 particles and cross sections
-  std::call_once(initializeOnce, [this] () {
+  std::call_once(initializeOnce, [] () {
     theG4Hadron[0] = G4Proton::Proton();
     theG4Hadron[1] = G4Neutron::Neutron();
     theG4Hadron[2] = G4PionPlus::PionPlus();
