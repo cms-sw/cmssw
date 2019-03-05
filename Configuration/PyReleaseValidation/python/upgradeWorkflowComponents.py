@@ -183,6 +183,14 @@ upgradeSteps['heCollapse'] = {
     'suffix' : '_heCollapse',
     'offset' : 0.6,
 }
+upgradeSteps['ParkingBPH'] = {
+    'steps' : [
+        'RecoFull',
+    ],
+    'PU' : [],
+    'suffix' : '_ParkingBPH',
+    'offset' : 0.8,
+}
 upgradeSteps['Premix'] = {
     'steps' : [],
     'PU': [
