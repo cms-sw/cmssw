@@ -33,7 +33,7 @@ class PileUpFilter : public edm::global::EDFilter<> {
       edm::EDGetTokenT<std::vector<PileupSummaryInfo>>  puSummaryInfoToken_;
       double minPU_;
       double maxPU_;
-      bool   trueNumInteraction_;
+      bool   useTrueNumInteraction_;
 };
 
 //
@@ -51,7 +51,7 @@ PileUpFilter::PileUpFilter(const edm::ParameterSet& iConfig)
   : puSummaryInfoToken_ ( consumes<std::vector<PileupSummaryInfo>>( iConfig.getParameter<edm::InputTag>("pileupInfoSummaryInputTag") ) )
   , minPU_ ( iConfig.getParameter<double>("minPU") )
   , maxPU_ ( iConfig.getParameter<double>("maxPU") )
-  , trueNumInteraction_ ( iConfig.getUntrackedParameter<bool>("trueNumInteraction", true) )
+  , useTrueNumInteraction_ ( iConfig.getUntrackedParameter<bool>("useTrueNumInteraction", true) )
 {
    // now do what ever initialization is needed
 
@@ -75,7 +75,7 @@ PileUpFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& i
       // only use the in-time pileup
       if (pileup.getBunchCrossing() == 0) {
 	// use the per-event in-time pileup
-	double pu = ( trueNumInteraction_ ? pileup.getTrueNumInteractions() : pileup.getPU_NumInteractions() );
+	double pu = ( useTrueNumInteraction_ ? pileup.getTrueNumInteractions() : pileup.getPU_NumInteractions() );
 	if ( pu >= minPU_ and pu < maxPU_ ) pass = true;
       }
     }
@@ -93,7 +93,7 @@ PileUpFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<edm::InputTag>( "pileupInfoSummaryInputTag", edm::InputTag("PileupSummaryInfo") );
   desc.add<double>("minPU",  0. );
   desc.add<double>("maxPU", 80. );
-  desc.addUntracked<bool>("trueNumInteraction", true );
+  desc.addUntracked<bool>("useTrueNumInteraction", true );
 
   descriptions.add("pileupFilter", desc);
 }
