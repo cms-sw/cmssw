@@ -1,5 +1,5 @@
-#ifndef CloseByParticleGunProducer_H
-#define CloseByParticleGunProducer_H
+#ifndef IOMC_ParticleGun_CloseByParticleGunProducer_H
+#define IOMC_ParticleGun_CloseByParticleGunProducer_H
 
 #include "IOMC/ParticleGuns/interface/BaseFlatGunProducer.h"
 

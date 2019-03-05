@@ -1,5 +1,5 @@
-#ifndef IOMC_PassThroughEvtVtxGenerator_H
-#define IOMC_PassThroughEvtVtxGenerator_H
+#ifndef IOMC_EventVertexGenerators_PassThroughEvtVtxGenerator_H
+#define IOMC_EventVertexGenerators_PassThroughEvtVtxGenerator_H
 /*
 */
 

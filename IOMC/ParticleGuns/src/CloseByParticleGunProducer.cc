@@ -53,17 +53,7 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
      {
        cout << " CloseByParticleGunProducer : Begin New Event Generation" << endl ;
      }
-   // event loop (well, another step in it...)
-
-   // no need to clean up GenEvent memory - done in HepMCProduct
-   //
-
-   // here re-create fEvt (memory)
-   //
    fEvt = new HepMC::GenEvent() ;
-
-   // now actualy, cook up the event from PDGTable and gun parameters
-   //
 
    // loop over particles
    //
@@ -89,7 +79,7 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
      HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(x*cm,y*cm,fZ*cm,timeOffset));
 
      HepMC::FourVector p(px,py,pz,energy) ;
-     // If we are requested to be pointing to (0,0,0), corect the momentum direction
+     // If we are requested to be pointing to (0,0,0), correct the momentum direction
      if (fPointing) {
        math::XYZVector direction(x,y,fZ);
        math::XYZVector momentum = direction.unit() * mom;
@@ -98,8 +88,8 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
        p.setZ(momentum.z());
      }
      HepMC::GenParticle* Part = new HepMC::GenParticle(p,PartID,1);
-     Part->suggest_barcode( barcode ) ;
-     barcode++ ;
+     Part->suggest_barcode( barcode );
+     barcode++;
 
      Vtx->add_particle_out(Part);
 
@@ -107,19 +97,19 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
        Vtx->print();
        Part->print();
      }
-     fEvt->add_vertex(Vtx) ;
+     fEvt->add_vertex(Vtx);
    }
 
 
-   fEvt->set_event_number(e.id().event()) ;
-   fEvt->set_signal_process_id(20) ;
+   fEvt->set_event_number(e.id().event());
+   fEvt->set_signal_process_id(20);
 
    if ( fVerbosity > 0 )
    {
-      fEvt->print() ;
+      fEvt->print();
    }
 
-   unique_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
+   unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
    BProduct->addHepMCData( fEvt );
    e.put(std::move(BProduct), "unsmeared");
 
