@@ -31,9 +31,9 @@ class PassThroughEvtVtxGenerator : public BaseEvtVtxGenerator
 
    void produce( edm::Event&, const edm::EventSetup&) override;
 
-   virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
+   HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
-   virtual TMatrixD const* GetInvLorentzBoost() const override { return nullptr;};
+   TMatrixD const* GetInvLorentzBoost() const override { return nullptr;};
 
    private :
 
