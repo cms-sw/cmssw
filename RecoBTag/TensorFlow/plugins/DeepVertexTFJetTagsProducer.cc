@@ -215,7 +215,7 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
   std::vector<tensorflow::TensorShape> input_sizes {
     {n_batch_jets, 4},         // input_1 - global jet features
  
-     {n_batch_jets, 10, 21},  
+     {n_batch_jets, 10, 21},    // input_2 - seeds 
     {n_batch_jets,20, 36},      // input_3 - neighbours  
     {n_batch_jets,20, 36},      // input_4 - neighbours  
     {n_batch_jets,20, 36},      // input_5 - neighbours  
