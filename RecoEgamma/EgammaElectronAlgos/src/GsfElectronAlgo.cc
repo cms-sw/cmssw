@@ -43,7 +43,7 @@ using namespace reco ;
 
 GsfElectronAlgo::EventSetupData::EventSetupData()
  : cacheIDGeom(0), cacheIDTopo(0), cacheIDTDGeom(0), cacheIDMagField(0),
-   cacheSevLevel(0), mtsTransform(nullptr), constraintAtVtx(nullptr), mtsMode()
+   cacheSevLevel(0), mtsTransform(nullptr), constraintAtVtx(nullptr)
  {}
 
 void GsfElectronAlgo::EventData::retreiveOriginalTrackCollections
@@ -158,21 +158,21 @@ bool GsfElectronAlgo::ElectronData::calculateTSOS
   return true ;
  }
 
-void GsfElectronAlgo::ElectronData::calculateMode( MultiTrajectoryStateMode const& mtsMode )
+void GsfElectronAlgo::ElectronData::calculateMode()
  {
-  mtsMode.momentumFromModeCartesian(innTSOS,innMom) ;
-  mtsMode.positionFromModeCartesian(innTSOS,innPos) ;
-  mtsMode.momentumFromModeCartesian(seedTSOS,seedMom) ;
-  mtsMode.positionFromModeCartesian(seedTSOS,seedPos) ;
-  mtsMode.momentumFromModeCartesian(eleTSOS,eleMom) ;
-  mtsMode.positionFromModeCartesian(eleTSOS,elePos) ;
-  mtsMode.momentumFromModeCartesian(sclTSOS,sclMom) ;
-  mtsMode.positionFromModeCartesian(sclTSOS,sclPos) ;
-  mtsMode.momentumFromModeCartesian(vtxTSOS,vtxMom) ;
-  mtsMode.positionFromModeCartesian(vtxTSOS,vtxPos) ;
-  mtsMode.momentumFromModeCartesian(outTSOS,outMom);
-  mtsMode.positionFromModeCartesian(outTSOS,outPos) ;
-  mtsMode.momentumFromModeCartesian(constrainedVtxTSOS,vtxMomWithConstraint);
+  multiTrajectoryStateMode::momentumFromModeCartesian(innTSOS,innMom) ;
+  multiTrajectoryStateMode::positionFromModeCartesian(innTSOS,innPos) ;
+  multiTrajectoryStateMode::momentumFromModeCartesian(seedTSOS,seedMom) ;
+  multiTrajectoryStateMode::positionFromModeCartesian(seedTSOS,seedPos) ;
+  multiTrajectoryStateMode::momentumFromModeCartesian(eleTSOS,eleMom) ;
+  multiTrajectoryStateMode::positionFromModeCartesian(eleTSOS,elePos) ;
+  multiTrajectoryStateMode::momentumFromModeCartesian(sclTSOS,sclMom) ;
+  multiTrajectoryStateMode::positionFromModeCartesian(sclTSOS,sclPos) ;
+  multiTrajectoryStateMode::momentumFromModeCartesian(vtxTSOS,vtxMom) ;
+  multiTrajectoryStateMode::positionFromModeCartesian(vtxTSOS,vtxPos) ;
+  multiTrajectoryStateMode::momentumFromModeCartesian(outTSOS,outMom);
+  multiTrajectoryStateMode::positionFromModeCartesian(outTSOS,outPos) ;
+  multiTrajectoryStateMode::momentumFromModeCartesian(constrainedVtxTSOS,vtxMomWithConstraint);
  }
 
 Candidate::LorentzVector GsfElectronAlgo::ElectronData::calculateMomentum()
@@ -587,7 +587,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection & electrons, El
   // temporary, till CaloCluster->seed() is made available
   DetId seedXtalId = seedCluster.hitsAndFractions()[0].first ;
 
-  electronData.calculateMode(eventSetupData_.mtsMode) ;
+  electronData.calculateMode() ;
 
 
   //====================================================

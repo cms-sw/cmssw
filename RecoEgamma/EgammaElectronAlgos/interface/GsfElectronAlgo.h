@@ -253,7 +253,6 @@ class GsfElectronAlgo {
 
        std::unique_ptr<const MultiTrajectoryStateTransform> mtsTransform ;
        std::unique_ptr<GsfConstraintAtVertex> constraintAtVtx ;
-       const MultiTrajectoryStateMode mtsMode ;
     } ;
 
     //===================================================================
@@ -324,7 +323,7 @@ class GsfElectronAlgo {
       void computeCharge( int & charge, reco::GsfElectron::ChargeInfo & info ) ;
       reco::CaloClusterPtr getEleBasicCluster( MultiTrajectoryStateTransform const& ) ;
       bool calculateTSOS( MultiTrajectoryStateTransform const&, GsfConstraintAtVertex const& ) ;
-      void calculateMode( MultiTrajectoryStateMode const& mtsMode ) ;
+      void calculateMode() ;
       reco::Candidate::LorentzVector calculateMomentum() ;
 
       // TSOS
