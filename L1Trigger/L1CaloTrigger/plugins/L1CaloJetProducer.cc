@@ -681,19 +681,19 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 //caloJetObj.hcal_map[4][4]  = l1CaloTower.hcal_tower_et; // 9x9 array
                 //caloJetObj.l1eg_map[4][4]  = l1CaloTower.total_tower_plus_L1EGs_et - l1CaloTower.total_tower_et; // 9x9 array
 
-                if (hcalP4.energy() > 0)
+                if (hcalP4.pt() > 0)
                 {
                     caloJetObj.hcal_nHits++;
                     caloJetObj.hcalJetCluster += hcalP4;
                     caloJetObj.hcalJetClusterET += l1CaloTower.hcal_tower_et;
                 }
-                if (ecalP4.energy() > 0) 
+                if (ecalP4.pt() > 0) 
                 {
                     caloJetObj.ecal_nHits++;
                     caloJetObj.ecalJetCluster += ecalP4;
                     caloJetObj.ecalJetClusterET += l1CaloTower.ecal_tower_et;
                 }
-                if (totalP4.energy() > 0) 
+                if (totalP4.pt() > 0) 
                 {
                     caloJetObj.total_nHits++;
                     caloJetObj.jetCluster += totalP4;
@@ -712,32 +712,32 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 if (debug) printf(" -- hit %i, seeding reslt tot p4 pt %f eta %f phi %f\n", cnt, caloJetObj.jetClusterET, caloJetObj.jetCluster.eta(), caloJetObj.jetCluster.phi());
 
                 // Need to add the seed energy to the dR rings
-                caloJetObj.hcal_seed += hcalP4.energy();
-                caloJetObj.hcal_3x3 += hcalP4.energy();
-                caloJetObj.hcal_5x5 += hcalP4.energy();
-                caloJetObj.hcal_7x7 += hcalP4.energy();
-                caloJetObj.ecal_seed += ecalP4.energy();
-                caloJetObj.ecal_3x3 += ecalP4.energy();
-                caloJetObj.ecal_5x5 += ecalP4.energy();
-                caloJetObj.ecal_7x7 += ecalP4.energy();
-                caloJetObj.total_seed += totalP4.energy();
-                caloJetObj.total_3x3 += totalP4.energy();
-                caloJetObj.total_5x5 += totalP4.energy();
-                caloJetObj.total_7x7 += totalP4.energy();
+                caloJetObj.hcal_seed += hcalP4.pt();
+                caloJetObj.hcal_3x3 += hcalP4.pt();
+                caloJetObj.hcal_5x5 += hcalP4.pt();
+                caloJetObj.hcal_7x7 += hcalP4.pt();
+                caloJetObj.ecal_seed += ecalP4.pt();
+                caloJetObj.ecal_3x3 += ecalP4.pt();
+                caloJetObj.ecal_5x5 += ecalP4.pt();
+                caloJetObj.ecal_7x7 += ecalP4.pt();
+                caloJetObj.total_seed += totalP4.pt();
+                caloJetObj.total_3x3 += totalP4.pt();
+                caloJetObj.total_5x5 += totalP4.pt();
+                caloJetObj.total_7x7 += totalP4.pt();
 
                 // Some discrimination vars, 2x2s including central seed
-                caloJetObj.hcal_2x2_1 += hcalP4.energy();
-                caloJetObj.hcal_2x2_2 += hcalP4.energy();
-                caloJetObj.hcal_2x2_3 += hcalP4.energy();
-                caloJetObj.hcal_2x2_4 += hcalP4.energy();
-                caloJetObj.ecal_2x2_1 += ecalP4.energy();
-                caloJetObj.ecal_2x2_2 += ecalP4.energy();
-                caloJetObj.ecal_2x2_3 += ecalP4.energy();
-                caloJetObj.ecal_2x2_4 += ecalP4.energy();
-                caloJetObj.total_2x2_1 += totalP4.energy();
-                caloJetObj.total_2x2_2 += totalP4.energy();
-                caloJetObj.total_2x2_3 += totalP4.energy();
-                caloJetObj.total_2x2_4 += totalP4.energy();
+                caloJetObj.hcal_2x2_1 += hcalP4.pt();
+                caloJetObj.hcal_2x2_2 += hcalP4.pt();
+                caloJetObj.hcal_2x2_3 += hcalP4.pt();
+                caloJetObj.hcal_2x2_4 += hcalP4.pt();
+                caloJetObj.ecal_2x2_1 += ecalP4.pt();
+                caloJetObj.ecal_2x2_2 += ecalP4.pt();
+                caloJetObj.ecal_2x2_3 += ecalP4.pt();
+                caloJetObj.ecal_2x2_4 += ecalP4.pt();
+                caloJetObj.total_2x2_1 += totalP4.pt();
+                caloJetObj.total_2x2_2 += totalP4.pt();
+                caloJetObj.total_2x2_3 += totalP4.pt();
+                caloJetObj.total_2x2_4 += totalP4.pt();
                 continue;
             }
 
@@ -777,19 +777,19 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 //caloJetObj.hcal_map[4+d_iEta][4+d_iPhi]  = l1CaloTower.hcal_tower_et; // 9x9 array
                 //caloJetObj.l1eg_map[4+d_iEta][4+d_iPhi]  = l1CaloTower.total_tower_plus_L1EGs_et - l1CaloTower.total_tower_et; // 9x9 array
 
-                if (hcalP4.energy() > 0)
+                if (hcalP4.pt() > 0)
                 {
                     caloJetObj.hcal_nHits++;
                     caloJetObj.hcalJetCluster += hcalP4;
                     caloJetObj.hcalJetClusterET += l1CaloTower.hcal_tower_et;
                 }
-                if (ecalP4.energy() > 0) 
+                if (ecalP4.pt() > 0) 
                 {
                     caloJetObj.ecal_nHits++;
                     caloJetObj.ecalJetCluster += ecalP4;
                     caloJetObj.ecalJetClusterET += l1CaloTower.ecal_tower_et;
                 }
-                if (totalP4.energy() > 0) 
+                if (totalP4.pt() > 0) 
                 {
                     caloJetObj.total_nHits++;
                     caloJetObj.jetCluster += totalP4;
@@ -805,53 +805,53 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
                 if ( abs( d_iEta ) <= 1    && abs( d_iPhi ) <= 1)
                 {
-                    caloJetObj.hcal_seed += hcalP4.energy();
-                    caloJetObj.ecal_seed += ecalP4.energy();
-                    caloJetObj.total_seed += totalP4.energy();
+                    caloJetObj.hcal_seed += hcalP4.pt();
+                    caloJetObj.ecal_seed += ecalP4.pt();
+                    caloJetObj.total_seed += totalP4.pt();
                 }
                 if ( abs( d_iEta ) <= 2    && abs( d_iPhi ) <= 2)
                 {
-                    caloJetObj.hcal_3x3 += hcalP4.energy();
-                    caloJetObj.ecal_3x3 += ecalP4.energy();
-                    caloJetObj.total_3x3 += totalP4.energy();
+                    caloJetObj.hcal_3x3 += hcalP4.pt();
+                    caloJetObj.ecal_3x3 += ecalP4.pt();
+                    caloJetObj.total_3x3 += totalP4.pt();
                 }
                 if ( abs( d_iEta ) <= 3    && abs( d_iPhi ) <= 3)
                 {
-                    caloJetObj.hcal_5x5 += hcalP4.energy();
-                    caloJetObj.ecal_5x5 += ecalP4.energy();
-                    caloJetObj.total_5x5 += totalP4.energy();
+                    caloJetObj.hcal_5x5 += hcalP4.pt();
+                    caloJetObj.ecal_5x5 += ecalP4.pt();
+                    caloJetObj.total_5x5 += totalP4.pt();
                 }
                 if ( abs( d_iEta ) <= 4    && abs( d_iPhi ) <= 4)
                 {
-                    caloJetObj.hcal_7x7 += hcalP4.energy();
-                    caloJetObj.ecal_7x7 += ecalP4.energy();
-                    caloJetObj.total_7x7 += totalP4.energy();
+                    caloJetObj.hcal_7x7 += hcalP4.pt();
+                    caloJetObj.ecal_7x7 += ecalP4.pt();
+                    caloJetObj.total_7x7 += totalP4.pt();
                 }
 
                 // Some discrimination vars, 2x2s including central seed
                 if ( ( d_iEta == 0 || d_iEta == 1 )  &&  ( d_iPhi == 0 || d_iPhi == 1 ) )
                 {
-                    caloJetObj.hcal_2x2_1 += hcalP4.energy();
-                    caloJetObj.ecal_2x2_1 += ecalP4.energy();
-                    caloJetObj.total_2x2_1 += totalP4.energy();
+                    caloJetObj.hcal_2x2_1 += hcalP4.pt();
+                    caloJetObj.ecal_2x2_1 += ecalP4.pt();
+                    caloJetObj.total_2x2_1 += totalP4.pt();
                 }
                 if ( ( d_iEta == 0 || d_iEta == 1 )  &&  ( d_iPhi == 0 || d_iPhi == -1 ) )
                 {
-                    caloJetObj.hcal_2x2_2 += hcalP4.energy();
-                    caloJetObj.ecal_2x2_2 += ecalP4.energy();
-                    caloJetObj.total_2x2_2 += totalP4.energy();
+                    caloJetObj.hcal_2x2_2 += hcalP4.pt();
+                    caloJetObj.ecal_2x2_2 += ecalP4.pt();
+                    caloJetObj.total_2x2_2 += totalP4.pt();
                 }
                 if ( ( d_iEta == 0 || d_iEta == -1 )  &&  ( d_iPhi == 0 || d_iPhi == 1 ) )
                 {
-                    caloJetObj.hcal_2x2_3 += hcalP4.energy();
-                    caloJetObj.ecal_2x2_3 += ecalP4.energy();
-                    caloJetObj.total_2x2_3 += totalP4.energy();
+                    caloJetObj.hcal_2x2_3 += hcalP4.pt();
+                    caloJetObj.ecal_2x2_3 += ecalP4.pt();
+                    caloJetObj.total_2x2_3 += totalP4.pt();
                 }
                 if ( ( d_iEta == 0 || d_iEta == -1 )  &&  ( d_iPhi == 0 || d_iPhi == -1 ) )
                 {
-                    caloJetObj.hcal_2x2_4 += hcalP4.energy();
-                    caloJetObj.ecal_2x2_4 += ecalP4.energy();
-                    caloJetObj.total_2x2_4 += totalP4.energy();
+                    caloJetObj.hcal_2x2_4 += hcalP4.pt();
+                    caloJetObj.ecal_2x2_4 += ecalP4.pt();
+                    caloJetObj.total_2x2_4 += totalP4.pt();
                 }
             }
         }
@@ -951,16 +951,16 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
             // Make energy sums in rings, 1 type is centered on highest pT L1EG
-            if ( fabs( d_eta_to_leading ) < 0.1   && fabs( d_phi_to_leading ) < 0.1  )  ecal_dR0p1_leading   += l1eg.GetP4().energy();
+            if ( fabs( d_eta_to_leading ) < 0.1   && fabs( d_phi_to_leading ) < 0.1  )  ecal_dR0p1_leading   += l1eg.GetP4().pt();
             // Other type is centered on the HCAL jet center
-            if ( fabs( d_eta ) < 0.05  && fabs( d_phi ) < 0.05 )  ecal_dR0p05  += l1eg.GetP4().energy();
-            if ( fabs( d_eta ) < 0.075 && fabs( d_phi ) < 0.075)  ecal_dR0p075 += l1eg.GetP4().energy();
-            if ( fabs( d_eta ) < 0.1   && fabs( d_phi ) < 0.1  )  ecal_dR0p1   += l1eg.GetP4().energy();
-            if ( fabs( d_eta ) < 0.125 && fabs( d_phi ) < 0.125)  ecal_dR0p125 += l1eg.GetP4().energy();
-            if ( fabs( d_eta ) < 0.15  && fabs( d_phi ) < 0.15 )  ecal_dR0p15  += l1eg.GetP4().energy();
-            if ( fabs( d_eta ) < 0.2   && fabs( d_phi ) < 0.2  )  ecal_dR0p2   += l1eg.GetP4().energy();
-            if ( fabs( d_eta ) < 0.3   && fabs( d_phi ) < 0.3  )  ecal_dR0p3   += l1eg.GetP4().energy();
-            if ( fabs( d_eta ) < 0.4   && fabs( d_phi ) < 0.4  )  ecal_dR0p4   += l1eg.GetP4().energy();
+            if ( fabs( d_eta ) < 0.05  && fabs( d_phi ) < 0.05 )  ecal_dR0p05  += l1eg.GetP4().pt();
+            if ( fabs( d_eta ) < 0.075 && fabs( d_phi ) < 0.075)  ecal_dR0p075 += l1eg.GetP4().pt();
+            if ( fabs( d_eta ) < 0.1   && fabs( d_phi ) < 0.1  )  ecal_dR0p1   += l1eg.GetP4().pt();
+            if ( fabs( d_eta ) < 0.125 && fabs( d_phi ) < 0.125)  ecal_dR0p125 += l1eg.GetP4().pt();
+            if ( fabs( d_eta ) < 0.15  && fabs( d_phi ) < 0.15 )  ecal_dR0p15  += l1eg.GetP4().pt();
+            if ( fabs( d_eta ) < 0.2   && fabs( d_phi ) < 0.2  )  ecal_dR0p2   += l1eg.GetP4().pt();
+            if ( fabs( d_eta ) < 0.3   && fabs( d_phi ) < 0.3  )  ecal_dR0p3   += l1eg.GetP4().pt();
+            if ( fabs( d_eta ) < 0.4   && fabs( d_phi ) < 0.4  )  ecal_dR0p4   += l1eg.GetP4().pt();
         }
 
 
