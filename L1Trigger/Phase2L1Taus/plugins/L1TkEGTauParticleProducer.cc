@@ -263,8 +263,6 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     if ( Chi2 > cfg_tk_maxChiSq ) continue;
     if ( NStubs < cfg_tk_minStubs ) continue;
 
-    //std::cout << track_RefPtr->getMomentum(cfg_tk_nFitParams).perp()<<"    "<< Pt << std::endl;
-	
     SelTTTrackPtrs.push_back(track_RefPtr);
 
   }// End-loop: All the L1TTTracks
@@ -353,7 +351,7 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     // Start: No highPtNeighbourFound 
     if (!highPtNeighbourFound) {
 
-      // Build a tau candidate  
+      // Get the sizes of the shrinking cone 
       GetShrinkingConeSizes(iPt, cfg_shrinkCone_Constant, cfg_sigCone_cutoffDeltaR, cfg_sigCone_dRMin, sigCone_dRMax, isoCone_dRMin, cfg_isoCone_dRMax, cfg_isoCone_useCone);
 
 #ifdef DEBUG
@@ -408,27 +406,25 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       // Set coordinates of p4 vectors to zero
       p4_trks.SetCoordinates(0.,0.,0.,0.);
       p4_egs.SetCoordinates(0.,0.,0.,0.);
-
-      // Calculate tracks p4
+      p4_tmp.SetCoordinates(0.,0.,0.,0.);
+      
+      // Calculate track cluster p4
       for (unsigned int j=0; j < TrackCluster.size(); j++) {
 	L1TTTrackRefPtr jTrk = TrackCluster.at(j);
 	double px = jTrk->getMomentum(cfg_tk_nFitParams).x();
 	double py = jTrk->getMomentum(cfg_tk_nFitParams).y();
 	double pz = jTrk->getMomentum(cfg_tk_nFitParams).z();
 	double e = sqrt(px*px+py*py+pz*pz+pionMass*pionMass);
+
+	// Add track's p4 to the p4 of the track cluster
 	p4_tmp.SetCoordinates(px,py,pz,e);
 	p4_trks += p4_tmp;
-		
-	// std::cout<<"Px =  "<<px<<"   "<<p4tmp.Px()<<std::endl;
-	// std::cout<<"Py =  "<<py<<"   "<<p4tmp.Py()<<std::endl;
-	// std::cout<<"Pz =  "<<pz<<"   "<<p4tmp.Pz()<<std::endl;
-	// std::cout<<"E  =  "<<e<<"   "<<p4tmp.E()<<std::endl;
-	// std::cout<<"Mass = "<<pionMass<<"   "<<p4tmp.M()<<std::endl;
+	p4_tmp.SetCoordinates(0.,0.,0.,0.);
       }
       
-      // Calculate EGs p4
+      // Calculate EG cluster p4
       for (unsigned int j=0; j < EGcluster.size(); j++) {
-	EGammaRef jEG = SelEGsPtrs.at(j);
+	EGammaRef jEG = EGcluster.at(j);
 	float jEt  = jEG->et();
 	float jEta = jEG->eta();
 	float jPhi = jEG->phi();
@@ -441,15 +437,10 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	Double_t p=sqrt(jPt*jPt+pz*pz);
 	Double_t e=sqrt(pionMass*pionMass+p*p);
 
+	// Add EG's p4 to the p4 of the EG cluster
 	p4_tmp.SetCoordinates(px,py,pz,e);
 	p4_egs += p4_tmp;
-	
-	// std::cout<<"Pt =  "<<jPt<<"   "<<p4tmp.Pt()<<std::endl;
-	// std::cout<<"Px =  "<<px<<"   "<<p4tmp.Px()<<std::endl;
-	// std::cout<<"Py =  "<<py<<"   "<<p4tmp.Py()<<std::endl;
-	// std::cout<<"Pz =  "<<pz<<"   "<<p4tmp.Pz()<<std::endl;
-	// std::cout<<"E  =  "<<e<<"   "<<p4tmp.E()<<std::endl;
-	// std::cout<<"Mass = "<<pionMass<<"   "<<p4tmp.M()<<std::endl;
+	p4_tmp.SetCoordinates(0.,0.,0.,0.);
       }
    
       // Calculate Isolation
@@ -462,12 +453,12 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       // Apply Mass cut
       if (p4_trks.M() > cfg_maxInvMass_trks) continue;
       if (p4_total.M() > cfg_maxInvMass_TkEGs) continue;
-      
+		
       // Apply Isolation
       if (cfg_useVtxIso) {
 	if ( vtxIso > cfg_vtxIso_WP ) result -> push_back( trkEG );
       }
-
+      
     }// End: No highPtNeighbourFound
     
   }// End-loop: All the L1TTTracks
