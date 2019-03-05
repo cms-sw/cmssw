@@ -61,7 +61,7 @@ private:
 
         void book( DQMStore::IBooker& booker ) {
             booker.setCurrentFolder( dir );
-            plot = booker.bookProfile( name, title, xbins.size()-1, &xbins[0], nybins, ylow, yhigh );
+            plot = booker.bookProfile( name, title, xbins.size()-1, &xbins[0], nybins, ylow, yhigh, " " );
         }
         //make other booker methods for uniform binning
 
