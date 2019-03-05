@@ -70,7 +70,7 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
       const double t_mean = calib_fct_->evaluate( std::vector<double>{ tot }, ch_params );
       const double t0 = ( t_lead % 1024 )*ts_to_ns_
         + ch_t_offset
-        + ( !std::isnan( t_mean ) ? t_mean : 0. );
+        - ( !std::isnan( t_mean ) ? t_mean : 0. );
 
       rec_hits.push_back( CTPPSDiamondRecHit(
         // spatial information
