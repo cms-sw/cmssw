@@ -43,26 +43,20 @@
 
 namespace edm {
 
-  void addContextAndPrintException(char const* context,
-                                   cms::Exception& ex,
-                                   bool disablePrint);
+  void addContextAndPrintException(char const* context, cms::Exception& ex, bool disablePrint);
 
   template <typename TReturn>
-  TReturn callWithTryCatchAndPrint(std::function<TReturn (void)> iFunc,
+  TReturn callWithTryCatchAndPrint(std::function<TReturn(void)> iFunc,
                                    char const* context = nullptr,
                                    bool disablePrint = false) {
-
     try {
-      return convertException::wrap([iFunc]() {
-        return iFunc();
-      });
-    }
-    catch(cms::Exception& ex) {
+      return convertException::wrap([iFunc]() { return iFunc(); });
+    } catch (cms::Exception& ex) {
       addContextAndPrintException(context, ex, disablePrint);
       throw;
     }
     return TReturn();
   }
-}
+}  // namespace edm
 
 #endif

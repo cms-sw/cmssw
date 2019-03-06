@@ -14,7 +14,6 @@ namespace edm {
 
   class PathStatusInserter : public global::EDProducer<> {
   public:
-
     PathStatusInserter(unsigned int numberOfStreams);
 
     void setPathStatus(StreamID const&, HLTPathStatus const&);
@@ -22,9 +21,8 @@ namespace edm {
     void produce(StreamID, Event&, EventSetup const&) const final;
 
   private:
-
     std::vector<HLTPathStatus> hltPathStatus_;
     EDPutTokenT<HLTPathStatus> token_;
   };
-}
+}  // namespace edm
 #endif

@@ -47,7 +47,6 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 // Created:     Fri Mar 25 14:38:35 EST 2005
 //
 
-
 // user include files
 #include "FWCore/Framework/interface/FunctorESHandleExceptionFactory.h"
 #include "FWCore/Framework/interface/DataKey.h"
@@ -67,47 +66,44 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 
 // forward declarations
 namespace cms {
-   class Exception;
+  class Exception;
 }
 
 namespace edm {
-   class ESHandleExceptionFactory;
-   class ESInputTag;
-   class EventSetupImpl;
+  class ESHandleExceptionFactory;
+  class ESInputTag;
+  class EventSetupImpl;
 
-   namespace eventsetup {
-      struct ComponentDescription;
-      class DataProxy;
+  namespace eventsetup {
+    struct ComponentDescription;
+    class DataProxy;
 
-      class EventSetupRecordImpl {
+    class EventSetupRecordImpl {
+      friend class EventSetupRecord;
 
-        friend class EventSetupRecord;
+    public:
+      EventSetupRecordImpl(const EventSetupRecordKey& iKey);
 
-      public:
-         EventSetupRecordImpl(const EventSetupRecordKey& iKey);
+      // ---------- const member functions ---------------------
+      ValidityInterval const& validityInterval() const { return validity_; }
 
-         // ---------- const member functions ---------------------
-         ValidityInterval const& validityInterval() const {
-            return validity_;
-         }
+      ///returns false if no data available for key
+      bool doGet(DataKey const& aKey, bool aGetTransiently = false) const;
 
-         ///returns false if no data available for key
-         bool doGet(DataKey const& aKey, bool aGetTransiently = false) const;
-
-         /**returns true only if someone has already requested data for this key
+      /**returns true only if someone has already requested data for this key
           and the data was retrieved
           */
-         bool wasGotten(DataKey const& aKey) const;
+      bool wasGotten(DataKey const& aKey) const;
 
-         /**returns the ComponentDescription for the module which creates the data or 0
+      /**returns the ComponentDescription for the module which creates the data or 0
           if no module has been registered for the data. This does not cause the data to
           actually be constructed.
           */
-         ComponentDescription const* providerDescription(DataKey const& aKey) const;
+      ComponentDescription const* providerDescription(DataKey const& aKey) const;
 
-         EventSetupRecordKey const& key() const { return key_; }
+      EventSetupRecordKey const& key() const { return key_; }
 
-         /**If you are caching data from the Record, you should also keep
+      /**If you are caching data from the Record, you should also keep
           this number.  If this number changes then you know that
           the data you have cached is invalid. This is NOT true if
           if the validityInterval() hasn't changed since it is possible that
@@ -117,83 +113,82 @@ namespace edm {
           The value of '0' will never be returned so you can use that to
           denote that you have not yet checked the value.
           */
-         unsigned long long cacheIdentifier() const {
-            return cacheIdentifier_;
-         }
+      unsigned long long cacheIdentifier() const { return cacheIdentifier_; }
 
-         ///clears the oToFill vector and then fills it with the keys for all registered data keys
-         void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const;
-         // ---------- static member functions --------------------
+      ///clears the oToFill vector and then fills it with the keys for all registered data keys
+      void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const;
+      // ---------- static member functions --------------------
 
-         // ---------- member functions ---------------------------
+      // ---------- member functions ---------------------------
 
-         // The following member functions should only be used by EventSetupRecordProvider
-         bool add(DataKey const& iKey ,
-                  DataProxy const* iProxy) ;
-         void clearProxies();
-         void cacheReset() ;
-         /// returns 'true' if a transient request has occurred since the last call to transientReset.
-         bool transientReset() ;
+      // The following member functions should only be used by EventSetupRecordProvider
+      bool add(DataKey const& iKey, DataProxy const* iProxy);
+      void clearProxies();
+      void cacheReset();
+      /// returns 'true' if a transient request has occurred since the last call to transientReset.
+      bool transientReset();
 
-         void set(ValidityInterval const&);
-         void setEventSetup(EventSetupImpl const* iEventSetup) {eventSetup_ = iEventSetup; }
+      void set(ValidityInterval const&);
+      void setEventSetup(EventSetupImpl const* iEventSetup) { eventSetup_ = iEventSetup; }
 
-         void getESProducers(std::vector<ComponentDescription const*>& esproducers);
-         void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys);
+      void getESProducers(std::vector<ComponentDescription const*>& esproducers);
+      void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys);
 
       //protected:
 
-         DataProxy const* find(DataKey const& aKey) const ;
+      DataProxy const* find(DataKey const& aKey) const;
 
-        EventSetupImpl const& eventSetup() const {
-          return *eventSetup_;
+      EventSetupImpl const& eventSetup() const { return *eventSetup_; }
+
+      void validate(ComponentDescription const*, ESInputTag const&) const;
+
+      void addTraceInfoToCmsException(cms::Exception& iException,
+                                      char const* iName,
+                                      ComponentDescription const*,
+                                      DataKey const&) const;
+      void changeStdExceptionToCmsException(char const* iExceptionWhatMessage,
+                                            char const* iName,
+                                            ComponentDescription const*,
+                                            DataKey const&) const;
+
+      void transientAccessRequested() const { transientAccessRequested_ = true; }
+
+    private:
+      EventSetupRecordImpl(EventSetupRecordImpl const&) = delete;
+
+      EventSetupRecordImpl const& operator=(EventSetupRecordImpl const&) = delete;
+
+      void const* getFromProxy(DataKey const& iKey,
+                               ComponentDescription const*& iDesc,
+                               bool iTransientAccessOnly) const;
+
+      template <typename DataT>
+      void getImplementation(DataT const*& iData,
+                             char const* iName,
+                             ComponentDescription const*& iDesc,
+                             bool iTransientAccessOnly,
+                             std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory) const {
+        DataKey dataKey(DataKey::makeTypeTag<DataT>(), iName, DataKey::kDoNotCopyMemory);
+
+        void const* pValue = this->getFromProxy(dataKey, iDesc, iTransientAccessOnly);
+        if (nullptr == pValue) {
+          whyFailedFactory = makeESHandleExceptionFactory([=] {
+            NoProxyException<DataT> ex(this->key(), dataKey);
+            return std::make_exception_ptr(ex);
+          });
         }
+        iData = reinterpret_cast<DataT const*>(pValue);
+      }
 
-         void validate(ComponentDescription const*, ESInputTag const&) const;
-
-         void addTraceInfoToCmsException(cms::Exception& iException, char const* iName, ComponentDescription const*, DataKey const&) const;
-         void changeStdExceptionToCmsException(char const* iExceptionWhatMessage, char const* iName, ComponentDescription const*, DataKey const&) const;
-
-         void transientAccessRequested() const { transientAccessRequested_ = true;}
-      private:
-         EventSetupRecordImpl(EventSetupRecordImpl const&) = delete;
-
-         EventSetupRecordImpl const& operator=(EventSetupRecordImpl const&) = delete;
-
-         void const* getFromProxy(DataKey const& iKey ,
-                                  ComponentDescription const*& iDesc,
-                                  bool iTransientAccessOnly) const;
-
-         template <typename DataT>
-         void getImplementation(DataT const*& iData ,
-                                char const* iName,
-                                ComponentDescription const*& iDesc,
-                                bool iTransientAccessOnly,
-                                std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory) const {
-            DataKey dataKey(DataKey::makeTypeTag<DataT>(),
-                            iName,
-                            DataKey::kDoNotCopyMemory);
-
-            void const* pValue = this->getFromProxy(dataKey, iDesc, iTransientAccessOnly);
-            if(nullptr == pValue) {
-              whyFailedFactory =
-                makeESHandleExceptionFactory([=] {
-                    NoProxyException<DataT> ex(this->key(), dataKey);
-                    return std::make_exception_ptr(ex);
-                });
-            }
-            iData = reinterpret_cast<DataT const*> (pValue);
-         }
-
-         // ---------- member data --------------------------------
-         ValidityInterval validity_;
-         EventSetupRecordKey key_;
-         std::vector<DataKey> keysForProxies_;
-         std::vector<DataProxy const*> proxies_;
-         EventSetupImpl const* eventSetup_;
-         unsigned long long cacheIdentifier_;
-         mutable std::atomic<bool> transientAccessRequested_;
-      };
-   }
-}
+      // ---------- member data --------------------------------
+      ValidityInterval validity_;
+      EventSetupRecordKey key_;
+      std::vector<DataKey> keysForProxies_;
+      std::vector<DataProxy const*> proxies_;
+      EventSetupImpl const* eventSetup_;
+      unsigned long long cacheIdentifier_;
+      mutable std::atomic<bool> transientAccessRequested_;
+    };
+  }  // namespace eventsetup
+}  // namespace edm
 #endif

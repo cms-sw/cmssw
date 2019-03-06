@@ -4,7 +4,7 @@
 //
 // Package:     Package
 // Class  :     analyzer::AbilityToImplementor
-// 
+//
 /**\class analyzer::AbilityToImplementor analyzerAbilityToImplementor.h "FWCore/Framework/interface/one/analyzerAbilityToImplementor.h"
 
  Description: [one line class summary]
@@ -31,35 +31,35 @@
 namespace edm {
   namespace one {
     namespace analyzer {
-      template<typename T> struct AbilityToImplementor;
-      
-      template<>
+      template <typename T>
+      struct AbilityToImplementor;
+
+      template <>
       struct AbilityToImplementor<edm::one::SharedResources> {
         typedef edm::one::impl::SharedResourcesUser<edm::one::EDAnalyzerBase> Type;
       };
-      
-      template<>
+
+      template <>
       struct AbilityToImplementor<edm::one::WatchRuns> {
         typedef edm::one::impl::RunWatcher<edm::one::EDAnalyzerBase> Type;
       };
 
-      template<>
+      template <>
       struct AbilityToImplementor<edm::one::WatchLuminosityBlocks> {
         typedef edm::one::impl::LuminosityBlockWatcher<edm::one::EDAnalyzerBase> Type;
       };
-      
-      template<typename C>
+
+      template <typename C>
       struct AbilityToImplementor<edm::RunCache<C>> {
-        typedef edm::one::impl::RunCacheHolder<edm::one::EDAnalyzerBase,C> Type;
+        typedef edm::one::impl::RunCacheHolder<edm::one::EDAnalyzerBase, C> Type;
       };
 
-      template<typename C>
+      template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
-        typedef edm::one::impl::LuminosityBlockCacheHolder<edm::one::EDAnalyzerBase,C> Type;
+        typedef edm::one::impl::LuminosityBlockCacheHolder<edm::one::EDAnalyzerBase, C> Type;
       };
-    }
-  }
-}
-
+    }  // namespace analyzer
+  }    // namespace one
+}  // namespace edm
 
 #endif

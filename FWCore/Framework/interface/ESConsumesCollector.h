@@ -37,7 +37,6 @@
 namespace edm {
   class ESConsumesCollector {
   public:
-
     ESConsumesCollector() = delete;
     ESConsumesCollector(ESConsumesCollector const&) = default;
     ESConsumesCollector(ESConsumesCollector&&) = default;
@@ -47,48 +46,40 @@ namespace edm {
     // ---------- member functions ---------------------------
     template <typename Product, typename Record>
     auto consumesFrom(ESInputTag const& tag) {
-      return ESGetToken<Product,Record>{tag};
+      return ESGetToken<Product, Record>{tag};
     }
 
   protected:
-    explicit ESConsumesCollector(ESProducer* const iConsumer) :
-    m_consumer{iConsumer}
-    {}
+    explicit ESConsumesCollector(ESProducer* const iConsumer) : m_consumer{iConsumer} {}
 
   private:
-
     // ---------- member data --------------------------------
     edm::propagate_const<ESProducer*> m_consumer{nullptr};
   };
-  
-  template<typename RECORD>
+
+  template <typename RECORD>
   class ESConsumesCollectorT : public ESConsumesCollector {
   public:
-    
     ESConsumesCollectorT() = delete;
     ESConsumesCollectorT(ESConsumesCollectorT<RECORD> const&) = default;
     ESConsumesCollectorT(ESConsumesCollectorT<RECORD>&&) = default;
     ESConsumesCollectorT<RECORD>& operator=(ESConsumesCollectorT<RECORD> const&) = default;
     ESConsumesCollectorT<RECORD>& operator=(ESConsumesCollectorT<RECORD>&&) = default;
-    
+
     // ---------- member functions ---------------------------
-    
+
     template <typename Product>
     auto consumes(ESInputTag const& tag) {
       return consumesFrom<Product, RECORD>(tag);
     }
-    
+
   private:
     //only ESProducer is allowed to make an instance of this class
     friend class ESProducer;
-    
-    explicit ESConsumesCollectorT(ESProducer* const iConsumer) :
-    ESConsumesCollector(iConsumer)
-    {}
-    
+
+    explicit ESConsumesCollectorT(ESProducer* const iConsumer) : ESConsumesCollector(iConsumer) {}
   };
 
-}
-
+}  // namespace edm
 
 #endif

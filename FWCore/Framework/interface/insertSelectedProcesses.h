@@ -8,7 +8,6 @@ namespace edm {
 
   class BranchDescription;
 
-  void insertSelectedProcesses(BranchDescription const& desc,
-                               std::set<std::string>& processes);
-}
+  void insertSelectedProcesses(BranchDescription const& desc, std::set<std::string>& processes);
+}  // namespace edm
 #endif

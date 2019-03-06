@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     edm::global::EDProducer
-// 
+//
 /**\class edm::global::EDProducer EDProducer.h "FWCore/Framework/interface/global/EDProducer.h"
 
  Description: [one line class summary]
@@ -28,54 +28,41 @@
 
 namespace edm {
   namespace global {
-    template< typename... T>
+    template <typename... T>
     class EDProducer : public producer::SpecializeAbilityToImplementor<
-        CheckAbility<edm::module::Abilities::kRunSummaryCache,T...>::kHasIt & CheckAbility<edm::module::Abilities::kEndRunProducer,T...>::kHasIt,
-        CheckAbility<edm::module::Abilities::kLuminosityBlockSummaryCache,T...>::kHasIt & CheckAbility<edm::module::Abilities::kEndLuminosityBlockProducer,T...>::kHasIt,
-        T>::Type...,
-                       public virtual EDProducerBase
-    {
-      
+                           CheckAbility<edm::module::Abilities::kRunSummaryCache, T...>::kHasIt &
+                               CheckAbility<edm::module::Abilities::kEndRunProducer, T...>::kHasIt,
+                           CheckAbility<edm::module::Abilities::kLuminosityBlockSummaryCache, T...>::kHasIt &
+                               CheckAbility<edm::module::Abilities::kEndLuminosityBlockProducer, T...>::kHasIt,
+                           T>::Type...,
+                       public virtual EDProducerBase {
     public:
       EDProducer() = default;
-      
+
       // ---------- const member functions ---------------------
-      bool wantsGlobalRuns() const final {
-        return WantsGlobalRunTransitions<T...>::value;
-      }
-      bool wantsGlobalLuminosityBlocks() const final {
-        return WantsGlobalLuminosityBlockTransitions<T...>::value;
-      }
+      bool wantsGlobalRuns() const final { return WantsGlobalRunTransitions<T...>::value; }
+      bool wantsGlobalLuminosityBlocks() const final { return WantsGlobalLuminosityBlockTransitions<T...>::value; }
 
-      bool wantsStreamRuns() const final {
-        return WantsStreamRunTransitions<T...>::value;
-      }
-      bool wantsStreamLuminosityBlocks() const final {
-        return WantsStreamLuminosityBlockTransitions<T...>::value;
-      }
+      bool wantsStreamRuns() const final { return WantsStreamRunTransitions<T...>::value; }
+      bool wantsStreamLuminosityBlocks() const final { return WantsStreamLuminosityBlockTransitions<T...>::value; }
 
-      bool hasAbilityToProduceInRuns() const final {
-        return HasAbilityToProduceInRuns<T...>::value;
-      }
+      bool hasAbilityToProduceInRuns() const final { return HasAbilityToProduceInRuns<T...>::value; }
 
-      bool hasAbilityToProduceInLumis() const final {
-        return HasAbilityToProduceInLumis<T...>::value;
-      }
+      bool hasAbilityToProduceInLumis() const final { return HasAbilityToProduceInLumis<T...>::value; }
 
       // ---------- static member functions --------------------
-      
+
       // ---------- member functions ---------------------------
-      
+
     private:
       EDProducer(const EDProducer&) = delete;
-      
+
       const EDProducer& operator=(const EDProducer&) = delete;
-      
+
       // ---------- member data --------------------------------
-      
     };
 
-  }
-}
+  }  // namespace global
+}  // namespace edm
 
 #endif

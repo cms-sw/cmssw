@@ -45,63 +45,66 @@ namespace edm {
   class WaitingTask;
 
   namespace maker {
-    template<typename T> class ModuleHolderT;
+    template <typename T>
+    class ModuleHolderT;
   }
 
   typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
 
   class OutputModule : public EDConsumerBase {
   public:
-    template <typename T> friend class maker::ModuleHolderT;
-    template <typename T> friend class WorkerT;
-    template <typename T> friend class OutputModuleCommunicatorT;
+    template <typename T>
+    friend class maker::ModuleHolderT;
+    template <typename T>
+    friend class WorkerT;
+    template <typename T>
+    friend class OutputModuleCommunicatorT;
     typedef OutputModule ModuleType;
 
     explicit OutputModule(ParameterSet const& pset);
     ~OutputModule() override;
 
-    OutputModule(OutputModule const&) = delete; // Disallow copying and moving
-    OutputModule& operator=(OutputModule const&) = delete; // Disallow copying and moving
+    OutputModule(OutputModule const&) = delete;             // Disallow copying and moving
+    OutputModule& operator=(OutputModule const&) = delete;  // Disallow copying and moving
 
     /// Accessor for maximum number of events to be written.
     /// -1 is used for unlimited.
-    int maxEvents() const {return maxEvents_;}
+    int maxEvents() const { return maxEvents_; }
 
     /// Accessor for remaining number of events to be written.
     /// -1 is used for unlimited.
-    int remainingEvents() const {return remainingEvents_;}
+    int remainingEvents() const { return remainingEvents_; }
 
     bool selected(BranchDescription const& desc) const;
 
     void selectProducts(ProductRegistry const& preg, ThinnedAssociationsHelper const&);
-    std::string const& processName() const {return process_name_;}
-    SelectedProductsForBranchType const& keptProducts() const {return keptProducts_;}
-    std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
+    std::string const& processName() const { return process_name_; }
+    SelectedProductsForBranchType const& keptProducts() const { return keptProducts_; }
+    std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const { return hasNewlyDroppedBranch_; }
 
-    static void fillDescription(ParameterSetDescription & desc, std::vector<std::string> const& iDefaultOutputCommands = ProductSelectorRules::defaultSelectionStrings());
+    static void fillDescription(
+        ParameterSetDescription& desc,
+        std::vector<std::string> const& iDefaultOutputCommands = ProductSelectorRules::defaultSelectionStrings());
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
-    static void prevalidate(ConfigurationDescriptions& );
+    static void prevalidate(ConfigurationDescriptions&);
 
-    static bool wantsGlobalRuns() {return true;}
-    static bool wantsGlobalLuminosityBlocks() {return true;}
-    static bool wantsStreamRuns() {return false;}
-    static bool wantsStreamLuminosityBlocks() {return false;};
+    static bool wantsGlobalRuns() { return true; }
+    static bool wantsGlobalLuminosityBlocks() { return true; }
+    static bool wantsStreamRuns() { return false; }
+    static bool wantsStreamLuminosityBlocks() { return false; };
 
-    SerialTaskQueue* globalRunsQueue() { return &runQueue_;}
-    SerialTaskQueue* globalLuminosityBlocksQueue() { return &luminosityBlockQueue_;}
-    SharedResourcesAcquirer& sharedResourcesAcquirer() {
-      return resourceAcquirer_;
-    }
+    SerialTaskQueue* globalRunsQueue() { return &runQueue_; }
+    SerialTaskQueue* globalLuminosityBlocksQueue() { return &luminosityBlockQueue_; }
+    SharedResourcesAcquirer& sharedResourcesAcquirer() { return resourceAcquirer_; }
 
-    bool wantAllEvents() const {return wantAllEvents_;}
+    bool wantAllEvents() const { return wantAllEvents_; }
 
     BranchIDLists const* branchIDLists();
 
     ThinnedAssociationsHelper const* thinnedAssociationsHelper() const;
 
   protected:
-
     // This function is needed for compatibility with older code. We
     // need to clean up the use of EventForOutputand EventPrincipal, to avoid
     // creation of multiple EventForOutputobjects when handling a single
@@ -109,8 +112,7 @@ namespace edm {
     Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventForOutput const& e) const;
 
     ModuleDescription const& description() const;
-    ModuleDescription const& moduleDescription() const { return moduleDescription_;
-    }
+    ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
     ParameterSetID selectorConfig() const { return selector_config_id_; }
 
@@ -118,23 +120,27 @@ namespace edm {
 
     void doBeginJob();
     void doEndJob();
-    bool doEvent(EventPrincipal const& ep, EventSetupImpl const&  c,
+    bool doEvent(EventPrincipal const& ep,
+                 EventSetupImpl const& c,
                  ActivityRegistry* act,
                  ModuleCallingContext const* mcc);
     //Needed by WorkerT but not supported
-    void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+    void preActionBeforeRunEventAsync(WaitingTask* iTask,
+                                      ModuleCallingContext const& iModuleCallingContext,
+                                      Principal const& iPrincipal) const {}
 
-    bool doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c,
-                    ModuleCallingContext const* mcc);
-    bool doEndRun(RunPrincipal const& rp, EventSetupImpl const& c,
-                  ModuleCallingContext const* mcc);
-    bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& c,
+    bool doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc);
+    bool doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc);
+    bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                                EventSetupImpl const& c,
                                 ModuleCallingContext const* mcc);
-    bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& c,
+    bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                              EventSetupImpl const& c,
                               ModuleCallingContext const* mcc);
 
-    void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
-                               bool anyProductProduced);
+    void setEventSelectionInfo(
+        std::map<std::string, std::vector<std::pair<std::string, int>>> const& outputModulePathPositions,
+        bool anyProductProduced);
 
     void configure(OutputModuleDescription const& desc);
 
@@ -143,7 +149,6 @@ namespace edm {
     }
 
   private:
-
     int maxEvents_;
     std::atomic<int> remainingEvents_;
 
@@ -198,11 +203,10 @@ namespace edm {
     void doOpenFile(FileBlock const& fb);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
-    void doRegisterThinnedAssociations(ProductRegistry const&,
-                                       ThinnedAssociationsHelper&) { }
+    void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
-    std::string workerType() const {return "WorkerT<OutputModule>";}
-    
+    std::string workerType() const { return "WorkerT<OutputModule>"; }
+
     /// Tell the OutputModule that is must end the current file.
     void doCloseFile();
 
@@ -211,22 +215,22 @@ namespace edm {
     virtual void reallyCloseFile();
 
     void registerProductsAndCallbacks(OutputModule const*, ProductRegistry const*) {}
-    
+
     bool needToRunSelection() const;
     std::vector<ProductResolverIndexAndSkipBit> productsUsedBySelection() const;
     bool prePrefetchSelection(StreamID id, EventPrincipal const&, ModuleCallingContext const*);
 
     /// Ask the OutputModule if we should end the current file.
-    virtual bool shouldWeCloseFile() const {return false;}
+    virtual bool shouldWeCloseFile() const { return false; }
 
     virtual void write(EventForOutput const&) = 0;
-    virtual void beginJob(){}
-    virtual void endJob(){}
-    virtual void beginRun(RunForOutput const&){}
-    virtual void endRun(RunForOutput const&){}
+    virtual void beginJob() {}
+    virtual void endJob() {}
+    virtual void beginRun(RunForOutput const&) {}
+    virtual void endRun(RunForOutput const&) {}
     virtual void writeRun(RunForOutput const&) = 0;
-    virtual void beginLuminosityBlock(LuminosityBlockForOutput const&){}
-    virtual void endLuminosityBlock(LuminosityBlockForOutput const&){}
+    virtual void beginLuminosityBlock(LuminosityBlockForOutput const&) {}
+    virtual void endLuminosityBlock(LuminosityBlockForOutput const&) {}
     virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) = 0;
     virtual void openFile(FileBlock const&) {}
     virtual void respondToOpenInputFile(FileBlock const&) {}
@@ -243,11 +247,9 @@ namespace edm {
                         std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
                         std::set<BranchID>& keptProductsInEvent);
 
-    void setModuleDescription(ModuleDescription const& md) {
-      moduleDescription_ = md;
-    }
+    void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
 
-    bool limitReached() const {return remainingEvents_ == 0;}
+    bool limitReached() const { return remainingEvents_ == 0; }
   };
-}
+}  // namespace edm
 #endif

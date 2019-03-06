@@ -7,16 +7,17 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 namespace edm {
-   namespace eventsetup {
+  namespace eventsetup {
 
-      class ParameterSetIDHolder {
-      public:
-         ParameterSetIDHolder(ParameterSetID const& psetID) : psetID_(psetID) { }
-         ParameterSetID const& psetID() const { return psetID_; }
-         bool operator<(ParameterSetIDHolder const& other) const { return psetID() < other.psetID(); }
-         bool operator==(ParameterSetIDHolder const& other) const { return psetID() == other.psetID(); }
-      private:
-         ParameterSetID psetID_;
-      };
-   }
-}
+    class ParameterSetIDHolder {
+    public:
+      ParameterSetIDHolder(ParameterSetID const& psetID) : psetID_(psetID) {}
+      ParameterSetID const& psetID() const { return psetID_; }
+      bool operator<(ParameterSetIDHolder const& other) const { return psetID() < other.psetID(); }
+      bool operator==(ParameterSetIDHolder const& other) const { return psetID() == other.psetID(); }
+
+    private:
+      ParameterSetID psetID_;
+    };
+  }  // namespace eventsetup
+}  // namespace edm

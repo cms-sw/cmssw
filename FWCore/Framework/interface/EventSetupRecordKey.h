@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordKey
-// 
+//
 /**\class EventSetupRecordKey EventSetupRecordKey.h FWCore/Framework/interface/EventSetupRecordKey.h
 
  Description: Key used to lookup a EventSetupRecord within the EventSetup
@@ -26,51 +26,41 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-class EventSetupRecordKey
-{
+  namespace eventsetup {
+    class EventSetupRecordKey {
+    public:
+      typedef heterocontainer::HCTypeTag TypeTag;
 
-   public:
-   typedef heterocontainer::HCTypeTag TypeTag;
-      
       EventSetupRecordKey();
-      EventSetupRecordKey(const TypeTag& iType) :
-         type_(iType) {}
+      EventSetupRecordKey(const TypeTag& iType) : type_(iType) {}
 
       //virtual ~EventSetupRecordKey();
 
       // ---------- const member functions ---------------------
-      const TypeTag& type() const { return type_;}
-      
-      bool operator<(const EventSetupRecordKey& iRHS) const {
-         return type_ < iRHS.type_;
-      }
-      bool operator==(const EventSetupRecordKey& iRHS) const {
-         return type_ == iRHS.type_;
-      }
-      inline bool operator!=(const EventSetupRecordKey& iRHS) const {
-         return not (*this == iRHS);
-      }
+      const TypeTag& type() const { return type_; }
+
+      bool operator<(const EventSetupRecordKey& iRHS) const { return type_ < iRHS.type_; }
+      bool operator==(const EventSetupRecordKey& iRHS) const { return type_ == iRHS.type_; }
+      inline bool operator!=(const EventSetupRecordKey& iRHS) const { return not(*this == iRHS); }
 
       const char* name() const { return type().name(); }
       // ---------- static member functions --------------------
-      template<class T>
-         static EventSetupRecordKey makeKey() {
-            return eventsetup::heterocontainer::makeKey<T,EventSetupRecordKey>();
-         }
-      
+      template <class T>
+      static EventSetupRecordKey makeKey() {
+        return eventsetup::heterocontainer::makeKey<T, EventSetupRecordKey>();
+      }
+
       // ---------- member functions ---------------------------
 
-   private:
+    private:
       //EventSetupRecordKey(const EventSetupRecordKey&); // allow default
 
       //const EventSetupRecordKey& operator=(const EventSetupRecordKey&); // allow default
 
       // ---------- member data --------------------------------
       TypeTag type_;
-         
-};
-   }
-}
+    };
+  }  // namespace eventsetup
+}  // namespace edm
 
 #endif
