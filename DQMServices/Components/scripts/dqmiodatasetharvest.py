@@ -245,14 +245,16 @@ sqlite2tree = """
 int run;
 int fromlumi;
 int tolumi;
+TString* name;
+TH2F* value;
 
 int sqlite2tree() {
 
-  auto sql = TSQLiteServer("sqlite:///tmp/dqmio.sqlite");
+  auto sql = TSQLiteServer("sqlite:///dev/shm/schneiml/CMSSW_10_5_0_pre1/src/dqmio.sqlite");
   auto query = "SELECT fromlumi, tolumi, fromrun, name, value FROM monitorelements ORDER BY fromrun, fromlumi ASC;";
   auto res = sql.Query(query);
 
-  TFile outfile("/tmp/dqmio.root", "RECREATE");
+  TFile outfile("/dev/shm/dqmio.root", "RECREATE");
   auto outtree = new TTree("MEs", "MonitorElements by run and lumisection");
   auto nameb     = outtree->Branch("name",    &name);
   auto valueb    = outtree->Branch("value",   &value,128*1024,0);
@@ -266,6 +268,7 @@ int sqlite2tree() {
     tolumi   = atoi(row->GetField(1));
     run      = atoi(row->GetField(2));
     name  = new TString(row->GetField(3));
+    value = nullptr;
     TBufferJSON::FromJSON(value, row->GetField(4));
     outtree->Fill();
   }
