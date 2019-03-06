@@ -814,7 +814,17 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
       muonEnergy.hadS9   = info.nXnEnergy(TrackDetMatchInfo::HcalRecHits,1); // 3x3 energy
       muonEnergy.hoS9    = info.nXnEnergy(TrackDetMatchInfo::HORecHits,1);   // 3x3 energy
       muonEnergy.towerS9 = info.nXnEnergy(TrackDetMatchInfo::TowerTotal,1);  // 3x3 energy
-      if (storeCrossedHcalRecHits_) muonEnergy.setCrossedHadRecHits(info.crossedHcalRecHits);
+      if (storeCrossedHcalRecHits_) {
+	muonEnergy.crossedHadRecHits.clear();
+	for (auto hit: info.crossedHcalRecHits){
+	  reco::HcalMuonRecHit mhit;
+	  mhit.energy = hit->energy();
+	  mhit.chi2   = hit->chi2();
+	  mhit.time   = hit->time();
+	  mhit.detId  = hit->id();
+	  muonEnergy.crossedHadRecHits.push_back(mhit);
+	}
+      }
       muonEnergy.ecal_position = info.trkGlobPosAtEcal;
       muonEnergy.hcal_position = info.trkGlobPosAtHcal;
       if (! info.crossedEcalIds.empty() ) muonEnergy.ecal_id = info.crossedEcalIds.front();
