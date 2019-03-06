@@ -19,42 +19,41 @@
 
 using namespace edm;
 
-TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const&){
-   produces<edmtest::DoubleProduct>();
-   consumes<edmtest::StringProduct>(edm::InputTag{"m2"});
+TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const&) {
+  produces<edmtest::DoubleProduct>();
+  consumes<edmtest::StringProduct>(edm::InputTag{"m2"});
 }
 
-  void TestPRegisterModule2::produce(Event& e, EventSetup const&)
-  {
-     std::vector<edm::StableProvenance const*> plist;
-     e.getAllStableProvenance(plist);
+void TestPRegisterModule2::produce(Event& e, EventSetup const&) {
+  std::vector<edm::StableProvenance const*> plist;
+  e.getAllStableProvenance(plist);
 
-     std::vector<edm::StableProvenance const*>::const_iterator pd = plist.begin();
-     
-     CPPUNIT_ASSERT(0 !=plist.size());
-     CPPUNIT_ASSERT(2 ==plist.size());
-     CPPUNIT_ASSERT(pd != plist.end());
-     if(pd == plist.end()) return; // To silence Coverity
-     edmtest::StringProduct stringprod;
-     edm::TypeID stringID(stringprod);
-     CPPUNIT_ASSERT(stringID.friendlyClassName() == 
-                    (*pd)->friendlyClassName());
-     CPPUNIT_ASSERT((*pd)->moduleLabel()=="m1");
-     CPPUNIT_ASSERT((*pd)->releaseVersion()==getReleaseVersion());
+  std::vector<edm::StableProvenance const*>::const_iterator pd = plist.begin();
 
-     ++pd;
-     CPPUNIT_ASSERT(pd != plist.end());
-     if(pd == plist.end()) return; // To silence Coverity
-     
-     edmtest::DoubleProduct dprod;
-     edm::TypeID dID(dprod);
-     CPPUNIT_ASSERT(dID.friendlyClassName() == 
-                  (*pd)->friendlyClassName());
-     CPPUNIT_ASSERT((*pd)->moduleLabel()=="m2");
-     
-     Handle<edmtest::StringProduct> stringp;
-     e.getByLabel("m2",stringp);
-     CPPUNIT_ASSERT(stringp->name_=="m1");
+  CPPUNIT_ASSERT(0 != plist.size());
+  CPPUNIT_ASSERT(2 == plist.size());
+  CPPUNIT_ASSERT(pd != plist.end());
+  if (pd == plist.end())
+    return;  // To silence Coverity
+  edmtest::StringProduct stringprod;
+  edm::TypeID stringID(stringprod);
+  CPPUNIT_ASSERT(stringID.friendlyClassName() == (*pd)->friendlyClassName());
+  CPPUNIT_ASSERT((*pd)->moduleLabel() == "m1");
+  CPPUNIT_ASSERT((*pd)->releaseVersion() == getReleaseVersion());
 
-     e.put(std::make_unique<edmtest::DoubleProduct>());
-  }
+  ++pd;
+  CPPUNIT_ASSERT(pd != plist.end());
+  if (pd == plist.end())
+    return;  // To silence Coverity
+
+  edmtest::DoubleProduct dprod;
+  edm::TypeID dID(dprod);
+  CPPUNIT_ASSERT(dID.friendlyClassName() == (*pd)->friendlyClassName());
+  CPPUNIT_ASSERT((*pd)->moduleLabel() == "m2");
+
+  Handle<edmtest::StringProduct> stringp;
+  e.getByLabel("m2", stringp);
+  CPPUNIT_ASSERT(stringp->name_ == "m1");
+
+  e.put(std::make_unique<edmtest::DoubleProduct>());
+}

@@ -12,12 +12,9 @@
 
 namespace edm {
 
-  void insertSelectedProcesses(BranchDescription const& desc,
-                               std::set<std::string>& processes) {
-
+  void insertSelectedProcesses(BranchDescription const& desc, std::set<std::string>& processes) {
     // Select input processes in which mergeable run products were produced
     if (desc.branchType() == InRun && !desc.produced()) {
-
       // Determine if the product is "mergeable"
       TClass* tClass = desc.wrappedType().getClass();
       void* p = tClass->New();
@@ -30,4 +27,4 @@ namespace edm {
       }
     }
   }
-}
+}  // namespace edm

@@ -22,653 +22,642 @@ for testing purposes only.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-
-
 namespace edmtest {
-namespace stream {
+  namespace stream {
 
-// anonymous namespace here causes build warnings
-namespace cache {
-struct Cache {
-   Cache():value(0),run(0),lumi(0) {}
-   //Using mutable since we want to update the value.
-   mutable std::atomic<unsigned int> value;
-   mutable std::atomic<unsigned int> run;
-   mutable std::atomic<unsigned int> lumi;
-};
+    // anonymous namespace here causes build warnings
+    namespace cache {
+      struct Cache {
+        Cache() : value(0), run(0), lumi(0) {}
+        //Using mutable since we want to update the value.
+        mutable std::atomic<unsigned int> value;
+        mutable std::atomic<unsigned int> run;
+        mutable std::atomic<unsigned int> lumi;
+      };
 
-} //end cache namespace
+    }  // namespace cache
 
-  using Cache = cache::Cache;
+    using Cache = cache::Cache;
 
-  class GlobalIntFilter : public edm::stream::EDFilter<edm::GlobalCache<Cache>> {
-  public:
-    static std::atomic<unsigned int> m_count; 
-    unsigned int trans_;
-    static std::atomic<unsigned int> cvalue_;
-    
-    static std::unique_ptr<Cache> initializeGlobalCache(edm::ParameterSet const&) {
-      ++m_count;
-      return std::make_unique<Cache>();
-    }
-
-    GlobalIntFilter(edm::ParameterSet const& p, const Cache* iGlobal) {
-      trans_ = p.getParameter<int>("transitions");
-      cvalue_ = p.getParameter<int>("cachevalue");
-      produces<unsigned int>();
-    }
-    
-    bool filter(edm::Event&, edm::EventSetup const&) override {
-      ++m_count;
-      ++((globalCache())->value);
-       
-      return true;
-    }
-    
-    static void globalEndJob(Cache* iGlobal) {
-      ++m_count;
-      if(iGlobal->value != cvalue_) {
-        throw cms::Exception("cache value")
-          << iGlobal->value << " but it was supposed to be " << cvalue_;
-      }
-    }
-
-    ~GlobalIntFilter() {
-      if(m_count != trans_) {
-        throw cms::Exception("transitions")
-          << m_count << " but it was supposed to be " << trans_;
-      }
-    }
-
-    
-  };
-
-  class RunIntFilter : public edm::stream::EDFilter<edm::RunCache<Cache>> {
-  public:
-    static std::atomic<unsigned int> m_count;
-    unsigned int trans_;
-    static std::atomic<unsigned int> cvalue_;
-    static std::atomic<bool> gbr;
-    static std::atomic<bool> ger;
-    bool br;
-    bool er;
-
-    RunIntFilter(edm::ParameterSet const&p){
-      trans_= p.getParameter<int>("transitions");
-      cvalue_ = p.getParameter<int>("cachevalue");
-      m_count = 0;
-      produces<unsigned int>();
-    }
-
-    bool filter(edm::Event&, edm::EventSetup const&) override {
-      ++m_count;
-      ++(runCache()->value);
-       
-      return true;
-    }
-    
-    static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
-      ++m_count;
-      gbr = true;
-      ger = false;
-      auto pCache = std::make_shared<Cache>();
-      ++(pCache->run);
-      return pCache;
-   }
-
-    static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
-       ++m_count;
-      auto pCache = iContext->run();
-      if ( pCache->run != 1 ) {
-        throw cms::Exception("end out of sequence")
-          << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
-      } 
-      ger = true;
-      gbr = false;
-      if( iContext->run()->value != cvalue_) {
-        throw cms::Exception("cache value")
-          << iContext->run()->value << " but it was supposed to be " << cvalue_;
-      }
-    }
-
-    ~RunIntFilter() {
-       if(m_count != trans_) {
-        throw cms::Exception("transitions")
-          << m_count << " but it was supposed to be " << trans_;
-      }
-
-    }
-  };
-
-
-  class LumiIntFilter : public edm::stream::EDFilter<edm::LuminosityBlockCache<Cache>> {
-  public:
-    static std::atomic<unsigned int> m_count;
-    unsigned int trans_;
-    static std::atomic<unsigned int> cvalue_;
-    static std::atomic<bool> gbl;
-    static std::atomic<bool> gel;
-    static std::atomic<bool> bl;
-    static std::atomic<bool> el;
-
-    LumiIntFilter(edm::ParameterSet const&p){
-      trans_= p.getParameter<int>("transitions");
-      cvalue_ = p.getParameter<int>("cachevalue");
-      m_count = 0;
-      produces<unsigned int>();
-    }
-
-    bool filter(edm::Event&, edm::EventSetup const&) override {
-      ++m_count;
-      ++(luminosityBlockCache()->value);
-       
-      return true;
-    }
-    
-    static std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, RunContext const*) {
-      ++m_count;
-      gbl = true;
-      gel = false;
-      auto pCache = std::make_shared<Cache>();
-      ++(pCache->lumi);
-      return pCache;
-   }
-
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {
-      bl = true;
-      el = false;
-      if ( !gbl ) {
-        throw cms::Exception("begin out of sequence")
-          << "beginLuminosityBlock seen before globalBeginLuminosityBlock";
-      }
-    }
-
- 
-    static void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&, LuminosityBlockContext const* iLBContext) {
-      ++m_count;
-      if(iLBContext->luminosityBlock()->value != cvalue_) {
-        throw cms::Exception("cache value")
-          << "LumiIntFilter cache value " 
-          << iLBContext->luminosityBlock()->value << " but it was supposed to be " << cvalue_;
-      }
-    }
-
-   static void endLuminosityBlock(edm::Run const&, edm::EventSetup const&, LuminosityBlockContext const*) {
-      el = true;
-      bl = false;
-      if ( gel ) {
-        throw cms::Exception("end out of sequence")
-          << "globalEndLuminosityBlock seen before endLuminosityBlock";
-      }      
-   }
-   
-
-    ~LumiIntFilter() {
-       if(m_count != trans_) {
-        throw cms::Exception("transitions")
-          << m_count<< " but it was supposed to be " << trans_;
-       }
-    }
-  };
-  
-  class RunSummaryIntFilter : public edm::stream::EDFilter<edm::RunCache<Cache>,edm::RunSummaryCache<Cache>> {
-  public:
-    static std::atomic<unsigned int> m_count;
-    unsigned int trans_;
-    static std::atomic<unsigned int> cvalue_;
-    static std::atomic<bool> gbr;
-    static std::atomic<bool> ger;
-    static std::atomic<bool> gbrs;
-    static std::atomic<bool> gers;
-    static std::atomic<bool> brs;
-    static std::atomic<bool> ers;
-    static std::atomic<bool> br;
-    static std::atomic<bool> er;
-
-    RunSummaryIntFilter(edm::ParameterSet const&p){
-      trans_= p.getParameter<int>("transitions");
-      cvalue_ = p.getParameter<int>("cachevalue");
-      m_count = 0;
-      produces<unsigned int>();
-    }
-
-    void beginRun(edm::Run const&, edm::EventSetup const&) override {
-      br=true;
-      er=false;
-    }
-
-    bool filter(edm::Event&, edm::EventSetup const&) override {
-      ++m_count;
-      ++(runCache()->value);
-       
-      return true;
-    }
-    
-    static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
-      ++m_count;
-      gbr=true;
-      ger=false;
-      auto pCache = std::make_shared<Cache>();
-      ++(pCache->run);
-      return pCache;
-   }
-
-    static std::shared_ptr<Cache> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&, GlobalCache const*) {
-      ++m_count;
-      gbrs = true;
-      gers = false;
-      brs = true;
-      ers = false;
-      if ( !gbr ) {
-        throw cms::Exception("begin out of sequence")
-          << "globalBeginRunSummary seen before globalBeginRun";
-      }
-      return std::make_shared<Cache>();
-   }
-    
-    void endRunSummary(edm::Run const&, edm::EventSetup const&, Cache* gCache) const override {
-      brs=false;
-      ers=true;
-      gCache->value += runCache()->value;
-      runCache()->value = 0;
-      if ( !er ) {
-        throw cms::Exception("end out of sequence")
-          << "endRunSummary seen before endRun";
-      }
-    }
-    
-    static void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, RunContext const*, Cache* gCache){
-      ++m_count;
-      gbrs=false;
-      gers=true;
-      if ( !ers ) {
-        throw cms::Exception("end out of sequence")
-          << "globalEndRunSummary seen before endRunSummary";
-      }
-      if(gCache->value != cvalue_) {
-        throw cms::Exception("cache value")
-          << gCache->value << " but it was supposed to be " << cvalue_;
-      }
-    }
-
-   static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
-      ++m_count;
-      gbr=false;
-      ger=true;
-      auto pCache = iContext->run();
-      if ( pCache->run != 1 ) {
-        throw cms::Exception("end out of sequence")
-          << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
-      } 
-  }
-
-    void endRun(edm::Run const&, edm::EventSetup const&) override {
-      er = true;
-      br = false;
-    }   
-
-
-
-    ~RunSummaryIntFilter() {
-     if(m_count != trans_) {
-        throw cms::Exception("transitions")
-          << m_count<< " but it was supposed to be " << trans_;
-      }
-    }
-  };
-
-  class LumiSummaryIntFilter : public edm::stream::EDFilter<edm::LuminosityBlockCache<Cache>,edm::LuminosityBlockSummaryCache<Cache>> {
-  public:
-    static std::atomic<unsigned int> m_count;
-    static std::atomic<unsigned int> m_lumiSumCalls;
-    unsigned int trans_;
-    static std::atomic<unsigned int> cvalue_;
-    static std::atomic<bool> gbl;
-    static std::atomic<bool> gel;
-    static std::atomic<bool> gbls;
-    static std::atomic<bool> gels;
-    static std::atomic<bool> bls;
-    static std::atomic<bool> els;
-    static std::atomic<bool> bl;
-    static std::atomic<bool> el;
-
-    LumiSummaryIntFilter(edm::ParameterSet const&p) {
-      trans_= p.getParameter<int>("transitions");
-      cvalue_ = p.getParameter<int>("cachevalue");
-      m_count = 0;
-      produces<unsigned int>();
-    }
-
-    bool filter(edm::Event&, edm::EventSetup const&) override {
-      ++m_count;
-      ++(luminosityBlockCache()->value);
-       
-      return true;
-    }
-
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {
-      bl = true;
-      el = false;
-    }
-
-    static std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, RunContext const*) {
-      ++m_count;
-      gbl = true;
-      gel = false;
-      auto pCache = std::make_shared<Cache>();
-      ++(pCache->lumi);
-      return pCache;
-    }
-
-
-    static std::shared_ptr<Cache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, LuminosityBlockContext const*){
-      ++m_count;
-      gbls = true;
-      gels = false;
-      bls = true;
-      els = false;
-      if ( !gbl ) {
-       throw cms::Exception("begin out of sequence")
-         << "globalBeginLuminosityBlockSummary seen before globalBeginLuminosityBlock";
-      }
-      return std::make_shared<Cache>();
-    }
-    
-    void endLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, Cache* gCache) const override {
-      ++m_lumiSumCalls;
-      bls=false;
-      els=true;
-      //This routine could be called at the same time as another stream is calling filter so must do the change atomically
-      auto v = luminosityBlockCache()->value.exchange(0);
-      gCache->value += v;
-      if ( el ) {
-        throw cms::Exception("end out of sequence")
-          << "endLuminosityBlock seen before endLuminosityBlockSummary";
-      }
-    }
-    
-    static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, LuminosityBlockContext const*, Cache* gCache){
-     ++m_count;
-     auto nLumis = m_lumiSumCalls.load();
-     gbls=false;
-     gels=true;
-      if ( !els ) {
-        throw cms::Exception("end out of sequence")
-          << "LumiSummaryIntFilter " 
-          << "globalEndLuminosityBlockSummary seen before endLuminosityBlockSummary";
-      }
-      if( gCache->value != cvalue_) {
-        throw cms::Exception("cache value")
-          << gCache->value << " but it was supposed to be " << cvalue_<<" endLumiBlockSummary called "<<nLumis;
-      }
-    }
-
-   static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, LuminosityBlockContext const* iLBContext) {
-      ++m_count;
-      auto pCache = iLBContext->luminosityBlock();
-      if ( pCache->lumi != 1 ) {
-        throw cms::Exception("end out of sequence")
-          << "globalEndLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock" << iLB.luminosityBlock();
-      }       
-      gel = true;
-      gbl = false;
-      if ( !gels ) {
-        throw cms::Exception("end out of sequence")
-          << "globalEndLuminosityBlockSummary seen before globalEndLuminosityBlock";  
-      }
-   }
-
-    static void endLuminosityBlock(edm::Run const&, edm::EventSetup const&, LuminosityBlockContext const*) {
-      el = true;
-      bl = false;
-    }
-
-
-    ~LumiSummaryIntFilter() {
-     if(m_count != trans_) {
-        throw cms::Exception("transitions")
-          << m_count<< " but it was supposed to be " << trans_;
-      }
-    }
-  };
-
-  class TestBeginRunFilter : public edm::stream::EDFilter<edm::RunCache<Cache>,edm::BeginRunProducer> {
+    class GlobalIntFilter : public edm::stream::EDFilter<edm::GlobalCache<Cache>> {
     public:
-    static std::atomic<unsigned int> m_count;
-    unsigned int trans_;
-    static std::atomic<unsigned int> cvalue_;
-    static std::atomic<bool> gbr;
-    static std::atomic<bool> ger;
+      static std::atomic<unsigned int> m_count;
+      unsigned int trans_;
+      static std::atomic<unsigned int> cvalue_;
 
-    TestBeginRunFilter(edm::ParameterSet const&p){
-      trans_= p.getParameter<int>("transitions");
-      cvalue_ = p.getParameter<int>("cachevalue");
-      m_count = 0;
-      produces<unsigned int>();
-      produces<unsigned int, edm::Transition::BeginRun>("a");
-    }
-
-  static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
-     ++m_count;
-      gbr=true;
-      ger=false;
-      auto pCache = std::make_shared<Cache>();
-      ++(pCache->run);
-      return pCache;
-   }
-
-    bool filter(edm::Event&, edm::EventSetup const&) override {
-      ++m_count;
-      return true;
-    }
-
-    static void globalBeginRunProduce(edm::Run& iRun, edm::EventSetup const&, RunContext const*) {
-      ++m_count;
-      if ( !gbr ) {
-        throw cms::Exception("begin out of sequence")
-          << "globalBeginRunProduce seen before globalBeginRun";
+      static std::unique_ptr<Cache> initializeGlobalCache(edm::ParameterSet const&) {
+        ++m_count;
+        return std::make_unique<Cache>();
       }
-    }
 
-    static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
-     ++m_count;
-      auto pCache = iContext->run();
-      if ( pCache->run != 1 ) {
-        throw cms::Exception("end out of sequence")
-          << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
-      } 
-      gbr=false;
-      ger=true;
-    }
+      GlobalIntFilter(edm::ParameterSet const& p, const Cache* iGlobal) {
+        trans_ = p.getParameter<int>("transitions");
+        cvalue_ = p.getParameter<int>("cachevalue");
+        produces<unsigned int>();
+      }
 
-    ~TestBeginRunFilter() {
-    if(m_count != trans_) {
-       throw cms::Exception("transitions")
-         << m_count<< " but it was supposed to be " << trans_;
-     }
-    }
-  };
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        ++m_count;
+        ++((globalCache())->value);
 
-  class TestEndRunFilter : public edm::stream::EDFilter<edm::RunCache<Cache>,edm::EndRunProducer> {
+        return true;
+      }
+
+      static void globalEndJob(Cache* iGlobal) {
+        ++m_count;
+        if (iGlobal->value != cvalue_) {
+          throw cms::Exception("cache value") << iGlobal->value << " but it was supposed to be " << cvalue_;
+        }
+      }
+
+      ~GlobalIntFilter() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+    };
+
+    class RunIntFilter : public edm::stream::EDFilter<edm::RunCache<Cache>> {
     public:
-    static std::atomic<unsigned int> m_count;
-    unsigned int trans_;
-    static std::atomic<unsigned int> cvalue_;
-    static std::atomic<bool> gbr;
-    static std::atomic<bool> ger;
+      static std::atomic<unsigned int> m_count;
+      unsigned int trans_;
+      static std::atomic<unsigned int> cvalue_;
+      static std::atomic<bool> gbr;
+      static std::atomic<bool> ger;
+      bool br;
+      bool er;
 
-  static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
-     ++m_count;
-      gbr=true;
-      ger=false;
-      auto pCache = std::make_shared<Cache>();
-      ++(pCache->run);
-      return pCache;
-   }
-
- 
-    TestEndRunFilter(edm::ParameterSet const&p){
-      trans_= p.getParameter<int>("transitions");
-      cvalue_ = p.getParameter<int>("cachevalue");
-      m_count = 0;
-      produces<unsigned int>();
-      produces<unsigned int, edm::Transition::EndRun>("a");
-    }
-
-    bool filter(edm::Event&, edm::EventSetup const&) override {
-      ++m_count;
-       
-      return true;
-    }
-
-    static void globalEndRunProduce(edm::Run& iRun, edm::EventSetup const&, RunContext const*) {
-      ++m_count;
-      if ( ger ) {
-        throw cms::Exception("end out of sequence")
-          << "globalEndRun seen before globalEndRunProduce";
+      RunIntFilter(edm::ParameterSet const& p) {
+        trans_ = p.getParameter<int>("transitions");
+        cvalue_ = p.getParameter<int>("cachevalue");
+        m_count = 0;
+        produces<unsigned int>();
       }
-    }
 
-    static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
-      ++m_count;
-      auto pCache = iContext->run();
-      if ( pCache->run != 1 ) {
-        throw cms::Exception("end out of sequence")
-          << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
-      } 
-      gbr=false;
-      ger=true;
-    }
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        ++m_count;
+        ++(runCache()->value);
 
+        return true;
+      }
 
-    ~TestEndRunFilter() {
-    if(m_count != trans_) {
-       throw cms::Exception("transitions")
-         << m_count<< " but it was supposed to be " << trans_;
-     }
-    }
-  };
+      static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
+        ++m_count;
+        gbr = true;
+        ger = false;
+        auto pCache = std::make_shared<Cache>();
+        ++(pCache->run);
+        return pCache;
+      }
 
-  class TestBeginLumiBlockFilter : public edm::stream::EDFilter<edm::LuminosityBlockCache<Cache>,edm::BeginLuminosityBlockProducer> {
+      static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
+        ++m_count;
+        auto pCache = iContext->run();
+        if (pCache->run != 1) {
+          throw cms::Exception("end out of sequence") << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
+        }
+        ger = true;
+        gbr = false;
+        if (iContext->run()->value != cvalue_) {
+          throw cms::Exception("cache value") << iContext->run()->value << " but it was supposed to be " << cvalue_;
+        }
+      }
+
+      ~RunIntFilter() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+    };
+
+    class LumiIntFilter : public edm::stream::EDFilter<edm::LuminosityBlockCache<Cache>> {
     public:
-    static std::atomic<unsigned int> m_count;
-    unsigned int trans_;
-    static std::atomic<unsigned int> cvalue_;
-    static std::atomic<bool> gbl;
-    static std::atomic<bool> gel;
- 
-    TestBeginLumiBlockFilter(edm::ParameterSet const&p){
-      trans_= p.getParameter<int>("transitions");
-      cvalue_ = p.getParameter<int>("cachevalue");
-      m_count = 0;
-      produces<unsigned int>();
-      produces<unsigned int, edm::Transition::BeginLuminosityBlock>("a");
-    }
+      static std::atomic<unsigned int> m_count;
+      unsigned int trans_;
+      static std::atomic<unsigned int> cvalue_;
+      static std::atomic<bool> gbl;
+      static std::atomic<bool> gel;
+      static std::atomic<bool> bl;
+      static std::atomic<bool> el;
 
-    bool filter(edm::Event&, edm::EventSetup const&) override {
-      ++m_count;
-       
-      return true;
-    }
-
-    static void globalBeginLuminosityBlockProduce(edm::LuminosityBlock& , edm::EventSetup const&, LuminosityBlockContext const*) {
-      ++m_count;
-      if ( !gbl ) {
-        throw cms::Exception("begin out of sequence")
-          << "globalBeginLumiBlockProduce seen before globalBeginLumiBlock";
+      LumiIntFilter(edm::ParameterSet const& p) {
+        trans_ = p.getParameter<int>("transitions");
+        cvalue_ = p.getParameter<int>("cachevalue");
+        m_count = 0;
+        produces<unsigned int>();
       }
-    }
 
-    static std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, RunContext const*) {
-      ++m_count;
-      gbl = true;
-      gel = false;
-      auto pCache = std::make_shared<Cache>();
-      ++(pCache->lumi);
-      return pCache;
-   }
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        ++m_count;
+        ++(luminosityBlockCache()->value);
 
-    static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, LuminosityBlockContext const* iLBContext) {
-      ++m_count;
-      auto pCache = iLBContext->luminosityBlock();
-      if ( pCache->lumi != 1 ) {
-        throw cms::Exception("end out of sequence")
-          << "globalEndLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock" << iLB.luminosityBlock();
+        return true;
       }
-      gel = true;
-      gbl = false;
-    }
 
+      static std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB,
+                                                               edm::EventSetup const&,
+                                                               RunContext const*) {
+        ++m_count;
+        gbl = true;
+        gel = false;
+        auto pCache = std::make_shared<Cache>();
+        ++(pCache->lumi);
+        return pCache;
+      }
 
-    ~TestBeginLumiBlockFilter() {
-    if(m_count != trans_) {
-       throw cms::Exception("transitions")
-         << m_count<< " but it was supposed to be " << trans_;
-     }
-    }
-  };
+      void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {
+        bl = true;
+        el = false;
+        if (!gbl) {
+          throw cms::Exception("begin out of sequence")
+              << "beginLuminosityBlock seen before globalBeginLuminosityBlock";
+        }
+      }
 
-  class TestEndLumiBlockFilter : public edm::stream::EDFilter<edm::LuminosityBlockCache<Cache>,edm::EndLuminosityBlockProducer> {
+      static void globalEndLuminosityBlock(edm::LuminosityBlock const&,
+                                           edm::EventSetup const&,
+                                           LuminosityBlockContext const* iLBContext) {
+        ++m_count;
+        if (iLBContext->luminosityBlock()->value != cvalue_) {
+          throw cms::Exception("cache value") << "LumiIntFilter cache value " << iLBContext->luminosityBlock()->value
+                                              << " but it was supposed to be " << cvalue_;
+        }
+      }
+
+      static void endLuminosityBlock(edm::Run const&, edm::EventSetup const&, LuminosityBlockContext const*) {
+        el = true;
+        bl = false;
+        if (gel) {
+          throw cms::Exception("end out of sequence") << "globalEndLuminosityBlock seen before endLuminosityBlock";
+        }
+      }
+
+      ~LumiIntFilter() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+    };
+
+    class RunSummaryIntFilter : public edm::stream::EDFilter<edm::RunCache<Cache>, edm::RunSummaryCache<Cache>> {
     public:
-    static std::atomic<unsigned int> m_count;
-    unsigned int trans_;
-    static std::atomic<unsigned int> cvalue_;
-    static std::atomic<bool> gbl;
-    static std::atomic<bool> gel;
- 
-    TestEndLumiBlockFilter(edm::ParameterSet const&p){
-      trans_= p.getParameter<int>("transitions");
-      cvalue_ = p.getParameter<int>("cachevalue");
-      m_count = 0;
-      produces<unsigned int>();
-      produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
-    }
+      static std::atomic<unsigned int> m_count;
+      unsigned int trans_;
+      static std::atomic<unsigned int> cvalue_;
+      static std::atomic<bool> gbr;
+      static std::atomic<bool> ger;
+      static std::atomic<bool> gbrs;
+      static std::atomic<bool> gers;
+      static std::atomic<bool> brs;
+      static std::atomic<bool> ers;
+      static std::atomic<bool> br;
+      static std::atomic<bool> er;
 
-    bool filter(edm::Event&, edm::EventSetup const&) override {
-      ++m_count;
-       
-      return true;
-    }
-
-    static std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, RunContext const*) {
-      ++m_count;
-      gbl = true;
-      gel = false;
-      auto pCache = std::make_shared<Cache>();
-      ++(pCache->lumi);
-      return pCache;
-   }
-
-  static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, LuminosityBlockContext const* iLBContext) {
-      ++m_count;
-      auto pCache = iLBContext->luminosityBlock();
-      if ( pCache->lumi != 1 ) {
-        throw cms::Exception("end out of sequence")
-          << "globalEndLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock" << iLB.luminosityBlock();
+      RunSummaryIntFilter(edm::ParameterSet const& p) {
+        trans_ = p.getParameter<int>("transitions");
+        cvalue_ = p.getParameter<int>("cachevalue");
+        m_count = 0;
+        produces<unsigned int>();
       }
-      gel = true;
-      gbl = false;
-   }
 
+      void beginRun(edm::Run const&, edm::EventSetup const&) override {
+        br = true;
+        er = false;
+      }
 
-    static void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, LuminosityBlockContext const*) {
-      ++m_count;
-    }
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        ++m_count;
+        ++(runCache()->value);
 
-    ~TestEndLumiBlockFilter() {
-    if(m_count != trans_) {
-       throw cms::Exception("transitions")
-         << m_count<< " but it was supposed to be " << trans_;
-     }
-    }
-  };
+        return true;
+      }
 
+      static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
+        ++m_count;
+        gbr = true;
+        ger = false;
+        auto pCache = std::make_shared<Cache>();
+        ++(pCache->run);
+        return pCache;
+      }
 
+      static std::shared_ptr<Cache> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&, GlobalCache const*) {
+        ++m_count;
+        gbrs = true;
+        gers = false;
+        brs = true;
+        ers = false;
+        if (!gbr) {
+          throw cms::Exception("begin out of sequence") << "globalBeginRunSummary seen before globalBeginRun";
+        }
+        return std::make_shared<Cache>();
+      }
 
+      void endRunSummary(edm::Run const&, edm::EventSetup const&, Cache* gCache) const override {
+        brs = false;
+        ers = true;
+        gCache->value += runCache()->value;
+        runCache()->value = 0;
+        if (!er) {
+          throw cms::Exception("end out of sequence") << "endRunSummary seen before endRun";
+        }
+      }
 
+      static void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, RunContext const*, Cache* gCache) {
+        ++m_count;
+        gbrs = false;
+        gers = true;
+        if (!ers) {
+          throw cms::Exception("end out of sequence") << "globalEndRunSummary seen before endRunSummary";
+        }
+        if (gCache->value != cvalue_) {
+          throw cms::Exception("cache value") << gCache->value << " but it was supposed to be " << cvalue_;
+        }
+      }
 
-}
-}
+      static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
+        ++m_count;
+        gbr = false;
+        ger = true;
+        auto pCache = iContext->run();
+        if (pCache->run != 1) {
+          throw cms::Exception("end out of sequence") << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
+        }
+      }
+
+      void endRun(edm::Run const&, edm::EventSetup const&) override {
+        er = true;
+        br = false;
+      }
+
+      ~RunSummaryIntFilter() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+    };
+
+    class LumiSummaryIntFilter
+        : public edm::stream::EDFilter<edm::LuminosityBlockCache<Cache>, edm::LuminosityBlockSummaryCache<Cache>> {
+    public:
+      static std::atomic<unsigned int> m_count;
+      static std::atomic<unsigned int> m_lumiSumCalls;
+      unsigned int trans_;
+      static std::atomic<unsigned int> cvalue_;
+      static std::atomic<bool> gbl;
+      static std::atomic<bool> gel;
+      static std::atomic<bool> gbls;
+      static std::atomic<bool> gels;
+      static std::atomic<bool> bls;
+      static std::atomic<bool> els;
+      static std::atomic<bool> bl;
+      static std::atomic<bool> el;
+
+      LumiSummaryIntFilter(edm::ParameterSet const& p) {
+        trans_ = p.getParameter<int>("transitions");
+        cvalue_ = p.getParameter<int>("cachevalue");
+        m_count = 0;
+        produces<unsigned int>();
+      }
+
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        ++m_count;
+        ++(luminosityBlockCache()->value);
+
+        return true;
+      }
+
+      void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {
+        bl = true;
+        el = false;
+      }
+
+      static std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB,
+                                                               edm::EventSetup const&,
+                                                               RunContext const*) {
+        ++m_count;
+        gbl = true;
+        gel = false;
+        auto pCache = std::make_shared<Cache>();
+        ++(pCache->lumi);
+        return pCache;
+      }
+
+      static std::shared_ptr<Cache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
+                                                                      edm::EventSetup const&,
+                                                                      LuminosityBlockContext const*) {
+        ++m_count;
+        gbls = true;
+        gels = false;
+        bls = true;
+        els = false;
+        if (!gbl) {
+          throw cms::Exception("begin out of sequence")
+              << "globalBeginLuminosityBlockSummary seen before globalBeginLuminosityBlock";
+        }
+        return std::make_shared<Cache>();
+      }
+
+      void endLuminosityBlockSummary(edm::LuminosityBlock const&,
+                                     edm::EventSetup const&,
+                                     Cache* gCache) const override {
+        ++m_lumiSumCalls;
+        bls = false;
+        els = true;
+        //This routine could be called at the same time as another stream is calling filter so must do the change atomically
+        auto v = luminosityBlockCache()->value.exchange(0);
+        gCache->value += v;
+        if (el) {
+          throw cms::Exception("end out of sequence") << "endLuminosityBlock seen before endLuminosityBlockSummary";
+        }
+      }
+
+      static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
+                                                  edm::EventSetup const&,
+                                                  LuminosityBlockContext const*,
+                                                  Cache* gCache) {
+        ++m_count;
+        auto nLumis = m_lumiSumCalls.load();
+        gbls = false;
+        gels = true;
+        if (!els) {
+          throw cms::Exception("end out of sequence")
+              << "LumiSummaryIntFilter "
+              << "globalEndLuminosityBlockSummary seen before endLuminosityBlockSummary";
+        }
+        if (gCache->value != cvalue_) {
+          throw cms::Exception("cache value")
+              << gCache->value << " but it was supposed to be " << cvalue_ << " endLumiBlockSummary called " << nLumis;
+        }
+      }
+
+      static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB,
+                                           edm::EventSetup const&,
+                                           LuminosityBlockContext const* iLBContext) {
+        ++m_count;
+        auto pCache = iLBContext->luminosityBlock();
+        if (pCache->lumi != 1) {
+          throw cms::Exception("end out of sequence")
+              << "globalEndLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock"
+              << iLB.luminosityBlock();
+        }
+        gel = true;
+        gbl = false;
+        if (!gels) {
+          throw cms::Exception("end out of sequence")
+              << "globalEndLuminosityBlockSummary seen before globalEndLuminosityBlock";
+        }
+      }
+
+      static void endLuminosityBlock(edm::Run const&, edm::EventSetup const&, LuminosityBlockContext const*) {
+        el = true;
+        bl = false;
+      }
+
+      ~LumiSummaryIntFilter() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+    };
+
+    class TestBeginRunFilter : public edm::stream::EDFilter<edm::RunCache<Cache>, edm::BeginRunProducer> {
+    public:
+      static std::atomic<unsigned int> m_count;
+      unsigned int trans_;
+      static std::atomic<unsigned int> cvalue_;
+      static std::atomic<bool> gbr;
+      static std::atomic<bool> ger;
+
+      TestBeginRunFilter(edm::ParameterSet const& p) {
+        trans_ = p.getParameter<int>("transitions");
+        cvalue_ = p.getParameter<int>("cachevalue");
+        m_count = 0;
+        produces<unsigned int>();
+        produces<unsigned int, edm::Transition::BeginRun>("a");
+      }
+
+      static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
+        ++m_count;
+        gbr = true;
+        ger = false;
+        auto pCache = std::make_shared<Cache>();
+        ++(pCache->run);
+        return pCache;
+      }
+
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        ++m_count;
+        return true;
+      }
+
+      static void globalBeginRunProduce(edm::Run& iRun, edm::EventSetup const&, RunContext const*) {
+        ++m_count;
+        if (!gbr) {
+          throw cms::Exception("begin out of sequence") << "globalBeginRunProduce seen before globalBeginRun";
+        }
+      }
+
+      static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
+        ++m_count;
+        auto pCache = iContext->run();
+        if (pCache->run != 1) {
+          throw cms::Exception("end out of sequence") << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
+        }
+        gbr = false;
+        ger = true;
+      }
+
+      ~TestBeginRunFilter() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+    };
+
+    class TestEndRunFilter : public edm::stream::EDFilter<edm::RunCache<Cache>, edm::EndRunProducer> {
+    public:
+      static std::atomic<unsigned int> m_count;
+      unsigned int trans_;
+      static std::atomic<unsigned int> cvalue_;
+      static std::atomic<bool> gbr;
+      static std::atomic<bool> ger;
+
+      static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
+        ++m_count;
+        gbr = true;
+        ger = false;
+        auto pCache = std::make_shared<Cache>();
+        ++(pCache->run);
+        return pCache;
+      }
+
+      TestEndRunFilter(edm::ParameterSet const& p) {
+        trans_ = p.getParameter<int>("transitions");
+        cvalue_ = p.getParameter<int>("cachevalue");
+        m_count = 0;
+        produces<unsigned int>();
+        produces<unsigned int, edm::Transition::EndRun>("a");
+      }
+
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        ++m_count;
+
+        return true;
+      }
+
+      static void globalEndRunProduce(edm::Run& iRun, edm::EventSetup const&, RunContext const*) {
+        ++m_count;
+        if (ger) {
+          throw cms::Exception("end out of sequence") << "globalEndRun seen before globalEndRunProduce";
+        }
+      }
+
+      static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
+        ++m_count;
+        auto pCache = iContext->run();
+        if (pCache->run != 1) {
+          throw cms::Exception("end out of sequence") << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
+        }
+        gbr = false;
+        ger = true;
+      }
+
+      ~TestEndRunFilter() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+    };
+
+    class TestBeginLumiBlockFilter
+        : public edm::stream::EDFilter<edm::LuminosityBlockCache<Cache>, edm::BeginLuminosityBlockProducer> {
+    public:
+      static std::atomic<unsigned int> m_count;
+      unsigned int trans_;
+      static std::atomic<unsigned int> cvalue_;
+      static std::atomic<bool> gbl;
+      static std::atomic<bool> gel;
+
+      TestBeginLumiBlockFilter(edm::ParameterSet const& p) {
+        trans_ = p.getParameter<int>("transitions");
+        cvalue_ = p.getParameter<int>("cachevalue");
+        m_count = 0;
+        produces<unsigned int>();
+        produces<unsigned int, edm::Transition::BeginLuminosityBlock>("a");
+      }
+
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        ++m_count;
+
+        return true;
+      }
+
+      static void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&,
+                                                    edm::EventSetup const&,
+                                                    LuminosityBlockContext const*) {
+        ++m_count;
+        if (!gbl) {
+          throw cms::Exception("begin out of sequence")
+              << "globalBeginLumiBlockProduce seen before globalBeginLumiBlock";
+        }
+      }
+
+      static std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB,
+                                                               edm::EventSetup const&,
+                                                               RunContext const*) {
+        ++m_count;
+        gbl = true;
+        gel = false;
+        auto pCache = std::make_shared<Cache>();
+        ++(pCache->lumi);
+        return pCache;
+      }
+
+      static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB,
+                                           edm::EventSetup const&,
+                                           LuminosityBlockContext const* iLBContext) {
+        ++m_count;
+        auto pCache = iLBContext->luminosityBlock();
+        if (pCache->lumi != 1) {
+          throw cms::Exception("end out of sequence")
+              << "globalEndLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock"
+              << iLB.luminosityBlock();
+        }
+        gel = true;
+        gbl = false;
+      }
+
+      ~TestBeginLumiBlockFilter() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+    };
+
+    class TestEndLumiBlockFilter
+        : public edm::stream::EDFilter<edm::LuminosityBlockCache<Cache>, edm::EndLuminosityBlockProducer> {
+    public:
+      static std::atomic<unsigned int> m_count;
+      unsigned int trans_;
+      static std::atomic<unsigned int> cvalue_;
+      static std::atomic<bool> gbl;
+      static std::atomic<bool> gel;
+
+      TestEndLumiBlockFilter(edm::ParameterSet const& p) {
+        trans_ = p.getParameter<int>("transitions");
+        cvalue_ = p.getParameter<int>("cachevalue");
+        m_count = 0;
+        produces<unsigned int>();
+        produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
+      }
+
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        ++m_count;
+
+        return true;
+      }
+
+      static std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB,
+                                                               edm::EventSetup const&,
+                                                               RunContext const*) {
+        ++m_count;
+        gbl = true;
+        gel = false;
+        auto pCache = std::make_shared<Cache>();
+        ++(pCache->lumi);
+        return pCache;
+      }
+
+      static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB,
+                                           edm::EventSetup const&,
+                                           LuminosityBlockContext const* iLBContext) {
+        ++m_count;
+        auto pCache = iLBContext->luminosityBlock();
+        if (pCache->lumi != 1) {
+          throw cms::Exception("end out of sequence")
+              << "globalEndLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock"
+              << iLB.luminosityBlock();
+        }
+        gel = true;
+        gbl = false;
+      }
+
+      static void globalEndLuminosityBlockProduce(edm::LuminosityBlock&,
+                                                  edm::EventSetup const&,
+                                                  LuminosityBlockContext const*) {
+        ++m_count;
+      }
+
+      ~TestEndLumiBlockFilter() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+    };
+
+  }  // namespace stream
+}  // namespace edmtest
 std::atomic<unsigned int> edmtest::stream::GlobalIntFilter::m_count{0};
 std::atomic<unsigned int> edmtest::stream::RunIntFilter::m_count{0};
 std::atomic<unsigned int> edmtest::stream::LumiIntFilter::m_count{0};

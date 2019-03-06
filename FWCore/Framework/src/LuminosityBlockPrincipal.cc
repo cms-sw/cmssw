@@ -4,45 +4,33 @@
 
 namespace edm {
 
-  LuminosityBlockPrincipal::LuminosityBlockPrincipal(
-      std::shared_ptr<ProductRegistry const> reg,
-      ProcessConfiguration const& pc,
-      HistoryAppender* historyAppender,
-      unsigned int index,
-      bool isForPrimaryProcess) :
-    Base(reg, reg->productLookup(InLumi), pc, InLumi, historyAppender, isForPrimaryProcess),
+  LuminosityBlockPrincipal::LuminosityBlockPrincipal(std::shared_ptr<ProductRegistry const> reg,
+                                                     ProcessConfiguration const& pc,
+                                                     HistoryAppender* historyAppender,
+                                                     unsigned int index,
+                                                     bool isForPrimaryProcess)
+      : Base(reg, reg->productLookup(InLumi), pc, InLumi, historyAppender, isForPrimaryProcess),
         runPrincipal_(),
-        index_(index) {
-  }
+        index_(index) {}
 
-  void
-  LuminosityBlockPrincipal::fillLuminosityBlockPrincipal(
-      ProcessHistoryRegistry const& processHistoryRegistry,
-      DelayedReader* reader) {
+  void LuminosityBlockPrincipal::fillLuminosityBlockPrincipal(ProcessHistoryRegistry const& processHistoryRegistry,
+                                                              DelayedReader* reader) {
     fillPrincipal(aux_.processHistoryID(), processHistoryRegistry, reader);
 
-    for(auto& prod : *this) {
+    for (auto& prod : *this) {
       prod->setProcessHistory(processHistory());
     }
   }
 
-  void
-  LuminosityBlockPrincipal::put(
-        BranchDescription const& bd,
-        std::unique_ptr<WrapperBase> edp) const {
-    putOrMerge(bd,std::move(edp));
+  void LuminosityBlockPrincipal::put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const {
+    putOrMerge(bd, std::move(edp));
   }
 
-  void
-  LuminosityBlockPrincipal::put(ProductResolverIndex index,
-                                std::unique_ptr<WrapperBase> edp) const {
+  void LuminosityBlockPrincipal::put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const {
     auto phb = getProductResolverByIndex(index);
     phb->putOrMergeProduct(std::move(edp));
   }
 
-  unsigned int
-  LuminosityBlockPrincipal::transitionIndex_() const {
-    return index().value();
-  }
+  unsigned int LuminosityBlockPrincipal::transitionIndex_() const { return index().value(); }
 
-}
+}  // namespace edm
