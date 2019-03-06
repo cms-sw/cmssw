@@ -1,10 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
+using namespace geant_units::operators;
 
 static long algorithm(Detector& /* description */,
                       cms::DDParsingContext& ctxt,
@@ -25,8 +27,8 @@ static long algorithm(Detector& /* description */,
 
   LogDebug("TECGeom") << "debug: Parameters for "
 		      << "positioning--" << "\tStartAngle " 
-		      << ConvertTo( startAngle, deg ) << "\tIncrAngle " 
-		      << ConvertTo( incrAngle, deg ) << "\tZ in/out " << zIn << ", " 
+		      << convertRadToDeg( startAngle ) << "\tIncrAngle " 
+		      << convertRadToDeg( incrAngle ) << "\tZ in/out " << zIn << ", " 
 		      << zOut 	      << "\tCopy Numbers " << number 
 		      << " Start/Increment " << startCopyNo << ", " 
 		      << incrCopyNo;

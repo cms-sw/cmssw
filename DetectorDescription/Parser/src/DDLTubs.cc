@@ -1,7 +1,7 @@
 #include "DetectorDescription/Parser/src/DDLTubs.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLSolid.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
@@ -11,7 +11,7 @@
 
 class DDCompactView;
 
-using namespace dd::operators;
+using namespace geant_units::operators;
 
 DDLTubs::DDLTubs( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
