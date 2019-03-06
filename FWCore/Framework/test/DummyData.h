@@ -12,11 +12,12 @@
 #include "FWCore/Framework/test/DummyRecord.h"
 
 namespace edm::eventsetup::test {
-  struct DummyData { int value_;
-    DummyData(int iValue=0) : value_(iValue) {}
-    void dummy() {} // Just to suppress compilation warning message
+  struct DummyData {
+    int value_;
+    DummyData(int iValue = 0) : value_(iValue) {}
+    void dummy() {}  // Just to suppress compilation warning message
   };
-}
+}  // namespace edm::eventsetup::test
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 EVENTSETUP_DATA_DEFAULT_RECORD(edm::eventsetup::test::DummyData, DummyRecord)

@@ -20,18 +20,15 @@
 
 #include <memory>
 
-namespace edm
-{
+namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
   class HLTGlobalStatus;
   class TriggerResults;
 
-  class TriggerResultInserter : public edm::global::EDProducer<>
-  {
+  class TriggerResultInserter : public edm::global::EDProducer<> {
   public:
-
     typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
     // standard constructor not supported for this module
@@ -40,8 +37,7 @@ namespace edm
     // the pset needed here is the one that defines the trigger path names
     TriggerResultInserter(edm::ParameterSet const& ps, unsigned int iNStreams);
 
-    void setTrigResultForStream(unsigned int iStreamIndex,
-                                const TrigResPtr& trptr);
+    void setTrigResultForStream(unsigned int iStreamIndex, const TrigResPtr& trptr);
     void produce(StreamID id, edm::Event& e, edm::EventSetup const& c) const final;
 
   private:
@@ -50,5 +46,5 @@ namespace edm
     ParameterSetID pset_id_;
     EDPutTokenT<TriggerResults> token_;
   };
-}
+}  // namespace edm
 #endif

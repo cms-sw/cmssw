@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     MakeDataException
-// 
+//
 /**\class MakeDataException MakeDataException.h FWCore/Framework/interface/MakeDataException.h
 
 Description: An exception that is thrown whenever a Proxy had a problem with
@@ -40,32 +40,29 @@ if(outOfBoundsValue) {
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
+  namespace eventsetup {
 
-class MakeDataException : public cms::Exception
-{
-   public:
-      MakeDataException(const EventSetupRecordKey&, const DataKey&);  
+    class MakeDataException : public cms::Exception {
+    public:
+      MakeDataException(const EventSetupRecordKey&, const DataKey&);
       ~MakeDataException() noexcept override {}
 
       // ---------- const member functions ---------------------
-      const char* myMessage() const noexcept {
-         return message_.c_str();
-      }
-   
-      // ---------- static member functions --------------------
-      static std::string standardMessage(const EventSetupRecordKey&, const DataKey&); 
-   // ---------- member functions ---------------------------
+      const char* myMessage() const noexcept { return message_.c_str(); }
 
-   private:
+      // ---------- static member functions --------------------
+      static std::string standardMessage(const EventSetupRecordKey&, const DataKey&);
+      // ---------- member functions ---------------------------
+
+    private:
       //MakeDataException(const MakeDataException&); // stop default
 
       //const MakeDataException& operator=(const MakeDataException&); // stop default
 
       // ---------- member data --------------------------------
       std::string message_;
-};
+    };
 
-   }
-}
+  }  // namespace eventsetup
+}  // namespace edm
 #endif
