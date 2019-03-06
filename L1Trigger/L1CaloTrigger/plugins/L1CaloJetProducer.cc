@@ -235,8 +235,10 @@ class L1CaloJetProducer : public edm::EDProducer {
             public:
                 bool stale = false; // Hits become stale once used in clustering algorithm to prevent overlap in clusters
                 bool associated_with_tower = false; // L1EGs become associated with a tower to find highest ET total for seeding jets
-                bool passesStandaloneWP = false; // Store whether any of the WPs are passed
-                bool passesTrkMatchWP = false; // Store whether any of the WPs are passed
+                bool passesStandaloneSS = false; // Store whether any of the portions of a WP are passed
+                bool passesStandaloneIso = false; // Store whether any of the portions of a WP are passed
+                bool passesTrkMatchSS = false; // Store whether any of the portions of a WP are passed
+                bool passesTrkMatchIso = false; // Store whether any of the portions of a WP are passed
                 reco::Candidate::PolarLorentzVector p4;
 
                 void SetP4( double pt, double eta, double phi, double mass )
@@ -559,8 +561,10 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     {
         simpleL1obj l1egObj;
         l1egObj.SetP4(EGammaCand.pt(), EGammaCand.eta(), EGammaCand.phi(), 0.);
-        l1egObj.passesStandaloneWP = EGammaCand.standaloneWP();
-        l1egObj.passesTrkMatchWP = EGammaCand.looseL1TkMatchWP();
+        l1egObj.passesStandaloneSS = EGammaCand.GetExperimentalParam("standaloneWP_showerShape");
+        l1egObj.passesStandaloneIso = EGammaCand.GetExperimentalParam("standaloneWP_isolation");
+        l1egObj.passesTrkMatchSS = EGammaCand.GetExperimentalParam("trkMatchWP_showerShape");
+        l1egObj.passesTrkMatchIso = EGammaCand.GetExperimentalParam("trkMatchWP_isolation");
         crystalClustersVect.push_back( l1egObj );
         if (debug) printf("L1EG added from emulator: eta %f phi %f pt %f\n", l1egObj.eta(), l1egObj.phi(), l1egObj.pt());
     }
@@ -895,8 +899,10 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         float ecal_dR0p3 = 0.;
         float ecal_dR0p4 = 0.;
         float ecal_nL1EGs = 0.;
-        float ecal_nL1EGs_standalone = 0.;
-        float ecal_nL1EGs_trkMatch = 0.;
+        float ecal_nL1EGs_standaloneSS = 0.;
+        float ecal_nL1EGs_standaloneIso = 0.;
+        float ecal_nL1EGs_trkMatchSS = 0.;
+        float ecal_nL1EGs_trkMatchIso = 0.;
 
 
         // We are pT ordered so we will always begin with the highest pT L1EG
@@ -945,8 +951,10 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
             // For all including the seed and subsequent L1EGs
             ecal_nL1EGs++;
-            if (l1eg.passesStandaloneWP ) ecal_nL1EGs_standalone++;
-            if (l1eg.passesTrkMatchWP ) ecal_nL1EGs_trkMatch++;
+            if (l1eg.passesStandaloneSS ) ecal_nL1EGs_standaloneSS++;
+            if (l1eg.passesStandaloneIso ) ecal_nL1EGs_standaloneIso++;
+            if (l1eg.passesTrkMatchSS ) ecal_nL1EGs_trkMatchSS++;
+            if (l1eg.passesTrkMatchIso ) ecal_nL1EGs_trkMatchIso++;
             l1eg.stale = true;
 
 
@@ -1044,8 +1052,10 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         params["ecal_dR0p3"] =          ecal_dR0p3;
         params["ecal_dR0p4"] =          ecal_dR0p4;
         params["ecal_nL1EGs"] =         ecal_nL1EGs;
-        params["ecal_nL1EGs_standalone"] =  ecal_nL1EGs_standalone;
-        params["ecal_nL1EGs_trkMatch"] =    ecal_nL1EGs_trkMatch;
+        params["ecal_nL1EGs_standaloneSS"] =  ecal_nL1EGs_standaloneSS;
+        params["ecal_nL1EGs_standaloneIso"] =  ecal_nL1EGs_standaloneIso;
+        params["ecal_nL1EGs_trkMatchSS"] =    ecal_nL1EGs_trkMatchSS;
+        params["ecal_nL1EGs_trkMatchIso"] =    ecal_nL1EGs_trkMatchIso;
 
         params["ecal_pt"] = caloJetObj.ecalJetClusterET;
 
