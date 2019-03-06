@@ -292,8 +292,8 @@ void CaloParticleDebugger::fillSimHits(
   iSetup.get<CaloGeometryRecord>().get(geom);
   const HGCalGeometry *eegeom = nullptr, *fhgeom = nullptr, *bhgeomnew = nullptr;
   const HcalGeometry *bhgeom = nullptr;
-  const HGCalDDDConstants* hgddd[2];
-  const HGCalTopology*     hgtopo[2];
+  const HGCalDDDConstants* hgddd[3];
+  const HGCalTopology*     hgtopo[3];
   const HcalDDDRecConstants* hcddd;
   eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
   //check if it's the new geometry
