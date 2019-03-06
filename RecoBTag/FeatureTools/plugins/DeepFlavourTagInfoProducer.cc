@@ -118,8 +118,8 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
   use_pvasq_value_map_(false),
   fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
   fallback_vertex_association_(iConfig.getParameter<bool>("fallback_vertex_association")),
-  run_deepVertex_(false),
-  m_computeProbabilities(false)
+  run_deepVertex_(iConfig.getParameter<bool>("run_deepVertex")),
+  m_computeProbabilities(iConfig.getParameter<bool>("m_computeProbabilities"))
 {
   produces<DeepFlavourTagInfoCollection>();
 
@@ -159,6 +159,8 @@ void DeepFlavourTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("vertex_associator", edm::InputTag("primaryVertexAssociation","original"));
   desc.add<bool>("fallback_puppi_weight", false);
   desc.add<bool>("fallback_vertex_association", false);
+  desc.add<bool>("run_deepVertex", false);
+  desc.add<bool>("m_computeProbabilities", false);
   descriptions.add("pfDeepFlavourTagInfos", desc);
 }
 
