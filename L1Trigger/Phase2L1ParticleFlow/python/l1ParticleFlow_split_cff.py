@@ -1,11 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1CaloTrigger.l1EGammaCrystalsProducer_cfi import l1EGammaCrystalsProducer
-
-l1ParticleFlow_prerequisites = cms.Sequence(
-    l1EGammaCrystalsProducer 
-)
-
 from L1Trigger.Phase2L1ParticleFlow.pfTracksFromL1Tracks_cfi import pfTracksFromL1Tracks
 from L1Trigger.Phase2L1ParticleFlow.pfClustersFromL1EGClusters_cfi import pfClustersFromL1EGClusters
 from L1Trigger.Phase2L1ParticleFlow.pfClustersFromCombinedCalo_cfi import pfClustersFromCombinedCalo
@@ -62,6 +56,23 @@ l1pfProducerBarrel = l1pfProducer.clone(
     puppiPtMax = 50.,
     vtxAlgo = "external",
     vtxCollection = cms.InputTag("VertexProducer","l1vertices"),
+    # puppi tuning
+    puAlgo = "LinearizedPuppi",
+    puppiEtaCuts            = cms.vdouble( 1.6 ), # just one bin
+    puppiPtCuts             = cms.vdouble( 1.0 ),
+    puppiPtCutsPhotons      = cms.vdouble( 1.0 ),
+    puppiPtSlopes           = cms.vdouble( 0.3 ), # coefficient for pT
+    puppiPtSlopesPhotons    = cms.vdouble( 0.3 ),
+    puppiPtZeros            = cms.vdouble( 4.0 ), # ballpark pT from PU
+    puppiPtZerosPhotons     = cms.vdouble( 2.5 ), 
+    puppiAlphaSlopes        = cms.vdouble( 0.7 ), # coefficient for alpha
+    puppiAlphaSlopesPhotons = cms.vdouble( 0.7 ),
+    puppiAlphaZeros         = cms.vdouble( 6.0 ), # ballpark alpha from PU
+    puppiAlphaZerosPhotons  = cms.vdouble( 6.0 ), 
+    puppiAlphaCrops         = cms.vdouble(  4  ), # max. absolute value for alpha term
+    puppiAlphaCropsPhotons  = cms.vdouble(  4  ),
+    puppiPriors             = cms.vdouble( 5.0 ),
+    puppiPriorsPhotons      = cms.vdouble( 1.0 ),
     # regionalize
     useRelativeRegionalCoordinates = cms.bool(False),
     trackRegionMode = cms.string("atCalo"),
@@ -98,6 +109,23 @@ l1pfProducerHGCal = l1pfProducer.clone(
     puppiUsingBareTracks = True,
     vtxAlgo = "external",
     vtxCollection = cms.InputTag("VertexProducer","l1vertices"),
+    # puppi tuning
+    puAlgo = "LinearizedPuppi",
+    puppiEtaCuts            = cms.vdouble( 2.0, 2.4, 3.1 ), # two bins in the tracker (different pT), one outside
+    puppiPtCuts             = cms.vdouble( 1.0, 2.0, 4.0 ),
+    puppiPtCutsPhotons      = cms.vdouble( 1.0, 2.0, 4.0 ),
+    puppiPtSlopes           = cms.vdouble( 0.3, 0.3, 0.3 ), # coefficient for pT
+    puppiPtSlopesPhotons    = cms.vdouble( 0.3, 0.3, 0.3 ),
+    puppiPtZeros            = cms.vdouble( 5.0, 7.0, 9.0 ), # ballpark pT from PU
+    puppiPtZerosPhotons     = cms.vdouble( 3.0, 4.0, 5.0 ), 
+    puppiAlphaSlopes        = cms.vdouble( 1.5, 1.5, 2.2 ),
+    puppiAlphaSlopesPhotons = cms.vdouble( 1.5, 1.5, 2.2 ),
+    puppiAlphaZeros         = cms.vdouble( 6.0, 6.0, 9.0 ),
+    puppiAlphaZerosPhotons  = cms.vdouble( 6.0, 6.0, 9.0 ),
+    puppiAlphaCrops         = cms.vdouble(  3 ,  3 ,  4  ), # max. absolute value for alpha term
+    puppiAlphaCropsPhotons  = cms.vdouble(  3 ,  3 ,  4  ),
+    puppiPriors             = cms.vdouble( 5.0, 5.0, 7.0 ),
+    puppiPriorsPhotons      = cms.vdouble( 3.5, 3.5, 7.0 ),
     # regionalize
     useRelativeRegionalCoordinates = cms.bool(False),
     trackRegionMode = cms.string("atCalo"),
@@ -136,6 +164,23 @@ l1pfProducerHF = l1pfProducer.clone(
     puppiPtMax = 100.,
     vtxAlgo = "external",
     vtxCollection = cms.InputTag("VertexProducer","l1vertices"),
+    # puppi tuning
+    puAlgo = "LinearizedPuppi",
+    puppiEtaCuts            = cms.vdouble( 5.5 ), # one bin
+    puppiPtCuts             = cms.vdouble( 10. ),
+    puppiPtCutsPhotons      = cms.vdouble( 10. ), # not used (no photons in HF)
+    puppiPtSlopes           = cms.vdouble( 0.25),
+    puppiPtSlopesPhotons    = cms.vdouble( 0.25), # not used (no photons in HF)
+    puppiPtZeros            = cms.vdouble( 14. ), # ballpark pT from PU
+    puppiPtZerosPhotons     = cms.vdouble( 14. ), # not used (no photons in HF)
+    puppiAlphaSlopes        = cms.vdouble( 0.6 ),
+    puppiAlphaSlopesPhotons = cms.vdouble( 0.6 ), # not used (no photons in HF)
+    puppiAlphaZeros         = cms.vdouble( 9.0 ),
+    puppiAlphaZerosPhotons  = cms.vdouble( 9.0 ), # not used (no photons in HF)
+    puppiAlphaCrops         = cms.vdouble(  4  ),
+    puppiAlphaCropsPhotons  = cms.vdouble(  4  ), # not used (no photons in HF)
+    puppiPriors             = cms.vdouble( 6.0 ),
+    puppiPriorsPhotons      = cms.vdouble( 6.0 ), # not used (no photons in HF)
     # regionalize
     useRelativeRegionalCoordinates = cms.bool(False),
     trackRegionMode = cms.string("atCalo"),
@@ -169,22 +214,12 @@ l1pfCandidates = cms.EDProducer("L1TPFCandMultiMerger",
     labelsToMerge = cms.vstring("Calo", "TK", "TKVtx", "PF", "Puppi"),
 )
 
-l1PuppiCandidatesForMET = cms.EDFilter("L1TPFCandSelector",
-    src = cms.InputTag("l1pfCandidates:Puppi"),
-    cut = cms.string("charge != 0 ||"+
-                     "abs(eta) < 1.5 ||"+
-                     "(pt > 20 && abs(eta) < 2.5) ||"+
-                     "(pt > 40 && 2.5 <= abs(eta) <= 2.85) ||"+
-                     "(pt > 30 && abs(eta) > 3.0)")
-)
-
 l1ParticleFlow_proper = cms.Sequence(
     l1ParticleFlow_calo +
     l1ParticleFlow_pf_barrel +
     l1ParticleFlow_pf_hgcal +
     l1ParticleFlow_pf_hf +
     l1pfCandidates
-    + l1PuppiCandidatesForMET
 )
 
-l1ParticleFlow = cms.Sequence(l1ParticleFlow_prerequisites + l1ParticleFlow_proper)
+l1ParticleFlow = cms.Sequence(l1ParticleFlow_proper)
