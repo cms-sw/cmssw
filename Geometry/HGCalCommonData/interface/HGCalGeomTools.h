@@ -16,6 +16,9 @@ public:
   static double radius(double z, int layer0, int layerf,
 		       std::vector<double> const& zFront,
 		       std::vector<double> const& rFront);
+  static std::pair<double,double> zradius(double z1, double z2,
+					  std::vector<double> const& zFront,
+					  std::vector<double> const& rFront);
   static std::pair<int32_t,int32_t> waferCorner(double xpos, double ypos,
 						double r, double R, 
 						double rMin, double rMax,

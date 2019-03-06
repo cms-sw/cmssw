@@ -53,6 +53,19 @@ double HGCalGeomTools::radius(double z, int layer0, int layerf,
   return r;
 }
 
+std::pair<double,double> HGCalGeomTools::zradius(double z1, double z2,
+						 std::vector<double> const& zF,
+						 std::vector<double> const& rF) {
+
+  double z(-1), r(-1);
+  for (unsigned int k=0; k<rF.size(); ++k) {
+    if ((z1 > zF[k]-tol) && (z2 < zF[k]+tol)) {
+      z = zF[k]; r = rF[k]; break;
+    }
+  }
+  return std::make_pair(z,r);
+}
+  
 std::pair<int32_t,int32_t> HGCalGeomTools::waferCorner(double xpos, 
 						       double ypos,
 						       double r, double R, 
