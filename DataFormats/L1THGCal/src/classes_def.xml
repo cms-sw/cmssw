@@ -30,7 +30,8 @@
 
   <class name="l1t::HGCalClusterT<l1t::HGCalTriggerCell>" />
   <class name="l1t::HGCalClusterT<l1t::HGCalTriggerSums>" />
-  <class name="l1t::HGCalCluster" ClassVersion="14">
+  <class name="l1t::HGCalCluster" ClassVersion="15">
+   <version ClassVersion="15" checksum="2522149132"/>
   <version ClassVersion="14" checksum="3289642235"/>
   <version ClassVersion="13" checksum="3397489079"/>
   <version ClassVersion="12" checksum="623703096"/>
@@ -42,18 +43,23 @@
   <class name="edm::Wrapper<l1t::HGCalClusterBxCollection>"/>
 
   <class name="l1t::HGCalClusterT<l1t::HGCalCluster>" />
-  <class name="l1t::HGCalMulticluster" ClassVersion="14">
+  <class name="l1t::HGCalMulticluster" ClassVersion="16">
+   <version ClassVersion="16" checksum="1276395758"/>
+   <version ClassVersion="15" checksum="777879934"/>
   <version ClassVersion="14" checksum="2315302819"/>
   <version ClassVersion="13" checksum="816077951"/>
   <version ClassVersion="12" checksum="4221677522"/>
   <version ClassVersion="11" checksum="1508179045"/>
   <version ClassVersion="10" checksum="1878482802"/>
   </class>
+  <ioread sourceClass="l1t::HGCalMulticluster"  targetClass="l1t::HGCalMulticluster" version="[-15]" target="hOverE_" source="" embed="false"> <![CDATA[ hOverE_ = -99; ]]> </ioread>
+  <ioread sourceClass="l1t::HGCalMulticluster"  targetClass="l1t::HGCalMulticluster" version="[-15]" target="hOverEValid_" source="" embed="false"> <![CDATA[ hOverEValid_ = false; ]]> </ioread>
   <class name="std::vector<l1t::HGCalMulticluster>" />
   <class name="l1t::HGCalMulticlusterBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalMulticlusterBxCollection>"/>
 
-  <class name="l1t::HGCalTriggerCell" ClassVersion="11">
+  <class name="l1t::HGCalTriggerCell" ClassVersion="12">
+   <version ClassVersion="12" checksum="3538848072"/>
    <version ClassVersion="11" checksum="646735227"/>
     <version ClassVersion="10" checksum="1275348814"/>
   </class>
@@ -61,7 +67,8 @@
   <class name="l1t::HGCalTriggerCellBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalTriggerCellBxCollection>"/>
   
-  <class name="l1t::HGCalTriggerSums" ClassVersion="11">
+  <class name="l1t::HGCalTriggerSums" ClassVersion="12">
+   <version ClassVersion="12" checksum="1802885417"/>
     <version ClassVersion="11" checksum="4058188392"/>
   </class>
   <class name="std::vector<l1t::HGCalTriggerSums>" />

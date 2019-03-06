@@ -12,6 +12,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1THGCal/interface/HGCalTowerID.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
 #include <vector>
 #include <unordered_map>
@@ -27,6 +28,11 @@ class HGCalTriggerTowerGeometryHelper {
     HGCalTriggerTowerGeometryHelper(const edm::ParameterSet& conf);
 
     ~HGCalTriggerTowerGeometryHelper() {}
+
+    void eventSetup(const edm::EventSetup& es) 
+    {
+        triggerTools_.eventSetup(es);
+    }
 
     const std::vector<l1t::HGCalTowerCoord>& getTowerCoordinates() const;
 
@@ -46,6 +52,8 @@ class HGCalTriggerTowerGeometryHelper {
 
     std::vector<double> binsEta_;
     std::vector<double> binsPhi_;
+
+    HGCalTriggerTools triggerTools_;
 
   };
 
