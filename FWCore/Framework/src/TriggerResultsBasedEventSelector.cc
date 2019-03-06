@@ -59,7 +59,7 @@ namespace {
     assert(parsed[1].first == "b");
     assert(parsed[1].second == "p2");
     assert(parsed[2].first == "c");
-    assert(parsed[2].second == "");
+    assert(parsed[2].second.empty());
     assert(parsed[3].first == "ddd");
     assert(parsed[3].second == "p3");
     assert(parsed[4].first == "eee");
@@ -124,7 +124,7 @@ namespace edm {
       std::map<std::string, std::vector<std::string> > paths_for_process;
       for (auto const& path_spec : path_specs) {
         // Default to current process if none specified
-        if (path_spec.second == "") {
+        if (path_spec.second.empty()) {
           paths_for_process[process_name].push_back(path_spec.first);
         } else {
           paths_for_process[path_spec.second].push_back(path_spec.first);
