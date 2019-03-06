@@ -21,6 +21,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/PFAlgo3.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/PFAlgo2HGC.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/PuppiAlgo.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/LinearizedPuppiAlgo.h"
 
 //--------------------------------------------------------------------------------------------------
 class L1TPFProducer : public edm::stream::EDProducer<> {
@@ -106,6 +107,8 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig):
     const std::string & pualgo = iConfig.getParameter<std::string>("puAlgo");
     if (pualgo == "Puppi") {
         l1pualgo_.reset(new l1tpf_impl::PuppiAlgo(iConfig));
+    } else if (pualgo == "LinearizedPuppi") {
+        l1pualgo_.reset(new l1tpf_impl::LinearizedPuppiAlgo(iConfig));
     } else throw cms::Exception("Configuration", "Unsupported PUAlgo");
 
     std::string vtxAlgo = iConfig.getParameter<std::string>("vtxAlgo");
