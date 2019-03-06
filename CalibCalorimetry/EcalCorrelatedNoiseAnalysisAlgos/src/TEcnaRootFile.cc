@@ -13,7 +13,7 @@
 
 TEcnaRootFile *gCnaRootFile = nullptr;
 
-ClassImp(TEcnaRootFile)
+ClassImp(TEcnaRootFile);
 //___________________________________________________________________________
 //
 //  Reading of the ROOT file written by TEcnaRunEB

@@ -16,7 +16,7 @@
 #include "Fireworks/Core/src/CSGConnector.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 
-ClassImp(CSGConnector)
+ClassImp(CSGConnector);
 
 //
 // constants, enums and typedefs

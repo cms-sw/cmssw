@@ -372,4 +372,4 @@ FWModelContextMenuHandler::createColorPopup() const
 // static member functions
 //
 
-ClassImp(FWModelContextMenuHandler)
+ClassImp(FWModelContextMenuHandler);

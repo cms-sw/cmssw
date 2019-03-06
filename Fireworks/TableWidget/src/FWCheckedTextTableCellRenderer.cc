@@ -119,5 +119,5 @@ UInt_t FWCheckedTextTableCellRenderer::width() const
 //
 // static member functions
 //
-ClassImp(FWCheckedTextTableCellRenderer)
+ClassImp(FWCheckedTextTableCellRenderer);
 
