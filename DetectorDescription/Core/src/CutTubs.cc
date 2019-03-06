@@ -1,5 +1,5 @@
 #include "DetectorDescription/Core/src/CutTubs.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cmath>
 #include <vector>
@@ -7,8 +7,8 @@
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/src/Solid.h"
 
-using namespace dd;
-using namespace dd::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 DDI::CutTubs::CutTubs( double zhalf,
 		       double rIn, double rOut,	      	      
@@ -33,11 +33,11 @@ DDI::CutTubs::CutTubs( double zhalf,
 
 void DDI::CutTubs::stream(std::ostream & os) const
 {
-  os << " zhalf=" << CONVERT_TO( p_[0], cm )
-     << " rIn=" << CONVERT_TO( p_[1], cm )
-     << " rOut=" << CONVERT_TO( p_[2], cm )
-     << " startPhi=" << CONVERT_TO( p_[3], deg )
-     << " deltaPhi=" << CONVERT_TO( p_[4], deg )
+  os << " zhalf=" << convertMmToCm( p_[0] )
+     << " rIn=" << convertMmToCm( p_[1] )
+     << " rOut=" << convertMmToCm( p_[2] )
+     << " startPhi=" << convertRadToDeg( p_[3] )
+     << " deltaPhi=" << convertRadToDeg( p_[4] )
      << " Outside Normal at -z (" << p_[5] << "," << p_[6] << "," << p_[7] << ")"
      << " Outside Normal at +z (" << p_[8] << "," << p_[9] << "," << p_[10] << ")";		
 }
