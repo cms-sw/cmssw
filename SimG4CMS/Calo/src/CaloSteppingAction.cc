@@ -139,6 +139,7 @@ void CaloSteppingAction::update(const BeginOfJob * job) {
 #endif
 }
 #endif
+
 //==================================================================== per RUN
 #ifdef useGeantV
 void CaloSteppingAction::beginRun() {
@@ -172,7 +173,7 @@ void CaloSteppingAction::update(const BeginOfRun * run) {
 	  // The Geant4 types are not available in GeantV-based simulation. The corresponding sequence for GeantV looks like:
 	  // here we assume you iterate on the list of vecgeom logical volumes, volume is a LogicalVolume* (see above)
 	  vecgeom::UnplacedTrapezoid *solid = static_cast<vecgeom::UnplacedTrapezoid*>(volume->GetUnplacedVolume());
-	  double dz = solid->GetDz();
+	  double dz = solid->GetDz()/mm; // should one multiply by 2 here?
 #else
 	  G4Trap* solid = static_cast<G4Trap*>(itr->second->GetSolid());
 	  double  dz    = 2*solid->GetZHalfLength();
@@ -189,7 +190,7 @@ void CaloSteppingAction::update(const BeginOfRun * run) {
 	  int type =  (lvname.find("refl") == std::string::npos) ? 1 : -1;
 #ifdef useGeantV
 	  vecgeom::UnplacedTrapezoid *solid = static_cast<vecgeom::UnplacedTrapezoid*>(volume->GetUnplacedVolume());
-	  double dz = solid->GetDz();
+	  double dz = (solid->GetDz())/mm; // should one multiply by 2 here?
 #else
 	  G4Trap* solid = static_cast<G4Trap*>(itr->second->GetSolid());
 	  double  dz    = 2*solid->GetZHalfLength();
@@ -333,16 +334,18 @@ void CaloSteppingAction::update(const G4Step * aStep) {
 	vecgeom::Vector3D<double> local;
 	touch->TopMatrix()->Transform(vecgeom::Vector3D(track->X(),
 	  track->Y(), track->Z()), local);
-	double radl = track.GetMaterial()->GetMaterialProperties()->GetRadiationLength();
+	double radl = (track.GetMaterial()->GetMaterialProperties()->GetRadiationLength())/mm;
+	double dz   = local.z()/mm;
 #else
 	auto local  = touch->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
 	double radl = aStep->GetPreStepPoint()->GetMaterial()->GetRadlen();
+	double dz   = local.z();
 #endif
 	auto ite    = xtalMap_.find(lv);
 	double crystalLength = ((ite == xtalMap_.end()) ? 230.0 : 
 				std::abs(ite->second));
 	double crystalDepth = ((ite == xtalMap_.end()) ? 0.0 :
-			       (std::abs(0.5*(ite->second)+local.z())));
+			       (std::abs(0.5*(ite->second)+dz)));
 	bool   flag   = ((ite == xtalMap_.end()) ? true : (((ite->second) >= 0)
 							   ? true : false));
 	auto   depth  = getDepth(flag, crystalDepth, radl);
