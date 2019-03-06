@@ -35,14 +35,14 @@ autoCond = {
     'run2_data_promptlike'    : '105X_dataRun2_PromptLike_v8',
     'run2_data_promptlike_hi' : '105X_dataRun2_PromptLike_HI_v3',
     # GlobalTag for Run1 HLT: it points to the online GT
-    'run1_hlt'          :   '101X_dataRun2_HLT_frozen_v6',
+    'run1_hlt'          :   '101X_dataRun2_HLT_frozen_v8',
     # GlobalTag for Run2 HLT: it points to the online GT
-    'run2_hlt'          :   '101X_dataRun2_HLT_frozen_v6',
+    'run2_hlt'          :   '101X_dataRun2_HLT_frozen_v8',
     # GlobalTag for Run2 HLT RelVals: customizations to run with fixed L1 Menu
-    'run2_hlt_relval'      :   '103X_dataRun2_HLT_relval_v4',
-    'run2_hlt_relval_hi'   :   '103X_dataRun2_HLT_relval_HI_v2',
-    # GlobalTag for Run2 HLT for HI: it points to the online GT
-    'run2_hlt_hi'       :   '101X_dataRun2_HLTHI_frozen_v7',
+    'run2_hlt_relval'      :   '103X_dataRun2_HLT_relval_v7',
+    'run2_hlt_relval_hi'   :   '103X_dataRun2_HLT_relval_HI_v3',
+    # GlobalTag for Run2 HLT for HI (not 2018 HI): it points to the online GT
+    'run2_hlt_hi'       :   '101X_dataRun2_HLTHI_frozen_v8',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'       :  '105X_mc2017_design_IdealBS_v6',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
