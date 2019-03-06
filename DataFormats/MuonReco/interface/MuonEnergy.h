@@ -3,6 +3,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include <vector>
 namespace reco {
     struct HcalMuonRecHit{
