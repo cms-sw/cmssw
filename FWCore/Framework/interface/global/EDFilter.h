@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     edm::global::EDFilter
-// 
+//
 /**\class edm::global::EDFilter EDFilter.h "FWCore/Framework/interface/global/EDFilter.h"
 
  Description: [one line class summary]
@@ -28,60 +28,46 @@
 
 namespace edm {
   namespace global {
-    template< typename... T>
-    class EDFilter : 
-              public virtual EDFilterBase,
-              public filter::SpecializeAbilityToImplementor<
-        CheckAbility<edm::module::Abilities::kRunSummaryCache,T...>::kHasIt & CheckAbility<edm::module::Abilities::kEndRunProducer,T...>::kHasIt,
-        CheckAbility<edm::module::Abilities::kLuminosityBlockSummaryCache,T...>::kHasIt & CheckAbility<edm::module::Abilities::kEndLuminosityBlockProducer,T...>::kHasIt,
-        T>::Type...
-    {
-      
+    template <typename... T>
+    class EDFilter : public virtual EDFilterBase,
+                     public filter::SpecializeAbilityToImplementor<
+                         CheckAbility<edm::module::Abilities::kRunSummaryCache, T...>::kHasIt &
+                             CheckAbility<edm::module::Abilities::kEndRunProducer, T...>::kHasIt,
+                         CheckAbility<edm::module::Abilities::kLuminosityBlockSummaryCache, T...>::kHasIt &
+                             CheckAbility<edm::module::Abilities::kEndLuminosityBlockProducer, T...>::kHasIt,
+                         T>::Type... {
     public:
       EDFilter() = default;
 // We do this only in the case of the intel compiler as this might
-// end up creating a lot of code bloat due to inline symbols being generated 
+// end up creating a lot of code bloat due to inline symbols being generated
 // in each DSO which uses this header.
 #ifdef __INTEL_COMPILER
       virtual ~EDFilter() = default;
 #endif
       // ---------- const member functions ---------------------
-      bool wantsGlobalRuns() const final {
-        return WantsGlobalRunTransitions<T...>::value;
-      }
-      bool wantsGlobalLuminosityBlocks() const final {
-        return WantsGlobalLuminosityBlockTransitions<T...>::value;
-      }
+      bool wantsGlobalRuns() const final { return WantsGlobalRunTransitions<T...>::value; }
+      bool wantsGlobalLuminosityBlocks() const final { return WantsGlobalLuminosityBlockTransitions<T...>::value; }
 
-      bool wantsStreamRuns() const final {
-        return WantsStreamRunTransitions<T...>::value;
-      }
-      bool wantsStreamLuminosityBlocks() const final {
-        return WantsStreamLuminosityBlockTransitions<T...>::value;
-      }
+      bool wantsStreamRuns() const final { return WantsStreamRunTransitions<T...>::value; }
+      bool wantsStreamLuminosityBlocks() const final { return WantsStreamLuminosityBlockTransitions<T...>::value; }
 
-      bool hasAbilityToProduceInRuns() const final {
-        return HasAbilityToProduceInRuns<T...>::value;
-      }
+      bool hasAbilityToProduceInRuns() const final { return HasAbilityToProduceInRuns<T...>::value; }
 
-      bool hasAbilityToProduceInLumis() const final {
-        return HasAbilityToProduceInLumis<T...>::value;
-      }
+      bool hasAbilityToProduceInLumis() const final { return HasAbilityToProduceInLumis<T...>::value; }
 
       // ---------- static member functions --------------------
-      
+
       // ---------- member functions ---------------------------
-      
+
     private:
       EDFilter(const EDFilter&) = delete;
-      
+
       const EDFilter& operator=(const EDFilter&) = delete;
-      
+
       // ---------- member data --------------------------------
-      
     };
 
-  }
-}
+  }  // namespace global
+}  // namespace edm
 
 #endif

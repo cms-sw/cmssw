@@ -40,105 +40,87 @@
 // forward declarations
 
 namespace edm {
-   class ActivityRegistry;
-   class ESInputTag;
-   template <class T, class R>
-   class ESGetToken;
-   class PileUp;
+  class ActivityRegistry;
+  class ESInputTag;
+  template <class T, class R> class ESGetToken;
+  class PileUp;
 
-   namespace eventsetup {
-      class EventSetupProvider;
-      class EventSetupRecord;
-      class EventSetupRecordImpl;
-   }
+  namespace eventsetup {
+    class EventSetupProvider;
+    class EventSetupRecord;
+    class EventSetupRecordImpl;
+  }  // namespace eventsetup
 
-  class EventSetup
-  {
+  class EventSetup {
     ///Needed until a better solution can be found
     friend class edm::PileUp;
-    public:
 
-      explicit EventSetup(EventSetupImpl const& iSetup):
-      m_setup{iSetup} {}
-      EventSetup(EventSetup const&) = delete;
-      EventSetup& operator=(EventSetup const&) = delete;
+  public:
+    explicit EventSetup(EventSetupImpl const& iSetup) : m_setup{iSetup} {}
+    EventSetup(EventSetup const&) = delete;
+    EventSetup& operator=(EventSetup const&) = delete;
 
-      // ---------- const member functions ---------------------
-      /** returns the Record of type T.  If no such record available
+    // ---------- const member functions ---------------------
+    /** returns the Record of type T.  If no such record available
           a eventsetup::NoRecordException<T> is thrown */
-      template< typename T>
-         T get() const {
-           return m_setup.get<T>();
-         }
+    template <typename T> T get() const { return m_setup.get<T>(); }
 
-      /** returns the Record of type T.  If no such record available
+    /** returns the Record of type T.  If no such record available
        a null pointer is returned */
-      template< typename T>
-        std::optional<T> tryToGet() const {
-           return m_setup.tryToGet<T>();
-        }
+    template <typename T> std::optional<T> tryToGet() const { return m_setup.tryToGet<T>(); }
 
-      /** can directly access data if data_default_record_trait<> is defined for this data type **/
-      template< typename T>
-         bool getData(T& iHolder) const {
-            return getData(std::string{}, iHolder);
-         }
+    /** can directly access data if data_default_record_trait<> is defined for this data type **/
+    template <typename T> bool getData(T& iHolder) const { return getData(std::string{}, iHolder); }
 
-      template< typename T>
-         bool getData(const std::string& iLabel, T& iHolder) const {
-            auto const& rec = this->get<eventsetup::default_record_t<T>>();
-            return rec.get(iLabel, iHolder);
-         }
+    template <typename T> bool getData(const std::string& iLabel, T& iHolder) const {
+      auto const& rec = this->get<eventsetup::default_record_t<T>>();
+      return rec.get(iLabel, iHolder);
+    }
 
-      template< typename T>
-        bool getData(const ESInputTag& iTag, T& iHolder) const {
-           auto const& rec = this->get<eventsetup::default_record_t<T>>();
-           return rec.get(iTag, iHolder);
-        }
+    template <typename T> bool getData(const ESInputTag& iTag, T& iHolder) const {
+      auto const& rec = this->get<eventsetup::default_record_t<T>>();
+      return rec.get(iTag, iHolder);
+    }
 
-      template< typename T, typename R>
-        T const& getData(const ESGetToken<T, R>& iToken) const noexcept(false) {
-           return this->get<std::conditional_t<std::is_same_v<R, edm::DefaultRecord>,
-                                               eventsetup::default_record_t<ESHandle<T>>,
-                                               R>>().get(iToken);
-        }
-        template< typename T, typename R>
-        T const& getData(ESGetToken<T, R>& iToken) const noexcept(false) {
-           return this->getData( const_cast<const ESGetToken<T,R>&>(iToken));
-        }
+    template <typename T, typename R> T const& getData(const ESGetToken<T, R>& iToken) const noexcept(false) {
+      return this
+          ->get<std::conditional_t<std::is_same_v<R, edm::DefaultRecord>, eventsetup::default_record_t<ESHandle<T>>, R>>()
+          .get(iToken);
+    }
+    template <typename T, typename R> T const& getData(ESGetToken<T, R>& iToken) const noexcept(false) {
+      return this->getData(const_cast<const ESGetToken<T, R>&>(iToken));
+    }
 
-      template <typename T, typename R>
-       ESHandle<T> getHandle(const ESGetToken<T, R>& iToken) const {
-          if constexpr ( std::is_same_v<R, edm::DefaultRecord> ) {
-             auto const& rec = this->get<eventsetup::default_record_t<ESHandle<T>>>();
-             return rec.getHandle(iToken);
-          } else {
-             auto const& rec = this->get<R>();
-             return rec.getHandle(iToken);
-          }
+    template <typename T, typename R> ESHandle<T> getHandle(const ESGetToken<T, R>& iToken) const {
+      if constexpr (std::is_same_v<R, edm::DefaultRecord>) {
+        auto const& rec = this->get<eventsetup::default_record_t<ESHandle<T>>>();
+        return rec.getHandle(iToken);
+      } else {
+        auto const& rec = this->get<R>();
+        return rec.getHandle(iToken);
       }
+    }
 
-      std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey& iKey) const {
-         return m_setup.find(iKey);
-      }
+    std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey& iKey) const {
+      return m_setup.find(iKey);
+    }
 
-      ///clears the oToFill vector and then fills it with the keys for all available records
-      void fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const {
-         m_setup.fillAvailableRecordKeys(oToFill);
-      }
-      ///returns true if the Record is provided by a Source or a Producer
-      /// a value of true does not mean this EventSetup object holds such a record
-      bool recordIsProvidedByAModule( eventsetup::EventSetupRecordKey const& iKey) const {
-         return m_setup.recordIsProvidedByAModule(iKey);
-      }
-      // ---------- static member functions --------------------
-      
-    private:
-      edm::EventSetupImpl const& impl() const {return m_setup;}
+    ///clears the oToFill vector and then fills it with the keys for all available records
+    void fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const {
+      m_setup.fillAvailableRecordKeys(oToFill);
+    }
+    ///returns true if the Record is provided by a Source or a Producer
+    /// a value of true does not mean this EventSetup object holds such a record
+    bool recordIsProvidedByAModule(eventsetup::EventSetupRecordKey const& iKey) const {
+      return m_setup.recordIsProvidedByAModule(iKey);
+    }
+    // ---------- static member functions --------------------
 
+  private:
+    edm::EventSetupImpl const& impl() const { return m_setup; }
 
-      // ---------- member data --------------------------------
-     edm::EventSetupImpl const& m_setup;
+    // ---------- member data --------------------------------
+    edm::EventSetupImpl const& m_setup;
   };
 
   // Free functions to retrieve an object from the EventSetup.
@@ -150,18 +132,20 @@ namespace edm {
     // throw if the record is not available
     setup.get<R>().get(handle);
     // throw if the handle is not valid
-    return * handle.product();
+    return *handle.product();
   }
 
-  template <typename T, typename R = typename eventsetup::data_default_record_trait<typename T::value_type>::type, typename L>
-  T const& get(EventSetup const& setup, L && label) {
+  template <typename T,
+            typename R = typename eventsetup::data_default_record_trait<typename T::value_type>::type,
+            typename L>
+  T const& get(EventSetup const& setup, L&& label) {
     ESHandle<T> handle;
     // throw if the record is not available
     setup.get<R>().get(std::forward(label), handle);
     // throw if the handle is not valid
-    return * handle.product();
+    return *handle.product();
   }
 
-}
+}  // namespace edm
 
-#endif // FWCore_Framework_EventSetup_h
+#endif  // FWCore_Framework_EventSetup_h

@@ -46,7 +46,6 @@ namespace edm {
 
   class PrincipalCache {
   public:
-
     PrincipalCache();
     ~PrincipalCache();
     PrincipalCache(PrincipalCache&&) = default;
@@ -55,7 +54,7 @@ namespace edm {
     std::shared_ptr<RunPrincipal> const& runPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run) const;
     RunPrincipal& runPrincipal() const;
     std::shared_ptr<RunPrincipal> const& runPrincipalPtr() const;
-    bool hasRunPrincipal() const {return bool(runPrincipal_);}
+    bool hasRunPrincipal() const { return bool(runPrincipal_); }
 
     std::shared_ptr<LuminosityBlockPrincipal> getAvailableLumiPrincipalPtr();
 
@@ -74,12 +73,11 @@ namespace edm {
 
     void adjustIndexesAfterProductRegistryAddition();
 
-    void setProcessHistoryRegistry(ProcessHistoryRegistry const& phr) {processHistoryRegistry_ = &phr;}
+    void setProcessHistoryRegistry(ProcessHistoryRegistry const& phr) { processHistoryRegistry_ = &phr; }
 
     void preReadFile();
 
   private:
-
     void throwRunMissing() const;
     void throwLumiMissing() const;
 
@@ -89,8 +87,8 @@ namespace edm {
     edm::ReusableObjectHolder<LuminosityBlockPrincipal> lumiHolder_;
     std::vector<std::shared_ptr<EventPrincipal>> eventPrincipals_;
 
-    // This is just an accessor to the registry owned by the input source. 
-    ProcessHistoryRegistry const* processHistoryRegistry_; // We don't own this
+    // This is just an accessor to the registry owned by the input source.
+    ProcessHistoryRegistry const* processHistoryRegistry_;  // We don't own this
 
     // These are intentionally not cleared so that when inserting
     // the next principal the conversion from full ProcessHistoryID_
@@ -104,6 +102,6 @@ namespace edm {
     RunNumber_t run_;
     LuminosityBlockNumber_t lumi_;
   };
-}
+}  // namespace edm
 
 #endif

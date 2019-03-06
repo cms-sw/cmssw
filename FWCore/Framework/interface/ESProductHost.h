@@ -89,23 +89,18 @@ namespace edm {
   // selected does not mattter, just that some order exists
   // so we know which cacheID corresponds to which type.
 
-  template <typename Product, typename ... RecordTypes>
-  class ESProductHost final : public Product {
-
+  template <typename Product, typename... RecordTypes> class ESProductHost final : public Product {
   public:
-
     template <typename... Args>
-    ESProductHost(Args&&... args) : Product(std::forward<Args>(args)...),
-                                    cacheIDs_(numberOfRecordTypes(), 0) { }
+    ESProductHost(Args&&... args) : Product(std::forward<Args>(args)...), cacheIDs_(numberOfRecordTypes(), 0) {}
 
     // Execute FUNC if the cacheIdentifier in the EventSetup RecordType
     // has changed since the last time we called FUNC for
     // this EventSetup product.
 
     template <typename RecordType, typename ContainingRecordType, typename FUNC>
-    void ifRecordChanges(ContainingRecordType const& containingRecord,
-                         FUNC func) {
-      RecordType const& record = containingRecord. template getRecord<RecordType>();
+    void ifRecordChanges(ContainingRecordType const& containingRecord, FUNC func) {
+      RecordType const& record = containingRecord.template getRecord<RecordType>();
       unsigned long long cacheIdentifier = record.cacheIdentifier();
       std::size_t iRecord = index<RecordType>();
       if (cacheIdentifier != cacheIDs_[iRecord]) {
@@ -129,29 +124,26 @@ namespace edm {
     // (There must be at least one type after Product if you want to call the
     // "ifRecordChanges" function).
 
-    template <typename U>
-    constexpr static std::size_t index() {
+    template <typename U> constexpr static std::size_t index() {
       static_assert(numberOfRecordTypes() > 0, "no record types in ESProductHost");
       return indexLoop<0, U, RecordTypes...>();
     }
 
-    template <std::size_t I, typename U, typename TST, typename... M>
-    constexpr static std::size_t indexLoop() {
+    template <std::size_t I, typename U, typename TST, typename... M> constexpr static std::size_t indexLoop() {
       if constexpr (std::is_same_v<U, TST>) {
         return I;
       } else {
         static_assert(I + 1 < numberOfRecordTypes(), "unknown record type passed to ESProductHost::index");
-        return indexLoop<I+1, U, M...>();
+        return indexLoop<I + 1, U, M...>();
       }
     }
 
   private:
-
     // Data member, this holds the cache identifiers from the record which
     // are used to determine whether the EventSetup cache for that record has
     // been updated since this Product was lasted updated.
 
     std::vector<unsigned long long> cacheIDs_;
   };
-}
+}  // namespace edm
 #endif

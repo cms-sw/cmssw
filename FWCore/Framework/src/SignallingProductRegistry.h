@@ -29,21 +29,21 @@
 
 // forward declarations
 namespace edm {
-   class SignallingProductRegistry : public ProductRegistry {
+  class SignallingProductRegistry : public ProductRegistry {
+  public:
+    SignallingProductRegistry() : ProductRegistry(), productAddedSignal_(), typeAddedStack_() {}
+    explicit SignallingProductRegistry(ProductRegistry const& preg)
+        : ProductRegistry(preg.productList(), false), productAddedSignal_(), typeAddedStack_() {}
+    signalslot::Signal<void(BranchDescription const&)> productAddedSignal_;
 
-   public:
-      SignallingProductRegistry() : ProductRegistry(), productAddedSignal_(), typeAddedStack_() {}
-      explicit SignallingProductRegistry(ProductRegistry const& preg) : ProductRegistry(preg.productList(), false), productAddedSignal_(), typeAddedStack_() {}
-      signalslot::Signal<void(BranchDescription const&)> productAddedSignal_;
+    SignallingProductRegistry(SignallingProductRegistry const&) = delete;             // Disallow copying and moving
+    SignallingProductRegistry& operator=(SignallingProductRegistry const&) = delete;  // Disallow copying and moving
 
-      SignallingProductRegistry(SignallingProductRegistry const&) = delete; // Disallow copying and moving
-      SignallingProductRegistry& operator=(SignallingProductRegistry const&) = delete; // Disallow copying and moving
-
-   private:
-      void addCalled(BranchDescription const&, bool) override;
-      // ---------- member data --------------------------------
-      std::map<std::string, unsigned int> typeAddedStack_;
-   };
-}
+  private:
+    void addCalled(BranchDescription const&, bool) override;
+    // ---------- member data --------------------------------
+    std::map<std::string, unsigned int> typeAddedStack_;
+  };
+}  // namespace edm
 
 #endif

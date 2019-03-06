@@ -16,17 +16,16 @@ See comments in the file GetterOfProducts.h for a description.
 
 namespace edm {
 
-   class ModuleLabelMatch {
-   public:
+  class ModuleLabelMatch {
+  public:
+    ModuleLabelMatch(std::string const& moduleLabel) : moduleLabel_(moduleLabel) {}
 
-      ModuleLabelMatch(std::string const& moduleLabel) : moduleLabel_(moduleLabel) { }
+    bool operator()(edm::BranchDescription const& branchDescription) {
+      return branchDescription.moduleLabel() == moduleLabel_;
+    }
 
-      bool operator()(edm::BranchDescription const& branchDescription) {
-         return branchDescription.moduleLabel() == moduleLabel_;
-      }
-
-   private:
-      std::string moduleLabel_;
-   };
-}
+  private:
+    std::string moduleLabel_;
+  };
+}  // namespace edm
 #endif
