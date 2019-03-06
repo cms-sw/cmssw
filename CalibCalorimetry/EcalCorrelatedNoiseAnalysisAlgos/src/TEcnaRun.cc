@@ -12,7 +12,7 @@
 
 R__EXTERN TEcnaRootFile *gCnaRootFile;
 
-ClassImp(TEcnaRun)
+ClassImp(TEcnaRun);
 //___________________________________________________________________________
 //
 
