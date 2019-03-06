@@ -88,7 +88,7 @@ HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillHist
         int bin_R = int( (ROverZ-kROverZMin_) * nBinsRHisto_ / (kROverZMax_-kROverZMin_) );
         int bin_phi = int( (reco::reduceRange(clu->phi())+M_PI) * nBinsPhiHisto_ / (2*M_PI) );
 
-        histoClusters[{{clu->zside(), bin_R, bin_phi}}]+=clu->mipPt();
+        histoClusters[{{triggerTools_.zside(clu->detId()), bin_R, bin_phi}}]+=clu->mipPt();
 
     }
 
@@ -335,8 +335,7 @@ std::vector<l1t::HGCalMulticluster> HGCalMulticlusteringHistoImpl::clusterSeedMu
     for(auto & clu : clustersPtrs){
 
 
-        HGCalDetId cluDetId( clu->detId() );
-        int z_side = cluDetId.zside();
+        int z_side = triggerTools_.zside(clu->detId());
 
         double minDist = dr_;
         int targetSeed = -1;
@@ -438,6 +437,8 @@ finalizeClusters(std::vector<l1t::HGCalMulticluster>& multiclusters_in,
             multicluster.eMax(shape_.eMax(multicluster));
             // fill quality flag
             multicluster.setHwQual(id_->decision(multicluster));
+            // fill H/E
+            multicluster.saveHOverE();            
 
             multiclusters_out.push_back( 0, multicluster);
         }
