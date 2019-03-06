@@ -10,6 +10,7 @@
 #include "G4hMultipleScattering.hh"
 #include "G4hIonisation.hh"
 #include "G4hhIonisation.hh"
+#include "G4mplIonisationModel.hh"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -124,6 +125,11 @@ void CMSMonopolePhysics::ConstructProcess() {
       }
       if(magn != 0.0) {
 	CMSmplIonisation* mplioni = new CMSmplIonisation(magn);
+        if(!deltaRay) {
+          G4mplIonisationModel* ion = new G4mplIonisationModel(magn,"PAI");
+          ion->SetParticle(mpl);
+          mplioni->AddEmModel(0,ion,ion);
+	}
 	ph->RegisterProcess(mplioni, mpl);
       }
       pmanager->AddDiscreteProcess(new G4StepLimiter());
