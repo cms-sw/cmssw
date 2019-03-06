@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     DataKeyTags
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -16,52 +16,43 @@
 // user include files
 #include "FWCore/Framework/interface/DataKeyTags.h"
 
-
 //
 // constants, enums and typedefs
 //
 namespace edm {
-   namespace eventsetup {
-//
-// static data member definitions
-//
+  namespace eventsetup {
+    //
+    // static data member definitions
+    //
 
-//
-// constructors and destructor
+    //
+    // constructors and destructor
 
-//
-// assignment operators
-//
-// const DataKeyTags& DataKeyTags::operator=(const DataKeyTags& rhs)
-// {
-//   //An exception safe implementation is
-//   DataKeyTags temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
+    //
+    // assignment operators
+    //
+    // const DataKeyTags& DataKeyTags::operator=(const DataKeyTags& rhs)
+    // {
+    //   //An exception safe implementation is
+    //   DataKeyTags temp(rhs);
+    //   swap(rhs);
+    //
+    //   return *this;
+    // }
 
-//
-// member functions
-//
+    //
+    // member functions
+    //
 
-//
-// const member functions
-//
-bool
-SimpleStringTag::operator==(const SimpleStringTag& iRHS) const
-{
-   return (0 == std::strcmp(tag_, iRHS.tag_));
-}
+    //
+    // const member functions
+    //
+    bool SimpleStringTag::operator==(const SimpleStringTag& iRHS) const { return (0 == std::strcmp(tag_, iRHS.tag_)); }
 
-bool
-SimpleStringTag::operator<(const SimpleStringTag& iRHS) const
-{
-   return (0 > std::strcmp(tag_, iRHS.tag_));
-}
+    bool SimpleStringTag::operator<(const SimpleStringTag& iRHS) const { return (0 > std::strcmp(tag_, iRHS.tag_)); }
 
-//
-// static member functions
-//
-   }
-}
+    //
+    // static member functions
+    //
+  }  // namespace eventsetup
+}  // namespace edm

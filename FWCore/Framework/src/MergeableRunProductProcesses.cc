@@ -13,7 +13,7 @@
 
 namespace edm {
 
-  MergeableRunProductProcesses::MergeableRunProductProcesses() { }
+  MergeableRunProductProcesses::MergeableRunProductProcesses() {}
 
   void MergeableRunProductProcesses::setProcessesWithMergeableRunProducts(ProductRegistry const& productRegistry) {
     TClass* wrapperBaseTClass = TypeWithDict::byName("edm::WrapperBase").getClass();
@@ -32,4 +32,4 @@ namespace edm {
     }
     processesWithMergeableRunProducts_.assign(processSet.begin(), processSet.end());
   }
-}
+}  // namespace edm
