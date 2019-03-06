@@ -23,5 +23,6 @@ L1TrackerHTMiss = cms.EDProducer("L1TkHTMissProducer",
 	jet_minNtracksHighPt=cms.int32(3), 
         UseCaloJets = cms.bool(False),
         DoVtxConstrain = cms.bool(False),      # turn on/off applying any vertex constraint32
+        DeltaZ = cms.double(1.0),              # This is a dummy value for track only jets
         PrimaryVtxConstrain = cms.bool(False) # primary vertex already applied to track jet collections
 )
