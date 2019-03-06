@@ -11,6 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -51,7 +52,7 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
 
    if ( fVerbosity > 0 )
      {
-       cout << " CloseByParticleGunProducer : Begin New Event Generation" << endl ;
+       LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Begin New Event Generation" << endl ;
      }
    fEvt = new HepMC::GenEvent() ;
 
@@ -118,7 +119,7 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
 
    if ( fVerbosity > 0 )
      {
-       cout << " CloseByParticleGunProducer : Event Generation Done " << endl;
+       LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Event Generation Done " << endl;
      }
 }
 
