@@ -15,6 +15,9 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#ifdef useGeantV
+using namespace geant::units;
+#else
 #include "G4LogicalVolumeStore.hh"
 #include "G4NavigationHistory.hh"
 #include "G4ParticleTable.hh"
@@ -23,6 +26,7 @@
 #include "G4Trap.hh"
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
+#endif
 
 #include <cmath>
 #include <iostream>
@@ -87,15 +91,30 @@ CaloSteppingAction::~CaloSteppingAction() {
 			   << "selected entries : " << count_;
 }
 
+#ifdef useGeantV
+void CaloSteppingAction::endEvent(Event* e) {
+#else
 void CaloSteppingAction::produce(edm::Event& e, const edm::EventSetup&) {
-
+#endif
   for (int k=0; k<CaloSteppingAction::nSD_; ++k) {
     saveHits(k);
     auto product = std::make_unique<edm::PCaloHitContainer>();
     fillHits(*product,k);
+#ifdef useGeantV
+    e->put(std::move(product),nameHitC_[k]);
+#else
     e.put(std::move(product),nameHitC_[k]);
+#endif
   }
+#ifdef useGeantV
+  ++count_;
+  // Fill event input 
+  edm::LogVerbatim("Step") << "CaloSteppingAction: EndOfEvent " 
+			   << e->GetEvent();
 }
+#else
+}
+#endif
 
 void CaloSteppingAction::fillHits(edm::PCaloHitContainer& cc, int type) {
   edm::LogVerbatim("Step") << "CaloSteppingAction::fillHits for type "
@@ -105,6 +124,7 @@ void CaloSteppingAction::fillHits(edm::PCaloHitContainer& cc, int type) {
   slave_[type].get()->Clean();
 }
 
+#ifndef useGeantV
 void CaloSteppingAction::update(const BeginOfJob * job) {
   edm::LogVerbatim("Step") << "CaloSteppingAction:: Enter BeginOfJob";
 
@@ -118,8 +138,18 @@ void CaloSteppingAction::update(const BeginOfJob * job) {
   hcNumbering_ = std::make_unique<HcalNumberingFromDDD>(hcons_);
 #endif
 }
-
+#endif
 //==================================================================== per RUN
+#ifdef useGeantV
+void CaloSteppingAction::beginRun() {
+
+  // Volume_t is vecgeom::LogicalVolume (see: /core/base/inc/Geant/Typedefs.h"
+  std::vector<Volume_t> theLogicalVolumes;
+  vecgeom::GeoManager::Instance().GetAllLogicalVolumes(theLogicalVolumes);
+  std::map<std::string, Volume_t> nameMap;
+  for (auto volume : theLogicalVolumes)
+    nameMap.emplace(volume->GetLabel(), volume);
+#else
 void CaloSteppingAction::update(const BeginOfRun * run) {
 
   int irun = (*run)()->GetRunID();
@@ -131,14 +161,22 @@ void CaloSteppingAction::update(const BeginOfRun * run) {
     std::map<const std::string, const G4LogicalVolume *>::const_iterator itr;
     for (auto lvi = lvs->begin(), lve = lvs->end(); lvi != lve; ++lvi)
       nameMap.emplace((*lvi)->GetName(), *lvi);
+#endif
     for (auto const& name : nameEBSD_) {
       for (itr = nameMap.begin(); itr != nameMap.end(); ++itr) {
 	const std::string &lvname = itr->first;
 	if (lvname.find(name) != std::string::npos) {
 	  volEBSD_.emplace_back(itr->second);
 	  int type =  (lvname.find("refl") == std::string::npos) ? -1 : 1;
+#ifdef useGeantV
+	  // The Geant4 types are not available in GeantV-based simulation. The corresponding sequence for GeantV looks like:
+	  // here we assume you iterate on the list of vecgeom logical volumes, volume is a LogicalVolume* (see above)
+	  vecgeom::UnplacedTrapezoid *solid = static_cast<vecgeom::UnplacedTrapezoid*>(volume->GetUnplacedVolume());
+	  double dz = solid->GetDz();
+#else
 	  G4Trap* solid = static_cast<G4Trap*>(itr->second->GetSolid());
 	  double  dz    = 2*solid->GetZHalfLength();
+#endif
 	  xtalMap_.insert(std::pair<const G4LogicalVolume*,double>(itr->second,dz*type));
 	}
       }
@@ -149,8 +187,13 @@ void CaloSteppingAction::update(const BeginOfRun * run) {
 	if (lvname.find(name) != std::string::npos)  {
 	  volEESD_.emplace_back(itr->second);
 	  int type =  (lvname.find("refl") == std::string::npos) ? 1 : -1;
+#ifdef useGeantV
+	  vecgeom::UnplacedTrapezoid *solid = static_cast<vecgeom::UnplacedTrapezoid*>(volume->GetUnplacedVolume());
+	  double dz = solid->GetDz();
+#else
 	  G4Trap* solid = static_cast<G4Trap*>(itr->second->GetSolid());
 	  double  dz    = 2*solid->GetZHalfLength();
+#endif
 	  xtalMap_.insert(std::pair<const G4LogicalVolume*,double>(itr->second,dz*type));
 	}
       }
@@ -162,7 +205,9 @@ void CaloSteppingAction::update(const BeginOfRun * run) {
 	  volHCSD_.emplace_back(itr->second);
       }
     }
+#ifndef useGeantV
   }
+#endif
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Step") << volEBSD_.size() << " logical volumes for EB SD";
   for (unsigned int k=0; k<volEBSD_.size(); ++k)
@@ -174,82 +219,142 @@ void CaloSteppingAction::update(const BeginOfRun * run) {
   for (unsigned int k=0; k<volHCSD_.size(); ++k)
     edm::LogVerbatim("Step") << "[" << k << "] " << volHCSD_[k];
 #endif
+#ifdef useGeantV
 }
+#else
+}
+#endif
 
 //=================================================================== per EVENT
+#ifdef useGeantV
+void CaloSteppingAction::beginEvent(int eventID) {
+  eventID_ = eventID;
+#else
 void CaloSteppingAction::update(const BeginOfEvent * evt) {
- 
   eventID_ = (*evt)()->GetEventID();
+#endif
   edm::LogVerbatim("Step") <<"CaloSteppingAction: Begin of event = " 
 			   << eventID_;
   for (int k=0; k<CaloSteppingAction::nSD_; ++k) {
     hitMap_[k].erase (hitMap_[k].begin(), hitMap_[k].end());
     slave_[k].get()->Initialize();
   }
+#ifdef useGeantV
 }
+#else
+}
+#endif
 
 //=================================================================== each STEP
+#ifdef useGeantV
+void CaloSteppingAction::steppinAction(Track& track) {
+
+  auto lv = track.GetVolume();   // this is vecgeom::LogicalVolume*, track is coming as argument to SteppingActions()
+#else
 void CaloSteppingAction::update(const G4Step * aStep) {
 
   //  edm::LogVerbatim("Step") <<"CaloSteppingAction: At each Step";
   NaNTrap(aStep);
   auto lv = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
+#endif
   bool hc = (std::find(volHCSD_.begin(),volHCSD_.end(),lv) != volHCSD_.end());
   bool eb = (std::find(volEBSD_.begin(),volEBSD_.end(),lv)!=volEBSD_.end());
   bool ee = (std::find(volEESD_.begin(),volEESD_.end(),lv)!=volEESD_.end());
   if  (hc || eb || ee) {
-    double dEStep = aStep->GetTotalEnergyDeposit();
+#ifdef useGeantV
+    double dEStep    = track.Edep()/MeV;
+    double time      = track.Time()/nanosecond;
+    int    primID    = track.Particle();
+    const geantphysics::Particle *part = geantphysics::Particle::GetParticleByInternalCode(track.GVcode());
+    int    pdgCode   = part->GetPDGCode();
+    bool   em        = (pdgCode == 11 || pdgCode == -11 || pdfCode == 21); 
+    auto const touch = track->Path(); // returns vecgeom::NavigationState*
+    double stepl     = track.GetStep()/mm;
+    double charge    = track.Charge()/geant::units::eplus;
+    double density   = track.GetMaterial()->GetDensity();
+#else
+    double     dEStep   = aStep->GetTotalEnergyDeposit();
     auto const theTrack = aStep->GetTrack();
     double     time     = theTrack->GetGlobalTime()/nanosecond;
     int        primID   = theTrack->GetTrackID();
     bool       em       = G4TrackToParticleID::isGammaElectronPositron(theTrack);
     auto const touch    = aStep->GetPreStepPoint()->GetTouchable();
     auto const& hitPoint= aStep->GetPreStepPoint()->GetPosition();
+    double stepl        = aStep->GetStepLength();
+    double charge       = aStep->GetPreStepPoint()->GetCharge();
+    double density      = aStep->GetPreStepPoint()->GetMaterial()->GetDensity();
+#endif
     if (hc) {
-      int depth = (touch->GetReplicaNumber(0))%10 + 1;
-      int lay   = (touch->GetReplicaNumber(0)/10)%100 + 1;
-      int det   = (touch->GetReplicaNumber(1))/1000;
-      auto unitID   = getDetIDHC(det, lay, depth,
-				 math::XYZVectorD(hitPoint.x(),hitPoint.y(),
-						  hitPoint.z()));
+#ifdef useGeantV
+      int    theSize= touch->GetHistoryDepth();
+      int    depth  = (touch->ToPlacedVolume(theSize)->GetCopyNo())%10 + 1;
+      int    lay    = (touch->ToPlacedVolume(theSize)->GetCopyNo()/10)%100 + 1;
+      int    det    = (touch->ToPlacedVolume(theSize-1)->GetCopyNo())/1000;
+      double xp     = track.X()/mm;
+      double yp     = track.Y()/mm;
+      double zp     = track.Z()/mm;
+#else
+      int    depth  = (touch->GetReplicaNumber(0))%10 + 1;
+      int    lay    = (touch->GetReplicaNumber(0)/10)%100 + 1;
+      int    det    = (touch->GetReplicaNumber(1))/1000;
+      double xp     = hitPoint.x();
+      double yp     = hitPoint.y();
+      double zp     = hitPoint.z();
+#endif
+      auto unitID = getDetIDHC(det, lay, depth, math::XYZVectorD(xp,yp,zp));
       if (unitID > 0 && dEStep > 0.0) {
-	dEStep *= getBirkHC(dEStep, aStep->GetStepLength(), 
-			    aStep->GetPreStepPoint()->GetCharge(),
-			    aStep->GetPreStepPoint()->GetMaterial()->GetDensity());
+	dEStep *= getBirkHC(dEStep, stepl, charge, density);
 	fillHit(unitID, dEStep, time, primID, 0, em, 2);
       }
     } else {
       EcalBaseNumber theBaseNumber;
-      int  size = touch->GetHistoryDepth()+1;
-      if (theBaseNumber.getCapacity() < size ) theBaseNumber.setSize(size);
+#ifdef useGeantV
+      int  theSize = touch->GetLevel() + 1;
+#else
+      int  theSize = touch->GetHistoryDepth()+1;
+#endif
+      if (theBaseNumber.getCapacity()<theSize) theBaseNumber.setSize(theSize);
       //Get name and copy numbers
-      if (size > 1) {
-	for (int ii = 0; ii < size ; ii++) {
+      if (theSize > 1) {
+#ifdef useGeantV
+	for (int ii = theSize-1; ii >= 0 ; ii--)
+	  theBaseNumber.addLevel(touch->ToPlacedVolume(ii)->GetName(),
+				 touch->ToPlacedVolume(ii)->GetCopyNo());
+#else
+	for (int ii = 0; ii < theSize ; ii++)
 	  theBaseNumber.addLevel(touch->GetVolume(ii)->GetName(),
 				 touch->GetReplicaNumber(ii));
-	}
+#endif
       }
       auto unitID = (eb ? (ebNumberingScheme_->getUnitID(theBaseNumber)) :
 		     (eeNumberingScheme_->getUnitID(theBaseNumber)));
       if (unitID > 0 && dEStep > 0.0) {
-	auto local = touch->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
-	auto ite   = xtalMap_.find(lv);
+#ifdef useGeantV
+	vecgeom::Vector3D<double> local;
+	touch->TopMatrix()->Transform(vecgeom::Vector3D(track->X(),
+	  track->Y(), track->Z()), local);
+	double radl = track.GetMaterial()->GetMaterialProperties()->GetRadiationLength();
+#else
+	auto local  = touch->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
+	double radl = aStep->GetPreStepPoint()->GetMaterial()->GetRadlen();
+#endif
+	auto ite    = xtalMap_.find(lv);
 	double crystalLength = ((ite == xtalMap_.end()) ? 230.0 : 
 				std::abs(ite->second));
 	double crystalDepth = ((ite == xtalMap_.end()) ? 0.0 :
 			       (std::abs(0.5*(ite->second)+local.z())));
-	double radl   = aStep->GetPreStepPoint()->GetMaterial()->GetRadlen();
 	bool   flag   = ((ite == xtalMap_.end()) ? true : (((ite->second) >= 0)
 							   ? true : false));
 	auto   depth  = getDepth(flag, crystalDepth, radl);
-	dEStep        *= (getBirkL3(dEStep,aStep->GetStepLength(),
-				    aStep->GetPreStepPoint()->GetCharge(),
-				    aStep->GetPreStepPoint()->GetMaterial()->GetDensity()) * 
+	dEStep        *= (getBirkL3(dEStep, stepl, charge, density) *
 			  curve_LY(crystalLength,crystalDepth));
 	fillHit(unitID, dEStep, time, primID, depth, em, (eb ? 0 : 1));
       }
     }
   }
+#ifdef useGeantV
+}
+#else
 }
 
 //================================================================ End of EVENT
@@ -275,6 +380,7 @@ void CaloSteppingAction::NaNTrap(const G4Step* aStep) const {
       << " Corrupted Event - NaN detected in volume " << nameOfVol << "\n";
   }
 }
+#endif
 
 uint32_t CaloSteppingAction::getDetIDHC(int det, int lay, int depth,
 					const math::XYZVectorD& pos) const {

@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
+#ifndef useGeantV
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
@@ -17,6 +18,7 @@
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#endif
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/SimHitMaker/interface/CaloSlaveSD.h"
@@ -33,6 +35,26 @@
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #endif
 
+#include <algorithm>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+
+#ifdef useGeantV
+// GeantV headers
+#include <Geant/Track.h>
+#include <Geant/Typedefs.h>
+#include <Geant/SystemOfUnits.h>
+#include <Geant/MaterialCuts.h>
+#include <Geant/Region.h>
+
+// VecGeom headers
+#include <management/GeoManager.h>
+#include <volumes/PlacedVolume.h>
+#include <volumes/LogicalVolume.h>
+#else
+// Geant4 headers
 #include "G4LogicalVolume.hh"
 #include "G4Region.hh"
 #include "G4Step.hh"
@@ -40,28 +62,35 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4VTouchable.hh"
 #include "G4Track.hh"
+#endif
 
-#include <algorithm>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <vector>
-
+#ifdef useGeantV
+class CaloSteppingAction {
+#else
 class CaloSteppingAction : public SimProducer,
                            public Observer<const BeginOfJob *>, 
                            public Observer<const BeginOfRun *>, 
                            public Observer<const BeginOfEvent *>, 
                            public Observer<const EndOfEvent *>, 
                            public Observer<const G4Step *> {
-
+#endif
 public:
   CaloSteppingAction(const edm::ParameterSet &p);
+#ifdef useGeantV
+  ~CaloSteppingAction();
+
+  void beginRun();
+  void beginEvent(int evt);
+  void steppinAction(Track& );
+  void endEvent(Event* );
+
+private:  
+#else
   ~CaloSteppingAction() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  void fillHits(edm::PCaloHitContainer& cc, int type);
   // observer classes
   void update(const BeginOfJob * job)   override;
   void update(const BeginOfRun * run)   override;
@@ -70,6 +99,8 @@ private:
   void update(const EndOfEvent * evt)   override;
 
   void NaNTrap(const G4Step*) const;
+#endif
+  void fillHits(edm::PCaloHitContainer& cc, int type);
   uint32_t getDetIDHC(int det, int lay, int depth,
 		      const math::XYZVectorD& pos) const;
   void fillHit(uint32_t id, double dE, double time, int primID, 
@@ -92,8 +123,13 @@ private:
 
   std::vector<std::string>              nameEBSD_, nameEESD_, nameHCSD_;
   std::vector<std::string>              nameHitC_;
+#ifdef useGeantV
+  std::vector<const Volume_t>           volEBSD_, volEESD_, volHCSD_;
+  std::map<const Volume_t,double>       xtalMap_;
+#else
   std::vector<const G4LogicalVolume*>   volEBSD_, volEESD_, volHCSD_;
   std::map<const G4LogicalVolume*,double> xtalMap_;
+#endif
   int                                   count_, eventID_;
   double                                slopeLY_, birkC1EC_, birkSlopeEC_;
   double                                birkCutEC_, birkC1HC_, birkC2HC_;
