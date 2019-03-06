@@ -75,9 +75,11 @@ class L1TowerCalibrator : public edm::EDProducer {
         double HGCalEmTpEtMin;
         double HFTpEtMin;
         double puThreshold;
-        double puThresholdEcal;
-        double puThresholdHcal;
         double puThresholdL1eg;
+        double puThresholdHcalMin;
+        double puThresholdHcalMax;
+        double puThresholdEcalMin;
+        double puThresholdEcalMax;
         double puThresholdHGCalEMMin;
         double puThresholdHGCalEMMax;
         double puThresholdHGCalHadMin;
@@ -123,9 +125,11 @@ L1TowerCalibrator::L1TowerCalibrator(const edm::ParameterSet& iConfig) :
     HGCalEmTpEtMin(iConfig.getParameter<double>("HGCalEmTpEtMin")),
     HFTpEtMin(iConfig.getParameter<double>("HFTpEtMin")),
     puThreshold(iConfig.getParameter<double>("puThreshold")),
-    puThresholdEcal(iConfig.getParameter<double>("puThresholdEcal")),
-    puThresholdHcal(iConfig.getParameter<double>("puThresholdHcal")),
     puThresholdL1eg(iConfig.getParameter<double>("puThresholdL1eg")),
+    puThresholdHcalMin(iConfig.getParameter<double>("puThresholdHcalMin")),
+    puThresholdHcalMax(iConfig.getParameter<double>("puThresholdHcalMax")),
+    puThresholdEcalMin(iConfig.getParameter<double>("puThresholdEcalMin")),
+    puThresholdEcalMax(iConfig.getParameter<double>("puThresholdEcalMax")),
     puThresholdHGCalEMMin(iConfig.getParameter<double>("puThresholdHGCalEMMin")),
     puThresholdHGCalEMMax(iConfig.getParameter<double>("puThresholdHGCalEMMax")),
     puThresholdHGCalHadMin(iConfig.getParameter<double>("puThresholdHGCalHadMin")),
@@ -326,7 +330,7 @@ void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         // Barrel ECAL
         if(l1CaloTower.ecal_tower_et > 0. && l1CaloTower.tower_iEta != -98) 
         {
-            if(l1CaloTower.ecal_tower_et <= puThresholdEcal) 
+            if(l1CaloTower.ecal_tower_et <= puThresholdEcalMax && l1CaloTower.ecal_tower_et >= puThresholdEcalMin) 
             {
                 i_ecal_hits_leq_threshold++;
             }
@@ -346,7 +350,7 @@ void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         // Barrel HCAL
         if(l1CaloTower.hcal_tower_et > 0. && l1CaloTower.tower_iEta != -98 && abs(l1CaloTower.tower_eta) < 2.0) // abs(eta) < 2 just keeps us out of HF 
         {
-            if(l1CaloTower.hcal_tower_et <= puThresholdHcal)
+            if(l1CaloTower.hcal_tower_et <= puThresholdHcalMax && l1CaloTower.hcal_tower_et >= puThresholdHcalMin)
             {
                 i_hcal_hits_leq_threshold++;
             }
@@ -388,7 +392,10 @@ void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     if (hf_nvtx < 0) hf_nvtx = 0;
     // Best estimate is avg of all except HF.
     // This is b/c HF currently has such poor prediction power, it only degrades the avg result
-    *EstimatedNvtx = ( ecal_nvtx + hcal_nvtx + hgcalEM_nvtx + hgcalHad_nvtx ) / 4.;
+    // NEW, with 10_3_X, hgcal and HF has the best results based on the values I took...
+    // skip ECAL and HCAL
+    //*EstimatedNvtx = ( ecal_nvtx + hcal_nvtx + hgcalEM_nvtx + hgcalHad_nvtx + hf_nvtx ) / 3.;
+    *EstimatedNvtx = ( hgcalEM_nvtx + hgcalHad_nvtx + hf_nvtx ) / 3.;
 
 
 
